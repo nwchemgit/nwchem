@@ -3,11 +3,12 @@ C NAME
 C     CCSD_MkTau_GA -- Form Tau = T2 + T1T1 in a GA
 C
 C REVISION
-C     $Id: ccsd_mktau_ga.F,v 2.3 1999-03-08 23:17:32 d3e129 Exp $
+C     $Id: ccsd_mktau_ga.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCSD_MkTau_GA(NOcc, NVir, T1, LDT1, g_T2, g_Tau)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir, LDT1
       Double Precision T1(LDT1, NVir)
       Integer g_T2, g_Tau
@@ -39,7 +40,7 @@ C     Local memory for T1 * T1
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCSD Scratch 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $   'CCSD_MkTau_GA: unable to allocate scratch', NVir*NVir)
+     $   'CCSD_MkTau_GA: unable to allocate scratch', NVir*NVir, MA_ERR)
 C
 C     Loop through local portion, adding T1 * T1 updates
 C
@@ -59,7 +60,7 @@ C
 C     Clean up scratch
 C
       If (.NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $   'CCSD_MkTau_GA: unable to free scratch', 0)
+     $   'CCSD_MkTau_GA: unable to free scratch', 0, MA_ERR)
 C
 C
 C

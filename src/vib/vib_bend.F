@@ -1,8 +1,9 @@
       SUBROUTINE vib_BEND(EQVAL,NOINT,I,J,K,C,B,NDIM)
-* $Id: vib_bend.F,v 1.2 1995-10-21 09:15:56 d3e129 Exp $
+* $Id: vib_bend.F,v 1.3 2003-10-17 22:58:37 carlfahl Exp $
 C*MODULE VIB  *DECK BEND
 C
       IMPLICIT NONE
+#include "errquit.fh"
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS OF A
 C          VALENCE ANGLE BENDING COORDINATE AS DEFINED BY WILSON.
@@ -71,6 +72,6 @@ C
 C
   200 CONTINUE
       WRITE (6,9008)
-      CALL errquit(' vib_bend',911)
+      CALL errquit(' vib_bend',911, UNKNOWN_ERR)
  9008 FORMAT(31H ROUNDOFF ERROR IN BEND - STOP )
       END

@@ -7,6 +7,7 @@
 
       subroutine Orb_Init(rtdb,ispin_in,ne_in)
       implicit none
+#include "errquit.fh"
       integer rtdb
       integer ispin_in
       integer ne_in(2)
@@ -63,13 +64,13 @@
           id = 'analysis:lorb'//psp_atom(k)
           if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))
      >        call errquit(
-     >        'analysis: rtdb_get lorb failed', 0)
+     >        'analysis: rtdb_get lorb failed', 0, RTDB_ERR)
 
           id = 'analysis:expansion'//psp_atom(k)
           if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
      >                                       dbl_mb(b0(1)+(k-1)*6)))
      >        call errquit(
-     >        'analysis_input: rtdb_put failed', 0)
+     >        'analysis_input: rtdb_put failed', 0, RTDB_ERR)
       end do
 
       value = rtdb_cget(rtdb,'cpmd:omotion_filename',1,filename)

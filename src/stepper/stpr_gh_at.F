@@ -1,7 +1,8 @@
       logical function stpr_gen_hess_at(rtdb,delta)
       implicit none
+#include "errquit.fh"
 *     
-*     $Id: stpr_gh_at.F,v 1.20 1999-08-16 22:49:01 d3e129 Exp $
+*     $Id: stpr_gh_at.F,v 1.21 2003-10-17 22:58:22 carlfahl Exp $
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     
@@ -93,13 +94,13 @@ c
         
         if (restart) then 
           if (.not.geom_create(geom,'reference')) call errquit
-     &        ('stpr_gen_hess_at:geom_create failed?',1)
+     &        ('stpr_gen_hess_at:geom_create failed?',1, GEOM_ERR)
           if (o_debug_restart)
      &        write(6,*)' load 1 reference ',
      &        '   node=',whoiam
           if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &        call errquit
-     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',2)
+     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',2, RTDB_ERR)
           if (rtdb_cget(rtdb,'stpr:gh:at:alias:name',1,tmpname)) then
             ogeom_aliased = .true.
           else
@@ -112,25 +113,26 @@ c
      &          rtdb_cput
      &          (rtdb,'stpr:gh:at:alias:name',1,first_geom_name)
      &          ) call errquit
-     &          ('stpr_gen_hess_at:rtdb_cput of alias name failed?',1)          
+     &          ('stpr_gen_hess_at:rtdb_cput of alias name failed?',1,
+     &       RTDB_ERR)
           else
             first_geom_name = 'geometry'          
             ogeom_aliased = .false.
           endif
           if (.not.geom_create(geom,first_geom_name)) call errquit
-     &        ('stpr_gen_hess_at:geom_create failed?',1)
+     &        ('stpr_gen_hess_at:geom_create failed?',1, GEOM_ERR)
           if (o_debug_restart)
      &        write(6,*)' load 2 first_geom_name: ',first_geom_name,
      &        '   node=',whoiam
           if (.not.geom_rtdb_load(rtdb,geom,first_geom_name))
      &        call errquit
-     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',2)
+     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',2, RTDB_ERR)
         endif
 c     
 c     get the number of atoms
 c     
         if (.not. geom_ncent(geom,nat)) call errquit
-     &      ('stpr_gen_hess_at:geom_ncent failed?',3)
+     &      ('stpr_gen_hess_at:geom_ncent failed?',3, GEOM_ERR)
 c     
 c     copy reference geometry and store on rtdb
 c     
@@ -138,11 +140,11 @@ c
           if (.not.
      &        geom_rtdb_store(rtdb,geom,'reference'))
      &        call errquit
-     &        ('stpr_gen_hess_at: geom_rtdb_store failed',4)
+     &        ('stpr_gen_hess_at: geom_rtdb_store failed',4, RTDB_ERR)
         endif
         if (.not.geom_destroy(geom))
      &      call errquit
-     &      ('stpr_gen_hess_at: geom_destroy failed?',5)
+     &      ('stpr_gen_hess_at: geom_destroy failed?',5, GEOM_ERR)
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
@@ -162,7 +164,7 @@ c
       else
         all_atom = .false.
         if (.not.MA_get_index(h_active,i_active)) call errquit
-     &      ('stpr_gen_hess_at: ma_get_index error',6)
+     &      ('stpr_gen_hess_at: ma_get_index error',6, MA_ERR)
       endif
 c     set no xyz options
       if (.not.rtdb_get(rtdb,'vib:no_x',mt_log,1,no_x))
@@ -204,9 +206,11 @@ c     Perform an energy calculation at the central point and
 c     save wavefunction information for rapid convergence
 c
         if (.not. task_energy(rtdb)) call errquit
-     &      ('stpr_gen_hess_at: reference point energy failed',7)
+     &      ('stpr_gen_hess_at: reference point energy failed',7,
+     &       CALC_ERR)
         if (.not. task_save_state(rtdb,'hess')) call errquit
-     &      ('stpr_gen_hess_at: failed to save central point',8)
+     &      ('stpr_gen_hess_at: failed to save central point',8,
+     &       RTDB_ERR)
 c
 c     save reference geometry
 c     
@@ -221,16 +225,16 @@ c
         ignore_status = rtdb_parallel(.false.)
         if (whoiam .eq. master) then
           if (.not.geom_create(geom,'geometry')) call errquit
-     &        ('stpr_gen_hess_at:geom_create failed?',9)
+     &        ('stpr_gen_hess_at:geom_create failed?',9, GEOM_ERR)
           if (o_debug_restart)
      &        write(6,*)' load 3 geometry ',
      &        '   node=',whoiam
           if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',10)
+     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',10, RTDB_ERR)
           if (.not.geom_rtdb_store(rtdb,geom,'reference'))call errquit
-     &        ('stpr_gen_hess_at: geom_rtdb_store failed',11)
+     &        ('stpr_gen_hess_at: geom_rtdb_store failed',11, RTDB_ERR)
           if (.not.geom_destroy(geom)) call errquit
-     &        ('stpr_gen_hess_at: geom_destroy failed?',12)
+     &        ('stpr_gen_hess_at: geom_destroy failed?',12, GEOM_ERR)
         endif
         ignore_status = rtdb_parallel(.true.)
         call ga_sync()
@@ -261,19 +265,19 @@ c
         if (.not. MA_Push_Get(MT_DBL,rank_hess,
      &      'minus delta nuclear gradient vector',
      &      h_gradm,k_gradm)) call errquit
-     &      ('stpr_gen_hess_at: ma_push_get failed?',13)
+     &      ('stpr_gen_hess_at: ma_push_get failed?',13, MA_ERR)
         if (.not. MA_Push_Get(MT_DBL,rank_hess,
      &      'plus delta nuclear gradient vector',
      &      h_gradp,k_gradp)) call errquit
-     &      ('stpr_gen_hess_at: ma_push_get failed?',14)
+     &      ('stpr_gen_hess_at: ma_push_get failed?',14, MA_ERR)
         if (.not. MA_Push_Get(MT_DBL,3*rank_hess,
      &      'derivative dipole moment',
      &      h_ddipole, k_ddipole)) call errquit
-     &      ('stpr_gen_hess_at: ma_push_get failed',15)
+     &      ('stpr_gen_hess_at: ma_push_get failed',15, MA_ERR)
         if (.not. MA_Push_Get(MT_DBL,(rank_hess*rank_hess),
      &      'nuclear hessian matrix',
      &      h_hess,k_hess)) call errquit
-     &      ('stpr_gen_hess_at: ma_push_get failed?',16)
+     &      ('stpr_gen_hess_at: ma_push_get failed?',16, MA_ERR)
 c
         if (restart) then 
           call stpr_get_genat_restart(rank_hess,
@@ -341,16 +345,16 @@ c
           enddo
         else
           if (.not.geom_create(geom,'reference')) call errquit
-     &        ('stpr_gen_hess_at:geom_create failed?',9)
+     &        ('stpr_gen_hess_at:geom_create failed?',9, GEOM_ERR)
           if (o_debug_restart)
      &        write(6,*)' load 4 reference:',
      &        '  iatom=',iatom,
      &        '   node=',whoiam
           if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
-     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',10)
+     &        ('stpr_gen_hess_at:geom_rtdb_load failed?',10, RTDB_ERR)
           skip_atom = .not.(sym_atom(geom,iatom,q1))
           if (.not.geom_destroy(geom)) call errquit
-     &        ('stpr_gen_hess_at: geom_destroy failed?',12)
+     &        ('stpr_gen_hess_at: geom_destroy failed?',12, GEOM_ERR)
         endif
         if (skip_atom) goto 00201
         call stpr_ghat_set_active(rtdb,iatom)
@@ -389,39 +393,41 @@ c
 c     master node only
 c     
             if (.not.geom_create(geom,'reference')) call errquit
-     &          ('stpr_gen_hess_at:geom_create failed?',17)
+     &          ('stpr_gen_hess_at:geom_create failed?',17, GEOM_ERR)
           if (o_stepper_debug)
      &          write(6,*)' load 5 reference'
             if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &          call errquit
-     &          ('stpr_gen_hess_at:geom_rtdb_load failed?',18)
+     &          ('stpr_gen_hess_at:geom_rtdb_load failed?',18, RTDB_ERR)
             if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
      &          call errquit
-     &          ('stpr_gen_hess_at:geom_cent_get failed?',19)
+     &          ('stpr_gen_hess_at:geom_cent_get failed?',19, GEOM_ERR)
             xyz(ixyz) = xyz(ixyz) + delta
             if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
      &          call errquit
-     &          ('stpr_gen_hess_at:geom_cent_get failed?',20)
+     &          ('stpr_gen_hess_at:geom_cent_get failed?',20, GEOM_ERR)
 c     
 c     copy modified geometry and store on rtdb
 c     
             write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'plus'
             new_geom_name = 'reference '//tmpname(1:11)
             if (.not.geom_strip_sym(geom)) call errquit
-     &          ('stpr_gen_hess_at:1: geom_strip_sym failed',911)
+     &          ('stpr_gen_hess_at:1: geom_strip_sym failed',911,
+     &       GEOM_ERR)
             if (.not.
      &          geom_rtdb_store(rtdb,geom,new_geom_name))
      &          call errquit
-     &          ('stpr_gen_hess_at: geom_rtdb_store failed',21)
+     &          ('stpr_gen_hess_at: geom_rtdb_store failed',21,
+     &       RTDB_ERR)
             if (.not.geom_destroy(geom))
      &          call errquit
-     &          ('stpr_gen_hess_at: geom_destroy failed?',22)
+     &          ('stpr_gen_hess_at: geom_destroy failed?',22, GEOM_ERR)
 c     
 c     set "geometry" to "reference atom/xyz"
 c     
             if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
      &          call errquit
-     &          ('stpr_gen_hess_at: rtdb_cput failed ?',23)
+     &          ('stpr_gen_hess_at: rtdb_cput failed ?',23, RTDB_ERR)
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
@@ -437,13 +443,13 @@ c     restore starting information for central point
 c     
           if (.not. task_restore_state(rtdb,'hess')) call errquit
      &        ('stpr_gen_hess_at: failed to restore central point',
-     &        24)
+     &        24, RTDB_ERR)
 c     
           if (print_level.gt.print_low)
      &          call util_print_set_level(print_low) ! Minimize output
           time_taskg1 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb)) call errquit
-     &        ('stpr_gen_hess_at: energy+grad failed',25)
+     &        ('stpr_gen_hess_at: energy+grad failed',25, CALC_ERR)
           time_taskg1 = time_taskg1 + util_wallsec()
           if (print_level.gt.print_low)
      &          call util_print_set_level(print_level) ! Restore current print
@@ -460,10 +466,12 @@ c
           if (whoiam.eq.master) then
             if (.not. geom_rtdb_delete(rtdb,new_geom_name))
      &          call errquit
-     &          ('stpr_gen_hess_at: geom_rtdb_delete failed',26)
+     &          ('stpr_gen_hess_at: geom_rtdb_delete failed',26,
+     &       RTDB_ERR)
             if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
      &          rank_hess,dbl_mb(k_gradp)))
-     &          call errquit('stpr_gen_hess_at: rtdb_get failed',27)
+     &          call errquit('stpr_gen_hess_at: rtdb_get failed',27,
+     &       RTDB_ERR)
             if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
      &          3,pdipole)) dipole_okay = .false.
 c     
@@ -482,40 +490,42 @@ c
 c     master node only
 c     
             if (.not.geom_create(geom,'reference')) call errquit
-     &          ('stpr_gen_hess_at:geom_create failed?',28)
+     &          ('stpr_gen_hess_at:geom_create failed?',28, GEOM_ERR)
           if (o_debug_restart)
      &          write(6,*)' load 6 reference',
      &          '   node=',whoiam
             if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &          call errquit
-     &          ('stpr_gen_hess_at:geom_rtdb_load failed?',29)
+     &          ('stpr_gen_hess_at:geom_rtdb_load failed?',29, GEOM_ERR)
             if (.not.geom_cent_get(geom,iatom,tag_name,xyz,chg))
      &          call errquit
-     &          ('stpr_gen_hess_at:geom_cent_get failed?',30)
+     &          ('stpr_gen_hess_at:geom_cent_get failed?',30, GEOM_ERR)
             xyz(ixyz) = xyz(ixyz) - delta
             if (.not.geom_cent_set(geom,iatom,tag_name,xyz,chg))
      &          call errquit
-     &          ('stpr_gen_hess_at:geom_cent_get failed?',31)
+     &          ('stpr_gen_hess_at:geom_cent_get failed?',31, GEOM_ERR)
 c     
 c     copy modified geometry and store on rtdb
 c     
             write(tmpname,'(i3,1x,i1,1x,a5)')iatom,ixyz,'minus'
             new_geom_name = 'reference '//tmpname(1:11)
             if (.not.geom_strip_sym(geom)) call errquit
-     &          ('stpr_gen_hess_at:2: geom_strip_sym failed',911)
+     &          ('stpr_gen_hess_at:2: geom_strip_sym failed',911,
+     &       GEOM_ERR)
             if (.not.
      &          geom_rtdb_store(rtdb,geom,new_geom_name))
      &          call errquit
-     &          ('stpr_gen_hess_at: geom_rtdb_store failed',32)
+     &          ('stpr_gen_hess_at: geom_rtdb_store failed',32,
+     &       RTDB_ERR)
             if (.not.geom_destroy(geom))
      &          call errquit
-     &          ('stpr_gen_hess_at: geom_destroy failed?',33)
+     &          ('stpr_gen_hess_at: geom_destroy failed?',33, GEOM_ERR)
 c     
 c     set "geometry" to "reference atom/xyz"
 c     
             if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
      &          call errquit
-     &          ('stpr_gen_hess_at: rtdb_cput failed ?',34)
+     &          ('stpr_gen_hess_at: rtdb_cput failed ?',34, RTDB_ERR)
           endif
           ignore_status = rtdb_parallel(.true.)
           call ga_sync()
@@ -531,7 +541,7 @@ c     restore starting information from central point
 c     
           if (.not. task_restore_state(rtdb,'hess')) call errquit
      &        ('stpr_gen_hess_at: failed to restore central point',
-     &        35)
+     &        35, RTDB_ERR)
 c     
 *          call util_print_push
           if (print_level.gt.print_none)
@@ -539,7 +549,7 @@ c
           time_taskg2 = (-1.0d00)*util_wallsec()
           if (.not. task_gradient(rtdb))
      &        call errquit('stpr_gen_hess_at: energy+grad failed',
-     &        36)
+     &        36, CALC_ERR)
           time_taskg2 = time_taskg2 + util_wallsec()
 *          call util_print_pop
           if (print_level.gt.print_none)
@@ -557,10 +567,12 @@ c
           if (whoiam.eq.master) then
             if (.not. geom_rtdb_delete(rtdb,new_geom_name))
      &          call errquit
-     &          ('stpr_gen_hess_at: geom_rtdb_delete (2) failed',37)
+     &          ('stpr_gen_hess_at: geom_rtdb_delete (2) failed',37,
+     &       RTDB_ERR)
             if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
      &          rank_hess,dbl_mb(k_gradm)))
-     &          call errquit('stpr_gen_hess_at: rtdb_get failed',38)
+     &          call errquit('stpr_gen_hess_at: rtdb_get failed',38,
+     &       RTDB_ERR)
 c
             if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
      &          3,mdipole)) dipole_okay = .false.
@@ -646,18 +658,18 @@ c
       ignore_status = rtdb_parallel(.false.)
       if (whoiam.eq.master) then
         if (.not.geom_create(geom,'reference')) call errquit
-     &      ('stpr_gen_hess_at:geom_create failed?',1)
+     &      ('stpr_gen_hess_at:geom_create failed?',1, GEOM_ERR)
           if (o_debug_restart)
      &      write(6,*)' load 7 reference',
      &      '   node=',whoiam
         if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
-     &      ('stpr_gen_hess_at:geom_rtdb_load failed?',2)
+     &      ('stpr_gen_hess_at:geom_rtdb_load failed?',2, RTDB_ERR)
         call sym_hess_symmetrize(geom,dbl_mb(k_hess))
         if (dipole_okay) 
      &      call sym_der_dip_symmetrize(geom, dbl_mb(k_ddipole))
         if (.not.geom_destroy(geom))
      &      call errquit
-     &      ('stpr_gen_hess_at: geom_destroy failed?',33)
+     &      ('stpr_gen_hess_at: geom_destroy failed?',33, GEOM_ERR)
         if (all_atom) then
 c     
 c     average contributions from finite diff hess since they "should"
@@ -712,9 +724,11 @@ c
 c     restore and delete save state
 c
       if (.not. task_restore_state(rtdb, 'hess')) call errquit
-     &    ('stpr_gen_hess_at: failed to restore central point',40)
+     &    ('stpr_gen_hess_at: failed to restore central point',40,
+     &       RTDB_ERR)
       if (.not. task_delete_state(rtdb, 'hess')) call errquit
-     &    ('stpr_gen_hess_at: failed to restore central point',41)
+     &    ('stpr_gen_hess_at: failed to restore central point',41,
+     &       RTDB_ERR)
 *
       if (o_stepper_debug) then
         call ga_sync()
@@ -734,10 +748,10 @@ c
           if(.not.rtdb_cget(rtdb,'stpr:gh:at:alias:name',1,tmpname))
      &        call errquit
      &        ('stpr_gh_at: get of <stpr:gh:at:alias:name> failed ?',
-     &        39)
+     &        39, RTDB_ERR)
           if(.not.rtdb_cput(rtdb,'geometry',1,tmpname))
      &        call errquit
-     &        ('stpr_gen_hess_at: rtdb_cput failed ?',39)
+     &        ('stpr_gen_hess_at: rtdb_cput failed ?',39, RTDB_ERR)
           ignore_status = rtdb_delete(rtdb,'stpr:gh:at:alias:name') ! always delete reference alias
         endif
 c     
@@ -745,13 +759,17 @@ c     free memory
 c     
         
         if(.not.ma_pop_stack(h_hess)) call errquit
-     &      ('stpr_gen_hess_at: ma_pop_stack(h_hess) failed?',42)
+     &      ('stpr_gen_hess_at: ma_pop_stack(h_hess) failed?',42,
+     &       MA_ERR)
         if(.not.ma_pop_stack(h_ddipole)) call errquit
-     &      ('stpr_gen_hess_at: ma_pop_stack(h_ddipole) failed?',43)
+     &      ('stpr_gen_hess_at: ma_pop_stack(h_ddipole) failed?',43,
+     &       MA_ERR)
         if(.not.ma_pop_stack(h_gradp)) call errquit
-     &      ('stpr_gen_hess_at: ma_pop_stack(h_gradp) failed?',44)
+     &      ('stpr_gen_hess_at: ma_pop_stack(h_gradp) failed?',44,
+     &       MA_ERR)
         if(.not.ma_pop_stack(h_gradm)) call errquit
-     &      ('stpr_gen_hess_at: ma_pop_stack(h_gradm) failed?',45)
+     &      ('stpr_gen_hess_at: ma_pop_stack(h_gradm) failed?',45,
+     &       MA_ERR)
       endif
       ignore_status = rtdb_parallel(.true.)
       call ga_sync()
@@ -764,7 +782,8 @@ c
 *
       if(.not.all_atom) then
         if (.not.ma_free_heap(h_active)) call errquit
-     &      ('stpr_gen_hess_at: ma_free_heap(h_active) failed?',46)
+     &      ('stpr_gen_hess_at: ma_free_heap(h_active) failed?',46,
+     &       MA_ERR)
       endif
 *
       if (o_stepper_debug) then
@@ -776,6 +795,7 @@ c
       end
       subroutine stpr_ghat_set_active(rtdb,iatom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -811,18 +831,19 @@ c
 * this is orthoginal to user defined list for hessian generation.
 *
         if (.not.geom_create(geom,'reference')) call errquit
-     &      ('stpr_ghat_set_active:geom_create failed?',17)
+     &      ('stpr_ghat_set_active:geom_create failed?',17, GEOM_ERR)
           if (odebug_print)
      &      write(6,*)' load 8 reference'
         if (.not.geom_rtdb_load(rtdb,geom,'reference'))
      &      call errquit
-     &      ('stpr_ghat_set_active:geom_rtdb_load failed?',18)
+     &      ('stpr_ghat_set_active:geom_rtdb_load failed?',18, RTDB_ERR)
         if (.not. geom_ncent(geom,nat)) call errquit
-     &      ('stpr_ghat_set_active:geom_ncent failed?',3)
+     &      ('stpr_ghat_set_active:geom_ncent failed?',3, GEOM_ERR)
         if (.not.ma_push_get
      &      (mt_int,nat,'stpr:geom:actlist',h_sga,k_sga))
      &      call errquit
-     &      ('stpr_ghat_set_active:ma for geom actlist failed',911)
+     &      ('stpr_ghat_set_active:ma for geom actlist failed',911,
+     &       MA_ERR)
         sga_act = 0
         do iiiat=1,iatom
           if (sym_atom_pair(geom,iatom,iiiat,q2)) then
@@ -838,16 +859,17 @@ c
         if (sga_act.gt.0) then
           if (.not.rtdb_put(rtdb,'geometry:actlist',mt_int,
      &        sga_act, int_mb(k_sga))) call errquit
-     &        ('stpr_ghat_set_active: rtdb put of actlist failed',911)
+     &        ('stpr_ghat_set_active: rtdb put of actlist failed',911,
+     &       RTDB_ERR)
         endif
         if (odebug_print)
      &      write(6,*)'debug: active atom list: ',sga_act,':',
      &      (int_mb(k_sga+iiiat),iiiat=0,(sga_act-1))
         if (.not.geom_destroy(geom))
      &      call errquit
-     &      ('stpr_ghat_set_active: geom_destroy failed?',22)
+     &      ('stpr_ghat_set_active: geom_destroy failed?',22, GEOM_ERR)
         if (.not.ma_pop_stack(h_sga)) call errquit
-     &      ('stpr_ghat_set_active: ma_pop k_sga failed?',22)
+     &      ('stpr_ghat_set_active: ma_pop k_sga failed?',22, MA_ERR)
       endif
       call ga_sync()
       ignore_status = rtdb_parallel(current_rtdb_status)

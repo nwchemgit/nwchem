@@ -9,7 +9,7 @@ c
 c     BGJ - 3/99
 c    
 *
-* $Id: dftg_cdfit.F,v 1.20 2003-06-18 23:47:44 edo Exp $
+* $Id: dftg_cdfit.F,v 1.21 2003-10-17 22:54:42 carlfahl Exp $
 *
       integer  AO_bas_han, CD_bas_han
       integer nbf_cd, nat, max_sh_bf
@@ -42,6 +42,7 @@ c
      &                          iga_dens, force, hess,
      &                          g_dj, db, CD_coef, oskel_in, calc_type)
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -115,7 +116,8 @@ c
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_force .or. do_cpks_r .or. do_hess)) then
-         call errquit('dftg_cdfit_gen: illegal calculation type',1)
+         call errquit('dftg_cdfit_gen: illegal calculation type',1,
+     &       INPUT_ERR)
       endif
 c
 c     Can't use symmetry as it stands for CPKS RHS
@@ -131,7 +133,8 @@ c
       if (do_cpks_r) then
          if (.not.MA_push_get(MT_DBL, max_sh_bf*max_sh_bf, 'dfkl',
      &        l_dfkl, k_dfkl)) call
-     &        errquit('dftg_cdfit_gen: cannot allocate dfkl',1)
+     &        errquit('dftg_cdfit_gen: cannot allocate dfkl',1,
+     &       MA_ERR)
          call dfill(nbf_cd*3*nat, 0.0d0, db, 1)
       endif
 c
@@ -141,20 +144,20 @@ c
          call util_file_name('cdfit', .true., .false., cdfit)
          inquire(file=cdfit,exist=doesit)
          if (.not. doesit)call errquit
-     &        ('dftg_cdfit_gen: file cdfit does not exist',0)
+     &        ('dftg_cdfit_gen: file cdfit does not exist',0, DISK_ERR)
          LU=79
          ierr=eaf_open(cdfit(1:inp_strlen(cdfit)),eaf_rw, LU)
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
-           call errquit('dftg_fitcd: eaf_open failed', ierr)
+           call errquit('dftg_fitcd: eaf_open failed', ierr, DISK_ERR)
         endif
         ierr = eaf_read(LU, 0d0, cd_coef, 8*nbf_cd)
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr, errmsg)
            write(LuOut,*) ' IO error message ',
      $          errmsg(1:inp_strlen(errmsg))
-           call errquit('dftg_fitcd: write failed',0)
+           call errquit('dftg_fitcd: write failed',0, DISK_ERR)
         endif
         ierr=eaf_close(LU)
         if (ierr .ne. 0) then
@@ -164,7 +167,7 @@ c
            write(LuOut,*) ' IO error message ',
      $          errmsg(1:inp_strlen(errmsg))
            call util_flush(luout)
-           call errquit('dftg_fitcd: eaf_close failed',0)
+           call errquit('dftg_fitcd: eaf_close failed',0, DISK_ERR)
         endif
       endif
 c
@@ -173,11 +176,11 @@ c
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
       if (.not. bas_numcont(AO_bas_han,nshells_ao))then
-         call errquit('Exiting in dftg_cdfit_gen.',2)
+         call errquit('Exiting in dftg_cdfit_gen.',2, BASIS_ERR)
       endif
 c      
       if (.not. bas_numcont(CD_bas_han,nshells_cd))then
-         call errquit('Exiting in dftg_cdfit_gen.',3)
+         call errquit('Exiting in dftg_cdfit_gen.',3, BASIS_ERR)
       endif
 c
 c     2el. 3-c integral derivatives
@@ -195,12 +198,13 @@ c
             next = nxtask(nproc,igran) + 1
 c
             if (.not. bas_cn2bfr(AO_bas_han,ishp,ifirstp,ilastp))
-     &         call errquit('Exiting in dftg_cdfit_gen.',6)
+     &         call errquit('Exiting in dftg_cdfit_gen.',6, BASIS_ERR)
             nshbfp = ilastp - ifirstp + 1
 c          
             do ishq = 1, ishp
                if (.not. bas_cn2bfr(AO_bas_han,ishq,ifirstq,ilastq))
-     &            call errquit('Exiting in dftg_cdfit_gen.',7)
+     &            call errquit('Exiting in dftg_cdfit_gen.',7,
+     &       BASIS_ERR)
                nshbfq = ilastq - ifirstq + 1
                Nao2 = nshbfp*nshbfq
 c
@@ -229,7 +233,8 @@ c
                   do ishd = 1, nshells_cd
                      if (.not. bas_cn2bfr(CD_bas_han, ishd, 
      &                  ifirstd, ilastd))
-     &                  call errquit('Exiting in dftg_cdfit_gen.',8)
+     &                  call errquit('Exiting in dftg_cdfit_gen.',8,
+     &       BASIS_ERR)
                      nshbfd = ilastd - ifirstd + 1
                      Nintegrals = nshbfp*nshbfq*nshbfd
 c
@@ -327,7 +332,7 @@ c
 c
       if (do_cpks_r) then
          if (.not.MA_pop_stack(l_dfkl))
-     &        call errquit('dftg_cdfit_gen: cannot pop dfkl',1)
+     &        call errquit('dftg_cdfit_gen: cannot pop dfkl',1, MA_ERR)
       endif
       if (do_cpks_r) then
          write(*,*)'DB after 3c part:'
@@ -349,7 +354,7 @@ c     of work
 c
       do 304 iatom = 1, nat
          if (.not. bas_ce2cnr(CD_bas_han,iatom,ishatf,ishatl))
-     &        call errquit('Exiting in dftg_cdfit_gen.',-9)
+     &        call errquit('Exiting in dftg_cdfit_gen.',-9, BASIS_ERR)
       do 305 ishp = ishatf, ishatl
 c!!!      do 305 ishp = 1, nshells_cd
 c
@@ -358,14 +363,15 @@ c
             next = nxtask(nproc,igran) + 1
 c
             if (.not. bas_cn2bfr(CD_bas_han,ishp,ifirstp,ilastp))
-     &         call errquit('Exiting in dftg_cdfit_gen.',9)
+     &         call errquit('Exiting in dftg_cdfit_gen.',9, BASIS_ERR)
                nshbfp = ilastp - ifirstp + 1
 c
 c!!!            do ishq = 1, ishp
             do ishq = 1, ishatf-1
 c
                if (.not. bas_cn2bfr(CD_bas_han,ishq,ifirstq,ilastq))
-     &            call errquit('Exiting in dftg_cdfit_gen.',10)
+     &            call errquit('Exiting in dftg_cdfit_gen.',10,
+     &       BASIS_ERR)
                nshbfq = ilastq - ifirstq + 1
                Nintegrals = nshbfp*nshbfq
 c

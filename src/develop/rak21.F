@@ -1,8 +1,9 @@
 *
-* $Id: rak21.F,v 1.5 1999-07-28 00:42:14 d3e129 Exp $
+* $Id: rak21.F,v 1.6 2003-10-17 22:54:39 carlfahl Exp $
 *
       logical function task_dddd(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer rtdb
 c
@@ -48,7 +49,7 @@ c
      &    ma_alloc_get(mt_dbl,maxg,'int diff buffer' ,h_diff,k_diff)
       status = status.and.
      &    ma_alloc_get(mt_dbl,maxs,'int scratch',h_scr,k_scr)
-      if (.not.status) call errquit('dddd: ma falied ',911)
+      if (.not.status) call errquit('dddd: ma falied ',911, MA_ERR)
       call dfill(maxg,0.0d00,dbl_mb(k_buf),1)
       call dfill(maxg,0.0d00,dbl_mb(k_buf2),1)
       call dfill(maxs,0.0d00,dbl_mb(k_scr),1)

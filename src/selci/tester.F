@@ -4,9 +4,10 @@
      $     vc, iocc, itemp, irange, ptnorm,
      $     ptnorm_mp,ept_mp,roots_mp)
 *
-* $Id: tester.F,v 1.5 1997-10-31 23:42:30 d3e129 Exp $
+* $Id: tester.F,v 1.6 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
 c
@@ -82,7 +83,7 @@ c
          call selci_vadd(nroot, q(ide), 1, ept_mp, 1, ept_mp, 1)
          call selci_vadd(nroot, q(idnorm), 1, ptnorm_mp, 1, ptnorm_mp,1)
       else
-         call errquit( ' tester: iwpt = ',iwpt)
+         call errquit( ' tester: iwpt = ',iwpt, UNKNOWN_ERR)
       endif
 c
       test = abs(q(ide-1+idamax(nroot, q(ide), 1)))
@@ -112,7 +113,8 @@ c
             call selci_vadd(nroot, q(ide), 1, enew, 1, enew, 1)
             noconf = noconf + 1
             if (noconf.gt.nconmx)
-     $           call errquit(' select: nconf > nconmx',nconmx)
+     $           call errquit(' select: nconf > nconmx',nconmx,
+     &       INPUT_ERR)
             call selci_icopy(nintpo,itemp,1,ioconf(1,noconf),1)
  21         format(4x,5f14.7/)
          endif

@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.4 2002-08-26 23:45:25 bylaska Exp $
+* $Id: semicore.F,v 1.5 2003-10-17 22:57:38 carlfahl Exp $
 *
 
 #define TCGMSG
@@ -183,6 +183,7 @@ c     logocal semicore(0:nkatmx)
 
       subroutine semicore_density_update()
       implicit none
+#include "errquit.fh"
 
 
 #include "mafdecls.fh"
@@ -220,7 +221,7 @@ c     logocal semicore(0:nkatmx)
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
-     >  call errquit('semicore_density_update: push stack',0)
+     >  call errquit('semicore_density_update: push stack',0, MA_ERR)
 
       call dcopy(n2ft3d, 0.0d0,0, dbl_mb(dncore(1)),1)
       do ii=1,ion_nion()
@@ -259,7 +260,7 @@ c          call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       value =           MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(exi(2))
       if (.not.value) 
-     >  call errquit('semicore_density_update: pop stack',1)
+     >  call errquit('semicore_density_update: pop stack',1, MA_ERR)
       return
       end
 
@@ -272,6 +273,7 @@ c          call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
       subroutine semicore_check()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -311,7 +313,7 @@ c     logical semicore(0:nkatmx)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
-     >  call errquit('semicore_check:out of stack memory',0)
+     >  call errquit('semicore_check:out of stack memory',0, MA_ERR)
 
 
       do ia=1,ion_nkatm()
@@ -341,7 +343,8 @@ c     logical semicore(0:nkatmx)
       end do
 
       value = MA_pop_stack(tmp(2))
-      if (.not.value) call errquit('semicore_check: pop stack',1)
+      if (.not.value) call errquit('semicore_check: pop stack',1,
+     &       MA_ERR)
       return
       end
 
@@ -382,6 +385,7 @@ c     logical semicore(0:nkatmx)
 
       subroutine semicore_euv(stress)
       implicit none
+#include "errquit.fh"
       real*8 stress(3,3)
 
 
@@ -406,7 +410,7 @@ c     logical semicore(0:nkatmx)
       call D3dB_n2ft3d(1,n2ft3d)
       value = MA_push_get(mt_dbl,n2ft3d,'Aus',Aus(2),Aus(1))
       if (.not. value) 
-     >  call errquit('semicore_euv:out of stack memory',0)
+     >  call errquit('semicore_euv:out of stack memory',0, MA_ERR)
 
 
 
@@ -444,7 +448,7 @@ c     logical semicore(0:nkatmx)
       end do
 
       value = MA_pop_stack(Aus(2))
-      if (.not.value) call errquit('semicore_euv: pop stack',1)      
+      if (.not.value) call errquit('semicore_euv: pop stack',1, MA_ERR)
       return
       end
 
@@ -457,6 +461,7 @@ c     logical semicore(0:nkatmx)
 
       subroutine semicore_gen_Aus(u,s,Aus)
       implicit none
+#include "errquit.fh"
       integer u,s
       real*8 Aus(*)
 
@@ -500,7 +505,7 @@ c     logical semicore(0:nkatmx)
       value = value.and.
      >        MA_push_get(mt_dbl,npack0,'tmp3',tmp3(2),tmp3(1))
       if (.not. value) 
-     >   call errquit('semicore_gen_Aus:out of stack memory',0)
+     >   call errquit('semicore_gen_Aus:out of stack memory',0, MA_ERR)
 
 *     **** define Gu and Gs ****
       Gu = tmp1(1)
@@ -571,7 +576,7 @@ c     logical semicore(0:nkatmx)
       value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
-     >   call errquit('semicore_gen_Aus:popping stack memory',2)
+     >   call errquit('semicore_gen_Aus:popping stack memory',2, MA_ERR)
 
       return
       end

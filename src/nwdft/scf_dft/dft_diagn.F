@@ -4,9 +4,10 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.8 2003-07-03 01:58:51 edo Exp $
+c     $Id: dft_diagn.F,v 1.9 2003-10-17 22:55:44 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "cdft.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -45,17 +46,17 @@ c
       nmo=dft_lindep(nbf_ao,toll_s,svals,oprint_conv_details,6)
       if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'movecstransf', 
      &     nbf, 0, g_movecst)) 
-     . call errquit(' ddftdiagn: ga_create failed ',1)
+     . call errquit(' ddftdiagn: ga_create failed ',1, GA_ERR)
       if (.not. ga_create(mt_dbl, nmo, nmo, 'fock transf', 
      &     nbf, 0, g_fockt)) 
-     . call errquit(' ddftdiagn: ga_create failed ',2)
+     . call errquit(' ddftdiagn: ga_create failed ',2, GA_ERR)
 c
 c     get xij through canonical orthog
 c
       if(ncanorg.eq.0) then
          if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'Xij canorg', 
      &        nbf, 0, g_xij)) 
-     .        call errquit(' ddftdiagn: ga_create failed ',0)
+     .        call errquit(' ddftdiagn: ga_create failed ',0, GA_ERR)
          call dft_canorg(nmo, svals, g_svecs, g_xij)
       else
          g_xij=g_movecs
@@ -97,7 +98,7 @@ c
 #endif
       if (.not. ga_create(mt_dbl, nmo, nmo, 'vecs transf1', 
      &     nmo, 0, g_vecstt)) 
-     . call errquit(' ddftdiagn: ga_create failed ',2)
+     . call errquit(' ddftdiagn: ga_create failed ',2, GA_ERR)
       if (oprint_time)
      &     call dft_tstamp(' calling diag ')
 
@@ -130,7 +131,7 @@ c
      &     g_xij, g_vecstt, 0d0, g_movecst)
       if (odftps) call pstat_off(ps_dgemm)
       if (.not. ga_destroy(g_vecstt)) call errquit
-     &     ('dft_scf: could not destroy g_scr', 0)
+     &     ('dft_scf: could not destroy g_scr', 0, GA_ERR)
 
 c     
 c     Keep orbital ordering according to principle
@@ -147,13 +148,13 @@ c     put new movecs
 c     
       call ga_copy(g_movecst, g_movecs)
          if (.not. ga_destroy(g_fockt)) call errquit
-     &        ('dft_scf: could not destroy g_scr', 0)
+     &        ('dft_scf: could not destroy g_scr', 0, GA_ERR)
          if (.not. ga_destroy(g_movecst)) call errquit
-     &        ('dft_scf: could not destroy g_scr', 0)
+     &        ('dft_scf: could not destroy g_scr', 0, GA_ERR)
          if(ncanorg.eq.0) then
             ncanorg=1
             if (.not. ga_destroy(g_xij)) call errquit
-     &           ('dft_scf: could not destroy g_scr', 0)
+     &           ('dft_scf: could not destroy g_scr', 0, GA_ERR)
          endif
       
       return

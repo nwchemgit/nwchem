@@ -1,9 +1,10 @@
       subroutine selci_eijil(e,i,j,l,ns,indbar,iocc,
      $     w1,w2,work,numf,numf2)
 *
-* $Id: eijil.F,v 1.2 1997-10-31 23:42:01 d3e129 Exp $
+* $Id: eijil.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension e(*),indbar(*),iocc(*),work(*),
      $     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1)
@@ -23,9 +24,9 @@ c       0         1       2
 c       1         1       3
 c
       if (i.eq.j .or. i.eq.l .or. j.eq.l)
-     $     call errquit('eijil: one of i=j,i=l,j=l',i)
+     $     call errquit('eijil: one of i=j,i=l,j=l',i, UNKNOWN_ERR)
       if (iocc(j).gt.iocc(l)) 
-     $     call errquit('eijil: iocc ordering',iocc(j))
+     $     call errquit('eijil: iocc ordering',iocc(j), UNKNOWN_ERR)
       numf = nf(ns)
       numf2 = nf(ns+2)
       ib = indbar(i) + (nsmax-ns-2)
@@ -36,7 +37,7 @@ c
 c
       icase = iocc(j) + iocc(l) + 1
       goto (10,20,30) icase
-      call errquit('eijil: invalid case',icase)
+      call errquit('eijil: invalid case',icase, UNKNOWN_ERR)
 c
 c     nj=0, nl=0: e(u,v) = eiaeib(u,p)*w1(q,p,lb)*w1(v,q,jb)
 c                                    ab     ->  la   ->     jl

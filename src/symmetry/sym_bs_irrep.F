@@ -1,6 +1,7 @@
       subroutine sym_bas_irreps(basis, oprint, nbf_per_ir)
-C$Id: sym_bs_irrep.F,v 1.3 1997-11-07 01:45:17 d3e129 Exp $
+C$Id: sym_bs_irrep.F,v 1.4 2003-10-17 22:58:24 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "sym.fh"
@@ -43,27 +44,28 @@ c
 c     Get basis and geom info
 c     
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_bas_irreps: no geometry from basis?', basis)
+     $     ('sym_bas_irreps: no geometry from basis?', basis, BASIS_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('sym_bas_irreps: bas_numbf?', basis)
+     $     ('sym_bas_irreps: bas_numbf?', basis, BASIS_ERR)
       if (.not. bas_high_angular(basis, ang_max))
-     $     call errquit('sym_bas_irreps: bas_high_angular', basis)
+     $     call errquit('sym_bas_irreps: bas_high_angular', basis,
+     &       BASIS_ERR)
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
       do_spherical = bas_is_spherical(basis)
 c     
       if (.not. ma_push_get(MT_DBL, maxr, 'r', l_r, k_r))
-     $     call errquit('sym_bas_irreps: ma failed', maxr)
+     $     call errquit('sym_bas_irreps: ma failed', maxr, MA_ERR)
 c
       if (.not. geom_ncent(geom, ncent)) call errquit
-     $     ('sym_bas_irreps: geom_ncent ?', geom)
+     $     ('sym_bas_irreps: geom_ncent ?', geom, GEOM_ERR)
 c     
 c     Get character table information and class mapping
 c     
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
      $     zir, zclass, chars)) 
-     $     call errquit('sym_bas_irreps: no char table',0)
+     $     call errquit('sym_bas_irreps: no char table',0, GEOM_ERR)
       call sym_op_classify(geom, op_class_index)
 c
       call dfill(nir, 0.0d0, c, 1)
@@ -83,7 +85,7 @@ c
 *            write(6,*) '      CENT = ', icent
 c
             if (.not. bas_ce2cnr(basis, icent, ishlo, ishhi))
-     $           call errquit('sym_bas_irreps: bas_ce2cnr',0)
+     $           call errquit('sym_bas_irreps: bas_ce2cnr',0, BASIS_ERR)
             jcent = sym_center_map(geom, icent, op)
             if (icent .eq. jcent) then
 c     
@@ -92,9 +94,11 @@ c
                do ish = ishlo, ishhi
                   if (.not. bas_continfo(basis, ish, itype, nprim,
      $                 ngen, sphcart)) call errquit
-     $                 ('sym_bas_irreps: bas_continfo', icent)
+     $                 ('sym_bas_irreps: bas_continfo', icent,
+     &       BASIS_ERR)
                   if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $                 call errquit('sym_bas_irreps: bas_ce2cnr',0)
+     $                 call errquit('sym_bas_irreps: bas_ce2cnr',0,
+     &       BASIS_ERR)
                   n = (ihi - ilo + 1)
                   trace = 0.0d0
                   if (itype .eq. -1) then
@@ -149,7 +153,8 @@ c
                write(6,*) ' sym_bas_irreps ', (c(i),i=1,nir)
                write(6,*) ' sym_bas_irreps ', trace
                write(6,*) ' sym_bas_irreps ', ir
-               call errquit('sym_bas_irreps: bad character', 0)
+               call errquit('sym_bas_irreps: bad character', 0,
+     &       INPUT_ERR)
             endif
             itrace = itrace*irrep_dim
          endif
@@ -162,7 +167,8 @@ c
       if (n .ne. nbf) then
          write(6,*) ' sym_bas_irreps ', (c(i),i=1,nir)
          write(6,*) ' sym_bas_irreps ', n, nbf
-         call errquit('sym_bas_irreps: lost some functions', 0)
+         call errquit('sym_bas_irreps: lost some functions', 0,
+     &       BASIS_ERR)
       endif
 c     
       if (oprint) then
@@ -177,6 +183,6 @@ c
       endif
 c
       if (.not. ma_pop_stack(l_r)) call errquit
-     $     ('sym_bas_irreps: memory corrupt?',0)
+     $     ('sym_bas_irreps: memory corrupt?',0, MA_ERR)
 c
       end

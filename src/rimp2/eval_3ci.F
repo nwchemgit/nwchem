@@ -4,13 +4,14 @@ C     Eval_3ci_block -- Produce a block of three-center integrals for
 c     the shell block ranges specified.
 C
 C REVISION
-C     $Id: eval_3ci.F,v 1.1 1995-12-13 01:36:44 d3g681 Exp $
+C     $Id: eval_3ci.F,v 1.2 2003-10-17 22:58:10 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine Eval_3ci_block(UseERI, AOBas, PShLo, PShHi, QShLo,
      $   QSHHi, FitBas, SShLo, SShHi, Neglect, Int, LInt, Scr, LScr,
      $   IBuf, PDim, QDim, SDim)
       Implicit NONE
+#include "errquit.fh"
       Logical UseERI
       Integer AOBas, PShLo, PShHi, QShLo, QShHi, FitBas, SShLo, SShHi
       Integer LInt, LScr, PDim, QDim, SDim
@@ -81,7 +82,8 @@ C
       Status = Status .AND. Bas_Cn2BFR( FitBas, SShLo, SBase, Junk)
 C
       If ( .NOT. Status) Call ErrQuit(
-     $   'Eval_3ci_Block: Problems with ''base'' inquiries', PSHLo)
+     $   'Eval_3ci_Block: Problems with ''base'' inquiries', PSHLo,
+     &       CALC_ERR)
 C
       Do PSh = PShLo, PShHi
          Status = Status .AND. Bas_Cn2BFR( AOBas, PSh, Plo, Phi)
@@ -130,7 +132,8 @@ C
       EndDo                     ! PSh
 C
       If ( .NOT. Status) Call ErrQuit(
-     $   'Eval_3ci_Block: Problems with contraction inquiries', PSHLo)
+     $   'Eval_3ci_Block: Problems with contraction inquiries', PSHLo,
+     &       CALC_ERR)
 C
       Return
       End

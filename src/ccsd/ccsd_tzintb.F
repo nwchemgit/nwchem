@@ -1,8 +1,9 @@
       subroutine ccsd_tzintb(nocc,nvir,nbf,t1,tzoo,scra,scrb,scrc,
      &                       g_nt2,g_nz2,g_ncoul,g_nexch,g_c,g_x,
      &                       g_sht2,g_aitm,g_qitm,g_tz3,iprt)
-* $Id: ccsd_tzintb.F,v 2.5 1999-07-29 00:56:32 d3e129 Exp $
+* $Id: ccsd_tzintb.F,v 2.6 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer nocc,nvir,nbf,lnoo,lnov,lnvv,g_nt2,g_nz2,g_ncoul,g_nexch,
      &        g_c,g_x,g_sht2,g_aitm,g_qitm,g_tz3,g_tmp,iprt
       integer i,j,k,l,a,b,c,d,ij,kl,ad1,ad2,ad3,ad4,
@@ -22,7 +23,7 @@ C
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
-     &     call errquit('ga_create g_tmp failed',0)
+     &     call errquit('ga_create g_tmp failed',0, GA_ERR)
       call ga_dgemm('n','t',lnov,lnov,lnov,
      &              1.0d00,g_nt2,g_nz2,0.0d00,g_tmp)
 c
@@ -47,17 +48,17 @@ c
       call ga_dgop(912,tzoo,lnoo, '+')
 c
       if (.not.ga_destroy(g_tmp))
-     &    call errquit('ga_dest g_tmp fail',0)
+     &    call errquit('ga_dest g_tmp fail',0, GA_ERR)
 c
       if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
      &                   nocc,nocc,g_aitm))
-     &     call errquit('ga_create g_aitm failed',0)
+     &     call errquit('ga_create g_aitm failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'qitm',
      &                   nvir,nvir,g_qitm))
-     &     call errquit('ga_create g_qitm failed',0)
+     &     call errquit('ga_create g_qitm failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnoo,lnoo,'tz3',
      &                   nocc,nocc,g_tz3))
-     &     call errquit('ga_create g_tz3 failed',0)
+     &     call errquit('ga_create g_tz3 failed',0, GA_ERR)
 c
       call ga_distribution(g_x,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc

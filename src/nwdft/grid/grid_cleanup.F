@@ -1,8 +1,9 @@
       Subroutine grid_cleanup(rtdb,okeep)
 c
-c$Id: grid_cleanup.F,v 1.7 2000-10-30 20:38:42 edo Exp $
+c$Id: grid_cleanup.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "rtdb.fh"
 #include "cdft.fh"
@@ -28,7 +29,7 @@ c
 c
 cedo         write(0,*) ' grinfo ',grinfo
          if(.not.grid_file_close(okeep)) call
-     .        errquit(' grclup: file_close failed',0)
+     .        errquit(' grclup: file_close failed',0, DISK_ERR)
          if(.not.okeep) then
             open(unit=gr_unit,file=grinfo)
             close(unit=gr_unit,status='delete')

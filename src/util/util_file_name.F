@@ -7,6 +7,7 @@ c
       end
       subroutine util_file_info_rtdb(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cfileprefix.fh"
 #include "rtdb.fh"
       integer rtdb
@@ -18,11 +19,12 @@ c     as 'scratch_dir' and 'permanent_dir' so that unset can
 c     be used to delete them so that defaults may be restored.
 c
       if (.not. rtdb_cput(rtdb, 'file_prefix', 1, file_prefix))
-     $     call errquit('rtdb_put of file_prefix failed', 0)
+     $     call errquit('rtdb_put of file_prefix failed', 0, RTDB_ERR)
 c
       if (scratch_dir .ne. ' ') then
          if (.not. rtdb_cput(rtdb, 'scratch_dir', 1, scratch_dir))
-     $        call errquit('rtdb_put of scratch_dir failed', 0)
+     $        call errquit('rtdb_put of scratch_dir failed', 0,
+     &       RTDB_ERR)
       else
          if (.not. rtdb_cget(rtdb, 'scratch_dir', 1, scratch_dir))
      $        scratch_dir = ' '
@@ -30,7 +32,8 @@ c
 c
       if (permanent_dir .ne. ' ') then
          if (.not. rtdb_cput(rtdb, 'permanent_dir', 1, permanent_dir))
-     $        call errquit('rtdb_put of permanent_dir failed', 0)
+     $        call errquit('rtdb_put of permanent_dir failed', 0,
+     &       RTDB_ERR)
       else
          if (.not. rtdb_cget(rtdb, 'permanent_dir', 1, permanent_dir))
      $        permanent_dir = ' '
@@ -39,6 +42,7 @@ c
       end
       subroutine util_file_prefix(name, fullname)
       implicit none
+#include "errquit.fh"
 #include "cfileprefix.fh"
 #include "inp.fh"
 #include "stdio.fh"
@@ -53,7 +57,8 @@ c
          write(LuOut,*) ' file_prefix: name = ', name
          write(LuOut,*) ' file_prefix: prfx = ', file_prefix
          call util_flush(LuOut)
-         call errquit('file_prefix: insufficient space ', len(fullname))
+         call errquit('file_prefix: insufficient space ', len(fullname),
+     &       DISK_ERR)
       endif
 c
       fullname = ' '
@@ -64,6 +69,7 @@ c
       end
       subroutine util_file_name(stub, oscratch, oparallel, name)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"      
 #include "cfileprefix.fh"
@@ -94,7 +100,8 @@ c
          write(LuOut,*) ' util_file_name: ltmp, ldir, lname',
      $        ltmp, ldir, len(name)
          call util_flush(LuOut)
-         call errquit('util_file_name: name too small', ltmp+ldir+1)
+         call errquit('util_file_name: name too small', ltmp+ldir+1,
+     &       INPUT_ERR)
       endif
       if (dir .ne. ' ') then
          name = dir
@@ -109,7 +116,7 @@ c
             write(LuOut,*) ' util_file_name: name = ', name
             call util_flush(LuOut)
             call errquit('util_file_name: tmp too small',
-     $           inp_strlen(name))
+     $           inp_strlen(name), INPUT_ERR)
          endif
          tmp = name
          call util_pname(tmp, name)
@@ -155,6 +162,7 @@ c
       end
       logical function util_file_parse_dir(dirlist, dir, nodeid)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -210,7 +218,8 @@ c     specification of hosts this way here
          goto 10
  20      ihostend = i-1
          if (ihostend .lt. istart) call errquit
-     $        ('util_dir_parse: colon at start of dirname?',0)
+     $        ('util_dir_parse: colon at start of dirname?',0,
+     &       INPUT_ERR)
 c
 c     Found host/process ID in dirlist(istart:ihostend).  If the
 c     first character is a number, then assume it's all a process id
@@ -221,7 +230,8 @@ c
             do i = istart, ihostend
                if (.not. inp_match(10, .true., dirlist(i:i),
      $              numbers, ind)) call errquit
-     $              ('util_dir_parse: bad character in process id',0)
+     $              ('util_dir_parse: bad character in process id',0,
+     &       INPUT_ERR)
                p = p*10 + ind - 1
             enddo
 *            write(LuOut,*) ' p ',p
@@ -251,7 +261,8 @@ c
          istart = 0
          do i = 0, mod(nodeid,nspe)
             if (.not. inp_strtok(specific, ' ', istart, iend))
-     $           call errquit('util_file_parse_dir: internal err?',0)
+     $           call errquit('util_file_parse_dir: internal err?',0,
+     &       INPUT_ERR)
          enddo
          dir = specific(istart:iend)
          return
@@ -260,7 +271,8 @@ c
          istart = 0
          do i = 0, mod(nodeid,ndef)
             if (.not. inp_strtok(default, ' ', istart, iend))
-     $           call errquit('util_file_parse_dir: internal err?',1)
+     $           call errquit('util_file_parse_dir: internal err?',1,
+     &       INPUT_ERR)
          enddo
          dir = default(istart:iend)
          return
@@ -274,8 +286,9 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.31 2003-06-24 21:37:34 edo Exp $
+C$Id: util_file_name.F,v 1.32 2003-10-17 22:58:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -332,7 +345,8 @@ c
       rewind LuIn
       call inp_init(LuIn,LuOut)
  10   if (inp_search(.false., keys, nkeys)) then ! While
-         if (.not. inp_a(field)) call errquit('input_start: inp?',0)
+         if (.not. inp_a(field)) call errquit('input_start: inp?',0,
+     &       INPUT_ERR)
          if (inp_compare(.false.,'start',field)) then
             odirective = .true.
             ostartup = .true.
@@ -340,7 +354,7 @@ c
             call util_read_start_dir(file_prefix, rtdb_name)
          else if (inp_compare(.false.,'continue',field)) then
             call errquit('continue directive is no longer supported',
-     *        555)
+     *        555, INPUT_ERR)
             odirective = .true.
             ostartup = .false.
             ocontinue = .true.
@@ -368,7 +382,7 @@ c
                call ecce_print_echo_input(input_filename)
             endif
          else
-            call errquit('input_start_opt: wierd error',0)
+            call errquit('input_start_opt: wierd error',0, INPUT_ERR)
          endif
          goto 10                ! End while
       endif
@@ -435,13 +449,15 @@ c
       if (bad_permanent_dir.and.bad_scratch_dir) then
         write(luout,*)
      &      ' Both permanent and scratch directory not accessible'
-        call errquit('******** Fatal Error ********',911)
+        call errquit('******** Fatal Error ********',911, INPUT_ERR)
       else if (bad_permanent_dir) then
         call errquit
-     &      ('Fatal Error: permanent directory not accessible',911)
+     &      ('Fatal Error: permanent directory not accessible',911,
+     &       INPUT_ERR)
       else if (bad_scratch_dir) then
         call errquit
-     &      ('Fatal Error: scratch directory not accessible',911)
+     &      ('Fatal Error: scratch directory not accessible',911,
+     &       INPUT_ERR)
       else
         return
       endif
@@ -476,6 +492,7 @@ c
       end
       subroutine util_read_start_dir(file_prefix, rtdb_name)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "util.fh"
       character*(*) file_prefix, rtdb_name 
@@ -487,7 +504,8 @@ c
  10   if (inp_a(test)) then
          if (inp_compare(.false.,test,'rtdb')) then
             if (.not. inp_a(rtdb_name)) call errquit
-     $           ('util_read_start_directive: missing rtdb name',0)
+     $           ('util_read_start_directive: missing rtdb name',0,
+     &       INPUT_ERR)
          else
             file_prefix = test
          endif
@@ -535,6 +553,7 @@ c
       end
       double precision function util_scratch_dir_avail_for_me()
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
 #include "eaf.fh"
@@ -582,22 +601,24 @@ c
 1025  call util_file_name('junk',.true.,.true.,mine)
       ierr=eaf_delete(mine)
       ierr=eaf_open(mine, eaf_rw, fd)
-      if(ierr.ne.0) call errquit('utilscratchavail: eaf_open',ierr)
+      if(ierr.ne.0) call errquit('utilscratchavail: eaf_open',ierr,
+     &       DISK_ERR)
       call ga_sync()
       ierr = eaf_stat(mine, avail0, fstype)
 c
 c     now write 5M of doubles
 c
       if (.not.ma_push_get(MT_Dbl,l1megabyte,'cc',l_k,i_k))
-     &   call errquit('utilfname: cannot allocate ',0)
+     &   call errquit('utilfname: cannot allocate ',0, MA_ERR)
       call dcopy(l1megabyte,0d0,0,dbl_mb(i_k),1)
       ierr = eaf_write(fd, 0, dbl_mb(i_k),8*l1megabyte)
       if (.not.ma_pop_stack(l_k))
-     &   call errquit('utilfname: cannot deallocate ',0)
+     &   call errquit('utilfname: cannot deallocate ',0, MA_ERR)
       ierr=eaf_close(fd)
       call ga_sync()
       ierr = eaf_stat(mine, avail1, fstype)
-      if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr)
+      if (ierr .ne. 0) call errquit('util_scratch_avail: eaf_stat',ierr,
+     &       DISK_ERR)
       ierr=eaf_delete(mine)
       nuse=nint((avail0-avail1)/16d0)
       nuse_fail=0
@@ -643,6 +664,7 @@ c
       end
       subroutine util_file_name_resolve(filename, oscratch)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
@@ -668,7 +690,7 @@ c
             flen = inp_strlen(filename)
             if ((flen+dlen+1).gt.len(filename)) call errquit
      $           ('util_file_name_resolve: filename too small',
-     $           flen+dlen+1)
+     $           flen+dlen+1, INPUT_ERR)
             dir(dlen+1:dlen+1) = '/'
             dir(dlen+2:) = filename
 c     
@@ -708,6 +730,7 @@ c     **** added by EJB 11/7/00 ****
      >                                         oparallel, 
      >                                         name)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "inp.fh"      
 #include "cfileprefix.fh"
@@ -739,7 +762,8 @@ c
          write(LuOut,*) ' util_file_name: ltmp, ldir, lname',
      $        ltmp, ldir, len(name)
          call util_flush(LuOut)
-         call errquit('util_file_name: name too small', ltmp+ldir+1)
+         call errquit('util_file_name: name too small', ltmp+ldir+1,
+     &       INPUT_ERR)
       endif
       if (dir .ne. ' ') then
          name = dir
@@ -754,7 +778,7 @@ c
             write(LuOut,*) ' util_file_name: name = ', name
             call util_flush(LuOut)
             call errquit('util_file_name: tmp too small',
-     $           inp_strlen(name))
+     $           inp_strlen(name), INPUT_ERR)
          endif
          tmp = name
          call util_pname(tmp, name)

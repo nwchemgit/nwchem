@@ -1,8 +1,9 @@
       double precision function potential(basis, g_dens, x, y, z)
 *
-* $Id: potential.F,v 1.7 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: potential.F,v 1.8 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -25,26 +26,28 @@ c
       r(3) = z
 c
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('potential: bas_numcont failed for basis', basis)
+     $     ('potential: bas_numcont failed for basis', basis,
+     &       BASIS_ERR)
 c     
 c     l_buf ... buffer to hold shell block of matrix
 c     l_scr ... workspace for integral routines
 c     
       call int_mem_1e(max1e, mem1)
       if (.not. MA_push_get(MT_DBL,max1e,'potential:buf',l_buf,k_buf))
-     $     call errquit('potential: ma failed', max1e)
+     $     call errquit('potential: ma failed', max1e, MA_ERR)
       if (.not. MA_push_get(MT_DBL, mem1,'potential:scr',l_scr,k_scr))
-     $     call errquit('potential: ma failed', mem1)
+     $     call errquit('potential: ma failed', mem1, MA_ERR)
 c     
 **      call ga_print(g_dens)
       pot = 0.0d0
       do jshell = 1, nshell
          if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
-     $        call errquit('potential: bas_cn2bfr ?', basis)
+     $        call errquit('potential: bas_cn2bfr ?', basis, BASIS_ERR)
          jdim = jhi - jlo + 1
          do ishell = 1, nshell
             if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) 
-     $           call errquit('potential: bas_cn2bfr ?', basis)
+     $           call errquit('potential: bas_cn2bfr ?', basis,
+     &       BASIS_ERR)
 c
             idim = ihi - ilo + 1
             call int_1er (r,1,1.0d0, basis, jshell, basis, ishell, 
@@ -64,15 +67,16 @@ c$$$      call int_1e_ga(basis, basis, g_dens, 'overlap', .false.)
 c$$$      call ga_print(g_dens)
 c$$$      stop
       if (.not. MA_pop_stack(l_scr)) call errquit
-     $     ('potential: pop failed', 0)
+     $     ('potential: pop failed', 0, MA_ERR)
       if (.not. MA_pop_stack(l_buf)) call errquit
-     $     ('potential: pop failed', 0)
+     $     ('potential: pop failed', 0, MA_ERR)
 c
       potential = pot
 c
       end
       subroutine potential_list(basis, g_dens, npts, r, potential, tol)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -104,22 +108,23 @@ c
       call xlm_coeff_inv(lmax2,d,dinv)
 c
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('potential: bas_numcont failed for basis', basis)
+     $     ('potential: bas_numcont failed for basis', basis, BASIS_ERR)
 c     
       if (.not. MA_push_get(MT_DBL, lencart**2,
      $     'potential:scr',l_scr,k_scr))
-     $     call errquit('potential: ma failed', lencart)
+     $     call errquit('potential: ma failed', lencart, MA_ERR)
 c
       call dfill(npts, 0.0d0, potential, 1)
 c     
       do jshell = 1, nshell
          if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
-     $        call errquit('potential: bas_cn2bfr ?', basis)
+     $        call errquit('potential: bas_cn2bfr ?', basis, BASIS_ERR)
          jdim = jhi - jlo + 1
 c
          do ishell = 1, jshell
             if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) 
-     $           call errquit('potential: bas_cn2bfr ?', basis)
+     $           call errquit('potential: bas_cn2bfr ?', basis,
+     &       BASIS_ERR)
             idim = ihi - ilo + 1
 c
             call ga_get(g_dens,ilo,ihi,jlo,jhi,dbl_mb(k_scr),idim)
@@ -134,6 +139,6 @@ c
       enddo
 c
       if (.not. MA_pop_stack(l_scr)) call errquit
-     $     ('potential: pop failed', 0)
+     $     ('potential: pop failed', 0, MA_ERR)
 c
       end

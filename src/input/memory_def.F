@@ -4,12 +4,13 @@ C     memory_defaults -- Set default memory partition based on platform
 C     and other factors
 C
 C REVISION
-C     $Id: memory_def.F,v 1.23 2003-08-13 21:17:54 edo Exp $
+C     $Id: memory_def.F,v 1.24 2003-10-17 22:55:18 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine Memory_defaults(Total, TSource, Heap, HSource,
      $   Stack, SSource, Global, GSource)
       Implicit NONE
+#include "errquit.fh"
       Integer Total  ! [inout] Total memory limit (in doubles)
       Integer Heap   ! [inout] Heap memory limit (in doubles)
       Integer Stack  ! [inout] Stack memory limit (in doubles)
@@ -136,13 +137,17 @@ C
       HGiven = inp_compare(.false., HSource, 'U')
       GGiven = inp_compare(.false., GSource, 'U')
       If ( .NOT. ( TGiven .OR. inp_compare(.false.,TSource, 'N')))
-     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 2)
+     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 2,
+     &       INPUT_ERR)
       If ( .NOT. ( SGiven .OR. inp_compare(.false.,SSource, 'N')))
-     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 4)
+     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 4,
+     &       INPUT_ERR)
       If ( .NOT. ( HGiven .OR. inp_compare(.false.,HSource, 'N')))
-     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 6)
+     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 6,
+     &       INPUT_ERR)
       If ( .NOT. ( GGiven .OR. inp_compare(.false.,GSource, 'N')))
-     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 8)
+     $   Call ErrQuit('Memory_Defaults: Bad value for argument', 8,
+     &       INPUT_ERR)
 C
 C     Determine how many of (Stack, Heap, Global) the user has
 C     specified.
@@ -253,16 +258,20 @@ C     sense.
 
       If ( Total .lt. Stack + Heap + Global ) Call ErrQuit(
      $   'Memory_Defaults: Inconsistent memory specification',
-     $   Total-Stack-Heap-Global)
+     $   Total-Stack-Heap-Global, INPUT_ERR)
 C
       If ( Total .lt. 0) Call ErrQuit(
-     $   'Memory_Defaults: Total memory limit unreasonable', Total)
+     $   'Memory_Defaults: Total memory limit unreasonable', Total,
+     &       INPUT_ERR)
       If ( Stack .lt. 0) Call ErrQuit(
-     $   'Memory_Defaults: Stack memory limit unreasonable', Stack)
+     $   'Memory_Defaults: Stack memory limit unreasonable', Stack,
+     &       INPUT_ERR)
       If ( Heap .lt. 0) Call ErrQuit(
-     $   'Memory_Defaults: Heap memory limit unreasonable', Heap)
+     $   'Memory_Defaults: Heap memory limit unreasonable', Heap,
+     &       INPUT_ERR)
       If ( Global .lt. 0) Call ErrQuit(
-     $   'Memory_Defaults: Global memory limit unreasonable', Global)
+     $   'Memory_Defaults: Global memory limit unreasonable', Global,
+     &       INPUT_ERR)
 C
       Return
       End

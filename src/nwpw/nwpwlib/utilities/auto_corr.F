@@ -1,5 +1,5 @@
 c
-c     $Id: auto_corr.F,v 1.4 2003-04-22 20:51:08 bylaska Exp $
+c     $Id: auto_corr.F,v 1.5 2003-10-17 22:56:53 carlfahl Exp $
 c
 
 *     *********************************
@@ -18,6 +18,7 @@ c
 
       subroutine velocity_autocorrelation(filename)
       implicit none
+#include "errquit.fh"
       character*(*) filename
 
 #include "mafdecls.fh"
@@ -226,7 +227,8 @@ c
       value = value.and.MA_pop_stack(vy(2))
       value = value.and.MA_pop_stack(vx(2))
       if (.not. value) 
-     >    call errquit('cpmd_properties: cant release stack memory',0)
+     >    call errquit('cpmd_properties: cant release stack memory',0,
+     &       MA_ERR)
      
       end if
 

@@ -1,8 +1,9 @@
       subroutine selci_rdhead(title,type)
 *
-* $Id: rdhead.F,v 1.3 1997-10-31 23:42:23 d3e129 Exp $
+* $Id: rdhead.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 #include "cselcifiles.fh"
       character*(*) type
@@ -41,7 +42,7 @@ c     check the files for consistency
 c
       if (norbs.gt.nnorbs) then
          write(ifllog,*) ' norbs = ',norbs,' nnorbs=',nnorbs
-         call errquit(' info from files does not tally ',0)
+         call errquit(' info from files does not tally ',0, INPUT_ERR)
       endif
 c
 c     if actually do PT selection need to open civecs file
@@ -50,7 +51,8 @@ c
          open(iflciv,file=civecs,form='unformatted',status='old')
          read (iflciv) nroot,nnci
          if (nnci.ne.nci)
-     $        call errquit('nci ciconf, civecs mismatch',nnci)
+     $        call errquit('nci ciconf, civecs mismatch',nnci,
+     &       INPUT_ERR)
       endif
 c
       end

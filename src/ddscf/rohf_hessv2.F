@@ -1,11 +1,12 @@
       subroutine rohf_hessv2( acc, g_x, g_ax )
       implicit none
+#include "errquit.fh"
 #include "crohf.fh"
 #include "cscf.fh"
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.11 2003-01-27 23:17:10 edo Exp $
+c     $Id: rohf_hessv2.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -17,15 +18,19 @@ c     Check
 c     
       oprint= util_print('rohf_hessv2',print_debug)
       if (crohf_init_flag.ne.1)
-     $     call errquit('rohf_hessv: ROHF internal block invalid',0)
+     $     call errquit('rohf_hessv: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_x,gtype,grow,gcol)
       if (grow.ne.crohf_vlen)
-     $     call errquit('rohf_hessv: invalid vector length',0)
+     $     call errquit('rohf_hessv: invalid vector length',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_ax,gtype,growp,gcolp)
       if (growp.ne.crohf_vlen)
-     $     call errquit('rohf_hessv: invalid vector length',0)
+     $     call errquit('rohf_hessv: invalid vector length',0,
+     &       UNKNOWN_ERR)
       if (gcol.ne.gcolp)
-     $     call errquit('rohf_hessv: invalid no. of vectors',0)
+     $     call errquit('rohf_hessv: invalid no. of vectors',0,
+     &       UNKNOWN_ERR)
 c     
 c     Call internal routine
 c     
@@ -49,8 +54,9 @@ c
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.11 2003-01-27 23:17:10 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -67,7 +73,8 @@ c
       integer g_x, g_ax, vlen, nvec, g_tmp, gtype
       call ga_zero(g_ax)
       if (pflg.gt.2 .or. pflg.le.0) then
-         call errquit('rohf_hessv_xx: pflg invalid ', pflg)
+         call errquit('rohf_hessv_xx: pflg invalid ', pflg,
+     &       UNKNOWN_ERR)
       endif
       if (pflg .gt. 0) then
          call ga_dadd( lshift, g_x, 0.d0, g_ax, g_ax )
@@ -86,8 +93,9 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.11 2003-01-27 23:17:10 edo Exp $
+C     $Id: rohf_hessv2.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -142,7 +150,8 @@ c
 c     Lots more to do on memory management.
 c
       if (nopen.ne.0) call errquit
-     $     ('rohf_h2e2: does not work for open shells',nopen)
+     $     ('rohf_h2e2: does not work for open shells',nopen,
+     &       UNKNOWN_ERR)
 c
       call ga_inquire(g_x,gtype,vlen,nvec)
       odebug = util_print('rohf_hessv', print_debug)
@@ -157,10 +166,12 @@ c     allocate Mas for jfacs
 c
       if (.not.MA_Push_Get(mt_dbl,nvec*2,'hessv jfacs',
      &     l_jfac,k_jfac))
-     &     call errquit('hessv2: cannot allocate jfac',nvec*2)
+     &     call errquit('hessv2: cannot allocate jfac',nvec*2,
+     &       MA_ERR)
       if (.not.MA_Push_Get(mt_dbl,nvec*2,'hessv kfacs',
      &     l_kfac,k_kfac))
-     &     call errquit('hessv2: cannot allocate kfac',nvec*2)
+     &     call errquit('hessv2: cannot allocate kfac',nvec*2,
+     &       MA_ERR)
 
 c     Allocate global for work space
 c     
@@ -180,7 +191,8 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'CPKS dens',chunk,
      &     g_dens))
-     &   call errquit('rohf_h2e: could not allocate g_dens',555)
+     &   call errquit('rohf_h2e: could not allocate g_dens',555,
+     &       GA_ERR)
       call ga_zero(g_dens)
       g_dcv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcv')
       if (nopen .gt. 0) then
@@ -299,20 +311,27 @@ c
          if(oprint) then
             call ga_print(g_dens)
          endif
-      if (.not. ga_destroy(g_tmp1)) call errquit('rohf_h2e: GA?',0)
-      if (.not. ga_destroy(g_tmp2)) call errquit('rohf_h2e: GA?',0)
-      if (.not. ga_destroy(g_dcv)) call errquit('rohf_h2e: GA?',0)
+      if (.not. ga_destroy(g_tmp1)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_tmp2)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_dcv)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
       if (nopen .gt. 0) then
-         if (.not. ga_destroy(g_tmp3)) call errquit('rohf_h2e: GA?',0)
-         if (.not. ga_destroy(g_dcp)) call errquit('rohf_h2e: GA?',0)
-         if (.not. ga_destroy(g_dpv)) call errquit('rohf_h2e: GA?',0)
+         if (.not. ga_destroy(g_tmp3)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
+         if (.not. ga_destroy(g_dcp)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
+         if (.not. ga_destroy(g_dpv)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
       endif
 c
 c     Fock build
 c     
       if (.not. nga_create (MT_DBL, 3, dims, 'Fockv',chunk,
      &     g_fock))
-     &   call errquit('rohf_h2e: could not allocate g_fock',555)
+     &   call errquit('rohf_h2e: could not allocate g_fock',555,
+     &       GA_ERR)
       call ga_zero(g_fock)
 c
       call shell_fock_build(geom, basis, 0, nfock, 
@@ -320,7 +339,7 @@ c
      $     tol2e, g_dens, g_fock,.true.)
 c     
       if (oskel) 
-     $   call errquit('rohf_h2e2: no way',0)
+     $   call errquit('rohf_h2e2: no way',0, UNKNOWN_ERR)
 c
       g_tmp1 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp1')
       g_tmp2 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp2')
@@ -433,15 +452,20 @@ c
          endif
       enddo
       if (.not.ma_chop_stack(l_jfac))
-     &   call errquit('hessv2: cannot chop stack',0)
+     &   call errquit('hessv2: cannot chop stack',0, MA_ERR)
 c
-      if (.not. ga_destroy(g_dens)) call errquit('rohf_h2e: GA?',0)
-      if (.not. ga_destroy(g_fock)) call errquit('rohf_h2e: GA?',0)
+      if (.not. ga_destroy(g_dens)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
 c
-      if (.not. ga_destroy(g_tmp1)) call errquit('rohf:destroy?',0)
-      if (.not. ga_destroy(g_tmp2)) call errquit('rohf:destroy?',0)
+      if (.not. ga_destroy(g_tmp1)) call errquit('rohf:destroy?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_tmp2)) call errquit('rohf:destroy?',0,
+     &       GA_ERR)
       if (nopen .gt. 0) then
-         if (.not. ga_destroy(g_tmp3)) call errquit('rohf:destroy?',0)
+         if (.not. ga_destroy(g_tmp3)) call errquit('rohf:destroy?',0,
+     &       GA_ERR)
       endif
 c     
       end

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.30 2003-07-19 20:47:55 bylaska Exp $
+* $Id: cgsdv5.F,v 1.31 2003-10-17 22:57:10 carlfahl Exp $
 *
 
 ***********************************************************************
@@ -14,6 +14,7 @@
 
       logical function cgsdv5(rtdb,flag)
       implicit none
+#include "errquit.fh"
       integer rtdb
       integer flag
 
@@ -154,7 +155,7 @@
       
       value = control_read(3,rtdb)
       if (.not. value) 
-     > call errquit('error reading control',0)
+     > call errquit('error reading control',0, INPUT_ERR)
 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
@@ -263,7 +264,7 @@ c     value = psi_initialize()
      >      'PBE96 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0)
+            call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
          call pspw_print_SIC(6)
          write(6,1140)
@@ -381,7 +382,7 @@ c     end if
 
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
       call cgsd_energy_gradient(dbl_mb(fion(1)))
       call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
@@ -418,7 +419,8 @@ c     end if
      >        rtdb_put(rtdb,'pspw:stress',mt_dbl,
      >                 9,stress)
       end if
-      if (.not. value) call errquit('cgsdv5: error writing rtdb',0)
+      if (.not. value) call errquit('cgsdv5: error writing rtdb',0,
+     &       RTDB_ERR)
 
       if (taskid.eq.MASTER) call current_second(cpu3)
 

@@ -1,8 +1,9 @@
       subroutine movecs_fix_phase(g_vecs)
 *
-* $Id: movecs_phase.F,v 1.2 1997-11-07 11:35:13 d3e129 Exp $
+* $Id: movecs_phase.F,v 1.3 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer g_vecs
@@ -19,7 +20,7 @@ c
 c
       call ga_inquire(g_vecs, type, n, m)
       if (.not. ma_push_get(MT_DBL, n, 'movecs_fp', l_x, k_x))
-     $     call errquit('movecs_fp: failed to allocate ', n)
+     $     call errquit('movecs_fp: failed to allocate ', n, MA_ERR)
 c
       do i = ga_nodeid()+1,m, ga_nnodes()
          call ga_get(g_vecs, 1, n, i, i, dbl_mb(k_x), 1)
@@ -31,7 +32,7 @@ c
       enddo
 c
       if (.not. ma_pop_stack(l_x)) call errquit
-     $     ('movecs_fp: failed to pop stack', 0)
+     $     ('movecs_fp: failed to pop stack', 0, MA_ERR)
 c
       call ga_sync
 c

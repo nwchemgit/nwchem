@@ -1,4 +1,4 @@
-c $Id: int_l1eall.F,v 1.17 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_l1eall.F,v 1.18 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1eall}
@@ -24,11 +24,13 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::external subroutines used
 c errquit
 c::function
@@ -66,7 +68,8 @@ c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_l1eall: invalid contraction/shell',0)
+     &       call errquit('int_l1eall: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
 c check canoncialization of shells
 c
@@ -75,14 +78,14 @@ c
         write(luout,*)' shells not in canonical order '
         write(luout,*)' ish = ',ish
         write(luout,*)' jsh = ',jsh
-        call errquit('int_l1eall: canonical error',0)
+        call errquit('int_l1eall: canonical error',0, INT_ERR)
       endif
 c
       if ((3*lstv).gt.lscr) then
         write(luout,*)'int_l1eall: need more scratch space '
         write(luout,*)'int_l1eall: have :',lscr
         write(luout,*)'int_l1eall: need :',(3*lstv)
-        call errquit('int_l1eall: scratch space error ',0)
+        call errquit('int_l1eall: scratch space error ',0, INT_ERR)
       endif
 c
       ibas  = i_basis + BASIS_HANDLE_OFFSET

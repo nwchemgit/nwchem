@@ -1,6 +1,7 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.13 2002-12-30 17:23:05 d3k958 Exp $
+C     $Id: vectors_inp.F,v 1.14 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -64,7 +65,8 @@ c
       endif
 c     
       goto (100, 200, 300, 400, 500, 550, 600, 650, 700, 800, 999) ind
-      call errquit('scf_input: unimplemented directive', ind)
+      call errquit('scf_input: unimplemented directive', ind,
+     &       CAPMIS_ERR)
 c     
 c     input ... quietly ignore this
 c     
@@ -73,7 +75,7 @@ c
 c     output filename
 c     
  200  if (.not. inp_a(test)) call errquit
-     $     ('vectors_in: vectors output filename', 0)
+     $     ('vectors_in: vectors output filename', 0, INPUT_ERR)
       if (vectors_out .ne. ' ')  goto 10000
       vectors_out = test
       goto 10
@@ -106,7 +108,8 @@ c
 c     Have hit end of pair list ... EOL or another directive
 c     
          if (mod(nswap,2).ne.0 .or. nswap.le.0) call errquit
-     $        ('vectors_input: invalid no. of orbitals to swap', nswap)
+     $        ('vectors_input: invalid no. of orbitals to swap', nswap,
+     &       INPUT_ERR)
          if (swapname .eq. ' ') then
             swapname = ' '
             write(swapname,511) module(1:mlen), 'swap'
@@ -119,14 +122,16 @@ c
          endif
  511     format(a,':',a)
          if (.not. rtdb_put(rtdb, swapname, mt_int, nswap,swap))
-     $        call errquit('vectors_input: put of swap?', nswap)
+     $        call errquit('vectors_input: put of swap?', nswap,
+     &       RTDB_ERR)
          goto 10
       else
          if ((nswap+2) .gt. max_swap) call errquit
-     $        ('vectors_input: swapping too many orbitls', nswap)
+     $        ('vectors_input: swapping too many orbitls', nswap,
+     &       INPUT_ERR)
          swap(nswap+1) = itest
          if (.not. inp_i(swap(nswap+2))) call errquit
-     $        ('vectors input: it takes two to swap!', 0)
+     $        ('vectors input: it takes two to swap!', 0, INPUT_ERR)
          nswap = nswap + 2
          goto 510
       endif
@@ -159,7 +164,8 @@ c
       if (.not. inp_a(project(2))) goto 10000
       vectors_in = 'project'
       if (.not. rtdb_cput(rtdb, 'vectors:project', 2, project))
-     $     call errquit('vectors_input: failed to store project',0)
+     $     call errquit('vectors_input: failed to store project',0,
+     &       RTDB_ERR)
       goto 10
 c     
 c     rotate geomname filename
@@ -187,7 +193,7 @@ c
          else
             nfrag = nfrag + 1
             if(nfrag.gt.maxfrag) call errquit(
-     '         ' vec_inp: too many fragment ',maxfrag)
+     '         ' vec_inp: too many fragment ',maxfrag, INPUT_ERR)
             fragments(nfrag) = test
             goto 801
          endif
@@ -200,29 +206,34 @@ c
          test = ' '
          write(test,'(a,'':'',a)') module(1:mlen), 'input vectors'
          if (.not. rtdb_cput(rtdb, test, 1, vectors_in)) call errquit
-     $        ('vectors_input: failed to store vectors_input', 0)
+     $        ('vectors_input: failed to store vectors_input', 0,
+     &       RTDB_ERR)
       endif
       if (vectors_in .eq. 'fragment') then
          test = ' '
          write(test,'(a,'':'',a)') module(1:mlen), 'fragments'
          if (.not. rtdb_cput(rtdb, test, nfrag, fragments)) call errquit
-     $        ('vectors_input: failed to store fragment info', 0)
+     $        ('vectors_input: failed to store fragment info', 0,
+     &       RTDB_ERR)
          test = ' '
          write(test,'(a,'':'',a)') module(1:mlen), 'nfrag'
          if (.not. rtdb_put(rtdb, test, mt_int, 1, nfrag)) call errquit
-     $        ('vectors_input: failed to store fragment info', 0)
+     $        ('vectors_input: failed to store fragment info', 0,
+     &       RTDB_ERR)
       endif
       if (vectors_out .ne. ' ') then
          test = ' '
          write(test,'(a,'':'',a)') module(1:mlen), 'output vectors'
          if (.not. rtdb_cput(rtdb, test, 1, vectors_out)) call errquit
-     $        ('vectors_out: failed to store vectors_out', 0)
+     $        ('vectors_out: failed to store vectors_out', 0,
+     &       RTDB_ERR)
       endif
       if (olock) then
          test = ' '
          write(test,'(a,'':'',a)') module(1:mlen), 'movecs lock'
          if (.not. rtdb_put(rtdb, test, MT_LOG, 1, olock))
-     $        call errquit('vectors: rtdb_put of olock failed',0)
+     $        call errquit('vectors: rtdb_put of olock failed',0,
+     &       RTDB_ERR)
       endif
 c     
       return
@@ -234,7 +245,7 @@ c
      $     /'         [reorder pair_list]'
      $     /'         [rotate geometry filename]'/)
       call util_flush(6)
-      call errquit('vectors_input: invalid format', 0)
+      call errquit('vectors_input: invalid format', 0, INPUT_ERR)
 c     
       end
 

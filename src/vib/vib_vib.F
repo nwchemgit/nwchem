@@ -1,6 +1,6 @@
       subroutine vib_vib(rtdb,hess_file,in_file,hess_ma,in_ma,
      &    hess_ga,in_ga,natomin)
-* $Id: vib_vib.F,v 1.17 2003-10-07 00:42:37 edo Exp $
+* $Id: vib_vib.F,v 1.18 2003-10-17 22:58:38 carlfahl Exp $
 *:: utah messkit code adapted to nwchem by Ricky A. Kendall July 1995
 *utah:C
 *utah:C   This program was written to mass weight and diagonalize the force
@@ -22,6 +22,7 @@
 *utah:C
 *
       IMPLICIT NONE ! REAL*8 (A-H,O-Z)
+#include "errquit.fh"
       LOGICAL PROJEC,ZEROPE,HESOUT,INTERN
 *      CHARACTER*7 INPFIL
       INTEGER NATOM, NAT3, NHESS, NHESST
@@ -61,11 +62,12 @@ c
         write(luout,*)' in_file :',in_file
         write(luout,*)' in_ma   :',in_ma
         write(luout,*)' in_ga   :',in_ga
-        call errquit(' vib_vib: error ',911)
+        call errquit(' vib_vib: error ',911, UNKNOWN_ERR)
       endif
       if (in_ga)
      &    call errquit
-     &    ('vib_vib: ga access to hessian not implemented yet',911)
+     &    ('vib_vib: ga access to hessian not implemented yet',911,
+     &       CAPMIS_ERR)
 C
 C Zero core
 C
@@ -75,7 +77,7 @@ C
           WRITE(6,*)' You want to calculate the vibrational ',
      +              'frequencies for ',NATOM,' atoms?'
           WRITE(6,*)' Unfortunately this is not possible '
-          CALL errquit('vib_vib: bomb',911)
+          CALL errquit('vib_vib: bomb',911, INPUT_ERR)
       ENDIF
       NAT3   =  NATOM*3         ! 3-N (as in degrees of freedom)
       NHESS  =  NAT3*NAT3       ! dimension of hessian
@@ -108,7 +110,7 @@ C
 c
       if (.not.ma_push_get
      &    (MT_DBL,itot,' core for vib ',h_core, i_core))
-     &    call errquit('vib_vib: ma_push_get failed ',911)
+     &    call errquit('vib_vib: ma_push_get failed ',911, MA_ERR)
 C
 C Reset pointers for MA array
 C
@@ -204,14 +206,14 @@ C              and atom lables (real 2*nat words)
       if (projec) then
       if (.not.ma_push_get
      &    (MT_DBL,nat3*nat3,' w1 ',l_w1, i_w1))
-     &    call errquit('vib_vib: ma_push_get failed ',911)
+     &    call errquit('vib_vib: ma_push_get failed ',911, MA_ERR)
       if (.not.ma_push_get
      &    (MT_DBL,nat3*nat3,' w2 ',l_w2, i_w2))
-     &    call errquit('vib_vib: ma_push_get failed ',911)
+     &    call errquit('vib_vib: ma_push_get failed ',911, MA_ERR)
         call vib_eckart( dbl_mb(ihess), dbl_mb(ihessp), dbl_mb(ihesst),
      &      dbl_mb(icoord),  dbl_mb(ivc), dbl_mb(i_w1),dbl_mb(i_w2))
         if(.not.ma_chop_stack(l_w1)) call errquit(
-     '       ' vib_vib: machopstack failed',1)  
+     '       ' vib_vib: machopstack failed',1, MA_ERR)
       end if
 * rak dfill
       CALL Dfill(NAT3,0.0d00,DBL_MB(ISCR),1) ! zero scratch used
@@ -301,26 +303,32 @@ C
      &        ,/,10X,'-------------------------------------------------'
      &        ,/,10X,'   (Projected Frequencies expressed in cm-1)')
       if (.not.ma_pop_stack(h_core)) call errquit
-     &    ('vib_rdinp ma_pop failed',911)
+     &    ('vib_rdinp ma_pop failed',911, MA_ERR)
       return
 89900 continue
       write(luout,*)'dipole_file => ',dipole_file
-      call errquit('vib_vib: error opening file: "dipole_file"',811)
+      call errquit('vib_vib: error opening file: "dipole_file"',811,
+     &       DISK_ERR)
 89901 continue
       write(luout,*)'dipole_file => ',dipole_file
-      call errquit('vib_vib: error reading file: "dipole_file"',811)
+      call errquit('vib_vib: error reading file: "dipole_file"',811,
+     &       DISK_ERR)
 89902 continue
       write(luout,*)'dipole_file => ',dipole_file
       call errquit
-     & ('vib_vib: unexpected EOF when reading file: "dipole_file"',811)
+     & ('vib_vib: unexpected EOF when reading file: "dipole_file"',811,
+     &       DISK_ERR)
 99900 continue
       write(luout,*)'hess_file => ',hess_file
-      call errquit('vib_vib: error opening file: "hess_file"',911)
+      call errquit('vib_vib: error opening file: "hess_file"',911,
+     &       DISK_ERR)
 99901 continue
       write(luout,*)'hess_file => ',hess_file
-      call errquit('vib_vib: error reading file: "hess_file"',911)
+      call errquit('vib_vib: error reading file: "hess_file"',911,
+     &       DISK_ERR)
 99902 continue
       write(luout,*)'hess_file => ',hess_file
       call errquit
-     & ('vib_vib: unexpected EOF when reading file: "hess_file"',911)
+     & ('vib_vib: unexpected EOF when reading file: "hess_file"',911,
+     &       DISK_ERR)
       END

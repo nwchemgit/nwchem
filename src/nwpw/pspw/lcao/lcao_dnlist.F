@@ -1,5 +1,5 @@
 *
-* $Id: lcao_dnlist.F,v 1.2 2001-12-05 01:51:18 bylaska Exp $
+* $Id: lcao_dnlist.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
 
 *     ***********************************************************
@@ -21,6 +21,7 @@
 *     ***********************************
       subroutine lcao_dnlist_init(maxsize0)
       implicit none
+#include "errquit.fh"
       integer maxsize0
 
 #include "mafdecls.fh"
@@ -39,7 +40,7 @@
      >        MA_alloc_get(mt_int,(maxsize),'dnlist_tag',
      >                     dnlist_tag(2),dnlist_tag(1))
       if (.not. value)
-     > call errquit('lcao_dnlist_init: out of heap memory',0)
+     > call errquit('lcao_dnlist_init: out of heap memory',0, MA_ERR)
 
       return
       end
@@ -53,6 +54,7 @@
 
       subroutine lcao_dnlist_end()
       implicit none
+#include "errquit.fh"
      
 #include "mafdecls.fh"
 #include "lcao_dnlist.fh"
@@ -70,7 +72,7 @@
       value = value.and.MA_free_heap(dnlist_tag(2))
       value = value.and.MA_free_heap(dnlist(2))
       if (.not. value)
-     > call errquit('lcao_dnlist_init: freeing heap memory',0)
+     > call errquit('lcao_dnlist_init: freeing heap memory',0, MA_ERR)
 
       size    = 0
       maxsize = 0
@@ -84,6 +86,7 @@
 *     ***********************************
       subroutine lcao_dnlist_new(n2ft3d,index)
       implicit none
+#include "errquit.fh"
       integer n2ft3d
       integer index
 
@@ -95,12 +98,12 @@
       integer indx,mindx
 
       if (size.ge.maxsize) 
-     > call errquit('lcao_dnlist_new: maxsize exceeded',0)
+     > call errquit('lcao_dnlist_new: maxsize exceeded',0, INPUT_ERR)
 
       value = MA_alloc_get(mt_dbl,(n2ft3d),'dn',
      >                     mindx,indx)
       if (.not.value) 
-     > call errquit('lcao_dnlist_new: out of heap memory',0)
+     > call errquit('lcao_dnlist_new: out of heap memory',0, MA_ERR)
 
       size = size + 1
       int_mb(dnlist(1)    +size-1) = indx
@@ -119,6 +122,7 @@
 *     ***********************************
       subroutine lcao_dnlist_get(count,index)
       implicit none
+#include "errquit.fh"
       integer count
       integer index
 
@@ -126,7 +130,7 @@
 #include "lcao_dnlist.fh"
 
       if ((count.gt.size).or.(count.lt.1)) 
-     > call errquit('lcao_dnlist_get: bad count',0)
+     > call errquit('lcao_dnlist_get: bad count',0, INPUT_ERR)
 
       index   = int_mb(dnlist(1)+count-1)
       return

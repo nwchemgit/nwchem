@@ -10,6 +10,7 @@
      >                        lmax,b0,a,sum)
       
       implicit none
+#include "errquit.fh"
 
 
       integer    iunit
@@ -67,7 +68,7 @@
      >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(Gx(1)))

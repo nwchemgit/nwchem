@@ -3,12 +3,13 @@ C NAME
 C     RIMP2_P2ab -- Form P^{(2)}_{ab} for batch in memory
 C
 C REVISION
-C     $Id: p2ab.F,v 1.3 1998-10-12 14:31:25 bernhold Exp $
+C     $Id: p2ab.F,v 1.4 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2AB(SameSpin, IJSym, IJTri, ILo, IHi, NVirI,
      $     JLo, JHi, NVirJ, Mixed, G_T, G_P2, Vir1)
       Implicit NONE
+#include "errquit.fh"
 C
       Logical SameSpin ![in]
       Logical IJSym
@@ -65,16 +66,18 @@ C     to accumulate the contribution.
 C
       If ( .NOT. MA_Push_Get( MT_Dbl, NVirI*NVirJ,
      $   'Local temp for RIMP2_P2ab', H_Block, I_Block) ) Call ErrQuit(
-     $   'RIMP2_P2ab: can''t allocate local temp', NVirI*NVirJ)
+     $   'RIMP2_P2ab: can''t allocate local temp', NVirI*NVirJ, MA_ERR)
       If ( Mixed ) then
          If ( .NOT. MA_Push_Get( MT_Dbl, NVirJ*NVirJ,
      $      'Local temp for RIMP2_P2ab', H_P2, I_P2) ) Call ErrQuit(
-     $      'RIMP2_P2ab: can''t allocate local temp', NVirJ*NVirJ)
+     $      'RIMP2_P2ab: can''t allocate local temp', NVirJ*NVirJ,
+     &       MA_ERR)
          Call DFill(NVirJ*NVirJ, 0.0d0, Dbl_MB(I_P2), 1)
       Else
          If ( .NOT. MA_Push_Get( MT_Dbl, NVirI*NVirI,
      $      'Local temp for RIMP2_P2ab', H_P2, I_P2) ) Call ErrQuit(
-     $      'RIMP2_P2ab: can''t allocate local temp', NVirI*NVirI)
+     $      'RIMP2_P2ab: can''t allocate local temp', NVirI*NVirI,
+     &       MA_ERR)
          Call DFill(NVirI*NVirI, 0.0d0, Dbl_MB(I_P2), 1)
       EndIf
 C
@@ -97,7 +100,8 @@ C
          Do J = 1, JTop
             If ( .NOT. GA_Locate(G_T, (I-1)*NVirI+1, (J-1)*NVirJ+1,
      $         Owner) ) Call ErrQuit(
-     $         'RIMP2_P2ab: indexing problem with t amplitudes', 0)
+     $         'RIMP2_P2ab: indexing problem with t amplitudes', 0,
+     &       GA_ERR)
 C
             If ( Owner .eq. Me) then
 C
@@ -140,9 +144,9 @@ C
 C     Free local memory
 C
       If ( .NOT. MA_Pop_Stack(H_P2) ) Call ErrQuit(
-     $   'RIMP2_P2ab: can''t free local temp', H_P2)
+     $   'RIMP2_P2ab: can''t free local temp', H_P2, MA_ERR)
       If ( .NOT. MA_Pop_Stack(H_Block) ) Call ErrQuit(
-     $   'RIMP2_P2ab: can''t free local temp', H_Block)
+     $   'RIMP2_P2ab: can''t free local temp', H_Block, MA_ERR)
 C        
       If (Util_Print('partial p2', Print_Debug) ) then
          Write (LuOut, *) 'After RIMP2_P2ab...'

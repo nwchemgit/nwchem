@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.67 2003-04-14 20:54:02 sohirata Exp $
+c     $Id: dft_inpana.F,v 1.68 2003-10-17 22:55:43 carlfahl Exp $
 c
 c*********************************************************************
 c     
@@ -10,6 +10,7 @@ c     Write pertinent information to user output.
 c     
 c*********************************************************************
       implicit none
+#include "errquit.fh"
 c
 #include "stdio.fh"
 #include "rtdb.fh"
@@ -64,14 +65,17 @@ c     Figure out the number of electrons from the required total
 c     charge and the sum of nuclear charges
 c     
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $        call errquit('dft_inpana: theory not specified',0)
+     $        call errquit('dft_inpana: theory not specified',0,
+     &       RTDB_ERR)
       if (.not. geom_nuc_charge(geom, anucl_charg))
-     &     call errquit('dft_inpana: geom_nuc_charge failed', 0)
+     &     call errquit('dft_inpana: geom_nuc_charge failed', 0,
+     &       GEOM_ERR)
       nel = nint(anucl_charg - rcharge)
       if (nel .le. 0) call errquit
-     $     ('dft_inpana: negative no. of electrons ?', nel)
+     $     ('dft_inpana: negative no. of electrons ?', nel, INPUT_ERR)
       if (abs(anucl_charg - rcharge - dble(nel)) .gt. 1d-8)
-     $     call errquit('dft_inpana: non-integral # of electrons ?', 0)
+     $     call errquit('dft_inpana: non-integral # of electrons ?', 0,
+     &       INPUT_ERR)
 c     
 c     Check to see if calculation type is allowed.
 c     
@@ -99,7 +103,8 @@ c
            write(LuOut,*)' number of electrons :',nel
            write(LuOut,*)' multiplicity        :',mult
            call errquit(
-     &         ' no. of electrons and multiplicity not compatible',nel)
+     &         ' no. of electrons and multiplicity not compatible',nel,
+     &       INPUT_ERR)
          endif
          if(mult.gt.0) then
             noc(2) = (nel - mult + 1)/2
@@ -112,19 +117,20 @@ c
          endif
       endif
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     $     call errquit('inpana: dft:ipol put failed', 0)
+     $     call errquit('inpana: dft:ipol put failed', 0, RTDB_ERR)
 c     
 c     Check to see if there are enough electrons for this
 c     value of the multiplicity.
 c     
       if (noc(2).lt.0)then
-         call errquit('dft: #electrons not valid for multiplicity',mult)
+         call errquit('dft: #electrons not valid for multiplicity',mult,
+     &       INPUT_ERR)
       endif
 c     
 c     write noc (consistent with definition in ddscf) to rtdb
 c     
       if (.not. rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('inpana: rtdb_put of noc failed', 0) 
+     &   call errquit('inpana: rtdb_put of noc failed', 0, RTDB_ERR)
 c     
 c     Write new data to checkpoint file.
 c     
@@ -151,13 +157,13 @@ c
 c        Update rtdb.
 c     
          if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, numfunc, cfac))
-     $        call errquit('dft_input: rtdb_put failed', 210)
+     $        call errquit('dft_input: rtdb_put failed', 210, RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
-     $        call errquit('dft_input: rtdb_put failed', 211)
+     $        call errquit('dft_input: rtdb_put failed', 211, RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, numfunc, lcfac ))
-     $        call errquit('dft_input: rtdb_put failed', 9)
+     $        call errquit('dft_input: rtdb_put failed', 9, RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, numfunc, lxfac ))
-     $        call errquit('dft_input: rtdb_put failed', 11)
+     $        call errquit('dft_input: rtdb_put failed', 11, RTDB_ERR)
       endif
 c
 c     Check/set defaults for convergence schemes
@@ -297,18 +303,18 @@ c
             write(LuOut,9030)iterations
             if (idirect.eq.1)write(LuOut,9110)
             if (.not. bas_numcont(AO_bas_han, nshells))
-     &         call errquit('rdinput:rdinput:',86)
+     &         call errquit('rdinput:rdinput:',86, BASIS_ERR)
             write(LuOut,4001)nbf, nshells
             if (nbf_cd.gt.0)then
                write(LuOut,9130)
               if (.not. bas_numcont(CD_bas_han, nshells_cd))
-     &           call errquit('rdinput:rdinput:',87)
+     &           call errquit('rdinput:rdinput:',87, BASIS_ERR)
                write(LuOut,4002)nbf_cd, nshells_cd
             endif
             if (nbf_xc.gt.0)then
                write(LuOut,9120)
                if (.not. bas_numcont(XC_bas_han, nshells_xc))
-     &            call errquit('rdinput:rdinput:',88)
+     &            call errquit('rdinput:rdinput:',88, BASIS_ERR)
                write(LuOut,4003)nbf_xc, nshells_xc
             endif
             write(LuOut,9035)e_conv
@@ -457,7 +463,8 @@ c
                   if (iatype(ictr).eq.n) then
                      if (.not. geom_cent_get(geom, ictr, tag, 
      &                  ictr_coord, ictr_chg))call errquit
-     &                  ('dft_inpana: geom_cent_get failed', 0)
+     &                  ('dft_inpana: geom_cent_get failed', 0,
+     &       GEOM_ERR)
                      goto 40
                   endif
                enddo
@@ -637,6 +644,7 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
       end
       subroutine dft_inpanae(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -649,12 +657,12 @@ c
       double precision tol2e
 c
       oprint_general = util_print('general information',print_default)
-      oprint_tolgr = util_print('grid_tol_info', print_high)                    
+      oprint_tolgr = util_print('grid_tol_info', print_high)
 c
 c     get e_conv from rtdb because hess_init
 c
       if (.not.rtdb_get(rtdb,'dft:e_conv',mt_dbl,1,e_conv))
-     .     call errquit('dftinpanae: rtdbget econv failed',0)
+     .     call errquit('dftinpanae: rtdbget econv failed',0, RTDB_ERR)
 c
 c     check integral tolerances to make sure they match 
 c     requested convergence tolerances.
@@ -665,7 +673,7 @@ c
          itol2e = -nint(log10(1.0d-1*e_conv))
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
      &      mt_int, 1, itol2e))
-     &      call errquit('dft_inpanae: rtdb_put failed', 127)
+     &      call errquit('dft_inpanae: rtdb_put failed', 127, RTDB_ERR)
          if (ga_nodeid().eq.0.and.oprint_general)then
             write(LuOut,*)' itol2e modified to match energy'
             write(LuOut,*)' convergence criterion.'
@@ -681,7 +689,7 @@ c
          tol_rho = 1.0d-3*e_conv
          if (.not. rtdb_put(rtdb, 'dft:tol_rho',
      &      mt_dbl, 1, tol_rho))
-     &      call errquit('dft_inpanae: rtdb_put failed', 127)
+     &      call errquit('dft_inpanae: rtdb_put failed', 127, RTDB_ERR)
          if (ga_nodeid().eq.0.and.oprint_general)then
             write(LuOut,*)' tol_rho modified to match energy'
             write(LuOut,*)' convergence criterion.'
@@ -695,10 +703,10 @@ c
       endif	
        if (.not. rtdb_put(rtdb, 'dft:iAOacc',
      &      mt_int, 1, iAOacc))
-     &      call errquit('dft_inpanae: rtdb_put failed', 124)
+     &      call errquit('dft_inpanae: rtdb_put failed', 124, RTDB_ERR)
       tol2e = 10.d0**(-itol2e)
       if (.not. rtdb_put(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
-     .     call errquit('dftinpanae:rtdbput failed',0)
+     .     call errquit('dftinpanae:rtdbput failed',0, RTDB_ERR)
       if(oprint_tolgr.and.ga_nodeid().eq.0) then
         write(luout,*) ' dftinpanae: itol2e ',itol2e,
      ,     ' iaoacc ',iaoacc,

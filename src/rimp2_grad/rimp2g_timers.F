@@ -1,6 +1,7 @@
       Subroutine RIMP2G_PStat_Init
-C$Id: rimp2g_timers.F,v 1.1 1998-04-17 21:15:38 gg502 Exp $
+C$Id: rimp2g_timers.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
 C
 #include "pstat.fh"
 #include "rimp2g_timers.fh"
@@ -40,7 +41,8 @@ C
      $   PStat_QStat, 0, Accum, PS_PrEn)
 C
       If (.NOT. Status)
-     $   Call ErrQuit('Rimp2g_PStat_Init: Unable to allocate timers', 0)
+     $   Call ErrQuit('Rimp2g_PStat_Init: Unable to allocate timers', 0,
+     &       MEM_ERR)
 C
       Return
       End
@@ -55,6 +57,7 @@ C
 C
       Subroutine RIMP2G_PStat_Term
       Implicit NONE
+#include "errquit.fh"
 C
 #include "pstat.fh"
 #include "rimp2g_timers.fh"
@@ -79,7 +82,8 @@ C
       Status = Status .AND. PStat_Free(PS_PrEn)
 C
       If (.NOT. Status)
-     $   Call ErrQuit('RIMP2G_PStat_Term: Unable to free timers', 0)
+     $   Call ErrQuit('RIMP2G_PStat_Term: Unable to free timers', 0,
+     &       MEM_ERR)
 C
       Return
       End

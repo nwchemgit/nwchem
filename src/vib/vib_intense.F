@@ -1,7 +1,8 @@
-* $Id: vib_intense.F,v 1.6 2001-07-27 21:34:01 windus Exp $
+* $Id: vib_intense.F,v 1.7 2003-10-17 22:58:37 carlfahl Exp $
       subroutine vib_intense(rtdb,eigvec,eigval,nat,ddpolx,ddpolq,
      &    intensity,first_pass)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -210,7 +211,7 @@ c
         if(.not. rtdb_put(rtdb,'vib:intensities',MT_DBL,3*nat,
      &      intensity(1,1,1)))
      &      call errquit('vib_intense:rtdb_put of intensities failed',
-     &      555)
+     &      555, RTDB_ERR)
         call ecce_print1('intensities (debye/ang)2',
      &      mt_dbl,intensity(1,1,2),(3*nat))
         call ecce_print1('intensities (KM/mol)',
@@ -222,7 +223,7 @@ c
      &      MT_DBL,3*nat,intensity(1,1,1)))
      &      call errquit(
      &      'vib_intense:rtdb_put of projected intensities failed',
-     &      555)
+     &      555, RTDB_ERR)
         call ecce_print1('projected intensities (debye/ang)2',
      &      mt_dbl,intensity(1,1,2),(3*nat))
         call ecce_print1('projected intensities (KM/mol)',

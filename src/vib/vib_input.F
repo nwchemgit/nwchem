@@ -1,7 +1,8 @@
       subroutine freq_vib_input(rtdb)
       implicit none
+#include "errquit.fh"
 *
-* $Id: vib_input.F,v 1.2 2001-10-06 01:06:37 edo Exp $
+* $Id: vib_input.F,v 1.3 2003-10-17 22:58:37 carlfahl Exp $
 *
 c
 c  {freq||vib}
@@ -38,12 +39,12 @@ c
       o_masses = .false.
       call inp_set_field(0) ! reset to beginning of current line
       if (.not.inp_a(test)) call errquit
-     &    ('freq_vib_input: could not parse keyword ',911)
+     &    ('freq_vib_input: could not parse keyword ',911, INPUT_ERR)
       if (.not.((inp_compare(.false.,test(1:3),'vib')).or.
      &          (inp_compare(.false.,test(1:4),'freq'))))
      &   call errquit
      &   ('freq_vib_input: input block identifier not "vib" or "freq" ',
-     &   911)
+     &   911, INPUT_ERR)
       
 00010 if (.not.inp_read()) goto 01001
       if (inp_a(test)) then
@@ -51,7 +52,8 @@ c
           goto 01000
         else if (inp_compare(.false.,test,'animate')) then
           if (.not.rtdb_put(rtdb,'vib:animate',mt_log,1,.true.))
-     &        call errquit('freq_vib_input: rtdb_put failed',911)
+     &        call errquit('freq_vib_input: rtdb_put failed',911,
+     &       RTDB_ERR)
           num_on_line = inp_n_field()
           if (num_on_line .eq. 1) then
             continue ! okay just set animation on
@@ -59,7 +61,8 @@ c
             if (inp_f(animate_step)) then
               if (.not.rtdb_put(rtdb,
      &            'vib:animate:step_size',mt_dbl,1,animate_step))
-     &            call errquit('freq_vib_input: rtdb_put failed',911)
+     &            call errquit('freq_vib_input: rtdb_put failed',911,
+     &       RTDB_ERR)
             else
               write(luout,*)' could not read step size '
               call inp_outrec()
@@ -100,12 +103,15 @@ c
               num_mod_mass = num_mod_mass + 1
               write(rtdb_id,10001)num_mod_mass
               if (.not.rtdb_put(rtdb,rtdb_id,mt_int,1,lexical_index))
-     &            call errquit('freq_vib_input: rtdb_put failed',911)
+     &            call errquit('freq_vib_input: rtdb_put failed',911,
+     &       RTDB_ERR)
               write(rtdb_id,10003)num_mod_mass
               if (.not.rtdb_put(rtdb,rtdb_id,mt_dbl,1,new_mass))
-     &            call errquit('freq_vib_input: rtdb_put failed',911)
+     &            call errquit('freq_vib_input: rtdb_put failed',911,
+     &       RTDB_ERR)
             else
-              call errquit('freq_vib_input: could not read mass',911)
+              call errquit('freq_vib_input: could not read mass',911,
+     &       INPUT_ERR)
             endif
           else
             if (inp_a(test)) then
@@ -116,12 +122,15 @@ c
                 num_mod_mass = num_mod_mass + 1
                 write(rtdb_id,10002)num_mod_mass
                 if (.not.rtdb_cput(rtdb,rtdb_id,1,tag))
-     &              call errquit('freq_vib_input: rtdb_put failed',911)
+     &              call errquit('freq_vib_input: rtdb_put failed',911,
+     &       RTDB_ERR)
                 write(rtdb_id,10003)num_mod_mass
                 if (.not.rtdb_put(rtdb,rtdb_id,mt_dbl,1,new_mass))
-     &              call errquit('freq_vib_input: rtdb_put failed',911)
+     &              call errquit('freq_vib_input: rtdb_put failed',911,
+     &       RTDB_ERR)
               else
-                call errquit('freq_vib_input: could not read mass',911)
+                call errquit('freq_vib_input: could not read mass',911,
+     &       INPUT_ERR)
               endif
             else
               write(luout,*)'freq_vib_input: could not parse line'
@@ -141,25 +150,30 @@ c
         else
           write(luout,10000)
           write(luout,*)'unrecognized keyword',test
-          call errquit('freq_vib_input: fatal parsing error',911)
+          call errquit('freq_vib_input: fatal parsing error',911,
+     &       INPUT_ERR)
         endif
       else
         write(luout,10000)
-        call errquit('freq_vib_input: malformed input block ',911)
+        call errquit('freq_vib_input: malformed input block ',911,
+     &       INPUT_ERR)
       endif
 01000 continue
       if (o_masses) then
         if (.not.rtdb_put
      &      (rtdb,'vib:remass:count',mt_int,1,num_mod_mass))
-     &      call errquit ('freq_vib_input: could not put to rtdb ',911)
+     &      call errquit ('freq_vib_input: could not put to rtdb ',911,
+     &       RTDB_ERR)
       endif
       if (o_reuse) then
         if (.not.(rtdb_put(rtdb,'vib:reuse',mt_log,1,.true.)))
-     &      call errquit ('freq_vib_input: could not put to rtdb ',911)
+     &      call errquit ('freq_vib_input: could not put to rtdb ',911,
+     &       RTDB_ERR)
       endif
       if (o_hessfile) then
         if (.not.rtdb_cput(rtdb,'vib:reuse_hessian_file',1,filename))
-     &      call errquit ('freq_vib_input: could not cput to rtdb ',911)
+     &      call errquit ('freq_vib_input: could not cput to rtdb ',911,
+     &       RTDB_ERR)
       endif
 *debug-s
 *     if (.not.rtdb_print(rtdb,.true.)) call errquit('911',911)
@@ -167,7 +181,8 @@ c
       return
 01001 continue
       write(luout,10000)
-      call errquit ('freq_vib_input: fatal input parsing error',911)
+      call errquit ('freq_vib_input: fatal input parsing error',911,
+     &       INPUT_ERR)
 10000 format(' frequency or vib input block format is: ',/,
      &       ' {freq || vib} ',/,
      &       '   reuse [<string> hessian_filename] ',/,

@@ -1,4 +1,4 @@
-c $Id: int_mpole.F,v 1.14 2000-01-25 20:09:02 mg201 Exp $
+c $Id: int_mpole.F,v 1.15 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mpole}
@@ -34,6 +34,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "apiP.fh"
 #include "basP.fh"
@@ -93,7 +94,8 @@ c
 c check initialization
 c      
       if (.not.int_chk_init('int_mpole'))
-     &       call errquit('int_mpole: int_init was not called' ,0)
+     &       call errquit('int_mpole: int_init was not called' ,0, 
+     &             INT_ERR)
 c
 c  check if spherical
 c
@@ -126,7 +128,8 @@ c
       shells_ok = inline_chk_sh(ibas,ish)
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not. shells_ok)
-     &       call errquit('int_mpole: invalid contraction/shell',0)
+     &       call errquit('int_mpole: invalid contraction/shell',0, 
+     &        BASIS_ERR)
 c
 ***   set defNxyz such that it can handle the maximum multi-pole
 c
@@ -143,7 +146,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_mpole: no relativistic pointer',911)
+     &      'int_mpole: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -173,7 +176,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911)
+     &      'int_1estv: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -206,7 +209,8 @@ c
       if (i_gen.gt.1 .or. j_gen.gt.1) then
         write(luout,*)
      &      ' hf3ois does not handle general contractions yet'
-        call errquit('int_mpole: general contraction error ',911)
+        call errquit('int_mpole: general contraction error ',911,
+     &            INT_ERR)
       endif
 c
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
@@ -231,7 +235,7 @@ c
      &        lval
           write(luout,*)' int_mpole: (num_int+(l_int*ij_int_x)) = ',
      &        (num_int+(l_int*ij_int_x))
-          call errquit('int_mpole: lmpint too small ',911)
+          call errquit('int_mpole: lmpint too small ',911, INT_ERR)
         endif
         num_int = num_int + l_int*ij_int
         if (orel) then

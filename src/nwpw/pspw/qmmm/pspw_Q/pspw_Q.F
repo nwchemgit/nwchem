@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.10 2002-03-05 01:49:32 bylaska Exp $
+c $Id: pspw_Q.F,v 1.11 2003-10-17 22:57:53 carlfahl Exp $
 c
 
 
@@ -10,6 +10,7 @@ c
 *     *************************
       subroutine pspw_Q_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -53,7 +54,7 @@ c
      >                 'q_mm',q_mm(2),q_mm(1))
       value = MA_alloc_get(mt_dbl,nkatm_ion,
      >                 'q_ion',q_ion(2),q_ion(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
 *     **** read in MM Electrostatic parameters ***
@@ -109,6 +110,7 @@ c
 *     *************************
       subroutine pspw_Q_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -119,7 +121,7 @@ c
 
       value = MA_free_heap(q_mm(2))
       value = value.and.MA_free_heap(q_ion(2))
-      if (.not.value) call errquit('error MA_free_heap',0)
+      if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
 
       return
       end

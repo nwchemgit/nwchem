@@ -3,7 +3,7 @@ C NAME
 C     CCDen_1PDM -- Form coupled cluster 1-particle density matrix
 C
 C REVISION
-C     $Id: ccden_1pdm.F,v 2.2 1997-04-17 05:57:54 d3e129 Exp $
+C     $Id: ccden_1pdm.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_1PDM(NOcc, NVir, T1, LDT1, g_T2,
@@ -11,6 +11,7 @@ C SYNOPSIS
      $   Omega1, LDO1, Omega2, LDO2, Omega3, LDO3, Omega4, LDO4,
      $   g_1PDM)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir, LDT1, LDZ1, LDO1, LDO2, LDO3, LDO4
       Integer g_T2, g_Z2, g_1PDM
       Double Precision T1(LDT1, NVir), Z1(LDT1, NVir)
@@ -57,7 +58,8 @@ C        ****************************************************
 C
          If (.NOT. MA_Push_Get(MT_Dbl, NOcc*NOcc,
      $      'CCDen Scratch 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $      'CCDen_1PDM: unable to allocate scratch', NOcc*NOcc)
+     $      'CCDen_1PDM: unable to allocate scratch', NOcc*NOcc,
+     &       MA_ERR)
 C
 C        Initialize the matrix with 2 on the diagonal, per the last term.
 C
@@ -85,7 +87,7 @@ C
      $      1.0d0)
 C
          If ( .NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $      'CCDen_1PDM: unable to free scratch', 0)
+     $      'CCDen_1PDM: unable to free scratch', 0, MA_ERR)
 C
 C        ***************************************************
 C        * Virtual-virtual block                           *
@@ -95,7 +97,8 @@ C        ***************************************************
 C
          If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $      'CCDen Scratch 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $      'CCDen_1PDM: unable to allocate scratch', NVir*NVir)
+     $      'CCDen_1PDM: unable to allocate scratch', NVir*NVir,
+     &       MA_ERR)
 C
 C        [tZ](a,b) = sum(i) t(i,a) Z(i,b) (APR & TJL Eq. 57)
 C
@@ -117,7 +120,8 @@ C
      $      Omega3, NVir, 1.0d0)
 C
          If ( .NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $      'CCDen_1PDM: unable to free scratch', 0)
+     $      'CCDen_1PDM: unable to free scratch', 0,
+     &       MA_ERR)
 C
 C        ***************************************************************
 C        * Occupied-virtual block                                      *
@@ -129,7 +133,8 @@ C        ***************************************************************
 C
          If (.NOT. MA_Push_Get(MT_Dbl, NOcc*NVir,
      $      'CCDen Scratch 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $      'CCDen_1PDM: unable to allocate scratch', NOcc*NVir)
+     $      'CCDen_1PDM: unable to allocate scratch', NOcc*NVir,
+     &       MA_ERR)
 C
          Call DFill(NOcc*NVir, 0.0d0, Dbl_MB(I_Scr1), 1)
 C
@@ -160,7 +165,7 @@ C
      $      Dbl_MB(I_Scr1), NOcc, 1.0d0)
 C
          If ( .NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $      'CCDen_1PDM: unable to free scratch', 0)
+     $      'CCDen_1PDM: unable to free scratch', 0, MA_ERR)
 C
 C
 C

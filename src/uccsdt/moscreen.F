@@ -1,5 +1,6 @@
       subroutine moints_screen(basis, occlo, occhi, g_mos, g_mosc)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -37,19 +38,20 @@ c     Get dimension info
 c     
       call ga_inquire(g_mos, ga_type, nbf, nmo)
       if (.not. bas_numcont(basis,nsh))
-     $     call errquit('moints_screen: basis?', basis)
+     $     call errquit('moints_screen: basis?', basis, BASIS_ERR)
 c     
 c     Allocate the result array
 c     
       if (.not. ga_create(mt_dbl, nmo, nmo, 'mosc', 0, 0, g_mosc))
-     $     call errquit('moscreen: failed to allocate result array',0)
+     $     call errquit('moscreen: failed to allocate result array',0,
+     &       GA_ERR)
       call ga_zero(g_mosc)
 c     
 c     Get the MOs
 c     
       if (.not. ma_push_get(mt_dbl, nbf*nmo, 'mos',
      $     l_mos, k_mos)) call errquit
-     $     ('moints_screen: allocating mos?',nbf*nmo)
+     $     ('moints_screen: allocating mos?',nbf*nmo, MA_ERR)
       if (ga_nodeid() .eq. 0) call ga_get
      $     (g_mos, 1, nbf, 1, nmo, dbl_mb(k_mos), nbf)
       call ga_brdcst(2, dbl_mb(k_mos), 8*nmo*nbf, 0)
@@ -59,13 +61,13 @@ c
       maxshblock = min(256,nbf)
       if (.not. ma_push_get(mt_dbl, maxshblock*nmo, 'tmp1',
      $     l_tmp1, k_tmp1)) call errquit
-     $     ('moints_screen: allocating tmp?',ldim*nmo)
+     $     ('moints_screen: allocating tmp?',ldim*nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo*nmo, 'tmp2',
      $     l_tmp2, k_tmp2)) call errquit
-     $     ('moints_screen: allocating tmp?',nmo*nmo)
+     $     ('moints_screen: allocating tmp?',nmo*nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo*nmo, 'tmp2',
      $     l_tmp3, k_tmp3)) call errquit
-     $     ('moints_screen: allocating tmp?',nmo*nmo)
+     $     ('moints_screen: allocating tmp?',nmo*nmo, MA_ERR)
       call dfill(nmo*nmo, 0d0, dbl_mb(k_tmp3), 1)
 c     
 c     Block the shells for the inner loops
@@ -77,11 +79,11 @@ c
       count = 0
       do ish = 1, nsh
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('moints_screen: basis?', 0)
+     $        call errquit('moints_screen: basis?', 0, BASIS_ERR)
          idim = ihi-ilo+1
          do jsh = 1, ish        ! Must have ish >= jsh
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
-     $           call errquit('moints_screen: basis?', 0)
+     $           call errquit('moints_screen: basis?', 0, BASIS_ERR)
             jdim = jhi-jlo+1
             if (count.eq.next) then 
                if (schwarz_shell(jsh,ish)*schwarz_max() .gt. tol) then
@@ -89,17 +91,21 @@ c
                      kshlo = shlist(1,kshb)
                      kshhi = shlist(2,kshb)
                      if (.not. bas_cn2bfr(basis, kshlo, klo, junk))
-     $                    call errquit('moints_screen: basis?', 0)
+     $                    call errquit('moints_screen: basis?', 0,
+     &       BASIS_ERR)
                      if (.not. bas_cn2bfr(basis, kshhi, junk, khi))
-     $                    call errquit('moints_screen: basis?', 0)
+     $                    call errquit('moints_screen: basis?', 0,
+     &       BASIS_ERR)
                      kdim = khi-klo+1
                      do lshb = 1, kshb ! Must have ksh >= lsh
                         lshlo = shlist(1,lshb)
                         lshhi = shlist(2,lshb)
                         if (.not. bas_cn2bfr(basis, lshlo, llo, junk))
-     $                       call errquit('moints_screen: basis?', 0)
+     $                       call errquit('moints_screen: basis?', 0,
+     &       BASIS_ERR)
                         if (.not. bas_cn2bfr(basis, lshhi, junk, lhi))
-     $                       call errquit('moints_screen: basis?', 0)
+     $                       call errquit('moints_screen: basis?', 0,
+     &       BASIS_ERR)
                         ldim = lhi-llo+1
 c     
 c     Allocate space to hold the integrals (ij|kl) for ij in shells
@@ -109,7 +115,7 @@ c
                         if (.not. ma_push_get(mt_dbl, intdim, 'ints',
      $                       l_ints, k_ints)) call errquit
      $                       ('moints_screen: allocating ints', 
-     $                       intdim)
+     $                       intdim, MA_ERR)
 c     
                         call moints_aoblock(
      $                       basis, .false.,
@@ -147,7 +153,7 @@ c
       endif
       call ga_sync()
       if (.not. ma_chop_stack(l_mos)) call errquit
-     $     ('moints_screen: failed chopping stack', 0)
+     $     ('moints_screen: failed chopping stack', 0, MA_ERR)
 c     
 ***   if (ga_nodeid() .eq. 0) write(6,*) ' MO SCREENING ARRAY'
 ***   call ga_print(g_mosc)

@@ -1,5 +1,6 @@
       Subroutine Module_Census
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
 C
 C     Eventually this routine should print out a list of modules or
 C     tasks or something which are incorporated into the present
@@ -11,165 +12,188 @@ C
       Return
       End
       Subroutine debtest(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'debtest is not in this build of NWChem', 0)
+     $   'debtest is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine gap_parse(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'gap_parse is not in this build of NWChem', 0)
+     $   'gap_parse is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine gapss(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'gapss is not in this build of NWChem', 0)
+     $   'gapss is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine ideaz_input(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'ideaz_input is not in this build of NWChem', 0)
+     $   'ideaz_input is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine jantest(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'jantest is not in this build of NWChem', 0)
+     $   'jantest is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine jvltest(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'jvltest is not in this build of NWChem', 0)
+     $   'jvltest is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine jvltest2(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'jvltest2 is not in this build of NWChem', 0)
+     $   'jvltest2 is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine kgdtest(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'kgdtest is not in this build of NWChem', 0)
+     $   'kgdtest is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine mdmain(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'mdmain is not in this build of NWChem', 0)
+     $   'mdmain is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine oimp2(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'oimp2 is not in this build of NWChem', 0)
+     $   'oimp2 is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine plnwv(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'plnwv is not in this build of NWChem', 0)
+     $   'plnwv is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine plnwv_input(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'plnwv_input is not in this build of NWChem', 0)
+     $   'plnwv_input is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine raktest(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'raktest is not in this build of NWChem', 0)
+     $   'raktest is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine rimp2g(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'rimp2g is not in this build of NWChem', 0)
+     $   'rimp2g is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine rjhtest(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'rjhtest is not in this build of NWChem', 0)
+     $   'rjhtest is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
 #ifndef WITHPYTHON
       Subroutine python_input(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'python_input is not in this build of NWChem', 0)
+     $   'python_input is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine task_python(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'task_python is not in this build of NWChem', 0)
+     $   'task_python is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
 #endif
       Subroutine task_vscf(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'task_vscf is not in this build of NWChem', 0)
+     $   'task_vscf is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine uccsdt(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'uccsdt is not in this build of NWChem', 0)
+     $   'uccsdt is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine uccsdtest(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'uccsdtest is not in this build of NWChem', 0)
+     $   'uccsdtest is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
       Subroutine vscf_input(RTDB)
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+      include "errquit.fh"
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Integer RTDB
       Call ErrQuit(
-     $   'vscf_input is not in this build of NWChem', 0)
+     $   'vscf_input is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Subroutine mcstep(RTDB)
+      include "errquit.fh"
       Integer RTDB
       Call ErrQuit(
-     $   'mcstep is not in this build of NWChem', 0)
+     $   'mcstep is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End
-* $Id: stubs_win32.F,v 1.6 2002-01-15 18:37:11 edo Exp $
+* $Id: stubs_win32.F,v 1.7 2003-10-17 22:53:32 carlfahl Exp $
       Subroutine mcstep_main(RTDB)
+      include "errquit.fh"
       Integer RTDB
       Call ErrQuit(
-     $   'mcstep_main is not in this build of NWChem', 0)
+     $   'mcstep_main is not in this build of NWChem', 0, CAPMIS_ERR)
       Return
       End

@@ -1,6 +1,6 @@
       subroutine genr70(bra, ish, xi, jsh, xj, ket, ksh, xk, lsh, xl,
      $     eri)
-c $Id: genr70.F,v 1.6 1999-07-14 00:28:46 d3e129 Exp $
+c $Id: genr70.F,v 1.7 2003-10-17 22:54:05 carlfahl Exp $
 c
 c     Generic interface to the gaussian two electron integral package.
 c     Evaluates those integrals involving only s, p and sp functions.
@@ -45,6 +45,7 @@ c
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
+#include "errquit.fh"
 c
 c
 c     check basis handles, prepare to get data from basis structures
@@ -52,7 +53,7 @@ c
 #ifdef BASIS_DEBUG
       if (.not. (bas_check_handle(bra,'genr70 bra') .and.
      $     bas_check_handle(ket,'genr70 ket'))) call errquit
-     $     ('genr70: invalid bra/ket basis ', 0)
+     $     ('genr70: invalid bra/ket basis ', 0, BASIS_ERR)
 #endif
       bas(1) = bra + BASIS_HANDLE_OFFSET
       bas(2) = bra + BASIS_HANDLE_OFFSET
@@ -90,7 +91,7 @@ c
 c
       go to (120,120,160,120,180,120,160,120,220,140,200,140,180,180,
      +     240,120),itype
-      call errquit('genr70: invalid shell types', itype)
+      call errquit('genr70: invalid shell types', itype, BASIS_ERR)
 c
 c     !! Note that some of these permutations are DIFFERENT from
 c     !! from those in GAMESS/GAUSSIAN due to ishell etc. not being used

@@ -3,11 +3,12 @@ C NAME
 C     mk_fit_xf -- Form fitting basis transformation
 C
 C REVISION
-C     $Id: mk_fit_xf.F,v 1.6 1998-01-07 23:02:11 bernhold Exp $
+C     $Id: mk_fit_xf.F,v 1.7 2003-10-17 22:58:35 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function Mk_Fit_Xf(Approx, Split, Basis, MinEval, G_V)
       Implicit NONE
+#include "errquit.fh"
       Character*(*) Approx, Split
       Integer Basis, G_V
       Double Precision MinEval
@@ -68,7 +69,7 @@ C
          Type = 3
       Else
          Write (LuErr, 9000) Approx
-         Call ErrQuit('Mk_Fit_XF: Bad argument', 1)
+         Call ErrQuit('Mk_Fit_XF: Bad argument', 1, INPUT_ERR)
       EndIf
       If ( Inp_Compare(.FALSE., Split, 'Y') ) then
          DoSplit = .TRUE.
@@ -76,7 +77,7 @@ C
          DoSplit = .FALSE.
       Else
          Write (LuErr, 9010) Split
-         Call ErrQuit('Mk_Fit_XF: Bad argument', 2)
+         Call ErrQuit('Mk_Fit_XF: Bad argument', 2, INPUT_ERR)
       EndIf
  9000 Format(1X, 'Mk_Fit_XF: Unknown approximation requested: ', A)
  9010 Format(1X, 'Mk_Fit_XF: ''split'' argument is Y/N: ', A)
@@ -89,7 +90,7 @@ C
       Status = Status .AND. Bas_NumBF( Basis, NBF)
       If (.NOT. Status )
      $   Call ErrQuit('Mk_Fit_XF: Failed to get expansion basis info',
-     $   0)
+     $   0, BASIS_ERR)
 C
       If (Type .eq. 1) then
 C
@@ -104,7 +105,7 @@ C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'S integral matrix',
      $      -MinChunk, -MinChunk, G_S) )
      $      Call ErrQuit('Mk_Fit_XF: Unable to allocate S temporary',
-     $      0)
+     $      0, GA_ERR)
 C
          Call GA_Zero(G_S)
 C
@@ -122,7 +123,7 @@ C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'SVS integral matrix',
      $      -MinChunk, -MinChunk, G_V) ) 
      $      Call ErrQuit('Mk_Fit_XF: Unable to allocate SVS',
-     $      0)
+     $      0, GA_ERR)
 C
          Call GA_Zero(G_V)
 C
@@ -136,7 +137,7 @@ C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'tmp integral matrix',
      $      -MinChunk, -MinChunk, G_Tmp) )
      $      Call ErrQuit('Mk_Fit_XF: Unable to allocate temporary',
-     $      0)
+     $      0, GA_ERR)
 C
          Call GA_DGEMM('N', 'N', NBF, NBF, NBF,
      $      FP_One, G_S, G_V, FP_Zero, G_Tmp)
@@ -150,7 +151,7 @@ C
 C
          If (.NOT. Status)
      $      Call ErrQuit('Mk_Fit_XF: Unable to deallocate temporaries',
-     $      0)
+     $      0, GA_ERR)
 
       ElseIf (Type .eq. 2) then
 C
@@ -165,7 +166,7 @@ C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'S integral matrix',
      $      -MinChunk, -MinChunk, G_V) ) 
      $      Call ErrQuit('Mk_Fit_XF: Unable to allocate S',
-     $      0)
+     $      0, GA_ERR)
 C
          Call GA_Zero(G_V)
 C
@@ -187,7 +188,7 @@ C
          If ( .NOT. GA_Create( MT_Dbl, NBF, NBF, 'V integral matrix',
      $      -MinChunk, -MinChunk, G_V) )
      $      Call ErrQuit('Mk_Fit_XF: Unable to allocate V',
-     $      0)
+     $      0, GA_ERR)
 C
          Call GA_Zero(G_V)
 C

@@ -1,8 +1,9 @@
       SUBROUTINE vib_TORS(EQVAL,NOINT,I,J,K,L,C,B,NDIM)
 C*MODULE VIB  *DECK TORS
-* $Id: vib_tors.F,v 1.5 1997-03-26 17:43:49 d3e129 Exp $
+* $Id: vib_tors.F,v 1.6 2003-10-17 22:58:37 carlfahl Exp $
 C
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR THE
 C          TORSION AS DEFINED BY WILSON.
@@ -102,7 +103,7 @@ C
 C
   320 CONTINUE
       WRITE (6,9008)
-      CALL errquit('tors: error',911)
+      CALL errquit('tors: error',911, UNKNOWN_ERR)
       STOP
  9008 FORMAT(31H ROUNDOFF ERROR IN TORS - STOP )
       END

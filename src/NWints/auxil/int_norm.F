@@ -1,7 +1,8 @@
       logical function int_normalize(rtdb,basisin)
-c $Id: int_norm.F,v 1.11 2000-02-04 23:07:08 mg201 Exp $
+c $Id: int_norm.F,v 1.12 2003-10-17 22:53:46 carlfahl Exp $
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -49,9 +50,10 @@ c
       norm_ok = bas_norm_id(basis).eq.BasNorm_UN
       if (.not.norm_ok) then
         if (.not. bas_norm_print(basisin)) call errquit
-     &      ('int_normalize: bas_norm_print failed',911)
+     &      ('int_normalize: bas_norm_print failed',911, BASIS_ERR)
         write(luout,*)' basis has already been normalized somehow'
-        call errquit('int_norm: basis normalization error ',911)
+        call errquit('int_norm: basis normalization error ',911,
+     &               BASIS_ERR)
       endif
       bas_norm_id(basis) = norm_typ
 c
@@ -85,7 +87,8 @@ c........ spd
      &            dbl_mb(mb_exndcf(cpt+2*nprim,basis)),
      &           2, nprim, norm_typ)
          else
-            call errquit('int_normalize: invalid contraction type', 0)
+            call errquit('int_normalize: invalid contraction type', 0,
+     &       BASIS_ERR)
          endif
       enddo
 c

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.10 2002-03-04 02:06:46 bylaska Exp $
+c $Id: pspw_charge.F,v 1.11 2003-10-17 22:57:12 carlfahl Exp $
 c
   
 ***********************************************************
@@ -23,6 +23,7 @@ c
  
       subroutine pspw_charge_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -50,7 +51,8 @@ c
          value = value.and.geom_rtdb_load(rtdb,geom,'chargegeometry')
          value = value.and.geom_ncent(geom,nion)
          if (.not. value) 
-     >     call errquit('pspw_charge_init: opening chargegeometry',0)
+     >     call errquit('pspw_charge_init: opening chargegeometry',0,
+     &       GEOM_ERR)
       else
          nion = 0
       end if
@@ -66,7 +68,8 @@ c
      >           MA_alloc_get(mt_dbl,(nion),
      >                        'charge_charge',charge(2),charge(1))
          if (.not. value) 
-     >      call errquit('pspw_charge_init: pushing heap memory',0)
+     >      call errquit('pspw_charge_init: pushing heap memory',0,
+     &       MA_ERR)
 
 
 *        **** read in charge geometries, and charges ****
@@ -77,7 +80,8 @@ c
      >                     dbl_mb(charge(1)+i-1))
          end do
          if (.not. value) 
-     >   call errquit('pspw_charge_init:error reading chargegeometry',0)
+     >   call errquit('pspw_charge_init:error reading chargegeometry',0,
+     &       GEOM_ERR)
 
 *       **** set charge_type ****
         if (.not.rtdb_get(rtdb,
@@ -114,6 +118,7 @@ c
 *     **********************************
       subroutine pspw_charge_destroy()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -126,7 +131,7 @@ c
       if (nion.gt.0) then
         value = geom_destroy(geom)
         if (.not. value) 
-     >     call errquit('error destroying chargegeometry', 0)
+     >     call errquit('error destroying chargegeometry', 0, GEOM_ERR)
       end if
 
       return
@@ -140,6 +145,7 @@ c
 
       subroutine pspw_charge_write(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -173,7 +179,8 @@ c
         value = value.and.geom_rtdb_store(rtdb,geom,'chargegeometry')
         end if
         value = value.and.geom_destroy(geom)
-        if (.not. value) call errquit('error writing chargegeometry', 0)
+        if (.not. value) call errquit('error writing chargegeometry', 0,
+     &       GEOM_ERR)
       end if
 
       return
@@ -189,6 +196,7 @@ c
 *     **********************************
       character*2 function pspw_charge_aname(i)
       implicit none
+#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
@@ -201,7 +209,7 @@ c
       real*8 q
 
       if (.not. geom_cent_tag(geom,i,t))
-     >        call errquit(' pspw_charge_aname: failed ',i)
+     >        call errquit(' pspw_charge_aname: failed ',i, GEOM_ERR)
 
       if (.not. geom_tag_to_element(t,symbol,name,q)) then
         symbol = 'bq'
@@ -257,6 +265,7 @@ c
 
       subroutine pspw_charge_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "pspw_charge.fh"
@@ -267,7 +276,7 @@ c
         value = MA_free_heap(r1(2))
         value = value.and.MA_free_heap(charge(2))
         if (.not.value) 
-     >    call errquit('pspw_charge_end: freeing heap',0)
+     >    call errquit('pspw_charge_end: freeing heap',0, MA_ERR)
       end if
       return
       end

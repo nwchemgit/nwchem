@@ -1,8 +1,9 @@
       logical function task_save_state(rtdb,suffix)
 *     
-*     $Id: task_save_state.F,v 1.9 2000-11-04 19:51:11 d3g681 Exp $
+*     $Id: task_save_state.F,v 1.10 2003-10-17 22:58:26 carlfahl Exp $
 *     
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -39,7 +40,8 @@ c
       integer nmethods, method, i
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task_save_state: theory not specified',0)
+     $     call errquit('task_save_state: theory not specified',0,
+     &       RTDB_ERR)
       oprint = util_print('task_save_state',print_default)
 c     
       if (ga_nodeid() .eq. 0) then
@@ -193,6 +195,7 @@ c
       end
       logical function task_restore_state(rtdb,suffix)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -211,7 +214,8 @@ c
       integer nmethods, method, i
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task_restore_state: theory not specified',0)
+     $     call errquit('task_restore_state: theory not specified',0,
+     &       RTDB_ERR)
       oprint = util_print('task_restore_state',print_high)
 c
       status = .true.           ! Set to false if there was nothing to restore
@@ -378,6 +382,7 @@ c
       end
       logical function task_delete_state(rtdb,suffix)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -393,7 +398,8 @@ c
       logical oexist, oprint
 c     
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task_delete_state: theory not specified',0)
+     $     call errquit('task_delete_state: theory not specified',0,
+     &       RTDB_ERR)
       oprint = util_print('task_delete_state',print_default)
 c     
       if (ga_nodeid() .eq. 0) then
@@ -414,7 +420,7 @@ c
          if (rtdb_cget(rtdb,name,1,vectors)) then
 c     Delete the database entry
             if (.not. rtdb_delete(rtdb, name)) call errquit
-     $           ('task_delete_state: rtdb corrupt',0)
+     $           ('task_delete_state: rtdb corrupt',0, RTDB_ERR)
          else
             call util_file_name('movecs',.false.,.false.,vectors)
          endif

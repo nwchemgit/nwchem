@@ -1,11 +1,12 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.18 2000-06-08 18:15:51 mg201 Exp $
+c $Id: intd_2e4c.F,v 1.19 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
 c 
 #include "stdio.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -134,7 +135,7 @@ c
       if (nint_ck*3*4.gt.leri) then
         write(luout,*) 'nint*3*4 = ',nint_ck*3*4
         write(luout,*) 'leri     = ',leri
-        call errquit('intd_2e4c: nint>leri error',911)
+        call errquit('intd_2e4c: nint>leri error',911, INT_ERR)
       endif
 c
 c  check if spherical/gencon/sp shell
@@ -155,7 +156,7 @@ c
         write(luout,*)
      &      'intd_2e4c.F: two different geometries for',
      &         ' derivatives?'
-        call errquit('intd_2e4c: geom error ',911)
+        call errquit('intd_2e4c: geom error ',911, INT_ERR)
       endif
 
 c... stat rel
@@ -287,7 +288,7 @@ c...............gen labs .. more_integrals
 c
         if (nint_ck*12.gt.lscr) call errquit
      $      ('intd_2e4c: lscr is too small for texas derivatives',
-     $      911)
+     $      911, INT_ERR)
         scr_ptr = lscr - nint_ck*12 - 1 
         call dcopy((nint_ck*12),eri,1,scr(scr_ptr),1)
         call intd_texas_grad_switch(nint_ck,eri,scr(scr_ptr))
@@ -343,7 +344,7 @@ c
         write(luout,*)'           integral derivatives'
         write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
         write(luout,*)'        the input deck and output available'
-        call errquit('intd_2e4c: fatal error',911)     
+        call errquit('intd_2e4c: fatal error',911, INT_ERR)
       endif
 c
       end
@@ -408,6 +409,7 @@ c
      &    bra_sph,ket_sph,idatom)
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "int_nbf.fh"
 c::passed
       integer nint_ck
@@ -446,7 +448,8 @@ C should be
 C        nint_x = i_nbf*j_nbf*k_nbf*l_nbf*ig*jg*kg*lg
 C ?
         if (nint_ck.ne.nint_x) call errquit
-     &      ('intd_2ec2s: nint_ck.ne.nint_x diff=',(nint_ck-nint_x))
+     &      ('intd_2ec2s: nint_ck.ne.nint_x diff=',(nint_ck-nint_x),
+     &       INT_ERR)
         if(bra_sph) then
           i_nbf_s = int_nbf_s(It)
           j_nbf_s = int_nbf_s(Jt)
@@ -488,7 +491,8 @@ C ?
         nint_s = i_nbf*j_nbf*k_nbf*l_nbf
         if (nint_s.gt.nint_x) then
           call errquit
-     &      ('intd_2ec2s: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &      ('intd_2ec2s: nint_s >.nint_x diff=',(nint_s-nint_x),
+     &       INT_ERR)
         elseif (nint_s.eq.nint_x) then
           return
         else
@@ -501,6 +505,7 @@ C ?
      &    (int_buf,nint_x,nint_s,nblocks,scr,lscr,ctine)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 c::passed
       integer lscr
       integer nint_x
@@ -517,11 +522,13 @@ c::local
       if (nint_x*nblocks.gt.lscr) then
         write(luout,*)' calling routine: ',ctine
         call errquit
-     &      ('int_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr))
+     &      ('int_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr),
+     &         INT_ERR)
       endif
       if (nint_s.gt.nint_x) then
         call errquit
-     &      ('int_c2s_mv: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &      ('int_c2s_mv: nint_s >.nint_x diff=',(nint_s-nint_x),
+     &        INT_ERR)
       elseif (nint_s.eq.nint_x) then
         return
       endif

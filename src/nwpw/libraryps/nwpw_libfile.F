@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.6 2003-03-05 23:13:16 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.7 2003-10-17 22:56:19 carlfahl Exp $
 *
 
 *
@@ -12,6 +12,7 @@ c the string library2 is appended by default for paw
 c
       subroutine nwpw_libfile(flag,filename,element)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
       integer       flag
@@ -50,7 +51,7 @@ c
          write(luout,*)' but file does ','not exist or you ',
      &        'do not have ','access to it !'
       endif
-      call errquit('nwpwlibfile: no nwpw library found',0)
+      call errquit('nwpwlibfile: no nwpw library found',0, DISK_ERR)
  99   continue
       if (from_environment) then
           write(luout,*)' library name resolved from: environment'
@@ -90,7 +91,7 @@ c
       if(.not.lexist) then
          write(luout,*) ' could not find library for ',element
          call errquit(
-     .     'nwpw_libfile: missing library file ',0)
+     .     'nwpw_libfile: missing library file ',0, DISK_ERR)
       endif
       return
       end

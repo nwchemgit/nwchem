@@ -1,6 +1,7 @@
       subroutine ccsd_mktask(basis,nsh,tklst)
-C     $Id: ccsd_mktask.F,v 2.4 1997-04-14 06:34:58 gg502 Exp $
+C     $Id: ccsd_mktask.F,v 2.5 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer basis,nsh,tklst(nsh*(nsh+1)/2,2)
 #include "bas.fh"
 #include "rtdb.fh"
@@ -10,10 +11,10 @@ c
       itsk=0
       do ish=1,nsh
        if (.not. bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     &      call errquit('mktask: bas_cn2bfr',ish)
+     &      call errquit('mktask: bas_cn2bfr',ish, BASIS_ERR)
        do jsh=1,ish
         if (.not. bas_cn2bfr(basis,jsh,jbflo,jbfhi))
-     &       call errquit('mktask: bas_cn2bfr',jsh)
+     &       call errquit('mktask: bas_cn2bfr',jsh, BASIS_ERR)
         itsk=itsk+1
         tklst(itsk,1)=(ibfhi-ibflo+1)*(jbfhi-jbflo+1)
         tklst(itsk,2)=(ish-1)*nsh+jsh

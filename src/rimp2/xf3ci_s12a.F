@@ -4,7 +4,7 @@ C     XF3cI_Step12a -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_s12a.F,v 1.1 1995-12-13 01:37:01 d3g681 Exp $
+C     $Id: xf3ci_s12a.F,v 1.2 2003-10-17 22:58:10 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine XF3cI_Step12a(UseERI, AOBas, PDim, QDim, FitBas,
@@ -12,6 +12,7 @@ C SYNOPSIS
      $   CP, PXFLo, PXFHi, CQ, QXFLo, QXFHi, G_C,
      $   Interm, Out, LDOut, Local, LDLocal, NodeSLo, NodeSHi, FLOPs)
       Implicit NONE
+#include "errquit.fh"
       Logical UseERI
       Integer AOBas, PDim, QDim, SDim
       Integer FitBas, LInt, LScr
@@ -85,10 +86,12 @@ C
       Status = Status .AND. Bas_NumBF( AOBas, MaxP)
 C
       If ( .NOT. Status) Call ErrQuit(
-     $   'XF3cI_Step12a: Problems with fitting basis inquiries', AOBas)
+     $   'XF3cI_Step12a: Problems with fitting basis inquiries', AOBas,
+     &       BASIS_ERR)
 C
       If ( LDLocal .ne. NPXF*NQXF) Call ErrQuit(
-     $   'XF3cI_Step12a: Dimensions of local patch incorrect', LDLocal)
+     $   'XF3cI_Step12a: Dimensions of local patch incorrect', LDLocal,
+     &       BASIS_ERR)
 C
 C     *******************
 C     * Start of P loop *

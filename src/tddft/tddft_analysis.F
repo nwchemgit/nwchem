@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.16 2003-05-19 20:19:40 sohirata Exp $
+c $Id: tddft_analysis.F,v 1.17 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,
@@ -14,6 +14,7 @@ c
 c Written by So Hirata, Mar 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -108,20 +109,20 @@ c
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nov(i),nroots,'X vector',
      1    -1,-1,g_x(i))) call errquit
-     2    ('tddft_analysis: failed to create g_x',0) 
+     2    ('tddft_analysis: failed to create g_x',0, GA_ERR)
         if (.not.tda) then
           if (.not.ga_create(mt_dbl,nov(i),nroots,'Y vector',
      1      -1,-1,g_y(i))) call errquit
-     2      ('tddft_analysis: failed to create g_y',0) 
+     2      ('tddft_analysis: failed to create g_y',0, GA_ERR)
         endif
       enddo
       do i=1,ipol
         if (.not.ma_push_get(mt_dbl,nov(i),'X vector',
      1    l_x(i),k_x(i))) call errquit
-     2    ('tddft_analysis: failed to allocate x',0)
+     2    ('tddft_analysis: failed to allocate x',0, MA_ERR)
         if (.not.ma_push_get(mt_dbl,nov(i),'Y vector',
      1    l_y(i),k_y(i))) call errquit
-     2    ('tddft_analysis: failed to allocate y',0)
+     2    ('tddft_analysis: failed to allocate y',0, MA_ERR)
       enddo
 c
 c ----------------------------------
@@ -131,15 +132,18 @@ c
       if (ipol.eq.2) then
         if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
      1    'AO overlap',-1,-1,g_ovlp))
-     2    call errquit('tddft_analysis: failed to create g_ovlp',0)
+     2    call errquit('tddft_analysis: failed to create g_ovlp',0,
+     &       GA_ERR)
         if (.not.ga_create(mt_dbl,nmo(1),nmo(2),
      1    'MO correlation',-1,-1,g_corr))
-     2    call errquit('tddft_analysis: failed to create g_corr',0)
+     2    call errquit('tddft_analysis: failed to create g_corr',0,
+     &       GA_ERR)
         if (.not.ga_create(mt_dbl,nbf_ao,nmo(2),'work',-1,-1,g_work))
-     1    call errquit('tddft_analysis: failed to create g_work',0)
+     1    call errquit('tddft_analysis: failed to create g_work',0,
+     &       GA_ERR)
         if (.not.ma_push_get(mt_dbl,nmo(1)*nmo(2),'corr',
      1    l_corr,k_corr)) call errquit
-     2    ('tddft_analysis: failed to allocate corr',0)
+     2    ('tddft_analysis: failed to allocate corr',0, MA_ERR)
         call ga_zero(g_ovlp)
         call int_1e_ga(ao_bas_han,ao_bas_han,g_ovlp,'overlap',oskel)
         if (oskel) call sym_symmetrize
@@ -149,9 +153,9 @@ c
         call ga_dgemm('T','N',nmo(1),nmo(2),nbf_ao,1.0d0,
      1    g_movecs(1),g_work,0.0d0,g_corr)
         if (.not.ga_destroy(g_work)) call errquit
-     1    ('tddft_analysis: failed to destroy g_work',0)
+     1    ('tddft_analysis: failed to destroy g_work',0, GA_ERR)
         if (.not.ga_destroy(g_ovlp)) call errquit
-     1    ('tddft_analysis: failed to destroy g_ovlp',0)
+     1    ('tddft_analysis: failed to destroy g_ovlp',0, GA_ERR)
         if (util_print('excited state',print_debug))
      1    call ga_print(g_corr)
         call ga_get(g_corr,1,nmo(1),1,nmo(2),dbl_mb(k_corr),nmo(1))
@@ -284,7 +288,7 @@ c
       do i=1,ipol
         if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Transition density',
      1    -1,-1,g_tmomd(i))) call errquit
-     2    ('tddft_analysis: failed to create g_tmomd',0) 
+     2    ('tddft_analysis: failed to create g_tmomd',0, GA_ERR)
       enddo
 c
 c ------------
@@ -292,7 +296,8 @@ c Ground state
 c ------------
 c
       if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,energy)) 
-     1  call errquit('tddft_analysis: failed to get dft energy',0)
+     1  call errquit('tddft_analysis: failed to get dft energy',0,
+     &       RTDB_ERR)
       isym=1
       if (ipol.eq.2) then
         do i=1,ipol
@@ -628,7 +633,8 @@ c
         if (nodezero) call util_flush(LuOut)
       enddo
       if (m.lt.target) 
-     1  call errquit('tddft_analysis: target root not found',m)
+     1  call errquit('tddft_analysis: target root not found',m,
+     &       UNKNOWN_ERR)
       if (nodezero.and.
      1  util_print('excited state',print_default)) write(LuOut,*)
  9100 format(2x,'Ground state ',a4,f16.9,' a.u.')
@@ -669,7 +675,8 @@ c
         call util_flush(LuOut)
       endif
       if (.not.rtdb_put(rtdb,'tddft:energy',mt_dbl,1,energy))
-     1  call errquit('tddft_analysis: failed to put tddft energy',0)
+     1  call errquit('tddft_analysis: failed to put tddft energy',0,
+     &       RTDB_ERR)
  9300 format('              Target root =',i7)
  9340 format('          Target symmetry =',1x,a4)
  9310 format('      Ground state energy =',f20.12)
@@ -682,29 +689,29 @@ c ------
 c
       if (ipol.eq.2) then
         if (.not.ma_pop_stack(l_corr)) call errquit
-     1    ('tddft_analysis: failed to deallocate corr',0)
+     1    ('tddft_analysis: failed to deallocate corr',0, MA_ERR)
       endif
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_y(i))) call errquit
-     1    ('tddft_analysis: failed to deallocate y',0)
+     1    ('tddft_analysis: failed to deallocate y',0, MA_ERR)
         if (.not.ma_pop_stack(l_x(i))) call errquit
-     1    ('tddft_analysis: failed to deallocate x',0)
+     1    ('tddft_analysis: failed to deallocate x',0, MA_ERR)
       enddo
       if (ipol.eq.2) then
         if (.not.ga_destroy(g_corr)) call errquit
-     1    ('tddft_analysis: failed to destroy g_corr',0)
+     1    ('tddft_analysis: failed to destroy g_corr',0, GA_ERR)
       endif
       do i=1,ipol
         if (.not.ga_destroy(g_x(i))) call errquit
-     1    ('tddft_analysis: failed to destroy g_x',0) 
+     1    ('tddft_analysis: failed to destroy g_x',0, GA_ERR)
         if (.not.tda) then
           if (.not.ga_destroy(g_y(i))) call errquit
-     1      ('tddft_analysis: failed to destroy g_y',0) 
+     1      ('tddft_analysis: failed to destroy g_y',0, GA_ERR)
         endif
       enddo
       do i=1,ipol
         if (.not.ga_destroy(g_tmomd(i))) call errquit
-     2    ('tddft_analysis: failed to destroy g_tmomd',0) 
+     2    ('tddft_analysis: failed to destroy g_tmomd',0, GA_ERR)
       enddo
       return
       end

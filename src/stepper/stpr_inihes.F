@@ -1,6 +1,7 @@
       SUBROUTINE stpr_inihes ( HESIAN,rtdb )
-c $Id: stpr_inihes.F,v 1.5 1999-07-08 19:11:01 d3e129 Exp $
+c $Id: stpr_inihes.F,v 1.6 2003-10-17 22:58:22 carlfahl Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "errquit.fh"
       PARAMETER (ZERO=0.0D0, ONE=1.0D0)
 #include "stdio.fh"
 #include "chow.fh"
@@ -29,13 +30,15 @@ c
        if (MWC) then
           write(luout,*)' Unknown how to fill hessian for NWC ',
      &        'stepper walking'
-          call errquit('stpr_inihes: fatal logical error',911)
+          call errquit('stpr_inihes: fatal logical error',911,
+     &       UNKNOWN_ERR)
         endif
         nat = nat3/3
         if (nactive.le.0 .or. nactive.gt.nat) call errquit
-     &      ('stpr_inihes: invalid number of active atoms',nactive)
+     &      ('stpr_inihes: invalid number of active atoms',nactive,
+     &       INPUT_ERR)
         if (.not.MA_get_index(h_actlist,k_actlist)) call errquit
-     &      ('stpr_inihes: ma_get_index failed for actlist',911)
+     &      ('stpr_inihes: ma_get_index failed for actlist',911, MA_ERR)
 * have active list of atoms now fill matrix with infinite values        
         valinf = 300.0d00/thrcln
         do i=1,nat3
@@ -56,7 +59,7 @@ c
           hesian(indx_z) = ONE
         enddo
         if (.not.MA_free_heap(h_actlist)) call errquit
-     &      ('stpr_inihes: ma_free_heap failed for actlist',911)
+     &      ('stpr_inihes: ma_free_heap failed for actlist',911, MA_ERR)
         WRITE(luout,*)'  Nuclear Hessian initialized with UNIT',
      &      ' matrix for active atoms only.'
         write(luout,*)'  Inactive atoms given pseudo-infinite value.'

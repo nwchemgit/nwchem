@@ -17,6 +17,7 @@
 *     ***********************************
       subroutine pspw_init_APC(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -74,7 +75,7 @@
 
 *     **** EXIT IF OUT OF MEMORY ****
       if (.not. value)
-     >   call errquit('pspw_init_APC:out of heap memory',0)
+     >   call errquit('pspw_init_APC:out of heap memory',0, MA_ERR)
 
 *     **** read in Gc and gamma from rtdb ***
       value = rtdb_get(rtdb,'pspw_APC:Gc',mt_dbl,1,Gc)
@@ -82,7 +83,7 @@
      >        rtdb_get(rtdb,'pspw_APC:gamma',mt_dbl,nga,
      >                 dbl_mb(gamma(1)))
       if (.not. value)
-     >   call errquit('pspw_init_APC:error reading rtdb',0)
+     >   call errquit('pspw_init_APC:error reading rtdb',0, RTDB_ERR)
 
 
 *     ********************************
@@ -108,7 +109,7 @@
      >     + i+1
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       do i = 1,nfft3d
          gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
@@ -123,7 +124,7 @@
       call Pack_t_pack(0,dbl_mb(tmp1(1)))
       call Pack_t_Copy(0,dbl_mb(tmp1(1)),dbl_mb(w(1)))
       value = MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('popping of stack memory',0)
+      if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
 
 *     *************************************
@@ -131,7 +132,7 @@
 *     *************************************
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       coef = 1.0d0/lattice_omega()
@@ -150,7 +151,7 @@
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('popping of stack memory',0)
+      if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
 *     **** DEBUG - write out information *****
       if (taskid.eq.MASTER) then
@@ -174,6 +175,7 @@
 *     ***********************************
       subroutine pspw_end_APC()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "pspw_APC.fh"
@@ -189,7 +191,7 @@
         value = value.and.MA_free_heap(gamma(2))
         value = value.and.MA_free_heap(w(2))
         value = value.and.MA_free_heap(gaus(2))
-         if (.not. value) call errquit('error freeing heap',0)
+         if (.not. value) call errquit('error freeing heap',0, MA_ERR)
         nga = 0
         ngs = 0
       end if
@@ -206,6 +208,7 @@
 *     ***********************************
       subroutine pspw_gen_APC(ispin,ne,dng)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       complex*16 dng(*)
 
@@ -247,7 +250,7 @@
          value = value.and.
      >           MA_push_get(mt_dcpl,npack0,'ghaus_j2',
      >                                       gaus_j(2),gaus_j(1))
-         if (.not. value) call errquit('out of stack memory',0)
+         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
 *        ***** calculate N = dng(G=0)*omega *****
@@ -334,7 +337,8 @@
          value = value.and.MA_pop_stack(gaus_i(2))
          value = value.and.MA_pop_stack(exj(2))
          value = value.and.MA_pop_stack(exi(2))
-         if (.not. value) call errquit('popping of stack memory',0)
+         if (.not. value) call errquit('popping of stack memory',0,
+     &       MA_ERR)
 
 *        **** perform matrix operations in serial ****
          call dcopy(ngs*ngs,0.0d0,0,dbl_mb(Am(1)),1)
@@ -344,7 +348,8 @@
            value = MA_push_get(mt_int,ngs,'ipivAPC',ipiv(2),ipiv(1))
            value = value.and.
      >             MA_push_get(mt_dbl,ngs*ngs,'AAAAPC',AAA(2),AAA(1))
-           if (.not. value) call errquit('out of stack memory',0)
+           if (.not. value) call errquit('out of stack memory',0,
+     &       MA_ERR)
 
 *          **** calculate Am_ij ****
            call dcopy(ngs*ngs,dbl_mb(A(1)),1,dbl_mb(AAA(1)),1)
@@ -361,7 +366,8 @@
 
             value = MA_pop_stack(AAA(2))
             value = value.and.MA_pop_stack(ipiv(2))
-            if (.not. value) call errquit('popping stack memory',0)
+            if (.not. value) call errquit('popping stack memory',0,
+     &       MA_ERR)
 
 *          **** calculate q_i ****
            sum  = 0.0d0
@@ -401,6 +407,7 @@
 *     ***********************************
       subroutine pspw_dngen_APC(ispin,ne,dn)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       real*8 dn(*)
 
@@ -429,7 +436,8 @@
       value = MA_push_get(mt_dcpl,npack0,'dngakjs',dng(2),dng(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'tmpxkjz',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,
+     &       MA_ERR)
 
 *     **** generate dng ****
       call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),dcpl_mb(tmp(1)))
@@ -438,14 +446,16 @@
       call Pack_c_pack(0,dcpl_mb(tmp(1)))
       call Pack_c_Copy(0,dcpl_mb(tmp(1)),dcpl_mb(dng(1)))
       value = MA_pop_stack(tmp(2))
-      if (.not. value) call errquit('popping of stack memory',0)
+      if (.not. value) call errquit('popping of stack memory',0,
+     &       MA_ERR)
 
 *     **** generate APC *****
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng(1)))
 
 
       value = value.and.MA_pop_stack(dng(2))
-      if (.not. value) call errquit('popping of stack memory',0)
+      if (.not. value) call errquit('popping of stack memory',0,
+     &       MA_ERR)
 
       end if
 

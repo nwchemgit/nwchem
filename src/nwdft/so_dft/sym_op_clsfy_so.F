@@ -1,6 +1,7 @@
       subroutine sym_op_classify_so(geom, op_class_index, sym_ap_so)
-C$Id: sym_op_clsfy_so.F,v 1.1 2000-04-17 21:46:09 zzhang Exp $
+C$Id: sym_op_clsfy_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -37,12 +38,13 @@ c
       call sym_group_name(geom,group_name)
       if (.not.sym_char_table_so(group_name,nop_table,nir,iclass_dim,
      $     zir, zclass, chars)) 
-     $     call errquit('sym_classify: no char table',0)
+     $     call errquit('sym_classify: no char table',0, GEOM_ERR)
 c     
 c     Verify number of operators match
 c
       nop = sym_number_ops(geom)
-      if ((nop+1).ne.nop_table) call errquit('sym_classify: ops?',0)
+      if ((nop+1).ne.nop_table) call errquit('sym_classify: ops?',0,
+     &       GEOM_ERR)
 c     
 c     Derive class name of each operator just from the matrices
 c
@@ -82,7 +84,7 @@ c
       enddo
       count(1) = 1
       if (.not.inp_match(nir,.true.,'R',zclass,op_R_index))
-     +     call errquit('R must be one of the classes',0)
+     +     call errquit('R must be one of the classes',0, INPUT_ERR)
       count(op_R_index)=1
 c
       do h = 1, 2*nop
@@ -98,7 +100,7 @@ c
             if (.not. inp_match(nir, .true., op_class_name(h),
      $           zclass, op_class_index(h))) then
                write(6,*) ' unknown class ', h, op_class_name(h)
-               call errquit('sym_clasify: bad class', 0)
+               call errquit('sym_clasify: bad class', 0, INPUT_ERR)
             endif
             count(op_class_index(h)) = count(op_class_index(h)) + 1
             do g = 1, 2*nop
@@ -135,7 +137,8 @@ c               write(*,*)"h,g,f,problem", h,g,f
 c               call output(hh, 1, 3, 1, 3, 3, 3, 1)
 c               call output(gg, 1, 3, 1, 3, 3, 3, 1)
 c               call output(ff, 1, 3, 1, 3, 3, 3, 1)
-               call errquit('sym_classify: out of group', 0)
+               call errquit('sym_classify: out of group', 0,
+     &       INPUT_ERR)
 c     
 c     Have f=gThg ... identify class and check for consistency
 c     
@@ -155,7 +158,8 @@ c     See comments above about this switch
                      else
                         write(6,*) ' bad class: h ', h, op_class_name(h)
                         write(6,*) ' bad class: f ', f, op_class_name(f)
-                        call errquit('sym_test: bad class', 0)
+                        call errquit('sym_test: bad class', 0,
+     &       INPUT_ERR)
                      endif
                   endif
                else if (op_class_index(f) .ne. op_class_index(h)) then
@@ -163,7 +167,8 @@ c     See comments above about this switch
      $                 op_class_name(h)
                      write(6,*) ' multiple class: f ', f, 
      $                    op_class_name(f)
-                  call errquit('sym_classify: multiple class', 0)
+                  call errquit('sym_classify: multiple class', 0,
+     &       INPUT_ERR)
                endif
             enddo
          endif
@@ -171,12 +176,14 @@ c     See comments above about this switch
       if (oagain .and. npass.eq.1) then
          goto 1101
       else if (oagain .and. npass.ne.1) then
-         call errquit('sym_op_classify: patch for T/Th failed',0)
+         call errquit('sym_op_classify: patch for T/Th failed',0,
+     &       INPUT_ERR)
       endif
 c
       do ir = 1, nir
          if (count(ir).ne.iclass_dim(ir)) then
-            call errquit('sym_classify: classes wrong', ir)
+            call errquit('sym_classify: classes wrong', ir,
+     &       INPUT_ERR)
          endif
       enddo
 c
@@ -186,6 +193,7 @@ c
 
       subroutine sym_get_spin_op(geom,h,sigma) 
       implicit none 
+#include "errquit.fh"
 #include "sym.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -236,7 +244,8 @@ c
          call dcopy(9,hmatrix,1,hh,1)
          call sym_op_type(hh, op_type, order, power, direction)
          if(op_type.ne.'rotation'.and.op_type.ne.'identity')
-     +        call errquit('sym_get_spin_op: error in imatrix',0)
+     +        call errquit('sym_get_spin_op: error in imatrix',0,
+     &       INPUT_ERR)
       endif
 c
 c     Now the property of the operation h is found and this information 

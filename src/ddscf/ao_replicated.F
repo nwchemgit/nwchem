@@ -1,9 +1,10 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.42 2003-01-27 23:17:09 edo Exp $
+c     $Id: ao_replicated.F,v 1.43 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -46,11 +47,12 @@ c
       double precision tol2e_local
 c
       if (.not. geom_ncent(geom, natom)) call errquit
-     $     ('ao_fock_2e: geom_ncent failed', 0)
+     $     ('ao_fock_2e: geom_ncent failed', 0, GEOM_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('ao_replicated: bas_numbf failed', 0)
+     $     ('ao_replicated: bas_numbf failed', 0, BASIS_ERR)
       if ( .not. bas_numcont(basis, nsh) ) call errquit(
-     $     'ao_fock_2e: problem with call to bas_numcont', basis)
+     $     'ao_fock_2e: problem with call to bas_numcont', basis,
+     &       BASIS_ERR)
 c     
 c     If we can hold most of the integrals in core then we should
 c     do this ... i.e., the default should be semi-direct. However,
@@ -71,7 +73,8 @@ c     If reading/writing to/from cache/file then rewind
 c     
       if (oreadfile .or. owritefile) then
          if (.not. int2e_file_rewind()) call errquit
-     $        ('ao_replicated: failed rewinding integral file',0)
+     $        ('ao_replicated: failed rewinding integral file',0,
+     &       UNKNOWN_ERR)
       endif
 c     
 c     Halve exchange factor to conform to internal definition
@@ -98,7 +101,8 @@ c
       status = status .and. ma_push_get(MT_INT, 2*tdim,
      $     'ao_rep: pinfo',    l_pinfo, k_pinfo)
       if (.not. status) call errquit
-     $     ('ao_replicated: insufficient memory', nfock*nbf*nbf*2)
+     $     ('ao_replicated: insufficient memory', nfock*nbf*nbf*2,
+     &       MA_ERR)
 c     
 c     Process 0 gets the density matrices and then broadcasts them
 c     (next version should use triangles)
@@ -162,7 +166,7 @@ c
      $        tdim, int_mb(k_pinfo))
          if (util_print('debuginteg',print_never)) then
             close(66)
-            call errquit('done',0)
+            call errquit('done',0, UNKNOWN_ERR)
          endif
 c     
          if (util_print('screening statistics', print_debug)) then
@@ -195,7 +199,7 @@ c
       status = ma_pop_stack(l_rdens) .and. status
       status = ma_pop_stack(l_fock)  .and. status
       status = ma_pop_stack(l_dens)  .and. status
-      if (.not. status) call errquit('fock_2e: ma_pop?', 0)
+      if (.not. status) call errquit('fock_2e: ma_pop?', 0, MA_ERR)
 c     
       call ga_sync()
 c     
@@ -216,7 +220,8 @@ c
          oreadfile = .true.
          owritefile = .false.
          if (.not. int2e_buf_write(.true.)) 
-     $        call errquit('ao_replicated: failed writing last block',0)
+     $        call errquit('ao_replicated: failed writing last block',0,
+     &       UNKNOWN_ERR)
          if (incmax.eq.-1) call int2e_file_balance()
       end if
 c     
@@ -225,6 +230,7 @@ c
      $     jfac, kfac, tol2e, oskel, dens, fock, rdens,
      $     plist, ps, qdim, q4, ijkl, tdim, pinfo)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -311,22 +317,23 @@ c
       if (owritefile) then
          if (.not. int2e_set_bf_range(
      $        1,nbf,1,nbf,1,nbf,1,nbf)) call errquit
-     $        ('fock_2e_rep: set range failed',0)
+     $        ('fock_2e_rep: set range failed',0, UNKNOWN_ERR)
          incomplete = -1
       end if
       if (.not. geom_ncent_unique(geom, natom_unique)) call errquit
-     $     ('fock_2e_rep: bad geom handle?',0)
-      if (nsh .gt. cnmax)   call errquit('fock_2e_rep: cnmax',nsh)
+     $     ('fock_2e_rep: bad geom handle?',0, GEOM_ERR)
+      if (nsh .gt. cnmax)   call errquit('fock_2e_rep: cnmax',nsh,
+     &       UNKNOWN_ERR)
 c     
 c     Build maps (for speed) and construct density matrix over atoms
 c     
       do ish = 1, nsh
          if (.not. bas_cn2ce(basis, ish, cntoce(ish)))
-     $        call errquit('ao_rep: bad basis', 0)
+     $        call errquit('ao_rep: bad basis', 0, BASIS_ERR)
       end do
       do ish = 1, nsh
          if (.not. bas_cn2bfr(basis,ish,cntobfr(1,ish),cntobfr(2,ish)))
-     $        call errquit('ao_rep: bad basis', 0)
+     $        call errquit('ao_rep: bad basis', 0, BASIS_ERR)
       end do
 c
       call dfill(nsh*nsh,0.0d0,rdens,1)
@@ -651,6 +658,7 @@ c
      $     jfac, kfac, tol2e, dens, fock, 
      $     nq, iq, jq, kq, lq, q4, current)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "cfock.fh"
 #include "util.fh"
@@ -723,7 +731,7 @@ c
          lenlab = 4*leneri
       else
          call errquit('fock_rep_txs: insufficient memory ',
-     $        lenscr+leneri+lenlab)
+     $        lenscr+leneri+lenlab, MEM_ERR)
       endif
       ntries = ntries + 1
 c 
@@ -732,14 +740,14 @@ c
       endif
       if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr)) then
          if (.not. ma_pop_stack(l_eri))
-     $        call errquit('fock_rep_txs: ma corrupt',0)
+     $        call errquit('fock_rep_txs: ma corrupt',0, MA_ERR)
          goto 12
       endif
       if (.not. ma_push_get(mt_int, lenlab, 'lab', l_lab, k_lab)) then
          if (.not. ma_pop_stack(l_scr))
-     $        call errquit('fock_rep_txs: ma corrupt',0)
+     $        call errquit('fock_rep_txs: ma corrupt',0, MA_ERR)
          if (.not. ma_pop_stack(l_eri))
-     $        call errquit('fock_rep_txs: ma corrupt',0)
+     $        call errquit('fock_rep_txs: ma corrupt',0, MA_ERR)
          goto 12
       endif
 c     
@@ -750,7 +758,7 @@ c
 c     
       if (.not. intb_init4c(basis, iq, jq, basis, kq, lq,
      $     nq, q4, .true., lenscr, dbl_mb(k_scr), leneri, block_eff))
-     $     call errquit('intb_init?',nq)
+     $     call errquit('intb_init?',nq, UNKNOWN_ERR)
 c     
  50   continue
 c
@@ -811,17 +819,18 @@ c
       end if
 c     
  100  if (.not. ma_pop_stack(l_lab))
-     $     call errquit('fock_rep_txs: cannot free lab',lenlab)
+     $     call errquit('fock_rep_txs: cannot free lab',lenlab, MA_ERR)
       if (.not. ma_pop_stack(l_scr))
-     $     call errquit('fock_rep_txs: cannot free scr',lenlab)
+     $     call errquit('fock_rep_txs: cannot free scr',lenlab, MA_ERR)
       if (.not. ma_pop_stack(l_eri))
-     $     call errquit('fock_rep_txs: cannot free eri',lenlab)
+     $     call errquit('fock_rep_txs: cannot free eri',lenlab, MA_ERR)
 c     
       end
       subroutine fock_pairs(basis, max_p, oij, 
      $     iatlo, iathi, jatlo, jathi, 
      $     tol2e, ijlist, sij, ijinfo, max_ij, nt_ij)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
 #include "util.fh"
@@ -884,22 +893,22 @@ c     Fun and games here to handle centers with no functions
 c
       do iat = iatlo, iathi
          if (.not. bas_ce2cnr(basis, iat, ilo, junk)) call errquit
-     $        ('fock_pairs: basis corrupt ',0)
+     $        ('fock_pairs: basis corrupt ',0, BASIS_ERR)
          if (ilo .gt. 0) goto 10
       enddo
  10   do iat = iathi,iatlo,-1
          if (.not. bas_ce2cnr(basis, iat, junk, ihi)) call errquit
-     $        ('fock_pairs: basis corrupt ',0)
+     $        ('fock_pairs: basis corrupt ',0, BASIS_ERR)
          if (ihi .gt. 0) goto 20
       enddo
  20   do jat = jatlo, jathi
          if (.not. bas_ce2cnr(basis, jat, jlo, junk)) call errquit
-     $        ('fock_pairs: basis corrupt ',0)
+     $        ('fock_pairs: basis corrupt ',0, BASIS_ERR)
          if (jlo .gt. 0) goto 30
       enddo
  30   do jat = jathi,jatlo,-1
          if (.not. bas_ce2cnr(basis, jat, junk, jhi)) call errquit
-     $        ('fock_pairs: basis corrupt ',0)
+     $        ('fock_pairs: basis corrupt ',0, BASIS_ERR)
          if (jhi .gt. 0) goto 40
       enddo
  40   continue
@@ -910,13 +919,13 @@ c
       nij = 0
       do i = ilo, ihi
          if (.not. bas_continfo(basis,i,itype,inprim,ingen,spch))
-     $        call errquit('fock_pairs: basis corrupt ',0)
+     $        call errquit('fock_pairs: basis corrupt ',0, BASIS_ERR)
          if (.not. bas_cn2uce(basis,i,iuat))
-     $        call errquit('fock_pairs: basis corrupt ',0)
+     $        call errquit('fock_pairs: basis corrupt ',0, BASIS_ERR)
          if (.not. bas_cn2ce(basis,i,iat))
-     $        call errquit('fock_pairs: basis corrupt ',0)
+     $        call errquit('fock_pairs: basis corrupt ',0, BASIS_ERR)
          if (.not. bas_ce2cnr(basis,iat,shlo,shhi))
-     $        call errquit('fock_pairs: basis corrupt ',0)
+     $        call errquit('fock_pairs: basis corrupt ',0, BASIS_ERR)
          iatsh = i-shlo+1
 c     reorder L,s,p (-1,0,1) into order by complexity s,p,L (-1,0,1)
          if (itype.eq.-1) then
@@ -933,13 +942,17 @@ c     reorder L,s,p (-1,0,1) into order by complexity s,p,L (-1,0,1)
             test = schwarz_shell(i,j)
             if (test*smax .gt. tol2e) then
                if (.not. bas_continfo(basis,j,jtype,jnprim,jngen,spch))
-     $              call errquit('fock_pairs: basis corrupt ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0,
+     &       BASIS_ERR)
                if (.not. bas_cn2uce(basis,j,juat))
-     $              call errquit('fock_pairs: basis corrupt ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0,
+     &       BASIS_ERR)
                if (.not. bas_cn2ce(basis,j,jat))
-     $              call errquit('fock_pairs: basis corrupt ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0,
+     &       BASIS_ERR)
                if (.not. bas_ce2cnr(basis,jat,shlo,shhi))
-     $              call errquit('fock_pairs: basis corrupt ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0,
+     &       BASIS_ERR)
                jatsh = j-shlo+1
 c     reorder L,s,p (-1,0,1) into order by complexity s,p,L
                if (jtype.eq.-1) then
@@ -975,7 +988,7 @@ c
             if (nt_ij .ne. 0) ijinfo(2,nt_ij) = ij-1
             nt_ij = nt_ij + 1
             if (nt_ij .gt. max_ij) call errquit
-     $           ('fock_pairs: dimension failure', nt_ij)
+     $           ('fock_pairs: dimension failure', nt_ij, UNKNOWN_ERR)
             ijinfo(1,nt_ij) = ij
             prev = sij(ij)
             n_in_b = 0
@@ -1002,7 +1015,8 @@ c
          else
             nt_ij = nt_ij + 1
             if (nt_ij .gt. max_ij) call errquit
-     $           ('fock_pairs: dimension failure(2)', nt_ij)
+     $           ('fock_pairs: dimension failure(2)', nt_ij,
+     &       UNKNOWN_ERR)
             ijinfo(1,nt_ij) = ijinfo(1,ijt)
             ijinfo(2,nt_ij) = ijinfo(2,ijt)
             n_in_b = (ijinfo(2,ijt)-ijinfo(1,ijt)+1)
@@ -1030,13 +1044,17 @@ c
                j = ijlist(2,ij)
                price = int_2e4c_price(basis, i, j, basis, i, j)
               if (.not. bas_continfo(basis,i,itype,inprim,ingen,spch))
-     $              call errquit('fock_pairs: basis bad ',0)
+     $              call errquit('fock_pairs: basis bad ',0,
+     &       BASIS_ERR)
                if (.not. bas_continfo(basis,j,jtype,jnprim,jngen,spch))
-     $              call errquit('fock_pairs: basis bad ',0)
+     $              call errquit('fock_pairs: basis bad ',0,
+     &       BASIS_ERR)
                if (.not. bas_cn2uce(basis,i,iuat))
-     $              call errquit('fock_pairs: basis corrupt ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0,
+     &       BASIS_ERR)
                if (.not. bas_cn2uce(basis,j,juat))
-     $              call errquit('fock_pairs: basis corrupt ',0)
+     $              call errquit('fock_pairs: basis corrupt ',0,
+     &       BASIS_ERR)
                write(6,11) ij,i,j,itype,jtype,inprim,jnprim,
      $              ingen,jngen, iuat, juat , price, iprice(i,j)
  11            format(1x,i6,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,2i3,2x,
@@ -1101,6 +1119,7 @@ c
       end
       subroutine util_mat_reduce(n, nr, map, a, lda, r, op)
       implicit none
+#include "errquit.fh"
 c     
       integer n                 ! Original size [input]
       integer nr                ! Reduced size  [input]
@@ -1143,7 +1162,8 @@ c
                enddo
                sum = sqrt(sum)
             else
-               call errquit('util_mat_reduce: unknown op', 0)
+               call errquit('util_mat_reduce: unknown op', 0,
+     &       UNKNOWN_ERR)
             end if
             r(ir,jr) = max(r(ir,jr),sum)
          end do

@@ -1,7 +1,8 @@
       subroutine xc_atom_block(array, nbf,
      .     basis, iat, jat, buf)
-C$Id: xc_atomblock.F,v 1.1 2002-05-15 01:37:38 edo Exp $
+C$Id: xc_atomblock.F,v 1.2 2003-10-17 22:55:53 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 c
@@ -16,9 +17,9 @@ c
 c     add atom block buf info of the matrix g_array (over basis functions)
 c
       if (.not. bas_ce2bfr(basis, iat, ilo, ihi))
-     $     call errquit('upd_atom_block: ce2bfr failed', 0)
+     $     call errquit('upd_atom_block: ce2bfr failed', 0, BASIS_ERR)
       if (.not. bas_ce2bfr(basis, jat, jlo, jhi))
-     $     call errquit('upd_atom_block: ce2bfr failed', 0)
+     $     call errquit('upd_atom_block: ce2bfr failed', 0, BASIS_ERR)
 c
       idim = ihi - ilo + 1
       jdim = jhi - jlo + 1

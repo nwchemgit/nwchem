@@ -5,8 +5,9 @@
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx,
      ,     acc_xc_gauss)
       implicit none
+#include "errquit.fh"
 c
-c$Id: grid_xcfit.F,v 1.7 2003-01-15 19:01:00 edo Exp $
+c$Id: grid_xcfit.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -47,7 +48,7 @@ c
       call ifill(mbf_xc, 0, ibf, 1)
       mbf_xc=nbf_xc
       if (.not.bas_numcont(xc_bas_han, ncontrsetx))
-     &     call errquit('Exiting in grid_quadv0b',0)
+     &     call errquit('Exiting in grid_quadv0b',0, BASIS_ERR)
       if(natoms.gt.1) then
       call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
       Call oldnBF_to_mBF(xc_bas_han,rq0,
@@ -70,21 +71,22 @@ c
 c
       if (.not.MA_Push_Get(MT_Dbl, mbf_xc*ipol, 'Tpmat', lTpmat,
      &     iTpmat))
-     &     call errquit('grid_xcfit: cannot allocate Tpmat',0)
+     &     call errquit('grid_xcfit: cannot allocate Tpmat',0, MA_ERR)
       call dfill(mbf_xc*ipol,0.D0,dbl_mb(iTpmat),1)
       if(grad) then
          if (.not.MA_Push_Get(MT_Dbl,3*nqpts,
      &     'nqsmallx3 scr',l3nqscr,i3nqscr))call errquit
-     &     ('grid_xcfit: cannot allocate nqsmallx3 scr',0)
+     &     ('grid_xcfit: cannot allocate nqsmallx3 scr',0, MA_ERR)
       endif
 c
       if (.not.MA_Push_Get(MT_Dbl, nqpts*mbf_xc, 'chi_xc', 
      &     lchi_xc, ichi_xc))
-     &     call errquit('grid_xcfit: cannot allocate chi_xc',0)
+     &     call errquit('grid_xcfit: cannot allocate chi_xc',0, MA_ERR)
 c     
       if (.not.MA_Push_Get(MT_Dbl, 3*nqpts*mbf_xc, 'delchi_xc',
      &     ldelchi_xc, idelchi_xc))
-     &     call errquit('grid_xcfit: cannot allocate delchi_xc',0)
+     &     call errquit('grid_xcfit: cannot allocate delchi_xc',0,
+     &       MA_ERR)
 
       call xc_eval_basis(xc_bas_han, maxdbas, dbl_mb(ichi_xc),
      &     dbl_mb(idelchi_xc), 0, 0,
@@ -147,7 +149,7 @@ c
       
  2010 continue
       if (.not.ma_chop_stack(ltpmat))
-     &     call errquit('grid_fitxc: cannot chop stack',19)
+     &     call errquit('grid_fitxc: cannot chop stack',19, MA_ERR)
             
       return
       end
@@ -155,9 +157,10 @@ c
      &                      iniz, ifin, ibf, zprim, nzprim, 
      .     docset, acc_gauss)
 c
-C$Id: grid_xcfit.F,v 1.7 2003-01-15 19:01:00 edo Exp $
+C$Id: grid_xcfit.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer basis_hand
       integer mcenters ! [input]
@@ -187,7 +190,7 @@ c
       acc_loc=-acc_gauss
       
       if (.not.bas_numcont(basis_hand, ncontrset))
-     &   call errquit('Exiting in nbf_to_mbf.',1)
+     &   call errquit('Exiting in nbf_to_mbf.',1, BASIS_ERR)
 c
       call ifill(mcenters,0,iniz,1)
       call ifill(mcenters,0,ifin,1)
@@ -198,13 +201,13 @@ c
       do 400 icset = 1,ncontrset
          docset(icset) = .false.
          if (.not.bas_cn2ce(basis_hand, icset, ictr))
-     &      call errquit('Exiting in nbf_to_mbf.',2)
+     &      call errquit('Exiting in nbf_to_mbf.',2, BASIS_ERR)
 c         
 c        get info about current contraction set
 c         
          if (.not.bas_continfo(basis_hand, icset,
      &      l, nprimo, ncontr, isphere))
-     &      call errquit('Exiting in nbf_to_mbf.',3)
+     &      call errquit('Exiting in nbf_to_mbf.',3, BASIS_ERR)
 c         
          if (isphere .eq. 0)then !  cartesian set
             nang = (l+1)*(l+2)/2
@@ -215,7 +218,7 @@ c
 c        get exponents and contraction coefficients for this contraction set
 c         
          if (.not.bas_get_exponent(basis_hand, icset, zprim))
-     &      call errquit('Exiting in nbf_to_mbf.',7)
+     &      call errquit('Exiting in nbf_to_mbf.',7, BASIS_ERR)
 c
 c        Determine the minimum Gaussian exponent.
 c

@@ -3,13 +3,14 @@ C NAME
 C     Xform_3cintsG -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cintsg.F,v 1.3 1999-05-28 16:04:11 bernhold Exp $
+C     $Id: xform_3cintsg.F,v 1.4 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function Xform_3cintsG(RTDB, Geom, Type3ci, AOBas, FitBas,
      $   ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
      $   Dest, G_Out, IntFil, Neglect)
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB, AOBas, FitBas
       Integer IntFil
       Integer ALo, AHi, ILo, IHi
@@ -229,7 +230,8 @@ C
          If ( .NOT. GA_Create_One_By_Shells( MT_Dbl, NA * NJ,
      $      FitBas, 'xf3ci: 2/3 integral matrix', G_Int) )
      $        Call ErrQuit(
-     $        'Xform_3cintsG: Unable to allocate temporary GA', 0)
+     $        'Xform_3cintsG: Unable to allocate temporary GA', 0,
+     &       GA_ERR)
 C
 C        Generate blocks of (ai|s) (or (ais) ) integrals for the
 C        specified range of I.
@@ -291,10 +293,11 @@ c$$$                  EndIf
      $                 1+NA*(KLo-ILo), NA*(KHi-ILo+1), 1, NFit, Req)
      $                 .ne. 0) Call ErrQuit(
      $                 'Put_3cInts: Error from DRA_Write_Section',
-     $                 KLo-ILo+1)
+     $                 KLo-ILo+1, DISK_ERR)
 C     
                   If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
-     $                 'Put_3cInts: Error from DRA_Wait', KLo-ILo+1)
+     $                 'Put_3cInts: Error from DRA_Wait', KLo-ILo+1,
+     &       DISK_ERR)
                   Call PStat_Off( PS_Wr_3ci)
                EndIf
 C
@@ -320,10 +323,11 @@ c$$$               EndIf
      $                 1+NA*(JLo-ILo), NA*(JHi-ILo+1), 1, NFit, Req)
      $                 .ne. 0) Call ErrQuit(
      $                 'Put_3cInts: Error from DRA_Write_Section',
-     $                 JLo-ILo+1)
+     $                 JLo-ILo+1, DISK_ERR)
 C     
                   If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
-     $                 'Put_3cInts: Error from DRA_Wait', JLo-ILo+1)
+     $                 'Put_3cInts: Error from DRA_Wait', JLo-ILo+1,
+     &       DISK_ERR)
                Call PStat_Off( PS_Wr_3ci)
             EndIf
 C
@@ -343,7 +347,8 @@ C
 C        Free 2/3 integral array to allow it to be resized next pass
 C
          If ( .NOT. GA_Destroy( G_Int) ) Call ErrQuit(
-     $        'Xform_3cintsG: Unable to deallocate temporary GA', 0)
+     $        'Xform_3cintsG: Unable to deallocate temporary GA', 0,
+     &       GA_ERR)
 C
 C        Print out a progress report.  Eventually want to make this
 C        dependent on user desires and time required by each pass.

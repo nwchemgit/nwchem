@@ -13,9 +13,10 @@ c
        subroutine mcscf_fcore( basis, nbf, nclosed, nact,
      $                         g_movecs, g_coul, g_exch, g_fcore )
 *
-* $Id: mcscf_fcore.F,v 1.7 2000-04-27 20:57:41 zzhang Exp $
+* $Id: mcscf_fcore.F,v 1.8 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"       
 #include "global.fh"
 #include "util.fh"
@@ -44,7 +45,8 @@ c  Inactive-active Coulomb interation
 c
        nn = nbf*nbf
        if (.not.ga_check_JKblocked(g_coul,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_fcore: wrong distrib. for Coulomb',0)
+     $      call errquit('mcscf_fcore: wrong distrib. for Coulomb',0,
+     &       GA_ERR)
        do t=1,nact
          do u=1,t
            tu = ((t-1)*t)/2 + u
@@ -60,7 +62,8 @@ c
 c  Inactive-active Exchange interaction
 c
        if (.not.ga_check_JKblocked(g_exch,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_fcore: wrong distrib. for exchange',0)
+     $      call errquit('mcscf_fcore: wrong distrib. for exchange',0,
+     &       GA_ERR)
        do t=1,nact
          do u=1,t
            tu = ((t-1)*t)/2 + u
@@ -130,6 +133,7 @@ c
      $                         oskel, tol2e, g_movecs, eone, etwo,
      $                         ecore, g_ifock )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -215,8 +219,8 @@ c
 c  Clean up
 c
        if (.not.ga_destroy(g_tmp))
-     $   call errquit('mcscf_etr: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_cdens))
-     $   call errquit('mcscf_etr: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0, GA_ERR)
        return
        end

@@ -1,6 +1,7 @@
       Subroutine PStat_Off( Handle )
-C$Id: pstat_off.F,v 1.9 1995-10-10 06:14:47 d3g681 Exp $
+C$Id: pstat_off.F,v 1.10 2003-10-17 22:58:01 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer Handle
 C
 #include "pstatP.fh"
@@ -19,7 +20,7 @@ C
       If ( PStat_Unmatched_Starts( Handle ) .ne. 1  ) then
          write(6,*) ' pstat_off: timer is not on ', pstat_name(handle)
          call util_flush(6)
-         Call ErrQuit('pstat_off: Timer is not on', Handle)
+         Call ErrQuit('pstat_off: Timer is not on', Handle, UNKNOWN_ERR)
       Else
          PStat_Unmatched_Starts( Handle ) = 0
          PStat_Nr_Calls(Handle) = PStat_Nr_Calls(Handle) + 1

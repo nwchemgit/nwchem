@@ -6,9 +6,10 @@
      $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact,
      $     omask, opresent, ldp)
 *
-* $Id: pot_shell.F,v 1.13 2002-05-08 22:18:21 edo Exp $
+* $Id: pot_shell.F,v 1.14 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 c
 #include "bas.fh"
 #include "geom.fh"
@@ -93,7 +94,8 @@ c
 c
       if (npts .le. 0) return
       if (.not. ma_push_get(mt_int, npts, 'pot_shell', 
-     $     l_not_done, k_not_done)) call errquit('pot_shell: ma', npts)
+     $     l_not_done, k_not_done)) call errquit('pot_shell: ma', npts,
+     &       MA_ERR)
 
       if (otime) start = util_cpusec()
 c
@@ -101,42 +103,45 @@ c
 c
 c     Get info on the shells
 c
-      if (.not. bas_geom(basis, geom)) call errquit('fastJ: basis?',0)
+      if (.not. bas_geom(basis, geom)) call errquit('fastJ: basis?',0,
+     &       BASIS_ERR)
 c
       if (.not.bas_continfo(basis, jsh, jtype, jnprim,jngen, 
-     $     josph)) call errquit('fastJ: bas_cont_info', jsh)
+     $     josph)) call errquit('fastJ: bas_cont_info', jsh,
+     &       BASIS_ERR)
       if (jtype .lt. 0 .or. jngen.ne.1) call errquit
-     $     ('fastJ: no general/SP functions yet',0)
+     $     ('fastJ: no general/SP functions yet',0, BASIS_ERR)
       if (jtype .gt. lmax) call errquit
-     $     ('fastJ: hard dimension lmax exceeded ', lmax)
+     $     ('fastJ: hard dimension lmax exceeded ', lmax, BASIS_ERR)
       if (.not. bas_cn2bfr(basis, jsh, jbflo, jbfhi))
-     $     call errquit('fastJ dens: bas_cn2bfr', jsh)
+     $     call errquit('fastJ dens: bas_cn2bfr', jsh, BASIS_ERR)
       if (.not.bas_get_exponent(basis, jsh, expj))
-     $     call errquit('fastJ: bas_get_exponent?',jsh)
+     $     call errquit('fastJ: bas_get_exponent?',jsh, BASIS_ERR)
       if (.not.bas_get_coeff(basis, jsh, coeffj))
-     $     call errquit('fastJ: bas_get_coeff?',jsh)
+     $     call errquit('fastJ: bas_get_coeff?',jsh,
+     &       BASIS_ERR)
       if (.not. bas_cn2ce(basis, jsh, jat))
-     $     call errquit('fastJ: bas_cn2ce?',jsh)
+     $     call errquit('fastJ: bas_cn2ce?',jsh, BASIS_ERR)
       if (.not. geom_cent_get(geom, jat, tag, rj, charge))
-     $     call errquit('fastJ: geom_cart_get ', jat)
+     $     call errquit('fastJ: geom_cart_get ', jat, GEOM_ERR)
       numj = jbfhi - jbflo + 1
 c
       if (.not.bas_continfo(basis,ish,itype,inprim,ingen, 
-     $     iosph)) call errquit('fastJ: bas_cont_info',ish)
+     $     iosph)) call errquit('fastJ: bas_cont_info',ish, BASIS_ERR)
       if (itype .lt. 0 .or. ingen.ne.1) call errquit
-     $     ('fastJ: no general/SP functions yet',0)
+     $     ('fastJ: no general/SP functions yet',0, BASIS_ERR)
       if (itype .gt. lmax) call errquit
-     $     ('fastJ: hard dimension lmax exceeded ', lmax)
+     $     ('fastJ: hard dimension lmax exceeded ', lmax, BASIS_ERR)
       if (.not. bas_cn2bfr(basis, ish, ibflo, ibfhi))
-     $     call errquit('fastJ dens: bas_cn2bfr', ish)
+     $     call errquit('fastJ dens: bas_cn2bfr', ish, BASIS_ERR)
       if (.not.bas_get_exponent(basis, ish, expi))
-     $     call errquit('fastJ: bas_get_exponent?',ish)
+     $     call errquit('fastJ: bas_get_exponent?',ish, BASIS_ERR)
       if (.not.bas_get_coeff(basis, ish, coeffi))
-     $     call errquit('fastJ: bas_get_coeff?',ish)
+     $     call errquit('fastJ: bas_get_coeff?',ish, BASIS_ERR)
       if (.not. bas_cn2ce(basis, ish, iat))
-     $     call errquit('fastJ: bas_cn2ce?',ish)
+     $     call errquit('fastJ: bas_cn2ce?',ish, BASIS_ERR)
       if (.not. geom_cent_get(geom, iat, tag, ri, charge))
-     $     call errquit('fastJ: geom_cart_get ', iat)
+     $     call errquit('fastJ: geom_cart_get ', iat, GEOM_ERR)
       numi = ibfhi - ibflo + 1
 c
       ijtype = itype + jtype
@@ -158,7 +163,8 @@ c
             end do
          end do
       else
-         call errquit('fastJ: I am confused about spherical',0)
+         call errquit('fastJ: I am confused about spherical',0,
+     &       BASIS_ERR)
       end if
 c
 c     Scale the density by fact and find maximum value
@@ -489,7 +495,7 @@ c
       if (otime) time_direct = time_direct + util_cpusec() - start
 c
 99999 if (.not. ma_pop_stack(l_not_done)) call errquit
-     $     ('pot_shell: ma corrupt?',0)
+     $     ('pot_shell: ma corrupt?',0, MA_ERR)
 c
       end
       subroutine dens_sph_to_cart(itype, jtype, dens, ld, denc,
@@ -563,6 +569,7 @@ c
      $     mpoles, maxl, center, radius, luse, luse2, luse4,
      $     omask, opresent, ldp)
       implicit none
+#include "errquit.fh"
 c
 c     Given a block of the density matrix over a pair of CARTESIAN
 c     shells and a detailed description of those shells, return
@@ -627,13 +634,16 @@ c
 c     Sanity checks
 c
       if (itype.gt.lmax .or. jtype.gt.lmax) call errquit
-     $     ('pot_shell_pair_multipole: lmax?',itype*1000+jtype)
+     $     ('pot_shell_pair_multipole: lmax?',itype*1000+jtype,
+     &       BASIS_ERR)
       if (ingen.ne.1 .or. jngen.ne.1) call errquit
-     $     ('p_s_p_m: no generally conracted functions ', 0)
+     $     ('p_s_p_m: no generally conracted functions ', 0,
+     &       BASIS_ERR)
 c     
       ijtype = itype + jtype
       if((2*ijtype + 1).gt.dfmax) call errquit(
-     .     ' potshellmultip: dfmax must be ',2*ijtype + 1)
+     .     ' potshellmultip: dfmax must be ',2*ijtype + 1,
+     &       BASIS_ERR)
       pi = 4.0d0*atan(1.0d0)
       rootpi = sqrt(pi)
       do i = 1, 2*ijtype + 1

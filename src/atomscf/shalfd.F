@@ -1,6 +1,7 @@
       subroutine shalfd(s,v,n)
-C$Id: shalfd.F,v 1.3 1997-04-29 19:50:31 d3e129 Exp $
+C$Id: shalfd.F,v 1.4 2003-10-17 22:54:15 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c.......................................................................
 c
 c     make s**(-1/2) for transformation to orthonormal basis.
@@ -17,7 +18,8 @@ c
       nnd = n*(n+1)/2
       nn = n*n
       if (n.gt.50)
-     &    call errquit('atomscf:dimensioning error in shalfd',0)
+     &    call errquit('atomscf:dimensioning error in shalfd',0,
+     &       UNKNOWN_ERR)
       do i = 1 , n
          do j = 1 , i
             v(i,j) = 0.0d0

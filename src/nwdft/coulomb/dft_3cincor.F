@@ -1,9 +1,10 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.29 2002-08-16 00:39:51 edo Exp $
+C$Id: dft_3cincor.F,v 1.30 2003-10-17 22:55:34 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c    
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches [in]
@@ -75,7 +76,8 @@ c
          call util_pname(filename, actualname)
 c
          if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
-     &      call errquit('dft_3cincor: unable to get disk info',0)
+     &      call errquit('dft_3cincor: unable to get disk info',0,
+     &       DISK_ERR)
 c
 c     now eaf_stat returns Mb instead of kb
 c
@@ -88,7 +90,8 @@ c
 c         if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
          if (availkb .gt. (2*n3c_b + other_stuff)/1024)then
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     &        call errquit('dft_3cincor; eaf_open failed', 0)
+     &        call errquit('dft_3cincor; eaf_open failed', 0,
+     &       DISK_ERR)
             file_opened = .true.
             if (me.eq.0.and.oprint_semi_file)then
                write(LuOut,*) 
@@ -124,7 +127,7 @@ c
       nscr    = mscratch_2e3c
 !modedo
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &  call errquit('dft_3cincor: cannot allocate scr',0)
+     &  call errquit('dft_3cincor: cannot allocate scr',0, MA_ERR)
 c
 cedo      call ga_sync
 c
@@ -139,7 +142,7 @@ c
       n_batch_buf = 0
       do 240 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
-     &     call errquit('exiting in fitvcoul.',3)
+     &     call errquit('exiting in fitvcoul.',3, BASIS_ERR)
         nshbfc=ilastc-ifirstc+1
 c 
         do 230 ishd = 1,ishc
@@ -155,7 +158,8 @@ c
 c             Define the scatter index.
 c              
               if( .not. bas_cn2bfr( ao_bas_han,ishd,
-     &          ifirstd,ilastd))call errquit('exiting in fitvcoul.',4)
+     &          ifirstd,ilastd))call errquit('exiting in fitvcoul.',4,
+     &       BASIS_ERR)
 c
               nshbfd=ilastd-ifirstd+1
               nao2 = nshbfc*nshbfd
@@ -163,7 +167,8 @@ c
               do 220 ishp = 1,nshells_cd
 c
                 if ( .not. bas_cn2bfr( cd_bas_han,ishp,ifirstp,ilastp))
-     &              call errquit('exiting in fitvcoul.',5)
+     &              call errquit('exiting in fitvcoul.',5,
+     &       BASIS_ERR)
 
                 nshbf_cd=ilastp-ifirstp+1
 
@@ -176,7 +181,8 @@ c
                 n_chk = ndone+nintegrals-1
                 if( (n_chk) .gt. n3c_dbl) then
                   write(LuOut,*) ' nlast n3cdbl ',n_chk, n3c_dbl
-                  call errquit('dft_3cincor: blew out buf of dbles',999)
+                  call errquit('dft_3cincor: blew out buf of dbles',999,
+     &       UNKNOWN_ERR)
                 endif
 c
 c               check for use of symmetry
@@ -201,7 +207,8 @@ c
               n_batch = n_batch + 1
               n_batch_buf = n_batch_buf + 1
               if( n_batch.gt.n_bmax)
-     &          call errquit('dft_3cincor: blew out buf of ints',n_bmax)
+     &          call errquit('dft_3cincor: blew out buf of ints',n_bmax,
+     &       UNKNOWN_ERR)
 c
               iwhat(n_batch)=(ishc*(ishc-1))/2 + ishd-1
 c            
@@ -242,7 +249,8 @@ c
 c  
                 if (eaf_write(fd, offset, i3c_eri, n3c_b) .ne. 0)
      &             call errquit
-     &             ('dft_3cincor: 3c-2e integral buffer write failed',0)
+     &             ('dft_3cincor: 3c-2e integral buffer write failed',0,
+     &       DISK_ERR)
 c                
 c               now clear buffer and continue
 c
@@ -256,7 +264,8 @@ c
 c               check to see if there is still more disk space available:
 c
                 if (eaf_stat(actualname, availkb, fstype) .ne. 0) 
-     &            call errquit('dft_3cincor: unable to get disk info',0)
+     &            call errquit('dft_3cincor: unable to get disk info',0,
+     &       DISK_ERR)
 c
 c               need global space available check here
 c
@@ -310,7 +319,8 @@ c
          i3c_eri(n3c_dbl) = dble(n_batch_buf)
 c  
          if (eaf_write(fd, offset, i3c_eri, n3c_b) .ne. 0)call errquit
-     &      ('dft_3cincor: 3c-2e integral buffer write failed',0)
+     &      ('dft_3cincor: 3c-2e integral buffer write failed',0,
+     &       DISK_ERR)
 c                
 c        now clear buffer and continue
 c
@@ -368,7 +378,7 @@ c     &                ntasks, nlast, ishc, ishd
 c      call util_flush(LuOut)
 c
       if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_3cincor: cannot pop stack',0)
+     &  call errquit('dft_3cincor: cannot pop stack',0, MA_ERR)
 c
       call nxtask_nleft (-nproc, icount, n1, nbufs)
  3241 format(10x,'The percent of 3c 2e- integrals held in-core is: ',

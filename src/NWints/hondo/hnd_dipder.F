@@ -1,5 +1,5 @@
 c
-c $Id: hnd_dipder.F,v 1.1 2002-01-20 05:52:52 windus Exp $
+c $Id: hnd_dipder.F,v 1.2 2003-10-17 22:53:53 carlfahl Exp $
 c
 c  Modified from the HONDO dipole integral code
 c
@@ -77,6 +77,7 @@ c
       implicit none
 #include "hnd_tol.fh"
 #include "stdio.fh"
+#include "errquit.fh"
       integer i_nprim  ! [input] num. prims on function i
       integer i_ngen   ! [input] num general conts on func. i
       integer Li       ! [input] angular momentum of func. i
@@ -184,7 +185,8 @@ c
       nroots=(lit+ljt-2)/2+1
       if(nroots.gt.maxrys) then
          write(luout,9997) maxrys,lit,ljt,nroots
-         call errquit('hnd_dipder: angular momentum too high',555)
+         call errquit('hnd_dipder: angular momentum too high',555,
+     &       BASIS_ERR)
       endif
 c
 c     ----- i primitive -----
@@ -211,7 +213,8 @@ c
       elseif(lit.eq.5) then
         cgi=coefi(ig,i_ngen)
       else
-        call errquit('hnd_dipder: illegal -lit- ', lit)
+        call errquit('hnd_dipder: illegal -lit- ', lit,
+     &       INT_ERR)
       endif
 c
 c     ----- j primitive -----
@@ -239,7 +242,8 @@ c
       elseif(ljt.eq.5) then
         cgj=coefj(jg,j_ngen)
       else
-        call errquit('hnd_stv_int: illegal -ljt- ', ljt)
+        call errquit('hnd_stv_int: illegal -ljt- ', ljt,
+     &       INT_ERR)
       endif
       ax=(axi+aj*xj)*aa1
       ay=(ayi+aj*yj)*aa1

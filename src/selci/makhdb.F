@@ -1,9 +1,10 @@
       subroutine selci_makhdb(hij,ind,icase,ns,indbar,iocc,
      $     w1,w2,work1,work2,g,int12,int34,numf,numf2)
 *
-* $Id: makhdb.F,v 1.2 1997-10-31 23:42:12 d3e129 Exp $
+* $Id: makhdb.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension hij(*),ind(4),indbar(*),iocc(*),
      $     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1),
@@ -28,7 +29,7 @@ c        hij = (ij|kl)<u|Eij,kl|v> + (il|kj)<u|Eil,kj|v>
 c
       numf = nf(ns)
       goto (10,20,30,40) icase
-      call errquit('makhdb: invalid icase',icase)
+      call errquit('makhdb: invalid icase',icase, INPUT_ERR)
 c
 c     icase=1
 c        ii -> jj , ind(1)=i, ind(2)= j

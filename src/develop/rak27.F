@@ -1,6 +1,7 @@
       logical function task_hondo_deriv_check(rtdb)
       implicit none
-* $Id: rak27.F,v 1.4 2000-02-04 19:53:16 mg201 Exp $
+#include "errquit.fh"
+* $Id: rak27.F,v 1.5 2003-10-17 22:54:39 carlfahl Exp $
 c
 c For testing hondo gradient integrals.  It is currently set up to test
 c the potential derivative integrals.  Comments are sprinkled through the
@@ -29,26 +30,26 @@ c
 c
 c
       if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('geom create failed',911)
+     &    ('geom create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('geom_rtdb_load failed',911)
+     &    ('geom_rtdb_load failed',911, RTDB_ERR)
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &    ('bas_create failed',911)
+     &    ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
-     &    ('bas_rtdb_load failed',911)
+     &    ('bas_rtdb_load failed',911, RTDB_ERR)
 c
       write(6,*)' geom/basis loaded'
 c
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
-     $    call errquit(' basis print failed', 0)
+     $    call errquit(' basis print failed', 0, BASIS_ERR)
 c
       if (.not.bas_numbf(basis,nbf)) call errquit
-     &    ('numbf failed',911)
+     &    ('numbf failed',911, BASIS_ERR)
       if (.not.bas_numcont(basis,nshell)) call errquit
-     &    ('numcont failed',911)
+     &    ('numcont failed',911, BASIS_ERR)
 c
       if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
       write(6,*) 'number of atoms ', nat

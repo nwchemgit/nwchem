@@ -3,7 +3,7 @@ C NAME
 C     Corr_Mk_Ref -- Create reference for correlated calculation
 C
 C REVISION
-C     $Id: corr_mk_ref.F,v 1.12 2003-02-20 22:52:55 edo Exp $
+C     $Id: corr_mk_ref.F,v 1.13 2003-10-17 22:58:34 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function Corr_Mk_Ref(RTDB, Mod, Geom, Basis, DoSCF, 
@@ -12,6 +12,7 @@ C SYNOPSIS
 C
 C ARGUMENTS
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB              ! [in]  Database handle
       Character*(*) Mod         ! [in]  Module name
       Integer Geom              ! [in]  Geometry handle
@@ -152,7 +153,8 @@ C
 C     Simple sanity checks
 C
       If ( MxSpin .gt. MyMxSpin) Call ErrQuit(
-     $     'corr_mk_ref: caller expects too many spin cases', MxSpin)
+     $     'corr_mk_ref: caller expects too many spin cases', MxSpin,
+     &       INPUT_ERR)
 C
 C     ****************************
 C     * Figure out input vectors *
@@ -198,7 +200,8 @@ C     Get basic dimension info from VecFil
 C
       If ( .NOT.  MOVecs_Read_Header(VecFil, VecTitle, VecBas, 
      $     VecType, NAO, VecSpin, VecNMO, MyMxSpin) )
-     $   Call ErrQuit('corr_mk_ref: can''t read vectors (header)', 0)
+     $   Call ErrQuit('corr_mk_ref: can''t read vectors (header)', 0,
+     &       DISK_ERR)
 C
 C     Allocate space for vectors, eigenvalues, and occupation
 C
@@ -216,7 +219,7 @@ C
      $        Key(:Inp_StrLen(Key)), MyRChunk, MyCChunk, G_Vec(Spin) ) )
      $        Call ErrQuit(
      $        'corr_mk_ref: failed to create GA for vectors',
-     $        NAO*VecNMO(Spin) )
+     $        NAO*VecNMO(Spin) , GA_ERR)
       EndDo
 C
 C     For eigenvalues and occupation vector, each spin requires NAO
@@ -226,11 +229,11 @@ C
       If ( .NOT. MA_Push_Get(MT_Dbl, NAO*VecSpin,
      $     'SCF Occupation', H_Occ, I_Occ) ) Call ErrQuit(
      $     'corr_mk_ref: failed to allocate for occupation',
-     $     NAO*VecSpin)
+     $     NAO*VecSpin, MA_ERR)
       If ( .NOT. MA_Push_Get(MT_Dbl, NAO*VecSpin,
      $     'SCF Eigenvalues', H_EVal, I_EVal) ) Call ErrQuit(
      $     'corr_mk_ref: failed to allocate for eigenvalues',
-     $     NAO*VecSpin)
+     $     NAO*VecSpin, MA_ERR)
 c$$$C
 c$$$C     Another set so we can preserve the originals for a while
 c$$$C
@@ -250,7 +253,7 @@ C
      $        Dbl_MB(I_Occ + NAO*(Spin-1)),
      $        Dbl_MB(I_EVal+ NAO*(Spin-1)), G_Vec(Spin) ) )
      $        Call ErrQuit(
-     $        'corr_mk_ref: can''t read vectors', 0)
+     $        'corr_mk_ref: can''t read vectors', 0, DISK_ERR)
       EndDo
 c$$$C
 c$$$C     Preserve original eigenvalues & vectors
@@ -350,7 +353,8 @@ C         NFrzOcc = 0
 C      EndIf
 
        if(.not. geom_freeze(rtdb, geom, Mod, NFrzOcc)) then
-          call errquit('corr_mk_ref: problem with geom_freeze',0)
+          call errquit('corr_mk_ref: problem with geom_freeze',0,
+     &       GEOM_ERR)
        endif
 
 C
@@ -363,7 +367,7 @@ C
      $     Status) ) Then
          If (.NOT. Geom_Num_Core(rtdb,Geom,mod,NFrzVir) ) 
      C        Call ErrQuit(
-     $        'corr_mk_ref: problem with geom_num_core', 0)
+     $        'corr_mk_ref: problem with geom_num_core', 0, GEOM_ERR)
       ElseIf ( RTDB_Get(RTDB, Key2(1:Inp_StrLen(Key2)), MT_Int, 1,
      $        NFrzVir) ) Then
       Else
@@ -377,11 +381,12 @@ C
      $     Date) ) then 
          If ( RefSpin .gt. MyMxSpin) Call ErrQuit(
      $      'corr_mk_ref: too many elements in spin mapping',
-     $      RefSpin)
+     $      RefSpin, INPUT_ERR)
 C
          If ( .NOT. RTDB_Get( RTDB, Key(1:Inp_StrLen(Key)),
      $      MT_Int, RefSpin, SpinMap) ) Call ErrQuit(
-     $      'corr_mk_ref: problems reading runtime database', 0)
+     $      'corr_mk_ref: problems reading runtime database', 0,
+     &       RTDB_ERR)
 C
       Else                      ! NO RTDB ENTRY -- defaults
          RefSpin = VecSpin
@@ -397,7 +402,8 @@ C     caller expecting RHF reference.  Potentially useful for debugging
 C     and other unusual things.
 C
       If ( RefSpin .gt. MxSpin ) Call ErrQuit(
-     $     'corr_mk_ref: too many spin cases for caller!', RefSpin)
+     $     'corr_mk_ref: too many spin cases for caller!', RefSpin,
+     &       INPUT_ERR)
 C
 C     Determine final sizes and allocate the output arrays
 C
@@ -405,7 +411,7 @@ C
       Do Spin = 1, RefSpin
          If ( SpinMap(Spin) .lt. 1 .OR. SpinMap(Spin) .gt. VecSpin)
      $        Call ErrQuit('corr_mk_ref: bad spin map entry',
-     $        SpinMap(Spin))
+     $        SpinMap(Spin), INPUT_ERR)
 C
          RefNMO(Spin) = VecNMO( SpinMap(Spin) )
          If ( .NOT. KeepFrz )
@@ -422,18 +428,18 @@ C
      $        Key(:Inp_StrLen(Key)), MyRChunk, MyCChunk,
      $        G_RefVec(Spin))) Call ErrQuit(
      $        'corr_mk_ref: failed to create GA for vectors',
-     $        NAO*RefNMO(Spin) )
+     $        NAO*RefNMO(Spin) , GA_ERR)
       EndDo
 C     
       If ( .NOT. MA_Alloc_Get(MT_Dbl, NAO*RefSpin,
      $     'Reference Occupation', H_RefOcc, I_RefOcc) ) Call ErrQuit(
      $     'corr_mk_ref: failed to allocate for occupation',
-     $     NAO*RefSpin)
+     $     NAO*RefSpin, MA_ERR)
       If ( .NOT. MA_Alloc_Get(MT_Dbl, NAO*RefSpin,
      $     'Reference Eigenvalues', H_RefEVal, I_RefEVal) )
      $     Call ErrQuit(
      $     'corr_mk_ref: failed to allocate for eigenvalues',
-     $     NAO*RefSpin)
+     $     NAO*RefSpin, MA_ERR)
 C
 C     Now copy everything into its final destination
 C
@@ -501,12 +507,12 @@ c$$$      If ( .NOT. MA_Pop_Stack(H_Occ0) ) Call ErrQuit(
 c$$$     $     'corr_mk_ref: failed to pop stack', 0)
 C
       If ( .NOT. MA_Pop_Stack(H_Eval) ) Call ErrQuit(
-     $     'corr_mk_ref: failed to pop stack', 0)
+     $     'corr_mk_ref: failed to pop stack', 0, MA_ERR)
       If ( .NOT. MA_Pop_Stack(H_Occ) ) Call ErrQuit(
-     $     'corr_mk_ref: failed to pop stack', 0)
+     $     'corr_mk_ref: failed to pop stack', 0, MA_ERR)
       Do Spin = VecSpin, 1, -1
          If ( .NOT. GA_Destroy(G_Vec(Spin) ) ) Call ErrQuit(
-     $        'corr_mk_ref: failed to destroy ga', 0)
+     $        'corr_mk_ref: failed to destroy ga', 0, GA_ERR)
       EndDo
 C
 C     Print results for the user

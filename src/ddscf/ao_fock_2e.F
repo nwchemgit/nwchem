@@ -1,9 +1,10 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c
-c$Id: ao_fock_2e.F,v 1.18 2000-04-28 20:40:10 edo Exp $
+c$Id: ao_fock_2e.F,v 1.19 2003-10-17 22:54:32 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -44,11 +45,11 @@ c
       external int2e_test_mem, int2e_buf_write, int2e_file_rewind
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('ao_replicated: bas_numbf failed', 0)
+     $     ('ao_replicated: bas_numbf failed', 0, BASIS_ERR)
       if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('ao_replicated: bas_numcont failed', 0)
+     $     ('ao_replicated: bas_numcont failed', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('ao_fock_2e: geom_ncent failed', 0)
+     $     ('ao_fock_2e: geom_ncent failed', 0, GEOM_ERR)
 c
 c     Default is replicated data.  This can be overridden by setting
 c     'fock:replicated' as false.  It is also overriden here when the
@@ -81,7 +82,8 @@ c     If reading/writing to/from cache/file then rewind
 c
       if (oreadfile .or. owritefile) then
          if (.not. int2e_file_rewind()) call errquit
-     $        ('ao_fock_2e: failed rewinding integral file',0)
+     $        ('ao_fock_2e: failed rewinding integral file',0,
+     &       UNKNOWN_ERR)
       endif
 c
 c     Halve exchange factor to conform to internal definition
@@ -92,9 +94,10 @@ c     Determine appropriate task chunking and max no. of bf in a
 c     block of the density/fock matrix
 c
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('ao_fock_2e: geom_ncent failed', 0)
+     $     ('ao_fock_2e: geom_ncent failed', 0, GEOM_ERR)
       if (.not. ma_push_get(MT_INT, 2*natoms, 'fock2e:block',
-     $     l_block, k_block))call errquit('fock_2e: ma failed',2*natoms)
+     $     l_block, k_block))call errquit('fock_2e: ma failed',2*natoms,
+     &       MA_ERR)
       call fock_2e_block_atoms(basis, oskel, tol2e,
      $     int_mb(k_block), nblock, maxblock)
 c
@@ -128,7 +131,8 @@ c
      $     l_flk, k_flk)
       status = status .and. ma_push_get(MT_DBL, ablklen, 'atmp',
      $     l_atmp, k_atmp)
-      if (.not. status) call errquit('fock_2e: d/f** failed', maxd)
+      if (.not. status) call errquit('fock_2e: d/f** failed', maxd,
+     &       MA_ERR)
 c
 c     If we can hold all of the integrals in core then we should
 c     do this ... i.e., the default should be semi-direct, though
@@ -165,7 +169,8 @@ c        schwarz_print must be called by all nodes.
 c
          if (util_print('screening statistics', print_debug)) then
             if ( .not. bas_numcont(basis, nshb) ) call errquit(
-     $         'ao_fock_2e: problem with call to bas_numcont', basis)
+     $         'ao_fock_2e: problem with call to bas_numcont', basis,
+     &       BASIS_ERR)
             call schwarz_print(natoms, nshb)
          endif
 C
@@ -186,7 +191,7 @@ c
       status = status .and. ma_pop_stack(l_dik)
       status = status .and. ma_pop_stack(l_dij)
       status = status .and. ma_pop_stack(l_block)
-      if (.not. status) call errquit('fock_2e: ma_pop?', 0)
+      if (.not. status) call errquit('fock_2e: ma_pop?', 0, MA_ERR)
 c     
       call ga_sync()
 c     
@@ -210,7 +215,8 @@ c
          oreadfile = .true.
          owritefile = .false.
          if (.not. int2e_buf_write(.true.))
-     $        call errquit('ao_fock_2e: write of last record failed',0)
+     $        call errquit('ao_fock_2e: write of last record failed',0,
+     &       UNKNOWN_ERR)
       endif
 c     
       end

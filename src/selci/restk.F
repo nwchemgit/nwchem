@@ -1,8 +1,9 @@
       subroutine restk
 *
-* $Id: restk.F,v 1.3 1997-10-31 23:42:25 d3e129 Exp $
+* $Id: restk.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
 *
       implicit real*8 (a-h,o-z), integer(i-n)
+#include "errquit.fh"
       parameter(irest1 = 69,irest2=70, istde=0,istdo=6)
       integer idum(7)
 c     
@@ -27,7 +28,7 @@ c
       write(irest2) idum
       call selci_restkc(irest1,irest2)
       return
-90911 call errquit(' error opening restart file ',0)
+90911 call errquit(' error opening restart file ',0, DISK_ERR)
 c
       end
       subroutine selci_restkc(irest1,irest2)

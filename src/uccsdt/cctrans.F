@@ -1,5 +1,6 @@
       subroutine cctrans()
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "schwarz.fh"
@@ -128,46 +129,51 @@ c
          ulenb = iu_len(symiu,1)
          if (.not. ga_create(mt_dbl, lena, ulena, 'list 1', 0, 0, 
      $        lists(symiu,1)) 
-     $        call errquit('cctrans: failed allocating list', 1)
+     $        call errquit('cctrans: failed allocating list', 1, GA_ERR)
          if (.not. ga_create(mt_dbl, lenb, ulena, 'list 2', 0, 0, 
      $        lists(symiu,2)) 
-     $        call errquit('cctrans: failed allocating list', 2)
+     $        call errquit('cctrans: failed allocating list', 2, GA_ERR)
          if (.not. ga_create(mt_dbl, lena, ulenb, 'list 3', 0, 0, 
      $        lists(symiu,3)) 
-     $        call errquit('cctrans: failed allocating list', 3)
+     $        call errquit('cctrans: failed allocating list', 3, GA_ERR)
          if (.not. ga_create(mt_dbl, lenb, ulenb, 'list 4', 0, 0, 
      $        lists(symiu,4)) 
-     $        call errquit('cctrans: failed allocating list', 4)
+     $        call errquit('cctrans: failed allocating list', 4, GA_ERR)
          if (.not. ga_create(mt_dbl, lena, ulena, 'list 5', 0, 0, 
      $        lists(symiu,5)) 
-     $        call errquit('cctrans: failed allocating list', 5)
+     $        call errquit('cctrans: failed allocating list', 5, GA_ERR)
          if (.not. ga_create(mt_dbl, lenb, ulena, 'list 6', 0, 0, 
      $        lists(symiu,6)) 
-     $        call errquit('cctrans: failed allocating list', 6)
+     $        call errquit('cctrans: failed allocating list', 6, GA_ERR)
 c$$$         if (.not. ga_create(mt_dbl, lena, ulenb, 'list 7', 0, 0, 
 c$$$     $        lists(symiu,7)) 
 c$$$     $        call errquit('cctrans: failed allocating list', 7)
          if (.not. ga_create(mt_dbl, lenb, ulenb, 'list 8', 0, 0, 
      $        lists(symiu,8)) 
-     $        call errquit('cctrans: failed allocating list', 8)
+     $        call errquit('cctrans: failed allocating list', 8, GA_ERR)
          if (.not. ga_create(mt_dbl, lena, ulena, 'list 9', 0, 0, 
      $        lists(symiu,9)) 
-     $        call errquit('cctrans: failed allocating list', 9)
+     $        call errquit('cctrans: failed allocating list', 9, GA_ERR)
          if (.not. ga_create(mt_dbl, lenb, ulena, 'list 10', 0, 0, 
      $        lists(symiu,10)) 
-     $        call errquit('cctrans: failed allocating list', 10)
+     $        call errquit('cctrans: failed allocating list', 10,
+     &       GA_ERR)
          if (.not. ga_create(mt_dbl, lena, ulenb, 'list 11', 0, 0, 
      $        lists(symiu,11)) 
-     $        call errquit('cctrans: failed allocating list', 11)
+     $        call errquit('cctrans: failed allocating list', 11,
+     &       GA_ERR)
          if (.not. ga_create(mt_dbl, lenb, ulenb, 'list 12', 0, 0, 
      $        lists(symiu,12)) 
-     $        call errquit('cctrans: failed allocating list', 12)
+     $        call errquit('cctrans: failed allocating list', 12,
+     &       GA_ERR)
          if (.not. ga_create(mt_dbl, lena, ulena, 'list 13', 0, 0, 
      $        lists(symiu,13)) 
-     $        call errquit('cctrans: failed allocating list', 13)
+     $        call errquit('cctrans: failed allocating list', 13,
+     &       GA_ERR)
          if (.not. ga_create(mt_dbl, lenb, ulenb, 'list 14', 0, 0, 
      $        lists(symiu,14)) 
-     $        call errquit('cctrans: failed allocating list', 14)
+     $        call errquit('cctrans: failed allocating list', 14,
+     &       GA_ERR)
       end do
       do i = 1, 14
          do symiu = 0, nir-1
@@ -229,16 +235,20 @@ c
             end do
             if (.not. ga_create(mt_dbl, lena, 1, '<vw|iu>1', 0, 0, 
      $           g_vwiu(1)) 
-     $           call errquit('cctrans: failed allocating <vw|iu>', 1)
+     $           call errquit('cctrans: failed allocating <vw|iu>', 1,
+     &       GA_ERR)
             if (.not. ga_create(mt_dbl, lena, 2, '<vw|iu>2', 0, 0, 
      $           g_vwiu(2)) 
-     $           call errquit('cctrans: failed allocating <vw|iu>', 1)
+     $           call errquit('cctrans: failed allocating <vw|iu>', 1,
+     &       GA_ERR)
             if (.not. ga_create(mt_dbl, lenb, 3, '<vw|iu>3', 0, 0, 
      $           g_vwiu(3)) 
-     $           call errquit('cctrans: failed allocating <vw|iu>', 3)
+     $           call errquit('cctrans: failed allocating <vw|iu>', 3,
+     &       GA_ERR)
             if (.not. ga_create(mt_dbl, lenb, 4, '<vw|iu>4', 0, 0, 
      $           g_vwiu(4)) 
-     $           call errquit('cctrans: failed allocating <vw|iu>', 4)
+     $           call errquit('cctrans: failed allocating <vw|iu>', 4,
+     &       GA_ERR)
 c
 c     Need to determine the blocksize for the v and l loops again to
 c     control local memory and increase parallelism ... for now hardwire
@@ -431,6 +441,7 @@ c
      $     fullvrange, fulllrange, irange, nset, c, ldc, 
      $     k_viwu, k_liwu) 
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "schwarz.fh"
@@ -487,7 +498,7 @@ c
      $     lenlv, lenwu, symwuoff, leng)
 c     
       if (.not. ma_push_get(mt_dbl, leng, 'cctrans3', l_g, k_g))
-     $     call errquit('cctrans3: no room for g', leng)
+     $     call errquit('cctrans3: no room for g', leng, MA_ERR)
 c     
       call soints_block(basis, nbf,
      $     lsh_blk_lo, lsh_blk_hi, loff, lrange,
@@ -574,6 +585,6 @@ c     (lv|wu) -> (vi|wu) ... transpose and l -> i
       end do
 c     
       if (.not. ma_pop_stack(l_g)) call errquit
-     $     ('cctrans3: freeing g?', 0)
+     $     ('cctrans3: freeing g?', 0, MA_ERR)
 c     
       end

@@ -1,8 +1,9 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.9 2001-04-12 01:34:02 edo Exp $
+* $Id: dplot_input.F,v 1.10 2003-10-17 22:54:43 carlfahl Exp $
 *
       Implicit none
+#include "errquit.fh"
 *
 ************************************************************************
 #include "inp.fh"
@@ -78,37 +79,47 @@ c
 *---- Read the keyword
    10 Continue
       If (.not.inp_read())
-     &   Call ErrQuit('DPlot_Input: inp_read failed',0)
+     &   Call ErrQuit('DPlot_Input: inp_read failed',0,
+     &       INPUT_ERR)
       If (.not.inp_a(test))
-     &   Call ErrQuit('DPlot_Input: failed to read keyword',0)
+     &   Call ErrQuit('DPlot_Input: failed to read keyword',0,
+     &       INPUT_ERR)
 *
       If (.not.inp_match(Num_Dirs,.false.,test,Dirs,ind))
-     &   Call ErrQuit('DPlot_Input: unknown directive',0)
+     &   Call ErrQuit('DPlot_Input: unknown directive',0,
+     &       INPUT_ERR)
       GoTo (100, 200, 300, 400, 500, 600, 700, 800, 900, 964, 
      .     9999) ind
-      Call ErrQuit('DPlot_Input: unimplemented directive',ind)
+      Call ErrQuit('DPlot_Input: unimplemented directive',ind,
+     &       INPUT_ERR)
 *
 *---- Read the information about the limits of the grid
   100 Continue
       If (inp_a(test)) Then
          If (.not. inp_compare(.false.,test,'units'))
-     &      Call ErrQuit('DPlot_Input: LimitXYZ [units <units>]',0)
+     &      Call ErrQuit('DPlot_Input: LimitXYZ [units <units>]',0,
+     &       INPUT_ERR)
          If (.not.inp_a(Units))
-     &      Call ErrQuit('DPlot_Input: LimitXYZ [units <units>]',0)
+     &      Call ErrQuit('DPlot_Input: LimitXYZ [units <units>]',0,
+     &       INPUT_ERR)
          If (.not. inp_match(Num_Units,.false.,Units,Allowed_Units,
-     &      indUnits)) Call ErrQuit('DPlot_Input: unknown units',0)
+     &      indUnits)) Call ErrQuit('DPlot_Input: unknown units',0,
+     &       INPUT_ERR)
       End If
       Do i = 1, 3
          If (.not. inp_read())
-     &      Call ErrQuit('DPlot_Input: inp_read failed',0)
+     &      Call ErrQuit('DPlot_Input: inp_read failed',0, INPUT_ERR)
          If (.not. inp_f(ValueR))
-     &      Call ErrQuit('DPlot_Input: failed to read limits',0)
+     &      Call ErrQuit('DPlot_Input: failed to read limits',0,
+     &       INPUT_ERR)
          Ext_From_To(i,1) = ValueR
          If (.not. inp_f(ValueR))
-     &      Call ErrQuit('DPlot_Input: failed to read limits',0)
+     &      Call ErrQuit('DPlot_Input: failed to read limits',0,
+     &       INPUT_ERR)
          Ext_From_To(i,2) = ValueR
          If (.not. inp_i(ValueI))
-     &      Call ErrQuit('DPlot_Input: failed to read spacings',0)
+     &      Call ErrQuit('DPlot_Input: failed to read spacings',0,
+     &       INPUT_ERR)
          No_Of_Spacings(i) = ValueI
       End Do
       GoTo 10
@@ -116,7 +127,8 @@ c
 *---- Read the information about the source of the MO vectors
   200 Continue
       If (.not.inp_a(File_Vec))
-     &   Call ErrQuit('DPlot_Input: Vectors <file1> [<file2>]',0)
+     &   Call ErrQuit('DPlot_Input: Vectors <file1> [<file2>]',0,
+     &       INPUT_ERR)
       If (inp_a(test)) Then
          Lth = Inp_StrLen(test)
          File_Vec2(1:Lth) = test(1:Lth)
@@ -126,7 +138,7 @@ c
 *---- Read the name of the output file
   300 Continue
       If (.not.inp_a(File_Out))
-     &   Call ErrQuit('DPlot_Input: Output <file>',0)
+     &   Call ErrQuit('DPlot_Input: Output <file>',0, INPUT_ERR)
       GoTo 10
 *
 *---- Read the title of the output file
@@ -134,54 +146,59 @@ c
       test = ' '
       Title = ' '
       If (.not.Inp_a(Title))
-     &   Call ErrQuit('DPlot_Input: Title <title>',0)
+     &   Call ErrQuit('DPlot_Input: Title <title>',0, INPUT_ERR)
       GoTo 10
 *
 *---- Read the orbital info
   500 Continue
       If (inp_a(test)) Then
          If (.not. inp_match(Num_What,.false.,test,Allowed_What,
-     &      indWhat)) Call ErrQuit('DPlot_Input: unknown option',0)
+     &      indWhat)) Call ErrQuit('DPlot_Input: unknown option',0,
+     &       INPUT_ERR)
          Lth = Inp_StrLen(test)
          What = ' '
          What(1:Lth) = test(1:Lth)
       End If
       If (.not. inp_read())
-     &   Call ErrQuit('DPlot_Input: inp_read failed',0)
+     &   Call ErrQuit('DPlot_Input: inp_read failed',0, INPUT_ERR)
       If (.not.inp_i(nOrb))
-     &   Call ErrQuit('DPlot_Input: Orbitals; <# orbs.>; <Orb1 ...>',0)
+     &   Call ErrQuit('DPlot_Input: Orbitals; <# orbs.>; <Orb1 ...>',0,
+     &       INPUT_ERR)
       If (nOrb.gt.0) Then
          If (nOrb.ne.999999) Then
             If (.not. inp_read())
-     &         Call ErrQuit('DPlot_Input: inp_read failed',0)
+     &         Call ErrQuit('DPlot_Input: inp_read failed',0,
+     &       INPUT_ERR)
             If (.not.MA_Push_Get(MT_Int,nOrb,'Orb',l_Orb,k_Orb))
-     &         Call ErrQuit('DPlot_Input: failed to allocate Orb',0)
+     &         Call ErrQuit('DPlot_Input: failed to allocate Orb',0,
+     &       INPUT_ERR)
             Do iOrb = 1, nOrb
                If (.not. inp_i(ValueI))
      &            Call ErrQuit('DPlot_Input: failed to read orb. no.',
-     &                         iOrb)
+     &                         iOrb, INPUT_ERR)
                Int_mb(k_Orb - 1 + iOrb) = ValueI
             End Do
          End If
       Else
-         Call ErrQuit('DPlot_Input: Sorry, nOrb <= 0',0)
+         Call ErrQuit('DPlot_Input: Sorry, nOrb <= 0',0, INPUT_ERR)
       End If
       GoTo 10
 *
 *---- Read the spin info
   600 Continue
       If (.not.inp_a(Spin))
-     &   Call ErrQuit('DPlot_Input: Spin <Spin>',0)
+     &   Call ErrQuit('DPlot_Input: Spin <Spin>',0, INPUT_ERR)
       If (.not. inp_match(Num_Spin,.false.,Spin,Allowed_Spin,indSpin))
-     &   Call ErrQuit('DPlot_Input: unknown spin',0)
+     &   Call ErrQuit('DPlot_Input: unknown spin',0, INPUT_ERR)
       GoTo 10
 *
 *---- Read the where info
   700 Continue
       If (.not.inp_a(Where))
-     &   Call ErrQuit('DPlot_Input: Where <Where>',0)
+     &   Call ErrQuit('DPlot_Input: Where <Where>',0, INPUT_ERR)
       If (.not. inp_match(Num_Where,.false.,Where,Allowed_Where,
-     &   indWhere)) Call ErrQuit('DPlot_Input: unknown where',0)
+     &   indWhere)) Call ErrQuit('DPlot_Input: unknown where',0,
+     &       INPUT_ERR)
       GoTo 10
 *
 *---- Read the charges info
@@ -204,45 +221,58 @@ c
       if (.not. rtdb_put(rtdb, 'dplot:lgaussian', mt_log, 1,
      &   lgaussian)) call errquit('dpinput:rtdbwr failed',11)
       If (.not.rtdb_cput(rtdb,'dplot:Units',1,Units))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Units',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Units',0,
+     &       RTDB_ERR)
       If (.not.rtdb_put(rtdb,'dplot:Ext_From_To',mt_dbl,6,Ext_From_To))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Ext_From_To',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Ext_From_To',0,
+     &       RTDB_ERR)
       If (.not.rtdb_put(rtdb,'dplot:No_Of_Spacings',mt_int,
      &   3,No_Of_Spacings))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - No_Of_Spacings',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - No_Of_Spacings',0,
+     &       RTDB_ERR)
 *---- Write the name of the vector file to rtdb
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec',1,File_Vec))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec',0,
+     &       RTDB_ERR)
 c      write(0,*) ' vec1 and 2',File_vec,File_vec2
       If (.not.rtdb_cput(rtdb,'dplot:File_Vec2',1,File_Vec2))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec2',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Vec2',0,
+     &       RTDB_ERR)
 *---- Write the name of the output file to rtdb
       If (.not.rtdb_cput(rtdb,'dplot:File_Out',1,File_Out))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Out',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - File_Out',0,
+     &       RTDB_ERR)
 *---- Write the title of the output file to rtdb
       If (.not.rtdb_cput(rtdb,'dplot:Title',1,Title))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Title',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Title',0,
+     &       RTDB_ERR)
 *---- Write the orbital info
       Call Inp_UCase(What)
       If (.not.rtdb_cput(rtdb,'dplot:What',1,What))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - What',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - What',0,
+     &       RTDB_ERR)
       If (.not.rtdb_put(rtdb,'dplot:nOrb',mt_int,1,nOrb))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - nOrb',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - nOrb',0,
+     &       RTDB_ERR)
       If (nOrb.ne.999999) Then
          If (.not.rtdb_put(rtdb,'dplot:OrbNo',mt_int,
      &      nOrb,Int_mb(k_Orb)))
-     &      Call ErrQuit('DPlot_Input: rtdb_put failed - nOrb',0)
+     &      Call ErrQuit('DPlot_Input: rtdb_put failed - nOrb',0,
+     &       RTDB_ERR)
          If (.not.MA_Pop_Stack(l_Orb))
-     &      Call ErrQuit('DPlot_Input: failed to deallocate Orb',0)
+     &      Call ErrQuit('DPlot_Input: failed to deallocate Orb',0,
+     &       MA_ERR)
       End If
 *---- Write the spin info
       Call Inp_UCase(Spin)
       If (.not.rtdb_cput(rtdb,'dplot:Spin',1,Spin))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Spin',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Spin',0,
+     &       RTDB_ERR)
 *---- Write 'where' info
       Call Inp_UCase(Where)
       If (.not.rtdb_cput(rtdb,'dplot:Where',1,Where))
-     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Where',0)
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - Where',0,
+     &       RTDB_ERR)
 *
       End
 

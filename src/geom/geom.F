@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.121 2003-07-30 00:55:16 edo Exp $
+C$Id: geom.F,v 1.122 2003-10-17 22:55:06 carlfahl Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -247,6 +247,7 @@ c
       end
       logical function geom_rtdb_add(rtdb, name)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
@@ -263,7 +264,8 @@ c
       external geom_rtdb_in, geom_rtdb_out
 c
       if (ngeom_rtdb.lt.0 .or. ngeom_rtdb.gt.max_geom_rtdb)
-     $     call errquit('geom_rtdb_add: ngeom_rtdb?',ngeom_rtdb)
+     $     call errquit('geom_rtdb_add: ngeom_rtdb?',ngeom_rtdb,
+     &       RTDB_ERR)
 c     
 c     See if name is on the rtdb already
 c     
@@ -357,6 +359,7 @@ c
       end
       logical function geom_rtdb_load(rtdb, geom, name)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -625,7 +628,8 @@ c     If loading into an old geometry free this memory
 c     
          if (sym_center_map_handle(geom) .ne. -1) then
             if (.not. ma_free_heap(sym_center_map_handle(geom)))
-     $           call errquit('geom_rtdb_load: free of atom map', 0)
+     $           call errquit('geom_rtdb_load: free of atom map', 0,
+     &       MA_ERR)
          end if
 c     
          tmp(k:) = ' ' 
@@ -635,11 +639,11 @@ c
      $        rtdb_ma_get(rtdb, tmp, ma_type, nelem,
      $        sym_center_map_handle(geom))
          if (nelem .ne. sym_num_ops(geom)*ncenter(geom)) call errquit
-     $        ('geom_rtdb_load: invalid no. of element in sym map',
-     $        nelem)
+     $        ('geom_rtdb_load: invalid no. of element in sym Tap',
+     $        nelem, RTDB_ERR)
          if (.not. ma_get_index(sym_center_map_handle(geom),
      $        sym_center_map_index(geom)))call errquit
-     $        ('geom_rtdb_load: bad ma handle for sym map', 0)
+     $        ('geom_rtdb_load: bad ma handle for sym map', 0, MA_ERR)
       else
          sym_center_map_handle(geom) = -1
          sym_center_map_index(geom) = 1 ! Not used but address is created
@@ -671,7 +675,8 @@ c     periodic systems: find conversion factor for geometrical parameters
 c     
       if (isystype(geom) .gt. 0) then 
          if (.not. geom_get_user_scale(geom,scale))
-     $        call errquit('geom_rtdb_load:failed get user scale',0)
+     $        call errquit('geom_rtdb_load:failed get user scale',0,
+     &       GEOM_ERR)
       endif
 c     
 c     setup geometry related stuff particular to the dimension of the system
@@ -776,6 +781,7 @@ c
       end
       logical function geom_include_bqbq(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
@@ -783,7 +789,7 @@ c
       external geom_check_handle
 c
       if (.not. geom_check_handle(geom, 'geom_include_bqbq'))
-     $     call errquit('geom_include_bqbq: bad handle',0)
+     $     call errquit('geom_include_bqbq: bad handle',0, GEOM_ERR)
       geom_include_bqbq = include_bqbq(geom)
 c
       end
@@ -1094,6 +1100,7 @@ c
       end
       logical function geom_rtdb_delete(rtdb, name)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
@@ -1145,7 +1152,8 @@ c
  20      if (status) then
             if (inp_compare(.true.,tmp(1:k),test(1:k))) then
                if (.not. rtdb_delete(rtdb,test)) call errquit
-     $              ('geom_rtdb_delete:failed deleting known entry',0)
+     $              ('geom_rtdb_delete:failed deleting known entry',0,
+     &       RTDB_ERR)
             endif
             status = rtdb_next(rtdb, test)
             goto 20
@@ -1158,6 +1166,7 @@ c
       end
       logical function geom_strip_sym(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
@@ -1178,7 +1187,8 @@ c
       setting_number(geom) = 0
       if (sym_center_map_handle(geom) .ne. -1) then
          if (.not. ma_free_heap(sym_center_map_handle(geom)))
-     $        call errquit('geom_strip_sum: free of atom map', 0)
+     $        call errquit('geom_strip_sum: free of atom map', 0,
+     &       MA_ERR)
       end if
       sym_center_map_handle(geom) = -1
       sym_center_map_index(geom) = 1
@@ -1193,6 +1203,7 @@ c
       end
       logical function geom_destroy(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "mafdecls.fh"
@@ -1214,7 +1225,7 @@ c
       geom_destroy = .true.
       if (sym_center_map_handle(geom) .ne. -1) then
          if (.not. ma_free_heap(sym_center_map_handle(geom)))
-     $        call errquit('geom_destroy: free of atom map', 0)
+     $        call errquit('geom_destroy: free of atom map', 0, MA_ERR)
       end if
 c
       end
@@ -1626,13 +1637,14 @@ c
       end
       logical function geom_efield_set(geom, ef)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
       integer geom              ! [input]
       double precision ef       ! [input]
 c
-      call errquit('geom_efield_set: not yet!', 0)
+      call errquit('geom_efield_set: not yet!', 0, GEOM_ERR)
 c     call geom_set_values(geom)
       geom_efield_set = .false.
       end
@@ -1712,6 +1724,7 @@ c
       end
       logical function geom_print(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
@@ -1749,7 +1762,7 @@ c
       endif
 c     
       if (.not. geom_get_user_scale(geom, scale))
-     $     call errquit('geom_print: user units?',0)
+     $     call errquit('geom_print: user units?',0, GEOM_ERR)
 c     
       buf = ' '
       write(buf,1) 'Geometry',
@@ -2078,6 +2091,7 @@ c
       end
       logical function geom_center_of_mass(geom, center)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom               ! [input] geometry handle
@@ -2092,14 +2106,15 @@ c  Get the center of mass of the geometry
 c  DOES not shift the center of mass to the origin
 c
       if (.not. geom_ncent(geom, ncent))
-     &  call errquit('geom_mass_center: unable to get ncent',555)
+     &  call errquit('geom_mass_center: unable to get ncent',555,
+     &       GEOM_ERR)
       do i = 1,3
         center(i) = 0.0d0
       enddo
       amass = 0.0d0
       do iat = 1, ncent
          if(.not.geom_mass_get(geom, iat, mass)) call
-     &        errquit(' mass_get  failed ',iat)
+     &        errquit(' mass_get  failed ',iat, GEOM_ERR)
          amass = amass + mass
          do i=1,3
             center(i) = center(i) + mass*coords(i,iat,geom)
@@ -2150,6 +2165,7 @@ c
 c
       logical function geom_verify_coords(geom)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 c
 c::functions      
@@ -2178,7 +2194,8 @@ c
      &    (xyz(3,i)-xyz(3,j))*(xyz(3,i)-xyz(3,j))
 c
       if(.not.geom_ncent(geom, nat))
-     &    call errquit('geom_verify_coords: geom_ncent failed',911)
+     &    call errquit('geom_verify_coords: geom_ncent failed',911,
+     &       GEOM_ERR)
 c
       
       atomi = 1
@@ -2190,11 +2207,13 @@ c
             if(.not.geom_cent_get
      &          (geom,iat,name(atomi),xyz(1,atomi),chg(atomi)))
      &          call errquit
-     &          ('geom_verify_coords: geom_cent_get<1> failed',911)
+     &          ('geom_verify_coords: geom_cent_get<1> failed',911,
+     &       GEOM_ERR)
             if(.not. geom_cent_get
      &          (geom,jat,name(atomj),xyz(1,atomj),chg(atomj)))
      &          call errquit
-     &          ('geom_verify_coords: geom_cent_get<2> failed',911)
+     &          ('geom_verify_coords: geom_cent_get<2> failed',911,
+     &       GEOM_ERR)
             dist_my = dist2(atomi,atomj)
             if (dist_my.lt.dist_thresh) then
               write(luout,*)' atoms ',iat,' and ',jat,' are similar'
@@ -2349,6 +2368,7 @@ c
       end
       logical function geom_amatrix_set(geom,amat)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
@@ -2362,7 +2382,7 @@ c
       geom_amatrix_set = geom_check_handle(geom, 'geom_amatrix_set')
       if (.not. geom_amatrix_set) return
       if (.not. geom_get_user_scale(geom,scale)) 
-     $     call errquit('geom_amtrix_set: call eric!',0)
+     $     call errquit('geom_amtrix_set: call eric!',0, GEOM_ERR)
 c
       do i=1,3
         do j=1,3
@@ -2529,6 +2549,7 @@ c
       end
       logical function geom_get_user_scale(geom, scale)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
@@ -2548,7 +2569,7 @@ c
       else if (user_units(geom) .eq. 'picometer') then
          scale = angstrom_to_au * 0.01d0
       else
-         call errquit('geom_get_user_scale: unknown units',0)
+         call errquit('geom_get_user_scale: unknown units',0, GEOM_ERR)
       endif
 c
       end
@@ -2582,6 +2603,7 @@ c
       end
       logical function geom_tag_to_default_mass(tag,mass)
       implicit none
+#include "errquit.fh"
 c
 c this routine takes a tag matches it to the atomic number
 c and returns the default atomic mass.
@@ -2603,7 +2625,7 @@ c
       if (.not. geom_tag_to_element(tag,tag_symbol, tag_element,
      &    tag_atomic_number)) call errquit
      &    ('geom_tag_to_default_mass: geom_tag_to_element failed ?',
-     &    911)
+     &    911, GEOM_ERR)
       geom_tag_to_default_mass =
      &    geom_atn_to_default_mass(tag_atomic_number,mass)
       end
@@ -2623,6 +2645,7 @@ c values from the WebElements website www.webelements.com
 c
 c
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
@@ -2661,9 +2684,11 @@ c
       geom_atn_to_default_mass = .false.
 c
       if (atn.lt.0) call errquit
-     &    ('geom_atn_to_default_mass: negative atomic number',atn)
+     &    ('geom_atn_to_default_mass: negative atomic number',atn,
+     &       GEOM_ERR)
       if (atn.gt.nelements) call errquit
-     &    ('geom_atn_to_default_mass: atomic number too large',atn)
+     &    ('geom_atn_to_default_mass: atomic number too large',atn,
+     &       GEOM_ERR)
 c
       if (atn.eq.0) then
         mass = 0.0d00  ! Bq centers have no mass
@@ -2847,6 +2872,7 @@ c
       end
       logical function geom_ecp_allset(geom,ncenter_in,oecp)
       implicit none
+#include "errquit.fh"
 c
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2864,7 +2890,7 @@ c
 c
       if (ncenter_in.ne.ncenter(geom)) call errquit
      &    (' too many or to few centers specified delta=',
-     &    (ncenter(geom)-ncenter_in))
+     &    (ncenter(geom)-ncenter_in), GEOM_ERR)
 c
       do icenter = 1,ncenter_in
         oecpcent(icenter,geom) = oecp(icenter)
@@ -2873,6 +2899,7 @@ c
       end
       logical function geom_ecp_allget(geom,ncenter_in,oecp)
       implicit none
+#include "errquit.fh"
 c
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2890,7 +2917,7 @@ c
 c
       if (ncenter_in.ne.ncenter(geom)) call errquit
      &    (' too many or to few centers specified delta=',
-     &    (ncenter(geom)-ncenter_in))
+     &    (ncenter(geom)-ncenter_in), GEOM_ERR)
 c
       do icenter = 1,ncenter_in
         oecp(icenter)= oecpcent(icenter,geom) 
@@ -2900,6 +2927,7 @@ c
 
       logical function geom_ecp_set(geom,icent,oecp)
       implicit none
+#include "errquit.fh"
 c
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -2917,7 +2945,8 @@ c
       if (.not.(icent.gt.0.and.icent.le.ncenter(geom))) then
         write(luout,*)' icent   = ',icent
         write(luout,*)' ncenter = ',ncenter(geom)
-        call errquit('geom_ecp_set: icent out of range ncenter = ',911)
+        call errquit('geom_ecp_set: icent out of range ncenter = ',911,
+     &       GEOM_ERR)
       endif
 c
       oecpcent(icent,geom) = oecp
@@ -2925,6 +2954,7 @@ c
       end
       logical function geom_ecp_get(geom,icent)
       implicit none
+#include "errquit.fh"
 c
 #include "stdio.fh"
 #include "nwc_const.fh"
@@ -2942,7 +2972,8 @@ c
       if (.not.(icent.gt.0.and.icent.le.ncenter(geom))) then
         write(luout,*)' icent   = ',icent
         write(luout,*)' ncenter = ',ncenter(geom)
-        call errquit('geom_ecp_get: icent out of range ncenter = ',911)
+        call errquit('geom_ecp_get: icent out of range ncenter = ',911,
+     &       GEOM_ERR)
       endif
 c
       geom_ecp_get = oecpcent(icent,geom) 
@@ -2970,6 +3001,7 @@ c
       end
       logical function geom_coords_ecp(geom, coords_ecp, ncent_in)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
@@ -2991,7 +3023,8 @@ c
           ncent_ecp = ncent_ecp + 1
           if (ncent_ecp.gt.ncent_in) call errquit
      &        ('geom_coords_ecp: number of ecp centers is greater'//
-     &         ' than the coord array dimension which is:',ncent_in)
+     &         ' than the coord array dimension which is:',ncent_in,
+     &       GEOM_ERR)
 *          write(LuOut,*)' geom       = ',geom
 *          write(LuOut,*)' ncent_ecp  = ',ncent_ecp
 *          write(LuOut,*)' icent      = ',icent
@@ -3037,6 +3070,7 @@ c
       logical function geom_ecp_center_list(geom, num_ecp_cent,
      &    ecp_cent)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       logical geom_check_handle
@@ -3060,7 +3094,8 @@ c
           num_ecp = num_ecp + 1
           if (num_ecp.gt.num_ecp_cent) call errquit
      &        ('geom_ecp_center_list: number of ecp centers greater'//
-     &         ' than array size passed in which is:',num_ecp_cent)
+     &         ' than array size passed in which is:',num_ecp_cent,
+     &       GEOM_ERR)
           ecp_cent(num_ecp) = icent
         endif
       enddo
@@ -3101,6 +3136,7 @@ c
 c
       logical function geom_calc_angle(a,b,c,angle)
       implicit none
+#include "errquit.fh"
 c
 c computes the angle (in degrees) between 3 atoms in order given
 c
@@ -3129,7 +3165,7 @@ c
       geom_calc_angle = geom_calc_angle.and.geom_calc_distance(b,c,bc)
       geom_calc_angle = geom_calc_angle.and.geom_calc_distance(a,c,ac)
       if (.not.geom_calc_angle) call errquit
-     &    ('geom_calc_angle:error computing a distance',911)
+     &    ('geom_calc_angle:error computing a distance',911, GEOM_ERR)
       
       xcosine = ab*ab + bc*bc - ac*ac
       if (is_it_close_to(ab,0.0d00).or.
@@ -3153,6 +3189,7 @@ c
       end
       logical function geom_calc_dihedral(ain,bin,cin,din,dihedral)
       implicit none 
+#include "errquit.fh"
 c
 c computes the dihedral angle for the given 4 atom coordinates
 c
@@ -3208,7 +3245,7 @@ c
         write(luout,*)'         nwchem-support@emsl.pnl.gov'
         call util_flush(luout)
         call errquit
-     &    ('geom_calc_dihedral: fatal angle error',1)
+     &    ('geom_calc_dihedral: fatal angle error',1, GEOM_ERR)
       endif
 *
 * check special cases  a,b,c or b,c,d are linear
@@ -3302,6 +3339,7 @@ c
       end
       logical function geom_print_distances(geom)
       implicit none
+#include "errquit.fh"
 c
 c prints arbitrary i>j atom distances
 c
@@ -3358,44 +3396,51 @@ c
       num_prt = 0
       rscale = 1.1d00
       if (.not.geom_get_user_units(geom,usr_units)) call errquit
-     &    ('geom_print_distances: geom_get_user_units failed',911)
+     &    ('geom_print_distances: geom_get_user_units failed',911,
+     &       GEOM_ERR)
       if (.not.geom_get_user_scale(geom,usr_scale)) call errquit
-     &    ('geom_print_distances: geom_get_user_scale failed',911)
+     &    ('geom_print_distances: geom_get_user_scale failed',911,
+     &       GEOM_ERR)
       if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('geom_print_distances: geom_ncent failed',911)
+     &    ('geom_print_distances: geom_ncent failed',911,
+     &       GEOM_ERR)
       if (nat.eq.1) then
         geom_print_distances = .true.
         return
       endif
       do iat = 1,nat
         if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
-     &      ('geom_print_distances: geom_cent_get failed:i',911)
+     &      ('geom_print_distances: geom_cent_get failed:i',911,
+     &       GEOM_ERR)
         status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
         if ((symi.eq.'bq').and.
      &      (.not.status_tagi))status_tagi = .true.
         if (.not.status_tagi)call errquit
-     &      ('geom_print_distances:geom_tag_to_element failed:i',911)
+     &      ('geom_print_distances:geom_tag_to_element failed:i',911,
+     &       GEOM_ERR)
         if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
-     &      ('geom_print_distances: geom_get_def_rcov failed atom i',
-     &      911)
+     &      ('geom_print_distances: geom_get_def_rcov failed atom i', 
+     &      911, GEOM_ERR)
         lmtag = inp_strlen(tagi)
         do jat = 1,iat
           if (iat.ne.jat) then
 
             if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
-     &          ('geom_print_distances: geom_cent_get failed:j',911)
+     &          ('geom_print_distances: geom_cent_get failed:j',911,
+     &       GEOM_ERR)
             status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
             if ((symj.eq.'bq').and.
      &          (.not.status_tagj))status_tagj = .true.
             if (.not.status_tagj) call errquit
-     &      ('geom_print_distances:geom_tag_to_element failed:j',911)
+     &      ('geom_print_distances:geom_tag_to_element failed:j',911,
+     &       GEOM_ERR)
             if (.not.geom_get_def_rcov(jatn,j_rcov)) then
               emsg = 'geom_print_distances: '//
      &            'geom_get_def_rcov failed atom j'
-              call errquit(emsg,911)
+              call errquit(emsg,911, GEOM_ERR)
             endif
             if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &          ('geom_print_distances: ',911)
+     &          ('geom_print_distances: ',911, GEOM_ERR)
 
             rcov = rscale*(j_rcov+i_rcov)
             if (debug) then
@@ -3450,6 +3495,7 @@ c
       end
       logical function geom_print_angles(geom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       logical geom_prt_angles
       logical geom_ncent
@@ -3463,17 +3509,17 @@ c
       integer h_xnet, k_xnet, h_xlist, k_xlist
 *
       if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('geom_print_angles: geom_ncent',911)
+     &    ('geom_print_angles: geom_ncent',911, GEOM_ERR)
 
 *24 seems to break      max_net = min(max_netp,nat)
       max_net = nat
       if (.not.ma_push_get(mt_int,(max_net*nat),'p_xnet',
      &    h_xnet,k_xnet)) call errquit(
-     &    'geom_print_angles: ma get xnet failed',911)
+     &    'geom_print_angles: ma get xnet failed',911, MA_ERR)
 
       if (.not.ma_push_get(mt_int,(nat),'p_xlist',
      &    h_xlist,k_xlist)) call errquit(
-     &    'geom_print_angles: ma get xlist failed',911)
+     &    'geom_print_angles: ma get xlist failed',911, MA_ERR)
 
       geom_print_angles =
      &    geom_prt_angles(geom,nat,max_net,
@@ -3485,6 +3531,7 @@ c
       end
       logical function geom_prt_angles(geom,nat,max_net,xnet,xlist)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -3566,36 +3613,40 @@ c initialize variables
       call ifill(nat,0,xlist,1)
       do iat = 1,nat
         if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
-     &      ('geom_prt_angles: geom_cent_get:i',911)
+     &      ('geom_prt_angles: geom_cent_get:i',911, GEOM_ERR)
         status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
         if ((symi.eq.'bq').and.
      &      (.not.status_tagi))status_tagi = .true.
         if (.not.status_tagi) call errquit
-     &      ('geom_prt_angles:geom_tag_to_element failed:i',911)
+     &      ('geom_prt_angles:geom_tag_to_element failed:i',911,
+     &       GEOM_ERR)
         if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
-     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911)
+     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911,
+     &       GEOM_ERR)
         do jat = 1,nat
           
           if (iat.ne.jat) then
             
             if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
-     &          ('geom_prt_angles:geom_cent_get:j ',911)
+     &          ('geom_prt_angles:geom_cent_get:j ',911, GEOM_ERR)
             
             status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
             if ((symj.eq.'bq').and.
      &          (.not.status_tagj))status_tagj = .true.
             if (.not.status_tagj) call errquit
-     &          ('geom_prt_angles:geom_tag_to_element failed:j',911)
+     &          ('geom_prt_angles:geom_tag_to_element failed:j',911,
+     &       GEOM_ERR)
             if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
      &          ('geom_prt_angles: geom_get_def_rcov failed atom j',
-     &          911)
+     &          911, GEOM_ERR)
             if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &          ('geom_prt_angles:geom_calc_distance:ij ',911)
+     &          ('geom_prt_angles:geom_calc_distance:ij ',911, GEOM_ERR)
             
             if (dij.lt.(rscale*(i_rcov+j_rcov))) then
               itmp = xlist(iat) + 1
               if(itmp.gt.max_net) call errquit(
-     &            'geom_prt_angles:max_net is too small ',max_net)
+     &            'geom_prt_angles:max_net is too small ',max_net,
+     &       GEOM_ERR)
               xlist(iat) = itmp
               xnet(itmp,iat) = jat
             endif
@@ -3611,14 +3662,16 @@ c initialize variables
 *
       do iat = 1,nat
         if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
-     &      ('geom_prt_angles: geom_cent_get:i',911)
+     &      ('geom_prt_angles: geom_cent_get:i',911, GEOM_ERR)
         status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
         if ((symi.eq.'bq').and.
      &      (.not.status_tagi))status_tagi = .true.
         if (.not.status_tagi) call errquit
-     &      ('geom_prt_angles:geom_tag_to_element failed:i',911)
+     &      ('geom_prt_angles:geom_tag_to_element failed:i',911,
+     &       GEOM_ERR)
         if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
-     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911)
+     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911,
+     &       GEOM_ERR)
         if (xlist(iat).gt.1) then
           do jtmp = 1,xlist(iat)
             jat = xnet(jtmp,iat)
@@ -3626,19 +3679,20 @@ c initialize variables
               
               if (.not.geom_cent_get(geom,jat,tagj,cj,chg))
      &            call errquit
-     &            ('geom_prt_angles:geom_cent_get:j ',911)
+     &            ('geom_prt_angles:geom_cent_get:j ',911, GEOM_ERR)
               
               status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
               if ((symj.eq.'bq').and.
      &            (.not.status_tagj))status_tagj = .true.
               if (.not.status_tagj) call errquit
      &            ('geom_prt_angles:geom_tag_to_element failed:j',
-     &            911)
+     &            911, GEOM_ERR)
               if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
      &            ('geom_prt_angles:geom_get_def_rcov fail atom j',
-     &            911)
+     &            911, GEOM_ERR)
               if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &            ('geom_prt_angles:geom_calc_distance:ij ',911)
+     &            ('geom_prt_angles:geom_calc_distance:ij ',911,
+     &       GEOM_ERR)
               
               dij_okay = dij.lt.(rscale*(i_rcov+j_rcov))
               if (dij_okay.or.debug) then
@@ -3647,7 +3701,8 @@ c initialize variables
                   if (kat.ne.jat.and.kat.ne.iat) then
                     if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
      &                  call errquit
-     &                  ('geom_prt_angles:geom_cent_get:k ',911)
+     &                  ('geom_prt_angles:geom_cent_get:k ',911,
+     &       GEOM_ERR)
                     status_tagk =
      &                  geom_tag_to_element(tagk,symk,elek,katn)
                     if ((symk.eq.'bq').and.
@@ -3655,23 +3710,23 @@ c initialize variables
                     if (.not.status_tagk) then 
                       emsg = 'geom_prt_angles: '//
      &                    'geom_tag_to_element failed:k'
-                      call errquit(emsg,911)
+                      call errquit(emsg,911, GEOM_ERR)
                     endif
                     if (.not.geom_get_def_rcov(katn,k_rcov)) then
                       emsg = 'geom_prt_angles: '//
      &                    'geom_egt_def_rcov failed atom k'
-                      call errquit(emsg,911)
+                      call errquit(emsg,911, GEOM_ERR)
                     endif
                     lmtag = max(lmtag,inp_strlen(tagk))
                     
                     if (.not.geom_calc_distance(ci,ck,dik))
      &                  call errquit
      &                  ('geom_prt_angles:geom_calc_distance:ik ',
-     &                  911)
+     &                  911, GEOM_ERR)
                     if (.not.geom_calc_distance(cj,ck,djk))
      &                  call errquit
      &                  ('geom_prt_angles:geom_calc_distance:jk ',
-     &                  911)
+     &                  911, GEOM_ERR)
                     dik_okay = dik.lt.(rscale*(i_rcov+k_rcov))
                     djk_okay = djk.lt.(rscale*(j_rcov+k_rcov))
                     ngood = 0
@@ -3712,7 +3767,7 @@ c initialize variables
                       else
                         emsg = 'geom_prt_angles: '//
      &                      'should not get here 1'
-                        call errquit(emsg,911)
+                        call errquit(emsg,911, GEOM_ERR)
                       endif
                     elseif (ngood.eq.3) then
                       
@@ -3734,7 +3789,7 @@ c initialize variables
                       else
                         emsg = 'geom_prt_angles: '//
      &                      'should not get here 2'
-                        call errquit(emsg,911)
+                        call errquit(emsg,911, GEOM_ERR)
                       endif
                     endif
                     should_print = (ngood.eq.2.or.ngood.eq.3) .and.
@@ -3746,11 +3801,11 @@ c initialize variables
                     if (print_ijk) then
                       if (.not.should_print) call errquit(
      &                    'geom_prt_angles "should_print" error',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_calc_angle(ci,cj,ck,angle))
      &                    call errquit
      &                    ('geom_prt_angles:geom_calc_angle failed',
-     &                    911)
+     &                    911, GEOM_ERR)
                       num_prt =num_prt + 1
                       write(luout,10001)
      &                    iat, tagi,
@@ -3759,11 +3814,11 @@ c initialize variables
                     else if (print_ikj) then
                       if (.not.should_print) call errquit(
      &                    'geom_prt_angles "should_print" error',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_calc_angle(ci,ck,cj,angle))
      &                    call errquit
      &                    ('geom_prt_angles:geom_calc_angle failed',
-     &                    911)
+     &                    911, GEOM_ERR)
                       num_prt =num_prt + 1
                       write(luout,10001)
      &                    iat, tagi,
@@ -3772,11 +3827,11 @@ c initialize variables
                     else if (print_jik) then
                       if (.not.should_print) call errquit(
      &                    'geom_prt_angles "should_print" error',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_calc_angle(cj,ci,ck,angle))
      &                    call errquit
      &                    ('geom_prt_angles:geom_calc_angle failed',
-     &                    911)
+     &                    911, GEOM_ERR)
                       num_prt =num_prt + 1
                       write(luout,10001)
      &                    jat, tagj,
@@ -3816,6 +3871,7 @@ c initialize variables
       end
 *B4-xnet:      logical function geom_print_angles(geom)
 *B4-xnet:      implicit none
+*B4-xnet:#include "errquit.fh"
 *B4-xnet:#include "inp.fh"
 *B4-xnet:#include "stdio.fh"
 *B4-xnet:c::-functions
@@ -3880,7 +3936,7 @@ c initialize variables
 *B4-xnet:      num_prt = 0
 *B4-xnet:      
 *B4-xnet:      if (.not.geom_ncent(geom,nat)) call errquit
-*B4-xnet:     &    ('geom_print_angles: geom_ncent',911)
+*B4-xnet:     &    ('geom_print_angles: geom_ncent',911, GEOM_ERR)
 *B4-xnet:
 *B4-xnet:      if (nat.lt.3) then
 *B4-xnet:        geom_print_angles = FT
@@ -3888,14 +3944,16 @@ c initialize variables
 *B4-xnet:      endif
 *B4-xnet:      do iat = 1,nat
 *B4-xnet:        if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
-*B4-xnet:     &      ('geom_print_angles: geom_cent_get:i',911)
+*B4-xnet:     &      ('geom_print_angles: geom_cent_get:i',911, GEOM_ERR)
 *B4-xnet:        status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
 *B4-xnet:        if ((symi.eq.'bq').and.
 *B4-xnet:     &      (.not.status_tagi))status_tagi = .true.
 *B4-xnet:        if (.not.status_tagi) call errquit
-*B4-xnet:     &      ('geom_print_angles:geom_tag_to_element failed:i',911)
+*B4-xnet:     &      ('geom_print_angles:geom_tag_to_element failed:i',911,
+*     &       GEOM_ERR)
 *B4-xnet:        if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
-*B4-xnet:     &      ('geom_print_angles: geom_get_def_rcov failed atom i',911)
+*B4-xnet:     &      ('geom_print_angles: geom_get_def_rcov failed atom i',911,
+*     &       GEOM_ERR)
 *B4-xnet:
 *B4-xnet:        lmtag = inp_strlen(tagi)
 *B4-xnet:        do jat = 1,nat
@@ -4073,6 +4131,7 @@ c initialize variables
 *B4-xnet:      end
       logical function geom_print_dihedrals(geom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       logical geom_ncent
       logical geom_prt_dihedrals
@@ -4086,17 +4145,17 @@ c initialize variables
       integer h_xnet, k_xnet, h_xlist, k_xlist
 *
       if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('geom_print_dihedrals: geom_ncent',911)
+     &    ('geom_print_dihedrals: geom_ncent',911, GEOM_ERR)
 
 * 24 seems to break      max_net = min(max_netp,nat)
       max_net = nat
       if (.not.ma_push_get(mt_int,(max_net*nat),'p_xnet',
      &    h_xnet,k_xnet)) call errquit(
-     &    'geom_print_dihedrals: ma get xnet failed',911)
+     &    'geom_print_dihedrals: ma get xnet failed',911, MA_ERR)
 
       if (.not.ma_push_get(mt_int,(nat),'p_xlist',
      &    h_xlist,k_xlist)) call errquit(
-     &    'geom_print_dihedrals: ma get xlist failed',911)
+     &    'geom_print_dihedrals: ma get xlist failed',911, MA_ERR)
 
       geom_print_dihedrals =
      &    geom_prt_dihedrals(geom,nat,max_net,
@@ -4108,6 +4167,7 @@ c initialize variables
       end
       logical function geom_prt_dihedrals(geom,nat,max_net,xnet,xlist)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "inp.fh"
@@ -4202,36 +4262,40 @@ c
       call ifill(nat,0,xlist,1)
       do iat = 1,nat
         if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
-     &      ('geom_prt_angles: geom_cent_get:i',911)
+     &      ('geom_prt_angles: geom_cent_get:i',911, GEOM_ERR)
         status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
         if ((symi.eq.'bq').and.
      &      (.not.status_tagi))status_tagi = .true.
         if (.not.status_tagi) call errquit
-     &      ('geom_prt_angles:geom_tag_to_element failed:i',911)
+     &      ('geom_prt_angles:geom_tag_to_element failed:i',911,
+     &       GEOM_ERR)
         if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
-     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911)
+     &      ('geom_prt_angles: geom_get_def_rcov failed atom i',911,
+     &       GEOM_ERR)
         do jat = 1,nat
           
           if (iat.ne.jat) then
             
             if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
-     &          ('geom_prt_angles:geom_cent_get:j ',911)
+     &          ('geom_prt_angles:geom_cent_get:j ',911, GEOM_ERR)
             
             status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
             if ((symj.eq.'bq').and.
      &          (.not.status_tagj))status_tagj = .true.
             if (.not.status_tagj) call errquit
-     &          ('geom_prt_angles:geom_tag_to_element failed:j',911)
+     &          ('geom_prt_angles:geom_tag_to_element failed:j',911,
+     &       GEOM_ERR)
             if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
      &          ('geom_prt_angles: geom_get_def_rcov failed atom j',
-     &          911)
+     &          911, GEOM_ERR)
             if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &          ('geom_prt_angles:geom_calc_distance:ij ',911)
+     &          ('geom_prt_angles:geom_calc_distance:ij ',911, GEOM_ERR)
             
             if (dij.lt.(rscale*(i_rcov+j_rcov))) then
               itmp = xlist(iat) + 1
               if(itmp.gt.max_net) call errquit(
-     &            'geom_prt_angles:max_net is too small ',max_net)
+     &            'geom_prt_angles:max_net is too small ',max_net,
+     &       GEOM_ERR)
               xlist(iat) = itmp
               xnet(itmp,iat) = jat
             endif
@@ -4280,29 +4344,31 @@ c
 *rak:      write(LuOut,*)'after dih loop'
       do iat = 1,nat
         if (.not.geom_cent_get(geom,iat,tagi,ci,chg)) call errquit
-     &      ('geom_prt_dihedrals:geom_cent_get:i ',911)
+     &      ('geom_prt_dihedrals:geom_cent_get:i ',911, GEOM_ERR)
         status_tagi = geom_tag_to_element(tagi,symi,elei,iatn)
         if ((symi.eq.'bq').and.(.not.status_tagi))
      &      status_tagi = FT
         if (.not.status_tagi) call errquit
-     &      ('geom_prt_dihedrals:tag2element failed:i',911)
+     &      ('geom_prt_dihedrals:tag2element failed:i',911, GEOM_ERR)
         if (.not.geom_get_def_rcov(iatn,i_rcov)) call errquit
-     &      ('geom_prt_dihedrals:defrcov failed:i',911)
+     &      ('geom_prt_dihedrals:defrcov failed:i',911, GEOM_ERR)
         do jtmp = 1,xlist(iat)
           jat = xnet(jtmp,iat)
           if (iat.ne.jat) then
             if (.not.geom_cent_get(geom,jat,tagj,cj,chg)) call errquit
-     &          ('geom_prt_dihedrals:geom_cent_get:j ',911)
+     &          ('geom_prt_dihedrals:geom_cent_get:j ',911, GEOM_ERR)
             status_tagj = geom_tag_to_element(tagj,symj,elej,jatn)
             if ((symj.eq.'bq').and.(.not.status_tagj))
      &          status_tagj = FT
             if (.not.status_tagj) call errquit
-     &          ('geom_prt_dihedrals:tag2element failed:j',911)
+     &          ('geom_prt_dihedrals:tag2element failed:j',911,
+     &       GEOM_ERR)
             if (.not.geom_get_def_rcov(jatn,j_rcov)) call errquit
-     &          ('geom_prt_dihedrals:defrcov failed:j',911)
+     &          ('geom_prt_dihedrals:defrcov failed:j',911, GEOM_ERR)
             
             if (.not.geom_calc_distance(ci,cj,dij)) call errquit
-     &          ('geom_prt_dihedrals:geom_calc_distance:ij ',911)
+     &          ('geom_prt_dihedrals:geom_calc_distance:ij ',911,
+     &       GEOM_ERR)
             
             dij_okay = dij.lt.(rscale*(i_rcov+j_rcov))
             if (dij_okay) then
@@ -4311,24 +4377,26 @@ c
                 if (kat.ne.jat.and.kat.ne.iat) then
                   if (.not.geom_cent_get(geom,kat,tagk,ck,chg))
      &                call errquit
-     &                ('geom_prt_dihedrals:geom_cent_get:k ',911)
+     &                ('geom_prt_dihedrals:geom_cent_get:k ',911,
+     &       GEOM_ERR)
                   status_tagk =
      &                geom_tag_to_element(tagk,symk,elek,katn)
                   if ((symk.eq.'bq').and.(.not.status_tagk))
      &                status_tagk = FT
                   if (.not.status_tagk) call errquit
      &                ('geom_prt_dihedrals:tag2element failed:k',
-     &                911)
+     &                911, GEOM_ERR)
                   if (.not.geom_get_def_rcov(katn,k_rcov))
      &                call errquit
-     &                ('geom_prt_dihedrals:defrcov failed:k',911)
+     &                ('geom_prt_dihedrals:defrcov failed:k',911,
+     &       GEOM_ERR)
                   
                   if (.not.geom_calc_distance(ci,ck,dik)) call errquit
      &                ('geom_prt_dihedrals:geom_calc_distance:ik ',
-     &                911)
+     &                911, GEOM_ERR)
                   if (.not.geom_calc_distance(cj,ck,djk)) call errquit
      &                ('geom_prt_dihedrals:geom_calc_distance:jk ',
-     &                911)
+     &                911, GEOM_ERR)
                   
                   dik_okay = dik.lt.(rscale*(i_rcov+k_rcov))
                   djk_okay = djk.lt.(rscale*(j_rcov+k_rcov))
@@ -4340,31 +4408,31 @@ c
                       if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
      &                    call errquit
      &                    ('geom_prt_dihedrals:geom_cent_get:l ',
-     &                    911)
+     &                    911, GEOM_ERR)
                       status_tagl =
      &                    geom_tag_to_element(tagl,syml,elel,latn)
                       if ((syml.eq.'bq').and.(.not.status_tagl))
      &                    status_tagl = FT
                       if (.not.status_tagl) call errquit
      &                    ('geom_prt_dihedrals:tag2elmnt fail:l',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_get_def_rcov(latn,l_rcov))
      &                    call errquit
      &                    ('geom_prt_dihedrals:defrcov fail:l',
-     &                    911)
+     &                    911, GEOM_ERR)
                       
                       if (.not.geom_calc_distance(ci,cl,dil))
      &                    call errquit
      &                    ('geom_prt_dihedrals:calc_distance:il',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_calc_distance(cj,cl,djl))
      &                    call errquit
      &                    ('geom_prt_dihedrals:calc_distance:jl',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_calc_distance(ck,cl,dkl))
      &                    call errquit
      &                    ('geom_prt_dihedrals:calc_distance:kl',
-     &                    911)
+     &                    911, GEOM_ERR)
                       dil_okay = dil.lt.(rscale*(i_rcov+l_rcov))
                       djl_okay = djl.lt.
      &                    (tscale*rscale*(j_rcov+l_rcov))
@@ -4395,7 +4463,7 @@ c
                       if (.not.geom_calc_dihedral
      &                    (pci,pcj,pck,pcl,diangle)) call errquit
      &                    ('geom_print_dih:geom_calc_dih death',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.header) then
                         write(luout,10000)
                         header = FT
@@ -4510,31 +4578,31 @@ c
                       if (.not.geom_cent_get(geom,lat,tagl,cl,chg))
      &                    call errquit
      &                    ('geom_prt_dihedrals:geom_cent_get:l ',
-     &                    911)
+     &                    911, GEOM_ERR)
                       status_tagl =
      &                    geom_tag_to_element(tagl,syml,elel,latn)
                       if ((syml.eq.'bq').and.(.not.status_tagl))
      &                    status_tagl = FT
                       if (.not.status_tagl) call errquit
      &                    ('geom_prt_dihedrals:tag2elmnt fail:l',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_get_def_rcov(latn,l_rcov))
      &                    call errquit
      &                    ('geom_prt_dihedrals:defrcov fail:l',
-     &                    911)
+     &                    911, GEOM_ERR)
                       
                       if (.not.geom_calc_distance(ci,cl,dil))
      &                    call errquit
      &                    ('geom_prt_dihedrals:calc_distance:il',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_calc_distance(cj,cl,djl))
      &                    call errquit
      &                    ('geom_prt_dihedrals:calc_distance:jl',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.geom_calc_distance(ck,cl,dkl))
      &                    call errquit
      &                    ('geom_prt_dihedrals:calc_distance:kl',
-     &                    911)
+     &                    911, GEOM_ERR)
                       dil_okay = dil.lt.(rscale*(i_rcov+l_rcov))
                       djl_okay = djl.lt.
      &                    (tscale*rscale*(j_rcov+l_rcov))
@@ -4577,7 +4645,7 @@ c
                       if (.not.geom_calc_dihedral
      &                    (pci,pcj,pck,pcl,diangle)) call errquit
      &                    ('geom_print_dih:geom_calc_dih death',
-     &                    911)
+     &                    911, GEOM_ERR)
                       if (.not.header) then
                         write(luout,10000)
                         header = FT
@@ -4628,6 +4696,7 @@ c
       end
 *B4-xnet:      logical function geom_print_dihedrals(geom)
 *B4-xnet:      implicit none
+*B4-xnet:#include "errquit.fh"
 *B4-xnet:#include "mafdecls.fh"
 *B4-xnet:#include "stdio.fh"
 *B4-xnet:#include "inp.fh"
@@ -4880,6 +4949,7 @@ c
 *B4-xnet:      end
       logical function geom_get_def_rcov(atn,rcoval)
       implicit none
+#include "errquit.fh"
 c
 c routine to return the default covalent radii (in a.u.) for the given
 c   atomic number.   
@@ -4955,7 +5025,7 @@ C data for 87-103 RA Kendall
       else
         write(luout,*)' geom_get_def_rcov: atomic number:',atn
         write(luout,*)' out of range 0 -> ',nelements
-        call errquit('geom_get_def_rcov: fatal error',911)
+        call errquit('geom_get_def_rcov: fatal error',911, GEOM_ERR)
       endif
       rcoval = rcoval*angstrom_to_au
       geom_get_def_rcov = .true.
@@ -5168,6 +5238,7 @@ c
 ************************************************************************
       logical function geom_mass_to_invnucexp (mass, invnucexp)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
@@ -5181,7 +5252,8 @@ c
       if (mass .gt. 0.0d0) then
         athird = anint(mass)**(1.0d0/3.0d0)
         if (angstrom_to_au .eq. 0.0d0) call errquit(
-     &      'geom_mass_to_invnucexp:zero conversion factor',911)
+     &      'geom_mass_to_invnucexp:zero conversion factor',911,
+     &       GEOM_ERR)
         invnucexp = ((0.836d0*athird+0.570d0)*angstrom_to_au)**2/1.5d10
       end if
 c
@@ -5206,6 +5278,7 @@ c
       subroutine geom_momint0(geom,coord,natoms,ci,AI,oprint,
      ,     considerbq)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "geom.fh"
 #include "inp.fh"
@@ -5232,20 +5305,20 @@ c
       enddo
 c
       if (.not.geom_center_of_mass(geom,ci)) call errquit
-     &   ('geom_momint0: could not get center of mass',555)
+     &   ('geom_momint0: could not get center of mass',555, GEOM_ERR)
 c
       do iat=1,natoms
          if (.not. geom_cent_tag(geom,iat,tag)) call 
-     &        errquit(' momint0 hosed ',0)
+     &        errquit(' momint0 hosed ',0, GEOM_ERR)
          if (considerbq.and.inp_compare(.false.,tag(1:2),'bq')) then 
 c
 c     ahah bq
 c
             if(.not.geom_tag_to_default_mass(tag(3:),mass))
-     .           call errquit(' momint fails ',2)
+     .           call errquit(' momint fails ',2, GEOM_ERR)
          else  
             if(.not.geom_mass_get(geom, iat, mass)) call
-     &           errquit(' mass_get  failed ',iat)
+     &           errquit(' mass_get  failed ',iat, GEOM_ERR)
          endif
          x =coord(1,iat) - ci(1)
          y =coord(2,iat) - ci(2)
@@ -5276,6 +5349,7 @@ c
       end
       subroutine geom_momint(geom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
       integer geom
@@ -5291,24 +5365,31 @@ c
       if ( .NOT. geom_ncent(geom, natoms) ) Call ErrQuit(
      $     'rohf: problem with call to geom_ncent', geom)
       if (.not. ma_push_get(mt_dbl,3*natoms,'tcoords',l_coord,k_coord))
-     $     call errquit('uhf_analyze: ma failed on tmp',  natoms)
+     $     call errquit('uhf_analyze: ma failed on tmp',  natoms,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,natoms,'coords',l_charge,k_charge))
-     $     call errquit('uhf_analyze: ma failed on tmp',  natoms)
+     $     call errquit('uhf_analyze: ma failed on tmp',  natoms,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_byte,natoms*16,'coords',l_tag,k_tag))
-     $     call errquit('uhf_analyze: ma failed on tmp',  natoms)
+     $     call errquit('uhf_analyze: ma failed on tmp',  natoms,
+     &       MA_ERR)
       if (.not. geom_cart_get(geom, natoms, byte_mb(k_tag), 
      .     dbl_mb(k_coord), dbl_mb(k_charge)))
-     $     call errquit('uhf_anal: geom_cent_tag failed',0)
+     $     call errquit('uhf_anal: geom_cent_tag failed',0,
+     &       MA_ERR)
       if (.not. ma_chop_stack(l_charge))
-     $     call errquit('uhf_analyze: pop failed', 0)
+     $     call errquit('uhf_analyze: pop failed', 0,
+     &       MA_ERR)
       call geom_momint0(geom,dbl_mb(k_coord),natoms,ci,AI,oprint,
-     ,     .false.)
+     &  .false.)
       if (.not. ma_chop_stack(l_coord))
-     $     call errquit('uhf_analyze: pop failed', 0)
+     $     call errquit('uhf_analyze: pop failed', 0,
+     &       MA_ERR)
       return
       end
       logical function geom_cart_to_frac(geom, c)
       implicit none
+#include "errquit.fh"
       integer geom
       double precision c(3,*)
 c
@@ -5320,9 +5401,9 @@ c
       geom_cart_to_frac = geom_check_handle(geom, 'geom_cart_to_frac')
       if (.not. geom_cart_to_frac) return
       if (.not. geom_ncent(geom,nat)) 
-     $     call errquit('geom_frac_to_cart: nat', 0)
+     $     call errquit('geom_frac_to_cart: nat', 0, GEOM_ERR)
       if (.not. geom_amatinv_get(geom, ainv))
-     $     call errquit('geom_cart_to_frac: ainv', 0)
+     $     call errquit('geom_cart_to_frac: ainv', 0, GEOM_ERR)
 *      write(6,*) ' The amatrix inverse'
 *      call output(ainv, 1, 3, 1, 3, 3, 3, 1)
 c 
@@ -5343,6 +5424,7 @@ c
       end
       logical function geom_frac_to_cart(geom, c)
       implicit none
+#include "errquit.fh"
       integer geom
       double precision c(3,*)
 c
@@ -5354,9 +5436,9 @@ c
       geom_frac_to_cart = geom_check_handle(geom, 'geom_frac_to_cart')
       if (.not. geom_frac_to_cart) return
       if (.not. geom_ncent(geom,nat)) 
-     $     call errquit('geom_frac_to_cart: nat', 0)
+     $     call errquit('geom_frac_to_cart: nat', 0, GEOM_ERR)
       if (.not. geom_amatrix_get(geom, a))
-     $     call errquit('geom_frac_to_cart: a', 0)
+     $     call errquit('geom_frac_to_cart: a', 0, GEOM_ERR)
 c
       do iat = 1, nat
          do i = 1, 3
@@ -5373,6 +5455,7 @@ c
       end
       logical function geom_grad_cart_to_frac(geom, c)
       implicit none
+#include "errquit.fh"
       integer geom
       double precision c(3,*)
 c
@@ -5385,9 +5468,9 @@ c
      $     geom_check_handle(geom, 'geom_grad_cart_to_frac')
       if (.not. geom_grad_cart_to_frac) return
       if (.not. geom_ncent(geom,nat)) 
-     $     call errquit('geom_grad_cart_to_frac: nat', 0)
+     $     call errquit('geom_grad_cart_to_frac: nat', 0, GEOM_ERR)
       if (.not. geom_amatrix_get(geom, a))
-     $     call errquit('geom_grad_cart_to_frac: a', 0)
+     $     call errquit('geom_grad_cart_to_frac: a', 0, GEOM_ERR)
 c
       do iat = 1, nat
          do i = 1, 3
@@ -5404,6 +5487,7 @@ c
       end
       logical function geom_makec1(geom1, geom2)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 c
 c  Creates a new geometry which is like the old one, but has C1 symmetry
@@ -5425,17 +5509,21 @@ c
       geom_makec1 = .false.
 c
       if (.not.geom_create(geom2,'geometrytemp'))
-     &  call errquit('geom_makec1: geom_create failed',555)
+     &  call errquit('geom_makec1: geom_create failed',555, GEOM_ERR)
       if (.not.geom_set_user_units(geom2,'a.u.'))
-     &      call errquit('geom_makec1: geom_set_user_units failed',555)
+     &      call errquit('geom_makec1: geom_set_user_units failed',555,
+     &       GEOM_ERR)
       if (.not.geom_cart_get(geom1,ncenter,tags,coords,charge))
-     &  call errquit('geom_makec1: failed to get geom1',555)
+     &  call errquit('geom_makec1: failed to get geom1',555, GEOM_ERR)
       if (.not.geom_cart_set(geom2,ncenter,tags,coords,charge))
-     &      call errquit('geom_makec1: geom_cart_set failed',555)
+     &      call errquit('geom_makec1: geom_cart_set failed',555,
+     &       GEOM_ERR)
       if (.not.geom_masses_get(geom1,ncenter,mass))
-     &      call errquit('geom_makec1:geom_masses_get failed',555)
+     &      call errquit('geom_makec1:geom_masses_get failed',555,
+     &       GEOM_ERR)
       if (.not.geom_masses_set(geom2,ncenter,mass))
-     &      call errquit('geom_makec1:geom_masses_set failed',555)
+     &      call errquit('geom_makec1:geom_masses_set failed',555,
+     &       GEOM_ERR)
 c
       geom_makec1 = .true.
       return

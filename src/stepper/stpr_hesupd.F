@@ -1,5 +1,5 @@
       SUBROUTINE stpr_hesupd ( STEP, GRAD, HESIAN, SCR )
-c $Id: stpr_hesupd.F,v 1.2 1995-03-31 01:45:32 d3g681 Exp $
+c $Id: stpr_hesupd.F,v 1.3 2003-10-17 22:58:22 carlfahl Exp $
 C
 C     This subroutine updates the hessian using the hessian from the
 C     old geometry and the difference in the coordinates and
@@ -11,6 +11,7 @@ C     is chosen.
 C     Note that hessian is a symmetric packed vector.
 C
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "errquit.fh"
       PARAMETER (ZERO=0.0D0, ONE=1.0D0, TOLER=1.0D-25)
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
@@ -40,12 +41,12 @@ C
           WRITE (ITAP06,1000) DM1
  1000     FORMAT ('  * ERROR * Dot product of STEP with',
      &               '  GRAD = ',1PD12.4)
-          call errquit('stepper:hesupd fatal error',911)
+          call errquit('stepper:hesupd fatal error',911, UNKNOWN_ERR)
         ENDIF
         IF (ABS(DM2) .LE. TOLER) THEN
           WRITE (ITAP06,2000) DM2
  2000     FORMAT ('  * ERROR * STEP*HESIAN*STEP = ',1PD12.4)
-          call errquit('stepper:hesupd fatal error',911)
+          call errquit('stepper:hesupd fatal error',911, UNKNOWN_ERR)
         ENDIF
         DM1 = ONE/DM1
         DM2 = ONE/DM2
@@ -81,7 +82,7 @@ C
           WRITE (ITAP06,3000) DM1
  3000     FORMAT ('  * ERROR * norm of step vector = ',
      &    1PD12.4)
-          call errquit('stepper:hesupd fatal error',911)
+          call errquit('stepper:hesupd fatal error',911, UNKNOWN_ERR)
         ENDIF
         DM1 = ONE/DM1
 C
@@ -96,7 +97,7 @@ C
    80   CONTINUE
       ELSE
         WRITE (ITAP06,*)' UNKNOWN TYPE OF CALCULATION IN HESUPD'
-        call errquit('stepper:hesupd fatal error',911)
+        call errquit('stepper:hesupd fatal error',911, INPUT_ERR)
       ENDIF
       RETURN
       END

@@ -1,6 +1,7 @@
       subroutine sym_movecs_adapt(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt.F,v 1.16 1999-07-08 19:11:02 d3e129 Exp $
+C$Id: sym_mo_adapt.F,v 1.17 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -71,12 +72,14 @@ c
 c     Get char table and group class info
 c     
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_movecs_adapt: no geometry from basis?', basis)
+     $     ('sym_movecs_adapt: no geometry from basis?', basis,
+     &       BASIS_ERR)
       call sym_op_classify(geom, op_class_index)
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
      $     zir, zclass, chars)) 
-     $     call errquit('sym_print_char_table: no char table',0)
+     $     call errquit('sym_print_char_table: no char table',0,
+     &       INPUT_ERR)
 c
       if (odebug) then
          do i = 0, ga_nodeid()
@@ -96,11 +99,11 @@ c
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_t))
      $     call errquit('sym_movecs_adapt: unable to alloc g_t',
-     $     nbf*nvec)
+     $     nbf*nvec, GA_ERR)
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_q))
      $     call errquit('sym_movecs_adapt: unable to alloc g_q',
-     $     nbf*nvec)
+     $     nbf*nvec, GA_ERR)
 c
       g_s = ga_create_atom_blocked(geom, basis,'sym: S')
 
@@ -108,17 +111,17 @@ c
 *      if (.not. ga_create(mt_dbl, nbf, nbf, 'sym:S',0,0,g_s))
 *     $     call errquit('sym_movecs_adapt: unable to alloc g_s',0)
       if (.not. ma_push_get(mt_dbl, nbf, 'sym:v', l_v, k_v))
-     $     call errquit('sym_movecs_adapt: unable to alloc v',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc v',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'sym:q', l_q, k_q))
-     $     call errquit('sym_movecs_adapt: unable to alloc q',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc q',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'sym:t', l_t, k_t))
-     $     call errquit('sym_movecs_adapt: unable to alloc t',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc t',0, MA_ERR)
       me = ga_nodeid()
       nproc = ga_nnodes()
       nvec_per_proc = (nvec-1)/nproc + 1
       if (.not. ma_push_get(mt_dbl, nir*nvec_per_proc, 'sym:c', 
      $     l_c, k_c))
-     $     call errquit('sym_movecs_adapt: unable to alloc c',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc c',0, MA_ERR)
 c     
       call ga_zero(g_s)
       call int_1e_ga(basis, basis, g_s, 'overlap', .false.)
@@ -219,14 +222,16 @@ c
  1             format(' sym_movecs_adapt: orbital ',i5,
      $              ' negative proj. '/1x,1p,20d10.2)
                call util_flush(6)
-               call errquit('sym_movecs_adapt: negative proj',0)
+               call errquit('sym_movecs_adapt: negative proj',0,
+     &       UNKNOWN_ERR)
             endif
          enddo
 c
          i1 = idamax(nir, v, 1)
          v1 = v(i1)
          if (v1 .lt. thresh) call errquit
-     $        ('sym_movecs_adapt: no significant component?', 0)
+     $        ('sym_movecs_adapt: no significant component?', 0,
+     &       UNKNOWN_ERR)
 c     
 c     Look for mixing
 c     
@@ -317,12 +322,19 @@ c
       call ga_igop(msg_sym_2, irs, nvec, '+')
       call ga_sync
 c     
-      if (.not. ga_destroy(g_s)) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ga_destroy(g_q)) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ga_destroy(g_t)) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ma_pop_stack(l_c)) call errquit('sym_mos_ad: ma?',0)
-      if (.not. ma_pop_stack(l_t)) call errquit('sym_mos_ad: ma?',0)
-      if (.not. ma_pop_stack(l_q)) call errquit('sym_mos_ad: ma?',0)
-      if (.not. ma_pop_stack(l_v)) call errquit('sym_mos_ad: ma?',0)
+      if (.not. ga_destroy(g_s)) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_q)) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_t)) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ma_pop_stack(l_c)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_t)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_q)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_v)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
 c     
       end

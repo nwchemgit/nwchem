@@ -1,5 +1,5 @@
 *
-* $Id: brillioun.F,v 1.3 2002-05-03 19:44:00 bylaska Exp $
+* $Id: brillioun.F,v 1.4 2003-10-17 22:56:01 carlfahl Exp $
 *
 
 *     ***********************************
@@ -9,6 +9,7 @@
 *     ***********************************
       subroutine brillioun_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "brillioun_common.fh"
@@ -33,7 +34,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,(3*nbrillioun),'kv',kv(2),kv(1))
       if (.not. value)
-     > call errquit('brillioun_init:out of heap memory',0)
+     > call errquit('brillioun_init:out of heap memory',0, MA_ERR)
 
 
       do nb=1,nbrillioun
@@ -79,6 +80,7 @@
 *     ***********************************
       subroutine brillioun_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "brillioun_common.fh"
@@ -90,7 +92,7 @@
       value = value.and.MA_free_heap(ks(2))
       value = value.and.MA_free_heap(kv(2))
       if (.not. value)
-     > call errquit('brillioun_end:freeing heap memory',0)
+     > call errquit('brillioun_end:freeing heap memory',0, MA_ERR)
 
       return
       end 

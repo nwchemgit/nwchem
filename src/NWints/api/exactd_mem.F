@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.37 2000-02-04 01:09:45 mg201 Exp $
+c $Id: exactd_mem.F,v 1.38 2003-10-17 22:53:41 carlfahl Exp $
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines
@@ -22,6 +22,7 @@ c:tex-\end{verbatim}
 #include "apiP.fh"
 #include "stdio.fh"
 #include "bgj.fh"
+#include "util.fh"
 c
 c:: functions
       logical api_is_atomic_basis
@@ -139,6 +140,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -147,6 +149,7 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::functions
       integer int_unint 
       external int_unint
@@ -182,7 +185,7 @@ c
       if (bra_geom.ne.ket_geom) then
         write(luout,*)'emem_d1e: two different geometries for',
      &         ' derivatives?'
-        call errquit('emem_d1e: geom error ',911)
+        call errquit('emem_d1e: geom error ',911, GEOM_ERR)
       endif
 c
       nat = ncenter(bra_geom)
@@ -268,6 +271,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -276,6 +280,7 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::functions
       integer int_unint 
       external int_unint
@@ -319,7 +324,7 @@ c
       if (bra_geom.ne.ket_geom) then
         write(luout,*)'emem_d1e_rel: two different geometries for',
      &         ' derivatives?'
-        call errquit('emem_d1e_rel: geom error ',911)
+        call errquit('emem_d1e_rel: geom error ',911, GEOM_ERR)
       endif
 c
       nat = ncenter(bra_geom)
@@ -410,6 +415,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -420,6 +426,7 @@ c:tex-\end{verbatim}
 #include "bas_ibs_dec.fh"
 #include "stdio.fh"
 #include "apiP.fh"
+#include "util.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -462,7 +469,7 @@ c
       if (bra_geom.ne.ket_geom) then
         write(luout,*)'emem_d2e4c: two different geometries for',
      &         ' derivatives?'
-        call errquit('emem_d2e4c: geom error ',911)
+        call errquit('emem_d2e4c: geom error ',911, GEOM_ERR)
       endif
 c 
 c relativistic?
@@ -815,6 +822,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -825,6 +833,7 @@ c:tex-\end{verbatim}
 #include "bas_ibs_dec.fh"
 #include "stdio.fh"
 #include "apiP.fh"
+#include "util.fh"
 c::functions
       integer int_unint
       external int_unint
@@ -870,7 +879,7 @@ c
       if (bra_geom.ne.ket_geom) then
         write(luout,*)'emem_d2e4c: two different geometries for',
      &         ' derivatives?'
-        call errquit('emem_d2e4c: geom error ',911)
+        call errquit('emem_d2e4c: geom error ',911, GEOM_ERR)
       endif
 c 
 c relativistic?

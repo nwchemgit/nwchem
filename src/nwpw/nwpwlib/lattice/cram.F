@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.13 2002-06-11 23:17:23 bylaska Exp $
+* $Id: cram.F,v 1.14 2003-10-17 22:56:44 carlfahl Exp $
 *
 
 *     ***********************************
@@ -10,6 +10,7 @@
   
       subroutine Cram_Init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
@@ -59,7 +60,8 @@
      >                     'pack_list',
      >                      pack_list(2),
      >                      pack_list(1))
-      if (.not. value) call errquit('Cram_init: out of heap memory',0)
+      if (.not. value) call errquit('Cram_init: out of heap memory',0,
+     &       MA_ERR)
 
 
       call cloak_init()
@@ -76,7 +78,7 @@
          value = MA_alloc_get(mt_int,nfft3d,
      >                     'pack',pack(2),pack(1))
           if (.not. value) 
-     >     call errquit('Cram_init: out of heap memory',0)
+     >     call errquit('Cram_init: out of heap memory',0, MA_ERR)
 
          int_mb(pack_list(1)+ 2*nb)   = pack(1)
          int_mb(pack_list(1)+ 2*nb+1) = pack(2)
@@ -151,6 +153,7 @@
 
       subroutine Cram_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
@@ -170,7 +173,7 @@
       value = value.and.MA_free_heap(pack_list(2))
 
       if (.not. value) 
-     >  call errquit('Cram_end:error freeing heap memory',0)
+     >  call errquit('Cram_end:error freeing heap memory',0, MA_ERR)
 
       call Balance_End()
       call cloak_end()
@@ -187,6 +190,7 @@
 
       subroutine Cram_c_pack(nb,A)
       implicit none
+#include "errquit.fh"
       integer    nb
       complex*16 A(*)
 
@@ -206,7 +210,7 @@
 
       call C3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(2*nfft3d,A,1,dcpl_mb(tmp1(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,A,1)
@@ -216,7 +220,8 @@
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('Cram_c_pack:error popping stack',0)
+      if (.not.value) call errquit('Cram_c_pack:error popping stack',0,
+     &       MA_ERR)
 
       call Balance_c_balance(nb,A)
 
@@ -233,6 +238,7 @@
 
       subroutine Cram_r_pack(nb,A)
       implicit none
+#include "errquit.fh"
       integer nb
       real*8  A(*)
 
@@ -253,7 +259,7 @@
       call C3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) 
-     >  call errquit('Cram_r_pack:out of stack memory',0)
+     >  call errquit('Cram_r_pack:out of stack memory',0, MA_ERR)
 
       call dcopy(nfft3d,A,1,dbl_mb(tmp1(1)),1)
       call dcopy(nfft3d,0.0d0,0,A,1)
@@ -263,7 +269,7 @@
 
       value = MA_pop_stack(tmp1(2))
       if (.not.value) 
-     >  call errquit('Cram_r_pack:error popping stack',0)
+     >  call errquit('Cram_r_pack:error popping stack',0, MA_ERR)
 
       call Balance_t_balance(nb,A)
 
@@ -280,6 +286,7 @@
 
       subroutine Cram_i_pack(nb,A)
       implicit none
+#include "errquit.fh"
       integer nb
       integer A(*)
 
@@ -300,7 +307,7 @@
       call C3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not.value) 
-     >  call errquit('Cram_i_pack:out of stack memory',0)
+     >  call errquit('Cram_i_pack:out of stack memory',0, MA_ERR)
 
       call icopy(nfft3d,A,1,int_mb(tmp1(1)),1)
       call icopy(nfft3d,0,0,A,1)
@@ -310,7 +317,7 @@
 
       value = MA_pop_stack(tmp1(2))
       if (.not.value) 
-     >  call errquit('Cram_i_pack:error popping stack',1)
+     >  call errquit('Cram_i_pack:error popping stack',1, MA_ERR)
 
       call Balance_i_balance(nb,A)
 
@@ -327,6 +334,7 @@
 
       subroutine Cram_c_unpack(nb,A)
       implicit none
+#include "errquit.fh"
       integer    nb
       complex*16 A(*)
 
@@ -351,7 +359,7 @@
       value = MA_push_get(mt_dcpl,(nidb),
      >                    'tmp1',tmp1(2),tmp1(1))
       if (.not.value) 
-     >  call errquit('Cram_c_unpack:out of stack memory',0)
+     >  call errquit('Cram_c_unpack:out of stack memory',0, MA_ERR)
 
       call dcopy(2*(nidb),A,1,dcpl_mb(tmp1(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,A,1)
@@ -360,7 +368,7 @@
       end do
       value = MA_pop_stack(tmp1(2))
       if (.not.value) 
-     >  call errquit('Cram_c_unpack:error popping stack',0)
+     >  call errquit('Cram_c_unpack:error popping stack',0, MA_ERR)
 
       call nwpw_timing_end(9)
       return

@@ -1,6 +1,6 @@
       subroutine fock_j_fit(nmat, g_dens, g_j)
 c
-c     $Id: fock_j_fit.F,v 1.3 2000-04-24 18:43:27 edo Exp $
+c     $Id: fock_j_fit.F,v 1.4 2003-10-17 22:54:32 carlfahl Exp $
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c
@@ -23,13 +23,14 @@ c
       subroutine fock_j_fit_gen(nmat, g_dens, g_j, Tvec, have_Tvec,
      &     do_init)
 c
-c     $Id: fock_j_fit.F,v 1.3 2000-04-24 18:43:27 edo Exp $
+c     $Id: fock_j_fit.F,v 1.4 2003-10-17 22:54:32 carlfahl Exp $
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c
 c     BGJ - 2/99
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "mafdecls.fh"
@@ -93,7 +94,7 @@ c     Set up scratch space for dft_fitcd and dft_fitvc
 c
       if (.not.MA_Push_Get(MT_Dbl,nbf_cd*nmat,'cd_coef',l_cd_coef,
      &     k_cd_coef))
-     &     call errquit('fock_j_fit: cannot allocate cd_coef',0)
+     &     call errquit('fock_j_fit: cannot allocate cd_coef',0, MA_ERR)
 c
 c     Prepare to call fitting routines
 c
@@ -103,7 +104,8 @@ c!!! Set up for cdinv to be allocated in dft_cdfit
       IOLGC = .true.
       if (noio.eq.1)IOLGC = .FALSE.
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &     call errquit('fock_j_fit: rtdb_get of noc failed', 0)
+     &     call errquit('fock_j_fit: rtdb_get of noc failed', 0,
+     &       RTDB_ERR)
       if (ipol.eq.1)then
          nTotEl = 2*noc(1)
       else
@@ -140,7 +142,7 @@ c
 c     Clean up
 c
       if (.not.ma_pop_stack(l_cd_coef))
-     &     call errquit('fock_j_fit: cannot pop stack',0)
+     &     call errquit('fock_j_fit: cannot pop stack',0, MA_ERR)
       direct = old_direct
       incore = old_incore
 c

@@ -1,10 +1,11 @@
       subroutine util_getarg(iarg_in,arg)
-* $Id: util_getarg.F,v 1.7 2003-08-13 22:15:38 edo Exp $
+* $Id: util_getarg.F,v 1.8 2003-10-17 22:58:35 carlfahl Exp $
 *
 * The statement call util_getarg( k , arg ) gets the  kth  command-
 * line argument and puts it into the string arg.
 *
       implicit none
+#include "errquit.fh"
       integer iarg_in
       character*(*) arg
 #if defined(EXT_INT) && !defined(HPUX64)
@@ -31,7 +32,8 @@ C
       call pxfgetarg(iarg,arg,length,ierror)
 c
       if (ierror.ne.0)
-     + call errquit('util_getarg:pxfgetarg fatal error',ierror)
+     + call errquit('util_getarg:pxfgetarg fatal error',ierror,
+     &       UNKNOWN_ERR)
 #elif defined(WIN32)
       call getarg(iarg,arg,idum)
 #else

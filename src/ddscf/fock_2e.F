@@ -1,11 +1,12 @@
       subroutine fock_2e( geom1, ao_basis, mfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.28 2002-03-29 01:24:36 edo Exp $
+c$Id: fock_2e.F,v 1.29 2003-10-17 22:54:32 carlfahl Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
 c
       implicit none
+#include "errquit.fh"
 c     !!! BGJ test !!!
 #include "global.fh"
 #include "bgj.fh"
@@ -48,7 +49,8 @@ c
 c     Make local copy of J and K prefactors in case we need to manipulate them
 c
       if (nfock .gt. maxfocks) then
-         call errquit('Dimens. assumption incorrect in fock_2e',nfock)
+         call errquit('Dimens. assumption incorrect in fock_2e',nfock,
+     &       UNKNOWN_ERR)
       endif
 c
 c     !!! BGJ test !!!
@@ -94,7 +96,8 @@ cold         kfac(1)=-0.5d0*bgj_kfac()
          call ga_add(1.0d0, vg_fockc, 1.0d0, vg_fock,
      &        vg_fock)
          if (.not.ga_destroy(vg_fockc))
-     .      call errquit('fock_2e: problem destroying test array',1)
+     .      call errquit('fock_2e: problem destroying test array',1,
+     &       GA_ERR)
          return
       else if (nriscf.eq.10) then
         do ifock=1,nfock
@@ -139,9 +142,10 @@ c         write(*,*)'*** fock_2e: no xc, returning'
 
 c      write(*,*)'*** fock_2e: nfock =',nfock
       if (nfock.gt.maxfocks)
-     &   call errquit('fock_2e: dimension error in test',0)
+     &   call errquit('fock_2e: dimension error in test',0,
+     &       UNKNOWN_ERR)
       if (.not. bas_numbf(ao_basis, nbf))
-     &   call errquit('fock_2e: basis set error:', 86)
+     &   call errquit('fock_2e: basis set error:', 86, BASIS_ERR)
       dims(1) = nfock
       dims(2) = nbf
       dims(3) = nbf
@@ -150,7 +154,7 @@ c      write(*,*)'*** fock_2e: nfock =',nfock
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'DFT CPKS RHS',chunk, 
      &     g_xc))
-     &   call errquit('fock_2e: could not allocate g_xc',555)
+     &   call errquit('fock_2e: could not allocate g_xc',555, GA_ERR)
       call ga_zero(g_xc)
       if(oprint) then
          write(luout,*) 'fock2e: nfock ',nfock
@@ -162,7 +166,7 @@ c
 c     works with nfock=1 for CS and nfock=4 for OS
 c
       if(nfock.ne.1.and.nfock.ne.4) call errquit(
-     '     '    fock_2e: unexpected nfock value = ',nfock)
+     '     '    fock_2e: unexpected nfock value = ',nfock, UNKNOWN_ERR)
       call fock_xc(geom1, nbf,ao_basis,
      ,     nfock, vg_dens, g_xc,.false.)
       ffac=1d0
@@ -209,7 +213,8 @@ c
          endif
          
          if (.not.ga_destroy(g_xc)) then
-            call errquit('fock_2e: problem destroying test array',1)
+            call errquit('fock_2e: problem destroying test array',1,
+     &       GA_ERR)
          endif
       endif
       return

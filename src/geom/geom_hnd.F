@@ -1,8 +1,9 @@
 *
-* $Id: geom_hnd.F,v 1.42 2003-08-08 22:15:00 edo Exp $
+* $Id: geom_hnd.F,v 1.43 2003-10-17 22:55:06 carlfahl Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
@@ -38,7 +39,7 @@ c
       status = geom_zmt_get_nzvar(geom, nzvar) .and. status
       status = geom_zmt_get_nizmat(geom, nzmat) .and. status
       if (.not. status) call errquit
-     $     ('geom_bandbi: failed getting info ', geom)
+     $     ('geom_bandbi: failed getting info ', geom, GEOM_ERR)
 c     
 c     ----- return if no internal coordinates -----
 c     
@@ -58,15 +59,16 @@ c
 c     Allocate 3 matrices all (ndim,ndim)
 c     
       if(.not.ma_push_get(mt_dbl,ndim**2    ,'mem x ',l_x,k_x))
-     &     call errquit('hnd_bandbi, malloc of x  failed',911)
+     &     call errquit('hnd_bandbi, malloc of x  failed',911,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_dbl,ndim**2        ,'mem y ',l_y,k_y))
-     &     call errquit('hnd_bandbi, malloc of y  failed',911)
+     &     call errquit('hnd_bandbi, malloc of y  failed',911, MA_ERR)
       if(.not.ma_push_get(mt_dbl,ndim**2   ,'mem z ',l_z,k_z))
-     &     call errquit('hnd_bandbi, malloc of z  failed',911)
+     &     call errquit('hnd_bandbi, malloc of z  failed',911, MA_ERR)
       if(.not.ma_push_get(mt_dbl,ncart ,'c',l_c,k_c))
-     &     call errquit('hnd_bandbi, malloc of c  failed',ncart)
+     &     call errquit('hnd_bandbi, malloc of c  failed',ncart, MA_ERR)
       if(.not.ma_push_get(mt_dbl,ndim ,'e',l_e,k_e))
-     &     call errquit('hnd_bandbi, malloc of e  failed',nzvar)
+     &     call errquit('hnd_bandbi, malloc of e  failed',nzvar, MA_ERR)
 c
 c     ----- calculate -c- matrix ----
 c
@@ -87,11 +89,13 @@ c
 c     ----- release memory pointers -----
 c     
       if(.not.ma_chop_stack(l_x))
-     &     call errquit('geom_bandbi, ma_chop_stack of i01  failed',911)
+     &     call errquit('geom_bandbi, ma_chop_stack of i01  failed',911,
+     &       MA_ERR)
 c     
       end
       SUBROUTINE HND_BMAT(GEOM,NZVAR,NCART,B,ZMAT,IZMAT,NZMAT,C)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -133,11 +137,13 @@ C
       NDUM=3*NA
 C     
       if (.not. geom_cart_coords_get(geom, c))
-     $     call errquit('hnd_bmat: failed getting coords',0)
+     $     call errquit('hnd_bmat: failed getting coords',0, GEOM_ERR)
       if(.not.geom_zmt_get_nizmat(geom, nzmat))
-     1     call errquit('geom_bmat: geom_zmt_get_nizmat failed',0)
+     1     call errquit('geom_bmat: geom_zmt_get_nizmat failed',0,
+     &       GEOM_ERR)
       if(.not.geom_zmt_get_izmat(geom, izmat, nzmat))
-     1     call errquit('geom_bmat: geom_zmt_get_izmat failed',0)
+     1     call errquit('geom_bmat: geom_zmt_get_izmat failed',0,
+     &       GEOM_ERR)
 C     
       IF(OUT) THEN
          WRITE(IW,9997) 
@@ -258,6 +264,7 @@ C
       subroutine geom_binvr(nvar,nzvar,ncart,ndim,
      $     x, y, z, e)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "global.fh"
 #include "stdio.fh"
@@ -294,7 +301,8 @@ c
          end do
       end do
       call dsyev('v', 'u', nzvar, y, nzvar, e, z, ndim**2, info)
-      if (info .ne. 0) call errquit('geom_binvr: dsyev failed', info)
+      if (info .ne. 0) call errquit('geom_binvr: dsyev failed', info,
+     &       MEM_ERR)
       if (odebug) then
          write(LuOut,*) ' Eigenvalues of G '
          call doutput(e, 1, nzvar, 1, 1, nzvar, 1, 1)
@@ -328,7 +336,8 @@ c
          end if
          call ga_sync()
          call errquit
-     $     ('geom_binvr: #indep variables incorrect',100000*nindep+nvar)
+     $     ('geom_binvr: #indep variables incorrect',100000*nindep+nvar,
+     &       GEOM_ERR)
       endif
 c
 c     Form G- = VT (e^-1) V
@@ -405,7 +414,8 @@ c
      $     z, nzvar, y, nzvar, 0d0, x, nzvar) ! C*P*C -> x
 c
       call dsyev('v', 'u', nzvar, x, nzvar, e, z, ndim**2, info)
-      if (info .ne. 0) call errquit('geom_binvr: dsyev2 failed', info)
+      if (info .ne. 0) call errquit('geom_binvr: dsyev2 failed', info,
+     &       GEOM_ERR)
       if (odebug) then
          write(LuOut,*) ' Eigenvalues of CPC '
          call doutput(e, 1, nzvar, 1, 1, nzvar, 1, 1)
@@ -477,6 +487,7 @@ C
       END
       SUBROUTINE HND_BEND(EQVAL,NOINT,I,J,K,C,B,NCART,RTOD,BOHR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS OF A
 C          VALENCE ANGLE BENDING COORDINATE AS DEFINED BY WILSON.
@@ -677,6 +688,7 @@ cedo  CALL HND_HNDERR(3,ERRMSG)
       END
       SUBROUTINE HND_OPLA(EQVAL,NOINT,I,J,K,L,C,B,NCART,RTOD,PIO2,BOHR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR AN
 C          OUT OF PLANE WAGGING COORDINATE AS DEFINED BY WILSON.
@@ -755,7 +767,8 @@ C
       IF( ABS(EQVAL-PIDEG).LT.TOL) EQVAL=PIDEG
       GO TO 260
   240 CONTINUE
-      call errquit('hnd_opla: roundoff error',0)
+      call errquit('hnd_opla: roundoff error',0,
+     &       GEOM_ERR)
   260 CONTINUE
       RETURN
       END
@@ -1039,6 +1052,7 @@ C
       END
       logical function geom_zmtmak(geom, oprint)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "stdio.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1151,7 +1165,8 @@ c
 c     Get the data originally passed via the common blocks
 c     
       if (.not. geom_cart_get(geom, nat, tags, c, zan))
-     $     call errquit('geom_zmtmak: failed getting coords',0)
+     $     call errquit('geom_zmtmak: failed getting coords',0,
+     &       GEOM_ERR)
       do iat = 1, nat
          if (.not. geom_tag_to_covalent_radius(tags(iat),radius))
      $        radius = 2d0/toangs ! Radius = 2 angstrom if no other info
@@ -1235,7 +1250,8 @@ c
             numbnd=numbnd+1
          elseif(icon.eq.0.and.jcon.eq.0) then
          else
-            call errquit('autoz: atom label in ijbond incorrect',mbond)
+            call errquit('autoz: atom label in ijbond incorrect',mbond,
+     &       GEOM_ERR)
          endif
       enddo
 c     
@@ -1250,7 +1266,8 @@ c
             numang=numang+1
          elseif(icon.eq.0.and.jcon.eq.0.and.kcon.eq.0) then
          else
-            call errquit('autoz: atom label in ijkang incorrect',mangs)
+            call errquit('autoz: atom label in ijkang incorrect',mangs,
+     &       GEOM_ERR)
          endif
       enddo
       modang=numang.ne.0
@@ -1267,7 +1284,8 @@ c
          elseif(icon.eq.0.and.jcon.eq.0.and. 
      1           kcon.eq.0.and.lcon.eq.0     ) then
          else
-            call errquit('autoz: atom label in ijklto incorrect',mtors)
+            call errquit('autoz: atom label in ijklto incorrect',mtors,
+     &       GEOM_ERR)
          endif
       enddo
       modtor=numtor.ne.0
@@ -1379,7 +1397,7 @@ c
                rcv=(cvr(iat)+cvr(jat))
                if(rij.le.rcv*cvfac) then
                   if(mbnds.eq.mxbnds) call errquit
-     $                 ('autoz: too many bonds found',mbnds)
+     $                 ('autoz: too many bonds found',mbnds, GEOM_ERR)
                   mbnds=mbnds+1
                   ijbnds(1,mbnds)=iat
                   ijbnds(2,mbnds)=jat
@@ -1475,7 +1493,8 @@ c
                         enddo
                      else
                         write(iw,9978) jat,iat
-                        call errquit('autoz: code logic error',0)
+                        call errquit('autoz: code logic error',0,
+     &       GEOM_ERR)
                      endif
                      if(nimods(jat).eq.1) then
                         endmod(jat)=.true.
@@ -1657,14 +1676,14 @@ c
                      endif
                   enddo
                else
-                  call errquit('geom_zmtmak: izmat?',i)
+                  call errquit('geom_zmtmak: izmat?',i, GEOM_ERR)
                endif
             enddo
          endif
          if (.not. geom_zmt_put_data(geom, nizmat, izmat,
      $        nzfrz, izfrz, izfrz_val, nzvar, zvarname, zvarsign,
      $        'autoz'))
-     $        call errquit('geom_zmtmak: put data failed',0)
+     $        call errquit('geom_zmtmak: put data failed',0, GEOM_ERR)
 c
          geom_zmtmak = .true.
          return
@@ -1684,7 +1703,7 @@ c
             enddo
             if(nimods(iat).ne.numods) then
                write(iw,9985) iat,nimods(iat),numods
-               call errquit('autoz: code logic error',0)
+               call errquit('autoz: code logic error',0, GEOM_ERR)
             endif
             iibond(iat)=iimods(iat)
             nibond(iat)=iimods(iat)
@@ -1706,12 +1725,12 @@ c
 c     
 c     ----- we should have only ( > 2 ) connectivities -----
 c     
-         call errquit('autoz: nuconn < 2', nuconn)
+         call errquit('autoz: nuconn < 2', nuconn, GEOM_ERR)
       elseif(nuconn.gt.3) then
 c     
 c     ----- -nuconn- > 3 .... not treated yet -----
 c     
-         call errquit('autoz: nuconn > 2', nuconn)
+         call errquit('autoz: nuconn > 2', nuconn, GEOM_ERR)
 c     
       elseif(nuconn.eq.3) then
 c     
@@ -1731,7 +1750,8 @@ c
          do i=1,3
             nseg=nseg+1
             if(nseg.gt.mxseg) call errquit
-     $           ('autoz:too many segments from 3-connected atoms',nseg)
+     $           ('autoz:too many segments from 3-connected atoms',nseg,
+     &       GEOM_ERR)
 c     
             jatom=1
             iatseg(jatom,nseg)=ianchr
@@ -1757,7 +1777,8 @@ c
                   namseg(nseg)=2
                endif
             else
-               call errquit('autoz : should have >= 2 connections',jat)
+               call errquit('autoz : should have >= 2 connections',jat,
+     &       GEOM_ERR)
             endif
          enddo
 c     
@@ -1796,7 +1817,8 @@ c
                go to 210
             endif
          else
-            call errquit('autoz: should have only two connections',jat)
+            call errquit('autoz: should have only two connections',jat,
+     &       GEOM_ERR)
          endif
          lenseg(nseg)=iatom
 c     
@@ -2050,6 +2072,7 @@ c
       subroutine hnd_zmtyp1(nzvar,nizmat,izmat,mxizmt,
      1                      nat,nbnds,ijbnds,iibnds,nibnds,numbnd)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
       parameter (ione=1)
@@ -2104,7 +2127,8 @@ c
                enddo
             endif
             if (nizmat+3 .gt. mxizmt) call errquit
-     $           ('autoz bonds: too many internals',0)
+     $           ('autoz bonds: too many internals',0,
+     &       GEOM_ERR)
              izmat(nizmat+1)=ione
              izmat(nizmat+2)=ii
              izmat(nizmat+3)=ij   
@@ -2131,6 +2155,7 @@ c
      1     nat,nbnds,ijbnds,iibnds,nibnds,ijkang,numang,
      2     dolinb, zdone, oprint)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
       parameter (itwo=2)
@@ -2190,13 +2215,14 @@ c
             icon=ijbond(1,ijbnd)
             jcon=ijbond(2,ijbnd)
             if(icon.ne.iat)
-     $           call errquit('autoz: invalid connection',1)
+     $           call errquit('autoz: invalid connection',1, GEOM_ERR)
             jat=jcon
             do jkbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
                jcon=ijbond(1,jkbnd)
                kcon=ijbond(2,jkbnd)
                if(jcon.ne.jat)
-     $              call errquit('autoz: invalid connection',2)
+     $              call errquit('autoz: invalid connection',2,
+     &       GEOM_ERR)
                kat=kcon
                if(kat.ne.iat) then
                   rijsq=distsq(iat,jat)
@@ -2407,6 +2433,7 @@ c
      1     numatom,nbnds,ijbnds,iibnds,nibnds, ! note rename nat -> numatom
      2     ijklto,numtor, max_tor_per_bond, zdone, oprint)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
       parameter (ithree=3)
@@ -2476,12 +2503,14 @@ c
          do ijbnd=iibond(iat)+1,iibond(iat)+nibond(iat)
             jat=ijbond(2,ijbnd)
             if(ijbond(1,ijbnd).ne.iat) 
-     $           call errquit('zmtyp3: iat not my bond?',ijbnd)
+     $           call errquit('zmtyp3: iat not my bond?',ijbnd,
+     &       GEOM_ERR)
             ntor_for_ij = 0
             do jkbnd=iibond(jat)+1,iibond(jat)+nibond(jat)
                kat=ijbond(2,jkbnd)
                if(ijbond(1,jkbnd).ne.jat) 
-     $              call errquit('zmtyp3: jat not my bond?',jkbnd)
+     $              call errquit('zmtyp3: jat not my bond?',jkbnd,
+     &       GEOM_ERR)
                if(kat.ne.iat) then
                   rij=sqrt(distsq(iat,jat))
                   rjk=sqrt(distsq(jat,kat))
@@ -2492,7 +2521,8 @@ c
                   do klbnd=iibond(kat)+1,iibond(kat)+nibond(kat)
                      lat=ijbond(2,klbnd)
                      if(ijbond(1,klbnd).ne.kat) 
-     $                    call errquit('zmtyp3: kat not my bond?',klbnd)
+     $                    call errquit('zmtyp3: kat not my bond?',klbnd,
+     &       GEOM_ERR)
 c     
 c     (h2o)5 test case showed some logic was missing.  also, can avoid
 c     generating some duplicates by restricting i>l unless are restricting 
@@ -3209,6 +3239,7 @@ c
       end
       SUBROUTINE HND_HNDERR(LERR,ERRMSG)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "stdio.fh"
       CHARACTER*8  ERRMSG
       DIMENSION    ERRMSG(LERR)
@@ -4289,6 +4320,7 @@ C
       END
       SUBROUTINE HND_DIAGIV(A,VVEC,EIG,IA,NVEC,N,NDIM)
       IMPLICIT REAL*8 (A-H,O-Z)
+#include "errquit.fh"
 #include "stdio.fh"
 C
 C     ----- GENERAL CALLING  ROUTINE FOR -----
@@ -4317,11 +4349,13 @@ c     ----- memory -----
 c
       status=ma_pop_stack(i_iint)
       if(.not.status) then
-         call errquit('hnd_diagiv,ma_pop_stack of -iint- failed',911)
+         call errquit('hnd_diagiv,ma_pop_stack of -iint- failed',911,
+     &       MA_ERR)
       endif
       status=ma_pop_stack(i_idbl)
       if(.not.status) then
-         call errquit('hnd_diagiv,ma_pop_stack of -idbl- failed',911)
+         call errquit('hnd_diagiv,ma_pop_stack of -idbl- failed',911,
+     &       MA_ERR)
       endif
 c
       RETURN
@@ -4557,6 +4591,7 @@ C
      $     c, numijxtra, ijxtra, mxbond, cvrfac, cvr, 
      $     okay, oprint)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -4598,9 +4633,11 @@ c
       endif
 c     
       if (.not. ma_push_get(mt_int, nat*nat,'check all',l_m, k_m))
-     $     call errquit('geom_check_all_connected: ma?',nat*nat)
+     $     call errquit('geom_check_all_connected: ma?',nat*nat,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nat,'check all',l_clus, k_clus))
-     $     call errquit('geom_check_all_connected: ma?',nat)
+     $     call errquit('geom_check_all_connected: ma?',nat,
+     &       MA_ERR)
 c     
       ibig = 99999999
       call ifill(nat*nat, ibig, int_mb(k_m), 1)
@@ -4740,7 +4777,8 @@ c     Something is wrong but we did not make new bonds
       endif
 c     
 10000 if (.not. ma_chop_stack(l_m)) 
-     $     call errquit('geom_check_all_connected: ma pop?',nat)
+     $     call errquit('geom_check_all_connected: ma pop?',nat,
+     &       MA_ERR)
 c     
       end
       logical function geom_hnd_check_data(name,n)
@@ -4781,6 +4819,7 @@ c
       end
       subroutine geom_hnd_put_data(name, a, n)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
 #include "inp.fh"
@@ -4816,11 +4855,12 @@ c
       return
 c
  100  write(LuOut,*) ' name = ', name
-      call errquit('geom_hnd_put_data: open failed',0)
+      call errquit('geom_hnd_put_data: open failed',0, GEOM_ERR)
 c
       end
       subroutine geom_hnd_get_data(name, a, n)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "util.fh"
@@ -4856,11 +4896,12 @@ c
       return
 c
  100  write(LuOut,*) ' name = ', name
-      call errquit('geom_hnd_get_data: open failed',0)
+      call errquit('geom_hnd_get_data: open failed',0, DISK_ERR)
  101  write(LuOut,*) ' name = ', name
-      call errquit('geom_hnd_get_data: reading m failed',0)
+      call errquit('geom_hnd_get_data: reading m failed',0, DISK_ERR)
  102  write(LuOut,*) ' name = ', name, ' n = ', n, ' m = ', m
-      call errquit('geom_hnd_get_data: dimension mismatch',0)
+      call errquit('geom_hnd_get_data: dimension mismatch',0,
+     &       GEOM_ERR)
 c
       end
       subroutine geom_hnd_parallel(mode)
@@ -4957,6 +4998,7 @@ c
       subroutine geom_make_constraint_matrix(geom, nzvar, cmat,
      $     nconstraint)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
       integer geom, nzvar       ! input
@@ -4999,9 +5041,11 @@ c
 c     Zero diagonals for constants
 c
       if(.not.geom_zmt_get_nzfrz(geom,nzfrz))
-     $     call errquit('geom_const: geom_zmt_get_nzfrz failed',0)
+     $     call errquit('geom_const: geom_zmt_get_nzfrz failed',0,
+     &       GEOM_ERR)
       if(.not.geom_zmt_get_izfrz(geom,izfrz))
-     $     call errquit('geom_const: geom_zmt_get_izfrz  failed',0)
+     $     call errquit('geom_const: geom_zmt_get_izfrz  failed',0,
+     &       GEOM_ERR)
       do ii = 1, nzfrz
          i = izfrz(ii)
          nconstraint = nconstraint + 1
@@ -5011,7 +5055,7 @@ c
 c     Apply constraints
 c
       if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
-     $     call errquit('geom_const: varinfo?',0)
+     $     call errquit('geom_const: varinfo?',0, GEOM_ERR)
       do i = 1, nzvar
          ofrozen = .false.
          do ii = 1, nzfrz

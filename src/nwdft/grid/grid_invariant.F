@@ -1,8 +1,9 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.20 2003-03-15 02:49:10 edo Exp $
+c$Id: grid_invariant.F,v 1.21 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "mafdecls.fh"
 #include "util.fh"
@@ -62,25 +63,26 @@ c        allocate space for atomic coordinates and charges
 c
          if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
      &      icoord))call errquit(
-     .        'grid_invariant: failed to alloc coordinates',0)
+     .        'grid_invariant: failed to alloc coordinates',0, MA_ERR)
          if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
      &      icharge))call errquit(
-     .        'grid_invariant: failed to alloc charges',0)
+     .        'grid_invariant: failed to alloc charges',0, MA_ERR)
          if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &      ltags, itags))call errquit(
-     /        'grid_invariant: failed to alloc center tags',0)
+     /        'grid_invariant: failed to alloc center tags',0, MA_ERR)
 c     
          if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                           Dbl_MB(icoord), Dbl_MB(icharge)))
-     &        call errquit('grid_invariant: geom_cart_get failed',74)
+     &        call errquit('grid_invariant: geom_cart_get failed',74,
+     &       GEOM_ERR)
 c
          call grid_invar_mat(dbl_mb(icoord), dbl_mb(icharge))
          if (.not. MA_Pop_Stack(ltags))
-     &      call errquit('grid_invariant: pop stack failed.',0)
+     &      call errquit('grid_invariant: pop stack failed.',0, MA_ERR)
          if (.not. MA_Pop_Stack(lcharge))
-     &      call errquit('grid_invariant: pop stack failed.',0)
+     &      call errquit('grid_invariant: pop stack failed.',0, MA_ERR)
          if (.not. MA_Pop_Stack(lcoord))
-     &      call errquit('grid_invariant: pop stack failed.',0)
+     &      call errquit('grid_invariant: pop stack failed.',0, MA_ERR)
       endif
 c
 c     rotate by Ahlrichs prescription for groups with 3-fold axis
@@ -117,9 +119,10 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.20 2003-03-15 02:49:10 edo Exp $
+c$Id: grid_invariant.F,v 1.21 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "stdio.fh"
 #include "cdft.fh"
@@ -175,7 +178,7 @@ c
          write(LuOut,*)
          write(LuOut,*) 'grid_invariant:  ',
      &                  'The total nuclear charge is zero.'
-         call errquit('Exiting in grid_invariant.',4)
+         call errquit('Exiting in grid_invariant.',4, UNKNOWN_ERR)
       endif
 c
 c     calculate the M matrx

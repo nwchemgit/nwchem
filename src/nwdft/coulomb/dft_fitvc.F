@@ -2,8 +2,9 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.35 2002-08-16 00:39:51 edo Exp $
+c     $Id: dft_fitvc.F,v 1.36 2003-10-17 22:55:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c      
 #include "bas.fh"
 #include "stdio.fh"

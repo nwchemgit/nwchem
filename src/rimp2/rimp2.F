@@ -1,6 +1,7 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.46 2003-02-22 05:58:52 edo Exp $
+C$Id: rimp2.F,v 1.47 2003-10-17 22:58:10 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB
 C
 #include "stdio.fh"
@@ -119,7 +120,8 @@ c
       if (threshscf .gt. 1.0d-6) then
          threshscf = 1.0d-6
          if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
-     $        call errquit('mp2_grad: failed setting scf:thresh',0)
+     $        call errquit('mp2_grad: failed setting scf:thresh',0,
+     &       RTDB_ERR)
          status = rtdb_delete(rtdb,'scf:converged') ! Status irrelevant
       endif
 c
@@ -144,23 +146,29 @@ C
       EndIf
 C
       If ( .NOT. Geom_Create( Geom, Geom_Name) )
-     $   Call ErrQuit('rimp2: geom_create failed', Geom)
+     $   Call ErrQuit('rimp2: geom_create failed', Geom, GEOM_ERR)
       If ( .NOT. Geom_RTDB_Load( RTDB, Geom, Geom_Name) )
-     $   Call ErrQuit('rimp2: geom_rtdb_load failed', Geom)
+     $   Call ErrQuit('rimp2: geom_rtdb_load failed', Geom, RTDB_ERR)
 C
       If ( .NOT. Bas_Create( AOBas, AOBasName) )
-     $   Call ErrQuit('rimp2: aobas bas_create failed', AOBas)
+     $   Call ErrQuit('rimp2: aobas bas_create failed', AOBas,
+     &       BASIS_ERR)
       If ( .NOT. Bas_RTDB_Load( RTDB, Geom, AOBas, AOBasName) )
-     $   Call ErrQuit('rimp2: aobas bas_rtdb_load failed', AOBas)
+     $   Call ErrQuit('rimp2: aobas bas_rtdb_load failed', AOBas,
+     &       BASIS_ERR)
       If ( .NOT. Int_Normalize( RTDB, AOBas) )
-     $   Call ErrQuit('rimp2: aobas int_normalize failed', AOBas)
+     $   Call ErrQuit('rimp2: aobas int_normalize failed', AOBas,
+     &       INT_ERR)
 C
       If ( .NOT. Bas_Create( FitBas, FitBasName) )
-     $   Call ErrQuit('rimp2: fitbas bas_create failed', FitBas)
+     $   Call ErrQuit('rimp2: fitbas bas_create failed', FitBas,
+     &       BASIS_ERR)
       If ( .NOT. Bas_RTDB_Load( RTDB, Geom, FitBas, FitBasName) )
-     $   Call ErrQuit('rimp2: fitbas bas_rtdb_load failed', FitBas)
+     $   Call ErrQuit('rimp2: fitbas bas_rtdb_load failed', FitBas,
+     &       BASIS_ERR)
       If ( .NOT. Int_Normalize( RTDB, FitBas) )
-     $   Call ErrQuit('rimp2: fitbas int_normalize failed', FitBas)
+     $   Call ErrQuit('rimp2: fitbas int_normalize failed', FitBas,
+     &       INT_ERR)
 C
 C     Get other controls -- threshold for neglect of integrals, etc.
 C
@@ -176,25 +184,29 @@ C
 C     Get some info about the basis sets for later use
 C
       If ( .NOT. Bas_NumBF( AOBas, NAOBF) )
-     $   Call ErrQuit('rimp2: aobas bas_numbf failed', AOBas)
+     $   Call ErrQuit('rimp2: aobas bas_numbf failed', AOBas, BASIS_ERR)
       If ( .NOT. Bas_NumBF( FitBas, NFit) )
-     $   Call ErrQuit('rimp2: fitbas bas_numbf failed', FitBas)
+     $   Call ErrQuit('rimp2: fitbas bas_numbf failed', FitBas,
+     &       BASIS_ERR)
       If ( .NOT. Bas_Name( AOBas, AOName, AONameT) )
-     $   Call ErrQuit('rimp2: aobas bas_name failed', AOBas)
+     $   Call ErrQuit('rimp2: aobas bas_name failed', AOBas,
+     &       BASIS_ERR)
       If ( .NOT. Bas_Name( FitBas, FitName, FitNameT) )
-     $   Call ErrQuit('rimp2: fitbas bas_name failed', FitBas)
+     $   Call ErrQuit('rimp2: fitbas bas_name failed', FitBas,
+     &       BASIS_ERR)
 C
       Call Corr_Mk_Ref(RTDB, My_Ctx, Geom, AOBas, .false.,
      . RefNAO, TopSpin, NCorBF,G_AOXF, MinChunk, MinChunk, MaxSpin, 
      .     H_Occ, H_EVal, NFrzOcc, NFrzVir, .False.)
 C
       If (RefNAO .ne. NAOBF) Call ErrQuit(
-     $     'RIMP2: Incompatible reference AO basis size', RefNAO-NAOBF)
+     $     'RIMP2: Incompatible reference AO basis size', RefNAO-NAOBF,
+     &       INPUT_ERR)
       MxNCorBF = NAOBF
       If ( .NOT. MA_Get_Index(H_Occ, I_Occ) ) Call ErrQuit(
-     $     'RIMP2: Failed to get index for occ vector', H_Occ)
+     $     'RIMP2: Failed to get index for occ vector', H_Occ, MA_ERR)
       If ( .NOT. MA_Get_Index(H_EVal, I_EVal) ) Call ErrQuit(
-     $     'RIMP2: Failed to get index for eval vector', H_EVal)
+     $     'RIMP2: Failed to get index for eval vector', H_EVal, MA_ERR)
 C
 C     Determine ranges to transform.
 C
@@ -204,7 +216,7 @@ C
       EndDo
 C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
-     $   'RIMP2: Unable to free local array H_Occ', H_Occ)
+     $   'RIMP2: Unable to free local array H_Occ', H_Occ, MA_ERR)
 C
 C     **********************************************
 C     * Print out calculation information for user *
@@ -250,23 +262,23 @@ C
 C
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom))
-     $         call errquit('RIMP2: geom_print', 0)
+     $         call errquit('RIMP2: geom_print', 0, GEOM_ERR)
             write(LuOut,*)
          endif
          if (util_print('basis', print_high)) then
             if (.not. bas_print(AOBas)) 
-     $           call errquit('RIMP2: bas_print', 0)
+     $           call errquit('RIMP2: bas_print', 0, BASIS_ERR)
             write(LuOut,*)
             if (.not. bas_print(FitBas)) 
-     $           call errquit('RIMP2: bas_print', 0)
+     $           call errquit('RIMP2: bas_print', 0, BASIS_ERR)
             write(LuOut,*)
          endif
          if (util_print('geombas', print_debug)) then
             if (.not. gbs_map_print(AOBas)) 
-     $           call errquit('RIMP2:gmp', 0)
+     $           call errquit('RIMP2:gmp', 0, BASIS_ERR)
             write(LuOut,*)
             if (.not. gbs_map_print(FitBas)) 
-     $           call errquit('RIMP2:gmp', 0)
+     $           call errquit('RIMP2:gmp', 0, BASIS_ERR)
             write(LuOut,*)
          endif
          call util_flush(LuOut)
@@ -308,7 +320,7 @@ C
 C     Initialize DAs.  We know everything but how much memory to give it.
 C
       If (DRA_Init(TopSpin, MaxDASiz, TotDASiz, -1) .ne. 0)
-     $   Call ErrQuit('RIMP2: DRA_Init failed', 0)
+     $   Call ErrQuit('RIMP2: DRA_Init failed', 0, CALC_ERR)
 #endif
 C
 C
@@ -323,7 +335,7 @@ C
       If ( .NOT. RIMP2_XF_Driver( RTDB, Geom, AOBas, FitBas,
      $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi, MxTBatch, Thresh,
      $   MinEVal, Approx, G_AOXF,actualname) ) Call ErrQuit(
-     $   'rimp2: rimp2_xf_driver failed', 911)
+     $   'rimp2: rimp2_xf_driver failed', 911, CALC_ERR)
 C
 C     Finished with the AO transformation
 C
@@ -332,7 +344,7 @@ C
          Status = Status .AND.  GA_Destroy( G_AOXF(I))
       EndDo
       If ( .NOT. Status) Call ErrQuit(
-     $   'RIMP2: Unable to destroy AO transformation', 0)
+     $   'RIMP2: Unable to destroy AO transformation', 0, GA_ERR)
 C
 C     Done computing integrals
 C
@@ -351,7 +363,8 @@ C     Create matrix to hold spin case breakdown of E(2)
 C
       If ( .NOT. MA_Push_Get( MT_Dbl, TopSpin*TopSpin,
      $   'E(2) spin case breakdown', H_Contrib, Contrib_Idx) ) Call
-     $   ErrQuit('rimp2: can''t allocate spin contribution matrix', 911)
+     $   ErrQuit('rimp2: can''t allocate spin contribution matrix', 911,
+     &       MA_ERR)
 C
 C     **********************
 C     * Energy calculation *
@@ -361,7 +374,7 @@ C
      $   NFit, FitBas, Dbl_MB(I_Eval), MxNCorBF, Dbl_MB(Contrib_Idx),
      $     CorEner, Mem_Opt, MxEBatch(1), MxEBatch(2),
      ,     actualname)) Call ErrQuit(
-     $   'rimp2: rimp2_v_e2 failed', 911)
+     $   'rimp2: rimp2_v_e2 failed', 911, CALC_ERR)
 C
 C     Also get the SCF energy so we can report the total energy
 C
@@ -392,12 +405,12 @@ C
       Status = Status .AND. RTDB_Put( RTDB, 'rimp2:energy', MT_Dbl, 1,
      $     TotEner)
       If ( .NOT. Status ) Call ErrQuit(
-     $   'rimp2: unable to store energies in rtdb', 911)
+     $   'rimp2: unable to store energies in rtdb', 911, RTDB_ERR)
 C
 #ifdef RIMP2_USE_DA
 C
       If ( DRA_Terminate() .ne. 0) Call ErrQuit(
-     $   'RIMP2: DRA_Terminate failed', 0)
+     $   'RIMP2: DRA_Terminate failed', 0, CALC_ERR)
 #endif
 C
 C     ***********
@@ -408,13 +421,14 @@ C
       Status = Status .AND. MA_Pop_Stack( H_Contrib)
       Status = Status .AND.  MA_Free_Heap(H_Eval)
       If ( .NOT. Status) Call ErrQuit(
-     $   'RIMP2: Unable to destroy local arrays', 0)
+     $   'RIMP2: Unable to destroy local arrays', 0, MA_ERR)
 C
       Status = Status .AND. Geom_Destroy( Geom)
       Status = Status .AND. Bas_Destroy( FitBas)
       Status = Status .AND. Bas_Destroy( AOBas)
       If (.NOT. Status) Call ErrQuit(
-     $   'RIMP2: Failed to destroy geometry and  basis sets', 0)
+     $   'RIMP2: Failed to destroy geometry and  basis sets', 0,
+     &       BASIS_ERR)
 C
       Call Util_Print_Pop
       call ecce_print_module_exit('mp2', 'ok')

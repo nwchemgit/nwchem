@@ -1,9 +1,10 @@
       subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
 *
-* $Id: mp2_make_dip_mom.F,v 1.9 1999-06-16 00:10:23 d3e129 Exp $
+* $Id: mp2_make_dip_mom.F,v 1.10 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -26,19 +27,19 @@ c
       if (.not. bas_cando_mpoles(basis)) return
 c
       if (.not. bas_geom(basis, geom)) 
-     $     call errquit('mp2_dip: bad basis?',0)
+     $     call errquit('mp2_dip: bad basis?',0, BASIS_ERR)
 c
 c     Generate dipole integrals
 c
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs x ',
-     $     0,0,g_x)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_x)) call errquit('mp2_dipole: ga',0, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs y ',
-     $     0,0,g_y)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_y)) call errquit('mp2_dipole: ga',0, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs z',
-     $     0,0,g_z)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_z)) call errquit('mp2_dipole: ga',0, GA_ERR)
 c
       call int_init(rtdb,1,basis)
       call int_dip_ga(basis, basis, g_x, g_y, g_z)
@@ -48,7 +49,7 @@ c     Generate SCF AO density
 c
 *ga:1:0
       if(.not.ga_create(mt_dbl, nbf, nbf,' AO density  ',
-     $     0,0,g_dens)) call errquit('mp2_dipole: ga',0)
+     $     0,0,g_dens)) call errquit('mp2_dipole: ga',0, GA_ERR)
       call ga_dgemm('n', 't', nbf, nbf, noa, 1.0d0, g_vecs_a,
      $     g_vecs_a, 0.0d0, g_dens)
       call ga_dgemm('n', 't', nbf, nbf, nob, 1.0d0, g_vecs_b,
@@ -62,7 +63,7 @@ c     Form the MP2 AO density
 c
 *ga:1:0
       if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',0,0,g_scratch))
-     $     call errquit('mp2_grad: scratch',1)
+     $     call errquit('mp2_grad: scratch',1, GA_ERR)
       call ga_dgemm('n','t',nmo,nbf,nmo,1.0d0,g_p_tot_a,g_vecs_a,
      $     0.0d0,g_scratch)
       call ga_dgemm('n','n',nbf,nbf,nmo,1.0d0,g_vecs_a,g_scratch,
@@ -76,15 +77,20 @@ c
       mp2y = -ga_ddot(g_dens, g_y)
       mp2z = -ga_ddot(g_dens, g_z)
 c
-      if(.not.ga_destroy(g_x))call errquit('mp2_grad: ga destroy?',0)
-      if(.not.ga_destroy(g_y))call errquit('mp2_grad: ga destroy?',0)
-      if(.not.ga_destroy(g_z))call errquit('mp2_grad: ga destroy?',0)
-      if(.not.ga_destroy(g_dens))call errquit('mp2_grad: ga destroy?',0)
+      if(.not.ga_destroy(g_x))call errquit('mp2_grad: ga destroy?',0,
+     &       GA_ERR)
+      if(.not.ga_destroy(g_y))call errquit('mp2_grad: ga destroy?',0,
+     &       GA_ERR)
+      if(.not.ga_destroy(g_z))call errquit('mp2_grad: ga destroy?',0,
+     &       GA_ERR)
+      if(.not.ga_destroy(g_dens))call errquit('mp2_grad: ga destroy?',0,
+     &       GA_ERR)
       if(.not.ga_destroy(g_scratch))
-     $     call errquit('mp2_grad: ga destroy?',0)
+     $     call errquit('mp2_grad: ga destroy?',0, GA_ERR)
 c
       if (.not. geom_nuc_dipole(geom,ndip)) 
-     $     call errquit('mp2_dip: failed to get nuclear dipole',0)
+     $     call errquit('mp2_dip: failed to get nuclear dipole',0,
+     &       GEOM_ERR)
 c
       if (ga_nodeid().eq.0 .and. util_print('dipole',print_low)) then
          write(6,1) 
@@ -108,7 +114,8 @@ c
       ndip(3) = mp2z+scfz+ndip(3)
 c
       if (.not. rtdb_put(rtdb,'mp2:dipole',mt_dbl,3,ndip))
-     $     call errquit('mp2_dipole: database is corrupt',0)
+     $     call errquit('mp2_dipole: database is corrupt',0,
+     &       RTDB_ERR)
       call ecce_print1('total dipole', mt_dbl, ndip, 3)
 c
       end

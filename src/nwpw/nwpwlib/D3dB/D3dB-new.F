@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.13 2003-03-21 23:42:07 bylaska Exp $
+* $Id: D3dB-new.F,v 1.14 2003-10-17 22:56:29 carlfahl Exp $
 *
 
 *     ***********************************************************
@@ -585,6 +585,7 @@ c     call mp_combine(sumt,sumall,msglen,d_vadd,allgrp)
 *****************************************************
 
       implicit none
+#include "errquit.fh"
       integer nb
       complex*16  A(*)
 
@@ -614,7 +615,7 @@ c     real*8      tmp3(*)
      >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nfft3d),'ffttmp3',tmp3(2),tmp3(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     ********************************************
 *     ***         Do a transpose of A          ***
@@ -726,6 +727,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *****************************************************
 
       implicit none
+#include "errquit.fh"
       integer nb
       complex*16  A(*)
 
@@ -752,7 +754,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(2*nfft3d),'tmp3',tmp3(2),tmp3(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
 *     ********************************************
@@ -1540,6 +1542,7 @@ c     integer msgid
 
       subroutine D3dB_c_transpose_jk_init(nb)
       implicit none
+#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
@@ -1651,7 +1654,7 @@ c     i2_start(np+1) = index2
       value = value.and.
      >        MA_alloc_get(mt_int,(2*np),
      >        'channel_type',channel_type(2,nb),channel_type(1,nb))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
 
@@ -1663,7 +1666,7 @@ c     i2_start(np+1) = index2
       value = value.and.
      >        MA_push_get(mt_int,(np*(np-1)/2),
      >                'pair_step',pair_step(2),pair_step(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     *** define pair1,pair2 ****
       icount = 0
@@ -3560,6 +3563,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       subroutine D3dB_Vector_SumAll(n,sum)
 c     implicit none
+#include "errquit.fh"
       integer n
       real*8  sum(*)
 
@@ -3591,7 +3595,7 @@ c     implicit none
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       msglen = n
 
@@ -3627,6 +3631,7 @@ c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 
       subroutine D3dB_Vector_ISumAll(n,sum)
 c     implicit none
+#include "errquit.fh"
       integer n
       integer  sum(*)
 
@@ -3656,7 +3661,7 @@ c     implicit none
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       msglen = n
 
@@ -3800,6 +3805,7 @@ c      end
 
       subroutine D3dB_c_timereverse_init(nb)
       implicit none
+#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
@@ -3843,7 +3849,7 @@ c     integer i2_start(NFFT3+1)
       value = value.and.
      >        MA_alloc_get(mt_int,(nz(nb)+1),
      >                     'i2_start',i2_start(2,nb),i2_start(1,nb))
-      if (.not.value) call errquit('out of heap memory',0)
+      if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
       call Parallel_taskid(taskid)
       call Parallel_np(np)
@@ -4079,6 +4085,7 @@ c     integer i2_start(NFFT3+1)
 *     ***********************************
       subroutine D3dB_timereverse_end(nb)
       implicit none
+#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
@@ -4102,7 +4109,7 @@ c     integer i2_start(NFFT3+1)
      >        MA_free_heap(iq_to_i1(2,nb))
       value = value.and.
      >        MA_free_heap(iq_to_i2(2,nb))
-      if (.not.value) call errquit('error freeing heap',0)
+      if (.not.value) call errquit('error freeing heap',0, MA_ERR)
       return
       end
 

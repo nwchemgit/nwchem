@@ -1,4 +1,4 @@
-C $Id: ecp_hessian.F,v 1.11 2003-03-28 17:12:04 bert Exp $
+C $Id: ecp_hessian.F,v 1.12 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_hessian (
@@ -74,6 +74,8 @@ C $Id: ecp_hessian.F,v 1.11 2003-03-28 17:12:04 bert Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer i,j,k,l,m,
      &    n_prim_A,n_cont_A,l_A,i_c_A,
      &    n_prim_B,n_cont_B,l_B,i_c_B,
@@ -136,9 +138,10 @@ C $Id: ecp_hessian.F,v 1.11 2003-03-28 17:12:04 bert Exp $
      &    'n_cart_a,n_cart_b,n_cont_ab,n_ab',
      &    n_cart_a,n_cart_b,n_cont_ab,n_ab
       if (n_int .lt. n_abblk) call errquit (
-     &    'Mismatch of integral count in ecp_hessian',99)
+     &    'Mismatch of integral count in ecp_hessian',99, BASIS_ERR)
       if (sphcart .ne. 0) call errquit(
-     &    'Do your own spherical transformation, lazy bum!',99)
+     &    'Do your own spherical transformation, lazy bum!',99,
+     &       BASIS_ERR)
       if (DryRun) then
         max_type1 = 0
         max_type2 = 0
@@ -204,7 +207,8 @@ c     n_cartm2_B = n_cartm1_B-l_B-2
       if (.not.DryRun) then
         l_scr = lscr-i_scr+1
         if (l_scr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in ecp_hessian',99)
+     &      'Insufficient scratch memory in ecp_hessian',99,
+     &       MEM_ERR)
         k = i_xca-1
         m = n_prim_A*n_cont_A
         do j = 1,n_cont_a

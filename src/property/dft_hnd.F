@@ -2,9 +2,10 @@
      1                               da,db,d1nw,d2nw,
      2                               scftyp,g_movecs)
 c     
-c     $Id: dft_hnd.F,v 1.2 2001-05-15 22:56:50 mdupuis Exp $
+c     $Id: dft_hnd.F,v 1.3 2003-10-17 22:57:58 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -67,7 +68,8 @@ c
 c
 
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     $   call errquit('hnd_cos_get_dens_dft: rtdb_get of noc failed', 0)
+     $   call errquit('hnd_cos_get_dens_dft: rtdb_get of noc failed', 0,
+     &       RTDB_ERR)
 
       nbf   =nbf_ao
       nmo(1)=noc(1)
@@ -91,6 +93,7 @@ c
       subroutine hnd_cos_dens_make_dft(rtdb, g_movecs, g_dens, ndens,
      $                                 da, db, d1nw, d2nw )
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -139,7 +142,8 @@ c
 c     ----- basis set info -----
 c
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     $   call errquit('hnd_cos_dens_make_dft: rtdb_get of noc failed',0)
+     $   call errquit('hnd_cos_dens_make_dft: rtdb_get of noc failed',0,
+     &       RTDB_ERR)
 
       nbf   =nbf_ao
       nmo(1)=noc(1)

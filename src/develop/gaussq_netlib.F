@@ -1,5 +1,5 @@
 *
-* $Id: gaussq_netlib.F,v 1.4 2000-07-27 16:02:28 bjohnson Exp $
+* $Id: gaussq_netlib.F,v 1.5 2003-10-17 22:54:39 carlfahl Exp $
 *
 * ======================================================================
 * NIST Guide to Available Math Software.
@@ -91,6 +91,7 @@ c          added single precision version
 c
       double precision b(n), t(n), w(n), endpts(2), muzero, t1,
      x gam, solve, dsqrt, alpha, beta
+#include "util.fh"
 c
       call class (kind, n, alpha, beta, b, t, muzero)
 c
@@ -277,6 +278,7 @@ c     this is a modified version of the 'eispack' routine imtql2.
 c
 c     this subroutine finds the eigenvalues and first components of the
 c     eigenvectors of a symmetric tridiagonal matrix by the implicit ql
+#include "errquit.fh"
 c     method.
 c
 c     on input:
@@ -562,7 +564,8 @@ C     ON FIRST CALL, IF NO DATA UNCOMMENTED, TEST MACHINE TYPES.
                IF (CRAY1(38) .EQ. SMALL(1)) THEN
 *                  *** CRAY ***
 #ifdef WIN32
-                  call errquit('Should not have reached this line!',0)
+                  call errquit('Should not have reached this line!',0,
+     &       INPUT_ERR)
 #else
                   SMALL(1) = 2332160919536140288.D0
                   SMALL(2) = 0
@@ -1856,7 +1859,8 @@ C
                SANITY = 987
             ELSE
 #ifdef WIN32
-                  call errquit('Should not have reached this line!',1)
+                  call errquit('Should not have reached this line!',1,
+     &       INPUT_ERR)
 #else
                CRAY1 = 4617762693716115456.D0
                IF (SMALL(1) .NE. CRAY1) THEN
@@ -2105,7 +2109,8 @@ C
                LOG10(1) = 1067065499
             ELSE
 #ifdef WIN32
-                  call errquit('Should not have reached this line!',0)
+                  call errquit('Should not have reached this line!',0,
+     &       INPUT_ERR)
 #else
                CRAY1 = 4617762693716115456.D0
                IF (SMALL(1) .NE. CRAY1) THEN
@@ -2153,6 +2158,6 @@ C
 *}
       END
       subroutine fdump
-      call errquit(' FDUMP / NETLIB ',0)
+      call errquit(' FDUMP / NETLIB ',0, UNKNOWN_ERR)
       stop "boem"
       end

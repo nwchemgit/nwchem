@@ -1,10 +1,11 @@
-C $Id: nwc_gen.F,v 1.8 2002-01-11 19:56:05 edo Exp $
+C $Id: nwc_gen.F,v 1.9 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
 C   for geometry x.
 C
       Implicit None
+#include "errquit.fh"
 #include "nwc_drdyP.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -45,24 +46,31 @@ C
       endif
 *
       if (.not.geom_create(geom,'geometry'))
-     &      call errquit('nwc_gen: geom_create failed',911)
+     &      call errquit('nwc_gen: geom_create failed',911,
+     &       GEOM_ERR)
       if (.not.geom_set_user_units(geom,'a.u.'))
-     &      call errquit('nwc_gen: geom_set_user_units failed',911)
+     &      call errquit('nwc_gen: geom_set_user_units failed',911,
+     &       GEOM_ERR)
       if (.not.geom_cart_set(geom,natom,atomic_labels,x,atomic_charge))
-     &      call errquit('nwc_gen: geom_cart_set failed',911)
+     &      call errquit('nwc_gen: geom_cart_set failed',911,
+     &       GEOM_ERR)
       if (.not.geom_masses_set(geom,natom,nwcmass))
-     &      call errquit('nwc_gen:geom_masses_set failed',911)
+     &      call errquit('nwc_gen:geom_masses_set failed',911,
+     &       GEOM_ERR)
 *      if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
-*     &      call errquit('nwc_gen: geom_rtdb_store failed',911)
+*     &      call errquit('nwc_gen: geom_rtdb_store failed',911,
+*     &       RTDB_ERR)
 c
 c Now figure out if we are going to use autosym and if so, get the
 c value for the threshold and take care of the symmetry
 c
       if (.not. rtdb_get(my_rtdb,'drdy:autosym',mt_log,1,oautosym))
-     &  call errquit('nwc_gen: problem getting autosym from rtdb',555)
+     &  call errquit('nwc_gen: problem getting autosym from rtdb',555,
+     &       RTDB_ERR)
       if (oautosym) then
         if (.not.rtdb_get(my_rtdb,'drdy:threquiv',mt_dbl,1,threquiv))
-     &   call errquit('nwc_gen:problem getting threquiv from rtdb',555)
+     &   call errquit('nwc_gen:problem getting threquiv from rtdb',555,
+     &       RTDB_ERR)
         ncenter_B4_autosym = natom
         ncenter = natom
         call dcopy(n3,x,1,dx,1)   ! temporary use of dx 
@@ -79,14 +87,15 @@ c
         if (geom_group_set(geom,groupname)) then
           if (.not.geom_cart_set(geom,ncenter,copy_labels,dx,
      &         copy_charge))
-     &      call errquit('nwc_gen: geom_cart_set failed', 0)
+     &      call errquit('nwc_gen: geom_cart_set failed', 0,
+     &       GEOM_ERR)
           if (ncenter_B4_autosym .ne. ncenter) call errquit
      &       ('nwc_gen: autosym bug : number of atoms wrong',
-     &         ncenter)
+     &         ncenter, INPUT_ERR)
         else
           write(luout,*) ' autosym detected unknown group ',
      &                      groupname
-          call errquit('nwc_gen: autosym: invalid group',0)
+          call errquit('nwc_gen: autosym: invalid group',0, INPUT_ERR)
         endif
 c
 c     Apply system and symmetry info to the list of
@@ -100,9 +109,10 @@ c     same no. of atoms ... if we don't then autosym and nwchemsym
 c     don't agree on the orientation of point group elements
 c
         if (.not. geom_ncent(geom,ncenter)) call errquit
-     $       ('nwc_gen: geom_cent?',0)
+     $       ('nwc_gen: geom_cent?',0, GEOM_ERR)
         if (ncenter_B4_autosym .ne. ncenter) call errquit
-     $       ('nwc_gen: autosym bug : too many atoms',ncenter)
+     $       ('nwc_gen: autosym bug : too many atoms',ncenter,
+     &       INPUT_ERR)
 c
 c     Force exact symetry on the coordinates
 c
@@ -113,9 +123,10 @@ c
 c store as default geometry
 c
       if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
-     &      call errquit('nwc_gen: geom_rtdb_store failed',911)
+     &      call errquit('nwc_gen: geom_rtdb_store failed',911,
+     &       RTDB_ERR)
       if (.not.geom_destroy(geom))
-     &      call errquit('nwc_gen: geom_destroy failed',911)
+     &      call errquit('nwc_gen: geom_destroy failed',911, GEOM_ERR)
       call util_print_set_level(current_print_level)
 *      write(luout,*)' x after  ',x
 c
@@ -126,7 +137,7 @@ c
         call drdy_synch(op,'nwc_gen')
       else
         write(luout,*) 'Trying to calculate an unknown op code'
-        call errquit('nwc_gen: Unknown op code',op)
+        call errquit('nwc_gen: Unknown op code',op, INPUT_ERR)
       endif
 c
 c Get the appropriate values to hand back

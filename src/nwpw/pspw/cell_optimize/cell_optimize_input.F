@@ -1,5 +1,6 @@
       subroutine cell_optimize_input(rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -65,19 +66,21 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'cell_optimize_input: inp_read failed', 0)
+     >           'cell_optimize_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'cell_optimize_input: failed to read keyword', 0)
+     >           'cell_optimize_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'cell_optimize_input: unknown directive', 0)
+     >           'cell_optimize_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100, 200, 300, 400, 500, 600,700,
      >      9999) ind
       call errquit(
-     >      'cell_optimize_input: unimplemented directive', ind)
+     >      'cell_optimize_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 
 c     
@@ -85,7 +88,8 @@ c  cell_name
 c     
  100  if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'cell_optimize_input: failed to read cell_name', 0)
+     >          'cell_optimize_input: failed to read cell_name', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -94,7 +98,8 @@ c  optimize
 c
  200  if (.not. inp_a(test))
      >     call errquit(
-     >          'cell_optimize_input: failed to read optimize:', 0)
+     >          'cell_optimize_input: failed to read optimize:', 0,
+     &       INPUT_ERR)
       if (test.eq.'lattice') optimize_strategy = 1
       goto 10
 
@@ -111,7 +116,7 @@ c
 
       if (.not. inp_match(ntokens, .false., test, tokens, ind))
      >     call errquit(
-     >           'optimize_lattice: unknown directive', 0)
+     >           'optimize_lattice: unknown directive', 0, INPUT_ERR)
 
       goto (311,312,313,314,315,316) ind
 c
@@ -143,7 +148,8 @@ c
 
       if (.not. inp_match(ntokens2, .false., test, tokens2, ind))
      >     call errquit(
-     >           'optimize_lattice_vectors: unknown directive', 0)
+     >           'optimize_lattice_vectors: unknown directive', 0,
+     &       INPUT_ERR)
 
       goto (411,412,413) ind
 c
@@ -195,7 +201,8 @@ c
 *     ***** cell_optimize parameters to rtdb ****
  9999 continue
       if (cell_name.eq.' ') 
-     >  call errquit('cell_optimize_input: nead a cell_name', 0)
+     >  call errquit('cell_optimize_input: nead a cell_name', 0,
+     &       INPUT_ERR)
 
 
       ind = index(cell_name,' ') - 1

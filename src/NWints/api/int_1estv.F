@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.10 2003-01-30 01:09:20 bert Exp $
+c $Id: int_1estv.F,v 1.11 2003-10-17 22:53:41 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}
@@ -39,6 +39,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -51,6 +52,7 @@ c:tex-\end{verbatim}
 #include "stdio.fh"
 #include "apiP.fh"
 #include "rel_nwc.fh"
+#include "util.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -102,12 +104,14 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1eov'))
-     &       call errquit('int_1eov: int_init was not called' ,0)
+     &       call errquit('int_1eov: int_init was not called' ,0,
+     &       INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_1eov: invalid contraction/shell',0)
+     &       call errquit('int_1eov: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -139,7 +143,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911)
+     &      'int_1estv: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -169,7 +173,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911)
+     &      'int_1estv: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -255,7 +259,7 @@ c
      &      scr,lscr)
       else
         call errquit('int_1eov: could not do hnd, sp or nw integrals',
-     &                0)
+     &                0, INT_ERR)
       endif
 c
 *     We now have the cartesian integral block(s)  (jlo:jhi,ilo:ihi)
@@ -326,7 +330,8 @@ c
      &      .false.)
       else
         call errquit(
-     &      'int_1eov: should never reach transform blocked else',911)
+     &      'int_1eov: should never reach transform blocked else',911,
+     &       INT_ERR)
       endif
       return
 c
@@ -349,6 +354,7 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_1eov(i_basis,ish,j_basis,jsh,lscr,scr,lov,Ov)
+#include "util.fh"
 c:tex-\end{verbatim}
 c
 c::passed
@@ -381,6 +387,7 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_1eke(i_basis,ish,j_basis,jsh,lscr,scr,lke,Ke)
+#include "util.fh"
 c:tex-\end{verbatim}
 c
 c::passed
@@ -416,6 +423,7 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_1epe(i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
+#include "util.fh"
 c:tex-\end{verbatim}
 c
 c::passed
@@ -459,6 +467,7 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim}
       subroutine int_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,lh1,H1)
+#include "util.fh"
 c:tex-\end{verbatim}
 #include "apiP.fh"
 c
@@ -505,6 +514,7 @@ c:tex-
 c:tex-{\it Syntax:}
 c:tex-\begin{verbatim} 
       subroutine int_1eall(i_basis,ish,j_basis,jsh,lscr,scr,lstv,S,T,V)
+#include "util.fh"
 c:tex-\end{verbatim}
 c
 c::passed
@@ -528,6 +538,7 @@ c          doS    doT    doV
       end
 c----------------------------------------------------------------------
       subroutine int_1epot(i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
+#include "util.fh"
 c
       integer i_basis ! [input] basis set handle for ish
       integer ish     ! [input] i shell/contraction
@@ -548,6 +559,7 @@ c----------------------------------------------------------------------
      &    doS,doT,doV)
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -560,6 +572,7 @@ c----------------------------------------------------------------------
 #include "stdio.fh"
 #include "apiP.fh"
 #include "rel_nwc.fh"
+#include "util.fh"
 C
 C The following include block contains the geometry handle for the
 C geometry and charges of the solvent for COSMO. This is a clear violation
@@ -617,12 +630,14 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1eov'))
-     &       call errquit('int_1eov: int_init was not called' ,0)
+     &       call errquit('int_1eov: int_init was not called' ,0,
+     &       INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_1eov: invalid contraction/shell',0)
+     &       call errquit('int_1eov: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -654,7 +669,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911)
+     &      'int_1estv: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -684,7 +699,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'int_1estv: no relativistic pointer',911)
+     &      'int_1estv: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -718,7 +733,8 @@ c     ----- current cosmo restriction ... -----
 c
       if(i_geom.ne.j_geom) then
          write(luout,*) 'i_geom andr j_geom is noteq'
-         call errquit('int_1eefc: i_geom and j_geom must be the same',0)  
+         call errquit('int_1eefc: i_geom and j_geom must be the same',0,
+     &         INT_ERR)
       endif
 
       ohnd_ok = cando_hnd_1e(i_basis,ish,0)
@@ -779,7 +795,7 @@ c
      &      scr,lscr)
       else
         call errquit('int_1eov: could not do hnd, sp or nw integrals',
-     &                0)
+     &                0, INT_ERR)
       endif
 c
 *     We now have the cartesian integral block(s)  (jlo:jhi,ilo:ihi)
@@ -850,7 +866,8 @@ c
      &      .false.)
       else
         call errquit(
-     &      'int_1eov: should never reach transform blocked else',911)
+     &      'int_1eov: should never reach transform blocked else',911,
+     &          INT_ERR)
       endif
       return
 c

@@ -7,9 +7,10 @@ c
      $                          oact, oskel, tol2e, dm1, dm2,
      $                          g_movecs, g_coul, eone, etwo, ecore )
 *
-* $Id: mcscf_etr.F,v 1.7 2000-04-27 20:57:41 zzhang Exp $
+* $Id: mcscf_etr.F,v 1.8 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -116,13 +117,13 @@ c
 c  Clean up
 c
        if (.not.ga_destroy(g_tmp))
-     $   call errquit('mcscf_etr: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_cdens))
-     $   call errquit('mcscf_etr: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_adens))
-     $   call errquit('mcscf_etr: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_ifock))
-     $   call errquit('mcscf_etr: cannot destroy',0)
+     $   call errquit('mcscf_etr: cannot destroy',0, GA_ERR)
        return
        end
 
@@ -142,6 +143,7 @@ c$$$       subroutine mcscf_etrace00( geom, basis, nbf, nclosed, nact,
 c$$$     $                            oskel, tol2e, dm1, dm2, g_movecs,
 c$$$     $                            g_coul, eone, e2ii, e2ia, e2aa )
 c$$$       implicit none
+c$$$#include "errquit.fh"
 c$$$#include "mafdecls.fh"
 c$$$#include "global.fh"
 c$$$#include "rtdb.fh"

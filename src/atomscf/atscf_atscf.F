@@ -2,7 +2,8 @@
      $     nl_out, ncsh_out, nosh_out, nccup_out, nbc_out,
      $     cc_out, energy_out, eps_out)
       implicit none
-* $Id: atscf_atscf.F,v 1.6 1998-10-29 00:28:29 d3e129 Exp $
+#include "errquit.fh"
+* $Id: atscf_atscf.F,v 1.7 2003-10-17 22:54:15 carlfahl Exp $
 #include "geom.fh"
 #include "bas.fh"
 #include "cguess.fh"
@@ -45,7 +46,8 @@ c     dynamically allocate memory
 c
       call guess_mem(memq)
       if (.not. ma_push_get(mt_dbl, memq,'atomic guess', l_scr, k_scr))
-     $     call errquit('atomscf:guess_dens: ma_push failed', memq)
+     $     call errquit('atomscf:guess_dens: ma_push failed', memq,
+     &       MA_ERR)
       call dfill(memq,0.0d00,dbl_mb(k_scr),1)
 c
 c     This is verbatim from denat
@@ -73,7 +75,7 @@ c
       icc = itransf + nsq
       last = icc + nsq
       if ((last - i10) .gt. memq) call errquit
-     $     ('atomscf:guess_dens: memory?', memq)
+     $     ('atomscf:guess_dens: memory?', memq, MEM_ERR)
 c..
       call atscf_do_atscf(geom, basis, iat,
      $     dbl_mb(i10), oprint,
@@ -134,7 +136,7 @@ c
 c
       if (.not. ma_pop_stack(l_scr))
      $     call errquit
-     &    ('atomscf:guess_dens: pop_stack failed', 0)
+     &    ('atomscf:guess_dens: pop_stack failed', 0, MEM_ERR)
 c
       end
       subroutine atscf_do_atscf(geom, basis, iat,

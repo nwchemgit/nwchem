@@ -1,5 +1,5 @@
 *
-* $Id: cloak.F,v 1.5 2002-01-12 00:50:16 bylaska Exp $
+* $Id: cloak.F,v 1.6 2003-10-17 22:56:44 carlfahl Exp $
 *
 
 *     *******************************
@@ -9,6 +9,7 @@
 *     *******************************
       subroutine cloak_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cloak_common.fh"
@@ -21,7 +22,7 @@
 
       value = MA_alloc_get(mt_log,nfft3d,
      >                     'masker',masker(2),masker(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       return
       end
@@ -33,6 +34,7 @@
 *     *******************************
       subroutine cloak_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cloak_common.fh"
@@ -40,7 +42,7 @@
       logical value
 
       value = MA_free_heap(masker(2))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       return
       end

@@ -3,9 +3,10 @@
      &                       wght_GA, rdens_atom, cetobfr, natoms,
      &                       g_movecs, noc, totsic, i_degen, n_levels)
 c
-C$Id: xc_sic_pert.F,v 1.12 2002-05-08 22:07:27 edo Exp $
+C$Id: xc_sic_pert.F,v 1.13 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer nExc, iVxc_opt, natoms, rtdb, 
      &        g_wght, g_xyz, g_nq, ik, noc(2), isp,
@@ -72,7 +73,8 @@ c
 c
         if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'temp vec',
      &     l_temp_vec, i_temp_vec))
-     &     call errquit('xc_sic_pert: cannot allocate temp vec',0)
+     &     call errquit('xc_sic_pert: cannot allocate temp vec',0,
+     &       MA_ERR)
 c
 
         tot = -xfac(1)
@@ -141,7 +143,7 @@ cccc Exc_orb(1) is the orbital exchange-correlation energy
   100   continue
 c
         if (.not.ma_pop_stack(l_temp_vec))
-     &     call errquit('xc_sic_pert: cannot pop stack',0)
+     &     call errquit('xc_sic_pert: cannot pop stack',0, MA_ERR)
 c
         totsic = tot_sic_xc + tot_sic_coul
         sic_orb_occ = 0
@@ -151,22 +153,22 @@ c
      &                               tot_sic_xc, totsic
 c
         if (.not. ga_destroy(g_vxc_orb(1))) call errquit
-     &   ('xc_sic_pert: could not destroy g_vxc_orb(1)', 0)
+     &   ('xc_sic_pert: could not destroy g_vxc_orb(1)', 0, GA_ERR)
         if (.not. ga_destroy(g_vxc_orb(2))) call errquit
-     &   ('xc_sic_pert: could not destroy g_vxc_orb(2)', 0)
+     &   ('xc_sic_pert: could not destroy g_vxc_orb(2)', 0, GA_ERR)
         if (.not. ga_destroy(g_orb)) call errquit
-     &   ('xc_sic_pert: could not destroy g_orb', 0)
+     &   ('xc_sic_pert: could not destroy g_orb', 0, GA_ERR)
         if (.not. ga_destroy(g_dens_orb(1))) call errquit
-     &   ('xc_sic_pert: could not destroy g_dens_orb(1)', 0)
+     &   ('xc_sic_pert: could not destroy g_dens_orb(1)', 0, GA_ERR)
         if (.not. ga_destroy(g_dens_orb(2))) call errquit
-     &   ('xc_sic_pert: could not destroy g_dens_orb(2)', 0)
+     &   ('xc_sic_pert: could not destroy g_dens_orb(2)', 0, GA_ERR)
         if (.not. ga_destroy(g_coul_orb)) call errquit
-     &   ('xc_sic_pert: could not destroy g_coul_orb', 0)
+     &   ('xc_sic_pert: could not destroy g_coul_orb', 0, GA_ERR)
 c
       elseif (iVxc_opt.eq.1 )then
 c
         call errquit
-     &   ('xc_sic_pert: SIC + XC fitting not implemented', 0)
+     &   ('xc_sic_pert: SIC + XC fitting not implemented', 0, INPUT_ERR)
 c
       endif
       return

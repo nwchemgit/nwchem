@@ -1,5 +1,5 @@
 c
-c $Id: model_potential.F,v 1.4 2001-11-02 00:49:45 bylaska Exp $
+c $Id: model_potential.F,v 1.5 2003-10-17 22:57:48 carlfahl Exp $
 c
 
 *     **********************************
@@ -13,6 +13,7 @@ c
 *
       subroutine Model_Potential_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "rtdb.fh"
@@ -117,7 +118,8 @@ c
         value = value.and.
      >          MA_alloc_get(mt_dbl,Nbasis,'coeff',coeff(2),coeff(1))
         if (.not. value) 
-     >   call errquit('Model_Potentail_init:out of heap memory',0)
+     >   call errquit('Model_Potentail_init:out of heap memory',0,
+     &       MA_ERR)
 
 
 *       **** Read basis from rtdb ****
@@ -137,7 +139,7 @@ c
      >         MA_push_get(mt_dbl,(2*basis_length),'tmp',tmp(2),tmp(1))
               if (.not. value)
      >         call errquit(
-     >        'Model_Potential_init:failed pushing stack:',0)
+     >        'Model_Potential_init:failed pushing stack:',0, MA_ERR)
 
             rtdb_name = 'pspw_SR_basis:'//element(1:element_length)
             value = rtdb_get(rtdb,rtdb_name,
@@ -152,7 +154,7 @@ c
             value = MA_pop_stack(tmp(2))
             if (.not. value)
      >       call errquit(
-     >      'Model_Potential_init:failed popping stack:',0)
+     >      'Model_Potential_init:failed popping stack:',0, MA_ERR)
           end if
 
           count = count + basis_length
@@ -209,7 +211,7 @@ c
          value = value.and.MA_free_heap(g(2))
          value = value.and.MA_free_heap(coeff(2))
       end if
-      if (.not.value) call errquit('error MA_free_heap',0)
+      if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
 
       return
       end

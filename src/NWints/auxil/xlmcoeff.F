@@ -1,5 +1,5 @@
       subroutine xlmcoeff(lmax, d, normalize)
-* $Id: xlmcoeff.F,v 1.5 1999-02-01 23:13:55 d3g681 Exp $
+* $Id: xlmcoeff.F,v 1.6 2003-10-17 22:53:46 carlfahl Exp $
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as
@@ -16,6 +16,7 @@
       implicit none
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 c
 *:functions
       double precision ddot
@@ -163,21 +164,21 @@ c... allocate space for e
       if (.not.ma_push_get(mt_dbl,(2*lmax+1),
      &      ' tmp e buf xlm ',
      &      h_xlm_e, k_xlm_e)) call errquit
-     &      ('xlmcoeff: error allocating e bug ',911)
+     &      ('xlmcoeff: error allocating e bug ',911, MEM_ERR)
 * does not need to be zeroed      
 c... allocate space for qn
       if (.not.ma_push_get(mt_dbl,((2*lmax+1)*(lmax+1)),
      &      ' tmp qn buf xlm ',
      &      h_xlm_qn, k_xlm_qn)) call errquit
-     &      ('xlmcoeff: error allocating qn bug ',911)
+     &      ('xlmcoeff: error allocating qn bug ',911, MEM_ERR)
 * does not need to be zeroed      
 
       call nwints_xlm_norm(dbl_mb(k_xlm_qn),dbl_mb(k_xlm_e),d,lmax)
 c... free tmp space
       if (.not.MA_pop_stack(h_xlm_qn)) call errquit
-     &      ('xlmcoeff: error poping qn bug ',911)
+     &      ('xlmcoeff: error poping qn bug ',911, MEM_ERR)
       if (.not.MA_pop_stack(h_xlm_e)) call errquit
-     &      ('xlmcoeff: error poping e bug ',911)
+     &      ('xlmcoeff: error poping e bug ',911, MEM_ERR)
 c
 #if defined(DEBUG)
       write(luout,*)' normalized coefficients '

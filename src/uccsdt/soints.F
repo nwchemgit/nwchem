@@ -5,6 +5,7 @@
      $     lshuqlo, lshuqhi, loff, lrange,
      $     tol, g)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "schwarz.fh"
@@ -94,9 +95,9 @@ c
      $     mapk(nw_max_nbf_small), mapl(nw_max_nbf_small)
 c
       if (.not. bas_geom(basis,geom)) call errquit
-     $     ('soints_block: basis?', 0)
+     $     ('soints_block: basis?', 0, BASIS_ERR)
       if (.not. bas_numcont(basis,nsh)) call errquit
-     $     ('soints_block: basis?', 0)
+     $     ('soints_block: basis?', 0, BASIS_ERR)
 c
 c     AO integrals are stored with symmetry unique i, and all symmetry 
 c     related j, k, l in natural order.  map{ijkl} maps from NWChem AO 
@@ -113,7 +114,7 @@ c
       do xishuq = ishuqlo, ishuqhi
          ish = sh_uq(xishuq)
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('soints_block: cn2bfr?', ish)
+     $        call errquit('soints_block: cn2bfr?', ish, BASIS_ERR)
          do i = ilo,ihi
             mapi(i) = idimuq + i - ilo
          end do
@@ -151,17 +152,17 @@ c
       lenscr = lenscr + lenscr/2
 C
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
-     $     call errquit('soints_block: ma q4?',maxq)
+     $     call errquit('soints_block: ma q4?',maxq, MA_ERR)
       if (.not. ma_push_get(mt_int, 4*maxq, 'quartets', l_q, k_q))
-     $     call errquit('soints_block: ma q?', 4*maxq)
+     $     call errquit('soints_block: ma q?', 4*maxq, MA_ERR)
       if (.not. ma_push_get(mt_int, 4*leneri, 'labels', l_lab, k_lab))
-     $     call errquit('soints_block: ma lab?', 4*leneri)
+     $     call errquit('soints_block: ma lab?', 4*leneri, MA_ERR)
       if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri))
-     $     call errquit('soints_block: ma eri?', leneri)
+     $     call errquit('soints_block: ma eri?', leneri, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr))
-     $     call errquit('soints_block: ma scr?', lenscr)
+     $     call errquit('soints_block: ma scr?', lenscr, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lenao, 'ao', l_ao, k_ao))
-     $     call errquit('soints_block: ma ao?',lenao)
+     $     call errquit('soints_block: ma ao?',lenao, MA_ERR)
       k_iq = k_q          
       k_jq = k_q + maxq   
       k_kq = k_q + maxq*2 
@@ -200,7 +201,7 @@ c
      $                                ksh.le.0.or.ksh.gt.nsh.or.
      $                                lsh.le.0.or.lsh.gt.nsh) then
                                     write(6,*) ish,jsh,ksh,lsh
-                                    call errquit('bad sh',0)
+                                    call errquit('bad sh',0, BASIS_ERR)
                                  end if
                                  int_mb(k_iq + nq) = ish
                                  int_mb(k_jq + nq) = jsh
@@ -385,7 +386,8 @@ c
                   if (i2 .lt. 0) then
                      if (abs(gijkl) .gt. 1d-6) then
                         write(6,*) i2,j2,k2,l2,gijkl
-                        call errquit('should be zero?',ijkl)
+                        call errquit('should be zero?',ijkl,
+     &       UNKNOWN_ERR)
                      end if
                   else
                      ijkl = ioff(i2) + joff(j2,symij) + 
@@ -398,7 +400,7 @@ c
       end do
 c
       if (.not. ma_chop_stack(l_q4)) call errquit
-     $     ('soints_aoblock: ma corrupted?',0)
+     $     ('soints_aoblock: ma corrupted?',0, MA_ERR)
 c
       end
       subroutine soints_block_info(basis, nbf,
@@ -408,6 +410,7 @@ c
      $     lshuqlo, lshuqhi, loff, lrange,
      $     lenij, lenkl, symkloff, leng)
       implicit none
+#include "errquit.fh"
       integer basis
       integer nbf
       integer ishuqlo, ishuqhi, irange(2,0:7), ioff(nbf)
@@ -520,7 +523,8 @@ c
                               write(6,*) i,j,k,l,ioff(i),joff(j,symij),
      $                             koff(k,symkl),loff(l,symkl),
      $                             ijkl, count
-                              call errquit(' soints_block_info: bad',0)
+                              call errquit(' soints_block_info: bad',0,
+     &       UNKNOWN_ERR)
                            endif
                         end do
                      end do
@@ -680,6 +684,7 @@ c
      $        q4, tol, ilab, jlab, klab, llab, eri, leneri,
      $        scr, lenscr, mapi, mapj, mapk, mapl, ao, lenao)
       implicit none
+#include "errquit.fh"
       integer basis
       integer nq
       integer iq(*), jq(*), kq(*), lq(*)
@@ -700,7 +705,7 @@ c
      $     basis, iq, jq, basis, kq, lq,
      $     nq, q4, .true., 
      $     lenscr, scr, leneri, block_eff))
-     $     call errquit('intb_init?',nq)
+     $     call errquit('intb_init?',nq, INT_ERR)
 c
  10   more = intb_2e4c(
      $     basis, iq, jq, basis, kq, lq,
@@ -716,7 +721,8 @@ c
      $        mapj(jlab(ieri)) + 
      $        mapk(klab(ieri)) +
      $        mapl(llab(ieri))
-         if (ijkl.lt.1 .or. ijkl.gt.lenao) call errquit('ijkl',ijkl)
+         if (ijkl.lt.1 .or. ijkl.gt.lenao) call errquit('ijkl',ijkl,
+     &       UNKNOWN_ERR)
          ao(ijkl) = eri(ieri)
       end do
 c
@@ -725,6 +731,7 @@ c
       end
       subroutine soints_sovecs(nbf,nmo,c,order)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "cbassym.fh"
       integer nbf, nmo, order
@@ -749,7 +756,8 @@ c
       integer i, j, juq, nopuq, iruq, opuq
       double precision t(nw_max_nbf_small), s(8,8), sum
 c
-      if (order.lt.1 .or. order.gt.2) call errquit('what order?',0)
+      if (order.lt.1 .or. order.gt.2) call errquit('what order?',0,
+     &       INPUT_ERR)
 c
       write(6,*) ' INPUT'
       call output(c,1,nbf,1,nmo,nbf,nmo,1)
@@ -787,6 +795,7 @@ c
       end
       subroutine soints_uqshblock(uqlo, uqhi, maxnbf, blocks, nblocks)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "cbassym.fh"
       integer uqlo, uqhi        ! [input]
@@ -810,7 +819,8 @@ c
       do ishuq = uqlo,uqhi
          shdim = sh_uq_bf(2,ishuq) - sh_uq_bf(1,ishuq) + 1
          if (shdim .gt. maxnbf) call errquit
-     $        ('soints_uqshblock: shell block > maxnbf?', shdim)
+     $        ('soints_uqshblock: shell block > maxnbf?', shdim,
+     &       BASIS_ERR)
          if ((ninblock+shdim .gt. maxnbf) .or. (ishuq.eq.sh_n_uq)) then
             nblocks = nblocks + 1
             blocks(1,nblocks) = ishuqlo

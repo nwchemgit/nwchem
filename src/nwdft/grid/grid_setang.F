@@ -1,8 +1,9 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.7 2002-04-04 17:39:17 edo Exp $
+c$Id: grid_setang.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -22,7 +23,7 @@ c     Set print options.
 c
       oprint = util_print('quadrature', print_high)
       if (.not. rtdb_get(rtdb, 'dft:mxnang', mt_int, 1, mxnang))
-     &   call errquit('grid_setang: rtdb_put failed', 119)
+     &   call errquit('grid_setang: rtdb_put failed', 119, RTDB_ERR)
 c
 c     Define the Lebedev or Gauss-Legendre angular quadrature points and weights.
 c

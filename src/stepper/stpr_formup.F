@@ -1,5 +1,5 @@
       SUBROUTINE stpr_formup(HESS,GRADC,GRADD,COORDC,COORDD,SCR,rtdb)
-c $Id: stpr_formup.F,v 1.1 1996-07-17 18:36:42 d3g681 Exp $
+c $Id: stpr_formup.F,v 1.2 2003-10-17 22:58:22 carlfahl Exp $
 C
 C     HESS = hessian to be updated
 C     GRADC = current gradient
@@ -9,6 +9,7 @@ C     COORDD = difference of coordinates (STEP)
 C     SCR = scratch
 C
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "errquit.fh"
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45
       COMMON / CFACE / IWCTR,NATOM,ICALC
@@ -58,7 +59,8 @@ C
         IERR = 0
         CALL stpr_retrve(HESS,GRADD,COORDD,ENERGY,IERR)
         IF(IERR.NE.0)
-     &         call errquit('stepper:formup fatal error',911)
+     &         call errquit('stepper:formup fatal error',911,
+     &       UNKNOWN_ERR)
       ENDIF
 *debug:      write(6,*)'hess retrieved', nat3tr
 *debug:      do i=1,nat3tr

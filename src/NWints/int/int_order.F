@@ -1,4 +1,4 @@
-* $Id: int_order.F,v 1.2 1996-09-30 19:00:33 d3e129 Exp $
+* $Id: int_order.F,v 1.3 2003-10-17 22:54:02 carlfahl Exp $
       program int_order
       implicit none
 c
@@ -73,6 +73,7 @@ c
 *
 #include "inp.fh"
 #include "int_order.fh"
+#include "errquit.fh"
 *::passed
       integer lval    ! [input] lvalue
       integer indx    ! [input] index value of angular block
@@ -83,7 +84,8 @@ c
       integer l2, strval, i
 c
       if (lval.lt.-1.or.lval.gt.6) call errquit
-     &    ('int_str_ang: invalid l-value of ',lval)
+     &    ('int_str_ang: invalid l-value of ',lval,
+     &       INT_ERR)
       str = ' '
 c
       if (lval.eq.-1) then
@@ -94,7 +96,7 @@ c
         else
           write(6,*)' invalid index for lval of -1'
           write(6,*)' indx ',indx
-          call errquit(' ',911)
+          call errquit(' ',911, INT_ERR)
         endif
         lstr = inp_strlen(str)
         return
@@ -104,14 +106,14 @@ c
         if (.not.(indx.ge.1.and.indx.le.l2)) then
           write(6,*)' lval   = ',lval
           write(6,*)' indx   = ',indx
-          call errquit('int_str_ang: indx invalid',911)
+          call errquit('int_str_ang: indx invalid',911, INT_ERR)
         endif
         strval = 0 - lval - 1  + indx
         if (.not.(strval.ge.(-lval).and.strval.le.lval)) then
           write(6,*)' lval   = ',lval
           write(6,*)' indx   = ',indx
           write(6,*)' strval = ',strval
-          call errquit ('int_str_ang: strval invalid ',911)
+          call errquit ('int_str_ang: strval invalid ',911, INT_ERR)
         endif
         str = shell_types(lval) 
         write(str(3:4),'(i2)')strval
@@ -124,7 +126,7 @@ c
         if (.not.(indx.ge.1.and.indx.le.l2)) then
           write(6,*)' lval   = ',lval
           write(6,*)' indx   = ',indx
-          call errquit('int_str_ang: indx invalid',911)
+          call errquit('int_str_ang: indx invalid',911, INT_ERR)
         endif
         call int_str_xyz(lval,indx,str,lstr)
       endif

@@ -1,5 +1,6 @@
       logical function nw_inp_from_character(rtdb, string)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "inp.fh"
@@ -24,16 +25,17 @@ c
       nw_inp_from_character = nw_inp_from_file(rtdb,filename)
       return
 c
- 100  call errquit('nw_inp_from_char: error opening file',0)
- 101  call errquit('nw_inp_from_char: error writing file',0)
- 102  call errquit('nw_inp_from_char: error closing file',0)
+ 100  call errquit('nw_inp_from_char: error opening file',0, INPUT_ERR)
+ 101  call errquit('nw_inp_from_char: error writing file',0, INPUT_ERR)
+ 102  call errquit('nw_inp_from_char: error closing file',0, INPUT_ERR)
 c
       end
       logical function nw_inp_from_file(rtdb, filename)
 *
-* $Id: nw_inp_from_file.F,v 1.8 2003-08-01 18:34:40 yuri Exp $
+* $Id: nw_inp_from_file.F,v 1.9 2003-10-17 22:58:35 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -67,6 +69,6 @@ c
       nw_inp_from_file = .true.
       return
 c
- 100  call errquit(filename,0)
+ 100  call errquit(filename,0, INPUT_ERR)
 c
       end

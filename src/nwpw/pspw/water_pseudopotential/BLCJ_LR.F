@@ -9,6 +9,7 @@
 *
       subroutine BLCJ_LR_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -47,7 +48,7 @@
      >        rtdb_get(rtdb,'water_pseudopotential:alpha',
      >                 mt_dbl,1,alpha)
         if (.not.value)
-     >    call errquit('init_BLCJ_LR:rtdb error',0)
+     >    call errquit('init_BLCJ_LR:rtdb error',0, RTDB_ERR)
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then

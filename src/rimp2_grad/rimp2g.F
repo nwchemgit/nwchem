@@ -1,6 +1,7 @@
       Logical Function RIMP2G( RTDB )
-C$Id: rimp2g.F,v 1.20 2000-02-04 20:14:05 mg201 Exp $
+C$Id: rimp2g.F,v 1.21 2003-10-17 22:58:12 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB
 C
 #include "stdio.fh"
@@ -162,7 +163,7 @@ C
 C     Get some info about the system & basis sets for later use
 C
       If (.NOT. Geom_NCent( Geom, NCent) ) Call ErrQuit(
-     $     'RIMP2g: geom_ncent failed', Geom)
+     $     'RIMP2g: geom_ncent failed', Geom, GEOM_ERR)
 C
       Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
       Status = Status .AND. Bas_NumBF( FitBas, NFit)
@@ -179,20 +180,22 @@ C
       If ( .NOT. Corr_Mk_Ref(RTDB, My_Ctx, Geom, AOBas, .TRUE., 
      $     RefNAO, TopSpin, NMO, G_AOXF, MinChunk, MinChunk, MaxSpin,
      $     H_Occ, H_EVal, NFrzOcc, NFrzVir, KeepFrz) ) Call ErrQuit(
-     $     'RIMP2G: Failed to get reference', 0) 
+     $     'RIMP2G: Failed to get reference', 0, INPUT_ERR)
 C
       String1 = 'RIMP2G: density & gradients support frozen core only, '
      $     // 'not frozen virtuals.'
       If ( (DoDens .OR. DoGrad) .AND. (NFrzVir .ne. 0) ) Call ErrQuit(
-     $     String1(:Inp_StrLen(String1)), NFrzVir)
+     $     String1(:Inp_StrLen(String1)), NFrzVir, UNKNOWN_ERR)
 C
       If (RefNAO .ne. NAOBF) Call ErrQuit(
-     $     'RIMP2G: Incompatible reference AO basis size', RefNAO-NAOBF)
+     $     'RIMP2G: Incompatible reference AO basis size', RefNAO-NAOBF,
+     &       BASIS_ERR)
       MxNCorBF = NAOBF
       If ( .NOT. MA_Get_Index(H_Occ, I_Occ) ) Call ErrQuit(
-     $     'RIMP2G: Failed to get index for occ vector', H_Occ)
+     $     'RIMP2G: Failed to get index for occ vector', H_Occ, MA_ERR)
       If ( .NOT. MA_Get_Index(H_EVal, I_EVal) ) Call ErrQuit(
-     $     'RIMP2G: Failed to get index for eval vector', H_EVal)
+     $     'RIMP2G: Failed to get index for eval vector', H_EVal,
+     &       MA_ERR)
 C
 C     Count number of frozen/active occupied/virtual.
 C
@@ -240,7 +243,7 @@ C
       EndDo
 C
       If ( .NOT. MA_Free_Heap( H_Occ) ) Call ErrQuit(
-     $   'RIMP2G: Unable to free local array H_Occ', H_Occ)
+     $   'RIMP2G: Unable to free local array H_Occ', H_Occ, MA_ERR)
 C
 C     ***********************
 C     * Print module header *
@@ -323,9 +326,11 @@ C        Quick sanity check
 C
          Do I = 1, TopSpin
             If ( NAct(i) .eq. 0 ) Call ErrQuit(
-     $           'rimp2g: no active orbitals to correlate', i)
+     $           'rimp2g: no active orbitals to correlate', i,
+     &       BASIS_ERR)
             If ( NVir(i) .eq. 0 ) Call ErrQuit(
-     $           'rimp2g: no virtual orbitals to correlate into', i)
+     $           'rimp2g: no virtual orbitals to correlate into', i,
+     &       BASIS_ERR)
          EndDo
 C
 C        File information
@@ -346,23 +351,23 @@ C        additional information
 C
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom))
-     $         call errquit('RIMP2G: geom_print', 0)
+     $         call errquit('RIMP2G: geom_print', 0, GEOM_ERR)
             write(LuOut,*)
          endif
          if (util_print('basis', print_high)) then
             if (.not. bas_print(AOBas)) 
-     $           call errquit('RIMP2G: bas_print', 0)
+     $           call errquit('RIMP2G: bas_print', 0, BASIS_ERR)
             write(LuOut,*)
             if (.not. bas_print(FitBas)) 
-     $           call errquit('RIMP2G: bas_print', 0)
+     $           call errquit('RIMP2G: bas_print', 0, BASIS_ERR)
             write(LuOut,*)
          endif
          if (util_print('geombas', print_debug)) then
             if (.not. gbs_map_print(AOBas)) 
-     $           call errquit('RIMP2G:gmp', 0)
+     $           call errquit('RIMP2G:gmp', 0, UNKNOWN_ERR)
             write(LuOut,*)
             if (.not. gbs_map_print(FitBas)) 
-     $           call errquit('RIMP2G:gmp', 0)
+     $           call errquit('RIMP2G:gmp', 0, UNKNOWN_ERR)
             write(LuOut,*)
          endif
          call util_flush(LuOut)
@@ -389,7 +394,7 @@ C     Initialize DAs. Size limits computed earlier; let system
 C     decide how much memory to give it.
 C
       If (DRA_Init(NrDA, MaxDASiz, TotDASiz, -1) .ne. 0)
-     $   Call ErrQuit('RIMP2G: DRA_Init failed', 0)
+     $   Call ErrQuit('RIMP2G: DRA_Init failed', 0, UNKNOWN_ERR)
 C
 C     Create all necessary DRAs (assumes no per-DRA memory cost)
 C
@@ -416,7 +421,8 @@ C
       If ( .NOT. (DoDens .OR. DoGrad) ) then
          Do I = TopSpin, 1, -1
             If ( .NOT. GA_Destroy( G_AOXF(I)) ) Call ErrQuit(
-     $           'RIMP2G: can''t destroy AO transformation matrix', I)
+     $           'RIMP2G: can''t destroy AO transformation matrix', I,
+     &       GA_ERR)
          EndDo
       EndIf
 C
@@ -493,7 +499,7 @@ C
       Status = Status .AND. MA_Pop_Stack( H_Contrib)
 c$$$      Status = Status .AND.  MA_Free_Heap(H_Eval)
       If ( .NOT. Status) Call ErrQuit(
-     $   'RIMP2G: Unable to destroy local arrays', 0)
+     $   'RIMP2G: Unable to destroy local arrays', 0, MA_ERR)
 C
 C     ***********
 C     * Density *
@@ -530,11 +536,12 @@ C
       If ( DoDens .OR. DoGrad ) then
          Do I = TopSpin, 1, -1
             If ( .NOT. GA_Destroy( G_AOXF(I)) ) Call ErrQuit(
-     $           'RIMP2G: can''t free AO transformation matrix', I)
+     $           'RIMP2G: can''t free AO transformation matrix', I,
+     &       GA_ERR)
             If ( .NOT. GA_Destroy( G_P2(I)) ) Call ErrQuit(
-     $           'RIMP2G: can''t free P(2)', I)
+     $           'RIMP2G: can''t free P(2)', I, GA_ERR)
             If ( .NOT. GA_Destroy( G_W2(I)) ) Call ErrQuit(
-     $           'RIMP2G: can''t free W(2)', I)
+     $           'RIMP2G: can''t free W(2)', I, GA_ERR)
          EndDo
       EndIf
 C
@@ -547,19 +554,20 @@ C     Close, delete, and terminate DRAs
 C
       Call RIMP2_Delete_DRA(MaxSpin, TopSpin, BraKetSame, D_Int, D_Gam)
       If ( DRA_Terminate() .ne. 0) Call ErrQuit(
-     $   'RIMP2G: DRA_Terminate failed', 0)
+     $   'RIMP2G: DRA_Terminate failed', 0, CALC_ERR)
 C
       Status = .TRUE.
       Status = Status .AND.  MA_Free_Heap(H_Eval)
       If ( .NOT. Status) Call ErrQuit(
-     $   'RIMP2G: Unable to destroy local arrays', 0)
+     $   'RIMP2G: Unable to destroy local arrays', 0, MA_ERR)
 C
       Status = .TRUE.
       Status = Status .AND. Geom_Destroy( Geom)
       Status = Status .AND. Bas_Destroy( FitBas)
       Status = Status .AND. Bas_Destroy( AOBas)
       If (.NOT. Status) Call ErrQuit(
-     $   'RIMP2G: Failed to destroy geometry and  basis sets', 0)
+     $   'RIMP2G: Failed to destroy geometry and  basis sets', 0,
+     &       GEOM_ERR)
 C
       Call PStat_Off( PS_Overall)
       Call RIMP2G_PStat_Print

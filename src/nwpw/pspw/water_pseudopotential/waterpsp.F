@@ -19,6 +19,7 @@
 
       subroutine Waterpsp_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -49,7 +50,8 @@
          value = geom_create(geom,'qmmmgeometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'qmmmgeometry')
          value = value.and.geom_ncent(geom,nion)
-         if (.not. value) call errquit('opening qmmgeometry',0)
+         if (.not. value) call errquit('opening qmmgeometry',0,
+     &       GEOM_ERR)
          nwater = nion/3
       else
          nwater = 0
@@ -62,7 +64,8 @@
          if (control_version().ne.4) then
           value = geom_destroy(geom)
           call errquit(
-     >    'Aperiodic boundary conditions must be used with Waterpsp',0)
+     >    'Aperiodic boundary conditions must be used with Waterpsp',0,
+     &       GEOM_ERR)
          end if
 
 *     ***** allocate waterpsp data structure *****
@@ -74,7 +77,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,(3*nion),
      >                     'rwater0',rwater0(2),rwater0(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       do i=1,nion
           value = value.and.
@@ -85,7 +88,8 @@
       call dcopy(3*nion,0.0d0,0,dbl_mb(rwater0(1)),1)
       value = value.and.geom_vel_get(geom,dbl_mb(rwater0(1)))
       value = value.and.geom_destroy(geom)
-      if (.not. value) call errquit('error reading qmmmgeometry', 0)
+      if (.not. value) call errquit('error reading qmmmgeometry', 0,
+     &       GEOM_ERR)
       call dcopy(3*nion,0.0d0,0,dbl_mb(rwater0(1)),1)
 
 *     *** Init BLCJ SR Potential and LJparam  ****
@@ -824,6 +828,7 @@
      >                           n2ft3d,rgrid,rho,dv,
      >                           dt,fion,deltawater)
       implicit none
+#include "errquit.fh"
       integer algorithm
       integer n2ft3d
       real*8 rgrid(3,*)
@@ -846,7 +851,7 @@
       value = MA_push_get(mt_dbl,(9*nwater),
      >                     'fwater',fwater(2),fwater(1))
       if (.not.value)
-     > call errquit('Waterpsp_SD_Update:error push stack',0)
+     > call errquit('Waterpsp_SD_Update:error push stack',0, MA_ERR)
 
 
 *     **** Get Forces ****
@@ -888,7 +893,7 @@
 *     **** deallocate fwater force ***
       value = MA_pop_stack(fwater(2))
       if (.not.value)
-     > call errquit('Waterpsp_SD_Update:error pop stack',0)
+     > call errquit('Waterpsp_SD_Update:error pop stack',0, MA_ERR)
       return
 	  end
 

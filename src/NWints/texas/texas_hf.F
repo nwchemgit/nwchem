@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.36 2002-10-23 18:11:32 pg481 Exp $
+* $Id: texas_hf.F,v 1.37 2003-10-17 22:54:11 carlfahl Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -65,6 +65,7 @@ c Integrals return in ERI(leri) without labels or with labels
 c in icf(leri),..,lcf(leri) .
 c--------------------------------------------------------
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       logical use_r,labels, more_int
 c PNL scratch for calculations replacing our bl() and its size :
@@ -123,7 +124,8 @@ c
          if(num_bas_3.gt.0) write(6,*) num_bas_3
          write(6,*)' ij_basis   handle :',ij_basis
          call errquit
-     &   ('texas_hf2_m: called with different basis set handle',911)
+     &   ('texas_hf2_m: called with different basis set handle',911,
+     &       BASIS_ERR)
  1001    continue
 c     ----------------------------------------------
          if(kl_basis.eq.num_bas_1) go to 1002
@@ -136,7 +138,8 @@ c
          if(num_bas_3.gt.0) write(6,*) num_bas_3
          write(6,*)' kl_basis   handle :',kl_basis
          call errquit
-     &   ('texas_hf2_m: called with different basis set handle',911)
+     &   ('texas_hf2_m: called with different basis set handle',911,
+     &       BASIS_ERR)
  1002    continue
 c        --------------------------------------------------------------
 c        remember the first shells in this request(if ZERO or not)
@@ -975,6 +978,7 @@ c this routine is called for every new PNL request i.e when
 c more_int=.false.
 c--------------------------------------------------------------------
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
 cccc  common /intlim/ limxmem,limblks,limpair
 c
       common /pnl_nqrt/ ncall_pnl,ncall_41,nqrts_pnl,npart_pnl,nsize_pnl
@@ -1048,7 +1052,7 @@ c
      *            inx(3,ics1),inx(3,jcs1),inx(3,kcs1),inx(3,lcs1),
      *            ', shell g.con=',inx(4,ics1)+1,inx(4,jcs1)+1,
      *                            inx(4,kcs1)+1,inx(4,lcs1)+1
-                  call errquit('texas: supblks_split',1016)
+                  call errquit('texas: supblks_split',1016, INT_ERR)
                endif
 c
                maxsize(isupb)=min(leri_size,maxm_size)
@@ -1514,7 +1518,8 @@ c
    66    format('                   Texas integral program '/
      &       ' has been initialized only for :',a27,/,
      &       ' and can not be executed for   :',a27)
-         call errquit('texas program stopped in requested_task',0)
+         call errquit('texas program stopped in requested_task',0,
+     &       INT_ERR)
       else
          iforwhat=irequest
       endif

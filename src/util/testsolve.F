@@ -1,6 +1,7 @@
       program test
-C$Id: testsolve.F,v 1.12 1999-06-16 00:10:28 d3e129 Exp $
+C$Id: testsolve.F,v 1.13 2003-10-17 22:58:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
@@ -24,7 +25,7 @@ c
       heap = dim*(heap + 2)
       heap = heap * 1.1 + 128*128*3
       if (.not. ma_init(MT_DBL, heap, heap)) call errquit
-     $     ('test: ma_init?', 0)
+     $     ('test: ma_init?', 0, MA_ERR)
       status = ma_set_auto_verify(.true.)
       call ga_initialize()
       write(6,*) ga_nodeid(), ' initialized'
@@ -150,7 +151,7 @@ c
       status = ga_destroy(g_soln)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, 3, 'test:soln', 0, 0, g_soln))
-     $     call errquit('gac failed', 0)
+     $     call errquit('gac failed', 0, GA_ERR)
 c      
       call ga_zero(g_soln)
       do iter = 1, 3
@@ -223,6 +224,7 @@ c
       end
       subroutine testpcg
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -246,19 +248,19 @@ c
 c
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, n, 'testpcg: matrix', 0, 0,
-     $     g_a)) call errquit('testpcg: a', n)
+     $     g_a)) call errquit('testpcg: a', n, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, 1, 'testpcg: grad', 0, 0,
-     $     g_grad)) call errquit('testpcg: grad', n)
+     $     g_grad)) call errquit('testpcg: grad', n, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, 1, 'testpcg: work', 0, 0,
-     $     g_work)) call errquit('testpcg: work', n)
+     $     g_work)) call errquit('testpcg: work', n, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, 1, 'testpcg: step', 0, 0,
-     $     g_s)) call errquit('testpcg: step', n)
+     $     g_s)) call errquit('testpcg: step', n, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, 1, 'testpcg: x', 0, 0,
-     $     g_x)) call errquit('testpcg: step', n)
+     $     g_x)) call errquit('testpcg: step', n, GA_ERR)
 c
 c     Initial guess for solution x
 c
@@ -310,7 +312,7 @@ c
          if (x.gt.0.00001) goto 10
       else
          write(6,*) mode
-         call errquit('unknown mode', 0)
+         call errquit('unknown mode', 0, GA_ERR)
       endif
 c
       status = ga_destroy(g_a)

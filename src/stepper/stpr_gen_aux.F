@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.12 1997-10-29 09:40:19 d3e129 Exp $
+* $Id: stpr_gen_aux.F,v 1.13 2003-10-17 22:58:22 carlfahl Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -45,6 +45,7 @@ c
      &    hess,gradm,gradp,s_delta,delta,nat,
      &    iatom_t,ixyz_t)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "geom.fh"
 #include "sym.fh"
@@ -63,9 +64,9 @@ c::local
       double precision q2
 c
       if (.not.geom_create(geom,'reference')) call errquit
-     $    ('stpr_fd_upd_hess:geom_create failed?',1)
+     $    ('stpr_fd_upd_hess:geom_create failed?',1, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'reference')) call errquit
-     $        ('stpr_fd_upd_hess:geom_rtdb_load failed?',2)
+     $        ('stpr_fd_upd_hess:geom_rtdb_load failed?',2, RTDB_ERR)
 c 
 c finite difference  [g(x+delta) - g(x-delta)]/(s_delta*delta) (s_delta = 2.0)
 c central difference [g(x+delta) - g(x)]/(s_delta*delta) (s_delta = 1.0)
@@ -87,7 +88,7 @@ c
 c
       if (.not.geom_destroy(geom))
      $    call errquit
-     $    ('stpr_fd_upd_hess: geom_destroy failed?',33)
+     $    ('stpr_fd_upd_hess: geom_destroy failed?',33, GEOM_ERR)
       end
       subroutine stpr_wrt_fd_dipole(ddipole,nat,filename)
       implicit none
@@ -166,6 +167,7 @@ c
       logical function stpr_check_genat_restart(
      &    rtdb, iatom_start,ixyz_start)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -210,7 +212,8 @@ c assume not a restart
         endif
       else
         call errquit
-     &      ('stpr_check_genat_restart: error with rtdb state',911)
+     &      ('stpr_check_genat_restart: error with rtdb state',911,
+     &       RTDB_ERR)
       endif
 c
       call ga_brdcst(Msg_gen_at_iatom  +MSGINT,iatom_start,mitob(1),0)
@@ -224,12 +227,13 @@ c
       else
         write(luout,*)' invalid int_restart value ', ga_nodeid()
         call errquit(' stpr_check_genat_restart: fatal error ',
-     &      int_restart)
+     &      int_restart, INPUT_ERR)
       endif
       end
       subroutine stpr_get_genat_restart(rank_in,hess,grad0,get_grad0,
      &    dipole_okay,ddipole)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -247,7 +251,7 @@ c
 c
       if (ga_nodeid().ne.0) then
         write(luout,*)' non-master node called me ',ga_nodeid()
-        call errquit('stpr_get_genat_restart: error ',911)
+        call errquit('stpr_get_genat_restart: error ',911, INPUT_ERR)
       endif
 c
       inquire(file=FILEATR,exist=does_it_exist)
@@ -267,15 +271,15 @@ c
           write(luout,*)' rank    :',rank
           write(luout,*)' rank_in :',rank_in
           close(unit=69,status='keep')
-          call errquit('stpr_get_genat_restart: error ',911)
+          call errquit('stpr_get_genat_restart: error ',911, INPUT_ERR)
         endif
         if (get_grad0.and.iflag_grad0.ne.1) then
           write(luout,*)' grad 0 not written but requested '
-          call errquit(' stpr_get_genat_restart: error',911)
+          call errquit(' stpr_get_genat_restart: error',911, INPUT_ERR)
         endif
         if ((.not.get_grad0).and.iflag_grad0.eq.1) then
           write(luout,*)' grad 0 written but not requested '
-          call errquit(' stpr_get_genat_restart: error',911)
+          call errquit(' stpr_get_genat_restart: error',911, INPUT_ERR)
         endif
         if (get_grad0) read(69) grad0
         read(69) hess
@@ -299,6 +303,7 @@ c
      &    iatom_in,ixyz_in,nat,put_grad0,
      &    dipole_okay,ddipole)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
@@ -317,7 +322,7 @@ c
 c
       if (ga_nodeid().ne.0) then
         write(luout,*)' non-master node called me ',ga_nodeid()
-        call errquit('stpr_put_genat_restart: error ',911)
+        call errquit('stpr_put_genat_restart: error ',911, INPUT_ERR)
       endif
 c
       if(iatom_in.eq.nat.and.ixyz_in.eq.3) then
@@ -454,6 +459,7 @@ c
       end
       subroutine stpr_print_ddipole(ddipole,msg,nat,thresh)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "inp.fh"
       integer nat
@@ -506,7 +512,8 @@ c
               endif
             else
               write(luout,10000)moment
-              call errquit('stpr_print_ddipole: fatal error',911)
+              call errquit('stpr_print_ddipole: fatal error',911,
+     &       UNKNOWN_ERR)
             endif
           enddo
         enddo

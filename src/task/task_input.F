@@ -1,8 +1,9 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.31 2002-11-20 21:18:07 bylaska Exp $
+* $Id: task_input.F,v 1.32 2003-10-17 22:58:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "inp.fh"
@@ -70,7 +71,8 @@ c
             call task_shell_input(rtdb)
          else if (inp_compare(.false.,test,'debug')) then
             if (.not. rtdb_put(rtdb, 'task:debug', MT_LOG, 1, .true.))
-     $           call errquit('task_input: failed putting debug flag',0)
+     $           call errquit('task_input: failed putting debug flag',0,
+     &       RTDB_ERR)
          else if (inp_compare(.false.,test,'ignore')) then
             ignore = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
@@ -131,30 +133,37 @@ c
       endif
       if (numerical) then
          if (.not. rtdb_put(rtdb, 'task:numerical', mt_log, 1, 
-     $        numerical)) call errquit('task_input: rtdb is corrupt',0)
+     $        numerical)) call errquit('task_input: rtdb is corrupt',0,
+     &       RTDB_ERR)
       endif
       if (analytic) then
          if (.not. rtdb_put(rtdb, 'task:analytic', mt_log, 1, 
-     $        analytic)) call errquit('task_input: rtdb is corrupt',0)
+     $        analytic)) call errquit('task_input: rtdb is corrupt',0,
+     &       RTDB_ERR)
       endif
       if (oqmmm) then
         if (.not.rtdb_put(rtdb, 'task:QMMM', mt_log, 1, .true.))
-     &       call errquit('task_input:task:QMMM rtdb is corrupt',911)
+     &       call errquit('task_input:task:QMMM rtdb is corrupt',911,
+     &       RTDB_ERR)
         if (theory.eq.'md') call errquit
-     &      ('task_input:theory must be a QM method for QMMM',911)
+     &      ('task_input:theory must be a QM method for QMMM',911,
+     &       RTDB_ERR)
       endif
       if (ignore) then
          if (.not. rtdb_put(rtdb, 'task:ignore', mt_log, 1, 
-     $        ignore)) call errquit('task_input: rtdb is corrupt',0)
+     $        ignore)) call errquit('task_input: rtdb is corrupt',0,
+     &       RTDB_ERR)
       endif
 c
       if (theory .ne. ' ') then
          if (.not. rtdb_cput(rtdb, 'task:theory', 1, theory))
-     $        call errquit('task_input: rtdb is corrupt', 0)
+     $        call errquit('task_input: rtdb is corrupt', 0,
+     &       RTDB_ERR)
       endif
       if (operation .ne. ' ') then
          if (.not. rtdb_cput(rtdb, 'task:operation',1,operation))
-     $        call errquit('task_input: rtdb is corrupt', 0)
+     $        call errquit('task_input: rtdb is corrupt', 0,
+     &       RTDB_ERR)
       endif
 c
       return
@@ -162,7 +171,7 @@ c
  1000 err_string =             'usage: task <string theory>'
       err_string = err_string//' [<string operation = energy>] '
       err_string = err_string//'[numerical || analytic] [ignore]'
-      call errquit(err_string,911)
+      call errquit(err_string,911, INPUT_ERR)
 c
 c     THIS IS NEVER EXECUTED.  IT IS HERE BEACUSE -ltask IS AT
 c     THE FRONT OF THE LINK PATH AND THE STATE ROUTINES ARE NOT
@@ -175,6 +184,7 @@ c
       end
       subroutine task_shell_input(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -190,7 +200,7 @@ c
       integer range(3)
 c
       if (inp_n_field().lt.3 .or. inp_n_field().gt.4)
-     $     call errquit('task shell: invalid syntax',0)
+     $     call errquit('task shell: invalid syntax',0, INPUT_ERR)
 c
       if (inp_n_field() .eq. 4) then
          if (.not. inp_irange(range(1),range(2),range(3))) then
@@ -205,22 +215,25 @@ c
          else
             goto 10
          endif
-         call errquit('task shell: bad format for processor range',0)
+         call errquit('task shell: bad format for processor range',0,
+     &       INPUT_ERR)
 c
  10      call inp_clear_err()
          if (range(1).lt.0 .or. range(1).ge.ga_nnodes() .or.
      $        range(2).lt.0 .or. range(2).ge.ga_nnodes() .or.
      $        range(3).lt.1)
-     $        call errquit('task shell: invalid process range',0)
+     $        call errquit('task shell: invalid process range',0,
+     &       INPUT_ERR)
          if (.not. rtdb_put(rtdb, 'task:shell range', mt_int, 3, range))
-     $        call errquit('task shell: rtdb corrupt',0)
+     $        call errquit('task shell: rtdb corrupt',0, RTDB_ERR)
       endif
 c
       if (.not. inp_a(command))
-     $     call errquit('task shell: failed reading command',0)
+     $     call errquit('task shell: failed reading command',0,
+     &       INPUT_ERR)
 c     
       if (.not. rtdb_cput(rtdb,'task:shell command',1,command))
-     $     call errquit('task shell: rtdb corrupt',0)
+     $     call errquit('task shell: rtdb corrupt',0, RTDB_ERR)
 c
       end
 

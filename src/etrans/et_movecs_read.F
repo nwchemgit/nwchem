@@ -1,6 +1,7 @@
       logical function et_movecs_read(filename, iset, occ
      &     , evals, g_vecs, energy)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -49,7 +50,7 @@ c
 c
          if (.not. ma_push_get(mt_dbl,nbf,'et_movecs_read'
      &       ,l_vecs,k_vecs))
-     $        call errquit('et_movecs_read: ma failed', nbf)
+     $        call errquit('et_movecs_read: ma failed', nbf, MA_ERR)
 c
 c     Skip over unwanted sets
 c
@@ -95,7 +96,7 @@ c
  10   continue
       if (l_vecs .ne. -1) then
 	 if (.not. ma_pop_stack(l_vecs)) call errquit
-     $      ('et_movecs_read: pop failed', l_vecs)
+     $      ('et_movecs_read: pop failed', l_vecs, MA_ERR)
       endif
       call ga_sync()
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status

@@ -1,7 +1,7 @@
       subroutine tddft_transfm(ivector,g_vector,g_movecs,
      1  nbf_ao,nocc,nmo,nfc,nfv,ipol,g_density,itype)
 c
-c $Id: tddft_transfm.F,v 1.3 2002-04-10 19:17:19 sohirata Exp $
+c $Id: tddft_transfm.F,v 1.4 2003-10-17 22:58:29 carlfahl Exp $
 c
 c itype=1
 c
@@ -19,6 +19,7 @@ c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -60,13 +61,13 @@ c space zeroed.
 c
       if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work array',
      1  l_w1,k_w1)) call errquit
-     2  ('tddft_transfm: failed to allocate w1',0)
+     2  ('tddft_transfm: failed to allocate w1',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work array',
      1  l_w2,k_w2)) call errquit
-     2  ('tddft_transfm: failed to allocate w2',0)
+     2  ('tddft_transfm: failed to allocate w2',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work MO vectors',
      1  l_w3,k_w3)) call errquit
-     2  ('tddft_transfm: failed to allocate w2',0)
+     2  ('tddft_transfm: failed to allocate w2',0, MA_ERR)
 c
 c ------
 c Type 1
@@ -171,7 +172,7 @@ c Unknown type
 c ------------
 c
       else
-        call errquit('tddft_transfm: illegal itype value',0)
+        call errquit('tddft_transfm: illegal itype value',0, INPUT_ERR)
       endif
 c
 c ------
@@ -179,10 +180,10 @@ c Return
 c ------
 c
       if (.not.ma_pop_stack(l_w3)) call errquit
-     1  ('tddft_transfm: failed to deallocate w3',0)
+     1  ('tddft_transfm: failed to deallocate w3',0, MA_ERR)
       if (.not.ma_pop_stack(l_w2)) call errquit
-     1  ('tddft_transfm: failed to deallocate w2',0)
+     1  ('tddft_transfm: failed to deallocate w2',0, MA_ERR)
       if (.not.ma_pop_stack(l_w1)) call errquit
-     1  ('tddft_transfm: failed to deallocate w1',0)
+     1  ('tddft_transfm: failed to deallocate w1',0, MA_ERR)
       return
       end

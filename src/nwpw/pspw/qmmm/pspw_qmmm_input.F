@@ -1,5 +1,6 @@
       subroutine pspw_qmmm_input(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "inp.fh"
@@ -31,19 +32,19 @@ c
 
  10   if (.not. inp_read()) 
      >  call errquit(
-     >  'pspw_qmmm_input: inp_read failed', 0)
+     >  'pspw_qmmm_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >  call errquit(
-     >  'pspw_qmmm_input: failed to read keyword', 0)
+     >  'pspw_qmmm_input: failed to read keyword', 0, INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >  call errquit(
-     >  'pspw_qmmm_input: unknown directive', 0)
+     >  'pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100, 200, 300, 400, 500,
      >      9999) ind
       call errquit(
-     >      'pspw_qmmm_input: unimplemented directive', ind)
+     >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
 
 c
 c  LJ Ion parameters - used by model potential and model charge
@@ -54,14 +55,14 @@ c
       value = value.and.inp_f(se(2))
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading lj_ion_parameters:',0)
+     > 'pspw_qmmm_input:failed reading lj_ion_parameters:',0, INPUT_ERR)
 
       element_length = index(element,' ') - 1
       rtdb_name = 'pspw_LJ_param_ion:'//element(1:element_length)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading LJ ion parameters:',0)
+     > 'pspw_qmmm_input:failed reading LJ ion parameters:',0, INPUT_ERR)
       
       goto 10
 
@@ -74,14 +75,14 @@ c
       value = value.and.inp_f(se(2))
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading lj_mm_parameters:',0)
+     > 'pspw_qmmm_input:failed reading lj_mm_parameters:',0, INPUT_ERR)
 
       element_length = index(element,' ') - 1
       rtdb_name = 'pspw_LJ_param_mm:'//element(1:element_length)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading LJ MM parameters:',0)
+     > 'pspw_qmmm_input:failed reading LJ MM parameters:',0, RTDB_ERR)
       
       goto 10
 
@@ -93,14 +94,16 @@ c
       value = value.and.inp_f(alpha)
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading polarization_parameter:',0)
+     > 'pspw_qmmm_input:failed reading polarization_parameter:',0,
+     &       INPUT_ERR)
 
       element_length = index(element,' ') - 1
       rtdb_name = 'pspw_polarization_mm:'//element(1:element_length)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,1,alpha)
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading polarization_parameter:',0)
+     > 'pspw_qmmm_input:failed reading polarization_parameter:',0,
+     &       RTDB_ERR)
       
       goto 10
 
@@ -139,7 +142,7 @@ c
       value = value.and.MA_pop_stack(tmp(2))
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading SR_Basis:',0)
+     > 'pspw_qmmm_input:failed reading SR_Basis:',0, MA_ERR)
       
       goto 10
 
@@ -151,14 +154,14 @@ c
       value = value.and.inp_f(alpha)
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading lr_cutoff:',0)
+     > 'pspw_qmmm_input:failed reading lr_cutoff:',0, INPUT_ERR)
 
       element_length = index(element,' ') - 1
       rtdb_name = 'pspw_lr_cutoff:'//element(1:element_length)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,1,alpha)
       if (.not. value)
      >  call errquit(
-     > 'pspw_qmmm_input:failed reading lr_cutoff:',0)
+     > 'pspw_qmmm_input:failed reading lr_cutoff:',0, RTDB_ERR)
       
       goto 10
 

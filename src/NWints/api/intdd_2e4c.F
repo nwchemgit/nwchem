@@ -1,6 +1,6 @@
       subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.7 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intdd_2e4c.F,v 1.8 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 c
 * basic api routine to generate 4 center two electron 
@@ -59,6 +59,7 @@ c       azdy=32    |                  |                     |
 c       azdz=33    |                  |                     |
 c------------------------------------------------------------
 #include "stdio.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -123,7 +124,7 @@ c
       if (nint*78.gt.leri) then
         write(luout,*) 'nint*78 = ',nint*78
         write(luout,*) 'leri     = ',leri
-        call errquit('intdd_2e4c: nint>leri error',911)
+        call errquit('intdd_2e4c: nint>leri error',911, INT_ERR)
       endif
 c
       bra = brain + BASIS_HANDLE_OFFSET
@@ -135,7 +136,7 @@ c
         write(luout,*)
      &      'intdd_2e4c.F: two different geometries for',
      &         ' derivatives?'
-        call errquit('intdd_2e4c: geom error ',911)
+        call errquit('intdd_2e4c: geom error ',911, GEOM_ERR)
       endif
       
 c
@@ -197,7 +198,7 @@ c
         write(luout,*)'           integral second derivatives'
         write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
         write(luout,*)'        the input deck and output available'
-        call errquit('intdd_2e4c: fatal error',911)     
+        call errquit('intdd_2e4c: fatal error',911, INT_ERR) 
       endif
 c
       end

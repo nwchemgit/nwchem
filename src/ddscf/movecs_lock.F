@@ -1,8 +1,9 @@
       subroutine movecs_lock(geom, basis, g_old, g_new, evals, occ)
 *
-* $Id: movecs_lock.F,v 1.7 2003-03-29 01:51:27 edo Exp $
+* $Id: movecs_lock.F,v 1.8 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -39,19 +40,19 @@ c
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'movecs_lock:tmp',
      $     nbf, 0, g_tmp)) call errquit
-     $     ('movecs_lock: ga_create of tmp failed',nbf*nmo)
+     $     ('movecs_lock: ga_create of tmp failed',nbf*nmo, GA_ERR)
 *ga:1:0
       if (.not. ga_create(mt_dbl, nmo, nmo, 'movecs_lock:sno',
      $     nmo, 0, g_sno)) call errquit
-     $     ('movecs_lock: ga_create of Sno failed',nmo*nmo)
+     $     ('movecs_lock: ga_create of Sno failed',nmo*nmo, GA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo, 'movecs_lock:e',l_e, k_e))
-     $     call errquit('movecs_lock: insufficient memory',nmo)
+     $     call errquit('movecs_lock: insufficient memory',nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo, 'movecs_lock:o',l_o, k_o))
-     $     call errquit('movecs_lock: insufficient memory',nmo)
+     $     call errquit('movecs_lock: insufficient memory',nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:v',l_v, k_v))
-     $     call errquit('movecs_lock: insufficient memory',nbf)
+     $     call errquit('movecs_lock: insufficient memory',nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:t',l_t, k_t))
-     $     call errquit('movecs_lock: insufficient memory',nbf)
+     $     call errquit('movecs_lock: insufficient memory',nbf, MA_ERR)
 c
       call two_index_transf(g_s, g_new, g_old, g_tmp, g_sno)
 c
@@ -92,7 +93,8 @@ c     Verify that all vectors have been used
 c
       do i = 1, nmo
          if (dbl_mb(k_e+i-1) .ne. 1.0d99) call errquit
-     $        ('movecs_lock: maximum overlap test neglected vectors',i)
+     $        ('movecs_lock: maximum overlap test neglected vectors',i,
+     &       UNKNOWN_ERR)
       enddo
             if (util_print('movecs_lock', print_default)) then
                call util_flush(6)
@@ -101,10 +103,14 @@ c
 c
 c     Clean up
 c
-      if (.not. ma_chop_stack(l_e)) call errquit('movecs_lock: ma?',0)
-      if (.not. ga_destroy(g_sno)) call errquit('movecs_lock: ga?',0)
-      if (.not. ga_destroy(g_tmp)) call errquit('movecs_lock: ga?',0)
-      if (.not. ga_destroy(g_s))   call errquit('movecs_lock: ga?',0)
+      if (.not. ma_chop_stack(l_e)) call errquit('movecs_lock: ma?',0,
+     &       MA_ERR)
+      if (.not. ga_destroy(g_sno)) call errquit('movecs_lock: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_tmp)) call errquit('movecs_lock: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_s))   call errquit('movecs_lock: ga?',0,
+     &       GA_ERR)
 c
       call ga_sync
 c

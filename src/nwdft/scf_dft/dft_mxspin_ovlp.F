@@ -1,7 +1,8 @@
       Subroutine dft_mxspin_ovlp(basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.20 2003-01-28 17:18:24 edo Exp $
+C$Id: dft_mxspin_ovlp.F,v 1.21 2003-10-17 22:55:44 carlfahl Exp $
       Implicit none
+#include "errquit.fh"
       integer basis
       integer g_s              ! overlap
       integer g_alpha          ! alpha eigenvecs [input]
@@ -37,17 +38,20 @@ c
       nproc=ga_nnodes()
 c     
       if ( .not. bas_numbf(basis,nbf) ) 
-     &     call errquit(' exiting in max_ovl',1)
+     &     call errquit(' exiting in max_ovl',1, BASIS_ERR)
 c
 c      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
       g_s = ga_create_atom_blocked(geom, basis, 'AO ovl')
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf,'real_tmp1',l_tmpr1, k_tmpr1))
-     &     call errquit('dft_mxspin_ovlp: cannot allocate real_tmp1',0)
+     &     call errquit('dft_mxspin_ovlp: cannot allocate real_tmp1',0,
+     &       MA_ERR)
       if(.not.MA_Push_Get(MT_Dbl,nbf,'real_tmp2',l_tmpr2, k_tmpr2))
-     &     call errquit('dft_mxspin_ovlp: cannot allocate real_tmp2',0)
+     &     call errquit('dft_mxspin_ovlp: cannot allocate real_tmp2',0,
+     &       MA_ERR)
       if(.not.MA_Push_Get(MT_Int,nbf,'int_tmp1',l_tmpi1, k_tmpi1))
-     &     call errquit('dft_mxspin_ovlp: cannot allocate int_tmp1',0)
+     &     call errquit('dft_mxspin_ovlp: cannot allocate int_tmp1',0,
+     &       MA_ERR)
 c
       call ga_sync()
       call ga_zero(g_s)
@@ -111,7 +115,8 @@ c orbital, then the remaining alpha orbitals are the un-partnered
 c ones:
 c
       if(.not.MA_Push_Get(MT_int,noc(2),'partners',l_part, k_part))
-     &    call errquit('dft_mxspin_ovlp: cannot allocate values',0)
+     &    call errquit('dft_mxspin_ovlp: cannot allocate values',0,
+     &       MA_ERR)
 c
 c find alpha partners for the beta orbitals:
 c
@@ -150,7 +155,8 @@ c determine which alpha orbitals are left over:
 c
       call ga_sync()
       if(.not.MA_Push_Get(MT_int,noc(1),'non',l_non, k_non))
-     &    call errquit('dft_mxspin_ovlp: cannot allocate values',0)
+     &    call errquit('dft_mxspin_ovlp: cannot allocate values',0,
+     &       MA_ERR)
 c
       nct=1
       do 160 i = 1,noc(1)
@@ -209,7 +215,7 @@ c calculate Sab*SabT
 c 
       call ga_sync()
       if(.not.ga_create(mt_dbl,noc(1),noc(1),'SS',0,0,g_ss))
-     $        call errquit('ga_create failed', g_ss)
+     $        call errquit('ga_create failed', g_ss, GA_ERR)
 c
       call ga_dgemm('N','T',noc(1),noc(1),noc(2),1.d0,g_s,g_s,0.d0,g_ss)
 c
@@ -217,13 +223,14 @@ c      call ga_print(g_ss)
 c create arrays needed for SVD
 c
       if(.not.ga_create(mt_dbl,noc(1),noc(1),'u',0,0,g_u))
-     $        call errquit('ga_create failed', g_u)
+     $        call errquit('ga_create failed', g_u, GA_ERR)
 c
       if(.not.ga_create(mt_dbl,noc(1),noc(1),'vt',0,0,g_vt))
-     $        call errquit('ga_create failed', g_vt)
+     $        call errquit('ga_create failed', g_vt, GA_ERR)
 c
       if(.not.MA_Push_Get(MT_dbl,noc(1),'values',l_vals, k_vals))
-     &     call errquit('dft_mxspin_ovlp: cannot allocate values',0)
+     &     call errquit('dft_mxspin_ovlp: cannot allocate values',0,
+     &       MA_ERR)
       call ga_sync()
 c
 c perform SVD on Sab*SabT to determine unpaired alpha MO's
@@ -234,9 +241,9 @@ c      call ga_print(g_u)
 c      call ga_print(g_vt)
 c
       if (.not. ga_destroy(g_vt)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_vt', 0)
+     &   ('dft_mxspin_ovlp: could not destroy g_vt', 0, GA_ERR)
       if (.not. ga_destroy(g_ss)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_ss', 0)
+     &   ('dft_mxspin_ovlp: could not destroy g_ss', 0, GA_ERR)
 c
       call ga_sync()
 c      write(luout,*)'SVD eigenvalues'
@@ -246,7 +253,7 @@ c
 c calculate transformed alpha vectors, alphaT
 c
       if(.not.ga_create(mt_dbl,noc(1),noc(1),'t',0,0,g_t))
-     $        call errquit('ga_create failed', g_t)
+     $        call errquit('ga_create failed', g_t, GA_ERR)
 c
       call ga_zero(g_t)
 c
@@ -259,19 +266,19 @@ c
 c      call ga_print(g_t)
 c
       if(.not.ga_create(mt_dbl,nbf,noc(1),'alphaT',0,0,g_alphaT))
-     $        call errquit('ga_create failed', g_alphaT)
+     $        call errquit('ga_create failed', g_alphaT, GA_ERR)
 c
       call ga_dgemm('N','N',nbf,noc(1),noc(1),1.d0
      &     ,g_alpha,g_u,0.d0,g_alphaT)
 c
 c      call ga_print(g_alpha)
       if (.not. ga_destroy(g_u)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_u', 0)
+     &   ('dft_mxspin_ovlp: could not destroy g_u', 0, GA_ERR)
 c
 c      call ga_print(g_alphaT)
 c
       if (.not. ga_destroy(g_t)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_t', 0)
+     &   ('dft_mxspin_ovlp: could not destroy g_t', 0, GA_ERR)
 c
 c     create array containing only alpha MO's which don't
 c     have beta partners
@@ -281,7 +288,8 @@ c
       alp_thresh = 1.0d-10
 c
       if(.not.MA_Push_Get(MT_int,noc(1),'unpaired',l_unp, k_unp))
-     &     call errquit('dft_mxspin_ovlp: cannot allocate values',0)
+     &     call errquit('dft_mxspin_ovlp: cannot allocate values',0,
+     &       MA_ERR)
 c
       do i = 1,noc(1)
         eval = dbl_mb(k_vals+i-1) 
@@ -299,7 +307,7 @@ c      write(luout,*) (int_mb(k_unp+i-1),i=1,noc(1))
 c
       call ga_sync()
       if(.not.ga_create(mt_dbl,nbf,nalp,'unp alphaT',0,0,g_ualpha))
-     $        call errquit('ga_create failed', g_ualpha)
+     $        call errquit('ga_create failed', g_ualpha, GA_ERR)
 c
       nalp=0
       do i = 1,noc(1)
@@ -370,32 +378,32 @@ c
 c
 c
       if (.not. ga_destroy(g_ualpha)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_ualpha', 0)
+     &   ('dft_mxspin_ovlp: could not destroy g_ualpha', 0, GA_ERR)
 c
       if (.not. ga_destroy(g_alphaT)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_alphaT', 0)
+     &   ('dft_mxspin_ovlp: could not destroy g_alphaT', 0, GA_ERR)
 c
       if(.not.MA_Pop_Stack(l_unp))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0, MA_ERR)
 c
       if(.not.MA_Pop_Stack(l_vals))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0, MA_ERR)
 c
       endif !if na>nb
 c
       if(.not.MA_Pop_Stack(l_non))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0, MA_ERR)
 c
       if(.not.MA_Pop_Stack(l_part))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0, MA_ERR)
 c
 c---------------------------------------------------------------
 2001  continue
       if (.not. ga_destroy(g_s)) call errquit
-     &   ('dft_mxspin_ovlp: could not destroy g_s', 0)
+     &   ('dft_mxspin_ovlp: could not destroy g_s', 0, GA_ERR)
 c
       if(.not.MA_chop_Stack(l_tmpr1))
-     & call errquit('dft_mxspin_ovlp: cannot pop stack',0)
+     & call errquit('dft_mxspin_ovlp: cannot pop stack',0, MA_ERR)
 c
       return
       end

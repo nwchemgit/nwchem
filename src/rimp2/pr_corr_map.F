@@ -4,12 +4,13 @@ C     print_correl_map -- Print mapping from correlated orbitals to
 C     the full SCF reference, along with occupations and eigenvalues.
 C
 C REVISION
-C     $Id: pr_corr_map.F,v 1.1 1995-12-13 01:36:55 d3g681 Exp $
+C     $Id: pr_corr_map.F,v 1.2 2003-10-17 22:58:10 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine Print_Correl_Map(LUN, M, N, Map, LDMap, MFmt,
      $   Occ, LDOcc, OFmt, Evl, LDEvl, EFmt, LinWid)
       Implicit NONE
+#include "errquit.fh"
       Integer LUN, M, LDMap, LDOcc, LDEvl, LinWid
       Integer N(M), Map(LDMap, M)
       Double precision Occ(LDOcc, M), Evl(LdEvl, M)
@@ -46,11 +47,13 @@ C     * Check formats *
 C     *****************
 C
       If ( Index(IFmt, MFmt(1:1)) .eq. 0) Call ErrQuit(
-     $   'Print_Correl_Map: Bad format spec for map', 0)
+     $   'Print_Correl_Map: Bad format spec for map', 0, INPUT_ERR)
       If ( Index(FPFmt, OFmt(1:1)) .eq. 0) Call ErrQuit(
-     $   'Print_Correl_Map: Bad format spec for occupation', 0)
+     $   'Print_Correl_Map: Bad format spec for occupation', 0,
+     &       INPUT_ERR)
       If ( Index(FPFmt, EFmt(1:1)) .eq. 0) Call ErrQuit(
-     $   'Print_Correl_Map: Bad format spec for eigenvalues', 0)
+     $   'Print_Correl_Map: Bad format spec for eigenvalues', 0,
+     &       INPUT_ERR)
 C
 C     Get the width of each format spec, find the largest
 C
@@ -67,7 +70,7 @@ C
       EPad = MxWid - EWid
 C
       If ( MWid .lt. 1 .OR. OWid .lt. 1 .OR. EWid .lt. 1) Call ErrQuit(
-     $   'Print_Correl_Map: Bad format specification', 0)
+     $   'Print_Correl_Map: Bad format specification', 0, INPUT_ERR)
 C
 C     ********************************
 C     * Determine space requirements *
@@ -87,7 +90,8 @@ C
 C     Make sure we can fit something!!!
 C
       If (NPerL .eq. 0) Call ErrQuit(
-     $   'Print_Correl_Map: Can''t fit anything on a line', MxWid)
+     $   'Print_Correl_Map: Can''t fit anything on a line', MxWid,
+     &       INPUT_ERR)
 C
 C     *****************************
 C     * Create the format strings *

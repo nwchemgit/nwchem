@@ -1,6 +1,7 @@
-C $Id: drdy_synch.F,v 1.10 2001-02-02 01:29:27 windus Exp $
+C $Id: drdy_synch.F,v 1.11 2003-10-17 22:54:46 carlfahl Exp $
       subroutine drdy_synch(opcode,calling_routine)
       implicit none
+#include "errquit.fh"
 #include "drdyP.fh"
 #include "nwc_drdyP.fh"
 #include "tcgmsg.fh"
@@ -32,22 +33,22 @@ C $Id: drdy_synch.F,v 1.10 2001-02-02 01:29:27 windus Exp $
         if (.not.
      &        rtdb_cput(my_rtdb,'scf:input vectors',1,'atomic')) then
           write(fu6,*)' could not reset input vectors to atomic '
-          call errquit('drdy_synch: fatal error ',911)          
+          call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
         endif
         if (.not.
      &        rtdb_cput(my_rtdb,'dft:input vectors',1,'atomic')) then
           write(fu6,*)' could not reset input vectors to atomic '
-          call errquit('drdy_synch: fatal error ',911)          
+          call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
         endif
 *        if (.not.
 *     &        rtdb_cput(my_rtdb,'mp2:input vectors',1,'atomic')) then
 *          write(fu6,*)' could not reset input vectors to atomic '
-*          call errquit('drdy_synch: fatal error ',911)          
+*          call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
 *        endif
         if (.not.
      &        rtdb_cput(my_rtdb,'mcscf:input vectors',1,'atomic')) then
           write(fu6,*)' could not reset input vectors to atomic '
-          call errquit('drdy_synch: fatal error ',911)          
+          call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
         endif
 c
 c If we are not doing a single point calculation at a higher level
@@ -56,16 +57,16 @@ c
         if (opcode .ne. DRDY_CODE_SPENERGY) then
           if (.not.rtdb_cget(my_rtdb,'drdy:theory',1,drdy_theory)) then
             write(fu6,*)' could not determine drdy:theory'
-            call errquit('drdy_synch: fatal error ',911)
+            call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
           endif
           if (.not.rtdb_cput(my_rtdb,'task:theory',1,drdy_theory)) then
             write(fu6,*)' could not write drdy:theory -> theory'
-            call errquit('drdy_synch: fatal error ',911)
+            call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
           endif
           if (rtdb_cget(my_rtdb,'drdy:input',1,input)) then
             if (.not.nw_inp_from_character(my_rtdb,input)) then
               write(fu6,*) 'could not process drdy:theory input'
-              call errquit('drdy_synch: fatal error ',555)
+              call errquit('drdy_synch: fatal error ',555, RTDB_ERR)
             endif
           endif
 c
@@ -76,11 +77,11 @@ c
           if (.not.rtdb_cget(my_rtdb,'drdy:sptheory',1,
      &                       drdy_theory)) then
             write(fu6,*)' could not determine drdy:sptheory'
-            call errquit('drdy_synch: fatal error ',911)
+            call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
           endif
           if (.not.rtdb_cput(my_rtdb,'task:theory',1,drdy_theory)) then
             write(fu6,*)' could not write drdy:sptheory -> theory'
-            call errquit('drdy_synch: fatal error ',911)
+            call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
           endif
 c
 c Save original information and set new info if available.  Note that
@@ -93,19 +94,19 @@ c
           if (rtdb_cget(my_rtdb,'drdy:spbasis',1,basis)) then
             if (.not.rtdb_cput(my_rtdb,'ao basis',1,basis)) then
               write(fu6,*) 'could not write drdy:spbasis->ao basis'
-              call errquit('drdy_synch: fatal error ',555)
+              call errquit('drdy_synch: fatal error ',555, RTDB_ERR)
             endif
           endif
           if (rtdb_cget(my_rtdb,'drdy:specp',1,basis)) then
             if (.not.rtdb_cput(my_rtdb,'ecp basis',1,basis)) then
               write(fu6,*) 'could not write drdy:specp->ecp basis'
-              call errquit('drdy_synch: fatal error ',555)
+              call errquit('drdy_synch: fatal error ',555, RTDB_ERR)
             endif
           endif
           if (rtdb_cget(my_rtdb,'drdy:spinput',1,input)) then
             if (.not.nw_inp_from_character(my_rtdb,input)) then
               write(fu6,*) 'could not process drdy:theorysp input'
-              call errquit('drdy_synch: fatal error ',555)
+              call errquit('drdy_synch: fatal error ',555, RTDB_ERR)
             endif
           endif
         endif
@@ -149,7 +150,7 @@ c
         return
       else
         write(fu6,*)' unknown opcode ',opcode
-        call errquit('drdy_synch: fatal error ',911)
+        call errquit('drdy_synch: fatal error ',911, RTDB_ERR)
       endif
       call util_print_set_level(current_print_level)
       call ga_sync()
@@ -163,12 +164,14 @@ c
           if (bname .ne. ' ') then
             if (.not. rtdb_cput(my_rtdb,'ao basis',1,bname)) 
      &        call errquit
-     &        ('drdy_synch:failed resetting user basis name',0)
+     &        ('drdy_synch:failed resetting user basis name',0,
+     &       RTDB_ERR)
           end if
           if (ename .ne. ' ') then
             if (.not. rtdb_cput(my_rtdb,'ecp basis',1,ename)) 
      &         call errquit
-     &         ('drdy_synch:failed resetting user ecp name',0)
+     &         ('drdy_synch:failed resetting user ecp name',0,
+     &       RTDB_ERR)
           end if
         end if
         return

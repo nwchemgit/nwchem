@@ -2,9 +2,10 @@
      &                    Volume,Out_Unit,iProc,Where,
      &                    nAtom,XYZ,What,lgaussian,charge)
 *
-* $Id: get_grid.F,v 1.7 1999-11-16 03:51:15 edo Exp $
+* $Id: get_grid.F,v 1.8 2003-10-17 22:54:43 carlfahl Exp $
 *
       Implicit None
+#include "errquit.fh"
 *
 ************************************************************************
 #include "stdio.fh"
@@ -99,7 +100,7 @@
       End Do
       endif
       If (iGrid+nRejected.ne.nGrid)
-     &   Call ErrQuit('Get_Grid: iGrid .ne. nGrid', 0)
+     &   Call ErrQuit('Get_Grid: iGrid .ne. nGrid', 0, INPUT_ERR)
       GoTo 3456
 *
 *---- In the case of calculating the atomic charges the grid is chosen

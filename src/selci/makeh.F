@@ -1,9 +1,10 @@
       subroutine selci_makeh(h,g,int12,int34,w1,w2,ioconf,indxci,hd,
      $     work1, work2, work3, f)
 *
-* $Id: makeh.F,v 1.6 1997-10-31 23:42:10 d3e129 Exp $
+* $Id: makeh.F,v 1.7 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 #include "cbuff.fh"
 #include "global.fh"
@@ -91,7 +92,8 @@ c    zero the upper half and diagonal of work1 to simplify putinb
                call selci_makhdb(work1,ind,icase,ns,indbar,iocc,
      $              w1,w2,work2,work3,g,int12,int34,numf,numf2)
             else
-               call errquit('strange excitation value ',iexcit)
+               call errquit('strange excitation value ',iexcit,
+     &       INPUT_ERR)
             endif
             if (numf*numf2+ninhb.gt.lenhbf)
      $           call selci_putinb(iflham,indxci(iconf),numf,hbuf,ninhb,

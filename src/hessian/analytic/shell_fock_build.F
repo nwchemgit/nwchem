@@ -1,5 +1,5 @@
 c
-c $Id: shell_fock_build.F,v 1.28 2002-08-07 17:21:20 edo Exp $
+c $Id: shell_fock_build.F,v 1.29 2003-10-17 22:55:13 carlfahl Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -12,6 +12,7 @@ c and so, at the end of this subroutine, the output fock matrix
 c will be anti-symmetrized - sh, 2/15/02
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -63,64 +64,76 @@ c
       nfock = dims(1)
 c
       if (.not. bas_numbf(basis,nbf))
-     $     call errquit('new_fock: could not get nbf',0)
+     $     call errquit('new_fock: could not get nbf',0, BASIS_ERR)
       if (.not. bas_numcont(basis,nsh))
-     $     call errquit('new_fock: could not get nsh',0)
+     $     call errquit('new_fock: could not get nsh',0, BASIS_ERR)
       if (.not. bas_nbf_ce_max(basis,max_at_bf))
-     $     call errquit('new_fock: could not get max_at_bf',0)
+     $     call errquit('new_fock: could not get max_at_bf',0,
+     &       BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,max_sh_bf))
-     $     call errquit('new_fock: could not get max_sh_bf',0)
+     $     call errquit('new_fock: could not get max_sh_bf',0,
+     &       BASIS_ERR)
 c
       blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
       lend = blen*blen*ndens
       if (.not. ma_push_get(mt_dbl, lend, 'd_ij', l_d_ij, k_d_ij)) 
-     $     call errquit('new_fock: d_ij', lend)
+     $     call errquit('new_fock: d_ij', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'd_kl', l_d_kl, k_d_kl)) 
-     $     call errquit('new_fock: d_kl', lend)
+     $     call errquit('new_fock: d_kl', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'd_ik', l_d_ik, k_d_ik)) 
-     $     call errquit('new_fock: d_ik', lend)
+     $     call errquit('new_fock: d_ik', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'd_il', l_d_il, k_d_il)) 
-     $     call errquit('new_fock: d_il', lend)
+     $     call errquit('new_fock: d_il', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'd_jk', l_d_jk, k_d_jk)) 
-     $     call errquit('new_fock: d_jk', lend)
+     $     call errquit('new_fock: d_jk', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'd_jl', l_d_jl, k_d_jl)) 
-     $     call errquit('new_fock: d_jl', lend)
+     $     call errquit('new_fock: d_jl', lend, MA_ERR)
 c
       lend = blen*blen*nfock
       if (.not. ma_push_get(mt_dbl, lend, 'f_ij', l_f_ij, k_f_ij)) 
-     $     call errquit('new_fock: f_ij', lend)
+     $     call errquit('new_fock: f_ij', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'f_kl', l_f_kl, k_f_kl)) 
-     $     call errquit('new_fock: f_kl', lend)
+     $     call errquit('new_fock: f_kl', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'f_ik', l_f_ik, k_f_ik)) 
-     $     call errquit('new_fock: f_ik', lend)
+     $     call errquit('new_fock: f_ik', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'f_il', l_f_il, k_f_il)) 
-     $     call errquit('new_fock: f_il', lend)
+     $     call errquit('new_fock: f_il', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'f_jk', l_f_jk, k_f_jk)) 
-     $     call errquit('new_fock: f_jk', lend)
+     $     call errquit('new_fock: f_jk', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'f_jl', l_f_jl, k_f_jl)) 
-     $     call errquit('new_fock: f_jl', lend)
+     $     call errquit('new_fock: f_jl', lend, MA_ERR)
 c
       if (.not. ma_push_get(mt_int, nsh, 'shmap', l_shmap, k_shmap))
-     $  call errquit('shell_fock_build:could not allocate shmap',nsh)
+     $  call errquit('shell_fock_build:could not allocate shmap',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shglo', l_shglo, k_shglo))
-     $  call errquit('shell_fock_build:could not allocate blo',nsh)
+     $  call errquit('shell_fock_build:could not allocate blo',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shghi', l_shghi, k_shghi))
-     $  call errquit('shell_fock_build:could not allocate bhi',nsh)
+     $  call errquit('shell_fock_build:could not allocate bhi',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shbflo', l_shbflo, k_shbflo))
-     $  call errquit('shell_fock_build:could not allocate bflo',nsh)
+     $  call errquit('shell_fock_build:could not allocate bflo',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shbfhi', l_shbfhi, k_shbfhi))
-     $  call errquit('shell_fock_build:could not allocate bfhi',nsh)
+     $  call errquit('shell_fock_build:could not allocate bfhi',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bfglo', l_bfglo, k_bfglo))
-     $  call errquit('shell_fock_build:could not allocate blo',nbf)
+     $  call errquit('shell_fock_build:could not allocate blo',nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bfghi', l_bfghi, k_bfghi))
-     $  call errquit('shell_fock_build:could not allocate bhi',nbf)
+     $  call errquit('shell_fock_build:could not allocate bhi',nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bfmap', l_bfmap, k_bfmap))
-     $  call errquit('shell_fock_build:could not allocate bfmap',nbf)
+     $  call errquit('shell_fock_build:could not allocate bfmap',nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'rbfmap', l_rbfmap, k_rbfmap))
-     $  call errquit('shell_fock_build:could not allocate rbfmap',nbf)
+     $  call errquit('shell_fock_build:could not allocate rbfmap',nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bftoat', l_bftoat, k_bftoat))
-     $  call errquit('shell_fock_build:could not allocate bftoat',nbf)
+     $  call errquit('shell_fock_build:could not allocate bftoat',nbf,
+     &       MA_ERR)
 c 
       call grad_shorder(basis, nsh, nbf, maxsh, blen,
      $     nshblocks, int_mb(k_shglo), int_mb(k_shghi),
@@ -136,21 +149,27 @@ c
       endif
 c 
       if (.not. ma_push_get(mt_dbl,leri,'eri',l_eri,k_eri)) 
-     $     call errquit('new_fock:could not allocate buffer',leri)
+     $     call errquit('new_fock:could not allocate buffer',leri,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
-     $     call errquit('new_fock: scratch alloc failed', lscr)
+     $     call errquit('new_fock: scratch alloc failed', lscr,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int,4*leri,'labels',l_labels,k_labels))
-     $     call errquit('new_fock: could not allocate labels',4*leri)
+     $     call errquit('new_fock: could not allocate labels',4*leri,
+     &       MA_ERR)
 c     
       do i = 1, nbf
-         if (.not. bas_bf2ce(basis, i, iat)) call errquit('bf2ce',i)
+         if (.not. bas_bf2ce(basis, i, iat)) call errquit('bf2ce',i,
+     &       MA_ERR)
          int_mb(k_bftoat+i-1) = iat
       end do
 c
       if (.not. ma_push_get(mt_int, 4*maxq, 'list', l_list, k_list))
-     $     call errquit('new_fock:could not allocate list',4*maxq)
+     $     call errquit('new_fock:could not allocate list',4*maxq,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
-     $     call errquit('new_fock:could not allocate q4',maxq)
+     $     call errquit('new_fock:could not allocate q4',maxq,
+     &       MA_ERR)
 c
       call nga_reorder(g_dens, .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
@@ -182,7 +201,8 @@ c
 c  Clean up memory allocated in this routine
 c
       if (.not. ma_chop_stack(l_d_ij))
-     $  call errquit('shell_fock_build:failed chopping MA stack',555)
+     $  call errquit('shell_fock_build:failed chopping MA stack',555,
+     &       MA_ERR)
 c
 c Quietly modify the values of jfac and kfac back to the original
 c
@@ -220,6 +240,7 @@ c     $     oactive,
      $     jfac, kfac)
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "schwarz.fh"
@@ -350,7 +371,7 @@ c    $                    jbflo, jbfhi, blen)
                      call new_get_dens_block(g_dens, ndens, blen, 
      $                    jbflo, jbfhi, kbflo, kbfhi, d_jk, kfac)
                      if (.not. ma_verify_allocator_stuff())
-     $                    call errquit(' ',0)
+     $                    call errquit(' ',0, MA_ERR)
 c
                      call dfill(nfock*blen*blen, 0d0, f_ij, 1)
                      call dfill(nfock*blen*blen, 0d0, f_kl, 1)
@@ -359,7 +380,7 @@ c
                      call dfill(nfock*blen*blen, 0d0, f_il, 1)
                      call dfill(nfock*blen*blen, 0d0, f_jk, 1)
                      if (.not. ma_verify_allocator_stuff())
-     $                    call errquit(' ',0)
+     $                    call errquit(' ',0, MA_ERR)
 c     
 c     Build the list of integral shell quartets in NWChem shell labelling
 c     
@@ -433,7 +454,7 @@ c
                                  list(nq,3) = ksh
                                  list(nq,4) = lsh
 c                    if (.not. ma_verify_allocator_stuff())
-c    $                    call errquit(' ',0)
+c    $                    call errquit(' ',0, MA_ERR)
 c     
  200                          end do ! next llsh
                            end do
@@ -446,17 +467,17 @@ c
      $                    basis, list(1,3), list(1,4),
      $                    nq, q4, .true., lscr, scr, leri, 
      $                    block_eff)) call errquit
-     $                    ('twodd_coul_ex:txs init?',nq)
+     $                    ('twodd_coul_ex:txs init?',nq, UNKNOWN_ERR)
                      else
                        if (.not. intbd_init4c(
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
      $                    nq, q4, .true., lscr, scr, leri,
      $                    block_eff)) call errquit
-     $                    ('twodd_coul_ex:txs init?',nq)                        
+     $                    ('twodd_coul_ex:txs init?',nq, UNKNOWN_ERR)
                      endif
 c                    if (.not. ma_verify_allocator_stuff())
-c    $                    call errquit(' ',0)
+c    $                    call errquit(' ',0, MA_ERR)
 c     
  10                  continue
                      if (nder.eq.0) then
@@ -480,7 +501,7 @@ c     write(6,*) ' nint ', nint, omore
 c
                      endif
 c                    if (.not. ma_verify_allocator_stuff())
-c    $                    call errquit(' ',0)
+c    $                    call errquit(' ',0, MA_ERR)
 c     
                      if (nint .gt. 0) then
                        if (nder.eq.0) then
@@ -501,7 +522,7 @@ c
                      endif
 
                      if (.not. ma_verify_allocator_stuff())
-     $                    call errquit(' ',0)
+     $                    call errquit(' ',0, MA_ERR)
 
                      if (omore) goto 10
 c                                      
@@ -616,6 +637,7 @@ C
      $     ndens, nfock, blen, rbfmap,
      $     ibflo, jbflo, kbflo, lbflo)
       implicit none
+#include "errquit.fh"
 c
       integer ndens, nfock, blen
       integer nint
@@ -642,7 +664,7 @@ c  as the number of density matrices.  If this is not true, we bomb for
 c  now.  If there is a situation where should be different, ...
 c
       if (nfock.ne.ndens) call errquit(
-     $  'new_fock_doit: nfock not equal to ndens',555)
+     $  'new_fock_doit: nfock not equal to ndens',555, INPUT_ERR)
 c
       do integ = 1, nint
          g = eri(integ)
@@ -751,6 +773,7 @@ c
       subroutine xc_newfock(geom,basis,jfac,kfac,nbf,
      %     nder, ndens, nfock,g_fock,g_dens)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "bgj.fh"
 #include "mafdecls.fh"
@@ -783,7 +806,8 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'nfockxc:3dxc',chunk, 
      &     g_xc))
-     &        call errquit('xcnewfock: could not allocate g_xc',555)
+     &        call errquit('xcnewfock: could not allocate g_xc',555,
+     &       GA_ERR)
       call ga_zero(g_xc)
 
       call fock_xc(geom, nbf,basis,
@@ -806,7 +830,8 @@ c
          enddo
       endif
       if (.not.ga_destroy(g_xc)) then
-         call errquit('xcnewfock: problem destroying test array',1)
+         call errquit('xcnewfock: problem destroying test array',1,
+     &       GA_ERR)
       endif
 
       return
@@ -815,6 +840,7 @@ c
       subroutine uhf_fock_setup(g_dens, g_fock, jfac, kfac, ndens,
      &   nfock, nbf, oprint)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -867,7 +893,7 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'Density',chunk,
      &     g_dens2)) call errquit
-     &     ('uhf_fock_setup: could not allocate g_dens2',555)
+     &     ('uhf_fock_setup: could not allocate g_dens2',555, GA_ERR)
 c
 c Copy "backwards" so that we don't loose any data
 c
@@ -899,7 +925,7 @@ c
 c  Now get rid of original density
 c
       if (.not. ga_destroy(g_dens)) call errquit
-     *   ('uhf_fock_setup: failed to free g_dens', ndens)
+     *   ('uhf_fock_setup: failed to free g_dens', ndens, GA_ERR)
 c
 c  Assign g_dens to be the new matrix and update ndens
 c
@@ -913,7 +939,7 @@ c
       chunk(1) = dims(1)
       if (.not. nga_create (MT_DBL, 3, dims, 'Fock matrices',
      &    chunk, g_fock2)) call errquit
-     &     ('uhf_fock_setup: could not allocate g_fock2',555)
+     &     ('uhf_fock_setup: could not allocate g_fock2',555, GA_ERR)
 c
       noffset = nfock/2
       alo(1) = noffset + 1  ! Beta
@@ -934,7 +960,7 @@ c
       call nga_copy_patch('N',g_fock,alo,ahi,g_fock2,blo,bhi)
 c
       if (.not. ga_destroy(g_fock)) call errquit
-     *   ('uhf_fock_setup: failed to free g_fock', nfock)
+     *   ('uhf_fock_setup: failed to free g_fock', nfock, GA_ERR)
 c
       g_fock = g_fock2
       nfock = nfock * 2
@@ -956,6 +982,7 @@ c
       subroutine uhf_fock_finish(g_dens,g_fock,jfac, kfac, ndens,
      &       nfock, nbf, oprint)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -1004,7 +1031,7 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'Density',chunk,
      &     g_dens2)) call errquit
-     &     ('uhf_fock_finish: could not allocate g_dens2',555)
+     &     ('uhf_fock_finish: could not allocate g_dens2',555, GA_ERR)
 c
 c Copy data
 c
@@ -1030,7 +1057,7 @@ c
 c  Now get rid of original density
 c
       if (.not. ga_destroy(g_dens)) call errquit
-     *   ('uhf_fock_finish: failed to free g_dens', ndens)
+     *   ('uhf_fock_finish: failed to free g_dens', ndens, GA_ERR)
 c
 c  Assign g_dens to be the new matrix and update ndens
 c
@@ -1043,7 +1070,7 @@ c
       chunk(1) = dims(1)
       if (.not. nga_create (MT_DBL, 3, dims, 'Fock matrices',
      &    chunk, g_fock2)) call errquit
-     &     ('uhf_fock_setup: could not allocate g_fock2',555)
+     &     ('uhf_fock_setup: could not allocate g_fock2',555, GA_ERR)
 c
       noffset = nfock/2
       noffset2 = noffset*2
@@ -1087,7 +1114,7 @@ c
 c  Now get rid of g_fock and assign the new one (g_fock2) to g_fock
 c
       if (.not. ga_destroy(g_fock)) call errquit
-     &   ('uhf_fock_setup: failed to free g_fock', nfock)
+     &   ('uhf_fock_setup: failed to free g_fock', nfock, GA_ERR)
 c
       g_fock = g_fock2
 c

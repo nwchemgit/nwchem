@@ -1,5 +1,5 @@
 C
-C $Id: get_wdens.F,v 1.2 2000-08-09 21:55:03 windus Exp $
+C $Id: get_wdens.F,v 1.3 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine get_wdens(g_dens,ndens,theory,scftype,rtdb,
      *                     g_wdens,nbfs)
@@ -11,6 +11,7 @@ c  Eigenvalues need to be read from disk.
 c  Start with RHF and work our way up.
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "mafdecls.fh"
@@ -36,18 +37,22 @@ c
 c Temporarily disable ROHF
 c
       if (scftype.eq.'ROHF')
-     *  call errquit('get_wdens: ROHF is not supported yet',555)
+     *  call errquit('get_wdens: ROHF is not supported yet',555,
+     &       CAPMIS_ERR)
 c
 c Get the movecs file name
 c
       if (theory.eq.'hf') then
         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
-     *    call errquit('get_wdens: SCF MO vectors not defined',555)
+     *    call errquit('get_wdens: SCF MO vectors not defined',555,
+     &       RTDB_ERR)
       else if (theory.eq.'dft') then
         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs))
-     *   call errquit('get_wdens: DFT MO vectors not defined',555)
+     *   call errquit('get_wdens: DFT MO vectors not defined',555,
+     &       RTDB_ERR)
       else
-        call errquit('get_wdens:theory is unrecognized',555)
+        call errquit('get_wdens:theory is unrecognized',555,
+     &       RTDB_ERR)
       endif
 c
 c First copy the density (g_dens) to the weighted density (g_wdens)
@@ -57,12 +62,14 @@ c
 c Get temporary space for the eigenvalues
 c
       if (.not. ma_push_get(mt_dbl, nbfs,'MO evals', l_evals, k_evals))
-     *  call errquit('get_wdens: could not allocate l_evals',nbfs)
+     *  call errquit('get_wdens: could not allocate l_evals',nbfs,
+     *  MA_ERR)
 c
 c Get the eigenvalues
 c
       if (.not. moeig_read(movecs, 1, dbl_mb(k_evals)))
-     *  call errquit('get_wdens:could not read eigenvectors',555)
+     *  call errquit('get_wdens:could not read eigenvectors',555,
+     *  DISK_ERR)
 c
 c Need to form the weighted density matrix which is basically a
 c scaling of the diagonal of the density matrix by the eigenvalues.
@@ -77,7 +84,7 @@ c
 c Free up temporary space for the eigenvalues
 c
       if (.not.ma_pop_stack(l_evals))
-     *  call errquit('get_wdens:ma free eval',555)
+     *  call errquit('get_wdens:ma free eval',555, MA_ERR)
       call ga_sync()
       end
 c

@@ -1,9 +1,10 @@
 
       subroutine coulomb_init()
 *
-* $Id: coulomb.F,v 1.5 2003-02-20 18:06:09 bylaska Exp $
+* $Id: coulomb.F,v 1.6 2003-10-17 22:57:27 carlfahl Exp $
 *
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -35,10 +36,10 @@ c     real*8 vc(nfft3d)
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call Parallel_taskid(taskid)
       call D3dB_nx(1,nx)
@@ -116,6 +117,7 @@ c     real*8 vc(nfft3d)
 
       real*8 function coulomb_e(dng)
       implicit none
+#include "errquit.fh"
       complex*16 dng(*)
 
 #include "mafdecls.fh"
@@ -142,7 +144,7 @@ c     real*8  tmp1(*)
       call nwpw_timing_start(7)
       call Pack_npack(0,npack0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       
       call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
       call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
@@ -162,9 +164,10 @@ c     real*8  tmp1(*)
 
       subroutine coulomb_euv(dng,euv)
 *
-* $Id: coulomb.F,v 1.5 2003-02-20 18:06:09 bylaska Exp $
+* $Id: coulomb.F,v 1.6 2003-10-17 22:57:27 carlfahl Exp $
 *
       implicit none 
+#include "errquit.fh"
       complex*16 dng(*)
       real*8 euv(3,3)
 
@@ -212,19 +215,19 @@ c     real*8 G(nfft3d,3)
 
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G1',G(2,1),G(1,1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G2',G(2,2),G(1,2))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack  memory',0)
+      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1,1)),1)
       call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(1,2)),1)

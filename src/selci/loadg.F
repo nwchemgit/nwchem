@@ -1,8 +1,9 @@
       subroutine selci_loadg(g,int12,int34)
 *
-* $Id: loadg.F,v 1.3 1997-10-31 23:42:09 d3e129 Exp $
+* $Id: loadg.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension g(numint), int12(nnorbs), int34(nnorbs)
 c
@@ -25,12 +26,13 @@ c
       nread = 0
 *      if (inttyp.eq.1) call search(1,7)
  10   if (inttyp.eq.1) then
-         call errquit('loadg: gamess interface not functional',0)
+         call errquit('loadg: gamess interface not functional',0,
+     &       CAPMIS_ERR)
 *         call gtintb(7,q,iq,jq,kq,lq,nw)
       else if (inttyp.eq.2) then
          call selci_colint(iflint,q,iq,jq,kq,lq,nw)
       else
-         call errquit('loadg: strange inttyp ',inttyp)
+         call errquit('loadg: strange inttyp ',inttyp, INPUT_ERR)
       endif
       do 20 iw = 1,nw
          i = iq(iw)
@@ -63,7 +65,8 @@ c     allow for reduced space calculations
          kls = ieor(isym(k),isym(l))
          if (ijs.ne.kls) then
             write(ifllog,*) ' gg,i,j,k,l,ijs,kls,',gg,i,j,k,l,ijs,kls
-            call errquit('loadg: integral should be zero by symmetry',0)
+            call errquit('loadg: integral should be zero by symmetry',0,
+     &       CALC_ERR)
          endif
          g(int12(ij)+int34(kl)) = gg
          nread = nread + 1

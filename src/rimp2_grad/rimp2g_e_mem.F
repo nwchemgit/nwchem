@@ -3,7 +3,7 @@ C NAME
 C     rimp2g_e_mem -- Determine optimal memory usage for energy calc.
 C
 C REVISION
-C     $Id: rimp2g_e_mem.F,v 1.1 1998-04-17 21:15:37 gg502 Exp $
+C     $Id: rimp2g_e_mem.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2G_E_Mem(TopSpin, NOcc, NVir, FitBas, Mode,
@@ -41,6 +41,7 @@ C LOCAL VARIABLES
       Integer Mem_Avail, Final_Avail, IBlock_Size, ABlock_Size
 C
 C     For simplicity, we'll figure out a distribution that works for
+#include "errquit.fh"
 C     the largest spin case.  Note that nrs. of occupied and virtual
 C     orbitals may change, but fitting basis doesn't.
 C
@@ -54,13 +55,13 @@ C
 C
       If ( .NOT. GA_Create_One_By_Shells( MT_Dbl, 1 * BigVir,
      $      FitBas, 'Test Integral matrix', G_I) ) Call ErrQuit(
-     $      'RIMP2G_E_Mem: Unable to allocate minimal GA', 0)
+     $      'RIMP2G_E_Mem: Unable to allocate minimal GA', 0, GA_ERR)
 C
       Final_Avail = MA_SizeOf(MT_Byte, GA_Memory_Avail(), MT_Dbl)
       IBlock_Size = Mem_Avail - Final_Avail
 C
       If (.NOT. GA_Destroy( G_I ) ) Call ErrQuit(
-     $   'RIMP2G_E_Mem: Unable to destroy a GA!', 0)
+     $   'RIMP2G_E_Mem: Unable to destroy a GA!', 0, GA_ERR)
 C
 C     The space in a block of the (approximate) four-center matrix
 C     is easy to figure out. NOTE:  This is NOT a per-node figure
@@ -119,7 +120,7 @@ C        Not good -- it looks like we can't do the calculation
 C
          Call ErrQuit(
      $      'RIMP2G_E_Mem: Insufficient memory for energy evaluation',
-     $      Mem_Avail)
+     $      Mem_Avail, MEM_ERR)
 C
          Return
 C
@@ -163,7 +164,7 @@ C        Not good -- it looks like we can't do the calculation
 C
          Call ErrQuit(
      $      'RIMP2G_E_Mem: Insufficient memory for energy evaluation',
-     $      Mem_Avail)
+     $      Mem_Avail, MEM_ERR)
 C
          Return
 C
@@ -201,7 +202,7 @@ C
 C        Not good -- it looks like we can't do the calculation
 C
          Call ErrQuit('RIMP2G_E_Mem: This shouldn''t be possible !',
-     $      Mem_Avail)
+     $      Mem_Avail, MEM_ERR)
 C        
          Return
 C
@@ -216,7 +217,8 @@ C
       Else
          Write (LuErr, *) 'RIMP2G_E_Mem: Unsupported mode requested: ',
      $      Mode
-         Call ErrQuit('RIMP2G_E_Mem: Unsupported mode requested', 0)
+         Call ErrQuit('RIMP2G_E_Mem: Unsupported mode requested', 0,
+     &       INPUT_ERR)
       EndIf
 C        
       Return

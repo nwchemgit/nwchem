@@ -30,9 +30,10 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.13 2002-09-05 14:48:43 edo Exp $
+* $Id: wnbofile.F,v 1.14 2003-10-17 22:57:58 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "global.fh"
@@ -106,25 +107,26 @@ c
 c>>>  load geometry and symmetry info
 c
       if (.not. geom_create(lgeom, 'geometry'))
-     $     call errquit('wnbofile: geom_create?', 0)
+     $     call errquit('wnbofile: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, lgeom, 'geometry'))
-     $     call errquit('wnbofile: no geometry ', 0)
+     $     call errquit('wnbofile: no geometry ', 0, RTDB_ERR)
 c     
 c>>>  load the basis set and get info about it
 c
       if (.not. bas_create(lbasis, 'mo basis'))
-     $     call errquit('prop: bas_create?', 0)
+     $     call errquit('prop: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, lgeom, lbasis, 'ao basis')) then
          if (.not. bas_rtdb_load(rtdb, lgeom, lbasis, 'mo basis'))
-     $        call errquit('wnbofile: no mo or ao basis set', 0)
+     $        call errquit('wnbofile: no mo or ao basis set', 0,
+     &       RTDB_ERR)
       end if
       if (.not. bas_name(lbasis, name, trans))
-     $     call errquit('wnbofile: bas_name?', 0)
+     $     call errquit('wnbofile: bas_name?', 0, BASIS_ERR)
 c
 c>>>  Create ga_array for movecs.
 c
       if ( .not. bas_numbf(lbasis,nbf) )
-     $     call errquit('wnbofile: bas_numbf failed', 1)
+     $     call errquit('wnbofile: bas_numbf failed', 1, BASIS_ERR)
 c
 c>>>  For now simply set nmo = nbf.
 c
@@ -135,7 +137,8 @@ c
       call util_file_name('movecs', .false., .false., movecs_in)
       if(.not.movecs_read_header(movecs_in, title_vecs, bas_vecs,
      $     scftype_vecs, nbf_vecs, nset, nmo_vecs, 2))
-     $     call errquit('wnbofile:  failed on movecs_read_header',0)
+     $     call errquit('wnbofile:  failed on movecs_read_header',0,
+     &       DISK_ERR)
 
       if(nset.eq.1)then
         restricted=.true.
@@ -148,33 +151,36 @@ c
       if (restricted) then
 *ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: MOs',
-     $       0, 0, g_movecs(1))) call errquit('wnbofile: MOs', 0)
+     $       0, 0, g_movecs(1))) call errquit('wnbofile: MOs', 0,
+     &       GA_ERR)
         call ga_zero(g_movecs(1))
       else
 *ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: alpha MOs',
-     $       0, 0, g_movecs(1))) call errquit('wnbofile: alpha MOs', 0)
+     $       0, 0, g_movecs(1))) call errquit('wnbofile: alpha MOs', 0,
+     &       GA_ERR)
         call ga_zero(g_movecs(1))
 *ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: beta MOs',
-     $       0, 0, g_movecs(2))) call errquit('wnbofile: beta MOs', 0)
+     $       0, 0, g_movecs(2))) call errquit('wnbofile: beta MOs', 0,
+     &       GA_ERR)
         call ga_zero(g_movecs(2))
       endif
 c
 c>>>  Extract title, geometry, nuclear charges, and label info.
 c
       if (.not. geom_ncent(lgeom, nat))
-     $     call errquit('wnbofile: geom_ncent failed',1)      
+     $     call errquit('wnbofile: geom_ncent failed',1, GEOM_ERR)
       if(.not. rtdb_cget(rtdb, 'title', 1, title)) title = ' '
       if(.not.Ma_Push_Get(MT_Dbl, nat*3, 'coordinates', lcoord, icoord))
-     $     call errquit('wnbofile: push_get failed',2)
+     $     call errquit('wnbofile: push_get failed',2, MA_ERR)
       if(.not.Ma_Push_Get(MT_Dbl, nat, 'charges', lchg, ichg))
-     $     call errquit('wnbofile: push_get failed',3)
+     $     call errquit('wnbofile: push_get failed',3, MA_ERR)
       if(.not.Ma_Push_Get(MT_Byte, nat*16, 'center tags', ltags, itags))
-     $     call errquit('wnbofile: push_get failed',4)
+     $     call errquit('wnbofile: push_get failed',4, MA_ERR)
       if(.not.geom_cart_get(lgeom, nat, Byte_MB(itags), Dbl_MB(icoord), 
      $     Dbl_MB(ichg)))
-     $     call errquit('wnbofile: geom_cart_get failed',5)
+     $     call errquit('wnbofile: geom_cart_get failed',5, GEOM_ERR)
 c       
 c>>>  Begin $GENNBO and $NBO keylist data.
 c
@@ -223,30 +229,35 @@ c>>>  Begin $BASIS keylist.
 c
 
       if(.not.bas_numcont(lbasis,ncont))
-     $     call errquit('wnbofile: bas_numcont failed',0)
+     $     call errquit('wnbofile: bas_numcont failed',0, BASIS_ERR)
 
       if(.not.MA_Push_Get(MT_INT,ncont,'prim/shell',lprim,iprim))
-     $     call errquit('wnbofile: lprim memory alloc. failed',0)
+     $     call errquit('wnbofile: lprim memory alloc. failed',0,
+     &       MA_ERR)
 
       if(.not.MA_Push_Get(MT_INT,ncont+1,'contraction pointer',lptr,
      $     iptr))
-     $     call errquit('wnbofile: lptr memory alloc. failed',0)
+     $     call errquit('wnbofile: lptr memory alloc. failed',0,
+     &       MA_ERR)
 
       if(.not.MA_Push_Get(MT_INT,ncont,'contraction type',ltype,
      $     itype))
-     $     call errquit('wnbofile: ltype memory alloc. failed',0)
+     $     call errquit('wnbofile: ltype memory alloc. failed',0,
+     &       MA_ERR)
 
       if(.not.MA_Push_Get(MT_INT,ncont,'contraction/shell size',lncomp,
      $     incomp))
-     $     call errquit('wnbofile: lncomp memory alloc. failed',0)
+     $     call errquit('wnbofile: lncomp memory alloc. failed',0,
+     &       MA_ERR)
 
       if(ga_nodeid().eq.0)then
         write(lfn,'(a)')'$BASIS'
         if(.not.MA_Alloc_Get(MT_Int,nbf,'scratch',lscr,iscr))
-     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+     $       call errquit('wnbofile: lscr memory alloc. failed',0,
+     &       MA_ERR)
         do i = 1, nmo
           if(.not.bas_bf2ce(lbasis,i,int_mb(iscr+i-1)))
-     $         call errquit('wnbofile: bas_bf2ce failed',0)
+     $         call errquit('wnbofile: bas_bf2ce failed',0, BASIS_ERR)
         enddo 
 
         write(lfn,'(1x,a)')'CENTER = '
@@ -261,7 +272,8 @@ c
         do icont = 1,ncont
           if(.not.bas_continfo(lbasis,icont,type,int_mb(iprim+icont-1),
      $         ngeno,sphcart))
-     $         call errquit('wnbofile: bas_continfo failed',0)
+     $         call errquit('wnbofile: bas_continfo failed',0,
+     &       BASIS_ERR)
           INT_mb(itype+icont-1) = type
           maxL = max(maxL,type)
           nprim = nprim + int_mb(iprim+icont-1)
@@ -383,7 +395,8 @@ c
 
           elseif(type.gt.4) then
             write(6,*)' only up to g functions allowed '
-            call errquit('wnbofile: max angular momentum exceeded',0)
+            call errquit('wnbofile: max angular momentum exceeded',0,
+     &       BASIS_ERR)
           endif 
           
         enddo 
@@ -393,7 +406,7 @@ c
         write(lfn,9200)
 
         if (.not. ma_free_heap(lscr))
-     $       call errquit('wnbofile: lscr free heap failed',0)
+     $       call errquit('wnbofile: lscr free heap failed',0, MA_ERR)
       endif
 
 c
@@ -404,16 +417,19 @@ c>>> Begin $CONTRACT keylist.
 c
       if (ga_nodeid().eq.0) then
         if(.not.MA_Alloc_Get(MT_dbl,nprim,'exponents',lexp,iexp))
-     $       call errquit('wnbofile: lexp memory alloc. failed',0)
+     $       call errquit('wnbofile: lexp memory alloc. failed',0,
+     &       MA_ERR)
         if(.not.MA_Alloc_Get(MT_dbl,nprim,'coefs',lcoef,icoef))
-     $       call errquit('wnbofile: lcoef memory alloc failed',0)
+     $       call errquit('wnbofile: lcoef memory alloc failed',0,
+     &       MA_ERR)
 
         index = 0
         do icont = 1,ncont
           if(.not.bas_get_exponent(lbasis,icont,dbl_mb(iexp+index)))
-     $         call errquit('wnbofile: failed bas_get_exp',0)
+     $         call errquit('wnbofile: failed bas_get_exp',0, BASIS_ERR)
           if(.not.bas_get_coeff(lbasis,icont,dbl_mb(icoef+index)))
-     $         call errquit('wnbofile: failed bas_get_coeff',0)
+     $         call errquit('wnbofile: failed bas_get_coeff',0,
+     &       BASIS_ERR)
           index = index + int_mb(iprim+icont-1)
         enddo 
 
@@ -499,10 +515,10 @@ c
         write(lfn,9200)
 
         if (.not. ma_free_heap(lcoef))
-     $       call errquit('wnbofile: lcoef free heap failed',0)
+     $       call errquit('wnbofile: lcoef free heap failed',0, MA_ERR)
 
         if (.not. ma_free_heap(lexp))
-     $       call errquit('wnbofile: lexp free heap failed',0)
+     $       call errquit('wnbofile: lexp free heap failed',0, MA_ERR)
       endif 
 c
 c>>> End $CONTRACT keylist.
@@ -512,15 +528,15 @@ c
       lenocc = nset*nmo
       if (.not. ma_push_get(mt_dbl, lenocc, 'wnbofile: mo evals',
      $     leval, ieval)) call errquit
-     $     ('wnbofile: insufficient memory?', lenocc)
+     $     ('wnbofile: insufficient memory?', lenocc, MA_ERR)
 
       if (.not. ma_push_get(mt_dbl, lenocc, 'wnbofile: mo occ',
      $     locc, iocc)) call errquit
-     $     ('wnbofile: mo occ insufficient memory?', lenocc)
+     $     ('wnbofile: mo occ insufficient memory?', lenocc, MA_ERR)
 
       if (.not. movecs_read(movecs_in, 1, dbl_mb(iocc), dbl_mb(ieval),
      $     g_movecs))
-     $     call errquit('scf_movecs_read failed',0)
+     $     call errquit('scf_movecs_read failed',0, DISK_ERR)
 
       if(.not.restricted)then
         if (.not. movecs_read(movecs_in, 2,
@@ -536,7 +552,8 @@ c>>>    Begin $LCAOMO keylist.
 c       
       if( ga_nodeid().eq.0)then
         if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
-     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+     $       call errquit('wnbofile: lscr memory alloc. failed',0,
+     &       MA_ERR)
 
         write(lfn,'(a)')'$LCAOMO'
 
@@ -555,7 +572,7 @@ c
 
         write(lfn,9200)
         if (.not. ma_free_heap(lscr))
-     $       call errquit('wnbofile: lscr free heap failed',0)
+     $       call errquit('wnbofile: lscr free heap failed',0, MA_ERR)
       endif
 c
 c>>>  End LCAOMO keylist.
@@ -574,16 +591,16 @@ c
       if( restricted) then
 *ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: bond order', 
-     $     0, 0, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+     $     0, 0, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0, GA_ERR)
         call ga_zero(g_bo(1))
       else 
 
 *ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: a bond order', 
-     $     0, 0, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0)
+     $     0, 0, g_bo(1))) call errquit('wnbofile: g_bo(1)', 0, GA_ERR)
         call ga_zero(g_bo(1))
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: b bond order', 
-     $     0, 0, g_bo(2))) call errquit('wnbofile: g_bo(2)', 0)
+     $     0, 0, g_bo(2))) call errquit('wnbofile: g_bo(2)', 0, GA_ERR)
         call ga_zero(g_bo(2))
 
       endif 
@@ -595,9 +612,9 @@ c>>>  temporarily in the matrix reserved for the bond order matrix.
 c
 
       if(.not.MA_push_get(MT_INT, nmo, 'indices 1', lind1, iind1))
-     $     call errquit('wnbofile: lind1',0)
+     $     call errquit('wnbofile: lind1',0, MA_ERR)
       if(.not.MA_push_get(MT_INT, nmo, 'indices 2', lind2, iind2))
-     $     call errquit('wnbofile: lind2',0)
+     $     call errquit('wnbofile: lind2',0, MA_ERR)
 
       if (ga_nodeid().eq.0)then
 
@@ -620,7 +637,7 @@ c
 
 *ga:1:0
       if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: scratch', 
-     $     0, 0, g_scr)) call errquit('wnbofile: scratch', 0)
+     $     0, 0, g_scr)) call errquit('wnbofile: scratch', 0, GA_ERR)
       call ga_zero(g_scr)
 c                                                t
 c>>>  Form the product (Movecs)(Gamma_mo)(Movecs)  = Bond order matrix.
@@ -654,7 +671,8 @@ c>>>  Begin $DENSITY keylist.
 c
       if( ga_nodeid().eq.0)then
         if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
-     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+     $       call errquit('wnbofile: lscr memory alloc. failed',0,
+     &       MA_ERR)
 
         write(lfn,'(a)')'$DENSITY'
 c
@@ -676,7 +694,7 @@ c
 
         write(lfn,9200)
         if (.not. ma_free_heap(lscr))
-     $       call errquit('wnbofile: lscr free heap failed',0)
+     $       call errquit('wnbofile: lscr free heap failed',0, MA_ERR)
       endif
 c
 c>>>  End $DENSITY keylist.
@@ -686,7 +704,7 @@ c>>>  Create overlap matrix.
 c
       call int_init(rtdb,1,lbasis)
       if (.not.int_normalize(rtdb,lbasis)) call errquit
-     &    ('wnbofile: int_normalize failed',911)
+     &    ('wnbofile: int_normalize failed',911, INT_ERR)
       g_over  = ga_create_atom_blocked(lgeom, lbasis,'Overlap')
 c
       call ga_zero(g_over)
@@ -696,7 +714,8 @@ c>>>  Begin $OVERLAP keylist.
 c
       if( ga_nodeid().eq.0)then
         if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
-     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+     $       call errquit('wnbofile: lscr memory alloc. failed',0,
+     &       MA_ERR)
 
         write(lfn,'(a)')'$OVERLAP'
 c
@@ -709,7 +728,7 @@ c
 
         write(lfn,9200)
         if (.not. ma_free_heap(lscr))
-     $       call errquit('wnbofile: lscr free heap failed',0)
+     $       call errquit('wnbofile: lscr free heap failed',0, MA_ERR)
 
       endif 
 c
@@ -721,17 +740,20 @@ c
       if(restricted) then
 *ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: Fock matrix', 
-     $     0, 0, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+     $     0, 0, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0,
+     &       GA_ERR)
         call ga_zero(g_fock(1))
       else 
 
 *ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: alpha Fock', 
-     $     0, 0, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0)
+     $     0, 0, g_fock(1))) call errquit('wnbofile: g_fock(1)', 0,
+     &       GA_ERR)
         call ga_zero(g_fock(1))
 *ga:1:0
         if (.not. ga_create(MT_DBL, nmo, nmo, 'wnbofile: beta Fock', 
-     $     0, 0, g_fock(2))) call errquit('wnbofile: g_fock(2)', 0)
+     $     0, 0, g_fock(2))) call errquit('wnbofile: g_fock(2)', 0,
+     &       GA_ERR)
         call ga_zero(g_fock(2))
 
       endif 
@@ -794,7 +816,8 @@ c>>>  Begin $FOCK keylist.
 c
       if( ga_nodeid().eq.0)then
         if(.not.MA_Alloc_Get(MT_Dbl,nbf,'scratch',lscr,iscr))
-     $       call errquit('wnbofile: lscr memory alloc. failed',0)
+     $       call errquit('wnbofile: lscr memory alloc. failed',0,
+     &       MA_ERR)
 
         write(lfn,'(a)')'$FOCK'
 c
@@ -814,7 +837,7 @@ c
 
         write(lfn,9200)
         if (.not. ma_free_heap(lscr))
-     $       call errquit('wnbofile: lscr free heap failed',0)
+     $       call errquit('wnbofile: lscr free heap failed',0, MA_ERR)
       endif
 
 c
@@ -830,75 +853,76 @@ c>>>  Free handles and destroy arrays.
 c
       if (restricted) then
         if (.not. ga_destroy(g_scr)) 
-     $       call errquit('wnbofile: destroy g_scr',0)
+     $       call errquit('wnbofile: destroy g_scr',0, GA_ERR)
         if (.not. ga_destroy(g_movecs(1))) 
-     $       call errquit('wnbofile: destroy g_movecs',0)
+     $       call errquit('wnbofile: destroy g_movecs',0, GA_ERR)
         if (.not. ga_destroy(g_bo(1))) 
-     $       call errquit('wnbofile: destroy g_bo',0)
+     $       call errquit('wnbofile: destroy g_bo',0, GA_ERR)
         if (.not. ga_destroy(g_over)) 
-     $     call errquit('wnbofile: destroy g_over',0)
+     $     call errquit('wnbofile: destroy g_over',0, GA_ERR)
         if (.not. ga_destroy(g_fock(1))) 
-     $       call errquit('wnbofile: destroy g_fock',0)
+     $       call errquit('wnbofile: destroy g_fock',0, GA_ERR)
       else
         if (.not. ga_destroy(g_scr)) 
-     $       call errquit('wnbofile: destroy g_scr',0)
+     $       call errquit('wnbofile: destroy g_scr',0, GA_ERR)
         if (.not. ga_destroy(g_movecs(2)))
-     $       call errquit('wnbofile: destroy beta MOs', 0)
+     $       call errquit('wnbofile: destroy beta MOs', 0, GA_ERR)
         if (.not. ga_destroy(g_movecs(1)))
-     $       call errquit('wnbofile: destroy alpha MOs', 0)
+     $       call errquit('wnbofile: destroy alpha MOs', 0, GA_ERR)
         if (.not. ga_destroy(g_over)) 
-     $     call errquit('wnbofile: destroy g_over',0)
+     $     call errquit('wnbofile: destroy g_over',0, GA_ERR)
         if (.not. ga_destroy(g_bo(2)))
-     $       call errquit('wnbofile: destroy beta BO matrix', 0)
+     $       call errquit('wnbofile: destroy beta BO matrix', 0, GA_ERR)
         if (.not. ga_destroy(g_bo(1)))
-     $       call errquit('wnbofile: destroy alpha BO matrix', 0)
+     $       call errquit('wnbofile: destroy alpha BO matrix', 0,
+     &       GA_ERR)
         if (.not. ga_destroy(g_fock(1))) 
-     $       call errquit('wnbofile: destroy g_fock',0)
+     $       call errquit('wnbofile: destroy g_fock',0, GA_ERR)
         if (.not. ga_destroy(g_fock(2))) 
-     $       call errquit('wnbofile: destroy g_fock',0)
+     $       call errquit('wnbofile: destroy g_fock',0, GA_ERR)
       endif
 
       if (.not. ma_pop_stack(lind2))
-     $     call errquit('wnbofile: lind2 pop stack failed',0)
+     $     call errquit('wnbofile: lind2 pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(lind1))
-     $     call errquit('wnbofile: lind1 pop stack failed',0)
+     $     call errquit('wnbofile: lind1 pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(locc))
-     $     call errquit('wnbofile: locc pop stack failed',0)
+     $     call errquit('wnbofile: locc pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(leval))
-     $     call errquit('wnbofile: leval pop stack failed',0)
+     $     call errquit('wnbofile: leval pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(lncomp))
-     $     call errquit('wnbofile: lncomp pop stack failed',0)
+     $     call errquit('wnbofile: lncomp pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(ltype))
-     $     call errquit('wnbofile: ltype pop stack failed',0)
+     $     call errquit('wnbofile: ltype pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(lptr))
-     $     call errquit('wnbofile: lptr pop stack failed',0)
+     $     call errquit('wnbofile: lptr pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(lprim))
-     $     call errquit('wnbofile: lprim pop stack failed',0)
+     $     call errquit('wnbofile: lprim pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(ltags))
-     $     call errquit('wnbofile: ltags pop stack failed',0)
+     $     call errquit('wnbofile: ltags pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(lchg))
-     $     call errquit('wnbofile: lchg pop stack failed',0)
+     $     call errquit('wnbofile: lchg pop stack failed',0, MA_ERR)
 
       if (.not. ma_pop_stack(lcoord))
-     $     call errquit('wnbofile: lcoord pop stack failed',0)
+     $     call errquit('wnbofile: lcoord pop stack failed',0, MA_ERR)
 
 
       call int_terminate()
 
       if (.not. bas_destroy(lbasis)) call errquit
-     $     ('wnbofile: basis destroy failed',0)
+     $     ('wnbofile: basis destroy failed',0, BASIS_ERR)
 
       if (.not. geom_destroy(lgeom)) call errquit
-     $     ('wnbofile: geom destroy failed', 0)
+     $     ('wnbofile: geom destroy failed', 0, GEOM_ERR)
 
       call ga_sync()
 

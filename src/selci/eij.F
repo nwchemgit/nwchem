@@ -1,8 +1,9 @@
       subroutine selci_eij(e,i,j,ns,indbar,iocc,w1,w2)
 *
-* $Id: eij.F,v 1.2 1997-10-31 23:42:00 d3e129 Exp $
+* $Id: eij.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 #include "ceij.fh"
 c     
@@ -23,12 +24,12 @@ c     1         1       2
 c     3         0       3
 c     3         1       4
 c     
-      if (i.eq.j) call errquit('eij, i=j',i)
+      if (i.eq.j) call errquit('eij, i=j',i, UNKNOWN_ERR)
 c     
       numf = nf(ns)
       icase = iocc(i)+iocc(j)
       goto (10,20,30,40) icase
-      call errquit('eij: fell thru goto',icase)
+      call errquit('eij: fell thru goto',icase, UNKNOWN_ERR)
 c     
 c     ni=1, nj=0 : e(u,v) = sum(q) w1(u,q,ib)*w1(v,q,jb)
 c     

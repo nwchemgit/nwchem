@@ -3,13 +3,14 @@ C NAME
 C     CCDen_Interm2 -- Form two-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm2.F,v 2.5 1999-07-08 19:10:52 d3e129 Exp $
+C     $Id: ccden_interm2.F,v 2.6 2003-10-17 22:54:25 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm2(NOcc, NVir, T1, LDT1, g_T2,
      $   Z1, LDZ1, g_Z2,
      $   Omega1, LDO1, Omega2, LDO2, Omega3, LDO3, Omega4, LDO4)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir, LDT1, LDZ1, LDO1, LDO2, LDO3, LDO4
       Integer g_T2, g_Z2
       Double Precision T1(LDT1, NVir), Z1(LDT1, NVir)
@@ -69,7 +70,8 @@ C
       Call CCSD_T2_MyIJ(GA_NodeID(), NVir, G_T2, T2_ILo, T2_IHi,
      $     T2_JLo, T2_JHi)
       If (.NOT. GA_Compare_Distr(g_T2, g_Z2) ) Call ErrQuit(
-     $   'CCDen_Interm2: T2 and Z2 must have same dist.', 0)
+     $   'CCDen_Interm2: T2 and Z2 must have same dist.', 0,
+     &       GA_ERR)
 C
       Write (LuOut, *) 'CCDen_Interm2 ', GA_NodeID(), ': T2 region (',
      $   T2_ILo, ':', T2_IHi, ', ', T2_JLo, ':', T2_JHi, ')'
@@ -83,7 +85,7 @@ C     appropriate row of Z1 (vector-matrix multiply)
 C
       If (.NOT. MA_Push_Get( MT_Dbl, NVir*NVir, 'CC Density scratch 1',
      $   H_Scr1, I_Scr1)) Call ErrQuit(
-     $   'CCDen_Interm2: unable to allocate scratch', NVir*NVir)
+     $   'CCDen_Interm2: unable to allocate scratch', NVir*NVir, MA_ERR)
 C
       Do I = T2_ILo, T2_IHi
          Do M = T2_JLo, T2_JHi
@@ -168,7 +170,7 @@ C     **************************************************
 C
       If (.NOT. MA_Push_Get( MT_Dbl, NVir*NVir, 'CC Density scratch 2',
      $   H_Scr2, I_Scr2)) Call ErrQuit(
-     $   'CCDen_Interm2: unable to allocate scratch', NVir*NVir)
+     $   'CCDen_Interm2: unable to allocate scratch', NVir*NVir, MA_ERR)
 C
       Do M = T2_ILo, T2_IHi
          Do N = T2_JLo, T2_JHi
@@ -194,9 +196,10 @@ c$$$C
       EndDo
 C
       If (.NOT. MA_Pop_Stack( H_Scr2 ) ) Call ErrQuit(
-     $   'CCDen_Interm2: unable to free scratch', 2)
+     $   'CCDen_Interm2: unable to free scratch', 2, MA_ERR)
       If (.NOT. MA_Pop_Stack( H_Scr1 ) ) Call ErrQuit(
-     $   'CCDen_Interm2: unable to free scratch', 1)
+     $   'CCDen_Interm2: unable to free scratch', 1,
+     &       MA_ERR)
 C
 C     Sum the partial results to complete Omega3
 C
@@ -241,7 +244,7 @@ C
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C REVISION
-C     $Id: ccden_interm2.F,v 2.5 1999-07-08 19:10:52 d3e129 Exp $
+C     $Id: ccden_interm2.F,v 2.6 2003-10-17 22:54:25 carlfahl Exp $
 C SYNOPSIS
       Subroutine CCSD_T2_MyIJ(Node, NVir, g_T2, ILo, IHi, JLo, JHi)
       Implicit NONE

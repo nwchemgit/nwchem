@@ -1,8 +1,9 @@
       subroutine geom_1d(geom,c2au)
 *
-* $Id: geom_1d.F,v 1.4 1999-07-14 00:28:57 d3e129 Exp $
+* $Id: geom_1d.F,v 1.5 2003-10-17 22:55:06 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "geom.fh"
 #include "nwc_const.fh"
@@ -12,7 +13,7 @@ c
       double precision c2au
       write(*,*) 'SYSTYPE=POLYMER IS NOT A VALID OPTION AT THIS TIME'
 c
-      call errquit('geom_1d:invalid system type',isystype(1))
+      call errquit('geom_1d:invalid system type',isystype(1), GEOM_ERR)
 c
       return
       end

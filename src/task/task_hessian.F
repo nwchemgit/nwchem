@@ -1,8 +1,9 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.21 2003-02-22 19:57:24 sohirata Exp $
+* $Id: task_hessian.F,v 1.22 2003-10-17 22:58:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -56,7 +57,8 @@ c
 c     Right now only have a QM component
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:hessian: theory not specified',0)
+     $     call errquit('task:hessian: theory not specified',0,
+     &       RTDB_ERR)
       if (.not. rtdb_get(rtdb,'task:numerical',mt_log,1,numerical))
      &    numerical = .false.
       if (.not. rtdb_get(rtdb,'task:analytic',mt_log,1,analytic))
@@ -73,7 +75,8 @@ c
       ignore = rtdb_delete(rtdb, 'task:hessian file name')
       ignore = rtdb_delete(rtdb,'task:hessian')
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_hessian: failed to invalidate status',0)
+     $     call errquit('task_hessian: failed to invalidate status',0,
+     &       RTDB_ERR)
 
       prefix = theory ! Most common
 c
@@ -137,7 +140,8 @@ c
         if (theory .eq. 'scf' .or. theory .eq. 'dft') then
           status = hess_anal(rtdb)
         else
-          call errquit('task_hessian: unknown analytic theory',0)
+          call errquit('task_hessian: unknown analytic theory',0,
+     &       INPUT_ERR)
         endif
 c
       endif
@@ -152,15 +156,19 @@ c     endif
 c
       task_hessian = status
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, task_hessian))
-     $     call errquit('task_hessian: failed to store status',0)
+     $     call errquit('task_hessian: failed to store status',0,
+     &       RTDB_ERR)
 c
       call util_file_name('hess',  .false., .false.,filehess)
       if (.not.rtdb_cput(rtdb,'task:hessian file name',1,filehess))
-     &    call errquit('task_hessian: failed to store filename',911)
+     &    call errquit('task_hessian: failed to store filename',911,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $    call errquit('task_gradient: failed storing cputime',0)
+     $    call errquit('task_gradient: failed storing cputime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $    call errquit('task_gradient: failed storing walltime',0)
+     $    call errquit('task_gradient: failed storing walltime',0,
+     &       RTDB_ERR)
 c
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)

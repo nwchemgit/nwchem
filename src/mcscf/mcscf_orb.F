@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.42 1999-06-16 00:10:21 d3e129 Exp $
+c  $Id: mcscf_orb.F,v 1.43 2003-10-17 22:55:21 carlfahl Exp $
 c
 c
 c  Orbital MCSCF macroiteration
@@ -17,6 +17,7 @@ c
      $                           gnorm, orbe, g_movecs, oconverged,
      $                           oprconv, occ )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -117,7 +118,8 @@ c
        if (.not. rtdb_get(rtdb,'mcscf:line_search_tol',MT_DBL,
      $                    1,lsrch_tol)) lsrch_tol = 1.d-1
        if (.not.geom_nuc_rep_energy( geom, enrep ))
-     $   call errquit('mcscf_orb: cannot retrieve nuclear repulsion',0)
+     $   call errquit('mcscf_orb: cannot retrieve nuclear repulsion',0,
+     &       GEOM_ERR)
        molo = nclosed + 1
        mohi = nclosed + nact
        nsym = sym_number_ops(geom)+1
@@ -132,46 +134,57 @@ c  Allocate MO matrices
 c
 *ga:1:0
        if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,0,g_afock))
-     $      call errquit('mcscf_orb: cannot allocate active Fock',0)
+     $      call errquit('mcscf_orb: cannot allocate active Fock',0,
+     &       GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,0,g_ifock))
-     $      call errquit('mcscf_orb: cannot allocate inactive Fock',0)
+     $      call errquit('mcscf_orb: cannot allocate inactive Fock',0,
+     &       GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,0,g_gfock))
-     $      call errquit('mcscf_orb: cannot allocate general Fock',0)
+     $      call errquit('mcscf_orb: cannot allocate general Fock',0,
+     &       GA_ERR)
        if (oe2approx) then
          nnact = (nact*(nact+1))/2
 *ga:1:0
          if (.not.ga_create(MT_DBL,nbf,nbf,'Unitrary',nbf,0,g_u))
-     $        call errquit('mcscf_orb: cannot allocate unitrary',0)
+     $        call errquit('mcscf_orb: cannot allocate unitrary',0,
+     &       GA_ERR)
 *ga:1:0
          if (.not.ga_create(MT_DBL,nbf,nbf,'B matrix',nbf,0,g_b))
-     $        call errquit('mcscf_orb: cannot allocate B',0)
+     $        call errquit('mcscf_orb: cannot allocate B',0,
+     &       GA_ERR)
 *ga:1:0
          if (.not.ga_create(MT_DBL,nbf,nbf,'Temp',nbf,0,g_tmp))
-     $        call errquit('mcscf_orb: cannot allocate B',0)
+     $        call errquit('mcscf_orb: cannot allocate B',0,
+     &       GA_ERR)
 *ga:1:0
          if (.not.ga_create(MT_DBL,(nact*nact),nnact,'Act Ints',
      $                      (nact*nact), 0, g_actints ))
-     $        call errquit('mcscf_orb: cannot allocate active ints',0)
+     $        call errquit('mcscf_orb: cannot allocate active ints',0,
+     &       GA_ERR)
        endif
        if (.not.ga_duplicate(g_movecs,g_newvecs,'New MO vectors'))
-     $      call errquit('mcscf_orb: cannot duplicate movecs',0)
+     $      call errquit('mcscf_orb: cannot duplicate movecs',0,
+     &       GA_ERR)
 c
 c  Allocate gradient vectors
 c
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,1,'Gradient',0,0,g_grad))
-     $      call errquit('mcscf_orbsolve: cannot allocate',0)
+     $      call errquit('mcscf_orbsolve: cannot allocate',0,
+     &       GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,1,'K vector',0,0,g_kvec))
-     $      call errquit('mcscf_orbsolve: cannot allocate',0)
+     $      call errquit('mcscf_orbsolve: cannot allocate',0,
+     &       GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,1,'Search',0,0,g_srch))
-     $      call errquit('mcscf_orbsolve: cannot allocate',0)
+     $      call errquit('mcscf_orbsolve: cannot allocate',0,
+     &       GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,1,'Hess Diag',0,0,g_hdiag))
-     $      call errquit('mcscf_orbsolve: cannot allocate',0)
+     $      call errquit('mcscf_orbsolve: cannot allocate',0, GA_ERR)
        call ga_zero(g_kvec)
        call ga_zero(g_srch)
 c
@@ -248,7 +261,7 @@ c
        call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
      $                       g_srch, .true., .false., maxx )
        if (maxx .gt. 1d-6) call errquit('mcscf_orb: large symmetry'//
-     $      ' contamination in search direction',0)
+     $      ' contamination in search direction',0, GEOM_ERR)
 C       call ga_screen(g_srch, 1.d-10 )
        snorm = sqrt(ga_ddot(g_srch,g_srch))
 c
@@ -264,7 +277,8 @@ c
        call mcscf_vsymm_chk( nbf, nclosed, nact, orbsym,
      $                       g_srch, .true., .false., maxx )
        if (maxx .gt. 1d-6) call errquit('mcscf_orb: large symmetry'//
-     $      ' contamination in search direction after conjugacy',0)
+     $      ' contamination in search direction after conjugacy',0,
+     &       GEOM_ERR)
 c
 c  Info print
 c
@@ -472,7 +486,8 @@ c
 *       write(6,*) ' MOVECS after sym adaption'
 *       call ga_print(g_movecs)
        if (nmixed .ne. 0)
-     $   call errquit('mcscf_orb: symmetry contamination', nmixed)
+     $   call errquit('mcscf_orb: symmetry contamination', nmixed,
+     &       GEOM_ERR)
 c
 c  Save updated MOs
 c  Orbitals maybe reordered on save (movecs_lock)
@@ -498,30 +513,40 @@ c
  555   continue
        if (oe2approx) then
          if (.not.ga_destroy(g_u))
-     $        call errquit('mcscf_orbsolve: cannot destroy unitrary',0)
+     $        call errquit('mcscf_orbsolve: cannot destroy unitrary',0,
+     &       GA_ERR)
          if (.not.ga_destroy(g_b))
-     $        call errquit('mcscf_orbsolve: cannot destroy B',0)
+     $        call errquit('mcscf_orbsolve: cannot destroy B',0,
+     &       GA_ERR)
          if (.not.ga_destroy(g_tmp))
-     $        call errquit('mcscf_orbsolve: cannot destroy B',0)
+     $        call errquit('mcscf_orbsolve: cannot destroy B',0, GA_ERR)
          if (.not.ga_destroy(g_actints))
-     $        call errquit('mcscf_orbsolve: cannot destroy B',0)
+     $        call errquit('mcscf_orbsolve: cannot destroy B',0, GA_ERR)
        endif
        if (.not.ga_destroy(g_newvecs))
-     $      call errquit('mcscf_orbsolve: cannot destroy MO matrix',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy MO matrix',0,
+     &       GA_ERR)
        if (.not.ga_destroy(g_afock))
-     $      call errquit('mcscf_orbsolve: cannot destroy act fock',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy act fock',0,
+     &       GA_ERR)
        if (.not.ga_destroy(g_ifock))
-     $      call errquit('mcscf_orbsolve: cannot destroy inact fock',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy inact fock',0,
+     &       GA_ERR)
        if (.not.ga_destroy(g_gfock))
-     $      call errquit('mcscf_orbsolve: cannot destroy gen fock',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy gen fock',0,
+     &       GA_ERR)
        if (.not.ga_destroy(g_grad))
-     $      call errquit('mcscf_orbsolve: cannot destroy gradient',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy gradient',0,
+     &       GA_ERR)
        if (.not.ga_destroy(g_kvec))
-     $      call errquit('mcscf_orbsolve: cannot destroy k-vector',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy k-vector',0,
+     &       GA_ERR)
        if (.not.ga_destroy(g_srch))
-     $      call errquit('mcscf_orbsolve: cannot destroy search',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy search',0,
+     &       GA_ERR)
        if (.not.ga_destroy(g_hdiag))
-     $      call errquit('mcscf_orbsolve: cannot destroy search',0)
+     $      call errquit('mcscf_orbsolve: cannot destroy search',0,
+     &       GA_ERR)
        return
        end
 
@@ -579,6 +604,7 @@ c
        subroutine mcscf_trfJKu( nbf, nclosed, nact, g_u, g_coul,
      $                          g_exch, g_actints )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
        integer nbf, nclosed, nact
@@ -600,13 +626,14 @@ c
        aoff = nclosed + 1
        aend = nclosed + nact
        if (.not.ma_push_get(MT_DBL,(nbf*nbf),'t',l_s,k_s))
-     $   call errquit('mcscf_trfJKu: cannot allocate s',0)
+     $   call errquit('mcscf_trfJKu: cannot allocate s',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nbf*nbf),'t',l_z,k_z))
-     $   call errquit('mcscf_trfJKu: cannot allocate t',0)
+     $   call errquit('mcscf_trfJKu: cannot allocate t',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nbf*nbf),'u',l_u,k_u))
-     $   call errquit('mcscf_trfJKu: cannot allocate t',0)
+     $   call errquit('mcscf_trfJKu: cannot allocate t',0, MA_ERR)
        if (.not.ga_check_JKblocked( g_coul, nact, nbf, clo, chi ))
-     $   call errquit('mcscf_trfJKu: wrong distrib operator',0)
+     $   call errquit('mcscf_trfJKu: wrong distrib operator',0,
+     &       GA_ERR)
        call ga_get(g_u,1,nbf,aoff,aend,dbl_mb(k_u),nbf)
        call ga_zero(g_actints)
 c
@@ -757,11 +784,11 @@ c$$$         ENDDO
 c$$$       ENDDO
 
        if (.not.ma_pop_stack(l_u))
-     $   call errquit('mcscf_trfJKu: failed pop stack',0)
+     $   call errquit('mcscf_trfJKu: failed pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_z))
-     $   call errquit('mcscf_trfJKu: failed pop stack',0)
+     $   call errquit('mcscf_trfJKu: failed pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_s))
-     $   call errquit('mcscf_trfJKu: failed pop stack',0)
+     $   call errquit('mcscf_trfJKu: failed pop stack',0, MA_ERR)
        return
        end
 
@@ -789,6 +816,7 @@ c$$$       ENDDO
 
       subroutine mcscf_pr_j( nbf, nclosed, nact, g_coul )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer nbf, nclosed, nact
@@ -799,7 +827,7 @@ c$$$       ENDDO
       logical ga_check_JKblocked
 
       if (.not.ga_check_JKblocked( g_coul, nact, nbf, clo, chi ))
-     $   call errquit('mcscf_trfJKu: wrong distrib operator',0)
+     $   call errquit('mcscf_trfJKu: wrong distrib operator',0, GA_ERR)
       do t=1,nact
         do u=1,t
           tu = (t*(t-1))/2 + u

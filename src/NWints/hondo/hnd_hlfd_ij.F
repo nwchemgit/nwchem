@@ -1,5 +1,5 @@
 c
-c $Id: hnd_hlfd_ij.F,v 1.4 2000-07-13 22:24:24 windus Exp $
+c $Id: hnd_hlfd_ij.F,v 1.5 2003-10-17 22:53:53 carlfahl Exp $
 c
 c Taken from HONDO
 c
@@ -15,6 +15,7 @@ c
 #include "hnd_rys.fh"
 #include "hnd_tol.fh"
 #include "stdio.fh"
+#include "errquit.fh"
       integer i_nprim   ! [input] num. prims on function i
       integer i_ngen    ! [input] num general conts on func. i
       integer Li        ! [input] angular momentum of func. i
@@ -125,7 +126,7 @@ c
       nroots=(lit+ljt+nder-2)/2+1
       if(nroots.gt.maxrys) then
          write(luout,9997) maxrys,lit,ljt,nroots
-         call errquit('hnd_hlfd_ij2: maxrys is too large!',555)
+         call errquit('hnd_hlfd_ij2: maxrys is too large!',555, INT_ERR)
       endif
 c
 c     ----- i primitive -----
@@ -152,7 +153,7 @@ c
       elseif(lit.eq.5) then
         cgi=coefi(ig,i_ngen)
       else
-        call errquit('hnd_hlfd_ij2: illegal -lit- ',lit)
+        call errquit('hnd_hlfd_ij2: illegal -lit- ',lit, INT_ERR)
       endif
 c
 c     ----- j primitive -----
@@ -180,7 +181,7 @@ c
       elseif(ljt.eq.5) then
         cgj=coefj(jg,j_ngen)
       else
-        call errquit('hnd_hlfd_ij2: illegal -ljt- ',ljt)
+        call errquit('hnd_hlfd_ij2: illegal -ljt- ',ljt, INT_ERR)
       endif
       ax=(axi+aj*xj)*aa1
       ay=(ayi+aj*yj)*aa1

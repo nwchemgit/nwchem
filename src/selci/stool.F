@@ -2,9 +2,10 @@
      &     nroot,irange,nrange,iwpt,
      &     noconfi,ioconf,nintpo,nconmx,ncold)
 *
-* $Id: stool.F,v 1.7 2000-10-25 22:50:16 windus Exp $
+* $Id: stool.F,v 1.8 2003-10-17 22:58:17 carlfahl Exp $
 *
       implicit real*8 (a-h,o-z), integer(i-n)
+#include "errquit.fh"
 c     
 c     collect info from the other processes for restart
 c     
@@ -32,11 +33,11 @@ c
 c     
       its = mtime()
       if (nroot.gt.50) call errquit('STOOL: hard dimension fail',
-     $     nroot)
+     $     nroot, INPUT_ERR)
       me = ga_nodeid()
       master = 0
       if (ga_nnodes() .gt. 1024) call errquit('ptidy: too many procs',
-     $     0)
+     $     0, INPUT_ERR)
       call ga_list_nodeid(pmap, ga_nnodes()) ! Map to msg passing layer
 *     write(6,*) ga_nodeid(),' processor map ', 
 *     $     (pmap(i),i=0,ga_nnodes()-1)
@@ -93,7 +94,7 @@ c
                ipt = ipt + new
             else
                call errquit(' stool: noconf exceeded nconmx ',
-     &              noconf)
+     &              noconf, INPUT_ERR)
             endif
             call rcv(23, eptn, mdtob(nroot), len, islave, node,
      &           isync)
@@ -160,7 +161,7 @@ c
 c     
       return
 c     
-90911 call errquit('stool: error opening restart file',0)
-90912 call errquit('stool: error opening restart file',0)
+90911 call errquit('stool: error opening restart file',0, DISK_ERR)
+90912 call errquit('stool: error opening restart file',0, DISK_ERR)
 c     
       end

@@ -1,7 +1,8 @@
-c     $Id: fractional.F,v 1.1 2001-11-13 01:37:16 bylaska Exp $
+c     $Id: fractional.F,v 1.2 2003-10-17 22:56:36 carlfahl Exp $
 
       subroutine fractional_to_cartesian(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
@@ -28,7 +29,8 @@ c     $Id: fractional.F,v 1.1 2001-11-13 01:37:16 bylaska Exp $
 
       if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'fractional_to_cartesian: failed to read keyword', 0)
+     >          'fractional_to_cartesian: failed to read keyword', 0,
+     &       INPUT_ERR)
       
 *     *************************
 *     **** read in lattice ****
@@ -116,20 +118,22 @@ c     $Id: fractional.F,v 1.1 2001-11-13 01:37:16 bylaska Exp $
 *     **** rewrite geometry data structure to stdout ****
 *     ***************************************************
       if (.not. geom_create(geom,'geometry'))
-     $        call errquit('geom_create:  failed ', 0)
+     $        call errquit('geom_create:  failed ', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry'))
-     $        call errquit('geom_rtdb_load: ', 0) 
+     $        call errquit('geom_rtdb_load: ', 0, RTDB_ERR)
       if (.not. geom_print(geom))
-     $        call errquit('geom_input: print failed ', 0)
+     $        call errquit('geom_input: print failed ', 0, GEOM_ERR)
       if (.not.geom_print_distances(geom))
-     &        call errquit('geom_input: print_distances failed ',911)
+     &        call errquit('geom_input: print_distances failed ',911,
+     &       GEOM_ERR)
       if (.not.geom_print_angles(geom))
-     &        call errquit('geom_input: print_angles failed ',911)   
+     &        call errquit('geom_input: print_angles failed ',911,
+     &       GEOM_ERR)
       if(.not. geom_verify_coords(geom))
      &     call errquit
-     &     ('geom_input: geom_verify_coords failed',911)
+     &     ('geom_input: geom_verify_coords failed',911, GEOM_ERR)
       if (.not. geom_destroy(geom))
-     $     call errquit('geom_input: geom_destroy failed', 0)
+     $     call errquit('geom_input: geom_destroy failed', 0, GEOM_ERR)
 
       value = MA_pop_stack(rion(2))
       return
@@ -140,6 +144,7 @@ c     $Id: fractional.F,v 1.1 2001-11-13 01:37:16 bylaska Exp $
 
       subroutine cartesian_to_fractional(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
@@ -166,7 +171,8 @@ c     $Id: fractional.F,v 1.1 2001-11-13 01:37:16 bylaska Exp $
 
       if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'fractional_to_cartesian: failed to read keyword', 0)
+     >          'fractional_to_cartesian: failed to read keyword', 0,
+     &       INPUT_ERR)
       
 *     *************************
 *     **** read in lattice ****
@@ -266,20 +272,22 @@ c     $Id: fractional.F,v 1.1 2001-11-13 01:37:16 bylaska Exp $
 *     **** rewrite geometry data structure to stdout ****
 *     ***************************************************
       if (.not. geom_create(geom,'geometry'))
-     $        call errquit('geom_create:  failed ', 0)
+     $        call errquit('geom_create:  failed ', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry'))
-     $        call errquit('geom_rtdb_load: ', 0) 
+     $        call errquit('geom_rtdb_load: ', 0, RTDB_ERR)
       if (.not. geom_print(geom))
-     $        call errquit('geom_input: print failed ', 0)
+     $        call errquit('geom_input: print failed ', 0, GEOM_ERR)
       if (.not.geom_print_distances(geom))
-     &        call errquit('geom_input: print_distances failed ',911)
+     &        call errquit('geom_input: print_distances failed ',911,
+     &       GEOM_ERR)
       if (.not.geom_print_angles(geom))
-     &        call errquit('geom_input: print_angles failed ',911)   
+     &        call errquit('geom_input: print_angles failed ',911,
+     &       GEOM_ERR)
       if(.not. geom_verify_coords(geom))
      &     call errquit
-     &     ('geom_input: geom_verify_coords failed',911)
+     &     ('geom_input: geom_verify_coords failed',911, GEOM_ERR)
       if (.not. geom_destroy(geom))
-     $     call errquit('geom_input: geom_destroy failed', 0)
+     $     call errquit('geom_input: geom_destroy failed', 0, GEOM_ERR)
       
       value = MA_pop_stack(rion(2))
 

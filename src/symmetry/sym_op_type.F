@@ -1,6 +1,7 @@
       subroutine sym_op_type(r, op_type, order, power, direction)
-C$Id: sym_op_type.F,v 1.4 2000-09-23 00:35:25 edo Exp $
+C$Id: sym_op_type.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       double precision r(3,3)
       character*(*) op_type
       integer order, power
@@ -45,7 +46,7 @@ c
          endif
       else
          write(6,*) ' sym_op_type: inconsistency ', deter, trace
-         call errquit('sym_op_type: deter/trace?', 0)
+         call errquit('sym_op_type: deter/trace?', 0, GEOM_ERR)
       endif
 c
 c     Determine angles of rotations
@@ -59,7 +60,7 @@ cedo      write(0,*) ' ttt ',trace
          endif
          if (abs(acos_arg) .gt. (1.0d0+1d-6)) then
             write(6,*) ' sym_op_type: invalid trace for rotation', trace
-            call errquit('sym_op_type: bad trace', 0)
+            call errquit('sym_op_type: bad trace', 0, GEOM_ERR)
          else if (abs(acos_arg) .gt. 1.0d0) then
             acos_arg = sign(1.0d0,acos_arg)
          endif
@@ -72,7 +73,7 @@ cedo         write(0,*) ' aaangle ',angle,acos_arg
             enddo
          enddo
          write(6,*) ' sym_op_type: angle is not 2*pi*m/n ', angle
-         call errquit('sym_op_type: bad', 0)
+         call errquit('sym_op_type: bad', 0, GEOM_ERR)
  10      order = n
          power = m
 cedo         write(0,*) ' mmmm ',m
@@ -125,7 +126,7 @@ cedo      write(0,*) ' repeat ',repeat
         dnorm = direction(1)**2+direction(2)**2+direction(3)**2
         dnorm = sqrt(dnorm)
         if (dnorm .lt. 1.0d-3) call errquit
-     $       (' sym_op_type: zero norm for direction?',0)
+     $       (' sym_op_type: zero norm for direction?',0, GEOM_ERR)
 c
 c     Establish convention for positive directions
 c     a) make z>0
@@ -156,7 +157,7 @@ c
            enddo
            if (abs(tmp(j)*phase - direction(j)) .gt. 1.0e-6) 
      $          call errquit
-     $          (' sym_op_type: direction is not correct? ',0)
+     $          (' sym_op_type: direction is not correct? ',0, GEOM_ERR)
         enddo
       endif
 c

@@ -9,7 +9,7 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.15 2000-04-10 12:05:34 hvd Exp $
+C$Id: util_print.F,v 1.16 2003-10-17 22:58:35 carlfahl Exp $
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"
@@ -79,11 +79,12 @@ c
       end
       subroutine util_print_push
       implicit none
+#include "errquit.fh"
 #include "printlevels.fh"
 #include "printcommon.fh"
 c
       if (depth .eq. maxdepth) then
-         call errquit('util_print_push: too deep',depth)
+         call errquit('util_print_push: too deep',depth, INPUT_ERR)
       else
          depth = depth + 1
 *  Next line for no inheritance
@@ -99,11 +100,12 @@ c
       end
       subroutine util_print_pop
       implicit none
+#include "errquit.fh"
 #include "printlevels.fh"
 #include "printcommon.fh"
 c
       if (depth .eq. 1) then
-         call errquit('util_print_pop: too high',depth)
+         call errquit('util_print_pop: too high',depth, INPUT_ERR)
       else
          depth = depth - 1
       endif
@@ -111,6 +113,7 @@ c
       end
       subroutine util_print_enable(name)
       implicit none
+#include "errquit.fh"
 #include "printlevels.fh"
 #include "printcommon.fh"
 #include "stdio.fh"
@@ -118,7 +121,7 @@ c
 c
       if (n_print(depth) .eq. maxnames) then
          call errquit('util_print_enable: too many names', 
-     $        n_print(depth))
+     $        n_print(depth), INPUT_ERR)
       else
          if (name(1:5) .eq. 'print') then
             oprint_print(depth) = .true.
@@ -134,6 +137,7 @@ c
       end
       subroutine util_print_disable(name)
       implicit none
+#include "errquit.fh"
 #include "printlevels.fh"
 #include "printcommon.fh"
 #include "stdio.fh"
@@ -141,7 +145,7 @@ c
 c
       if (n_no_print(depth) .eq. maxnames) then
          call errquit('util_print_disable: too many names', 
-     $        n_no_print(depth))
+     $        n_no_print(depth), INPUT_ERR)
       else
          n_no_print(depth) = n_no_print(depth) + 1
          no_print_names(n_no_print(depth), depth) = name
@@ -230,6 +234,7 @@ c
       end
       subroutine util_print_input(rtdb, prefix)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
       integer rtdb
@@ -251,7 +256,8 @@ c     the name for the database entry
 c
       call inp_set_field(0)
       if (.not. inp_a(test))
-     $     call errquit('util_print_input: can''t read directive',0)
+     $     call errquit('util_print_input: can''t read directive',0,
+     &       INPUT_ERR)
 c
       entry = ' '
       if (inp_compare(.false.,'print',test)) then
@@ -259,20 +265,22 @@ c
       else if (inp_compare(.false.,'noprint',test)) then
          write(entry,'(a,a)') prefix(1:inp_strlen(prefix)), ':noprint'
       else
-         call errquit('util_print_input: not print or noprint?',0)
+         call errquit('util_print_input: not print or noprint?',0,
+     &       INPUT_ERR)
       endif
 c
       n = 0
  10   if (inp_a(test)) then
          n = n + 1
          if (n .gt. maxnames) call errquit
-     $        ('util_print_input: too many names?',n)
+     $        ('util_print_input: too many names?',n, INPUT_ERR)
          buf(n) = test
          goto 10
       endif
 c
       if (.not. rtdb_cput(rtdb,entry,n,buf)) call errquit
-     $     ('util_print_input: failed to store in database',rtdb)
+     $     ('util_print_input: failed to store in database',rtdb,
+     &       RTDB_ERR)
 c
       end
       subroutine util_print_common_data

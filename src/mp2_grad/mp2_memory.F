@@ -2,9 +2,10 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task,scftype)
 *     
-*     $Id: mp2_memory.F,v 1.21 2003-01-09 02:02:15 bert Exp $
+*     $Id: mp2_memory.F,v 1.22 2003-10-17 22:55:29 carlfahl Exp $
 *     
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -53,16 +54,16 @@ c     Count no. of non-zero basis function pairs in same way as
 c     moints-semi to estimate the file size
 c     
       if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('mp2_memory: bas_numcont failed', 0)
+     $     ('mp2_memory: bas_numcont failed', 0, BASIS_ERR)
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
       nnbf_sparse = 0
       do ish = 1+ga_nodeid(), nsh, ga_nnodes()
          if (.not. bas_cn2bfr(basis,ish,ilo,ihi)) call errquit
-     $        ('mp2_memory: bas_cntobfr failed', ish)
+     $        ('mp2_memory: bas_cntobfr failed', ish, BASIS_ERR)
          do jsh = 1, ish
             if (.not. bas_cn2bfr(basis,jsh,jlo,jhi)) call errquit
-     $           ('mp2_memory: bas_cntobfr failed', jsh)
+     $           ('mp2_memory: bas_cntobfr failed', jsh, BASIS_ERR)
             if (schwarz_shell(ish,jsh)*schwarz_max().ge.tol2e) then
                if (ish.ne. jsh) then
                   nnbf_sparse = nnbf_sparse+(ihi-ilo+1)*(jhi-jlo+1)
@@ -73,7 +74,8 @@ c
          enddo
       enddo
       call ga_igop(543, nnbf_sparse, 1, '+')
-      if (nnbf_sparse .gt. nnbf) call errquit('mp2mem: confused',0)
+      if (nnbf_sparse .gt. nnbf) call errquit('mp2mem: confused',0,
+     &       MEM_ERR)
 c     
       k_file_size=dble(nnbf_sparse)*batch_size*nva_local + nnbf + 2
       t_file_size = 0

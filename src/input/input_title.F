@@ -1,6 +1,7 @@
       subroutine input_title(rtdb)
-C$Id: input_title.F,v 1.7 2001-11-28 18:40:41 bert Exp $
+C$Id: input_title.F,v 1.8 2003-10-17 22:55:18 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "stdio.fh"
@@ -16,7 +17,7 @@ c
       call inp_set_field(0)
       if (inp_n_field() .gt. 2) goto 1000
       if (.not. inp_a(title)) call errquit
-     *      ('input_title: title is not set',555)
+     *      ('input_title: title is not set',555, INPUT_ERR)
       if (.not. inp_a(title)) goto 1000
 c
 c     Shuffle title down to remove leading blanks
@@ -46,9 +47,10 @@ c
 c     Store title in the database
 c
       if (.not. rtdb_cput(rtdb, 'title', 1, title))
-     $     call errquit('input_title: put of title failed', lent)
+     $     call errquit('input_title: put of title failed', lent,
+     &       RTDB_ERR)
 c
       return
 c
- 1000 call errquit('input_title: title <string title>', 0)
+ 1000 call errquit('input_title: title <string title>', 0, INPUT_ERR)
       end

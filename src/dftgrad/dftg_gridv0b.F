@@ -15,9 +15,10 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.23 2003-10-13 21:22:51 pollack Exp $
+c     $Id: dftg_gridv0b.F,v 1.24 2003-10-17 22:54:42 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "cdft.fh"
 #include "stdio.fh"
@@ -140,10 +141,10 @@ c
 c
                if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao, 'chi_ao',
      &            lchi_ao, ichi_ao))call errquit
-     &            (' exiting in dftg_gridv0b: insuff stack',9)
+     &            (' exiting in dftg_gridv0b: insuff stack',9, MA_ERR)
                if (.not. MA_Push_Get(MT_Dbl, 3*nqpts*mbf_ao, 
      &            'gradchi_ao', lgradchi_ao,idelchi_ao))call errquit
-     &            (' exiting in dftg_gridv0b: insuff stack',9)
+     &            (' exiting in dftg_gridv0b: insuff stack',9, MA_ERR)
 c         
 c              hessian is used only for derivatives; set array to length 1
 c              here
@@ -157,7 +158,7 @@ c
 c
                if (.not. MA_Push_Get(MT_Dbl, m4, 'heschi_ao', 
      &            lheschi_ao, iheschi_ao))call errquit
-     &            (' exiting in dftg_gridv0b: insuff stack',9)
+     &            (' exiting in dftg_gridv0b: insuff stack',9, MA_ERR)
 c    
                if (der3chi)then
                   m4 = 10*nqpts*mbf_ao
@@ -167,7 +168,7 @@ c
 c
                if (.not. MA_Push_Get(MT_Dbl, m4, 'd3chi_ao', 
      &            ld3chi_ao, id3chi_ao))call errquit
-     &            (' exiting in dftg_gridv0b: insuff stack',19)
+     &            (' exiting in dftg_gridv0b: insuff stack',19, MA_ERR)
 c
                call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
                call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
@@ -256,11 +257,13 @@ c     Allocate scratch space to use with xc_cpks_coeff in xc_d2expl
 c
                   if (.not.MA_push_get(MT_DBL, ipol*nqpts*3,
      &                 'Acof2', l_Acof2, k_Acof2)) call
-     &                 errquit('dftg_gridv0b: cannot allocate Acof2',1)
+     &                 errquit('dftg_gridv0b: cannot allocate Acof2',1,
+     &       MA_ERR)
                   if (grad) then
                      if (.not.MA_push_get(MT_DBL, ipol*9*nqpts, 'CCof2',
      &                    l_Ccof2, k_Ccof2)) call
-     &                    errquit('dftg_gridv0b: cant alloc Ccof2',1)
+     &                    errquit('dftg_gridv0b: cant alloc Ccof2',1,
+     &       MA_ERR)
                   endif
                   call xc_d2expl(tol_rho, d2scr(3*nqpts+1), Amat, Amat2,
      &                 dbl_mb(k_Acof2), Cmat, Cmat2, dbl_mb(k_Ccof2),
@@ -276,10 +279,11 @@ c
                   if (grad) then
                      if (.not.ma_pop_stack(l_Ccof2))
      &                    call errquit('dftg_gridv0b: cannot pop CCof2',
-     &                    0)
+     &                    0, MA_ERR)
                   endif
                   if (.not.ma_pop_stack(l_Acof2))
-     &                 call errquit('dftg_gridv0b: cannot pop Acof2',0)
+     &                 call errquit('dftg_gridv0b: cannot pop Acof2',0,
+     &       MA_ERR)
 c
                else if (do_cpks_r) then
 c
@@ -334,7 +338,8 @@ c
  2010          continue
 c
                if (.not.ma_chop_stack(lchi_ao))
-     &            call errquit('dftg_gridv0b: cannot chop stack',0)
+     &            call errquit('dftg_gridv0b: cannot chop stack',0,
+     &       MA_ERR)
 c
 c
                if (do_force.and.ldew)then

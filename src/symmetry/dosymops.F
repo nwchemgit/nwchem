@@ -25,13 +25,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &     tags_new,coords_new,nareal,nat,cdist,cang,iasym_order,
      $     charge, charge_new, mass, mass_new, 
      $     invnucexp, invnucexp_new, threquiv)
-C$Id: dosymops.F,v 1.6 2003-01-27 18:12:32 edo Exp $
+C$Id: dosymops.F,v 1.7 2003-10-17 22:58:24 carlfahl Exp $
 *rak typed everyting
       implicit none
 #include "util.fh"
 c
 c has to be a .F file since print_debug is in the include definition and
 c with the implicit real*8 it was of type real not integer
+#include "errquit.fh"
 c
       double precision tol, threquiv
       integer maxops, iodat
@@ -103,7 +104,8 @@ c surfaces
  902     continue
 c         
       elseif(itype.eq.1) then
-         call errquit('dosymops:polymer code not implemented', 1)
+         call errquit('dosymops:polymer code not implemented', 1,
+     &       CAPMIS_ERR)
       endif
 c
 c symops*coordinates
@@ -289,7 +291,7 @@ c
                   goto 9876
                endif
             enddo
-            call errquit('dosymops: failed matching uniq',i)
+            call errquit('dosymops: failed matching uniq',i, INPUT_ERR)
  9876       continue
          enddo
          do i = 1, nareal

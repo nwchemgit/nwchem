@@ -1,6 +1,7 @@
       subroutine tol_input(rtdb, module)
-C$Id: tol_inp.F,v 1.13 2001-12-27 23:04:29 edo Exp $
+C$Id: tol_inp.F,v 1.14 2003-10-17 22:55:43 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -48,13 +49,13 @@ c
       endif
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 999) ind
-      call errquit('tol_inp: unimplemented directive', ind)
+      call errquit('tol_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     tight; set screening threshholds tight
 c             
   100 ltight = .true.
       if (.not. rtdb_put(rtdb, 'dft:ltight', mt_log, 1, ltight))
-     &   call errquit('tol_inp: rtdb_put failed', 100)
+     &   call errquit('tol_inp: rtdb_put failed', 100, RTDB_ERR)
 c
       goto 10
 c     
@@ -68,7 +69,7 @@ c
          tol_rho=1.D-10
       endif            
       if (.not. rtdb_put(rtdb, 'dft:tol_rho', mt_dbl, 1, tol_rho))
-     &   call errquit('tol_inp: rtdb_put failed', 200)
+     &   call errquit('tol_inp: rtdb_put failed', 200, RTDB_ERR)
 c
       goto 10
 c     
@@ -81,7 +82,7 @@ c
          iAOacc = 14
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))
-     &   call errquit('tol_inp: rtdb_put failed', 300)
+     &   call errquit('tol_inp: rtdb_put failed', 300, RTDB_ERR)
 c
       goto 10
 c     
@@ -94,17 +95,17 @@ c
          iCDacc = 20
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iCDacc', mt_int, 1, iCDacc))
-     &   call errquit('tol_inp: rtdb_put failed', 400)
+     &   call errquit('tol_inp: rtdb_put failed', 400, RTDB_ERR)
 c
       goto 10
 c     
 c     accCoul; for use in fitcd & fitvcoul for schwarz screening 
 c             
   500 if (.not. inp_i(itol2e)) then
-      call errquit(' cannot found value for acccoul ',0)
+      call errquit(' cannot found value for acccoul ',0, INPUT_ERR)
       endif
       if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, itol2e))
-     &   call errquit('tol_inp: rtdb_put failed', 500)
+     &   call errquit('tol_inp: rtdb_put failed', 500, RTDB_ERR)
 c
       goto 10
 c     
@@ -116,7 +117,7 @@ c
          irqmax = 12
       endif            
       if (.not. rtdb_put(rtdb, 'dft:irqmax', mt_int, 1, irqmax))
-     &   call errquit('tol_inp: rtdb_put failed', 600)
+     &   call errquit('tol_inp: rtdb_put failed', 600, RTDB_ERR)
 c
       goto 10
 c     
@@ -129,7 +130,7 @@ c
          iXCacc = 20
       endif            
       if (.not. rtdb_put(rtdb, 'dft:iXCacc', mt_int, 1, iXCacc))
-     &   call errquit('tol_inp: rtdb_put failed', 700)
+     &   call errquit('tol_inp: rtdb_put failed', 700, RTDB_ERR)
 c
       goto 10
 c     
@@ -141,7 +142,7 @@ c
          radius=25.d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1, radius))
-     &   call errquit('tol_inp: rtdb_put failed', 800)
+     &   call errquit('tol_inp: rtdb_put failed', 800, RTDB_ERR)
 c
       goto 10
 c     
@@ -155,7 +156,7 @@ c
      &       /,' [accCoul itol], [accQrad itol], ',
      &       /,' [accXCfunc itol], [radius dtol] ')
       call util_flush(LuOut)
-      call errquit('tol_input: invalid format', 0)
+      call errquit('tol_input: invalid format', 0, INPUT_ERR)
 c     
       end
 

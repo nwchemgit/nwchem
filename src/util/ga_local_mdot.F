@@ -1,8 +1,9 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.7 2003-10-09 22:10:16 edo Exp $
+* $Id: ga_local_mdot.F,v 1.8 2003-10-17 22:58:34 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer n, nva, nvb
@@ -39,13 +40,15 @@ c
       call ga_distribution(g_b, ga_nodeid(), bilo, bihi, bjlo, bjhi)
 c
       if (ailo.ne.bilo .or. aihi.ne.bihi) call errquit
-     $     ('ga_l_mdot: distribution not the same?',0)
+     $     ('ga_l_mdot: distribution not the same?',0, GA_ERR)
 c
       call ga_sync
 c
       if (aihi.gt.0 .and. aihi.ge.ailo) then
-         if (ajlo.ne.1 .or. ajhi.lt.nva) call errquit('ga_l_mdot:a2?',0)
-         if (bjlo.ne.1 .or. bjhi.lt.nvb) call errquit('ga_l_mdot:b2?',0)
+         if (ajlo.ne.1 .or. ajhi.lt.nva) call errquit('ga_l_mdot:a2?',0,
+     &       GA_ERR)
+         if (bjlo.ne.1 .or. bjhi.lt.nvb) call errquit('ga_l_mdot:b2?',0,
+     &       GA_ERR)
 c
          call ga_access(g_a, ailo, aihi, ajlo, ajhi, aind, ald)
          call ga_access(g_b, bilo, bihi, bjlo, bjhi, bind, bld)
@@ -73,6 +76,7 @@ c
       end
       subroutine ga_lmdotb(work,a,b,aihi,ailo,ald,nva,nvb,bld)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       double precision a(*),b(*),work(*)
       integer ailo,aihi,ald,nva,nvb,bld
@@ -86,7 +90,7 @@ c
             aoff = (i-1)*ald 
             boff = (j-1)*bld
             ij   = (j-1)*nva + i
-            if (ij.gt.2500) call errquit('Robert is lazy',0)
+            if (ij.gt.2500) call errquit('Robert is lazy',0, GA_ERR)
             sum = 0.0d0
             do k = 1, kdim
                sum = sum + a(aoff+k)*b(boff+k)

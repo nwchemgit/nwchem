@@ -1,11 +1,12 @@
 c
-c $Id: sx_dra.F,v 1.4 2001-12-12 00:53:56 windus Exp $
+c $Id: sx_dra.F,v 1.5 2003-10-17 22:55:13 carlfahl Exp $
 c
 c  This file holds the DRA write and read routines for the Sx matrices
 c
       subroutine sx_write(g_sx, nmat, nsize, dra_handle)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "dra.fh"
 #include "global.fh"
@@ -31,7 +32,8 @@ c
       lob(2) = 1
       hib(2) = nsize
       if (.not.ga_create(MT_DBL, nsize, nsize, 'g_temp', -1, -1, 
-     &     g_temp)) call errquit('sx_dra: ga_create failed',555)
+     &     g_temp)) call errquit('sx_dra: ga_create failed',555,
+     &       GA_ERR)
 c
       do ind = 1, nmat
         loa(1) = ind
@@ -41,16 +43,16 @@ c
      &              dra_handle,nsize*(ind-1)+1,nsize*ind,1,nsize,
      &              request)
         if (status.ne.0) call errquit
-     &     ('sx_write: problem with write for index ',ind)
+     &     ('sx_write: problem with write for index ',ind, DISK_ERR)
 c
 c Make sure that the write is finished
 c
         if (dra_wait(request).ne.0) call errquit
-     &     ('sx_write: dra_wait failed for index',ind)
+     &     ('sx_write: dra_wait failed for index',ind, DISK_ERR)
       enddo
 c
       if (.not. ga_destroy(g_temp))
-     &  call errquit('sx_write: could not destroy g_temp',555)
+     &  call errquit('sx_write: could not destroy g_temp',555, GA_ERR)
 c
       return
       end
@@ -60,6 +62,7 @@ c
       subroutine sx_read(g_sx, nmat, nsize, dra_handle)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "dra.fh"
 #include "global.fh"
@@ -85,7 +88,7 @@ c
       lob(2) = 1
       hib(2) = nsize
       if (.not.ga_create(MT_DBL, nsize, nsize, 'g_temp', -1, -1,
-     &     g_temp)) call errquit('sx_dra: ga_create failed',555)
+     &     g_temp)) call errquit('sx_dra: ga_create failed',555, GA_ERR)
 c
       do ind = 1, nmat
         loa(1) = ind
@@ -97,15 +100,15 @@ c
 c Make sure that the write is finished
 c
         if (dra_wait(request).ne.0) call errquit
-     &     ('sx_read: dra_wait failed for index',ind)
+     &     ('sx_read: dra_wait failed for index',ind, CALC_ERR)
 c
         call nga_copy_patch('N', g_temp, lob, hib, g_sx, loa, hia)
         if (status.ne.0) call errquit
-     &     ('sx_read: problem with read for index ',ind)
+     &     ('sx_read: problem with read for index ',ind, GA_ERR)
       enddo
 c
       if (.not. ga_destroy(g_temp))
-     &  call errquit('sx_read: could not destroy g_temp',555)
+     &  call errquit('sx_read: could not destroy g_temp',555, GA_ERR)
 c
       return
       end
@@ -115,6 +118,7 @@ c
       subroutine sx_read_orig(g_sx, nmat, nsize, dra_handle)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "dra.fh"
 c
@@ -133,12 +137,12 @@ c
      &              dra_handle,nsize*(ind-1)+1,nsize*ind,1,nsize,
      &              request)
         if (status.ne.0) call errquit
-     &     ('sx_read: problem with read for index ',ind)
+     &     ('sx_read: problem with read for index ',ind, UNKNOWN_ERR)
 c
 c Make sure that the write is finished
 c
         if (dra_wait(request).ne.0) call errquit
-     &     ('sx_read: dra_wait failed for index',ind)
+     &     ('sx_read: dra_wait failed for index',ind, CALC_ERR)
       enddo
 c
       return

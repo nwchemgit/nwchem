@@ -1,8 +1,9 @@
       subroutine sym_put_in_geom(geom, nat_uniq, nat_new,
      $     tags_new, uniq_cent, coords_new, l_map, k_map, nops,
      $     charge_new, mass_new, invnucexp_new)
-C$Id: sym_put_geom.F,v 1.6 2000-11-04 03:28:23 d3g681 Exp $
+C$Id: sym_put_geom.F,v 1.7 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -42,7 +43,7 @@ c
 c
       if (sym_center_map_handle(geom) .ne. -1) then
          if (.not. ma_free_heap(sym_center_map_handle(geom)))
-     $        call errquit('sym_nwc: free of old atom map', 0)
+     $        call errquit('sym_nwc: free of old atom map', 0, MA_ERR)
       endif
       sym_center_map_handle(geom) = l_map
       sym_center_map_index(geom)  = k_map

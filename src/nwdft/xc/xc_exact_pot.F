@@ -60,6 +60,7 @@ cccc
      &                        g_addit_exact)
 c
       implicit none
+#include "errquit.fh"
 c      
       integer noc(2)
       integer g_dens(2), g_vxc(4),  
@@ -129,14 +130,16 @@ c
      &                  g_addit_exact(i_dif), g_vxc(i_dif))
         end if
         if (.not. ga_destroy(g_rho_zero(1))) call errquit
-     $    ('xc_exact_pot: could not detroy g_rho_zero',0)
+     $    ('xc_exact_pot: could not detroy g_rho_zero',0, GA_ERR)
         if (.not. ga_destroy(g_vxc_aux(2))) call errquit
-     $        ('xc_exact_pot: could not detroy jk',0)
+     $        ('xc_exact_pot: could not detroy jk',0, GA_ERR)
       end do
       if (.not. ga_destroy(g_vxc_aux(1))) call errquit
-     $             ('xc_exact_pot: could not detroy g_vxc_aux_1',0)
+     $             ('xc_exact_pot: could not detroy g_vxc_aux_1',0,
+     &       GA_ERR)
       if (.not. ga_destroy(g_rho_diff(1))) call errquit
-     $             ('xc_exact_pot: could not detroy g_rho_diff_1',0)
+     $             ('xc_exact_pot: could not detroy g_rho_diff_1',0,
+     &       GA_ERR)
       return
       end
 c
@@ -215,6 +218,7 @@ cccccc
      &                             g_addit_exact, g_movecs_aux)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "cdft.fh"
@@ -222,22 +226,30 @@ c
      &        g_movecs_aux(2)
 
       if (.not. ga_destroy(g_rho_exact(1))) call errquit
-     &       ('xc_exact_pot: could not destroy g_rho_exact(1)', 0)
+     &       ('xc_exact_pot: could not destroy g_rho_exact(1)', 0,
+     &       GA_ERR)
       if (.not. ga_destroy(g_tmp_exact(1))) call errquit
-     &       ('xc_exact_pot: could not destroy g_tmp_exact_1', 0)
+     &       ('xc_exact_pot: could not destroy g_tmp_exact_1', 0,
+     &       GA_ERR)
       if (.not. ga_destroy(g_addit_exact(1))) call errquit
-     &       ('xc_exact_pot: could not destroy g_addit_exact_1', 0)
+     &       ('xc_exact_pot: could not destroy g_addit_exact_1', 0,
+     &       GA_ERR)
       if (.not. ga_destroy(g_movecs_aux(1))) call errquit
-     &       ('xc_exact_pot: could not destroy g_movecs_aux_1', 0)
+     &       ('xc_exact_pot: could not destroy g_movecs_aux_1', 0,
+     &       GA_ERR)
       if (ipol.eq.2) then
         if (.not. ga_destroy(g_rho_exact(2))) call errquit
-     &     ('xc_exact_pot: could not destroy g_rho_exact(2)', 0)
+     &     ('xc_exact_pot: could not destroy g_rho_exact(2)', 0,
+     &       GA_ERR)
         if (.not. ga_destroy(g_tmp_exact(2))) call errquit
-     &     ('xc_exact_pot: could not destroy g_tmp_exact_2', 0)
+     &     ('xc_exact_pot: could not destroy g_tmp_exact_2', 0,
+     &       GA_ERR)
         if (.not. ga_destroy(g_addit_exact(2))) call errquit
-     &     ('xc_exact_pot: could not destroy g_addit_exact_2', 0)
+     &     ('xc_exact_pot: could not destroy g_addit_exact_2', 0,
+     &       GA_ERR)
         if (.not. ga_destroy(g_movecs_aux(2))) call errquit
-     &       ('xc_exact_pot: could not destroy g_movecs_aux_2', 0)
+     &       ('xc_exact_pot: could not destroy g_movecs_aux_2', 0,
+     &       GA_ERR)
       end if
       return
       end

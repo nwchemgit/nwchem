@@ -3,12 +3,13 @@ C NAME
 C     ccden_interm4 -- Form four-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm4.F,v 2.3 1997-06-05 17:46:27 gg502 Exp $
+C     $Id: ccden_interm4.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Interm4(NOcc, NVir,
      $   g_T2, g_Z2, g_Omega1, g_Omega2)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir
       Integer g_T2, g_Z2, g_Omega1, g_Omega2
 C
@@ -47,11 +48,11 @@ C
       If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
      $   'CCDen Scratch', NVir, NVir, G_Scr1) ) Call ErrQuit(
      $   'CCDen_Interm4: unable to allocate scratch',
-     $   NVir*NOcc*NVir*NOcc)
+     $   NVir*NOcc*NVir*NOcc, GA_ERR)
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scratch 2', H_Scr2, I_Scr2)) Call ErrQuit(
-     $   'CCDen_Interm4: unable to allocate scratch', NVir*NVir)
+     $   'CCDen_Interm4: unable to allocate scratch', NVir*NVir, MA_ERR)
 C
 C     Figure out which patch of Scr1 this processor has
 C
@@ -132,9 +133,9 @@ C     * Clean up temporaries *
 C     ************************
 C
       If (.NOT. MA_Pop_Stack(H_Scr2) ) Call ErrQuit(
-     $   'CCDen_Interm4: unable to free scratch', 0)
+     $   'CCDen_Interm4: unable to free scratch', 0, MA_ERR)
       If (.NOT. GA_Destroy(g_Scr1) ) Call ErrQuit(
-     $   'CCDen_Interm4: unable to free scratch', 0)
+     $   'CCDen_Interm4: unable to free scratch', 0, MA_ERR)
 C
       Return
       End

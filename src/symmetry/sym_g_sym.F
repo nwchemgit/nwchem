@@ -1,6 +1,7 @@
       subroutine sym_grad_symmetrize(geom, grad)
-C     $Id: sym_g_sym.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
+C     $Id: sym_g_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -18,9 +19,10 @@ c
 c     
       nops = sym_number_ops(geom)
 c     
-      if (.not. geom_ncent(geom, nat)) call errquit('s_g_s: geom?',0)
+      if (.not. geom_ncent(geom, nat)) call errquit('s_g_s: geom?',0,
+     &       GEOM_ERR)
       if (.not. ma_push_get(mt_dbl, 3*nat, 'gradtmp', l_tmp, k_tmp))
-     $     call errquit('sym_grad_sym: scratch space', 3*nat)
+     $     call errquit('sym_grad_sym: scratch space', 3*nat, MA_ERR)
 c     
       if (util_print('sym_grad_sym', print_debug)) then
          write(6,*) ' sym_grad_sym: Input gradient'
@@ -49,12 +51,13 @@ c
          call output(grad, 1, 3, 1, nat, 3, nat, 1)
       endif
 c
-      if (.not.ma_pop_stack(l_tmp)) call errquit('s_g_s: ma?',0)
+      if (.not.ma_pop_stack(l_tmp)) call errquit('s_g_s: ma?',0, MA_ERR)
 c
       end
       subroutine sym_hess_symmetrize(geom, h)
-C     $Id: sym_g_sym.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
+C     $Id: sym_g_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -73,10 +76,12 @@ c
 c
       nops = sym_number_ops(geom)
 c     
-      if (.not. geom_ncent(geom, nat)) call errquit('s_g_s: geom?',0)
+      if (.not. geom_ncent(geom, nat)) call errquit('s_g_s: geom?',0,
+     &       GEOM_ERR)
       nat3 = nat*3
       if (.not. ma_push_get(mt_dbl, (nat3)**2, 'htmp', l_tmp, k_tmp))
-     $     call errquit('sym_hess_sym: scratch space', (nat3)**2)
+     $     call errquit('sym_hess_sym: scratch space', (nat3)**2,
+     &       MA_ERR)
 c     
       if (util_print('sym_hess_sym', print_debug)) then
          write(6,*) ' sym_hess_sym: Input hessian'
@@ -107,12 +112,13 @@ c
          call output(h, 1, nat3, 1, nat3, nat3, nat3, 1)
       endif
 c
-      if (.not.ma_pop_stack(l_tmp)) call errquit('s_h_s: ma?',0)
+      if (.not.ma_pop_stack(l_tmp)) call errquit('s_h_s: ma?',0, MA_ERR)
 c
       end
       subroutine sym_der_dip_symmetrize(geom, d)
-C     $Id: sym_g_sym.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
+C     $Id: sym_g_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -131,10 +137,11 @@ c
 c
       nops = sym_number_ops(geom)
 c     
-      if (.not. geom_ncent(geom, nat)) call errquit('s_d_s: geom?',0)
+      if (.not. geom_ncent(geom, nat)) call errquit('s_d_s: geom?',0,
+     &       GEOM_ERR)
       nat3 = nat*3
       if (.not. ma_push_get(mt_dbl, 3*nat3, 'dtmp', l_tmp, k_tmp))
-     $     call errquit('sym_dip_sym: scratch space', (nat3)**2)
+     $     call errquit('sym_dip_sym: scratch space', (nat3)**2, MA_ERR)
 c     
       if (util_print('sym_dip_sym', print_debug)) then
          write(6,*) ' sym_dip_sym: Input derivative dipole'
@@ -162,7 +169,7 @@ c
          call output(d, 1, 3, 1, nat3, 3, nat3, 1)
       endif
 c
-      if (.not.ma_pop_stack(l_tmp)) call errquit('s_d_s: ma?',0)
+      if (.not.ma_pop_stack(l_tmp)) call errquit('s_d_s: ma?',0, MA_ERR)
 c
       end
       subroutine sym_apply_hess_op(geom, opnum, h, h1)

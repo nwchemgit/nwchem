@@ -1,6 +1,7 @@
       Logical Function PStat_Free( Handle )
-C$Id: pstat_free.F,v 1.5 2003-07-03 22:37:30 edo Exp $
+C$Id: pstat_free.F,v 1.6 2003-10-17 22:58:01 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer Handle
 C
 #include "pstatP.fh"
@@ -12,7 +13,7 @@ c
       if (.not. status) then
          write(0,*) pstat_name(handle)
          call errquit
-     $     ('pstat_free: Timer not assigned', Handle)
+     $     ('pstat_free: Timer not assigned', Handle, UNKNOWN_ERR)
       endif
 c
       pstat_active(handle) = .false.

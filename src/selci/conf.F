@@ -1,6 +1,6 @@
       subroutine selci_conf(rtdb, q, lword)
 *
-* $Id: conf.F,v 1.12 2003-04-11 00:29:05 bert Exp $
+* $Id: conf.F,v 1.13 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
 #include "cconf.fh"
@@ -70,6 +70,7 @@ c
       end
       subroutine selci_start(rtdb,title, irefo)
 #include "implicit.fh"
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "cconf.fh"
@@ -110,7 +111,8 @@ c
       else if (intfmt .eq. 'nwchem') then
         inttyp = 3
       else
-        call errquit('selci:conf:unknown integral file format',0)
+        call errquit('selci:conf:unknown integral file format',0,
+     &       INPUT_ERR)
       endif
 c
       iflint = 8
@@ -170,7 +172,7 @@ c
       else if (nsym .le. 8) then
          nsym = 8
       else
-         call errquit('selci_conf: symmetry nonsense',nsym)
+         call errquit('selci_conf: symmetry nonsense',nsym, INPUT_ERR)
       endif
       nelpi = nbitpi / 2
       nintpo = (norbs + nelpi - 1) / nelpi
@@ -192,17 +194,20 @@ c
             ns = inconf(ind)
             ind = ind + 1
             if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1)
-     $           call errquit('conf: ns and multi do not match',ns)
+     $           call errquit('conf: ns and multi do not match',ns,
+     &       INPUT_ERR)
             call ifill(norbs, 0, iocc, 1)
             do j = 1,ns
                if (inconf(ind).le.0) 
-     $              call errquit('selci: bad socc in conf',inconf(ind))
+     $              call errquit('selci: bad socc in conf',inconf(ind),
+     &       INPUT_ERR)
                iocc(inconf(ind)) = 1
                ind = ind + 1
             enddo
             do j = ns+1,nelec,2
                if (inconf(ind).le.0) 
-     $              call errquit('selci: bad docc in conf',inconf(ind))
+     $              call errquit('selci: bad docc in conf',inconf(ind),
+     &       INPUT_ERR)
                iocc(inconf(ind)) = 3
                ind = ind + 1
             enddo
@@ -214,12 +219,14 @@ c
                   call selci_pkcon(norbs, iocc, itemp, nintpo, nbitpi)
                   call selci_bserch(nref, itemp, irefo, nintpo, ipos)
                   if (ipos.le.0)
-     $                 call errquit('conf: replication in conf',ipos)
+     $                 call errquit('conf: replication in conf',ipos,
+     &       INPUT_ERR)
                   call selci_insert(nref, itemp, irefo, nintpo, ipos)
                else
                   ipt = nref*nintpo+1
                   if (ipt+nintpo-1.gt.nrefmx)
-     $                 call errquit('conf: too many references',nref+1)
+     $                 call errquit('conf: too many references',nref+1,
+     &       INPUT_ERR)
                   call selci_pkcon(norbs,iocc,irefo(ipt),nintpo,nbitpi)
                endif
             endif
@@ -238,13 +245,15 @@ c
                nd = nd + 1
                iocc(i) = 3
             else
-               call errquit('conf: bad default occ?',0)
+               call errquit('conf: bad default occ?',0, INPUT_ERR)
             endif
          enddo
          if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1)
-     $        call errquit('conf: ns and multi do not match',ns)
+     $        call errquit('conf: ns and multi do not match',ns,
+     &       INPUT_ERR)
          if ((ns+2*nd) .ne. nelec)
-     $        call errquit('conf: default nelec don not match',2*nd+ns)
+     $        call errquit('conf: default nelec don not match',2*nd+ns,
+     &       INPUT_ERR)
          call selci_pkcon(norbs, iocc, irefo, nintpo, nbitpi)
          nref = 1
       endif
@@ -264,7 +273,7 @@ c
       if (.not. rtdb_get(rtdb, 'selci:ngen',mt_int, 1, ngen))
      $     ngen = 0
       if (ngen .gt. ngenmx)
-     $     call errquit('conf: too many refgen sets',ngen)
+     $     call errquit('conf: too many refgen sets',ngen, INPUT_ERR)
       call ifill(2*255*ngen, -1, igen, 1)
       do jj = 1, ngen
          name = ' '
@@ -272,7 +281,7 @@ c
          write(6,*) ' FMT = ', name
          if (.not.rtdb_get(rtdb,name,mt_int,2*255,igen(1,1,jj))) then
             write(6,*) ' name = ', name
-            call errquit('conf: could not find refgen set',jj)
+            call errquit('conf: could not find refgen set',jj, RTDB_ERR)
          endif
          do i = 1, 255
             if (igen(1,i,jj) .le. 0) then
@@ -286,17 +295,18 @@ c
 c     enter
 c
       if (nelec.le.0)
-     $     call errquit('conf: invalid no. electrons',nelec)
+     $     call errquit('conf: invalid no. electrons',nelec, INPUT_ERR)
       if (multi.le.0 .or. (mod(multi-1,2).ne.mod(nelec,2)))
-     $     call errquit('conf: multi and nelec do not agree',multi)
+     $     call errquit('conf: multi and nelec do not agree',multi,
+     &       INPUT_ERR)
       if (norbs.le.0)
-     $     call errquit('conf: invalid norbs',norbs)
+     $     call errquit('conf: invalid norbs',norbs, INPUT_ERR)
       if (nsym.le.0 .or. nsym.gt.8)
-     $     call errquit('conf: ivalid nsym',nsym)
+     $     call errquit('conf: ivalid nsym',nsym, INPUT_ERR)
       if (nref.le.0)
-     $     call errquit('conf: no reference functions',nref)
+     $     call errquit('conf: no reference functions',nref, INPUT_ERR)
       if (issss+1.le.0 .or. issss.gt.nsym)
-     $     call errquit('conf: invalid state symmetry',issss)
+     $     call errquit('conf: invalid state symmetry',issss, INPUT_ERR)
 c
 c     work out dimension of the full ci
 c
@@ -341,6 +351,7 @@ c
       end
       subroutine selci_refgen(q, irefo, jrefo)
 #include "implicit.fh"
+#include "errquit.fh"
 #include "cconf.fh"
 #include "mptr.fh"
       dimension q(*)
@@ -384,7 +395,8 @@ c
                   iocc(ikil) = 1
                   nns = nns + 1
                else
-                  call errquit('refgen: odd iocc(ikil)',iocc(ikil))
+                  call errquit('refgen: odd iocc(ikil)',iocc(ikil),
+     &       UNKNOWN_ERR)
                endif
 c
 c     apply creation operator
@@ -398,7 +410,8 @@ c
                   iocc(iadd) = 1
                   nns = nns + 1
                else
-                  call errquit('refgen: odd iocc(iadd)',iocc(iadd))
+                  call errquit('refgen: odd iocc(iadd)',iocc(iadd),
+     &       UNKNOWN_ERR)
                endif
 c
 c     are there enough unpaired electrons for the multiplicity
@@ -411,7 +424,8 @@ c
                call selci_bserch(nref, itemp, irefo, nintpo, ipos)
                if (ipos.le.0) goto 30
                if ((nref+1)*nintpo.gt.nrefmx)
-     $              call errquit('refgen: too many confs',nref+1)
+     $              call errquit('refgen: too many confs',nref+1,
+     &       INPUT_ERR)
                call selci_insert(nref, itemp, irefo, nintpo, ipos)
  30         continue
             ipto = ipto + nintpo
@@ -441,6 +455,7 @@ c
       end
       subroutine selci_chkci(irefo, indxci,wmatrx)
 #include "implicit.fh"
+#include "errquit.fh"
 #include "cconf.fh"
       character*(*) wmatrx
       integer irefo(nrefmx), indxci(nrefmx+1)
@@ -464,7 +479,8 @@ c
       call selci_rdhwmt(2,mmulti, nsmax, nf, nfmax, nfmax2)
       close(2,status='delete')
       if (multi.ne.mmulti)
-     $     call errquit('conf: multi of wmatrx incorrect',mmulti)
+     $     call errquit('conf: multi of wmatrx incorrect',mmulti,
+     &       INPUT_ERR)
       write(6,7) (nf(i),i=mod(nsmax,2),nsmax,2)
  7    format(/' no. of spin functions    ',10i5/)
       nnsmax = 0
@@ -490,13 +506,15 @@ c$doit asis
  30         continue
             if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1) then
                call selci_wrtcon(6, iocc, norbs)
-               call errquit('conf: a reference has invalid ns',i)
+               call errquit('conf: a reference has invalid ns',i,
+     &       INPUT_ERR)
             endif
             ipt = ipt + nintpo
             nref = nref + 1
             nnsmax = max(ns,nnsmax)
             if (nnsmax.gt.nsmax)
-     $           call errquit('conf: wmatrx nsmax small, need:',nnsmax)
+     $           call errquit('conf: wmatrx nsmax small, need:',nnsmax,
+     &       INPUT_ERR)
             indxci(nref) = nci
             nci = nci + nf(ns)
          endif
@@ -518,6 +536,7 @@ c
       end
       subroutine selci_excit(irefo, ioccrf, ixstak)
       implicit integer (a-h,o-z)
+#include "errquit.fh"
 #include "cconf.fh"
 c
 c     generate orbital configurations of up to a certain level
@@ -595,7 +614,8 @@ c        check the symmetry
          nref = nref + 1
          ipt = (nref-1)*nintpo + 1
          if (ipt+nintpo.gt.nrefmx) then
-            call errquit('excit: ipt+nintpo>nrefmx',ipt+nintpo)
+            call errquit('excit: ipt+nintpo>nrefmx',ipt+nintpo,
+     &       INPUT_ERR)
          else
             call selci_pkcon(norbs, iocc, irefo(ipt), nintpo, nbitpi)
          endif

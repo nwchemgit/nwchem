@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.6 2002-05-08 23:50:27 bylaska Exp $
+c $Id: psp_formatter.F,v 1.7 2003-10-17 22:57:16 carlfahl Exp $
 c
 
 *     ***************************************
@@ -10,6 +10,7 @@ c
 
       logical function psp_formatter(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -45,7 +46,7 @@ c
 *     **** read kbpp_number ***
       if(.not. rtdb_get(rtdb,'kbpp_number',mt_int,1,kbpp_number))
      >    call errquit(
-     >       'psp_formatter: kbpp_number not read', 0)
+     >       'psp_formatter: kbpp_number not read', 0, RTDB_ERR)
 
 
 *     **** loop over kbpp_number ****
@@ -116,7 +117,8 @@ c
       end if
 
 *     *** exit if error found ***
-      if(.not. value) call errquit('psp_formatter: error',0)
+      if(.not. value) call errquit('psp_formatter: error',0,
+     &       UNKNOWN_ERR)
 
       end do
 *     **** end kbpp_number loop ***
@@ -133,6 +135,7 @@ c
 *     ***************************************
       subroutine psp_formatter_auto(atom)
       implicit none
+#include "errquit.fh"
       character*2  atom
 
 *     ***** local variables *****
@@ -195,7 +198,8 @@ c
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
 *     *** exit if error found ***
-      if(.not. value) call errquit('psp_formatter_auto: error',0)
+      if(.not. value) call errquit('psp_formatter_auto: error',0,
+     &       UNKNOWN_ERR)
 
       return
       end

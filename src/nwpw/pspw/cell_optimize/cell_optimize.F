@@ -1,5 +1,6 @@
       logical function cell_optimize(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -49,7 +50,7 @@
 
 *     *** exit if error found ***
       if(.not. value) 
-     >    call errquit('cell_optimize: error reading rtdb',0)
+     >    call errquit('cell_optimize: error reading rtdb',0, RTDB_ERR)
 
 
       if (taskid.eq.MASTER) then
@@ -93,7 +94,8 @@ c     >   'cell_optimize: error reformatting stress pseudopotentials',0)
 *         **** calculate stress tensor ***
           value = pspw_stress(rtdb)
           if(.not. value) 
-     >      call errquit('pspw_stress did not converge: error',0)
+     >      call errquit('pspw_stress did not converge: error',0,
+     &       CALC_ERR)
 
 
 *         **** reformat/adjust unit cell ****
@@ -101,7 +103,8 @@ c     >   'cell_optimize: error reformatting stress pseudopotentials',0)
           if (taskid.eq.MASTER) value = update_unitcell(rtdb)
           value2 = rtdb_parallel(.true.)
           if(.not.value) call errquit(
-     >       'cell_optimize: error reformatting unit cell',0)
+     >       'cell_optimize: error reformatting unit cell',0,
+     &       CALC_ERR)
 
 
 c*         **** reformat pseudopotentials ****
@@ -118,7 +121,8 @@ c     >  'cell_optimize: error reformatting stress pseudopotentials',0)
           if (taskid.eq.MASTER) value = wvfnc_reformat(rtdb)
           value2 = rtdb_parallel(.true.)
           if(.not. value)  call errquit(
-     >       'cell_optimize: error reformatting wavefunctions',0)
+     >       'cell_optimize: error reformatting wavefunctions',0,
+     &       CALC_ERR)
 
           call ga_sync()
       end do

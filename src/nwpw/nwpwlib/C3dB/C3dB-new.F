@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.13 2003-02-12 19:32:54 bylaska Exp $
+* $Id: C3dB-new.F,v 1.14 2003-10-17 22:56:21 carlfahl Exp $
 *
 
 *     ***********************************************************
@@ -529,6 +529,7 @@ c     implicit none
 *****************************************************
 
       implicit none
+#include "errquit.fh"
       integer nb
       complex*16  A(*)
 
@@ -557,7 +558,7 @@ c     real*8      tmp3(*)
       value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     ********************************************
 *     ***         Do a transpose of A          ***
@@ -653,6 +654,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *****************************************************
 
       implicit none
+#include "errquit.fh"
       integer nb
       complex*16  A(*)
 
@@ -676,7 +678,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
 *     ********************************************
@@ -1071,6 +1073,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       subroutine C3dB_c_transpose_jk_init(nb)
       implicit none
+#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
@@ -1175,7 +1178,7 @@ c     integer i2_start(NFFT3+1)
       value = value.and.
      >        MA_alloc_get(mt_int,(2*np),
      >        'channel_type',channel_type(2,nb),channel_type(1,nb))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
 
@@ -1187,7 +1190,7 @@ c     integer i2_start(NFFT3+1)
       value = value.and.
      >        MA_push_get(mt_int,(np*(np-1)/2),
      >                'pair_step',pair_step(2),pair_step(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     *** define pair1,pair2 ****
       icount = 0
@@ -2341,6 +2344,7 @@ c     integer i2_start(NFFT3+1)
 
       subroutine C3dB_Vector_SumAll(n,sum)
 c     implicit none
+#include "errquit.fh"
       integer n
       real*8  sum(*)
 
@@ -2363,7 +2367,7 @@ c     implicit none
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       msglen = n
 
@@ -2390,6 +2394,7 @@ c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 
       subroutine C3dB_Vector_ISumAll(n,sum)
 c     implicit none
+#include "errquit.fh"
       integer n
       integer  sum(*)
 
@@ -2414,7 +2419,7 @@ c     implicit none
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       msglen = n
 

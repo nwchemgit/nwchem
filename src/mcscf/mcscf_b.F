@@ -12,9 +12,10 @@ c
      $                    dm1, dm2, oskel, tol2e, bshift, g_vecs0,
      $                    g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
 *
-* $Id: mcscf_b.F,v 1.9 2000-04-27 20:57:41 zzhang Exp $
+* $Id: mcscf_b.F,v 1.10 2003-10-17 22:55:21 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"      
       integer geom, basis                              ! [input] Handles
@@ -48,16 +49,16 @@ c
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_tmp))
-     $   call errquit('mcscf_b: cannot allocate tmp',0)
+     $   call errquit('mcscf_b: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_tmp2))
-     $   call errquit('mcscf_b: cannot allocate tmp',0)
+     $   call errquit('mcscf_b: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_tmp3))
-     $   call errquit('mcscf_b: cannot allocate tmp',0)
+     $   call errquit('mcscf_b: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'T', nbf, 0, g_t))
-     $   call errquit('mcscf_b: cannot allocate T',0)
+     $   call errquit('mcscf_b: cannot allocate T',0, GA_ERR)
 c
 c  T = U - 1    
 c      
@@ -116,13 +117,13 @@ c
       call ga_dadd(2.d0, g_tmp, 1.d0, g_b, g_b )
 c
       if (.not.ga_destroy(g_t))
-     $  call errquit('mcscf_b: cannot destroy T',0)
+     $  call errquit('mcscf_b: cannot destroy T',0, GA_ERR)
       if (.not.ga_destroy(g_tmp3))
-     $  call errquit('mcscf_b: cannot destroy tmp',0)
+     $  call errquit('mcscf_b: cannot destroy tmp',0, GA_ERR)
       if (.not.ga_destroy(g_tmp2))
-     $  call errquit('mcscf_b: cannot destroy tmp',0)
+     $  call errquit('mcscf_b: cannot destroy tmp',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     $  call errquit('mcscf_b: cannot destroy tmp',0)
+     $  call errquit('mcscf_b: cannot destroy tmp',0, GA_ERR)
       return
       end
 
@@ -142,6 +143,7 @@ c
      $                       oskel, tol2e, dm1, g_vecs0, g_t,
      $                       g_b )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer geom
@@ -181,13 +183,13 @@ c
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_dens))
-     $   call errquit('mcscf_b: cannot allocate tmp',0)
+     $   call errquit('mcscf_b: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_deltadc))
-     $   call errquit('mcscf_b: cannot allocate dD',0)
+     $   call errquit('mcscf_b: cannot allocate dD',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_deltad))
-     $   call errquit('mcscf_b: cannot allocate dD',0)
+     $   call errquit('mcscf_b: cannot allocate dD',0, GA_ERR)
       g_d1 = ga_create_atom_blocked( geom, basis, 'Density 1')
       g_d2 = ga_create_atom_blocked( geom, basis, 'Density 2')
       g_f1 = ga_create_atom_blocked( geom, basis, 'Fock 1')
@@ -280,19 +282,19 @@ c
 c  Clean up
 c
       if (.not.ga_destroy(g_d1))
-     $  call errquit('mcscf_b: cannot destroy AO dens1',0)
+     $  call errquit('mcscf_b: cannot destroy AO dens1',0, GA_ERR)
       if (.not.ga_destroy(g_d2))
-     $  call errquit('mcscf_b: cannot destroy AO dens2',0)
+     $  call errquit('mcscf_b: cannot destroy AO dens2',0, GA_ERR)
       if (.not.ga_destroy(g_f1))
-     $  call errquit('mcscf_b: cannot destroy AO fock1',0)
+     $  call errquit('mcscf_b: cannot destroy AO fock1',0, GA_ERR)
       if (.not.ga_destroy(g_f2))
-     $  call errquit('mcscf_b: cannot destroy AO fock2',0)
+     $  call errquit('mcscf_b: cannot destroy AO fock2',0, GA_ERR)
       if (.not.ga_destroy(g_deltad))
-     $  call errquit('mcscf_b: cannot destroy deltad',0)
+     $  call errquit('mcscf_b: cannot destroy deltad',0, GA_ERR)
       if (.not.ga_destroy(g_deltadc))
-     $  call errquit('mcscf_b: cannot destroy deltadc',0)
+     $  call errquit('mcscf_b: cannot destroy deltadc',0, GA_ERR)
       if (.not.ga_destroy(g_dens))
-     $  call errquit('mcscf_b: cannot destroy dens',0)
+     $  call errquit('mcscf_b: cannot destroy dens',0, GA_ERR)
 c
 c
 c
@@ -325,6 +327,7 @@ c
        subroutine mcscf_J_trace( nbf, nclosed, nact, dm2, g_u,
      $                           g_coul, g_b )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
        integer nbf
@@ -345,14 +348,14 @@ c
        aoff = nclosed + 1
        aend = nclosed + nact
        if (.not.ma_push_get(MT_DBL,(nbf*nact),'b',l_b,k_b))
-     $   call errquit('mcscf_J_trace: cannot allocate b',0)
+     $   call errquit('mcscf_J_trace: cannot allocate b',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nbf*nbf),'a tmp',l_t1,k_t1))
-     $   call errquit('mcscf_J_trace: cannot allocate t1',0)
+     $   call errquit('mcscf_J_trace: cannot allocate t1',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nbf*nbf),'u',l_u,k_u))
-     $   call errquit('mcscf_J_trace: cannot allocate u',0)
+     $   call errquit('mcscf_J_trace: cannot allocate u',0, MA_ERR)
        call ga_get(g_u,1,nbf,1,nbf,dbl_mb(k_u),nbf)
        if (.not.ga_check_JKblocked( g_coul, nact, nbf, clo, chi ))
-     $   call errquit('mcscf_J_trace: wrong distrib operator',0)
+     $   call errquit('mcscf_J_trace: wrong distrib operator',0, GA_ERR)
        call dfill((nact*nbf), 0.d0, dbl_mb(k_b), 1)
 c
        do v=1,nact
@@ -374,11 +377,11 @@ c
 c
 c
        if (.not.ma_pop_stack(l_u))
-     $   call errquit('mcscf_J_trace: failed pop stack',0)
+     $   call errquit('mcscf_J_trace: failed pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_t1))
-     $   call errquit('mcscf_J_trace: failed pop stack',0)
+     $   call errquit('mcscf_J_trace: failed pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_b))
-     $   call errquit('mcscf_J_trace: failed pop stack',0)
+     $   call errquit('mcscf_J_trace: failed pop stack',0, MA_ERR)
        return
        end
        
@@ -449,6 +452,7 @@ c
       subroutine mcscf_K_trace( nbf, nclosed, nact, dm2, g_t,
      $                          g_exch, g_b )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
        integer nbf
@@ -469,14 +473,14 @@ c
        aoff = nclosed + 1
        aend = nclosed + nact
        if (.not.ma_push_get(MT_DBL,(nbf*nact),'b',l_b,k_b))
-     $   call errquit('mcscf_K_trace: cannot allocate b',0)
+     $   call errquit('mcscf_K_trace: cannot allocate b',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nbf*nbf),'a tmp',l_t1,k_t1))
-     $   call errquit('mcscf_K_trace: cannot allocate t1',0)
+     $   call errquit('mcscf_K_trace: cannot allocate t1',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nbf*nbf),'u',l_t,k_t))
-     $   call errquit('mcscf_K_trace: cannot allocate u',0)
+     $   call errquit('mcscf_K_trace: cannot allocate u',0, MA_ERR)
        call ga_get(g_t,1,nbf,1,nbf,dbl_mb(k_t),nbf)
        if (.not.ga_check_JKblocked( g_exch, nact, nbf, clo, chi ))
-     $   call errquit('mcscf_K_trace: wrong distrib operator',0)
+     $   call errquit('mcscf_K_trace: wrong distrib operator',0, GA_ERR)
        call dfill((nact*nbf), 0.d0, dbl_mb(k_b), 1)
 c
        do v=1,nact
@@ -506,11 +510,11 @@ c
 c
 c
        if (.not.ma_pop_stack(l_t))
-     $   call errquit('mcscf_K_trace: failed pop stack',0)
+     $   call errquit('mcscf_K_trace: failed pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_t1))
-     $   call errquit('mcscf_K_trace: failed pop stack',0)
+     $   call errquit('mcscf_K_trace: failed pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_b))
-     $   call errquit('mcscf_K_trace: failed pop stack',0)
+     $   call errquit('mcscf_K_trace: failed pop stack',0, MA_ERR)
        return
        end
 
@@ -571,6 +575,7 @@ c
      $                              oskel, tol2e, g_vecs0, g_ifock,
      $                              g_u, odelta_core, g_ifock_new )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"      
       integer geom, basis                              ! [input]  Handles
@@ -600,7 +605,7 @@ c
       aend = nclosed + nact
 *ga:1:0
       if (.not.ga_create(MT_DBL, nbf, nbf, 'tmp', nbf, 0, g_deltadc))
-     $   call errquit('mcscf_b: cannot allocate dD',0)
+     $   call errquit('mcscf_b: cannot allocate dD',0, GA_ERR)
       call ga_zero(g_deltadc)
       if (odelta_core) then
         g_d1 = ga_create_atom_blocked( geom, basis, 'Density 1')
@@ -654,9 +659,9 @@ c
 c  Clean up
 c
         if (.not.ga_destroy(g_d1))
-     $     call errquit('mcscf_b: cannot destroy AO dens1',0)
+     $     call errquit('mcscf_b: cannot destroy AO dens1',0, GA_ERR)
         if (.not.ga_destroy(g_f1))
-     $       call errquit('mcscf_b: cannot destroy AO fock1',0)
+     $       call errquit('mcscf_b: cannot destroy AO fock1',0, GA_ERR)
       endif
 c
 c  Transform old inactive fock
@@ -675,7 +680,7 @@ c
 c  Clean up
 c
       if (.not.ga_destroy(g_deltadc))
-     $  call errquit('mcscf_b: cannot destroy deltadc',0)
+     $  call errquit('mcscf_b: cannot destroy deltadc',0, GA_ERR)
       return
       end
 

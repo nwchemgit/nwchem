@@ -1,4 +1,4 @@
-c $Id: int_mem.F,v 1.11 1998-12-10 23:48:15 d3e129 Exp $
+c $Id: int_mem.F,v 1.12 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem}
@@ -12,6 +12,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -29,7 +30,7 @@ c
         mscratch_1e = mem_1e
         mscratch_2e = mem_2e4c
       else
-        call errquit('int_mem: int_init was not called' ,0)
+        call errquit('int_mem: int_init was not called' ,0, INT_ERR)
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
@@ -44,6 +45,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -57,7 +59,7 @@ c
         max1e       = isz_1e
         mscratch_1e = mem_1e
       else
-        call errquit('int_mem_1e: int_init was not called' ,0)
+        call errquit('int_mem_1e: int_init was not called' ,0, INT_ERR)
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
@@ -72,6 +74,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -85,7 +88,7 @@ c
         maxg        = isz_2e4c
         mscratch_2e = mem_2e4c
       else
-        call errquit('int_mem_2e4c: int_init was not called' ,0)
+        call errquit('int_mem_2e4c: int_init was not called',0, INT_ERR)
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
@@ -100,6 +103,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -113,7 +117,7 @@ c
         maxh1       = isz_1e
         mscratch_h1 = mem_1e_h1
       else
-        call errquit('int_mem_h1: int_init was not called' ,0)
+        call errquit('int_mem_h1: int_init was not called',0, INT_ERR)
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
@@ -128,6 +132,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -141,7 +146,7 @@ c
         maxg          = isz_2e3c
         mscratch_2e3c = mem_2e3c
       else
-        call errquit('int_mem_2e3c: int_init was not called' ,0)
+        call errquit('int_mem_2e3c: int_init was not called',0, INT_ERR)
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
@@ -156,6 +161,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -169,7 +175,7 @@ c
         maxg          = isz_2e2c
         mscratch_2e2c = mem_2e2c
       else
-        call errquit('int_mem_2e2c: int_init was not called' ,0)
+        call errquit('int_mem_2e2c: int_init was not called',0, INT_ERR)
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
@@ -184,6 +190,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -197,7 +204,7 @@ c
         maxbuf       = isz_3ov
         mscratch_3ov = mem_3ov
       else
-        call errquit('int_mem_3ov: int_init was not called' ,0)
+        call errquit('int_mem_3ov: int_init was not called' ,0, INT_ERR)
       endif
       end
 c:tex-% This is part of the API Standard Integral routines
@@ -251,6 +258,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -264,13 +272,15 @@ c
         maxg        = iszb_2e4c
         mscratch_2e = memb_2e4c
       else
-        call errquit('intb_mem_2e4c: int_init was not called' ,0)
+        call errquit('intb_mem_2e4c: int_init was not called' ,0,
+     &       INT_ERR)
       endif
       end
       subroutine int_mem_dipole(maxbuf, maxscr,
      &    basisin_i, basisin_j, lval_max)
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 c::functions
       logical int_chk_init
@@ -286,15 +296,16 @@ c::passed
       integer maxang_j
 *
       if (.not.int_chk_init('int_mem_dipole')) then
-        call errquit('int_mem_dipole: int_init was not called' ,0)
+        call errquit('int_mem_dipole: int_init was not called' ,0,
+     &       INT_ERR)
       endif
       maxscr = mem_3ov  ! should always work for dipole integrals
       if (.not.bas_high_angular(basisin_i,maxang_i))
      &    call errquit
-     &    ('int_mem_dipole: bas_high_angular failed',911)
+     &    ('int_mem_dipole: bas_high_angular failed',911, INT_ERR)
       if (.not.bas_high_angular(basisin_j,maxang_j))
      &    call errquit
-     &    ('int_mem_dipole: bas_high_angular failed',911)
+     &    ('int_mem_dipole: bas_high_angular failed',911, INT_ERR)
       maxbuf =          ((lval_max+1)*(lval_max+2)*(lval_max+3))/6
       maxbuf = maxbuf * ((maxang_i+1)*(maxang_i+2))/2
       maxbuf = maxbuf * ((maxang_j+1)*(maxang_j+2))/2
@@ -303,6 +314,7 @@ c::passed
      &    basisin_i, basisin_j, lval)
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 c::functions
       logical int_chk_init
@@ -318,15 +330,16 @@ c::passed
       integer maxang_j
 *
       if (.not.int_chk_init('int_mem_dipole_l')) then
-        call errquit('int_mem_dipole_l: int_init was not called' ,0)
+        call errquit('int_mem_dipole_l: int_init was not called' ,0,
+     &       INT_ERR)
       endif
       maxscr = mem_3ov  ! should always work for dipole integrals
       if (.not.bas_high_angular(basisin_i,maxang_i))
      &    call errquit
-     &    ('int_mem_dipole: bas_high_angular failed',911)
+     &    ('int_mem_dipole: bas_high_angular failed',911, INT_ERR)
       if (.not.bas_high_angular(basisin_j,maxang_j))
      &    call errquit
-     &    ('int_mem_dipole: bas_high_angular failed',911)
+     &    ('int_mem_dipole: bas_high_angular failed',911, INT_ERR)
       maxbuf =          ((lval+1)*(lval+2)*(lval+3))/6
       maxbuf = maxbuf * ((maxang_i+1)*(maxang_i+2))/2
       maxbuf = maxbuf * ((maxang_j+1)*(maxang_j+2))/2
@@ -336,6 +349,7 @@ c::passed
       implicit none
 * computes memory for derivative dipole integrals
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 c::functions
       logical int_chk_init
@@ -348,7 +362,8 @@ c::passed
       integer lval_max  ! [input] maximum lval used
 *
       if (.not.int_chk_init('intd_mem_dipole')) then
-        call errquit('intd_mem_dipole: int_init was not called' ,0)
+        call errquit('intd_mem_dipole: int_init was not called' ,0,
+     &       INT_ERR)
       endif
       call int_mem_dipole(maxbuf,maxscr,basisin_i,basisin_j,lval_max)
       maxbuf = maxbuf * 9  ! (block,xyz,3) 3=atom1, atom2, multipole center
@@ -357,6 +372,7 @@ c::passed
      &    basisin_i, basisin_j, lval)
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 c::functions
       logical int_chk_init
       external int_chk_init
@@ -368,7 +384,8 @@ c::passed
       integer lval      ! [input] lval for the given call
 *
       if (.not.int_chk_init('intd_mem_dipole_l')) then
-        call errquit('intd_mem_dipole_l: int_init was not called' ,0)
+        call errquit('intd_mem_dipole_l: int_init was not called' ,0,
+     &       INT_ERR)
       endif
       call int_mem_dipole_l(maxbuf,maxscr,basisin_i,basisin_j,lval)
       maxbuf = maxbuf * 9  ! (block,xyz,3) 3=atom1, atom2, multipole center

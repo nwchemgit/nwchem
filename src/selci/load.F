@@ -1,8 +1,9 @@
       subroutine selci_load(h, g, int12, int34)
 *
-* $Id: load.F,v 1.4 1997-10-31 23:42:07 d3e129 Exp $
+* $Id: load.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension h(nnorbs), g(numint), int12(nnorbs), int34(nnorbs)
 #include "bitops.fh"
@@ -18,13 +19,15 @@ c
       if (inttyp.eq.0) then
          call selci_loada(h, g, int12, int34)
       else if (inttyp.eq.1) then
-         call errquit('load: gamess interface not functional',0)
+         call errquit('load: gamess interface not functional',0,
+     &       CAPMIS_ERR)
       else if (inttyp.eq.2) then
-         call errquit('load: columbus interface not functional',0)
+         call errquit('load: columbus interface not functional',0,
+     &       CAPMIS_ERR)
       else if (inttyp.eq.3) then
          call selci_loadab(h, g, int12, int34)
       else
-         call errquit('load: invalid inttyp',inttyp)
+         call errquit('load: invalid inttyp',inttyp, INPUT_ERR)
       endif
 c
       ij = 0
@@ -35,7 +38,8 @@ c
                h(ij) = 0.0d0
             else if (isym(i).ne.isym(j)) then
                write(6,*) i,j,ij,isym(i),isym(j),h(ij)
-               call errquit('load: integral zero by symmetry',ij)
+               call errquit('load: integral zero by symmetry',ij,
+     &       CALC_ERR)
             endif
  20      continue
  10   continue

@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.40 2003-02-20 02:06:43 bert Exp $
+c $Id: cando_sp.F,v 1.41 2003-10-17 22:53:41 carlfahl Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -25,6 +25,7 @@ c
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+#include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer basisin   ! [input] basis set handle for identified shells 
@@ -104,6 +105,7 @@ c because it only called by routines that do this.
 c
 c
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -134,9 +136,9 @@ c
 c
 c check shell range
       if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_nw: bad ish =', ish)
+     $     call errquit('cando_nw: bad ish =', ish, UNKNOWN_ERR)
       if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_nw: bad jsh =', jsh)
+     $     call errquit('cando_nw: bad jsh =', jsh, UNKNOWN_ERR)
 c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
@@ -169,6 +171,7 @@ c this routine does not check the shell and int_init
 c because it only called by routines that do this.
 c
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -197,9 +200,9 @@ c
 c
 c check shell range
       if (ish_u.lt.0 .or. ish_u.gt.infbs_head(Head_NCONT,basis))
-     $     call errquit('cando_sp_u: bad ish_u =', ish_u)
+     $     call errquit('cando_sp_u: bad ish_u =', ish_u, UNKNOWN_ERR)
       if (jsh_u.lt.0 .or. jsh_u.gt.infbs_head(Head_NCONT,basis))
-     $     call errquit('cando_sp_u: bad jsh_u =', jsh_u)
+     $     call errquit('cando_sp_u: bad jsh_u =', jsh_u, UNKNOWN_ERR)
 c.... check ish_u
       if (ish_u.gt.0) then
         mytype = infbs_cont(CONT_TYPE,ish_u,basis)
@@ -252,6 +255,7 @@ c:tex-for all 2e permutations.
       integer mytype, basis
 #endif
 c
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -279,9 +283,9 @@ c
 c once available change .le. to .lt.
 c
       if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_txs: ish bad', ish)
+     $     call errquit('cando_txs: ish bad', ish, UNKNOWN_ERR)
       if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_txs: jsh bad', jsh)
+     $     call errquit('cando_txs: jsh bad', jsh, UNKNOWN_ERR)
 c
 c check for spherical false until spherical debuged in texas
 *      cando_txs = cando_txs .and. (.not.bas_spherical(basis))
@@ -316,6 +320,7 @@ c this routine does not check the shell and int_init
 c because it only called by routines that do this.
 c
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -341,9 +346,9 @@ c
 c
 c check shell range
       if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_nw_1e: bad ish =', ish)
+     $     call errquit('cando_nw_1e: bad ish =', ish, UNKNOWN_ERR)
       if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_nw_1e: bad jsh =', jsh)
+     $     call errquit('cando_nw_1e: bad jsh =', jsh, UNKNOWN_ERR)
 c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
@@ -376,6 +381,7 @@ c this routine does not check the shell and int_init
 c because it is only called by routines that do this.
 c
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -411,9 +417,9 @@ c also check for general contractions which the code does not
 c currently handle
 c
       if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_hnd_1e: bad ish =', ish)
+     $     call errquit('cando_hnd_1e: bad ish =', ish, UNKNOWN_ERR)
       if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_hnd_1e: bad jsh =', jsh)
+     $     call errquit('cando_hnd_1e: bad jsh =', jsh, UNKNOWN_ERR)
 c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))
@@ -452,9 +458,11 @@ c:tex-\begin{verbatim}
       subroutine int_app_set_no_texas(rtdb)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "candoP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer rtdb ! [input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
@@ -467,7 +475,8 @@ c
         app_stored_txs = .true.
       endif
       if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
-     &    call errquit('int_app_set_no_texas:rtdb_put failed',911)
+     &    call errquit('int_app_set_no_texas:rtdb_put failed',911,
+     &       RTDB_ERR)
       rtdbIused = rtdb
       end
 ***********************************************************************
@@ -486,9 +495,11 @@ c:tex-\begin{verbatim}
       subroutine int_app_unset_no_texas(rtdb)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "candoP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer rtdb ! [input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
@@ -496,10 +507,11 @@ c
       if (app_stored_txs) then
         if(.not.rtdb_delete(rtdb,'int:cando_txs')) 
      &      call errquit
-     &      ('int_app_unset_no_texas:rtdb_delete failed',911)
+     &      ('int_app_unset_no_texas:rtdb_delete failed',911, RTDB_ERR)
       else
         if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,app_stored_txs))
-     &      call errquit('int_app_unset_no_texas:rtdb_put failed',911)
+     &      call errquit('int_app_unset_no_texas:rtdb_put failed',911, 
+     &      RTDB_ERR)
       endif
       end
 *_old_code:      subroutine int_set_cando_txs(user_value)
@@ -545,9 +557,11 @@ c:tex-\begin{verbatim}
       subroutine int_app_set_no_spint(rtdb)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "candoP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer rtdb ! [input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
@@ -560,7 +574,8 @@ c
         app_stored_spint = .true.
       endif
       if (.not.rtdb_put(rtdb,'int:cando_sp',mt_log,1,.false.))
-     &    call errquit('int_app_set_no_spint:rtdb_put failed',911)
+     &    call errquit('int_app_set_no_spint:rtdb_put failed',911,
+     &       RTDB_ERR)
       rtdbIused = rtdb
       end
 ***********************************************************************
@@ -579,9 +594,11 @@ c:tex-\begin{verbatim}
       subroutine int_app_unset_no_spint(rtdb)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "candoP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer rtdb ! [input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
@@ -589,11 +606,12 @@ c
       if (app_stored_spint) then
         if(.not.rtdb_delete(rtdb,'int:cando_sp')) 
      &      call errquit
-     &      ('int_app_unset_no_spint:rtdb_delete failed',911)
+     &      ('int_app_unset_no_spint:rtdb_delete failed',911, RTDB_ERR)
       else
         if (.not.rtdb_put(rtdb,'int:cando_sp',
      &      mt_log,1,app_stored_spint))
-     &      call errquit('int_app_unset_no_spint:rtdb_put failed',911)
+     &      call errquit('int_app_unset_no_spint:rtdb_put failed',911, 
+     &      RTDB_ERR)
       endif
       end
 ***********************************************************************
@@ -610,9 +628,11 @@ c:tex-\begin{verbatim}
       subroutine int_app_set_no_hnd(rtdb)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "candoP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer rtdb ! [input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
@@ -625,7 +645,8 @@ c
         app_stored_hnd = .true.
       endif
       if (.not.rtdb_put(rtdb,'int:cando_hnd',mt_log,1,.false.))
-     &    call errquit('int_app_set_no_hnd:rtdb_put failed',911)
+     &    call errquit('int_app_set_no_hnd:rtdb_put failed',911,
+     &       RTDB_ERR)
       rtdbIused = rtdb
       end
 ***********************************************************************
@@ -644,9 +665,11 @@ c:tex-\begin{verbatim}
       subroutine int_app_unset_no_hnd(rtdb)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "candoP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer rtdb ! [input] Run Time Data Base (RTDB) handle
 c:tex-\end{verbatim}
@@ -654,11 +677,12 @@ c
       if (app_stored_hnd) then
         if(.not.rtdb_delete(rtdb,'int:cando_hnd'))
      &      call errquit
-     &      ('int_app_unset_no_hnd:rtdb_delete failed',911)
+     &      ('int_app_unset_no_hnd:rtdb_delete failed',911, RTDB_ERR)
       else
         if (.not.rtdb_put(rtdb,'int:cando_hnd',
      &      mt_log,1,app_stored_hnd))
-     &      call errquit('int_app_unset_no_hnd:rtdb_put failed',911)
+     &      call errquit('int_app_unset_no_hnd:rtdb_put failed',911, 
+     &      RTDB_ERR)
       endif
       end
 ***********************************************************************
@@ -677,6 +701,7 @@ c
 c this routine does not check the shell and int_init
 c because it is only called by routines that do this.
 c
+#include "errquit.fh"
 #include "apiP.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
@@ -713,9 +738,9 @@ c also check for general contractions which the code does not
 c currently handle
 c
       if (ish.lt.0 .or. ish.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_hnd_1edd: bad ish =', ish)
+     $     call errquit('cando_hnd_1edd: bad ish =', ish, BASIS_ERR)
       if (jsh.lt.0 .or. jsh.gt.ncont_tot_gb(basis))
-     $     call errquit('cando_hnd_1edd: bad jsh =', jsh)
+     $     call errquit('cando_hnd_1edd: bad jsh =', jsh, BASIS_ERR)
 c.... check ish
       if (ish.gt.0) then
         ucont  = (sf_ibs_cn2ucn(ish,basis))

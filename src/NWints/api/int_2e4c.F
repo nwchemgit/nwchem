@@ -1,4 +1,4 @@
-c $Id: int_2e4c.F,v 1.39 2000-10-25 22:50:03 windus Exp $
+c $Id: int_2e4c.F,v 1.40 2003-10-17 22:53:41 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e4c}
@@ -18,6 +18,7 @@ c basic api routine to generate a block of two electron integrals
 c eri = <bra_g(ish).bra_g(jsh) | ket_g(ksh).ket_g(lsh)>
 c
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "apiP.fh"
 #include "basP.fh"
@@ -30,6 +31,7 @@ c
 #include "int_nbf.fh"
 #include "stdio.fh"
 #include "rel_nwc.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c errquit
@@ -106,14 +108,15 @@ c
 c check initialization
 c
       if (.not.int_chk_init('int_2e4c'))
-     &       call errquit('int_2e4c: int_init was not called' ,0)
+     &       call errquit('int_2e4c: int_init was not called' ,0,
+     &       INT_ERR)
 c
 c     define center information required 
 c
       if (.not. bas_check_handle(brain,'int_2e4c:bra')) call errquit
-     $     ('int_2e4c: invalid bra basis handle', brain)
+     $     ('int_2e4c: invalid bra basis handle', brain, BASIS_ERR)
       if (.not. bas_check_handle(ketin,'int_2e4c:ket')) call errquit
-     $     ('int_2e4c: invalid ket basis handle', ketin)
+     $     ('int_2e4c: invalid ket basis handle', ketin, BASIS_ERR)
 #endif
 *
       bra = brain + BASIS_HANDLE_OFFSET
@@ -131,7 +134,8 @@ c
       shells_ok = shells_ok .and. inline_chk_sh(ket,ksh)
       shells_ok = shells_ok .and. inline_chk_sh(ket,lsh)
       if (.not.shells_ok)
-     &       call errquit('int_2e4c: invalid contraction/shell',0)
+     &       call errquit('int_2e4c: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       if (ab_geom.ne.cd_geom.and.WarnP.eq.0) then
         write(luout,*)
@@ -374,6 +378,6 @@ c
         write(luout,*)' jsh   :',jsh
         write(luout,*)' ksh   :',ksh
         write(luout,*)' lsh   :',lsh
-        call errquit('int_2e4c: fatal error ',0)
+        call errquit('int_2e4c: fatal error ',0, INT_ERR)
       endif
       end

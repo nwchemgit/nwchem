@@ -1,7 +1,8 @@
 *
-* $Id: testsolver.F,v 1.5 1999-07-29 00:53:58 d3e129 Exp $
+* $Id: testsolver.F,v 1.6 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer nx, ny, nz, lmax, depth, lenxlm, nnx, nny, nnz
       parameter (nx=134, ny=134, nz=134, lmax=16, depth=3)
@@ -36,7 +37,7 @@ c
       external fnlm, vnlm, fmm_potential
 c     
       if (.not. ma_init(mt_dbl, 64000000, 64000000)) call errquit
-     $     (' failed to init ma ', 128000000)
+     $     (' failed to init ma ', 128000000, MA_ERR)
 c     
 *     *      call initfm
       call anl_fit_init

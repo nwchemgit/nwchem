@@ -1,5 +1,5 @@
 *     
-* $Id: seperate_molpsp.F,v 1.4 2002-02-26 20:06:38 bylaska Exp $
+* $Id: seperate_molpsp.F,v 1.5 2003-10-17 22:56:42 carlfahl Exp $
 *     
 
 *     ***************************
@@ -9,6 +9,7 @@
 *     ***************************
       subroutine seperate_molpsp(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -49,7 +50,7 @@
       value = value.and.geom_create(geom3,'qmmmgeometry')
       value = value.and.geom_rtdb_load(rtdb,geom1,'geometry')
       value = value.and.geom_ncent(geom1,nion1)
-      if (.not. value) call errquit('opening geometry',0)
+      if (.not. value) call errquit('opening geometry',0, GEOM_ERR)
 
 *     *** set nionall and bqbq ****
       nionall = nion1
@@ -62,7 +63,7 @@
      >        MA_push_get(mt_dbl, (nion1),   'mt',mt(2),mt(1))
       value = value.and.
      >        MA_push_get(mt_byte,(16*nion1),'tt',tt(2),tt(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       nion2 = 0
       nion3 = 0
@@ -112,12 +113,12 @@
       value = value.and.geom_destroy(geom2)
       value = value.and.geom_destroy(geom1)
       if (.not. value) 
-     >   call errquit('geometry->chargepspwgeometry write',0)
+     >   call errquit('geometry->chargepspwgeometry write',0, GEOM_ERR)
       value = MA_pop_stack(tt(2))
       value = value.and.MA_pop_stack(mt(2))
       value = value.and.MA_pop_stack(qt(2))
       value = value.and.MA_pop_stack(rt(2))
-      if (.not. value) call errquit('popping stack',0)
+      if (.not. value) call errquit('popping stack',0, MA_ERR)
 
       return
       end
@@ -148,6 +149,7 @@
 *     ***************************
       subroutine combine_molpsp(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -184,10 +186,11 @@
            nion3 = 0
         end if
         if (.not. value)
-     >   call errquit('chargepspwgeometry->geometry write 1',0)
+     >   call errquit('chargepspwgeometry->geometry write 1',0,
+     &       GEOM_ERR)
 
         value = MA_push_get(mt_dbl,(3*nion1),'rt',rt(2),rt(1))
-        if (.not. value) call errquit('out of stack memory',0)
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
         do i=1,nion2
            value = value.and.geom_cent_get(geom2,i,t,rxyz,q)
@@ -213,7 +216,8 @@
         value = value.and.geom_destroy(geom1)
         value = value.and.MA_pop_stack(rt(2))
         if (.not. value)
-     >   call errquit('chargepspwgeometry->geometry write 2',0)
+     >   call errquit('chargepspwgeometry->geometry write 2',0,
+     &       GEOM_ERR)
 
       return
       end

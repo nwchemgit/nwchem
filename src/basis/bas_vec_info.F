@@ -1,8 +1,9 @@
       logical function bas_vec_info(basis, info)
 *
-* $Id: bas_vec_info.F,v 1.6 2000-04-10 17:16:08 hvd Exp $
+* $Id: bas_vec_info.F,v 1.7 2003-10-17 22:54:17 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "inp.fh"
 #include "geom.fh"
@@ -165,28 +166,29 @@ c
       cartbf(7,36) = 'zzzzzzz'
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('bas_vec_info: nbf?',0)
+     $     ('bas_vec_info: nbf?',0, BASIS_ERR)
       if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('bas_vec_info: nsh?',0)
+     $     ('bas_vec_info: nsh?',0, BASIS_ERR)
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('bas_vec_info: geom?', 0)
+     $     ('bas_vec_info: geom?', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, nat)) call errquit
-     $     ('bas_vec_info: ncent?',0)
+     $     ('bas_vec_info: ncent?',0, BASIS_ERR)
 c
       i = 0
       do ish = 1, nsh
          if (.not. bas_continfo(basis, ish, type, nprim, ngen, sphcart))
-     $        call errquit('bas_vec_info: continfo',ish)
+     $        call errquit('bas_vec_info: continfo',ish, BASIS_ERR)
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('bas_vec_info: cn2bfr', ish)
+     $        call errquit('bas_vec_info: cn2bfr', ish, BASIS_ERR)
          if (.not. bas_cn2ce(basis, ish, iat))
-     $        call errquit('bas_vec_info: cn2ce', ish)
+     $        call errquit('bas_vec_info: cn2ce', ish, BASIS_ERR)
          if (.not. geom_cent_tag(geom, iat, tag))
-     $        call errquit('bas_vec_info: tag', iat)
+     $        call errquit('bas_vec_info: tag', iat, BASIS_ERR)
          status = geom_tag_to_element(tag, symbol, element, atn)
 c
          if (type.gt.7 .or. type.lt.-1) call errquit
-     $        ('bas_vec_info: unsupported basis type?',type)
+     $        ('bas_vec_info: unsupported basis type?',type,
+     &       BASIS_ERR)
 c
          shdim = (ihi-ilo+1)
          if (type.ge.0) then 
@@ -230,13 +232,15 @@ c
          enddo
       enddo
 c
-      if (i.ne.nbf) call errquit('bas_vec_info: function mismatch?',i)
+      if (i.ne.nbf) call errquit('bas_vec_info: function mismatch?',i,
+     &       BASIS_ERR)
 c
       bas_vec_info = .true.
 c
       end
 c$$$      subroutine bas_test_vec_info(basis)
 c$$$      implicit none
+c$$$#include "errquit.fh"
 c$$$      integer basis
 c$$$      character*16 info(500)
 c$$$      logical bas_vec_info
@@ -247,6 +251,7 @@ c$$$c
 c$$$      end
       subroutine bas_print_labels(basis)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "stdio.fh"
@@ -257,12 +262,15 @@ c
       integer i, j, k_bftags, l_bftags, nbf
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('bas_print_labels: invalid basis handle',basis)
+     $     ('bas_print_labels: invalid basis handle',basis,
+     &       BASIS_ERR)
       if (.not. ma_push_get(mt_byte,nbf*16,'bftags',
      $     l_bftags,k_bftags))
-     $     call errquit('bas_print_labels: ma failed', nbf*16)
+     $     call errquit('bas_print_labels: ma failed', nbf*16,
+     &       BASIS_ERR)
       if (.not.bas_vec_info(basis, byte_mb(k_bftags)))
-     &    call errquit('bas_print_labels: bas_vec_info failed',911)
+     &    call errquit('bas_print_labels: bas_vec_info failed',911,
+     &       BASIS_ERR)
       write(LuOut,*)
       call util_print_centered(LuOut, 'Basis function labels',
      $     13, .true.)
@@ -274,6 +282,7 @@ c
  781     format(4x,i5,4x,16a1)
       enddo
       if (.not. ma_pop_stack(l_bftags)) call errquit
-     $     ('bas_print_labels: ma corrupt after bas func labs',0)
+     $     ('bas_print_labels: ma corrupt after bas func labs',0,
+     &       BASIS_ERR)
 c
       end

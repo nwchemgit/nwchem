@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
 c
-c $Id: tddft_init.F,v 1.11 2003-04-14 20:54:39 sohirata Exp $
+c $Id: tddft_init.F,v 1.12 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from
@@ -15,6 +15,7 @@ c See also dft_rdinput.F and dft_inpana.F.
 c Written by So Hirata, Feb 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -103,14 +104,14 @@ c ---------------------
 c Geometry and symmetry
 c ---------------------
       if (.not.geom_create(geom,'geometry'))
-     1  call errquit('tddft_init: geom_create failed',0)
+     1  call errquit('tddft_init: geom_create failed',0, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     1  call errquit('tddft_init: no geometry found',0)
+     1  call errquit('tddft_init: no geometry found',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:skeleton',mt_log,1,oskel)) then
         oskel=.false.
       endif
       if (oskel) call errquit
-     1  ('tddft_init: turn off skeleton symmetry',0)
+     1  ('tddft_init: turn off skeleton symmetry',0, INPUT_ERR)
       if (.not.rtdb_get(rtdb,'dft:adapt',mt_log,1,oadapt)) then
         oadapt=sym_number_ops(geom).gt.0
       endif
@@ -118,61 +119,62 @@ c ---------
 c Basis set
 c ---------
       if (.not.bas_create(ao_bas_han,'ao basis'))
-     1  call errquit('tddft_init: bas_create failed',0)
+     1  call errquit('tddft_init: bas_create failed',0, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,ao_bas_han,'ao basis'))
-     1  call errquit('tddft_init: no ao basis found',0)
+     1  call errquit('tddft_init: no ao basis found',0, BASIS_ERR)
       if (.not.int_normalize(rtdb,ao_bas_han))
-     1  call errquit('tddft_init: int_normalize failed',0)
+     1  call errquit('tddft_init: int_normalize failed',0, BASIS_ERR)
       if (.not.bas_numbf(ao_bas_han,nbf_ao))
-     1  call errquit('tddft_init: failed to read nbf_ao',0)
+     1  call errquit('tddft_init: failed to read nbf_ao',0, BASIS_ERR)
 c ----------
 c MO vectors
 c ----------
       if (.not.rtdb_cget(rtdb,'dft:output vectors',1,movecs_out))
-     1  call errquit('tddft_init: no final MO found',0)
+     1  call errquit('tddft_init: no final MO found',0, RTDB_ERR)
 c ------------------------------------------------------
 c Number of electrons and orbitals and spin multiplicity
 c ------------------------------------------------------
       if (.not.rtdb_get(rtdb,'dft:ipol',mt_int,1,ipol))
-     1  call errquit('tddft_init: failed to read ipol',0)
+     1  call errquit('tddft_init: failed to read ipol',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,nocc))
-     1  call errquit('tddft_init: failed to read nocc',0)
+     1  call errquit('tddft_init: failed to read nocc',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:mult',mt_int,1,mult))
-     1  call errquit('tddft_init: failed to read mult',0)
+     1  call errquit('tddft_init: failed to read mult',0, RTDB_ERR)
 c --------------
 c XC functionals
 c --------------
       if (.not.rtdb_get(rtdb,'dft:xfac',mt_dbl,numfunc,xfac))
-     1  call errquit('tddft_init: failed to read xfac',0)
+     1  call errquit('tddft_init: failed to read xfac',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:cfac',mt_dbl,numfunc,cfac))
-     1  call errquit('tddft_init: failed to read cfac',0)
+     1  call errquit('tddft_init: failed to read cfac',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:lxfac',mt_log,numfunc,lxfac))
-     1  call errquit('tddft_init: failed to read lxfac',0)
+     1  call errquit('tddft_init: failed to read lxfac',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:nlxfac',mt_log,numfunc,nlxfac))
-     1  call errquit('tddft_init: failed to read nlxfac',0)
+     1  call errquit('tddft_init: failed to read nlxfac',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:lcfac',mt_log,numfunc,lcfac))
-     1  call errquit('tddft_init: failed to read lcfac',0)
+     1  call errquit('tddft_init: failed to read lcfac',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:nlcfac',mt_log,numfunc,nlcfac))
-     1  call errquit('tddft_init: failed to read nlcfac',0)
+     1  call errquit('tddft_init: failed to read nlcfac',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:xccomb',mt_log,numfunc,xccomb))
-     1  call errquit('tddft_init: failed to read xccomb',0)
+     1  call errquit('tddft_init: failed to read xccomb',0, RTDB_ERR)
       if (.not.rtdb_cget(rtdb,'dft:cname',numfunc,cname))
-     1  call errquit('tddft_init: failed to read xname',0) 
+     1  call errquit('tddft_init: failed to read xname',0, RTDB_ERR)
       if (.not.rtdb_cget(rtdb,'dft:xcname',numfunc,xcname))
-     1  call errquit('tddft_init: failed to read cname',0) 
+     1  call errquit('tddft_init: failed to read cname',0, RTDB_ERR)
       if (.not.rtdb_cget(rtdb,'dft:xname',numfunc,xname))
-     1  call errquit('tddft_init: failed to read xcname',0) 
+     1  call errquit('tddft_init: failed to read xcname',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:lb94',mt_log,1,lb94))
-     1  call errquit('tddft_init: failed to read lb94',0)
+     1  call errquit('tddft_init: failed to read lb94',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:cs00',mt_log,1,cs00))
-     1  call errquit('tddft_init: failed to read cs00',0)
+     1  call errquit('tddft_init: failed to read cs00',0, RTDB_ERR)
       if (.not.rtdb_get(rtdb,'dft:delta_ac',mt_dbl,1,shift))
-     1  call errquit('tddft_init: failed to read delta_ac',0)
+     1  call errquit('tddft_init: failed to read delta_ac',0, RTDB_ERR)
 c -----------
 c TDDFT input
 c -----------
       if(.not. geom_freeze(rtdb, geom, 'tddft', nfc(1))) then
-        call errquit('tddft_init: failed to get number of cores', 0)
+        call errquit('tddft_init: failed to get number of cores', 0,
+     &       GEOM_ERR)
       endif
 
       if (ipol.eq.2) nfc(2) = nfc(1)
@@ -182,73 +184,76 @@ c -----------
       if (.not.rtdb_get(rtdb,'tddft:nroots',mt_int,1,nroots)) then
         nroots=1
         if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
-     1  call errquit('tddft_init: failed to write nroots',0)
+     1  call errquit('tddft_init: failed to write nroots',0, RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:maxvecs',mt_int,1,maxvecs)) then
         maxvecs=1000
         if (.not.rtdb_put(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
-     1  call errquit('tddft_init: failed to write maxvecs',0)
+     1  call errquit('tddft_init: failed to write maxvecs',0, RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:tda',mt_log,1,tda)) then
         tda=.false.
         if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
-     1  call errquit('tddft_init: failed to write tda',0)
+     1  call errquit('tddft_init: failed to write tda',0, RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:singlet',mt_log,1,singlet)) then
         singlet=.true.
         if (.not.rtdb_put(rtdb,'tddft:singlet',mt_log,1,singlet))
-     1  call errquit('tddft_init: failed to write singlet',0)
+     1  call errquit('tddft_init: failed to write singlet',0, RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:triplet',mt_log,1,triplet)) then
         triplet=.true.
         if (.not.rtdb_put(rtdb,'tddft:triplet',mt_log,1,triplet))
-     1  call errquit('tddft_init: failed to write triplet',0)
+     1  call errquit('tddft_init: failed to write triplet',0, RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:thresh',mt_dbl,1,thresh)) then
         thresh=1.0d-4
         if (.not.rtdb_put(rtdb,'tddft:thresh',mt_dbl,1,thresh))
-     1  call errquit('tddft_init: failed to write thresh',0)
+     1  call errquit('tddft_init: failed to write thresh',0, RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:maxiter',mt_int,1,maxiter)) then
         maxiter=1000
         if (.not.rtdb_put(rtdb,'tddft:maxiter',mt_int,1,maxiter))
-     1  call errquit('tddft_init: failed to write maxiter',0)
+     1  call errquit('tddft_init: failed to write maxiter',0, RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:target',mt_int,1,target)) then
          target=1
         if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
-     1  call errquit('tddft_init: failed to write target',0)
+     1  call errquit('tddft_init: failed to write target',0, RTDB_ERR)
       endif
       if (.not.rtdb_cget(rtdb,'tddft:targetsym',1,targetsym)) then
         targetsym='none'
         if (.not.rtdb_cput(rtdb,'tddft:targetsym',1,targetsym))
-     1  call errquit('tddft_init: failed to write targetsym',0)
+     1  call errquit('tddft_init: failed to write targetsym',0,
+     &       RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:symmetry',mt_log,1,symmetry)) then
         symmetry=.false.
         if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
-     1  call errquit('tddft_init: failed to write symmetry',0)
+     1  call errquit('tddft_init: failed to write symmetry',0, RTDB_ERR)
       endif
       if ((symmetry).and.(targetsym.eq.'none')) then
         symmetry=.false.
         if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
-     1    call errquit('tddft_init: failed to write symmetry',0)
+     1    call errquit('tddft_init: failed to write symmetry',0,
+     &       RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tddft:algorithm',mt_int,1,algorithm)) then
         algorithm=0
         if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
-     1  call errquit('tddft_init: failed to write algorithm',0)
+     1  call errquit('tddft_init: failed to write algorithm',0,
+     &       RTDB_ERR)
       endif
 C     if (.not.rtdb_cget(rtdb,'tddft:vector',1,vector)) then
 C       call util_file_name('tddft',.false.,.false.,vector)
 C       if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
-C    1  call errquit('tddft_init: failed to write vector',0)
+C    1  call errquit('tddft_init: failed to write vector',0, RTDB_ERR)
 C     endif
 c ----------------------
 c 2-e integral tolerance
 c ----------------------
       if (.not.rtdb_get(rtdb,'dft:itol2e',mt_int,1,itol2e))
-     1  call errquit('tddft_init: failed to read itol2e',0)
+     1  call errquit('tddft_init: failed to read itol2e',0, RTDB_ERR)
       tol2e=10.0d0**(-itol2e)
 c ----------------------
 c Initialize integrators
@@ -317,24 +322,24 @@ c Allocate global arrays for MO vectors
 c -------------------------------------
       if (.not.ma_push_get(mt_dbl,nbf_ao*ipol,'eigenvalues',
      1  l_evl,k_evl)) call errquit
-     2  ('tddft_init: failed to allocate evl',0)
+     2  ('tddft_init: failed to allocate evl',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbf_ao*ipol,'occupancy',
      1  l_occ,k_occ)) call errquit
-     2  ('tddft_init: failed to allocate occ',0)
+     2  ('tddft_init: failed to allocate occ',0, MA_ERR)
       if (.not.movecs_read_header(movecs_out,title,basisname,
      1  scftype,nbf_ao_verify,ipol_verify,nmo,2)) call errquit
-     2  ('tddft_init: failed to read MO file header',0)
+     2  ('tddft_init: failed to read MO file header',0, DISK_ERR)
       if (nbf_ao.ne.nbf_ao_verify) call errquit
-     1  ('tddft_init: corrupted MO vectors',0)
+     1  ('tddft_init: corrupted MO vectors',0, DISK_ERR)
       if (ipol.ne.ipol_verify) call errquit
-     1  ('tddft_init: corrupted MO vectors',0)
+     1  ('tddft_init: corrupted MO vectors',0, DISK_ERR)
       do i=1,ipol
         g_movecs(i)=ga_create_atom_blocked
      1    (geom,ao_bas_han,'MO eigenvectors')
         if (.not.movecs_read(movecs_out,i,
      1    dbl_mb(k_occ+(i-1)*nbf_ao),
      2    dbl_mb(k_evl+(i-1)*nbf_ao),g_movecs(i))) call errquit
-     3    ('tddft_init: failed to read MO vectors',0)
+     3    ('tddft_init: failed to read MO vectors',0, DISK_ERR)
         if (util_print('MO vectors',print_debug)) then
           if (nodezero) call ma_print(dbl_mb(k_evl+(i-1)*nbf_ao),
      1      nbf_ao,1,'Eigenvalues')
@@ -353,14 +358,14 @@ c Make sure not to alter g_movecs
 c
         if (.not.ma_push_get(mt_int,nbf_ao,'irreps',
      1    l_irs(i),k_irs(i))) call errquit
-     2    ('tddft_init: failed to allocate irs',0)
+     2    ('tddft_init: failed to allocate irs',0, MA_ERR)
         if (.not.ga_duplicate(g_movecs(i),g_work,'Work')) call errquit
-     1    ('tddft_init: failed to duplicate g_movecs',0)
+     1    ('tddft_init: failed to duplicate g_movecs',0, GA_ERR)
         call ga_copy(g_movecs(i),g_work)
         call sym_movecs_adapt(ao_bas_han,1.0d-8,g_work,
      1    int_mb(k_irs(i)),nmix(i))
         if (.not.ga_destroy(g_work)) call errquit
-     1    ('tddft_init: failed to destroy g_work',0)
+     1    ('tddft_init: failed to destroy g_work',0, GA_ERR)
         if (nodezero.and.util_print('MO vectors',print_debug)) then
           write(LuOut,*) 'Spin ',i
           do j=1,nbf_ao

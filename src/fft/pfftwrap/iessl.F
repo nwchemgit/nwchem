@@ -1,9 +1,10 @@
 *
-* $Id: iessl.F,v 1.2 1997-11-04 10:07:51 d3e129 Exp $
+* $Id: iessl.F,v 1.3 2003-10-17 22:54:56 carlfahl Exp $
 *
 c************************************************************************
       INTEGER FUNCTION initESSL(icontext)
       IMPLICIT NONE
+#include "errquit.fh"
       INTEGER icontext
       integer nprow, npcol, myrow, mycol
       integer nnodes, nodeid, nproc, me
@@ -28,7 +29,7 @@ c     print*,me,' icontext2=',icontext2,nproc
         if (me.EQ.0) then
           write(6,*) 'proc grid incorrect: ',nprow,myrow,npcol,mycol
         endif 
-        call errquit('initESSL error initializing',me)
+        call errquit('initESSL error initializing',me, UNKNOWN_ERR)
       endif
       icontext = icontext1
       RETURN

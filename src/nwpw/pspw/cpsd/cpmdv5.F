@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.31 2003-08-29 17:53:23 fruechtl Exp $
+* $Id: cpmdv5.F,v 1.32 2003-10-17 22:57:13 carlfahl Exp $
 *
 
 ***********************************************************************
@@ -17,6 +17,7 @@
 
       logical function cpmdv5(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
@@ -247,7 +248,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi0',psi0(2),psi0(1))
-      if (.not.value) call errquit('out of heap memory',0)
+      if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
 
 
@@ -289,7 +290,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
-      if (.not.value) call errquit('out of heap memory',0)
+      if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
 
 
@@ -385,7 +386,7 @@
      >      'PBE96 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0)
+            call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF   
          write(6,1140)
          do ia = 1,psp_npsp()

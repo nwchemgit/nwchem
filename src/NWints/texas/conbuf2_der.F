@@ -1,4 +1,4 @@
-* $Id: conbuf2_der.F,v 1.2 1999-07-29 01:05:48 d3e129 Exp $
+* $Id: conbuf2_der.F,v 1.3 2003-10-17 22:54:11 carlfahl Exp $
       subroutine conbuf2_der_ne(firstc,nbls,nbls1,xt1,lt1,lt2,buf2,indx,
      *     aax,bbx,ccx)
 c     
@@ -112,6 +112,7 @@ c
 cccc  this is called only for where.eq.'forc' and nbls=nbls1
 c     
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
       logical firstc
 c     
       common/obarai/
@@ -135,7 +136,8 @@ c     buf2(4,nbls,lt1,lt2) - rescaled with 2*c_exp
 c-----------------------------------------------------------
 c     
 c
-      if (nbls1 .ne. nbls) call errquit('conbuf2_der_eq: ne!',nbls)
+      if (nbls1 .ne. nbls) call errquit('conbuf2_der_eq: ne!',nbls,
+     &       INT_ERR)
 c
       if (firstc) then
          do kl=nfu(nqkl)+1,nfu(nskl+1)

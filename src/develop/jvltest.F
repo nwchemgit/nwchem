@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.9 1999-09-06 13:36:42 jhvan Exp $
+*     $Id: jvltest.F,v 1.10 2003-10-17 22:54:39 carlfahl Exp $
 *      calling routine for CCSD(T) trials
 *
       implicit none
@@ -20,6 +20,7 @@ c...  using spin-orbital integrals sitting in core
 c...  for now a 4-dimensional array of <ij||ab> 
 c
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -41,13 +42,13 @@ c...  check existence of required files
 c
       inquire(file='T2',exist=oexist)
       if (.not. oexist)
-     $     call errquit('jvltest: no T2 ', 0)
+     $     call errquit('jvltest: no T2 ', 0, UNKNOWN_ERR)
       inquire(file='ASOINTS',exist=oexist)
       if (.not. oexist)
-     $     call errquit('jvltest: no ASOINTS ', 0)
+     $     call errquit('jvltest: no ASOINTS ', 0, UNKNOWN_ERR)
       inquire(file='EVALS',exist=oexist)
       if (.not. oexist)
-     $     call errquit('jvltest: no EVALS ', 0)
+     $     call errquit('jvltest: no EVALS ', 0, UNKNOWN_ERR)
 c
 c... get basis size from T2
 c
@@ -59,17 +60,17 @@ c
 c..     integrals
 c     double precision rint(nbasis,nbasis,nbasis,nbasis)
       if (.not. ma_push_get(mt_dbl, nbasis**4,'rint',l_rint, k_rint))
-     $    call errquit('rint',0)
+     $    call errquit('rint',0, MA_ERR)
 c..    amplitudes 
 c     double precision t1(occ,virt), t2(occ,occ,virt,virt)
       if (.not. ma_push_get(mt_dbl, occ**2*virt**2,'t2',l_t2, k_t2))
-     $    call errquit('t2',0)
+     $    call errquit('t2',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, occ*virt,'t1',l_t1, k_t1))
-     $    call errquit('t1',0)
+     $    call errquit('t1',0, MA_ERR)
 c..    the orb  (orbital energies)
 c     double precision orb(nbasis)
       if (.not. ma_push_get(mt_dbl, nbasis,'orb',l_orb, k_orb))
-     $    call errquit('orb',0)
+     $    call errquit('orb',0, MA_ERR)
 c
       call get_INTS(dbl_mb(k_rint),nbasis)
       call get_T1(dbl_mb(k_t1),occ,virt)
@@ -149,7 +150,8 @@ c
 c
 c...  free all core beyond rint
 c
-      if (.not. ma_chop_stack(l_rint)) call errquit(' ma chop?', 0)
+      if (.not. ma_chop_stack(l_rint)) call errquit(' ma chop?', 0,
+     &       MA_ERR)
 c
 c      could also use ma_pop_stack(l_occ)  which is like gmem_free
 c      (but using handle instead of pointer)
@@ -163,6 +165,7 @@ c...   energy returns the finally computed energy
 c...   np is thew # points to be used
 c
       implicit none
+#include "errquit.fh"
 c
       integer nbasis,occ,virt,np
       double precision rint(nbasis,nbasis,nbasis,nbasis)
@@ -208,7 +211,7 @@ c
       tt3 = 0.0d0
       tt4 = 0.0d0
 c
-      if (np.gt.npoint) call errquit('almlof overflow',0)
+      if (np.gt.npoint) call errquit('almlof overflow',0, UNKNOWN_ERR)
       energy=0.0d0
       do ip=1,np
        energy=energy+dexp(-5.0d0*t_alpha(np*(np-1)/2 + ip))
@@ -244,6 +247,7 @@ c...   energy returns the finally computed energy
 c...   np is thew # points to be used
 c
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -262,7 +266,8 @@ c
       double precision scra(npoint), dum(2),elimit(2)
       character*26 date
 c
-      if (np.gt.npoint) call errquit(' enlarge int_laguer ',0)
+      if (np.gt.npoint) call errquit(' enlarge int_laguer ',0,
+     &       UNKNOWN_ERR)
       call gaussq(6,np,0.0d0,0.0d0,0,dum,scra,t_alpha,weight)
 c
 c...  dermine integration scale required
@@ -281,7 +286,7 @@ c..    next default (all)
         elimit(2) = +9.0d99
        else 
         if (.not.rtdb_get(rtdb,'cct_laguer_scale',MT_DBL,2,elimit))
-     1     call errquit(' cct_laguer_scale ',0)
+     1     call errquit(' cct_laguer_scale ',0, RTDB_ERR)
         if (n.eq.1) elimit(2) = elimit(1)
         elimit(1) = -elimit(1)
        end if
@@ -341,6 +346,7 @@ c
 c...  read orbital energies from EVALS
 c
       implicit none
+#include "errquit.fh"
 c
       integer nbasis,occ,virt
       double precision orb(nbasis)
@@ -349,10 +355,10 @@ c
       logical oexist
 c
       inquire(file='EVALS',exist=oexist)
-      if (.not.oexist) call errquit(' no EVAL ',0)
+      if (.not.oexist) call errquit(' no EVAL ',0, UNKNOWN_ERR)
       open(9,file='EVALS',form='formatted')
       read(9,*) nbin
-      if (nbin.ne.nbasis) call errquit('nbasis wrong',1)
+      if (nbin.ne.nbasis) call errquit('nbasis wrong',1, BASIS_ERR)
       do i=1,nbasis
          read(9,'(5x,f20.10)') orb(i)
       end do
@@ -386,6 +392,7 @@ c
 c...  real t2 amplitudes from T2
 c
       implicit none
+#include "errquit.fh"
 c
       integer occ,virt
       double precision t2(occ,occ,virt,virt)
@@ -394,10 +401,11 @@ c
       logical oexist
 c
       inquire(file='T2',exist=oexist)
-      if (.not.oexist) call errquit(' no T2 ',0)
+      if (.not.oexist) call errquit(' no T2 ',0, UNKNOWN_ERR)
       open(9,file='T2',form='formatted')
       read(9,*) ocin,vin
-      if (ocin.ne.occ.or.vin.ne.virt) call errquit(' occ,virt wrong',0)
+      if (ocin.ne.occ.or.vin.ne.virt) call errquit(' occ,virt wrong',0,
+     &       UNKNOWN_ERR)
 c
       call dfill(occ*occ*virt*virt,0.0d0,t2,1)
 c
@@ -415,6 +423,7 @@ c
 c...  real t1 amplitudes from T1
 c
       implicit none
+#include "errquit.fh"
 c
       integer occ,virt
       double precision t1(occ,virt)
@@ -430,7 +439,8 @@ c
       end if
       open(9,file='T1',form='formatted')
       read(9,*) ocin,vin
-      if (ocin.ne.occ.or.vin.ne.virt) call errquit(' occ,virt wrong',1)
+      if (ocin.ne.occ.or.vin.ne.virt) call errquit(' occ,virt wrong',1,
+     &       UNKNOWN_ERR)
 c
       call dfill(occ*virt,0.0d0,t1,1)
 c
@@ -447,6 +457,7 @@ c
 c...  real integrals from ASOINTS
 c
       implicit none
+#include "errquit.fh"
 c
       integer nbasis
       double precision rint(nbasis,nbasis,nbasis,nbasis)
@@ -455,10 +466,11 @@ c
       logical oexist
 c
       inquire(file='ASOINTS',exist=oexist)
-      if (.not.oexist) call errquit(' no INTS ',0)
+      if (.not.oexist) call errquit(' no INTS ',0, DISK_ERR)
       open(9,file='ASOINTS',form='formatted')
       read(9,*) in
-      if (in.ne.nbasis) call errquit(' nbasis on INTS wrong',0)
+      if (in.ne.nbasis) call errquit(' nbasis on INTS wrong',0,
+     &       BASIS_ERR)
 c
       call dfill(nbasis**4,0.0d0,rint,1)
 c
@@ -478,6 +490,7 @@ c...  calculated as exp(-orb)*factor for occ
 c...                exp(orb)*factor for virt
 c
       implicit none
+#include "errquit.fh"
       integer nbasis,occ,virt
       double precision orb(nbasis),fac(nbasis),factor
 c
@@ -491,7 +504,7 @@ c
       end do
 c
       if (orb(occ).gt.0.0d0.or.orb(occ+1).lt.0.0d0)
-     1 call errquit(' OEPS orbital energies ',0)
+     1 call errquit(' OEPS orbital energies ',0, UNKNOWN_ERR)
 c     print *,' factor ... ',orb(occ),orb(occ+1)
 c     print *,fac(1),fac(nbasis)
 c     print *,(fac(1)*fac(nbasis))**3
@@ -676,6 +689,7 @@ c     notation v(vv) : running index (virtual), o(oo)= running occupied)
 c
 c
       implicit none
+#include "errquit.fh"
 c
       integer nbasis,occ,virt
       double precision rint(nbasis,nbasis,nbasis,nbasis)
@@ -715,20 +729,20 @@ c
 c term 1
 c
       if (.not. ma_push_get(mt_dbl,lenab*2,'a2a', l_w, k_w))
-     1    call errquit('push a1a',0)
+     1    call errquit('push a1a',0, MA_ERR)
       term_a1a = cct_so_a1a(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenab))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a2a',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a2a',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenia*2,'a1b', l_w, k_w))
-     1    call errquit('push a1b',0)
+     1    call errquit('push a1b',0, MA_ERR)
       term_a1b = cct_so_a1b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenia))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a1b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a1b',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenij*2,'b1b', l_w, k_w))
-     1    call errquit('push b1b',0)
+     1    call errquit('push b1b',0, MA_ERR)
       term_b1b = cct_so_b1b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenij))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop b1b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop b1b',0, MA_ERR)
 c
       term1 = term_a1a + 2.0d0*term_a1b + term_b1b
 c
@@ -743,20 +757,20 @@ c
 c term 2
 c
       if (.not. ma_push_get(mt_dbl,lenijab+lenijab,'a2a', l_w, k_w))
-     1    call errquit('push a2a',0)
+     1    call errquit('push a2a',0, MA_ERR)
       term_a2a = cct_so_a2a(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijab))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a2a',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a2a',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenijka*2,'a2a', l_w, k_w))
-     1    call errquit('push a2b',0)
+     1    call errquit('push a2b',0, MA_ERR)
       term_a2b = cct_so_a2b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijka))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a2b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a2b',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenijka+lenijkl,'b2b', l_w, k_w))
-     1    call errquit('push b2b',0)
+     1    call errquit('push b2b',0, MA_ERR)
       term_b2b = cct_so_b2b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijka))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop b2b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop b2b',0, MA_ERR)
 c
       term2 = term_a2a + 2.0d0*term_a2b + term_b2b
 c
@@ -770,20 +784,20 @@ c
 c term 3
 c
       if (.not. ma_push_get(mt_dbl,lenabcd+leniabc,'a3a', l_w, k_w))
-     1    call errquit('push a3a',0)
+     1    call errquit('push a3a',0, MA_ERR)
       term_a3a = cct_so_a3a(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenabcd))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a3a',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a3a',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl,leniabc+lenijka,'a3b', l_w, k_w))
-     1    call errquit('push a3b',0)
+     1    call errquit('push a3b',0, MA_ERR)
       term_a3b = cct_so_a3b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+leniabc))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a3b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a3b',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenijab+lenijka,'b3b', l_w, k_w))
-     1    call errquit('push b3b',0)
+     1    call errquit('push b3b',0, MA_ERR)
       term_b3b = cct_so_b3b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijab))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop b3b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop b3b',0, MA_ERR)
 c
       print *,' term_a3a *.5 ',term_a3a*0.5d0
       print *,' term_a3b *1, ',term_a3b 
@@ -801,22 +815,22 @@ c
 c term 4
 c
       if (.not. ma_push_get(mt_dbl,leniabc+lenijab,'a4a', l_w, k_w))
-     1    call errquit('push a4a',0)
+     1    call errquit('push a4a',0, MA_ERR)
       term_a4a = cct_so_a4a(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+leniabc))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a4a',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a4a',0, MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl,lenijab+lenijka,'a4b', l_w, k_w))
-     1    call errquit('push a4b',0)
+     1    call errquit('push a4b',0, MA_ERR)
       term_a4b = cct_so_a4b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijab))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop a4b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop a4b',0, MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl,lenijka*2,'b4b', l_w, k_w))
-     1    call errquit('push b4b',0)
+     1    call errquit('push b4b',0, MA_ERR)
       term_b4b = cct_so_b4b(rint,nbasis,t2,occ,virt,fac,
      1                      dbl_mb(k_w),dbl_mb(k_w+lenijka))
-      if (.not.ma_pop_stack(l_w)) call errquit('pop b4b',0)
+      if (.not.ma_pop_stack(l_w)) call errquit('pop b4b',0, MA_ERR)
 c
       term4 = term_a4a + 2.0d0*term_a4b + term_b4b
 c
@@ -1299,6 +1313,7 @@ c     weighting 0.5
 c
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
       integer nbasis,occ,virt
@@ -1322,7 +1337,8 @@ c
              wijab(f,e,i,k) =  wijab(f,e,i,k)+rint(a+occ,b+occ,e+occ,k)
      1                                       *rint(a+occ,b+occ,f+occ,i)
      2                      * fac(k)*fac(i)*fac(a+occ)*fac(b+occ)
-             if (.not. ma_verify_allocator_stuff()) call errquit('a',0)
+             if (.not. ma_verify_allocator_stuff()) call errquit('a',0,
+     &       MA_ERR)
            end do
           end do
          end do
@@ -1342,7 +1358,8 @@ c
             wijab2(f,c,j,k) = wijab2(f,c,j,k) + wijab(f,e,i,k)
      1                                        * t2(i,j,c,e)
      2                      * fac(j)*fac(c+occ)
-             if (.not. ma_verify_allocator_stuff()) call errquit('b',0)
+             if (.not. ma_verify_allocator_stuff()) call errquit('b',0,
+     &       MA_ERR)
            end do
           end do
          end do
@@ -1708,6 +1725,7 @@ c...  calculated the integral only contracted intermediate
 c...  (ab||ei)*(ab||fj) => (ij,ef)  ('ab')
 c
       implicit none
+#include "errquit.fh"
 c
       integer nbasis,occ,virt
       double precision rint(nbasis,nbasis,nbasis,nbasis)
@@ -1760,7 +1778,7 @@ c
        end do
 c
       else 
-         call errquit(' what ?',0)
+         call errquit(' what ?',0, UNKNOWN_ERR)
       end if
 c
       end

@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.7 2002-06-21 17:13:40 sohirata Exp $
+c $Id: tddft_energy.F,v 1.8 2003-10-17 22:58:29 carlfahl Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -24,6 +24,7 @@ c CAUTION: numfunc=30 hardwired from "cdft.fh".  It is nicer if it
 c is read from runtime database.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -147,14 +148,17 @@ c
         do i=1,ipol
           if (.not.ga_create(mt_dbl,nov(i),maxvecs,
      1      'trial vectors',-1,maxvecs,g_trials(i)))
-     2      call errquit('tddft_energy: failed to create g_trials',0)
+     2      call errquit('tddft_energy: failed to create g_trials',0,
+     &       GA_ERR)
           if (.not.ga_duplicate(g_trials(i),g_prod_p(i),
      1      'product vectors'))
-     2      call errquit('tddft_energy: failed to create g_prod_p',0)
+     2      call errquit('tddft_energy: failed to create g_prod_p',0,
+     &       GA_ERR)
           if (.not.tda) then
             if (.not.ga_duplicate(g_trials(i),g_prod_m(i),
      1        'product vectors'))
-     2        call errquit('tddft_energy: failed to create g_prod_m',0)
+     2        call errquit('tddft_energy: failed to create g_prod_m',0,
+     &       GA_ERR)
           endif
         enddo
 c
@@ -166,10 +170,12 @@ c
         do i=1,ipol
           if (.not.ga_create(mt_dbl,nov(i),1,
      1      'buffer vector 1',-1,1,g_buffer1(i)))
-     2      call errquit('tddft_energy: failed to create g_buffer1',0)
+     2      call errquit('tddft_energy: failed to create g_buffer1',0,
+     &       GA_ERR)
           if (.not.ga_duplicate(g_buffer1(i),g_buffer2(i),
      1      'buffer vector 2'))
-     2      call errquit('tddft_energy: failed to create g_buffer2',0)
+     2      call errquit('tddft_energy: failed to create g_buffer2',0,
+     &       GA_ERR)
         enddo
 c
 c Six DRA's for 10 GB of total disk space and 10 MB of memory buffer
@@ -201,7 +207,7 @@ c
           endif
         endif
       else
-        call errquit('tddft_energy: unknown algorithm',0)
+        call errquit('tddft_energy: unknown algorithm',0, INPUT_ERR)
       endif
       memleft=ga_memory_avail()/ma_sizeof(mt_dbl,1,mt_byte)
       if (nodezero.and.util_print('trial vectors',print_high))
@@ -220,9 +226,11 @@ c
         if (.not.rtdb_get(rtdb,'fock_xc:calc_type',mt_int,1,
      1    calc_type_save)) calc_type_save=0
         if (.not.rtdb_put(rtdb,'bgj:xc_active',mt_log,1,.true.))
-     1    call errquit('tddft_energy: failed to set xc_active true',0)
+     1    call errquit('tddft_energy: failed to set xc_active true',0,
+     &       RTDB_ERR)
         if (.not.rtdb_put(rtdb,'fock_xc:calc_type',mt_int,1,2))
-     1    call errquit('tddft_energy: failed to set calc_type 2',0)
+     1    call errquit('tddft_energy: failed to set calc_type 2',0,
+     &       RTDB_ERR)
       endif
 c
 c Now we call tddft_davidson
@@ -252,7 +260,8 @@ c
 c Davidson iteration
 c
           if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.false.))
-     1      call errquit('tddft_energy: failed to set triplet',0)
+     1      call errquit('tddft_energy: failed to set triplet',0,
+     &       RTDB_ERR)
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
@@ -284,7 +293,8 @@ c
 c Davidson iteration
 c
           if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.true.))
-     1      call errquit('tddft_energy: failed to set triplet',0)
+     1      call errquit('tddft_energy: failed to set triplet',0,
+     &       RTDB_ERR)
           call tddft_davidson(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1      nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      2      g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
@@ -342,13 +352,16 @@ c
       if (lhasdft) then
         if (.not.rtdb_put(rtdb,'bgj:xc_active',mt_log,1,
      1    xc_active_save))
-     2    call errquit('tddft_energy: failed to restore xc_active',0)
+     2    call errquit('tddft_energy: failed to restore xc_active',0,
+     &       RTDB_ERR)
         if (.not.rtdb_put(rtdb,'fock_xc:calc_type',mt_int,1,
      1    calc_type_save))
-     2    call errquit('tddft_energy: failed to restore calc_type',0)
+     2    call errquit('tddft_energy: failed to restore calc_type',0,
+     &       RTDB_ERR)
       endif
       if(.not.rtdb_put(rtdb,'fock_xc:triplet',mt_log,1,.false.))
-     1  call errquit('tddft_energy: failed to unset triplet',0)
+     1  call errquit('tddft_energy: failed to unset triplet',0,
+     &       RTDB_ERR)
       if (rtdb_get(rtdb,'tddft:energy',mt_dbl,1,energy))
      1  tddft_energy=.true.
       call tddft_finalize(geom,ao_bas_han,ipol,g_movecs,l_evl,k_evl,
@@ -356,20 +369,20 @@ c
       if ((algorithm.eq.1).or.(algorithm.eq.2)) then
         do i=1,ipol
           if (.not.ga_destroy(g_trials(i))) call errquit
-     1      ('tddft_energy: failed to destroy g_trials',0)
+     1      ('tddft_energy: failed to destroy g_trials',0, GA_ERR)
           if (.not.ga_destroy(g_prod_p(i))) call errquit
-     1      ('tddft_energy: failed to destroy g_prod_p',0)
+     1      ('tddft_energy: failed to destroy g_prod_p',0, GA_ERR)
           if (.not.tda) then
             if (.not.ga_destroy(g_prod_m(i))) call errquit
-     1        ('tddft_energy: failed to destroy g_prod_q',0)
+     1        ('tddft_energy: failed to destroy g_prod_q',0, GA_ERR)
           endif
         enddo
       else
         do i=1,ipol
           if (.not.ga_destroy(g_buffer1(i))) call errquit
-     1      ('tddft_energy: failed to destroy g_buffer1',0)
+     1      ('tddft_energy: failed to destroy g_buffer1',0, GA_ERR)
           if (.not.ga_destroy(g_buffer2(i))) call errquit
-     1      ('tddft_energy: failed to destroy g_buffer2',0)
+     1      ('tddft_energy: failed to destroy g_buffer2',0, GA_ERR)
           dummy=dra_delete(d_trials(i))
           dummy=dra_delete(d_prod_p(i))
           if (.not.tda) then

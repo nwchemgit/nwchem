@@ -1,5 +1,5 @@
       logical function task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.10 2000-05-03 01:15:45 edo Exp $
+C$Id: do_chk_sum.F,v 1.11 2003-10-17 22:53:46 carlfahl Exp $
       implicit none
       integer rtdb
 c
@@ -11,6 +11,7 @@ c
      &    fit_basis_name, tol2e)
       implicit none
 #include "geom.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -55,20 +56,27 @@ c
      &    fit_basis_name,'>'
 c
       if (.not.rtdb_parallel(.true.))
-     &     call errquit('do_int_chk_sum: rtdb_parallel failed?', 0)
+     &     call errquit('do_int_chk_sum: rtdb_parallel failed?', 0,
+     &             RTDB_ERR)
       if (.not. geom_create(geom, geom_name))
-     &     call errquit('do_int_chk_sum: geom_create failed?', 0)
+     &     call errquit('do_int_chk_sum: geom_create failed?', 0,
+     &                GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, geom_name))
-     &     call errquit('do_int_chk_sum: geom_load failed', 0)
+     &     call errquit('do_int_chk_sum: geom_load failed', 0,
+     &                GEOM_ERR)
       if (.not. bas_create(basis, basis_name))
-     &     call errquit('do_int_chk_sum: basis create failed', 0)
+     &     call errquit('do_int_chk_sum: basis create failed', 0,
+     &            BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, basis_name))
-     &      call errquit('do_int_chk_sum: basis load failed', 0)
+     &      call errquit('do_int_chk_sum: basis load failed', 0,
+     &            BASIS_ERR)
       if (.not. bas_create(ribasis, fit_basis_name))
-     &     call errquit('do_int_chk_sum: basis create failed', 0)
+     &     call errquit('do_int_chk_sum: basis create failed', 0,
+     &              BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb, geom, ribasis, fit_basis_name)) then
         if (.not.bas_destroy(ribasis)) call errquit
-     &      ('do_int_chk_sum:failed to destroy ribasis handle',911)
+     &      ('do_int_chk_sum:failed to destroy ribasis handle',911,
+     &           INT_ERR)
         ribasis = -1 
         ribasis_exist = .false.
       else
@@ -77,16 +85,21 @@ c
 c
       if (ga_nodeid().eq.0) then
         if (.not. geom_print(geom))
-     &      call errquit('do_int_chk_sum: geom_print failed', 0)
+     &      call errquit('do_int_chk_sum: geom_print failed', 0,
+     &             GEOM_ERR)
         if (.not. bas_print(basis))
-     &      call errquit('do_int_chk_sum: basis print failed', 0)
+     &      call errquit('do_int_chk_sum: basis print failed', 0,
+     &             BASIS_ERR)
         if (.not. gbs_map_print(basis))
-     &      call errquit('do_int_chk_sum: gbs_map_print failed', 0)
+     &      call errquit('do_int_chk_sum: gbs_map_print failed', 0,
+     &             BASIS_ERR)
         if (ribasis_exist) then
           if (.not. bas_print(ribasis))
-     &        call errquit('do_int_chk_sum: fit basis print failed', 0)
+     &        call errquit('do_int_chk_sum: fit basis print failed', 0,
+     &             BASIS_ERR)
           if (.not. gbs_map_print(ribasis))
-     &        call errquit('do_int_chk_sum: gbs_map_print failed', 0)
+     &        call errquit('do_int_chk_sum: gbs_map_print failed', 0,
+     &              BASIS_ERR)
         endif
       endif
 *---------------------------------- 
@@ -96,7 +109,8 @@ c
 c normalize basis set
 c
       if (.not.int_normalize(rtdb,basis))
-     &       call errquit('do_int_chk_sum: basis norm. failed', 0)
+     &       call errquit('do_int_chk_sum: basis norm. failed', 0,
+     &             BASIS_ERR)
 *--      if (.not.int_norm_2c(rtdb,basis))
 *--     &       call errquit('do_int_chk_sum: basis norm. failed', 0)
 *--      if (.not. bas_print(basis))
@@ -330,12 +344,14 @@ c
 c
       if (ribasis_exist) then
         if (.not.(bas_destroy(ribasis)))
-     &      call errquit('rak:error destroying ribasis ',0)
+     &      call errquit('rak:error destroying ribasis ',0,
+     &              BASIS_ERR)
       endif
       if (.not.(bas_destroy(basis)))
-     &    call errquit('rak:error destroying basis',0)
+     &    call errquit('rak:error destroying basis',0,
+     &            BASIS_ERR)
       if (.not.(geom_destroy(geom)))
-     &    call errquit('rak:error destroying geometry',0)
+     &    call errquit('rak:error destroying geometry',0, BASIS_ERR)
       if (ga_nodeid().eq.0) call MA_summarize_allocated_blocks()
 c
       end

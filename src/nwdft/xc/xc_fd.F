@@ -4,7 +4,7 @@ c     by finite difference
 c
 c     BGJ - 1/02
 c
-c     $Id: xc_fd.F,v 1.1 2002-01-18 10:23:12 bjohnson Exp $
+c     $Id: xc_fd.F,v 1.2 2003-10-17 22:55:53 carlfahl Exp $
 c
 c     Finite difference step size
 c
@@ -15,6 +15,7 @@ c
      &     i_qwght_copy)
 c
       implicit none
+#include "errquit.fh"
 c
       integer nq, ipol, l_storage, i_prho, i_pdelrho, i_pAmat, i_pCmat,
      &     i_pfunc, i_qwght_copy
@@ -42,7 +43,8 @@ c
       if (.not.
      &     MA_Alloc_Get(MT_DBL,len_prho_tot+len_pAmat_tot+4*nq*npert,
      &     'xc_fd',l_storage,i_prho))
-     &     call errquit('xc_setup_fd: cannot allocate storage',0)
+     &     call errquit('xc_setup_fd: cannot allocate storage',0,
+     &       MA_ERR)
       call dfill(len_prho_tot+len_pAmat_tot+4*nq*npert, 0d0,
      &     dbl_mb(i_prho), 1)
       i_pAmat = i_prho + len_prho_tot

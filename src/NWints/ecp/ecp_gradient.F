@@ -1,4 +1,4 @@
-C $Id: ecp_gradient.F,v 1.16 2001-06-28 00:17:50 edo Exp $
+C $Id: ecp_gradient.F,v 1.17 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_gradient (
@@ -73,6 +73,8 @@ C $Id: ecp_gradient.F,v 1.16 2001-06-28 00:17:50 edo Exp $
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer i,j,k,l,
      &    n_prim_A,n_cont_A,l_A,i_c_A,
      &    n_prim_B,n_cont_B,l_B,i_c_B,
@@ -131,9 +133,10 @@ C $Id: ecp_gradient.F,v 1.16 2001-06-28 00:17:50 edo Exp $
      &    'n_cart_a,n_cart_b,n_cart_ab,n_cont_ab',
      &    n_cart_a,n_cart_b,n_cart_ab,n_cont_ab
       if (n_int .lt. n_ab) call errquit (
-     &    'Mismatch of integral count in ecp_gradient',99)
+     &    'Mismatch of integral count in ecp_gradient',99, BASIS_ERR)
       if (sphcart .ne. 0) call errquit(
-     &    'Do your own spherical transformation, lazy bum!',99)
+     &    'Do your own spherical transformation, lazy bum!',99,
+     &       BASIS_ERR)
 
       max_type1 = 0     ! take care of compiler warnings
       max_type2 = 0
@@ -168,7 +171,7 @@ C $Id: ecp_gradient.F,v 1.16 2001-06-28 00:17:50 edo Exp $
       if (.not.DryRun) then
         memscr = lscr-i_scr+1
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in ecp_gradient',99)
+     &      'Insufficient scratch memory in ecp_gradient',99, MEM_ERR)
         k = i_xca-1
         do j = 1,n_cont_a
           do i = 1,n_prim_A

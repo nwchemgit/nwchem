@@ -1,12 +1,13 @@
       subroutine tddft_schmidt(n,vector)
 c
-c $Id: tddft_schmidt.F,v 1.4 2002-04-28 19:09:13 sohirata Exp $
+c $Id: tddft_schmidt.F,v 1.5 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Schmidt orthonormalize vectors
 c Written by So Hirata, Feb 2002.
 c (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
       integer n
       double precision vector(n,n)
       integer i,j,k
@@ -18,7 +19,7 @@ c
           a=a+vector(k,i)*vector(k,i)
         enddo
         if (a.eq.0.0d0) call errquit
-     1    ('tddft_schmidt: unable to normalize',0)
+     1    ('tddft_schmidt: unable to normalize',0, CALC_ERR)
         do k=1,n
           vector(k,i)=vector(k,i)/dsqrt(a)
         enddo

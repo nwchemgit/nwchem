@@ -1,5 +1,5 @@
 *
-* $Id: cstrfac.F,v 1.8 2002-06-06 19:38:08 bylaska Exp $
+* $Id: cstrfac.F,v 1.9 2003-10-17 22:56:44 carlfahl Exp $
 *
 
 *     ***********************************
@@ -10,6 +10,7 @@
 
       subroutine cstrfac_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cstrfac_common.fh"
@@ -49,7 +50,8 @@
       value = value.and.
      >        MA_alloc_get(mt_int,(2*nbrillioun+2),
      >                    'k_indx_list',k_indx_list(2),k_indx_list(1))
-      if (.not. value) call errquit('cstrfac_init:out of heap',0)
+      if (.not. value) call errquit('cstrfac_init:out of heap',0,
+     &       MA_ERR)
 
 
 *     **** allocate indx blocks ****
@@ -64,7 +66,7 @@
      >          MA_alloc_get(mt_int,nfft3d,'k_indx0',
      >                     k_indx(2),k_indx(1))
         if (.not. value) 
-     >  call errquit('cstrfac_init:out of heap memory',nb+1)
+     >  call errquit('cstrfac_init:out of heap memory',nb+1, MA_ERR)
 
         int_mb(i_indx_list(1)+2*nb)  =i_indx(1)
         int_mb(i_indx_list(1)+2*nb+1)=i_indx(2)
@@ -108,6 +110,7 @@ C     ***********************************
 
       subroutine cstrfac_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cstrfac_common.fh"
@@ -131,7 +134,8 @@ C     ***********************************
          value =           MA_free_heap(i_indx)
          value = value.and.MA_free_heap(j_indx)
          value = value.and.MA_free_heap(k_indx)
-         if (.not.value) call errquit('cstrfac_end:freeing heap',nb) 
+         if (.not.value) call errquit('cstrfac_end:freeing heap',nb,
+     &       MA_ERR)
       end do
 
       value =           MA_free_heap(i_indx_list(2))
@@ -141,7 +145,8 @@ C     ***********************************
       value = value.and.MA_free_heap(ex2(2))
       value = value.and.MA_free_heap(ex3(2))
       value = value.and.MA_free_heap(cxr(2))
-      if (.not. value) call errquit('cstrfac_end:freeing heap',990)
+      if (.not. value) call errquit('cstrfac_end:freeing heap',990,
+     &       MA_ERR)
  
       return
       end

@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
+c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
 c     
 c     Invalidate data
 c     
@@ -13,20 +13,22 @@ c
       end
       subroutine rohf_init( rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "crohf.fh"
 #include "cscf.fh"
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
+c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
       external crohf_data ! For T3D linker
 c     
       if (crohf_init_flag.gt.0)
-     $     call errquit('rohf internals already initialised?',0)
+     $     call errquit('rohf internals already initialised?',0,
+     &       UNKNOWN_ERR)
 c     
       crohf_init_flag = 1
       crohf_vlen = (nmo-nclosed-nopen)*(nclosed+nopen)+(nclosed*nopen)
@@ -42,20 +44,24 @@ c     FCV = closed-partial fock matrix
 c     FPV = partial-virtual fock matrix
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FCV',
-     $     32, 32, crohf_g_fcv)) call errquit('rohf_init: FCV', 0)
+     $     32, 32, crohf_g_fcv)) call errquit('rohf_init: FCV', 0,
+     &       GA_ERR)
 c     
       if (nopen .gt. 0) then
          if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FPV',
-     $        32, 32, crohf_g_fpv)) call errquit('rohf_init: FPV', 0)
+     $        32, 32, crohf_g_fpv)) call errquit('rohf_init: FPV', 0,
+     &       GA_ERR)
 c     
          if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_init: FCP',
-     $        32, 32, crohf_g_fcp)) call errquit('rohf_init: FCP', 0)
+     $        32, 32, crohf_g_fcp)) call errquit('rohf_init: FCP', 0,
+     &       GA_ERR)
       endif
 c     
       end
 
       subroutine rohf_tidy()
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "crohf.fh"
@@ -63,7 +69,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
+c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -73,7 +79,8 @@ c
             status = ga_destroy(crohf_g_fcp)  .and. status
          endif
          if (.not.(status))
-     $        call errquit('rohf_tidy: cannot deallocate handles',0)
+     $        call errquit('rohf_tidy: cannot deallocate handles',0,
+     &       GA_ERR)
 c     
 c     Invalidate all data
 c     
@@ -86,6 +93,7 @@ c
       subroutine rohf_energy( g_vecs, eone, etwo, enrep, energy,
      $     g_grad, rtdb )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "crohf.fh"
@@ -95,7 +103,7 @@ c
 #include "rtdb.fh"
 #include "cosmo.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
+c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
 c
       integer rtdb
 
@@ -117,10 +125,12 @@ c
 c     Check
 c     
       if (crohf_init_flag.ne.1)
-     $     call errquit('rohf_energy: ROHF internal block invalid',0)
+     $     call errquit('rohf_energy: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_grad, gtype, grow, gcol)
       if ((grow.ne.crohf_vlen).or.(gcol.ne.1))
-     $     call errquit('rohf_energy: invalid vector length',grow)
+     $     call errquit('rohf_energy: invalid vector length',grow,
+     &       UNKNOWN_ERR)
 c     
       if(ga_nodeid().eq.0.and.osome) then
          write(6,*) 'in  rohf_energy calling rohf_fock ...'
@@ -154,7 +164,8 @@ c
       endif
 c
       if (.not. geom_nuc_rep_energy(geom, enrep))
-     $     call errquit('rohf_energy: no repulsion energy?', 0)
+     $     call errquit('rohf_energy: no repulsion energy?', 0,
+     &       UNKNOWN_ERR)
       energy = eone + etwo + enrep
 c
       if (ga_nodeid().eq.0 .and.
@@ -173,7 +184,8 @@ c
       odbug=odbug.and.ga_nodeid().eq.0
       if(cosmo_on.and.cosmo_phase.eq.2) then
          if (.not. rtdb_get(rtdb,'cosmo:energy',mt_dbl,1,ecosmo))
-     $     call errquit('rohf_energy: rtdb get failed for ecosmo',911)
+     $     call errquit('rohf_energy: rtdb get failed for ecosmo',911,
+     &       RTDB_ERR)
 c
          energy=energy+ecosmo
 c
@@ -192,10 +204,11 @@ c
       end
       subroutine rohf_hessv( acc, g_x, g_ax )
       implicit none
+#include "errquit.fh"
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
+c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -205,15 +218,19 @@ c
 c     Check
 c     
       if (crohf_init_flag.ne.1)
-     $     call errquit('rohf_hessv: ROHF internal block invalid',0)
+     $     call errquit('rohf_hessv: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_x,gtype,grow,gcol)
       if (grow.ne.crohf_vlen)
-     $     call errquit('rohf_hessv: invalid vector length',0)
+     $     call errquit('rohf_hessv: invalid vector length',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_ax,gtype,growp,gcolp)
       if (growp.ne.crohf_vlen)
-     $     call errquit('rohf_hessv: invalid vector length',0)
+     $     call errquit('rohf_hessv: invalid vector length',0,
+     &       UNKNOWN_ERR)
       if (gcol.ne.gcolp)
-     $     call errquit('rohf_hessv: invalid no. of vectors',0)
+     $     call errquit('rohf_hessv: invalid no. of vectors',0,
+     &       UNKNOWN_ERR)
 c     
 c     Call internal routine
 c     
@@ -236,10 +253,11 @@ c
 
       subroutine rohf_hessv_precond( g_x, solveshift )
       implicit none
+#include "errquit.fh"
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.19 2003-01-30 01:16:57 bert Exp $
+c     $Id: rohf_wrap.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
 c
       integer g_x
       double precision solveshift
@@ -251,10 +269,12 @@ c     Check
 c     
       if (crohf_init_flag.ne.1)
      $     call errquit(
-     $     'rohf_hessv_precond: ROHF internal block invalid',0)
+     $     'rohf_hessv_precond: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_x,gtype,grow,gcol)
       if (grow.ne.crohf_vlen)
-     $     call errquit('rohf_hessv_precond: invalid vector length',0)
+     $     call errquit('rohf_hessv_precond: invalid vector length',0,
+     &       UNKNOWN_ERR)
 c     
       crohf_lshift = lshift - solveshift
       call rohf_hdiag_scale(nmo, nclosed, nopen,

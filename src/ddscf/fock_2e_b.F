@@ -6,12 +6,13 @@
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_b.F,v 1.12 2001-04-27 23:35:55 edo Exp $
+c     $Id: fock_2e_b.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c
 c     Called by fock_2e_task once density matrix blocks have 
 c     been fetched.
 c     
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "schwarz.fh"
 #include "bas.fh"
@@ -81,7 +82,7 @@ c
          status = status .and. bas_ce2bfr(basis, lat, lbflo, lbfhi)
       endif
       if (.not. status) call errquit
-     $     ('fock_2e_b: bas_ce to cnr/bfr failed', 0)
+     $     ('fock_2e_b: bas_ce to cnr/bfr failed', 0, BASIS_ERR)
 c
       if (owritefile) then
          dtol2e = min(tol2e,dentol)
@@ -114,7 +115,8 @@ c
      $     ma_push_get(MT_INT, max2e, 'fock_2e: buf', l_l, k_l)
       status = status .and.
      $     ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
-      if (.not. status) call errquit('fock_2e_b: not enuf memory',0)
+      if (.not. status) call errquit('fock_2e_b: not enuf memory',0,
+     &       MA_ERR)
 c     
 c     Permutation symmetry boolean
 c     
@@ -127,19 +129,21 @@ c
       smax = schwarz_max()
       do ish = ishlo, ishhi
          if (.not. bas_cn2bfr(basis, ish, ishbflo, ishbfhi))
-     $        call errquit('fock_2e_b: bas_cn2bfr', ish)
+     $        call errquit('fock_2e_b: bas_cn2bfr', ish, BASIS_ERR)
          jshtop = jshhi
          if (oij) jshtop = ish
          do jsh = jshlo, jshtop
             sij = schwarz_shell(ish,jsh)
             if (sij*smax.ge.dtol2e) then
                if (.not. bas_cn2bfr(basis, jsh, jshbflo, jshbfhi))
-     $              call errquit('fock_2e_b: bas_cn2bfr', jsh)
+     $              call errquit('fock_2e_b: bas_cn2bfr', jsh,
+     &       BASIS_ERR)
                kshtop = kshhi
                if (oikjl) kshtop = ish
                do ksh = kshlo, kshtop
                   if (.not. bas_cn2bfr(basis, ksh, kshbflo, kshbfhi))
-     $                 call errquit('fock_2e_b: bas_cn2bfr', ksh)
+     $                 call errquit('fock_2e_b: bas_cn2bfr', ksh,
+     &       BASIS_ERR)
                   lshtop = lshhi
                   if (okl) lshtop = ksh
                   if (oikjl .and. ksh.eq.ish) lshtop = jsh
@@ -148,7 +152,8 @@ c
      $                    .ge. dtol2e) then
                         if (.not. bas_cn2bfr(basis, lsh,
      $                       lshbflo, lshbfhi)) call errquit
-     $                       ('fock_2e_b: bas_cn2bfr', lsh)
+     $                       ('fock_2e_b: bas_cn2bfr', lsh,
+     &       BASIS_ERR)
 c     
 c     Compute the shell block of integrals with labels
 c     
@@ -190,7 +195,8 @@ c
                   write(luout,*) 
                   call util_flush(luout)
                                call errquit(
-     .        ' fock_2e_b: write failed with neri=',neri)
+     .        ' fock_2e_b: write failed with neri=',neri,
+     &       UNKNOWN_ERR)
                             endif
                         if (util_print('int2efile write',print_never))
      $                          call print_integ_list(neri, 
@@ -245,6 +251,6 @@ c
       status = status .and. ma_pop_stack(l_i)
       status = status .and. ma_pop_stack(l_g)
       if (.not. status) call errquit
-     $     ('fock_2e_b: pop stack failed?', 0)
+     $     ('fock_2e_b: pop stack failed?', 0, MA_ERR)
 c     
       end

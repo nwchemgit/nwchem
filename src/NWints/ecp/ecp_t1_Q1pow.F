@@ -1,4 +1,4 @@
-C $Id: ecp_t1_Q1pow.F,v 1.1 1996-10-16 22:58:35 mg201 Exp $
+C $Id: ecp_t1_Q1pow.F,v 1.2 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_t1_Q1pow (n,m,x,xt,gamma,term,test,Q,tol)
@@ -22,11 +22,13 @@ C $Id: ecp_t1_Q1pow.F,v 1.1 1996-10-16 22:58:35 mg201 Exp $
 ************************************************************************
       implicit none
 #include "ecp_consts.fh"
+#include "errquit.fh"
       integer i,idamax,m,n
       double precision x(n),xt(n),gamma(n),term(n),test(n),Q(n),
      &    tol,fac0,fac1,fac2,fac3
 *
-      if (m .lt. 0) call errquit ('Negative m in ecp_t1_Q1pow',99)
+      if (m .lt. 0) call errquit ('Negative m in ecp_t1_Q1pow',99,
+     &       BASIS_ERR)
       fac3 = half
       fac1 = zero
       fac2 = one

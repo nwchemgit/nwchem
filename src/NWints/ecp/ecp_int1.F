@@ -1,4 +1,4 @@
-C $Id: ecp_int1.F,v 1.10 2000-10-10 16:29:51 mg201 Exp $
+C $Id: ecp_int1.F,v 1.11 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int1 (mem_max,DryRun,
@@ -73,6 +73,8 @@ C $Id: ecp_int1.F,v 1.10 2000-10-10 16:29:51 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer l_a,n_prim_a,n_cont_a,l_b,n_prim_b,n_cont_b,l_ecp,
      &    l_ecp_max,n_z_tot,n_c_tot,n_cent,l_tmp,n_int,p_min,p_max,
      &    sphcart,mem_max,ibug
@@ -163,7 +165,7 @@ C $Id: ecp_int1.F,v 1.10 2000-10-10 16:29:51 mg201 Exp $
         if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (i_free-1 .gt. l_tmp) call errquit(
-     &      ' Insufficient memory in ecp_int1',99)
+     &      ' Insufficient memory in ecp_int1',99, MEM_ERR)
 *
 *     Expand cartesian basis about ECP centre in spherical tensors
 *
@@ -269,7 +271,7 @@ C        write (LuOut,*) 'm_count',m_count
           if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. l_tmp) call errquit(
-     &        ' Insufficient memory in ecp_int1',99)
+     &        ' Insufficient memory in ecp_int1',99, MEM_ERR)
           i_t = i_cont_c
           i_x = i_Q_int
           do i_y = 1,n_pass
@@ -333,7 +335,7 @@ C        write (LuOut,*) 'm_count',m_count
           if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. l_tmp) call errquit(
-     &        ' Insufficient memory in ecp_int1',99)
+     &        ' Insufficient memory in ecp_int1',99, MEM_ERR)
 *
 *       Set up angular coefficients for centre A and contract over 
 *       components of spherical tensors (sum over q).

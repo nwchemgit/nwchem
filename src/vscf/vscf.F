@@ -1,8 +1,9 @@
-c $Id: vscf.F,v 1.3 2000-10-31 14:59:47 hvd Exp $
+c $Id: vscf.F,v 1.4 2003-10-17 22:58:40 carlfahl Exp $
 c*module vscf    *deck vscfm
       subroutine vscfm(NGRID,READV,NSTART,DMDR,NCOUP,NREAD,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
+#include "errquit.fh"
 c
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -69,49 +70,49 @@ c     lvec   = vec
 c     le     = eigen
       if (.not. 
      &  ma_push_get(mt_dbl,nnm*ngrid,'diag dipole x',l_dmx,k_dmx))
-     &  call errquit('vscfm: could not allocate l_dmx',555)
+     &  call errquit('vscfm: could not allocate l_dmx',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm*ngrid,'diag dipole y',l_dmy,k_dmy))
-     &  call errquit('vscfm: could not allocate l_dmy',555)
+     &  call errquit('vscfm: could not allocate l_dmy',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm*ngrid,'diag dipole z',l_dmz,k_dmz))
-     &  call errquit('vscfm: could not allocate l_dmz',555)
+     &  call errquit('vscfm: could not allocate l_dmz',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm,'vscf freqs',l_fvscf,k_fvscf))
-     &  call errquit('vscfm: could not allocate l_fvscf',555)
+     &  call errquit('vscfm: could not allocate l_fvscf',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm,'mp2 freqs',l_fmp2,k_fmp2))
-     &  call errquit('vscfm: could not allocate l_fmp2',555)
+     &  call errquit('vscfm: could not allocate l_fmp2',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm,'delta Qs',l_dq,k_dq))
-     &  call errquit('vscfm: could not allocate l_dq',555)
+     &  call errquit('vscfm: could not allocate l_dq',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm*ngrid,'grid Qs',l_rq,k_rq))
-     &  call errquit('vscfm: could not allocate l_rq',555)
+     &  call errquit('vscfm: could not allocate l_rq',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm*(nnm+1)*ngrid,'awave',l_awave,k_awave))
-     &  call errquit('vscfm: could not allocate l_awave',555)
+     &  call errquit('vscfm: could not allocate l_awave',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm,'scaled freqs',l_sfreq,k_sfreq))
-     &  call errquit('vscfm: could not allocate l_sfreq',555)
+     &  call errquit('vscfm: could not allocate l_sfreq',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm*ngrid,'diagonal V',l_diagv,k_diagv))
-     &  call errquit('vscfm: could not allocate l_diagv',555)
+     &  call errquit('vscfm: could not allocate l_diagv',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm3*ngrid3,'coupled V',l_coupv,k_coupv))
-     &  call errquit('vscfm: could not allocate l_coupv',555)
+     &  call errquit('vscfm: could not allocate l_coupv',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm3*ngrid3,'coup dipole x',l_dm2x,k_dm2x))
-     &  call errquit('vscfm: could not allocate l_dm2x',555)
+     &  call errquit('vscfm: could not allocate l_dm2x',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm3*ngrid3,'coup dipole y',l_dm2y,k_dm2y))
-     &  call errquit('vscfm: could not allocate l_dm2y',555)
+     &  call errquit('vscfm: could not allocate l_dm2y',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm3*ngrid3,'coup dipole z',l_dm2z,k_dm2z))
-     &  call errquit('vscfm: could not allocate l_dm2z',555)
+     &  call errquit('vscfm: could not allocate l_dm2z',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nc1,'delta Xs',l_dx,k_dx))
-     &  call errquit('vscfm: could not allocate l_dx',555)
+     &  call errquit('vscfm: could not allocate l_dx',555, MA_ERR)
 c
       IF (DMDR.and.iexc.eq.1) THEN
          ndipmo=0
@@ -131,26 +132,28 @@ c
 c     restart = vscf_restart_info(rtdb,nstart)
       if (restart) then
         if (.not.geom_create(geom_ref,'vscf_reference')) call errquit
-     *    ('vscfm: vscf_reference geom_create failed',555)
+     *    ('vscfm: vscf_reference geom_create failed',555, GEOM_ERR)
         if (.not.geom_rtdb_load(rtdb,geom_ref,'vscf_reference'))
-     *    call errquit('vscfm: reference geom_rtdb_load failed',555)
+     *    call errquit('vscfm: reference geom_rtdb_load failed',555,
+     &       RTDB_ERR)
       else
         if (.not.geom_create(geom_ref,'geometry')) call errquit
-     *    ('vscfm: geometry geom_create failed',555)
+     *    ('vscfm: geometry geom_create failed',555, GEOM_ERR)
         if (.not.geom_rtdb_load(rtdb,geom_ref,'geometry')) 
-     *    call errquit('vscfm: geometry geom_rtdb_load failed',555)
+     *    call errquit('vscfm: geometry geom_rtdb_load failed',555,
+     &       RTDB_ERR)
         if (.not.geom_rtdb_store(rtdb,geom_ref,'vscf_reference'))
-     *    call errquit('vscfm: geom_rtdb_store failed',555)
+     *    call errquit('vscfm: geom_rtdb_store failed',555, RTDB_ERR)
       end if
 c
 c pick up a new geometry that is used for the potential scan
 c
       if (.not.geom_create(geom_new,'geometry'))
-     *  call errquit('vscfm: geom_new geom_create failed',555)
+     *  call errquit('vscfm: geom_new geom_create failed',555, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom_new,'geometry'))
-     *  call errquit('vscfm: geom_rtdb_load failed',555)
+     *  call errquit('vscfm: geom_rtdb_load failed',555, RTDB_ERR)
       if (.not.geom_strip_sym(geom)) call errquit
-     *  ('vscfm: geom_strip_sym failed',555)
+     *  ('vscfm: geom_strip_sym failed',555, GEOM_ERR)
 C
       IF (NNM.eq.1) NCOUP=1
       IF (READV .and. NREAD.eq.0) NREAD=NCOUP
@@ -217,115 +220,115 @@ c
 c get rid of some memory that we no longer need
 c
       if (.not. ma_pop_stack(l_dx))
-     &  call errquit('vscfm:ma_pop of l_dx failed',555)
+     &  call errquit('vscfm:ma_pop of l_dx failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_dm2z))
-     &  call errquit('vscfm:ma_pop of l_dm2z failed',555)
+     &  call errquit('vscfm:ma_pop of l_dm2z failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_dm2y))
-     &  call errquit('vscfm:ma_pop of l_dm2y failed',555)
+     &  call errquit('vscfm:ma_pop of l_dm2y failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_dm2x))
-     &  call errquit('vscfm:ma_pop of l_dm2x failed',555)
+     &  call errquit('vscfm:ma_pop of l_dm2x failed',555, MA_ERR)
 c
 c get memory for the next section
 c
       if (.not.
      &  ma_push_get(mt_int,nnm,'state indices',l_state,k_state))
-     &  call errquit('vscfm: could not allocate l_state',555)
+     &  call errquit('vscfm: could not allocate l_state',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'temp V',l_tv,k_tv))
-     &  call errquit('vscfm: could not allocate l_tv',555)
+     &  call errquit('vscfm: could not allocate l_tv',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm*ngrid,'vscf',l_vscf,k_vscf))
-     &  call errquit('vscfm: could not allocate l_vscf',555)
+     &  call errquit('vscfm: could not allocate l_vscf',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'vhf',l_vhf,k_vhf))
-     &  call errquit('vscfm: could not allocate l_vhf',555)
+     &  call errquit('vscfm: could not allocate l_vhf',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm,'enrgy',l_enrgy,k_enrgy))
-     &  call errquit('vscfm: could not allocate l_enrgy',555)
+     &  call errquit('vscfm: could not allocate l_enrgy',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm+1,'ediag',l_ediag,k_ediag))
-     &  call errquit('vscfm: could not allocate l_ediag',555)
+     &  call errquit('vscfm: could not allocate l_ediag',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm+1,'escf',l_escf,k_escf))
-     &  call errquit('vscfm: could not allocate l_escf',555)
+     &  call errquit('vscfm: could not allocate l_escf',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm+1,'emppt',l_emppt,k_emppt))
-     &  call errquit('vscfm: could not allocate l_emppt',555)
+     &  call errquit('vscfm: could not allocate l_emppt',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm*ngrid,'wave',l_wave,k_wave))
-     &  call errquit('vscfm: could not allocate l_wave',555)
+     &  call errquit('vscfm: could not allocate l_wave',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm*ngrid*nst,'vwave',l_vwave,k_vwave))
-     &  call errquit('vscfm: could not allocate l_vwave',555)
+     &  call errquit('vscfm: could not allocate l_vwave',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm*nst,'virte',l_virte,k_virte))
-     &  call errquit('vscfm: could not allocate l_virte',555)
+     &  call errquit('vscfm: could not allocate l_virte',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_int,nnm*nvirst,'vst',l_vst,k_vst))
-     &  call errquit('vscfm: could not allocate l_vst',555)
+     &  call errquit('vscfm: could not allocate l_vst',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_int,ngrid,'pvt',l_pvt,k_pvt))
-     &  call errquit('vscfm: could not allocate l_pvt',555)
+     &  call errquit('vscfm: could not allocate l_pvt',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'xx',l_xx,k_xx))
-     &  call errquit('vscfm: could not allocate l_xx',555)
+     &  call errquit('vscfm: could not allocate l_xx',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'a',l_a,k_a))
-     &  call errquit('vscfm: could not allocate l_a',555)
+     &  call errquit('vscfm: could not allocate l_a',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid3,'phi',l_phi,k_phi))
-     &  call errquit('vscfm: could not allocate l_phi',555)
+     &  call errquit('vscfm: could not allocate l_phi',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid3,'r',l_r,k_r))
-     &  call errquit('vscfm: could not allocate l_r',555)
+     &  call errquit('vscfm: could not allocate l_r',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid3,'rr',l_rr,k_rr))
-     &  call errquit('vscfm: could not allocate l_rr',555)
+     &  call errquit('vscfm: could not allocate l_rr',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid3,'g',l_g,k_g))
-     &  call errquit('vscfm: could not allocate l_g',555)
+     &  call errquit('vscfm: could not allocate l_g',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid3,'v',l_v,k_v))
-     &  call errquit('vscfm: could not allocate l_v',555)
+     &  call errquit('vscfm: could not allocate l_v',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid2,'h',l_h,k_h))
-     &  call errquit('vscfm: could not allocate l_h',555)
+     &  call errquit('vscfm: could not allocate l_h',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'ec',l_ec,k_ec))
-     &  call errquit('vscfm: could not allocate l_ec',555)
+     &  call errquit('vscfm: could not allocate l_ec',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'vecc',l_vecc,k_vecc))
-     &  call errquit('vscfm: could not allocate l_vecc',555)
+     &  call errquit('vscfm: could not allocate l_vecc',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid*8,'scr1',l_scr1,k_scr1))
-     &  call errquit('vscfm: could not allocate l_scr1',555)
+     &  call errquit('vscfm: could not allocate l_scr1',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_int,ngrid,'ia1',l_ia1,k_ia1))
-     &  call errquit('vscfm: could not allocate l_ia1',555)
+     &  call errquit('vscfm: could not allocate l_ia1',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid3,'gr',l_gr,k_gr))
-     &  call errquit('vscfm: could not allocate l_gr',555)
+     &  call errquit('vscfm: could not allocate l_gr',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'tmp',l_tmp,k_tmp))
-     &  call errquit('vscfm: could not allocate l_tmp',555)
+     &  call errquit('vscfm: could not allocate l_tmp',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid,'twave',l_twave,k_twave))
-     &  call errquit('vscfm: could not allocate l_twave',555)
+     &  call errquit('vscfm: could not allocate l_twave',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nvirst,'emp0',l_emp0,k_emp0))
-     &  call errquit('vscfm: could not allocate l_emp0',555)
+     &  call errquit('vscfm: could not allocate l_emp0',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nvirst,'vmp',l_vmp,k_vmp))
-     &  call errquit('vscfm: could not allocate l_vmp',555)
+     &  call errquit('vscfm: could not allocate l_vmp',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm,'ovrlp',l_ovrlp,k_ovrlp))
-     &  call errquit('vscfm: could not allocate l_ovrlp',555)
+     &  call errquit('vscfm: could not allocate l_ovrlp',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_int,nvirst*nnm,'virt',l_virt,k_virt))
-     &  call errquit('vscfm: could not allocate l_virt',555)
+     &  call errquit('vscfm: could not allocate l_virt',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_int,nnm,'ref',l_ref,k_ref))
-     &  call errquit('vscfm: could not allocate l_ref',555)
+     &  call errquit('vscfm: could not allocate l_ref',555, MA_ERR)
 C
 C        Perform VSCF and MP2-VSCF
 C
@@ -352,89 +355,89 @@ c
 c get rid of some more memory that isn't needed
 c
       if (.not. ma_pop_stack(l_ref))
-     &  call errquit('vscfm:ma_pop of l_ref failed',555)
+     &  call errquit('vscfm:ma_pop of l_ref failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_virt))
-     &  call errquit('vscfm:ma_pop of l_virt failed',555)
+     &  call errquit('vscfm:ma_pop of l_virt failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_ovrlp))
-     &  call errquit('vscfm:ma_pop of l_ovrlp failed',555)
+     &  call errquit('vscfm:ma_pop of l_ovrlp failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_vmp))
-     &  call errquit('vscfm:ma_pop of l_vmp failed',555)
+     &  call errquit('vscfm:ma_pop of l_vmp failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_emp0))
-     &  call errquit('vscfm:ma_pop of l_emp0 failed',555)
+     &  call errquit('vscfm:ma_pop of l_emp0 failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_twave))
-     &  call errquit('vscfm:ma_pop of l_twave failed',555)
+     &  call errquit('vscfm:ma_pop of l_twave failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_tmp))
-     &  call errquit('vscfm:ma_pop of l_tmp failed',555)
+     &  call errquit('vscfm:ma_pop of l_tmp failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_gr))
-     &  call errquit('vscfm:ma_pop of l_gr failed',555)
+     &  call errquit('vscfm:ma_pop of l_gr failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_ia1))
-     &  call errquit('vscfm:ma_pop of l_ia1 failed',555)
+     &  call errquit('vscfm:ma_pop of l_ia1 failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_scr1))
-     &  call errquit('vscfm:ma_pop of l_scr1 failed',555)
+     &  call errquit('vscfm:ma_pop of l_scr1 failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_vecc))
-     &  call errquit('vscfm:ma_pop of l_vecc failed',555)
+     &  call errquit('vscfm:ma_pop of l_vecc failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_ec))
-     &  call errquit('vscfm:ma_pop of l_ec failed',555)
+     &  call errquit('vscfm:ma_pop of l_ec failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_h))
-     &  call errquit('vscfm:ma_pop of l_h failed',555)
+     &  call errquit('vscfm:ma_pop of l_h failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_v))
-     &  call errquit('vscfm:ma_pop of l_v failed',555)
+     &  call errquit('vscfm:ma_pop of l_v failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_g))
-     &  call errquit('vscfm:ma_pop of l_g failed',555)
+     &  call errquit('vscfm:ma_pop of l_g failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_rr))
-     &  call errquit('vscfm:ma_pop of l_rr failed',555)
+     &  call errquit('vscfm:ma_pop of l_rr failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_r))
-     &  call errquit('vscfm:ma_pop of l_r failed',555)
+     &  call errquit('vscfm:ma_pop of l_r failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_phi))
-     &  call errquit('vscfm:ma_pop of l_phi failed',555)
+     &  call errquit('vscfm:ma_pop of l_phi failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_a))
-     &  call errquit('vscfm:ma_pop of l_a failed',555)
+     &  call errquit('vscfm:ma_pop of l_a failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_xx))
-     &  call errquit('vscfm:ma_pop of l_xx failed',555)
+     &  call errquit('vscfm:ma_pop of l_xx failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_pvt))
-     &  call errquit('vscfm:ma_pop of l_pvt failed',555)
+     &  call errquit('vscfm:ma_pop of l_pvt failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_vst))
-     &  call errquit('vscfm:ma_pop of l_vst failed',555)
+     &  call errquit('vscfm:ma_pop of l_vst failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_virte))
-     &  call errquit('vscfm:ma_pop of l_virte failed',555)
+     &  call errquit('vscfm:ma_pop of l_virte failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_vwave))
-     &  call errquit('vscfm:ma_pop of l_vwave failed',555)
+     &  call errquit('vscfm:ma_pop of l_vwave failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_wave))
-     &  call errquit('vscfm:ma_pop of l_wave failed',555)
+     &  call errquit('vscfm:ma_pop of l_wave failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_emppt))
-     &  call errquit('vscfm:ma_pop of l_emppt failed',555)
+     &  call errquit('vscfm:ma_pop of l_emppt failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_escf))
-     &  call errquit('vscfm:ma_pop of l_escf failed',555)
+     &  call errquit('vscfm:ma_pop of l_escf failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_ediag))
-     &  call errquit('vscfm:ma_pop of l_ediag failed',555)
+     &  call errquit('vscfm:ma_pop of l_ediag failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_enrgy))
-     &  call errquit('vscfm:ma_pop of l_enrgy failed',555)
+     &  call errquit('vscfm:ma_pop of l_enrgy failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_vhf))
-     &  call errquit('vscfm:ma_pop of l_vhf failed',555)
+     &  call errquit('vscfm:ma_pop of l_vhf failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_vscf))
-     &  call errquit('vscfm:ma_pop of l_vscf failed',555)
+     &  call errquit('vscfm:ma_pop of l_vscf failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_tv))
-     &  call errquit('vscfm:ma_pop of l_tv failed',555)
+     &  call errquit('vscfm:ma_pop of l_tv failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_state))
-     &  call errquit('vscfm:ma_pop of l_state failed',555)
+     &  call errquit('vscfm:ma_pop of l_state failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_coupv))
-     &  call errquit('vscfm:ma_pop of l_coupv failed',555)
+     &  call errquit('vscfm:ma_pop of l_coupv failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_diagv))
-     &  call errquit('vscfm:ma_pop of l_diagv failed',555)
+     &  call errquit('vscfm:ma_pop of l_diagv failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_sfreq))
-     &  call errquit('vscfm:ma_pop of l_sfreq failed',555)
+     &  call errquit('vscfm:ma_pop of l_sfreq failed',555, MA_ERR)
 c
 c get memory for the next section
 c
       if (.not.
      &  ma_push_get(mt_dbl,nnm,'intensity',l_int,k_int))
-     &  call errquit('vscfm: could not allocate l_int',555)
+     &  call errquit('vscfm: could not allocate l_int',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,3*nc1,'ddm',l_ddm,k_ddm))
-     &  call errquit('vscfm: could not allocate l_ddm',555)
+     &  call errquit('vscfm: could not allocate l_ddm',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,nnm,'dder',l_dder,k_dder))
-     &  call errquit('vscfm: could not allocate l_dder',555)
+     &  call errquit('vscfm: could not allocate l_dder',555, MA_ERR)
 C
 C        Calculate IR intensities
 c for now, I can't find the dipole derivative code, so we just
@@ -455,27 +458,27 @@ c
 c clean up memory
 c
       if (.not. ma_pop_stack(l_dder))
-     &  call errquit('vscfm:ma_pop of l_dder failed',555)
+     &  call errquit('vscfm:ma_pop of l_dder failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_ddm))
-     &  call errquit('vscfm:ma_pop of l_ddm failed',555)
+     &  call errquit('vscfm:ma_pop of l_ddm failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_int))
-     &  call errquit('vscfm:ma_pop of l_int failed',555)
+     &  call errquit('vscfm:ma_pop of l_int failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_awave))
-     &  call errquit('vscfm:ma_pop of l_awave failed',555)
+     &  call errquit('vscfm:ma_pop of l_awave failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_rq))
-     &  call errquit('vscfm:ma_pop of l_rq failed',555)
+     &  call errquit('vscfm:ma_pop of l_rq failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_dq))
-     &  call errquit('vscfm:ma_pop of l_dq failed',555)
+     &  call errquit('vscfm:ma_pop of l_dq failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_fmp2))
-     &  call errquit('vscfm:ma_pop of l_fmp2 failed',555)
+     &  call errquit('vscfm:ma_pop of l_fmp2 failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_fvscf))
-     &  call errquit('vscfm:ma_pop of l_fvscf failed',555)
+     &  call errquit('vscfm:ma_pop of l_fvscf failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_dmz))
-     &  call errquit('vscfm:ma_pop of l_dmz failed',555)
+     &  call errquit('vscfm:ma_pop of l_dmz failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_dmy))
-     &  call errquit('vscfm:ma_pop of l_dmy failed',555)
+     &  call errquit('vscfm:ma_pop of l_dmy failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_dmx))
-     &  call errquit('vscfm:ma_pop of l_dmx failed',555)
+     &  call errquit('vscfm:ma_pop of l_dmx failed',555, MA_ERR)
 c
       IF (ga_nodeid().eq.0) WRITE(LuOut,9080)
 c     CALL TIMIT(1)
@@ -497,6 +500,7 @@ c*module vscf    *deck vgrid
      *                 ldiag,lcoup)
 C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 c
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -561,15 +565,20 @@ c
       if(psi0) then
          if(ga_nodeid().eq.0) write(LuOut,9005) 
          if (.not.task_energy(rtdb))  ! equilibrium geometry energy
-     &     call errquit('vgrid: first energy did not converge!',555)
+     &     call errquit('vgrid: first energy did not converge!',555,
+     &       CALC_ERR)
          if (.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,e))
-     &     call errquit('vgrid: failed to get energy from rtdb',555)
+     &     call errquit('vgrid: failed to get energy from rtdb',555,
+     &       RTDB_ERR)
          if (.not.rtdb_put(rtdb,'prop:dipole',mt_int,1,0))
-     &     call errquit('vgrid: rtdb_put of dipole failed',555)
+     &     call errquit('vgrid: rtdb_put of dipole failed',555,
+     &       RTDB_ERR)
          if (.not.property(rtdb))  ! equilibrium dipole moment
-     &     call errquit('vgrid: first dipole did not work!',555)
+     &     call errquit('vgrid: first dipole did not work!',555,
+     &       RTDB_ERR)
          if (.not.rtdb_get(rtdb,'prop:dipval',mt_dbl,3,dmtemp))
-     &     call errquit('vgrid: rtdb_get of dipval failed',555)
+     &     call errquit('vgrid: rtdb_get of dipval failed',555,
+     &       RTDB_ERR)
          dmx = dmtemp(1)
          dmy = dmtemp(2)
          dmz = dmtemp(3)
@@ -639,20 +648,24 @@ C
             end do
 c
             if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     *        call errquit('vgrid: geom_rtdb_store failed',555)
+     *        call errquit('vgrid: geom_rtdb_store failed',555,
+     &       RTDB_ERR)
             if(ga_nodeid().eq.0) write(LuOut,9045) il,i
             status = task_energy(rtdb)
             if (.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,e))
-     &      call errquit('vgrid: failed to get energy from rtdb',555)
+     &      call errquit('vgrid: failed to get energy from rtdb',555,
+     &       RTDB_ERR)
             IF(.not.status .AND. ga_nodeid().eq.0) WRITE(LuOut,9000)
 c
             diagV(im,il) = e - e0
             if (ndipmo.eq.1) then
               if (status) then
               if (.not.property(rtdb))  
-     &          call errquit('vgrid: first dipole did not work!',555)
+     &          call errquit('vgrid: first dipole did not work!',555,
+     &       RTDB_ERR)
               if (.not.rtdb_get(rtdb,'prop:dipval',mt_dbl,3,dmtemp))
-     &          call errquit('vgrid: rtdb_get of dipval failed',555)
+     &          call errquit('vgrid: rtdb_get of dipval failed',555,
+     &       RTDB_ERR)
               dmx = dmtemp(1)
               dmy = dmtemp(2)
               dmz = dmtemp(3)
@@ -701,12 +714,14 @@ C
                   end do
 c
                   if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-     *              call errquit('vgrid: geom_rtdb_store failed',555)
+     *              call errquit('vgrid: geom_rtdb_store failed',555,
+     &       RTDB_ERR)
                   if(ga_nodeid().eq.0) write(LuOut,9065) il,jl,i,j
                   status = task_energy(rtdb)
                   if (.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,e))
      *              call errquit
-     *                ('vgrid: failed to get energy from rtdb',555)
+     *                ('vgrid: failed to get energy from rtdb',555,
+     &       RTDB_ERR)
                   IF(.not.status .AND. ga_nodeid().eq.0) 
      *               WRITE(LuOut,9000)
 c
@@ -714,14 +729,15 @@ c
                   if (ndipmo.eq.1) then
                    if (status) then
                     if (.not.property(rtdb))  
-     &               call errquit('vgrid: dipole did not work!',555)
+     &               call errquit('vgrid: dipole did not work!',555,
+     &       RTDB_ERR)
 c
 c  Need to not errquit in above line and write an error message
 c
                     if (.not.rtdb_get(rtdb,'prop:dipval',
      &               mt_dbl,3,dmtemp))
      &                call errquit
-     &                ('vgrid: rtdb_get of dipval failed',555)
+     &                ('vgrid: rtdb_get of dipval failed',555, RTDB_ERR)
                     dmx = dmtemp(1)
                     dmy = dmtemp(2)
                     dmz = dmtemp(3)
@@ -851,6 +867,7 @@ c*module vscf    *deck vscfmp
      *            iexc)
 C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "stdio.fh"
@@ -1010,7 +1027,8 @@ C
                if (vcfct.lt.2.0D-01) then
                   IF(ga_nodeid().eq.0) 
      *            WRITE(LuOut,*) 'SCALING FACTOR IS LESS THAN 0.2'
-                  CALL errquit('vscfmp: problem with potential',555)
+                  CALL errquit('vscfmp: problem with potential',555,
+     &       INPUT_ERR)
                end if
                if (ga_nodeid().eq.0) write(LuOut,9010) vcfct
                goto 500 
@@ -1113,6 +1131,7 @@ c*module vscf    *deck collocat
      *                    gr,temp,twave,nm,n,n2,nst,istate,index)
 c
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "stdio.fh"
@@ -1196,7 +1215,8 @@ c
 C
       IF(INFO.NE.0) THEN
          IF(ga_nodeid().eq.0) WRITE(LuOut,*) 'MATRIX R IS SINGULAR'
-         CALL errquit('collocat: problem generating inverse',555)
+         CALL errquit('collocat: problem generating inverse',555,
+     &       CALC_ERR)
       END IF
 C
 c     options for dgedi routine
@@ -1232,7 +1252,8 @@ c
       IERR = 0
       CALL GLDIAG(N,N,N,H,SCR,E,VEC,IERR,IA)
       IF (IERR .NE. 0) 
-     &  CALL errquit('collocat:problem in diagonalization',555)
+     &  CALL errquit('collocat:problem in diagonalization',555,
+     &       CALC_ERR)
 c
 c     rearrange into descending order
 c
@@ -2406,6 +2427,7 @@ C*MODULE MTHLIB  *DECK MRARBR
       SUBROUTINE MRARBR(A,LDA,NA,MA,B,LDB,MB,C,LDC)
 C
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+#include "errquit.fh"
 C
 #include "global.fh"
 c
@@ -2452,7 +2474,8 @@ C
 C
   800 CONTINUE
       IF(ga_nodeid().eq.0) WRITE(6,900) LDA,NA,MA,LDB,MB,LDC
-      CALL errquit("mrarbr: bad value of a leading dimension",555)
+      CALL errquit("mrarbr: bad value of a leading dimension",555,
+     &       INPUT_ERR)
       STOP
 C
   900 FORMAT(/1X,'ERROR IN CALL TO -MRARBR-'/

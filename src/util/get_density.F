@@ -1,9 +1,10 @@
 c 
-c $Id: get_density.F,v 1.1 1999-05-06 17:29:36 windus Exp $ 
+c $Id: get_density.F,v 1.2 2003-10-17 22:58:35 carlfahl Exp $ 
 c 
       subroutine get_density(g_dens,g_vecs,theory,scftype,nalpha,
      *                       nbeta,nbfs,rtdb)
       implicit none
+#include "errquit.fh"
 c
 c This routine gets alpha and beta densities and passes them back in g_dens.
 c 
@@ -28,42 +29,50 @@ c
 c Temporarily disable ROHF
 c
       if (scftype.eq.'ROHF')
-     *  call errquit('get_density: ROHF is not supported yet',555)
+     *  call errquit('get_density: ROHF is not supported yet',555,
+     &       CAPMIS_ERR)
 c
       if (theory.eq.'HF') then
         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
-     *    call errquit('get_density: SCF MO vectors not defined',555)
+     *    call errquit('get_density: SCF MO vectors not defined',555,
+     &       RTDB_ERR)
       else if (theory.eq.'DFT') then
         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs))
-     *   call errquit('get_density: DFT MO vectors not defined',555)
+     *   call errquit('get_density: DFT MO vectors not defined',555,
+     &       RTDB_ERR)
       else
-        call errquit('get_density:theory is unrecognized',555)
+        call errquit('get_density:theory is unrecognized',555,
+     &       INPUT_ERR)
       endif
 c
 c get additional space to store the eigenvalues and occupation numbers
 c
       if (.not. ma_push_get(mt_dbl, nbfs,'MO evals', l_evals, k_evals))
-     *  call errquit('get_density: could not allocate l_evals',nbfs)
+     *  call errquit('get_density: could not allocate l_evals',nbfs,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbfs,'occ. numbers', l_occ, k_occ))
-     *  call errquit('get_density: could not allocate l_occ',nbfs)
+     *  call errquit('get_density: could not allocate l_occ',nbfs,
+     &       MA_ERR)
 c
 c read vectors
 c
       if (.not. movecs_read (movecs, 1, dbl_mb(k_occ), 
      *  dbl_mb(k_evals), g_vecs(1)))
-     *  call errquit('get_density: could not read mo vectors', 555)
+     *  call errquit('get_density: could not read mo vectors', 555,
+     &       DISK_ERR)
       if (scftype.eq.'UHF') then
         if (.not. movecs_read (movecs, 2, dbl_mb(k_occ), 
      *    dbl_mb(k_evals), g_vecs(2))) 
-     *    call errquit('get_density: could not read beta vectors', 555)
+     *    call errquit('get_density: could not read beta vectors', 555,
+     &       DISK_ERR)
       endif
 c
 c free additional space
 c
       if (.not.ma_pop_stack(l_occ))
-     *  call errquit('get_density:ma free occ',555)
+     *  call errquit('get_density:ma free occ',555, MA_ERR)
       if (.not.ma_pop_stack(l_evals))
-     *  call errquit('get_density:ma free eval',555)
+     *  call errquit('get_density:ma free eval',555, MA_ERR)
 c
 c form the densities
 c

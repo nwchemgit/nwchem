@@ -1,5 +1,5 @@
 *
-* $Id: geodesic2.F,v 1.4 2003-06-30 01:23:11 bylaska Exp $
+* $Id: geodesic2.F,v 1.5 2003-10-17 22:57:36 carlfahl Exp $
 *
 
 *     ***********************************
@@ -13,6 +13,7 @@
 
       subroutine geodesic2_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "geodesic2.fh"
@@ -51,7 +52,8 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,2*nemax,
      >                     'S',S(2),S(1))
-      if (.not. value) call errquit('geodesic2_init:allocating heap',0)
+      if (.not. value) call errquit('geodesic2_init:allocating heap',0,
+     &       MA_ERR)
 
       return
       end
@@ -67,6 +69,7 @@
 
       subroutine geodesic2_finalize()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "geodesic2.fh"
@@ -82,7 +85,8 @@
       value = value.and.MA_free_heap(Q(2))
       value = value.and.MA_free_heap(Hold(2))
       if (.not. value) 
-     >  call errquit('geodesic2_finalize:freeing heap memory',0)
+     >  call errquit('geodesic2_finalize:freeing heap memory',0,
+     &       MA_ERR)
 
       return
       end
@@ -104,6 +108,7 @@
 *
       subroutine geodesic2_start(Y,H,max_sigma,dE)
       implicit none
+#include "errquit.fh"
       complex*16 Y(*)
       complex*16 H(*)
       real*8     max_sigma,dE
@@ -137,7 +142,7 @@
       value = MA_push_get(mt_dbl,4*(ne(1)*ne(1)+ne(2)*ne(2)),
      >                              'T',T(2),T(1))
       if (.not. value) 
-     >   call errquit('geodesic2_start: pushing stack',0)
+     >   call errquit('geodesic2_start: pushing stack',0, MA_ERR)
 
 
 *     **** Hold <-- H ****
@@ -219,7 +224,7 @@ c    >                     dbl_mb(R(1)+shift))
 *     **** deallocate tmp space ****     
       value = MA_pop_stack(T(2))
       if (.not. value) 
-     > call errquit('geodesic2_start:popping stack',1)
+     > call errquit('geodesic2_start:popping stack',1, MA_ERR)
 
       
       call nwpw_timing_end(10)
@@ -301,6 +306,7 @@ c    >                     dbl_mb(R(1)+shift))
 *
       subroutine geodesic2_get(t,Yold,Ynew)
       implicit none
+#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Ynew(*)
@@ -331,7 +337,7 @@ c    >                     dbl_mb(R(1)+shift))
      >        MA_push_get(mt_dbl,(ne(1)*ne(1)+ne(2)*ne(2)),'NN',
      >                    NN(2),NN(1))
       if (.not. value) 
-     >   call errquit('geodesic2_get: pushing stack',0)
+     >   call errquit('geodesic2_get: pushing stack',0, MA_ERR)
 
       call geodesic2_get_MandN(t,dbl_mb(MM(1)),dbl_mb(NN(1)))
 
@@ -378,7 +384,7 @@ c       end do
       value =           MA_pop_stack(NN(2))
       value = value.and.MA_pop_stack(MM(2))
       if (.not. value) 
-     > call errquit('geodesic2_get:popping stack',1)
+     > call errquit('geodesic2_get:popping stack',1, MA_ERR)
 
       return
       end
@@ -402,6 +408,7 @@ c       end do
 *
       subroutine geodesic2_transport(t,Yold,Hnew)
       implicit none
+#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Hnew(*)
@@ -437,7 +444,7 @@ c       end do
      >        MA_push_get(mt_dbl,(ne(1)*ne(1)+ne(2)*ne(2)),'TT',
      >                    TT(2),TT(1))
       if (.not. value) 
-     >   call errquit('geodesic2_transport: pushing stack',0)
+     >   call errquit('geodesic2_transport: pushing stack',0, MA_ERR)
 
       call geodesic2_get_MandN(t,dbl_mb(MM(1)),dbl_mb(NN(1)))
 
@@ -510,7 +517,7 @@ c       end do
       value = value.and.MA_pop_stack(NN(2))
       value = value.and.MA_pop_stack(MM(2))
       if (.not. value) 
-     > call errquit('geodesic2_transport:popping stack',1)
+     > call errquit('geodesic2_transport:popping stack',1, MA_ERR)
 
 
       return
@@ -564,6 +571,7 @@ c       end do
 *      
       subroutine geodesic2_get_MandN(t,M,N)
       implicit none
+#include "errquit.fh"
       real*8 t
       real*8 M(*),N(*)
 
@@ -593,7 +601,7 @@ c       end do
       value = value.and.MA_push_get(mt_dbl,4*(ne(1)*ne(1)),
      >                              'tmpw',tmpw(2),tmpw(1))
       if (.not. value) 
-     >   call errquit('geodesic2_get_MandN: pushing stack',0)
+     >   call errquit('geodesic2_get_MandN: pushing stack',0, MA_ERR)
 
       do ms=1,ispin
          shift  = (ms-1)*4*ne(1)*ne(1)
@@ -623,7 +631,7 @@ c       end do
       value = value.and.MA_pop_stack(tmpv(2))
       value = value.and.MA_pop_stack(RR(2))
       if (.not. value) 
-     > call errquit('geodesic2_get_MandN:popping stack',1)
+     > call errquit('geodesic2_get_MandN:popping stack',1, MA_ERR)
 
       return
       end

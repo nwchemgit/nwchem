@@ -1,8 +1,9 @@
       subroutine dft_mpole(rtdb, ao_bas_han, ipol, g_adens, g_bdens)
 *
-* $Id: dft_mpole.F,v 1.12 2000-04-11 14:50:37 hvd Exp $
+* $Id: dft_mpole.F,v 1.13 2003-10-17 22:55:50 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -36,7 +37,7 @@ c
 c
       if (.not. bas_cando_mpoles(ao_bas_han)) return
       if (.not. bas_geom(ao_bas_han, geom)) call errquit
-     $     ('dft_mpole: bas_geom failed',0)
+     $     ('dft_mpole: bas_geom failed',0, BASIS_ERR)
 c
       oprintmultipole = util_print('multipole', print_default)
 c
@@ -106,7 +107,8 @@ c
 c     Store the dipole moment
 c
       if (.not. rtdb_put(rtdb, 'dft:dipole', mt_dbl, 
-     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0)
+     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0,
+     &       RTDB_ERR)
 c     
       end
 

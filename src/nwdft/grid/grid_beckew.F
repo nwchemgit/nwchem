@@ -1,9 +1,10 @@
       Subroutine grid_beckew(xyzw, xyz,  rq, p, ictr, nq,iscr,
      , ncenters_scr,indx)
 c
-C$Id: grid_beckew.F,v 1.6 2001-03-08 03:01:24 edo Exp $
+C$Id: grid_beckew.F,v 1.7 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "cdft.fh"
 c
@@ -70,13 +71,15 @@ c
             if (aaij.eq.-1234.d0)then
                write(*,*)' i, j, iind, jind,  aaij ',
      &                     i, j, iind, jind,  aaij
-               call errquit('trouble in beckew; aratio .eq. -1234',911)
+               call errquit('trouble in beckew; aratio .eq. -1234',911,
+     &       UNKNOWN_ERR)
             endif
 c
             if (rrij.eq.-1.0d0)then
                write(*,*)' i, j, iind, jind,  rrij ',
      &                     i, j, iind, jind,  rrij
-               call errquit('trouble in beckew; rij .eq. = -1',911)
+               call errquit('trouble in beckew; rij .eq. = -1',911,
+     &       UNKNOWN_ERR)
             endif
 c          
             do 30 n = 1, nq

@@ -1,4 +1,4 @@
-C $Id: pmlqa.F,v 1.4 2001-01-19 17:43:12 windus Exp $
+C $Id: pmlqa.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_pmlqa (n3tm,n3,ndbar,x,dx,fmat,hess,amass,dels,
      *    vec0,vec1,u0,xlam,alpha,ierr)
 C
@@ -14,6 +14,7 @@ C   vec0,vec1,u0,xlam,alpha - scratch arrays
 C   ierr  - error flag
 C
       Implicit none
+#include "errquit.fh"
 C
       Integer n3tm,n3,ndbar,ierr
       Double Precision x(n3),dx(n3),fmat(n3tm,n3),hess(ndbar),
@@ -44,7 +45,7 @@ C      write (fu6,*) ((fmat(j,i),j=1,i),i=1,n3)
      &      (n3tm,n3,fmat,hess,xlam,u0,alpha,vec1,ierr)
       if (ierr.ne.0) then
          write(fu6,6000) ierr
-         call errquit('drdy_pmlqa:drdy_diagf error',555)
+         call errquit('drdy_pmlqa:drdy_diagf error',555, UNKNOWN_ERR)
       endif
 C Page-McIver LQA algorithm
 C Construct u0(transpose)*vec0 and put into vec1, and scale xlam by xnorm

@@ -6,9 +6,11 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.72 2003-06-23 17:03:30 edo Exp $
+c $Id: texas_face.F,v 1.73 2003-10-17 22:54:11 carlfahl Exp $
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
 #include "mafdecls.fh"
+#include "util.fh"
 c----------------------------------------------------------------
       logical cent2,cent3,cent4
       common /what_was_calc/ cent2,cent3,cent4
@@ -184,15 +186,15 @@ c
 *rak:      write(6,*)'t h_txs_mapp1  ',h_txs_mapp1
       if (h_txs_basnuc .ne. -1) then
          if (.not.MA_free_heap(h_txs_basnuc))
-     &        call errquit('texas_terminate: failed ?', 911)
+     &        call errquit('texas_terminate: failed ?', 911, INT_ERR)
       endif
       if (h_txs_mapp1 .ne. -1) then
          if (.not.MA_free_heap(h_txs_mapp1 ))
-     &        call errquit('texas_terminate: failed ?', 911)
+     &        call errquit('texas_terminate: failed ?', 911, INT_ERR)
       endif
       if (h_txs_prep2 .ne. -1) then
          if (.not.MA_free_heap(h_txs_prep2 ))
-     &        call errquit('texas_terminate: failed ?', 911)
+     &        call errquit('texas_terminate: failed ?', 911, INT_ERR)
       endif
 c
       h_txs_basnuc = -1
@@ -216,6 +218,7 @@ c int_type = type of a comming task :
 c            scfd_int,giao_int,der1_int,der2_int
 c---------------------------------------------------------------
       implicit none
+#include "errquit.fh"
 c
 c..  this routine is the current interface to the texas code
 c
@@ -376,7 +379,8 @@ c
              write(6,*) ' execution stopped in texas_init'
              call util_flush(6)
            endif
-           call errquit('texas_face: execution stopped in texasinit',0)
+           call errquit('texas_face: execution stopped in texasinit',0,
+     &       INT_ERR)
          endif
   100 continue
 c----------------------------------------------------------------------
@@ -388,7 +392,7 @@ c
       if (.not. MA_alloc_get(MT_DBL, size_from_ma, 'texas basis/nuc ',
      &                       h_txs_basnuc, k_txs_basnuc))
      &    call errquit('texas_init: alloc for texas basis/nuc failed',
-     &    911)
+     &    911, MEM_ERR)
       call dfill(size_from_ma,0.0d00,dbl_mb(k_txs_basnuc),1)
       inuc = k_txs_basnuc
 c>>>  ibas = inuc + 5*natoms
@@ -574,6 +578,7 @@ c ncshells = total number of contracted shells up to this basis set
 c ncsh     = number of shells in this basis set (bas)
 c
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
       integer bas
@@ -614,7 +619,7 @@ c
            if( spcart_init(ityp_max,.true.,.false.)) then
 *              write(6,*)' transformation matrix initialized'
            else
-              call errquit('Cart_Sphe.-init: failed ?', 911)
+              call errquit('Cart_Sphe.-init: failed ?', 911, INT_ERR)
            endif
        else
 *           write(6,*)' Basis Set no =',bas,' is Cartesian '
@@ -824,6 +829,7 @@ c=================================================================
 c2002 subroutine txsarrag(rtdb, nq_init, l_blsize)
       subroutine txsarrag(rtdb, nq_init, l_blsize,int_type)
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
 #include "mafdecls.fh"
       logical firstd
       integer rtdb
@@ -971,7 +977,7 @@ c
       if (.not. MA_alloc_get(MT_DBL,isize_from_ma, 'txs-pnl mapping1',
      &                       h_txs_mapp1, k_txs_mapp1))
      &    call errquit('texas_init: alloc for texas mapping1 failed',
-     &    911)
+     &    911, MEM_ERR)
       call dfill(isize_from_ma,0.0d00,dbl_mb(k_txs_mapp1),1)
 c
       ncfunct=k_txs_mapp1
@@ -1041,7 +1047,7 @@ c
       if (.not. MA_alloc_get(MT_DBL,ncs+1,'for txs_scr_temp',
      &                       h_txs_tempr , k_txs_tempr ))
      &    call errquit('texas_init: alloc for for txs_scr_temp failed',
-     &    911)
+     &    911, MEM_ERR)
       call dfill((ncs+1),0.0d00,dbl_mb(k_txs_tempr),1)
 c--------
 c
@@ -1052,7 +1058,7 @@ c--------
 c release memory allocated temprorarly in txs_scratch_siz1:
 c
         if (.not.MA_free_heap(h_txs_tempr))
-     &        call errquit('txs_scr_temp   : failed ?', 911)
+     &        call errquit('txs_scr_temp   : failed ?', 911, INT_ERR)
         h_txs_tempr  = -1
         k_txs_tempr  =  0
 c--------
@@ -1067,7 +1073,7 @@ c
       if (.not. MA_alloc_get(MT_DBL,ntxs_scr_size, 'for txs scratch ',
      &                       h_txs_prep2 , k_txs_prep2 ))
      &    call errquit('texas_init: alloc for for txs scratch failed',
-     &    911)
+     &    911, MEM_ERR)
       call dfill(ntxs_scr_size,0.0d00,dbl_mb(k_txs_prep2),1)
 c
       ntxs_bl_scr=k_txs_prep2 
@@ -1973,6 +1979,7 @@ c
      *                                      nps_b,nps_e,
      *                                      nat_b,nat_e)
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
       dimension datnuc(5,*), datbas(13,*)
       dimension inx(12,*)
 c
@@ -2030,7 +2037,8 @@ c
       if(iforwhat.eq.0) then
          write(6,*)'From texas_init (requested_task) '
          write(6,*)'int_type is undefined'
-         call errquit('texas integral program cannot be initialized',0)
+         call errquit('texas integral program cannot be initialized',0,
+     &       INT_ERR)
       else
 ctest
 c        where='forc'

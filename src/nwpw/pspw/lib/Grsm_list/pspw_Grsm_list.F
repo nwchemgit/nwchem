@@ -1,8 +1,9 @@
 *
-*     $Id: pspw_Grsm_list.F,v 1.6 2002-08-13 23:24:14 bylaska Exp $ 
+*     $Id: pspw_Grsm_list.F,v 1.7 2003-10-17 22:57:22 carlfahl Exp $ 
 *
       subroutine pspw_Grsm_list_start()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "pspw_Grsm_list_common.fh"
@@ -30,7 +31,8 @@
      >               MA_alloc_get(mt_dbl,nsize,
      >                'Grsm_list1',grsm_mem(2,i),grsm_mem(1,i))
          end do
-        if (.not. value) call errquit('pspw_Grsm_list_start:get heap',0)
+        if (.not. value) call errquit('pspw_Grsm_list_start:get heap',0,
+     &       MA_ERR)
          
       end if
 
@@ -39,6 +41,7 @@
 
       subroutine pspw_Grsm_list_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "pspw_Grsm_list_common.fh"
@@ -53,7 +56,8 @@
             value = value.and.
      >               MA_free_heap(grsm_mem(2,i))
          end do
-        if (.not. value) call errquit('pspw_Grsm_list_end:free heap',0)
+        if (.not. value) call errquit('pspw_Grsm_list_end:free heap',0,
+     &       MA_ERR)
 
       end if
 

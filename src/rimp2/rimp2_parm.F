@@ -1,7 +1,8 @@
       Subroutine RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
      $   MxEBatch, Approx, MinEVal)
-C$Id: rimp2_parm.F,v 1.6 2000-10-23 16:23:48 windus Exp $
+C$Id: rimp2_parm.F,v 1.7 2003-10-17 22:58:10 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB, MxTBatch, MxEBatch(2)
       Double precision Thresh, MinEVal
       Character*(*) Approx
@@ -70,7 +71,7 @@ C
      $        'by RI-MP2 module.',
      $        'ERROR: Use FREEZE and VECTORS SWAP directives instead.'
       EndIf
-      If ( Fail ) Call ErrQuit('rimp2: aborting', 0)
+      If ( Fail ) Call ErrQuit('rimp2: aborting', 0, UNKNOWN_ERR)
 C
       Return
       End

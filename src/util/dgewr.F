@@ -1,13 +1,14 @@
       Subroutine DGeWr (N, M, A, LDA, N0, M0, LUN, Label, LinWid,
      $   EFmt)
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgewr.F,v 1.2 1997-04-01 03:43:41 gg502 Exp $
+C $Id: dgewr.F,v 1.3 2003-10-17 22:58:34 carlfahl Exp $
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgewr -- Write a general matrix nicely formatted 
 C
 C SYNOPSIS
       Implicit NONE
+#include "errquit.fh"
       Integer N, M, LDA, N0, M0, LinWid, LUN
       Double precision A(LDA,*)
       Character*(*) Label, EFmt
@@ -103,9 +104,10 @@ C     * Check matrix dimensioning *
 C     *****************************
 C
       If (N .lt. 0 .OR. M .lt. 0) Call ErrQuit(
-     $   'DGEWR: matrix dimensions cannot be negative', Min(M, N) )
+     $   'DGEWR: matrix dimensions cannot be negative', Min(M, N) ,
+     &       INPUT_ERR)
       If (LDA .lt. Max(1, N)) Call ErrQuit(
-     $   'DGEWR: leading dimension too small', LDA)
+     $   'DGEWR: leading dimension too small', LDA, INPUT_ERR)
 C
 C     ************************
 C     * Check element format *
@@ -113,25 +115,26 @@ C     ************************
 C     Make sure the format specifier is reasonable
 C
       If (Index(PosFmt, EFmt(1:1)) .eq. 0) Call ErrQuit(
-     $   'DGEWR: Unknown format specifer', 0)
+     $   'DGEWR: Unknown format specifer', 0, INPUT_ERR)
 C
 C     Get the total width
 C
       Call IndInt (EFmt, I, J)
       IW = AtoI(EFmt(i:j))
       If (IW .le. 0) Call ErrQuit(
-     $   'DGEWR: line width must be positive', IW)
+     $   'DGEWR: line width must be positive', IW, INPUT_ERR)
 C
 C     Next should be a '.'
 C
       If (EFmt(j+1:j+1) .ne. '.') Call ErrQuit(
-     $   'DGEWR: bad format specifier', 0)
+     $   'DGEWR: bad format specifier', 0, INPUT_ERR)
 C
 C     Get the number of decimal places
 C
       Call IndInt (EFmt(j+1:), I, J2)
       ID = AtoI(EFmt(j+i:j+j2))
-      If (ID .le. 0) Call ErrQuit('DGEWR: bad format specifier', ID)
+      If (ID .le. 0) Call ErrQuit('DGEWR: bad format specifier', ID,
+     &       INPUT_ERR)
 C
 C     *********************************
 C     * See if we can get away easily *
@@ -166,7 +169,8 @@ C
 C     Make sure we can fit something!!!
 C
       If (NPerL .eq. 0) Call ErrQuit(
-     $   'DGEWR: Specified format will not fit in line width', 0)
+     $   'DGEWR: Specified format will not fit in line width', 0,
+     &       INPUT_ERR)
 C
 C     *****************************
 C     * Create the format strings *

@@ -1,6 +1,6 @@
       block data nxtval_ga_data
 *
-* $Id: nxtval_ga.F,v 1.3 1999-06-16 00:10:28 d3e129 Exp $
+* $Id: nxtval_ga.F,v 1.4 2003-10-17 22:58:35 carlfahl Exp $
 *
       implicit none
       integer g_x
@@ -9,6 +9,7 @@
       end
       subroutine nxtval_ga_initialize()
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer g_x
@@ -16,18 +17,20 @@
 c
 *ga:1:0
       if (.not. ga_create(MT_INT, 1, 1, 'nxtval_ga', 0, 0, g_x))
-     $     call errquit('nxtval_ga: ga_create failed', 1)
+     $     call errquit('nxtval_ga: ga_create failed', 1, GA_ERR)
       call ga_zero(g_x)
 c
       end
       integer function nxtval_ga(nnodes)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
       integer nnodes
       integer g_x
       common/c_nxtval_ga/g_x
 c
-      if (g_x .eq. 0) call errquit('nxtval_ga: not initialized',0)
+      if (g_x .eq. 0) call errquit('nxtval_ga: not initialized',0,
+     &       GA_ERR)
 c
       if (nnodes .gt. 0) then
          nxtval_ga = ga_read_inc(g_x, 1, 1, 1)
@@ -43,7 +46,7 @@ c
       common/c_nxtval_ga/g_x
 c
       if (.not. ga_destroy(g_x)) call errquit
-     $     ('nxtval_ga: ga destroy failed', 0)
+     $     ('nxtval_ga: ga destroy failed', 0, GA_ERR)
       g_x = 0
 c
       end

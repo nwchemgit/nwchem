@@ -1,4 +1,4 @@
-C $Id: cfloat.F,v 1.3 2001-01-19 17:43:11 windus Exp $
+C $Id: cfloat.F,v 1.4 2003-10-17 22:54:45 carlfahl Exp $
 C**********************************************************************
 C CFLOAT
 C**********************************************************************
@@ -6,6 +6,7 @@ C
       double precision FUNCTION drdy_cfloat(STRING)
 C
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+#include "errquit.fh"
 C
 #include "drdyP.fh"
 C
@@ -58,7 +59,7 @@ C     Make sure there is no blank left
 C
       IF (INDEX(NUMBER,' ') .LE. LENGTH) THEN
          WRITE(fu6,1000) STRING
-         call errquit ('drdy_cfloat:1: fatal error',911)
+         call errquit ('drdy_cfloat:1: fatal error',911, UNKNOWN_ERR)
       ENDIF
 C
 C     Find the decimal point
@@ -76,7 +77,7 @@ C
       IEXP = MAX0(IUE,ILE,IUD,ILD)
       IF (ISUM .GT. IEXP) THEN
          WRITE(fu6,1000) STRING
-         call errquit('drdy_cfloat:2: fatal error',911)
+         call errquit('drdy_cfloat:2: fatal error',911, UNKNOWN_ERR)
       ENDIF
       IF (IEXP .NE. 0) THEN
          LEXP = .TRUE.
@@ -109,7 +110,7 @@ C
             F1 = F1 * 10.0D0 + DBLE(N)
          ELSE
             WRITE(fu6,1000) STRING
-            call errquit('drdy_cfloat:3: fatal error',911)
+            call errquit('drdy_cfloat:3: fatal error',911, UNKNOWN_ERR)
          ENDIF
 50    CONTINUE
 C
@@ -126,7 +127,8 @@ C
                J = J + 1
             ELSE
                WRITE(fu6,1000) STRING
-               call errquit('drdy_cfloat:4: fatal error',911)
+               call errquit('drdy_cfloat:4: fatal error',911,
+     &       UNKNOWN_ERR)
             ENDIF
 60       CONTINUE
          F2 = F2 / 10.0D0 ** DBLE(J)
@@ -153,7 +155,8 @@ C
                F3 = F3 * 10.0D0 + DBLE(N)
             ELSE
                WRITE(fu6,1000) STRING
-               call errquit('drdy_cfloat:5: fatal error',911)
+               call errquit('drdy_cfloat:5: fatal error',911,
+     &       UNKNOWN_ERR)
             ENDIF
 70       CONTINUE
       ENDIF 

@@ -2,8 +2,9 @@
      &                     t1,z1,hiu,giu,habe,gabe,hia,hz1,
      &                    idiis,cmo,eorb,iprt,
      &                    g_t2,g_z2,g_hz2,g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_zitf.F,v 2.3 1997-04-14 06:35:04 gg502 Exp $
+C     $Id: ccsd_zitf.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        idiis,iprt,g_t2,g_z2,g_hz2
       double precision cmo(*),eorb(*),t1(*),hiu(*),giu(*),habe(*),
@@ -33,20 +34,20 @@ c
       stat=.true.
       stat=stat.and.ma_push_get(MT_DBL,lsab,'sa',l_sa, k_sa)
       stat=stat.and.ma_push_get(MT_DBL,lsab,'sb',l_sb, k_sb)
-      if (.not.stat)call errquit('ma_push zitf ',0)
+      if (.not.stat)call errquit('ma_push zitf ',0, MA_ERR)
 c
 c ------------------------------------------------------------
 c create new GAs with proposed final ordering
 c ------------------------------------------------------------
       if (.not.ga_create(MT_DBL,lnov,lnov,'nt2',
      &                   nvir,nvir,g_nt2))
-     &     call errquit('ga_create g_nt2 failed',0)
+     &     call errquit('ga_create g_nt2 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'nz2',
      &                   nvir,nvir,g_nz2))
-     &     call errquit('ga_create g_nz2 failed',0)
+     &     call errquit('ga_create g_nz2 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'nhz2',
      &                   nvir,nvir,g_nhz2))
-     &     call errquit('ga_create g_nhz2 failed',0)
+     &     call errquit('ga_create g_nhz2 failed',0, GA_ERR)
 
 c ------------------------------------------------------------
 c fill new GAs
@@ -116,15 +117,15 @@ c
       enddo
 c
       if (.not.ga_destroy(g_nhz2))
-     &    call errquit('ga_dest g_nhz2 fail',0)
+     &    call errquit('ga_dest g_nhz2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_nz2))
-     &    call errquit('ga_dest g_nz2 fail',0)
+     &    call errquit('ga_dest g_nz2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_nt2))
-     &    call errquit('ga_dest g_nt2 fail',0)
+     &    call errquit('ga_dest g_nt2 fail',0, GA_ERR)
       stat=.true.
       stat=stat.and.ma_pop_stack(l_sb)
       stat=stat.and.ma_pop_stack(l_sa)
-      if (.not.stat)call errquit('ma_pop zitf ',0)
+      if (.not.stat)call errquit('ma_pop zitf ',0, MA_ERR)
 c
       return
       end

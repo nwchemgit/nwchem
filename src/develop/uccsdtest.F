@@ -1,8 +1,9 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.21 2000-09-13 18:15:56 d3g681 Exp $
+*     $Id: uccsdtest.F,v 1.22 2003-10-17 22:54:39 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -49,37 +50,38 @@ c
 c     load the geometry/basis set and get info
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('scf_init: geom_create?', 0)
+     $     call errquit('scf_init: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('scf_init: no geometry ', 0)
+     $     call errquit('scf_init: no geometry ', 0, RTDB_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('scf_init: bas_create?', 0)
+     $     call errquit('scf_init: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
-     $        call errquit('scf_init: no ao basis set', 0)
+     $        call errquit('scf_init: no ao basis set', 0, RTDB_ERR)
       if (.not.int_normalize(rtdb, basis))
-     $           call errquit('scf:int_normalize failed', 0)
+     $           call errquit('scf:int_normalize failed', 0, INT_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('scf_init: basis info',0)
+     $     ('scf_init: basis info',0, BASIS_ERR)
 c
 c     Read the MO vectors and evals from a UHF calculation
 c
       call util_file_name('movecs',.false.,.false.,movecs)
       if (.not. movecs_read_header(movecs, title, name_of_basis,
      $     scftype, nbf_file, nsets, nmo_file, 2)) call errquit
-     $     ('rjhtest: failed to read movecs header',0)
-      if (nsets.ne.2) call errquit('UHF ONLY!',0)
+     $     ('rjhtest: failed to read movecs header',0, DISK_ERR)
+      if (nsets.ne.2) call errquit('UHF ONLY!',0, INPUT_ERR)
       nmo = nmo_file(1)
-      if (nmo .ne. nbf) call errquit('NO LINEAR DEPENDNCE PERMITTED',0)
+      if (nmo .ne. nbf) call errquit('NO LINEAR DEPENDNCE PERMITTED',0,
+     &       INPUT_ERR)
       write(6,*) ' Read movecs header from ', movecs
       write(6,*) ' Job title :                ', 
      $     title(1:inp_strlen(title))
       write(6,*) ' Basis name:                ', 
      $     name_of_basis(1:inp_strlen(name_of_basis))
-      if (nmo_file(1).ne.nmo_file(2)) call errquit('Uh?',0)
+      if (nmo_file(1).ne.nmo_file(2)) call errquit('Uh?',0, BASIS_ERR)
       if (.not. rtdb_get(rtdb, 'scf:nalpha', mt_int, 1, nalpha))
-     $     call errquit('nalpha?',0)
+     $     call errquit('nalpha?',0, RTDB_ERR)
       if (.not. rtdb_get(rtdb, 'scf:nbeta', mt_int, 1, nbeta))
-     $     call errquit('nbeta?',0)
+     $     call errquit('nbeta?',0, RTDB_ERR)
 
       noa = nalpha
       nob = nbeta
@@ -92,23 +94,25 @@ c
       write(6,*) ' No. of basis functions:    ', nbf
 c
       if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 1, 1, g_tmp))
-     &     call errquit('scf_v_g: tmp', 0)
+     &     call errquit('scf_v_g: tmp', 0, GA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'occ',l_occ, k_occ))
-     $     call errquit('ma occ', nbf)
+     $     call errquit('ma occ', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'aeval',l_aeval, k_aeval))
-     $     call errquit('ma eval', nbf)
+     $     call errquit('ma eval', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'beval',l_beval, k_beval))
-     $     call errquit('ma eval', nbf)
+     $     call errquit('ma eval', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nbf,'amos', l_amos, k_amos))
-     $     call errquit('ma amos', nbf*nbf)
+     $     call errquit('ma amos', nbf*nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nbf,'bmos', l_bmos, k_bmos))
-     $     call errquit('ma bmos', nbf*nbf)
+     $     call errquit('ma bmos', nbf*nbf, MA_ERR)
 c
       if (.not. movecs_read(movecs, 1, dbl_mb(k_occ), dbl_mb(k_aeval), 
-     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0,
+     &       DISK_ERR)
       call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_amos), nbf)
       if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), dbl_mb(k_beval), 
-     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0,
+     &       DISK_ERR)
       call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_bmos), nbf)
 c
 c     Change the phase and order of some of the beta MOs so that they
@@ -157,33 +161,33 @@ c$$$      call output(dbl_mb(k_amos),1,nbf,1,nmo,nbf,nmo,1)
 c$$$      write(6,*) ' Beta  MOs'
 c$$$      call output(dbl_mb(k_bmos),1,nbf,1,nmo,nbf,nmo,1)
 c
-      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0)
+      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0, GA_ERR)
 c
       call util_inplace_transpose(nmo, dbl_mb(k_amos))
       call util_inplace_transpose(nmo, dbl_mb(k_bmos))
 c
       if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_aa, k_iaa))
-     $     call errquit('ma aa moints', nbf**4)
+     $     call errquit('ma aa moints', nbf**4, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_ab, k_iab))
-     $     call errquit('ma ab moints', nbf**4)
+     $     call errquit('ma ab moints', nbf**4, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_ba, k_iba))
-     $     call errquit('ma ba moints', nbf**4)
+     $     call errquit('ma ba moints', nbf**4, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf**4,'moints', l_bb, k_ibb))
-     $     call errquit('ma bb moints', nbf**4)
+     $     call errquit('ma bb moints', nbf**4, MA_ERR)
 c
 c     Canonical UHF MP2 as a test and to get starting amplitudes.
 c
       if (.not. ma_push_get(mt_dbl, (noa*nva), 't1', l_t1a, k_t1a))
-     $     call errquit('ma t1a', (noa*nva))
+     $     call errquit('ma t1a', (noa*nva), MA_ERR)
       if (.not. ma_push_get(mt_dbl, (nob*nvb), 't1', l_t1b, k_t1b))
-     $     call errquit('ma t1b', (nob*nvb))
+     $     call errquit('ma t1b', (nob*nvb), MA_ERR)
       if (.not. ma_push_get(mt_dbl, (noa*nva)**2, 't2', l_t2aa, k_t2aa))
-     $     call errquit('ma t2_aa', (noa*nva)**2)
+     $     call errquit('ma t2_aa', (noa*nva)**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, (nob*nvb)**2, 't2', l_t2bb, k_t2bb))
-     $     call errquit('ma t2_bb', (nob*nvb)**2)
+     $     call errquit('ma t2_bb', (nob*nvb)**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
      $     't2', l_t2ab, k_t2ab))
-     $     call errquit('ma t2_ab', (noa*nva)*(nob*nvb))
+     $     call errquit('ma t2_ab', (noa*nva)*(nob*nvb), MA_ERR)
 c
          call jan_full_transform(
      $        rtdb, basis, 
@@ -221,13 +225,13 @@ c$$$      call dfill((noa*nva), 0.0d0, dbl_mb(k_t1a), 1)
 c$$$      call dfill((nob*nvb), 0.0d0, dbl_mb(k_t1b), 1)
 c
       if (.not. ma_push_get(mt_dbl, nmo**2, 'fa', l_fa, k_fa))
-     $     call errquit('ma fa', nmo**2)
+     $     call errquit('ma fa', nmo**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo**2, 'fb', l_fb, k_fb))
-     $     call errquit('ma fb', nmo**2)
+     $     call errquit('ma fb', nmo**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo**2, 'fa', l_ha, k_ha))
-     $     call errquit('ma ha', nmo**2)
+     $     call errquit('ma ha', nmo**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo**2, 'fb', l_hb, k_hb))
-     $     call errquit('ma hb', nmo**2)
+     $     call errquit('ma hb', nmo**2, MA_ERR)
 c$$$      call dfill(nmo*nmo, 0.0d0, dbl_mb(k_fa), 1)
 c$$$      call dfill(nmo*nmo, 0.0d0, dbl_mb(k_fb), 1)
 c$$$      call dcopy(nmo, dbl_mb(k_aeval), 1, dbl_mb(k_fa), nmo+1)
@@ -236,69 +240,69 @@ c
 c     Space for the residual vectors
 c
       if (.not. ma_push_get(mt_dbl, (noa*nva), 'r1', l_r1a, k_r1a))
-     $     call errquit('ma r1a', (noa*nva))
+     $     call errquit('ma r1a', (noa*nva), MA_ERR)
       if (.not. ma_push_get(mt_dbl, (nob*nvb), 'r1', l_r1b, k_r1b))
-     $     call errquit('ma r1b', (nob*nvb))
+     $     call errquit('ma r1b', (nob*nvb), MA_ERR)
       if (.not. ma_push_get(mt_dbl, (noa*nva)**2, 'r2', l_r2aa, k_r2aa))
-     $     call errquit('ma r2_aa', (noa*nva)**2)
+     $     call errquit('ma r2_aa', (noa*nva)**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, (nob*nvb)**2, 'r2', l_r2bb, k_r2bb))
-     $     call errquit('ma r2_bb', (nob*nvb)**2)
+     $     call errquit('ma r2_bb', (nob*nvb)**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
      $     'r2', l_r2ab, k_r2ab))
-     $     call errquit('ma r2_ab', (noa*nva)*(nob*nvb))
+     $     call errquit('ma r2_ab', (noa*nva)*(nob*nvb), MA_ERR)
 c
 c     Temporary workspace for transposed t2ab and
 c     particle & hole transformation matrices and workspace
 c
       if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
      $     't2', l_t2ba, k_t2ba))
-     $     call errquit('ma t2_ba', (noa*nva)*(nob*nvb))
+     $     call errquit('ma t2_ba', (noa*nva)*(nob*nvb), MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nmo, 'a lamda p', l_alp, k_alp))
-     $     call errquit('ma alp', nbf*nmo)
+     $     call errquit('ma alp', nbf*nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nmo, 'a lamda h', l_alh, k_alh))
-     $     call errquit('ma alh', nbf*nmo)
+     $     call errquit('ma alh', nbf*nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nmo, 'b lamda p', l_blp, k_blp))
-     $     call errquit('ma alp', nmo*nmo)
+     $     call errquit('ma alp', nmo*nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nmo, 'b lamda h', l_blh, k_blh))
-     $     call errquit('ma alh', nbf*nmo)
+     $     call errquit('ma alh', nbf*nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo*nmo, 'work', l_work, k_work))
-     $     call errquit('ma work', nmo*nmo)
+     $     call errquit('ma work', nmo*nmo, MA_ERR)
 c
 c     For the n^6 algorithm we need some more intermediates
 c
       if (.not. ma_push_get(mt_dbl, noa*nva*noa*nva, 'z1', l_z1, k_z1))
-     $     call errquit(' ma z1 ', 0)
+     $     call errquit(' ma z1 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, noa*nva*noa*nva, 'z2', l_z2, k_z2))
-     $     call errquit(' ma z2 ', 0)
+     $     call errquit(' ma z2 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nob*nvb*noa*nva, 'z3', l_z3, k_z3))
-     $     call errquit(' ma z3 ', 0)
+     $     call errquit(' ma z3 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nob*nvb*nob*nvb, 'z4', l_z4, k_z4))
-     $     call errquit(' ma z4 ', 0)
+     $     call errquit(' ma z4 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nob*nvb*nob*nvb, 'z5', l_z5, k_z5))
-     $     call errquit(' ma z5 ', 0)
+     $     call errquit(' ma z5 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, noa*nva*nob*nvb, 'z6', l_z6, k_z6))
-     $     call errquit(' ma z6 ', 0)
+     $     call errquit(' ma z6 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, noa*nva*nob*nvb, 'z7', l_z7, k_z7))
-     $     call errquit(' ma z7 ', 0)
+     $     call errquit(' ma z7 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, noa*nvb*noa*nvb, 'z8', l_z8, k_z8))
-     $     call errquit(' ma z8 ', 0)
+     $     call errquit(' ma z8 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, noa*noa*noa*noa, 'x1', l_x1, k_x1))
-     $     call errquit(' ma x1 ', 0)
+     $     call errquit(' ma x1 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nob*nob*nob*nob, 'x2', l_x2, k_x2))
-     $     call errquit(' ma x2 ', 0)
+     $     call errquit(' ma x2 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, noa*nob*noa*nob, 'x3', l_x3, k_x3))
-     $     call errquit(' ma x3 ', 0)
+     $     call errquit(' ma x3 ', 0, MA_ERR)
 c
 c     Space for the new solver
 c
       nvar = noa*noa*nva*nva + nob*nob*nvb*nvb + noa*nob*nva*nvb + 
      $     noa*nva + nob*nvb
       if (.not. ma_push_get(mt_dbl, nvar*10, 'x', l_x, k_x))
-     $     call errquit(' ma x4 ', 0)
+     $     call errquit(' ma x4 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nvar*10, 'x', l_df, k_df))
-     $     call errquit(' ma x5 ', 0)
+     $     call errquit(' ma x5 ', 0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nvar, 'x', l_delta, k_delta))
-     $     call errquit(' ma x6 ', 0)
+     $     call errquit(' ma x6 ', 0, MA_ERR)
 c
 c     if t1 and t2 on disk jump and read
 c
@@ -643,12 +647,12 @@ c
 c
       write(6,*) energyaab
 c
-      if (.not. ma_chop_stack(l_occ)) call errquit('ma?',0)
+      if (.not. ma_chop_stack(l_occ)) call errquit('ma?',0, MA_ERR)
 c
       uccsdtest = .true.
 c
-      if (.not. bas_destroy(basis)) call errquit('basis',0)
-      if (.not. geom_destroy(geom)) call errquit('geom',0)
+      if (.not. bas_destroy(basis)) call errquit('basis',0, BASIS_ERR)
+      if (.not. geom_destroy(geom)) call errquit('geom',0, GEOM_ERR)
 c
       end
       subroutine uccsdtest_product_pure(
@@ -1196,6 +1200,7 @@ c
      $     r2aa,r2bb,r2ab, ea, eb, converged,
      $     x, df, delta, nvar, iter, shift)
       implicit none
+#include "errquit.fh"
       integer nmo, noa, nob, nva, nvb
       double precision fa(nmo,nmo), fb(nmo,nmo)
       double precision iaa(nmo, nmo, nmo, nmo)
@@ -1292,7 +1297,7 @@ c
             end do
          end do
       end do
-      if (ind .ne. nvar+1) call errquit('nvar ????? ', ind)
+      if (ind .ne. nvar+1) call errquit('nvar ????? ', ind, UNKNOWN_ERR)
 c
       call uccsdt_solver(nvar,iter,x,df,delta)
 c
@@ -1375,7 +1380,8 @@ c
             end do
          end do
       end do
-      if (ind .ne. nvar+1) call errquit('nvar 2????? ', ind)
+      if (ind .ne. nvar+1) call errquit('nvar 2????? ', ind,
+     &       UNKNOWN_ERR)
 c
 c$$$      do m = 1, noa
 c$$$         do e = 1, nva
@@ -1689,6 +1695,7 @@ c
      $     r1a, r1b,
      $     r2aa,r2bb,r2ab)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer nmo, noa, nob, nva, nvb
       double precision fa(nmo,nmo), fb(nmo,nmo)
@@ -1737,7 +1744,7 @@ c
 c     R1 alpha
 c
       if (.not. ma_verify_allocator_stuff())
-     $     call errquit('x',1)
+     $     call errquit('x',1, MA_ERR)
       do m = 1, noa
          do e = 1, nva
 c
@@ -1851,7 +1858,7 @@ c
       end do
 c
       if (.not. ma_verify_allocator_stuff())
-     $     call errquit('x',2)
+     $     call errquit('x',2, MA_ERR)
 c
 c     Pure spin alpha
 c
@@ -1924,7 +1931,7 @@ c
          end do
       end do
       if (.not. ma_verify_allocator_stuff())
-     $     call errquit('x',4)
+     $     call errquit('x',4, MA_ERR)
 c
 c     Pure spin beta
 c
@@ -2001,7 +2008,7 @@ c
          end do
       end do
       if (.not. ma_verify_allocator_stuff())
-     $     call errquit('x',5)
+     $     call errquit('x',5, MA_ERR)
 c
 c     Mixed spin
 c
@@ -2117,7 +2124,7 @@ c
          end do
       end do
       if (.not. ma_verify_allocator_stuff())
-     $     call errquit('x',6)
+     $     call errquit('x',6, MA_ERR)
 c
       end
       double precision function uccsdtest_triples_pure(
@@ -2215,6 +2222,7 @@ c
      $     t2aa,
      $     evals, spin, nv_dim, no_dim)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
       integer spin, spinck
       integer nv_dim, no_dim
@@ -2290,7 +2298,7 @@ c
       elseif (spin.eq.2)then
          spinck=1
       else
-         call errquit(' unrecognized spin ',spin)
+         call errquit(' unrecognized spin ',spin, UNKNOWN_ERR)
       endif
       energy = 0.0d0
       energy2 = 0.0d0
@@ -2987,6 +2995,7 @@ c
      $     t2aa,t2bb,t2ab,
      $     evalsa, evalsb, spin)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
       integer noa, nob, nva, nvb
       double precision iaa(nmo, nmo, nmo, nmo)
@@ -3034,7 +3043,7 @@ c
       elseif (spin.eq.2)then
          spinck=1
       else
-         call errquit(' unrecognized spin ',spin)
+         call errquit(' unrecognized spin ',spin, UNKNOWN_ERR)
       endif
 c
       write(6,*)' spin, spinck, nvblock(spin), nvblock(spinck): ',
@@ -5958,6 +5967,7 @@ c
      &   noa, nob, nva, nvb, spin)
 c
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
       integer alo, ahi, blo, bhi, clo, chi,
      &        ilo, ihi, jlo, jhi, klo, khi,
@@ -5983,7 +5993,7 @@ c
       elseif (spin.eq.2)then
          spinck=1
       else
-         call errquit(' unrecognized spin ',spin)
+         call errquit(' unrecognized spin ',spin, UNKNOWN_ERR)
       endif
 c
       do a = alo, ahi
@@ -6180,6 +6190,7 @@ c
       end
       subroutine uccsdt_solver(n,m,x,df,delta)
       implicit none
+#include "errquit.fh"
       integer n, m
       double precision x(n,m), df(n,m), delta(n)
 c
@@ -6191,8 +6202,8 @@ c
       double precision ddot
       external ddot
 c
-      if (m .lt. 1) call errquit('m?', m)
-      if (m .gt. maxm) call errquit('maxm', m)
+      if (m .lt. 1) call errquit('m?', m, UNKNOWN_ERR)
+      if (m .gt. maxm) call errquit('maxm', m, UNKNOWN_ERR)
 c
       call dcopy(n, df(1,m), 1, delta, 1)
       call dscal(n, -1d0, delta, 1)
@@ -6218,7 +6229,7 @@ c$$$      write(6,*) ' REDUCED B'
 c$$$      call doutput(b, 1, m-1, 1, 1, m-1, 1, 1)
 c
       call dgesv(m-1, 1, a, maxm, ipiv, b, maxm, info)
-      if (info .ne. 0) call errquit(' info ?  ', 0)
+      if (info .ne. 0) call errquit(' info ?  ', 0, UNKNOWN_ERR)
       call dcopy(m-1, b, 1, c, 1)
 c$$$      write(6,*) ' REDUCED C'
 c$$$      call doutput(b, 1, m-1, 1, 1, m-1, 1, 1)
@@ -6236,6 +6247,7 @@ c
      $     t1a, t1b,
      $     t2aa,t2bb,t2ab)
       implicit none
+#include "errquit.fh"
 #include "eaf.fh"
 #include "inp.fh"
       integer noa, nob, nva, nvb
@@ -6251,7 +6263,7 @@ c
       character*80 errmsg
       actualname = 't_file'
       if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $   call errquit('write_t: eaf_open failed', 0)
+     $   call errquit('write_t: eaf_open failed', 0, DISK_ERR)
       offset = 0
       ierr = eaf_write(fd, offset, t1a, 8*nva*noa) ! write t1a
       offset = offset + 8*nva*noa
@@ -6269,7 +6281,7 @@ c      call jan_debug_print('t2ab', t2ab, nva, nvb, noa, nob)
          call eaf_errmsg(ierr, errmsg)
          write(6,*) ' IO offset ', offset
          write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
-         call errquit(' write_t write: write failed',0)
+         call errquit(' write_t write: write failed',0, DISK_ERR)
       end if
       return
       end
@@ -6278,6 +6290,7 @@ c      call jan_debug_print('t2ab', t2ab, nva, nvb, noa, nob)
      $     t1a, t1b,
      $     t2aa,t2bb,t2ab)
       implicit none
+#include "errquit.fh"
 #include "eaf.fh"
 #include "inp.fh"
       integer noa, nob, nva, nvb
@@ -6293,7 +6306,7 @@ c      call jan_debug_print('t2ab', t2ab, nva, nvb, noa, nob)
       character*80 errmsg
       actualname = 't_file'
       if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $   call errquit('read_t: eaf_open failed', 0)
+     $   call errquit('read_t: eaf_open failed', 0, DISK_ERR)
       offset = 0
       ierr = eaf_read(fd, offset, t1a, 8*nva*noa) ! read t1a
       offset = offset + 8*nva*noa
@@ -6308,7 +6321,7 @@ c      call jan_debug_print('t2ab', t2ab, nva, nvb, noa, nob)
          call eaf_errmsg(ierr, errmsg)
          write(6,*) ' IO offset ', offset
          write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
-         call errquit(' read_t read: read failed',0)
+         call errquit(' read_t read: read failed',0, DISK_ERR)
       end if
       return
       end
@@ -6317,6 +6330,7 @@ c      call jan_debug_print('t2ab', t2ab, nva, nvb, noa, nob)
      $     t1a, t1b,
      $     t2aa,t2bb,t2ab)
       implicit none
+#include "errquit.fh"
 #include "eaf.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -6334,7 +6348,7 @@ c      call jan_debug_print('t2ab', t2ab, nva, nvb, noa, nob)
       character*80 errmsg
       actualname = 't_file'
       if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $   call errquit('read_t: eaf_open failed', 0)
+     $   call errquit('read_t: eaf_open failed', 0, DISK_ERR)
 c
 c      if (.not. ma_push_get(mt_dbl, (noa*nva), 
 c     $    't1_temp', l_temp, k_temp))
@@ -6356,33 +6370,34 @@ c      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
 c
       if (.not. ma_push_get(mt_dbl, (noa*nva)**2, 
      $    't2_temp', l_temp, k_temp))
-     $     call errquit('ma t2_aa', (noa*nva)**2)
+     $     call errquit('ma t2_aa', (noa*nva)**2, MA_ERR)
       offset = offset + 8*nvb*nob
       ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*(nva*noa)**2) ! read t2aa
       call repack_t2 (dbl_mb(k_temp), t2aa, nva, nva, noa, noa, nbf)
-      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0,
+     &       MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl, (nob*nvb)**2, 
      $     't2_temp', l_temp, k_temp))
-     $     call errquit('ma t2_bb', (nob*nvb)**2)
+     $     call errquit('ma t2_bb', (nob*nvb)**2, MA_ERR)
       offset = offset + 8*(nva*noa)**2
       ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*(nvb*nob)**2) ! read t2bb
       call repack_t2 (dbl_mb(k_temp), t2bb, nvb, nvb, nob, nob, nbf)
-      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0, MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl, (noa*nva)*(nob*nvb), 
      $     't2_temp', l_temp, k_temp))
-     $     call errquit('ma t2_ab', (noa*nva)*(nob*nvb))
+     $     call errquit('ma t2_ab', (noa*nva)*(nob*nvb), MA_ERR)
       offset = offset + 8*(nvb*nob)**2
       ierr = eaf_read(fd, offset, dbl_mb(k_temp), 8*nva*noa*nvb*nob) ! read t2ab
       call repack_t2 (dbl_mb(k_temp), t2ab, nva, nvb, noa, nob, nbf)
-      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0)
+      if (.not. ma_pop_stack(l_temp)) call errquit('t1_temp?',0, MA_ERR)
 c
       if (ierr .ne. 0) then
          call eaf_errmsg(ierr, errmsg)
          write(6,*) ' IO offset ', offset
          write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
-         call errquit(' read_t read: read failed',0)
+         call errquit(' read_t read: read failed',0, DISK_ERR)
       end if
       return
       end

@@ -1,9 +1,10 @@
       subroutine grid_setspac(xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     expo, rad)
 c
-c$Id: grid_setspac.F,v 1.13 2002-07-30 22:43:06 edo Exp $
+c$Id: grid_setspac.F,v 1.14 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "cdft.fh"
 #include "geom.fh"
@@ -32,9 +33,9 @@ c
       lgth_scr=nq
       if(lssw) lgth_scr=max(lgth_scr,ncenters)
       if (.not.MA_Push_get(mt_dbl,3*ncenters,' xyzm',lxyzm,ixyzm))
-     &   call errquit('grid_setspac: cannot allocate xyzm',1)
+     &   call errquit('grid_setspac: cannot allocate xyzm',1, MA_ERR)
       if (.not.MA_Push_get(mt_int,lgth_scr,' scr gridcmp',lscr,iscr))
-     &   call errquit('grid_setspac: cannot allocate lscr',2)
+     &   call errquit('grid_setspac: cannot allocate lscr',2, MA_ERR)
       call dcopy(3*ncenters,xyz,1,dbl_mb(ixyzm),1)
 
 c
@@ -44,7 +45,7 @@ c
       ncenters_scr=ncenters
       ictr_scr=ictr
       if (.not.MA_Push_get(mt_int,ncenters,' indx',l_indx,k_indx))
-     &   call errquit('grid_setspac: cannot allocate indx',1)
+     &   call errquit('grid_setspac: cannot allocate indx',1, MA_ERR)
       do i=1,ncenters
          int_mb(k_indx+i-1)=i
       enddo
@@ -81,6 +82,6 @@ c
 
 c
       if (.not. MA_chop_Stack(lxyzm))
-     &   call errquit('grid_setspac: pop stack failed.',1)
+     &   call errquit('grid_setspac: pop stack failed.',1, MA_ERR)
       return
       end 

@@ -1,5 +1,5 @@
 *
-* $Id: c_ewald.F,v 1.3 2003-06-26 21:22:23 bylaska Exp $
+* $Id: c_ewald.F,v 1.4 2003-10-17 22:56:07 carlfahl Exp $
 *
       integer function c_ewald_ncut()
       implicit none 
@@ -80,6 +80,7 @@
  
       subroutine c_ewald_init()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -117,7 +118,7 @@
 *     **** allocate vg memory ****
       call C3dB_nfft3d(1,nfft3d)
       value = MA_alloc_get(mt_dbl,nfft3d,'vg',vg(2),vg(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       G(1) = c_G_indx(1)
       G(2) = c_G_indx(2)
@@ -212,7 +213,7 @@
       nshl3d=(2*ncut+1)**3
       value = MA_alloc_get(mt_dbl,(3*nshl3d),'rcell',rcell(2),
      >                                           rcell(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       
 *     **** get lattice vectors in real space ****
@@ -249,6 +250,7 @@
 *     ***********************************
       real*8 function c_ewald_e()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -295,7 +297,7 @@ c     real*8     tmp3(nfft3d*2)
      >        MA_push_get(mt_dbl, nfft3d,'tmp3',tmp3(2),tmp3(1)) 
       value = value.and.
      >        MA_push_get(mt_dbl, (3*nshl3d),'ft',ft(2),ft(1)) 
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
 *     **** get the structure factor ****
       call dcopy((2*nfft3d),0.0d0,0,dcpl_mb(s(1)),1)
@@ -364,6 +366,7 @@ c          dbl_mb(ft(1)+(l-1))=zz*erfc**4/r
 
       subroutine c_ewald_f(fion)
       implicit none
+#include "errquit.fh"
       real*8  fion(3,*)
 
 #include "mafdecls.fh"
@@ -423,7 +426,7 @@ c     real*8     tmp3(nfft3d*2)
      >        MA_push_get(mt_dbl, (nion),'fy',fy(2),fy(1)) 
       value = value.and.
      >        MA_push_get(mt_dbl, (nion),'fz',fz(2),fz(1)) 
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
       scal2 = 1.0d0/lattice_omega()

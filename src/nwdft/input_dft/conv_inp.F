@@ -1,6 +1,7 @@
       subroutine conv_input(rtdb, module)
 C     $Id: 
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -58,7 +59,7 @@ c
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
      .      2000, 2010,2020,
      &      1999) ind
-      call errquit('conv_inp: unimplemented directive', ind)
+      call errquit('conv_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     energy; threshold for energy convergence
 c
@@ -68,7 +69,7 @@ c
          e_conv = 1.d-6
       endif
       if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
-     &   call errquit('conv_inp: rtdb_put failed', 100)
+     &   call errquit('conv_inp: rtdb_put failed', 100, RTDB_ERR)
 c
       goto 10
 c     
@@ -80,7 +81,7 @@ c
          d_conv = 1.d-5
       endif 
       if (.not. rtdb_put(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))
-     &   call errquit('conv_inp: rtdb_put failed', 200)
+     &   call errquit('conv_inp: rtdb_put failed', 200, RTDB_ERR)
 c
       goto 10
 c     
@@ -92,7 +93,7 @@ c
          g_conv = 5.d-4
       endif 
       if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
-     &   call errquit('conv_inp: rtdb_put failed', 300)
+     &   call errquit('conv_inp: rtdb_put failed', 300, RTDB_ERR)
 c
       goto 10
 c     
@@ -105,7 +106,7 @@ c
          dampon = 0.0d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
-     &   call errquit('conv_inp: rtdb_put failed', 400)
+     &   call errquit('conv_inp: rtdb_put failed', 400, RTDB_ERR)
 c
       goto 10
 c     
@@ -118,7 +119,7 @@ c
          dampoff = 0.0d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
-     &   call errquit('conv_inp: rtdb_put failed', 500)
+     &   call errquit('conv_inp: rtdb_put failed', 500, RTDB_ERR)
 c
       goto 10
 c     
@@ -131,7 +132,7 @@ c
          diison = 0.0d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:diison', mt_dbl, 1, diison))
-     &   call errquit('conv_inp: rtdb_put failed', 600)
+     &   call errquit('conv_inp: rtdb_put failed', 600, RTDB_ERR)
 c
       goto 10
 c     
@@ -144,7 +145,7 @@ c
          diisoff = 0.0d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:diisoff', mt_dbl, 1, diisoff))
-     &   call errquit('conv_inp: rtdb_put failed', 700)
+     &   call errquit('conv_inp: rtdb_put failed', 700, RTDB_ERR)
 c
       goto 10
 c     
@@ -157,7 +158,7 @@ c
          levlon = 0.0d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:levlon', mt_dbl, 1, levlon))
-     &   call errquit('conv_inp: rtdb_put failed', 800)
+     &   call errquit('conv_inp: rtdb_put failed', 800, RTDB_ERR)
 c
       goto 10
 c     
@@ -170,7 +171,7 @@ c
          levloff = 0.0d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:levloff', mt_dbl, 1, levloff))
-     &   call errquit('conv_inp: rtdb_put failed', 900)
+     &   call errquit('conv_inp: rtdb_put failed', 900, RTDB_ERR)
 c
       goto 10
 c     
@@ -182,7 +183,7 @@ c
          ncydp = 2
       endif            
       if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
-     &   call errquit('conv_inp: rtdb_put failed', 1000)
+     &   call errquit('conv_inp: rtdb_put failed', 1000, RTDB_ERR)
 c
       goto 10
 c     
@@ -194,7 +195,7 @@ c
          ncyds = 9999
       endif            
       if (.not. rtdb_put(rtdb, 'dft:ncyds', mt_int, 1, ncyds))
-     &   call errquit('conv_inp: rtdb_put failed', 1100)
+     &   call errquit('conv_inp: rtdb_put failed', 1100, RTDB_ERR)
 c
       goto 10
 c     
@@ -206,7 +207,7 @@ c
          ncysh = 9999
       endif            
       if (.not. rtdb_put(rtdb, 'dft:ncysh', mt_int, 1, ncysh))
-     &   call errquit('conv_inp: rtdb_put failed', 1200)
+     &   call errquit('conv_inp: rtdb_put failed', 1200, RTDB_ERR)
 c
       goto 10
 c     
@@ -215,14 +216,14 @@ c                 of old density + (1-ndamp)% of new density
 c
  1300 damp = .true.             
       if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
-     &   call errquit('conv_inp: rtdb_put failed', 1300)
+     &   call errquit('conv_inp: rtdb_put failed', 1300, RTDB_ERR)
       if (.not. inp_i(ndamp)) then
          write(LuOut,*)' conv_inp: ndamp value not found; defaulting',
      &             ' to 40%.'
          ndamp = 40
       endif            
       if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     &   call errquit('conv_inp: rtdb_put failed', 1300)
+     &   call errquit('conv_inp: rtdb_put failed', 1300, RTDB_ERR)
 c
       goto 10
 c     
@@ -230,11 +231,11 @@ c     nodamping; set no damping to be used for the entire calculation
 c
  1400 nodamping = .true.
       if (.not. rtdb_put(rtdb, 'dft:nodamping', mt_log, 1, nodamping))
-     &   call errquit('conv_inp: rtdb_put failed', 1400)
+     &   call errquit('conv_inp: rtdb_put failed', 1400, RTDB_ERR)
 c
       damp = .false.
       if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
-     &   call errquit('dft_input: rtdb_put failed', 1400)
+     &   call errquit('dft_input: rtdb_put failed', 1400, RTDB_ERR)
       goto 10
 c     
 c     diis/nfock; use diis procedure with nfock Fock matrices 
@@ -242,14 +243,14 @@ c                 saved and used in the extrapolation
 c
  1500 diis = .true.
       if (.not. rtdb_put(rtdb, 'dft:diis', mt_log, 1, diis))
-     &   call errquit('conv_inp: rtdb_put failed', 1500)
+     &   call errquit('conv_inp: rtdb_put failed', 1500, RTDB_ERR)
       if (.not. inp_i(nfock)) then
          write(LuOut,*) ' conv_inp: nfock value not found; defaulting',
      &             ' to 10.'
          nfock = 10
       endif            
       if (.not. rtdb_put(rtdb, 'dft:nfock', mt_int, 1, nfock))
-     &   call errquit('conv_inp: rtdb_put failed', 1500)
+     &   call errquit('conv_inp: rtdb_put failed', 1500, RTDB_ERR)
 c
       goto 10
 c     
@@ -257,10 +258,10 @@ c     nodiis; set no diis to be used for the entire calculation
 c
  1600 nodiis = .true.
       if (.not. rtdb_put(rtdb, 'dft:nodiis', mt_log, 1, nodiis))
-     &   call errquit('conv_inp: rtdb_put failed', 1600)
+     &   call errquit('conv_inp: rtdb_put failed', 1600, RTDB_ERR)
       diis = .false.
       if (.not. rtdb_put(rtdb, 'dft:diis', mt_log, 1, diis))
-     &   call errquit('conv_inp: rtdb_put failed', 160)
+     &   call errquit('conv_inp: rtdb_put failed', 160, RTDB_ERR)
 c
       goto 10
 c     
@@ -270,14 +271,14 @@ c                     of the Fock matrix.
 c
  1700 levelshift = .true.
       if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
-     &   call errquit('conv_inp: rtdb_put failed', 1700)
+     &   call errquit('conv_inp: rtdb_put failed', 1700, RTDB_ERR)
       if (.not. inp_f(rlshift)) then
          write(LuOut,*)' conv_inp: lshift value not found; defaulting',
      &             ' to  0.5 Hartree'
          rlshift = 0.5d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:rlshift', mt_dbl, 1,rlshift))
-     &   call errquit('conv_inp: rtdb_put failed', 1700)
+     &   call errquit('conv_inp: rtdb_put failed', 1700, RTDB_ERR)
 c
       goto 10
 c     
@@ -287,10 +288,10 @@ c
  1800 nolevelshifting = .true.
       if (.not. rtdb_put(rtdb, 'dft:nolevelshifting', mt_log, 1, 
      &   nolevelshifting))
-     &   call errquit('conv_inp: rtdb_put failed', 1800)
+     &   call errquit('conv_inp: rtdb_put failed', 1800, RTDB_ERR)
       levelshift = .false.
       if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
-     &   call errquit('conv_inp: rtdb_put failed', 1800)
+     &   call errquit('conv_inp: rtdb_put failed', 1800, RTDB_ERR)
 c
       goto 10
 c     
@@ -304,7 +305,7 @@ c
          hl_tol = 0.01d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:hl_tol', mt_dbl, 1, hl_tol))
-     &   call errquit('conv_inp: rtdb_put failed', 1900)
+     &   call errquit('conv_inp: rtdb_put failed', 1900, RTDB_ERR)
 c
       goto 10
 c     
@@ -312,25 +313,25 @@ c     fast (usually faster, but less safe)
 c                      
  2000 levelshift = .false.
       if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
+     &   call errquit('conv_inp: rtdb_put failed', 2000, RTDB_ERR)
       damp = .true.             
       if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
+     &   call errquit('conv_inp: rtdb_put failed', 2000, RTDB_ERR)
       ndamp = 40
       if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
+     &   call errquit('conv_inp: rtdb_put failed', 2000, RTDB_ERR)
       ncydp = 0
       if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
+     &   call errquit('conv_inp: rtdb_put failed', 2000, RTDB_ERR)
       dampon=0d0
       if (.not. rtdb_put(rtdb, 'dft:dampon', mt_dbl, 1, dampon))
-     &   call errquit('conv_inp: rtdb_put failed', 400)
+     &   call errquit('conv_inp: rtdb_put failed', 400, RTDB_ERR)
       dampoff=1d-4
       if (.not. rtdb_put(rtdb, 'dft:dampoff', mt_dbl, 1, dampoff))
-     &   call errquit('conv_inp: rtdb_put failed', 400)
+     &   call errquit('conv_inp: rtdb_put failed', 400, RTDB_ERR)
       rlshift=0.0d0
       if (.not. rtdb_put(rtdb, 'dft:rlshift', mt_dbl, 1,rlshift))
-     &   call errquit('conv_inp: rtdb_put failed', 1700)
+     &   call errquit('conv_inp: rtdb_put failed', 1700, RTDB_ERR)
 c
       goto 10
 c     
@@ -338,15 +339,15 @@ c     stable (defaults)
 c                      
  2010 levelshift = .true.
       if (.not. rtdb_put(rtdb, 'dft:levelshift', mt_log, 1, levelshift))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
+     &   call errquit('conv_inp: rtdb_put failed', 2000, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:ncydp', mt_int, 1, ncydp))
-     &   call errquit('conv_inp: rtdb_put failed', 2000)
+     &   call errquit('conv_inp: rtdb_put failed', 2000, RTDB_ERR)
       rlshift=0.5d0
       if (.not. rtdb_put(rtdb, 'dft:rlshift', mt_dbl, 1,rlshift))
-     &   call errquit('conv_inp: rtdb_put failed', 1700)
+     &   call errquit('conv_inp: rtdb_put failed', 1700, RTDB_ERR)
       hl_tol = 0.01d0
       if (.not. rtdb_put(rtdb, 'dft:hl_tol', mt_dbl, 1, hl_tol))
-     &   call errquit('conv_inp: rtdb_put failed', 2010)
+     &   call errquit('conv_inp: rtdb_put failed', 2010, RTDB_ERR)
 c
       goto 10
 c     
@@ -359,9 +360,9 @@ c
          n_rabuck = 25
       endif
       if (.not. rtdb_put(rtdb, 'dft:smear_sigma', mt_dbl, 1, 1d-3))
-     &   call errquit('conv_inp: rtdb_put failed', 2021)
+     &   call errquit('conv_inp: rtdb_put failed', 2021, RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:n_rabuck', mt_int, 1, n_rabuck))
-     &   call errquit('conv_inp: rtdb_put failed', 2022)
+     &   call errquit('conv_inp: rtdb_put failed', 2022, RTDB_ERR)
 c
       goto 10
  1999 continue
@@ -378,6 +379,6 @@ c
      &       /,' [diis nfock ival], [nodiis], [lshift rval], ',
      &       /,' [nolevelshifting], [hl_tol rval]] ')
       call util_flush(LuOut)
-      call errquit('conv_input: invalid format', 0)
+      call errquit('conv_input: invalid format', 0, INPUT_ERR)
 c     
       end

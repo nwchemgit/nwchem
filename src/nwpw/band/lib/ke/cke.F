@@ -1,8 +1,9 @@
 *
-* $Id: cke.F,v 1.4 2003-06-26 21:22:23 bylaska Exp $
+* $Id: cke.F,v 1.5 2003-10-17 22:56:10 carlfahl Exp $
 *
       subroutine cke_init()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cke_common.fh"
@@ -31,10 +32,10 @@ c     real*8 G(nfft3d,3)
 
       value = MA_alloc_get(mt_dbl,npack1*nbrillioun,
      >                     'tg',tg_hndl,tg_indx)
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       do nb=1,nbrillioun
@@ -108,6 +109,7 @@ c     real*8 G(nfft3d,3)
 
       subroutine cke_ave(ispin,ne,psi1,ave)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       complex*16 psi1(*)
       real*8     ave
@@ -132,7 +134,7 @@ c     real*8 G(nfft3d,3)
       call Parallel_np(np)
       call Cram_max_npack(npack1)
       value = MA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       n1(1) = 1

@@ -1,7 +1,8 @@
       Subroutine dft_invdiag(g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.11 2000-04-22 01:05:45 edo Exp $
+C$Id: dft_invdiag.F,v 1.12 2003-10-17 22:55:44 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c      
       integer g_a   ! [input]
       integer g_cdinv ! [output]
@@ -22,12 +23,12 @@ c
       call ga_sync
 *ga:1:0
       if (.not. ga_create(mt_dbl, n, n, 'ga_temp2', n, 0, g_tmp2)) 
-     &   call errquit('dft_main0d: error creating g_xcinv',0)
+     &   call errquit('dft_main0d: error creating g_xcinv',0, GA_ERR)
 c
       if(.not.MA_Push_Get(MT_Dbl,n,'evals',lev,iev))
-     &  call errquit('dft_invdiag: cannot allocate evals',0)
+     &  call errquit('dft_invdiag: cannot allocate evals',0, MA_ERR)
       if(.not.MA_Push_Get(MT_Dbl,n,'itmp',ltmp,itmp))
-     &  call errquit('dft_invdiag: cannot allocate itmp',0)
+     &  call errquit('dft_invdiag: cannot allocate itmp',0, MA_ERR)
       
 C     diag
       call ga_sync
@@ -66,12 +67,12 @@ C     (U * sigma^-1) * U(transp)
       call ga_dgemm('N','T',n,n,n,1.d0,g_A,g_tmp2,0.d0,g_cdinv)
 
       if(.not.ma_pop_stack(ltmp))
-     &  call errquit('dft_invdiag: cannot pop stack',0)
+     &  call errquit('dft_invdiag: cannot pop stack',0, MA_ERR)
       if(.not.ma_pop_stack(lev))
-     &  call errquit('dft_invdiag: cannot pop stack',0)
+     &  call errquit('dft_invdiag: cannot pop stack',0, MA_ERR)
       call ga_SYNC
 c      call gadest(g_tmp2)
       if (.not. ga_destroy(g_tmp2)) call errquit
-     &   ('dft_invdiag: could not destroy g_tmp2', 0)
+     &   ('dft_invdiag: could not destroy g_tmp2', 0, GA_ERR)
       return
       end

@@ -1,6 +1,7 @@
       double precision function dft_dencvg(g_dens,g_denso,nbf)
-C$Id: dft_dencvg.F,v 1.6 1997-03-04 06:17:17 d3e129 Exp $
+C$Id: dft_dencvg.F,v 1.7 2003-10-17 22:55:44 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c
       integer g_dens ! GA handle for Densit Matrix [input/output]
       integer g_denso ! GA handle for old DM [input]
@@ -26,9 +27,9 @@ c
 
       rms = 0.0d0
       if(.not.MA_Push_Get(MT_Dbl,nbf,'dmat',ldm,idm))
-     &  call errquit('dft_dencvg: cannot allocate dmat',0)
+     &  call errquit('dft_dencvg: cannot allocate dmat',0, MA_ERR)
       if(.not.MA_Push_Get(MT_Dbl,nbf,'dmatold',ldmo,idmo))
-     &  call errquit('dft_dencvg: cannot allocate dmatold',0)
+     &  call errquit('dft_dencvg: cannot allocate dmatold',0, MA_ERR)
       do i=1+me,nbf,nproc
         call get_col(g_dens,nbf,i,Dbl_MB(idm))
         call get_col(g_denso,nbf,i,Dbl_MB(idmo))
@@ -37,9 +38,9 @@ c
         enddo
       enddo
       if(.not.ma_pop_stack(ldmo))
-     &  call errquit('dft_dencvg: cannot pop stack',0)
+     &  call errquit('dft_dencvg: cannot pop stack',0, MA_ERR)
       if(.not.ma_pop_stack(ldm))
-     &  call errquit('dft_dencvg: cannot pop stack',0)
+     &  call errquit('dft_dencvg: cannot pop stack',0, MA_ERR)
       call ga_sync
       call ga_dgop(Msg_rms_dens,rms,1,'+')
       dft_dencvg = rms/dble(nbf*nbf)

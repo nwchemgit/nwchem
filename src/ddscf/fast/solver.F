@@ -1,9 +1,10 @@
       subroutine solver(g, nx, ny, nz, tree, depth, lmax, levelbc,
      $     xlo, xhi, ylo, yhi, zlo, zhi, offt1done, otree)
 *
-* $Id: solver.F,v 1.5 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: solver.F,v 1.6 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "util.fh"
       integer nx, ny, nz        ! [input] Grid dimension
@@ -43,7 +44,8 @@ c
      $           write(6,12) etime(tt)-start
  12         format(' fastj: First FFT ', f6.2)
          endif
-         if (.not. ma_verify_allocator_stuff()) call errquit('fred',3)
+         if (.not. ma_verify_allocator_stuff()) call errquit('fred',3,
+     &       MA_ERR)
          start = etime(tt)
 c     
          scale = 4.0d0*pi*0.125d0/(dble(nx+1)*dble(ny+1)*dble(nz+1))
@@ -58,7 +60,8 @@ c
                end do
             end do
          end do
-         if (.not. ma_verify_allocator_stuff()) call errquit('fred',4)
+         if (.not. ma_verify_allocator_stuff()) call errquit('fred',4,
+     &       MA_ERR)
 c     
          if (util_print('fastjtime',print_debug))
      $        write(6,13) etime(tt)-start
@@ -71,15 +74,18 @@ c
      $        write(6,14) etime(tt) - start
  14      format(' fastj: Second FFT ', f6.2)
          start = etime(tt)
-         if (.not. ma_verify_allocator_stuff()) call errquit('fred',5)
+         if (.not. ma_verify_allocator_stuff()) call errquit('fred',5,
+     &       MA_ERR)
       endif
 c     
       lenwork = (max(nx,ny,nz)+2)**2
       if (.not. ma_push_get(mt_dbl, lenwork, 'solver: work',
-     $     l_work, k_work)) call errquit('solver: work ', lenwork)
+     $     l_work, k_work)) call errquit('solver: work ', lenwork,
+     &       MA_ERR)
       lend = (((lmax+1)*(lmax+2))/2)*(2*lmax+1)*(lmax+1)
       if (.not. ma_push_get(mt_dbl, lend, 'solver:d',
-     $     l_d, k_d)) call errquit('solver: d ', lend)
+     $     l_d, k_d)) call errquit('solver: d ', lend,
+     &       MA_ERR)
 
       if (nx .gt. 0) then
          call xlm_init
@@ -101,7 +107,8 @@ c
       call xlm_init
 
       start = etime(tt)
-      if (.not. ma_verify_allocator_stuff()) call errquit('fred',6)
+      if (.not. ma_verify_allocator_stuff()) call errquit('fred',6,
+     &       MA_ERR)
 c
 *      call fmm(depth, lmax, tree, xhi-xlo, yhi-ylo, zhi-zlo)
 c
@@ -116,7 +123,8 @@ c
      $     write(6,16) etime(tt) - start
  16   format(' fastj: FMM pass 1 ', f6.2)
       start = etime(tt)
-      if (.not. ma_verify_allocator_stuff()) call errquit('fred',7)
+      if (.not. ma_verify_allocator_stuff()) call errquit('fred',7,
+     &       MA_ERR)
       if (nx .gt. 0) then
          call boundary_layer_multipoles(g,nx,ny,nz,
      $        xlo,xhi,ylo,yhi,zlo,zhi,
@@ -127,7 +135,8 @@ c
  17      format(' fastj: Boundary potentials ', f6.2)
       endif
       start = etime(tt)
-      if (.not. ma_verify_allocator_stuff()) call errquit('fred',8)
+      if (.not. ma_verify_allocator_stuff()) call errquit('fred',8,
+     &       MA_ERR)
 c     Downward pass
       call fmm_pass2(depth, lmax, xhi-xlo, yhi-ylo, zhi-zlo, 
      $     tree, wtree)
@@ -137,18 +146,20 @@ c     Downward pass
  116  format(' fastj: FMM pass 2 ', f6.2)
 c
       start = etime(tt)
-      if (.not. ma_verify_allocator_stuff()) call errquit('fred',9)
+      if (.not. ma_verify_allocator_stuff()) call errquit('fred',9,
+     &       MA_ERR)
 c
       if (.not. ma_pop_stack(l_d)) call errquit
-     $     ('solver: ma corrupt?',0)
+     $     ('solver: ma corrupt?',0, MA_ERR)
       if (.not. ma_pop_stack(l_work)) call errquit
-     $     ('solver: ma corrupt?',1)
+     $     ('solver: ma corrupt?',1, MA_ERR)
 c
       end
       subroutine boundary_layer_multipoles(g,nx,ny,nz,
      $    xlo, xhi, ylo, yhi, zlo, zhi, tree, lmax, depth, work, 
      $     d, task)
       implicit none
+#include "errquit.fh"
       character*(*) task
       integer nx, ny, nz
       double precision g(nx, ny, nz)
@@ -216,7 +227,8 @@ c
      $     (30.0d0/17017.0d0)*f7  - (5.0d0/19448.0d0)*f8 + 
      $     (10.0d0/415701.0d0)*f9 - (1.0d0/923780.0d0)*f10) ! err = h^21
 c
-      if (lmax .gt. maxl) call errquit('blm: lmax>maxl', lmax)
+      if (lmax .gt. maxl) call errquit('blm: lmax>maxl', lmax,
+     &       INPUT_ERR)
       onear = .false.
       opoles= .false.
       if (task .eq. 'poles') then
@@ -226,7 +238,8 @@ c
          lmaxeff = lmax/2
          onear = .true.
       else
-         call errquit('boundary_layer_multipoles: unknown task ', 0)
+         call errquit('boundary_layer_multipoles: unknown task ', 0,
+     &       INPUT_ERR)
       end if
 c
       fourpi = 16.0d0*atan(1.0d0)
@@ -585,6 +598,7 @@ c
       end
 c$$$      subroutine oldsint3d(nx,ny,nz,g)
 c$$$      implicit none
+c$$$#include "errquit.fh"
 c$$$      integer nx, ny, nz
 c$$$      double precision g(nx,ny,nz)
 c$$$c
@@ -634,6 +648,7 @@ c$$$c
 c$$$      end
 c$$$      subroutine sint3d(nx,ny,nz,g)
 c$$$      implicit none
+c$$$#include "errquit.fh"
 c$$$      integer nx, ny, nz
 c$$$      double precision g(nx,ny,nz)
 c$$$c
@@ -698,6 +713,7 @@ c$$$      end
 #ifdef ESSL
       subroutine vsint3d(nx,ny,nz,g)
       implicit none
+#include "errquit.fh"
       integer nx, ny, nz
       double precision g(nx,ny,nz)
 c
@@ -716,9 +732,9 @@ c
       double precision ddot, util_cpusec, start
       external ddot
 c
-      if (nx .gt. lenx) call errquit('sint3d: nx>lenx', nx)
-      if (ny .gt. lenx) call errquit('sint3d: ny>lenx', ny)
-      if (nz .gt. lenx) call errquit('sint3d: nz>lenx', nz)
+      if (nx .gt. lenx) call errquit('sint3d: nx>lenx', nx, UNKNOWN_ERR)
+      if (ny .gt. lenx) call errquit('sint3d: ny>lenx', ny, UNKNOWN_ERR)
+      if (nz .gt. lenx) call errquit('sint3d: nz>lenx', nz, UNKNOWN_ERR)
 c
       n = nx
       np1 = n+1
@@ -828,6 +844,7 @@ c
 #else
       subroutine vsint3d(nx,ny,nz,g)
       implicit none
+#include "errquit.fh"
       integer nx, ny, nz
       double precision g(nx,ny,nz)
 c
@@ -839,8 +856,8 @@ c
       double precision x(ncol,maxn+1), xt(ncol,maxn+1)
       integer i, j, k, ilo, ihi
 c
-      if (ny .gt. maxn) call errquit('sint3d: ny>maxn', ny)
-      if (nz .gt. maxn) call errquit('sint3d: nz>maxn', nz)
+      if (ny .gt. maxn) call errquit('sint3d: ny>maxn', ny, UNKNOWN_ERR)
+      if (nz .gt. maxn) call errquit('sint3d: nz>maxn', nz, UNKNOWN_ERR)
 c
 *      write(6,*) ' before 1 ', ddot(nx*ny*nz,g,1,g,1)
       call sinti(nx,wsave)
@@ -915,6 +932,7 @@ c
       subroutine surface_2d_cart_moments(work,ny1,nz1,hy,hz,
      $     lmax,ky,kz,hy_fmm,hz_fmm,q2d,lq2d)
       implicit none
+#include "errquit.fh"
       integer ny1,nz1
       double precision work(0:ny1,0:nz1)
       double precision hy, hz, hy_fmm, hz_fmm
@@ -939,13 +957,14 @@ c
       double precision y(maxng),z(maxng),yw(maxng),zw(maxng)
       double precision yp(maxng,0:maxl),zp(maxng,0:maxl),yf(0:maxl)
 c
-      if (lmax .gt. maxl) call errquit('s2dcm: lmax>maxl',lmax)
+      if (lmax .gt. maxl) call errquit('s2dcm: lmax>maxl',lmax,
+     &       UNKNOWN_ERR)
 c
       order = lmax + 2          ! Order of interpolation
       ng    = (order-1)/2 + 2   ! Order of quadrature
       npt   = order + 3         ! Min no. of points for interpolation
       if (ng .gt. maxng) call errquit
-     $     ('surf_2d_cart_mpole: maxng too small',ng)
+     $     ('surf_2d_cart_mpole: maxng too small',ng, UNKNOWN_ERR)
 c
 c     Determine the box and the points contained in it making
 c     sure that we use sufficient points to enclose the entire box.
@@ -981,7 +1000,8 @@ c
       vol_yhi = pts_yhi*hy
 c
       if (npty.gt.maxnpt .or. nptz.gt.maxnpt) call errquit
-     $     ('surf_2d_cart_mpole: maxnpt too small',max(npty,nptz))
+     $     ('surf_2d_cart_mpole: maxnpt too small',max(npty,nptz),
+     &       UNKNOWN_ERR)
 c
 c     Copy points in box to workspace
 c
@@ -1046,6 +1066,7 @@ c
       subroutine boundary_layer_near(tree, lmax, depth, q, lq,
      $     xlo, xhi, ylo, yhi, zlo, zhi, kx, ky, kz, x, y, z)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, depth, kx, ky, kz, lq
       double precision xlo, xhi, ylo, yhi, zlo, zhi, q(-lq:lq,0:lq)
@@ -1059,7 +1080,8 @@ c
       parameter (maxl = FMM_LMAX)
       double precision pot(-maxl:maxl,0:maxl)
 c     
-      if (lmax .gt. maxl) call errquit('bln: lmax>maxl',lmax)
+      if (lmax .gt. maxl) call errquit('bln: lmax>maxl',lmax,
+     &       UNKNOWN_ERR)
 c     
       twod = 2**depth
       hx_fmm = (xhi-xlo)/dble(twod) ! FMM box size

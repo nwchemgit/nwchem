@@ -14,9 +14,10 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.21 2003-03-23 22:21:54 bylaska Exp $
+* $Id: cpsdv5.F,v 1.22 2003-10-17 22:57:13 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
@@ -237,7 +238,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi1',psi1(2),psi1(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
 *     *****  read psi2 wavefunctions ****
@@ -283,7 +284,7 @@
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
 
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
 *     **** initialize FixIon constraint ****
@@ -320,7 +321,7 @@
      >      'PBE96 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0)
+            call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
          call pspw_print_SIC(6)
          write(6,1140)

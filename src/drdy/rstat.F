@@ -1,5 +1,5 @@
 c
-c$Id: rstat.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+c$Id: rstat.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       subroutine drdy_rstat(string,iend,istrt,jtype)
 c     Generic subroutine to read in the input for all the stationary points.
 c     Jtype = 1  first reactant 
@@ -9,6 +9,7 @@ c     Jtype = 4  second product
 c     Jtype = 5  saddle point or starting stationary point
 c
       Implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "drdyP.fh"
       Integer iend,istrt,jtype
@@ -39,11 +40,11 @@ c SPECIES
             else
                write(fu6,*) 'ERROR: variable SPECIES must have an',
      *                       ' argument!'
-               call errquit('drdy_rstat: fatal error ',911)
+               call errquit('drdy_rstat: fatal error ',911, INPUT_ERR)
             end if
          else
             write(fu6,1000) string(istrt:80)
-            call errquit('drdy_rstat: fatal error ',911)
+            call errquit('drdy_rstat: fatal error ',911, INPUT_ERR)
          endif
          call drdy_rline(string,istrt,isect,iend)
       end do

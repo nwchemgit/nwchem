@@ -1,8 +1,9 @@
       subroutine selci_eirerj(e,i,ir,j,ns,indbar,iocc,w1,w2,work)
 *
-* $Id: eirerj.F,v 1.2 1997-10-31 23:42:02 d3e129 Exp $
+* $Id: eirerj.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension e(*),indbar(*),iocc(*),work(*),
      $     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1)
@@ -24,11 +25,11 @@ c       3         0       3
 c       3         1       4
 c
       if (iocc(ir).ne.1 .or. ir.eq.i .or. ir.eq.j .or. i.eq.j)
-     $     call errquit('eirerj: wrong i,r,j',ir)
+     $     call errquit('eirerj: wrong i,r,j',ir, INPUT_ERR)
 c
       icase = iocc(i)+iocc(j)
       goto (10,20,30,40) icase
-      call errquit('eirerj: fell thru goto',icase)
+      call errquit('eirerj: fell thru goto',icase, INPUT_ERR)
 c
  10   continue
 c

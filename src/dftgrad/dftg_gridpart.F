@@ -3,9 +3,10 @@
      ,      whichfunc,
      ,     rad,expo)
 c
-C$Id: dftg_gridpart.F,v 1.2 2001-03-08 19:27:45 edo Exp $
+C$Id: dftg_gridpart.F,v 1.3 2003-10-17 22:54:42 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "cdft.fh"
       integer natoms  ![input/out] return atoms with significant contrib
@@ -36,16 +37,17 @@ c
 
       if (.not.ma_push_get(mt_dbl, nqpts*3*natoms, 'dp',
      &     ldp, idp))call errquit
-     &     (' exiting in dftg_gridpart: insuff stack',133)
+     &     (' exiting in dftg_gridpart: insuff stack',133,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl, nqpts, 'zeta',
      &     lzeta, izeta))call errquit
-     &     (' exiting in dftg_gridpart: insuff stack',133)
+     &     (' exiting in dftg_gridpart: insuff stack',133, MA_ERR)
       if (.not.ma_push_get(mt_dbl, 3*nqpts*natoms, 
      &     'dzeta', ldzeta, idzeta))call errquit
-     &     (' exiting in dftg_gridpart: insuff stack',133)
+     &     (' exiting in dftg_gridpart: insuff stack',133, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nqpts*natoms,'bp',lbp,ibp))
      &     call errquit
-     &     (' exiting in dftg_quadv0: insuff stack',13)
+     &     (' exiting in dftg_quadv0: insuff stack',13, MA_ERR)
       natoms_l=0
 c
 c     no screening now
@@ -59,7 +61,7 @@ c
       enddo
       if (.not.ma_push_get(mt_dbl,natoms*natoms,'rij',
      ,     l_rij,k_rij)) call errquit
-     &     (' exiting in dftg_grssw: insuff stack',13)
+     &     (' exiting in dftg_grssw: insuff stack',13, MA_ERR)
 
       if(lssw) then
          ictr_scr=ictr
@@ -86,7 +88,7 @@ c
       if(nq_orig.ne.nqpts) then
          write(6,'(" dftg_part: nc ",4I5)') 
      .        natoms,natoms_l,nq_orig,nqpts
-         call errquit ( ' missing ',11)
+         call errquit ( ' missing ',11, UNKNOWN_ERR)
       endif
 cedo      if(natoms.ne.natoms_l) then
 cedo      do ii=1,natoms_l
@@ -96,7 +98,7 @@ cedo     ,        d_qwght(3,1,ii)
 cedo      enddo
 cedo      endif
       if (.not.ma_chop_stack(ldp))call errquit
-     &     ('dftg_gridparta: cannot pop stack',0)
+     &     ('dftg_gridparta: cannot pop stack',0, MA_ERR)
 
       natoms=natoms_l
 

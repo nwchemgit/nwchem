@@ -1,5 +1,5 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.7 1998-11-04 08:52:27 d3e129 Exp $
+* $Id: intb_chk_sum.F,v 1.8 2003-10-17 22:53:46 carlfahl Exp $
 * does checksum for 2 electron eri blocking integral interface only
 *
 * geom and basis data structures initiated and destroyed outside 
@@ -12,6 +12,7 @@ c::includes
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
+#include "errquit.fh"
 *
 c::passed
       integer rtdb       ! [input] rtdb handle
@@ -85,16 +86,16 @@ c get information from geom/basis objects
 c      
 *.. get geometry handle
       if (.not.bas_geom(basis,geom)) call errquit
-     &    ('intb_chk_sum:bas_geom failed',911)
+     &    ('intb_chk_sum:bas_geom failed',911, BASIS_ERR)
 *.. get number of atoms
       if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('intb_chk_sum:geom_ncent failed',911)
+     &    ('intb_chk_sum:geom_ncent failed',911, GEOM_ERR)
 *.. get number of contractions
       if (.not.bas_numcont(basis,ncont)) call errquit
-     &    ('intb_chk_sum:bas_numcont failed ',911)
+     &    ('intb_chk_sum:bas_numcont failed ',911, BASIS_ERR)
 *.. get number of basis functions
       if (.not.bas_numbf(basis,nbf)) call errquit
-     &    ('intb_chk_sum:bas_numbf failed ',911)
+     &    ('intb_chk_sum:bas_numbf failed ',911, BASIS_ERR)
 *.. maximum number of integrals N**4/8
       max_ints = nbf*nbf*nbf*nbf/8
       int_tmp = nat*(nat+1)/2
@@ -191,7 +192,8 @@ c
         status = status.and.
      &      ma_push_get(MT_DBL,(5*3),'summary stats',h_stats,i_stats)
         if(.not.status) call errquit
-     &      ('intb_chk_sum: ma_push_get failed somewhere',911)
+     &      ('intb_chk_sum: ma_push_get failed somewhere',911,
+     &       MA_ERR)
 * zero memory
         call ifill(memb,0,int_mb(i_ilab),1)
         call ifill(memb,0,int_mb(i_jlab),1)
@@ -218,7 +220,7 @@ c
      $      dbl_mb(k_q4),.true.,
      &      memscr,dbl_mb(i_scr),memb,dbl_tmp)
         if (.not.status) call errquit
-     &      ('intb_chk_sum: init blocking error',911)
+     &      ('intb_chk_sum: init blocking error',911, INT_ERR)
 00001   continue
         status =
      &      intb_2e4c(
@@ -303,7 +305,8 @@ c
      &      ma_push_get(MT_INT,atom_blk_sz,'l atom buffer',
      &      h_lat,i_lat)
         if(.not.status) call errquit
-     &      ('intb_chk_sum: ma_push_get failed somewhere',911)
+     &      ('intb_chk_sum: ma_push_get failed somewhere',911,
+     &       MA_ERR)
 * zero memory
         call ifill(memb,0,int_mb(i_ilab),1)
         call ifill(memb,0,int_mb(i_jlab),1)
@@ -356,7 +359,8 @@ c
       status = status .and. ma_pop_stack(h_ilab)
       status = status .and. ma_pop_stack(h_eri)
       if (.not.status) call errquit
-     &    ('intb_chk_sum: ma_pop_stack failed',911)
+     &    ('intb_chk_sum: ma_pop_stack failed',911,
+     &       MA_ERR)
 * close file      
       close(unit=69,status='keep')
       call ga_sync()
@@ -371,6 +375,7 @@ c
 c::includes
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "errquit.fh"
       logical intb_init4c, intb_2e4c
       external intb_init4c, intb_2e4c
 c::passed
@@ -479,7 +484,8 @@ c---------------------------------------------------------------------
 *rak:     &            max_q, leri, memscr, a_blk, nat, neri
 *rak:              status = ma_verify_allocator_stuff()
               if (.not.status) call errquit
-     &            ('intb_atom_blocks_chksum: init blocking error',911)
+     &            ('intb_atom_blocks_chksum: init blocking error',911,
+     &       INT_ERR)
 00002         continue
               more_integrals = intb_2e4c(
      &            basis, iq, jq, basis, kq, lq, num_q, q4, .true.,
@@ -542,6 +548,7 @@ c
 c generates all shell quartets for given atom quartets
 c
 c::includes
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #if defined(SUM_WITH_SYM)
@@ -588,7 +595,7 @@ c
         status = status .and. bas_ce2cnr(basis, kat, kslo, kshi)
         status = status .and. bas_ce2cnr(basis, lat, lslo, lshi)
         if (.not.status) call errquit
-     &      ('intb_quart_from_atoms: bas_ce2cnr failed',911)
+     &      ('intb_quart_from_atoms: bas_ce2cnr failed',911, BASIS_ERR)
         oaij = iat.eq.jat
         oakl = kat.eq.lat
         oaikjl = iat.eq.kat .and. jat.eq.lat
@@ -620,7 +627,7 @@ c
                   write(luout,*)' count = ',(count+1)
                   write(luout,*)' max_q = ',max_q
                   call errquit
-     &                ('intb_quart_from_atoms: failed',911)
+     &                ('intb_quart_from_atoms: failed',911, INT_ERR)
                 endif
               enddo
             enddo
@@ -643,6 +650,7 @@ c generate all quartets ddscf style
 c
       implicit none
 c::includes
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #if defined(SUM_WITH_SYM)
@@ -687,7 +695,8 @@ c
               status = status .and. bas_ce2cnr(basis, kat, kslo, kshi)
               status = status .and. bas_ce2cnr(basis, lat, lslo, lshi)
               if (.not.status) call errquit
-     &            ('intb_all_at_once_gen: bas_ce2cnr failed',911)
+     &            ('intb_all_at_once_gen: bas_ce2cnr failed',911,
+     &       BASIS_ERR)
               oaij = iat.eq.jat
               oakl = kat.eq.lat
               oaikjl = iat.eq.kat .and. jat.eq.lat
@@ -725,7 +734,8 @@ c
                         write(luout,*)' count = ',(count+1)
                         write(luout,*)' max_q = ',max_q
                         call errquit
-     &                      ('intb_all_at_once_gen: failed',911)
+     &                      ('intb_all_at_once_gen: failed',911,
+     &       INT_ERR)
                       endif
                       
                     enddo

@@ -3,7 +3,7 @@ c     Interface and computation routines for screened exchange project
 c
 c     BGJ - 2/01
 c
-c     $Id: screened_op.F,v 1.1 2001-08-19 21:11:16 bjohnson Exp $
+c     $Id: screened_op.F,v 1.2 2003-10-17 22:54:11 carlfahl Exp $
 c
       function screened_exchange()
       implicit none
@@ -53,18 +53,19 @@ c
 #include "bgj.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
       double precision scrk_Ks
       logical scrk_op_enabled
       common /screened_k/ scrk_Ks, scrk_op_enabled
 c
       if (.not.rtdb_put(bgj_get_rtdb_handle(),
      &     'screeend_operator_enabled',MT_LOG,1,.true.))
-     &     call errquit('Error enabling screened operator',0)
+     &     call errquit('Error enabling screened operator',0, INT_ERR)
 c
       scrk_op_enabled = .true.
       if (.not.rtdb_get(bgj_get_rtdb_handle(),
      &     'screened_exchange:Ks',MT_DBL,1,Ks))
-     &     call errquit('Could not get screening constant',0)
+     &     call errquit('Could not get screening constant',0, INT_ERR)
       scrk_Ks = Ks
 c
       return
@@ -75,13 +76,14 @@ c
 #include "bgj.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
       double precision scrk_Ks
       logical scrk_op_enabled
       common /screened_k/ scrk_Ks, scrk_op_enabled
 c
       if (.not.rtdb_put(bgj_get_rtdb_handle(),
      &     'screened_operator_enabled',MT_LOG,1,.false.))
-     &     call errquit('Error disabling screened operator',0)
+     &     call errquit('Error disabling screened operator',0, INT_ERR)
 c
       scrk_op_enabled = .false.
 c

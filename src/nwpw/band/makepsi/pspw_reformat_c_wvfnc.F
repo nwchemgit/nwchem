@@ -1,9 +1,10 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.8 2002-02-16 00:34:24 bylaska Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.9 2003-10-17 22:56:14 carlfahl Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
       implicit none
+#include "errquit.fh"
       integer nbrill
 
 #include "mafdecls.fh"
@@ -90,7 +91,7 @@
      >        MA_alloc_get(mt_dcpl,nfft3d_out,
      >                     'cfull_out',cfull_out(2),cfull_out(1))
       if (.not.value) 
-     > call errquit("pspw_reformat_c_wvfnc:push stack",0)
+     > call errquit("pspw_reformat_c_wvfnc:push stack",0, MA_ERR)
 
        
       do nb=1,nbrill

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.43 2003-09-25 23:45:59 bylaska Exp $
+* $Id: control.F,v 1.44 2003-10-17 22:56:34 carlfahl Exp $
 *
 
 *     ***********************************
@@ -582,6 +582,7 @@ c
 *     ***********************************
       subroutine check_unita_for_default(rtdb,unita)
       implicit none
+#include "errquit.fh"
       integer rtdb
       real*8 unita(3,3)
 
@@ -607,7 +608,8 @@ c
          value = geom_create(geom,'geometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'geometry')
          value = value.and.geom_amatrix_get(geom,unita)
-         if (.not. value) call errquit('cannot load geometry',0)
+         if (.not. value) call errquit('cannot load geometry',0,
+     &       GEOM_ERR)
 
          value = (unita(1,1) .eq. 1.0d0).and.
      >           (unita(2,1) .eq. 0.0d0).and.
@@ -630,7 +632,8 @@ c
            unita(3,3) = 20.0d0
          end if
          value = geom_destroy(geom)
-         if (.not. value) call errquit('cannot destroy geom',0)
+         if (.not. value) call errquit('cannot destroy geom',0,
+     &       GEOM_ERR)
 
       end if
 
@@ -1417,6 +1420,7 @@ c      end
 *     ****************************
       logical function control_Mulliken()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1433,19 +1437,19 @@ c      end
       if (code.eq.1) then
         if (.not.rtdb_get(rtdb,'cpsd:mulliken',mt_log,1,value))
      >        call errquit(
-     >        'control_mulliken: rtdb_get mulliken failed', 0)
+     >        'control_mulliken: rtdb_get mulliken failed', 0, RTDB_ERR)
       end if
       if ((code.eq.2).or.(code.eq.7)) then
         if (.not.rtdb_get(rtdb,'cpmd:mulliken',mt_log,1,value))
      >        call errquit(
-     >        'control_mulliken: rtdb_get mulliken failed', 0)
+     >        'control_mulliken: rtdb_get mulliken failed', 0, RTDB_ERR)
       end if
 
 
       if (code.eq.3) then
         if (.not.rtdb_get(rtdb,'cgsd:mulliken',mt_log,1,value))
      >        call errquit(
-     >        'control_mulliken: rtdb_get mulliken failed', 0)
+     >        'control_mulliken: rtdb_get mulliken failed', 0, RTDB_ERR)
       end if
 
 
@@ -1498,6 +1502,7 @@ c      end
 *     ****************************
       integer function control_num_kvectors()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1520,7 +1525,7 @@ c      end
      >        rtdb_get(rtdb,rtdb_name,mt_int,1,num_kvectors)
 
       if (.not. value)
-     >  call errquit('control_num_kvectors: failed', 0)
+     >  call errquit('control_num_kvectors: failed', 0, RTDB_ERR)
 
       control_num_kvectors = num_kvectors
       return
@@ -1533,6 +1538,7 @@ c      end
 *     ****************************
       subroutine control_ksvector(i,ks)
       implicit none
+#include "errquit.fh"
       integer i
       real*8 ks(4)
 
@@ -1558,12 +1564,14 @@ c      end
       value = MA_push_get(mt_dbl,(4*num_kvectors),
      >        'kvs',kvs(2),kvs(1))
       if (.not. value)
-     >  call errquit('control_ksvector: failed to get zone name', 0)
+     >  call errquit('control_ksvector: failed to get zone name', 0,
+     &       MA_ERR)
 
       value = value.and.
      >        rtdb_cget(rtdb,'band:zone_name',1,zone_name)
       if (.not. value)
-     >  call errquit('control_ksvector: failed to get zone name', 0)
+     >  call errquit('control_ksvector: failed to get zone name', 0,
+     &       RTDB_ERR)
 
       l = index(zone_name,' ') -1
       rtdb_name = zone_name(1:l)//':kvectors'
@@ -1573,7 +1581,8 @@ c      end
      >                    dbl_mb(kvs(1)))
 
       if (.not. value)
-     >  call errquit('control_ksvector: failed to get kvs', 0)
+     >  call errquit('control_ksvector: failed to get kvs', 0,
+     &       RTDB_ERR)
 
       ks(1) = dbl_mb(kvs(1)+4*(i-1))
       ks(2) = dbl_mb(kvs(1)+4*(i-1)+1)
@@ -1583,7 +1592,8 @@ c      end
       value = value.and.MA_pop_stack(kvs(2))
 
       if (.not. value)
-     >  call errquit('control_ksvector: failed to free stack', 0)
+     >  call errquit('control_ksvector: failed to free stack', 0,
+     &       MA_ERR)
       return
       end
 

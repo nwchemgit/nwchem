@@ -1,7 +1,7 @@
       subroutine grad_store ( rtdb, geom, g_force, chktime, nat, nquad, 
      $     frc, oinit, ofinish, oactive, oskel, omp2 )
 
-c$Id: grad_store.F,v 1.5 1996-10-21 17:18:09 vg038 Exp $
+c$Id: grad_store.F,v 1.6 2003-10-17 22:55:09 carlfahl Exp $
 C=======================================================================
 C     Syncs and writes the partially calculated forces to rtdb if either:
 C     - checkpointing is requested and the specified time has elapsed. 
@@ -9,6 +9,7 @@ C     - ofinish == .true.: gradient calculation is finished
 C     oinit == .true.: just initializes timer
 C=======================================================================
       implicit none
+#include "errquit.fh"
 
 #include "util.fh"
 #include "msgids.fh"
@@ -81,7 +82,7 @@ C       process zero only gets the accumulated forces
 C         store forces and # of atom quadruples in the database
           status = rtdb_put ( rtdb, rtdb_string, MT_DBL, 3*nat, frc)
           if ( .not. status ) 
-     $         call errquit('could not store gradients',1)
+     $         call errquit('could not store gradients',1, RTDB_ERR)
           status = rtdb_put ( rtdb, 'gradients:ndone', MT_INT, 1, 
      $         lnquad )
         endif
@@ -106,6 +107,7 @@ C     If yes, returns the previously calculated forces (proc 0 only)
 C     and the last calculated atom quadruple in grad2
 C========================================================================
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -150,7 +152,8 @@ C           node 0 gets the old forces
             status = rtdb_get ( rtdb, 'gradients:partial gradient', 
      $           mt_dbl, 3*nat, frc )
             if ( .not. status ) 
-     $           call errquit('could not read partial gradients',1)
+     $           call errquit('could not read partial gradients',1,
+     &       RTDB_ERR)
             status = rtdb_parallel (.true.)
 
           else  ! node <> 0

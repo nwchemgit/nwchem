@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.4 2003-07-30 18:16:48 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.5 2003-10-17 22:56:14 carlfahl Exp $
 *
       subroutine c_wvfnc_new(wavefunction_filename,
      >             			version,
@@ -9,6 +9,7 @@
      >						ne,
      >                      nbrillioun)
       implicit none
+#include "errquit.fh"
       character*30 wavefunction_filename
       integer      version
       integer      ngrid(3)
@@ -31,7 +32,7 @@
       if (taskid.eq.MASTER) then
         value = MA_push_get(mt_int,8*(NMAX+1),
      >                    'filling',filling(2),filling(1))
-        if (.not. value) call errquit('out of stack memory',0)
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
         call sub_c_wvfnc_new(NMAX,int_mb(filling(1)),
@@ -46,7 +47,7 @@
      >             wavefunction_filename
         write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
         value = MA_pop_stack(filling(2))
-        if (.not. value) call errquit('popping stack memory',0)
+        if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
       call ga_sync()
 
@@ -64,6 +65,7 @@
      >                      nbrillioun)
 
       implicit none
+#include "errquit.fh"
       integer NMAX
       integer filling(4,(NMAX+1),2)
       character*30 wavefunction_filename
@@ -112,7 +114,7 @@
 *     ***** allocate wavefunction memory ****
       value = MA_push_get(mt_dcpl,nfft3d,
      >                     'cfull',cfull_hndl,cfull_indx)
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** modularize the filling ****
       do ms=1,ispin
@@ -207,7 +209,7 @@ c         ENDIF
       GO TO 9999
  
  9999 value = MA_pop_stack(cfull_hndl)
-      if (.not. value) call errquit('popping stack memory',0)
+      if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       
       return 
       end

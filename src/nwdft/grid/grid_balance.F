@@ -1,8 +1,9 @@
       logical function grid_file_balance()
 *
-* $Id: grid_balance.F,v 1.5 2000-04-21 00:28:46 edo Exp $
+* $Id: grid_balance.F,v 1.6 2003-10-17 22:55:37 carlfahl Exp $
 *  
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "eaf.fh"
 #include "mafdecls.fh"
@@ -103,7 +104,7 @@ c
       do i = 0, nproc-1
          if (info(1,i) .eq. me) goto 11
       enddo
-      call errquit('grid_file_balance: algorithm failure?',0)
+      call errquit('grid_file_balance: algorithm failure?',0, CALC_ERR)
  11   j = nproc-1-i
 c
       if (odebug .and. me.eq.0) then
@@ -138,7 +139,8 @@ c
          do record = 1, my_count
             call rcv(2,buf,8*rec_len_in_dbl,msglen,him,from,1)
             if (.not. grid_packed_buf_write(.false.))
-     $           call errquit('grid_file_balance:write failed',0)
+     $           call errquit('grid_file_balance:write failed',0,
+     &       DISK_ERR)
          enddo
       else if (my_count.gt.0 .and. his_count.lt.0) then
 c     
@@ -148,7 +150,8 @@ c
          cur_rec = n_rec_in_file - his_count + 1
          do record = 1, his_count
             if (.not. grid_packed_buf_read())
-     $         call errquit('grid_file_balance: read failed',1)
+     $         call errquit('grid_file_balance: read failed',1,
+     &       DISK_ERR)
             call snd(2, buf, 8*rec_len_in_dbl, him, 1)
          enddo
          n_rec_in_file = n_rec_in_file - his_count
@@ -184,7 +187,7 @@ c
             call util_flush(LuOut)
          endif
          if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
-     $        ('grid_file_balance: file truncate failed', 3)
+     $        ('grid_file_balance: file truncate failed', 3, DISK_ERR)
          cur_rec = n_rec_in_file
       endif
 c
@@ -197,7 +200,8 @@ c
       endif
 c
       if (.not. grid_file_rewind()) call errquit
-     $     ('grid_file_balance: failed rewind integral file', 0)
+     $     ('grid_file_balance: failed rewind integral file', 0,
+     &       DISK_ERR)
       if (odebug) 
      $     write(LuOut,*) me, ' final n_re_in_file ', n_rec_in_file
       call ga_sync()

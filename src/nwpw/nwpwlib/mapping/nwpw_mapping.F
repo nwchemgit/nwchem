@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_mapping.F,v 1.1 2001-11-11 01:29:06 bylaska Exp $
+* $Id: nwpw_mapping.F,v 1.2 2003-10-17 22:56:45 carlfahl Exp $
 *
 
 *     ***********************************************************
@@ -79,6 +79,7 @@
 
       subroutine nwpw_mapping_init(nb,nx,ny,nz)
       implicit none
+#include "errquit.fh"
       integer nb
       integer nx,ny,nz
      
@@ -106,7 +107,7 @@
       id='kmap'//CHAR(ICHAR('a')+nb)
       value = MA_alloc_get(mt_int,nz,id,kmap(2),kmap(1))
       if (.not. value) then
-        call errquit('nwpw_mapping_init: out of heap memory',0)
+        call errquit('nwpw_mapping_init: out of heap memory',0, MA_ERR)
       end if
 
 
@@ -164,6 +165,7 @@
 *     ***********************************
       subroutine nwpw_mapping_end(nb)
       implicit none
+#include "errquit.fh"
       integer nb
 
 #include "mafdecls.fh"
@@ -187,7 +189,8 @@
       value = value.and.
      >        MA_free_heap(kmap2)
       if (.not. value) then
-        call errquit('nwpw_mapping_end: error freeing heap memory',0)
+        call errquit('nwpw_mapping_end: error freeing heap memory',0,
+     &       MA_ERR)
       end if
 
 *     **** delete id from lists ****

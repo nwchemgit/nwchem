@@ -1,5 +1,5 @@
 # This makefile produces the nwchem_config.h makefile fragment included by
-# makefile.h, the src/stubs.f file, and the NWCHEM_CONFIG file which says
+# makefile.h, the src/stubs.F file, and the NWCHEM_CONFIG file which says
 # how things are configured in human-readable form.
 #
 #	NWCHEM_MODULES	normally set by the invoker of this makefile.
@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.173 2003-09-11 23:02:07 bylaska Exp $
+# $Id: make_nwchem_config,v 1.174 2003-10-17 22:54:27 carlfahl Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -274,8 +274,8 @@ STUBROUTINES := $(patsubst mcstep,mcstep mcstep_main,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 
-.PHONY:	all list-options nwchem_config.h NWCHEM_CONFIG ../stubs.f
-all:	nwchem_config.h NWCHEM_CONFIG ../stubs.f
+.PHONY:	all list-options nwchem_config.h NWCHEM_CONFIG ../stubs.F
+all:	nwchem_config.h NWCHEM_CONFIG ../stubs.F
 
 nwchem_config.h:
 	echo \# This configuration generated automatically on \
@@ -316,7 +316,7 @@ endif
 
 # This file will stub out any modules we are excluding from the build.
 
-../stubs.f:
+../stubs.F:
 	cp census.skeleton $@ 
 ifneq ($(STUBROUTINES),)
 	for routine in $(STUBROUTINES); do \

@@ -1,4 +1,4 @@
-c $Id: int_lgen1e.F,v 1.15 1999-07-14 00:28:40 d3e129 Exp $
+c $Id: int_lgen1e.F,v 1.16 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines
 c:tex-\subsection{int\_l1gen1e}
@@ -16,10 +16,12 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c dcopy
@@ -54,7 +56,8 @@ c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_lgen1e: invalid contraction/shell',0)
+     &       call errquit('int_lgen1e: invalid contraction/shell',0, 
+     &            BASIS_ERR)
 c      
       ibas  = i_basis + BASIS_HANDLE_OFFSET
       jbas  = j_basis + BASIS_HANDLE_OFFSET
@@ -63,7 +66,8 @@ c
 c copy Gen1e vector to scratch array
 c      
       if (l1e.gt.lscr)
-     & call errquit('int_lgen1e: scratch array too small. need:',l1e)
+     & call errquit('int_lgen1e: scratch array too small. need:',l1e,
+     &        INT_ERR)
       
       call dcopy(l1e,Gen1e,1,scr,1)
 c

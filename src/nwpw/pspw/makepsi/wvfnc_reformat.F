@@ -1,9 +1,10 @@
 *
-* $Id: wvfnc_reformat.F,v 1.3 2002-10-15 21:24:02 bylaska Exp $
+* $Id: wvfnc_reformat.F,v 1.4 2003-10-17 22:57:45 carlfahl Exp $
 *
 
       logical function wvfnc_reformat(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
       integer rtdb
@@ -39,7 +40,8 @@
      >                  1,new_wavefunction_filename)
 
       if (.not. value)
-     >   call errquit('wvfnc_reformat: error reading filenames ',0)
+     >   call errquit('wvfnc_reformat: error reading filenames ',0,
+     &       RTDB_ERR)
 
 *     **** cell: stuff ****
       value = value.and.
@@ -50,7 +52,7 @@
      >        rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita2)
 
       if (.not. value)
-     >   call errquit('wvfnc_reformat: error reading cell ',0)
+     >   call errquit('wvfnc_reformat: error reading cell ',0, RTDB_ERR)
 
 
  

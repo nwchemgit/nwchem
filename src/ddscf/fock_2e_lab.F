@@ -20,6 +20,7 @@ c
       implicit none
 #include "nwc_const.fh"
 #include "cfockmul.fh"
+#include "util.fh"
       integer nbf
 c
 c     Initialize array to eliminate integer multiplication in
@@ -39,7 +40,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -146,7 +147,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -219,7 +220,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -300,7 +301,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -387,7 +388,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -488,7 +489,7 @@ c!!
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -576,7 +577,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -637,7 +638,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -706,7 +707,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -781,7 +782,7 @@ c
      $     dij, dik, dli, djk, dlj, dlk, 
      $     fij, fik, fli, fjk, flj, flk )
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -860,9 +861,10 @@ c
       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
@@ -945,7 +947,7 @@ c
       subroutine fock_2e_rep_1_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1030,7 +1032,7 @@ c
       subroutine fock_2e_rep_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1094,7 +1096,7 @@ c
       subroutine fock_2e_rep_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1167,7 +1169,7 @@ c
       subroutine fock_2e_rep_4_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1249,9 +1251,10 @@ c
       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "cfockmul.fh"
 c     
@@ -1420,9 +1423,10 @@ c
 c$$$      subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
 c$$$     $     neri, labels, eri, dens, fock)
 c$$$c     
-c$$$c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c$$$c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c$$$c     
 c$$$      implicit none
+c$$$#include "errquit.fh"
 c$$$#include "nwc_const.fh"
 c$$$#include "cfockmul.fh"
 c$$$c     
@@ -1501,7 +1505,7 @@ c$$$      end
       subroutine fock_2e_rep_mod_2_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1558,7 +1562,7 @@ c
       subroutine fock_2e_rep_mod_3_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1625,7 +1629,7 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1805,7 +1809,7 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"
@@ -1965,7 +1969,7 @@ c
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
-c     $Id: fock_2e_lab.F,v 1.12 2000-07-14 23:48:54 bert Exp $
+c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "nwc_const.fh"

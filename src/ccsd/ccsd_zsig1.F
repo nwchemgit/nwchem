@@ -4,8 +4,9 @@
      &                     g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_shz2,g_aitm,g_qitm,
      &                     g_tz1,g_tz2,g_tz3,iprt)
-* $Id: ccsd_zsig1.F,v 2.5 1999-07-29 00:56:32 d3e129 Exp $
+* $Id: ccsd_zsig1.F,v 2.6 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &        g_zx,g_zc,g_shz2,g_aitm,g_qitm,g_tz1,g_tz2,g_tz3,iprt
       double precision hiu(nocc,nocc),giu(nocc,nocc),hia(nocc,nvir)
@@ -252,9 +253,9 @@ c
       enddo
 c
       if (.not.ga_destroy(g_tz2))
-     &    call errquit('ga_dest g_tz2 fail',0)
+     &    call errquit('ga_dest g_tz2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tz1))
-     &    call errquit('ga_dest g_tz1 fail',0)
+     &    call errquit('ga_dest g_tz1 fail',0, GA_ERR)
 c
 c
 c ------------------------------------------------------------

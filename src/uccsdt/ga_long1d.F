@@ -24,6 +24,7 @@ c
       end
       subroutine ga_long1d_put(g_a, start, finish, buf)
       implicit none
+#include "errquit.fh"
       integer g_a
       double precision start, finish
       double precision buf(*)
@@ -73,11 +74,12 @@ c
       end if
 c
       if ((ioff-1) .ne. nint(finish-start+1d0)) call errquit
-     $     ('ga_long1d: lost track of ioff', 0)
+     $     ('ga_long1d: lost track of ioff', 0, UNKNOWN_ERR)
 c
       end
       subroutine ga_long1d_get(g_a, start, finish, buf)
       implicit none
+#include "errquit.fh"
       integer g_a
       double precision start, finish
       double precision buf(*)
@@ -127,7 +129,7 @@ c
       end if
 c
       if ((ioff-1) .ne. nint(finish-start+1d0)) call errquit
-     $     ('ga_long1d: lost track of ioff', 0)
+     $     ('ga_long1d: lost track of ioff', 0, UNKNOWN_ERR)
 c
       end
       subroutine ga_long1d_acc(g_a, start, finish, buf, scale)
@@ -184,6 +186,7 @@ c
       end
       subroutine ga_long1d_test()
       implicit none
+#include "errquit.fh"
 c
       double precision rn, start, finish
       integer n, i, loop
@@ -198,7 +201,7 @@ c     Create a 1-d array of length n
 c
       rn = n
       if (.not. ga_long1d_create('test', rn, g_a))
-     $     call errquit('ga_long1d_test: create?', n)
+     $     call errquit('ga_long1d_test: create?', n, GA_ERR)
 c
 c     Fill it with 1...n
 c
@@ -224,7 +227,7 @@ c
                write(6,*) ' bad ', i, test(i), mirror(i)
                call ga_long1d_get(g_a, dble(i), dble(i), xx)
                write(6,*) ' xx ', xx
-               call errquit('bad',0)
+               call errquit('bad',0, UNKNOWN_ERR)
             end if
          end do
          do i = nint(start), nint(finish)
@@ -254,7 +257,7 @@ c
                write(6,*) ' bad ', i, test(i), mirror(i)
                call ga_long1d_get(g_a, dble(i), dble(i), xx)
                write(6,*) ' xx ', xx
-               call errquit('bad',0)
+               call errquit('bad',0, UNKNOWN_ERR)
             end if
          end do
          do i = nint(start), nint(finish)

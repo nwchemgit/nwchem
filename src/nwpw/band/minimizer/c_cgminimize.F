@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.10 2002-05-03 19:44:02 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.11 2003-10-17 22:56:16 carlfahl Exp $                       
 *
 
 
@@ -14,6 +14,7 @@
   
       subroutine c_cgminimize(E,deltae,deltac)
       implicit none
+#include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
 
@@ -96,7 +97,8 @@ c      complex*16 G1(nfft3d,nemax)
       value = value.and.
      >        MA_push_get(mt_dcpl,npack1*neall*nbrill,
      >                     'G1',G1(2),G1(1))
-      if (.not. value) call errquit('c_cgminimize:out of heap memory',0)
+      if (.not. value) call errquit('c_cgminimize:out of heap memory',0,
+     &       MA_ERR)
 
       Estart = Enew
 
@@ -241,7 +243,8 @@ c      tmin = 0.0d0
       value = value.and.MA_pop_stack(G0(2))
       value = value.and.MA_pop_stack(H0(2))
       if (.not. value) 
-     >  call errquit('c_cgminimize:error freeing stack memory',0)
+     >  call errquit('c_cgminimize:error freeing stack memory',0,
+     &       MA_ERR)
 
       call cpsi_2to1()
       call cpsi_1toelectron() 

@@ -1,4 +1,4 @@
-C $Id: rel_mpole.F,v 1.1 2000-01-25 19:43:00 mg201 Exp $
+C $Id: rel_mpole.F,v 1.2 2003-10-17 22:54:09 carlfahl Exp $
 ************************************************************************
 c:tex-\subsection{rel\_mpole}
 c:tex-This routine generates the modified multipole integrals for
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "rel_consts.fh"
+#include "errquit.fh"
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
@@ -96,7 +97,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       n_cart_ab = n_cart_a*n_cart_b
       n_abc = n_cart_a*n_cart_b*n_cart_c
       if (lmpints .lt. n_abc .and. .not.DryRun) call errquit (
-     &      'Integral buffer length too small in rel_onel',99)
+     &      'Integral buffer length too small in rel_onel',99, MEM_ERR)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -155,7 +156,7 @@ c:tex-{\it Subroutines called:} int\_hf1sp, rel\_pot, daxpy
       memscr = lscr-i_scr+1
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_onel',99)
+     &      'Insufficient scratch memory in rel_onel',99, MEM_ERR)
         k = i_xca-1
         do i = 1,n_prim_A
           scr(k+i) = zeta_A(i)*coefS_A(i)

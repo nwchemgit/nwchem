@@ -1,7 +1,8 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.37 2003-10-09 23:51:09 edo Exp $
+C     $Id: ccsd_driver.F,v 2.38 2003-10-17 22:54:25 carlfahl Exp $
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -76,16 +77,16 @@ c
        status = bas_numbf(basis, nbf)
        status = status.and.bas_numcont(basis,nsh)
        if (.not. status)
-     $   call errquit('ccsd_driver: failed to get info', 0)
+     $   call errquit('ccsd_driver: failed to get info', 0, BASIS_ERR)
 c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
        if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nocc))
-     $      call errquit('direct_mp2: get of nocc failed',0)
+     $      call errquit('direct_mp2: get of nocc failed',0, RTDB_ERR)
        if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-     $      call errquit('ccsd: get of nopen failed',0)
+     $      call errquit('ccsd: get of nopen failed',0, RTDB_ERR)
        if (nopen.ne.0) 
-     $      call errquit('ccsd: nopen is not zero',nopen)
+     $      call errquit('ccsd: nopen is not zero',nopen, INPUT_ERR)
        nelec = 2*nocc
        status = ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
 c
@@ -102,14 +103,16 @@ c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
      $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
-     $    call errquit('ccsddriver: cannot read MO vectors header',0)
+     $    call errquit('ccsddriver: cannot read MO vectors header',0,
+     &       INPUT_ERR)
        if (nbf.ne.nbf_vecs)
      $    call errquit(
-     $    'ccsddriver: number of basis fun does not match input',0)
+     $    'ccsddriver: number of basis fun does not match input',0,
+     &       INPUT_ERR)
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
-     $      errquit('ccsddriver: cannot read MO vectors',0)
+     $      errquit('ccsddriver: cannot read MO vectors',0, INPUT_ERR)
 
        If ( Util_Print('reference', Print_High) )
      $    Call GA_Print(G_Vecs)
@@ -117,12 +120,14 @@ c
 c Get frozen core & virtual offsets
 c
       if(.not. geom_freeze(rtdb, geom, 'ccsd', occ_frozen)) then
-        call errquit('ccsd: unable to freeze core orbitals', 0)
+        call errquit('ccsd: unable to freeze core orbitals', 0,
+     &       INPUT_ERR)
       endif
 
       if (.not. rtdb_put(rtdb,'ccsd:number frozen core',MT_INT,1,
      $     occ_frozen))
-     $   call errquit('ccsddriver: rtdb failure for occ_frozen',555)
+     $   call errquit('ccsddriver: rtdb failure for occ_frozen',555,
+     &       RTDB_ERR)
       if (.not.rtdb_get(rtdb, 'ccsd:frozen virtual', MT_INT, 1,
      $     vir_frozen)) then
          if (.not.rtdb_get(rtdb,'vir_frozen',MT_INT,1,vir_frozen))
@@ -146,7 +151,8 @@ c
 c Get Block-length
 c
        if (.not. bas_nbf_cn_max(basis,maxbfsh))
-     $    call errquit('ccsd_driver: cannot get basis info',0)
+     $    call errquit('ccsd_driver: cannot get basis info',0,
+     &       BASIS_ERR)
        if (.not.rtdb_get(rtdb,'fourindex:block',MT_INT,
      $    1,blen)) blen = 16
        blen = max(blen,maxbfsh)
@@ -161,7 +167,8 @@ c
 c Initialise integrals and screening
 c
        if (.not.int_normalize(rtdb,basis))
-     &     call errquit('ccsd_driver: int_normalize failed',911)
+     &     call errquit('ccsd_driver: int_normalize failed',911,
+     &       UNKNOWN_ERR)
        call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c
@@ -178,7 +185,7 @@ capr change gt to ge
        else
 capr
          call errquit('ccsd: increase global memory by this pctg ',
-     .        100-(100*max_noper/nocct))
+     .        100-(100*max_noper/nocct), GA_ERR)
 capr
          if ((ocoul).and.(oexch)) then
            noper = max_noper/2
@@ -199,10 +206,10 @@ capr
       lnof=nmo2*nocc
       if (.not.ga_create(MT_DBL,lnof,lnof,'ncoul',
      &                   nmo2,nmo2,g_ncoul))
-     &     call errquit('ga_create g_ncoul failed',0)
+     &     call errquit('ga_create g_ncoul failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnof,lnof,'nexch',
      &                   nmo2,nmo2,g_nexch))
-     &     call errquit('ga_create g_nexch failed',0)
+     &     call errquit('ga_create g_nexch failed',0, GA_ERR)
 c
 c Allocate operator matrices
 c
@@ -221,7 +228,7 @@ c
 *ga:1:0
        if (.not.ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),
      $      'epair',0,0,g_epair))
-     $      call errquit('cannot create epair array',0)
+     $      call errquit('cannot create epair array',0, GA_ERR)
 c
 c Print info
 c
@@ -392,17 +399,18 @@ c
 c
       lnobj=nmo2*nmo2+nmo2*nmo2
       status=status.and.ma_push_get(MT_DBL,lnobj,'scr',l_scr,k_scr)
-      if (.not.status)call errquit('error before ccsd_sortmo',0)
+      if (.not.status)call errquit('error before ccsd_sortmo',0, MA_ERR)
       call ccsd_sortmo(ncor,nocc_correl,nvir_correl,nmo2,nbf,
      $                 dbl_mb(k_scr),dbl_mb(k_scr+nmo2*nmo2),g_coul,
      $                 g_exch,g_ncoul,g_nexch,iprt)
           status=status.and.ga_destroy(g_coul)
           status=status.and.ga_destroy(g_exch)
       status=status.and.ma_pop_stack(l_scr)
-      if (.not.status) call errquit('error after ccsd_sortmo',0)
+      if (.not.status) call errquit('error after ccsd_sortmo',0, GA_ERR)
       call rddcom()
       status=ma_push_get(MT_DBL,(nbf*nbf),'movecs',l_mo,k_mo)
-      if (.not.status)call errquit('movecs: failed to alloc', l_mo)
+      if (.not.status)call errquit('movecs: failed to alloc', l_mo,
+     &       MA_ERR)
       call ga_get(g_vecs,1,nbf,1,nbf,dbl_mb(k_mo),nbf)
       call aoccsd(basis,ncor,nocc_correl,nvir_correl,ndel,nmo2,nbf,
      &            maxit,convi,iprt,
@@ -411,19 +419,20 @@ c
      $   CC_Theory, RTDB, MaxVec, Geom, Tol2E, occd, oconverged)
       status = ma_pop_stack(l_mo)
       if (.not.ga_destroy(g_nexch))
-     &    call errquit('ga_dest g_nexch fail',0)
+     &    call errquit('ga_dest g_nexch fail',0, GA_ERR)
       if (.not.ga_destroy(g_ncoul))
-     &    call errquit('ga_dest g_ncoul fail',0)
-      if (.not.status)call errquit('deallocate after aoccsd',0)
+     &    call errquit('ga_dest g_ncoul fail',0, GA_ERR)
+      if (.not.status)call errquit('deallocate after aoccsd',0, MA_ERR)
 c
-      if (.not.status) call errquit('error after aoccsd',0)
+      if (.not.status) call errquit('error after aoccsd',0, MA_ERR)
       status = ma_pop_stack(l_evals)
 c
 c Cleanup
 c
       call schwarz_tidy()
       status = status.and.ma_pop_stack(l_occ)
-      if (.not.status) call errquit('moints: cannot pop stack?',0)
+      if (.not.status) call errquit('moints: cannot pop stack?',0,
+     &       MA_ERR)
       status = ga_destroy(g_vecs)
       call int_terminate()
       call ga_sync()

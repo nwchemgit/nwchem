@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.7 2002-08-21 22:02:50 bylaska Exp $
+* $Id: psp_stress.F,v 1.8 2003-10-17 22:57:38 carlfahl Exp $
 *
 
 
@@ -13,6 +13,7 @@
 
       subroutine psp_stress_init()      
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -43,7 +44,7 @@
      >        MA_alloc_get(mt_dbl,(3*lmmax_max*npsp*npack1),
      >                    'dvnl',dvnl(2),dvnl(1))
 
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(npsp*npack0,          0.0d0,0,dbl_mb(dvl(1)), 1)
       call dcopy(3*lmmax_max*npsp*npack1,0.0d0,0,dbl_mb(dvnl(1)),1)
@@ -88,6 +89,7 @@
 
       subroutine v_local_euv(dng,euv)
       implicit none
+#include "errquit.fh"
       complex*16 dng(*)
       real*8     euv(3,3)
 
@@ -139,11 +141,12 @@
 
 *     **** average Kohn-Sham v_local energy ****
       value = MA_push_get(mt_dcpl,npack0,'vl',vl(2),vl(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call v_local(dcpl_mb(vl(1)),.false.,dng,ftmp)
       call Pack_cc_dot(0,dng,dcpl_mb(vl(1)),elocal)
       value = MA_pop_stack(vl(2))
-      if (.not. value) call errquit('error poping stack memory',0)
+      if (.not. value) call errquit('error poping stack memory',0,
+     &       MA_ERR)
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
@@ -157,7 +160,7 @@
      >        MA_push_get(mt_dbl, nfft3d,'G2',G(2,2),G(1,2))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(G(1,1)))
@@ -213,7 +216,8 @@
       value = value.and.MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('error poping stack memory',0)
+      if (.not. value) call errquit('error poping stack memory',0,
+     &       MA_ERR)
 
       do u=1,3
       do s=u+1,3
@@ -243,6 +247,7 @@
 
       subroutine v_nonlocal_euv_2(ispin,ne,psi1,euv)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       real*8 euv(3,3)
@@ -311,7 +316,7 @@
      >        MA_push_get(mt_dbl,nn,'sw1',sw1(2),sw1(1))
       value = value.and.
      >        MA_push_get(mt_dbl,9*nn,'sw2',sw2(2),sw2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** define Gx,Gy and Gz in packed space ****
       call D3dB_t_Copy(1,dbl_mb(G_indx(1)),dbl_mb(G(1,1)))
@@ -576,6 +581,7 @@ c       close(11)
 
       subroutine psp_stress_readall()
       implicit none
+#include "errquit.fh"
       
 #include "mafdecls.fh"
 
@@ -632,10 +638,10 @@ c       close(11)
       call Parallel_taskid(taskid)
 
       value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** read pseudopotentials ****
       do ia=1,npsp

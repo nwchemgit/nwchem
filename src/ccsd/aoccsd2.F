@@ -3,7 +3,8 @@
      &                  g_ncoul, g_nexch, RefEner,
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
-C     $Id: aoccsd2.F,v 2.28 2003-04-09 16:15:49 bert Exp $
+#include "errquit.fh"
+C     $Id: aoccsd2.F,v 2.29 2003-10-17 22:54:24 carlfahl Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -20,9 +21,9 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
+#include "util.fh"
 #include "stdio.fh"
 #include "msgids.fh"
-#include "util.fh"
 c
 c ccsd
       Integer i
@@ -113,7 +114,8 @@ c
       iam = ga_nodeid()
       stat=bas_numcont(basis,nsh)
       stat=stat.and.bas_nbf_cn_max(basis,maxbfsh)
-      if (.not.stat) call errquit('moints: cannot get basis info',0)
+      if (.not.stat) call errquit('moints: cannot get basis info',0,
+     &       BASIS_ERR)
 c
 c      print *,'basis set handle ',basis
 c      print *,' ga allocated start of aoccsd '
@@ -177,18 +179,18 @@ c
       stat=stat.and.ma_push_get(MT_INT,nsh*(nsh+1),'tklst',l_tk,k_tk)
       stat=stat.and.ma_push_get(MT_DBL,lnobj,'1scra',l_scra,k_scra)
       stat=stat.and.ma_push_get(MT_DBL,lnobj,'scrb',l_scrb,k_scrb)
-      if (.not.stat)call errquit('ccsd: failed to allocate ',0)
+      if (.not.stat)call errquit('ccsd: failed to allocate ',0, MEM_ERR)
 c
         lhoo=nocc*(nocc+1)/2
         lhoov=nvir*nocc*(nocc+1)/2
 *ga:1:0
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_t2', 
      &                   mxvec*lhoov,0,g_t2))
-     &     call errquit('ga_create failed for g_t2',0)
+     &     call errquit('ga_create failed for g_t2',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_ht2', 
      &                   mxvec*lhoov,0,g_ht2))
-     &     call errquit('ga_create failed for g_ht2',0)
+     &     call errquit('ga_create failed for g_ht2',0, GA_ERR)
 c      
       call ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
      &                  maxit,convi,iprt,cmo,eorb,
@@ -206,7 +208,7 @@ c
 c
          if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',
      &      nvir,nvir,g_nt2))
-     &      call errquit('ga_create failed g_nt2',0)
+     &      call errquit('ga_create failed g_nt2',0, GA_ERR)
 c
       call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
      $            dbl_mb(k_t1),lnov)
@@ -270,7 +272,7 @@ c
 *ga:1:0
       if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',0,0,
      &                   g_objv))
-     &     call errquit('ga_create g_objv failed',0)
+     &     call errquit('ga_create g_objv failed',0, GA_ERR)
       call ga_zero(g_objv)
 c
       lnobj=lnoov+max(lnooo,lnoov)
@@ -330,14 +332,15 @@ C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       stat=stat.and.ma_pop_stack(l_hiu)
       stat=stat.and.ma_pop_stack(l_ht1)
       stat=stat.and.ma_pop_stack(l_t1)
-      if (.not.stat)call errquit('ccsd: cannot pop stack?',0)
+      if (.not.stat)call errquit('ccsd: cannot pop stack?',0,
+     &       MA_ERR)
       call ga_sync()
       if (.not. ga_destroy(g_nt2))
-     &     call errquit('ga_destroy failed',0)
+     &     call errquit('ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_ht2))
-     &     call errquit('ga_destroy failed',0)
+     &     call errquit('ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_t2))
-     &     call errquit('ga_destroy failed',0)
+     &     call errquit('ga_destroy failed',0, GA_ERR)
 c
       call qexit('aoccsd',0)
 c
@@ -497,7 +500,7 @@ c
 *     &     call errquit('ga_create failed for g_objo',0)
 *ga:1:0
       if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',0,0,g_objo))
-     &     call errquit('ga_create failed for g_objo',0)
+     &     call errquit('ga_create failed for g_objo',0, GA_ERR)
 c
       call ga_zero(g_objo)
       call ccsd_rdtrpo
@@ -506,7 +509,7 @@ c
       stat=.true.
       stat=stat.and.ma_pop_stack(l_buf2)
       stat=stat.and.ma_pop_stack(l_buf1)
-      if (.not.stat)call errquit('rdtrpo: cannot pop stack?',0)
+      if (.not.stat)call errquit('rdtrpo: cannot pop stack?',0, MA_ERR)
 c
 c      print *,' ga allocated before trpdrv '
 c      call ga_summarize(.true.)
@@ -543,12 +546,14 @@ c
          if (memdrv .gt. memtrn) then
             nkpass = nkpass + 1
             if (nkpass .gt. nocc) call errquit
-     $           ('ccsd triples: too many k passes', nkpass)
+     $           ('ccsd triples: too many k passes', nkpass,
+     &       UNKNOWN_ERR)
             goto 7652
          else
             nvpass = nvpass + 1
             if (nvpass .gt. nvir) call errquit
-     $           ('ccsd triples: too many v passes ', nvpass)
+     $           ('ccsd triples: too many v passes ', nvpass,
+     &       UNKNOWN_ERR)
             goto 7651
          endif
       endif
@@ -591,73 +596,81 @@ c        print *,'call trpdrv ',nvpass
 *          endif
 
          if (.not. ma_push_get(MT_DBL,lnvv,'f1n',l_f1n,k_f1n))
-     $        call errquit('aoccsd2:triples f1n',lnvv)
+     $        call errquit('aoccsd2:triples f1n',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f1t',l_f1t,k_f1t))
-     $        call errquit('aoccsd2:triples f1t',lnvv)
+     $        call errquit('aoccsd2:triples f1t',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f2n',l_f2n,k_f2n))
-     $        call errquit('aoccsd2:triples f2n',lnvv)
+     $        call errquit('aoccsd2:triples f2n',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f2t',l_f2t,k_f2t))
-     $        call errquit('aoccsd2:triples f2t',lnvv)
+     $        call errquit('aoccsd2:triples f2t',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f3n',l_f3n,k_f3n))
-     $        call errquit('aoccsd2:triples f3n',lnvv)
+     $        call errquit('aoccsd2:triples f3n',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f3t',l_f3t,k_f3t))
-     $        call errquit('aoccsd2:triples f3t',lnvv)
+     $        call errquit('aoccsd2:triples f3t',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f4n',l_f4n,k_f4n))
-     $        call errquit('aoccsd2:triples f4n',lnvv)
+     $        call errquit('aoccsd2:triples f4n',lnvv, MA_ERR)
          if (.not. ma_push_get(MT_DBL,lnvv,'f4t',l_f4t,k_f4t))
-     $        call errquit('aoccsd2:triples f4t',lnvv)
+     $        call errquit('aoccsd2:triples f4t',lnvv, MA_ERR)
 c
       if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Tij',
      $        l_trp_Tij,k_trp_Tij))
-     $     call errquit('aoccsd2: triples: k_trp_Tij ', lnvv)
+     $     call errquit('aoccsd2: triples: k_trp_Tij ', lnvv, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnvv,'k_trp_Tkj',
      $     l_trp_Tkj,k_trp_Tkj))
-     $     call errquit('aoccsd2: triples: k_trp_Tkj ', kchunk*lnvv)
+     $     call errquit('aoccsd2: triples: k_trp_Tkj ', kchunk*lnvv,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Tia',
      $     l_trp_Tia,k_trp_Tia))
-     $     call errquit('aoccsd2: triples: k_trp_Tia ', lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Tia ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Tka',
      $     l_trp_Tka,k_trp_Tka))
-     $     call errquit('aoccsd2: triples: k_trp_Tka ', kchunk*lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Tka ', kchunk*lnov,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Xia',
      $     l_trp_Xia,k_trp_Xia))
-     $     call errquit('aoccsd2: triples: k_trp_Xia ', lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Xia ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Xka',
      $     l_trp_Xka,k_trp_Xka))
-     $     call errquit('aoccsd2: triples: k_trp_Xka ', kchunk*lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Xka ', kchunk*lnov,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Jia',
      $     l_trp_Jia,k_trp_Jia))
-     $     call errquit('aoccsd2: triples: k_trp_Jia ', lnvv)
+     $     call errquit('aoccsd2: triples: k_trp_Jia ', lnvv, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnvv,'k_trp_Jka',
      $     l_trp_Jka,k_trp_Jka))
-     $     call errquit('aoccsd2: triples: k_trp_Jka ', kchunk*lnvv)
+     $     call errquit('aoccsd2: triples: k_trp_Jka ', kchunk*lnvv,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, lnvv,'k_trp_Kia',
      $     l_trp_Kia,k_trp_Kia))
-     $     call errquit('aoccsd2: triples: k_trp_Kia ', lnvv)
+     $     call errquit('aoccsd2: triples: k_trp_Kia ', lnvv, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnvv,'k_trp_Kka',
      $     l_trp_Kka,k_trp_Kka))
-     $     call errquit('aoccsd2: triples: k_trp_Kka ', kchunk*lnvv)
+     $     call errquit('aoccsd2: triples: k_trp_Kka ', kchunk*lnvv,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Jij',
      $     l_trp_Jij,k_trp_Jij))
-     $     call errquit('aoccsd2: triples: k_trp_Jij ', lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Jij ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Jkj',
      $     l_trp_Jkj,k_trp_Jkj))
-     $     call errquit('aoccsd2: triples: k_trp_Jkj ', kchunk*lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Jkj ', kchunk*lnov,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Kij',
      $     l_trp_Kij,k_trp_Kij))
-     $     call errquit('aoccsd2: triples: k_trp_Kij ', lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Kij ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Kkj',
      $     l_trp_Kkj,k_trp_Kkj))
-     $     call errquit('aoccsd2: triples: k_trp_Kkj ', kchunk*lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Kkj ', kchunk*lnov,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Dja',
      $     l_trp_Dja,k_trp_Dja))
-     $     call errquit('aoccsd2: triples: k_trp_Dja ', lnov)
+     $     call errquit('aoccsd2: triples: k_trp_Dja ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, nvir*kchunk,'k_trp_Djka',
      $     l_trp_Djka,k_trp_Djka))
-     $     call errquit('aoccsd2: triples: k_trp_Djka ', nvir*kchunk)
+     $     call errquit('aoccsd2: triples: k_trp_Djka ', nvir*kchunk,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, nvir,'k_trp_Djia',
      $     l_trp_Djia,k_trp_Djia))
-     $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir)
+     $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir, MA_ERR)
 c
 
          call ga_sync
@@ -679,7 +692,7 @@ c
          tx(3)=tcgtime()
 
          if (.not. ma_chop_stack(l_f1n)) call errquit
-     $        ('ccsd triples: stack corrupt (f1n)',0)
+     $        ('ccsd triples: stack corrupt (f1n)',0, MA_ERR)
 
          if (iam.eq.0)write(6,'(1x,a,i5,f9.2)')
      &       'Time for integral evaluation pass ',
@@ -772,10 +785,10 @@ C
 C
       stat=.true.
       stat=stat.and.ma_pop_stack(l_t1)
-      if (.not.stat)call errquit('trpdrv: cannot pop stack?',0)
+      if (.not.stat)call errquit('trpdrv: cannot pop stack?',0, MA_ERR)
 c
       if (.not. ga_destroy(g_objo))
-     &     call errquit('g_objo ga_destroy failed',0)
+     &     call errquit('g_objo ga_destroy failed',0, MA_ERR)
 c
 c -- end of triples calculation
 c
@@ -788,7 +801,7 @@ c      endif
       call qexit('triples',0)
 c
  999  if (.not. ga_destroy(g_objv))
-     &     call errquit('g_objv ga_destroy failed',0)
+     &     call errquit('g_objv ga_destroy failed',0, GA_ERR)
 c
       call qstat()
       return

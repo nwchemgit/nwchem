@@ -1,8 +1,9 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.53 2003-03-08 02:00:46 sohirata Exp $
+* $Id: task.F,v 1.54 2003-10-17 22:58:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -73,7 +74,7 @@ c
      $     operation = ' '
 c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-     + call errquit('task: no task input for theory?',0)
+     + call errquit('task: no task input for theory?',0, RTDB_ERR)
 c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
@@ -82,7 +83,8 @@ c for qmmm, nwmd will call appropriate task routines
 c
       if (task_qmmm) then
         if (theory.eq.'nwmd'.or.theory.eq.'md')
-     + call errquit('task:theory must be a QM method for QMMM',911)
+     + call errquit('task:theory must be a QM method for QMMM',911,
+     &       INPUT_ERR)
         status = nwmd(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
           errmsg = ' '
@@ -93,7 +95,7 @@ c
               write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
               call util_flush(6)
             else
-              call errquit(errmsg, 0)
+              call errquit(errmsg, 0, CALC_ERR)
             endif
           endif
         endif
@@ -172,7 +174,7 @@ c
                   write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
                   call util_flush(6)
                else
-                  call errquit(errmsg, 0)
+                  call errquit(errmsg, 0, CALC_ERR)
                endif
             endif
          endif
@@ -217,7 +219,7 @@ c     *** task_paw handles paw specific "operations" ***
         status = task_paw(rtdb)
 
       else
-         call errquit('task: unknown generic operation',0)
+         call errquit('task: unknown generic operation',0, INPUT_ERR)
       endif
       if ((ga_nodeid().eq.0) .and. (.not. status)) then
          errmsg = ' '
@@ -229,7 +231,7 @@ c     *** task_paw handles paw specific "operations" ***
                write(6,*)' !! warning: ',errmsg(1:inp_strlen(errmsg))
                call util_flush(6)
             else
-               call errquit(errmsg, 0)
+               call errquit(errmsg, 0, CALC_ERR)
             endif
          endif
       endif
@@ -260,6 +262,7 @@ c
       end
       logical function task_shell(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -277,7 +280,7 @@ c
          range(3) = 1
       endif
       if (.not. rtdb_cget(rtdb,'task:shell command',1,command))
-     $     call errquit('task shell: shell command missing',0)
+     $     call errquit('task shell: shell command missing',0, RTDB_ERR)
 c
       task_shell = .true.
 c

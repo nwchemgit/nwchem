@@ -173,6 +173,7 @@ c
        subroutine mcscf_occ2dens( nbf, nclosed, nact, dm1,
      $                            g_movecs, g_cdens, g_adens )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 c
@@ -193,7 +194,7 @@ c
        aend = nclosed + nact
 *ga:1:0
        if (.not.ga_create(MT_DBL,nact,nact,'1PDM',nact,0,g_dm1))
-     $   call errquit('mcscf_occ2dens: cannot create 1PDM',0)
+     $   call errquit('mcscf_occ2dens: cannot create 1PDM',0, GA_ERR)
        if (ga_nodeid().eq.0)
      $   call ga_put(g_dm1,1,nact,1,nact,dm1,nact)
        call ga_sync()
@@ -211,7 +212,7 @@ c
 c
 c
        if (.not.ga_destroy(g_dm1))
-     $   call errquit('mcscf_occ2dens: cannot destroy',0)
+     $   call errquit('mcscf_occ2dens: cannot destroy',0, GA_ERR)
 c
 c Closed AO density
 c
@@ -272,6 +273,7 @@ c
       subroutine mcscf_getmovecs( rtdb, geom, basis, nbf, occ,
      $                            evals, g_movecs )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "inp.fh"
@@ -336,14 +338,14 @@ c
          oskel = sym_number_ops(geom) .gt. 0
       endif
       if (.not. bas_name(basis, name, trans))
-     $     call errquit('mcscf: bas_name?', 0)
+     $     call errquit('mcscf: bas_name?', 0, BASIS_ERR)
       if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
      $     charge = 0.0d0
       if (.not. geom_nuc_charge(geom, nuclear_charge))
-     $     call errquit('scf: geom_nuc_charge failed', 0)
+     $     call errquit('scf: geom_nuc_charge failed', 0, GEOM_ERR)
       nelec = nint(nuclear_charge - charge)
       if (nelec .le. 0) call errquit
-     $     ('mcscf: negative no. of electrons ?', nelec)
+     $     ('mcscf: negative no. of electrons ?', nelec, INPUT_ERR)
 c
 c  Get filenames
 c
@@ -357,7 +359,7 @@ c
       call ga_zero(g_movecs)
       call scf_lindep(rtdb, geom, basis, g_movecs, nmo)
       if (nmo.ne.nbf)
-     $  call errquit('mcscf:linear dependent AO basis',0)
+     $  call errquit('mcscf:linear dependent AO basis',0, BASIS_ERR)
       if (movecs_in .eq. 'hcore' .or. movecs_in .eq. 'atomic') then
 c
 c  Hcore or atomic guess
@@ -370,7 +372,8 @@ c
          call rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nbf,
      $                       tol2e, g_aodens, g_movecs, oskel, evals )
          if (.not. ga_destroy(g_aodens)) call errquit
-     $        ('scf_vectors_guess: destroy of density failed',0)
+     $        ('scf_vectors_guess: destroy of density failed',0,
+     &       GA_ERR)
       else if (movecs_in .eq. 'project') then
 c
 c  Project from a smaller basis set
@@ -394,7 +397,8 @@ c
            if (nbf .eq. nbf_vecs .and. ((bas_vecs.eq.trans).or.
      $                                  (bas_vecs.eq.'******'))) then
              if (.not.movecs_read( movecs_in, 1, occ, evals, g_movecs ))
-     $            call errquit('mcscf_getmovecs: movecs read',0)
+     $            call errquit('mcscf_getmovecs: movecs read',0,
+     &       DISK_ERR)
             else
                if (ga_nodeid().eq.0) write(6,944)
  944           format('Restart movecs mismatch with input')
@@ -406,7 +410,8 @@ c
                call util_flush(6)
             endif
          endif
-         if (.not. status) call errquit('rhf: failed to load vectors',0)
+         if (.not. status) call errquit('rhf: failed to load vectors',0,
+     &       DISK_ERR)
          oldvectors = .true.
       endif
 c
@@ -442,7 +447,8 @@ c
  670           format(' Importing MO vectors from external file')
             endif
             if (.not.ma_push_get(MT_DBL, nbf,'ophase', l_v, k_v))
-     $           call errquit('mcscf_getmovecs: cannot allocate',0)
+     $           call errquit('mcscf_getmovecs: cannot allocate',0,
+     &       MA_ERR)
             open(unit=19,file='vecs',status='old',form='formatted')
             read(19,*) nn
             do i=1,nbf
@@ -455,7 +461,8 @@ c
             enddo
             close(19)
             if (.not.ma_pop_stack(l_v))
-     $           call errquit('mcscf_getmovecs: failed pop stack',0)
+     $           call errquit('mcscf_getmovecs: failed pop stack',0,
+     &       MA_ERR)
          endif
       endif
       call ga_sync()
@@ -501,9 +508,11 @@ c
        call util_file_name_resolve(movecs_out, .false.)
 
        if (.not.rtdb_cput(rtdb,'mcscf:input vectors',1,movecs_out))
-     $      call errquit('mcscf: failed resetting input vectors', 0)
+     $      call errquit('mcscf: failed resetting input vectors', 0,
+     &       RTDB_ERR)
        if (.not.rtdb_cput(rtdb,'mcscf:output vectors',1,movecs_out))
-     $      call errquit('mcscf: failed resetting output vectors', 0)
+     $      call errquit('mcscf: failed resetting output vectors', 0,
+     &       RTDB_ERR)
 c
 c     Let the user know what is going on
 c
@@ -523,6 +532,7 @@ c
       subroutine mcscf_movecs_read( rtdb, basis, nbf, occ,
      $                              evals, g_movecs )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -555,13 +565,14 @@ c
 c  Get filenames
 c
       if (.not.rtdb_cget(rtdb,'mcscf:input vectors',1,v_in)) then
-         call errquit('mcscf: failed to get name of input vectors',0)
+         call errquit('mcscf: failed to get name of input vectors',0,
+     &       RTDB_ERR)
       endif
 c
 c
 c
       if (.not. bas_name(basis, name, trans))
-     $     call errquit('scf_init: bas_name?', 0)
+     $     call errquit('scf_init: bas_name?', 0, BASIS_ERR)
       nsets = 1
       nmo = nbf
 c
@@ -580,7 +591,8 @@ c
         if (nbf .eq. nbf_vecs .and. ((bas_vecs.eq.trans).or.
      $                               (bas_vecs.eq.'******'))) then
           if (.not.movecs_read( v_in, 1, occ, evals, g_movecs ))
-     $       call errquit('mcscf_movecs_read: movecs read failed',0)
+     $       call errquit('mcscf_movecs_read: movecs read failed',0,
+     &       DISK_ERR)
         else
           if (ga_nodeid().eq.0) write(6,944)
  944      format('Restart movecs mismatch with input')
@@ -592,7 +604,8 @@ c
 ****      call movecs_swap(rtdb,'mcscf','rohf',g_movecs,occ,evals)
 
       if (.not. status)
-     $  call errquit('mcscf_movecs_read: failed to load vectors',0)
+     $  call errquit('mcscf_movecs_read: failed to load vectors',0,
+     &       DISK_ERR)
 c
 c
 c
@@ -604,6 +617,7 @@ c
       subroutine mcscf_movecs_write( rtdb, basis, nbf, occ,
      $                               evals, g_movecs )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -633,7 +647,8 @@ c
 c  Get filenames
 c
       if (.not.rtdb_cget(rtdb,'mcscf:output vectors',1,v_out)) then
-         call errquit('mcscf: failed to get name for output vectors',0)
+         call errquit('mcscf: failed to get name for output vectors',0,
+     &       RTDB_ERR)
       endif
 c
 c
@@ -650,7 +665,8 @@ c
 c
       if (.not. movecs_write(rtdb, basis, v_out, 'mcscf',
      $     title_vecs, nbf, nset, nmo, occ, nbf, evals, nbf, g_movecs ))
-     $   call errquit('mcscf_movecs_write: movecs_write failed', 0)
+     $   call errquit('mcscf_movecs_write: movecs_write failed', 0,
+     &       DISK_ERR)
       return
       end
 
@@ -664,7 +680,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.31 2002-07-03 19:42:09 d3k958 Exp $
+c  $Id: mcscf_aux.F,v 1.32 2003-10-17 22:55:21 carlfahl Exp $
 c
 c
 c Return the gradient vector from the generalized
@@ -694,6 +710,7 @@ c
        subroutine mcscf_gfock2grad( nbf, nclosed, nact,
      $                              g_gfock, g_grad )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 c
@@ -728,7 +745,7 @@ c          ti     it     ti
 c
 *ga:1:0
        if (.not.ga_create(MT_DBL,nact,nclosed,'crap',nact,0,g_tmp))
-     $      call errquit('mcscf_gfock2grad: cannot allocate',0)
+     $      call errquit('mcscf_gfock2grad: cannot allocate',0, GA_ERR)
        call ga_copy_patch('t', g_gfock, 1, nclosed, aoff, aend,
      $                         g_tmp, 1, nact, 1, nclosed )
        call ga_dadd_patch(-1.d0, g_gfock, aoff, aend, 1, nclosed,
@@ -744,7 +761,7 @@ c          pq       pq
 c
        call ga_dscal( g_grad, 2.d0 )
        if (.not.ga_destroy(g_tmp))
-     $      call errquit('mcscf_gfock2grad: cannot destroy',0)
+     $      call errquit('mcscf_gfock2grad: cannot destroy',0, GA_ERR)
        return
        end
 
@@ -889,6 +906,7 @@ c Fill a square matrix with a scalar diagonal patch
 c
        subroutine diagfill_patch( g_a, x, ilo, ihi )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -903,7 +921,7 @@ c
        ilen = ihi - ilo + 1
        nelt = ilen*ilen
        if (.not.ma_push_get(MT_DBL,nelt,'delta',l_p,k_p))
-     $      call errquit('diagfill_patch: cannot allocate',0)
+     $      call errquit('diagfill_patch: cannot allocate',0, MA_ERR)
        call dfill(nelt,0.d0,dbl_mb(k_p),1)
        do i=1,ilen
          ii = (i-1)*ilen + i - 1
@@ -912,7 +930,7 @@ c
        if (ga_nodeid().eq.0)
      $    call ga_put(g_a,ilo,ihi,ilo,ihi,dbl_mb(k_p),ilen)
        if (.not.ma_pop_stack(l_p))
-     $      call errquit('diagfill_patch: pop stack failed',0)
+     $      call errquit('diagfill_patch: pop stack failed',0, MA_ERR)
        
        return
        end
@@ -1002,6 +1020,7 @@ c
       subroutine mcscf_naturalorb( nbf, nclosed, nact, dm1, occ,
      $                             evals, g_movecs )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer nbf
@@ -1029,9 +1048,9 @@ c
 c
       tsize = 4*nact
       if (.not.ma_push_get(MT_DBL, (nact*nact), 'u', l_u, k_u))
-     $  call errquit('mcscf_naturalorb: cannot allocate',0)
+     $  call errquit('mcscf_naturalorb: cannot allocate',0, MA_ERR)
       if (.not.ma_push_get(MT_DBL, (tsize+nact), 'tmp', l_tmp, k_tmp))
-     $  call errquit('mcscf_naturalorb: cannot allocate',0)
+     $  call errquit('mcscf_naturalorb: cannot allocate',0, MA_ERR)
       call dsyev( 'V', 'L', nact, dm1, nact, dbl_mb(k_tmp),
      $             dbl_mb(k_tmp+nact), tsize, info )
       do i=1,nact
@@ -1043,15 +1062,15 @@ c
 c$$$      write(6,'(A)') ' Natural orbital rotation matrix '
 c$$$      call moints_matprint(nact,nact,dbl_mb(k_u))
       if (.not.ma_pop_stack(l_tmp))
-     $   call errquit('mcscf_naturalorb: cannot pop stack',0)
+     $   call errquit('mcscf_naturalorb: cannot pop stack',0, MA_ERR)
 c
 c
 c
       if (ga_nodeid().eq.0) then
         if (.not.ma_push_get(MT_DBL, (nbf*nact), 'tmpx', l_x, k_x))
-     $       call errquit('mcscf_naturalorb: cannot allocate',0)
+     $       call errquit('mcscf_naturalorb: cannot allocate',0, MA_ERR)
         if (.not.ma_push_get(MT_DBL, (nbf*nact), 'tmpy', l_y, k_y))
-     $       call errquit('mcscf_naturalorb: cannot allocate',0)
+     $       call errquit('mcscf_naturalorb: cannot allocate',0, MA_ERR)
         
         call ga_get(g_movecs, 1, nbf, nclosed+1, nclosed+nact,
      $              dbl_mb(k_x), nbf )
@@ -1061,15 +1080,15 @@ c
      $              dbl_mb(k_y), nbf )
 
         if (.not.ma_pop_stack(l_y))
-     $    call errquit('mcscf_naturalorb: cannot pop stack',0)
+     $    call errquit('mcscf_naturalorb: cannot pop stack',0, MA_ERR)
         if (.not.ma_pop_stack(l_x))
-     $    call errquit('mcscf_naturalorb: cannot pop stack',0)
+     $    call errquit('mcscf_naturalorb: cannot pop stack',0, MA_ERR)
       endif
 c
 c
 c
       if (.not.ma_pop_stack(l_u))
-     $  call errquit('mcscf_naturalorb: cannot pop stack',0)
+     $  call errquit('mcscf_naturalorb: cannot pop stack',0, MA_ERR)
       return
       end
 
@@ -1123,6 +1142,7 @@ c
       subroutine mcscf_canonical( nbf, nclosed, nact, g_ifock, g_afock,
      $                            g_gfock, eps, g_movecs, nflip )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -1143,14 +1163,14 @@ c  Inactive orbitals
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf,nbf,'rotation',nbf,0,g_v))
-     $  call errquit('mcscf_canonical: cannot allocate v',0)
+     $  call errquit('mcscf_canonical: cannot allocate v',0, GA_ERR)
       call ga_zero(g_v)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nclosed,nclosed,'tmp',nclosed,0,g_tmp))
-     $  call errquit('mcscf_canonical: cannot allocate tmp',0)
+     $  call errquit('mcscf_canonical: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nclosed,nclosed,'u',nclosed,0,g_u))
-     $  call errquit('mcscf_canonical: cannot allocate u',0)
+     $  call errquit('mcscf_canonical: cannot allocate u',0, GA_ERR)
       call ga_copy_patch( 'n', g_gfock, 1, nclosed, 1, nclosed,
      $                         g_tmp, 1, nclosed, 1, nclosed )
       call ga_symmetrize( g_tmp )
@@ -1162,9 +1182,9 @@ c
       call ga_copy_patch( 'n', g_u, 1, nclosed, 1, nclosed,
      $                         g_v, 1, nclosed, 1, nclosed )
       if (.not.ga_destroy(g_u))
-     $  call errquit('mcscf_canonical: cannot destroy tmp',0)
+     $  call errquit('mcscf_canonical: cannot destroy tmp',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     $  call errquit('mcscf_canonical: cannot destroy tmp',0)
+     $  call errquit('mcscf_canonical: cannot destroy tmp',0, GA_ERR)
 c
 c  Active orbitals
 c
@@ -1172,10 +1192,10 @@ c
       aend = nclosed + nact
 *ga:1:0
       if (.not.ga_create(MT_DBL,nact,nact,'tmp',nact,0,g_tmp))
-     $  call errquit('mcscf_canonical: cannot allocate tmp',0)
+     $  call errquit('mcscf_canonical: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nact,nact,'u',nact,0,g_u))
-     $  call errquit('mcscf_canonical: cannot allocate u',0)
+     $  call errquit('mcscf_canonical: cannot allocate u',0, GA_ERR)
       call ga_copy_patch( 'n', g_gfock, aoff, aend, aoff, aend,
      $                         g_tmp, 1, nact, 1, nact )
       call ga_symmetrize( g_tmp )
@@ -1187,9 +1207,9 @@ c
       call ga_copy_patch( 'n', g_u, 1, nact, 1, nact,
      $                         g_v, aoff, aend, aoff, aend )
       if (.not.ga_destroy(g_u))
-     $  call errquit('mcscf_canonical: cannot destroy tmp',0)
+     $  call errquit('mcscf_canonical: cannot destroy tmp',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     $  call errquit('mcscf_canonical: cannot destroy tmp',0)
+     $  call errquit('mcscf_canonical: cannot destroy tmp',0, GA_ERR)
 c
 c  Virtual orbitals
 c
@@ -1197,10 +1217,10 @@ c
       nvir = nbf - nclosed - nact
 *ga:1:0
       if (.not.ga_create(MT_DBL,nvir,nvir,'tmp',nvir,0,g_tmp))
-     $  call errquit('mcscf_canonical: cannot allocate tmp',0)
+     $  call errquit('mcscf_canonical: cannot allocate tmp',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nvir,nvir,'u',nvir,0,g_u))
-     $  call errquit('mcscf_canonical: cannot allocate u',0)
+     $  call errquit('mcscf_canonical: cannot allocate u',0, GA_ERR)
       call ga_dadd_patch( 2.d0, g_ifock, aoff, nbf, aoff, nbf,
      $                    2.d0, g_afock, aoff, nbf, aoff, nbf,
      $                          g_tmp, 1, nvir, 1, nvir )
@@ -1213,16 +1233,16 @@ c
       call ga_copy_patch( 'n', g_u, 1, nvir, 1, nvir,
      $                         g_v, aoff, nbf, aoff, nbf )
       if (.not.ga_destroy(g_u))
-     $  call errquit('mcscf_canonical: cannot destroy tmp',0)
+     $  call errquit('mcscf_canonical: cannot destroy tmp',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     $  call errquit('mcscf_canonical: cannot destroy tmp',0)
+     $  call errquit('mcscf_canonical: cannot destroy tmp',0, GA_ERR)
       call dscal( nbf, 0.5d0, eps, 1 )
 c
 c  Transform MOs
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf,nbf,'rotation',nbf,0,g_z))
-     $  call errquit('mcscf_canonical: cannot allocate z',0)
+     $  call errquit('mcscf_canonical: cannot allocate z',0, GA_ERR)
       call ga_dgemm( 'n', 'n', nbf, nbf, nbf, 1.d0, g_movecs,
      $                g_v, 0.d0, g_z )
       call ga_copy( g_z, g_movecs )
@@ -1237,7 +1257,7 @@ c
 c  Check rotation matrix for flipped MOs
 c
       if (.not.ma_push_get(MT_DBL, nbf,'col tmp', l_cc, k_cc))
-     $   call errquit('mcscf_canonical: cannot allocate cc',0)
+     $   call errquit('mcscf_canonical: cannot allocate cc',0, MA_ERR)
       nflip = 0
       do i=ga_nodeid()+1,nbf,ga_nnodes()
         call ga_get( g_v, 1, nbf, i, i, dbl_mb(k_cc), nbf )
@@ -1247,14 +1267,14 @@ c
       enddo
       call ga_igop(msg_mcscf_sumflip, nflip, 1, '+')
       if (.not.ma_pop_stack(l_cc))
-     $  call errquit('mcscf_canonical: cannot pop stack',0)
+     $  call errquit('mcscf_canonical: cannot pop stack',0, GA_ERR)
 c
 c
 c
       if (.not.ga_destroy(g_z))
-     $  call errquit('mcscf_canonical: cannot destroy v',0)
+     $  call errquit('mcscf_canonical: cannot destroy v',0, GA_ERR)
       if (.not.ga_destroy(g_v))
-     $  call errquit('mcscf_canonical: cannot destroy v',0)
+     $  call errquit('mcscf_canonical: cannot destroy v',0, GA_ERR)
       return
       end
 
@@ -1269,6 +1289,7 @@ c
       subroutine mcscf_save_vec( rtdb, geom, basis, nbf, orbe, occ,
      $                           g_movecs )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -1291,13 +1312,13 @@ c
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf,nbf,'tmp',nbf,0,g_tmp))
-     $   call errquit('mcscf_save_vecs: cannot allocate tmp',0)
+     $   call errquit('mcscf_save_vecs: cannot allocate tmp',0, GA_ERR)
       if (.not.rtdb_get(rtdb, 'mcscf:movecs lock', MT_LOG,
      $     1, olock)) olock = .false.
       if (.not.ma_push_get(MT_DBL, nbf,'tmp evals', l_oldev, k_oldev))
-     $  call errquit('mcscf_save_vecs: cannot allocate',0)
+     $  call errquit('mcscf_save_vecs: cannot allocate',0, MA_ERR)
       if (.not.ma_push_get(MT_DBL, nbf,'tmp occ', l_oldocc, k_oldocc))
-     $  call errquit('mcscf_save_vecs: cannot allocate',0)
+     $  call errquit('mcscf_save_vecs: cannot allocate',0, MA_ERR)
 c
 c  Read in old vectors and occupations
 c  Optionally lock movecs ordering with old vectors
@@ -1335,11 +1356,11 @@ c
 c  Clean up
 c
       if (.not.ma_pop_stack(l_oldocc))
-     $  call errquit('mcscf_save_vecs: cannot pop stack',0)
+     $  call errquit('mcscf_save_vecs: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_oldev))
-     $  call errquit('mcscf_save_vecs: cannot pop stack',0)
+     $  call errquit('mcscf_save_vecs: cannot pop stack',0, MA_ERR)
       if (.not.ga_destroy(g_tmp))
-     $   call errquit('mcscf_save_vecs: cannot destroy',0)
+     $   call errquit('mcscf_save_vecs: cannot destroy',0, GA_ERR)
       return
       end
 
@@ -1351,6 +1372,7 @@ c
 
       subroutine sym_matrix_check( n, irreps, g_a, isym, tol, nmixed )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"      
 #include "msgids.fh"
@@ -1369,7 +1391,7 @@ c
       mulx(i,j) = ieor((i-1),(j-1)) + 1
 c
       if (.not.ma_push_get(MT_DBL, n, 'tmp', l_t, k_t))
-     $  call errquit('sym_matrix_check: cannot allocate',0)
+     $  call errquit('sym_matrix_check: cannot allocate',0, MA_ERR)
       nmixed = 0
       do i=ga_nodeid()+1,n,ga_nnodes()
         call ga_get(g_a, 1, n, i, i, dbl_mb(k_t), n)
@@ -1383,7 +1405,7 @@ c
       call ga_igop(msg_mcscf_symcheck,nmixed,1,'+')
 
       if (.not.ma_pop_stack(l_t))
-     $  call errquit('sym_matrix_check: failed pop stack',0)
+     $  call errquit('sym_matrix_check: failed pop stack',0, MA_ERR)
       return
       end
 

@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop.F,v 1.11 2002-03-05 03:47:35 bylaska Exp $
+* $Id: inner_loop.F,v 1.12 2003-10-17 22:57:13 carlfahl Exp $
 *
 
 *  ************************************************************
@@ -23,6 +23,7 @@
      >                      hml,lmd,
      >                      psi_r,Hpsi)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
       complex*16 psi1(npack1,nemax)
@@ -165,7 +166,7 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call nwpw_timing_end(12)
      

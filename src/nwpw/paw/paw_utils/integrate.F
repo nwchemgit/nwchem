@@ -1,5 +1,5 @@
 *
-* $Id: integrate.F,v 1.4 2003-02-19 01:11:22 marat Exp $
+* $Id: integrate.F,v 1.5 2003-10-17 22:57:00 carlfahl Exp $
 *
 !*************************************************
 !
@@ -20,6 +20,7 @@
      >                           nrange)
                     
       implicit none
+#include "errquit.fh"
       integer power_f
       complex*16  f(*)
       integer power_r
@@ -42,7 +43,7 @@
 
       value = MA_push_get(mt_dcpl,nrange,
      >                    'integrand',integrand(2),integrand(1))
-      if (.not.value) call errquit('def_integr: push stack',0)
+      if (.not.value) call errquit('def_integr: push stack',0, MA_ERR)
 
       do k=1,nrange
         dcpl_mb(integrand(1)+k-1) = f(k)*r(k)**(power_r+1)
@@ -65,7 +66,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
      >         +dcpl_mb(integrand(1)+nrange-1))
 
       value = MA_pop_stack(integrand(2))
-      if (.not.value) call errquit('def_integr: pop stack',1)
+      if (.not.value) call errquit('def_integr: pop stack',1, MA_ERR)
 
       c_def_integr = sum_f
 
@@ -93,6 +94,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
      >                           nrange)
                     
       implicit none
+#include "errquit.fh"
       integer power_f
       real*8  f(*)
       integer power_r
@@ -114,7 +116,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
 
       value = MA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1))
-      if (.not.value) call errquit('def_integr: push stack',0)
+      if (.not.value) call errquit('def_integr: push stack',0, MA_ERR)
 
       do k=1,nrange
         dbl_mb(integrand(1)+k-1) = f(k)*r(k)**(power_r+1)
@@ -138,7 +140,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
      >         +dbl_mb(integrand(1)+nrange-1))
 
       value = MA_pop_stack(integrand(2))
-      if (.not.value) call errquit('def_integr: pop stack',1)
+      if (.not.value) call errquit('def_integr: pop stack',1, MA_ERR)
 
       def_integr = sum_f
 
@@ -165,6 +167,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
      >                        nrange,
      >                        sum_f)
       implicit none
+#include "errquit.fh"
       integer  power_f
       real*8   f(*)
       integer  power_r
@@ -182,7 +185,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
 
       value = MA_push_get(mt_dbl,nrange,
      >                    'integrand',integrand(2),integrand(1))
-      if (.not.value) call errquit('indef_integr: push stack',0)
+      if (.not.value) call errquit('indef_integr: push stack',0, MA_ERR)
 
       do k=1,nrange
        dbl_mb(integrand(1)+k-1) = f(k)*r(k)**(power_r+1)
@@ -205,7 +208,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
       end if
 
       value = MA_pop_stack(integrand(2))
-      if (.not.value) call errquit('indef_integr: pop stack',0)
+      if (.not.value) call errquit('indef_integr: pop stack',0, MA_ERR)
 
 
       return

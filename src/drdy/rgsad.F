@@ -1,4 +1,4 @@
-C $Id: rgsad.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id: rgsad.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       subroutine drdy_rgsad(string,istrt,jtype)
 c
 c     Generic subroutine to read in the initial geometry for the saddle or 
@@ -7,6 +7,7 @@ c
 c     Jtype = 5  saddle point or starting stationary point
 c
       Implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "drdyP.fh"
 *::functions:
@@ -30,7 +31,7 @@ c        check for input error
 c
          if (isect.eq.1.or.iend.eq.1) then
             write(fu6,1000)
-            call errquit('drdy_rgsad: fatal error',911)
+            call errquit('drdy_rgsad: fatal error',911, INPUT_ERR)
          end if
 c
 c        parse line to get atom number
@@ -44,7 +45,7 @@ c        check that jatm is a legal atom number
 c
          if (jatm.le.0.or.jatm.gt.natom) then
              write(fu6,1100) string
-             call errquit('drdy_rgsad: fatal error',911)
+             call errquit('drdy_rgsad: fatal error',911, INPUT_ERR)
          end if
 c 
 c        parse the x, y and z coordinates off the rest of the line
@@ -58,7 +59,7 @@ c             check that the coordinate was found on the line
 c
              if (ierr.eq.1.and.j.ne.0) then
                 write(fu6,1200) string
-                call errquit('drdy_rgsad: fatal error',911)
+                call errquit('drdy_rgsad: fatal error',911, INPUT_ERR)
              end if
 c
 c            save coordinate
@@ -71,7 +72,7 @@ c
       call drdy_rline(string,istrt,isect,iend)
       if(string(istrt:istrt+2).ne.'end') then
         write(fu6,1300)
-        call errquit('drdy_rgsad: fatal error',911)
+        call errquit('drdy_rgsad: fatal error',911, INPUT_ERR)
       end if
 c
       return

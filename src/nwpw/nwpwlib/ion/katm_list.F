@@ -6,6 +6,7 @@
       subroutine set_katm_list(tag,nion,aname_function,
      >                         nkatm,katm,natm,atom)
       implicit none
+#include "errquit.fh"
       integer tag
       integer nion
       character*2 aname_function
@@ -27,7 +28,8 @@
 *     **** define nkatm, and atom ****
       value = MA_push_get(mt_byte,2*nion,
      >                    'atom_list',atom_list(2),atom_list(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,
+     &       MA_ERR)
       nkatm = 0
       do i=1,nion
          aname = aname_function(i)
@@ -40,12 +42,12 @@
       end do
       rtdb_name = 'atom'//CHAR(tag+ICHAR('a'))
       value = MA_alloc_get(mt_byte,(2*nkatm),rtdb_name,atom(2),atom(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
       call pspw_copy_atom(nkatm,byte_mb(atom_list(1)),
      >                          byte_mb(atom(1)))
 
       value = MA_pop_stack(atom_list(2))
-      if (.not. value) call errquit('popping stack memory',0)
+      if (.not. value) call errquit('popping stack memory',0, MA_ERR)
 
 *     **** define katm, and natm ****
       rtdb_name = 'katm'//CHAR(tag+ICHAR('a'))
@@ -53,7 +55,7 @@
       rtdb_name = 'natm'//CHAR(tag+ICHAR('a'))
       value = value.and.
      >        MA_alloc_get(mt_int,(nkatm),rtdb_name,natm(2),natm(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       do i=1,nkatm
          int_mb(natm(1)+i-1) = 0

@@ -1,9 +1,10 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.34 2003-01-03 22:44:16 edo Exp $
+* $Id: dftg_getxc.F,v 1.35 2003-10-17 22:54:42 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 c      
 c     compute XC component of energy gradient.  
 c
@@ -97,7 +98,7 @@ c
      &           'xc hessian', l_hess, k_hess)
             if (.not.status) 
      &         call errquit('dftg_getxc: could not allocate xc hessian',
-     &                      1)
+     &                      1, MA_ERR)
             call dfill(9*natom*natom, 0.0d0, dbl_mb(k_hess), 1)
             if (bgj_print() .gt. 0)
      &           write(LuOut,*)'*** In dftg_getxc: calling xc_hessian'
@@ -107,7 +108,7 @@ c
             status = MA_pop_stack(l_hess)
             if (.not.status) call
      &         errquit('dftg_get_xc: could not pop stack for hessian',
-     &                   1)
+     &                   1, MA_ERR)
          endif
 
 c
@@ -123,7 +124,8 @@ c
             if (bgj_print() .gt. 0)
      &           write(*,*)'*** xc cpks rhs test: nactive =',nactive
             if (ipol*3*natom.gt.100)
-     &           call errquit('dftg_getxc: dimension error in test',0)
+     &           call errquit('dftg_getxc: dimension error in test',0,
+     &       INPUT_ERR)
             do i = 1, natom
              if (oactive(i)) then
                j = ipol*3*(i-1)
@@ -170,7 +172,8 @@ c
               if (oactive(i)) then
                 do j = 1, ipol*3
                   if (.not.ga_destroy(g_rhs(j+ipol*3*(i-1)))) then
-                    call errquit('xc_cpks_rhs: problem destroying ga',1)
+                    call errquit('xc_cpks_rhs: problem destroying ga',1,
+     &       GA_ERR)
                   endif
                 enddo
               endif

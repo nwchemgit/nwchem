@@ -1,5 +1,5 @@
 c
-c     $Id: pair_dist.F,v 1.3 2002-05-08 23:50:26 bylaska Exp $
+c     $Id: pair_dist.F,v 1.4 2003-10-17 22:56:53 carlfahl Exp $
 c
 *     *********************************
 *     *                               *
@@ -8,6 +8,7 @@ c
 *     *********************************
       subroutine pair_dist(filename)
       implicit none
+#include "errquit.fh"
       character*(*) filename
 
 #include "mafdecls.fh"
@@ -68,7 +69,7 @@ c     *** parameters ***
       value = value.and.
      >        MA_push_get(mt_dbl,natoms,'rz',rz(2),rz(1))
       if (.not. value) 
-     >    call errquit('cpmd_properties: out of stack memory',0)
+     >    call errquit('cpmd_properties: out of stack memory',0, MA_ERR)
       
      
       do bin=0,MAXBIN-1
@@ -168,7 +169,8 @@ c     open(unit=19,file='PAIR_DISTRIBUTION',form='formatted')
       value = value.and.MA_pop_stack(rx(2))
       value = value.and.MA_pop_stack(hst(2))
       if (.not. value) 
-     >  call errquit('cpmd_properties: cannot release stack memory',0)
+     >  call errquit('cpmd_properties: cannot release stack memory',0,
+     &       MA_ERR)
      
       end if
 

@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.58 2003-07-12 20:50:38 edo Exp $
+c  $Id: moints_semi.F,v 1.59 2003-10-17 22:55:26 carlfahl Exp $
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed
@@ -33,6 +33,7 @@ c
        subroutine moints_semi( basis, tol2e, oseglo, oseghi, 
      $                         olo, ohi, vlo, vhi, g_movecs, oblk )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "eaf.fh"
@@ -88,7 +89,8 @@ c
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
-       if (.not.status) call errquit('moints: cannot get basis info',0)
+       if (.not.status) call errquit('moints: cannot get basis info',0,
+     &       BASIS_ERR)
 c
        oprint_mem = util_print('memory',print_high) .and.
      $      ga_nodeid().eq.0
@@ -108,7 +110,8 @@ c  Memory arithmetic
 c
        lmemreq = moints_lmem(basis, nseg, nvir, blen)
        if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
-     $   call errquit('moints_semi: cannot determine memory limit',0)
+     $   call errquit('moints_semi: cannot determine memory limit',0,
+     &       GA_ERR)
 c
        gmem = ga_memory_avail() / 8 ! Want amount in doubles
        call ga_dgop(313, gmem, 1, 'min')
@@ -159,7 +162,7 @@ c
        if (mxrlen .lt. min(nbf*nbf,maxbfsh*maxbfsh*numnodes)) then
           if (blen .le. maxbfsh) call errquit
      $         ('moints_semi: insufficient GA available',
-     $         mxrlen*nseg*nvir)
+     $         mxrlen*nseg*nvir, GA_ERR)
           blen = max(maxbfsh,blen/2) ! Reduce blocksize and try again
           goto 1212
        endif
@@ -178,7 +181,8 @@ c
 *ga:1:0
       if (.not.(ga_create( MT_DBL, mxrlen*nseg, nvir, 'transp Kbuf',
      $                     (mxrlen*nseg), 0, g_kbuf )))
-     $   call errquit('moints_semi: cannot allocate K buffer',0)
+     $   call errquit('moints_semi: cannot allocate K buffer',0,
+     &       GA_ERR)
       call ga_distribution(g_kbuf, myid, rlo, rhi, clo, chi )
       if ((clo.eq.0).and.(chi.eq.-1)) then
         pvlo = 0
@@ -228,16 +232,19 @@ c
        vtmp(4) = pvhi
        call util_file_name('kh', .true.,.true., fnamek)
        if (eaf_open( fnamek, EAF_RW, kunit).ne.0)
-     $   call errquit('moints_semi: failed to open half int file',0)
+     $   call errquit('moints_semi: failed to open half int file',0,
+     &       DISK_ERR)
        if (eaf_write(kunit, 0.d0, vtmp,
      $               ma_sizeof(MT_INT,10,MT_BYTE)).ne.0)
-     $   call errquit('moints_semi: failed to write header info',0)
+     $   call errquit('moints_semi: failed to write header info',0,
+     &       DISK_ERR)
        iotmpptr = ma_sizeof(MT_INT,10,MT_BYTE)
        if (eaf_write(kunit, iotmpptr, int_mb(k_rloc),
      $               ma_sizeof(MT_INT,nnbf,MT_BYTE)).ne.0)
-     $   call errquit('moints_semi: failed to write header info',0)
+     $   call errquit('moints_semi: failed to write header info',0,
+     &       DISK_ERR)
        if (.not. ma_pop_stack(l_rloc))
-     $     call errquit('moints: failed to pop', 1)
+     $     call errquit('moints: failed to pop', 1, MA_ERR)
 c
 c  Call the real stuff
 c
@@ -253,26 +260,28 @@ c
 c  Clean up
 c
        if (.not. ma_pop_stack(l_rlen))
-     $     call errquit('moints: failed to pop', 2)
+     $     call errquit('moints: failed to pop', 2, MA_ERR)
        if (.not. ma_pop_stack(l_ionext))
-     $     call errquit('moints: failed to pop', 3)
+     $     call errquit('moints: failed to pop', 3, MA_ERR)
        if (.not. ma_pop_stack(l_gloc))
-     $     call errquit('moints: failed to pop', 4)
+     $     call errquit('moints: failed to pop', 4, MA_ERR)
        if (.not. ma_pop_stack(l_rbfmap))
-     $     call errquit('moints: failed to pop', 6)
+     $     call errquit('moints: failed to pop', 6, MA_ERR)
        if (.not. ma_pop_stack(l_bfmap))
-     $     call errquit('moints: failed to pop', 7)
+     $     call errquit('moints: failed to pop', 7, MA_ERR)
        if (.not. ma_pop_stack(l_ghi))
-     $     call errquit('moints: failed to pop', 8)
+     $     call errquit('moints: failed to pop', 8, MA_ERR)
        if (.not. ma_pop_stack(l_glo))
-     $     call errquit('moints: failed to pop', 9)
+     $     call errquit('moints: failed to pop', 9, MA_ERR)
        if (.not. ma_pop_stack(l_shmap))
-     $     call errquit('moints: failed to pop', 10)
+     $     call errquit('moints: failed to pop', 10, MA_ERR)
        if (.not. ga_destroy(g_kbuf))
-     $      call errquit('moints: failed to destroy g_kbuf',g_kbuf)
+     $      call errquit('moints: failed to destroy g_kbuf',g_kbuf,
+     &       GA_ERR)
 c
        if (eaf_close(kunit).ne.0)
-     $   call errquit('moints_semi: failed to close file',kunit)
+     $   call errquit('moints_semi: failed to close file',kunit,
+     &       DISK_ERR)
 c
        call ga_sync()
        if (util_print('statistics', print_high)) 
@@ -303,6 +312,7 @@ c
      $                           rbfmap, blen, gloc, nnbf, 
      $                           niofl, ionext, rlen, g_movecs, g_kbuf)
        implicit none
+#include "errquit.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -410,10 +420,12 @@ c
 c     Get the MOS, reorder the basis functions, transpose
 c
        if (.not. ma_push_get(MT_DBL,nbf*vhi,'xmot',l_xmo_t,k_xmo_t))
-     $     call errquit('moints_semi: failed to alloc mosT', nbf*vhi)
+     $     call errquit('moints_semi: failed to alloc mosT', nbf*vhi,
+     &       MA_ERR)
 c
        if (.not. ma_push_get(MT_DBL,(nbf*vhi),'r movecs',l_xmo,k_xmo))
-     $     call errquit('moints_semi: failed to alloc mos', nbf*vhi)
+     $     call errquit('moints_semi: failed to alloc mos', nbf*vhi,
+     &       MA_ERR)
 c
        call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_xmo_t), nbf )
        call row_exch( nbf, nmo, rbfmap, dbl_mb(k_xmo_t), dbl_mb(k_xmo) )
@@ -422,10 +434,11 @@ c
 c     Only the transposed MOs are needed in the inner loop
 c
        if (.not. ma_pop_stack(l_xmo)) 
-     $      call errquit('moints_semi: pop failed', 5551212)
+     $      call errquit('moints_semi: pop failed', 5551212, MA_ERR)
 
        if (.not. ma_push_get(MT_DBL,n_ssni,'ssni blk',l_ssni,k_ssni))
-     $      call errquit('mp2_semi: failed to alloc ssni ', n_ssni)
+     $      call errquit('mp2_semi: failed to alloc ssni ', n_ssni,
+     &       MA_ERR)
 c
 c Initialize
 c
@@ -479,13 +492,16 @@ c
 
                    if (.not. ma_push_get(MT_DBL,n_ssbb1,'ssbb blk',
      $                  l_ssbb,k_ssbb))
-     $                  call errquit('moints_semi: ssbb', n_ssbb1)
+     $                  call errquit('moints_semi: ssbb', n_ssbb1,
+     &       MA_ERR)
                    if (.not. ma_push_get(MT_DBL, max2e, 'ibuf', 
      $                  l_eri, k_eri)) 
-     $                  call errquit('moints_semi: eri', max2e)
+     $                  call errquit('moints_semi: eri', max2e,
+     &       MA_ERR)
                    if (.not. ma_push_get(MT_DBL, mem2, 'int scr', 
      $                  l_iscr, k_iscr))
-     $                  call errquit('moints_semi: scr', mem2)
+     $                  call errquit('moints_semi: scr', mem2,
+     &       MA_ERR)
 
                    call moints_gblk( basis, ish, jsh,
      $                               kshlo, kshhi, lshlo, lshhi,
@@ -499,9 +515,11 @@ c
 
 
                   if (.not. ma_pop_stack(l_iscr)) 
-     $                 call errquit('moints_semi: pop failed ',14)
+     $                 call errquit('moints_semi: pop failed ',14,
+     &       MA_ERR)
                   if (.not. ma_pop_stack(l_eri))
-     $                 call errquit('moints_semi: pop failed ',15)
+     $                 call errquit('moints_semi: pop failed ',15,
+     &       MA_ERR)
 
                    mi_tint = mi_tint + util_cpusec() - t0
 c
@@ -511,7 +529,8 @@ c
 
                    if (.not. ma_push_get(MT_DBL,n_hlp,'hlp block',
      $                  l_hlp,k_hlp)) 
-     $                  call errquit('moints_semi: hlp', n_hlp)
+     $                  call errquit('moints_semi: hlp', n_hlp,
+     &       MA_ERR)
 
                    call moints_trf1_new(nbf, qlo, qhi, oseglo, oseghi,
      $                  ilen, jlen, kbflo, kbfhi,
@@ -521,10 +540,12 @@ c
      $                  dbl_mb(k_ssni), dbl_mb(k_hlp))
 
                    if (.not. ma_pop_stack(l_hlp)) 
-     $                 call errquit('moints_semi: pop failed ',16)
+     $                 call errquit('moints_semi: pop failed ',16,
+     &       MA_ERR)
 
                   if (.not. ma_pop_stack(l_ssbb)) 
-     $                 call errquit('moints_semi: pop failed ',17)
+     $                 call errquit('moints_semi: pop failed ',17,
+     &       MA_ERR)
 
                    mi_t1 = mi_t1 + util_cpusec() - t0
                   enddo
@@ -536,12 +557,12 @@ c
                
                if (.not. ma_push_get(MT_DBL,n_hlp2,'hlp2 block',
      $              l_hlp2,k_hlp2)) 
-     $              call errquit('moints_semi: hlp2', n_hlp2)
+     $              call errquit('moints_semi: hlp2', n_hlp2, MA_ERR)
 
 #ifdef NEW_SPARSE
                if (.not. ma_push_get(MT_DBL,n_hlp,'hlp block',
      $              l_hlp,k_hlp)) 
-     $              call errquit('moints_semi: hlp', n_hlp)
+     $              call errquit('moints_semi: hlp', n_hlp, MA_ERR)
 
                call moints_trf2Kynew(nbf, qlo, qhi, oseglo, oseghi, 
      $                               vlo, vhi, ibflo, ibfhi, 
@@ -551,14 +572,17 @@ c
      $                               dbl_mb(k_xmo_t), g_kbuf )
 
                if (.not. ma_pop_stack(l_hlp)) 
-     $                 call errquit('moints_semi: pop failed ',18)
+     $                 call errquit('moints_semi: pop failed ',18,
+     &       MA_ERR)
 #else
                if (.not. ma_push_get(MT_DBL,n_hlp3,'hlp3 block',
      $              l_hlp3,k_hlp3)) 
-     $              call errquit('moints_semi: hlp3', n_hlp3)
+     $              call errquit('moints_semi: hlp3', n_hlp3,
+     &       MA_ERR)
                if (.not. ma_push_get(MT_DBL,(nbf*vhi),'r movecs',
      $              l_xmo,k_xmo)) call errquit
-     $              ('moints_semi: failed to alloc mos', nbf*vhi)
+     $              ('moints_semi: failed to alloc mos', nbf*vhi,
+     &       MA_ERR)
 c
 c     Generate the untranposed mos by transposing the transpose
 c
@@ -573,12 +597,15 @@ c
      $              dbl_mb(k_xmo), g_kbuf )
 
                if (.not. ma_pop_stack(l_xmo)) 
-     $                 call errquit('moints_semi: pop failed ',180)
+     $                 call errquit('moints_semi: pop failed ',180,
+     &       MA_ERR)
                if (.not. ma_pop_stack(l_hlp3)) 
-     $                 call errquit('moints_semi: pop failed ',18)
+     $                 call errquit('moints_semi: pop failed ',18,
+     &       MA_ERR)
 #endif
                if (.not. ma_pop_stack(l_hlp2)) 
-     $                 call errquit('moints_semi: pop failed ',19)
+     $                 call errquit('moints_semi: pop failed ',19,
+     &       MA_ERR)
                
                
                mi_t2k = mi_t2k + util_cpusec() - t0
@@ -646,12 +673,12 @@ c
 c Clean-up
 c
        if (.not. ma_pop_stack(l_ssni))
-     $      call errquit('moints_semi: pop failed ',20)
+     $      call errquit('moints_semi: pop failed ',20, MA_ERR)
 c 
 c  Complete in-core section
 c
        if (.not. ma_pop_stack(l_xmo_t))
-     $      call errquit('moints_semi: pop failed ',22)
+     $      call errquit('moints_semi: pop failed ',22, MA_ERR)
 c
        end
 
@@ -765,6 +792,7 @@ C$$$             CALL MOINTS_MATPRINT(NVIR,NOCC,H1)
       subroutine moints_wrbuf( munit, oseglo, oseghi, vlo, pvlo, pvhi,
      $                         nnbf, iocnt, rlen, g_buf )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "inp.fh"
@@ -803,11 +831,12 @@ c
                write(6,*) ' IO offset ', faddr
                write(6,*) ' IO error message ',
      ,              errmsg(1:inp_strlen(errmsg))
-               call errquit('moints_wrbuf: failed on write',0)
+               call errquit('moints_wrbuf: failed on write',0, DISK_ERR)
             endif
             call ga_release(g_buf, rlo, rhi, vv, vv )
           else
-            call errquit('moints_semi: wrong distrib for GA buffer',0)
+            call errquit('moints_semi: wrong distrib for GA buffer',0,
+     &       GA_ERR)
           endif
         enddo
       enddo
@@ -825,6 +854,7 @@ c
       subroutine moints_readintK( nbf, oseglo, oseghi, olo, ohi,
      $                            vlo, vhi, c, orbe, g_epair )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "eaf.fh"
@@ -854,7 +884,8 @@ c
       tmp2 = util_cpusec()
       call util_file_name('kh',.true.,.true.,fname)
       if (eaf_open(fname, EAF_RW, kunit).ne.0)
-     $  call errquit('moints_readintK: cannot open half int file',0)
+     $  call errquit('moints_readintK: cannot open half int file',0,
+     &       DISK_ERR)
       myid = ga_nodeid()
       e2 = 0.d0
       nocc = ohi - olo + 1
@@ -869,7 +900,7 @@ c$$$       enddo
 *ga:1:0
       if (.not.ga_create( MT_DBL, (nvir*nvir), nocc, 'exch',
      $                    (nvir*nvir), 0, g_exch))
-     $    call errquit('moints_semimp2: cannot allocate exch',0)
+     $    call errquit('moints_semimp2: cannot allocate exch',0, GA_ERR)
       call ga_distribution(g_exch, myid, rlo, rhi, clo, chi )
       call ga_inquire(g_epair,gtype,dim1,oomax)
 c
@@ -928,7 +959,8 @@ c     BGJ (9/99)
 c
 c            xx = moints_epair_eval( nvir, 0, nvir, dbl_mb(k_local),
 c     $                              orbe(ohi+1), denom )
-            call errquit('suspect call to moints_epair_eval',0)
+            call errquit('suspect call to moints_epair_eval',0,
+     &       UNKNOWN_ERR)
             xx = moints_epair_eval( nvir, 0, nvir, 0, dbl_mb(k_local),
      $                              orbe(ohi+1), denom )
             call ga_release(g_exch, rlo, rhi, jj, jj )
@@ -963,16 +995,17 @@ c
 c  Clean up
 c
       if (.not.ga_destroy(g_exch))
-     $  call errquit('moints_semimp2: failed to destroy',g_exch)
+     $  call errquit('moints_semimp2: failed to destroy',g_exch, GA_ERR)
       if (.not. ma_pop_stack(l_x))
-     $  call errquit('moints_readint: failed to pop', l_x)
+     $  call errquit('moints_readint: failed to pop', l_x, MA_ERR)
       if (.not. ma_pop_stack(l_t))
-     $  call errquit('moints_readint: failed to pop', l_t)
+     $  call errquit('moints_readint: failed to pop', l_t, MA_ERR)
       if (.not. ma_pop_stack(l_v))
-     $  call errquit('moints_readint: failed to pop', l_v)
+     $  call errquit('moints_readint: failed to pop', l_v, MA_ERR)
 c
       if (eaf_close(kunit).ne.0)
-     $  call errquit('moints_readintK: failed to close file',kunit)
+     $  call errquit('moints_readintK: failed to close file',kunit,
+     &       DISK_ERR)
 c
       call ga_sync()
       
@@ -988,6 +1021,7 @@ c  Read half-integrals from local file
 c
       subroutine moints_rdhfint( munit, plo, phi, o, p, nnbf, ioff, t )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
       integer munit
@@ -1002,7 +1036,8 @@ c
       rlen = ma_sizeof(MT_DBL,nnbf,MT_BYTE)
       faddr = ioff + recnum*rlen
       if (eaf_read(munit, faddr, t, rlen).ne.0)
-     $  call errquit('moints_rdhfint:cannot read integral record',0)
+     $  call errquit('moints_rdhfint:cannot read integral record',0,
+     &       DISK_ERR)
 
 c$$$      WRITE(6,771) RECNUM, FADDR
 c$$$ 771  FORMAT(' READ RECORD#:',I8,' @ ',F10.0)
@@ -1021,6 +1056,7 @@ c
 
       subroutine moints_vrange( munit, plo, phi, nnbf, ioff )
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
@@ -1031,7 +1067,8 @@ c$$$      INTEGER I
 
       if (eaf_read(munit, 0.d0, vtmp, 
      $             ma_sizeof(MT_INT,10,MT_BYTE)).ne.0)
-     $  call errquit('moints_vrange: cannot read header info',0)
+     $  call errquit('moints_vrange: cannot read header info',0,
+     &       DISK_ERR)
       ioff = vtmp(1)
       nnbf = vtmp(2)
       plo = vtmp(3)
@@ -1057,6 +1094,7 @@ c  Includes sparsity by Schwarz screening and petite list.
 c
       subroutine moints_getscattv( munit, nnbf, v )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
       integer munit
@@ -1070,7 +1108,8 @@ c$$$      INTEGER I
       ioptr = ma_sizeof(MT_INT,10,MT_BYTE)
       if (eaf_read(munit, ioptr, v, 
      $             ma_sizeof(MT_INT,nnbf,MT_BYTE)).ne.0)
-     $  call errquit('moints_getscattv: cannot read scatter v',0)
+     $  call errquit('moints_getscattv: cannot read scatter v',0,
+     &       DISK_ERR)
 
 c$$$      PRINT*,'READ BACK SCATTER ARRAY'
 c$$$      WRITE(6,771) (V(I),I=1,NNBF)

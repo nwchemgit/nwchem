@@ -1,6 +1,7 @@
       logical function moints_full(rtdb)
-C     $Id: moints_full.F,v 1.28 2003-04-11 00:25:55 bert Exp $
+C     $Id: moints_full.F,v 1.29 2003-10-17 22:55:26 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -108,25 +109,27 @@ c
 c     Basis and geometry
 c     
       if (.not. geom_create(geom,'geometry'))
-     $     call errquit('moints: geom failed',0)
+     $     call errquit('moints: geom failed',0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry'))
-     $     call errquit('moints: geometry not found',0)
+     $     call errquit('moints: geometry not found',0,
+     &       RTDB_ERR)
       if(cckohn_ci)then
          if (.not. bas_create(basis, 'all'))
-     $        call errquit('moints: basis all failed',0)
+     $        call errquit('moints: basis all failed',0, BASIS_ERR)
          if (.not. bas_rtdb_load(rtdb, geom, basis, 'all'))
-     $        call errquit('moints: basis all not found',0)   
+     $        call errquit('moints: basis all not found',0,
+     &       RTDB_ERR)
       else
          if (.not. bas_create(basis, 'ao basis'))
-     $        call errquit('moints: basis failed',0)
+     $        call errquit('moints: basis failed',0, BASIS_ERR)
          if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $        call errquit('moints: ao basis not found',0)
+     $        call errquit('moints: ao basis not found',0, RTDB_ERR)
       endif
 c
       if (.not. bas_numbf(basis, nbf)) 
-     $     call errquit('moints: failed to get nbf', 0)
+     $     call errquit('moints: failed to get nbf', 0, BASIS_ERR)
       if (.not. bas_numcont(basis,nsh))
-     $     call errquit('moints: failed to get nbf', 0)
+     $     call errquit('moints: failed to get nbf', 0, BASIS_ERR)
 c     
 c     Load MO vectors
 c     
@@ -146,27 +149,30 @@ c
 c     
       if (.not. movecs_read_header(movecs_in, title_vecs,
      $     basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
-     $     call errquit('moints: cannot read MO vectors header',0)
+     $     call errquit('moints: cannot read MO vectors header',0,
+     &       DISK_ERR)
       if (nbf.ne.nbf_vecs) call errquit
-     $     ('moints: number of basis fun does not match input',0)
+     $     ('moints: number of basis fun does not match input',0,
+     &       INPUT_ERR)
 *     if (nsets .ne. 1) call errquit('moints: cannot do UHF?',0)
 c     
       if (.not. ma_push_get(MT_DBL, nbf, 'Evals', l_work, k_work))
-     $     call errquit('moints: failed to alloc work ',nbf)
+     $     call errquit('moints: failed to alloc work ',nbf, MA_ERR)
       if (.not. ma_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals))
-     $     call errquit('moints: failed to alloc evals ',nbf)
+     $     call errquit('moints: failed to alloc evals ',nbf, MA_ERR)
       if (.not. ma_push_get(MT_DBL, nbf, 'Occs', l_occ, k_occ))
-     $     call errquit('moints: failed to alloc occs ',nbf)
+     $     call errquit('moints: failed to alloc occs ',nbf, MA_ERR)
       if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_irs, k_irs))
-     $     call errquit('moints: failed to alloc irs ',nmo)
+     $     call errquit('moints: failed to alloc irs ',nmo, MA_ERR)
       if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_map, k_map))
-     $     call errquit('moints: failed to alloc map ',nmo)
+     $     call errquit('moints: failed to alloc map ',nmo, MA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nmo, 'MOs',
-     $     0, 0, g_vecs)) call errquit('moints: ga failed', 0)
+     $     0, 0, g_vecs)) call errquit('moints: ga failed', 0, GA_ERR)
       if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_vecs))
-     $     call errquit('moints: cannot read MO vectors',0)
+     $     call errquit('moints: cannot read MO vectors',0,
+     &       DISK_ERR)
 c
 c     Apply swaps of movecs
 c
@@ -207,7 +213,7 @@ c
       else if (intfmt .eq. 'columbus') then
          osymblock = .true.
       else
-         call errquit('moints: bad intfmt',0)
+         call errquit('moints: bad intfmt',0, INPUT_ERR)
       end if
 c
 c     Set index ranges
@@ -219,7 +225,8 @@ c
 c     Initialise integrals and screening
 c     
       if (.not.int_normalize(rtdb,basis))
-     &    call errquit('moints_full: int_normalize failed',911)
+     &    call errquit('moints_full: int_normalize failed',911,
+     &       INT_ERR)
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom,basis)
 c     
@@ -246,7 +253,7 @@ c     Allocate operator matrices
 c     
       g_coul = ga_create_JKblocked(noper,nbf,nbf,'Coulomb oper')
       if (.not. ma_push_get(MT_DBL, nact**2, 'g buffer', l_g, k_g))
-     $     call errquit('moints: failed to alloc g ',nacttri)
+     $     call errquit('moints: failed to alloc g ',nacttri, MA_ERR)
 c     
 c     Print info
 c     
@@ -297,7 +304,7 @@ c
      $        nmixed)
          if (nmixed .ne. 0) then
             if (.not. ocontam) call errquit
-     $           ('moints: MOs are symmetry contaminated',0)
+     $           ('moints: MOs are symmetry contaminated',0, INPUT_ERR)
 c     If forced to ignore contamination must orthog and 
 c     repeat projection to be sure
             if (oprint) then
@@ -316,7 +323,8 @@ c     repeat projection to be sure
  912           format(/' Still have symmetry contamination of',i3,
      $              ' vectors ... cannot proceed')
                call util_flush(6)
-               call errquit('moints: symmetry contamination',0)
+               call errquit('moints: symmetry contamination',0,
+     &       INPUT_ERR)
             end if
          end if
          if (oprint) then
@@ -395,7 +403,7 @@ c     Two index transformation of effective core hamiltonian
 c
       tpass = -tcgtime()
       if (.not. geom_nuc_rep_energy(geom, efzc)) call errquit
-     $     ('moints: geom_nuc_rep_energy failed',0)
+     $     ('moints: geom_nuc_rep_energy failed',0, GEOM_ERR)
       g_hcore = ga_create_atom_blocked(geom, basis, 'T+V')
       call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore,'kinetic', osym)
@@ -421,9 +429,9 @@ c
          efzc = efzc + eone + etwo
          call ga_dadd(1.0d0, g_hcore, 1.0d0, g_aofock, g_hcore)
          if (.not. ga_destroy(g_aodens)) call errquit
-     $        ('moints: ga_destroy failed', 0)
+     $        ('moints: ga_destroy failed', 0, GA_ERR)
          if (.not. ga_destroy(g_aofock)) call errquit
-     $        ('moints: ga_destroy failed', 0)
+     $        ('moints: ga_destroy failed', 0, GA_ERR)
       end if
       tpass = tpass + tcgtime()
 c
@@ -440,11 +448,13 @@ c
 c
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nmo(1), 'tmp', 0, 0, g_tmp)) 
-     $     call errquit('moints: ga create of tmp failed', nmo(1)*nbf)
+     $     call errquit('moints: ga create of tmp failed', nmo(1)*nbf,
+     &       GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nmo(1), nmo(1), 'MO fock', 
      $     0, 0, g_mofock)) 
-     $     call errquit('moints: ga create of tmp failed', nmo(1)**2)
+     $     call errquit('moints: ga create of tmp failed', nmo(1)**2,
+     &       GA_ERR)
 c
       if (util_print('vectors',print_debug)) call ga_print(g_vecs)
       call two_index_transf(g_hcore, g_vecs, g_vecs, g_tmp, g_mofock)
@@ -459,11 +469,11 @@ c
       end if
 c
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('moints: ga_destroy failed', 0)
+     $     ('moints: ga_destroy failed', 0, GA_ERR)
       if (.not. ga_destroy(g_mofock)) call errquit
-     $     ('moints: ga_destroy failed', 0)
+     $     ('moints: ga_destroy failed', 0, GA_ERR)
       if (.not. ga_destroy(g_hcore)) call errquit
-     $     ('moints: ga_destroy failed', 0)
+     $     ('moints: ga_destroy failed', 0, GA_ERR)
 c
 c     Clear 4-index statistics
 c     
@@ -521,25 +531,25 @@ c
       call schwarz_tidy()
       call int_terminate()
       if (.not. bas_destroy(basis))
-     $     call errquit('moints: basis corrupt',0)
+     $     call errquit('moints: basis corrupt',0, BASIS_ERR)
       if (.not. geom_destroy(geom))
-     $     call errquit('moints: geom corrupt',0)
+     $     call errquit('moints: geom corrupt',0, GEOM_ERR)
       if (.not. ga_destroy(g_coul)) call errquit
-     $     ('moints: ga destroy failed ',0)
+     $     ('moints: ga destroy failed ',0, GA_ERR)
       if (.not. ma_pop_stack(l_g))
-     $     call errquit('moints: ma failed',0)
+     $     call errquit('moints: ma failed',0, MA_ERR)
       if (.not. ma_pop_stack(l_map))
-     $     call errquit('moints: ma failed',0)
+     $     call errquit('moints: ma failed',0, MA_ERR)
       if (.not. ma_pop_stack(l_irs))
-     $     call errquit('moints: ma failed',0)
+     $     call errquit('moints: ma failed',0, MA_ERR)
       if (.not. ma_pop_stack(l_occ))
-     $     call errquit('moints: ma failed',0)
+     $     call errquit('moints: ma failed',0, MA_ERR)
       if (.not. ma_pop_stack(l_evals))
-     $     call errquit('moints: ma failed',0)
+     $     call errquit('moints: ma failed',0, MA_ERR)
       if (.not. ma_pop_stack(l_work))
-     $     call errquit('moints: ma failed',0)
+     $     call errquit('moints: ma failed',0, MA_ERR)
       if (.not. ga_destroy(g_vecs))
-     $     call errquit('moints: ga_destroy failed',0)
+     $     call errquit('moints: ga_destroy failed',0, GA_ERR)
 c     
       call util_print_pop()
 c
@@ -549,6 +559,7 @@ c
      $     g_coul,lo, hi, oseg_lo, oseg_hi,
      $     tol2e, g, osym, irs, intfmt)
       implicit none
+#include "errquit.fh"
 c
       integer moints_unit
       integer g_coul
@@ -583,7 +594,7 @@ c
       else if (intfmt .eq. 'columbus') then
          itype = 3
       else
-         call errquit('moints_two: bad intfmt',0)
+         call errquit('moints_two: bad intfmt',0, INPUT_ERR)
       end if
 c
       ij = 1
@@ -603,7 +614,8 @@ c
                            write(6,*) irs(i), irs(j), irs(k), irs(l)
                            write(6,*) g(l,k)
                            call errquit
-     $                          ('moints: integral zero by symmetry',0)
+     $                          ('moints: integral zero by symmetry',0,
+     &       GEOM_ERR)
                         end if
                      end if
                      if (itype .eq. 1) then
@@ -623,7 +635,8 @@ c
                            n_in_buf = 0
                         end if
                      else
-                        call errquit('moints: bad itype', itype)
+                        call errquit('moints: bad itype', itype,
+     &       INPUT_ERR)
                      end if
                   end if
                end do
@@ -639,6 +652,7 @@ c
       subroutine moints_one_output(moints_unit,
      $     g_mofock, lo, hi, tol_out, osym, irs, intfmt)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
       integer moints_unit
@@ -662,7 +676,8 @@ c
                if (irs(i).ne.irs(j)) then
                   if (abs(buf(j)) .gt. tol_out) then
                      write(6,*) i, j, irs(i), irs(j), buf(j)
-                     call errquit('moints: integral zero by sym',0)
+                     call errquit('moints: integral zero by sym',0,
+     &       GEOM_ERR)
                   else
                      buf(j) = 0.0d0
                   end if
@@ -690,7 +705,8 @@ c
          nact = hi - lo + 1
          nacttri = nact*(nact+1)/2
          if (.not. ma_push_get(mt_dbl, nacttri, 'moints_one',
-     $        l_buf, k_buf)) call errquit('moints: ma ', nacttri)
+     $        l_buf, k_buf)) call errquit('moints: ma ', nacttri,
+     &       MA_ERR)
          lo1 = k_buf
          do i = lo, hi
             call ga_get(g_mofock, lo, i, i, i, dbl_mb(lo1), 1)
@@ -698,7 +714,7 @@ c
          end do
          write(moints_unit) (dbl_mb(k_buf+i-1),i=1,nacttri)
          if (.not. ma_pop_stack(l_buf))
-     $        call errquit('moints: ma corrupt',0)
+     $        call errquit('moints: ma corrupt',0, MA_ERR)
       else if (intfmt .eq. 'columbus') then
 c
 c     Get triangle local and write out
@@ -706,7 +722,8 @@ c
          nact = hi - lo + 1
          nacttri = nact*(nact+1)/2
          if (.not. ma_push_get(mt_dbl, nacttri, 'moints_one',
-     $        l_buf, k_buf)) call errquit('moints: ma ', nacttri)
+     $        l_buf, k_buf)) call errquit('moints: ma ', nacttri,
+     &       MA_ERR)
          lo1 = k_buf
          do i = lo, hi
             call ga_get(g_mofock, lo, i, i, i, dbl_mb(lo1), 1)
@@ -714,15 +731,16 @@ c
          end do
          write(moints_unit) (dbl_mb(k_buf+i-1),i=1,nacttri)
          if (.not. ma_pop_stack(l_buf))
-     $        call errquit('moints: ma corrupt',0)
+     $        call errquit('moints: ma corrupt',0, MA_ERR)
       else
-         call errquit('moints_one: bad integral format',0)
+         call errquit('moints_one: bad integral format',0, INPUT_ERR)
 
       end if
 c
       end
       subroutine moints_close(moints_unit, intfmt)
       implicit none
+#include "errquit.fh"
       integer moints_unit
       character*(*) intfmt
       double precision buf      ! Not used
@@ -738,16 +756,17 @@ c
       else if (intfmt .eq. 'columbus') then
          close(moints_unit, status='keep', err=1000)
       else
-         call errquit('moints: unknown integral format',0)
+         call errquit('moints: unknown integral format',0, INPUT_ERR)
       end if
 c
       return
 c
- 1000 call errquit('moints_close: close failed',0)
+ 1000 call errquit('moints_close: close failed',0, DISK_ERR)
 c
       end
       subroutine moints_open(moints_unit, moints_file, intfmt)
       implicit none
+#include "errquit.fh"
       integer moints_unit
       character*(*) moints_file
       character*(*) intfmt
@@ -765,18 +784,19 @@ c
      $        form='unformatted',status='unknown',
      $        err=1000)
       else
-         call errquit('moints: unknown file format',0)
+         call errquit('moints: unknown file format',0, INPUT_ERR)
       end if
 c
       return
 c
  1000 write(6,*) ' moints filename=', moints_file
-      call errquit('moints_open: failed to open file',0)
+      call errquit('moints_open: failed to open file',0, DISK_ERR)
 c
       end
       subroutine moints_vecs_sym_sort(g_vecs, nbf, lo, hi,
      $     irs, map, work, nsym, sym_lo, sym_hi)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
       integer g_vecs            ! [input] GA handle to vectors
       integer nbf               ! [input]
@@ -821,7 +841,7 @@ c
          end do
          sym_hi(isym)=sym_lo(isym)+nsym(isym)-1
       end do
-      if (n .ne. hi) call errquit('moints: bad map?',0)
+      if (n .ne. hi) call errquit('moints: bad map?',0, INPUT_ERR)
       do i = lo, hi
          irs(i) = work(i)
       end do
@@ -829,7 +849,7 @@ c
 c     Sort the vectors
 c
       if (.not. ga_duplicate(g_vecs, g_tmp, 'sort buf'))
-     $     call errquit('moints: no GA room for sort buf',0)
+     $     call errquit('moints: no GA room for sort buf',0, GA_ERR)
       call ga_copy(g_vecs, g_tmp)
 c
       do i = lo+ga_nodeid(), hi, ga_nnodes()
@@ -837,13 +857,15 @@ c
          call ga_put(g_vecs,1, nbf, map(i), map(i), work, 1)
       end do
 c
-      if (.not. ga_destroy(g_tmp)) call errquit('moints: GA destroy?',0)
+      if (.not. ga_destroy(g_tmp)) call errquit('moints: GA destroy?',0,
+     &       GA_ERR)
 c
       end
       subroutine moints_header_output(moints_unit, title,
      $     nact, occ_frozen, buflen, nsym,
      $     map, irs, evals, occ, efzc, intfmt)
       implicit none
+#include "errquit.fh"
       integer moints_unit
       character*(*) title
       integer nact
@@ -902,9 +924,11 @@ c
 c     Initialize SIFS record-sizes etc.
 c
          call sifcfg( 1, -1, nact, 0, ifmt1, l1rec, n1max, ierr)
-         if ( ierr .ne. 0 ) call errquit('moitns: sifcfg1 ', ierr)
+         if ( ierr .ne. 0 ) call errquit('moitns: sifcfg1 ', ierr,
+     &       INPUT_ERR)
          call sifcfg( 2, -1, nact, 0, ifmt2, l2rec, n2max, ierr)
-         if ( ierr .ne. 0 ) call errquit('moitns: sifcfg2 ', ierr)
+         if ( ierr .ne. 0 ) call errquit('moitns: sifcfg2 ', ierr,
+     &       INPUT_ERR)
 c
 c     Fill up the header and stuff it out there
 c
@@ -925,7 +949,8 @@ c
          else if (numsym .le. 8) then
             numsym = 8
          else
-            call errquit('moints_columbus symmetry nonsense',numsym)
+            call errquit('moints_columbus symmetry nonsense',numsym,
+     &       INPUT_ERR)
          end if
 c     
          do i = 1,numsym
@@ -939,9 +964,11 @@ c
      &        5, 1, 0, title,
      &        nsym, slabel, info, bfnlab,
      &        -1, efzc, 0, 0, ierr )
-         if( ierr.ne.0 ) call errquit('moints: sifwh failed', ierr)
+         if( ierr.ne.0 ) call errquit('moints: sifwh failed', ierr,
+     &       INPUT_ERR)
       else
-         call errquit('moints header: unknown intfmt',0)
+         call errquit('moints header: unknown intfmt',0,
+     &       INPUT_ERR)
       end if
       end
       subroutine moints_wrt_buf(moints_unit, n, buf, labels)

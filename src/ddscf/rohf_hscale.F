@@ -1,7 +1,8 @@
       subroutine rohf_hdiag_scale( nmo, nclosed, nopen, lshift,
      $     g_fcv, g_fpv, g_fcp, g_x )
-C     $Id: rohf_hscale.F,v 1.5 1996-10-06 20:12:37 d3g681 Exp $
+C     $Id: rohf_hscale.F,v 1.6 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "mafdecls.fh"
@@ -60,14 +61,16 @@ c
 c     Get diagonals of each matrix
 c
       if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_fcv,k_fcv))
-     $     call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $     call errquit('rohf_hdiag_scale: cannot allocate',0, MA_ERR)
       if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_x,k_x))
-     $     call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $     call errquit('rohf_hdiag_scale: cannot allocate',0, MA_ERR)
       if (nopen .gt. 0) then
          if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_fcp,k_fcp))
-     $        call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $        call errquit('rohf_hdiag_scale: cannot allocate',0,
+     &       MA_ERR)
          if (.not.ma_push_get(MT_DBL,nmo,'rohf: tmp',l_fpv,k_fpv))
-     $        call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $        call errquit('rohf_hdiag_scale: cannot allocate',0,
+     &       MA_ERR)
       endif
 c     
       call ga_get_diagonal(g_fcv, dbl_mb(k_fcv))
@@ -137,14 +140,16 @@ c
 c     
       if (nopen .gt. 0) then
          if (.not.ma_pop_stack(l_fpv))
-     $        call errquit('rohf_hdiag_scale: cannot pop stack',0)
+     $        call errquit('rohf_hdiag_scale: cannot pop stack',0,
+     &       MA_ERR)
          if (.not.ma_pop_stack(l_fcp))
-     $        call errquit('rohf_hdiag_scale: cannot pop stack',0)
+     $        call errquit('rohf_hdiag_scale: cannot pop stack',0,
+     &       MA_ERR)
       endif
       if (.not.ma_pop_stack(l_x))
-     $     call errquit('rohf_hdiag_scale: cannot pop stack',0)
+     $     call errquit('rohf_hdiag_scale: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_fcv))
-     $     call errquit('rohf_hdiag_scale: cannot pop stack',0)
+     $     call errquit('rohf_hdiag_scale: cannot pop stack',0, MA_ERR)
 c
       end
 

@@ -2,9 +2,10 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, whichfunc,indx)
 c
-C$Id: grid_ssw.F,v 1.18 2002-08-14 00:32:53 edo Exp $
+C$Id: grid_ssw.F,v 1.19 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "cdft.fh"
 
 c
@@ -166,7 +167,7 @@ c
            if(wsum.ne.0) then
               xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
            else
-              call errquit(' ssw : wsum .eq.0 ',0)
+              call errquit(' ssw : wsum .eq.0 ',0, UNKNOWN_ERR)
                                 !           xyzw(4,n) =0d0
            endif
         enddo

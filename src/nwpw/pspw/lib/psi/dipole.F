@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.5 2003-07-12 22:12:16 bylaska Exp $
+* $Id: dipole.F,v 1.6 2003-10-17 22:57:36 carlfahl Exp $
 *
 
 *     ******************************
@@ -10,6 +10,7 @@
 
       subroutine Calculate_Dipole(ispin,ne,n2ft3d,dn,dipole)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       integer n2ft3d
       real*8 dn(n2ft3d,ispin)
@@ -157,7 +158,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl, n2ft3d,'rgz',rgz(2),rgz(1))     
       if (.not. value) 
-     >   call errquit('Calculate_Dipole: out of stack memory',0)
+     >   call errquit('Calculate_Dipole: out of stack memory',0, MA_ERR)
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -280,7 +281,8 @@
       value = value.and.MA_pop_stack(rgx(2))
       value = value.and.MA_pop_stack(rgrid(2))
       if (.not. value) 
-     >   call errquit('Calculate_Dipole: cannot pop stack memory',0)
+     >   call errquit('Calculate_Dipole: cannot pop stack memory',0,
+     &       MA_ERR)
 
       return
       end

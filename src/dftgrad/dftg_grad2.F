@@ -11,7 +11,7 @@ c
 c     BGJ - 9/98
 c    
 *
-* $Id: dftg_grad2.F,v 1.10 1999-01-06 01:21:23 d3h449 Exp $
+* $Id: dftg_grad2.F,v 1.11 2003-10-17 22:54:42 carlfahl Exp $
 *
       implicit none
 c      
@@ -54,9 +54,10 @@ c     exchange density matrices removed from call list for DFT
 c     coulomb-only term.
 c    
 *
-* $Id: dftg_grad2.F,v 1.10 1999-01-06 01:21:23 d3h449 Exp $
+* $Id: dftg_grad2.F,v 1.11 2003-10-17 22:54:42 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 c      
 #include "mafdecls.fh"
 #include "global.fh"
@@ -99,7 +100,8 @@ c
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_force .or. do_cpks_r .or. do_hess)) then
-         call errquit('dft_grad2_gen: illegal calculation type',1)
+         call errquit('dft_grad2_gen: illegal calculation type',1,
+     &       INPUT_ERR)
       endif
       if (do_cpks_r) then
 c
@@ -107,10 +109,10 @@ c     Need scratch space for locally formed J mat derivative blocks
 c
          if (.not.MA_push_get(MT_DBL, ldim*ldim, 'dfij',
      &        l_dfij, k_dfij)) call
-     &        errquit('dftg_grad2_gen: cannot allocate dfij',1)
+     &        errquit('dftg_grad2_gen: cannot allocate dfij',1, MA_ERR)
          if (.not.MA_push_get(MT_DBL, ldim*ldim, 'dfkl',
      &        l_dfkl, k_dfkl)) call
-     &        errquit('dftg_grad2_gen: cannot allocate dfkl',1)
+     &        errquit('dftg_grad2_gen: cannot allocate dfkl',1, MA_ERR)
       endif
 c
       iproc = ga_nodeid()
@@ -162,16 +164,20 @@ c                    check for functions on each center
 c
                      status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2bfr',0)
+     &                  ('dftg_grad2: error with bas_ce2bfr',0,
+     &       BASIS_ERR)
                      status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2bfr',0)
+     &                  ('dftg_grad2: error with bas_ce2bfr',0,
+     &       BASIS_ERR)
                      status = bas_ce2bfr(basis,iat3,iab3f,iab3l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2bfr',0)
+     &                  ('dftg_grad2: error with bas_ce2bfr',0,
+     &       BASIS_ERR)
                      status = bas_ce2bfr(basis,iat4,iab4f,iab4l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2bfr',0)
+     &                  ('dftg_grad2: error with bas_ce2bfr',0,
+     &       BASIS_ERR)
                      if (iab1f.le.0 .or. 
      &                   iab2f.le.0 .or. 
      &                   iab3f.le.0 .or.
@@ -179,16 +185,20 @@ c
 c                              
                      status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2cnr',0)
+     &                  ('dftg_grad2: error with bas_ce2cnr',0,
+     &       BASIS_ERR)
                      status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2cnr',0)
+     &                  ('dftg_grad2: error with bas_ce2cnr',0,
+     &       BASIS_ERR)
                      status = bas_ce2cnr(basis,iat3,iac3f,iac3l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2cnr',0)
+     &                  ('dftg_grad2: error with bas_ce2cnr',0,
+     &       BASIS_ERR)
                      status = bas_ce2cnr(basis,iat4,iac4f,iac4l)
                      if (.not.status)call errquit 
-     &                  ('dftg_grad2: error with bas_ce2cnr',0)
+     &                  ('dftg_grad2: error with bas_ce2cnr',0,
+     &       BASIS_ERR)
 c
 c                     ijatom = ijatom + 1
 c
@@ -351,9 +361,9 @@ c
 c
       if (do_cpks_r) then
          if (.not.MA_pop_stack(l_dfkl))
-     &        call errquit('dftg_grad2_gen: cannot pop dfkl',1)
+     &        call errquit('dftg_grad2_gen: cannot pop dfkl',1, MA_ERR)
          if (.not.MA_pop_stack(l_dfij))
-     &        call errquit('dftg_grad2_gen: cannot pop dfij',1)
+     &        call errquit('dftg_grad2_gen: cannot pop dfij',1, MA_ERR)
       endif
 c
       return

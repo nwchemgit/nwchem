@@ -1,9 +1,10 @@
       Subroutine xc_fitv(rtdb,Tmat,nTrows,nTcols,g_vxc,g_xcinv,
      $                    g_oep,IOLGC)                          ! Qin
 c
-C$Id: xc_fitv.F,v 1.17 2003-06-12 22:43:00 edo Exp $
+C$Id: xc_fitv.F,v 1.18 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
       integer nTrows, nTcols
       double precision Tmat(nTrows, nTcols)
@@ -100,12 +101,12 @@ c
       LResult = LResult .and. bas_numbf( XC_bas_han, nbf_XC)
       LResult = LResult .and. bas_nbf_cn_max( XC_bas_han, MXnshbf_XC)
       if ( .not. LResult) then
-        call errquit('Exit from xc_fitv',1)
+        call errquit('Exit from xc_fitv',1, UNKNOWN_ERR)
       endif 
 c
 c Qin
       if (.not.rtdb_get(rtdb,'dft:oep',mt_int,1,ioep))
-     $    call errquit('xc_fitv : failed to get ioep',911)
+     $    call errquit('xc_fitv : failed to get ioep',911, RTDB_ERR)
 c end/ Qin
 c
 c     Compute the XC fitting coefficients.
@@ -117,11 +118,11 @@ c
       ndbl = nbf_xc*nTcols
 c
       if(.not.MA_Push_Get(MT_Dbl,ndbl,'xc_coef',lxc_coef,ixc_coef))
-     &  call errquit('xc_fitv: cannot allocate xc_coef',0)
+     &  call errquit('xc_fitv: cannot allocate xc_coef',0, MA_ERR)
       call dfill(ndbl,0.d0,DBL_MB(ixc_coef),1)
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf_xc,'scratchinv',lscr,iscr))
-     &  call errquit('xc_fitv: cannot allocate scratchinv',0)
+     &  call errquit('xc_fitv: cannot allocate scratchinv',0, MA_ERR)
 c
 c      if (IOLGC)call gacrea(geom, XC_bas_han, nbf_xc, nbf_xc, 
 c     &                     'XCinv', g_xcinv, 'row')
@@ -129,7 +130,7 @@ c     &                     'XCinv', g_xcinv, 'row')
 *ga:1:0
         if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
      &                      nbf_xc, 0, g_xcinv)) 
-     &     call errquit('xc_fitv: error creating g_xcinv',0)
+     &     call errquit('xc_fitv: error creating g_xcinv',0, GA_ERR)
       endif
 c
       if(me.eq.0.and.IOLGC) then
@@ -165,7 +166,7 @@ c
  111   continue   ! Qin
 c
       if (.not.ma_pop_stack(lscr))
-     &   call errquit('xc_fitv: cannot pop stack',0)
+     &   call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
       next=nxtval(-nproc)
 c
@@ -174,7 +175,7 @@ c
 c      if (IOLGC)call gadest(g_xcinv)
       if (IOLGC)then
          if (.not. ga_destroy(g_xcinv)) call errquit
-     &      ('xc_fitv: could not destroy g_xcinv', 0)
+     &      ('xc_fitv: could not destroy g_xcinv', 0, GA_ERR)
       endif
 c
 #if defined(DFT_TIMER)
@@ -193,7 +194,7 @@ c      endif
       if (ioep.eq.1 .or. ioep.eq.3) then
          if (.not. rtdb_get(rtdb, 'dft:xccoef',mt_dbl, nbf_xc*ipol,
      $     DBL_MB(ixc_coef)))
-     $      call errquit( 'xccoef : rtdb_get failed', 911)
+     $      call errquit( 'xccoef : rtdb_get failed', 911, RTDB_ERR)
       endif
 c         write(*,*) 'xc coef'
 c         do ii = 1, nbf_xc*ipol
@@ -210,16 +211,16 @@ c
       call int_mem_3ov(mag,Max_scr)
 c
       if (.not.MA_Push_Get(MT_Dbl, mag, '3OI', l3OI, i3OI))
-     &   call errquit('xc_fitv: cannot allocate 3OI',0)
+     &   call errquit('xc_fitv: cannot allocate 3OI',0, MA_ERR)
 c
       if (.not.MA_Push_Get(MT_Dbl, nTcols*mag, 'vvxc', lvvxc, ivvxc))
-     &   call errquit('xc_fitv: cannot allocate vvxc',0)
+     &   call errquit('xc_fitv: cannot allocate vvxc',0, MA_ERR)
 c
       if (.not.MA_Push_Get(MT_Dbl, mag, 'vec2', lvec2, ivec2))
-     &   call errquit('xc_fitv: cannot allocate vec2',0)
+     &   call errquit('xc_fitv: cannot allocate vec2',0, MA_ERR)
 c
       if (.not.MA_Push_Get(MT_Dbl, Max_scr, 'scr2', lscr2, iscr2))
-     &   call errquit('xc_fitv: cannot allocate scr2',0)
+     &   call errquit('xc_fitv: cannot allocate scr2',0, MA_ERR)
 c
 c     Compute 3-ctr OIs between a given pair of AO shells and a set of XC shells.
 c     
@@ -230,14 +231,14 @@ c
 c
       do 240 ishb = 1, nshells_ao
          if (.not. bas_cn2bfr(AO_bas_han, ishb, ifirstb, ilastb))
-     &       call errquit('Exiting in fitvxc.',10)
+     &       call errquit('Exiting in fitvxc.',10, BASIS_ERR)
          nshbfb=ilastb-ifirstb+1
 c
          do 230 ishc = 1, ishb
 c
             if (n1 .eq. n2)then
                if (.not. bas_cn2bfr(AO_bas_han, ishc, ifirstc, ilastc))
-     &            call errquit('Exiting in fitvxc.',10)
+     &            call errquit('Exiting in fitvxc.',10, BASIS_ERR)
                nshbfc=ilastc-ifirstc+1
                Nao2 = nshbfb*nshbfc
                iixc=0
@@ -248,7 +249,8 @@ c
 c
                do 210 isha = 1, nshells_xc
                   if (.not.bas_cn2bfr(XC_bas_han, isha, ifirsta, 
-     &               ilasta))call errquit('Exiting in fitvxc.',12)
+     &               ilasta))call errquit('Exiting in fitvxc.',12,
+     &       BASIS_ERR)
                   nshbfa=ilasta-ifirsta+1
                   Nintegrals = Nao2*nshbfa
                   nint_api=mag
@@ -345,19 +347,19 @@ c
 #endif
 c
       if(.not.ma_pop_stack(lscr2))
-     &  call errquit('xc_fitv: cannot pop stack',0)
+     &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
       if(.not.ma_pop_stack(lvec2))
-     &  call errquit('xc_fitv: cannot pop stack',0)
+     &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
       if(.not.ma_pop_stack(lvvxc))
-     &  call errquit('xc_fitv: cannot pop stack',0)
+     &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
       if(.not.ma_pop_stack(l3OI))
-     &  call errquit('xc_fitv: cannot pop stack',0)
+     &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
       if(.not.ma_pop_stack(lxc_coef))
-     &  call errquit('xc_fitv: cannot pop stack',0)
+     &  call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
       n1 = nxtval(-nproc)
 c

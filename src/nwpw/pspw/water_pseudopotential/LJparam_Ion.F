@@ -5,6 +5,7 @@
 *     *************************
       subroutine LJparam_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -29,7 +30,7 @@
       value = value.and.
      >        rtdb_get(rtdb,'water_pseudopotential:lj_count',
      >                 mt_int,1,ljcount)
-      if (.not. value) call errquit('error reading rtdb',0)
+      if (.not. value) call errquit('error reading rtdb',0, RTDB_ERR)
 
 
       if (ljcount.gt.0) then
@@ -40,7 +41,7 @@
      >          MA_alloc_get(mt_dbl,(ljcount),'ei',ei(2),ei(1))
         value = value.and.
      >          MA_alloc_get(mt_dbl,(ljcount),'si',si(2),si(1))
-        if (.not. value) call errquit('out of heap memory',0)
+        if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
         value = rtdb_get(rtdb,'water_pseudopotential:lj_ion_number',
      >                   mt_int,ljcount,int_mb(ion_number(1)))
@@ -56,7 +57,7 @@
         value = value.and.
      >          rtdb_get(rtdb,'water_pseudopotential:lj_sw',
      >                   mt_dbl,1,sw)
-        if (.not. value) call errquit('error reading rtdb',0)
+        if (.not. value) call errquit('error reading rtdb',0, RTDB_ERR)
       
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
@@ -86,6 +87,7 @@
 *     *************************
       subroutine LJparam_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -102,7 +104,7 @@
          value = MA_free_heap(ion_number(2))
          value = value.and.MA_free_heap(ei(2))
          value = value.and.MA_free_heap(si(2))
-         if (.not.value) call errquit('error MA_free_heap',0)
+         if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
       end if
 
       return

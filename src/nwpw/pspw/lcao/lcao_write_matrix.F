@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_matrix.F,v 1.3 2001-12-04 02:39:31 bylaska Exp $
+* $Id: lcao_write_matrix.F,v 1.4 2003-10-17 22:57:20 carlfahl Exp $
 *
       subroutine lcao_write_matrix_seq(unit,size,matrix)
       implicit none
@@ -16,6 +16,7 @@
 
       subroutine lcao_write_matrix(unit,matrix)
       implicit none
+#include "errquit.fh"
       integer unit
       integer matrix
 
@@ -36,7 +37,7 @@
       nbasis = aorbs_nbasis()
       value = MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value)
-     >  call errquit('lcao_write_matrix:out of stack memory',0)
+     >  call errquit('lcao_write_matrix:out of stack memory',0, MA_ERR)
 
 
       do i=1,nbasis
@@ -51,7 +52,7 @@
 
       value = MA_pop_stack(coef(2))
       if (.not. value)
-     >  call errquit('lcao_write_matrix:popping stack memory',0)
+     >  call errquit('lcao_write_matrix:popping stack memory',0, MA_ERR)
 
       return
  1000 format(100E10.3)

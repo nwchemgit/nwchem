@@ -3,12 +3,13 @@ C NAME
 C     rimp2_l1 -- Compute RI-MP2 L1 Lagrangian term
 C
 C REVISION
-C     $Id: l1.F,v 1.4 1998-12-08 19:51:33 bernhold Exp $
+C     $Id: l1.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_L1(NFrzO, NAct, NVir, NFit, D_Int, D_Gam,
      $     g_L1)
       Implicit NONE
+#include "errquit.fh"
       Integer NFrzO ![in]
       Integer NAct  ![in]
       Integer NVir  ![in]
@@ -51,13 +52,13 @@ C
       If ( .NOT. GA_Create( MT_Dbl, NVir, NFit,
      $     'test for memory allocation', NVir, -1, G_Int) )
      $     Call ErrQuit(
-     $     'RIMP2_L1: can''t allocate minimal GA', NVir*NFit)
+     $     'RIMP2_L1: can''t allocate minimal GA', NVir*NFit, GA_ERR)
 C
       Final = GA_Memory_Avail()
       Block = Initial - Final
 C
       If( .NOT. GA_Destroy( G_Int) ) Call ErrQuit(
-     $     'RIMP2_L1: can''t destroy GA!', 0)
+     $     'RIMP2_L1: can''t destroy GA!', 0, GA_ERR)
 C
 C     If this node has no data, then it can hold the full load of
 C     integrals and gammas.  We really want the minimum any node can
@@ -81,7 +82,7 @@ c$$$         Write ( 6, *) 'Testing IBlock, PBlock = ', IBlock, PBlock
          If ( PBlock .gt. 0 ) Goto 1000
       EndDo
       Call ErrQuit('RIMP2_L1: insufficient memory for memory buffers',
-     $     NTotal)
+     $     NTotal, MEM_ERR)
  1000 Continue
       PBlock = Min( PBlock, NFrzO+NAct+NVir)
 c$$$      Write ( 6, *) 'Chosen PBlock = ', PBlock
@@ -90,11 +91,13 @@ C     Create GAs appropriate for blocking
 C
       If ( .NOT. GA_Create( MT_Dbl, PBlock*NVir, NFit,
      $     '3c2e integrals', PBlock*NVir, -1, G_Int) ) Call ErrQuit(
-     $     'RIMP2_L1: can''t allocate integral GA', PBlock*NVir*NFit)
+     $     'RIMP2_L1: can''t allocate integral GA', PBlock*NVir*NFit,
+     &       GA_ERR)
 C     
       If ( .NOT. GA_Create( MT_Dbl, IBlock*NVir, NFit,
      $     '3-index gamma', IBlock*NVir, -1, G_Gam) ) Call ErrQuit(
-     $     'RIMP2_L1: can''t allocate gamma GA', IBlock*NVir*NFit)
+     $     'RIMP2_L1: can''t allocate gamma GA', IBlock*NVir*NFit,
+     &       GA_ERR)
 C
 C     Loop over batches of P and I
 C
@@ -110,9 +113,10 @@ C
          If ( DRA_Read_Section(.FALSE.,
      $        G_Gam, 1,               NI*NVir, 1, NFit,
      $        D_Gam, (ILo-1)*NVir+1, IHi*NVir, 1, NFit, ReqI) .ne. 0)
-     $        Call ErrQuit('RIMP2_L1: Error reading gamma', ILo)
+     $        Call ErrQuit('RIMP2_L1: Error reading gamma', ILo,
+     &       DISK_ERR)
          If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
-     $        'RIMP2_L1: Error from DRA_Wait on gamma', 1)
+     $        'RIMP2_L1: Error from DRA_Wait on gamma', 1, CALC_ERR)
 C
          Do PLo = 1, NFrzO+NAct+NVir, PBlock
             PHi = Min( NFrzO+NAct+NVir, PLo + PBlock - 1)
@@ -126,9 +130,11 @@ C
             If ( DRA_Read_Section(.FALSE.,
      $           G_Int, 1,              NP*NVir,  1, NFit,
      $           D_Int, (PLo-1)*NVir+1, PHi*NVir, 1, NFit, ReqP) .ne. 0)
-     $           Call ErrQuit('RIMP2_L1: Error reading integrals', PLo)
+     $           Call ErrQuit('RIMP2_L1: Error reading integrals', PLo,
+     &       DISK_ERR)
             If ( DRA_Wait(ReqP) .ne. 0) Call ErrQuit(
-     $           'RIMP2_L1: Error from DRA_Wait on integrals', 1)
+     $           'RIMP2_L1: Error from DRA_Wait on integrals', 1,
+     &       CALC_ERR)
 C
 C           Now process all gamma and integrals in core
 C
@@ -156,9 +162,9 @@ C
 C     Free memory
 C
       If ( .NOT. GA_Destroy( g_Gam ) ) Call ErrQuit(
-     $     'RIMP2_L1: can''t destroy gamma GA', g_Gam)
+     $     'RIMP2_L1: can''t destroy gamma GA', g_Gam, GA_ERR)
       If ( .NOT. GA_Destroy( g_Int ) ) Call ErrQuit(
-     $     'RIMP2_L1: can''t destroy integral GA', g_Gam)
+     $     'RIMP2_L1: can''t destroy integral GA', g_Gam, GA_ERR)
 C
 C     Print results if requested
 C

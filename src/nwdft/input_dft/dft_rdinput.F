@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.111 2003-09-19 01:03:43 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.112 2003-10-17 22:55:43 carlfahl Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -8,6 +8,7 @@ c     set defaults for those which were not in the rtdb and load
 c     the whole lot into the rtdb and common (cdft.fh).
 c
       implicit none
+#include "errquit.fh"
 c      
       integer rtdb                               ! [input] database handle
 c
@@ -42,7 +43,8 @@ c
       External atom_tag_check
 c
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $     call errquit('dft_rdinput: failed getting theory',0)
+     $     call errquit('dft_rdinput: failed getting theory',0,
+     &       RTDB_ERR)
 c
       do iline=1,numfunc
           xfac(iline)=0.d0
@@ -68,7 +70,7 @@ c
          nodamping = .false.
          if (.not. rtdb_put(rtdb, 'dft:nodamping',
      &      mt_log, 1, nodamping))
-     &      call errquit('dft_rdinput: rtdb_put failed', 1)
+     &      call errquit('dft_rdinput: rtdb_put failed', 1, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nolevelshifting', mt_log, 1, 
@@ -76,7 +78,7 @@ c
          nolevelshifting = .false.
          if (.not. rtdb_put(rtdb, 'dft:nolevelshifting',
      &      mt_log, 1, nolevelshifting))
-     &      call errquit('dft_rdinput: rtdb_put failed', 2)
+     &      call errquit('dft_rdinput: rtdb_put failed', 2, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:direct', mt_log, 1,
@@ -84,7 +86,7 @@ c
          direct = .false.
          if (.not. rtdb_put(rtdb, 'dft:direct',
      &      mt_log, 1, direct))
-     &      call errquit('dft_rdinput: rtdb_put failed', 3)
+     &      call errquit('dft_rdinput: rtdb_put failed', 3, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:diis', mt_log, 1,
@@ -92,7 +94,7 @@ c
          diis = .true.
          if (.not. rtdb_put(rtdb, 'dft:diis',
      &      mt_log, 1, diis))
-     &      call errquit('dft_rdinput: rtdb_put failed', 3)
+     &      call errquit('dft_rdinput: rtdb_put failed', 3, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nodiis', mt_log, 1,
@@ -100,7 +102,7 @@ c
          nodiis = .false.
          if (.not. rtdb_put(rtdb, 'dft:nodiis',
      &      mt_log, 1, nodiis))
-     &      call errquit('dft_rdinput: rtdb_put failed', 3)
+     &      call errquit('dft_rdinput: rtdb_put failed', 3, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:ltight', mt_log, 1,
@@ -108,7 +110,7 @@ c
          ltight=.false.
          if (.not. rtdb_put(rtdb, 'dft:ltight',
      &      mt_log, 1, ltight))
-     &      call errquit('dft_rdinput: rtdb_put failed', 4)
+     &      call errquit('dft_rdinput: rtdb_put failed', 4, RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'dft:incore', mt_log, 1,
@@ -116,7 +118,7 @@ c
          incore=.true.
          if (.not.rtdb_put(rtdb,'dft:incore',
      &      mt_log, 1, incore)) 
-     &      call errquit('dft_rdinput: rtdb_put failed', 5)
+     &      call errquit('dft_rdinput: rtdb_put failed', 5, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:max_ovl', mt_log, 1,
@@ -128,7 +130,7 @@ c
      &   lmaxov))  lmaxov=.false.      
          if (.not. rtdb_put(rtdb, 'dft:max_ovl',
      &      mt_log, 1, lmaxov))
-     &      call errquit('dft_rdinput: rtdb_put failed', 6)
+     &      call errquit('dft_rdinput: rtdb_put failed', 6, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:store_wght', mt_log, 1,
@@ -136,7 +138,7 @@ c
          store_wght = .false.
          if (.not. rtdb_put(rtdb, 'dft:store_wght',
      &      mt_log, 1, store_wght))
-     &      call errquit('dft_rdinput: rtdb_put failed', 7)
+     &      call errquit('dft_rdinput: rtdb_put failed', 7, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:delley', mt_log, 1,
@@ -144,7 +146,7 @@ c
          ldelley = .false.
          if (.not. rtdb_put(rtdb, 'dft:delley',
      &      mt_log, 1, ldelley))
-     &      call errquit('dft_rdinput: rtdb_put failed', 8)
+     &      call errquit('dft_rdinput: rtdb_put failed', 8, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:lb94', mt_log, 1,
@@ -152,7 +154,7 @@ c
          lb94 = .false.
          if (.not. rtdb_put(rtdb, 'dft:lb94',
      &      mt_log, 1, lb94))
-     &      call errquit('dft_rdinput: rtdb_put failed', 9)
+     &      call errquit('dft_rdinput: rtdb_put failed', 9, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:cs00', mt_log, 1,
@@ -160,7 +162,7 @@ c
          cs00 = .false.
          if (.not. rtdb_put(rtdb, 'dft:cs00',
      &      mt_log, 1, cs00))
-     &      call errquit('dft_rdinput: rtdb_put failed', 10)
+     &      call errquit('dft_rdinput: rtdb_put failed', 10, RTDB_ERR)
       endif
 c     
       if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
@@ -168,7 +170,7 @@ c
          iterations=30
          if (.not. rtdb_put(rtdb, 'dft:iterations',
      &      mt_int, 1, iterations))
-     &      call errquit('dft_rdinput: rtdb_put failed', 101) 
+     &      call errquit('dft_rdinput: rtdb_put failed', 101, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:mult', mt_int, 1,
@@ -176,10 +178,11 @@ c
          mult=1
          if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1,
      &      mult))
-     &      call errquit('dft_rdinput: rtdb_put failed', 104)
+     &      call errquit('dft_rdinput: rtdb_put failed', 104, RTDB_ERR)
          nopen = mult - 1
          if (.not.rtdb_put(rtdb, 'dft:nopen',mt_int,1,nopen))
-     &       call errquit('dft_rdinput: rtdb_put failed', 9104)
+     &       call errquit('dft_rdinput: rtdb_put failed', 9104,
+     &       RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))then
@@ -190,31 +193,32 @@ c
          endif
          if (.not. rtdb_put(rtdb, 'dft:ipol',
      &      mt_int, 1, ipol))
-     &      call errquit('dft_rdinput: rtdb_put failed', 105)
+     &      call errquit('dft_rdinput: rtdb_put failed', 105,
+     &       RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))then
          e_conv=1.d-6
          if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
-     &      call errquit('dft_rdinput: rtdb_put failed', 102)
+     &      call errquit('dft_rdinput: rtdb_put failed', 102, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))then
          d_conv=1.d-5
          if (.not. rtdb_put(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))
-     &      call errquit('dft_rdinput: rtdb_put failed', 106)
+     &      call errquit('dft_rdinput: rtdb_put failed', 106, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))then
          g_conv=5.d-4
          if (.not. rtdb_put(rtdb, 'dft:g_conv', mt_dbl, 1, g_conv))
-     &      call errquit('dft_rdinput: rtdb_put failed', 106)
+     &      call errquit('dft_rdinput: rtdb_put failed', 106, RTDB_ERR)
       endif
 c
       if (.not.rtdb_get(rtdb,'dft:delta_ac',mt_dbl,1,delta_ac))then
          delta_ac = 1.0d99
          if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,delta_ac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 107)
+     &      call errquit('dft_rdinput: rtdb_put failed', 107, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nfock', mt_int, 1,
@@ -222,7 +226,7 @@ c
          nfock=10
          if (.not. rtdb_put(rtdb, 'dft:nfock',
      &      mt_int, 1, nfock))
-     &      call errquit('dft_rdinput: rtdb_put failed', 107)
+     &      call errquit('dft_rdinput: rtdb_put failed', 107, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:idirect', mt_int, 1,
@@ -230,7 +234,7 @@ c
          idirect=0
          if (.not. rtdb_put(rtdb, 'dft:idirect',
      &      mt_int, 1, idirect))
-     &      call errquit('dft_rdinput: rtdb_put failed', 111)
+     &      call errquit('dft_rdinput: rtdb_put failed', 111, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1,
@@ -238,18 +242,18 @@ c
          noio=0
          if (.not. rtdb_put(rtdb, 'dft:noio',
      &      mt_int, 1, noio))
-     &      call errquit('dft_rdinput: rtdb_put failed', 112)
+     &      call errquit('dft_rdinput: rtdb_put failed', 112, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:damp', mt_log, 1, damp))then
          damp = .false.
          if (.not. rtdb_put(rtdb, 'dft:damp', mt_log, 1, damp))
-     &      call errquit('dft_rdinput: rtdb_put failed', 2)
+     &      call errquit('dft_rdinput: rtdb_put failed', 2, RTDB_ERR)
       endif
       if (.not. rtdb_get(rtdb, 'dft:ndamp', mt_int, 1, ndamp))then
          ndamp = 0
          if (.not. rtdb_put(rtdb, 'dft:ndamp', mt_int, 1, ndamp))
-     &      call errquit('dft_rdinput: rtdb_put failed', 113)
+     &      call errquit('dft_rdinput: rtdb_put failed', 113, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:idecomp', mt_int, 1,
@@ -257,7 +261,7 @@ c
          idecomp = 0
          if (.not. rtdb_put(rtdb, 'dft:idecomp',
      &      mt_int, 1, idecomp))
-     &      call errquit('dft_rdinput: rtdb_put failed', 114)
+     &      call errquit('dft_rdinput: rtdb_put failed', 114, RTDB_ERR)
       endif
 c
 cQin begin
@@ -265,49 +269,49 @@ c
       if (.not. rtdb_get(rtdb, 'dft:oep', mt_int, 1, ioep)) then
          ioep = 0
          if (.not. rtdb_put(rtdb, 'dft:oep', mt_int, 1, ioep))
-     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+     &       call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:coep', mt_int, 1, coep)) then
          coep = 2
          if (.not. rtdb_put(rtdb, 'dft:coep', mt_int, 1, coep))
-     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+     &       call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep)) then
          loep = .false.
          if (.not. rtdb_put(rtdb, 'dft:loep', mt_log, 1, loep))
-     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+     &       call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:qe_conv', mt_dbl, 1, qe_conv))then
          qe_conv=1.d-6
          if (.not. rtdb_put(rtdb, 'dft:qe_conv', mt_dbl, 1, qe_conv))
-     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+     &      call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:qx_conv', mt_dbl, 1, qx_conv))then
          qx_conv=1.d-6
          if (.not. rtdb_put(rtdb, 'dft:qx_conv', mt_dbl, 1, qx_conv))
-     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+     &      call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:qg_conv', mt_dbl, 1, qg_conv))then
          qg_conv=5.d-4
          if (.not. rtdb_put(rtdb, 'dft:qg_conv', mt_dbl, 1, qg_conv))
-     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+     &      call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:qdamp', mt_dbl, 1, qdamp))then
          qdamp=0.5d0
          if (.not. rtdb_put(rtdb, 'dft:qg_conv', mt_dbl, 1, qg_conv))
-     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+     &      call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:qthres', mt_dbl, 1, qthres))then
          qthres=1.d-6
          if (.not. rtdb_put(rtdb, 'dft:qthres', mt_dbl, 1, qthres))
-     &      call errquit('dft_rdinput: rtdb_put failed', 115)
+     &      call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:qiterations', mt_int, 1,
@@ -315,19 +319,19 @@ c
          qiterations = 30
          if (.not. rtdb_put(rtdb, 'dft:qiterations', mt_int, 1,
      $                      qiterations))
-     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+     &       call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:qdodiis', mt_log, 1, qdodiis)) then
          qdodiis = .true.
          if (.not. rtdb_put(rtdb, 'dft:qdodiis', mt_log, 1, qdodiis))
-     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+     &       call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:lsvd', mt_log, 1, lsvd)) then
          lsvd = .false.
          if (.not. rtdb_put(rtdb, 'dft:qdodiis', mt_log, 1, qdodiis))
-     &       call errquit('dft_rdinput: rtdb_put failed', 115)
+     &       call errquit('dft_rdinput: rtdb_put failed', 115, RTDB_ERR)
       endif
 c
 cQin end
@@ -337,7 +341,7 @@ c
          nquad_task = 1
          if (.not. rtdb_put(rtdb, 'dft:nquad_task',
      &      mt_int, 1,nquad_task))
-     &      call errquit('dft_rdinput: rtdb_put failed', 123)
+     &      call errquit('dft_rdinput: rtdb_put failed', 123, RTDB_ERR)
       endif
 c
 c
@@ -346,7 +350,7 @@ c
          iCDacc=20
          if (.not. rtdb_put(rtdb, 'dft:iCDacc',
      &      mt_int, 1, iCDacc))
-     &      call errquit('dft_rdinput: rtdb_put failed', 125)
+     &      call errquit('dft_rdinput: rtdb_put failed', 125, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:iXCacc', mt_int, 1,
@@ -354,7 +358,7 @@ c
          iXCacc=20
          if (.not. rtdb_put(rtdb, 'dft:iXCacc',
      &      mt_int, 1, iXCacc))
-     &      call errquit('dft_rdinput: rtdb_put failed', 125)
+     &      call errquit('dft_rdinput: rtdb_put failed', 125, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:itol2e', mt_int, 1,
@@ -366,7 +370,7 @@ c
          endif
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
      &      mt_int, 1, itol2e))
-     &      call errquit('dft_rdinput: rtdb_put failed', 127)
+     &      call errquit('dft_rdinput: rtdb_put failed', 127, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:imull', mt_int, 1,
@@ -374,7 +378,7 @@ c
          imull=0
          if (.not. rtdb_put(rtdb, 'dft:imull',
      &      mt_int, 1, imull))
-     &      call errquit('dft_rdinput: rtdb_put failed', 128)
+     &      call errquit('dft_rdinput: rtdb_put failed', 128, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:iangquad', mt_int, 1,
@@ -382,7 +386,7 @@ c
          iangquad=0
          if (.not. rtdb_put(rtdb, 'dft:iangquad',
      &      mt_int, 1, iangquad))
-     &      call errquit('dft_rdinput: rtdb_put failed', 129)
+     &      call errquit('dft_rdinput: rtdb_put failed', 129, RTDB_ERR)
       endif
 c     
       if (.not. rtdb_get(rtdb, 'dft:hl_tol', mt_dbl, 1,
@@ -390,7 +394,7 @@ c
          hl_tol = 0.01d0
          if (.not. rtdb_put(rtdb, 'dft:hl_tol',
      &      mt_dbl, 1, hl_tol))
-     &      call errquit('dft_rdinput: rtdb_put failed', 201)
+     &      call errquit('dft_rdinput: rtdb_put failed', 201, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:dampon', mt_dbl, 1,
@@ -398,7 +402,7 @@ c
          dampon = 0.d0
          if (.not. rtdb_put(rtdb, 'dft:dampon',
      &      mt_dbl, 1, dampon))
-     &      call errquit('dft_rdinput: rtdb_put failed', 201)
+     &      call errquit('dft_rdinput: rtdb_put failed', 201, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:dampoff', mt_dbl, 1,
@@ -406,7 +410,7 @@ c
          dampoff = 0.d0
          if (.not. rtdb_put(rtdb, 'dft:dampoff',
      &      mt_dbl, 1, dampoff))
-     &      call errquit('dft_rdinput: rtdb_put failed', 202)
+     &      call errquit('dft_rdinput: rtdb_put failed', 202, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:levlon', mt_dbl, 1,
@@ -414,7 +418,7 @@ c
          levlon = 0.d0
          if (.not. rtdb_put(rtdb, 'dft:levlon',
      &      mt_dbl, 1, levlon))
-     &      call errquit('dft_rdinput: rtdb_put failed', 203)
+     &      call errquit('dft_rdinput: rtdb_put failed', 203, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:levloff', mt_dbl, 1,
@@ -422,7 +426,7 @@ c
          levloff = 0.d0
          if (.not. rtdb_put(rtdb, 'dft:levloff',
      &      mt_dbl, 1, levloff))
-     &      call errquit('dft_rdinput: rtdb_put failed', 204)
+     &      call errquit('dft_rdinput: rtdb_put failed', 204, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:diison', mt_dbl, 1,
@@ -430,7 +434,7 @@ c
          diison = 0.d0
          if (.not. rtdb_put(rtdb, 'dft:diison',
      &      mt_dbl, 1, diison))
-     &      call errquit('dft_rdinput: rtdb_put failed', 205)
+     &      call errquit('dft_rdinput: rtdb_put failed', 205, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:diisoff', mt_dbl, 1,
@@ -438,7 +442,7 @@ c
          diisoff = 0.d0
          if (.not. rtdb_put(rtdb, 'dft:diisoff',
      &      mt_dbl, 1, diisoff))
-     &      call errquit('dft_rdinput: rtdb_put failed', 206)
+     &      call errquit('dft_rdinput: rtdb_put failed', 206, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:rscale', mt_dbl, 1,
@@ -446,7 +450,7 @@ c
          rscale = 0.0d0
          if (.not. rtdb_put(rtdb, 'dft:rscale',
      &      mt_dbl, 1, rscale))
-     &      call errquit('dft_rdinput: rtdb_put failed', 207)
+     &      call errquit('dft_rdinput: rtdb_put failed', 207, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:levelshift',
@@ -454,14 +458,14 @@ c
          levelshift = .true.
          if (.not. rtdb_put(rtdb, 'dft:levelshift',
      &      mt_log, 1, levelshift))
-     &      call errquit('dft_rdinput: rtdb_put failed', 212)
+     &      call errquit('dft_rdinput: rtdb_put failed', 212, RTDB_ERR)
       endif
       if (.not. rtdb_get(rtdb, 'dft:rlshift',
      &   mt_dbl, 1,rlshift))then
          rlshift=0.5d0
          if (.not. rtdb_put(rtdb, 'dft:rlshift',
      &      mt_dbl, 1,rlshift))
-     &      call errquit('dft_rdinput: rtdb_put failed', 212)
+     &      call errquit('dft_rdinput: rtdb_put failed', 212, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:ncydp', mt_int, 1,
@@ -469,7 +473,7 @@ c
          ncydp = 2
          if (.not. rtdb_put(rtdb, 'dft:ncydp',
      &      mt_int, 1, ncydp))
-     &      call errquit('dft_rdinput: rtdb_put failed', 108)
+     &      call errquit('dft_rdinput: rtdb_put failed', 108, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:ncysh', mt_int, 1,
@@ -481,7 +485,7 @@ c
          endif
          if (.not. rtdb_put(rtdb, 'dft:ncysh',
      &      mt_int, 1, ncysh))
-     &      call errquit('dft_rdinput: rtdb_put failed', 109)
+     &      call errquit('dft_rdinput: rtdb_put failed', 109, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:ncyds', mt_int, 1,
@@ -493,7 +497,7 @@ c
          endif
          if (.not. rtdb_put(rtdb, 'dft:ncyds',
      &      mt_int, 1, ncyds))
-     &      call errquit('dft_rdinput: rtdb_put failed', 110)
+     &      call errquit('dft_rdinput: rtdb_put failed', 110, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:radius', mt_dbl, 1,
@@ -501,7 +505,7 @@ c
          radius=25.d0
          if (.not. rtdb_put(rtdb, 'dft:radius',
      &      mt_dbl, 1,radius))
-     &      call errquit('dft_rdinput: rtdb_put failed', 213)
+     &      call errquit('dft_rdinput: rtdb_put failed', 213, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:tol_rho', mt_dbl, 1,
@@ -509,7 +513,7 @@ c
          tol_rho=1.D-10
          if (.not. rtdb_put(rtdb, 'dft:tol_rho',
      &      mt_dbl, 1,tol_rho))
-     &      call errquit('dft_rdinput: rtdb_put failed', 214)
+     &      call errquit('dft_rdinput: rtdb_put failed', 214, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:rm', mt_dbl, 1,
@@ -517,7 +521,7 @@ c
          rm = 2.0d0
          if (.not. rtdb_put(rtdb, 'dft:rm',
      &      mt_dbl, 1,rm))
-     &      call errquit('dft_rdinput: rtdb_put failed', 215)
+     &      call errquit('dft_rdinput: rtdb_put failed', 215, RTDB_ERR)
       endif
 c
 c     Get/set/put XC info.
@@ -526,49 +530,49 @@ c
      &   cfac))then
          if (.not. rtdb_put(rtdb, 'dft:cfac',
      &      mt_dbl, numfunc, cfac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 210)
+     &      call errquit('dft_rdinput: rtdb_put failed', 210, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc,
      &   xfac))then
          if (.not. rtdb_put(rtdb, 'dft:xfac',
      &      mt_dbl, numfunc, xfac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 211)
+     &      call errquit('dft_rdinput: rtdb_put failed', 211, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:lcfac', mt_log, numfunc,
      &   lcfac))then
          if (.not. rtdb_put(rtdb, 'dft:lcfac',
      &      mt_log, numfunc, lcfac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 9)
+     &      call errquit('dft_rdinput: rtdb_put failed', 9, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nlcfac', mt_log, numfunc,
      &   nlcfac))then
          if (.not. rtdb_put(rtdb, 'dft:nlcfac',
      &      mt_log, numfunc, nlcfac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 10)
+     &      call errquit('dft_rdinput: rtdb_put failed', 10, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:lxfac', mt_log, numfunc,
      &   lxfac))then
          if (.not. rtdb_put(rtdb, 'dft:lxfac',
      &      mt_log, numfunc, lxfac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 11)
+     &      call errquit('dft_rdinput: rtdb_put failed', 11, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nlxfac', mt_log, numfunc,
      &   nlxfac))then
          if (.not. rtdb_put(rtdb, 'dft:nlxfac',
      &      mt_log, numfunc, nlxfac))
-     &      call errquit('dft_rdinput: rtdb_put failed', 12)
+     &      call errquit('dft_rdinput: rtdb_put failed', 12, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:xccomb', mt_log, numfunc,
      &   xccomb))then
          if (.not. rtdb_put(rtdb, 'dft:xccomb',
      &      mt_log, numfunc, xccomb))
-     &      call errquit('dft_rdinput: rtdb_put failed', 13)
+     &      call errquit('dft_rdinput: rtdb_put failed', 13, RTDB_ERR)
       endif
 c
 c     Put XC names in rtdb.
@@ -657,20 +661,20 @@ c     place character XC parameters in rtdb
 c     
       if (.not. rtdb_cput(rtdb, 'dft:cname', 
      &   numfunc, cname))
-     &   call errquit('dft_rdinput: rtdb_put failed', 302) 
+     &   call errquit('dft_rdinput: rtdb_put failed', 302, RTDB_ERR)
       if (.not. rtdb_cput(rtdb, 'dft:xname', 
      &   numfunc, xname))
-     &   call errquit('dft_rdinput: rtdb_put failed', 303) 
+     &   call errquit('dft_rdinput: rtdb_put failed', 303, RTDB_ERR)
       if (.not. rtdb_cput(rtdb, 'dft:xcname', 
      &   numfunc, xcname))
-     &   call errquit('dft_rdinput: rtdb_put failed', 304) 
+     &   call errquit('dft_rdinput: rtdb_put failed', 304, RTDB_ERR)
 c
 c     load geometry and symmetry info
 c
       if (.not. geom_create(geom, 'geometry'))
-     &     call errquit('rdinput: geom_create?',70)
+     &     call errquit('rdinput: geom_create?',70, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &     call errquit('rdinput: no geometry ',72)
+     &     call errquit('rdinput: no geometry ',72, RTDB_ERR)
       if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))then
          oskel = sym_number_ops(geom) .gt. 0
       endif
@@ -681,23 +685,23 @@ c
 c     get number of atomic centers from geometry object
 c
       if (.not. geom_ncent(geom, ncenters))
-     &     call errquit('rdinput: geom_ncent failed',73)      
+     &     call errquit('rdinput: geom_ncent failed',73, GEOM_ERR)
 c
 c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
      &   icoord))call errquit(
-     .     'dft_rdinput: failed to alloc coordinates',0)
+     .     'dft_rdinput: failed to alloc coordinates',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
      &   icharge))call errquit(
-     .     'dft_rdinput: failed to alloc charges',0)
+     .     'dft_rdinput: failed to alloc charges',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit(
-     .     'dft_rdinput: failed to alloc center tags',0)
+     .     'dft_rdinput: failed to alloc center tags',0, MA_ERR)
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
-     &     call errquit('rdinput: geom_cart_get failed',74)
+     &     call errquit('rdinput: geom_cart_get failed',74, GEOM_ERR)
 c
 c     Extract high level info from the data-base setting defaults
 c
@@ -707,54 +711,55 @@ c
 c     Define the contracted Gaussian functions for the AO basis set.
 c
       if (.not. bas_create(AO_bas_han, 'ao basis'))
-     &   call errquit('rdinput: bas_create?', 86)
+     &   call errquit('rdinput: bas_create?', 86, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, AO_bas_han, 'ao basis'))
-     &   call errquit('rdinput: no ao basis ', 86)
+     &   call errquit('rdinput: no ao basis ', 86, BASIS_ERR)
       if (.not. int_normalize(rtdb,AO_bas_han))
-     &   call errquit('rdinput: int_normalize failed', 86)
+     &   call errquit('rdinput: int_normalize failed', 86, INT_ERR)
       if (.not. bas_numbf(AO_bas_han, nbf))
-     &   call errquit('rdinput: basis set error:', 86)
+     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
       nbf_ao = nbf
       if (.not. bas_nprim_cn_max(AO_bas_han,nbf_ao_mxprim))
-     &   call errquit('rdinput: basis set error:', 86)
+     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
       if (.not. bas_high_angular(AO_bas_han,nbf_ao_mxang))
-     &   call errquit('rdinput: basis set error:', 86)
+     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
       if (.not. bas_ncontr_cn_max(AO_bas_han,nbf_ao_mxcont))
-     &   call errquit('rdinput: basis set error:', 86)
+     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
       if (.not. bas_nbf_cn_max(AO_bas_han,nbf_ao_mxnbf_cn))
-     &   call errquit('rdinput: basis set error:', 86)
+     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
       if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
-     &   call errquit('rdinput: basis set error:', 86)
+     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
       if (.not. bas_numcont(AO_bas_han,nshells_ao))
-     &   call errquit('rdinput: basis set error:', 86)
+     &   call errquit('rdinput: basis set error:', 86, BASIS_ERR)
 c
 c     Define the contracted Gaussian functions for the CD basis set.
 c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
-     &   call errquit('rdinput: bas_create?',102)
+     &   call errquit('rdinput: bas_create?',102, BASIS_ERR)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       if (CDFIT)then
          if (.not. int_norm_2c(rtdb,CD_bas_han))
-     &      call errquit('rdinput: int_norm_2c failed', 208)
+     &      call errquit('rdinput: int_norm_2c failed', 208, BASIS_ERR)
          if (.not. bas_numbf(CD_bas_han, nbf_cd))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_nprim_cn_max(CD_bas_han,nbf_cd_mxprim))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_high_angular(CD_bas_han,nbf_cd_mxang))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_ncontr_cn_max(CD_bas_han,nbf_cd_mxcont))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_nbf_cn_max(CD_bas_han,nbf_cd_mxnbf_cn))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_nbf_ce_max(CD_bas_han,nbf_cd_mxnbf_ce))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_numcont(CD_bas_han,nshells_cd))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. rtdb_put(rtdb, 'dft:cdfit', mt_log, 1, .true.))
-     &      call errquit('rdinput: failed put_rtdb:', 99)
+     &      call errquit('rdinput: failed put_rtdb:', 99, RTDB_ERR)
       else
          if (.not. bas_destroy(CD_bas_han))
-     &      call errquit('rdinput:not able to destroy CD_bas:',86)
+     &      call errquit('rdinput:not able to destroy CD_bas:',86,
+     &       BASIS_ERR)
          CD_bas_han=-99999
          nbf_cd = 0
          nbf_cd_mxprim = 0
@@ -768,28 +773,29 @@ c
 c     Define the contracted Gaussian functions for the XC basis set.
 c
       if (.not. bas_create(XC_bas_han, 'xc basis'))
-     &   call errquit('rdinput: bas_create?',124)
+     &   call errquit('rdinput: bas_create?',124, BASIS_ERR)
       XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
       if (XCFIT)then
          if (.not. int_normalize(rtdb,XC_bas_han))
-     &      call errquit('rdinput: int_normalize failed', 208)
+     &      call errquit('rdinput: int_normalize failed', 208, INT_ERR)
          if (.not. bas_numbf(XC_bas_han, nbf_xc))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_nprim_cn_max(XC_bas_han,nbf_xc_mxprim))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_high_angular(XC_bas_han,nbf_xc_mxang))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_ncontr_cn_max(XC_bas_han,nbf_xc_mxcont))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_nbf_cn_max(XC_bas_han,nbf_xc_mxnbf_cn))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_nbf_ce_max(XC_bas_han,nbf_xc_mxnbf_ce))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
          if (.not. bas_numcont(XC_bas_han,nshells_xc))
-     &      call errquit('rdinput: basis set error:', 86)
+     &      call errquit('rdinput: basis set error:', 86, BASIS_ERR)
       else
          if (.not. bas_destroy(XC_bas_han))
-     &      call errquit('rdinput:not able to destroy XC_bas:',88)
+     &      call errquit('rdinput:not able to destroy XC_bas:',88,
+     &       BASIS_ERR)
          XC_bas_han=-99999
          nbf_xc = 0
          nbf_xc_mxprim = 0
@@ -810,7 +816,7 @@ c
      &   then
         iqrot = 1
         if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
-     &       call errquit('dft_rdinput: rtdb_put failed', 117)
+     &       call errquit('dft_rdinput: rtdb_put failed', 117, RTDB_ERR)
       endif
 c
 c     generate number of atom types and atom type array iatype(icenter) 
@@ -840,7 +846,7 @@ c
       enddo 
       if (ntypes.gt.dft_ntags_bsmx)then
         write(LuOut,*) 'RDINPUT:  Too many types of atoms.'
-        call errquit(' rdinput: raise dft_ntags_bsmx',2)
+        call errquit(' rdinput: raise dft_ntags_bsmx',2, INPUT_ERR)
       end if
 c
 c     definition of grid
@@ -851,7 +857,8 @@ c
        if (.not. rtdb_get(rtdb, 'dft:lebedev', mt_log, 1, leb)) then
           leb=.true.
           if (.not.rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
-     .         call errquit(' dft_rdinput: put of leb failed',0)
+     .         call errquit(' dft_rdinput: put of leb failed',0,
+     &       RTDB_ERR)
        endif
       if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) then
          if(leb) then
@@ -860,7 +867,8 @@ c
             radgrid='eumac'
           endif
           if (.not. rtdb_cput(rtdb,'dft:radgrid', 1,radgrid)) 
-     .         call errquit('dftrdinp: put radgrid failed',7)
+     .         call errquit('dftrdinp: put radgrid failed',7,
+     &       RTDB_ERR)
        endif
       if (.not.rtdb_get(rtdb, 'dft:trunc_neigh', mt_log, 1,
      &   trunc_neigh))trunc_neigh=.true.
@@ -871,14 +879,14 @@ c
       if (.not.rtdb_get(rtdb, 'dft:ssw', mt_log, 1, lssw)) then
          lssw=.true.
          if (.not.rtdb_put(rtdb, 'dft:ssw', mt_log, 1, lssw)) 
-     .        call errquit('dftrdi: rtdb_put failed', 1710)
+     .        call errquit('dftrdi: rtdb_put failed', 1710, RTDB_ERR)
          whichssw='erf1'
          if (.not.rtdb_cput(rtdb, 'dft:ssweights',  1, whichssw))
-     &        call errquit('dftrdi: rtdb_cput failed', 1720)
+     &        call errquit('dftrdi: rtdb_cput failed', 1720, RTDB_ERR)
       else
          if(lssw) then
          if (.not.rtdb_cget(rtdb, 'dft:ssweights',  1, whichssw))
-     &        call errquit('dftrdi: rtdb_cget failed', 1700)
+     &        call errquit('dftrdi: rtdb_cget failed', 1700, RTDB_ERR)
          endif
       endif
 c
@@ -888,7 +896,7 @@ c
      .     'dft:grid_on_file',mt_log,1,lgridfile)) then
          lgridfile=.true.
       if(.not.rtdb_put(rtdb,'dft:grid_on_file',mt_log,1,lgridfile)) 
-     &   call errquit('dftrdinput: rtdb_put failed', 1420)
+     &   call errquit('dftrdinput: rtdb_put failed', 1420, RTDB_ERR)
       endif
 
 
@@ -896,7 +904,8 @@ c
 c     set up type-indexed znuc array
 c
       if (.not. Ma_Push_Get(MT_Dbl,ntypes,'nuc charge',lznuc,iznuc))
-     &   call errquit('dft_rdinput: failed to alloc nuc charge',0)
+     &   call errquit('dft_rdinput: failed to alloc nuc charge',0,
+     &       MA_ERR)
 c
 c     for each type, place the nuclear charge in znuc array and put default 
 c     radial cutoff in rad_cutoff
@@ -953,13 +962,13 @@ c
       call util_file_name_resolve(movecs_out, .false.)
 c
       if (.not. MA_Pop_Stack(lznuc))
-     &   call errquit('dft_rdinput: pop stack failed.',0)
+     &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(ltags))
-     &   call errquit('dft_rdinput: pop stack failed.',0)
+     &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(lcharge))
-     &   call errquit('dft_rdinput: pop stack failed.',0)
+     &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(lcoord))
-     &   call errquit('dft_rdinput: pop stack failed.',0)
+     &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
 c
       call ga_sync
 c

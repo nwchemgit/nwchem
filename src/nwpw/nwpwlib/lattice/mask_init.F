@@ -1,9 +1,10 @@
 *
-* $Id: mask_init.F,v 1.6 2003-05-29 21:00:36 edo Exp $
+* $Id: mask_init.F,v 1.7 2003-10-17 22:56:44 carlfahl Exp $
 *
 
       subroutine mask_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "mask_common.fh"
@@ -13,7 +14,7 @@
       value = MA_free_heap(masker(2,0))
       value = value.and.
      >        MA_free_heap(masker(2,1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       return
       end
@@ -22,6 +23,7 @@
 
       subroutine mask_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "mask_common.fh"
@@ -52,7 +54,7 @@
       value = value.and.
      >        MA_alloc_get(mt_log,nfft3d,
      >                     'masker',masker(2,1),masker(1,1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
       call Parallel_taskid(taskid)

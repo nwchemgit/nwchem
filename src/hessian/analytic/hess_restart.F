@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.9 2003-07-18 23:19:38 windus Exp $
+C $Id: hess_restart.F,v 1.10 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine hess_restart(rtdb, restr)
 c
@@ -11,6 +11,7 @@ c     the number of processors will prepare the hessian for the next
 c     contribution.
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "hess_info.fh"
@@ -61,7 +62,7 @@ c  Write out restr to the database
 c
       if (.not. rtdb_put(rtdb, 'hessian:restart',mt_int,1,restr))
      $  call errquit('hess_restart: could not save restr to rtdb',
-     $  555)
+     $  555, RTDB_ERR)
 c
       return
       end
@@ -73,6 +74,7 @@ c     hessian from disk, we will divide the hessian by the number of
 c     processors to prepare for the next contribution.
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -134,14 +136,15 @@ c
       if (irestart.ge.2) then
         do i = 1, ndens
           if (.not.ga_destroy(g_dens(i)))
-     &     call errquit('hess_getrestart: failed to delete density',i)
+     &     call errquit('hess_getrestart: failed to delete density',i,
+     &       GA_ERR)
         enddo
         if (.not.ga_destroy(g_rhs_xc))
      &    call errquit('hess_getrestart: failed to delete g_rhs_xc',
-     &                  555)
+     &                  555, GA_ERR)
          if (.not.ga_destroy(g_wdens))
      &   call errquit('hess_getrestart: failed to delete wdensity',
-     &                 555)
+     &                 555, GA_ERR)
         call schwarz_tidy()
         call intdd_terminate()
       endif

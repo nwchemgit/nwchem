@@ -1,5 +1,5 @@
 c
-c $Id: switching_charge.F,v 1.13 2003-01-25 00:03:31 edo Exp $
+c $Id: switching_charge.F,v 1.14 2003-10-17 22:57:54 carlfahl Exp $
 c
 
 ***********************************************************
@@ -75,6 +75,7 @@ c
 *     *************************************
       subroutine Switching_Charge_Generate_V(n2ft3d,rgrid,Vqm)
       implicit none
+#include "errquit.fh"
       integer n2ft3d
       real*8  rgrid(3,*)
       real*8  Vqm(*)
@@ -100,7 +101,8 @@ c
 *     *** generate Tall(r) ****
       value = MA_push_get(mt_dbl,n2ft3d,'xtmp',xtmp(2),xtmp(1))
       if (.not. value) 
-     >  call errquit(' Switching_Charge_Generate_V:pushing stack',0)
+     >  call errquit(' Switching_Charge_Generate_V:pushing stack',0,
+     &       MA_ERR)
       call Truncating_Function(rgrid,dbl_mb(xtmp(1)))
 
 c*     **** debug ****
@@ -124,7 +126,8 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
       value = MA_pop_stack(xtmp(2))
       if (.not. value)
-     >  call errquit(' Switching_Charge_Generate_V:popping stack',1)
+     >  call errquit(' Switching_Charge_Generate_V:popping stack',1,
+     &       MA_ERR)
 
       return
       end
@@ -139,6 +142,7 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
       subroutine Switching_Charge_Potential_Fion(
      >           n2ft3d,rgrid,rho,dv,fion)
       implicit none
+#include "errquit.fh"
       integer n2ft3d
       real*8 rgrid(3,*)
       real*8 rho(*)
@@ -160,7 +164,8 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
       value = MA_push_get(mt_dbl,n2ft3d,'Amm',Amm(2),Amm(1))
       if (.not. value)
-     >  call errquit(' Switching_Charge_Generate_Fion:pushing stack',0)
+     >  call errquit(' Switching_Charge_Generate_Fion:pushing stack',0,
+     &       MA_ERR)
 
 *     **** switching charge potential ****
       call D3dB_r_Zero(1,dbl_mb(Amm(1)))
@@ -180,7 +185,8 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
       value = MA_pop_stack(Amm(2))
       if (.not. value)
-     >  call errquit(' Switching_Charge_Generate_Fion:popping stack',1)
+     >  call errquit(' Switching_Charge_Generate_Fion:popping stack',1,
+     &       MA_ERR)
 
       return
       end
@@ -194,6 +200,7 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
       subroutine Switching_Charge_Potential_Fmm(n2ft3d,rgrid,rho,dv,fmm)
       implicit none
+#include "errquit.fh"
       integer n2ft3d
       real*8 rgrid(3,*)
       real*8 rho(*)
@@ -226,7 +233,8 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 *     *** generate Tall ****
       value = MA_push_get(mt_dbl,n2ft3d,'xtmp',xtmp(2),xtmp(1))
       if (.not. value) 
-     >  call errquit(' Switching_Charge_Potentail_Fmm:pushing stack',0)
+     >  call errquit(' Switching_Charge_Potentail_Fmm:pushing stack',0,
+     &       MA_ERR)
       call Truncating_Function(rgrid,dbl_mb(xtmp(1)))
 
 c*     **** debug ****
@@ -272,7 +280,8 @@ c      call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
 
       value = MA_pop_stack(xtmp(2))
       if (.not. value)
-     >  call errquit(' Switching_Charge_Potentail_Fmm:popping stack',1)
+     >  call errquit(' Switching_Charge_Potentail_Fmm:popping stack',1,
+     &       MA_ERR)
 
       return
       end

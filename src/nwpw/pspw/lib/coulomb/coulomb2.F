@@ -12,6 +12,7 @@
  
       subroutine coulomb2_init()      
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -55,10 +56,10 @@ c     **** external functions ****
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,nfft3d,'gk',gk(2),gk(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       call D3dB_nq(2,nq)
@@ -255,6 +256,7 @@ c                 temp = yerf/temp
 
       subroutine coulomb2_v(dn, vh)
       implicit none
+#include "errquit.fh"
       real*8 dn(*),vh(*)
             
 #include "mafdecls.fh"
@@ -271,7 +273,7 @@ c                 temp = yerf/temp
                   
       call D3dB_nfft3d(2,nfft3d)
       value = MA_push_get(mt_dcpl,nfft3d,'tmpx',tmpx(2),tmpx(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call D3dB_nx(2,nx)
       call D3dB_ny(2,ny)
@@ -293,6 +295,7 @@ c     **** contract tmpx to extract vh ****
       call D3dB_r_SMul(1,scale,vh,vh)
            
       value = MA_pop_stack(tmpx(2))
-      if (.not. value) call errquit('error popping stack memory',0)
+      if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
       return
       end

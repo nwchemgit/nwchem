@@ -1,9 +1,10 @@
       double precision function fmm_potential(depth,lmax,tree, 
      $     dimx, dimy, dimz, x, y, z)
 *
-* $Id: newfmm.F,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: newfmm.F,v 1.3 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
       integer tree(300)
       integer lmax, depth
       double precision dimx, dimy, dimz, x, y, z
@@ -36,9 +37,9 @@ c
          yo = (dble(ky)+0.5d0)*hy
          zo = (dble(kz)+0.5d0)*hz
 c     
-*         if (kx.lt.0 .or. kx.ge.2**level) call errquit('x?',0)
-*         if (ky.lt.0 .or. ky.ge.2**level) call errquit('y?',0)
-*         if (kz.lt.0 .or. kz.ge.2**level) call errquit('z?',0)
+*         if (kx.lt.0 .or. kx.ge.2**level) call errquit('newfmm:x?',0)
+*         if (ky.lt.0 .or. ky.ge.2**level) call errquit('newfmm:y?',0)
+*         if (kz.lt.0 .or. kz.ge.2**level) call errquit('newfmm:z?',0)
 c     
          call fmm_tree_get_cell(tree, level, kx, ky, kz, q, lq, luse)
          if (luse .ge. 0) then
@@ -108,6 +109,7 @@ c
      $     coords, charges, ncharge, list_info, list_next,
      $     map)
       implicit none
+#include "errquit.fh"
       integer tree(300)
       integer lmax, depth, ncharge
       double precision dimx, dimy, dimz
@@ -141,7 +143,7 @@ c
       integer max_per_box, min_per_box, ind, n, twod
       double precision avgsq_per_box
 c
-      if (lmax .gt. lq) call errquit('fmm_ctop: lmax>lq', lmax)
+      if (lmax .gt. lq) call errquit('fmm_ctop: lmax>lq', lmax, FMM_ERR)
       twod = 2**depth
       call xlm_init
 c
@@ -161,9 +163,12 @@ c
          xo = (dble(kx)+0.5d0)*hx ! Coords of box center
          yo = (dble(ky)+0.5d0)*hy
          zo = (dble(kz)+0.5d0)*hz
-         if (kx.lt.0 .or. kx.ge.twod) call errquit('x!',0)
-         if (ky.lt.0 .or. ky.ge.twod) call errquit('y!',0)
-         if (kz.lt.0 .or. kz.ge.twod) call errquit('z!',0)
+         if (kx.lt.0 .or. kx.ge.twod) call errquit('newfmm:x!',0,
+     &         FMM_ERR)
+         if (ky.lt.0 .or. ky.ge.twod) call errquit('newfmm:y!',0, 
+     &        FMM_ERR)
+         if (kz.lt.0 .or. kz.ge.twod) call errquit('newfmm:z!',0,
+     &         FMM_ERR)
 c
          call xlm(lmax, x-xo, y-yo, z-zo, q, lq)
          do l = 0, lmax
@@ -215,7 +220,8 @@ c
 c
       if (total .ne. ncharge) then
          write(6,*) ' total, ncharge ', total, ncharge
-         call errquit('fmm_charges_to_poles: lost something!',0)
+         call errquit('newfmm:fmm_charges_to_poles: lost something!',0,
+     &       FMM_ERR)
       endif
       write(6,1) max_per_box, min_per_box, ncharge/8**depth, 
      $     sqrt(avgsq_per_box/8.0d0**depth - (ncharge/8.0d0**depth)**2)
@@ -228,6 +234,7 @@ c
      $     xlo, xhi, ylo, yhi, zlo, zhi,
      $     list_next, list_info, coords_r, map)
       implicit none
+#include "errquit.fh"
 c
       integer depth, n
       double precision coords(3,n), coords_r(3,n)
@@ -281,9 +288,12 @@ c
          xo = xlo + (dble(kx)+0.5d0)*hx ! Coords of box center
          yo = ylo + (dble(ky)+0.5d0)*hy
          zo = zlo + (dble(kz)+0.5d0)*hz
-         if (kx.lt.0 .or. kx.ge.twod) call errquit('fmm:p2b: x!',0)
-         if (ky.lt.0 .or. ky.ge.twod) call errquit('fmm:p2b: y!',0)
-         if (kz.lt.0 .or. kz.ge.twod) call errquit('fmm:p2b: z!',0)
+         if (kx.lt.0 .or. kx.ge.twod) call errquit('fmm:p2b: x!',0,
+     &       FMM_ERR)
+         if (ky.lt.0 .or. ky.ge.twod) call errquit('fmm:p2b: y!',0,
+     &       FMM_ERR)
+         if (kz.lt.0 .or. kz.ge.twod) call errquit('fmm:p2b: z!',0,
+     &       FMM_ERR)
 c
          list_next(i) = list_info(1,kx,ky,kz)
          list_info(1,kx,ky,kz) = i
@@ -337,6 +347,7 @@ c
      $     n, v_r, list_info,
      $     v_near, oldnumr)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer kx, ky, kz, depth, n, numr, oldnumr
       double precision v_r(n), v_near(*)
@@ -350,9 +361,9 @@ c
       integer kxn, kyn, kzn, dkx, dky, dkz, twod, ninbox, i, ii
 c
       twod = 2**depth
-      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0)
+      if (kx.lt.0 .or. kx.ge.twod) call errquit('newfmm:x?',0, FMM_ERR)
+      if (ky.lt.0 .or. ky.ge.twod) call errquit('newfmm:y?',0, FMM_ERR)
+      if (kz.lt.0 .or. kz.ge.twod) call errquit('newfmm:z?',0, FMM_ERR)
 c
       numr = 1
       do dkz = -well_separated, well_separated
@@ -380,12 +391,14 @@ c
          endif
       enddo
       numr = numr - 1
-      if (numr .ne. oldnumr) call errquit('fmm:avfnp confused',numr)
+      if (numr .ne. oldnumr) call errquit('fmm:avfnp confused',numr,
+     &       FMM_ERR)
 c
       end
       subroutine fmm_make_list_of_near_points(depth, kx, ky, kz, 
      $     n, coords_r, list_info, r, numr)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer kx, ky, kz, depth, n, numr
       double precision coords_r(3,n), r(3,*)
@@ -401,9 +414,9 @@ c
       integer kxn, kyn, kzn, dkx, dky, dkz, twod, ninbox
 c
       twod = 2**depth
-      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0)
+      if (kx.lt.0 .or. kx.ge.twod) call errquit('newfmm:x?',0, FMM_ERR)
+      if (ky.lt.0 .or. ky.ge.twod) call errquit('newfmm:y?',0, FMM_ERR)
+      if (kz.lt.0 .or. kz.ge.twod) call errquit('newfmm:z?',0, FMM_ERR)
 c
       numr = 1
       do dkz = -well_separated, well_separated
@@ -437,6 +450,7 @@ c
      $     dimx, dimy, dimz, x, y, z,
      $     coords, charges, ncharge, list_info, map)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, depth
       double precision dimx, dimy, dimz, x, y, z
@@ -461,9 +475,9 @@ c
       ky = int(y/hy) ! Index of box containing point
       kz = int(z/hz) ! Index of box containing point
 c
-      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0)
+      if (kx.lt.0 .or. kx.ge.twod) call errquit('newfmm:x?',0, FMM_ERR)
+      if (ky.lt.0 .or. ky.ge.twod) call errquit('newfmm:y?',0, FMM_ERR)
+      if (kz.lt.0 .or. kz.ge.twod) call errquit('newfmm:z?',0, FMM_ERR)
 c
       potential = 0.0d0
 c
@@ -499,6 +513,7 @@ c
      $     dimx,dimy,dimz,
      $     coords, charges, ncharge, list_info, pot)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, depth
       double precision dimx, dimy, dimz
@@ -521,7 +536,7 @@ c
       double precision xlm_local_potential
       external xlm_local_potential
 c     
-      if (lmax .gt. lq) call errquit('fmm_pac2: lmax>lq', lmax)
+      if (lmax .gt. lq) call errquit('fmm_pac2: lmax>lq', lmax, FMM_ERR)
       twod = 2**depth
 c     
       do i = 1, ncharge
@@ -629,6 +644,7 @@ c
      $     dimx,dimy,dimz,
      $     coords, charges, ncharge, list_info, pot)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, depth, tree(300)
       double precision dimx, dimy, dimz
@@ -651,7 +667,7 @@ c
       double precision xlm_local_potential
       external xlm_local_potential
 c     
-      if (lmax .gt. lq) call errquit('fmm_pac: lmax>lq', lmax)
+      if (lmax .gt. lq) call errquit('fmm_pac: lmax>lq', lmax, FMM_ERR)
       twod = 2**depth
       hx = dimx/dble(twod)  ! Size of boxes
       hy = dimy/dble(twod)
@@ -797,6 +813,7 @@ c
       end
       subroutine fmm_pass1(depth, lmax, dimx, dimy, dimz, tree, wtree)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
 #include "mafdecls.fh"
       integer lmax, depth, level
@@ -827,7 +844,7 @@ c     q(), etc., are dimensioned lq>=lmax, we are telling the
 c     subroutines below they are dimensioned lmax, thus the
 c     arrays are NOT easily used in this routine.
 c     
-      if (lq .lt. lmax) call errquit('fmm_p_m_u: lq ', lmax)
+      if (lq .lt. lmax) call errquit('fmm_p_m_u: lq ', lmax, FMM_ERR)
 c     
 c     
       do level = depth, 3, -1
@@ -954,6 +971,7 @@ c
       end
       subroutine fmm_pass2(depth, lmax, dimx, dimy, dimz, tree, wtree)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "fmmP.fh"
       integer lmax, depth, level
@@ -972,12 +990,12 @@ c
       cellindex(level,kx,ky,kz) = k_probe + leveloff(level) + 
      $     kx + (2**level)*(ky + (2**level)*kz)
 c
-      if (lq .lt. lmax) call errquit('fmm_pass2: lq ', lmax)
+      if (lq .lt. lmax) call errquit('fmm_pass2: lq ', lmax, FMM_ERR)
 c
       ncells = (8**(depth)-1)/7 ! No. of cells excluding lowest level
       if (.not. ma_alloc_get(mt_log,ncells,'fmm:probe',
      $     l_probe,k_probe)) call errquit
-     $     ('fmm_pass2: failed to allocate probe tree',ncells)
+     $     ('fmm_pass2: failed to allocate probe tree',ncells, MA_ERR)
       call ifill(ncells,.false.,log_mb(k_probe),1)
 c
 c     Determine which cells have descendents that have potentials
@@ -1064,7 +1082,7 @@ c
       enddo
 c
       if (.not. ma_free_heap(l_probe)) call errquit
-     $     ('fmm_pass2: free heap failed ', 0)
+     $     ('fmm_pass2: free heap failed ', 0, MA_ERR)
 c     
       end
       subroutine fmm_xyz_to_phi_theta(xx, yy, zz,
@@ -1109,6 +1127,7 @@ c
 
       subroutine fmm_tree_create(depth, lmax, tree)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "fmmP.fh"
       integer depth, lmax, tree(300)
@@ -1119,7 +1138,8 @@ c
       n_cells_per_alloc = max(512,n_cells / 100 + 1)
       if (.not. ma_alloc_get(mt_int, n_cells, 'fmm tree ptrs',
      $     l_tree, k_tree)) call errquit
-     $     ('fmm_tree_create: unable to allocate ptrs ', n_cells)
+     $     ('fmm_tree_create: unable to allocate ptrs ', n_cells,
+     &       MA_ERR)
       call ifill(n_cells, -1, int_mb(k_tree), 1)
 c      
       tree(I_DEPTH) = depth
@@ -1137,6 +1157,7 @@ c
       end
       subroutine fmm_tree_destroy(tree)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer tree(300)
 c
@@ -1144,15 +1165,16 @@ c
 c
       do i = 0, tree(I_CURA)
          if (.not. ma_free_heap(tree(I_LBUFS+I))) call errquit
-     $        ('fmm_tree_destroy: failed freeing cells',i)
+     $        ('fmm_tree_destroy: failed freeing cells',i, MA_ERR)
       enddo
       if (.not. ma_free_heap(tree(I_LTREE))) call errquit
-     $     ('fmm_tree_destroy: failed freeing tree',0)
+     $     ('fmm_tree_destroy: failed freeing tree',0, MA_ERR)
 c
       end
       subroutine fmm_tree_put_cell(tree, level, kx, ky, kz, 
      $     q, lq, luse)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
 #include "mafdecls.fh"
       integer tree(300), level, kx, ky, kz, lq, luse
@@ -1183,7 +1205,7 @@ c
      $           (lmax+1)**2*n_cells_per_alloc, 'fmm tree buf',
      $           tree(I_LBUFS+curalloc), tree(I_KBUFS+curalloc)))
      $           call errquit('fmm_tree_put_cell: ma failed ',
-     $           (lmax+1)**2*n_cells_per_alloc)
+     $           (lmax+1)**2*n_cells_per_alloc, MA_ERR)
             call dfill((lmax+1)**2*n_cells_per_alloc, 0.0d0,
      $           dbl_mb(tree(I_KBUFS+curalloc)), 1)
          endif

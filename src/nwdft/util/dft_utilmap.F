@@ -1,9 +1,10 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.11 2002-02-22 22:26:39 edo Exp $
+* $Id: dft_utilmap.F,v 1.12 2003-10-17 22:55:50 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
       integer basis, natoms, nshells
       integer cntoce(nshells), cntobfr(2,nshells), cetobfr(2,natoms)
 c      
@@ -15,17 +16,17 @@ c     Build maps (for speed).
 c     
       do ish = 1, nshells
          if (.not. bas_cn2ce(basis, ish, cntoce(ish)))
-     &        call errquit('build_maps: bad basis', 0)
+     &        call errquit('build_maps: bad basis', 0, BASIS_ERR)
       end do
 c
       do ish = 1, nshells
          if (.not. bas_cn2bfr(basis,ish,cntobfr(1,ish),cntobfr(2,ish)))
-     &        call errquit('build_maps: bad basis', 0)
+     &        call errquit('build_maps: bad basis', 0, BASIS_ERR)
       end do
 c
       do iat = 1, natoms
          if (.not. bas_ce2bfr(basis,iat,cetobfr(1,iat),cetobfr(2,iat)))
-     &        call errquit('build_maps: bad basis', 0)
+     &        call errquit('build_maps: bad basis', 0, BASIS_ERR)
       end do
 c
       return
@@ -128,6 +129,7 @@ c
       end
       double precision function util_matops(op,ielems,jelems,scr,ld)
       implicit none
+#include "errquit.fh"
       character*(*) op
       integer ielems,jelems
       integer ld
@@ -156,7 +158,7 @@ c
          enddo
          sum = sqrt(sum)
       else
-         call errquit('util_ga_mat_red: unknown op',0)
+         call errquit('util_ga_mat_red: unknown op',0, UNKNOWN_ERR)
       end if
       util_matops=sum
       return
@@ -164,6 +166,7 @@ c
       subroutine util_irreg_mat_reduce(n_row, n_col, nr_row, nr_col, 
      &                                 row_map, col_map, a, r, op)
       implicit none
+#include "errquit.fh"
 c     
       integer n_row                      ! Original row size [input]
       integer n_col                      ! Original col size [input]
@@ -205,7 +208,8 @@ c
                enddo
                sum = sqrt(sum)
             else
-               call errquit('util_irreg_mat_reduce: unknown op', 0)
+               call errquit('util_irreg_mat_reduce: unknown op', 0,
+     &       UNKNOWN_ERR)
             end if
             r(ir,jr) = max(r(ir,jr),sum)
          end do

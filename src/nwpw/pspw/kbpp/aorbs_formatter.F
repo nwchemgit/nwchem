@@ -1,5 +1,5 @@
 c
-c $Id: aorbs_formatter.F,v 1.4 2002-01-14 21:06:27 bylaska Exp $
+c $Id: aorbs_formatter.F,v 1.5 2003-10-17 22:57:16 carlfahl Exp $
 c
 
 *     ***************************************
@@ -9,6 +9,7 @@ c
 *     ***************************************
       subroutine aorbs_formatter_auto(atom)
       implicit none
+#include "errquit.fh"
       character*2  atom
 
 *     ***** local variables *****
@@ -71,7 +72,8 @@ c
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax)
 *     *** exit if error found ***
-      if(.not. value) call errquit('aorb_formatter_auto: error',0)
+      if(.not. value) call errquit('aorb_formatter_auto: error',0,
+     &       CALC_ERR)
 
       return
       end

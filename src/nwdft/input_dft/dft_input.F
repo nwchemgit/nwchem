@@ -1,11 +1,12 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.35 2003-06-12 22:41:44 edo Exp $
+c     $Id: dft_input.F,v 1.36 2003-10-17 22:55:43 carlfahl Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
 c
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -53,16 +54,19 @@ c     Lebedev on by default
 c
 c
  10   if (.not. inp_read()) call errquit
-     $     ('dft_input: inp_read failed', 0)
+     $     ('dft_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
-     $     call errquit('dft_input: failed to read keyword', 0)
+     $     call errquit('dft_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
-     $     call errquit('dft_input: unknown directive', 0)
+     $     call errquit('dft_input: unknown directive', 0,
+     &       INPUT_ERR)
 c     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
      $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2401, 9999) ind
-      call errquit('dft_input: unimplemented directive', ind)
+      call errquit('dft_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 c
 c     convergence;
 c             
@@ -74,7 +78,7 @@ c     decomp;
 c             
   200 idecomp = 1
       if (.not. rtdb_put(rtdb, 'dft:idecomp', mt_int, 1, idecomp))
-     &   call errquit('dft_input: rtdb_put failed', 200)
+     &   call errquit('dft_input: rtdb_put failed', 200, RTDB_ERR)
 c
       goto 10
 c
@@ -88,14 +92,16 @@ c     direct;
 c             
   400 direct = .true.
       if (.not. rtdb_put(rtdb, 'dft:direct', mt_log, 1, direct))
-     &   call errquit('dft_input: rtdb_put failed', 400)
+     &   call errquit('dft_input: rtdb_put failed', 400, RTDB_ERR)
       idirect = 1
       if (.not. rtdb_put(rtdb, 'dft:idirect', mt_int, 1, idirect))
-     &   call errquit('dft_input: rtdb_put failed', 400)
+     &   call errquit('dft_input: rtdb_put failed', 400, RTDB_ERR)
          if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, -1))
-     $        call errquit('dft_input: failed to store filesize',0)
+     $        call errquit('dft_input: failed to store filesize',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, -1))
-     $        call errquit('dft_input: failed to store filesize',0)
+     $        call errquit('dft_input: failed to store filesize',0,
+     &       RTDB_ERR)
 c
       goto 10
 c
@@ -121,7 +127,7 @@ c     incore; try to do an incore coulomb construction
 c             
   800 incore = .true.
       if (.not.rtdb_put(rtdb,'dft:incore', mt_log, 1, incore)) 
-     &   call errquit('dft_input: rtdb_put failed', 800)
+     &   call errquit('dft_input: rtdb_put failed', 800, RTDB_ERR)
 c
       goto 10
 c
@@ -133,7 +139,7 @@ c
          iterations = 30
       endif 
       if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))
-     &   call errquit('dft_input: rtdb_put failed', 900) 
+     &   call errquit('dft_input: rtdb_put failed', 900, RTDB_ERR)
 c
       goto 10
 c
@@ -142,7 +148,7 @@ c              overlap between iterations
 c             
  1000 lmaxov = .true.
       if (.not. rtdb_put(rtdb, 'dft:max_ovl', mt_log, 1, lmaxov))
-     &   call errquit('dft_input: rtdb_put failed', 1000)
+     &   call errquit('dft_input: rtdb_put failed', 1000, RTDB_ERR)
 c
       goto 10
 c
@@ -150,7 +156,7 @@ c     mulliken; do Mulliken pop analysis
 c             
  1100 imull=1
       if (.not. rtdb_put(rtdb, 'dft:imull', mt_int, 1, imull))
-     &   call errquit('dft_input: rtdb_put failed', 1100)
+     &   call errquit('dft_input: rtdb_put failed', 1100, RTDB_ERR)
 c
       goto 10
 c             
@@ -162,10 +168,10 @@ c
          mult = 1
       endif 
       if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
-     &   call errquit('dft_input: rtdb_put failed', 1200)
+     &   call errquit('dft_input: rtdb_put failed', 1200, RTDB_ERR)
       nopen = mult - 1
       if (.not.rtdb_put(rtdb, 'dft:nopen',mt_int,1,nopen))
-     &   call errquit('dft_input: rtdb_put failed', 1201)
+     &   call errquit('dft_input: rtdb_put failed', 1201, RTDB_ERR)
 c
       goto 10
 c             
@@ -173,7 +179,7 @@ c     noio;
 c             
  1300 noio = 1
       if (.not. rtdb_put(rtdb, 'dft:noio', mt_int, 1, noio))
-     &   call errquit('dft_input: rtdb_put failed', 1300)
+     &   call errquit('dft_input: rtdb_put failed', 1300, RTDB_ERR)
 c
       goto 10
 c
@@ -212,7 +218,7 @@ c
  1900 if (.not. inp_a(test)) test = 'on'
       status = inp_compare(.false.,test,'on')
       if (.not. rtdb_put(rtdb,'dft:skeleton', MT_LOG, 1, status))
-     &   call errquit('dft_input: rtdb_put failed', 1900)
+     &   call errquit('dft_input: rtdb_put failed', 1900, RTDB_ERR)
       goto 10
 c
 c     adapt [off|on] (defaults to on)
@@ -220,7 +226,7 @@ c
  2000 if (.not. inp_a(test)) test = 'on'
       status = inp_compare(.false.,test,'on')
       if (.not. rtdb_put(rtdb,'dft:adapt', MT_LOG, 1, status))
-     &   call errquit('dft_input: rtdb_put failed', 2000)
+     &   call errquit('dft_input: rtdb_put failed', 2000, RTDB_ERR)
       goto 10
 c
  2100 call sic_input(rtdb, 'dft')
@@ -235,7 +241,7 @@ c
          smear_sigma = 1.d-3
       endif
       if (.not.rtdb_put(rtdb, 'dft:smear_sigma',mt_dbl,1,smear_sigma))
-     &   call errquit('dft_inp: rtdb_put failed', 2200)
+     &   call errquit('dft_inp: rtdb_put failed', 2200, RTDB_ERR)
       goto 10
 c
 c     fon
@@ -252,29 +258,34 @@ c
          endif
          if (inp_compare(.false.,'electrons', test)) then
             if(.not.inp_i(nel_fon(ispin))) call errquit(
-     .           ' fon: required integer after electrons keyword',0)
+     .           ' fon: required integer after electrons keyword',0,
+     &       INPUT_ERR)
             goto 2301
          else if (inp_compare(.false.,'orbitals', test)) then
             if(.not.inp_i(nmo_fon(ispin))) call errquit(
-     .           ' fon: required integer after orbitals keyword',0)
+     .           ' fon: required integer after orbitals keyword',0,
+     &       INPUT_ERR)
             goto 2301
          endif
       endif
       if (.not.rtdb_put(rtdb, 'dft:nmo_fon', mt_int, 2,
-     & nmo_fon)) call errquit('dft_inp: rtdb_put failed', 2300)
+     & nmo_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
+     &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:nel_fon', mt_int, 2,
-     & nel_fon)) call errquit('dft_inp: rtdb_put failed', 2300)
+     & nel_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
+     &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:fon', mt_log, 1,
-     & .true.)) call errquit('dft_inp: rtdb_put failed', 2300)
+     & .true.)) call errquit('dft_inp: rtdb_put failed', 2300,
+     &       RTDB_ERR)
       goto 10
 c
 cQin
  2401 ioep = 0
       if (.not. rtdb_put(rtdb,'dft:oep', mt_int, 1, ioep))
-     &   call errquit('dft_input: rtdb_put failed', 2200)
+     &   call errquit('dft_input: rtdb_put failed', 2200, RTDB_ERR)
       loep = .true.
       if (.not. rtdb_put(rtdb,'dft:loep', mt_log, 1, loep))
-     &   call errquit('dft_input: rtdb_put failed', 2200)
+     &   call errquit('dft_input: rtdb_put failed', 2200, RTDB_ERR)
       call oep_input(rtdb,'dft')
       goto 10
 c
@@ -283,7 +294,7 @@ c     lb94; adds van-Leeuwen-Baerends correction to potential
 c             
  2400 lb94 = .true.
       if (.not.rtdb_put(rtdb,'dft:lb94', mt_log, 1, lb94)) 
-     &   call errquit('dft_input: rtdb_put failed', 2400)
+     &   call errquit('dft_input: rtdb_put failed', 2400, RTDB_ERR)
 c
       goto 10
 c
@@ -291,14 +302,14 @@ c     cs00; adds Casida-Salahub correction to potential
 c             
  2500 cs00 = .true.
       if (.not.rtdb_put(rtdb,'dft:cs00', mt_log, 1, cs00)) 
-     &   call errquit('dft_input: rtdb_put failed', 2500)
+     &   call errquit('dft_input: rtdb_put failed', 2500, RTDB_ERR)
       if (.not.inp_f(shift)) then
          write(LuOut,*)' shift for CS00 correction not found;',
      &   ' Zhan-Nichols-Dixon shift (B3LYP) will be used.'
          shift = 1.0d99
       endif
       if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,shift))
-     &   call errquit('dft_inp: rtdb_put failed', 2500)
+     &   call errquit('dft_inp: rtdb_put failed', 2500, RTDB_ERR)
 c
       goto 10
 c             
@@ -306,11 +317,11 @@ c     end;
 c             
  9999 continue
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
-     &   call errquit('dft_input: rtdb_put failed', 300)
+     &   call errquit('dft_input: rtdb_put failed', 300, RTDB_ERR)
       return 
 10000 write(6,10001)
 10001 format(/' fon [alpha|beta] orbitals <norb> electrons <nelec>'/)
       call util_flush(6)
-      call errquit('vectors_input: invalid format', 0)
+      call errquit('vectors_input: invalid format', 0, INPUT_ERR)
 c       
       end

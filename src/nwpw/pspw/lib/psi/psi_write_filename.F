@@ -1,5 +1,5 @@
 *
-* $Id: psi_write_filename.F,v 1.2 2002-01-18 01:54:33 bylaska Exp $
+* $Id: psi_write_filename.F,v 1.3 2003-10-17 22:57:36 carlfahl Exp $
 *
 
 *     ***********************************
@@ -10,6 +10,7 @@
 
       subroutine psi_write_filename(filename,ispin,ne,psi2)
       implicit none 
+#include "errquit.fh"
       character*(*) filename
       integer ispin,ne(2)
       double complex psi2(*)
@@ -43,9 +44,9 @@ c     complex*16 tmp(*)
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       version = control_version()
       nfft(1) = control_ngrid(1)

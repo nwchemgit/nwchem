@@ -2,13 +2,14 @@
      &    eigenvecs,eigenvals,coords,
      &    steps,stepsave,master)
 *
-* $Id: vib_istep.F,v 1.7 2000-11-21 23:53:44 d3g681 Exp $
+* $Id: vib_istep.F,v 1.8 2003-10-17 22:58:37 carlfahl Exp $
 *
 * routine to compute the direction vector, magnitudes, updated
 * geometries for all negative eigenvalues in the current spectrum.
 * only called during projected frequency analysis.
 *
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "geom.fh"
       double precision ddot
@@ -48,15 +49,15 @@ c::-statement function
       is_it_close_to(value,test) = (abs(value-test).lt.thresh)
 c
       if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('vib_istep: geom create failed',911)
+     &    ('vib_istep: geom create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('vib_istep: geom_rtdb_load failed',911)
+     &    ('vib_istep: geom_rtdb_load failed',911, RTDB_ERR)
       if (.not.geom_cart_coords_get(geom,master)) call errquit
-     &    ('vib_istep: geom_get_cart_coords failed',911)
+     &    ('vib_istep: geom_get_cart_coords failed',911, GEOM_ERR)
       if (.not.geom_get_user_scale(geom,scale)) call errquit
-     &    ('vib_istep: geom_get_user_scale failed',911)
+     &    ('vib_istep: geom_get_user_scale failed',911, GEOM_ERR)
       if (.not.geom_get_user_units(geom,units)) call errquit
-     &    ('vib_istep: geom_get_user_units failed',911)
+     &    ('vib_istep: geom_get_user_units failed',911, GEOM_ERR)
 c
       percents(1) = 100.0d00
       percents(2) =  50.0d00
@@ -99,7 +100,7 @@ c
           do iatom=1,natom
             if (.not.geom_cent_get(geom,iatom,tag,xyz,charge))
      &          call errquit
-     &          ('vib_istep: geom_cent_get failed',911)
+     &          ('vib_istep: geom_cent_get failed',911, GEOM_ERR)
             write(luout,10002)iatom,tag,charge,
      &          (steps(ixyz,iatom),ixyz=1,3)
           enddo
@@ -113,13 +114,13 @@ c
      &          scale
             call daxpy(nat3,1.0d00,steps,1,coords,1)
             if (.not.geom_cart_coords_set(geom,coords)) call errquit
-     &          ('vib_istep: geom_cart_coords_set failed',911)
+     &          ('vib_istep: geom_cart_coords_set failed',911, GEOM_ERR)
             write(luout,10003)percents(ip),imode,length_of_step,units
             write(luout,10004)largest_step(ip)
             do iatom=1,natom
               if (.not.geom_cent_get(geom,iatom,tag,xyz,charge))
      &            call errquit
-     &            ('vib_istep: geom_cent_get failed',911)
+     &            ('vib_istep: geom_cent_get failed',911, GEOM_ERR)
               do ixyz = 1,3
                 xyz(ixyz)=xyz(ixyz)/scale ! convert to user coordinates
               enddo
@@ -136,13 +137,13 @@ c
      &          scale
             call daxpy(nat3,1.0d00,steps,1,coords,1)
             if (.not.geom_cart_coords_set(geom,coords)) call errquit
-     &          ('vib_istep: geom_cart_coords_set failed',911)
+     &          ('vib_istep: geom_cart_coords_set failed',911, GEOM_ERR)
             write(luout,10003)-percents(ip),imode,length_of_step,units
             write(luout,10004)largest_step(ip)
             do iatom=1,natom
               if (.not.geom_cent_get(geom,iatom,tag,xyz,charge))
      &            call errquit
-     &            ('vib_istep: geom_cent_get failed',911)
+     &            ('vib_istep: geom_cent_get failed',911, GEOM_ERR)
               do ixyz = 1,3
                 xyz(ixyz)=xyz(ixyz)/scale ! convert to user coordinates
               enddo
@@ -156,7 +157,7 @@ c
 c
       call dcopy(nat3,master,1,coords,1) ! restore master coordinates
       if (.not.geom_destroy(geom)) call errquit
-     &    ('vib_istep: geom_destroy failed',911)
+     &    ('vib_istep: geom_destroy failed',911, GEOM_ERR)
 c
 10000 format(/,/,/,1x,79('='),/,6x,'Negative Nuclear Hessian Mode',
      &      i5,2x,'Eigenvalue = ',f9.2,' cm**(-1)',/,1x,79('-'))
@@ -176,6 +177,7 @@ c
 * routine to compute the xyz coordinates along each mode vector
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -217,11 +219,11 @@ c::-statement function
 c
 *
       if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('vib_modestep: geom create failed',911)
+     &    ('vib_modestep: geom create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('vib_modestep: geom_rtdb_load failed',911)
+     &    ('vib_modestep: geom_rtdb_load failed',911, GEOM_ERR)
       if (.not.geom_cart_coords_get(geom,master)) call errquit
-     &    ('vib_modestep: geom_get_cart_coords failed',911)
+     &    ('vib_modestep: geom_get_cart_coords failed',911, GEOM_ERR)
 ** set up symbols
 *      do iatom = 1,natom
 *        if (.not.geom_cent_get(geom, iatom, tag, coords, charge))
@@ -283,23 +285,25 @@ c
           call dcopy(nat3,master,1,coords,1)
           call daxpy(nat3,1.0d00,steps,1,coords,1)
           if (.not.geom_cart_coords_set(geom,coords)) call errquit
-     &        ('vib_modestep: geom_cart_coords_set failed',911)
+     &        ('vib_modestep: geom_cart_coords_set failed',911,
+     &       GEOM_ERR)
           call util_file_unlink(filename)
           open(unit=88,file=filename,
      &        form='formatted',status='new', err=99901)
           if (.not.geom_print_xyz(geom,88))
-     &        call errquit('vib_modestep: geom_print_xyz failed',911)
+     &        call errquit('vib_modestep: geom_print_xyz failed',911,
+     &       GEOM_ERR)
           close(unit=88,status='keep',err=99902)
         enddo
       enddo
 *
       call dcopy(nat3,master,1,coords,1) ! restore master coordinates
       if (.not.geom_destroy(geom)) call errquit
-     &    ('vib_modestep: geom_destroy failed',911)
+     &    ('vib_modestep: geom_destroy failed',911, GEOM_ERR)
       return
 10000 format(a,'/freq.m-',i3.3,'.s-',i3.3,'.xyz')
 99901 write(luout,*)' could not open file ',filename
-      call errquit('vib_modestep: fatal error ',911)
+      call errquit('vib_modestep: fatal error ',911, DISK_ERR)
 99902 write(luout,*)' could not close file ',filename
-      call errquit('vib_modestep: fatal error ',911)
+      call errquit('vib_modestep: fatal error ',911, DISK_ERR)
       end

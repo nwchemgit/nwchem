@@ -2,6 +2,7 @@
      ,     spread,step,const_m,const_p,
      ,     cooto,coofrom,ngridxyz)
       implicit none
+#include "errquit.fh"
       double precision volume
       double precision angle(3),spread(3),step(3)
       integer const_m(3),const_p(3)
@@ -40,7 +41,8 @@ c
             Const_M(i) = 0
             Const_P(i) = 0
          Else
-            Call ErrQuit('Get_Grid: Negative no_of_spacings', 0)
+            Call ErrQuit('Get_Grid: Negative no_of_spacings', 0,
+     &       INPUT_ERR)
          End If
       End Do
       return

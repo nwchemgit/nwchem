@@ -1,4 +1,4 @@
-c $Id: int_projpole.F,v 1.12 1999-10-26 22:28:35 mg201 Exp $
+c $Id: int_projpole.F,v 1.13 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% This is part of the standard API routines
 c:tex-\subsection{int\_projpole}
@@ -27,6 +27,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -77,13 +78,15 @@ c
 c check initialization
 c      
       if (.not.int_chk_init('int_projpole'))
-     &       call errquit('int_projpole: int_init was not called' ,0)
+     &       call errquit('int_projpole: int_init was not called' ,0, 
+     &          INT_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
       shells_ok = inline_chk_sh(ibas,ish)
       if (.not. shells_ok)
-     &       call errquit('int_projpole: invalid contraction/shell',0)
+     &       call errquit('int_projpole: invalid contraction/shell',0, 
+     &            BASIS_ERR)
 c
 ***   set defNxyz such that it can handle the maximum multi-pole
 c
@@ -112,7 +115,7 @@ c
           write(luout,*)
      &        ' int_projpole: (num_int+l_int*i_int_x) = ',
      &        (num_int+l_int*i_int_x)
-          call errquit('int_projpole: lmpint too small ',911)
+          call errquit('int_projpole: lmpint too small ',911, INT_ERR)
         endif
         num_int = num_int + l_int*i_int
         if (cando_nw_1e(i_basis,ish,0)) then
@@ -143,7 +146,8 @@ c.............. dryrun
           endif
         else
           call errquit
-     &        ('int_projpole: could not do sp or nw integrals',0)
+     &        ('int_projpole: could not do sp or nw integrals',0, 
+     &           INT_ERR)
         endif
 c
 00100 continue

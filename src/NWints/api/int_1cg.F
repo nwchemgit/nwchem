@@ -1,4 +1,4 @@
-c $Id: int_1cg.F,v 1.13 1999-10-26 22:14:50 mg201 Exp $
+c $Id: int_1cg.F,v 1.14 2003-10-17 22:53:41 carlfahl Exp $
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines
@@ -14,6 +14,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -23,6 +24,7 @@ c:tex-\end{verbatim}
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
+#include "util.fh"
 c::external subroutines used
 c... errquit
 c::functions
@@ -56,11 +58,13 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1cg'))
-     &       call errquit('int_1cg: int_init was not called' ,0)
+     &       call errquit('int_1cg: int_init was not called' ,0,
+     &       INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       if (.not.shells_ok)
-     &       call errquit('int_1cg: invalid contraction/shell',0)
+     &       call errquit('int_1cg: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
@@ -102,7 +106,8 @@ c............................. doS    doT     doV     canonical
 c.............. dryrun
      &         .false.,scr,lscr)
       else
-        call errquit('int_1cg: could not do sp or nw integrals',0)
+        call errquit('int_1cg: could not do sp or nw integrals',0,
+     &       INT_ERR)
       endif
 c
 *     G1e now has the cartesian integral block  (ilo:ihi)

@@ -1,7 +1,8 @@
-c     $Id: et_2e.F,v 1.15 2003-04-10 16:55:08 d3k958 Exp $
+c     $Id: et_2e.F,v 1.16 2003-10-17 22:54:54 carlfahl Exp $
       subroutine et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &                 g_pa,g_pb,omega2)
       implicit none
+#include "errquit.fh"
 c
 c     calculates the two-electron contribution to Vba, omega2
 c
@@ -55,7 +56,8 @@ c
       numj=jhi-jlo+1
 c
         if (.not.ma_push_get(MT_DBL,numi*numj,'temp dens',l_den,k_den))
-     $  call errquit('et_2e:ma_push_get failed for temp dens',k_den)
+     $  call errquit('et_2e:ma_push_get failed for temp dens',k_den,
+     &       MA_ERR)
         call dfill(numi*numj, 0.0d0, dbl_mb(k_den), 1)
 c
         call ga_get(g_pa, ilo, ihi, jlo, jhi, dbl_mb(k_den),1)
@@ -78,7 +80,8 @@ c
         call ga_get(g_pb, ilo, ihi, jlo, jhi, dbl_mb(k_den),1)
         bdenmax = dabsmax(numi*numj,dbl_mb(k_den))
 c
-        if (.not. ma_pop_stack(l_den)) call errquit('et_2e: pop',1)
+        if (.not. ma_pop_stack(l_den)) call errquit('et_2e: pop',1,
+     &       MA_ERR)
 c
         call ga_sync()
 c
@@ -91,20 +94,22 @@ c
       omega2 = 0.0d0
 c     
       if (.not.ma_push_get(MT_DBL, max2e, '2e buffer', l_gJ, k_gJ))
-     $     call errquit('et_2e:ma_push_get failed for 2e J buffer',k_gJ)
+     $     call errquit('et_2e:ma_push_get failed for 2e J buffer',k_gJ,
+     &       MA_ERR)
 c     
       if (.not.ma_push_get(MT_DBL, mem2, '2e scr', l_scr, k_scr))
-     $     call errquit('et_2e:ma_push_get failed for 2e scratch',k_scr)
+     $     call errquit('et_2e:ma_push_get failed for 2e scratch',k_scr,
+     &       MA_ERR)
 c     
 c     ------------------
 c     get basis set info
 c     ------------------
 c     
       if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('et_2e: bas_numcont failed', basis)
+     $     ('et_2e: bas_numcont failed', basis, BASIS_ERR)
 c     
       if (.not. bas_nbf_cn_max(basis,max_sh_bf))
-     $     call errquit('et_2e: could not get max_sh_bf',0)
+     $     call errquit('et_2e: could not get max_sh_bf',0, BASIS_ERR)
 
       blen = min(nbf,36,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
 c
@@ -131,54 +136,54 @@ c     allocate temporary density arrays
 c     ---------------------------------
 c
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ij', lpa_ij, kpa_ij))
-     $     call errquit('et_2e:could not allocate lpa_ij',0)
+     $     call errquit('et_2e:could not allocate lpa_ij',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_kl', lpa_kl, kpa_kl))
-     $     call errquit('et_2e:could not allocate lpa_kl',0)
+     $     call errquit('et_2e:could not allocate lpa_kl',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ji', lpa_ji, kpa_ji))
-     $     call errquit('et_2e:could not allocate lpa_ji',0)
+     $     call errquit('et_2e:could not allocate lpa_ji',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_lk', lpa_lk, kpa_lk))
-     $     call errquit('et_2e:could not allocate lpa_lk',0)
+     $     call errquit('et_2e:could not allocate lpa_lk',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_il', lpa_il, kpa_il))
-     $     call errquit('et_2e:could not allocate lpa_il',0)
+     $     call errquit('et_2e:could not allocate lpa_il',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_kj', lpa_kj, kpa_kj))
-     $     call errquit('et_2e:could not allocate lpa_kj',0)
+     $     call errquit('et_2e:could not allocate lpa_kj',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_jl', lpa_jl, kpa_jl))
-     $     call errquit('et_2e:could not allocate lpa_jl',0)
+     $     call errquit('et_2e:could not allocate lpa_jl',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ki', lpa_ki, kpa_ki))
-     $     call errquit('et_2e:could not allocate lpa_ki',0)
+     $     call errquit('et_2e:could not allocate lpa_ki',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_ik', lpa_ik, kpa_ik))
-     $     call errquit('et_2e:could not allocate lpa_ik',0)
+     $     call errquit('et_2e:could not allocate lpa_ik',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_lj', lpa_lj, kpa_lj))
-     $     call errquit('et_2e:could not allocate lpa_lj',0)
+     $     call errquit('et_2e:could not allocate lpa_lj',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_jk', lpa_jk, kpa_jk))
-     $     call errquit('et_2e:could not allocate lpa_jk',0)
+     $     call errquit('et_2e:could not allocate lpa_jk',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pa_li', lpa_li, kpa_li))
-     $     call errquit('et_2e:could not allocate lpa_li',0)
+     $     call errquit('et_2e:could not allocate lpa_li',0, MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ij', lpb_ij, kpb_ij))
-     $     call errquit('et_2e:could not allocate lpb_ij',0)
+     $     call errquit('et_2e:could not allocate lpb_ij',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_kl', lpb_kl, kpb_kl))
-     $     call errquit('et_2e:could not allocate lpb_kl',0)
+     $     call errquit('et_2e:could not allocate lpb_kl',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ji', lpb_ji, kpb_ji))
-     $     call errquit('et_2e:could not allocate lpb_ji',0)
+     $     call errquit('et_2e:could not allocate lpb_ji',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_lk', lpb_lk, kpb_lk))
-     $     call errquit('et_2e:could not allocate lpb_lk',0)
+     $     call errquit('et_2e:could not allocate lpb_lk',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_il', lpb_il, kpb_il))
-     $     call errquit('et_2e:could not allocate lpb_il',0)
+     $     call errquit('et_2e:could not allocate lpb_il',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_kj', lpb_kj, kpb_kj))
-     $     call errquit('et_2e:could not allocate lpb_kj',0)
+     $     call errquit('et_2e:could not allocate lpb_kj',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_jl', lpb_jl, kpb_jl))
-     $     call errquit('et_2e:could not allocate lpb_jl',0)
+     $     call errquit('et_2e:could not allocate lpb_jl',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ki', lpb_ki, kpb_ki))
-     $     call errquit('et_2e:could not allocate lpb_ki',0)
+     $     call errquit('et_2e:could not allocate lpb_ki',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_ik', lpb_ik, kpb_ik))
-     $     call errquit('et_2e:could not allocate lpb_ik',0)
+     $     call errquit('et_2e:could not allocate lpb_ik',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_lj', lpb_lj, kpb_lj))
-     $     call errquit('et_2e:could not allocate lpb_lj',0)
+     $     call errquit('et_2e:could not allocate lpb_lj',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_jk', lpb_jk, kpb_jk))
-     $     call errquit('et_2e:could not allocate lpb_jk',0)
+     $     call errquit('et_2e:could not allocate lpb_jk',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, blen*blen, 'pb_li', lpb_li, kpb_li))
-     $     call errquit('et_2e:could not allocate lpb_li',0)
+     $     call errquit('et_2e:could not allocate lpb_li',0, MA_ERR)
 c
 c     ----------------------     
 c     begin loop over shells
@@ -191,24 +196,24 @@ c
 c
       do ish = nsh, 1, -1
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('et_2e: bas_cn2bfr', ish)
+     $        call errquit('et_2e: bas_cn2bfr', ish, BASIS_ERR)
 c     
          do jsh = ish, 1, -1
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
-     $           call errquit('et_2e: bas_cn2bfr', jsh)
+     $           call errquit('et_2e: bas_cn2bfr', jsh, BASIS_ERR)
 c
               sij = schwarz_shell(ish,jsh)
                 if (sij*smax*dij .gt. tol2e) then
 c     
                do ksh = ish, 1, -1
                   if (.not. bas_cn2bfr(basis, ksh, klo, khi))
-     $                 call errquit('et_2e: bas_cn2bfr', ksh)
+     $                 call errquit('et_2e: bas_cn2bfr', ksh, BASIS_ERR)
 c     
                   maxlsh = ksh
                   if (ksh.EQ.ish) maxlsh = jsh
                   do lsh = maxlsh, 1, -1
                      if (.not. bas_cn2bfr(basis, lsh, llo, lhi))
-     $                 call errquit('et_2e: bas_cn2bfr', lsh)
+     $                 call errquit('et_2e: bas_cn2bfr', lsh, BASIS_ERR)
 c
                    if (shellnum.eq.next) then
 c
@@ -283,32 +288,58 @@ c     destroy arrays
 c     ==============
       call schwarz_tidy()
 c     
-      if (.not. ma_pop_stack(lpb_li)) call errquit('et_2e: pop',1)
-      if (.not. ma_pop_stack(lpb_jk)) call errquit('et_2e: pop',2)
-      if (.not. ma_pop_stack(lpb_lj)) call errquit('et_2e: pop',3)
-      if (.not. ma_pop_stack(lpb_ik)) call errquit('et_2e: pop',4)
-      if (.not. ma_pop_stack(lpb_ki)) call errquit('et_2e: pop',5)
-      if (.not. ma_pop_stack(lpb_jl)) call errquit('et_2e: pop',6)
-      if (.not. ma_pop_stack(lpb_kj)) call errquit('et_2e: pop',7)
-      if (.not. ma_pop_stack(lpb_il)) call errquit('et_2e: pop',8)
-      if (.not. ma_pop_stack(lpb_lk)) call errquit('et_2e: pop',9)
-      if (.not. ma_pop_stack(lpb_ji)) call errquit('et_2e: pop',10)
-      if (.not. ma_pop_stack(lpb_kl)) call errquit('et_2e: pop',11)
-      if (.not. ma_pop_stack(lpb_ij)) call errquit('et_2e: pop',12)
-      if (.not. ma_pop_stack(lpa_li)) call errquit('et_2e: pop',13)
-      if (.not. ma_pop_stack(lpa_jk)) call errquit('et_2e: pop',14)
-      if (.not. ma_pop_stack(lpa_lj)) call errquit('et_2e: pop',15)
-      if (.not. ma_pop_stack(lpa_ik)) call errquit('et_2e: pop',16)
-      if (.not. ma_pop_stack(lpa_ki)) call errquit('et_2e: pop',17)
-      if (.not. ma_pop_stack(lpa_jl)) call errquit('et_2e: pop',18)
-      if (.not. ma_pop_stack(lpa_kj)) call errquit('et_2e: pop',19)
-      if (.not. ma_pop_stack(lpa_il)) call errquit('et_2e: pop',20)
-      if (.not. ma_pop_stack(lpa_lk)) call errquit('et_2e: pop',21)
-      if (.not. ma_pop_stack(lpa_ji)) call errquit('et_2e: pop',22)
-      if (.not. ma_pop_stack(lpa_kl)) call errquit('et_2e: pop',23)
-      if (.not. ma_pop_stack(lpa_ij)) call errquit('et_2e: pop',24)
-      if (.not. ma_pop_stack(l_scr)) call errquit('et_2e: pop',25)
-      if (.not. ma_pop_stack(l_gJ))  call errquit('et_2e: pop',26)
+      if (.not. ma_pop_stack(lpb_li)) call errquit('et_2e: pop',1,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_jk)) call errquit('et_2e: pop',2,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_lj)) call errquit('et_2e: pop',3,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_ik)) call errquit('et_2e: pop',4,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_ki)) call errquit('et_2e: pop',5,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_jl)) call errquit('et_2e: pop',6,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_kj)) call errquit('et_2e: pop',7,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_il)) call errquit('et_2e: pop',8,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_lk)) call errquit('et_2e: pop',9,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_ji)) call errquit('et_2e: pop',10,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_kl)) call errquit('et_2e: pop',11,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpb_ij)) call errquit('et_2e: pop',12,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_li)) call errquit('et_2e: pop',13,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_jk)) call errquit('et_2e: pop',14,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_lj)) call errquit('et_2e: pop',15,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_ik)) call errquit('et_2e: pop',16,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_ki)) call errquit('et_2e: pop',17,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_jl)) call errquit('et_2e: pop',18,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_kj)) call errquit('et_2e: pop',19,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_il)) call errquit('et_2e: pop',20,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_lk)) call errquit('et_2e: pop',21,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_ji)) call errquit('et_2e: pop',22,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_kl)) call errquit('et_2e: pop',23,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(lpa_ij)) call errquit('et_2e: pop',24,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_scr)) call errquit('et_2e: pop',25,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_gJ))  call errquit('et_2e: pop',26,
+     &       MA_ERR)
 c
 c
       return

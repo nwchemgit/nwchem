@@ -1,5 +1,5 @@
 c
-c $Id: pspw_qmmm.F,v 1.18 2002-03-05 03:47:36 bylaska Exp $
+c $Id: pspw_qmmm.F,v 1.19 2003-10-17 22:57:46 carlfahl Exp $
 c
 
 ***********************************************************
@@ -26,6 +26,7 @@ c
 
       subroutine pspw_qmmm_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -64,7 +65,8 @@ c
          value = geom_create(geom,'qmmmgeometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'qmmmgeometry')
          value = value.and.geom_ncent(geom,nion)
-         if (.not. value) call errquit('opening qmmgeometry',0)
+         if (.not. value) call errquit('opening qmmgeometry',0,
+     &       GEOM_ERR)
       else
          nion = 0
       end if
@@ -94,7 +96,7 @@ c         end if
          value = value.and.
      >           MA_alloc_get(mt_dbl,(nion),
      >                        'mm_mass',mass(2),mass(1))
-         if (.not. value) call errquit('out of heap memory',0)
+         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
 *        **** read in qmmm geometries, velocities, and masses ****
@@ -107,7 +109,8 @@ c         end if
          call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
          value = value.and.geom_vel_get(geom,dbl_mb(r0(1)))
          value = value.and.geom_masses_get(geom,nion,dbl_mb(mass(1)))
-         if (.not. value) call errquit('error reading qmmmgeometry', 0)
+         if (.not. value) call errquit('error reading qmmmgeometry', 0,
+     &       GEOM_ERR)
 
 *        **** read in fragment list ****
          if (rtdb_ma_get(rtdb, 'pspw:qmmm_frag', ma_type,
@@ -115,13 +118,14 @@ c         end if
 
            if (.not.MA_get_index(h_hndl,h_indx))
      >      call errquit(
-     >      'pspw_qmmm_init: ma_get_index failed for qmmm_frag',911)
+     >      'pspw_qmmm_init: ma_get_index failed for qmmm_frag',911,
+     &       MA_ERR)
 
          else
            h_nfrag = 2*nion+2
            value = MA_alloc_get(mt_int,(h_nfrag),
      >                        'ffrag_list',h_hndl,h_indx)
-           if (.not. value) call errquit('out of heap memory',0)
+           if (.not. value) call errquit('out of heap memory',0, MA_ERR)
            do i=1,nion
               int_mb(h_indx+2*(i-1))   = i
               int_mb(h_indx+2*(i-1)+1) = -1
@@ -151,7 +155,7 @@ c         end if
          value = value.and.
      >           MA_alloc_get(mt_log,(nfrag),
      >           'shake_frag',shake_frag(2),shake_frag(1))
-         if (.not. value) call errquit('out of heap memory',0)
+         if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 *        ***** set indx_from_frag,size_frag, and shake_frag ****
          call set_indx_from_frag(h_nfrag,int_mb(h_indx),
@@ -176,7 +180,8 @@ c         end if
 
 *       **** free h_array ****
         value = MA_free_heap(h_hndl)
-        if (.not.value) call errquit('cannot free heap memory',0)
+        if (.not.value) call errquit('cannot free heap memory',0,
+     &       MA_ERR)
 
 *       **** set katm_list: nkatm, katm, natm, atom ****
         call set_katm_list(2,nion,pspw_qmmm_aname,
@@ -328,6 +333,7 @@ c         end if
 *     **********************************
       subroutine pspw_qmmm_destroy()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -342,7 +348,7 @@ c         end if
       if (nion.gt.0) then
         value = geom_destroy(geom)
         if (.not. value) 
-     >     call errquit('error destroying qmmmgeometry', 0)
+     >     call errquit('error destroying qmmmgeometry', 0, GEOM_ERR)
       end if
 
       return
@@ -356,6 +362,7 @@ c         end if
 
       subroutine pspw_qmmm_write(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -392,7 +399,8 @@ c         end if
         value = value.and.geom_rtdb_store(rtdb,geom,'qmmmgeometry')
         end if
         value = value.and.geom_destroy(geom)
-        if (.not. value) call errquit('error writing qmmmgeometry', 0)
+        if (.not. value) call errquit('error writing qmmmgeometry', 0,
+     &       GEOM_ERR)
       end if
 
       return
@@ -478,6 +486,7 @@ c         end if
 *     **********************************
       character*2 function pspw_qmmm_aname(i)
       implicit none
+#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
@@ -492,7 +501,7 @@ c         end if
       real*8 q
 
       if (.not. geom_cent_tag(geom,i,t))
-     >        call errquit(' pspw_qmmm_aname  failed ',i)
+     >        call errquit(' pspw_qmmm_aname  failed ',i, GEOM_ERR)
 
       if (.not. geom_tag_to_element(t,symbol,name,q)) then
         symbol = 'bq'
@@ -592,6 +601,7 @@ c         end if
 
       subroutine pspw_qmmm_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 ****** pspw_qmmm common block ****
@@ -612,7 +622,8 @@ c         end if
         value = value.and.MA_free_heap(atom(2))
         value = value.and.MA_free_heap(natm(2))
         value = value.and.MA_free_heap(katm(2))
-        if (.not.value) call errquit('cannot free heap memory',0)
+        if (.not.value) call errquit('cannot free heap memory',0,
+     &       MA_ERR)
 
         if (qmmm_type.eq.1) call Model_Potential_end()
         if (qmmm_type.eq.2) call Switching_Charge_end()
@@ -914,6 +925,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
      >                           n2ft3d,rgrid,rho,dv,
      >                           dt,fion,deltar)
       implicit none
+#include "errquit.fh"
       integer algorithm
       integer n2ft3d
       real*8 rgrid(3,*)
@@ -937,7 +949,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
       value = MA_push_get(mt_dbl,(3*nion),
      >                     'fmm',fmm(2),fmm(1))
       if (.not.value)
-     > call errquit('pspw_qmmm_Update:error push stack',0)
+     > call errquit('pspw_qmmm_Update:error push stack',0, MA_ERR)
 
 *     **** Get Forces ****
       call pspw_qmmm_Fion(n2ft3d,rgrid,rho,dv,fion)
@@ -981,7 +993,7 @@ c     >                                   n2ft3d,rgrid,Vqm)
 *     **** deallocate fmm force ***
       value = MA_pop_stack(fmm(2))
       if (.not.value)
-     > call errquit('pspw_qmmm_Update:error pop stack',0)
+     > call errquit('pspw_qmmm_Update:error pop stack',0, MA_ERR)
       return
       end
 

@@ -1,12 +1,13 @@
       subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri)
-c $Id: intp_2e2c.F,v 1.8 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intp_2e2c.F,v 1.9 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals
 c eri = <bra_g(ish)|ket_g(jsh)>
 c
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -56,7 +57,8 @@ c
 c check initialization
 c
       if (.not.int_chk_init('intp_2e2c'))
-     &       call errquit('intp_2e2c: int_init was not called' ,0)
+     &       call errquit('intp_2e2c: int_init was not called' ,0,
+     &           INT_ERR)
 c
 c     check input shell ranges
 c
@@ -64,7 +66,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
 c
       if (.not.shells_ok)
-     &       call errquit('intp_2e2c: invalid contraction/shell',0)
+     &       call errquit('intp_2e2c: invalid contraction/shell',0,
+     &          BASIS_ERR)
 c
 c  check if gencon/sp shell
 c
@@ -139,6 +142,6 @@ c
         write(luout,*)' ketin :',ketin
         write(luout,*)' ish   :',ish
         write(luout,*)' jsh   :',jsh
-        call errquit('intp_2e2c: fatal error ',0)
+        call errquit('intp_2e2c: fatal error ',0, INT_ERR)
       endif
       end

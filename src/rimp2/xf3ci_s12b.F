@@ -5,7 +5,7 @@ c     accumulating the result for a complete pass through the innermost
 c     index.
 C
 C REVISION
-C     $Id: xf3ci_s12b.F,v 1.2 1997-04-01 03:43:34 gg502 Exp $
+C     $Id: xf3ci_s12b.F,v 1.3 2003-10-17 22:58:10 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine XF3cI_Step12b(UseERI, AOBas, PShLo, PShHi, PDim,
@@ -13,6 +13,7 @@ C SYNOPSIS
      $   Int, LInt, Scr, LScr, IBuf, CQ, QXFLo, QXFHi, G_C,
      $   Interm, Out, LDOut, FLOPs)
       Implicit NONE
+#include "errquit.fh"
       Logical UseERI
       Integer AOBas, PShLo, PShHi, PDim, QDim, SDim
       Integer FitBas, SShLo, SShHi, LInt, LScr
@@ -136,7 +137,8 @@ C
       Status = Status .AND. Bas_Cn2Ce( AOBas,  QShHi, QCenHi)
 C
       If ( .NOT. Status) Call ErrQuit(
-     $   'XF3cI_Step12b: Problems with center inquiries', PSHLo)
+     $   'XF3cI_Step12b: Problems with center inquiries', PSHLo,
+     &       BASIS_ERR)
 C
       MustDo = .FALSE.
       Do P = PCenLo, PCenHi

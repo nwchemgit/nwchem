@@ -3,7 +3,7 @@ C NAME
 C     rimp2_t_stats -- compute statistics on t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.1 1998-07-06 21:11:08 bernhold Exp $
+C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats(LowOnly, ILo, IHi, NVirI, JLo, JHi,
@@ -155,7 +155,7 @@ C NAME
 C     rimp2_t_stats_merge -- merge statistics on t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.1 1998-07-06 21:11:08 bernhold Exp $
+C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Merge( TopN, TopN_Ind, TopN_Val)
@@ -196,7 +196,7 @@ C NAME
 C     rimp2_t_stats_print -- print statistics on t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.1 1998-07-06 21:11:08 bernhold Exp $
+C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Print( TopN, TopN_Ind, TopN_Val,
@@ -258,11 +258,12 @@ C NAME
 C     rimp2_t_stats_init -- initialize statistics on t amplitudes 
 C
 C REVISION
-C     $Id: t_stats.F,v 1.1 1998-07-06 21:11:08 bernhold Exp $
+C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Init( TopN, H_TopN_Ind, H_TopN_Val)
       Implicit NONE
+#include "errquit.fh"
       Integer TopN ![in] Number of largest amplitudes desired
       Integer H_TopN_Ind ![out] MA handle of array for top N indices
       Integer H_TopN_Val ![out] MA handle of array for top N values
@@ -284,13 +285,15 @@ C
       If ( .NOT. MA_Alloc_Get(MT_Int, TopN*4,
      $     'Indices of top N amplitudes', H_TopN_Ind, I_TopN_Ind) )
      $     Call ErrQuit(
-     $     'RIMP2_t_Stats_Init: can''t allocate local array', TopN*4)
+     $     'RIMP2_t_Stats_Init: can''t allocate local array', TopN*4,
+     &       MA_ERR)
       Call IFill(TopN*4, 0, Int_MB(I_TopN_Ind), 1)
 C
       If ( .NOT. MA_Alloc_Get(MT_Dbl, TopN,
      $     'Values of top N amplitudes', H_TopN_Val, I_TopN_Val) )
      $     Call ErrQuit(
-     $     'RIMP2_t_Stats_Init: can''t allocate local array', TopN)
+     $     'RIMP2_t_Stats_Init: can''t allocate local array', TopN,
+     &       MA_ERR)
       Call DFill(TopN, 0.0d0, Dbl_MB(I_TopN_Val), 1)
 C
       Return
@@ -300,11 +303,12 @@ C NAME
 C     rimp2_t_stats_term -- terminate statistics on t amplitudes 
 C
 C REVISION
-C     $Id: t_stats.F,v 1.1 1998-07-06 21:11:08 bernhold Exp $
+C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Term( TopN, H_TopN_Ind, H_TopN_Val)
       Implicit NONE
+#include "errquit.fh"
       Integer TopN       ![in]  Number of largest amplitudes desired
       Integer H_TopN_Ind ![out] MA handle of array for top N indices
       Integer H_TopN_Val ![out] MA handle of array for top N values
@@ -319,10 +323,10 @@ C
       If ( TopN .lt. 1) Return
 C
       If ( .NOT. MA_Free_Heap(H_TopN_Val) ) Call ErrQuit(
-     $     'RIMP2_t_Stats_Term: can''t free local array', 1)
+     $     'RIMP2_t_Stats_Term: can''t free local array', 1, MA_ERR)
 C
       If ( .NOT. MA_Free_Heap(H_TopN_Ind) ) Call ErrQuit(
-     $     'RIMP2_t_Stats_Term: can''t free local array', 2)
+     $     'RIMP2_t_Stats_Term: can''t free local array', 2, MA_ERR)
 C
       Return
       End
@@ -331,11 +335,12 @@ C NAME
 C     rimp2_t_sort -- specialized sort for t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.1 1998-07-06 21:11:08 bernhold Exp $
+C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Sort( ID, N, Indices, D)
       Implicit NONE
+#include "errquit.fh"
       Character*1 ID ![in] 'I' to sort in increasing order, 'D' for decreasing
       Integer N      ![in]
       Integer Indices(4, N) ![inout] t amplitude indices
@@ -381,7 +386,8 @@ C
       END IF
       IF( INFO.NE.0 ) THEN
          CALL XERBLA( 'DLASRT', -INFO )
-         Call ErrQuit('RIMP2_t_Sort: Error in argument', Info)
+         Call ErrQuit('RIMP2_t_Sort: Error in argument', Info,
+     &       INPUT_ERR)
       END IF
 *
 *     Quick return if possible
@@ -553,7 +559,7 @@ C NAME
 C     rimp2_t_swap -- specialized swap function for t amplitude sort
 C
 C REVISION
-C     $Id: t_stats.F,v 1.1 1998-07-06 21:11:08 bernhold Exp $
+C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_t_swap( D1, D2, I1, I2)

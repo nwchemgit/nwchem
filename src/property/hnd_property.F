@@ -1,8 +1,9 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.12 2000-10-23 15:53:25 windus Exp $
+* $Id: hnd_property.F,v 1.13 2003-10-17 22:57:58 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -34,15 +35,15 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('property: geom_create?', 0)
+     $     call errquit('property: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('property: no geometry ', 0)
+     $     call errquit('property: no geometry ', 0, RTDB_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('property: bas_create?', 0)
+     $     call errquit('property: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('property: no ao basis ', 0)
+     $     call errquit('property: no ao basis ', 0, RTDB_ERR)
       if (.not. int_normalize(rtdb,basis))
-     $     call errquit('property: normalization failed',911)
+     $     call errquit('property: normalization failed',911, INT_ERR)
 c
       if (ga_nodeid().eq.0) then
          if (util_print('information',print_low)) then
@@ -61,12 +62,12 @@ c
          endif
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom)) 
-     $           call errquit('property: geom_print ?',0)
+     $           call errquit('property: geom_print ?',0, GEOM_ERR)
             call util_flush(luout)
          endif
          if (util_print('basis',print_high)) then
             if (.not. bas_print(basis))
-     $           call errquit('property: bas_print ?',0)
+     $           call errquit('property: bas_print ?',0, BASIS_ERR)
             call util_flush(luout)
          endif
       endif
@@ -92,7 +93,8 @@ c
      &    (geom_destroy(geom))
      &    ))
      &    call errquit
-     &    ('property:error destroying geom and basis handles',911)
+     &    ('property:error destroying geom and basis handles',911,
+     &       GEOM_ERR)
 c
       call util_print_pop
 c

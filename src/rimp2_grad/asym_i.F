@@ -3,12 +3,13 @@ C NAME
 C     RIMP2_Asym_I -- Antisymmetrize IJ integral batch in memory
 C     
 C REVISION
-C     $Id: asym_i.F,v 1.2 1998-10-06 18:36:28 bernhold Exp $
+C     $Id: asym_i.F,v 1.3 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Asym_I(TopSpin, SameSpin, ILo, IHi, NVirI,
      $   JLo, JHi, NVirJ, IJSym, IJTri, G_Int, SpinLabel)
       Implicit NONE
+#include "errquit.fh"
       Integer TopSpin ![in] Indicates RHF (1) or UHF (2) calculation
       Logical SameSpin![in] Indicates if I and J have the same spin case
       Integer ILo     ![in] Lowest occ index in batch (row)
@@ -122,7 +123,8 @@ C
 C        Now destroy original integral array and return new one
 C
          If ( .NOT. GA_Destroy(G_Int) ) Call ErrQuit(
-     $      'RIMP2_Asym_I: can''t destroy original integrals', G_Int)
+     $      'RIMP2_Asym_I: can''t destroy original integrals', G_Int,
+     &       GA_ERR)
 C
          G_Int = G_AsymI
       EndIf

@@ -1,8 +1,9 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.5 2002-03-08 16:19:41 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.6 2003-10-17 22:56:50 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -74,13 +75,15 @@ c
 c
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'simulation_cell_input: inp_read failed', 0)
+     >           'simulation_cell_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'simulation_cell_input: failed to read keyword', 0)
+     >           'simulation_cell_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'simulation_cell_input: unknown directive', 0)
+     >           'simulation_cell_input: unknown directive', 0,
+     &       INPUT_ERR)
 
 
       goto ( 100,  200, 300, 400, 500, 
@@ -89,7 +92,8 @@ c
      >       600, 700, 800,
      >      9999) ind
       call errquit(
-     >      'simulation_cell_input: unimplemented directive', ind)
+     >      'simulation_cell_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 
 c     
@@ -97,7 +101,8 @@ c  cell_name
 c     
  100  if (.not. inp_a(name))
      >     call errquit(
-     >          'simulation_cell_input: failed to read keyword', 0)
+     >          'simulation_cell_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -106,7 +111,8 @@ c boundry_condition
 c
  200  if (.not. inp_a(boundry))
      >     call errquit(
-     >          'simulation_cell_input: failed to read keyword', 0)
+     >          'simulation_cell_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -115,43 +121,55 @@ c  lattice_vectors
 c 
  300  if (.not. inp_read()) 
      >     call errquit(
-     >     'simulation_cell_input: inp_read(unita(*,1)) failed', 0)
+     >     'simulation_cell_input: inp_read(unita(*,1)) failed', 0,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(1,1)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 1)
+     >           'simulation_cell_input: failed to read unita', 1,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(2,1)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read unita', 2)
+     >          'simulation_cell_input: failed to read unita', 2,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(3,1)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read unita', 3)
+     >          'simulation_cell_input: failed to read unita', 3,
+     &       INPUT_ERR)
 
       if (.not. inp_read()) 
      >     call errquit(
-     >     'simulation_cell_input: inp_read(unita(*,2)) failed', 4)
+     >     'simulation_cell_input: inp_read(unita(*,2)) failed', 4,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(1,2)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read unita', 5)
+     >          'simulation_cell_input: failed to read unita', 5,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(2,2)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 6)
+     >           'simulation_cell_input: failed to read unita', 6,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(3,2)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 7)
+     >           'simulation_cell_input: failed to read unita', 7,
+     &       INPUT_ERR)
 
 
       if (.not. inp_read()) 
      >     call errquit(
-     >     'simulation_cell_input: inp_read(unita(*,3)) failed', 8)
+     >     'simulation_cell_input: inp_read(unita(*,3)) failed', 8,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(1,3)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 9)
+     >           'simulation_cell_input: failed to read unita', 9,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(2,3)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 10)
+     >           'simulation_cell_input: failed to read unita', 10,
+     &       INPUT_ERR)
       if (.not. inp_f(unita(3,3)))
      >     call errquit(
-     >           'simulation_cell_input: failed to read unita', 11)
+     >           'simulation_cell_input: failed to read unita', 11,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -160,13 +178,16 @@ c  ngrid
 c
  400  if (.not. inp_i(ngrid(1)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read ngrid', 0)
+     >          'simulation_cell_input: failed to read ngrid', 0,
+     &       INPUT_ERR)
       if (.not. inp_i(ngrid(2)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read ngrid', 0)
+     >          'simulation_cell_input: failed to read ngrid', 0,
+     &       INPUT_ERR)
       if (.not. inp_i(ngrid(3)))
      >     call errquit(
-     >          'simulation_cell_input: failed to read ngrid', 0)
+     >          'simulation_cell_input: failed to read ngrid', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -181,34 +202,38 @@ c
 
 c     ***** Read new line of input *****
    34 if (.not. inp_read()) call errquit
-     $     ('simulation_cell_input: premature end of file', 0)
+     $     ('simulation_cell_input: premature end of file', 0,
+     &       INPUT_ERR)
 
    33 if (.not. inp_a(test)) goto 34
      
       if (.not. inp_match(ntokens, .false., test, tokens, ind))
      >     call errquit(
-     >           'simulation_cell_input: unknown directive', 0)
+     >           'simulation_cell_input: unknown directive', 0,
+     &       INPUT_ERR)
 
           goto (11,12,13,14,15,16,
      >          35) ind
 c
   11      if (.not. inp_f(lat_a)) call errquit
-     >    ('simulation_cell_input: error reading lat_a', 0)
+     >    ('simulation_cell_input: error reading lat_a', 0,
+     &       INPUT_ERR)
           goto 33
   12      if (.not. inp_f(lat_b)) call errquit
-     >    ('simulation_cell_input: error reading lat_b', 0)
+     >    ('simulation_cell_input: error reading lat_b', 0,
+     &       INPUT_ERR)
           goto 33
   13      if (.not. inp_f(lat_c)) call errquit
-     >    ('simulation_cell_input: error reading lat_c', 0)
+     >    ('simulation_cell_input: error reading lat_c', 0, INPUT_ERR)
           goto 33
   14      if (.not. inp_f(alpha)) call errquit
-     >    ('simulation_cell_input: error reading alpha', 0)
+     >    ('simulation_cell_input: error reading alpha', 0, INPUT_ERR)
           goto 33
   15      if (.not. inp_f(beta)) call errquit
-     >    ('simulation_cell_input: error reading beta', 0)
+     >    ('simulation_cell_input: error reading beta', 0, INPUT_ERR)
           goto 33
   16      if (.not. inp_f(gamma)) call errquit
-     >    ('simulation_cell_input: error reading gamma', 0)
+     >    ('simulation_cell_input: error reading gamma', 0, INPUT_ERR)
           goto 33
 
   35  alpha = alpha/rad
@@ -224,7 +249,7 @@ c  simple cubic lattice vectors
 c 
  600  if (.not. inp_f(ll)) 
      >     call errquit(
-     >     'simulation_cell_input: SC inp_read(L) failed', 0)
+     >     'simulation_cell_input: SC inp_read(L) failed', 0, INPUT_ERR)
       unita(1,1) = ll
       unita(2,1) = 0.0d0
       unita(3,1) = 0.0d0
@@ -241,7 +266,8 @@ c  face-centered cubic lattice vectors
 c 
  700  if (.not. inp_f(ll)) 
      >     call errquit(
-     >     'simulation_cell_input: FCC inp_read(L) failed', 0)
+     >     'simulation_cell_input: FCC inp_read(L) failed', 0,
+     &       INPUT_ERR)
       unita(1,1) = ll/2.0d0
       unita(2,1) = ll/2.0d0
       unita(3,1) = 0.0d0
@@ -258,7 +284,8 @@ c  body-centered cubic lattice vectors
 c 
  800  if (.not. inp_f(ll)) 
      >     call errquit(
-     >     'simulation_cell_input: BCC inp_read(L) failed', 0)
+     >     'simulation_cell_input: BCC inp_read(L) failed', 0,
+     &       INPUT_ERR)
       unita(1,1) =  ll/2.0d0
       unita(2,1) =  ll/2.0d0
       unita(3,1) =  ll/2.0d0
@@ -273,14 +300,16 @@ c
 *     ***** add simulation_cell to rtdb ****
  9999 continue
       if (name.eq.' ') 
-     >     call errquit('simulation_cell_input: nead a name', 0)
+     >     call errquit('simulation_cell_input: nead a name', 0,
+     &       INPUT_ERR)
       l = index(name,' ') -1
 
       rtdb_name = name(1:l)//':boundry'
       ind = index(boundry,' ') - 1
       if (.not. rtdb_cput(rtdb,rtdb_name,1,boundry(1:ind)))
      >     call errquit(
-     >     'simulation_cell_input: rtdb_cput(boundry) failed', 0)
+     >     'simulation_cell_input: rtdb_cput(boundry) failed', 0,
+     &       INPUT_ERR)
 
 *     **** convert to bohrs using scale variable ****
       unita(1,1) = unita(1,1) * scale
@@ -298,12 +327,14 @@ c
       rtdb_name = name(1:l)//':unita'
       if (.not. rtdb_put(rtdb,rtdb_name,mt_dbl,9,unita))
      >     call errquit(
-     >     'simulation_cell_input: rtdb_put(unita) failed', 0)
+     >     'simulation_cell_input: rtdb_put(unita) failed', 0,
+     &       INPUT_ERR)
 
       rtdb_name = name(1:l)//':ngrid'
       if (.not. rtdb_put(rtdb,rtdb_name,mt_int,3,ngrid))
      >     call errquit(
-     >     'simulation_cell_input: rtdb_put(ngrid) failed', 0)
+     >     'simulation_cell_input: rtdb_put(ngrid) failed', 0,
+     &       INPUT_ERR)
       
 
       end
@@ -315,6 +346,7 @@ c
 *     *************************************************
       subroutine get_scalefrominput(scale)
       implicit none
+#include "errquit.fh"
       double precision scale
 
 #include "inp.fh"
@@ -347,10 +379,12 @@ c
       if (inp_match(num_dirs, .false., test, dirs, ind)) then
 
          if (.not. inp_a(test)) call errquit
-     >      ('simulation_cell_input: error reading units', 0)
+     >      ('simulation_cell_input: error reading units', 0,
+     &       INPUT_ERR)
 
         if (.not.inp_match(nunits, .false., test, units, ind)) 
-     >    call errquit('simulation_cell_input: error reading units', 0)
+     >    call errquit('simulation_cell_input: error reading units', 0,
+     &       INPUT_ERR)
 
 
         goto ( 52,52,52,53,53,54,54,55,55 ) ind

@@ -1,4 +1,4 @@
-C $Id: rgener.F,v 1.4 2001-02-01 17:42:48 windus Exp $
+C $Id: rgener.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_rgener(string,iend,istrt)
 c
 c     called by:
@@ -7,6 +7,7 @@ c     calls:
 c           drdy_rline
 c
       Implicit none 
+#include "errquit.fh"
 #include "drdyP.fh"
 c           rword
 C
@@ -56,14 +57,16 @@ C SAVE ELECTRONIC STRUCTURE FILES
                   endif
                else
                   write(fu6,1201) string(istrt:istrt+2)
-                  call errquit('drdy_rgener: invalid argument',555)
+                  call errquit('drdy_rgener: invalid argument',555,
+     &       INPUT_ERR)
                endif
                call drdy_rword(string,istrt,ierr)
             enddo
             if (lhess.eq.0) then
                if (lvec.eq.0) then
                   write(fu6,1203)
-                  call errquit('drdy_rgener: invalid argument',555)
+                  call errquit('drdy_rgener: invalid argument',555,
+     &       INPUT_ERR)
                else
                   lgs(38) = 1
                endif
@@ -80,7 +83,7 @@ C SAVE ELECTRONIC STRUCTURE FILES
             endif
          else
             write(fu6,1200) string(istrt:80)
-            call errquit('drdy_rgener: fatal error ',911)
+            call errquit('drdy_rgener: fatal error ',911, UNKNOWN_ERR)
          end if
          call drdy_rline(string,istrt,isect,iend)
       end do

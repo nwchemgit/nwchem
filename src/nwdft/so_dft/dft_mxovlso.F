@@ -1,7 +1,8 @@
       Subroutine dft_mxovlso(basis, evals, g_evecs, g_oevecs,g_tmp)
 
-C$Id: dft_mxovlso.F,v 1.1 2000-04-17 21:45:53 zzhang Exp $
+C$Id: dft_mxovlso.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
       Implicit none
+#include "errquit.fh"
       integer basis
       integer g_s              ! overlap       [input] overwritten!
       integer g_evecs          ! new eigenvecs [input/output]
@@ -32,17 +33,17 @@ c
       nproc=ga_nnodes()
 c     
       if ( .not. bas_numbf(basis,nbf) ) 
-     &     call errquit(' exiting in max_ovl',1)
+     &     call errquit(' exiting in max_ovl',1, BASIS_ERR)
 c
 c      call gacrea(geom,basis,nbf,nbf,'ovl ',g_s,'atom')
       g_s = ga_create_atom_blocked(geom, basis, 'AO ovl')
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf,'tmpm',l_tmp, k_tmp))
-     &     call errquit('dft_mxovl: cannot allocate tmpm',0)
+     &     call errquit('dft_mxovl: cannot allocate tmpm',0, MA_ERR)
       if(.not.MA_Push_Get(MT_Dbl,nbf,'scr',l_scr, k_scr))
-     &     call errquit('dft_mxovl: cannot allocate scr',0)
+     &     call errquit('dft_mxovl: cannot allocate scr',0, MA_ERR)
       if(.not.MA_Push_Get(MT_int,nbf,'ord',l_ord, k_ord))
-     &     call errquit('dft_mxovl: cannot allocate ord',0)
+     &     call errquit('dft_mxovl: cannot allocate ord',0, MA_ERR)
 
       call ga_zero(g_s)
       call int_1e_ga(basis,basis,g_s,'overlap',.false.)
@@ -95,14 +96,14 @@ c
 c
 c      call gadest(g_s)
       if (.not. ga_destroy(g_s)) call errquit
-     &   ('dft_mxovl: could not destroy g_s', 0)
+     &   ('dft_mxovl: could not destroy g_s', 0, GA_ERR)
 c
       if(.not.MA_Pop_Stack(l_ord))
-     & call errquit('dft_mxovl: cannot pop stack',0)
+     & call errquit('dft_mxovl: cannot pop stack',0, MA_ERR)
       if(.not.MA_Pop_Stack(l_scr))
-     & call errquit('dft_mxovl: cannot pop stack',0)
+     & call errquit('dft_mxovl: cannot pop stack',0, MA_ERR)
       if(.not.MA_Pop_Stack(l_tmp))
-     & call errquit('dft_mxovl: cannot pop stack',0)
+     & call errquit('dft_mxovl: cannot pop stack',0, MA_ERR)
 c
       call ga_dgop(Msg_mxovl_2,evals,nbf,'+')
 c

@@ -1,6 +1,6 @@
 
 *
-* $Id: ELF.F,v 1.2 2002-07-01 14:27:06 bylaska Exp $
+* $Id: ELF.F,v 1.3 2003-10-17 22:57:15 carlfahl Exp $
 *
 
 *     ***************************
@@ -21,6 +21,7 @@
 *
       subroutine generate_ELF(npack1,ne,psi,dn,elf)
       implicit none
+#include "errquit.fh"
       integer    npack1,ne
       complex*16 psi(npack1,ne)
       real*8     dn(*)
@@ -57,7 +58,8 @@
      >        MA_push_get(mt_dbl,n2ft3d,'dnsp',dnsp(2),dnsp(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'dng',dng(2),dng(1))
-      if (.not.value) call errquit('generate_ELF:pushing stack',0)
+      if (.not.value) call errquit('generate_ELF:pushing stack',0,
+     &       MA_ERR)
       call Ursenbach_smoother(n2ft3d,dn,
      >                        dbl_mb(dns(1)),
      >                        dbl_mb(dnsp(1)))
@@ -100,7 +102,8 @@
       value =           MA_pop_stack(dng(2))
       value = value.and.MA_pop_stack(dnsp(2))
       value = value.and.MA_pop_stack(dns(2))
-      if (.not.value) call errquit('generate_ELF:popping stack',1)
+      if (.not.value) call errquit('generate_ELF:popping stack',1,
+     &       MA_ERR)
 
       return
       end
@@ -119,6 +122,7 @@
       subroutine gradient_energy_density(nb,npack,f,
      >                                   n2ft3d,df)
       implicit none
+#include "errquit.fh"
       integer nb,npack
       complex*16 f(*)
       integer n2ft3d
@@ -151,7 +155,7 @@
       value = value.and.MA_push_get(mt_dbl,nfft3d,
      >                                'Gz',Gz(2),Gz(1))
       if (.not.value) 
-     >  call errquit('gradient_energy_density:push stack',0)
+     >  call errquit('gradient_energy_density:push stack',0, MA_ERR)
 
 *     **** define Gx,Gy,Gz in packed space ****
       call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(Gx(1)),1)
@@ -173,7 +177,7 @@
       value = value.and.MA_pop_stack(Gy(2))
       value = value.and.MA_pop_stack(Gx(2))
       if (.not.value) 
-     >  call errquit('gradient_energy_density:pop stack',1)
+     >  call errquit('gradient_energy_density:pop stack',1, MA_ERR)
 
 *     **** Fourier transform fx,fy,fz to real space ****
       call Pack_c_unpack(nb,dbl_mb(fx(1)))
@@ -195,7 +199,7 @@
       value = value.and.MA_pop_stack(fy(2))
       value = value.and.MA_pop_stack(fx(2))
       if (.not.value) 
-     >  call errquit('gradient_energy_density:pop stack',2)
+     >  call errquit('gradient_energy_density:pop stack',2, MA_ERR)
 
       return
       end

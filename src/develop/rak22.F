@@ -1,8 +1,9 @@
 *
-* $Id: rak22.F,v 1.6 2000-02-04 19:53:15 mg201 Exp $
+* $Id: rak22.F,v 1.7 2003-10-17 22:54:39 carlfahl Exp $
 *
       logical function task_accy(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -19,16 +20,17 @@
       logical status
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_accy: geom_create failed?',911)
+     &    call errquit('raktest_accy: geom_create failed?',911,
+     &       GEOM_ERR)
 c
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_accy: geom_rtdb_load -ref failed',911)
+     &    ('raktest_accy: geom_rtdb_load -ref failed',911, RTDB_ERR)
       
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, RTDB_ERR)
 c
       if (ga_nodeid().eq.0) then
         if (.not.geom_print(geom)) stop ' print error'

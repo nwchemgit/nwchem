@@ -2,9 +2,10 @@
      $                         g_coul, g_exch, g_ifock,
      $                         g_afock, g_gfock, g_hdiag )
 *
-* $Id: mcscf_hdiag.F,v 1.7 1997-11-04 09:59:44 d3e129 Exp $
+* $Id: mcscf_hdiag.F,v 1.8 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -40,13 +41,13 @@ c
 c     Get diagonals of each matrix
 c
        if (.not.ma_push_get(MT_DBL,nbf,'mcscf_hdiag: tmp',l_di,k_di))
-     $      call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $      call errquit('rohf_hdiag_scale: cannot allocate',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,nbf,'mcscf_hdiag: tmp',l_da,k_da))
-     $      call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $      call errquit('rohf_hdiag_scale: cannot allocate',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,nbf,'mcscf_hdiag: tmp',l_dg,k_dg))
-     $      call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $      call errquit('rohf_hdiag_scale: cannot allocate',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL,nbf,'mcscf_hdiag: tmp',l_tmp,k_tmp))
-     $      call errquit('rohf_hdiag_scale: cannot allocate',0)
+     $      call errquit('rohf_hdiag_scale: cannot allocate',0, MA_ERR)
 c     
        call ga_get_diagonal(g_ifock, dbl_mb(k_di))
        call ga_get_diagonal(g_afock, dbl_mb(k_da))
@@ -162,13 +163,13 @@ c
 c  Clean up
 c
        if (.not.ma_pop_stack(l_tmp))
-     $      call errquit('mcscf_hdiag: cannot pop stack',0)
+     $      call errquit('mcscf_hdiag: cannot pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_dg))
-     $      call errquit('mcscf_hdiag: cannot pop stack',0)
+     $      call errquit('mcscf_hdiag: cannot pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_da))
-     $      call errquit('mcscf_hdiag: cannot pop stack',0)
+     $      call errquit('mcscf_hdiag: cannot pop stack',0, MA_ERR)
        if (.not.ma_pop_stack(l_di))
-     $      call errquit('mcscf_hdiag: cannot pop stack',0)
+     $      call errquit('mcscf_hdiag: cannot pop stack',0, MA_ERR)
 c
 c
 c
@@ -238,6 +239,7 @@ c
      $                               g_ifock, g_afock, g_gfock,
      $                               g_hdiag, g_x )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c

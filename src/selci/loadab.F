@@ -1,8 +1,9 @@
       subroutine selci_loadab(h, g, int12, int34)
 *
-* $Id: loadab.F,v 1.4 1997-10-31 23:42:08 d3e129 Exp $
+* $Id: loadab.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension h(nnorbs), g(numint), int12(nnorbs), int34(nnorbs)
       dimension gbuf(1024),ijkl(4,1024)
@@ -22,7 +23,7 @@ c
       read(iflint) h
 c
       if (buflen .gt. 1024) call errquit
-     $  ('selci_loadab: buflen > hard dimension', buflen)
+     $  ('selci_loadab: buflen > hard dimension', buflen, INPUT_ERR)
 c
       write(6,19) repnuc
  19   format(' nuclear replusion energy is ',f20.12)
@@ -57,7 +58,8 @@ c
          kls = ieor(isym(k),isym(l))
          if (ijs.ne.kls) then
             write(ifllog,*) ' gg,i,j,k,l,ijs,kls,',gg,i,j,k,l,ijs,kls
-            call errquit('integral should be zero by symmetry',0)
+            call errquit('integral should be zero by symmetry',0,
+     &       CALC_ERR)
          endif
          g(int12(ij)+int34(kl)) = gg
 20    continue

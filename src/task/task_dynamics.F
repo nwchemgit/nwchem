@@ -1,8 +1,9 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.7 2003-04-09 15:53:30 windus Exp $
+* $Id: task_dynamics.F,v 1.8 2003-10-17 22:58:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -42,13 +43,14 @@ c
 c     Right now only have a QM component
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0)
+     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 c
 c     Set output parameters as if failed
 c
       status = rtdb_delete(rtdb, 'task:dynamics')
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_dynamics: failed to invalidate status',0)
+     $     call errquit('task_dynamics: failed to invalidate status',0,
+     &       RTDB_ERR)
 c
 c     Actually do the deed
 c
@@ -58,14 +60,16 @@ c
       wall = util_wallsec() - wall
 c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $   call errquit('task_dynamics: failed to set status',0)
+     $   call errquit('task_dynamics: failed to set status',0, RTDB_ERR)
 c
       if (status) then
 c
          if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $        call errquit('task_dynamics: failed storing cputime',0)
+     $        call errquit('task_dynamics: failed storing cputime',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $        call errquit('task_dynamics: failed storing walltime',0)
+     $        call errquit('task_dynamics: failed storing walltime',0,
+     &       RTDB_ERR)
 c
       endif
 c

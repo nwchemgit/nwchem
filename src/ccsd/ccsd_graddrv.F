@@ -4,8 +4,9 @@
      &                        giu,gabe,bbkp,bb,g_nt2,g_z2,g_hz2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_graddrv.F,v 2.6 2000-10-23 23:37:44 windus Exp $
+C     $Id: ccsd_graddrv.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c
       integer msg_cc_z1a
 c
@@ -69,10 +70,10 @@ c create square GAs with proposed final ordering
 c ------------------------------------------------------------
       if (.not.ga_create(MT_DBL,lnov,lnov,'nz2',
      &                   nvir,nvir,g_nz2))
-     &     call errquit('ga_create g_nz2 failed',0)
+     &     call errquit('ga_create g_nz2 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'nhz2',
      &                   nvir,nvir,g_nhz2))
-     &     call errquit('ga_create g_nhz2 failed',0)
+     &     call errquit('ga_create g_nhz2 failed',0, GA_ERR)
 c
       call ga_sync()
       iter=0
@@ -166,9 +167,9 @@ c ----------------------------------------------------------
  999  continue
 c
       if (.not.ga_destroy(g_nhz2))
-     &    call errquit('ga_dest g_nhz2 fail',0)
+     &    call errquit('ga_dest g_nhz2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_nz2))
-     &    call errquit('ga_dest g_nz2 fail',0)
+     &    call errquit('ga_dest g_nz2 fail',0, GA_ERR)
 c
       call ga_sync()
       call qexit('graddrv',0)

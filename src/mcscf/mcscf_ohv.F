@@ -3,9 +3,10 @@
      $                         g_movecs, g_ifock, g_afock, g_gfock,
      $                         g_coul, g_exch, g_x, g_ax )
 *
-* $Id: mcscf_ohv.F,v 1.4 1997-11-04 09:59:44 d3e129 Exp $
+* $Id: mcscf_ohv.F,v 1.5 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "mcscfprof.fh"
@@ -38,11 +39,11 @@ c
 c
        if (omcscfprof) call pstat_on(ps_hv)
        if (.not.ga_duplicate(g_afock, g_tmp1, 'temp1'))
-     $      call errquit('mcscf_hessv: cannot duplicate',0)
+     $      call errquit('mcscf_hessv: cannot duplicate',0, GA_ERR)
        if (.not.ga_duplicate(g_afock, g_tmp2, 'temp2'))
-     $      call errquit('mcscf_hessv: cannot duplicate',0)
+     $      call errquit('mcscf_hessv: cannot duplicate',0, GA_ERR)
        if (.not.ga_duplicate(g_afock, g_tmp3, 'temp3'))
-     $      call errquit('mcscf_hessv: cannot duplicate',0)
+     $      call errquit('mcscf_hessv: cannot duplicate',0, GA_ERR)
 c
 c
 c
@@ -65,11 +66,11 @@ c
 c
 
        if (.not.ga_destroy(g_tmp1))
-     $      call errquit('mcscf_hessv: cannot destroy temp1',0)
+     $      call errquit('mcscf_hessv: cannot destroy temp1',0, GA_ERR)
        if (.not.ga_destroy(g_tmp2))
-     $      call errquit('mcscf_hessv: cannot destroy temp2',0)
+     $      call errquit('mcscf_hessv: cannot destroy temp2',0, GA_ERR)
        if (.not.ga_destroy(g_tmp3))
-     $      call errquit('mcscf_hessv: cannot destroy temp3',0)
+     $      call errquit('mcscf_hessv: cannot destroy temp3',0, GA_ERR)
 c
 c
 c

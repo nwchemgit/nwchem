@@ -3,12 +3,13 @@ C NAME
 C     RIMP2_NonSep2 -- Non-separable gradient contrib from 2c integrals
 C
 C REVISION
-C     $Id: nonsep2.F,v 1.3 1999-06-04 20:52:47 gg502 Exp $
+C     $Id: nonsep2.F,v 1.4 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_NonSep2(BraKetSame, TopSpin, NFrzO, NAct, NVir,
      $     FitBas, D_Int, D_Gam, Grad, NCent )
       Implicit NONE
+#include "errquit.fh"
       Logical BraKetSame        ![in]
       Integer TopSpin           ![in]
       Integer NFrzO(TopSpin)    ![in]
@@ -61,7 +62,7 @@ C
          If ( Me .eq. 0) Write (LuOut, 9000)
          Call ErrQuit(
      $     'RIMP2_NonSep2: invocation inconsistent with implementation',
-     $        0)
+     $        0, INPUT_ERR)
       EndIf
  9000 Format(/1X, 'ERROR: RIMP2_NonSep2 implementation requires an ',
      $            'asymmetric integral',
@@ -70,7 +71,8 @@ C
      $       /1X, 'ERROR: basis index (BraKetSame must be .FALSE.).')
 C
       If ( .NOT. Bas_NumBF( FitBas, NFit) ) Call ErrQuit(
-     $     'RIMP2_NonSep2: can''t get fitting basis size', FitBas)
+     $     'RIMP2_NonSep2: can''t get fitting basis size', FitBas,
+     &       BASIS_ERR)
 C
 C     *******************************************************
 C     * Create target GA for 3c integral-gamma3 contraction *
@@ -79,7 +81,7 @@ C     NOTE: Should probably distribute this on shell boundaries
 C
       If ( .NOT. GA_Create(MT_Dbl, NFit, NFit, 'V-like temp',
      $     MinChunk, MinChunk, g_V) ) Call ErrQuit(
-     $     'RIMP2_NonSep2: can''t allocate V-like temporary', 0)
+     $     'RIMP2_NonSep2: can''t allocate V-like temporary', 0, GA_ERR)
       Call GA_Zero(g_V)
 C
 C     ************************************
@@ -100,23 +102,23 @@ C
       LBuf = 2*LBuf                                      !!! CHEATING!!!
       If (.NOT. MA_Push_Get(MT_DBL, LBuf, 'deriv int buf',
      $     H_Buf, I_Buf ) ) Call ErrQuit(
-     $     'RIMP2_NonSep2: ma failed (buf)', LBuf)
+     $     'RIMP2_NonSep2: ma failed (buf)', LBuf, MA_ERR)
       If (.NOT. MA_Push_Get(MT_DBL, LScr, 'deriv int scr',
      $     H_Scr, I_Scr ) ) Call ErrQuit(
-     $     'RIMP2_NonSep2: ma failed (scr)', LScr )
+     $     'RIMP2_NonSep2: ma failed (scr)', LScr , MA_ERR)
 C
       Call RIMP2_NS2_2e2c(FitBas, Dbl_MB(I_Buf), LBuf,
      $     Dbl_MB(I_Scr), LScr, g_V, Grad, NCent)
 C
       If (.NOT. MA_Pop_Stack( H_Scr) ) Call ErrQuit(
-     $     'RIMP2_NonSep2: pop of scr failed', 0)
+     $     'RIMP2_NonSep2: pop of scr failed', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack( H_Buf) ) Call ErrQuit(
-     $     'RIMP2_NonSep2: pop of buf failed', 0)
+     $     'RIMP2_NonSep2: pop of buf failed', 0, MA_ERR)
 C
 C     Free remaining GAs
 C
       If ( .NOT. GA_Destroy( g_V ) ) Call ErrQuit(
-     $     'RIMP2_NonSep2: can''t destroy V-like GA', 0)
+     $     'RIMP2_NonSep2: can''t destroy V-like GA', 0, GA_ERR)
 C
 C     Print partial results if requested
 C

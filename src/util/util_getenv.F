@@ -1,6 +1,7 @@
       subroutine util_getenv(env_name, env_value)
-* $Id: util_getenv.F,v 1.5 2003-08-13 22:15:38 edo Exp $
+* $Id: util_getenv.F,v 1.6 2003-10-17 22:58:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"      
       character*(*) env_name  ! [input] the name of the environment variable to check for
       character*(*) env_value ! [output] the value of the named environement variable
@@ -19,7 +20,8 @@
         env_value = ' '
         return
       else
-        call errquit('util_getenv:pxfgetenv fatal error',lerror)
+        call errquit('util_getenv:pxfgetenv fatal error',lerror,
+             &       UNKNOWN_ERR)
       endif
 #else
       call getenv(env_name, env_value)

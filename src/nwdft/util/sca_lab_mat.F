@@ -1,8 +1,9 @@
       Subroutine sca_lab_mat(basis_hand,isha,ishb,
      &     nshbfa,nshbfb,g_a,vec,vec2,what)
 
-C$Id: sca_lab_mat.F,v 1.13 2003-01-09 02:48:12 edo Exp $
+C$Id: sca_lab_mat.F,v 1.14 2003-10-17 22:55:50 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       
       integer basis_hand
       integer isha,ishb
@@ -22,10 +23,10 @@ c
 c******************************************************************************
 
       if (.not. bas_cn2bfr( basis_hand, isha, ifirsta, ilasta)) then
-        call errquit('Exiting in sca_lab_mat',1)
+        call errquit('Exiting in sca_lab_mat',1, BASIS_ERR)
       endif 
       if (.not. bas_cn2bfr( basis_hand, ishb, ifirstb, ilastb)) then
-        call errquit('Exiting in sca_lab_mat',2)
+        call errquit('Exiting in sca_lab_mat',2, BASIS_ERR)
       endif 
       if(what.eq.'acc') then
          call ga_acc(g_a,
@@ -63,8 +64,9 @@ c******************************************************************************
      &     nshbfa,nshbfb,g_a,nmat,
      .     vec,vec2,what)
 
-C$Id: sca_lab_mat.F,v 1.13 2003-01-09 02:48:12 edo Exp $
+C$Id: sca_lab_mat.F,v 1.14 2003-10-17 22:55:50 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
       integer nmat
       integer basis_hand
@@ -78,10 +80,10 @@ c
       integer hi(3),lo(3),ld(2)
 
       if (.not. bas_cn2bfr( basis_hand, isha, ifirsta, ilasta)) then
-        call errquit('Exiting in sca_lab_mat',1)
+        call errquit('Exiting in sca_lab_mat',1, BASIS_ERR)
       endif 
       if (.not. bas_cn2bfr( basis_hand, ishb, ifirstb, ilastb)) then
-        call errquit('Exiting in sca_lab_mat',2)
+        call errquit('Exiting in sca_lab_mat',2, BASIS_ERR)
       endif 
       lo(1)=1
       hi(1)=nmat
@@ -92,7 +94,7 @@ c
       ld(1)=nmat
       ld(2)=ilastb-ifirstb+1
       if(what.eq.'acc') then
-         call errquit(' acc not coded ',0)
+         call errquit(' acc not coded ',0, UNKNOWN_ERR)
       else
          call nga_put(g_a,
      *        lo,hi,
@@ -107,7 +109,7 @@ c
             enddo
          enddo
          if(what.eq.'acc') then
-            call errquit(' acc not coded ',0)
+            call errquit(' acc not coded ',0, UNKNOWN_ERR)
          else
             ld(2)=ilasta-ifirsta+1
             call nga_put(g_a,
@@ -120,7 +122,7 @@ c
 
       Subroutine gat_mat(T,TT,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: sca_lab_mat.F,v 1.13 2003-01-09 02:48:12 edo Exp $
+C$Id: sca_lab_mat.F,v 1.14 2003-10-17 22:55:50 carlfahl Exp $
       implicit none
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst

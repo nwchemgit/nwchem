@@ -1,8 +1,9 @@
       subroutine int_dip_ga(ibas, jbas, g_x, g_y, g_z)
 *
-* $Id: int_dip_ga.F,v 1.2 1998-12-10 23:48:47 d3e129 Exp $
+* $Id: int_dip_ga.F,v 1.3 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "inp.fh"
@@ -30,19 +31,19 @@ c
 c     grab basis set info type stuff
 c
       if(.not.bas_numcont(ibas,nshell_i))call errquit
-     $  ('int_dip_ga: bas_numcont failed for ibas',ibas)
+     $  ('int_dip_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
       if(.not.bas_numcont(jbas,nshell_j))call errquit
-     $  ('int_dip_ga: bas_numcont failed for jbas',jbas)
+     $  ('int_dip_ga: bas_numcont failed for jbas',jbas, BASIS_ERR)
 c
 c allocate temp. arrays
 c
       call int_mem_dipole(max1e,mscratch,ibas,jbas,1)
 c      
       if(.not.MA_push_get(MT_DBL,max1e,'int_dip_ga:buf',l_buf,k_buf))
-     $  call errquit('int_dip_ga: ma failure',max1e)
+     $  call errquit('int_dip_ga: ma failure',max1e, MA_ERR)
       if(.not.MA_push_get(MT_DBL,mscratch,'int_dip_ga:scr',
      $   l_scr,k_scr))
-     $  call errquit('int_dip_ga: ma failure',mscratch)
+     $  call errquit('int_dip_ga: ma failure',mscratch, MA_ERR)
 c
 c     loop over shells
 c
@@ -53,9 +54,11 @@ c
          do ishell = 1,nshell_i
             if(mod(ijshell,nproc).eq.iproc)then
                if(.not.bas_cn2bfr(ibas,ishell,ilo,ihi))
-     $              call errquit('int_dip_ga:bas_cn2bfr ?', ibas)
+     $              call errquit('int_dip_ga:bas_cn2bfr ?', ibas,
+     &       BASIS_ERR)
                if(.not.bas_cn2bfr(jbas,jshell,jlo,jhi))
-     $              call errquit('int_dip_ga:bas_cn2bfr ?', jbas)
+     $              call errquit('int_dip_ga:bas_cn2bfr ?', jbas,
+     &       BASIS_ERR)
                idim=ihi-ilo+1
 c
 c     get the integrals we want
@@ -75,9 +78,9 @@ c
       enddo
 c
       if(.not.MA_pop_stack(l_scr))
-     $   call errquit('int_dip_ga:pop failed',0)
+     $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
       if(.not.MA_pop_stack(l_buf)) 
-     $   call errquit('int_dip_ga:pop failed',0)
+     $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
 c
       call ga_sync()
 c

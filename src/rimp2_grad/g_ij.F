@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_G_IJ -- Evaluate RI-MP2 gradient contributions for IJ batch
 C
 C REVISION
-C     $Id: g_ij.F,v 1.4 1998-10-12 14:31:23 bernhold Exp $
+C     $Id: g_ij.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_G_IJ(TopSpin, SameSpin, NFrzI, ILo, IHi, NVirI,
@@ -11,6 +11,7 @@ C SYNOPSIS
      $     KeepT2, G_PairE, NoccI, ISpin, NOccJ, JSpin, G_P2,
      $     SpinLabel, D_Gam3, BraKetSame, D_Int)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer TopSpin  ![in] RHF=1 UHF=2
       Logical SameSpin ![in] I and J have same spin
@@ -144,11 +145,11 @@ C     Don't need integrals or amplitudes anymore
 C
       If ( .NOT. KeepI ) then
          If (.NOT. GA_Destroy(G_I) ) Call ErrQuit(
-     $      'RIMP2_G_IJ: can''t destroy 3c2e integral GA', G_I)
+     $      'RIMP2_G_IJ: can''t destroy 3c2e integral GA', G_I, GA_ERR)
       EndIf
       If ( .NOT. KeepJ ) then
          If (.NOT. GA_Destroy(G_J) ) Call ErrQuit(
-     $      'RIMP2_G_IJ: can''t destroy 3c2e integral GA', G_J)
+     $      'RIMP2_G_IJ: can''t destroy 3c2e integral GA', G_J, GA_ERR)
       EndIf
 c$$$      If ( .NOT. KeepInt ) then
 c$$$         If (.NOT. GA_Destroy(G_Int) ) Call ErrQuit(
@@ -156,7 +157,7 @@ c$$$     $      'RIMP2_G_IJ: can''t destroy 4c2e integral GA', G_Int)
 c$$$      EndIf
       If ( .NOT. KeepT2 ) then
          If (.NOT. GA_Destroy(G_T2) ) Call ErrQuit(
-     $      'RIMP2_G_IJ: can''t destroy T2 GA', G_T2)
+     $      'RIMP2_G_IJ: can''t destroy T2 GA', G_T2, GA_ERR)
       EndIf
 C
       Return

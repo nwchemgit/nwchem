@@ -9,9 +9,10 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.14 2003-07-03 01:58:51 edo Exp $
+c     $Id: dft_fockbld.F,v 1.15 2003-10-17 22:55:44 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "cdft.fh"
 #include "global.fh"
 #include "stdio.fh"
@@ -102,12 +103,12 @@ c     Pre-compute reduced total density matrices over atoms
 c 
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &   call errquit('dft_scf: cannot allocate scr',0)
+     &   call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, natoms, cetobfr, g_dens, 
      &                        ipol, rdens_atom, 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce)
       if (.not.ma_pop_stack(lscr))
-     &   call errquit('dft_scf: cannot pop stack',0)
+     &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 #if defined(DFT_TIMER)
       call dft_second(tp3)
 #endif
@@ -118,7 +119,7 @@ c        Fit the electron charge density.
 c     
          if (.not.MA_Push_Get(MT_Dbl,nbf_cd,'cd_coef',lcd_coef,
      &        icd_coef))
-     &        call errquit('dft_scf: cannot allocate cd_coef',0)
+     &        call errquit('dft_scf: cannot allocate cd_coef',0, MA_ERR)
          if (oprint_time)
      &        call dft_tstamp(' Before call to FITCD.   ')
       if (odftps) call pstat_on(ps_fitcd)
@@ -152,7 +153,7 @@ c
       call ga_dadd(1d0, g_tmp, 1d0, g_fock, g_fock)
       if (CDFIT)then
          if (.not.ma_pop_stack(lcd_coef))
-     &        call errquit('dft_scf: cannot pop stack',0)
+     &        call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       endif
 c     
 #if defined(DFT_TIMER)
@@ -175,12 +176,12 @@ c
          call dfill(ipol*natoms*natoms, 0.0d0, rdens_atom, 1)
          nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
          if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &      call errquit('dft_scf: cannot allocate scr',0)
+     &      call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
          call util_ga_mat_reduce(nbf_ao, natoms, cetobfr, 
      &                           g_dens, ipol, rdens_atom, 
      &                           'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce)
          if (.not.ma_pop_stack(lscr))
-     &      call errquit('dft_scf: cannot pop stack',0)
+     &      call errquit('dft_scf: cannot pop stack',0, MA_ERR)
       endif
 c     
 c     Compute the XC potential and energy.

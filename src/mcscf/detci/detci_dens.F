@@ -2,9 +2,10 @@
      $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, g_civect, onepdm )
 *
-* $Id: detci_dens.F,v 1.11 2000-10-23 15:52:25 windus Exp $
+* $Id: detci_dens.F,v 1.12 2003-10-17 22:55:23 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -38,19 +39,21 @@ c
       myid = ga_nodeid()
 *ga:1:0
       if (.not.(ga_create(MT_DBL, norb, norb, 'd', norb, 0, g_dtmp )))
-     $   call errquit('detci_twopdm: cannot create global',0)
+     $   call errquit('detci_twopdm: cannot create global',0, GA_ERR)
       call ga_zero(g_dtmp)
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
       if (((cilo.ne.0).and.(cihi.ne.-1)).and.
      $    ((rlo.ne.1).or.(rhi.ne.nstrb)))
-     $  call errquit('detci_onepdm: wrong distrib for CI vector',0)
+     $  call errquit('detci_onepdm: wrong distrib for CI vector',0,
+     &       INPUT_ERR)
       call ga_distribution( g_civect, myid, rlo, rhi, dilo, dihi )
       if (((dilo.ne.0).and.(dihi.ne.-1)).and.
      $    ((rlo.ne.1).or.(rhi.ne.nstra)))
-     $  call errquit('detci_onepdm: wrong distrib for trp(CI) vec',0)
+     $  call errquit('detci_onepdm: wrong distrib for trp(CI) vec',0,
+     &       INPUT_ERR)
 c
       if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp1',l_t,k_t))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
       do ia=1,nstra
         call ga_get( g_civec, 1, nstrb, ia, ia, dbl_mb(k_t), 1 )
         do iex=1,nexa
@@ -67,14 +70,14 @@ c
         enddo
       enddo
       if (.not.ma_pop_stack(l_t))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
       call ga_sync()
 
 c
 c
 c
       if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp1',l_t,k_t))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
       do ib=1,nstrb
         call ga_get( g_civect, 1, nstra, ib, ib, dbl_mb(k_t), 1 )
         do iex=1,nexb
@@ -91,14 +94,14 @@ c
         enddo
       enddo
       if (.not.ma_pop_stack(l_t))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
       call ga_sync()
       call ga_get(g_dtmp, 1, norb, 1, norb, onepdm, norb )
 c
 c
 c      
       if (.not.ga_destroy(g_dtmp))
-     $  call errquit('detci_onepdm:cannot destroy tmp',0)
+     $  call errquit('detci_onepdm:cannot destroy tmp',0, GA_ERR)
       return
       end
 
@@ -130,6 +133,7 @@ c
      $                       nexa, nexb, osym, exa, exb, map,
      $                       g_civec, g_civect, twopdm )
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -169,11 +173,13 @@ c
       call ga_distribution( g_civect, myid, rlo, rhi, dilo, dihi )
       if (((dilo.ne.0).and.(dihi.ne.-1)).and.
      $    ((rlo.ne.1).or.(rhi.ne.nstra)))
-     $  call errquit('detci_sigmaaa: wrong distrib for trp(CI)',0)
+     $  call errquit('detci_sigmaaa: wrong distrib for trp(CI)',0,
+     &       INPUT_ERR)
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
       if (((cilo.ne.0).and.(cihi.ne.-1)).and.
      $    ((rlo.ne.1).or.(rhi.ne.nstrb)))
-     $  call errquit('detci_sigmaaa: wrong distrib for CI vector',0)
+     $  call errquit('detci_sigmaaa: wrong distrib for CI vector',0,
+     &       INPUT_ERR)
 c
 c
 c
@@ -182,9 +188,9 @@ c  E  E      contribution
 c   ij kl
 c
       if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp1',l_t,k_t))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
       if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp2',l_s,k_s))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
 c
       if (cilo.gt.0 .and. cihi.gt.0) 
      $     call ga_access(g_civec, 1, nstrb, cilo, cihi, k_s, lds )
@@ -217,18 +223,18 @@ c
       if (cilo.gt.0 .and. cihi.gt.0) 
      $     call ga_release(g_civec, 1, nstrb, cilo, cihi)
       if (.not.ma_pop_stack(l_s))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_t))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
 c
 c   b  b
 c  E  E      contribution
 c   ij kl
 c
       if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp1',l_t,k_t))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
       if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp2',l_s,k_s))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
       if (dilo.gt.0 .and. dihi.gt.0)
      $     call ga_access(g_civect, 1, nstra, dilo, dihi, k_s, lds )
       call ga_sync()
@@ -260,9 +266,9 @@ c
       if (dilo.gt.0 .and. dihi.gt.0)
      $     call ga_release(g_civect, 1, nstra, dilo, dihi)
       if (.not.ma_pop_stack(l_s))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_t))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
 c
 c   a  
 c  E  delta      contribution
@@ -271,7 +277,7 @@ c
 c
       call ga_sync()
       if (.not.ma_push_get(MT_DBL,nstrb,'dens:tmp1',l_t,k_t))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
       do ia=1,nstra
         call ga_get(g_civec,1,nstrb,ia,ia,dbl_mb(k_t),1)
         do iex=1,nexa
@@ -294,7 +300,7 @@ c
         enddo
       enddo
       if (.not.ma_pop_stack(l_t))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
 c
 c   b
 c  E  delta      contribution
@@ -303,7 +309,7 @@ c
 c
       call ga_sync()
       if (.not.ma_push_get(MT_DBL,nstra,'dens:tmp1',l_t,k_t))
-     $     call errquit('cannot allocate temp',0)
+     $     call errquit('cannot allocate temp',0, MA_ERR)
       if  (dilo.gt.0 .and. dihi.gt.0) 
      $     call ga_access(g_civect, 1, nstra, dilo, dihi, k_s, lds )
       do ib=1,nstrb
@@ -331,7 +337,7 @@ c
       if  (dilo.gt.0 .and. dihi.gt.0) 
      $     call ga_release(g_civect, 1, nstra, dilo, dihi)
       if (.not.ma_pop_stack(l_t))
-     $   call errquit('cannot pop stack',0)
+     $   call errquit('cannot pop stack',0, MA_ERR)
       call ga_sync()
 *      call ga_get(g_dentmp,1,nn,1,nn,twopdm,nn)
 c
@@ -372,6 +378,7 @@ c
      $                            vrhs, vlhs, vphase,
      $                            cprime, sprime, g_civec, twopdm )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"

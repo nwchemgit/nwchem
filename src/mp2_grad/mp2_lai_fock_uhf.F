@@ -2,6 +2,7 @@
      $     g_pij_a, g_pij_b, no_a, no_b, nv_a, nv_b, 
      $     g_p_a, g_p_b, nmo)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_pab_a, g_pab_b,
@@ -16,10 +17,12 @@ c     been pulled out so that that routine can be used by the RIMP2.
 c
 *ga:1:0
       if (.not. ga_create(mt_dbl, nmo, nmo, 'mp2_grad: p_a',
-     $     0, 0, g_p_a)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_p_a)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo,
+     &       GA_ERR)
 *ga:1:0
       if (.not. ga_create(mt_dbl, nmo, nmo, 'mp2_grad: p_b',
-     $     0, 0, g_p_b)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_p_b)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo,
+     &       GA_ERR)
 c
       call ga_zero(g_p_a)
       call ga_copy_patch('n',
@@ -36,19 +39,23 @@ c
       end
       subroutine mp2_lai_fock_uhf_tidy(g_p_a,g_p_b)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
       integer g_p_a,g_p_b
-      if (.not. ga_destroy(g_p_a)) callerrquit('mp2_l_f_u_t: GA?',0)
-      if (.not. ga_destroy(g_p_b)) callerrquit('mp2_l_f_u_t: GA?',1)
+      if (.not. ga_destroy(g_p_a)) callerrquit('mp2_l_f_u_t: GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_p_b)) callerrquit('mp2_l_f_u_t: GA?',1,
+     &       GA_ERR)
       end
       subroutine mp2_lai_fock_uhf(geom, basis,
      $     g_p_a, g_p_b, g_vecs_a, g_vecs_b,
      $     no_a, no_b, nv_a, nv_b,
      $     g_lai_a, g_lai_b, rtdb, tol2e)
 *
-* $Id: mp2_lai_fock_uhf.F,v 1.16 2000-04-27 20:56:46 zzhang Exp $
+* $Id: mp2_lai_fock_uhf.F,v 1.17 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -101,11 +108,12 @@ c     Workspace
 c     
       call ga_inquire(g_vecs_a, gtype, nbf, nmo)
       if (no_a+nv_a.ne.nmo .or. no_b+nv_b.ne.nmo)
-     $     call errquit('mp2_grad: weird nmo?',0)
+     $     call errquit('mp2_grad: weird nmo?',0, INPUT_ERR)
 c     
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp',
-     $     0, 0, g_tmp)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_tmp)) call errquit('mp2_lai_fock_uhf: GA', nmo*nmo,
+     &       GA_ERR)
 c     
       call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_vecs_a,
      $     g_p_a, zero, g_tmp)
@@ -121,7 +129,8 @@ c
       call ga_symmetrize(g_dens(3))
       call ga_dscal(g_dens(3),mone)
 c     
-      if (.not. ga_destroy(g_tmp)) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_tmp)) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
 c     
 c     Make the fock matrices
 c     
@@ -164,12 +173,18 @@ c
      $     g_tmp, 1, nbf, 1, nv_b,
      $     g_lai_b, 1, no_b, 1, nv_b)
 c     
-      if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_dens(3))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_dens(3))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
 c     
       end
       subroutine mp2_wij_fock_uhf(rtdb, geom, basis, tol2e,
@@ -178,6 +193,7 @@ c
      $     g_vecs_a, g_vecs_b,
      $     g_wij_a, g_wij_b)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer rtdb, geom, basis ! [input] 
@@ -228,7 +244,8 @@ c
 c     
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'mp2_grad: tmp2',
-     $     0, 0, g_tmp2)) call errquit('mp2_wij_fock_uhf: GA', nmo*nmo)
+     $     0, 0, g_tmp2)) call errquit('mp2_wij_fock_uhf: GA', nmo*nmo,
+     &       GA_ERR)
 c     
 c     Transform the densities and symmetrize
 c     
@@ -244,7 +261,8 @@ c
      $     g_vecs_b, zero, g_dens(3))
       call ga_symmetrize(g_dens(3))
 c     
-      if (.not. ga_destroy(g_tmp2)) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_tmp2)) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
 c     
 c     Make the fock matrices
 c     
@@ -285,12 +303,18 @@ c
      $     g_tmp1, 1, nbf, 1, no_b,
      $     g_wij_b, 1, no_b, 1, no_b)
 c     
-      if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_dens(3))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0)
-      if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0)
+      if (.not. ga_destroy(g_dens(1))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_dens(3))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(1))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(2))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(3))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_fock(4))) call errquit('mp2_lfu: ga?',0,
+     &       GA_ERR)
 c     
       end
 

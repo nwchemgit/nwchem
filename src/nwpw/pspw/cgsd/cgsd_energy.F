@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.39 2003-07-29 22:42:43 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.40 2003-10-17 22:57:10 carlfahl Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -7,6 +7,7 @@ c     $Id: cgsd_energy.F,v 1.39 2003-07-29 22:42:43 bylaska Exp $
 
       real*8 function cgsd_energy(newpsi)
       implicit none
+#include "errquit.fh"
 
 #include "stdio.fh"
 

@@ -1,4 +1,4 @@
-C $Id: rel_2e4c_sf.F,v 1.4 2000-06-01 20:03:38 mg201 Exp $
+C $Id: rel_2e4c_sf.F,v 1.5 2003-10-17 22:54:09 carlfahl Exp $
 ************************************************************************
 c:tex-\subsection{rel\_2e4c\_sf}
 c:tex-Wrapper routine for evaluation of the two-electron four-center
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "rel_consts.fh"
+#include "errquit.fh"
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
@@ -107,7 +108,7 @@ c:tex-{\it Subroutines called:} hf2, rel_LLSS, rel_SSLL, rel_SSSS
         write (LuOut,*) l_D,ictr_D,n_prim_D,n_cont_D
       end if
       if ((neri .gt. leri) .and. (.not.DryRun)) call errquit 
-     &    ('rel_2e4c_sf: eri buffer too small ',99)
+     &    ('rel_2e4c_sf: eri buffer too small ',99, MEM_ERR)
 *
 *   Do the LLLL integrals
 *

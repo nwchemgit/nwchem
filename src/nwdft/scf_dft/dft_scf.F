@@ -3,9 +3,10 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.234 2003-10-16 19:25:18 d3g681 Exp $
+c     $Id: dft_scf.F,v 1.235 2003-10-17 22:55:44 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 c
       integer rtdb              ! [input]
       double precision Etold, Enuc
@@ -185,7 +186,8 @@ c
 c !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
-     $     call errquit('dft_scf: put of bgj:scf_type failed',0)
+     $     call errquit('dft_scf: put of bgj:scf_type failed',0,
+     &       RTDB_ERR)
 c !!! BGJ
 c
 c     check if smearing is on
@@ -215,9 +217,11 @@ c
       if (rtdb_get(rtdb, 'dft:fon', mt_log, 1,
      &   fon))then
       if (.not.rtdb_get(rtdb, 'dft:nmo_fon', mt_int, 2,
-     & nmo_fon)) call errquit('dft_scf: rtdb_gett failed', 2300)
+     & nmo_fon)) call errquit('dft_scf: rtdb_gett failed', 2300,
+     &       RTDB_ERR)
       if (.not.rtdb_get(rtdb, 'dft:nel_fon', mt_int, 2,
-     & nel_fon)) call errquit('dft_scfp: rtdb_get failed', 2301)
+     & nel_fon)) call errquit('dft_scfp: rtdb_get failed', 2301,
+     &       RTDB_ERR)
       else
          fon=.false.
       endif
@@ -232,9 +236,9 @@ c
       endif
 c     
       if (.not. geom_ncent(geom, natoms))
-     &   call errquit('dft_scf: geom_ncent failed',73)     
+     &   call errquit('dft_scf: geom_ncent failed',73, GEOM_ERR)
       if (.not. geom_nuc_charge(geom, anucl_charg))
-     &   call errquit('dft_scf: geom_nuc_charge failed', 0)
+     &   call errquit('dft_scf: geom_nuc_charge failed', 0, GEOM_ERR)
 c     
       anel = int(anucl_charg) - rcharge
 c
@@ -242,21 +246,21 @@ c     Pre-compute mapping vectors
 c 
       if (.not.ma_push_get
      &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
-     &   call errquit('dft_scf:push_get failed', 13)
+     &   call errquit('dft_scf:push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
      &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
-     &   call errquit('dft_scf:push_get failed', 13)
+     &   call errquit('dft_scf:push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
      &   (mt_int,natoms*2,'cntoce map',lcetobfr,icetobfr))
-     &   call errquit('dft_scf:push_get failed', 13)
+     &   call errquit('dft_scf:push_get failed', 13, MA_ERR)
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      &                int_mb(icetobfr), natoms, nshells_ao)
 
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('dft_scf: rtdb_get of noc failed', 0)
+     &   call errquit('dft_scf: rtdb_get of noc failed', 0, RTDB_ERR)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*ipol,'mo occ',l_occ,k_occ))
-     &   call errquit('dft_scf: failed to alloc',999)
+     &   call errquit('dft_scf: failed to alloc',999, MA_ERR)
 c
 c     get/set orbital overlap tolerancec
 
@@ -285,7 +289,7 @@ c
       if(test_sic.ne.0) ipolmod=2
       if (.not.MA_Push_Get(MT_Dbl,ipolmod*natoms*natoms,'rdens_atom',
      &   lrdens_atom,irdens_atom))
-     &   call errquit('dft_scf: cannot allocate rdens_atom',0)
+     &   call errquit('dft_scf: cannot allocate rdens_atom',0, MA_ERR)
 c     
 c     determine pattern of orbitals' occupancy
 c     
@@ -370,7 +374,7 @@ c
       else
          if (.not.MA_alloc_Get(MT_int,nfock*ipol*2,
      ,        'ga handle for diis',l_gdiis,k_gdiis))
-     ,        call errquit('dft_scf: cannot allocate g_diis',0)
+     ,        call errquit('dft_scf: cannot allocate g_diis',0, MA_ERR)
       endif
 
       homo_lumo_gap = 200.0d0
@@ -397,7 +401,7 @@ c     allocate eigenvalue array, including second pointer to beta block
 c
       leneval = nbf_ao * ipol
       if (.not.MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
-     &     call errquit('dft_scf: cannot allocate eval',0)
+     &     call errquit('dft_scf: cannot allocate eval',0, MA_ERR)
       if (ipol .eq. 2)then  
          k_eval(2) = k_eval(1) + nbf_ao
       endif 
@@ -415,12 +419,12 @@ c
 c     allocate array for irreps
 c
       if (.not.MA_Push_Get(mt_int,ipol*nbf_ao,'dft:irreps',l_ir,k_ir))
-     &   call errquit('dft_scf: cannot allocate irreps',0)
+     &   call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
       nopen = mult - 1
       nclosed = (nTotEl - nopen) / 2
 c
       if (.not. bas_name(ao_bas_han, basis_name, basis_trans))
-     $     call errquit('dft_scf: bas_name?', 0)
+     $     call errquit('dft_scf: bas_name?', 0, BASIS_ERR)
 c
 c     get info for int2e_ and set sleazy tolerance
 c     
@@ -593,11 +597,11 @@ c
 c Qin  -- build g_oep
 c
         if (.not.rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep))
-     &     call errquit('dft_scf: failed to get loep', 0)
+     &     call errquit('dft_scf: failed to get loep', 0, RTDB_ERR)
       IF(LOEP) THEN
 c
         if (.not.rtdb_get(rtdb, 'dft:oep', mt_int, 1, ioep))
-     &     call errquit('dft_scf: failed to get ioep', 0)
+     &     call errquit('dft_scf: failed to get ioep', 0, RTDB_ERR)
         if(ioep.eq.0) then
            iVxc_opt = 0
            XCFIT = .false.
@@ -616,7 +620,7 @@ c
  3000 continue
       if (ipol.gt.1)then
          if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
-     .       call errquit(' dftscf:failed duplicate ',g_fock)
+     .       call errquit(' dftscf:failed duplicate ',g_fock, GA_ERR)
       endif
 c
 c     ----- dft scf proper -----
@@ -636,14 +640,14 @@ c
 c
       if(iterations.eq.0) then
          if (.not. ga_destroy(g_denso(1))) call errquit
-     &        ('dft_scf: could not destroy g_denso', 0)
+     &        ('dft_scf: could not destroy g_denso', 0, GA_ERR)
          if(ipol.eq.2) then
             if (.not. ga_destroy(g_focks(2))) call errquit
-     &           ('dft_scf: could not destroy g_focks2', 0)
+     &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
             if (.not. ga_destroy(g_denso(2))) call errquit
-     &           ('dft_scf: could not destroy g_dens2', 0)
+     &           ('dft_scf: could not destroy g_dens2', 0, GA_ERR)
          if (.not. MA_free_heap(l_gdiis))
-     .        call errquit(' dft_scf:cannot popstack',111)
+     .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
          endif
          goto 1970
       endif
@@ -800,7 +804,7 @@ c
             if(nmo(ispin).ne.0) then
                if (.not. ga_create(mt_dbl, nbf_ao, nmo(ispin),
      ,              'movad', nbf_ao, 0, g_movad)) call errquit(
-     '              'dft_scf: gacreate failed ',0)
+     '              'dft_scf: gacreate failed ',0, GA_ERR)
                call ga_copy_patch('n', g_movecs(ispin), 1, nbf_ao, 
      .              1, nmo(ispin),
      ,              g_movad, 1,nbf_ao,1,nmo(ispin))
@@ -818,7 +822,7 @@ c
      ,              g_movad, 1,nbf_ao,1,nmo(ispin),
      .              g_movecs(ispin), 1, nbf_ao, 1, nmo(ispin))
                if (.not. ga_destroy(g_movad)) call errquit(
-     &              'dft_scf: could not destroy g_movad', 0)
+     &              'dft_scf: could not destroy g_movad', 0, GA_ERR)
             endif
          endif      
       enddo                     ! end big loop over ispin
@@ -856,11 +860,11 @@ c
 c     swap alpha and beta
 c
       if (.not.MA_Push_Get(MT_Dbl,nbf_ao,'ssccrr',l_tmp,k_tmp))
-     &     call errquit('dft_scf: cannot allocate ktmp',0)
+     &     call errquit('dft_scf: cannot allocate ktmp',0, MA_ERR)
          call dft_swapab(g_dens, g_movecs,nbf_ao,noc,
      ,        dbl_mb(k_eval(1)),dbl_mb(k_occ),g_tmp,dbl_mb(k_tmp))
       if (.not.ma_pop_stack(l_tmp))
-     &   call errquit('dft_scf: cannot pop stack',33)
+     &   call errquit('dft_scf: cannot pop stack',33, MA_ERR)
             if(me.eq.0) write(LuOut,*) ' Swapped AB - resetting Diis'
             if(diising) then
             call diis_driver(toll_s, derr,  ipol, icall, nfock, 
@@ -955,7 +959,7 @@ c
       if (.not.movecs_write(rtdb, ao_bas_han, movecs_out, 'dft', title,
      &                      nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
-     &   call errquit('dft_scf: movec_write failed', 0)
+     &   call errquit('dft_scf: movec_write failed', 0, DISK_ERR)
       call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
      ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 c     
@@ -1035,7 +1039,7 @@ c
            if(ioep.eq.0) ioep = 3
            write(*,*) ' get out of SCF '
            if (.not. rtdb_put(rtdb,'dft:oep',mt_int,1,ioep))
-     $      call errquit('dft_scf : failed to put ioep', 911)
+     $      call errquit('dft_scf : failed to put ioep', 911, RTDB_ERR)
            idone = 1
            last_time_energy = .true.
            converged = .true.
@@ -1068,12 +1072,12 @@ c
       if (cosmo_on.and.cosmo_phase.eq.2) etnew = etnew + ecosmo
 c    
       if (.not. ga_destroy(g_denso(1))) call errquit
-     &   ('dft_scf: could not destroy g_denso', 0)
+     &   ('dft_scf: could not destroy g_denso', 0, GA_ERR)
       if(ipol.eq.2) then
           if (.not. ga_destroy(g_denso(2))) call errquit
-     &     ('dft_scf: could not destroy g_denso', 0)
+     &     ('dft_scf: could not destroy g_denso', 0, GA_ERR)
           if (.not. ga_destroy(g_focks(2))) call errquit
-     &     ('dft_scf: could not destroy g_focks2', 0)
+     &     ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
       end if
 c
       if (exact_pot.eq.1) then
@@ -1234,19 +1238,23 @@ c     Store energy and convergence status ... must store before
 c     write movecs since date of insertion is used.
 c     
       if (.not. rtdb_put(rtdb,'uhf:coulomb', mt_dbl, 1, Ecoul)) call
-     $     errquit('uhf: writing ecoul failed', 0)
+     $     errquit('uhf: writing ecoul failed', 0, RTDB_ERR)
 c
       if (.not. rtdb_put(rtdb, 'dft:energy', MT_DBL, 1, (Etnew+Enuc)))
-     &   call errquit('dft_scf: failed to store energy in rtdb', 0)
+     &   call errquit('dft_scf: failed to store energy in rtdb', 0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
-     &   call errquit('dft_scf: failed to store converged in rtdb', 0)
+     &   call errquit('dft_scf: failed to store converged in rtdb', 0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:alpha irreps', MT_INT, nbf_ao, 
      &   int_mb(k_ir)))
-     &   call errquit('dft_scf: failed to MO irreps in rtdb', 0)
+     &   call errquit('dft_scf: failed to MO irreps in rtdb', 0,
+     &       RTDB_ERR)
       if (ipol.eq.2) then
       if (.not. rtdb_put(rtdb, 'dft:beta irreps', MT_INT, nbf_ao, 
      &   int_mb(k_ir+nbf_ao)))
-     &   call errquit('dft_scf: failed to MO irreps in rtdb', 0)
+     &   call errquit('dft_scf: failed to MO irreps in rtdb', 0,
+     &       RTDB_ERR)
       endif
 c
 c     output energies and eigenvectors to disk
@@ -1255,7 +1263,7 @@ c
      &                      nbf_ao, ipol, nmo, dbl_mb(k_occ), nbf_ao, 
      &                      dbl_mb(k_eval(1)), nbf_ao, g_movecs))
      &                      call errquit('dft_scf: movec_write failed',
-     &                      0)
+     &                      0, DISK_ERR)
 c     
 c     Shut down DIIS.
 c     
@@ -1265,7 +1273,7 @@ c
      &                    g_tmp, g_svecs, svals, diising, nodiis,
      .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p,.true.)
          if (.not. MA_free_heap(l_gdiis))
-     .        call errquit(' dft_scf:cannot popstack',111)
+     .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
       endif
 c     
 c     If open shell compute overlap of alpha orbitals with beta orbitals.
@@ -1277,11 +1285,11 @@ c
 c
       if (wght_GA)then
          if (.not. ga_destroy(g_wght)) call errquit
-     &      ('dft_scf: could not destroy g_wght', 0)
+     &      ('dft_scf: could not destroy g_wght', 0, GA_ERR)
          if (.not. ga_destroy(g_xyz)) call errquit
-     &      ('dft_scf: could not destroy g_xyz', 0)
+     &      ('dft_scf: could not destroy g_xyz', 0, GA_ERR)
          if (.not. ga_destroy(g_nq)) call errquit
-     &      ('dft_scf: could not destroy g_nq', 0)
+     &      ('dft_scf: could not destroy g_nq', 0, GA_ERR)
       endif
 c     
 c     Restore alpha and beta densities.
@@ -1302,7 +1310,7 @@ c     write to rtdb that fractional occupancy exists
 c
       if(fon.or.gotsmear(ssmear)) then
       if (.not.rtdb_put(rtdb, 'dft:fractional_occup', mt_log, 1,
-     &   .true.))call errquit('dftscf: cannot write rtdb',1)
+     &   .true.))call errquit('dftscf: cannot write rtdb',1, DISK_ERR)
       endif
 
 c     
@@ -1340,11 +1348,11 @@ c
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
       if (.not.ma_chop_stack(l_ir))
-     &   call errquit('dft_scf: cannot chop stack',98)
+     &   call errquit('dft_scf: cannot chop stack',98, MA_ERR)
 c     
       if (ipol.gt.1)then
          if (.not. ga_destroy(g_fockt)) call errquit
-     &      ('dft_scf: could not destroy g_fockt', 0)
+     &      ('dft_scf: could not destroy g_fockt', 0, GA_ERR)
       endif
 c
 c Qin /g_tmp is used in oep, so will be destroyed after that
@@ -1354,9 +1362,9 @@ c     &   ('dft_scf: could not destroy g_tmp', 0)
 c
       if(lkeeps) then
       if (.not. ga_destroy(g_s12p)) call errquit
-     &   ('dft_scf: could not destroy g_s12p', 0)
+     &   ('dft_scf: could not destroy g_s12p', 0, GA_ERR)
       if (.not. ga_destroy(g_s12m)) call errquit
-     &   ('dft_scf: could not destroy g_s12m', 0)
+     &   ('dft_scf: could not destroy g_s12m', 0, GA_ERR)
       endif
      
 c
@@ -1371,7 +1379,7 @@ c
 c     eval deallocation moved here from inside iteration loop
 c     
       if (.not.ma_chop_stack(lcntoce))
-     &   call errquit('dft_scf: cannot chop stack',99)
+     &   call errquit('dft_scf: cannot chop stack',99, MA_ERR)
 c
       dft_scf = converged
 c
@@ -1383,14 +1391,15 @@ c !!! BGJ
       if (do_poliz) then
          write(LuOut,*)'*** dft_scf: calling cphf_poliz'
          if (.not. cphf_poliz(rtdb)) ! Never executed.
-     $        call errquit(' cphf_poliz: failed from dft_scf !',0)
+     $        call errquit(' cphf_poliz: failed from dft_scf !',0,
+     &       CALC_ERR)
       endif
 c !!! BGJ
 
 c
 c  Qin ----- for oep ----
       if (.not.rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep))
-     &   call errquit('xc_getv: failed to get loep', 0)
+     &   call errquit('xc_getv: failed to get loep', 0, RTDB_ERR)
       IF (LOEP) THEN
          call oep_driver(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &                         iter, g_dens, g_movecs, g_vxc, g_fock,
@@ -1400,12 +1409,12 @@ c
 c  Deallocate g_oep
       do i = 1, nbf_xc
          if (.not. ga_destroy(g_oep(i))) call errquit
-     &   ('dft_scf: could not destroy g_oep', 0)
+     &   ('dft_scf: could not destroy g_oep', 0, GA_ERR)
       enddo
       ENDIF
 c
       if (.not. ga_destroy(g_tmp)) call errquit
-     &   ('dft_scf: could not destroy g_tmp', 0)
+     &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
 c  Qin / end
 c
       if (odftps) call pstat_off(ps_scfend)

@@ -1,4 +1,4 @@
-c $Id: int_2e3c.F,v 1.20 2001-10-18 03:33:27 edo Exp $
+c $Id: int_2e3c.F,v 1.21 2003-10-17 22:53:41 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e3c}
@@ -19,6 +19,7 @@ c basic api routine to generate a block of 3 center two electron integrals
 c eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh)>
 c
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -31,6 +32,7 @@ c
 #include "int_nbf.fh"
 #include "stdio.fh"
 #include "rel_nwc.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c errquit
@@ -101,13 +103,14 @@ c
       if (nint.gt.leri) then
         write(luout,*) 'nint = ',nint
         write(luout,*) 'leri     = ',leri
-        call errquit('int_2e3c: nint>leri error',911)
+        call errquit('int_2e3c: nint>leri error',911, INT_ERR)
       endiF
 c
 c check initialization
 c
       if (.not.int_chk_init('int_2e3c'))
-     &       call errquit('int_2e3c: int_init was not called' ,0)
+     &       call errquit('int_2e3c: int_init was not called' ,0,
+     &       INT_ERR)
 c
 c     check input shell ranges
 c
@@ -115,7 +118,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
-     &       call errquit('int_2e3c: invalid contraction/shell',0)
+     &       call errquit('int_2e3c: invalid contraction/shell',0,
+     &       BASIS_ERR)
 cedo#ifndef USE_TEXAS_BROKE
       call int_nogencont_check(brain,'int_2e3c:bra')
       call int_nogencont_check(ketin,'int_2e3c:ket')
@@ -306,6 +310,6 @@ c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
         write(luout,*)' ish   :',ish
         write(luout,*)' jsh   :',jsh
         write(luout,*)' ksh   :',ksh
-        call errquit('int_2e3c: fatal error ',0)
+        call errquit('int_2e3c: fatal error ',0, INT_ERR)
       endif
       end

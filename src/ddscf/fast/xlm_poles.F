@@ -1,6 +1,6 @@
       subroutine xlm_norm(lmax, q, lq)
 *
-* $Id: xlm_poles.F,v 1.14 2001-05-24 20:03:05 edo Exp $
+* $Id: xlm_poles.F,v 1.15 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
 #include "xlm.fh"
@@ -741,6 +741,7 @@ c
       end
       subroutine xlm_y_rotation_matrix(l,beta,dp,dm)
       implicit none
+#include "errquit.fh"
 #include "xlm.fh"
 c
       integer l
@@ -801,7 +802,8 @@ c
       enddo
 c
       call dgesv(l+1,l+1,a,maxl+1,ipiv,dp,l+1,info)
-      if (info .ne. 0) call errquit('xlm_y_rot_mat: Pinfo ', info)
+      if (info .ne. 0) call errquit('xlm_y_rot_mat: Pinfo ', info,
+     &       FMM_ERR)
 c
 c$$$      do m = 0, l
 c$$$         dp(m,m) = dp(m,m) - 1.0d0
@@ -835,7 +837,8 @@ c
          enddo
 c
          call dgesv(l,l,a(1,1),maxl+1,ipiv,dm,l,info)
-         if (info .ne. 0) call errquit('xlm_y_rot_mat: Minfo ', info)
+         if (info .ne. 0) call errquit('xlm_y_rot_mat: Minfo ', info,
+     &       FMM_ERR)
 c
 c$$$         do m = 1, l
 c$$$            dm(m,m) = dm(m,m) - 1.0d0
@@ -1713,6 +1716,7 @@ c
       subroutine xlm_new_multipole_to_local(lmax, 
      $     xp, yp, zp, p, lp, xq, yq, zq, q, lq)
       implicit none
+#include "errquit.fh"
 #include "xlm.fh"
 c     
       double precision flops, flopsv, flopst, calls
@@ -1765,11 +1769,13 @@ c     The cached thetas are all 0-pi/2, so if phi is pi/2-pi then
 c     must rotate with theta-pi and use negative translation.
 c     
       ihash = int(abs(phi*1000.0d0))
-      if (ihash .gt. maxhash) call errquit('xlm_n_m_l: phi hash',ihash)
+      if (ihash .gt. maxhash) call errquit('xlm_n_m_l: phi hash',ihash,
+     &       FMM_ERR)
       if (iphis(ihash) .gt. 0) then
          if (abs(phis(ihash)-abs(phi)) .gt. 1d-12) then
             write(6,*) ' ihash phi phis ', ihash, phi, phis(ihash)
-            call errquit('xlm_n_m_l: duplicate phi hash',0)
+            call errquit('xlm_n_m_l: duplicate phi hash',0,
+     &       FMM_ERR)
          endif
       else
          call xlm_cache_phi(phi)
@@ -1784,12 +1790,13 @@ c
          thetasign = -1.0d0
       endif
       ihash = int(abs(theta*1000.0d0))
-      if (ihash .gt. maxhash)call errquit('xlm_n_m_l: theta hash',ihash)
+      if (ihash .gt. maxhash)call errquit('xlm_n_m_l: theta hash',ihash,
+     &       FMM_ERR)
       if (ithetas(ihash) .gt. 0) then
          if (abs(thetas(ihash)-abs(theta)) .gt. 1d-12) then
             write(6,*) ' ihash theta thetas ', ihash, theta, 
      $           thetas(ihash)
-            call errquit('xlm_n_m_l: duplicate theta hash',0)
+            call errquit('xlm_n_m_l: duplicate theta hash',0, FMM_ERR)
          endif
       else
          call xlm_cache_theta(theta)
@@ -2019,6 +2026,7 @@ c
       end
       subroutine xlm_cache_phi(phi)
       implicit none
+#include "errquit.fh"
 #include "xlm.fh"
       double precision phi
 c
@@ -2027,12 +2035,12 @@ c
       integer m, ihash
 c
       if (numphi.lt.0 .or. numphi.ge.maxnumphi) call errquit
-     $     ('xlm_cache_phi: numphi is invalid ', numphi)
+     $     ('xlm_cache_phi: numphi is invalid ', numphi, FMM_ERR)
       numphi = numphi + 1
 c
       ihash = int(abs(phi*1000.0d0))
       if (iphis(ihash) .gt. 0) call errquit
-     $     ('xlm_cache_phi: duplicate hash ', ihash)
+     $     ('xlm_cache_phi: duplicate hash ', ihash, FMM_ERR)
       iphis(ihash) = numphi
       phis(ihash) = abs(phi)
 c
@@ -2048,6 +2056,7 @@ c
       end
       subroutine xlm_cache_theta(theta)
       implicit none
+#include "errquit.fh"
 #include "xlm.fh"
       double precision theta
 c
@@ -2056,12 +2065,12 @@ c
       integer l, ihash, indp, indm
 c
       if (numtheta.lt.0 .or. numtheta.ge.maxnumtheta) call errquit
-     $     ('xlm_cache_theta: numtheta is invalid ', numtheta)
+     $     ('xlm_cache_theta: numtheta is invalid ', numtheta, FMM_ERR)
       numtheta = numtheta + 1
 c
       ihash = int(abs(theta*1000.0d0))
       if (ithetas(ihash) .gt. 0) call errquit
-     $     ('xlm_cache_theta: duplicate hash ', ihash)
+     $     ('xlm_cache_theta: duplicate hash ', ihash, FMM_ERR)
       ithetas(ihash) = numtheta
       thetas(ihash) = abs(theta)
 c
@@ -2079,9 +2088,9 @@ c$$$         endif
          indm = indm + l*l
       end do
       if (indm-1 .ne. dmdim) call errquit
-     $     ('xlm_theta_cache: bad indm ', indm)
+     $     ('xlm_theta_cache: bad indm ', indm, FMM_ERR)
       if (indp-1 .ne. dpdim) call errquit
-     $     ('xlm_theta_cache: bad indp ', indp)
+     $     ('xlm_theta_cache: bad indp ', indp, FMM_ERR)
 c
 *      write(6,1) abs(theta), ihash, numtheta
 * 1    format(' xlm_cache_theta: added theta=',f9.6,

@@ -1,10 +1,11 @@
-C $Id: moiten.F,v 1.3 2001-01-19 17:43:12 windus Exp $
+C $Id: moiten.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_moiten (x,amat,apack,eig,vec,scr1,scr2,lcol,
      *   natom,ndim)
 C
 C Construct moment of inertia tensor and diagonalize it
 C
       Implicit none
+#include "errquit.fh"
       Integer natom,ndim
       Logical lcol
       Double Precision x(ndim),amat(3,3),apack(ndim),
@@ -58,7 +59,8 @@ C diagonalize the moment of inertia tensor to get the rr1 matrix
       call drdy_rsp(ndima,ndima,nbar,apack,eig,1,vec,scr1,scr2,ierr)
       if (ierr .ne. 0) then
          write(fu6,6000) ierr
-         call errquit('drdy_moiten:problem with drdy_rsp',555)
+         call errquit('drdy_moiten:problem with drdy_rsp',555,
+     &       UNKNOWN_ERR)
       endif
 C Change phase of eigenvectors so largest component is positive
       do i = 1,3

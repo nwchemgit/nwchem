@@ -1,18 +1,19 @@
        integer function moints_numgr( basis, blocklen )
-C$Id: moints_gsh1.F,v 1.11 1998-07-13 23:42:02 d3g681 Exp $
+C$Id: moints_gsh1.F,v 1.12 2003-10-17 22:55:26 carlfahl Exp $
        implicit none
+#include "errquit.fh"
 #include "bas.fh"
        integer basis, blocklen
        integer nsh, grlen, ngr, ishlen, ibfhi, ibflo, ish
 
        if (.not.bas_numcont(basis,nsh))
-     $      call errquit('moints_numshgr: cannot get info',0)
+     $      call errquit('moints_numshgr: cannot get info',0, BASIS_ERR)
 
        ngr = 1
        grlen = 0
        do ish=1,nsh
          if (.not. bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     $        call errquit('moints_numshgr: bas_cn2bfr',ish)
+     $        call errquit('moints_numshgr: bas_cn2bfr',ish, BASIS_ERR)
          ishlen = ibfhi - ibflo + 1
          if ((grlen+ishlen).gt.blocklen) then
            grlen = ishlen
@@ -34,18 +35,19 @@ C$Id: moints_gsh1.F,v 1.11 1998-07-13 23:42:02 d3g681 Exp $
 
        subroutine moints_grmap( basis, blocklen, ngr, grmap )
        implicit none
+#include "errquit.fh"
 #include "bas.fh"
        integer basis, blocklen, ngr, grmap(4,ngr)
        integer nsh, grlen, grct, ishlen, ibfhi, ibflo, ish
 
        if (.not.bas_numcont(basis,nsh))
-     $      call errquit('moints_numshgr: cannot get info',0)
+     $      call errquit('moints_numshgr: cannot get info',0, BASIS_ERR)
 
        grlen = 0
        grct = 0
        do ish=1,nsh
          if (.not. bas_cn2bfr(basis,ish,ibflo,ibfhi))
-     $        call errquit('moints_numshgr: bas_cn2bfr',ish)
+     $        call errquit('moints_numshgr: bas_cn2bfr',ish, BASIS_ERR)
          ishlen = ibfhi - ibflo + 1
          if ((grlen.eq.0).or.(grlen+ishlen).gt.blocklen) then
            grct = grct + 1
@@ -119,6 +121,7 @@ c
      $                           bfmap, rbfmap )
      $                  
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -167,7 +170,8 @@ c  Large groups of similar shells may be split
 c  to fit into a block.
 c
         if (.not.ma_push_get(mt_int,(4*nsh),'gsh tmp',l_t,k_t))
-     $       call errquit('moints_shorder: cannot allocate tmp',(4*nsh))
+     $       call errquit('moints_shorder: cannot allocate tmp',(4*nsh),
+     &       MA_ERR)
         wght = 0
         nsht = 0
         tlen = 0
@@ -235,7 +239,8 @@ c
           enddo
         endif
         if (.not.ma_pop_stack(l_t))
-     $       call errquit('moints_shorder: cannot pop stack',0)
+     $       call errquit('moints_shorder: cannot pop stack',0,
+     &       MA_ERR)
       else
 c
 c  No reordering of shells -- still need grouping

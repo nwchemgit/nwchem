@@ -5,6 +5,7 @@
 *     *************************
       subroutine ion_init_FixIon(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -40,7 +41,8 @@
 
          if (.not.MA_get_index(h_actlist,l_actlist)) 
      >      call errquit(
-     >       'ion_init_FixIon: ma_get_index failed for actlist',911)
+     >       'ion_init_FixIon: ma_get_index failed for actlist',911,
+     &       MA_ERR)
 
 
 *       ***** count the number of constraints *****
@@ -62,7 +64,7 @@
 *          ***** allocate constraint list, ion_number, from heap ****
            if (.not. MA_alloc_get(mt_int,nconstraints,
      >       'ion_number',ion_number(2),ion_number(1)))
-     >         call errquit('out of heap memory',0)
+     >         call errquit('out of heap memory',0, MA_ERR)
 
         
 
@@ -83,7 +85,7 @@
 
 *       *** free heap ***
         if (.not. MA_free_heap(h_actlist)) 
-     >   call errquit('h_actlist:error freeing heap memory',0)
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
       end if
 
@@ -182,6 +184,7 @@
 *     *************************
       subroutine ion_end_FixIon()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -195,7 +198,8 @@
       if (count.gt.0) then
         value =  MA_free_heap(ion_number(2)) 
         if (.not. value)
-     >  call errquit('ion_number(2):error freeing heap memory',0)
+     >  call errquit('ion_number(2):error freeing heap memory',0,
+     &       MA_ERR)
       end if
 
 *     *** remove molecular constraints ****

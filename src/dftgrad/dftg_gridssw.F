@@ -4,9 +4,10 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.9 2003-08-13 22:32:04 edo Exp $
+C$Id: dftg_gridssw.F,v 1.10 2003-10-17 22:54:42 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
       logical grid_written
       integer nctrs_pruned ! [in] natoms after signf
       integer nq           ! [in] no. grid pts
@@ -73,7 +74,7 @@ c
       else
         ass=0d0
         alpha_erf=0d0
-        call errquit(' dftg_ssw: wrong family',0)
+        call errquit(' dftg_ssw: wrong family',0, UNKNOWN_ERR)
       endif
       do  i = 1, nctrs_pruned
 

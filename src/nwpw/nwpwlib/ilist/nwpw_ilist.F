@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_ilist.F,v 1.1 2001-11-11 01:27:53 bylaska Exp $
+* $Id: nwpw_ilist.F,v 1.2 2003-10-17 22:56:40 carlfahl Exp $
 *
 #define NIL	-1
 
@@ -41,6 +41,7 @@
 
       subroutine nwpw_ilist_add(mem,tag,ivalue)
       implicit none
+#include "errquit.fh"
       integer mem(2)
       integer tag
       integer ivalue
@@ -57,7 +58,7 @@
       id='ilist'//CHAR(ICHAR('a')+tag)
       value = MA_alloc_get(mt_int,4,id,node(2),node(1))
       if (.not. value) then
-        call errquit('nwpw_ilist_add: out of heap memory',0)
+        call errquit('nwpw_ilist_add: out of heap memory',0, MA_ERR)
       end if
 
       int_mb(node(1))   = NIL
@@ -89,6 +90,7 @@
 *     ***********************************
       subroutine nwpw_ilist_get(mem,tag,ivalue)
       implicit none
+#include "errquit.fh"
       integer mem(2)
       integer tag
       integer ivalue
@@ -100,7 +102,7 @@
 
       cur = mem(1)
       if (cur.eq.NIL) then
-         call errquit('nwpw_ilist_get: empty list',0)
+         call errquit('nwpw_ilist_get: empty list',0, MEM_ERR)
       end if
 
       do while ((int_mb(cur+2).ne.tag).and.
@@ -111,7 +113,7 @@
 *     **** error - tag not found ****
       if  (int_mb(cur+2).ne.tag) then
          write(*,*) 'tag,mem:',tag,mem
-         call errquit('nwpw_ilist_get: tag not found',0)
+         call errquit('nwpw_ilist_get: tag not found',0, INT_ERR)
       end if
 
       ivalue = int_mb(cur+3)
@@ -128,6 +130,7 @@
 
       subroutine nwpw_ilist_delete(mem,tag)      
       implicit none
+#include "errquit.fh"
       integer mem(2)
       integer tag
 
@@ -161,7 +164,7 @@
 *        **** error - tag not found ****
          if  (int_mb(cur+2).ne.tag) then
             write(*,*) 'tag,mem:',tag,mem
-            call errquit('nwpw_ilist_get: tag not found',0)
+            call errquit('nwpw_ilist_get: tag not found',0, INT_ERR)
          end if
 
          del_node(1) = int_mb(prev)
@@ -175,7 +178,7 @@
 
 *     **** remove node from heap ****
       if (.not.MA_free_heap(del_node(2))) then
-         call errquit('nwpw_ilist_delete: cannot free heap',0)
+         call errquit('nwpw_ilist_delete: cannot free heap',0, MA_ERR)
       end if
       
       return

@@ -1,10 +1,11 @@
       logical function task_num_grad(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.30 2003-01-29 17:51:31 sohirata Exp $
+* $Id: task_num_grad.F,v 1.31 2003-10-17 22:58:26 carlfahl Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -18,12 +19,13 @@ c
       if (rtdb_get(rtdb,'task:analytic', mt_log, 1, analytic)) then
          if (analytic) then
             call errquit(
-     $           'task_num_grad:asked for analytic but there is none',0)
+     $           'task_num_grad:asked for analytic but there is none',0,
+     &       RTDB_ERR)
          endif
       endif
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('num_grad: theory missing?',0)
+     $     call errquit('num_grad: theory missing?',0, RTDB_ERR)
 c
 c     Nasty little hack ... CCSD module produces energy for multiple theories 
 c
@@ -65,6 +67,7 @@ c
       logical function num_grad(rtdb, func, ename, gname, theory,
      $     osavestate)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -125,37 +128,37 @@ c
      $     ga_nodeid().eq.0
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('num_grad: geom_create?', 0)
+     $     call errquit('num_grad: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('num_grad: no geometry ', 0)
+     $     call errquit('num_grad: no geometry ', 0, RTDB_ERR)
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('num_grad: geom_ncent ?', geom)
+     $     ('num_grad: geom_ncent ?', geom, GEOM_ERR)
       natoms3 = natoms*3
       if (.not. ma_push_get(mt_dbl, natoms3*natoms3, 'tng: vectors',
      $     l_vec, k_vec)) call errquit
-     $     ('num_grad: insufficient memory (1) ', natoms3**2)
+     $     ('num_grad: insufficient memory (1) ', natoms3**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, natoms3, 'tng: grad',
      $     l_grad, k_grad)) call errquit
-     $     ('num_grad: insufficient memory (2) ', natoms3)
+     $     ('num_grad: insufficient memory (2) ', natoms3, MA_ERR)
       if (.not. ma_push_get(mt_dbl, natoms3, 'tng: coord',
      $     l_coord, k_coord)) call errquit
-     $     ('num_grad: insufficient memory (3) ', natoms3)
+     $     ('num_grad: insufficient memory (3) ', natoms3, MA_ERR)
       if (.not. ma_push_get(mt_dbl, natoms3, 'tng: ncoord',
      $     l_ncoord, k_ncoord)) call errquit
-     $     ('num_grad: insufficient memory (4) ', natoms3)
+     $     ('num_grad: insufficient memory (4) ', natoms3, MA_ERR)
       if (.not. ma_push_get(mt_dbl, natoms, 'tng: charge',
      $     l_q, k_q)) call errquit
-     $     ('num_grad: insufficient memory (5) ', natoms)
+     $     ('num_grad: insufficient memory (5) ', natoms, MA_ERR)
       if (.not. ma_push_get(mt_byte, natoms*16, 'tng: tags',
      $     l_t, k_t)) call errquit
-     $     ('num_grad: insufficient memory (6) ', natoms)
+     $     ('num_grad: insufficient memory (6) ', natoms, MA_ERR)
       if (.not. ma_push_get(mt_dbl, natoms3*natoms3, 'tng: temp',
      $     l_tmp, k_tmp)) call errquit
-     $     ('num_grad: insufficient memory (7) ', natoms**2)
+     $     ('num_grad: insufficient memory (7) ', natoms**2, MA_ERR)
 c
       if (.not. geom_cart_get(geom, natoms, byte_mb(k_t), 
      $     dbl_mb(k_coord), dbl_mb(k_q))) 
-     $     call errquit('num_grad: bad geom',0)
+     $     call errquit('num_grad: bad geom',0, GEOM_ERR)
 c
 c     Save the name, if any, of the reference geometry so we can
 c     restore it upon completion.  Also, save the geometry itself
@@ -164,7 +167,7 @@ c
       if (.not. rtdb_cget(rtdb,'geometry', 1, name))
      $     name = 'geometry'
       if (.not. geom_rtdb_store(rtdb, geom, 'numg reference')) 
-     $     call errquit('num_grad: store of geom failed',0)
+     $     call errquit('num_grad: store of geom failed',0, GEOM_ERR)
 c
       if (oprint_info) then
          call util_print_centered(6, 
@@ -187,7 +190,8 @@ c
  987     format(' No. of totally-symmetric internal modes =', i4/)
       endif
 c
-      if (.not. ma_pop_stack(l_tmp)) call errquit('tng: ma corrupt',0)
+      if (.not. ma_pop_stack(l_tmp)) call errquit('tng: ma corrupt',0,
+     &       MA_ERR)
 c
       if (osavestate) then
 c     
@@ -323,7 +327,7 @@ c
      $        'x','y','z','x','y','z'
          do i = 1, natoms
             if (.not. geom_cent_get(geom, i, thetag, crd, q))
-     $           call errquit('task:numg geom_cent_get?',0)
+     $           call errquit('task:numg geom_cent_get?',0, GEOM_ERR)
             write(6,2000) i, thetag,
      $           (dbl_mb(k_coord+3*(i-1)+j),j=0,2),
      $           (dbl_mb(k_grad +3*(i-1)+j),j=0,2)
@@ -340,7 +344,8 @@ c
 c     store the gradient in gname
 c
       if (.not. rtdb_put(rtdb, gname, mt_dbl, natoms3, dbl_mb(k_grad)))
-     $     call errquit('num_grad: failed to store gradient',0)
+     $     call errquit('num_grad: failed to store gradient',0,
+     &       RTDB_ERR)
 c
       if (osavestate) then
 c     
@@ -349,7 +354,8 @@ c
          key = ' '
          write(key,'(a,'':energy'')') theory(1:inp_strlen(theory))
          if (.not. rtdb_put(rtdb, key, mt_dbl, 1, eref))
-     $        call errquit('num_grad: failed to store energy',0)
+     $        call errquit('num_grad: failed to store energy',0,
+     &       RTDB_ERR)
       endif
 c     
       num_grad = .true.
@@ -360,27 +366,37 @@ c     Restore state and clean up
 c
       if (osavestate .and. osaved) then
          if (.not. task_restore_state(rtdb,'numg'))
-     $        call errquit('num_grad: failed to restore state',0)
+     $        call errquit('num_grad: failed to restore state',0,
+     &       RTDB_ERR)
          if (.not. task_delete_state(rtdb,'numg'))
-     $        call errquit('num_grad: failed to delete state',0)
+     $        call errquit('num_grad: failed to delete state',0,
+     &       RTDB_ERR)
       endif
 c
 c     restore any indirection of the geometry and delete the reference
 c
       if (name .ne. 'geometry') then
          if (.not. rtdb_cput(rtdb,'geometry',1,name))
-     $        call errquit('num_grad: rtdb corrupt',0)
+     $        call errquit('num_grad: rtdb corrupt',0, RTDB_ERR)
       endif
       if (.not. geom_rtdb_delete(rtdb, 'numg reference')) 
-     $     call errquit('num_grad: delete of ref geom failed',0)
+     $     call errquit('num_grad: delete of ref geom failed',0,
+     &       RTDB_ERR)
 c
-      if (.not. ma_pop_stack(l_t))call errquit('tng: ma corrupt',0)
-      if (.not. ma_pop_stack(l_q))call errquit('tng: ma corrupt',0)
-      if (.not. ma_pop_stack(l_ncoord))call errquit('tng: ma corrupt',0)
-      if (.not. ma_pop_stack(l_coord)) call errquit('tng: ma corrupt',0)
-      if (.not. ma_pop_stack(l_grad)) call errquit('tng: ma corrupt',0)
-      if (.not. ma_pop_stack(l_vec)) call errquit('tng: ma corrupt',0)
-      if (.not. geom_destroy(geom)) call errquit('tng: geom corrupt',0)
+      if (.not. ma_pop_stack(l_t))call errquit('tng: ma corrupt',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_q))call errquit('tng: ma corrupt',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_ncoord))call errquit('tng: ma corrupt',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_coord)) call errquit('tng: ma corrupt',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_grad)) call errquit('tng: ma corrupt',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_vec)) call errquit('tng: ma corrupt',0,
+     &       MA_ERR)
+      if (.not. geom_destroy(geom)) call errquit('tng: geom corrupt',0,
+     &       GEOM_ERR)
       call util_print_pop()
 c
       call ecce_print_control(ecce_old_print, ecce_junk_print)
@@ -390,6 +406,7 @@ c
      $     ncoords, vec, grad, q, tags, delta, energy, 
      $     osavestate, ename, func)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -419,15 +436,15 @@ c
       call sym_grad_symmetrize(geom, ncoords) ! Paranoid enforcement
 c
       if (.not. geom_cart_set(geom, natoms, tags, ncoords, q))
-     $     call errquit('num_grad: bad geom',0)
+     $     call errquit('num_grad: bad geom',0, GEOM_ERR)
       if (.not. geom_rtdb_store(rtdb, geom, 'num. grad. geometry')) 
-     $     call errquit('num_grad: store of geom failed',0)
+     $     call errquit('num_grad: store of geom failed',0, RTDB_ERR)
       if (.not. rtdb_cput(rtdb, 'geometry', 1, 'num. grad. geometry'))
-     $     call errquit('num_grad: rtdb corrupt',0)
+     $     call errquit('num_grad: rtdb corrupt',0, RTDB_ERR)
 c
       if (osavestate) then
          if (.not. task_restore_state(rtdb,'numg'))
-     $        call errquit('num_grad: restore state failed',0)
+     $        call errquit('num_grad: restore state failed',0, RTDB_ERR)
       endif
       status = func(rtdb)
       fd_step_energy = status
@@ -440,18 +457,19 @@ c
       if (.not. status) return
 c
       if (.not. rtdb_get(rtdb, ename, mt_dbl, 1, energy))
-     $     call errquit('num_grad: no energy in database',0)
+     $     call errquit('num_grad: no energy in database',0, RTDB_ERR)
 c
       if (.not. geom_rtdb_delete(rtdb, 'num. grad. geometry'))
-     $     call errquit('num_grad: rtdb corrupt (geom) ',0)
+     $     call errquit('num_grad: rtdb corrupt (geom) ',0, RTDB_ERR)
       if (.not. rtdb_delete(rtdb,'geometry'))
-     $     call errquit('num_grad: rtdb corrupt',0)
+     $     call errquit('num_grad: rtdb corrupt',0, RTDB_ERR)
 c
       end
       subroutine fd_make_vectors(rtdb, geom, natoms, natoms3, 
      $     coords, temp, 
      $     vectors, nvec, oprint)
       implicit none
+#include "errquit.fh"
       integer rtdb
       integer geom
       integer natoms,natoms3    ! [input]
@@ -482,7 +500,8 @@ cedo  integer info
       double precision ddot
       external ddot
 c
-      if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms)
+      if (natoms.gt.maxat) call errquit('fd_make_vec: hard dim', natoms,
+     &       INPUT_ERR)
 c
 c     Get list of active atoms.  If there are ANY frozen atoms then
 c     we cannot use or translational, or rotational invariance

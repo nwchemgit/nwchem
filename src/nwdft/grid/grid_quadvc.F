@@ -12,8 +12,9 @@
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     l3d,triplet, tau, kske,Mmat)
-C$Id: grid_quadvc.F,v 1.21 2003-10-13 21:15:51 pollack Exp $
+C$Id: grid_quadvc.F,v 1.22 2003-10-17 22:55:37 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -48,38 +49,43 @@ c
 c     Allocate and create info for new basis function evaluator
 c
       if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &     call errquit('Exiting in grid_quadv0c',0)
+     &     call errquit('Exiting in grid_quadv0c',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
-     &     call errquit('grid_quadv0c: cannot allocate bas_cent_info',0)
+     &     call errquit('grid_quadv0c: cannot allocate bas_cent_info',0,
+     &       MA_ERR)
       if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
      &     lbas_cset_info, ibas_cset_info))
-     &     call errquit('grid_quadv0c: cannot allocate bas_cset_info',0)
+     &     call errquit('grid_quadv0c: cannot allocate bas_cset_info',0,
+     &       MA_ERR)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
       if (xcfit) then
          if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_xinfo',
      &        lbas_cent_xinfo, ibas_cent_xinfo))
-     &        call errquit('grid_quadvc: cannot alloc bas_cent_info',0)
+     &        call errquit('grid_quadvc: cannot alloc bas_cent_info',0,
+     &       MA_ERR)
       if (.not.bas_numcont(xc_bas_han, ncontrsetx))
-     &     call errquit('Exiting in grid_quadv0a',0)
+     &     call errquit('Exiting in grid_quadv0a',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_int, 6*ncontrsetx, 'bas_cset_xinfo',
      &     lbas_cset_xinfo, ibas_cset_xinfo))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,
+     &       MA_ERR)
       if (.not.MA_Push_Get(mt_log, ncontrsetx, 'docsetx',
      &     ldocsetx, idocsetx))
      &     call errquit('grid_quadv0a: cannot allocate docset',
-     .     ncontrset)
+     .     ncontrset, MA_ERR)
       call xc_make_basis_info(xc_bas_han, int_mb(ibas_cent_xinfo),
      &     int_mb(ibas_cset_xinfo), natoms)
       endif
       if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
      &     l_iscratch, i_iscratch))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0)
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,
+     &       MA_ERR)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
      &     call errquit('grid_quadv0c: cannot allocate docset',
-     .     ncontrset)
+     .     ncontrset, MA_ERR)
 c
 c     pack aqbuf to qxyz and compute when bufsize exceeded
 c
@@ -140,7 +146,7 @@ cedo            nwrbuf=1
 !      write(0,*) ' endc ',nwrbuf+1,nq,nq_out
  100  continue
       if (.not.MA_chop_Stack(lbas_cent_info))
-     &     call errquit('grid_quadvc: pop stack failed.',1)
+     &     call errquit('grid_quadvc: pop stack failed.',1, MA_ERR)
 c
       return
       end

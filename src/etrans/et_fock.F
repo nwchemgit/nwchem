@@ -4,6 +4,7 @@ c
 c This routine uses fock_2e to calculate the 2e contribution to Vab
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -54,7 +55,7 @@ c Allocate work arrays, set bgj theory (fock_2e won't work without it)
 c --------------------------------------------------------------------
 c
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory)) then
-        call errquit('et_fock: unable to get theory',0)
+        call errquit('et_fock: unable to get theory',0, RTDB_ERR)
       endif
 c
       if (theory.eq.'scf') then
@@ -64,20 +65,20 @@ c
       else if (theory.eq.'dft') then
         itype=2
       else 
-         call errquit('et_fock: theory must be scf or dft',1)
+         call errquit('et_fock: theory must be scf or dft',1, RTDB_ERR)
       endif
 c 
       if (.not. rtdb_put(rtdb,'bgj:scf_type',mt_int,1, itype)) then
-         call errquit('couldnt write bgj scftype',1)
+         call errquit('couldnt write bgj scftype',1, RTDB_ERR)
       endif
 c
       do i = 1,4
         if(.not.ga_create(mt_dbl,nbf,nbf,'fock',0,0,g_fock(i)))
-     $  call errquit('et_fock: ga_create failed', 0)
+     $  call errquit('et_fock: ga_create failed', 0, GA_ERR)
         call ga_zero(g_fock(i))
 c
         if(.not.ga_create(mt_dbl,nbf,nbf,'density',0,0,g_dens(i)))
-     $  call errquit('et_fock: ga_create failed', 0)
+     $  call errquit('et_fock: ga_create failed', 0, GA_ERR)
         call ga_zero(g_dens(i))
       enddo
 c
@@ -210,10 +211,10 @@ c --------------
 c
       do i = 1,4
         if(.not.ga_destroy(g_fock(i)))
-     $  call errquit('et_fock: ga_destroy failed', 0)
+     $  call errquit('et_fock: ga_destroy failed', 0, GA_ERR)
 c
         if(.not.ga_destroy(g_dens(i)))
-     $  call errquit('et_fock: ga_create failed', 0)
+     $  call errquit('et_fock: ga_create failed', 0, GA_ERR)
       enddo
 c
        call fock_2e_tidy(rtdb)

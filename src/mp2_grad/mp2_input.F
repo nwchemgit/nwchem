@@ -1,8 +1,9 @@
       subroutine mp2_input(rtdb)
 *
-* $Id: mp2_input.F,v 1.7 2003-01-30 21:29:09 edo Exp $
+* $Id: mp2_input.F,v 1.8 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -28,9 +29,10 @@ c
       logical status
 c
  10   if (.not. inp_read()) 
-     $     call errquit('mp2_input: failed reading input',0)
+     $     call errquit('mp2_input: failed reading input',0, INPUT_ERR)
       if (.not. inp_a(test)) 
-     $     call errquit('mp2_input: failed reading keyword',0)
+     $     call errquit('mp2_input: failed reading keyword',0,
+     &       INPUT_ERR)
 c
       if (inp_compare(.false.,test,'freeze')) then
          call freeze_input(rtdb,'mp2')
@@ -39,18 +41,22 @@ c
          motol2e = 1e-11
          backtol = 1e-11
          if (.not. rtdb_put(rtdb, 'mp2:aotol2e', mt_dbl, 1, aotol2e))
-     $        call errquit('mp2_input: failed writing to rtdb',0)
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'mp2:aotol2e fock', mt_dbl, 1, 
      $        motol2e))
-     $        call errquit('mp2_input: failed writing to rtdb',0)
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'mp2:backtol', mt_dbl, 1, backtol))
-     $        call errquit('mp2_input: failed writing to rtdb',0)
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
          if (.not. rtdb_get(rtdb,'scf:thresh',mt_dbl,1,scfthresh))
      $        scfthresh = 1.0d-4
          if (scfthresh .gt. 1.0d-8) then
             scfthresh = 1.0d-8
             if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,scfthresh))
-     $           call errquit('mp2_input: failed setting scf:thresh',0)
+     $           call errquit('mp2_input: failed setting scf:thresh',0,
+     &       RTDB_ERR)
             status = rtdb_delete(rtdb,'scf:converged')
          endif
          if (.not. rtdb_get(rtdb,'cphf:thresh',mt_dbl,1,cphfthresh))
@@ -58,15 +64,18 @@ c
          if (cphfthresh .gt. 1.0d-6) then
             cphfthresh = 1.0d-6
             if (.not. rtdb_put(rtdb,'cphf:thresh',mt_dbl,1,cphfthresh))
-     $           call errquit('mp2_input: failed setting cphf:thresh',0)
+     $           call errquit('mp2_input: failed setting cphf:thresh',0,
+     &       RTDB_ERR)
          endif
       else if (inp_compare(.false.,test,'aotol2e')) then
          if (.not. inp_f(aotol2e)) call errquit
-     $        ('mp2_input: failed reading aotol2e',0)
+     $        ('mp2_input: failed reading aotol2e',0, INPUT_ERR)
          if (.not. rtdb_put(rtdb, 'mp2:aotol2e', mt_dbl, 1, aotol2e))
-     $        call errquit('mp2_input: failed writing to rtdb',0)
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'mp2:aotol2e fock',mt_dbl,1,aotol2e))
-     $        call errquit('mp2_input: failed writing to rtdb',0)
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
       else if (inp_compare(.false.,test,'motol2e')) then
          write(6,*) ' mp2_input: "MOTOL2E" is no longer used.',
      $        ' Use "TIGHT" instead.'
@@ -77,19 +86,22 @@ c
          call vectors_input(rtdb,'mp2')
       else if (inp_compare(.false.,test,'riapprox')) then
          if (.not. inp_a(riapprox)) call errquit
-     $        ('mp2_input: failed reading ri approximation',0)
+     $        ('mp2_input: failed reading ri approximation',0,
+     &       INPUT_ERR)
          if (.not. rtdb_cput(rtdb, 'mp2:ri approximation', 1, riapprox))
-     $        call errquit('mp2_input: failed writing to rtdb',0)
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
       else if (inp_compare(.false.,test,'file3c')) then
          if (.not. inp_a(rifile)) call errquit
-     $        ('mp2_input: failed reading ri 3c file',0)
+     $        ('mp2_input: failed reading ri 3c file',0, INPUT_ERR)
          if (.not. rtdb_cput(rtdb,'mp2:mo 3-center integral file', 1, 
      $        rifile)) 
-     $        call errquit('mp2_input: failed writing to rtdb',0)
+     $        call errquit('mp2_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
       else if (inp_compare(.false.,test,'end')) then
          goto 20
       else
-         call errquit('mp2_input: unknown directive',0)
+         call errquit('mp2_input: unknown directive',0, INPUT_ERR)
       endif
       goto 10
 c

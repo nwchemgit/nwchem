@@ -1,8 +1,9 @@
       subroutine fock_2e_est_task(geom, oskel, tol2e, task_size)
 *
-* $Id: fock_2e_et.F,v 1.6 1997-11-07 11:35:09 d3e129 Exp $
+* $Id: fock_2e_et.F,v 1.7 2003-10-17 22:54:32 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "schwarz.fh"
 #include "sym.fh"
 #include "geom.fh"
@@ -26,7 +27,7 @@ c
       double precision q2
 c
       if (.not. geom_ncent(geom, nat)) call errquit
-     $     ('fock_2e_est_task: geom bad?',0)
+     $     ('fock_2e_est_task: geom bad?',0, GEOM_ERR)
 c
       npair = 0
       npair_sym = 0
@@ -57,6 +58,7 @@ c
       subroutine fock_2e_block_atoms(basis, oskel, tol2e,
      $     blocks, nblock, maxblock)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -75,15 +77,15 @@ c
 c     Get mapping from centers to shells/functions
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('fock_2e_block_atoms: bad basis handle?', 0)
+     $     ('fock_2e_block_atoms: bad basis handle?', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, nat)) call errquit
-     $     ('fock_2e_block_atoms: geom bad?',0)
+     $     ('fock_2e_block_atoms: geom bad?',0, GEOM_ERR)
       if (.not. ma_push_get(MT_INT, 2*nat, 'f2eba', l_cnr, k_cnr))
-     $     call errquit('fock_2e_block: ma ', 2*nat)
+     $     call errquit('fock_2e_block: ma ', 2*nat, MA_ERR)
       if (.not. ma_push_get(MT_INT, 2*nat, 'f2eba', l_bfr, k_bfr))
-     $     call errquit('fock_2e_block: ma ', 2*nat)
+     $     call errquit('fock_2e_block: ma ', 2*nat, MA_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('fock_2e_block_atoms: bad basis handle?', 0)
+     $     ('fock_2e_block_atoms: bad basis handle?', 0, BASIS_ERR)
 c
       call bas_all_ce_info(basis, int_mb(k_cnr), int_mb(k_bfr))
 c
@@ -108,9 +110,9 @@ c
      $     int_mb(k_bfr), task_bf, blocks, nblock, maxblock)
 c
       if (.not. ma_pop_stack(l_bfr)) call errquit
-     $     ('fock_2e_block_atoms: bad ma?',0)
+     $     ('fock_2e_block_atoms: bad ma?',0, MA_ERR)
       if (.not. ma_pop_stack(l_cnr)) call errquit
-     $     ('fock_2e_block_atoms: bad ma?',0)
+     $     ('fock_2e_block_atoms: bad ma?',0, MA_ERR)
 c
       end
       subroutine fock_2e_do_block(basis, geom, nat, bfr,

@@ -14,12 +14,13 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac)
-c     $Id: twodd_coul_ex.F,v 1.12 2002-01-04 23:45:02 windus Exp $
+c     $Id: twodd_coul_ex.F,v 1.13 2003-10-17 22:55:13 carlfahl Exp $
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
 c
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "global.fh"
 #include "schwarz.fh"
@@ -349,7 +350,7 @@ c
      $                    basis, list(1,3), list(1,4),
      $                    nq, q4, .true., lscr, scr, leri, 
      $                    block_eff)) call errquit
-     $                    ('twodd_coul_ex:txs init?',nq)
+     $                    ('twodd_coul_ex:txs init?',nq, UNKNOWN_ERR)
 c     
                      if (oprint) then
        write(luout,*) 'basis, lists,nq,q4,tol2e,leri,lscr ',

@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.17 2001-06-28 00:17:50 edo Exp $
+C $Id: ecp_integral.F,v 1.18 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
 c:tex-% this is part of the API Standard Integral routines.
@@ -94,6 +94,8 @@ c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer i,j,l,n,
      &    n_prim_A,n_cont_A,l_A,i_c_A,
      &    n_prim_B,n_cont_B,l_B,i_c_B,
@@ -120,7 +122,8 @@ c:tex-\end{verbatim}
       data tol/1.0d-14/
 *
       if ((n_blk .ne. 1) .and. (n_blk .ne. 3) .and. (n_blk .ne. 4))
-     &    call errquit('Illegal value of n_blk in ecp_integral',99)
+     &    call errquit('Illegal value of n_blk in ecp_integral',99,
+     &       INT_ERR)
 *
       debug_gen = ibug .gt. 0
       debug_addresses = mod(ibug,2) .eq. 1
@@ -145,12 +148,14 @@ c:tex-\end{verbatim}
      &    'n_cart_a,n_cart_b,n_cart_ab,n_cont_ab',
      &    n_cart_a,n_cart_b,n_cart_ab,n_cont_ab
       if (sphcart .ne. 0) call errquit(
-     &    'Do your own spherical transformation, lazy bum!',99)
+     &    'Do your own spherical transformation, lazy bum!',99,
+     &       BASIS_ERR)
       if (n_int .lt. n_intt) then
         write (LuOut,*) 'n_int  =',n_int
         write (LuOut,*) 'n_intt =',n_intt
         call errquit (
-     &      'Mismatch of integral count in ecp_integrals',99)
+     &      'Mismatch of integral count in ecp_integrals',99,
+     &       BASIS_ERR)
       end if
       i_scr = n_intt*n_blk+1
       memscr = lscr-i_scr+1
@@ -162,7 +167,7 @@ c:tex-\end{verbatim}
         call dfill (n_intt*n_blk,zero,ecp_ints,1)
         if (debug_addresses) write (LuOut,*) 'memscr =',memscr
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in ecp_integral',99)
+     &      'Insufficient scratch memory in ecp_integral',99, MEM_ERR)
       end if
       if (debug_addresses) write (LuOut,*) 'i_scr',i_scr
       if (debug_arrays) then 

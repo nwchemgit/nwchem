@@ -1,7 +1,8 @@
       subroutine sym_bas_op(geom, op, r, maxf, ang_max,
      &    otransform)
-C$Id: sym_bas_op.F,v 1.7 1997-11-07 23:12:26 d3e129 Exp $
+C$Id: sym_bas_op.F,v 1.8 2003-10-17 22:58:24 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -148,7 +149,8 @@ c
                      goto 10
                   endif
                enddo
-               call errquit('sym_bas_op: should never get here ', 0)
+               call errquit('sym_bas_op: should never get here ', 0,
+     &       BASIS_ERR)
  10            continue
 c     
 c     Loop thru LL-1 functions in the result index
@@ -185,6 +187,7 @@ c
       end
       subroutine sym_bas_op_spherical(maxf,ang_max,r)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "spcartP.fh"
       integer maxf    ! [input] leading dimension(s) of R
@@ -222,7 +225,8 @@ c::statement function ----- end
 c
       if (.not.spcart_init(ang_max,.true.,.false.))
      &    call errquit
-     &    ('sym_bas_op_spherical: could not initialize spcart',911)
+     &    ('sym_bas_op_spherical: could not initialize spcart',911,
+     &       BASIS_ERR)
 c
       call dfill ((6*6*3),0.0d00,sover,1)
       sover(1,1,0) = 1.0d00

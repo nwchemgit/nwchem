@@ -4,12 +4,13 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.14 1995-10-17 08:55:56 d3g681 Exp $
+C     $Id: xf3ci_step12.F,v 1.15 2003-10-17 22:58:10 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,
      $   Alo, Ahi, Ilo, Ihi, AOBas, G_C, FitBas, G_I, Neglect)
       Implicit NONE
+#include "errquit.fh"
       Character*1 IntTyp
       Integer RTDB, Alo, Ahi, Ilo, Ihi, FitBas, AOBas, G_I, G_C, Geom
       Double precision Neglect
@@ -152,7 +153,7 @@ C
       Status = Status .AND. Bas_NumBF( AOBas, NAOBF)
 C
       If (.NOT. Status ) Call ErrQuit(
-     $   'XF3cI_Step12: Problems with basis set queries', 0)
+     $   'XF3cI_Step12: Problems with basis set queries', 0, BASIS_ERR)
 C
 C     ********************************************
 C     * Determine our range of the fitting basis *
@@ -214,7 +215,7 @@ C
       EndDo
 C
       If (.NOT. Status ) Call ErrQuit(
-     $   'XF3cI_Step12: Problems with basis set queries', 1)
+     $   'XF3cI_Step12: Problems with basis set queries', 1, BASIS_ERR)
 C
 C     ********************************
 C     * Setup for 3-center integrals *
@@ -278,7 +279,7 @@ c     and LUsed will contain the minimum memory required to proceed.
 C
       If ( PDim * QDim * SDim .eq. 0) Call ErrQuit(
      $   'XF3cI_Step12: Need more local memory to continue (bytes)',
-     $      MA_SizeOf(MT_Dbl, MemUsed-MemAvail, MT_Byte) )
+     $      MA_SizeOf(MT_Dbl, MemUsed-MemAvail, MT_Byte) , MA_ERR)
 C
 C     *************************
 C     * Allocate local memory *
@@ -299,7 +300,7 @@ C
      $   'xf3ci int buffer', H_IBuf, I_IBuf)
 C
       If (.NOT. Status ) Call ErrQuit(
-     $   'XF3cI_Step12: Problem allocating local memory', 0)
+     $   'XF3cI_Step12: Problem allocating local memory', 0, MA_ERR)
 C
 C     ********************************************
 C     * Grab our panel of G_I to access directly *
@@ -357,7 +358,7 @@ C
       Status = Status .AND. MA_Pop_Stack( H_Int)
 C
       If (.NOT. Status ) Call ErrQuit(
-     $   'XF3cI_Step12: Problem freeing local memory', 0)
+     $   'XF3cI_Step12: Problem freeing local memory', 0, MA_ERR)
 C
       Call GA_Sync
 C

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_dplot_input.F,v 1.7 2003-07-28 23:45:57 bylaska Exp $
+c $Id: pspw_dplot_input.F,v 1.8 2003-10-17 22:57:15 carlfahl Exp $
 c
 
 
@@ -11,6 +11,7 @@ c
 
       subroutine pspw_dplot_input(rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -71,24 +72,25 @@ c
       value = rtdb_put(rtdb,'pspw_dplot:count',mt_int,1,count)
       if (.not.value)
      >     call errquit(
-     >     'pspw_dplot_input: rtdb_put failed for count', 0)
+     >     'pspw_dplot_input: rtdb_put failed for count', 0, RTDB_ERR)
 
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'pspw_dplot_input: inp_read failed', 0)
+     >           'pspw_dplot_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'pspw_dplot_input: failed to read keyword', 0)
+     >           'pspw_dplot_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'pspw_dplot_input: unknown directive', 0)
+     >           'pspw_dplot_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100,  200, 300, 400, 500, 600,700,800,
      >      9999) ind
       call errquit(
-     >      'pspw_dplot_input: unimplemented directive', ind)
+     >      'pspw_dplot_input: unimplemented directive', ind, INPUT_ERR)
 
 
 c     
@@ -96,7 +98,7 @@ c  vectors
 c     
  100  if (.not. inp_a(wavefunction_filename))
      >    call errquit(
-     >         'pspw_dplot_input: failed to read vector', 0)
+     >         'pspw_dplot_input: failed to read vector', 0, INPUT_ERR)
       goto 10
 
 c     
@@ -105,7 +107,8 @@ c
 *     *** read density option ****
  200  if (.not. inp_a(test))
      >   call errquit(
-     >       'pspw_dplot_input: failed to read density keyword', 0)
+     >       'pspw_dplot_input: failed to read density keyword', 0,
+     &       INPUT_ERR)
 
 *     *** density number ****
       if (.not.inp_match(num_dnames,.false.,test,dnames,number))
@@ -126,7 +129,8 @@ c
 *     *** read filename ****
       if (.not. inp_a(filename))
      >    call errquit(
-     >         'pspw_dplot_input: failed to read density filename', 0)
+     >         'pspw_dplot_input: failed to read density filename', 0,
+     &       INPUT_ERR)
 
 *     **** define name  - not very elegent and could break if ****
 *     ****                      count becomes very large      ****
@@ -144,7 +148,8 @@ c
      >                           mt_int,1,count)
       if (.not.value)
      >     call errquit(
-     >     'pspw_dplot_input: rtdb_put failed for density', 0)
+     >     'pspw_dplot_input: rtdb_put failed for density', 0,
+     &       RTDB_ERR)
 
       goto 10
 
@@ -155,12 +160,14 @@ c
 *     *** read orbital number ****
  300  if (.not. inp_i(number))
      >   call errquit(
-     >       'pspw_dplot_input: failed to read orbital number', 0)
+     >       'pspw_dplot_input: failed to read orbital number', 0,
+     &       INPUT_ERR)
 
 *     *** read filename ****
       if (.not. inp_a(filename))
      >    call errquit(
-     >         'pspw_dplot_input: failed to read orbital filename', 0)
+     >         'pspw_dplot_input: failed to read orbital filename', 0,
+     &       INPUT_ERR)
 
 *     **** define name  - not very elegent and could break if ****
 *     ****                      count becomes very large      ****
@@ -178,7 +185,7 @@ c
      >                           mt_int,1,count)
       if (.not.value)
      >     call errquit(
-     >     'pspw_dplot_input: rtdb_put failed for orbital', 0)
+     >     'pspw_dplot_input: rtdb_put failed for orbital', 0, RTDB_ERR)
 
       goto 10
 c     
@@ -187,7 +194,8 @@ c
 *     **** read position_tolerance ****
  400  if (.not. inp_f(position_tolerance))
      >   call errquit(
-     >       'pspw_dplot_input: failed to read position tolerance', 0)
+     >       'pspw_dplot_input: failed to read position tolerance', 0,
+     &       INPUT_ERR)
 
       goto 10
 
@@ -196,7 +204,8 @@ c ELF
 c     
  500  if (.not. inp_a(test))
      >   call errquit(
-     >       'pspw_dplot_input: failed to read ELF keyword', 0)
+     >       'pspw_dplot_input: failed to read ELF keyword', 0,
+     &       INPUT_ERR)
 
 *     *** ELF number ****
       if (.not.inp_match(num_enames,.false.,test,enames,number))
@@ -229,7 +238,7 @@ c
      >                           mt_int,1,count)
       if (.not.value)
      >     call errquit(
-     >     'pspw_dplot_input: rtdb_put failed for ELF', 0)
+     >     'pspw_dplot_input: rtdb_put failed for ELF', 0, RTDB_ERR)
 
 
       goto 10
@@ -273,7 +282,7 @@ c
 
       if (.not. value)
      >   call errquit(
-     >    'pspw_dplot_input: 2d_grid failed to read', 0)
+     >    'pspw_dplot_input: 2d_grid failed to read', 0, RTDB_ERR)
 
       goto 10
 
@@ -327,7 +336,7 @@ c
 
       if (.not. value)
      >   call errquit(
-     >    'pspw_dplot_input: 3d_grid failed to read', 0)
+     >    'pspw_dplot_input: 3d_grid failed to read', 0, RTDB_ERR)
 
       goto 10
 
@@ -359,7 +368,7 @@ c
      >                  mt_dbl,1,position_tolerance)
       if (.not.value)
      >     call errquit(
-     >     'pspw_dplot_input: rtdb_put failed for vector', 0)
+     >     'pspw_dplot_input: rtdb_put failed for vector', 0, RTDB_ERR)
 
       return
       end

@@ -1,4 +1,4 @@
-* $Id: spec_block.F,v 1.32 2002-12-11 23:35:32 edo Exp $
+* $Id: spec_block.F,v 1.33 2003-10-17 22:54:11 carlfahl Exp $
 c===============================================================
 c kw 22.05.97 : nsupb(*) has been eleminated.(not used for PNNL)
 c kw 22.05.97 : nasize(*)has been eleminated. 
@@ -154,6 +154,7 @@ c
 c
       double precision nquart_all
 #include "global.fh"
+#include "errquit.fh"
 c
 c-----------------------------------------------------
 c total memory allowed for texas (limxmem) should be
@@ -364,7 +365,7 @@ c
         write(6,*)'not enough memory allowed by limxmem'
         write(6,*)'     memor_const .gt. limxmem'
         write(6,*)'program stoped in the Blksizer routine'
-        call errquit('texas:blksizer', 0)
+        call errquit('texas:blksizer', 0, INT_ERR)
       endif
 c-------------------------------------------------
 c check if there is enough memory (limxmem) to handle only 
@@ -478,7 +479,7 @@ c-------------------------------------------------
       if(nquart.le.0) then
          write(6,*)
      &      'nonpositive  max_size=',nquart,' in block=',nbl12
-         call errquit('texas:blksizer line=',507 )
+         call errquit('texas:blksizer line=',507 , INT_ERR)
       endif
 c-------------------------------------------------
 c max & min for splitting :
@@ -521,7 +522,7 @@ c-------------------------------------------------
         write(6,*)'     set int:txs:limxmem ',
      1       max_111+limxmem-limxmem_here
         write(6,*) ' '
-        call errquit('texas:blksizer', 0)
+        call errquit('texas:blksizer', 0, INT_ERR)
       endif
 c-----------------------------------------------------------
 c final maximum paris/block to be used in texas_face for 

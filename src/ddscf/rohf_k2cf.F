@@ -1,7 +1,8 @@
       subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $                     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.12 1998-08-29 00:39:21 d3g681 Exp $
+C     $Id: rohf_k2cf.F,v 1.13 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "cscfps.fh"
@@ -20,7 +21,7 @@ c
       if (oscfps) call pstat_on(ps_k2cf)
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'k2cf: temp',
-     $     32, 32, g_temp)) call errquit('rohf_k2cf: GA temp',0)
+     $     32, 32, g_temp)) call errquit('rohf_k2cf: GA temp',0, GA_ERR)
       call rohf_k2u( basis, nbf, nmo, nclosed, nopen,
      $               g_kvec, g_temp )
 c
@@ -30,7 +31,7 @@ c
      $               g_temp, zero, g_result)
 c
       if (.not.ga_destroy(g_temp))
-     $     call errquit('rohf_k2cf: cannot destroy temp',0)
+     $     call errquit('rohf_k2cf: cannot destroy temp',0, GA_ERR)
 c
 *      call ga_orthog_mos(basis, g_result)
 c
@@ -40,6 +41,7 @@ c
       subroutine rohf_k2u( basis, nbf, nmo, nclosed, nopen,
      $                     g_kvec, g_u )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 c
@@ -71,7 +73,7 @@ c
 c
 c
       if (.not. ma_push_get(MT_DBL,tmp_siz,'temp k',l_tmp,k_tmp))
-     $     call errquit('k2cf: ma failed on tmp',tmp_siz)
+     $     call errquit('k2cf: ma failed on tmp',tmp_siz, MA_ERR)
 c
       call ga_zero(g_u)
       if (nvir .gt. 0) then
@@ -97,7 +99,7 @@ c
          enddo
       endif
       if (.not. ma_pop_stack(l_tmp))
-     $     call errquit('k2cf: pop failed', 0)
+     $     call errquit('k2cf: pop failed', 0, MA_ERR)
 c
 c     Make near zeoes exactly zero so that sparsity tests in the
 c     matrix multiply work well ... we only need to maintain

@@ -1,6 +1,7 @@
        logical function atwtest(rtdb)
-C$Id: atwtest.F,v 1.6 1996-08-14 19:50:06 rg240 Exp $
+C$Id: atwtest.F,v 1.7 2003-10-17 22:55:26 carlfahl Exp $
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -18,7 +19,8 @@ c
 c
 c
        if (.not. context_push('atwtest'))
-     $      call errquit('atwtest: context_push failed',0)
+     $      call errquit('atwtest: context_push failed',0,
+     &       UNKNOWN_ERR)
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 c
@@ -27,13 +29,13 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('scf: geom_create?', 0)
+     $     call errquit('scf: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('scf: no geometry ', 0)
+     $     call errquit('scf: no geometry ', 0, GEOM_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('scf: bas_create?', 0)
+     $     call errquit('scf: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('scf: no ao basis ', 0)
+     $     call errquit('scf: no ao basis ', 0, RTDB_ERR)
       movecs = 'movecs'
       if (.not. context_rtdb_match(rtdb, 'input mo vector file',
      $     movecs_in)) movecs_in = movecs
@@ -45,11 +47,11 @@ c
 c
 c
       if (.not.geom_destroy(geom))
-     $  call errquit('cannot destroy geom handle?',0)
+     $  call errquit('cannot destroy geom handle?',0, GEOM_ERR)
       if (.not.bas_destroy(basis))
-     $  call errquit('cannot destroy basis handle?',0)
+     $  call errquit('cannot destroy basis handle?',0, BASIS_ERR)
       if (.not. context_pop('atwtest'))
-     $   call errquit('context_pop failed',0)
+     $   call errquit('context_pop failed',0, MEM_ERR)
 
       atwtest = .true.
       return

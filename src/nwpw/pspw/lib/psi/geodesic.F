@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.13 2003-06-30 01:23:11 bylaska Exp $
+* $Id: geodesic.F,v 1.14 2003-10-17 22:57:36 carlfahl Exp $
 *
 
 *     ***********************************
@@ -13,6 +13,7 @@
 
       subroutine geodesic_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -44,7 +45,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,nemax,
      >                     'S',S(2),S(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       return
       end
@@ -60,6 +61,7 @@
 
       subroutine geodesic_finalize()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -77,7 +79,8 @@
      >        MA_free_heap(Vt(2))
       value = value.and.
      >        MA_free_heap(U(2))
-      if (.not. value) call errquit('error freeing of heap memory',0)
+      if (.not. value) call errquit('error freeing of heap memory',0,
+     &       MA_ERR)
 
       return
       end
@@ -107,6 +110,7 @@
 
       subroutine geodesic_start(A,max_sigma,dE)
       implicit none
+#include "errquit.fh"
       complex*16 A(*)
       real*8     max_sigma,dE
 
@@ -146,7 +150,7 @@ c      integer ierr
      >        MA_push_get(mt_dbl,(2*nemax*nemax),'V',V(2),V(1))
 
       if (.not. value) 
-     >   call errquit('out of stack memory',0)
+     >   call errquit('out of stack memory',0, MA_ERR)
 
 *     ***********************
 *     **** HomeGrown SVD ****
@@ -239,7 +243,7 @@ c         end do
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory',0)
+     > call errquit('error popping stack memory',0, MA_ERR)
 
       call nwpw_timing_end(10)
 
@@ -255,6 +259,7 @@ c         end do
 
       subroutine Pack_SVD(npack,ne,A,U,S,V)
       implicit none
+#include "errquit.fh"
       integer npack,ne
       complex*16 A(npack,ne)
       complex*16 U(npack,ne)
@@ -279,7 +284,7 @@ c     real*8 sum1,sumv
      >        MA_push_get(mt_dbl,(ne),'tmp2',tmp2(2),tmp2(1))
  
       if (.not. value) 
-     >   call errquit('out of stack memory',0)
+     >   call errquit('out of stack memory',0, MA_ERR)
 
 
 *     ***** generate V and Sigma^2 ****
@@ -338,7 +343,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory',0)
+     > call errquit('error popping stack memory',0, MA_ERR)
        
       return
       end
@@ -354,6 +359,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 
       subroutine geodesic_get(t,Yold,Ynew)
       implicit none
+#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Ynew(*)
@@ -398,7 +404,7 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
      >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
       if (.not. value) 
-     >   call errquit('out of stack memory',0)
+     >   call errquit('out of stack memory',0, MA_ERR)
 
 
       do ms = 1,psi_ispin()
@@ -488,7 +494,7 @@ c     end if
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory',0)
+     > call errquit('error popping stack memory',0, MA_ERR)
 
       call nwpw_timing_end(10)
 
@@ -506,6 +512,7 @@ c     end if
 
       subroutine geodesic_transport(t,Yold,Ynew)
       implicit none
+#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Ynew(*)
@@ -547,7 +554,7 @@ c     end if
      >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
       if (.not. value) 
-     >   call errquit('out of stack memory',0)
+     >   call errquit('out of stack memory',0, MA_ERR)
 
 
       do ms = 1,psi_ispin()
@@ -618,7 +625,7 @@ c       end do
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory',0)
+     > call errquit('error popping stack memory',0, MA_ERR)
 
       call nwpw_timing_end(10)
 
@@ -637,6 +644,7 @@ c       end do
 
       subroutine geodesic_Gtransport(t,Yold,tG)
       implicit none
+#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 tG(*)
@@ -679,7 +687,7 @@ c       end do
      >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
      >                    tmp3(2),tmp3(1))
       if (.not. value) 
-     >   call errquit('out of stack memory',0)
+     >   call errquit('out of stack memory',0, MA_ERR)
 
       do ms = 1,psi_ispin()
         n      = psi_ne(ms)
@@ -759,7 +767,7 @@ c       end do
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory',0)
+     > call errquit('error popping stack memory',0, MA_ERR)
 
       call nwpw_timing_end(10)
 

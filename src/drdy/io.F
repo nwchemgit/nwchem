@@ -1,4 +1,4 @@
-C $Id: io.F,v 1.1 2001-01-19 17:43:12 windus Exp $
+C $Id: io.F,v 1.2 2003-10-17 22:54:46 carlfahl Exp $
       Character*80 Function drdy_case (string)
 c
 c   Function which takes a string of 80 characters and converts the 
@@ -25,6 +25,7 @@ c
       Double Precision Function drdy_cfloat(string)
 C
       Implicit None
+#include "errquit.fh"
 C
       Character*80 string,number
       Character ch
@@ -75,7 +76,7 @@ C     Make sure there is no blank left
 C
       if (index(number,' ') .le. length) then
          write(fu6,6000) string
-         call errquit ('drdy_cfloat:1: fatal error',911)
+         call errquit ('drdy_cfloat:1: fatal error',911, UNKNOWN_ERR)
       endif
 C
 C     Find the decimal point
@@ -93,7 +94,7 @@ C
       iexp = max0(iue,ile,iud,ild)
       if (isum .gt. iexp) then
          write(fu6,6000) string
-         call errquit('drdy_cfloat:2: fatal error',911)
+         call errquit('drdy_cfloat:2: fatal error',911, UNKNOWN_ERR)
       endif
       if (iexp .ne. 0) then
          lexp = .true.
@@ -126,7 +127,8 @@ C
             f1 = f1 * 10.0d0 + dble(n)
          else
             write(fu6,6000) string
-            call errquit('drdy_cfloat:3: fatal error',911)
+            call errquit('drdy_cfloat:3: fatal error',911,
+     &       UNKNOWN_ERR)
          endif
       enddo
 C
@@ -143,7 +145,8 @@ C
                j = j + 1
             else
                write(fu6,6000) string
-               call errquit('drdy_cfloat:4: fatal error',911)
+               call errquit('drdy_cfloat:4: fatal error',911,
+     &       UNKNOWN_ERR)
             endif
          enddo
          f2 = f2 / 10.0d0 ** dble(j)
@@ -170,7 +173,8 @@ C
                f3 = f3 * 10.0d0 + dble(n)
             else
                write(fu6,6000) string
-               call errquit('drdy_cfloat:5: fatal error',911)
+               call errquit('drdy_cfloat:5: fatal error',911,
+     &       UNKNOWN_ERR)
             endif
          enddo
       endif 
@@ -208,6 +212,7 @@ c   done.  Program will stop if an illegal character is passed via the
 c   string 'svalue'.
 c
       Implicit None
+#include "errquit.fh"
 C
       Character * 80 svalue
 c
@@ -235,7 +240,8 @@ c
          j = ichar(svalue(k:k)) - ichar('0')
          if (j.lt.0.or.j.gt.9) then
             write(fu6,6000)svalue
-             call errquit('drdy_icint: fatal error',911)
+             call errquit('drdy_icint: fatal error',911,
+     &       UNKNOWN_ERR)
          end if
 c
          drdy_icint = 10.d00*drdy_icint + float(j)

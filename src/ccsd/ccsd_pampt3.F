@@ -2,8 +2,9 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.11 1999-06-16 00:10:12 d3e129 Exp $
+C     $Id: ccsd_pampt3.F,v 2.12 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,iam,nodes,idiis,g_nt2,g_nht2,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
@@ -36,7 +37,7 @@ c
       stat = bas_numcont(basis,nsh)
       stat=stat.and.bas_nbf_cn_max(basis,maxbfsh)
       if (.not. stat)
-     $   call errquit('ccsd_vvvv: failed to get info', 0)
+     $   call errquit('ccsd_vvvv: failed to get info', 0, BASIS_ERR)
 c
 c ------------------------------------------------------------
 c create global arrays
@@ -44,23 +45,24 @@ c ------------------------------------------------------------
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'x',
      &                   nbf*nbf,0,g_x))
-     &     call errquit('ccsd_pampt3: ga_create g_x failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_x failed',0, GA_ERR)
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'c',
      &                   nbf*nbf,0,g_c))
-     &     call errquit('ccsd_pampt3: ga_create g_c failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_c failed',0, GA_ERR)
 c -- global array for ht2 with 2 ao indices
 *ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sht2',
      &                   nocc*nocc,0,g_sht2))
-     &     call errquit('ccsd_pampt3: ga_create g_sht2 failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_sht2 failed',0,
+     &       GA_ERR)
 c
 c -- global array for t2 with 2 ao indices
 *ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'st2',
      &                   nocc*nocc,0,g_st2))
-     &     call errquit('ccsd_pampt3: ga_create g_st2 failed',0)
+     &     call errquit('ccsd_pampt3: ga_create g_st2 failed',0, GA_ERR)
 c
 c ------------------------------------------------------------
 c - Make t2+/- with 2 ao and 2 occ indices
@@ -69,12 +71,12 @@ c ------------------------------------------------------------
       stat=.true.
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra1',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-      if (.not.stat)call errquit('ma_get ccsd_t2pm ',0)
+      if (.not.stat)call errquit('ma_get ccsd_t2pm ',0, MA_ERR)
       call ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
      &               t1,dbl_mb(k_sc1),dbl_mb(k_sc2))
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
-      if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0)
+      if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
 c ------------------------------------------------------------
 c generate integrals
 c ------------------------------------------------------------
@@ -96,7 +98,7 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,nocc*nbf,'t1ao',l_t1ao, k_t1ao)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra2',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-      if (.not.stat)call errquit('ma_get ccsd_sxy ',0)
+      if (.not.stat)call errquit('ma_get ccsd_sxy ',0, MA_ERR)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &              g_c,g_x,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
@@ -111,10 +113,10 @@ c ------------------------------------------------------------
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_sisn)
       stat=stat.and.ma_pop_stack(l_snsi)
-      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0)
+      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0, MA_ERR)
 c
       if (.not.ga_destroy(g_st2))
-     &    call errquit('ga_dest g_st2 fail',0)
+     &    call errquit('ga_dest g_st2 fail',0, GA_ERR)
 c ------------------------------------------------------------
 c - Change ht2+/- with 2 ao and 2 occ indices into normal ht2
 c ------------------------------------------------------------
@@ -122,7 +124,7 @@ c ------------------------------------------------------------
       lscr=nbf*nbf
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra3',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-      if (.not.stat)call errquit('ma_get ccsd_ht2pm ',0)
+      if (.not.stat)call errquit('ma_get ccsd_ht2pm ',0, MA_ERR)
       call ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
      &                cmo,dbl_mb(k_sc1),dbl_mb(k_sc2),
      &                int_mb(k_offsh))
@@ -151,14 +153,14 @@ c ------------------------------------------------------------
 c remove global arrays associated with B intermediate
 c ------------------------------------------------------------
       if (.not.ga_destroy(g_sht2))
-     &    call errquit('ga_dest g_sht2 fail',0)
+     &    call errquit('ga_dest g_sht2 fail',0, GA_ERR)
 c ------------------------------------------------------------
 c remove global arrays associated with vvvo integrals (g_x and g_c)
 c ------------------------------------------------------------
       if (.not.ga_destroy(g_c))
-     &    call errquit('ga_dest g_c fail',0)
+     &    call errquit('ga_dest g_c fail',0, GA_ERR)
       if (.not.ga_destroy(g_x))
-     &    call errquit('ga_dest g_x fail',0)
+     &    call errquit('ga_dest g_x fail',0, GA_ERR)
 c
       return
       end
@@ -257,6 +259,7 @@ c
      &                      ncor,nocc,nact,nbf,
      &                      g_x,g_c)
       implicit none
+#include "errquit.fh"
       integer basis,nsh,ncor,nocc,nact,nbf,g_x,g_c
       double precision cmo(nbf,nbf),
      &                 scra(nbf*nbf),scrb(nbf*nbf)
@@ -278,10 +281,10 @@ c // here
             ad1=0
             do ish=1,nsh
               if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
-     $            call errquit('vvvv: bas_cn2bfr',ish)
+     $            call errquit('vvvv: bas_cn2bfr',ish, BASIS_ERR)
               do jsh=1,nsh
                 if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
-     $              call errquit('vvvv: bas_cn2bfr',jsh)
+     $              call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
                 do i=ilo,ihi 
                   do j=jlo,jhi 
                     ad1=ad1+1

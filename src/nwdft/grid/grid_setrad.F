@@ -1,8 +1,9 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.33 2003-05-21 00:27:32 edo Exp $
+c$Id: grid_setrad.F,v 1.34 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -57,7 +58,7 @@ c
 c     define radial grid type
 c
       if (.not. rtdb_cget(rtdb,'dft:radgrid', 1,radgrid)) 
-     .     call errquit('grid_setrad: radgrid not defined',9)
+     .     call errquit('grid_setrad: radgrid not defined',9, RTDB_ERR)
       if(radgrid.eq.'eumac') then
          wradgrid=1
       elseif(radgrid.eq.'murakn') then
@@ -74,18 +75,19 @@ c
          wradgrid=8
       else
          write(0,*) ' radgrid eq ',radgrid
-         call errquit('grid_setrad: unknown radial grid type', 0)
+         call errquit('grid_setrad: unknown radial grid type', 0,
+     &       INPUT_ERR)
       endif
 c
 c     check radial cutoffs
 c
       if(llind) then
          if (.not.MA_Push_Get(mt_int,ntypes,'l+l',l_2l,k_2l))
-     &        call errquit('grid_setrad: cannot allocate 2l',0)
+     &        call errquit('grid_setrad: cannot allocate 2l',0, MA_ERR)
          if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2ex,k_2ex))
-     &        call errquit('grid_setrad: cannot allocate 2e',1)
+     &        call errquit('grid_setrad: cannot allocate 2e',1, MA_ERR)
          if (.not.MA_Push_Get(MT_Dbl,ntypes,'exex',l_2g,k_2g))
-     &        call errquit('grid_setrad: cannot allocate 2e',2)
+     &        call errquit('grid_setrad: cannot allocate 2e',2, MA_ERR)
       else
          k_2l=0
          k_2ex=0
@@ -93,14 +95,14 @@ c
       endif
 
       if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
-     &   call errquit('grid_setrad: cannot allocate expo',0)
+     &   call errquit('grid_setrad: cannot allocate expo',0, MA_ERR)
 
       if(tol_reset) call grid_rtrunc(rtdb, dbl_mb(iexpo), 
      .     llind,dbl_mb(k_2ex),dbl_mb(k_2g),int_mb(k_2l),
      &     tol_reset, range_max,check_s)
 
       if (.not.ma_pop_stack(lexpo))
-     &   call errquit('grid_setrad: cannot pop stack expo',1)
+     &   call errquit('grid_setrad: cannot pop stack expo',1, MA_ERR)
 
 c
 c     Define the Euler-Maclaurin radial quadrature points and weights.
@@ -133,9 +135,10 @@ c
                endif
                if (.not.MA_Push_Get(MT_Dbl,nbf_ao_mxprim,'expo',
      .              lexpo,iexpo))
-     &              call errquit('grid_setrad: cant alloc expo',0)
+     &              call errquit('grid_setrad: cant alloc expo',0,
+     &       MA_ERR)
             if (.not.ma_pop_stack(lexpo))
-     &           call errquit('grid_setrad: cannot pop stack',2)
+     &           call errquit('grid_setrad: cannot pop stack',2, MA_ERR)
 
             elseif(wradgrid.eq.3) then
                if(tol_reset) then
@@ -244,11 +247,11 @@ cedo     .            ' Murakn itype cutoff ',itype,range_mk
 
       if(llind) then
          if (.not.ma_pop_stack(l_2g))
-     &        call errquit('grid_setrad: cannot pop stack',5)
+     &        call errquit('grid_setrad: cannot pop stack',5, MA_ERR)
          if (.not.ma_pop_stack(l_2ex))
-     &        call errquit('grid_setrad: cannot pop stack',3)
+     &        call errquit('grid_setrad: cannot pop stack',3, MA_ERR)
          if (.not.ma_pop_stack(l_2l))
-     &        call errquit('grid_setrad: cannot pop stack',4)
+     &        call errquit('grid_setrad: cannot pop stack',4, MA_ERR)
       endif
 c
 c     we could have redefined max no rad pts
@@ -258,7 +261,7 @@ c
          mxnrad=max(mxnrad,nrad(itype))
       enddo
       if (.not. rtdb_put(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
-     &   call errquit('grid_setrad: rtdb_put failed', 119)
+     &   call errquit('grid_setrad: rtdb_put failed', 119, RTDB_ERR)
 c
 c     Modify number of radial shells per atom type by possible 
 c     truncation.

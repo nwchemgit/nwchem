@@ -1,9 +1,10 @@
 *
-* $Id: task_paw.F,v 1.7 2003-09-25 23:46:23 bylaska Exp $
+* $Id: task_paw.F,v 1.8 2003-10-17 22:56:54 carlfahl Exp $
 *
 
       logical function task_paw(rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -33,12 +34,12 @@ c
  10   value = rtdb_cget(rtdb,'task:operation',1,test)
 
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
-     >     call errquit('task paw: unknown directive', 0)
+     >     call errquit('task paw: unknown directive', 0, INPUT_ERR)
 c
 c
 c
       goto ( 100,  200) ind
-      call errquit('task paw: unimplemented directive', ind)
+      call errquit('task paw: unimplemented directive', ind, INPUT_ERR)
 
 
 c

@@ -3,11 +3,12 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-* $Id: hess_blas.F,v 1.1 1997-03-21 01:06:14 d3e129 Exp $
+* $Id: hess_blas.F,v 1.2 2003-10-17 22:55:10 carlfahl Exp $
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
 
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer geom, basis, g_dens, g_wdens, g_eigen_diag, ndens, 
@@ -38,7 +39,8 @@ C  get MO vectors from file (taken from Roberts scf_movecs_read)
 
       status = movecs_read (movecs, 1, occ, evals, g_vecs)
       if (.not.status) then
-        call errquit('grad_dens: could not read mo vectors', 110)
+        call errquit('grad_dens: could not read mo vectors', 110,
+     &       DISK_ERR)
       endif
 
       if (scftype .eq. 'UHF') then
@@ -96,7 +98,8 @@ C       read in Lagrangian matrix ('eigenvalue matrix' in ROHF case)
         call util_file_name('lagr', .true.,.false.,lagr_file )
         status = file_read_ga( lagr_file, g_eigen_diag )
         if (.not.status) then
-          call errquit('grad_dens: could not read Lagrangian', 110)
+          call errquit('grad_dens: could not read Lagrangian', 110,
+     &       DISK_ERR)
         endif
 
 C       multiply to weighted density

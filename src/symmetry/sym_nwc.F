@@ -23,8 +23,9 @@ c
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint,scale,threquiv,nops,
      $     usesymmol)
-C$Id: sym_nwc.F,v 1.19 2003-07-30 22:32:59 edo Exp $
+C$Id: sym_nwc.F,v 1.20 2003-10-17 22:58:25 carlfahl Exp $
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
       parameter(maxops=192)
       Parameter (EPS=1.D-14)
 
@@ -75,7 +76,8 @@ c
      &     lcoord, icoord) .and. lresult
       Lresult = MA_Push_Get(MT_Int,nata,'distinct atoms',ldatom,idatom)
      $     .and. lresult
-      if (.not. lresult) call errquit('sym_nwc: dosymops ma failed', 0)
+      if (.not. lresult) call errquit('sym_nwc: dosymops ma failed', 0,
+     &       MA_ERR)
 c
       call dosymops(sym_ops(1,1,geom),nops,coords(1,1,geom),
      $     tags(1,geom),nata,
@@ -87,7 +89,7 @@ c
       if(nareal.gt.max_cent) then
         write(6,*)' Too many atoms, increase nw_max_atom in ',
      &       'util/nwc_const.fh error in sym_nwc : ', nareal
-        call errquit('sym: too many atoms', 1)
+        call errquit('sym: too many atoms', 1, INPUT_ERR)
       endif
 c
 c     Allocate memory for the center map on the heap since it persists
@@ -95,7 +97,8 @@ c
       if (nops .gt. 0) then
       if (.not. MA_Alloc_Get(MT_Int,nops*nareal,'atom sym map',
      &     lmscr,imscr)) call errquit
-     $     ('sym_nwc: ma_alloc_get of sym map failed', nops*nareal)
+     $     ('sym_nwc: ma_alloc_get of sym map failed', nops*nareal,
+     &       MA_ERR)
       else
        lmscr = -1
        imscr = 99999999
@@ -109,11 +112,11 @@ c
       if (nops .gt. 0) then
       if (.not. MA_Push_Get(MT_Dbl,nops*3,'xnew scratch',
      &     lxnew,ixnew)) call errquit
-     $     ('sym_nwc: ma for xnew scratch', nops*3)
+     $     ('sym_nwc: ma for xnew scratch', nops*3, MA_ERR)
       endif
       if (.not. MA_Push_Get(MT_INT,nareal,'ilbl',
      &     llbl,ilbl)) call errquit
-     $     ('sym_nwc: ma for ilbl', nareal)
+     $     ('sym_nwc: ma for ilbl', nareal, MA_ERR)
 c
       call sym_map(itype, Byte_MB(iatags), sym_ops(1,1,geom),
      $     nops, nareal, Int_Mb(imscr),Dbl_Mb(ixnew),Dbl_Mb(icoord),

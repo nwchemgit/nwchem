@@ -3,12 +3,13 @@ C NAME
 C     RIMP2_Gamma3 -- Form 3-index Gamma from 3e2c and 4-index Gamma
 C
 C REVISION
-C     $Id: gamma3.F,v 1.3 1998-10-06 18:36:34 bernhold Exp $
+C     $Id: gamma3.F,v 1.4 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Gamma3(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,
      $   NVirJ, G_I, G_J, G_T, D_Gam3, ReadJ, D_J)
       Implicit NONE
+#include "errquit.fh"
 C
       Logical IJSym
       Logical IJTri
@@ -69,15 +70,16 @@ C
      $        G_J, 1,               NVirJ*NJ,  1, NFit,
      $        D_J, 1+NVirJ*(JLo-1), NVirJ*JHi, 1, NFit, ReqJ) .ne. 0)
      $        Call ErrQuit( 'RIMP2_Gamma3: Error reading J integrals',
-     $        JLo)
+     $        JLo, DISK_ERR)
          If ( DRA_Wait(ReqJ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_Gamma3: Error from DRA_Wait on J integrals', 2)
+     $        'RIMP2_Gamma3: Error from DRA_Wait on J integrals', 2,
+     &       CALC_ERR)
       EndIf
 C
 C     Create temporary GA to receive this portion of gamma3
 C
       If ( .NOT. GA_Duplicate(G_I, G_Gam3, 'MO 3-index gamma') )
-     $     Call ErrQuit('RIMP2_Gamma3: ga_duplicate failed', 0)
+     $     Call ErrQuit('RIMP2_Gamma3: ga_duplicate failed', 0, GA_ERR)
 C
 C     Since there may be more than one contribution to each patch of 
 C     gamma3, we need to _accumulate_ into the DRA.  At present, there
@@ -88,10 +90,11 @@ C
       If ( DRA_Read_Section(.FALSE.,
      $     G_Gam3, 1,               NVirI*NI,  1, NFit,
      $     D_Gam3, 1+NVirI*(ILo-1), NVirI*IHi, 1, NFit, Req) .ne. 0)
-     $   Call ErrQuit( 'RIMP2_Gamma3: DRA_Read_Section error.', ILo)
+     $   Call ErrQuit( 'RIMP2_Gamma3: DRA_Read_Section error.', ILo,
+     &       CALC_ERR)
 C
       If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
-     $   'RIMP2_Gamma3: Error from DRA_Wait', ILo)
+     $   'RIMP2_Gamma3: Error from DRA_Wait', ILo, CALC_ERR)
 C
 C     Compute Gam3(ia,D) = t(ia,jb) * (jb|D)
 C     Note: t indices here reflect the storage format of t rather than 
@@ -103,7 +106,8 @@ C
       If ( DRA_Write_Section(.FALSE.,
      $     G_Gam3, 1,               NVirI*NI,  1, NFit,
      $     D_Gam3, 1+NVirI*(ILo-1), NVirI*IHi, 1, NFit, Req) .ne. 0)
-     $   Call ErrQuit( 'RIMP2_Gamma3: DRA_Write_Section error.', ILo)
+     $   Call ErrQuit( 'RIMP2_Gamma3: DRA_Write_Section error.', ILo,
+     &       CALC_ERR)
 C
       If ( Util_Print('partial gamma3', Print_Debug)) then
          Write (LuOut, *) 'After RIMP2_Gamma3...'
@@ -111,12 +115,12 @@ C
       EndIf
 C
       If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
-     $     'RIMP2_Gamma3: Error from DRA_Wait', ILo)
+     $     'RIMP2_Gamma3: Error from DRA_Wait', ILo, CALC_ERR)
 C     
 C     Free temporary GA
 C
       If ( .NOT. GA_Destroy(G_Gam3) ) Call ErrQuit(
-     $     'RIMP2_Gamma3: ga_destroy failed', 0)
+     $     'RIMP2_Gamma3: ga_destroy failed', 0, GA_ERR)
 C      
       Return
       End

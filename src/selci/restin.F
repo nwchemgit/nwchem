@@ -2,9 +2,10 @@
      &                  nroot,irange,nrange,iwpt,
      &                  noconf,ioconf,nintpo,nconmx,ncold)
 *
-* $Id: restin.F,v 1.4 1997-10-31 23:42:25 d3e129 Exp $
+* $Id: restin.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
       implicit real*8(a-h,o-z), integer(i-n)
+#include "errquit.fh"
       dimension ioconf(nintpo,nconmx),irange(nrange),
      &          ept(nroot),enew(nroot),ptnorm(nroot),
      &          ept_mp(nroot),ptnorm_mp(nroot)
@@ -50,7 +51,8 @@ c
       if (iniwpt.ne.iwpt)  then
          iwpt = iniwpt
          write(6,*)' switching pt selection procedure '
-         if (iwpt.lt.0 .or. iwpt.gt.3) call errquit('rest: iwpt',iwpt)
+         if (iwpt.lt.0 .or. iwpt.gt.3) call errquit('rest: iwpt',iwpt,
+     &       UNKNOWN_ERR)
       endif
       read(irest)(irange(ii),ii=1,nrange)
       read(irest)(ept(ii),ii=1,nroot)
@@ -74,7 +76,7 @@ c
       call ga_brdcst(50,iconf,mitob(1),master)
       return
 c
-90911 call errquit(' error opening restart file ',0)
+90911 call errquit(' error opening restart file ',0, DISK_ERR)
 91911 continue
 c 
       write(istdo,*)' restart info is not correct. it will be ignored '

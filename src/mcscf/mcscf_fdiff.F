@@ -6,9 +6,10 @@ c
      $                              oskel, tol2e, dm1, dm2, g_movecs,
      $                              g_coul, g_grad )
 *
-* $Id: mcscf_fdiff.F,v 1.10 1997-11-04 09:59:43 d3e129 Exp $
+* $Id: mcscf_fdiff.F,v 1.11 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -42,9 +43,9 @@ c
 c
 c
        if (.not.ga_duplicate(g_grad,g_kvec,' crap '))
-     $   call errquit('mcscf: cannot dup grad vector',0)
+     $   call errquit('mcscf: cannot dup grad vector',0, GA_ERR)
        if (.not.ga_duplicate(g_movecs,g_tmpmo,' MO crap '))
-     $   call errquit('mcscf: cannot dup grad vector',0)
+     $   call errquit('mcscf: cannot dup grad vector',0, GA_ERR)
        mo_lo = nclosed + 1
        mo_hi = nclosed + nact
        nvir = nbf - nact - nclosed
@@ -117,9 +118,9 @@ c
 c
 c
        if (.not. ga_destroy(g_tmpmo))
-     $   call errquit('mcscf: cannot destroy ga',0)
+     $   call errquit('mcscf: cannot destroy ga',0, GA_ERR)
        if (.not. ga_destroy(g_kvec))
-     $   call errquit('mcscf: cannot destroy ga',0)
+     $   call errquit('mcscf: cannot destroy ga',0, GA_ERR)
        return
        end
 
@@ -141,6 +142,7 @@ c
      $                              oskel, tol2e, dm1, dm2, g_movecs,
      $                              g_coul, g_k1 )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -176,11 +178,11 @@ c
 c
 c
        if (.not.ga_duplicate(g_k1,g_k2,' crap '))
-     $   call errquit('mcscf: cannot dup grad vector',0)
+     $   call errquit('mcscf: cannot dup grad vector',0, GA_ERR)
        if (.not.ga_duplicate(g_movecs,g_tmp1,' MO crap '))
-     $   call errquit('mcscf: cannot dup grad vector',0)
+     $   call errquit('mcscf: cannot dup grad vector',0, GA_ERR)
        if (.not.ga_duplicate(g_movecs,g_tmp2,' MO crap 1'))
-     $   call errquit('mcscf: cannot dup grad vector',0)
+     $   call errquit('mcscf: cannot dup grad vector',0, GA_ERR)
        mo_lo = nclosed + 1
        mo_hi = nclosed + nact
        nvir = nbf - nact - nclosed
@@ -190,7 +192,7 @@ c
        vlo = 1
        vhi = vlen
        if (.not.ma_push_get(MT_DBL, vlen, 'h', l_v, k_v))
-     $      call errquit('mcscf_fdiff: cannot allocate',0)
+     $      call errquit('mcscf_fdiff: cannot allocate',0, MA_ERR)
 c
        open(unit=90,file='hessFF',form='unformatted',status='unknown')
        write(90) nclosed,nact,nvir
@@ -240,13 +242,13 @@ c
 c
 c
        if (.not.ma_pop_stack(l_v))
-     $      call errquit('mcscf_fdiff: cannot pop stack?',0)
+     $      call errquit('mcscf_fdiff: cannot pop stack?',0, MA_ERR)
        if (.not. ga_destroy(g_tmp1))
-     $   call errquit('mcscf: cannot destroy ga',0)
+     $   call errquit('mcscf: cannot destroy ga',0, GA_ERR)
        if (.not. ga_destroy(g_tmp2))
-     $   call errquit('mcscf: cannot destroy ga',0)
+     $   call errquit('mcscf: cannot destroy ga',0, GA_ERR)
        if (.not. ga_destroy(g_k2))
-     $   call errquit('mcscf: cannot destroy ga',0)
+     $   call errquit('mcscf: cannot destroy ga',0, GA_ERR)
        return
        end
 

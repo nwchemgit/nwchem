@@ -19,7 +19,7 @@ c
       subroutine detci_vatable( norb, nel, nsym, osym,
      $                          vtxtab, arctab )
 *
-* $Id: detci_aux.F,v 1.15 2000-11-14 21:56:57 edo Exp $
+* $Id: detci_aux.F,v 1.16 2003-10-17 22:55:23 carlfahl Exp $
 *
       implicit none
 #include "detciP.fh"
@@ -1047,6 +1047,7 @@ c
       subroutine detci_guesscfg( norb, nsym, nela, nelb,
      $                           osym, eps, symstate, cfg )
       implicit none
+#include "errquit.fh"
 #include "detci.fh"
 #include "detciP.fh"
       integer norb
@@ -1121,7 +1122,8 @@ c
         endif
         if (detci_getnextelv(noorb,nopen,ix)) goto 111
         if (cfg(nelb+1).eq.-1)
-     $    call errquit('symmetry state not found in CAS',0)
+     $    call errquit('symmetry state not found in CAS',0,
+     &       GEOM_ERR)
       endif
 c
 c  Sort config by ascending indices
@@ -1248,6 +1250,7 @@ c
      $                            osym, ataba, atabb, eref, eps,
      $                            g_civec )
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "detciP.fh"
 #include "detci.fh"
@@ -1279,7 +1282,7 @@ c
       myid = ga_nodeid()
       call ga_distribution( g_civec, myid, rlo, rhi, clo, chi )
       if (.not. ma_push_get(mt_dbl, nstrb, 'detci_dscal: beta',
-     $     l_c, k_c)) call errquit('detci_diagscale: ma', nstrb)
+     $     l_c, k_c)) call errquit('detci_diagscale: ma', nstrb, MA_ERR)
 c
 c Loop over pairs of alpha,beta strings = CI index
 c
@@ -1328,7 +1331,7 @@ C
       if (detci_getnextelv( norb, nela, elva )) goto 101
 c
       if (.not. ma_pop_stack(l_c)) call errquit
-     $   ('detci:dscal ma corrupt',0)
+     $   ('detci:dscal ma corrupt',0, MA_ERR)
       call ga_sync
 c
       end

@@ -1,6 +1,7 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.15 2000-04-10 10:52:35 hvd Exp $
+C$Id: input_set.F,v 1.16 2003-10-17 22:55:18 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -43,18 +44,18 @@ c
       call inp_set_field(0)
       if (inp_n_field() .lt. 3) goto 1000
       if (.not. inp_a(field)) call errquit
-     $     ('input_set: very first input failed!', 0)
+     $     ('input_set: very first input failed!', 0, INPUT_ERR)
       if (.not. inp_compare(.false.,'set',field)) call errquit
-     $     ('input_set: not a set directive?', 0)
+     $     ('input_set: not a set directive?', 0, INPUT_ERR)
       if (.not. inp_a(name)) call errquit
-     $     ('input_set: reading name failed', 0)
+     $     ('input_set: reading name failed', 0, INPUT_ERR)
 c
       if (inp_n_field() .gt. 3) then
 c
 c     A type may be specified ... see if we can match something
 c
          if (.not. inp_a(field)) call errquit
-     $        ('input_set: reading type failed', 0)
+     $        ('input_set: reading type failed', 0, INPUT_ERR)
          if (inp_match(ntypes, .false., field, types, ind)) then 
             type = types(ind)
          else
@@ -95,7 +96,8 @@ c
          type = types(ind)
          ma_type = ma_types(ind)
       else
-         call errquit('input_set: very wierd error matching type', 0)
+         call errquit('input_set: very wierd error matching type', 0,
+     &       INPUT_ERR)
       endif
 C
 C     How much data is there to read? (For integers there may be more,
@@ -116,17 +118,17 @@ c
          if ( .not. ma_push_get( ma_type, space_avail, 'input scratch',
      $      h_values, i_values) ) call errquit(
      $      'input_set: unable to allocate input scratch space',
-     $      space_avail)
+     $      space_avail, MA_ERR)
 c
          status = inp_ilist(space_avail, int_mb(i_values), nvalues)
          if ( .not. status) call errquit(
-     $      'input_set: failed reading integer list ', 0)
+     $      'input_set: failed reading integer list ', 0, INPUT_ERR)
 c
       elseif (ma_type .eq. mt_dbl .or. ma_type .eq. mt_log) then
          if ( .not. ma_push_get( ma_type, nvalues, 'input scratch',
      $      h_values, i_values) ) call errquit(
      $      'input_set: unable to allocate input scratch space',
-     $      nvalues)
+     $      nvalues, MA_ERR)
 c
          do i = 1, nvalues
             if (ma_type .eq. mt_dbl) then
@@ -144,21 +146,22 @@ c              logical
      $               inp_compare(.false.,test,'f')) then
                   Log_MB( I_Values + i - 1) = .false.
                else
-                  call errquit('input_set: error parsing logical', i)
+                  call errquit('input_set: error parsing logical', i,
+     &       INPUT_ERR)
                endif
             endif
             if (.not. status) call errquit
-     $         ('input_set: failed reading value ', i)
+     $         ('input_set: failed reading value ', i, INPUT_ERR)
          enddo
 c
       else                      ! character strings
          if ( nvalues .gt. max_values) call errquit(
-     $      'input_set: too many values', nvalues)
+     $      'input_set: too many values', nvalues, INPUT_ERR)
 c
          do i = 1, nvalues
             status = inp_a(cvals(i))
             if (.not. status) call errquit
-     $         ('input_set: failed reading value ', i)
+     $         ('input_set: failed reading value ', i, INPUT_ERR)
          enddo
       endif
 c
@@ -176,22 +179,24 @@ c
       endif
 c
       if (.not. status) call errquit
-     $     ('input_set: failed writing to rtdb', 0)
+     $     ('input_set: failed writing to rtdb', 0, RTDB_ERR)
 c
       if ( ma_type .eq. mt_int .or. ma_type .eq. mt_dbl
      $   .or. ma_type .eq. mt_log) then
          if ( .not. ma_pop_stack(h_values) ) call errquit(
-     $      'input_set: unable to free scratch space', h_values)
+     $      'input_set: unable to free scratch space', h_values, MA_ERR)
       endif
 C
       return
 c
  1000 call errquit
-     $     ('input_set: set <name> [<type = automatic>] <list>', 0)
+     $     ('input_set: set <name> [<type = automatic>] <list>', 0,
+     &       INPUT_ERR)
 c
       end
       subroutine input_unset(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
 #include "stdio.fh"
@@ -202,12 +207,12 @@ c
       logical status
 c     
       if (.not. inp_a(test)) call errquit
-     $     ('input_unset: first inp_a failed?',0)
+     $     ('input_unset: first inp_a failed?',0, INPUT_ERR)
       if (.not. inp_compare(.false.,'unset',test))
-     $     call errquit('input_unset: not unset directive',0)
+     $     call errquit('input_unset: not unset directive',0, INPUT_ERR)
 c     
       if (.not. inp_a(test)) call errquit
-     $     ('input_unset: name missing',0)
+     $     ('input_unset: name missing',0, INPUT_ERR)
 c     
 c     Check for wildcard
 c     
@@ -219,7 +224,8 @@ c
 	    if (inp_compare(.true.,test(1:ltest),name(1:ltest))) then
                write(LuOut,*) ' unset: ', name(1:inp_strlen(name))
 	       if (.not. rtdb_delete(rtdb,name)) call errquit
-     $              ('input_unset: failed deleting existing entry',0)
+     $              ('input_unset: failed deleting existing entry',0,
+     &       RTDB_ERR)
 	    endif
             status = rtdb_next(rtdb, name)
             goto 10

@@ -1,9 +1,10 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.2 2001-12-02 19:38:14 bylaska Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2)
       implicit none
+#include "errquit.fh"
       integer ispin,n2ft3d
       real*8  dn(n2ft3d,2)
       integer vhxcmatrix(2)
@@ -45,7 +46,8 @@
       vpsi = tmp2(1)
       vall = tmp2(1)+n2ft3d
       if (.not. value) 
-     > call errquit('lcao_geneate_vhxcmatrix: out of stack memory',0)
+     > call errquit('lcao_geneate_vhxcmatrix: out of stack memory',0,
+     &       MA_ERR)
 
 
 *     *************************************************

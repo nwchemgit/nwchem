@@ -7,9 +7,10 @@
 
       subroutine v_psi_read(ispin0,ne0,psi2)
 *
-* $Id: v_psi_read.F,v 1.2 2001-11-28 22:15:21 bylaska Exp $
+* $Id: v_psi_read.F,v 1.3 2003-10-17 22:57:36 carlfahl Exp $
 *
       implicit none 
+#include "errquit.fh"
       integer ispin0,ne0(2)
       double complex psi2(*)
 
@@ -55,9 +56,9 @@ c     complex*16 tmp(*)
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -128,7 +129,7 @@ c     **** send header to all nodes ****
      >     (ne(1)     .ne.ne0(1))             .or.
      >     (ne(2)     .ne.ne0(2))  ) then
          call errquit(
-     >      'Error reading wavefunction velocities', 0)
+     >      'Error reading wavefunction velocities', 0, DISK_ERR)
       end if
 
 

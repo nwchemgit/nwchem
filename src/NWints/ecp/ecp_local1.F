@@ -1,4 +1,4 @@
-C $Id: ecp_local1.F,v 1.3 2000-04-13 20:34:23 mg201 Exp $
+C $Id: ecp_local1.F,v 1.4 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local1 (mem_max,DryRun,
@@ -64,6 +64,8 @@ C $Id: ecp_local1.F,v 1.3 2000-04-13 20:34:23 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer l_a,n_prim_a,n_cont_a,l_b,n_prim_b,n_cont_b,n_coef_c,
      &    l_tmp,n_int,p_min,p_max,sphcart,mem_max,ibug
       integer n_prim_c(p_min:p_max)
@@ -144,7 +146,7 @@ C $Id: ecp_local1.F,v 1.3 2000-04-13 20:34:23 mg201 Exp $
         if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (i_free-1 .gt. l_tmp) call errquit(
-     &      ' Insufficient memory in ecp_local1',99)
+     &      ' Insufficient memory in ecp_local1',99, MEM_ERR)
 *
 *     Expand cartesian basis about ECP centre in spherical tensors
 *
@@ -180,7 +182,7 @@ C $Id: ecp_local1.F,v 1.3 2000-04-13 20:34:23 mg201 Exp $
         if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (i_free-1 .gt. l_tmp) call errquit(
-     &      ' Insufficient memory in ecp_local1',99)
+     &      ' Insufficient memory in ecp_local1',99, MEM_ERR)
         i = 0
         do i_c = 1,n_coef_c
           do i_b = 1,n_prim_b
@@ -248,7 +250,7 @@ C        write (LuOut,*) 'm_count',m_count
           if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. l_tmp) call errquit(
-     &        ' Insufficient memory in ecp_local1',99)
+     &        ' Insufficient memory in ecp_local1',99, MEM_ERR)
 *
 *   Calculate radial integrals
 *
@@ -277,7 +279,7 @@ C        write (LuOut,*) 'm_count',m_count
           if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. l_tmp) call errquit(
-     &        ' Insufficient memory in ecp_local1',99)
+     &        ' Insufficient memory in ecp_local1',99, MEM_ERR)
 *
 *       Set up angular coefficients for centre A and contract over 
 *       components of spherical tensors (sum over q).

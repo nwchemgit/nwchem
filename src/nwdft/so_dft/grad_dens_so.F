@@ -3,12 +3,13 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c     $Id: grad_dens_so.F,v 1.6 2001-11-15 18:39:00 edo Exp $
+c     $Id: grad_dens_so.F,v 1.7 2003-10-17 22:55:48 carlfahl Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
 
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -48,7 +49,7 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('grad_dens_so: ga_create ', 0)
+         call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
       endif
 
       status = ga_create(mt_dbl, nbf2, nbf2,'Movecs Im', 0, 0, 
@@ -59,11 +60,12 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('grad_dens_so: ga_create ', 0)
+         call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
       endif
 
       if (.not. movecs_read_so(movecs, occ, evals, g_vecs)) 
-     $     call errquit('grad_dens_so: could not read mo vectors', 110)
+     $     call errquit('grad_dens_so: could not read mo vectors', 110,
+     &       DISK_ERR)
 c
       if (scftype .eq. 'UHF') then
          
@@ -75,10 +77,10 @@ cso   nocc = nclosed + nopen ! == nalpha
          if (ga_nodeid() .eq. 0) then
             if(.not.MA_push_get(
      .           MT_INT, nocc, 'indices', l_ind, k_ind)) call errquit(
-     .           ' gradensso: alloc get failed ',1)
+     .           ' gradensso: alloc get failed ',1, MA_ERR)
             if(.not.MA_push_get(
      .           MT_INT, nocc, 'indices',l_ind2,k_ind2)) call errquit(
-     .           ' gradensso: alloc get failed ',2)
+     .           ' gradensso: alloc get failed ',2, MA_ERR)
             do i=1, nocc
                int_mb( k_ind+i-1 ) = i
                int_mb( k_ind2+i-1 ) = i
@@ -86,7 +88,7 @@ cso   nocc = nclosed + nopen ! == nalpha
             call ga_scatter ( g_eigen_diag, evals, int_mb(k_ind),
      $           int_mb(k_ind2), nocc )
             if(.not.MA_chop_stack(l_ind))
-     .           call errquit(' gradensso: chop stackfailed ',2)
+     .           call errquit(' gradensso: chop stackfailed ',2, MA_ERR)
          end if
          status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
      &                   g_densso(1))
@@ -96,7 +98,7 @@ cso   nocc = nclosed + nopen ! == nalpha
                call util_flush(6)
             endif
             call ga_sync()
-            call errquit('grad_dens_so: ga_create ', 0)
+            call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
          endif
          
          
@@ -108,7 +110,7 @@ cso   nocc = nclosed + nopen ! == nalpha
                call util_flush(6)
             endif
             call ga_sync()
-            call errquit('grad_dens_so: ga_create ', 0)
+            call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
          endif
          
 C     multiply to weighted density

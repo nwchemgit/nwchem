@@ -1,8 +1,9 @@
       subroutine vscf_input(rtdb)
 *
-* $Id: vscf_input.F,v 1.1 2000-02-25 00:47:21 windus Exp $
+* $Id: vscf_input.F,v 1.2 2003-10-17 22:58:40 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "nwc_const.fh"
 c#include "coptopt.fh"
@@ -31,56 +32,62 @@ c
 c     ----- read values from input -----
 c
  10   if(.not.inp_read())
-     $     call errquit('vscf_input: unexpected eof',911)
+     $     call errquit('vscf_input: unexpected eof',911, INPUT_ERR)
       if (.not. inp_a(field))
-     $     call errquit('vscf_input: failed to read field',911)
+     $     call errquit('vscf_input: failed to read field',911,
+     &       INPUT_ERR)
 c
       if(inp_compare(.false.,'end',field)) then
          return
 c
       else if(inp_compare(.false.,'ngrid',field)) then
          if(.not. inp_i(ngrid))
-     $        call errquit('vscf_input: missing grid size',911)
+     $        call errquit('vscf_input: missing grid size',911,
+     &       INPUT_ERR)
          if (.not. rtdb_put(rtdb,'vscf:ngrid',mt_int,1,ngrid))
-     $        call errquit('vscf_input: rtdb put failed',0)
+     $        call errquit('vscf_input: rtdb put failed',0, RTDB_ERR)
 c
       else if(inp_compare(.false.,'iexcite',field)) then
          if(.not. inp_i(iexc))
-     $        call errquit('vscf_input: missing grid size',911)
+     $        call errquit('vscf_input: missing grid size',911,
+     &       INPUT_ERR)
          if (.not. rtdb_put(rtdb,'vscf:iexc',mt_int,1,iexc))
-     $        call errquit('vscf_input: rtdb put failed',0)
+     $        call errquit('vscf_input: rtdb put failed',0, RTDB_ERR)
 c
       else if(inp_compare(.false.,'coupling',field)) then
          if(.not. inp_a(field))
-     $        call errquit('vscf_input: missing coupling type',911)
+     $        call errquit('vscf_input: missing coupling type',911,
+     &       INPUT_ERR)
          if(inp_compare(.false.,'diagonal',field).or.
      $      inp_compare(.false.,'diag',field)) then
               ncoup =1
          else if(inp_compare(.false.,'pair',field)) then
               ncoup = 2
          else
-              call errquit('vscf_input: unrecognized coupling type',0)
+              call errquit('vscf_input: unrecognized coupling type',0,
+     &       INPUT_ERR)
          endif
          if (.not. rtdb_put(rtdb,'vscf:ncoup',mt_int,1,ncoup))
-     $        call errquit('vscf_input: rtdb put failed',0)
+     $        call errquit('vscf_input: rtdb put failed',0, RTDB_ERR)
 c
       else if(inp_compare(.false.,'scale_factor',field)) then
          if(.not. inp_f(vcfct))
-     $        call errquit('vscf_input: missing scale factor',911)
+     $        call errquit('vscf_input: missing scale factor',911,
+     &       INPUT_ERR)
          if (.not. rtdb_put(rtdb,'vscf:vcfct',mt_dbl,1,vcfct))
-     $        call errquit('vscf_input: rtdb put failed',0)
+     $        call errquit('vscf_input: rtdb put failed',0, RTDB_ERR)
 c
       else if(inp_compare(.false.,'nrestart',field))then
          if(.not.inp_ilist(4,nresmode,ilen))
      $        call errquit('vscf_input: missing restart information',
-     $           555)
+     $           555, INPUT_ERR)
          if (ilen.ne.4)
      $        call errquit('vscf_input: wrong number of restart data',
-     $           ilen)
+     $           ilen, INPUT_ERR)
          if(.not.rtdb_put(rtdb,'vscf:nresmode',mt_int,ilen,nresmode))
-     $        call errquit('vscf_input: rtdb put failed',0)
+     $        call errquit('vscf_input: rtdb put failed',0, RTDB_ERR)
       else
-         call errquit('vscf_input: unknown directive',0)
+         call errquit('vscf_input: unknown directive',0, INPUT_ERR)
       endif
 c
       goto 10                   ! While loop

@@ -1,8 +1,9 @@
       subroutine grid_read_ck(rtdb)
 c
-c$Id: grid_read_ck.F,v 1.4 2000-03-20 21:11:49 edo Exp $
+c$Id: grid_read_ck.F,v 1.5 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
       integer rtdb
 c
 #include "cdft.fh"
@@ -20,12 +21,14 @@ c
 c
       if (.not.MA_Push_get(MT_dbl, buffer_size, 
      &                     'quad pts buffer', lrqbuf, irqbuf))
-     &   call errquit('grid_gen: cannot allocate quad pt buffer', 0)
+     &   call errquit('grid_gen: cannot allocate quad pt buffer', 0,
+     &       MA_ERR)
 c
 c     rewind grid pts file
 c
       if (.not. grid_file_rewind())
-     $   call errquit('grid_setspac: rewinding gridpts?', 0)
+     $   call errquit('grid_setspac: rewinding gridpts?', 0,
+     &       UNKNOWN_ERR)
 c
       nqpts_per_buf = n_per_rec
 c
@@ -39,6 +42,6 @@ c
   100 continue
 c
       if (.not. MA_Pop_Stack(lrqbuf))
-     &   call errquit('grid_setspac: pop stack failed.',0)
+     &   call errquit('grid_setspac: pop stack failed.',0, MA_ERR)
       return
       end 

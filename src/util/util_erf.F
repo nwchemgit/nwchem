@@ -87,13 +87,14 @@ c !************************************************************************
      
       real*8 function gammp(a,x)
       implicit none
+#include "errquit.fh"
       real*8 a,x
 
 *     **** external functions ****
       real*8   gammcf,gamser,gln
 
       IF(x.LT.0.0d0 .OR. a.LE.0.0d0) THEN
-        call errquit('bad arguments in gammp',0)
+        call errquit('bad arguments in gammp',0, INPUT_ERR)
 
       END IF
 
@@ -114,6 +115,7 @@ c !************************************************************************
 
       SUBROUTINE gcf(gammcf,a,x,gln)
       implicit none
+#include "errquit.fh"
       integer ITMAX
       real*8  a,gammcf,gln,x,EPS,FPMIN
       PARAMETER (ITMAX=100,EPS=3.0d-12,FPMIN=1.0d-30)
@@ -139,7 +141,7 @@ c !************************************************************************
         h=h*del
         IF(DABS(del-1.0d0).lt.EPS) GOTO 1
 11    CONTINUE
-      call errquit('a too large, ITMAX too small in gcf',0)
+      call errquit('a too large, ITMAX too small in gcf',0, INPUT_ERR)
 1     gammcf=DEXP(-x+a*LOG(x)-gln)*h
       
       return
@@ -149,6 +151,7 @@ c !************************************************************************
 
       subroutine gser(gamser,a,x,gln)
       implicit none
+#include "errquit.fh"
       real*8    a,x
       real*8   gamser,gln
     
@@ -170,7 +173,7 @@ c !************************************************************************
       gln=ln_gamma(a)
 
       IF(x.le.0.0d0) THEN
-        IF(x.lt.0.0d0) call errquit('x < 0 in gser',0)
+        IF(x.lt.0.0d0) call errquit('x < 0 in gser',0, UNKNOWN_ERR)
           gamser=0.0d0
           RETURN
       ENDIF
@@ -185,7 +188,7 @@ c !************************************************************************
         IF(DABS(del).lt.DABS(sum)*EPS) GOTO 1
       END DO
 
-      CALL errquit('a too large, ITMAX too small in gser',0)
+      CALL errquit('a too large, ITMAX too small in gser',0, INPUT_ERR)
 
 1     gamser=sum*DEXP(-x+a*LOG(x)-gln)
 

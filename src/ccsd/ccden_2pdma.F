@@ -3,12 +3,13 @@ C NAME
 C     CCDen_2PDMoooo -- Form coupled cluster 2-particle density matrix
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.2 1997-06-05 17:46:26 gg502 Exp $
+C     $Id: ccden_2pdma.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_2PDMoooo(NOcc, NVir, T1, LDT1, g_T2,
      $     g_Z2, g_Q, g_G)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir, LDT1
       Double Precision T1(LDT1, NVir)
       Integer g_T2, g_Z2, g_Q, g_G
@@ -56,14 +57,14 @@ C
       If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
      $   'CCDen Tau', NVir, NVir, G_Tau) ) Call ErrQuit(
      $   'CCDen_2PDMoooo: unable to allocate Tau',
-     $   NVir*NOcc*NVir*NOcc)
+     $   NVir*NOcc*NVir*NOcc, GA_ERR)
 C
       Call CCSD_MkTau_GA(NOcc, NVir, T1, LDT1, g_T2, g_Tau)
       Call CCDen_tZoooo(NOcc, NVir, g_Tau, g_Z2, g_G)
       Call GA_Scale(g_G, 0.50d0)
 C
       If (.NOT. GA_Destroy(g_Tau) ) Call ErrQuit(
-     $   'CCDen_2PDMoooo: unable to free Tau', 0)
+     $   'CCDen_2PDMoooo: unable to free Tau', 0, GA_ERR)
 C
 C     Let's do the 1-PDM terms.  Note that the data distribution is 
 C     such that each node has complete kl blocks for a particular subset
@@ -105,7 +106,8 @@ C     Put the Q(i,*) row into one one column (j=l) of the block.
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NOcc, 'CCDen Scr',
      $     H_Qi, I_Qi) ) Call ErrQuit(
-     $     'CCDen_2PDMoooo: unable to allocate local Qi column', NOcc)
+     $     'CCDen_2PDMoooo: unable to allocate local Qi column', NOcc,
+     &       MA_ERR)
 C
       Do I = ILo, IHi
 C
@@ -125,7 +127,7 @@ C
       EndDo
 C
       If ( .NOT. MA_Pop_Stack(H_Qi) ) Call ErrQuit(
-     $     'CCDen_2PDMoooo: unable to free Qi', NOcc)
+     $     'CCDen_2PDMoooo: unable to free Qi', NOcc, MA_ERR)
 C
 C
 C
@@ -136,11 +138,12 @@ C NAME
 C     CCDen_tZoooo -- Form [tZ] intermediate for 2PDM
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.2 1997-06-05 17:46:26 gg502 Exp $
+C     $Id: ccden_2pdma.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_tZoooo(NOcc, NVir, g_t, g_Z, g_tZ)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir
       Integer g_t, g_Z, g_tZ
 C
@@ -191,10 +194,10 @@ C     Allocate scratch space
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scratch 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $   'CCDen_tZoooo: unable to allocate scratch', NVir*NVir)
+     $   'CCDen_tZoooo: unable to allocate scratch', NVir*NVir, MA_ERR)
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scratch 1', H_Scr2, I_Scr2)) Call ErrQuit(
-     $   'CCDen_tZoooo: unable to allocate scratch', NVir*NVir)
+     $   'CCDen_tZoooo: unable to allocate scratch', NVir*NVir, MA_ERR)
 C
 C     Basically, we get blocks of t and Z and dot-product them to
 C     produce an element [tZ].  For the local chunk of t, contract
@@ -263,9 +266,9 @@ C
 C     Clean up scratch
 C
       If (.NOT. MA_Pop_Stack(H_Scr2) ) Call ErrQuit(
-     $   'CCDen_tZoooo: unable to free scratch', 0)
+     $   'CCDen_tZoooo: unable to free scratch', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $   'CCDen_tZoooo: unable to free scratch', 0)
+     $   'CCDen_tZoooo: unable to free scratch', 0, MA_ERR)
 C
 C
 C
@@ -276,11 +279,12 @@ C NAME
 C     CCDen_tZvvvv -- Form [tZ] intermediate for 2PDM
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.2 1997-06-05 17:46:26 gg502 Exp $
+C     $Id: ccden_2pdma.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_tZvvvv(NOcc, NVir, g_t, g_Z, g_tZ)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir
       Integer g_t, g_Z, g_tZ
 C
@@ -331,10 +335,12 @@ C     Allocate scratch space
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scratch 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $   'CCDen_tZvvvv: unable to allocate scratch', NVir*NVir)
+     $   'CCDen_tZvvvv: unable to allocate scratch', NVir*NVir,
+     &       MA_ERR)
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scratch 1', H_Scr2, I_Scr2)) Call ErrQuit(
-     $   'CCDen_tZvvvv: unable to allocate scratch', NVir*NVir)
+     $   'CCDen_tZvvvv: unable to allocate scratch', NVir*NVir,
+     &       MA_ERR)
 C
 C     Basically, we get blocks of t and Z and dot-product them to
 C     produce an element [tZ].  For the local chunk of t, contract
@@ -403,9 +409,9 @@ C
 C     Clean up scratch
 C
       If (.NOT. MA_Pop_Stack(H_Scr2) ) Call ErrQuit(
-     $   'CCDen_tZvvvv: unable to free scratch', 0)
+     $   'CCDen_tZvvvv: unable to free scratch', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $   'CCDen_tZvvvv: unable to free scratch', 0)
+     $   'CCDen_tZvvvv: unable to free scratch', 0, MA_ERR)
 C
 C
 C

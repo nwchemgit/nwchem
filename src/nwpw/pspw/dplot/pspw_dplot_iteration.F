@@ -1,8 +1,9 @@
 *
-* $Id: pspw_dplot_iteration.F,v 1.2 2002-01-21 00:57:54 bylaska Exp $
+* $Id: pspw_dplot_iteration.F,v 1.3 2003-10-17 22:57:15 carlfahl Exp $
 *
       subroutine dplot_iteration_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -28,7 +29,7 @@
 
          if (.not.MA_get_index(iteration(2),iteration(1)))
      >      call errquit(
-     >       'pspw_dplot_iteration_init: ma_get_index failed',0)
+     >       'pspw_dplot_iteration_init: ma_get_index failed',0, MA_ERR)
       else
         exist = .false.
       end if
@@ -38,6 +39,7 @@
 
       subroutine dplot_iteration_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -50,7 +52,7 @@
 
 *        **** free heap ****
          if (.not. MA_free_heap(iteration(2))) then
-            call errquit('dplot_iteration_end:freeing heap',0)
+            call errquit('dplot_iteration_end:freeing heap',0, MA_ERR)
          end if
 
       end if

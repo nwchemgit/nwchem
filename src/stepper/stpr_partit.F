@@ -4,9 +4,10 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG, CONVGGM,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.11 2003-01-18 03:58:34 edo Exp $
+c $Id: stpr_partit.F,v 1.12 2003-10-17 22:58:22 carlfahl Exp $
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "errquit.fh"
       LOGICAL TRACK, BCKSTP, RPATH, TROUB
       LOGICAL COOK, LPRINT, oprint
       PARAMETER( ZERO=0.D0, ONE=1.D0 )
@@ -578,7 +579,7 @@ C
           IF (HIEIGS(NMODE).GT.0.D0) THEN
             WRITE(6,*)'  You need a nonzero force along'
             WRITE(6,*)'  mode # ',NMODE,' to go uphill. '
-            call errquit('stepper:partit fatal error',911)
+            call errquit('stepper:partit fatal error',911, UNKNOWN_ERR)
           ELSE
             TS = .FALSE.
             NMODE = 0
@@ -602,7 +603,7 @@ C
           IF (HIEIGS(NMODE).LT.0.D0) THEN
             WRITE(6,*)'  You need a nonzero force along'
             WRITE(6,*)'  mode # ',NMODE,' to go downhill. '
-            call errquit('stepper:partit fatal error',911)
+            call errquit('stepper:partit fatal error',911, UNKNOWN_ERR)
           ELSE
             STD = .FALSE.
             NMODE = 0

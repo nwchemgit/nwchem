@@ -4,8 +4,9 @@
      &                     g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_aitm,g_qitm,g_tz3,
      &                     iprt)
-C     $Id: ccsd_zsig2.F,v 2.7 1999-06-16 00:10:12 d3e129 Exp $
+C     $Id: ccsd_zsig2.F,v 2.8 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &        g_sht2,g_zx,g_zc,g_tz3,iprt
       double precision hiu(nocc,nocc),giu(nocc,nocc),hia(nocc,nvir)
@@ -39,11 +40,11 @@ C
 *ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmp',
      &                   lnvv,0,g_tmp))
-     &     call errquit('ga_create g_tmp failed',0)
+     &     call errquit('ga_create g_tmp failed',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmp2',
      &                   lnvv,0,g_tmp2))
-     &     call errquit('ga_create g_tmp2 failed',0)
+     &     call errquit('ga_create g_tmp2 failed',0, GA_ERR)
 c
       do a=1,nvir
       do c=1,nvir
@@ -270,19 +271,19 @@ c
       enddo
 c
       if (.not.ga_destroy(g_tmp2))
-     &    call errquit('ga_dest g_tmp2 fail',0)
+     &    call errquit('ga_dest g_tmp2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     &    call errquit('ga_dest g_tmp fail',0)
+     &    call errquit('ga_dest g_tmp fail',0, GA_ERR)
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'ritm',
      &                   nvir,nvir,g_ritm))
-     &     call errquit('ga_create g_ritm failed',0)
+     &     call errquit('ga_create g_ritm failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
-     &     call errquit('ga_create g_tmp failed',0)
+     &     call errquit('ga_create g_tmp failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp2',
      &                   nvir,nvir,g_tmp2))
-     &     call errquit('ga_create g_tmp2 failed',0)
+     &     call errquit('ga_create g_tmp2 failed',0, GA_ERR)
 c
       call ga_dgemm('n','n',lnov,lnov,lnov,
      &              1.0d00,g_nz2,g_qitm,0.0d00,g_tmp)
@@ -446,17 +447,17 @@ c
       enddo
 c
       if (.not.ga_destroy(g_tmp2))
-     &    call errquit('ga_dest g_tmp2 fail',0)
+     &    call errquit('ga_dest g_tmp2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     &    call errquit('ga_dest g_tmp fail',0)
+     &    call errquit('ga_dest g_tmp fail',0, GA_ERR)
       if (.not.ga_destroy(g_ritm))
-     &    call errquit('ga_dest g_ritm fail',0)
+     &    call errquit('ga_dest g_ritm fail',0, GA_ERR)
       if (.not.ga_destroy(g_tz3))
-     &    call errquit('ga_dest g_tz3 fail',0)
+     &    call errquit('ga_dest g_tz3 fail',0, GA_ERR)
       if (.not.ga_destroy(g_qitm))
-     &    call errquit('ga_dest g_qitm fail',0)
+     &    call errquit('ga_dest g_qitm fail',0, GA_ERR)
       if (.not.ga_destroy(g_aitm))
-     &    call errquit('ga_dest g_aitm fail',0)
+     &    call errquit('ga_dest g_aitm fail',0, GA_ERR)
 c
       return
       end

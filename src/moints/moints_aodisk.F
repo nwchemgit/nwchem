@@ -1,5 +1,5 @@
 *
-* $Id: moints_aodisk.F,v 1.21 2000-10-25 22:50:13 windus Exp $
+* $Id: moints_aodisk.F,v 1.22 2003-10-17 22:55:26 carlfahl Exp $
 *
 c
 c  Set of routines to cache AO integrals for the 4-index
@@ -80,6 +80,7 @@ c
      $                                       kblo, kbhi, lblo, lbhi,
      $                                       ssbb )
       implicit none
+#include "errquit.fh"
       integer blkid
       integer ish, jsh
       integer kshlo
@@ -120,7 +121,8 @@ c$$$      EXTERNAL DABSSUM
      $                             dbl_mb(moao_kvalrec) )
             moints_gblk_fromdisk = .true.
           else
-            call errquit('moints_gblk_disk: dense write not ready',0)
+            call errquit('moints_gblk_disk: dense write not ready',0,
+     &       INT_ERR)
           endif
           recnum = recnum + 1
         enddo
@@ -155,6 +157,7 @@ c
      $                                     kblo, kbhi, lblo, lbhi,
      $                                     ssbb )
       implicit none
+#include "errquit.fh"
       integer blkid
       integer ish, jsh
       integer kshlo, lshlo
@@ -197,7 +200,8 @@ c$$$      EXTERNAL DABSSUM
      $                           dbl_mb(moao_kbuf), moao_nrec )
 #endif
         else
-          call errquit('moints_gblk_todisk: dense read not ready',0)
+          call errquit('moints_gblk_todisk: dense read not ready',0,
+     &       INT_ERR)
         endif
        moints_gblk_todisk = .true.
 c
@@ -222,6 +226,7 @@ c     Enable disk caching & check for existing file and open file
 c     
       logical function moints_aodisk_init( odisk, oreuse )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "eaf.fh"
@@ -273,7 +278,7 @@ c
       if (moao_fd.lt.0) then
          stat = eaf_open( moao_fname, EAF_RW, moao_fd )
          if (stat.ne.0) call errquit(
-     $        'moints_aodisk_init: cannot open ao file',0)
+     $        'moints_aodisk_init: cannot open ao file',0, DISK_ERR)
       endif
       moints_aodisk_init = .true.
       return
@@ -292,6 +297,7 @@ c  Allocate buffer space and read in first record
 c
       logical function moints_aodisk_prep( )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "mointsmoaodef.fh"
@@ -321,7 +327,8 @@ c
         dhdrsize = ma_sizeof(MT_INT, MOINTS_NBLKINFO, MT_DBL )
         if (.not.ma_alloc_get(MT_DBL, MOINTS_IOBUFLEN, 'moints iobuf',
      $                        moao_lbuf, moao_kbuf)) call errquit(
-     $       'moints_aodisk_prep: cannot allocate io buffer',0)
+     $       'moints_aodisk_prep: cannot allocate io buffer',0,
+     &       DISK_ERR)
         moao_buflen   = MOINTS_IOBUFLEN                                     ! bufflen (double words)
         vallen        = moao_buflen - dhdrsize                              ! value len -= hdr length
         moao_spreclen = vallen/(vlsize/ma_sizeof(MT_DBL,1,MT_BYTE))         ! leng
@@ -398,6 +405,7 @@ c  between passes.
 c
       subroutine moints_aodisk_tidy()
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -429,7 +437,7 @@ c$$$     $                             DBL_MB(MOAO_KBUF) )
 #endif
       if (moao_lbuf.ge.0) then
         if (.not.ma_free_heap(moao_lbuf)) call errquit(
-     $    'moints_closeaodisk: cannot free io buffer',0)
+     $    'moints_closeaodisk: cannot free io buffer',0, MA_ERR)
         moao_lbuf = -1
       endif
       moao_ipass = moao_ipass + 1
@@ -452,6 +460,7 @@ c  Reset ipass count
 c
       subroutine moints_aodisk_close( osave ) 
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "util.fh"
@@ -468,11 +477,11 @@ c
      $     call eaf_print_stats(moao_fd)
         stat = eaf_close(moao_fd)
         if (stat.ne.0) call errquit(
-     $    'moints_closeaodisk: cannot close file',0)
+     $    'moints_closeaodisk: cannot close file',0, DISK_ERR)
         if (.not.(osave)) then
           stat = eaf_delete(moao_fname)
           if (stat.ne.0) call errquit(
-     $    'moints_closeaodisk: cannot delete file',0)
+     $    'moints_closeaodisk: cannot delete file',0, DISK_ERR)
         endif
         moao_fd = -1
       endif
@@ -666,6 +675,7 @@ c
 
       logical function moints_iorec_next( blkid, buidstr )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "mointsmoaodef.fh"
@@ -714,7 +724,7 @@ c
 c$$$        WRITE(6,772) moao_blkid
 c$$$ 772    FORMAT('<----',I8)
       elseif (stat.gt.0) then
-        call errquit('moints_io disk io error',0)
+        call errquit('moints_io disk io error',0, DISK_ERR)
       endif
 c
 c  reach here if tasknumber has changed or EOF
@@ -819,6 +829,7 @@ c
      $                                     ssbb, recptr, reclen, iorec,
      $                                     nrec )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "mointsmoaodef.fh"
       integer fd
@@ -917,7 +928,7 @@ c
 c  Allocate temp space
 c
       if (.not. ma_push_get(MT_INT, (ilen*jlen), 'ij ',l_ij, k_ij))
-     $  call errquit('moints_aodisk_sprs2iorec: no memory',0)
+     $  call errquit('moints_aodisk_sprs2iorec: no memory',0, MA_ERR)
       call ifill((ilen*jlen), 0, int_mb(k_ij), 1 )
 c
 c
@@ -980,12 +991,14 @@ c
      $                               iorec(irrp), iorec(drp), nnz1 )
           rp = drp + nnz1
           if ((nnz1.ne.nnz).or.(nir1.ne.nir)) 
-     $      call errquit('moints_aodisk_sprs2iorec: internal error 2',0)
+     $      call errquit('moints_aodisk_sprs2iorec: internal error 2',0,
+     &       DISK_ERR)
         enddo
 
       enddo
       if (rp.gt.(reclen+1))
-     $  call errquit('moints_aodisk_sprs2iorec: internal error 1',0)
+     $  call errquit('moints_aodisk_sprs2iorec: internal error 1',0,
+     &       DISK_ERR)
 c
 c  Bookkeeping for some odd cases
 c
@@ -1035,7 +1048,8 @@ c
 c  Clean up
 c
       if (.not. ma_pop_stack(l_ij))
-     $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_ij)
+     $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_ij,
+     &       MA_ERR)
       
       return
       end
@@ -1056,6 +1070,7 @@ c
      $                                   ssbb, hdrp, reclen, iorec,
      $                                   nrec )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
 #include "mointsmoaodef.fh"
@@ -1090,13 +1105,15 @@ c
       dbilen = ma_sizeof(MT_INT,MOINTS_NBLKINFO,MT_DBL)
       ijp = hdrp + dbilen
       if (.not. ma_push_get(MT_INT, (ilen*jlen), 'ij ',l_ij, k_ij))
-     $  call errquit('moints_aodisk_iorec2sprs: no memory',0)
+     $  call errquit('moints_aodisk_iorec2sprs: no memory',0,
+     &       MA_ERR)
 c
 c  Sanity check on current pointer and IO record
 c
       call icopy( MOINTS_NBLKINFO, iorec(hdrp), 1, blkinfo, 1)
       if (blkinfo(1).ne.cookie) 
-     $  call errquit('moints_aodisk_iorec2sprs: AOfile corrupt I?',0)
+     $  call errquit('moints_aodisk_iorec2sprs: AOfile corrupt I?',0,
+     &       DISK_ERR)
 
 c$$$      WRITE(6,910) BLKINFO(4),  BLKINFO(5),  BLKINFO(7),  
 c$$$     $             BLKINFO(8),  BLKINFO(9),  BLKINFO(10), 
@@ -1114,7 +1131,8 @@ c
  623    format(' Rec#',i6,3x,' B ',8i6)
         write(6,622) nrec,ilo,ihi,jlo,jhi,kblo,kbhi,lblo,lbhi
  622    format(' Rec#',i6,3x,' E ',8i6)
-        call errquit('moints_aodisk_sprs2iorec: blk label mismatch',0)
+        call errquit('moints_aodisk_sprs2iorec: blk label mismatch',0,
+     &       INPUT_ERR)
       endif
 c
 c  Unpack data structure from IO record(s)
@@ -1156,7 +1174,8 @@ c
         goto 101
       endif
       if (magic.ne.cookie) 
-     $  call errquit('moints_aodisk_iorec2sprs: AOfile corruptII?',0)
+     $  call errquit('moints_aodisk_iorec2sprs: AOfile corruptII?',0,
+     &       DISK_ERR)
 c
 c  Prefetch tasknumber from header
 c
@@ -1168,7 +1187,8 @@ c  Cleanup
 c
  150  continue
       if (.not. ma_pop_stack(l_ij))
-     $  call errquit('moints_aodisk_iorec2sprs: failed to pop', l_ij)
+     $  call errquit('moints_aodisk_iorec2sprs: failed to pop', l_ij,
+     &       MA_ERR)
       return
       end
 
@@ -1208,6 +1228,7 @@ c
      $                                      kblo, kbhi, lblo, lbhi,
      $                                      ijmap, reclen, iorec, ssbb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer ilo, ihi, jlo, jhi
       integer kblo, kbhi, lblo, lbhi
@@ -1232,7 +1253,7 @@ c
       bit16 = onbitmask(16)
       maxiirlen = 2*klen + (klen*llen)/2 + 1
       if (.not. ma_push_get(MT_INT, maxiirlen, 'i io pack ',l_iv, k_iv))
-     $  call errquit('moints_aodisk_sprs2dense_a: no memory',0)
+     $  call errquit('moints_aodisk_sprs2dense_a: no memory',0, MA_ERR)
       k_irv = k_iv + 2*klen
       labint = ma_sizeof(MT_INT,1,MT_BYTE)/2
 
@@ -1242,7 +1263,8 @@ c
           nnz = iand(ijmap(j,i),bit16)
           if (nnz.gt.(klen*llen)) then
             call moints_aodisk_dumpiorec( reclen, iorec )
-            call errquit('moints_sprs2dense_a: internal error 3',0)
+            call errquit('moints_sprs2dense_a: internal error 3',0,
+     &       INT_ERR)
           endif
           if (ijp.gt.0) then
             nir = nnz/labint
@@ -1260,7 +1282,8 @@ c
         enddo
       enddo
       if (.not. ma_pop_stack(l_iv))
-     $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_iv)
+     $  call errquit('moints_aodisk_sprs2iorec: failed to pop', l_iv,
+     &       MA_ERR)
       
       end
 

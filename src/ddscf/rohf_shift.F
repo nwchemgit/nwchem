@@ -1,8 +1,9 @@
       subroutine rohf_make_shift(shift)
 *
-* $Id: rohf_shift.F,v 1.6 1997-11-07 11:35:17 d3e129 Exp $
+* $Id: rohf_shift.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "crohf.fh"
@@ -21,7 +22,7 @@ c
 c
       if (.not. ma_push_get(mt_dbl, nmo, 'rohf_m_s: diag', 
      $     l_diag, k_diag)) call errquit
-     $     ('rohf_make_shift: insufficient memory', nmo)
+     $     ('rohf_make_shift: insufficient memory', nmo, MA_ERR)
 c
       call ga_sync()
 c
@@ -45,7 +46,8 @@ c
 c
       shift = max(shift_cv, shift_pv, shift_cp)
 c
-      if (.not. ma_pop_stack(l_diag)) call errquit('rohf_n_s: e',0)
+      if (.not. ma_pop_stack(l_diag)) call errquit('rohf_n_s: e',0,
+     &       MA_ERR)
 c
       end
       subroutine rohf_make_shift_2(g_fock, diag,

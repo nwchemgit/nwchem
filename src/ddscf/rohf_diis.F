@@ -1,6 +1,7 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.18 2003-01-30 01:16:57 bert Exp $
+C     $Id: rohf_diis.F,v 1.19 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -96,34 +97,35 @@ c     Allocate global arrays.
 c     
 *ga:1:0
       if (.not. ga_create(MT_DBL, vlen, 1, 'diis:grad', 0, 0, g_grad))
-     $     call errquit('diis:grad', 0)
+     $     call errquit('diis:grad', 0, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, (nbf*nbf), (2*mxdiisbas),
-     $     'diis:basis', 0, 0, g_gdiis)) call errquit('diis: work', 0)
+     $     'diis:basis', 0, 0, g_gdiis)) call errquit('diis: work', 0,
+     &       GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:fock',
      $     0, 0, g_fock)) call
-     $     errquit('rohf_diis_solve: ga failed for fock', 0)
+     $     errquit('rohf_diis_solve: ga failed for fock', 0, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:over',
      $     0, 0, g_over)) call
-     $     errquit('rohf_diis_solve: ga failed for over', 0)
+     $     errquit('rohf_diis_solve: ga failed for over', 0, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:xorth',
      $     0, 0, g_xorth)) call
-     $     errquit('rohf_diis_solve: ga failed for xorth', 0)
+     $     errquit('rohf_diis_solve: ga failed for xorth', 0, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:tmp',
      $     0, 0, g_tmp)) call
-     $     errquit('rohf_diis_solve: ga failed for tmp', 0)
+     $     errquit('rohf_diis_solve: ga failed for tmp', 0, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nbf, 'rohf_diis_solve:tmp2',
      $     0, 0, g_tmp2)) call
-     $     errquit('rohf_diis_solve: ga failed for tmp2', 0)
+     $     errquit('rohf_diis_solve: ga failed for tmp2', 0, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, (nbf*nbf), 1, 'rohf_diis_solve:err',
      $     0, 0, g_err)) call
-     $     errquit('rohf_diis_solve: ga failed for error', 0)
+     $     errquit('rohf_diis_solve: ga failed for error', 0, GA_ERR)
 c
 c  Generate overlap and orthonormalization matrix
 c
@@ -248,21 +250,21 @@ c
 c     Free globals
 c     
       if (.not. ga_destroy(g_grad)) call errquit
-     $     ('rohf_diis_solve: ga_destroy grad', 0)
+     $     ('rohf_diis_solve: ga_destroy grad', 0, GA_ERR)
       if (.not. ga_destroy(g_fock)) call errquit
-     $     ('rohf_diis_solve: ga_destroy fock', 0)
+     $     ('rohf_diis_solve: ga_destroy fock', 0, GA_ERR)
       if (.not. ga_destroy(g_err)) call errquit
-     $     ('rohf_diis_solve: ga_destroy err', 0)
+     $     ('rohf_diis_solve: ga_destroy err', 0, GA_ERR)
       if (.not. ga_destroy(g_gdiis)) call errquit
-     $     ('rohf_diis_solve: ga_destroy gdiis', 0)
+     $     ('rohf_diis_solve: ga_destroy gdiis', 0, GA_ERR)
       if (.not. ga_destroy(g_over)) call errquit
-     $     ('rohf_diis_solve: ga_destroy over', 0)
+     $     ('rohf_diis_solve: ga_destroy over', 0, GA_ERR)
       if (.not. ga_destroy(g_xorth)) call errquit
-     $     ('rohf_diis_solve: ga_destroy xorth', 0)
+     $     ('rohf_diis_solve: ga_destroy xorth', 0, GA_ERR)
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('rohf_diis_solve: ga_destroy tmp', 0)
+     $     ('rohf_diis_solve: ga_destroy tmp', 0, GA_ERR)
       if (.not. ga_destroy(g_tmp2)) call errquit
-     $     ('rohf_diis_solve: ga_destroy tmp2', 0)
+     $     ('rohf_diis_solve: ga_destroy tmp2', 0, GA_ERR)
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
       call ga_sync()
@@ -402,6 +404,7 @@ c
       end
       subroutine rohf_ao_orthonorm( nbf, g_over, g_xorth )
       implicit none
+#include "errquit.fh"
 c
 c   Construct AO orthonormalization matrix
 c   using symmetric orthogonalization.
@@ -417,7 +420,8 @@ c
       double precision xx
 c
       if (.not.ma_push_get(MT_DBL, nbf, 'overlap', l_e, k_e ))
-     $     call errquit('rohf_ao_orthonorm: cannot allocate over',0)
+     $     call errquit('rohf_ao_orthonorm: cannot allocate over',0,
+     &       MA_ERR)
 #if defined(PARALLEL_DIAG)
       call ga_diag_std( g_over, g_xorth, dbl_mb(k_e))
 #else 
@@ -435,6 +439,7 @@ c
 c
 c
       if (.not.ma_pop_stack(l_e))
-     $     call errquit('rohf_ao_orthonorm: cannot pop stack',0)
+     $     call errquit('rohf_ao_orthonorm: cannot pop stack',0,
+     &       MA_ERR)
       return
       end

@@ -8,7 +8,7 @@
 #include "cscfps.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_file.F,v 1.11 1998-08-27 06:24:51 d3g681 Exp $
+c     $Id: fock_2e_file.F,v 1.12 2003-10-17 22:54:32 carlfahl Exp $
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru
@@ -126,6 +126,7 @@ c
       subroutine fock_2e_rep_from_file(geom, basis, nfock, nbf,
      $     jfac, kfac, tol2e, oskel, dens, fock)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "cscfps.fh"
 #include "cfock.fh"
@@ -164,9 +165,9 @@ c     Loop over blocks of integral labels
 c
  10   if (int2e_get_bf_range(ilo,ihi,jlo,jhi,klo,khi,llo,lhi)) then
          if (ilo.ne.1 .or. jlo.ne.1 .or. klo.ne.1 .or. llo.ne.1)
-     $        call errquit('not a replicated file?',0)
+     $        call errquit('not a replicated file?',0, UNKNOWN_ERR)
          if (ihi.ne.nbf .or. jhi.ne.nbf .or. khi.ne.nbf.or. lhi.ne.nbf)
-     $        call errquit('not a replicated file?',0)
+     $        call errquit('not a replicated file?',0, UNKNOWN_ERR)
 c
          call int2e_file_rep_fock(nfock, nbf,
      $        jfac, kfac, den_tol, dens, fock)

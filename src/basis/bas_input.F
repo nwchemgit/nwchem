@@ -1,6 +1,7 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.62 2003-02-05 00:40:28 bert Exp $
+c $Id: bas_input.F,v 1.63 2003-10-17 22:54:17 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "geom.fh"
@@ -169,7 +170,7 @@ c
          if (oIs_ecp.or.oIs_so) then 
            errmsg = 'bas_input: you are attaching an ecp to '
      $           // 'an so or ecp basis.  Not possible'
-           call errquit(errmsg, 911)
+           call errquit(errmsg, 911, INPUT_ERR)
          endif
          goto 10
 c
@@ -180,7 +181,7 @@ c
          if (oIs_so.or.oIs_ecp) then 
            errmsg = 'bas_input: you are attaching an so to '
      $           // 'an so or ecp basis.  Not possible'
-           call errquit(errmsg, 911)
+           call errquit(errmsg, 911, INPUT_ERR)
          endif
          goto 10
 c
@@ -188,7 +189,7 @@ c print basis version info
 c
 01100    continue
          if (.not.bas_version()) call errquit
-     &       ('bas_input: bas_version failed ',911)
+     &       ('bas_input: bas_version failed ',911, INPUT_ERR)
          goto 10
 c
 c set entire basis set to be relativistic
@@ -198,7 +199,7 @@ c
          if (oIs_so.or.oIs_ecp) then 
            errmsg = 'bas_input: rel keyword incompatible with '
      $           // 'so or ecp basis.'
-           call errquit(errmsg, 911)
+           call errquit(errmsg, 911, INPUT_ERR)
          endif
          goto 10
 c
@@ -223,41 +224,45 @@ c
         if (name .eq. ' ') name = 'ao basis'
       endif
       if (.not. bas_create(basis, name))
-     $     call errquit('bas_input: failed to create basis', 0)
+     $     call errquit('bas_input: failed to create basis', 0,
+     &       BASIS_ERR)
       if (oIs_ecp) then
         if (.not.bas_set_ecp_basis(basis)) call errquit
-     &      ('bas_input: ecp_set_basis failed',911)
+     &      ('bas_input: ecp_set_basis failed',911, BASIS_ERR)
       endif
       if (oIs_so) then
         if (.not.bas_set_so_basis(basis)) call errquit
-     &      ('bas_input: so_set_basis failed',911)
+     &      ('bas_input: so_set_basis failed',911, BASIS_ERR)
       endif
       if (o_add_ecpname) then
         write(LuOut,*)' ecp basis set associated is ',ecpname
         if (.not.bas_set_ecp_name(basis,ecpname)) call errquit
-     &      ('bas_input: bas_set_ecp_name failed',911)
+     &      ('bas_input: bas_set_ecp_name failed',911,
+     &       BASIS_ERR)
       endif
       if (o_add_soname) then
         write(LuOut,*)' so basis set associated is ',soname
         if (.not.bas_set_so_name(basis,soname)) call errquit
-     &      ('bas_input: bas_set_so_name failed',911)
+     &      ('bas_input: bas_set_so_name failed',911, BASIS_ERR)
       endif
 c
 c     Process standard basis sets directive ... not yet done
 c
       if (standard .ne. ' ') call errquit
-     $     ('bas_input: specify standard basis sets per tag', 0)
+     $     ('bas_input: specify standard basis sets per tag', 0,
+     &       INPUT_ERR)
 c
 c    Now left with reading in from the input additional specifications
 c    for basis functions or standard sets on specific tags
 c
       if (.not.bas_add_ucnt_init(basis)) call errquit
-     &    ('bas_input: failed to init add_ucnt ',911)
+     &    ('bas_input: failed to init add_ucnt ',911,
+     &       BASIS_ERR)
       call bas_input_body(basis, osegment, oIs_rel, oHas_Star)
 c
       if (.not. bas_set_spherical(basis, ospherical))
      &      call errquit
-     &      (' bas_set_spherical failed ',911)
+     &      (' bas_set_spherical failed ',911, BASIS_ERR)
       
 c
 c     Now have processed the entire basis directive.  Print out
@@ -271,23 +276,25 @@ c
       if (oprint) then
          test = 'basisprint:'//name(1:inp_strlen(name))
          if (.not. rtdb_put(rtdb,test,mt_log,1,oHas_Star))
-     $          call errquit('bas_input: rtdb_put * failed', 0)
+     $          call errquit('bas_input: rtdb_put * failed', 0,
+     &       RTDB_ERR)
          if (.not. oHas_Star) then
             if (.not. bas_print(basis))
-     $          call errquit('bas_input: print failed', 0)
+     $          call errquit('bas_input: print failed', 0, BASIS_ERR)
          endif
          if (.not.bas_summary_print(basis))
-     &      call errquit('scf: basis summary print failed',911)
+     &      call errquit('scf: basis summary print failed',911,
+     &       BASIS_ERR)
       endif
 c
       if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
-     $     ('bas_input: failed to store basis', 0)
+     $     ('bas_input: failed to store basis', 0, BASIS_ERR)
 c
       if (.not. bas_add_ucnt_tidy(basis))
-     $     call errquit('bas_input: tidy failed',0)
+     $     call errquit('bas_input: tidy failed',0, BASIS_ERR)
 c
       if (.not. bas_do_destroy(basis)) call errquit
-     $     ('bas_input: bas_destroy failed', 0)
+     $     ('bas_input: bas_destroy failed', 0, BASIS_ERR)
 c
       return
 c
@@ -296,12 +303,14 @@ c
      $    '      [file <filename>] [spherical|cartesian] [segment]\\',
      &    '      [print|noprint] [rel] [ecpset name_of_ecp]',
      &    ' [soset name_of_so_potential]')
-      call errquit('bas_input: invalid format for basis directive', 0)
+      call errquit('bas_input: invalid format for basis directive', 0,
+     &       INPUT_ERR)
 c
       end
 *.....................................................................
       subroutine bas_input_body(basis, osegment, oIs_rel, oHas_Star)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "inp.fh"
@@ -312,6 +321,7 @@ c
 #include "ecpso_decP.fh"
 #include "stdio.fh"
 #include "bas_starP.fh"
+#include "util.fh"
 c::passed
       integer basis             ! [input]
       logical osegment          ! [input]
@@ -378,7 +388,7 @@ c
 c     Input a new line
 c
  10   if (.not. inp_read()) call errquit
-     $     ('bas_input_body: premature EOF', 0)
+     $     ('bas_input_body: premature EOF', 0, INPUT_ERR)
 c
 c     Start parsing current line
 c
@@ -399,7 +409,8 @@ c
         star_nr_tags = star_nr_tags + 1
         star_tag(star_nr_tags) = tag
         if (star_nr_tags .gt. max_star_tag) 
-     &     call errquit('bas_input_body: max_star_tag limit',211)
+     &     call errquit('bas_input_body: max_star_tag limit',211,
+     &       INPUT_ERR)
       endif
 c
 *. . . . . . . . . . . . . . . . . . . . . . ! End of basis directive
@@ -423,7 +434,7 @@ c
         if (inp_a(rel_shell)) then
           if (.not. inp_compare(.false., 'rel', rel_shell)) call errquit
      &        ('bas_input_body: option on simple shell must be "rel"',
-     &        99)
+     &        99, INPUT_ERR)
           oshell_is_rel = .true.
         end if
       else if (
@@ -437,10 +448,11 @@ c     check for relativistic shell - this is illegal.
 c
         if (oIs_rel) call errquit
      &      ('bas_input_body: sp shell illegal with relativistic basis',
-     &      99)
+     &      99, INPUT_ERR)
         if (inp_a(rel_shell)) then
           if (inp_compare(.false., 'rel', rel_shell)) call errquit
-     &        ('bas_input_body: sp shell cannot be "rel"', 99)
+     &        ('bas_input_body: sp shell cannot be "rel"', 99,
+     &       INPUT_ERR)
           call inp_prev_field
         end if
       else
@@ -463,7 +475,8 @@ c
                  else
                    star_tot_excpt = star_tot_excpt + 1
                    if (star_tot_excpt .gt. max_star_excpt) call 
-     &                errquit('bas_input_body: max_star_excpt',211)
+     &                errquit('bas_input_body: max_star_excpt',211,
+     &       INPUT_ERR)
                    star_excpt(star_tot_excpt) = field
                    goto 24
                  endif
@@ -505,10 +518,11 @@ c
 *debug:               write(LuOut,*)' num_elec = ',num_elec
                if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
      &             call errquit
-     &             ('bas_input_body: ecp_set_num_elec failed',911)
+     &             ('bas_input_body: ecp_set_num_elec failed',911,
+     &       INPUT_ERR)
                if (oshell_is_rel) call errquit
      &             ('bas_input_body: rel keyword incompatible with ECP',
-     &             99)
+     &             99, INPUT_ERR)
 *. . . . no more input allowed on line so no goto 22 structure needed?
                goto 10
             else
@@ -577,13 +591,15 @@ c
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
      $       ' end so')
-      call errquit('bas_input_body: format error in the input', 0)
+      call errquit('bas_input_body: format error in the input', 0,
+     &       INPUT_ERR)
 c
       end
 *.....................................................................
       subroutine bas_input_cont(basis, osegment, tag, l_value, stdtag,
      &    oshell_is_rel)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
@@ -592,6 +608,7 @@ c
 #include "geom.fh"
 #include "inp.fh"
 #include "ecpso_decP.fh"
+#include "util.fh"
 c::functions
       logical bas_add_ucnt
       external bas_add_ucnt
@@ -641,11 +658,12 @@ c
       if (ngen .gt. cont_max) then
         errmsg = 'bas_input_cont: '//
      &        'too many contractions - increase cont_max='
-        call errquit(errmsg,cont_max)
+        call errquit(errmsg,cont_max, INPUT_ERR)
       endif
       if (o_basis.and.(l_value.eq.-1 .and. ngen.ne.2))
      &    call errquit
-     &    ('bas_input_cont: sp shell requires exactly 2 coeffs',ngen)
+     &    ('bas_input_cont: sp shell requires exactly 2 coeffs',ngen,
+     &       INPUT_ERR)
 c
       do iprim = 1, (prim_max+1)
 c
@@ -664,7 +682,8 @@ c
         else if (iprim.gt.prim_max) then
           continue  ! drop out of loop without any assignment
         else if (expnt(iprim) .le. 0.0d0) then
-          call errquit('bas_input_cont: invalid exponent', 0)
+          call errquit('bas_input_cont: invalid exponent', 0,
+     &       INPUT_ERR)
         else
           if (oIs_ecp.or.oIs_so) then
             ostat_field = (inp_n_field() - 2) .ne. ngen
@@ -692,10 +711,10 @@ c
       enddo
       call errquit
      &    ('bas_input_cont: too many primitives in contraction',
-     $     prim_max)
+     $     prim_max, BASIS_ERR)
  30   nprim = iprim-1
       if (nprim .le. 0) call errquit('bas_input_cont: no primitives?',
-     $     nprim)
+     $     nprim, BASIS_ERR)
 c check to make sure any contraction is not all zero's
 c
 c
@@ -739,7 +758,7 @@ c     simple shell or all ecp/so shells
      &                  'an r-exponent of',rex(j)
                     call errquit
      &                 ('*ERR* bas_input_cont: Fatal r-exponent error',
-     &                 911)
+     &                 911, BASIS_ERR)
                   endif
                 endif
               endif
@@ -770,7 +789,7 @@ c
      &      stdtag, oshell_is_rel)
       endif
       if (.not. status) call errquit
-     $        ('bas_input_cont: bas_add_ucnt failed!!', 0)
+     $        ('bas_input_cont: bas_add_ucnt failed!!', 0, BASIS_ERR)
 c
       return
 c
@@ -780,7 +799,8 @@ c
      $       '           <exponent> <contraction coefficients>',/,
      $       '           ... ',/,
      $       ' end basis/ecp')
-      call errquit('bas_input_cont: format error in the input', 0)
+      call errquit('bas_input_cont: format error in the input', 0,
+     &       INPUT_ERR)
 10100 format(/,' **** WARNING Zero Coefficient **** on atom "', a16,
      &    '"',/,' angular momentum value:',i2,
      &    '  standard basis set name: "',a,'"',/,
@@ -791,6 +811,7 @@ c
       subroutine bas_tag_lib(basis, osegment, tag, tag_in_lib, 
      $     standard, filename, oshell_is_rel)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "basdeclsP.fh"
 #include "nwc_const.fh"
@@ -799,6 +820,7 @@ c
 #include "inp.fh"
 #include "ecpso_decP.fh"
 #include "stdio.fh"
+#include "util.fh"
       integer basis             ! [input] basis handle
       logical osegment          ! [input] segment if true
       character*16 tag          ! [input] tag
@@ -850,7 +872,7 @@ c      or form 'ecp <symbol>_<basis name>'
 c
       if (.not. geom_tag_to_element(tag_in_lib, symbol, element, atn))
      $     call errquit
-     &    ('bas_tag_lib: tag does not refer to an atom', 0)
+     &    ('bas_tag_lib: tag does not refer to an atom', 0, INPUT_ERR)
 
       string = symbol
       lenn = inp_strlen(string)
@@ -905,7 +927,8 @@ c
              write(LuOut,32) filestring
  32          format(' Attempting to read a basis set from a ',
      &              ' non-existing file:'/' ',A)
-             call errquit('bas_tag_lib: failed opening basis file',0)
+             call errquit('bas_tag_lib: failed opening basis file',0,
+     &       BASIS_ERR)
           endif
       endif
 c
@@ -936,7 +959,8 @@ c
  35   call inp_restore_state    ! Failure ... restore unit 5 and abort
       call inp_clear_err
       write(LuOut,*) ' bas_tag_lib: failed to locate ', string
-      call errquit('bas_tag_lib: no such basis available', 0)
+      call errquit('bas_tag_lib: no such basis available', 0,
+     &       INPUT_ERR)
 c
  34   continue                  ! success
 c
@@ -944,7 +968,7 @@ c     Now read the basis for this magical atom type in using
 c     the given tag
 c
  10   if (.not. inp_read()) call errquit
-     $     ('bas_tag_lib: premature EOF', 0)
+     $     ('bas_tag_lib: premature EOF', 0, INPUT_ERR)
 c     
 c     Start parsing current line
 c     
@@ -956,10 +980,11 @@ c
          if (.not.inp_i(num_elec)) goto 10000
          if (.not.ecp_set_num_elec(basis,tag,num_elec,'unknown'))
      &       call errquit
-     &       ('bas_tag_lib: ecp_set_num_elec failed',911)
+     &       ('bas_tag_lib: ecp_set_num_elec failed',911, BASIS_ERR)
          if (.not.inp_read())
      &       call errquit
-     &       ('bas_tag_lib: premature end of input in library',911)
+     &       ('bas_tag_lib: premature end of input in library',911,
+     &       BASIS_ERR)
          goto 20
       else
          call inp_prev_field()
@@ -979,9 +1004,9 @@ c
          l_value = spvalues(ind)
          if (oshell_is_rel) call errquit(
      &       'bas_tag_lib: sp shell illegal with relativistic basis',
-     &       99)
+     &       99, INPUT_ERR)
       else
-         call errquit('bas_tag_lib: invalid shell type?', 0)
+         call errquit('bas_tag_lib: invalid shell type?', 0, INPUT_ERR)
       endif
 c
 c     Have tag and l_value ... read in the contraction coeffcients
@@ -997,14 +1022,18 @@ c
 c
  1000 write(LuOut,*) ' bas_tag_lib: looking for ', tag_in_lib, standard,
      $     filename
-      call errquit('bas_tag_lib: failed to open basis library', 0)
+      call errquit('bas_tag_lib: failed to open basis library', 0,
+     &       BASIS_ERR)
 c
-10000 call errquit('bas_tag_lib: problem with library format?', 0)
+10000 call errquit('bas_tag_lib: problem with library format?', 0,
+     &       BASIS_ERR)
 c
       end
       subroutine bas_check_contractions(np,ng,ldc,cc,ee)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
+#include "util.fh"
       integer np  ! [input] number of primatives
       integer ng  ! [input] number of general contractions
       integer ldc ! [input] leading dimension of cc
@@ -1037,13 +1066,16 @@ c
       do ip = 1,np
         write(luout,10000)ee(ip),(cc(ip,ig),ig=1,ng)
       enddo
-      call errquit('bas_check_contractions: fatal error',911)
+      call errquit('bas_check_contractions: fatal error',911,
+     &       BASIS_ERR)
 10000 format(10(1pd14.6))
       end
       subroutine bas_library_file(libname)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
+#include "util.fh"
 *passed
       character*(*) libname ! [output] filename for library file
 *local
@@ -1133,7 +1165,8 @@ c
           unitrc = unitrc + 1
           if (unitrc.gt.80) then
             write(luout,*)' could not find a free unit 69->80'
-            call errquit('bas_input: no free units for library',911)
+            call errquit('bas_input: no free units for library',911,
+     &       BASIS_ERR)
           endif
           is_it_open = .false.
           inquire(unit=unitrc,opened=is_it_open)
@@ -1151,13 +1184,16 @@ c
             if (inp_eof()) then
               goto 99998
             else
-              call errquit('fatal parsing error in nwchemrc file',911)
+              call errquit('fatal parsing error in nwchemrc file',911,
+     &       INPUT_ERR)
             endif
           endif
-          if (.not.inp_a(test)) call errquit('inp_a error 1',911)
+          if (.not.inp_a(test)) call errquit('inp_a error 1',911,
+     &       UNKNOWN_ERR)
           foundit = inp_compare(.false.,test,'nwchem_basis_library')
           if (foundit) then
-            if (.not.inp_a(test)) call errquit('inp_a error 2',911)
+            if (.not.inp_a(test)) call errquit('inp_a error 2',911,
+     &       UNKNOWN_ERR)
             libname = test
             length = inp_strlen(libname)
             does_it_exist = .false.
@@ -1228,6 +1264,7 @@ c
 *.....................................................................
       subroutine bas_ecce_print_basis(basisin,module_id)
       implicit none
+#include "errquit.fh"
 #include "basdeclsP.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -1236,6 +1273,7 @@ c
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "stdio.fh"
+#include "util.fh"
       logical ecp_get_num_elec
       external ecp_get_num_elec
       logical is_ecce_print_on
@@ -1309,14 +1347,16 @@ c
           write(luout,*)' computed number  : ',(lcont-fcont+1)
           write(luout,*)' stored number    : ',ncont
           call errquit(
-     &        'bas_ecce_print_basis: fatal error:ncont',911)
+     &        'bas_ecce_print_basis: fatal error:ncont',911,
+     &       BASIS_ERR)
           
         endif
         mytag = bs_tags(itag,basis)
         if (oIs_ecp) then
           if (.not.ecp_get_num_elec(basisin,mytag,nelec))
      &        call errquit(
-     &        'bas_ecce_print_basis: fatal error:nelec',911)
+     &        'bas_ecce_print_basis: fatal error:nelec',911,
+     &       BASIS_ERR)
           if (nelec.gt.0) then
              myline = ' '
              write(myline,10000)mytag,nelec
@@ -1345,7 +1385,8 @@ c
             stype = 'i'
           else
             call errquit(
-     &        'bas_ecce_print_basis: fatal error:stype',911)
+     &        'bas_ecce_print_basis: fatal error:stype',911,
+     &       BASIS_ERR)
           endif
           myline = ' '
           write(myline,10001)mytag,stype

@@ -1,8 +1,9 @@
       logical function raktask_fullsc(rtdb)
 *
-* $Id: rak29.F,v 1.7 1999-06-22 01:05:47 d3e129 Exp $
+* $Id: rak29.F,v 1.8 2003-10-17 22:54:39 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -30,28 +31,28 @@ c
       call rak_hondomapnwchem()
 c
       if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('geom create failed',911)
+     &    ('geom create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('geom_rtdb_load failed',911)
+     &    ('geom_rtdb_load failed',911, RTDB_ERR)
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &    ('bas_create failed',911)
+     &    ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
-     &    ('bas_rtdb_load failed',911)
+     &    ('bas_rtdb_load failed',911, RTDB_ERR)
 c
       write(luout,*)' geom/basis loaded'
       if (.not. bas_print(basis))
-     $    call errquit(' basis print failed', 0)
+     $    call errquit(' basis print failed', 0, BASIS_ERR)
       call util_flush(luout)
 c
 * note byproduct of resetting ncart and nsph with each call
       call spcart_get_full_cs('n',ma_hp,ncart,nsph,
      &    .true.,.false.,basis)
       if (.not.ma_get_index(ma_hp,ma_kp))
-     &    call errquit('rak29: ma get index failed',911)
+     &    call errquit('rak29: ma get index failed',911, MA_ERR)
       if (.not.ma_alloc_get(mt_dbl,(ncart*ncart),
      &    'product difference  matrix',ma_hdiff,ma_kdiff))
-     &    call errquit('rak29: ma alloc failed ',911)
+     &    call errquit('rak29: ma alloc failed ',911, MA_ERR)
       call dfill((ncart*ncart),0.0d00,dbl_mb(ma_kdiff),1)
 *-ga test
       call spcart_get_full_cs('n',ga_hp,ncart,nsph,
@@ -66,7 +67,7 @@ c
       call spcart_get_full_cs('t',ma_hptrans,ncart,nsph,
      &    .true.,.false.,basis)
       if (.not.ma_get_index(ma_hptrans,ma_kptrans))
-     &    call errquit('rak29: ma get index failed',911)
+     &    call errquit('rak29: ma get index failed',911, MA_ERR)
 *-ga test
       call spcart_get_full_cs('t',ga_hp,ncart,nsph,
      &    .false.,.true.,basis)
@@ -81,7 +82,7 @@ c
       call spcart_get_full_cs('i',ma_hpinv,ncart,nsph,
      &    .true.,.false.,basis)
       if (.not.ma_get_index(ma_hpinv,ma_kpinv))
-     &    call errquit('rak29: ma get index failed',911)
+     &    call errquit('rak29: ma get index failed',911, MA_ERR)
 *-ga test
       call spcart_get_full_cs('i',ga_hp,ncart,nsph,
      &    .false.,.true.,basis)
@@ -95,10 +96,10 @@ c
 *
       if (.not.ma_alloc_get(mt_dbl,(ncart*ncart),
      &    'product cart,sph*sph,cart matrix',ma_hpp,ma_kpp))
-     &    call errquit('rak29: ma alloc failed ',911)
+     &    call errquit('rak29: ma alloc failed ',911, MA_ERR)
       if (.not.ma_alloc_get(mt_dbl,(ncart*ncart),
      &    'second product cart,sph*sph,cart matrix',ma_hpp2,ma_kpp2))
-     &    call errquit('rak29: ma alloc failed ',911)
+     &    call errquit('rak29: ma alloc failed ',911, MA_ERR)
 c
       call dfill((ncart*ncart),0.0d00,dbl_mb(ma_kpp),1)
       call dfill((ncart*ncart),0.0d00,dbl_mb(ma_kpp2),1)

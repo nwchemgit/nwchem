@@ -3,9 +3,10 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.13 2003-02-04 02:33:29 edo Exp $
+c     $Id: dft_canorg.F,v 1.14 2003-10-17 22:55:44 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 c
       double precision svals(*) !  S evals [input]
       integer g_svecs ! GA handle for S evecs [input]
@@ -26,7 +27,7 @@ c
       
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
-     &   call errquit('diis_bld12: failed to alloc tmpm',0)
+     &   call errquit('diis_bld12: failed to alloc tmpm',0, MA_ERR)
 c     
 c        Build Xij
 c     
@@ -39,7 +40,7 @@ c
          call put_col(g_xij, nbf_ao, i, DBL_MB(itmpm))
       enddo
       if(.not.MA_Pop_Stack(ltmpm)) call errquit(
-     .     'failed popstack in dftcanorg ',0)
+     .     'failed popstack in dftcanorg ',0, MA_ERR)
 c     
       return
       end
@@ -84,6 +85,7 @@ c
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
      ,     toll_s,svals)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "stdio.fh"
@@ -116,11 +118,11 @@ c
       if(nmo_out.ne.nbf_ao) then
          if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
      &        nbf_ao, 0, g_gmovecs(1))) 
-     .        call errquit(' dftscf: ga_create failed ',0)
+     .        call errquit(' dftscf: ga_create failed ',0, GA_ERR)
          if(ipol.eq.2) then
             if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'gvecs', 
      &           nbf_ao, 0, g_gmovecs(2))) 
-     .           call errquit(' dftscf: ga_create failed ',0)
+     .           call errquit(' dftscf: ga_create failed ',0, GA_ERR)
          endif
          call ga_copy(g_movecs(1),g_gmovecs(1))
          if(ipol.eq.2)
@@ -137,6 +139,7 @@ c
       end
       subroutine dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
       integer nmo(2),nbf_ao,g_gmovecs(2),g_movecs(2),ipol
 c
@@ -146,7 +149,7 @@ c
      .        1, nmo(1),
      ,        g_movecs(1), 1,nbf_ao,1,nmo(1))
       if (.not. ga_destroy(g_gmovecs(1))) call errquit
-     &     ('dft_scf: could not destroy g_denso', 0)
+     &     ('dft_scf: could not destroy g_denso', 0, GA_ERR)
          if(ipol.eq.2) then
             nmo(2)=nmo(1)
             call ga_zero(g_movecs(2))
@@ -154,13 +157,14 @@ c
      .           1, nmo(2),
      ,           g_movecs(2), 1,nbf_ao,1,nmo(2))
          if (.not. ga_destroy(g_gmovecs(2))) call errquit
-     &        ('dft_scf: could not destroy g_denso', 0)
+     &        ('dft_scf: could not destroy g_denso', 0, GA_ERR)
          endif
       endif
       return
       end
       subroutine util_tolls(rtdb,oprint,toll_s,n_dep,svals,nbf)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -209,7 +213,7 @@ c     this to keep sodft happy
 c
        if (.not. rtdb_put(rtdb, 'dft:toll_s', MT_DBL, 1,
      .      toll_s)) call errquit(
-     .      'utiltools: rtdbput failed',0)
+     .      'utiltools: rtdbput failed',0, RTDB_ERR)
 
        if(oprint) then
           write(luout,*) ' lindep tolerance = ',toll_s

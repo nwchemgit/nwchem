@@ -1,6 +1,7 @@
-c $Id: et_input.F,v 1.8 2003-04-10 16:55:08 d3k958 Exp $
+c $Id: et_input.F,v 1.9 2003-10-17 22:54:54 carlfahl Exp $
       subroutine et_input(rtdb)
       implicit none
+#include "errquit.fh"
 c
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -11,10 +12,12 @@ c
       character*255 test
       double precision tol2e
 c
- 100  if (.not. inp_read()) call errquit('et_input: inp_read failed',0)
+ 100  if (.not. inp_read()) call errquit('et_input: inp_read failed',0,
+     &       INPUT_ERR)
 c
        if (.not. inp_a(test))
-     $     call errquit('scf_input: failed to read keyword', 0)
+     $     call errquit('scf_input: failed to read keyword', 0,
+     &       INPUT_ERR)
 c     
 c     print level is read
 c     -------------------
@@ -34,9 +37,10 @@ c     screening tolerances are read
 c     -----------------------------
       else if (inp_compare(.false.,'tol2e', test)) then
          if (.not. inp_f(tol2e)) call errquit
-     $        ('et_input: tol2e <thresh>',0)
+     $        ('et_input: tol2e <thresh>',0, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'et:tol2e', MT_DBL, 1, tol2e))
-     $        call errquit('et_input: rtdb_put of tol2e failed',0)
+     $        call errquit('et_input: rtdb_put of tol2e failed',0,
+     &       RTDB_ERR)
 c 
       goto 100
 c
@@ -45,7 +49,8 @@ c     ---------------------------
       else if (inp_compare(.false.,'fock', test)) then
         method_2e = 1
          if (.not. rtdb_put(rtdb,'et:method_2e', MT_INT, 1, method_2e))
-     $        call errquit('et_input: rtdb_put of method_2e failed',0)
+     $        call errquit('et_input: rtdb_put of method_2e failed',0,
+     &       RTDB_ERR)
 c
       goto 100
 c
@@ -53,7 +58,8 @@ c
         method_2e = 2
 c
          if (.not. rtdb_put(rtdb,'et:method_2e', MT_INT, 1, method_2e))
-     $        call errquit('et_input: rtdb_put of method_2e failed',0)
+     $        call errquit('et_input: rtdb_put of method_2e failed',0,
+     &       RTDB_ERR)
 c
       goto 100
 c

@@ -1,7 +1,7 @@
       subroutine tddft_memory(rtdb,nroots,maxvecs,maxiter,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,nov,tda,algorithm)
 c
-c $Id: tddft_memory.F,v 1.6 2002-06-21 22:49:06 sohirata Exp $
+c $Id: tddft_memory.F,v 1.7 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Itemize all the outstanding memory usage and determine
 c how many trial and product vectors we can handle with the
@@ -9,6 +9,7 @@ c available memory and alter maxvecs if necessary.
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -150,7 +151,7 @@ c algorithm decision
      2      write(LuOut,9140) 'Disk-based single tensor contraction' 
         else
           call errquit
-     1    ('tddft_memory: no algorithm for the memory size',0)
+     1    ('tddft_memory: no algorithm for the memory size',0, MEM_ERR)
         endif
       endif
  9140 format(3x,'       Algorithm : ',a)
@@ -217,14 +218,14 @@ c
 c Check GA and MA remaining space at this point
 c
       if (n.gt.ma_dble) call errquit
-     1  ('tddft_memory: MA space too small',int(ma_dble))
+     1  ('tddft_memory: MA space too small',int(ma_dble), MA_ERR)
       if (ga_uses_ma()) then
         ga_dble=ga_dble-m-n
       else
         ga_dble=ga_dble-m
       endif
       if (ga_dble.le.0.0d0) call errquit
-     1  ('tddft_memory: GA space too small',int(ga_dble))
+     1  ('tddft_memory: GA space too small',int(ga_dble), GA_ERR)
 c
 c Compute GA usage per trial vector
 c
@@ -251,7 +252,8 @@ c
      1      print_default)) write(LuOut,9110) maxvecs,k
           maxvecs=k
           if (.not.rtdb_put(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
-     1      call errquit('tddft_memory: failed writing to rtdb',0)
+     1      call errquit('tddft_memory: failed writing to rtdb',0,
+     &       RTDB_ERR)
         endif
         m=m+dfloat(maxvecs*j)
 c
@@ -266,11 +268,12 @@ c
      1      print_default)) write(LuOut,9110) maxvecs,k
           maxvecs=k
           if (.not.rtdb_put(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
-     1      call errquit('tddft_memory: failed writing to rtdb',0)
+     1      call errquit('tddft_memory: failed writing to rtdb',0,
+     &       RTDB_ERR)
         endif
       endif
       if (maxvecs.lt.nroots) call errquit
-     1  ('Too small a subspace',maxvecs)
+     1  ('Too small a subspace',maxvecs, MEM_ERR)
  9110 format(10x,'Max subspace size reduced from  ',i8,' to ',i8)
 c
 c ----------------------------

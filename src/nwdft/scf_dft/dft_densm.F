@@ -4,8 +4,9 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.37 2003-07-03 01:58:51 edo Exp $
+C$Id: dft_densm.F,v 1.38 2003-10-17 22:55:44 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -77,7 +78,7 @@ c
          if (odftps) call pstat_off(ps_dgemm)
       else	
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &        call errquit('dftdensm: failed to alloc tmpm',nbf)
+     &        call errquit('dftdensm: failed to alloc tmpm',nbf, MA_ERR)
 c
 c     initialize ef
 c
@@ -135,9 +136,9 @@ c
      $           g_vecs(isp), zero, g_dens(isp))
          enddo                  ! end of loop over spins
          if (.not.ma_pop_stack(ltmpm))
-     &        call errquit('dft_densm: cannot pop stack',0)
+     &        call errquit('dft_densm: cannot pop stack',0, MA_ERR)
            if (.not. ga_destroy(g_tmp)) call errquit
-     &          ('dft_densm: could not destroy g_tmp', 0)
+     &          ('dft_densm: could not destroy g_tmp', 0, GA_ERR)
 c     
 c     compute entropy correction to total e
 c     
@@ -177,6 +178,7 @@ C 1723       format(' Foccs ',(
       subroutine dft_zero(ipol,nbf,nmo,
      ,     ntotel,efermi,evals,ssmear,toll)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "msgids.fh"
 #include "stdio.fh"
@@ -226,7 +228,8 @@ C      if(abs(fmed).lt.toll) goto
      ,        efermi,emax,emin
          if(ga_nodeid().eq.0) write(0,*) ' fmed fmax fmin ',
      ,        fmed,fmax,fmin
-       call errquit('dft_zero: extrema:too many attempts',mx_attem)     
+       call errquit('dft_zero: extrema:too many attempts',mx_attem,
+     &       CALC_ERR)
       endif
          step=step+step
          goto 11
@@ -326,6 +329,7 @@ C      write(0,*) ' ==============='
       subroutine dft_focdm(focc,noc,geom,AO_bas_han,nbf,
      *     g_vecs,g_dens,toll)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "global.fh"
@@ -344,7 +348,7 @@ c
          nproc = ga_nnodes()
          nocold=noc
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &        call errquit('dftdensm: failed to alloc tmpm',0)
+     &        call errquit('dftdensm: failed to alloc tmpm',0, MA_ERR)
          g_tmp = 
      =        ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
          call ga_zero(g_tmp)
@@ -362,9 +366,9 @@ c
             call ga_dgemm('n', 't', nbf, nbf, noc,1.d0,g_tmp,
      $           g_vecs, zero, g_dens)
          if (.not.ma_pop_stack(ltmpm))
-     &        call errquit('dft_densm: cannot pop stack',0)
+     &        call errquit('dft_densm: cannot pop stack',0, MA_ERR)
          if (.not. ga_destroy(g_tmp)) call errquit
-     &        ('dft_densm: could not destroy g_tmp', 0)
+     &        ('dft_densm: could not destroy g_tmp', 0, GA_ERR)
 c
 c        reset noc for future calls
 c

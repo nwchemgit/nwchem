@@ -18,6 +18,7 @@ c     if they are not being used at the given level of theory.
 c     The addresses will be valid but DON'T write to them.
 c
       implicit none
+#include "errquit.fh"
 #include "global.fh"
       logical omp2,ouhf,orohf
       integer g_dens(*), blen, 
@@ -105,7 +106,7 @@ c
      $           ogetij, ogetik, ogetjk,
      $           g_dens)
          else if (orohf) then
-            call errquit('no ROMP2 gradients yet', 0)
+            call errquit('no ROMP2 gradients yet', 0, CAPMIS_ERR)
          else                   ! rmp2
             call grad_get_dens_rmp2(d_ij, d_kl, d_ik, 
      $           d_jl, d_il, d_jk,
@@ -125,7 +126,7 @@ c
      $           ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
      $           ogetij, ogetik, ogetjk,
      $           g_dens)
-c$Id: grad_getdens.F,v 1.5 2000-05-24 22:29:10 zzhang Exp $
+c$Id: grad_getdens.F,v 1.6 2003-10-17 22:55:09 carlfahl Exp $
 C
 C     get blocks from density matrix and make sure no block is
 C     transferred twice

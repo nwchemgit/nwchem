@@ -1,6 +1,7 @@
       subroutine rohf_scat(rtdb, g_vecs, g_scatmo, g_borb,
      &     obbtrn,hbbtrnd)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -108,24 +109,25 @@ c
       call scf_init(rtdb)
       call rohf_init(rtdb)
       if (.not.int_normalize(rtdb,basis))
-     $     call errquit('rohf_scat:int_normalize failed', 0)
+     $     call errquit('rohf_scat:int_normalize failed', 0, INT_ERR)
       if (crohf_init_flag.ne.1)
-     $     call errquit('rohf_scat: ROHF internal block invalid',0)
+     $     call errquit('rohf_scat: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
 c     
       if (.not. bas_create(all_bas_han, 'all'))
-     &     call errquit('rohf_scat: bas_create?', 86)
+     &     call errquit('rohf_scat: bas_create?', 86, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, all_bas_han, 'all'))
-     &     call errquit('rohf_scat: no cckohn basis ', 86)     
+     &     call errquit('rohf_scat: no cckohn basis ', 86, BASIS_ERR)
       if (.not. bas_numbf(all_bas_han, nbf_all))
-     &   call errquit('rohf_scat: basis set error:', 86)
+     &   call errquit('rohf_scat: basis set error:', 86, BASIS_ERR)
       nscat = nbf_all - nbf
       if(.not.bas_print(all_bas_han))
-     &     call errquit('cant print basis in rohf_sct', 1)
+     &     call errquit('cant print basis in rohf_sct', 1, BASIS_ERR)
       if (.not. int_normalize(rtdb,all_bas_han))
-     &     call errquit('rohf_scat: int_normalize failed', 86)
+     &     call errquit('rohf_scat: int_normalize failed', 86, INT_ERR)
       call int_init(rtdb,1,all_bas_han)
       if(.not.bas_print(all_bas_han))
-     &     call errquit('cant print basis in rohf_sct', 1)
+     &     call errquit('cant print basis in rohf_sct', 1, BASIS_ERR)
       call schwarz_init(geom, all_bas_han)
 c     
 c     Read the converged scf movecs
@@ -133,42 +135,45 @@ c
       g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
       if (.not. movecs_read_header(movecs_out, title_vecs,
      $     basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
-     $     call errquit('rohf_scat: cannot read MO vectors header',0)
+     $     call errquit('rohf_scat: cannot read MO vectors header',0,
+     &       UNKNOWN_ERR)
       status = MA_push_get(MT_DBL, nbf_all, 'Evals', l_evals, k_evals)
       status = ma_push_get(MT_DBL, nbf_all, 'MO occ', l_occ, k_occ)
       call dfill(nbf_all    , 0.0d0, dbl_mb(k_occ), 1)
       if (.not. movecs_read(movecs_out, 1, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_vecs)) call
-     $     errquit('rohf_scat: cannot read MO vectors',0)
+     $     errquit('rohf_scat: cannot read MO vectors',0,
+     &       UNKNOWN_ERR)
 c
       call ga_orthog_mos(basis, g_vecs)
 c
       if (.not. bas_numbf(basis, nbf))
-     $     call errquit('rohf_scat: bas_numbf failed',0)
+     $     call errquit('rohf_scat: bas_numbf failed',0, BASIS_ERR)
 c     
 c     Project the mo's to the whole orbital space
 c
       if(.not.ga_create(MT_DBL, nbf_all, nbf_all, 'Total MO',
      &     nbf_all, 0, g_all))
-     &     call errquit('rohf_scat: cant create g_all', nbf_all)
+     &     call errquit('rohf_scat: cant create g_all', nbf_all, GA_ERR)
       if(.not.ga_create(MT_DBL,nbf_all,nscat,'rohf:tran',
      &     nbf_all,0,g_tran))
-     &     call errquit('can not create transformation matrix',0)
+     &     call errquit('can not create transformation matrix',0,
+     &       GA_ERR)
       if(.not.ga_create(MT_DBL,nbf_all,nscat,'rohf:tmp',
      &     nbf_all,0,g_tmp))
-     &     call errquit('can not create tmp matrix',0)
+     &     call errquit('can not create tmp matrix',0, GA_ERR)
       if(.not.ga_create(MT_DBL,nscat,nscat,'rohf:tmp scat',
      &     nscat,0,g_tmpscat))
-     &     call errquit('can not create scat tmp matrix',0)
+     &     call errquit('can not create scat tmp matrix',0, GA_ERR)
       if(.not.ga_create(MT_DBL,nscat,nscat,'rohf:scat',
      &     nscat,0,g_scat))
-     &     call errquit('can not create scat matrix',0)
+     &     call errquit('can not create scat matrix',0, GA_ERR)
       if(.not.ga_create(MT_DBL,nbf_all,nscat,'cckohn:scatmo',
      &     nbf_all,0,g_scatmo))
-     &     call errquit('can not create scatmo matrix',0)
+     &     call errquit('can not create scatmo matrix',0, GA_ERR)
       if(.not.ga_create(MT_DBL,nscat,nscat,'rohf:over',
      &     nscat,0,g_over))
-     &     call errquit('can not create overlap matrix',0)
+     &     call errquit('can not create overlap matrix',0, GA_ERR)
       call ga_zero(g_all)
       call ga_zero(g_tran)
       call ga_zero(g_tmp)
@@ -183,16 +188,18 @@ c
       nsc_orb(1)=9
       if(.not.ga_create(MT_DBL,nbf_all,nclosed+nsc_orb(1),
      &     'rohf:g_borb',nbf_all,0,g_borb))
-     &     call errquit('can not create bound orbital matrix',0)
+     &     call errquit('can not create bound orbital matrix',0, GA_ERR)
       if(.not.ga_create(MT_DBL,nbf_all,nsc_orb(1),
      &     'rohf:g_tmpfock',nbf_all,0,g_tmpfock))
-     &     call errquit('can not create tmp fock matrix',0)
+     &     call errquit('can not create tmp fock matrix',0, GA_ERR)
       if(.not.ga_create(MT_DBL,nbf_all,nsc_orb(1),
      &     'rohf:g_tr',nbf_all,0,g_tr))
-     &     call errquit('can not create transformation matrix',0)
+     &     call errquit('can not create transformation matrix',0,
+     &       GA_ERR)
       if(.not.ga_create(MT_DBL,nsc_orb(1),nsc_orb(1),
      &     'rohf:g_tr',nsc_orb(1),0,g_bvb))
-     &     call errquit('can not create transformation matrix',0)
+     &     call errquit('can not create transformation matrix',0,
+     &       GA_ERR)
       call ga_zero(g_borb)
       call ga_zero(g_tmpfock)
       call ga_zero(g_tr)
@@ -211,23 +218,25 @@ c     Projected the scf orbitals to the full space. The scattering
 c     orbitals are initilized with random numbers.
 c
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('rohf_scat: geom_ncent ?', 0)
+     $     ('rohf_scat: geom_ncent ?', 0, GEOM_ERR)
 c
       if (.not. ma_push_get(mt_dbl, nbf_all, 'diag elements',
      $     l_ran, k_ran)) call errquit
-     $     ('rohf_scat: ma diag elements', nbf_all)
+     $     ('rohf_scat: ma diag elements', nbf_all, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'vecs',
      $     l_vec, k_vec)) call errquit
-     $     ('rohf_scat: vecs', nbf)
+     $     ('rohf_scat: vecs', nbf, MA_ERR)
       do i=1+ga_nodeid(),nbf,ga_nnodes()
          call dfill(nbf_all, 0.0d0, dbl_mb(k_ran), 1)
          call dfill(nbf    , 0.0d0, dbl_mb(k_vec), 1)
          call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_vec), 1)
          do iat = 1, natoms
             if (.not. bas_ce2bfr(basis, iat, ilo, ihi)) 
-     &           call errquit('rohf_scat: bas_ce2bfr basis?', 0)
+     &           call errquit('rohf_scat: bas_ce2bfr basis?', 0,
+     &       BASIS_ERR)
             if (.not. bas_ce2bfr(all_bas_han, iat, jlo, jhi)) 
-     &           call errquit('rohf_scat: bas_ce2bfr all_bas_han?', 0)
+     &           call errquit('rohf_scat: bas_ce2bfr all_bas_han?', 0,
+     &       BASIS_ERR)
             if(ihi-ilo+1.gt.0)then
                do j = 0, ihi-ilo
                   dbl_mb(k_ran+jlo+j-1)=dbl_mb(k_vec+ilo+j-1)
@@ -250,9 +259,9 @@ c
          call ga_put(g_all, 1, nbf_all, i, i, dbl_mb(k_ran), 1)
       end do
       if (.not. ma_pop_stack(l_vec)) call errquit
-     $     ('rohf_scat: ma pop l_vec?', 0)
+     $     ('rohf_scat: ma pop l_vec?', 0, MA_ERR)
       if (.not. ma_pop_stack(l_ran)) call errquit
-     $     ('rohf_scat: ma pop l_ran?', 0)
+     $     ('rohf_scat: ma pop l_ran?', 0, MA_ERR)
 c
       call ga_orthog_mos(all_bas_han, g_all)
 c
@@ -305,7 +314,8 @@ c
          if (errmax .gt. sym_tol) then
             write(6,*) ' Symmetry error ', errmax
             call  errquit
-     $           ('rohf_fock:closed density is not totally symmetric',0)
+     $           ('rohf_fock:closed density is not totally symmetric',0,
+     &       UNKNOWN_ERR)
          endif
          if (nopen .gt. 0) then
             call ga_copy(g_odens, g_hcore)
@@ -317,7 +327,8 @@ c
             if (errmax .gt. sym_tol) then
                write(6,*) ' Symmetry error ', errmax
                call errquit
-     $              ('rohf_fock:open density not totally symmetric',0)
+     $              ('rohf_fock:open density not totally symmetric',0,
+     &       UNKNOWN_ERR)
             endif
          endif
       endif
@@ -327,14 +338,14 @@ c
       call ga_zero(g_over)
       if (.not. ma_push_get(mt_dbl, nscat, 'diag elements',
      $     l_ran, k_ran)) call errquit
-     $     ('rohf_scat: ma diag elements', nbf_all)
+     $     ('rohf_scat: ma diag elements', nbf_all, MA_ERR)
       do i = 1+ga_nodeid(), nscat, ga_nnodes()
          call dfill(nscat, 0.0d0, dbl_mb(k_ran), 1)
          dbl_mb(k_ran+i-1)=1.0
          call ga_put(g_over, 1, nscat, i, i, dbl_mb(k_ran), 1)
       end do
       if (.not. ma_pop_stack(l_ran)) call errquit
-     $     ('rohf_scat: ma pop?', 0)
+     $     ('rohf_scat: ma pop?', 0, MA_ERR)
 c
 c     One-electron integrals and energies
 c     
@@ -383,12 +394,12 @@ c
          call ga_print(g_all)
       endif
       if (.not. ma_push_get(mt_int, nbf_all, 'irreps',
-     $     l_irs, k_irs)) call errquit('crap',0)
+     $     l_irs, k_irs)) call errquit('crap',0, MA_ERR)
       if(oskel)         
      &     call scf_movecs_sym_adapt(all_bas_han, g_all, .true.,
      &     nbf_all, '- final', .true., int_mb(k_irs))
       if (.not. ma_pop_stack(l_irs)) call errquit
-     $     ('rohf_scat: ma pop?', 0)
+     $     ('rohf_scat: ma pop?', 0, MA_ERR)
       write(*,*)"final movecs vectors used"
       call ga_print(g_all)
 c
@@ -423,7 +434,7 @@ c
       swap(15)=16
       swap(16)=70
       if (.not. rtdb_put(rtdb, "kohn:swap", mt_int, nswap,swap))
-     $     call errquit('rohf_scat: put of swap?', nswap)
+     $     call errquit('rohf_scat: put of swap?', nswap, RTDB_ERR)
       if(ga_nodeid().eq.0)then
          write(*,*)"eigenvalues before swap"
          write(*,"(6f10.5)")(dbl_mb(k_evals+i-1),
@@ -451,7 +462,7 @@ c
      $     nbf_all, 1, nbf_all,
      $     dbl_mb(k_occ), nbf_all, dbl_mb(k_evals),
      $     nbf_all, g_all)) call errquit
-     $     ('rohf_scat: kohn_movecs write failed', 0)
+     $     ('rohf_scat: kohn_movecs write failed', 0, UNKNOWN_ERR)
 c     
 c     Generate two-electron closed- and open-shell Fock components
 c     
@@ -609,18 +620,18 @@ c
       endif
 c     
       if (.not. ga_destroy(g_hcore)) call errquit
-     $     ('rohf_fock: ga_destroy failed',0)
+     $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_cdens)) call errquit
-     $     ('rohf_fock: ga_destroy failed',0)
+     $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_cfock)) call errquit
-     $     ('rohf_fock: ga_destroy failed',0)
+     $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (nopen .gt. 0) then
          if (.not. ga_destroy(g_ocoul)) call errquit
-     $        ('rohf_fock: ga_destroy failed',0)
+     $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
          if (.not. ga_destroy(g_oexch)) call errquit
-     $        ('rohf_fock: ga_destroy failed',0)
+     $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
          if (.not. ga_destroy(g_odens)) call errquit
-     $        ('rohf_fock: ga_destroy failed',0)
+     $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
       endif
 c     
       end

@@ -4,7 +4,7 @@
      $     ksh, lk, ck, ek, ngk, xk,
      $     lsh, ll, cl, el, ngl, xl,
      $     jtype)
-c $Id: sinfo.F,v 1.5 1995-12-15 21:52:16 d3g681 Exp $
+c $Id: sinfo.F,v 1.6 2003-10-17 22:54:05 carlfahl Exp $
       implicit none
 c     
 c     Takes info about centers and shells, precomputes some axis
@@ -39,6 +39,7 @@ c
 #include "pgeom.fh"
 #include "ginf.fh"
 #include "picon.fh"
+#include "errquit.fh"
 c     
       double precision sixty, done, dzero, pt5, pt7, pt9, pt0001, tenm12
 c     

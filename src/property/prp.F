@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.53 2003-02-07 19:31:10 bert Exp $
+* $Id: prp.F,v 1.54 2003-10-17 22:57:58 carlfahl Exp $
 *
       SUBROUTINE HND_PROPTY(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
@@ -250,6 +250,7 @@ C
 c
       subroutine prp_cent(rtdb,geom,cm,am,c,nat)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "global.fh"
@@ -270,12 +271,14 @@ c
 c
       if (center.eq.4) then   ! arbitrary point of expansion
         if (.not. rtdb_get(rtdb, 'prop:center_val',mt_dbl,3,cm))
-     $  call errquit('prp_cent: rtdb_get center_val failed',555)
+     $  call errquit('prp_cent: rtdb_get center_val failed',555,
+     &       RTDB_ERR)
 c
 c get scale factor based on geometry UNITS keyword
 c
         if (.not. geom_get_user_scale(geom,scale))
-     $    call errquit('prp_cent: trouble getting units scale',555)
+     $    call errquit('prp_cent: trouble getting units scale',555,
+     &       GEOM_ERR)
 c
         do i = 1, 3             ! scale according to geometry units
           cm(i) = cm(i)*scale
@@ -307,7 +310,7 @@ c
 c
       elseif (center.eq.1) then   ! center of charge
         if(.not. geom_check_handle(geom, 'prp_cent'))
-     $    call errquit('prp_cent:improper geometry',555)
+     $    call errquit('prp_cent:improper geometry',555, GEOM_ERR)
         call geom_compute_values(geom)
         sum = zero
         do i = 1, ncenter(geom)
@@ -327,7 +330,7 @@ c
      &   write(6,9997) cm(1),cm(2),cm(3)
 c
       else
-        call errquit('prp_cent: improper center value',555)
+        call errquit('prp_cent: improper center value',555, INPUT_ERR)
       endif
 c
       return
@@ -343,6 +346,7 @@ c
 c
       SUBROUTINE HND_DIPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -499,7 +503,7 @@ c
       dmtemp(2) = dmy
       dmtemp(3) = dmz
       if (.not. rtdb_put(rtdb,'prop:dipval',mt_dbl,3,dmtemp))
-     &  call errquit('hnd_dipole: rtdb failed for dipval',555)
+     &  call errquit('hnd_dipole: rtdb failed for dipval',555, RTDB_ERR)
 c
       DMX=DMX*DEBYE
       DMY=DMY*DEBYE
@@ -1228,6 +1232,7 @@ C
 C
       SUBROUTINE HND_QDPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -1973,6 +1978,7 @@ C
 C
       SUBROUTINE HND_OTPOLE(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -2847,6 +2853,7 @@ C
       END
       SUBROUTINE HND_MULKEN(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -4395,6 +4402,7 @@ C
 C
       SUBROUTINE HND_ELPMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -4972,6 +4980,7 @@ C
       END
       SUBROUTINE HND_ELFMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -5455,6 +5464,7 @@ C
       END
       SUBROUTINE HND_EFGMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -6088,6 +6098,7 @@ C
       END
       SUBROUTINE HND_ELDMAP(RTDB,BASIS,GEOM)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -10977,6 +10988,7 @@ c
 c     only RHF(close shell) is considered 
 c
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -11022,7 +11034,8 @@ c
       if(.not.ma_push_get(mt_dbl,need ,
      &    'mem init:prp:hnd_get_eigens:9',
      &    i_init,init))
-     & call errquit('hnd_get_eigens, malloc of init  failed',911)
+     & call errquit('hnd_get_eigens, malloc of init  failed',911,
+     &       MA_ERR)
 c
       i00=init
       i10=i00+ num3
@@ -11068,7 +11081,7 @@ c     release memory block
 c
       if (.not.ma_pop_stack(i_init))
      & call errquit('hnd_get_eigens, ma_pop_stack of init
-     & failed',911)
+     & failed',911, MA_ERR)
 c
       return
       end
@@ -11195,6 +11208,7 @@ c
      3                      nclosed ,nopen ,nvirt ,
      4                      nclosedu,nopenu,nvirtu)
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -11241,23 +11255,24 @@ c     get information about basis set
 c
       status = geom_ncent(geom,nat)
       if ( .not.status )
-     & call errquit('dens_read: could not get natoms',0)
+     & call errquit('dens_read: could not get natoms',0, GEOM_ERR)
       status = bas_numbf(basis,nbf)
       if ( .not.status ) 
-     & call errquit('dens_read: could not get nbf',0)
+     & call errquit('dens_read: could not get nbf',0, BASIS_ERR)
       status = bas_nbf_cn_max(basis,max_sh_bf)
       if ( .not.status )
-     & call errquit('dens_read: could not get max_sh_bf',0)
+     & call errquit('dens_read: could not get max_sh_bf',0, BASIS_ERR)
       status = bas_nbf_ce_max(basis,max_at_bf)
       if ( .not.status )
-     & call errquit('dens_read: could not get max_at_bf',0)
+     & call errquit('dens_read: could not get max_at_bf',0, BASIS_ERR)
 c
 c     read vector file header
 c
       if (.not. movecs_read_header(movecs, title_molec,
      &    basis_name_molec, scftype_molec, nbf_molec,
      &    nsets_molec, nmo_molec, 2))
-     &    call errquit('dens_read: failed to read header', 911)
+     &    call errquit('dens_read: failed to read header', 911,
+     &       DISK_ERR)
       if(dbug) then
          write(6,9999)
      1     movecs
@@ -11295,16 +11310,19 @@ C     occupation numbers
       status = MA_push_get(MT_DBL, nbf2,'occ. numbers', l_occ, 
      $                                                  k_occ)
       if (.not.status) 
-     $     call errquit('property: could not allocate l_occ',911)
+     $     call errquit('property: could not allocate l_occ',911,
+     &       MA_ERR)
 C     eigenvalues
       status = MA_push_get(MT_DBL, nbf2,'MO eval', l_eval, k_eval)
       if (.not.status) 
-     $     call errquit('property: could not allocate l_eval',911)
+     $     call errquit('property: could not allocate l_eval',911,
+     &       MA_ERR)
       
       status = ga_create(MT_DBL, nbf_molec, nmo,' molec MOs',
      $                           nbf_molec, nmo,g_molec)
       if (.not.status)
-     $     call errquit('property: GA for molecular MOs',911)
+     $     call errquit('property: GA for molecular MOs',911,
+     &       GA_ERR)
 
       if(dbug) then
          write(6,*) 'in hnd_prop_dens_read'
@@ -11320,7 +11338,8 @@ c
       status = movecs_read(movecs,iset,
      $         dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
       if (.not.status)
-     $  call errquit('property: could not read molecular MOs',911)
+     $  call errquit('property: could not read molecular MOs',911,
+     &       DISK_ERR)
        
       nclosed = 0
       nopen   = 0
@@ -11345,7 +11364,8 @@ c
          status = movecs_read(movecs,iset,
      $            dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
          if (.not.status)
-     $     call errquit('property: could not read molecular MOs',911)
+     $     call errquit('property: could not read molecular MOs',911,
+     &       DISK_ERR)
 
          nclosedu= 0
          nopenu  = 0
@@ -11412,6 +11432,7 @@ c
 c     calculate the density matrices from the movecs 
 
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer geom, basis, g_dens, ndens
@@ -11455,13 +11476,15 @@ C  get MO vectors from file
 
       status = movecs_read (movecs, 1, occ, evals, g_vecs)
       if (.not.status) then
-        call errquit('prop_dens_make: could not read mo vectors', 110)
+        call errquit('prop_dens_make: could not read mo vectors', 110,
+     &       DISK_ERR)
       endif
 
       if (scftype .eq. 'UHF') then
         if (.not. movecs_read(movecs, 2, occ(nbf+1), evals(nbf+1),
      $       g_vecs2)) then
-        call errquit('prop_dens_make: could not read uhf vectors', 110)
+        call errquit('prop_dens_make: could not read uhf vectors', 110,
+     &       DISK_ERR)
         endif
       endif
 
@@ -11586,6 +11609,7 @@ c
       end
       subroutine hnd_prp_init(geom,basis)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 c 
 #include "nwc_const.fh"
 #include "hnd_tol.fh"
@@ -11671,22 +11695,26 @@ c
 c     ----- get basis set info + parameters -----
 c
       if (.not. geom_ncent (geom , natoms)) call errquit
-     $     ('hnd_prp_init: geom_ncent  failed for geom', geom)
+     $     ('hnd_prp_init: geom_ncent  failed for geom', geom, GEOM_ERR)
       if(dbug) then
          write(iw,*) ' ... natoms = ', natoms
       endif
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('hnd_prp_init: bas_numcont failed for basis', basis)
+     $     ('hnd_prp_init: bas_numcont failed for basis', basis,
+     &       BASIS_ERR)
       if (nshell .gt. mxshel) then
         write(iw,*) 'Property code not able to handle this problem size'
-        call errquit('hnd_prp_init: nshell beyond mxshel limit', nshell)
+        call errquit('hnd_prp_init: nshell beyond mxshel limit', nshell,
+     &       INPUT_ERR)
       endif
 
       if (.not. bas_numbf(basis, num)) call errquit
-     $     ('hnd_prp_init: bas_numbf failed for basis', basis)
+     $     ('hnd_prp_init: bas_numbf failed for basis', basis,
+     &       BASIS_ERR)
       if (num .gt. mxnbf) then
         write(iw,*) 'Property code not able to handle this problem size'
-        call errquit('hnd_prp_init: num beyond mxnbf limit', num)
+        call errquit('hnd_prp_init: num beyond mxnbf limit', num,
+     &       INPUT_ERR)
       endif
       if(dbug) then
          write(iw,*) ' ... nshell = ', nshell
@@ -11700,7 +11728,7 @@ c
       do iat=1,natoms
          status=bas_ce2cnr(basis,iat,ishlo,ishhi)
          if(.not.status) call errquit
-     $       ('hnd_prp_init: bas_ce to cnr/bfr failed', iat)
+     $       ('hnd_prp_init: bas_ce to cnr/bfr failed', iat, BASIS_ERR)
          if(dbug) then
             write(iw,*) ' ... iat, ishlo, ishhi = ',iat,ishlo,ishhi
          endif
@@ -11710,7 +11738,7 @@ c
          do ish=ishlo,ishhi
             status=bas_cn2bfr(basis,ish,ishbflo,ishbfhi)
             if(.not.status) call errquit
-     $          ('hnd_prp_init: bas_cn to bfr failed', ish)
+     $          ('hnd_prp_init: bas_cn to bfr failed', ish, BASIS_ERR)
             ioff=basis+BASIS_HANDLE_OFFSET
             ishu=sf_ibs_cn2ucn(ish,ioff)
             ityp=infbs_cont(CONT_TYPE ,ishu,ioff)
@@ -11732,7 +11760,8 @@ c
               write(iw,*) 
      &             'Property code not able to handle this problem size'
               call errquit
-     &             ('hnd_prp_init: nprim beyond mxprim limit', nprim)
+     &             ('hnd_prp_init: nprim beyond mxprim limit', nprim,
+     &       INPUT_ERR)
             endif
             do ig=1,ngi
                ex(ig+istart-1)=zero
@@ -11755,7 +11784,8 @@ c
                elseif(ityp.eq.4) then
                   cg(ig+istart-1)=cont_coeff
                else
-                  call errquit('hnd_prp_init: illegal -ityp- ', ityp)
+                  call errquit('hnd_prp_init: illegal -ityp- ', ityp,
+     &       INPUT_ERR)
                endif
                if(dbug) then
                   write(iw,*) ' ish,ig,ityp,exp,con= ',ish,ig,ityp,
@@ -11794,7 +11824,7 @@ c
       status=geom_ncent(geom,nat)
       status=geom_cart_get(geom,nat,atom_tags,c,zan)
       if(.not.status) call errquit
-     $    (' int_1e_ga_hnd_init: geom_cart_get failed.',911)
+     $    (' int_1e_ga_hnd_init: geom_cart_get failed.',911, GEOM_ERR)
       do iat=1,nat
          nuc(iat)=nint(zan(iat))
       enddo

@@ -7,9 +7,10 @@ c
       subroutine detci_init( norb, nela, nelb, nsym, symstate,
      $                       osym, iprint, eps, h, g )
 *
-* $Id: detci_intf.F,v 1.27 2000-10-23 15:52:25 windus Exp $
+* $Id: detci_intf.F,v 1.28 2003-10-17 22:55:23 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -159,14 +160,14 @@ c
       if (nexa.gt.0) then
         if (.not.ma_push_get(MT_INT, (6*nexa*(nstra+1)), 'detci:exa',
      $                       l_detci_exa, k_detci_exa))
-     $    call errquit('detci: cannot allocate',0)
+     $    call errquit('detci: cannot allocate',0, MA_ERR)
         call detci_excit( norb, nela, nsym, nstra, nexa, cdetci_osym,
      $                    ijmap, cdetci_ataba, int_mb(k_detci_exa) )
       endif
       if (nexb.gt.0) then
         if (.not.ma_push_get(MT_INT, (6*nexb*(nstrb+1)), 'detci:exb',
      $                       l_detci_exb, k_detci_exb))
-     $    call errquit('detci: cannot allocate',0)
+     $    call errquit('detci: cannot allocate',0, MA_ERR)
         call detci_excit( norb, nelb, nsym, nstrb, nexb, cdetci_osym,
      $                    ijmap, cdetci_atabb, int_mb(k_detci_exb) )
       endif
@@ -185,10 +186,10 @@ c  Copy integrals into internal block
 c
       if (.not.ma_push_get(MT_DBL,ntij,'detci: h1',
      $   l_detci_h, k_detci_h))
-     $   call errquit('detci: cannot allocate',0)
+     $   call errquit('detci: cannot allocate',0, MA_ERR)
       if (.not.ma_push_get( MT_DBL,(ntij*ntij),'detci: eri',
      $   l_detci_g, k_detci_g))
-     $   call errquit('detci: cannot allocate',0)
+     $   call errquit('detci: cannot allocate',0, MA_ERR)
       call detci_moint_copy( norb, ntij, cdetci_ixmap, ijmap,
      $                       cdetci_osym, h, g,
      $                       dbl_mb(k_detci_h), dbl_mb(k_detci_g) )
@@ -198,27 +199,27 @@ c
       memuse03 = 2*max(nstra,nstrb)*mseg + 3*nekla + 4*nstrb*nekla
       if (.not.ma_push_get(MT_DBL, (max(max(nstra,nstrb)*mseg,nexb)),
      $     'detci: fscr', l_detci_fscr, k_detci_fscr))
-     $     call errquit('detci: cannot allocate fscr',0)
+     $     call errquit('detci: cannot allocate fscr',0, MA_ERR)
 
       if (.not.ma_push_get(MT_INT, nekla,
      $     'detci: rhsscr', l_detci_rhsscr, k_detci_rhsscr))
-     $     call errquit('detci: cannot allocate rhs',0)
+     $     call errquit('detci: cannot allocate rhs',0, MA_ERR)
 
       if (.not.ma_push_get(MT_INT, max(nekla,neklb,nexb,nexa),
      $     'detci: lhsscr', l_detci_lhsscr, k_detci_lhsscr))
-     $     call errquit('detci: cannot allocate lhs',0)
+     $     call errquit('detci: cannot allocate lhs',0, MA_ERR)
 
       if (.not.ma_push_get(MT_INT, nekla,
      $     'detci: iscr', l_detci_iscr, k_detci_iscr))
-     $     call errquit('detci: cannot allocate iscr',0)
+     $     call errquit('detci: cannot allocate iscr',0, MA_ERR)
 
       if (.not.ma_push_get(MT_DBL, (nstrb*nekla),
      $     'detci: cprime', l_detci_cprime, k_detci_cprime))
-     $     call errquit('detci: cannot allocate cprime',0)
+     $     call errquit('detci: cannot allocate cprime',0, MA_ERR)
 
       if (.not.ma_push_get(MT_DBL, (nstrb*nekla),
      $     'detci: sprime', l_detci_sprime, k_detci_sprime))
-     $     call errquit('detci: cannot allocate sprime',0)
+     $     call errquit('detci: cannot allocate sprime',0, MA_ERR)
 c
 c$$$      IF (GA_NODEID().EQ.0) THEN
 c$$$        IJ = MAX(NSTRA,NSTRB) + 3*NEKLA + 2*(NSTRB*NEKLA)
@@ -285,6 +286,7 @@ c
 
       subroutine detci_free()
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"      
 #include "global.fh"
@@ -298,7 +300,8 @@ c
 c  Check if initialized
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_free with uninitialized internals',0)
+     $  call errquit('detci_free with uninitialized internals',0,
+     &       INPUT_ERR)
 c
 c Print stats
 c
@@ -345,31 +348,31 @@ c
 c  Free scratch memory
 c
       if (.not.ma_pop_stack(l_detci_sprime))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_detci_cprime))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_detci_iscr))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_detci_lhsscr))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_detci_rhsscr))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_detci_fscr))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
 c
 c  Free other internal memory blocks
 c
       if (.not.ma_pop_stack(l_detci_g))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_detci_h))
-     $   call errquit('detci: cannot pop stack',0)
+     $   call errquit('detci: cannot pop stack',0, MA_ERR)
       if (l_detci_exb.ne.CDETCI_INVALID) then
          if (.not.ma_pop_stack(l_detci_exb))
-     $       call errquit('detci: cannot pop stack',0)
+     $       call errquit('detci: cannot pop stack',0, MA_ERR)
       endif
       if (l_detci_exa.ne.CDETCI_INVALID) then
         if (.not.ma_pop_stack(l_detci_exa))
-     $       call errquit('detci: cannot pop stack',0)
+     $       call errquit('detci: cannot pop stack',0, MA_ERR)
       endif
 c
 c
@@ -391,6 +394,7 @@ c  with previously initialized parameters
 c
       logical function ga_civec_create( label, g_a )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "detciP.fh"
@@ -405,7 +409,8 @@ c
 c  Check if initialized
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('ga_civec_create called uninitialized',0)
+     $  call errquit('ga_civec_create called uninitialized',0,
+     &       INPUT_ERR)
 c
 c
 c
@@ -432,6 +437,7 @@ c  component in requisite spin and symmetry state
 c
       subroutine detci_guess( ngs, cfggs, cgs, g_civec, g_workvec )
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "util.fh"
@@ -455,7 +461,8 @@ c
 c
 c     
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_guess with uninitialized internals',0)
+     $  call errquit('detci_guess with uninitialized internals',0,
+     &       INPUT_ERR)
       nstra = detci_binomial( cdetci_norb, cdetci_nela )
       nstrb = detci_binomial( cdetci_norb, cdetci_nelb )
 c
@@ -502,7 +509,8 @@ c  Check for zero projected vector
 c
       xx = ga_ddot(g_civec,g_civec)
       if (xx.lt.0.0001d0)
-     $  call errquit('detci: initial guess has wrong spin/symmetry',0)
+     $  call errquit('detci: initial guess has wrong spin/symmetry',0,
+     &       INPUT_ERR)
       return
       end
 
@@ -517,6 +525,7 @@ c
 c
       subroutine detci_sigma( g_civec, g_sigma )
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -544,7 +553,8 @@ c
 c  Check internals
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_sigma with uninitialized internals',0)
+     $  call errquit('detci_sigma with uninitialized internals',0,
+     &       INPUT_ERR)
 c
 c
 c
@@ -574,11 +584,13 @@ c
 *ga:1:0
       if (.not.ga_create( MT_DBL, nstra, nstrb, 'transp CI',
      $                    nstra, 0, g_ct ))
-     $   call errquit('detci_sigma: cannot allocate transp ci',0)
+     $   call errquit('detci_sigma: cannot allocate transp ci',0,
+     &       GA_ERR)
 *ga:1:0
       if (.not.ga_create( MT_DBL, nstra, nstrb, 'transp sig',
      $                    nstra, 0, g_st ))
-     $   call errquit('detci_sigma: cannot allocate transp sig',0)
+     $   call errquit('detci_sigma: cannot allocate transp sig',0,
+     &       GA_ERR)
       call ga_transpose( g_civec, g_ct )
       call ga_zero(g_st)
 
@@ -594,9 +606,11 @@ c
 
       call ga_transpose( g_st, g_sigma )
       if (.not.ga_destroy(g_ct))
-     $  call errquit('detci_sigma: cannot destroy transp ci',0)
+     $  call errquit('detci_sigma: cannot destroy transp ci',0,
+     &       GA_ERR)
       if (.not.ga_destroy(g_st))
-     $  call errquit('detci_sigma: cannot destroy transp sig',0)
+     $  call errquit('detci_sigma: cannot destroy transp sig',0,
+     &       GA_ERR)
       detci_sbb_etime = detci_sbb_etime + util_cpusec() - tx
 c
 c   alpha-alpha
@@ -652,6 +666,7 @@ c
 
       subroutine detci_ciprecon( g_civec, g_workvec )
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
 #include "detciP.fh"
@@ -670,7 +685,8 @@ c
 c  Check internals
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_ciprecon with uninitialized common',0)
+     $  call errquit('detci_ciprecon with uninitialized common',0,
+     &       INPUT_ERR)
 c     
 c  CI parameters
 c     
@@ -737,6 +753,7 @@ c  than threshold
 c
       subroutine detci_print( g_civec, thresh )
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "detciP.fh"
@@ -751,7 +768,8 @@ c
 c  Check internals
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_print with uninitialized common',0)
+     $  call errquit('detci_print with uninitialized common',0,
+     &       INPUT_ERR)
 c     
 c  CI parameters
 c     
@@ -784,6 +802,7 @@ c  for given CI vector (both RHS and LHS)
 c
       subroutine detci_density( g_civec, onepdm, twopdm )
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "mafdecls.fh"
@@ -807,7 +826,8 @@ c
 c  Check internals
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_density with uninitialized common',0)
+     $  call errquit('detci_density with uninitialized common',0,
+     &       INPUT_ERR)
 c     
 c  CI parameters
 c     
@@ -825,7 +845,8 @@ c
 *ga:1:0
       if (.not.ga_create( MT_DBL, nstra, nstrb, 'civec transp',
      $                    nstra, 0, g_civect ))
-     $    call errquit('detci_density: cannot create CI transp.',0)
+     $    call errquit('detci_density: cannot create CI transp.',0,
+     &       GA_ERR)
       call ga_transpose( g_civec, g_civect )
 c
 c
@@ -863,7 +884,8 @@ c
 c
 c
       if (.not.ga_destroy( g_civect ))
-     $   call errquit('detci_density: cannot destroy CI transp.',0)
+     $   call errquit('detci_density: cannot destroy CI transp.',0,
+     &       GA_ERR)
       detci_density_etime = detci_density_etime + util_cpusec() - tx
 c
 c
@@ -884,6 +906,7 @@ c
 
       subroutine detci_spinadapt( g_civec, g_wvec )
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "detciP.fh"
@@ -904,7 +927,8 @@ c
 c  Check internals
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_spin with uninitialized internals',0)
+     $  call errquit('detci_spin with uninitialized internals',0,
+     &       INPUT_ERR)
 c
 c  CI parameters
 c     
@@ -938,6 +962,7 @@ c
 
       subroutine detci_symmproj( g_civec, mxcnt, oscreen )
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "detciP.fh"
 #include "detci.fh"
@@ -951,7 +976,8 @@ c
 c  Check internals
 c
       if (cdetci_valid .ne. CDETCI_MAGIC)
-     $  call errquit('detci_symmproj with uninitialized common',0)
+     $  call errquit('detci_symmproj with uninitialized common',0,
+     &       INPUT_ERR)
 c     
 c  CI parameters
 c     
@@ -984,6 +1010,7 @@ c
       subroutine detci_moint_copy( norb, ntij, irmap, ijmap, orbsym,
      $                             h, g, h1, g1 )
       implicit none
+#include "errquit.fh"
 #include "global.fh"
       integer norb
       integer ntij
@@ -1036,7 +1063,8 @@ c
         enddo
       enddo
       if ((nmixed.gt.0).and.(ga_nodeid().eq.0)) then
-        call errquit('DETCI: MO ints symmetry contaminated',nmixed)
+        call errquit('DETCI: MO ints symmetry contaminated',nmixed,
+     &       GEOM_ERR)
       endif
 c
       end

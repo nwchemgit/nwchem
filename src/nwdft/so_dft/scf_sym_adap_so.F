@@ -1,9 +1,10 @@
       subroutine scf_sym_adapt_so(basis, g_movecs, oprint,
      $     nprint, name, oirs, irs)
 *
-* $Id: scf_sym_adap_so.F,v 1.1 2000-04-17 21:46:06 zzhang Exp $
+* $Id: scf_sym_adap_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "inp.fh"
 #include "global.fh"
@@ -45,7 +46,7 @@ c
 c
       call ga_inquire(g_movecs(1), type, nbf, nvec)
       if (.not. ma_push_get(mt_int, nvec, 'irs', l_irs, k_irs))
-     $     call errquit('scf_movecs_sym_adapt: memory?', nvec)
+     $     call errquit('scf_movecs_sym_adapt: memory?', nvec, GA_ERR)
 c
 c     What should the threshold be for reporting contamination?  
 c     Probably should be settable from the input or determined
@@ -59,10 +60,10 @@ c     mix in some of the old vectors, orthog and do it all again.
 c     Fail if the second try screws up.
 c     
       if (.not. ga_duplicate(g_movecs(1), g_tmp(1), 'scfmsa')) 
-     $     call errquit('scf_movecs_sym_adapt: ga duplicate?',0)
+     $     call errquit('scf_movecs_sym_adapt: ga duplicate?',0, GA_ERR)
       call ga_copy(g_movecs(1), g_tmp(1))
       if (.not. ga_duplicate(g_movecs(2), g_tmp(2), 'scfmsa')) 
-     $     call errquit('scf_movecs_sym_adapt: ga duplicate?',0)
+     $     call errquit('scf_movecs_sym_adapt: ga duplicate?',0, GA_ERR)
       call ga_copy(g_movecs(2), g_tmp(2))
       try = 0
 c
@@ -120,12 +121,12 @@ c         call ga_print(g_movecs(2))
 c     
       if (oprint .and. ga_nodeid() .eq. 0) then
          if (.not. bas_geom(basis, geom)) 
-     $        call errquit('scf_p_v_s:geom',0)
+     $        call errquit('scf_p_v_s:geom',0, BASIS_ERR)
 c     
          call sym_group_name(geom, group_name)
          if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
      $        zir, zclass, chars)) 
-     $        call errquit('scf_p_v_s: no char table',0)
+     $        call errquit('scf_p_v_s: no char table',0, GEOM_ERR)
 c     
          write(6,*) ' Numbering of irreducible representations: '
          write(6,*)
@@ -152,8 +153,8 @@ c
       endif
 c
       if (.not. ma_pop_stack(l_irs)) call errquit
-     $     ('scf_m_s_a: memory corrupt?', 0)
+     $     ('scf_m_s_a: memory corrupt?', 0, MA_ERR)
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('scf_m_s_a: ga corrupt?',0)
+     $     ('scf_m_s_a: ga corrupt?',0, GA_ERR)
 c
       end

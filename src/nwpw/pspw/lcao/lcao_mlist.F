@@ -1,5 +1,5 @@
 *
-* $Id: lcao_mlist.F,v 1.1 2001-12-05 01:51:19 bylaska Exp $
+* $Id: lcao_mlist.F,v 1.2 2003-10-17 22:57:20 carlfahl Exp $
 *
 
 *     ***********************************************************
@@ -21,6 +21,7 @@
 *     ***********************************
       subroutine lcao_mlist_init(maxsize0,ispin0,nbasis0)
       implicit none
+#include "errquit.fh"
       integer maxsize0
       integer ispin0
       integer nbasis0
@@ -40,7 +41,7 @@
       value = MA_alloc_get(mt_int,(ispin*maxsize),'mlist',
      >                     mlist(2),mlist(1))
       if (.not. value)
-     > call errquit('lcao_mlist_init: out of heap memory',0)
+     > call errquit('lcao_mlist_init: out of heap memory',0, MA_ERR)
 
       return
       end
@@ -54,6 +55,7 @@
 
       subroutine lcao_mlist_end()
       implicit none
+#include "errquit.fh"
      
 #include "mafdecls.fh"
 #include "global.fh"
@@ -77,7 +79,7 @@
       end if
       value = value.and.MA_free_heap(mlist(2))
       if (.not. value)
-     > call errquit('lcao_mlist_init: freeing heap memory',0)
+     > call errquit('lcao_mlist_init: freeing heap memory',0, MA_ERR)
 
       size    = 0
       maxsize = 0
@@ -91,6 +93,7 @@
 *     ***********************************
       subroutine lcao_mlist_new(index)
       implicit none
+#include "errquit.fh"
       integer index(*)
 
 #include "mafdecls.fh"
@@ -102,14 +105,14 @@
       integer indx,indx2
 
       if (size.ge.maxsize) 
-     > call errquit('lcao_mlist_new: maxsize exceeded',0)
+     > call errquit('lcao_mlist_new: maxsize exceeded',0, MA_ERR)
 
       value = ga_create(mt_dbl,nbasis,nbasis,'mlist',1,1,indx)
       if (ispin.gt.1)
      > value = value.and.
      >         ga_create(mt_dbl,nbasis,nbasis,'mlist',1,1,indx2)
       if (.not.value) 
-     > call errquit('lcao_mlist_new: out of ga memory',0)
+     > call errquit('lcao_mlist_new: out of ga memory',0, GA_ERR)
 
       size = size + 1
       int_mb(mlist(1)+size-1) = indx
@@ -131,6 +134,7 @@
 *     ***********************************
       subroutine lcao_mlist_get(count,index)
       implicit none
+#include "errquit.fh"
       integer count
       integer index(*)
 
@@ -138,7 +142,7 @@
 #include "lcao_mlist.fh"
 
       if ((count.gt.size).or.(count.lt.1)) 
-     > call errquit('lcao_mlist_get: bad count',0)
+     > call errquit('lcao_mlist_get: bad count',0, INPUT_ERR)
 
       index(1)   = int_mb(mlist(1)+count-1)
       if (ispin.gt.1)

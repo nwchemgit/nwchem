@@ -21,9 +21,10 @@
 *   Written by K. G. Dyall                                             *
 *                                                                      *
 ************************************************************************
-* $Id: ecp_matpr.F,v 1.2 1999-07-29 01:03:34 d3e129 Exp $
+* $Id: ecp_matpr.F,v 1.3 2003-10-17 22:53:51 carlfahl Exp $
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
       integer i,j,k,l,mlo,mhi,m1,m2,nlo,nhi,n1,n2,nwid,ncol,nfield,nn
       double precision a(mlo:mhi,nlo:nhi)
       character*(*) heading
@@ -38,9 +39,10 @@
       nfield = (nwid-6)/ncol
       l = ichar('G')-ichar(fmt)
       if ((l .lt. 1) .or. (l .gt. 2)) call errquit
-     &    ('Illegal value for fmt in ecp_matpr: must be E or F',99)
+     &    ('Illegal value for fmt in ecp_matpr: must be E or F',99,
+     &       BASIS_ERR)
       if (nfield .lt. 4*l+1) call errquit 
-     &    ('Too many columns in ecp_matpr',99)
+     &    ('Too many columns in ecp_matpr',99, BASIS_ERR)
       write (fmti,'(A,i2,a,i2,a)') '(/X,',ncol,'I',nfield,')'
       nn = nfield-4*l
       write (fmtr,'(A,i1,A,i2,a,i2,a,i2,a)') 

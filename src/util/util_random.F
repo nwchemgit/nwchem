@@ -1,6 +1,7 @@
       double precision function util_random(iseed)
       implicit none
-c $Id: util_random.F,v 1.20 2001-11-14 20:28:10 edo Exp $
+#include "errquit.fh"
+c $Id: util_random.F,v 1.21 2003-10-17 22:58:35 carlfahl Exp $
 c
 c routine to give a random number [0,1]
 c
@@ -53,7 +54,7 @@ c
 #endif
 #if !defined(SET_RANDOM)
       integer iseed
-      call errquit('util_random not defined',0)
+      call errquit('util_random not defined',0, UNKNOWN_ERR)
 #endif
 c
       end

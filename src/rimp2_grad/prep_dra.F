@@ -3,13 +3,14 @@ C NAME
 C     rimp2_prep_dra -- Setup DRA sizes and names
 C
 C REVISION
-C     $Id: prep_dra.F,v 1.4 1999-05-28 16:04:05 bernhold Exp $
+C     $Id: prep_dra.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Prep_DRA(MaxSpin, TopSpin, NFrzO, NAct, NVir,
      $     NFrzV, NFit, DoGrad, BraKetSame, NrDRA, MaxSiz, TotSiz,
      $     BaseNameI, BaseNameG, NameI, NameG, IntRange, GamRange)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer MaxSpin ![in]
       Integer TopSpin ![in]
@@ -81,7 +82,7 @@ C STATEMENT FUNCTIONS
 C
       If ( TopSpin .gt. MyMaxSpin ) Call ErrQuit(
      $     'RIMP2_Prep_DRA: fatal program error: TopSpin > MyMaxSpin',
-     $     MyMaxSpin)
+     $     MyMaxSpin, INPUT_ERR)
 C
 C     Initialize transformation ranges to 0:-1 (zero trip loop)
 C

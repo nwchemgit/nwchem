@@ -1,8 +1,9 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.17 2003-01-09 23:16:51 edo Exp $
+c$Id: grid_gen_pts.F,v 1.18 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "inp.fh"
 #include "rtdb.fh"
@@ -26,19 +27,20 @@ c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
      &   icoord))call errquit(
-     (     'grid_gen_pts: failed to alloc coordinates',0)
+     (     'grid_gen_pts: failed to alloc coordinates',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
      &   icharge))call errquit(
-     (     'grid_gen_pts: failed to alloc charges',0)
+     (     'grid_gen_pts: failed to alloc charges',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit(
-     (     'grid_gen_pts: failed to alloc center tags',0)
+     (     'grid_gen_pts: failed to alloc center tags',0, MA_ERR)
 c
 c     Get ncenter tags, coordinates, and charges from the geometry object.
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
-     &     call errquit('grid_gen_pts: geom_cart_get failed',74)
+     &     call errquit('grid_gen_pts: geom_cart_get failed',74,
+     &       GEOM_ERR)
 
       if (.not. rtdb_get(rtdb, 'dft:grid_on_file', mt_log, 1,
      &   grid_on_file))then
@@ -52,13 +54,13 @@ c
 c     A list of pruned (or unpruned) r, theta and phi is generated here.
 c
       if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
-     &   call errquit('grid_gen: rtdb_get failed', 119)
+     &   call errquit('grid_gen: rtdb_get failed', 119, RTDB_ERR)
 c
       if(.not.grid_on_file.or.oldgrid) then
       nqlen = ncenters*mxnrad
       if (.not.MA_Push_get(MT_int,4*nqlen,'shell list',
      &                     lqs,iqs))
-     &   call errquit('grid_gen: cannot allocate shell list',0)
+     &   call errquit('grid_gen: cannot allocate shell list',0, MA_ERR)
       call grid_list(rtdb, int_mb(iqs), nqlen, nq_tot)
       endif
 c
@@ -72,12 +74,12 @@ c
       if (grid_on_file.and.oldgrid)then
          if (.not.MA_Push_get(MT_dbl, 4*ang_quad_buf_size,
      &        'ang quad pts buffer', laqbuf, iaqbuf))
-     &        call errquit('grid_gen: cant allocate quad pt', 0)
+     &        call errquit('grid_gen: cant allocate quad pt', 0, MA_ERR)
          call grid_tasks(rtdb, Dbl_MB(icoord), int_mb(iqs), nqlen,
      &                   dbl_mb(iaqbuf), ang_quad_buf_size,
      ,        nq_tot)
          if (.not. MA_Pop_Stack(laqbuf))
-     &        call errquit('grid_gen_pts: pop stack failed.',0)
+     &        call errquit('grid_gen_pts: pop stack failed.',0, MA_ERR)
 c
 c        try to balance the number of tasks on each node
 c
@@ -96,14 +98,14 @@ c
       endif
 !      if(.not.grid_on_file.or.oldgrid) then
       if (.not. MA_Pop_Stack(lqs))
-     &   call errquit('grid_gen_pts: pop stack failed.',0)
+     &   call errquit('grid_gen_pts: pop stack failed.',0, MA_ERR)
 !      endif
       if (.not. MA_Pop_Stack(ltags))
-     &   call errquit('grid_gen_pts: pop stack failed.',0)
+     &   call errquit('grid_gen_pts: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(lcharge))
-     &   call errquit('grid_gen_pts: pop stack failed.',0)
+     &   call errquit('grid_gen_pts: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(lcoord))
-     &   call errquit('grid_gen_pts: pop stack failed.',0)
+     &   call errquit('grid_gen_pts: pop stack failed.',0, MA_ERR)
 c
 c     Setup reduced matrices (eval gaussian on grid pts and reduce to 
 c     atom centers) - only if points are on file system
@@ -114,6 +116,7 @@ cedo rchi stuff moved in grid_quadv
       end
       subroutine grid_rchi0
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -134,7 +137,7 @@ c     allocate rchi
 c
       if (.not.MA_alloc_Get(MT_Dbl,n_tsk,'rchi_tasks',
      &     lrchi,irchi))
-     &     call errquit('dft_scf: cannot allocate rchi_tasks',0)
+     &     call errquit('dft_scf: cannot allocate rchi_tasks',0, MA_ERR)
 c fill it with -99 to check later if used
       call dfill(n_tsk, -99d0, dbl_mb(irchi), 1)
 !      write(0,*) '0irchis ',irchi,irchi+n_tsk-1
@@ -143,6 +146,7 @@ c fill it with -99 to check later if used
 c
       if (.not.MA_alloc_Get(MT_Dbl,n_tsk,'rdelchi_tasks',
      &     lrdelchi,irdelchi))
-     &     call errquit('dft_scf: cannot allocate rdelchi_tasks',0)
+     &     call errquit('dft_scf: cannot allocate rdelchi_tasks',0,
+     &       MA_ERR)
       return
       end

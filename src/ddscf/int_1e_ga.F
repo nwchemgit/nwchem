@@ -4,8 +4,9 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.34 2002-04-26 22:21:17 bert Exp $
+C$Id: int_1e_ga.F,v 1.35 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "cint1cache.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -39,7 +40,8 @@ c
 c     
       if (oskel) then
          if (ibas.ne.jbas) call errquit
-     $        ('int_1e_ga: use of symmetry requires ibas=jbas', ibas)
+     $        ('int_1e_ga: use of symmetry requires ibas=jbas', ibas,
+     &       BASIS_ERR)
       end if
 c     
       if (inp_compare(.false., integ_type, 'kinetic')) then
@@ -56,7 +58,7 @@ c
          type = 6 
       else
          write(6,*) ' integ_type = ', integ_type
-         call errquit('int_1e_ga: unknown integ_type', 0)
+         call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
       end if
 c
 c     Check if Douglas-Kroll is required, if so:
@@ -65,7 +67,8 @@ c     integrals
 c
       if (doug_kroll .and. (type.le.2)) then
          if (ibas.ne.jbas) call errquit
-     $        ('int_1e_ga: Douglas-Kroll requires ibas=jbas', ibas)
+     $        ('int_1e_ga: Douglas-Kroll requires ibas=jbas', ibas,
+     &       BASIS_ERR)
          call int_1edk_ga(ibas,g,type,oskel)
          call ga_sync()            ! So that no nasty races can result
          return
@@ -75,7 +78,8 @@ c     Doing Douglas-Kroll Spin-Orbit terms
 c
       if (doug_kroll .and. (type.eq.5)) then
          if (ibas.ne.jbas) call errquit
-     $        ('int_1e_ga: Douglas-Kroll requires ibas=jbas', ibas)
+     $        ('int_1e_ga: Douglas-Kroll requires ibas=jbas', ibas,
+     &       BASIS_ERR)
          call int_1edk_so_ga(ibas,g,type,oskel)
          call ga_sync()            ! So that no nasty races can result
          return
@@ -87,6 +91,7 @@ c
 c
       subroutine int_1e_oldga(ibas, jbas, g, integ_type, oskel)
       implicit none
+#include "errquit.fh"
 #include "cint1cache.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -151,7 +156,8 @@ c
 c     
       if (oskel) then
          if (ibas.ne.jbas) call errquit
-     $        ('int_1e_ga: use of symmetry requires ibas=jbas', ibas)
+     $        ('int_1e_ga: use of symmetry requires ibas=jbas', ibas,
+     &       BASIS_ERR)
       end if
 c     
       if (inp_compare(.false., integ_type, 'kinetic')) then
@@ -168,7 +174,7 @@ c
          type = 6 
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
-         call errquit('int_1e_ga: unknown integ_type', 0)
+         call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
       end if
 c
 c     ----- save ocache logical variable -----
@@ -199,9 +205,11 @@ c
 c     Get info about the basis sets
 c     
       if (.not. bas_numcont(ibas, nshell_i)) call errquit
-     $     ('rhf_fock_1e: bas_numcont failed for ibas', ibas)
+     $     ('rhf_fock_1e: bas_numcont failed for ibas', ibas,
+     &       BASIS_ERR)
       if (.not. bas_numcont(jbas, nshell_j)) call errquit
-     $     ('rhf_fock_1e: bas_numcont failed for jbas', jbas)
+     $     ('rhf_fock_1e: bas_numcont failed for jbas', jbas,
+     &       BASIS_ERR)
 c     
 c     allocate necessary local temporary arrays on the stack
 c     
@@ -219,15 +227,15 @@ cso
       endif 
 cso
       if (.not. MA_push_get(MT_DBL,max1e,'int_1e_ga:buf',l_buf,k_buf))
-     $     call errquit('int_1e_ga: ma failed', max1e)
+     $     call errquit('int_1e_ga: ma failed', max1e, MA_ERR)
       if (.not. MA_push_get(MT_DBL, mem1,'int_1e_ga:scr',l_scr,k_scr))
-     $     call errquit('int_1e_ga: ma failed', mem1)
+     $     call errquit('int_1e_ga: ma failed', mem1, MA_ERR)
 c     
 c     Loop thru shells with static parallel work decomposition
 c     
       if (.not.inp_compare(.false., integ_type, 'so')) then
          if(.not.ga_duplicate(g,g_loc,'local g')) call
-     .        errquit('int1e: dupl failed',0)
+     .        errquit('int1e: dupl failed',0, GA_ERR)
          call ga_zero(g_loc)
       endif
       iproc = ga_nodeid()
@@ -244,9 +252,11 @@ c
 c
                if (odoit) then
                   if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) 
-     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas)
+     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas,
+     &       BASIS_ERR)
                   if (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
-     $                 call errquit('int_1e_ga: bas_cn2bfr ?', jbas)
+     $                 call errquit('int_1e_ga: bas_cn2bfr ?', jbas,
+     &       BASIS_ERR)
                   idim = ihi - ilo + 1
 c     
 c     Generate the integrals
@@ -275,7 +285,8 @@ c
                      call int_1epot (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
-                     call errquit('int_1e_ga: invalid type?', type)
+                     call errquit('int_1e_ga: invalid type?', type,
+     &       GA_ERR)
                   end if
 c     
 c     Add the integrals into the global array
@@ -310,9 +321,9 @@ c
 c     chop stack at first item allocated
 c     
       if (.not. MA_pop_stack(l_scr)) call errquit
-     $     ('int_1e_ga: pop failed', 0)
+     $     ('int_1e_ga: pop failed', 0, GA_ERR)
       if (.not. MA_pop_stack(l_buf)) call errquit
-     $     ('int_1e_ga: pop failed', 0)
+     $     ('int_1e_ga: pop failed', 0, GA_ERR)
 c
 c     ----- restore ocache -----
 c
@@ -322,7 +333,8 @@ c
 c     
       if (.not.inp_compare(.false., integ_type, 'so')) then
          call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
-         if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0)
+         if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0,
+     &       GA_ERR)
       endif
       call ga_sync()            ! So that no nasty races can result
 c     
@@ -331,6 +343,7 @@ c
       end
       subroutine int_1e_cache_ga(basis, oskel)
       implicit none
+#include "errquit.fh"
 #include "cint1cache.fh"
 #include "bas.fh"
       integer basis
@@ -343,7 +356,7 @@ c
       if (ocache) call int_1e_uncache_ga()
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $   ('int_1e_cache_ga: basis corrupt?', 0)
+     $   ('int_1e_cache_ga: basis corrupt?', 0, BASIS_ERR)
 c
 c	The use of ga_dadd to do the copy requires all uses of
 c	these integrals to be allocated via ga_create_atom_blocked
@@ -365,15 +378,19 @@ c
       end
       subroutine int_1e_uncache_ga()
       implicit none
+#include "errquit.fh"
 #include "cint1cache.fh"
       logical ga_destroy
 c
 *      write(6,*) ' Disabling caching of 1-e integrals '
 c
       if (.not. ocache) return
-      if (.not. ga_destroy(g_cache(1))) call errquit('i1ega: gad?',0)
-      if (.not. ga_destroy(g_cache(2))) call errquit('i1ega: gad?',0)
-      if (.not. ga_destroy(g_cache(3))) call errquit('i1ega: gad?',0)
+      if (.not. ga_destroy(g_cache(1))) call errquit('i1ega: gad?',0,
+     &       BASIS_ERR)
+      if (.not. ga_destroy(g_cache(2))) call errquit('i1ega: gad?',0,
+     &       BASIS_ERR)
+      if (.not. ga_destroy(g_cache(3))) call errquit('i1ega: gad?',0,
+     &       BASIS_ERR)
       bas1 = -1
       ocache = .false.
       end

@@ -1,10 +1,11 @@
       logical function int_norm_2c(rtdb,basisin)
-c $Id: int_norm_2c.F,v 1.7 2000-05-03 01:15:46 edo Exp $
+c $Id: int_norm_2c.F,v 1.8 2003-10-17 22:53:46 carlfahl Exp $
 c::assumptions
 *..   MA_init has been called
 c
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -37,9 +38,10 @@ c
       norm_ok = bas_norm_id(basis).eq.BasNorm_UN
       if (.not.norm_ok) then
         if (.not. bas_norm_print(basisin)) call errquit
-     &      ('int_norm_2c: bas_norm_print failed',911)
+     &      ('int_norm_2c: bas_norm_print failed',911, BASIS_ERR)
         write(luout,*)' basis has already been normalized somehow'
-        call errquit('int_norm_2c: basis normalization error ',911)
+        call errquit('int_norm_2c: basis normalization error ',911,
+     &       BASIS_ERR)
       endif
       bas_norm_id(basis) = BasNorm_2c
 c
@@ -55,7 +57,7 @@ c
 c
 c... define xyz for angular momentum      
       if (.not.bas_high_angular(basisin,maxang)) call errquit
-     &    ('int_norm_2c: bas_high_angular failed?',911)
+     &    ('int_norm_2c: bas_high_angular failed?',911, BASIS_ERR)
       call defNxyz(maxang)
 c
       basis = basisin + BASIS_HANDLE_OFFSET
@@ -93,7 +95,8 @@ c........ spd
      &            dbl_mb(mb_exndcf(cpt+2*nprim,basis)),
      &           2, nprim, dbl_mb(i_scr), lscr)
          else
-            call errquit('int_norm_2c: invalid contraction type', 0)
+            call errquit('int_norm_2c: invalid contraction type', 0,
+     &       BASIS_ERR)
          endif
       enddo
 c

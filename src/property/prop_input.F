@@ -1,8 +1,9 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.8 1999-12-10 17:36:08 windus Exp $
+* $Id: prop_input.F,v 1.9 2003-10-17 22:57:58 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "context.fh"
 #include "mafdecls.fh"
@@ -83,7 +84,7 @@ c
       do iline = 1,infinity !  infinite loop over input lines
 
         if (.not. inp_read()) call errquit
-     $       ('prop_input: inp_read failed', 0)
+     $       ('prop_input: inp_read failed', 0, INPUT_ERR)
 
         nfield = inp_n_field()
         do ifield = 1,nfield
@@ -179,12 +180,14 @@ c
              status = status .and. inp_f(point(3))
              if (.not.status)
      $         call errquit 
-     $          ('prop_input: invalid arbitrary point',555)
+     $          ('prop_input: invalid arbitrary point',555, INPUT_ERR)
            else
-             call errquit ('prop_input: not a valid center type',555)
+             call errquit ('prop_input: not a valid center type',555,
+     &       INPUT_ERR)
            endif
          else
-            call errquit ('prop_input: no center information',555)
+            call errquit ('prop_input: no center information',555,
+     &       INPUT_ERR)
          endif
 c             
       elseif ( inp_compare(.false., 'end', test)) then
@@ -206,66 +209,66 @@ c>>>    place integer parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1,
      $                               nbofile           ))
-     $     call errquit('prop_input: rtdb_put failed', 0)
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:dipole', mt_int, 1,
      $                               dipole            ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:quadrupole', mt_int, 1,
      $                               quadrupole        ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:octupole', mt_int, 1, 
      $                               octupole          ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:mulliken', mt_int, 1,
      $                               mulliken          ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:spinpopulation', mt_int, 1,
      $                               spinpopulation    ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:esp', mt_int, 1,
      $                               esp               ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:efield', mt_int, 1,
      $                               efield            ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:efieldmap', mt_int, 1,
      $                               efieldmap         ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:efieldgrad', mt_int, 1,
      $                               efieldgrad        ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:efieldgradmap', mt_int, 1,
      $                               efieldgradmap     ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:electrondensity', mt_int, 1,
      $                               electrondensity   ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:electrondensitymap', mt_int, 1,
      $                               electrondensitymap))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:spindensity', mt_int, 1,
      $                               spindensity       ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:spindensitymap', mt_int, 1,
      $                               spindensitymap    ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:stoneanalysis', mt_int, 1,
      $                               stoneanalysis     ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:boyslocalization', mt_int, 1,
      $                               boyslocalization  ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:iglo', mt_int, 1,
      $                               iglo              ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:giao', mt_int, 1,
      $                               giao              ))
-     $      call errquit('prop_input: rtdb_put failed', 0)
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:center',mt_int, 1, center))
-     $      call errquit('prop_input: rtdb_put failed', 555)
+     $      call errquit('prop_input: rtdb_put failed', 555, RTDB_ERR)
       if (center.eq.4) then
         if (.not. rtdb_put(rtdb, 'prop:center_val',mt_dbl, 3, point))
-     $      call errquit('prop_input: rtdb_put failed', 555)
+     $      call errquit('prop_input: rtdb_put failed', 555, RTDB_ERR)
       endif
 c       
 c>>>    store real parameters in rtdb
@@ -277,6 +280,6 @@ c
 10000   continue !  die with error
         write (6,*) 'prop_input: error in input file, last field: '
         write (6,'(a)') test
-        call errquit('prop_input: error in input file', 0)
+        call errquit('prop_input: error in input file', 0, INPUT_ERR)
 c       
         end

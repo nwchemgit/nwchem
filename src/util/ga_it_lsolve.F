@@ -1,7 +1,8 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.14 2001-03-08 21:46:00 edo Exp $
+C$Id: ga_it_lsolve.F,v 1.15 2003-10-17 22:58:34 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -87,7 +88,7 @@ c
      $     (ga_nodeid() .eq. 0)
 c
       if (maxsub .gt. maxdim) call errquit
-     $     ('ga_iter_lsolve: maxsub > maxdim', maxdim)
+     $     ('ga_iter_lsolve: maxsub > maxdim', maxdim, INPUT_ERR)
 c
 c     Required precision in matrix-vector products is about the maximum
 c     element in the rhs vector * the tolerance + 3 extra guard digits
@@ -118,15 +119,17 @@ c
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_lsolve: w', 0,
      $     0, g_w))
-     $     call errquit('ga_iter_lsolve: ga_create of w', 1)
+     $     call errquit('ga_iter_lsolve: ga_create of w', 1, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_lsolve: x', 0,
      $     maxsub, g_x))
-     $     call errquit('ga_iter_lsolve: ga_create of x', maxsub)
+     $     call errquit('ga_iter_lsolve: ga_create of x', maxsub,
+     &       GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_lsolve: p', 0,
      $     maxsub, g_p))
-     $     call errquit('ga_iter_lsolve: ga_create of p', maxsub)
+     $     call errquit('ga_iter_lsolve: ga_create of p', maxsub,
+     &       GA_ERR)
       call ga_zero(g_x)
       call ga_zero(g_p)
 c
@@ -201,7 +204,7 @@ c     Solve the reduced space equations (AAyy = bb) ... solution in yy
 c
          call dgesv(nsub, 1, aa, maxdim, temp, bb, maxdim, info)
          if (info .ne. 0) call errquit
-     $        ('ga_iter_lsolve: dgesv failed', info)
+     $        ('ga_iter_lsolve: dgesv failed', info, GA_ERR)
          call dcopy(nsub, bb, 1, yy, 1)
          if (odebug .and. ga_nodeid().eq.0) then
             write(6,*) ' ga_iter_lsolve: Reduced space solution '
@@ -314,7 +317,8 @@ c
 c
 c     Should never actually fall out of the bottom
 c
-      call errquit('ga_iter_lsolve: fell out of loop bottom?', 0)
+      call errquit('ga_iter_lsolve: fell out of loop bottom?', 0,
+     &       GA_ERR)
 c
  1000 continue
       call ga_zero(g_soln)
@@ -328,10 +332,10 @@ c
       ga_iter_lsolve = converged
 c
       if (.not. ga_destroy(g_x)) call errquit
-     $     ('ga_iter_lsolve: failed to destory x', 0)
+     $     ('ga_iter_lsolve: failed to destory x', 0, GA_ERR)
       if (.not. ga_destroy(g_p)) call errquit
-     $     ('ga_iter_lsolve: failed to destory p', 0)
+     $     ('ga_iter_lsolve: failed to destory p', 0, GA_ERR)
       if (.not. ga_destroy(g_w)) call errquit
-     $     ('ga_iter_lsolve: failed to destroy w', 0)
+     $     ('ga_iter_lsolve: failed to destroy w', 0, GA_ERR)
 c
       end

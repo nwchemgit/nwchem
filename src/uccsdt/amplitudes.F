@@ -1,5 +1,6 @@
       logical function uccsdt_ampfile_init(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "dra.fh"
 #include "rtdb.fh"
@@ -131,7 +132,7 @@ c
       logical oprint
 c
       if (dra_init(8, -1, -1, 2*1024*1024) .ne. 0) 
-     $     call errquit('uccsdt: initializing disk arrays?',0)
+     $     call errquit('uccsdt: initializing disk arrays?',0, DISK_ERR)
       oprint = util_print('fileaddr',print_debug)
 c
 c     Setup the symmetry packed pair addressing arrays for both pure
@@ -325,6 +326,7 @@ c
       logical function uccsdt_ampfile_read_t1(d_amp, spin, g_t1, 
      $     ocreate)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "dra.fh"
 #include "mafdecls.fh"
@@ -339,7 +341,7 @@ c
       if (ocreate) then
          if (.not. ga_create(mt_dbl, t1_len(spin), 1, 'readt1amp',
      $        0, 0, g_t1)) call errquit
-     $        ('uccsdt_ampfile_read_t1: ga_create failed?',0)
+     $        ('uccsdt_ampfile_read_t1: ga_create failed?',0, GA_ERR)
       end if
 c
       uccsdt_ampfile_read_t1 = dra_read_section(.false., 
@@ -356,6 +358,7 @@ c
      $     spini, spina, spinj, spinb, symjb, blo, bhi, 
      $     g_t2, ocreate, distribution)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "dra.fh"
 #include "mafdecls.fh"
@@ -408,11 +411,12 @@ c
             col = lenia
             row = -1
          else
-            call errquit('uccsdt_ampfile_read_t2: distribution?',0)
+            call errquit('uccsdt_ampfile_read_t2: distribution?',0,
+     &       INPUT_ERR)
          end if
          if (.not. ga_create(mt_dbl, lenia, lenjb, 'readt2amp',
      $        col, row, g_t2)) call errquit
-     $        ('uccsdt_ampfile_read_t2: ga_create failed?',0)
+     $        ('uccsdt_ampfile_read_t2: ga_create failed?',0, GA_ERR)
       end if
 c
 **      write(6,*) ' OFFSET ', offset+1, offset + lenia*lenjb
@@ -489,6 +493,7 @@ c
       end
       subroutine uccsdt_ampfile_test()
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -502,13 +507,13 @@ c
       double precision test, test2
 c
       if (.not. uccsdt_ampfile_open('fred','/tmp/fred','new',d_amp))
-     $     call errquit('amplitudes: open failed',0)
+     $     call errquit('amplitudes: open failed',0, DISK_ERR)
 c
       symjb = 1
       do spinb = 1, 2
          spinj = spinb
          if (.not. uccsdt_ampfile_read_t1(d_amp, spinb, g_t1, 
-     $        .true.)) call errquit('read of t1 failed',0)
+     $        .true.)) call errquit('read of t1 failed',0, DISK_ERR)
          jb = 0
          do symb = 0,7
             symj = ieor(symb,symjb)
@@ -521,8 +526,8 @@ c
             end do
          end do
          if (.not. uccsdt_ampfile_write_t1(d_amp, spinb, g_t1)) 
-     $        call errquit('write of t1 failed',0)
-         if (.not. ga_destroy(g_t1)) call errquit('GA?',0)
+     $        call errquit('write of t1 failed',0, DISK_ERR)
+         if (.not. ga_destroy(g_t1)) call errquit('GA?',0, GA_ERR)
       end do
 c
       do spinb = 1, 2
@@ -544,14 +549,14 @@ c
      $                       spini, spina, spinj, spinb, symjb,
      $                       blo, bhi, g_t2, .true., 'block')) 
      $                       call errquit
-     $                       ('read of all failed',0)
+     $                       ('read of all failed',0, DISK_ERR)
                         jb = 0
                         do symb = 0,7
                            symj = ieor(symb,symjb)
                            do b = v_sym(1,symb,spinb),
      $                          v_sym(2,symb,spinb)
                               if (jb.ne.ov_off(b,symjb,spinj,spinb))
-     $                             call errquit('bad jb',0)
+     $                             call errquit('bad jb',0, INPUT_ERR)
                               do j = o_sym(1,symj,spinj),
      $                             o_sym(2,symj,spinj)
                                  jb = jb + 1
@@ -563,7 +568,8 @@ c
      $                                   v_sym(2,syma,spina)
                                        if (ia.ne.ov_off(a,symia,spini,
      $                                      spina))
-     $                                      call errquit('bad ia',0)
+     $                                      call errquit('bad ia',0,
+     &       INPUT_ERR)
                                        do i = o_sym(1,symi,spini),
      $                                      o_sym(2,symi,spini)
                                           ia = ia + 1
@@ -580,9 +586,9 @@ c
                         if (.not. uccsdt_ampfile_write_t2(d_amp,
      $                       spini, spina, spinj, spinb, symjb,
      $                       blo, bhi, g_t2)) call errquit
-     $                       ('write of all failed',0)
+     $                       ('write of all failed',0, DISK_ERR)
                         if (.not. ga_destroy(g_t2)) call errquit
-     $                       ('ga?',0)
+     $                       ('ga?',0, GA_ERR)
                         endif
                      end do
                   end if
@@ -598,7 +604,7 @@ c
       do spinb = 1, 2
          spinj = spinb
          if (.not. uccsdt_ampfile_read_t1(d_amp, spinb, g_t1, 
-     $        .true.)) call errquit('read of t1 failed',0)
+     $        .true.)) call errquit('read of t1 failed',0, DISK_ERR)
          jb = 0
          do symb = 0,7
             symj = ieor(symb,symjb)
@@ -607,11 +613,12 @@ c
                   jb = jb + 1
                   test = j + 100*b
                   call ga_get(g_t1, jb, jb, 1, 1, test2, 1)
-                  if (test2.ne.test) call errquit('wrong t1',0)
+                  if (test2.ne.test) call errquit('wrong t1',0,
+     &       INPUT_ERR)
                end do
             end do
          end do
-         if (.not. ga_destroy(g_t1)) call errquit('GA?',0)
+         if (.not. ga_destroy(g_t1)) call errquit('GA?',0, GA_ERR)
       end do
 c
       do spini = 1, 2
@@ -637,13 +644,13 @@ c
      $                          spini, spina, spinj, spinb, symjb,
      $                          blo, bhi, g_t2, .true.,'block')) 
      $                          call errquit
-     $                          ('read of all failed',0)
+     $                          ('read of all failed',0, DISK_ERR)
                            jb = 0
                            do b = v_sym(1,symb,spinb),
      $                          v_sym(2,symb,spinb)
                               if (jb.ne.ov_off(b,symjb,spinj,spinb)-
      $                             ov_off(blo,symjb,spinj,spinb))
-     $                             call errquit('bad jb2 ',0)
+     $                             call errquit('bad jb2 ',0, INPUT_ERR)
                               do j = o_sym(1,symj,spinj),
      $                             o_sym(2,symj,spinj)
                                  jb = jb + 1
@@ -655,7 +662,8 @@ c
      $                                   v_sym(2,syma,spina)
                                        if (ia.ne.ov_off(a,symia,spini,
      $                                      spina))
-     $                                      call errquit('bad ia',0)
+     $                                      call errquit('bad ia',0,
+     &       INPUT_ERR)
                                        do i = o_sym(1,symi,spini),
      $                                      o_sym(2,symi,spini)
                                           ia = ia + 1
@@ -664,14 +672,15 @@ c
                                           call ga_get(g_t2,
      $                                         ia,ia,jb,jb,test2,1)
                                           if (test.ne.test2) call 
-     $                                         errquit('wrong!',0)
+     $                                         errquit('wrong!',0,
+     &       INPUT_ERR)
                                        end do
                                     end do
                                  end do
                               end do
                            end do
                            if (.not. ga_destroy(g_t2)) call errquit
-     $                          ('ga2?',0)
+     $                          ('ga2?',0, GA_ERR)
                            end if
                         end do
                         endif
@@ -683,7 +692,7 @@ c
       end do
 c
       if (.not. uccsdt_ampfile_close(d_amp,.false.)) call errquit
-     $     ('close delete failed',0)
+     $     ('close delete failed',0, DISK_ERR)
 c
       end
       subroutine uccsdt_ampfile_test_write_t1(t1a, t1b,
@@ -691,6 +700,7 @@ c
      &                                  olob, ohib, vlob, vhib,
      &                                  d_amp)
       implicit none
+#include "errquit.fh"
 c
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
@@ -719,12 +729,13 @@ c     Get a chunk of MA (max(len_t1(1),len_t1(2)))
 c
       max_len_t1buf = max(t1_len(1),t1_len(2))
       if (.not. ma_push_get(mt_dbl, max_len_t1buf, 't buffer',
-     $     l_t1buf, k_t1buf)) call errquit(' t1 read buffer: ma?', 1)
+     $     l_t1buf, k_t1buf)) call errquit(' t1 read buffer: ma?', 1,
+     &       MA_ERR)
       symjb = 0
       do spinb = 1, 2
          spinj = spinb
          if (.not. uccsdt_ampfile_read_t1(d_amp, spinb, g_t1, 
-     $        .true.)) call errquit('read of t1 failed',0)
+     $        .true.)) call errquit('read of t1 failed',0, DISK_ERR)
          jb = 0
 c         do symb = 0,7
 c            symj = ieor(symb,symjb)
@@ -765,14 +776,14 @@ c         end do
          endif
          call ga_put(g_t1, 1, jb, 1, 1, dbl_mb(k_t1buf), jb)
          if (.not. uccsdt_ampfile_write_t1(d_amp, spinb, g_t1)) 
-     $        call errquit('write of t1 failed',0)
+     $        call errquit('write of t1 failed',0, GA_ERR)
 c
 c         call ga_print(g_t1)
 c
-         if (.not. ga_destroy(g_t1)) call errquit('GA?',0)
+         if (.not. ga_destroy(g_t1)) call errquit('GA?',0, GA_ERR)
       end do
 c
-      if (.not. ma_pop_stack(l_t1buf)) call errquit('t1buf?',0)
+      if (.not. ma_pop_stack(l_t1buf)) call errquit('t1buf?',0, MA_ERR)
 c
       return
       end
@@ -781,6 +792,7 @@ c
      &                                  olob, ohib, vlob, vhib,
      &                                  d_amp)
       implicit none
+#include "errquit.fh"
 c
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
@@ -819,7 +831,8 @@ c
          enddo
       enddo
       if (.not. ma_push_get(mt_dbl, max_lenjb*max_lenjb, 't buffer',
-     $     l_t2buf, k_t2buf)) call errquit(' t2 read buffer: ma?', 1)
+     $     l_t2buf, k_t2buf)) call errquit(' t2 read buffer: ma?', 1,
+     &       MA_ERR)
 c      write(6,*)' max_lenjb = ', max_lenjb
 c
       do spinb = 1, 2
@@ -842,7 +855,7 @@ c     $                       ov_len(symia,spini,spina)
      $                       spini, spina, spinj, spinb, symjb,
      $                       blo, bhi, g_t2, .true., 'block')) 
      $                       call errquit
-     $                       ('read of all failed',0)
+     $                       ('read of all failed',0, DISK_ERR)
 c                        jb = 0
 c                        do symb = 0,7
 c                           symj = ieor(symb,symjb)
@@ -932,10 +945,10 @@ c
                         if (.not. uccsdt_ampfile_write_t2(d_amp,
      $                       spini, spina, spinj, spinb, symjb,
      $                       blo, bhi, g_t2)) call errquit
-     $                       ('write of all failed',0)
+     $                       ('write of all failed',0, DISK_ERR)
 c
                         if (.not. ga_destroy(g_t2)) call errquit
-     $                       ('ga?',0)
+     $                       ('ga?',0, GA_ERR)
                         endif
                      end do
                   end if
@@ -944,7 +957,7 @@ c
          end do
       end do
 c
-      if (.not. ma_pop_stack(l_t2buf)) call errquit('t2buf?',0)
+      if (.not. ma_pop_stack(l_t2buf)) call errquit('t2buf?',0, MA_ERR)
 c
       return
       end
@@ -1158,6 +1171,7 @@ c      call debug_print_t1('k_t1b', t1b, vlob, vhib, olob, ohib)
      &                                  olob, ohib, vlob, vhib,
      &                                  d_amp)
       implicit none
+#include "errquit.fh"
 c
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
@@ -1187,7 +1201,8 @@ c
          enddo
       enddo
       if (.not. ma_push_get(mt_dbl, max_lenjb*max_lenjb, 't buffer',
-     $     l_t2buf, k_t2buf)) call errquit(' t2 read buffer: ma?', 1)
+     $     l_t2buf, k_t2buf)) call errquit(' t2 read buffer: ma?', 1,
+     &       MA_ERR)
       call dfill (max_lenjb*max_lenjb, 0.0d0, dbl_mb(k_t2buf),1)
 c      write(6,*)' max_lenjb = ', max_lenjb
       do spinb = 1, 2
@@ -1210,7 +1225,7 @@ c     $                       ov_len(symia,spini,spina)
      $                       spini, spina, spinj, spinb, symjb,
      $                       blo, bhi, g_t2, .true., 'block')) 
      $                       call errquit
-     $                       ('read of t2 block failed',0)
+     $                       ('read of t2 block failed',0, DISK_ERR)
 c
 c                        call ga_print(g_t2)
 c
@@ -1258,7 +1273,7 @@ c
                         endif
 c
                         if (.not. ga_destroy(g_t2)) call errquit
-     $                       ('ga?',0)
+     $                       ('ga?',0, GA_ERR)
                         endif
                      end do
                   end if
@@ -1268,7 +1283,7 @@ c
          end do
       end do
 c
-      if (.not. ma_pop_stack(l_t2buf)) call errquit('t2buf?',0)
+      if (.not. ma_pop_stack(l_t2buf)) call errquit('t2buf?',0, MA_ERR)
 c
 c     write t2aa, t2bb, t2ab
 c
@@ -1285,6 +1300,7 @@ c     &                                    oloa, ohia, olob, ohib)
      &                        olo2, ohi2, vlo2, vhi2,
      &                        spina, spinb, spini, spinj, oflip)
       implicit none
+#include "errquit.fh"
 c
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
@@ -1307,7 +1323,7 @@ c      call output(t2buf, 1, lenia, 1, lenjb, lenia, lenjb, 1)
         do b = v_sym(1,symb,spinb),
      $       v_sym(2,symb,spinb)
           if (jb.ne.ov_off(b,symjb,spinj,spinb))
-     $         call errquit('bad jb',0)
+     $         call errquit('bad jb',0, INPUT_ERR)
           do j = o_sym(1,symj,spinj),
      $         o_sym(2,symj,spinj)
             jb = jb + 1
@@ -1319,7 +1335,7 @@ c
      $             v_sym(2,syma,spina)
                 if (ia.ne.ov_off(a,symia,spini,
      $               spina))
-     $               call errquit('bad ia',0)
+     $               call errquit('bad ia',0, INPUT_ERR)
                 do i = o_sym(1,symi,spini),
      $               o_sym(2,symi,spini)
                   ia = ia + 1
@@ -1345,6 +1361,7 @@ c
      &                      olo2, ohi2, vlo2, vhi2,
      &                      spina, spinb, spini, spinj, oflip)
       implicit none
+#include "errquit.fh"
 c
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
@@ -1367,7 +1384,7 @@ c
         do b = v_sym(1,symb,spinb),
      $       v_sym(2,symb,spinb)
           if (jb.ne.ov_off(b,symjb,spinj,spinb))
-     $         call errquit('bad jb',0)
+     $         call errquit('bad jb',0, INPUT_ERR)
           do j = o_sym(1,symj,spinj),
      $         o_sym(2,symj,spinj)
             jb = jb + 1
@@ -1379,7 +1396,7 @@ c
      $             v_sym(2,syma,spina)
                 if (ia.ne.ov_off(a,symia,spini,
      $               spina))
-     $               call errquit('bad ia',0)
+     $               call errquit('bad ia',0, INPUT_ERR)
                 do i = o_sym(1,symi,spini),
      $               o_sym(2,symi,spini)
                   ia = ia + 1

@@ -1,8 +1,9 @@
       subroutine ga_chol(g_a, g_s,info)
 c
-C$Id: ga_chol.F,v 1.11 2003-06-06 23:31:19 edo Exp $
+C$Id: ga_chol.F,v 1.12 2003-10-17 22:55:50 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -72,7 +73,7 @@ c
 c        allocate map arrays
 c
          if(.not.ma_push_get(mt_int,n,'mapa',hma,adrma))
-     &     call errquit('ga_chol: cannot allocate mapa',0)
+     &     call errquit('ga_chol: cannot allocate mapa',0, MA_ERR)
 c         
 c        determine distribution of a and z
 c     
@@ -135,7 +136,7 @@ c
 c        allocate a and s arrays
 c     
          if (.not.ma_push_get(mt_dbl,elems,'s',hs,adrs))
-     &      call errquit('ga_chol: cannot allocate s',0)
+     &      call errquit('ga_chol: cannot allocate s',0, MA_ERR)
 c
 c        load the fock (A) matrix to (S)
 c
@@ -153,9 +154,9 @@ c
 c        allocate some memory 
 c
          if (.not.ma_push_get(mt_int,(6*n),'iwork',his,adris))
-     &      call errquit('ga_chol: cannot allocate iwork',0)
+     &      call errquit('ga_chol: cannot allocate iwork',0, MA_ERR)
          if (.not.ma_push_get(mt_dbl,(6*n+1),'work',hip,adrip))
-     &      call errquit('ga_chol: cannot allocate work',0)
+     &      call errquit('ga_chol: cannot allocate work',0, MA_ERR)
       endif
 c
       call ga_sync()            ! To reduce message buffering problems
@@ -197,13 +198,13 @@ c
 c        deallocate work arrays 
 c     
          if (.not.ma_pop_stack(hip) )
-     &      call errquit('ga_chol: cannot pop stack',0)
+     &      call errquit('ga_chol: cannot pop stack',0, MA_ERR)
          if (.not.ma_pop_stack(his) )
-     &      call errquit('ga_chol: cannot pop stack',0)
+     &      call errquit('ga_chol: cannot pop stack',0, MA_ERR)
          if (.not.ma_pop_stack(hs) )
-     &      call errquit('ga_chol: cannot pop stack',0)
+     &      call errquit('ga_chol: cannot pop stack',0, MA_ERR)
          if (.not.ma_pop_stack(hma) )
-     &      call errquit('ga_chol: cannot pop stack',0)
+     &      call errquit('ga_chol: cannot pop stack',0, MA_ERR)
       endif
       if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2d'
 c

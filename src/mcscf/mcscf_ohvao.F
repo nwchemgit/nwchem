@@ -1,10 +1,11 @@
 *
-* $Id: mcscf_ohvao.F,v 1.8 2000-04-27 20:57:41 zzhang Exp $
+* $Id: mcscf_ohvao.F,v 1.9 2003-10-17 22:55:21 carlfahl Exp $
 *
        subroutine mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact,
      $                               tol2e, oskel, dm1, g_movecs,
      $                               g_x, g_tmp, g_ax )
 #include "global.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "mcscfprof.fh"
 c
@@ -51,9 +52,11 @@ c
 c
 c
        if (.not.ga_duplicate(g_tmp,g_tmp1,'temp1'))
-     $      call errquit('mcscf_hessv_2e_ao: cannot duplicate',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot duplicate',0,
+     &       GA_ERR)
        if (.not.ga_duplicate(g_tmp,g_tmp2,'temp2'))
-     $      call errquit('mcscf_hessv_2e_ao: cannot duplicate',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot duplicate',0,
+     &       GA_ERR)
        call ga_zero(g_tmp1)
        call ga_zero(g_tmp2)
        call ga_zero(g_tmp)
@@ -338,33 +341,33 @@ c
 c
 c
        if (.not.ga_destroy(g_tmp1))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_tmp2))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_d1))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_d2))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_d3))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_d4))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_d5))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_d6))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_f1))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_f2))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_f3))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_f4))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_f5))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
        if (.not.ga_destroy(g_f6))
-     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0)
+     $      call errquit('mcscf_hessv_2e_ao: cannot destroy',0, GA_ERR)
 c
 c
 c

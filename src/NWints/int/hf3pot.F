@@ -5,12 +5,13 @@
      &    b3nai,b3nai_sz,nint,
      &    DryRun,Scr,lscr)
 c
-c $Id: hf3pot.F,v 1.4 2000-10-25 22:50:06 windus Exp $
+c $Id: hf3pot.F,v 1.5 2003-10-17 22:54:02 carlfahl Exp $
 c
       implicit none
 c:: includes
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
 c:: passed 
       integer La  ! [input] angular momentum for center a
       integer Lb  ! [input] angular momentum for center b
@@ -76,7 +77,8 @@ c Compute 3-center nuclear attraction integrals for ECPs
 c
       gencon = nca.gt.1.or.ncb.gt.1.or.ncc.gt.1
       if (gencon) call errquit
-     &    (' hf3pot not ready for general contractions ',911)
+     &    (' hf3pot not ready for general contractions ',911,
+     &       INT_ERR)
 c
       i_alpha = 1
       i_top   = i_alpha + (NPA*NPB*NPC)*4 - 1
@@ -90,7 +92,7 @@ c
         write(luout,*)' hf3pot: insufficient scratch space '
         write(luout,*)'       : needed    :',i_top
         write(luout,*)'       : allocated :',lscr
-        call errquit('hf3pot: fatal error ',1)
+        call errquit('hf3pot: fatal error ',1, INT_ERR)
       endif
 c
 c.. determine actual product pairs to be kept. 
@@ -142,7 +144,7 @@ c
         write(luout,*)'i_alpha :',i_alpha
         write(luout,*)'i_E     :',i_E
         write(luout,*)'i_G1    :',i_G1
-        call errquit('hf3pot: fatal error ',2)
+        call errquit('hf3pot: fatal error ',2, INT_ERR)
       endif
 c
       if (DryRun) then
@@ -179,7 +181,7 @@ c
         write(luout,*)'i_G1    :',i_G1
         write(luout,*)'i_Gt    :',i_Gt
         write(luout,*)'i_ABC2I :',i_ABC2I
-        call errquit('hf3pot: fatal error ',3)
+        call errquit('hf3pot: fatal error ',3, INT_ERR)
       endif
 c
       if (DryRun) then
@@ -237,7 +239,7 @@ c
         write(luout,*)'i_G2    :',i_G2
         write(luout,*)'i_ff    :',i_ff
         write(luout,*)'i_R     :',i_R
-        call errquit('hf3pot: fatal error ',3)
+        call errquit('hf3pot: fatal error ',3, INT_ERR)
       endif
 c
       if (DryRun) then

@@ -2,12 +2,13 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs, omp2, pdm2, coeff,lsmear,osep)
 
-c     $Id: grad_dens.F,v 1.12 2000-08-14 19:57:12 windus Exp $
+c     $Id: grad_dens.F,v 1.13 2003-10-17 22:55:09 carlfahl Exp $
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk
 
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -54,13 +55,14 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
       g_vecs = ga_create_atom_blocked ( geom, basis, 'mo vectors' )
 
       if (.not. movecs_read (movecs, 1, occ, evals, g_vecs)) 
-     $     call errquit('grad_dens: could not read mo vectors', 110)
+     $     call errquit('grad_dens: could not read mo vectors', 110,
+     &       DISK_ERR)
 
       if (scftype .eq. 'UHF') then
          g_vecs2 = ga_create_atom_blocked(geom, basis, 'uhf mo vectors')
          if (.not. movecs_read(movecs, 2, occ(nbf+1), evals(nbf+1),
      $        g_vecs2)) call errquit
-     $        ('grad_dens: could not read beta UHF MOs',0)
+     $        ('grad_dens: could not read beta UHF MOs',0, DISK_ERR)
       end if
 c
 
@@ -75,7 +77,7 @@ c
 c     smearing, therefore check new nocs
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &   call errquit('dftgforce: failed to alloc tmpm',0)
+     &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
 	
           g_tmp = ga_create_atom_blocked(geom, basis,
      &         'frac vecs')
@@ -91,13 +93,13 @@ c
            if(occ(i).gt.1.d-9) nocc=i
         enddo
         if (.not.ma_pop_stack(ltmpm))
-     &   call errquit('dftg_force: cannot pop stack',0)
+     &   call errquit('dftg_force: cannot pop stack',0, MA_ERR)
         if(nocc.gt.nclosed) then
            if(.not.ga_destroy ( g_eigen_diag )) call errquit(
-     (          'grad_dens: cannot destroy eigendiag',11)
+     (          'grad_dens: cannot destroy eigendiag',11, GA_ERR)
            if (.not. ga_create(mt_dbl, nocc, nocc,'eigen_diag', 
      ,          1, nocc, g_eigen_diag)) 
-     ,          call errquit('gradients: ga diags?',nocc*nocc)
+     ,          call errquit('gradients: ga diags?',nocc*nocc, GA_ERR)
            call ga_zero(g_eigen_diag)
         endif
         nclosed=nocc
@@ -162,7 +164,8 @@ C     read in Lagrangian matrix ('eigenvalue matrix' in ROHF case)
          call util_file_name('lagr', .true.,.false., fname )
          status = file_read_ga( fname, g_eigen_diag )
          if (.not.status) then
-            call errquit('grad_dens: could not read Lagrangian', 110)
+            call errquit('grad_dens: could not read Lagrangian', 110,
+     &       GA_ERR)
          end if
 
 C     multiply to weighted density
@@ -210,7 +213,7 @@ c
 c     smearing, therefore check new nocs
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &   call errquit('dftgforce: failed to alloc tmpm',0)
+     &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
 	
           g_tmp = ga_create_atom_blocked(geom, basis,
      &         'frac vecs')
@@ -229,17 +232,17 @@ c
            if(occ(i).gt.1.d-9) noccb=i-nbf
         enddo
         if (.not.ma_pop_stack(ltmpm))
-     &   call errquit('dftg_force: cannot pop stack',0)
+     &   call errquit('dftg_force: cannot pop stack',0, MA_ERR)
       
       else
          g_tmp=g_vecs
       endif
         if(nocca.gt.nopen+nclosed) then
            if(.not.ga_destroy ( g_eigen_diag )) call errquit(
-     (          'grad_dens: cannot destroy eigendiag',11)
+     (          'grad_dens: cannot destroy eigendiag',11, GA_ERR)
            if (.not. ga_create(mt_dbl, nocca, nocca,'eigen_diag', 
      ,          1, nocca, g_eigen_diag)) 
-     ,          call errquit('gradients: ga diags?',nocca*nocca)
+     ,          call errquit('gradients: ga diags?',nocca*nocca, GA_ERR)
            call ga_zero(g_eigen_diag)
         endif
          if (ga_nodeid() .eq. 0) then
@@ -269,7 +272,7 @@ c
 c     smearing, therefore check new nocs
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &   call errquit('dftgforce: failed to alloc tmpm',0)
+     &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
 	
           g_tmp2 = ga_create_atom_blocked(geom, basis,
      &         'frac vecs')
@@ -282,13 +285,13 @@ c
            endif
         enddo
         if (.not.ma_pop_stack(ltmpm))
-     &   call errquit('dftg_force: cannot pop stack',0)
+     &   call errquit('dftg_force: cannot pop stack',0, MA_ERR)
         if(noccb.gt.nclosed) then
            if(.not.ga_destroy ( g_eigen_diag )) call errquit(
-     (          'grad_dens: cannot destroy eigendiag',11)
+     (          'grad_dens: cannot destroy eigendiag',11, GA_ERR)
            if (.not. ga_create(mt_dbl, noccb, noccb,'eigen_diag', 
      ,          1, noccb, g_eigen_diag)) 
-     ,          call errquit('gradients: ga diags?',noccb*noccb)
+     ,          call errquit('gradients: ga diags?',noccb*noccb, GA_ERR)
            call ga_zero(g_eigen_diag)
         endif
       else
@@ -382,35 +385,41 @@ c
          if (ga_nodeid().eq.0) then
             call util_file_name('mcpdm',.true.,.false.,pdmfilename)
             if (eaf_open(pdmfilename, eaf_r, pdmfile) .ne. 0)
-     $           call errquit('mcscf grad: failed opening 2pdm file',0)
+     $           call errquit('mcscf grad: failed opening 2pdm file',0,
+     &       GA_ERR)
             offset = 0.0d0
 
             if (.not. ma_push_get(mt_dbl,nbf*nbf,'buffer',l_buf,k_buf))
-     $           call errquit('mcscf grad: memory problem',nbf**2)
+     $           call errquit('mcscf grad: memory problem',nbf**2,
+     &       MA_ERR)
 
             if (eaf_read(pdmfile, offset, dbl_mb(k_buf), 8*nbf**2).ne.0)
-     $        call errquit('mcscf grad: failed reading lagrangian',0)
+     $        call errquit('mcscf grad: failed reading lagrangian',0,
+     &       DISK_ERR)
             call ga_put(g_wdens, 1, nbf, 1, nbf, dbl_mb(k_buf), nbf)
             offset = offset + 8*nbf**2
 
             if (eaf_read(pdmfile, offset, dbl_mb(k_buf), 8*nbf**2).ne.0)
-     $        call errquit('mcscf grad: failed reading 1-density',0)
+     $        call errquit('mcscf grad: failed reading 1-density',0,
+     &       DISK_ERR)
             call ga_put(g_dens(1), 1, nbf, 1, nbf, dbl_mb(k_buf), nbf)
             offset = offset + 8*nbf**2
 
             if (eaf_read(pdmfile, offset, pdm2, 8*nopen**4).ne.0)
-     $           call errquit('mcscf grad: failed reading 2pdm ',0)
+     $           call errquit('mcscf grad: failed reading 2pdm ',0,
+     &       DISK_ERR)
 
             call ga_get(g_vecs, 1, nbf, nclosed+1, nclosed+nopen,
      $           coeff, nbf)
 
             if (eaf_close(pdmfile).ne.0)
-     $           call errquit('mcscf: failed closing 2pdm file',0)
+     $           call errquit('mcscf: failed closing 2pdm file',0,
+     &       DISK_ERR)
 
 *            call MA_summarize_allocated_blocks()
             
             if (.not. ma_pop_stack(l_buf)) 
-     $           call errquit('gradients: ma corrupt buf',0)
+     $           call errquit('gradients: ma corrupt buf',0, MA_ERR)
 
 c
          end if

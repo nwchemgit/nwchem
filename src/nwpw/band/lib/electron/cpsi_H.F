@@ -1,11 +1,12 @@
 *
-* $Id: cpsi_H.F,v 1.4 2002-05-03 19:44:01 bylaska Exp $
+* $Id: cpsi_H.F,v 1.5 2003-10-17 22:56:05 carlfahl Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
      >                 psi_k,psi_r,vl,vc,xcp,Hpsi_k,
      >                 move,fion)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       complex*16 psi_r(*)
@@ -47,7 +48,7 @@
       value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call nwpw_timing_end(12)
       
 

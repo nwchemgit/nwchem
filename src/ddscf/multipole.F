@@ -1,9 +1,10 @@
       subroutine multipole_density(basis, center, lmax, 
      &     g_dens, moments, len_moments)
 *
-* $Id: multipole.F,v 1.10 2001-11-15 01:42:24 edo Exp $
+* $Id: multipole.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -49,16 +50,17 @@ c
 c     
       noperators = (lmax+1)*(lmax+2)*(lmax+3)/6
       if (noperators .gt. len_moments)
-     $     call errquit('multiple: moments is too short', len_moments)
+     $     call errquit('multiple: moments is too short', len_moments,
+     &       UNKNOWN_ERR)
 c     
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('multiplole: bad basis', 0)
+     $     ('multiplole: bad basis', 0, BASIS_ERR)
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('multipole: bas_numcont failed for basis', basis)
+     $     ('multipole: bas_numcont failed for basis', basis, BASIS_ERR)
       if (.not. bas_high_angular(basis,maxang)) call errquit(
-     &     'multipole: bas_high_angular call failed',15)
+     &     'multipole: bas_high_angular call failed',15, BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit(
-     &     'multipole: bas_nbf_cn_max failed',20)
+     &     'multipole: bas_nbf_cn_max failed',20, BASIS_ERR)
 c     
 c     
 c     length of int_mpole integral output for full square list
@@ -72,13 +74,15 @@ c
 c     allocate necessary local temporary arrays on the stack
 c     
       if(.not. ma_push_get(mt_dbl, lmpmax, 'mult:mp', l_mp, k_mp))
-     &     call errquit('multipole: cannot allocate mp', lmpmax)
+     &     call errquit('multipole: cannot allocate mp', lmpmax, MA_ERR)
       if(.not. ma_push_get(mt_dbl, maxscr, 'mult:scr', l_scr, k_scr))
-     &     call errquit('multipole: cannot allocate scratch', maxscr)
+     &     call errquit('multipole: cannot allocate scratch', maxscr,
+     &       MA_ERR)
       if(.not. ma_push_get(mt_dbl, maxd, 'mult:dens', l_dens, k_dens))
-     &     call errquit('multipole: cannot allocate dens', maxd)
+     &     call errquit('multipole: cannot allocate dens', maxd, MA_ERR)
       if(.not. ma_push_get(mt_dbl, noperators, 'mult:mom', l_m, k_m))
-     &     call errquit('multipole: cannot allocate mom', noperators)
+     &     call errquit('multipole: cannot allocate mom', noperators,
+     &       MA_ERR)
 c     
       call dfill(noperators, 0.0d0, dbl_mb(k_m), 1)
       ijshell = -1
@@ -89,7 +93,8 @@ c
 c     get basis info
 c     
          if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) call errquit
-     &        ('multipole: bas_cn2bfr failed for basis', basis)
+     &        ('multipole: bas_cn2bfr failed for basis', basis,
+     &       BASIS_ERR)
          idim = ihi - ilo + 1
 
          do jshell = 1, nshell
@@ -99,7 +104,8 @@ c
 c     get basis info
 c     
                if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
-     &              call errquit('multipole: bas_cn2bfr', basis)
+     &              call errquit('multipole: bas_cn2bfr', basis,
+     &       BASIS_ERR)
                jdim = jhi - jlo + 1
 c     
 c     Get the density patch, make the integrals and contract
@@ -144,10 +150,14 @@ c
 c     
 c     clean up stack
 c     
-      if (.not. ma_pop_stack(l_m)) call errquit('multipole: ma?',0)
-      if (.not. ma_pop_stack(l_dens)) call errquit('multipole: ma?',0)
-      if (.not. ma_pop_stack(l_scr)) call errquit('multipole: ma?',0)
-      if (.not. ma_pop_stack(l_mp)) call errquit('multipole: ma?',0)
+      if (.not. ma_pop_stack(l_m)) call errquit('multipole: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_dens)) call errquit('multipole: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_scr)) call errquit('multipole: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_mp)) call errquit('multipole: ma?',0,
+     &       MA_ERR)
 c
       if (oscfps) call pstat_off(ps_multip)
 c     
@@ -155,6 +165,7 @@ c
       subroutine geom_nuc_mpole(geom, center, lmax,
      &     moments, len_moments)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 c     
 c     Add the nuclear contribution to cartesian multipole moments
@@ -181,7 +192,7 @@ c
       external pow_multi
 c     
       if (.not. geom_ncent(geom, ncenter)) 
-     $     call errquit('geom_nuc_mpole: bad geometry',0)
+     $     call errquit('geom_nuc_mpole: bad geometry',0, GEOM_ERR)
 c
       bqbq = geom_include_bqbq(geom)
 c     
@@ -189,7 +200,8 @@ c     loop over centers, summing multipole moments
 c     
       do icent = 1,ncenter
          if (.not. geom_cent_get(geom,icent,tag,coord,q))
-     &        call errquit('geom_nuc_mpole:  geom_cent_get failed',10)
+     &        call errquit('geom_nuc_mpole:  geom_cent_get failed',10,
+     &       GEOM_ERR)
          isatom = geom_tag_to_element(tag, symbol, element, atn)
          if (isatom .or. bqbq) then
 c     

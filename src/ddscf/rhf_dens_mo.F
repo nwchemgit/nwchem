@@ -1,7 +1,8 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.11 1999-07-21 05:56:48 d3g681 Exp $
+C     $Id: rhf_dens_mo.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -39,7 +40,8 @@ c
       endif
 c     
       if (.not. geom_nuc_rep_energy(geom, enrep))
-     $     call errquit('rhf_dens_to_mo: no enrep?', 0)
+     $     call errquit('rhf_dens_to_mo: no enrep?', 0,
+     &       GEOM_ERR)
 c     
       g_fock  = ga_create_atom_blocked(geom, basis,'Temp Fock')
       g_hcore = ga_create_atom_blocked(geom, basis,'Temp HCore')
@@ -94,7 +96,7 @@ c
       escf = eone + etwo + enrep
       call ga_dadd(1.d0,g_hcore,1.d0,g_fock,g_fock)
       if (.not. ga_destroy(g_hcore)) call errquit
-     $     ('rhf_dens_to_mo: destroy of hcore?', 0)
+     $     ('rhf_dens_to_mo: destroy of hcore?', 0, GA_ERR)
 c     
       if (oskel) then
          if (oscfps) call pstat_on(ps_sym_sym)
@@ -105,15 +107,16 @@ c
 c     Transform the fock matrix to the orthonormal subspace and diagonalize
 c     
       if (.not. ga_create(MT_DBL, nbf, nmo, 'rhf_d_m: tmp',
-     $     32, 32, g_tmp)) call errquit('rhf_d_m: tmp',0)
+     $     32, 32, g_tmp)) call errquit('rhf_d_m: tmp',0, GA_ERR)
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rhf_d_m: mof',
-     $     32, 32, g_mofock)) call errquit('rhf_d_m: mof',0)
+     $     32, 32, g_mofock)) call errquit('rhf_d_m: mof',0, GA_ERR)
       call two_index_transf(g_fock, g_mocf, g_mocf, g_tmp, g_mofock )
-      if (.not. ga_destroy(g_fock)) call errquit('rhf_d_m: ga?',0)
+      if (.not. ga_destroy(g_fock)) call errquit('rhf_d_m: ga?',0,
+     &       GA_ERR)
 c     
       call ga_copy(g_mocf, g_tmp) ! Save the orthonormal basis
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rhf_d_m: u',
-     $     32, 32, g_u)) call errquit('rhf_d_m: u',0)
+     $     32, 32, g_u)) call errquit('rhf_d_m: u',0, GA_ERR)
 *      write(6,*) ' g_mofock ', g_mofock
 *      write(6,*) ' g_u ', g_u
 *      call ga_summarize(0)
@@ -129,9 +132,11 @@ c
 c     
       call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0, g_tmp, g_u,
      $     0.0d0, g_mocf)
-      if (.not. ga_destroy(g_u)) call errquit('rhf_d_m: ga?',0)
-      if (.not. ga_destroy(g_mofock)) call errquit('rhf_d_m: ga?',0)
-      if (.not. ga_destroy(g_tmp)) call errquit('rhf_d_m: ga?',0)
+      if (.not. ga_destroy(g_u)) call errquit('rhf_d_m: ga?',0, GA_ERR)
+      if (.not. ga_destroy(g_mofock)) call errquit('rhf_d_m: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_tmp)) call errquit('rhf_d_m: ga?',0,
+     &       GA_ERR)
 c     
       nocc = (nelec+1)/2
       if (ga_nodeid().eq.0 .and. oprint) then

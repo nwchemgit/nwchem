@@ -1,8 +1,9 @@
 c
-c $Id: analysis_expansion_coef.F,v 1.1 2001-11-12 22:41:31 bylaska Exp $
+c $Id: analysis_expansion_coef.F,v 1.2 2003-10-17 22:57:03 carlfahl Exp $
 c
       subroutine analysis_expansion_coef(filename,lorb0,rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -61,12 +62,12 @@ c
       id = 'analysis:lorb'//atom
       if (.not. rtdb_put(rtdb,id,mt_int,1,lorb))
      >        call errquit(
-     >        'analysis_input: rtdb_put failed', 0)
+     >        'analysis_input: rtdb_put failed', 0, RTDB_ERR)
 
       id = 'analysis:expansion'//atom
       if (.not. rtdb_put(rtdb,id,mt_dbl,(lorb+1),b0))
      >        call errquit(
-     >        'analysis_input: rtdb_put failed', 0)
+     >        'analysis_input: rtdb_put failed', 0, RTDB_ERR)
 
       return
       end

@@ -1,6 +1,7 @@
       subroutine two_index_transf( g_a, g_lhs, g_rhs, g_tmp, g_b )
-C     $Id: two_ind_trn.F,v 1.2 1996-01-19 07:32:49 d3g681 Exp $
+C     $Id: two_ind_trn.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer g_a, g_lhs, g_rhs, g_tmp, g_b
@@ -22,7 +23,7 @@ c
       if (nrowl.ne.nrowa .or. ncoll.ne.nrowb .or.
      $    nrowr.ne.ncola .or. ncolr.ne.ncolb .or.
      $    nrowt.lt.nrowa .or. ncolt.lt.ncolb)
-     $     call errquit('two_index_transf: invalid arguments',0)
+     $     call errquit('two_index_transf: invalid arguments',0, GA_ERR)
 c
       call ga_dgemm('n', 'n', nrowa, ncolb, ncola, 1.d0, g_a, g_rhs, 
      $     0.d0, g_tmp)

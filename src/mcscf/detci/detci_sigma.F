@@ -10,9 +10,10 @@ c
      $     ataba, atabb, ntij, nsblk,
      $     h, g, f, g_civec, g_sigma )
 *
-* $Id: detci_sigma.F,v 1.17 2000-10-23 15:52:25 windus Exp $
+* $Id: detci_sigma.F,v 1.18 2003-10-17 22:55:23 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -73,14 +74,16 @@ c
       tdot = 0.d0
       tgop = 0.d0
       if (.not.ga_compare_distr( g_civec, g_sigma ))
-     $     call errquit('detci_sigmaaa: CI vectors do not match',0)
+     $     call errquit('detci_sigmaaa: CI vectors do not match',0,
+     &       GA_ERR)
       myid = ga_nodeid()
       numnodes = ga_nnodes()
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
 c     
       if (((cilo.ne.0).and.(cihi.ne.-1)).and.
      $     ((rlo.ne.1).or.(rhi.ne.nstrb)))
-     $     call errquit('detci_sigmaaa: wrong distrib for CI vector',0)
+     $     call errquit('detci_sigmaaa: wrong distrib for CI vector',0,
+     &       INPUT_ERR)
 c     
       if (cilo.gt.0 .and. cihi.gt.0) then
          call ga_access( g_civec, rlo, rhi, cilo, cihi, k_ci, ldc )
@@ -210,6 +213,7 @@ c
      $                          vrhs, vlhs, vphase, f,
      $                          cprime, sprime, g_civec, g_sigma )
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
 #include "detciP.fh"
@@ -268,9 +272,11 @@ c
       oreplicated = ma_inquire_avail(mt_dbl) .gt. 2*nstra*nstrb
       if (oreplicated) then
         if (.not. ma_push_get(mt_dbl, nstra*nstrb, 'detci_sab: c',
-     $       l_ci, k_ci)) call errquit('detci_sab: ma', nstra*nstrb)
+     $       l_ci, k_ci)) call errquit('detci_sab: ma', nstra*nstrb,
+     &       MA_ERR)
         if (.not. ma_push_get(mt_dbl, nstra*nstrb, 'detci_sab: s',
-     $       l_sig, k_sig)) call errquit('detci_sab: ma', nstra*nstrb)
+     $       l_sig, k_sig)) call errquit('detci_sab: ma', nstra*nstrb,
+     &       MA_ERR)
 	call dfill(nstra*nstrb, 0.0d0, dbl_mb(k_sig), 1)
 	if (ga_nodeid() .eq. 0) call ga_get(g_civec, 1, nstrb, 1, nstra,
      $                          dbl_mb(k_ci), nstrb)
@@ -431,8 +437,10 @@ c
 	call ga_dgop(1, dbl_mb(k_sig), nstra*nstrb, '+')
         if (ga_nodeid().eq.0) call ga_acc(g_sigma, 1, nstrb, 1, nstra,
      $                                    dbl_mb(k_sig), nstrb, 1.0d0)
-        if (.not. ma_pop_stack(l_sig)) call errquit('detci_sab: ma?',0)
-        if (.not. ma_pop_stack(l_ci)) call errquit('detci_sab: ma?',0)
+        if (.not. ma_pop_stack(l_sig)) call errquit('detci_sab: ma?',0,
+     &       MA_ERR)
+        if (.not. ma_pop_stack(l_ci)) call errquit('detci_sab: ma?',0,
+     &       MA_ERR)
         call ga_sync()
       endif
       detci_abstr_etime   = detci_abstr_etime + tstr

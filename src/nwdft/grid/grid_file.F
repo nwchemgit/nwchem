@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.54 2003-04-11 23:09:10 edo Exp $
+* $Id: grid_file.F,v 1.55 2003-10-17 22:55:37 carlfahl Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -13,6 +13,7 @@
      $     filename,
      $     cachesize, filesize)
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -47,7 +48,8 @@ c     Currently only allows for restart if entire file is disk resident
 c     ... needs mods to allow writing of memory cached grid_pts
 c     (actually gets simpler once the file routines do the caching)
 c
-      if (filename.eq.' ') call errquit('grid_file_open: empty name',0)
+      if (filename.eq.' ') call errquit('grid_file_open: empty name',0,
+     &       DISK_ERR)
       call util_pname(filename, actualname)
 c
       otrace = util_print('griddebug',print_debug)
@@ -113,13 +115,14 @@ c
                   call eaf_errmsg(ierr,errmsg)
                   write(LuOut,*) ga_nodeid(),errmsg
                    call errquit
-     $              ('grid_file_open:unable to stat available disk',0)
+     $              ('grid_file_open:unable to stat available disk',0,
+     &       DISK_ERR)
                 endif
              endif
 c     
              if(availkb.le.0d0) call errquit(
      '            'gridfileopen: insuff space in scratchdir',
-     '            nint(availkb))
+     '            nint(availkb), DISK_ERR)
             max_file_rec = nint((0.95*1024.0d0*availkb) / 
      $           (8.0d0*rec_len_in_dbl))
             max_file_rec = max(0,max_file_rec)
@@ -128,7 +131,7 @@ c
      =           min(max_file_rec,filesize/rec_len_in_dbl)
          else 
              call errquit(
-     '            'gridfileopen: filesize lt 0',911)
+     '            'gridfileopen: filesize lt 0',911, DISK_ERR)
             
          endif
 c     
@@ -192,14 +195,15 @@ cedo           write(6,*) ' enucs ',enuc,enuc_in
          endif
          grid_file_open=.true.
          if (.not. grid_file_rewind())
-     $        call errquit('grfile: rewinding gridpts?',1)
+     $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
          file_opened=.false.
          filedump_opened=.false.
          ierr=eaf_open(actualname, eaf_rw, fd)
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
             write(LuOut,*) ga_nodeid(),errmsg
-            call errquit('grid_file_open: eaf_open failed', ierr)
+            call errquit('grid_file_open: eaf_open failed', ierr,
+     &       DISK_ERR)
          endif
          file_opened = .true.
       endif
@@ -213,6 +217,7 @@ c
       end
       logical function grid_file_close(okeep)
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -230,17 +235,17 @@ c
          if (oprint) 
      $        call eaf_print_stats(fd)
          if (eaf_close(fd) .ne. 0) call errquit
-     $        ('grid_file_close: eaf_close failed',0)
+     $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
          if (.not. okeep) then
             if (eaf_delete(actualname) .ne. 0) call errquit
-     $           ('grid_file_close: delete failed', 0)
+     $           ('grid_file_close: delete failed', 0, DISK_ERR)
          endif
       endif
 c
       if (l_cache .ne. -1) then
          if (.not. ma_free_heap(l_cache)) then
              call MA_summarize_allocated_blocks()
-             call errquit('grid_file_close: free heap?',0)
+             call errquit('grid_file_close: free heap?',0, MA_ERR)
           endif
       end if
       if(okeep) then
@@ -324,6 +329,7 @@ c
       end
       logical function grid_packed_buf_write(oend)
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -377,7 +383,8 @@ c
  10   continue
          if (.not. file_opened) then
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $           call errquit('grid_pckbufw: eaf_open failed', 0)
+     $           call errquit('grid_pckbufw: eaf_open failed', 0,
+     &       DISK_ERR)
             file_opened = .true.
          endif
        if (cur_rec .le. max_cache_rec) then
@@ -405,7 +412,8 @@ c
                   write(LuOut,*) ' IO offset ', offset
                   write(LuOut,*) ' IO error message ',
      $                 errmsg(1:inp_strlen(errmsg))
-                  call errquit('grid_packed_buf_write: write failed',0)
+                  call errquit('grid_packed_buf_write: write failed',0,
+     &       DISK_ERR)
                endif
       else
 c
@@ -418,7 +426,8 @@ c
             write(LuOut,*) ' IO offset ', offset
             write(LuOut,*) ' IO error message ',
      $                     errmsg(1:inp_strlen(errmsg))
-            call errquit('grid_packed_buf_write: write failed',0)
+            call errquit('grid_packed_buf_write: write failed',0,
+     &       DISK_ERR)
          endif
       end if
 c
@@ -467,6 +476,7 @@ c
       end
       logical function grid_packed_buf_read()
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
@@ -485,7 +495,8 @@ cedo         if (otrace) then
  1          format(' grid_file: EOF at record',i5,' of ',i5,'?')
 cedo            call util_flush(LuOut)
 cedo         end if
-            call errquit(' grid_packed_buf_read: EOF reached ',0)
+            call errquit(' grid_packed_buf_read: EOF reached ',0,
+     &       DISK_ERR)
          return
       end if
 c
@@ -587,6 +598,7 @@ c
       end
       logical function grid_test_mem(rtdb,  nq_tot)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "cdft.fh"
 #include "bas.fh"
@@ -683,11 +695,12 @@ c
 c
       if (localmemsize.gt.0 .or. filesize.ge.0) then
          if(.not.geom_nuc_rep_energy(geom, enuc)) 
-     .        call errquit(' gridtestmem: enucrep failed ',0)
+     .        call errquit(' gridtestmem: enucrep failed ',0, GEOM_ERR)
         call util_file_name('gridpts',.true.,.false.,gridfilename)
          if (.not. grid_file_open(enuc,gridfilename, 
      $        localmemsize, filesize))
-     $        call errquit('grid_test_mem: grid_file_open failed',0)
+     $        call errquit('grid_test_mem: grid_file_open failed',0,
+     &       DISK_ERR)
          grid_test_mem = .true.
       endif
 *      if (localmemsize.eq.0 .and. oinfo .and. ofirst .and. memsize.eq.0) then
@@ -852,6 +865,7 @@ c
       end
       logical function grid_getnsubb(buf_in)
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 c
       double precision buf_in(4,*)
@@ -863,11 +877,12 @@ c
       grid_getnsubb=.false.
       ntot_sub=0
       if (.not. grid_file_rewind())
-     $   call errquit('grid_getnsub: rewinding gridpts?', 0)
+     $   call errquit('grid_getnsub: rewinding gridpts?', 0,
+     &       UNKNOWN_ERR)
       do  iqsh = 1, n_rec_in_file
          if(.not.grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
      &        rad,buf_in,nsubb))
-     .        call errquit('gridgnsub:fileread failed',1)
+     .        call errquit('gridgnsub:fileread failed',1, GEOM_ERR)
          ntot_sub=ntot_sub+nsubb
       enddo
       grid_getnsubb=.true.
@@ -876,6 +891,7 @@ c
       end
       logical function grid_reopen(rtdb,geom)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "cgridfile.fh"
 #include "bgj.fh"
@@ -890,7 +906,7 @@ c
       external grid_file_open
       character*255 gridfilename
       if(.not.geom_nuc_rep_energy(geom, Enuc)) 
-     .     call errquit(' gridquad: enucrep failed ',0)
+     .     call errquit(' gridquad: enucrep failed ',0, GEOM_ERR)
       grid_reopen=.false.
         call util_file_name('gridpts',.true.,.false.,gridfilename)
       oreopen=.true.

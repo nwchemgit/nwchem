@@ -1,8 +1,9 @@
       subroutine esp_matinv(a,n,is,iad1,iad2,d,mdm)
 c
-c $Id: esp_matinv.F,v 1.4 2000-05-04 07:09:57 d3j191 Exp $
+c $Id: esp_matinv.F,v 1.5 2003-10-17 22:54:52 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -45,7 +46,8 @@ c
       iad2(i)=k
       b=a(i,k)
 c
-      if(dabs(b).lt.tiny) call errquit('esp_matinv singular matrix',me)
+      if(dabs(b).lt.tiny) call errquit('esp_matinv singular matrix',me,
+     &       UNKNOWN_ERR)
       a(i,k)=one/b
       do 5 l=1,n
       if(l.ne.k) a(i,l)=-a(i,l)/b

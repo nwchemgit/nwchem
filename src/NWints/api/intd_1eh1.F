@@ -1,8 +1,9 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.18 2000-01-25 20:03:23 mg201 Exp $
+C $Id: intd_1eh1.F,v 1.19 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -76,7 +77,7 @@ c
       if (nint*3*nat.gt.lH1a) then
         write(luout,*) 'nint*3*nat = ',nint*3*nat
         write(luout,*) 'lH1a       = ',lH1a
-        call errquit('intd_1eh1: nint>lH1a error',911)
+        call errquit('intd_1eh1: nint>lH1a error',911, INT_ERR)
       endif
 c
       offset = nint*3*2       ! scratch for Ta array in intd_1eh1P routine
@@ -91,6 +92,7 @@ c
      &       nint,H1a,Ta)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "apiP.fh"
 #include "nwc_const.fh"
 #include "int_nbf.fh"
@@ -178,7 +180,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'intd_1eh1: no relativistic pointer',911)
+     &      'intd_1eh1: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -208,7 +210,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'intd_1eh1: no relativistic pointer',911)
+     &      'intd_1eh1: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -233,7 +235,7 @@ c
       if (igeom.ne.jgeom) then
         write(luout,*)'intd_1eh1P.F: two different geometries for',
      &         ' derivatives?'
-        call errquit('intd_1eh1P: geom error ',911)
+        call errquit('intd_1eh1P: geom error ',911, INT_ERR)
       endif
 c
       if (iatom.eq.jatom) then
@@ -301,7 +303,7 @@ c............overlap, k-e,     pot-e,
      &      scr,lscr)
       else
         call errquit('intd_1eh1: could not do hnd or nw integrals',
-     &                0)
+     &                0, INT_ERR)
       endif
 c
 c if needed add in Ta derivative integrals
@@ -398,7 +400,7 @@ c
       else
         call errquit(
      &        'int_1eh1: should never reach transform blocked else',
-     &        911)
+     &        911, INT_ERR)
       endif
 c
 c now shuffle transformed buffers to contiguous space
@@ -407,7 +409,8 @@ c
       nint_s = i_nbf_s*j_nbf_s
       if (nint_s.gt.nint_x) then
         call errquit
-     &      ('intd_1eh1: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &      ('intd_1eh1: nint_s >.nint_x diff=',(nint_s-nint_x),
+     &      INT_ERR)
       elseif (nint_s.eq.nint_x) then
         return
       else

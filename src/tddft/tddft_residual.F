@@ -5,7 +5,7 @@
      4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      5  nconverged,nnewtrials,nresiduals,algorithm)
 c
-c $Id: tddft_residual.F,v 1.8 2003-04-07 16:24:32 sohirata Exp $
+c $Id: tddft_residual.F,v 1.9 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.
@@ -28,6 +28,7 @@ c
 c Written by So Hirata, Mar 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -299,13 +300,13 @@ c
      1    continue
         if (residual_1(n).gt.thresh) then
           if (nnewtrials.gt.maxvecs) call errquit
-     1      ('tddft_residual: out of memory',nnewtrials)
+     1      ('tddft_residual: out of memory',nnewtrials, MEM_ERR)
           call ga_sync()
           do i=1,ipol
             call ga_distribution
      1        (g_residuals_1(i),iproc,ilo,ihi,jlo,jhi)
             if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
-     1        ('tddft_residual: an internal error detected',0)
+     1        ('tddft_residual: an internal error detected',0, CALC_ERR)
             do l=ilo,ihi
               k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
               j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
@@ -384,7 +385,7 @@ c
      1    continue
           if (residual_2(n).gt.thresh) then
             if (nnewtrials.gt.maxvecs) call errquit
-     1        ('tddft_residual: out of memory',nnewtrials)
+     1        ('tddft_residual: out of memory',nnewtrials, MEM_ERR)
 c
 c Scale by 1/{w(epsilon_a-epsilon_i)^(1/2)}
 c
@@ -393,7 +394,7 @@ c
               call ga_distribution
      1          (g_residuals_2(i),iproc,ilo,ihi,jlo,jhi)
               if ((jlo.gt.n).or.(jhi.lt.n)) call errquit
-     1          ('tddft_residual: an internal error detected',0)
+     1          ('tddft_residual: an internal error detected',0, GA_ERR)
               do l=ilo,ihi
                 k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
                 j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
@@ -469,7 +470,7 @@ c
 c Have we expand the subspace size?
 c
       if ((.not.converged).and.(nnewtrials.eq.ntrials)) call errquit
-     1  ('tddft_residual: failed to expand subspace size',0)
+     1  ('tddft_residual: failed to expand subspace size',0, MEM_ERR)
 c
 c ------
 c Return

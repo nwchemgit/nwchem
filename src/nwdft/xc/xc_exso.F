@@ -1,8 +1,9 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.13 2000-10-23 15:52:56 windus Exp $
+C$Id: xc_exso.F,v 1.14 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer nExc
       integer g_densso(2),g_fockso(2)
@@ -47,11 +48,12 @@ c
 c     Make all AO integrals
 c     
          if (.not. ma_push_get(mt_dbl,nao**4,'aoint',l_aoint,k_aoint))
-     $        call errquit('allocation of AO integrals failed',nao**4)
+     $        call errquit('allocation of AO integrals failed',nao**4,
+     &       MA_ERR)
          if (.not. ma_push_get(mt_dbl,nao,'fock',l_fock,k_fock))
-     $        call errquit('allocation of fock matrix',nao)
+     $        call errquit('allocation of fock matrix',nao, MA_ERR)
          if (.not. ma_push_get(mt_dbl,nao,'dens',l_dens,k_dens))
-     $        call errquit('allocation of dens matrix',nao)
+     $        call errquit('allocation of dens matrix',nao, MA_ERR)
 c         call jan_all_ao_integrals
 c     &        (rtdb,ao_bas_han,nao,'mulliken',dbl_mb(k_aoint))
       endif
@@ -94,9 +96,9 @@ c
 c     ???????? what to do with charge density fit? 
 c
          if(.not.ga_create(mt_dbl,nao,nao,'temp den',0,0,g_dens(1)))
-     &        call errquit('xc_exso: error creating ga', 0)
+     &        call errquit('xc_exso: error creating ga', 0, GA_ERR)
          if(.not.ga_create(mt_dbl,nao,nao,'temp den',0,0,g_dens(2)))
-     &        call errquit('xc_exso: error creating ga', 0)
+     &        call errquit('xc_exso: error creating ga', 0, GA_ERR)
          g_jk(1) = ga_create_atom_blocked(geom, ao_bas_han, 'jk')
          g_jk(2) = ga_create_atom_blocked(geom, ao_bas_han, 'jk')
          g_jk(3) = ga_create_atom_blocked(geom, ao_bas_han, 'jk')
@@ -351,24 +353,27 @@ c
          endif
 c
          if(jantest)then 
-            if (.not. ma_pop_stack(l_dens)) call errquit('dens',0)
-            if (.not. ma_pop_stack(l_fock)) call errquit('fock',0)
-            if (.not. ma_pop_stack(l_aoint)) call errquit('aoint',0)
+            if (.not. ma_pop_stack(l_dens)) call errquit('dens',0,
+     &       MA_ERR)
+            if (.not. ma_pop_stack(l_fock)) call errquit('fock',0,
+     &       MA_ERR)
+            if (.not. ma_pop_stack(l_aoint)) call errquit('aoint',0,
+     &       MA_ERR)
          endif
 c
  1003    continue
          if (.not. ga_destroy(g_dens(1))) call errquit
-     $        ('xc_exso: ga corrupt?',0)
+     $        ('xc_exso: ga corrupt?',0, GA_ERR)
          if (.not. ga_destroy(g_dens(2))) call errquit
-     $        ('xc_exso: ga corrupt?',1)
+     $        ('xc_exso: ga corrupt?',1, GA_ERR)
          if (.not. ga_destroy(g_jk(1))) call errquit
-     $        ('xc_exso: ga corrupt?',0)
+     $        ('xc_exso: ga corrupt?',0, GA_ERR)
          if (.not. ga_destroy(g_jk(2))) call errquit
-     $        ('xc_exso: ga corrupt?',1)
+     $        ('xc_exso: ga corrupt?',1, GA_ERR)
          if (.not. ga_destroy(g_jk(3))) call errquit
-     $        ('xc_exso: ga corrupt?',0)
+     $        ('xc_exso: ga corrupt?',0, GA_ERR)
          if (.not. ga_destroy(g_jk(4))) call errquit
-     $        ('xc_exso: ga corrupt?',1)
+     $        ('xc_exso: ga corrupt?',1, GA_ERR)
       endif
       if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
       if (oprint_intermediate_xc)then
@@ -383,19 +388,20 @@ c
 
       subroutine asym_fock2e(g_fock)
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 c
       integer g_fock, g_tmp
 c
       if (.not. ga_duplicate(g_fock, g_tmp, 'tmp'))
-     $     call errquit('asym_fock2e: ga duplicate?',0)
+     $     call errquit('asym_fock2e: ga duplicate?',0, GA_ERR)
 c
       call ga_transpose(g_fock,g_tmp)
       call ga_add(0.5d0,g_fock,-0.5d0,g_tmp,g_fock)
 
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('asym_fock2e: ga corrupt?',0)
+     $     ('asym_fock2e: ga corrupt?',0, GA_ERR)
 c
       return
       end

@@ -1,4 +1,4 @@
-c $Id: int_l2e4c.F,v 1.22 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_l2e4c.F,v 1.23 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e4c}
@@ -17,6 +17,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -24,6 +25,7 @@ c:tex-\end{verbatim}
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c errquit
@@ -82,7 +84,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       shells_ok = shells_ok .and. int_chk_sh(ketin,lsh)
       if (.not.shells_ok)
-     &       call errquit('int_l2e4c: invalid contraction/shell',0)
+     &       call errquit('int_l2e4c: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       status_sp  = cando_sp(brain, ish, jsh)  .and.
      &    cando_sp(ketin, ksh, lsh)

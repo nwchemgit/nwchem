@@ -1,7 +1,8 @@
       subroutine ccsd_tzinta(nocc,nvir,nbf,t1,tzvv,scra,scrb,scrc,g_nt2,
      &                       g_nz2,g_tz1,g_tz2,iprt)
-C     $Id: ccsd_tzinta.F,v 2.3 1997-05-29 16:42:55 gg502 Exp $
+C     $Id: ccsd_tzinta.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer nocc,nvir,nbf,lnov,lnvv,g_nt2,g_nz2,g_tz1,g_tz2,
      &        g_tmp,g_tmp2,iprt
       integer i,j,a,b,ad1,ad2,ad3,ad4,g_jlo,g_jhi,g_ilo,g_ihi
@@ -40,10 +41,10 @@ c
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
-     &     call errquit('ga_create g_tmp failed',0)
+     &     call errquit('ga_create g_tmp failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp2',
      &                   nvir,nvir,g_tmp2))
-     &     call errquit('ga_create g_tmp2 failed',0)
+     &     call errquit('ga_create g_tmp2 failed',0, GA_ERR)
 c
       call ga_distribution(g_nt2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -98,9 +99,9 @@ c
      &              1.0d00,g_tmp,g_tmp2,1.0d00,g_tz2)
 c
       if (.not.ga_destroy(g_tmp2))
-     &    call errquit('ga_dest g_tmp2 fail',0)
+     &    call errquit('ga_dest g_tmp2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     &    call errquit('ga_dest g_tmp fail',0)
+     &    call errquit('ga_dest g_tmp fail',0, GA_ERR)
 c
       return
       end

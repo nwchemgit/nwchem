@@ -1,12 +1,13 @@
       subroutine selci_gtijkl(ind,ioconf,joconf,nintpo,nbitpi,
      $     iocc,icase)
 *
-* $Id: gtijkl.F,v 1.2 1997-10-31 23:42:03 d3e129 Exp $
+* $Id: gtijkl.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
       dimension ind(*),ioconf(nintpo),joconf(nintpo),iocc(*)
       dimension ijocc(4)
       integer selci_leadz32
 #include "bitops.fh"
+#include "errquit.fh"
 c
 c     (ik->jl)|I> = |J>. Determine ijkl from bit packed occupations
 c     and return in ind(*) in order ikjl. 
@@ -71,7 +72,7 @@ c          ind(1) = ind(2)
 c          ind(2) = ii
 c        endif
       else
-         call errquit('gtijkl: ngot is wierd',ngot)
+         call errquit('gtijkl: ngot is wierd',ngot, INPUT_ERR)
       endif
 c
       end

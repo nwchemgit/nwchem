@@ -1,8 +1,9 @@
       SUBROUTINE vib_LIBE(EQVAL,NOINT,NLIBE,I,J,K,C,B,NDIM)
 C*MODULE VIB  *DECK LIBE
-* $Id: vib_libe.F,v 1.3 2000-10-23 23:37:52 windus Exp $
+* $Id: vib_libe.F,v 1.4 2003-10-17 22:58:37 carlfahl Exp $
 C
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 C
       integer ndim, noint, nlibe, i, j, k
       double precision B(NDIM,*),C(3,*), eqval
@@ -40,9 +41,9 @@ C
        READ(5,*,ERR=100,END=110)(APTS(I),I=IPT,IPT+2)
        GOTO 115
   100  WRITE(6,9040)
-       CALL errquit('vib_libe error',911)
+       CALL errquit('vib_libe error',911, UNKNOWN_ERR)
   110  WRITE(6,9050)
-       CALL errquit('vib_libe error',911)
+       CALL errquit('vib_libe error',911, UNKNOWN_ERR)
 C
 C     ----- TAKE THE POINT A LYING IN THE PLANE, AND GENERATE
 C           THE POINT A SUCH THAT A-J IS PERP. TO I-J-K -----
@@ -66,7 +67,7 @@ C
   140 CONTINUE
       IF(ABS(RJASQ).LT.TOL1) THEN
          WRITE(6,9010) (APTS(LOC+M),M=1,3)
-         CALL errquit('vib_libe error',911)
+         CALL errquit('vib_libe error',911, UNKNOWN_ERR)
       END IF
 C
 C     ----- A IS NOW CORRECTLY LOCATED -----
@@ -98,7 +99,7 @@ C
       IF ((ABS(TEST).GT.TOL1) .OR.
      *    (ABS(DOTP).GT.TOL2)) THEN
          WRITE (6,9020)  TEST,DOTP
-         CALL errquit('vib_libe error',911)
+         CALL errquit('vib_libe error',911, UNKNOWN_ERR)
       END IF
       IF (ABS(DOTJ)-ONE .GT. ZERO) DOTJ=SIGN(ONE,DOTJ)
       EQVAL = ACOS(DOTJ)

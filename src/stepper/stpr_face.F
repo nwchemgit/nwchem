@@ -1,5 +1,6 @@
       subroutine stpr_select_grtdb(nat,rtdb,selbuf)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c::passed
@@ -9,7 +10,7 @@ c::passed
 c
       if (.not.rtdb_get(rtdb,'stepper:select',MT_INT,(3*nat),selbuf))
      &    call errquit
-     &    ('stpr_select_grtdb: rtdb_get failed',911)
+     &    ('stpr_select_grtdb: rtdb_get failed',911, RTDB_ERR)
       end
       SUBROUTINE stpr_face (
      &     HESS, GRAD, COORD, CHARGE, SELECT, ATMASS,
@@ -18,9 +19,10 @@ c
      &     NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.14 1998-04-21 06:57:27 mdupuis Exp $
+c     $Id: stpr_face.F,v 1.15 2003-10-17 22:58:22 carlfahl Exp $
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "errquit.fh"
 #include "util.fh"
       integer rtdb, him, kim, step_number, maxiter
       LOGICAL BCKSTP, TRACK, RPATH
@@ -93,7 +95,8 @@ c
                   WRITE(6,*)'  Masses for atomic numbers .LE. ',
      &                 NUMAS,' only. '
                   WRITE(6,*)'  You must input the mass. '
-                  call errquit('stepper:face fatal error',911)
+                  call errquit('stepper:face fatal error',911,
+     &       INPUT_ERR)
                endif
                atmass(i) = ams(int_mb((kim-1+i)))
             else
@@ -105,7 +108,7 @@ c
          write(6,*) (atmass(i),i=1,natom)
          if(.not.MA_free_heap(him))
      &        call errquit
-     &        ('stpr_face: failed to free dummy read array',911)
+     &        ('stpr_face: failed to free dummy read array',911, MA_ERR)
          
       endif
       if (TS)  omin = .false.
@@ -289,7 +292,7 @@ C
       endif
       IF ((NMODE.NE.0).AND..NOT.(TS.OR.STD)) THEN
          WRITE(ITAP06,*)'  keyword TS or STD required. '
-         call errquit('stepper:face fatal error',911)
+         call errquit('stepper:face fatal error',911, INPUT_ERR)
       ENDIF
       IF ((TS.OR.STD).AND.(NMODE.EQ.0)) THEN
          NMODE = 1
@@ -337,7 +340,7 @@ C
       IF((SECO.AND.SWSEC).OR.(SECO.AND.SWFIR).OR.
      &     (SWSEC.AND.SWFIR)) THEN
          WRITE(6,*)'  TOO MANY SWITCHING KEYWORDS'
-         call errquit('stepper:face fatal error',911)
+         call errquit('stepper:face fatal error',911, INPUT_ERR)
       ENDIF
 C     
 C     Get energy.
@@ -364,7 +367,7 @@ C
 *      write(6,*)' grad ',(grad(i), i=1,nat3)
       IF (ICALC .EQ. 2) THEN
          WRITE(6,*)'  Second derivatives NOT available. '
-         call errquit('stepper:face fatal error',911)
+         call errquit('stepper:face fatal error',911, INPUT_ERR)
 C     
 C     Check to make sure it is symmetric
 C     
@@ -379,7 +382,7 @@ C
          endif
       ELSE
          WRITE(6,*)'  Unknown calculation type. Program aborts. '
-         call errquit('stepper:face fatal error',911)
+         call errquit('stepper:face fatal error',911, INPUT_ERR)
       END IF
       RETURN
       END
@@ -422,6 +425,7 @@ c
       end
       subroutine stpr_select_srtdb(nat,rtdb,selbuf)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c::passed
@@ -430,10 +434,11 @@ c::passed
 c
       if (.not.rtdb_put(rtdb,'stepper:select',MT_INT,(3*nat),selbuf))
      &    call errquit
-     &    ('stpr_select_srtdb: rtdb_put failed',911)
+     &    ('stpr_select_srtdb: rtdb_put failed',911, RTDB_ERR)
       end
       subroutine stpr_setmass_srtdb(nat,rtdb,imass,xmass)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c::passed
@@ -443,13 +448,14 @@ c::passed
 c
       if (.not.rtdb_put(rtdb,'stepper:setmass:int',MT_INT,nat,imass))
      &    call errquit
-     &    ('stpr_setmass_srtdb: rtdb_put failed',911)
+     &    ('stpr_setmass_srtdb: rtdb_put failed',911, RTDB_ERR)
       if (.not.rtdb_put(rtdb,'stepper:setmass:dbl',MT_DBL,nat,xmass))
      &    call errquit
-     &    ('stpr_setmass_srtdb: rtdb_put failed',911)
+     &    ('stpr_setmass_srtdb: rtdb_put failed',911, RTDB_ERR)
       end
       subroutine stpr_setmass_grtdb(nat,rtdb,himass,kimass,xmass)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c::passed
@@ -463,23 +469,26 @@ c
       if (.not.rtdb_ma_get
      &    (rtdb,'stepper:setmass:int',my_ma_type,my_nat,himass))
      &    call errquit
-     &    ('stpr_setmass_grtdb: rtdb_ma_get failed',911)
+     &    ('stpr_setmass_grtdb: rtdb_ma_get failed',911, RTDB_ERR)
       if(.not.((my_ma_type.eq.MT_INT).and.(my_nat.eq.nat))) then
         write(6,*)' my_ma_type .ne. MT_INT',my_ma_type,MT_INT
         write(6,*)' my_nat .ne. nat       ',my_nat, nat
-        call errquit('stpr_setmass_grtdb: rtdb_ma_get failure',911)
+        call errquit('stpr_setmass_grtdb: rtdb_ma_get failure',911,
+     &       RTDB_ERR)
       endif
       if (.not.MA_get_index(himass,kimass))
-     &    call errquit('stpr_setmass_grtdb: MA_get_index error',911)
+     &    call errquit('stpr_setmass_grtdb: MA_get_index error',911,
+     &       MA_ERR)
       if (.not.rtdb_get(rtdb,'stepper:setmass:dbl',MT_DBL,nat,xmass))
      &    call errquit
-     &    ('stpr_setmass_grtdb: rtdb_get failed',911)
+     &    ('stpr_setmass_grtdb: rtdb_get failed',911, RTDB_ERR)
       end
       subroutine stpr_store_rtdb(rtdb,omin,ts,std,trot,trtr,mwc,seco,
      &    swfir,
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg, rstd,
      &    trustc, trustm, trust, convggm, convgg, convge, maxiter)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stpr_inP.fh"
@@ -498,14 +507,14 @@ c allocate memory
 c.. logs array 
       if(.not.MA_Push_Get(MT_LOG,ns_log,'stepper logs',hlog,klog))
      &    call errquit
-     &    ('stpr_store_rtdb: push for logs failed?',911)
+     &    ('stpr_store_rtdb: push for logs failed?',911, MA_ERR)
 c.. one one int no allocate now
       if(.not.MA_Push_get(MT_INT,ns_int,'stepper ints',hint,kint))
      &    call errquit
-     &    ('stpr_store_rtdb: push for ints failed?',911)
+     &    ('stpr_store_rtdb: push for ints failed?',911, MA_ERR)
       if(.not.MA_Push_get(MT_DBL,ns_dbl,'stepper dbls',hdbl,kdbl))
      &    call errquit
-     &    ('stpr_store_rtdb: push for dbls failed?',911)
+     &    ('stpr_store_rtdb: push for dbls failed?',911, MA_ERR)
 c
       log_mb( klog)       = omin ! OVERRIDDEN BELOW
       log_mb((klog +  1)) = ts  ! OVERRIDDEN BELOW
@@ -537,41 +546,41 @@ c
       if (.not.rtdb_put
      &    (rtdb,'stepper:logicalvals',MT_LOG,ns_log,log_mb(klog)))
      &    call errquit
-     &    ('stpr_store_rtdb: rtdb_put failed',911)
+     &    ('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
 c
       if (.not.rtdb_put(rtdb,'stepper:ts',MT_LOG,1,ts))
-     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
 c
       if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
-     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
 c
       if (.not.rtdb_put
      &    (rtdb,'stepper:logicalvals',MT_LOG,ns_log,log_mb(klog)))
      &    call errquit
-     &    ('stpr_store_rtdb: rtdb_put failed',911)
+     &    ('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
 
 c
       if (.not.rtdb_put
      &    (rtdb,'stepper:integervals',MT_INT,ns_int,int_mb(kint)))
      &    call errquit
-     &    ('stpr_store_rtdb: rtdb_put failed',911)
+     &    ('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
 c
       if (.not.rtdb_put
      &    (rtdb,'stepper:doublevals',MT_DBL,ns_dbl,dbl_mb(kdbl)))
      &    call errquit
-     &    ('stpr_store_rtdb: rtdb_put failed',911)
+     &    ('stpr_store_rtdb: rtdb_put failed',911, RTDB_ERR)
 c
       if(.not.MA_Pop_Stack(hdbl))
      &    call errquit
-     &    ('stpr_store_rtdb: error freeing hdbl',911)
+     &    ('stpr_store_rtdb: error freeing hdbl',911, RTDB_ERR)
 c
       if(.not.MA_Pop_Stack(hint))
      &    call errquit
-     &    ('stpr_store_rtdb: error freeing hint',911)
+     &    ('stpr_store_rtdb: error freeing hint',911, MA_ERR)
 c
       if(.not.MA_Pop_Stack(hlog))
      &    call errquit
-     &    ('stpr_store_rtdb: error freeing hlog',911)
+     &    ('stpr_store_rtdb: error freeing hlog',911, MA_ERR)
 c
 *      if(rtdb_print(rtdb,.true.))write(6,*)'store'
 c
@@ -581,6 +590,7 @@ c
      &    swsec,track,rpath,setm,oselect,osetmass,nmode,rconvg, rstd,
      &    trustc, trustm, trust, convggm, convgg, convge, maxiter)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stpr_inP.fh"
@@ -608,46 +618,50 @@ c
       if(.not.((my_ma_type.eq.MT_LOG).and.(my_len.eq.ns_log))) then
         write(6,*)' read type .ne. expected type ',my_ma_type,MT_LOG
         write(6,*)' read length .ne. expected    ',my_len,ns_log
-        call errquit('stpr_load_rtdb: rtdb_ma_get fail',911)
+        call errquit('stpr_load_rtdb: rtdb_ma_get fail',911,
+     &       RTDB_ERR)
       endif
       if(.not.MA_get_index(hlog,klog))
-     &    call errquit('stpr_load_rtdb: ma_get_index fail',911)
+     &    call errquit('stpr_load_rtdb: ma_get_index fail',911, MA_ERR)
 *      if(rtdb_print(rtdb,.true.))write(6,*)'load 2'
 c
 c... currently only two integer input nmode/maxiter
       if(.not.rtdb_ma_get
      &    (rtdb,'stepper:integervals',my_ma_type,my_len,hint))
      &    call errquit
-     &    ('stpr_load_rtdb:rtdb_ma_get failed',911)
+     &    ('stpr_load_rtdb:rtdb_ma_get failed',911, RTDB_ERR)
       if (.not.MA_get_index(hint,kint))
-     &    call errquit('stpr_load_rtdb: ma_get_index fail',911)
+     &    call errquit('stpr_load_rtdb: ma_get_index fail',911, MA_ERR)
 c
       if(.not.((my_ma_type.eq.MT_INT).and.(my_len.eq.ns_int)))then
         write(6,*)' read type .ne. expected type ',my_ma_type,MT_INT
         write(6,*)' read length .ne. expected    ',my_len,ns_int
-        call errquit('stpr_load_rtdb: rtdb_ma_get fail',911)
+        call errquit('stpr_load_rtdb: rtdb_ma_get fail',911, RTDB_ERR)
       endif
 c
 *      if(rtdb_print(rtdb,.true.))write(6,*)'load 3'
       if (.not.rtdb_ma_get
      &    (rtdb,'stepper:doublevals',my_ma_type,my_len,hdbl))
      &    call errquit
-     &    ('stpr_load_rtdb: rtdb_ma_get failed',911)
+     &    ('stpr_load_rtdb: rtdb_ma_get failed',911, RTDB_ERR)
 c
       if(.not.((my_ma_type.eq.MT_DBL).and.(my_len.eq.ns_dbl)))then
         write(6,*)' read type .ne. expected type ',my_ma_type,MT_DBL
         write(6,*)' read length .ne. expected    ',my_len,ns_dbl
-        call errquit('stpr_load_rtdb: rtdb_ma_get fail',911)
+        call errquit('stpr_load_rtdb: rtdb_ma_get fail',911, RTDB_ERR)
       endif
       if(.not.MA_get_index(hdbl,kdbl))
-     &    call errquit('stpr_load_rtdb: ma_get_index fail',911)
+     &    call errquit('stpr_load_rtdb: ma_get_index fail',911,
+     &       RTDB_ERR)
 c
 c
       if (.not.rtdb_get(rtdb,'stepper:ts',MT_LOG,1,ts))
-     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &       RTDB_ERR)
 c
       if (.not.rtdb_get(rtdb,'stepper:omin',MT_LOG,1,omin))
-     &    call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &    call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &       RTDB_ERR)
 c
 ***   omin     = log_mb( klog)          ! NOW DONE INDIVIDUALLY
 ***   ts       = log_mb((klog +  1))    ! NOW DONE INDIVIDUALLY
@@ -679,15 +693,15 @@ c
 c.... free heap memory
         if(.not.MA_free_heap(hdbl))
      &      call errquit
-     &      ('stpr_load_rtdb: error freeing hdbl',911)
+     &      ('stpr_load_rtdb: error freeing hdbl',911, MA_ERR)
 c
         if(.not.MA_free_heap(hint))
      &      call errquit
-     &      ('stpr_load_rtdb: error freeing hint',911)
+     &      ('stpr_load_rtdb: error freeing hint',911, MA_ERR)
 c
         if(.not.MA_free_heap(hlog))
      &      call errquit
-     &      ('stpr_load_rtdb: error freeing hlog',911)
+     &      ('stpr_load_rtdb: error freeing hlog',911, MA_ERR)
 c
 00001 continue
 c

@@ -14,6 +14,7 @@ c
      $                            kblo, kbhi, lblo, lbhi,
      $                            ssbb, osym, oblk )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "schwarz.fh"
@@ -47,7 +48,7 @@ c
         imem = 4*mxshq + 4*erilen
         if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
      $     call errquit(
-     $       'moints_gblk: no memory (stack) for labels',imem)
+     $       'moints_gblk: no memory (stack) for labels',imem, MA_ERR)
         k_iv = k_tmp
         k_jv = k_tmp + mxshq
         k_kv = k_tmp + 2*mxshq
@@ -57,7 +58,8 @@ c
         k_kl = k_tmp + 4*mxshq + 2*erilen
         k_ll = k_tmp + 4*mxshq + 3*erilen
         if (.not.ma_push_get(MT_DBL, mxshq, 'gblk q',l_qv, k_qv))
-     $     call errquit('moints_gblk: no memory for sym factors',imem)
+     $     call errquit('moints_gblk: no memory for sym factors',imem,
+     &       MA_ERR)
         call moints_gblk_mq_old( basis, ish, jsh, kshlo, kshhi,
      $                       lshlo, lshhi, schw_ij, tol2e,
      $                       erilen, eri, scrlen, iscr,
@@ -69,9 +71,9 @@ c
      $                       int_mb(k_il), int_mb(k_jl),
      $                       int_mb(k_kl), int_mb(k_ll) )
         if (.not.ma_pop_stack(l_qv))
-     $    call errquit('moints_gblk: failed to pop',0)
+     $    call errquit('moints_gblk: failed to pop',0, MA_ERR)
         if (.not.ma_pop_stack(l_tmp))
-     $    call errquit('moints_gblk: failed to pop',0)
+     $    call errquit('moints_gblk: failed to pop',0, MA_ERR)
       endif
 c
 c
@@ -103,6 +105,7 @@ c
      $                           ishv, jshv, kshv, lshv,
      $                           ilab, jlab, klab, llab )
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
       integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
@@ -163,7 +166,8 @@ c
       if (.not. intb_init4c( basis, ishv, jshv, basis, kshv, lshv,
      $     nshq, qv4, osym, 
      $     scrlen, iscr, erilen, beffect ))
-     $   call errquit('moints_gblk: intb_init4c failed',0)
+     $   call errquit('moints_gblk: intb_init4c failed',0,
+     &       INT_ERR)
 c
 c  Get some batch of integrals
 c
@@ -219,7 +223,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -334,6 +338,7 @@ c
      $                        kblo, kbhi, lblo, lbhi,
      $                        ssbb )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "schwarz.fh"
@@ -374,7 +379,8 @@ c
         mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
         imem = 4*mxshq + 4*erilen
         if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
-     $     call errquit('moints_gblk: no memory for labels',imem)
+     $     call errquit('moints_gblk: no memory for labels',imem,
+     &       MA_ERR)
         k_iv = k_tmp
         k_jv = k_iv + mxshq
         k_kv = k_iv + 2*mxshq
@@ -384,7 +390,8 @@ c
         k_kl = k_il + 2*erilen
         k_ll = k_il + 3*erilen
         if (.not.ma_push_get(MT_DBL, mxshq, 'gblk q',l_qv, k_qv))
-     $     call errquit('moints_gblk: no memory for sym factors',imem)
+     $     call errquit('moints_gblk: no memory for sym factors',imem,
+     &       MA_ERR)
         call moints_gblk_mq( basis, ish, jsh, kshlo, kshhi,
      $                       lshlo, lshhi, shmap, rbfmap,
      $                       schw_ij, tol2e,
@@ -397,9 +404,9 @@ c
      $                       int_mb(k_il), int_mb(k_jl),
      $                       int_mb(k_kl), int_mb(k_ll) )
         if (.not.ma_pop_stack(l_qv))
-     $    call errquit('moints_gblk: failed to pop',0)
+     $    call errquit('moints_gblk: failed to pop',0, MA_ERR)
         if (.not.ma_pop_stack(l_tmp))
-     $    call errquit('moints_gblk: failed to pop',0)
+     $    call errquit('moints_gblk: failed to pop',0, MA_ERR)
       else
         call moints_gblk_sq( basis, ish, jsh, kshlo, kshhi,
      $                       lshlo, lshhi, shmap, rbfmap,
@@ -436,6 +443,7 @@ c
      $                           ishv, jshv, kshv, lshv,
      $                           ilab, jlab, klab, llab )
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
       integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
@@ -501,7 +509,7 @@ c
       if (.not. intb_init4c( basis, ishv, jshv, basis, kshv, lshv,
      $                       nshq, qv4, osym, scrlen, iscr, 
      $                       erilen, beffect ))
-     $   call errquit('moints_gblk: intb_init4c failed',0)
+     $   call errquit('moints_gblk: intb_init4c failed',0, INT_ERR)
 c
 c  Loop through batches of integrals until exhausted
 c
@@ -560,7 +568,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
+C     $Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1210,7 +1218,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
+C$Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1254,8 +1262,9 @@ C$Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.36 1999-08-20 21:48:48 d3g681 Exp $
+c$$$C$Id: moints_aux2.F,v 1.37 2003-10-17 22:55:26 carlfahl Exp $
 c$$$       implicit none
+c$$$#include "errquit.fh"
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
 c$$$       integer nbf,noper
@@ -1281,6 +1290,7 @@ c$$$
 
 c$$$       integer function ga_create_Kblocked(noper,nbf,nvir,label)
 c$$$       implicit none
+c$$$#include "errquit.fh"
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
 c$$$       integer nbf,noper,nvir
@@ -1306,6 +1316,7 @@ c$$$       end
 
       integer function ga_create_JKblocked(noper,n1,n2,label)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer noper,n1,n2
@@ -1319,7 +1330,8 @@ c$$$       end
      $                    row_dist,col_dist,g_a)) then
          write(6,*) ' ga_create_JKblocked: ', label
          call util_flush(6)
-         call errquit('ga_create_JKblocked: cannot allocate',0)
+         call errquit('ga_create_JKblocked: cannot allocate',0,
+     &       GA_ERR)
       endif
       ga_create_JKblocked = g_a
       

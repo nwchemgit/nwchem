@@ -3,7 +3,7 @@
      &               Cxyz,zan,exinv,ncenters,
      &               bO2I,bKEI,bNAI,Nints,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.19 2000-10-25 22:50:06 windus Exp $
+c $Id: hf1.F,v 1.20 2003-10-17 22:54:02 carlfahl Exp $
       Implicit none
       integer NPA,NCA,La,NPB,NCB,Lb,ncenters,Nints,maxW0
       logical O2I,KEI,NAI,canAB
@@ -37,6 +37,7 @@ c--> Local variables
 #endif
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 c
 c Compute the overlap, kinetic energy, and nuclear attraction integrals for 
 c two shells of contracted Gaussians functions. This driver is NOT capable of 
@@ -154,7 +155,7 @@ c Assign pointers to scratch space.
         write(LuOut,*) 'From the right '
         write(LuOut,*) 'ESp   :  ',i_ESp
  
-        call errquit('hf1: insufficient memory for hfset',911)
+        call errquit('hf1: insufficient memory for hfset',911, MEM_ERR)
  
       else
  
@@ -219,7 +220,7 @@ C      write (LuOut,*) 'before hfmke'
         write(LuOut,*) 'From the right '
         write(LuOut,*) 'ESp   :  ',i_ESp
 
-        call errquit('hf1: insufficient memory for hfmke',911)
+        call errquit('hf1: insufficient memory for hfmke',911, MEM_ERR)
 
       else
 
@@ -269,7 +270,8 @@ c Assign pointers to scratch space.
           write(LuOut,*) 'Ep    :  ',i_Ep
           write(LuOut,*) 'Ti    :  ',i_Ti
 
-          call errquit('hf1: insufficient memory for hfkei',911)
+          call errquit('hf1: insufficient memory for hfkei',911,
+     &       MEM_ERR)
 
         else if (gencon) then
 
@@ -326,7 +328,8 @@ C          write (LuOut,*) MaxMem,maxW0
           write(LuOut,*) 'ff    :  ',i_ff
           write(LuOut,*) 'Rj    :  ',i_Rj
 
-          call errquit('hf1: insufficient memory for hfmkr',911)
+          call errquit('hf1: insufficient memory for hfmkr',911,
+     &       MEM_ERR)
 
         else
 

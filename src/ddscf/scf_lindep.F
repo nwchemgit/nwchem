@@ -1,14 +1,15 @@
       subroutine scf_lindep(rtdb, geom, basis, g_u, n_indep)
-c     $Id: scf_lindep.F,v 1.3 1996-10-19 23:41:15 d3g681 Exp $
-       implicit none
+c     $Id: scf_lindep.F,v 1.4 2003-10-17 22:54:33 carlfahl Exp $
+      implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "util.fh"
-       integer rtdb, geom, basis ! [input] Handles
-       integer g_u              ! [input] GA handle for output vectors
-       integer n_indep          ! [output] No. of linearly indep vectors
+      integer rtdb, geom, basis ! [input] Handles
+      integer g_u              ! [input] GA handle for output vectors
+      integer n_indep          ! [output] No. of linearly indep vectors
 c
 c     Return in g_u the linearly independent eigenvectors of the overlap
 c     matrix in the given basis.  Note that these vectors are orthonormal
@@ -20,16 +21,16 @@ c
 c     To project a set of MOs C into the linearly independent space 
 c     use U * UT * C.
 c
-       integer n_dep            ! No. of dependent vectors
-       double precision tol_default, tol
-       parameter (tol_default = 1d-5)
+      integer n_dep            ! No. of dependent vectors
+      double precision tol_default, tol
+      parameter (tol_default = 1d-5)
 c
-       logical oprint
-       integer g_over
-       integer l_ev, k_ev
-       integer i, j, nbf
-       integer ga_create_atom_blocked
-       external ga_create_atom_blocked
+      logical oprint
+      integer g_over
+      integer l_ev, k_ev
+      integer i, j, nbf
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
       oprint = util_print('lindep', print_default) .and. 
      $      ga_nodeid().eq.0
@@ -37,9 +38,10 @@ c
 c     Make and diag the overlap matrix
 c
        if (.not. bas_numbf(basis, nbf)) 
-     $      call errquit('scf_lin: bad basis?',0)
+     $      call errquit('scf_lin: bad basis?',0, BASIS_ERR)
        if (.not. ma_push_get(MT_DBL, nbf, 'Evals', l_ev, k_ev))
-     $      call errquit('scf_lindep: push of evals failed', nbf)
+     $      call errquit('scf_lindep: push of evals failed', nbf,
+     &       MA_ERR)
        g_over  = ga_create_atom_blocked(geom, basis,'Temp Over')
 c
        call ga_zero(g_over)
@@ -80,7 +82,8 @@ c
        endif
 c
        if ((tol.ne.-1.0d0) .and. (n_dep.ne.-1)) call errquit
-     $      ('scf_lindep: only one of n_dep and tol permitted',0)
+     $      ('scf_lindep: only one of n_dep and tol permitted',0,
+     &       UNKNOWN_ERR)
 c
 c     Determine linearly independent set
 c
@@ -117,8 +120,8 @@ c
        n_indep = nbf - n_dep
 c
        if (.not. ga_destroy(g_over)) call errquit
-     $      ('scf_lindep: destroy of over?', 0)
+     $      ('scf_lindep: destroy of over?', 0, GA_ERR)
        if (.not. ma_pop_stack(l_ev)) call errquit
-     $      ('scf_lindep: destroy of ev?', 0)
+     $      ('scf_lindep: destroy of ev?', 0, MA_ERR)
 c
        end

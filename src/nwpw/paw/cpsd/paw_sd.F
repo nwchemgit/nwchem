@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.62 2003-09-25 17:15:39 bylaska Exp $
+* $Id: paw_sd.F,v 1.63 2003-10-17 22:56:56 carlfahl Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.62  2003/09/25 17:15:39  bylaska
+* bug fix...EJB
+*
 * Revision 1.61  2003/09/25 02:10:04  bylaska
 * Automatic wavefunction exapander and  new wavefunction generation have
 * been added to the paw code.
@@ -81,6 +84,7 @@
 
       logical function paw_sd(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
@@ -347,7 +351,7 @@
 !        write(*,*) "task pspw wavefunction_initializer or " 
 !        write(*,*) "task pspw energy"
 !        end if
-!        call errquit("paw_sd: movecs file does not exist",0)
+!        call errquit("paw_sd: movecs file does not exist",0, DISK_ERR)
       end if
 
 *     ***** allocate psi2,and psi1 wavefunctions ****
@@ -357,7 +361,8 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi1',psi1(2),psi1(1))
-      if (.not. value) call errquit('paw_sd:out of heap memory',0)
+      if (.not. value) call errquit('paw_sd:out of heap memory',0,
+     &       MA_ERR)
 
 
 *     *****  read psi2 wavefunctions ****
@@ -450,7 +455,8 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
-      if (.not. value) call errquit('paw_sd: out of heap memory',1)
+      if (.not. value) call errquit('paw_sd: out of heap memory',1,
+     &       MA_ERR)
 
 *     *** intialize overlap coefficient data structure ***
       call phafac()
@@ -519,7 +525,7 @@
      >      'PBE96 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0)
+            call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
 
          write(6,1140)
@@ -896,7 +902,8 @@ c         write(6,1498) virial
       value = value.and.MA_free_heap(lmd1(2))
       value = value.and.MA_free_heap(psi1(2))
       value = value.and.MA_free_heap(psi2(2))
-      if (.not. value) call errquit('paw_sd:error freeing heap',2)
+      if (.not. value) call errquit('paw_sd:error freeing heap',2,
+     &       MA_ERR)
 
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)

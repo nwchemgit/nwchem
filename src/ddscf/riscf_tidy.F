@@ -1,6 +1,7 @@
       subroutine riscf_tidy ( geom, basis, riscf_basis )
-C$Id: riscf_tidy.F,v 1.6 2000-10-30 21:37:51 windus Exp $
+C$Id: riscf_tidy.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 
 #include "geom.fh"
 #include "bas.fh"
@@ -22,7 +23,8 @@ c
 
       status = riscf_del_3c_ints(-1)
       if (.not.status)
-     $     call errquit('riscf_tidy: failed to free 3c ints', 0)
+     $     call errquit('riscf_tidy: failed to free 3c ints', 0,
+     &       UNKNOWN_ERR)
 
 C     status = bas_destroy ( basis )
 C     if (.not.status)
@@ -30,7 +32,8 @@ C     $     call errquit('riscf_tidy: failed to destroy ao basis', 0)
 
       status = bas_destroy ( riscf_basis )
       if (.not.status)
-     $     call errquit('riscf_tidy: failed to destroy ri basis', 0)
+     $     call errquit('riscf_tidy: failed to destroy ri basis', 0,
+     &       BASIS_ERR)
 
 C     status = geom_destroy ( geom )
 C     if (.not.status)

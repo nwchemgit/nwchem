@@ -2,13 +2,14 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.11 2003-09-05 16:05:06 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.12 2003-10-17 22:55:53 carlfahl Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
 c     BGJ - 7/00
 c
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 c!!! Will we still need this?
@@ -122,13 +123,13 @@ c     Get the max number of contractions, number of primitives
 c     and angular momentum for any given shell of this basis set.
 c
       if( .not. bas_ncontr_cn_max(basis_hand,MXcont) )then
-         call errquit('Exiting in xc_eval_basis.',1)
+         call errquit('Exiting in xc_eval_basis.',1, BASIS_ERR)
       end if
       if( .not. bas_nprim_cn_max(basis_hand,MXprim) )then
-         call errquit('Exiting in xc_eval_basis.',2)
+         call errquit('Exiting in xc_eval_basis.',2, BASIS_ERR)
       end if
       if( .not. bas_high_angular(basis_hand,MXang) )then
-         call errquit('Exiting in xc_eval_basis.',3)
+         call errquit('Exiting in xc_eval_basis.',3, BASIS_ERR)
       end if
 c
 c     Allocate scratch space for primitives for a single shell
@@ -180,7 +181,7 @@ c!!! dimensioning of the d*ang arrays to save the space if needed
       itop = irad + nq*(maxder+1)*MXcont
       if (.not. MA_Push_Get(mt_dbl, itop, 'xc_eval_basis', lscr, iscr))
      &     call errquit('Could not allocate scratch in xc_eval_basis',
-     &     itop)
+     &     itop, MA_ERR)
       izprim = iscr
       iccoef = iccoef + iscr
       iang = iang + iscr
@@ -235,7 +236,8 @@ c     Angular momentum
 c
             if (ltype .lt. 0) then
                call errquit(
-     &              'xc_eval_basis: sp-type orbital not coded',1)
+     &              'xc_eval_basis: sp-type orbital not coded',1,
+     &       CAPMIS_ERR)
             else
                l = ltype
             endif
@@ -256,7 +258,8 @@ c     Number of contractions
 c
             if (ncontr.ne.1) then
                call errquit(
-     &              'xc_eval_basis: general contraction not ready',1)
+     &              'xc_eval_basis: general contraction not ready',1,
+     &       UNKNOWN_ERR)
             endif
 c
 c     Get exponents and contraction coefficients for this contraction set
@@ -308,7 +311,7 @@ c
  100  continue
 c
       if (.not. MA_Pop_Stack(lscr))
-     &     call errquit('xc_eval_basis: could not pop stack',0)
+     &     call errquit('xc_eval_basis: could not pop stack',0, MA_ERR)
 c
       return
       end
@@ -316,6 +319,7 @@ c
       subroutine eval_radial(crad, r2, nq, maxd, zprim, ccoef,
      *     nprimo, ncontr)
       implicit none
+#include "errquit.fh"
       integer nq, maxd, nprimo, ncontr
       integer nd
       double precision crad(0:maxd,nq), r2(nq),
@@ -328,7 +332,7 @@ c
 c     Store results for first primitive directly and then sum the rest
 c
       if (maxd .gt. 3) then
-        call errquit('Unexpected in eval_radial', maxd)
+        call errquit('Unexpected in eval_radial', maxd, INPUT_ERR)
       endif
       zeta = -zprim(1)
       t(0) = ccoef(1,1)
@@ -362,6 +366,7 @@ c
       subroutine eval_angular(ang, d1ang, d2ang, d3ang, q, ctr, nq,
      &     l2k, maxl, maxder, gen_l, spherical)
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 c
@@ -490,7 +495,7 @@ c
             enddo
          endif
       else
-         call errquit('Unexpected in eval_angular', maxl)
+         call errquit('Unexpected in eval_angular', maxl, INPUT_ERR)
       endif
 c
 c     Finish off maxl >= gen_l with general code
@@ -690,7 +695,8 @@ c     Allocate scratch space for transformation
             endif
             if (.not. MA_Push_Get(mt_dbl, nscr, 'eval_angular',
      &           lscr, iscr)) call errquit(
-     &           'Could not allocate scratch in eval_angular',nscr)
+     &           'Could not allocate scratch in eval_angular',nscr,
+     &       MA_ERR)
 
             do 100 l = max(2,gen_l-maxder), maxl
                nl1 = nang_cart_tot(l-1) + 1
@@ -728,7 +734,8 @@ c     Allocate scratch space for transformation
  100        continue
 
             if (.not. MA_Pop_Stack(lscr))
-     &           call errquit('eval_angular: could not pop stack',0)
+     &           call errquit('eval_angular: could not pop stack',0,
+     &       MA_ERR)
          endif
       endif
 c
@@ -759,6 +766,7 @@ c
 c
       subroutine eval_der_radial(drad, rad, ang, nq, maxd, maxcomp)
       implicit none
+#include "errquit.fh"
       integer nq, maxd, maxcomp
       double precision drad(maxcomp,nq), rad(0:maxd,nq), ang(nq,*)
 c
@@ -826,7 +834,8 @@ c
             drad(dzzz,n)= z*(3d0*r2 + z*z*r3)
          enddo
       else
-         call errquit('Bad value for maxd in eval_der_radial',maxd)
+         call errquit('Bad value for maxd in eval_der_radial',maxd,
+     &       INPUT_ERR)
       endif
 c
       return
@@ -1194,6 +1203,7 @@ c
      &     gen_l)
 c
       implicit none
+#include "errquit.fh"
       integer nq, iabeg, iaend, max_der_component, gen_l
       double precision chi(nq,iabeg:iaend),
      &     d1chi(nq,dx:dz,iabeg:iaend),
@@ -1297,7 +1307,8 @@ c
                d1chi(n,dy,Ad5) = d1chi(n,dy,Ad5) -     t(Ay)
             enddo
          else
-            call errquit('d fn gen_l error in eval_dang_x_rad',1)
+            call errquit('d fn gen_l error in eval_dang_x_rad',1,
+     &       UNKNOWN_ERR)
          endif
       elseif (iaend .eq. 10) then
 
@@ -1533,7 +1544,8 @@ c
 
 c     Spherical f functions
 
-         call errquit('f fn gen_l error in eval_dang_x_rad',1)
+         call errquit('f fn gen_l error in eval_dang_x_rad',1,
+     &       UNKNOWN_ERR)
       elseif (iaend .eq. 20 .and. gen_l .gt. 3) then
 
 c     Cartesian f functions
@@ -1567,7 +1579,8 @@ c
                d1chi(n,dz,Azzz) = d1chi(n,dz,Azzz) + 3d0*t(Azz)
             enddo
          else
-            call errquit('f fn gen_l error in eval_dang_x_rad',1)
+            call errquit('f fn gen_l error in eval_dang_x_rad',1,
+     &       UNKNOWN_ERR)
          endif
       else
 

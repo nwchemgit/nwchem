@@ -1,4 +1,4 @@
-C $Id: ecp_radint1.F,v 1.4 1999-03-04 19:31:16 mg201 Exp $
+C $Id: ecp_radint1.F,v 1.5 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint1 (p_min,p_max,l_lo,l_min,l_max,m_count,
@@ -57,6 +57,7 @@ C $Id: ecp_radint1.F,v 1.4 1999-03-04 19:31:16 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "errquit.fh"
       integer i,j,ibug,inc_l,ind_l,ind_p,l,ll,lm,l_lo,l_min,l_max,
      &    m,mm,m_hi,m_lo,m_count,m_skip,n_prim_a,n_prim_b,n_cont_a,
      &    n_cont_b,n_cont_c,n_ab,n_abc,n_abp,n_c,nc_ab,ncab,n_int,n_p,
@@ -103,7 +104,8 @@ C $Id: ecp_radint1.F,v 1.4 1999-03-04 19:31:16 mg201 Exp $
      &            Qabc(ind_p),temp,ind,tol)
             else
               call errquit(
-     &            'Illegal p value in routine ecp_radint1',99)
+     &            'Illegal p value in routine ecp_radint1',99,
+     &       BASIS_ERR)
             end if
           end if
           ind_p = ind_p+n_abp

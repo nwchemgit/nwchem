@@ -1,4 +1,4 @@
-C $Id: ecp_locint1.F,v 1.3 1999-03-31 02:20:47 mg201 Exp $
+C $Id: ecp_locint1.F,v 1.4 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_locint1 (p_min,p_max,l_max,n_prim_a,n_prim_b,
@@ -42,6 +42,8 @@ C $Id: ecp_locint1.F,v 1.3 1999-03-31 02:20:47 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer i,ibug,ind_l,ind_p,j,l,l_max,
      &    m,mm,m_hi,m_count,n_prim_a,n_prim_b,
      &    n_ab,n_abc,n_abp,n_c,n_int,n_p,
@@ -88,7 +90,8 @@ Cend
      &            Qabc(1,ind_p),temp,ind,tol)
             else
               call errquit(
-     &            'Illegal p value in routine ecp_locint1',99)
+     &            'Illegal p value in routine ecp_locint1',99,
+     &       UNKNOWN_ERR)
             end if
           end if
           ind_p = ind_p+n_p

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_XF -- Three-center integral transformation driver for RI-MP2
 C
 C REVISION
-C     $Id: driver_xf.F,v 1.6 1999-05-28 16:03:53 bernhold Exp $
+C     $Id: driver_xf.F,v 1.7 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_XF(RTDB, Geom, AOBas,
@@ -13,6 +13,7 @@ C SYNOPSIS
      $   NILimit, Neglect, MinEVal, Approx, G_C,
      $     BraKetSame, DoGrad, IntRange)
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB, Geom, AOBas, FitBas, TopSpin, NILimit
       Integer ALo(TopSpin), AHi(TopSpin), ILo(TopSpin), IHi(TopSpin)
       Double precision Neglect, MinEVal
@@ -138,7 +139,7 @@ C     Sanity check
 C
       If ( MyMaxSpin .ne. MaxSpin ) Call ErrQuit(
      $     'RIMP2_Driver_XF: MaxSpin does not match parent routine',
-     $     MyMaxSpin)
+     $     MyMaxSpin, INPUT_ERR)
 C
       NPass = 0
       PrInfo =   Util_Print('information', Print_Low)
@@ -170,7 +171,8 @@ C
       Status = Status .AND. Mk_Fit_XF( Approx, Sp, FitBas, MinEVal, G_V)
 C
       If (.NOT. Status )
-     $   Call ErrQuit('Failed to compute fitting transformation', 0)
+     $   Call ErrQuit('Failed to compute fitting transformation', 0,
+     &       CALC_ERR)
       Call PStat_Off( PS_Fit_xf )
 C
       If ( Util_Print('fit xf', Print_Debug) ) Call GA_Print(G_V)
@@ -208,7 +210,7 @@ C     * Perform transformation for each spin case *
 C     *********************************************
 C
       If (.NOT. Bas_NumBF(FitBas, FitLen) ) Call ErrQuit(
-     $     'RIMP2_Driver_XF: can''t get basis info', FitBas)
+     $     'RIMP2_Driver_XF: can''t get basis info', FitBas, BASIS_ERR)
 C
       Do Class = 1, 2
          Do BraKet = 1, 2
@@ -332,7 +334,7 @@ C
      $                 FitBas, 'Output integral matrix', G_Out) )
      $                 Call ErrQuit(
      $                 'RIMP2_Driver_XF: Failed to allocate g_out',
-     $                 ISpin)
+     $                 ISpin, GA_ERR)
 C
 C                 Do the transformation.  Note that for the S
 C                 approximation, there is an arbitrary choice to make
@@ -356,7 +358,8 @@ C
      $                    G_C(ISpin), XFFit, G_V, 'DISK', G_Out,
      $                    D_Int(ISpin, BraKet, Class), Thresh ) )
      $                    Call ErrQuit(
-     $                    'RIMP2_Driver_XF: transformation failed', 0)
+     $                    'RIMP2_Driver_XF: transformation failed', 0,
+     &       CALC_ERR)
                   ElseIf ( (Approx .eq. 'V')
      $                .OR. (Approx .eq. 'S' .and. BraKet .eq. 1) ) then
                      If ( .NOT. XForm_3cIntsG(RTDB, Geom, 'ERI',
@@ -368,19 +371,20 @@ C
      $                    G_C(ISpin), XFFit, G_V, 'DISK', G_Out,
      $                    D_Int(ISpin, BraKet, Class), Thresh ) )
      $                    Call ErrQuit(
-     $                    'RIMP2_Driver_XF: transformation failed', 0)
+     $                    'RIMP2_Driver_XF: transformation failed', 0,
+     &       CALC_ERR)
                   Else
                      Write (LuErr, *) 'Unknown approximation ', Approx
                      Call ErrQuit(
      $                    'RIMP2_Driver_XF: Unrecognized approximation',
-     $                    0)
+     $                    0, INPUT_ERR)
                   EndIf
 C
 C                 Clean up memory and disk
 C
                   If ( .NOT. GA_Destroy( G_Out ) ) Call ErrQuit(
      $                 'RIMP2_Driver_XF: Can''t free global array',
-     $                 ISpin)
+     $                 ISpin, GA_ERR)
 C
                EndIf            ! Transformation must be done
             EndDo               ! ISpin
@@ -393,7 +397,7 @@ C
       Status = Status .AND. GA_Destroy( G_V )
 C
       If ( .NOT. Status ) Call ErrQuit(
-     $   'Rimp2_driver_xf:  Unable to free GAs ', 0)
+     $   'Rimp2_driver_xf:  Unable to free GAs ', 0, GA_ERR)
 C
       Call Schwarz_Tidy
 C

@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_psi.F,v 1.2 2003-07-30 18:16:48 bylaska Exp $
+* $Id: lcao_write_psi.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
 
 *     *******************************************
@@ -14,6 +14,7 @@
      >                          ispin,ne,
      >                          psimatrix,phi)
       implicit none
+#include "errquit.fh"
       character*(*) filename
       integer      version
       integer      ngrid(3)
@@ -48,7 +49,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value)
-     >  call errquit('lcao_write_psi:out of stack memory',0)
+     >  call errquit('lcao_write_psi:out of stack memory',0, MA_ERR)
 
 
 *     **** open ELCIN binary file ****
@@ -96,7 +97,7 @@
       value = value.and.
      >        MA_pop_stack(psi(2))
       if (.not. value)
-     >  call errquit('lcao_write_psi:popping stack memory',0)
+     >  call errquit('lcao_write_psi:popping stack memory',0, MA_ERR)
       return
       end
 
@@ -115,6 +116,7 @@
      >                          ispin,ne,ne_excited,
      >                          psimatrix,phi)
       implicit none
+#include "errquit.fh"
       character*(*) filename
       integer      version
       integer      ngrid(3)

@@ -30,9 +30,10 @@ c$$$c
 c$$$      end
       subroutine hnd_rdfree(ir, string, ierr)
 *
-* $Id: hnd_rdfree.F,v 1.4 2000-10-23 23:37:48 windus Exp $
+* $Id: hnd_rdfree.F,v 1.5 2003-10-17 22:55:17 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
       integer ir                ! [input] IGNORED
       character*(*) string      ! [output] input line with quoted char strings
@@ -59,7 +60,8 @@ c
             ierr = 1
             return              ! Return EOF condition
          else
-            call errquit('hnd_rdfree: unknown error reading input',0)
+            call errquit('hnd_rdfree: unknown error reading input',0,
+     &       INPUT_ERR)
          endif
       endif
 c
@@ -78,14 +80,15 @@ c
          else if (inp_a(aval)) then
             flgwrd(i) = 3
          else
-            call errquit('hnd_rdfree: failed reading token',i)
+            call errquit('hnd_rdfree: failed reading token',i,
+     &       INPUT_ERR)
          endif
 c     
 c     Stuff the ASCII value and length into prswrd
 c     
          call inp_prev_field()
          if (.not. inp_a(aval)) call errquit
-     $        ('hnd_rdfree: failed reading ascii value',i)
+     $        ('hnd_rdfree: failed reading ascii value',i, INPUT_ERR)
          if (flgwrd(i) .eq. 3) then
             prswrd(i)(1:1) = ''''
             prswrd(i)(2:)  = aval
@@ -102,7 +105,8 @@ c
             string(next:) = prswrd(i)
             next = next + numchr(i) + 1
          else
-            call errquit('hnd_rdfree: string too short',len(string))
+            call errquit('hnd_rdfree: string too short',len(string),
+     &       INPUT_ERR)
          endif
 c
       enddo

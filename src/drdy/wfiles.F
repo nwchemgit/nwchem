@@ -1,7 +1,8 @@
-C $Id: wfiles.F,v 1.3 2001-02-02 01:29:27 windus Exp $
+C $Id: wfiles.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_wfiles (swf,iflg)
 C
       Implicit none
+#include "errquit.fh"
       Integer iflg
       Double Precision swf
 C
@@ -57,7 +58,8 @@ C
          if (iflg.eq.0) then
             if(lgs(38).eq.1.or.lgs(38).ge.3) then
                if(.not.rtdb_cget(my_rtdb,'drdy:theory',1,theory))
-     *           call errquit('drdy_wfiles:cannot get theory',555)
+     *           call errquit('drdy_wfiles:cannot get theory',555,
+     &       RTDB_ERR)
                call drdy_get_movecname(my_rtdb,theory,dummy_file)
                ilen = inp_strlen(dummy_file)
                cmd = 'cp '
@@ -74,7 +76,7 @@ C
                else
                   Write (fu6,601) cmd
                   call errquit('drdy_wfiles: problem with system call',
-     *                          555)
+     *                          555, UNKNOWN_ERR)
                endif
             endif
             if(lgs(38).ge.2) then
@@ -94,12 +96,13 @@ C
                else
                   Write (fu6,601) cmd
                   call errquit('drdy_wfiles: problem with system call',
-     *                          555)
+     *                          555, UNKNOWN_ERR)
                endif
             endif
          else
             if(.not.rtdb_cget(my_rtdb,'drdy:sptheory',1,theory))
-     *        call errquit('drdy_wfiles:cannot get sptheory',555)
+     *        call errquit('drdy_wfiles:cannot get sptheory',555,
+     &       RTDB_ERR)
             call drdy_get_movecname(my_rtdb,theory,dummy_file)
             ilen = inp_strlen(dummy_file)
             cmd = 'cp '
@@ -116,7 +119,7 @@ C
             else
                Write (fu6,601) cmd
                call errquit('drdy_wfiles: problem with system call',
-     *                       555)
+     *                       555, INPUT_ERR)
             endif
          endif
       endif
@@ -129,6 +132,7 @@ c
       subroutine drdy_get_movecname(rtdb,theory,movecs)
 c
       Implicit none
+#include "errquit.fh"
 c
 #include "inp.fh"
 #include "rtdb.fh"
@@ -152,6 +156,6 @@ c
 c Actually get the movecs name
 c
       if (.not. rtdb_cget(rtdb,key,1,movecs)) call errquit
-     *   ('drdy_wfiles:failed getting movecs name',555)
+     *   ('drdy_wfiles:failed getting movecs name',555, RTDB_ERR)
 c
       end

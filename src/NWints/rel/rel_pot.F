@@ -1,4 +1,4 @@
-C $Id: rel_pot.F,v 1.11 2000-04-26 17:48:42 mg201 Exp $
+C $Id: rel_pot.F,v 1.12 2003-10-17 22:54:09 carlfahl Exp $
 ************************************************************************
 c:tex-\subsection{rel\_pot}
 c:tex-This routine assembles the relativistic (small-small) potential 
@@ -22,6 +22,7 @@ c:tex-\end{verbatim}
 ************************************************************************
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
       double precision zero,one
       parameter (zero = 0.0d00, one = 1.0d00)
 *
@@ -100,7 +101,7 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
       nm = 3*n_all_A*n_allm_B
       nab = n_all_A*n_all_B
       if ((nab .gt. nints).and.(.not.Dryrun)) call errquit
-     &    ('Mismatch between nints and nab in rel_pot',99)
+     &    ('Mismatch between nints and nab in rel_pot',99, INT_ERR)
       nn = 9*nab
 *
       i_scr = 1
@@ -112,7 +113,7 @@ c:tex-is no reason why these cannot be used for the two-electron integrals.
         lscr = i_free-1
       else
         if (lscr .lt. i_free-1) call errquit 
-     &      ('Insufficient memory in rel_pot',99)
+     &      ('Insufficient memory in rel_pot',99, MEM_ERR)
         call dfill (np,zero,scr(i_grdp),1)
         call ecp_grad_a (l_A,np_A,n_A,nm_A,n_cont_A,Vpp,Vpm,
      &      scr(i_grdp),n_allp_B,ibug/10)

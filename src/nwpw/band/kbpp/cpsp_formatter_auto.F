@@ -6,6 +6,7 @@
 *     ***************************************
       subroutine cpsp_formatter_auto(atom)
       implicit none
+#include "errquit.fh"
       character*2  atom
 
 #include "mafdecls.fh"
@@ -84,7 +85,8 @@
 
       value = value.and.MA_pop_stack(kv(2))
 *     *** exit if error found ***
-      if(.not. value) call errquit('psp_formatter_auto: error',0)
+      if(.not. value) call errquit('psp_formatter_auto: error',0,
+     &       MA_ERR)
 
       return
       end

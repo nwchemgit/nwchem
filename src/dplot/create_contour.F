@@ -4,9 +4,10 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.27 2003-05-27 22:19:14 pollack Exp $
+* $Id: create_contour.F,v 1.28 2003-10-17 22:54:43 carlfahl Exp $
 *
       Implicit None
+#include "errquit.fh"
 *
 ************************************************************************
 #include "mafdecls.fh"
@@ -103,12 +104,12 @@
       End If
 *
       if(.not.MA_Pop_Stack(l_Charge))
-     .     Call errquit('C_C: Failed to deallocate Charge',0)
+     .     Call errquit('C_C: Failed to deallocate Charge',0, MA_ERR)
 c
 c     get basis set information
 c
       if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
-     &     call errquit('crecon: basis set error:', 86)
+     &     call errquit('crecon: basis set error:', 86, BASIS_ERR)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       If (.not.Bas_NPrim_CN_Max(AO_Bas_Han,nbf_ao_mxprim))
      &   Call ErrQuit('C_C: Bas_NPrim_CN_Max failed',0)
@@ -283,7 +284,7 @@ c
 
 *
       if(.not.MA_chop_Stack(l_xyz))
-     .  Call errquit('C_C: Failed to deallocate xyz',0)
+     .  Call errquit('C_C: Failed to deallocate xyz',0, MA_ERR)
 *
 *---- Put values into the global array and synchronize
       next=nxtask(-nodes,icount)

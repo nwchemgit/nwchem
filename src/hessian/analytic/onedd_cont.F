@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.27 2002-06-17 22:35:30 bert Exp $
+C $Id: onedd_cont.F,v 1.28 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine onedd_cont(rtdb)
 c
@@ -8,6 +8,7 @@ c  the hessian matrix and the RHS
 c  Start with RHF and work our way up.
 c
       implicit none
+#include "errquit.fh"
 c
 #include "bas.fh"
 #include "global.fh"
@@ -45,10 +46,11 @@ c
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       if (.not. ma_push_get(mt_dbl,max1e,'intdd buffer',l_buf,
      *  k_buf))
-     *  call errquit('onedd_cont:could not get intdd buffer',max1e)
+     *  call errquit('onedd_cont:could not get intdd buffer',max1e,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,mscratch_1e,'intdd scratch',
      *  l_scr, k_scr))call errquit('onedd_cont: scratch alloc failed',
-     *  mscratch_1e)
+     *  mscratch_1e, MA_ERR)
 c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -67,14 +69,15 @@ c
 c Set up some local memory to hold pieces of the density and weighted density
 c
       if (.not. bas_nbf_ce_max(basis,matb))
-     *  call errquit('onedd_cont: could not get matb',555)
+     *  call errquit('onedd_cont: could not get matb',555, BASIS_ERR)
       lsqatom = matb * matb
       if (.not. ma_push_get(mt_dbl,ndens*lsqatom,'piece_density',
      *  l_dens,k_dens))
-     *  call errquit('onedd_cont:could not allocate l_dens',lsqatom)
+     *  call errquit('onedd_cont:could not allocate l_dens',lsqatom,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,lsqatom,'piece_wdensity',l_wdens,
      *     k_wdens)) call errquit
-     *    ('onedd_cont:could not allocate l_wdens',lsqatom) 
+     *    ('onedd_cont:could not allocate l_wdens',lsqatom, MA_ERR)
 c
 c  first print out the rhs values (should be all zeroes)!
 c
@@ -114,9 +117,9 @@ c
 c Get rid of several temporary arrays
 c
       if (.not. ma_pop_stack(l_wdens)) 
-     *  call errquit('onedd_cont: failed to pop l_wdens',555)
+     *  call errquit('onedd_cont: failed to pop l_wdens',555, MA_ERR)
       if (.not. ma_pop_stack(l_dens)) 
-     *  call errquit('onedd_cont: failed to pop l_dens',555)
+     *  call errquit('onedd_cont: failed to pop l_dens',555, MA_ERR)
 c
 c Now handle the Hx and Sx terms for the rhs
 c First handle Sx term
@@ -180,9 +183,9 @@ c
 c  Get rid of the temporary buffers for the integrals
 c
       if (.not. ma_pop_stack(l_scr)) 
-     *  call errquit('onedd_cont: failed to pop l_scr',555)
+     *  call errquit('onedd_cont: failed to pop l_scr',555, MA_ERR)
       if (.not. ma_pop_stack(l_buf)) 
-     *  call errquit('onedd_cont: failed to pop l_buf',555)
+     *  call errquit('onedd_cont: failed to pop l_buf',555, MA_ERR)
 c
 c  Get the dipole derivatives contribution
 c  Reuse g_wdens for the total density

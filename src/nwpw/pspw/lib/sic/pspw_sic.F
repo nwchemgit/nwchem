@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.22 2003-07-20 00:56:17 bylaska Exp $
+* $Id: pspw_sic.F,v 1.23 2003-10-17 22:57:40 carlfahl Exp $
 *
 
 *     *************************
@@ -9,6 +9,7 @@
 *     *************************
       subroutine pspw_init_SIC(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -34,7 +35,8 @@
 
          if (.not.MA_get_index(orbital_list(2),orbital_list(1))) 
      >      call errquit(
-     >       'pspw_init_SIC: ma_get_index failed for actlist',911)
+     >       'pspw_init_SIC: ma_get_index failed for actlist',911,
+     &       MA_ERR)
 
          if (.not. rtdb_get(rtdb,
      >                      'pspw:SIC_screening_radius',
@@ -95,7 +97,7 @@
      >             MA_alloc_get(mt_dbl,norbs,
      >                'xc_orb',xc_orb(2),xc_orb(1))
            if (.not. value)   
-     >       call errquit('pspw_init_SIC: out of heap memory',1)
+     >       call errquit('pspw_init_SIC: out of heap memory',1, MA_ERR)
          end if
 
       else
@@ -114,6 +116,7 @@
 *     *************************
       subroutine pspw_end_SIC()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "pspw_sic.fh"
@@ -161,7 +164,7 @@
         end if
 
         if (.not. value)
-     >  call errquit('pspw_end_SIC:error freeing heap memory',0)
+     >  call errquit('pspw_end_SIC:error freeing heap memory',0, MA_ERR)
 
 *        **** end coulomb_screened ****
         if (solver_type.eq.1) then
@@ -242,6 +245,7 @@
 *     ****************************
       subroutine pspw_potential_SIC(ispin,psi_r,Hpsi_r)
       implicit none
+#include "errquit.fh"
       integer    ispin
       real*8     psi_r(*)
       real*8     Hpsi_r(*)
@@ -280,7 +284,7 @@
      >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
         value = value.and.
      >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
-        if (.not. value) call errquit('out of stack memory',0)
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
@@ -416,7 +420,8 @@ c    >                        Hpsi_k(index2))
         value = value.and.MA_pop_stack(xcp(2))
         value = value.and.MA_pop_stack(dn(2))
         if (.not. value) 
-     >    call errquit('pspw_potential_SIC:popping stack memory',0)
+     >    call errquit('pspw_potential_SIC:popping stack memory',0,
+     &       MA_ERR)
       end if
       return
       end
@@ -429,6 +434,7 @@ c    >                        Hpsi_k(index2))
 *     *************************
       subroutine pspw_energy_SIC(ispin,psi_r,ehsic,phsic,exsic,pxsic)
       implicit none
+#include "errquit.fh"
       integer ispin
       real*8  psi_r(*)
       real*8 ehsic,phsic
@@ -472,7 +478,7 @@ c    >                        Hpsi_k(index2))
      >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
         value = value.and.
      >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
-        if (.not. value) call errquit('out of stack memory',0)
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
 
         scal1 = 1.0d0/dble(n1*n2*n3)
@@ -563,7 +569,8 @@ c    >                        Hpsi_k(index2))
         value = value.and.MA_pop_stack(xcp(2))
         value = value.and.MA_pop_stack(dn(2))
         if (.not. value) 
-     >     call errquit('pspw_energy_SIC:popping stack memory',0)
+     >     call errquit('pspw_energy_SIC:popping stack memory',0,
+     &       MA_ERR)
 
       end if
 
@@ -609,6 +616,7 @@ c    >                        Hpsi_k(index2))
 
       subroutine pspw_potential_SIC_OEP(ispin,ne,dntotal,psi_r,v_oep)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       real*8     dntotal(*)
       real*8     psi_r(*)

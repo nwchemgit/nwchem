@@ -6,9 +6,10 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.48 2003-05-28 19:59:47 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.49 2003-10-17 22:54:33 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 c     arguments:
 c
@@ -85,7 +86,7 @@ c
       external ga_create_atom_blocked
 c
       if (.not. oinitialized) call errquit
-     &     ('scf_v_g: not initialized?', 0)
+     &     ('scf_v_g: not initialized?', 0, UNKNOWN_ERR)
 c
       if(.not.rtdb_get(rtdb,'tolguess',mt_dbl,1,tolguess)) then
         if (owritefile) then
@@ -113,25 +114,29 @@ c
       call scf_lindep(rtdb, geom, basis, g_movecs, nmo)
       if (nmo .ne. nbf) then
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs',
-     &        32, 32, g_tmp)) call errquit('scf_v_g: tmp MOs', 0)
+     &        32, 32, g_tmp)) call errquit('scf_v_g: tmp MOs', 0,
+     &       GA_ERR)
          call ga_copy_patch('n', 
      &        g_movecs, 1, nbf, 1, nmo, g_tmp, 1, nbf, 1, nmo)
          if (.not. ga_destroy(g_movecs)) 
-     &        call errquit('scf_v_g: ga_destroy?',0)
+     &        call errquit('scf_v_g: ga_destroy?',0, GA_ERR)
          if (scftype .eq. 'UHF') then
             if (.not. ga_destroy(g_movecs(2))) 
-     &           call errquit('scf_v_g: ga_destroy(2)?',0)
+     &           call errquit('scf_v_g: ga_destroy(2)?',0, GA_ERR)
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: alpha MOs',
-     &           32, 32, g_movecs)) call errquit('scf_v_g: alpha MOs',0)
+     &           32, 32, g_movecs)) call errquit('scf_v_g: alpha MOs',0,
+     &       GA_ERR)
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g beta MOs',
-     &           32, 32, g_movecs(2)))call errquit('scf_v_g:beta MOs',0)
+     &           32, 32, g_movecs(2)))call errquit('scf_v_g:beta MOs',0,
+     &       GA_ERR)
          else
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_g_g: MOs',
-     &           32,32, g_movecs)) call errquit('scf_v_g: MOs', 0)
+     &           32,32, g_movecs)) call errquit('scf_v_g: MOs', 0,
+     &       GA_ERR)
          endif
          call ga_copy(g_tmp, g_movecs)
          if (.not. ga_destroy(g_tmp)) 
-     &        call errquit('scf_v_g: ga_destroy?',0)
+     &        call errquit('scf_v_g: ga_destroy?',0, GA_ERR)
       endif
 c
 c     Need to force higher accuracy if linear dependence is
@@ -145,12 +150,12 @@ c
          dentolmax = 1d-9
          odensityscreen = .false.
          if (.not. rtdb_put(rtdb,'scf:tol2e',mt_dbl,1,tol2e))
-     $        call errquit('scf_vec_guess: rtdb failed?',0)
+     $        call errquit('scf_vec_guess: rtdb failed?',0, RTDB_ERR)
          if (.not. rtdb_put(rtdb,'fock:dentolmax',mt_dbl,1,dentolmax))
-     $        call errquit('scf_vec_guess: rtdb failed?',0)
+     $        call errquit('scf_vec_guess: rtdb failed?',0, RTDB_ERR)
          if (.not. rtdb_put(rtdb,'fock:densityscreen',mt_log,1,
      $        odensityscreen))
-     $        call errquit('scf_vec_guess: rtdb failed?',0)
+     $        call errquit('scf_vec_guess: rtdb failed?',0, RTDB_ERR)
       endif
 c
  3212 continue
@@ -192,7 +197,8 @@ c
 c
          if (.not.inp_compare(.false., 'dft', calling_module))then
             if (.not. ga_destroy(g_dens(1))) call errquit
-     &        ('scf_vectors_guess: destroy of density failed',0)
+     &        ('scf_vectors_guess: destroy of density failed',0,
+     &       GA_ERR)
          endif
 c
       else if (movecs_in .eq. 'project') then
@@ -265,7 +271,8 @@ c              them into the linearly independent MO space of this geometry.
 c
                if (nbf .ne. nmo) then
                   if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g:tmp',
-     &                 32,32, g_tmp)) call errquit('scf_v_g: tmp', 0)
+     &                 32,32, g_tmp)) call errquit('scf_v_g: tmp', 0,
+     &       GA_ERR)
                   call ga_copy(g_movecs, g_tmp)
                endif
 c
@@ -273,7 +280,7 @@ c              Try reading movecs
 c
                if (.not. movecs_read(movecs_in, 1,
      &            dbl_mb(k_occ), dbl_mb(k_eval), g_movecs))
-     &            call errquit('scf_movecs_read failed ',0)
+     &            call errquit('scf_movecs_read failed ',0, DISK_ERR)
 c
                if (scftype .eq. 'UHF') then
                   if (.not. movecs_read(movecs_in, 2,
@@ -298,7 +305,8 @@ c               call scf_movecs_read
 *
                if (nbf .ne. nmo) then
                   if (.not. ga_create(MT_DBL, nmo, nmo, 'scf_v_g:tmp2',
-     &                 32,32, g_tmp2)) call errquit('scf_v_g: tmp2', 0)
+     &                 32,32, g_tmp2)) call errquit('scf_v_g: tmp2', 0,
+     &       GA_ERR)
                   call ga_dgemm('t', 'n', nmo, nmo, nbf, 1.0d0, 
      &                 g_tmp, g_movecs, 0.0d0, g_tmp2)
                   call ga_dgemm('n', 'n', nbf, nmo, nmo, 1.0d0,
@@ -310,9 +318,9 @@ c               call scf_movecs_read
      &                    g_tmp, g_tmp2, 0.0d0, g_movecs(2))
                   endif
                   if (.not. ga_destroy(g_tmp))
-     &                 call errquit('scf_v_g: ga_destroy?',0)
+     &                 call errquit('scf_v_g: ga_destroy?',0, GA_ERR)
                   if (.not. ga_destroy(g_tmp2))
-     &                 call errquit('scf_v_g: ga_destroy?',0)
+     &                 call errquit('scf_v_g: ga_destroy?',0, GA_ERR)
                endif
             else
                if (ga_nodeid() .eq. 0 .and. 
@@ -461,7 +469,7 @@ c
      &     nbf, nsets, nmo_vecs,
      &     dbl_mb(k_occ), nbf, dbl_mb(k_eval),
      &     nbf, g_movecs)) call errquit
-     &     ('scf_v_g: movecs_write failed', 0)
+     &     ('scf_v_g: movecs_write failed', 0, DISK_ERR)
 c
 c      call scf_movecs_write(rtdb)
 c     
@@ -473,13 +481,15 @@ c
      &   calling_module(1:inp_strlen(calling_module)),':input vectors'
       if (.not. rtdb_cput(rtdb, string(1:inp_strlen(string)),
      &     1, movecs_out)) 
-     &     call errquit('scf_v_g:rtdb_cput failed scf:input vectors',0)
+     &     call errquit('scf_v_g:rtdb_cput failed scf:input vectors',0,
+     &       RTDB_ERR)
       string = ' '
       write(string,'(a,a)') 
      &   calling_module(1:inp_strlen(calling_module)),':output vectors'
       if (.not. rtdb_cput(rtdb, string(1:inp_strlen(string)),
      &     1, movecs_out)) 
-     &     call errquit('scf_v_g:rtdb_cput failed scf:output vectors',0)
+     &     call errquit('scf_v_g:rtdb_cput failed scf:output vectors',0,
+     &       RTDB_ERR)
 c
       movecs_in = movecs_out
 c

@@ -3,8 +3,9 @@ c  Create and save ROHF Lagrangian
 c  for gradient module
 c
       subroutine rohf_lagr
-C$Id: rohf_lagr.F,v 1.7 1999-06-16 00:10:14 d3e129 Exp $
+C$Id: rohf_lagr.F,v 1.8 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -21,7 +22,8 @@ c
       nocc = nclosed + nopen
 *ga:1:0
       if (.not. ga_create(MT_DBL, nocc, nocc, 'rohf_lagr: lagr', 0, 0,
-     $     g_lagr)) call errquit('rohf_lagr: ga_create failed', 0)
+     $     g_lagr)) call errquit('rohf_lagr: ga_create failed', 0,
+     &       GA_ERR)
       call ga_zero(g_lagr)
       call ga_copy_patch('n', crohf_g_fcv, 1, nclosed, 1, nocc,
      $                        g_lagr, 1, nclosed, 1, nocc )
@@ -40,8 +42,8 @@ c
       nset = 1
       call util_file_name('lagr',.true.,.false.,lagr_out)
       if (.not. file_write_ga( lagr_out, g_lagr ))
-     $     call errquit('rohf: failed writing lagrangian',0)
+     $     call errquit('rohf: failed writing lagrangian',0, GA_ERR)
       if (.not. ga_destroy(g_lagr))
-     $     call errquit('rohf_lagr: destroy', 0)
+     $     call errquit('rohf_lagr: destroy', 0, GA_ERR)
       return
       end

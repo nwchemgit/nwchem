@@ -1,7 +1,8 @@
       subroutine ccsd_rdtrpo(t1,buf1,buf2,g_objo,g_objv,
      $     nocc,nvir,iprt)
-C     $Id: ccsd_rdtrpo.F,v 2.7 1997-10-27 18:04:53 d3g681 Exp $
+C     $Id: ccsd_rdtrpo.F,v 2.8 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c     
 #include "ccsd_len.fh"
       integer g_objo,g_objv,nocc,nvir,iprt
@@ -137,7 +138,7 @@ c
       call ga_sync
 c
       if (.not. ga_duplicate(g_objo, g_tmp, 'rtdpro')) call errquit
-     $     ('ccsd_rdtpro: failed to allocate tmp GA',0)
+     $     ('ccsd_rdtpro: failed to allocate tmp GA',0, GA_ERR)
       call ga_copy(g_objo, g_tmp)
 c
       do i=1+iam,nocc,nodes
@@ -197,6 +198,6 @@ c
       call ga_sync()
 c
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('ccsd_trdpro: failed to destroy GA',0)
+     $     ('ccsd_trdpro: failed to destroy GA',0, GA_ERR)
 c     
       end

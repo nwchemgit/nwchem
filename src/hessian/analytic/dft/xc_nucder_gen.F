@@ -1,7 +1,7 @@
       subroutine xc_hessian(geom,rtdb, nbf,basis,
      ,     g_dens, nactive,oactive,  hess, scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.15 2003-01-03 22:43:49 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.16 2003-10-17 22:55:14 carlfahl Exp $
 c
 c     Wrapper routine for XC hessian without fitting
 c
@@ -33,7 +33,7 @@ c
       subroutine xc_cpks_rhs(geom,rtdb,nbf,basis,
      ,     g_dens, nactive, oactive, g_rhs,scftype)
 c
-c     $Id: xc_nucder_gen.F,v 1.15 2003-01-03 22:43:49 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.16 2003-10-17 22:55:14 carlfahl Exp $
 c
 c     Wrapper routine for XC CPKS RHS without fitting
 c
@@ -63,7 +63,7 @@ c
      ,     g_dens, nactive, oactive,  hess, g_rhs,
      &                        calc_type)
 c
-c     $Id: xc_nucder_gen.F,v 1.15 2003-01-03 22:43:49 edo Exp $
+c     $Id: xc_nucder_gen.F,v 1.16 2003-10-17 22:55:14 carlfahl Exp $
 c
 c     General routine for XC hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
@@ -71,6 +71,7 @@ c
 c     BGJ - 8/98
 c
       implicit none
+#include "errquit.fh"
 c
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -119,14 +120,15 @@ c
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_hess .or. do_cpks_r))
-     &     call errquit('xc_deriv_gen: illegal calculation type',0)
+     &     call errquit('xc_deriv_gen: illegal calculation type',0,
+     &       INPUT_ERR)
       if (oprint.and.ga_nodeid().eq.0) then
           write(luout,*)'--------Entered xc_deriv_gen-------------'
           write(luout,*)'logicals ', do_hess, do_cpks_r
           write(luout,*)'rtdb geom ipol',rtdb,geom,ipol
        endif
       if (.not. geom_ncent(geom, natoms))
-     &   call errquit('xc_deriv_gen: geom_ncent failed',1)
+     &   call errquit('xc_deriv_gen: geom_ncent failed',1, GEOM_ERR)
 c      write(*,*)'natoms',natoms
 #if 0
   Broken because of 3-d g_rhs
@@ -172,7 +174,7 @@ c
      &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
      &        int_mb(k_cetobfr))
       else
-         call errquit('xc_deriv_gen: no gridfile',0)
+         call errquit('xc_deriv_gen: no gridfile',0, DISK_ERR)
 !         call dftgh_quadv0(rtdb,geom,basis, ipol,
 !     .        g_dens, 0d0, hess, g_rhs, calc_type,
 !     &        natoms, oactive, nactive, dbl_mb(k_rdens_atom),
@@ -196,13 +198,15 @@ c
                      g_rhs(j,i) = g_rhs(j,i1)
                   enddo
                else
-                  call errquit('Fix collapse/expand in xc_nucder_gen',0)
+                  call errquit('Fix collapse/expand in xc_nucder_gen',0,
+     &       UNKNOWN_ERR)
                endif
                i1 = i1 - 1
             endif
 #else
             if (.not.oactive(i)) then
-               call errquit('Fix collapse/expand in xc_nucder_gen',0)
+               call errquit('Fix collapse/expand in xc_nucder_gen',0,
+     &       UNKNOWN_ERR)
             endif
 #endif
          enddo
@@ -220,11 +224,13 @@ c     TI check
 c
             if (.not. MA_push_get(MT_DBL, natoms*natoms*9, 'ti_hess',
      &           l_ti_hess, k_ti_hess))
-     &           call errquit('j_nucder_gen: could not alloc ti_hess',1)
+     &           call errquit('j_nucder_gen: could not alloc ti_hess',1,
+     &       MA_ERR)
             call dcopy(natoms*natoms*9, hess, 1, dbl_mb(k_ti_hess), 1)
             call hessti(dbl_mb(k_ti_hess),natoms)
             if (.not. MA_pop_stack(l_ti_hess))
-     &           call errquit('j_nucder_gen: could not pop ti_hess',1)
+     &           call errquit('j_nucder_gen: could not pop ti_hess',1,
+     &       MA_ERR)
 c
          else if (do_cpks_r) then
 c
@@ -245,7 +251,8 @@ c     TI check
 c
             do i = 1, 3
               if (.not. ga_duplicate(g_dens(1), g_ti(i), 'RHS TI'))
-     &          call errquit('xc_deriv_gen: could not create temp GA',0)
+     &          call errquit('xc_deriv_gen: could not create temp GA',0,
+     &       GA_ERR)
             enddo
             do i1 = 1, ipol
             do j = 1, 3
@@ -277,7 +284,8 @@ c
             enddo
             do j = 1, 3
                if (.not. ga_destroy(g_ti(j)))
-     &         call errquit('xc_deriv_gen: could not destroy temp GA',0)
+     &         call errquit('xc_deriv_gen: could not destroy temp GA',0,
+     &       GA_ERR)
             enddo
          endif
          write(luout,*)'--------Leaving xc_deriv_gen-------------'

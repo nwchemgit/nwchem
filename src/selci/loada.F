@@ -1,8 +1,9 @@
       subroutine selci_loada(h, g, int12, int34)
 *
-* $Id: loada.F,v 1.4 1997-10-31 23:42:08 d3e129 Exp $
+* $Id: loada.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension h(nnorbs), g(numint), int12(nnorbs), int34(nnorbs)
 #include "bitops.fh"
@@ -37,7 +38,8 @@ c
          kls = ieor(isym(k),isym(l))
          if (ijs.ne.kls) then
             write(ifllog,*) ' gg,i,j,k,l,ijs,kls,',gg,i,j,k,l,ijs,kls
-            call errquit('integral should be zero by symmetry',0)
+            call errquit('integral should be zero by symmetry',0,
+     &       CALC_ERR)
          endif
          g(int12(ij)+int34(kl)) = gg
          goto 10
@@ -53,7 +55,8 @@ c
          ijs = ieor(isym(i),isym(j))
          if (ijs.ne.0) then
             write(ifllog,*) ' h,i,j,ijs',gg,i,j,ijs
-            call errquit(' integral should be zero by symmetry',0)
+            call errquit(' integral should be zero by symmetry',0,
+     &       CALC_ERR)
          endif
          h(ij) = gg
          goto 10

@@ -3,13 +3,14 @@ C NAME
 C     RIMP2_IJ_Int -- Get integrals for IJ block
 C
 C REVISION
-C     $Id: ij_int.F,v 1.1 1998-07-06 21:10:03 bernhold Exp $
+C     $Id: ij_int.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_IJ_Int(IJSame, D_I, ILo, IHi, NA,
      $                        D_J, JLo, JHi, NB, FitBas, NFit,
      $     G_I, ReqI, G_J, ReqJ)
       Implicit NONE
+#include "errquit.fh"
       Logical IJSame![in]
       Integer D_I   ![in]
       Integer ILo   ![in]
@@ -55,11 +56,13 @@ C     Create GAs for 3c2e integrals
 C     
       If ( .NOT. GA_Create_One_By_Shells( MT_Dbl, NI*NA, FitBas,
      $     '3c2e ints I', G_I) ) Call ErrQuit(
-     $     'RIMP2_IJ_INT: can''t allocate integral GA', NI*NA*NFit)
+     $     'RIMP2_IJ_INT: can''t allocate integral GA', NI*NA*NFit,
+     &       GA_ERR)
 C     
       If ( .NOT. GA_Create_One_By_Shells( MT_Dbl, NJ*NB, FitBas,
      $     '3c2e ints J', G_J) ) Call ErrQuit(
-     $     'RIMP2_IJ_INT: can''t allocate integral GA', NJ*NB*NFit)
+     $     'RIMP2_IJ_INT: can''t allocate integral GA', NJ*NB*NFit,
+     &       GA_ERR)
 C     
 C     Get integrals (ia|s') for this I
 C     
@@ -67,9 +70,11 @@ C
       If ( DRA_Read_Section(.FALSE.,
      $     G_I, 1,            NA*NI,  1, NFit,
      $     D_I, 1+NA*(ILo-1), NA*IHi, 1, NFit, ReqI) .ne. 0)
-     $     Call ErrQuit( 'RIMP2_IJ_Int: Error reading I integrals', ILo)
+     $     Call ErrQuit( 'RIMP2_IJ_Int: Error reading I integrals', ILo,
+     &       INT_ERR)
       If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
-     $     'RIMP2_IJ_Int: Error from DRA_Wait on I integrals', 1)
+     $     'RIMP2_IJ_Int: Error from DRA_Wait on I integrals', 1,
+     &       INT_ERR)
       Call PStat_Off( PS_Rd_3ci)
 C     
 C     Find the integrals (jb|s') for this J.  Use G_I instead of
@@ -98,9 +103,10 @@ C
      $        G_J, 1,            NB*NJ,  1, NFit,
      $        D_J, 1+NB*(JLo-1), NB*JHi, 1, NFit, ReqJ) .ne. 0)
      $        Call ErrQuit( 'RIMP2_IJ_Int: Error reading J integrals',
-     $        JLo)
+     $        JLo, DISK_ERR)
          If ( DRA_Wait(ReqJ) .ne. 0) Call ErrQuit(
-     $        'RIMP2_IJ_Int: Error from DRA_Wait on J integrals', 2)
+     $        'RIMP2_IJ_Int: Error from DRA_Wait on J integrals', 2,
+     &       CALC_ERR)
          Call PStat_Off( PS_Rd_3ci)
       EndIf
 C     

@@ -4,8 +4,9 @@
      &       CONVGE, CONVGG, CONVGGM,
      &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
      &       BCKSTP,CNVGRD)
-c $Id: stpr_cheker.F,v 1.8 1998-04-21 19:17:09 mdupuis Exp $
+c $Id: stpr_cheker.F,v 1.9 2003-10-17 22:58:22 carlfahl Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "errquit.fh"
       LOGICAL BCKSTP,CNVGRD
 #include "chow.fh"
       COMMON / CFACE / IWCTR,NATOM,ICALC
@@ -23,7 +24,7 @@ C
         ERATM = 0.0D0
       ELSE
         WRITE(6,*)'  Unknown calculation type. Program aborts. '
-        call errquit('stepper:cheker fatal error',911)
+        call errquit('stepper:cheker fatal error',911, INPUT_ERR)
       ENDIF
 C
 C     Retrieve previous step parameters (if not first step).
@@ -117,7 +118,7 @@ C
         ENDIF
       ELSE
         WRITE(6,*)'  Unknown calculation type. Program aborts. '
-        call errquit('stepper:cheker fatal error',911)
+        call errquit('stepper:cheker fatal error',911, INPUT_ERR)
       ENDIF
 C
 C     Special Case: If on initial iteration there are no
@@ -131,7 +132,7 @@ C
         WRITE(6,*)'  >>> Arbitrary step could be taken. <<< '
         WRITE(6,*)'  >>> Nudge coordinates away from',
      &            ' minimum and restart. <<< '
-        call errquit('stepper:cheker fatal error',911)
+        call errquit('stepper:cheker fatal error',911, INPUT_ERR)
       ENDIF
       RETURN
       END

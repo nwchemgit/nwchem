@@ -1,8 +1,9 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.55 2003-02-20 17:27:08 edo Exp $
+* $Id: mp2_energy.F,v 1.56 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -96,7 +97,7 @@ c
       status = geom_ncent ( geom, natoms )
       if(.not.ma_push_get(mt_dbl, 3*natoms,'mp2 derivatives',
      $     l_grad,k_grad))      
-     $     call errquit('mp2_energy ma problem: derivatives',1)
+     $     call errquit('mp2_energy ma problem: derivatives',1, MA_ERR)
       call dfill ( 3*natoms, 0.D0, dbl_mb(k_grad), 1 )
 c     
 *     only blocking currently works
@@ -107,11 +108,13 @@ c
 c     Get no. of MOs ... nmo != nbf if linear dependence present
 c     
       if (.not. bas_numbf(basis,nbf))
-     $     call errquit('mp2_grad: could not get nbf',0)
+     $     call errquit('mp2_grad: could not get nbf',0, BASIS_ERR)
       if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
      $     scftypevecs, nbf_vecs,nsets,nmos,2))
-     $     call errquit('mp2_grad: problem with movecs_read_header',1)
-      if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0)
+     $     call errquit('mp2_grad: problem with movecs_read_header',1,
+     &       DISK_ERR)
+      if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0,
+     &       INPUT_ERR)
       nmo = nmos(1)
 c     
 C      if (rtdb_get(rtdb,'mp2:frozen core:freeze by atoms',mt_log, 1, 
@@ -125,35 +128,38 @@ C         noa_frozen = 0
 C      endif
 
        if(.not. geom_freeze(rtdb,geom,'mp2',noa_frozen)) then
-            call errquit('mp2_grad: unable to get frozen core',0)
+            call errquit('mp2_grad: unable to get frozen core',0,
+     &       GEOM_ERR)
        endif
 c
       if(.not.rtdb_put(rtdb,'mp2:number frozen core',MT_INT,1,
      $      noa_frozen))
-     $     call errquit('mp2_grad: rtdb failure for frozen core',555)
+     $     call errquit('mp2_grad: rtdb failure for frozen core',555,
+     &       RTDB_ERR)
 c
       if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
      $     nva_frozen)) nva_frozen = 0
       if ((task.eq.'gradient') .and. (nva_frozen.gt.0)) call errquit
-     $     ('mp2_gradient: unable to freeze virtuals for gradient',0)
+     $     ('mp2_gradient: unable to freeze virtuals for gradient',0,
+     &       RTDB_ERR)
 c
       nob_frozen = noa_frozen
       nvb_frozen = nva_frozen
 c     
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
-     $     call errquit('mp2:scftype absent',1)
+     $     call errquit('mp2:scftype absent',1, RTDB_ERR)
       if(scftype.eq.'UHF')then
          if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,noa))
-     $        call errquit('no alphas',1)
+     $        call errquit('no alphas',1, RTDB_ERR)
          if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nob))
-     $        call errquit('no betas',1)
+     $        call errquit('no betas',1, RTDB_ERR)
       else if(scftype.eq.'RHF')then
          if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nocc))
-     $        call errquit('no occ',1)
+     $        call errquit('no occ',1, RTDB_ERR)
          noa=nocc
          nob=nocc
       else
-         call errquit('mp2_grad: unknown SCFTYPE ', 0)
+         call errquit('mp2_grad: unknown SCFTYPE ', 0, INPUT_ERR)
       end if
       nva=nmo-noa
       nvb=nmo-nob
@@ -162,29 +168,31 @@ c     Get the MO vectors, swap and then symmetry block them
 c     
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nmo,'alpha_vecs',nbf,0,
-     $     g_vecs_a))call errquit('mp2_energy: ga_create failed',0)
+     $     g_vecs_a))call errquit('mp2_energy: ga_create failed',0,
+     &       GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nmo,'beta_vecs',nbf,0,g_vecs_b))
-     $     call errquit('mp2_energy: ga_create failed',0)
+     $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
 c     
       if(.not.ma_push_get(mt_dbl,nbf*2,'occ alpha',
      $     l_occ_a,k_occ_a))      
-     $     call errquit('mp2_energy ma problem with alpha occ',1)
+     $     call errquit('mp2_energy ma problem with alpha occ',1,
+     &       MA_ERR)
       k_occ_b = k_occ_a + nbf   ! So that are contiguous for swap. Ugh.
 c     
       if(.not.ma_push_get(mt_dbl,2*nbf,'evals',
      $     l_eval_a,k_eval_a))
-     $     call errquit('problem with ma for evals',1)
+     $     call errquit('problem with ma for evals',1, MA_ERR)
       k_eval_b = k_eval_a + nbf ! So that are contiguous for swap. Ugh.
 c     
       if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
      $     dbl_mb(k_eval_a),g_vecs_a))
-     $     call errquit('could not read alpha vecs',1)
+     $     call errquit('could not read alpha vecs',1, DISK_ERR)
 
       if(scftype.eq.'UHF')then
          if(.not.movecs_read(movecs,2,dbl_mb(k_occ_b),
      $        dbl_mb(k_eval_b),g_vecs_b))
-     $        call errquit('could not read beta vecs',1)
+     $        call errquit('could not read beta vecs',1, DISK_ERR)
       endif
 c
       g_vecs_swap(1) = g_vecs_a
@@ -198,10 +206,10 @@ c
       end if
 c     
       if(.not.ma_push_get(mt_int,nmo,'irs_a',l_irs_a,k_irs_a))
-     $     call errquit('scf_movecs_sym_adapt: memory?',nmo)
+     $     call errquit('scf_movecs_sym_adapt: memory?',nmo, MA_ERR)
 c     
       if(.not.ma_push_get(mt_int,nmo,'irs_b',l_irs_b,k_irs_b))
-     $     call errquit('scf_movecs_sym_adapt: memory?',nmo)
+     $     call errquit('scf_movecs_sym_adapt: memory?',nmo, MA_ERR)
 c     
       call int_init (rtdb, 1, basis) ! Needed for overlap
 c     
@@ -248,11 +256,11 @@ c
 c     map_a/b hold reordering vector from MO file to symmetry blocked
 c     
       if(.not.ma_push_get(mt_int,nmo,'map_a',l_map_a,k_map_a))
-     $     call errquit('could not alloc map_a',1)
+     $     call errquit('could not alloc map_a',1, MA_ERR)
       if(.not.ma_push_get(mt_int,nmo,'map_b',l_map_b,k_map_b))
-     $     call errquit('could not alloc map_b',1)
+     $     call errquit('could not alloc map_b',1, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work)) ! Holds an MO
-     $     call errquit('could not alloc work',1)
+     $     call errquit('could not alloc work',1, MA_ERR)
 c
       if (noa_frozen .gt. 0)
      $     call moints_vecs_sym_sort(g_vecs_a,nbf,1,noa_lo-1,
@@ -309,7 +317,7 @@ c
 *      call output(dbl_mb(k_eval_b),1,nmo,1,1,nmo,1,1)
 c     
       if (.not. ma_pop_stack(l_work)) call errquit
-     $     ('mp2_grad: ma failed popping workspace(1)', 0)
+     $     ('mp2_grad: ma failed popping workspace(1)', 0, MA_ERR)
 c     
       if (.not. rtdb_get(rtdb, 'mp2:aotol2e', mt_dbl, 1, tol2e))
      $     tol2e = 1d-9  ! For screening energy integrals
@@ -366,58 +374,58 @@ c
 *ga:1:0
          if(.not.ga_create(mt_dbl,noa,noa,'g_p_ij_a',
      $        noa,0,g_p_ij_a))call errquit(
-     $        'could not galloc g_p_ij_a',1)
+     $        'could not galloc g_p_ij_a',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nob,nob,'g_p_ij_b',
      $        nob,0,g_p_ij_b))call errquit(
-     $        'could not galloc g_p_ij_b',1)
+     $        'could not galloc g_p_ij_b',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nva,nva,'g_p_ab_a',
      $        nva,0,g_p_ab_a))call errquit(
-     $        'could not galloc g_p_ab_a',1)
+     $        'could not galloc g_p_ab_a',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nvb,nvb,'g_p_ab_b',
      $        nvb,0,g_p_ab_b))call errquit(
-     $        'could not galloc g_p_ab_b',1)
+     $        'could not galloc g_p_ab_b',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,noa,noa,'g_w_ij_a',
      $        noa,0,g_w_ij_a))call errquit(
-     $        'could not galloc g_w_ij_a',1)
+     $        'could not galloc g_w_ij_a',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nob,nob,'g_w_ij_b',
      $        nob,0,g_w_ij_b))call errquit(
-     $        'could not galloc g_w_ij_b',1)
+     $        'could not galloc g_w_ij_b',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nva,nva,'g_w_ab_a',
      $        nva,0,g_w_ab_a))call errquit(
-     $        'could not galloc g_w_ab_a',1)
+     $        'could not galloc g_w_ab_a',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nvb,nvb,'g_w_ab_b',
      $        nvb,0,g_w_ab_b))call errquit(
-     $        'could not galloc g_w_ab_b',1)
+     $        'could not galloc g_w_ab_b',1, GA_ERR)
 c
 *ga:1:0
          if(.not.ga_create(mt_dbl,noa,nva,'lai_a',noa,0,g_lai_a))
-     $        call errquit('could not alloc ga for lai_a',1)
+     $        call errquit('could not alloc ga for lai_a',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nob,nvb,'lai_b',nob,0,g_lai_b))
-     $        call errquit('could not alloc ga for lai_b',1)
+     $        call errquit('could not alloc ga for lai_b',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,noa,nva,'wai_a',noa,0,g_w_ai_a))
-     $        call errquit('could not alloc ga for wai_a',1)
+     $        call errquit('could not alloc ga for wai_a',1, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nob,nvb,'wai_b',nob,0,g_w_ai_b))
-     $        call errquit('could not alloc ga for wai_b',1)
+     $        call errquit('could not alloc ga for wai_b',1, GA_ERR)
 c
          if (noa_frozen .gt. 0) then
 *ga:1:0
             if(.not.ga_create(mt_dbl,noa-noa_frozen,noa_frozen,'lyi_a',
      $           0,0,g_liy_a))
-     $           call errquit('could not alloc ga for lyi_a',1)
+     $           call errquit('could not alloc ga for lyi_a',1, GA_ERR)
 *ga:1:0
             if(.not.ga_create(mt_dbl,nob-nob_frozen,nob_frozen,'lyi_b',
      $           0,0,g_liy_b))
-     $           call errquit('could not alloc ga for lyi_b',1)
+     $           call errquit('could not alloc ga for lyi_b',1, GA_ERR)
 c
             call ga_zero(g_liy_a)
             call ga_zero(g_liy_b)
@@ -507,7 +515,7 @@ c
       end if
 c     
       if(.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,escf))
-     $     call errquit('could not get scf energy',1)
+     $     call errquit('could not get scf energy',1, RTDB_ERR)
       e_total = escf + e2
       if (util_print('information',print_low).and.ga_nodeid().eq.0) then
          write(6,999) escf, e2, esing, etrip, e_total
@@ -523,15 +531,20 @@ c
       call ecce_print1('total energy', mt_dbl, e_total, 1)
       call ecce_print1('correlation energy', mt_dbl, e2, 1)
       if(.not. rtdb_put(rtdb,'mp2:correlation energy',mt_dbl,1,e2))
-     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'mp2:energy',mt_dbl,1,e_total))
-     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'mp2:esing',mt_dbl,1,esing))
-     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'mp2:etrip',mt_dbl,1,etrip))
-     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'mp2:escf',mt_dbl,1,escf))
-     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0)
+     $     call errquit('semi_dir_mp2:failed storing energy in rtdb',0,
+     &       RTDB_ERR)
 c     
       if(task.eq.'gradient') then
          if (omatrix) then
@@ -609,7 +622,7 @@ c
 c     
 *ga:1:0
          if(.not.ga_create(mt_dbl,grad_length,1,'mp2g: rhs',
-     $        0,0,g_rhs))call errquit('mp2: ga_rhs',0)
+     $        0,0,g_rhs))call errquit('mp2: ga_rhs',0, GA_ERR)
 c     
          call mp2_make_cphf_rhs(scftype, transform,basis,nmo,nbf,
      $        noa,nva,nob,nvb,int_mb(k_irs_a),int_mb(k_irs_b),
@@ -626,14 +639,15 @@ c
          end if
 c     
          call pstat_on(ps_cphf)
-         if(.not.cphf(rtdb))call errquit('could not do cphf',1)
+         if(.not.cphf(rtdb))call errquit('could not do cphf',1,
+     &       CALC_ERR)
          call pstat_off(ps_cphf)
 c     
 c...  the g_rhs will now hold the solution         
 c     
          call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
          if(.not.file_read_ga(cphf_sol,g_rhs))
-     $        call errquit('could not read cphf_rhs',1)
+     $        call errquit('could not read cphf_rhs',1, DISK_ERR)
 c     
          if (omatrix) call ga_print(g_rhs)
          if (otrace) then
@@ -644,11 +658,11 @@ c
 *ga:1:0
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha dens',nmo,0,
      $        g_p_tot_a))call errquit(
-     $        'mp2_energy: ga_create failed',0)
+     $        'mp2_energy: ga_create failed',0, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta dens',nmo,0,
      $        g_p_tot_b))call errquit(
-     $        'mp2_energy: ga_create failed',0)
+     $        'mp2_energy: ga_create failed',0, GA_ERR)
 c     
          call mp2_make_tot_dens(g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $        g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,nmo,
@@ -689,11 +703,11 @@ c
 *ga:1:0
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot alpha wdens',nmo,0,
      $        g_w_tot_a))call errquit(
-     $        'mp2_energy: ga_create failed',0)
+     $        'mp2_energy: ga_create failed',0, GA_ERR)
 *ga:1:0
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta wdens',nmo,0,
      $        g_w_tot_b))call errquit(
-     $        'mp2_energy: ga_create failed',0)
+     $        'mp2_energy: ga_create failed',0, GA_ERR)
          call mp2_make_tot_wdens(g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b,
      $        g_w_ai_a,g_w_ai_b,g_w_tot_a,g_w_tot_b,
      $        noa_lo,noa_hi,nva,nob_lo,nob_hi,
@@ -720,58 +734,59 @@ c
             if(.not.rtdb_put(rtdb,'mp2:nonseparable gradient',mt_dbl,
      $           3*natoms,dbl_mb(k_grad)))
      $           call errquit(
-     $           'semi_dir_mp2:failed to store gradient in rtdb',0)
+     $           'semi_dir_mp2:failed to store gradient in rtdb',0,
+     &       RTDB_ERR)
             status=rtdb_parallel(.true.)
          end if
 c
          if (noa_frozen .gt. 0) then
             if (.not. ga_destroy(g_liy_a)) call errquit(
-     $           'could not destroy Liy a',0)
+     $           'could not destroy Liy a',0, GA_ERR)
             if (.not. ga_destroy(g_liy_b)) call errquit(
-     $           'could not destroy Liy b',0)
+     $           'could not destroy Liy b',0, GA_ERR)
          endif
          if(.not.ga_destroy(g_rhs))call errquit(
-     $        'could not destroy g_rhs',1)
+     $        'could not destroy g_rhs',1, GA_ERR)
          if(.not.ga_destroy(g_p_ij_a))call errquit(
-     $        'could not destroy p_ij_a handle',1)
+     $        'could not destroy p_ij_a handle',1, GA_ERR)
          if(.not.ga_destroy(g_p_ij_b))call errquit(
-     $        'could not destroy p_ij_b handle',1)
+     $        'could not destroy p_ij_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_p_ab_a))call errquit(
-     $        'could not destroy p_ab_a handle',1)
+     $        'could not destroy p_ab_a handle',1, GA_ERR)
          if(.not.ga_destroy(g_p_ab_b))call errquit(
-     $        'could not destroy p_ab_b handle',1)
+     $        'could not destroy p_ab_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_p_tot_a))call errquit(
-     $        'could not destroy p_tot_a handle',1)
+     $        'could not destroy p_tot_a handle',1, GA_ERR)
          if(.not.ga_destroy(g_p_tot_b))call errquit(
-     $        'could not destroy p_tot_b handle',1)
+     $        'could not destroy p_tot_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_ij_a))call errquit(
-     $        'could not destroy g_w_ij_a handle',1)
+     $        'could not destroy g_w_ij_a handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_ij_b))call errquit(
-     $        'could not destroy g_w_ij_b handle',1)
+     $        'could not destroy g_w_ij_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_ab_a))call errquit(
-     $        'could not destroy g_w_ab_a handle',1)
+     $        'could not destroy g_w_ab_a handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_ab_b))call errquit(
-     $        'could not destroy g_w_ab_b handle',1)
+     $        'could not destroy g_w_ab_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_ai_a))call errquit(
-     $        'could not destroy g_w_ai_a handle',1)
+     $        'could not destroy g_w_ai_a handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_ai_b))call errquit(
-     $        'could not destroy g_w_ai_b handle',1)
+     $        'could not destroy g_w_ai_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_tot_a))call errquit(
-     $        'could not destroy g_w_tot_a handle',1)
+     $        'could not destroy g_w_tot_a handle',1, GA_ERR)
          if(.not.ga_destroy(g_w_tot_b))call errquit(
-     $        'could not destroy g_w_tot_b handle',1)
+     $        'could not destroy g_w_tot_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_lai_b))call errquit(
-     $        'could not destroy lai_b handle',1)
+     $        'could not destroy lai_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_lai_a))call errquit(
-     $        'could not destroy lai_a handle',1)
+     $        'could not destroy lai_a handle',1, GA_ERR)
       end if
 c     
       if(.not.ma_chop_stack(l_grad))call errquit(
-     $     'could not chop stack in mp2_energy',1)
+     $     'could not chop stack in mp2_energy',1, MA_ERR)
       if(.not.ga_destroy(g_vecs_a))call errquit(
-     $     'could not destroy g_vecs_a',1)
+     $     'could not destroy g_vecs_a',1, GA_ERR)
       if(.not.ga_destroy(g_vecs_b))
-     $     call errquit('could not destroy g_vecs_b',1)
+     $     call errquit('could not destroy g_vecs_b',1, GA_ERR)
 c...  
 c...  call to Herbert's stuff to do the separable peice
 c...  

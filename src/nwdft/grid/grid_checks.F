@@ -1,9 +1,10 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.17 2002-04-04 17:39:17 edo Exp $
+c$Id: grid_checks.F,v 1.18 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -43,15 +44,15 @@ c
 c     allocate arrays
 c
       if (.not.MA_Push_Get(MT_Dbl,mxrad,'pts',l_pts,k_pts))
-     &     call errquit('grchk: cannot allocate pts',0)
+     &     call errquit('grchk: cannot allocate pts',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,mxrad,'wgts',l_wgt,k_wgt))
-     &     call errquit('grchk: cannot allocate wgt',1)
+     &     call errquit('grchk: cannot allocate wgt',1, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,4*nptstot,'xyzw',l_xyzw,k_xyzw))
-     &     call errquit('grchk: cannot allocate xyzw',2)
+     &     call errquit('grchk: cannot allocate xyzw',2, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,nptstot*2,'rq',l_rq,k_rq))
-     &     call errquit('grchk: cannot allocate rq',3)
+     &     call errquit('grchk: cannot allocate rq',3, MA_ERR)
       if (.not.MA_Push_Get(MT_int,nptstot,'iscr',l_iscr,k_iscr))
-     &     call errquit('grchk: cannot allocate iscr',4)
+     &     call errquit('grchk: cannot allocate iscr',4, MA_ERR)
 c
 c     preliminary call to lebedev
 c      
@@ -149,7 +150,7 @@ c
          nang(jtype)=nangb
       endif
       if (.not. ma_chop_stack(l_pts)) call errquit
-     $     ('grchks: ma pop?', 0)                 
+     $     ('grchks: ma pop?', 0, MA_ERR)
       return
  1    format(' exps',2d10.2,' l ',2i4,A,d10.2,A,d12.4)
       end

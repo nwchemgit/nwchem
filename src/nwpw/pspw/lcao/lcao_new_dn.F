@@ -1,9 +1,10 @@
 *
-* $Id: lcao_new_dn.F,v 1.1 2001-12-05 01:51:19 bylaska Exp $
+* $Id: lcao_new_dn.F,v 1.2 2003-10-17 22:57:20 carlfahl Exp $
 *
       subroutine lcao_new_dn(ispin,ne,n2ft3d,dn,
      >                           psimatrix,phi)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       integer n2ft3d
       real*8 dn(n2ft3d,2)
@@ -35,7 +36,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl,(nbasis),'coef',coef(2),coef(1))
       if (.not. value) 
-     >  call errquit('lcao_new_dn:out of stack memory',0)
+     >  call errquit('lcao_new_dn:out of stack memory',0, MA_ERR)
 
 
       call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
@@ -62,7 +63,7 @@
       value = MA_pop_stack(coef(2))
 	  value = value.and.MA_pop_stack(tmp(2))
       if (.not. value) 
-     >  call errquit('lcao_new_dn:popping stack memory',0)
+     >  call errquit('lcao_new_dn:popping stack memory',0, MA_ERR)
       return
       end
 

@@ -1,8 +1,9 @@
       subroutine intdd_1eecp1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eecp1.F,v 1.3 2003-03-28 17:11:52 bert Exp $
+C $Id: intdd_1eecp1.F,v 1.4 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -77,7 +78,7 @@ c
         write(luout,*) 'nint*3*3*(nat*(nat-1)/2+nat) = ',
      &                 nint*3*3*(nat*(nat-1)/2+nat)
         write(luout,*) 'lH1a       = ',lH1a
-        call errquit('intd_1eecp: nint>lH1a error',911)
+        call errquit('intd_1eecp: nint>lH1a error',911, INT_ERR)
       endif
 c
       call intdd_1eecp1P(i_basis,ish,j_basis,jsh,
@@ -88,6 +89,7 @@ c
      &       nint,H1a,nat)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "apiP.fh"
 #include "nwc_const.fh"
 #include "int_nbf.fh"
@@ -161,7 +163,7 @@ c
       if (igeom.ne.jgeom) then
         write(luout,*)'intdd_1eh1P.F: two different geometries for',
      &         ' derivatives?'
-        call errquit('intdd_1eh1P: geom error ',911)
+        call errquit('intdd_1eh1P: geom error ',911, GEOM_ERR)
       endif
 c
       if (iatom.eq.jatom) then

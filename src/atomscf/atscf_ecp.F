@@ -1,10 +1,11 @@
-* $Id: atscf_ecp.F,v 1.11 1999-07-14 00:28:49 d3e129 Exp $
+* $Id: atscf_ecp.F,v 1.12 2003-10-17 22:54:15 carlfahl Exp $
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *
 *.... computes the ecp contribution to the atomic scf potential
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -39,7 +40,7 @@ c
       integer isys
 c
       if (.not. geom_systype_get(geom, isys)) call errquit
-     $     ('atscf_ecp: systype?', 0)
+     $     ('atscf_ecp: systype?', 0, UNKNOWN_ERR)
       if (isys.gt.0) return
 cMG_end  
 c
@@ -49,18 +50,19 @@ c
 c compare geometry handles input vs. what bas used to read basis info
 c
       if (.not.bas_geom(basis,bgeom)) call errquit
-     &    ('atscf_ecp: bas_geom failed ',911)
+     &    ('atscf_ecp: bas_geom failed ',911, BASIS_ERR)
       if (geom.ne.bgeom) call errquit
-     &    ('atscf_ecp: geom .ne. bgeom Fatal mismatch error',911)
+     &    ('atscf_ecp: geom .ne. bgeom Fatal mismatch error',911,
+     &       GEOM_ERR)
 c
 c determine the center index in the global picture
 c
       if (.not.geom_ncent(geom,nat)) call errquit
-     &    ('atscf_ecp: geom_ncent failed ',911)
+     &    ('atscf_ecp: geom_ncent failed ',911, GEOM_ERR)
 c
       do icent = 1,nat
         if (.not.geom_cent_tag(geom, icent, gtag)) call errquit
-     &      ('atscf_ecp: geom_cent_tag failed ',911)
+     &      ('atscf_ecp: geom_cent_tag failed ',911, GEOM_ERR)
         if (gtag.eq.tag) goto 00001
       enddo
 00001 continue
@@ -83,17 +85,18 @@ c
 c get ecpis .. ecp basis set handle
 c
       if (.not.bas_get_ecp_handle(basis,ecpis)) call errquit
-     &    ('atscf_ecp: bas_get_ecp_handle failed ',911)
+     &    ('atscf_ecp: bas_get_ecp_handle failed ',911, BASIS_ERR)
 c
 c gather info for call to ecp_integral
 c
       if (.not.bas_ce2cnr(ecpis,icent,clo,chi))
-     &    call errquit('atscf_ecp:bas_ce2cnr failed',911)
+     &    call errquit('atscf_ecp:bas_ce2cnr failed',911, BASIS_ERR)
 c Check if center is in the given ecp basis set
       if (.not.(bas_isce(geom,ecpis,icent))) then
         write(luout,*)' the lexical center ',icent, ' with tag ',
      &      gtag,' is not in the ecp basis '
-        call errquit('atscf_ecp: tag mismatch fatal error',911)
+        call errquit('atscf_ecp: tag mismatch fatal error',911,
+     &       BASIS_ERR)
       endif
       call atscf_ecp_setup_hatom(geom,basis,ecpis,
      &    hatom,sz_hatom,nbas,zeta,cont,ucont,nz,icent)
@@ -101,6 +104,7 @@ c Check if center is in the given ecp basis set
       subroutine atscf_ecp_setup_hatom(geom,basis,ecpis,
      &    hatom,sz_hatom,nbas,zeta,cont,ucont,nz,icent)
       implicit none
+#include "errquit.fh"
 *
 * routine that sets up pointers for atomic ecp computation
 *
@@ -160,7 +164,7 @@ c..   allocate memory for exponents
      &    ma_alloc_get(mt_dbl,sz_zeta,
      &    'atscf ecp exponents',
      &    h_zetac,k_zetac)) call errquit
-     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911, MA_ERR)
       call dfill(sz_zeta,0.0d00,dbl_mb(k_zetac),1)
 
 c..   allocate memory for coeffs
@@ -168,23 +172,26 @@ c..   allocate memory for coeffs
      &    ma_alloc_get(mt_dbl,sz_zeta,
      &    'atscf ecp coeffs',
      &    h_coefc,k_coefc)) call errquit
-     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911, MA_ERR)
       call dfill(sz_zeta,0.0d00,dbl_mb(k_coefc),1)
 
 c.. get lmax for all ecps
       if (.not.bas_high_angular(ecpis,lmax_all_ecp)) call errquit
-     &    ('atscf_ecp_setup_hatom: bas_high_angular failed',911)
+     &    ('atscf_ecp_setup_hatom: bas_high_angular failed',911,
+     &       BASIS_ERR)
 
 c.. get lmax for all basis set
       if (.not.bas_high_angular(basis,lmaxbs)) call errquit
-     &    ('atscf_ecp_setup_hatom: bas_high_angular failed',911)
+     &    ('atscf_ecp_setup_hatom: bas_high_angular failed',911,
+     &       BASIS_ERR)
 
 c.. allocate memory for n_prim_c array (see ecp_integral for def)
       if (.not.
      &    ma_alloc_get(mt_int,(3*(lmax_all_ecp+2)),
      &    'atscf ecp nprimc',
      &    h_nprimc,k_nprimc)) call errquit
-     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911,
+     &       MA_ERR)
       call ifill((3*(lmax_all_ecp+2)),0,int_mb(k_nprimc),1)
 
 c.. allocate memory for n_coef_c array (see ecp_integral for def)
@@ -192,7 +199,7 @@ c.. allocate memory for n_coef_c array (see ecp_integral for def)
      &    ma_alloc_get(mt_int,(lmax_all_ecp+2),
      &    'atscf ecp ncoefc',
      &    h_ncoefc,k_ncoefc)) call errquit
-     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911, MA_ERR)
       call ifill((lmax_all_ecp+2),0,int_mb(k_ncoefc),1)
 
 c.. allocate memory for ind_c array (see ecp_integral for def)
@@ -200,7 +207,7 @@ c.. allocate memory for ind_c array (see ecp_integral for def)
      &    ma_alloc_get(mt_int,(lmax_all_ecp+2),
      &    'atscf ecp nindc',
      &    h_indc,k_indc)) call errquit
-     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911, MA_ERR)
       call ifill((lmax_all_ecp+2),0,int_mb(k_indc),1)
 
 c..   allocate memory for ecp integral buffer array
@@ -210,7 +217,7 @@ c..   allocate memory for ecp integral buffer array
      &    ma_alloc_get(mt_dbl,lbuf,
      &    'atscf ecp integrals',
      &    h_buf,k_buf)) call errquit
-     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911, MA_ERR)
 * does not need to be zeroed      
 
 c..   allocate memory for scratch array used by ecp code
@@ -219,7 +226,7 @@ c..   allocate memory for scratch array used by ecp code
      &    ma_alloc_get(mt_dbl,lscr,
      &    'atscf ecp scr',
      &    h_scr,k_scr)) call errquit
-     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911)
+     &    ('atscf_ecp_setup_hatom: ma_alloc get failed',911, MA_ERR)
 * does not need to be zeroed      
 
 c.. call routine that does computation
@@ -232,25 +239,26 @@ c.. call routine that does computation
 
 c.. free allocated memory
       if (.not.ma_free_heap(h_zetac)) call errquit
-     &    ('atscf_ecp: ma_free_heap failed for h_zetac',911)
+     &    ('atscf_ecp: ma_free_heap failed for h_zetac',911, MEM_ERR)
       if (.not.ma_free_heap(h_coefc)) call errquit
-     &    ('atscf_ecp: ma_free_heap failed for h_coefc',911)
+     &    ('atscf_ecp: ma_free_heap failed for h_coefc',911, MEM_ERR)
       if (.not.ma_free_heap(h_nprimc)) call errquit
-     &    ('atscf_ecp: ma_free_heap failed for h_nprimc',911)
+     &    ('atscf_ecp: ma_free_heap failed for h_nprimc',911, MEM_ERR)
       if (.not.ma_free_heap(h_ncoefc)) call errquit
-     &    ('atscf_ecp: ma_free_heap failed for h_ncoefc',911)
+     &    ('atscf_ecp: ma_free_heap failed for h_ncoefc',911, MEM_ERR)
       if (.not.ma_free_heap(h_indc)) call errquit
-     &    ('atscf_ecp: ma_free_heap failed for h_indc',911)
+     &    ('atscf_ecp: ma_free_heap failed for h_indc',911, MEM_ERR)
       if (.not.ma_free_heap(h_buf)) call errquit
-     &    ('atscf_ecp: ma_free_heap failed for h_buf',911)
+     &    ('atscf_ecp: ma_free_heap failed for h_buf',911, MEM_ERR)
       if (.not.ma_free_heap(h_scr)) call errquit
-     &    ('atscf_ecp: ma_free_heap failed for h_scr',911)
+     &    ('atscf_ecp: ma_free_heap failed for h_scr',911, MEM_ERR)
       end
       subroutine atscf_ecp_build_hatom(geom,basis,ecpis,
      &    hatom,sz_hatom,nbas,zeta,cont,ucont,nz,icent,
      &    sz_zetac,zeta_c,coef_c,lmax_all,n_prim_c,
      &    n_coef_c, ind_c, scr,lscr, ecp_ints, l_ecp_ints)
       implicit none
+#include "errquit.fh"
 *
 * this routine fills pointer and coeff arrays with appropriate
 * ecp information and then generates the ecp integrals
@@ -343,7 +351,7 @@ c.. check to make sure ecp arrays are big enough
         write(luout,*)'sz_zetac = ',sz_zetac
         write(luout,*)'contact nwchem-support@emsl.pnl.gov'
         call errquit
-     &      ('atscf_ecp_build_hatom: fatal error: ',911)
+     &      ('atscf_ecp_build_hatom: fatal error: ',911, BASIS_ERR)
       endif
 
 c.. get first/last contraction on ecp tag
@@ -364,13 +372,14 @@ c
         if (nprim.ne.ncoef) then
           write(luout,*)
      &        'general contraction ecp basis are invalid now'
-          call errquit('atscf_ecp_build_hatom: error',911)
+          call errquit('atscf_ecp_build_hatom: error',911, BASIS_ERR)
         endif
         iexp  = infbs_cont(Cont_Iexp,nn,ecp)
         icfp  = infbs_cont(Cont_Icfp,nn,ecp)
         irexp = infbs_cont(Cont_Irexp,nn,ecp)
         if ((nn_off+nprim-1).gt.sz_zetac) call errquit
-     &  ('atscf_ecp_build_hatom: too many exponents/coefficents',911)
+     &  ('atscf_ecp_build_hatom: too many exponents/coefficents',911,
+     &       BASIS_ERR)
 *rak:        call dcopy(nprim,dbl_mb(mb_exndcf(iexp,ecp)),1,
 *rak:     &      zeta_c(nn_off),1)
 *rak:        call dcopy(nprim,dbl_mb(mb_exndcf(icfp,ecp)),1,
@@ -442,7 +451,8 @@ c.. make sure scratch array is big enough
               write(luout,*)' lscr_guess =',lscr_guess
               write(luout,*)' lscr       =',lscr
               write(luout,*)' contact nwchem-support@emsl.pnl.gov'
-              call errquit('atscf_ecp_build_hatom: fatal error',911)
+              call errquit('atscf_ecp_build_hatom: fatal error',911,
+     &       BASIS_ERR)
             else
 c.. compute ecp integrals <bra|ecp|ket>
               call ecp_integral(

@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.30 2003-09-19 00:19:24 edo Exp $
+c$Id: xc_hcth.F,v 1.31 2003-10-17 22:55:53 carlfahl Exp $
 c
       Implicit none
 c
@@ -110,9 +110,10 @@ c
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
 c
-c$Id: xc_hcth.F,v 1.30 2003-09-19 00:19:24 edo Exp $
+c$Id: xc_hcth.F,v 1.31 2003-10-17 22:55:53 carlfahl Exp $
 c
       Implicit none
+#include "errquit.fh"
 c
 #include "dft2drv.fh"
 #include "mafdecls.fh"
@@ -169,7 +170,7 @@ c
 c     Free temporary storage allocated by xc_setup_fd
 c
       if (.not.ma_free_heap(l_storage))
-     &     call errquit('xc_hcth_d2: cannot pop stack',0)
+     &     call errquit('xc_hcth_d2: cannot pop stack',0, MA_ERR)
 c
       return
       end
@@ -214,6 +215,7 @@ C              mod(grad(rhobeta)), divided by zb !!!!!!!!!
 
 
       implicit none
+#include "errquit.fh"
       
       double precision rhoa ![input]
       double precision rhob ![input]
@@ -391,7 +393,8 @@ Cfah neglectable.
       do n=1,numfunc
         if(functional.eq.funcnam(n)) nofunc=n
       enddo
-      if(nofunc.eq.-1) call errquit('xchcth: cant pair funcname ',0)
+      if(nofunc.eq.-1) call errquit('xchcth: cant pair funcname ',0,
+     &       UNKNOWN_ERR)
       max_pow_u=maxpow(nofunc)
       do n=1,3*(limpow+1)
         sol(n)=coeffs(n,nofunc)

@@ -1,6 +1,7 @@
       subroutine et_vecs_input(rtdb,module)
-C     $Id: et_vectors_inp.F,v 1.1 2002-02-19 21:38:23 d3k958 Exp $
+C     $Id: et_vectors_inp.F,v 1.2 2003-10-17 22:54:54 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -41,7 +42,8 @@ c         if (vectors_in .ne. ' ') goto 10000
          lena = inp_strlen(test)
          a_vecs = test(1:lena)
          if (.not. rtdb_cput(rtdb, 'a_vecs', 1, a_vecs)) call errquit
-     $        ('et_vectors_input: failed to store vectors_input', 0)
+     $        ('et_vectors_input: failed to store vectors_input', 0,
+     &       RTDB_ERR)
       endif
 c
 c  read movecs filename for the products
@@ -59,7 +61,8 @@ c
          lenb = inp_strlen(test)
          b_vecs = test(1:lenb)
          if (.not. rtdb_cput(rtdb, 'b_vecs', 1, b_vecs)) call errquit
-     $        ('et_vectors_input: failed to store vectors_input', 0)
+     $        ('et_vectors_input: failed to store vectors_input', 0,
+     &       RTDB_ERR)
       endif
 c
       else 
@@ -67,10 +70,12 @@ c
          write(6,10003)
          a_vecs = 'movecsa.mo'
          if (.not. rtdb_cput(rtdb, 'a_vecs', 1, a_vecs)) call errquit
-     $        ('et_vectors_input: failed to store vectors_input', 0)
+     $        ('et_vectors_input: failed to store vectors_input', 0,
+     &       RTDB_ERR)
          b_vecs = 'movecsb.mo'
          if (.not. rtdb_cput(rtdb, 'b_vecs', 1, b_vecs)) call errquit
-     $        ('et_vectors_input: failed to store vectors_input', 0)
+     $        ('et_vectors_input: failed to store vectors_input', 0,
+     &       RTDB_ERR)
       endif
       return
 c
@@ -80,7 +85,7 @@ c
      $     /'         movecsa.mo and movecsb.mo    '/)
 c
 c
-10000 call errquit('et_vectors_input: invalid format', 0)
+10000 call errquit('et_vectors_input: invalid format', 0, INPUT_ERR)
  999  continue
       call util_flush(6)
 c     

@@ -1,7 +1,7 @@
       subroutine intp_mpole(i_basis, ish, j_basis, jsh, R,
      &    lmax, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
-c $Id: intp_mpole.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intp_mpole.F,v 1.10 2003-10-17 22:53:42 carlfahl Exp $
 c
 c routine to compute multipole integrals up to level lmax with the
 c jsh translated by the fractional coordinate vector R.
@@ -28,6 +28,7 @@ c
 c
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -88,7 +89,8 @@ c
 c check initialization
 c      
       if (.not.int_chk_init('intp_mpole'))
-     &       call errquit('intp_mpole: int_init was not called' ,0)
+     &       call errquit('intp_mpole: int_init was not called' ,0,
+     &          INT_ERR)
 c
 c  check if gencon/sp shells
 c
@@ -103,7 +105,8 @@ c
       shells_ok = inline_chk_sh(ibas,ish)
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not. shells_ok)
-     &       call errquit('intp_mpole: invalid contraction/shell',0)
+     &       call errquit('intp_mpole: invalid contraction/shell',0,
+     &         BASIS_ERR)
 c
 ***   set defNxyz such that it can handle the maximum multi-pole
 c
@@ -141,7 +144,8 @@ c
       if (i_gen.gt.1 .or. j_gen.gt.1) then
         write(luout,*)
      &      ' hf3ois does not handle general contractions yet'
-        call errquit('intp_mpole: general contraction error ',911)
+        call errquit('intp_mpole: general contraction error ',911,
+     &           BASIS_ERR)
       endif
 c
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
@@ -156,7 +160,7 @@ c
           write(luout,*)' intp_mpole: lmpint  = ',lmpint
           write(luout,*)' intp_mpole: (num_int+l_int*ij_int_x) = ',
      &        (num_int+l_int*ij_int_x)
-          call errquit('intp_mpole: lmpint too small ',911)
+          call errquit('intp_mpole: lmpint too small ',911, INT_ERR)
         endif
         num_int = num_int + l_int*ij_int
         call hf3ois(

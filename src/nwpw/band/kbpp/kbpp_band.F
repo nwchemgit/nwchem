@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.4 2002-02-13 20:02:02 edo Exp $
+* $Id: kbpp_band.F,v 1.5 2003-10-17 22:55:59 carlfahl Exp $
 *
 
 *     **************************************
@@ -13,6 +13,7 @@
      >                  ngrid,unita,locp,lmax,
      >                  nbrillioun,kvectors)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -328,12 +329,13 @@
       kbpp_band = value
       return
 
- 9999 call errquit('Error reading psp_filename',0)
+ 9999 call errquit('Error reading psp_filename',0, DISK_ERR)
 
       END
 
       subroutine read_vpwp_band(unit,nrho,lmax,rho,vp,wp)
       implicit none
+#include "errquit.fh"
       integer unit
       integer nrho,lmax
       double precision rho(nrho)
@@ -358,11 +360,12 @@ c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
       
       return
 
- 9999 call errquit('Error reading psp_filename',0)
+ 9999 call errquit('Error reading psp_filename',0, DISK_ERR)
       end
 
       subroutine read_semicore_band(unit,isemicore,rcore,nrho,rho_sc)
       implicit none
+#include "errquit.fh"
       integer unit
       integer isemicore
       double precision rcore
@@ -390,7 +393,8 @@ c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
       rcore = 0.0d0
       return
 
- 8889 call errquit('Error reading psp_filename, in semicore',0)
+ 8889 call errquit('Error reading psp_filename, in semicore',0,
+     &       DISK_ERR)
       end
 
 

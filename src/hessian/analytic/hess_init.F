@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.49 2003-08-08 20:32:24 windus Exp $
+C $Id: hess_init.F,v 1.50 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -9,6 +9,7 @@ c  A lot of this could use a consolidation of the SCF and DFT energy
 c  initialization routine.
 c
       implicit none
+#include "errquit.fh"
 c
 #include "bas.fh"
 #include "bgj.fh"
@@ -55,33 +56,34 @@ c  get geometry and basis set handles and associated useful information
 c
       if (oprint) write(LuOut,*) 'HESS: set up geometry and basis'
       if (.not. geom_create(geom, 'geometry'))
-     *  call errquit('hess_init: geom_create problem', 555)
+     *  call errquit('hess_init: geom_create problem', 555, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     *  call errquit('hess_init: no geometry ', 555)
+     *  call errquit('hess_init: no geometry ', 555, RTDB_ERR)
       if (.not. geom_ncent(geom, ncent))
-     *  call errquit('hess_init: unable to get ncent ', 555) 
+     *  call errquit('hess_init: unable to get ncent ', 555, GEOM_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     *  call errquit('hess_init: bas_create problem', 555)
+     *  call errquit('hess_init: bas_create problem', 555, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     *  call errquit('hess_init: no ao basis set', 555)
+     *  call errquit('hess_init: no ao basis set', 555, BASIS_ERR)
       if (.not. bas_numbf(basis, nbf)) 
-     *  call errquit ('hess_init: basis info', 555)
+     *  call errquit ('hess_init: basis info', 555, BASIS_ERR)
       if (.not. bas_create(cd_basis, 'cd basis'))
-     &   call errquit('hess_init: bas_create?',102)
+     &   call errquit('hess_init: bas_create?',102, BASIS_ERR)
       cdfit=bas_rtdb_load(rtdb, geom, cd_basis, 'cd basis')
       if (cdfit)then
          if (.not. bas_numbf(cd_basis, nbf_cd)) 
-     &      call errquit('hess_init: basis set error:', 86)
+     &      call errquit('hess_init: basis set error:', 86, BASIS_ERR)
       else
         if (.not. bas_destroy(cd_basis))
-     &     call errquit('rdinput:not able to destroy CD_bas:',86)
+     &     call errquit('rdinput:not able to destroy CD_bas:',86,
+     &       BASIS_ERR)
         cd_basis=0
       endif
 c
 c  Get theory type
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('hess_init: theory not specified',555)
+     $     call errquit('hess_init: theory not specified',555, RTDB_ERR)
       if (theory.eq.'hyb') theory = 'dft'
       if (theory.eq.'scf') theory = 'hf'
 c
@@ -100,10 +102,12 @@ c
       call int_terminate()
       call intdd_init(rtdb,nbasis,basis_list)
       if(.not.int_normalize(rtdb,basis))
-     &        call errquit('hess_init: int_normalize failed', 208)
+     &        call errquit('hess_init: int_normalize failed', 208,
+     &       INT_ERR)
       if(cdfit) then
          if (.not. int_norm_2c(rtdb,cd_basis))
-     &        call errquit('hess_init: int_norm_2c failed', 208)
+     &        call errquit('hess_init: int_norm_2c failed', 208,
+     &       INT_ERR)
       endif
 c
 c Are we using symmetry?  Assume not!
@@ -120,15 +124,15 @@ c
       n3xyz = 3 * ncent
       n3xyz2 = n3xyz * n3xyz
       if (.not.ma_push_get(MT_DBL,n3xyz2,'hessian: exy',l_exy,k_exy))
-     *     call errquit('hessian_exy: cannot allocate',555)
+     *     call errquit('hessian_exy: cannot allocate',555, MA_ERR)
       call dfill(n3xyz2,zero,dbl_mb(k_exy),1)
       if (.not.ma_push_get(MT_DBL,n3xyz2,'hessian: exy',l_hess_xc,
      *     k_hess_xc))
-     *     call errquit('hessian_hess_xc: cannot allocate',555)
+     *     call errquit('hessian_hess_xc: cannot allocate',555, MA_ERR)
       call dfill(n3xyz2,zero,dbl_mb(k_hess_xc),1)
       if (.not.ma_push_get(MT_DBL,3*n3xyz,'hessian: dder',l_dder,
      *     k_dder))
-     *     call errquit('hessian_dder: cannot allocate',555)
+     *     call errquit('hessian_dder: cannot allocate',555, MA_ERR)
       call dfill(n3xyz*3,zero,dbl_mb(k_dder),1)
 c
 c  Initialization for each of the different types of wavefunctions.
@@ -141,17 +145,19 @@ c
 c   Read number of mo's off of the movecs file
 c
         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $    call errquit('hess_init: failed to get input vectors', 555)
+     $    call errquit('hess_init: failed to get input vectors', 555,
+     &       RTDB_ERR)
         if (.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
      $    scftype_vecs, nbf_vecs,nsets,nmos,2))
-     $    call errquit('hess_init:problem with movecs_read_header',1)
+     $    call errquit('hess_init:problem with movecs_read_header',1,
+     &       DISK_ERR)
         if (nbf.ne.nbf_vecs) 
-     $    call errquit('hessint: nbf mismatch?',0)
+     $    call errquit('hessint: nbf mismatch?',0, INPUT_ERR)
         nmo = nmos(1)
 c        if (.not. rtdb_get(rtdb, 'scf:nmo', MT_INT, 1, nmo))
 c     *    call errquit('hess_init: failed to get nmo', 555)
         if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     *     call errquit('hess_init: failed to get nclosed',0)
+     *     call errquit('hess_init: failed to get nclosed',0, RTDB_ERR)
         nalpha = nclosed
         nbeta = 0
         if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
@@ -166,9 +172,11 @@ c       nopen = nopen + 1
         endif
         if (scftype .eq. 'UHF') then
           if (.not. rtdb_get(rtdb, 'scf:nalpha', MT_INT, 1, nalpha))
-     *      call errquit('hess_init: failed to get nalpha',555)
+     *      call errquit('hess_init: failed to get nalpha',555,
+     &       RTDB_ERR)
           if (.not. rtdb_get(rtdb, 'scf:nbeta', MT_INT, 1, nbeta))
-     *      call errquit('hess_init: failed to get nbeta',555)
+     *      call errquit('hess_init: failed to get nbeta',555,
+     &       RTDB_ERR)
           jfac(2) = 1.0d0
           kfac(1) = 1.0d0
           kfac(2) = 1.0d0
@@ -187,7 +195,7 @@ c
         endif
         if (ocdfit) jfac(1) = 0.0d0 
         if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
-     $        call errquit('gradients: xfac not in rtdb ', 0)
+     $        call errquit('gradients: xfac not in rtdb ', 0, RTDB_ERR)
         kfac(1) = xfac(1)*(-0.5d0)
 c
 c  I don't like the way I am getting the number of mo's, but I can't find
@@ -197,17 +205,20 @@ c
 c   Read number of mo's off of the movecs file
 c
         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     $    call errquit('hess_init: failed to get input vectors', 555)
+     $    call errquit('hess_init: failed to get input vectors', 555,
+     &       RTDB_ERR)
         if (.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
      $    scftype_vecs, nbf_vecs,nsets,nmos,2))
-     $    call errquit('hess_init:problem with movecs_read_header',1)
+     $    call errquit('hess_init:problem with movecs_read_header',1,
+     &       DISK_ERR)
         if (nbf.ne.nbf_vecs) 
-     $    call errquit('hessint: nbf mismatch?',0)
+     $    call errquit('hessint: nbf mismatch?',0, INPUT_ERR)
         nmo = nmos(1)
 c        if (.not. bas_numbf(basis, nmo))
 c     *     call errquit('hess_init: error getting nmo:', 555)
         if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, dftnoc))
-     *   call errquit('hess_init: rtdb_get of dftnoc failed', 555)
+     *   call errquit('hess_init: rtdb_get of dftnoc failed', 555,
+     &       RTDB_ERR)
         if (bgj_restricted()) then
           nclosed = dftnoc(1)
           nalpha = nclosed
@@ -226,14 +237,16 @@ c     *     call errquit('hess_init: error getting nmo:', 555)
           kfac(1) = 1.0d0*xfac(1)
           kfac(2) = 1.0d0*xfac(1)
           if (.not. rtdb_put(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-     *         call errquit('scfinit:rtdbput nopen failed',nopen)
+     *         call errquit('scfinit:rtdbput nopen failed',nopen,
+     &       RTDB_ERR)
         endif
 
       endif
 c
       if (scftype.eq.'UHF') then
          if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, scftype))
-     &        call errquit("hess_init: cannot put scftype", 0)
+     &        call errquit("hess_init: cannot put scftype", 0,
+     &       RTDB_ERR)
          nocc(1) = nalpha
          nocc(2) = nbeta
          nvirt(1) = nmo-nalpha
@@ -244,12 +257,12 @@ c
          nvirt(1) = nmo - nclosed - nopen
          vlen = nclosed*(nopen+nvirt(1)) + nopen*nvirt(1)
       else
-         call errquit('hess_init: unknown SCF type',0)
+         call errquit('hess_init: unknown SCF type',0, INPUT_ERR)
       endif
 c
       if (.not. ma_push_get(MT_LOG, ncent, 'active atoms',
      &   l_act, k_act))
-     &   call errquit('grad: could not allocate l_act',1)
+     &   call errquit('grad: could not allocate l_act',1, MA_ERR)
       call grad_active_atoms(rtdb, ncent, log_mb(k_act), nactive)
 c
 c  Get the density and weighted density.  Need to set up some
@@ -276,14 +289,16 @@ c     eigenvalue diagonal matrix for forming energy weighted density
 c
       if (.not. ga_create(MT_DBL, mxnocc, mxnocc,'eigen_diag', 0,
      $  mxnocc, g_eigen_diag)) call errquit('onedd_cont: ga diags?',
-     $  mxnocc*mxnocc)
+     $  mxnocc*mxnocc, GA_ERR)
       call ga_zero(g_eigen_diag)
 C     eigenvalues
       if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))
-     $     call errquit('onedd_cont: could not allocate l_evals',nbf2)
+     $     call errquit('onedd_cont: could not allocate l_evals',nbf2,
+     &       MA_ERR)
 C     occupation numbers
       if (.not. ma_push_get(mt_dbl, nbf2,'occ. numbers', l_occ, k_occ))
-     $     call errquit('onedd_cont: could not allocate l_occ',nbf2)
+     $     call errquit('onedd_cont: could not allocate l_occ',nbf2,
+     &       MA_ERR)
 c
 c     check if smearing is on
 c
@@ -297,10 +312,12 @@ c get MO vectors
 c
       if (theory.eq.'dft') then
         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     *    call errquit('onedd_cont: DFT MO vectors not defined',555)
+     *    call errquit('onedd_cont: DFT MO vectors not defined',555,
+     &       RTDB_ERR)
       else
         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $    call errquit('onedd_cont: SCF MO vectors not defined',0)
+     $    call errquit('onedd_cont: SCF MO vectors not defined',0,
+     &       RTDB_ERR)
       endif
 c
 c get density and weighted density
@@ -314,12 +331,13 @@ c
 c     free temporary arrays
 c
       if (.not. ga_destroy(g_eigen_diag))
-     $  call errquit('onedd_cont: could not destroy g_eigen_diag',1)
+     $  call errquit('onedd_cont: could not destroy g_eigen_diag',1,
+     &       GA_ERR)
  
       if (.not.ma_pop_stack(l_occ))
-     $     call errquit('onedd_cont:ma free occ',1)
+     $     call errquit('onedd_cont:ma free occ',1, MA_ERR)
       if (.not.ma_pop_stack(l_evals))
-     $     call errquit('onedd_cont:ma free eval',1)
+     $     call errquit('onedd_cont:ma free eval',1, MA_ERR)
 c
 c Get the Fock derivative matrices (rhs), note that we get a seperate
 c one for the DFT code so that we can debug for the moment
@@ -332,11 +350,12 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'CPKS RHS',chunk, 
      &     g_rhs))
-     &   call errquit('hess_init: could not allocate g_rhs',555)
+     &   call errquit('hess_init: could not allocate g_rhs',555, GA_ERR)
       call ga_zero(g_rhs)
       if (.not. nga_create (MT_DBL, 3, dims, 'DFT CPKS RHS',chunk, 
      &     g_rhs_xc))
-     &   call errquit('hess_init: could not allocate g_rhs_xc',555)
+     &   call errquit('hess_init: could not allocate g_rhs_xc',555,
+     &       GA_ERR)
       call ga_zero(g_rhs_xc)
 c
 c  Initialize the Disk Resident Array (DRA) interface which will be needed
@@ -349,15 +368,16 @@ c
 c     if (dra_init(1,nbsize,nbsize,-1).ne.0) call errquit
 c    &    ('hess_init: Failed to initialize DRA interface',555)
       if (dra_init(2,nbsize,2*nbsize,-1).ne.0) call errquit
-     &    ('hess_init: Failed to initialize DRA interface',555)
+     &    ('hess_init: Failed to initialize DRA interface',555,
+     &       INT_ERR)
       if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Sx matrices',
      &    sx_name,
      &    DRA_RW,nbf,nbf,sx_dra_handle).ne.0) call errquit
-     &   ('hess_init: Failed to create sx DRA',555)
+     &   ('hess_init: Failed to create sx DRA',555, INT_ERR)
       if (dra_create(mt_dbl,ndens*nbf*ncent*3,nbf,'Fx matrices',
      &    fx_name,
      &    DRA_RW,nbf,nbf,fx_dra_handle).ne.0) call errquit
-     &   ('hess_init: Failed to create fx DRA',555)
+     &   ('hess_init: Failed to create fx DRA',555, INPUT_ERR)
 
 
       return
@@ -366,6 +386,7 @@ c
 c
       subroutine hess_energyinit(rtdb)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "hess_info.fh"
 #include "mafdecls.fh"
@@ -387,7 +408,8 @@ c
 c  Get theory type
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('hess_energyinit: theory not specified',555)
+     $     call errquit('hess_energyinit: theory not specified',555,
+     &       INPUT_ERR)
       if (theory.eq.'hyb') theory = 'dft'
 c
 c  Check to see if the current geometry has symmetry.  If so, create
@@ -395,15 +417,18 @@ c  a new geometry without symmetry and put onto the rtdb.  When symmetry
 c  is implemented into the code, this can go away.
 c
       if (.not. geom_create(geomold, 'geometry'))
-     *  call errquit('hess_init: geom_create problem', 555)
+     *  call errquit('hess_init: geom_create problem', 555, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geomold, 'geometry'))
-     *  call errquit('hess_init: no geometry ', 555)
+     *  call errquit('hess_init: no geometry ', 555, GEOM_ERR)
       if (.not. geom_makec1(geomold, geomnew))
-     $  call errquit('hess_init: failure to decrease symmetry',555)
+     $  call errquit('hess_init: failure to decrease symmetry',555,
+     &       GEOM_ERR)
       if (.not.geom_rtdb_store(rtdb,geomnew,'geometry'))
-     &      call errquit(' hess_init: geom_rtdb_store failed',555)
+     &      call errquit(' hess_init: geom_rtdb_store failed',555,
+     &       RTDB_ERR)
       if (.not.geom_destroy(geomnew))
-     &      call errquit(' hess_init: geom_destroy failed',555)
+     &      call errquit(' hess_init: geom_destroy failed',555,
+     &       GEOM_ERR)
 c
 c  Need to check to make sure that the convergence tolerances for
 c  the wavefunction are OK.  Use the user defined one if available,
@@ -414,13 +439,15 @@ c
           if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
           if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
-     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh,
+     &       RTDB_ERR)
         if (theory.eq.'scf') then
         else
           if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
           if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
-     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh,
+     &       RTDB_ERR)
         endif
       else
         ithresh = 1.0d-6
@@ -428,7 +455,8 @@ c
      $       tthresh = 1.0d-4
           if (tthresh.lt.ithresh) ithresh = tthresh
           if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
-     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh,
+     &       RTDB_ERR)
         if (theory.eq.'scf') then
         else
         ithresh = 1.0d-8
@@ -436,12 +464,14 @@ c
      $       tthresh = 1.0d-4
           if (tthresh.lt.ithresh) ithresh = tthresh
           if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
-     $      call errquit('hess_energyinit: rtdb_put failed',ithresh)
+     $      call errquit('hess_energyinit: rtdb_put failed',ithresh,
+     &       RTDB_ERR)
         endif
       endif
       if(theory.eq.'dft') then
          if(.not.xc_got2nd()) call errquit(
-     '        'analytic 2nds not ready for these XC functionals',0)
+     '        'analytic 2nds not ready for these XC functionals',0,
+     &       CAPMIS_ERR)
 c
 c     set grid to fine or leave the user to set it to xfine
 c
@@ -453,7 +483,7 @@ c
          endif
  
          if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     $        call errquit('hessinit:rtdbcput failed',0)
+     $        call errquit('hessinit:rtdbcput failed',0, RTDB_ERR)
 c
 c     set grid_acc consistent with fine (at least), ie 1d-7
 c
@@ -464,12 +494,13 @@ c
          job_grid_acc = min(job_grid_acc,1d-7)
       endif
       if (.not. rtdb_put(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
-     &   job_grid_acc))call errquit('hessint:rtdbput failed',1)
+     &   job_grid_acc))call errquit('hessint:rtdbput failed',1,
+     &       RTDB_ERR)
 c
 c     weight derivatives bit turned off
 c
       if (.not. rtdb_put(rtdb, 'dft:weight derivatives', mt_log, 1, 
-     & .false.))call errquit('hessint:rtdbput failed',2)
+     & .false.))call errquit('hessint:rtdbput failed',2, RTDB_ERR)
       
 c
 c     set tol_rho to at least 1d-11 (it is 1d-10 otherwise)
@@ -484,7 +515,7 @@ c     kill symmetry for XC grid build
 c     
          if (.not. rtdb_put(rtdb, 'dft:gridsym',
      $        MT_LOG, 1, .false.)) call errquit(
-     $        ' task_hessian: rtdb_put failed',0)
+     $        ' task_hessian: rtdb_put failed',0, RTDB_ERR)
          call grid_cleanup(rtdb,.false.)
 c
 c     set deltaE at least to 1d-7 
@@ -495,7 +526,8 @@ c
         e_conv=min(e_conv,1d-7)
       endif
       if (.not. rtdb_put(rtdb, 'dft:e_conv', mt_dbl, 1, e_conv))
-     &   call errquit('hess_init: rtdb_put failed', 100)
+     &   call errquit('hess_init: rtdb_put failed', 100,
+     &       RTDB_ERR)
 
        call dft_inpanae(rtdb)
       endif
@@ -505,15 +537,18 @@ c
       filesize = -1
       memsize  = -1
       if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
-     $  call errquit('hess_energyinit: failed to store filesize',0)
+     $  call errquit('hess_energyinit: failed to store filesize',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
-     $  call errquit('hess_energyinit: failed to store filesize',0)
+     $  call errquit('hess_energyinit: failed to store filesize',0,
+     &       RTDB_ERR)
 c
       return
       end
 c
       logical function hess_check(rtdb)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "global.fh"
@@ -535,7 +570,8 @@ c
 c  Get theory type
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('hess_check: theory not specified',555)
+     $     call errquit('hess_check: theory not specified',555,
+     &       RTDB_ERR)
       if (theory.eq.'hyb') theory = 'dft'
 c
 c  Check for relativistic all-electron methods
@@ -589,18 +625,20 @@ c  Check for CD fit
 c
       if (theory.eq.'dft') then
          if (.not. geom_create(geom1, 'geometry'))
-     $        call errquit('hess_check: geom_create problem', 555)
+     $        call errquit('hess_check: geom_create problem', 555,
+     &       GEOM_ERR)
          if (.not. geom_rtdb_load(rtdb, geom1, 'geometry'))
-     $        call errquit('hess_check: no geometry ', 555)
+     $        call errquit('hess_check: no geometry ', 555,
+     &       RTDB_ERR)
          if (.not. bas_create(basis1, 'cd basis'))
-     $        call errquit('hess_check: bas_create?',102)
+     $        call errquit('hess_check: bas_create?',102, BASIS_ERR)
          cdfit=bas_rtdb_load(rtdb, geom1, basis1, 'cd basis')
          if (.not. geom_destroy(geom1))
      $        call errquit('hess_check:not able to destroy geometry:',
-     $        geom1)
+     $        geom1, GEOM_ERR)
          if (.not. bas_destroy(basis1))
      $        call errquit('hess_check:not able to destroy CD_bas:',
-     $                   basis1)
+     $                   basis1, BASIS_ERR)
       endif
 c
       if (cdfit) then

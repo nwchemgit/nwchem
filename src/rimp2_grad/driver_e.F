@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.8 1999-05-28 15:29:45 bernhold Exp $
+C     $Id: driver_e.F,v 1.9 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame,
@@ -11,6 +11,7 @@ C SYNOPSIS
      $     TopSpin, NMO, NFrzO, NOcc, NVir, NFit, FitBas, Eig, LDEig,
      $     Contrib, E2, Mem_Opt, IBlock, JBlock, DoGrad, G_P2)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer MaxSpin
       Logical BraKetSame
@@ -136,7 +137,7 @@ C
 C
       If ( MaxSpin .gt. MyMaxSpin ) Call ErrQuit(
      $     'RIMP2_Driver_E: fatal program error: MaxSpin > MyMaxSpin',
-     $     MaxSpin)
+     $     MaxSpin, CALC_ERR)
 C
 C     ************************
 C     * Check inputs & setup *
@@ -199,11 +200,11 @@ C
             If ( .NOT. MA_Get_Index(H_TopN_Ind(ISpin+JSpin-1),
      $           I_TopN_Ind(ISpin+JSpin-1) ) ) Call ErrQuit(
      $           'RIMP2_Driver_E: problems with t stats arrays',
-     $           ISpin+JSpin-1)
+     $           ISpin+JSpin-1, MA_ERR)
             If ( .NOT. MA_Get_Index(H_TopN_Val(ISpin+JSpin-1),
      $           I_TopN_Val(ISpin+JSpin-1) ) ) Call ErrQuit(
      $           'RIMP2_Driver_E: problems with t stats arrays',
-     $           ISpin+JSpin-1)
+     $           ISpin+JSpin-1, MA_ERR)
          EndDo
       EndDo
 C
@@ -219,7 +220,7 @@ C
      $         String1(:Inp_StrLen(String1)), MinChunk, MinChunk,
      $         G_P2(ISpin) ) ) Call ErrQuit(
      $         'RIMP2_Driver_E: can''t allocate P(2)',
-     $         NMO(ISpin)*NMO(ISpin) )
+     $         NMO(ISpin)*NMO(ISpin) , GA_ERR)
             Call GA_Zero( G_P2(ISpin) )
          EndDo
       EndIf ! Gradient-only

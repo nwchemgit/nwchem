@@ -5,7 +5,7 @@
      4  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
      5  maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
 c
-c $Id: tddft_davidson.F,v 1.11 2003-01-24 22:47:06 edo Exp $
+c $Id: tddft_davidson.F,v 1.12 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization
@@ -88,6 +88,7 @@ c Subspace [+]_pq = T^p_ia(a) P^q_ia(q) + T^p_ia(b) P^q_ia(b)
 c Subspace [-]_pq = T^p_ia(a) Q^q_ia(q) + T^p_ia(b) Q^q_ia(b)
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -201,27 +202,27 @@ c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
         if (.not.ga_create(mt_dbl,nov(i),nresiduals,
      1    'residual vectors 1',-1,nresiduals,g_residuals_1(i)))
      2    call errquit
-     3    ('tddft_davidson: failed to create g_residuals_1',0)
+     3    ('tddft_davidson: failed to create g_residuals_1',0, GA_ERR)
         if (.not.tda) then
           if (.not.ga_create(mt_dbl,nov(i),nresiduals,
      1      'residual vectors 2',-1,nresiduals,g_residuals_2(i)))
      2      call errquit
-     3      ('tddft_davidson: failed to create g_residuals_2',0)
+     3      ('tddft_davidson: failed to create g_residuals_2',0, GA_ERR)
         endif
       enddo
       if (.not.ma_push_get(mt_dbl,nroots,'last eigenvalues',
      1  l_valsav,k_valsav)) call errquit
-     2  ('tddft_davidson: failed to allocate valsav',0)
+     2  ('tddft_davidson: failed to allocate valsav',0, MA_ERR)
       do i=1,nroots
         dbl_mb(k_valsav+i-1)=1.0d99
       enddo
       if (.not.ma_push_get(mt_dbl,nresiduals,'residuals',
      1  l_residual_1,k_residual_1)) call errquit
-     2  ('tddft_davidson: failed to allocate residual_1',0)
+     2  ('tddft_davidson: failed to allocate residual_1',0, MA_ERR)
       if (.not.tda) then
         if (.not.ma_push_get(mt_dbl,nresiduals,'residuals',
      1    l_residual_2,k_residual_2)) call errquit
-     2    ('tddft_davidson: failed to allocate residual_2',0)
+     2    ('tddft_davidson: failed to allocate residual_2',0, MA_ERR)
       endif
 c
 c -------------------------
@@ -255,7 +256,7 @@ c
    10 continue
         iter=iter+1
         if (iter.gt.maxiter) call errquit
-     1    ('tddft_davidson: exceeded maxiter',0)
+     1    ('tddft_davidson: exceeded maxiter',0, CALC_ERR)
 c
 c ================================================
 c Algorithms 1 & 3 (multiple product vector build)
@@ -276,14 +277,14 @@ c
           ichunk(3)=-1
           if (.not.nga_create(mt_dbl,3,idim,'Work trial',
      1      ichunk,g_ntrl)) call errquit
-     2      ('tddft_davidson: failed to create g_ntrl',0)
+     2      ('tddft_davidson: failed to create g_ntrl',0, GA_ERR)
           if (.not.nga_create(mt_dbl,3,idim,'Work product',
      1      ichunk,g_nprd_p)) call errquit
-     2      ('tddft_davidson: failed to create g_nprd_p',0)
+     2      ('tddft_davidson: failed to create g_nprd_p',0, GA_ERR)
           if (.not.tda) then
             if (.not.nga_create(mt_dbl,3,idim,'Work product',
      1        ichunk,g_nprd_m)) call errquit
-     2        ('tddft_davidson: failed to create g_nprd_m',0)
+     2        ('tddft_davidson: failed to create g_nprd_m',0, GA_ERR)
           endif
 c
 c -----------------------
@@ -480,12 +481,13 @@ c Deallocate NGA
 c --------------
 c
           if (.not.ga_destroy(g_ntrl)) call errquit
-     1      ('tddft_davidson: failed to deallocate g_ntrl',0)
+     1      ('tddft_davidson: failed to deallocate g_ntrl',0, GA_ERR)
           if (.not.ga_destroy(g_nprd_p)) call errquit
-     1      ('tddft_davidson: failed to deallocate g_nprd_p',0)
+     1      ('tddft_davidson: failed to deallocate g_nprd_p',0, GA_ERR)
           if (.not.tda) then
             if (.not.ga_destroy(g_nprd_m)) call errquit
-     1        ('tddft_davidson: failed to deallocate g_nprd_m',0)
+     1        ('tddft_davidson: failed to deallocate g_nprd_m',0,
+     &       GA_ERR)
           endif
 c
 c ===============================================
@@ -653,7 +655,8 @@ c
           enddo
           nproducts=ntrials
         else
-          call errquit('tddft_davidson: unknown algorithm',algorithm)
+          call errquit('tddft_davidson: unknown algorithm',algorithm,
+     &       INPUT_ERR)
         endif
 c
 c ------------------------------------
@@ -662,23 +665,23 @@ c ------------------------------------
 c
         if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'(A+B)',
      1    l_apb,k_apb)) call errquit
-     2    ('tddft_davidson: failed to allocate apb',0)
+     2    ('tddft_davidson: failed to allocate apb',0, MA_ERR)
         if (.not.ma_push_get(mt_dbl,ntrials*ntrials,
      1    '(A+B) eigenvectors',l_apbvec,k_apbvec)) call errquit
-     2    ('tddft_davidson: failed to allocate apbvec',0)
+     2    ('tddft_davidson: failed to allocate apbvec',0, MA_ERR)
         if (.not.ma_push_get(mt_dbl,ntrials,'(A+B) eigenvalues',
      1    l_apbval,k_apbval)) call errquit
-     2    ('tddft_davidson: failed to allocate apbval',0)
+     2    ('tddft_davidson: failed to allocate apbval',0, MA_ERR)
         if (.not.tda) then
           if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'(A-B)',
      1      l_amb,k_amb)) call errquit
-     2      ('tddft_davidson: failed to allocate amb',0)
+     2      ('tddft_davidson: failed to allocate amb',0, MA_ERR)
           if (.not.ma_push_get(mt_dbl,ntrials*ntrials,
      1      '(A-B) eigenvectors',l_ambvec,k_ambvec)) call errquit
-     2      ('tddft_davidson: failed to allocate ambvec',0)
+     2      ('tddft_davidson: failed to allocate ambvec',0, MA_ERR)
           if (.not.ma_push_get(mt_dbl,ntrials,'(A-B) eigenvalues',
      1      l_ambval,k_ambval)) call errquit
-     2      ('tddft_davidson: failed to allocate ambval',0)
+     2      ('tddft_davidson: failed to allocate ambval',0, MA_ERR)
         endif
 c
 c Make (A+B) and (A-B)
@@ -777,18 +780,18 @@ c
      1      write(LuOut,9200) memleft
           if (.not.tda) then
             if (.not.ma_pop_stack(l_ambval)) call errquit
-     1        ('tddft_davidson: failed to deallocate ambval',0)
+     1        ('tddft_davidson: failed to deallocate ambval',0, MA_ERR)
             if (.not.ma_pop_stack(l_ambvec)) call errquit
-     1        ('tddft_davidson: failed to deallocate ambvec',0)
+     1        ('tddft_davidson: failed to deallocate ambvec',0, MA_ERR)
             if (.not.ma_pop_stack(l_amb)) call errquit
-     1        ('tddft_davidson: failed to deallocate amb',0)
+     1        ('tddft_davidson: failed to deallocate amb',0, MA_ERR)
           endif
           if (.not.ma_pop_stack(l_apbval)) call errquit
-     1      ('tddft_davidson: failed to deallocate apbval',0)
+     1      ('tddft_davidson: failed to deallocate apbval',0, MA_ERR)
           if (.not.ma_pop_stack(l_apbvec)) call errquit
-     1      ('tddft_davidson: failed to deallocate apbvec',0)
+     1      ('tddft_davidson: failed to deallocate apbvec',0, MA_ERR)
           if (.not.ma_pop_stack(l_apb)) call errquit
-     1      ('tddft_davidson: failed to deallocate apb',0)
+     1      ('tddft_davidson: failed to deallocate apb',0, MA_ERR)
           goto 20
         else
           ntrials=nnewtrials
@@ -798,18 +801,18 @@ c Deallocate (A+B) and (A-B) matrices
 c
         if (.not.tda) then
           if (.not.ma_pop_stack(l_ambval)) call errquit
-     1      ('tddft_davidson: failed to deallocate ambval',0)
+     1      ('tddft_davidson: failed to deallocate ambval',0, MA_ERR)
           if (.not.ma_pop_stack(l_ambvec)) call errquit
-     1      ('tddft_davidson: failed to deallocate ambvec',0)
+     1      ('tddft_davidson: failed to deallocate ambvec',0, MA_ERR)
           if (.not.ma_pop_stack(l_amb)) call errquit
-     1      ('tddft_davidson: failed to deallocate amb',0)
+     1      ('tddft_davidson: failed to deallocate amb',0, MA_ERR)
         endif
         if (.not.ma_pop_stack(l_apbval)) call errquit
-     1    ('tddft_davidson: failed to deallocate apbval',0)
+     1    ('tddft_davidson: failed to deallocate apbval',0, MA_ERR)
         if (.not.ma_pop_stack(l_apbvec)) call errquit
-     1    ('tddft_davidson: failed to deallocate apbvec',0)
+     1    ('tddft_davidson: failed to deallocate apbvec',0, MA_ERR)
         if (.not.ma_pop_stack(l_apb)) call errquit
-     1    ('tddft_davidson: failed to deallocate apb',0)
+     1    ('tddft_davidson: failed to deallocate apb',0, MA_ERR)
 c
 c End of Davidson iterations
 c
@@ -822,26 +825,27 @@ c
    20 continue
       if (.not.tda) then
         if (.not.ma_pop_stack(l_residual_2)) call errquit
-     1    ('tddft_davidson: failed to deallocate residual_2',0)
+     1    ('tddft_davidson: failed to deallocate residual_2',0, MA_ERR)
       endif
       if (.not.ma_pop_stack(l_residual_1)) call errquit
-     1  ('tddft_davidson: failed to deallocate residual_1',0)
+     1  ('tddft_davidson: failed to deallocate residual_1',0, MA_ERR)
       if (.not.ma_pop_stack(l_valsav)) call errquit
-     1  ('tddft_davidson: failed to deallocate valsav',0)
+     1  ('tddft_davidson: failed to deallocate valsav',0, MA_ERR)
       do i=1,ipol
         if (.not.ga_destroy(g_td(i))) call errquit
-     1    ('tddft_davidson: failed to destroy g_td',0)
+     1    ('tddft_davidson: failed to destroy g_td',0, GA_ERR)
         if (.not.ga_destroy(g_pd(i))) call errquit
-     1    ('tddft_davidson: failed to destroy g_pd',0)
+     1    ('tddft_davidson: failed to destroy g_pd',0, GA_ERR)
         if (.not.tda) then
           if (.not.ga_destroy(g_qd(i))) call errquit
-     1      ('tddft_davidson: failed to destroy g_qd',0)
+     1      ('tddft_davidson: failed to destroy g_qd',0, GA_ERR)
         endif
         if (.not.ga_destroy(g_residuals_1(i))) call errquit
-     1    ('tddft_davidson: failed to destroy g_residuals_1',0)
+     1    ('tddft_davidson: failed to destroy g_residuals_1',0, GA_ERR)
         if (.not.tda) then
           if (.not.ga_destroy(g_residuals_2(i))) call errquit
-     1      ('tddft_davidson: failed to destroy g_residuals_2',0)
+     1      ('tddft_davidson: failed to destroy g_residuals_2',0,
+     &       GA_ERR)
         endif
       enddo
       return

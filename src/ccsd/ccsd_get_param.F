@@ -1,7 +1,8 @@
       subroutine ccsd_get_param(rtdb, maxit,convi,iprt, theory,
      $   maxdiis, tol2e, occd)
-C     $Id: ccsd_get_param.F,v 1.9 2000-03-25 00:34:56 bert Exp $
+C     $Id: ccsd_get_param.F,v 1.10 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -32,7 +33,8 @@ C
      $     MT_INT, 1, maxdiis)) maxdiis = 5
 C
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $   call errquit('task:energy: theory not specified',0)
+     $   call errquit('task:energy: theory not specified',0,
+     &       INPUT_ERR)
 c
 C     Set these guys in the /DEBUG/ common block
 C

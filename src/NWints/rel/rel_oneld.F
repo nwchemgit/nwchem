@@ -1,4 +1,4 @@
-C $Id: rel_oneld.F,v 1.4 2000-01-25 19:56:57 mg201 Exp $
+C $Id: rel_oneld.F,v 1.5 2003-10-17 22:54:09 carlfahl Exp $
 ************************************************************************
 c:tex-\subsection{rel\_oneld}
 c:tex-This routine generates the modified one-electron gradient integrals
@@ -29,6 +29,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "rel_consts.fh"
+#include "errquit.fh"
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
@@ -129,7 +130,7 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       max_mem = 0
 *
       if (.not.(do_nw .or. do_hnd)) call errquit
-     &    ('rel_oneld: can''t do NW or HONDO integrals',99)
+     &    ('rel_oneld: can''t do NW or HONDO integrals',99, INT_ERR)
 *
       if (debug_gen) then
         write (LuOut,*) 'Beginning rel_oneld'
@@ -157,7 +158,8 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       n_ab6 = n_ab*6
       n_ab3at = n_ab*3*nat
       if (lstv .lt. n_ab .and. .not.DryRun) call errquit (
-     &      'Integral buffer length too small in rel_oneld',99)
+     &      'Integral buffer length too small in rel_oneld',99,
+     &       MEM_ERR)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -384,7 +386,7 @@ c:tex-{\it Subroutines called:} hf1d, rel\_pot, daxpy, dcopy
       memscr = lscr-i_scr+1
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_oneld',99)
+     &      'Insufficient scratch memory in rel_oneld',99, MEM_ERR)
         k = i_xca-1
         do j = 1,n_cont_a
           do i = 1,n_prim_A

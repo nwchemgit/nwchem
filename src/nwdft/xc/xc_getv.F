@@ -3,9 +3,10 @@
      &                   wght_GA, rho_n, rdens_atom,
      &                   cetobfr, natoms, g_oep)   ! Qin
 c
-C$Id: xc_getv.F,v 1.51 2003-06-12 22:43:00 edo Exp $
+C$Id: xc_getv.F,v 1.52 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer nExc
       integer iVxc_opt
@@ -88,15 +89,15 @@ c
 cQin
 c
       if (.not.rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep))
-     &   call errquit('xc_getv: failed to get loep', 0)
+     &   call errquit('xc_getv: failed to get loep', 0, RTDB_ERR)
       IF (LOEP) THEN
 c
       if (.not.rtdb_get(rtdb, 'dft:oep', mt_int, 1, ioep))
-     &   call errquit('xc_getv: failed to get ioep', 0)
+     &   call errquit('xc_getv: failed to get ioep', 0, RTDB_ERR)
       if (ioep .eq. 2) xcfit = .false.
 cc
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('xc_getvc: rtdb_get of noc failed', 0)
+     &   call errquit('xc_getvc: rtdb_get of noc failed', 0, RTDB_ERR)
       nel = 2.0d0*noc(1)
       if (ipol .eq. 2) nel = noc(1) + noc(2)
 c
@@ -143,7 +144,7 @@ cQin
               if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
                  if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
      $               nbf_ao*nbf_ao, fixvc)) call errquit(
-     $                'fixvc : rtdb_get failed', 911)
+     $                'fixvc : rtdb_get failed', 911, RTDB_ERR)
                  call ga_put(g_vxc(2),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
               else
 c
@@ -163,11 +164,11 @@ cQin
                  call ga_get(g_vxc(2),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
                  if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
      $                nbf_ao*nbf_ao,fixvc)) call errquit(
-     $                'fixvc : rtdb_put failed', 911)
+     $                'fixvc : rtdb_put failed', 911, RTDB_ERR)
               end if
 c end Qin
               if (.not. ga_destroy(g_vxc(2))) call errquit
-     $             ('xc_getv: ga corrupt?',0)
+     $             ('xc_getv: ga corrupt?',0, GA_ERR)
             else
               call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
@@ -222,13 +223,13 @@ c
                   call ga_get(g_jk(1),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
                   if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
      $                 nbf_ao*nbf_ao,fixvc)) call errquit(
-     $                 'fixvc : rtdb_put failed', 912)
+     $                 'fixvc : rtdb_put failed', 912, RTDB_ERR)
 c                  call ga_print(g_jk(1))
                end if
                if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
                   if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
      $               nbf_ao*nbf_ao, fixvc)) call errquit(
-     $                'fixvc : rtdb_get failed', 912)
+     $                'fixvc : rtdb_get failed', 912, RTDB_ERR)
                   call ga_put(g_jk(1),1,nbf_ao,1,nbf_ao,fixvc,nbf_ao)
 c                  call ga_print(g_jk(1))
                end if
@@ -241,9 +242,9 @@ c
                call ga_dadd(1.0d0, g_jk(3), -xfac(1), g_jk(4),
      $              g_jk(2))
                if (.not. ga_destroy(g_jk(3))) call errquit
-     $              ('xc_getv: ga corrupt?',0)
+     $              ('xc_getv: ga corrupt?',0, GA_ERR)
                if (.not. ga_destroy(g_jk(4))) call errquit
-     $              ('xc_getv: ga corrupt?',1)
+     $              ('xc_getv: ga corrupt?',1, GA_ERR)
             endif
          endif
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
@@ -260,17 +261,18 @@ c
             nTrows = nbf_xc
             nTcols = ipol
             if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
-     &           iTmat))call errquit('xc_getv: cannot allocate Tmat',0)
+     &           iTmat))call errquit('xc_getv: cannot allocate Tmat',0,
+     &       MA_ERR)
             call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
          endif
          
             if(havehfxc.or.(.not.cdfit)) then
                if(.not.ga_duplicate(g_vxc(1),g_truevxc(1),'g vxc 1'))
-     .         call errquit('xcgetv: gaduplicate failed',1)
+     .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
                call ga_zero(g_truevxc(1))
                if(ipol.eq.2) then
                   if(.not.ga_duplicate(g_vxc(2),g_truevxc(2),'gv21'))
-     .         call errquit('xcgetv: gaduplicate failed',1)
+     .         call errquit('xcgetv: gaduplicate failed',1, GA_ERR)
                   call ga_zero(g_truevxc(2))
                endif
             else
@@ -286,11 +288,11 @@ c
             if(havehfxc.or.(.not.cdfit)) then
                call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
                if (.not. ga_destroy(g_truevxc(1))) call errquit(
-     .              ' xc_getv: ga_destroy failed ',0)
+     .              ' xc_getv: ga_destroy failed ',0, GA_ERR)
                if(ipol.eq.2) then
                call ga_dadd(1d0,g_vxc(2),1d0,g_truevxc(2),g_vxc(2))
                if (.not. ga_destroy(g_truevxc(2))) call errquit(
-     .              ' xc_getv: ga_destroy failed ',0)
+     .              ' xc_getv: ga_destroy failed ',0, GA_ERR)
                endif
             endif
          if(xcfit) then
@@ -308,7 +310,7 @@ c
             call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
      &           g_vxc, g_xcinv,g_oep, IOLGC)   ! Qin
             if (.not.ma_pop_stack(lTmat))
-     &           call errquit('xc_getv: cannot pop stack',0)
+     &           call errquit('xc_getv: cannot pop stack',0, MA_ERR)
 c     
          endif
       endif

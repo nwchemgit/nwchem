@@ -1,8 +1,9 @@
 *
-* $Id: lcao_init_dn.F,v 1.2 2001-12-01 23:13:26 bylaska Exp $
+* $Id: lcao_init_dn.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
       subroutine lcao_init_dn(ispin,ne,n2ft3d,dn,phi)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       integer n2ft3d
       real*8 dn(n2ft3d,2)
@@ -38,7 +39,7 @@
 
       value = MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
-     >  call errquit('lcao_init_dn:out of stack memory',0)
+     >  call errquit('lcao_init_dn:out of stack memory',0, MA_ERR)
 
 
       call dcopy(ispin*n2ft3d,0.0d0,0,dn,1)
@@ -81,7 +82,7 @@
 
       value = MA_pop_stack(tmp(2))
       if (.not. value) 
-     >  call errquit('lcao_init_dn:popping stack memory',0)
+     >  call errquit('lcao_init_dn:popping stack memory',0, MA_ERR)
       return
       end
 

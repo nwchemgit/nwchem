@@ -1,6 +1,7 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.162 2003-09-19 16:50:31 edo Exp $
+C     $Id: geom_input.F,v 1.163 2003-10-17 22:55:06 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "inp.fh"
 #include "geom.fh"
@@ -68,9 +69,9 @@ c     Check that this is indeed a geometry line
 c     
       call inp_set_field(0)     ! goto start of line
       if (.not. inp_a(field))
-     $     call errquit('geom_input: no input present', 0)
+     $     call errquit('geom_input: no input present', 0, INPUT_ERR)
       if (.not. inp_compare(.false., 'geometry', field))
-     $     call errquit('geom_input: not geometry input', 0)
+     $     call errquit('geom_input: not geometry input', 0, INPUT_ERR)
 c     
 c     geometry [<name>] [units <units>] [print] [noprint] [bqbq] \
 c     [angstrom_to_au <real>] [au_to_angstrom <real>] \
@@ -121,12 +122,14 @@ c
      &           (inp_compare(.false.,'ang2au',field))) then
             found_ang2au_conv = .true.
             if (.not.inp_f(ang2au)) call errquit
-     &           ('error parsing real value of angstrom_to_au',911)
+     &           ('error parsing real value of angstrom_to_au',911,
+     &       INPUT_ERR)
          else if ((inp_compare(.false.,'au_to_angstrom',field)).or.
      &           (inp_compare(.false.,'au2ang',field))) then
             found_au2ang_conv = .true.
             if (.not.inp_f(au2ang)) call errquit
-     &           ('error parsing real value of angstrom_to_au',911)
+     &           ('error parsing real value of angstrom_to_au',911,
+     &       INPUT_ERR)
          else if (inp_compare(.false.,'autoz',field)) then
             oautoz       = .true.  
          else if (inp_compare(.false.,'noautoz',field)) then
@@ -164,12 +167,14 @@ c
             oprint = .false.
          else if (inp_compare(.false.,'units', field)) then
             if (.not. inp_a(units)) call errquit
-     $           ('geom_input: geometry [<name>] [units <units>]', 0)
+     $           ('geom_input: geometry [<name>] [units <units>]', 0,
+     &       INPUT_ERR)
          else if (inp_compare(.false.,'nucleus',field) .or.
      &          inp_compare(.false.,'nucl',field) .or.
      &          inp_compare(.false.,'nuc',field)) then
             if (.not. inp_a(nucmodel)) call errquit
-     $           ('geom_input: geometry [<name>] [nucleus <model>]', 0)
+     $           ('geom_input: geometry [<name>] [nucleus <model>]', 0,
+     &       INPUT_ERR)
             if (inp_compare(.false.,'finite', nucmodel) .or.
      &          inp_compare(.false.,'fi', nucmodel)) then
               ofinite = .true.
@@ -179,7 +184,8 @@ c
             end if
          else
             if (name .ne. ' ') call errquit
-     $           ('geom_input: geometry [<name>] [units <units>]', 0)
+     $           ('geom_input: geometry [<name>] [units <units>]', 0,
+     &       INPUT_ERR)
             name = field
          end if
          goto 10
@@ -187,27 +193,30 @@ c
 c     
       if (name .eq. ' ') name = 'geometry'
       if (.not. geom_create(geom, name)) call errquit
-     $     ('geom_input: geom_create failed !', 0)
+     $     ('geom_input: geom_create failed !', 0, GEOM_ERR)
 c
 c     Asked to adjust existing geometry ... only zcoord input
 c     is allowed.
 c
       if (oadjust) then
          if (.not. geom_rtdb_load(rtdb, geom, name)) call errquit
-     $        ('geom_input: cannot find geometry to adjust',0)
+     $        ('geom_input: cannot find geometry to adjust',0,
+     &       RTDB_ERR)
          if (oprint) write(LuOut,778) name(1:inp_strlen(name))
  778     format(/,' Adjusting existing geometry named ',a,/)
       endif
 c
       if (found_au2ang_conv.and.found_ang2au_conv) call errquit
      &     ('geom_input: user specified both au->ang and ang->au '//
-     &     'conversion factors.  This is not allowed', 911)
+     &     'conversion factors.  This is not allowed', 911, RTDB_ERR)
       if (found_au2ang_conv) then
          if (.not.geom_set_au2ang(geom,au2ang)) call errquit
-     &        ('geom_input: error setting au2ang conversion unit',911)
+     &        ('geom_input: error setting au2ang conversion unit',911,
+     &       GEOM_ERR)
       elseif (found_ang2au_conv) then
          if (.not.geom_set_ang2au(geom,ang2au)) call errquit
-     &        ('geom_input: error setting ang2au conversion unit',911)
+     &        ('geom_input: error setting ang2au conversion unit',911,
+     &       GEOM_ERR)
       endif
 c     
 c     ----- check units -----
@@ -224,13 +233,15 @@ c
       else  if (units(1:2).eq.'pm' .or. units(1:2).eq.'pi') then
          units = 'picometer'
       else
-         call errquit('geom_input: unknown units', 0)
+         call errquit('geom_input: unknown units', 0, GEOM_ERR)
       end if
 c     
       if (.not. geom_set_user_units(geom,units))
-     $     call errquit('geom_input: failed setting user units',0)
+     $     call errquit('geom_input: failed setting user units',0,
+     &       GEOM_ERR)
       if (.not. geom_get_user_scale(geom,scale))
-     $     call errquit('geom_input: failed getting user scale',0)
+     $     call errquit('geom_input: failed getting user scale',0,
+     &       GEOM_ERR)
 c     
 c     ----- coordinate input -----
 c     
@@ -263,7 +274,8 @@ c
             ozmatrix=.true.   
             oautoz = .false.
             if (oadjust) call errquit
-     $           ('geom_input: zmatrix not allowed for adjust',0)
+     $           ('geom_input: zmatrix not allowed for adjust',0,
+     &       GEOM_ERR)
             call geom_zmt_input(geom,coords,tags,charge,mass,
      $           ncenter,scale,oprint,found_cart)
 c
@@ -286,7 +298,7 @@ c
             goto 20
          else
             if ((ncenter+1) .gt. max_center) call errquit
-     $           ('geom_input: too many centers?', ncenter)
+     $           ('geom_input: too many centers?', ncenter, GEOM_ERR)
             tags(ncenter+1) = field
             charge(ncenter+1) = 0.0d0
 c     
@@ -294,17 +306,19 @@ c
      $           element, atn)
             if ((.not. is_atom) .and. symbol.ne.'bq') 
      $           call errquit
-     &           ('geom_input:center is neither atom nor bq',0)
+     &           ('geom_input:center is neither atom nor bq',0,
+     &       INPUT_ERR)
 c
             if (oadjust) call errquit
-     $           ('geom_input:coordinates not allowed for adjust',0)
+     $           ('geom_input:coordinates not allowed for adjust',0,
+     &       INPUT_ERR)
 c     
 c..   set default mass
 c     
             if (.not.
      &           geom_atn_to_default_mass(atn,mass((ncenter+1))))
      &           call errquit(' geom_input: default mass failed',
-     &           911)
+     &           911, INPUT_ERR)
 c     
 c     New style input ... <tag> <x> <y> <z> [vx vy vz] \
 c                         [charge <q>] [mass <m>] [nuc finite]
@@ -340,7 +354,7 @@ c
                      oatomfinite = .false.
                   else
                      call errquit ('geom_input: invalid nuclear model',
-     &                  911)
+     &                  911, INPUT_ERR)
                   end if
                   goto 111
                else
@@ -350,7 +364,7 @@ c
             if (.not. status) call errquit
      $          ('geom_input: <tag> <x> <y> <z>  [charge <q>]'//
      $          ' [mass <m>] [nuc[leus] point|pt|finite|fi]',
-     &          ncenter+1)
+     &          ncenter+1, INPUT_ERR)
             ncenter = ncenter + 1
             if (oatomfinite) then
               if (.not. geom_mass_to_invnucexp (mass(ncenter), 
@@ -362,7 +376,7 @@ c
          end if
          goto 20
       else
-         call errquit('geom_input: premature end of file', 0)
+         call errquit('geom_input: premature end of file', 0, INPUT_ERR)
       end if
 c     
 c     For molecules, apply requested conversion of units after we have
@@ -374,15 +388,16 @@ c
          oautoz = .false. ! No point for atoms
          ozmatrix = .false.
          if (.not. geom_disable_zmatrix(geom)) call errquit
-     $        ('geom_input: disabling zmatrix', 0)
+     $        ('geom_input: disabling zmatrix', 0, GEOM_ERR)
       end if
 c
       if (.not. geom_systype_get(geom, isys)) call errquit
-     $     ('geom_input: systype?', 0)
+     $     ('geom_input: systype?', 0, GEOM_ERR)
 c
       if (oadjust) then
          if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_get failed', 0)
+     $        call errquit('geom_input: geom_cart_get failed', 0,
+     &       GEOM_ERR)
       else 
          if (isys.eq.0) then
             if (scale.ne.1.0d0) then
@@ -394,7 +409,8 @@ c
                call dscal(3*ncenter, scale, coords, 1)
             end if
          else if (isys .lt. 0) then
-            call errquit('geom_input: invalid system type', 0)
+            call errquit('geom_input: invalid system type', 0,
+     &       INPUT_ERR)
          end if
 c     
          call geom_check_input_quants
@@ -403,16 +419,20 @@ c
      &        (tags,mass,ncenter,1.0d-8,'mass')
 c
          if (.not. geom_cart_set(geom, ncenter, tags, coords, charge))
-     $        call errquit('geom_input: geom_cart_set failed', 0)
+     $        call errquit('geom_input: geom_cart_set failed', 0,
+     &       GEOM_ERR)
 c
          if (.not. geom_vel_set(geom, velocities))
-     $        call errquit('geom_input: geom_vel_set failed', 0)
+     $        call errquit('geom_input: geom_vel_set failed', 0,
+     &       GEOM_ERR)
 c     
          if (.not. geom_masses_set(geom, ncenter, mass))
-     &        call errquit('geom_input: geom_masses_set failed', 0)
+     &        call errquit('geom_input: geom_masses_set failed', 0,
+     &       GEOM_ERR)
 c     
          if (.not. geom_nucexps_set(geom, ncenter, invnucexp))
-     &        call errquit('geom_input: geom_nucexps_set failed', 0)
+     &        call errquit('geom_input: geom_nucexps_set failed', 0,
+     &       GEOM_ERR)
 c
 c     Check to see if both autosym and symmetry are being used.  If so,
 c     set autosym off.  Note the the threquiv variable is set first by the
@@ -435,9 +455,11 @@ c
 c     ----- detect symmetry -----
 c     
             if (.not. geom_cart_get(geom,ncenter,tags,coords,charge))
-     $           call errquit('geom_input: geom_cart_get failed', 0)
+     $           call errquit('geom_input: geom_cart_get failed', 0,
+     &       GEOM_ERR)
             if (.not. geom_vel_get(geom, velocities))
-     $        call errquit('geom_input: geom_vel_get failed', 0)
+     $        call errquit('geom_input: geom_vel_get failed', 0,
+     &       GEOM_ERR)
             ncenter_before_auto = ncenter
             if(usesymmol) then
                if (.not. ma_push_get(mt_dbl,3*ncenter,'coords',
@@ -454,16 +476,19 @@ c
             endif
             if (geom_group_set(geom,groupname)) then
                if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
-     $              call errquit('geom_input: geom_cart_set failed', 0)
+     $              call errquit('geom_input: geom_cart_set failed', 0,
+     &       GEOM_ERR)
                if (.not. geom_vel_set(geom, velocities))
-     $              call errquit('geom_input: geom_vel_set failed', 0)
+     $              call errquit('geom_input: geom_vel_set failed', 0,
+     &       GEOM_ERR)
                if (ncenter_before_auto .ne. ncenter) call errquit
      $              ('geom_input: autosym bug : number of atoms wrong',
-     $              ncenter)
+     $              ncenter, GEOM_ERR)
             else
                write(LuOut,*) ' autosym detected unknown group ', 
      &                        groupname
-               call errquit('geom_input: autosym: invalid group',0)
+               call errquit('geom_input: autosym: invalid group',0,
+     &       INPUT_ERR)
             endif
          endif
 c     
@@ -480,9 +505,10 @@ c     don't agree on the orientation of point group elements
 c     
          if (oautosym) then
             if (.not. geom_ncent(geom,ncenter)) call errquit
-     $           ('geom_input: geom_cent?',0)
+     $           ('geom_input: geom_cent?',0, GEOM_ERR)
             if (ncenter_before_auto .ne. ncenter) call errquit
-     $           ('geom_input: autosym bug : too many atoms',ncenter)
+     $           ('geom_input: autosym bug : too many atoms',ncenter,
+     &       GEOM_ERR)
          endif
 c     
          if (oprint_sym.and.(isys.eq.0)) call sym_print_all(geom,
@@ -494,7 +520,8 @@ c     Center origin at the center of charge if requested
 c     
       if (ocenter .and. isys.eq.0) then
          if (.not. geom_charge_center(geom)) call errquit
-     $        ('geom_input: failed centering geometry',0)
+     $        ('geom_input: failed centering geometry',0,
+     &       GEOM_ERR)
       endif
 c     
 c     Force exact symetry on the coordinates
@@ -502,7 +529,8 @@ c
       call sym_geom_project(geom, threquiv)
 c     
       if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
-     $     call errquit('geom_input: geom_cart_get failed', 0)
+     $     call errquit('geom_input: geom_cart_get failed', 0,
+     &       GEOM_ERR)
 c
 c     If doing user zmatrix then remember values of constant variables
 c     so their values can be exactly enforced. 
@@ -529,33 +557,36 @@ c
 c     
       if (oprint) then
          if (.not. geom_print(geom))
-     $        call errquit('geom_input: print failed ', 0)
+     $        call errquit('geom_input: print failed ', 0, GEOM_ERR)
          if (format .eq. 'xyz') then
             write(luout,*)
             call util_print_centered
      &           (luout,'XYZ format geometry',20,.true.)
             if (.not. geom_print_xyz(geom,6))
-     $           call errquit('geom_input: print xyz?',0)
+     $           call errquit('geom_input: print xyz?',0, GEOM_ERR)
             write(luout,*)
             call util_flush(luout)
          endif
          if (.not.geom_print_distances(geom))
-     &        call errquit('geom_input: print_distances failed ',911)
+     &        call errquit('geom_input: print_distances failed ',911,
+     &       GEOM_ERR)
          if (.not.geom_print_angles(geom))
-     &        call errquit('geom_input: print_angles failed ',911)
+     &        call errquit('geom_input: print_angles failed ',911,
+     &       GEOM_ERR)
       end if
 c     
       if (.not. geom_rtdb_store(rtdb, geom, name))
-     $     call errquit('geom_input: geom_rtdb_store failed', 0)
+     $     call errquit('geom_input: geom_rtdb_store failed', 0,
+     &       RTDB_ERR)
 c     
       if(.not. geom_verify_coords(geom))
      &     call errquit
-     &     ('geom_input: geom_verify_coords failed',911)
+     &     ('geom_input: geom_verify_coords failed',911, GEOM_ERR)
 c
 c     almost done
 c
       if (.not. geom_destroy(geom))
-     $     call errquit('geom_input: geom_destroy failed', 0)
+     $     call errquit('geom_input: geom_destroy failed', 0, GEOM_ERR)
 c
 c     done
       
@@ -564,6 +595,7 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
       end
       subroutine geom_sys_input(geom,scale)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -583,7 +615,8 @@ c
      &     'alpha', 'beta', 'gamma', 'end'/
 c
       if (.not. geom_check_handle(geom,'system_input'))
-     $     call errquit('system_input: geom handle invalid', 0)
+     $     call errquit('system_input: geom handle invalid', 0,
+     &       GEOM_ERR)
 c
       if (inp_a(test)) then
         if (inp_match(nopt_system, .false., test, opt, ind)) then
@@ -598,14 +631,15 @@ c
 c     Read new line of input
 c
    20 if (.not. inp_read()) call errquit
-     $     ('geom_sys_input: premature end of file', 0)
+     $     ('geom_sys_input: premature end of file', 0, INPUT_ERR)
 c
    10 if (.not. inp_a(test)) then
         goto 20
       else if (inp_match(ntokens,.false.,test,tokens,ind)) then
         if (ind .lt. 7) then
           if (.not. inp_f(value)) call errquit
-     $         ('system:input: error reading floating number', 0)
+     $         ('system:input: error reading floating number', 0,
+     &       INPUT_ERR)
 c         
           goto (100,200,300,400,500,600) ind
 c
@@ -628,7 +662,8 @@ c
         goto 1000
       end if
 c
- 1000 call errquit('system_input: invalid/missing system', 0)
+ 1000 call errquit('system_input: invalid/missing system', 0,
+     &       INPUT_ERR)
 c
 c--> extra geometry stuff associated with periodic lattices
 c    derived from the above information. Builds reciprocal lattice
@@ -642,7 +677,8 @@ c
    30   continue
         if(isystype(geom).ne.0.and.group_number(geom).ne.1) call
      .     errquit(
-     .       ' space groups 2-230 not available - set group to',1)
+     .       ' space groups 2-230 not available - set group to',1,
+     &       GEOM_ERR)
 
       if(isystype(geom).eq.3) then
         call geom_3d(geom,scale)
@@ -656,6 +692,7 @@ c        status = geom_set_user_units(geom,'fractional')
       end
       subroutine geom_sym_input(geom, oprint_sym,threquiv)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "geom.fh"
 #include "nwc_const.fh"
@@ -672,7 +709,8 @@ c
       logical status
 c
       if (.not. geom_check_handle(geom,'geom_sym_input'))
-     $     call errquit('geom_sym_input: geom handle invalid', 0)
+     $     call errquit('geom_sym_input: geom handle invalid', 0,
+     &       GEOM_ERR)
 c     
       group_number(geom) = 1
       setting_number(geom) = 1
@@ -681,7 +719,7 @@ c
  10   if (inp_a(test)) then
          if (inp_compare(.false.,'setting',test)) then
             if (.not. inp_i(setting_number(geom))) call errquit
-     $           ('geom_sym_input: bad setting value', 0)
+     $           ('geom_sym_input: bad setting value', 0, GEOM_ERR)
             goto 10
          else if (inp_compare(.false.,'print',test)) then
             oprint_sym = .true.
@@ -705,7 +743,7 @@ c
                   endif
                   if (.not. status)
      $                 call errquit('geom_sym_input: unknown group '//
-     $                 'name/number', 0)
+     $                 'name/number', 0, GEOM_ERR)
                endif
             endif
             goto 10
@@ -778,6 +816,7 @@ c
       end
       subroutine geom_autoz_input(geom,oprint)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
@@ -787,7 +826,7 @@ c
       parameter (bohr=0.52917715d+00) !!!!!!!!!!!!!!!!!!!!!!!!!
 c
       if (.not. geom_get_user_scale(geom, scale))
-     $     call errquit('geom_autoz_input: scale?',0)
+     $     call errquit('geom_autoz_input: scale?',0, GEOM_ERR)
       scale = scale * bohr
 c
       call hnd_autoz_input(
@@ -823,6 +862,7 @@ c
      $     ijbond_frz,ijkang_frz,ijklto_frz,ijklop_frz,ijklnb_frz,
      $     max_zcoord, cvr_scaling,maxtor,oprint,scale)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
 c
@@ -890,27 +930,30 @@ c     ----- read values from input -----
 c
       nuser = 0
  10   if(.not.inp_read()) 
-     $     call errquit('hnd_autoz_input: unexpected eof',911)
+     $     call errquit('hnd_autoz_input: unexpected eof',911,
+     &       INPUT_ERR)
 
       if (.not.inp_a(field)) 
-     $     call errquit('hnd_autoz_input: read of field failed',911)
+     $     call errquit('hnd_autoz_input: read of field failed',911,
+     &       INPUT_ERR)
 c
       if (inp_compare(.false.,'zend',field).or.   
      $     inp_compare(.false.,'end',field)) then
          goto 999
       else if(inp_compare(.false.,'cvr_scaling',field)) then
          if(.not. inp_f(cvr_scaling)) call errquit
-     $        ('hnd_autoz_input:  reading cvr_scaling',911)
+     $        ('hnd_autoz_input:  reading cvr_scaling',911, INPUT_ERR)
       else if (inp_compare(.false.,'ijbond',field) .or.
      $        inp_compare(.false.,'bond',field)) then
          nbond = nbond + 1
          nuser = nuser + 1
          if (nbond.gt.max_zcoord) call errquit
-     $        ('too many user specified redundant coords', max_zcoord)
+     $        ('too many user specified redundant coords', max_zcoord,
+     &       INPUT_ERR)
          if(.not. inp_i(ijbond(1,nbond))) call errquit
-     $        ('hnd_autoz_input: reading ijbond',1)
+     $        ('hnd_autoz_input: reading ijbond',1, INPUT_ERR)
          if(.not. inp_i(ijbond(2,nbond))) call errquit
-     $        ('hnd_autoz_input: reading ijbond',2)
+     $        ('hnd_autoz_input: reading ijbond',2, INPUT_ERR)
          call geom_autoz_input_varinfo
      $        (ijbond_val(nbond), ijbond_nam(nbond), ijbond_frz(nbond),
      $        nuser,fff)
@@ -922,13 +965,14 @@ c
          nangl = nangl + 1
          nuser = nuser + 1
          if (nangl.gt.max_zcoord) call errquit
-     $        ('too many user specified redundant coords', max_zcoord)
+     $        ('too many user specified redundant coords', max_zcoord,
+     &       INPUT_ERR)
          if(.not. inp_i(ijkang(1,nangl))) call errquit
-     $        ('hnd_autoz_input: reading ijkang',1)
+     $        ('hnd_autoz_input: reading ijkang',1, INPUT_ERR)
          if(.not. inp_i(ijkang(2,nangl))) call errquit
-     $        ('hnd_autoz_input: reading ijkang',2)
+     $        ('hnd_autoz_input: reading ijkang',2, INPUT_ERR)
          if(.not. inp_i(ijkang(3,nangl))) call errquit
-     $        ('hnd_autoz_input: reading ijkang',3)
+     $        ('hnd_autoz_input: reading ijkang',3, INPUT_ERR)
          call geom_autoz_input_varinfo
      $        (ijkang_val(nangl), ijkang_nam(nangl), ijkang_frz(nangl),
      $        nuser,fff)
@@ -940,15 +984,16 @@ c
          ntors=ntors+1
          nuser = nuser + 1
          if (ntors.gt.max_zcoord) call errquit
-     $        ('too many user specified redundant coords', max_zcoord)
+     $        ('too many user specified redundant coords', max_zcoord,
+     &       INPUT_ERR)
          if(.not. inp_i(ijklto(1,ntors))) call errquit
-     $        ('hnd_autoz_input: reading ijklto',1)
+     $        ('hnd_autoz_input: reading ijklto',1, INPUT_ERR)
          if(.not. inp_i(ijklto(2,ntors))) call errquit
-     $        ('hnd_autoz_input: reading ijklto',2)
+     $        ('hnd_autoz_input: reading ijklto',2, INPUT_ERR)
          if(.not. inp_i(ijklto(3,ntors))) call errquit
-     $        ('hnd_autoz_input: reading ijklto',3)
+     $        ('hnd_autoz_input: reading ijklto',3, INPUT_ERR)
          if(.not. inp_i(ijklto(4,ntors))) call errquit
-     $        ('hnd_autoz_input: reading ijklto',4)
+     $        ('hnd_autoz_input: reading ijklto',4, INPUT_ERR)
          call geom_autoz_input_varinfo
      $        (ijklto_val(ntors), ijklto_nam(ntors), ijklto_frz(ntors),
      $        nuser,fff)
@@ -977,9 +1022,9 @@ c$$$         if(.not. inp_i(ijklnb(4,nlinb))) call errquit
 c$$$     $        ('hnd_autoz_input: reading ijklnb',4)
       else if(inp_compare(.false.,'maxtor',field)) then
          if(.not. inp_i(maxtor)) call errquit
-     $        ('autoz_input: reading maxtor',0)
+     $        ('autoz_input: reading maxtor',0, INPUT_ERR)
       else
-         call errquit('autoz_input: unkown directive',0)
+         call errquit('autoz_input: unkown directive',0, INPUT_ERR)
       endif
       goto 10                   ! Read next line
 c
@@ -1036,6 +1081,7 @@ c
      1                           coords,tags,charge,mass,ncenter,
      2                           units,oprint,found_cart)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
 #include "geom.fh"
@@ -1129,7 +1175,8 @@ c
       if (.not. found_cart) then
       if (.not. geom_zmt_put_data(geom, nizmat, izmat,
      $     nzfrz, izfrz, COORDS, nzvar, zvarname, zvarsign, 'user'))
-     $     call errquit('geom_zmt_input: bad geom handle',geom)
+     $     call errquit('geom_zmt_input: bad geom handle',geom,
+     &       GEOM_ERR)
       endif
 
       if(dbug) then
@@ -1167,6 +1214,7 @@ c
       end
       logical function geom_compute_zmatrix(geom, zmat)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
@@ -1274,7 +1322,8 @@ c
             iadd=iadd+6
 c     
          else
-            call errquit('geom_compute_zmatrix: unknown type',0)
+            call errquit('geom_compute_zmatrix: unknown type',0,
+     &       GEOM_ERR)
          endif    
 c     
       enddo
@@ -1282,6 +1331,7 @@ c
       end
       logical function geom_print_zmatrix(geom, data, string, odata)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
@@ -1447,7 +1497,8 @@ c
                write(LuOut,7) izvar, v, s, name, i, j, k, l, zmat(izvar)
             endif
          else
-            call errquit('geom_print_zmatrix: unknown type?', itype)
+            call errquit('geom_print_zmatrix: unknown type?', itype,
+     &       GEOM_ERR)
          endif    
       enddo
       write(LuOut,*)
@@ -1463,6 +1514,7 @@ c
       end
       subroutine geom_zmat_to_cart(s, nzvar, c)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "global.fh"
 #include "stdio.fh"
@@ -1566,7 +1618,8 @@ c
             aijl  = s(izvar)*deg_to_rad
 **            write(LuOut,*) izvar, itype, i, j, k, l, orient, s(izvar)
          else
-            call errquit('geom_zmat_to_cart: unknown 3rd type',itype)
+            call errquit('geom_zmat_to_cart: unknown 3rd type',itype,
+     &       GEOM_ERR)
          endif
          iadd = iadd + 5
          izvar = izvar + 1
@@ -1731,11 +1784,13 @@ c
          call util_flush(LuOut)
       endif
       call ga_sync()
-      call errquit('geom_zmat_to_cart: invalid bond angle',0)
+      call errquit('geom_zmat_to_cart: invalid bond angle',0,
+     &       GEOM_ERR)
 c     
       end
       subroutine geom_zmat_ico_scale(geom, s, bscale, ascale)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
@@ -1788,7 +1843,7 @@ c
             iadd=iadd+6
 c     
          else
-            call errquit('geom_zmat_ico_scale: ?', itype)
+            call errquit('geom_zmat_ico_scale: ?', itype, GEOM_ERR)
          endif    
 c
          if (itype .eq. 1) then
@@ -1805,6 +1860,7 @@ c
      2                        UNITS,zvarname,zvarsign,
      3                        found_cart)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 C
 C     -----  PARAMETERS DEFINING MAXIMUM VALUES -----
 C
@@ -2625,6 +2681,7 @@ C
       END
       logical function geom_lst_put_coord(x,y,z,n)        
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -2686,11 +2743,12 @@ c
       geom_lst_put_coord=.true.
       return
 c
-  911 call errquit('geom_lst_put_coord : open failed',0)
+  911 call errquit('geom_lst_put_coord : open failed',0, GEOM_ERR)
 c
       end
       logical function geom_lst_get_coord(x,y,z,n,irc)      
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -2754,13 +2812,14 @@ c
 c
 c     ----- unable to open ; stop ... -----
 c
- 911  call errquit('geom_lst_get_coord : open failed',0)
+ 911  call errquit('geom_lst_get_coord : open failed',0, DISK_ERR)
       return
 c
       end
       subroutine geom_check_input_quants(
      &    tags,vector,ncenter,diff_thresh,identity)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "inp.fh"
       integer ncenter
@@ -2809,7 +2868,7 @@ c
      &    jcent,tags(jcent),identity(1:k),vector(jcent),
      &    diff,diff_thresh
       write(luout,00001)
-      call errquit('geom_check_input_quants: fatal error',911)
+      call errquit('geom_check_input_quants: fatal error',911, GEOM_ERR)
 c
 00001 format(1x,80('-'),/,/)
 00002 format(1x,'center',i4,1x,a16,' has a ',a,' of ',f10.4)
@@ -3020,6 +3079,7 @@ C
       SUBROUTINE HND_MOLOPS(C,C1,C2,C3,NAT,AXS,EIG,RT,TR,ODONE,
      $     THREQUIV,groupname,geom,V,V2,V3)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 C
 C     ----- ROUTINE DETECTS MOLECULAR SYMMETRY OPERATIONS -----
 C           CODE ADAPTED FROM A.M.CHAKA's ORIGINAL CODE.
@@ -4183,7 +4243,8 @@ c
           theta = -1.d+0
         endif
         if (theta.eq.-1.d+0) call errquit
-     1    ('hnd_molops: could not determine rotation angle',555)
+     1    ('hnd_molops: could not determine rotation angle',555,
+     &       GEOM_ERR)
         call rot_theta_z (theta,c3,nat)
         call rot_theta_z (theta,v3,nat)
       endif
@@ -5320,6 +5381,7 @@ C
       END
       subroutine geom_update_cart_from_int(geom, ds, alpha, err)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -5358,11 +5420,11 @@ c
       oprint = oprint .or. odebug
 c
       if (.not. geom_zmt_get_nzvar(geom, nzvar))
-     $     call errquit('driver_u_c_f_i: geom?',0)
+     $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       if (.not. geom_ncent(geom, nat))
-     $     call errquit('driver_u_c_f_i: geom?',0)
+     $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       if (.not. geom_compute_zmatrix(geom, q))
-     $     call errquit('driver_u_c_f_i: geom?',0)
+     $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       ncart = nat * 3
 c
       do i = 1, nzvar
@@ -5374,7 +5436,7 @@ c
       bohr = 0.52917715d0
       deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
       if (.not. geom_compute_zmatrix(geom, q))
-     $     call errquit('driver_u_c_f_i: geom?',0)
+     $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       call geom_zmat_ico_scale(geom, dq, bohr, deg)
 *      if (.not. geom_print_zmatrix(geom, dq, 'Step  ', .true.))
 *     $     call errquit('fjl',0)
@@ -5393,7 +5455,7 @@ c
       endif
 c
       if (.not. ma_push_get(mt_dbl,ncart*nzvar,'mem bi',l_bi,k_bi))
-     $     call errquit('opt_int_to_cart: ma', ncart*nzvar)
+     $     call errquit('opt_int_to_cart: ma', ncart*nzvar, MA_ERR)
 c
 c     In a non-redundant set of coordinates the iteration will be 
 c     quadratically convergent once very large steps have been damped 
@@ -5410,7 +5472,7 @@ c
      $        dq, 1, 0.0d0, dx, 1)
          call sym_grad_symmetrize(geom, dx)
          if (.not. geom_cart_coords_get(geom, x))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
+     $        call errquit('opt_int_to_cart: geom get/set',0, GEOM_ERR)
          xmax = 0d0
          do i = 1, ncart
             xmax = max(xmax, abs(dx(i)))
@@ -5426,10 +5488,10 @@ c
      $        1p,d8.1,'  dqmax =',d8.1)
 c
          if (.not. geom_cart_coords_set(geom, x))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
+     $        call errquit('opt_int_to_cart: geom get/set',0, GEOM_ERR)
          call sym_geom_project(geom, max(1d-6,xmax*0.1d0))
          if (.not. geom_compute_zmatrix(geom, p))
-     $        call errquit('driver_u_c_f_i: geom?',0)
+     $        call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
          if (odebug) then 
             write(LuOut,*) ' Current internals '
             call output(p,1,nzvar,1,1,nzvar,1,1)
@@ -5475,7 +5537,7 @@ c     Take first order step here if things are not good
 c
       if (err .gt. err1) then
          if (.not. geom_cart_coords_set(geom, xsave))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
+     $        call errquit('opt_int_to_cart: geom get/set',0, GEOM_ERR)
          call sym_geom_project(geom, max(0.1d0*xmax1,1d-6))
          err = err1
          if (oprint) write(LuOut,78)
@@ -5490,13 +5552,14 @@ c
      $     geom_impose_constraints_on_q)
 c
  100  if (.not. ma_chop_stack(l_bi))
-     $     call errquit('opt_int_to_cart: ma chop', 0)
+     $     call errquit('opt_int_to_cart: ma chop', 0, MA_ERR)
 c
       call geom_bandbi(geom)
 c
       end
       subroutine geom_impose_constraints(geom, impose_constraints)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -5535,16 +5598,16 @@ c
       oprint = oprint .or. odebug
 c     
       if (.not. geom_zmt_get_nzvar(geom, nzvar))
-     $     call errquit('driver_u_c_f_i: geom?',0)
+     $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       if (.not. geom_ncent(geom, nat))
-     $     call errquit('driver_u_c_f_i: geom?',0)
+     $     call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
       ncart = nat * 3
 c     
       bohr = 0.52917715d0
       deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
 c     
       if (.not. ma_push_get(mt_dbl,ncart*nzvar,'mem bi',l_bi,k_bi))
-     $     call errquit('opt_int_to_cart: ma', ncart*nzvar)
+     $     call errquit('opt_int_to_cart: ma', ncart*nzvar, MA_ERR)
 c     
 c     In a non-redundant set of coordinates the iteration will be 
 c     quadratically convergent once very large steps have been damped 
@@ -5556,7 +5619,7 @@ c
 c     Get current q, impose constraints. Compute dq
 c     
          if (.not. geom_compute_zmatrix(geom, q))
-     $        call errquit('driver_u_c_f_i: geom?',0)
+     $        call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
 *         write(LuOut,*) ' CURRENT q '
 *         call output(q,1,nvar,1,1,nvar,1,1)
          call dcopy(nzvar, q, 1, p, 1)
@@ -5585,14 +5648,14 @@ c
      $        dq, 1, 0.0d0, dx, 1)
          call sym_grad_symmetrize(geom, dx)
          if (.not. geom_cart_coords_get(geom, x))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
+     $        call errquit('opt_int_to_cart: geom get/set',0, GEOM_ERR)
          xmax = 0d0
          do i = 1, ncart
             xmax = max(xmax,abs(dx(i)))
             x(i) = x(i) + dx(i)
          enddo
          if (.not. geom_cart_coords_set(geom, x))
-     $        call errquit('opt_int_to_cart: geom get/set',0)
+     $        call errquit('opt_int_to_cart: geom get/set',0, GEOM_ERR)
          call sym_geom_project(geom, max(1d-6,xmax*0.1d0))
 c     
          if (oprint) then
@@ -5609,13 +5672,14 @@ c
       endif
 c     
  100  if (.not. ma_chop_stack(l_bi))
-     $     call errquit('opt_int_to_cart: ma chop', 0)
+     $     call errquit('opt_int_to_cart: ma chop', 0, MA_ERR)
 c     
       call geom_bandbi(geom)
 c     
       end
       subroutine geom_impose_initial_values_on_q(geom,q)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
@@ -5678,7 +5742,7 @@ c
                endif
             enddo
          else
-            call errquit('geom_impose_init: itype ', itype)
+            call errquit('geom_impose_init: itype ', itype, GEOM_ERR)
          endif
       enddo
 c     
@@ -5737,6 +5801,7 @@ c
       end
       subroutine geom_zmat_sane_step(geom, s)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "util.fh"
@@ -5795,7 +5860,7 @@ c
             iadd = iadd + 5
 c
          else
-            call errquit('geom_zmat_sane_step: ?', itype)
+            call errquit('geom_zmat_sane_step: ?', itype, GEOM_ERR)
          endif    
 c
          if (itype.eq.1) then
@@ -5848,7 +5913,7 @@ c
                end if
             endif
          else
-            call errquit('geom_zmat_sane_step: ?',999)
+            call errquit('geom_zmat_sane_step: ?',999, GEOM_ERR)
          endif
 c
       enddo
@@ -5947,6 +6012,7 @@ c
       end
       subroutine geom_zmt_remember_constants(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom
@@ -5959,7 +6025,7 @@ c
       logical geom_compute_zmatrix
 c
       if (.not. geom_compute_zmatrix(geom,q))
-     $     call errquit('geom_zmt_remember_constants?',0)
+     $     call errquit('geom_zmt_remember_constants?',0, GEOM_ERR)
 c
       do ii = 1, zmt_nzfrz(geom)
          i = zmt_izfrz(ii,geom)

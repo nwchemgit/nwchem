@@ -2,9 +2,10 @@
      &                      d_conv, g_conv, ipol, iter, iterations, 
      &                      idone, rtdb, converged, diising)
 c
-c     $Id: dft_scfcvg.F,v 1.13 2002-01-19 00:51:09 edo Exp $
+c     $Id: dft_scfcvg.F,v 1.14 2003-10-17 22:55:44 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
       double precision rms(2)   ! [input]
       double precision derr(2)  ! [input]
@@ -102,7 +103,7 @@ c     exceeded, write "converged" to RTDB.
 c
       if (idone.eq.1)then
          if (.not.rtdb_put(rtdb, 'dft:converged', MT_LOG, 1, converged))
-     &      call errquit('dft_scfcvg: rtdb_put failed', 1)
+     &      call errquit('dft_scfcvg: rtdb_put failed', 1, RTDB_ERR)
       endif
       return
       end

@@ -1,8 +1,9 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.6 2002-01-14 18:02:31 bylaska Exp $
+c $Id: band_input.F,v 1.7 2003-10-17 22:55:58 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -104,13 +105,13 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'band_input: inp_read failed', 0)
+     >           'band_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'band_input: failed to read keyword', 0)
+     >           'band_input: failed to read keyword', 0, INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'band_input: unknown directive', 0)
+     >           'band_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100,100, 200, 300,300, 400,400, 500,500, 600,600, 
@@ -119,7 +120,7 @@ c
      >       1500,1600,1700,1600,1700,
      >      9999) ind
       call errquit(
-     >      'band_input: unimplemented directive', ind)
+     >      'band_input: unimplemented directive', ind, INPUT_ERR)
 
 
 c     
@@ -127,7 +128,7 @@ c  cell_name
 c     
  100  if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'band_input: failed to read cell_name', 0)
+     >          'band_input: failed to read cell_name', 0, INPUT_ERR)
       goto 10
 
 
@@ -142,7 +143,7 @@ c  fake_mass
 c 
  300  if (.not. inp_f(fake_mass))
      >     call errquit(
-     >          'band_input: failed to fake mass', 0)
+     >          'band_input: failed to fake mass', 0, INPUT_ERR)
       goto 10
  
 c
@@ -150,7 +151,7 @@ c  time_step
 c 
  400  if (.not. inp_f(time_step))
      >     call errquit(
-     >          'band_input: failed to time step', 0)
+     >          'band_input: failed to time step', 0, INPUT_ERR)
       goto 10
  
  
@@ -159,10 +160,10 @@ c  loop
 c 
  500  if (.not. inp_i(loop(1)))
      >     call errquit(
-     >          'band_input: failed to read loop(1)', 0)
+     >          'band_input: failed to read loop(1)', 0, INPUT_ERR)
       if (.not. inp_i(loop(2)))
      >     call errquit(
-     >          'band_input: failed to read loop(2)', 0)
+     >          'band_input: failed to read loop(2)', 0, INPUT_ERR)
       goto 10
  
 c
@@ -182,7 +183,7 @@ c  energy_cutoff
 c 
  700  if (.not. inp_f(ecut))
      >     call errquit(
-     >          'band_input: failed to read ndown', 0)
+     >          'band_input: failed to read ndown', 0, INPUT_ERR)
       goto 10
 
 c
@@ -190,7 +191,7 @@ c  wavefunction_cutoff
 c 
  800  if (.not. inp_f(wcut))
      >     call errquit(
-     >          'band_input: failed to read ndown', 0)
+     >          'band_input: failed to read ndown', 0, INPUT_ERR)
       goto 10
 
 c
@@ -198,7 +199,7 @@ c  ewald_rcut
 c 
  900  if (.not. inp_f(rcut))
      >     call errquit(
-     >          'band_input: failed to read rcut', 0)
+     >          'band_input: failed to read rcut', 0, INPUT_ERR)
       goto 10
 
 c
@@ -206,14 +207,15 @@ c  ewald_rcut
 c 
  1000 if (.not. inp_i(ncut))
      >     call errquit(
-     >          'band_input: failed to read ncut', 0)
+     >          'band_input: failed to read ncut', 0, INPUT_ERR)
       goto 10
 c
 c  exchange_correlation
 c 
  1100  if (.not. inp_a(exchange_correlation))
      >     call errquit(
-     >          'band_input: failed to read exchange_correlation', 0)
+     >          'band_input: failed to read exchange_correlation', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -232,14 +234,14 @@ c  zone_name
 c     
  1400 if (.not. inp_a(zone_name))
      >     call errquit(
-     >          'band_input: failed to read zone_name', 0)
+     >          'band_input: failed to read zone_name', 0, INPUT_ERR)
       goto 10
 c
 c  multiplicity
 c
  1500 if (.not. inp_i(multiplicity))
      >     call errquit(
-     >          'band_input: failed to read mult', 0)
+     >          'band_input: failed to read mult', 0, INPUT_ERR)
       if (multiplicity.lt.1) then
          multiplicity = 1
          ispin        = 1
@@ -263,7 +265,7 @@ c
 *     ***** add wavefunction to rtdb ****
  9999 continue
       if (cell_name.eq.' ') 
-     >  call errquit('band_input: nead a cell_name', 0)
+     >  call errquit('band_input: nead a cell_name', 0, INPUT_ERR)
 
 
       ind = index(cell_name,' ') - 1

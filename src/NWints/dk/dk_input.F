@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.11 2001-07-20 22:26:12 bert Exp $
+* $Id: dk_input.F,v 1.12 2003-10-17 22:53:48 carlfahl Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -8,9 +8,10 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
-#include "util.fh"
 #include "stdio.fh"
 #include "rel_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
 c     
 c     Read input for calculations with Douglas-Kroll
 c     
@@ -56,7 +57,7 @@ c
          elseif (inp_compare(.false.,'resc',test)) then
             dk_type = 0
          else
-            call errquit('dk_input: unknown directive',0)
+            call errquit('dk_input: unknown directive',0, UNKNOWN_ERR)
          endif
          goto 10
       endif
@@ -105,9 +106,9 @@ c
 c     Put parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'doug_kroll', mt_log, 1, dk_run))
-     $   call errquit('dk_input: rtdb_put failed', 0)
+     $   call errquit('dk_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'doug_kroll:type', mt_int, 1, dk_type))
-     $   call errquit('dk_input: rtdb_put failed', 0)
+     $   call errquit('dk_input: rtdb_put failed', 0, RTDB_ERR)
 c
       return
 c       

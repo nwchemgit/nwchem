@@ -1,6 +1,7 @@
       logical function rohf_nr_solve(rtdb, energy, eone, etwo, enrep)
-c     $Id: rohf_nr_sol.F,v 1.29 2003-01-30 01:16:57 bert Exp $
+c     $Id: rohf_nr_sol.F,v 1.30 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -87,13 +88,16 @@ c     and work space for the PCG routine.
 c     
 *ga:1:0
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: grad',
-     $     0, 1, g_grad)) call errquit('rohf_nr_solve: ga_cre grad', 0)
+     $     0, 1, g_grad)) call errquit('rohf_nr_solve: ga_cre grad', 0,
+     &       GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: serch',
-     $     0, 0, g_search)) call errquit('rohf_nr_solve: ga_cre grad',0)
+     $     0, 0, g_search)) call errquit('rohf_nr_solve: ga_cre grad',0,
+     &       GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, crohf_vlen, 1, 'rohf_nr_solve: work',
-     $     0, 0, g_work)) call errquit('rohf_nr_solve: ga_cre work', 0)
+     $     0, 0, g_work)) call errquit('rohf_nr_solve: ga_cre work', 0,
+     &       GA_ERR)
 c
       tlastwrite = util_wallsec()
 c     
@@ -379,11 +383,11 @@ c
 c     Free globals
 c     
       if (.not. ga_destroy(g_grad)) call errquit
-     $     ('rohf_nr_solve: ga_destroy grad', 0)
+     $     ('rohf_nr_solve: ga_destroy grad', 0, GA_ERR)
       if (.not. ga_destroy(g_search)) call errquit
-     $     ('rohf_nr_solve: ga_destroy search', 0)
+     $     ('rohf_nr_solve: ga_destroy search', 0, GA_ERR)
       if (.not. ga_destroy(g_work)) call errquit
-     $     ('rohf_nr_solve: ga_destroy work', 0)
+     $     ('rohf_nr_solve: ga_destroy work', 0, GA_ERR)
 c     
       if (ga_nodeid().eq.0) call util_flush(LuOut)
       call ga_sync()

@@ -3,12 +3,13 @@ C NAME
 C     CCDen_2PDMccoo -- Form coupled cluster 2-particle density matrix
 C
 C REVISION
-C     $Id: ccden_2pdmb.F,v 2.2 1999-03-08 23:17:32 d3e129 Exp $
+C     $Id: ccden_2pdmb.F,v 2.3 2003-10-17 22:54:25 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_2PDMvvoo(NOcc, NVir, T1, LDT1, Z1, LDZ1, 
      $     g_Z2, g_Omega1, g_Omega2, g_Q, g_G)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir, LDT1, LDZ1
       Double Precision T1(LDT1, NVir), Z1(LDZ1, NVir)
       Integer g_Z2, g_Omega1, g_Omega2, g_Q, g_G
@@ -58,7 +59,8 @@ C     Local memory for Z1 * T1
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scr 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to allocate scratch 1', NVir*NVir)
+     $   'CCDen_2PDMvvoo: unable to allocate scratch 1', NVir*NVir,
+     &       MA_ERR)
 C
 C     Loop through local portion, adding Z1 * T1 updates
 C
@@ -78,7 +80,7 @@ C
 C     Clean up scratch
 C
       If (.NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to free scratch 1', 0)
+     $   'CCDen_2PDMvvoo: unable to free scratch 1', 0, MA_ERR)
 C
 C     ******************************************************
 C     * -Omega3 = -1/2{Omega1 + Omega2} (APR & TJL Eq. 62) *
@@ -103,13 +105,16 @@ C     be worth looking into.
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scr 1', H_Scr1, I_Scr1)) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to allocate scratch 1', NVir*NVir)
+     $   'CCDen_2PDMvvoo: unable to allocate scratch 1', NVir*NVir,
+     &       MA_ERR)
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scr 2', H_Scr2, I_Scr2)) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to allocate scratch 2', NVir*NVir)
+     $   'CCDen_2PDMvvoo: unable to allocate scratch 2', NVir*NVir,
+     &       MA_ERR)
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir,
      $   'CCDen Scr 3', H_Scr3, I_Scr3)) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to allocate scratch 3', NVir*NVir)
+     $   'CCDen_2PDMvvoo: unable to allocate scratch 3', NVir*NVir,
+     &       MA_ERR)
 C
       Do J = JLo, JHi
          Do L = 1, NOcc
@@ -142,11 +147,11 @@ C
       EndDo
 C
       If (.NOT. MA_Pop_Stack(H_Scr3) ) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to free scratch 3', 0)
+     $   'CCDen_2PDMvvoo: unable to free scratch 3', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack(H_Scr2) ) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to free scratch 2', 0)
+     $   'CCDen_2PDMvvoo: unable to free scratch 2', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack(H_Scr1) ) Call ErrQuit(
-     $   'CCDen_2PDMvvoo: unable to free scratch 1', 0)
+     $   'CCDen_2PDMvvoo: unable to free scratch 1', 0, MA_ERR)
 C
 C     ***********************
 C     * 2 delta(i,j) Q(a,b) *
@@ -157,7 +162,7 @@ C
       If ( .NOT. MA_Push_Get(MT_Dbl, NVir*NVir, 'CCDen Scr Q', H_Qvv,
      $     I_Qvv) ) Call ErrQuit(
      $     'CCDen_2PDMvvoo: unable to allocate local Q(v,v)',
-     $     NVir*NVir)
+     $     NVir*NVir, MA_ERR)
 C
       Call GA_Get(g_Q, NOcc+1, NOcc+NVir, NOcc+1, NVir,
      $     Dbl_MB(I_Qvv), 1)
@@ -170,7 +175,8 @@ C
       EndDo
 C
       If ( .NOT. MA_Pop_Stack(H_Qvv) ) Call ErrQuit(
-     $     'CCDen_2PDMvvoo: unable to free Q(v,v)', NVir*NVir)
+     $     'CCDen_2PDMvvoo: unable to free Q(v,v)', NVir*NVir,
+     &       MA_ERR)
 C
 C
 C

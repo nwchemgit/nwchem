@@ -1,6 +1,7 @@
-C $Id: nwpw_library.F,v 1.3 2003-02-12 15:24:46 bylaska Exp $
+C $Id: nwpw_library.F,v 1.4 2003-10-17 22:56:19 carlfahl Exp $
 	subroutine nwpw_libgeninp(element,filename)
 	implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
 	character*(*) element ! [in]
@@ -20,7 +21,8 @@ c
 	unitrc = unitrc + 1
 	if (unitrc.gt.80) then
 	   write(luout,*)' could not find a free unit 69->80'
-	   call errquit('bas_input: no free units for library',911)
+	   call errquit('bas_input: no free units for library',911,
+     &       BASIS_ERR)
 	endif
 	inquire(unit=unitrc,opened=isopen)
 	if (isopen) goto 1
@@ -38,10 +40,10 @@ c
 	return
  98	continue
 	write(luout,*) 'problems opening library file ',elem_fname
-	call errquit('nwpw_libgeninp: nwpw failed ',0)
+	call errquit('nwpw_libgeninp: nwpw failed ',0, DISK_ERR)
  99	continue
 	write(luout,*) 'problems opening psp input file ',filename
-	call errquit('nwpw failed ',0)
+	call errquit('nwpw failed ',0, DISK_ERR)
 	return
 	end
 	integer function nwpw_libglmax(atom)
@@ -67,6 +69,7 @@ c
 	end
 	subroutine nwpw_libparse(u_library,u_psp_inp)
 	implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "nwpw_inp.fh"
 	integer u_library,u_psp_inp
@@ -123,5 +126,5 @@ c       should be put warning for non recognized keyword?
 	goto 1
  2001	continue
 	return
- 2002	call errquit('read error in nwpwlibparse',0)
+ 2002	call errquit('read error in nwpwlibparse',0, DISK_ERR)
 	end

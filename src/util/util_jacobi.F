@@ -1,6 +1,6 @@
       subroutine util_jacobi(n, a, lda, e)
 *
-* $Id: util_jacobi.F,v 1.4 2003-08-06 16:58:15 edo Exp $
+* $Id: util_jacobi.F,v 1.5 2003-10-17 22:58:35 carlfahl Exp $
 *
       implicit none
       integer n, lda
@@ -11,7 +11,7 @@
       end
       subroutine util_jacobinosort(n, a, lda, e)
 *
-* $Id: util_jacobi.F,v 1.4 2003-08-06 16:58:15 edo Exp $
+* $Id: util_jacobi.F,v 1.5 2003-10-17 22:58:35 carlfahl Exp $
 *
       implicit none
       integer n, lda
@@ -22,6 +22,7 @@
       end
       subroutine util_jacobi0(n, a, lda, e,sorting)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "mafdecls.fh"
       integer n, lda
@@ -42,7 +43,7 @@ c
          return
       endif
       if (.not. ma_push_get(mt_dbl, n*(n+1)/2 ,'v',l_v, k_v))
-     $     call errquit('util_jacobi: v', n*(n+1)/2)
+     $     call errquit('util_jacobi: v', n*(n+1)/2, MA_ERR)
 c
 c     Lower triangle of a into v
 c
@@ -59,8 +60,9 @@ c
       call dfill(lda*n, 0d0, a, 1)
       call dfill(n, 1d0, a, lda+1)
       call stpr_sjacobi(lda, n, dbl_mb(k_v), e, a, ierr,sorting)
-      if (ierr .ne. 0) call errquit('util_jacobi: ierr ', ierr)
+      if (ierr .ne. 0) call errquit('util_jacobi: ierr ', ierr,
+     &       UNKNOWN_ERR)
 c
-      if (.not. ma_pop_stack(l_v)) call errquit('jacobi:ma',0)
+      if (.not. ma_pop_stack(l_v)) call errquit('jacobi:ma',0, MA_ERR)
 c
       end

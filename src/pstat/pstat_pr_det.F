@@ -1,6 +1,7 @@
       Subroutine PStat_Print_Detail(handles,n_handles)
-c $Id: pstat_pr_det.F,v 1.2 1997-04-01 03:43:25 gg502 Exp $
+c $Id: pstat_pr_det.F,v 1.3 2003-10-17 22:58:01 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
 C
 #include "pstatP.fh"
 #include "global.fh"
@@ -30,7 +31,8 @@ C     Create a local array to collect the info into
 C
       If (.NOT. MA_Push_Get( MT_Dbl, 3*N_Handles*GA_NNodes(),
      $     'pstat temporary', H_Collect, I_Collect) ) Call ErrQuit(
-     $     'Pstat_Print_Detail: Unable to allocate local memory', 0)
+     $     'Pstat_Print_Detail: Unable to allocate local memory', 0,
+     &       MA_ERR)
 C
       Call DFill(3*N_Handles*GA_NNodes(), 0.0d0, Dbl_MB(I_Collect), 1)
 C
@@ -74,7 +76,7 @@ C
       EndIf
 C
       If ( .NOT. MA_Pop_Stack( H_Collect) ) Call ErrQuit(
-     $   'PStat_Print_Detail: unable to free memory', 0)
+     $   'PStat_Print_Detail: unable to free memory', 0, MA_ERR)
 C
  9010 Format(1X, A20, 1X, I5, 1X, I10, 1X, F13.3, 1X, F13.3)
 C

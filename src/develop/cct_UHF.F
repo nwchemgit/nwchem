@@ -25,9 +25,10 @@ c...   (refers to matrix after possible transpose)
 c...   ld : leading dimensions
 c
 *
-* $Id: cct_UHF.F,v 1.10 1999-09-06 13:36:37 jhvan Exp $
+* $Id: cct_UHF.F,v 1.11 2003-10-17 22:54:39 carlfahl Exp $
 *
       implicit none
+#include "util.fh"
 c
 c
 c...   symbolic matrix elements are all mapped onto A3A
@@ -444,6 +445,7 @@ c...  if diagram is A2A,A2B or B2B we can generate the
 c...  corresponding A1A,A1B and B1B simultaneously => value_X1X
 c
       implicit none
+#include "errquit.fh"
 c
 c     (ij)t(ij,ce)*t(ij,af)  *  (bk) <ba||ek><bc||fk>
 c        T(ij)(ceaf)  (Y)           I(bk)(aecf) (X)
@@ -545,7 +547,8 @@ c                 a e c f  b k  i j  fac
       i = occupation(7)
       j = occupation(8)
 c
-      if (a2a.and.(a.eq.2.or.c.eq.2)) call errquit('A2A error',0)
+      if (a2a.and.(a.eq.2.or.c.eq.2)) call errquit('A2A error',0,
+     &       UNKNOWN_ERR)
 c
       do  case=1,ncase
 c
@@ -606,14 +609,14 @@ c
             nce = nc*ne
 c
             if (.not.ga_create(MT_DBL,nae,ncf,'Result',0,0,g_RESULT))
-     1          call errquit('no global space for RESULT',0)
+     1          call errquit('no global space for RESULT',0, GA_ERR)
             call ga_zero(g_RESULT)
 c
 c...    loop over bk spin if sbk = 0 
 c
             spin = spinb
             if (spin.eq.0.and.spink.ne.0) 
-     1          call errquit('whats this spin',0)
+     1          call errquit('whats this spin',0, UNKNOWN_ERR)
             spinb = max(spinb,1)
             spink = max(spink,1)
 5           bb = s_occ_virt(sbk,spinb,b)
@@ -642,12 +645,12 @@ c
 c
 c      * T(aa)(aaaa)
             if (.not.ga_create(MT_DBL,naf,nce,'Tesult',0,0,g_TESULT))
-     1          call errquit('no global space for TESULt',0)
+     1          call errquit('no global space for TESULt',0, GA_ERR)
             call ga_zero(g_TESULT)
 c
             spin = spini
             if (spin.eq.0.and.spinj.ne.0) 
-     1          call errquit('whats this spini',0)
+     1          call errquit('whats this spini',0, UNKNOWN_ERR)
             spini = max(spini,1)
             spinj = max(spinj,1)
 6           ib = s_occ_virt(sbk,spini,i)
@@ -702,9 +705,9 @@ c             sum = sum + cct_sum(g_RESULT,g_TESULT,na,nc,ne,nf) * factor
 c            end if
 c
             if (.not.ga_destroy(g_TESULT)) 
-     1          call errquit('unable to destroy TESULT',0)
+     1          call errquit('unable to destroy TESULT',0, GA_ERR)
             if (.not.ga_destroy(g_RESULT)) 
-     1          call errquit('unable to destroy RESULT',0)
+     1          call errquit('unable to destroy RESULT',0, GA_ERR)
 c
 9          end do
           end do
@@ -722,6 +725,7 @@ c
      1                    g_RESULT)
 c
       implicit none
+#include "errquit.fh"
 c
 c...   general (:)) routine to do t*t or int*int (asymmetric)
 c...   notation taken from A3A Integral*Integral
@@ -780,8 +784,10 @@ c
 c
 c...  can use symmetry to save a get; we have to use sqrt(fac) then
 c
-      if (iro(ae).ne.iro(ab)) call errquit('sym in mult_cct',0)
-      if (iro(ce).ne.iro(cb)) call errquit('sym in mult_cct',0)
+      if (iro(ae).ne.iro(ab)) call errquit('sym in mult_cct',0,
+     &       UNKNOWN_ERR)
+      if (iro(ce).ne.iro(cb)) call errquit('sym in mult_cct',0,
+     &       UNKNOWN_ERR)
 c
       sbk = mult(iro(bb),iro(kb))
       se = mult(iro(ab),sbk)
@@ -803,10 +809,10 @@ c
 c...  get global integral array's
 c
       if (.not.ga_create(MT_DBL,len,lea,'matA(a,e)',0,0,g_MATA))
-     1   call errquit('unable to crate global arrray matA',0)
+     1   call errquit('unable to crate global arrray matA',0, GA_ERR)
       if (.not.symmetric) then
        if (.not.ga_create(MT_DBL,len,lcf,'matA(c,f)',0,0,g_MATB))
-     1     call errquit('unable to create global arrray matB',0)
+     1     call errquit('unable to create global arrray matB',0, GA_ERR)
       else
        g_MATB = g_MATA
       end if
@@ -830,9 +836,11 @@ c
       end do
 c
       if (.not.symmetric) then
-       if (.not.ga_destroy(g_MATB)) call errquit('cant destroy MATB',0)
+       if (.not.ga_destroy(g_MATB)) call errquit('cant destroy MATB',0,
+     &       GA_ERR)
       end if
-      if (.not.ga_destroy(g_MATA)) call errquit('cant destroy MATA',0)
+      if (.not.ga_destroy(g_MATA)) call errquit('cant destroy MATA',0,
+     &       GA_ERR)
 c
       return
       end
@@ -893,6 +901,7 @@ c
       double precision function cct_sum(g_R,g_T,na,nc,ne,nf)
 c
       implicit none
+#include "errquit.fh"
 c
 c...  function to sum the partial contributions in global arrays R,T
 c...  sum R(ae,cf)*T(af,ce)
@@ -912,9 +921,9 @@ c
 #include "msgids.fh"
 c
       if (.not. ma_push_get(mt_dbl, ne,'R',l_R, k_R))
-     1    call errquit('cannot allocate R in cct_sum',0)
+     1    call errquit('cannot allocate R in cct_sum',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, ne,'T',l_T, k_T))
-     1    call errquit('cannot allocate T in cct_sum',0)
+     1    call errquit('cannot allocate T in cct_sum',0, MA_ERR)
 
       sum = 0.0d0
       do a=1,na
@@ -936,8 +945,10 @@ c
        end do
       end do
 c
-      if (.not. ma_pop_stack(l_T)) call errquit('mapop T in cct_sum',0)
-      if (.not. ma_pop_stack(l_R)) call errquit('mapop R in cct_sum',0)
+      if (.not. ma_pop_stack(l_T)) call errquit('mapop T in cct_sum',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_R)) call errquit('mapop R in cct_sum',0,
+     &       MA_ERR)
 c
       call ga_dgop(type_cct_sum,sum,1,'+')
 c
@@ -948,6 +959,7 @@ c
       double precision function cct_sum_a1a(g_R,g_T,na,ne)
 c
       implicit none
+#include "errquit.fh"
 c
 c...  function to sum the partial contributions in global arrays R,T
 c...  for "diagonal" A1A case  (so a=c)
@@ -963,9 +975,9 @@ c
 #include "mafdecls.fh"
 c
       if (.not.ga_create(MT_DBL,ne,ne,'A1A-aaRR',0,0,g_RR))
-     1   call errquit('cannot create global A1A-RR',0)
+     1   call errquit('cannot create global A1A-RR',0, GA_ERR)
       if (.not.ga_create(MT_DBL,ne,ne,'A1A-aaTT',0,0,g_TT))
-     1   call errquit('cannot create global A1A-TT',0)
+     1   call errquit('cannot create global A1A-TT',0, GA_ERR)
       call ga_zero(g_RR)
       call ga_zero(g_TT)
 c
@@ -982,8 +994,10 @@ c
 c
       cct_sum_a1a = ga_ddot(g_RR,g_TT)
 c
-      if (.not.ga_destroy(g_RR)) call errquit('cannot destroy RR',0)
-      if (.not.ga_destroy(g_TT)) call errquit('cannot destroy TT',0)
+      if (.not.ga_destroy(g_RR)) call errquit('cannot destroy RR',0,
+     &       GA_ERR)
+      if (.not.ga_destroy(g_TT)) call errquit('cannot destroy TT',0,
+     &       GA_ERR)
 c
       return
       end
@@ -1051,6 +1065,7 @@ c
      1                    g_RESULT)
 c
       implicit none
+#include "errquit.fh"
 c*********************** incomplete develop
 c
 c...   general (:)) routine to do t1*t or t1*int (asymmetric)
@@ -1106,8 +1121,8 @@ c
 c
 c...  can use symmetry to save a get; we have to use sqrt(fac) then
 c
-      if (iro(ae).ne.iro(ab)) call errquit('sym',0)
-      if (iro(ce).ne.iro(cb)) call errquit('sym',0)
+      if (iro(ae).ne.iro(ab)) call errquit('sym',0, UNKNOWN_ERR)
+      if (iro(ce).ne.iro(cb)) call errquit('sym',0, UNKNOWN_ERR)
 c
       sbk = mult(iro(bb),iro(kb))
       se = mult(iro(ab),sbk)
@@ -1129,10 +1144,10 @@ c
 c...  get global integral array's
 c
       if (.not.ga_create(MT_DBL,len,lea,'matA(a,e)',0,0,g_MATA))
-     1   call errquit('matA',0)
+     1   call errquit('matA',0, GA_ERR)
       if (.not.symmetric) then
        if (.not.ga_create(MT_DBL,len,lcf,'matA(c,f)',0,0,g_MATB))
-     1     call errquit('matB',0)
+     1     call errquit('matB',0, GA_ERR)
       end if
 c
 c
@@ -1157,9 +1172,11 @@ c
       end do
 c
       if (symmetric) then
-       if (.not.ga_destroy(g_MATB)) call errquit('destroy MATB',0)
+       if (.not.ga_destroy(g_MATB)) call errquit('destroy MATB',0,
+     &       GA_ERR)
       end if
-      if (.not.ga_destroy(g_MATA)) call errquit('destroy MATA',0)
+      if (.not.ga_destroy(g_MATA)) call errquit('destroy MATA',0,
+     &       GA_ERR)
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine xc_tarad(znumber,r,w,nr,origin,which,rlast)
 
-C$Id: xc_tarad.F,v 1.6 2000-01-26 00:36:42 edo Exp $
+C$Id: xc_tarad.F,v 1.7 2003-10-17 22:55:53 carlfahl Exp $
       implicit none
 
       double precision r(*) ! grid pts coord [output]
@@ -91,6 +91,7 @@ c        w(i) = wi*ri*ri/(1d0-xi)**2*2d0
       end
       subroutine xc_interv(rmin,rmax,r,w,nr,which)
       implicit none
+#include "errquit.fh"
 c
 c     compute Gauss-Chebyshev quadrature for the 
 c     interval rmin<r<rmax 
@@ -107,7 +108,7 @@ c
       integer i
 c
       if(nr.gt.300) call errquit(
-     (    ' xc_interv: too many radial pts ',nr)
+     (    ' xc_interv: too many radial pts ',nr, UNKNOWN_ERR)
       slope=(rmax-rmin)*.5d0
       intercept=(rmin+rmax)*.5d0
       if(which.eq.'chebyshe') then
@@ -126,7 +127,7 @@ c
           w(i) = wsc(nr-i+1)*ri*ri*slope
         enddo
           else
-        call errquit('unrecognized quadr. ',999)
+        call errquit('unrecognized quadr. ',999, INPUT_ERR)
       endif
       return
       end

@@ -1,7 +1,8 @@
       subroutine intp_1e1cpe(i_basis,ish,Ri,lscr,scr,lpe,Pe)
-c $Id: intp_1e1cpe.F,v 1.9 1999-10-26 22:21:44 mg201 Exp $
+c $Id: intp_1e1cpe.F,v 1.10 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -42,11 +43,13 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('intp_1e1cpe'))
-     &       call errquit('intp_1e1cpe: int_init was not called' ,0)
+     &       call errquit('intp_1e1cpe: int_init was not called' ,0, 
+     &                  INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       if (.not.shells_ok)
-     &       call errquit('intp_1e1cpe: invalid contraction/shell',0)
+     &       call errquit('intp_1e1cpe: invalid contraction/shell',0, 
+     &                 BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
 c
@@ -82,7 +85,8 @@ c.............. dryrun
      &        .false.)
         endif
       else
-        call errquit('intp_1e1cpe: could not do sp or nw integrals',0)
+        call errquit('intp_1e1cpe: could not do sp or nw integrals',0,
+     &            INT_ERR)
       endif
 c
       end

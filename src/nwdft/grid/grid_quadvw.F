@@ -13,9 +13,10 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      .     l3d,triplet, tau,Mmat)
 c
-c$Id: grid_quadvw.F,v 1.36 2003-10-13 21:15:51 pollack Exp $
+c$Id: grid_quadvw.F,v 1.37 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #define USE_BP
 #include "cgridfile.fh"
 #include "stdio.fh"
@@ -101,10 +102,10 @@ c
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
          if(.not.geom_nuc_rep_energy(geom, enuc)) 
-     .        call errquit(' gridquad: enucrep failed ',0)
+     .        call errquit(' gridquad: enucrep failed ',0, GEOM_ERR)
          if (.not. grid_file_open(enuc,
      .        gridfilename, memsize, filesize))
-     $        call errquit('grid_tasks: opening gridpts?', 0)
+     $        call errquit('grid_tasks: opening gridpts?', 0, DISK_ERR)
       endif
 c
       owritefile= grid_test_mem (rtdb, nq_list)

@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.15 2000-10-30 21:37:51 windus Exp $
+C$Id: riscf_init.F,v 1.16 2003-10-17 22:54:33 carlfahl Exp $
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))
@@ -12,6 +12,7 @@ C     ri_basis:  basis set handle (fit) [input]
 C     tol2e:     integral threshold [input]
 C 
       implicit none
+#include "errquit.fh"
 
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -49,11 +50,14 @@ C
 
 C     get basis set information
       status = bas_numbf (ao_basis, nbf)
-      if (.not.status) call errquit ('RI-SCF: can''t get nbf', 110)
+      if (.not.status) call errquit ('RI-SCF: can''t get nbf', 110,
+     &       BASIS_ERR)
       status = bas_numbf (ri_basis, Nff)
-      if (.not.status) call errquit ('RI-SCF: can''t get Nff', 110)
+      if (.not.status) call errquit ('RI-SCF: can''t get Nff', 110,
+     &       BASIS_ERR)
       status = bas_nbf_cn_max (ao_basis, max_bf_ao)
-      if (.not.status) call errquit ('RI-SCF: can''t get max_bf_ao', 11)
+      if (.not.status) call errquit ('RI-SCF: can''t get max_bf_ao', 11,
+     &       BASIS_ERR)
       bfsquare = max_bf_ao * max_bf_ao
       status = bas_nbf_cn_max (ri_basis, max_bf_ri)
 
@@ -61,7 +65,7 @@ C     initialize for integral calculation
       bases(1) = ao_basis
       bases(2) = ri_basis
       if (.not.int_normalize (rtdb,ri_basis))
-     &    call errquit('RI-SCF: int_normalize failed', 12)
+     &    call errquit('RI-SCF: int_normalize failed', 12, INT_ERR)
       call int_init (rtdb, 2, bases)
       call schwarz_init(geom, ao_basis)
 
@@ -79,28 +83,31 @@ C     calculate V**(-1/2) with Daves routine
       endif
       status = Mk_Fit_Xf('V', 'Y', ri_basis, MinEval, g_Vsqrt)
       if (oscfps) call pstat_off(ps_vhalf)
-      if (.not. status) call errquit ('error creating V**-1/2',110)
+      if (.not. status) call errquit ('error creating V**-1/2',110,
+     &       UNKNOWN_ERR)
 
 C     temporary arrays (local and global)
 C     integral buffer
       status = ma_alloc_get (MT_DBL, lbuf, 'RI buffer', l_buf, k_buf)
       if (.not.status) 
-     $     call errquit ('RI-SCF: can''t get buffer space',110)
+     $     call errquit ('RI-SCF: can''t get buffer space',110, MA_ERR)
 C     scratch space
       lscr = max (lscr, bfsquare*Nff) !reuse for transformed 3c-ints
       status = ma_alloc_get (MT_DBL, lscr, 'RI scratch', l_scr, 
      $                       k_scr)
       if (.not.status) 
-     $     call errquit ('RI-SCF: can''t get scratch space',110)
+     $     call errquit ('RI-SCF: can''t get scratch space',110, MA_ERR)
 C     (ij|t) for one block of ij
       status = ma_alloc_get (MT_DBL, bfsquare*Nff, 'RI T',
      $                       l_T_tmp, k_T_tmp)
       if (.not.status) 
-     $     call errquit ('RI-SCF: can''t get temporary space',110)
+     $     call errquit ('RI-SCF: can''t get temporary space',110,
+     &       MA_ERR)
 C     local block of V**(-1/2)
       status = ma_alloc_get (MT_DBL, max_bf_ri*Nff,'RI V_row',
      $                       l_V_row, k_V_row)
-      if (.not.status) call errquit ('RI-SCF: can''t get V_row',110)
+      if (.not.status) call errquit ('RI-SCF: can''t get V_row',110,
+     &       MA_ERR)
 
 C     get and fill indexing array, determine space needed for 3c-ERIs
       if (oscfps) call pstat_on(ps_index)
@@ -113,7 +120,8 @@ C     get and fill indexing array, determine space needed for 3c-ERIs
       status = ga_create(MT_INT, nsh, nsh,'3c index', nsh, 0, g_indx)
 *ga:1:0
 *     status = ga_create(MT_INT, nsh, nsh,'3c index', 0, nsh, g_indx)
-      if (.not.status) call errquit ('RI-SCF: can''t get indx arr.',110)
+      if (.not.status) call errquit ('RI-SCF: can''t get indx arr.',110,
+     &       GA_ERR)
 C     does this work for integer arrays?
       call ga_zero (g_indx)
       call riscf_make_index (g_indx, npair,nsh,nsqhalf,tol2e,ao_basis)
@@ -122,7 +130,7 @@ C     does this work for integer arrays?
 C     disk-based method requested?
       status = rtdb_get(rtdb, 'scf:ri_store',MT_INT, 1, nstore)
       if ( .not. status ) call errquit
-     $     ('no store option for RI in rtdb', 110)
+     $     ('no store option for RI in rtdb', 110, RTDB_ERR)
 C     nstore = 1 : automatic choice based on memory size
 C       "    = 2 : in-core
 C       "    = 3 : disk based
@@ -133,7 +141,7 @@ C       "    = 3 : disk based
       else if ( nstore .eq. 1 ) then
         odisk = riscf_use_disk ( ao_basis, npair, nbf, Nff )
       else
-        call errquit ('no store option for RI in rtdb', 110)
+        call errquit ('no store option for RI in rtdb', 110, RTDB_ERR)
       endif
 
  100  continue  ! jump back here after error message
@@ -152,12 +160,14 @@ C       transformed 3-center integrals on disk
         istat = dra_init ( 10, 1.D10, 1.D10, 1.D7 ) 
 C         (max_arrays, max_array_size, total_disk_space, max_memory)
         if ( istat .ne. 0 ) 
-     $       call errquit ('RI-SCF: error initializing CHEMIO', istat )
+     $       call errquit ('RI-SCF: error initializing CHEMIO', istat ,
+     &       UNKNOWN_ERR)
 
         istat = dra_create ( MT_DBL, npair, Nff, '3c-eri', filename, 
      $       DRA_RW, 1, npair, g_three )
         if ( istat .ne. 0 ) 
-     $       call errquit ('RI-SCF: can''t create global 3c-ERIs',istat)
+     $       call errquit ('RI-SCF: can''t create global 3c-ERIs',istat,
+     &       UNKNOWN_ERR)
 #else
         if ( ga_nodeid().eq.0 ) then
           if ( util_print('storage',print_low) ) then
@@ -185,7 +195,8 @@ C       switch to in-core and jump back
         status = ga_create( MT_DBL, npair, Nff, '3c-eri', npair, 0, 
      $                      g_three )
         if (.not.status) 
-     $       call errquit ('RI-SCF: can''t allocate 3c-eri array',110)
+     $       call errquit ('RI-SCF: can''t allocate 3c-eri array',110,
+     &       GA_ERR)
         call ga_zero (g_three)
       endif
 
@@ -216,7 +227,8 @@ C       switch to in-core and jump back
       status = riscf_put_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
      $     npair, odisk)
       if (.not.status) 
-     $     call errquit ('RI-SCF: can''t put 3c-ERIS in list',110)
+     $     call errquit ('RI-SCF: can''t put 3c-ERIS in list',110,
+     &       UNKNOWN_ERR)
 
 C     free the temporary arrays
       status = ma_free_heap ( l_V_row )
@@ -225,7 +237,7 @@ C     free the temporary arrays
       status = status .and. ma_free_heap ( l_buf )
       status = status .and. ga_destroy ( g_Vsqrt )
       if (.not.status)
-     $     call errquit ('RI-SCF: problem freeing arrays',110)
+     $     call errquit ('RI-SCF: problem freeing arrays',110, MEM_ERR)
 
 C     destroy integral setup for expansion basis
       call int_terminate()
@@ -244,6 +256,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
      $     ao_basis)
 
       implicit none
+#include "errquit.fh"
 
 #include "tcgmsg.fh"
 #include "mafdecls.fh"
@@ -264,7 +277,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
       status = ma_alloc_get (MT_INT, nsh,'RI indices', l_indx, k_indx)
       if (.not. status) call errquit ('couldn''t get local index array',
-     $     110)
+     $     110, MA_ERR)
       npair = 0
       do i=1, nsh
         if ( mod(i,nproc) .eq. me ) then
@@ -325,6 +338,7 @@ C     find out if there is enough memory to hold the 3-center integrals in
 C     core (=>false) or if disk based algorithm should be used (=>true)
 
       implicit none
+#include "errquit.fh"
 
 #include "msgids.fh"
 #include "global.fh"
@@ -354,7 +368,8 @@ C     local arrays from MA
 C       l_three, l_sthree
         status = bas_nbf_cn_max ( basis, mxbf )
         if ( .not. status ) 
-     $     call errquit ('riscf_use_disk: error getting basis info',110)
+     $     call errquit ('riscf_use_disk: error getting basis info',110,
+     &       BASIS_ERR)
         mfree = mfree - nbf * mxbf
 
 C       scratch arrays for ga_dgemm: 3 * block size

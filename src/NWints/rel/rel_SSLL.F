@@ -1,4 +1,4 @@
-C $Id: rel_SSLL.F,v 1.6 2000-06-02 20:34:22 mg201 Exp $
+C $Id: rel_SSLL.F,v 1.7 2003-10-17 22:54:09 carlfahl Exp $
 ************************************************************************
 c:tex-\subsection{rel\_SSLL}
 c:tex-This routine generates the SSLL-type two-electron integrals for
@@ -21,6 +21,7 @@ c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
 #include "rel_consts.fh"
+#include "errquit.fh"
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
@@ -112,7 +113,8 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       if ((ntyp .ne. 1) .and. (ntyp .ne. 3) .and. (ntyp .ne. 4) .and.
      &    (ntyp .ne. 9))
-     &    call errquit('Invalid value of ntyp in rel_SSLL',99)
+     &    call errquit('Invalid value of ntyp in rel_SSLL',99,
+     &       UNKNOWN_ERR)
 *
       n_cart_a = (l_a+1)*(l_a+2)/2
       n_cart_b = (l_b+1)*(l_b+2)/2
@@ -128,7 +130,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
       n_cd = n_all_c*n_all_d
       n_abcd = n_ab*n_cd
       if ((n_ints .lt. n_abcd) .and. (.not.DryRun)) call errquit (
-     &    'Integral buffer n_ints too small in rel_SSLL',99)
+     &    'Integral buffer n_ints too small in rel_SSLL',99, MEM_ERR)
       if (debug_addresses) then
         write (LuOut,*) 'n_cart_a',n_cart_a
         write (LuOut,*) 'n_cart_b',n_cart_b
@@ -182,7 +184,7 @@ c:tex-{\it Subroutines called:} hf2, rel\_pot, daxpy
 *
       if (.not.DryRun) then
         if (memscr .lt. 0) call errquit (
-     &      'Insufficient scratch memory in rel_SSLL',99)
+     &      'Insufficient scratch memory in rel_SSLL',99, MEM_ERR)
         k = i_xca-1
         do j = 1,NCA
           do i = 1,NPA

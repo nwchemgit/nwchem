@@ -1,5 +1,6 @@
       subroutine uccsdt_triples_amplitudes(d_amp, spina, spinc)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -48,7 +49,7 @@ c
         if (lenia.gt.max_lenia)max_lenia = lenia
       enddo
       if(.not.ma_push_get(mt_dbl,max_lenia,'t2',l_t2,k_t2))
-     $     call errquit('t2s: t2?',max_lenia)
+     $     call errquit('t2s: t2?',max_lenia, MA_ERR)
 c     
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -74,7 +75,8 @@ c
           if (.not.uccsdt_ampfile_read_t2(d_amp, 
      $         spini, spina, spink, spinc, symkc, clo, chi, 
      $         g_t2, .true., 'column'))
-     $         call errquit('amp_read_t2: reading t2 failed', d_amp)
+     $         call errquit('amp_read_t2: reading t2 failed', d_amp,
+     &       DISK_ERR)
           kc = 1
           do c = clo, chi
             csub = cblock_inv(c)
@@ -176,11 +178,11 @@ c
             enddo
           enddo
           if (.not. ga_destroy(g_t2))
-     $         call errquit('t2s: ga_destroy?',1)
+     $         call errquit('t2s: ga_destroy?',1, GA_ERR)
         endif
       enddo
       if (.not. ma_pop_stack(l_t2))
-     $     call errquit('t2s: ma_pop_stack?',1)
+     $     call errquit('t2s: ma_pop_stack?',1, MA_ERR)
 c     
 c     get local memory of size max "lenkc"
 c     
@@ -191,7 +193,7 @@ c
         if (lenke.gt.max_lenke)max_lenke = lenke
       enddo
       if(.not.ma_push_get(mt_dbl,max_lenke,'t2',l_t2,k_t2))
-     $     call errquit('t2s: t2?',max_lenke)
+     $     call errquit('t2s: t2?',max_lenke, MA_ERR)
 c     
       klo = nc(spink) + 1
       khi = nc(spink) + no(spink)
@@ -205,7 +207,8 @@ c
           if (.not.uccsdt_ampfile_read_t2(d_amp, 
      $         spink, spine, spini, spina, symia, alo, ahi, 
      $         g_t2, .true., 'column'))
-     $         call errquit('amp_read_t2: reading t2 failed', d_amp)
+     $         call errquit('amp_read_t2: reading t2 failed', d_amp,
+     &       DISK_ERR)
           ia = 1
           do a = alo, ahi
             asub = ablock_inv(a)
@@ -282,7 +285,7 @@ c
             enddo
           enddo
           if (.not. ga_destroy(g_t2))
-     $         call errquit('t2s: ga_destroy?',1)
+     $         call errquit('t2s: ga_destroy?',1, GA_ERR)
         endif
       enddo
 c
@@ -296,7 +299,8 @@ c
           if (.not.uccsdt_ampfile_read_t2(d_amp, 
      $         spink, spine, spini, spinb, symib, blo, bhi, 
      $         g_t2, .true., 'column'))
-     $         call errquit('amp_read_t2: reading t2 failed', d_amp)
+     $         call errquit('amp_read_t2: reading t2 failed', d_amp,
+     &       DISK_ERR)
           ib = 1
           do b = blo, bhi
             bsub = bblock_inv(b)
@@ -373,12 +377,12 @@ c
             enddo
           enddo
           if (.not. ga_destroy(g_t2))
-     $         call errquit('t2s: ga_destroy?',1)
+     $         call errquit('t2s: ga_destroy?',1, GA_ERR)
         endif
       enddo
 
       if (.not. ma_pop_stack(l_t2))
-     $     call errquit('t2s: ma_pop_stack?',1)
+     $     call errquit('t2s: ma_pop_stack?',1, MA_ERR)
 
 c     
 c     get local memory of size max "lenkc"
@@ -391,7 +395,7 @@ c
         if (lenje.gt.max_lenje)max_lenje = lenje
       enddo
       if(.not.ma_push_get(mt_dbl,max_lenje,'t2',l_t2,k_t2))
-     $     call errquit('t2s: t2?',max_lenje)
+     $     call errquit('t2s: t2?',max_lenje, MA_ERR)
 c     
       jlo = nc(spinj) + 1
       jhi = nc(spinj) + no(spinj)
@@ -405,7 +409,8 @@ c
           if (.not.uccsdt_ampfile_read_t2(d_amp, 
      $         spinj, spine, spini, spina, symia, alo, ahi, 
      $         g_t2, .true., 'column'))
-     $         call errquit('amp_read_t2: reading t2 failed', d_amp)
+     $         call errquit('amp_read_t2: reading t2 failed', d_amp,
+     &       DISK_ERR)
           ia = 1
           do a = alo, ahi
             asub = ablock_inv(a)
@@ -484,7 +489,7 @@ c
             enddo
           enddo
           if (.not. ga_destroy(g_t2))
-     $         call errquit('t2s: ga_destroy?',1)
+     $         call errquit('t2s: ga_destroy?',1, GA_ERR)
         endif
       enddo
       do symib = 0,7
@@ -497,7 +502,8 @@ c
           if (.not.uccsdt_ampfile_read_t2(d_amp, 
      $         spinj, spine, spini, spinb, symib, blo, bhi, 
      $         g_t2, .true., 'column'))
-     $         call errquit('amp_read_t2: reading t2 failed', d_amp)
+     $         call errquit('amp_read_t2: reading t2 failed', d_amp,
+     &       DISK_ERR)
           ib = 1
           do b = blo, bhi
             bsub = bblock_inv(b)
@@ -549,11 +555,11 @@ c
             enddo
           enddo
           if (.not. ga_destroy(g_t2))
-     $         call errquit('t2s: ga_destroy?',1)
+     $         call errquit('t2s: ga_destroy?',1, GA_ERR)
         endif
       enddo
       if (.not. ma_pop_stack(l_t2))
-     $     call errquit('t2s: ma_pop_stack?',1)
+     $     call errquit('t2s: ma_pop_stack?',1, MA_ERR)
 c
       end
 

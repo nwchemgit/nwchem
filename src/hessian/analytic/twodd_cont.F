@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.37 2002-10-01 18:45:25 edo Exp $
+C $Id: twodd_cont.F,v 1.38 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine twodd_cont(rtdb)
 c
@@ -8,6 +8,7 @@ c  the hessian matrix and the RHS.  Part of this is stolen from grad_force
 c  to set up the explicit hessian contributions.
 c
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "hess_info.fh"
 #include "bgj.fh"
@@ -141,7 +142,8 @@ c
 c  Release the global fock derivative matrices
 c
       if (.not.ga_destroy(g_rhs_xc)) 
-     *  call errquit('twodd_cont: problem destroying g_rhs_xc',1)
+     *  call errquit('twodd_cont: problem destroying g_rhs_xc',1,
+     &       GA_ERR)
 c
 c Print out the hessian before adding anything else
 c
@@ -165,11 +167,13 @@ c
       if (oprint.and.(ga_nodeid().eq.0)) 
      .     write(LuOut,*) 'HESS: setup and block order'
       if (.not. bas_numcont(basis,nsh))
-     $     call errquit('twodd_cont: could not get nsh',0)
+     $     call errquit('twodd_cont: could not get nsh',0, BASIS_ERR)
       if (.not. bas_nbf_ce_max(basis,max_at_bf))
-     $     call errquit('twodd_cont: could not get max_at_bf',0)
+     $     call errquit('twodd_cont: could not get max_at_bf',0,
+     &       BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,max_sh_bf))
-     $     call errquit('twodd_cont: could not get max_sh_bf',0)
+     $     call errquit('twodd_cont: could not get max_sh_bf',0,
+     &       BASIS_ERR)
 c
 C     define threshold for Schwarz screening(same as in SCF)
 c
@@ -219,7 +223,8 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'CPKS density',chunk,
      &     g_dens2))
-     &   call errquit('twodd_cont: could not allocate g_dens2',555)
+     &   call errquit('twodd_cont: could not allocate g_dens2',555,
+     &       GA_ERR)
       call ga_zero(g_dens2)
       alo(2) = 1
       ahi(2) = nbf
@@ -253,7 +258,7 @@ c
 c Get rid of temporary memory
 c
       if (.not. ga_destroy(g_dens2)) call errquit
-     *   ('twodd_cont: failed to free g_dens2', ndens)
+     *   ('twodd_cont: failed to free g_dens2', ndens, GA_ERR)
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
         write(LuOut,*) 'after going into shell_fock_build:'
@@ -317,7 +322,7 @@ c
         call ga_symmetrize(g_dens(2))
       endif
       if (.not. ga_destroy(g_wdens))
-     *  call errquit('twodd_cont: failed to free g_wdens',555)
+     *  call errquit('twodd_cont: failed to free g_wdens',555, GA_ERR)
 c
 c Set up memory needs
 c
@@ -325,40 +330,51 @@ c
       lsqa = blen*blen
  
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ij', lh_ij, ld_ij))
-     $     call errquit('twodd_cont:could not allocate ld_ij',lsqa)
+     $     call errquit('twodd_cont:could not allocate ld_ij',lsqa,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_kl', lh_kl, ld_kl))
-     $     call errquit('twodd_cont:could not allocate ld_kl',lsqa)
+     $     call errquit('twodd_cont:could not allocate ld_kl',lsqa,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik', lh_ik, ld_ik))
-     $     call errquit('twodd_cont:could not allocate ld_ik',lsqa)
+     $     call errquit('twodd_cont:could not allocate ld_ik',lsqa,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl', lh_jl, ld_jl))
-     $     call errquit('twodd_cont:could not allocate ld_jl',lsqa)
+     $     call errquit('twodd_cont:could not allocate ld_jl',lsqa,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il', lh_il, ld_il))
-     $     call errquit('twodd_cont:could not allocate ld_il',lsqa)
+     $     call errquit('twodd_cont:could not allocate ld_il',lsqa,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk', lh_jk, ld_jk))               
-     $     call errquit('twodd_cont:could not allocate ld_jk',lsqa)
+     $     call errquit('twodd_cont:could not allocate ld_jk',lsqa,
+     &       MA_ERR)
       if (scftype .eq. 'UHF' .or.
      $     scftype .eq. 'ROHF' .or. omp2) then ! UHF or ROHF or MP2
          if (scftype .eq. 'ROHF' .or. omp2) then
             if (.not. ma_push_get(mt_dbl,lsqa,'ld_ij2',lh_ij2,ld_ij2))
      $           call errquit(
-     $            'twodd_cont:could not allocate ld_ij2',lsqa)
+     $            'twodd_cont:could not allocate ld_ij2',lsqa,
+     &       MA_ERR)
             if (.not. ma_push_get(mt_dbl,lsqa,'ld_kl2',lh_kl2,ld_kl2))
      $           call errquit('twodd_cont:could not allocate ld_kl2',
-     $            lsqa)
+     $            lsqa, MA_ERR)
          end if
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ik2', lh_ik2, ld_ik2))
-     $        call errquit('twodd_cont:could not allocate ld_ik2',lsqa)
+     $        call errquit('twodd_cont:could not allocate ld_ik2',lsqa,
+     &       MA_ERR)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jl2', lh_jl2, ld_jl2))
-     $        call errquit('twodd_cont:could not allocate ld_jl2',lsqa)
+     $        call errquit('twodd_cont:could not allocate ld_jl2',lsqa,
+     &       MA_ERR)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il2', lh_il2, ld_il2))
-     $        call errquit('twodd_cont:could not allocate ld_il2',lsqa)
+     $        call errquit('twodd_cont:could not allocate ld_il2',lsqa,
+     &       MA_ERR)
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk2', lh_jk2, ld_jk2))
-     $        call errquit('twodd_cont:could not allocate ld_jk2',lsqa)
+     $        call errquit('twodd_cont:could not allocate ld_jk2',lsqa,
+     &       MA_ERR)
       end if                                                                    
 c
       if (.not. ma_push_get(mt_dbl, blen**4, 'pdm2d',
      $     l_pdm2d, k_pdm2d)) call errquit
-     $     ('twodd_cont:failed allocating pdm2d',blen**4)
+     $     ('twodd_cont:failed allocating pdm2d',blen**4, MA_ERR)
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
       max2e = max2e/12
@@ -371,37 +387,43 @@ c probably need the 12 to be 78  CHECK
 c     if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
       if (.not. ma_push_get(mt_dbl,78*lbuf,'deriv buffer',l_buf,
      $    k_buf)) call errquit('twodd_cont:could not allocate buffer'
-     $    ,78*lbuf)
+     $    ,78*lbuf, MA_ERR)
 *      call ma_summarize_allocated_blocks()
       if (.not. ma_push_get(mt_dbl,lscratch,'deriv scratch',
      $     l_scr,k_scr))call errquit
-     $     ('twodd_cont: scratch alloc failed', lscratch)
+     $     ('twodd_cont: scratch alloc failed', lscratch, MA_ERR)
       if (.not. ma_push_get(mt_int,4*lbuf,'labels',l_labels,k_labels))
      $     call errquit('twodd_cont: could not allocate labels',
-     $     4*lbuf)
+     $     4*lbuf, MA_ERR)
 c
 c     Block the shells for Texas
 c
       if (.not. ma_push_get(mt_int, nsh, 'shmap', l_shmap, k_shmap))
-     $     call errquit('twodd_cont:could not allocate shmap',nsh)
+     $     call errquit('twodd_cont:could not allocate shmap',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shglo', l_shglo, k_shglo))
-     $     call errquit('twodd_cont:could not allocate blo',nsh)
+     $     call errquit('twodd_cont:could not allocate blo',nsh, MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shghi', l_shghi, k_shghi))
-     $     call errquit('twodd_cont:could not allocate bhi',nsh)
+     $     call errquit('twodd_cont:could not allocate bhi',nsh, MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shbflo', l_shbflo, k_shbflo))
-     $     call errquit('twodd_cont:could not allocate bflo',nsh)
+     $     call errquit('twodd_cont:could not allocate bflo',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'shbfhi', l_shbfhi, k_shbfhi))
-     $     call errquit('twodd_cont:could not allocate bfhi',nsh)
+     $     call errquit('twodd_cont:could not allocate bfhi',nsh,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bfglo', l_bfglo, k_bfglo))
-     $     call errquit('twodd_cont:could not allocate blo',nbf)
+     $     call errquit('twodd_cont:could not allocate blo',nbf, MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bfghi', l_bfghi, k_bfghi))
-     $     call errquit('twodd_cont:could not allocate bhi',nbf)
+     $     call errquit('twodd_cont:could not allocate bhi',nbf, MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bfmap', l_bfmap, k_bfmap))
-     $     call errquit('twodd_cont:could not allocate bfmap',nbf)
+     $     call errquit('twodd_cont:could not allocate bfmap',nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'rbfmap', l_rbfmap, k_rbfmap))
-     $     call errquit('twodd_cont:could not allocate rbfmap',nbf)
+     $     call errquit('twodd_cont:could not allocate rbfmap',nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nbf, 'bftoat', l_bftoat, k_bftoat))
-     $     call errquit('twodd_cont:could not allocate bftoat',nbf)
+     $     call errquit('twodd_cont:could not allocate bftoat',nbf,
+     &       MA_ERR)
  
       call grad_shorder(basis, nsh, nbf, maxsh, blen,
      $     nshblocks, int_mb(k_shglo), int_mb(k_shghi),
@@ -410,7 +432,8 @@ c
      $     int_mb(k_bfghi), int_mb(k_shbflo), int_mb(k_shbfhi))
  
       do i = 1, nbf
-         if (.not. bas_bf2ce(basis, i, iat)) call errquit('bf2ce',i)
+         if (.not. bas_bf2ce(basis, i, iat)) call errquit('bf2ce',i,
+     &       BASIS_ERR)
          int_mb(k_bftoat+i-1) = iat
       end do
 c
@@ -433,9 +456,11 @@ c
       end do
 c
       if (.not. ma_push_get(mt_int, 4*maxq, 'list', l_list, k_list))
-     $     call errquit('twodd_cont:could not allocate list',4*maxq)
+     $     call errquit('twodd_cont:could not allocate list',4*maxq,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
-     $     call errquit('twodd_cont:could not allocate q4',maxq)                      
+     $     call errquit('twodd_cont:could not allocate q4',maxq,
+     &       MA_ERR)
       nproc = ga_nnodes()
 c
 c  Actually do the deed
@@ -489,13 +514,13 @@ c  Get rid of the g_dens arrays since they are no longer needed.
 c
       do i = 1, ndens
         if (.not. ga_destroy(g_dens(i))) call errquit
-     *     ('twodd_cont: failed to free g_dens()', ndens)
+     *     ('twodd_cont: failed to free g_dens()', ndens, GA_ERR)
       end do
 c
 c  Need to get rid of extra memory
 c
       if (.not. ma_chop_stack(lh_ij))
-     $  call errquit('twodd_cont: failed chopping MA stack',555)
+     $  call errquit('twodd_cont: failed chopping MA stack',555, MA_ERR)
 
 c
 c call terminate since cphf will call it's own integral initialization

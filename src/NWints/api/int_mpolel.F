@@ -1,7 +1,7 @@
       subroutine int_mpolel(i_basis, ish, j_basis, jsh, lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
-* $Id: int_mpolel.F,v 1.4 1999-07-14 00:28:40 d3e129 Exp $
+* $Id: int_mpolel.F,v 1.5 2003-10-17 22:53:42 carlfahl Exp $
 *
 c
 c routine to compute multipole integrals at a given lvalue.
@@ -63,6 +63,7 @@ c   <s|yyzz|z> <s|yzzz|z> <s|zzzz|z>                                  (43-45)
 c
 c
       implicit none
+#include "errquit.fh"
 #include "apiP.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -74,6 +75,7 @@ c
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
+#include "util.fh"
 c
 c::functions
       logical int_chk_init
@@ -119,7 +121,8 @@ c
 c check initialization
 c      
       if (.not.int_chk_init('int_mpolel'))
-     &       call errquit('int_mpolel: int_init was not called' ,0)
+     &       call errquit('int_mpolel: int_init was not called' ,0,
+     &          INT_ERR)
 c
 c  check if gencon/sp shells
 c
@@ -134,7 +137,8 @@ c
       shells_ok = inline_chk_sh(ibas,ish)
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not. shells_ok)
-     &       call errquit('int_mpolel: invalid contraction/shell',0)
+     &       call errquit('int_mpolel: invalid contraction/shell',0,
+     &         BASIS_ERR)
 c
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
 c
@@ -172,7 +176,8 @@ c
       if (i_gen.gt.1 .or. j_gen.gt.1) then
         write(luout,*)
      &      ' hf3ois does not handle general contractions yet'
-        call errquit('int_mpolel: general contraction error ',911)
+        call errquit('int_mpolel: general contraction error ',911,
+     &             INT_ERR)
       endif
 c
       l_int    = int_nbf_x(lval) ! (lval+1)*(lval+2)/2
@@ -183,7 +188,7 @@ c
         write(luout,*)' int_mpolel: lmpint           = ',lmpint
         write(luout,*)' int_mpolel: (l_int*ij_int_x) = ',
      &      (l_int*ij_int_x)
-        call errquit('int_mpolel: lmpint too small ',911)
+        call errquit('int_mpolel: lmpint too small ',911, INT_ERR)
       endif
       call hf3ois(
      &    coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),

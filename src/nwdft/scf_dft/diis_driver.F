@@ -3,9 +3,10 @@
      &                       g_tmp, g_svecs, svals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p,reset)
 c
-C$Id: diis_driver.F,v 1.27 2003-07-03 01:58:52 edo Exp $
+C$Id: diis_driver.F,v 1.28 2003-10-17 22:55:44 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer ispin
       integer ipol
@@ -56,10 +57,10 @@ c
       endif
       if (icall(1).lt.0 )then
          if (.not.MA_Free_Heap(lpulay))
-     &      call errquit('diis_driver: cannot free heap',0)
+     &      call errquit('diis_driver: cannot free heap',0, MA_ERR)
          do i=1,2*mxhist*ipol
             if (.not. ga_destroy(g_diis(i))) call errquit
-     &           ('diis_driver: could not destroy g_diis', i)
+     &           ('diis_driver: could not destroy g_diis', i, GA_ERR)
          enddo
          if(reset) then
             icall(1) = 0
@@ -84,7 +85,7 @@ c       Create necessary DIIS arrays.
 c
         npulay  = (MXhist+1)*(MXhist+2)/2
         if (.not.MA_Alloc_Get(MT_Dbl,npulay,'Pulay',lpulay,ipulay))
-     &     call errquit('diis_driver: cannot allocate Pulay',0)
+     &     call errquit('diis_driver: cannot allocate Pulay',0, MA_ERR)
         call dfill(npulay, 0.0d0, dbl_mb(ipulay), 1)
 c
 c       Inquire about amount of global memory left.  DIIS uses
@@ -127,7 +128,8 @@ c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
      &       /,10x,'for DIIS only allows: ',i2,' Fock matrices to be',
      &       /,10x,'stored and used in the extrapolation.')
       if (.not.MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght))
-     &   call errquit('diis_driver: cannot allocate Fock wghts',0)
+     &   call errquit('diis_driver: cannot allocate Fock wghts',0,
+     &       MA_ERR)
       do ispin=1,ipol
       call dfill(MXhist+1, 0.0d0, dbl_mb(ifwght), 1)
 c
@@ -161,7 +163,7 @@ c
       if (odftps) call pstat_off(ps_dgemm)
       if(.not.keeps) then
          if (.not. ga_destroy(g_s12m)) call errquit
-     &        ('diis_driver: could not destroy g_s12m', 0)
+     &        ('diis_driver: could not destroy g_s12m', 0, GA_ERR)
       endif
 
 c
@@ -182,7 +184,7 @@ c
       if (odftps) call pstat_off(ps_dgemm)
       if(.not.keeps) then
          if (.not. ga_destroy(g_s12p)) call errquit
-     &        ('diis_driver: could not destroy g_s12p', 0)
+     &        ('diis_driver: could not destroy g_s12p', 0, GA_ERR)
       endif
 #if defined(DFT_TIMER)
       call dft_second(tp2)
@@ -197,7 +199,7 @@ c
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_tmp2,g_rr,zero,g_tmp)
       if (odftps) call pstat_off(ps_dgemm)
       if (.not. ga_destroy(g_rr)) call errquit
-     &     ('diis_driver: could not destroy g_rr', 0)
+     &     ('diis_driver: could not destroy g_rr', 0, GA_ERR)
       
 c
 #if defined(DFT_TIMER)
@@ -211,7 +213,7 @@ c
       call ga_add(-1d0,g_tmp,1d0,g_tmp2,g_tmp)
 
       if (.not. ga_destroy(g_tmp2)) call errquit
-     &     ('diis_driver: could not destroy g_tmp2', 0)
+     &     ('diis_driver: could not destroy g_tmp2', 0, GA_ERR)
 c
 c
 c     Compute Pulays B matrix.
@@ -246,7 +248,7 @@ c
 #endif
 c
       if (.not.ma_pop_stack(lfwght))
-     &   call errquit('diis_driver: cannot pop stack',0)
+     &   call errquit('diis_driver: cannot pop stack',0, MA_ERR)
 c
 #if defined(DFT_TIMER)
       ltime = 7

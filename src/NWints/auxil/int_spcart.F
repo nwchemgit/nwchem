@@ -1,5 +1,5 @@
       logical function spcart_init(lmaxin,normalize,all_spherical)
-c $Id: int_spcart.F,v 1.32 2003-01-07 02:36:58 edo Exp $
+c $Id: int_spcart.F,v 1.33 2003-10-17 22:53:46 carlfahl Exp $
 *::cr::7
 *--------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999 *
@@ -20,6 +20,7 @@ c $Id: int_spcart.F,v 1.32 2003-01-07 02:36:58 edo Exp $
 *
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "spcartP.fh"
 c::passed
@@ -44,12 +45,13 @@ c
 *rak:: temporary
       if (all_spherical) call errquit
      &      ('spcart_init: all spherical components not working yet',
-     &      911)
+     &      911, UNKNOWN_ERR)
 c
       if (sph_cart_init.eq.SPH_CART_INIT_VALUE) then
         if (lmaxin.gt.lmax_init) then
           if (.not.spcart_terminate()) call errquit
-     &          ('spcart_init: error terminating old spcart_init',911)
+     &          ('spcart_init: error terminating old spcart_init',911, 
+     &          UNKNOWN_ERR)
         else
           spcart_init = .true.
           return           ! initialization already done to cover lmaxin
@@ -72,7 +74,8 @@ c
      &      ma_alloc_get(mt_dbl,size_sp2c,'sph 2 cart trans array',
      &      h_sp2c,k_sp2c)
       if (.not.active_sp2c)  call errquit
-     &      ('spcart_init: alloc_get failed for size',size_sp2c)
+     &      ('spcart_init: alloc_get failed for size',size_sp2c,
+     &       MEM_ERR)
       call dfill(size_sp2c,0.0d00,dbl_mb(k_sp2c),1)
 c
 * generate transformation matricies by recursion
@@ -84,7 +87,7 @@ c
      &      mt_int,(lmaxin+1),' ptrs array xlm sph 2 cart ',
      &      h_sp2c_lindx,k_sp2c_lindx)
       if (.not.active_sp2c_lindx) call errquit
-     &      ('spcart_init: alloc_get failed (index) ',911)
+     &      ('spcart_init: alloc_get failed (index) ',911, MEM_ERR)
       call ifill((lmaxin+1),0,int_mb(k_sp2c_lindx),1)
 * allocate memory for index array for inverse transform
       active_invsp2c_lindx = ma_alloc_get(
@@ -92,7 +95,7 @@ c
      &      ' ptrs array inverse xlm sph 2 cart ',
      &      h_invsp2c_lindx,k_invsp2c_lindx)
       if (.not.active_invsp2c_lindx) call errquit
-     &      ('spcart_init: alloc_get failed (index) ',911)
+     &      ('spcart_init: alloc_get failed (index) ',911, MEM_ERR)
       call ifill((lmaxin+1),0,int_mb(k_invsp2c_lindx),1)
 * determine size of compressed transformation arrays
       l_block_size = 0
@@ -106,14 +109,15 @@ c
      &      (mt_dbl,l_block_size,'sph 2 cart trans array cmp',
      &      h_sp2c_cmp,k_sp2c_cmp)
       if (.not. active_sp2c_cmp) call errquit
-     &      ('spcart_init: alloc_get failed (array cmp) ',911)
+     &      ('spcart_init: alloc_get failed (array cmp) ',911, MEM_ERR)
       call dfill(l_block_size,0.0d00,dbl_mb(k_sp2c_cmp),1)
 * allocate memory for compressed inverse transformation arrays
       active_invsp2c_cmp = ma_alloc_get
      &      (mt_dbl,l_block_size,'sph 2 cart trans array cmp',
      &      h_invsp2c_cmp,k_invsp2c_cmp)
       if (.not. active_invsp2c_cmp) call errquit
-     &      ('spcart_init: alloc_get failed (inv array cmp) ',911)
+     &      ('spcart_init: alloc_get failed (inv array cmp) ',911,
+     &      MEM_ERR)
       call dfill(l_block_size,0.0d00,dbl_mb(k_invsp2c_cmp),1)
 * allocate memory for scale vector
       active_cart_norm_scale= ma_alloc_get
@@ -121,7 +125,8 @@ c
      &      'sph 2 cart scale arryy ',
      &      h_cart_norm_scale,k_cart_norm_scale)
       if (.not. active_cart_norm_scale) call errquit
-     &      ('spcart_init: alloc_get failed (array scale) ',911)
+     &      ('spcart_init: alloc_get failed (array scale) ',911,
+     &      MEM_ERR)
       call dfill(((2*lmaxin+1)*(lmaxin+1)),0.0d00,
      &    dbl_mb(k_cart_norm_scale),1)
 * set normalize scale vector so cartesian vectors of transformation 
@@ -149,7 +154,7 @@ c
 c
 * free up recursion copy of transformation matricies
       if (.not.ma_free_heap(h_sp2c)) call errquit
-     &    ('spcart_init: free heap failed (array) ',911)
+     &    ('spcart_init: free heap failed (array) ',911, MEM_ERR)
       active_sp2c = .false.
       k_sp2c = 0
       h_sp2c = 0
@@ -173,6 +178,7 @@ c
       logical function spcart_terminate()
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c terminates spcart data structure and initialization
@@ -222,7 +228,7 @@ c
           h_cart_norm_scale = 0
         endif
         if (.not.spcart_terminate) call errquit
-     &      (' error freeing heap in spcart_terminate',911)
+     &      (' error freeing heap in spcart_terminate',911, MEM_ERR)
         sph_cart_init = 0
         trust_dgemm = .false.
       else
@@ -242,6 +248,7 @@ c
       subroutine xlm_ptrs(Ld,D,Dcmp,ldcmp,Dindex)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "spcartP.fh"
 c
@@ -264,7 +271,8 @@ c::local
       integer icount
 c
       if (sph_cart_allsph) call errquit
-     &      ('xlm_ptrs: all spherical components not working yet',911)
+     &      ('xlm_ptrs: all spherical components not working yet',911,
+     &      MEM_ERR)
 c
 c
       icount = 0
@@ -285,6 +293,7 @@ c
       subroutine xlm_ptrsinv(Ld,Dinvcmp,lDinvcmp,Dindex)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "spcartP.fh"
 c
@@ -305,16 +314,17 @@ c::local
       integer k_ov, h_ov, k_scr, h_scr
 c
       if (sph_cart_allsph) call errquit
-     &      ('xlm_ptrs: all spherical components not working yet',911)
+     &      ('xlm_ptrs: all spherical components not working yet',911,
+     &      UNKNOWN_ERR)
 c
       ld2s = (((ld+1)*(ld+2))/2)
       if (.not.ma_push_get(mt_dbl,ld2s*ld2s,
      &    'xlm_ptrsinv overlap',h_ov,k_ov)) call errquit
-     &    ('xlm_ptrsinv: could not allocate overlap',911)
+     &    ('xlm_ptrsinv: could not allocate overlap',911, MEM_ERR)
       call dfill((ld2s*ld2s),0.0d00,dbl_mb(k_ov),1)
       if (.not.ma_push_get(mt_dbl,ld2s*(2*ld+1),
      &    'xlm_ptrsinv scratch',h_scr,k_scr)) call errquit
-     &    ('xlm_ptrsinv: could not allocate scratch',911)
+     &    ('xlm_ptrsinv: could not allocate scratch',911, MEM_ERR)
       call dfill((ld2s*(2*ld+1)),0.0d00,dbl_mb(k_scr),1)
       icount = 1
       do 00100 lval = 0,Ld
@@ -331,9 +341,11 @@ c
         icount = icount + l2s*(2*lval+1)
 00100 continue
       if (.not.ma_pop_stack(h_scr)) call errquit
-     &      ('xlm_ptrsinv: could not pop_stack for overlap',911)
+     &      ('xlm_ptrsinv: could not pop_stack for overlap',911,
+     &      MEM_ERR)
       if (.not.ma_pop_stack(h_ov)) call errquit
-     &      ('xlm_ptrsinv: could not pop_stack for overlap',911)
+     &      ('xlm_ptrsinv: could not pop_stack for overlap',911,
+     &      MEM_ERR)
       end
 *.......................................................................
       subroutine xlm_ptrsinva(l2s,lval,overlap,Dinv,scr)
@@ -451,6 +463,7 @@ c::local
 *.......................................................................
       subroutine xlm_ptrs_fix_p(Dp,l2p,lp)
       implicit none
+#include "errquit.fh"
       integer l2p,lp
       integer count_val, lc, ls
       double precision Dp(l2p,-lp:lp)
@@ -465,7 +478,7 @@ c
             if (count_val.gt.3) then
               write(6,*)' count_val range is 1<3' 
               write(6,*)' count_val out of range ',count_val
-              call errquit('fix p: error',911)
+              call errquit('fix p: error',911, MEM_ERR)
             endif
             dpdp(count_val) = Dp(lc,ls)
 *            if (dpdp(count_val).lt.0.0d00)
@@ -483,6 +496,7 @@ c
 *rak:      subroutine spcart_print_both(D,ld)
 *rak:      implicit none
 *rak:#include "mafdecls.fh"
+*rak:#include "errquit.fh"
 *rak:#include "spcartP.fh"
 *rak:      integer ld
 *rak:      double precision D((((Ld+1)*(Ld+2))/2),-Ld:Ld,0:Ld) ! [input] transformation matrix
@@ -526,6 +540,7 @@ c
       subroutine spcart_print_invdtrans(ld)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
       integer ld
 c
@@ -538,6 +553,7 @@ c
       integer function spcart_trns_ptr(lval,lcart,lsp)
 c return pointer in ma to transformation matrix for lval
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "spcartP.fh"
 
@@ -547,7 +563,7 @@ c return pointer in ma to transformation matrix for lval
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_trns_ptr: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, MEM_ERR)
 c
       spcart_trns_ptr = int_mb(k_sp2c_lindx+lval)
       lcart = ((lval+1)*(lval+2))/2
@@ -594,6 +610,7 @@ c  transforms a block of integrals with the Ls function is the slowest
 c  dimension: e.g., blockin(ndima,L2s,ngls)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -629,7 +646,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_s: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
@@ -703,6 +720,7 @@ c  transforms a block of "integrals" with the ls function is the
 c  leading dimension; e.g., blockin(L2s,ndima)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -737,7 +755,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_s_a: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
@@ -807,6 +825,7 @@ c  between a leading dimension and trailing dimension.
 c  e.g., blockin(nidima,L2s,ndimb)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -846,7 +865,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_s_b: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (ls.lt.2) then
 c...        ((ls+1)*(ls+2)/2)) = 2*ls + 1
@@ -914,6 +933,7 @@ c  transforms a block of integrals where the d function is the slowest
 c  dimension; e.g., blockin(ndima,6) and blockout(ndima,5)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -959,7 +979,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_sd: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1024,6 +1044,7 @@ c  transforms a block of integrals where the d function is the fastest
 c  dimension; e.g., blockin(6,ndima) and blockout(5,ndima)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1065,7 +1086,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_sd_a: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1135,6 +1156,7 @@ c  transforms a block of integrals where the d function is the middle
 c  dimension; e.g., blockin(ndima,6,ndimb) and blockout(ndima,5,ndimb)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1180,7 +1202,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_sd_b: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1254,6 +1276,7 @@ c  transforms a block of integrals where the f function is the slowest
 c  dimension; e.g., blockin(ndima,10) and blockout(ndima,7)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1290,7 +1313,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_sf:spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1350,6 +1373,7 @@ c  transforms a block of integrals where the f function is the fastest dimension
 c  e.g., blockin(10,ndima) and blockout(7,ndima)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1385,7 +1409,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_sf_a: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1445,6 +1469,7 @@ c  transforms a block of integrals where the f function is the middle dimension
 c  e.g., blockin(ndima,10,ndimb) and blockout(ndima,7,ndimb)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1481,7 +1506,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_sf_b: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1546,6 +1571,7 @@ c  transforms a block of integrals where the g function is the slowest dimension
 c  e.g., blockin(ndima,15) and blockout(ndima,9)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1585,7 +1611,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_sg: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1677,6 +1703,7 @@ c  transforms a block of integrals where the g function is the fastest dimension
 c  e.g., blockin(15,ndima) and blockout(9,ndima)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1716,7 +1743,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_sg_a: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1808,6 +1835,7 @@ c  transforms a block of integrals where the g function is the middle dimension
 c  e.g., blockin(ndima,15,ndimb) and blockout(ndima,9,ndimb)
 c
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "spcartP.fh"
 c
 c: passed
@@ -1848,7 +1876,7 @@ c
 c
       if (sph_cart_init.ne.SPH_CART_INIT_VALUE) call errquit
      &    ('spcart_a_sg_b: spcart not initialized properly',
-     &    sph_cart_init)
+     &    sph_cart_init, UNKNOWN_ERR)
 c
       if (in_place) then
         write (6,*)' in place transformations are not ready yet '
@@ -1941,6 +1969,7 @@ c
      &    print)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 c
 c
 c
@@ -1986,7 +2015,7 @@ c... more error checking
         write(6,*)' ngen r',ngen_r
         write(6,*)' type c',type_c
         write(6,*)' ngen c',ngen_c
-        call errquit('spcart_tran1e: fatal error',911)
+        call errquit('spcart_tran1e: fatal error',911, UNKNOWN_ERR)
       endif
 c
       if (type_r.lt.2.and.type_c.lt.2) then
@@ -2012,7 +2041,7 @@ c.................................. c needs to be transformed
         call dcopy((nbf_xr*nbf_xc*ngen_rc),buf,1,scr,1)
         if (nbf_xr.ne.nbf_sr) call errquit
      &      ('spcart_tran1e: nbf_xr.ne.nbf_sr  (xr-sr) =',
-     &      (nbf_xr-nbf_sr))
+     &      (nbf_xr-nbf_sr), UNKNOWN_ERR)
         call spcart_a_s(scr,buf,(ngen_r*nbf_sr),type_c,ngen_c,
      &      .false.,print)
         if (print) then
@@ -2033,7 +2062,7 @@ c.................................. r needs to be transformed
         call dcopy((ngen_rc*nbf_xr*nbf_xc),buf,1,scr,1)
         if (nbf_xc.ne.nbf_sc) call errquit
      &      ('spcart_tran1e: nbf_xc.ne.nbf_sc  (xc-sc) =',
-     &      (nbf_xc-nbf_sc))
+     &      (nbf_xc-nbf_sc), UNKNOWN_ERR)
         call spcart_s_a(scr,buf,ngen_c*nbf_sc,type_r,ngen_r,
      &      .false.,print)
         if (print) then
@@ -2072,7 +2101,8 @@ c.................................. both r and c need to be transformed
         endif
       else
         write(luout,*) ' case not possible '
-        call errquit('spcart_tran1e: should never get here ? ',911)
+        call errquit('spcart_tran1e: should never get here ? ',911,
+     &       UNKNOWN_ERR)
       endif
 c
       end
@@ -2087,6 +2117,7 @@ c
      &    print)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 c
 c routine that transforms a 2e cartesian block buf_cart(ndim_ket,nbf_xj,nbf_xi) to 
 c    a spherical block buf_sph(ndim_ket,nbf_sj,nbf_si) 
@@ -2134,7 +2165,7 @@ c... more error checking
         write(6,*)' ngen j',ngen_j
         write(6,*)' type i',type_i
         write(6,*)' ngen i',ngen_i
-        call errquit('spcart_bra2etran: fatal error',911)
+        call errquit('spcart_bra2etran: fatal error',911, UNKNOWN_ERR)
       endif
 c
       ngen_ij = ngen_i*ngen_j
@@ -2167,7 +2198,7 @@ c.................................. i needs to be transformed
         call dcopy((ndim_ket*ssj*sxi),buf,1,scr,1)
         if (nbf_xj.ne.nbf_sj) call errquit
      &      ('spcart_bra2etran: nbf_xj.ne.nbf_sj  (xj-sj) =',
-     &      (nbf_xj-nbf_sj))
+     &      (nbf_xj-nbf_sj), UNKNOWN_ERR)
         call spcart_a_s(scr,buf,(ndim_ket*ssj),
      &        type_i,ngen_i,.false.,print)
         if (print) then
@@ -2190,7 +2221,7 @@ c.................................. j needs to be transformed
         call dcopy((ndim_ket*sxj*ssi),buf,1,scr,1)
         if (nbf_xi.ne.nbf_si) call errquit
      &      ('spcart_bra2etran: nbf_xc.ne.nbf_sc  (xi-si) =',
-     &      (nbf_xi-nbf_si))
+     &      (nbf_xi-nbf_si), UNKNOWN_ERR)
         call spcart_a_s_b(scr,buf,ndim_ket,ssi,
      &        type_j,ngen_j,.false.,print)
         if (print) then
@@ -2231,7 +2262,8 @@ c........................ both j and i need to be transformed
 c
       else
         write(luout,*) ' case not possible '
-        call errquit('spcart_bra2etran: should never get here ? ',911)
+        call errquit('spcart_bra2etran: should never get here ? ',911,
+     &       UNKNOWN_ERR)
       endif
 c
       end
@@ -2246,6 +2278,7 @@ c
      &    print)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 c
 c routine that transforms a 2e cartesian block 
 c     buf_cart(nbf_xl,nbf_xk,ndim_bra) to 
@@ -2294,7 +2327,8 @@ c... more error checking
         write(6,*)' ngen l',ngen_l
         write(6,*)' type k',type_k
         write(6,*)' ngen k',ngen_k
-        call errquit('spcart_ket2etran: fatal error',911)
+        call errquit('spcart_ket2etran: fatal error',911,
+     &       UNKNOWN_ERR)
       endif
 c
 c
@@ -2329,7 +2363,7 @@ c.................................. k needs to be transformed
         call dcopy((ndim_bra*ssl*sxk),buf,1,scr,1)
         if (nbf_xl.ne.nbf_sl) call errquit
      &      ('spcart_ket2etran: nbf_xl.ne.nbf_sl  (xl-sl) =',
-     &      (nbf_xl-nbf_sl))
+     &      (nbf_xl-nbf_sl), UNKNOWN_ERR)
         call spcart_a_s_b(scr,buf,ssl,ndim_bra,
      &        type_k,ngen_k,.false.,print)
         if (print) then
@@ -2352,7 +2386,7 @@ c.................................. l needs to be transformed
         call dcopy((ndim_bra*sxl*ssk),buf,1,scr,1)
         if (nbf_xk.ne.nbf_sk) call errquit
      &      ('spcart_ket2etran: nbf_xk.ne.nbf_sk  (xk-sk) =',
-     &      (nbf_xk-nbf_sk))
+     &      (nbf_xk-nbf_sk), UNKNOWN_ERR)
         call spcart_s_a(scr,buf,(ndim_bra*ssk),
      &        type_l,ngen_l,.false.,print)
         if (print) then
@@ -2393,7 +2427,8 @@ c........................ both k and l need to be transformed
 c
       else
         write(luout,*) ' case not possible '
-        call errquit('spcart_ket2etran: should never get here ? ',911)
+        call errquit('spcart_ket2etran: should never get here ? ',911,
+     &       UNKNOWN_ERR)
       endif
 c
       end
@@ -2405,6 +2440,7 @@ c
 *  Matrix(na,ni,nj)
 *
 #include "stdio.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"      
       integer na, ni, nj           ! [input] matrix dimensions
       double precision M(na,ni,nj) ! [input] matrix to print
@@ -2416,7 +2452,8 @@ c
       if (.not.ma_push_get(mt_dbl,(ni*nj),
      &      'slice_am_print scratch',h_slice,k_slice))
      &      call errquit
-     &      ('slice_am_print: could not allocate (push) slice',911)
+     &      ('slice_am_print: could not allocate (push) slice',911,
+     &      UNKNOWN_ERR)
 c
       write(luout,*)' sliced matrix output ',msg
       write(luout,*)na,' slices to be printed ',msg
@@ -2434,7 +2471,8 @@ c
       enddo
 c
       if (.not.ma_pop_stack(h_slice))call errquit
-     &      ('slice_am_print: could not deallocate (pop) slice',911)
+     &      ('slice_am_print: could not deallocate (pop) slice',911,
+     &      MEM_ERR)
 c
       end
       subroutine slice_ma_print(na,ni,nj,M,msg)
@@ -2464,6 +2502,7 @@ c
 *  Matrix(na,ni,nj,nb)
 *
 #include "stdio.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"      
       integer na, nb, ni, nj          ! [input] matrix dimensions
       double precision M(na,ni,nj,nb) ! [input] matrix to print
@@ -2475,7 +2514,8 @@ c
       if (.not.ma_push_get(mt_dbl,(ni*nj),
      &      'slice_amb_print scratch',h_slice,k_slice))
      &      call errquit
-     &      ('slice_amb_print: could not allocate (push) slice',911)
+     &      ('slice_amb_print: could not allocate (push) slice',911,
+     &      MEM_ERR)
 c
       write(luout,*)' sliced matrix output ',msg
       write(luout,*)(na*nb),' slices to be printed ',msg
@@ -2495,7 +2535,8 @@ c
       enddo
 c
       if (.not.ma_pop_stack(h_slice))call errquit
-     &      ('slice_amb_print: could not deallocate (pop) slice',911)
+     &      ('slice_amb_print: could not deallocate (pop) slice',911,
+     &      MEM_ERR)
 c
       end
       subroutine spcart_cart_overlap(lval,rankov,overlap)
@@ -2505,6 +2546,7 @@ c
 * This matrix is used to form the inverse of dtrans
 *
 #include "stdio.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
       integer lval
@@ -2551,7 +2593,7 @@ c
      &    'spcart overlap scratch buffer',
      &    h_scr,k_scr)) call errquit
      &    ('spcart_cart_overlap: could not allocate scratch buffer',
-     &    911)
+     &    911, MEM_ERR)
       call dfill(scr_size,0.0d00,dbl_mb(k_scr),1)
 *      write(6,*)' spcart_cart_overlap verify 4',' lval   = ',lval,
 *     &      ' rankov = ',rankov
@@ -2577,7 +2619,7 @@ c
 *     &    stop ' spcart_cart_overlap '
       if (.not.ma_pop_stack(h_scr))call errquit
      &    ('spcart_cart_overlap: could not pop_stack scratch buffer',
-     &    911)
+     &    911, MEM_ERR)
 *-debug-s
 *      write(luout,*)' overlap matrix for lval = ',lval
 *      call output(overlap,1,rankov,1,rankov,rankov,rankov,1)
@@ -2591,6 +2633,7 @@ c
 *rak:c  transforms a block of integrals with loop level crap 
 *rak:c
 *rak:#include "mafdecls.fh"
+*rak:#include "errquit.fh"
 *rak:#include "spcartP.fh"
 *rak:c: functions
 *rak:c: passed
@@ -2718,6 +2761,7 @@ c
      &    printit)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 *
 * routine to transform a 1e or 2e 2 center block of integrals
 * block(jlo:jhi,:ilo:ihi) 
@@ -2757,7 +2801,7 @@ c
         write(luout,*)' ngen i ',ngeni
         write(luout,*)' type j ',typej
         write(luout,*)' ngen j ',ngenj
-        call errquit('spcart_2ctran: fatal error',911)
+        call errquit('spcart_2ctran: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * sanity checking for spherical transforms
@@ -2767,14 +2811,14 @@ c
         write(luout,*)' shell type     : ',typei
         write(luout,*)' cartesian size :',nbfxi
         write(luout,*)' spherical size :',nbfsi
-        call errquit('spcart_2ctran:i: fatal error',911)
+        call errquit('spcart_2ctran:i: fatal error',911, UNKNOWN_ERR)
       endif
       if (tranj.and.typej.ge.2.and.nbfxj.le.nbfsj) then
         write(luout,*)' sanity check error on j shell info'
         write(luout,*)' shell type     : ',typej
         write(luout,*)' cartesian size :',nbfxj
         write(luout,*)' spherical size :',nbfsj
-        call errquit('spcart_2ctran:j: fatal error',911)
+        call errquit('spcart_2ctran:j: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * Check for all s, p, sp shells (e.g., no transform required).
@@ -2790,7 +2834,7 @@ c
         write(luout,*)' dimij   :',dimij
         write(luout,*)' lscr    :',lscr
         call errquit
-     &      ('spcart_2ctran: error in scratch size for',911)
+     &      ('spcart_2ctran: error in scratch size for',911, MEM_ERR)
       endif
 *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2827,7 +2871,7 @@ c
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       else
         write(luout,*)' no basis sets need to be transformed '
-        call errquit('spcart_2ctran: fatal error ',911)
+        call errquit('spcart_2ctran: fatal error ',911, MEM_ERR)
       endif
 *
       end
@@ -2838,6 +2882,7 @@ c
      &    nblocks,printit)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 *
 * routine to transform multiple 1e or 2e 2 center blocks of integrals
 * buf(jlo:jhi,:ilo:ihi,nblocks) 
@@ -2880,7 +2925,7 @@ c
         write(luout,*)' ngen i ',ngeni
         write(luout,*)' type j ',typej
         write(luout,*)' ngen j ',ngenj
-        call errquit('spcart_2cBtran: fatal error',911)
+        call errquit('spcart_2cBtran: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * sanity checking for spherical transforms
@@ -2890,14 +2935,14 @@ c
         write(luout,*)' shell type     : ',typei
         write(luout,*)' cartesian size :',nbfxi
         write(luout,*)' spherical size :',nbfsi
-        call errquit('spcart_2cBtran:i: fatal error',911)
+        call errquit('spcart_2cBtran:i: fatal error',911, UNKNOWN_ERR)
       endif
       if (tranj.and.typej.ge.2.and.nbfxj.le.nbfsj) then
         write(luout,*)' sanity check error on j shell info'
         write(luout,*)' shell type     : ',typej
         write(luout,*)' cartesian size :',nbfxj
         write(luout,*)' spherical size :',nbfsj
-        call errquit('spcart_2cBtran:j: fatal error',911)
+        call errquit('spcart_2cBtran:j: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * Check for all s, p, sp shells (e.g., no transform required).
@@ -2914,7 +2959,7 @@ c
         write(luout,*)' dimij   :',dimij
         write(luout,*)' lscr    :',lscr
         call errquit
-     &      ('spcart_2cBtran: error in scratch size for',911)
+     &      ('spcart_2cBtran: error in scratch size for',911, MEM_ERR)
       endif
 *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2945,6 +2990,7 @@ c
      &    printit)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 *::passed
 *
 * routine to transform a 1e or 2e 3 center block of integrals
@@ -2996,7 +3042,7 @@ c
         write(luout,*)' ngen j ',ngenj
         write(luout,*)' type k ',typek
         write(luout,*)' ngen k ',ngenk
-        call errquit('spcart_3ctran: fatal error',911)
+        call errquit('spcart_3ctran: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * sanity checking for spherical transforms
@@ -3006,21 +3052,21 @@ c
         write(luout,*)' shell type     : ',typei
         write(luout,*)' cartesian size :',nbfxi
         write(luout,*)' spherical size :',nbfsi
-        call errquit('spcart_3ctran:i: fatal error',911)
+        call errquit('spcart_3ctran:i: fatal error',911, UNKNOWN_ERR)
       endif
       if (tranj.and.typej.ge.2.and.nbfxj.le.nbfsj) then
         write(luout,*)' sanity check error on j shell info'
         write(luout,*)' shell type     : ',typej
         write(luout,*)' cartesian size :',nbfxj
         write(luout,*)' spherical size :',nbfsj
-        call errquit('spcart_3ctran:j: fatal error',911)
+        call errquit('spcart_3ctran:j: fatal error',911, UNKNOWN_ERR)
       endif
       if (trank.and.typek.ge.2.and.nbfxk.le.nbfsk) then
         write(luout,*)' sanity check error on k shell info'
         write(luout,*)' shell type     : ',typek
         write(luout,*)' cartesian size :',nbfxk
         write(luout,*)' spherical size :',nbfsk
-        call errquit('spcart_3ctran:k: fatal error',911)
+        call errquit('spcart_3ctran:k: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * Check for all s, p, sp shells (e.g., no transform required).
@@ -3036,7 +3082,8 @@ c
         write(luout,*)' dimijk  :',dimijk
         write(luout,*)' lscr    :',lscr
         call errquit
-     &      ('spcart_3ctran: error in scratch size for',911)
+     &      ('spcart_3ctran: error in scratch size for',911,
+     &       UNKNOWN_ERR)
       endif
 *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -3120,7 +3167,7 @@ c
         call dcopy(dimijk,scr,1,buf,1)
       else
         write(luout,*)' no basis sets need to be transformed '
-        call errquit('spcart_3ctran: fatal error ',911)
+        call errquit('spcart_3ctran: fatal error ',911, UNKNOWN_ERR)
       endif
 *
       end
@@ -3132,6 +3179,7 @@ c
      &    nblocks,printit)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 *
 * routine to transform multiple 1e or 2e 3 center blocks of integrals
 * buf(klo:khi,jlo:jhi,:ilo:ihi,nblocks) 
@@ -3183,7 +3231,7 @@ c
         write(luout,*)' ngen j ',ngenj
         write(luout,*)' type k ',typek
         write(luout,*)' ngen k ',ngenk
-        call errquit('spcart_3cBtran: fatal error',911)
+        call errquit('spcart_3cBtran: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * sanity checking for spherical transforms
@@ -3193,21 +3241,21 @@ c
         write(luout,*)' shell type     : ',typei
         write(luout,*)' cartesian size :',nbfxi
         write(luout,*)' spherical size :',nbfsi
-        call errquit('spcart_3cBtran:i: fatal error',911)
+        call errquit('spcart_3cBtran:i: fatal error',911, UNKNOWN_ERR)
       endif
       if (tranj.and.typej.ge.2.and.nbfxj.le.nbfsj) then
         write(luout,*)' sanity check error on j shell info'
         write(luout,*)' shell type     : ',typej
         write(luout,*)' cartesian size :',nbfxj
         write(luout,*)' spherical size :',nbfsj
-        call errquit('spcart_3cBtran:j: fatal error',911)
+        call errquit('spcart_3cBtran:j: fatal error',911, UNKNOWN_ERR)
       endif
       if (trank.and.typek.ge.2.and.nbfxk.le.nbfsk) then
         write(luout,*)' sanity check error on k shell info'
         write(luout,*)' shell type     : ',typek
         write(luout,*)' cartesian size :',nbfxk
         write(luout,*)' spherical size :',nbfsk
-        call errquit('spcart_3cBtran:k: fatal error',911)
+        call errquit('spcart_3cBtran:k: fatal error',911, UNKNOWN_ERR)
       endif
 *
 * Check for all s, p, sp shells (e.g., no transform required).
@@ -3224,7 +3272,8 @@ c
         write(luout,*)' dimijk  :',dimijk
         write(luout,*)' lscr    :',lscr
         call errquit
-     &      ('spcart_3cBtran: error in scratch size for',911)
+     &      ('spcart_3cBtran: error in scratch size for',911,
+     &       UNKNOWN_ERR)
       endif
 *
 * - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

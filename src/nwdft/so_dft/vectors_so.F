@@ -1,8 +1,9 @@
       logical function movecs_read_header_so
      $    (filename, title, basis_name, 
      $     scftype, nbf)
-C$Id: vectors_so.F,v 1.5 2002-02-06 20:06:21 bert Exp $
+C$Id: vectors_so.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -35,12 +36,14 @@ c
          scftype = scftype20
          read(unitno, err=1001, end=2001) lentit
          if (len(title) .lt. lentit) call errquit
-     $        ('movecs_read_header_so: title too short', lentit)
+     $        ('movecs_read_header_so: title too short', lentit,
+     &       DISK_ERR)
          title = ' '
          read(unitno, err=1001, end=2001) title(1:lentit)
          read(unitno, err=1001, end=2001) lenbas
          if (len(basis_name) .lt. lenbas) call errquit
-     $        ('movecs_read_header_so: basis_name too short', lenbas)
+     $        ('movecs_read_header_so: basis_name too short', lenbas,
+     &       DISK_ERR)
          basis_name = ' '
          read(unitno, err=1001, end=2001) basis_name(1:lenbas)
          read(unitno, err=1001, end=2001) nbf
@@ -90,6 +93,7 @@ c
       logical function movecs_read_so
      $     (filename, occ, evals, g_vecs)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -131,7 +135,7 @@ c
 c
          if (.not. ma_push_get(mt_dbl,nbf,'movecs_read_so',
      $        l_vecs,k_vecs))
-     $        call errquit('movecs_read_so: ma failed', nbf)
+     $        call errquit('movecs_read_so: ma failed', nbf, MA_ERR)
 c
 c     Skip over unwanted sets
 c
@@ -152,7 +156,7 @@ c
  10   continue
       if (l_vecs .ne. -1) then
 	 if (.not. ma_pop_stack(l_vecs)) call errquit
-     $      ('movecs_read_so: pop failed', l_vecs)
+     $      ('movecs_read_so: pop failed', l_vecs, MA_ERR)
       endif
       call ga_sync()
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
@@ -195,6 +199,7 @@ c
       logical function movecs_gather_so(filename, iset, nwant, want,
      $   occ, evals, g_vecs)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -221,7 +226,7 @@ c
 c     
       if ( .not. movecs_read_header_so(filename, title, basis,
      $     scftype, nbf) ) call errquit(
-     $   'movecs_gather_so: failed to read movecs file', 1)
+     $   'movecs_gather_so: failed to read movecs file', 1, DISK_ERR)
 c
 c     allocate memory to be used while reading info
 C     movecs_read_so expects fullocc and fulleval arrays to be nbf,
@@ -229,21 +234,21 @@ C     not nmo(iset)!
 c
       if (.not. ma_push_get(mt_dbl,nbf,'movecs_gather_so',
      $   l_fullocc, k_fullocc)) call errquit(
-     $   'movecs_gather_so: ma failed', nmo(iset))
+     $   'movecs_gather_so: ma failed', nmo(iset), MA_ERR)
 c
       if (.not. ma_push_get(mt_dbl,nbf,'movecs_gather_so',
      $   l_fulleval, k_fulleval)) call errquit(
-     $   'movecs_gather_so: ma failed', nmo(iset))
+     $   'movecs_gather_so: ma failed', nmo(iset), MA_ERR)
 c
       if ( .not. ga_create( mt_dbl, nbf, nmo(iset), 'full vectors',
      $   minchunk, minchunk, g_tmp) ) call errquit(
-     $   'movecs_gather_so: ga_create failed', nbf*nmo(iset) )
+     $   'movecs_gather_so: ga_create failed', nbf*nmo(iset) , GA_ERR)
 c
 c     read the full data
 c
        if ( .not. movecs_read_so(filename, dbl_mb(k_fullocc),
      $   dbl_mb(k_fulleval), g_tmp) ) call errquit(
-     $   'movecs_gather_so: failed reading movecs file', 2)
+     $   'movecs_gather_so: failed reading movecs file', 2, DISK_ERR)
 c
 c     gather the data into the requested subset
 c
@@ -257,11 +262,11 @@ c
 c     free temporaries
 c
       if ( .not. ga_destroy(g_tmp)) call errquit(
-     $   'movecs_gather_so: ga_destroy failed', g_tmp)
+     $   'movecs_gather_so: ga_destroy failed', g_tmp, GA_ERR)
       if (.not. ma_pop_stack(l_fulleval)) call errquit(
-     $   'movecs_gather_so: pop failed', l_fulleval)
+     $   'movecs_gather_so: pop failed', l_fulleval, MA_ERR)
       if (.not. ma_pop_stack(l_fullocc)) call errquit(
-     $   'movecs_gather_so: pop failed', l_fullocc)
+     $   'movecs_gather_so: pop failed', l_fullocc, MA_ERR)
 c
       movecs_gather_so = .true.
 c
@@ -269,6 +274,7 @@ c
       logical function movecs_write_so(rtdb, basis, filename, 
      $     scftype, title, nbf, occ, evals, g_vecs)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -312,13 +318,13 @@ c     Generate info to go into convergence and restart line
 c
       if (basis.ne.-1 .and. rtdb.ne.-1) then
          if (.not. bas_checksum(basis, basissum))
-     $        call errquit('movecs_write_so: bad basis',0)
+     $        call errquit('movecs_write_so: bad basis',0, BASIS_ERR)
          if (.not. bas_geom(basis, geom))
-     $        call errquit('movecs_write_so: bad basis',0)
+     $        call errquit('movecs_write_so: bad basis',0, BASIS_ERR)
          if (.not. geom_checksum(geom, geomsum))
-     $        call errquit('movecs_write_so: bad geometry',0)
+     $        call errquit('movecs_write_so: bad geometry',0, GEOM_ERR)
          if (.not. bas_name(basis, basis_name, trans_name))
-     $        call errquit('movecs_write_so: bad basis',0)
+     $        call errquit('movecs_write_so: bad basis',0, BASIS_ERR)
          if (trans_name .ne. ' ') basis_name = trans_name
 c         
          key = ' '
@@ -354,7 +360,7 @@ c
          write(unitno, err=1001) nbf
          if (.not. ma_push_get(mt_dbl,nbf,'movecs_write_so',
      $        l_vecs,k_vecs))
-     $        call errquit('movecs_write_so: ma failed', nbf)
+     $        call errquit('movecs_write_so: ma failed', nbf, MA_ERR)
          write(unitno, err=1001) (occ(j),j=1,nbf)
          write(unitno, err=1001) (evals(j),j=1,nbf)
          do iset = 1, 2
@@ -365,7 +371,8 @@ c
             enddo
          enddo
          if (.not. ma_pop_stack(l_vecs))
-     $        call errquit('movecs_write_so: ma pop failed', l_vecs)
+     $        call errquit('movecs_write_so: ma pop failed', l_vecs,
+     &       MA_ERR)
          close(unitno,err=1002)
          ok = 1
       endif
@@ -405,6 +412,7 @@ c
       end
       subroutine movecs_swap_so(rtdb, module, scftype,g_vecs,occ,eval)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -441,27 +449,29 @@ c
       if (.not. rtdb_ma_get(rtdb, name, type, nelem, 
      $     handle)) goto 1000
       if (.not. ma_get_index(handle,index)) call errquit
-     $     ('movecs_swap_so: get index failed', handle)
+     $     ('movecs_swap_so: get index failed', handle, MA_ERR)
       if (mod(nelem,2).ne.0 .or. type.ne.mt_int) call errquit
-     $     ('movecs_swap_so: invalid list of pairs',nelem)
+     $     ('movecs_swap_so: invalid list of pairs',nelem, INPUT_ERR)
 c
       call ga_sync()
       call ga_inquire(g_vecs(1), type, dim1, dim2)
       if (ga_nodeid() .eq. 0) then
          if (oprint) write(6,*)
          if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_veci, k_veci))
-     $        call errquit('movecs_swap_so: no scratch space', dim1)
+     $        call errquit('movecs_swap_so: no scratch space', dim1,
+     &       MA_ERR)
          if (.not. ma_push_get(mt_dbl, dim1, 'swap', l_vecj, k_vecj))
-     $        call errquit('movecs_swap_so: no scratch space', dim1)
+     $        call errquit('movecs_swap_so: no scratch space', dim1,
+     &       MA_ERR)
          do pair = 1, nelem, 2
             i = int_mb(index+pair-1)
             j = int_mb(index+pair  )
             if (oprint) write(6,1) text(1:inp_strlen(text)), i, j
  1          format(' Swapping ',a,' orbitals ', 2i5)
             if (i.lt.0 .or. i.gt.dim2) call errquit
-     $           ('movecs_swap_so: invalid vector ', i)
+     $           ('movecs_swap_so: invalid vector ', i, INPUT_ERR)
             if (j.lt.0 .or. j.gt.dim2) call errquit
-     $           ('movecs_swap_so: invalid vector ', j)
+     $           ('movecs_swap_so: invalid vector ', j, INPUT_ERR)
 c     
             call ga_get(g_vecs(1), 1, dim1, i, i, dbl_mb(k_veci),1)
             call ga_get(g_vecs(1), 1, dim1, j, j, dbl_mb(k_vecj),1)
@@ -475,8 +485,10 @@ c
 c     
          enddo
          if (oprint) call util_flush(6)
-         if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0)
-         if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0)
+         if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0,
+     &       MA_ERR)
+         if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0,
+     &       MA_ERR)
       endif
 c     
       do pair = 1, nelem, 2
@@ -495,9 +507,9 @@ c
       call ga_sync
 c     
       if (.not. rtdb_delete(rtdb, name)) call errquit
-     $     ('movecs_swap_so: delete of swap entry failed', 0)
+     $     ('movecs_swap_so: delete of swap entry failed', 0, RTDB_ERR)
 c     
-      if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0)
+      if (.not. ma_free_heap(handle)) call errquit('ms:ma?', 0, MA_ERR)
  1000 continue
 c     
       end
@@ -540,6 +552,7 @@ c
       logical function movecs_converged_so
      $     (rtdb, basis, scftype, filename)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -598,7 +611,8 @@ c
          if (.not. rtdb_get(rtdb, key, mt_log, 1, oconverged)) goto 10
          if (.not. oconverged) goto 10
          if (.not. rtdb_get_info(rtdb, key, ma_type, nelem, date))
-     $        call errquit('movecs_converged_so: rtdb corrupt?',0)
+     $        call errquit('movecs_converged_so: rtdb corrupt?',0,
+     &       RTDB_ERR)
          if (date .ne. filedate) goto 10
 c     
 c     b) 
@@ -608,11 +622,14 @@ c
 c     c) 
 c     
          if (.not. bas_geom(basis, geom)) 
-     $        call errquit('movecs_converged_so: bad basis',0)
+     $        call errquit('movecs_converged_so: bad basis',0,
+     &       BASIS_ERR)
          if (.not. bas_checksum(basis, basissum))
-     $        call errquit('movecs_converged_so: bad basis',0)
+     $        call errquit('movecs_converged_so: bad basis',0,
+     &       BASIS_ERR)
          if (.not. geom_checksum(geom, geomsum))
-     $        call errquit('movecs_converged_so: bad geometry',0)
+     $        call errquit('movecs_converged_so: bad geometry',0,
+     &       GEOM_ERR)
          if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum) 
      $        goto 10
 c     
@@ -626,15 +643,19 @@ c
       movecs_converged_so = status
       return
 c
- 1000 call errquit('movecs_converged_so: error opening file',0)
- 1001 call errquit('movecs_converged_so: error reading file',0)
- 1002 call errquit('movecs_converged_so: error closing file',0)
+ 1000 call errquit('movecs_converged_so: error opening file',0,
+     &       DISK_ERR)
+ 1001 call errquit('movecs_converged_so: error reading file',0,
+     &       DISK_ERR)
+ 1002 call errquit('movecs_converged_so: error closing file',0,
+     &       DISK_ERR)
 c
       end
       
       logical function file_write_ga_patch_so(fname, g_a, 
      $     ilo, ihi, jlo, jhi)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -672,14 +693,16 @@ c
         write(unitno, err=1001) nrow, ncol
         if (.not. ma_push_get
      $       (mt_dbl,nrow,'movecs_write_so',l_tmp,k_tmp))
-     $    call errquit('matrix_fwrite: ma failed', nrow)
+     $    call errquit('matrix_fwrite: ma failed', nrow,
+     &       MA_ERR)
         do j=jlo,jhi
           call ga_get(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
           call swrite(unitno, dbl_mb(k_tmp), nrow)
 ****          write(unitno, err=1001) (dbl_mb(k_tmp+i), i=0,nrow-1)
         enddo
         if (.not. ma_pop_stack(l_tmp))
-     $    call errquit('file_write_ga_so: ma pop failed', l_tmp)
+     $    call errquit('file_write_ga_so: ma pop failed', l_tmp,
+     &       MA_ERR)
         close(unitno,err=1002)
         ok = 1
       endif
@@ -719,6 +742,7 @@ c
       logical function file_read_ga_patch_so 
      $     (fname, g_a, ilo, ihi, jlo, jhi)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -758,14 +782,14 @@ c
         if ((nrow.ne.grow).and.(ncol.ne.gcol)) goto 2000
         if (.not. ma_push_get
      $       (mt_dbl,nrow,'movecs_write_so',l_tmp,k_tmp))
-     $    call errquit('matrix_fwrite: ma failed', nrow)
+     $    call errquit('matrix_fwrite: ma failed', nrow, MA_ERR)
         do j=jlo,jhi
           call sread(unitno, dbl_mb(k_tmp), nrow)
 ***          read(unitno, err=1001) (dbl_mb(k_tmp+i), i=0,nrow-1)
           call ga_put(g_a, ilo, ihi, j, j, dbl_mb(k_tmp), 1)
         enddo
         if (.not. ma_pop_stack(l_tmp))
-     $    call errquit('file_read_ga_so: ma pop failed', l_tmp)
+     $    call errquit('file_read_ga_so: ma pop failed', l_tmp, MA_ERR)
         close(unitno,err=1002)
         ok = 1
       endif
@@ -810,7 +834,7 @@ c
 c
       end
       logical function spinor_guess(filename)
-C$Id: vectors_so.F,v 1.5 2002-02-06 20:06:21 bert Exp $
+C$Id: vectors_so.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"

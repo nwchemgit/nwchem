@@ -1,4 +1,4 @@
-c $Id: int_func_c.F,v 1.6 2002-04-11 15:22:14 windus Exp $
+c $Id: int_func_c.F,v 1.7 2003-10-17 22:53:41 carlfahl Exp $
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nospherical\_check}
@@ -14,8 +14,10 @@ c routine to stop if basis is spherical
 c
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer basisin     ! [input] basis set handle
       character*(*) tine  ! [input] routine identifier
@@ -33,7 +35,7 @@ c
         write(luout,*)' has been called with a spherical basis set'
         write(luout,*)' this particular routine does not have this ',
      &      'functionality yet'
-        call errquit(' int_nospherical_check: error ',911)
+        call errquit(' int_nospherical_check: error ',911, INT_ERR)
       endif
       end
 c:tex-% this is an internal API routine
@@ -51,8 +53,10 @@ c routine to stop if basis has any general contractions
 c
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer basisin     ! [input] basis set handle
       character*(*) tine  ! [input] routine identifier
@@ -71,7 +75,7 @@ c
      &      ' basis set'
         write(luout,*)' this particular routine does not have this ',
      &      'functionality yet'
-        call errquit(' int_nogencont_check: error ',911)
+        call errquit(' int_nogencont_check: error ',911, INT_ERR)
       endif
       end
 c:tex-% this is an internal API routine
@@ -89,8 +93,10 @@ c routine to stop if basis/shell has sp shells
 c
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer basisin     ! [input] basis set handle
       character*(*) tine  ! [input] routine identifier
@@ -109,7 +115,7 @@ c
      &      'has sp shells'
         write(luout,*)' this particular routine does not have this ',
      &      'functionality yet'
-        call errquit(' int_nospshell_check: error ',911)
+        call errquit(' int_nospshell_check: error ',911, INT_ERR)
       endif
       end
 c:tex-% this is an internal API routine
@@ -127,8 +133,10 @@ c routine to stop if basis/shell has sp shells
 c
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
+#include "util.fh"
 c:tex-\begin{verbatim}
       integer nbas           ! [input] number of basis sets
       integer basesin(nbas)  ! [input] basis set handles
@@ -161,7 +169,8 @@ c:tex-\end{verbatim}
      &          bas_any_sp_shell(basis2)
             write(luout,*)'         any gen. con.: ',
      &          bas_any_gc(basis2)
-            call errquit('int_bothsp_gc_check: fatal error',911)
+            call errquit('int_bothsp_gc_check: fatal error',911,
+     &       INT_ERR)
           endif
         enddo
       enddo

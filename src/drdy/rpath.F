@@ -1,7 +1,8 @@
-C $Id: rpath.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id: rpath.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       subroutine drdy_rpath(string,iend,istrt)
 c     Subroutine to read in the input for following the reaction path
       Implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "drdyP.fh"
 *::functions:
@@ -25,7 +26,7 @@ c SCALEMASS
             else
                write(fu6,*)' ERROR:  variable SCALEMASS must ',
      *                    'have an argument'
-               call errquit('drdy_rpath: fatal error',911)
+               call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             end if
 c SSTEP
          else if (string(istrt:istrt+4).eq.'sstep') then
@@ -35,7 +36,7 @@ c SSTEP
             else
                write(fu6,*)' ERROR:  variable SSTEP must ',
      *                    'have an argument'
-               call errquit('drdy_rpath: fatal error',911)
+               call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             end if
 c SSAVE
          else if (string(istrt:istrt+4).eq.'ssave') then
@@ -45,7 +46,7 @@ c SSAVE
             else
                write(fu6,*)' ERROR:  variable SSAVE must ',
      *                    'have an argument'
-               call errquit('drdy_rpath: fatal error',911)
+               call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             end if
 c SHESS
          else if (string(istrt:istrt+4).eq.'shess') then
@@ -55,7 +56,7 @@ c SHESS
             else
                write(fu6,*)' ERROR:  variable SHESS must ',
      *                    'have an argument'
-               call errquit('drdy_rpath: fatal error',911)
+               call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             end if
 c SLP 
          else if (string(istrt:istrt+2).eq.'slp') then
@@ -65,7 +66,7 @@ c SLP
             else
                write(fu6,*)' ERROR:  variable SLP must ',
      *                    'have an argument'
-               call errquit('drdy_rpath: fatal error',911)
+               call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             endif
 c SLM 
          else if (string(istrt:istrt+2).eq.'slm') then
@@ -75,7 +76,7 @@ c SLM
             else
                write(fu6,*)' ERROR:  variable SLM must ',
      *                    'have an argument'
-               call errquit('drdy_rpath: fatal error',911)
+               call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             endif
 c SADDLE         
          else if (string(istrt:istrt+5).eq.'saddle') then   
@@ -93,7 +94,7 @@ c SIGN
             else
                write(fu6,*)' ERROR:  variable SIGN must ',
      *                    'have a character argument'
-               call errquit('drdy_rpath: fatal error',911)
+               call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             endif
 c INTEGRA 
          else if (string(istrt:istrt+6).eq.'integra') then
@@ -107,14 +108,14 @@ c INTEGRA
             else
               write (fu6,*) ' ERROR: variable INTEGRA must ',
      *              'have a character argument'
-              call errquit('drdy_rpath: fatal error',911)
+              call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
             endif
 c PRINTFREQ
          else if (string(istrt:istrt+8).eq.'printfreq') then
             lgs(2) = 1
          else
             write(fu6,1000) string(istrt:80)
-            call errquit('drdy_rpath: fatal error',911)
+            call errquit('drdy_rpath: fatal error',911, INPUT_ERR)
          end if
          call drdy_rline(string,istrt,isect,iend)
       end do

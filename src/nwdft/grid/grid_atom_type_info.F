@@ -1,8 +1,9 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.10 2003-02-12 17:29:42 edo Exp $
+c$Id: grid_atom_type_info.F,v 1.11 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "inp.fh"
 #include "util.fh"
@@ -75,19 +76,20 @@ c     allocate space for atomic coordinates and charges
 c
       if (.not. Ma_Push_Get(MT_Dbl,ncenters*3,'coordinates',lcoord,
      &   icoord))call errquit(
-     .     'grid_atom_type_info: failed to alloc coordinates',0)
+     .     'grid_atom_type_info: failed to alloc coordinates',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Dbl,ncenters,'charges',lcharge,
      &   icharge))call errquit(
-     '     'grid_atom_type_info: failed to alloc charges',0)
+     '     'grid_atom_type_info: failed to alloc charges',0, MA_ERR)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit(
-     .     'grid_atom_type_info: failed to alloc center tags',0)
+     .     'grid_atom_type_info: failed to alloc center tags',0, MA_ERR)
 c
 c     Get ncenter tags, coordinates, and charges from the geometry object.
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
-     &     call errquit('gridatom_type_info: geom_cart_get failed',geom)
+     &     call errquit('gridatom_type_info: geom_cart_get failed',geom,
+     &       GEOM_ERR)
 c
 c     generate number of atom types and atom type array iatype(icenter) 
 c
@@ -116,7 +118,8 @@ c
       enddo 
       if (ntypes.gt.dft_ntags_bsmx)then
         write(LuOut,*) 'grid_atom_type_info:  Too many types of atoms.'
-        call errquit(' grid_atom_type_info: raise dft_ntags_bsmx',2)
+        call errquit(' grid_atom_type_info: raise dft_ntags_bsmx',2,
+     &       GEOM_ERR)
       end if
 c
 c     set up type-indexed znuc array; znuc_atom_type
@@ -145,7 +148,8 @@ c
                iaz = ictr
                if (.not. geom_cent_get(geom, ictr, tag, 
      &            ictr_coord, ictr_chg))call errquit
-     &            ('grid_atom_type_info: geom_cent_get failed', 0)
+     &            ('grid_atom_type_info: geom_cent_get failed', 0,
+     &       GEOM_ERR)
                goto 40
             endif
          enddo
@@ -168,7 +172,7 @@ c hack for nbo
                else
                   call errquit(
      &            'grid_atom_type_info: non-bq center with zero charge',
-     &             0)
+     &             0, INPUT_ERR)
      &              
                endif
             endif
@@ -187,7 +191,7 @@ c
      &         element, i_atomic_number)) then
                if (symbol .ne. 'bq') call errquit
      &            ('grid_atom_type_info: center is neither atom nor bq',
-     &              0)
+     &              0, INPUT_ERR)
             endif
 c
             if (i_atomic_number.ne.0)then ! not ghost atom
@@ -202,7 +206,8 @@ c
                   write(LuOut,*)' grid_atom_type_info: ',
      &               ' Undefined atomic radius '
                   write(LuOut,*)' for atom type', itype
-                  call errquit('Exiting in grid_atom_type_info.',1)
+                  call errquit('Exiting in grid_atom_type_info.',1,
+     &       UNKNOWN_ERR)
                endif
             else ! atomic number zero; charged ghost atom 
                bsrad_atom_type(itype) = EPS
@@ -222,11 +227,14 @@ c
          endif
    55 continue
       if (.not. MA_Pop_Stack(ltags))
-     &   call errquit('grid_atom_type_info: pop stack failed.',0)
+     &   call errquit('grid_atom_type_info: pop stack failed.',0,
+     &       MA_ERR)
       if (.not. MA_Pop_Stack(lcharge))
-     &   call errquit('grid_atom_type_info: pop stack failed.',0)
+     &   call errquit('grid_atom_type_info: pop stack failed.',0,
+     &       MA_ERR)
       if (.not. MA_Pop_Stack(lcoord))
-     &   call errquit('grid_atom_type_info: pop stack failed.',0)
+     &   call errquit('grid_atom_type_info: pop stack failed.',0,
+     &       MA_ERR)
 c
 c     debug writes
 c

@@ -1,11 +1,12 @@
       subroutine cckohn_input(rtdb)
 c
-c     $Id: cckohn_input.F,v 1.1 2002-01-12 07:00:36 zzhang Exp $
+c     $Id: cckohn_input.F,v 1.2 2003-10-17 22:54:20 carlfahl Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
 c
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 c#include "geom.fh"
 #include "mafdecls.fh"
@@ -34,14 +35,17 @@ c
 c     Lebedev on by default
 c
  10   if (.not. inp_read()) call errquit
-     $     ('cckohn_input: inp_read failed', 0)
+     $     ('cckohn_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
-     $     call errquit('cckohn_input: failed to read keyword', 0)
+     $     call errquit('cckohn_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
-     $     call errquit('cckohn_input: unknown directive', 0)
+     $     call errquit('cckohn_input: unknown directive', 0,
+     &       INPUT_ERR)
 c     
       goto (100,  200,  300, 400, 9999) ind
-      call errquit('dft_input: unimplemented directive', ind)
+      call errquit('dft_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 c
 c     cckohn;
 c             

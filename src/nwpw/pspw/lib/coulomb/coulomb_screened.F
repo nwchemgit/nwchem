@@ -1,10 +1,11 @@
 *
-* $Id: coulomb_screened.F,v 1.11 2003-02-05 01:36:56 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.12 2003-10-17 22:57:27 carlfahl Exp $
 
 
 *
       subroutine coulomb_screened_init(rcut,pp)
       implicit none 
+#include "errquit.fh"
       real*8 rcut,pp
 
 #include "mafdecls.fh"
@@ -45,14 +46,14 @@
 
 *     **** allocate vc memory ****
       value = MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       value = MA_push_get(mt_dcpl,nfft3d,'gk',gk(2),gk(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       call D3dB_nz(1,nz)
@@ -205,7 +206,8 @@
       value = value.and.MA_pop_stack(gk2(2))
       value = value.and.MA_pop_stack(gk(2))
       if (.not. value) 
-     >  call errquit('coulomb_screened_init: poppingstack memory',0)
+     >  call errquit('coulomb_screened_init: poppingstack memory',0,
+     &       MA_ERR)
 
 
       call nwpw_timing_end(7)
@@ -260,6 +262,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       real*8 function coulomb_screened_e(dng)
       implicit none
+#include "errquit.fh"
       complex*16 dng(*)
 
 #include "mafdecls.fh"
@@ -286,7 +289,7 @@ c     real*8  tmp1(*)
 
       call Pack_npack(0,npack0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       
       call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
       call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
@@ -412,6 +415,7 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
 *
       subroutine coulomb_screened_init_print(rcut,pp)
       implicit none 
+#include "errquit.fh"
       real*8 rcut,pp
 
 #include "mafdecls.fh"
@@ -431,7 +435,7 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
 *     **** allocate memory ****
       value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >  call errquit('coulomb_screened_init_print:push stack',0)
+     >  call errquit('coulomb_screened_init_print:push stack',0, MA_ERR)
 
 
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
@@ -449,7 +453,7 @@ c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     >  call errquit('coulomb_screened_init_print:pop stack',1)
+     >  call errquit('coulomb_screened_init_print:pop stack',1, MA_ERR)
 
 
       return

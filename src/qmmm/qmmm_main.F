@@ -1,9 +1,10 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy,lnkatm,nbq,lesp)
 c
-c $Id: qmmm_main.F,v 1.12 2003-04-04 20:10:58 d3j191 Exp $
+c $Id: qmmm_main.F,v 1.13 2003-10-17 22:58:07 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "rtdb.fh"
 #include "geom.fh"
@@ -37,7 +38,8 @@ c
       nobq=nbq
 c
       if(.not.ma_push_get(mt_int,2*np,'ioff',l_ioff,i_ioff))
-     + call errquit('qmmm: Failed to allocate memory for ioff',me)
+     + call errquit('qmmm: Failed to allocate memory for ioff',me,
+     &       MA_ERR)
 c
       nzatom=0
       nqatom=0
@@ -66,66 +68,74 @@ c
      + int_mb(i_ioff))
 c
       if(.not.ma_pop_stack(l_ioff))
-     + call errquit('qmmm: Failed to deallocate memory for ioff',me)
+     + call errquit('qmmm: Failed to deallocate memory for ioff',me,
+     &       MA_ERR)
 c
       if(.not.ma_push_get(mt_dbl,3*(nqatomt+nzatomt),'c',l_c,i_c))
-     + call errquit('qmmm: Failed to allocate memory for c',me)
+     + call errquit('qmmm: Failed to allocate memory for c',me, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'q',l_q,i_q))
-     + call errquit('qmmm: Failed to allocate memory for q',me)
+     + call errquit('qmmm: Failed to allocate memory for q',me, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'m',l_m,i_m))
-     + call errquit('qmmm: Failed to allocate memory for m',me)
+     + call errquit('qmmm: Failed to allocate memory for m',me, MA_ERR)
       if(.not.ma_push_get(mt_byte,16*(nqatomt+nzatomt),'t',l_t,i_t))
-     + call errquit('qmmm: Failed to allocate memory for t',me)
+     + call errquit('qmmm: Failed to allocate memory for t',me, MA_ERR)
       if(.not.ma_push_get(mt_int,nqatomt+nzatomt,'i',l_i,i_i))
-     + call errquit('qmmm: Failed to allocate memory for i',me)
+     + call errquit('qmmm: Failed to allocate memory for i',me, MA_ERR)
       if(.not.ma_push_get(mt_int,2*(nqatomt+nzatomt),'j',l_j,i_j))
-     + call errquit('qmmm: Failed to allocate memory for i',me)
+     + call errquit('qmmm: Failed to allocate memory for i',me, MA_ERR)
 c
       call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
      + dbl_mb(i_m),byte_mb(i_t),int_mb(i_i),int_mb(i_j),ioffq,ioffz,
      + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
 c
       if(.not.ma_pop_stack(l_j))
-     + call errquit('qmmm: Failed to deallocate memory for j',me)
+     + call errquit('qmmm: Failed to deallocate memory for j',me,
+     &       MA_ERR)
       if(.not.ma_pop_stack(l_i))
-     + call errquit('qmmm: Failed to deallocate memory for i',me)
+     + call errquit('qmmm: Failed to deallocate memory for i',me,
+     &       MA_ERR)
 c
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0)
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
       if(.not.geom_cart_set(igeom,nqatomt+nzatomt,byte_mb(i_t),
      + dbl_mb(i_c),dbl_mb(i_q)))
-     + call errquit('qmmm: Failed to initialize geometry',0)
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
       if(.not.geom_masses_set(igeom,nqatomt+nzatomt,dbl_mb(i_m)))
-     + call errquit('qmmm: Failed to initialize masses',0)
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 c
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
-     + call errquit('qmmm: Failed to store geom to rtdb',0)
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 c
       if(.not.ma_pop_stack(l_t))
-     + call errquit('qmmm: Failed to deallocate memory for t',me)
+     + call errquit('qmmm: Failed to deallocate memory for t',me,
+     &       MA_ERR)
       if(.not.ma_pop_stack(l_m))
-     + call errquit('qmmm: Failed to deallocate memory for m',me)
+     + call errquit('qmmm: Failed to deallocate memory for m',me,
+     &       MA_ERR)
       if(.not.ma_pop_stack(l_q))
-     + call errquit('qmmm: Failed to deallocate memory for q',me)
+     + call errquit('qmmm: Failed to deallocate memory for q',me,
+     &       MA_ERR)
 c
       call ga_sync()
       if(.not.task_gradient(irtdb))
-     + call errquit('qmmm: Task_gradient failed',0)
+     + call errquit('qmmm: Task_gradient failed',0, GA_ERR)
       call ga_sync()
 c
       call qmmm_f(nqatomt+nzatomt,dbl_mb(i_c),ioffq,ioffz,
      + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,fw,fs,energy)
 c
       if(.not.ma_pop_stack(l_c))
-     + call errquit('qmmm: Failed to deallocate memory for c',me)
+     + call errquit('qmmm: Failed to deallocate memory for c',me,
+     &       MA_ERR)
 c
       if(.not.geom_destroy(igeom))
-     + call errquit('qmmm: Failed to destroy geometry',me)
+     + call errquit('qmmm: Failed to destroy geometry',me, GEOM_ERR)
 c
       if(lesp) then
       if(.not.ma_push_get(mt_int,2*np,'ioff',l_ioff,i_ioff))
-     + call errquit('qmmm: Failed to allocate memory for ioff',me)
+     + call errquit('qmmm: Failed to allocate memory for ioff',me,
+     &       MA_ERR)
       nqatom=0
       nzatomt=0
       do 3 i=1,nsa
@@ -134,49 +144,62 @@ c
       call qmmm_offset(np,nqatom,nzatom,ioffq,ioffz,nqatomt,nzatomt,
      + int_mb(i_ioff))
       if(.not.ma_pop_stack(l_ioff))
-     + call errquit('qmmm: Failed to deallocate memory for ioff',me)
+     + call errquit('qmmm: Failed to deallocate memory for ioff',me,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_dbl,3*(nqatomt+nzatomt),'c',l_c,i_c))
-     + call errquit('qmmm: Failed to allocate memory for c',me)
+     + call errquit('qmmm: Failed to allocate memory for c',me,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'q',l_q,i_q))
-     + call errquit('qmmm: Failed to allocate memory for q',me)
+     + call errquit('qmmm: Failed to allocate memory for q',me,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_dbl,nqatomt+nzatomt,'m',l_m,i_m))
-     + call errquit('qmmm: Failed to allocate memory for m',me)
+     + call errquit('qmmm: Failed to allocate memory for m',me,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_byte,16*(nqatomt+nzatomt),'t',l_t,i_t))
-     + call errquit('qmmm: Failed to allocate memory for t',me)
+     + call errquit('qmmm: Failed to allocate memory for t',me,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_int,nqatomt+nzatomt,'i',l_i,i_i))
-     + call errquit('qmmm: Failed to allocate memory for i',me)
+     + call errquit('qmmm: Failed to allocate memory for i',me,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_int,2*(nqatomt+nzatomt),'j',l_j,i_j))
-     + call errquit('qmmm: Failed to allocate memory for i',me)
+     + call errquit('qmmm: Failed to allocate memory for i',me,
+     &       MA_ERR)
       call qmmm_geometry(nqatomt+nzatomt,dbl_mb(i_c),dbl_mb(i_q),
      + dbl_mb(i_m),byte_mb(i_t),int_mb(i_i),int_mb(i_j),ioffq,ioffz,
      + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
       if(.not.ma_pop_stack(l_j))
-     + call errquit('qmmm: Failed to deallocate memory for j',me)
+     + call errquit('qmmm: Failed to deallocate memory for j',me,
+     &       MA_ERR)
       if(.not.ma_pop_stack(l_i))
-     + call errquit('qmmm: Failed to deallocate memory for i',me)
+     + call errquit('qmmm: Failed to deallocate memory for i',me,
+     &       MA_ERR)
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmmm: Failed to create geometry',0)
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
       if(.not.geom_cart_set(igeom,nqatomt,byte_mb(i_t),
      + dbl_mb(i_c),dbl_mb(i_q)))
-     + call errquit('qmmm: Failed to initialize geometry',0)
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
       if(.not.geom_masses_set(igeom,nqatomt,dbl_mb(i_m)))
-     + call errquit('qmmm: Failed to initialize masses',0)
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
-     + call errquit('qmmm: Failed to store geom to rtdb',0)
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
       if(.not.ma_pop_stack(l_t))
-     + call errquit('qmmm: Failed to deallocate memory for t',me)
+     + call errquit('qmmm: Failed to deallocate memory for t',me,
+     &       MA_ERR)
       if(.not.ma_pop_stack(l_m))
-     + call errquit('qmmm: Failed to deallocate memory for m',me)
+     + call errquit('qmmm: Failed to deallocate memory for m',me,
+     &       MA_ERR)
       if(.not.ma_pop_stack(l_q))
-     + call errquit('qmmm: Failed to deallocate memory for q',me)
+     + call errquit('qmmm: Failed to deallocate memory for q',me,
+     &       MA_ERR)
       call ga_sync()
-      if(.not.esp(irtdb)) call errquit('Error in esp',0)
+      if(.not.esp(irtdb)) call errquit('Error in esp',0, CALC_ERR)
       call ga_sync()
       if(.not.ma_pop_stack(l_c))
-     + call errquit('qmmm: Failed to deallocate memory for c',me)
+     + call errquit('qmmm: Failed to deallocate memory for c',me,
+     &       MA_ERR)
       if(.not.geom_destroy(igeom))
-     + call errquit('qmmm: Failed to destroy geometry',me)
+     + call errquit('qmmm: Failed to destroy geometry',me, GEOM_ERR)
       endif
 c
       return
@@ -219,6 +242,7 @@ c
      + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,xw,xs)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "qmmm_common.fh"
 #include "msgids.fh"
@@ -327,7 +351,7 @@ c
       bqchrg=bqc
 c
       if(.not.rtdb_put(irtdb,'charge',mt_dbl,1,bqchrg))
-     + call errquit('Could not set charge',bqchrg)
+     + call errquit('Could not set charge',bqchrg, RTDB_ERR)
 c
       do 5 i=1,ndim
       call cf_num2tag(inum(i),t(i))
@@ -350,6 +374,7 @@ c
      + mwm,nwm,mwa,msa,nsa,iwz,isat,isdt,isq,isz,fw,fs,energy)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -367,9 +392,9 @@ c
       ioz=ioffz
 c
       if(.not.rtdb_get(irtdb,'task:gradient',mt_dbl,3*ndim,c))
-     + call errquit('qmmm_f: rtdb_get gradient failed',0)
+     + call errquit('qmmm_f: rtdb_get gradient failed',0, RTDB_ERR)
       if(.not.rtdb_get(irtdb,'task:energy',mt_dbl,1,energy))
-     + call errquit('qmmm_f: rtdb_get energy failed',0)
+     + call errquit('qmmm_f: rtdb_get energy failed',0, RTDB_ERR)
 c
 c
       do 1 i=1,nsa

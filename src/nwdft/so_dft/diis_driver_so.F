@@ -2,9 +2,10 @@
      &     nbf, g_fock, g_dens, 
      &     g_svecs, svals, diis, nodiis)
 c
-C$Id: diis_driver_so.F,v 1.5 2001-11-15 18:39:00 edo Exp $
+C$Id: diis_driver_so.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 cso      integer ispin
 cso      integer ipol
@@ -52,11 +53,11 @@ c     Use the DIIS scheme to accelerate convergence.
 c     
       if (icall.lt.0 )then
          if (.not.MA_Free_Heap(lpulay))
-     &      call errquit('diis_driver: cannot free heap',0)
+     &      call errquit('diis_driver: cannot free heap',0, MA_ERR)
          if (.not. ga_destroy(g_diis(1))) call errquit
-     &      ('diis_driver: could not destroy g_diis(1)', 0)
+     &      ('diis_driver: could not destroy g_diis(1)', 0, GA_ERR)
          if (.not. ga_destroy(g_diis(2))) call errquit
-     &      ('diis_driver: could not destroy g_diis(2)', 0)
+     &      ('diis_driver: could not destroy g_diis(2)', 0, GA_ERR)
          return
       endif
       me = ga_nodeid()
@@ -75,7 +76,7 @@ c       Create necessary DIIS arrays.
 c
         npulay  = (MXhist+1)*(MXhist+2)/2
         if (.not.MA_Alloc_Get(MT_Dbl,npulay,'Pulay',lpulay,ipulay))
-     &     call errquit('diis_driver: cannot allocate Pulay',0)
+     &     call errquit('diis_driver: cannot allocate Pulay',0, MA_ERR)
         call dfill(npulay, 0.0d0, dbl_mb(ipulay), 1)
 c
 c       Inquire about amount of global memory left.  DIIS uses
@@ -105,11 +106,13 @@ c
          endif
          if (.not. ga_create(mt_dbl, nbf, nbf*(2*mxhist), 
      &                       're diis bufs', nbf, 1, g_diis(1))) 
-     &      call errquit('diis_driver: error creating g_diis(1)',0)
+     &      call errquit('diis_driver: error creating g_diis(1)',0,
+     &       GA_ERR)
          call ga_zero(g_diis(1))
          if (.not. ga_create(mt_dbl, nbf, nbf*(2*mxhist), 
      &                       'im diis bufs', nbf, 1, g_diis(2))) 
-     &      call errquit('diis_driver: error creating g_diis(2)',0)
+     &      call errquit('diis_driver: error creating g_diis(2)',0,
+     &       GA_ERR)
          call ga_zero(g_diis(2))
 c        if (me.eq.0)write(LuOut,*)'avail,dw_agg_avail,n_n2_objs,mxhist:',
 c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
@@ -120,7 +123,8 @@ c     &                            avail,dw_agg_avail,n_n2_objs,mxhist
      &       /,10x,'for DIIS only allows: ',i2,' Fock matrices to be',
      &       /,10x,'stored and used in the extrapolation.')
       if (.not.MA_Push_Get(MT_Dbl,MXhist+1,'Fock wghts',lfwght,ifwght))
-     &   call errquit('diis_driver: cannot allocate Fock wghts',0)
+     &   call errquit('diis_driver: cannot allocate Fock wghts',0,
+     &       MA_ERR)
       call dfill(MXhist+1, 0.0d0, dbl_mb(ifwght), 1)
 c
 c     Increment call counter.
@@ -135,15 +139,17 @@ c     Construct temporary global arrays. g_scr is used to construct sm12,
 c     g_fsmre and g_fsmim are for real and imaginary parts of Fock * s-1/2
 c
       if(.not.ga_create(mt_dbl,nbf12,nbf12,'scr',0,0,g_scr))
-     &     call errquit('diis_driver: error creating g_scr',0)
+     &     call errquit('diis_driver: error creating g_scr',0, GA_ERR)
       if(.not.ga_create(mt_dbl, nbf12,nbf12,'tmp',0,0,g_tmp))
-     &     call errquit('diis_driver: error creating g_tmp',0)
+     &     call errquit('diis_driver: error creating g_tmp',0, GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nbf,'scr2',0,0,g_scr2))
-     &     call errquit('diis_driver: error creating g_scr2',0)
+     &     call errquit('diis_driver: error creating g_scr2',0, GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nbf,'fsm12re',0,0,g_fsm12(1)))
-     &     call errquit('diis_driver: error creating g_fsm12(1)',0)
+     &     call errquit('diis_driver: error creating g_fsm12(1)',0,
+     &       GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nbf,'fsm12im',0,0,g_fsm12(2)))
-     &     call errquit('diis_driver: error creating g_fsm12(2)',0)
+     &     call errquit('diis_driver: error creating g_fsm12(2)',0,
+     &       GA_ERR)
 c
 c     Mat mult Fock * s-1/2
 c
@@ -164,9 +170,11 @@ c
       call dft_second(tp1)
 #endif
       if(.not.ga_create(mt_dbl,nbf,nbf,'s12pre',0,0,g_s12p(1)))
-     &     call errquit('diis_driver: error creating g_s12p(1)',0)
+     &     call errquit('diis_driver: error creating g_s12p(1)',0,
+     &       GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nbf,'s12pre',0,0,g_s12p(2)))
-     &     call errquit('diis_driver: error creating g_s12p(2)',0)
+     &     call errquit('diis_driver: error creating g_s12p(2)',0,
+     &       GA_ERR)
 c
 c     Mat mult S+1/2*P (transp)
 c
@@ -184,9 +192,9 @@ c
 C     Mat mult (S+*P(transp))(transp)*(F*S-)
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,'pfre',0,0,g_pf(1)))
-     &     call errquit('diis_driver: error creating g_pf(1)',0)
+     &     call errquit('diis_driver: error creating g_pf(1)',0, GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nbf,'pfim',0,0,g_pf(2)))
-     &     call errquit('diis_driver: error creating g_pf(2)',0)
+     &     call errquit('diis_driver: error creating g_pf(2)',0, GA_ERR)
       call ga_dgemm('N','N',nbf,nbf,nbf,one,g_s12p(1),g_fsm12(1),
      &     zero,g_pf(1))
       call ga_dgemm('N','N',nbf,nbf,nbf,mone,g_s12p(2),g_fsm12(2),
@@ -206,40 +214,40 @@ c
 c     Destroy temp globals.
 c
       if (.not.ga_destroy(g_s12p(1))) call errquit
-     &   ('diis_driver: could not destroy g_s12p(1)', 0)
+     &   ('diis_driver: could not destroy g_s12p(1)', 0, GA_ERR)
       if (.not.ga_destroy(g_s12p(2))) call errquit
-     &   ('diis_driver: could not destroy g_s12p(2)', 0)
+     &   ('diis_driver: could not destroy g_s12p(2)', 0, GA_ERR)
       if (.not. ga_destroy(g_fsm12(1))) call errquit
-     &   ('diis_driver: could not destroy g_fsm12(1)', 0)
+     &   ('diis_driver: could not destroy g_fsm12(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_fsm12(2))) call errquit
-     &   ('diis_driver: could not destroy g_fsm12(2)', 0)
+     &   ('diis_driver: could not destroy g_fsm12(2)', 0, GA_ERR)
       if (.not. ga_destroy(g_scr)) call errquit
-     &   ('diis_driver: could not destroy g_scr', 0)
+     &   ('diis_driver: could not destroy g_scr', 0, GA_ERR)
       if (.not. ga_destroy(g_scr2)) call errquit
-     &   ('diis_driver: could not destroy g_scr2', 0)
+     &   ('diis_driver: could not destroy g_scr2', 0, GA_ERR)
       if (.not. ga_destroy(g_tmp)) call errquit
-     &   ('diis_driver: could not destroy g_tmp', 0)
+     &   ('diis_driver: could not destroy g_tmp', 0, GA_ERR)
 c
       if (.not.MA_Push_Get(MT_Dbl,nbf,'rowim',lrowim,irowim))
-     &   call errquit('diis_driver: cannot allocate row',0)
+     &   call errquit('diis_driver: cannot allocate row',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,nbf,'columnim',lcolim,icolim))
-     &   call errquit('diis_driver: cannot allocate',0)
+     &   call errquit('diis_driver: cannot allocate',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,nbf,'rowre',lrowre,irowre))
-     &   call errquit('diis_driver: cannot allocate rowre',0)
+     &   call errquit('diis_driver: cannot allocate rowre',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,nbf,'columnre',lcolre,icolre))
-     &   call errquit('diis_driver: cannot allocate',0)
+     &   call errquit('diis_driver: cannot allocate',0, MA_ERR)
 c
       call diis_refvec_so(nbf,g_pf,dbl_mb(irowre),dbl_mb(icolre),
      &     dbl_mb(irowim),dbl_mb(icolim))
 c
       if (.not.ma_pop_stack(lcolre))
-     &   call errquit('diis_driver: cannot pop stack',0)
+     &   call errquit('diis_driver: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lrowre))
-     &   call errquit('diis_driver: cannot pop stack',0)
+     &   call errquit('diis_driver: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lcolim))
-     &   call errquit('diis_driver: cannot pop stack',0)
+     &   call errquit('diis_driver: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lrowim))
-     &   call errquit('diis_driver: cannot pop stack',0)
+     &   call errquit('diis_driver: cannot pop stack',0, MA_ERR)
 c
       call ga_sync
 c
@@ -280,12 +288,12 @@ c
 #endif
 c
       if (.not.ma_pop_stack(lfwght))
-     &     call errquit('diis_driver: cannot pop stack',0)
+     &     call errquit('diis_driver: cannot pop stack',0, MA_ERR)
 c
       if(.not.ga_destroy(g_pf(1)))
-     &     call errquit('diis_driver:can not destroy pa_pf',0)
+     &     call errquit('diis_driver:can not destroy pa_pf',0, GA_ERR)
       if(.not.ga_destroy(g_pf(2)))
-     &     call errquit('diis_driver:can not destroy pa_pf',0)
+     &     call errquit('diis_driver:can not destroy pa_pf',0, GA_ERR)
 #if defined(DFT_TIMER)
       ltime = 7
       if ( me.eq.0 )then

@@ -3,11 +3,12 @@ C NAME
 C     rimp2_prep_sep -- Prepare for computation of separable gradient terms
 C
 C REVISION
-C     $Id: prep_sep.F,v 1.1 1999-05-28 16:04:07 bernhold Exp $
+C     $Id: prep_sep.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Prep_Sep(TopSpin, g_P2, g_W2, g_AOXF)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer TopSpin ![in]
       Integer g_P2(TopSpin) ![in]
@@ -44,7 +45,7 @@ C STATEMENT FUNCTIONS
 C
       If ( TopSpin .gt. MyMaxSpin ) Call ErrQuit( 
      $     'RIMP2_Prep_Sep: MyMaxSpin inconsistent with TopSpin',
-     $     MyMaxSpin )
+     $     MyMaxSpin , INPUT_ERR)
 C
 C     **************************************************
 C     * Transform densities to AO basis & dump to disk *
@@ -59,7 +60,7 @@ C
          If ( .NOT. GA_Create(Type, NMO, NAO, 'Transposed MO vectors',
      $        0, 0, g_AOXF_tr) ) Call ErrQuit(
      $        'RIMP2_Prep_Sep: can''t allocate transposed MO vectors',
-     $        NAO*NMO)
+     $        NAO*NMO, GA_ERR)
          Call GA_Transpose( g_AOXF(Spin), g_AOXF_tr )
 C
 C        Make scratch array
@@ -67,13 +68,14 @@ C
          If ( .NOT. GA_Create(MT_Dbl, NMO, NAO, 'transf scr',
      $        0, 0, g_Tmp) ) Call ErrQuit(
      $        'RIMP2_Prep_Sep: can''t allocate transformation scratch',
-     $        NMO*NAO)
+     $        NMO*NAO, GA_ERR)
 C
 C        Make temporary AO density array
 C
          If ( .NOT. GA_Create(MT_Dbl, NAO, NAO, 'AO basis P(2) or W(2)',
      $        0, 0, g_ao) ) Call ErrQuit(
-     $        'RIMP2_Prep_Sep: can''t allocate ao basis W(2)', NAO*NAO)
+     $        'RIMP2_Prep_Sep: can''t allocate ao basis W(2)', NAO*NAO,
+     &       GA_ERR)
 C
 C        Transform W(2)
 C
@@ -90,7 +92,8 @@ C        Write W(2)
 C
          Call Util_File_Name(Def_FN_W2(Spin), .TRUE., .TRUE., FN_W2_ao)
          If ( .NOT. File_Write_GA(FN_W2_ao, g_ao) ) Call ErrQuit(
-     $        'RIMP2_Prep_Sep: Failed to write AO W2 to disk', Spin)
+     $        'RIMP2_Prep_Sep: Failed to write AO W2 to disk', Spin,
+     &       GA_ERR)
 C
 C        Transform P(2)
 C
@@ -107,19 +110,20 @@ C        Write P(2)
 C
          Call Util_File_Name(Def_FN_P2(Spin), .TRUE., .TRUE., FN_P2_ao)
          If ( .NOT. File_Write_GA(FN_P2_ao, g_ao) ) Call ErrQuit(
-     $        'RIMP2_Prep_Sep: Failed to write AO P2 to disk', Spin)
+     $        'RIMP2_Prep_Sep: Failed to write AO P2 to disk', Spin,
+     &       DISK_ERR)
 C
 C        Clean up temporaries
 C
          If ( .NOT. GA_Destroy( g_ao ) ) Call ErrQuit(
      $        'RIMP2_Prep_Sep: can''t destroy ao basis density',
-     $        Spin)
+     $        Spin, GA_ERR)
          If ( .NOT. GA_Destroy( g_Tmp ) ) Call ErrQuit(
      $        'RIMP2_Prep_Sep: can''t destroy temporary GA',
-     $        Spin)
+     $        Spin, GA_ERR)
          If ( .NOT. GA_Destroy( g_AOXF_tr ) ) Call ErrQuit(
      $        'RIMP2_Prep_Sep: can''t destroy transposed MO vectors',
-     $        Spin)
+     $        Spin, GA_ERR)
       EndDo
 C
       Return

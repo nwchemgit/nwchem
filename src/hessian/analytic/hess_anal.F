@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.22 2003-04-25 00:41:44 edo Exp $
+C $Id: hess_anal.F,v 1.23 2003-10-17 22:55:13 carlfahl Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -16,6 +16,7 @@ C  The notation here will follow that of Johnson and Frisch, J.Chem.Phys.
 C  100, 7429-7442 (1994) unless otherwise annotated.
 C
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "global.fh"
@@ -41,7 +42,7 @@ c
 c  Broadcast information to all of the nodes on read
 c
       if (.not. rtdb_parallel(.true.)) call errquit
-     *  ('hess_anal: unable to set rtdb_parallel to true',555)
+     *  ('hess_anal: unable to set rtdb_parallel to true',555, RTDB_ERR)
 c
 c  First check to see if we should fail the calculation because
 c  the code can't handle it.
@@ -71,19 +72,19 @@ c
       if (ohessprof) then
         if (.not.pstat_allocate('hess: total',pstat_qstat,0,junk,
      $    ps_total)) call errquit('hess_init: pstat_allocate failed',
-     $    555)
+     $    555, MEM_ERR)
         if (.not.pstat_allocate('hess: intdd-1e',pstat_qstat,0,junk,
      $    ps_onedd)) call errquit('hess_init: pstat_allocate failed',
-     $    555)
+     $    555, MEM_ERR)
         if (.not.pstat_allocate('hess: nuclear',pstat_qstat,0,junk,
      $    ps_nucdd)) call errquit('hess_init: pstat_allocate failed',
-     $    555)
+     $    555, MEM_ERR)
         if (.not.pstat_allocate('hess: intdd-2e',pstat_qstat,0,junk,
      $    ps_twodd)) call errquit('hess_init: pstat_allocate failed',
-     $    555)
+     $    555, MEM_ERR)
         if (.not.pstat_allocate('hess: cphf',pstat_qstat,0,junk,
      $    ps_cphf)) call errquit('hess_init: pstat_allocate failed',
-     $    555)
+     $    555, MEM_ERR)
         call pstat_on(ps_total)
       endif
 c
@@ -101,7 +102,7 @@ c  Check to make sure that the energy and wavefunction are calculated
 c
       if (restr.lt.1) then
         if(.not.task_energy(rtdb)) call errquit 
-     *    ('hess_anal: energy failure', 555)
+     *    ('hess_anal: energy failure', 555, CALC_ERR)
         if (oprint) write(LuOut,*) 'HESS: after the task_energy call'
       endif
 c
@@ -193,15 +194,15 @@ c
         call pstat_off(ps_total)
         call pstat_print_all
         if (.not. pstat_free(ps_total))
-     $    call errquit('hess_anal: pstat_free error',555)
+     $    call errquit('hess_anal: pstat_free error',555, MEM_ERR)
         if (.not. pstat_free(ps_onedd))
-     $    call errquit('hess_anal: pstat_free error',555)
+     $    call errquit('hess_anal: pstat_free error',555, MEM_ERR)
         if (.not. pstat_free(ps_nucdd))
-     $    call errquit('hess_anal: pstat_free error',555)
+     $    call errquit('hess_anal: pstat_free error',555, MEM_ERR)
         if (.not. pstat_free(ps_twodd))
-     $    call errquit('hess_anal: pstat_free error',555)
+     $    call errquit('hess_anal: pstat_free error',555, MEM_ERR)
         if (.not. pstat_free(ps_cphf))
-     $    call errquit('hess_anal: pstat_free error',555)
+     $    call errquit('hess_anal: pstat_free error',555, MEM_ERR)
       endif
       call util_print_pop
 c
@@ -213,7 +214,8 @@ c  Reset restart info so that future calculations don't get
 c  confused.
 c
       if (.not. rtdb_delete(rtdb,'hessian:restart'))
-     *  call errquit('hess_anal: could not delete restart',555)
+     *  call errquit('hess_anal: could not delete restart',555,
+     &       RTDB_ERR)
 c
       return 
       end

@@ -1,8 +1,9 @@
       subroutine scf_movecs_read
 *
-* $Id: scf_movecs.F,v 1.10 1999-06-16 00:10:14 d3e129 Exp $
+* $Id: scf_movecs.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "cscf.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -13,7 +14,7 @@ c
       if (.not. movecs_read(movecs_in, 1,
      $     dbl_mb(k_occ), dbl_mb(k_eval),
      $     g_movecs))
-     $     call errquit('scf_movecs_read failed ',0)
+     $     call errquit('scf_movecs_read failed ',0, INPUT_ERR)
 c
       if (scftype .eq. 'UHF') then
          if (.not. movecs_read(movecs_in, 2,
@@ -32,6 +33,7 @@ c
       end
       subroutine scf_movecs_write(rtdb)
       implicit none
+#include "errquit.fh"
 #include "crohf.fh"
 #include "mafdecls.fh"
 #include "cscf.fh"
@@ -54,11 +56,12 @@ c
      $     nbf, nset, nmo2,
      $     dbl_mb(k_occ), nbf, dbl_mb(k_eval),
      $     nbf, g_movecs)) call errquit
-     $     ('scf_movecs_write: movecs_write failed', 0)
+     $     ('scf_movecs_write: movecs_write failed', 0, DISK_ERR)
 c
       end
       subroutine scf_movecs_lock
       implicit none
+#include "errquit.fh"
 #include "cscf.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -80,23 +83,26 @@ c
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'scf_movecs_lock:old',
      $     nmo, 0, g_old)) call errquit
-     $     ('scf_movecs_lock: ga_create of old failed',nmo*nbf)
+     $     ('scf_movecs_lock: ga_create of old failed',nmo*nbf, GA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:e',l_e, k_e))
-     $     call errquit('movecs_lock: insufficient memory',nbf)
+     $     call errquit('movecs_lock: insufficient memory',nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'movecs_lock:e',l_o, k_o))
-     $     call errquit('movecs_lock: insufficient memory',nbf)
+     $     call errquit('movecs_lock: insufficient memory',nbf, MA_ERR)
 c
       do iset = 1, nset
          if (.not. movecs_read(movecs_in, iset,
      $        dbl_mb(k_o), dbl_mb(k_e), g_old))
-     $        call errquit('scf_movecs_lock: read failed',0)
+     $        call errquit('scf_movecs_lock: read failed',0, DISK_ERR)
 c
          call movecs_lock(geom, basis, g_old, g_movecs(iset), 
      $        dbl_mb(k_eval+nbf*(iset-1)), dbl_mb(k_occ+nbf*(iset-1)))
       enddo
 c
-      if (.not. ma_pop_stack(l_o))call errquit('scf_movecs_lock: ma?',0)
-      if (.not. ma_pop_stack(l_e))call errquit('scf_movecs_lock: ma?',0)
-      if (.not. ga_destroy(g_old))call errquit('scf_movecs_lock: ga?',0)
+      if (.not. ma_pop_stack(l_o))call errquit('scf_movecs_lock: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_e))call errquit('scf_movecs_lock: ma?',0,
+     &       MA_ERR)
+      if (.not. ga_destroy(g_old))call errquit('scf_movecs_lock: ga?',0,
+     &       GA_ERR)
 c
       end

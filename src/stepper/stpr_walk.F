@@ -1,6 +1,7 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.35 1999-07-14 00:29:10 d3e129 Exp $
+c     $Id: stpr_walk.F,v 1.36 2003-10-17 22:58:22 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c     
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -63,7 +64,8 @@ c
       if (o_timewalk) then
          if (.not.(pstat_allocate
      &        ('stepper time',Pstat_Qstat,0,0,i_timewalk)))
-     &        call errquit('stpr_walk: pstat allocate failed',911)
+     &        call errquit('stpr_walk: pstat allocate failed',911,
+     &       MEM_ERR)
          call pstat_on(i_timewalk)
       endif
 c     
@@ -89,46 +91,49 @@ c
 c     
          if (.not. rtdb_get(rtdb, 'task:energy', MT_DBL, 1, energy))
      &        call errquit
-     &        ('stpr_walk: failed to read energy from rtdb', 911)
+     &        ('stpr_walk: failed to read energy from rtdb', 911,
+     &       RTDB_ERR)
 c     
          if (.not. geom_create(geom, 'geometry'))
-     &        call errquit('stpr_walk: geom_create?', 911)
+     &        call errquit('stpr_walk: geom_create?', 911, GEOM_ERR)
          if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &        call errquit('stpr_walk: no geometry ', 911)
+     &        call errquit('stpr_walk: no geometry ', 911, RTDB_ERR)
 c     
 *     rak:        write(6,*)' after load in stpr_walk'
 *     rak:        if (.not.geom_print(geom)) stop 'tmp error'
 c     
          if (.not. geom_ncent(geom,nat))
-     &        call errquit('stpr_walk: geom_ncent?',911)
+     &        call errquit('stpr_walk: geom_ncent?',911, GEOM_ERR)
 c     
          call stpr_cneed(needed,nat) ! determine core needed
          needed = (needed + 1023)*1024/1024 ! nearest 1024 block
 c     
 c.....space for core array
          if (.not.MA_Push_Get(MT_DBL,needed,'stpr core',h_core,k_core))
-     &        call errquit('stpr_walk: allocation for core failed?',911)
+     &        call errquit('stpr_walk: allocation for core failed?',911,
+     &       MA_ERR)
 c.....space for coords
          if (.not.
      &        MA_Push_Get(MT_DBL,(3*nat),'stpr coords',h_coord,k_coord))
      &        call errquit
-     &        ('stpr_walk: allocation for coords failed?',911)
+     &        ('stpr_walk: allocation for coords failed?',911, MA_ERR)
 c.....space for gradient
          if (.not.
      &        MA_Push_Get(MT_DBL,(3*nat),'stpr gradient',h_grad,k_grad))
      &        call errquit
-     &        ('stpr_walk: allocation for gradient failed?',911)
+     &        ('stpr_walk: allocation for gradient failed?',911, MA_ERR)
 c.....space for charge
          if (.not.
      &        MA_Push_Get(MT_DBL,nat,'stpr geom charge',h_chg,k_chg))
      &        call errquit
-     &        ('stpr_walk: allocation for geom charge failed?',911)
+     &        ('stpr_walk: allocation for geom charge failed?',911,
+     &       MA_ERR)
 c     
 c.....read gradients
          if (.not. rtdb_get(rtdb, 'task:gradient', MT_DBL, 
      &        (3*nat),dbl_mb(k_grad)))
      &        call errquit
-     &        ('stpr_walk: reading gradients failed',911)
+     &        ('stpr_walk: reading gradients failed',911, RTDB_ERR)
 c     
 c.....get coordinates
          if (.not. geom_cart_get(geom,nat,
@@ -136,7 +141,7 @@ c.....get coordinates
      &        dbl_mb(k_coord),
      &        dbl_mb(k_chg)))
      &        call errquit
-     &        ('stpr_walk: geom_cart_get failed ?',911)
+     &        ('stpr_walk: geom_cart_get failed ?',911, GEOM_ERR)
 c     
 c...  take a step
 c     
@@ -156,7 +161,7 @@ c.....set coordinates
      &        dbl_mb(k_coord),
      &        dbl_mb(k_chg)))
      &        call errquit
-     &        ('stpr_walk: geom_cart_set failed ?',911)
+     &        ('stpr_walk: geom_cart_set failed ?',911, GEOM_ERR)
 C        output to ECCE
          astep_number = abs(step_number)
          call ecce_print1 ('iteration', mt_int, astep_number, 1)
@@ -170,7 +175,7 @@ c
             call stpr_new_geom_name(new_geom_name, step_number-1)
             if (.not. geom_rtdb_delete(rtdb,new_geom_name))
      $           call errquit('stpr_walk: rtdb corrupt? geom delete',
-     $           step_number-1)
+     $           step_number-1, RTDB_ERR)
          endif
 c
 c     copy the new geometry to the database with a new name
@@ -181,7 +186,8 @@ c
 c     
          if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &        call errquit
-     &        ('stpr_walk: geom_rtdb_store (of copy) failed',911)
+     &        ('stpr_walk: geom_rtdb_store (of copy) failed',911,
+     &       RTDB_ERR)
          if (util_print('new coordinates',print_low)) then
            if (lstpr_walk) then
              write(luout,11001)
@@ -189,32 +195,32 @@ c
              write(luout,11002)
            endif
            if (.not.geom_print(geom)) call errquit(
-     &         'stpr_walk: geom_print failed',911)
+     &         'stpr_walk: geom_print failed',911, GEOM_ERR)
          endif
          if (util_print('distances',print_default)) then
            if (.not.geom_print_distances(geom)) call errquit(
-     &         'stpr_walk: geom_print_distances failed',911)
+     &         'stpr_walk: geom_print_distances failed',911, GEOM_ERR)
          endif
          if (util_print('angles',print_default)) then
            if (.not.geom_print_angles(geom)) call errquit(
-     &       'stpr_walk: geom_print_angles failed',911)
+     &       'stpr_walk: geom_print_angles failed',911, GEOM_ERR)
          endif
          if (util_print('dihedrals',print_default)) then
            if (.not.geom_print_dihedrals(geom)) call errquit(
-     &         'stpr_walk: geom_print_angles failed',911)
+     &         'stpr_walk: geom_print_angles failed',911, GEOM_ERR)
          endif
 c     
 C**** #define ECCE
 #if defined(ECCE)
          write(luout,*)'<stepper updated geometry> start '
          if(.not. geom_print(geom)) call errquit
-     &        ('stpr_walk:geom print failed ',911)
+     &        ('stpr_walk:geom print failed ',911, GEOM_ERR)
          write(luout,*)'<stepper updated geometry> end'
 #endif
 c     
          if(.not.rtdb_cput(rtdb,'geometry',1,new_geom_name))
      &        call errquit
-     &        ('stpr_walk: rtdb_cput failed ?',911)
+     &        ('stpr_walk: rtdb_cput failed ?',911, RTDB_ERR)
 c     
 *     if(.not.rtdb_print(rtdb,.true.)) stop 'tmp error'
 c     
@@ -231,17 +237,22 @@ c
 *     rak---- old copy over geometry - end
 c...  clean up
          if (.not.geom_destroy(geom))
-     &        call errquit('stpr_walk: geom_destroy failed?',911)
+     &        call errquit('stpr_walk: geom_destroy failed?',911,
+     &       GEOM_ERR)
 *     if (.not.geom_destroy(new_geom))
 *     &      call errquit('stpr_walk: geom_destroy failed?',911)
          if (.not.MA_Pop_Stack(h_chg))
-     &        call errquit('stpr_walk: ma_pop_stack h_chg failed',911)
+     &        call errquit('stpr_walk: ma_pop_stack h_chg failed',911,
+     &       MA_ERR)
          if (.not.MA_Pop_Stack(h_grad))
-     &        call errquit('stpr_walk: ma_pop_stack h_grad failed',911)
+     &        call errquit('stpr_walk: ma_pop_stack h_grad failed',911,
+     &       MA_ERR)
          if (.not.MA_Pop_Stack(h_coord))
-     &        call errquit('stpr_walk: ma_pop_stack h_coord failed',911)
+     &        call errquit('stpr_walk: ma_pop_stack h_coord failed',911,
+     &       MA_ERR)
          if (.not.MA_Pop_Stack(h_core))
-     &        call errquit('stpr_walk: ma_pop_stack h_core failed',911)
+     &        call errquit('stpr_walk: ma_pop_stack h_core failed',911,
+     &       MA_ERR)
 c     
          int_val = 0 
          if (lstpr_walk) int_val = 1
@@ -267,7 +278,7 @@ c
          write(6,*)' '
          o_timewalk = .false.
          if (.not.pstat_free(i_timewalk))
-     &        call errquit('stpr_walk: pstat_free failed?',911)
+     &        call errquit('stpr_walk: pstat_free failed?',911, MEM_ERR)
       endif
 c     
       

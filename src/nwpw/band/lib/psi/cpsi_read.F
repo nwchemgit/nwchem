@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.4 2002-05-03 19:44:02 bylaska Exp $
+* $Id: cpsi_read.F,v 1.5 2003-10-17 22:56:11 carlfahl Exp $
 *
 
 #define TCGMSG
@@ -10,6 +10,7 @@
 *     ***************************
       subroutine cpsi_read(ispin,ne,nbrillioun,psi2)
       implicit none 
+#include "errquit.fh"
       integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
@@ -55,10 +56,10 @@ c     complex*16 tmp(*)
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-       if (.not. value) call errquit('out of stack memory',0)
+       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -97,7 +98,7 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-        call errquit('Error reading wavefunctions', 0)
+        call errquit('Error reading wavefunctions', 0, CALC_ERR)
       end if
 
       rtdb = control_rtdb()
@@ -125,7 +126,7 @@ c     **** send header to all nodes ****
             write(*,*) unita(1,3), control_unita(1,3)
             write(*,*) unita(2,3), control_unita(2,3)
             write(*,*) unita(3,3), control_unita(3,3)
-        call errquit('Error reading wavefunctions', 1)
+        call errquit('Error reading wavefunctions', 1, CALC_ERR)
       end if
       end if
 
@@ -136,7 +137,8 @@ c     **** send header to all nodes ****
       if (brillioun_check) then
       if ( nbrill.ne.nbrillioun) then
         call errquit(
-     >   'Error reading wavefunctions - wrong number of k-points', 1)
+     >   'Error reading wavefunctions - wrong number of k-points', 1,
+     &       CALC_ERR)
       end if
       end if
 

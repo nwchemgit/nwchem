@@ -1,6 +1,6 @@
 
 *
-* $Id: aorbs.F,v 1.1 2002-01-14 21:14:15 bylaska Exp $
+* $Id: aorbs.F,v 1.2 2003-10-17 22:57:25 carlfahl Exp $
 *
 
 #define TCGMSG
@@ -204,6 +204,7 @@
 
       subroutine aorbs_aorb(n,aorb)
       implicit none
+#include "errquit.fh"
       integer n          ! basis number
       complex*16 aorb(*) ! return orbital
 
@@ -227,7 +228,8 @@
       call Pack_npack(1,npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
-      if (.not. value) call errquit('aorbs_aorb:out of heap memory',0)
+      if (.not. value) call errquit('aorbs_aorb:out of heap memory',0,
+     &       MA_ERR)
 
 *     **** structure factor ****
       lm = int_mb(lmaorb(1)+n-1)
@@ -261,7 +263,8 @@
 
 
       value = MA_pop_stack(exi(2))
-      if (.not. value) call errquit('aorbs_aorb:freeing heap memory',0)
+      if (.not. value) call errquit('aorbs_aorb:freeing heap memory',0,
+     &       MA_ERR)
 
       return 
       end

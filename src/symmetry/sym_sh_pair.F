@@ -51,8 +51,9 @@ c
 c
       end
       logical function sym_shell(basis, ishell, q1)
-C$Id: sym_sh_pair.F,v 1.5 1999-07-14 00:29:12 d3e129 Exp $
+C$Id: sym_sh_pair.F,v 1.6 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"      
 #include "global.fh"
@@ -75,16 +76,17 @@ c     Get geometry handle, centers where shells are located and
 c     number of group operations
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_shell: bas_geom?', 0)
+     $     ('sym_shell: bas_geom?', 0, BASIS_ERR)
       if (.not. bas_cn2ce(basis, ishell, ice)) call errquit
-     $     ('sym_shell_pair: bas_cn2ce', ishell)
+     $     ('sym_shell_pair: bas_cn2ce', ishell, BASIS_ERR)
 c
       sym_shell = sym_atom(geom, ice, q1)
 c
       end
       logical function sym_shell_pair(basis, ishell, jshell, q2)
-C$Id: sym_sh_pair.F,v 1.5 1999-07-14 00:29:12 d3e129 Exp $
+C$Id: sym_sh_pair.F,v 1.6 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"      
 #include "global.fh"
@@ -117,11 +119,11 @@ c
 *      call ga_sync()
 
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_shell_pair: bas_geom?', 0)
+     $     ('sym_shell_pair: bas_geom?', 0, BASIS_ERR)
       if (.not. bas_cn2ce(basis, ishell, ice)) call errquit
-     $     ('sym_shell_pair: bas_cn2ce', ishell)
+     $     ('sym_shell_pair: bas_cn2ce', ishell, BASIS_ERR)
       if (.not. bas_cn2ce(basis, jshell, jce)) call errquit
-     $     ('sym_shell_pair: bas_cn2ce', jshell)
+     $     ('sym_shell_pair: bas_cn2ce', jshell, BASIS_ERR)
 c
 *      write(6,*) ' sym_shell_pair centers', ga_nodeid(), ice, jce
 *      call util_flush(6)
@@ -272,6 +274,7 @@ c
       logical function sym_shell_quartet(basis,
      $     ishell, jshell, kshell, lshell, q4)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"      
 #include "global.fh"
@@ -294,15 +297,15 @@ c     Get geometry handle, centers where shells are located and
 c     number of group operations
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_shell_pair: bas_geom?', 0)
+     $     ('sym_shell_pair: bas_geom?', 0, BASIS_ERR)
       if (.not. bas_cn2ce(basis, ishell, ice)) call errquit
-     $     ('sym_shell_pair: bas_cn2ce', ishell)
+     $     ('sym_shell_pair: bas_cn2ce', ishell, BASIS_ERR)
       if (.not. bas_cn2ce(basis, jshell, jce)) call errquit
-     $     ('sym_shell_pair: bas_cn2ce', jshell)
+     $     ('sym_shell_pair: bas_cn2ce', jshell, BASIS_ERR)
       if (.not. bas_cn2ce(basis, kshell, kce)) call errquit
-     $     ('sym_shell_pair: bas_cn2ce', kshell)
+     $     ('sym_shell_pair: bas_cn2ce', kshell, BASIS_ERR)
       if (.not. bas_cn2ce(basis, lshell, lce)) call errquit
-     $     ('sym_shell_pair: bas_cn2ce', lshell)
+     $     ('sym_shell_pair: bas_cn2ce', lshell, BASIS_ERR)
 c
       sym_shell_quartet = sym_atom_gen_quartet(
      $     geom, ice, jce, kce, lce, q4)
@@ -311,6 +314,7 @@ c
       logical function sym_atom_gen_quartet(geom,
      $     iat, jat, kat, lat, q4)
       implicit none
+#include "errquit.fh"
       integer geom              ! Geometry handle [input]
       integer iat, jat, kat, lat ! Atom indices [input]
       double precision q4       ! Constituency number [output]
@@ -363,7 +367,7 @@ c
 c
       q4 = dble(nops+1) / dble(n)
       if (abs(q4-nint(q4)).gt.1e-12) call errquit
-     $     ('sym_atom_gen_quartet: not divisible', 0)
+     $     ('sym_atom_gen_quartet: not divisible', 0, BASIS_ERR)
       sym_atom_gen_quartet = .true.
 c
       end

@@ -1,6 +1,7 @@
       subroutine ga_get_diagonal(g_a, diags)
-C$Id: ga_get_diag.F,v 1.5 2002-09-26 18:43:08 windus Exp $
+C$Id: ga_get_diag.F,v 1.6 2003-10-17 22:58:34 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_a
@@ -18,7 +19,7 @@ c
 c
       call ga_inquire(g_a, ma_type, dim1, dim2)
       if (ma_type.ne.mt_dbl .or. dim1.ne.dim2) call errquit
-     $     ('ga_get_diagonal: array is not square/real', g_a)
+     $     ('ga_get_diagonal: array is not square/real', g_a, GA_ERR)
       n = dim1
 c
       call dfill(n, 0.0d0, diags, 1)

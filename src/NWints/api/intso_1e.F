@@ -1,4 +1,4 @@
-c $Id: intso_1e.F,v 1.3 1999-07-14 00:28:43 d3e129 Exp $
+c $Id: intso_1e.F,v 1.4 2003-10-17 22:53:43 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intso\_1e}
@@ -10,6 +10,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -60,12 +61,14 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1eso'))
-     &       call errquit('int_1eso: int_init was not called' ,0)
+     &       call errquit('int_1eso: int_init was not called' ,0,
+     &           INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_1eso: invalid contraction/shell',0)
+     &       call errquit('int_1eso: invalid contraction/shell',0,
+     &            BASIS_ERR)
 c
       call int_nospshell_check(i_basis,'intso_1e:i_basis')
       call int_nospshell_check(j_basis,'intso_1e:j_basis')
@@ -110,7 +113,8 @@ c
      &         j_prim, j_gen, Lj, j_cent,
      &         SO, lso, scr,lscr,.false.) ! false>dryrun
       else
-        call errquit('int_1eso: could not do sp or nw integrals',0)
+        call errquit('int_1eso: could not do sp or nw integrals',0,
+     &          INT_ERR)
       endif
 c
 *     SO now has the cartesian integral block  (jlo:jhi,ilo:ihi,3)

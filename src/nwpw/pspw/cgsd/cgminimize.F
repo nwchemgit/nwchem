@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.16 2003-06-29 16:01:21 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.17 2003-10-17 22:57:10 carlfahl Exp $                       
 c
 
 *  ************************************************************
@@ -13,6 +13,7 @@ c
   
       subroutine cgminimize(E,deltae,deltac,current_iteration)
       implicit none
+#include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
@@ -122,7 +123,8 @@ c      complex*16 G1(nfft3d,nemax)
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*neall,
      >                     'G1',G1(2),G1(1))
-      if (.not. value) call errquit('cgminimize:out of heap memory',0)
+      if (.not. value) call errquit('cgminimize:out of heap memory',0,
+     &       MA_ERR)
 
       Estart = Enew
       if (current_iteration.eq.1) then
@@ -353,7 +355,7 @@ c     call dng_2to1()
       value = value.and.MA_free_heap(G0(2))
       value = value.and.MA_free_heap(H0(2))
       if (.not. value) 
-     >  call errquit('cgminimize:error freeing heap memory',0)
+     >  call errquit('cgminimize:error freeing heap memory',0, MA_ERR)
 
   
       return

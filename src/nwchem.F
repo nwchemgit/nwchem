@@ -20,9 +20,10 @@
 #endif
 #ifdef PARALLEL_DIAG
       integer junk(4)
+#include "errquit.fh"
 #endif
 c
-c     $Id: nwchem.F,v 1.141 2003-03-12 03:00:22 edo Exp $
+c     $Id: nwchem.F,v 1.142 2003-10-17 22:53:32 carlfahl Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                   2000, 2001, 2002, 2003                            *
@@ -104,7 +105,8 @@ c
          open(LuIn, file=input_filename, status='old', form='formatted',
      $        err=10000)
          goto 10001
-10000    call errquit('nwchem: failed to open the input file', 0)
+10000    call errquit('nwchem: failed to open the input file', 0,
+     &       INPUT_ERR)
 10001    continue
 c
       else
@@ -128,10 +130,12 @@ C
       call ga_initialize()
       if ( ga_uses_ma() ) then
         if (.not.ma_init(mt_dbl, stack, heap+global))
-     &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=T)',911)
+     &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=T)',911,
+     &      MA_ERR)
       else
         if (.not.ma_init(mt_dbl,stack,heap))
-     &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911)
+     &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911,
+     &      MA_ERR)
         call ga_set_memory_limit(ma_sizeof(mt_dbl,global,mt_byte))
       endif
 c
@@ -140,7 +144,7 @@ c
 *     to be aligned at the beginning of a 128 byte cache line
 *
       if (.not. ma_set_numalign(7))
-     $     call errquit('nwchem.F: ma_set_numalign failed',911)
+     $     call errquit('nwchem.F: ma_set_numalign failed',911, MA_ERR)
 *
 *
 *old:------------------------------------------------------- START ---------
@@ -191,7 +195,7 @@ c
 c     Initialize pstat
 c
       if (.not. pstat_init(20, 1, ' ')) call errquit
-     $     ('nwchem: pstat_init failed', 0)
+     $     ('nwchem: pstat_init failed', 0, UNKNOWN_ERR)
 c
       call input_file_info(input_filename, rtdb_name,
      &    ostartup, ocontinue)
@@ -207,10 +211,11 @@ c     Note that only process 0 has the database name ... that is OK.
 c
       if (ostartup) then
          if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
-     $        call errquit('start: rtdb_open empty failed ', 0)
+     $        call errquit('start: rtdb_open empty failed ', 0,
+     &       RTDB_ERR)
       else
          if (.not. rtdb_open(rtdb_name, 'old', rtdb))
-     $        call errquit('start: rtdb_open old failed ', 0)
+     $        call errquit('start: rtdb_open old failed ', 0, RTDB_ERR)
       endif
 c!!! BGJ
       bgj_rtdb = rtdb
@@ -258,14 +263,14 @@ c
       call util_print_rtdb_load(rtdb,' ') ! High level print
       if (util_print('rtdbvalues', print_debug)) then
          if (.not. rtdb_print(rtdb, .true.))
-     $     call errquit('control: rtdb_print failed', 0)
+     $     call errquit('control: rtdb_print failed', 0, RTDB_ERR)
       else if (util_print('rtdb', print_high)) then
          if (.not. rtdb_print(rtdb, .false.))
-     $     call errquit('control: rtdb_print failed', 0)
+     $     call errquit('control: rtdb_print failed', 0, RTDB_ERR)
       endif
 c
       if (.not. rtdb_close(rtdb, 'keep'))
-     $     call errquit('nwchem: rtdb_close failed', rtdb)
+     $     call errquit('nwchem: rtdb_close failed', rtdb, RTDB_ERR)
 c
       if (util_print('rtdb', print_high) .or.
      $    util_print('rtdbvalues', print_high)) then
@@ -275,7 +280,7 @@ c
 c     Tidy up pstat
 c
       if (.not. pstat_terminate()) call errquit
-     $     ('nwchem: pstat_terminate failed', 0)
+     $     ('nwchem: pstat_terminate failed', 0, UNKNOWN_ERR)
 c
 ****      call nxtval_ga_terminate()
 c
@@ -552,10 +557,12 @@ c
       subroutine nw_print_restart_info(rtdb)
       implicit none
 #include "global.fh"
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "util.fh"
       integer rtdb
 c
 c     Summarize the status of a restart calculation

@@ -1,7 +1,7 @@
       subroutine tddft_diagon(ntrials,tda,apb,apbvec,
      1  apbval,amb,ambvec,ambval)
 c
-c $Id: tddft_diagon.F,v 1.3 2002-04-14 00:42:52 sohirata Exp $
+c $Id: tddft_diagon.F,v 1.4 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Diagonalize the subspace representation of (A-B) and
 c (A-B)^(1/2)(A+B)(A-B)^(1/2) matrices and return the
@@ -16,6 +16,7 @@ c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -49,16 +50,16 @@ c
       nodezero=(ga_nodeid().eq.0)
       if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'Work 1',
      1  l_work1,k_work1)) call errquit
-     2  ('tddft_diagon: failed to allocate work1',0)
+     2  ('tddft_diagon: failed to allocate work1',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'Work 2',
      1  l_work2,k_work2)) call errquit
-     2  ('tddft_diagon: failed to allocate work2',0)
+     2  ('tddft_diagon: failed to allocate work2',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,10*ntrials,'Work 3',
      1  l_work3,k_work3)) call errquit
-     2  ('tddft_diagon: failed to allocate work3',0)
+     2  ('tddft_diagon: failed to allocate work3',0, MA_ERR)
       if (.not.ma_push_get(mt_dbl,ntrials*ntrials,'Work 4',
      1  l_work4,k_work4)) call errquit
-     2  ('tddft_diagon: failed to allocate work4',0)
+     2  ('tddft_diagon: failed to allocate work4',0, MA_ERR)
 c
 c ------------------
 c Tamm-Dancoff AZ=wZ
@@ -116,7 +117,8 @@ c
         do i=1,ntrials
           if (ambval(i).lt.0.0d0) then
             call errquit
-     1      ('tddft_diagon: A-B is not positive-definite; try TDA',0)
+     1      ('tddft_diagon: A-B is not positive-definite; try TDA',0,
+     &       INPUT_ERR)
           else
             dbl_mb(k_work1+(i-1)*ntrials+i-1)=dsqrt(ambval(i))
             dbl_mb(k_work2+(i-1)*ntrials+i-1)=1.0d0/dsqrt(ambval(i))
@@ -157,7 +159,7 @@ c
         do i=1,ntrials
           if (apbval(i).lt.0.0d0) then
             call errquit
-     1      ('tddft_diagon: negative excitation energy',0)
+     1      ('tddft_diagon: negative excitation energy',0, CALC_ERR)
           else
             apbval(i)=dsqrt(apbval(i))
           endif
@@ -215,7 +217,7 @@ c
           enddo
           if (a.eq.0.0d0) then
             call errquit
-     1        ('tddft_diagon: failed to bi-orthonormalize',0)
+     1        ('tddft_diagon: failed to bi-orthonormalize',0, CALC_ERR)
           else
             do j=1,ntrials
               apbvec(j,n)=apbvec(j,n)/dsqrt(a)
@@ -230,12 +232,12 @@ c Return
 c ------
 c
       if (.not.ma_pop_stack(l_work4)) call errquit
-     1  ('tddft_diagon: failed to deallocate work4',0)
+     1  ('tddft_diagon: failed to deallocate work4',0, MA_ERR)
       if (.not.ma_pop_stack(l_work3)) call errquit
-     1  ('tddft_diagon: failed to deallocate work3',0)
+     1  ('tddft_diagon: failed to deallocate work3',0, MA_ERR)
       if (.not.ma_pop_stack(l_work2)) call errquit
-     1  ('tddft_diagon: failed to deallocate work2',0)
+     1  ('tddft_diagon: failed to deallocate work2',0, MA_ERR)
       if (.not.ma_pop_stack(l_work1)) call errquit
-     1  ('tddft_diagon: failed to deallocate work1',0)
+     1  ('tddft_diagon: failed to deallocate work1',0, MA_ERR)
       return
       end

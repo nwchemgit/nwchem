@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.8 2002-01-17 02:38:03 edo Exp $
+c     $Id: bgj.F,v 1.9 2003-10-17 22:58:34 carlfahl Exp $
 c
 
 c
@@ -53,6 +53,7 @@ c
       function bgj_get_scf_method(name)
 c
       implicit none
+#include "errquit.fh"
       logical bgj_get_scf_method
       character*3 name
 c
@@ -66,7 +67,8 @@ c
 c
       if (.not. rtdb_get(bgj_rtdb, 'bgj:scf_type', mt_int,
      &     1, itype)) then
-         call errquit('bgj_get_scf_method: error reading rtdb',1)
+         call errquit('bgj_get_scf_method: error reading rtdb',1,
+     &       RTDB_ERR)
       endif
       if (itype.eq.1) then
          name = 'hf'
@@ -75,7 +77,8 @@ c
       else if (itype.eq.3) then
          name = 'hyb'
       else
-         call errquit('bgj_get_scf_method: illegal type in rtdb',1)
+         call errquit('bgj_get_scf_method: illegal type in rtdb',1,
+     &       RTDB_ERR)
       endif
 c      write(*,*)'*** bgj_get_scf_method called: ',name
       bgj_get_scf_method = .true.
@@ -89,6 +92,7 @@ c
       function bgj_have_xc()
 c
       implicit none
+#include "errquit.fh"
       logical bgj_have_xc
 c
       external bgj_get_scf_method
@@ -97,7 +101,8 @@ c
       character*3 name
 c
       if (.not.bgj_get_scf_method(name)) then
-         call errquit('bgj_have_xc: error getting method name',1)
+         call errquit('bgj_have_xc: error getting method name',1,
+     &       UNKNOWN_ERR)
       endif
       bgj_have_xc = name .eq. 'dft' .or. name .eq. 'hyb'
 c      write(*,*)'*** bgj_have_xc called: ',name,' ',bgj_have_xc
@@ -177,6 +182,7 @@ c
       function bgj_restricted()
 c
       implicit none
+#include "errquit.fh"
       logical bgj_restricted
 c
 c !!! BGJ
@@ -191,13 +197,15 @@ c
 c
       if (.not.bgj_have_xc()) then   ! HF case
          if (.not. rtdb_cget(bgj_rtdb, 'scf:scftype', 1, scftype))
-     $        call errquit('bgj_restricted: problem getting scftype',0)
+     $        call errquit('bgj_restricted: problem getting scftype',0,
+     &       RTDB_ERR)
          bgj_restricted = scftype .ne. 'UHF'
       else                           ! DFT case
 c         write(*,*)'*** bgj_restricted: ipol ',ipol
          bgj_restricted = ipol .eq. 1
          if (ipol .ne. 1 .and. ipol .ne. 2)
-     $        call errquit('bgj_restricted: problem with ipol',0)
+     $        call errquit('bgj_restricted: problem with ipol',0,
+     &       INPUT_ERR)
       endif
 c      write(*,*)'*** bgj_restricted called: ',bgj_restricted
 c
@@ -210,6 +218,7 @@ c
       function bgj_get_scf_dens(g_dens)
 c
       implicit none
+#include "errquit.fh"
       logical bgj_get_scf_dens
       integer g_dens(2)
 c
@@ -234,7 +243,8 @@ c
       rtdb = bgj_rtdb
 c
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('bgj_get_scf_dens: rtdb_get of noc failed', 0) 
+     &   call errquit('bgj_get_scf_dens: rtdb_get of noc failed', 0,
+     &       RTDB_ERR)
 c
 c     allocate and initialize global and local memory
 c
@@ -265,13 +275,15 @@ c
 c     get MO vectors from file
 c
       if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     &   call errquit('bgj_get_scf_dens: DFT MO vectors not defined',0)
+     &   call errquit('bgj_get_scf_dens: DFT MO vectors not defined',0,
+     &       RTDB_ERR)
       status = movecs_read_header(movecs_in, title_vecs, basis_vecs,
      &         scftype_vecs, nbf_vecs, nsets, nmo, 2)
 c
       if (ipol .ne. nsets)then ! 1 for RHF, 2 for UHF
          write (6,*) 'bgj_get_scf_dens:  ERROR ipol, nsets:',ipol,nsets
-         call errquit('bgj_get_scf_dens:  ERROR ipol, nsets disagree',2)
+         call errquit('bgj_get_scf_dens:  ERROR ipol, nsets disagree',2,
+     &       INPUT_ERR)
       endif 
 c
 c     Should check much more info than just nbf for consistency
@@ -281,7 +293,8 @@ c     get mo eigevectors
 c
       if (nbf_ao .ne. nbf_vecs)then
          write(6,*)'bgj_get_scf_dens movecs output = ',movecs_in
-         call errquit('bgj_get_scf_dens: could not read mo vectors',911)
+         call errquit('bgj_get_scf_dens: could not read mo vectors',911,
+     &       DISK_ERR)
       else 
          status = .true.
 c
@@ -291,10 +304,12 @@ c**** should do k_occ for both spins, in case used at some point...
 c****
       if(.not.MA_push_get(MT_DBL, nbf_ao, 'occ. numbers',
      &         l_occ, k_occ))
-     &   call errquit('bgj_get_scf_dens: could not allocate l_occ',1)
+     &   call errquit('bgj_get_scf_dens: could not allocate l_occ',1,
+     &       MA_ERR)
       if(.not.ma_push_get(mt_dbl,nbf_ao,'evals',
      $     l_eval,k_eval))
-     $     call errquit('bgj_get_scf_dens: problem with ma for evals',1)
+     $     call errquit('bgj_get_scf_dens: problem with ma for evals',1,
+     &       MA_ERR)
          do ispin = 1, ipol
 c****
 c****       get orbitals (i.e. fock eigenvectors) and fock eigenvalues
@@ -304,14 +319,17 @@ c****
      &               dbl_mb(k_eval), g_vecs(ispin))
          enddo 
       if(.not.ma_pop_stack(l_eval))
-     $     call errquit('bgj_get_scf_dens: problem popping evals',1)
+     $     call errquit('bgj_get_scf_dens: problem popping evals',1,
+     &       MA_ERR)
       if(.not.ma_pop_stack(l_occ))
-     $     call errquit('bgj_get_scf_dens: problem popping occ',1)
+     $     call errquit('bgj_get_scf_dens: problem popping occ',1,
+     &       MA_ERR)
       endif
 c
       if (.not.status)then
          write(6,*)'bgj_get_scf_dens movecs output = ',movecs_in
-         call errquit('bgj_get_scf_dens: could not read mo vectors',917)
+         call errquit('bgj_get_scf_dens: could not read mo vectors',917,
+     &       DISK_ERR)
       endif
 c
 c      
@@ -335,12 +353,14 @@ c     Free temporary storage
 c
       if (ipol .eq. 1)then
          if (.not. ga_destroy(g_vecs(1)))
-     &      call errquit('bgj_get_scf_dens: destroying mos',0)
+     &      call errquit('bgj_get_scf_dens: destroying mos',0, GA_ERR)
       else 
          if (.not. ga_destroy(g_vecs(1)))
-     &      call errquit('bgj_get_scf_dens: destroying alpha mos',0)
+     &      call errquit('bgj_get_scf_dens: destroying alpha mos',0,
+     &       GA_ERR)
          if (.not. ga_destroy(g_vecs(2)))
-     &      call errquit('bgj_get_scf_dens: destroying beta mos',0)
+     &      call errquit('bgj_get_scf_dens: destroying beta mos',0,
+     &       GA_ERR)
       endif 
 c      write(*,*)'*** bgj_get_scf_dens: g_dens',g_dens
 c      call ga_print(g_dens(1))
@@ -359,6 +379,7 @@ c
       subroutine bgj_check_xc_u2d()
 c
       implicit none
+#include "errquit.fh"
 #include "bgj_common.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -372,7 +393,8 @@ c
      .        dontcare=.false.
          if(dontcare) return
          if (.not. rtdb_get(bgj_rtdb, 'dft:noc', mt_int, 2, noc))
-     $        call errquit('bgj_check_xc_u2d: rtdb_get of noc failed',0) 
+     $        call errquit('bgj_check_xc_u2d: rtdb_get of noc failed',0,
+     &       RTDB_ERR)
          if (noc(1) .eq. noc(2)) then
 c           Add up coefficents for problematic functionals
             c = abs(cfac(1)) + abs(cfac(7)) + abs(cfac(8))
@@ -385,7 +407,8 @@ c           Add up coefficents for problematic functionals
       write(*,*)'*** a non-zero second derivative of the interpolation'
       write(*,*)'*** function at rhoa = rhob.  You may run this job as'
       write(*,*)'*** a restricted calculation if you wish.'
-      call errquit('Problem with XC functional 2nd derivative',0)
+      call errquit('Problem with XC functional 2nd derivative',0,
+     &       CALC_ERR)
             endif
          endif
       endif

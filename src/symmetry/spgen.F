@@ -14,8 +14,9 @@ c***********************************************************************
      $     group_name,max_gen,s_vec,oprint)
 c
 c--->Note: array "gens" in gensym.f = arrray "symops" in spgen.f
-C$Id: spgen.F,v 1.4 2000-10-23 16:24:01 windus Exp $
+C$Id: spgen.F,v 1.5 2003-10-17 22:58:24 carlfahl Exp $
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
       character*10 spgnam(230),lyrnam(80),linenam(99),molname(46)
       dimension tranv(46,3),roto(3,4,30)
       dimension igen(1:230,40)
@@ -1404,7 +1405,7 @@ c                                                DGC 3/9/94
       else
          write(*,*) 'Bad group identification number = ',numgrp
          write(*,*) 'and/or Bad system type for the group number ',itype
-         call errquit('spgen: symmetry input error', 0)
+         call errquit('spgen: symmetry input error', 0, INPUT_ERR)
       endif
 c
 c--> start to build operators, number of generators in group in genstr(6)

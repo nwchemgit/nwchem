@@ -1,6 +1,7 @@
       Logical function Close_3ci_file( LU, Stat,actualname)
-C$Id: close_3ci.F,v 1.5 2003-02-26 20:37:23 edo Exp $
+C$Id: close_3ci.F,v 1.6 2003-10-17 22:58:10 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer LU
       Character*1 Stat
       character*(*) actualname
@@ -49,13 +50,13 @@ c
             write(LuOut,*) ' IO error message ',
      $           errmsg(1:inp_strlen(errmsg))
             call util_flush(luout)
-            call errquit('close_3ci: eaf_close failed',0)
+            call errquit('close_3ci: eaf_close failed',0, DISK_ERR)
          endif
          If ( Keep ) then
          else
             if (eaf_delete(actualname(1:inp_strlen(actualname)))
      .           .ne. 0) call errquit
-     $           ('close3ci: delete failed', 0)
+     $           ('close3ci: delete failed', 0, DISK_ERR)
          EndIf
       endif
 #endif

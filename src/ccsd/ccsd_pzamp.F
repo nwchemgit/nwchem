@@ -3,7 +3,8 @@
      &                       hia,t1,z1,hz1,idiis,g_nt2,g_nz2,
      &                       g_nhz2,g_ncoul,g_nexch,tklst)
       implicit none
-C     $Id: ccsd_pzamp.F,v 2.6 1999-06-16 00:10:12 d3e129 Exp $
+#include "errquit.fh"
+C     $Id: ccsd_pzamp.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,idiis,g_nt2,g_nz2,g_nhz2,g_aitm,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)
@@ -43,7 +44,7 @@ c     write(6,*)'entering pzamp'
       stat = bas_numcont(basis,nsh)
       stat=stat.and.bas_nbf_cn_max(basis,maxbfsh)
       if (.not. stat)
-     $   call errquit('ccsd_vvvv: failed to get info', 0)
+     $   call errquit('ccsd_vvvv: failed to get info', 0, BASIS_ERR)
 c
 c ------------------------------------------------------------
 c create global arrays
@@ -51,41 +52,41 @@ c ------------------------------------------------------------
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'x',
      &                   nbf*nbf,0,g_x))
-     &     call errquit('ga_create g_x failed',0)
+     &     call errquit('ga_create g_x failed',0, GA_ERR)
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'c',
      &                   nbf*nbf,0,g_c))
-     &     call errquit('ga_create g_c failed',0)
+     &     call errquit('ga_create g_c failed',0, GA_ERR)
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'zx',
      &                   nbf*nbf,0,g_zx))
-     &     call errquit('ga_create g_zx failed',0)
+     &     call errquit('ga_create g_zx failed',0, GA_ERR)
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,nocc*nocc,'zc',
      &                   nbf*nbf,0,g_zc))
-     &     call errquit('ga_create g_zc failed',0)
+     &     call errquit('ga_create g_zc failed',0, GA_ERR)
 c -- global array for t2 with 2 ao indices
 *ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'st2',
      &                   nocc*nocc,0,g_st2))
-     &     call errquit('ga_create g_st2 failed',0)
+     &     call errquit('ga_create g_st2 failed',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sz2',
      &                   nocc*nocc,0,g_sz2))
-     &     call errquit('ga_create g_sz2 failed',0)
+     &     call errquit('ga_create g_sz2 failed',0, GA_ERR)
 c
 c -- global array for ht2 with 2 ao indices
 *ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'sht2',
      &                   nocc*nocc,0,g_sht2))
-     &     call errquit('ga_create g_sht2 failed',0)
+     &     call errquit('ga_create g_sht2 failed',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'shz2',
      &                   nocc*nocc,0,g_shz2))
-     &     call errquit('ga_create g_shz2 failed',0)
+     &     call errquit('ga_create g_shz2 failed',0, GA_ERR)
 c
 c
 c ------------------------------------------------------------
@@ -95,14 +96,14 @@ c ------------------------------------------------------------
       stat=.true.
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-      if (.not.stat)call errquit('ma_get ccsd_t2pm ',0)
+      if (.not.stat)call errquit('ma_get ccsd_t2pm ',0, MA_ERR)
       call ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
      &               t1,dbl_mb(k_sc1),dbl_mb(k_sc2))
       call ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &               dbl_mb(k_sc1),dbl_mb(k_sc2))
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
-      if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0)
+      if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
 c
 c ------------------------------------------------------------
 c  Form TZ intermediates
@@ -110,10 +111,10 @@ c ------------------------------------------------------------
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'tz1',
      &                   nvir,nvir,g_tz1))
-     &     call errquit('ga_create g_tz1 failed',0)
+     &     call errquit('ga_create g_tz1 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tz2',
      &                   nvir,nvir,g_tz2))
-     &     call errquit('ga_create g_tz2 failed',0)
+     &     call errquit('ga_create g_tz2 failed',0, GA_ERR)
       lscr=nvir*nvir
       stat=.true.
       stat=stat.and.ma_push_get(MT_DBL,nvir*nvir,'tzvv',l_tz1, k_tz1)
@@ -150,7 +151,7 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrc',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrd',l_sc4, k_sc4)
       stat=stat.and.ma_push_get(MT_DBL,nocc*nbf,'t1ao',l_t1ao, k_t1ao)
-      if (.not.stat)call errquit('ma_get ccsd_sxy ',0)
+      if (.not.stat)call errquit('ma_get ccsd_sxy ',0, MA_ERR)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &              g_c,g_x,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
@@ -167,7 +168,7 @@ c ------------------------------------------------------------
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_sisn)
       stat=stat.and.ma_pop_stack(l_snsi)
-      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0)
+      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0, MA_ERR)
 c
 c ------------------------------------------------------------
 c - Change ht2+/- with 2 ao and 2 occ indices into normal ht2
@@ -176,7 +177,7 @@ c ------------------------------------------------------------
       lscr=nbf*nbf
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-      if (.not.stat)call errquit('ma_get ccsd_ht2pm ',0)
+      if (.not.stat)call errquit('ma_get ccsd_ht2pm ',0, MA_ERR)
       call ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nhz2,
      &                cmo,
      &                dbl_mb(k_sc1),dbl_mb(k_sc2),int_mb(k_offsh))
@@ -205,7 +206,7 @@ c
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrc',l_sc3, k_sc3)
       stat=stat.and.ma_push_get(MT_DBL,nbf*nbf,'scrd',l_sc4, k_sc4)
       stat=stat.and.ma_push_get(MT_DBL,nocc*nbf,'t1ao',l_t1ao, k_t1ao)
-      if (.not.stat)call errquit('ma_get ccsd_sxy ',0)
+      if (.not.stat)call errquit('ma_get ccsd_sxy ',0, MA_ERR)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sz2,g_shz2,
      &              g_zc,g_zx,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
@@ -229,7 +230,7 @@ c
       stat=stat.and.ma_pop_stack(l_eri1)
       stat=stat.and.ma_pop_stack(l_sisn)
       stat=stat.and.ma_pop_stack(l_snsi)
-      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0)
+      if (.not.stat)call errquit('ma_pop ccsd_sxy ',0, MA_ERR)
       stat=.true.
       lscr=nbf*nbf
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scra',l_sc1, k_sc1)
@@ -277,24 +278,24 @@ c ------------------------------------------------------------
 c remove global arrays associated with B intermediate
 c ------------------------------------------------------------
       if (.not.ga_destroy(g_shz2))
-     &    call errquit('ga_dest g_shz2 fail',0)
+     &    call errquit('ga_dest g_shz2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_sht2))
-     &    call errquit('ga_dest g_sht2 fail',0)
+     &    call errquit('ga_dest g_sht2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_sz2))
-     &    call errquit('ga_dest g_sz2 fail',0)
+     &    call errquit('ga_dest g_sz2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_st2))
-     &    call errquit('ga_dest g_st2 fail',0)
+     &    call errquit('ga_dest g_st2 fail',0, GA_ERR)
 c ------------------------------------------------------------
 c remove global arrays associated with vvvo integrals (g_x and g_c)
 c ------------------------------------------------------------
       if (.not.ga_destroy(g_zc))
-     &    call errquit('ga_dest g_zc fail',0)
+     &    call errquit('ga_dest g_zc fail',0, GA_ERR)
       if (.not.ga_destroy(g_zx))
-     &    call errquit('ga_dest g_zx fail',0)
+     &    call errquit('ga_dest g_zx fail',0, GA_ERR)
       if (.not.ga_destroy(g_c))
-     &    call errquit('ga_dest g_c fail',0)
+     &    call errquit('ga_dest g_c fail',0, GA_ERR)
       if (.not.ga_destroy(g_x))
-     &    call errquit('ga_dest g_x fail',0)
+     &    call errquit('ga_dest g_x fail',0, GA_ERR)
 c
       return
       end

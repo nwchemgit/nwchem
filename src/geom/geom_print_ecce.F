@@ -1,17 +1,18 @@
       subroutine geom_print_rtdb_ecce(rtdb)
 *
-* $Id: geom_print_ecce.F,v 1.5 1999-09-22 19:00:16 d3g681 Exp $
+* $Id: geom_print_ecce.F,v 1.6 2003-10-17 22:55:06 carlfahl Exp $
 *
 #include "geom.fh"
+#include "errquit.fh"
       integer rtdb, geom
 c
       if (.not. geom_create(geom, 'geometry'))  call errquit
-     $     ('geom_print_rtdb_ecce: geom_create failed',0)
+     $     ('geom_print_rtdb_ecce: geom_create failed',0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry')) call errquit
-     $     ('geom_print_rtdb_ecce: geom_rtdb_load failed',0)
+     $     ('geom_print_rtdb_ecce: geom_rtdb_load failed',0, RTDB_ERR)
       call geom_print_ecce(geom)
       if (.not. geom_destroy(geom)) call errquit
-     $     ('geom_print_rtdb_ecce: geom destroy failed',0)
+     $     ('geom_print_rtdb_ecce: geom destroy failed',0, GEOM_ERR)
 c
       end
       subroutine geom_print_ecce(geom)

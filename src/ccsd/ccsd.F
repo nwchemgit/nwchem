@@ -1,6 +1,7 @@
       Logical Function ccsd(rtdb)
        implicit none
-C     $Id: ccsd.F,v 2.9 1997-12-08 18:38:22 d3g681 Exp $
+#include "errquit.fh"
+C     $Id: ccsd.F,v 2.10 2003-10-17 22:54:25 carlfahl Exp $
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -33,7 +34,8 @@ c
       if (threshscf .gt. 1.0d-6) then
          threshscf = 1.0d-6
          if (.not. rtdb_put(rtdb,'scf:thresh',mt_dbl,1,threshscf))
-     $        call errquit('mp2_grad: failed setting scf:thresh',0)
+     $        call errquit('mp2_grad: failed setting scf:thresh',0,
+     &       RTDB_ERR)
          status = rtdb_delete(rtdb,'scf:converged')
       endif
 c
@@ -50,13 +52,13 @@ c ------NEW AO CCSD CODE
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('ccsd: geom_create?', 0)
+     $     call errquit('ccsd: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('ccsd: no geometry ', 0)
+     $     call errquit('ccsd: no geometry ', 0, RTDB_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('ccsd: bas_create?', 0)
+     $     call errquit('ccsd: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('ccsd: no ao basis ', 0)
+     $     call errquit('ccsd: no ao basis ', 0, RTDB_ERR)
       if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in)) 
      $     call util_file_name('movecs', .false.,.false.,movecs_in)
 c
@@ -65,9 +67,11 @@ c
       Call ccsd_driver( rtdb, geom, basis, movecs_in, oconverged)
 C
       If ( .NOT. Geom_Destroy(Geom) )
-     $   Call ErrQuit('CCSD: Failed to destroy geometry', Geom)
+     $   Call ErrQuit('CCSD: Failed to destroy geometry', Geom,
+     &       GEOM_ERR)
       If ( .NOT. Bas_Destroy(Basis) )
-     $   Call ErrQuit('CCSD: Failed to destroy basis', Basis)
+     $   Call ErrQuit('CCSD: Failed to destroy basis', Basis,
+     &       BASIS_ERR)
 c
 c
 c

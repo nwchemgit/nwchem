@@ -2,8 +2,9 @@
      $     bfsquare, npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
      $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr, odisk)
 
-C$Id: riscf_trans.F,v 1.7 2000-10-30 21:37:51 windus Exp $
+C$Id: riscf_trans.F,v 1.8 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -45,7 +46,7 @@ C       first collect them in a temporary global array
         status = ga_create(MT_DBL, nproc*max_bf_ri*max_bf_ri, Nff, 
      $       '3c tmp', Nff, 0, g_tmp)
         if (.not. status ) call errquit ('couldn''t create 3c tmp ga',
-     $       110)
+     $       110, GA_ERR)
       endif
 
       icount = -1

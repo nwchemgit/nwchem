@@ -1,8 +1,9 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole,coord)
-C$Id: dft_genspm.F,v 1.8 1998-12-10 23:48:50 d3e129 Exp $
+C$Id: dft_genspm.F,v 1.9 2003-10-17 22:55:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -55,10 +56,12 @@ C$Id: dft_genspm.F,v 1.8 1998-12-10 23:48:50 d3e129 Exp $
       call int_mem_dipole(lmpint, max_scratch, basis, basis, lmax)
 
       if(.not.MA_Push_Get(mt_dbl,lmpint,' multipole ints',lMP,iMP))
-     &  call errquit('dft_genspm: cannot allocate multipole ints',0)
+     &  call errquit('dft_genspm: cannot allocate multipole ints',0,
+     &       MA_ERR)
 
       if(.not.MA_Push_Get(mt_dbl,max_scratch,' scratch',lscr,iscr))
-     &  call errquit('dft_genspm: cannot allocate scratch',0)
+     &  call errquit('dft_genspm: cannot allocate scratch',0,
+     &       MA_ERR)
 
 
       call dfill(natoms,0.d0,charge,1)
@@ -72,12 +75,12 @@ C$Id: dft_genspm.F,v 1.8 1998-12-10 23:48:50 d3e129 Exp $
 
       do iat=1,natoms
         if (.not.bas_ce2cnr(basis,iat,ifirst,ilast))
-     &       call errquit('Exiting in dft_gensmp',1)
+     &       call errquit('Exiting in dft_gensmp',1, BASIS_ERR)
 
         do jat=1,natoms
           if(n1.eq.n2) then
           if (.not.bas_ce2cnr(basis,jat,jfirst,jlast))
-     &         call errquit('Exiting in dft_gensmp',2)
+     &         call errquit('Exiting in dft_gensmp',2, BASIS_ERR)
 
           call get_atom_block(iga_dens, basis,
      $         iat, jat, Pmat, idim, jdim)
@@ -87,14 +90,14 @@ C$Id: dft_genspm.F,v 1.8 1998-12-10 23:48:50 d3e129 Exp $
             
             if (.not. bas_cn2bfr( basis,ish,
      &           ifirst_sh,ilast_sh))
-     &           call errquit('Exiting in dft_gensmp.',5)
+     &           call errquit('Exiting in dft_gensmp.',5, BASIS_ERR)
             nbf_i=ilast_sh-ifirst_sh+1
 
             do jsh=jfirst,jlast
               
               if (.not. bas_cn2bfr( basis,jsh,
      &             jfirst_sh,jlast_sh))
-     &             call errquit('Exiting in dft_gensmp.',5)
+     &             call errquit('Exiting in dft_gensmp.',5, BASIS_ERR)
               nbf_j=jlast_sh-jfirst_sh+1
 
               call int_mpole(basis, jsh, basis, ish, lmax, centerl,
@@ -148,9 +151,9 @@ c
       n1 = nxtask(-nproc,icount)
 
       if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_genspm: cannot pop stack',0)
+     &  call errquit('dft_genspm: cannot pop stack',0, MA_ERR)
       if(.not.ma_pop_stack(lMP))
-     &  call errquit('dft_genspm: cannot pop stack',0)
+     &  call errquit('dft_genspm: cannot pop stack',0, MA_ERR)
 
       write(LuOut,*) 
       write(LuOut,*) ' SPM '

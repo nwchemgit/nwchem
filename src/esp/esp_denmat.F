@@ -1,8 +1,9 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.11 2002-06-18 20:01:44 d3k958 Exp $
+c $Id: esp_denmat.F,v 1.12 2003-10-17 22:54:52 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "global.fh"
@@ -42,7 +43,8 @@ c     open movecs file and read header info
 c
       call util_file_name('movecs',.false.,.false.,movfil)
       if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
-     + nmo,2)) call errquit('esp: movecs_read_header failed',me)
+     + nmo,2)) call errquit('esp: movecs_read_header failed',me,
+     &       DISK_ERR)
 c
 c     if nset=2, put the first set's occupation numbers and eigenvalues
 c     in 1:nbf, put the second set's in nbf+1:2*nbf, and allocate
@@ -65,7 +67,7 @@ c
 c
       if (.not. movecs_read(movfil, iset, dbl_mb(ioptr+ioff),
      &     dbl_mb(ieptr+ioff), lg_v))
-     & call errquit('esp_denmat:movecs_read failed ',0)
+     & call errquit('esp_denmat:movecs_read failed ',0, DISK_ERR)
 c
       do 2 i=1,nbf
       if(dbl_mb(ioptr+i-1+ioff).gt.small) then
@@ -84,10 +86,10 @@ c
 c
       if(lthi.ne.0.and.lthj.ne.0) then
       if(lthi.lt.0.or.lthj.lt.0) 
-     + call errquit('esp_denmat: distribution error',me)
+     + call errquit('esp_denmat: distribution error',me, UNKNOWN_ERR)
 c
       if(.not.ma_push_get(mt_dbl,lthi,'vector',l_scr,k_scr))
-     + call errquit('esp_denmat: failed to allocate vector',me)
+     + call errquit('esp_denmat: failed to allocate vector',me, MA_ERR)
 c
       do 3 icol=jlo,jhi
       call ga_get(lg_s,ilo,ihi,icol,icol,dbl_mb(k_scr),1)
@@ -109,7 +111,8 @@ cx
     3 continue
 c
       if(.not.ma_pop_stack(l_scr))
-     + call errquit('esp_denmat: failed to deallocate vector',me)
+     + call errquit('esp_denmat: failed to deallocate vector',me,
+     &       MA_ERR)
 c
       endif
 c
@@ -128,15 +131,16 @@ c
 c     deallocate global arrays lg_s, lg_v and lg_d
 c
       if(.not.ga_destroy(lg_p(1)))
-     + call errquit('esp_denmat: failed to destroy lg_p',me)
+     + call errquit('esp_denmat: failed to destroy lg_p',me, GA_ERR)
       if (nset.eq.2) then
         if(.not.ga_destroy(lg_p(2)))
-     +  call errquit('esp_denmat: failed to destroy lg_p',me)
+     +  call errquit('esp_denmat: failed to destroy lg_p',me, GA_ERR)
       endif
       if(.not.ga_destroy(lg_s))
-     + call errquit('esp_denmat: failed to destroy lg_s',me)
+     + call errquit('esp_denmat: failed to destroy lg_s',me,
+     &       GA_ERR)
       if(.not.ga_destroy(lg_v))
-     + call errquit('esp_denmat: ga_destroy lg_v failed',me)
+     + call errquit('esp_denmat: ga_destroy lg_v failed',me, GA_ERR)
 c
       return
       end

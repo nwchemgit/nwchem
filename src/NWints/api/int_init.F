@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.64 2003-02-07 22:52:24 edo Exp $
+c $Id: int_init.F,v 1.65 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}
@@ -14,6 +14,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "apiP.fh"
 #include "candoP.fh"
 #include "global.fh"
@@ -82,7 +83,8 @@ c
 c     Setup array with basis sets from bases
 c
       if (.not. ma_push_get(MT_INT,nbas+1,'mybases',mybm_a,mybIm_a))
-     $     call errquit('int_init: ma_push_get failed mybases',0)
+     $     call errquit('int_init: ma_push_get failed mybases',0,
+     &       INT_ERR)
       do 00500 ibas = 1, nbas
          int_mb(mybIm_a+ibas-1) = bases(ibas)
 00500 continue
@@ -115,10 +117,10 @@ c        used basis sets
 c
          do 00400 ibas = 1, nbas
             if (.not. bas_name(bases(ibas),dk_bas_name,dk_trans_name))
-     $         call errquit('int_init: failed in bas_name',0)
+     $         call errquit('int_init: failed in bas_name',0, INT_ERR)
             if (dk_bas_name(1:8) .eq. 'ao basis') goto 00004
 00400    continue
-         call errquit('int_init: could not find ao basis',0)
+         call errquit('int_init: could not find ao basis',0, INT_ERR)
 00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
      $      dk_fitbas)
 c
@@ -130,7 +132,7 @@ c
       if (doug_kroll .or. dyall_mod_dir) call rel_init_con (rtdb)
       call int_init_org(rtdb, nrbas, int_mb(mybIm_a))
       if (.not. ma_pop_stack(mybm_a))
-     $     call errquit('int_init: ma_pop_stack mybm_a',0)
+     $     call errquit('int_init: ma_pop_stack mybm_a',0, INT_ERR)
 c
       end
 c
@@ -140,6 +142,7 @@ c initializes integral code to data structers for a integral computation
 c
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "apiP.fh"
 #include "candoP.fh"
 #include "global.fh"
@@ -284,7 +287,8 @@ c
           call util_flush(luout)
         endif
         call errquit
-     &      ('int_init: logic error with user cando settings',911)
+     &      ('int_init: logic error with user cando settings',911,
+     &       INT_ERR)
       endif
 c
       status = .true.
@@ -298,7 +302,7 @@ c
           write(luout,'(a,i5)')
      &           ' basis set handle ',bases(ibas)
 00200   continue
-        call errquit('int_init: basis handles hosed ',nbas)
+        call errquit('int_init: basis handles hosed ',nbas, INT_ERR)
       endif
 *      write(luout,*)' int_init: basis set handles valid '
 c
@@ -311,11 +315,11 @@ c
       ang2use = -1
       do 00300 ibas = 1,nbas
         if(.not.bas_high_angular(bases(ibas),angm))
-     &      call errquit('int_init: angm error',angm)
+     &      call errquit('int_init: angm error',angm, INT_ERR)
         ang2use = max(ang2use,angm)
         if (dyall_mod_dir) then
           if(.not.bas_rel_high_ang(bases(ibas),angm))
-     &        call errquit('int_init: angm error',angm)
+     &        call errquit('int_init: angm error',angm, INT_ERR)
           ang2use = max(ang2use,angm+1)
         end if
 00300 continue
@@ -323,21 +327,21 @@ c
 * test for higher than h functions  0123456
       if (ang2use.ge.6) call errquit
      &    ('only basis sets with s through h functions are allowed',
-     &    911)
+     &    911, BASIS_ERR)
 *
       call defNxyz(ang2use)
 c
 c initialize spcart stuff 
 c
       if (.not.(spcart_init(ang2use,.true.,.false.))) then
-        call errquit('int_init: spcart_init failed',911)
+        call errquit('int_init: spcart_init failed',911, INT_ERR)
       endif
 c
 c Initialize DmD relativistic basis set stuff
 c
       if (dyall_mod_dir) then
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
-     &      ('int_init: int_rel_init failed ',911)
+     &      ('int_init: int_rel_init failed ',911, INT_ERR)
         if (.not. nesc_1e_approx) then
           user_cando_sp   = .true.
           def_cando_sp   = .false.
@@ -380,7 +384,8 @@ c
 00001 continue
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'int_init')) call errquit
-     &        ('int_init: ecp handle is invalid fatal error',911)
+     &        ('int_init: ecp handle is invalid fatal error',911,
+     &         INT_ERR)
       endif
 *
 c See if any basis has an attached SO potential
@@ -395,13 +400,15 @@ c See if any basis has an attached SO potential
 00002 continue
       if (any_so) then
         if (.not.so_check_handle(so_bsh,'int_init')) call errquit
-     &        ('int_init: so handle is invalid fatal error',911)
+     &        ('int_init: so handle is invalid fatal error',911, 
+     &          INT_ERR)
       endif
       if (any_so.or.any_ecp) then
         if (.not.int_ecp_init(ecp_bsh,so_bsh,0)) call errquit
-     &      ('int_init: int_ecp_init failed ',911)
+     &      ('int_init: int_ecp_init failed ',911, INT_ERR)
         if (dyall_mod_dir .or. doug_kroll) call errquit('int_init: '//
-     &      'do not mix ECPs and all-electron relativistic methods',911)
+     &      'do not mix ECPs and all-electron relativistic methods',911,
+     &       INT_ERR)
       endif
       init_int = 1
       end
@@ -413,6 +420,8 @@ c See if any basis has an attached SO potential
       logical function texas_check_basis_ok(nbas,bases)
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
+#include "util.fh"
 c::passed
       integer nbas             ! [input] number of basis sets
       integer bases(nbas)      ! [input] basis set handles
@@ -433,22 +442,25 @@ c
       do ibas = 1,nbas
         if (.not.bas_high_angular(bases(ibas),my_highang))
      &      call errquit
-     &      ('texas_check_basis_ok: bas_high_angular failed',911)
+     &      ('texas_check_basis_ok: bas_high_angular failed',911,
+     &       BASIS_ERR)
         if (my_highang.ge.2) then
           if (.not.bas_numcont(bases(ibas),my_nshell))
      &        call errquit
-     &        ('texas_check_basis_ok: bas_numcont failed',911)
+     &        ('texas_check_basis_ok: bas_numcont failed',911,
+     &       BASIS_ERR)
           do ishell = 1, my_nshell
             if (.not.bas_continfo
      &          (bases(ibas),ishell,my_type,my_nprim,my_ngen,my_spc))
      &          call errquit
-     &          ('texas_check_basis_ok: bas_continfo failed',911)
+     &          ('texas_check_basis_ok: bas_continfo failed',911,
+     &       BASIS_ERR)
             if (my_type.ge.2) then
               if (.not.
      &            bas_cont_large_exponent(bases(ibas),ishell,exponent))
      &            call errquit
      &            ('texas_check_basis_ok: bas_cont_lrg_expnnt failed',
-     &            911)
+     &            911, BASIS_ERR)
               if (exponent.gt.10000.0d00) then
                 texas_check_basis_ok = .false.
                 return

@@ -1,9 +1,10 @@
       subroutine rohf_step_energy(rtdb, step, g_search,
      $     eone, etwo, enrep, energy, g_grad)
 *
-* $Id: rohf_step.F,v 1.5 2000-05-23 05:39:07 mdupuis Exp $
+* $Id: rohf_step.F,v 1.6 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "crohf.fh"
 #include "cscfps.fh"
 #include "global.fh"
@@ -26,7 +27,7 @@ c
 c     Generate MOs * Exp(-step*K) in temporary array
 c     
       if (.not. ga_create(MT_DBL, nbf, nmo, 'rohf_s_e: MOs',
-     $     32, 32, g_tmp)) call errquit('rohf_s_e: MOs', 0)
+     $     32, 32, g_tmp)) call errquit('rohf_s_e: MOs', 0, GA_ERR)
 c      
       if (step .ne. 0.0d0) then
          call ga_dscal(g_search, step)
@@ -47,7 +48,7 @@ c
 c     Tidy up
 c
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('rohf_nr_solve: tmp?', 0)
+     $     ('rohf_nr_solve: tmp?', 0, GA_ERR)
 c
       if (oscfps) call pstat_off(ps_search)
 c

@@ -1,9 +1,10 @@
       subroutine selci_mkvc(q, h,g,int12,int34,w1,w2,ioconf,indxci,
      $     iexv,iconf,ncold,ci,vc,iocc,ipack,numf,work1)
 *
-* $Id: mkvc.F,v 1.3 1997-10-31 23:42:14 d3e129 Exp $
+* $Id: mkvc.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 #include "mptr.fh"
       dimension q(*)
@@ -50,7 +51,8 @@ c
             call selci_prtcon(ifllog, norbs, ioconf(1,jconf), nintpo,
      $           nbitpi)
             call selci_prtcon(ifllog, norbs, ipack, nintpo, nbitpi)
-            call errquit('mkvc: iexcit=0 ... screw up',jconf)
+            call errquit('mkvc: iexcit=0 ... screw up',jconf,
+     &       INPUT_ERR)
          else  if (iexcit.eq.2) then
             if (.not. omadef) then
                omadef = .true.
@@ -68,7 +70,7 @@ c
             call selci_makhdb(work1,ind,icase,ns,indbar,iocc,
      $           w1,w2,q(iwork2),q(iwork3),g,int12,int34,numf,numf2)
          else
-            call errquit('strange excitation value ',iexcit)
+            call errquit('strange excitation value ',iexcit, INPUT_ERR)
          endif
          jbase = indxci(jconf) + 1
 c         call dgemm('n', 'n', numf, nroot, numf2, 1.0d0, work1, numf,

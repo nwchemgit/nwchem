@@ -1,7 +1,8 @@
       logical function ga_iter_diag(n, nroot, maxiter, maxsub, tol,
      $     precond, product, oprint, eval0, g_evec, eval, rnorm, iter)
-C$Id: ga_iter_diag.F,v 1.10 2001-06-28 03:05:34 zzhang Exp $
+C$Id: ga_iter_diag.F,v 1.11 2003-10-17 22:58:34 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -93,30 +94,30 @@ c      double precision shift
 c     
       odebug = .true.
       if (maxsub .gt. maxdim) call errquit
-     $     ('ga_iter_diag: maxsub > maxdim', maxdim)
+     $     ('ga_iter_diag: maxsub > maxdim', maxdim, INPUT_ERR)
       if (maxsub .lt. nroot+2) call errquit
-     $     ('ga_iter_diag: subspace too small', nsub)
+     $     ('ga_iter_diag: subspace too small', nsub, INPUT_ERR)
 c     
 c     Allocate and zero the temporary global arrays
 c     
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_diag: x', 0,
      $     0, g_x))
-     $     call errquit('ga_iter_diag: ga_create of x', maxsub)
+     $     call errquit('ga_iter_diag: ga_create of x', maxsub, GA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, maxsub, 'ga_iter_diag: p', 0,
      $     0, g_p))
-     $     call errquit('ga_iter_diag: ga_create of p', maxsub)
+     $     call errquit('ga_iter_diag: ga_create of p', maxsub, GA_ERR)
 *ga:1:0
 c      if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_diag: v', 1, 1,
 c     $     g_v)) call errquit('ga_iter_diag: ga_create of v', n)
       if (.not. ga_create(MT_DBL, n, nroot, 'ga_iter_diag: v', 0, 0,
-     $     g_v)) call errquit('ga_iter_diag: ga_create of v', n)
+     $     g_v)) call errquit('ga_iter_diag: ga_create of v', n, GA_ERR)
 *ga:1:0
 c      if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_diag: w', 1, 1,
 c     $     g_w)) call errquit('ga_iter_diag: ga_create of w', n)
       if (.not. ga_create(MT_DBL, n, nroot, 'ga_iter_diag: w', 0, 0,
-     $     g_w)) call errquit('ga_iter_diag: ga_create of w', n)
+     $     g_w)) call errquit('ga_iter_diag: ga_create of w', n, GA_ERR)
       call ga_zero(g_x)
       call ga_zero(g_p)
 c     
@@ -129,7 +130,8 @@ c     Form initial guess vectors (if necessary), orthonormalize
 c     and perform initial matrix-vector products
 c     
       if (.not. ga_create(MT_DBL, n, 1, 'ga_iter_diag: tmp', 0, 0,
-     $     g_tmp)) call errquit('ga_iter_diag: ga_create of tmp', n)
+     $     g_tmp)) call errquit('ga_iter_diag: ga_create of tmp', n,
+     &       GA_ERR)
       do i = 1, nroot
          call ga_zero(g_tmp)
          call ga_copy_patch('n', g_evec, 1, n, i, i, g_tmp, 1, n, 1, 1)
@@ -203,7 +205,7 @@ c     Solve the reduced space equations (Ay = Sye)
 c     
          call rsg(maxdim, nsub, aa, ss, ee, 1, yy, fv1, fv2, info)
          if (info .ne. 0) call errquit
-     $        ('ga_iter_diag: rsg failed', info)
+     $        ('ga_iter_diag: rsg failed', info, CALC_ERR)
          if (odebug .and. ga_nodeid().eq.0) then
             write(6,*) ' ga_iter_diag: Reduced space eigenvectors'
             call output(yy, 1, nsub, 1, nsub, maxdim, nsub, 1)
@@ -292,15 +294,15 @@ c     the correct eigenvectors). croot is the current number of roots
 c     to converge
 c     
          if(.not.ga_destroy(g_v))
-     &        call errquit("ga_iter_diag:destry g_v?", 0)
+     &        call errquit("ga_iter_diag:destry g_v?", 0, GA_ERR)
          if (.not. ga_create(MT_DBL, n, croot, 'ga_iter_diag: v', 
      &        0, 0, g_v)) 
-     &        call errquit('ga_iter_diag: ga_create of v', n)
+     &        call errquit('ga_iter_diag: ga_create of v', n, GA_ERR)
          if(.not.ga_destroy(g_w))
-     &        call errquit("ga_iter_diag:destry g_w?", 0)
+     &        call errquit("ga_iter_diag:destry g_w?", 0, GA_ERR)
          if (.not. ga_create(MT_DBL, n, croot, 'ga_iter_diag: w', 
      &        0, 0, g_w)) 
-     &        call errquit('ga_iter_diag: ga_create of w', n)
+     &        call errquit('ga_iter_diag: ga_create of w', n, GA_ERR)
 c     
 c     call ga_copy_patch('n', g_evec, 1, n, cur_root, cur_root,
 c     $        g_v, 1, n, 1, 1)
@@ -348,7 +350,7 @@ c
 c     
 c     Should never actually fall out of the bottom
 c     
-      call errquit('ga_iter_diag: fell out of loop bottom?', 0)
+      call errquit('ga_iter_diag: fell out of loop bottom?', 0, GA_ERR)
 c     
  1000 continue
 c     
@@ -362,14 +364,14 @@ c
       ga_iter_diag = converged
 c     
       if (.not. ga_destroy(g_v)) call errquit
-     $     ('ga_iter_diag: failed to destory v', 0)
+     $     ('ga_iter_diag: failed to destory v', 0, GA_ERR)
       if (.not. ga_destroy(g_w)) call errquit
-     $     ('ga_iter_diag: failed to destory w', 0)
+     $     ('ga_iter_diag: failed to destory w', 0, GA_ERR)
       if (.not. ga_destroy(g_x)) call errquit
-     $     ('ga_iter_diag: failed to destory x', 0)
+     $     ('ga_iter_diag: failed to destory x', 0, GA_ERR)
       if (.not. ga_destroy(g_p)) call errquit
-     $     ('ga_iter_diag: failed to destory p', 0)
+     $     ('ga_iter_diag: failed to destory p', 0, GA_ERR)
       if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('ga_iter_diag: failed to destory tmp', 0)
+     $     ('ga_iter_diag: failed to destory tmp', 0, GA_ERR)
 c     
       end

@@ -5,8 +5,9 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.18 2000-10-23 23:37:44 windus Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.19 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 c
       integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
@@ -93,10 +94,10 @@ c create square GAs with proposed final ordering
 c ------------------------------------------------------------
       if (.not.ga_create(MT_DBL,lnov,lnov,'nt2',
      &                   nvir,nvir,g_nt2))
-     &     call errquit('ga_create g_nt2 failed',0)
+     &     call errquit('ga_create g_nt2 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'nht2',
      &                   nvir,nvir,g_nht2))
-     &     call errquit('ga_create g_nht2 failed',0)
+     &     call errquit('ga_create g_nht2 failed',0, GA_ERR)
 c
       call ga_sync()
       iter=0
@@ -134,7 +135,8 @@ c     (note that T1 is kept at end of T2)
 c
       if (.not. ccsd_write_restart(t2file, g_t2, 
      $     nvir, lhoov, offt2))
-     $     call errquit('ccsd: failed saving vector for restart',0)
+     $     call errquit('ccsd: failed saving vector for restart',0,
+     &       UNKNOWN_ERR)
 c
       oconverged = .false.
       if (dabs(rms).lt.thre.and.dabs(deccsd).lt.thre)then
@@ -254,9 +256,9 @@ c
  999  continue
 c
       if (.not.ga_destroy(g_nht2))
-     &    call errquit('ga_dest g_nht2 fail',0)
+     &    call errquit('ga_dest g_nht2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_nt2))
-     &    call errquit('ga_dest g_nt2 fail',0)
+     &    call errquit('ga_dest g_nt2 fail',0, GA_ERR)
 c
       call ga_sync()
       call qexit('iterdrv',0)

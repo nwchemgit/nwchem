@@ -1,11 +1,13 @@
       subroutine intgrl_input(rtdb)
       implicit none
-* $Id: intgrl_input.F,v 1.1 2001-08-15 15:55:40 d3e129 Exp $
+* $Id: intgrl_input.F,v 1.2 2003-10-17 22:53:36 carlfahl Exp $
 #include "stdio.fh"
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
+#include "util.fh"
 *     if (rtdb_get(rtdb,'int:cando_txs',MT_LOG,1,user_status)) then
 *     if (rtdb_get(rtdb,'int:cando_sp',MT_LOG,1,user_status)) then
 *     if (rtdb_get(rtdb,'int:cando_hnd',MT_LOG,1,user_status)) then
@@ -180,30 +182,34 @@
       if (ga_nodeid().ne.0) return
       call inp_set_field(0) ! goto start of the line
       if (.not. inp_a(field)) call errquit
-     &    ('intgrl_input: no input present',911)
+     &    ('intgrl_input: no input present',911, UNKNOWN_ERR)
       if (.not.(inp_compare(.false.,'intgrl',field).or.
      &          inp_compare(.false.,'integral',field))) call errquit
-     &    ('intgrl_input: not INTeGRaL input block',911)
+     &    ('intgrl_input: not INTeGRaL input block',911, UNKNOWN_ERR)
 00100 continue
       if (inp_read()) then
         if (.not.inp_a(field)) call errquit
-     &      ('intgrl_input:any-keyword could not read field',911)
+     &      ('intgrl_input:any-keyword could not read field',911,
+     &       UNKNOWN_ERR)
         if (inp_compare(.false.,'end',field)) then
           goto 90001
         else if (inp_compare(.false.,'rotated_axis',field).or.
      &           inp_compare(.false.,'sp',field)) then
           if (.not.inp_a(field)) call errquit
-     &      ('intgrl_input:sp|rotated_axis: could not read on|off',911)
+     &      ('intgrl_input:sp|rotated_axis: could not read on|off',911, 
+     &      UNKNOWN_ERR)
           if (inp_compare(.false.,'on',field)) then
             if (.not.rtdb_put(rtdb,'int:cando_sp',MT_LOG,1,.true.))
-     &          call errquit('intgrl_input: rtdb_put failed',911)
+     &          call errquit('intgrl_input: rtdb_put failed',911,
+     &       RTDB_ERR)
           else if (inp_compare(.false.,'off',field)) then
             if (.not.rtdb_put(rtdb,'int:cando_sp',MT_LOG,1,.false.))
-     &          call errquit('intgrl_input: rtdb_put failed',911)
+     &          call errquit('intgrl_input: rtdb_put failed',911,
+     &       RTDB_ERR)
           else
             flen = inp_strlen(field)
             write(luout,*)' expected on|off got: ',field(1:flen)
-            call errquit('intgrl_input: fatal error ',911)
+            call errquit('intgrl_input: fatal error ',911, UNKNOWN_ERR)
           endif
           goto 00100
         else 

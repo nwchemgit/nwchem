@@ -4,12 +4,13 @@ C     rhf_fock -- Compute and return a complete Fock matrix, along with
 C     one- and two-electron energies.
 C
 C REVISION
-C     $Id: rhf_fock.F,v 1.1 1996-05-26 20:59:55 gg502 Exp $
+C     $Id: rhf_fock.F,v 1.2 2003-10-17 22:54:33 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RHF_Fock( Geom, Basis, G_Dens, Tol2e, OSkel,
      $   G_Fock, EOne, ETwo)
       Implicit NONE
+#include "errquit.fh"
       Integer Geom           ! [in]  Geometry handle
       Integer Basis          ! [in]  Basis set handle
       Integer G_Dens         ! [in]  GA handle for AO density
@@ -42,7 +43,7 @@ c$$$         if (oscfps) call pstat_off(ps_sym_sym)
       endif
 c     
       If ( .NOT. GA_Duplicate( G_Fock, G_HCore, 'Temp HCore') )
-     $   Call ErrQuit('RHF_Fock: Can''t create GA for HCore', 0)
+     $   Call ErrQuit('RHF_Fock: Can''t create GA for HCore', 0, GA_ERR)
 c     
 c     Build the fock_matrix
 c     
@@ -60,7 +61,7 @@ c
       ETwo = 0.5d0*ga_ddot(G_Fock,G_Dens)
       call ga_dadd(1.d0,g_hcore,1.d0,G_Fock,G_Fock)
       if (.not. ga_destroy(g_hcore)) call errquit
-     $     ('rhf_fock: destroy of hcore?', 0)
+     $     ('rhf_fock: destroy of hcore?', 0, GA_ERR)
 c     
       if (OSkel) then
 c$$$         if (oscfps) call pstat_on(ps_sym_sym)

@@ -1,8 +1,9 @@
 *
-* $Id: ke.F,v 1.8 2003-07-10 19:52:39 bylaska Exp $
+* $Id: ke.F,v 1.9 2003-10-17 22:57:34 carlfahl Exp $
 *
       subroutine ke_init()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -33,10 +34,10 @@ c     real*8 tg(nfft3d)
 
       value = MA_alloc_get(mt_dbl,npack1,
      >                     'tg',tg_hndl,tg_indx)
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       do i = 1,nfft3d
@@ -127,6 +128,7 @@ c     real*8 tg(nfft3d)
 
       subroutine ke_ave(ispin,ne,psi1,ave)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       complex*16 psi1(*)
       real*8     ave
@@ -151,7 +153,7 @@ c     complex*16 tmp1(nfft3d)
       call Parallel_np(np)
       call Pack_npack(1,npack1)
       value = MA_push_get(mt_dcpl,npack1,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       n1(1) = 1
@@ -185,9 +187,10 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.8 2003-07-10 19:52:39 bylaska Exp $
+* $Id: ke.F,v 1.9 2003-10-17 22:57:34 carlfahl Exp $
 *
       implicit none 
+#include "errquit.fh"
       integer ispin,ne(2)
       complex*16 psi(*)
       real*8 euv(3,3)
@@ -235,19 +238,19 @@ c     real*8 G(nfft3d,3)
 
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G1',G(2,1),G(1,1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G2',G(2,2),G(1,2))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dbl,nfft3d,
      >                     'G3',G(2,3),G(1,3))
-      if (.not. value) call errquit('out of stack  memory',0)
+      if (.not. value) call errquit('out of stack  memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,npack1,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dcpl,npack1,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1,1)),1)
       call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(1,2)),1)
@@ -299,7 +302,8 @@ c     real*8 G(nfft3d,3)
       value = value.and.MA_pop_stack(G(2,3)) 
       value = value.and.MA_pop_stack(G(2,2)) 
       value = value.and.MA_pop_stack(G(2,1))
-      if (.not. value) call errquit('error poping stack memory',0)
+      if (.not. value) call errquit('error poping stack memory',0,
+     &       MA_ERR)
       return
       end
 
@@ -307,6 +311,7 @@ c     real*8 G(nfft3d,3)
 
       subroutine ke_Precondition(npack,neall,psi,gradk)
       implicit none
+#include "errquit.fh"
       integer npack,neall
       complex*16   psi(npack,neall)
       complex*16 gradk(npack,neall)

@@ -1,6 +1,6 @@
       subroutine int_pxvp_ga(ibas, g_x, g_y, g_z, oskel)
 *
-* $Id: int_pxvp_ga.F,v 1.2 1999-12-09 01:27:57 bert Exp $
+* $Id: int_pxvp_ga.F,v 1.3 2003-10-17 22:53:48 carlfahl Exp $
 *
 c
 c     Gather pxVp integrals from int_1epxvpe on a shell by shell basis
@@ -13,6 +13,8 @@ c
 #include "bas.fh"
 #include "cscfps.fh"
 #include "sym.fh"
+#include "util.fh"
+#include "errquit.fh"
 c
 c     arguments
 c
@@ -39,16 +41,16 @@ c
 c     grab basis set info type stuff
 c
       if(.not.bas_numcont(ibas,nshell_i))call errquit
-     $  ('int_dip_ga: bas_numcont failed for ibas',ibas)
+     $  ('int_dip_ga: bas_numcont failed for ibas',ibas, BASIS_ERR)
 c
 c      Allocate temporary arrays
 c
       call int_mem_1e(max1e, mem1)
 c     call emem_1e_pvp(ibas, ibas, max1e, mem1, 3)
       if (.not. MA_push_get(MT_DBL,max1e*3,'int_pxvp_ga:buf',l_buf,
-     $    k_buf)) call errquit('int_pxvp_ga: ma failed', max1e)
+     $    k_buf)) call errquit('int_pxvp_ga: ma failed', max1e, MA_ERR)
       if (.not. MA_push_get(MT_DBL, mem1,'int_pxvp_ga:scr',l_scr,k_scr))
-     $     call errquit('int_pxvp_ga: ma failed', mem1)
+     $     call errquit('int_pxvp_ga: ma failed', mem1, MA_ERR)
 c      
 c     loop over shells
 c
@@ -64,9 +66,11 @@ c
      $              odoit = sym_shell_pair(ibas, ishell, jshell, q2)
                if (odoit) then
                   if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi))
-     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas)
+     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas,
+     &       GA_ERR)
                   if (.not. bas_cn2bfr(ibas, jshell, jlo, jhi))
-     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas)
+     $                 call errquit('int_1e_ga: bas_cn2bfr ?', ibas,
+     &       BASIS_ERR)
                   idim = ihi - ilo + 1
 c
 c     Generate the integrals
@@ -90,9 +94,9 @@ c
       call ga_sync()
 c
       if(.not.MA_pop_stack(l_scr))
-     $   call errquit('int_pxvp_ga:pop failed',0)
+     $   call errquit('int_pxvp_ga:pop failed',0, GA_ERR)
       if(.not.MA_pop_stack(l_buf)) 
-     $   call errquit('int_pxvp_ga:pop failed',0)
+     $   call errquit('int_pxvp_ga:pop failed',0, GA_ERR)
 c
       call ga_sync()
 c

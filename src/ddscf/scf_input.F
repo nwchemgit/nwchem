@@ -1,6 +1,7 @@
       subroutine scf_input(rtdb)
-C     $Id: scf_input.F,v 1.10 2001-11-29 22:23:48 bert Exp $
+C     $Id: scf_input.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -24,27 +25,29 @@ c
 c     
 c     While loop
 c     
- 10   if (.not. inp_read()) call errquit('scf_input: inp_read failed',0)
+ 10   if (.not. inp_read()) call errquit('scf_input: inp_read failed',0,
+     &       INPUT_ERR)
       if (.not. inp_a(test))
-     $     call errquit('scf_input: failed to read keyword', 0)
+     $     call errquit('scf_input: failed to read keyword', 0,
+     &       INPUT_ERR)
 c     
       if (inp_compare(.false.,'thresh', test)) then
 c     
 c     thresh <convergence threshold>
 c     
          if (.not. inp_f(conv)) call errquit
-     $        ('scf_input: failed reading convergence', 0)
+     $        ('scf_input: failed reading convergence', 0, INPUT_ERR)
          if (.not. rtdb_put(rtdb, 'scf:thresh', mt_dbl, 1, conv))
-     $        call errquit('scf-input: rtdb_put failed', 0)
+     $        call errquit('scf-input: rtdb_put failed', 0, RTDB_ERR)
 c     
       else if (inp_compare(.false.,'maxiter', test)) then
 c     
 c     maxiter <maxiter>
 c     
          if (.not. inp_i(maxiter)) call errquit
-     $        ('scf_input: failed reading maxiter', 0)
+     $        ('scf_input: failed reading maxiter', 0, INPUT_ERR)
          if (.not. rtdb_put(rtdb, 'scf:maxiter', mt_int, 1, maxiter))
-     $        call errquit('scf-input: rtdb_put failed', 0)
+     $        call errquit('scf-input: rtdb_put failed', 0, RTDB_ERR)
 c     
       else if (inp_compare(.false.,'level', test)) then
 c     
@@ -71,7 +74,8 @@ c
             goto 410
          endif
          if (.not.rtdb_put(rtdb,'scf:level shift info',MT_DBL,6,shifts))
-     $        call errquit('scf_input: rtdb_put of shifts failed',0)
+     $        call errquit('scf_input: rtdb_put of shifts failed',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'vectors', test)) then
 c     
@@ -82,15 +86,17 @@ c
 c     nr <switch>
 c     
          if (.not. inp_f(tolnr)) call errquit
-     $        ('scf_input: nr switch', 0)
+     $        ('scf_input: nr switch', 0, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'scf:full hessian switch',
      $        MT_DBL,1,tolnr))
-     $        call errquit('scf_input:rtdb put of tolnr failed', 0)
+     $        call errquit('scf_input:rtdb put of tolnr failed', 0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'profile', test)) then
 c     
          if (.not. rtdb_put(rtdb,'scf:pstat', MT_LOG, 1, .true.))
-     $        call errquit('scf_input:rtdb_put of pstat failed', 0)
+     $        call errquit('scf_input:rtdb_put of pstat failed', 0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'print', test) .or.
      $        inp_compare(.false.,'noprint', test)) then
@@ -102,16 +108,17 @@ c
 c     tol2e <real tol2e>
 c     
          if (.not. inp_f(tol2e)) call errquit
-     $        ('scf_input: tol2e <thresh>',0)
+     $        ('scf_input: tol2e <thresh>',0, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'scf:tol2e', MT_DBL, 1, tol2e))
-     $        call errquit('scf_input: rtdb_put of tol2e failed',0)
+     $        call errquit('scf_input: rtdb_put of tol2e failed',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'nopen', test)) then
 c     
 c     nopen <integer nopen>
 c     
          if (.not. inp_i(nopen)) call errquit
-     $        ('scf_input: nopen <nopen>',0)
+     $        ('scf_input: nopen <nopen>',0, INPUT_ERR)
 c     
       else if (inp_compare(.false.,'rhf', test) .or.
      $        inp_compare(.false.,'uhf', test) .or.
@@ -119,7 +126,8 @@ c
 c     
          call inp_ucase(test)
          if (.not. rtdb_cput(rtdb,'scf:scftype',1,test)) 
-     $        call errquit('scf_input: rtdb put of scftype failed',0)
+     $        call errquit('scf_input: rtdb put of scftype failed',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'singlet', test)) then
          nopen = 0
@@ -158,12 +166,13 @@ c
 c     chunk <integer chunksize>
 c     
          if (.not. inp_i(task_chunks)) call errquit
-     $        ('scf_input: chunk <integer chunk_size>', 0)
+     $        ('scf_input: chunk <integer chunk_size>', 0, INPUT_ERR)
          if (task_chunks.lt.1 .or. task_chunks.gt.1024) call errquit
-     $        ('scf_input: task_chunks has invalid value',task_chunks)
+     $        ('scf_input: task_chunks has invalid value',task_chunks,
+     &       INPUT_ERR)
          if (.not. rtdb_put(rtdb,'fock:task_chunks',
      $        MT_INT,1,task_chunks)) call errquit
-     $        ('scf_input: rtdb_put of task_chunks failed',0)
+     $        ('scf_input: rtdb_put of task_chunks failed',0, RTDB_ERR)
 c     
       else if (inp_compare(.false.,'ri-scf', test)) then
 c     
@@ -188,54 +197,62 @@ c
                else if (inp_compare(.false., test, 'disk')) then
                   ri_store = 3
                else
-                  call errquit('scf_input: unknown RI option',0)
+                  call errquit('scf_input: unknown RI option',0,
+     &       INPUT_ERR)
                endif
                goto 2610
             endif
          endif
          if (.not. rtdb_put(rtdb,'scf:ri',MT_INT, 1, nriscf))
-     $        call errquit('scf_input: failed to store RI option',0)
+     $        call errquit('scf_input: failed to store RI option',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb,'scf:ri_store',MT_INT, 1, ri_store))
-     $        call errquit('scf_input: failed to store RI option',0)
+     $        call errquit('scf_input: failed to store RI option',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'maxsub', test)) then
 c     
 c     maxsub max_subspace_dimension
 c     
          if (.not. inp_i(maxsub)) call errquit
-     $        ('scf_input: maxsub max_subspace_dimension',0)
+     $        ('scf_input: maxsub max_subspace_dimension',0, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'scf:maxsub',MT_INT, 1, maxsub))
-     $        call errquit('scf_input: failed to store maxsub',0)
+     $        call errquit('scf_input: failed to store maxsub',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'lagrangian', test)) then
 c     
          if (.not. rtdb_put(rtdb,'scf:lagrangian',MT_LOG, 1, .true.))
-     $        call errquit('scf_input: failed to store lagrangian',0)
+     $        call errquit('scf_input: failed to store lagrangian',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'taskbf', test)) then
 c     
 c     taskbf <integer task_bf>
 c     
          if (.not. inp_i(task_bf)) call errquit
-     $        ('scf_input: taskbf <integer taskbf>', 0)
+     $        ('scf_input: taskbf <integer taskbf>', 0, INPUT_ERR)
          if (task_bf.lt.1 .or. task_bf.gt.1024) call errquit
-     $        ('scf_input: taskbf has invalid value',task_bf)
+     $        ('scf_input: taskbf has invalid value',task_bf, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'fock:task_bf',MT_INT,1,task_bf))
-     $        call errquit('scf_input: rtdb_put of task_bf failed',0)
+     $        call errquit('scf_input: rtdb_put of task_bf failed',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'diis', test)) then
 c     
          if(.not. rtdb_put(rtdb,'scf:diis', MT_LOG, 1, .true.))
-     $        call errquit('scf_input: rtdb_put of diis failed',0)
+     $        call errquit('scf_input: rtdb_put of diis failed',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'diisbas', test)) then
 c     
 c     diisbas <maxsub>
 c     
          if (.not. inp_i(maxsub)) call errquit
-     $        ('scf_input: diisbas max_diis_basis',0)
+     $        ('scf_input: diisbas max_diis_basis',0, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'scf:diisbas',MT_INT, 1, maxsub))
-     $        call errquit('scf_input: failed to store diisbas',0)
+     $        call errquit('scf_input: failed to store diisbas',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'sym', test)) then
 c     
@@ -244,7 +261,8 @@ c
          if (.not. inp_a(test)) test = 'on'
          status = inp_compare(.false.,test,'on')
          if (.not. rtdb_put(rtdb,'scf:skeleton', MT_LOG, 1, status))
-     $        call errquit('scf_input: failed to store skeleton',0)
+     $        call errquit('scf_input: failed to store skeleton',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'adapt', test)) then
 c     
@@ -253,7 +271,8 @@ c
          if (.not. inp_a(test)) test = 'on'
          status = inp_compare(.false.,test,'on')
          if (.not. rtdb_put(rtdb,'scf:adapt', MT_LOG, 1, status))
-     $        call errquit('scf_input: failed to store adapt',0)
+     $        call errquit('scf_input: failed to store adapt',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'lock', test)) then
 c     
@@ -262,15 +281,18 @@ c
          if (.not. inp_a(test)) test = 'on'
          status = inp_compare(.false.,test,'on')
          if (.not. rtdb_put(rtdb,'scf:lock', MT_LOG, 1, status))
-     $        call errquit('scf_input: failed to store lock',0)
+     $        call errquit('scf_input: failed to store lock',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'direct', test)) then
          filesize = -1
          memsize  = -1
          if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
-     $        call errquit('scf_input: failed to store filesize',0)
+     $        call errquit('scf_input: failed to store filesize',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
-     $        call errquit('scf_input: failed to store filesize',0)
+     $        call errquit('scf_input: failed to store filesize',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'semidirect', test)) then
 c     
@@ -288,7 +310,8 @@ c
             else if (inp_compare(.false., test, 'filename')) then
                if (.not. inp_a(test)) goto 3602
                if (.not. rtdb_cput(rtdb, 'int2e:filename', 1, test))
-     $              call errquit('scf_input: bad rtdb : filename?',0)
+     $              call errquit('scf_input: bad rtdb : filename?',0,
+     &       RTDB_ERR)
             else
                goto 3602
             endif
@@ -303,16 +326,18 @@ c
          if (filesize.eq.-33) filesize=0
          if (memsize.eq.-33) memsize=0
          if (.not. rtdb_put(rtdb,'int2e:filesize', mt_int, 1, filesize))
-     $        call errquit('scf_input: failed to store filesize',0)
+     $        call errquit('scf_input: failed to store filesize',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb,'int2e:memsize', mt_int, 1, memsize))
-     $        call errquit('scf_input: failed to store filesize',0)
+     $        call errquit('scf_input: failed to store filesize',0,
+     &       RTDB_ERR)
 c     
       else if (inp_compare(.false.,'end', test)) then
 c     
 c     end
 c     
       else
-         call errquit('scf_input: unrecognized directive', 0)
+         call errquit('scf_input: unrecognized directive', 0, INPUT_ERR)
       endif
 c     
 c     End of while loop over the input
@@ -323,22 +348,24 @@ c     Process the multiplicity of multiplicities
 c     
       if (nopen .ne. -1) then
          if (.not. rtdb_put(rtdb,'scf:nopen', MT_INT, 1, nopen))
-     $        call errquit('scf_input: rtdb_put of nopen failed',0)
+     $        call errquit('scf_input: rtdb_put of nopen failed',0,
+     &       RTDB_ERR)
          if (multiplicity .ne. ' ') then
             call inp_lcase(multiplicity)
             if (.not. rtdb_cput(rtdb, 'scf:multiplicity', 1, 
      $           multiplicity)) call errquit
-     $           ('scf_input: failed to store multipliciity',0)
+     $           ('scf_input: failed to store multipliciity',0,
+     &       RTDB_ERR)
          endif
       endif
 c     
       return
 c     
  490  call errquit('level [pcg initial [tol final]] [nr initial '//
-     $     '[tol final]]',0)
+     $     '[tol final]]',0, UNKNOWN_ERR)
  3602 call errquit('semi-direct [filesize <integer filesize'//
      $     ' = disksize>] [memsize <integer memsize = available>]'//
-     $     ' [filename <string filename>] ',0)
+     $     ' [filename <string filename>] ',0, UNKNOWN_ERR)
 c     
 c     
       end

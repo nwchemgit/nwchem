@@ -1,6 +1,6 @@
       subroutine dft_3dacc(g_fock,buf,imat,imat2,
      ,     ifirst,ilast,jfirst,jlast,ldin)
-C$Id: dft_3dacc.F,v 1.3 2002-02-22 20:04:11 edo Exp $
+C$Id: dft_3dacc.F,v 1.4 2003-10-17 22:55:14 carlfahl Exp $
       implicit none
       integer g_fock
       integer imat,imat2
@@ -25,6 +25,7 @@ c
       subroutine dft_3dget(g_fock,buf,imat,
      ,     ifirst,ilast,jfirst,jlast,ldin)
       implicit none
+#include "errquit.fh"
       integer g_fock
       integer imat
       integer ldin
@@ -37,12 +38,15 @@ c
 #ifdef DEBUG
       integer ityp, ndim, dims(3)
       call nga_inquire(g_fock, ityp, ndim, dims)
-      if(ndim.ne.3) call errquit(' 3d3d3d ',ndim)
+      if(ndim.ne.3) call errquit(' 3d3d3d ',ndim, GA_ERR)
       write(6,*) ' 3dg imat ',imat
-      if(imat.lt.1) call errquit( ' imat neg ',imat)
-      if(imat.gt.dims(1)) call errquit(' imat gt dim1 ',imat)
-      if(ilast.gt.dims(2)) call errquit(' il gt dim2 ',dims(2))
-      if(jlast.gt.dims(3)) call errquit(' jl gt dim3 ',dims(3))
+      if(imat.lt.1) call errquit( ' imat neg ',imat, UNKNOWN_ERR)
+      if(imat.gt.dims(1)) call errquit(' imat gt dim1 ',imat,
+     &       UNKNOWN_ERR)
+      if(ilast.gt.dims(2)) call errquit(' il gt dim2 ',dims(2),
+     &       UNKNOWN_ERR)
+      if(jlast.gt.dims(3)) call errquit(' jl gt dim3 ',dims(3),
+     &       UNKNOWN_ERR)
 #endif
       ld(1)=1  
       ld(2)=ldin

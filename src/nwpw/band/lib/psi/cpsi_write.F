@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.4 2002-05-03 19:44:02 bylaska Exp $
+* $Id: cpsi_write.F,v 1.5 2003-10-17 22:56:11 carlfahl Exp $
 *
 
 *     ***************************
@@ -10,6 +10,7 @@
 
       subroutine cpsi_write(ispin,ne,nbrillioun,psi2)
       implicit none 
+#include "errquit.fh"
       integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
@@ -45,9 +46,9 @@ c     complex*16 tmp(*)
       call Cram_max_npack(npack1)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       version = 5 ! version 5 - band, version 3 and 4 - pspw
       nfft(1) = control_ngrid(1)

@@ -1,9 +1,10 @@
-C $Id: potset_nwchem.F,v 1.3 2001-01-08 15:52:00 windus Exp $
+C $Id: potset_nwchem.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       subroutine potset_nwchem(rtdb)
 *
 * check for basis sets and theoretical method
 *
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #include "rtdb.fh"
@@ -19,14 +20,15 @@ C $Id: potset_nwchem.F,v 1.3 2001-01-08 15:52:00 windus Exp $
       if (.not.okay) then
         write(luout,*)' no basis set info on rtdb '
         call util_flush(luout)
-        call errquit('potset_nwchem: fatal error ',911)
+        call errquit('potset_nwchem: fatal error ',911, RTDB_ERR)
       endif
       if (.not.rtdb_cget(rtdb,'drdy:theory',1,theory)) then
         write(luout,*)' default theory for drdy set to scf '
         call util_flush(luout)
         theory = 'scf'
         if (.not.rtdb_cput(rtdb,'drdy:theory',1,theory))
-     &        call errquit('potset_nwchem: could not set theory',911)
+     &        call errquit('potset_nwchem: could not set theory',911,
+     &       RTDB_ERR)
       endif
       end
 

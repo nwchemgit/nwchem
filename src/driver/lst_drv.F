@@ -1,6 +1,6 @@
       logical function drv_lst(rtdb)
 *
-* $Id: lst_drv.F,v 1.8 1999-07-28 00:41:52 d3e129 Exp $
+* $Id: lst_drv.F,v 1.9 2003-10-17 22:54:49 carlfahl Exp $
 *
       implicit none
 #include "mafdecls.fh"
@@ -45,6 +45,7 @@ c
       end
       logical function hnd_lstx(rtdb)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "msgtypesf.h"
 #include "global.fh"
@@ -109,16 +110,18 @@ c
 c     ----- get going ... -----
 c
       if (.not. geom_create(geom, 'geometry'))
-     &       call errquit('hnd_lst: geom_create?', 911)
+     &       call errquit('hnd_lst: geom_create?', 911, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &       call errquit('hnd_lst: no geometry ', 911)
+     &       call errquit('hnd_lst: no geometry ', 911, RTDB_ERR)
       if (.not. geom_cart_get(geom, ncent, atmlab, c, zan))
-     &       call errquit('hnd_lst: geom_get ', 911)
+     &       call errquit('hnd_lst: geom_get ', 911, GEOM_ERR)
        nat = ncent
       if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+     &       call errquit('geom_input: geom_zmt_get_nizmat failed',0,
+     &       GEOM_ERR)
       if(.not.geom_zmt_get_nzvar(geom,nzvar))
-     &     call errquit('geom_input: geom_zmt_get_nzvar failed',0)
+     &     call errquit('geom_input: geom_zmt_get_nzvar failed',0,
+     &       GEOM_ERR)
 c
 c     ----- scan -lst- coordinates file -----
 c
@@ -154,7 +157,8 @@ c
       nzfrz=0
       if (geom_zmt_get_nzfrz(geom,nzfrz)) then
          if(.not.geom_zmt_get_izfrz(geom,izfrz,nzfrz)) 
-     $        call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
+     $        call errquit('geom_input: geom_zmt_get_izfrz  failed',0,
+     &       GEOM_ERR)
       endif
       if (ga_nodeid().eq.0.or.dbug)  then
          if(nzfrz.gt.0) then
@@ -269,14 +273,15 @@ c
 c
       if (ga_nodeid().eq.0.and.dbug)  then
          if (.not. geom_print(geom)) call errquit
-     $        ('hnd_lst_drv: geom_print?',0)
+     $        ('hnd_lst_drv: geom_print?',0, GEOM_ERR)
          if (util_print('bonds',print_default)) then
            if (.not.geom_print_distances(geom)) call errquit(
-     &         'hnd_lst_drv: geom_print_distances failed',911)
+     &         'hnd_lst_drv: geom_print_distances failed',911,
+     &       GEOM_ERR)
          endif
          if (util_print('angles',print_default)) then
            if (.not.geom_print_angles(geom)) call errquit(
-     &         'hnd_lst_drv: geom_print_angles failed',911)
+     &         'hnd_lst_drv: geom_print_angles failed',911, GEOM_ERR)
          endif
       endif
       call ga_sync()
@@ -295,14 +300,15 @@ c
 c
       if (ga_nodeid().eq.0.and.dbug)  then
          if (.not. geom_print(geom)) call errquit
-     $        ('hnd_lst_drv: geom_print?',0)
+     $        ('hnd_lst_drv: geom_print?',0, GEOM_ERR)
          if (util_print('bonds',print_default)) then
            if (.not.geom_print_distances(geom)) call errquit(
-     &         'hnd_lst_drv: geom_print_distances failed',911)
+     &         'hnd_lst_drv: geom_print_distances failed',911, GEOM_ERR)
          endif
          if (util_print('angles',print_default)) then
            if (.not.geom_print_angles(geom)) call errquit(
-     &         'hnd_lst_drv: geom_print_angles failed',911)
+     &         'hnd_lst_drv: geom_print_angles failed',911,
+     &       GEOM_ERR)
          endif
       endif
       call ga_sync()
@@ -318,7 +324,7 @@ c
          endif
          call ga_sync()
          if (.not.geom_destroy(geom))
-     &      call errquit('hnd_lst: geom_destroy?',911)
+     &      call errquit('hnd_lst: geom_destroy?',911, GEOM_ERR)
          hnd_lstx=.true. 
       endif       
 c
@@ -528,6 +534,7 @@ C
       END
       subroutine hnd_lst_energy(rtdb,geom)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -562,13 +569,13 @@ c
             write(iw,9997)
          endif
          if(.not.geom_print(geom)) 
-     1     call errquit('hnd_lst_energy: print error',911)
+     1     call errquit('hnd_lst_energy: print error',911, GEOM_ERR)
       endif
 c
       if(nzmat.gt.0) then
          call geom_bandbi(geom)
          if (.not. geom_print_zmatrix(geom,0d0,.false.))
-     $        call errquit('hnd_lst: print zmat failed',0)
+     $        call errquit('hnd_lst: print zmat failed',0, GEOM_ERR)
          write(iw,9997)
       endif
 c
@@ -578,7 +585,7 @@ c
             write(iw,9998) e
          endif
       else
-         call errquit('lst path: energy failed', 0)
+         call errquit('lst path: energy failed', 0, GEOM_ERR)
       endif
 c
       return

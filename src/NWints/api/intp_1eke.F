@@ -1,7 +1,8 @@
       subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
-c $Id: intp_1eke.F,v 1.10 1999-10-26 22:21:44 mg201 Exp $
+c $Id: intp_1eke.F,v 1.11 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -54,7 +55,8 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('intp_1eke'))
-     &       call errquit('intp_1eke: int_init was not called' ,0)
+     &       call errquit('intp_1eke: int_init was not called' ,0, 
+     &          INT_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -62,7 +64,8 @@ c
       shells_ok = inline_chk_sh(ibas,ish)
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not.shells_ok)
-     &       call errquit('intp_1eke: invalid contraction/shell',0)
+     &       call errquit('intp_1eke: invalid contraction/shell',0,
+     &          INT_ERR)
 c
       ucont   = (sf_ibs_cn2ucn(ish,ibas))
       Li      = infbs_cont(CONT_TYPE ,ucont,ibas)
@@ -117,7 +120,8 @@ c.............. dryrun
      &        .false.)          
         endif
       else
-        call errquit('intp_1eke: could not do sp or nw integrals',0)
+        call errquit('intp_1eke: could not do sp or nw integrals',0,
+     &         INT_ERR)
       endif
 c
       end

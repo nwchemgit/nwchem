@@ -1,7 +1,8 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.6 1999-06-16 00:10:12 d3e129 Exp $
+C     $Id: ccsd_z2pm.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
 #include "mafdecls.fh"
@@ -26,7 +27,7 @@ c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'sz2t',
      &                   nbf*nbf,0,g_sz2t))
-     &     call errquit('ccsd_z2pm: ga_create g_sz2t failed',0)
+     &     call errquit('ccsd_z2pm: ga_create g_sz2t failed',0, GA_ERR)
 c
       call ga_distribution(g_nz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -44,10 +45,10 @@ c
               ad3=0
               do ksh=1,nsh
                 if (.not. bas_cn2bfr(basis,ksh,klo,khi))
-     &              call errquit('vvvv: bas_cn2bfr',ksh)
+     &              call errquit('vvvv: bas_cn2bfr',ksh, BASIS_ERR)
                 do lsh=1,nsh
                   if (.not. bas_cn2bfr(basis,lsh,llo,lhi))
-     &                call errquit('vvvv: bas_cn2bfr',lsh)
+     &                call errquit('vvvv: bas_cn2bfr',lsh, BASIS_ERR)
                   do k=klo,khi
                     do l=llo,lhi
                       ad3=ad3+1
@@ -66,7 +67,7 @@ c
 c
       call ga_transpose(g_sz2t,g_sz2)
       if (.not.ga_destroy(g_sz2t))
-     &    call errquit('ga_dest g_sz2t fail',0)
+     &    call errquit('ga_dest g_sz2t fail',0, GA_ERR)
 c
 c ------------------------------------------------------------
 c - form z2+/- (see gustavos paper)
@@ -78,10 +79,10 @@ c ------------------------------------------------------------
       xy=0
       do ish=1,nsh
         if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
-     $      call errquit('vvvv: bas_cn2bfr',ish)
+     $      call errquit('vvvv: bas_cn2bfr',ish, BASIS_ERR)
         do jsh=1,nsh
           if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
-     $        call errquit('vvvv: bas_cn2bfr',jsh)
+     $        call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
           do x=ilo,ihi
             do y=jlo,jhi
               xy=xy+1
@@ -122,6 +123,7 @@ c
      &                      g_nhz2,cmo,
      &                      scra,scrb,offsh)
       implicit none
+#include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nbf,g_shz2,g_nhz2,
      &        offsh(nsh,nsh)
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf)
@@ -149,11 +151,11 @@ c
       call ga_distribution(g_shz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do ish=1,nsh
         if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
-     $      call errquit('vvvv: bas_cn2bfr',ish)
+     $      call errquit('vvvv: bas_cn2bfr',ish, BASIS_ERR)
         nfi=ihi-ilo+1
         do jsh=1,ish
           if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
-     $        call errquit('vvvv: bas_cn2bfr',jsh)
+     $        call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
           nfj=jhi-jlo+1
           do x=1,nfi
             ymax=nfj
@@ -203,16 +205,17 @@ c ------------------------------------------------------------
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'shz2t',
      &                   nbf*nbf,0,g_shz2t))
-     &     call errquit('ccsd_hz2pm: ga_create g_shz2t failed',0)
+     &     call errquit('ccsd_hz2pm: ga_create g_shz2t failed',0,
+     &       GA_ERR)
 
       call ga_transpose(g_shz2,g_shz2t)
 c - redefine g_shz2
       if (.not.ga_destroy(g_shz2))
-     &    call errquit('ga_dest g_shz2 fail',0)
+     &    call errquit('ga_dest g_shz2 fail',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'shz2',
      &                   nbf*nbf,0,g_shz2))
-     &     call errquit('ccsd_hz2pm: ga_create g_shz2 failed',0)
+     &     call errquit('ccsd_hz2pm: ga_create g_shz2 failed',0, GA_ERR)
 
       call ga_distribution(g_nhz2,iam,g_jlo,g_jhi,g_ilo,g_ihi)
       do i=1,nocc
@@ -227,10 +230,10 @@ c - redefine g_shz2
               ad3=0
               do ksh=1,nsh
                 if (.not. bas_cn2bfr(basis,ksh,klo,khi))
-     &              call errquit('vvvv: bas_cn2bfr',ksh)
+     &              call errquit('vvvv: bas_cn2bfr',ksh, BASIS_ERR)
                 do lsh=1,nsh
                   if (.not. bas_cn2bfr(basis,lsh,llo,lhi))
-     &                call errquit('vvvv: bas_cn2bfr',lsh)
+     &                call errquit('vvvv: bas_cn2bfr',lsh, BASIS_ERR)
                   do k=klo,khi
                     do l=llo,lhi
                       ad3=ad3+1
@@ -264,7 +267,7 @@ c
         endif
       enddo
       if (.not.ga_destroy(g_shz2t))
-     &    call errquit('ga_dest g_shz2t fail',0)
+     &    call errquit('ga_dest g_shz2t fail',0, GA_ERR)
 c
       call qexit('hz2pm',0)
 c

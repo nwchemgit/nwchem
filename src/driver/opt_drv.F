@@ -1,8 +1,9 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.98 2003-07-08 01:27:29 edo Exp $
+* $Id: opt_drv.F,v 1.99 2003-10-17 22:54:49 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -42,7 +43,8 @@ c
  1       format(/,10x,'--------',/,10x,'Step',i4,/,10x,'--------')
          if ((ga_nodeid() .eq. 0) .and.
      $        util_print('geometry',print_default)) then
-            if (.not. geom_print(geom)) call errquit('driver: geom?',0)
+            if (.not. geom_print(geom)) call errquit('driver: geom?',0,
+     &       GEOM_ERR)
          endif
 c     
 c     Save old energy, gradient, searchdir and alpha, and compute 
@@ -54,10 +56,10 @@ c
          call dcopy(nvar, ds, 1, dsp, 1) ! Used for conjugacy
 c
          if (.not. task_gradient(rtdb))
-     $        call errquit('driver: task_gradient failed',0)
+     $        call errquit('driver: task_gradient failed',0, GEOM_ERR)
          call opt_get_grad(rtdb,geom) ! Into gx
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
-     $        call errquit('driver: could not get energy',0)
+     $        call errquit('driver: could not get energy',0, RTDB_ERR)
 c
 c     Disable printing to ecce of movecs after first point
 c
@@ -153,7 +155,7 @@ c     Print out final info and geometry
 c
          call driver_print(geom,istep)
          if (.not. geom_print(geom)) call errquit
-     $        ('hnd_opt_drv: geom_print?',0)
+     $        ('hnd_opt_drv: geom_print?',0, GEOM_ERR)
 c
 c     Analyze the change in internal coordinates
 c     (overwrites ds and g)
@@ -161,13 +163,14 @@ c
          if (zcoord) then
             status = rtdb_parallel(.false.)
             if (.not. geom_create(geomi, 'driverinitial'))
-     &           call errquit('hnd_opt: geom_create?', 911)
+     &           call errquit('hnd_opt: geom_create?', 911, GEOM_ERR)
             if (.not. geom_rtdb_load(rtdb, geomi, 'driverinitial'))
-     &           call errquit('hnd_opt: no initial geometry ', 911)
+     &           call errquit('hnd_opt: no initial geometry ', 911,
+     &       RTDB_ERR)
             if (.not. geom_compute_zmatrix(geomi, ds)) ! Original coords
-     $           call errquit('driver_u_c_f_i: geom?',0)
+     $           call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
             if (.not. geom_compute_zmatrix(geom, g)) ! Final coords
-     $           call errquit('driver_u_c_f_i: geom?',0)
+     $           call errquit('driver_u_c_f_i: geom?',0, GEOM_ERR)
             do i = 1, nvar
                g(i) = g(i) - ds(i)
                if (g(i) .gt. 180d0) then
@@ -182,26 +185,29 @@ c
      $           40, .true.)
             write(6,*)
             if (.not. geom_print_zmatrix(geom, g, 'Change ',.true.))
-     $           call errquit('driver:print geom change?',geom)
+     $           call errquit('driver:print geom change?',geom,
+     &       GEOM_ERR)
             if (.not. geom_destroy(geomi))
-     $           call errquit('driver:geomi corrupt',0)
+     $           call errquit('driver:geomi corrupt',0, GEOM_ERR)
             status = rtdb_parallel(.true.)
          endif
 c
          if (util_print('bonds',print_default)) then
             if (.not.geom_print_distances(geom)) call errquit(
-     &           'hnd_opt_drv: geom_print_distances failed',911)
+     &           'hnd_opt_drv: geom_print_distances failed',911,
+     &       GEOM_ERR)
          endif
          if (util_print('angles',print_default)) then
             if (.not.geom_print_angles(geom)) call errquit(
-     &           'hnd_opt_drv: geom_print_angles failed',911)
+     &           'hnd_opt_drv: geom_print_angles failed',911,
+     &       GEOM_ERR)
          endif
       endif
 c
 c     Clean up and go home
 c
       if (.not.geom_destroy(geom))
-     &     call errquit('hnd_opt: geom_destroy?', 911)
+     &     call errquit('hnd_opt: geom_destroy?', 911, GEOM_ERR)
 c
       driver=converged
       if (converged) then
@@ -218,6 +224,7 @@ c
       end
       subroutine driver_tfgx(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
@@ -242,7 +249,7 @@ c     gq = gx*B^-1
 c
       num = max(ncart*nvar,nvar**2)
       if (.not. ma_push_get(mt_dbl, num,'binv',l_bi, k_bi))
-     $     call errquit('driver: memory for binv', num)
+     $     call errquit('driver: memory for binv', num, MA_ERR)
       call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nvar)
       if (odebug) then
          write(6,*) ' B^-1 '
@@ -270,11 +277,13 @@ c
          call doutput(gq, 1, nvar, 1, 1, nvar, 1, 1)
       endif
 c
-      if (.not. ma_pop_stack(l_bi)) call errquit('driver: ma?',99)
+      if (.not. ma_pop_stack(l_bi)) call errquit('driver: ma?',99,
+     &       MA_ERR)
 c
       end
       subroutine driver_hss_init(rtdb,geom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
@@ -318,11 +327,12 @@ c
       nnzvar = nzvar
       nnvar  = nzvar
       if (.not. geom_ncent(geom,natom))
-     1       call errquit('hnd_opt: geom_ncent?',911)
+     1       call errquit('hnd_opt: geom_ncent?',911, GEOM_ERR)
 c
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
      $     l_hess, k_hess)) call errquit
-     $     ('driver_init_hess: failed allocating hessian',nvar**2)
+     $     ('driver_init_hess: failed allocating hessian',nvar**2,
+     &       MA_ERR)
 c
       old_hessian=.false.
       if(inhess.ne.1) call driver_opt_check_hess(nvar, old_hessian)
@@ -349,7 +359,7 @@ c
          call dfill(nvar, 0.5d0, dbl_mb(k_hess), nvar+1)
          if (isystype .ne. 0) then
             if (.not. geom_amatrix_get(geom, amat))
-     $           call errquit('geom_frac_to_cart: a', 0)
+     $           call errquit('geom_frac_to_cart: a', 0, GEOM_ERR)
             do iat = 1, nat_real
                do i = 1, 3
                   dbl_mb(k_hess + (iat-1)*3 + (i-1) +
@@ -365,16 +375,19 @@ c     Internals.
 c
          if (.not. ma_push_get(mt_dbl, nzvar, 'zmat',
      $        l_zmat, k_zmat)) call errquit
-     $        ('driver_init_hess: failed allocating zmat ', nzvar)
+     $        ('driver_init_hess: failed allocating zmat ', nzvar,
+     &       MA_ERR)
          if (.not. ma_push_get(mt_int, nzmat, 'izmat',
      $        l_izmat, k_izmat)) call errquit
-     $        ('driver_init_hess: failed allocating izmat ', nzmat)
+     $        ('driver_init_hess: failed allocating izmat ', nzmat,
+     &       MA_ERR)
          if (.not. geom_compute_zmatrix(geom, dbl_mb(k_zmat)))
-     $        call errquit('driver_init_hess: zmatrix?',0)
+     $        call errquit('driver_init_hess: zmatrix?',0, GEOM_ERR)
          if (.not. geom_zmt_get_izmat(geom,int_mb(k_izmat),nzmat))
-     $        call errquit('driver_init_hess: izmat?',0)
+     $        call errquit('driver_init_hess: izmat?',0, GEOM_ERR)
 c
-         if (.not. ma_verify_allocator_stuff()) call errquit('h',0)
+         if (.not. ma_verify_allocator_stuff()) call errquit('h',0,
+     &       MA_ERR)
 c
 C     ----- INTERNALLY GENERATED (DIAGONAL) INITIAL HESSIAN -----
 C
@@ -382,7 +395,8 @@ c     this routine uses /molnuc/, /zmtpar/, /molxyz/ which
 c     must be initialized before calling
 c
          if (.not. geom_cart_get(geom, nat, atom_tags, 
-     $        c, zan)) call errquit('driver_init_hess: geom?',geom)
+     $        c, zan)) call errquit('driver_init_hess: geom?',geom,
+     &       GEOM_ERR)
          do i = 1, nat
             nuc(i) = nint(zan(i)) ! Won't work if an ECP is loaded
          enddo
@@ -429,10 +443,12 @@ c     Apply constants, constraints and overall scaling
 c
  999  if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
      $     l_c, k_c)) call errquit
-     $     ('driver_init_hess: failed allocating hessian',nvar**2)
+     $     ('driver_init_hess: failed allocating hessian',nvar**2,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hessian',
      $     l_t, k_t)) call errquit
-     $     ('driver_init_hess: failed allocating hessian',nvar**2)
+     $     ('driver_init_hess: failed allocating hessian',nvar**2,
+     &       MA_ERR)
 c
       call geom_hnd_get_data('drv.hess', dbl_mb(k_hess), nvar*nvar)
 c
@@ -482,7 +498,7 @@ c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar*nvar)
 c
       if (.not. ma_chop_stack(l_hess)) call errquit
-     $     ('driver_init_hess ma corrupt',0)
+     $     ('driver_init_hess ma corrupt',0, MA_ERR)
 c
       END
       SUBROUTINE HND_OPT_HSS_INIT_ZMT(HSSQ,NINT,ZMAT,IZMAT,SOME,
@@ -874,6 +890,7 @@ c
       end
       subroutine driver_initialize(rtdb, geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
@@ -934,24 +951,25 @@ c
             ignore = rtdb_delete(rtdb,'driver:redoautoz')
             call driver_opt_del_hess() ! Clear hessian info
             if (.not. geom_create(geom, 'geometry'))
-     &           call errquit('hnd_opt: geom_create?', 911)
+     &           call errquit('hnd_opt: geom_create?', 911, GEOM_ERR)
             if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &           call errquit('hnd_opt: no geometry ', 911)
+     &           call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
             if (.not.geom_zmt_get_source(geom,source))
-     $           call errquit('hnd_optx: zmat source ',geom)
+     $           call errquit('hnd_optx: zmat source ',geom, GEOM_ERR)
 c     
             if (source .eq. 'autoz') then
                if (oprint) write(6,777)
  777           format(/' Regenerating redundant internal coordinates'/)
                if (.not. geom_zmtmak(geom,oprint))
      $              call errquit('driver: regeneration of autoz failed',
-     $              0)
+     $              0, GEOM_ERR)
                if (oprint) write(6,*)
                if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     &              call errquit('hnd_opt: failed storing geometry',0)
+     &              call errquit('hnd_opt: failed storing geometry',0,
+     &       RTDB_ERR)
             endif
             if (.not. geom_destroy(geom))
-     $           call errquit('driver: geom_destroy?',0)
+     $           call errquit('driver: geom_destroy?',0, GEOM_ERR)
             ignore = rtdb_parallel(.true.)
          endif
          call ga_sync()
@@ -1034,13 +1052,13 @@ c
       if (ga_nodeid() .eq. 0) then
          ignore = rtdb_parallel(.false.)
          if (.not. geom_create(geom, 'geometry'))
-     &        call errquit('hnd_opt: geom_create?', 911)
+     &        call errquit('hnd_opt: geom_create?', 911, GEOM_ERR)
          if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &        call errquit('hnd_opt: no geometry ', 911)
+     &        call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
          if (.not. geom_rtdb_store(rtdb, geom, 'driverinitial'))
-     &        call errquit('hnd_opt: no geometry ', 911)
+     &        call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
          if (.not. geom_destroy(geom))
-     $        call errquit('driver: geom_destroy?',0)
+     $        call errquit('driver: geom_destroy?',0, GEOM_ERR)
          ignore = rtdb_parallel(.true.)
       endif
       call ga_sync()
@@ -1048,34 +1066,38 @@ c
 c     Load the geometry info
 c     
       if (.not. geom_create(geom, 'geometry'))
-     &     call errquit('hnd_opt: geom_create?', 911)
+     &     call errquit('hnd_opt: geom_create?', 911, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &     call errquit('hnd_opt: no geometry ', 911)
+     &     call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
       if (.not. geom_ncent(geom,nat))
-     $     call errquit('hnd_opt: natoms?',nat)
+     $     call errquit('hnd_opt: natoms?',nat, GEOM_ERR)
       call grad_active_atoms(rtdb, nat, oactive, nactive)
       if (.not. geom_systype_get(geom, isystype))
-     $     call errquit('driver: systype?',0)
+     $     call errquit('driver: systype?',0, GEOM_ERR)
 c     
 c     Zmatrix info
 c     
       if (.not.geom_zmt_get_source(geom,source))
-     $     call errquit('hnd_optx: zmat source ',geom)
+     $     call errquit('hnd_optx: zmat source ',geom, GEOM_ERR)
       zcoord  = (source .ne. ' ') ! Any kind of zmatrix
       zmatrix = (source .eq. 'user') ! zmatrix from user
       nzvar = 0
       nzfrz = 0
       if (zcoord) then
          if(.not.geom_zmt_get_nizmat(geom,nzmat))
-     $        call errquit('geom_input: geom_zmt_get_nizmat failed',0)
+     $        call errquit('geom_input: geom_zmt_get_nizmat failed',0,
+     &       GEOM_ERR)
          if(.not.geom_zmt_get_nzvar(geom,nzvar))
-     $        call errquit('geom_input: geom_zmt_get_nzvar failed',0)
+     $        call errquit('geom_input: geom_zmt_get_nzvar failed',0,
+     &       GEOM_ERR)
          call geom_bandbi(geom)
          if (.not. zmatrix) oqstep = .false. ! Only qstep in user z-matrix
          if(.not.geom_zmt_get_nzfrz(geom,nzfrz))
-     $        call errquit('geom_input: geom_zmt_get_nzfrz failed',0)
+     $        call errquit('geom_input: geom_zmt_get_nzfrz failed',0,
+     &       GEOM_ERR)
          if(.not.geom_zmt_get_izfrz(geom,izfrz))
-     $        call errquit('geom_input: geom_zmt_get_izfrz  failed',0)
+     $        call errquit('geom_input: geom_zmt_get_izfrz  failed',0,
+     &       GEOM_ERR)
       endif
       if (oprint) then
          write(6,1) gmax_tol, grms_tol, xmax_tol, xrms_tol, trust,
@@ -1114,7 +1136,8 @@ c
          endif
          if (ostress) then
             write(6,*) ' INCLUDING STRESS !!!!!!!!!!!!!!!!'
-            if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0)
+            if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0,
+     &       GEOM_ERR)
          endif
          call util_flush(6)
       endif
@@ -1139,7 +1162,7 @@ c
       if (oprint) then
          if (zcoord) then
             if (.not. geom_zmt_get_varinfo(geom,zvarname,zvarsign))
-     $           call errquit('hnd_optx: varinfo?',0)
+     $           call errquit('hnd_optx: varinfo?',0, GEOM_ERR)
             write(6,*)
             write(6,*) 'Names of Z-matrix variables '
             do i = 1, nzvar, 5
@@ -1217,7 +1240,8 @@ c     constraints have been imposed since then cannot use internals
      $              '!!!      startup jobs, or use "unset geometry:a',
      $              'ctlist" in restart jobs.',/)
                call util_flush(6)
-               call errquit('driver: cartesian constraints+internals',0)
+               call errquit('driver: cartesian constraints+internals',0,
+     &       GEOM_ERR)
             endif
             call ga_sync()
          endif
@@ -1250,16 +1274,17 @@ c
 c
       if (zcoord) then
          if (.not. geom_compute_zmatrix(geom, sp))
-     $        call errquit('driver: zmatrix?',0)
+     $        call errquit('driver: zmatrix?',0, GEOM_ERR)
       else
 c     FRACTIONAL?
          if (.not. opt_geom_cart_coords_get(geom, sp))
-     $        call errquit('driver: geom?',0)
+     $        call errquit('driver: geom?',0, GEOM_ERR)
       endif
 c     
       end
       subroutine driver_hessian_update()
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "util.fh"
@@ -1280,12 +1305,13 @@ c
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c
       if (alpha .eq. 0d0) call errquit
-     $     ('driver_hessian_update: zero step?',0)
+     $     ('driver_hessian_update: zero step?',0, GEOM_ERR)
       call dscal(nvar, alpha, ds, 1)
 c     
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
      $     l_hess, k_hess)) call errquit
-     $     ('driver_hessian_update: memory for hessian',nvar**2)
+     $     ('driver_hessian_update: memory for hessian',nvar**2,
+     &       GEOM_ERR)
       call geom_hnd_get_data('drv.hess',dbl_mb(k_hess), nvar**2)
 c
 c     Form bits and pieces that are needed
@@ -1331,13 +1357,14 @@ c
 c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
-     $     ('driver_hessian_update: ma?',0)
+     $     ('driver_hessian_update: ma?',0, MA_ERR)
 c
       call dscal(nvar, 1d0/alpha, ds, 1)
 c     
       end
       subroutine driver_opt_search_dir(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
@@ -1377,7 +1404,7 @@ c     redundant internal modes are shifted to high eigenvalues.
 c
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
      $     l_hess, k_hess)) call errquit
-     $     ('driver_search_dir: memory for hessian',nvar**2)
+     $     ('driver_search_dir: memory for hessian',nvar**2, MA_ERR)
       call driver_project_hess_grad(dbl_mb(k_hess), pg)
 c
 c     Diagonalize the Hessian.  Should really do the generalized
@@ -1390,14 +1417,14 @@ c
       lenwork = max(nvar**2,100)
       if (.not. ma_push_get(mt_dbl, lenwork, 'work',
      $     l_work, k_work)) call errquit
-     $     ('driver_search_dir: memory for hessian', lenwork)
+     $     ('driver_search_dir: memory for hessian', lenwork, MA_ERR)
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
 *      call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
 *     $     nvar, e, dbl_mb(k_work), lenwork, info)
 *      if (info .ne. 0) call errquit
-*     $     ('driver_search_dir: dsyev failed',info)
+*     $     ('driver_search_dir: dsyev failed',info, GEOM_ERR)
       call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
       if (odebug .or. (util_print('hvecs',print_never) 
      $     .and. ga_nodeid().eq.0)) then
@@ -1560,7 +1587,7 @@ c
       endif
 c
       if (.not. ma_chop_stack(l_hess)) call errquit
-     $     ('driver_search_dir: ma?',0)
+     $     ('driver_search_dir: ma?',0, MA_ERR)
 c
 c     Edo seems to have encountered a case where different processors
 c     generated different steps.  To prevent this, broadcast the 
@@ -1578,7 +1605,7 @@ c
             deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
             call geom_zmat_ico_scale(geom, ds, bohr, deg)
             if (.not. geom_print_zmatrix(geom, ds, 'Search  ',.true.))
-     $           call errquit('driver:print search_dir?',geom)
+     $           call errquit('driver:print search_dir?',geom, GEOM_ERR)
             call geom_zmat_ico_scale(geom, ds, 1d0/bohr, 1d0/deg)
          else
             call output(ds,1,3,1,nat,3,nat,1)
@@ -1719,6 +1746,7 @@ c
       end
       subroutine driver_line_search2(rtdb,geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
@@ -1736,7 +1764,7 @@ c
       double precision e0, e1, e2, alphanew, a, dsgrad
       double precision driver_energy_step
 c
-      call errquit('line search2 not implemented',0)
+      call errquit('line search2 not implemented',0, CAPMIS_ERR)
 c
       dsgrad = ddot(nvar, ds, 1, g, 1)
       if (dsgrad*alpha .ge. 0d0) then
@@ -1843,6 +1871,7 @@ c
       end
       double precision function driver_energy_step(rtdb, geom)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "rtdb.fh"
 #include "nwc_const.fh"
@@ -1867,7 +1896,8 @@ c     Get original coordinates so can restore them
 c
 c     FRACTIONAL?
       if (.not. opt_geom_cart_coords_get(geom, xold))
-     $     call errquit('driver_energy_step: coordinates?',geom)
+     $     call errquit('driver_energy_step: coordinates?',geom,
+     &       GEOM_ERR)
 c
 c     Take the step
 c
@@ -1876,23 +1906,25 @@ c
 c     Energy at displaced point
 c
       if (.not. task_energy(rtdb)) call errquit
-     $     ('driver_energy_step: energy failed',0)
+     $     ('driver_energy_step: energy failed',0, GEOM_ERR)
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, aenergy))
-     $     call errquit('driver_energy_step: rtdb?',0)
+     $     call errquit('driver_energy_step: rtdb?',0, RTDB_ERR)
 c      
 c     Restore the starting geometry
 c
 c     FRACTIONAL?
       if (.not. opt_geom_cart_coords_set(geom, xold))
-     $     call errquit('driver_energy_step: coordinates?',geom)
+     $     call errquit('driver_energy_step: coordinates?',geom,
+     &       GEOM_ERR)
       if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     $     call errquit('driver_energy_step: grs?',geom)
+     $     call errquit('driver_energy_step: grs?',geom, RTDB_ERR)
 c
       driver_energy_step = aenergy
 c
       end
       subroutine driver_take_step(rtdb, geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
@@ -1917,7 +1949,8 @@ c     Get original coordinates
 c
 c     FRACTIONAL?
       if (.not. opt_geom_cart_coords_get(geom, xold))
-     $     call errquit('driver_energy_step: coordinates?',geom)
+     $     call errquit('driver_energy_step: coordinates?',geom,
+     &       GEOM_ERR)
 c
 c     Take the step
 c
@@ -1926,11 +1959,13 @@ c
 c     Compute first order step only so we can compute xmax/xrms
 c
          if (.not. ma_push_get(mt_dbl, ncart*nzvar,'binv',l_bi, k_bi))
-     $        call errquit('driver_step: memory for binv', ncart*nzvar)
+     $        call errquit('driver_step: memory for binv', ncart*nzvar,
+     &       MA_ERR)
          call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nzvar)
          call dgemv('n', ncart, nzvar, alpha, dbl_mb(k_bi), ncart,
      $        ds, 1, 0.0d0, xnew, 1)
-         if (.not. ma_pop_stack(l_bi)) call errquit('driver: ma?',99)
+         if (.not. ma_pop_stack(l_bi)) call errquit('driver: ma?',99,
+     &       MA_ERR)
          if (odebug) then
             write(6,*) ' First-order internal coord step in cartesians'
             call doutput(xnew, 1, ncart, 1, 1, ncart, 1, 1)
@@ -1946,7 +1981,8 @@ c     FRACTIONAL?
          call geom_update_cart_from_int(geom, ds, alpha, err)
 c
 *         if (.not. opt_geom_cart_coords_set(geom, xnew))
-*     $        call errquit('driver_energy_step: coordinates?',geom)
+*     $        call errquit('driver_energy_step: coordinates?',geom,
+*     &       GEOM_ERR)
       else
          do i = 1, ncart
             xnew(i) = alpha*ds(i)
@@ -1957,7 +1993,8 @@ c
          enddo
 c     FRACTIONAL?
          if (.not. opt_geom_cart_coords_set(geom, xnew))
-     $        call errquit('driver_energy_step: coordinates?',geom)
+     $        call errquit('driver_energy_step: coordinates?',geom,
+     &       GEOM_ERR)
       endif
 c
 c     Must ensure the geometry has the required symmetry even after
@@ -1977,11 +2014,12 @@ c
       xrms = sqrt(xrms/dble(ncart))
 c
       if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
-     $     call errquit('driver_energy_step: grs?',geom)
+     $     call errquit('driver_energy_step: grs?',geom, RTDB_ERR)
 c
       end
       subroutine driver_print(geom, istep)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "global.fh"
@@ -2041,12 +2079,14 @@ c
      $        write(6,*) ' Internal coordinate gradient before',
      $        ' constraints'
          if (.not. geom_print_zmatrix(geom, gq, 'Gradient',.true.))
-     $        call errquit('tfgx: print internal gradient?',geom)
+     $        call errquit('tfgx: print internal gradient?',geom,
+     &       GEOM_ERR)
          if (diff .gt. 1d-6) then
             write(6,*) ' Internal coordinate gradient after',
      $           ' constraints'
             if (.not. geom_print_zmatrix(geom, g, 'Gradient',.true.))
-     $           call errquit('tfgx: print internal gradient?',geom)
+     $           call errquit('tfgx: print internal gradient?',geom,
+     &       GEOM_ERR)
          endif
       endif
 c
@@ -2060,12 +2100,12 @@ c
          open(88,file=filename,form='formatted',status='unknown',
      $        err=133)
          if (.not. geom_print_xyz(geom, 88))
-     $        call errquit('driver: geom_print_xyz?',0)
+     $        call errquit('driver: geom_print_xyz?',0, GEOM_ERR)
          close(88,status='keep',err=133)
       endif
 c
       return
- 133  call errquit('driver: error opening/closing xyz file',0)
+ 133  call errquit('driver: error opening/closing xyz file',0, GEOM_ERR)
 c
       end
       logical function driver_converged()
@@ -2092,6 +2132,7 @@ c
       end
       subroutine driver_cart_pmat(rtdb, geom)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
@@ -2124,7 +2165,7 @@ c
 c     
 c     FRACTIONAL?
       if (.not. opt_geom_cart_coords_get(geom, coords))
-     $     call errquit('driver_cart_pmat: geom?',geom)
+     $     call errquit('driver_cart_pmat: geom?',geom, GEOM_ERR)
 c     
 c     Construct normalized vectors in work in the direction
 c     of the rotations and translations.
@@ -2179,7 +2220,7 @@ c     The project is then 1 - V.VT where V is in work
 c     
       if (.not. ma_push_get(mt_dbl, ncart**2, 'pmat',
      $     l_pmat, k_pmat)) call errquit
-     $     ('driver_cart_pmat: memory for pmat',ncart**2)
+     $     ('driver_cart_pmat: memory for pmat',ncart**2, GEOM_ERR)
 c     
 c     Form unit matrix
 c     
@@ -2225,11 +2266,12 @@ c
       endif
 c     
       if (.not. ma_chop_stack(l_pmat)) call errquit
-     $     ('driver_cart_bmat: ma?',0)
+     $     ('driver_cart_bmat: ma?',0, MA_ERR)
 c     
       end
       subroutine driver_project_hess_grad(hess, pg)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
@@ -2246,10 +2288,10 @@ c
 c
       if (.not. ma_push_get(mt_dbl, nvar**2, 'work',
      $     l_work, k_work)) call errquit
-     $     ('driver_proj_h_g: memory for pmat',nvar**2)
+     $     ('driver_proj_h_g: memory for pmat',nvar**2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nvar**2, 'pmat',
      $     l_pmat, k_pmat)) call errquit
-     $     ('driver_proj_h_g: memory for work',nvar**2)
+     $     ('driver_proj_h_g: memory for work',nvar**2, MA_ERR)
 c
       call geom_hnd_get_data('drv.hess',hess, nvar**2)
       if (odebug) then
@@ -2260,7 +2302,7 @@ c
       endif
       call geom_hnd_get_data('p',dbl_mb(k_pmat), nvar**2)
       if (.not. ma_verify_allocator_stuff())
-     $     call errquit('freddy',0)
+     $     call errquit('freddy',0, MA_ERR)
 c
 c     PG
 c
@@ -2293,7 +2335,7 @@ c
       endif
 c
       if (.not. ma_chop_stack(l_work)) call errquit
-     $     ('driver_p_h_g:ma?',0)
+     $     ('driver_p_h_g:ma?',0, MA_ERR)
 c
       end
       subroutine driver_compute_info()
@@ -2330,6 +2372,7 @@ c
       end
       subroutine driver_hess_cart_guess()
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "nwc_const.fh"
@@ -2355,15 +2398,15 @@ c
 c     
       if (.not. ma_push_get(mt_dbl, ncart*nvar, 'binv',
      $     l_bi, k_bi)) call errquit
-     $     ('driver_hess_cart_guess: ma?', ncart*nvar)
+     $     ('driver_hess_cart_guess: ma?', ncart*nvar, MA_ERR)
 c     
       if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart',
      $     l_hc, k_hc)) call errquit
-     $     ('driver_hess_cart_guess: ma?', ncart**2)
+     $     ('driver_hess_cart_guess: ma?', ncart**2, MA_ERR)
 c     
       if (.not. ma_push_get(mt_dbl, max(ncart**2,nvar**2), 'hcart2',
      $     l_hq, k_hq)) call errquit
-     $     ('driver_hess_cart_guess: ma?', nvar**2)
+     $     ('driver_hess_cart_guess: ma?', nvar**2, MA_ERR)
 c     
       if (ga_nodeid().eq.0) then
          call util_file_name('hess',.false.,.false.,fname)
@@ -2399,22 +2442,23 @@ c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hc), nvar**2)
 c
       if (.not. ma_chop_stack(l_bi))
-     $     call errquit('driver_hess_cart_guess: ma corrupt?',0)
+     $     call errquit('driver_hess_cart_guess: ma corrupt?',0, MA_ERR)
 c
       return
 10000 format(f30.15)
 99990 write(6,*)' could not open <',fname(1:inp_strlen(fname)),
      $     '> as unknown file'
-      call errquit('driver_hess_cart: fatal error', 911)
+      call errquit('driver_hess_cart: fatal error', 911, GEOM_ERR)
 99991 write(6,*)' could not open <',fname(1:inp_strlen(fname)),
      $     '> as new file'
-      call errquit('driver_hess_cart: fatal error', 911)
+      call errquit('driver_hess_cart: fatal error', 911, GEOM_ERR)
 99992 write(6,*)' error in reading <',fname(1:inp_strlen(fname)),
      $     '> as hessian file'
-      call errquit('driver_hess_cart: fatal error', 911)
+      call errquit('driver_hess_cart: fatal error', 911, GEOM_ERR)
       end
       subroutine driver_sad_search_dir(rtdb,geom,istep)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
@@ -2467,7 +2511,7 @@ c     redundant internal modes are shifted to high eigenvalues.
 c     
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
      $     l_hess, k_hess)) call errquit
-     $     ('driver_search_dir: memory for hessian',nvar**2)
+     $     ('driver_search_dir: memory for hessian',nvar**2, GEOM_ERR)
       call driver_project_hess_grad(dbl_mb(k_hess), pg)
 c     
 c     Diagonalize the Hessian.  Should really do the generalized
@@ -2480,14 +2524,14 @@ c
       lenwork = max(nvar**2,100)
       if (.not. ma_push_get(mt_dbl, lenwork, 'work',
      $     l_work, k_work)) call errquit
-     $     ('driver_search_dir: memory for hessian', lenwork)
+     $     ('driver_search_dir: memory for hessian', lenwork, GEOM_ERR)
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
 c$$$  call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
 c$$$  $     nvar, e, dbl_mb(k_work), lenwork, info)
 c$$$  if (info .ne. 0) call errquit
-c$$$  $     ('driver_search_dir: dsyev failed',info)
+c$$$  $     ('driver_search_dir: dsyev failed',info, GEOM_ERR)
       call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
       if (odebug .or. (util_print('hvecs',print_never) 
      $     .and. ga_nodeid().eq.0)) then
@@ -2660,7 +2704,8 @@ c
          if (oprint) write(6,98) moddir, tmp1, mod2, tmp2
  98      format(' Maximum overlap of modes: mode=', i3, 1p, 
      $        ' overlap=',d8.1, 0p, '  mode=', i3, 1p,' overlap=',d8.1)
-         if (tmp1 .eq. 0d0) call errquit('driver_sad_dir: no mode?',0)
+         if (tmp1 .eq. 0d0) call errquit('driver_sad_dir: no mode?',0,
+     &       GEOM_ERR)
 c
       endif
       if (moddir .ne. 0) then
@@ -2672,7 +2717,7 @@ c
          write(6,*) 'The mode being followed to the saddle point'
          if (zcoord) then
             if (.not.geom_print_zmatrix(geom, saddir,'Sadmode',.true.))
-     $           call errquit('driver: printing sadmode?',0)
+     $           call errquit('driver: printing sadmode?',0, GEOM_ERR)
          else
             write(6,*)
             write(6,88) (saddir(i),i=1,nvar)
@@ -2683,7 +2728,7 @@ c
 c     Save moddir so that it is picked up for a restart
 c     
       if (.not. rtdb_put(rtdb,'driver:moddir',mt_int,1,moddir)) 
-     $     call errquit('driver_sad_search_dir: rtdb?',0)
+     $     call errquit('driver_sad_search_dir: rtdb?',0, RTDB_ERR)
 c     
 c     First step might be uphill or along a variable.  Otherwise
 c     we take the approx. augmented newton step forcing uphill
@@ -2791,7 +2836,7 @@ c
       endif
 c     
       if (.not. ma_chop_stack(l_hess)) call errquit
-     $     ('driver_search_dir: ma?',0)
+     $     ('driver_search_dir: ma?',0, MA_ERR)
 c     
 c     Edo seems to have encountered a case where different processors
 c     generated different steps.  To prevent this, broadcast the 
@@ -2809,7 +2854,7 @@ c
             deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
             call geom_zmat_ico_scale(geom, ds, bohr, deg)
             if (.not. geom_print_zmatrix(geom, ds, 'Search  ',.true.))
-     $           call errquit('driver:print search_dir?',geom)
+     $           call errquit('driver:print search_dir?',geom, GEOM_ERR)
             call geom_zmat_ico_scale(geom, ds, 1d0/bohr, 1d0/deg)
          else
             call output(ds,1,ncart,1,1,ncart,1,1)
@@ -2821,6 +2866,7 @@ c
       end
       subroutine driver_symmetrize_step(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "mafdecls.fh"
@@ -2841,7 +2887,8 @@ c
       if (ostress) return       ! Yikes!
 c
       if (.not. ma_push_get(mt_dbl, ncart*nvar,'binv',l_bi, k_bi))
-     $     call errquit('driver_sym: memory for binv', ncart*nvar)
+     $     call errquit('driver_sym: memory for binv', ncart*nvar,
+     &       MA_ERR)
       call geom_hnd_get_data('b^-1', dbl_mb(k_bi), ncart*nvar)
       if (odebug) then
          write(6,*) ' Symmetrize step - initial q '
@@ -2858,11 +2905,13 @@ c
          call doutput(ds, 1, nvar, 1, 1, nvar, 1, 1)
       endif
 c
-      if (.not. ma_pop_stack(l_bi)) call errquit('driver_sym:ma',0)
+      if (.not. ma_pop_stack(l_bi)) call errquit('driver_sym:ma',0,
+     &       MA_ERR)
 c
       end
       subroutine driver_compute_actual_step(geom)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
@@ -2889,11 +2938,11 @@ c
       call dcopy(nvar, sp, 1, ds, 1) ! Old coordinates into ds()
       if (zcoord) then
          if (.not. geom_compute_zmatrix(geom, sp)) ! New coordinates into sp()
-     $        call errquit('driver: zmatrix?',0)
+     $        call errquit('driver: zmatrix?',0, GEOM_ERR)
       else
 c     FRACTIONAL?
          if (.not. opt_geom_cart_coords_get(geom, sp))
-     $        call errquit('driver: geom?',0)
+     $        call errquit('driver: geom?',0, GEOM_ERR)
       endif
       do i = 1, nvar 
          ds(i) = sp(i) - ds(i)
@@ -2913,6 +2962,7 @@ c
       end
       logical function opt_geom_cart_coords_get(geom, coords)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
@@ -2925,11 +2975,11 @@ c
 c     If we are including stress append the amatrix
 c
       if (.not. geom_cart_coords_get(geom, coords))
-     $     call errquit('driver: geom cart?',0)
+     $     call errquit('driver: geom cart?',0, GEOM_ERR)
 c
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. geom_cart_to_frac(geom, coords))
-     $           call errquit('driver: frac_to_cart?',0)
+     $           call errquit('driver: frac_to_cart?',0, GEOM_ERR)
       endif
 c
       if (ostress) then
@@ -2942,6 +2992,7 @@ c
       end
       logical function opt_geom_cart_coords_set(geom, coords)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
@@ -2974,6 +3025,7 @@ c
       end
       subroutine opt_get_grad(rtdb,geom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "nwc_const.fh"
@@ -3006,6 +3058,7 @@ c
       end
       subroutine driver_check_grad(rtdb,geom)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"

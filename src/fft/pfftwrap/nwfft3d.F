@@ -1,5 +1,5 @@
 *
-* $Id: nwfft3d.F,v 1.12 2002-05-09 23:14:09 d3g270 Exp $
+* $Id: nwfft3d.F,v 1.13 2003-10-17 22:54:57 carlfahl Exp $
 *
 c************************************************************************
 c Complex 3D FFT interface.
@@ -18,6 +18,7 @@ c ------------------------------------------------------------------------
      .                   x1,x2,map1,map2,doMap,
      .                   iwrklen,iwrk,rwrklen,rwrk,jstatus,ffttype)
       implicit none
+#include "errquit.fh"
       INTEGER nd1,nd2,nd3, isign,jstatus,idir
       INTEGER map1(*),map2(*)
       INTEGER doMap
@@ -122,7 +123,8 @@ c     ** fft x1(nd1,nd2,*)
          jstatus = initESSL(icontext)
          if (jstatus.LT.0) then
            call blacs_abort(icontext,1)
-           call errquit('nwfft3d: ESSL initialization failed',0)
+           call errquit('nwfft3d: ESSL initialization failed',0,
+     &       UNKNOWN_ERR)
          endif
       endif
 #endif
@@ -132,7 +134,8 @@ c     ** fft x1(nd1,nd2,*)
 c determine map if necessary (required once) for EMSL routine
 #ifdef EMSLFFT
       if (blksz.LE.0) then
-       call errquit('nwfft3d:: internal error: bad blocksize',0)
+       call errquit('nwfft3d:: internal error: bad blocksize',0,
+     &       UNKNOWN_ERR)
       endif
       if (doMap.EQ.1 .OR. computedMap.EQ.0) then
         owner = 0
@@ -180,10 +183,12 @@ c free previous space if present
         endif
         nwords = MA_inquire_heap(MT_DBL)
         if (nwords.LT.nrealscr) then
-          call errquit('nwfft3d: insufficient heap for dscratch',0)
+          call errquit('nwfft3d: insufficient heap for dscratch',0,
+     &       MA_ERR)
         else 
            if(.NOT.MA_alloc_get(MT_DBL,nrealscr,'fftdbl',dblh,idbl))then
-            call errquit('nwfft3d: insufficient heap for dscratch',0)
+            call errquit('nwfft3d: insufficient heap for dscratch',0,
+     &       MA_ERR)
            endif
         endif
         ma_nrealscr = nrealscr
@@ -195,11 +200,13 @@ c it will not change during the course of a run. (see pfft1.0/pfft/chk3d.F)
         ma_nintscr = 5*nproc+100
         nwords = MA_inquire_heap(MT_INT)
         if (nwords.LT.ma_nintscr) then
-           call errquit('nwfft3d: insufficient heap for iscratch',0)
+           call errquit('nwfft3d: insufficient heap for iscratch',0,
+     &       MA_ERR)
         else 
           if (.NOT.MA_alloc_get(MT_INT,ma_nintscr,
      .                         'fftint',inth,iint)) then
-           call errquit('nwfft3d: insufficient heap for iscratch',0)
+           call errquit('nwfft3d: insufficient heap for iscratch',0,
+     &       MA_ERR)
           endif
         endif
         initSCRATCH = 1
@@ -239,7 +246,7 @@ c    .            isize,work,isize,iwork,jstatus)
 c status check
       if (jstatus.NE.0) then
 #ifdef EMSLFFT
-        call errquit('nwfft3d: pfft3d() error return',0)
+        call errquit('nwfft3d: pfft3d() error return',0, UNKNOWN_ERR)
 #endif 
 #ifdef FFTDEBUG
         print*,me,'WARNING: forward fft status = ',jstatus,nd1,nd2,nd3

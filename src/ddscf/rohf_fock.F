@@ -3,9 +3,10 @@
      $     eone, etwo, g_fcv, g_fpv,
      $     g_fcp, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.19 2003-01-30 01:16:57 bert Exp $
+* $Id: rohf_fock.F,v 1.20 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -61,7 +62,7 @@ c
 c     Initialise
 c     
       if (.not. bas_numbf(basis, nbf))
-     $     call errquit('rohf_solve: bas_numbf failed',0)
+     $     call errquit('rohf_solve: bas_numbf failed',0, BASIS_ERR)
       call rohf_jkfac(jfactor,kfactor)
       nvir = nmo - nclosed - nopen
 c     
@@ -103,7 +104,8 @@ c
          if (errmax .gt. sym_tol) then
             write(6,*) ' Symmetry error ', errmax
             call  errquit
-     $           ('rohf_fock:closed density is not totally symmetric',0)
+     $           ('rohf_fock:closed density is not totally symmetric',0,
+     &       UNKNOWN_ERR)
          endif
          if (nopen .gt. 0) then
             call ga_copy(g_odens, g_hcore)
@@ -115,7 +117,8 @@ c
             if (errmax .gt. sym_tol) then
                write(6,*) ' Symmetry error ', errmax
                call errquit
-     $              ('rohf_fock:open density not totally symmetric',0)
+     $              ('rohf_fock:open density not totally symmetric',0,
+     &       UNKNOWN_ERR)
             endif
          endif
       endif
@@ -256,18 +259,18 @@ c
       endif
 c     
       if (.not. ga_destroy(g_hcore)) call errquit
-     $     ('rohf_fock: ga_destroy failed',0)
+     $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_cdens)) call errquit
-     $     ('rohf_fock: ga_destroy failed',0)
+     $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_cfock)) call errquit
-     $     ('rohf_fock: ga_destroy failed',0)
+     $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (nopen .gt. 0) then
          if (.not. ga_destroy(g_ocoul)) call errquit
-     $        ('rohf_fock: ga_destroy failed',0)
+     $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
          if (.not. ga_destroy(g_oexch)) call errquit
-     $        ('rohf_fock: ga_destroy failed',0)
+     $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
          if (.not. ga_destroy(g_odens)) call errquit
-     $        ('rohf_fock: ga_destroy failed',0)
+     $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
       endif
 c     
       end

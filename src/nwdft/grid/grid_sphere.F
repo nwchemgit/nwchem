@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.17 2002-04-04 17:39:17 edo Exp $
+c$Id: grid_sphere.F,v 1.18 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -54,6 +54,7 @@ c
       end
       integer function grid_ncubes(rad,ynxyz,fnxyz,l_rect)
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "cdft.fh"
       integer nx,ny,nz,nxyz
@@ -94,7 +95,8 @@ c     inside part of side L/2
                         write(0,'(A,4I4)') ' IN  nx ny nz ',nx,ny,nz,
      ,                       fnxyz(ninside)
                         write(0,'(A,4I4)') ' OUT nx ny nz ',onx,ony,onz
-                        call errquit('grid_ncube: mapping wrong',9)
+                        call errquit('grid_ncube: mapping wrong',9,
+     &       INPUT_ERR)
                      endif
                   endif
                endif
@@ -128,7 +130,8 @@ c     do nothing --- see above
                         write(0,'(A,4I4)') ' IN  nx ny nz ',nx,ny,nz,
      ,                       fnxyz(ninside)
                         write(0,'(A,4I4)') ' OUT nx ny nz ',onx,ony,onz
-                        call errquit('grid_ncube: mapping wrong',9)
+                        call errquit('grid_ncube: mapping wrong',9,
+     &       INPUT_ERR)
                      endif
                   endif
                endif

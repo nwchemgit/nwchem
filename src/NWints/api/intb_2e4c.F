@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.24 2000-05-27 19:39:31 mg201 Exp $
+*     $Id: intb_2e4c.F,v 1.25 2003-10-17 22:53:42 carlfahl Exp $
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the
@@ -44,11 +44,13 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
 #include "stdio.fh"
+#include "util.fh"
 #include "mafdecls.fh"
 c::   functions
       logical intb_nw_2e4c
@@ -137,7 +139,7 @@ c
          write(luout,*)' number of integrals from texas   :',nints
          write(luout,*)' size of integral and label buffer:',l_erilab
          write(luout,*)' you must increase eri buffer/label size '
-         call errquit(' integral buffer overflow ',911)
+         call errquit(' integral buffer overflow ',911, MEM_ERR)
       endif
       intb_2e4c = more_ints_txs
 c     
@@ -169,6 +171,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "numb_qP.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -224,7 +227,8 @@ c
 #endif
       if (num_q_start.eq.num_q_last) then
          write(luout,*)' l_erilab: too small ',l_erilab
-         call errquit(' intb_nw_2e4c: infinite blocking loop ',911)
+         call errquit(' intb_nw_2e4c: infinite blocking loop ',911,
+     &          INT_ERR)
       endif
       num_q_last = num_q_start
       nints = 0

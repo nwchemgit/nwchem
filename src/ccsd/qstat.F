@@ -1,6 +1,7 @@
       subroutine qenter(namein,iprint)
-C     $Id: qstat.F,v 2.6 1997-11-14 00:06:50 d3g681 Exp $
+C     $Id: qstat.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Character*(*) NameIn
       Integer IPrint
 C
@@ -18,7 +19,8 @@ c
 
 ***      write(6,*) 'qenter:', namein
 ***      call util_flush(6)
-***      if (.not. ma_verify_allocator_stuff()) call errquit(namein,0)
+***      if (.not. ma_verify_allocator_stuff()) call errquit(namein,0,
+***     &       MA_ERR)
 
       call cputime(tcp1)
       tio1=zip

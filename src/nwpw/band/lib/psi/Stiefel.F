@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.7 2002-06-11 23:17:22 bylaska Exp $
+* $Id: Stiefel.F,v 1.8 2003-10-17 22:56:11 carlfahl Exp $
 *
 
 
@@ -450,6 +450,7 @@
 *     ********************************
       subroutine Stfl_gg_traceall(ispin,ne,nfft3d,neall,nbrill,A,B,sum)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       integer nfft3d,neall,nbrill
       complex*16 A(nfft3d,neall,nbrill)
@@ -468,7 +469,7 @@
       external brillioun_weight
 
       value =  MA_push_get(mt_dbl,(2*nbrill),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call Stfl_gg_trace(ispin,ne,nfft3d,neall,nbrill,
      >                   A,B,dbl_mb(tmp1(1)))
@@ -482,7 +483,8 @@
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack memory',0)
+      if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
       return
       end
 
@@ -533,6 +535,7 @@
 *     ***********************************
       subroutine Stfl_q_diag(ispin,ne,neall,nbrill,n,S,V)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       integer neall,nbrill,n
       real*8     S(neall,nbrill)
@@ -552,7 +555,7 @@
      >        MA_push_get(mt_dcpl,lwork,
      >                    'work',work(2),work(1))
       if (.not. value)
-     >   call errquit('Stfl_q_diag:out of stack memory',0)
+     >   call errquit('Stfl_q_diag:out of stack memory',0, MA_ERR)
 
       do nb=1,nbrill
       do ms=1,ispin
@@ -571,7 +574,7 @@
       value = MA_pop_stack(work(2))
       value = value.and.MA_pop_stack(rwork(2))
       if (.not. value)
-     > call errquit('Stfl_q_diag:error popping stack',0)
+     > call errquit('Stfl_q_diag:error popping stack',0, MA_ERR)
       return
       end
 
@@ -583,6 +586,7 @@
 
       subroutine Stfl_SVD(ispin,ne,nfft3d,neall,nbrill,n,A,U,S,V)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       integer nfft3d,neall,nbrill,n
       complex*16 A(nfft3d,neall,nbrill)
@@ -609,7 +613,7 @@
 
 *     **** normalize U*sigma, and sqrt(S^2) ****
       value =  MA_push_get(mt_dbl,(neall),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       do nb=1,nbrill
 
@@ -635,7 +639,8 @@
 
       end do
       value = MA_pop_stack(tmp2(2))
-      if (.not. value) call errquit('error popping stack memory',0)
+      if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
        
       return
       end

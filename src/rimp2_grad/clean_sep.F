@@ -3,11 +3,12 @@ C NAME
 C     rimp2_clean_sep -- Clean up after separable gradient terms
 C
 C REVISION
-C     $Id: clean_sep.F,v 1.1 1999-05-28 15:29:36 bernhold Exp $
+C     $Id: clean_sep.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Clean_Sep(TopSpin)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer TopSpin ![in]
 C
@@ -38,7 +39,7 @@ C STATEMENT FUNCTIONS
 C
       If ( TopSpin .gt. MyMaxSpin ) Call ErrQuit( 
      $     'RIMP2_Clean_Sep: MyMaxSpin inconsistent with TopSpin',
-     $     MyMaxSpin )
+     $     MyMaxSpin , INPUT_ERR)
 C
       Do Spin = 1, TopSpin
          Call Util_File_Name(Def_FN_W2(Spin), .TRUE., .TRUE., FN_W2_ao)

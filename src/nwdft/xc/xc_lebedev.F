@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.28 2003-02-17 22:58:32 edo Exp $
+C$Id: xc_lebedev.F,v 1.29 2003-10-17 22:55:53 carlfahl Exp $
 c
 #include "cdft.fh"
 #include "stdio.fh"
@@ -4134,6 +4134,7 @@ c  207 format('     Irreducible set of points ;')
       end
       integer function xc_leb_acc2nrd(acc)
       implicit none
+#include "errquit.fh"
       integer acc
       integer nridv(29)
       data nridv/38, 50, 74, 86, 110, 146, 170, 194,  
@@ -4142,13 +4143,14 @@ c  207 format('     Irreducible set of points ;')
      .     3890,4334,4802,5294,5810/
 c     
       if(acc.lt.1.or.acc.gt.29)
-     . call errquit('xclebacc2: invalid acc',acc)
+     . call errquit('xclebacc2: invalid acc',acc, UNKNOWN_ERR)
       xc_leb_acc2nrd=nridv(acc)
 
       return
       end
       integer function xc_leb_nrd2acc(nrad)
       implicit none
+#include "errquit.fh"
       integer nrad
       integer i
       integer nridv(29)
@@ -4166,6 +4168,6 @@ c
             return
          endif
       enddo
-      call errquit('xclebnrd2: invalid nrad',nrad)
+      call errquit('xclebnrd2: invalid nrad',nrad, UNKNOWN_ERR)
       return
       end

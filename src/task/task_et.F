@@ -1,5 +1,6 @@
       logical function task_et(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -19,17 +20,17 @@ c
       status = task_et_doit(rtdb,Vba)
 c
       if (.not. rtdb_put(rtdb, 'task:et', mt_dbl, 1, Vba))
-     $     call errquit('task_et: failed storing Vba',0)
+     $     call errquit('task_et: failed storing Vba',0, RTDB_ERR)
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
 c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_et: failed to store status',0)
+     $     call errquit('task_et: failed to store status',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_et: failed storing cputime',0)
+     $     call errquit('task_et: failed storing cputime',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_et: failed storing walltime',0)
+     $     call errquit('task_et: failed storing walltime',0, RTDB_ERR)
 c
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
@@ -50,7 +51,7 @@ c===========================================================================
 c
 c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.12 2002-02-20 18:38:43 d3k958 Exp $
+* $Id: task_et.F,v 1.13 2003-10-17 22:58:26 carlfahl Exp $
 c
 *
 #include "rtdb.fh"

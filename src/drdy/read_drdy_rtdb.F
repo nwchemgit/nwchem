@@ -1,10 +1,11 @@
-C $Id: read_drdy_rtdb.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+C $Id: read_drdy_rtdb.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
 c
 c ***************************************************************************
 c     read5 -> read_drdy_rtdb
 c ***************************************************************************
       subroutine read_drdy_rtdb(rtdb)
       implicit none 
+#include "errquit.fh"
 * set up local input file from master nwchem input on rtdb.
 #include "drdyP.fh"
 #include "stdio.fh"
@@ -38,7 +39,7 @@ c
       rtdbname = 'drdy:nwchem:line:count'
       if (.not.rtdb_get(rtdb,rtdbname,mt_int,1,count)) then
         write(fu6,*)' no input for drdy '
-        call errquit('read_drdy_rtdb: fatal error ',911)
+        call errquit('read_drdy_rtdb: fatal error ',911, RTDB_ERR)
       endif
 c
       do i = 1,count
@@ -46,7 +47,7 @@ c
         if (.not.rtdb_cget(rtdb,rtdbname,1,drdystring)) then
           write(fu6,*)' could not rtdb_cget ',
      &          rtdbname(1:(inp_strlen(rtdbname)))
-          call errquit('read_drdy_rtdb: fatal error ',911)
+          call errquit('read_drdy_rtdb: fatal error ',911, RTDB_ERR)
         endif
         len_drdy = inp_strlen(drdystring)
         write(lu_drdy_rline,'(a)') drdystring(1:len_drdy)
@@ -63,14 +64,14 @@ c
       if (iend.eq.1) then
          write(fu6,1000)
 1000     format(1x,'error:  input file was empty')
-         call errquit('read_drdy_rtdb: fatal error',911)
+         call errquit('read_drdy_rtdb: fatal error',911, RTDB_ERR)
       end if
 c
       if (isect.ne.1) then
          write(fu6,1100)
 1100     format(1x,'error:  first non-comment, non-blank line must be'
      *             ,' a section header that begins with a *')
-         call errquit('read_drdy_rtdb: fatal error',911)
+         call errquit('read_drdy_rtdb: fatal error',911, RTDB_ERR)
       end if
 c
 c     Call the correct routine to read in the data in this section.  
@@ -101,7 +102,7 @@ c
                call drdy_rpath(string,iend,istrt)
          else
                write(fu6,1200) string(j-1:80)
-               call errquit('read_drdy_rtdb: fatal error',911)
+               call errquit('read_drdy_rtdb: fatal error',911, RTDB_ERR)
          end if
       end do
 c
@@ -111,7 +112,7 @@ c
       return
 99999 continue
       write(fu6,*)' read_drdy_rtdb: could not open: ',filename
-      call errquit('read_drdy_rtdb: fatal error',911)
+      call errquit('read_drdy_rtdb: fatal error',911, RTDB_ERR)
 10000 format('drdy:',i10)
       end
 

@@ -3,12 +3,13 @@ C NAME
 C     RIMP2_Mk_W2 -- Complete formation of W2
 C
 C REVISION
-C     $Id: mk_w2.F,v 1.5 1998-12-08 19:52:12 bernhold Exp $
+C     $Id: mk_w2.F,v 1.6 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
      $     NVir, g_P2, g_W2, Eig, LDEig, g_AOXF, Tol2e_Fock)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer RTDB          ![in]
       Integer Geom          ![in]
@@ -56,7 +57,7 @@ C     Sanity checks and initialization
 C
       If ( TopSpin .gt. MaxSpin) Call ErrQuit(
      $     'RIMP2_Mk_W2: fatal program error: TopSpin > MaxSpin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
 C
       Me = GA_NodeID()
 c$$$C
@@ -74,7 +75,7 @@ C
      $        NFrzO(ISpin)+NAct(ISpin), NFrzO(ISpin)+NAct(ISpin),
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_W2ij(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t allocate W2ij', ISpin)
+     $        'RIMP2_Driver_G: can''t allocate W2ij', ISpin, GA_ERR)
          Call GA_Zero(g_W2ij(ISpin) )
       EndDo
 C
@@ -108,7 +109,7 @@ C
 C
       Do ISpin = 1, MaxSpin
          If ( .NOT. GA_Destroy( g_W2ij(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Mk_W2: can''t destroy L_tr', ISpin)
+     $        'RIMP2_Mk_W2: can''t destroy L_tr', ISpin, GA_ERR)
       EndDo
 C
 C     *************************
@@ -128,7 +129,7 @@ C        For convenience, copy P2 as workspace
 C
          If ( .NOT. GA_Duplicate(g_P2(ISpin), g_Tmp, 'Temp for W2') )
      $        Call ErrQuit('RIMP2_Mk_W2: can''t allocate copy of P2',
-     $        ISpin)
+     $        ISpin, GA_ERR)
          Call GA_Copy(g_P2(ISpin), g_Tmp)
 C
 C        Find our patch of Tmp and access it
@@ -177,7 +178,7 @@ C
          Call GA_Add(1.0d0, g_Tmp, 1.0d0, g_W2(ISpin), g_W2(ISpin) )
 C
          If ( .NOT. GA_Destroy(g_Tmp) ) Call ErrQuit(
-     $        'RIMP2_Mk_W2: can''t destroy temporary GA', g_Tmp)
+     $        'RIMP2_Mk_W2: can''t destroy temporary GA', g_Tmp, GA_ERR)
 C
 C        Print results if requested
 C

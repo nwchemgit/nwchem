@@ -1,9 +1,10 @@
       subroutine selci_eijkj(e,i,k,j,ns,indbar,iocc,
      $     w1,w2,work,numf,numf2)
 *
-* $Id: eijkj.F,v 1.2 1997-10-31 23:42:01 d3e129 Exp $
+* $Id: eijkj.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension e(*),indbar(*),iocc(*),work(*),
      $     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1)
@@ -25,7 +26,7 @@ c
       numf = nf(ns)
       icase = (iocc(i)+iocc(k))/2
       goto (10,20,30) icase
-      call errquit('eijkj: invalid case',icase)
+      call errquit('eijkj: invalid case',icase, INPUT_ERR)
 c
 c     ni=1, nk=1: e(u,v) = w1(u,q,ib)*w1(q,p,kb)*w1(s,p,jb)*w2(v,s,jb)
 c

@@ -1,8 +1,9 @@
       subroutine intdd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intdd_1eov.F,v 1.6 2003-02-20 02:06:43 bert Exp $
+c $Id: intdd_1eov.F,v 1.7 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 c::functions
       integer int_nint_cart
       external int_nint_cart
@@ -53,7 +54,7 @@ c                            d[idatom(2),z]/
       if (nint*3*3*4.gt.lOva) then
         write(luout,*) 'nint*3*3*4 = ',nint*3*3*4
         write(luout,*) 'lOva       = ',lOva
-        call errquit('intdd_1eov: nint>lOva error',911)
+        call errquit('intdd_1eov: nint>lOva error',911, INT_ERR)
       endif
       call intdd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
      &    OVa,idatom)
@@ -66,6 +67,7 @@ c
 c returns 1e overlap second derivative integrals for shells/contractions ish,jsh
 c
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -181,7 +183,7 @@ c
       if (igeom.ne.jgeom) then
         write(luout,*)'intdd_1eovP: two different geometries for',
      &         ' derivatives?'
-        call errquit('intdd_1eovP: geom error ',911)
+        call errquit('intdd_1eovP: geom error ',911, GEOM_ERR)
       endif
 c
       if (cando_hnd_1edd(i_basis,ish,0).and.
@@ -213,7 +215,7 @@ c       write(luout,*) itemp,' 3,2,',Ova(itemp,3,2)
 c     enddo
       else
         call errquit('intdd_1eov: could not do hnd integrals',
-     $        0)
+     $        0, INT_ERR)
       endif
 c
 *     Ova now has the cartesian integral block  
@@ -279,7 +281,7 @@ c
       else
         call errquit(
      &        'intdd_1eovP: cant do sphericals',
-     &        911)
+     &        911, INT_ERR)
       endif
 c
 c now shuffle transformed buffers to contiguous space
@@ -288,7 +290,8 @@ c
       nint_s = i_nbf_s*j_nbf_s
       if (nint_s.gt.nint_x) then
         call errquit
-     &      ('intdd_1eov: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &      ('intdd_1eov: nint_s >.nint_x diff=',(nint_s-nint_x),
+     &       INT_ERR)
       elseif (nint_s.eq.nint_x) then
         return
       else

@@ -1,4 +1,4 @@
-C $Id: rphwrt.F,v 1.4 2001-02-02 01:29:27 windus Exp $
+C $Id: rphwrt.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
 #if defined(LINUX)
 #define APPEND_OK
 #endif
@@ -15,6 +15,7 @@ C             the MEP
 C    IOP = 7, write out RPH information for points along the MEP
 C
       Implicit None
+#include "errquit.fh"
 C
 #include "drdyP.fh"
 #include "stdio.fh"
@@ -128,7 +129,7 @@ c
             write (fu30,*) ' '
          elseif (icode(iop).eq.2) then
             write (fu6,6000) iop
-            call errquit('drdy_rphwrt: fatal error ',911)
+            call errquit('drdy_rphwrt: fatal error ',911, INPUT_ERR)
          else
             nfreq = nf(iop)
             nend = 3*nratom(iop)

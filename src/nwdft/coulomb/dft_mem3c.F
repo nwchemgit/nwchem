@@ -2,8 +2,9 @@
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.5 2002-04-02 22:02:13 edo Exp $
+* $Id: dft_mem3c.F,v 1.6 2003-10-17 22:55:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -127,7 +128,7 @@ c
          do ishc=1,nshells_ao
             if(.not.bas_continfo(ao_bas_han,ishc,
      &           itype,nprimo,nshbfc,isphere))
-     &           call errquit('Exiting in fitcd.',44)
+     &           call errquit('Exiting in fitcd.',44, CALC_ERR)
            nao2_max=max(nao2_max,
      ,           ((itype+1)*(itype+2))/2*nshbfc)
          enddo
@@ -155,11 +156,11 @@ c         n_semi_bufs = nint(n3c_dbl_r/availm_r) + 1
       endif
       if (.not.MA_Push_Get
      &     (MT_Dbl,n3c_dbl,'3c ERI space',l_3cERI,k_3cERI))
-     &     call errquit('dft_scf: push_get failed', 12)
+     &     call errquit('dft_scf: push_get failed', 12, MA_ERR)
 c     
       if (.not.MA_Push_Get
      &     (MT_int,n3c_int,'3c what space',l_3cwhat,k_3cwhat))
-     &     call errquit('dft_scf:push_get failed', 13)
+     &     call errquit('dft_scf:push_get failed', 13, MA_ERR)
 c     
       if (dft_mem3c)then
          if (me.eq.0 .and. oprint_3c2e)

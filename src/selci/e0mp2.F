@@ -1,6 +1,6 @@
       subroutine selci_brdeig
 *
-* $Id: e0mp2.F,v 1.5 2000-10-23 16:23:52 windus Exp $
+* $Id: e0mp2.F,v 1.6 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
 #include "ciinfo.fh"
@@ -10,6 +10,7 @@
       end
       subroutine selci_geteig(eigins)
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 #include "cmp2.fh"
       character*80 eigins
@@ -18,7 +19,8 @@ c
 c subroutine to get orbital eigenvalues to be used in MP pt.
 c currently reads ascii eigenvalues from a file called 'eigins'
 c
-      call errquit('select: MP denominators not functional',0)
+      call errquit('select: MP denominators not functional',0,
+     &       INPUT_ERR)
 c$$$      if (norbs.gt.norbsmx) then
 c$$$         call errquit('norbs > norbsmx = ',norbsmx)
 c$$$      endif

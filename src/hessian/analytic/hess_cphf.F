@@ -1,11 +1,12 @@
 C
-C $Id: hess_cphf.F,v 1.52 2003-04-03 01:21:06 windus Exp $
+C $Id: hess_cphf.F,v 1.53 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine hess_cphf(rtdb)
 c
 c  Solves the CPHF equations to get the responses
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "hess_info.fh"
@@ -67,10 +68,12 @@ c then get actual data
 c
       if (theory.eq.'dft') then
         if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs))
-     *    call errquit('onedd_cont: DFT MO vectors not defined',555)
+     *    call errquit('onedd_cont: DFT MO vectors not defined',555,
+     &       RTDB_ERR)
       else
         if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs))
-     $    call errquit('gradients: SCF MO vectors not defined',0)
+     $    call errquit('gradients: SCF MO vectors not defined',0,
+     &       RTDB_ERR)
       endif
       call util_file_name_resolve(movecs,.false.)
 c
@@ -82,23 +85,27 @@ c
       g_vecs(1) = ga_create_atom_blocked(geom, basis, 'mo vectors')
 c     eigenvalues
       if (.not. ma_push_get(mt_dbl, nbf2,'MO evals', l_evals, k_evals))
-     $     call errquit('hess_cphf: could not allocate l_evals',nbf2)
+     $     call errquit('hess_cphf: could not allocate l_evals',nbf2,
+     &       MA_ERR)
 c     occupation numbers
       if (.not. ma_push_get(mt_dbl, nbf,'occ. numbers', l_occ, k_occ))
-     $     call errquit('hess_cphf: could not allocate l_occ',nbf)
+     $     call errquit('hess_cphf: could not allocate l_occ',nbf,
+     &       MA_ERR)
 c
       call ga_zero(g_vecs(1))
 c
       if (.not. movecs_read (movecs,1,dbl_mb(k_occ),dbl_mb(k_evals), 
      $     g_vecs(1)))
-     $     call errquit('hess_cphf: could not read mo vectors', 110)
+     $     call errquit('hess_cphf: could not read mo vectors', 110,
+     &       DISK_ERR)
 
       if (ouhf) then
          g_vecs(2) = ga_create_atom_blocked(geom, basis, 
      $       'uhf mo vectors')
          if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), 
      $        dbl_mb(k_evals+nbf), g_vecs(2))) call errquit
-     $        ('hess_cphf: could not read beta UHF MOs',0)
+     $        ('hess_cphf: could not read beta UHF MOs',0,
+     &       DISK_ERR)
       end if
 c
 c print out some debug info, note that occ is for the
@@ -130,7 +137,7 @@ c
 c give back unnecessary memory
 c
       if (.not.ma_pop_stack(l_occ)) call errquit
-     &  ('hess_cphf: cannot pop stack l_occ',555)
+     &  ('hess_cphf: cannot pop stack l_occ',555, MA_ERR)
 c
       g_modx =ga_create_atom_blocked ( geom, basis, 'mo df' )
 c
@@ -146,13 +153,13 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'AA matrix',chunk,
      &     g_aa))
-     &   call errquit('hess_cphf: could not allocate g_aa',555)
+     &   call errquit('hess_cphf: could not allocate g_aa',555, GA_ERR)
 c
       dims(3) = nvirt(1)
       if (ouhf) dims(3) = max(nvirt(1),nvirt(2))
       if (.not. nga_create (MT_DBL, 3, dims, 'WAX matrix',chunk,
      &     g_wax))
-     &   call errquit('hess_cphf: could not allocate g_wax',555)
+     &   call errquit('hess_cphf: could not allocate g_wax',555, GA_ERR)
 c
 c  Transform the current AO based Fock derivatives to the MO basis,
 c  scale by four, and populate g_aa and g_wax 
@@ -215,7 +222,7 @@ c
 c  Get rid of some memory
 c
       if (.not.ma_pop_stack(l_evals)) call errquit
-     &  ('hess_cphf: cannot pop stack l_evals',555)
+     &  ('hess_cphf: cannot pop stack l_evals',555, MA_ERR)
 c
 c Do modified fock build that contracts integrals with Ta and then
 c adds to g_aa and g_wax.  Ta needs to be transformed back into the AO
@@ -234,13 +241,13 @@ c
           write(LuOut,*) 'Could not duplicate g_rhs'
           write(LuOut,*) 'The most likely reason is not enough memory'
         endif
-        call errquit('hess_cphf: could not duplicate g_rhs',555)
+        call errquit('hess_cphf: could not duplicate g_rhs',555, GA_ERR)
       endif
       call hess_modfock(g_rhs, g_vecs, g_tmp, ndens, n3xyz,
      $                  tol2e, rtdb, geom, basis, jfac, kfac,
      $                  nbf, ocphfprint)
       if (.not.ga_destroy(g_tmp))
-     $  call errquit('hess_cphf: cannot destroy g_tmp',555)
+     $  call errquit('hess_cphf: cannot destroy g_tmp',555, GA_ERR)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
      $          oprint, ocphfprint,
@@ -273,7 +280,7 @@ c
       chunk(3) = -1
       if (.not. nga_create (MT_DBL, 3, dims, 'dipole matrix',chunk,
      &     g_dip))
-     &   call errquit('hess_cphf: could not allocate g_dip',555)
+     &   call errquit('hess_cphf: could not allocate g_dip',555, GA_ERR)
       call ga_zero(g_dip)
       call hess_dipint(rtdb, geom, basis, g_dip, ndens, nbf)
       ndip = 3
@@ -327,7 +334,7 @@ c
 c We can now get rid of the RHS memory
 c
       if (.not.ga_destroy(g_rhs))
-     $  call errquit('hess_cphf: problem destroying g_rhs',555)
+     $  call errquit('hess_cphf: problem destroying g_rhs',555, GA_ERR)
 c
 c Print intermediate result
 c
@@ -340,9 +347,9 @@ c
 c get rid of some extra memory
 c
       if (.not.ga_destroy(g_modx))
-     $  call errquit('hess_cphf: cannot destroy g_modf',555)
+     $  call errquit('hess_cphf: cannot destroy g_modf',555, GA_ERR)
       if (.not.ga_destroy(g_aa)) call errquit
-     $  ('cannot destroy g_aa ',555)
+     $  ('cannot destroy g_aa ',555, GA_ERR)
 c
 c Now actually set up the CPHF matrices 
 c
@@ -359,7 +366,7 @@ c Create a temporary array to reshape the CPHF RHS and send to the CPHF
 c
        if (.not.ga_create(MT_DBL,vlen,nc,'cphf_sol',
      $    0,0,g_sol))
-     $    call errquit('hess_cphf: could not create g_sol',555)
+     $    call errquit('hess_cphf: could not create g_sol',555, GA_ERR)
 c
 c Put the CPHF matrices into one GA in the correct format
 c Note that the alpha and beta matrices are concatenated
@@ -388,7 +395,7 @@ c
         enddo
       enddo
       if (.not.ga_destroy(g_wax)) call errquit
-     $  ('cannot destroy g_wax ',555)
+     $  ('cannot destroy g_wax ',555, GA_ERR)
 c
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
@@ -396,27 +403,27 @@ c
       endif
 c
       if(.not.file_write_ga(cphf_rhs,g_sol)) call errquit
-     $  ('hess_cphf:could not write cphf_rhs',ind)
+     $  ('hess_cphf:could not write cphf_rhs',ind, DISK_ERR)
       if (.not.ga_destroy(g_sol)) call errquit
-     $  ('cannot destroy g_sol ',555)
+     $  ('cannot destroy g_sol ',555, GA_ERR)
 c
 c Actually run the CPHF on all rhs
 c
       if (.not.cphf2(rtdb)) call errquit
-     $  ('hess_cphf: failure in cphf ',555)
+     $  ('hess_cphf: failure in cphf ',555, RTDB_ERR)
 c
 c Get the RHS and solution off of disk.
 c
       if (.not.ga_create(MT_DBL,vlen,nc,'cphf_rhs',
      $   0,0,g_wax))
-     $   call errquit('hess_cphf: could not create g_wax',555)
+     $   call errquit('hess_cphf: could not create g_wax',555, GA_ERR)
       if(.not.file_read_ga(cphf_rhs,g_wax)) call errquit
-     $  ('hess_cphf:could not read cphf_wax',555)
+     $  ('hess_cphf:could not read cphf_wax',555, DISK_ERR)
       if (.not.ga_create(MT_DBL,vlen,nc,'cphf_sol',
      $   0,0,g_sol))
-     $   call errquit('hess_cphf: could not create g_sol',555)
+     $   call errquit('hess_cphf: could not create g_sol',555, GA_ERR)
       if(.not.file_read_ga(cphf_sol,g_sol)) call errquit
-     $  ('hess_cphf:could not read cphf_rhs',555)
+     $  ('hess_cphf:could not read cphf_rhs',555, DISK_ERR)
 c
       if (ocphfprint) then
         if(ga_nodeid().eq.0)write(LuOut,*) 'g_wax after disk'
@@ -433,7 +440,7 @@ c
 c Get rid of temp memory
 c
       if (.not.ga_destroy(g_wax)) call errquit
-     $  ('cannot destroy g_wax ',555)
+     $  ('cannot destroy g_wax ',555, GA_ERR)
 c
 c Now get the dipole derivative term
 c
@@ -447,9 +454,9 @@ c
 c Get rid of temp memory
 c
       if (.not.ga_destroy(g_sol)) call errquit
-     $  ('cannot destroy g_sol ',555)
+     $  ('cannot destroy g_sol ',555, GA_ERR)
       if (.not.ga_destroy(g_dip)) call errquit
-     $  ('cannot destroy g_dip ',555)
+     $  ('cannot destroy g_dip ',555, GA_ERR)
 c
 c Print intermediate result
 c
@@ -463,7 +470,7 @@ c Get rid of some extra memory
 c
       do ind = 1, ndens
         if (.not.ga_destroy(g_vecs(ind))) call errquit
-     $    ('cannot destroy g_vecs ',ind)
+     $    ('cannot destroy g_vecs ',ind, GA_ERR)
       enddo
 c
       return
@@ -794,6 +801,7 @@ c
      $                        nbf, ocphfprint)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "mafdecls.fh"
@@ -820,11 +828,13 @@ c     if (dmax.gt.tol2e) then  ! the value of tol2e may not be the best here
       if (.not. ma_push_get(MT_DBL, nfacs,'j factors',
      $     l_jfac, k_jfac))
      $     call errquit
-     $     ('hess_modfock: could not allocate l_jfac',ndens*n3xyz)
+     $     ('hess_modfock: could not allocate l_jfac',ndens*n3xyz,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL, nfacs,'k factors',
      $     l_kfac, k_kfac))
      $     call errquit
-     $     ('hess_modfock: could not allocate l_kfac',ndens*n3xyz)
+     $     ('hess_modfock: could not allocate l_kfac',ndens*n3xyz,
+     &       MA_ERR)
 c
       multfac = 8.0d+00
       if (ndens.gt.1) multfac = 4.0d+00
@@ -856,11 +866,14 @@ c
 c     Activate XC contribution to OO derivative Fock matrix
 c
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
-     $     call errquit('hess_cphf: rtdb_put of xc_active failed',0)
+     $     call errquit('hess_cphf: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
-     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0)
+     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
-     $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0)
+     $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0,
+     &       RTDB_ERR)
 c
       ndensity = ndens*n3xyz
       nfock = ndensity
@@ -879,16 +892,18 @@ c
       call ga_dscal(g_rhs_x, multfac)
 c
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
-     $     call errquit('hess_cphf: rtdb_put of xc_active failed',1)
+     $     call errquit('hess_cphf: rtdb_put of xc_active failed',1,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
-     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0)
+     $     call errquit('hess_cphf: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
       call schwarz_tidy()
       call int_terminate()
 c
       if (.not.ma_pop_stack(l_kfac))
-     $  call errquit('hess_cphf: pop problem with l_jfac',555)
+     $  call errquit('hess_cphf: pop problem with l_jfac',555, MA_ERR)
       if (.not.ma_pop_stack(l_jfac))
-     $  call errquit('hess_cphf: pop problem with l_kfac',555)
+     $  call errquit('hess_cphf: pop problem with l_kfac',555, MA_ERR)
 c
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then

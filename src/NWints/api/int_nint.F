@@ -1,4 +1,4 @@
-c $Id: int_nint.F,v 1.6 1999-07-14 00:28:40 d3e129 Exp $
+c $Id: int_nint.F,v 1.7 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nint}
@@ -18,6 +18,7 @@ c:tex-\end{verbatim}
 c
 c
 #include "bas.fh"
+#include "errquit.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer ibasin   ! [input] basis set handle for icnt
@@ -47,7 +48,8 @@ c
 c..icnt/ish
       if (icnt.gt.0) then
         if (.not.bas_cn2bfr(ibasin,icnt,lo,hi))
-     &         call errquit('int_nint: bas_cn2bfr failure',911)
+     &         call errquit('int_nint: bas_cn2bfr failure',911, 
+     &           INT_ERR)
         nbf = hi - lo + 1
         int_nint = int_nint*nbf
       endif
@@ -55,7 +57,8 @@ c
 c..jcnt/jsh
       if (jcnt.gt.0) then
         if (.not.bas_cn2bfr(jbasin,jcnt,lo,hi))
-     &         call errquit('int_nint: bas_cn2bfr failure',911)
+     &         call errquit('int_nint: bas_cn2bfr failure',911,
+     &         INT_ERR)
         nbf = hi - lo + 1
         int_nint = int_nint*nbf
       endif
@@ -63,7 +66,7 @@ c
 c..kcnt/ksh
       if (kcnt.gt.0) then
         if (.not.bas_cn2bfr(kbasin,kcnt,lo,hi))
-     &         call errquit('int_nint: bas_cn2bfr failure',911)
+     &         call errquit('int_nint: bas_cn2bfr failure',911, INT_ERR)
         nbf = hi - lo + 1
         int_nint = int_nint*nbf
       endif
@@ -71,7 +74,7 @@ c
 c..lcnt/lsh
       if (lcnt.gt.0) then
         if (.not.bas_cn2bfr(lbasin,lcnt,lo,hi))
-     &         call errquit('int_nint: bas_cn2bfr failure',911)
+     &         call errquit('int_nint: bas_cn2bfr failure',911, INT_ERR)
         nbf = hi - lo + 1
         int_nint = int_nint*nbf
       endif
@@ -163,6 +166,7 @@ c:tex-\begin{verbatim}
      &       kbasin,kcnt,lbasin,lcnt)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "int_nbf.fh"
@@ -198,7 +202,8 @@ c:local
 c..icnt/ish
       if (icnt.gt.0) then
         if (.not.bas_continfo(ibasin,icnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_cart: bas_continfo failure',911)
+     &         call errquit('int_nint_cart: bas_continfo failure',911, 
+     &              INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_nint_cart = int_nint_cart*nbf
       endif
@@ -206,7 +211,8 @@ c
 c..jcnt/jsh
       if (jcnt.gt.0) then
         if (.not.bas_continfo(jbasin,jcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_cart: bas_continfo failure',911)
+     &         call errquit('int_nint_cart: bas_continfo failure',911, 
+     &               INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_nint_cart = int_nint_cart*nbf
       endif
@@ -214,7 +220,8 @@ c
 c..kcnt/ksh
       if (kcnt.gt.0) then
         if (.not.bas_continfo(kbasin,kcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_cart: bas_continfo failure',911)
+     &         call errquit('int_nint_cart: bas_continfo failure',911,
+     &              INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_nint_cart = int_nint_cart*nbf
       endif
@@ -222,7 +229,8 @@ c
 c..lcnt/lsh
       if (lcnt.gt.0) then
         if (.not.bas_continfo(lbasin,lcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_nint_cart: bas_continfo failure',911)
+     &         call errquit('int_nint_cart: bas_continfo failure',911, 
+     &                 INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_nint_cart = int_nint_cart*nbf
       endif
@@ -245,6 +253,7 @@ c:tex-\begin{verbatim}
      &       kbasin,kcnt,lbasin,lcnt)
 c:tex-\end{verbatim}
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "int_nbf.fh"
 c
@@ -282,7 +291,8 @@ c::functions
 c..icnt/ish
       if (icnt.gt.0) then
         if (.not.bas_ucontinfo(ibasin,icnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_cart: bas_ucontinfo failure',911)
+     &         call errquit('int_unint_cart: bas_ucontinfo failure',911,
+     &           INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_unint_cart = int_unint_cart*nbf
       endif
@@ -290,7 +300,8 @@ c
 c..jcnt/jsh
       if (jcnt.gt.0) then
         if (.not.bas_ucontinfo(jbasin,jcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_cart: bas_ucontinfo failure',911)
+     &         call errquit('int_unint_cart: bas_ucontinfo failure',911,
+     &            INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_unint_cart = int_unint_cart*nbf
       endif
@@ -298,7 +309,8 @@ c
 c..kcnt/ksh
       if (kcnt.gt.0) then
         if (.not.bas_ucontinfo(kbasin,kcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_cart: bas_ucontinfo failure',911)
+     &         call errquit('int_unint_cart: bas_ucontinfo failure',911,
+     &            INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_unint_cart = int_unint_cart*nbf
       endif
@@ -306,7 +318,8 @@ c
 c..lcnt/lsh
       if (lcnt.gt.0) then
         if (.not.bas_ucontinfo(lbasin,lcnt,type,nprim,ngen,spcart))
-     &         call errquit('int_unint_cart: bas_ucontinfo failure',911)
+     &         call errquit('int_unint_cart: bas_ucontinfo failure',911,
+     &          INT_ERR)
         nbf = int_nbf_x(type)*ngen
         int_unint_cart = int_unint_cart*nbf
       endif

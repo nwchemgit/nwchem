@@ -6,6 +6,7 @@
      $     moints, nbf, k_t2, spine, spinf,
      $     pointers, g_list, phase, oasym)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer e_sym(2,0:7)
       integer ncblock, cblock(3,*)
@@ -58,7 +59,7 @@ c    &                                          e,c,i,k,t,oasym)
                end do
                if (ptr .ne. (pointers(1,cblk,iblk,kblk)+
      $              pointers(2,cblk,iblk,kblk))) call errquit
-     $              ('bad length for t record',ptr)
+     $              ('bad length for t record',ptr, DISK_ERR)
             end do
          end do
       end do
@@ -115,6 +116,7 @@ c
       subroutine uccsdt_triples_get_list(list, 
      $        blk1, blk2, blk3, blk4, buf, lenbuf)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
       integer list, blk1, blk2, blk3, blk4, lenbuf
@@ -136,15 +138,15 @@ c
      $     listinfo(8,list)*(l-1))))
 c
       if (list.lt.1 .or. list.gt.23) call errquit
-     $     ('uccsdt_triples_get_list: bad list', list)
+     $     ('uccsdt_triples_get_list: bad list', list, DISK_ERR)
       if (blk1.lt.1 .or. blk1.gt.listinfo(6,list)) call errquit
-     $     ('uccsdt_triples_get_list: block 1 bad', list)
+     $     ('uccsdt_triples_get_list: block 1 bad', list, DISK_ERR)
       if (blk2.lt.1 .or. blk2.gt.listinfo(7,list)) call errquit
-     $     ('uccsdt_triples_get_list: block 2 bad', list)
+     $     ('uccsdt_triples_get_list: block 2 bad', list, DISK_ERR)
       if (blk3.lt.1 .or. blk3.gt.listinfo(8,list)) call errquit
-     $     ('uccsdt_triples_get_list: block 3 bad', list)
+     $     ('uccsdt_triples_get_list: block 3 bad', list, DISK_ERR)
       if (blk4.lt.1 .or. blk4.gt.listinfo(9,list)) call errquit
-     $     ('uccsdt_triples_get_list: block 4 bad', list)
+     $     ('uccsdt_triples_get_list: block 4 bad', list, DISK_ERR)
 c
       ptr = int_mb(listinfo(2,list) + 
      $     offset(1,blk1,blk2,blk3,blk4,list))
@@ -152,7 +154,8 @@ c
      $     offset(2,blk1,blk2,blk3,blk4,list))
 c
       if (reclen .gt. lenbuf) call errquit
-     $     ('uccsdt_triples_get_list: lenbuf too small', reclen)
+     $     ('uccsdt_triples_get_list: lenbuf too small', reclen,
+     &       DISK_ERR)
 c
       call ga_get(listinfo(5,list),ptr,ptr+reclen-1,1,1,buf,1)
 c
@@ -186,6 +189,7 @@ c
       end
       subroutine uccsdt_triples_moints_init()
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "util.fh"
 #include "eaf.fh"
@@ -199,7 +203,8 @@ c
       if (availkw .gt. 1.1d0*dble(nbf)**4/(4000d0*nir)) then
          call util_file_name('.trpao', .true., .true., filename)
          if (eaf_open(filename, eaf_rw, aoints_file) .ne. 0) call
-     $        errquit('uccsdt_triples: failed to open ao file',0)
+     $        errquit('uccsdt_triples: failed to open ao file',0,
+     &       DISK_ERR)
          aoints_file_read = .false. 
          aoints_file_write = .true.
       else
@@ -211,6 +216,7 @@ c
       end
       subroutine uccsdt_triples_moints_tidy()
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "util.fh"
 #include "eaf.fh"
@@ -219,10 +225,12 @@ c
 c
       if (aoints_file .ne. -1) then
          if (eaf_close(aoints_file) .ne. 0) call errquit
-     $        ('uccsdt_triples: failed to close aoints file',0)
+     $        ('uccsdt_triples: failed to close aoints file',0,
+     &       DISK_ERR)
          call util_file_name('.trpao', .true., .true., filename)
          if (eaf_delete(filename) .ne. 0) call errquit
-     $        ('uccsdt_triples: failed to delete aoints file',0)
+     $        ('uccsdt_triples: failed to delete aoints file',0,
+     &       DISK_ERR)
       end if
       aoints_file = -1
       aoints_file_read = .false.
@@ -231,6 +239,7 @@ c
       end
       subroutine uccsdt_triples_moints()
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "cuccsdtps.fh"
 #include "global.fh"
@@ -306,10 +315,10 @@ c     !!! BLOCKING FACTORS FOR THE AO INTEGRALS ... THIS IS NOT
 c     !!! YET BEING DONE.
 c
       if (aoints_file_write .and. nproc.gt.1) call errquit
-     $     ('moints_triples: see comments above here!!', 0)
+     $     ('moints_triples: see comments above here!!', 0, DISK_ERR)
 c
       if (.not. bas_nbf_cn_max(basis, shmaxbf)) call errquit
-     $     ('uccsdt: bas_nbf_cn_max?', 0)
+     $     ('uccsdt: bas_nbf_cn_max?', 0, BASIS_ERR)
       do maxdim = nbf, 1, -1
          call moints_shell_block(basis, maxdim, shlist, nshblock)         
          maxsh = 0
@@ -328,7 +337,8 @@ c
          call util_ma_ga_test(ma_need, ga_need, ok)
          if (ok) goto 10
       end do
-      call errquit('moints_shpair_one_index: insufficient memory',0)
+      call errquit('moints_shpair_one_index: insufficient memory',0,
+     &       MEM_ERR)
  10   continue
 c
       call moints_aoblock_rewind()
@@ -337,22 +347,22 @@ c
          ushlo = shlist(1,ublk)
          ushhi = shlist(2,ublk)
          if (.not. bas_cn2bfr(basis, ushlo, ublocklo, junk))
-     $        call errquit('moints_shpair: basis?', 0)
+     $        call errquit('moints_shpair: basis?', 0, BASIS_ERR)
          if (.not. bas_cn2bfr(basis, ushhi, junk, ublockhi))
-     $        call errquit('moints_shpair: basis?', 0)
+     $        call errquit('moints_shpair: basis?', 0, BASIS_ERR)
          ublockdim = ublockhi-ublocklo+1
 c
 c     First parallel step generates (u*|ai), (u*|bi) and (u*|ck)
 c
          if (.not. ga_create(mt_dbl, ublockdim*nbf, adim*idim,
      $        '(u*|ai)', ublockdim*nbf, 0, g_ai)) call errquit
-     $        ('moints_triples: failed allocaing (u*|ai)', 0)
+     $        ('moints_triples: failed allocaing (u*|ai)', 0, GA_ERR)
          if (.not. ga_create(mt_dbl, ublockdim*nbf, bdim*idim,
      $        '(u*|bi)', ublockdim*nbf, 0, g_bi)) call errquit
-     $        ('moints_triples: failed allocaing (u*|bi)', 0)
+     $        ('moints_triples: failed allocaing (u*|bi)', 0, GA_ERR)
          if (.not. ga_create(mt_dbl, ublockdim*nbf, cdim*kdim,
      $        '(u*|ck)', ublockdim*nbf, 0, g_ck)) call errquit
-     $        ('moints_triples: failed allocaing (u*|ck)', 0)
+     $        ('moints_triples: failed allocaing (u*|ck)', 0, GA_ERR)
          call ga_zero(g_ai)
          call ga_zero(g_bi)
          call ga_zero(g_ck)
@@ -369,9 +379,11 @@ c
                if (odoit) then
                   if (next .eq. count) then
                      if (.not. bas_cn2bfr(basis, ush, ulo, uhi))
-     $                    call errquit('moints_shpair: basis?', 0)
+     $                    call errquit('moints_shpair: basis?', 0,
+     &       BASIS_ERR)
                      if (.not. bas_cn2bfr(basis, vsh, vlo, vhi))
-     $                    call errquit('moints_shpair: basis?', 0)
+     $                    call errquit('moints_shpair: basis?', 0,
+     &       BASIS_ERR)
                      udim = uhi - ulo + 1
                      vdim = vhi - vlo + 1
 c     
@@ -380,11 +392,11 @@ c
                      if (.not. ma_push_get(mt_dbl, udim*vdim*nbf*idim,
      $                    '(wi|vu)', l_wivu, k_wivu)) call errquit
      $                    ('moints_triples: memory for (vu|wi)?', 
-     $                    udim*vdim*nbf*idim)
+     $                    udim*vdim*nbf*idim, MA_ERR)
                      if (.not. ma_push_get(mt_dbl, udim*vdim*nbf*kdim,
      $                    '(wk|vu)', l_wkvu, k_wkvu)) call errquit
      $                    ('moints_triples: memory for (vu|wk)?', 
-     $                    udim*vdim*nbf*kdim)
+     $                    udim*vdim*nbf*kdim, MA_ERR)
 c     
                      if (ouccsdtps) 
      $                    call pstat_on(ps_moints_shpair_one_index)
@@ -409,7 +421,8 @@ c
                      lenwork = max(idim*adim,idim*bdim,kdim*cdim)
                      if (.not. ma_push_get(mt_dbl, lenwork, 'work',
      $                    l_work, k_work)) call errquit
-     $                    ('moints_triples: memory for work', lenwork)
+     $                    ('moints_triples: memory for work', lenwork,
+     &       MA_ERR)
 c     
 c     (wi|vu) -> (ai|vu) -> (vu|ai)
 c     
@@ -446,11 +459,11 @@ c
      $                    call pstat_off(ps_moints_second_index)
 c     
                      if (.not. ma_pop_stack(l_work)) call errquit
-     $                    ('moints_triples:popping work?', 0)
+     $                    ('moints_triples:popping work?', 0, MA_ERR)
                      if (.not. ma_pop_stack(l_wkvu)) call errquit
-     $                    ('moints_triples:popping wkvu?', 0)
+     $                    ('moints_triples:popping wkvu?', 0, MA_ERR)
                      if (.not. ma_pop_stack(l_wivu)) call errquit
-     $                    ('moints_triples:popping wivu?', 0)
+     $                    ('moints_triples:popping wivu?', 0, MA_ERR)
 c     
                      next = nxtval(nproc)
                   end if
@@ -499,13 +512,13 @@ c
      $            max(ublockdim,adim,bdim,cdim,idim,kdim)
          if (.not. ma_push_get(mt_dbl, lenbuf, 'buf',
      $        l_buf, k_buf)) call errquit
-     $        ('moints_triples: memory for buf', lenbuf)
+     $        ('moints_triples: memory for buf', lenbuf, MA_ERR)
          if (.not. ma_push_get(mt_dbl, lenbuf, 'tmp',
      $        l_tmp, k_tmp)) call errquit
-     $        ('moints_triples: memory for temp', lenbuf)
+     $        ('moints_triples: memory for temp', lenbuf, MA_ERR)
          if (.not. ma_push_get(mt_dbl, lenbuf, 'res',
      $        l_res, k_res)) call errquit
-     $        ('moints_triples: memory for temp', lenbuf)
+     $        ('moints_triples: memory for temp', lenbuf, MA_ERR)
                   
 c     
          if (ouccsdtps) 
@@ -1043,18 +1056,18 @@ c
      $        call pstat_off(ps_moints_triples_final)
 c
          if (.not. ma_pop_stack(l_res))
-     $        call errquit('moints_triple: popping res?', 0)
+     $        call errquit('moints_triple: popping res?', 0, MA_ERR)
          if (.not. ma_pop_stack(l_tmp))
-     $        call errquit('moints_triple: popping tmp?', 0)
+     $        call errquit('moints_triple: popping tmp?', 0, MA_ERR)
          if (.not. ma_pop_stack(l_buf))
-     $        call errquit('moints_triple: popping buf?', 0)
+     $        call errquit('moints_triple: popping buf?', 0, MA_ERR)
 c
          if (.not. ga_destroy(g_ck)) call errquit
-     $        ('moints_triples: failed to destroy g_ck',0)
+     $        ('moints_triples: failed to destroy g_ck',0, GA_ERR)
          if (.not. ga_destroy(g_bi)) call errquit
-     $        ('moints_triples: failed to destroy g_bi',0)
+     $        ('moints_triples: failed to destroy g_bi',0, GA_ERR)
          if (.not. ga_destroy(g_ai)) call errquit
-     $        ('moints_triples: failed to destroy g_ai',0)
+     $        ('moints_triples: failed to destroy g_ai',0, GA_ERR)
       end do
 c
 c      if (ocheck) then
@@ -1083,6 +1096,7 @@ c
      $     g_list,
      $     order)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "cuccsdtps.fh"
       logical oblocke           ! [input] If true sub-block e index.
@@ -1147,7 +1161,8 @@ c
       double precision phase
 c
       if ((.not. oblocke) .and. (neblock.ne.1))
-     $     call errquit('moints_triples_final: neblock?',neblock)
+     $     call errquit('moints_triples_final: neblock?',neblock,
+     &       DISK_ERR)
 c
 c     Convert order to an integer to avoid character comparisons
 c     in the inner loop
@@ -1166,7 +1181,7 @@ c
          phase = -1d0
       else
          case = 0               ! Just to keep "smart" compiler quiet
-         call errquit('moints_triples_final: bad order', 0)
+         call errquit('moints_triples_final: bad order', 0, DISK_ERR)
       end if
 c
       ublockdim = (ublockhi-ublocklo+1)
@@ -1180,7 +1195,8 @@ c
 c     
       call ga_distribution(g_ck, me, vulo, vuhi, cklo, ckhi)
       if (vulo.ne.1 .and. vuhi.ne.ublockdim*nbf)
-     $     call errquit('moints_triples_final: distribution?', 0)
+     $     call errquit('moints_triples_final: distribution?', 0,
+     &       DISK_ERR)
 c     
       if (ouccsdtps) 
      $     call pstat_off(ps_final_ga_dist)
@@ -1382,6 +1398,7 @@ c
      $     c1, c2,
      $     g1, g2)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
 #include "mafdecls.fh"
@@ -1428,7 +1445,7 @@ c
       integer shlist(2,nw_max_shells_small), nshblock, maxdim, maxsh
 c
       if (nset.lt.1 .or. nset.gt.2) call errquit
-     $     ('moints_shpair_one_index: bad nset', nset)
+     $     ('moints_shpair_one_index: bad nset', nset, DISK_ERR)
       udim = uhi - ulo + 1
       vdim = vhi - vlo + 1
       idim1= ihi1 - ilo1 + 1
@@ -1440,9 +1457,11 @@ c
       if (schwarz_shell(ush,vsh)*schwarz_max() .lt. tol) return
 c
       if (.not. bas_numcont(basis,nsh))
-     $     call errquit('moints_shpair_one_index: basis?', basis)
+     $     call errquit('moints_shpair_one_index: basis?', basis,
+     &       BASIS_ERR)
       if (.not. bas_numbf(basis,nbf))
-     $     call errquit('moints_shpair_one_index: basis?', basis)
+     $     call errquit('moints_shpair_one_index: basis?', basis,
+     &       BASIS_ERR)
 c
 c     Figure out how big we can make the shell blocks
 c
@@ -1461,13 +1480,15 @@ c
          need = need + udim*vdim*maxdim*maxdim
          if (avail_ma .gt. need) goto 10
       end do
-      call errquit('moints_shpair_one_index: insufficient memory',0)
+      call errquit('moints_shpair_one_index: insufficient memory',0,
+     &       MEM_ERR)
  10   continue
 c
       lenwork = udim*vdim*maxdim*maxdim
       if (.not. ma_push_get(mt_dbl, lenwork, 'work', 
      $     l_work, k_work)) 
-     $     call errquit('moints_shpair: memory estimate?',lenwork)
+     $     call errquit('moints_shpair: memory estimate?',lenwork,
+     &       MA_ERR)
 c
 c     Loop over blocks of shells wsh & lsh in order to control memory
 c     ... smaller blocks = less memory but less efficient integral
@@ -1480,16 +1501,16 @@ c
          wshlo = shlist(1,wblk)
          wshhi = shlist(2,wblk)
          if (.not. bas_cn2bfr(basis, wshlo, wlo, junk))
-     $        call errquit('moints_shpair: basis?', 0)
+     $        call errquit('moints_shpair: basis?', 0, BASIS_ERR)
          if (.not. bas_cn2bfr(basis, wshhi, junk, whi))
-     $        call errquit('moints_shpair: basis?', 0)
+     $        call errquit('moints_shpair: basis?', 0, BASIS_ERR)
          do lblk = 1, wblk
             lshlo = shlist(1,lblk)
             lshhi = shlist(2,lblk)
             if (.not. bas_cn2bfr(basis, lshlo, llo, junk))
-     $           call errquit('moints_shpair: basis?', 0)
+     $           call errquit('moints_shpair: basis?', 0, BASIS_ERR)
             if (.not. bas_cn2bfr(basis, lshhi, junk, lhi))
-     $           call errquit('moints_shpair: basis?', 0)
+     $           call errquit('moints_shpair: basis?', 0, BASIS_ERR)
             call moints_shpair_block(
      $           basis,
      $           lshlo, lshhi, llo, lhi,
@@ -1506,7 +1527,7 @@ c
          end do
       end do
       if (.not. ma_pop_stack(l_work)) 
-     $     call errquit('moints_shpair: ma corrupt?',0)
+     $     call errquit('moints_shpair: ma corrupt?',0, MA_ERR)
 c
       end
       subroutine moints_shpair_block(
@@ -1619,6 +1640,7 @@ c
      $     tol,
      $     ints)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "schwarz.fh"
 #include "nwc_const.fh"
@@ -1667,12 +1689,13 @@ c
 c
       if (oskel) then
          if (.not. bas_geom(basis, geom)) call errquit
-     $     ('moints_aoblock: bas_geom?', 0)
+     $     ('moints_aoblock: bas_geom?', 0, BASIS_ERR)
          if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('moints_aoblock: bas_numcont?', 0)
+     $     ('moints_aoblock: bas_numcont?', 0, BASIS_ERR)
          do ish = 1, nsh
             if (.not. bas_cn2ce(basis, ish, atom(ish))) 
-     $           call errquit('moints_aoblock: bas_cn2ce', ish)
+     $           call errquit('moints_aoblock: bas_cn2ce', ish,
+     &       BASIS_ERR)
          end do
       end if
 c
@@ -1685,15 +1708,15 @@ c
       leneri = max(leneri,100*(6**4)) ! Room for 100 (dd|dd)
 c
       if (.not. ma_push_get(mt_dbl, maxq, 'q4', l_q4, k_q4))
-     $     call errquit('moints_aoblock: ma?',maxq)
+     $     call errquit('moints_aoblock: ma?',maxq, MA_ERR)
       if (.not. ma_push_get(mt_int, 4*maxq, 'quartets', l_q, k_q))
-     $     call errquit('moints_aoblock: ma?', 4*maxq)
+     $     call errquit('moints_aoblock: ma?', 4*maxq, MA_ERR)
       if (.not. ma_push_get(mt_int, 4*leneri, 'labels', l_lab, k_lab))
-     $     call errquit('moints_aoblock: ma?', 4*leneri)
+     $     call errquit('moints_aoblock: ma?', 4*leneri, MA_ERR)
       if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri))
-     $     call errquit('moints_aoblock: ma?', leneri)
+     $     call errquit('moints_aoblock: ma?', leneri, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr))
-     $     call errquit('moints_aoblock: ma?', lenscr)
+     $     call errquit('moints_aoblock: ma?', lenscr, MA_ERR)
       k_iq = k_q          
       k_jq = k_q + maxq   
       k_kq = k_q + maxq*2 
@@ -1744,7 +1767,7 @@ c
      $        basis, int_mb(k_kq), int_mb(k_lq), 
      $        nq, dbl_mb(k_q4), .true., 
      $        lenscr, dbl_mb(k_scr), leneri, block_eff))
-     $        call errquit('intb_init?',nq)
+     $        call errquit('intb_init?',nq, UNKNOWN_ERR)
 c
  10      more = intb_2e4c(
      $        basis, int_mb(k_iq), int_mb(k_jq), 
@@ -1769,12 +1792,13 @@ c
 c
 c
       if (.not. ma_chop_stack(l_q4)) call errquit
-     $     ('moints_aoblock: ma corrupted?',0)
+     $     ('moints_aoblock: ma corrupted?',0, MA_ERR)
 c
       end
       subroutine uccsdt_block_range(lo, hi, maxb, nblock, blocks, 
      $     ld, maxnblock)
       implicit none
+#include "errquit.fh"
       integer lo, hi, maxb, maxnblock, ld ! [input]
       integer nblock, blocks(ld,maxnblock) ! [input]
 c
@@ -1796,7 +1820,7 @@ c
       n = (hi - lo + 1)
       nblock = (n-1)/maxb + 1
       if (nblock .gt. maxnblock) call errquit
-     $     ('uccsdt_block_range: maxnblock too small', nblock)
+     $     ('uccsdt_block_range: maxnblock too small', nblock, DISK_ERR)
 c
 c     Compute the number of elements in each block.
 c     All blocks get b elements.  (n-nblock*b) blocks get one more.
@@ -1825,6 +1849,7 @@ c
       end
       subroutine moints_shell_block(basis, maxdim, list, nblock)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
       integer basis             ! [input]
       integer maxdim            ! [input]
@@ -1840,7 +1865,7 @@ c
       integer nsh, ish, count, ilo, ihi, idim
 c
       if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('moints_shell_block: bad basis?',0)
+     $     ('moints_shell_block: bad basis?',0, BASIS_ERR)
 c
       count = 0                 ! No. of functions in current block
       nblock = 1
@@ -1848,10 +1873,11 @@ c
 c
       do ish = 1, nsh
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('moints_shell_block: cn2bfr?', ish)
+     $        call errquit('moints_shell_block: cn2bfr?', ish,
+     &       BASIS_ERR)
          idim = ihi - ilo + 1
          if (maxdim .lt. idim) call errquit
-     $        ('moints_shell_block: maxdim < idim', maxdim)
+     $        ('moints_shell_block: maxdim < idim', maxdim, BASIS_ERR)
 c
          if ((count+idim).gt.maxdim) then
             list(2,nblock) = ish-1
@@ -1955,6 +1981,7 @@ c
       end
       logical function moints_aoblock_read(ush,vsh,aodim,ints)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "eaf.fh"
       integer ush, vsh, aodim
@@ -1976,7 +2003,7 @@ c
          if (err .ne. 0) then
             call eaf_errmsg(err, msg)
             write(6,*) ' !!!! EAF error ', msg
-            call errquit('moints_aoblock_read: eaf_read?', 0)
+            call errquit('moints_aoblock_read: eaf_read?', 0, DISK_ERR)
          end if
          aoints_file_offset = aoints_file_offset + 8*aodim
          moints_aoblock_read = .true.
@@ -1987,6 +2014,7 @@ c
       end
       subroutine moints_aoblock_write(ush,vsh,aodim,ints)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "eaf.fh"
       integer ush, vsh, aodim
@@ -2008,7 +2036,7 @@ c
          if (err .ne. 0) then
             call eaf_errmsg(err, msg)
             write(6,*) ' !!!! EAF error ', msg
-            call errquit('moints_aoblock_write: eaf_read?', 0)
+            call errquit('moints_aoblock_write: eaf_read?', 0, DISK_ERR)
          end if
          aoints_file_offset = aoints_file_offset + 8*aodim
       end if
@@ -2016,6 +2044,7 @@ c
       end
 C****      subroutine uccsdt_check_list(list)
 C****      implicit none
+C****#include "errquit.fh"
 C****#include "cuccsdtP.fh"
 C****#include "mafdecls.fh"
 C****      integer list
@@ -2246,6 +2275,7 @@ C****c
 C****      end
 C****      subroutine uccsdt_triples_dummy_amplitudes()
 C****      implicit none
+C****#include "errquit.fh"
 C****#include "cuccsdtP.fh"
 C****#include "mafdecls.fh"
 C****c

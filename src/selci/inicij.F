@@ -1,8 +1,9 @@
       subroutine selci_inicij(w1,w2)
 *
-* $Id: inicij.F,v 1.2 1997-10-31 23:42:05 d3e129 Exp $
+* $Id: inicij.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 #include "ceij.fh"
 c
@@ -27,7 +28,8 @@ c
          endif
  5    continue
       write(6,*) ' nsmax, nseij, ns4eij ',nsmax, nseij, ns4eij
-      call errquit('inicij: failed to initialize nseij etc. ',nseij)
+      call errquit('inicij: failed to initialize nseij etc. ',nseij,
+     &       CALC_ERR)
  6    continue
       numf = nf(nseij)
       numf2 = nf(nseij-2)

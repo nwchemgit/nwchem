@@ -3,12 +3,13 @@ C NAME
 C     CCDen_Driver -- Top-level routine for coupled cluster density
 C
 C REVISION
-C     $Id: ccden_driver.F,v 2.3 1997-06-05 17:46:27 gg502 Exp $
+C     $Id: ccden_driver.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine CCDen_Driver(NOcc, NVir, T1, LDT1, g_T2, Z1, LDZ1,
      $   g_Z2, g_1PDM)
       Implicit NONE
+#include "errquit.fh"
       Integer NOcc, NVir, LDT1, LDZ1
       Integer g_T2, g_Z2, g_1PDM
       Double Precision T1(LDT1, NVir), Z1(LDZ1, NVir)
@@ -41,19 +42,23 @@ C     These are the "small omega" quantities of APR & TJL Eq. 52--55
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDen SmOmeg1',
      $   H_SmOmeg1, I_SmOmeg1) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to allocate SmOmeg1', NOcc*NVir)
+     $   'CCDen_Driver: unable to allocate SmOmeg1', NOcc*NVir,
+     &       MA_ERR)
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NOcc*NVir, 'CCDen SmOmeg2',
      $   H_SmOmeg2, I_SmOmeg2) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to allocate SmOmeg2', NOcc*NVir)
+     $   'CCDen_Driver: unable to allocate SmOmeg2', NOcc*NVir,
+     &       MA_ERR)
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NVir*NVir, 'CCDen SmOmeg3',
      $   H_SmOmeg3, I_SmOmeg3) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to allocate SmOmeg3', NVir*NVir)
+     $   'CCDen_Driver: unable to allocate SmOmeg3', NVir*NVir,
+     &       MA_ERR)
 C
       If (.NOT. MA_Push_Get(MT_Dbl, NOcc*NOcc, 'CCDen SmOmeg4',
      $   H_SmOmeg4, I_SmOmeg4) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to allocate SmOmeg4', NOcc*NOcc)
+     $   'CCDen_Driver: unable to allocate SmOmeg4', NOcc*NOcc,
+     &       MA_ERR)
 C
       Call CCDen_Interm2( NOcc, NVir, T1, LDT1, G_T2, Z1, LDZ1, g_Z2,
      $   Dbl_MB(I_SmOmeg1), NOcc, Dbl_MB(I_SmOmeg2), NOcc,
@@ -100,7 +105,7 @@ C
       If ( .NOT. GA_Create(MT_Dbl, NOcc*NOcc, NOcc*NOcc,
      $     'CCDen 2-PDM oooo', NOcc, NOcc, G_2PDMoooo) ) Call ErrQuit(
      $     'CCDen_Driver: unable to allocate 2-PDM oooo',
-     $     NOcc*NOcc*NOcc*NOcc)
+     $     NOcc*NOcc*NOcc*NOcc, GA_ERR)
 C
       Call CCDen_2PDMoooo(NOcc, NVir, T1, LDT1, g_T2, g_Z2,
      $     g_1PDM, g_2PDMoooo)
@@ -110,7 +115,7 @@ C
 C     -----WRITE TO DISK HERE-----
 C
       If (.NOT. GA_Destroy(g_2PDMoooo) ) Call ErrQuit(
-     $     'CCDen_Driver: unable to free 2-PDM oooo', 0)
+     $     'CCDen_Driver: unable to free 2-PDM oooo', 0, GA_ERR)
 C
 C     ****************************
 C     * Compute 2-PDM vvvv terms *
@@ -130,12 +135,12 @@ C
       If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
      $     'CCDen LgOmeg1', NVir, NVir, G_LgOmeg1) ) Call ErrQuit(
      $     'CCDen_Driver: unable to allocate LgOmeg1',
-     $     NVir*NOcc*NVir*NOcc)
+     $     NVir*NOcc*NVir*NOcc, GA_ERR)
 C
       If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
      $     'CCDen LgOmeg2', NVir, NVir, G_LgOmeg2) ) Call ErrQuit(
      $     'CCDen_Driver: unable to allocate LgOmeg2',
-     $     NVir*NOcc*NVir*NOcc)
+     $     NVir*NOcc*NVir*NOcc, GA_ERR)
 C
       Call CCDen_Interm4( NOcc, NVir, G_T2, g_Z2, g_LgOmeg1, g_LgOmeg2)
 C
@@ -156,7 +161,7 @@ C
       If ( .NOT. GA_Create(MT_Dbl, NVir*NOcc, NVir*NOcc,
      $     'CCDen 2-PDM vvoo', NVir, NVir, G_2PDMvvoo) ) Call ErrQuit(
      $     'CCDen_Driver: unable to allocate 2-PDM vvoo',
-     $     NVir*NOcc*NVir*NOcc)
+     $     NVir*NOcc*NVir*NOcc, GA_ERR)
 C
       Call CCDen_2PDMvvoo( NOcc, NVir, T1, LDT1, Z1, LDZ1, g_Z2,
      $     g_LgOmeg1, g_LgOmeg2, g_1PDM, g_2PDMvvoo)
@@ -168,7 +173,7 @@ C
 C     -----WRITE TO DISK HERE-----
 C
       If (.NOT. GA_Destroy(g_2PDMvvoo) ) Call ErrQuit(
-     $     'CCDen_Driver: unable to free 2-PDM vvoo', 0)
+     $     'CCDen_Driver: unable to free 2-PDM vvoo', 0, GA_ERR)
 
 
 
@@ -181,18 +186,18 @@ C
 C     Get rid of temporary arrays
 C
       If (.NOT. GA_Destroy(g_LgOmeg2) ) Call ErrQuit(
-     $     'CCDen_Driver: unable to free LgOmeg2', 0)
+     $     'CCDen_Driver: unable to free LgOmeg2', 0, GA_ERR)
       If (.NOT. GA_Destroy(g_LgOmeg1) ) Call ErrQuit(
-     $     'CCDen_Driver: unable to free LgOmeg1', 0)
+     $     'CCDen_Driver: unable to free LgOmeg1', 0, GA_ERR)
 C
       If (.NOT. MA_Pop_Stack(H_SmOmeg4) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to free SmOmeg4', 0)
+     $   'CCDen_Driver: unable to free SmOmeg4', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack(H_SmOmeg3) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to free SmOmeg3', 0)
+     $   'CCDen_Driver: unable to free SmOmeg3', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack(H_SmOmeg2) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to free SmOmeg2', 0)
+     $   'CCDen_Driver: unable to free SmOmeg2', 0, MA_ERR)
       If (.NOT. MA_Pop_Stack(H_SmOmeg1) ) Call ErrQuit(
-     $   'CCDen_Driver: unable to free SmOmeg1', 0)
+     $   'CCDen_Driver: unable to free SmOmeg1', 0, MA_ERR)
 C
       Return
       End

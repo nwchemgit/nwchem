@@ -4,11 +4,12 @@ C     begin_seq_output -- Mark the start of a section of sequentialized
 C     output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.2 1996-04-18 16:33:49 gg502 Exp $
+C     $Id: seq_output.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine Begin_Seq_Output
       Implicit NONE
+#include "errquit.fh"
 C
 C DESCRIPTION
 C     Indicates the start of a section of sequentialized output.
@@ -40,7 +41,7 @@ C
          If ( GoAHead .ne. Me .OR. Node .ne. TCG_Master)
      $      Call ErrQuit(
      $        'Begin_Seq_Output: Incorrect signal from node 0: ',
-     $        GoAhead)
+     $        GoAhead, CALC_ERR)
       EndIf
       Return
       End
@@ -50,11 +51,12 @@ C     end_seq_output -- Mark the end of a section of sequentialized
 C     output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.2 1996-04-18 16:33:49 gg502 Exp $
+C     $Id: seq_output.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine End_Seq_Output
       Implicit NONE
+#include "errquit.fh"
 C
 C DESCRIPTION
 C     Indicates the end of a section of sequentialized output.
@@ -89,7 +91,7 @@ C
       if ( .NOT. MA_Push_Get(MT_Int, GA_NNodes(), 'Node list',
      $   H_Map, I_Map) )
      $   Call ErrQuit('End_Seq_Output: Insufficient memory',
-     $   GA_NNodes() )
+     $   GA_NNodes() , MA_ERR)
       Call GA_List_NodeID(Int_MB(I_Map), GA_NNodes())
       TCG_Master = Int_MB(I_Map)
 C
@@ -100,7 +102,7 @@ C
       If ( Me .ne. TCG_Master) then
          Call SND(Msg_SeqOut_Ctrl, -Me, MItoB(1), TCG_Master, 1)
          If ( .NOT. MA_Pop_Stack(H_Map)) Call ErrQuit(
-     $      'End_Seq_Output: Unable to free local memory', 0)
+     $      'End_Seq_Output: Unable to free local memory', 0, MA_ERR)
          Return
       EndIf
 C
@@ -126,12 +128,12 @@ C
             Goto 1000
          ElseIf ( LUN .ne. -Node) then
             Call ErrQuit('End_Seq_Output: Incorrect signal from node',
-     $         Node)
+     $         Node, UNKNOWN_ERR)
          EndIf
       EndDo
 C
       If ( .NOT. MA_Pop_Stack(H_Map)) Call ErrQuit(
-     $   'End_Seq_Output: Unable to free local memory', 0)
+     $   'End_Seq_Output: Unable to free local memory', 0, MA_ERR)
 C
       Return
       End
@@ -140,11 +142,12 @@ C NAME
 C     write_seq -- Write sequentialized output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.2 1996-04-18 16:33:49 gg502 Exp $
+C     $Id: seq_output.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine Write_Seq(LUN, Text)
       Implicit NONE
+#include "errquit.fh"
       Integer LUN
       Character*(*) Text
 C
@@ -166,7 +169,7 @@ C     Safety check the node number because it is also a signal
 C     to node 0.
 C
       If ( LUN .lt. 0) Call ErrQuit(
-     $   'Write_Seq: Negative unit numbers are invalid', LUN)
+     $   'Write_Seq: Negative unit numbers are invalid', LUN, INPUT_ERR)
 C
 C     Translate from GA_NodeID to TCGMSG NODEID
 C     Only need Node 0 at the moment

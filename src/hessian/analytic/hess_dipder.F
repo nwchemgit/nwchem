@@ -1,8 +1,9 @@
 C
-C  $Id: hess_dipder.F,v 1.6 2003-04-03 01:21:06 windus Exp $
+C  $Id: hess_dipder.F,v 1.7 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine hess_dipder(geom,basis,dder,g_dens,n3xyz,ncent)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -37,13 +38,14 @@ c
 c
       lmax = 1
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('hess_dipder: bad basis', 555)
+     $     ('hess_dipder: bad basis', 555, BASIS_ERR)
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('hess_dipder: bas_numcont failed for basis', basis)
+     $     ('hess_dipder: bas_numcont failed for basis', basis,
+     &       BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit
-     &     ('hess_dipder: bas_nbf_cn_max failed',555)
+     &     ('hess_dipder: bas_nbf_cn_max failed',555, BASIS_ERR)
       if (.not. geom_center_of_mass(geom, center)) call errquit
-     *     ('hess_dipder: geom_center_of_mass failed',555)
+     *     ('hess_dipder: geom_center_of_mass failed',555, GEOM_ERR)
 c     center (1) = 0.0d00
 c     center (2) = 0.0d00
 c     center (3) = 0.0d00
@@ -55,12 +57,15 @@ c
       maxbuf = 9*maxbuf  ! need xyz derivatives of dipole
       maxscr = max(100000,maxscr)
       if (.not. ma_push_get(mt_dbl,maxbuf,'intd buffer',l_buf,k_buf))
-     *  call errquit('hess_dipder:could not get intd buffer',maxbuf)
+     *  call errquit('hess_dipder:could not get intd buffer',maxbuf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxscr,'intd scratch',
      *  l_scr, k_scr))
-     *  call errquit('hess_dipder: scratch alloc failed',maxscr)
+     *  call errquit('hess_dipder: scratch alloc failed',maxscr,
+     &       MA_ERR)
       if(.not. ma_push_get(mt_dbl, maxd, 'mult:dens', l_dens, k_dens))
-     &     call errquit('hess_dipder: cannot allocate dens', maxd)
+     &     call errquit('hess_dipder: cannot allocate dens', maxd,
+     &       MA_ERR)
 c
 c  Get nuclear contribution
 c
@@ -81,7 +86,8 @@ c
 c     get basis info
 c
          if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) call errquit
-     &        ('hess_dipder: bas_cn2bfr failed for basis', basis)
+     &        ('hess_dipder: bas_cn2bfr failed for basis', basis,
+     &       BASIS_ERR)
          idim = ihi - ilo + 1
  
          do jshell = 1, nshell
@@ -91,7 +97,8 @@ c
 c     get basis info
 c
                if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
-     &              call errquit('hess_dipder: bas_cn2bfr', basis)
+     &              call errquit('hess_dipder: bas_cn2bfr', basis,
+     &       BASIS_ERR)
                jdim = jhi - jlo + 1
                nint = idim * jdim
 c
@@ -114,7 +121,8 @@ c
 c  Get rid of extra memory
 c
       if (.not. ma_chop_stack(l_buf)) call errquit
-     *  ('hess_dipder: problem chopping stack',555)
+     *  ('hess_dipder: problem chopping stack',555,
+     &       MA_ERR)
 c
 c  Make sure everyone has the full contribution
 c
@@ -291,6 +299,7 @@ c
 c
       subroutine hess_dipint(rtdb,geom,basis,g_dip,ndens,nbf)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -318,13 +327,14 @@ c
 c
       lmax = 1
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('hess_dipder: bad basis', 555)
+     $     ('hess_dipder: bad basis', 555, BASIS_ERR)
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('hess_dipder: bas_numcont failed for basis', basis)
+     $     ('hess_dipder: bas_numcont failed for basis', basis,
+     &       BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit
-     &     ('hess_dipder: bas_nbf_cn_max failed',555)
+     &     ('hess_dipder: bas_nbf_cn_max failed',555, BASIS_ERR)
       if (.not. geom_center_of_mass(geom, center)) call errquit
-     *     ('hess_dipder: geom_center_of_mass failed',555)
+     *     ('hess_dipder: geom_center_of_mass failed',555, BASIS_ERR)
 c     center (1) = 0.0d00
 c     center (2) = 0.0d00
 c     center (3) = 0.0d00
@@ -338,10 +348,12 @@ c
       maxscr = max(100000,maxscr)
       maxscr = max(maxscr, maxbuf) ! this allows it to be used for temp
       if (.not. ma_push_get(mt_dbl,maxbuf,'intd buffer',l_buf,k_buf))
-     *  call errquit('hess_dipder:could not get intd buffer',maxbuf)
+     *  call errquit('hess_dipder:could not get intd buffer',maxbuf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxscr,'intd scratch',
      *  l_scr, k_scr))
-     *  call errquit('hess_dipder: scratch alloc failed',maxscr)
+     *  call errquit('hess_dipder: scratch alloc failed',maxscr,
+     &       MA_ERR)
 c
 c  Start the computation
 c
@@ -353,7 +365,8 @@ c
 c     get basis info
 c
          if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) call errquit
-     &        ('hess_dipder: bas_cn2bfr failed for basis', basis)
+     &        ('hess_dipder: bas_cn2bfr failed for basis', basis,
+     &       BASIS_ERR)
          idim = ihi - ilo + 1
  
          do jshell = 1, nshell
@@ -363,7 +376,8 @@ c
 c     get basis info
 c
                if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
-     &              call errquit('hess_dipder: bas_cn2bfr', basis)
+     &              call errquit('hess_dipder: bas_cn2bfr', basis,
+     &       BASIS_ERR)
                jdim = jhi - jlo + 1
                nint = idim * jdim
 c
@@ -383,7 +397,7 @@ c
 c  Get rid of extra memory
 c
       if (.not. ma_chop_stack(l_buf)) call errquit
-     *  ('hess_dipder: problem chopping stack',555)
+     *  ('hess_dipder: problem chopping stack',555, MA_ERR)
 c
 c  Terminate integral api
 c

@@ -1,8 +1,9 @@
       logical function task_thermo(rtdb)
 *
-* $Id: task_thermo.F,v 1.4 2001-05-09 17:51:06 d3j191 Exp $
+* $Id: task_thermo.F,v 1.5 2003-10-17 22:58:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -43,13 +44,14 @@ c
 c     Right now only have a QM component
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0)
+     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 c
 c     Set output parameters as if failed
 c
       status = rtdb_delete(rtdb, 'task:thermodynamics')
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_thermo: failed to invalidate status',0)
+     $     call errquit('task_thermo: failed to invalidate status',0,
+     &       RTDB_ERR)
 c
 c     Actually do the deed
 c
@@ -57,21 +59,23 @@ c
       if(theory.eq.'md') then
       status=nwmd(rtdb)
       else
-      call errquit('task_thermo: unknown theory',0)
+      call errquit('task_thermo: unknown theory',0, INPUT_ERR)
       endif
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
 c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $   call errquit('task_thermo: failed to set status',0)
+     $   call errquit('task_thermo: failed to set status',0, RTDB_ERR)
 c
       if (status) then
 c
          if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $        call errquit('task_dynamics: failed storing cputime',0)
+     $        call errquit('task_dynamics: failed storing cputime',0,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $        call errquit('task_dynamics: failed storing walltime',0)
+     $        call errquit('task_dynamics: failed storing walltime',0,
+     &       RTDB_ERR)
 c
       endif
 c

@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.122 2003-01-07 18:04:48 edo Exp $
+c $Id: basis.F,v 1.123 2003-10-17 22:54:18 carlfahl Exp $
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.
@@ -246,6 +246,7 @@ c destroys information about an active incore basis
 c and the associated mapping arrays.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "nwc_const.fh"
@@ -290,7 +291,8 @@ c must restore active geometry data appropriately
       if (active(geom)) then
         if (Is_ECP(basis)) then
           if (.not.geom_ncent(geom,nat))
-     &        call errquit('bas_do_destroy:geom_ncent failed',911)
+     &        call errquit('bas_do_destroy:geom_ncent failed',911,
+     &       BASIS_ERR)
           do i = 1,nat
             idbstag = sf_ibs_ce2uce(i,basis)
             if (ecp_get_num_elec(basisin,
@@ -319,7 +321,7 @@ c
       h_tmp = exndcf(H_exndcf,basis)
       if (h_tmp .ne. -1) then
          if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('bas_do_destroy: error freeing heap',911)
+     &        ('bas_do_destroy: error freeing heap',911, MEM_ERR)
       endif
       exndcf(H_exndcf ,basis) = -1
       exndcf(K_exndcf ,basis) = 0
@@ -418,6 +420,7 @@ c
 *.....................................................................
       logical function bas_summary_print(basisin)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -495,7 +498,8 @@ c::-local
           mytype = infbs_cont(Cont_Type,i_cont,basis)
           myngen = infbs_cont(Cont_Ngen,i_cont,basis)
           if (myngen.lt.1) call errquit (
-     &        'bas_summary_print: fatal error myngen:',myngen)
+     &        'bas_summary_print: fatal error myngen:',myngen,
+     &       BASIS_ERR)
           if (mytype.ge.0) then
             cnt_type(mytype) = cnt_type(mytype) + myngen
           else 
@@ -744,6 +748,7 @@ c
 *.....................................................................
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -791,7 +796,7 @@ c
      &    goto 112
 *
       if (.not.bas_get_ecp_name(basisin,ecp_name)) call errquit
-     &    ('bas_rtdb_load: bas_get_ecp_name failed',911)
+     &    ('bas_rtdb_load: bas_get_ecp_name failed',911, RTDB_ERR)
       if (ecp_name .eq. '  ') then
         ecp_name = 'ecp basis'
       endif
@@ -805,37 +810,42 @@ c
         status_ecp_cr = bas_create(ecpid,ecp_name)
         if (.not.status_ecp_cr) then
           call errquit
-     &        ('bas_rtdb_load: bas_create failed for ecpid',911)
+     &        ('bas_rtdb_load: bas_create failed for ecpid',911,
+     &       RTDB_ERR)
         endif
 
         status_ecp_load = bas_rtdb_do_load(rtdb,geom,ecpid,ecp_name)
         if (status_ecp_load) then
 *.... everything is okay
           if (.not.bas_set_ecp_name(basisin,ecp_name)) call errquit
-     &        ('bas_rtdb_load: bas_set_ecp_name failed',911)
+     &        ('bas_rtdb_load: bas_set_ecp_name failed',911,
+     &       RTDB_ERR)
 
           status_ecp = bas_set_ecp_handle(basisin,ecpid)
           if (.not.status_ecp) then
             call errquit
-     &          ('bas_rtdb_load: bas_set_ecp_handle failed',911)
+     &          ('bas_rtdb_load: bas_set_ecp_handle failed',911,
+     &       RTDB_ERR)
           endif
         
           status_ecp_ph = ecp_set_parent_handle(ecpid,basisin)
           if (.not.status_ecp_ph) then
             call errquit
-     &          ('bas_rtdb_load: ecp_set_parent_handle failed',911)
+     &          ('bas_rtdb_load: ecp_set_parent_handle failed',911,
+     &       RTDB_ERR)
           endif
         else
 *... ecp exists but is not used by current geometry so destroy it !
           if (.not.bas_do_destroy(ecpid)) then
             write(luout,*)' unused ecp basis failed to be destroyed'
-            call errquit('bas_rtdb_load: bas_do_destroy failed',911)
+            call errquit('bas_rtdb_load: bas_do_destroy failed',911,
+     &       RTDB_ERR)
           endif
         endif
       endif
 
       if (.not.bas_get_so_name(basisin,so_name)) call errquit
-     &    ('bas_rtdb_load: bas_get_so_name failed',911)
+     &    ('bas_rtdb_load: bas_get_so_name failed',911, RTDB_ERR)
       if (so_name .eq. '  ') then
         so_name = 'so potential'
       endif
@@ -849,31 +859,36 @@ c
         status_so_cr = bas_create(soid,so_name)
         if (.not.status_so_cr) then
           call errquit
-     &        ('bas_rtdb_load: bas_create failed for soid',911)
+     &        ('bas_rtdb_load: bas_create failed for soid',911,
+     &       RTDB_ERR)
         endif
 
         status_so_load = bas_rtdb_do_load(rtdb,geom,soid,so_name)
         if (status_so_load) then
 *.... everything is okay
           if (.not.bas_set_so_name(basisin,so_name)) call errquit
-     &        ('bas_rtdb_load: bas_set_so_name failed',911)
+     &        ('bas_rtdb_load: bas_set_so_name failed',911,
+     &       RTDB_ERR)
 
           status_so = bas_set_so_handle(basisin,soid)
           if (.not.status_so) then
             call errquit
-     &          ('bas_rtdb_load: bas_set_so_handle failed',911)
+     &          ('bas_rtdb_load: bas_set_so_handle failed',911,
+     &       RTDB_ERR)
           endif
         
           status_so_ph = so_set_parent_handle(soid,basisin)
           if (.not.status_so_ph) then
             call errquit
-     &          ('bas_rtdb_load: so_set_parent_handle failed',911)
+     &          ('bas_rtdb_load: so_set_parent_handle failed',911,
+     &       RTDB_ERR)
           endif
         else
 *... so exists but is not used by current geometry so destroy it !
           if (.not.bas_do_destroy(soid)) then
             write(luout,*)' unused so basis failed to be destroyed'
-            call errquit('bas_rtdb_load: bas_do_destroy failed',911)
+            call errquit('bas_rtdb_load: bas_do_destroy failed',911,
+     &       RTDB_ERR)
           endif
         endif
       endif
@@ -893,13 +908,16 @@ c
          if (status) then
             if (ga_nodeid() .eq. 0) then 
              if (.not. bas_print(basisin))
-     $          call errquit('bas_rtdb_load: print failed', 0)
+     $          call errquit('bas_rtdb_load: print failed', 0,
+     &       RTDB_ERR)
              if (.not.bas_summary_print(basisin)) call errquit
-     $          ('bas_rtdb_load: basis summary print failed',911)
+     $          ('bas_rtdb_load: basis summary print failed',911,
+     &       RTDB_ERR)
             endif
             status = .false.
             if (.not. rtdb_put(rtdb,so_name,mt_log,1,status))
-     $         call errquit('bas_rtdb_load: rtdb_put failed',911)
+     $         call errquit('bas_rtdb_load: rtdb_put failed',911,
+     &       RTDB_ERR)
          endif
       endif
       call bas_ecce_print_basis(basisin,'bas_input')
@@ -908,6 +926,7 @@ c
 *.....................................................................
       logical function bas_rtdb_do_load(rtdb, geom, basisin, name)
       implicit none
+#include "errquit.fh"
 c
 c routine that loads a basis set from the rtdb and using the 
 c geometry information builds the mapping arrays to contractions/
@@ -1023,7 +1042,7 @@ c
       if (exndcf(H_exndcf,basis) .ne. -1) then
          if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
      $        call errquit('bas_rtdb_do_load: ma is corrupted',
-     $        exndcf(H_exndcf,basis))
+     $        exndcf(H_exndcf,basis), RTDB_ERR)
       endif
 
       if (.not.ma_alloc_get(mt_dbl,(nexcf+ecXtra),nameex,
@@ -1031,7 +1050,7 @@ c
         write(LuOut,*)' not enough memory'
         call errquit
      &      (' bas_rtdb_do_load: error allocating space'//
-     &      ' for exndcf',911)
+     &      ' for exndcf',911, RTDB_ERR)
       else
         call dfill((nexcf+ecXtra),0.0d00,dbl_mb(k_tmp),1)
         exndcf(H_exndcf,basis) = h_tmp
@@ -1126,27 +1145,31 @@ c
 c get a list of tags from the current geometry
 c
         if (.not. geom_ncent_unique(geom,uniquecent)) 
-     &     call errquit('bas_rtdb_do_load: geom_ncent_unique',211)
+     &     call errquit('bas_rtdb_do_load: geom_ncent_unique',211,
+     &       RTDB_ERR)
       if (.not.MA_alloc_Get(mt_int,uniquecent, 'iarray', 
      &     l_array, i_array))
-     &     call errquit('basrtdbdoload: cannot allocate ',0)
+     &     call errquit('basrtdbdoload: cannot allocate ',0, MA_ERR)
         if (.not. geom_uniquecent_get(geom,uniquecent,
      ,     int_mb(i_array))) 
-     &     call errquit('bas_rtdb_do_load: geom_uniquecent_get',211)
+     &     call errquit('bas_rtdb_do_load: geom_uniquecent_get',211,
+     &       RTDB_ERR)
 c
 c We got the tag_to_add info from the geometry object
 c
         do iunique = 1, uniquecent
            if (.not. geom_cent_tag(geom,
      ,          int_mb(i_array+iunique-1),tag_to_add))
-     &        call errquit('bas_rtdb_do_load: geom_cen_tag',211)
+     &        call errquit('bas_rtdb_do_load: geom_cen_tag',211,
+     &       RTDB_ERR)
 c
 c First check if we did this geometry tag already
 c
            do junique = 1, iunique - 1
               if (.not. geom_cent_tag(geom,
      ,             int_mb(i_array+junique-1),tag_in_lib))
-     &           call errquit('bas_rtdb_do_load: geom_cen_tag',211)
+     &           call errquit('bas_rtdb_do_load: geom_cen_tag',211,
+     &       RTDB_ERR)
               if (inp_compare(.true.,tag_to_add,tag_in_lib)
      &              .and. (inp_strlen(tag_to_add) .eq. 
      &                     inp_strlen(tag_in_lib))) goto 00012
@@ -1210,13 +1233,15 @@ c
         k_tmp = exndcf(K_exndcf,basis) 
         ilen = exndcf(SZ_exndcf,basis)
         if (.not. ma_alloc_get(mt_dbl,ilen+2,nameex,h_new,k_new)) call
-     &     errquit('bas_rtdb_do_load: ma_alloc_get failed',ilen+2)
+     &     errquit('bas_rtdb_do_load: ma_alloc_get failed',ilen+2,
+     &       MA_ERR)
         exndcf(H_exndcf,basis) = h_new
         exndcf(K_exndcf,basis) = k_new
         exndcf(SZ_exndcf,basis) = ilen + 2
         call dcopy(ilen,dbl_mb(k_tmp),1,dbl_mb(k_new),1)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &      ('bas_rtdb_do_load: error freeing old exponents',211)
+     &      ('bas_rtdb_do_load: error freeing old exponents',211,
+     &       MEM_ERR)
 c
       endif
 c
@@ -1227,7 +1252,8 @@ c
       if (.not.rtdb_status) then
          if (exndcf(H_exndcf,basis) .ne. -1) then
             if (.not. ma_free_heap(exndcf(H_exndcf,basis)))
-     $           call errquit('bas_rtdb_load: ma free failed?',0)
+     $           call errquit('bas_rtdb_load: ma free failed?',0,
+     &       MA_ERR)
             exndcf(H_exndcf,basis) = -1
             exndcf(K_exndcf,basis) = 0
             exndcf(SZ_exndcf,basis)= 0
@@ -1277,6 +1303,7 @@ c
 *.....................................................................
       logical function bas_geobas_build(basisin)
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1381,7 +1408,8 @@ c.... set flag if any sp (spd,spdf) shells are present
             if (my_type.lt.0) then
               if (my_gen.ne.2) then
                 write(luout,*)' sp shell with n_gen = ',my_gen
-                call errquit ('bas_geobas_build: fatal error',911)
+                call errquit ('bas_geobas_build: fatal error',911,
+     &       BASIS_ERR)
               endif
               bas_any_sp_shell(basis) = .true.
             endif
@@ -1395,7 +1423,8 @@ c... clear old ibs_ce2uce if it exists
 *debug:mem        call util_flush(LuOut)
         h_tmp = ibs_ce2uce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('bas_geobas_build: error freeing ibs_ce2uce',911)
+     &        ('bas_geobas_build: error freeing ibs_ce2uce',911,
+     &       BASIS_ERR)
         ibs_ce2uce(H_ibs,basis)  = 0
         ibs_ce2uce(K_ibs,basis)  = 0
         ibs_ce2uce(SZ_ibs,basis) = 0 
@@ -1404,7 +1433,8 @@ c                                 123456789012
       write(name_tmp,'(a12,i4)') ' ibs_ce2uce ',basis
       if (.not.ma_alloc_get(mt_int,nat,name_tmp,h_tmp,k_tmp)) then
         call errquit
-     &      ('bas_geobas_build: error ma_alloc ibs_ce2uce',911)
+     &      ('bas_geobas_build: error ma_alloc ibs_ce2uce',911,
+     &       MA_ERR)
       else
 *debug:mem        write(LuOut,*)' generating ce2uce data ',ga_nodeid()
 *debug:mem        call util_flush(LuOut)
@@ -1424,7 +1454,7 @@ c
       if (nat.gt.nat_mx) then
         write(LuOut,*)' nat     = ',nat
         write(LuOut,*)' nat max = ',nat_mx
-        call errquit ('bas_geobas_build: nat.gt.nat_mx',911)
+        call errquit ('bas_geobas_build: nat.gt.nat_mx',911, BASIS_ERR)
       endif
       found_any = .false.
       do 00100 i=1,nat
@@ -1456,7 +1486,8 @@ c
      $          ' ERROR: only bq* centers can have no functions')
             if (ga_nodeid().eq.0) call util_flush(LuOut)
             call errquit
-     &          ('bas_geobas_build: basis/geometry mismatch', 0)
+     &          ('bas_geobas_build: basis/geometry mismatch', 0,
+     &       BASIS_ERR)
           else
             tag12 = tags(i,geom)(1:2)
             is_bq = inp_compare(.false.,'bq',tag12) .or.
@@ -1486,7 +1517,8 @@ c
      &          bs_name(basis)(1:len_bs_name(basis)),
      &          '"'
           endif
-          call errquit('bas_geobas_build: fatal error',911)
+          call errquit('bas_geobas_build: fatal error',911,
+     &       BASIS_ERR)
         endif
       endif
 c
@@ -1524,7 +1556,8 @@ c... clear old ibs_ce2cnr if it exists
 *debug:mem        call util_flush(LuOut)
         h_tmp = ibs_ce2cnr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('bas_geobas_build: error freeing ibs_ce2cnr',911)
+     &        ('bas_geobas_build: error freeing ibs_ce2cnr',911,
+     &       MEM_ERR)
         ibs_ce2cnr(H_ibs,basis)  = 0
         ibs_ce2cnr(K_ibs,basis)  = 0
         ibs_ce2cnr(SZ_ibs,basis) = 0 
@@ -1534,7 +1567,7 @@ c                                 123456789012
       if (.not.ma_alloc_get(mt_int,(2*nat),
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit
-     &      ('bas_geobas_build: error ma_alloc ibs_ce2cnr',911)
+     &      ('bas_geobas_build: error ma_alloc ibs_ce2cnr',911, MA_ERR)
       else
 *debug:mem        write(LuOut,*)' generating ce2cnr data ',ga_nodeid()
 *debug:mem        call util_flush(LuOut)
@@ -1567,12 +1600,14 @@ c
 00200 continue
 c
       if (ncont_tot_gb(basis) .eq. 0) call errquit
-     $    ('bas_geobas_build: no functions in basis set', 0)
+     $    ('bas_geobas_build: no functions in basis set', 0,
+     &       BASIS_ERR)
       if (ncont_tot_gb(basis) .gt. ncont_mx) then
         write(LuOut,*)' number of contractions     = ',
      &      ncont_tot_gb(basis)
         write(LuOut,*)' number of contractions max = ',ncont_mx
-        call errquit ('bas_geobas_build: ncont.gt.ncont_mx ',911)
+        call errquit ('bas_geobas_build: ncont.gt.ncont_mx ',911,
+     &       BASIS_ERR)
       endif
 c
 c allocate space for contraction -> center map
@@ -1583,7 +1618,8 @@ c... clear old ibs_cn2ce if it exists
 *debug:mem        call util_flush(LuOut)
         h_tmp = ibs_cn2ce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('bas_geobas_build: error freeing ibs_cn2ce',911)
+     &        ('bas_geobas_build: error freeing ibs_cn2ce',911,
+     &       MEM_ERR)
         ibs_cn2ce(H_ibs,basis)  = 0
         ibs_cn2ce(K_ibs,basis)  = 0
         ibs_cn2ce(SZ_ibs,basis) = 0 
@@ -1592,7 +1628,8 @@ c                                 123456789012
       write(name_tmp,'(a12,i4)') ' ibs_cn2ce  ',basis
       if (.not.ma_alloc_get(mt_int,(1+ncont_tot_gb(basis)),
      &      name_tmp,h_tmp,k_tmp)) then
-        call errquit('bas_geobas_build: error ma_alloc ibs_cn2ce',911)
+        call errquit('bas_geobas_build: error ma_alloc ibs_cn2ce',911,
+     &       MA_ERR)
       else
 *debug:mem        write(LuOut,*)' generating cn2ce data ',ga_nodeid()
 *debug:mem        call util_flush(LuOut)
@@ -1626,7 +1663,8 @@ c... clear old ibs_cn2ucn if it exists
 *debug:mem        call util_flush(LuOut)
         h_tmp = ibs_cn2ucn(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('bas_geobas_build: error freeing ibs_cn2ucn',911)
+     &        ('bas_geobas_build: error freeing ibs_cn2ucn',911,
+     &       BASIS_ERR)
         ibs_cn2ucn(H_ibs,basis)  = 0
         ibs_cn2ucn(K_ibs,basis)  = 0
         ibs_cn2ucn(SZ_ibs,basis) = 0 
@@ -1636,7 +1674,8 @@ c                                 123456789012
       if (.not.ma_alloc_get(mt_int,(1+ncont_tot_gb(basis)),
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit
-     &      ('bas_geobas_build: error ma_alloc ibs_cn2ucn',911)
+     &      ('bas_geobas_build: error ma_alloc ibs_cn2ucn',911,
+     &       MA_ERR)
       else
 *debug:mem        write(LuOut,*)' generating cn2ucn data ',ga_nodeid()
 *debug:mem        call util_flush(LuOut)
@@ -1690,7 +1729,8 @@ c... clear old ibs_cn2bfr if it exists
 *debug:mem        call util_flush(LuOut)
         h_tmp = ibs_cn2bfr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('bas_geobas_build: error freeing ibs_cn2bfr',911)
+     &        ('bas_geobas_build: error freeing ibs_cn2bfr',911,
+     &       BASIS_ERR)
         ibs_cn2bfr(H_ibs,basis)  = 0
         ibs_cn2bfr(K_ibs,basis)  = 0
         ibs_cn2bfr(SZ_ibs,basis) = 0 
@@ -1700,7 +1740,8 @@ c                                 123456789012
       if (.not.ma_alloc_get(mt_int,(2*(1+ncont_tot_gb(basis))),
      &      name_tmp,h_tmp,k_tmp)) then
         call errquit
-     &      ('bas_geobas_build: error ma_alloc ibs_cn2bfr',911)
+     &      ('bas_geobas_build: error ma_alloc ibs_cn2bfr',911,
+     &       BASIS_ERR)
       else
 *debug:mem        write(LuOut,*)' generating cn2bfr data ',ga_nodeid()
 *debug:mem        call util_flush(LuOut)
@@ -1742,7 +1783,8 @@ c build high angular momentum of this loaded <basis|geom> pair
 c note angular_bs(*) initialized in block data function
 c
       if (.not.bas_high_angular(basisin,myang))call errquit
-     &      ('bas_geobas_build: error bas_high_angular',911)
+     &      ('bas_geobas_build: error bas_high_angular',911,
+     &       BASIS_ERR)
 *
       if (Is_ECP(basis)) then
 * if ECP basis must modify geometry data appropriately
@@ -2056,6 +2098,7 @@ c
 *.....................................................................
       logical function gbs_map_clear(basisin)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -2089,7 +2132,7 @@ c... clear old ibs_ce2uce if it exists
       if (ibs_ce2uce(SZ_ibs,basis).gt.0) then
         h_tmp = ibs_ce2uce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('gbs_map_clear: error freeing ibs_ce2uce',911)
+     &        ('gbs_map_clear: error freeing ibs_ce2uce',911, MEM_ERR)
         ibs_ce2uce(H_ibs,basis)  = 0
         ibs_ce2uce(K_ibs,basis)  = 0
         ibs_ce2uce(SZ_ibs,basis) = 0 
@@ -2098,7 +2141,7 @@ c... clear old ibs_ce2cnr if it exists
       if (ibs_ce2cnr(SZ_ibs,basis).gt.0) then
         h_tmp = ibs_ce2cnr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('gbs_map_clear: error freeing ibs_ce2cnr',911)
+     &        ('gbs_map_clear: error freeing ibs_ce2cnr',911, MEM_ERR)
         ibs_ce2cnr(H_ibs,basis)  = 0
         ibs_ce2cnr(K_ibs,basis)  = 0
         ibs_ce2cnr(SZ_ibs,basis) = 0 
@@ -2107,7 +2150,7 @@ c... clear old ibs_cn2ce if it exists
       if (ibs_cn2ce(SZ_ibs,basis).gt.0) then
         h_tmp = ibs_cn2ce(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('gbs_map_clear: error freeing ibs_cn2ce',911)
+     &        ('gbs_map_clear: error freeing ibs_cn2ce',911, MEM_ERR)
         ibs_cn2ce(H_ibs,basis)  = 0
         ibs_cn2ce(K_ibs,basis)  = 0
         ibs_cn2ce(SZ_ibs,basis) = 0 
@@ -2116,7 +2159,7 @@ c... clear old ibs_cn2ucn if it exists
       if (ibs_cn2ucn(SZ_ibs,basis).gt.0) then
         h_tmp = ibs_cn2ucn(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('gbs_map_clear: error freeing ibs_cn2ucn',911)
+     &        ('gbs_map_clear: error freeing ibs_cn2ucn',911, MEM_ERR)
         ibs_cn2ucn(H_ibs,basis)  = 0
         ibs_cn2ucn(K_ibs,basis)  = 0
         ibs_cn2ucn(SZ_ibs,basis) = 0 
@@ -2125,7 +2168,7 @@ c... clear old ibs_cn2bfr if it exists
       if (ibs_cn2bfr(SZ_ibs,basis).gt.0) then
         h_tmp = ibs_cn2bfr(H_ibs,basis)
         if (.not.ma_free_heap(h_tmp)) call errquit
-     &        ('gbs_map_clear: error freeing ibs_cn2bfr',911)
+     &        ('gbs_map_clear: error freeing ibs_cn2bfr',911, MEM_ERR)
         ibs_cn2bfr(H_ibs,basis)  = 0
         ibs_cn2bfr(K_ibs,basis)  = 0
         ibs_cn2bfr(SZ_ibs,basis) = 0 
@@ -3130,6 +3173,7 @@ c
 *.....................................................................
       logical function bas_geom(basisin,geom)	
       implicit none 
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -3143,7 +3187,7 @@ c:: passed
       integer geom          ! [output] geometry used to load basis set
 c
       if (.not.bas_check_handle(basisin,'bas_geom'))
-     & call errquit('bas_geom: handle invalid',911)
+     & call errquit('bas_geom: handle invalid',911, BASIS_ERR)
 c
       basis = basisin + Basis_Handle_Offset
 c
@@ -3153,6 +3197,7 @@ c
 *.....................................................................
       logical function bas_ncoef_cn_max(basisin, ncoef_max)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -3164,7 +3209,7 @@ c
 c
       basis = basisin + Basis_Handle_Offset
       if (.not.bsactive(basis)) call errquit
-     &    ('bas_ncoef_cn_max: basis handle invalid',911)
+     &    ('bas_ncoef_cn_max: basis handle invalid',911, BASIS_ERR)
       nu_cont = infbs_head(HEAD_NCONT,basis)
       ncoef_max = 0
       do 00100 iu_cont = 1,nu_cont
@@ -3177,6 +3222,7 @@ c
 *.....................................................................
       logical function bas_nprim_cn_max(basisin, nprim_max)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -3189,7 +3235,7 @@ c
 c
       basis = basisin + Basis_Handle_Offset
       if (.not.bsactive(basis)) call errquit
-     &    ('bas_nprim_cn_max: basis handle invalid',911)
+     &    ('bas_nprim_cn_max: basis handle invalid',911, BASIS_ERR)
       nu_cont = infbs_head(HEAD_NCONT,basis)
       nprim_max = 0
       do 00100 iu_cont = 1,nu_cont
@@ -3635,6 +3681,7 @@ c
 *.....................................................................
       logical function ecp_set_parent_handle(ecp_handle,basis_handle)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
       integer ecp_handle
@@ -3645,11 +3692,13 @@ c
 c      
       if (.not.bas_check_handle(basis_handle,'ecp_set_parent_handle'))
      &      call errquit
-     &      ('ecp_set_parent_handle: basis_handle invalid',911)
+     &      ('ecp_set_parent_handle: basis_handle invalid',911,
+     &       BASIS_ERR)
       if (.not.ecp_check_handle(ecp_handle,'ecp_set_parent_handle'))
      &      call errquit
      &      ('ecp_set_parent_handle: not an ECP ...'//
-     $     ' check for name conflict between basis and ECP',911)
+     $     ' check for name conflict between basis and ECP',911,
+     &       BASIS_ERR)
       parent_assoc(1,(ecp_handle+Basis_Handle_Offset)) =
      &      basis_handle
       bas_nassoc(basis_handle+Basis_Handle_Offset) =
@@ -3659,6 +3708,7 @@ c
 *.....................................................................
       logical function ecp_get_parent_handle(ecp_handle,basis_handle)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
       integer ecp_handle
@@ -3669,7 +3719,8 @@ c
 c      
       if (.not.ecp_check_handle(ecp_handle,'ecp_get_parent_handle'))
      &      call errquit
-     &      ('ecp_get_parent_handle: ecp_handle invalid',911)
+     &      ('ecp_get_parent_handle: ecp_handle invalid',911,
+     &       BASIS_ERR)
       basis_handle = parent_assoc(1,ecp_handle+Basis_Handle_Offset)
       if (basis_handle.ne.0) then
         ecp_get_parent_handle = .true.
@@ -3678,7 +3729,8 @@ c
       endif
       if (.not.bas_check_handle(basis_handle,'ecp_get_parent_handle'))
      &      call errquit
-     &      ('ecp_get_parent_handle: stored basis_handle invalid',911)
+     &      ('ecp_get_parent_handle: stored basis_handle invalid',911,
+     &       BASIS_ERR)
       end
 *.....................................................................
       logical function bas_set_so_handle(basisin,so_handle)
@@ -3711,6 +3763,7 @@ c
 *.....................................................................
       logical function so_set_parent_handle(so_handle,basis_handle)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
       integer so_handle
@@ -3721,10 +3774,12 @@ c
 c      
       if (.not.bas_check_handle(basis_handle,'so_set_parent_handle'))
      &      call errquit
-     &      ('so_set_parent_handle: basis_handle invalid',911)
+     &      ('so_set_parent_handle: basis_handle invalid',911,
+     &       BASIS_ERR)
       if (.not.so_check_handle(so_handle,'so_set_parent_handle'))
      &      call errquit
-     &      ('so_set_parent_handle: so_handle invalid',911)
+     &      ('so_set_parent_handle: so_handle invalid',911,
+     &       BASIS_ERR)
       parent_assoc(2,(so_handle+Basis_Handle_Offset)) =
      &      basis_handle
       bas_nassoc(basis_handle+Basis_Handle_Offset) =
@@ -3734,6 +3789,7 @@ c
 *.....................................................................
       logical function so_get_parent_handle(so_handle,basis_handle)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
       integer so_handle
@@ -3744,7 +3800,7 @@ c
 c      
       if (.not.so_check_handle(so_handle,'so_get_parent_handle'))
      &      call errquit
-     &      ('so_get_parent_handle: so_handle invalid',911)
+     &      ('so_get_parent_handle: so_handle invalid',911, BASIS_ERR)
       basis_handle =
      &    parent_assoc(2,(so_handle+Basis_Handle_Offset))
       if (basis_handle.ne.0) then
@@ -3754,7 +3810,8 @@ c
       endif
       if (.not.bas_check_handle(basis_handle,'so_get_parent_handle'))
      &      call errquit
-     &      ('so_get_parent_handle: stored basis_handle invalid',911)
+     &      ('so_get_parent_handle: stored basis_handle invalid',911,
+     &       BASIS_ERR)
       end
       subroutine bas_print_allocated_info(msg)
       implicit none
@@ -3819,6 +3876,7 @@ c
       end
       logical function bas_match_tags(tag_from_geom,basisin,btag)
       implicit none
+#include "errquit.fh"
 *
 * This routine matches geometry tags to basis set tags in such a way
 *     that "H34" matches "H" or "hydrogen" or "h" if "H34" does not 
@@ -3959,7 +4017,7 @@ c
         if (.not.(g_sym.eq.'bq')) then
           write(luout,*)'geometry tag <',gstring,
      &        '> could not be matched to an element symbol'
-          call errquit('bas_match_tags: fatal error ',911)
+          call errquit('bas_match_tags: fatal error ',911, BASIS_ERR)
         endif
       endif
       if (g_sym.eq.'bq') goto 00009   ! bq labes with basis functions must match from above
@@ -3970,7 +4028,7 @@ c
           if (.not.(b_sym.eq.'bq')) then
             write(luout,*)'basis tag',bs_tags(i,basis),
      &          ' could not be matched to an element symbol'
-            call errquit('bas_match_tags: fatal error ',911)
+            call errquit('bas_match_tags: fatal error ',911, BASIS_ERR)
           endif
         endif
         if (g_elem.eq.b_elem) then
@@ -4000,6 +4058,7 @@ c
       end
       logical function bas_cando_mpoles(basis)
       implicit none
+#include "errquit.fh"
       integer basis             ! [input]
 c
 c     Return true if it's possible to compute multipoles for this basis
@@ -4013,11 +4072,11 @@ c
       bas_cando_mpoles = .false.
 c
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('multipole: basis bad?',0)
+     $     ('multipole: basis bad?',0, BASIS_ERR)
       do ishell = 1, nshell
          if (.not. bas_continfo(basis, ishell, type, 
      $        nprim, ngen, sphcart)) call errquit
-     $        ('multipole: basis bad?',0)
+     $        ('multipole: basis bad?',0, BASIS_ERR)
          if (type.lt.0 .or. ngen.gt.1) return
       enddo
 c
@@ -4026,6 +4085,7 @@ c
       end
       logical function bas_is_spherical(basisin)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"      
 #include "stdio.fh"
@@ -4040,7 +4100,7 @@ c
       bas_is_spherical = bas_check_handle(basisin,'bas_is_spherical')
       if (.not.bas_is_spherical) then
         write(luout,*)'invalid/inactive basis handle:',basisin
-        call errquit('bas_is_spherical: fatal error',911)
+        call errquit('bas_is_spherical: fatal error',911, BASIS_ERR)
       endif
       basis = basisin + Basis_Handle_Offset
       bas_is_spherical = bas_spherical(basis)
@@ -4165,6 +4225,7 @@ c
 *----------------------------------------------------------------------
       logical function ecpso_ncent(geom,soidin,ecpidin,num_cent)
       implicit none
+#include "errquit.fh"
 *
 * return the combined number of ecp/so centers
 *      
@@ -4190,11 +4251,11 @@ c
 *
       ecpso_ncent = geom_ncent(geom,ntotal)
       if (.not.ecpso_ncent) call errquit
-     &    ('ecpso_ncent: geom_ncent failed?',911)
+     &    ('ecpso_ncent: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('ecpso_ncent: geom_cent_get failed',911)
+     &      ('ecpso_ncent: geom_cent_get failed',911, GEOM_ERR)
         inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
         inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
         if (inthe_ecp.or.inthe_so) num_cent = num_cent + 1
@@ -4203,6 +4264,7 @@ c
 *----------------------------------------------------------------------
       logical function so_ncent(geom,soidin,num_cent)
       implicit none
+#include "errquit.fh"
 *
 * return the number of so centers
 *      
@@ -4226,11 +4288,11 @@ c
 *
       so_ncent = geom_ncent(geom,ntotal)
       if (.not.so_ncent) call errquit
-     &    ('so_ncent: geom_ncent failed?',911)
+     &    ('so_ncent: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('so_ncent: geom_cent_get failed',911)
+     &      ('so_ncent: geom_cent_get failed',911, GEOM_ERR)
         inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
         if (inthe_so) num_cent = num_cent + 1
       enddo
@@ -4238,6 +4300,7 @@ c
 *----------------------------------------------------------------------
       logical function ecp_ncent(geom,ecpidin,num_cent)
       implicit none
+#include "errquit.fh"
 *
 * return the number of ecp centers
 *      
@@ -4261,11 +4324,11 @@ c
 *
       ecp_ncent = geom_ncent(geom,ntotal)
       if (.not.ecp_ncent) call errquit
-     &    ('ecp_ncent: geom_ncent failed?',911)
+     &    ('ecp_ncent: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('ecp_ncent: geom_cent_get failed',911)
+     &      ('ecp_ncent: geom_cent_get failed',911, GEOM_ERR)
         inthe_ecp  = bas_match_tags(gtag,ecpidin,tag_indx)
         if (inthe_ecp) num_cent = num_cent + 1
       enddo
@@ -4274,6 +4337,7 @@ c
       logical function ecpso_list_ncent(geom,soidin,ecpidin,
      &    num_cent,ecpso_list)
       implicit none
+#include "errquit.fh"
 *
 * return the combined number of ecp/so centers and the list of centers
 *      
@@ -4300,11 +4364,11 @@ c
 *
       ecpso_list_ncent = geom_ncent(geom,ntotal)
       if (.not.ecpso_list_ncent) call errquit
-     &    ('ecpso_list_ncent: geom_ncent failed?',911)
+     &    ('ecpso_list_ncent: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('ecpso_list_ncent: geom_cent_get failed',911)
+     &      ('ecpso_list_ncent: geom_cent_get failed',911, GEOM_ERR)
         inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
         inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
         if (inthe_ecp.or.inthe_so) then
@@ -4317,6 +4381,7 @@ c
       logical function so_list_ncent(geom,soidin,
      &    num_cent,so_list)
       implicit none
+#include "errquit.fh"
 *
 * return the number of so centers and the list of centers
 *      
@@ -4341,11 +4406,11 @@ c
 *
       so_list_ncent = geom_ncent(geom,ntotal)
       if (.not.so_list_ncent) call errquit
-     &    ('so_list_ncent: geom_ncent failed?',911)
+     &    ('so_list_ncent: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('so_list_ncent: geom_cent_get failed',911)
+     &      ('so_list_ncent: geom_cent_get failed',911, GEOM_ERR)
         inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
         if (inthe_so) then
           num_cent = num_cent + 1
@@ -4357,6 +4422,7 @@ c
       logical function ecp_list_ncent(geom,ecpidin,
      &    num_cent,ecp_list)
       implicit none
+#include "errquit.fh"
 *
 * return the number of ecp centers and the list of centers
 *      
@@ -4381,11 +4447,11 @@ c
 *
       ecp_list_ncent = geom_ncent(geom,ntotal)
       if (.not.ecp_list_ncent) call errquit
-     &    ('ecp_list_ncent: geom_ncent failed?',911)
+     &    ('ecp_list_ncent: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('ecp_list_ncent: geom_cent_get failed',911)
+     &      ('ecp_list_ncent: geom_cent_get failed',911, GEOM_ERR)
         inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
         if (inthe_ecp) then
           num_cent = num_cent + 1
@@ -4397,6 +4463,7 @@ c
       logical function ecpso_get_coords(geom,soidin,ecpidin,
      &    nxyz,xyz)
       implicit none
+#include "errquit.fh"
 *
 * get the coordinates for the ecp/so centers
 *
@@ -4424,17 +4491,18 @@ c
 *
       ecpso_get_coords = geom_ncent(geom,ntotal)
       if (.not.ecpso_get_coords) call errquit
-     &    ('ecpso_get_coords: geom_ncent failed?',911)
+     &    ('ecpso_get_coords: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('ecpso_get_coords: geom_cent_get failed',911)
+     &      ('ecpso_get_coords: geom_cent_get failed',911, GEOM_ERR)
         inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
         inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
         if (inthe_ecp.or.inthe_so) then
           num_cent = num_cent + 1
           if (num_cent.gt.nxyz) call errquit
-     &        ('ecpso_get_coords: array passed in was too small',911)
+     &        ('ecpso_get_coords: array passed in was too small',911,
+     &       GEOM_ERR)
           xyz(1,num_cent) = cxyz(1)
           xyz(2,num_cent) = cxyz(2)
           xyz(3,num_cent) = cxyz(3)
@@ -4445,6 +4513,7 @@ c
       logical function so_get_coords(geom,soidin,
      &    nxyz,xyz)
       implicit none
+#include "errquit.fh"
 *
 * get the coordinates for the so centers
 *
@@ -4470,16 +4539,17 @@ c
 *
       so_get_coords = geom_ncent(geom,ntotal)
       if (.not.so_get_coords) call errquit
-     &    ('so_get_coords: geom_ncent failed?',911)
+     &    ('so_get_coords: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('so_get_coords: geom_cent_get failed',911)
+     &      ('so_get_coords: geom_cent_get failed',911, GEOM_ERR)
         inthe_so  = bas_match_tags(gtag,soidin,tag_indx)
         if (inthe_so) then
           num_cent = num_cent + 1
           if (num_cent.gt.nxyz) call errquit
-     &        ('so_get_coords: array passed in was too small',911)
+     &        ('so_get_coords: array passed in was too small',911,
+     &       GEOM_ERR)
           xyz(1,num_cent) = cxyz(1)
           xyz(2,num_cent) = cxyz(2)
           xyz(3,num_cent) = cxyz(3)
@@ -4490,6 +4560,7 @@ c
       logical function ecp_get_coords(geom,ecpidin,
      &    nxyz,xyz)
       implicit none
+#include "errquit.fh"
 *
 * get the coordinates for the ecp centers
 *
@@ -4515,16 +4586,17 @@ c
 *
       ecp_get_coords = geom_ncent(geom,ntotal)
       if (.not.ecp_get_coords) call errquit
-     &    ('ecp_get_coords: geom_ncent failed?',911)
+     &    ('ecp_get_coords: geom_ncent failed?',911, GEOM_ERR)
       num_cent = 0
       do ic = 1,ntotal
         if (.not.geom_cent_get(geom,ic,gtag,cxyz,chg)) call errquit
-     &      ('ecp_get_coords: geom_cent_get failed',911)
+     &      ('ecp_get_coords: geom_cent_get failed',911, GEOM_ERR)
         inthe_ecp = bas_match_tags(gtag,ecpidin,tag_indx)
         if (inthe_ecp) then
           num_cent = num_cent + 1
           if (num_cent.gt.nxyz) call errquit
-     &        ('ecp_get_coords: array passed in was too small',911)
+     &        ('ecp_get_coords: array passed in was too small',911,
+     &       GEOM_ERR)
           xyz(1,num_cent) = cxyz(1)
           xyz(2,num_cent) = cxyz(2)
           xyz(3,num_cent) = cxyz(3)
@@ -4534,6 +4606,7 @@ c
 *----------------------------------------------------------------------
       logical function bas_isce(geom,basisin,center)
       implicit none
+#include "errquit.fh"
 *
 * return true if the given center is in the designated basis set
 *      
@@ -4555,12 +4628,13 @@ c
 *
       bas_isce = geom_cent_get(geom,center,gtag,cxyz,chg)
       if (.not.bas_isce) call errquit
-     &      ('bas_iscet: geom_cent_get failed',911)
+     &      ('bas_iscet: geom_cent_get failed',911, GEOM_ERR)
 *      write(LuOut,*)' center = ',center,' gtag:<',gtag,'>'
       bas_isce  = bas_match_tags(gtag,basisin,tag_indx)
       end
       logical function bas_large_exponent(basisin,exponent)
       implicit none
+#include "errquit.fh"
 c
 c returns the largest primitive exponent in the given basis set
 c
@@ -4594,7 +4668,7 @@ c
      &    bas_check_handle(basisin,'bas_large_exponent')
       if (.not.bas_large_exponent) then
         write(luout,*)'invalid/inactive basis handle',basisin
-        call errquit('bas_large_exponent: fatal error',911)
+        call errquit('bas_large_exponent: fatal error',911, BASIS_ERR)
       endif
       basis = basisin + Basis_Handle_Offset 
       num_cont = ncont_tot_gb(basis)
@@ -4613,6 +4687,7 @@ c
       end
       logical function bas_any_gcorsp(basisin)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -4631,13 +4706,14 @@ c::local
      &    bas_check_handle(basisin,'bas_any_gcorsp')
       if (.not.bas_any_gcorsp) then
         write(luout,*)'invalid/inactive basis handle',basisin
-        call errquit('bas_any_gcorsp: fatal error',911)
+        call errquit('bas_any_gcorsp: fatal error',911, BASIS_ERR)
       endif
       basis = basisin + Basis_Handle_Offset 
       bas_any_gcorsp = bas_any_gc(basis).or.bas_any_sp_shell(basis)
       end
       logical function bas_cont_large_exponent(basisin,incont,exponent)
       implicit none
+#include "errquit.fh"
 c
 c returns the largest primitive exponent in the given basis set
 c
@@ -4672,7 +4748,8 @@ c
      &    bas_check_handle(basisin,'bas_cont_large_exponent')
       if (.not.bas_cont_large_exponent) then
         write(luout,*)'invalid/inactive basis handle',basisin
-        call errquit('bas_cont_large_exponent: fatal error',911)
+        call errquit('bas_cont_large_exponent: fatal error',911,
+     &       BASIS_ERR)
       endif
       basis = basisin + Basis_Handle_Offset 
       num_cont = ncont_tot_gb(basis)
@@ -4746,6 +4823,7 @@ c
 *.....................................................................
       logical function bas_any_rel_shells (basisin)
       implicit none
+#include "errquit.fh"
 c
       integer basisin ! [input] basis set handle
 #include "nwc_const.fh"
@@ -4762,7 +4840,8 @@ c
       external bas_check_handle
 c
       if (.not. bas_check_handle(basisin,'bas_any_rel_shells'))
-     &    call errquit('bas_any_rel_shells: invalid handle',99)
+     &    call errquit('bas_any_rel_shells: invalid handle',99,
+     &       BASIS_ERR)
       ibas = basisin+BASIS_HANDLE_OFFSET
       nucont = infbs_head(HEAD_NCONT,ibas)
       isum = 0
@@ -4814,6 +4893,7 @@ c
       end
       logical function bas_do_tags_match(tag_one,tag_two)
       implicit none
+#include "errquit.fh"
 *
 * This routine matches two input tags using the geometry/basis set 
 * tags matching mechanism, in such a way that "H34" matches "H" or 
@@ -4938,7 +5018,7 @@ c
         if (.not.(one_sym.eq.'bq')) then
           write(luout,*)'tag <',one16,
      &        '> could not be matched to an element symbol'
-          call errquit('bas_do_tags_match: fatal error ',911)
+          call errquit('bas_do_tags_match: fatal error ',911, BASIS_ERR)
         endif
       endif
       if (one_sym.eq.'bq') goto 00009   ! bq labels with basis functions must match from above
@@ -4947,7 +5027,7 @@ c
         if (.not.(two_sym.eq.'bq')) then
           write(luout,*)'tag <',two16,
      &        '> could not be matched to an element symbol'
-          call errquit('bas_do_tags_match: fatal error ',911)
+          call errquit('bas_do_tags_match: fatal error ',911, BASIS_ERR)
         endif
       endif
       if (two_sym.eq.'bq') goto 00009   ! bq labels with basis functions must match from above

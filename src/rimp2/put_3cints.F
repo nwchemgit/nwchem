@@ -1,6 +1,7 @@
       Logical Function Put_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: put_3cints.F,v 1.12 2003-02-22 05:58:52 edo Exp $
+C$Id: put_3cints.F,v 1.13 2003-10-17 22:58:10 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer LU, G_I, NA, ILo, IHi
 C
 #ifdef RIMP2_USE_DA
@@ -18,10 +19,11 @@ C
       If ( DRA_Write_Section(.FALSE.,
      $   G_I, 1,            NA*(IHi-ILo+1), 1, FitLen,
      $   LU,  1+NA*(ILo-1), NA*IHi,         1, FitLen, Req) .ne. 0)
-     $   Call ErrQuit( 'Put_3cInts: Error from DRA_Write_Section', ILo)
+     $   Call ErrQuit( 'Put_3cInts: Error from DRA_Write_Section', ILo,
+     &       CALC_ERR)
 C
       If ( DRA_Wait(Req) .ne. 0) Call ErrQuit(
-     $   'Put_3cInts: Error from DRA_Wait', ILo)
+     $   'Put_3cInts: Error from DRA_Wait', ILo, CALC_ERR)
 C
       Put_3cInts = .TRUE.
 C
@@ -70,7 +72,8 @@ C
                   write(LuOut,*) ' IO offset ', offset
                   write(LuOut,*) ' IO error message ',
      $                 errmsg(1:inp_strlen(errmsg))
-                  call errquit('put_3cints: write failed',i-ilo)
+                  call errquit('put_3cints: write failed',i-ilo,
+     &       DISK_ERR)
                endif
          EndDo
 C
@@ -88,7 +91,7 @@ C
 C
  8000 Continue
       Write (LuErr, *) 'Put_3cInts: Error writing ', ILo, I, IHi
-      Call Errquit('Put_3cInts',0)
+      Call Errquit('Put_3cInts',0, UNKNOWN_ERR)
 C
       Put_3cInts = .FALSE.
 C

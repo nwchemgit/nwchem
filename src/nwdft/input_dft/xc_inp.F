@@ -1,6 +1,7 @@
       subroutine xc_input(rtdb, module)
 C     $Id: 
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -101,7 +102,7 @@ c
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
      &  3600,4000, 3650, 3110,
      ,     1999) ind
-      call errquit('xc_inp: unimplemented directive', ind)
+      call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
 c          AD Becke JCP 98, 5648 (1993)
@@ -218,7 +219,8 @@ c
             write(LuOut,*)' becke88 "local" is equivalent to the',
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
-            call errquit(' xc_inp - functional description ',0)
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
             lxfac(3) = .true.
             nlxfac(3) = .false.
          elseif (inp_compare(.false.,'nonlocal', test) ) then
@@ -980,7 +982,8 @@ c
             write(LuOut,*)' mpw91 "local" is equivalent to the',
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
-            call errquit(' xc_inp - functional description ',0)
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
             lxfac(19) = .true.
             nlxfac(19) = .false.
           
@@ -1049,7 +1052,8 @@ c
             write(LuOut,*)' xpbe96 "local" is equivalent to the',
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
-            call errquit(' xc_inp - functional description ',0)
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(7) = .true.
          else
@@ -1082,7 +1086,8 @@ c
             write(LuOut,*)' xpkzb "local" is equivalent to the',
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
-            call errquit(' xc_inp - functional description ',0)
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(18) = .true.
          else
@@ -1150,7 +1155,8 @@ c
             write(LuOut,*)' gill96 "local" is equivalent to the',
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
-            call errquit(' xc_inp - functional description ',0)
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(8) = .true.
          else
@@ -1180,7 +1186,8 @@ c
             write(LuOut,*)' xperdew91 "local" is equivalent to the',
      &                ' slater exchange local functional. '
             write(LuOut,*)' Resubmit using slater exchange. '
-            call errquit(' xc_inp - functional description ',0)
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
          elseif (inp_compare(.false.,'nonlocal', test) ) then
             nlxfac(9) = .true.
          else
@@ -1269,22 +1276,22 @@ c
 c>>>  place logical XC parameters in rtdb
 c
       if (.not. rtdb_put(rtdb, 'dft:lcfac', mt_log, numfunc, lcfac))
-     &   call errquit('xc_inp: rtdb_put failed', 1)
+     &   call errquit('xc_inp: rtdb_put failed', 1, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:nlcfac', mt_log, numfunc, nlcfac))
-     &   call errquit('xc_inp: rtdb_put failed', 2)
+     &   call errquit('xc_inp: rtdb_put failed', 2, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:lxfac', mt_log, numfunc, lxfac))
-     &   call errquit('xc_inp: rtdb_put failed', 3)
+     &   call errquit('xc_inp: rtdb_put failed', 3, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:nlxfac', mt_log, numfunc, nlxfac))
-     &   call errquit('xc_inp: rtdb_put failed', 4)
+     &   call errquit('xc_inp: rtdb_put failed', 4, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:xccomb', mt_log, numfunc, xccomb))
-     &   call errquit('xc_inp: rtdb_put failed', 5)
+     &   call errquit('xc_inp: rtdb_put failed', 5, RTDB_ERR)
 c     
 c>>>  place real XC parameters in rtdb
 c     
       if (.not. rtdb_put(rtdb, 'dft:cfac', mt_dbl, numfunc, cfac))
-     &   call errquit('xc_inp: rtdb_put failed', 6)
+     &   call errquit('xc_inp: rtdb_put failed', 6, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:xfac', mt_dbl, numfunc, xfac))
-     &   call errquit('xc_inp: rtdb_put failed', 7)
+     &   call errquit('xc_inp: rtdb_put failed', 7, RTDB_ERR)
       return
 c     
 10000 write(LuOut,10001)
@@ -1330,11 +1337,12 @@ c
      &       /,' [hcth407p]')
  
       call util_flush(LuOut)
-      call errquit('xc_input: invalid format', 0)
+      call errquit('xc_input: invalid format', 0, INPUT_ERR)
 c     
       end
       subroutine sic_input(rtdb, module)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -1372,7 +1380,7 @@ c
       endif
 c
       goto (100, 200, 300, 1999) ind
-      call errquit('sic_inp: unimplemented directive', ind)
+      call errquit('sic_inp: unimplemented directive', ind, INPUT_ERR)
 c     
   100 if (.not.inp_a(test)) then
         test_sic = 1
@@ -1399,7 +1407,7 @@ c
  1999 continue
 c
       if (.not. rtdb_put(rtdb, 'dft:test_sic', mt_int, 1,test_sic))
-     &     call errquit('sic_inp: rtdb_put failed', 1)
+     &     call errquit('sic_inp: rtdb_put failed', 1, RTDB_ERR)
 c     
       return
 c     
@@ -1407,7 +1415,7 @@ c
 
 10001 format(/,' sic [[perturbative], [oep], [oep-loc]]')
       call util_flush(LuOut)
-      call errquit('sic_input: invalid format', 0)
+      call errquit('sic_input: invalid format', 0, INPUT_ERR)
 c     
       end
 

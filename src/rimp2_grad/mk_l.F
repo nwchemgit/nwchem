@@ -3,13 +3,14 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.10 1998-12-08 19:52:03 bernhold Exp $
+C     $Id: mk_l.F,v 1.11 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,
      $     NVir, NFit, D_Int_ai, D_Int_ij, D_Gam, g_L, g_P2, g_W2,
      $     Eig, LDEig, g_AOXF, Tol2e_Fock)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer RTDB          ![in]
       Integer Geom          ![in]
@@ -64,7 +65,7 @@ C     Sanity checks and initialization
 C
       If ( TopSpin .gt. MaxSpin) Call ErrQuit(
      $     'RIMP2_Mk_L: fatal program error: TopSpin > MaxSpin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
 C
       Me = GA_NodeID()
 C
@@ -81,7 +82,7 @@ C
          If ( .NOT. GA_Create(MT_Dbl, C+A+V, A,
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L1(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Mk_L: can''t allocate L1', ISpin)
+     $        'RIMP2_Mk_L: can''t allocate L1', ISpin, GA_ERR)
 C
 C        Create L2(a,p)
 C
@@ -89,7 +90,7 @@ C
          If ( .NOT. GA_Create(MT_Dbl, V, C+A+V,
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L2(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Mk_L: can''t allocate L2', ISpin)
+     $        'RIMP2_Mk_L: can''t allocate L2', ISpin, GA_ERR)
 C
 C        Create L34(a,m)
 C
@@ -97,7 +98,7 @@ C
          If ( .NOT. GA_Create(MT_Dbl, V, C+A,
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L34(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Mk_L: can''t allocate L34', ISpin)
+     $        'RIMP2_Mk_L: can''t allocate L34', ISpin, GA_ERR)
       EndDo ! ISpin
 C
 C     ********************************
@@ -216,7 +217,7 @@ C
      $        NFrzO(ISpin)+NAct(ISpin), NVir(ISpin), 
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L_tr(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t allocate L_tr', ISpin)
+     $        'RIMP2_Driver_G: can''t allocate L_tr', ISpin, GA_ERR)
          Call GA_Zero(g_L_tr(ISpin) )
       EndDo
 C
@@ -236,7 +237,7 @@ C
      $        Call GA_Transpose(g_L_tr(ISpin), g_L34(ISpin) )
 C
          If ( .NOT. GA_Destroy( g_L_tr(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Mk_L: can''t destroy L_tr', ISpin)
+     $        'RIMP2_Mk_L: can''t destroy L_tr', ISpin, GA_ERR)
       EndDo
 C
 C     Print results if requested
@@ -360,11 +361,11 @@ C     Clean up memory
 C
       Do ISpin = 1, TopSpin
          If ( .NOT. GA_Destroy( G_L34(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t free L34', ISpin)
+     $        'RIMP2_Driver_G: can''t free L34', ISpin, GA_ERR)
          If ( .NOT. GA_Destroy( G_L2(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t free L2', ISpin)
+     $        'RIMP2_Driver_G: can''t free L2', ISpin, GA_ERR)
          If ( .NOT. GA_Destroy( G_L1(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_G: can''t free L1', ISpin)
+     $        'RIMP2_Driver_G: can''t free L1', ISpin, GA_ERR)
       EndDo
 C
       Return

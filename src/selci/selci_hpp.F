@@ -3,6 +3,7 @@ c
 c     modified from sigma.F
 c
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "global.fh"
 #include "util.fh"
@@ -39,7 +40,7 @@ c     &     call errquit("don't know iflhdg,selci_hpp",0)
          open(iflhdg,status='old',form='unformatted',file=hamdg)
          read (iflham) nci
          if(nci.ne.npvec)
-     &        call errquit("nci doesn't match npvec", nci)
+     &        call errquit("nci doesn't match npvec", nci, INPUT_ERR)
       endif
 c     
       call selci_sread(iflhdg,hd,nci)
@@ -63,7 +64,8 @@ c
          j = ibuff(ipti+jj) + imagic
          hij = rbuff(iptr+jj)
          if(i.gt.npvec.or.j.gt.npvec) 
-     &        call errquit("p space dimension mismatch?", npvec)
+     &        call errquit("p space dimension mismatch?", npvec,
+     &       INPUT_ERR)
          htemp(i,j)=hij
          htemp(j,i)=htemp(i,j)
       enddo

@@ -1,8 +1,9 @@
       Subroutine localize_sic(g_movecs, noc, evals)
 c
-C$Id: localize_sic.F,v 1.7 2003-03-07 01:11:38 edo Exp $
+C$Id: localize_sic.F,v 1.8 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer noc(2), isp, x, me, i_degen, l_degen, n_levels,
      &        evals(2), ij, ik, n_orbitals, i_level, i_orb, j,
@@ -35,14 +36,15 @@ c
 c
       if (.not.ma_push_get
      &   (MT_Int,nbf,'map of orb to loc',liloc,iiloc))
-     &   call errquit('localize_sic:push_get failed', 911)
+     &   call errquit('localize_sic:push_get failed', 911, MA_ERR)
 c
       do isp=1,ipol
 c
          nocc=noc(isp)
          if (.not.MA_Push_Get(MT_Int, nocc, 'levels',
      &        l_degen, i_degen))
-     &        call errquit('localize_sic: cannot allocate levels',0)
+     &        call errquit('localize_sic: cannot allocate levels',0,
+     &       MA_ERR)
          if (nocc.ne.0) then
            aux_levels = 1
            n_orbitals = 1
@@ -66,14 +68,15 @@ c
          if (nocc.gt.0) then
            do x= 1, 4
              if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
-     $             nbf, 1, g_uc(x))) call errquit('g_uc_loc_sic',x)
+     $             nbf, 1, g_uc(x))) call errquit('g_uc_loc_sic',x,
+     &       GA_ERR)
            end do
 c
            call int_dip_ga(AO_bas_han, AO_bas_han, g_uc(1), g_uc(2),
      &                     g_uc(3))
 c
            if (.not. ga_create(MT_DBL, nbf, nbf, 'sc',
-     $          nbf, 1, g_sc)) call errquit('g_sc_loc_sic',0)
+     $          nbf, 1, g_sc)) call errquit('g_sc_loc_sic',0, GA_ERR)
            do x = 1, 3
              call ga_dgemm('n', 'n', nbf, nbf, nbf, 
      $                     1.0d0, g_uc(x), g_movecs(isp), 0.0d0, g_sc)
@@ -88,9 +91,9 @@ c
            call ga_dgemm('n', 'n', nbf, nbf, nbf, 
      $                   1.0d0, g_over, g_movecs(isp), 0.0d0, g_uc(4))
            if (.not. ma_push_get(mt_dbl, 8*nbf, 'sc', l_sc, k_sc))
-     $          call errquit('ma for sc', 0)
+     $          call errquit('ma for sc', 0, MA_ERR)
            if (.not. ma_push_get(mt_dbl, 8*nbf, 'c', l_c, k_c))
-     $          call errquit('ma for c', 0)
+     $          call errquit('ma for c', 0, MA_ERR)
 c
 c     Localize the occupied orbitals
 c
@@ -139,22 +142,24 @@ c          do 100 i_level = 2,n_levels            ! If HOMO is not involved
 c
            do x=1,4
              if (.not. ga_destroy(g_uc(x))) call errquit
-     &        ('localize_sic: could not destroy g_uc', 0)
+     &        ('localize_sic: could not destroy g_uc', 0, GA_ERR)
            end do
            if (.not. ga_destroy(g_sc)) call errquit
-     &        ('localize_sic: could not destroy g_sc', 0)
+     &        ('localize_sic: could not destroy g_sc', 0, GA_ERR)
            if (.not. ga_destroy(g_over)) call errquit
-     &        ('localize_sic: could not destroy g_sc', 0)
+     &        ('localize_sic: could not destroy g_sc', 0, GA_ERR)
            if (.not.ma_pop_stack(l_c))
-     &        call errquit('localize_sic: cannot pop stack',0)
+     &        call errquit('localize_sic: cannot pop stack',0, MA_ERR)
            if (.not.ma_pop_stack(l_sc))
-     &        call errquit('localize_sic: cannot pop stack',0)
+     &        call errquit('localize_sic: cannot pop stack',0, MA_ERR)
           end if
           if (.not.ma_pop_stack(l_degen))
-     &              call errquit('localize_sic: cannot pop stack',0)
+     &              call errquit('localize_sic: cannot pop stack',0,
+     &       MA_ERR)
         end do
         if (.not.ma_pop_stack(liloc))
-     &        call errquit('localize_sic: cannot pop stack',0)
+     &        call errquit('localize_sic: cannot pop stack',0,
+     &       MA_ERR)
         return
       end
 

@@ -1,8 +1,9 @@
       subroutine selci_initci(title, type)
 *
-* $Id: initci.F,v 1.4 1997-10-31 23:42:05 d3e129 Exp $
+* $Id: initci.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       character*(*) type, title
 c
@@ -54,7 +55,7 @@ c
      & '                Perturbation Selection Program v1.0 9/28/89'/
      & '                -------------------------------------------'//)
       else
-         call errquit('initci: unknown run type',0)
+         call errquit('initci: unknown run type',0, INPUT_ERR)
       endif
       write(ifllog,2) multi, nelec, issss+1, norbs, nci, noconf,
      &     nintpo, nbitpi, nsmax, nfmax, nfmax2

@@ -1,8 +1,9 @@
       Subroutine dft_get2eri(CD_bas_han, g_2ceri,oskel)
 c
-C$Id: dft_get2eri.F,v 1.12 2001-12-28 19:38:53 edo Exp $
+C$Id: dft_get2eri.F,v 1.13 2003-10-17 22:55:35 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
       integer CD_bas_han
       integer g_2ceri
 c
@@ -25,10 +26,10 @@ c
 c     Compute the matrix of 2-ctr ERIs.
 c     
       if ( .not. bas_numcont(CD_bas_han,nshells_cd) )then
-         call errquit('Exiting in gaget2eri.',1)
+         call errquit('Exiting in gaget2eri.',1, BASIS_ERR)
       endif
       if ( .not. bas_nbf_cn_max(CD_bas_han,MXnshbf_cd) )then
-         call errquit('Exiting in gaget2eri.',2)
+         call errquit('Exiting in gaget2eri.',2, BASIS_ERR)
       endif
 c
 c     Initialize ERI.
@@ -49,11 +50,11 @@ c      write(6,*)' nproc, me, icount, maxg, mscratch_2e2c: ',
 c     &            nproc, me, icount, maxg, mscratch_2e2c
 c
       if (.not.MA_Push_Get(MT_Dbl,maxg,'buf',lbuf,ibuf))
-     &   call errquit('dft_get2eri: cannot allocate buf',0)
+     &   call errquit('dft_get2eri: cannot allocate buf',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,maxg,'vec',lvec,ivec))
-     &   call errquit('dft_get2eri: cannot allocate buf',0)
+     &   call errquit('dft_get2eri: cannot allocate buf',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,mscratch_2e2c,'scr',lscr,iscr))
-     &   call errquit('dft_get2eri: cannot allocate scr',0)
+     &   call errquit('dft_get2eri: cannot allocate scr',0, MA_ERR)
 c
       n1 = nxtask(nproc,icount)
       n2 = 0
@@ -61,7 +62,8 @@ c
       do 20 ishp = 1, nshells_cd
 c
          if (.not. bas_cn2bfr(CD_bas_han, ishp, ifirstp, ilastp))
-     &      call errquit('dft_get2eri: problem with bas_cn2bfr',0)
+     &      call errquit('dft_get2eri: problem with bas_cn2bfr',0,
+     &       BASIS_ERR)
 c
          nshp = ilastp - ifirstp + 1
 c
@@ -73,7 +75,8 @@ c
      .           sym_shell_pair(cd_bas_han,ishp,ishq,q2))) goto 10
             if ( n2.eq.n1 )then
                if (.not. bas_cn2bfr(CD_bas_han, ishq, ifirstq, ilastq))
-     &            call errquit('dft_get2eri: problem with bas_cn2bfr',0)
+     &            call errquit('dft_get2eri: problem with bas_cn2bfr',0,
+     &       BASIS_ERR)
 c
                nshq = ilastq - ifirstq + 1
 c
@@ -105,7 +108,7 @@ c
    20 continue
 c
       if (.not.ma_chop_stack(lbuf))
-     &   call errquit('dft_get2eri: cannot pop stack',0)
+     &   call errquit('dft_get2eri: cannot pop stack',0, MA_ERR)
 c
       n1 = nxtask(-nproc,icount)
 c

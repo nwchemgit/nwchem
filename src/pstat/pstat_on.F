@@ -1,6 +1,7 @@
       Subroutine PStat_On( Handle )
-C$Id: pstat_on.F,v 1.9 1995-10-10 06:14:47 d3g681 Exp $
+C$Id: pstat_on.F,v 1.10 2003-10-17 22:58:01 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer Handle
 C
 #include "pstatP.fh"
@@ -17,7 +18,8 @@ CHF  $     ('pstat_on: Timer not assigned', Handle)
       if (.not. status) return
 c
       If ( PStat_Unmatched_Starts( Handle ) .ne. 0  ) then
-         Call ErrQuit('pstat_on: Timer is already on', Handle)
+         Call ErrQuit('pstat_on: Timer is already on', Handle,
+     &       UNKNOWN_ERR)
       Else
          PStat_Unmatched_Starts( Handle ) = 1
       EndIf

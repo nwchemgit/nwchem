@@ -10,9 +10,10 @@ c
      $                            g_gfock, g_tmp1, g_tmp2, g_tmp3,
      $                            g_x, g_ax )
 *
-* $Id: mcscf_ohv1e.F,v 1.4 1997-11-04 09:59:44 d3e129 Exp $
+* $Id: mcscf_ohv1e.F,v 1.5 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "mcscfprof.fh"
@@ -43,7 +44,7 @@ c
        aoff = nclosed + 1
        aend = nclosed + nact
        if (.not.ga_duplicate(g_tmp3, g_tmp4, 'temp4'))
-     $      call errquit('mcscf_hessv_1e: cannot duplicate',0)
+     $      call errquit('mcscf_hessv_1e: cannot duplicate',0, GA_ERR)
        call ga_zero(g_tmp4)
        call ga_zero(g_tmp3)
 c
@@ -255,7 +256,7 @@ c
 c
 c
        if (.not.ga_destroy(g_tmp4))
-     $      call errquit('mcscf_hessv_1e: cannot destroy',0)
+     $      call errquit('mcscf_hessv_1e: cannot destroy',0, GA_ERR)
        if (omcscfprof) call pstat_off(ps_hv1e)
        return
        end

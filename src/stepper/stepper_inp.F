@@ -1,6 +1,7 @@
       subroutine stepper_input(rtdb)
-C $Id: stepper_inp.F,v 1.5 2000-10-23 16:23:56 windus Exp $
+C $Id: stepper_inp.F,v 1.6 2003-10-17 22:58:22 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -66,15 +67,16 @@ c
       call inp_set_field(0)   ! goto start of line
 c
       if (.not. inp_a(stpr_token))
-     &    call errquit('stepper_input: no input present',911)
+     &    call errquit('stepper_input: no input present',911, INPUT_ERR)
       if (.not. inp_compare(FF,'stepper',stpr_token))
-     &    call errquit('stepper_input: not stepper input', 911)
+     &    call errquit('stepper_input: not stepper input', 911,
+     &       INPUT_ERR)
 c
 c If stepper module input then turn driver off
 c
       if (.not.rtdb_put(rtdb, 'opt:driver', mt_log, 1, FF))
      &    call errquit
-     &    ('stepper_input: unable to turn opt:driver off',911)
+     &    ('stepper_input: unable to turn opt:driver off',911, RTDB_ERR)
 c
 c set defaults
 c
@@ -86,7 +88,8 @@ c
       if( inp_cur_field() .lt. inp_n_field() ) then
         if (.not. inp_a(stpr_token))
      &      call errquit
-     &      ('stepper_input: expected ascii stpr_token failue',911)
+     &      ('stepper_input: expected ascii stpr_token failue',911,
+     &       INPUT_ERR)
       else
         if(inp_read()) then
           goto 1
@@ -113,7 +116,8 @@ c     input is finished
       else if(inp_compare(FF,'rstd',stpr_token)) then
         if(.not.inp_f(rstd))
      &      call errquit
-     &      ('stepper_input: error parsing value of rstd',911)
+     &      ('stepper_input: error parsing value of rstd',911,
+     &       INPUT_ERR)
       else if(inp_compare(FF,'trot',stpr_token)) then
         trot = FT
       else if(inp_compare(FF,'trtr',stpr_token)) then
@@ -129,24 +133,26 @@ c     input is finished
       else if(inp_compare(FF,'trust',stpr_token)) then
         if(.not.inp_f(trust))
      &      call errquit
-     &      ('stepper_input: error parsing trust value',911)
+     &      ('stepper_input: error parsing trust value',911, INPUT_ERR)
       else if(inp_compare(FF,'track',stpr_token)) then
         track = FT
       else if(inp_compare(FF,'nmode',stpr_token)) then
         if(.not.inp_i(nmode))
      &      call errquit
-     &      ('stepper_input: error parsing nmode value',911)
+     &      ('stepper_input: error parsing nmode value',911, INPUT_ERR)
       else if(inp_compare(FF,'maxiter',stpr_token)) then
         if(.not.inp_i(maxiter))
      &      call errquit
-     &      ('stepper_input: error parsing maxiter value',911)
+     &      ('stepper_input: error parsing maxiter value',911,
+     &       INPUT_ERR)
       else if(inp_compare(FF,'fdat',stpr_token)) then
 c
 c.. store fd at flag as true on runtime data base.
 c.. absence on rtdb is false.
         if (.not.rtdb_put(rtdb,'fdat',MT_LOG,1,FT))
      &      call errquit
-     &      ('stepper_input: failed to store fdat logical',911)
+     &      ('stepper_input: failed to store fdat logical',911,
+     &       RTDB_ERR)
 c
       else if(inp_compare(FF,'fdopt',stpr_token)) then
 c
@@ -154,14 +160,15 @@ c.. store fd opt flag as true on runtime data base.
 c.. absence on rtdb is false.
         if (.not.rtdb_put(rtdb,'fdopt',MT_LOG,1,FT))
      &      call errquit
-     &      ('stepper_input: failed to store fdopt logical',911)
+     &      ('stepper_input: failed to store fdopt logical',911,
+     &       RTDB_ERR)
 c
       else if(inp_compare(FF,'select',stpr_token)) then
         oselect = FT
         nat = stpr_get_nat(rtdb)
         if (.not.MA_Push_Get(MT_INT,3*nat,'select scratch',hsel,ksel))
      &      call errquit
-     &      ('stepper_input: MA failed for select scratch',911)
+     &      ('stepper_input: MA failed for select scratch',911, MA_ERR)
         call stpr_parse_select(nat,int_mb(ksel))
 *
 * write to rtdb and free scratch
@@ -169,18 +176,19 @@ c
         call stpr_select_srtdb(nat,rtdb,int_mb(ksel))
         if (.not.MA_Pop_Stack(hsel))
      &      call errquit
-     &      ('stepper_input: error freeing select scratch',911)
+     &      ('stepper_input: error freeing select scratch',911, MA_ERR)
 c
       else if(inp_compare(FF,'rpath',stpr_token)) then
         rpath = FT
       else if(inp_compare(FF,'rconvg',stpr_token)) then
         if(.not.inp_f(rconvg))
      &      call errquit
-     &      ('stepper_input: error parsing rconvg value',911)
+     &      ('stepper_input: error parsing rconvg value',911, INPUT_ERR)
       else if(inp_compare(FF,'setmass',stpr_token)) then
         write(luout,*)' SETMASS is no longer supported ' 
         write(luout,*)' use the mass directive in the GEOMETRY object'
-        call errquit('stepper_input: obsolete directive ',911)
+        call errquit('stepper_input: obsolete directive ',911,
+     &       INPUT_ERR)
 *needs a fix via geom mass interface:rak:        osetmass = FT
 *needs a fix via geom mass interface:rak:        if (.not.MA_Push_Get
 *needs a fix via geom mass interface:rak:     &      (MT_INT,nat,'setmass integer scratch',him,kim))
@@ -197,25 +205,28 @@ c
 *needs a fix via geom mass interface:rak:        call stpr_setmass_srtdb(nat,rtdb,int_mb(kim),dbl_mb(km))
         if(.not.MA_Pop_Stack(hm))
      &      call errquit
-     &      ('stepper_input: error freeing double setmass',911)
+     &      ('stepper_input: error freeing double setmass',911, MA_ERR)
         if(.not.MA_Pop_Stack(him))
      &      call errquit
-     &      ('stepper_input: error freeing int setmass',911)
+     &      ('stepper_input: error freeing int setmass',911, MA_ERR)
       else if(inp_compare(FF,'convggm',stpr_token)) then
         if(.not.inp_f(convggm))
      &      call errquit
-     &      ('stepper_input: error parsing value of convggm',911)
+     &      ('stepper_input: error parsing value of convggm',911,
+     &       INPUT_ERR)
       else if(inp_compare(FF,'convgg',stpr_token)) then
         if(.not.inp_f(convgg))
      &      call errquit
-     &      ('stepper_input: error parsing value of convgg',911)
+     &      ('stepper_input: error parsing value of convgg',911,
+     &       INPUT_ERR)
       else if(inp_compare(FF,'convge',stpr_token)) then
         if(.not.inp_f(convge))
      &      call errquit
-     &      ('stepper_input: error parsing value of convge',911)
+     &      ('stepper_input: error parsing value of convge',911,
+     &       INPUT_ERR)
       else
         write(6,*)'unknown stpr_token: ',stpr_token
-        call errquit('stepper_input: fatal error',911)
+        call errquit('stepper_input: fatal error',911, INPUT_ERR)
       endif
       goto 1
 c
@@ -283,6 +294,7 @@ c
 *needs a fix via geom mass interface:rak:      end
       integer function stpr_get_nat(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
       integer nat, rtdb, geom
@@ -290,19 +302,21 @@ c
 c get number of atoms
 c
       if(.not. geom_create(geom, 'geometry'))
-     &    call errquit('stpr_get_nat: geom_create?',911)
+     &    call errquit('stpr_get_nat: geom_create?',911, GEOM_ERR)
       if(.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &    call errquit
      &    ('stpr_get_nat: geom input must be before stepper input !!',
-     &    911)
+     &    911, RTDB_ERR)
       if(.not. geom_ncent(geom,nat))
-     &    call errquit('stpr_get_nat: geom_ncent failed?',911)
+     &    call errquit('stpr_get_nat: geom_ncent failed?',911, GEOM_ERR)
       if(.not.geom_destroy(geom))
-     &    call errquit('stpr_get_nat: geom_destroy failed?',911)
+     &    call errquit('stpr_get_nat: geom_destroy failed?',911,
+     &       GEOM_ERR)
       stpr_get_nat = nat
       end
       subroutine stpr_parse_select(nat,isel)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 c::passed
@@ -316,12 +330,14 @@ c
         if (.not.(inp_cur_field().lt.inp_n_field())) then
           if(.not.inp_read())
      &        call errquit
-     &        ('stpr_parse_select: error reading next line',911)
+     &        ('stpr_parse_select: error reading next line',911,
+     &       INPUT_ERR)
         endif
 c
         if (.not.inp_i(isel(i)))
      &      call errquit
-     &      ('stpr_parse_select: error reading NAT values',911)
+     &      ('stpr_parse_select: error reading NAT values',911,
+     &       INPUT_ERR)
       enddo
 c
       end

@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.24 2003-07-30 17:41:59 bylaska Exp $
+* $Id: band_minimizer.F,v 1.25 2003-10-17 22:56:16 carlfahl Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -13,6 +13,7 @@
 
       logical function band_minimizer(rtdb,flag)
       implicit none
+#include "errquit.fh"
       integer rtdb
       integer flag
 
@@ -147,7 +148,7 @@
       
       value = control_read(5,rtdb)
       if (.not. value) 
-     > call errquit('error reading control',0)
+     > call errquit('error reading control',0, DISK_ERR)
 
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
@@ -252,7 +253,7 @@
      >      'PBE96 (White and Bird) parameterization'
          ELSE
             write(luout,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0)
+            call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
          write(luout,1140)
          do ia = 1,cpsp_npsp()
@@ -360,7 +361,7 @@
       nion = ion_nion()
       value = MA_push_get(mt_dbl,(3*nion),
      >                       'fion',fion(2),fion(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       call c_cgsd_energy_gradient(dbl_mb(fion(1)))
       call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
@@ -385,9 +386,10 @@
      >        rtdb_put(rtdb,'band:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
       if (.not. value) 
-     > call errquit('band_minimizer: error writing rtdb',0)
+     > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)
       value = MA_pop_stack(fion(2))
-      if (.not. value) call errquit('erroring popping stack memory',0)    
+      if (.not. value) call errquit('erroring popping stack memory',0,
+     &       MA_ERR)
 
 
 

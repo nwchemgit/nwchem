@@ -1,5 +1,5 @@
 *
-* $Id: task_vscf.F,v 1.2 2000-10-23 16:24:06 windus Exp $
+* $Id: task_vscf.F,v 1.3 2003-10-17 22:58:26 carlfahl Exp $
 *
       logical function task_vscf(rtdb)
 c     
@@ -9,6 +9,7 @@ c     Since this routine is directly invoked by application modules
 c     no input is processed in this routine.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -45,7 +46,8 @@ C      call ecce_print_module_entry('task frequencies')
       wall = util_wallsec()
 c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_vscf: failed to invalidate status',0)
+     $     call errquit('task_vscf: failed to invalidate status',0,
+     &       RTDB_ERR)
       if (ga_nodeid().eq.0 .and.
      $    util_print('task_vscf', print_low)) then
         write(LUOut,*)
@@ -58,21 +60,21 @@ c
 
       status = task_freq(rtdb)
       if (.not.status) call errquit
-     &    ('task_vscf: task_freq failed',911)
+     &    ('task_vscf: task_freq failed',911, CALC_ERR)
 c     ignore = rtdb_parallel(.false.)
 c
 c     create/load reference geometry to get the number of atoms
 c
       if (.not.geom_create(geom,'geometry')) call errquit
-     $      ('task_vscf:geom_create failed?',1)
+     $      ('task_vscf:geom_create failed?',1, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
      $      call errquit
-     $      ('task_vscf:geom_rtdb_load failed?',2)
+     $      ('task_vscf:geom_rtdb_load failed?',2, RTDB_ERR)
       if (.not. geom_ncent(geom,nat)) call errquit
-     $      ('task_vscf:geom_ncent failed?',3)
+     $      ('task_vscf:geom_ncent failed?',3, GEOM_ERR)
       nc = nat*3
       if (.not. geom_destroy(geom)) call errquit
-     $      ('task_vscf:geom_destroy failed?',911)
+     $      ('task_vscf:geom_destroy failed?',911, GEOM_ERR)
 c
 c     load parameters from rtdb or assign defaults
 c
@@ -96,20 +98,22 @@ c
       if (ga_nodeid().eq.0) then
         call util_file_name('nmode',.false.,.false.,filename)
         if (eaf_open(filename,eaf_rw,fd).ne.0)
-     &    call errquit('task_vscf:eaf_open failed',555)
+     &    call errquit('task_vscf:eaf_open failed',555, DISK_ERR)
       if (.not. ma_push_get(mt_dbl, nc,'frequencies', l_freq, k_freq))
-     &  call errquit('task_vscf: could not allocate l_freq',nc)                 
+     &  call errquit('task_vscf: could not allocate l_freq',nc, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl, nc*nc,'normal modes', l_nmode, k_nmode))
-     &   call errquit('task_vscf: could not allocate l_nmode',nc*nc)
+     &   call errquit('task_vscf: could not allocate l_nmode',nc*nc,
+     &       MA_ERR)
         offset = 0
         if (eaf_read(fd,offset,dbl_mb(k_freq),nc).ne.0)
-     &    call errquit('task_vscf:error reading frequencies',555)
+     &    call errquit('task_vscf:error reading frequencies',555,
+     &       DISK_ERR)
         offset = offset + nc
         if (eaf_read(fd,offset,dbl_mb(k_nmode),nc*nc).ne.0)
-     &    call errquit('task_vscf:error reading modes',555)
+     &    call errquit('task_vscf:error reading modes',555, DISK_ERR)
         if (eaf_close(fd).ne.0)
-     &    call errquit('task_vscf:file close problem',555)
+     &    call errquit('task_vscf:file close problem',555, DISK_ERR)
       endif                                                                        
 c
 c need to allocate freq and nmode for other nodes and broadcast from
@@ -125,20 +129,21 @@ c
 c     get rid of extra memory
 c
       if (.not. ma_pop_stack(l_nmode))
-     $  call errquit('task_vscf:ma_pop of l_nmode failed',555)
+     $  call errquit('task_vscf:ma_pop of l_nmode failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_freq))
-     $  call errquit('task_vscf:ma_pop of l_freq failed',555)
+     $  call errquit('task_vscf:ma_pop of l_freq failed',555, MA_ERR)
 c     ignore = rtdb_parallel(.true.)
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - cpu
 c
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_vscf: failed storing cputime',0)
+     $     call errquit('task_vscf: failed storing cputime',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_vscf: failed storing walltime',0)
+     $     call errquit('task_vscf: failed storing walltime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
-     $     call errquit('task_vscf: failed to set status',0)
+     $     call errquit('task_vscf: failed to set status',0, RTDB_ERR)
 c
 c
 c      call ecce_print1('cpu time', mt_dbl, cpu, 1)

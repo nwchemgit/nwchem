@@ -1,5 +1,5 @@
 *
-* $Id: graveyard,v 1.3 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: graveyard,v 1.4 2003-10-17 22:54:37 carlfahl Exp $
 *
 c$$$      double precision function f(x, y, z)
 c$$$      implicit none
@@ -101,7 +101,7 @@ c$$$**      anl = 0.5d0*3.0d0*fm(2)
 c$$$
 c$$$      end
 c$$$      subroutine fmvector(n,l,t,fm)
-c$$$      implicit none
+c$$$      implicit#include "errquit.fh"
 c$$$      integer n, l
 c$$$      double precision t(n), fm(n,0:l)
 c$$$c
@@ -110,7 +110,7 @@ c$$$      do i = 1, n
 c$$$         fm(i,0) = t(i)
 c$$$      enddo
 c$$$      call igamma(fm,n,l)
-c$$$      call errquit(' fmvector ',0)
+c$$$      call errquit(' fmvector ',0, FMM_ERR)
 c$$$c
 c$$$      end
 c$$$      double precision function d2f(x,y,z)
@@ -121,7 +121,7 @@ c$$$      rsq = x*x+y*y+z*z
 c$$$      d2f = (4.0d0*rsq-6.0d0)*exp(-rsq)
 c$$$      end
 c$$$      subroutine fft3d(dir,nx,ny,nz,g,fg)
-c$$$      implicit none
+c$$$      implicit#include "errquit.fh"
 c$$$      integer nx, ny, nz, dir
 c$$$      double complex g(nx,ny,nz),fg(nx,ny,nz)
 c$$$c
@@ -133,8 +133,8 @@ c$$$      double precision wsave(10*maxn), scale
 c$$$      double complex a(maxn)
 c$$$      integer i, j, k
 c$$$c
-c$$$      if (ny .gt. maxn) call errquit('cfft3d: ny>maxn', ny)
-c$$$      if (nz .gt. maxn) call errquit('cfft3d: nz>maxn', nz)
+c$$$      if (ny .gt. maxn) call errquit('cfft3d: ny>maxn', ny, FMM_ERR)
+c$$$      if (nz .gt. maxn) call errquit('cfft3d: nz>maxn', nz, FMM_ERR)
 c$$$c
 c$$$      call cffti(nx,wsave)
 c$$$      do k = 1, nz
@@ -208,7 +208,7 @@ c$$$      end
 
       subroutine tn_interp_3d_entire(g, nx, ny, nz, gg, nnx, nny, nnz,
      $     order)
-      implicit none
+      implicit#include "errquit.fh"
 c     
       integer nx, ny, nz, nnz, nny, nnz
       double precision g(nx,ny,nz), gg(nnx,nny,nnz)
@@ -266,7 +266,8 @@ c
          kktop = nint(dble(ktop-1)/hhz) + 1
          if (ktop .eq. nz) kktop = nnz
          nptz = kktop - kkbot + 1
-         if (nptz .gt. maxnpt) call errquit('tn_i_3d_entire: nptz',nptz)
+         if (nptz .gt. maxnpt) call errquit('tn_i_3d_entire: nptz',nptz,
+     &       FMM_ERR)
          do k = kkbot, kktop
             z(k-kkbot+1) = dble(k-1)*hhz + 1.0d0
          enddo
@@ -283,7 +284,8 @@ c
             jjtop = nint(dble(jtop-1)/hhy) + 1
             if (jtop .eq. ny) jjtop = nny
             npty = jjtop - jjbot + 1
-            if (npty .gt. maxnpt) call errquit('tn_i_3d_entire: npty',npty)
+            if (npty .gt. maxnpt) call errquit('tn_i_3d_entire: npty',npty,
+     &       FMM_ERR)
             do j = jjbot, jjtop
                y(j-jjbot+1) = dble(j-1)*hhy + 1.0d0
             enddo
@@ -300,7 +302,8 @@ c
                iitop = nint(dble(itop-1)/hhx) + 1
                if (itop .eq. nx) iitop = nnx
                nptx = iitop - iibot + 1
-               if (nptx .gt. maxnpt) call errquit('tn_i_3d_entire: nptx',nptx)
+               if (nptx .gt. maxnpt) call errquit('tn_i_3d_entire: nptx',nptx,
+     &       FMM_ERR)
                do i = iibot, iitop
                   x(i-iibot+1) = dble(i-1)*hhx + 1.0d0
                enddo
@@ -324,7 +327,7 @@ c
       subroutine tn_interp_3d(nx, ny, nz, xlo, xhi, ylo, yhi, zlo, zhi,
      $     nptx, npty, nptz, x, y, z, f, ldx, ldy, ff, ldxff, ldyff, 
      $     order)
-      implicit none
+      implicit#include "errquit.fh"
 c
 c     NEVER TESTED !!!
 c     
@@ -348,28 +351,31 @@ c
       parameter (maxnpt=64, maxn=64)
       double precision c(maxnpt,maxn), fijk, tmp(maxnpt)
 c     
-      if (nx.gt.ldx) call errquit('tn_i_3d: nx>ldx',nx*10000+ldx)
-      if (ny.gt.ldy) call errquit('tn_i_3d: ny>ldy',ny*10000+ldy)
-      if (nptx.gt.ldx) call errquit('tn_i_3d: nptx>ldx',nptx*10000+ldx)
-      if (npty.gt.ldy) call errquit('tn_i_3d: npty>ldy',npty*10000+ldy)
+      if (nx.gt.ldx) call errquit('tn_i_3d: nx>ldx',nx*10000+ldx, FMM_ERR)
+      if (ny.gt.ldy) call errquit('tn_i_3d: ny>ldy',ny*10000+ldy, FMM_ERR)
+      if (nptx.gt.ldx) call errquit('tn_i_3d: nptx>ldx',nptx*10000+ldx,
+     &       FMM_ERR)
+      if (npty.gt.ldy) call errquit('tn_i_3d: npty>ldy',npty*10000+ldy,
+     &       FMM_ERR)
       if (nx.gt.maxn .or. nptx.gt.maxnpt) call errquit
-     $     ('tn_i_3d: nx or nptx', 10000*nx+nptx)
+     $     ('tn_i_3d: nx or nptx', 10000*nx+nptx,
+     &       FMM_ERR)
       if (ny.gt.maxn .or. npty.gt.maxnpt) call errquit
-     $     ('tn_i_3d: ny or npty', 10000*ny+npty)
+     $     ('tn_i_3d: ny or npty', 10000*ny+npty, FMM_ERR)
       if (nz.gt.maxn .or. nptz.gt.maxnpt) call errquit
-     $     ('tn_i_3d: nz or nptz', 10000*nz+nptz)
+     $     ('tn_i_3d: nz or nptz', 10000*nz+nptz, FMM_ERR)
 c     
       do l = 1, nptx
          if (x(l).lt.xlo .or. x(l).gt.xhi) call errquit
-     $        ('tn_interp_3d: x is out of range',l)
+     $        ('tn_interp_3d: x is out of range',l, FMM_ERR)
       enddo
       do l = 1, npty
          if (y(l).lt.ylo .or. y(l).gt.yhi) call errquit
-     $        ('tn_interp_3d: y is out of range',l)
+     $        ('tn_interp_3d: y is out of range',l, FMM_ERR)
       enddo
       do l = 1, nptz
          if (z(l).lt.zlo .or. z(l).gt.zhi) call errquit
-     $        ('tn_interp_3d: z is out of range',l)
+     $        ('tn_interp_3d: z is out of range',l, FMM_ERR)
       enddo
 c     
       call tn_collate_matrix(nx, xlo, xhi, nptx, x, order, c, maxnpt)
@@ -435,7 +441,7 @@ c
       end
       double precision function tn_interp_3d_point(g, ldx, ldy,  
      $     n, x, y, z, order)
-      implicit none
+      implicit#include "errquit.fh"
 c
 c     Given a discretization of the volume (1:n,1:n,1:n) 
 c     in g(1:n,1:n,1:n) return the value interpolated at x,y,z within
@@ -458,8 +464,8 @@ c
       data prevorder/-1/
       save qq
 c     
-      if (n.gt.maxn) call errquit('tn_i_3d_pt: n', n)
-      if (order.gt.maxorder) call errquit('tn_i_3d_pt:order',order)
+      if (n.gt.maxn) call errquit('tn_i_3d_pt: n', n, FMM_ERR)
+      if (order.gt.maxorder) call errquit('tn_i_3d_pt:order',order, FMM_ERR)
 c     
       if (order.ne.prevorder) then
          call tn_fitting_matrix(order,n,qq)
@@ -537,7 +543,7 @@ c$$$            xi = 2d0*(xi - 1d0 - dn*0.5d0)/dn
 c$$$            yi = 2d0*(yi - 1d0 - dn*0.5d0)/dn
 c$$$            zi = 2d0*(zi - 1d0 - dn*0.5d0)/dn
 c$$$            poti = tn_cube_eval(fg,ninterp,ninterp,order,xi,yi,zi)
-c$$$            if (abs(potii-poti).gt.1d-3) call errquit('fda',0)
+c$$$            if (abs(potii-poti).gt.1d-3) call errquit('fda',0, FMM_ERR)
 c     
 
 

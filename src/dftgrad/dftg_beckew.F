@@ -4,9 +4,10 @@
      .     nq_orig,nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.12 2000-10-25 22:50:10 windus Exp $
+C     $Id: dftg_beckew.F,v 1.13 2003-10-17 22:54:42 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "cdft.fh"
 c      
@@ -57,7 +58,7 @@ C
             goto 123
          endif
       enddo
-      call errquit('dftg_beckew: unknown center', 1234)
+      call errquit('dftg_beckew: unknown center', 1234, UNKNOWN_ERR)
   123 continue
       do 20 i = 1, bcenters
 c

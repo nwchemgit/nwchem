@@ -16,9 +16,10 @@ c
      &     Amat, Amat2, nq, ipol, Ex, Ks, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac_screened.F,v 1.1 2001-03-03 10:50:22 bjohnson Exp $
+C$Id: xc_dirac_screened.F,v 1.2 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 c
       double precision tol_rho, fac, Ex
@@ -53,7 +54,8 @@ c
 #ifdef SECOND_DERIV
       double precision d2z, d2f
 c
-      call errquit('Must implement 2nd derivs in xc_dirac_screened',0)
+      call errquit('Must implement 2nd derivs in xc_dirac_screened',0,
+     &       CAPMIS_ERR)
 #endif
 c
       pi = acos(-1d0)

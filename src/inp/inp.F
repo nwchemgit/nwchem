@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.41 2003-10-06 18:39:42 edo Exp $
+C$Id: inp.F,v 1.42 2003-10-17 22:55:17 carlfahl Exp $
       implicit none
 #include "inpP.fh"
 c
@@ -70,6 +70,7 @@ c
       end
       subroutine inp_set_field(ivalue)
       implicit none
+#include "errquit.fh"
 #include "inpP.fh"
       integer ivalue
       integer inp_n_field
@@ -78,7 +79,8 @@ c
 c     set field to be read next (ivalue=0,...,inp_n_field())
 c     
       if (ivalue.lt.0 .or. ivalue.gt.inp_n_field())
-     $     call errquit('inp_set_field: stupid field value',ivalue)
+     $     call errquit('inp_set_field: stupid field value',ivalue,
+     &       INPUT_ERR)
       jrec = ivalue
 c
       ierrpos = -1
@@ -138,6 +140,7 @@ c
       end
       logical function inp_read()
       implicit none
+#include "errquit.fh"
 #include "inpP.fh"
 c     
 c     this routine reads a data card and scans it for non - space fields
@@ -192,7 +195,8 @@ c     Handle include statement
 c
       if (inp_compare(.false.,ja(1:7),'include')) then
          if (include_level .eq. max_include_level) call errquit
-     $        ('inp_read: include nested too deep ', include_level)
+     $        ('inp_read: include nested too deep ', include_level,
+     &       INPUT_ERR)
          include_level = include_level + 1
          include_file_name(include_level) = ja(9:)
          write(6,*) ' include: start of ', 
@@ -362,7 +366,7 @@ c
       endif
       return
 c
- 105  call errquit('inp_read: failed to open include file',0)
+ 105  call errquit('inp_read: failed to open include file',0, INPUT_ERR)
 c
       end
       logical function inp_eof()
@@ -777,6 +781,7 @@ c
       end
       subroutine inp_lcase(string)
       implicit none
+#include "errquit.fh"
       character*(*) string
       intrinsic ichar, len
       integer i, length, uca, ucz, lca, shift, test
@@ -786,7 +791,8 @@ c
       lca = ichar('a')          ! MUST be lowercase a
       shift = lca - uca
       if (shift .eq. 0) 
-     $     call errquit('inp_lcase: check case of program source', 0)
+     $     call errquit('inp_lcase: check case of program source', 0,
+     &       INPUT_ERR)
 c
       length = len(string)
       do i = 1, length
@@ -798,6 +804,7 @@ c
       end
       subroutine inp_ucase(string)
       implicit none
+#include "errquit.fh"
       character*(*) string
       intrinsic ichar, len
       integer i, length, lca, lcz, uca, shift, test
@@ -807,7 +814,8 @@ c
       uca = ichar('A')          ! MUST be uppercase a
       shift = uca - lca
       if (shift .eq. 0) 
-     $     call errquit('inp_ucase: check case of program source', 0)
+     $     call errquit('inp_ucase: check case of program source', 0,
+     &       INPUT_ERR)
 c
       length = len(string)
       do i = 1, length
@@ -819,6 +827,7 @@ c
       end
       logical function inp_search(ocase, z, nz)
       implicit none
+#include "errquit.fh"
       integer nz
       character*(*) z(nz)
       logical ocase
@@ -833,7 +842,7 @@ c
       integer length(maxz)
 c
       if (maxz .lt. nz)
-     $     call errquit('inp_search: hard dim fail',nz)
+     $     call errquit('inp_search: hard dim fail',nz, INPUT_ERR)
       do i = 1, nz
          length(i) = inp_strlen(z(i))
       enddo
@@ -856,6 +865,7 @@ c
       end
       logical function inp_search_fast(z)
       implicit none
+#include "errquit.fh"
 #include "inpP.fh"
       character*(*) z
       integer length
@@ -881,7 +891,8 @@ c
       if (z(1:length) .eq. ja(1:length)) then
          backspace(iread)       ! Re-read line with full input routine
          input_line = input_line - 1
-         if (.not. inp_read()) call errquit('inp_search_fast: inp?',0)
+         if (.not. inp_read()) call errquit('inp_search_fast: inp?',0,
+     &       INPUT_ERR)
          inp_search_fast = .true.
          return
       endif
@@ -912,7 +923,7 @@ c      save cdata, idata, fdata
 #endif
 c
       if (save_level.lt.0 .or. save_level.gt.3) call errquit
-     $     ('inp_save_sate: invalid level ', save_level)
+     $     ('inp_save_sate: invalid level ', save_level, INPUT_ERR)
       save_level = save_level + 1
 c
       do i = 1, 3*max_width+80+6
@@ -943,7 +954,7 @@ c      save cdata, idata, fdata
 #endif
 c
       if (save_level.lt.1 .or. save_level.gt.3) call errquit
-     $     ('inp_restore_sate: invalid level ', save_level)
+     $     ('inp_restore_sate: invalid level ', save_level, INPUT_ERR)
 c
       do i = 1, 3*max_width+80+6
          cdata(i) = csave(i,save_level)

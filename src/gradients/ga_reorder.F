@@ -1,8 +1,9 @@
       subroutine ga_reorder(g_a, orow, rmap, ocol, cmap)
 *
-* $Id: ga_reorder.F,v 1.4 2001-10-02 21:52:19 windus Exp $
+* $Id: ga_reorder.F,v 1.5 2003-10-17 22:55:08 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_a               ! [input] Handle to array to be reordered
@@ -16,9 +17,11 @@ c
       call ga_inquire(g_a, ma_type, dim1, dim2)
 c     
       if (.not. ma_alloc_get(mt_dbl, dim1, 'gareo', l_v, k_v))
-     $     call errquit('ga_reorder: could not allocate column', dim1)
+     $     call errquit('ga_reorder: could not allocate column', dim1,
+     &       MA_ERR)
       if (.not. ma_alloc_get(mt_dbl, dim1, 'gareo', l_vv, k_vv))
-     $     call errquit('ga_reorder: could not allocate column2', dim1)
+     $     call errquit('ga_reorder: could not allocate column2', dim1,
+     &       MA_ERR)
 c
 *      write(6,*) ' BEFORE '
 *      call util_flush(6)
@@ -26,7 +29,7 @@ c
 c
       call ga_sync
       if (.not. ga_duplicate(g_a, g_d, 'ga_reorder')) call errquit
-     $     ('ga_reorder: duplicate failed', 0)
+     $     ('ga_reorder: duplicate failed', 0, GA_ERR)
       call ga_copy(g_a, g_d)
 c
       do j = 1+ga_nodeid(), dim2, ga_nnodes()
@@ -42,10 +45,13 @@ c
          if (ocol) jj = cmap(j)
          call ga_put(g_a, 1, dim1, jj, jj, dbl_mb(k_vv), 1)
       enddo
-      if (.not. ma_free_heap(l_vv)) call errquit('ga_reo: ma?',0)
-      if (.not. ma_free_heap(l_v))  call errquit('ga_reo: ma2?',0)
+      if (.not. ma_free_heap(l_vv)) call errquit('ga_reo: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_free_heap(l_v))  call errquit('ga_reo: ma2?',0,
+     &       MA_ERR)
       call ga_sync
-      if (.not. ga_destroy(g_d)) call errquit('ga_reo: ga_destroy?',0)
+      if (.not. ga_destroy(g_d)) call errquit('ga_reo: ga_destroy?',0,
+     &       GA_ERR)
 c
 *      write(6,*) ' AFTER '
 *      call util_flush(6)
@@ -54,6 +60,7 @@ c
       end
       subroutine nga_reorder(g_a, orow, rmap, ocol, cmap)
       implicit none
+#include "errquit.fh"
 c
 c This is basically just an extension of ga_reorder and is not very
 c generic at this point.  As a matter of fact, it assumes (and tests)
@@ -76,15 +83,18 @@ c
 c
       ndim = ga_ndim(g_a)
       if (ndim.ne.3)
-     $     call errquit('nga_reorder: must have 3 dimensions',ndim)
+     $     call errquit('nga_reorder: must have 3 dimensions',ndim,
+     &       GA_ERR)
       call nga_inquire(g_a, ma_type, ndim, dims)
       dim1 = dims(2)
       dim2 = dims(3)
 c     
       if (.not. ma_alloc_get(mt_dbl, dim1, 'gareo', l_v, k_v))
-     $     call errquit('ga_reorder: could not allocate column', dim1)
+     $     call errquit('ga_reorder: could not allocate column', dim1,
+     &       GA_ERR)
       if (.not. ma_alloc_get(mt_dbl, dim1, 'gareo', l_vv, k_vv))
-     $     call errquit('ga_reorder: could not allocate column2', dim1)
+     $     call errquit('ga_reorder: could not allocate column2', dim1,
+     &       GA_ERR)
 c
 *      write(6,*) ' BEFORE '
 *      call util_flush(6)
@@ -92,7 +102,7 @@ c
 c
       call ga_sync
       if (.not. ga_duplicate(g_a, g_d, 'ga_reorder')) call errquit
-     $     ('ga_reorder: duplicate failed', 0)
+     $     ('ga_reorder: duplicate failed', 0, GA_ERR)
       call ga_copy(g_a, g_d)
 c
       ld(1) = 1
@@ -120,10 +130,13 @@ c
          call nga_put(g_a, lo, hi, dbl_mb(k_vv), ld)
       enddo
       enddo
-      if (.not. ma_free_heap(l_vv)) call errquit('ga_reo: ma?',0)
-      if (.not. ma_free_heap(l_v))  call errquit('ga_reo: ma2?',0)
+      if (.not. ma_free_heap(l_vv)) call errquit('ga_reo: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_free_heap(l_v))  call errquit('ga_reo: ma2?',0,
+     &       MA_ERR)
       call ga_sync
-      if (.not. ga_destroy(g_d)) call errquit('ga_reo: ga_destroy?',0)
+      if (.not. ga_destroy(g_d)) call errquit('ga_reo: ga_destroy?',0,
+     &       GA_ERR)
 c
 *      write(6,*) ' AFTER '
 *      call util_flush(6)
@@ -132,6 +145,7 @@ c
       end
       subroutine matrix_reorder(dim1, dim2, a, orow, rmap, ocol, cmap)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer dim1, dim2
       double precision a(dim1,dim2) ! [input/output] Array to be reordered
@@ -144,11 +158,14 @@ c
       integer l_d, k_d
 c
       if (.not. ma_alloc_get(mt_dbl, dim1*dim2, 'mareo', l_d, k_d))
-     $     call errquit('ga_reorder: could not allocate dup', dim1*dim2)
+     $     call errquit('ga_reorder: could not allocate dup', dim1*dim2,
+     &       MA_ERR)
       if (.not. ma_alloc_get(mt_dbl, dim1, 'mareo', l_v, k_v))
-     $     call errquit('ga_reorder: could not allocate column', dim1)
+     $     call errquit('ga_reorder: could not allocate column', dim1,
+     &       MA_ERR)
       if (.not. ma_alloc_get(mt_dbl, dim1, 'mareo', l_vv, k_vv))
-     $     call errquit('ga_reorder: could not allocate column2', dim1)
+     $     call errquit('ga_reorder: could not allocate column2', dim1,
+     &       MA_ERR)
 c
       call dcopy(dim1*dim2, a, 1, dbl_mb(k_d), 1)
 c
@@ -172,9 +189,12 @@ c
 *      write(6,*) ' AFTER '
 *      call output(a, 1, dim1, 1, dim2, dim1, dim2, 1)
 c
-      if (.not. ma_free_heap(l_vv)) call errquit('ma_reo: ma?',0)
-      if (.not. ma_free_heap(l_v))  call errquit('ma_reo: ma2?',0)
-      if (.not. ma_free_heap(l_d)) call errquit('ma_reo: ma?',0)
+      if (.not. ma_free_heap(l_vv)) call errquit('ma_reo: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_free_heap(l_v))  call errquit('ma_reo: ma2?',0,
+     &       MA_ERR)
+      if (.not. ma_free_heap(l_d)) call errquit('ma_reo: ma?',0,
+     &       MA_ERR)
 c
       end
 

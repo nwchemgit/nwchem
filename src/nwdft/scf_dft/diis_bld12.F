@@ -1,6 +1,7 @@
       subroutine diis_gets12pm(geom,bas,toll_s,svals, iga_svecs, 
      .     iga_s12m, iga_s12p)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
       integer geom               ! [in] handle
       integer bas               ! [in] handle
@@ -21,7 +22,7 @@ c
       call diis_bld12(toll_s, svals, iga_svecs, iga_s12p, 
      &                      iga_stmp, 3)
       if (.not. ga_destroy(iga_stmp)) call errquit
-     &     ('diis_gets: could not destroy g_tmp', 0)
+     &     ('diis_gets: could not destroy g_tmp', 0, GA_ERR)
 c
       return
       end
@@ -35,9 +36,10 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.18 2003-07-03 17:50:50 edo Exp $
+C$Id: diis_bld12.F,v 1.19 2003-10-17 22:55:44 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
       double precision svals(*) !  S evals [input]
       integer iga_svecs ! GA handle for S evecs [input]

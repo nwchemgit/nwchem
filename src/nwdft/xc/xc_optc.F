@@ -1,9 +1,10 @@
 c
-C$Id: xc_optc.F,v 1.1 2001-10-18 03:33:27 edo Exp $
+C$Id: xc_optc.F,v 1.2 2003-10-17 22:55:53 carlfahl Exp $
 c
       subroutine xc_optc(rho, delrho, 
      &                      Amat, Cmat, nq, Ec, qwght,ldew,func)
       implicit none
+#include "errquit.fh"
 c      
 #include "dft2drv.fh"
 #include "cdft.fh"
@@ -48,7 +49,7 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
 c
-         call errquit(' optc closed shell not coded ',0)
+         call errquit(' optc closed shell not coded ',0, INPUT_ERR)
       else
 c
 c        ======> SPIN-UNRESTRICTED <======
@@ -69,10 +70,10 @@ c
      &           Ec, qwght, ldew, func)
             if (.not. ma_push_get(mt_dbl, nq*3, 
      .           ' rho aux', l_rho, k_rho))
-     .           call errquit(' xcoptc: push_get failed ',0)
+     .           call errquit(' xcoptc: push_get failed ',0, MA_ERR)
             if (.not. ma_push_get(mt_dbl, nq*6, 
      .           ' rho aux', l_delrho, k_delrho))
-     .           call errquit(' xcoptc: pus_get failed ',1)
+     .           call errquit(' xcoptc: pus_get failed ',1, MA_ERR)
             call dfill(nq*3,0.d0,dbl_mb(k_rho),1)
             call dfill(nq*6,0.d0,dbl_mb(k_delrho),1)
             call  dcopy(nq,rho(1,2),1,dbl_mb(k_rho),1)
@@ -101,7 +102,7 @@ c
      &           Amat, Cmat, nq, 2, 
      &           Ec, qwght, ldew, func)
             if(.not.ma_chop_stack(l_rho)) call
-     .           errquit(' xcoptc: chop_stack failed',0)
+     .           errquit(' xcoptc: chop_stack failed',0, MA_ERR)
 c
       endif
 c

@@ -1,4 +1,4 @@
-c $Id: kgdtest.F,v 1.11 2000-06-02 23:00:47 mg201 Exp $
+c $Id: kgdtest.F,v 1.12 2003-10-17 22:54:39 carlfahl Exp $
       logical function kgdtest (rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -65,6 +65,7 @@ c
 ************************************************************************
       subroutine kgdtest_rel1e(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -102,29 +103,29 @@ c
       geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('kgdtest_rel1e: geom create error',911)
+     &    ('kgdtest_rel1e: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('kgdtest_rel1e: basis create error',911)
+     &    ('kgdtest_rel1e: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('kgdtest_rel1e: geom load ',911)
+     &    ('kgdtest_rel1e: geom load ',911, RTDB_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('kgdtest_rel1e: basis load ',911)
+     &    ('kgdtest_rel1e: basis load ',911, RTDB_ERR)
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('kgdtest_rel1e: error normalizing ',911)
+     &    ('kgdtest_rel1e: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 100 000
       membuf = 1000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf*3,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       do ish = 1,nshell
         do jsh = 1,ish
@@ -229,15 +230,16 @@ c
       call int_terminate()
       status = ma_pop_stack(h_buf)
       status = status.and.ma_pop_stack(h_scr)
-      if (.not.status) call errquit('pop failed',911)
+      if (.not.status) call errquit('pop failed',911, MA_ERR)
       status = bas_destroy(basis)
       status = status.and.geom_destroy(geom)
-      if (.not.status) call errquit('b/g destroy failed',911)
+      if (.not.status) call errquit('b/g destroy failed',911, GEOM_ERR)
       return
       end
 ************************************************************************
       subroutine kgdtest_gencon(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -281,29 +283,29 @@ c
       geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('kgdtest_gencon: geom create error',911)
+     &    ('kgdtest_gencon: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('kgdtest_gencon: basis create error',911)
+     &    ('kgdtest_gencon: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('kgdtest_gencon: geom load ',911)
+     &    ('kgdtest_gencon: geom load ',911, RTDB_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('kgdtest_gencon: basis load ',911)
+     &    ('kgdtest_gencon: basis load ',911, RTDB_ERR)
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('kgdtest_gencon: error normalizing ',911)
+     &    ('kgdtest_gencon: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 1 000 000
       membuf = 10 000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       difmax = 0.0d0
       do ish = 1,nshell
@@ -485,6 +487,7 @@ C              end if
 ************************************************************************
       subroutine kgdtest_soecp(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -525,29 +528,29 @@ c
       geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('kgdtest_gencon: geom create error',911)
+     &    ('kgdtest_gencon: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('kgdtest_gencon: basis create error',911)
+     &    ('kgdtest_gencon: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('kgdtest_gencon: geom load ',911)
+     &    ('kgdtest_gencon: geom load ',911, RTDB_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('kgdtest_gencon: basis load ',911)
+     &    ('kgdtest_gencon: basis load ',911, RTDB_ERR)
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('kgdtest_gencon: error normalizing ',911)
+     &    ('kgdtest_gencon: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 1 000 000
       membuf = 10 000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       if (.not. rtdb_get(rtdb,'ecp:ibug',mt_int,1,ibug))
      &    ibug = 3
@@ -614,6 +617,7 @@ c
 ************************************************************************
       subroutine kgdtest_rel2e(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -659,29 +663,29 @@ c
       geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('kgdtest_rel2e: geom create error',911)
+     &    ('kgdtest_rel2e: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('kgdtest_rel2e: basis create error',911)
+     &    ('kgdtest_rel2e: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('kgdtest_rel2e: geom load ',911)
+     &    ('kgdtest_rel2e: geom load ',911, GEOM_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('kgdtest_rel2e: basis load ',911)
+     &    ('kgdtest_rel2e: basis load ',911, BASIS_ERR)
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('kgdtest_rel2e: error normalizing ',911)
+     &    ('kgdtest_rel2e: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 5 000 000
       membuf = 100 000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       sbas = sc_bsh + BASIS_HANDLE_OFFSET
       abas = ao_bsh + BASIS_HANDLE_OFFSET
@@ -845,6 +849,7 @@ C      end do
 ************************************************************************
       subroutine kgdtest_ecpmem(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -885,29 +890,29 @@ c
       geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('kgdtest_gencon: geom create error',911)
+     &    ('kgdtest_gencon: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('kgdtest_gencon: basis create error',911)
+     &    ('kgdtest_gencon: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('kgdtest_gencon: geom load ',911)
+     &    ('kgdtest_gencon: geom load ',911, RTDB_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('kgdtest_gencon: basis load ',911)
+     &    ('kgdtest_gencon: basis load ',911, RTDB_ERR)
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('kgdtest_gencon: error normalizing ',911)
+     &    ('kgdtest_gencon: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 1 000 000
       membuf = 10 000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       if (.not. rtdb_get(rtdb,'ecp:ibug',mt_int,1,ibug))
      &    ibug = 1
@@ -977,6 +982,7 @@ c
 ************************************************************************
       subroutine kgdtest_relgen(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1024,29 +1030,29 @@ c
       geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('kgdtest_relgen: geom create error',911)
+     &    ('kgdtest_relgen: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,basis_name))call errquit
-     &    ('kgdtest_relgen: basis create error',911)
+     &    ('kgdtest_relgen: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('kgdtest_relgen: geom load ',911)
+     &    ('kgdtest_relgen: geom load ',911, GEOM_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,basis_name)) call errquit
-     &    ('kgdtest_relgen: basis load ',911)
+     &    ('kgdtest_relgen: basis load ',911, BASIS_ERR)
 c
       basid = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basid)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('kgdtest_relgen: error normalizing ',911)
+     &    ('kgdtest_relgen: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 5 000 000
       membuf = 100 000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       sbas = sc_bsh + BASIS_HANDLE_OFFSET
       abas = ao_bsh + BASIS_HANDLE_OFFSET
@@ -1234,6 +1240,7 @@ C              end if
 ************************************************************************
       subroutine kgdtest_gen1d(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1278,29 +1285,29 @@ c
       geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('kgdtest_relgen: geom create error',911)
+     &    ('kgdtest_relgen: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,basis_name))call errquit
-     &    ('kgdtest_relgen: basis create error',911)
+     &    ('kgdtest_relgen: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('kgdtest_relgen: geom load ',911)
+     &    ('kgdtest_relgen: geom load ',911, RTDB_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,basis_name)) call errquit
-     &    ('kgdtest_relgen: basis load ',911)
+     &    ('kgdtest_relgen: basis load ',911, RTDB_ERR)
 c
       basid = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basid)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('kgdtest_relgen: error normalizing ',911)
+     &    ('kgdtest_relgen: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 5 000 000
       membuf = 100 000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       difmax = 0.0d0
       do ish = 1,nshell

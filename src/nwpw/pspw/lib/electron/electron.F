@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.24 2003-07-19 20:47:09 bylaska Exp $
+* $Id: electron.F,v 1.25 2003-10-17 22:57:29 carlfahl Exp $
 *
 
 
@@ -10,6 +10,7 @@
 *     ***********************************
       subroutine electron_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
@@ -80,7 +81,7 @@
      >        MA_alloc_get(mt_dbl,2*n2ft3d,
      >                     'xce',xce(2),xce(1))
       if (.not. value) 
-     >  call errquit('electron_init: out of heap memory',0)
+     >  call errquit('electron_init: out of heap memory',0, MA_ERR)
 
       return
       end
@@ -93,6 +94,7 @@
 *     ***********************************
       subroutine electron_finalize()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
@@ -120,7 +122,8 @@
       value = value.and.
      >        MA_free_heap(xce(2))
       if (.not. value) 
-     >  call errquit('electron_init: error freeing heap memory',0)
+     >  call errquit('electron_init: error freeing heap memory',0,
+     &       MA_ERR)
 
       return
       end
@@ -771,6 +774,7 @@ c    >                    THpsi_k)
 
       subroutine electron_get_TMgradient(psi_k,THpsi_k)
       implicit none
+#include "errquit.fh"
       complex*16 psi_k(*)
       complex*16 THpsi_k(*)
 
@@ -788,7 +792,7 @@ c    >                    THpsi_k)
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'mhml',mhml(2),mhml(1))
       if (.not. value)
-     >   call errquit('electron_get_Tgradient: push stack',0)
+     >   call errquit('electron_get_Tgradient: push stack',0, MA_ERR)
 
 
 
@@ -833,7 +837,7 @@ c    >                    THpsi_k)
 
       value = MA_pop_stack(mhml(2))
       if (.not. value)
-     > call errquit('electron_get_Tradient: popping stack',0)
+     > call errquit('electron_get_Tradient: popping stack',0, MA_ERR)
 
       return
       end
@@ -1050,6 +1054,7 @@ c    >                     hmlt(shift+1))
 
       subroutine electron_get_gradient_virtual(ms,orb,Horb)
       implicit none
+#include "errquit.fh"
       integer    ms
       complex*16 orb(*)
       complex*16 Horb(*)
@@ -1079,7 +1084,8 @@ c    >                     hmlt(shift+1))
 
       value = MA_push_get(mt_dbl,(n2ft3d),'tmp_r',tmp_r(2),tmp_r(1))
       if (.not. value)
-     >   call errquit('electron_get_gradient_virtual: push stack',0)
+     >   call errquit('electron_get_gradient_virtual: push stack',0,
+     &       MA_ERR)
 
 
       call Pack_c_Copy(1,orb,dbl_mb(tmp_r(1)))
@@ -1104,7 +1110,7 @@ c    >                     hmlt(shift+1))
 
       value = MA_pop_stack(tmp_r(2))
       if (.not. value) call errquit(
-     >     'electron_get_gradient_virtual: poping stack',1)
+     >     'electron_get_gradient_virtual: poping stack',1, MA_ERR)
 
 
       return
@@ -1249,6 +1255,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       subroutine electron_gen_dng_dnall(dn,dng,dnall)
       implicit none
+#include "errquit.fh"
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
@@ -1280,7 +1287,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     **********************
       value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
-     >     'electron_gen_dng_dnall: out of stack memory',0)
+     >     'electron_gen_dng_dnall: out of stack memory',0, MA_ERR)
 
       call D3dB_rr_Sum(1,dn,dn(1+(ispin-1)*n2ft3d),dbl_mb(tmp1(1)))
       call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
@@ -1306,7 +1313,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       value = MA_pop_stack(tmp1(2)) 
       if (.not. value) call errquit(
-     >     'electron_gen_dng_dnall: poping stack',1)
+     >     'electron_gen_dng_dnall: poping stack',1, MA_ERR)
 
 
       return
@@ -1401,6 +1408,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       subroutine electron_add_oep_to_vall(dn)
       implicit none
+#include "errquit.fh"
       real*8 dn(*)
 
 #include "mafdecls.fh"
@@ -1481,6 +1489,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       subroutine electron_gen_scf_potentials(dn,dng,dnall)
       implicit none
+#include "errquit.fh"
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
@@ -1508,7 +1517,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       if (control_version().eq.4)  then
          value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: out of stack memory',0)
+     >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
       
          call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),
      >                    dbl_mb(tmp1(1)))
@@ -1516,20 +1525,22 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
          value = MA_pop_stack(tmp1(2)) 
          if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: error popping stack memory',0)
+     >     'electron_gen_scf_potentials: error popping stack memory',0,
+     &       MA_ERR)
       end if
 
       if (control_gga().eq.0) then
          value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
          if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: out of stack memory',0)
+     >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
         call vxc(n2ft3d,ispin,dnall,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)),
      >                    dbl_mb(tmp1(1)))
         value = MA_pop_stack(tmp1(2)) 
         if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: error popping stack memory',0)
+     >     'electron_gen_scf_potentials: error popping stack memory',0,
+     &       MA_ERR)
 
       else
         call v_bwexc(n2ft3d,ispin,dnall,
@@ -1551,6 +1562,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       subroutine electron_gen_vl_potential()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "electron_common.fh"
@@ -1573,7 +1585,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       value = value.and.
      >        MA_push_get(mt_dbl,(3),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call 
-     >   errquit('electron_gen_vl_potential: out of stack memory',0)
+     >   errquit('electron_gen_vl_potential: out of stack memory',0,
+     &       MA_ERR)
 
       move = .false.
       call v_local(dcpl_mb(vl(1)),
@@ -1585,7 +1598,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
-     >  'electron_gen_vl_potential: error popping stack memory',0)
+     >  'electron_gen_vl_potential: error popping stack memory',0,
+     &       MA_ERR)
 
 
 *     **** generate real-space fields ****
@@ -1628,7 +1642,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
          value = MA_pop_stack(r_grid(2))
          if (.not. value) call errquit(
-     >   'electron_gen_vl_potential: error popping stack memory',0)
+     >   'electron_gen_vl_potential: error popping stack memory',0,
+     &       MA_ERR)
 
       end if
  
@@ -1647,6 +1662,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       real*8 function electron_psi_vl_ave(psi1,dn)
       implicit none
+#include "errquit.fh"
       complex*16 psi1(*)
       real*8     dn(*)
 
@@ -1675,7 +1691,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       value = value.and.
      >        MA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit(
-     >            'electron_psi_vl_ave: out of stack memory',0)
+     >            'electron_psi_vl_ave: out of stack memory',0, MA_ERR)
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -1743,7 +1759,8 @@ c    >                         sum)
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
-     >           'electron_psi_vl_ave: error popping stack memory',0)
+     >           'electron_psi_vl_ave: error popping stack memory',0,
+     &       MA_ERR)
 
       electron_psi_vl_ave = elocal
       return
@@ -1759,6 +1776,7 @@ c    >                         sum)
 
       real*8 function electron_psi_vnl_ave(psi1)
       implicit none
+#include "errquit.fh"
       complex*16 psi1(*)
 
 #include "mafdecls.fh"
@@ -1781,7 +1799,7 @@ c    >                         sum)
       value = value.and.
      >        MA_push_get(mt_dbl,(n2ft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) call errquit(
-     >            'electron_psi_vl_ave: out of stack memory',0)
+     >            'electron_psi_vl_ave: out of stack memory',0, MA_ERR)
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -1814,7 +1832,8 @@ c    >                         sum)
       value = value.and.
      >        MA_pop_stack(tmp1(2))
       if (.not. value) call errquit(
-     >           'electron_psi_vl_ave: error popping stack memory',0)
+     >           'electron_psi_vl_ave: error popping stack memory',0,
+     &       MA_ERR)
 
       electron_psi_vnl_ave = enlocal
       return

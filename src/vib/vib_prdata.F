@@ -1,9 +1,10 @@
       SUBROUTINE vib_PRDATA(rtdb,ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI
      &    ,first_pass)
-* $Id: vib_prdata.F,v 1.8 2001-07-27 21:34:01 windus Exp $
+* $Id: vib_prdata.F,v 1.9 2003-10-17 22:58:37 carlfahl Exp $
 C*MODULE VIB  *DECK PRDATA
 c
       IMPLICIT NONE
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
@@ -56,7 +57,7 @@ C
         if(.not. rtdb_put(rtdb,'vib:frequencies',MT_DBL,nc,
      &      vect))
      &      call errquit('vib_prdata:rtdb_put of frequencies failed',
-     &      555)
+     &      555, RTDB_ERR)
         call ecce_print2('normal modes',mt_dbl,
      &      array,nr,nr,nc)
       else
@@ -65,7 +66,7 @@ C
      &      MT_DBL,nc,vect))
      &      call errquit(
      &      'vib_prdata:rtdb_put of projected frequencies failed',
-     &      555)
+     &      555, RTDB_ERR)
         call ecce_print2('projected normal modes',mt_dbl,
      &      array,nr,nr,nc)
       endif
@@ -75,7 +76,7 @@ c
       if ((.not.first_pass).and.(ga_nodeid().eq.0)) then
         call util_file_name('nmode',.false.,.false.,filename)
         if (eaf_open(filename,eaf_rw,fd).ne.0)
-     &    call errquit('vib_prdata:eaf_open failed',555)
+     &    call errquit('vib_prdata:eaf_open failed',555, DISK_ERR)
 c
 c     Format is (with all data as reals)
 c
@@ -92,15 +93,16 @@ c
 c
         offset = 0
         if (eaf_write(fd,offset,nrd,16).ne.0)
-     &    call errquit('vib_prdata:error writing nmodes',555)
+     &    call errquit('vib_prdata:error writing nmodes',555, DISK_ERR)
         offset = 16
         if (eaf_write(fd,offset,vect,nr*8).ne.0)
-     &    call errquit('vib_prdata:error writing frequencies',555)
+     &    call errquit('vib_prdata:error writing frequencies',555,
+     &       DISK_ERR)
         offset = offset + nr*8
         if (eaf_write(fd,offset,array,nr*nc*8).ne.0)
-     &    call errquit('vib_prdata:error writing modes',555)
+     &    call errquit('vib_prdata:error writing modes',555, DISK_ERR)
         if (eaf_close(fd).ne.0)
-     &    call errquit('vib_prdata:file close problem',555)
+     &    call errquit('vib_prdata:file close problem',555, DISK_ERR)
       endif
 c
       RETURN

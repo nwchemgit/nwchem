@@ -1,6 +1,6 @@
       integer function selci_popcnt32(i)
 *
-* $Id: popcnt32.F,v 1.11 2003-09-05 16:05:06 edo Exp $
+* $Id: popcnt32.F,v 1.12 2003-10-17 22:58:17 carlfahl Exp $
 *
 #if defined(LINUX) || defined(LINUX64)
 #define INTEGER_1 integer*1
@@ -74,6 +74,7 @@ c
  10   continue
 #else
       implicit integer(a-z)
+#include "errquit.fh"
 #include "cbits.fh"
 c
       INTEGER_1 input(*)
@@ -249,7 +250,8 @@ c     initialise lookup arrays for faster pop-count and leading zero co
 c
       call util_pack_info(bytes_per_int, obigendian)
       if (bytes_per_int .ne. 8) call errquit
-     $     ('sorry ... this selected CI piece is ported to 64 bit',0)
+     $     ('sorry ... this selected CI piece is ported to 64 bit',0,
+     &       CAPMIS_ERR)
 c
       i = 0
       do 10 mm = -128,127,1
@@ -305,7 +307,8 @@ c     initialise lookup arrays for faster pop-count and leading zero co
 c
       call util_pack_info(bytes_per_int, obigendian)
       if (bytes_per_int .ne. 4) call errquit
-     $     ('sorry ... this selected CI has been ported to 32 bit',0)
+     $     ('sorry ... this selected CI has been ported to 32 bit',0,
+     &       CAPMIS_ERR)
 c
       i = 0
       do 10 mm = -128,127,1

@@ -1,5 +1,6 @@
       logical function task_energy(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -21,10 +22,11 @@ c
 c
       ignore = rtdb_delete(rtdb, 'task:energy')
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_energy: failed to invalidate status',0)
+     $     call errquit('task_energy: failed to invalidate status',0,
+     &       RTDB_ERR)
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0)
+     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 c
       if (theory .ne. 'oniom') then
          status = task_energy_doit(rtdb,theory,energy)
@@ -32,26 +34,32 @@ c
          status = oniom_energy(rtdb)
          if (status) then
             if (.not. rtdb_get(rtdb, 'oniom:energy', mt_dbl, 1, energy))
-     $           call errquit('task_energy: no energy in rtdb?',0)
+     $           call errquit('task_energy: no energy in rtdb?',0,
+     &       RTDB_ERR)
             if (rtdb_get(rtdb, 'oniom:dipole', mt_dbl, 3, dipole)) then
                if (.not. rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole))
-     $              call errquit('task_energy: failed storing dipole',0)
+     $              call errquit('task_energy: failed storing dipole',0,
+     &       RTDB_ERR)
             else
                ignore = rtdb_delete(rtdb, 'task:dipole')
             endif
          endif
       endif
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
-     $     call errquit('task_energy: failed storing energy',0)
+     $     call errquit('task_energy: failed storing energy',0,
+     &       RTDB_ERR)
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_energy: failed to store status',0)
+     $     call errquit('task_energy: failed to store status',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_energy: failed storing cputime',0)
+     $     call errquit('task_energy: failed storing cputime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_energy: failed storing walltime',0)
+     $     call errquit('task_energy: failed storing walltime',0,
+     &       RTDB_ERR)
 c
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
@@ -68,9 +76,10 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.31 2003-01-29 17:51:31 sohirata Exp $
+* $Id: task_energy.F,v 1.32 2003-10-17 22:58:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -119,7 +128,8 @@ c     but this value is used (appropriately and inappropriately) and
 c     things are not yet disentangled.
 c
       if (.not. rtdb_cput(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task_energy: setting theory?',0)
+     $     call errquit('task_energy: setting theory?',0,
+     &       RTDB_ERR)
 c
 c     Actually do the deed
 c
@@ -137,82 +147,83 @@ c
       else if (theory .eq. 'uccd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccd'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0,
+     &       RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ulccd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'lccd'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'uccsd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsd'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ulccsd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'lccsd'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'uqcisd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'qcisd'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'uccsdt') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsdt'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'uccsdtq') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'ccsdtq'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ucisd') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'cisd'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ucisdt') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'cisdt'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ucisdtq') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'cisdtq'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ump2') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt2'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ump3') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt3'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'ump4') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt4'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'umbpt2') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt2'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'umbpt3') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt3'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'umbpt4') then
          prefix = 'tce'
          if (.not.rtdb_cput(rtdb,'tce:model',1,'mbpt4'))
-     1   call errquit('task_energy: failed writing to rtdb',0)
+     1   call errquit('task_energy: failed writing to rtdb',0, RTDB_ERR)
          status = tce_energy(rtdb)
       else if (theory .eq. 'rimp2') then
          status = rimp2(rtdb)
@@ -238,7 +249,7 @@ cedo         prefix = 'mp2'
       else if (theory .eq. 'mp2' .or. theory.eq.'semi_dir_mp2') then
          prefix = 'mp2'
          if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
-     $        call errquit('task_energy: rtdb_put failed',0)
+     $        call errquit('task_energy: rtdb_put failed',0, RTDB_ERR)
          status = semi_dir_mp2(rtdb)
       else if (theory .eq. 'pspw') then
          status = pspw_energy(rtdb)
@@ -256,7 +267,7 @@ cedo         prefix = 'mp2'
          endif
          status = .false.
       else
-         call errquit('task_energy: unknown theory',0)
+         call errquit('task_energy: unknown theory',0, INPUT_ERR)
       endif
 c
       if (status) then
@@ -267,13 +278,15 @@ c
          key = ' '
          write(key,'(a,'':energy'')') prefix(1:inp_strlen(prefix))
          if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy))
-     $        call errquit('task_energy: no energy in rtdb?',0)
+     $        call errquit('task_energy: no energy in rtdb?',0,
+     &       RTDB_ERR)
 c
          key = ' '
          write(key,'(a,'':dipole'')') prefix(1:inp_strlen(prefix))
          if (rtdb_get(rtdb, key, mt_dbl, 3, dipole)) then
            if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl, 3, dipole))
-     $          call errquit('task_energy: failed storing dipole',0)
+     $          call errquit('task_energy: failed storing dipole',0,
+     &       RTDB_ERR)
 	 endif
       endif
 c
@@ -282,6 +295,7 @@ c
       end
       subroutine rtdb_clean(rtdb, prefix)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
       integer rtdb
@@ -299,7 +313,8 @@ c
  10   if (status) then
          if (inp_compare(.true.,prefix(1:lp),name(1:lp))) then
             if (.not. rtdb_delete(rtdb,name)) call errquit
-     $           ('rtdb_clean: failed deleting existing entry',0)
+     $           ('rtdb_clean: failed deleting existing entry',0,
+     &       RTDB_ERR)
          endif
          status = rtdb_next(rtdb, name)
          goto 10

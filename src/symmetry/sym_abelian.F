@@ -1,6 +1,6 @@
       logical function sym_abelian_group(geom)
 *
-* $Id: sym_abelian.F,v 1.6 2000-05-30 06:34:27 d3g681 Exp $
+* $Id: sym_abelian.F,v 1.7 2003-10-17 22:58:24 carlfahl Exp $
 *
       implicit none
       integer geom              ! [input]
@@ -33,6 +33,7 @@ c
      $     zir,
      $     so_uq_to_lab, so_lab1, so_lab2, oprint)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "sym.fh"
@@ -152,20 +153,23 @@ c
       external ddot
 c
       if (.not. bas_geom(basis,geom))
-     $     call errquit('sym_abelian_bas_info: basis?', basis)
+     $     call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
       if (.not. bas_numbf(basis,nbf))
-     $     call errquit('sym_abelian_bas_info: basis?', basis)
+     $     call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
       if (.not. bas_numcont(basis,nsh))
-     $     call errquit('sym_abelian_bas_info: basis?', basis)
+     $     call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
 c
       if (.not. sym_abelian_group(geom))
-     $     call errquit('the point group is not abelian',0)
+     $     call errquit('the point group is not abelian',0, INPUT_ERR)
 c
       nop = sym_number_ops(geom) + 1
       if (.not. ma_push_get(mt_dbl, nbf, 'abel a', l_a, k_a))
-     $     call errquit('sym_abel_bas_info: ma?', nbf)
+     $     call errquit('sym_abel_bas_info: ma?', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf, 'abel b', l_b, k_b))
-     $     call errquit('sym_abel_bas_info: ma?', nbf)
+     $     call errquit('sym_abel_bas_info: ma?', nbf, MA_ERR)
 c
 c     Construct the effect of the group operations on shells and
 c     basis functions using the existing routine to apply an
@@ -174,7 +178,8 @@ c
       do ish = 1, nsh
          sh_op_map(1,ish) = ish     ! identity
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('sym_abelian_bas_info: basis?', basis)
+     $        call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
          
          do i = ilo, ihi
             bf_op_map(1,i)   = i    ! identity
@@ -192,17 +197,19 @@ c
                      goto 10
                   end if
                end do
-               call errquit('sym_abelian_bas_info: _op_map failed',i)
+               call errquit('sym_abelian_bas_info: _op_map failed',i,
+     &       BASIS_ERR)
  10            continue
                if (.not. bas_bf2cn(basis, j, jsh))
-     $              call errquit('sym_abelian_bas_info: basis?', basis)
+     $              call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
                sh_op_map(op,ish) = jsh
             end do
          end do
       end do
 c
       if (.not. ma_chop_stack(l_a)) call errquit
-     $     ('sym_abelian: ma corrupted', 0)
+     $     ('sym_abelian: ma corrupted', 0, MA_ERR)
 c
       if (oprint) then
          write(6,*) ' Abelian group shell symmetry _op_map'
@@ -230,7 +237,8 @@ c
             sh_n_uq_op(ish) = sh_n_uq_op(ish) + 1
             sh_uq_op(sh_n_uq_op(ish),ish) = op
             if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $           call errquit('sym_abelian_bas_info: basis?', basis)
+     $           call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
             do i = ilo, ihi
                bf_n_uq_op(i) = bf_n_uq_op(i) + 1
                bf_uq_op(bf_n_uq_op(i),i) = op
@@ -262,7 +270,8 @@ c
          sh_n_uq = sh_n_uq + 1
          sh_uq(sh_n_uq) = ish
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('sym_abelian_bas_info: basis?', basis)
+     $        call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
          do i = ilo, ihi
             bf_n_uq = bf_n_uq + 1
             bf_uq(bf_n_uq) = i
@@ -289,7 +298,8 @@ c
       do iuq = 1, sh_n_uq
          ish = sh_uq(iuq)
          if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $        call errquit('sym_abelian_bas_info: basis?', basis)
+     $        call errquit('sym_abelian_bas_info: basis?', basis,
+     &       BASIS_ERR)
          sh_uq_bf(1,iuq) = countbf+1
          sh_uq_bf(3,iuq) = countuqbf+1
          do opuq = 1, sh_n_uq_op(ish)
@@ -314,14 +324,14 @@ c
       end do
       if (countbf.ne.nbf .or. countsh.ne.nsh .or.
      $     countuqbf.ne.bf_n_uq) call errquit
-     $     ('robert cannot count',0)
+     $     ('robert cannot count',0, UNKNOWN_ERR)
       do i = 1, nbf
          if (bf_nat(1,i).le.0 .or. bf_nat(2,i).le.0)
-     $        call errquit('missing bf_nat?',0)
+     $        call errquit('missing bf_nat?',0, UNKNOWN_ERR)
       end do
       do i = 1, nsh
          if (sh_nat(1,i).le.0 .or. sh_nat(2,i).le.0)
-     $        call errquit('missing sh_nat?',0)
+     $        call errquit('missing sh_nat?',0, UNKNOWN_ERR)
       end do
       if (oprint) then
          write(6,*) ' Shell nwchem to natural map and check'
@@ -376,7 +386,8 @@ c
                bf_so_ir(nbfir,iuq) = ir
                bf_per_ir(ir) = bf_per_ir(ir) + 1
             else if (val .lt. -1d-12) then
-               call errquit('sym_abelian_bas_info: neg. proj?',0)
+               call errquit('sym_abelian_bas_info: neg. proj?',0,
+     &       BASIS_ERR)
             end if
          end do
       end do
@@ -386,7 +397,8 @@ c
       call sym_bas_irreps(basis, .false., bf_per_ir_cum)
       do ir = 0, nop-1
          if (bf_per_ir_cum(ir) .ne. bf_per_ir(ir)) call errquit
-     $        ('sym_abelian_bas_info: miscount of functions', ir)
+     $        ('sym_abelian_bas_info: miscount of functions', ir,
+     &       BASIS_ERR)
       end do
 c
       nbfir = 0
@@ -502,6 +514,7 @@ c
       end
       subroutine sym_abelian_char_tab(geom, char_tab, zir)
       implicit none
+#include "errquit.fh"
 c
       integer geom              ! [input]
       double precision char_tab(8,8) ! [output] char_tab(op,irrep)
@@ -526,7 +539,8 @@ c
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
      $     zir, zclass, chars)) 
-     $     call errquit('sym_abelian_char_table: no char table',0)
+     $     call errquit('sym_abelian_char_table: no char table',0,
+     &       INPUT_ERR)
 c
       call dfill(8*8, 0.0d0, char_tab, 1)
 c

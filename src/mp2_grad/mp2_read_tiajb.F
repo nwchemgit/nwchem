@@ -1,9 +1,10 @@
       subroutine mp2_read_tijab(nv_lo, nv_hi, irs, symia, 
      $     num_o, sym_hi_o, sym_lo_o, tunit, tunitptr, t)
 *
-* $Id: mp2_read_tiajb.F,v 1.4 1997-03-27 08:50:20 d3e129 Exp $
+* $Id: mp2_read_tiajb.F,v 1.5 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "eaf.fh"
 #include "util.fh"
       integer nv_lo, nv_hi
@@ -28,7 +29,7 @@ c
       enddo
       if (count .gt. 0) then
          if (eaf_read(tunit, tunitptr, t, 8*count).ne.0) 
-     $        call errquit('mp2_pijab: problem reading t_a',0)
+     $        call errquit('mp2_pijab: problem reading t_a',0, DISK_ERR)
          tunitptr = tunitptr + 8*count
          if (util_print('tdebug',print_debug)) then
             write(6,12) ddot(count, t, 1, t, 1)

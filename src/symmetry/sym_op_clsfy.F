@@ -1,6 +1,7 @@
       subroutine sym_op_classify(geom, op_class_index)
-C$Id: sym_op_clsfy.F,v 1.3 2002-12-04 18:36:27 edo Exp $
+C$Id: sym_op_clsfy.F,v 1.4 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "inp.fh"
 #include "util.fh"
@@ -31,12 +32,13 @@ c
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table(group_name, nop_table, nir, iclass_dim,
      $     zir, zclass, chars)) 
-     $     call errquit('sym_classify: no char table',0)
+     $     call errquit('sym_classify: no char table',0, GEOM_ERR)
 c     
 c     Verify number of operators match
 c
       nop = sym_number_ops(geom)
-      if ((nop+1).ne.nop_table) call errquit('sym_classify: ops?',0)
+      if ((nop+1).ne.nop_table) call errquit('sym_classify: ops?',0,
+     &       GEOM_ERR)
 c     
 c     Derive class name of each operator just from the matrices
 c
@@ -84,7 +86,8 @@ c
             if (.not. inp_match(nir, .true., op_class_name(h),
      $           zclass, op_class_index(h))) then
                write(6,*) ' unknown class ', h, op_class_name(h)
-               call errquit('sym_clasify: bad class', 0)
+               call errquit('sym_clasify: bad class', 0,
+     &       GEOM_ERR)
             endif
             count(op_class_index(h)) = count(op_class_index(h)) + 1
             do g = 1, nop
@@ -106,7 +109,7 @@ c
                   enddo
                   if (diff.lt.1d-6) goto 5
                enddo
-               call errquit('sym_classify: out of group', 0)
+               call errquit('sym_classify: out of group', 0, GEOM_ERR)
 c     
 c     Have f=gThg ... identify class and check for consistency
 c     
@@ -121,7 +124,7 @@ c     See comments above about this switch
                      else
                         write(6,*) ' bad class: h ', h, op_class_name(h)
                         write(6,*) ' bad class: f ', f, op_class_name(f)
-                        call errquit('sym_test: bad class', 0)
+                        call errquit('sym_test: bad class', 0, GEOM_ERR)
                      endif
                   endif
                else if (op_class_index(f) .ne. op_class_index(h)) then
@@ -129,7 +132,8 @@ c     See comments above about this switch
      $                 op_class_name(h)
                      write(6,*) ' multiple class: f ', f, 
      $                    op_class_name(f)
-                  call errquit('sym_classify: multiple class', 0)
+                  call errquit('sym_classify: multiple class', 0,
+     &       GEOM_ERR)
                endif
             enddo
          endif
@@ -137,12 +141,14 @@ c     See comments above about this switch
       if (oagain .and. npass.eq.1) then
          goto 1101
       else if (oagain .and. npass.ne.1) then
-         call errquit('sym_op_classify: patch for T/Th failed',0)
+         call errquit('sym_op_classify: patch for T/Th failed',0,
+     &       GEOM_ERR)
       endif
 c
       do ir = 1, nir
          if (count(ir).ne.iclass_dim(ir)) then
-            call errquit('sym_classify: classes wrong', ir)
+            call errquit('sym_classify: classes wrong', ir,
+     &       GEOM_ERR)
          endif
       enddo
 c

@@ -1,9 +1,10 @@
       subroutine selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,
      $     inttyp, moints)
 *
-* $Id: rdhint.F,v 1.6 2000-10-23 16:23:53 windus Exp $
+* $Id: rdhint.F,v 1.7 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 c
 c     common needed for gamess stuff
 c
@@ -25,7 +26,8 @@ c
 c     gamess integrals ... dumpfile ed3 1, mainfile ed6 1
 c     assume fock matrix in section 171
 c
-         call errquit('rdhint: gamess interface not functional',0)
+         call errquit('rdhint: gamess interface not functional',0,
+     &       CAPMIS_ERR)
 *         call initb
 *         call secini(1,4)
 *         call secsum
@@ -48,7 +50,8 @@ c
          read(iflint,*)         ! eigenvalues
          read(iflint,*)         ! occupations
          read(iflint,*) repnuc,i,j,k,l 
-         if (i.ne.0) call errquit('rdhint: ascii list repnuc?',0)
+         if (i.ne.0) call errquit('rdhint: ascii list repnuc?',0,
+     &       INPUT_ERR)
          ntitle = 1
       else if (inttyp.eq.3) then
 c
@@ -68,9 +71,11 @@ c
 c
 c     columbus integrals
 c
-         call errquit('rdhint: columbus integrals not working',0)
+         call errquit('rdhint: columbus integrals not working',0,
+     &       CAPMIS_ERR)
       else
-         call errquit('rdhead: unknown integral source ',inttyp)
+         call errquit('rdhead: unknown integral source ',inttyp,
+     &       INPUT_ERR)
       endif
 c
       end

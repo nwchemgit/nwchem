@@ -1,7 +1,7 @@
       subroutine fock_get_blk( narray, varray, ilo, ihi,
      $     jlo, jhi, buf, tmp)
 c     
-c     $Id: fock_get_blk.F,v 1.1 1995-12-13 01:25:06 d3g681 Exp $
+c     $Id: fock_get_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "global.fh"
@@ -60,8 +60,9 @@ c
       end
       subroutine get_atom_block(g_array, basis, iat, jat, buf,
      $     idim, jdim)
-C$Id: fock_get_blk.F,v 1.1 1995-12-13 01:25:06 d3g681 Exp $
+C$Id: fock_get_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 c
@@ -76,9 +77,9 @@ c     result into buf(1:idim, 1:jdim) as a dense array.
 c     idim, jdim are returned
 c
       if (.not. bas_ce2bfr(basis, iat, ilo, ihi))
-     $     call errquit('get_atom_block: ce2bfr failed', 0)
+     $     call errquit('get_atom_block: ce2bfr failed', 0, BASIS_ERR)
       if (.not. bas_ce2bfr(basis, jat, jlo, jhi))
-     $     call errquit('get_atom_block: ce2bfr failed', 0)
+     $     call errquit('get_atom_block: ce2bfr failed', 0, BASIS_ERR)
       idim = ihi - ilo + 1
       jdim = jhi - jlo + 1
 c

@@ -1,7 +1,8 @@
       Subroutine GA_Mat2Col( G_A, AILo, AIHi, AJLo, AJHi,
      $   G_B, BILo, BIHi, BJLo, BJHi)
-C$Id: ga_mat2col.F,v 1.4 1995-10-17 08:56:30 d3g681 Exp $
+C$Id: ga_mat2col.F,v 1.5 2003-10-17 22:58:34 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer G_A, G_B, AILo, AIHi, AJLo, AJHi, BILo, BIHi, BJLo, BJHi
 #include "mafdecls.fh"
 #include "global.fh"
@@ -20,7 +21,7 @@ C
       LenCol = AIHi - AILo + 1
       If ( .NOT. MA_Push_Get(MT_Dbl, LenCol, 'ga_mat2col tmp', H_Col,
      $   I_Col) ) Call ErrQuit(
-     $   'GA_Mat2Col: Unable to allocate local memory', LenCol)
+     $   'GA_Mat2Col: Unable to allocate local memory', LenCol, MA_ERR)
 C
 C     Simple static load balancing, ignore data distribution.
 C     Get a column and put it into the target.
@@ -38,7 +39,7 @@ C
       EndDo
 C
       If ( .NOT. MA_Pop_Stack( H_Col )) Call ErrQuit(
-     $   'GA_Mat2Col: Unable to free local memory', 0)
+     $   'GA_Mat2Col: Unable to free local memory', 0, MA_ERR)
 C
       Call GA_Sync
 C
@@ -50,6 +51,7 @@ C
       Subroutine GA_Col2Mat( G_A, AILo, AIHi, AJLo, AJHi,
      $   G_B, BILo, BIHi, BJLo, BJHi)
       Implicit NONE
+#include "errquit.fh"
       Integer G_A, G_B, AILo, AIHi, AJLo, AJHi, BILo, BIHi, BJLo, BJHi
 #include "mafdecls.fh"
 #include "global.fh"
@@ -68,7 +70,7 @@ C
       LenCol = BIHi - BILo + 1
       If ( .NOT. MA_Push_Get(MT_Dbl, LenCol, 'ga_col2mat tmp', H_Col,
      $   I_Col) ) Call ErrQuit(
-     $   'GA_Col2Mat: Unable to allocate local memory', LenCol)
+     $   'GA_Col2Mat: Unable to allocate local memory', LenCol, MA_ERR)
 C
 C     Simple static load balancing, ignore data distribution.
 C     Get a column and put it into the target.
@@ -86,7 +88,7 @@ C
       EndDo
 C
       If ( .NOT. MA_Pop_Stack( H_Col )) Call ErrQuit(
-     $   'GA_Col2Mat: Unable to free local memory', 0)
+     $   'GA_Col2Mat: Unable to free local memory', 0, MA_ERR)
 C
       Call GA_Sync
 C

@@ -1,8 +1,9 @@
       subroutine int2e_file_balance
 *
-* $Id: int2e_balance.F,v 1.6 2000-10-13 18:22:47 d3g681 Exp $
+* $Id: int2e_balance.F,v 1.7 2003-10-17 22:54:32 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "eaf.fh"
 #include "mafdecls.fh"
@@ -97,7 +98,8 @@ c
       do i = 0, nproc-1
          if (info(1,i) .eq. me) goto 11
       enddo
-      call errquit('int2e_file_balance: algorithm failure?',0)
+      call errquit('int2e_file_balance: algorithm failure?',0,
+     &       UNKNOWN_ERR)
  11   j = nproc-1-i
 c
       if (odebug .and. me.eq.0) then
@@ -131,7 +133,8 @@ c
          do record = 1, my_count
             call rcv(2,buf,8*rec_len_in_dbl,msglen,him,from,1)
             if (.not. int2e_packed_buf_write(.false.))
-     $           call errquit('int2e_file_balance:write failed',0)
+     $           call errquit('int2e_file_balance:write failed',0,
+     &       INT_ERR)
          enddo
       else if (my_count.gt.0 .and. his_count.lt.0) then
 c     
@@ -141,7 +144,8 @@ c
          cur_rec = n_rec_in_file - his_count + 1
          do record = 1, his_count
             if (.not. int2e_packed_buf_read())
-     $         call errquit('int2e_file_balance: read failed',0)
+     $         call errquit('int2e_file_balance: read failed',0,
+     &       INT_ERR)
             call snd(2, buf, 8*rec_len_in_dbl, him, 1)
          enddo
          n_rec_in_file = n_rec_in_file - his_count
@@ -176,7 +180,7 @@ c
             call util_flush(6)
          endif
          if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
-     $        ('int2e_file_balance: file truncate failed', 0)
+     $        ('int2e_file_balance: file truncate failed', 0, INT_ERR)
          cur_rec = n_rec_in_file
       endif
 c
@@ -189,7 +193,8 @@ c
       endif
 c
       if (.not. int2e_file_rewind()) call errquit
-     $     ('int2e_file_balance: failed rewind integral file', 0)
+     $     ('int2e_file_balance: failed rewind integral file', 0,
+     &       INT_ERR)
       call ga_sync()
 c
       end

@@ -1,9 +1,10 @@
-C $Id: setpth.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id: setpth.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_setpth
 C
 C Setup for first step off saddle point
 C
       Implicit None
+#include "errquit.fh"
 c
 #include "drdyP.fh"
 #include "stdio.fh"
@@ -17,7 +18,7 @@ C Diagonalize hessian matrix stored in f
       Call drdy_diagf (n3tm,n3,fspsv,hess,vec0,u0,vec1,vec2,ierr)
       if (ierr.ne.0) then
          write(fu6,6000) ierr
-         call errquit('drdy_setpth:drdy_diagf error',555)
+         call errquit('drdy_setpth:drdy_diagf error',555, INPUT_ERR)
       endif
 C It is assumed that the smallest (most negative) eigenvalue is ordered first.
 C    Determine phase of the eigenvector so that largest component is positive.

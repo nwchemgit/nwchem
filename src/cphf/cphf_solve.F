@@ -1,8 +1,9 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.33 2002-03-28 18:34:56 edo Exp $
+* $Id: cphf_solve.F,v 1.34 2003-10-17 22:54:30 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -65,10 +66,10 @@ c     Must use the same vectors as the converged SCF
 c
       if (hf_job) then
          if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
-     $        call errquit('cphf: no SCF MO vectors',0)
+     $        call errquit('cphf: no SCF MO vectors',0, RTDB_ERR)
       else
          if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     $        call errquit('cphf_solve: no DFT MO vectors',0)
+     $        call errquit('cphf_solve: no DFT MO vectors',0, RTDB_ERR)
 c !!! Hack to set up scftype properly for later code !!! ? need this?
          if (bgj_restricted()) then
             scftype = 'RHF'
@@ -80,7 +81,8 @@ c      write(*,*)'*** cphf_solve: scftype ',scftype
 c     
       call scf_init(rtdb)
       if (.not.int_normalize(rtdb,basis))
-     &    call errquit('cphf_solve: int_normalize failed',911)
+     &    call errquit('cphf_solve: int_normalize failed',911,
+     &       UNKNOWN_ERR)
       nbases = 1
       bases(1) = basis
       if (bgj_have_j_fit()) then
@@ -97,20 +99,26 @@ c     Get the MO vectors
 c
       if(.not.movecs_read_header(movecs_in,title_vecs,basis_vecs,
      $     scftype_vecs, nbf_vecs,nsets,nmos,2))
-     $     call errquit('cphf: problem with movecs_read_header',1)
-      if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0)
+     $     call errquit('cphf: problem with movecs_read_header',1,
+     &       INPUT_ERR)
+      if(nbf.ne.nbf_vecs)call errquit('cphf: MO vectors mismatch?',0,
+     &       INPUT_ERR)
       nmo = nmos(1)
 c
       if (nmo .ne. nbf) then
-         if (.not. ga_destroy(g_movecs(1))) call errquit('cphf: ga',1)
+         if (.not. ga_destroy(g_movecs(1))) call errquit('cphf: ga',1,
+     &       GA_ERR)
 *ga:1:0
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs a',
-     $        0, 0, g_movecs(1))) call errquit('scf_v_g: tmp MOs', 0)
+     $        0, 0, g_movecs(1))) call errquit('scf_v_g: tmp MOs', 0,
+     &       GA_ERR)
          if (scftype .eq. 'UHF') then
-            if (.not. ga_destroy(g_movecs(2)))call errquit('cphf: ga',2)
+            if (.not. ga_destroy(g_movecs(2)))call errquit('cphf: ga',2,
+     &       GA_ERR)
 *ga:1:0
             if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_v_g: tmp MOs b',
-     $           0, 0, g_movecs(2))) call errquit('scf_v_g: tmp MOs', 0)
+     $           0, 0, g_movecs(2))) call errquit('scf_v_g: tmp MOs', 0,
+     &       GA_ERR)
          endif
       endif
 c         
@@ -122,7 +130,8 @@ c
          nvirt = nmo - nclosed - nopen
          vlen = nclosed*(nopen+nvirt) + nopen*nvirt
       else
-         call errquit('cphf: unknown SCF type',0)
+         call errquit('cphf: unknown SCF type',0,
+     &       INPUT_ERR)
       endif
 c
       lshift=0.0d0
@@ -153,33 +162,39 @@ c
 c
 *ga:1:0
       if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: rhs',0,1,g_grad))
-     $     call errquit('cphf_solve: ga_cre grad',vlen)
+     $     call errquit('cphf_solve: ga_cre grad',vlen, GA_ERR)
 c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)         
       if(.not.file_read_ga(cphf_rhs, g_grad))
-     $     call errquit('cphf_solve: could not read cphf_rhs',1)
+     $     call errquit('cphf_solve: could not read cphf_rhs',1,
+     &       INPUT_ERR)
 c
 *ga:1:0
       if(.not.ga_create(mt_dbl,vlen,1,'cphf_solve: grad',
-     $     0,0,g_work))call errquit('cphf_solve: ga_cre grad',0)
+     $     0,0,g_work))call errquit('cphf_solve: ga_cre grad',0, GA_ERR)
 c
 c     Compute necessary Fock matrices
 c
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
-     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 1))
-     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
-     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
+     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0,
+     &       RTDB_ERR)
 c !!! BGJ
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          if(.not. rtdb_put(rtdb,'cphf_solve:cphf_uhf',MT_LOG,1,.true.))
-     $        call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+     $        call errquit('cphf_solve: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
          if(.not.rtdb_delete(rtdb,'cphf_solve:cphf_uhf'))
-     $        call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+     $        call errquit('cphf_solve: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
       else
          call rohf_init(rtdb)
          call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work,
@@ -187,9 +202,11 @@ c !!! BGJ
       endif
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
-     $     call errquit('cphf_solve: rtdb_put of xc_active failed',1)
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',1,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
-     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
 c !!! BGJ
 c
       residual = sqrt(ga_ddot(g_work, g_work))
@@ -200,7 +217,7 @@ c
          endif
          call ga_sync()
          call errquit('cphf_solve:the available MOs do not satisfy'//
-     $        ' the SCF equations',0)
+     $        ' the SCF equations',0, INPUT_ERR)
       endif
 c
       call ga_zero(g_work)      ! Essential to get default initial guess
@@ -208,32 +225,40 @@ c
 c
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
-     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
-     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .true.))
-     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
+     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0,
+     &       RTDB_ERR)
 c !!! BGJ
       if (scftype .eq. 'UHF') then
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $        max_precond_sub, precond_tol, 
      $        uhf_precond, uhf_hessv, .false., oprint_solve, 
      $        g_grad, g_work, precond_acc, precond_iter))
-     $        call errquit('cphf did not converge',precond_iter)
+     $        call errquit('cphf did not converge',precond_iter,
+     &       UNKNOWN_ERR)
       else 
          if(.not.ga_iter_lsolve(vlen, max_precond_iter,
      $           max_precond_sub, precond_tol, 
      $           rohf_hessv_precond, rohf_hessv, .false., oprint_solve, 
      $           g_grad, g_work, precond_acc,precond_iter))
-     $           call errquit('cphf did not converge', precond_iter)
+     $           call errquit('cphf did not converge', precond_iter,
+     &       UNKNOWN_ERR)
       endif
 c     !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
-     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0)
+     $     call errquit('cphf_solve: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 0))
-     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0)
+     $     call errquit('cphf_solve: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
       if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
-     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0)
+     $     call errquit('cphf_solve: rtdb_put of j_derfit failed',0,
+     &       RTDB_ERR)
 c !!! BGJ
 c
       if (oprint_conv) then
@@ -257,11 +282,12 @@ c$$$  endif
 c
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
       if(.not.file_write_ga(cphf_sol,g_work))
-     $     call errquit('cphf_solve: could not write cphf_sol',1)
+     $     call errquit('cphf_solve: could not write cphf_sol',1,
+     &       UNKNOWN_ERR)
       if(.not.ga_destroy(g_work))call errquit(
-     $     'cphf_solve: could not destroy work array',1)
+     $     'cphf_solve: could not destroy work array',1, GA_ERR)
       if(.not.ga_destroy(g_grad))call errquit(
-     $     'cphf_solve: could not destroy gradient handle',1)
+     $     'cphf_solve: could not destroy gradient handle',1, GA_ERR)
 c
       call int_1e_uncache_ga()
       call schwarz_tidy()

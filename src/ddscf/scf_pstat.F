@@ -1,11 +1,12 @@
       block data Dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.26 1997-04-25 00:00:52 d3g681 Exp $
+C$Id: scf_pstat.F,v 1.27 2003-10-17 22:54:33 carlfahl Exp $
       data oscfps /.false./     ! So that other codes do not break
 c
       end
       subroutine scf_pstat_init(rtdb)
       implicit none
+#include "errquit.fh"
 #include "pstat.fh"
 #include "cscfps.fh"
 #include "cscf.fh"
@@ -21,97 +22,106 @@ c
       if (.not. oscfps) return
 c
       if (.not. pstat_allocate('scf: solve', pstat_qstat, 0,junk,
-     $     ps_solve)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_solve)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: search', pstat_qstat, 0, junk,
-     $     ps_search)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_search)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: fock-2e', pstat_qstat, 0, junk,
-     $     ps_fock_2e)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_fock_2e)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: fock-add', pstat_qstat, 0, junk,
-     $     ps_fock_add)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_fock_add)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: fock-io', pstat_qstat, 0, junk,
-     $     ps_fock_io)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_fock_io)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: int-1e', pstat_qstat, 0, junk,
-     $     ps_int_1e)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_int_1e)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: int-2e', pstat_qstat, 0, junk,
-     $     ps_int_2e)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_int_2e)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: ga ops', pstat_qstat, 0, junk,
-     $     ps_gaops)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_gaops)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: matexp', pstat_qstat, 0, junk,
-     $     ps_matexp)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_matexp)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: orthog', pstat_qstat, 0, junk,
-     $     ps_orthog)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_orthog)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: diag', pstat_qstat, 0, junk,
-     $     ps_diag)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_diag)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c     
       if (.not. pstat_allocate('scf: vecio', pstat_qstat, 0, junk,
-     $     ps_vecio)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_vecio)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: intio', pstat_qstat, 0, junk,
-     $     ps_intio)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_intio)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: dipole', pstat_qstat, 0, junk,
-     $     ps_int_dip)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_int_dip)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: sym ad', pstat_qstat, 0, junk,
-     $     ps_sym_ad)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_sym_ad)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: sym   ', pstat_qstat, 0, junk,
-     $     ps_sym_sym)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_sym_sym)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: k2cf  ', pstat_qstat, 0, junk,
-     $     ps_k2cf)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_k2cf)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: mullik', pstat_qstat, 0, junk,
-     $     ps_mull)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_mull)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: multip', pstat_qstat, 0, junk,
-     $     ps_multip)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_multip)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: moanal', pstat_qstat, 0, junk,
-     $     ps_moanal)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_moanal)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
       if (.not. pstat_allocate('scf: total', pstat_qstat, 0, junk,
-     $     ps_total)) call errquit('scf: scf_pstat_init', 0)
+     $     ps_total)) call errquit('scf: scf_pstat_init', 0, MEM_ERR)
 c
 C     additional for RI-SCF
       if ( nriscf.ne.0 ) then
 c       
         if (.not. pstat_allocate('riscf: Vhalf', pstat_qstat, 0,junk,
-     $       ps_vhalf)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_vhalf)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 c       
         if (.not. pstat_allocate('riscf: index', pstat_qstat, 0, junk,
-     $       ps_index)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_index)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 c       
         if (.not. pstat_allocate('riscf: transform', pstat_qstat,0,junk,
-     $       ps_transform)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_transform)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 c       
         if (.not. pstat_allocate('riscf: extract', pstat_qstat, 0, junk,
-     $       ps_extract)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_extract)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 c       
         if (.not. pstat_allocate('riscf: exchange', pstat_qstat, 0,junk,
-     $       ps_exchange)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_exchange)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 c       
         if (.not. pstat_allocate('riscf: coulomb', pstat_qstat, 0, junk,
-     $       ps_coulomb)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_coulomb)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 c       
         if (.not. pstat_allocate('riscf: transp', pstat_qstat, 0, junk,
-     $       ps_transpose)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_transpose)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 c       
         if (.not. pstat_allocate('riscf: copy', pstat_qstat, 0, junk,
-     $       ps_copy)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_copy)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
 
         if (.not. pstat_allocate('riscf: read', pstat_qstat, 0, junk,
-     $       ps_riscf_read)) call errquit('riscf: ri_scf_pstat_init', 0)
+     $       ps_riscf_read)) call errquit('riscf: ri_scf_pstat_init', 0,
+     &       MEM_ERR)
       endif
 c       
       call pstat_on(ps_total)
@@ -120,6 +130,7 @@ c
       end
       subroutine scf_pstat_print()
       implicit none
+#include "errquit.fh"
 #include "pstat.fh"
 #include "cscfps.fh"
 #include "cscf.fh"
@@ -131,47 +142,67 @@ c
 c
 c     delete the SCF timers
 c
-         if (.not. pstat_free(ps_solve))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_search))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_fock_2e))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_int_1e))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_int_2e))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_gaops))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_fock_add))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_matexp))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_orthog))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_diag))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_vecio))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_int_dip))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_sym_ad))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_sym_sym))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_k2cf))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_fock_io))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_moanal))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_mull))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_multip))call errquit('scf_pstat?', 0)
-         if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0)
+         if (.not. pstat_free(ps_solve))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_search))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_fock_2e))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_int_1e))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_int_2e))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_gaops))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_fock_add))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_matexp))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_orthog))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_diag))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_vecio))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_int_dip))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_sym_ad))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_sym_sym))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_k2cf))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_fock_io))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_moanal))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_mull))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_multip))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
+         if (.not. pstat_free(ps_total))call errquit('scf_pstat?', 0,
+     &       MEM_ERR)
 
 C        additional for RI-SCF
          if ( nriscf.ne.0 ) then
            if (.not. pstat_free(ps_vhalf))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_index))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_transform))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_extract))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_exchange))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_coulomb))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_copy))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_transpose))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
            if (.not. pstat_free(ps_riscf_read))
-     $          call errquit('scf_pstat?', 0)
+     $          call errquit('scf_pstat?', 0, MEM_ERR)
          endif
 c
       endif

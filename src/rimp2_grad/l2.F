@@ -3,12 +3,13 @@ C NAME
 C     rimp2_l2 -- Compute RI-MP2 L2 Lagrangian term
 C
 C REVISION
-C     $Id: l2.F,v 1.6 1998-12-08 19:51:53 bernhold Exp $
+C     $Id: l2.F,v 1.7 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_L2(C, A, V, NFit, D_Int_ai, d_Int_ij, D_Gam,
      $     g_L2)
       Implicit NONE
+#include "errquit.fh"
       Integer C  ![in]
       Integer A  ![in]
       Integer V  ![in]
@@ -61,13 +62,13 @@ C
       If ( .NOT. GA_Create( MT_Dbl, CAV+V, NFit,
      $     'test for memory allocation', CAV+V, -1, G_Int) )
      $     Call ErrQuit(
-     $     'RIMP2_L2: can''t allocate minimal GA', (CAV+V)*NFit)
+     $     'RIMP2_L2: can''t allocate minimal GA', (CAV+V)*NFit, GA_ERR)
 C
       Final = GA_Memory_Avail()
       Block = Initial - Final
 C
       If( .NOT. GA_Destroy( G_Int) ) Call ErrQuit(
-     $     'RIMP2_L2: can''t destroy GA!', 0)
+     $     'RIMP2_L2: can''t destroy GA!', 0, GA_ERR)
 C
 C     Figure out a safe blocking for all nodes
 C
@@ -95,17 +96,18 @@ c$$$      Write ( 6, *) 'Memory available and needed ', Initial,
 c$$$     $     Block * IBlock
       If ( IBlock * Block .gt. Initial ) Call ErrQuit(
      $     'RIMP2_L2: insufficient memory for current algorithm',
-     $     (Block * IBlock) - Initial )
+     $     (Block * IBlock) - Initial , MEM_ERR)
 C
 C     Create GAs appropriate for blocking
 C
       If ( .NOT. GA_Create( MT_Dbl, IBlock*CAV, NFit,
      $     '3c2e integrals', IBlock*CAV, -1, G_Int) ) Call ErrQuit(
-     $     'RIMP2_L2: can''t allocate integral GA', IBlock*CAV*NFit)
+     $     'RIMP2_L2: can''t allocate integral GA', IBlock*CAV*NFit,
+     &       GA_ERR)
 C     
       If ( .NOT. GA_Create( MT_Dbl, IBlock*V, NFit,
      $     '3-index gamma', IBlock*V, -1, G_Gam) ) Call ErrQuit(
-     $     'RIMP2_L2: can''t allocate gamma GA', IBlock*V*NFit)
+     $     'RIMP2_L2: can''t allocate gamma GA', IBlock*V*NFit, GA_ERR)
 C
 C     Loop over batches of I
 C
@@ -124,9 +126,10 @@ C
          If ( DRA_Read_Section(.FALSE.,
      $        G_Gam, 1,                 NI*V,     1, NFit,
      $        D_Int_ai, (C+ILo-1)*V+1, (C+IHi)*V, 1, NFit, ReqI) .ne. 0)
-     $        Call ErrQuit('RIMP2_L2: Error reading integrals', ILo)
+     $        Call ErrQuit('RIMP2_L2: Error reading integrals', ILo,
+     &       DISK_ERR)
          If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
-     $        'RIMP2_L2: Error from DRA_Wait on integrals', 1)
+     $        'RIMP2_L2: Error from DRA_Wait on integrals', 1, DISK_ERR)
 c$$$         Write (6, *) 'L2: Read ai from ',  (C+ILo-1)*V+1, (C+IHi)*V,
 c$$$     $        ' into ', 1, NI*V
 C
@@ -156,9 +159,11 @@ c$$$C
             If ( DRA_Read_Section(.FALSE., G_Gam, 1, NJ*(C+A), 1, NFit,
      $           D_Int_ij, (JLo-1)*(C+A)+1, JHi*(C+A), 1, NFit, ReqI)
      $           .ne. 0)
-     $           Call ErrQuit('RIMP2_L2: Error reading integrals', JLo)
+     $           Call ErrQuit('RIMP2_L2: Error reading integrals', JLo,
+     &       DISK_ERR)
             If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
-     $           'RIMP2_L2: Error from DRA_Wait on integrals', 1)
+     $           'RIMP2_L2: Error from DRA_Wait on integrals', 1,
+     &       CALC_ERR)
 c$$$            Write (6, *) 'L2: Read ij from ',  (JLo-1)*(C+A)+1,
 c$$$     $           JHi*(C+A), ' into ', 1, NJ*(C+A)
 C
@@ -179,9 +184,10 @@ C        Now we can finally read in the actual Gamma block
 C
          If ( DRA_Read_Section(.FALSE., G_Gam, 1, NI*V, 1, NFit,
      $        D_Gam, (ILo-1)*V+1, IHi*V, 1, NFit, ReqI) .ne. 0)
-     $        Call ErrQuit('RIMP2_L2: Error reading gamma', ILo)
+     $        Call ErrQuit('RIMP2_L2: Error reading gamma', ILo,
+     &       DISK_ERR)
          If ( DRA_Wait(ReqI) .ne. 0) Call ErrQuit(
-     $        'RIMP2_L2: Error from DRA_Wait on gamma', 1)
+     $        'RIMP2_L2: Error from DRA_Wait on gamma', 1, CALC_ERR)
 C
 C     Now process all gamma and integrals in core
 C
@@ -198,9 +204,9 @@ C
 C     Free memory
 C
       If ( .NOT. GA_Destroy( g_Gam ) ) Call ErrQuit(
-     $     'RIMP2_L2: can''t destroy gamma GA', g_Gam)
+     $     'RIMP2_L2: can''t destroy gamma GA', g_Gam, GA_ERR)
       If ( .NOT. GA_Destroy( g_Int ) ) Call ErrQuit(
-     $     'RIMP2_L2: can''t destroy integral GA', g_Gam)
+     $     'RIMP2_L2: can''t destroy integral GA', g_Gam, GA_ERR)
 C
 C     Print results if requested
 C

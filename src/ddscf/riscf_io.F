@@ -2,9 +2,10 @@
       subroutine riscf_put_dra ( da_three, scr, indx, nij, Nff, npair, 
      $             ndone, g_three, req )
 *
-* $Id: riscf_io.F,v 1.6 1999-06-16 00:10:13 d3e129 Exp $
+* $Id: riscf_io.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 
 #include "dra.fh"
 #include "msgids.fh"
@@ -33,7 +34,8 @@
      $                               da_three, first,  last, 1, Nff, 
      $                               req )
       if ( istat .ne. 0 ) 
-     $     call errquit ('requested end after print', istat )
+     $     call errquit ('requested end after print', istat ,
+     &       UNKNOWN_ERR)
       ndone = last
 
       return

@@ -1,6 +1,7 @@
       subroutine sym_group_name(geom, name)
-C$Id: sym_grp_name.F,v 1.2 1999-07-14 00:29:11 d3e129 Exp $
+C$Id: sym_grp_name.F,v 1.3 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
       integer geom              ! [input]
@@ -13,14 +14,15 @@ c
       external geom_check_handle
 c
       if (.not. geom_check_handle(geom,'sym_group_name'))
-     $     call errquit('sym_group_name: bad geom handle',geom)
+     $     call errquit('sym_group_name: bad geom handle',geom,
+     &       GEOM_ERR)
 c
 c     strip annonying leading blanks
 c
       do i = 1, len(group_name(geom))
          if (group_name(geom)(i:i).ne.' ') goto 10
       enddo
-      call errquit('sym_group_name: all blank?', 0)
+      call errquit('sym_group_name: all blank?', 0, INPUT_ERR)
 c
  10   name = group_name(geom)(i:)
 c

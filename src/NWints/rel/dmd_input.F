@@ -1,6 +1,6 @@
       subroutine dmd_input(rtdb)
 *
-* $Id: dmd_input.F,v 1.7 2000-07-28 20:10:57 mg201 Exp $
+* $Id: dmd_input.F,v 1.8 2003-10-17 22:54:09 carlfahl Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -11,6 +11,7 @@
 #include "util.fh"
 #include "stdio.fh"
 #include "rel_consts.fh"
+#include "errquit.fh"
 c     
 c     Read input for calculations with Dyall-Mod-Dirac
 c     
@@ -45,7 +46,7 @@ c
         if (inp_compare(.false., 'off', test)) then
           dmd_run = .false.
           if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
-     &        call errquit('dmd_input: rtdb_put failed', 0)
+     &        call errquit('dmd_input: rtdb_put failed', 0, RTDB_ERR)
           return
         elseif (inp_compare(.false., 'on', test)) then
           dmd_run  = .true.
@@ -58,7 +59,7 @@ c
    10     if (inp_a(test)) then
             if (inp_compare(.false., 'ss1cent', test)) then
               if (ss_set) call errquit(
-     &            ' Already set SS 1-center option',0)
+     &            ' Already set SS 1-center option',0, UNKNOWN_ERR)
               ss_set = .true.
               if (inp_a(test)) then
                 if (inp_compare(.false., 'on', test)) then
@@ -74,12 +75,12 @@ c
               end if
             elseif (inp_compare(.false., 'ssall', test)) then
               if (ss_set) call errquit(
-     &            ' Already set SS 1-center option',0)
+     &            ' Already set SS 1-center option',0, UNKNOWN_ERR)
               ss_set = .true.
               one_cent = .false.
             else if (inp_compare(.false., 'ssss', test)) then
               if (ssss_set) call errquit(
-     &            ' Already set SSSS option',0)
+     &            ' Already set SSSS option',0, UNKNOWN_ERR)
               ssss_set = .true.
               if (inp_a(test)) then
                 if (inp_compare(.false., 'on', test)) then
@@ -95,16 +96,17 @@ c
               end if
             else if (inp_compare(.false., 'nossss', test)) then
               if (ssss_set) call errquit(
-     &            ' Already set SSSS option',0)
+     &            ' Already set SSSS option',0, UNKNOWN_ERR)
               ssss_set = .true.
               do_ssss = .false.
             else
-              call errquit('dmd_input: unknown option for nesc2e',0)
+              call errquit('dmd_input: unknown option for nesc2e',0,
+     &       INPUT_ERR)
             end if
             go to 10
           end if
         else
-          call errquit('dmd_input: unknown directive',0)
+          call errquit('dmd_input: unknown directive',0, INPUT_ERR)
         end if
       endif
 c
@@ -138,15 +140,15 @@ c
 c     Put parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb,'dyall_mod_dir',mt_log,1,dmd_run))
-     &    call errquit('dmd_input: rtdb_put failed', 0)
+     &    call errquit('dmd_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'atomic_nesc',mt_log,1,atomic_nesc))
-     &    call errquit('dmd_input: rtdb_put failed', 0)
+     &    call errquit('dmd_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'nesc_1e_approx',mt_log,1,one_e_approx))
-     &    call errquit('dmd_input: rtdb_put failed', 0)
+     &    call errquit('dmd_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'ss_one_cent',mt_log,1,one_cent)) 
-     &    call errquit('dmd_input: rtdb_put failed', 0)
+     &    call errquit('dmd_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'do_ssss',mt_log,1,do_ssss)) 
-     &    call errquit('dmd_input: rtdb_put failed', 0)
+     &    call errquit('dmd_input: rtdb_put failed', 0, RTDB_ERR)
 c
       return
 c       

@@ -1,6 +1,7 @@
       program testbasis
-c $Id: testbasis.F,v 1.21 2000-06-02 19:07:15 bert Exp $
+c $Id: testbasis.F,v 1.22 2003-10-17 22:54:18 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c
 #include "nwc_const.fh"
 #include "bas.fh"
@@ -41,11 +42,11 @@ c
      $     -9., 0.0/
 c
       if (.not. ma_init(MT_DBL, 400 000, 400 000))
-     &      call errquit('testbasis: ma_init failed',911)
+     &      call errquit('testbasis: ma_init failed',911, MA_ERR)
 
       status = rtdb_open('testbasis.rtdb','empty', rtdb)
       if (.not.status) call errquit
-     &      ('testbasis rtdb open failed',911)
+     &      ('testbasis rtdb open failed',911, RTDB_ERR)
 c
 c      write(luout,*)' rtdb handle ', rtdb
 *old      status = bas_321g_load(rtdb)
@@ -63,7 +64,7 @@ c
       endif
 c
       if(.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     &      call errquit('error loading geometry',911)
+     &      call errquit('error loading geometry',911, GEOM_ERR)
       status=geom_print(geom)
 c
       basis = 0
@@ -94,7 +95,7 @@ c
       write(LuOut,*)' user:query: ngen    cont 1 ',ngen
       write(LuOut,*)' user:query: sphcart cont 1 ',sphcart
       if (nprim*ngen.gt.lexcf) call errquit
-     &      (' lexcf too small ',(nprim*ngen))
+     &      (' lexcf too small ',(nprim*ngen), BASIS_ERR)
       call dfill(lexcf,0.0d00,exp  ,1)
       call dfill(lexcf,0.0d00,coeff,1)
       status = bas_get_exponent(basis,1,exp)
@@ -109,7 +110,7 @@ c
       write(LuOut,*)' unique:query: type    cont 1 ',type
       write(LuOut,*)' unique:query: nprim   cont 1 ',nprim
       if (nprim*ngen.gt.lexcf) call errquit
-     &      (' lexcf too small ',(nprim*ngen))
+     &      (' lexcf too small ',(nprim*ngen), BASIS_ERR)
       write(LuOut,*)' unique:query: ngen    cont 1 ',ngen
       write(LuOut,*)' unique:query: sphcart cont 1 ',sphcart
       call dfill(lexcf,0.0d00,exp  ,1)
@@ -137,7 +138,7 @@ c
       write(LuOut,*)' unique:query: ngen    cont 1 ',ngen
       write(LuOut,*)' unique:query: sphcart cont 1 ',sphcart
       if (nprim*ngen.gt.lexcf) call errquit
-     &      (' lexcf too small ',(nprim*ngen))
+     &      (' lexcf too small ',(nprim*ngen), BASIS_ERR)
       status = bas_getu_exponent(basis,1,exp)
       status = bas_getu_coeff(basis,1,coeff)
       write(LuOut,*)' exponenents and coefficients '

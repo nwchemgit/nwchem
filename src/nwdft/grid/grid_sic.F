@@ -1,7 +1,7 @@
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.6 2003-05-27 22:25:51 pollack Exp $
+C$Id: grid_sic.F,v 1.7 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
 #include "mafdecls.fh"
@@ -31,6 +31,7 @@ c
       subroutine grid_sicpot(nqpts,qxyz,qwght,rho,delrho,amat,cmat,
      ,     delrho_sig,vect1)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "cdft.fh"
 !#include "grid_sic.fh"
@@ -44,7 +45,8 @@ c
 c
       if (.not.MA_Push_Get(mt_dbl,ipol*nqpts,'Amat_coul',
      &     lAmat_coul,iAmat_coul))
-     &     call errquit('xc_quadv0_a: cannot allocate Amat_coul',0)
+     &     call errquit('xc_quadv0_a: cannot allocate Amat_coul',0,
+     &       MA_ERR)
       call dfill(nqpts, 0.d0, Dbl_MB(iAmat_coul), 1)
       tol = 1d-8
       occup_i = dble(sic_orb_occ)
@@ -53,7 +55,7 @@ c
       call total_Amat(nqpts, ipol, Amat, Dbl_MB(iAmat_coul),
      &     qwght)
       if (.not.ma_pop_stack(lAmat_coul))
-     &     call errquit('xc_quadv0_a: cannot pop stack',0)
+     &     call errquit('xc_quadv0_a: cannot pop stack',0, MA_ERR)
       call part_rho_rel(tol_rho, nqpts, Amat, Cmat, rho,
      &     vect1, ipol, occup_i,
      &     delrho, delrho_sig, 

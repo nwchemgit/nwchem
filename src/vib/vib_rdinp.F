@@ -2,13 +2,14 @@
      &    HESS,HESST,COORD,ATMASS,ZAN,OLDLBLAT,IZMAT,NELS,
      &    PROJEC,ZEROPE,HESOUT,INTERN,
      &    rtdb,first_pass)
-* $Id: vib_rdinp.F,v 1.8 2000-08-22 19:07:28 d3e129 Exp $
+* $Id: vib_rdinp.F,v 1.9 2003-10-17 22:58:37 carlfahl Exp $
 C
 C This routine reads the user input and the hessian matrix from
 C      the appropriate place.  The default is to use the "default"
 C      masses and to read the analytic hessian from tape 10.
 C
       IMPLICIT NONE ! REAL*8 (A-H,O-Z)
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
@@ -79,11 +80,11 @@ c
 c
       if (.not.ma_push_get(MT_BYTE,(2*natom),' labels for vib',
      &    h_lblb,i_lblb))
-     &    call errquit('vib_rdinp ma_get for labels failed',911)
+     &    call errquit('vib_rdinp ma_get for labels failed',911, MA_ERR)
       if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('vib_rdinp: error creating geometry',911)
+     &    ('vib_rdinp: error creating geometry',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('vib_rdinp: error loading geometry',911)
+     &    ('vib_rdinp: error loading geometry',911, RTDB_ERR)
 c
 c see if ANY mass is overwritten by freq/vib input block
 c
@@ -97,14 +98,15 @@ c
       il_cnt = 0
       do iii = 1,natom
         if(.not.geom_cent_get(geom,iii,tag,xyz,q))
-     &      call errquit('vib_rdinp: geom_cent_get failed',911)
+     &      call errquit('vib_rdinp: geom_cent_get failed',911,
+     &       GEOM_ERR)
         zan(iii) = q
         coord(1,iii) = xyz(1)
         coord(2,iii) = xyz(2)
         coord(3,iii) = xyz(3)
         if(.not.geom_tag_to_element(tag,symbol,element,ijunk)) then
           if (symbol.ne.'bq')
-     &        call errquit('vib_rdinp: tag2elem fail',911)
+     &        call errquit('vib_rdinp: tag2elem fail',911, GEOM_ERR)
         endif
         byte_mb(il_cnt+i_lblb) = symbol(1:1)
         il_cnt = il_cnt+1
@@ -123,33 +125,38 @@ c
             write(mass_rtdb_id,11113)jjj
             if (.not.rtdb_get(rtdb,mass_rtdb_id,mt_dbl,1,new_mass))
      &          call errquit
-     &          ('vib_rdinp: rtdb get failed for mass',911)
+     &          ('vib_rdinp: rtdb get failed for mass',911, RTDB_ERR)
             if (.not.geom_mass_set(geom,geom_index,new_mass))
      &          call errquit
-     &          ('vib_rdinp: geom_mass_set failed for mass',911)
+     &          ('vib_rdinp: geom_mass_set failed for mass',911,
+     &       GEOM_ERR)
           else  ! check for tag input 
             write(mass_rtdb_id,11112)jjj
             if (rtdb_cget(rtdb,mass_rtdb_id,1,mass_tag)) then 
               write(mass_rtdb_id,11113)jjj
               if (.not.rtdb_get(rtdb,mass_rtdb_id,mt_dbl,1,new_mass))
      &            call errquit
-     &            ('vib_rdinp: rtdb get failed for mass',911)
+     &            ('vib_rdinp: rtdb get failed for mass',911, RTDB_ERR)
 * tag input found loop over all geometry atoms for a possible match
               do iii = 1,natom
                 if(.not.geom_cent_get(geom,iii,tag,xyz,q))
-     &              call errquit('vib_rdinp: geom_cent_get failed',911)
+     &              call errquit('vib_rdinp: geom_cent_get failed',911,
+     &       GEOM_ERR)
                 if (bas_do_tags_match(mass_tag,tag)) then
                   if (.not.geom_mass_set(geom,iii,new_mass))
      &                call errquit
-     &                ('vib_rdinp: geom_mass_set failed for mass',911)
+     &                ('vib_rdinp: geom_mass_set failed for mass',911,
+     &       GEOM_ERR)
                 endif
               enddo
             else
-              if(.not.rtdb_print(rtdb,.true.)) call errquit('911',911)
+              if(.not.rtdb_print(rtdb,.true.)) call errquit('911',911,
+     &       RTDB_ERR)
               write(luout,*)' expected mass input for index ',jjj
               write(luout,*)' It was neither index or tag based '
               call errquit
-     &            ('vib_rdinp: fatal error for mass informaition',911)
+     &            ('vib_rdinp: fatal error for mass informaition',911,
+     &       RTDB_ERR)
             endif
           endif
         enddo
@@ -162,10 +169,10 @@ c
       setmas = geom_masses_get(geom,natom,atmass)
       if (.not.setmas)
      &    call errquit
-     &    ('vib_rdinp: geom_masses_get failed',911)
+     &    ('vib_rdinp: geom_masses_get failed',911, GEOM_ERR)
 *      
       if (.not.geom_destroy(geom)) call errquit
-     &    ('vib_rdinp: geom_destroy failed',911)
+     &    ('vib_rdinp: geom_destroy failed',911, GEOM_ERR)
 C
 C Write out atom information read here
 C
@@ -185,7 +192,7 @@ C
         WRITE(6,10002)
       endif
       if (.not.ma_pop_stack(h_lblb)) call errquit
-     &    ('vib_rdinp ma_pop failed',911)
+     &    ('vib_rdinp ma_pop failed',911, MA_ERR)
       RETURN ! leave routine
 10000 FORMAT(//,1X,28('-'),' Atom information ',28('-'),/,
      +5X,'atom',4X,'#',8X,'X',14X,'Y',14X,'Z',12X,'mass',/,

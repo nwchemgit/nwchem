@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.13 2003-07-10 19:52:17 bylaska Exp $
+* $Id: pack.F,v 1.14 2003-10-17 22:56:44 carlfahl Exp $
 *
 
 
@@ -11,6 +11,7 @@
 
       subroutine Pack_Init()
       implicit none
+#include "errquit.fh"
 
 
 #include "mafdecls.fh"
@@ -49,7 +50,8 @@
       value = value.and.
      >        MA_alloc_get(mt_int,nfft3d,
      >                     'pack',pack(2,1),pack(1,1))
-      if (.not. value) call errquit('Pack_init: out of heap memory',0)
+      if (.not. value) call errquit('Pack_init: out of heap memory',0,
+     &       MA_ERR)
 
 
       call Parallel_taskid(taskid)
@@ -163,6 +165,7 @@
 
       subroutine Pack_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -176,7 +179,8 @@
       value = MA_free_heap(pack(2,0))
       value = value.and.
      >        MA_free_heap(pack(2,1))
-      if (.not. value) call errquit('error freeing heap memory',0)
+      if (.not. value) call errquit('error freeing heap memory',0,
+     &       MA_ERR)
       call Balance_End()
       return
       end
@@ -191,6 +195,7 @@
 
       subroutine Pack_c_pack(nb,A)
       implicit none
+#include "errquit.fh"
       integer    nb
       complex*16 A(*)
 
@@ -213,7 +218,7 @@
 
       call D3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(2*nfft3d,A,1,dcpl_mb(tmp1(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,A,1)
@@ -223,7 +228,7 @@
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
       call Balance_c_balance(nb,A)
@@ -241,6 +246,7 @@
 
       subroutine Pack_t_pack(nb,A)
       implicit none
+#include "errquit.fh"
       integer nb
       real*8  A(*)
 
@@ -263,7 +269,7 @@
 
       call D3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(nfft3d,A,1,dbl_mb(tmp1(1)),1)
       call dcopy(nfft3d,0.0d0,0,A,1)
@@ -272,7 +278,7 @@
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
       call Balance_t_balance(nb,A)
 
@@ -290,6 +296,7 @@
 
       subroutine Pack_i_pack(nb,A)
       implicit none
+#include "errquit.fh"
       integer    nb
       integer    A(*)
 
@@ -312,7 +319,7 @@
 
       call D3dB_nfft3d(1,nfft3d)
       value = MA_push_get(mt_int,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call icopy(nfft3d,A,1,int_mb(tmp1(1)),1)
       call icopy(nfft3d,0,0,A,1)
@@ -322,7 +329,7 @@
       end do
 
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
       call Balance_i_balance(nb,A)
@@ -343,6 +350,7 @@
 
       subroutine Pack_c_unpack(nb,A)
       implicit none
+#include "errquit.fh"
       integer    nb
       complex*16 A(*)
 
@@ -371,7 +379,7 @@ c      integer indx1,indx2
       
       value = MA_push_get(mt_dcpl,(nida(nb)+nidb(nb)),
      >                    'tmp1',tmp1(2),tmp1(1))
-      if (.not.value) call errquit('out of stack memory',0)
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call dcopy(2*(nida(nb)+nidb(nb)),A,1,dcpl_mb(tmp1(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,A,1)
@@ -379,7 +387,7 @@ c      integer indx1,indx2
         A(int_mb(pack(1,nb)+i-1)) = dcpl_mb(tmp1(1)+i-1)
       end do
       value = MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
 *     **** make the kx=0 plane complete **** 
@@ -394,7 +402,7 @@ c      integer indx1,indx2
       value = MA_pop_stack(tmp2(2))
       value = value.and.
      >        MA_pop_stack(tmp1(2))
-      if (.not.value) call errquit('error popping stack',0)
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 c     call D3dB_nx(1,nx)
 c     call D3dB_nz(1,nz)

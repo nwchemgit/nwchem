@@ -5,8 +5,9 @@ c     is incorrect.  What else in this file is dead?
 c
 c
 c$$$       subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-c$$$C$Id: moints_mp2.F,v 1.28 1999-06-16 00:10:22 d3e129 Exp $
+c$$$C$Id: moints_mp2.F,v 1.29 2003-10-17 22:55:26 carlfahl Exp $
 c$$$       implicit none
+c$$$#include "errquit.fh"
 c$$$#include "global.fh"
 c$$$#include "mafdecls.fh"
 c$$$       integer nocc, nvir
@@ -126,6 +127,7 @@ c
      $                          mo2_lo, mo2_hi, vlo, vhi, g_k, 
      $                          orbe, g_epair)
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
        integer nocc                                  ! [input]  number of occupied orbitals (including frozen)
@@ -158,10 +160,12 @@ c
        my_id = ga_nodeid()
        call ga_distribution(g_k,my_id,ilo,ihi,jlo,jhi)
        if ((ilo.ne.1).and.(ihi.ne.-1)) call 
-     $   errquit('moints_e2pair: wrong distrib for exchange',my_id)
+     $   errquit('moints_e2pair: wrong distrib for exchange',my_id,
+     &       INPUT_ERR)
        if (ihi.ne.-1) then
          if (ihi.lt.(nmo2*nmo2)) call 
-     $     errquit('moints_e2pair: exchange dim & param mismatch',0)
+     $     errquit('moints_e2pair: exchange dim & param mismatch',0,
+     &       INPUT_ERR)
        endif
 c
 c Loop over occupied orbital pairs
@@ -215,6 +219,7 @@ c$$$       endif
      $    function moints_epair_eval(vlo, vhi, mo2_lo, mo2_hi,
      $                                 xk, virorbe, denom )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
        integer vlo, vhi, mo2_lo, mo2_hi
        double precision xk(mo2_lo:mo2_hi,mo2_lo:mo2_hi)
@@ -229,7 +234,8 @@ c$$$       endif
            yy = xk(a,b)*(4.d0*xk(a,b) - 2.d0*xk(b,a))
            xxxx = denom  - virorbe(b) - virorbe(a)
            if (abs(xxxx).lt.1.d-10)
-     $       call errquit('moints_epair_eval: zero denominator',0)
+     $       call errquit('moints_epair_eval: zero denominator',0,
+     &       INPUT_ERR)
            xx = xx + yy/xxxx
          enddo
        enddo

@@ -2,8 +2,9 @@
      ,     g_evecs, g_oevecs, g_s,g_tmp,
      ,     noc,oprint,homo,lumo)
 
-C$Id: dft_mxovl.F,v 1.12 2002-12-18 02:41:27 edo Exp $
+C$Id: dft_mxovl.F,v 1.13 2003-10-17 22:55:44 carlfahl Exp $
       Implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "cdft.fh"
 #include "mafdecls.fh"
@@ -40,16 +41,16 @@ c
      .     write(LuOut,3224)homo, lumo
 c     
       if ( .not. bas_numbf(basis,nbf) ) 
-     &     call errquit(' exiting in max_ovl',1)
+     &     call errquit(' exiting in max_ovl',1, BASIS_ERR)
 c
       g_s1 = ga_create_atom_blocked(geom, basis, 'AO ovl')
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf,'tmpm',l_tmp, k_tmp))
-     &     call errquit('dft_mxovl: cannot allocate tmpm',0)
+     &     call errquit('dft_mxovl: cannot allocate tmpm',0, MA_ERR)
       if(.not.MA_Push_Get(MT_Dbl,nbf,'scr',l_scr, k_scr))
-     &     call errquit('dft_mxovl: cannot allocate scr',0)
+     &     call errquit('dft_mxovl: cannot allocate scr',0, MA_ERR)
       if(.not.MA_Push_Get(MT_int,nbf,'ord',l_ord, k_ord))
-     &     call errquit('dft_mxovl: cannot allocate ord',0)
+     &     call errquit('dft_mxovl: cannot allocate ord',0, MA_ERR)
       call ifill(nbf, 0, int_mb(k_ord), 1)
 
 C
@@ -96,10 +97,10 @@ c
       enddo
 c
       if (.not. ga_destroy(g_s1)) call errquit
-     &   ('dft_mxovl: could not destroy g_s1', 0)
+     &   ('dft_mxovl: could not destroy g_s1', 0, GA_ERR)
 c
       if(.not.MA_chop_Stack(l_tmp))
-     & call errquit('dft_mxovl: cannot pop stack',0)
+     & call errquit('dft_mxovl: cannot pop stack',0, MA_ERR)
 c
       call ga_dgop(Msg_mxovl_2,evals,nbf,'+')
 c

@@ -2,7 +2,7 @@
      1  g_prod_p,g_prod_m,g_buffer1,g_buffer2,d_trials,d_prod_p,
      2  d_prod_m,ntrials,tda,apb,amb,algorithm)
 c
-c $Id: tddft_subspace.F,v 1.5 2002-04-28 19:09:14 sohirata Exp $
+c $Id: tddft_subspace.F,v 1.6 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Form subspace representation of (A+B) and (A-B) matrices
 c using trial and product vectors.  The elements of (A+B)
@@ -20,6 +20,7 @@ c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -74,10 +75,10 @@ c
         maxnov=max(nov(1),nov(2))
         if (.not.ma_push_get(mt_dbl,maxnov*ntrials,'trial',
      1    l_trial,k_trial)) call errquit
-     2    ('tddft_subspace: failed to allocate trial',0)
+     2    ('tddft_subspace: failed to allocate trial',0, MA_ERR)
         if (.not.ma_push_get(mt_dbl,maxnov*ntrials,'product',
      1    l_prod,k_prod)) call errquit
-     2    ('tddft_subspace: failed to allocate prod',0)
+     2    ('tddft_subspace: failed to allocate prod',0, MA_ERR)
 c
 c ---------------------------------------------
 c Form a local contribution of the dot products 
@@ -94,7 +95,8 @@ c
         do i=1,ipol
           call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
           if ((jlo.gt.1).or.(jhi.lt.ntrials))
-     1      call errquit('tddft_subspace: an internal error detected',0)
+     1      call errquit('tddft_subspace: an internal error detected',0,
+     &       GA_ERR)
           call ga_get(g_trials(i),ilo,ihi,1,ntrials,
      1      dbl_mb(k_trial),maxnov)
           call ga_get(g_prod_p(i),ilo,ihi,1,ntrials,
@@ -130,13 +132,13 @@ c -----------------------------------------------------------------
 c
         if (.not.ga_create(mt_dbl,ntrials,ntrials,'Work A+B',
      1    ntrials,ntrials,g_apb_tmp)) call errquit
-     2    ('tddft_subspace: failed to create g_apb_tmp',0)
+     2    ('tddft_subspace: failed to create g_apb_tmp',0, GA_ERR)
         call ga_zero(g_apb_tmp)
         call ga_acc(g_apb_tmp,1,ntrials,1,ntrials,apb,ntrials,1.0d0)
         if (.not.tda) then
           if (.not.ga_create(mt_dbl,ntrials,ntrials,'Work A-B',
      1      ntrials,ntrials,g_amb_tmp)) call errquit
-     2      ('tddft_subspace: failed to create g_amb_tmp',0)
+     2      ('tddft_subspace: failed to create g_amb_tmp',0, GA_ERR)
           call ga_zero(g_amb_tmp)
           call ga_acc(g_amb_tmp,1,ntrials,1,ntrials,amb,ntrials,1.0d0)
         endif
@@ -146,15 +148,15 @@ c
      1    call ga_get(g_amb_tmp,1,ntrials,1,ntrials,amb,ntrials)
         call ga_sync()
         if (.not.ga_destroy(g_apb_tmp)) call errquit
-     1    ('tddft_subspace: failed to destroy g_apb_tmp',0)
+     1    ('tddft_subspace: failed to destroy g_apb_tmp',0, GA_ERR)
         if (.not.tda) then
           if (.not.ga_destroy(g_amb_tmp)) call errquit
-     1      ('tddft_subspace: failed to destroy g_amb_tmp',0)
+     1      ('tddft_subspace: failed to destroy g_amb_tmp',0, GA_ERR)
         endif
         if (.not.ma_pop_stack(l_prod)) call errquit
-     1    ('tddft_subspace: failed to deallocate prod',0)
+     1    ('tddft_subspace: failed to deallocate prod',0, MA_ERR)
         if (.not.ma_pop_stack(l_trial)) call errquit
-     1    ('tddft_subspace: failed to deallocate trial',0)
+     1    ('tddft_subspace: failed to deallocate trial',0, MA_ERR)
 c
 c ===============
 c Disk algorithms

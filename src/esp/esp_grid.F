@@ -1,8 +1,9 @@
       subroutine esp_grid(x,q,g,v)
 c
-c $Id: esp_grid.F,v 1.6 2000-03-14 05:44:13 d3j191 Exp $
+c $Id: esp_grid.F,v 1.7 2003-10-17 22:54:52 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -54,7 +55,8 @@ c
 cx      write(*,'(i5,7f12.6)') ngrid,(x(i,1),i=1,3),
 cx     + (g(i,ngrid),i=1,3),sqrt(dmin)
       ngrid=ngrid+1
-      if(ngrid.gt.mxgrid) call errquit('Not enough memory available',0)
+      if(ngrid.gt.mxgrid) call errquit('Not enough memory available',0,
+     &       MEM_ERR)
       endif
     3 continue
     2 continue

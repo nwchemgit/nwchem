@@ -1,5 +1,5 @@
 c
-c$Id: pmlqsp.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+c$Id: pmlqsp.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
 c
       Subroutine drdy_pmlqsp
 C
@@ -7,6 +7,7 @@ C Calculate second-order term in Taylor series of x(s) at the saddle
 C   point
 C
       Implicit none
+#include "errquit.fh"
 C
 #include "drdyP.fh"
       Integer i,j,jrank,neq
@@ -60,7 +61,7 @@ c
       call drdy_mxlneq(u0,n3,n3tm,det,jrank,eps,mode,neq)
       if (jrank .lt. n3) then
          write (fu6,6000) jrank
-         call errquit('Problem in pmlqsp.F',0)
+         call errquit('Problem in pmlqsp.F',0, UNKNOWN_ERR)
       endif
 c
       do i = 1, n3

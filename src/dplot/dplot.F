@@ -1,8 +1,9 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.25 2003-01-15 02:19:36 edo Exp $
+* $Id: dplot.F,v 1.26 2003-10-17 22:54:43 carlfahl Exp $
 *
       Implicit None
+#include "errquit.fh"
 *     
 ************************************************************************
 #include "inp.fh"
@@ -62,23 +63,25 @@ c
 *
 *---- Push context down to DPlot
       If (.not.context_push('dplot'))
-     &     Call ErrQuit('DPlot: context_push failed', 0)
+     &     Call ErrQuit('DPlot: context_push failed', 0, UNKNOWN_ERR)
 *
 ***************************************
 *     Read the data from the rtdb     *
 ***************************************
       if (.not. rtdb_get(rtdb, 'dplot:lgaussian', mt_log, 1,
-     &   lgaussian)) call errquit('dpinput:rtdbget failed',11)
+     &   lgaussian)) call errquit('dpinput:rtdbget failed',11, RTDB_ERR)
       If (.not.rtdb_cget(rtdb,'dplot:Units',1,Units))
-     &   Call ErrQuit('DPlot: rtdb_get failed - Units',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - Units',0, RTDB_ERR)
       If (Debug . and . iProc.eq.0)
      &   Write(LuOut,*)' Units                : ',Units
 *
       If (.not.rtdb_get(rtdb,'dplot:Ext_From_To',mt_dbl,6,Ext_From_To))
-     &   Call ErrQuit('DPlot: rtdb_get failed - Ext_From_To',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - Ext_From_To',0,
+     &       RTDB_ERR)
       If (.not.rtdb_get(rtdb,'dplot:No_Of_Spacings',mt_int,
      &   3,No_Of_Spacings))
-     &   Call ErrQuit('DPlot: rtdb_get failed - No_Of_Spacings',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - No_Of_Spacings',0,
+     &       RTDB_ERR)
       If (iProc.eq.0) Then
          Write(LuOut,*)
          Write(LuOut,*)' Limits (a.u.) specified for the density plot:'
@@ -101,7 +104,8 @@ c
       End If
 *
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
-     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0,
+     &       RTDB_ERR)
       if (inp_compare(.false.,File_Vec,' ')) then
         tag = 'scf:input  vectors'
         write(0,*) ' trying scf '
@@ -119,26 +123,26 @@ c
      &   Write(LuOut,*)' 1-st set of MOs      : ',File_Vec(1:Lth_Vec)
       File_Vec2 = ' '
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec2',1,File_Vec2))
-     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec2',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec2',0, RTDB_ERR)
       Lth_Vec = Inp_StrLen(File_Vec2)
       If (iProc.eq.0 . and . File_Vec2.ne.' ') Then
          Write(LuOut,*)' 2-nd set of MOs      : ',File_Vec2(1:Lth_Vec)
       End If
 *
       If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,File_Out))
-     &   Call ErrQuit('DPlot: rtdb_get failed - File_Out',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - File_Out',0, RTDB_ERR)
       Lth_Out = Inp_StrLen(File_Out)
       If (iProc.eq.0) 
      &   Write(LuOut,*)' Output is written to : ',File_Out(1:Lth_Out)
 *
       If (.not.rtdb_cget(rtdb,'dplot:Title',1,Title))
-     &   Call ErrQuit('DPlot: rtdb_get failed - Title',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - Title',0, RTDB_ERR)
       Lth_Tit = Inp_StrLen(Title)
       If (Debug . and . iProc.eq.0)
      &   Write(LuOut,*)' Title                : ',Title(1:Lth_Tit)
 *
       If (.not.rtdb_cget(rtdb,'dplot:What',1,What))
-     &   Call ErrQuit('DPlot: rtdb_get failed - What',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - What',0, RTDB_ERR)
       If (iProc.eq.0) Then
          If (What.eq.'DENSITY') Then
             Write(LuOut,*)' Type of picture      : CHARGE DENSITY'
@@ -155,24 +159,25 @@ c
       endif
 *
       If (.not.rtdb_cget(rtdb,'dplot:Spin',1,Spin))
-     &   Call ErrQuit('DPlot: rtdb_get failed - Spin',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - Spin',0, RTDB_ERR)
       If (What.eq.'VIEW' . and . Spin.ne.'BETA')          ! ***Set Up***
      &   Spin = 'ALPHA'
       If (iProc.eq.0 . and . What.ne.'CHARGES')
      &   Write(LuOut,*)' Spin                 : ',Spin
 *
       If (.not.rtdb_get(rtdb,'dplot:nOrb',mt_int,1,nOrb))
-     &   Call ErrQuit('DPlot: rtdb_get failed - nOrb',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - nOrb',0, RTDB_ERR)
       If (DeBug . and . iProc.eq.0)
      &   Write(LuOut,*)' nOrb                 = ', nOrb
       If (File_Vec2.ne.' ' . and . What.eq.'VIEW')         ! ***Check***
-     &   Call ErrQuit('DPlot: VIEW is meningless for 2 orbital sets',0)
+     &   Call ErrQuit('DPlot: VIEW is meningless for 2 orbital sets',0,
+     &       UNKNOWN_ERR)
       If (nOrb.ne.999999) Then
          LResult = MA_Push_Get(MT_Int,nOrb,'Orb',l_Orb,k_Orb)
          Call ErrMem(LResult,'DPlot: Failed to allocate Orb.',0)
          If (.not.rtdb_get(rtdb,'dplot:OrbNo',mt_int,
      &      nOrb,Int_mb(k_Orb)))
-     &      Call ErrQuit('DPlot: rtdb_get failed - OrbNo',0)
+     &      Call ErrQuit('DPlot: rtdb_get failed - OrbNo',0, RTDB_ERR)
          If (iProc.eq.0) Then
             If (What.eq.'DENSITY') Then
                Write(LuOut,'(a,50(1x,i3))')
@@ -180,7 +185,8 @@ c
      &         (Int_mb(k_Orb-1+j),j=1,nOrb)
             Else
                If (nOrb.gt.1 .and . What.eq.'VIEW')        ! ***Check***
-     &            Call ErrQuit('DPlot: VIEW and nOrb > 1 conflict',0)
+     &            Call ErrQuit('DPlot: VIEW and nOrb > 1 conflict',0,
+     &       UNKNOWN_ERR)
                Write(LuOut,'(a,i3,a)')
      &         '  The orbital ',Int_mb(k_Orb),' is plotted'
             End If
@@ -195,7 +201,7 @@ c
       End If
 *
       If (.not.rtdb_cget(rtdb,'dplot:Where',1,Where))
-     &   Call ErrQuit('DPlot: rtdb_get failed - Where',0)
+     &   Call ErrQuit('DPlot: rtdb_get failed - Where',0, RTDB_ERR)
       If (What.eq.'VIEW') Where = 'GRID'                  ! ***Set Up***
       If (iProc.eq.0 . and . What.eq.'DENSITY') Then
          If (Where.eq.'GRID') Then
@@ -211,7 +217,8 @@ c
       End If
 *
       If (nOrb.ne.999999 . and . What.eq.'CHARGES')        ! ***Check***
-     &   Call ErrQuit('DPlot: Charges and Orbitals conflict',0)
+     &   Call ErrQuit('DPlot: Charges and Orbitals conflict',0,
+     &       UNKNOWN_ERR)
       If (What.eq.'CHARGES' . and . Where.ne.'GRID')       ! ***Check***
      &   Call ErrQuit('DPlot: Charges can be combined with GRID only',0)
       If (What.eq.'CHARGES' . and . File_Vec2.ne.' ')      ! ***Check***

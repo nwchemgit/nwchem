@@ -10,7 +10,7 @@
       end
       logical function drdy_nwchem(rtdb)
 *
-* $Id: drdy.F,v 1.5 2001-03-28 23:56:01 windus Exp $
+* $Id: drdy.F,v 1.6 2003-10-17 22:54:46 carlfahl Exp $
 *
 C
 C DRDYNWChem - DiRect DYnamics with the NWChem electronic structure code
@@ -34,6 +34,7 @@ C     6  - standard output
 C    30  - RPH data
 C
       Implicit none             ! Double Precision (A-H,O-Z)
+#include "errquit.fh"
 C
 #include "stdio.fh"
 #include "drdyP.fh"
@@ -86,7 +87,7 @@ C  Read restart data from file 30
          Call drdy_sort(lhead,jop,lsad,ns,0)
          if (.not.lhead) then
             write (fu6,*) ' trouble with restart, file unreadable'
-            call errquit('drdy: fatal error',911)
+            call errquit('drdy: fatal error',911, UNKNOWN_ERR)
          endif
       endif
       jopmx = 3

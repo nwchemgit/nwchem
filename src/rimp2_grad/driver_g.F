@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_G -- Master routine for RI-MP2 gradient evaluation
 C
 C REVISION
-C     $Id: driver_g.F,v 1.13 1999-06-04 20:52:46 gg502 Exp $
+C     $Id: driver_g.F,v 1.14 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_G(RTDB, Geom, AOBas, NAO,
@@ -11,6 +11,7 @@ C SYNOPSIS
      $     BraKetSame, g_P2, g_W2, Eig, LDEig, g_AOXF,
      $     Tol2e_Fock, JobTitle, D_Int, D_Gam, NCent)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer RTDB          ![in]
       Integer Geom          ![in]
@@ -74,13 +75,14 @@ C     ************************
 C
       If ( TopSpin .gt. MaxSpin) Call ErrQuit(
      $     'RIMP2_Driver_G: fatal program error: TopSpin > Maxspin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
       If ( MaxSpin .ne. MyMaxSpin ) Call ErrQuit(
      $     'RIMP2_Driver_G: fatal program error: Maxspin != MyMaxSpin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
 C
       If ( .NOT. Bas_NumBF( FitBas, NFit) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: can''t get fitting basis size', FitBas)
+     $     'RIMP2_Driver_G: can''t get fitting basis size', FitBas,
+     &       BASIS_ERR)
 C
       PrInfo =   Util_Print('information', Print_Low)
       PrPrgRpt = Util_Print('progress reports', Print_Default)
@@ -96,7 +98,8 @@ C     sending tiny messages to a tiny array -- seems undesirable!
 C
       If ( .NOT. MA_Push_Get( MT_Dbl, 3*NCent, 'RI-MP2 gradient',
      $     H_Grad, I_Grad) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: Failed to allocate gradient', 3*NCent)
+     $     'RIMP2_Driver_G: Failed to allocate gradient', 3*NCent,
+     &       MA_ERR)
 C
       Call DFill(3*NCent, 0.0d0, Dbl_MB(I_Grad), 1)
 C
@@ -141,7 +144,8 @@ C     component on the RTDB
 C
       If ( .NOT. RTDB_Put( RTDB, 'mp2:nonseparable gradient', MT_Dbl,
      $     3*NCent, Dbl_MB(I_Grad) ) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: failed to store gradient in RTDB', 0)
+     $     'RIMP2_Driver_G: failed to store gradient in RTDB', 0,
+     &       RTDB_ERR)
 C
 C     *******************************
 C     * Do separable gradient terms *
@@ -158,7 +162,7 @@ C
 C     Clean up
 C
       If ( .NOT. MA_Pop_Stack(H_Grad) ) Call ErrQuit(
-     $     'RIMP2_Driver_G: ma_pop_stack failed', H_Grad)
+     $     'RIMP2_Driver_G: ma_pop_stack failed', H_Grad, MA_ERR)
 C
       Return
       End

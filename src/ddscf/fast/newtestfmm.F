@@ -1,8 +1,9 @@
       program test
 *
-* $Id: newtestfmm.F,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: newtestfmm.F,v 1.3 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
       double precision total_flops
@@ -29,7 +30,7 @@ c
       double precision far, near, err, relerr, l2err, l2norm, sum
 c
       if (.not. ma_init(mt_dbl, 60000000, 60000000))
-     $     call errquit('nwchem: ma_init failed', -1)
+     $     call errquit('nwchem: ma_init failed', -1, MA_ERR)
 c
       call xlm_init
       total_flops = 0.0d0

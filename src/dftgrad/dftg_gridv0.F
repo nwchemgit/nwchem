@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.16 2003-10-13 21:21:37 pollack Exp $
+c     $Id: dftg_gridv0.F,v 1.17 2003-10-17 22:54:42 carlfahl Exp $
 c
       implicit none      
 c
@@ -36,9 +36,10 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.16 2003-10-13 21:21:37 pollack Exp $
+c $Id: dftg_gridv0.F,v 1.17 2003-10-17 22:54:42 carlfahl Exp $
 c     
       implicit none      
+#include "errquit.fh"
 c
       integer rtdb,geom,ao_bas_han,ipol,nbf_ao ![in]
       integer natoms
@@ -107,7 +108,8 @@ c
 c      write(6,*)'*** Entered dftgh_quadv0, logicals =',do_force,
 c     &     do_hess, do_cpks_r
       if (.not. (do_force .or. do_hess .or. do_cpks_r)) then
-         call errquit('dftg_gridb0: illegal calculation type',0)
+         call errquit('dftg_gridb0: illegal calculation type',0,
+     &       INPUT_ERR)
       endif
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -123,11 +125,11 @@ c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
       if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
-     .     call errquit('dftggridv0: cemax failed ',0)
+     .     call errquit('dftggridv0: cemax failed ',0, BASIS_ERR)
        if (.not. bas_nprim_cn_max(AO_bas_han, NXprim))
-     &   call errquit('exiting in dftg_gridv0',6)
+     &   call errquit('exiting in dftg_gridv0',6, BASIS_ERR)
       if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
-     &   call errquit('exiting in dftg_gridv0.',7)
+     &   call errquit('exiting in dftg_gridv0.',7, BASIS_ERR)
 c
 c     Define the max number of basis functions, contractions,
 c     and primitives comprising any given shell of this basis set.
@@ -156,29 +158,30 @@ c
       nxyz = 3*natoms
 c
       if (.not.MA_Alloc_Get(MT_Dbl,nxyz,'xyz',lxyz,ixyz))
-     &   call errquit('dftg_gridv0: cannot allocate xyz',0)
+     &   call errquit('dftg_gridv0: cannot allocate xyz',0, MA_ERR)
       if (.not.MA_Alloc_Get(MT_Dbl,nxyz,'xyz',l_xyzm,k_xyzm))
-     &   call errquit('dftg_gridv0: cannot allocate xyz',0)
+     &   call errquit('dftg_gridv0: cannot allocate xyz',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,natoms,'charge',lcharge,icharge))
-     &   call errquit('dftg_gridv0: cannot allocate charge',0)
+     &   call errquit('dftg_gridv0: cannot allocate charge',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Byte,natoms*16,'tags',ltags,itags))
-     &   call errquit('dftg_gridv0: cannot allocate tags',0)
+     &   call errquit('dftg_gridv0: cannot allocate tags',0, MA_ERR)
 c
       if(.not.geom_cart_get(geom, natoms, byte_mb(itags), 
      &          dbl_mb(ixyz), dbl_mb(icharge)))
-     &     call errquit('dftg_gridv0: geomcartget failed',0)
+     &     call errquit('dftg_gridv0: geomcartget failed',0, GEOM_ERR)
 c
       if (.not.ma_pop_stack(ltags))
-     &   call errquit('dftg_gridv0: cannot pop stack',0)
+     &   call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lcharge))
-     &   call errquit('dftg_gridv0: cannot pop stack',0)
+     &   call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
 c     
 c     get max dimens of atom block
 c     
       max_at_bf = 0
       do iatom = 1, natoms
          if (.not. bas_ce2bfr(AO_bas_han, iatom, ilo, ihi))
-     &      call errquit('dftg_gridv0: bas_ce2bfr failed', iatom)
+     &      call errquit('dftg_gridv0: bas_ce2bfr failed', iatom,
+     &       BASIS_ERR)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
       max_at_bf2 = max_at_bf*max_at_bf
@@ -194,59 +197,75 @@ c
       mA2 = n_per_rec*NCOL_AMAT2
       mC2 = n_per_rec*NCOL_CMAT2
       if (.not.MA_Push_Get(mt_dbl,mA,'Amat',lAmat,iAmat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',8)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',8, MA_ERR)
       if (do_hess .or. do_cpks_r) then
          if (.not.MA_Push_Get(mt_dbl,mA2,'Amat2',l_Amat2,k_Amat2))
-     &      call errquit(' exiting in dftg_gridv0: insuff stack',108)
+     &      call errquit(' exiting in dftg_gridv0: insuff stack',108,
+     &       MA_ERR)
          if (grad) then
             if (.not.MA_Push_Get(mt_dbl,mC2,'Cmat2',l_Cmat2,k_Cmat2))
-     &         call errquit(' exiting in dftg_gridv0: insuff stack',109)
+     &         call errquit(' exiting in dftg_gridv0: insuff stack',109,
+     &       MA_ERR)
          endif
       endif
       if (.not.MA_Push_Get(mt_dbl,mC,'Cmat',lCmat,iCmat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',9)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',9, MA_ERR)
       if (.not.MA_Push_get(mt_dbl,3*n_per_rec,'qxyz',lqxyz,iqxyz))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',10)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',10,
+     &       MA_ERR)
       if (.not.MA_Push_get(mt_dbl,n_per_rec,'qwght',lqwght,iqwght))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',11)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',11,
+     &       MA_ERR)
       nd_qwght = 1
       if (ldew)nd_qwght = 3*n_per_rec*natoms
       if (.not.MA_Push_get(mt_dbl,nd_qwght,'qwght',ld_qwght,id_qwght))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',11)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',11,
+     &       MA_ERR)
       nd_func=1
       if (ldew) nd_func=n_per_rec
       if (.not.MA_Push_get(mt_dbl,nd_func,'func',lfunc,ifunc))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',11)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',11,
+     &       MA_ERR)
       if (.not.MA_Push_get(mt_dbl,natoms,'rq0',lrq0,irq0))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',12)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',12,
+     &       MA_ERR)
       if (.not.MA_Push_get(mt_dbl,natoms*n_per_rec,'rq',lrq,irq))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
       if (.not.MA_Push_get(mt_int,natoms,'atom list',lniz,iniz))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
       if (.not.MA_Push_get(mt_int,natoms,'atom nbf',lfin,ifin))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,NXprim,'expo',lexpo,iexpo))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
       ncoef_max = nbf_max * NXprim
       if (.not.MA_Push_Get(MT_Dbl,ncoef_max,'coef',lcoef,icoef))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
       lgthpmat=max_at_bf2
       if (do_cpks_r)  lgthpmat= lgthpmat*3
       if (.not.MA_Push_Get(mt_dbl,lgthpmat,'DENSF',lFmat,iFmat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
 c
 c this for a single nfock pass in xc_tabcd
 c      if(do_cpks_r) lgthpmat=lgthpmat*3*natoms
 c
       if (.not.MA_Push_Get(mt_dbl,lgthpmat,'DENS',lPmat,iPmat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',17)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',17,
+     &       MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,npol*n_per_rec,'rho',lrho,irho))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
 c
       nelem = 3*npol*n_per_rec
 c 
       if (.not.MA_Push_Get(MT_Dbl,nelem,'delrho',ldelrho,idelrho))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
 
 c
 c    not used for the moment, neither tau nor mmat
@@ -255,7 +274,8 @@ c
 c      nelem_tau=3*npol*n_per_rec
 
       if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'tau',ltau,itau))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
+     &       MA_ERR)
 
       if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'Mmat',lmmat,immat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13)
@@ -273,69 +293,73 @@ c
          len_Bmat = n_per_rec*nbf_ao_mxnbf_ce
       endif
       if (.not.MA_Push_Get(mt_dbl,len_Bmat,'Bmat',lBmat,iBmat))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',31)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',31,
+     &       MA_ERR)
 c
 c     hessian and cpks rhs also need a Dmat
 c
       if (do_hess .or. do_cpks_r) then
          len_Dmat = n_per_rec*3*nbf_ao_mxnbf_ce
          if (.not.MA_Push_Get(mt_dbl,len_Dmat,'Dmat',lDmat,iDmat))
-     &        call errquit(' exiting in dftg_gridv0: insuff stack',131)
+     &        call errquit(' exiting in dftg_gridv0: insuff stack',131,
+     &       MA_ERR)
       else
          len_Dmat = 0
       endif
 c
       if (.not.MA_Push_Get(mt_dbl,3*n_per_rec,'hess scratch',lhh,ihh))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',32)
+     &   call errquit(' exiting in dftg_gridv0: insuff stack',32,
+     &       MA_ERR)
 c
 c     stuff for neighbours list
 c
       if (.not.MA_Push_Get(MT_int,natoms,'iandex',landex,iandex))
-     &   call errquit(' exiting in quadvxc0: insuff stack',77)
+     &   call errquit(' exiting in quadvxc0: insuff stack',77,
+     &       MA_ERR)
 c
 c
 c     allocate scratch array for grid compression
 c
       if (.not. MA_Push_Get(MT_Int, nbf_ao, 'ibf_ao',
      &     libf_ao, iibf_ao))call errquit
-     &     (' exiting in dftg_gridv0: insuff stack',9)
+     &     (' exiting in dftg_gridv0: insuff stack',9, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,natoms,'rchi_atom',
      &     lrchi_atom,irchi_atom))
-     &     call errquit('dft_scf: cannot allocate rchi_atom',0)
+     &     call errquit('dft_scf: cannot allocate rchi_atom',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,natoms,'rdelchi_atom',
      &     lrdelchi_atom,irdelchi_atom))call errquit
-     &     ('dftg_gridv0: cannot allocate rdelchi_atom',0)
+     &     ('dftg_gridv0: cannot allocate rdelchi_atom',0, MA_ERR)
       if (.not. MA_Push_Get(mt_dbl, nbf_ao, 'PPPP', lppp, 
      &     ippp))call errquit
-     &     (' dftg_gridv0: not enough stack',13)
+     &     (' dftg_gridv0: not enough stack',13, MA_ERR)
 c         
 c !!! BGJ - probably don't need to allocate some of this if .not.do_force
       if (.not. MA_Push_Get(mt_dbl, nbf_ao, 'F', lff, iff))
-     &     call errquit(' dftg_gridv0: not enough stack',13)
+     &     call errquit(' dftg_gridv0: not enough stack',13, MA_ERR)
       if (.not. MA_Push_Get(mt_dbl, 3*nbf_ao, 'zzz', lzzz, 
      &     izzz))call errquit
-     &     (' dftg_gridv0: not enough stack',13)
+     &     (' dftg_gridv0: not enough stack',13, MA_ERR)
       if (.not.MA_push_get(MT_INT, natoms, 'curatoms',
      &     l_curatoms, k_curatoms)) call
-     &     errquit('dftg_gridv0: cant allocate curatoms',1)
+     &     errquit('dftg_gridv0: cant allocate curatoms',1, MA_ERR)
       if (do_hess .or. do_cpks_r) then
 c     
 c     Set up space for derivatives of density wrt significant nuclei
 c
          if (.not.MA_push_get(MT_DBL, ipol*n_per_rec*3*nactive,
      &        'drhonuc', l_drhonuc, k_drhonuc)) call
-     &        errquit('dftg_gridv0a: cannot allocate drhonuc',1)
+     &        errquit('dftg_gridv0a: cannot allocate drhonuc',1, MA_ERR)
          if (grad) then
             if (.not.MA_push_get(MT_DBL,
      &           ipol*3*n_per_rec*3*nactive, 'ddelrhonuc',
      &           l_ddelrhonuc, k_ddelrhonuc)) call
      &           errquit('dftg_gridv0: cant alloc ddelrhonuc',
-     &           1)
+     &           1, MA_ERR)
          endif
          if(do_hess) then
             if (.not.MA_push_get(mt_dbl, 15*n_per_rec, 'd2scr',
      &           l_d2scr, k_d2scr)) call errquit
-     &           ('dftg_gridv0: not enough stack for d2scr',0)
+     &           ('dftg_gridv0: not enough stack for d2scr',0, MA_ERR)
          endif
       endif
 c    
@@ -345,9 +369,9 @@ c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
       if (.not. bas_ncontr_cn_max(ao_bas_han, MXcont))
-     &   call errquit('Exiting in dftg_quadv0.',1)
+     &   call errquit('Exiting in dftg_quadv0.',1, BASIS_ERR)
       if (.not. bas_high_angular(AO_bas_han, NXang))
-     &   call errquit('exiting in dftg_quadv0.',7)
+     &   call errquit('exiting in dftg_quadv0.',7, BASIS_ERR)
       llMAX=((NXang+2)*(NXang+1))/2
 c scratch for eval_func
       if (NXang .ge. 3)then
@@ -415,7 +439,7 @@ c
 c     
       if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
      &     call errquit
-     &     (' exiting in dftg_gridv0: insuff stack',12)
+     &     (' exiting in dftg_gridv0: insuff stack',12, MA_ERR)
       call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,
      &     nbf_ao,ipol,do_force,.true.)
       
@@ -444,23 +468,23 @@ c
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,.true.)) call
      .     errquit(' dftggridv0: xcrepclose failed ',0)
       if (.not.ma_chop_stack(lhh))
-     &   call errquit('dftg_gridv0: cannot chop stack',1)
+     &   call errquit('dftg_gridv0: cannot chop stack',1, MA_ERR)
       if (do_hess .or. do_cpks_r) then
          if (.not.ma_pop_stack(lDmat))
-     &      call errquit('dftg_gridv0: cannot pop stack',0)
+     &      call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
       endif
       if (.not.ma_chop_stack(lCmat))
-     &   call errquit('dftg_gridv0: cannot pop stack',0)
+     &   call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
       if (do_hess .or. do_cpks_r) then
          if (grad) then
             if (.not.ma_pop_stack(l_Cmat2))
-     &           call errquit('dftg_gridv0: cannot pop stack',0)
+     &           call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
          endif
          if (.not.ma_pop_stack(l_Amat2))
-     &      call errquit('dftg_gridv0: cannot pop stack',0)
+     &      call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
       endif
       if (.not.ma_pop_stack(lAmat))
-     &   call errquit('dftg_gridv0: cannot pop stack',0)
+     &   call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
 c
       icount = 1
       n1 = nxtask(-nproc,icount)
@@ -478,9 +502,9 @@ c
       end if
 c
       if (.not.ma_free_heap(lxyz))
-     &   call errquit('dftg_gridv0: cannot free heap',0)
+     &   call errquit('dftg_gridv0: cannot free heap',0, MA_ERR)
       if (.not.ma_free_heap(l_xyzm))
-     &   call errquit('dftg_gridv0: cannot free heap',1)
+     &   call errquit('dftg_gridv0: cannot free heap',1, MA_ERR)
 c
       return 
 c     

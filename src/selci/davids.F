@@ -1,8 +1,9 @@
       subroutine selci_davids(q, lword, nroot, thresh, roots)
 *
-* $Id: davids.F,v 1.10 1999-07-08 19:11:01 d3e129 Exp $
+* $Id: davids.F,v 1.11 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "cbuff.fh"
 #include "mptr.fh"
 #include "cselcifiles.fh"
@@ -34,7 +35,8 @@ c
      &       nnsmax, nnci, noconf, nintpo, nbitpi, nbpsy, isym, nsym,
      $       inttyp, nsneed)
         read (iflham) nci
-        if (nci.ne.nnci) call errquit('nci diff hamil,ciconf',nci)
+        if (nci.ne.nnci) call errquit('nci diff hamil,ciconf',nci,
+     &       UNKNOWN_ERR)
       else
         open(iflham,status='old',form='unformatted',file=hamil)
       endif
@@ -66,8 +68,9 @@ c
      $         ' no. of roots sought     ',i7/
      $         ' convergence           ',d9.2/)
       endif
-      if (nroot.lt.0 .or. nroot.gt.nci) call errquit(' nroot ? ',nroot)
-      if (thresh.lt.0.0d0) call errquit(' thresh -ve? ',0)
+      if (nroot.lt.0 .or. nroot.gt.nci) call errquit(' nroot ? ',nroot,
+     &       UNKNOWN_ERR)
+      if (thresh.lt.0.0d0) call errquit(' thresh -ve? ',0, UNKNOWN_ERR)
 c
 c     allocate core
 c
@@ -211,10 +214,12 @@ c
       end
       subroutine selci_makges(nci, nroot, ci, hd, iflciv, roots)
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
       dimension ci(nci,nroot), hd(nci), temp(50), itemp(50),
      $     roots(nroot)
 c
-      if (nroot.gt.50) call errquit(' nroot rather large!',nroot)
+      if (nroot.gt.50) call errquit(' nroot rather large!',nroot,
+     &       INPUT_ERR)
 c
 c     are there any trial vectors sitting on disk from
 c     a previous (related?) calculation?
@@ -253,6 +258,7 @@ c
       subroutine selci_davidd(iter,itermx,nvec,maxvec,n,nroot,ci,si,hd,
      &     alpha,redh,work,roots,conv,de,oprint)
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
 c
 c     multi-root in-core davidson routine
 c
@@ -282,9 +288,11 @@ c
          iter = 1
          nvec = 1
          if (maxvec.lt.2)
-     $        call errquit(' stupid maxvec in davids ',maxvec)
+     $        call errquit(' stupid maxvec in davids ',maxvec,
+     &       INPUT_ERR)
          if (itermx.lt.2)
-     $        call errquit(' stupid itermx in davids ',itermx)
+     $        call errquit(' stupid itermx in davids ',itermx,
+     &       INPUT_ERR)
          call dfill(nroot,0.0d0,roots,1)
       endif
 c
@@ -292,7 +300,8 @@ c     special case n = 1
 c
       if (n.eq.1) then
          if (nroot.gt.1)
-     $        call errquit(' n=1, nroot > 1 in davids ',nroot)
+     $        call errquit(' n=1, nroot > 1 in davids ',nroot,
+     &       INPUT_ERR)
          conv(1) = 0.0d0
          roots(1) = si(1,1,1)
          alpha(1) = 1.0d0
@@ -435,12 +444,14 @@ c
 c
       iter = iter + 1
       if (iter.ge.itermx+1) 
-     $     call errquit(' too many iters, davids ',iter)
+     $     call errquit(' too many iters, davids ',iter,
+     &       INPUT_ERR)
 c
       end
       subroutine selci_analci(ci,indxci,ioconf,nci,noconf,
      $     norbs,nintpo,nbitpi,iorder)
       implicit real*8 (a-h,o-z)
+#include "errquit.fh"
       parameter (maxtmp = 20)
       dimension ci(nci),indxci(noconf+1),ioconf(nintpo,noconf),
      $     temp(maxtmp),itemp(maxtmp)
@@ -490,7 +501,7 @@ c
          do 20 io = 1,noconf+1
             if (it.le.indxci(io)) goto 30
  20      continue
-         call errquit('analci: fell out of do 20',io)
+         call errquit('analci: fell out of do 20',io, INPUT_ERR)
  30      iconf = io-1
          ispin = it - indxci(iconf)
          nf = indxci(iconf+1)-indxci(iconf)

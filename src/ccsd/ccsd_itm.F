@@ -3,8 +3,9 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.10 1999-06-16 00:10:12 d3e129 Exp $
+C     $Id: ccsd_itm.F,v 2.11 2003-10-17 22:54:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
      &        g_x,g_c,g_sht2,iprt
       double precision hiu(nocc,nocc),giu(nocc,nocc),hia(nocc,nvir)
@@ -42,15 +43,15 @@ c
 c - test x and c by doing its contribution to (2j-k)*(2t-t)
       if (.not.ga_create(MT_DBL,lnoo,lnoo,'aitm',
      &                   nocc,nocc,g_aitm))
-     &     call errquit('ccsd_itm: ga_create g_aitm failed',0)
+     &     call errquit('ccsd_itm: ga_create g_aitm failed',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt1',
      &                   lnvv,0,g_tmt1))
-     &     call errquit('ccsd_itm: ga_create g_tmt1 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmt1 failed',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,lnvv,lnoo,'tmt2',
      &                   lnvv,0,g_tmt2))
-     &     call errquit('ccsd_itm: ga_create g_tmt2 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmt2 failed',0, GA_ERR)
 c
       call dfill(lnvv,0.0d00,habe,1)
       call ga_distribution(g_nexch,iam,g_jlo,g_jhi,g_ilo,g_ihi)
@@ -408,11 +409,11 @@ c
       call ga_sync
 c
       if (.not.ga_destroy(g_tmt2))
-     &    call errquit('ga_dest g_tmt2 fail',0)
+     &    call errquit('ga_dest g_tmt2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmt1))
-     &    call errquit('ga_dest g_tmt1 fail',0)
+     &    call errquit('ga_dest g_tmt1 fail',0, GA_ERR)
       if (.not.ga_destroy(g_aitm))
-     &    call errquit('ga_dest g_aitm fail',0)
+     &    call errquit('ga_dest g_aitm fail',0, GA_ERR)
 c
 c-----------------------------------------------------------------------
 c  J1, J2, J3 and K1, K2, K3 intermediates
@@ -455,13 +456,13 @@ c
 c
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmt',
      &                   nvir,nvir,g_tmt))
-     &     call errquit('ccsd_itm: ga_create g_tmt failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmt failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp',
      &                   nvir,nvir,g_tmp))
-     &     call errquit('ccsd_itm: ga_create g_tmp failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmp failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnov,lnov,'tmp2',
      &                   nvir,nvir,g_tmp2))
-     &     call errquit('ccsd_itm: ga_create g_tmp2 failed',0)
+     &     call errquit('ccsd_itm: ga_create g_tmp2 failed',0, GA_ERR)
 c-----------------------------------------------------------------------
 c  K4 intermediate
 c-----------------------------------------------------------------------
@@ -697,11 +698,11 @@ c
      &              1.0d00,g_tmp,g_tmt,1.0d00,g_nht2)
 c
       if (.not.ga_destroy(g_tmp2))
-     &    call errquit('ga_dest g_tmp2 fail',0)
+     &    call errquit('ga_dest g_tmp2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     &    call errquit('ga_dest g_tmp fail',0)
+     &    call errquit('ga_dest g_tmp fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmt))
-     &    call errquit('ga_dest g_tmt fail',0)
+     &    call errquit('ga_dest g_tmt fail',0, GA_ERR)
 c
       inode=-1
       call ga_sync

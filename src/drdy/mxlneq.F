@@ -1,4 +1,4 @@
-C $Id: mxlneq.F,v 1.3 2001-01-19 17:43:12 windus Exp $
+C $Id: mxlneq.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_mxlneq (a,nn,ida,dett,jrank,eps,in,mm)
 C
 C PROGRAMMED BY R. HOTCHKISS, U. COMP. CTR., U. OF MINN., REVISED OCT.73
@@ -17,6 +17,7 @@ C     CALLED BY:
 C                FIVPT,NEWT,PROJCT,TREPT
 C
       Implicit Double Precision (A-H,O-Z)
+#include "errquit.fh"
 C
       Double Precision MACHEP
       DIMENSION A(IDA,NN),IN(IDA)
@@ -43,31 +44,32 @@ C
       WRITE(FU6,1700)
       WRITE(FU6,1000) N,ID
 *     CALL EXIT
-      call errquit('drdy_mxlneq: fatal error',911)
+      call errquit('drdy_mxlneq: fatal error',911,
+     &       UNKNOWN_ERR)
    10 IF (ID.GE.N.AND.ID.LT.INTMX) GO TO 20
       WRITE(FU6,1700)
       WRITE(FU6,1100) ID,N,INTMX
 *     CALL EXIT
-      call errquit('drdy_mxlneq: fatal error',911)
+      call errquit('drdy_mxlneq: fatal error',911, UNKNOWN_ERR)
    20 IF ((ONE+OPS).NE.ONE.AND.OPS.GE.ZERO) GO TO 30
       WRITE(FU6,1700)
       WRITE(FU6,1200) OPS
 *     CALL EXIT
-      call errquit('drdy_mxlneq: fatal error',911)
+      call errquit('drdy_mxlneq: fatal error',911, UNKNOWN_ERR)
    30 MOD = MM
       NM = IABS(MM)
       IF (NM.LT.INTMX) GO TO 40
       WRITE(FU6,1700)
       WRITE(FU6,1300) MM,INTMX
 *     CALL EXIT
-      call errquit('drdy_mxlneq: fatal error',911)
+      call errquit('drdy_mxlneq: fatal error',911, UNKNOWN_ERR)
    40 NM = NN+NM
       NMIDA = NM*ID*2
       IF (NMIDA.LT.INTMX) GO TO 50
       WRITE(FU6,1700)
       WRITE(FU6,1400) NMIDA,INTMX
 *     CALL EXIT
-      call errquit('drdy_mxlneq: fatal error',911)
+      call errquit('drdy_mxlneq: fatal error',911, UNKNOWN_ERR)
    50 CONTINUE
 C
 C  end of error checking

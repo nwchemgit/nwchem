@@ -1,9 +1,10 @@
       logical function et_calc(rtdb,Vba)
       implicit none
+#include "errquit.fh"
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.21 2003-04-10 16:55:08 d3k958 Exp $
+* $Id: et_calc.F,v 1.22 2003-10-17 22:54:54 carlfahl Exp $
 c
 *
 #include "rtdb.fh"
@@ -66,25 +67,25 @@ c load geometry and symmetry info
 c -------------------------------
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('et_calc: geom_create?', 0)
+     $     call errquit('et_calc: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('et_calc: no geometry ', 0)
+     $     call errquit('et_calc: no geometry ', 0, RTDB_ERR)
 c
 c ----------------------------------------
 c load the basis set and get info about it
 c ----------------------------------------
 c
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('et_calc: bas_create?', 0)
+     $     call errquit('et_calc: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $        call errquit('et_calc: no ao basis set', 0)
+     $        call errquit('et_calc: no ao basis set', 0, RTDB_ERR)
 c
 c  -------
 c  get nbf
 c  -------
 c
       if (.not.bas_numbf(basis,nbf))
-     $     call errquit('bas_numbf failed',0)
+     $     call errquit('bas_numbf failed',0, BASIS_ERR)
 c
 c ------------------
 c initialize the API 
@@ -99,7 +100,7 @@ c  calculate the overlap integrals
 c  -------------------------------
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,'s',0,0,g_s))
-     $        call errquit('task_et ga_create failed', 0)
+     $        call errquit('task_et ga_create failed', 0, GA_ERR)
       call ga_zero(g_s)
       call int_1e_ga(basis, basis, g_s, 'overlap', .false.)  
 
@@ -112,10 +113,12 @@ c Read MO vectors from files
 c ---------------------------
 c
       if (.not. rtdb_cget(rtdb, 'a_vecs', 1, a_file))
-     $     call errquit('et_calc: couldnt get a_vecs filename',0)
+     $     call errquit('et_calc: couldnt get a_vecs filename',0,
+     &       RTDB_ERR)
 c
       if (.not. rtdb_cget(rtdb, 'b_vecs', 1, b_file))
-     $     call errquit('et_calc: couldnt get a_vecs filename',0)
+     $     call errquit('et_calc: couldnt get a_vecs filename',0,
+     &       RTDB_ERR)
 c
       lena = inp_strlen(a_file)
       lenb = inp_strlen(b_file)
@@ -132,10 +135,11 @@ c 'occ' is used to calculate nocc, 'eval' is never used.
 c ------------------------------------------------------
 c
       if (.not.ma_push_get(mt_dbl,nbf,'occ',l_occ,k_occ))
-     $         call errquit('ma_push_get failed for occ',k_occ)
+     $         call errquit('ma_push_get failed for occ',k_occ, MA_ERR)
 
       if (.not.ma_push_get(mt_dbl,nbf,'evals',l_eval,k_eval))
-     $        call errquit('ma_push_get failed for evals',k_eval)
+     $        call errquit('ma_push_get failed for evals',k_eval,
+     &       MA_ERR)
 c
 c ------------------------------------------------
 c Read header to check that nset=2
@@ -146,14 +150,16 @@ c -------
 c
       if(.not.movecs_read_header(a_file(1:lena),title,basis_name,
      &   scftype,nbf_file,nset,anmo,2)) 
-     &   call errquit('et_calc: movecs_read_header failed',me)
+     &   call errquit('et_calc: movecs_read_header failed',me, DISK_ERR)
 
       if (nset.ne.2) then
-        call errquit('et_calc: only UHF/ODFT orbitals allowed',nset)
+        call errquit('et_calc: only UHF/ODFT orbitals allowed',nset,
+     &       INPUT_ERR)
       endif
 
       if (nbf_file.ne.nbf) then
-        call errquit('et_calc: basis function mismatch',nbf_file)
+        call errquit('et_calc: basis function mismatch',nbf_file,
+     &       BASIS_ERR)
       endif
 
 c b_file:
@@ -161,14 +167,16 @@ c -------
 c
       if(.not.movecs_read_header(b_file(1:lenb),title,basis_name,
      &   scftype,nbf_file,nset,bnmo,2)) 
-     &   call errquit('et_calc: movecs_read_header failed',me)
+     &   call errquit('et_calc: movecs_read_header failed',me, DISK_ERR)
 
       if (nset.ne.2) then
-        call errquit('et_calc: only UHF/ODFT orbitals allowed',nset)
+        call errquit('et_calc: only UHF/ODFT orbitals allowed',nset,
+     &       INPUT_ERR)
       endif
 
       if (nbf_file.ne.nbf) then
-        call errquit('et_calc: basis function mismatch',nbf_file)
+        call errquit('et_calc: basis function mismatch',nbf_file,
+     &       BASIS_ERR)
       endif
 c
 c -------------------------------------------------------
@@ -176,10 +184,12 @@ c allocate arrays for MO coefficients, for state A
 c -------------------------------------------------------
 c
       if (.not.ga_create(mt_dbl,nbf,nbf,'A alpha',0,0,g_avecsa))
-     $         call errquit('ga_create failed for A alpha',g_avecsa)
+     $         call errquit('ga_create failed for A alpha',g_avecsa,
+     &       GA_ERR)
 
       if (.not.ga_create(mt_dbl,nbf,nbf,'A beta',0,0,g_avecsb))
-     $         call errquit('ga_create failed for A beta',g_avecsb)
+     $         call errquit('ga_create failed for A beta',g_avecsb,
+     &       GA_ERR)
 
       call ga_zero (g_avecsa)
       call ga_zero (g_avecsb)
@@ -190,7 +200,7 @@ c ------------------------------------------------------------------
 c
       if(.not.et_movecs_read(a_file(1:lena),1,dbl_mb(k_occ)
      $   ,dbl_mb(k_eval),g_avecsa,dum))
-     $ call errquit('et_movecs_read failed for alpha mos',0)
+     $ call errquit('et_movecs_read failed for alpha mos',0, DISK_ERR)
 c
 c -------------------------------------
 c get nocc(1): # of occupied alpha mo's
@@ -215,7 +225,7 @@ c ------------------------------------------------------------------
 c
       if(.not.et_movecs_read(a_file(1:lena),2,dbl_mb(k_occ)
      $     ,dbl_mb(k_eval),g_avecsb, dum))
-     $ call errquit('et_movecs_read failed for beta mos',0)
+     $ call errquit('et_movecs_read failed for beta mos',0, DISK_ERR)
 c
 c -------------------------------------
 c get nocc(2): # of occupied alpha mo's
@@ -239,10 +249,12 @@ c allocate arrays for MO coefficients, for state B
 c -------------------------------------------------------
 c
       if (.not.ga_create(mt_dbl,nbf,nbf,'B alpha',0,0,g_bvecsa))
-     $         call errquit('ga_create failed for B alpha',g_bvecsa)
+     $         call errquit('ga_create failed for B alpha',g_bvecsa,
+     &       GA_ERR)
 
       if (.not.ga_create(mt_dbl,nbf,nbf,'B beta',0,0,g_bvecsb))
-     $         call errquit('ga_create failed for B beta',g_bvecsb)
+     $         call errquit('ga_create failed for B beta',g_bvecsb,
+     &       GA_ERR)
 
       call ga_zero (g_bvecsa)
       call ga_zero (g_bvecsb)
@@ -255,11 +267,11 @@ c -----------------------------------------------------------
 c
       if(.not.et_movecs_read(b_file(1:lenb),1,dbl_mb(k_occ)
      $   ,dbl_mb(k_eval) ,g_bvecsa, dum))
-     $   call errquit('et_movecs_read failed for alpha mos',0)
+     $   call errquit('et_movecs_read failed for alpha mos',0, DISK_ERR)
 c
       if(.not.et_movecs_read(b_file(1:lenb),2,dbl_mb(k_occ)
      $  ,dbl_mb(k_eval) ,g_bvecsb, dum))
-     $   call errquit('et_movecs_read failed for beta mos',0)
+     $   call errquit('et_movecs_read failed for beta mos',0, DISK_ERR)
 c
       if (util_print("et",print_high)) then
        call ga_print(g_bvecsa)
@@ -272,11 +284,11 @@ c --------------------------------------------------
 c
       if(.not.et_movecs_read(a_file(1:lena),3
      $   ,dbl_mb(k_occ),dbl_mb(k_eval),1, Haa)) 
-     $   call errquit('et_movecs_read failed for Haa',0)
+     $   call errquit('et_movecs_read failed for Haa',0, DISK_ERR)
 c
       if(.not.et_movecs_read(b_file(1:lenb),3
      $   ,dbl_mb(k_occ),dbl_mb(k_eval),1, Hbb)) 
-     $   call errquit('et_movecs_read failed for Hbb',0)
+     $   call errquit('et_movecs_read failed for Hbb',0, DISK_ERR)
 c
       if (me.eq.0) then
       write(LuOut,9995) 'Electronic energy of reactants   ','H(RR)',Haa
@@ -330,10 +342,10 @@ c
       call ga_sync()
 c
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'d',0,0,g_d))
-     $        call errquit('task_et ga_create failed', g_d)
+     $        call errquit('task_et ga_create failed', g_d, GA_ERR)
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,'temp',0,0,g_tmp))
-     $        call errquit('task_et ga_create failed', g_d)
+     $        call errquit('task_et ga_create failed', g_d, GA_ERR)
 c
       call ga_dgemm('T','N',nocc(j),nbf,nbf,1.d0,g_bhandle(j)
      &               ,g_s,0.d0,g_tmp)
@@ -342,7 +354,7 @@ c
      &               ,g_ahandle(j),0.d0,g_d)
 c
       if (.not.ga_destroy(g_tmp))
-     &  call errquit('could not destroy tmp array',g_tmp)
+     &  call errquit('could not destroy tmp array',g_tmp, GA_ERR)
 c
       if (util_print("et",print_debug)) then
        call ga_print(g_d)
@@ -353,15 +365,16 @@ c Perform SVD to get U, V', and singluar values
 c ----------------------------------------------
 c
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'u',0,0,g_u))
-     $        call errquit('task_et ga_create failed', g_u)
+     $        call errquit('task_et ga_create failed', g_u, GA_ERR)
 c
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'vt',0,0,g_vt))
-     $        call errquit('task_et ga_create failed', g_vt)
+     $        call errquit('task_et ga_create failed', g_vt, GA_ERR)
 c
       call ga_zero(g_u)
       call ga_zero(g_vt)
       if (.not.ma_push_get(mt_dbl,nocc(j),'values',l_vals,k_vals))
-     $        call errquit('ma_push_get failed for values ',k_vals)
+     $        call errquit('ma_push_get failed for values ',k_vals,
+     &       MA_ERR)
 c
       call ga_svd_seq(g_d,g_u,g_vt,dbl_mb(k_vals))
 c
@@ -377,7 +390,7 @@ c      write(LuOut,*)'singular values',(dbl_mb(k_vals+i-1),i=1,nocc(j))
 c
 c
       if (.not.ga_destroy(g_d))
-     &  call errquit('could not destroy D array',g_d)
+     &  call errquit('could not destroy D array',g_d, GA_ERR)
 c
       if (util_print("et",print_debug)) then
       call ga_print(g_u)
@@ -400,10 +413,10 @@ c perform matrix mult to get transformed A & B: A = AV, B = BU
 c ------------------------------------------------------------
 c
       if(.not.ga_create(mt_dbl,nbf,nocc(j),'av',0,0,g_av))
-     $        call errquit('task_et ga_create failed', g_av)
+     $        call errquit('task_et ga_create failed', g_av, GA_ERR)
 c
       if(.not.ga_create(mt_dbl,nbf,nocc(j),'bu',0,0,g_bu))
-     $        call errquit('task_et ga_create failed', g_bu)
+     $        call errquit('task_et ga_create failed', g_bu, GA_ERR)
 c
       call ga_zero(g_av)
       call ga_dgemm('N','T',nbf,nocc(j),nocc(j),1.d0,g_ahandle(j),g_vt
@@ -415,14 +428,18 @@ c
 c
 c
       if (.not.ga_destroy(g_ahandle(j))) 
-     &  call errquit('could not destroy mo vectors array',g_ahandle(j))
+     &  call errquit('could not destroy mo vectors array',g_ahandle(j),
+     &       GA_ERR)
       if (.not.ga_destroy(g_bhandle(j))) 
-     &  call errquit('could not destroy mo vectors array',g_bhandle(j))
+     &  call errquit('could not destroy mo vectors array',g_bhandle(j),
+     &       GA_ERR)
 c
       if (.not.ga_destroy(g_u))
-     &  call errquit('could not destroy U array',g_u)
+     &  call errquit('could not destroy U array',g_u,
+     &       GA_ERR)
       if (.not.ga_destroy(g_vt))
-     &  call errquit('could not destroy VT array',g_vt)
+     &  call errquit('could not destroy VT array',g_vt,
+     &       GA_ERR)
 c
       if (util_print("et",print_high)) then
       if(me.eq.0) then
@@ -447,7 +464,7 @@ c                                j.NE.i
 c    --------------------------------------------------------------
 c    
       if(.not.ga_create(mt_dbl,nocc(j),nocc(j),'t',0,0,g_t))
-     $        call errquit('task_et ga_create failed', g_t)
+     $        call errquit('task_et ga_create failed', g_t, GA_ERR)
       call ga_zero(g_t)
 c
       if(nocc(j).gt.1) then
@@ -477,10 +494,11 @@ c  Pa is for alpha electrons, Pb is for beta electrons.
 c -----------------------------------------------------
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,pname(j),0,0,g_phandle(j)))
-     $        call errquit('task_et ga_create failed', g_phandle(j))
+     $        call errquit('task_et ga_create failed', g_phandle(j),
+     &       GA_ERR)
 c
       if(.not.ga_create(mt_dbl,nbf,nocc(j),'temp',0,0,g_temp))
-     $        call errquit('task_et ga_create failed', g_temp)
+     $        call errquit('task_et ga_create failed', g_temp, GA_ERR)
 c
       call ga_zero(g_phandle(j))
 c
@@ -492,14 +510,16 @@ c
 c
 c
       if (.not.ga_destroy(g_av)) 
-     &  call errquit('could not destroy transformed MO vectors',g_av)
+     &  call errquit('could not destroy transformed MO vectors',g_av,
+     &       GA_ERR)
       if (.not.ga_destroy(g_bu)) 
-     &  call errquit('could not destroy transformed MO vectors',g_bu)
+     &  call errquit('could not destroy transformed MO vectors',g_bu,
+     &       GA_ERR)
 c
       if (.not.ga_destroy(g_t)) 
-     &  call errquit('could not destroy T array',g_t)
+     &  call errquit('could not destroy T array',g_t, GA_ERR)
       if (.not.ga_destroy(g_temp)) 
-     &  call errquit('could not destroy temp array',g_temp)
+     &  call errquit('could not destroy temp array',g_temp, GA_ERR)
 c
 c
       if (util_print("et",print_debug)) then
@@ -513,7 +533,7 @@ c --------------------
       enddo    
 c
       if (.not.ga_destroy(g_s)) 
-     &  call errquit('could not destroy overlap array',g_s)
+     &  call errquit('could not destroy overlap array',g_s, GA_ERR)
 
 c
 c Pa is scaled by prod(b), Pb is scaled by prod(a)
@@ -553,7 +573,7 @@ c calculate the 1e contribution to Vba, omega1
 c --------------------------------------------
 c
       if(.not.ga_create(mt_dbl,nbf,nbf,'h1',0,0,g_h1))
-     $        call errquit('task_et ga_create failed', g_h1)
+     $        call errquit('task_et ga_create failed', g_h1, GA_ERR)
 c
 c get H1 integrals
 c ----------------
@@ -581,7 +601,7 @@ c
       endif
 c
       if (.not.ga_destroy(g_h1))
-     &  call errquit('could not destroy H1 array',g_h1)
+     &  call errquit('could not destroy H1 array',g_h1, GA_ERR)
 c
 c --------------------------------------------
 c calculate the 2e contribution to Vba, omega2
@@ -623,9 +643,9 @@ c destroy density arrays and calculate omega2 and Hba
 c ----------------------------------------------------
 c
       if (.not.ga_destroy(g_phandle(1)))
-     &  call errquit('could not destroy P array',g_phandle(1))
+     &  call errquit('could not destroy P array',g_phandle(1), GA_ERR)
       if (.not.ga_destroy(g_phandle(2)))
-     &  call errquit('could not destroy P array',g_phandle(2))
+     &  call errquit('could not destroy P array',g_phandle(2), GA_ERR)
 c
        omega2 = omega2 * (detprod/ ( prod(1)*prod(2) ) ) 
        omega2 = omega2 / 2.0d0
@@ -651,7 +671,8 @@ c
        Vba = dabs (Vba)
 c
        if (.not. rtdb_put(rtdb,'et:V(RP)', MT_DBL, 1, Vba))
-     $        call errquit('et_calc: rtdb_put of V(RP) failed',0)
+     $        call errquit('et_calc: rtdb_put of V(RP) failed',0,
+     &       RTDB_ERR)
 c
 c
 c -------------
@@ -673,11 +694,11 @@ c
 
 
       if (.not.ma_chop_stack(l_vals)) 
-     &    call errquit('unable to destroy MA',l_vals)
+     &    call errquit('unable to destroy MA',l_vals, MA_ERR)
       if (.not.ma_chop_stack(l_eval)) 
-     &    call errquit('unable to destroy MA',l_eval)
+     &    call errquit('unable to destroy MA',l_eval, MA_ERR)
       if (.not.ma_chop_stack(l_occ)) 
-     &    call errquit('unable to destroy MA',l_occ)
+     &    call errquit('unable to destroy MA',l_occ, MA_ERR)
 c
 c
       et_calc=.true.
@@ -685,9 +706,9 @@ c
       call util_print_pop
 c
          if (.not. geom_destroy(geom)) call errquit
-     $        ('et_calc: geom destroy failed', 0)
+     $        ('et_calc: geom destroy failed', 0, GEOM_ERR)
          if (.not. bas_destroy(basis)) call errquit
-     $        ('et_calc: basis destroy failed',0)
+     $        ('et_calc: basis destroy failed',0, BASIS_ERR)
 c
       call int_terminate()
 c

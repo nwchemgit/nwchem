@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_P -- Master routine for RI-MP2 density evaluation
 C
 C REVISION
-C     $Id: driver_p.F,v 1.4 1999-05-28 16:03:51 bernhold Exp $
+C     $Id: driver_p.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_P(RTDB, Geom, AOBas, NAO,
@@ -11,6 +11,7 @@ C SYNOPSIS
      $     g_P2, g_W2, Eig, LDEig, g_AOXF,
      $     Tol2e_Fock, JobTitle, D_Int, D_Gam)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer RTDB          ![in]
       Integer Geom          ![in]
@@ -69,13 +70,14 @@ C     ************************
 C
       If ( TopSpin .gt. MaxSpin) Call ErrQuit(
      $     'RIMP2_Driver_P: fatal program error: TopSpin > Maxspin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
       If ( MaxSpin .ne. MyMaxSpin ) Call ErrQuit(
      $     'RIMP2_Driver_P: fatal program error: Maxspin != MyMaxSpin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
 C
       If ( .NOT. Bas_NumBF( FitBas, NFit) ) Call ErrQuit(
-     $     'RIMP2_Driver_P: can''t get fitting basis size', FitBas)
+     $     'RIMP2_Driver_P: can''t get fitting basis size', FitBas,
+     &       BASIS_ERR)
 C
       PrInfo =   Util_Print('information', Print_Low)
       PrPrgRpt = Util_Print('progress reports', Print_Default)
@@ -99,7 +101,7 @@ C
      $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_L(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_P: can''t allocate L', ISpin)
+     $        'RIMP2_Driver_P: can''t allocate L', ISpin, GA_ERR)
 C
 C        Create W2(p,q) (initial contributions come from L)
 C
@@ -109,7 +111,7 @@ C
      $        NFrzO(ISpin)+NAct(ISpin)+NVir(ISpin),
      $        String1(:Inp_StrLen(String1)), MinChunk,
      $        MinChunk, g_W2(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_P: can''t allocate W2', ISpin)
+     $        'RIMP2_Driver_P: can''t allocate W2', ISpin, GA_ERR)
       EndDo ! ISpin
 C
       If ( PrPrgRpt ) Call Progress_Report(LuOut,
@@ -133,7 +135,7 @@ C     Now we can clean up the Lagrangian
 C
       Do ISpin = 1, TopSpin
          If ( .NOT. GA_Destroy( G_L(ISpin) ) ) Call ErrQuit(
-     $        'RIMP2_Driver_P: can''t free L', ISpin)
+     $        'RIMP2_Driver_P: can''t free L', ISpin, GA_ERR)
       EndDo
 C
       If ( Util_Print('partial p2', Print_Debug) .OR.
@@ -157,7 +159,8 @@ C
       ElseIf ( TopSpin .eq. 1) then
          String1 = 'RHF'
       Else
-         Call ErrQuit( 'RIMP2_Driver_P: TopSpin out of range', TopSpin)
+         Call ErrQuit( 'RIMP2_Driver_P: TopSpin out of range', TopSpin,
+     &       INPUT_ERR)
       EndIf
 C
       Call MP2_Make_Dip_Mom(RTDB, AOBas, NAO,

@@ -3,13 +3,14 @@ C NAME
 C     RIMP2_NS2_2e2c -- 2c2e derivative integrals for non-sep 2-c
 C     contribution to gradient
 C
-C REVISION
-C     $Id: ns2_2e2c.F,v 1.2 1999-06-04 20:52:47 gg502 Exp $
+C REVISION./rimp2_grad/ns2_2e2c.F
+C     $Id: ns2_2e2c.F,v 1.3 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_NS2_2e2c(FitBas, Buf, LBuf, Scr, LScr, g_V,
      $     Grad, NCent)
       Implicit NONE
+#include "errquit.fh"
       Integer FitBas            ![in]
       Integer LBuf              ![in]
       Double Precision Buf(LBuf) ![in]
@@ -49,13 +50,13 @@ C
 C     Figure out which contractions the patch correponds to
 C
       If ( .NOT. Bas_BF2Cn(FitBas, ILo, ILoCn) ) Call ErrQuit(
-     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', ILo)
+     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', ILo, BASIS_ERR)
       If ( .NOT. Bas_BF2Cn(FitBas, IHi, IHiCn) ) Call ErrQuit(
-     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', IHi)
+     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', IHi, BASIS_ERR)
       If ( .NOT. Bas_BF2Cn(FitBas, JLo, JLoCn) ) Call ErrQuit(
-     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', JLo)
+     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', JLo, BASIS_ERR)
       If ( .NOT. Bas_BF2Cn(FitBas, JHi, JHiCn) ) Call ErrQuit(
-     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', JHi)
+     $     'RIMP2_NS2_2e2c: bas_bf2cn failed ', JHi, BASIS_ERR)
 C
       Write (LuOut, *) 'RIMP2_NS2_2e2c: initial patch ',
      $     Me, ILo, IHi, JLo, JHi, ILoCn, IHiCn, JLoCn, JHiCn
@@ -66,14 +67,16 @@ C     Left and top edges: If they don't start at the beginning of a
 C     shell already, shift to start of NEXT contraction.
 C
       If ( .NOT. Bas_Cn2BFR(FitBas, ILoCn, First, Last) ) Call
-     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', ILoCn)
+     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', ILoCn,
+     &       BASIS_ERR)
       If ( ILo .ne. First) then
          ILoCn = ILoCn + 1
          ILo = First + 1
       EndIf
 C
       If ( .NOT. Bas_Cn2BFR(FitBas, JLoCn, First, Last) ) Call
-     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', JLoCn)
+     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', JLoCn,
+     &       BASIS_ERR)
       If ( JLo .ne. First) then
          JLoCn = JLoCn + 1
          JLo = First + 1
@@ -82,11 +85,13 @@ C
 C     Right and bottom edges: simply extend to end of current contraction
 C
       If ( .NOT. Bas_Cn2BFR(FitBas, IHiCn, First, Last) ) Call
-     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', IHiCn)
+     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', IHiCn,
+     &       BASIS_ERR)
       If ( IHi .ne. Last) IHi = Last
 C
       If ( .NOT. Bas_Cn2BFR(FitBas, JHiCn, First, Last) ) Call
-     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', JHiCn)
+     $     ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', JHiCn,
+     &       BASIS_ERR)
       If ( JHi .ne. Last) JHi = Last
 C
       Write (LuOut, *) 'RIMP2_NS2_2e2c: adjusted patch ',
@@ -99,7 +104,8 @@ C     to contract them with.
 C
       If ( .NOT. MA_Push_Get(MT_Dbl, LBuf, 'local g_V patch',
      $     H_Patch, I_Patch) ) Call ErrQuit(
-     $     'RIMP2_NS2_2e2c: failed to allocate for local patch', LBuf)
+     $     'RIMP2_NS2_2e2c: failed to allocate for local patch', LBuf,
+     &       MA_ERR)
 C
 C     Loop over our shells
 C
@@ -121,9 +127,11 @@ C
 C              Figure out the basis function ranges.
 C
                If ( .NOT. Bas_Cn2BFR(FitBas, ICn, ILo, IHi) ) Call
-     $              ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', ICn)
+     $              ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', ICn,
+     &       BASIS_ERR)
                If ( .NOT. Bas_Cn2BFR(FitBas, JCn, JLo, JHi) ) Call
-     $              ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', JCn)
+     $              ErrQuit( 'RIMP2_NS2_2e2c: bas_cn2bfr failed', JCn,
+     &       BASIS_ERR)
 C
                NI = IHi - ILo + 1
                NJ = JHi - JLo + 1
@@ -159,7 +167,7 @@ C
       EndDo                     ! ICn
 C
       If ( .NOT. MA_Pop_Stack(H_Patch) ) Call ErrQuit(
-     $     'RIMP2_NS2_2e2c: failed to free patch', 0)
+     $     'RIMP2_NS2_2e2c: failed to free patch', 0, MA_ERR)
 C
 C     Synchronize and combine gradient contributions on each node
 C

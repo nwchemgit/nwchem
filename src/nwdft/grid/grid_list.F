@@ -1,8 +1,9 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.14 2002-02-15 00:44:19 edo Exp $
+c$Id: grid_list.F,v 1.15 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "inp.fh"
 #include "rtdb.fh"
@@ -110,7 +111,8 @@ c
                if (iqsh.gt.MXqshells)then
                   write(LuOut,*)
                   write(luout,*)'grid_list: Too many quadrature shells.'
-                  call errquit('grid_list: raise MXqshells to ',iqsh)
+                  call errquit('grid_list: raise MXqshells to ',iqsh,
+     &       INPUT_ERR)
                endif
 c
 c              iang =  iangquad for lebedev

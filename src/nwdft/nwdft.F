@@ -30,8 +30,9 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.66 2003-06-24 19:42:23 edo Exp $
+C$Id: nwdft.F,v 1.67 2003-10-17 22:55:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c****
 c**** nwchem handles
 c****
@@ -82,7 +83,7 @@ c
       if (rtdb_get(rtdb,'dyall_mod_dir',mt_log,1,dyall_mod_dir)) then
         if (dyall_mod_dir) call errquit(
      &      'Cannot do DFT calculation with Dyall-modified-Dirac method'
-     &      ,99)
+     &      ,99, RTDB_ERR)
       end if
 c
 c     Make sure database is parallel, push context down to DFT.
@@ -139,7 +140,7 @@ c     Can we check here to see if system if already converged?
 c
       if (movecs_in .eq. movecs_out) then
          if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $        call errquit('dft: theory not specified',0)
+     $        call errquit('dft: theory not specified',0, RTDB_ERR)
          if(theory .eq. 'dft'.or.theory.eq.'sodft')then 
             if(.not.xc_gotxc()) then
                grid_ok=.true.
@@ -159,11 +160,12 @@ c
                if(theory.eq.'sodft') then
                if (.not. rtdb_get(rtdb, 'sodft:energy', mt_dbl, 1, 
      &              energy)) call errquit(
-     .             'nwdft: failed getting converged energy',0)
+     .             'nwdft: failed getting converged energy',0, RTDB_ERR)
                else
                if (.not. rtdb_get(rtdb, 'dft:energy', mt_dbl, 1, 
      &              energy)) call errquit(
-     .              'nwdft: failed getting converged energy',0)
+     .              'nwdft: failed getting converged energy',0,
+     &       RTDB_ERR)
                endif
                if (iproc.eq.0 .and. oprint)then
                   write(LuOut,1011)energy
@@ -237,7 +239,7 @@ c
       call trace_end(ga_nodeid())                            ! end trace
 #endif
       else
-        call errquit('nwdft: problem with system type',0)
+        call errquit('nwdft: problem with system type',0, INPUT_ERR)
       endif
 c     
 c     terminate integrals 
@@ -267,16 +269,17 @@ c
 
       if(XCFIT)then
        if(.not.bas_destroy(XC_bas_han))
-     &     call errquit ('dft:destroying XC basis handle',0)
+     &     call errquit ('dft:destroying XC basis handle',0, BASIS_ERR)
       endif
       if(CDFIT)then
        if(.not.bas_destroy(CD_bas_han))
-     &     call errquit ('dft:destroying CD basis handle',0)
+     &     call errquit ('dft:destroying CD basis handle',0, BASIS_ERR)
       endif
       if (.not.(
      &     bas_destroy(AO_bas_han)
      &     .and. geom_destroy(geom)))
-     &     call errquit ('dft:destroying geom and basis handles',0)
+     &     call errquit ('dft:destroying geom and basis handles',0,
+     &       BASIS_ERR)
 c
 c--> Flush ouput buffer.
 c
@@ -291,7 +294,7 @@ c
       return
 c
 #ifdef DFT_TIMER
- 1010 call errquit('dft: failed to open timings file',0)
+ 1010 call errquit('dft: failed to open timings file',0, DISK_ERR)
 #endif
       end
  

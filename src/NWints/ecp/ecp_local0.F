@@ -1,4 +1,4 @@
-C $Id: ecp_local0.F,v 1.2 1999-03-08 23:22:48 mg201 Exp $
+C $Id: ecp_local0.F,v 1.3 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local0 (mem_max,DryRun,
@@ -56,6 +56,8 @@ C $Id: ecp_local0.F,v 1.2 1999-03-08 23:22:48 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer l_a,n_prim_a,n_cont_a,n_na,l_b,n_prim_b,n_cont_b,n_nb,
      &    n_coef_c,l_tmp,p_min,p_max,sphcart,mem_max,ibug
       integer n_prim_c(p_min:p_max)
@@ -120,7 +122,7 @@ C $Id: ecp_local0.F,v 1.2 1999-03-08 23:22:48 mg201 Exp $
         if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (i_free-1 .gt. l_tmp) call errquit(
-     &      ' Insufficient memory in ecp_local0',99)
+     &      ' Insufficient memory in ecp_local0',99, MEM_ERR)
         call ecp_radint0 (p_min,p_max,
      &      n_prim_c,n_coef_c,1,zeta_c,coef_c,
      &      l_a,n_prim_a,n_cont_a,zeta_a,coef_a,
@@ -156,7 +158,7 @@ C $Id: ecp_local0.F,v 1.2 1999-03-08 23:22:48 mg201 Exp $
             if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
           else
             if (i_free-1 .gt. l_tmp) call errquit(
-     &          ' Insufficient memory in ecp_local0',99)
+     &          ' Insufficient memory in ecp_local0',99, MEM_ERR)
 *
 *       Set up angular overlap matrix
 *

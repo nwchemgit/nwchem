@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.13 2003-07-30 18:16:48 bylaska Exp $
+* $Id: cpsi.F,v 1.14 2003-10-17 22:56:11 carlfahl Exp $
 *
 
 
@@ -350,6 +350,7 @@
 *     ***********************************
       subroutine cpsi_1get_Tgradient(THpsi,E0)
       implicit none
+#include "errquit.fh"
       complex*16 THpsi(*)
       real*8     E0
 
@@ -368,7 +369,8 @@
       value = MA_push_get(mt_dcpl,(2*ne(1)*ne(1))*nbrillioun,
      >                   'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in psi_1get_Tradient',0)
+     >   call errquit('out of stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
 
       call c_electron_run(dcpl_mb(psi1(1)),
@@ -389,7 +391,8 @@
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in psi_1get_Tradient',0)
+     > call errquit('error popping stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
       return
       end
@@ -403,6 +406,7 @@
 *     ***********************************
       subroutine cpsi_2get_Tgradient(THpsi,E0)
       implicit none
+#include "errquit.fh"
       complex*16 THpsi(*)
       real*8     E0
 
@@ -422,7 +426,8 @@
       value = MA_push_get(mt_dcpl,(2*ne(1)*ne(1)*nbrillioun),
      >                   'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in psi_1get_Tradient',0)
+     >   call errquit('out of stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
 
       call c_electron_run(dcpl_mb(psi2(1)),
@@ -443,7 +448,8 @@
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in psi_1get_Tradient',0)
+     > call errquit('error popping stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
       return
       end
@@ -594,6 +600,7 @@ c      end if
 *     ***********************************
       subroutine cpsi1to2_sd_update(dte)
       implicit none
+#include "errquit.fh"
       real*8 dte
 
 #include "mafdecls.fh"
@@ -637,7 +644,7 @@ c      end if
       value = value.and.MA_pop_stack(tmp_L(2))
       if (.not. value)
      >     call errquit(
-     >          'psi1to2_sd_update: stack failure', 0)
+     >          'psi1to2_sd_update: stack failure', 0, MA_ERR)
       return
       end
 
@@ -847,6 +854,7 @@ c      end
 *     ***************************
       real*8 function cpsi_error()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
@@ -859,7 +867,7 @@ c      end
 
       value = MA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in psi_error',0)
+     >   call errquit('out of stack memory in psi_error',0, MA_ERR)
 
 
       error = 0.0d0
@@ -881,7 +889,7 @@ c      end
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in psi_error',0)
+     > call errquit('error popping stack memory in psi_error',0, MA_ERR)
 
 
       cpsi_error = error
@@ -895,6 +903,7 @@ c      end
 *     ***************************
       real*8 function c_rho_error()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
@@ -911,7 +920,7 @@ c      end
 
       value = MA_push_get(mt_dbl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in rho_error',0)
+     >   call errquit('out of stack memory in rho_error',0, MA_ERR)
 
 
       call C3dB_nx(1,nx)
@@ -936,7 +945,7 @@ c      end
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in rho_error',0)
+     > call errquit('error popping stack memory in rho_error',0, MA_ERR)
 
       c_rho_error = error
       return
@@ -983,6 +992,7 @@ c      end
 
       logical function cpsi_initialize()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -1063,7 +1073,7 @@ c      end
      >        MA_alloc_get(mt_dbl,2*nfft3d,
      >                     'rho2_all',rho2_all(2),rho2_all(1))
       if (.not. value) 
-     >  call errquit('cpsi_initialize:out of heap memory',0)
+     >  call errquit('cpsi_initialize:out of heap memory',0, MA_ERR)
 
 *     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
@@ -1092,16 +1102,16 @@ c      end
           if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
 
           if (.not. rtdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
      >                    1,filename(1:ind)))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_cput failed', 0)
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
 
           if (.not. rtdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
      >     call errquit(
-     >     'c_wvfnc_expander_input: rtdb_put failed', 0)
+     >     'c_wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
 
           write(*,*)
           write(*,*) "Grid is being converted:"

@@ -2,9 +2,10 @@
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b, scftype, nfrozen,
      $     title)
 *
-* $Id: mp2_make_nos.F,v 1.4 1999-06-16 00:10:23 d3e129 Exp $
+* $Id: mp2_make_nos.F,v 1.5 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -44,22 +45,26 @@ c
       nmos(2) = nmo
 c
       if(.not.ma_push_get(mt_dbl, 2*nbf,'mp2 nos', l_eval,k_eval))      
-     $     call errquit('mp2_nos: allocating eval?', nbf)
+     $     call errquit('mp2_nos: allocating eval?', nbf, MA_ERR)
       call dfill(2*nbf, 0.0d0, dbl_mb(k_eval), 1)
 c
 *ga:1:0
       if(.not.ga_create(mt_dbl, nmo, nmo, 'mp2 nos a', nmo, 0,
-     $     g_dens)) call errquit('mp2_nos: ga_create a failed',0)
+     $     g_dens)) call errquit('mp2_nos: ga_create a failed',0,
+     &       GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl, nmo, nmo, 'mp2 nos b', nmo, 0,
-     $     g_work)) call errquit('mp2_nos: ga_create b failed',0)
+     $     g_work)) call errquit('mp2_nos: ga_create b failed',0,
+     &       GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl, nbf, nmo, 'mp2 nos c', nbf, 0,
-     $     g_nos(1))) call errquit('mp2_nos: ga_create c failed',0)
+     $     g_nos(1))) call errquit('mp2_nos: ga_create c failed',0,
+     &       GA_ERR)
       if (scftype .eq. 'UHF') then
 *ga:1:0
          if(.not.ga_create(mt_dbl, nbf, nmo, 'mp2 nos d', nbf, 0,
-     $        g_nos(2))) call errquit('mp2_nos: ga_create d failed',0)
+     $        g_nos(2))) call errquit('mp2_nos: ga_create d failed',0,
+     &       GA_ERR)
       endif
 c
       if (scftype .eq. 'RHF') then
@@ -152,7 +157,7 @@ c
      $     'mp2', title,
      $     nbf, nsets, nmos, dbl_mb(k_eval), nbf, 
      $     dbl_mb(k_eval), nbf, g_nos))
-     $     call errquit('mp2_nos: failed writing nos',0)
+     $     call errquit('mp2_nos: failed writing nos',0, DISK_ERR)
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,*)
@@ -162,12 +167,17 @@ c
          call util_flush(6)
       endif
 c
-      if (.not. ma_pop_stack(l_eval)) call errquit('mp2_nos: ma?',0)
-      if (.not. ga_destroy(g_dens)) call errquit('mp2_nos: ga?',0)
-      if (.not. ga_destroy(g_work)) call errquit('mp2_nos: ga?',0)
-      if (.not. ga_destroy(g_nos(1))) call errquit('mp2_nos: ga?',0)
+      if (.not. ma_pop_stack(l_eval)) call errquit('mp2_nos: ma?',0,
+     &       MA_ERR)
+      if (.not. ga_destroy(g_dens)) call errquit('mp2_nos: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_work)) call errquit('mp2_nos: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_nos(1))) call errquit('mp2_nos: ga?',0,
+     &       GA_ERR)
       if (scftype .eq. 'UHF') then
-         if (.not. ga_destroy(g_nos(2))) call errquit('mp2_nos: ga?',0)
+         if (.not. ga_destroy(g_nos(2))) call errquit('mp2_nos: ga?',0,
+     &       GA_ERR)
       endif
 c
       end

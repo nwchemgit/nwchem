@@ -9,9 +9,10 @@
      + i_lseqi,ndumsi)
 c
 c
-c $Id: sp_init.F,v 1.120 2003-09-23 23:45:16 d3j191 Exp $
+c $Id: sp_init.F,v 1.121 2003-10-17 22:58:20 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -119,35 +120,35 @@ c
       endif
       msm=max(1,nsm)
       if(.not.ma_push_get(mt_dbl,msm*3,'xscr',l_xscr,i_xscr))
-     + call errquit('Failed to allocate xscr',0)
+     + call errquit('Failed to allocate xscr',0, MA_ERR)
 c
       lenscr=3*max(mwm*mwa,msa)
       if(.not.ma_push_get(mt_dbl,lenscr,'x',l_x,i_x))
-     + call errquit('Failed to allocate x',0)
+     + call errquit('Failed to allocate x',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr,'v',l_v,i_v))
-     + call errquit('Failed to allocate v',0)
+     + call errquit('Failed to allocate v',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr,'f',l_f,i_f))
-     + call errquit('Failed to allocate f',0)
+     + call errquit('Failed to allocate f',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,3*mwm*mwa,'r',l_r,i_r))
-     + call errquit('Failed to allocate r',0)
+     + call errquit('Failed to allocate r',0, MA_ERR)
       lenscr=max(miw2*mwm,mis2*msa)
       if(.not.ma_push_get(mt_int,lenscr,'i',l_i,i_i))
-     + call errquit('Failed to allocate i',0)
+     + call errquit('Failed to allocate i',0, MA_ERR)
       lenscr=ma_inquire_avail(mt_byte)/
      + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
-     + call errquit('Failed to allocate bx',0)
+     + call errquit('Failed to allocate bx',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
-     + call errquit('Failed to allocate bv',0)
+     + call errquit('Failed to allocate bv',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bf',l_bf,i_bf))
-     + call errquit('Failed to allocate bf',0)
+     + call errquit('Failed to allocate bf',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
-     + call errquit('Failed to allocate br',0)
+     + call errquit('Failed to allocate br',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
-     + call errquit('Failed to allocate bi',0)
+     + call errquit('Failed to allocate bi',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
-     + call errquit('Failed to allocate n',0)
+     + call errquit('Failed to allocate n',0, MA_ERR)
 c
       call ga_sync()
 c
@@ -170,27 +171,27 @@ c
       endif
 c
       if(.not.ma_pop_stack(l_n))
-     + call errquit('Failed to deallocate n',0)
+     + call errquit('Failed to deallocate n',0, MA_ERR)
       if(.not.ma_pop_stack(l_bi))
-     + call errquit('Failed to deallocate bi',0)
+     + call errquit('Failed to deallocate bi',0, MA_ERR)
       if(.not.ma_pop_stack(l_br))
-     + call errquit('Failed to deallocate br',0)
+     + call errquit('Failed to deallocate br',0, MA_ERR)
       if(.not.ma_pop_stack(l_bf))
-     + call errquit('Failed to deallocate bf',0)
+     + call errquit('Failed to deallocate bf',0, MA_ERR)
       if(.not.ma_pop_stack(l_bv))
-     + call errquit('Failed to deallocate bv',0)
+     + call errquit('Failed to deallocate bv',0, MA_ERR)
       if(.not.ma_pop_stack(l_bx))
-     + call errquit('Failed to deallocate bx',0)
+     + call errquit('Failed to deallocate bx',0, MA_ERR)
       if(.not.ma_pop_stack(l_i))
-     + call errquit('Failed to deallocate i',0)
+     + call errquit('Failed to deallocate i',0, MA_ERR)
       if(.not.ma_pop_stack(l_r))
-     + call errquit('Failed to deallocate r',0)
+     + call errquit('Failed to deallocate r',0, MA_ERR)
       if(.not.ma_pop_stack(l_f))
-     + call errquit('Failed to deallocate f',0)
+     + call errquit('Failed to deallocate f',0, MA_ERR)
       if(.not.ma_pop_stack(l_v))
-     + call errquit('Failed to deallocate v',0)
+     + call errquit('Failed to deallocate v',0, MA_ERR)
       if(.not.ma_pop_stack(l_x))
-     + call errquit('Failed to deallocate x',0)
+     + call errquit('Failed to deallocate x',0, MA_ERR)
 c
       if(np.gt.1) then
       rtemp(1)=temp
@@ -261,6 +262,7 @@ c
       subroutine sp_dimens(lfnrst,filrst)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "msgids.fh"
@@ -427,12 +429,13 @@ c
       endif
 c
       return
- 9999 call errquit('Failed to open restart file',0)
+ 9999 call errquit('Failed to open restart file',0, DISK_ERR)
       return
       end
       subroutine sp_alloc
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -441,22 +444,22 @@ c
       integer isize
 c
       if(.not.ma_push_get(mt_int,np,'bindex',l_bindex,i_bindex))
-     + call errquit('Failed to allocate bindex',0)
+     + call errquit('Failed to allocate bindex',0, MA_ERR)
       if(.not.ma_push_get(mt_int,54*np,'buren',l_buren,i_buren))
-     + call errquit('Failed to allocate buren',0)
+     + call errquit('Failed to allocate buren',0, MA_ERR)
       if(.not.ma_push_get(mt_int,3*maxbox,'owner',l_iown,i_iown))
-     + call errquit('Failed to allocate owner',0)
+     + call errquit('Failed to allocate owner',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,3*maxbox,'bxsiz',l_boxs,i_boxs))
-     + call errquit('Failed to allocate bxsiz',0)
+     + call errquit('Failed to allocate bxsiz',0, MA_ERR)
       if(.not.ma_push_get(mt_int,6*maxbox,'ibxrg',l_boxr,i_boxr))
-     + call errquit('Failed to allocate ibxrg',0)
+     + call errquit('Failed to allocate ibxrg',0, MA_ERR)
       if(.not.ma_push_get(mt_int,6*maxbox,'rng',l_rng,i_rng))
-     + call errquit('Failed to allocate rng',me)
+     + call errquit('Failed to allocate rng',me, MA_ERR)
 c
       if(.not.ma_push_get(mt_int,mip2*mbox,'ipl',l_ipl,i_ipl))
-     + call errquit('Failed to allocate ipl',0)
+     + call errquit('Failed to allocate ipl',0, MA_ERR)
       if(.not.ma_push_get(mt_int,mip2*mbox,'jpl',l_jpl,i_jpl))
-     + call errquit('Failed to allocate jpl',0)
+     + call errquit('Failed to allocate jpl',0, MA_ERR)
 c
       mseq=nseq
 c
@@ -466,73 +469,74 @@ c
      + call errquit('Failed to allocate sndx',0)
 c
       if(.not.ga_create(mt_int,np*mbox,mip2,'ip',mbox,mip2,ga_ip))
-     + call errquit('Failed to create global array ip',0)
+     + call errquit('Failed to create global array ip',0, GA_ERR)
       if(.not.ga_create(mt_int,np*mwm,miw2,'iw',mwm,miw2,ga_iw))
-     + call errquit('Failed to create global array iw',0)
+     + call errquit('Failed to create global array iw',0, GA_ERR)
       isize=6+12*mwa
       if(lpola) isize=6+18*mwa
       if(lpola.and.lfree) isize=6+30*mwa
       if(.not.ga_create(mt_dbl,np*mwm,isize,'w',mwm,isize,ga_w))
-     + call errquit('Failed to create global array w',0)
+     + call errquit('Failed to create global array w',0, GA_ERR)
       if(.not.ga_create(mt_int,np*msa,mis2,'is',msa,mis2,ga_is))
-     + call errquit('Failed to create global array is',0)
+     + call errquit('Failed to create global array is',0, GA_ERR)
       isize=39
       if(lpola) isize=45
       if(lpola.and.lfree) isize=57
       if(.not.ga_create(mt_dbl,np*msa,isize,'s',msa,isize,ga_s))
-     + call errquit('Failed to create global array s',0)
+     + call errquit('Failed to create global array s',0, GA_ERR)
 c
       if(.not.ga_create(mt_int,np*mwm,1,'iwz',mwm,1,ga_iwz))
-     + call errquit('Failed to create global array iwz',0)
+     + call errquit('Failed to create global array iwz',0, GA_ERR)
       if(.not.ga_create(mt_int,np*msa,1,'isz',msa,1,ga_isz))
-     + call errquit('Failed to create global array isz',0)
+     + call errquit('Failed to create global array isz',0, GA_ERR)
 c
       return
       end
       subroutine sp_free()
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 c
       if(.not.ga_destroy(ga_isz))
-     + call errquit('Error ga_destroy isz',ga_isz)
+     + call errquit('Error ga_destroy isz',ga_isz, GA_ERR)
       if(.not.ga_destroy(ga_iwz))
-     + call errquit('Error ga_destroy iwz',ga_iwz)
+     + call errquit('Error ga_destroy iwz',ga_iwz, GA_ERR)
 c
       if(.not.ga_destroy(ga_s))
-     + call errquit('Error ga_destroy s',ga_s)
+     + call errquit('Error ga_destroy s',ga_s, GA_ERR)
       if(.not.ga_destroy(ga_is))
-     + call errquit('Error ga_destroy is',ga_is)
+     + call errquit('Error ga_destroy is',ga_is, GA_ERR)
       if(.not.ga_destroy(ga_w))
-     + call errquit('Error ga_destroy w',ga_w)
+     + call errquit('Error ga_destroy w',ga_w, GA_ERR)
       if(.not.ga_destroy(ga_iw))
-     + call errquit('Error ga_destroy iw',ga_iw)
+     + call errquit('Error ga_destroy iw',ga_iw, GA_ERR)
       if(.not.ga_destroy(ga_ip))
-     + call errquit('Error ga_destroy iw',ga_ip)
+     + call errquit('Error ga_destroy iw',ga_ip, GA_ERR)
 c
       if(.not.ma_pop_stack(l_sndx))
      + call errquit('Failed to deallocate sndx',0)
       if(.not.ma_pop_stack(l_lseq))
      + call errquit('Failed to deallocate lseq',0)
       if(.not.ma_pop_stack(l_jpl))
-     + call errquit('Failed to deallocate jpl',0)
+     + call errquit('Failed to deallocate jpl',0, MA_ERR)
       if(.not.ma_pop_stack(l_ipl))
-     + call errquit('Failed to deallocate ipl',0)
+     + call errquit('Failed to deallocate ipl',0, MA_ERR)
       if(.not.ma_pop_stack(l_rng))
-     + call errquit('Failed to deallocate rng',0)
+     + call errquit('Failed to deallocate rng',0, MA_ERR)
       if(.not.ma_pop_stack(l_boxr))
-     + call errquit('Failed to deallocate boxr',0)
+     + call errquit('Failed to deallocate boxr',0, MA_ERR)
       if(.not.ma_pop_stack(l_boxs))
-     + call errquit('Failed to deallocate boxs',0)
+     + call errquit('Failed to deallocate boxs',0, MA_ERR)
       if(.not.ma_pop_stack(l_iown))
-     + call errquit('Failed to deallocate iown',0)
+     + call errquit('Failed to deallocate iown',0, MA_ERR)
       if(.not.ma_pop_stack(l_buren))
-     + call errquit('Failed to deallocate buren',0)
+     + call errquit('Failed to deallocate buren',0, MA_ERR)
       if(.not.ma_pop_stack(l_bindex))
-     + call errquit('Failed to deallocate bindex',0)
+     + call errquit('Failed to deallocate bindex',0, MA_ERR)
 c
       return
       end
@@ -542,6 +546,7 @@ c
      + ibownr,boxsiz,lseq,isndx)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -857,7 +862,8 @@ c
       call ga_distribution(ga_ip,node,ilp,ihp,jlp,jhp)
       call ga_get(ga_ip,ilp,ilp,jlp,jhp,ipl,mbox)
       nold=ipl(1,2)
-      if(nold+new.gt.mwm) call errquit('Dimension mwm too small',0)
+      if(nold+new.gt.mwm) call errquit('Dimension mwm too small',0,
+     &       INPUT_ERR)
       ipl(1,2)=ipl(1,2)+new
       call ga_put(ga_ip,ilp,ilp,jlp,jhp,ipl,mbox)
       call ga_distribution(ga_iw,node,ili,ihi,jli,jhi)
@@ -886,7 +892,8 @@ c
       k=1
       joff=0
       do 13 i=1,nsa
-      if(k.gt.ns) call errquit('Increase memory for sp_rdrst buffer',0)
+      if(k.gt.ns) call errquit('Increase memory for sp_rdrst buffer',0,
+     &       INPUT_ERR)
       read(lfnrst,1011,end=9997,err=9998)
      + ibs(k,11),(bxs(k,j),j=1,3),(bvs(k,j),j=1,3),ibs(k,12)
  1011 format(i1,1x,6f13.8,i5)
@@ -919,7 +926,8 @@ cx
       if(nsf.lt.ibs(k,1)) nsf=ibs(k,1)
       else
       if(nsf.lt.ibs(k,1))
-     + call errquit('Error in number of solute fractions',nsf)
+     + call errquit('Error in number of solute fractions',nsf,
+     &       INPUT_ERR)
       endif
 c
 c     if segment of this atom is different from the segment of previous atom 
@@ -1031,7 +1039,7 @@ c
       call ga_get(ga_ip,ilp,ilp+1,jlp,jhp,ipl,mbox)
       nold=ipl(2,2)
       if(nold+new.gt.msa)
-     + call errquit('Dimension msa too small',nold+new)
+     + call errquit('Dimension msa too small',nold+new, INPUT_ERR)
       ipl(2,2)=ipl(2,2)+new
       call ga_put(ga_ip,ilp,ilp+1,jlp,jhp,ipl,mbox)
       call ga_distribution(ga_is,node,ili,ihi,jli,jhi)
@@ -1114,12 +1122,12 @@ c
       endif
 c
       return
- 9897 call errquit('EOF encountered on topology file',0)
- 9898 call errquit('Error reading topology file',1)
- 9899 call errquit('Error opening topology file',2)
- 9997 call errquit('EOF encountered on restart file',0)
- 9998 call errquit('Error reading restart file',0)
- 9999 call errquit('Error opening restart file',0)
+ 9897 call errquit('EOF encountered on topology file',0, INPUT_ERR)
+ 9898 call errquit('Error reading topology file',1, INPUT_ERR)
+ 9899 call errquit('Error opening topology file',2, INPUT_ERR)
+ 9997 call errquit('EOF encountered on restart file',0, INPUT_ERR)
+ 9998 call errquit('Error reading restart file',0, INPUT_ERR)
+ 9999 call errquit('Error opening restart file',0, INPUT_ERR)
       return
       end
       integer function sp_btop(ibox,ibownr)
@@ -1142,6 +1150,7 @@ c
       subroutine sp_decomp(ibownr,boxsiz,iburen,ibindx)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "msgids.fh"
@@ -1157,7 +1166,7 @@ c
 c     check dimensions of ibownr
 c
       if(nbx.gt.maxbox.or.nby.gt.maxbox.or.nbz.gt.maxbox)
-     + call errquit('Dimension maxbox too small',0)
+     + call errquit('Dimension maxbox too small',0, INPUT_ERR)
 c
 c     determine the node dimension for each sub box
 c
@@ -1259,13 +1268,14 @@ c
 c
 c     broadcast the maximum number of sub-boxes per node to all nodes
 c
-      if(nbiown.gt.mbox) call errquit('Error in mbox',0)
+      if(nbiown.gt.mbox) call errquit('Error in mbox',0, INPUT_ERR)
 c
       return
       end
       subroutine sp_nrnode
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 c
@@ -1282,7 +1292,7 @@ c     determine node dimensions
 c
       if(npx*npy*npz.ne.np) then
       if(npx+npy+npz.gt.0) 
-     + call errquit('Specified npx*npy*npz ne np',0)
+     + call errquit('Specified npx*npy*npz ne np',0, INPUT_ERR)
 c
       npt=0
       do 1 i=1,np
@@ -1309,7 +1319,8 @@ c
     2 continue
     1 continue
 c
-      if(npx*npy*npz.ne.np) call errquit('nrnode: code error',0)
+      if(npx*npy*npz.ne.np) call errquit('nrnode: code error',0,
+     &       INPUT_ERR)
       endif
 c
 c     determine processor location of me
@@ -1450,6 +1461,7 @@ c
       subroutine sp_numbb(ibownr,boxsiz)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -1627,13 +1639,13 @@ c
       if(mbblp.eq.0) then
       mbbl=max(mbbl,mbbreq)
       if(.not.ma_push_get(mt_int,15*mbbl,'bb',l_bb,i_bb))
-     + call errquit('Failed to allocate memory for bb',0)
+     + call errquit('Failed to allocate memory for bb',0, MA_ERR)
       mbblp=mbbl
       else
       if(mbbl.gt.mbblp) then
       write(string,1111) mbblp,mbbl,mbbreq
  1111 format('error: lbbl increase from ',i6,' to ',i6,'(',i6,')')
-      call errquit(string,me)
+      call errquit(string,me, UNKNOWN_ERR)
 c      call errquit('lbbl increased beyond allocated memory',me)
       endif
       endif
@@ -1643,6 +1655,7 @@ c
       subroutine sp_listbb(ibownr,boxsiz,lbbl)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 c
@@ -1788,7 +1801,8 @@ c     keep only those within maximum cutoff distance
 c
       if(rbbl*rbbl.gt.dist2) then
       nbbl=nbbl+1
-      if(nbbl.gt.mbbl) call errquit('Box-box list too small',mbbl)
+      if(nbbl.gt.mbbl) call errquit('Box-box list too small',mbbl,
+     &       INPUT_ERR)
       lbbl(nbbl,1)=jnode
       lbbl(nbbl,2)=jbox
       lbbl(nbbl,3)=ibox
@@ -1839,14 +1853,15 @@ c
       subroutine sp_finish()
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 c
       if(.not.ma_pop_stack(l_xscr))
-     + call errquit('Failed to deallocate xscr',0)
+     + call errquit('Failed to deallocate xscr',0, MA_ERR)
       if(.not.ma_pop_stack(l_bb))
-     + call errquit('Failed to deallocate memory for bb',0)
+     + call errquit('Failed to deallocate memory for bb',0, MA_ERR)
 c
       call sp_free()
 c
@@ -1996,6 +2011,7 @@ c
      + lseq)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2018,17 +2034,17 @@ c
      + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
-     + call errquit('Failed to allocate bx',0)
+     + call errquit('Failed to allocate bx',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
-     + call errquit('Failed to allocate bv',0)
+     + call errquit('Failed to allocate bv',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bf',l_bf,i_bf))
-     + call errquit('Failed to allocate bf',0)
+     + call errquit('Failed to allocate bf',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
-     + call errquit('Failed to allocate br',0)
+     + call errquit('Failed to allocate br',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
-     + call errquit('Failed to allocate bi',0)
+     + call errquit('Failed to allocate bi',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
-     + call errquit('Failed to allocate n',0)
+     + call errquit('Failed to allocate n',0, MA_ERR)
 c
       call sp_wtrst(lfnrst,filrst,lveloc,pres,temp,tempw,temps,
      + iwl,int_mb(i_packw),xw,vw,fw,xwcr,isl,int_mb(i_pack),xs,vs,fs,
@@ -2037,17 +2053,17 @@ c
      + dbl_mb(i_bv),dbl_mb(i_bf),lseq)
 c
       if(.not.ma_pop_stack(l_n))
-     + call errquit('Failed to deallocate n',0)
+     + call errquit('Failed to deallocate n',0, MA_ERR)
       if(.not.ma_pop_stack(l_bi))
-     + call errquit('Failed to deallocate bi',0)
+     + call errquit('Failed to deallocate bi',0, MA_ERR)
       if(.not.ma_pop_stack(l_br))
-     + call errquit('Failed to deallocate br',0)
+     + call errquit('Failed to deallocate br',0, MA_ERR)
       if(.not.ma_pop_stack(l_bf))
-     + call errquit('Failed to deallocate bf',0)
+     + call errquit('Failed to deallocate bf',0, MA_ERR)
       if(.not.ma_pop_stack(l_bv))
-     + call errquit('Failed to deallocate bv',0)
+     + call errquit('Failed to deallocate bv',0, MA_ERR)
       if(.not.ma_pop_stack(l_bx))
-     + call errquit('Failed to deallocate bx',0)
+     + call errquit('Failed to deallocate bx',0, MA_ERR)
 c
       return
       end
@@ -2056,6 +2072,7 @@ c
      + ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs,lseq)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2184,7 +2201,7 @@ c     begin test code 10/31/2001
 c     check if al atoms have been received
 c
       if(ibw(i).lt.0)
-     + call errquit('Missing solvent in wtrst',i)
+     + call errquit('Missing solvent in wtrst',i, INPUT_ERR)
 c
 c     end test code
 c
@@ -2269,7 +2286,7 @@ c     begin test code 10/31/2001
 c     check if al atoms have been received
 c
       if(ibs(i,1).lt.0)
-     + call errquit('Missing solute atom in wtrst',i)
+     + call errquit('Missing solute atom in wtrst',i, INPUT_ERR)
 c
 c     end test code
 c
@@ -2294,12 +2311,13 @@ c
 c
       return
  9999 continue
-      call errquit('Failed to open restart file',me)
+      call errquit('Failed to open restart file',me, DISK_ERR)
       return
       end
       subroutine sp_print(lfnout)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2344,12 +2362,12 @@ c
       endif
 c
       if(.not.ma_push_get(mt_int,3*np,'lcnt',l_lcnt,i_lcnt))
-     + call errquit('Failed to allocate memory for lcnt',0)
+     + call errquit('Failed to allocate memory for lcnt',0, MA_ERR)
 c
       call sp_prtcnt(lfnout,int_mb(i_lcnt))
 c
       if(.not.ma_pop_stack(l_lcnt))
-     + call errquit('Failed to deallocate lcnt',0)
+     + call errquit('Failed to deallocate lcnt',0, MA_ERR)
 c
       return
       end
@@ -2390,6 +2408,7 @@ c
      + npener,esa)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2407,15 +2426,15 @@ c
      + ((6*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
-     + call errquit('Failed to allocate bx',0)
+     + call errquit('Failed to allocate bx',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
-     + call errquit('Failed to allocate bv',0)
+     + call errquit('Failed to allocate bv',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
-     + call errquit('Failed to allocate br',0)
+     + call errquit('Failed to allocate br',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
-     + call errquit('Failed to allocate bi',0)
+     + call errquit('Failed to allocate bi',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
-     + call errquit('Failed to allocate n',0)
+     + call errquit('Failed to allocate n',0, MA_ERR)
 c
       call sp_prt_s(lfnout,filtop,lfntop,
      + int_mb(i_ipl),isl,int_mb(i_pack),xs,fs,
@@ -2423,15 +2442,15 @@ c
      + npener,esa)
 c
       if(.not.ma_pop_stack(l_n))
-     + call errquit('Failed to deallocate n',0)
+     + call errquit('Failed to deallocate n',0, MA_ERR)
       if(.not.ma_pop_stack(l_bi))
-     + call errquit('Failed to deallocate bi',0)
+     + call errquit('Failed to deallocate bi',0, MA_ERR)
       if(.not.ma_pop_stack(l_br))
-     + call errquit('Failed to deallocate br',0)
+     + call errquit('Failed to deallocate br',0, MA_ERR)
       if(.not.ma_pop_stack(l_bv))
-     + call errquit('Failed to deallocate bv',0)
+     + call errquit('Failed to deallocate bv',0, MA_ERR)
       if(.not.ma_pop_stack(l_bx))
-     + call errquit('Failed to deallocate bx',0)
+     + call errquit('Failed to deallocate bx',0, MA_ERR)
 c
       return
       end
@@ -2604,6 +2623,7 @@ c
       subroutine sp_wtrest(lfn)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2613,11 +2633,11 @@ c
       integer i_ltmp,l_ltmp
 c
       if(.not.ma_push_get(mt_int,(mbbl+1)*mbb2,'ltmp',l_ltmp,i_ltmp))
-     + call errquit('Failed to allocate memory for ltmp',0)
+     + call errquit('Failed to allocate memory for ltmp',0, MA_ERR)
       call sp_wrest(lfn,int_mb(i_bb),int_mb(i_ltmp),mbbl+1,
      + dbl_mb(i_boxs))
       if(.not.ma_pop_stack(l_ltmp))
-     + call errquit('Failed to deallocate ltmp',0)
+     + call errquit('Failed to deallocate ltmp',0, MA_ERR)
 c
       return
       end
@@ -2681,6 +2701,7 @@ c
       logical function sp_rdrest(lfn,fil,boxsiz)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2695,17 +2716,18 @@ c
       integer i_ltmp,l_ltmp
 c
       if(.not.ma_push_get(mt_int,(mbbl+1)*mbb2,'ltmp',l_ltmp,i_ltmp))
-     + call errquit('Failed to allocate memory for ltmp',0)
+     + call errquit('Failed to allocate memory for ltmp',0, MA_ERR)
       sp_rdrest=sp_rrest(lfn,fil,int_mb(i_bb),int_mb(i_ltmp),
      + mbbl+1,boxsiz)
       if(.not.ma_pop_stack(l_ltmp))
-     + call errquit('Failed to deallocate ltmp',0)
+     + call errquit('Failed to deallocate ltmp',0, MA_ERR)
 c
       return
       end
       logical function sp_rrest(lfn,fil,lbbl,ltemp,mdim,boxsiz)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2795,7 +2817,7 @@ c
       sp_rrest=.false.
       return
  9999 continue
-      call errquit('Failed to open restart file',0)
+      call errquit('Failed to open restart file',0, DISK_ERR)
       sp_rrest=.false.
       return
       end
@@ -2803,6 +2825,7 @@ c
      + stime,pres,temp,tempw,temps,iwl,xw,vw,fw,xwcr,isl,xs,vs,fs)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2821,17 +2844,17 @@ c
      + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
-     + call errquit('Failed to allocate bx',0)
+     + call errquit('Failed to allocate bx',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
-     + call errquit('Failed to allocate bv',0)
+     + call errquit('Failed to allocate bv',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bf',l_bf,i_bf))
-     + call errquit('Failed to allocate bf',0)
+     + call errquit('Failed to allocate bf',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
-     + call errquit('Failed to allocate br',0)
+     + call errquit('Failed to allocate br',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
-     + call errquit('Failed to allocate bi',0)
+     + call errquit('Failed to allocate bi',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
-     + call errquit('Failed to allocate n',0)
+     + call errquit('Failed to allocate n',0, MA_ERR)
 c
       call sp_wttrj(lfntrj,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
@@ -2841,17 +2864,17 @@ c
      + dbl_mb(i_bf))
 c
       if(.not.ma_pop_stack(l_n))
-     + call errquit('Failed to deallocate n',0)
+     + call errquit('Failed to deallocate n',0, MA_ERR)
       if(.not.ma_pop_stack(l_bi))
-     + call errquit('Failed to deallocate bi',0)
+     + call errquit('Failed to deallocate bi',0, MA_ERR)
       if(.not.ma_pop_stack(l_br))
-     + call errquit('Failed to deallocate br',0)
+     + call errquit('Failed to deallocate br',0, MA_ERR)
       if(.not.ma_pop_stack(l_bf))
-     + call errquit('Failed to deallocate bf',0)
+     + call errquit('Failed to deallocate bf',0, MA_ERR)
       if(.not.ma_pop_stack(l_bv))
-     + call errquit('Failed to deallocate bv',0)
+     + call errquit('Failed to deallocate bv',0, MA_ERR)
       if(.not.ma_pop_stack(l_bx))
-     + call errquit('Failed to deallocate bx',0)
+     + call errquit('Failed to deallocate bx',0, MA_ERR)
 c
       return
       end
@@ -2860,6 +2883,7 @@ c
      + isl,islp,xs,vs,fs,ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -2971,13 +2995,15 @@ c
       write(lfntrj,1014) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),
      + (bfw(i,j,k),j=1,3),k=1,nwa)
  1014 format(6f8.3,3f8.1)
-      if(ibw(i).lt.0) call errquit('Missing solvent in wttrj',i)
+      if(ibw(i).lt.0) call errquit('Missing solvent in wttrj',i,
+     &       INPUT_ERR)
    61 continue
       else
       do 71 i=1,numw
       write(lfntrj,1015) ((bxw(i,j,k),j=1,3),(bfw(i,j,k),j=1,3),k=1,nwa)
  1015 format(3f8.3,3f8.1)
-      if(ibw(i).lt.0) call errquit('Missing solvent in wtrst',i)
+      if(ibw(i).lt.0) call errquit('Missing solvent in wtrst',i,
+     &       INPUT_ERR)
    71 continue
       endif
       else
@@ -2985,13 +3011,15 @@ c
       do 6 i=1,numw
       write(lfntrj,1004) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
  1004 format(6f8.3)
-      if(ibw(i).lt.0) call errquit('Missing solvent in wttrj',i)
+      if(ibw(i).lt.0) call errquit('Missing solvent in wttrj',i,
+     &       INPUT_ERR)
     6 continue
       else
       do 7 i=1,numw
       write(lfntrj,1005) ((bxw(i,j,k),j=1,3),k=1,nwa)
  1005 format(3f8.3)
-      if(ibw(i).lt.0) call errquit('Missing solvent in wtrst',i)
+      if(ibw(i).lt.0) call errquit('Missing solvent in wtrst',i,
+     &       INPUT_ERR)
     7 continue
       endif
       endif
@@ -3073,13 +3101,15 @@ c
       write(lfntrj,1016) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3),
      + (bfs(i,j),j=1,3)
  1016 format(6f8.3,3f8.1)
-      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i,
+     &       INPUT_ERR)
   111 continue
       else
       do 121 i=1,nums
       write(lfntrj,1017) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
  1017 format(3f8.3,3f8.1)
-      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i,
+     &       INPUT_ERR)
   121 continue
       endif
       else
@@ -3087,13 +3117,15 @@ c
       do 11 i=1,nums
       write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
  1006 format(6f8.3)
-      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i,
+     &       INPUT_ERR)
    11 continue
       else
       do 12 i=1,nums
       write(lfntrj,1007) (bxs(i,j),j=1,3)
  1007 format(3f8.3)
-      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i)
+      if(ibs(i).lt.0) call errquit('Missing solute atom in wtrst',i,
+     &       INPUT_ERR)
    12 continue
       endif
       endif
@@ -3140,6 +3172,7 @@ c
      + numwm,numsa)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "sp_common.fh"
 #include "mafdecls.fh"
@@ -3162,17 +3195,17 @@ c
      + ((9*mwa+3)*ma_sizeof(mt_dbl,1,mt_byte)+
      + (mis2+4)*ma_sizeof(mt_int,1,mt_byte))-1
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bx',l_bx,i_bx))
-     + call errquit('Failed to allocate bx',0)
+     + call errquit('Failed to allocate bx',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bv',l_bv,i_bv))
-     + call errquit('Failed to allocate bv',0)
+     + call errquit('Failed to allocate bv',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3*mwa,'bf',l_bf,i_bf))
-     + call errquit('Failed to allocate bf',0)
+     + call errquit('Failed to allocate bf',0, MA_ERR)
       if(.not.ma_push_get(mt_dbl,lenscr*3,'br',l_br,i_br))
-     + call errquit('Failed to allocate br',0)
+     + call errquit('Failed to allocate br',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr*max(mis2,2),'bi',l_bi,i_bi))
-     + call errquit('Failed to allocate bi',0)
+     + call errquit('Failed to allocate bi',0, MA_ERR)
       if(.not.ma_push_get(mt_int,lenscr,'n',l_n,i_n))
-     + call errquit('Failed to allocate n',0)
+     + call errquit('Failed to allocate n',0, MA_ERR)
 c
       done=sp_rtrj(lfntri,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
@@ -3182,17 +3215,17 @@ c
      + dbl_mb(i_bf))
 c
       if(.not.ma_pop_stack(l_n))
-     + call errquit('Failed to deallocate n',0)
+     + call errquit('Failed to deallocate n',0, MA_ERR)
       if(.not.ma_pop_stack(l_bi))
-     + call errquit('Failed to deallocate bi',0)
+     + call errquit('Failed to deallocate bi',0, MA_ERR)
       if(.not.ma_pop_stack(l_br))
-     + call errquit('Failed to deallocate br',0)
+     + call errquit('Failed to deallocate br',0, MA_ERR)
       if(.not.ma_pop_stack(l_bf))
-     + call errquit('Failed to deallocate bf',0)
+     + call errquit('Failed to deallocate bf',0, MA_ERR)
       if(.not.ma_pop_stack(l_bv))
-     + call errquit('Failed to deallocate bv',0)
+     + call errquit('Failed to deallocate bv',0, MA_ERR)
       if(.not.ma_pop_stack(l_bx))
-     + call errquit('Failed to deallocate bx',0)
+     + call errquit('Failed to deallocate bx',0, MA_ERR)
 c
       call ga_sync()
 c

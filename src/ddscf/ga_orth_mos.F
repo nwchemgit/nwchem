@@ -1,6 +1,7 @@
       subroutine ga_orthog_mos(basis, g_vecs)
-C$Id: ga_orth_mos.F,v 1.3 1999-06-16 00:10:13 d3e129 Exp $
+C$Id: ga_orth_mos.F,v 1.4 2003-10-17 22:54:32 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -17,9 +18,9 @@ c
       external ga_create_atom_blocked
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $  ('orthog mos: bas_numbf', 0)
+     $  ('orthog mos: bas_numbf', 0, BASIS_ERR)
       if (.not. bas_geom(basis, geom)) call errquit
-     $  ('orthog mos: bas_geom?', 0)
+     $  ('orthog mos: bas_geom?', 0, BASIS_ERR)
 c
 *      if (.not. ga_create(MT_DBL, nbf, nbf, 'orthog_mos:overlap',
 *     $    nbf, 0, g_over)) call errquit
@@ -34,6 +35,6 @@ c
       if (oscfps) call pstat_off(ps_orthog)
 c
       if (.not. ga_destroy(g_over))
-     $  call errquit('orthog mos: ga destroy ?', 0)
+     $  call errquit('orthog mos: ga destroy ?', 0, GA_ERR)
 c
       end

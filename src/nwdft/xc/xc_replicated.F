@@ -2,9 +2,10 @@
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.16 2003-07-08 21:42:48 edo Exp $
+C$Id: xc_replicated.F,v 1.17 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer rtdb
 c
@@ -65,7 +66,7 @@ c
             if(.not.ma_push_get(MT_int,procsmp*2,
      .           'ga block maps',l_map,k_map)) then
                call errquit('xcrepl: not enough local mem',
-     .              procsmp*2)
+     .              procsmp*2, MA_ERR)
             endif
             call util_atom_blocked(procsmp,
      .        geom, basis, int_mb(k_map), nblock)
@@ -110,7 +111,8 @@ c
          enddo
          if(xcrepirrg) then
             if (.not.ma_pop_stack(l_map))
-     &           call errquit('xc_rep_init: cannot pop stack',11)
+     &           call errquit('xc_rep_init: cannot pop stack',11,
+     &       MA_ERR)
          endif
             
          
@@ -139,9 +141,10 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.16 2003-07-08 21:42:48 edo Exp $
+C$Id: xc_replicated.F,v 1.17 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer rtdb
 c
@@ -164,12 +167,14 @@ c
                   call ga_merge_mirrored(k_repxc(i))
                   call ga_copy(k_repxc(i),g_vxc(i))
                   if (.not.ga_destroy(k_repxc(i)))
-     &              call errquit('xc_rep_close: cannot gadestr',i)
+     &              call errquit('xc_rep_close: cannot gadestr',i,
+     &       GA_ERR)
                endif
             endif
             if(dorepdm) then
                if (.not.ga_destroy(g_repdm(i)))
-     &              call errquit('xc_rep_close: cannot gadestr',i)
+     &              call errquit('xc_rep_close: cannot gadestr',i,
+     &       GA_ERR)
             endif
          enddo
 c     

@@ -1,4 +1,4 @@
-c $Id: intd_1eso.F,v 1.3 2000-04-19 04:04:36 zzhang Exp $
+c $Id: intd_1eso.F,v 1.4 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intd\_1eso}
@@ -11,6 +11,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -64,19 +65,21 @@ c
 c check initialization, shells, and buffer length
 c
       if (.not.int_chk_init('intd_1eso'))
-     &       call errquit('intd_1eso: int_init was not called' ,0)
+     &       call errquit('intd_1eso: int_init was not called' ,0,
+     &          INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('intd_1eso: invalid contraction/shell',0)
+     &       call errquit('intd_1eso: invalid contraction/shell',0,
+     &          INT_ERR)
 c
       nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
       if (nint*3*2.gt.lso) then
         write(luout,*) 'nint*3*2 = ',nint*3*2
         write(luout,*) 'lso      = ',lso
-        call errquit('intd_1eso: nint>lso error',911)
+        call errquit('intd_1eso: nint>lso error',911, INT_ERR)
       endif
 c
       call int_nospshell_check(i_basis,'intd_1eso:i_basis')
@@ -122,7 +125,8 @@ c
      &         j_prim, j_gen, Lj, j_cent,
      &         SO, nint, nat,scr,lscr,.false.) ! false>dryrun
       else
-        call errquit('intd_1eso: could not do nw integrals',0)
+        call errquit('intd_1eso: could not do nw integrals',0,
+     &              INT_ERR)
       endif
 c
 *     SO now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,3,nat)

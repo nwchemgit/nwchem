@@ -1,8 +1,9 @@
 *
-* $Id: rak30.F,v 1.6 2000-02-04 19:53:16 mg201 Exp $
+* $Id: rak30.F,v 1.7 2003-10-17 22:54:39 carlfahl Exp $
 *
       logical function raktask_intdd_3c(rtdb)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -29,14 +30,14 @@
       raktask_intdd_3c = .false.
 *
       if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('geom create failed',911)
+     &    ('geom create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('geom_rtdb_load failed',911)
+     &    ('geom_rtdb_load failed',911, RTDB_ERR)
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &    ('bas_create failed',911)
+     &    ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
-     &    ('bas_rtdb_load failed',911)
+     &    ('bas_rtdb_load failed',911, RTDB_ERR)
 c
       write(luout,*)' geom/basis loaded'
       call util_flush(luout)
@@ -44,15 +45,15 @@ c
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
 c
       if (.not. bas_print(basis))
-     $    call errquit(' basis print failed', 0)
+     $    call errquit(' basis print failed', 0, BASIS_ERR)
       if (.not. gbs_map_print(basis))
-     $    call errquit(' gbs_map_print failed', 0)
+     $    call errquit(' gbs_map_print failed', 0, UNKNOWN_ERR)
 c
       if (.not.bas_numbf(basis,nbf)) call errquit
-     &    ('numbf failed',911)
+     &    ('numbf failed',911, BASIS_ERR)
 c
       if (.not.bas_numcont(basis,nshell)) call errquit
-     &    ('numbf failed',911)
+     &    ('numbf failed',911, BASIS_ERR)
 c
       if (.not.geom_ncent(geom,nat)) stop 'geom_ncent fe'
       write(luout,*) 'number of atoms ', nat

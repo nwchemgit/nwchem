@@ -1,6 +1,7 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.43 2003-02-06 22:07:19 edo Exp $
+C$Id: rohf.F,v 1.44 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -181,6 +182,7 @@ c
       end
       subroutine rohf_analyze(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cscf.fh"
 #include "global.fh"
 #include "util.fh"
@@ -304,13 +306,16 @@ c
 c     Store the dipole moment
 c
       if (.not. rtdb_put(rtdb, 'scf:dipole', mt_dbl, 
-     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0)
+     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0,
+     &       RTDB_ERR)
 c     
  100  if (nopen .gt. 0) then
          if (.not. ga_destroy(g_odens)) 
-     $        call errquit('rohf_mull: ga?',0)
+     $        call errquit('rohf_mull: ga?',0, GA_ERR)
       endif
-      if (.not. ga_destroy(g_over)) call errquit('rohf_mull: ga?',0)
-      if (.not. ga_destroy(g_cdens)) call errquit('rohf_mull: ga?',0)
+      if (.not. ga_destroy(g_over)) call errquit('rohf_mull: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_cdens)) call errquit('rohf_mull: ga?',0,
+     &       GA_ERR)
 c     
       end

@@ -2,10 +2,11 @@
       logical function sym_char_table_so(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars)
 c     
-C$Id: sym_char_tab_so.F,v 1.1 2000-04-17 21:46:06 zzhang Exp $
+C$Id: sym_char_tab_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
+#include "errquit.fh"
       parameter(maxireps=20)
 #include "util.fh"
 c     
@@ -2082,7 +2083,7 @@ c
 c     Magic numbers ... shouldn't be any?
 c
          write(6,*) chars(i)
-         call errquit('sym_char_table: unmunged character',i)
+         call errquit('sym_char_table: unmunged character',i, GEOM_ERR)
 c
  20      chars(i) = dval
       enddo

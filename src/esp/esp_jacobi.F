@@ -1,8 +1,9 @@
       subroutine esp_jacobi(a)
 c
-c $Id: esp_jacobi.F,v 1.2 1998-08-24 19:45:52 d3j191 Exp $
+c $Id: esp_jacobi.F,v 1.3 2003-10-17 22:54:52 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -103,7 +104,8 @@ c
    21 continue
     4 continue
 c
-      call errquit('esp_jacobi: maximum iterations reached',me)
+      call errquit('esp_jacobi: maximum iterations reached',me,
+     &       UNKNOWN_ERR)
 c
       return
       end

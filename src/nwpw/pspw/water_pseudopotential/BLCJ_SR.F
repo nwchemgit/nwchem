@@ -9,6 +9,7 @@
 *
       subroutine BLCJ_SR_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -45,7 +46,7 @@
         value = value.and.
      >          MA_alloc_get(mt_dbl,Nbasis,'g',g(2),g(1))
         if (.not. value) 
-     >   call errquit('init_BLCJ_SR:out of heap memory',0)
+     >   call errquit('init_BLCJ_SR:out of heap memory',0, MA_ERR)
 
          value = rtdb_get(rtdb,'water_pseudopotential:sr_ion_number',
      >                   mt_int,Nbasis,int_mb(iatom(1)))
@@ -56,7 +57,7 @@
      >          rtdb_get(rtdb,'water_pseudopotential:sr_g',
      >                   mt_dbl,Nbasis,dbl_mb(g(1)))
          if (.not.value)
-     >    call errquit('init_BLCJ_SR:rtdb error',0)
+     >    call errquit('init_BLCJ_SR:rtdb error',0, RTDB_ERR)
 
 
 
@@ -116,7 +117,7 @@
          value = value.and.MA_free_heap(c(2))
          value = value.and.MA_free_heap(coeff(2))
          value = value.and.MA_free_heap(g(2))
-         if (.not.value) call errquit('error MA_free_heap',0)
+         if (.not.value) call errquit('error MA_free_heap',0, MA_ERR)
       end if
 
       return

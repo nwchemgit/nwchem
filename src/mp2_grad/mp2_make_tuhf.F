@@ -7,9 +7,10 @@
      $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
      $     e2,esing,etrip,task,tunita,tunitb,kunit)
 *
-* $Id: mp2_make_tuhf.F,v 1.16 2001-09-28 00:56:50 d3g681 Exp $
+* $Id: mp2_make_tuhf.F,v 1.17 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -62,19 +63,21 @@ c
       nvb=nvb_hi-nvb_lo+1
 c
       if (.not. ma_push_get(mt_dbl, nbf*nbf, 'tmp', l_tmp, k_tmp))
-     $     call errquit('mp2_make_t: no room for tmp', nbf*nbf)
+     $     call errquit('mp2_make_t: no room for tmp', nbf*nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nbf, 'ia_uv', l_ia_uv, k_ia_uv))
-     $     call errquit('mp2_make_t: no room for ia_uv', nbf*nbf)
+     $     call errquit('mp2_make_t: no room for ia_uv', nbf*nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, max(noa*nva,nob*nvb), 'ia_jb', 
      $     l_ia_jb, k_ia_jb)) call errquit
-     $     ('mp2_make_t: no room for ia_jb', max(noa*nva,nob*nvb))
+     $     ('mp2_make_t: no room for ia_jb', max(noa*nva,nob*nvb),
+     &       MA_ERR)
 c
 *ga:1:0
       if(.not.ga_create(mt_dbl,noa*nva,nva,'T_a',(noa*nva),0,g_t_a))
-     $     call errquit('could not alloc ga for T_a',1)
+     $     call errquit('could not alloc ga for T_a',1, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),0,g_t_b))
-     $     call errquit('could not alloc ga for T_b',1) 
+     $     call errquit('could not alloc ga for T_b',1, GA_ERR)
       tunitptra=1
       tunitptrb=1
       do i=oseg_lo,oseg_hi 
@@ -181,7 +184,8 @@ c
             enddo
             if(task.eq.'gradient' .and. counta.gt.0)then
                if (eaf_write(tunita,tunitptra,dbl_mb(k_ia_jb),8*counta) 
-     $              .ne. 0) call errquit('mp2_make_t:IO on ta?',0)
+     $              .ne. 0) call errquit('mp2_make_t:IO on ta?',0,
+     &       DISK_ERR)
                tunitptra=tunitptra+8*counta
                if (otdebug) then
                   write(6,12) 'aa', i, a_a, ddot(counta,dbl_mb(k_ia_jb),
@@ -213,7 +217,8 @@ c
             enddo
             if(task.eq.'gradient' .and. countb.gt.0)then
                if (eaf_write(tunitb,tunitptrb,dbl_mb(k_ia_jb),8*countb)
-     $              .ne. 0) call errquit('mp2_make_t:IO on tb?',0)
+     $              .ne. 0) call errquit('mp2_make_t:IO on tb?',0,
+     &       DISK_ERR)
                tunitptrb=tunitptrb+8*countb
                if (otdebug) then
                   write(6,12) 'ab', i, a_a, ddot(countb,dbl_mb(k_ia_jb),
@@ -231,12 +236,12 @@ c
       etrip = etrip + (-3.0d0*eaa)/4.0d0
 c
       if(.not.ga_destroy(g_t_b))call errquit(
-     $     'could not destroy t_b handle',1)
+     $     'could not destroy t_b handle',1, GA_ERR)
       if(.not.ga_destroy(g_t_a))call errquit(
-     $     'could not destroy t_a handle',1)
+     $     'could not destroy t_a handle',1, GA_ERR)
 c
       if (.not. ma_chop_stack(l_tmp)) call errquit
-     $     ('mp2_make_t: failed chopping stack', 0)
+     $     ('mp2_make_t: failed chopping stack', 0, MA_ERR)
 c
       call ga_sync()
 c

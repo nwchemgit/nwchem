@@ -1,6 +1,6 @@
       subroutine tddft_dftinit(rtdb,oskel,oadapt)
 c
-c $Id: tddft_dftinit.F,v 1.2 2002-06-21 17:13:40 sohirata Exp $
+c $Id: tddft_dftinit.F,v 1.3 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Set various parameters for DFT calculations for the 
 c ground state in the context of TDDFT calculations.
@@ -9,6 +9,7 @@ c integral contraction) will be suppressed.
 c Written by So Hirata, Feb 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -37,7 +38,8 @@ c ---------------------
 c
       oskel=.false.
       if (.not.rtdb_put(rtdb,'dft:skeleton',mt_log,1,.false.))
-     1  call errquit('tddft_dftinit: failed to set rtdb param',0)
+     1  call errquit('tddft_dftinit: failed to set rtdb param',0,
+     &       RTDB_ERR)
 c
 c We need to symmetry adapt the orbitals to characterize excited state
 c wave function symmetries

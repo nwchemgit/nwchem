@@ -1,5 +1,5 @@
 *
-* $Id: semicore_force.F,v 1.2 2002-08-21 22:02:50 bylaska Exp $
+* $Id: semicore_force.F,v 1.3 2003-10-17 22:57:38 carlfahl Exp $
 *
 
 #define TCGMSG
@@ -12,6 +12,7 @@
 
       subroutine semicore_xc_F(ispin,xcp,fion)
       implicit none
+#include "errquit.fh"
       integer ispin
       real*8  xcp(*)
 
@@ -73,7 +74,7 @@ c     logocal semicore(0:nkatmx)
      >        MA_push_get(mt_dcpl, nfft3d,'dngy',dngy(2),dngy(1))
       value = value.and.
      >        MA_push_get(mt_dcpl, nfft3d,'dngz',dngz(2),dngz(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       call D3dB_rr_Sum(1,xcp(1),

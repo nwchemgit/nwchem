@@ -1,5 +1,5 @@
       subroutine hess_wrt
-*     $Id: hess_wrt.F,v 1.4 2003-07-18 23:19:38 windus Exp $
+*     $Id: hess_wrt.F,v 1.5 2003-10-17 22:55:13 carlfahl Exp $
       implicit none
 #include "mafdecls.fh"
 #include "hess_info.fh"
@@ -21,6 +21,7 @@ c
 c
       subroutine hess_read(nxyz, e_xyz)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 c
@@ -37,7 +38,7 @@ c
       nvar2 = n3xyz * n3xyz
       if (.not.ma_push_get(MT_DBL,nvar2,'hessian: triangle exy',
      &     l_exyt,k_exyt))
-     &     call errquit('hess_read: cannot allocate',555)
+     &     call errquit('hess_read: cannot allocate',555, MA_ERR)
       nhesst = n3xyz*(n3xyz+1)/2
       call util_file_name('hess', .false., .false.,filehess)
       open(unit=69,file=filehess,form='formatted',status='old',
@@ -49,7 +50,7 @@ c
       close(unit=69,status='keep')
       call vib_dsquar(dbl_mb(k_exyt),e_xyz,n3xyz,n3xyz)
       if (.not.ma_pop_stack(l_exyt))
-     *   call errquit('hess_read: cannot deallocate Exyt',555)
+     *   call errquit('hess_read: cannot deallocate Exyt',555, MA_ERR)
 c
       return
 c
@@ -68,6 +69,7 @@ c
 c
       subroutine ddip_read(nxyz, ddipder)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "hess_info.fh"
 #include "stdio.fh"
@@ -98,14 +100,16 @@ c
 c
 89900 continue
       write(luout,*)'dipole_file => ',fileddipole
-      call errquit('hess_read: error opening file: "fileddipole"',811)
+      call errquit('hess_read: error opening file: "fileddipole"',811,
+     &       DISK_ERR)
 89901 continue
       write(luout,*)'dipole_file => ',fileddipole
-      call errquit('hess_read: error reading file: "fileddipole"',811)
+      call errquit('hess_read: error reading file: "fileddipole"',811,
+     &       DISK_ERR)
 89902 continue
       write(luout,*)'dipole_file => ',fileddipole
       call errquit
      & ('hess_read: unexpected EOF when reading file: "fileddipole"',
-     &   811)
+     &   811, DISK_ERR)
 c
       end

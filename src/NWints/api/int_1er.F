@@ -1,6 +1,6 @@
       subroutine int_1er(r,npt,charg,
      &     i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
-c $Id: int_1er.F,v 1.1 1999-08-20 18:43:06 d3e129 Exp $
+c $Id: int_1er.F,v 1.2 2003-10-17 22:53:41 carlfahl Exp $
 c
 c     computes - for a given set of points r - the integral
 c
@@ -8,6 +8,7 @@ c     \int dr' chi(mu;r') chi(nu;r')/|r-r'|
 c
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -15,6 +16,7 @@ c
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
+#include "util.fh"
 c::external subroutines used
 c errquit
 c::functions
@@ -45,12 +47,14 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1epe'))
-     &       call errquit('int_1epe: int_init was not called' ,0)
+     &       call errquit('int_1epe: int_init was not called' ,0,
+     &       INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_1epe: invalid contraction/shell',0)
+     &       call errquit('int_1epe: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

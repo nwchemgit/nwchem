@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.17 2003-07-28 19:53:51 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.18 2003-10-17 22:56:48 carlfahl Exp $
 c
 
 *     ***************************************
@@ -9,6 +9,7 @@ c
 *     ***************************************
       subroutine psp_generator_input(rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -112,13 +113,14 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'psp_generator_input: inp_read failed', 0)
+     >           'psp_generator_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'psp_generator_input: failed to read keyword', 0)
+     >           'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'psp_generator_input: unknown directive', 0)
+     >           'psp_generator_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100,  200, 300, 400, 500, 600, 700,800,900,
@@ -128,7 +130,8 @@ c
      >       700,710,1500,
      >      9999) ind
       call errquit(
-     >      'psp_generator_input: unimplemented directive', ind)
+     >      'psp_generator_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 
 c     
@@ -136,7 +139,8 @@ c  element
 c     
  100  if (.not. inp_a(element))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -145,7 +149,8 @@ c charge
 c
  200  if (.not. inp_f(charge))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -154,7 +159,8 @@ c  mass_number
 c 
  300  if (.not. inp_f(mass_number))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
 
       goto 10
 
@@ -163,7 +169,8 @@ c  pseudopotential_type
 c 
  400  if (.not. inp_a(pseudopotential_type))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -171,24 +178,29 @@ c  atomic_filling
 c 
  500  if (.not. inp_i(number_core))
      >     call errquit(
-     >          'psp_generator_input: failed to read ncore', 0)
+     >          'psp_generator_input: failed to read ncore', 0,
+     &       INPUT_ERR)
 
       if (.not. inp_i(number_valence))
      >     call errquit(
-     >          'psp_generator_input: failed to read nvalence', 0)
+     >          'psp_generator_input: failed to read nvalence', 0,
+     &       INPUT_ERR)
 
       do i=1,(number_core+number_valence)
          if (.not. inp_read()) 
      >        call errquit(
-     >           'psp_generator_input: inp_read failed', 0)
+     >           'psp_generator_input: inp_read failed', 0,
+     &       INPUT_ERR)
 
            if (.not. inp_i(n_number(i)))
      >     call errquit(
-     >          'psp_generator_input: inp_i(n_number) failed', 0)
+     >          'psp_generator_input: inp_i(n_number) failed', 0,
+     &       INPUT_ERR)
 
            if (.not. inp_a(l_char))
      >     call errquit(
-     >          'psp_generator_input: inp_i(l_char) failed', 0)
+     >          'psp_generator_input: inp_i(l_char) failed', 0,
+     &       INPUT_ERR)
 
            if (l_char.eq.'s') l_number(i) = 0
            if (l_char.eq.'p') l_number(i) = 1
@@ -208,7 +220,8 @@ c
 
            if (.not. inp_f(filling(i)))
      >     call errquit(
-     >          'psp_generator_input: inp_f(filling) failed', 0)
+     >          'psp_generator_input: inp_f(filling) failed', 0,
+     &       INPUT_ERR)
 
       end do
       goto 10
@@ -218,16 +231,18 @@ c  cutoff
 c 
  600  if (.not. inp_i(max_rcut))
      >     call errquit(
-     >          'psp_generator_input: failed to read max_rcut', 0)
+     >          'psp_generator_input: failed to read max_rcut', 0,
+     &       INPUT_ERR)
 
       do i=1,(max_rcut)
          if (.not. inp_read()) 
      >        call errquit(
-     >           'psp_generator_input: inp_read failed', 0)
+     >           'psp_generator_input: inp_read failed', 0, INPUT_ERR)
 
            if (.not. inp_a(l_char))
      >     call errquit(
-     >          'psp_generator_input: inp_i(l_char) failed', 0)
+     >          'psp_generator_input: inp_i(l_char) failed', 0,
+     &       INPUT_ERR)
 
            if (l_char.eq.'s') l_rcut(i) = 0
            if (l_char.eq.'p') l_rcut(i) = 1
@@ -246,7 +261,8 @@ c
            if (l_char.eq.'4') l_rcut(i) = 4
            if (.not. inp_f(rcut(i)))
      >     call errquit(
-     >          'psp_generator_input: inp_f(rcut) failed', 0)
+     >          'psp_generator_input: inp_f(rcut) failed', 0,
+     &       INPUT_ERR)
       end do
 
       goto 10
@@ -257,7 +273,8 @@ c  maximum_angular_momentum - lmax
 c 
  700  if (.not. inp_a(lmax))
      >     call errquit(
-     >          'psp_generator_input: failed to read lmax', 0)
+     >          'psp_generator_input: failed to read lmax', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -274,7 +291,8 @@ c  pseudopotential_filename
 c 
  800  if (.not. inp_a(pseudopotential_filename))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -282,7 +300,8 @@ c  solver_type
 c 
  900  if (.not. inp_a(solver_type))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -290,7 +309,8 @@ c  correlation_type
 c 
  1000 if (.not. inp_a(correlation_type))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -298,7 +318,8 @@ c  exchange_type
 c 
  1100 if (.not. inp_a(exchange_type))
      >     call errquit(
-     >          'psp_generator_input: failed to read keyword', 0)
+     >          'psp_generator_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -307,10 +328,12 @@ c  vanderbilt_local
 c 
  1200 if (.not. inp_f(rlocal))
      >     call errquit(
-     >          'psp_generator_input: failed to read rlocal', 0)
+     >          'psp_generator_input: failed to read rlocal', 0,
+     &       INPUT_ERR)
       if (.not. inp_f(clocal))
      >     call errquit(
-     >          'psp_generator_input: failed to read clocal', 0)       
+     >          'psp_generator_input: failed to read clocal', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -319,20 +342,24 @@ c  vanderbilt_states
 c
  1300 if (.not. inp_i(vstates))
      >  call errquit(
-     >   'psp_generator_input: failed to read vstates', 0)
+     >   'psp_generator_input: failed to read vstates', 0,
+     &       INPUT_ERR)
   
       do i=1,vstates
          if (.not. inp_read()) 
      >        call errquit(
-     >           'psp_generator_input: inp_read failed', 0)
+     >           'psp_generator_input: inp_read failed', 0,
+     &       INPUT_ERR)
 
            if (.not. inp_i(v_n(i)))
      >     call errquit(
-     >          'psp_generator_input: inp_i(v_n) failed', 0)
+     >          'psp_generator_input: inp_i(v_n) failed', 0,
+     &       INPUT_ERR)
 
            if (.not. inp_a(l_char))
      >     call errquit(
-     >          'psp_generator_input: inp_i(l_char) failed', 0)
+     >          'psp_generator_input: inp_i(l_char) failed', 0,
+     &       INPUT_ERR)
 
            if (l_char.eq.'s') v_l(i) = 0
            if (l_char.eq.'p') v_l(i) = 1
@@ -352,10 +379,12 @@ c
 
            if (.not. inp_f(v_eig(i)))
      >     call errquit(
-     >          'psp_generator_input: inp_f(v_eig) failed', 0)
+     >          'psp_generator_input: inp_f(v_eig) failed', 0,
+     &       INPUT_ERR)
          if (.not. inp_f(v_rcut(i)))
      >     call errquit(
-     >          'psp_generator_input: inp_f(v_rcut) failed', 0)
+     >          'psp_generator_input: inp_f(v_rcut) failed', 0,
+     &       INPUT_ERR)
          
       end do
 
@@ -365,7 +394,8 @@ c  semicore_radius
 c 
  1400 if (.not. inp_f(r_semicore))
      >     call errquit(
-     >     'psp_generator_input: failed to read semicore_radius',0)
+     >     'psp_generator_input: failed to read semicore_radius',0,
+     &       INPUT_ERR)
       goto 10
  
 c

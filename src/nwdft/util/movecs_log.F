@@ -1,7 +1,8 @@
       logical function movecs_to_logfile( rtdb, n_homo, n_lumo,
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none
-C$Id: movecs_log.F,v 1.4 2000-10-23 15:52:51 windus Exp $
+#include "errquit.fh"
+C$Id: movecs_log.F,v 1.5 2003-10-17 22:55:50 carlfahl Exp $
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -53,7 +54,7 @@ c-----------------------------------------------------------------------
 c**** number of occupied orbitals
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
      &     call errquit(
-     &     'movecs_to_logfile: rtdb_get of noc failed', 0) 
+     &     'movecs_to_logfile: rtdb_get of noc failed', 0, RTDB_ERR)
 
 c**** vectors.F has a ga_sync at this point...
       call ga_sync()
@@ -61,7 +62,7 @@ c**** vectors.F has a ga_sync at this point...
       if (ga_nodeid() .eq. 0) then
         if (nsets .gt. 2) then
           write(LuOut,*) ' movecs_write_logfile: nsets > 2 ', nsets
-          call errquit('movecs_write_logfile: ',0)
+          call errquit('movecs_write_logfile: ',0, DISK_ERR)
         endif
 
 c****   number of HOMOs and LUMOs to output, if any
@@ -75,7 +76,7 @@ c****   n_lumo = min(n_lumo,nbf)
 c****   array to store one orbital
 
         if(.not. ma_push_get(mt_dbl, nbf, 'movecs', l_vecs, k_vecs))
-     &    call errquit('movecs_log: cannot allocate movecs', 0)
+     &    call errquit('movecs_log: cannot allocate movecs', 0, MA_ERR)
 
 c****   write header to logfile
         write(LuOut,*)'<MO coefficients> start'
@@ -128,7 +129,7 @@ c****   write footer to logfile
         write(luout,*)'<MO coefficients> end'
 
         if(.not. ma_pop_stack(l_vecs))
-     &    call errquit('movecs_log: cannot pop stack',0)
+     &    call errquit('movecs_log: cannot pop stack',0, MA_ERR)
 
 c****   ok = 1
       endif

@@ -1,8 +1,9 @@
 c
-c $Id: cgsd_input.F,v 1.9 2003-02-12 02:17:41 bylaska Exp $
+c $Id: cgsd_input.F,v 1.10 2003-10-17 22:57:10 carlfahl Exp $
 c
       subroutine cgsd_input(rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -55,13 +56,13 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'cgsd_input: inp_read failed', 0)
+     >           'cgsd_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'cgsd_input: failed to read keyword', 0)
+     >           'cgsd_input: failed to read keyword', 0, INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'cgsd_input: unknown directive', 0)
+     >           'cgsd_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100, 300, 400, 500, 600, 700, 800, 900,
@@ -69,7 +70,8 @@ c
      >       1800,1900,2000,
      >      9999) ind
       call errquit(
-     >      'psp_formatter_input: unimplemented directive', ind)
+     >      'psp_formatter_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 
 c     
@@ -77,11 +79,12 @@ c  cell_name
 c     
  100  if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'cgsd_input: failed to read cell_name', 0)
+     >          'cgsd_input: failed to read cell_name', 0, INPUT_ERR)
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write cell_name',0)
+     >  call errquit('cgsd_input: failed to write cell_name',0,
+     &       RTDB_ERR)
       goto 10
 
 
@@ -90,17 +93,17 @@ c  formatted_psp_filename
 c 
  300  if (.not. inp_a(test))
      >     call errquit(
-     >          'cgsd_input: failed to read psp_filename', 0)
+     >          'cgsd_input: failed to read psp_filename', 0, INPUT_ERR)
       npsp = npsp + 1
       id = 'cgsd:psp'//CHAR(npsp)
       ind = index(test,' ') - 1
          if (.not. rtdb_cput(rtdb,id,
      >                    1,test(1:ind)))
      >        call errquit(
-     >        'cgsd_input: rtdb_cput failed', 0)
+     >        'cgsd_input: rtdb_cput failed', 0, RTDB_ERR)
       value = rtdb_put(rtdb,'cgsd:npsp',     mt_int,1,npsp)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write npsp',0)
+     >  call errquit('cgsd_input: failed to write npsp',0, RTDB_ERR)
       goto 10
 
 
@@ -109,7 +112,8 @@ c  input_wavefunction_filename
 c 
  400  if (.not. inp_a(input_wavefunction_filename))
      >     call errquit(
-     >          'cgsd_input: failed to read input_wavefunction', 0)
+     >          'cgsd_input: failed to read input_wavefunction', 0,
+     &       INPUT_ERR)
       ind = index(input_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
@@ -121,7 +125,8 @@ c
       value = value.and.rtdb_cput(rtdb,'pspw:input vectors',
      >                    1,input_wavefunction_filename(1:ind))
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write input vectors',0)
+     >  call errquit('cgsd_input: failed to write input vectors',0,
+     &       RTDB_ERR)
       goto 10
 
 c
@@ -129,12 +134,14 @@ c  output_wavefunction_filename
 c 
  500  if (.not. inp_a(output_wavefunction_filename))
      >     call errquit(
-     >          'cgsd_input: failed to read output_wavefunction', 0)
+     >          'cgsd_input: failed to read output_wavefunction', 0,
+     &       INPUT_ERR)
       ind = index(output_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'pspw:output vectors',
      >                    1,output_wavefunction_filename(1:ind))
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write output vectors',0)
+     >  call errquit('cgsd_input: failed to write output vectors',0,
+     &       RTDB_ERR)
       goto 10
 
 
@@ -143,10 +150,11 @@ c  fake_mass
 c 
  600  if (.not. inp_f(fake_mass))
      >     call errquit(
-     >          'cgsd_input: failed to fake mass', 0)
+     >          'cgsd_input: failed to fake mass', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write fake_mass',0)
+     >  call errquit('cgsd_input: failed to write fake_mass',0,
+     &       RTDB_ERR)
       goto 10
  
 c
@@ -154,10 +162,11 @@ c  time_step
 c 
  700  if (.not. inp_f(time_step))
      >     call errquit(
-     >          'cgsd_input: failed to time step', 0)
+     >          'cgsd_input: failed to time step', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write time_step',0)
+     >  call errquit('cgsd_input: failed to write time_step',0,
+     &       RTDB_ERR)
       goto 10
  
  
@@ -166,13 +175,13 @@ c  loop
 c 
  800  if (.not. inp_i(loop(1)))
      >     call errquit(
-     >          'cgsd_input: failed to read loop(1)', 0)
+     >          'cgsd_input: failed to read loop(1)', 0, INPUT_ERR)
       if (.not. inp_i(loop(2)))
      >     call errquit(
-     >          'cgsd_input: failed to read loop(2)', 0)
+     >          'cgsd_input: failed to read loop(2)', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:loop',mt_int,2,loop)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write loop',0)
+     >  call errquit('cgsd_input: failed to write loop',0, RTDB_ERR)
       goto 10
  
  
@@ -190,7 +199,8 @@ c
       tolerances(3) = fe
  901  value = rtdb_put(rtdb,'cgsd:tolerances',mt_dbl,3,tolerances)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write tolerances',0)
+     >  call errquit('cgsd_input: failed to write tolerances',0,
+     &       RTDB_ERR)
       goto 10
 
 
@@ -199,10 +209,10 @@ c  energy_cutoff
 c 
  1000 if (.not. inp_f(ecut))
      >     call errquit(
-     >          'cgsd_input: failed to read ndown', 0)
+     >          'cgsd_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write ecut',0)
+     >  call errquit('cgsd_input: failed to write ecut',0, RTDB_ERR)
       goto 10
 
 c
@@ -210,10 +220,10 @@ c  wavefunction_cutoff
 c 
  1100 if (.not. inp_f(wcut))
      >     call errquit(
-     >          'cgsd_input: failed to read ndown', 0)
+     >          'cgsd_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write wcut',0)
+     >  call errquit('cgsd_input: failed to write wcut',0, RTDB_ERR)
       goto 10
 
 c
@@ -221,10 +231,10 @@ c  ewald_rcut
 c 
  1200 if (.not. inp_f(rcut))
      >     call errquit(
-     >          'cgsd_input: failed to read rcut', 0)
+     >          'cgsd_input: failed to read rcut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write rcut',0)
+     >  call errquit('cgsd_input: failed to write rcut',0, RTDB_ERR)
       goto 10
 
 c
@@ -232,22 +242,23 @@ c  ewald_ncut
 c 
  1300 if (.not. inp_i(ncut))
      >     call errquit(
-     >          'cgsd_input: failed to read ncut', 0)
+     >          'cgsd_input: failed to read ncut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write ncut',0)
+     >  call errquit('cgsd_input: failed to write ncut',0, RTDB_ERR)
       goto 10
 c
 c  exchange_correlation
 c 
  1400  if (.not. inp_a(exchange_correlation))
      >     call errquit(
-     >          'cgsd_input: failed to read exchange_correlation', 0)
+     >          'cgsd_input: failed to read exchange_correlation', 0,
+     &       INPUT_ERR)
       ind = index(exchange_correlation,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write xc',0)
+     >  call errquit('cgsd_input: failed to write xc',0, RTDB_ERR)
       goto 10
 c
 c  fractional_coordinates
@@ -256,7 +267,7 @@ c
       value = rtdb_put(rtdb,'cgsd:fractional_coordinates',mt_log,1,
      >                       frac_coord)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write frac',0)
+     >  call errquit('cgsd_input: failed to write frac',0, RTDB_ERR)
       goto 10
 
 c
@@ -266,7 +277,7 @@ c
       value = rtdb_put(rtdb,'cgsd:mulliken',mt_log,1,
      >                       mulliken)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write mulliken',0)
+     >  call errquit('cgsd_input: failed to write mulliken',0, RTDB_ERR)
       goto 10
 c
 c  allow_translation
@@ -275,14 +286,15 @@ c
       value = rtdb_put(rtdb,'cgsd:allow_translation',mt_log,1,
      >                       allow_translation)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write translation',0)
+     >  call errquit('cgsd_input: failed to write translation',0,
+     &       RTDB_ERR)
       goto 10
 c
 c  multiplicity
 c 
  1800 if (.not. inp_i(multiplicity))
      >     call errquit(
-     >          'cgsd_input: failed to read mult', 0)
+     >          'cgsd_input: failed to read mult', 0, INPUT_ERR)
       if (multiplicity.lt.1) then
          multiplicity = 1
          ispin        = 1
@@ -291,7 +303,7 @@ c
       end if
       value = rtdb_put(rtdb,'cgsd:mult',mt_int,1,multiplicity)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write mult',0)
+     >  call errquit('cgsd_input: failed to write mult',0, RTDB_ERR)
       goto 10
 c
 c  dft
@@ -299,7 +311,7 @@ c
  1900 ispin = 1
       value = rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write ispin',0)
+     >  call errquit('cgsd_input: failed to write ispin',0, RTDB_ERR)
       goto 10
 c
 c  odft
@@ -307,7 +319,7 @@ c
  2000 ispin = 2
       value = rtdb_put(rtdb,'cgsd:ispin',mt_int,1,ispin)
       if (.not.value) 
-     >  call errquit('cgsd_input: failed to write ispin',0)
+     >  call errquit('cgsd_input: failed to write ispin',0, RTDB_ERR)
       goto 10
 
 *     ***** add wavefunction to rtdb ****
@@ -319,6 +331,7 @@ c
 
       subroutine cgsd_input_default(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -387,13 +400,15 @@ c
 
  9999 continue
       if (cell_name.eq.' ') 
-     >  call errquit('cgsd_default: nead a cell_name', 0)
+     >  call errquit('cgsd_default: nead a cell_name', 0, INPUT_ERR)
       if (input_wavefunction_filename.eq.' ') 
      >  call errquit(
-     >       'cgsd_default: nead an input wavefunction_filename', 0)
+     >       'cgsd_default: nead an input wavefunction_filename', 0,
+     &       INPUT_ERR)
       if (output_wavefunction_filename.eq.' ') 
      >  call errquit(
-     >       'cgsd_default: nead an output wavefunction_filename', 0)
+     >       'cgsd_default: nead an output wavefunction_filename', 0,
+     &       INPUT_ERR)
 
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
@@ -475,7 +490,7 @@ c
 *     ***** Error writing to RTDB *****
       if (.not.value)
      >  call errquit(
-     >       'cgsd_default: error writing to rtdb', 0)
+     >       'cgsd_default: error writing to rtdb', 0, RTDB_ERR)
 
       return
       end

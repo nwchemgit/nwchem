@@ -6,9 +6,10 @@
      $     tunita,tunitb,eval_a,eval_b,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b)
 *
-* $Id: mp2_pijab_uhf.F,v 1.12 1997-04-23 01:12:47 d3g681 Exp $
+* $Id: mp2_pijab_uhf.F,v 1.13 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
@@ -76,13 +77,13 @@ c$$$  write(6,*) symj, ' vb ', off_vb(symj)
 c$$$  end do
 c     
       if(.not.ma_push_get(mt_dbl,noa*noa,'p_ij_a',l_p_ij_a,k_p_ij_a))
-     $     call errquit('could not alloc p_ij_a',noa*noa)
+     $     call errquit('could not alloc p_ij_a',noa*noa, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nva*nva,'p_ab_a',l_p_ab_a,k_p_ab_a))
-     $     call errquit('could not alloc p_ab_a',nva*nva)
+     $     call errquit('could not alloc p_ab_a',nva*nva, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nob*nob,'p_ij_b',l_p_ij_b,k_p_ij_b))
-     $     call errquit('could not alloc p_ij_b',nob*nob)
+     $     call errquit('could not alloc p_ij_b',nob*nob, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nvb*nvb,'p_ab_b',l_p_ab_b,k_p_ab_b))
-     $     call errquit('could not alloc p_ab_b',nvb*nvb)
+     $     call errquit('could not alloc p_ab_b',nvb*nvb, MA_ERR)
 c     
       zero=0.0d0
       one=1.0d0
@@ -161,7 +162,7 @@ c
       end if
 c     
       if (.not. ma_chop_stack(l_p_ij_a)) call errquit
-     $     ('mp2_pijab_uhf: cannot chop stack',0)
+     $     ('mp2_pijab_uhf: cannot chop stack',0, MA_ERR)
 c     
       end
       

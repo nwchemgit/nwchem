@@ -1,8 +1,9 @@
 c
-c $Id: nwpw_default.F,v 1.8 2003-04-25 23:13:03 bylaska Exp $
+c $Id: nwpw_default.F,v 1.9 2003-10-17 22:55:55 carlfahl Exp $
 c
       subroutine nwpw_default(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -77,13 +78,15 @@ c
 
  9999 continue
       if (cell_name.eq.' ') 
-     >  call errquit('nwpw_default: nead a cell_name', 0)
+     >  call errquit('nwpw_default: nead a cell_name', 0, INPUT_ERR)
       if (input_wavefunction_filename.eq.' ') 
      >  call errquit(
-     >       'nwpw_default: nead an input wavefunction_filename', 0)
+     >       'nwpw_default: nead an input wavefunction_filename', 0,
+     &       INPUT_ERR)
       if (output_wavefunction_filename.eq.' ') 
      >  call errquit(
-     >       'nwpw_default: nead an output wavefunction_filename', 0)
+     >       'nwpw_default: nead an output wavefunction_filename', 0,
+     &       INPUT_ERR)
 
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
@@ -223,7 +226,7 @@ c
 *     ***** Error writing to RTDB *****
       if (.not.value)
      >  call errquit(
-     >       'nwpw_default: error writing to rtdb', 0)
+     >       'nwpw_default: error writing to rtdb', 0, RTDB_ERR)
 
       return
       end

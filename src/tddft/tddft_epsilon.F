@@ -1,7 +1,7 @@
       subroutine tddft_epsilon(ivector,g_trials,g_prod_s,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
 c
-c $Id: tddft_epsilon.F,v 1.4 2002-04-16 01:46:28 sohirata Exp $
+c $Id: tddft_epsilon.F,v 1.5 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Add (epsilon_a-epsilon_i) contribution to the product vector.
 c This subroutine is explicitly parallelized.
@@ -11,6 +11,7 @@ c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -46,7 +47,8 @@ c
       do i=1,ipol
         call ga_distribution(g_trials(i),iproc,ilo,ihi,jlo,jhi)
         if ((jlo.gt.ivector).or.(jhi.lt.ivector))
-     1    call errquit('tddft_epsilon: an internal error detected',0)
+     1    call errquit('tddft_epsilon: an internal error detected',0,
+     &       GA_ERR)
         do l=ilo,ihi
           k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
           j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1

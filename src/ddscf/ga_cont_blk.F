@@ -1,6 +1,7 @@
       integer function ga_create_cont_blocked(basis, name)
-C$Id: ga_cont_blk.F,v 1.1 1995-12-13 01:25:17 d3g681 Exp $
+C$Id: ga_cont_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -23,11 +24,12 @@ c
 c     min_chunk ... minimum chunksize to avoid excessive fragmentation
 c
       if (.not. bas_numcont(basis, ncont)) call errquit
-     $     ('ga_create_cont_blocked: bas_numcont ?', 0)
+     $     ('ga_create_cont_blocked: bas_numcont ?', 0, BASIS_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('ga_create_cont_blocked: bas_nbf ?', 0)
+     $     ('ga_create_cont_blocked: bas_nbf ?', 0, BASIS_ERR)
       if (ga_nnodes().gt.max_nproc) call errquit
-     $     ('ga_create_cont_blocked: static dim too small', max_nproc)
+     $     ('ga_create_cont_blocked: static dim too small', max_nproc,
+     &       GA_ERR)
 c
 c     chunk1/2 = mean no. of bf / processor need in each dimension
 c
@@ -45,7 +47,7 @@ c
       nblock2 = 0
       do icont = 1, ncont
          if (.not. bas_cn2bfr(basis, icont, ilo, ihi)) call errquit
-     $        ('ga_create_cont_blocked: bas_ce2bfr ?', 0)
+     $        ('ga_create_cont_blocked: bas_ce2bfr ?', 0, BASIS_ERR)
          if (n_in_proc1 .ge. chunk1) then
             nblock1 = nblock1 + 1
             if (nblock1 .le. max_nproc) map1(nblock1) = ilo
@@ -69,7 +71,8 @@ c
 *            call ffflush(6)
 *         endif
          if (chunk1.eq.nbf .and. chunk2.eq.nbf)
-     $        call errquit('ga_create_cont_blocked: chunking', 0)
+     $        call errquit('ga_create_cont_blocked: chunking', 0,
+     &       GA_ERR)
          if (chunk1 .lt. nbf) then
             chunk1 = chunk1 + 1
          endif
@@ -82,7 +85,8 @@ c
       status =  ga_create_irreg(MT_DBL, nbf, nbf, name,
      $     map1, nblock1, map2, nblock2, g_a)
       if (.not. status)
-     $     call errquit('ga_create_cont_blocked: ga_create_irreg ', 0)
+     $     call errquit('ga_create_cont_blocked: ga_create_irreg ', 0,
+     &       GA_ERR)
 c
       ga_create_cont_blocked = g_a
 c

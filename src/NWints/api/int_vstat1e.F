@@ -1,4 +1,4 @@
-c $Id: int_vstat1e.F,v 1.1 2002-01-12 06:54:34 zzhang Exp $
+c $Id: int_vstat1e.F,v 1.2 2003-10-17 22:53:42 carlfahl Exp $
       subroutine int_vstat1e(i_basis,ish,j_basis,jsh,lscr,scr,nqpts,
      &     vint,qxyz,zq,dens)
 c
@@ -10,6 +10,7 @@ c     the quardrature weights.
 c
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geomP.fh"
@@ -68,12 +69,14 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_vstat1e'))
-     &       call errquit('int_vstat1e: int_init was not called' ,0)
+     &       call errquit('int_vstat1e: int_init was not called' ,0,
+     &            INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_vstat1e: invalid contraction/shell',0)
+     &       call errquit('int_vstat1e: invalid contraction/shell',0,
+     &               BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -125,7 +128,7 @@ c..............................doS     doT     doV
 c
       else
          call errquit('int_vstat1e: could not do hnd, try sp or nw 
-     &        integrals?', 0)
+     &        integrals?', 0, INT_ERR)
       endif
 c      write(*,*)"vints in int_vstat1e"
 c      write(*,"(4f12.8)")((qxyz(ig,jg),ig=1,3),vint(jg),jg=1,nqpts)
@@ -136,7 +139,7 @@ c
       if (.not.any_spherical) return
       if (any_spherical)
      &     call errquit("int_vstat1e: spherical basis not supported 
-     &     yet", 100)
+     &     yet", 100, BASIS_ERR)
 c
 c ... reset general contractions for sp shells to 1 since they are handled
 c     as a block of 4. Since int_nbf_* arrays are set to the appropriate size.
@@ -178,7 +181,7 @@ c
       else
          call errquit(
      &        'int_vstat1e: should never reach transform blocked else',
-     &        911)
+     &        911, INT_ERR)
       endif
 c     
       end

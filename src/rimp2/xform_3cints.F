@@ -3,13 +3,14 @@ C NAME
 C     XForm_3cInts -- Produce transformed three-center integrals
 C
 C REVISION
-C     $Id: xform_3cints.F,v 1.15 2003-02-22 05:58:53 edo Exp $
+C     $Id: xform_3cints.F,v 1.16 2003-10-17 22:58:10 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function XForm_3cInts(RTDB, Geom, Type3ci, AOBas, FitBas,
      $   ALo, AHi, ILo, IHi, G_C, XFFit, G_V,
      $   Dest, G_Out, IntFil, Neglect)
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB, AOBas, FitBas
       Integer IntFil
       Integer ALo, AHi, ILo, IHi
@@ -238,7 +239,8 @@ C
          If ( .NOT. GA_Create_One_By_Shells( MT_Dbl, NA * NJ,
      $      FitBas, 'xf3ci: 2/3 integral matrix', G_Int) )
      $        Call ErrQuit(
-     $        'XForm_3cInts: Unable to allocate temporary GA', 0)
+     $        'XForm_3cInts: Unable to allocate temporary GA', 0,
+     &       GA_ERR)
 C
 C        Generate blocks of (ai|s) (or (ais) ) integrals for the
 C        specified range of I.
@@ -327,7 +329,8 @@ C
 C        Free 2/3 integral array to allow it to be resized next pass
 C
          If ( .NOT. GA_Destroy( G_Int) ) Call ErrQuit(
-     $        'XForm_3cInts: Unable to deallocate temporary GA', 0)
+     $        'XForm_3cInts: Unable to deallocate temporary GA', 0,
+     &       GA_ERR)
 C
 C        Print out a progress report.  Eventually want to make this
 C        dependent on user desires and time required by each pass.

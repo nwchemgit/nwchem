@@ -1,5 +1,5 @@
 *
-* $Id: balance.F,v 1.4 2002-06-06 00:15:21 bylaska Exp $
+* $Id: balance.F,v 1.5 2003-10-17 22:56:44 carlfahl Exp $
 *
 
 *     ***********************************
@@ -10,6 +10,7 @@
 
       subroutine Balance_Init(maxsize0,nidb,nidb_out)
       implicit none
+#include "errquit.fh"
       integer maxsize0
       integer nidb(0:maxsize0-1)
       integer nidb_out(0:maxsize0-1)
@@ -94,7 +95,7 @@
       end do
 
       if (.not. value) 
-     >   call errquit('Balance_init: out of heap memory',0)
+     >   call errquit('Balance_init: out of heap memory',0, MA_ERR)
 
 
 
@@ -124,6 +125,7 @@
 
       subroutine Balance_End()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "balance_common.fh"
@@ -159,7 +161,7 @@
       value = value.and.MA_free_heap(receiver_list(2))
       value = value.and.MA_free_heap(sender_list(2))
       if (.not. value) 
-     >  call errquit('Balance_end: error freeing heap memory',0)
+     >  call errquit('Balance_end: error freeing heap memory',0, MA_ERR)
 
       return
       end
@@ -177,6 +179,7 @@
      >                          proc_to,proc_from,
      >                          packet_size,indx_start)
       implicit none
+#include "errquit.fh"
       integer nwave,np,taskid
       integer nwave_out
 
@@ -205,7 +208,7 @@ c      integer indx(0:(np-1))
      >        MA_push_get(mt_int,(np),
      >                     'indx',indx(2),indx(1))
       if (.not. value) 
-     >  call errquit('Balance_init_a:out of stack memory',0)
+     >  call errquit('Balance_init_a:out of stack memory',0, MA_ERR)
    
 *     **** define nwave2 ****
       do i=0,np-1
@@ -345,7 +348,8 @@ c        ave = ave + nwave2(i)
       value =           MA_pop_stack(indx(2))
       value = value.and.MA_pop_stack(nwave2(2))
       if (.not. value) 
-     > call errquit('Balance_init_a:error freeing stack memory',0)
+     > call errquit('Balance_init_a:error freeing stack memory',0,
+     &       MA_ERR)
   
 
       return

@@ -79,7 +79,7 @@ c
       end
       subroutine util_pack_16(nunpacked, packed, unpacked)
 *
-* $Id: util_pack.F,v 1.16 2003-09-04 15:18:10 edo Exp $
+* $Id: util_pack.F,v 1.17 2003-10-17 22:58:35 carlfahl Exp $
 *
       implicit none
       integer nunpacked
@@ -137,6 +137,7 @@ c
 #else
       subroutine util_pack_8(nunpacked, packed, unpacked)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
 c     pack 8 bit integers ... n must be a multiple of 8
@@ -171,12 +172,13 @@ c
          enddo
       else
          call errquit('util_pack_8: funny integer length',
-     $        npacked_per_int)
+     $        npacked_per_int, INPUT_ERR)
       endif
 c
       end
       subroutine util_unpack_8(nunpacked, packed, unpacked)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
 c     unpack 8 bit integers ... n must be a multiple of 8.
@@ -220,12 +222,13 @@ c
          enddo
       else
          call errquit('util_unpack_8 funny integer length',
-     $        npacked_per_int)
+     $        npacked_per_int, INPUT_ERR)
       endif
 c
       end
       subroutine util_pack_16(nunpacked, packed, unpacked)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
 c     pack 16 bit integers ... n must be a multiple of 4
@@ -254,12 +257,13 @@ c
          enddo
       else
          call errquit('util_pack_16: funny integer length',
-     $        npacked_per_int)
+     $        npacked_per_int, INPUT_ERR)
       endif
 c
       end
       subroutine util_unpack_16(nunpacked, packed, unpacked)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
 c     unpack 16 bit integers ... n must be a multiple of 4.
@@ -292,7 +296,7 @@ c
          enddo
       else
          call errquit('util_unpack_16: funny integer length',
-     $        npacked_per_int)
+     $        npacked_per_int, INPUT_ERR)
       endif
 c
       end

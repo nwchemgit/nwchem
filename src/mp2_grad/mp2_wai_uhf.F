@@ -8,9 +8,10 @@
      $     ioff_vooo_a,ioff_vooo_b,tunita,tunitb,
      $     p_ai_a,p_ai_b,w_ai_a,w_ai_b)
 *
-* $Id: mp2_wai_uhf.F,v 1.3 1997-03-27 08:50:23 d3e129 Exp $
+* $Id: mp2_wai_uhf.F,v 1.4 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer i,c,jk
@@ -80,7 +81,7 @@ c
                   call getwa(tunita,t_a(sym_lo_oa(symk)),
      $                 tunitptra,counta,ierr)
                   if(ierr.ne.0)call errquit(
-     $                 'could not read t_a back',ierr)
+     $                 'could not read t_a back',ierr, DISK_ERR)
                   tunitptra=tunitptra+counta
                endif
             enddo
@@ -92,7 +93,7 @@ c
                   call getwa(tunitb,t_b(sym_lo_ob(symk)),
      $                 tunitptrb,countb,ierr)
                   if(ierr.ne.0)call errquit(
-     $                 'could not read t_b back',ierr)
+     $                 'could not read t_b back',ierr, DISK_ERR)
                   tunitptrb=tunitptrb+countb
                endif
             enddo

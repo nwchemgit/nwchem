@@ -1,11 +1,12 @@
       subroutine selci_getij(i,j,ioconf,joconf,nintpo,nbitpi,iocc)
 *
-* $Id: getij.F,v 1.2 1997-10-31 23:42:03 d3e129 Exp $
+* $Id: getij.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
       dimension ioconf(nintpo),joconf(nintpo),ind(2),ijocc(2),
      $     iocc(*)
       integer selci_leadz32
 #include "bitops.fh"
+#include "errquit.fh"
 c
 c     (i->j)|I> = |J>. Determine i and j from the
 c     bit packed occupations
@@ -32,7 +33,7 @@ c
          endif
          ibase = ibase + nelpi
  10   continue
-      call errquit('getij: fell out of do 10',ngot)
+      call errquit('getij: fell out of do 10',ngot, UNKNOWN_ERR)
 c
  30   continue
 c

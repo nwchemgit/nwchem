@@ -1,4 +1,4 @@
-C $Id: nwc_s2.F,v 1.8 2001-01-31 21:42:07 windus Exp $
+C $Id: nwc_s2.F,v 1.9 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine nwc_s2 (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar)
 C THIS ROUTINE IS NOW DEAD.  LOOK AT NWC_GEN INSTEAD.
 C
@@ -6,6 +6,7 @@ C  Run NWChem task to get potential and first and second derivatives
 C   for geometry x.
 C
       Implicit None
+#include "errquit.fh"
 #include "nwc_drdyP.fh"
 #include "geom.fh"
 #include "printlevels.fh"
@@ -40,13 +41,16 @@ C
       call util_file_unlink(dummy_file)
 *
       if (.not.geom_create(geom,'geometry'))
-     &      call errquit('nwc_s2: geom_create failed',911)
+     &      call errquit('nwc_s2: geom_create failed',911,
+     &       GEOM_ERR)
       if (.not.geom_set_user_units(geom,'a.u.'))
-     &      call errquit('nwc_s2: geom_set_user_units failed',911)
+     &      call errquit('nwc_s2: geom_set_user_units failed',911,
+     &       GEOM_ERR)
       if (.not.geom_cart_set(geom,natom,atomic_labels,x,atomic_charge))
-     &      call errquit('nwc_s2: geom_cart_set failed',911)
+     &      call errquit('nwc_s2: geom_cart_set failed',911,
+     &       GEOM_ERR)
 *      if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
-*     &      call errquit('nwc_s2: geom_rtdb_store failed',911)
+*     &      call errquit('nwc_s2: geom_rtdb_store failed',911, GEOM_ERR)
       write(6,*) 'natom and n3 ',natom,n3
       ncenter_B4_autosym = natom
       ncenter = natom
@@ -79,27 +83,33 @@ C
           write(luout,*)' autosym failed using original coordinates'
           if (.not.geom_cart_set(geom,ncenter,atomic_labels,x,
      &          atomic_charge))
-     &          call errquit('nwc_s2: geom_cart_set failed',911)
+     &          call errquit('nwc_s2: geom_cart_set failed',911,
+     &       GEOM_ERR)
         else if (copy_sym) then
           if (.not.geom_cart_set(geom,ncenter,copy_labels,dx,
      &          copy_charge))
-     &          call errquit('nwc_s2: geom_cart_set failed',911)
+     &          call errquit('nwc_s2: geom_cart_set failed',911,
+     &       GEOM_ERR)
           nata = ncenter
           call sym_nwc(geom,my_rtdb,nata,.false.,1.0d00,threquiv)
           if (.not.geom_ncent(geom,ncenter)) call errquit
-     &          ('nwc_s2:failed geom_ncent',911)
+     &          ('nwc_s2:failed geom_ncent',911,
+     &       GEOM_ERR)
           if (ncenter_B4_autosym.ne.ncenter) call errquit
-     &          ('nwc_s2: sym_nwc failed ',911)
+     &          ('nwc_s2: sym_nwc failed ',911, GEOM_ERR)
           call sym_geom_project(geom, threquiv)
 *          write(luout,*)' autosym worked'
         endif
       else
-        call errquit('nwc_s2: logic error in copy_{c1|sym}',911)
+        call errquit('nwc_s2: logic error in copy_{c1|sym}',911,
+     &       GEOM_ERR)
       endif
       if (.not.geom_rtdb_store(my_rtdb,geom,'geometry'))
-     &      call errquit('nwc_s2: geom_rtdb_store failed',911)
+     &      call errquit('nwc_s2: geom_rtdb_store failed',911,
+     &       RTDB_ERR)
       if (.not.geom_destroy(geom))
-     &      call errquit('nwc_s2: geom_destroy failed',911)
+     &      call errquit('nwc_s2: geom_destroy failed',911,
+     &       RTDB_ERR)
       call util_print_set_level(current_print_level)
 *      write(luout,*)' x after  ',x
       call drdy_synch(DRDY_CODE_HESSIAN,'nwc_s2')

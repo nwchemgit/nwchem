@@ -1,10 +1,11 @@
       subroutine setinp(ir,iw)
 *
-* $Id: input.F,v 1.4 2000-02-15 18:12:44 windus Exp $
+* $Id: input.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
+#include "errquit.fh"
 #include "work.fh"
       common/iofile/iread,iwrite
 c
@@ -40,7 +41,7 @@ c
 c     set field to be read next (ivalue=0,...,nfield)
 c
       if (ivalue.lt.0 .or. ivalue.gt.nfield())
-     $     call errquit('setfld: stupid field value',ivalue)
+     $     call errquit('setfld: stupid field value',ivalue, INPUT_ERR)
       jrec = ivalue
 c
       end
@@ -58,6 +59,7 @@ c
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
+#include "errquit.fh"
 c.... this routine reads a data card and scans it for non - space fields
 c    the number of fields is stored in jump, the starting point of a
 c    field in istrt(i) and the number of characters in that field
@@ -72,7 +74,7 @@ c
       nline=nline+1
       if(nline.le.noline)go to 150
       if(oswit)
-     * call errquit('unexpected end of data file',nline)
+     * call errquit('unexpected end of data file',nline, INPUT_ERR)
  100  read(iread,'(a80)',end=300)ja
       do 70 i=1,nchar
       if(ja(1:1).eq.xchar(i))go to 110
@@ -228,6 +230,7 @@ c      dimension ibuf(8)
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
+#include "errquit.fh"
       dimension xchar(15)
 #include "workc.fh"
 #include "work.fh"
@@ -282,13 +285,14 @@ c.... the number itself
       return
 100   call errout(i)
       call errquit('illegal character reading floating point number',
-     $     i)
+     $     i, INPUT_ERR)
       return
       end
       subroutine inpi(junke)
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
+#include "errquit.fh"
       dimension xchar(12)
 #include "workc.fh"
 #include "work.fh"
@@ -311,7 +315,8 @@ c     in jbuf and transferred to junke
       if(xchar(j).eq.xtemp)go to 130
 110   continue
 120   call errout(nstrt)
-      call errquit('illegal character when reading integer',nstrt)
+      call errquit('illegal character when reading integer',nstrt,
+     &       INPUT_ERR)
 130   if(j.lt.11)go to 140
       if(nstrt.ne.ist)go to 120
       if(j.ge.12)jbuf=-jbuf
@@ -326,11 +331,12 @@ c     in jbuf and transferred to junke
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)
+#include "errquit.fh"
 #include "workc.fh"
 #include "work.fh"
       common/iofile/iread,iwrite
       if((iwid.lt.1).or.(iwid.ge.81))call errquit(
-     1 'illegal line width specified',iwid)
+     1 'illegal line width specified',iwid, INPUT_ERR)
       iwidth=iwid
       write(iwrite,10)iwidth
 10    format(///' input line width set to',i4,' characters')

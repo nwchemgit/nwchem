@@ -1,9 +1,10 @@
 c
-c     $Id: nominimize.F,v 1.2 2002-04-25 00:34:39 bylaska Exp $ 
+c     $Id: nominimize.F,v 1.3 2003-10-17 22:57:10 carlfahl Exp $ 
 c
 
       subroutine nominimize(E)
       implicit none
+#include "errquit.fh"
       real*8     E(*)
 
 #include "mafdecls.fh"
@@ -75,7 +76,8 @@ c
 *     **** allocate G1 ****
       value = MA_alloc_get(mt_dcpl,npack1*neall,
      >                     'G1',G1(2),G1(1))
-      if (.not. value) call errquit('nominimize:out of heap memory',0)
+      if (.not. value) call errquit('nominimize:out of heap memory',0,
+     &       MA_ERR)
 
 
       call psi_1get_Tgradient(dcpl_mb(G1(1)),E0)
@@ -143,7 +145,7 @@ c
 
       value = MA_free_heap(G1(2))
       if (.not. value) 
-     >  call errquit('nominimize:error freeing heap memory',0)
+     >  call errquit('nominimize:error freeing heap memory',0, MA_ERR)
 
   
       return

@@ -1,5 +1,5 @@
 c
-c $Id: truncating_function.F,v 1.10 2002-03-06 00:31:34 bylaska Exp $
+c $Id: truncating_function.F,v 1.11 2003-10-17 22:57:42 carlfahl Exp $
 c
   
 ***********************************************************
@@ -23,6 +23,7 @@ c
 
       subroutine Truncating_Function_init(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -102,7 +103,8 @@ c      integer rho(2),f(2)
 
       value = MA_alloc_get(mt_dbl,(nt),'Trnc',Trnc(2),Trnc(1))
       if (.not. value) 
-     >  call errquit('Truncating_Function_init: out of heap memory',0)
+     >  call errquit('Truncating_Function_init: out of heap memory',0,
+     &       MA_ERR)
 
 
 *     ***** Generate Fourier transform of Truncating Functions *****
@@ -129,12 +131,13 @@ c      integer rho(2),f(2)
 
       subroutine Truncating_Function_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "truncating_function.fh"
 
       if (.not. MA_free_heap(Trnc(2))) 
-     >  call errquit('Truncating_Function_end: freeing heap',0)
+     >  call errquit('Truncating_Function_end: freeing heap',0, MA_ERR)
       return
       end
 
@@ -145,6 +148,7 @@ c      integer rho(2),f(2)
 *     ****************************
       subroutine Truncating_Function(rgrid,T)
       implicit none
+#include "errquit.fh"
       real*8 rgrid(3,*)
       real*8 T(*)
 
@@ -166,7 +170,8 @@ c      integer rho(2),f(2)
       call D3dB_n2ft3d(1,n2ft3d)
       value = MA_push_get(mt_dbl,n2ft3d,'tmp',tmp(2),tmp(1))
       if (.not. value)
-     >  call errquit(' Switching_Charge_Generate_V:pushing stack',0)
+     >  call errquit(' Switching_Charge_Generate_V:pushing stack',0,
+     &       MA_ERR)
 
       call Truncating_Function_atom(n2ft3d,1,rgrid,T)
       nion = ion_nion()
@@ -177,7 +182,7 @@ c      integer rho(2),f(2)
 
       value = MA_pop_stack(tmp(2))
       if (.not. value) 
-     >  call errquit('Truncating_Function: popping stack',1)
+     >  call errquit('Truncating_Function: popping stack',1, MA_ERR)
       return
       end
 

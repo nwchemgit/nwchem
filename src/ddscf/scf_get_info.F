@@ -10,6 +10,7 @@ c
       end
       subroutine scf_init(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -48,9 +49,9 @@ c
 c     load geometry and symmetry info
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('scf_init: geom_create?', 0)
+     $     call errquit('scf_init: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('scf_init: no geometry ', 0)
+     $     call errquit('scf_init: no geometry ', 0, RTDB_ERR)
       if (.not.rtdb_get(rtdb, 'scf:skeleton',MT_LOG, 1, oskel)) then
          oskel = sym_number_ops(geom) .gt. 0
       endif
@@ -64,9 +65,9 @@ c
 c     load the basis set and get info about it
 c
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('scf_init: bas_create?', 0)
+     $     call errquit('scf_init: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
-     $        call errquit('scf_init: no ao basis set', 0)
+     $        call errquit('scf_init: no ao basis set', 0, RTDB_ERR)
 c
 c     For debug ... call int_init and do the 2-e
 c
@@ -79,18 +80,18 @@ c
       endif
 c
       if (.not. bas_name(basis, name, trans))
-     $     call errquit('scf_init: bas_name?', 0)
+     $     call errquit('scf_init: bas_name?', 0, BASIS_ERR)
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('scf_init: basis info',0)
+     $     ('scf_init: basis info',0, BASIS_ERR)
 c
 c     Is RI approximation to be used? If so get fitting basis set.
 c
       if (rtdb_get(rtdb, 'scf:ri', MT_INT, 1, nriscf)) then
         if (.not. bas_create(riscf_basis, 'riscf basis'))
-     $       call errquit('scf_init: bas_create?', 0)
+     $       call errquit('scf_init: bas_create?', 0, BASIS_ERR)
         if (.not. bas_rtdb_load(rtdb, geom, riscf_basis, 'riscf basis'))
-     $       call errquit('scf_init: no riscf basis set', 0)
+     $       call errquit('scf_init: no riscf basis set', 0, RTDB_ERR)
       else
         nriscf = 0
         riscf_basis = 0
@@ -140,12 +141,13 @@ c
       if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
      $     charge = 0.0d0
       if (.not. geom_nuc_charge(geom, nuclear_charge))
-     $     call errquit('scf: geom_nuc_charge failed', 0)
+     $     call errquit('scf: geom_nuc_charge failed', 0, GEOM_ERR)
       nelec = nint(nuclear_charge - charge)
       if (nelec .le. 0) call errquit
-     $     ('scf: negative no. of electrons ?', nelec)
+     $     ('scf: negative no. of electrons ?', nelec, INPUT_ERR)
       if (abs(nuclear_charge - charge - dble(nelec)) .gt. 1d-8)
-     $     call errquit('scf: non-integral no. of electrons ?', 0)
+     $     call errquit('scf: non-integral no. of electrons ?', 0,
+     &       INPUT_ERR)
 c     
 c     Determine no. of open and closed shells ... default is to run closed
 c     shell unless told otherwise
@@ -153,7 +155,7 @@ c
       if (bgj_print() .gt. 0)
      &   write(*,*)'*** !!! more stuff to check in scf_get_info.F !!!'
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-     +     call errquit('task: no task input for theory?',0)
+     +     call errquit('task: no task input for theory?',0, INPUT_ERR)
 c     if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
 c     $     nopen = 0
       if(theory .eq. 'dft')then
@@ -164,9 +166,10 @@ c     $     nopen = 0
       if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
      $     nopen = 0
       if (nopen .gt. nelec) call errquit
-     $     ('scf: nopen > nelec ', nopen)
+     $     ('scf: nopen > nelec ', nopen, INPUT_ERR)
       if (mod(nelec-nopen,2) .ne. 0) call errquit
-     $     ('scf: no. of closed-shell electrons is not even!',nopen)
+     $     ('scf: no. of closed-shell electrons is not even!',nopen,
+     &       INPUT_ERR)
       nclosed = (nelec-nopen) / 2
 c     
       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype)) then
@@ -189,7 +192,8 @@ c
 c
       if ( scftype.ne.'ROHF' .and. scftype.ne.'RHF' .and.
      $     scftype.ne.'UHF' ) call errquit
-     $     ('scf: only ROHF, RHF, and UHF currently supported', 0)
+     $     ('scf: only ROHF, RHF, and UHF currently supported', 0,
+     &       INPUT_ERR)
 c
 c     Dump lagrangian?  Yes by default now since if the SCF 
 c     has converged for an energy it will not be rerun for the gradient.
@@ -216,20 +220,20 @@ c     Store the derived info in the database for other wavefunction
 c     modules and/or restart to access
 c
       if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, scftype)) 
-     $     call errquit('scf_init: put of scftyp failed',0)
+     $     call errquit('scf_init: put of scftyp failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-     $     call errquit('scf_init: put of nopen failed',0)
+     $     call errquit('scf_init: put of nopen failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit('scf_init: put of nclosed failed',0)
+     $     call errquit('scf_init: put of nclosed failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:nelec', MT_INT, 1, nelec))
-     $     call errquit('scf_init: put of nelec failed',0)
+     $     call errquit('scf_init: put of nelec failed',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:nmo', MT_INT, 1, nmo))
-     $     call errquit('scf_init: put of nmo failed',0)
+     $     call errquit('scf_init: put of nmo failed',0, RTDB_ERR)
       if (scftype .eq. 'UHF') then
          if (.not. rtdb_put(rtdb, 'scf:nalpha', MT_INT, 1, nalpha))
-     $        call errquit('scf_init: put of nalpha failed',0)
+     $        call errquit('scf_init: put of nalpha failed',0, RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'scf:nbeta', MT_INT, 1, nbeta))
-     $        call errquit('scf_init: put of nbeta failed',0)
+     $        call errquit('scf_init: put of nbeta failed',0, RTDB_ERR)
       endif
 c     
 c     Allocate persistent local and global arrays ... these may
@@ -237,27 +241,30 @@ c     be reallocated later when the dependency analysis is done
 c
       if (scftype .eq. 'UHF') then
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: alpha MOs',
-     $        32, 32, g_movecs)) call errquit('scf_init: alpha MOs', 0)
+     $        32, 32, g_movecs)) call errquit('scf_init: alpha MOs', 0,
+     &       GA_ERR)
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: beta MOs',
-     $        32, 32, g_movecs(2))) call errquit('scf_init: beta MOs',0)
+     $        32, 32, g_movecs(2))) call errquit('scf_init: beta MOs',0,
+     &       GA_ERR)
       else
          if (.not. ga_create(MT_DBL, nbf, nmo, 'scf_init: MOs',
-     $        32, 32, g_movecs)) call errquit('scf_init: MOs', 0)
+     $        32, 32, g_movecs)) call errquit('scf_init: MOs', 0,
+     &       GA_ERR)
       endif
 c     
       len_occ = nmo
       if (scftype .eq. 'UHF') len_occ = nbf * 2
       if (.not. ma_push_get(mt_dbl, len_occ, 'scf_init: mo evals',
      $     l_eval, k_eval)) call errquit
-     $     ('scf_init: insufficient memory?', len_occ)
+     $     ('scf_init: insufficient memory?', len_occ, MA_ERR)
 c     
       if (.not. ma_push_get(mt_dbl, len_occ, 'scf_init: mo occ',
      $     l_occ, k_occ)) call errquit
-     $     ('scf_init: insufficient memory?', len_occ)
+     $     ('scf_init: insufficient memory?', len_occ, MA_ERR)
 c
       if (.not. ma_push_get(mt_int, len_occ, 'scf_init: mo irs',
      $     l_irs, k_irs)) call errquit
-     $     ('scf_init: insufficient memory?', len_occ)
+     $     ('scf_init: insufficient memory?', len_occ, MA_ERR)
 c
       call ifill(len_occ, 1, int_mb(k_irs), 1) ! In case not adapting
 c
@@ -288,7 +295,7 @@ c
 c     
       end
       subroutine scf_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.56 2003-02-06 00:07:17 edo Exp $
+C$Id: scf_get_info.F,v 1.57 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -476,6 +483,7 @@ c
       end
       subroutine scf_tidy(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cscf.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -490,19 +498,20 @@ c
 c
       if (oinitialized) then
          if (.not. geom_destroy(geom)) call errquit
-     $        ('scf_tidy: geom destroy failed', 0)
+     $        ('scf_tidy: geom destroy failed', 0, GEOM_ERR)
          if (.not. bas_destroy(basis)) call errquit
-     $        ('scf_tidy: basis destroy failed',0)
+     $        ('scf_tidy: basis destroy failed',0, BASIS_ERR)
          status = ma_pop_stack(l_irs)
          status = ma_pop_stack(l_occ) .and. status
          status = ma_pop_stack(l_eval) .and. status
          if (.not. status) call errquit
-     $        ('scf_tidy: failed to free irs/occupation/evals',0)
+     $        ('scf_tidy: failed to free irs/occupation/evals',0,
+     &       MA_ERR)
          if (.not. ga_destroy(g_movecs)) call errquit
-     $        ('scf_tidy: failed to free movecs',0)
+     $        ('scf_tidy: failed to free movecs',0, GA_ERR)
          if (scftype .eq. 'UHF') then
             if (.not. ga_destroy(g_movecs(2))) call errquit
-     $           ('scf_tidy: failed to free beta movecs',0)
+     $           ('scf_tidy: failed to free beta movecs',0, GA_ERR)
          endif
          oinitialized = .false.
       endif
@@ -522,6 +531,7 @@ c
       end
       subroutine fock_2e_tidy(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cfock.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -534,6 +544,6 @@ c
       if (.not. rtdb_get(rtdb, 'int2e:keep',
      $     MT_LOG, 1, okeep)) okeep = .false.
       if (.not. int2e_file_close(okeep))
-     $     call errquit('scf_tidy: closing aoints?', 0)
+     $     call errquit('scf_tidy: closing aoints?', 0, INT_ERR)
 c
       end

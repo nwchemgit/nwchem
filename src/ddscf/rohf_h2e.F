@@ -1,7 +1,8 @@
       subroutine rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_h2e.F,v 1.8 2003-01-27 23:17:10 edo Exp $
+C     $Id: rohf_h2e.F,v 1.9 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -51,7 +52,7 @@ c     Lots more to do on memory management.
 c
       call ga_inquire(g_x,gtype,vlen,nvec)
       if (nvec .gt. max_nvec) call errquit
-     $     ('rohf_h2e: too many vectors',nvec)
+     $     ('rohf_h2e: too many vectors',nvec, UNKNOWN_ERR)
       odebug = util_print('rohf_hessv', print_debug)
 c     
       tol2e = min(max(acc,itol_floor),itol_ceil)
@@ -164,10 +165,13 @@ c
          endif
       enddo
 c
-      if (.not. ga_destroy(g_tmp1)) call errquit('rohf_h2e: GA?',0)
-      if (.not. ga_destroy(g_tmp2)) call errquit('rohf_h2e: GA?',0)
+      if (.not. ga_destroy(g_tmp1)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_tmp2)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
       if (nopen .gt. 0) then
-         if (.not. ga_destroy(g_tmp3)) call errquit('rohf_h2e: GA?',0)
+         if (.not. ga_destroy(g_tmp3)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
       endif
 c
 c     Fock build
@@ -296,15 +300,18 @@ c
 c
       do ifock = 1, nfock
          if (.not. ga_destroy(iv_dens(ifock)))
-     $        call errquit('rohf:destroy?',0)
+     $        call errquit('rohf:destroy?',0, GA_ERR)
          if (.not. ga_destroy(iv_fock(ifock)))
-     $        call errquit('rohf:destroy?',0)
+     $        call errquit('rohf:destroy?',0, GA_ERR)
       enddo
 c
-      if (.not. ga_destroy(g_tmp1)) call errquit('rohf:destroy?',0)
-      if (.not. ga_destroy(g_tmp2)) call errquit('rohf:destroy?',0)
+      if (.not. ga_destroy(g_tmp1)) call errquit('rohf:destroy?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_tmp2)) call errquit('rohf:destroy?',0,
+     &       GA_ERR)
       if (nopen .gt. 0) then
-         if (.not. ga_destroy(g_tmp3)) call errquit('rohf:destroy?',0)
+         if (.not. ga_destroy(g_tmp3)) call errquit('rohf:destroy?',0,
+     &       GA_ERR)
       endif
 c     
       end

@@ -1,8 +1,9 @@
 c
-c $Id: pspw_input.F,v 1.3 2001-11-01 18:58:44 bylaska Exp $
+c $Id: pspw_input.F,v 1.4 2003-10-17 22:57:01 carlfahl Exp $
 c
       subroutine pspw_input(rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -41,18 +42,21 @@ cedo      call errquit(' pspw not running yet on HP ',0)
 cedo#endif
  10   continue
       if (.not. inp_read()) 
-     >     call errquit('pspw_input: inp_read failed', 0)
+     >     call errquit('pspw_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
-     >     call errquit('pspw_input: failed to read keyword', 0)
+     >     call errquit('pspw_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
-     >     call errquit('pspw_input: unknown directive', 0)
+     >     call errquit('pspw_input: unknown directive', 0,
+     &       INPUT_ERR)
 c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800,
      >       900, 1000,1100,1200,1300,1400,1500,1600,
      >       9999) ind
-      call errquit('pspw_input: unimplemented directive', ind)
+      call errquit('pspw_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 
 c     

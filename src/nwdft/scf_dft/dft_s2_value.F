@@ -1,7 +1,8 @@
       subroutine dft_s2_value(geom,basis,symmetry,na,nb,
      &     nbf,ga_densa,ga_densb)
-C     $Id: dft_s2_value.F,v 1.4 1997-04-21 23:43:07 d3h449 Exp $
+C     $Id: dft_s2_value.F,v 1.5 2003-10-17 22:55:44 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -45,13 +46,13 @@ c      call gacrea(geom,basis,nbf,nbf,'ovl ',iga_tmp2,'atom')
 
 c      call gadest(iga_s)
       if (.not. ga_destroy(iga_s)) call errquit
-     &   ('dft_s2_value: could not destroy iga_s', 0)
+     &   ('dft_s2_value: could not destroy iga_s', 0, GA_ERR)
 c      call gadest(iga_tmp)
       if (.not. ga_destroy(iga_tmp)) call errquit
-     &   ('dft_s2_value: could not destroy iga_tmp', 0)
+     &   ('dft_s2_value: could not destroy iga_tmp', 0, GA_ERR)
 c      call gadest(iga_tmp2)
       if (.not. ga_destroy(iga_tmp2)) call errquit
-     &   ('dft_s2_value: could not destroy iga_tmp2', 0)
+     &   ('dft_s2_value: could not destroy iga_tmp2', 0, GA_ERR)
 c
       if(ga_nodeid().eq.0) then
         call dft_header('Expectation value of S2:  ')

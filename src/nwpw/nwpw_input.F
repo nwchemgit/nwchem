@@ -1,8 +1,9 @@
 c
-c $Id: nwpw_input.F,v 1.10 2003-03-19 01:00:21 bylaska Exp $
+c $Id: nwpw_input.F,v 1.11 2003-10-17 22:55:55 carlfahl Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
+#include "errquit.fh"
 
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -90,15 +91,17 @@ c
 c
 c
 cedo#ifdef HPUX
-cedo      call errquit(' nwpw not running yet on HP ',0)
+cedo      call errquit(' nwpw not running yet on HP ',0, CAPMIS_ERR)
 cedo#endif
  10   continue
       if (.not. inp_read()) 
-     >     call errquit('nwpw_input: inp_read failed', 0)
+     >     call errquit('nwpw_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
-     >     call errquit('nwpw_input: failed to read keyword', 0)
+     >     call errquit('nwpw_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
-     >     call errquit('nwpw_input: unknown directive', 0)
+     >     call errquit('nwpw_input: unknown directive', 0,
+     &       INPUT_ERR)
 c
 c
 c
@@ -110,7 +113,8 @@ c
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,
      >       9999) ind
-      call errquit('nwpw_input: unimplemented directive', ind)
+      call errquit('nwpw_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 
 c     
@@ -236,14 +240,14 @@ c  cell_name
 c     
  1900 if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'nwpw_input: failed to read cell_name', 0)
+     >          'nwpw_input: failed to read cell_name', 0, INPUT_ERR)
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
       value = value.and.
      >        rtdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 1900)
+     >       'nwpw_input: error writing to rtdb', 1900, RTDB_ERR)
       goto 10
 
 c
@@ -251,7 +255,8 @@ c  input_wavefunction_filename
 c 
  2000 if (.not. inp_a(input_wavefunction_filename))
      >     call errquit(
-     >          'nwpw_input: failed to read input_wavefunction', 0)
+     >          'nwpw_input: failed to read input_wavefunction', 0,
+     &       INPUT_ERR)
       ind = index(input_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
@@ -268,7 +273,7 @@ c
      >                    1,input_wavefunction_filename(1:ind))
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2000)
+     >       'nwpw_input: error writing to rtdb', 2000, RTDB_ERR)
       goto 10
 
 c
@@ -276,7 +281,8 @@ c  output_wavefunction_filename
 c 
  2100 if (.not. inp_a(output_wavefunction_filename))
      >     call errquit(
-     >          'nwpw_input: failed to read output_wavefunction', 0)
+     >          'nwpw_input: failed to read output_wavefunction', 0,
+     &       INPUT_ERR)
       ind = index(output_wavefunction_filename,' ') - 1
       value = value.and.
      >        rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
@@ -285,46 +291,46 @@ c
      >                    1,output_wavefunction_filename(1:ind))
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2100)
+     >       'nwpw_input: error writing to rtdb', 2100, RTDB_ERR)
       goto 10
 c
 c  fake_mass
 c 
  2200 if (.not. inp_f(fake_mass))
      >     call errquit(
-     >          'nwpw_input: failed to fake mass', 0)
+     >          'nwpw_input: failed to fake mass', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:fake_mass',mt_dbl,1,fake_mass)
      >   .and.rtdb_put(rtdb,'band:fake_mass',mt_dbl,1,fake_mass)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2200)
+     >       'nwpw_input: error writing to rtdb', 2200, RTDB_ERR)
       goto 10
 c
 c  time_step
 c 
  2300 if (.not. inp_f(time_step))
      >     call errquit(
-     >          'nwpw_input: failed to time step', 0)
+     >          'nwpw_input: failed to time step', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:time_step',mt_dbl,1,time_step)
      >   .and.rtdb_put(rtdb,'band:time_step',mt_dbl,1,time_step)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2300)
+     >       'nwpw_input: error writing to rtdb', 2300, RTDB_ERR)
       goto 10
 c
 c  loop
 c 
  2400 if (.not. inp_i(loop(1)))
      >     call errquit(
-     >          'nwpw_input: failed to read loop(1)', 0)
+     >          'nwpw_input: failed to read loop(1)', 0, INPUT_ERR)
       if (.not. inp_i(loop(2)))
      >     call errquit(
-     >          'nwpw_input: failed to read loop(2)', 0)
+     >          'nwpw_input: failed to read loop(2)', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:loop',mt_int,2,loop)
      >   .and.rtdb_put(rtdb,'band:loop',mt_int,2,loop)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2400)
+     >       'nwpw_input: error writing to rtdb', 2400, RTDB_ERR)
       goto 10
 c
 c  tolerances
@@ -339,19 +345,19 @@ c
      >   .and.rtdb_put(rtdb,'band:tolerances',mt_dbl,3,tolerances)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2500)
+     >       'nwpw_input: error writing to rtdb', 2500, RTDB_ERR)
       goto 10
 c
 c  energy_cutoff
 c 
  2600 if (.not. inp_f(ecut))
      >     call errquit(
-     >          'nwpw_input: failed to read ndown', 0)
+     >          'nwpw_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
      >   .and.rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2600)
+     >       'nwpw_input: error writing to rtdb', 2600, RTDB_ERR)
       goto 10
 
 c
@@ -359,43 +365,44 @@ c  wavefunction_cutoff
 c 
  2700 if (.not. inp_f(wcut))
      >     call errquit(
-     >          'nwpw_nwpwt: failed to read ndown', 0)
+     >          'nwpw_nwpwt: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2700)
+     >       'nwpw_input: error writing to rtdb', 2700, RTDB_ERR)
       goto 10
 c
 c  ewald_rcut
 c 
  2800 if (.not. inp_f(rcut))
      >     call errquit(
-     >          'nwpw_input: failed to read rcut', 0)
+     >          'nwpw_input: failed to read rcut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:rcut',mt_dbl,1,rcut)
      >   .and.rtdb_put(rtdb,'band:rcut',mt_dbl,1,rcut)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2800)
+     >       'nwpw_input: error writing to rtdb', 2800, RTDB_ERR)
       goto 10
 c
 c  ewald_rcut
 c 
  2900 if (.not. inp_i(ncut))
      >     call errquit(
-     >          'nwpw_input: failed to read ncut', 0)
+     >          'nwpw_input: failed to read ncut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:ncut',mt_int,1,ncut)
      >   .and.rtdb_put(rtdb,'band:ncut',mt_int,1,ncut)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 2900)
+     >       'nwpw_input: error writing to rtdb', 2900, RTDB_ERR)
       goto 10
 c
 c  exchange_correlation
 c 
  3000  if (.not. inp_a(exchange_correlation))
      >     call errquit(
-     >          'nwpw_input: failed to read exchange_correlation', 0)
+     >          'nwpw_input: failed to read exchange_correlation', 0,
+     &       INPUT_ERR)
       ind = index(exchange_correlation,' ') - 1
       value = rtdb_cput(rtdb,'cgsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
@@ -403,7 +410,7 @@ c
      >                    1,exchange_correlation(1:ind))
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 3000)
+     >       'nwpw_input: error writing to rtdb', 3000, RTDB_ERR)
       goto 10
 c
 c  Mulliken
@@ -415,7 +422,7 @@ c
      >                       mulliken)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 3100)
+     >       'nwpw_input: error writing to rtdb', 3100, RTDB_ERR)
       goto 10
 c
 c  allow_translation
@@ -427,14 +434,14 @@ c
      >                       allow_translation)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 3200)
+     >       'nwpw_input: error writing to rtdb', 3200, RTDB_ERR)
       goto 10
 c
 c  multiplicity
 c 
  3300 if (.not. inp_i(multiplicity))
      >     call errquit(
-     >          'nwpw_input: failed to read mult', 0)
+     >          'nwpw_input: failed to read mult', 0, INPUT_ERR)
       if (multiplicity.lt.1) then
          multiplicity = 1
          ispin        = 1
@@ -447,7 +454,7 @@ c
      >   .and.rtdb_put(rtdb,'band:mult',mt_int,1,multiplicity)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 3300)
+     >       'nwpw_input: error writing to rtdb', 3300, RTDB_ERR)
       goto 10
 c
 c  dft/restricted
@@ -457,7 +464,7 @@ c
      >   .and.rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 3400)
+     >       'nwpw_input: error writing to rtdb', 3400, RTDB_ERR)
       goto 10
 c
 c  odft/unrestricted
@@ -467,7 +474,7 @@ c
      >   .and.rtdb_put(rtdb,'band:ispin',mt_int,1,ispin)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 3500)
+     >       'nwpw_input: error writing to rtdb', 3500, RTDB_ERR)
       goto 10
 c
 c     vectors; get input vectors, output vectors, initial guess, etc.
@@ -489,7 +496,7 @@ c
       value = rtdb_put(rtdb,'cgsd:geometry_optimize',mt_log,1,move)
       if (.not.value)
      >  call errquit(
-     >       'nwpw_input: error writing to rtdb', 3800)
+     >       'nwpw_input: error writing to rtdb', 3800, RTDB_ERR)
       goto 10
 
 ************************************************************************

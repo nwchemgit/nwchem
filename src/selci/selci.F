@@ -1,8 +1,9 @@
       logical function selci(rtdb)
 *
-* $Id: selci.F,v 1.11 2002-01-19 02:57:12 zzhang Exp $
+* $Id: selci.F,v 1.12 2003-10-17 22:58:17 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
@@ -93,7 +94,8 @@ c     Allocate all available MA space
 c
       lword = ma_inquire_avail(mt_dbl)
       if (.not. ma_push_get(mt_dbl, lword, 'selci', l_mem, k_mem))
-     $     call errquit('selci: could not allocate all memory',lword)
+     $     call errquit('selci: could not allocate all memory',lword,
+     &       MA_ERR)
 c
 c     tcgmsg vs GA numbering of processes ?
 c
@@ -150,9 +152,11 @@ c
          call selci_ci(dbl_mb(k_mem), lword)
          call selci_davids(dbl_mb(k_mem), lword, nroot, diag_tol, roots)
          if (.not. rtdb_put(rtdb, 'selci:roots', mt_dbl, nroot, roots))
-     $        call errquit('selci: failed to store CI roots',nroot)
+     $        call errquit('selci: failed to store CI roots',nroot,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb,'selci:energy',mt_dbl,1,roots(nroot)))
-     $        call errquit('selci: failed to store CI energy',nroot)
+     $        call errquit('selci: failed to store CI energy',nroot,
+     &       RTDB_ERR)
       else if (mode .eq. 'select') then
          if (.not. rtdb_get_info(rtdb, 'selci:selection thresholds', 
      $        ma_type, nthresh, date)) then
@@ -160,10 +164,12 @@ c
             stols(1) = 1.0d99   ! i.e., don't select any new configuration
          else
             if (nthresh .gt. max_thresh) call errquit
-     $           ('selci: too many selection thresholds', max_thresh)
+     $           ('selci: too many selection thresholds', max_thresh,
+     &       INPUT_ERR)
             if (.not. rtdb_get(rtdb, 'selci:selection thresholds', 
      $           mt_dbl, max_thresh, stols)) call errquit
-     $           ('selci: no selection thresholds in database?', 0)
+     $           ('selci: no selection thresholds in database?', 0,
+     &       RTDB_ERR)
          endif
          if (.not. rtdb_get(rtdb, 'selci:selection criterion',
      $        mt_int, 1, iwpt)) iwpt = 0
@@ -177,21 +183,25 @@ c
             if (i .ne. nthresh) then
                if (.not. rtdb_put(rtdb, 'selci:selection thresholds', 
      $              mt_dbl, nthresh-i, stols(i+1))) call errquit
-     $              ('selci: failed writing thresholds to database?', 0)
+     $              ('selci: failed writing thresholds to database?', 0,
+     &       RTDB_ERR)
             else
                status = rtdb_delete(rtdb,'selci:selection thresholds')
             endif
          enddo
          if (.not. rtdb_put(rtdb, 'selci:roots', mt_dbl, nroot, roots))
-     $        call errquit('selci: failed to store CI roots',nroot)
+     $        call errquit('selci: failed to store CI roots',nroot,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'selci:roots+pt',
      $        mt_dbl, nroot, rootspt))
-     $        call errquit('selci: failed to store CI+PT roots',nroot)
+     $        call errquit('selci: failed to store CI+PT roots',nroot,
+     &       RTDB_ERR)
          if (.not. rtdb_put(rtdb, 'selci:energy',mt_dbl,1,
      $        rootspt(nroot)))
-     $        call errquit('selci: failed to store CI+PT energy',nroot)
+     $        call errquit('selci: failed to store CI+PT energy',nroot,
+     &       RTDB_ERR)
       else
-         call errquit('selci: unknown mode', 0)
+         call errquit('selci: unknown mode', 0, INPUT_ERR)
       endif
 c
 c     What files need deleting?
@@ -206,7 +216,7 @@ c
 c     That's it!
 c
       if (.not. ma_pop_stack(l_mem)) 
-     $     call errquit('selci: ma corrupted', 0)
+     $     call errquit('selci: ma corrupted', 0, MA_ERR)
       call util_print_pop
 c
       call ga_sync()

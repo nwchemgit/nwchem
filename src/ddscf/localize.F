@@ -20,9 +20,10 @@ c
       end
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.10 2003-02-20 01:23:50 mhackler Exp $
+* $Id: localize.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "cscf.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -55,7 +56,7 @@ c     Scale the MOs by the laplace quadrature factors
 c
          ef = 0.5d0*(dbl_mb(k_eval+nclosed-1) + dbl_mb(k_eval+nclosed))
          if (.not. ma_push_get(mt_dbl, nbf, 'c', l_c, k_c))
-     $        call errquit('ma for c', 0)
+     $        call errquit('ma for c', 0, MA_ERR)
          call ga_sync
          if (ga_nodeid() .eq. 0)
      $        write(6,*) ' EF ', ef, ' Y ', y, ' W ', w
@@ -73,7 +74,7 @@ c
             call dscal(nbf,scale,dbl_mb(k_c),1)
             call ga_put(g_movecs,1,nbf,i,i,dbl_mb(k_c), 1)
          enddo
-         if (.not. ma_pop_stack(l_c)) call errquit('pop',0)
+         if (.not. ma_pop_stack(l_c)) call errquit('pop',0, MA_ERR)
       endif
       call ga_sync
 c
@@ -92,14 +93,14 @@ c
 c     
 *ga:1:0
          if (.not. ga_create(MT_DBL, nbf, nmo, 'sc',
-     $        nbf, 0, g_sc)) call errquit('testlocalize: sc',0)
+     $        nbf, 0, g_sc)) call errquit('testlocalize: sc',0, GA_ERR)
          call ga_dgemm('n', 'n', nbf, nmo, nbf, 
      $        1.0d0, g_over, g_movecs, 0.0d0, g_sc)
 c     
          if (.not. ma_push_get(mt_dbl, 2*nbf, 'sc', l_sc, k_sc))
-     $        call errquit('ma for sc', 0)
+     $        call errquit('ma for sc', 0, MA_ERR)
          if (.not. ma_push_get(mt_dbl, 2*nbf, 'c', l_c, k_c))
-     $        call errquit('ma for c', 0)
+     $        call errquit('ma for c', 0, MA_ERR)
 c     
 c     Localize the core orbitals
 c     
@@ -132,10 +133,10 @@ c
      $        nloc, iloc, nbf, nmo, g_movecs, g_sc)
 c     
 *     *      call ga_print(g_movecs)
-         if (.not. ga_destroy(g_over)) call errquit('ga?',0)
-         if (.not. ga_destroy(g_sc)) call errquit('ga?',0)
-         if (.not. ma_pop_stack(l_c)) call errquit('c',0)
-         if (.not. ma_pop_stack(l_sc)) call errquit('sc',0)
+         if (.not. ga_destroy(g_over)) call errquit('ga?',0, GA_ERR)
+         if (.not. ga_destroy(g_sc)) call errquit('ga?',0, GA_ERR)
+         if (.not. ma_pop_stack(l_c)) call errquit('c',0, MA_ERR)
+         if (.not. ma_pop_stack(l_sc)) call errquit('sc',0, MA_ERR)
 c
       else                      ! Foster-Boys localization
          if (ga_nodeid().eq.0) 
@@ -145,12 +146,13 @@ c
          do x= 1, 4
 *ga:1:0
             if (.not. ga_create(MT_DBL, nbf, nbf, 'uc',
-     $           nbf, 0, g_uc(x))) call errquit('testlocalize: uc',x)
+     $           nbf, 0, g_uc(x))) call errquit('testlocalize: uc',x,
+     &       GA_ERR)
          end do
          call int_dip_ga(basis, basis, g_uc(1), g_uc(2), g_uc(3))
 *ga:1:0
          if (.not. ga_create(MT_DBL, nbf, nmo, 'sc',
-     $        nbf, 0, g_sc)) call errquit('testlocalize: sc',0)
+     $        nbf, 0, g_sc)) call errquit('testlocalize: sc',0, GA_ERR)
          do x = 1, 3
             call ga_dgemm('n', 'n', nbf, nmo, nbf, 
      $           1.0d0, g_uc(x), g_movecs, 0.0d0, g_sc)
@@ -164,9 +166,9 @@ c
      $        1.0d0, g_over, g_movecs, 0.0d0, g_uc(4))
 c     
          if (.not. ma_push_get(mt_dbl, 8*nbf, 'sc', l_sc, k_sc))
-     $        call errquit('ma for sc', 0)
+     $        call errquit('ma for sc', 0, MA_ERR)
          if (.not. ma_push_get(mt_dbl, 8*nbf, 'c', l_c, k_c))
-     $        call errquit('ma for c', 0)
+     $        call errquit('ma for c', 0, MA_ERR)
 c     
 c     Localize the core orbitals
 c     
@@ -200,12 +202,12 @@ c
 c     
 *         call ga_print(g_movecs)
          do x = 1, 4
-            if (.not. ga_destroy(g_uc(x))) call errquit('ga?',x)
+            if (.not. ga_destroy(g_uc(x))) call errquit('ga?',x, GA_ERR)
          end do
-         if (.not. ga_destroy(g_over)) call errquit('ga?',0)
-         if (.not. ga_destroy(g_sc)) call errquit('ga?',0)
-         if (.not. ma_pop_stack(l_c)) call errquit('c',0)
-         if (.not. ma_pop_stack(l_sc)) call errquit('sc',0)
+         if (.not. ga_destroy(g_over)) call errquit('ga?',0, GA_ERR)
+         if (.not. ga_destroy(g_sc)) call errquit('ga?',0, GA_ERR)
+         if (.not. ma_pop_stack(l_c)) call errquit('c',0, MA_ERR)
+         if (.not. ma_pop_stack(l_sc)) call errquit('sc',0, MA_ERR)
 c
       end if
 c
@@ -219,6 +221,7 @@ c
       subroutine localizePM(basis, c, sc, nloc, iloc, nbf, nmo,
      $     g_c, g_sc)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -243,12 +246,12 @@ c
       integer nrot, set, pair, neven
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('localize: basis ', 0)
+     $     ('localize: basis ', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('localize: geom',0)
+     $     ('localize: geom',0, GEOM_ERR)
 c
       if (natoms.gt.maxat) call errquit
-     &      ('localize: maxat too small ', 911)
+     &      ('localize: maxat too small ', 911, UNKNOWN_ERR)
 c
       tol = 1d-8
       gamma_tol = 1d-10
@@ -277,7 +280,7 @@ c
             qs = 0.0d0
             do a = 1, natoms
                if (.not. bas_ce2bfr(basis, a, bflo, bfhi))
-     $              call errquit('localized: basis ', 0)
+     $              call errquit('localized: basis ', 0, BASIS_ERR)
                qas  = 0.0d0
                do u = bflo, bfhi
                   qas  = qas  + c(u,1)*sc(u,1)
@@ -326,7 +329,8 @@ c
                   bst = 0.0d0
                   do a = 1, natoms
                      if (.not. bas_ce2bfr(basis, a, bflo, bfhi))
-     $                    call errquit('localized: basis ', 0)
+     $                    call errquit('localized: basis ', 0,
+     &       BASIS_ERR)
 c     
                      qast = 0.0d0
                      qas  = 0.0d0
@@ -382,7 +386,8 @@ c
             nlist = 0
             do a = 1, natoms
                if (.not. bas_ce2bfr(basis, a, bflo, bfhi))
-     $              call errquit('localized: basis ', 0)
+     $              call errquit('localized: basis ', 0,
+     &       BASIS_ERR)
                qas  = 0.0d0
                do u = bflo, bfhi
                   qas  = qas  + c(u,1)*sc(u,1)
@@ -417,6 +422,7 @@ c
       subroutine localizeFB(basis, c, uc, nloc, iloc, nbf, nmo,
      $     g_c, g_uc)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -442,12 +448,13 @@ c
       double precision pop(maxat), qas
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('localize: basis ', 0)
+     $     ('localize: basis ', 0, BASIS_ERR)
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('localize: geom',0)
+     $     ('localize: geom',0, GEOM_ERR)
 c
       if (natoms.gt.maxat) call errquit
-     &      ('localize: maxat too small ', 911)
+     &      ('localize: maxat too small ', 911,
+     &       UNKNOWN_ERR)
 c
       tol = 1d-8
       gamma_tol = 1d-10
@@ -541,7 +548,7 @@ c
                      bst = bst + u12*(u1 - u2)
                      if (abs(u12-u21)/max(1.0d0,abs(u12)).gt.1d-8) then
                         write(6,*) ' U12, U21 ', u12, u21
-                        call errquit('bad u12', 0)
+                        call errquit('bad u12', 0, UNKNOWN_ERR)
                      endif
                   end do
 c     
@@ -589,7 +596,7 @@ c
             nlist = 0
             do a = 1, natoms
                if (.not. bas_ce2bfr(basis, a, bflo, bfhi))
-     $              call errquit('localized: basis ', 0)
+     $              call errquit('localized: basis ', 0, BASIS_ERR)
                qas  = 0.0d0
                do u = bflo, bfhi
                   qas  = qas  + c(u,1)*uc(u,1,1)

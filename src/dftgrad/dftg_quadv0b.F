@@ -4,9 +4,10 @@
      &                         PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.6 2000-07-18 01:13:20 edo Exp $
+* $Id: dftg_quadv0b.F,v 1.7 2003-10-17 22:54:42 carlfahl Exp $
 *
       Implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -56,7 +57,8 @@ c
             if (iniz(iat).ne.0)then
                if (.not.bas_ce2bfr(AO_bas_han,iat,ifirst,ilast))
      &            call errquit
-     &            (' dftg_quadv0_b: number of basis with atom ?',1)
+     &            (' dftg_quadv0_b: number of basis with atom ?',1,
+     &       BASIS_ERR)
                do mu = iniz(iat),ifin(iat)
                   mmu = ibf(mu)
                   do ispin = 1, ipol

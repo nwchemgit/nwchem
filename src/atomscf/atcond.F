@@ -1,6 +1,7 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps) 
-* $Id: atcond.F,v 1.8 1999-05-21 22:27:26 d3e129 Exp $
+* $Id: atcond.F,v 1.9 2003-10-17 22:54:15 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c.......................................................................
 c
 c     for atom of nuclear charge zn find electron configuration
@@ -82,7 +83,7 @@ c
  600    format(
      &      '*** The number of electrons ',i3,' in the ECP does not',
      &      /,'accord with a known set of completely filled shells !!!')
-        call errquit('unrecognised pseudopotential',911)
+        call errquit('unrecognised pseudopotential',911, INPUT_ERR)
  100    continue
       endif
       nzps = idiff
@@ -180,6 +181,7 @@ c.......................................................................
       end
 *_old_version:      subroutine old_atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps)
 *_old_version:      implicit none
+*_old_version:#include "errquit.fh"
 *_old_version:c.......................................................................
 *_old_version:c     
 *_old_version:c     for atom of nuclear charge zn find electron configuration

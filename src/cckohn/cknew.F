@@ -1,6 +1,7 @@
       subroutine cknew(rtdb, g_tr, ovbf,hpvb,hpvhp,hpvhm,
      &     obbtrn,hbbtrnd)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -161,18 +162,18 @@ c
 c     Define the geometry
 c
       if (.not. geom_create(geom, 'geometry'))
-     &     call errquit('cknew: geom_create?',70)
+     &     call errquit('cknew: geom_create?',70, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &     call errquit('cknew: load geometry? ',72)
+     &     call errquit('cknew: load geometry? ',72, RTDB_ERR)
 c     
 c     define the combined gaussian basis
 c     
       if (.not. bas_create(all_bas_han, 'all'))
-     &     call errquit('cknew: create combined basis', 86)
+     &     call errquit('cknew: create combined basis', 86, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, all_bas_han, 'all'))
-     &     call errquit('cknew: load combined basis ', 86)
+     &     call errquit('cknew: load combined basis ', 86, RTDB_ERR)
       if (.not. bas_numbf(all_bas_han, nbftot))
-     &   call errquit('cknew: number of basis function:', 86)
+     &   call errquit('cknew: number of basis function:', 86, BASIS_ERR)
       
       ai=cmplx(0.,1.)
 c
@@ -706,7 +707,7 @@ c
 c     build the p space hamiltonian and compute hpp-e
 c
          if(.not.selci(rtdb))
-     &        call errquit("selci fialed", 0) 
+     &        call errquit("selci fialed", 0), RTDB_ERR 
 c
          npvec = 9              ! number of bound p space vectors
          write(6,877)npvec,nsmall
@@ -988,6 +989,7 @@ c
  884  format(' incident energy =',f15.10)
 c
       if(.not.bas_destroy(all_bas_han))
-     &     call errquit("can't destroy all_bas_han:cknew", 0)
+     &     call errquit("can't destroy all_bas_han:cknew", 0,
+     &       BASIS_ERR)
       return
       end

@@ -3,12 +3,13 @@ C NAME
 C     RIMP2_Delete_DRA -- Close and delete DRAs
 C
 C REVISION
-C     $Id: delete_dra.F,v 1.1 1999-05-28 15:29:42 bernhold Exp $
+C     $Id: delete_dra.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Delete_DRA(MaxSpin, TopSpin, BraKetSame,
      $     D_Int, D_Gam)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer MaxSpin ![in]
       Integer TopSpin ![in]
@@ -32,7 +33,7 @@ C     Sanity check
 C
       If ( TopSpin .gt. MaxSpin ) Call ErrQuit(
      $     'RIMP2_Create_DRA: fatal program error: TopSpin > MaxSpin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
 C
 C     Loop over spins for both integrals and gammas
 C
@@ -49,7 +50,8 @@ C
                If ( D_Int(Spin, J, K) .ne. 0 ) then
                   If ( DRA_Delete( D_Int(Spin, J, K) ) .ne. 0)
      $                 Call ErrQuit(
-     $                 'RIMP2_Delete_DRA: failed for int spin', Spin)
+     $                 'RIMP2_Delete_DRA: failed for int spin', Spin,
+     &       CALC_ERR)
                EndIf
             EndDo               ! Class (K)
          EndDo                  ! Bra/Ket (J)
@@ -58,7 +60,8 @@ C        Handle Gammas too, which have only spin cases
 C
          If ( D_Gam(Spin) .ne. 0) then
             If ( DRA_Delete( D_Gam(Spin) ) .ne. 0) Call ErrQuit(
-     $           'RIMP2_Delete_DRA: failed for gamma3 spin', Spin)
+     $           'RIMP2_Delete_DRA: failed for gamma3 spin', Spin,
+     &       CALC_ERR)
          EndIf
       EndDo                     ! Spin
 C

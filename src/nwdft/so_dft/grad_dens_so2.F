@@ -3,13 +3,14 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed,
      $     movecs)
 
-c     $Id: grad_dens_so2.F,v 1.5 2001-11-15 18:39:00 edo Exp $
+c     $Id: grad_dens_so2.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
 
 C     get densities for exact-exchange sodft: Im(Daa), Im(Dbb), 
 c     Re(Dab), Im(Dab)
 C    
 
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -50,7 +51,7 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('grad_dens_so: ga_create ', 0)
+         call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
       endif
 
       status = ga_create(mt_dbl, nbf2, nbf2,'Movecs Im', 0, 0, 
@@ -61,11 +62,12 @@ C     get MO vectors from file (taken from Roberts scf_movecs_read)
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('grad_dens_so: ga_create ', 0)
+         call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
       endif
 
       if (.not. movecs_read_so(movecs, occ, evals, g_vecs)) 
-     $     call errquit('grad_dens_so2:could not read mo vectors',110)
+     $     call errquit('grad_dens_so2:could not read mo vectors',110,
+     &       DISK_ERR)
 c
       nocc = 2*nclosed + nopen 
       status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
@@ -76,7 +78,7 @@ c
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('grad_dens_so: ga_create ', 0)
+         call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
       endif
       status = ga_create(mt_dbl,nbf2,nbf2,'density matrix', 0, 0, 
      &     g_densso(2))
@@ -86,7 +88,7 @@ c
             call util_flush(6)
          endif
          call ga_sync()
-         call errquit('grad_dens_so: ga_create ', 0)
+         call errquit('grad_dens_so: ga_create ', 0, GA_ERR)
       endif
 C     density matrix
 c

@@ -1,8 +1,9 @@
       logical function mcscf( rtdb )
 *
-* $Id: mcscf.F,v 1.63 2001-02-09 01:03:33 windus Exp $
+* $Id: mcscf.F,v 1.64 2003-10-17 22:55:21 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -79,7 +80,8 @@ c
 c     This is a stupid kludge because of Benny breaking encapsulation rules.
 c     Store SCF hamiltonian type as HF for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 1))
-     $     call errquit('mcscf: put of bgj:scf_type failed',0)
+     $     call errquit('mcscf: put of bgj:scf_type failed',0,
+     &       RTDB_ERR)
 c     
       cputime = util_cpusec()
       walltime= util_wallsec()
@@ -103,7 +105,8 @@ c
       call mcscf_getinfo(rtdb, geom, basis, nbf, nclosed, nact )
 c
       if (.not. sym_abelian_group(geom)) call errquit
-     $     ('mcscf: the molecular point group is not abelian',0)
+     $     ('mcscf: the molecular point group is not abelian',0,
+     &       GEOM_ERR)
 c
       nvir = nbf - nclosed - nact
       orlen = (nclosed*nvir) + (nact*nvir) + (nclosed*nact)
@@ -114,7 +117,8 @@ c
       oskel = sym_number_ops(geom).gt.0
 c
       if (.not.geom_nuc_rep_energy( geom, enrep ))
-     $     call errquit('mcscf: cannot retrieve nuclear repulsion',0)
+     $     call errquit('mcscf: cannot retrieve nuclear repulsion',0,
+     &       GEOM_ERR)
 c
       if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
      $     tol2e = 1.d-9       ! Redundant recovered later
@@ -122,7 +126,8 @@ c
       call sym_group_name(geom,zname)
       if (.not. sym_char_table(zname, nop, nir, class_dim,
      $     zir, zclass, chars)) call errquit
-     $     ('mcscf: failed to get character table info',0)
+     $     ('mcscf: failed to get character table info',0,
+     &       GEOM_ERR)
 c     
 c     Get electron and spin multiplicity (NB: for info only) and symm
 c     Active elec and multiplicity must be set --- no defaults
@@ -131,27 +136,33 @@ c
         do multip = 1,9
 	   if (state(1:1).eq.mchar(multip)) goto 656
         enddo
-	call errquit('mcscf: failed to parse multiplicity in state',0)
+	call errquit('mcscf: failed to parse multiplicity in state',0,
+     &       INPUT_ERR)
 656     do symstate = 1,nir
 	  if (inp_compare(.false.,state(2:),zir(symstate))) goto 657
         enddo
-	call errquit('mcscf: failed to recognize irrep in state',0)
+	call errquit('mcscf: failed to recognize irrep in state',0,
+     &       INPUT_ERR)
  657    if (.not.rtdb_put(rtdb,'mcscf:statesymmetry',MT_INT,1,symstate))
-     $     call errquit('mcscf: rtdb put of state sym?',0)
+     $     call errquit('mcscf: rtdb put of state sym?',0, RTDB_ERR)
         if (.not.rtdb_put(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
-     $     call errquit('mcsf: rtdb put of spin multiplicity ?',0)
+     $     call errquit('mcsf: rtdb put of spin multiplicity ?',0,
+     &       RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
-     $   call errquit('mcsf: rtdb get of spin multiplicity ?',0)
+     $   call errquit('mcsf: rtdb get of spin multiplicity ?',0,
+     &       RTDB_ERR)
       if (.not.rtdb_get(rtdb,'mcscf:statesymmetry',MT_INT,1,symstate))
      $   symstate = 1
       if (.not.rtdb_get(rtdb,'mcscf:nactelec',MT_INT,1,nactel))
-     $     call errquit('number of active electrons not set',0)
+     $     call errquit('number of active electrons not set',0,
+     &       RTDB_ERR)
       nela = (nactel + multip - 1)/2
       nelb = nactel - nela
       if ((mod((nactel + multip - 1),2).ne.0).or.
      $     (nela.lt.0).or.(nelb.lt.0))
-     $     call errquit('mcscf: incompatible nelec and spin',0)
+     $     call errquit('mcscf: incompatible nelec and spin',0,
+     &       INPUT_ERR)
 c     
 c     Get convergence info
 c     
@@ -234,7 +245,7 @@ c
       endif
 c     
       if (.not.int_normalize(rtdb,basis))
-     &    call errquit('mcscf:int_normalize failed',0)
+     &    call errquit('mcscf:int_normalize failed',0, INT_ERR)
 c     
 c     See if we are already converged
 
@@ -246,7 +257,8 @@ c     See if we are already converged
          call util_file_name_resolve(movecs_in, .false.)
          if (movecs_converged(rtdb, basis, 'mcscf', movecs_in)) then
             if (.not. rtdb_get(rtdb, 'mcscf:energy', mt_dbl, 1, energy))
-     $           call errquit('mcscf:failed getting converged energy',0)
+     $           call errquit('mcscf:failed getting converged energy',0,
+     &       RTDB_ERR)
             if (ga_nodeid().eq.0 .and. oprinfo) then
                write(6,1101) energy
  1101          format(/'  The MCSCF is already converged '//,
@@ -262,18 +274,18 @@ c
 c     Create occupation and orbital energy vectors
 c     
       if (.not.ma_push_get(MT_DBL, nbf, 'eps', l_evals, k_evals))
-     $     call errquit('mcscf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0, MA_ERR)
       if (.not.ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ))
-     $     call errquit('mcscf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0, MA_ERR)
 c     
 c     Allocate 1- & 2-PDM
 c     
       if (.not.ma_push_get(MT_DBL, (nact*nact*nact*nact),
      $     '2P density', l_dm2, k_dm2))
-     $     call errquit('mcscf: cannot allocate MO density',0)
+     $     call errquit('mcscf: cannot allocate MO density',0, MA_ERR)
       if (.not.ma_push_get(MT_DBL, (nact*nact),
      $     '1P density', l_dm1, k_dm1))
-     $     call errquit('mcscf: cannot allocate MO density',0)
+     $     call errquit('mcscf: cannot allocate MO density',0, MA_ERR)
 c     
 c     Initialize stuff
 c     
@@ -285,7 +297,7 @@ c     Create and get MO vectors
 c     
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf,nbf,'MO vectors',nbf,0,g_movecs))
-     $     call errquit('mcscf: cannot allocate MO vectors',0)
+     $     call errquit('mcscf: cannot allocate MO vectors',0, GA_ERR)
 
       call mcscf_getmovecs( rtdb, geom, basis, nbf, dbl_mb(k_occ),
      $     dbl_mb(k_evals), g_movecs )
@@ -293,11 +305,12 @@ c
 c     Orbital irreps
 c     
       if (.not.ma_push_get(MT_INT, nbf, 'MO sym', l_sym, k_sym))
-     $     call errquit('mcscf: cannot allocate symmetry',0)
+     $     call errquit('mcscf: cannot allocate symmetry',0, MA_ERR)
       call sym_movecs_adapt( basis, 1.d-8, g_movecs,
      $     int_mb(k_sym), nmixed )
       if (nmixed .ne. 0) call errquit(
-     $     'mcscf: symmetry contamination in starting MOs', nmixed)
+     $     'mcscf: symmetry contamination in starting MOs', nmixed,
+     &       GEOM_ERR)
       call ga_orthog_mos(basis, g_movecs)
 c
       status = detci_memsiz(nact, nela, nelb, nsym,
@@ -320,16 +333,16 @@ c
 
 
       if (.not.ga_duplicate(g_movecs,g_hcore,'1e hamiltonian'))
-     $     call errquit('mcscf: cannot dup MO vectors',0)
+     $     call errquit('mcscf: cannot dup MO vectors',0, GA_ERR)
 c     
 c     Create conjugacy vectors
 c     
 *ga:1:0
       if (.not.ga_create(MT_DBL,orlen,1,'Conj',0,0,g_conj))
-     $     call errquit('mcscf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0, GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,orlen,1,'Old Gradient',0,0,g_gradold))
-     $     call errquit('mcscf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0, GA_ERR)
       call ga_zero(g_conj)
       call ga_zero(g_gradold)
       pfac = 1.d0
@@ -363,7 +376,8 @@ c
      $                    1, oaokeep)) oaokeep = .false.
       endif
       if (.not.moints_aodisk_init( oaodisk, oaoreuse ))
-     $  call errquit('mcscf: cannot initialize 4-index AO cache',0)
+     $  call errquit('mcscf: cannot initialize 4-index AO cache',0,
+     &       INT_ERR)
 c     
 c     Initial 4-Index Tranformation
 c     
@@ -517,7 +531,7 @@ c
          endif
          if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
      $        l_tmp, k_tmp))
-     $        call errquit('mcscf: cannot allocate local MO',0)
+     $        call errquit('mcscf: cannot allocate local MO',0, MA_ERR)
          call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
      $        dbl_mb(k_tmp), nbf)
          chi = 0
@@ -531,7 +545,7 @@ c
          enddo
          if (chi.ne.(nact+nclosed)) goto 32
          if (.not.ma_pop_stack(l_tmp))
-     $        call errquit('mcscf: cannot pop local MO',0)
+     $        call errquit('mcscf: cannot pop local MO',0, MA_ERR)
       else if ((oprinfo) .and. util_print('evals',print_default)) then
          if (ocanonical) then
             write(6,8101)
@@ -564,7 +578,8 @@ c     final orbitals since date of entry is examined at restart
 c     
          if (.not. rtdb_put(rtdb, 'mcscf:converged', MT_LOG, 1,
      $        oconverged))
-     $        call errquit('mcscf: failed to store converged in rtdb',0)
+     $        call errquit('mcscf: failed to store converged in rtdb',0,
+     &       RTDB_ERR)
 
 c     
 c     Natural Orbitals
@@ -589,7 +604,8 @@ c
  880        format(///,10x,'Natural Orbitals and Occupation')
             if (.not.ma_push_get(MT_DBL, (nbf*(nclosed+nact)), 'tmp',
      $           l_tmp, k_tmp))
-     $           call errquit('mcscf: cannot allocate local MO',0)
+     $           call errquit('mcscf: cannot allocate local MO',0,
+     &       MA_ERR)
             call ga_get(g_movecs, 1, nbf, 1, (nclosed+nact),
      $           dbl_mb(k_tmp), nbf)
             chi = 0
@@ -604,7 +620,8 @@ c
             enddo
             if (chi.ne.(nact+nclosed)) goto 33
             if (.not.ma_pop_stack(l_tmp))
-     $           call errquit('mcscf: cannot pop local MO',0)
+     $           call errquit('mcscf: cannot pop local MO',0,
+     &       MA_ERR)
          else if ((oprinfo) .and. util_print('nocc',print_default))then
             write(6,8801)
  8801       format(///,10x,'Natural orbital occupation numbers')
@@ -681,7 +698,8 @@ c
 c     Store energy and convergence status
 c     
       if (.not. rtdb_put(rtdb, 'mcscf:energy', MT_DBL, 1, energy)) 
-     $     call errquit('mcscf: failed to store energy in rtdb', 0)
+     $     call errquit('mcscf: failed to store energy in rtdb', 0,
+     &       RTDB_ERR)
 
       call moints_aodisk_close(oaokeep)
 c     
@@ -691,33 +709,36 @@ c
       call schwarz_tidy()
       call int_terminate()
       if (.not.ga_destroy(g_hcore))
-     $     call errquit('mcscf: cannot destroy 1e hamiltonian',0)
+     $     call errquit('mcscf: cannot destroy 1e hamiltonian',0,
+     &       GA_ERR)
       if (.not.ga_destroy(g_conj))
-     $     call errquit('mcscf: cannot destroy conjugacy',0)
+     $     call errquit('mcscf: cannot destroy conjugacy',0,
+     &       GA_ERR)
       if (.not.ga_destroy(g_gradold))
-     $     call errquit('mcscf: cannot destroy old gradient',0)
+     $     call errquit('mcscf: cannot destroy old gradient',0, GA_ERR)
       if (.not.ma_pop_stack(l_sym))
-     $     call errquit('mcscf: cannot pop stack?',0)
+     $     call errquit('mcscf: cannot pop stack?',0, MA_ERR)
       if (.not.ma_pop_stack(l_dm1))
-     $     call errquit('mcscf: cannot pop stack?',0)
+     $     call errquit('mcscf: cannot pop stack?',0, MA_ERR)
       if (.not.ma_pop_stack(l_dm2))
-     $     call errquit('mcscf: cannot pop stack?',0)
+     $     call errquit('mcscf: cannot pop stack?',0, MA_ERR)
       if (.not.ma_pop_stack(l_occ))
-     $     call errquit('mcscf: cannot pop stack?',0)
+     $     call errquit('mcscf: cannot pop stack?',0, MA_ERR)
       if (.not.ma_pop_stack(l_evals))
-     $     call errquit('mcscf: cannot pop stack?',0)
+     $     call errquit('mcscf: cannot pop stack?',0, MA_ERR)
       if (.not.ga_destroy(g_exch))
-     $     call errquit('mcscf: cannot destroy exchange',0)
+     $     call errquit('mcscf: cannot destroy exchange',0, GA_ERR)
       if (.not.ga_destroy(g_coul))
-     $     call errquit('mcscf: cannot destroy Coulomb',0)
+     $     call errquit('mcscf: cannot destroy Coulomb',0, GA_ERR)
       if (.not.ga_destroy(g_movecs))
-     $     call errquit('mcscf: cannot destroy MO vectors',0)
+     $     call errquit('mcscf: cannot destroy MO vectors',0, GA_ERR)
 c
  401  call mcscf_profile_tidy()
       if (.not.bas_destroy(basis))
-     $     call errquit('mcscf: cannot free basis handle',0)
+     $     call errquit('mcscf: cannot free basis handle',0, BASIS_ERR)
       if (.not.geom_destroy(geom))
-     $     call errquit('mcscf: cannot destory geom handle', 0)
+     $     call errquit('mcscf: cannot destory geom handle', 0,
+     &       GEOM_ERR)
 c     
       if (oconverged) then
          call ecce_print_module_exit('mcscf', 'ok')
@@ -737,6 +758,7 @@ c
 
        subroutine mcscf_getinfo( rtdb, geom, basis, nbf, nclosed, nact )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -758,43 +780,44 @@ c
 c  Create geom and basis handles
 c
        if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('get_db_handles: geom_create?', 0)
+     $     call errquit('get_db_handles: geom_create?', 0, GEOM_ERR)
        if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('get_db_handles: no geometry ', 0)
+     $     call errquit('get_db_handles: no geometry ', 0, RTDB_ERR)
        if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('get_db_handles: bas_create?', 0)
+     $     call errquit('get_db_handles: bas_create?', 0, BASIS_ERR)
        if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('get_db_handles: no ao basis ', 0)
+     $     call errquit('get_db_handles: no ao basis ', 0,
+     &       RTDB_ERR)
 c
 c  Basis info
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('scf_init: basis info',0)
+     $     ('scf_init: basis info',0, BASIS_ERR)
 c
 c  Find number of electrons
 c
       if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
      $     charge = 0.0d0
       if (.not. geom_nuc_charge(geom, nuclear_charge))
-     $     call errquit('scf: geom_nuc_charge failed', 0)
+     $     call errquit('scf: geom_nuc_charge failed', 0, GEOM_ERR)
       nelec = nint(nuclear_charge - charge)
       if (nelec .le. 0) call errquit
-     $     ('scf: negative no. of electrons ?', nelec)
+     $     ('scf: negative no. of electrons ?', nelec, INPUT_ERR)
       if (abs(nuclear_charge - charge - dble(nelec)) .gt. 1.0d-8)
-     $     call errquit('mcscf: charge neglected?', 0)
+     $     call errquit('mcscf: charge neglected?', 0, INPUT_ERR)
 c
 c  Determine no. of closed and active shells
 c  **** Have to correctly determine number of active from MCSCF input ****
 c
        if (.not. rtdb_get(rtdb, 'mcscf:nact', MT_INT, 1, nact))
-     $    call errquit('mcscf:no active orbitals',0)
+     $    call errquit('mcscf:no active orbitals',0, RTDB_ERR)
        if (.not. rtdb_get(rtdb, 'mcscf:nactelec', MT_INT, 1, nactel))
-     $    call errquit('mcscf:no active electrons',0)
+     $    call errquit('mcscf:no active electrons',0, RTDB_ERR)
        if (nactel.gt.(2*nact))
-     $    call errquit('mcscf: actel > 2*actorb',nactel)
+     $    call errquit('mcscf: actel > 2*actorb',nactel, UNKNOWN_ERR)
        nclosed = (nelec-nactel) / 2
        if (.not. rtdb_put(rtdb, 'mcscf:nclosed', mt_int, 1, nclosed))
-     $      call errquit('mcscf: failed storing nclosed', 0)
+     $      call errquit('mcscf: failed storing nclosed', 0, RTDB_ERR)
 c
 
        end
@@ -810,6 +833,7 @@ c
 
       subroutine mcscf_profile_init(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "pstat.fh"
@@ -832,38 +856,39 @@ c
       endif
       if (ofockprof) then
         if (.not.rtdb_put(rtdb,'scf:pstat',MT_LOG,1,.true.))
-     $     call errquit('mcscf_profile: rtdb_put of scf:stat failed',0)
+     $     call errquit('mcscf_profile: rtdb_put of scf:stat failed',0,
+     &       RTDB_ERR)
         call scf_pstat_init(rtdb)
       endif
 c
 c  Overall MCSCF profiling
 c
       if (.not. pstat_allocate('mcscf:orbsolve', pstat_qstat, 0,junk,
-     $     ps_orb)) call errquit('mcscf: scf_pstat_init', 0)
+     $     ps_orb)) call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:ci', pstat_qstat, 0,junk,
-     $     ps_ci)) call errquit('mcscf: scf_pstat_init', 0)
+     $     ps_ci)) call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:4index', pstat_qstat, 0,junk,
-     $     ps_4index)) call errquit('mcscf: scf_pstat_init', 0)
+     $     ps_4index)) call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:prcnd', pstat_qstat, 0,junk,
-     $     ps_prcnd)) call errquit('mcscf: scf_pstat_init', 0)
+     $     ps_prcnd)) call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:hess',
      $     pstat_qstat, 0, junk, ps_hv))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:hess:1e',
      $     pstat_qstat, 0, junk, ps_hv1e))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:hess:2e',
      $     pstat_qstat, 0, junk, ps_hv2e))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:hess:2e-ao',
      $     pstat_qstat, 0, junk, ps_hv2eao))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:hess:2e-mo',
      $     pstat_qstat, 0, junk, ps_hv2emo))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       if (.not. pstat_allocate('mcscf:fock',
      $     pstat_qstat, 0, junk, ps_gfock))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
 c
 c Detailed CI profiling
 c
@@ -872,10 +897,10 @@ c
       if (ociprof) then
         if (.not. pstat_allocate('mcscf:cidiag',
      $     pstat_qstat, 0, junk, ps_cidiag))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
         if (.not. pstat_allocate('mcscf:cidens',
      $     pstat_qstat, 0, junk, ps_cidens))
-     $     call errquit('mcscf: scf_pstat_init', 0)
+     $     call errquit('mcscf: scf_pstat_init', 0, MEM_ERR)
       endif
 
       
@@ -887,23 +912,35 @@ c
 
       subroutine mcscf_profile_tidy()
       implicit none
+#include "errquit.fh"
 #include "pstat.fh"
 #include "mcscfprof.fh"
 c
       if (.not.(omcscfprof)) return
       if (ofockprof) call scf_pstat_print()
-      if (.not.pstat_free(ps_orb)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_ci)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_4index)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_prcnd)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_hv)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_hv1e)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_hv2e)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_hv2eao)) call errquit('mcscf_pstat?',0)
-      if (.not.pstat_free(ps_hv2emo)) call errquit('mcscf_pstat?',0)
+      if (.not.pstat_free(ps_orb)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_ci)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_4index)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_prcnd)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_hv)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_hv1e)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_hv2e)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_hv2eao)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+      if (.not.pstat_free(ps_hv2emo)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
       if (ociprof) then
-        if (.not.pstat_free(ps_cidiag)) call errquit('mcscf_pstat?',0)
-        if (.not.pstat_free(ps_cidens)) call errquit('mcscf_pstat?',0)
+        if (.not.pstat_free(ps_cidiag)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
+        if (.not.pstat_free(ps_cidens)) call errquit('mcscf_pstat?',0,
+     &       MEM_ERR)
       endif
       return
       end

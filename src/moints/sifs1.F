@@ -2401,35 +2401,39 @@ c
       end
       subroutine sifairead(unit, buffer, len)
       implicit none
+#include "errquit.fh"
       integer unit, len
       double precision buffer(len)
       read(unit,err=10) buffer
       return
- 10   call errquit('sifairead: error with unit ', unit)
+ 10   call errquit('sifairead: error with unit ', unit, INPUT_ERR)
       end
       subroutine sifaiwrit(unit, buffer, len)
       implicit none
+#include "errquit.fh"
       integer unit, len
       double precision buffer(len)
       write(unit,err=10) buffer
       return
- 10   call errquit('sifaiwrit: error with unit ', unit)
+ 10   call errquit('sifaiwrit: error with unit ', unit, INPUT_ERR)
       end
       subroutine sifaiopen(unit, filename, len)
       implicit none
+#include "errquit.fh"
       integer unit, len
       character*(*) filename
       open(unit,file=filename,form='unformatted',status='unknown',
      $     err=10)
       return
- 10   call errquit('sifaiopen: error with unit ', unit)
+ 10   call errquit('sifaiopen: error with unit ', unit, INPUT_ERR)
       end
       subroutine sifaiclos(unit)
       implicit none
+#include "errquit.fh"
       integer unit
       close(unit,status='keep',err=10)
       return
- 10   call errquit('sifaiclos: error with unit ', unit)
+ 10   call errquit('sifaiclos: error with unit ', unit, INPUT_ERR)
       end
       subroutine sifaiwait(unit)
       integer unit
@@ -3251,6 +3255,7 @@ c
       end
       subroutine sifbummer(msg,code,level)
       implicit none
+#include "errquit.fh"
       character*(*) msg
       integer code, level
 c
@@ -3258,7 +3263,7 @@ c
       parameter(wrnerr=0,nfterr=1,faterr=2)
 c
       if (level .eq. faterr) then
-         call errquit(msg, code)
+         call errquit(msg, code, UNKNOWN_ERR)
       else
          write(6,*) msg, code
          call util_flush(6)

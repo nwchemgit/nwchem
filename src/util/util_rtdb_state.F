@@ -1,8 +1,9 @@
 *
-* $Id: util_rtdb_state.F,v 1.1 1996-10-21 19:15:50 d3e129 Exp $
+* $Id: util_rtdb_state.F,v 1.2 2003-10-17 22:58:35 carlfahl Exp $
 *
       subroutine util_set_rtdb_state(rtdb,os,oc,or)
       implicit none
+#include "errquit.fh"
 *
 * sets the rtdb state 
 *
@@ -31,18 +32,20 @@ c
         write(luout,*)' os[tart]    = ',os
         write(luout,*)' oc[ontinue] = ',oc
         write(luout,*)' or[estart]  = ',or
-        call errquit(' util_set_rtdb_state: fatal error',911)
+        call errquit(' util_set_rtdb_state: fatal error',911, RTDB_ERR)
       endif
       ostate(1) = os
       ostate(2) = oc
       ostate(3) = or
       if(.not.
      &    rtdb_put(rtdb,'rtdb:stored:state',mt_log,ncond,ostate)) then
-        call errquit(' util_set_rtdb_state: rtdb_put failed',911)
+        call errquit(' util_set_rtdb_state: rtdb_put failed',911,
+     &       RTDB_ERR)
       endif
       end
       subroutine util_get_rtdb_state(rtdb,os,oc,or)
       implicit none
+#include "errquit.fh"
 *
 * gets the rtdb state 
 *
@@ -63,7 +66,8 @@ c:: local
 c
       if(.not.
      &    rtdb_get(rtdb,'rtdb:stored:state',mt_log,ncond,ostate)) then
-        call errquit(' util_get_rtdb_state: rtdb_put failed',911)
+        call errquit(' util_get_rtdb_state: rtdb_put failed',911,
+     &       RTDB_ERR)
       endif
 c
       os = ostate(1) 
@@ -80,6 +84,6 @@ c
         write(luout,*)' os[tart]    = ',os
         write(luout,*)' oc[ontinue] = ',oc
         write(luout,*)' or[estart]  = ',or
-        call errquit(' util_get_rtdb_state: fatal error',911)
+        call errquit(' util_get_rtdb_state: fatal error',911, RTDB_ERR)
       endif
       end

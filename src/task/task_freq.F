@@ -22,9 +22,10 @@ c     task:cputime
 c     task:walltime
 c
 *
-* $Id: task_freq.F,v 1.17 2000-08-22 19:07:13 d3e129 Exp $
+* $Id: task_freq.F,v 1.18 2003-10-17 22:58:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -52,7 +53,8 @@ c
       wall = util_wallsec()
 c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_freq: failed to invalidate status',0)
+     $     call errquit('task_freq: failed to invalidate status',0,
+     &       RTDB_ERR)
       if (ga_nodeid().eq.0 .and.
      $    util_print('task_freq', print_low)) then
         write(6,*)
@@ -72,7 +74,7 @@ c
       if (.not.(o_reuse)) then
         status = task_hessian(rtdb)
         if (.not.status) call errquit
-     &      ('task_freq: task_hessian failed',911)
+     &      ('task_freq: task_hessian failed',911, CALC_ERR)
       else
         call util_print_centered(6,
      &      'reusing previously generated Hessian',
@@ -93,20 +95,21 @@ c
         else
           if (.not. rtdb_cget(rtdb, 'task:hessian file name', 1,
      $        filehess)) call errquit
-     $        ('task_freq: failed reading hessian filename from rtdb',0)
+     $        ('task_freq: failed reading hessian filename from rtdb',0,
+     &       RTDB_ERR)
         endif
 c
 c     create/load reference geometry
 c
         if (.not.geom_create(geom,'geometry')) call errquit
-     $      ('task_freq:geom_create failed?',1)
+     $      ('task_freq:geom_create failed?',1, GEOM_ERR)
         if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
      $      call errquit
-     $      ('task_freq:geom_rtdb_load failed?',2)
+     $      ('task_freq:geom_rtdb_load failed?',2, GEOM_ERR)
         if (.not. geom_ncent(geom,nat)) call errquit
-     $      ('task_freq:geom_ncent failed?',3)
+     $      ('task_freq:geom_ncent failed?',3, GEOM_ERR)
         if (.not. geom_destroy(geom)) call errquit
-     $      ('task_freq:geom_destroy failed?',911)
+     $      ('task_freq:geom_destroy failed?',911, GEOM_ERR)
         call vib_vib(rtdb,filehess,.true.,
      $      0,.false.,0,.false.,nat)
       endif
@@ -117,11 +120,13 @@ c
       wall = util_wallsec() - cpu
 c
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_freq: failed storing cputime',0)
+     $     call errquit('task_freq: failed storing cputime',0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_freq: failed storing walltime',0)
+     $     call errquit('task_freq: failed storing walltime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
-     $     call errquit('task_freq: failed to set status',0)
+     $     call errquit('task_freq: failed to set status',0,
+     &       RTDB_ERR)
 c
 c
       call ecce_print1('cpu time', mt_dbl, cpu, 1)

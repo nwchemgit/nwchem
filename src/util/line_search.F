@@ -1,7 +1,8 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.12 2000-04-24 18:00:41 bert Exp $
+C$Id: line_search.F,v 1.13 2003-10-17 22:58:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 c
       integer nstep             ! Current no. of steps ... initially 1
@@ -27,7 +28,7 @@ c     Also assumes good preconditioning so that first step is always
 c     unity.
 c
       if (nstep.lt.1) then
-         call errquit('line_search: nstep ivalid', nstep)
+         call errquit('line_search: nstep ivalid', nstep, INPUT_ERR)
       else if (nstep.eq.1) then
          if (oprint) then
             write(6,1)
@@ -43,7 +44,7 @@ c
             call util_flush(6)
          endif
          if (steps(1).ne.0.0d0) call errquit
-     $        ('line_search: step(1) .ne. 0.0?', 0)
+     $        ('line_search: step(1) .ne. 0.0?', 0, INPUT_ERR)
          nstep = nstep + 1
          steps(nstep) = 1.0d0
          line_search = .false.

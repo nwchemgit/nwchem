@@ -2,9 +2,10 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.42 2003-05-20 23:48:24 edo Exp $
+c$Id: grid_rtrunc.F,v 1.43 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "global.fh"
 #include "mafdecls.fh"
@@ -62,7 +63,7 @@ c     get desired grid accuracy
 c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))
-     &   call errquit('rad_trunc: rtdb_get failed', 911)
+     &   call errquit('rad_trunc: rtdb_get failed', 911, RTDB_ERR)
 c
 c   accuracy must be at least 10-7
 c
@@ -160,7 +161,7 @@ c     .     call i_output(rad_cutoff, 1, 2, 1, ntypes, 2, ntypes, 1)
          radius = range_max + 3.0d0        
          if (.not. rtdb_put(rtdb, 'dft:radius',
      &      mt_dbl, 1,radius))
-     &      call errquit('rad_trunc: rtdb_put failed', 213)
+     &      call errquit('rad_trunc: rtdb_put failed', 213, RTDB_ERR)
       endif
 c
       return
@@ -349,6 +350,7 @@ c               if(iat.ne.jat) range=range+6d0/rrr
          end
       subroutine grid_rtrunc0(zprim,job_grid_acc,cs)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "cdft.fh"
@@ -366,7 +368,7 @@ c
       external grid_rnegl
 c
       if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &     call errquit('Exiting in rad_trunc',1)
+     &     call errquit('Exiting in rad_trunc',1, BASIS_ERR)
 c
 c     loop over atoms to get min exp for each atom
 c
@@ -377,28 +379,30 @@ c
 c     get minimum exponent of all basis functions
 c
          if (.not.bas_ce2cnr(ao_bas_han,iat,ic1,ic2))
-     &        call errquit('Exiting in radtur.',11)
+     &        call errquit('Exiting in radtur.',11, BASIS_ERR)
          if(ic2.lt.0) then
             if (.not. geom_cent_get(geom, iat, tag, 
      &           ictr_coord, ictr_chg))call errquit
-     &           ('grid_atom_type_info: geom_cent_get failed', 0)
+     &           ('grid_atom_type_info: geom_cent_get failed', 0,
+     &       GEOM_ERR)
             write(0,*) ' atom   ',iat
             write(0,*) ' tag    ',tag
             write(0,'(A,3F12.6)') ' coord  ',ictr_coord
             write(0,*) ' charge ',ictr_chg
             call errquit(
-     .        'gridrtunc: no basis on ghost atom?',iat)
+     .        'gridrtunc: no basis on ghost atom?',iat, BASIS_ERR)
          endif
          range_max=0d0
          do icset = ic1,ic2
             min_exp=1d20
             if (.not.bas_continfo(AO_bas_han, icset,
      &           l, nprimo, ncontr, isphere))
-     &           call errquit('Exiting in rad_trunc.',3)
+     &           call errquit('Exiting in rad_trunc.',3, BASIS_ERR)
             if(nprimo.gt.nbf_ao_mxprim) call errquit(
-     .           'rtrunc: incorrect dimens for zprim',nprimo)
+     .           'rtrunc: incorrect dimens for zprim',nprimo,
+     &       UNKNOWN_ERR)
             if (.not.bas_get_exponent(AO_bas_han, icset, zprim))
-     &           call errquit('Exiting in rad_trunc.',7)
+     &           call errquit('Exiting in rad_trunc.',7, BASIS_ERR)
             do  iprimo = 1,nprimo
                min_exp = min(zprim(iprimo),min_exp)
             enddo
@@ -417,6 +421,7 @@ c
       subroutine grid_rtinit(rtdb,k_coord,l_coord,
      .     ipmat, lpmat,l_ics,k_ics,g_s)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "cdft.fh"
@@ -432,10 +437,11 @@ c
 c
       if (.not.MA_Push_Get(MT_int, ncenters, 'diffuse ic',
      &     l_ics, k_ics))
-     &         call errquit('rdatru: cannot allocate degen minexp',0)
+     &         call errquit('rdatru: cannot allocate degen minexp',0,
+     &       MA_ERR)
       if (.not.MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce,
      ,     'matrix patch',lPmat,iPmat))
-     &   call errquit('rdatru: cannot allocate DENS',0)
+     &   call errquit('rdatru: cannot allocate DENS',0, MA_ERR)
 c
 c     get overlap matrix
 c
@@ -448,39 +454,41 @@ c     get coord
 c
       if (.not.MA_Push_Get(MT_dbl,3*ncenters,
      ,     'coord       ',l_coord,k_coord))
-     &   call errquit('rdatru: cannot allocate DENS',1)
+     &   call errquit('rdatru: cannot allocate DENS',1, MA_ERR)
       if (.not.MA_Push_Get(MT_dbl,ncenters,
      ,     'coord       ',l_charge,k_charge))
-     &   call errquit('rdatru: cannot allocate DENS',2)
+     &   call errquit('rdatru: cannot allocate DENS',2, MA_ERR)
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit(
-     .     'gridtru: failed to alloc center tags',0)
+     .     'gridtru: failed to alloc center tags',0, MA_ERR)
 
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(k_coord), Dbl_MB(k_charge)))
-     &     call errquit('grid_atom_type_info: geom_cart_get failed',74)
+     &     call errquit('grid_atom_type_info: geom_cart_get failed',74,
+     &       GEOM_ERR)
       if (.not.ma_pop_stack(ltags))
-     &   call errquit('radtru: cannot pop stack',0)
+     &   call errquit('radtru: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(l_charge))
-     &   call errquit('radtru: cannot pop stack',0)
+     &   call errquit('radtru: cannot pop stack',0, MA_ERR)
       
       return
       end
       subroutine grid_rtclea(l_coord,
      .     lpmat,l_ics,g_s)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer  l_ics, l_coord,
      .       lpmat,g_s ! [in]
 c
       if (.not. ga_destroy(g_s)) call errquit
-     &     ('radtrun: could not destroy g_s', 0)
+     &     ('radtrun: could not destroy g_s', 0, GA_ERR)
       if (.not.ma_pop_stack(l_coord))
-     &   call errquit('radtru: cannot pop stack',0)
+     &   call errquit('radtru: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lpmat))
-     &   call errquit('radtru: cannot pop stack',1)
+     &   call errquit('radtru: cannot pop stack',1, MA_ERR)
       if (.not.ma_pop_stack(l_ics))
-     &   call errquit('radtru: cannot pop stack',2)
+     &   call errquit('radtru: cannot pop stack',2, MA_ERR)
       return
       end

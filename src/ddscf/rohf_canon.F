@@ -1,6 +1,7 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.8 1999-06-16 00:10:14 d3e129 Exp $
+C$Id: rohf_canon.F,v 1.9 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -30,11 +31,12 @@ c
       if (oscfps) call pstat_on(ps_diag)
 c
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: u',
-     $     32, 32, g_u)) call errquit('rohf_canon: ga failed for u', 0)
+     $     32, 32, g_u)) call errquit('rohf_canon: ga failed for u', 0,
+     &       GA_ERR)
       call ga_zero(g_u)         ! ESSENTIAL FOR SYMM BLOCKED SUBSPACE CANON
       if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: fock',
      $     32, 32, g_fock)) call errquit
-     $     ('rohf_canon: ga failed for fock', 0)
+     $     ('rohf_canon: ga failed for fock', 0, GA_ERR)
 c
       call rohf_get_fock(g_fock)
 c
@@ -74,7 +76,7 @@ c
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nmo, 'rohf_canon: tmp',
      $     0, 0, g_tmp)) call errquit
-     $     ('rohf_canon: ga failed for tmp', 0)
+     $     ('rohf_canon: ga failed for tmp', 0, GA_ERR)
 c
       call ga_copy(g_movecs, g_tmp)
       call ga_dgemm('n', 'n', nbf, nmo, nmo, one, g_tmp, g_u,
@@ -82,10 +84,10 @@ c
 c
       if (nbf .ne. nmo) then
          if (.not. ga_destroy(g_tmp)) 
-     $        call errquit('rohf_canon: ga_destroy?',0)
+     $        call errquit('rohf_canon: ga_destroy?',0, GA_ERR)
          if (.not. ga_create(MT_DBL, nmo, nmo, 'rohf_canon: tmp',
      $        32, 32, g_tmp)) call errquit
-     $        ('rohf_canon: ga failed for tmp', 0)
+     $        ('rohf_canon: ga failed for tmp', 0, GA_ERR)
       endif
 c
       call ga_dgemm('n', 'n', nmo, nmo, nmo, one, crohf_g_fcv, g_u,
@@ -114,16 +116,17 @@ c
       endif
 c
       if (.not. ga_destroy(g_u))
-     $     call errquit('rohf_canon: destroy', 0)
+     $     call errquit('rohf_canon: destroy', 0, GA_ERR)
       if (.not. ga_destroy(g_fock))
-     $     call errquit('rohf_canon: destroy', 0)
+     $     call errquit('rohf_canon: destroy', 0, GA_ERR)
       if (.not. ga_destroy(g_tmp))
-     $     call errquit('rohf_canon: destroy', 0)
+     $     call errquit('rohf_canon: destroy', 0, GA_ERR)
 c
       end
       subroutine rohf_canon_subspace(g_fock, g_u, evals, ilo, ihi,
      $     irs)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_fock, g_u, ilo, ihi, irs(*)
@@ -155,11 +158,11 @@ c
 *ga:1:0
             if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: tmp',
      $           0, 0, g_tmp)) call errquit
-     $           ('rohf_canon: ga failed for tmp', 0)
+     $           ('rohf_canon: ga failed for tmp', 0, GA_ERR)
 *ga:1:0
             if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: v',
      $           n, 0, g_v)) call errquit
-     $           ('rohf_canon: ga failed for v', 0)
+     $           ('rohf_canon: ga failed for v', 0, GA_ERR)
 c
             call ga_sync
             do i = 1+ga_nodeid(),n,ga_nnodes()
@@ -190,7 +193,7 @@ c
             enddo
             call ga_sync
             if (.not. (ga_destroy(g_tmp) .and. ga_destroy(g_v)))
-     $           call errquit('rohf_canon: ga_destroy ?', 0)
+     $           call errquit('rohf_canon: ga_destroy ?', 0, GA_ERR)
          endif
       enddo
 c
@@ -222,7 +225,7 @@ c
 *ga:1:0
       if (.not. ga_create(MT_DBL, n, n, 'rohf_canon: tmp',
      $        n, 0, g_tmp)) call errquit
-     $        ('rohf_canon: ga failed for tmp', 0)
+     $        ('rohf_canon: ga failed for tmp', 0, GA_ERR)
       do i = ilo+ga_nodeid(),ihi,ga_nnodes()
          call ga_get(g_u,ilo,ihi, map(i), map(i), tmp(ilo), 1)
          call ga_put(g_tmp,1,n,i-ilo+1,i-ilo+1,tmp(ilo),1)
@@ -245,6 +248,7 @@ c
 *      write(6,*) ' output '
 *      call output(evals,ilo,ihi,1,1,ihi,1,1)
 c
-      if (.not. ga_destroy(g_tmp)) call errquit('rohf_canon: ga?',0)
+      if (.not. ga_destroy(g_tmp)) call errquit('rohf_canon: ga?',0,
+     &       GA_ERR)
 c
       end

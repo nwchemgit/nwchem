@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.8 2003-01-17 20:22:12 sohirata Exp $
+c $Id: tddft_input.F,v 1.9 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.
@@ -26,6 +26,7 @@ c          <string list_of_names ...>]
 c     END
 c     
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -53,83 +54,83 @@ c     CIS (Tamm-Dancoff approximation)
 c
       tda=.false.
       if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     NROOTS (the number of excited states sought) 
 c
       nroots=1
       if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     MAXVECS (the maximum number of trial vectors)
 c
       maxvecs=ihuge
       if (.not.rtdb_put(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     SINGLET (singlet excited states sought for a closed shell)
 c
       singlet=.true.
       if (.not.rtdb_put(rtdb,'tddft:singlet',mt_log,1,singlet))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     TRIPLET (triplet excited states sought for a closed shell)
 c
       triplet=.true.
       if (.not.rtdb_put(rtdb,'tddft:triplet',mt_log,1,triplet))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     THRESH (convergence threshold for Davidson iteration)
 c
       thresh=1.0d-4
       if (.not.rtdb_put(rtdb,'tddft:thresh',mt_dbl,1,thresh))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     MAXITER (the maximum number of Davidson iterations)
 c
       maxiter=100
       if (.not.rtdb_put(rtdb,'tddft:maxiter',mt_int,1,maxiter))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     TARGET (the target excited state for, e.g., geometry optimization)
 c
       target=1
       if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     TARGETSYM (the irrep of the target excited state)
 c
       targetsym='none'
       if (.not.rtdb_cput(rtdb,'tddft:targetsym',1,targetsym))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
 c
       symmetry=.false.
       if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     ALGORITHM (algorithm: =1 incore-multiple fock build; =2: incore-single fock build
 c                           =3 disk-multiple fock build;   =4: disk-single fock build)
 c
       algorithm=0
       if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
-     1  call errquit('tddft_input: failed writing to rtdb',0)
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     VECTOR (filename for solution vectors)
 c
 C     call util_file_name('tddft',.false.,.false.,vector)
 C     if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
-C    1  call errquit('tddft_input: failed writing to rtdb',0)
+C    1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c ----------
 c Read input
 c ----------
 c
  10   if (.not. inp_read()) 
-     1  call errquit('tddft_input: failed reading input',0)
+     1  call errquit('tddft_input: failed reading input',0, INPUT_ERR)
       if (.not. inp_a(test)) 
-     1  call errquit('tddft_input: failed reading keyword',0)
+     1  call errquit('tddft_input: failed reading keyword',0, INPUT_ERR)
 c
 c     FREEZE (Frozen cores/virtuals)
 c
@@ -141,14 +142,16 @@ c
       else if (inp_compare(.false.,test,'cis')) then
         tda=.true.
         if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     RPA (Full linear response)
 c
       else if (inp_compare(.false.,test,'rpa')) then
         tda=.false.
         if (.not.rtdb_put(rtdb,'tddft:tda',mt_log,1,tda))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     NROOTS (the number of excited states sought)
 c
@@ -159,7 +162,8 @@ c
           nroots=1
         endif
         if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     MAXVECS (the maximum number of trial vectors)
 c
@@ -170,35 +174,40 @@ c
           maxvecs=ihuge
         endif
         if (.not.rtdb_put(rtdb,'tddft:maxvecs',mt_int,1,maxvecs))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     NOSINGLET (no singlet excited states sought for a closed shell)
 c
       else if (inp_compare(.false.,test,'nosinglet')) then
         singlet=.false.
         if (.not.rtdb_put(rtdb,'tddft:singlet',mt_log,1,singlet))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     SINGLET (singlet excited states sought for a closed shell)
 c
       else if (inp_compare(.false.,test,'singlet')) then
         singlet=.true.
         if (.not.rtdb_put(rtdb,'tddft:singlet',mt_log,1,singlet))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     NOTRIPLET (no triplet excited states sought for a closed shell)
 c
       else if (inp_compare(.false.,test,'notriplet')) then
         triplet=.false.
         if (.not.rtdb_put(rtdb,'tddft:triplet',mt_log,1,triplet))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     TRIPLET (triplet excited states sought for a closed shell)
 c
       else if (inp_compare(.false.,test,'triplet')) then
         triplet=.true.
         if (.not.rtdb_put(rtdb,'tddft:triplet',mt_log,1,triplet))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     THRESH (convergence threshold for Davidson iteration)
 c
@@ -209,7 +218,8 @@ c
           thresh=1.0d-4
         endif
         if (.not.rtdb_put(rtdb,'tddft:thresh',mt_dbl,1,thresh))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     MAXITER (the maximum number of Davidson iterations)
 c
@@ -220,7 +230,8 @@ c
           maxiter=100
         endif
         if (.not.rtdb_put(rtdb,'tddft:maxiter',mt_int,1,maxiter))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     TARGET (the target excited state for, e.g., geometry optimization)
 c
@@ -231,9 +242,10 @@ c
           target=1
         endif
         if (target.gt.nroots) call errquit
-     1    ('tddft_input: an illegal value for target',target)
+     1    ('tddft_input: an illegal value for target',target, INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tddft:target',mt_int,1,target))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     TARGETSYM (the symmetry of the target excited state)
 c
@@ -244,14 +256,16 @@ c
           targetsym='none'
         endif
         if (.not.rtdb_cput(rtdb,'tddft:targetsym',1,targetsym))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     SYMMETRY (restricts the roots to have the TARGETSYM irrep)
 c
       else if (inp_compare(.false.,test,'symmetry')) then
         symmetry=.true.
         if (.not.rtdb_put(rtdb,'tddft:symmetry',mt_log,1,symmetry))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     ALGORITHM (algorithm: =1 incore-multiple fock build; =2: incore-single fock build
 c                           =3 disk-multiple fock build;   =4: disk-single fock build)
@@ -263,7 +277,8 @@ c
           algorithm=0
         endif
         if (.not.rtdb_put(rtdb,'tddft:algorithm',mt_int,1,algorithm))
-     1    call errquit('tddft_input: failed writing to rtdb',0)
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
 c
 c     VECTOR (filename for solution vectors)
 c
@@ -286,7 +301,7 @@ c
       else if (inp_compare(.false.,test,'end')) then
         goto 20
       else
-        call errquit('tddft_input: unknown directive',0)
+        call errquit('tddft_input: unknown directive',0, INPUT_ERR)
       endif
       goto 10
 c

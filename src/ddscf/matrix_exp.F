@@ -1,6 +1,7 @@
       subroutine matrix_exp(g_k)
-C$Id: matrix_exp.F,v 1.11 1996-09-19 01:09:27 d3g681 Exp $
+C$Id: matrix_exp.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "cscfps.fh"
@@ -37,11 +38,14 @@ c
       if (oscfps) call pstat_on(ps_matexp)
 c
       call ga_inquire(g_k, type, nbf, nmo)
-      if (nbf.ne.nmo) call errquit('matrix_exp: must be square', 0)
+      if (nbf.ne.nmo) call errquit('matrix_exp: must be square', 0,
+     &       UNKNOWN_ERR)
       if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp1',
-     $     32, 32, g_tmp1)) call errquit('mat_exp:ga_create?',nbf)
+     $     32, 32, g_tmp1)) call errquit('mat_exp:ga_create?',nbf,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, nbf, nbf, 'mat_exp:tmp2',
-     $     32, 32, g_tmp2)) call errquit('mat_exp:ga_create?',nbf)
+     $     32, 32, g_tmp2)) call errquit('mat_exp:ga_create?',nbf,
+     &       GA_ERR)
 c
 c     Determine range of local diagonal values ... assume same for tmp1/2
 c
@@ -92,7 +96,7 @@ c
          call ga_acc(g_tmp1, i, i, i, i, 1.0d0, 1, 1.0d0)
       enddo
       if (.not. ga_destroy(g_tmp2))
-     $     call errquit('mat_exp: ga_destroy failed', 0)
+     $     call errquit('mat_exp: ga_destroy failed', 0, GA_ERR)
 c
       call ga_copy(g_tmp1, g_k)
 c     
@@ -141,7 +145,7 @@ c$$$      call ga_sync()
 c$$$      if (obad) call errquit('matexp: bad', 0)
 c     
       if (.not. ga_destroy(g_tmp1))
-     $     call errquit('mat_exp: ga_destroy failed', 0)
+     $     call errquit('mat_exp: ga_destroy failed', 0, GA_ERR)
 c     
       if (oscfps) call pstat_off(ps_matexp)
 c

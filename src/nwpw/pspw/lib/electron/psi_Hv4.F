@@ -1,5 +1,5 @@
 *
-* $Id: psi_Hv4.F,v 1.10 2003-07-19 20:47:09 bylaska Exp $
+* $Id: psi_Hv4.F,v 1.11 2003-10-17 22:57:29 carlfahl Exp $
 *
 
 *     *************************************
@@ -36,6 +36,7 @@
      >                 vc,xcp,Hpsi_k,
      >                 move,fion)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
@@ -88,7 +89,8 @@
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
          call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(Hpsi_r(1)),1)
       end if
-      if (.not. value) call errquit('psi_H:out of stack memory',0)
+      if (.not. value) call errquit('psi_H:out of stack memory',0,
+     &       MA_ERR)
       call nwpw_timing_end(12)
       
 
@@ -212,6 +214,7 @@
      >                 vall,
      >                 Hpsi_k)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi_k(*)
       real*8     psi_r(*)
@@ -247,7 +250,7 @@
       n2ft3d = 2*nfft3d
       call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       call nwpw_timing_end(12)
       
 

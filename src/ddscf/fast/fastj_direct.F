@@ -1,8 +1,9 @@
       subroutine fastj_direct_sum_init(basis, g_dens, eps, data)
 *
-* $Id: fastj_direct.F,v 1.7 1999-07-29 00:53:57 d3e129 Exp $
+* $Id: fastj_direct.F,v 1.8 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,7 +26,8 @@ c
       logical ofirstcall
       data ofirstcall/.true./
 
-      if (.not. bas_numbf(basis, nbf)) call errquit('fastj:ds:nbf',0)
+      if (.not. bas_numbf(basis, nbf)) call errquit('fastj:ds:nbf',0,
+     &       BASIS_ERR)
 
       otime = util_print('pottime',print_debug)
       time_init = 0.0d0
@@ -71,7 +73,7 @@ c
 c
 c
       if (.not. ma_push_get(mt_dbl, nbf**2, 'fjdsden', l_dens, k_dens))
-     $     call errquit('fastj: ds: ma ', nbf*nbf)
+     $     call errquit('fastj: ds: ma ', nbf*nbf, MA_ERR)
 c
       if (ga_nodeid() .eq. 0)
      $     call ga_get(g_dens, 1, nbf, 1, nbf, dbl_mb(k_dens), nbf)
@@ -86,12 +88,14 @@ c
       end
       subroutine fastj_direct_sum_tidy(data)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "fudge.fh"
 #include "pottimes.fh"
       integer data(2)
 c
-      if (.not. ma_pop_stack(data(1))) call errquit('fastj:dstidy?',0)
+      if (.not. ma_pop_stack(data(1))) call errquit('fastj:dstidy?',0,
+     &       MA_ERR)
       write(6,*) ' nq, ncall, nq/ncall ', nq, ncall, nq/ncall
       if (otime) then
          write(6,1) time_init, time_make_poles, time_poles, time_direct
@@ -101,6 +105,7 @@ c
       end
       subroutine fastj_direct_sum(basis, dens, npts, r, potential, tol)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "util.fh"
 #include "fudge.fh"
@@ -128,20 +133,21 @@ c
       return
 c
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('fastj_ds: bas_numcont failed for basis', basis)
+     $     ('fastj_ds: bas_numcont failed for basis', basis, BASIS_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('fastj_ds: bas_numbf failed for basis', basis)
+     $     ('fastj_ds: bas_numbf failed for basis', basis, BASIS_ERR)
 c     
       call dfill(npts, 0.0d0, potential, 1)
       tols = tol / schwarz_max()
 
       do jshell = 1, nshell
          if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
-     $        call errquit('fastj_ds: bas_cn2bfr ?', basis)
+     $        call errquit('fastj_ds: bas_cn2bfr ?', basis, BASIS_ERR)
          do ishell = 1, jshell
             if (schwarz_shell(jshell,ishell) .gt. tols) then
                if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) 
-     $           call errquit('fastj_ds: bas_cn2bfr ?', basis)
+     $           call errquit('fastj_ds: bas_cn2bfr ?', basis,
+     &       BASIS_ERR)
                fact = 1.0d0
                if (ishell .ne. jshell) fact = 2.0d0
                call potential_from_shell_pair(basis, ishell, jshell,

@@ -1,8 +1,9 @@
       subroutine fastj(rtdb, basis, g_dens, eps, data)
 *
-* $Id: fastj.F,v 1.13 2000-10-25 22:50:09 windus Exp $
+* $Id: fastj.F,v 1.14 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -67,20 +68,24 @@ c
 c
       write(6,*) ' before free g_dens ', g_dens
       call ga_summarize(0)
-      if (.not. ga_destroy(-1000)) call errquit('-1000',0)
-      if (.not. ga_destroy(-999)) call errquit('-999',0)
-      if (.not. ga_destroy(-998)) call errquit('-998',0)
-      if (.not. ga_destroy(-996)) call errquit('-996',0)
-      if (.not. ga_destroy(-995)) call errquit('-995',0)
+      if (.not. ga_destroy(-1000)) call errquit('-1000',0, GA_ERR)
+      if (.not. ga_destroy(-999)) call errquit('-999',0, GA_ERR)
+      if (.not. ga_destroy(-998)) call errquit('-998',0, GA_ERR)
+      if (.not. ga_destroy(-996)) call errquit('-996',0, GA_ERR)
+      if (.not. ga_destroy(-995)) call errquit('-995',0, GA_ERR)
       call ga_summarize(0)
 c
 c     Get info
 c
       pi = 4.0d0*atan(1.0d0)
-      if (.not. bas_numcont(basis, nsh)) call errquit('fastJ: basis?',0)
-      if (.not. bas_numbf(basis, nbf)) call errquit('fastJ: basis?',0)
-      if (.not. bas_geom(basis, geom)) call errquit('fastJ: basis?',0)
-      if (.not. geom_ncent(geom, nat)) call errquit('fastJ: geom?',0)
+      if (.not. bas_numcont(basis, nsh)) call errquit('fastJ: basis?',0,
+     &       BASIS_ERR)
+      if (.not. bas_numbf(basis, nbf)) call errquit('fastJ: basis?',0,
+     &       BASIS_ERR)
+      if (.not. bas_geom(basis, geom)) call errquit('fastJ: basis?',0,
+     &       BASIS_ERR)
+      if (.not. geom_ncent(geom, nat)) call errquit('fastJ: geom?',0,
+     &       GEOM_ERR)
 c
       if (util_print('fastjranges',print_debug)) then
          write(6,76) eps
@@ -104,9 +109,9 @@ c
       nprimtot = 0
       do iat = 1, nat
          if (.not. bas_ce2cnr(basis, iat, ishlo, ishhi))
-     $        call errquit('fastJ: bas_ce2cnr', 0)
+     $        call errquit('fastJ: bas_ce2cnr', 0, BASIS_ERR)
          if (.not. geom_cent_get(geom, iat, tag, c, charge))
-     $        call errquit('fastJ: geom_cart_get ', iat)
+     $        call errquit('fastJ: geom_cart_get ', iat, GEOM_ERR)
          x = c(1)
          y = c(2)
          z = c(3)
@@ -120,12 +125,13 @@ c
          end if
          do ish = ishlo, ishhi
             if (.not.bas_continfo(basis, ish, type, nprim, ngen, osph))
-     $           call errquit('fastJ: bas_cont_info', ish)
+     $           call errquit('fastJ: bas_cont_info', ish, BASIS_ERR)
             type = abs(type)
             if (nprim.gt.maxprim .or. ngen.gt.maxgen)
-     $           call errquit('fastJ: nprim or ngen?',nprim*100+ngen)
+     $           call errquit('fastJ: nprim or ngen?',nprim*100+ngen,
+     &       UNKNOWN_ERR)
             if (.not.bas_get_exponent(basis, ish, alpha))
-     $           call errquit('fastJ: bas_get_exponent?',ish)
+     $           call errquit('fastJ: bas_get_exponent?',ish, BASIS_ERR)
 c
             nprimtot = nprimtot + nprim
             do i = 1, nprim
@@ -243,7 +249,8 @@ c
             status = ma_push_get(mt_dbl, nnx*nny*nnz, 'fastj: grid',
      $           l_grid, k_grid) 
          end if
-         if (.not. status) call errquit('fastj: ma grid',nnx*nny*nnz)
+         if (.not. status) call errquit('fastj: ma grid',nnx*nny*nnz,
+     &       UNKNOWN_ERR)
          call dfill(nnx*nny*nnz, 0.0d0, dbl_mb(k_grid), 1)
 c
          gridinfo(1,ngrid) = nnx
@@ -289,10 +296,11 @@ c
       lenxlm   = (lmax+1)**2
       if (.not. ma_alloc_get(mt_int, lenpoles, 'fastj: list',
      $     l_list, k_list)) call errquit
-     $     ('fastj: cannot allocate list ', lenpoles)
+     $     ('fastj: cannot allocate list ', lenpoles, MA_ERR)
       if (.not. ma_push_get(mt_int, lenpairs*2, 'fastj: pairs',
      $     l_pairs, k_pairs)) call errquit
-     $     ('fastj: cannot allocate pairs for plan b ', lenpairs*2)
+     $     ('fastj: cannot allocate pairs for plan b ', lenpairs*2,
+     &       MA_ERR)
 c
       call fmm_tree_create(depth, lmax, tree)
 c
@@ -310,14 +318,14 @@ c     Allocate minimal space for linked list on heap and copy
 c
       if (.not. ma_alloc_get(mt_int, npairs*2, 'fastj: pairs2',
      $     l_pairs2, k_pairs2)) call errquit
-     $     ('fastj: cannot allocate pairs ', npairs*2)
+     $     ('fastj: cannot allocate pairs ', npairs*2, MA_ERR)
       call icopy(npairs*2, int_mb(k_pairs), 1, int_mb(k_pairs2), 1)
 c
 c     Free up all of the memory we are no longer using
 c
       if (ngrid .gt. 1) then
          if (.not. ma_chop_stack(gridinfo(5,2))) call errquit
-     $        ('fastJ: ma chop failed ', 1)
+     $        ('fastJ: ma chop failed ', 1, MA_ERR)
       end if
 c
 c     Only finest grid (no. 1) left now
@@ -444,6 +452,7 @@ c
      $     basis, geom, nat, nsh, nbf, g_dens, eps, oversample, q,
      $     lmax, depth, tree, list, pairs, lenpairs, npairs)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -530,53 +539,64 @@ c
 c     .                         ! 1d-2 not quite enuf for adz 5water
 c
       if (nx.gt.maxn .or. ny.gt.maxn .or. nz.gt.maxn) call errquit
-     $     ('fastj: hard dimension of maxn exceeded ', maxn)
+     $     ('fastj: hard dimension of maxn exceeded ', maxn,
+     &       UNKNOWN_ERR)
 c
       start = util_cpusec()
       do jat = 1, nat
          if (.not. bas_ce2cnr(basis, jat, jshlo, jshhi))
-     $        call errquit('fastJ dens: bas_ce2cnr', jat)
+     $        call errquit('fastJ dens: bas_ce2cnr', jat, BASIS_ERR)
          if (.not. geom_cent_get(geom, jat, tag, rj, charge))
-     $        call errquit('fastJ: geom_cart_get ', jat)
+     $        call errquit('fastJ: geom_cart_get ', jat, GEOM_ERR)
          xj = rj(1)
          yj = rj(2)
          zj = rj(3)
          do iat = 1, jat
             if (.not. bas_ce2cnr(basis, iat, ishlo, ishhi))
-     $           call errquit('fastJ dens: bas_ce2cnr', iat)
+     $           call errquit('fastJ dens: bas_ce2cnr', iat, BASIS_ERR)
             if (.not. geom_cent_get(geom, iat, tag, ri, charge))
-     $           call errquit('fastJ: geom_cart_get ', iat)
+     $           call errquit('fastJ: geom_cart_get ', iat, GEOM_ERR)
             xi = ri(1)
             yi = ri(2)
             zi = ri(3)
             do jsh = jshlo, jshhi
                if (.not.bas_continfo(basis, jsh, jtype, jnprim,jngen, 
-     $              josph)) call errquit('fastJ: bas_cont_info', jsh)
+     $              josph)) call errquit('fastJ: bas_cont_info', jsh,
+     &       BASIS_ERR)
                if (jtype .lt. 0 .or. jngen.ne.1) call errquit
-     $              ('fastJ: no general/SP functions yet',0)
+     $              ('fastJ: no general/SP functions yet',0, BASIS_ERR)
                if (jtype .gt. ijtmax) call errquit
-     $              ('fastJ: hard dimension ijtmax exceeded ', ijtmax)
+     $              ('fastJ: hard dimension ijtmax exceeded ', ijtmax,
+     &       BASIS_ERR)
                if (.not. bas_cn2bfr(basis, jsh, jbflo, jbfhi))
-     $              call errquit('fastJ dens: bas_cn2bfr', jsh)
+     $              call errquit('fastJ dens: bas_cn2bfr', jsh,
+     &       BASIS_ERR)
                if (.not.bas_get_exponent(basis, jsh, expj))
-     $              call errquit('fastJ: bas_get_exponent?',jsh)
+     $              call errquit('fastJ: bas_get_exponent?',jsh,
+     &       BASIS_ERR)
                if (.not.bas_get_coeff(basis, jsh, coeffj))
-     $              call errquit('fastJ: bas_get_coeff?',jsh)
+     $              call errquit('fastJ: bas_get_coeff?',jsh,
+     &       BASIS_ERR)
                numj = jbfhi - jbflo + 1
 c
                ishtop = ishhi
                if (iat .eq. jat) ishtop = jsh
                do ish = ishlo, ishtop
                   if (.not.bas_continfo(basis,ish,itype,inprim,ingen, 
-     $                 iosph)) call errquit('fastJ: bas_cont_info',ish)
+     $                 iosph)) call errquit('fastJ: bas_cont_info',ish,
+     &       BASIS_ERR)
                   if (itype .gt. ijtmax) call errquit
-     $                 ('fastJ: hard dimension ijtmax exceeded ',ijtmax)
+     $                 ('fastJ: hard dimension ijtmax exceeded ',ijtmax,
+     &       BASIS_ERR)
                   if (.not. bas_cn2bfr(basis, ish, ibflo, ibfhi))
-     $                 call errquit('fastJ dens: bas_cn2bfr', ish)
+     $                 call errquit('fastJ dens: bas_cn2bfr', ish,
+     &       BASIS_ERR)
                   if (.not.bas_get_exponent(basis, ish, expi))
-     $                 call errquit('fastJ: bas_get_exponent?',ish)
+     $                 call errquit('fastJ: bas_get_exponent?',ish,
+     &       BASIS_ERR)
                   if (.not.bas_get_coeff(basis, ish, coeffi))
-     $                 call errquit('fastJ: bas_get_coeff?',ish)
+     $                 call errquit('fastJ: bas_get_coeff?',ish,
+     &       BASIS_ERR)
                   numi = ibfhi - ibflo + 1
 c
                   ijtype = itype + jtype
@@ -691,7 +711,8 @@ c
                                  ind = ind + 8**level
                               end do
  222                          if (level .lt. 0) call errquit
-     $                             ('fastj: solution volume?',0)
+     $                             ('fastj: solution volume?',0,
+     &       UNKNOWN_ERR)
 * 31                           format(1x,a,4i5,a,4i5,2f6.2)
 *                              write(6,31) ' Assigning ', ish, iprim,
 *     $                             jsh, jprim, ' to fmm box ', 
@@ -726,7 +747,7 @@ c
                               ind = ind+i+(2**level)*(j+2**level*k)
 c
          if (ind .le. 0 .or. ind.gt.(8**(depth+1)-1)/7) call errquit
-     $        ('ind ? ', ind)
+     $        ('ind ? ', ind, UNKNOWN_ERR)
 *                              call xlm_accumulate_to_packed(lmax,
 *     $                             poles(1,ind), q, lmax)
          call fmm_tree_add_cell(tree, level, i, j, k, q, lmax, lmax)
@@ -765,7 +786,8 @@ c
                               ptr = list(ind)
                               npairs = npairs + 1
                               if (npairs.gt.lenpairs)call errquit
-     $                             ('fastj:too many pairs',npairs)
+     $                             ('fastj:too many pairs',npairs,
+     &       UNKNOWN_ERR)
                               pairs(1,npairs) = packpair(
      $                             packshprim(ish,iprim),
      $                             packshprim(jsh,jprim))
@@ -1062,6 +1084,7 @@ c
       end
       subroutine fastj_tidy(data)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer data(2)
 c
@@ -1076,15 +1099,15 @@ c
      $     npairs,g_dens,basis)
 c
       if (.not. ma_free_heap(l_grid)) call errquit
-     $     ('fastj_tidy: ma?',-1)
+     $     ('fastj_tidy: ma?',-1, MA_ERR)
       if (.not. ma_free_heap(l_list)) call errquit
-     $     ('fastj_tidy: ma?',-1)
+     $     ('fastj_tidy: ma?',-1, MA_ERR)
       if (.not. ma_free_heap(l_pairs2)) call errquit
-     $     ('fastj_tidy: ma?',-1)
+     $     ('fastj_tidy: ma?',-1, MA_ERR)
       if (.not. ma_free_heap(data(1))) call errquit
-     $     ('fastj_tidy: ma?',1)
+     $     ('fastj_tidy: ma?',1, MA_ERR)
       if (.not. ma_free_heap(data(2))) call errquit
-     $     ('fastj_tidy: ma?',2)
+     $     ('fastj_tidy: ma?',2, MA_ERR)
 c
       call fmm_tree_destroy(tree)
 c
@@ -1203,6 +1226,7 @@ c$$$c
 c$$$      end
       subroutine fastj_eval_list_from_data(data, n, coords, v)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 c
@@ -1325,22 +1349,23 @@ c
       call bas_all_cn_info(basis, sh_info, sh_bfr)
 c
       if (.not. ma_push_get(mt_int, n, 'map', l_map, k_map))
-     $     call errquit('fj: map ', n)
+     $     call errquit('fj: map ', n, MA_ERR)
       if (.not. ma_push_get(mt_int,2*8**depth,'info',l
-     $     _list_info,k_list_info)) call errquit('fj: info ',2*8**depth)
+     $     _list_info,k_list_info)) call errquit('fj: info ',2*8**depth,
+     &       GA_ERR)
       if (.not. ma_push_get(mt_int, n, 'next', l_next, k_next))
-     $     call errquit('fj: next ', n)
+     $     call errquit('fj: next ', n, MA_ERR)
       if (.not. ma_push_get(mt_dbl, 3*n, 'near', l_near, k_near))
-     $     call errquit('fj: near ', 3*n)
+     $     call errquit('fj: near ', 3*n, MA_ERR)
       if (.not. ma_push_get(mt_dbl, n, 'v_near', l_v_near, k_v_near))
-     $     call errquit('fj: v_near', n)
+     $     call errquit('fj: v_near', n, MA_ERR)
       if (.not. ma_push_get(mt_dbl, 3*n, 'cr', l_coords_r, k_coords_r))
-     $     call errquit('fj: coords_r ', 3*n)
+     $     call errquit('fj: coords_r ', 3*n, MA_ERR)
       if (.not. ma_push_get(mt_dbl, n, 'vr', l_v_r, k_v_r))
-     $     call errquit('fj: vr ', n)
+     $     call errquit('fj: vr ', n, MA_ERR)
       if (.not. ma_push_get(mt_dbl, numfit(maxorder), 
      $     'fit', l_fit, k_fit))
-     $     call errquit('fj: fit ', numfit(maxorder))
+     $     call errquit('fj: fit ', numfit(maxorder), MA_ERR)
 c
       do i = minorder, maxorder
          if (i .le. 9) then
@@ -1362,7 +1387,7 @@ c
 c      
       if (.not. ma_push_get(mt_dbl, (max_ngrid_per_vol)**3, 
      $     'gtmp', l_gtmp, k_gtmp)) call errquit('fj: gtmp ', 
-     $     max_ngrid_per_vol**3)
+     $     max_ngrid_per_vol**3, MA_ERR)
 c
 c     Pairs may have been assigned to the top few levels of the
 c     octree if they span all/most of the domain.  Also, ind
@@ -1563,7 +1588,8 @@ c
                         if (ninterp.gt.ngx .or.
      $                       ninterp.gt.ngy .or. ninterp.gt.ngz)
      $                       call errquit('aajsflk ',
-     $                       ninterp + 100*(ngx+100*(ngy+100*ngz)))
+     $                       ninterp + 100*(ngx+100*(ngy+100*ngz)),
+     &       UNKNOWN_ERR)
 c$$$                        potgrid1 = tn_interp_3d_point(
 c$$$     $                       dbl_mb(k_gtmp), ngx, ngy, ngz, hx, hy, hz,
 c$$$     $                       x-vol_xlo, y-vol_ylo, z-vol_zlo, 
@@ -1583,7 +1609,8 @@ c$$$     $                          dbl_mb(k_fit+numfit(order-1)))
                            if (ninterp.gt.ngx .or.
      $                          ninterp.gt.ngy .or. ninterp.gt.ngz)
      $                          call errquit('aajsflk ',
-     $                          ninterp + 100*(ngx+100*(ngy+100*ngz)))
+     $                          ninterp + 100*(ngx+100*(ngy+100*ngz)),
+     &       UNKNOWN_ERR)
 c$$$                           potgrid = tn_interp_3d_point(
 c$$$     $                          dbl_mb(k_gtmp), ngx, ngy, ngz,hx, hy,hz,
 c$$$     $                          x-vol_xlo, y-vol_ylo, z-vol_zlo, 
@@ -1700,7 +1727,7 @@ c
       write(6,*) ' tbin '
       call doutput(tbin,1,34,1,1,34,1,1)
 c
-      if (.not. ma_chop_stack(l_map)) call errquit('sigh',0)
+      if (.not. ma_chop_stack(l_map)) call errquit('sigh',0, MA_ERR)
 c
       end
       subroutine fastj_unpack_data(data,xlo,xhi,ylo,yhi,zlo,zhi,
@@ -1708,6 +1735,7 @@ c
      $     depth,lmax,nx,ny,nz,eps,l_list,k_list,l_pairs2,k_pairs2,
      $     npairs,g_dens,basis)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
       integer data(2)
@@ -1718,9 +1746,9 @@ c
 c
 ***      write(6,*) ' UNPACKED handles ', data(1), data(2)
       if (.not. ma_get_index(data(1),k_r))
-     $     call errquit('fastj_unpack: invalid data',1)
+     $     call errquit('fastj_unpack: invalid data',1, MA_ERR)
       if (.not. ma_get_index(data(2),k_i))
-     $     call errquit('fastj_pack: invalid data',2)
+     $     call errquit('fastj_pack: invalid data',2, MA_ERR)
 c
       xlo     =  dbl_mb(k_r   )
       xhi     =  dbl_mb(k_r+ 1)
@@ -1757,6 +1785,7 @@ c
      $     depth,lmax,nx,ny,nz,eps,l_list,k_list,l_pairs2,k_pairs2,
      $     npairs, g_dens,basis)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
       integer data(2)
@@ -1768,9 +1797,9 @@ c
       integer l_r, k_r, l_i, k_i
 c
       if (.not. ma_alloc_get(mt_dbl,10, 'fastjr', l_r, k_r))
-     $     call errquit('fastj_pack: unable to alloc data',1)
+     $     call errquit('fastj_pack: unable to alloc data',1, MA_ERR)
       if (.not. ma_alloc_get(mt_int,300+16, 'fastji', l_i, k_i))
-     $     call errquit('fastj_pack: unable to alloc data',2)
+     $     call errquit('fastj_pack: unable to alloc data',2, MA_ERR)
 c
       data(1) = l_r
       data(2) = l_i
@@ -1813,6 +1842,7 @@ c
      $     a, b, c, alpha, prefac,
      $     mpoles, maxl)
       implicit none
+#include "errquit.fh"
 c
 c     Given a block of the density matrix over a pair of CARTESIAN
 c     PRIMITIVE shells and a detailed description of those shells
@@ -1864,7 +1894,8 @@ c
 c     Sanity checks
 c
       if (itype.gt.lmax .or. jtype.gt.lmax) call errquit
-     $     ('pot_shell_pair_multipole: lmax?',itype*1000+jtype)
+     $     ('pot_shell_pair_multipole: lmax?',itype*1000+jtype,
+     &       UNKNOWN_ERR)
 c     
       ijtype = itype + jtype
       pi = 4.0d0*atan(1.0d0)

@@ -1,6 +1,7 @@
       integer function ga_create_atom_blocked(geom, basis, name)
-C$Id: ga_atom_blk.F,v 1.7 2003-06-06 18:38:00 edo Exp $
+C$Id: ga_atom_blk.F,v 1.8 2003-10-17 22:54:32 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -56,6 +57,7 @@ c
       subroutine util_atom_blocked(max_nproc,
      ,     geom, basis, map, nblock)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -72,9 +74,9 @@ c
 c     min_chunk ... minimum chunksize to avoid excessive fragmentation
 c     
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('util_atom_blocked: geom_ncent ?', 0)
+     $     ('util_atom_blocked: geom_ncent ?', 0, GEOM_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('util_create_atom_blocked: bas_nbf ?', 0)
+     $     ('util_create_atom_blocked: bas_nbf ?', 0, BASIS_ERR)
 c
 c     chunk1/2 = mean no. of bf / processor need in each dimension
 c
@@ -92,7 +94,7 @@ c
       nblock(2) = 0
       do iat = 1, natoms
          if (.not. bas_ce2bfr(basis, iat, ilo, ihi)) call errquit
-     $        ('ga_create_atom_blocked: bas_ce2bfr ?', 0)
+     $        ('ga_create_atom_blocked: bas_ce2bfr ?', 0, BASIS_ERR)
          if ((ihi-ilo+1) .gt. 0) then
             if (n_in_proc1 .ge. chunk1) then
                nblock(1) = nblock(1) + 1
@@ -110,7 +112,8 @@ c
       enddo
       if (nblock(1)*nblock(2) .gt. max_nproc) then
          if (chunk1.eq.nbf .and. chunk2.eq.nbf)
-     $        call errquit('ga_create_atom_blocked: chunking', 0)
+     $        call errquit('ga_create_atom_blocked: chunking', 0,
+     &       GA_ERR)
          if (chunk1 .lt. nbf) then
             chunk1 = chunk1 + 1
          endif

@@ -1,7 +1,8 @@
       subroutine memory_input(rtdb, ostore, stack_size, heap_size, 
      $     global_size, total_size, overify, ohardfail)
-C$Id: memory_input.F,v 1.8 1997-12-09 02:14:09 d3g681 Exp $
+C$Id: memory_input.F,v 1.9 2003-10-17 22:55:18 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -96,7 +97,8 @@ C     User inputs must be non-negative
 C
       If ( User_Stack .lt. 0 .OR. User_Heap .lt. 0
      $   .OR. User_Global .lt. 0 .OR. User_Total .lt. 0) Call ErrQuit(
-     $   'Memory_Input: Memory limits must be non-negative', 0)
+     $   'Memory_Input: Memory limits must be non-negative', 0,
+     &       INPUT_ERR)
 c$$$c
 c$$$c     debug
 c$$$c
@@ -159,15 +161,17 @@ c
          mem(2) = stack_size
          mem(3) = global_size
          if (.not. context_prefix('memory',name))
-     $        call errquit('memory_input: context buffer too small',0)
+     $        call errquit('memory_input: context buffer too small',0,
+     &       INPUT_ERR)
          if (.not. rtdb_put(rtdb, name, mt_int, 3, mem))
-     $        call errquit('memory_input: rtdb_put failed', 0)
+     $        call errquit('memory_input: rtdb_put failed', 0,
+     &       RTDB_ERR)
       endif
       return
 c
  1000 call errquit('input_mem_size: memory [[total] <total_size>] '//
      $   '[heap <heap_size>] [stack <stack_size>] '//
      $   '[global <global_size>] [<units>] [verify|noverify] '//
-     $   '[hardfail|nohardfail]', 0)
+     $   '[hardfail|nohardfail]', 0, INPUT_ERR)
 c
       end

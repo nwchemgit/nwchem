@@ -1,8 +1,9 @@
       logical function jvltest2(rtdb)
 *     
-*     $Id: rjhtrans.F,v 1.8 2000-03-21 21:28:19 d3g681 Exp $
+*     $Id: rjhtrans.F,v 1.9 2003-10-17 22:54:39 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -54,26 +55,26 @@ c
 c     load the geometry/basis set and get info
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('scf_init: geom_create?', 0)
+     $     call errquit('scf_init: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('scf_init: no geometry ', 0)
+     $     call errquit('scf_init: no geometry ', 0, RTDB_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('scf_init: bas_create?', 0)
+     $     call errquit('scf_init: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
-     $        call errquit('scf_init: no ao basis set', 0)
+     $        call errquit('scf_init: no ao basis set', 0, RTDB_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('scf_init: basis info',0)
+     $     ('scf_init: basis info',0, BASIS_ERR)
       if (.not.int_normalize(rtdb,basis))
-     $           call errquit('scf:int_normalize failed', 0)
+     $           call errquit('scf:int_normalize failed', 0, INT_ERR)
 c
 c     Read the MO vectors and evals from a UHF calculation
 c
       call util_file_name('movecs',.false.,.false.,movecs)
       if (.not. movecs_read_header(movecs, title, name_of_basis,
      $     scftype, nbf_file, nsets, nmo_file, 2)) call errquit
-     $     ('jvltest2: failed to read movecs header',0)
+     $     ('jvltest2: failed to read movecs header',0, DISK_ERR)
 c
-      if (nsets.ne.2) call errquit('Joop says: UHF ONLY!',0)
+      if (nsets.ne.2) call errquit('Joop says: UHF ONLY!',0, INPUT_ERR)
 c
       write(6,*) ' Read movecs header from ', 
      $     movecs(1:inp_strlen(movecs))
@@ -82,18 +83,18 @@ c
       write(6,*) ' Basis name:                ', 
      $     name_of_basis(1:inp_strlen(name_of_basis))
       nmo = nmo_file(1)
-      if (nmo_file(1).ne.nmo_file(2)) call errquit('Uh?',0)
+      if (nmo_file(1).ne.nmo_file(2)) call errquit('Uh?',0, INPUT_ERR)
       if (.not. rtdb_get(rtdb, 'scf:nalpha', mt_int, 1, nalpha))
-     $     call errquit('nalpha?',0)
+     $     call errquit('nalpha?',0, RTDB_ERR)
       if (.not. rtdb_get(rtdb, 'scf:nbeta', mt_int, 1, nbeta))
-     $     call errquit('nbeta?',0)
+     $     call errquit('nbeta?',0, RTDB_ERR)
 c
 c     Frozen core info
 c
       if (rtdb_get(rtdb,'ccsd:frozen core:freeze by atoms',mt_log, 1, 
      $     status)) then
          if (.not. geom_num_core(geom, nfrozen)) 
-     $        call errquit('Joop says: geom_num_core?',0)
+     $        call errquit('Joop says: geom_num_core?',0, GEOM_ERR)
       else if (rtdb_get(rtdb, 'ccsd:frozen core', MT_INT, 1,
      $        nfrozen)) then
       else
@@ -119,43 +120,49 @@ c     The active MOs and eigenvalues will be combined to form single
 c     arrays with the first nactive entries being alpha and the next beta.
 c     
       if (.not. ma_push_get(mt_dbl, nbf*nactive*2,'mos_t', 
-     $     l_mos_t, k_mos_t)) call errquit('Joop: mos', 2*nbf*nactive)
+     $     l_mos_t, k_mos_t)) call errquit('Joop: mos', 2*nbf*nactive,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, nactive*2,'evals', 
-     $     l_eval, k_eval)) call errquit('Joop: evals', 2*nactive)
+     $     l_eval, k_eval)) call errquit('Joop: evals', 2*nactive,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, nactive*2, 'irs', 
-     $     l_irs, k_irs)) call errquit('Joop: irs', 2*nactive)
+     $     l_irs, k_irs)) call errquit('Joop: irs', 2*nactive,
+     &       MA_ERR)
       call ifill(2*nactive, 1, int_mb(k_irs), 1)
 c
       if (.not. ma_push_get(mt_dbl, nbf,'occ',l_occ, k_occ))
-     $     call errquit('ma occ', nbf)
+     $     call errquit('ma occ', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'aeval',l_aeval, k_aeval))
-     $     call errquit('ma eval', nbf)
+     $     call errquit('ma eval', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'beval',l_beval, k_beval))
-     $     call errquit('ma eval', nbf)
+     $     call errquit('ma eval', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nactive,'tmp', 
-     $     l_tmp, k_tmp)) call errquit('Joop: tmp', nbf*nactive)
+     $     l_tmp, k_tmp)) call errquit('Joop: tmp', nbf*nactive, MA_ERR)
 c
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 0, 0, g_tmp))
-     &     call errquit('scf_v_g: tmp', 0)
+     &     call errquit('scf_v_g: tmp', 0, GA_ERR)
 c
       if (.not. movecs_read(movecs, 1, dbl_mb(k_occ), dbl_mb(k_aeval), 
-     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0,
+     &       DISK_ERR)
       call ga_get(g_tmp, 1, nbf, nfrozen+1, nmo, dbl_mb(k_tmp), nbf)
       call util_transpose(dbl_mb(k_tmp),nbf,dbl_mb(k_mos_t),nactive,
      $     nbf,nactive)
       call dcopy(nactive, dbl_mb(k_aeval+nfrozen), 1, dbl_mb(k_eval), 1)
 c
       if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), dbl_mb(k_beval), 
-     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0,
+     &       DISK_ERR)
       call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_tmp), nbf)
       call util_transpose(dbl_mb(k_tmp), nbf,
      $     dbl_mb(k_mos_t+nactive*nbf), nactive, nbf, nactive)
       call dcopy(nactive, dbl_mb(k_beval+nfrozen), 1, 
      $     dbl_mb(k_eval+nactive), 1)
 c
-      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0)
-      if (.not. ma_chop_stack(l_occ)) call errquit(' ma chop?', 0)
+      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0, GA_ERR)
+      if (.not. ma_chop_stack(l_occ)) call errquit(' ma chop?', 0,
+     &       MA_ERR)
 c
       write(6,*) ' Alpha active eigenvalues '
       call output(dbl_mb(k_eval),1,nactive,1,1,nactive,1,1)
@@ -184,7 +191,7 @@ c     Trying reading something from a file ... all 3-c integrals
 c
       if (.not. ga_create(mt_dbl, nvirta*nocca, nvirtb*nvirtb, 
      $     'tmp', 0, 0, g_tmp))
-     &     call errquit('scf_v_g: tmp', 0)
+     &     call errquit('scf_v_g: tmp', 0, GA_ERR)
 c
       call get_cct(g_tmp, '<ba||ek>(bkea)', 
      $     1, nvirta*nocca, 1, 1, 
@@ -202,15 +209,15 @@ c
       write(6,*) ' spins b k a e = ', 2, 2, 1, 1
       call ga_print(g_tmp)
 c
-      if (.not. ga_destroy(g_tmp)) call errquit('ga?',0)
+      if (.not. ga_destroy(g_tmp)) call errquit('ga?',0, GA_ERR)
 c
       status = cct_uhf(rtdb)
 c
 c     Tidy up
 c
-      if (.not. bas_destroy(basis)) call errquit(' bas ?',0)
-      if (.not. geom_destroy(geom)) call errquit(' geom ?',0)
-      if (.not. ma_chop_stack(l_mos_t)) call errquit(' ma ? ',0)
+      if (.not. bas_destroy(basis)) call errquit(' bas ?',0, BASIS_ERR)
+      if (.not. geom_destroy(geom)) call errquit(' geom ?',0, GEOM_ERR)
+      if (.not. ma_chop_stack(l_mos_t)) call errquit(' ma ? ',0, MA_ERR)
 c
       call rjh_tidy_file_info
 c
@@ -220,6 +227,7 @@ c
 c$$$      subroutine rjh_test_trans(rtdb, basis, amos, bmos,
 c$$$     $     nmo, nalpha, nbeta, nbf)
 c$$$      implicit none
+c$$$#include "errquit.fh"
 c$$$#include "mafdecls.fh"
 c$$$c
 c$$$      integer rtdb, basis
@@ -309,6 +317,7 @@ c
       end
       subroutine rjh_tidy_file_info()
       implicit none
+#include "errquit.fh"
 #include "rjhfileinfo.fh"
 #include "eaf.fh"
 c
@@ -317,7 +326,7 @@ c
       do i = 1, maxfile
          if (fds(i).ne.-1) then
             if (eaf_close(fds(i)) .ne. 0) call errquit
-     $           ('rjh_tidy_file_info: eaf_close failed',i)
+     $           ('rjh_tidy_file_info: eaf_close failed',i, UNKNOWN_ERR)
          endif
       enddo
 c
@@ -325,6 +334,7 @@ c
       subroutine rjh_make_integral_files(rtdb, basis, 
      $     nmo, nbf, nalpha, nbeta, mos_t, evals)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rjhfileinfo.fh"
       integer k_all, norb
@@ -377,7 +387,7 @@ c
 c     Slowly move to have the following using Joop-like spin cases.
 c
       if (.not. ma_push_get(mt_dbl,lenfull,'full',l_full, k_full))
-     $     call errquit('ma full', lenfull)
+     $     call errquit('ma full', lenfull, MA_ERR)
 
 *      call rjh_full_transform(rtdb, basis,
 *     $     nmo, nmo, nmo, nmo,
@@ -389,7 +399,7 @@ c
 *      norb = nmo
 
       if (.not. ma_push_get(mt_dbl,lenfull,'full',l_full, k_full))
-     $     call errquit('ma full', lenfull)
+     $     call errquit('ma full', lenfull, MA_ERR)
 
 c
 c     1. <ba||ek>           b=a=e=k=alpha         baek = 1111
@@ -550,7 +560,7 @@ c
      $     '1234', 'T(ij,ec)', 1221, 1.0d0)
 c
       if (.not. ma_chop_stack(l_full)) call errquit
-     $     ('rjh_write_integ: ma chop?',0)
+     $     ('rjh_write_integ: ma chop?',0, MA_ERR)
 c
       end
       subroutine rjh_denoms(full, dim1, dim2, dim3, dim4,
@@ -583,6 +593,7 @@ c
       subroutine rjh_integ_write(full, dim1, dim2, dim3, dim4,
      $     order, partstub, spin, sign)
       implicit none
+#include "errquit.fh"
 #include "eaf.fh"
 #include "inp.fh"
 #include "rjhfileinfo.fh"
@@ -601,7 +612,7 @@ c
 c
       call dscal(dim1*dim2*dim3*dim4, sign, full, 1)
       if (eaf_open(filename, eaf_rw, fd) .ne. 0)
-     $     call errquit('rjh_integ_write: opening file?',0)
+     $     call errquit('rjh_integ_write: opening file?',0, DISK_ERR)
       offset = 0.0d0
 c
 **      call rjh_debug_print(stub,full,dim1,dim2,dim3,dim4)
@@ -617,7 +628,8 @@ c
             enddo
          enddo
       else if (order .eq. '1<=234') then
-         if (dim1.ne.dim2) call errquit('rjh_integ_write: order?',0)
+         if (dim1.ne.dim2) call errquit('rjh_integ_write: order?',0,
+     &       INT_ERR)
          do i4 = 1, dim4
             do i3 = 1, dim3
                do i2 = 1, dim2
@@ -638,7 +650,7 @@ c
             enddo
          enddo
       else
-         call errquit('rjh_integ_write: unknown order',0)
+         call errquit('rjh_integ_write: unknown order',0, INT_ERR)
       endif
 c     
 c     Save all of the info in common
@@ -646,7 +658,7 @@ c
       do filenum = 1, maxfile
          if (fds(filenum).eq.-1) goto 10
       enddo
-      call errquit('rjh_integ_write: too many open files?', 0)
+      call errquit('rjh_integ_write: too many open files?', 0, INT_ERR)
  10   fds(filenum)       = fd
       stubs(filenum)     = stub
       filenames(filenum) = filename
@@ -661,7 +673,7 @@ c
       write(6,*) ' filename  ', filename(1:inp_strlen(filename))
       write(6,*) ' IO offset ', offset
       write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
-      call errquit('rij_integ_write: write failed',0)
+      call errquit('rij_integ_write: write failed',0, DISK_ERR)
 c
       end
       subroutine get_cct(g_a, type, 
@@ -669,6 +681,7 @@ c
      $     i3_lo, i3_hi, i3_spin, 
      $     i4_lo, i4_hi, i4_spin)
       implicit none
+#include "errquit.fh"
 #include "eaf.fh"
 #include "rjhfileinfo.fh"
 #include "cct_table_uhf.fh"
@@ -748,7 +761,7 @@ c
          i3_occ = 2             ! c/e
          i4_occ = 2             ! c/e
       else
-         call errquit('get_cct: unknown type',0)
+         call errquit('get_cct: unknown type',0, INPUT_ERR)
       endif
 c
       fd = fds(filenum)
@@ -777,7 +790,7 @@ c
 c
       reclen = i1i2_hi - i1i2_lo + 1
       if (.not. ma_push_get(mt_dbl,reclen,'buffer',l_buff, k_buff))
-     $     call errquit('ma buff', reclen)
+     $     call errquit('ma buff', reclen, MA_ERR)
 c
 *      write(6,*) ' GET_CCT: ', type, i1i2_lo, i1i2_hi, i1_spin, i2_spin, 
 *     $     i3_lo, i3_hi, i3_spin, 
@@ -808,7 +821,8 @@ c
                   enddo
                enddo
 c
-               if (ind .ne. reclen) call errquit('ind?',ind)
+               if (ind .ne. reclen) call errquit('ind?',ind,
+     &       UNKNOWN_ERR)
 c
                i3i4 = 1 + i3-i3_lo_spatial + 
      $              (i3_hi-i3_lo+1)*(i4-i4_lo_spatial)
@@ -872,7 +886,7 @@ c$$$         enddo
 c$$$      endif
 c
       if (.not. ma_pop_stack(l_buff)) call errquit
-     $     ('get_cct: ma corrupted', 0)
+     $     ('get_cct: ma corrupted', 0, MA_ERR)
 c
       return
 c
@@ -881,13 +895,14 @@ c
      $     filenames(filenum)(1:inp_strlen(filenames(filenum)))
       write(6,*) ' IO offset ', offset
       write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
-      call errquit('get_cct: read failed',0)
+      call errquit('get_cct: read failed',0, DISK_ERR)
 c      
       end
       subroutine rjh_which_file(partstub, 
      $     i1_spin, i2_spin, i3_spin, i4_spin, 
      $     filenum)
       implicit none
+#include "errquit.fh"
 #include "rjhfileinfo.fh"
 #include "inp.fh"
 c
@@ -915,7 +930,7 @@ c
       enddo
 c
       write(6,*) ' STUB ', stub
-      call errquit(' rjh_which_file: failed to find ', 0)
+      call errquit(' rjh_which_file: failed to find ', 0, DISK_ERR)
 c
       end
       subroutine rjh_full_transform(
@@ -925,6 +940,7 @@ c
      $     c1t, c2t, c3t, c4t, 
      $     full, order)
       implicit none
+#include "errquit.fh"
 #include "schwarz.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -990,37 +1006,39 @@ c
          oasym = .true.
          side  = 'right'
       else
-         call errquit('rjh_full_trans: unkown integral option',0)
+         call errquit('rjh_full_trans: unkown integral option',0,
+     &       INPUT_ERR)
       endif
 c
 c     Initialize integrals and Schwarz screening
 c
       if (.not. bas_geom(basis, geom))
-     $     call errquit('rjh_transform: basis ', basis)
+     $     call errquit('rjh_transform: basis ', basis, BASIS_ERR)
       call int_init(rtdb, 1, basis)
       call schwarz_init(geom, basis)
 c      
       if (.not. bas_numcont(basis, nsh)) call errquit(
-     $     'rjh_transform: bas_numcont', basis)
+     $     'rjh_transform: bas_numcont', basis, BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,maxbfsh)) call errquit(
-     $     'rjh_transform: bas_nbf_cn_max', basis)
+     $     'rjh_transform: bas_nbf_cn_max', basis, BASIS_ERR)
 c
       lenhalf = n3*n4*maxbfsh**2
       lenthird= n2*n3*n4*maxbfsh
 c
       if (.not. ma_push_get(mt_dbl,lenhalf,'half',l_half, k_half))
-     $     call errquit('ma half', lenhalf)
+     $     call errquit('ma half', lenhalf, MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenthird,'third',l_third, k_third))
-     $     call errquit('ma third', lenthird)
+     $     call errquit('ma third', lenthird, MA_ERR)
 c
       call dfill(n1*n2*n3*n4, 0.0d0, full, 1)
       do ksh = 1, nsh
          if (.not. bas_cn2bfr(basis, ksh, klo, khi))
-     $        call errquit('rjh_transform: bas_cn2bfr',basis)
+     $        call errquit('rjh_transform: bas_cn2bfr',basis, BASIS_ERR)
          call dfill(n2*n3*n4*(khi-klo+1), 0.0d0, dbl_mb(k_third), 1)
          do lsh = 1, nsh
             if (.not. bas_cn2bfr(basis, lsh, llo, lhi))
-     $           call errquit('rjh_transform: bas_cn2bfr',basis)
+     $           call errquit('rjh_transform: bas_cn2bfr',basis,
+     &       BASIS_ERR)
             if (schwarz_shell(ksh,lsh)*schwarz_max()
      $           .gt. tol2e) then
 c     
@@ -1060,8 +1078,9 @@ c
          end do
       end do
 c
-      if (.not. ma_pop_stack(l_third)) call errquit('ma third',0)
-      if (.not. ma_pop_stack(l_half)) call errquit('ma half',0)
+      if (.not. ma_pop_stack(l_third)) call errquit('ma third',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_half)) call errquit('ma half',0, MA_ERR)
 c
       call schwarz_tidy()
       call int_terminate
@@ -1069,6 +1088,7 @@ c
       end
       subroutine rjh_asym_trans(full,n1,n2,n3,n4,side)
       implicit none
+#include "errquit.fh"
 c
       integer n1, n2, n3, n4
       double precision full(n1,n2,n3,n4)
@@ -1078,7 +1098,8 @@ c
       double precision tmp
 c
       if (side .eq. 'left') then
-         if (n1 .ne. n2) call errquit('rjh_asym_trans: left', n1)
+         if (n1 .ne. n2) call errquit('rjh_asym_trans: left', n1,
+     &       UNKNOWN_ERR)
          do s = 1, n4
             do r = 1, n3
                do q = 1, n2
@@ -1091,7 +1112,8 @@ c
             enddo
          enddo
       else
-         if (n3 .ne. n4) call errquit('rjh_asym_trans: right', n3)
+         if (n3 .ne. n4) call errquit('rjh_asym_trans: right', n3,
+     &       UNKNOWN_ERR)
          do s = 1, n4
             do r = 1, s
                do q = 1, n2
@@ -1167,6 +1189,7 @@ c
       subroutine rjh_half_transform(basis, ksh, lsh, n1, n2, 
      $     c1t, c2t, ld1, ld2, half, ochargecloud, tol2e)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
       integer basis, ksh, lsh, n1, n2, ld1, ld2
@@ -1195,15 +1218,15 @@ c
 c     Get dimensions and required scratch space info
 c
       if (.not. bas_numcont(basis, nsh)) call errquit(
-     $     'rjh_transform: bas_numcont', basis)
+     $     'rjh_transform: bas_numcont', basis, BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,maxbfsh)) call errquit(
-     $     'rjh_transform: bas_nbf_cn_max', basis)
+     $     'rjh_transform: bas_nbf_cn_max', basis, BASIS_ERR)
       if (.not. bas_numbf(basis, nbf))
-     $     call errquit('rjh_transform: nbf',basis)
+     $     call errquit('rjh_transform: nbf',basis, BASIS_ERR)
       if (.not. bas_cn2bfr(basis, ksh, klo, khi))
-     $     call errquit('rjh_transform: bas_cn2bfr',basis)
+     $     call errquit('rjh_transform: bas_cn2bfr',basis, BASIS_ERR)
       if (.not. bas_cn2bfr(basis, lsh, llo, lhi))
-     $     call errquit('rjh_transform: bas_cn2bfr',basis)
+     $     call errquit('rjh_transform: bas_cn2bfr',basis, BASIS_ERR)
       call int_mem_2e4c(maxg2,maxs2)
       lenaobuf = (khi-klo+1)*(lhi-llo+1)*maxbfsh*n2 ! (iq|kl)
 c
@@ -1211,19 +1234,19 @@ c     Allocate scratch space for integrals and buffers for
 c     transformation
 c
       if (.not. ma_push_get(mt_dbl,maxs2,'scr',l_scr, k_scr))
-     $   call errquit('ma scr',maxs2)
+     $   call errquit('ma scr',maxs2, MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxg2,'buf',l_buf, k_buf))
-     $   call errquit('ma buf',maxg2)
+     $   call errquit('ma buf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'i',l_i, k_i))
-     $   call errquit('ma ibuf',maxg2)
+     $   call errquit('ma ibuf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'j',l_j, k_j))
-     $   call errquit('ma jbuf',maxg2)
+     $   call errquit('ma jbuf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'k',l_k, k_k))
-     $   call errquit('ma kbuf',maxg2)
+     $   call errquit('ma kbuf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'l',l_l, k_l))
-     $   call errquit('ma lbuf',maxg2)
+     $   call errquit('ma lbuf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenaobuf,'aobuf',l_aobuf, k_aobuf))
-     $   call errquit('ma aobuf',lenaobuf)
+     $   call errquit('ma aobuf',lenaobuf, MA_ERR)
 c
       call rjh_do_half_transform(
      $     basis, 
@@ -1235,7 +1258,7 @@ c
      $     half, c1t, c2t, ld1, ld2, dbl_mb(k_aobuf), ochargecloud)
 c
       if (.not. ma_chop_stack(l_scr)) call errquit
-     $     ('rjh_transform: chopping stack', 0)
+     $     ('rjh_transform: chopping stack', 0, MA_ERR)
 c
       end
       subroutine rjh_do_half_transform(
@@ -1245,6 +1268,7 @@ c
      $     ksh, lsh, klo, khi, llo, lhi,
      $     half, c1t, c2t, ld1, ld2, aobuf, ochargecloud)
       implicit none
+#include "errquit.fh"
 #include "schwarz.fh"
 #include "bas.fh"
       integer basis
@@ -1274,7 +1298,7 @@ c
 c
       do ish = 1, nsh
          if (.not. bas_cn2bfr(basis,ish,ilo,ihi)) 
-     $        call errquit('rjh_do_half_transform',ish)
+     $        call errquit('rjh_do_half_transform',ish, BASIS_ERR)
          idim = ihi-ilo+1
          do l = llo,lhi
             do k = klo, khi

@@ -2,9 +2,10 @@
      $                               dm2, g_coul, g_exch,
      $                               g_x, g_ax )
 *
-* $Id: mcscf_ohvmo.F,v 1.4 2000-10-23 15:52:21 windus Exp $
+* $Id: mcscf_ohvmo.F,v 1.5 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "mcscfprof.fh"
@@ -36,34 +37,38 @@ c
 c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nclosed),'xit',l_xit,k_xit))
-     $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0, MA_ERR)
        call ga_get(g_x,aoff,aend,1,nclosed,dbl_mb(k_xit),nact)
        call mcscf_hessv_2e_mo_avia( nbf, nclosed, nact, dm2, g_coul,
      $                              g_exch, dbl_mb(k_xit), g_ax )
        if (.not.ma_pop_stack(l_xit))
-     $      call errquit('mcscf_hessv_2e_mo: failed pop stack',0)
+     $      call errquit('mcscf_hessv_2e_mo: failed pop stack',0,
+     &       MA_ERR)
 c
 c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nvir),'xua',l_xua,k_xua))
-     $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0,
+     &       MA_ERR)
        call ga_get(g_x,voff,nbf,aoff,aend,dbl_mb(k_xua),nvir)
        call mcscf_hessv_2e_mo_avav( nbf, nclosed, nact, dm2, g_coul,
      $                              g_exch, dbl_mb(k_xua), g_ax )
        call mcscf_hessv_2e_mo_iaav( nbf, nclosed, nact, dm2, g_coul,
      $                              g_exch, dbl_mb(k_xua), g_ax)
        if (.not.ma_pop_stack(l_xua))
-     $      call errquit('mcscf_hessv_2e_mo: failed pop stack',0)
+     $      call errquit('mcscf_hessv_2e_mo: failed pop stack',0,
+     &       MA_ERR)
 c
 c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nclosed),'xju',l_xju,k_xju))
-     $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo: cannot allocate',0, MA_ERR)
        call ga_get(g_x,aoff,aend,1,nclosed,dbl_mb(k_xju),nact)
        call mcscf_hessv_2e_mo_iaia( nbf, nclosed, nact, dm2, g_coul,
      $                              g_exch, dbl_mb(k_xju), g_ax )
        if (.not.ma_pop_stack(l_xju))
-     $      call errquit('mcscf_hessv_2e_mo: failed pop stack',0)
+     $      call errquit('mcscf_hessv_2e_mo: failed pop stack',0,
+     &       MA_ERR)
 c
 c
 c
@@ -86,6 +91,7 @@ c
        subroutine mcscf_hessv_2e_mo_avia( nbf, nclosed, nact, dm2,
      $                                    g_coul, g_exch, xit, g_ax )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -116,15 +122,19 @@ c
 c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nvir),'crapj',l_jj,k_jj))
-     $      call errquit('mcscf_hessv_2e_mo_avia: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nact*nvir),'crapz',l_z,k_z))
-     $      call errquit('mcscf_hessv_2e_mo_avia: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nact*nact),'crapz',l_dt,k_dt))
-     $      call errquit('mcscf_hessv_2e_mo_avia: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: cannot allocate',0,
+     &       MA_ERR)
 c
 c
        if (.not.ga_check_JKblocked(g_coul,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0,
+     &       GA_ERR)
        call dfill((nact*nvir),0.d0,dbl_mb(k_z),1)
        do v=1,nact
          do x=1,v
@@ -146,7 +156,8 @@ c
 c
 c
        if (.not.ga_check_JKblocked(g_exch,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0,
+     &       GA_ERR)
        do v=1,nact
          do x=1,v
            vx = (v*(v-1))/2 + x
@@ -165,11 +176,14 @@ c
 c
 c
        if (.not.ma_pop_stack(l_dt))
-     $      call errquit('mcscf_hessv_2e_mo_avia: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_z))
-     $      call errquit('mcscf_hessv_2e_mo_avia: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_jj))
-     $      call errquit('mcscf_hessv_2e_mo_avia: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: pop stack failed',0,
+     &       MA_ERR)
        return
        end
 
@@ -267,6 +281,7 @@ c
        subroutine mcscf_hessv_2e_mo_iaav( nbf, nclosed, nact, dm2,
      $                                    g_coul, g_exch, xua, g_ax )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -297,16 +312,20 @@ c
 c
 c
        if (.not.ma_push_get(MT_DBL,(nclosed*nact),'crapj',l_jj,k_jj))
-     $      call errquit('mcscf_hessv_2e_mo_iaav: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaav: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nclosed*nact),'crapz',l_z,k_z))
-     $      call errquit('mcscf_hessv_2e_mo_iaav: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaav: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nact*nact),'crapz',l_dt,k_dt))
-     $      call errquit('mcscf_hessv_2e_mo_iaav: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaav: cannot allocate',0,
+     &       MA_ERR)
 c
 c
 c
        if (.not.ga_check_JKblocked(g_coul,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0,
+     &       GA_ERR)
        call dfill((nact*nclosed),0.d0,dbl_mb(k_z),1)
        do v=1,nact
          do x=1,v
@@ -328,7 +347,8 @@ c
 c
 c
        if (.not.ga_check_JKblocked(g_exch,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0,
+     &       GA_ERR)
        do v=1,nact
          do x=1,v
            vx = (v*(v-1))/2 + x
@@ -347,11 +367,14 @@ c
 c
 c
        if (.not.ma_pop_stack(l_dt))
-     $      call errquit('mcscf_hessv_2e_mo_iaav: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaav: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_z))
-     $      call errquit('mcscf_hessv_2e_mo_iaav: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaav: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_jj))
-     $      call errquit('mcscf_hessv_2e_mo_iaav: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaav: pop stack failed',0,
+     &       MA_ERR)
 
        return
        end
@@ -448,6 +471,7 @@ c
        subroutine mcscf_hessv_2e_mo_avav( nbf, nclosed, nact, dm2,
      $                                    g_coul, g_exch, xta, g_ax )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -478,16 +502,20 @@ c
 c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nvir),'crapj',l_jj,k_jj))
-     $      call errquit('mcscf_hessv_2e_mo_avav: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_avav: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nact*nvir),'crapz',l_z,k_z))
-     $      call errquit('mcscf_hessv_2e_mo_avav: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_avav: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nact*nact),'crapz',l_dt,k_dt))
-     $      call errquit('mcscf_hessv_2e_mo_avav: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_avav: cannot allocate',0,
+     &       MA_ERR)
 c
 c
 c
        if (.not.ga_check_JKblocked(g_coul,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_avav: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_avav: wrong distrib.',0,
+     &       GA_ERR)
        call dfill((nact*nvir),0.d0,dbl_mb(k_z),1)
        do v=1,nact
          do x=1,v
@@ -509,7 +537,8 @@ c
 c
 c
        if (.not.ga_check_JKblocked(g_exch,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_avia: wrong distrib.',0,
+     &       GA_ERR)
        do v=1,nact
          do x=1,v
            vx = (v*(v-1))/2 + x
@@ -528,11 +557,14 @@ c
 c
 c
        if (.not.ma_pop_stack(l_dt))
-     $      call errquit('mcscf_hessv_2e_mo_avav: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_avav: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_z))
-     $      call errquit('mcscf_hessv_2e_mo_avav: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_avav: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_jj))
-     $      call errquit('mcscf_hessv_2e_mo_avav: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_avav: pop stack failed',0,
+     &       MA_ERR)
 
        return
        end
@@ -625,6 +657,7 @@ c
        subroutine mcscf_hessv_2e_mo_iaia( nbf, nclosed, nact, dm2,
      $                                    g_coul, g_exch, xju, g_ax )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 c
@@ -656,16 +689,20 @@ c
 c
 c
        if (.not.ma_push_get(MT_DBL,(nact*nclosed),'crapj',l_jj,k_jj))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nact*nclosed),'crapz',l_z,k_z))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: cannot allocate',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL,(nact*nact),'crapz',l_dt,k_dt))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: cannot allocate',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: cannot allocate',0,
+     &       MA_ERR)
 c
 c
 c
        if (.not.ga_check_JKblocked(g_coul,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: wrong distrib.',0,
+     &       GA_ERR)
        call dfill((nact*nclosed),0.d0,dbl_mb(k_z),1)
        do v=1,nact
          do x=1,v
@@ -687,7 +724,8 @@ c
 c
 c
        if (.not.ga_check_JKblocked(g_exch,nact,nbf,jlo,jhi))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: wrong distrib.',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: wrong distrib.',0,
+     &       GA_ERR)
        do v=1,nact
          do x=1,v
            vx = (v*(v-1))/2 + x
@@ -707,11 +745,14 @@ c
 c
 c
        if (.not.ma_pop_stack(l_dt))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_z))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: pop stack failed',0,
+     &       MA_ERR)
        if (.not.ma_pop_stack(l_jj))
-     $      call errquit('mcscf_hessv_2e_mo_iaia: pop stack failed',0)
+     $      call errquit('mcscf_hessv_2e_mo_iaia: pop stack failed',0,
+     &       MA_ERR)
 
        return
        end

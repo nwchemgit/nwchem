@@ -6,9 +6,10 @@
      $                           g_ifock, g_afock, g_gfock,
      $                           g_hdiag, g_rhs, g_soln, acc )
 *
-* $Id: mcscf_prcnd.F,v 1.11 2000-10-23 15:52:21 windus Exp $
+* $Id: mcscf_prcnd.F,v 1.12 2003-10-17 22:55:21 carlfahl Exp $
 *
        implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -57,7 +58,8 @@ c
 c
        if (omcscfprof) call pstat_on(ps_prcnd)
        if (.not. bas_numbf( basis, nbf))
-     $    call errquit('mcscf_precond: bas_numbf failed',0)
+     $    call errquit('mcscf_precond: bas_numbf failed',0,
+     &       BASIS_ERR)
        nvir = nbf - nclosed - nact
        vlen = nvir*(nclosed+nact) + nclosed*nact
 c
@@ -65,16 +67,16 @@ c
 c
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,maxbas,'basis',0,maxbas,g_basis))
-     $    call errquit('mcscf_precond: failed to allocate',0)
+     $    call errquit('mcscf_precond: failed to allocate',0, GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,maxbas,'sigma',0,maxbas,g_sigma))
-     $    call errquit('mcscf_precond: failed to allocate',0)
+     $    call errquit('mcscf_precond: failed to allocate',0, GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,1,'x vector',0,0,g_xv))
-     $    call errquit('mcscf_precond: failed to allocate',0)
+     $    call errquit('mcscf_precond: failed to allocate',0, GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,vlen,1,'prod vector',0,0,g_axv))
-     $    call errquit('mcscf_precond: failed to allocate',0)
+     $    call errquit('mcscf_precond: failed to allocate',0, GA_ERR)
 1010       nbas = 0
        if ((oprcndprint).and.(ga_nodeid().eq.0)) write(6,937) 
  937   format(/,20x,'Iter',7x,'RNorm',8x,'Accuracy',5x,'DeltaSoln',2x,
@@ -107,7 +109,8 @@ c
      $                         g_axv, .true., .false., maxx )
 c
          if (maxx .gt. 1d-6) call errquit ! rjh ... always expect the worst
-     $        ('mcscf_prcnd: large symmetry contamination', 0)
+     $        ('mcscf_prcnd: large symmetry contamination', 0,
+     &       GEOM_ERR)
 c
 C         CALL GA_ROWPRINT( 'HESSIAN VECTOR PRODUCT', G_AXV )
 
@@ -262,13 +265,13 @@ c
        acc = pconvg
 C       CALL GA_ROWPRINT( 'SOLUTION', G_AXV )
        if (.not.ga_destroy(g_basis))
-     $    call errquit('mcscf_precond: failed to destroy',0)
+     $    call errquit('mcscf_precond: failed to destroy',0, GA_ERR)
        if (.not.ga_destroy(g_sigma))
-     $    call errquit('mcscf_precond: failed to destroy',0)
+     $    call errquit('mcscf_precond: failed to destroy',0, GA_ERR)
        if (.not.ga_destroy(g_xv))
-     $    call errquit('mcscf_precond: failed to destroy',0)
+     $    call errquit('mcscf_precond: failed to destroy',0, GA_ERR)
        if (.not.ga_destroy(g_axv))
-     $    call errquit('mcscf_precond: failed to destroy',0)
+     $    call errquit('mcscf_precond: failed to destroy',0, GA_ERR)
        if (omcscfprof) call pstat_off(ps_prcnd)
 
        return

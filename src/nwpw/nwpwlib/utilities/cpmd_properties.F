@@ -1,5 +1,5 @@
 c
-c     $Id: cpmd_properties.F,v 1.3 2002-05-08 23:50:26 bylaska Exp $
+c     $Id: cpmd_properties.F,v 1.4 2003-10-17 22:56:53 carlfahl Exp $
 c
 
 *     *********************************
@@ -9,6 +9,7 @@ c
 *     *********************************
       subroutine cpmd_properties(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "rtdb.fh"
@@ -19,7 +20,7 @@ c
 
       value = rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename)
       if (.not. value)
-     >    call errquit('cpmd_properties: cant get MOTION',0)
+     >    call errquit('cpmd_properties: cant get MOTION',0, RTDB_ERR)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)

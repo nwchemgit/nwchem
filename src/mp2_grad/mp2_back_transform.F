@@ -12,9 +12,10 @@
      $     nva_lo_local, nva_hi_local, 
      $     tunita, tunitb, grad)
 *
-* $Id: mp2_back_transform.F,v 1.28 2000-11-03 01:35:19 bert Exp $
+* $Id: mp2_back_transform.F,v 1.29 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -67,7 +68,7 @@ c
      $     tol2e = 1d-9
 c
       if (.not. bas_numcont(basis, nsh)) call errquit
-     $     ('mp2: backt bad basis handle ', basis)
+     $     ('mp2: backt bad basis handle ', basis, BASIS_ERR)
       ninseg = oseg_hi - oseg_lo + 1
 c
 c     Make mapping of shell pairs to processors
@@ -81,19 +82,20 @@ c
      $     nbfpair, nbfpairlocal, shmax, junk, junk, junk, junk, junk)
       if (.not. ma_push_get(mt_int, nshpair*2, 'mp2: shpairs',
      $     l_shpairs, k_shpairs)) call errquit
-     $     ('mp2: insufficient memory : shpairs ', 2*nshpair)
+     $     ('mp2: insufficient memory : shpairs ', 2*nshpair, MA_ERR)
       if (.not. ma_push_get(mt_int, nshpairlocal*2, 'mp2:shpairslocal',
      $     l_shpairslocal, k_shpairslocal)) call errquit
-     $     ('mp2: insufficient memory : shpairs ', 2*nshpairlocal)
+     $     ('mp2: insufficient memory : shpairs ', 2*nshpairlocal,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int, ga_nnodes(), 'mp2:map',
      $     l_map, k_map)) call errquit
-     $     ('mp2: insufficient memory : map ', ga_nnodes())
+     $     ('mp2: insufficient memory : map ', ga_nnodes(), MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'mp2:shlo',
      $     l_shlo, k_shlo)) call errquit
-     $     ('mp2: insufficient memory : shlo ', nsh)
+     $     ('mp2: insufficient memory : shlo ', nsh, MA_ERR)
       if (.not. ma_push_get(mt_int, nsh, 'mp2:shdim',
      $     l_shdim, k_shdim)) call errquit
-     $     ('mp2: insufficient memory : shdim ', nsh)
+     $     ('mp2: insufficient memory : shdim ', nsh, MA_ERR)
       call mp2_backt_info(basis, tol2e, oskel,
      $     .true., nshpair, nshpairlocal,
      $     nbfpair, nbfpairlocal, shmax,
@@ -107,13 +109,13 @@ c
 c         
       if (.not. ma_push_get(mt_dbl, tdim, 'mp2: backt t',
      $     l_t, k_t)) call errquit
-     $     ('mp2: insufficient memory : t ', tdim)
+     $     ('mp2: insufficient memory : t ', tdim, MA_ERR)
       if (.not. ma_push_get(mt_dbl, tdim, 'mp2: backt tmp',
      $     l_tmp, k_tmp)) call errquit
-     $     ('mp2: insufficient memory : tmp ', tdim)
+     $     ('mp2: insufficient memory : tmp ', tdim, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nbf, 'mp2: backt iauv',
      $     l_iauv, k_iauv)) call errquit
-     $     ('mp2: insufficient memory : iauv ', nbf*nbf)
+     $     ('mp2: insufficient memory : iauv ', nbf*nbf, MA_ERR)
 c
 c     Right now we have an N**3 array in GA.  This is easily
 c     replaced with an N*B array with B=P*S*S (P procs, S=max shell size)
@@ -131,11 +133,12 @@ c
 c
       if (.not. ga_create_irreg(mt_dbl, nva, nbfpair,
      $     'mp2: backt', 1, 1, int_mb(k_map), nblock, g_buf))
-     $     call errquit('mp2: backt: ga_create failed', nva*nbfpair)
+     $     call errquit('mp2: backt: ga_create failed', nva*nbfpair,
+     &       GA_ERR)
 c     
       call util_file_name('2pdm', .true., .true., fname)
       if (eaf_open(fname,eaf_rw,twopdmunit) .ne. 0)
-     $     call errquit('mp2: backt: failed to open file',0)
+     $     call errquit('mp2: backt: failed to open file',0, DISK_ERR)
 c     
 c     Now do the back transformation
 c
@@ -164,21 +167,21 @@ c
 c     Free up some memory and then contract with gradient integrals.
 c
       if (.not. ga_destroy(g_buf)) call errquit
-     $     ('mp2: backt: ga destroy failed', 0)
+     $     ('mp2: backt: ga destroy failed', 0, GA_ERR)
       if (.not. ma_chop_stack(l_t)) call errquit
-     $     ('mp2:backt: first chop stack failed', 0)
+     $     ('mp2:backt: first chop stack failed', 0, MA_ERR)
 c
       tdim = shmax*shmax*nbf*ninseg
       if (.not. ma_push_get(mt_dbl, tdim, 'mp2:back tt',
      $     l_t, k_t)) call errquit
-     $     ('mp2: backt: failed ma for nonsep test', tdim)
+     $     ('mp2: backt: failed ma for nonsep test', tdim, MA_ERR)
       tdim = shmax*shmax*nbf
       if (.not. ma_push_get(mt_dbl, tdim, 'mp2:back tbuf',
      $     l_tmp, k_tmp)) call errquit
-     $     ('mp2: backt: failed ma for nonsep test', tdim)
+     $     ('mp2: backt: failed ma for nonsep test', tdim, MA_ERR)
       if (.not. ma_push_get(mt_dbl, ninseg*nbf, 'mp2:back c_t',
      $     l_c_t, k_c_t)) call errquit
-     $     ('mp2: backt: failed ma for nonsep test', ninseg*nbf)
+     $     ('mp2: backt: failed ma for nonsep test', ninseg*nbf, MA_ERR)
       do i = oseg_lo, oseg_hi
          call dcopy(nbf, c_a(1,i), 1, dbl_mb(k_c_t+i-oseg_lo), ninseg)
       end do
@@ -186,18 +189,18 @@ c
 c     Determine list of active centers
 c
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('mp2_backt: geom ?',0)
+     $     ('mp2_backt: geom ?',0, GEOM_ERR)
       if (.not. ma_push_get(mt_log, natoms, 'mp2:back act',
-     $     l_act, k_act)) call errquit('mp2:back ma ', natoms)
+     $     l_act, k_act)) call errquit('mp2:back ma ', natoms, MA_ERR)
       call grad_active_atoms(rtdb, natoms, log_mb(k_act), nactive)
 c
 c     Turn this into a list of active shells
 c
       if (.not. ma_push_get(mt_log, nsh, 'mp2:back actsh',
-     $     l_actsh, k_actsh)) call errquit('mp2:back ma ', nsh)
+     $     l_actsh, k_actsh)) call errquit('mp2:back ma ', nsh, MA_ERR)
       do i = 1, natoms
          if (.not. bas_ce2cnr(basis, i, ishlo, ishhi))
-     $        call errquit('mp2:backt basis?',0)
+     $        call errquit('mp2:backt basis?',0, BASIS_ERR)
          do ish = ishlo,ishhi
             log_mb(k_actsh+ish-1) = log_mb(k_act+i-1)
          end do
@@ -209,19 +212,23 @@ c
       leneri = max(leneri,15**4) ! 1 G quartet = 39 D quartets ... SEE MP2_MEMORY
       if (.not. ma_push_get(mt_dbl,12*leneri,'deriv buffer',
      $     l_eri,k_eri)) call errquit
-     $     ('mp2:backt could not allocate buffer',12*leneri)
+     $     ('mp2:backt could not allocate buffer',12*leneri, MA_ERR)
       if (.not. ma_push_get(mt_dbl,shmax**4,'pdm buffer',
      $     l_pdm,k_pdm)) call errquit
-     $     ('mp2:backt could not allocate pdm',shmax*4)
+     $     ('mp2:backt could not allocate pdm',shmax*4, MA_ERR)
       if (.not. ma_push_get(mt_int,4*leneri,'deriv labels',l_lab,k_lab))
-     $     call errquit('mp2:backt could not allocate labels',leneri)
+     $     call errquit('mp2:backt could not allocate labels',leneri,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,lenscr,'deriv scratch',
      $     l_scr,k_scr))
-     $     call errquit('mp2:backt could not allocate scr',lenscr)
+     $     call errquit('mp2:backt could not allocate scr',lenscr,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int,nbf,'shmap',l_bftosh,k_bftosh))
-     $     call errquit('mp2:backt could not allocate bftosh',nbf)
+     $     call errquit('mp2:backt could not allocate bftosh',nbf,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_int,nbf,'cemap',l_bftoce,k_bftoce))
-     $     call errquit('mp2:backt could not allocate bftoce',nbf)
+     $     call errquit('mp2:backt could not allocate bftoce',nbf,
+     &       MA_ERR)
 c      
       call ga_sync()
       call pstat_on(ps_nonsep)
@@ -255,12 +262,12 @@ c
 c     Done.
 c     
       if (.not. ma_chop_stack(l_shpairs)) call errquit
-     $     ('mp2: backt: failed chopping stack',0)
+     $     ('mp2: backt: failed chopping stack',0, MA_ERR)
 c
       if (util_print('iostats', print_high) .and. 
      $     ga_nodeid().eq.0) call eaf_print_stats(twopdmunit)
       if (eaf_close(twopdmunit) .ne. 0)
-     $     call errquit('mp2: backt: closing 2pdm',ierr)
+     $     call errquit('mp2: backt: closing 2pdm',ierr, DISK_ERR)
       call util_file_unlink(fname)
 c
       end
@@ -282,6 +289,7 @@ c
      $     t, ia_uv, tmp,
      $     map, g_buf)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
@@ -401,7 +409,8 @@ c
                   end do
                end do
             end do
-            if (ind .ne. nbfpair) call errquit('mp2bt: ind?', ind)
+            if (ind .ne. nbfpair) call errquit('mp2bt: ind?', ind,
+     &       UNKNOWN_ERR)
 c     
 c     shpairs(1:2,1:nshpair)    (u>=v) shell pair indices
 c     shdim(1:nsh)              dimension of this sh (s=1,p=2,...)
@@ -448,7 +457,8 @@ c
             twopdmunitptr = 8.0d0*(ptr + (i-oseg_lo)*count)
 c     
             if (eaf_write(twopdmunit, twopdmunitptr, t, count*8).ne.0)
-     $           call errquit('mp2_bt: write of two pdm?', 0)
+     $           call errquit('mp2_bt: write of two pdm?', 0,
+     &       DISK_ERR)
 c     
             ptr = ptr + count*(oseg_hi-oseg_lo+1)
          end do
@@ -466,6 +476,7 @@ c
      $     nbfpair, nbfpairlocal, shmax,
      $     shdim, shlo, shpairs, shpairslocal, map)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
 #include "global.fh"
@@ -512,9 +523,11 @@ c
       data pairblock /1,3,6,9,18,36,1000000/ ! Selected from s*s,s*p,p*p ...
 c
       if (.not. bas_numbf(basis, nbf))
-     $     call errquit('mp2_backt_info: bad basis handle', 0)
+     $     call errquit('mp2_backt_info: bad basis handle', 0,
+     &       BASIS_ERR)
       if (.not. bas_numcont(basis, nsh))
-     $     call errquit('mp2_backt_info: bad basis handle', 0)
+     $     call errquit('mp2_backt_info: bad basis handle', 0,
+     &       BASIS_ERR)
 c     
       me = ga_nodeid()
       nproc = ga_nnodes()
@@ -533,11 +546,13 @@ c
                npairmax = pairblock(ipairb)
                do u = nsh, 1, -1
                   if (.not. bas_cn2bfr(basis, u, lo, hi))
-     $                 call errquit('mp2_backt_info: bas range', u)
+     $                 call errquit('mp2_backt_info: bas range', u,
+     &       BASIS_ERR)
                   udim = hi - lo + 1
                   do v = 1, u
                      if (.not. bas_cn2bfr(basis, v, lo, hi))
-     $                    call errquit('mp2_backt_info:bas range',v)
+     $                    call errquit('mp2_backt_info:bas range',v,
+     &       BASIS_ERR)
                      vdim = hi - lo + 1
                      uvdim = udim*vdim
                      sss = schwarz_shell(u,v)*schwarz_max() + 1d-100
@@ -583,7 +598,8 @@ c
             npairmax = pairblock(ipairb)
             do u = nsh, 1, -1
                if (.not. bas_cn2bfr(basis, u, lo, hi))
-     $              call errquit('mp2_backt_info: bas range', u)
+     $              call errquit('mp2_backt_info: bas range', u,
+     &       BASIS_ERR)
                shmax = max(shmax,hi-lo+1)
                if (omakearrays) then
                   shdim(u) = hi - lo + 1
@@ -592,7 +608,8 @@ c
                udim = hi - lo + 1
                do v = 1, u
                   if (.not. bas_cn2bfr(basis, v, lo, hi))
-     $                 call errquit('mp2_backt_info: bas range', v)
+     $                 call errquit('mp2_backt_info: bas range', v,
+     &       BASIS_ERR)
                   vdim = hi - lo + 1
                   uvdim = udim*vdim
                   sss = schwarz_shell(u,v)*schwarz_max() + 1d-100
@@ -677,6 +694,7 @@ c
      $     tol2e, oskel, oactive, leneri, eri, labels, lenscr, 
      $     scratch, shmap, cemap, pdm)
       implicit none
+#include "errquit.fh"
 #include "schwarz.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -738,9 +756,9 @@ c
 c     
       do u = 1, nbf
          if (.not. bas_bf2ce(basis,u,ucent))
-     $        call errquit('mp2g: bad something?',0)
+     $        call errquit('mp2g: bad something?',0, BASIS_ERR)
          if (.not. bas_bf2cn(basis,u,ush))
-     $        call errquit('mp2g: bad something?',0)
+     $        call errquit('mp2g: bad something?',0, BASIS_ERR)
          cemap(u) = ucent
          shmap(u) = ush
       enddo
@@ -766,7 +784,8 @@ c     Read this in and transpose to in core structure t(i,x,v,u)
 c     
          do i = 1, ninseg
             if (eaf_read(twopdmunit, fileptr, tbuf, count*8).ne.0)
-     $           call errquit('mp2: ao test: failed reading density', 0)
+     $           call errquit('mp2: ao test: failed reading density', 0,
+     &       DISK_ERR)
             fileptr = fileptr + count*8.0d0
             call dcopy(count, tbuf, 1, t(i), ninseg)
          end do
@@ -834,7 +853,8 @@ c
      $        basis, sh_list(1,1), sh_list(1,2),
      $        basis, sh_list(1,3), sh_list(1,4),
      $        nq, q4_list, .true., lenscr, scratch, leneri, 
-     $        block_eff)) call errquit('mp2:backt: txs init?',nq)
+     $        block_eff)) call errquit('mp2:backt: txs init?',nq,
+     &       INT_ERR)
 c     
  1000    omore = intbd_2e4c(
      $        basis, sh_list(1,1), sh_list(1,2),
@@ -844,7 +864,8 @@ c
      $        labels(1,3), labels(1,4), 
      $        eri, leneri, nint, lenscr, scratch)
 
-         if (nint .gt. leneri) call errquit('mp2_nonsep: nint', nint)
+         if (nint .gt. leneri) call errquit('mp2_nonsep: nint', nint,
+     &       INT_ERR)
 c     
          ush_prev = -1
          vsh_prev = -1

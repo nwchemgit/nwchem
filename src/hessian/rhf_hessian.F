@@ -1,9 +1,10 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.33 2000-10-23 23:37:47 windus Exp $
+c $Id: rhf_hessian.F,v 1.34 2003-10-17 22:55:10 carlfahl Exp $
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 c 
 #include "hnd_tol.fh"
 #include "nwc_const.fh"
@@ -89,15 +90,18 @@ c
 c     ----- get basis set info + parameters -----
 c
       if (.not. geom_ncent (geom , natoms)) call errquit
-     $     ('hnd_der_init: geom_ncent  failed for geom', geom)
+     $     ('hnd_der_init: geom_ncent  failed for geom', geom,
+     &       GEOM_ERR)
       if(dbug) then
          write(iw,*) ' ... natoms = ', natoms
       endif
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('hnd_der_init: bas_numcont failed for basis', basis)
+     $     ('hnd_der_init: bas_numcont failed for basis', basis,
+     &       BASIS_ERR)
 
       if (.not. bas_numbf(basis, num)) call errquit
-     $     ('hnd_der_init: bas_numbf failed for basis', basis)
+     $     ('hnd_der_init: bas_numbf failed for basis', basis,
+     &       BASIS_ERR)
       if(dbug) then
          write(iw,*) ' ... nshell = ', nshell
          write(iw,*) ' ... num    = ', num
@@ -113,7 +117,7 @@ c
       do iat=1,natoms
          status=bas_ce2cnr(basis,iat,ishlo,ishhi)
          if(.not.status) call errquit
-     $       ('hnd_der_init: bas_ce to cnr/bfr failed', iat)
+     $       ('hnd_der_init: bas_ce to cnr/bfr failed', iat, BASIS_ERR)
          if(dbug) then
             write(iw,*) ' ... iat, ishlo, ishhi = ',iat,ishlo,ishhi
          endif
@@ -123,7 +127,7 @@ c
          do ish=ishlo,ishhi
             status=bas_cn2bfr(basis,ish,ishbflo,ishbfhi)
             if(.not.status) call errquit
-     $          ('hnd_der_init: bas_cn to bfr failed', ish)
+     $          ('hnd_der_init: bas_cn to bfr failed', ish, BASIS_ERR)
             ioff=basis+BASIS_HANDLE_OFFSET
             ishu=sf_ibs_cn2ucn(ish,ioff)
             ityp=infbs_cont(CONT_TYPE ,ishu,ioff)
@@ -162,7 +166,8 @@ c
                elseif(ityp.eq.4) then
                   cg(ig+istart-1)=cont_coeff
                else
-                  call errquit('hnd_der_init: illegal -ityp- ', ityp)
+                  call errquit('hnd_der_init: illegal -ityp- ', ityp,
+     &       BASIS_ERR)
                endif
                if(dbug) then
                   write(iw,*) ' ish,ig,ityp,exp,con= ',ish,ig,ityp,
@@ -201,7 +206,7 @@ c
       status=geom_ncent(geom,nat)
       status=geom_cart_get(geom,nat,atom_tags,c,zan)
       if(.not.status) call errquit
-     $    (' int_1e_ga_hnd_init: geom_cart_get failed.',911)
+     $    (' int_1e_ga_hnd_init: geom_cart_get failed.',911, GEOM_ERR)
       if(dbug) then
          do iat=1,nat
             write(iw,*) ' ... i,Z,c = ',iat,zan(iat),c(1,iat),c(2,iat),
@@ -614,6 +619,7 @@ C
 C
       subroutine hnd_dder1_init1(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -655,7 +661,8 @@ c
      &    ,i_init,init)) then
          write(iw,*)'The totoal number of basis functions=', num 
          write(iw,*)'The stack memory for dder_1e =', need 
-         call errquit('hnd_dder1_init, malloc of init  failed',911)
+         call errquit('hnd_dder1_init, malloc of init  failed',911,
+     &       MA_ERR)
       endif
 c
       i00=init
@@ -744,6 +751,7 @@ c
      2                              d1hnd,d2hnd,
      3                              scftyp)
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -789,23 +797,24 @@ c     get information about basis set
 c
       status = geom_ncent(geom,nat)
       if ( .not.status )
-     & call errquit('vecs_read: could not get natoms',0)
+     & call errquit('vecs_read: could not get natoms',0, GEOM_ERR)
       status = bas_numbf(basis,nbf)
       if ( .not.status ) 
-     & call errquit('vecs_read: could not get nbf',0)
+     & call errquit('vecs_read: could not get nbf',0, BASIS_ERR)
       status = bas_nbf_cn_max(basis,max_sh_bf)
       if ( .not.status )
-     & call errquit('vecs_read: could not get max_sh_bf',0)
+     & call errquit('vecs_read: could not get max_sh_bf',0, BASIS_ERR)
       status = bas_nbf_ce_max(basis,max_at_bf)
       if ( .not.status )
-     & call errquit('vecs_read: could not get max_at_bf',0)
+     & call errquit('vecs_read: could not get max_at_bf',0, BASIS_ERR)
 c
 c     read vector file header
 c
       if (.not. movecs_read_header(movecs, title_molec,
      &    basis_name_molec, scftype_molec, nbf_molec,
      &    nsets_molec, nmo_molec, 2))
-     &    call errquit('vecs_read: failed to read header', 911)
+     &    call errquit('vecs_read: failed to read header', 911,
+     &       DISK_ERR)
       if(dbug) then
          write(6,9999)
      1     movecs
@@ -843,16 +852,19 @@ C     occupation numbers
       status = MA_push_get(MT_DBL, nbf2,'occ. numbers', l_occ, 
      $                                                  k_occ)
       if (.not.status) 
-     $     call errquit('property: could not allocate l_occ',911)
+     $     call errquit('property: could not allocate l_occ',911,
+     &       MA_ERR)
 C     eigenvalues
       status = MA_push_get(MT_DBL, nbf2,'MO eval', l_eval, k_eval)
       if (.not.status) 
-     $     call errquit('property: could not allocate l_eval',911)
+     $     call errquit('property: could not allocate l_eval',911,
+     &       MA_ERR)
       
       status = ga_create(MT_DBL, nbf_molec, nmo,' molec MOs',
      $                           nbf_molec, nmo,g_molec)
       if (.not.status)
-     $     call errquit('property: GA for molecular MOs',911)
+     $     call errquit('property: GA for molecular MOs',911,
+     &       GA_ERR)
 c
 c     read ( alpha ) orbitals
 c
@@ -860,7 +872,8 @@ c
       status = movecs_read(movecs,iset,
      $         dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
       if (.not.status)
-     $  call errquit('property: could not read molecular MOs',911)
+     $  call errquit('property: could not read molecular MOs',911,
+     &       DISK_ERR)
        
       nclosed = 0
       nopen   = 0
@@ -885,7 +898,8 @@ c
          status = movecs_read(movecs,iset,
      $            dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
          if (.not.status)
-     $     call errquit('property: could not read molecular MOs',911)
+     $     call errquit('property: could not read molecular MOs',911,
+     &       DISK_ERR)
 
          nclosedu= 0
          nopenu  = 0
@@ -938,6 +952,7 @@ c
 c     read mo vecs 
 
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer geom, basis
@@ -982,13 +997,15 @@ C  get MO vectors from file
 
       status = movecs_read(movecs,1,occ,evals,g_vecs)
       if (.not.status) then
-        call errquit('hess_dens_make: could not read mo vectors', 110)
+        call errquit('hess_dens_make: could not read mo vectors', 110,
+     &       DISK_ERR)
       endif
 
       if (scftype .eq. 'UHF') then
         status = movecs_read(movecs,2,occ(nbf+1),evals(nbf+1),g_vecs2)
         if (.not.status) then
-        call errquit('hess_dens_make: could not read uhf vectors', 110)
+        call errquit('hess_dens_make: could not read uhf vectors', 110,
+     &       DISK_ERR)
         endif
       endif
       
@@ -1217,6 +1234,7 @@ c
      2                              d1hnd,d2hnd,
      3                              scftyp)
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -1268,23 +1286,24 @@ c     get information about basis set
 c
       status = geom_ncent(geom,nat)
       if ( .not.status )
-     & call errquit('vecs_read: could not get natoms',0)
+     & call errquit('vecs_read: could not get natoms',0, GEOM_ERR)
       status = bas_numbf(basis,nbf)
       if ( .not.status ) 
-     & call errquit('vecs_read: could not get nbf',0)
+     & call errquit('vecs_read: could not get nbf',0, BASIS_ERR)
       status = bas_nbf_cn_max(basis,max_sh_bf)
       if ( .not.status )
-     & call errquit('vecs_read: could not get max_sh_bf',0)
+     & call errquit('vecs_read: could not get max_sh_bf',0, BASIS_ERR)
       status = bas_nbf_ce_max(basis,max_at_bf)
       if ( .not.status )
-     & call errquit('vecs_read: could not get max_at_bf',0)
+     & call errquit('vecs_read: could not get max_at_bf',0, BASIS_ERR)
 c
 c     read vector file header
 c
       if (.not. movecs_read_header(movecs, title_molec,
      &    basis_name_molec, scftype_molec, nbf_molec,
      &    nsets_molec, nmo_molec, 2))
-     &    call errquit('vecs_read: failed to read header', 911)
+     &    call errquit('vecs_read: failed to read header', 911,
+     &       DISK_ERR)
       if(dbug) then
          write(6,9999)
      1     movecs
@@ -1322,16 +1341,18 @@ C     occupation numbers
       status = MA_push_get(MT_DBL, nbf2,'occ. numbers', l_occ, 
      $                                                  k_occ)
       if (.not.status) 
-     $     call errquit('property: could not allocate l_occ',911)
+     $     call errquit('property: could not allocate l_occ',911,
+     &       MA_ERR)
 C     eigenvalues
       status = MA_push_get(MT_DBL, nbf2,'MO eval', l_eval, k_eval)
       if (.not.status) 
-     $     call errquit('property: could not allocate l_eval',911)
+     $     call errquit('property: could not allocate l_eval',911,
+     &       MA_ERR)
       
       status = ga_create(MT_DBL, nbf_molec, nmo,' molec MOs',
      $                           nbf_molec, nmo,g_molec)
       if (.not.status)
-     $     call errquit('property: GA for molecular MOs',911)
+     $     call errquit('property: GA for molecular MOs',911, GA_ERR)
 c
 c     read ( alpha ) orbitals
 c
@@ -1339,7 +1360,8 @@ c
       status = movecs_read(movecs,iset,
      $         dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
       if (.not.status)
-     $  call errquit('property: could not read molecular MOs',911)
+     $  call errquit('property: could not read molecular MOs',911,
+     &       DISK_ERR)
        
       nclosed = 0
       nopen   = 0
@@ -1364,7 +1386,8 @@ c
          status = movecs_read(movecs,iset,
      $            dbl_mb(k_occ),dbl_mb(k_eval),g_molec)
          if (.not.status)
-     $     call errquit('property: could not read molecular MOs',911)
+     $     call errquit('property: could not read molecular MOs',911,
+     &       DISK_ERR)
 
          nclosedu= 0
          nopenu  = 0
@@ -1417,6 +1440,7 @@ c
 c     read mo vecs 
 
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer geom, basis
@@ -1461,13 +1485,15 @@ C  get MO vectors from file
 
       status = movecs_read(movecs,1,occ,evals,g_vecs)
       if (.not.status) then
-        call errquit('hess_wdens_make: could not read mo vectors', 110)
+        call errquit('hess_wdens_make: could not read mo vectors', 110,
+     &       DISK_ERR)
       endif
 
       if (scftype .eq. 'UHF') then
         status = movecs_read(movecs,2,occ(nbf+1),evals(nbf+1),g_vecs2)
         if (.not.status) then
-        call errquit('hess_wdens_make: could not read uhf vectors', 110)
+        call errquit('hess_wdens_make: could not read uhf vectors', 110,
+     &       DISK_ERR)
         endif
       endif
       
@@ -1600,6 +1626,7 @@ c
       end
       subroutine hnd_dens_path1(rtdb,g_dens,g_wdens)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -1634,20 +1661,21 @@ c
 c
       status = rtdb_get(rtdb, 'scf:converged', MT_LOG, 1, converged) 
       if ( .not.( status .and. converged )) call errquit
-     $     ('gradients: no converged SCF wavefunction available', 0)
+     $     ('gradients: no converged SCF wavefunction available', 0,
+     &       RTDB_ERR)
 c
 c     Extract high level info from the data-base setting defaults
 c     
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('gradients: geom_create?', 0)
+     $     call errquit('gradients: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('gradients: no geometry ', 0)
+     $     call errquit('gradients: no geometry ', 0, RTDB_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('gradients: bas_create?', 0)
+     $     call errquit('gradients: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('gradients: no ao basis ', 0)
+     $     call errquit('gradients: no ao basis ', 0, RTDB_ERR)
 
 c
 c     Figure output input/output MO vectors ... all this should be
@@ -1686,7 +1714,8 @@ c
      &    (geom_destroy(geom))
      &    ))
      &    call errquit
-     &    ('gradients:error destroying geom and basis handles',911)
+     &    ('gradients:error destroying geom and basis handles',911,
+     &       GEOM_ERR)
 c
       return
       end
@@ -1695,6 +1724,7 @@ c
      &                            g_dens,g_wdens)
 c
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -1731,22 +1761,22 @@ c
 C     get information about basis set
       status = geom_ncent(geom,nat)
       if ( .not.status )
-     & call errquit('path2: could not get natoms',0)
+     & call errquit('path2: could not get natoms',0, GEOM_ERR)
       status = bas_numbf(basis,nbf)
       if ( .not.status ) 
-     & call errquit('path2: could not get nbf',0)
+     & call errquit('path2: could not get nbf',0, BASIS_ERR)
       status = bas_nbf_cn_max(basis,max_sh_bf)
       if ( .not.status )
-     & call errquit('path2: could not get max_sh_bf',0)
+     & call errquit('path2: could not get max_sh_bf',0, BASIS_ERR)
       status = bas_nbf_ce_max(basis,max_at_bf)
       if ( .not.status )
-     & call errquit('path2: could not get max_at_bf',0)
+     & call errquit('path2: could not get max_at_bf',0, BASIS_ERR)
  
 C     get information about type of calculation
       if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
      $     nopen = 0
       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit ('scf: nopen > nelec ', nopen)
+     $     call errquit ('scf: nopen > nelec ', nopen, RTDB_ERR)
 
       if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype)) then
          if (nopen .eq. 0) then
@@ -1784,12 +1814,12 @@ C     eigenvalue diagonal matrix
 C     eigenvalues
       status = MA_alloc_get(MT_DBL, nbf2,'MO evals', l_evals, k_evals)
       if (.not.status) 
-     $     call errquit('grad: could not allocate l_evals',1)
+     $     call errquit('grad: could not allocate l_evals',1, MA_ERR)
       
 C     occupation numbers
       status = MA_alloc_get(MT_DBL, nbf2,'occ. numbers', l_occ, k_occ)
       if (.not.status) 
-     $     call errquit('grad: could not allocate l_occ',1)
+     $     call errquit('grad: could not allocate l_occ',1, MA_ERR)
 
 C     global density
       do i=1, ndens
@@ -1805,7 +1835,8 @@ c
 C     free temporary arrays
       status = ga_destroy ( g_eigen_diag )
       if (.not.status) 
-     $     call errquit('grad: could not destroy g_eigen_diag',1)
+     $     call errquit('grad: could not destroy g_eigen_diag',1,
+     &       GA_ERR)
 c
       status = MA_free_heap ( l_occ )
       status = MA_free_heap ( l_evals )
@@ -1823,12 +1854,13 @@ c     enddo
 C
       subroutine hnd_dder1_popm 
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "mafdecls.fh"
       common/hnd_dder1_mem/i_init,init
 
       if(.not.ma_pop_stack(i_init))
      & call errquit('hnd_dder1_init, ma_pop_stack of init
-     & failed',911)
+     & failed',911, MA_ERR)
 
       return
       end
@@ -7105,6 +7137,7 @@ C
       END
       subroutine hnd_dder2_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -7160,7 +7193,8 @@ c
      &    i_init2,init2)) then
          write(iw,*)'The total number of basis functions =',num
          write(iw,*)'The stack memory for dder_2e =',need
-         call errquit('hnd_dder2_init, malloc of init2  failed',911)
+         call errquit('hnd_dder2_init, malloc of init2  failed',911,
+     &       MA_ERR)
       endif
 c
       return
@@ -7232,12 +7266,13 @@ c
       end
       subroutine hnd_dder2_popm 
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "mafdecls.fh"
       common/hnd_dder2_mem/i_init2,init2
 c
       if(.not.ma_pop_stack(i_init2))
      & call errquit('hnd_dder2_popm, ma_pop_stack of init2
-     & failed',911)
+     & failed',911, MA_ERR)
 c
       return
       end
@@ -16292,6 +16327,7 @@ C
 C
       subroutine hnd_cphf_init(rtdb)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
       integer rtdb
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -16314,7 +16350,7 @@ c
 c     ----- get nocc and nvir -----
 
       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit ('scf: nopen > nelec ', nopen)
+     $     call errquit ('scf: nopen > nelec ', nopen, RTDB_ERR)
 c     if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
 c    $     nopen = 0
 c
@@ -16402,7 +16438,7 @@ c     ----- memory block and pointers -----
       if(.not.ma_push_get(mt_dbl,need ,
      &    'mem init:rhf_hessian:hnd_cphf_init:3',
      &    i_init,init))
-     & call errquit('hnd_cphf_init, malloc of init  failed',911)
+     & call errquit('hnd_cphf_init, malloc of init  failed',911, MA_ERR)
 
 c     ----- zero out the elements of the block -----
 
@@ -16414,12 +16450,13 @@ c
 c
       subroutine hnd_cphf_popm 
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "mafdecls.fh"
       common/hnd_cphf_mem/i_init,init
 
       if(.not.ma_pop_stack(i_init))
      & call errquit('hnd_cphf_init, ma_pop_stack of init
-     & failed',911)
+     & failed',911, MA_ERR)
 
       return
       end
@@ -16450,6 +16487,7 @@ c
       end
       subroutine hnd_cphf(rtdb,geom,basis)
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -16521,7 +16559,7 @@ c
 c     ----- get nocc and nvir -----
 
       if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nclosed))
-     $     call errquit ('scf: nopen > nelec ', nopen)
+     $     call errquit ('scf: nopen > nelec ', nopen, RTDB_ERR)
 
       nocc = nclosed 
       nvir = num - nocc 
@@ -16736,7 +16774,8 @@ c      ----- read eig-vec and put eig-val in x(i50) -----
        status = movecs_read (movecs, 1, occ, x(i50), g_vecs)
 
        if (.not.status) then
-         call errquit('hnd_cphf: could not read mo vectors', 110)
+         call errquit('hnd_cphf: could not read mo vectors', 110,
+     &       DISK_ERR)
        endif
 
 c     ----- read ds from disk to local memory x(i70) -----
@@ -17036,23 +17075,23 @@ c     ----- create ga blocks -----
 
 *ga:1:0
       if(.not.ga_create(mt_dbl,nocc,nvir,'g_wax',0,0,g_wax))
-     &     call errquit('could not alloc wax array',1)
+     &     call errquit('could not alloc wax array',1, GA_ERR)
 
 *ga:1:0
       if(.not.ga_create(mt_dbl,nvir,nocc,'g_wax_tr',0,0,g_wax_tr))
-     &     call errquit('could not alloc tran array',1)
+     &     call errquit('could not alloc tran array',1, GA_ERR)
 
 *ga:1:0
       if(.not.ga_create(mt_dbl,nvir*nocc,1,'cphf_rhs:hnd_cphf',
-     $    0,0,g_rhs))call errquit('hnd_cphf: cphf_rhs',0)
+     $    0,0,g_rhs))call errquit('hnd_cphf: cphf_rhs',0, GA_ERR)
 
 *ga:1:0
       if(.not.ga_create(mt_dbl,nvir,nocc,'g_ya',0,0,g_ya))
-     &     call errquit('could not alloc ya array',1)
+     &     call errquit('could not alloc ya array',1, GA_ERR)
 
 *ga:1:0
       if(.not.ga_create(mt_dbl,nocc,nvir,'g_ya_tr',0,0,g_ya_tr))
-     &     call errquit('could not alloc ya_tr arrayy',1)
+     &     call errquit('could not alloc ya_tr arrayy',1, GA_ERR)
 
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
 
@@ -17078,18 +17117,19 @@ c     ----- reshape W_x^a to g_rhs format:[(nvir*nocc)x1] -----
        if (out) call ga_print(g_wax_tr)
 
        if(.not.file_write_ga(cphf_rhs,g_rhs))
-     &     call errquit('could not write cphf_rhs',1)
+     &     call errquit('could not write cphf_rhs',1, GA_ERR)
 
 c     ----- call cphf solver ----
 
        call pstat_on(ps_cphf)
-       if(.not.cphf(rtdb))call errquit('could not do cphf',1)
+       if(.not.cphf(rtdb))call errquit('could not do cphf',1,
+     &       CALC_ERR)
        call pstat_off(ps_cphf)
 
 c     ----- the g_rhs now holds the solution -----
 
        if(.not.file_read_ga(cphf_sol,g_rhs))
-     &    call errquit('could not read cphf_rhs',1)
+     &    call errquit('could not read cphf_rhs',1, DISK_ERR)
 
        if (out) call ga_print(g_rhs)
 
@@ -17117,19 +17157,19 @@ c     ----- download g_ya_tr to local memory:x(i30) -----
 c     ----- release memory pointer -----
 
       if(.not.ga_destroy(g_wax))call errquit(
-     &     'could not destroy g_wax',1)
+     &     'could not destroy g_wax',1, GA_ERR)
 
       if(.not.ga_destroy(g_wax_tr))call errquit(
-     &     'could not destroy g_wax_tr handle',1)
+     &     'could not destroy g_wax_tr handle',1, GA_ERR)
 
       if(.not.ga_destroy(g_ya))call errquit(
-     &     'could not destroy g_ya',1)
+     &     'could not destroy g_ya',1, GA_ERR)
 
       if(.not.ga_destroy(g_ya_tr))call errquit(
-     &     'could not destroy g_ya_tr',1)
+     &     'could not destroy g_ya_tr',1, GA_ERR)
 
       if(.not.ga_destroy(g_rhs))call errquit(
-     &     'could not destroy g_ya_tr',1)
+     &     'could not destroy g_ya_tr',1, GA_ERR)
 
 c
       if(out.and.ga_nodeid().eq.0) then
@@ -17145,10 +17185,10 @@ c     ----- create ga block -----
 
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbov,nc,'g_wax_tot',0,0,g_wax_tot))
-     &     call errquit('could not alloc wax_tot array',1)
+     &     call errquit('could not alloc wax_tot array',1, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbov,nc,'g_xa_tot' ,0,0,g_xa_tot ))
-     &     call errquit('could not alloc xa_tot  array',1)
+     &     call errquit('could not alloc xa_tot  array',1, GA_ERR)
 
 c     ----- copy from local memory to global array -----
 
@@ -17182,10 +17222,10 @@ c     ----- output force constant matrix -----
 c     ----- release memory pointer -----
 
       if(.not.ga_destroy(g_wax_tot))call errquit(
-     &     'could not destroy g_wax_tot',1)
+     &     'could not destroy g_wax_tot',1, GA_ERR)
 
       if(.not.ga_destroy(g_xa_tot ))call errquit(
-     &     'could not destroy g_xa_tot',1)
+     &     'could not destroy g_xa_tot',1, GA_ERR)
 
 c     ----- for info only, print gradient -----
 
@@ -17200,7 +17240,7 @@ c     if (ga_nodeid().eq.0) call hnd_cpfcm(x(i00),nat)
 c$$$c     ------ create ga block for force constant matrix -----
 c$$$
 c$$$      if(.not.ga_create(mt_dbl,nc,nc,'fcm',nc,nc,
-c$$$     $     g_fc))call errquit('cphf: ga_create failed',0)
+c$$$     $     g_fc))call errquit('cphf: ga_create failed',0, GA_ERR)
 c$$$      call ga_zero(g_fc)
 c$$$
 c$$$c     ----- copy fc from local memory to global array -----
@@ -17211,7 +17251,8 @@ c$$$      endif
 c$$$c
 c$$$      call util_file_name('hess',.false.,.false.,fname)
 c$$$      if (.not.file_write_ga(fname,g_fc))
-c$$$     $   call errquit('rhf_hess: could not write scf_hess',1)
+c$$$     $   call errquit('rhf_hess: could not write scf_hess',1,
+c&&&     &       GA_ERR)
       call rhf_hessian_2file(nc,x(i00))
 
 c     ----- fake dipole derivative -----
@@ -17371,6 +17412,7 @@ C     ------ TAKEN FROM CTL.F in HONDO ------
 C
       subroutine rhf_hessian_2file(n,hess)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 c:: writes file in vib_vib format using vib_vib filename default
 c:: Note the default filename is set in task_freq
@@ -17409,15 +17451,16 @@ c::   -- write information
       return
 10000 format(f30.15)
 99990 write(6,*)' could not open <',fname,'> as unknown file'
-      call errquit('hnd_cphf: fatal error', 911)
+      call errquit('hnd_cphf: fatal error', 911, DISK_ERR)
 99991 write(6,*)' could not open <',fname,'> as new file'
-      call errquit('hnd_cphf: fatal error', 911)
+      call errquit('hnd_cphf: fatal error', 911, DISK_ERR)
       end
       subroutine hnd_get_dens(rtdb,dens,num)
 c
 c     only RHF(close shell) is considered 
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "nwc_const.fh"
@@ -17469,7 +17512,7 @@ c
       if(.not.ma_push_get(mt_dbl,need ,
      &    'mem init:rhf_hessian:hnd_get_dens:4',
      &    i_init,init))
-     & call errquit('hnd_get_dens, malloc of init  failed',911)
+     & call errquit('hnd_get_dens, malloc of init  failed',911, MA_ERR)
 c
       i00=init
       i10=i00+ num3
@@ -17512,7 +17555,7 @@ c     release memory block
 c
       if (.not.ma_pop_stack(i_init))
      & call errquit('hnd_get_dens, ma_pop_stack of init
-     & failed',911)
+     & failed',911, MA_ERR)
 c
       return
       end
@@ -17522,6 +17565,7 @@ c
 c     only RHF(close shell) is considered 
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "nwc_const.fh"
@@ -17573,7 +17617,7 @@ c
       if(.not.ma_push_get(mt_dbl,need ,
      &    'mem init:rhf_hessian:hnd_get_wdens:5',
      &    i_init,init))
-     & call errquit('hnd_get_wdens, malloc of init  failed',911)
+     & call errquit('hnd_get_wdens, malloc of init  failed',911, MA_ERR)
 c
       i00=init
       i10=i00+ num3
@@ -17616,7 +17660,7 @@ c     release memory block
 c
       if (.not.ma_pop_stack(i_init))
      & call errquit('hnd_get_wdens, ma_pop_stack of init
-     & failed',911)
+     & failed',911, MA_ERR)
 c
       return
       end

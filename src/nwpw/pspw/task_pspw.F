@@ -1,9 +1,10 @@
 *
-* $Id: task_pspw.F,v 1.7 2002-10-15 21:24:00 bylaska Exp $
+* $Id: task_pspw.F,v 1.8 2003-10-17 22:57:01 carlfahl Exp $
 *
 
       logical function task_pspw(rtdb)
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -50,13 +51,13 @@ c
  10   value = rtdb_cget(rtdb,'task:operation',1,test)
 
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
-     >     call errquit('task pspw: unknown directive', 0)
+     >     call errquit('task pspw: unknown directive', 0, INPUT_ERR)
 c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
      >       1000, 1100, 1200, 1300, 1400 ) ind
-      call errquit('task pspw: unimplemented directive', ind)
+      call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
 c     

@@ -1,6 +1,7 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.66 2003-01-30 01:16:57 bert Exp $
+C$Id: scf.F,v 1.67 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -52,7 +53,7 @@ c !!! Can't place the following in scf_init since scf_init is called
 c !!! by cphf for either HF or DFT
 c     Store SCF hamiltonian type as HF for use in BGJ routines
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 1))
-     $     call errquit('scf: put of bgj:scf_type failed',0)
+     $     call errquit('scf: put of bgj:scf_type failed',0, RTDB_ERR)
 c !!! BGJ
       call scf_init(rtdb)
 c
@@ -73,7 +74,7 @@ c
          endif
 c
          if (.not. geom_ncent(geom, natoms)) call errquit
-     $        ('scf: geom_ncent failed', 0)
+     $        ('scf: geom_ncent failed', 0, GEOM_ERR)
 c
          write(6,1) trans(1:inp_strlen(trans)), nbf
  1       format(/
@@ -82,7 +83,8 @@ c
          if (nriscf .ne. 0) then
             status = bas_numbf (riscf_basis, Nff)
             if (.not. bas_name(riscf_basis, name, ri_trans))
-     $           call errquit('scf: bas_name?', 0)
+     $           call errquit('scf: bas_name?', 0,
+     &       BASIS_ERR)
             write(6,11) ri_trans(1:inp_strlen(ri_trans)), nff
  11         format(
      $           '  ri basis        = "',a,'"'/
@@ -114,7 +116,8 @@ c
  124     format('  lock orbitals   = ', l1)
          if (util_print('basis summary', print_default)) then
             if (.not.bas_summary_print(basis))
-     &           call errquit('scf: basis summary print failed',911)
+     &           call errquit('scf: basis summary print failed',911,
+     &       BASIS_ERR)
          else
             write(6,*)
          endif
@@ -132,7 +135,7 @@ c
       if (ga_nodeid() .eq. 0) then
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom))
-     $        call errquit('scf: geom_print', 0)
+     $        call errquit('scf: geom_print', 0, GEOM_ERR)
             write(6,*)
          endif
          if (util_print('symmetry', print_debug)) then
@@ -142,7 +145,7 @@ c
          endif
          if (util_print('basis', print_high)) then
             if (.not. bas_print(basis)) 
-     $           call errquit('scf: bas_print', 0)
+     $           call errquit('scf: bas_print', 0, BASIS_ERR)
             write(6,*)
          endif
          if (util_print('basis labels',print_high) .and.
@@ -151,14 +154,14 @@ c
          endif
          if (util_print('geombas', print_debug)) then
             if (.not. gbs_map_print(basis)) 
-     $           call errquit('scf:gmp', 0)
+     $           call errquit('scf:gmp', 0, BASIS_ERR)
             write(6,*)
          endif
          call util_flush(6)
       endif
 c
       if (.not.int_normalize(rtdb,basis))
-     $           call errquit('scf:int_normalize failed', 0)
+     $           call errquit('scf:int_normalize failed', 0, INT_ERR)
 c
 c     If input and output movecs are same then might be converged MOs
 c
@@ -166,7 +169,8 @@ c
          converged = movecs_converged(rtdb, basis, 'scf', movecs_in)
          if (converged) then
             if (.not. rtdb_get(rtdb, 'scf:energy', mt_dbl, 1, energy))
-     $           call errquit('scf: failed getting converged energy',0)
+     $           call errquit('scf: failed getting converged energy',0,
+     &       RTDB_ERR)
             if (ga_nodeid().eq.0 .and. oprint) then
                write(6,1101) energy
  1101          format(/'  The SCF is already converged '//,
@@ -181,7 +185,8 @@ c     initialize for RI and calculate 3c integrals if necessary
 c
       if (nriscf.gt.0) then
         status = riscf_init(rtdb, geom, basis, riscf_basis, tol2e)
-        if (.not. status) call errquit('scf: riscf_init failed', 0)
+        if (.not. status) call errquit('scf: riscf_init failed', 0,
+     &       UNKNOWN_ERR)
         if (ga_nodeid().eq.0 .and. oprint) then
           if (nriscf.eq.1) then
             call util_print_centered(6, 'RI hessian', 40, .true.)
@@ -256,17 +261,17 @@ c     do this here or have each wavefunction type do it
 c
       if (.not. rtdb_put(rtdb, 'scf:energy', MT_DBL, 1, energy))
      $     call errquit
-     $     ('scf: failed to store energy in rtdb', 0)
+     $     ('scf: failed to store energy in rtdb', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'scf:converged', MT_LOG, 1, converged)) 
      $     call errquit
      $     ('scf: failed to store converged in rtdb', 0)
       if (.not. rtdb_put(rtdb, 'scf:alpha irreps', MT_INT, nbf,
      &   int_mb(k_irs)))
-     &   call errquit('scf: failed to MO irreps in rtdb', 0)
+     &   call errquit('scf: failed to MO irreps in rtdb', 0, RTDB_ERR)
       if (scftype.eq.'UHF') then
       if (.not. rtdb_put(rtdb, 'scf:beta irreps', MT_INT, nbf,
      &   int_mb(k_irs+nbf)))
-     &   call errquit('scf: failed to MO irreps in rtdb', 0)
+     &   call errquit('scf: failed to MO irreps in rtdb', 0, RTDB_ERR)
       endif
 c
 c     Must store the final MOs AFTER writing the convergence flag
@@ -334,7 +339,7 @@ c !!! BGJ
       if (do_poliz) then
          write(*,*)'*** scf: calling cphf_poliz'
          if (.not. cphf_poliz(rtdb)) ! Never executed.
-     $        call errquit(' cphf_poliz: failed from scf !',0)
+     $        call errquit(' cphf_poliz: failed from scf !',0, RTDB_ERR)
       endif
 c !!! BGJ
 c

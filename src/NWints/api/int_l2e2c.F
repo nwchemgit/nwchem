@@ -1,4 +1,4 @@
-c $Id: int_l2e2c.F,v 1.13 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_l2e2c.F,v 1.14 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -16,6 +16,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -23,6 +24,7 @@ c:tex-\end{verbatim}
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c errquit
@@ -60,7 +62,8 @@ c
       shells_ok = int_chk_sh(brain,ish)
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
       if (.not.shells_ok)
-     &       call errquit('int_l2e2c: invalid contraction/shell',0)
+     &       call errquit('int_l2e2c: invalid contraction/shell',0,
+     &         BASIS_ERR)
 c
       bra = brain + BASIS_HANDLE_OFFSET
       ket = ketin + BASIS_HANDLE_OFFSET

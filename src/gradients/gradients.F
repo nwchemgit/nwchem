@@ -1,6 +1,7 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.28 2000-08-23 17:52:02 mdupuis Exp $
+c$Id: gradients.F,v 1.29 2003-10-17 22:55:09 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -39,15 +40,15 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $     title = ' '
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('gradients: geom_create?', 0)
+     $     call errquit('gradients: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('gradients: no geometry ', 0)
+     $     call errquit('gradients: no geometry ', 0, GEOM_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('gradients: bas_create?', 0)
+     $     call errquit('gradients: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $     call errquit('gradients: no ao basis ', 0)
+     $     call errquit('gradients: no ao basis ', 0, BASIS_ERR)
       if(.not. int_normalize(rtdb,basis))
-     $     call errquit('gradients: normalization failed',911)
+     $     call errquit('gradients: normalization failed',911, INT_ERR)
 c
 c     Figure out the numer of electrons from the required total
 c     charge and the sum of nuclear charges
@@ -72,12 +73,12 @@ c
          endif
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom)) 
-     $           call errquit('gradients: geom_print ?',0)
+     $           call errquit('gradients: geom_print ?',0, GEOM_ERR)
             call util_flush(luout)
          endif
          if (util_print('basis',print_high)) then
             if (.not. bas_print(basis)) 
-     $           call errquit('gradients: bas_print ?',0)
+     $           call errquit('gradients: bas_print ?',0, BASIS_ERR)
             call util_flush(luout)
          endif
       endif
@@ -128,7 +129,8 @@ c
      &    (geom_destroy(geom))
      &    ))
      &    call errquit
-     &    ('gradients:error destroying geom and basis handles',911)
+     &    ('gradients:error destroying geom and basis handles',911,
+     &       GEOM_ERR)
 c
       call ecce_print_module_exit ('gradients','ok')
       gradients = .true.

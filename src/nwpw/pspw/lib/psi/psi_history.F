@@ -1,5 +1,5 @@
 *
-* $Id: psi_history.F,v 1.6 2002-01-02 20:48:59 bylaska Exp $
+* $Id: psi_history.F,v 1.7 2003-10-17 22:57:36 carlfahl Exp $
 *
 
 *     *******************************
@@ -144,6 +144,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       subroutine psi_history_generate_coef(coef)
       implicit none 
+#include "errquit.fh"
       real*8 coef(*)
 
 #include "mafdecls.fh"
@@ -189,7 +190,8 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
      >        MA_push_get(mt_dbl,(size*size),'M',M(2),M(1))
       value = value.and.
      >        MA_push_get(mt_int,(size),'ipiv',ipiv(2),ipiv(1))
-      if (.not. value) call errquit('psi_history_generate_coef',1)
+      if (.not. value) call errquit('psi_history_generate_coef',1,
+     &       MA_ERR)
 
     
       do ii=1,nion
@@ -324,7 +326,8 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
       value = value.and.MA_pop_stack(gion(2))
       value = value.and.MA_pop_stack(rion2(2))
       value = value.and.MA_pop_stack(rion1(2))
-      if (.not. value) call errquit('psi_history_generate_coef',2)
+      if (.not. value) call errquit('psi_history_generate_coef',2,
+     &       MA_ERR)
 
       end if
 
@@ -380,6 +383,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       logical function psi_history_check_last()
       implicit none 
+#include "errquit.fh"
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -412,7 +416,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       nion = ion_nion()
       value = MA_push_get(mt_dbl,3*nion,'rion',rion(2),rion(1))
-      if (.not. value) call errquit('psi_history_check_last',1)
+      if (.not. value) call errquit('psi_history_check_last',1, MA_ERR)
 
       ptr = psi_history_pointer_start() - 1
       if (ptr.le.0) ptr = size
@@ -433,7 +437,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
       end do
 
       value = MA_pop_stack(rion(2))
-      if (.not. value) call errquit('psi_history_check_last',2)
+      if (.not. value) call errquit('psi_history_check_last',2, MA_ERR)
 
       icheck = 0
       if (check) icheck=1
@@ -548,6 +552,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       subroutine psi_history_shift()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -569,7 +574,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       if (.not.rtdb_put(rtdb,'nwpw:psi_history_pointer_start',
      >    mt_int,1,start)) then
-        call errquit('psi_history_shift',0)
+        call errquit('psi_history_shift',0, RTDB_ERR)
       end if
       return
       end
@@ -582,6 +587,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       subroutine psi_history_adder()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -599,7 +605,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
       rtdb = control_rtdb()
       if (.not.rtdb_put(rtdb,'nwpw:psi_history_size',
      >    mt_int,1,size)) then
-        call errquit('psi_history_adder',0)
+        call errquit('psi_history_adder',0, RTDB_ERR)
       end if
 
       return
@@ -642,6 +648,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       subroutine ion_write_filename(filename)
       implicit none 
+#include "errquit.fh"
       character*(*) filename
 
 #include "mafdecls.fh"
@@ -668,7 +675,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
 
       nion = ion_nion()
       value = MA_push_get(mt_dbl,3*nion,'rion',rion(2),rion(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       do i=1,nion
          rx = ion_rion(1,i)

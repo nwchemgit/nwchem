@@ -1,7 +1,7 @@
       subroutine fock_upd_blk( nfock, vfock, ilo, ihi,
      $     jlo, jhi, fac, buf, tmp )
 c     
-c     $Id: fock_upd_blk.F,v 1.1 1995-12-13 01:25:13 d3g681 Exp $
+c     $Id: fock_upd_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
 c     
       implicit none
 #include "global.fh"
@@ -41,8 +41,9 @@ c
 c     
       end
       subroutine upd_atom_block(g_array, basis, iat, jat, buf)
-C$Id: fock_upd_blk.F,v 1.1 1995-12-13 01:25:13 d3g681 Exp $
+C$Id: fock_upd_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 c
@@ -54,9 +55,9 @@ c
 c     add atom block buf info of the matrix g_array (over basis functions)
 c
       if (.not. bas_ce2bfr(basis, iat, ilo, ihi))
-     $     call errquit('upd_atom_block: ce2bfr failed', 0)
+     $     call errquit('upd_atom_block: ce2bfr failed', 0, BASIS_ERR)
       if (.not. bas_ce2bfr(basis, jat, jlo, jhi))
-     $     call errquit('upd_atom_block: ce2bfr failed', 0)
+     $     call errquit('upd_atom_block: ce2bfr failed', 0, BASIS_ERR)
 c
       idim = ihi - ilo + 1
       jdim = jhi - jlo + 1

@@ -1,10 +1,11 @@
 c
-c $Id: cpmd_input.F,v 1.9 2002-10-09 21:08:00 bylaska Exp $
+c $Id: cpmd_input.F,v 1.10 2003-10-17 22:57:13 carlfahl Exp $
 c
 
 
       subroutine cpmd_input(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -101,13 +102,13 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'cpmd_input: inp_read failed', 0)
+     >           'cpmd_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'cpmd_input: failed to read keyword', 0)
+     >           'cpmd_input: failed to read keyword', 0, INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'cpmd_input: unknown directive', 0)
+     >           'cpmd_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100,100,  200, 300,300, 400,400, 500,500, 600,600, 
@@ -118,18 +119,19 @@ c
      >       2500,2600,2700,2800,2900,
      >      9999) ind
       call errquit(
-     >      'psp_formatter_input: unimplemented directive', ind)
+     >      'psp_formatter_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 c     
 c  cell_name
 c     
  100  if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'cpmd_input: failed to read cell_name', 0)
+     >          'cpmd_input: failed to read cell_name', 0, INPUT_ERR)
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:cell_name',1,cell_name(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing cell_name', 100)
+     > call errquit('cpmd_input: writing cell_name', 100, RTDB_ERR)
       goto 10
 c
 c geometry_optimize
@@ -138,126 +140,129 @@ c
       value = rtdb_put(rtdb,'cpmd:geometry_optimize',mt_log,1,
      >                       geometry_optimize)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 200)
+     > call errquit('cpmd_input: writing ', 200, RTDB_ERR)
       goto 10
 c
 c  formatted_psp_filename
 c 
  300  if (.not. inp_a(test))
      >     call errquit(
-     >          'cpmd_input: failed to read psp_filename', 0)
+     >          'cpmd_input: failed to read psp_filename', 0, INPUT_ERR)
       npsp = npsp + 1
       id = 'cpmd:psp'//CHAR(npsp)
       ind = index(test,' ') - 1
          if (.not. rtdb_cput(rtdb,id,
      >                    1,test(1:ind)))
      >        call errquit(
-     >        'cpmd_input: rtdb_cput failed', 0)
+     >        'cpmd_input: rtdb_cput failed', 0, RTDB_ERR)
       value = rtdb_put(rtdb,'cpmd:npsp',     mt_int,1,npsp)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 300)
+     > call errquit('cpmd_input: writing ', 300, RTDB_ERR)
       goto 10
 c
 c  input_wavefunction_filename
 c 
  400  if (.not. inp_a(input_wavefunction_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read input_wavefunctions', 0)
+     >          'cpmd_input: failed to read input_wavefunctions', 0,
+     &       INPUT_ERR)
       ind = index(input_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 400)
+     > call errquit('cpmd_input: writing ', 400, RTDB_ERR)
       goto 10
 c
 c  output_wavefunction_filename
 c 
  500  if (.not. inp_a(output_wavefunction_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read output_wavefunction', 0)
+     >          'cpmd_input: failed to read output_wavefunction', 0,
+     &       INPUT_ERR)
       ind = index(output_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 500)
+     > call errquit('cpmd_input: writing ', 500, RTDB_ERR)
       goto 10
 c
 c  fake_mass
 c 
  600  if (.not. inp_f(fake_mass))
      >     call errquit(
-     >          'cpmd_input: failed to read fake_mass', 0)
+     >          'cpmd_input: failed to read fake_mass', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:fake_mass',mt_dbl,1,fake_mass)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 600)
+     > call errquit('cpmd_input: writing ', 600, RTDB_ERR)
       goto 10
 c
 c  time_step
 c 
  700  if (.not. inp_f(time_step))
      >     call errquit(
-     >          'cpmd_input: failed to read time_step', 0)
+     >          'cpmd_input: failed to read time_step', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:time_step',mt_dbl,1,time_step)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 700)
+     > call errquit('cpmd_input: writing ', 700, RTDB_ERR)
       goto 10
 c
 c  loop
 c 
  800  if (.not. inp_i(loop(1)))
      >     call errquit(
-     >          'cpmd_input: failed to read loop', 0)
+     >          'cpmd_input: failed to read loop', 0, INPUT_ERR)
       if (.not. inp_i(loop(2)))
      >     call errquit(
-     >          'cpmd_input: failed to read loop', 0)
+     >          'cpmd_input: failed to read loop', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:loop',mt_int,2,loop)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 800)
+     > call errquit('cpmd_input: writing ', 800, RTDB_ERR)
       goto 10
 c
 c  scaling
 c 
  900  if (.not. inp_f(scaling(1)))
      >     call errquit(
-     >          'cpmd_input: failed to read scaling', 0)
+     >          'cpmd_input: failed to read scaling', 0, INPUT_ERR)
       if (.not. inp_f(scaling(2)))
      >     call errquit(
-     >          'cpmd_input: failed to read scaling', 0)
+     >          'cpmd_input: failed to read scaling', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:scaling',mt_dbl,2,scaling)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 900)
+     > call errquit('cpmd_input: writing ', 900, RTDB_ERR)
       goto 10
 c
 c  energy_cutoff
 c 
  1000 if (.not. inp_f(ecut))
      >     call errquit(
-     >          'cpmd_input: failed to read ecut', 0)
+     >          'cpmd_input: failed to read ecut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:ecut',mt_dbl,1,ecut)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1000)
+     > call errquit('cpmd_input: writing ', 1000, RTDB_ERR)
       goto 10
 c
 c  wavefunction_cutoff
 c 
  1100 if (.not. inp_f(wcut))
      >     call errquit(
-     >          'cpmd_input: failed to read wcut', 0)
+     >          'cpmd_input: failed to read wcut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1100)
+     > call errquit('cpmd_input: writing ', 1100, RTDB_ERR)
       goto 10
 c
 c  input_v_wavefunction_filename
 c 
  1200 if (.not. inp_a(input_v_wavefunction_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read input_v_wavefunction', 0)
+     >          'cpmd_input: failed to read input_v_wavefunction', 0,
+     &       INPUT_ERR)
       ind = index(input_v_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:input_v_wavefunction_filename',
      >                    1,input_v_wavefunction_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1200)
+     > call errquit('cpmd_input: writing ', 1200, RTDB_ERR)
 
       goto 10
 c
@@ -265,56 +270,58 @@ c  output_v_wavefunction_filename
 c 
  1300 if (.not. inp_a(output_v_wavefunction_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read output_v_wavefunction', 0)
+     >          'cpmd_input: failed to read output_v_wavefunction', 0,
+     &       INPUT_ERR)
       ind = index(output_v_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:output_v_wavefunction_filename',
      >                    1,output_v_wavefunction_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1300)
+     > call errquit('cpmd_input: writing ', 1300, RTDB_ERR)
       goto 10
 c
 c  ewald_rcut
 c 
  1400 if (.not. inp_f(rcut))
      >     call errquit(
-     >          'cpmd_input: failed to read rcut', 0)
+     >          'cpmd_input: failed to read rcut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:rcut',mt_dbl,1,rcut)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1400)
+     > call errquit('cpmd_input: writing ', 1400, RTDB_ERR)
       goto 10
 c
 c  ewald_ncut
 c 
  1500 if (.not. inp_i(ncut))
      >     call errquit(
-     >          'cpmd_input: failed to read ncut', 0)
+     >          'cpmd_input: failed to read ncut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpmd:ncut',mt_int,1,ncut)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1500)
+     > call errquit('cpmd_input: writing ', 1500, RTDB_ERR)
       goto 10
 c
 c  xyz_filename
 c 
  1600 if (.not. inp_a(xyz_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read xyz_filename', 0)
+     >          'cpmd_input: failed to read xyz_filename', 0, INPUT_ERR)
       ind = index(xyz_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:xyz_filename',
      >                    1,xyz_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1600)
+     > call errquit('cpmd_input: writing ', 1600, RTDB_ERR)
       goto 10
 c
 c  exchange_correlation
 c 
  1700  if (.not. inp_a(exchange_correlation))
      >     call errquit(
-     >          'cpmd_input: failed to read exchange_correlation', 0)
+     >          'cpmd_input: failed to read exchange_correlation', 0,
+     &       INPUT_ERR)
       ind = index(exchange_correlation,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1700)
+     > call errquit('cpmd_input: writing ', 1700, RTDB_ERR)
       goto 10
 c
 c fractional_coordinates
@@ -323,7 +330,7 @@ c
       value = rtdb_put(rtdb,'cpmd:fractional_coordinates',mt_log,1,
      >                       frac_coord)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1800)
+     > call errquit('cpmd_input: writing ', 1800, RTDB_ERR)
       goto 10
 c
 c Nose-Hoover
@@ -347,67 +354,72 @@ c
       value = value.and.rtdb_put(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
       value = value.and.rtdb_put(rtdb,'cpmd:Tr',mt_dbl,1,Tr)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 1900)
+     > call errquit('cpmd_input: writing ', 1900, RTDB_ERR)
       goto 10
 c
 c  emotion_filename
 c 
  2000 if (.not. inp_a(emotion_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read emotion_filename', 0)
+     >          'cpmd_input: failed to read emotion_filename', 0,
+     &       INPUT_ERR)
       ind = index(emotion_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:emotion_filename',
      >                    1,emotion_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2000)
+     > call errquit('cpmd_input: writing ', 2000, RTDB_ERR)
       goto 10
 c
 c  eigmotion_filename
 c 
  2100 if (.not. inp_a(eigmotion_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read eigmotion_filename', 0)
+     >          'cpmd_input: failed to read eigmotion_filename', 0,
+     &       INPUT_ERR)
       ind = index(eigmotion_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:eigmotion_filename',
      >                    1,eigmotion_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2100)
+     > call errquit('cpmd_input: writing ', 2100, RTDB_ERR)
       goto 10
 c
 c  hmotion_filename
 c 
  2200 if (.not. inp_a(hmotion_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read hmotion_filename', 0)
+     >          'cpmd_input: failed to read hmotion_filename', 0,
+     &       INPUT_ERR)
       ind = index(hmotion_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:hmotion_filename',
      >                    1,hmotion_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2200)
+     > call errquit('cpmd_input: writing ', 2200, RTDB_ERR)
       goto 10
 c
 c  omotion_filename
 c 
  2300 if (.not. inp_a(omotion_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read omotion_filename', 0)
+     >          'cpmd_input: failed to read omotion_filename', 0,
+     &       INPUT_ERR)
       ind = index(omotion_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:omotion_filename',
      >                    1,omotion_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2300)
+     > call errquit('cpmd_input: writing ', 2300, RTDB_ERR)
       goto 10
 c
 c  ion_motion_filename
 c 
  2400 if (.not. inp_a(ion_motion_filename))
      >     call errquit(
-     >          'cpmd_input: failed to read ion_motion_filename', 0)
+     >          'cpmd_input: failed to read ion_motion_filename', 0,
+     &       INPUT_ERR)
       ind = index(ion_motion_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpmd:ion_motion_filename',
      >                    1,ion_motion_filename(1:ind))
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2400)
+     > call errquit('cpmd_input: writing ', 2400, RTDB_ERR)
       goto 10
 c
 c Mulliken
@@ -416,7 +428,7 @@ c
       value = rtdb_put(rtdb,'cpmd:mulliken',mt_log,1,
      >                       mulliken)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2500)
+     > call errquit('cpmd_input: writing ', 2500, RTDB_ERR)
       goto 10
 c
 c energy
@@ -424,7 +436,7 @@ c
  2600 nose = .false.
       value = rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
       if (.not.value)
-     > call errquit('cpmd_input: writing ', 2600)
+     > call errquit('cpmd_input: writing ', 2600, RTDB_ERR)
       goto 10
 c
 c SA_decay
@@ -435,21 +447,21 @@ c
      >     scaling(2) = 1.0d0           !*** in units of picoseconds ***
       value = rtdb_put(rtdb,'cpmd:sa_decay',mt_dbl,2,scaling)
       if (.not.value)
-     > call errquit('cpmd_input: writing sa_decay', 2700)
+     > call errquit('cpmd_input: writing sa_decay', 2700, RTDB_ERR)
       goto 10
 c
 c Fei
 c
  2800 value = .true.
       if (.not.rtdb_put(rtdb,'cpmd:fei',mt_log,1,value))
-     > call errquit('cpmd_input: writing fei ', 2800)
+     > call errquit('cpmd_input: writing fei ', 2800, RTDB_ERR)
       goto 10
 c
 c Fei Quench
 c
  2900 value = .true.
       if (.not.rtdb_put(rtdb,'cpmd:fei_quench',mt_log,1,value))
-     > call errquit('cpmd_input: writing fei quench ', 2900)
+     > call errquit('cpmd_input: writing fei quench ', 2900, RTDB_ERR)
       goto 10
 
 
@@ -460,6 +472,7 @@ c
 
       subroutine cpmd_input_default(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -633,7 +646,7 @@ c     output_v_wavefunction_filename = ' '
 *     ***** Error writing to RTDB *****
       if (.not.value)
      >  call errquit(
-     >       'cpmd_default: error writing to rtdb', 0)
+     >       'cpmd_default: error writing to rtdb', 0, RTDB_ERR)
 
       return
       end

@@ -1,9 +1,10 @@
       subroutine ga_mat_to_vec(g_m, ilo, ihi, jlo, jhi, g_v, klo, col,
      $           scale, op)
 *
-* $Id: ga_mat_to_vec.F,v 1.4 2003-07-29 15:18:42 edo Exp $
+* $Id: ga_mat_to_vec.F,v 1.5 2003-10-17 22:54:32 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 c
@@ -62,7 +63,7 @@ c
                 call ga_acc(g_v, k, k+numi-1, col, col, dbl_mb(ioff), 1,
      $                      scale)
               else
-                call errquit('ga_mat_to_vec: bad op', 0)
+                call errquit('ga_mat_to_vec: bad op', 0, GA_ERR)
               endif
            enddo
            call ga_release(g_m,iplo,iphi,jplo,jphi)

@@ -1,5 +1,5 @@
 c
-c $Id: G_init.F,v 1.5 2003-06-26 21:15:37 bylaska Exp $
+c $Id: G_init.F,v 1.6 2003-10-17 22:56:44 carlfahl Exp $
 c
 
       integer function G_indx(i)
@@ -20,6 +20,7 @@ c
 
       subroutine G_init()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -51,7 +52,7 @@ c
 *       **** allocate G_block common block ****
         call D3dB_nfft3d(1,nfft3d)
         value = MA_alloc_get(mt_dbl,(3*nfft3d),'G',g_hndl,G(1))
-        if (.not. value) call errquit('out of heap memory',0)
+        if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
         G(2) = G(1) + nfft3d
         G(3) = G(2) + nfft3d

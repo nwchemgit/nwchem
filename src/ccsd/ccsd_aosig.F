@@ -3,7 +3,8 @@
      &                      mem2,max2e,tol2e,g_nt2,g_nz2,g_nhz2,g_tz1,
      &                      g_tz2)
       implicit none
-C     $Id: ccsd_aosig.F,v 2.6 1997-11-14 19:25:43 d3g681 Exp $
+#include "errquit.fh"
+C     $Id: ccsd_aosig.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
       integer nsh,nocc,nvir,nbf,next,icnt,basis,max2e,mem2
       integer ish,jsh,ksh,lsh,ilo,ihi,jlo,jhi,klo,khi,llo,lhi
       integer g_ilo,g_ihi,g_jlo,g_jhi
@@ -31,16 +32,16 @@ C
 c
       if (.not.ga_create(MT_DBL,lnof,lnof,'tmp',
      &                   nbf,nbf,g_tmp))
-     &     call errquit('ga_create g_tmp failed',0)
+     &     call errquit('ga_create g_tmp failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnof,lnof,'tmp2',
      &                   nbf,nbf,g_tmp2))
-     &     call errquit('ga_create g_tmp2 failed',0)
+     &     call errquit('ga_create g_tmp2 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnof,lnof,'tmp3',
      &                   nbf,nbf,g_tmp3))
-     &     call errquit('ga_create g_tmp3 failed',0)
+     &     call errquit('ga_create g_tmp3 failed',0, GA_ERR)
       if (.not.ga_create(MT_DBL,lnof,lnof,'tmp4',
      &                   nbf,nbf,g_tmp4))
-     &     call errquit('ga_create g_tmp4 failed',0)
+     &     call errquit('ga_create g_tmp4 failed',0, GA_ERR)
 c
 c     Back transform the intermediates
 c
@@ -161,11 +162,11 @@ c
       call dfill(nbf*nbf,0.0d00,hzao,1)
       do ish=1,nsh
         if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
-     $      call errquit('aosig: bas_cn2bfr',ish)
+     $      call errquit('aosig: bas_cn2bfr',ish, BASIS_ERR)
         nfi=ihi-ilo+1
         do jsh=1,nsh
           if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
-     $        call errquit('aosig: bas_cn2bfr',jsh)
+     $        call errquit('aosig: bas_cn2bfr',jsh, BASIS_ERR)
           nfj=jhi-jlo+1
 c
 c // parallel task here
@@ -173,11 +174,11 @@ c // parallel task here
           if (icnt.eq.next)then
             do ksh=1,nsh
               if (.not. bas_cn2bfr(basis,ksh,klo,khi))
-     $            call errquit('aosig: bas_cn2bfr',ksh)
+     $            call errquit('aosig: bas_cn2bfr',ksh, BASIS_ERR)
               nfk=khi-klo+1
               do lsh=1,nsh
                 If (.not. bas_cn2bfr(basis,lsh,llo,lhi))
-     $              call errquit('aosig: bas_cn2bfr',lsh)
+     $              call errquit('aosig: bas_cn2bfr',lsh, BASIS_ERR)
                 nfl=lhi-llo+1
                 lnijkl=nfi*nfj*nfk*nfl
                 schwarz1=schwarz_shell(ish,jsh)*schwarz_shell(ksh,lsh)
@@ -252,13 +253,13 @@ c
       enddo
 c
       if (.not.ga_destroy(g_tmp4))
-     &    call errquit('ga_dest g_tmp4 fail',0)
+     &    call errquit('ga_dest g_tmp4 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp3))
-     &    call errquit('ga_dest g_tmp3 fail',0)
+     &    call errquit('ga_dest g_tmp3 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp2))
-     &    call errquit('ga_dest g_tmp2 fail',0)
+     &    call errquit('ga_dest g_tmp2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_tmp))
-     &    call errquit('ga_dest g_tmp fail',0)
+     &    call errquit('ga_dest g_tmp fail',0, GA_ERR)
       return
       end
       subroutine z2eri(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,eri1,eri2,

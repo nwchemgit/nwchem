@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.26 2000-10-23 23:37:48 windus Exp $
+c  $Id: moints_6x.F,v 1.27 2003-10-17 22:55:26 carlfahl Exp $
 c
 c
 c  This routine returns the Coulomb and exchange integral
@@ -35,6 +35,7 @@ c
      $                            g_exch, oexch,
      $                            blen, oblk )
        implicit none
+#include "errquit.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -109,11 +110,12 @@ c
        ttotal = util_cpusec()
        num_nodes = ga_nnodes()
        if (.not. bas_geom(basis, geom)) call errquit
-     $      ('moints: cannot get geometry', 0)
+     $      ('moints: cannot get geometry', 0, GEOM_ERR)
        status = bas_numbf(basis,nbf)
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
-       if (.not.status) call errquit('moints: cannot get basis info',0)
+       if (.not.status) call errquit('moints: cannot get basis info',0,
+     &       BASIS_ERR)
        qlo  = min(occ_start,mo2_lo,mo1_lo)
        qhi  = max(mo1_hi,mo2_hi)
        nmo  = qhi - qlo + 1
@@ -125,11 +127,13 @@ c
        osym = (ousesym.and.(sym_number_ops(geom).gt.0))
        if (osym) then
           if (.not. ma_push_get(MT_INT, nbf, 'movec syms',l_sym, k_sym))
-     $         call errquit('moints_6x: no memory for syms?',0)
+     $         call errquit('moints_6x: no memory for syms?',0,
+     &       MA_ERR)
           call sym_movecs_adapt(basis, 1d-8, g_movecs, int_mb(k_sym),
      $                          nmixed)
           if (nmixed .ne. 0)
-     $         call errquit('moints_6x: symmetry contamination', nmixed)
+     $         call errquit('moints_6x: symmetry contamination', nmixed,
+     &       INPUT_ERR)
           do i =0, nbf-1
              int_mb(k_sym+i) = int_mb(k_sym+i) - 1
           enddo
@@ -203,7 +207,7 @@ c
        status = ma_push_get(MT_DBL,n_hlp,'hlp block',l_hlp,k_hlp)
        status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
        if (.not.(status)) call errquit
-     $      ('moints_6x: cannot allocate local memory',0)
+     $      ('moints_6x: cannot allocate local memory',0, MA_ERR)
 c
 c Initialize
 c
@@ -440,31 +444,31 @@ c
 c Clean-up
 c
        if (.not. ma_pop_stack(l_ssni))
-     $     call errquit('moints: failed to pop', l_ssni)
+     $     call errquit('moints: failed to pop', l_ssni, MA_ERR)
        if (.not. ma_pop_stack(l_hlp))
-     $     call errquit('moints: failed to pop', l_hlp)
+     $     call errquit('moints: failed to pop', l_hlp, MA_ERR)
        if (.not. ma_pop_stack(l_ssbbt))
-     $     call errquit('moints: failed to pop', l_ssbbt)
+     $     call errquit('moints: failed to pop', l_ssbbt, MA_ERR)
        if (.not. ma_pop_stack(l_ssbb))
-     $     call errquit('moints: failed to pop', l_ssbb)
+     $     call errquit('moints: failed to pop', l_ssbb, MA_ERR)
        if (.not. ma_pop_stack(l_xmo))
-     $     call errquit('moints: failed to pop', l_xmo)
+     $     call errquit('moints: failed to pop', l_xmo, MA_ERR)
        if (.not. ma_pop_stack(l_rbfmap))
-     $     call errquit('moints: failed to pop', l_rbfmap)
+     $     call errquit('moints: failed to pop', l_rbfmap, MA_ERR)
        if (.not. ma_pop_stack(l_bfmap))
-     $     call errquit('moints: failed to pop', l_bfmap)
+     $     call errquit('moints: failed to pop', l_bfmap, MA_ERR)
        if (.not. ma_pop_stack(l_ghi))
-     $     call errquit('moints: failed to pop', l_ghi)
+     $     call errquit('moints: failed to pop', l_ghi, MA_ERR)
        if (.not. ma_pop_stack(l_glo))
-     $     call errquit('moints: failed to pop', l_glo)
+     $     call errquit('moints: failed to pop', l_glo, MA_ERR)
        if (.not. ma_pop_stack(l_shmap))
-     $     call errquit('moints: failed to pop', l_shmap)
+     $     call errquit('moints: failed to pop', l_shmap, MA_ERR)
        if (.not. ma_pop_stack(l_gmap))
-     $     call errquit('moints: failed to pop', l_gmap)
+     $     call errquit('moints: failed to pop', l_gmap, MA_ERR)
        if (.not. ma_pop_stack(l_iscr))
-     $     call errquit('moints: failed to pop', l_iscr)
+     $     call errquit('moints: failed to pop', l_iscr, MA_ERR)
        if (.not. ma_pop_stack(l_eri))
-     $     call errquit('moints: failed to pop', l_eri)
+     $     call errquit('moints: failed to pop', l_eri, MA_ERR)
 c
 c 
 c
@@ -504,12 +508,12 @@ c
 c  Clean-up
 c
        if (.not. ma_pop_stack(l_hlp))
-     $     call errquit('moints: failed to pop', l_hlp)
+     $     call errquit('moints: failed to pop', l_hlp, MA_ERR)
        if (.not. ma_pop_stack(l_mo))
-     $     call errquit('moints: failed to pop', l_mo)
+     $     call errquit('moints: failed to pop', l_mo, MA_ERR)
        if (osym) then
           if (.not. ma_pop_stack(l_sym))
-     $         call errquit('moints_2x: memory corrupt',0)
+     $         call errquit('moints_2x: memory corrupt',0, MA_ERR)
        endif
 c
 c
@@ -589,6 +593,7 @@ c
      $                           kblo, kbhi, lblo, lbhi,
      $                           sbsb, sbsbt, oblk )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "schwarz.fh"
@@ -621,7 +626,8 @@ c
         mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
         imem = 4*mxshq + 4*erilen
         if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
-     $     call errquit('moints6x_gblkk: no memory for labels',imem)
+     $     call errquit('moints6x_gblkk: no memory for labels',imem,
+     &       MA_ERR)
         k_iv = k_tmp
         k_jv = k_tmp + mxshq
         k_kv = k_tmp + 2*mxshq
@@ -642,7 +648,7 @@ c
      $                          int_mb(k_il), int_mb(k_jl),
      $                          int_mb(k_kl), int_mb(k_ll) )
         if (.not.ma_pop_stack(l_tmp))
-     $    call errquit('moints6x_gblkk: failed to pop',0)
+     $    call errquit('moints6x_gblkk: failed to pop',0, MA_ERR)
       endif
       return
       end
@@ -754,6 +760,7 @@ c
      $                              ishv, jshv, kshv, lshv,
      $                              ilab, jlab, klab, llab )
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
       integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
@@ -797,7 +804,8 @@ c
           if ((schwarz_shell(ish,kk)*schwarz_shell(jsh,ll))
      $                .ge.tol2e) then
             if (nshq.eq.mxshq)
-     $         call errquit('moints6x_gblkk: internal error',0)
+     $         call errquit('moints6x_gblkk: internal error',0,
+     &       UNKNOWN_ERR)
             nshq = nshq + 1
             kshv(nshq) = kk
             lshv(nshq) = ll
@@ -812,7 +820,8 @@ c
       if (.not. intb_init4c( basis, ishv, kshv, basis, jshv, lshv,
      $     nshq, q4, use_q4, 
      $     scrlen, iscr, erilen, beffect ))
-     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0,
+     &       INT_ERR)
 c
 c  Get some batch of integrals
 c
@@ -846,7 +855,7 @@ c
           if ((schwarz_shell(ish,ll)*schwarz_shell(jsh,kk))
      $                .ge.tol2e) then
             if (nshq.eq.mxshq)
-     $         call errquit('moints6x_gblkk: internal error',0)
+     $         call errquit('moints6x_gblkk: internal error',0, INT_ERR)
             nshq = nshq + 1
             kshv(nshq) = kk
             lshv(nshq) = ll
@@ -861,7 +870,7 @@ c
       if (.not. intb_init4c( basis, ishv, lshv, basis, jshv, kshv,
      $     nshq, q4, use_q4,
      $     scrlen, iscr, erilen, beffect ))
-     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0, INT_ERR)
 c
 c  Get some batch of integrals
 c
@@ -954,6 +963,7 @@ c
      $                           kblo, kbhi, lblo, lbhi,
      $                           sbsb, sbst )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "schwarz.fh"
@@ -998,7 +1008,8 @@ c
      $                                   lblo, lbhi, kblo, kbhi,
      $                                   sbst )
           if (.not.(status)) call errquit(
-     $        'moints_6x_gblkk: inconsistent AO disk records',0)
+     $        'moints_6x_gblkk: inconsistent AO disk records',0,
+     &       INT_ERR)
         else
           call dcopy( blklen, sbsb, 1, sbst, 1 )
         endif
@@ -1011,7 +1022,8 @@ c
         mxshq = (kshhi - kshlo + 1)*(lshhi - lshlo + 1)
         imem = 4*mxshq + 4*erilen
         if (.not. ma_push_get(MT_INT, imem, 'gblk tmp',l_tmp, k_tmp))
-     $     call errquit('moints6x_gblkk: no memory for labels',imem)
+     $     call errquit('moints6x_gblkk: no memory for labels',imem,
+     &       INT_ERR)
         k_iv = k_tmp
         k_jv = k_tmp + mxshq
         k_kv = k_tmp + 2*mxshq
@@ -1033,7 +1045,7 @@ c
      $                          int_mb(k_il), int_mb(k_jl),
      $                          int_mb(k_kl), int_mb(k_ll) )
         if (.not.ma_pop_stack(l_tmp))
-     $    call errquit('moints6x_gblkk: failed to pop',0)
+     $    call errquit('moints6x_gblkk: failed to pop',0, MA_ERR)
       else
         call moints6x_gblkk_sq( basis, ish, jsh,
      $                          kshlo, kshhi, lshlo, lshhi,
@@ -1173,6 +1185,7 @@ c
      $                              ishv, jshv, kshv, lshv,
      $                              ilab, jlab, klab, llab )
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
       integer basis, ish, jsh, kshlo, kshhi, lshlo, lshhi
@@ -1218,7 +1231,7 @@ c
           if ((schwarz_shell(ish,ksh)*schwarz_shell(jsh,lsh))
      $                .ge.tol2e) then
             if (nshq.eq.mxshq)
-     $         call errquit('moints6x_gblkk: internal error',0)
+     $         call errquit('moints6x_gblkk: internal error',0, INT_ERR)
             nshq = nshq + 1
             kshv(nshq) = ksh
             lshv(nshq) = lsh
@@ -1233,7 +1246,7 @@ c
       if (.not. intb_init4c( basis, ishv, kshv, basis, jshv, lshv,
      $     nshq, q4, use_q4,
      $     scrlen, iscr, erilen, beffect ))
-     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0, INT_ERR)
 c
 c  Get some batch of integrals
 c
@@ -1269,7 +1282,7 @@ c
           if ((schwarz_shell(ish,lsh)*schwarz_shell(jsh,ksh))
      $                .ge.tol2e) then
             if (nshq.eq.mxshq)
-     $         call errquit('moints6x_gblkk: internal error',0)
+     $         call errquit('moints6x_gblkk: internal error',0, INT_ERR)
             nshq = nshq + 1
             kshv(nshq) = ksh
             lshv(nshq) = lsh
@@ -1284,7 +1297,7 @@ c
       if (.not. intb_init4c( basis, ishv, lshv, basis, jshv, kshv,
      $     nshq, q4, use_q4, 
      $     scrlen, iscr, erilen, beffect ))
-     $   call errquit('moints6x_gblkk: intb_init4c failed',0)
+     $   call errquit('moints6x_gblkk: intb_init4c failed',0, INT_ERR)
 c
 c  Get some batch of integrals
 c

@@ -14,9 +14,10 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.44 2003-07-12 20:50:45 edo Exp $
+* $Id: mp2_grad_doit.F,v 1.45 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "cmp2ps.fh"
@@ -112,7 +113,7 @@ c
          call sym_group_name(geom,group_name)
          if(.not.sym_char_table(group_name,nop,nir,iclass_dim,
      $        zir,zclass,chars))
-     $        call errquit('mp2_grad: no char table',0)
+     $        call errquit('mp2_grad: no char table',0, INPUT_ERR)
       else
          nir = 1
       endif
@@ -176,7 +177,7 @@ c
             if(ga_nodeid().eq.0) goto 999
          end if
       end do
-      call errquit('mp2_grad:insufficient resources',1)
+      call errquit('mp2_grad:insufficient resources',1, INPUT_ERR)
  999  continue
       if (oprint_mem) then
          write(6,*)
@@ -184,7 +185,7 @@ c
       end if
 c     
       if (npasses .gt. 100) call errquit
-     $     ('mp2_grad: too many passes',npasses)
+     $     ('mp2_grad: too many passes',npasses, CALC_ERR)
 c     
       npass=0
       do oseg_lo=noa_lo,noa_hi,num_i_perseg
@@ -222,20 +223,22 @@ c
 c     Note that for RHF we share memory between alpha and beta mos
 c     
          if(.not.ma_push_get(mt_dbl,nbf*nmo,'amos',l_amos,k_amos))
-     $        call errquit('mp2_grad_doit: error with ma',1)
+     $        call errquit('mp2_grad_doit: error with ma',1, MA_ERR)
          if (scftype .eq. 'UHF') then
             if(.not.ma_push_get(mt_dbl,nbf*nmo,'bmos',l_bmos,k_bmos))
-     $           call errquit('mp2_grad_doit: error with ma',1)
+     $           call errquit('mp2_grad_doit: error with ma',1, MA_ERR)
          else
             k_bmos = k_amos
          endif
 c
          if(.not.ma_push_get(mt_int,nva*nir,'toff_a',
      $        l_toff_a,k_toff_a))
-     $        call errquit('mp2_grad_doit: could not alloc toff_a',1)
+     $        call errquit('mp2_grad_doit: could not alloc toff_a',1,
+     &       MA_ERR)
          if(.not.ma_push_get(mt_int,nvb*nir,'toff_b',
      $        l_toff_b,k_toff_b))
-     $        call errquit('mp2_grad_doit: could not alloc toff_b',1)
+     $        call errquit('mp2_grad_doit: could not alloc toff_b',1,
+     &       MA_ERR)
 c
          if (ga_nodeid() .eq. 0) then
             call ga_get(g_vecs_a,1,nbf,1,nmo,dbl_mb(k_amos),nbf)
@@ -248,20 +251,24 @@ c
 c     
          call util_file_name('kh',.true.,.true.,fnamek)
          if (eaf_open(fnamek, EAF_RW, kunit).ne.0)
-     $     call errquit('mp2_grad_doit: cannot open half int file',1)
+     $     call errquit('mp2_grad_doit: cannot open half int file',1,
+     &       DISK_ERR)
          call moints_vrange(kunit,nva_lo_local,nva_hi_local,nnbf,ioff)
 c     
          if(.not.ma_push_get(mt_int,(nnbf+mod(nnbf,2)),'scatter',
-     $        l_v,k_v))call errquit('mp2_grad: could not alloc k_v',1)
+     $        l_v,k_v))call errquit('mp2_grad: could not alloc k_v',1,
+     &       MA_ERR)
          call moints_getscattv(kunit,nnbf,int_mb(k_v))
 c     
          if(task.eq.'gradient')then
             call util_file_name('ta',.true.,.true.,fnameta)
             call util_file_name('tb',.true.,.true.,fnametb)
             if (eaf_open(fnameta,eaf_rw,tunita) .ne. 0)
-     $           call errquit('mp2_grad: eaf open of ta failed',0)
+     $           call errquit('mp2_grad: eaf open of ta failed',0,
+     &       DISK_ERR)
             if (eaf_open(fnametb,eaf_rw,tunitb) .ne. 0)
-     $           call errquit('mp2_grad: eaf open of tb failed',0)
+     $           call errquit('mp2_grad: eaf open of tb failed',0,
+     &       DISK_ERR)
          end if
          call pstat_on(ps_maket)
          call mp2_make_tuhf(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
@@ -283,16 +290,16 @@ c
          if(task.eq.'gradient')then
             if(.not.ma_push_get(mt_dbl,noa*nva,
      $           't_a_in',l_t_a_in,k_t_a_in))call errquit
-     $           ('mp2_grad: could not alloc t_a',1)
+     $           ('mp2_grad: could not alloc t_a',1, MA_ERR)
             if(.not.ma_push_get(mt_dbl,nob*nvb,
      $           't_b_in',l_t_b_in,k_t_b_in))call errquit
-     $           ('mp2_grad: could not alloc t_b',1)
+     $           ('mp2_grad: could not alloc t_b',1, MA_ERR)
             if(.not.ma_push_get(mt_dbl,noa*nva,
      $           't_eps_a',l_t_eps_a,k_t_eps_a))call errquit
-     $           ('mp2_grad: could not alloc t_eps_a',1)
+     $           ('mp2_grad: could not alloc t_eps_a',1, MA_ERR)
             if(.not.ma_push_get(mt_dbl,nob*nvb,
      $           't_eps_b',l_t_eps_b,k_t_eps_b))call errquit
-     $           ('mp2_grad: could not alloc t_eps_b',1)
+     $           ('mp2_grad: could not alloc t_eps_b',1, MA_ERR)
 c     
             call pstat_on(ps_pijab)
             call mp2_pijab_uhf(nva_lo,nva_hi,sym_lo_oa,
@@ -330,7 +337,7 @@ c
             end if
 c     
             if (.not. ma_chop_stack(l_t_a_in)) call errquit
-     $            ('mp2_grad: failed chopping at t_a_in', 0)
+     $            ('mp2_grad: failed chopping at t_a_in', 0, MA_ERR)
 *            if(.not.ma_pop_stack(l_t_eps_b))
 *     $           call errquit('could not pop stack',1)
 *            if(.not.ma_pop_stack(l_t_eps_a))
@@ -343,30 +350,32 @@ c
             if(.not.ma_push_get(mt_dbl, 
      $           max(max(nva,noa_frozen)*nva,max(nvb,nob_frozen)*nvb),
      $           'vvvo',l_vvvo,k_vvvo))
-     $           call errquit('mp2_grad: could not alloc vvvo',1)
+     $           call errquit('mp2_grad: could not alloc vvvo',1,
+     &       MA_ERR)
             if(.not.ma_push_get(mt_dbl, 
      $           max(max(noa,noa_frozen)*noa,max(nob,nob_frozen)*nob),
      $           'vooo',l_vooo,k_vooo))
-     $           call errquit('mp2_grad: could not alloc vooo',1)
+     $           call errquit('mp2_grad: could not alloc vooo',1,
+     &       MA_ERR)
 c
             if(.not.ma_push_get(mt_dbl,noa*nva,'lai3_a',
      $           l_lai3_a,k_lai3_a))call errquit
-     $           ('mp2_grad: could not alloc lai3_a',1)
+     $           ('mp2_grad: could not alloc lai3_a',1, MA_ERR)
             if(.not.ma_push_get(mt_dbl,nob*nvb,'lai3_b',
      $           l_lai3_b,k_lai3_b))call errquit
-     $           ('mp2_grad: could not alloc lai3_b',1)
+     $           ('mp2_grad: could not alloc lai3_b',1, MA_ERR)
 c
             if(.not.ma_push_get(mt_dbl,max(noa*nva,nob*nvb),
      $           't_a_in',l_t_a_in,k_t_a_in))call errquit
-     $           ('mp2_grad: could not alloc t_a',1)
+     $           ('mp2_grad: could not alloc t_a',1, MA_ERR)
 c
             if (noa_frozen .gt. 0) then
                if(.not.ma_push_get(mt_dbl,noa_frozen*noa,'lyi3_a',
      $              l_liy3_a,k_liy3_a))call errquit
-     $              ('mp2_grad: could not alloc lyi3_a',1)
+     $              ('mp2_grad: could not alloc lyi3_a',1, MA_ERR)
                if(.not.ma_push_get(mt_dbl,nob_frozen*nob,'lyi3_b',
      $              l_liy3_b,k_liy3_b))call errquit
-     $              ('mp2_grad: could not alloc lyi3_b',1)
+     $              ('mp2_grad: could not alloc lyi3_b',1, MA_ERR)
             else
                k_liy3_a = 1     ! To ensure valid pointer
                k_liy3_b = 1
@@ -374,15 +383,17 @@ c
 c
             if(.not.ma_push_get(mt_dbl,(noa+noa_frozen)*nva,'lai1_a',
      $           l_lai1_a,k_lai1_a))call errquit
-     $           ('mp2_grad: could not alloc lai1_a',1)
+     $           ('mp2_grad: could not alloc lai1_a',1, MA_ERR)
             if(.not.ma_push_get(mt_dbl,(nob+nob_frozen)*nvb,'lai1_b',
      $           l_lai1_b,k_lai1_b)) call errquit(
      $           'could not alloc lai1_b',1)
 c
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'jb_ia',l_jb_ia,k_jb_ia))
-     $           call errquit('mp2_grad: could not alloc jb_ia',1) ! ia_uv
+     $           call errquit('mp2_grad: could not alloc jb_ia',1, 
+     $             MA_ERR) ! ia_uv
             if(.not.ma_push_get(mt_dbl,nbf*nbf,'temp',l_temp,k_temp))
-     $           call errquit('mp2_grad: could not alloc temp',1)
+     $           call errquit('mp2_grad: could not alloc temp',1,
+     &       MA_ERR)
 c     
             call pstat_on(ps_lai)
             call mp2_lai_uhf(nva_lo,nva_hi,sym_lo_oa,sym_hi_oa,
@@ -411,10 +422,11 @@ c
             end if
 c     
             if(.not. ma_chop_stack(l_toff_a)) call errquit(
-     $           'mp2_grad_doit: failed chopping l_toff_a',0)
+     $           'mp2_grad_doit: failed chopping l_toff_a',0, MA_ERR)
 c     
             if (eaf_close(kunit).ne.0)
-     $        call errquit('mp2_grad_doit: close half int file',0)
+     $        call errquit('mp2_grad_doit: close half int file',0,
+     &       DISK_ERR)
             call util_file_unlink(fnamek)
 c     
             call mp2_nonsep_uhf( rtdb, geom,
@@ -442,19 +454,19 @@ c
                call eaf_print_stats(tunitb)
             end if
             if (eaf_close(tunita) .ne. 0) call errquit
-     $           ('mp2_grad: error closing ta',0)
+     $           ('mp2_grad: error closing ta',0, DISK_ERR)
             if (eaf_close(tunitb) .ne. 0) call errquit
-     $           ('mp2_grad: error closing tb',0)
+     $           ('mp2_grad: error closing tb',0, DISK_ERR)
             call util_file_unlink(fnameta)
             call util_file_unlink(fnametb)
          end if
          if(.not.ma_chop_stack(l_amos))call errquit(
-     $        'mp2_grad: could not chop stack at amos',1)
+     $        'mp2_grad: could not chop stack at amos',1, MA_ERR)
       end do
 c     
       if (task .ne. 'gradient') then
         if (eaf_close(kunit).ne.0)
-     $    call errquit('mp2_grad: problem closing kunit',0)
+     $    call errquit('mp2_grad: problem closing kunit',0, DISK_ERR)
          call util_file_unlink(fnamek)
       end if
 c     

@@ -44,6 +44,7 @@ c
       end
       subroutine uccsdt_init(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "amplitudes.fh"
 #include "bas.fh"
@@ -107,21 +108,21 @@ c
 c     load the geometry/basis set, initialize the integrals
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('uccsdt: geom_create?', 0)
+     $     call errquit('uccsdt: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('uccsdt: no geometry ', 0)
+     $     call errquit('uccsdt: no geometry ', 0, RTDB_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('uccsdt: bas_create?', 0)
+     $     call errquit('uccsdt: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
-     $     call errquit('uccsdt: no ao basis set', 0)
+     $     call errquit('uccsdt: no ao basis set', 0, RTDB_ERR)
       if (.not. bas_numbf(basis, nbf))
-     $     call errquit('uccsdt: bas_numbf?',0)
+     $     call errquit('uccsdt: bas_numbf?',0, BASIS_ERR)
       if (.not. bas_numcont(basis, nsh))
-     $     call errquit('uccsdt: bas_numcont?',0)
+     $     call errquit('uccsdt: bas_numcont?',0, BASIS_ERR)
 c
       if (nbf.gt.nw_max_nbf_small .or. nsh.gt.nw_max_shells_small)
      $     call errquit('uccsdt: nbf or nsh too large - modify'//
-     $     ' *_small in nwc_const.fh',0)
+     $     ' *_small in nwc_const.fh',0, BASIS_ERR)
 c
 c     Other CCSD(T) options
 c
@@ -134,7 +135,7 @@ c
       if (ga_nodeid() .eq. 0) then
          if (util_print('geometry',print_high)) then
             if (.not. geom_print(geom))
-     $        call errquit('uccsdt: geom_print', 0)
+     $        call errquit('uccsdt: geom_print', 0, GEOM_ERR)
             write(6,*)
          endif
          if (util_print('symmetry', print_debug)) then
@@ -144,11 +145,12 @@ c
          endif
          if (util_print('basis summary', print_default)) then
             if (.not.bas_summary_print(basis))
-     $           call errquit('uccsdt: basis summary print failed',911)
+     $           call errquit('uccsdt: basis summary print failed',911,
+     &       BASIS_ERR)
          endif
          if (util_print('basis', print_high)) then
             if (.not. bas_print(basis)) 
-     $           call errquit('uccsdt: bas_print', 0)
+     $           call errquit('uccsdt: bas_print', 0, BASIS_ERR)
             write(6,*)
          endif
          if (nir.gt.1 .and. util_print('basis sym', print_default)) then
@@ -161,14 +163,14 @@ c     note that bf_per_ir is recomputed below
          endif
          if (util_print('geombas', print_debug)) then
             if (.not. gbs_map_print(basis)) 
-     $           call errquit('uccsdt:gmp', 0)
+     $           call errquit('uccsdt:gmp', 0, UNKNOWN_ERR)
             write(6,*)
          endif
          call util_flush(6)
       endif
 c
       if (.not.int_normalize(rtdb, basis))
-     $           call errquit('uccsdt:int_normalize failed', 0)
+     $           call errquit('uccsdt:int_normalize failed', 0, INT_ERR)
       call int_init(rtdb,1, basis)
       call schwarz_init(geom, basis)
 c
@@ -191,17 +193,20 @@ c
 c     Read the header on the MO vecs file
 c
       if (.not. rtdb_cget(rtdb,'scf:input vectors',1,movecs)) 
-     $     call errquit('uccsdt: no SCF MO vectors',0)
+     $     call errquit('uccsdt: no SCF MO vectors',0, RTDB_ERR)
       if(.not.movecs_read_header(movecs,title_vecs,basis_vecs,
      $     scftypevecs, nbf_vecs,nsets,nmos,2))
-     $     call errquit('uccsdt: problem with movecs_read_header',1)
-      if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0)
+     $     call errquit('uccsdt: problem with movecs_read_header',1,
+     &       DISK_ERR)
+      if(nbf.ne.nbf_vecs)call errquit('mp2: MO vectors mismatch?',0,
+     &       INPUT_ERR)
       nmo = nmos(1)
 c
 c     Figure out frozen core options
 c
       if(.not. geom_freeze(rtdb, geom, 'uccsdt', nc(1))) then
-         call errquit('semi_direct_uccsd: unable get get frozen core',0)
+         call errquit('semi_direct_uccsd: unable get get frozen core',0,
+     &       GEOM_ERR)
       endif
  
       nc(2) = nc(1)
@@ -210,21 +215,21 @@ c     From the no. of electrons etc, figure out the no. of occupied
 c     and virtuals for each spin.
 c
       if(.not.rtdb_cget(rtdb,'scf:scftype',1,scftype))
-     $     call errquit('mp2:scftype absent',1)
+     $     call errquit('mp2:scftype absent',1, RTDB_ERR)
       if(scftype.eq.'UHF')then
          if(.not.rtdb_get(rtdb,'scf:nalpha',mt_int,1,nalpha))
-     $        call errquit('no alphas',1)
+     $        call errquit('no alphas',1, RTDB_ERR)
          if(.not.rtdb_get(rtdb,'scf:nbeta',mt_int,1,nbeta))
-     $        call errquit('no betas',1)
+     $        call errquit('no betas',1, RTDB_ERR)
       else if(scftype.eq.'RHF')then
          if(.not.rtdb_get(rtdb,'scf:nclosed',mt_int,1,nocc))
-     $        call errquit('no occ',1)
+     $        call errquit('no occ',1, RTDB_ERR)
          nalpha=nocc
          nbeta=nocc
       else if(scftype.eq.'ROHF')then
-         call errquit('uccsdt: ROHF not yet supported',0)
+         call errquit('uccsdt: ROHF not yet supported',0, CAPMIS_ERR)
       else
-         call errquit('uccsdt: unknown SCFTYPE ', 0)
+         call errquit('uccsdt: unknown SCFTYPE ', 0, INPUT_ERR)
       end if
       no(1) = nalpha - nc(1)
       no(2) = nbeta  - nc(2)
@@ -235,41 +240,43 @@ c
 c     Get the MO vectors, swap and then symmetry block them
 c     
       if(.not.ga_create(mt_dbl,nbf,nmo,'alpha vec',nbf,0,g_movecs(1)))
-     $     call errquit('mp2_energy: ga_create failed',0)
+     $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nmo,'beta vec',nbf,0, g_movecs(2)))
-     $     call errquit('mp2_energy: ga_create failed',0)
+     $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
 c
       if (.not. ma_push_get(mt_dbl,nmo*nbf,'alpha mo',
      $     l_movecs(1), k_movecs(1))) 
-     $     call errquit('uccsdt:cannot allocate MA for vectors',nbf*nmo)
+     $     call errquit('uccsdt:cannot allocate MA for vectors',nbf*nmo,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,nmo*nbf,'beta mo',
      $     l_movecs(2), k_movecs(2))) 
-     $     call errquit('uccsdt:cannot allocate MA for vectors',nbf*nmo)
+     $     call errquit('uccsdt:cannot allocate MA for vectors',nbf*nmo,
+     &       MA_ERR)
 c      
 c     Temporary allocations for reading MOs and symmetry reordering
 c
       if(.not.ma_push_get(mt_dbl,nbf*2,'occ alpha',
      $     l_occ_a,k_occ_a))      
-     $     call errquit('uccsdt: ma problem with alpha occ',1)
+     $     call errquit('uccsdt: ma problem with alpha occ',1, MA_ERR)
       k_occ_b = k_occ_a + nbf   ! So that are contiguous for swap. Ugh.
       if(.not.ma_push_get(mt_int,nbf,'irs_a',l_irs_a,k_irs_a))
-     $     call errquit('uccsdt: memory?',nmo)
+     $     call errquit('uccsdt: memory?',nmo, MA_ERR)
       if(.not.ma_push_get(mt_int,nbf,'irs_b',l_irs_b,k_irs_b))
-     $     call errquit('uccsdt: memory?',nmo)
+     $     call errquit('uccsdt: memory?',nmo, MA_ERR)
 c     
       k_irs(1) = k_irs_a ! for symmetry adaption indexed by spin
       k_irs(2) = k_irs_b
 c
       if(.not.ma_push_get(mt_dbl,nbf,'work',l_work,k_work))
-     $     call errquit('uccsdt: work?',nbf)
+     $     call errquit('uccsdt: work?',nbf, MA_ERR)
 c     
       if(.not.movecs_read(movecs,1,dbl_mb(k_occ_a),
      $     eps(1,1),g_movecs(1)))
-     $     call errquit('uccsdt:could not read alpha vecs',1)
+     $     call errquit('uccsdt:could not read alpha vecs',1, DISK_ERR)
       if(scftype.eq.'UHF')then
          if(.not.movecs_read(movecs,2,dbl_mb(k_occ_b),
      $        eps(1,2), g_movecs(2)))
-     $        call errquit('could not read beta vecs',1)
+     $        call errquit('could not read beta vecs',1, DISK_ERR)
       endif
 c
       call movecs_swap(rtdb, 'uccsdt', scftype, g_movecs,
@@ -328,7 +335,7 @@ c     Virtual
 c
          lo = hi + 1
          hi = lo + nv(ispin) - 1
-         if (hi .ne. nmo) call errquit('nmo is confused',0)
+         if (hi .ne. nmo) call errquit('nmo is confused',0, UNKNOWN_ERR)
          if (nv(ispin) .gt. 0) then
             call moints_vecs_sym_sort(g_movecs(ispin),nbf,lo,hi,
      $           int_mb(k_irs(ispin)),map(1,ispin),
@@ -351,7 +358,7 @@ c
 c     Get rid of all the temporary workspace
 c
       if (.not. ma_chop_stack(l_occ_a)) call errquit
-     $     ('uccsdt_init: ma corrupted?',0)
+     $     ('uccsdt_init: ma corrupted?',0, MA_ERR)
 c
 c     Get local copies of the MO coefficients
 c
@@ -361,13 +368,13 @@ c
 c     Allocate the hole/particle matrices
 c
       if(.not.ga_create(mt_dbl,nbf,nmo,'alpha hole',nbf,0,g_hole(1)))
-     $     call errquit('mp2_energy: ga_create failed',0)
+     $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nmo,'beta hole',nbf,0, g_hole(2)))
-     $     call errquit('mp2_energy: ga_create failed',0)
+     $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nmo,'alpha part',nbf,0,g_part(1)))
-     $     call errquit('mp2_energy: ga_create failed',0)
+     $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
       if(.not.ga_create(mt_dbl,nbf,nmo,'beta part',nbf,0, g_part(2)))
-     $     call errquit('mp2_energy: ga_create failed',0)
+     $     call errquit('mp2_energy: ga_create failed',0, GA_ERR)
 
 c
 c     Let the user know what's going on
@@ -462,7 +469,7 @@ c
 c     Initialize the amplitude access info and file handling
 c
       if (.not. uccsdt_ampfile_init(rtdb)) call errquit
-     $     ('uccsdt: failed initializing amplitude info',0)
+     $     ('uccsdt: failed initializing amplitude info',0, CALC_ERR)
 c
 c$$$c$$$      call soints_sovecs(nbf,nmo,dbl_mb(k_movecs(1)))
 c$$$c$$$      stop 
@@ -506,6 +513,7 @@ c
       end
       subroutine uccsdt_tidy(rtdb)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -518,32 +526,32 @@ c
       call int_terminate
 c
       if (.not. ga_destroy(g_movecs(1))) 
-     $     call errquit('uccsdt_tidy: ga_destroy?',1)
+     $     call errquit('uccsdt_tidy: ga_destroy?',1, GA_ERR)
       if (.not. ga_destroy(g_movecs(2))) 
-     $     call errquit('uccsdt_tidy: ga_destroy?',2)
+     $     call errquit('uccsdt_tidy: ga_destroy?',2, GA_ERR)
       if (.not. ga_destroy(g_hole(1))) 
-     $     call errquit('uccsdt_tidy: ga_destroy?',1)
+     $     call errquit('uccsdt_tidy: ga_destroy?',1, GA_ERR)
       if (.not. ga_destroy(g_hole(2))) 
-     $     call errquit('uccsdt_tidy: ga_destroy?',2)
+     $     call errquit('uccsdt_tidy: ga_destroy?',2, GA_ERR)
       if (.not. ga_destroy(g_part(1))) 
-     $     call errquit('uccsdt_tidy: ga_destroy?',1)
+     $     call errquit('uccsdt_tidy: ga_destroy?',1, GA_ERR)
       if (.not. ga_destroy(g_part(2))) 
-     $     call errquit('uccsdt_tidy: ga_destroy?',2)
+     $     call errquit('uccsdt_tidy: ga_destroy?',2, GA_ERR)
 c
 *      call ma_summarize_allocated_blocks()
 c
       if (.not. ma_pop_stack(l_movecs(2)))
-     $     call errquit('uccsdt_tidy: ma_pop?',2)
+     $     call errquit('uccsdt_tidy: ma_pop?',2, MA_ERR)
       if (.not. ma_pop_stack(l_movecs(1)))
-     $     call errquit('uccsdt_tidy: ma_pop?',1)
+     $     call errquit('uccsdt_tidy: ma_pop?',1, MA_ERR)
 c
       if (.not. bas_destroy(basis))
-     $     call errquit('uccsdt_tidy: basis?', 0)
+     $     call errquit('uccsdt_tidy: basis?', 0, BASIS_ERR)
       if (.not. geom_destroy(geom))
-     $     call errquit('uccsdt_tidy: geom?', 0)
+     $     call errquit('uccsdt_tidy: geom?', 0, GEOM_ERR)
 c
       if (.not. uccsdt_ampfile_tidy()) 
-     $     call errquit('uccsdt_tidy: ampfile?',0)
+     $     call errquit('uccsdt_tidy: ampfile?',0, UNKNOWN_ERR)
 c
       call ma_summarize_allocated_blocks()
       call ga_summarize(0)
@@ -551,6 +559,7 @@ c
       end
       double precision function uccsdt_triples_sub_blocked()
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "util.fh"
 #include "global.fh"
@@ -615,44 +624,53 @@ c
       lentbuf = max(e_block_max*vblock_max*oblock_max**2,
      &              m_block_max*oblock_max*vblock_max**2)
       if (.not.ma_push_get(mt_dbl,lentbuf,'tbuf',l_tbuf,k_tbuf))
-     $   call errquit('uccsdt: tbuf?',lentbuf)
+     $   call errquit('uccsdt: tbuf?',lentbuf, MA_ERR)
 c
       lenibuf = max(e_block_max*oblock_max*vblock_max**2,
      &              m_block_max*vblock_max*oblock_max**2)
       if (.not.ma_push_get(mt_dbl,lenibuf,'ibuf',l_ibuf,k_ibuf))
-     $   call errquit('uccsdt: ibuf?',lenibuf)
+     $   call errquit('uccsdt: ibuf?',lenibuf, MA_ERR)
 c
       lenwbuf = (vblock_max*oblock_max)**3
       if (.not.ma_push_get(mt_dbl,lenwbuf,'wbuf',l_wbuf,k_wbuf))
-     $   call errquit('uccsdt: wbuf?',lenwbuf)
+     $   call errquit('uccsdt: wbuf?',lenwbuf, MA_ERR)
 c
       len9ibuf = (vblock_max*oblock_max)**2
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_abij',l_ibuf_abij,
-     $   k_ibuf_abij))call errquit('uccsdt: ibuf_abij?',len9ibuf)
+     $   k_ibuf_abij))call errquit('uccsdt: ibuf_abij?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_abjk',l_ibuf_abjk,
-     $   k_ibuf_abjk))call errquit('uccsdt: ibuf_abjk?',len9ibuf)
+     $   k_ibuf_abjk))call errquit('uccsdt: ibuf_abjk?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_abik',l_ibuf_abik,
-     $   k_ibuf_abik))call errquit('uccsdt: ibuf_abik?',len9ibuf)
+     $   k_ibuf_abik))call errquit('uccsdt: ibuf_abik?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_bcij',l_ibuf_bcij,
-     $   k_ibuf_bcij))call errquit('uccsdt: ibuf_bcij?',len9ibuf)
+     $   k_ibuf_bcij))call errquit('uccsdt: ibuf_bcij?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acij',l_ibuf_acij,
-     $   k_ibuf_acij))call errquit('uccsdt: ibuf_acij?',len9ibuf)
+     $   k_ibuf_acij))call errquit('uccsdt: ibuf_acij?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_bcjk',l_ibuf_bcjk,
-     $   k_ibuf_bcjk))call errquit('uccsdt: ibuf_bcjk?',len9ibuf)
+     $   k_ibuf_bcjk))call errquit('uccsdt: ibuf_bcjk?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acjk',l_ibuf_acjk,
-     $   k_ibuf_acjk))call errquit('uccsdt: ibuf_acjk?',len9ibuf)
+     $   k_ibuf_acjk))call errquit('uccsdt: ibuf_acjk?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_bcik',l_ibuf_bcik,
-     $   k_ibuf_bcik))call errquit('uccsdt: ibuf_bcik?',len9ibuf)
+     $   k_ibuf_bcik))call errquit('uccsdt: ibuf_bcik?',len9ibuf,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,len9ibuf,'ibuf_acik',l_ibuf_acik,
-     $   k_ibuf_acik))call errquit('uccsdt: ibuf_acik?',len9ibuf)
+     $   k_ibuf_acik))call errquit('uccsdt: ibuf_acik?',len9ibuf,
+     &       MA_ERR)
 c
       z_block_max = max(e_block_max,m_block_max)
       lenrbuf = z_block_max*vblock_max**2
       if (.not.ma_push_get(mt_dbl,lenrbuf,'rbuf',l_rbuf,k_rbuf))
-     $   call errquit('uccsdt: rbuf?',lenrbuf)
+     $   call errquit('uccsdt: rbuf?',lenrbuf, MA_ERR)
       lenxbuf = oblock_max*vblock_max**3
       if (.not.ma_push_get(mt_dbl,lenxbuf,'xbuf',l_xbuf,k_xbuf))
-     $   call errquit('uccsdt: xbuf?',lenxbuf)
+     $   call errquit('uccsdt: xbuf?',lenxbuf, MA_ERR)
 c
 **      write(6,*)' e_block_max, m_block_max, oblock_max, vblock_max: ',
 **     &            e_block_max, m_block_max, oblock_max, vblock_max
@@ -1325,7 +1343,8 @@ c
          end do
       end do
 c
-      if (.not. ma_chop_stack(l_tbuf)) call errquit('ma tbuf chop?',0)
+      if (.not. ma_chop_stack(l_tbuf)) call errquit('ma tbuf chop?',0,
+     &       MA_ERR)
 c
       next = nxtval(-nproc)
       call ga_sync()
@@ -1339,6 +1358,7 @@ c
      $     max_nsuper_block, nasuper, ncsuper, a_super_block,
      $     c_super_block)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "util.fh"
 #include "mafdecls.fh"
@@ -1425,7 +1445,7 @@ c
 c     MAXSH is the largest shell dimension
 c
       if (.not. bas_nbf_cn_max(basis, maxsh)) call errquit
-     $     ('uccsdt: bas_nbf_cn_max?', 0)
+     $     ('uccsdt: bas_nbf_cn_max?', 0, BASIS_ERR)
 c
 c     WBLOCKDIM is used to limit the amount of memory needed
 c     to store AO integrals ... the bigger it is the more
@@ -1596,7 +1616,8 @@ c
       end do
 c
       if (numasuper_best .eq. -1) 
-     $     call errquit('uccsdt: failed to find a good blocking', 0)
+     $     call errquit('uccsdt: failed to find a good blocking', 0,
+     &       UNKNOWN_ERR)
 c
 c     Restore the best choice
 c
@@ -1632,6 +1653,7 @@ c
      $     (alo, ahi, blo, bhi, clo, chi, spina, spinc,
      $     oprint, odryrun, ma_used, ga_used)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -2007,7 +2029,8 @@ c
             if (.not. ma_push_get(mt_int,2*listinfo(1,list),
      $           listname(list), listinfo(3,list), listinfo(2,list))) 
      $           call errquit
-     $           ('uccsdt_triples_set_super_block: ma of list?', list)
+     $           ('uccsdt_triples_set_super_block: ma of list?', list,
+     &       MA_ERR)
          end if
       end do
 c
@@ -2230,7 +2253,8 @@ c
                if (.not. ga_create(mt_dbl, listinfo(4,list), 1, 
      $              listname(list), 0, 0, listinfo(5,list))) 
      $              call errquit
-     $              ('uccsdt_triples_set_super_block: ga_create', list)
+     $              ('uccsdt_triples_set_super_block: ga_create', list,
+     &       GA_ERR)
                if (list .lt. 14) then
                  call ga_zero(listinfo(5,list))
                else
@@ -2375,6 +2399,7 @@ c
       end
       subroutine uccsdt_triples_sub_blocking_end()
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -2385,16 +2410,19 @@ c
 c
       do list = 23, 1, -1
          if (.not. ma_pop_stack(listinfo(3,list))) call errquit
-     $        ('uccsdt_triples_unset_super_block: ma overwrite?',list)
+     $        ('uccsdt_triples_unset_super_block: ma overwrite?',list,
+     &       MA_ERR)
          if (listinfo(5,list) .ne. 99999999) then
             if (.not. ga_destroy(listinfo(5,list))) call errquit
-     $           ('uccsdt_triples_unset_super_block: ga destroy?', list)
+     $           ('uccsdt_triples_unset_super_block: ga destroy?', list,
+     &       GA_ERR)
          end if
       end do
 c
       end
       subroutine uccsdt_triples(rtdb)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -2598,16 +2626,16 @@ C****     &               oloa, ohia, vloa, vhia,
 C****     &               olob, ohib, vlob, vhib)
 c
       if (.not. uccsdt_ampfile_open('fred','/tmp/fred','old',d_amp))
-     $     call errquit('open failed',0)
+     $     call errquit('open failed',0, DISK_ERR)
 c   
 c     Get t1 (both spins) temporarily into local arrays
 c
       lent1a = (nmo - nc(1) - no(1)) * no(1)
       if (.not. ma_push_get(mt_dbl, lent1a, 't1a', l_t1a, k_t1a))
-     $     call errquit('ma t1a', lent1a)
+     $     call errquit('ma t1a', lent1a, MA_ERR)
       lent1b = (nmo - nc(2) - no(2)) * no(2)
       if (.not. ma_push_get(mt_dbl, lent1b, 't1b', l_t1b, k_t1b))
-     $     call errquit('ma t1b', lent1b)
+     $     call errquit('ma t1b', lent1b, MA_ERR)
       call uccsdt_get_unpacked_t1(d_amp, 1, dbl_mb(k_t1a))
       call uccsdt_get_unpacked_t1(d_amp, 2, dbl_mb(k_t1b))
 c
@@ -2715,12 +2743,12 @@ c
 c     Temp write some energy to the RTDB
 c
       if ( .not. rtdb_put( rtdb, 'uccsdt:energy', mt_dbl, 1, total) ) 
-     $     call errquit('uccsdt: can''t write to rtdb', 14)
+     $     call errquit('uccsdt: can''t write to rtdb', 14, RTDB_ERR)
 c
 c     keep dra around for now (testing purposes only)
 c
       if (.not. uccsdt_ampfile_close(d_amp,.true.)) call errquit
-     $     ('close save failed',0)
+     $     ('close save failed',0, DISK_ERR)
 c
       call uccsdt_triples_moints_tidy()
       call uccsdt_flops_print()
@@ -2733,8 +2761,8 @@ C****      if (.not. ma_pop_stack(l_t1ar)) call errquit('t1ar?',0)
 C****      if (.not. ma_pop_stack(l_t2ab)) call errquit('t2ab?',0)
 C****      if (.not. ma_pop_stack(l_t2bb)) call errquit('t2bb?',0)
 C****      if (.not. ma_pop_stack(l_t2aa)) call errquit('t2aa?',0)
-      if (.not. ma_pop_stack(l_t1b)) call errquit('t1b?',0)
-      if (.not. ma_pop_stack(l_t1a)) call errquit('t1a?',0)
+      if (.not. ma_pop_stack(l_t1b)) call errquit('t1b?',0, MA_ERR)
+      if (.not. ma_pop_stack(l_t1a)) call errquit('t1a?',0, MA_ERR)
 *      if (.not. ma_pop_stack(l_moint)) call errquit('moint?',0)
 *      if (.not. ma_pop_stack(l_most)) call errquit('most?',0)
 c     
@@ -2744,6 +2772,7 @@ c
       subroutine sym_map_amps_t1(
      $     t1, t_buf, nv1, no1, spin)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
       integer nv1, no1
@@ -2777,6 +2806,7 @@ c     $     call errquit('x',1)
       subroutine sym_map_amps_t2(
      $     t2, t_buf, spin1, spin2)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "mafdecls.fh"
       double precision t2(nbf, nbf, nbf, nbf)
@@ -2879,6 +2909,7 @@ c
       end
       subroutine uccsdt_lambda(d_amp)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "amplitudes.fh"
 #include "global.fh"
@@ -2893,11 +2924,11 @@ c
       integer l_t1, k_t1, l_p, k_p, l_h, k_h, l_work, k_work, spin
 c
       if (.not. ma_push_get(mt_dbl, nmo*nmo, 'work',
-     $     l_work, k_work)) call errquit('uccsdt_lambda: ma?',1)
+     $     l_work, k_work)) call errquit('uccsdt_lambda: ma?',1, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nmo, 'work',
-     $     l_h, k_h)) call errquit('uccsdt_lambda: ma?',2)
+     $     l_h, k_h)) call errquit('uccsdt_lambda: ma?',2, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nmo, 'work',
-     $     l_p, k_p)) call errquit('uccsdt_lambda: ma?',3)
+     $     l_p, k_p)) call errquit('uccsdt_lambda: ma?',3, MA_ERR)
 c
       do spin = 1, 2
 c     
@@ -2905,7 +2936,7 @@ c     Get the symmetry unpacked T1 into a local array, transform
 c     and store the results.
 c
          if (.not. ma_push_get(mt_dbl, no(spin)*nv(spin), 'tmp',
-     $        l_t1, k_t1)) call errquit('uccsdt_lambda: MA?',0)
+     $        l_t1, k_t1)) call errquit('uccsdt_lambda: MA?',0, MA_ERR)
          call uccsdt_get_unpacked_t1(d_amp, spin, dbl_mb(k_t1))
          if (ga_nodeid() .eq. 0) then
             call uccsdt_do_lambda(nbf, nmo, nc(spin), no(spin),
@@ -2915,15 +2946,15 @@ c
             call ga_put(g_part(spin), 1, nbf, 1, nmo, dbl_mb(k_p), nbf)
          end if
          if (.not. ma_pop_stack(l_t1)) call errquit
-     $        ('uccsdt_lambda: ma?', 55)
+     $        ('uccsdt_lambda: ma?', 55, MA_ERR)
          call ga_sync()
       end do
       if (.not. ma_pop_stack(l_p)) call errquit
-     $     ('uccsdt_lambda: ma?', 56)
+     $     ('uccsdt_lambda: ma?', 56, MA_ERR)
       if (.not. ma_pop_stack(l_h)) call errquit
-     $     ('uccsdt_lambda: ma?', 57)
+     $     ('uccsdt_lambda: ma?', 57, MA_ERR)
       if (.not. ma_pop_stack(l_work)) call errquit
-     $     ('uccsdt_lambda: ma?', 58)
+     $     ('uccsdt_lambda: ma?', 58, MA_ERR)
 c
       do spin = 1, 2
          write(6,*) ' HOLE MOs ', spin
@@ -2975,6 +3006,7 @@ c
       end
       subroutine uccsdt_get_unpacked_t1(d_amp, spin, t1)
       implicit none
+#include "errquit.fh"
 #include "cuccsdtP.fh"
 #include "amplitudes.fh"
 #include "global.fh"
@@ -2993,14 +3025,15 @@ c     Read the packed amplitudes from disk into a GA and
 c     fetch into a local array
 c     
       if (.not. ma_push_get(mt_dbl, t1_len(spin), 'tmp',
-     $     l_tmp, k_tmp)) call errquit('uccsdt_get_t1: MA?',0)
+     $     l_tmp, k_tmp)) call errquit('uccsdt_get_t1: MA?',0, MA_ERR)
       if (.not. uccsdt_ampfile_read_t1(d_amp, spin, g_t1, .true.))
-     $     call errquit('uccsdt_get_t1: reading t1 failed', d_amp)
+     $     call errquit('uccsdt_get_t1: reading t1 failed', d_amp,
+     &       DISK_ERR)
       if (ga_nodeid() .eq. 0) call ga_get
      $     (g_t1, 1, t1_len(spin), 1, 1, dbl_mb(k_tmp), 1)
       call ga_brdcst(1, dbl_mb(k_tmp), 8*t1_len(spin), 0)
       if (.not. ga_destroy(g_t1)) call errquit
-     $     ('uccsdt_get_t1: GA?',0)
+     $     ('uccsdt_get_t1: GA?',0, GA_ERR)
 c
 c     Transpose into the symmetry unpacked output
 c
@@ -3025,7 +3058,7 @@ c      write(6,*) ' Full T1'
 c      call output(t1, 1, nv(spin), 1, no(spin), nv(spin), no(spin), 1)
 c
       if (.not. ma_pop_stack(l_tmp)) call errquit
-     $     ('uccsdt_get_t1: MA corrupt?',0)
+     $     ('uccsdt_get_t1: MA corrupt?',0, MA_ERR)
 c
       end
 

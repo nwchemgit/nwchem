@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.7 2002-02-13 20:02:07 edo Exp $
+* $Id: kbpp_orb.F,v 1.8 2003-10-17 22:57:16 carlfahl Exp $
 *
 *     **************************************
 *     *                                    *
@@ -11,6 +11,7 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -275,7 +276,7 @@
       kbpp_orb = value
       return
 
- 9999 call errquit('Error reading psp_filename',0)
+ 9999 call errquit('Error reading psp_filename',0, DISK_ERR)
 
       END
 

@@ -4,9 +4,10 @@
      $     nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $     evals_a, evals_b, g_p_tot_a, g_p_tot_b)
 *
-* $Id: mp2_make_tot_wdens.F,v 1.7 1999-06-16 00:10:23 d3e129 Exp $
+* $Id: mp2_make_tot_wdens.F,v 1.8 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer nbf,noa_hi,nva,nob_hi,nvb, nmo, noa_lo, nob_lo
@@ -34,11 +35,11 @@ c
 *ga:1:0
       if(.not.ga_create(mt_dbl,nva,noa_hi,'wai_a_tr',nva,0,
      $     g_w_ai_a_tr))call errquit(
-     $     'could not alloc wai_a_tr',1)
+     $     'could not alloc wai_a_tr',1, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nvb,nob_hi,'wai_b_tr',nvb,0,
      $     g_w_ai_b_tr))call errquit(
-     $     'could not alloc wai_b_tr',1)
+     $     'could not alloc wai_b_tr',1, GA_ERR)
 c     
       call ga_zero(g_w_tot_a)
       call ga_zero(g_w_tot_b)
@@ -63,9 +64,9 @@ c
      $     nob_hi+1,nmo,nob_hi+1,nmo)
 c
       if(.not.ga_destroy(g_w_ai_a_tr))call errquit(
-     $     'could not destroy g_w_ai_a_tr handle',1)
+     $     'could not destroy g_w_ai_a_tr handle',1, GA_ERR)
       if(.not.ga_destroy(g_w_ai_b_tr))call errquit(
-     $     'could not destroy g_w_ai_b_tr handle',1)
+     $     'could not destroy g_w_ai_b_tr handle',1, GA_ERR)
 c     
 c     Wij += - Ei Pij
 c     Wab += - Ea Pab
@@ -80,10 +81,10 @@ c...  transform to AO basis and write
 c     
 *ga:1:0
       if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',0,0,g_scratch))
-     $     call errquit('mp2_grad: scratch',1)
+     $     call errquit('mp2_grad: scratch',1, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',0,0,g_tmp))
-     $     call errquit('mp2_grad: scratch',2)
+     $     call errquit('mp2_grad: scratch',2, GA_ERR)
 c
       call ga_dgemm('n','t',nmo,nbf,nmo,one,g_w_tot_a,g_vecs_a,
      $     zero,g_scratch)
@@ -91,7 +92,7 @@ c
      $     zero,g_tmp)
       call ga_symmetrize(g_tmp)
       if(.not.file_write_ga(w_a_ao,g_tmp))
-     $     call errquit('mp2_grad: could not write w_tot_a',1)
+     $     call errquit('mp2_grad: could not write w_tot_a',1, DISK_ERR)
 c     
       call ga_dgemm('n','t',nmo,nbf,nmo,one,g_w_tot_b,g_vecs_b,
      $     zero,g_scratch)
@@ -99,12 +100,12 @@ c
      $     zero,g_tmp)
       call ga_symmetrize(g_tmp)
       if(.not.file_write_ga(w_b_ao,g_tmp))
-     $     call errquit('mp2_grad: could not write w_tot_b',1)
+     $     call errquit('mp2_grad: could not write w_tot_b',1, DISK_ERR)
 c     
       if(.not.ga_destroy(g_tmp))call errquit(
-     $     'mp2_grad: could not destroy g_scratch',1)
+     $     'mp2_grad: could not destroy g_scratch',1, GA_ERR)
       if(.not.ga_destroy(g_scratch))call errquit(
-     $     'mp2_grad: could not destroy g_scratch',1)
+     $     'mp2_grad: could not destroy g_scratch',1, GA_ERR)
       end
 
       subroutine mp2_w_hack(g_w, g_p, e, no, nv)

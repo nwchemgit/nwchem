@@ -1,8 +1,9 @@
       logical function rjhtest(rtdb)
 *     
-*     $Id: rjhtest.F,v 1.24 2000-03-21 21:28:19 d3g681 Exp $
+*     $Id: rjhtest.F,v 1.25 2003-10-17 22:54:39 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -33,36 +34,37 @@ c
 c     load the geometry/basis set and get info
 c
       if (.not. geom_create(geom, 'geometry'))
-     $     call errquit('scf_init: geom_create?', 0)
+     $     call errquit('scf_init: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $     call errquit('scf_init: no geometry ', 0)
+     $     call errquit('scf_init: no geometry ', 0, RTDB_ERR)
       if (.not. bas_create(basis, 'ao basis'))
-     $     call errquit('scf_init: bas_create?', 0)
+     $     call errquit('scf_init: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis')) 
-     $        call errquit('scf_init: no ao basis set', 0)
+     $        call errquit('scf_init: no ao basis set', 0, RTDB_ERR)
       if (.not.int_normalize(rtdb, basis))
-     $           call errquit('scf:int_normalize failed', 0)
+     $           call errquit('scf:int_normalize failed', 0, INT_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('scf_init: basis info',0)
+     $     ('scf_init: basis info',0, BASIS_ERR)
 c
 c     Read the MO vectors and evals from a UHF calculation
 c
       call util_file_name('movecs',.false.,.false.,movecs)
       if (.not. movecs_read_header(movecs, title, name_of_basis,
      $     scftype, nbf_file, nsets, nmo_file, 2)) call errquit
-     $     ('rjhtest: failed to read movecs header',0)
-      if (nsets.ne.2) call errquit('UHF ONLY!',0)
+     $     ('rjhtest: failed to read movecs header',0, DISK_ERR)
+      if (nsets.ne.2) call errquit('rjhtest:UHF ONLY!',0, INPUT_ERR)
       write(6,*) ' Read movecs header from ', movecs
       write(6,*) ' Job title :                ', 
      $     title(1:inp_strlen(title))
       write(6,*) ' Basis name:                ', 
      $     name_of_basis(1:inp_strlen(name_of_basis))
       nmo = nmo_file(1)
-      if (nmo_file(1).ne.nmo_file(2)) call errquit('Uh?',0)
+      if (nmo_file(1).ne.nmo_file(2)) call errquit('rjhtest:Uh?',0,
+     &       UNKNOWN_ERR)
       if (.not. rtdb_get(rtdb, 'scf:nalpha', mt_int, 1, nalpha))
-     $     call errquit('nalpha?',0)
+     $     call errquit('rjhtest:nalpha?',0, RTDB_ERR)
       if (.not. rtdb_get(rtdb, 'scf:nbeta', mt_int, 1, nbeta))
-     $     call errquit('nbeta?',0)
+     $     call errquit('nbeta?',0, RTDB_ERR)
       nocc = nalpha+nbeta
       nso  = nmo*2
       nvirt= nso - nocc
@@ -75,23 +77,25 @@ c
       write(6,*) ' No. of virtual SOs:        ', nvirt
 c
       if (.not. ga_create(mt_dbl, nbf, nmo, 'tmp', 1, 1, g_tmp))
-     &     call errquit('scf_v_g: tmp', 0)
+     &     call errquit('scf_v_g: tmp', 0, GA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'occ',l_occ, k_occ))
-     $     call errquit('ma occ', nbf)
+     $     call errquit('ma occ', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'aeval',l_aeval, k_aeval))
-     $     call errquit('ma eval', nbf)
+     $     call errquit('ma eval', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf,'beval',l_beval, k_beval))
-     $     call errquit('ma eval', nbf)
+     $     call errquit('ma eval', nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nbf,'amos', l_amos, k_amos))
-     $     call errquit('ma amos', nbf*nbf)
+     $     call errquit('ma amos', nbf*nbf, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nbf,'bmos', l_bmos, k_bmos))
-     $     call errquit('ma bmos', nbf*nbf)
+     $     call errquit('ma bmos', nbf*nbf, MA_ERR)
 c
       if (.not. movecs_read(movecs, 1, dbl_mb(k_occ), dbl_mb(k_aeval), 
-     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0,
+     &       DISK_ERR)
       call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_amos), nbf)
       if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), dbl_mb(k_beval), 
-     $     g_tmp)) call errquit('movecs_read of amos failed ',0)
+     $     g_tmp)) call errquit('movecs_read of amos failed ',0,
+     &       DISK_ERR)
       call ga_get(g_tmp, 1, nbf, 1, nmo, dbl_mb(k_bmos), nbf)
 c
       write(6,*) ' Alpha eigenvalues '
@@ -103,7 +107,7 @@ c$$$      call output(dbl_mb(k_amos),1,nbf,1,nmo,nbf,nmo,1)
 c$$$      write(6,*) ' Beta  MOs'
 c$$$      call output(dbl_mb(k_bmos),1,nbf,1,nmo,nbf,nmo,1)
 c
-      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0)
+      if (.not. ga_destroy(g_tmp)) call errquit(' ga bad?',0, GA_ERR)
 c
 c     So now have nalpha, nbeta, nmo, a/beval, a/bmos
 c
@@ -112,11 +116,11 @@ c
 c     beta occupied, alpha occupied, beta virtual, alpha virtual
 c
       if (.not. ma_push_get(mt_dbl, nbf*nso,'sos', l_sos, k_sos))
-     $     call errquit('ma sos', nbf*nso)
+     $     call errquit('ma sos', nbf*nso, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nso,'sos', l_seval, k_seval))
-     $     call errquit('ma seval', nso)
+     $     call errquit('ma seval', nso, MA_ERR)
       if (.not. ma_push_get(mt_int, nso,'sospin', l_sospin, k_sospin))
-     $     call errquit('ma sospin', nso)
+     $     call errquit('ma sospin', nso, MA_ERR)
       call rjh_munge_mo_to_so(nbf, nmo, nso, nalpha, nbeta,
      $     dbl_mb(k_aeval), dbl_mb(k_beval), dbl_mb(k_amos),
      $     dbl_mb(k_bmos), dbl_mb(k_seval), dbl_mb(k_sos),
@@ -136,17 +140,19 @@ c     Now do a brute force transformation to the spin-orbit basis
 c     zeroing out afterwards the components that are zero by spin
 c
       if (.not. ma_push_get(mt_dbl, nso**4,'soint', l_soint, k_soint))
-     $     call errquit('ma soint', nso**4)
+     $     call errquit('ma soint', nso**4, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nso**4,'tmp', l_tmp, k_tmp))
-     $     call errquit('ma tmp', nso**4)
+     $     call errquit('ma tmp', nso**4, MA_ERR)
       if (.not. ma_push_get(mt_dbl,nbf**4,'aoint',l_aoint,k_aoint))
-     $     call errquit('allocation of AO integrals failed',nbf**4)
+     $     call errquit('allocation of AO integrals failed',nbf**4,
+     &       MA_ERR)
 c
       call rjh_all_ao_integrals(rtdb,basis,nbf,'dirac',dbl_mb(k_aoint))
       call rjh_uhf_trans(nbf, nso, int_mb(k_sospin),
      $     dbl_mb(k_sos), dbl_mb(k_aoint), 
      $     dbl_mb(k_tmp), dbl_mb(k_soint))
-      if (.not. ma_chop_stack(l_tmp))call errquit('chopping from tmp',0)
+      if (.not. ma_chop_stack(l_tmp))call errquit('chopping from tmp',0,
+     &       MA_ERR)
 c
 c     Compute the MP2 energy from the plain SO integrals
 c
@@ -161,7 +167,8 @@ c     from them.  Write T2 to file T2.  Write a zero T1 to T1.
 c
       if (.not. ma_push_get(mt_dbl, (nocc**2)*(nvirt**2),'t2', 
      $     l_t2, k_t2))
-     $     call errquit('ma tmp', (nocc**2)*(nvirt**2))
+     $     call errquit('ma tmp', (nocc**2)*(nvirt**2),
+     &       MA_ERR)
 c
       call rjh_uhf_mp2_from_asoint(nocc, nvirt, nso, 
      $     dbl_mb(k_seval), dbl_mb(k_soint), dbl_mb(k_t2))
@@ -170,17 +177,18 @@ c     Now do some CC iterations
 c
       if (.not. ma_push_get(mt_dbl, (nocc**2)*(nvirt**2),'t1', 
      $     l_t1, k_t1))
-     $     call errquit('ma tmp', (nocc**2)*(nvirt**2))
+     $     call errquit('ma tmp', (nocc**2)*(nvirt**2),
+     &       MA_ERR)
       call dfill(nvirt*nocc, 0.0d0, dbl_mb(k_t1), 1)
       call rjh_t1_t2_spin_check(nocc,nvirt,nso,int_mb(k_sospin),
      $     dbl_mb(k_t1), dbl_mb(k_t2), 0)
 c
       if (.not. ma_push_get(mt_dbl, (nocc**2)*(nvirt**2),'r2', 
      $     l_r2, k_r2))
-     $     call errquit('ma tmp', (nocc**2)*(nvirt**2))
+     $     call errquit('ma tmp', (nocc**2)*(nvirt**2), MA_ERR)
       if (.not. ma_push_get(mt_dbl, (nocc**2)*(nvirt**2),'r1', 
      $     l_r1, k_r1))
-     $     call errquit('ma tmp', (nocc**2)*(nvirt**2))
+     $     call errquit('ma tmp', (nocc**2)*(nvirt**2), MA_ERR)
       do iter = 1, 50
          call rjh_uhf_cc_energy(nocc, nvirt, nso,
      $        dbl_mb(k_t1), dbl_mb(k_t2),
@@ -199,15 +207,17 @@ c
 c
 c     Tidy up
 c
-      if (.not. ma_chop_stack(l_occ)) call errquit(' ma chop?', 0)
-      if (.not. bas_destroy(basis)) call errquit(' bas ?',0)
-      if (.not. geom_destroy(geom)) call errquit(' geom ?',0)
+      if (.not. ma_chop_stack(l_occ)) call errquit(' ma chop?', 0,
+     &       MA_ERR)
+      if (.not. bas_destroy(basis)) call errquit(' bas ?',0, BASIS_ERR)
+      if (.not. geom_destroy(geom)) call errquit(' geom ?',0, GEOM_ERR)
 c
       rjhtest = .true.
 c
       end
       subroutine rjh_all_ao_integrals(rtdb, basis, nbf, order, ao)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
       integer rtdb, basis, nbf
@@ -219,26 +229,28 @@ c
 c
       call int_init(rtdb, 1, basis)
       if ( .not. bas_numcont(basis, nsh) ) call errquit(
-     $     'ao_fock_2e: problem with call to bas_numcont', basis)
+     $     'ao_fock_2e: problem with call to bas_numcont', basis,
+     &       BASIS_ERR)
       call int_mem_2e4c(maxg2,maxs2)
       if (.not. ma_push_get(mt_dbl,maxs2,'scr',l_scr, k_scr))
-     $   call errquit('ma scr',maxg2)
+     $   call errquit('ma scr',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_dbl,maxg2,'buf',l_buf, k_buf))
-     $   call errquit('ma buf',maxg2)
+     $   call errquit('ma buf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'i',l_i, k_i))
-     $   call errquit('ma ibuf',maxg2)
+     $   call errquit('ma ibuf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'j',l_j, k_j))
-     $   call errquit('ma jbuf',maxg2)
+     $   call errquit('ma jbuf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'k',l_k, k_k))
-     $   call errquit('ma kbuf',maxg2)
+     $   call errquit('ma kbuf',maxg2, MA_ERR)
       if (.not. ma_push_get(mt_int,maxg2,'l',l_l, k_l))
-     $   call errquit('ma lbuf',maxg2)
+     $   call errquit('ma lbuf',maxg2, MA_ERR)
 c
       call rjh_do_all_ao_integrals(basis, dbl_mb(k_buf), dbl_mb(k_scr),
      $     int_mb(k_i), int_mb(k_j), int_mb(k_k), int_mb(k_l),
      $     maxg2, maxs2, nbf, nsh, order, ao)
 c
-      if (.not. ma_chop_stack(l_scr)) call errquit('rjhallao: ma?',0)
+      if (.not. ma_chop_stack(l_scr)) call errquit('rjhallao: ma?',0,
+     &       MA_ERR)
 c
       call int_terminate
 c
@@ -247,6 +259,7 @@ c
      $     basis, buf, scr, ilab, jlab, klab,
      $  llab, maxg2, maxs2, nbf, nsh, order, ao)
       implicit none
+#include "errquit.fh"
 c
       integer basis, nbf, nsh, maxg2, maxs2
       double precision buf(maxg2), scr(maxs2)
@@ -262,7 +275,7 @@ c
       else if (order .eq. 'dirac') then
          omulliken = .false.
       else
-         call errquit(' unknown order',0)
+         call errquit(' unknown order',0, UNKNOWN_ERR)
       end if
 c
       call dfill(nbf**4, 0.0d0, ao, 1)
@@ -310,6 +323,7 @@ c
       subroutine rjh_munge_mo_to_so(nbf, nmo, nso, nalpha, nbeta,
      $     aeval, beval, amos, bmos, seval, sos, sospin)
       implicit none
+#include "errquit.fh"
       integer nbf, nmo, nso, nalpha, nbeta, sospin(nso)
       double precision aeval(nmo), beval(nmo), seval(nso)
       double precision amos(nbf,nmo), bmos(nbf,nmo), sos(nbf,nso)
@@ -351,7 +365,8 @@ c
          end do
       end do
 c
-      if (cnt .ne. nso) call errquit('munge: mismatch', cnt)
+      if (cnt .ne. nso) call errquit('munge: mismatch', cnt,
+     &       UNKNOWN_ERR)
 c
       end
 
@@ -594,6 +609,7 @@ c
       subroutine rjh_uhf_cc_rhs(nocc,nvirt,nso,sospin,
      $     t1,t2,eval,g,r1,r2)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 c
       integer nocc, nvirt, nso
@@ -632,7 +648,8 @@ c
       do i = 1, 14
          write(name,'(''temp'',i4)')
          if (.not. ma_push_get(mt_dbl, size(i), name, l_(i), k_(i)))
-     $        call errquit(' rjh_uhf_cc_rhs: error allocating ', i)
+     $        call errquit(' rjh_uhf_cc_rhs: error allocating ', i,
+     &       MA_ERR)
          call dfill(size(i), 0.0d0, dbl_mb(k_(i)), 1)
       end do
 c
@@ -657,7 +674,8 @@ c
 *     $     r1, r2, sospin)
 c
       if (.not. ma_chop_stack(l_(1))) call errquit
-     $     ('rjh_cc_prod: ma corrupt', 0)
+     $     ('rjh_cc_prod: ma corrupt', 0,
+     &       MA_ERR)
 c
       end
       subroutine rjh_uhf_cc_inter(nocc,nvirt,nso,t1,t2,eval,g,
@@ -1185,6 +1203,7 @@ c
       end
       subroutine rjh_t1_t2_spin_check(nocc,nvirt,nso,sospin,r1,r2,code)
       implicit none
+#include "errquit.fh"
       integer nocc, nvirt, nso, code, sospin(nso)
       double precision r1(nvirt,nocc)
       double precision r2(nvirt,nvirt,nocc,nocc)
@@ -1196,7 +1215,7 @@ c
      $           sospin(i).ne.sospin(a+nocc)) then
                write(6,*) ' Spin forbidden ', i, a, r1(a,i), 
      $              sospin(i), sospin(nocc+a)
-               call errquit(' bad t1 ', code)
+               call errquit(' bad t1 ', code, UNKNOWN_ERR)
             end if
          end do
       end do
@@ -1210,13 +1229,13 @@ c
      $                 then
                      write(6,*) ' Spin forbidden ', i, j, a, b, 
      $                    r2(a,b,i,j)
-                     call errquit(' bad t2 ', code)
+                     call errquit(' bad t2 ', code, UNKNOWN_ERR)
                   end if
                   if ((i.eq.j .or. a.eq.b) .and. 
      $                 abs(r2(a,b,i,j)).gt.1d-10) then
                      write(6,*) ' Non-zero diagonal t2 ',
      $                    i, j, a, b, r2(a,b,i,j)
-                     call errquit(' bad t2 ', code)
+                     call errquit(' bad t2 ', code, UNKNOWN_ERR)
                   end if
                end do
             end do

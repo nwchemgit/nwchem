@@ -9,13 +9,14 @@
      $     fij, fik, fli, fjk, flj, flk,
      $     tmp, tol2e, dentol)
       implicit none
+#include "errquit.fh"
 #include "schwarz.fh"
 #include "bas.fh"
 #include "cfock.fh"
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.32 2001-04-27 23:35:55 edo Exp $
+c     $Id: fock_2e_task.F,v 1.33 2003-10-17 22:54:32 carlfahl Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -54,29 +55,29 @@ c     With caching get density and flush necessary fock blocks
 c     and return magnitude of density blocks for screening
 c
       if (.not. bas_ce2bfr(basis, iatlo, ilo, junk))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
       if (.not. bas_ce2bfr(basis, iathi, junk, ihi))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
 c
       if (.not. bas_ce2bfr(basis, jatlo, jlo, junk))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
       if (.not. bas_ce2bfr(basis, jathi, junk, jhi))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
 c
       if (.not. bas_ce2bfr(basis, katlo, klo, junk))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
       if (.not. bas_ce2bfr(basis, kathi, junk, khi))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
 c
       if (.not. bas_ce2bfr(basis, latlo, llo, junk))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
       if (.not. bas_ce2bfr(basis, lathi, junk, lhi))
-     $     call errquit('fock_2e_task: ce2bfr failed', 0)
+     $     call errquit('fock_2e_task: ce2bfr failed', 0, BASIS_ERR)
 c
       if (owritefile) then
          if (.not. int2e_set_bf_range(
      $        ilo, ihi, jlo, jhi, klo, khi, llo, lhi))
-     $        call errquit('should not happen', 0)
+     $        call errquit('should not happen', 0, UNKNOWN_ERR)
       end if
 c     
       call fock_init_cmul(ihi-ilo+1,jhi-jlo+1,lhi-llo+1)
@@ -168,6 +169,7 @@ c
      $     fij, fik, fli, fjk, flj, flk,
      $     tmp, tol2e, dentol, oij, okl, oikjl)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "schwarz.fh"
 #include "bas.fh"
@@ -240,10 +242,14 @@ c
 c     Form q4 factors over atoms and mapping from shells to atoms
 c     ... very crude now for debug purposes
 c
-      if ((iathi-iatlo+1).gt.max_at) call errquit('too many ats',0)
-      if ((jathi-jatlo+1).gt.max_at) call errquit('too many ats',0)
-      if ((kathi-katlo+1).gt.max_at) call errquit('too many ats',0)
-      if ((lathi-latlo+1).gt.max_at) call errquit('too many ats',0)
+      if ((iathi-iatlo+1).gt.max_at) call errquit('too many ats',0,
+     &       UNKNOWN_ERR)
+      if ((jathi-jatlo+1).gt.max_at) call errquit('too many ats',0,
+     &       UNKNOWN_ERR)
+      if ((kathi-katlo+1).gt.max_at) call errquit('too many ats',0,
+     &       UNKNOWN_ERR)
+      if ((lathi-latlo+1).gt.max_at) call errquit('too many ats',0,
+     &       UNKNOWN_ERR)
 c
       smax = schwarz_max()
 c
@@ -285,30 +291,32 @@ c
 c
 *      write(6,*) ' tol2e, dentol ', tol2e, dentol
 c
-      if (.not. bas_numcont(basis, nsh)) call errquit('bas?',0)
-      if (nsh .gt. maxcn) call errquit('maxcn?',0)
+      if (.not. bas_numcont(basis, nsh)) call errquit('bas?',0,
+     &       BASIS_ERR)
+      if (nsh .gt. maxcn) call errquit('maxcn?',0, UNKNOWN_ERR)
       do i = 1, nsh
          if (.not. bas_cn2ce(basis, i, cn_to_ce(i)))
-     $        call errquit('bas?',0)
+     $        call errquit('bas?',0, BASIS_ERR)
       end do
 c
 c     Form list of sorted interacting shell pairs
 c
-      if (.not. geom_ncent(geom,ncent)) call errquit('ftx:geom?',0)
+      if (.not. geom_ncent(geom,ncent)) call errquit('ftx:geom?',0,
+     &       GEOM_ERR)
       if (.not. geom_ncent_unique(geom,ncent_unique)) 
-     $     call errquit('ftx:geom?',0)
+     $     call errquit('ftx:geom?',0, GEOM_ERR)
       max_p = int(dble(max_q*ncent)/dble(ncent_unique))
       if (oikjl) max_p = max_p*2
       max_p = sqrt(dble(max_p))
 c      
       if(.not.ma_alloc_get(MT_int, 2*max_pair_t,'ijinfo', 
      .     l_ijinfo, k_ijinfo)) call errquit(
-     .     ' fock2etask: pushget failed ',2*max_pair_t)
+     .     ' fock2etask: pushget failed ',2*max_pair_t, MA_ERR)
       call fock_pairs(basis, max_p, oij, iatlo, iathi, jatlo, jathi, 
      $     dentol, ijlist, sij, int_mb(k_ijinfo), max_pair_t, nt_ij)
       if(.not.ma_alloc_get(MT_int, 2*max_pair_t,'klinfo', 
      .     l_klinfo, k_klinfo)) call errquit(
-     .     ' fock2etask: pushget failed ',2*max_pair_t)
+     .     ' fock2etask: pushget failed ',2*max_pair_t, MA_ERR)
       call fock_pairs(basis, max_p, okl, katlo, kathi, latlo, lathi, 
      $     dentol, kllist, skl, int_mb(k_klinfo), max_pair_t, nt_kl)
 c
@@ -391,9 +399,9 @@ c     do it!
          end do
       end do
       if (.not. ma_free_heap(l_ijinfo))
-     $     call errquit('fock2etask: cannot free iji',l_ijinfo)
+     $     call errquit('fock2etask: cannot free iji',l_ijinfo, MA_ERR)
       if (.not. ma_free_heap(l_klinfo))
-     $     call errquit('fock2etask: cannot free kli',l_klinfo)
+     $     call errquit('fock2etask: cannot free kli',l_klinfo, MA_ERR)
 c     
       end
       subroutine fock_txs(basis, nfock, vg_dens, vg_fock,
@@ -402,6 +410,7 @@ c
      $     fij, fik, fli, fjk, flj, flk,
      $     tol2e, nq, iq, jq, kq, lq, q4)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "cfock.fh"
 #include "util.fh"
@@ -446,11 +455,11 @@ c
       leneri = max(maxeri,maxg)
       lenlab = 4*leneri
       if (.not. ma_push_get(mt_dbl, leneri, 'eri', l_eri, k_eri))
-     $     call errquit('fock_txs: no room for eri',leneri)
+     $     call errquit('fock_txs: no room for eri',leneri, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lenscr, 'scr', l_scr, k_scr))
-     $     call errquit('fock_txs: no room for scr',lenscr)
+     $     call errquit('fock_txs: no room for scr',lenscr, MA_ERR)
       if (.not. ma_push_get(mt_int, lenlab, 'lab', l_lab, k_lab))
-     $     call errquit('fock_txs: no room for lab',lenlab)
+     $     call errquit('fock_txs: no room for lab',lenlab, MA_ERR)
 c
       k_i = k_lab
       k_j = k_i   + leneri
@@ -459,7 +468,7 @@ c
 c
       if (.not. intb_init4c(basis, iq, jq, basis, kq, lq,
      $     nq, q4, .true., lenscr, dbl_mb(k_scr), leneri, block_eff))
-     $     call errquit('intb_init?',nq)
+     $     call errquit('intb_init?',nq, INT_ERR)
 c     
  50   more = intb_2e4c(basis, iq, jq, basis, kq, lq,
      $     nq, q4, .true., tol2e, .false.,
@@ -480,7 +489,7 @@ c
                   write(luout,*) ' CHANGE TO DIRECT SCF '
                   write(luout,*) 
                call errquit(
-     .        ' fock_2e_task: write failed with neri=',neri)
+     .        ' fock_2e_task: write failed with neri=',neri, INT_ERR)
             endif
          end if
 c     
@@ -495,17 +504,18 @@ c
       if (more) goto 50
 c
  100  if (.not. ma_pop_stack(l_lab))
-     $     call errquit('fock_txs: cannot free lab',lenlab)
+     $     call errquit('fock_txs: cannot free lab',lenlab, MA_ERR)
       if (.not. ma_pop_stack(l_scr))
-     $     call errquit('fock_txs: cannot free scr',lenlab)
+     $     call errquit('fock_txs: cannot free scr',lenlab, MA_ERR)
       if (.not. ma_pop_stack(l_eri))
-     $     call errquit('fock_txs: cannot free eri',lenlab)
+     $     call errquit('fock_txs: cannot free eri',lenlab, MA_ERR)
 c
       end
       subroutine fock_den_sum(basis, nfock,
      $     iatlo, iathi, jatlo, jathi,
      $     dij, ilo, ihi, jlo, jhi, rdij, ldim, tol)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "schwarz.fh"
 c
@@ -524,10 +534,12 @@ c
 c
       do iat = iatlo, iathi
          if (.not. bas_ce2bfr(basis,iat,ibflo,ibfhi))
-     $        call errquit('fock_den_sum :bas_ce2bfr iat', iat)
+     $        call errquit('fock_den_sum :bas_ce2bfr iat', iat,
+     &       BASIS_ERR)
          do jat = jatlo, jathi
             if (.not. bas_ce2bfr(basis,jat,jbflo,jbfhi))
-     $           call errquit('fock_den_sum :bas_ce2bfr jat', jat)
+     $           call errquit('fock_den_sum :bas_ce2bfr jat', jat,
+     &       BASIS_ERR)
             sum = 0.0d0
             if (schwarz_atom(iat,jat).ge.tol) then
                if (nfock .eq. 1) then

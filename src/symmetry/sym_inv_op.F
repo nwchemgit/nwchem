@@ -20,8 +20,9 @@ c
 c
       end
       subroutine sym_find_inv_op(geom, op, opinv)
-C$Id: sym_inv_op.F,v 1.4 1999-07-14 00:29:11 d3e129 Exp $
+C$Id: sym_inv_op.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
       integer geom, op, opinv
 c
@@ -45,6 +46,7 @@ c
          if (dist .lt. 1.0d-8) return
       enddo
 c
-      call errquit('sym_inv_op: failed to find inverse for',op)
+      call errquit('sym_inv_op: failed to find inverse for',op,
+     &       CALC_ERR)
 c
       end

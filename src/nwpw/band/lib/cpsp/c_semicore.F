@@ -1,5 +1,5 @@
 *
-* $Id: c_semicore.F,v 1.3 2002-05-03 19:44:00 bylaska Exp $
+* $Id: c_semicore.F,v 1.4 2003-10-17 22:56:03 carlfahl Exp $
 *
 
 #define TCGMSG
@@ -128,6 +128,7 @@
 
       subroutine c_semicore_density_update()
       implicit none
+#include "errquit.fh"
 
 
 #include "mafdecls.fh"
@@ -153,7 +154,7 @@
       value = MA_push_get(mt_dcpl,nfft3d,'exi',exi(2),exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       call dcopy(nfft3d, 0.0d0,0, dbl_mb(dncore(1)),1)
@@ -202,6 +203,7 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
       subroutine c_semicore_check()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "c_semicore_common.fh"
@@ -230,7 +232,7 @@ c          call Cram_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call C3dB_nfft3d(1,nfft3d)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       do ia=1,ion_nkatm()

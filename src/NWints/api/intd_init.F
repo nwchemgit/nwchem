@@ -1,4 +1,4 @@
-c $Id: intd_init.F,v 1.28 2000-03-16 22:34:06 mg201 Exp $
+c $Id: intd_init.F,v 1.29 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intd\_init}
@@ -14,6 +14,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -60,7 +61,8 @@ c
 c     Setup array with basis sets from bases
 c
       if (.not. ma_push_get(MT_INT,nbas+1,'mybases',mybm_a,mybIm_a))
-     $     call errquit('int_init: ma_push_get failed mybases',0)
+     $     call errquit('int_init: ma_push_get failed mybases',0,
+     &           INT_ERR)
       do 00500 ibas = 1, nbas
          int_mb(mybIm_a+ibas-1) = bases(ibas)
 00500 continue
@@ -93,10 +95,10 @@ c        used basis sets
 c
          do 00400 ibas = 1, nbas
             if (.not. bas_name(bases(ibas),dk_bas_name,dk_trans_name))
-     $         call errquit('int_init: failed in bas_name',0)
+     $         call errquit('int_init: failed in bas_name',0, INT_ERR)
             if (dk_bas_name(1:8) .eq. 'ao basis') goto 00004
 00400    continue
-         call errquit('int_init: could not find ao basis',0)
+         call errquit('int_init: could not find ao basis',0, BASIS_ERR)
 00004    call bas_create_uncont(rtdb,bases(ibas),'auto D-K basis',
      $      dk_fitbas)
 c
@@ -108,7 +110,7 @@ c
       if (doug_kroll .or. dyall_mod_dir) call rel_init_con (rtdb)
       call intd_init_org(rtdb, nrbas, int_mb(mybIm_a))
       if (.not. ma_pop_stack(mybm_a))
-     $     call errquit('int_init: ma_pop_stack mybm_a',0)
+     $     call errquit('int_init: ma_pop_stack mybm_a',0, MA_ERR)
 c
       end
 c
@@ -118,6 +120,7 @@ c Initializes integral derivative code
 c
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -264,7 +267,8 @@ c
           call util_flush(6)
         endif
         call errquit
-     &      ('intd_init: logic error with user cando settings',911)
+     &      ('intd_init: logic error with user cando settings',911, 
+     &         INT_ERR)
       endif
       status = .true.
       do 00100 ibas=1,nbas
@@ -276,7 +280,7 @@ c
           write(luout,'(a,i5)')
      &           ' basis set handle ',bases(ibas)
 00200   continue
-        call errquit('intd_init: basis handles hosed ',nbas)
+        call errquit('intd_init: basis handles hosed ',nbas, BASIS_ERR)
       endif
 *      write(luout,*)' intd_init: basis set handles valid '
 c
@@ -289,11 +293,11 @@ c
       ang2use = -1
       do 00300 ibas = 1,nbas
         if(.not.bas_high_angular(bases(ibas),angm))
-     &         call errquit('intd_init: angm error',angm)
+     &         call errquit('intd_init: angm error',angm, INT_ERR)
         ang2use = max(ang2use,angm)
         if (dyall_mod_dir) then
           if(.not.bas_rel_high_ang(bases(ibas),angm))
-     &        call errquit('int_init: angm error',angm)
+     &        call errquit('int_init: angm error',angm, INT_ERR)
           ang2use = max(ang2use,angm+1)
         end if
 00300 continue
@@ -309,14 +313,14 @@ c
 c initialize spcart stuff 
 c
       if (.not.(spcart_init((ang2use+1),.true.,.false.))) then
-        call errquit('intd_init: spcart_init failed',911)
+        call errquit('intd_init: spcart_init failed',911, INT_ERR)
       endif
 c
 c Initialize DmD relativistic basis set stuff
 c
       if (dyall_mod_dir) then
         if (.not. int_rel_init(rtdb,nbas,bases)) call errquit
-     &      ('int_init: int_rel_init failed ',911)
+     &      ('int_init: int_rel_init failed ',911, INT_ERR)
         if (.not. nesc_1e_approx) then
           user_cando_sp   = .true.
           def_cando_sp   = .false.
@@ -368,7 +372,8 @@ c
 00001 continue
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'intd_init')) call errquit
-     &        ('intd_init: ecp handle is invalid fatal error',911)
+     &        ('intd_init: ecp handle is invalid fatal error',911,
+     &          INT_ERR)
       endif
 *
 c See if any basis has an attached SO potential
@@ -383,11 +388,12 @@ c See if any basis has an attached SO potential
 00002 continue
       if (any_so) then
         if (.not.so_check_handle(so_bsh,'intd_init')) call errquit
-     &        ('intd_init: so handle is invalid fatal error',911)
+     &        ('intd_init: so handle is invalid fatal error',911,
+     &          INT_ERR)
       endif
       if (any_so.or.any_ecp) then
         if (.not.int_ecp_init(ecp_bsh,so_bsh,1)) call errquit
-     &        ('intd_init: int_ecp_init failed ',911)
+     &        ('intd_init: int_ecp_init failed ',911, INT_ERR)
       endif
       init_int = 1
       init_intd = 1
@@ -395,6 +401,7 @@ c See if any basis has an attached SO potential
       subroutine sp_der_init(nbas,bases)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "apispP.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -413,11 +420,13 @@ c
       do 00100 ibas = 1,nbas
         if (.not.api_is_ecp_basis(bases(ibas))) then
           if (.not.bas_numcont(bases(ibas),ncont))
-     &        call errquit('sp_der_init: bas_numcont failed',911)
+     &        call errquit('sp_der_init: bas_numcont failed',911,
+     &              INT_ERR)
           do 00200 icont = 1,ncont
             if(.not.bas_continfo
      &          (bases(ibas),icont,mytype,nprim,ngen,sphorcart))
-     &          call errquit('sp_der_init: bas_continfo failed',911)
+     &          call errquit('sp_der_init: bas_continfo failed',911,
+     &              INT_ERR)
             
             if (mytype.lt.0) then
               no_sp_conts = .false.
@@ -432,7 +441,7 @@ c
 c
       write(luout,*)' sp functions cannot be used in the integral ',
      &       'derivative code yet'
-      call errquit('sp_der_init',911)
+      call errquit('sp_der_init',911, INT_ERR)
       end
 
       

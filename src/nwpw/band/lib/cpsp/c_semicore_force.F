@@ -9,6 +9,7 @@
 
       subroutine c_semicore_xc_F(ispin,xcp,fion)
       implicit none
+#include "errquit.fh"
       integer ispin
       real*8  xcp(*)
 
@@ -63,7 +64,7 @@
      >        MA_push_get(mt_dcpl, nfft3d,'dngy',dngy(2),dngy(1))
       value = value.and.
      >        MA_push_get(mt_dcpl, nfft3d,'dngz',dngz(2),dngz(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       call C3dB_rr_Sum(1,xcp(1),

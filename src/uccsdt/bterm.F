@@ -58,6 +58,7 @@ c     t(u,v,i,j) = Sum(a,b) C(u,a,spini)C(v,b,spinj)t(a,b,i,j)
 c     where u & v are SO's (no spin), a,b,i,j are MO's with spin labels
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "cuccsdtP.fh"
 #include "amplitudes.fh"
@@ -169,7 +170,7 @@ c     Transformed MO coefficients
 c
       if (.not. ma_push_get(mt_dbl, nbf*nv(spina), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*no',nbf*nv(spina))
+     $ call errquit('ma? nbf*no',nbf*nv(spina), MA_ERR)
       call ga_get(g_hole(spina),1,nbf,no(spina)+1,nmo,
      $ dbl_mb(k_c),nbf)
 csh
@@ -181,7 +182,7 @@ c     Allocate g_uv_p and g_uv_m for t(u,b,i,j) and t[+/-](u,v,i,j)
 c
       if (.not.ga_create(mt_dbl,maxlenuv,lenij,'sopair -', 
      $ maxlenuv,-1,g_uv_m)) call errquit
-     $ ('uccsdt_tosopair: room for g_uv_m?',maxlenuv*lenij)
+     $ ('uccsdt_tosopair: room for g_uv_m?',maxlenuv*lenij, GA_ERR)
 csh
       if (odebug)
      $call ga_fill(g_uv_m,9.9999d0)
@@ -189,7 +190,7 @@ csh
       if (spini .ne. spinj) then
        if (.not.ga_create(mt_dbl,maxlenuv,lenij,'sopair +', 
      $  maxlenuv,-1,g_uv_p)) call errquit
-     $  ('uccsdt_tosopair: room for g_uv_p?',maxlenuv*lenij)
+     $  ('uccsdt_tosopair: room for g_uv_p?',maxlenuv*lenij, GA_ERR)
 csh
       if (odebug)
      $call ga_fill(g_uv_p,9.9999d0)
@@ -263,10 +264,10 @@ csh
 csh
               if (.not. ma_push_get(mt_dbl, lenia, 'buf',
      $         l_buf, k_buf)) 
-     $         call errquit('ma? lenia',lenia)
+     $         call errquit('ma? lenia',lenia, MA_ERR)
               if (.not. ma_push_get(mt_dbl, leniu, 'tmp',
      $         l_tmp, k_tmp)) 
-     $         call errquit('ma? leniu',leniu)
+     $         call errquit('ma? leniu',leniu, MA_ERR)
 c
 c     (ia) -> (iu) for a (virtual) & u (SO) of same irrep 
 c
@@ -301,15 +302,15 @@ csh
 csh
               ia = ia + lenia
               if (.not. ma_pop_stack(l_tmp))
-     $         call errquit('ma_pop?',l_tmp)
+     $         call errquit('ma_pop?',l_tmp, MA_ERR)
               if (.not. ma_pop_stack(l_buf))
-     $         call errquit('ma_pop?',l_buf)
+     $         call errquit('ma_pop?',l_buf, MA_ERR)
              end if
             end do
            end if
           end do
          end do
-         if (.not. ga_destroy(g_t2)) call errquit('GA 999',0)
+         if (.not. ga_destroy(g_t2)) call errquit('GA 999',0, GA_ERR)
         endif
        end do
       end do
@@ -323,10 +324,10 @@ c     Now have t(u,b,i,j) ... data parallel transform b in place
 c     (g_uv_m was allocated big enough to do this).
 c
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nv(spinb), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*no',nbf*nv(spinb))
+     $ call errquit('ma? nbf*no',nbf*nv(spinb), MA_ERR)
       call ga_get(g_hole(spinb),1,nbf,no(spinb)+1,nmo,
      $ dbl_mb(k_c),nbf)
 csh
@@ -366,10 +367,10 @@ csh
      $       write(*,*) 'lenu,lenv,lenb = ',lenu,lenv,lenb
              if (.not. ma_push_get(mt_dbl, lenub, 'buf',
      $        l_buf, k_buf)) 
-     $       call errquit('ma? lenub',lenub)
+     $       call errquit('ma? lenub',lenub, MA_ERR)
              if (.not. ma_push_get(mt_dbl, lenuv, 'tmp',
      $        l_tmp, k_tmp)) 
-     $        call errquit('ma? lenuv',lenuv)
+     $        call errquit('ma? lenuv',lenuv, MA_ERR)
 c
 c     (ub) -> (uv) for b (virtual) & v (SO) of same irrep 
 c
@@ -397,9 +398,9 @@ csh
      $       call ga_print(g_uv_m)
 csh
              if (.not. ma_pop_stack(l_tmp))
-     $        call errquit('ma_pop?',l_tmp)
+     $        call errquit('ma_pop?',l_tmp, MA_ERR)
              if (.not. ma_pop_stack(l_buf))
-     $        call errquit('ma_pop?',l_buf)
+     $        call errquit('ma_pop?',l_buf, MA_ERR)
             end if
            end do
           end if
@@ -413,7 +414,7 @@ csh
       write(*,*) '**************************'
       endif
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c, MA_ERR)
 c
 c     Symmetrize if spini .ne. spinj
 c
@@ -448,22 +449,22 @@ c
               if (lenuv .gt. 0) then
                if (.not. ma_push_get(mt_dbl, 
      $          lenuv, 'buf', l_buf, k_buf)) 
-     $          call errquit('ma? lenuv',lenuv)
+     $          call errquit('ma? lenuv',lenuv, MA_ERR)
                if (.not. ma_push_get(mt_dbl, 
      $          lenuv, 'tmp', l_tmp, k_tmp)) 
-     $          call errquit('ma? lenuv',lenuv)
+     $          call errquit('ma? lenuv',lenuv, MA_ERR)
                if (.not. ma_push_get(mt_dbl, 
      $          lenuv, 'plus', l_p1, k_p1)) 
-     $          call errquit('ma? lenuv',lenuv)
+     $          call errquit('ma? lenuv',lenuv, MA_ERR)
                if (.not. ma_push_get(mt_dbl, 
      $          lenuv, 'minus', l_m1, k_m1)) 
-     $          call errquit('ma? lenuv',lenuv)
+     $          call errquit('ma? lenuv',lenuv, MA_ERR)
                if (.not. ma_push_get(mt_dbl, 
      $          lenuv, 'plus', l_p2, k_p2)) 
-     $          call errquit('ma? lenuv',lenuv)
+     $          call errquit('ma? lenuv',lenuv, MA_ERR)
                if (.not. ma_push_get(mt_dbl, 
      $          lenuv, 'minus', l_m2, k_m2)) 
-     $          call errquit('ma? lenuv',lenuv)
+     $          call errquit('ma? lenuv',lenuv, MA_ERR)
                if (odebug) write(*,*) 'getting range ... ',
      $         symvoff(symu,symuv)+1,'~',symvoff(symu,symuv)+lenuv,
      $          ij,'~',ij
@@ -510,17 +511,17 @@ c
      $          symvoff(symu,symuv)+1,symvoff(symu,symuv)+lenuv,
      $          ij,ij,dbl_mb(k_m2),lenv)
                if (.not. ma_pop_stack(l_m2))
-     $          call errquit('ma_pop?',l_m2)
+     $          call errquit('ma_pop?',l_m2, MA_ERR)
                if (.not. ma_pop_stack(l_p2))
-     $          call errquit('ma_pop?',l_p2)
+     $          call errquit('ma_pop?',l_p2, MA_ERR)
                if (.not. ma_pop_stack(l_m1))
-     $          call errquit('ma_pop?',l_m1)
+     $          call errquit('ma_pop?',l_m1, MA_ERR)
                if (.not. ma_pop_stack(l_p1))
-     $          call errquit('ma_pop?',l_p1)
+     $          call errquit('ma_pop?',l_p1, MA_ERR)
                if (.not. ma_pop_stack(l_tmp))
-     $          call errquit('ma_pop?',l_tmp)
+     $          call errquit('ma_pop?',l_tmp, MA_ERR)
                if (.not. ma_pop_stack(l_buf))
-     $          call errquit('ma_pop?',l_buf)
+     $          call errquit('ma_pop?',l_buf, MA_ERR)
               end if
              end if
             end do
@@ -540,6 +541,7 @@ c
 csh   subroutine uccsdt_b_contract(g_uv_p,g_uv_m,g_omega,
      $ spini,spinj)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "cuccsdtP.fh"
 #include "amplitudes.fh"
@@ -642,7 +644,7 @@ c     Allocate g_omega_p and g_omega_m for Omega[+/-](u,v,i,j)
 c
       if (.not.ga_create(mt_dbl,maxlenuv,lenij,'omega', 
      $ maxlenuv,-1,g_omega)) call errquit
-     $ ('uccsdt_tosopair: room for tmp?',maxlenuv*lenij)
+     $ ('uccsdt_tosopair: room for tmp?',maxlenuv*lenij, GA_ERR)
       call ga_zero(g_omega)
 c     
 c     Block the shells so that there are roughly no more than XX
@@ -716,7 +718,7 @@ csh
 c     
            if (.not. ma_push_get
      $      (mt_dbl, lengx, 'b_contract', l_gx, k_gx))
-     $      call errquit('b_contract: no room for g', lengx)
+     $      call errquit('b_contract: no room for g', lengx, MA_ERR)
 c     
            call soints_block(basis, nbf,
      $      lsh_blk_lo, lsh_blk_hi, loff1, lrange,
@@ -757,7 +759,7 @@ csh
 csh
            if (.not. ma_push_get
      $      (mt_dbl, lengy, 'b_contract', l_gy, k_gy))
-     $      call errquit('b_contract: no room for g', lengy)
+     $      call errquit('b_contract: no room for g', lengy, MA_ERR)
 c     
            call soints_block(basis, nbf,
      $      wsh_blk_lo, wsh_blk_hi, woff2, wrange,
@@ -790,7 +792,7 @@ c
                if (lenuv .gt. 0) then
                 if (.not. ma_push_get(mt_dbl, 
      $           lenuv*lenij, 'omega', l_omega, k_omega)) 
-     $          call errquit('ma? lenuv*lenij',lenuv*lenij)
+     $          call errquit('ma? lenuv*lenij',lenuv*lenij, MA_ERR)
                 do syml = 0,7
                  symw = ieor(symwl,syml)
 csh
@@ -817,7 +819,7 @@ csh
                  if (lenwl .gt. 0) then
                   if (.not. ma_push_get(mt_dbl, 
      $             lenwl*lenij, 't', l_t, k_t)) 
-     $             call errquit('ma? lenwl',lenwl*lenij)
+     $             call errquit('ma? lenwl',lenwl*lenij, MA_ERR)
 c
 c     g_uv_m(w,l,syml,i,j,symj,symij) -> t(w,l,i,j)
 c
@@ -835,7 +837,7 @@ csh
 csh
                   if (.not. ma_push_get(mt_dbl, 
      $             lenuv*lenwl, 'minus', l_m, k_m)) 
-     $             call errquit('ma? lenuv*lenwl',lenuv*lenwl)
+     $             call errquit('ma? lenuv*lenwl',lenuv*lenwl, MA_ERR)
                   uvwl = 0
                   do l = lrange(1,syml), lrange(2,syml)
                    do w = wrange(1,symw), wrange(2,symw)
@@ -862,7 +864,7 @@ csh
      $             0.0d0,dbl_mb(k_omega),lenuv)
       if (odebug) call ma_print(dbl_mb(k_omega),lenuv,lenij,'UVIJ -')
                   if (.not. ma_pop_stack(l_m))
-     $             call errquit('ma_pop? l_m',l_m)
+     $             call errquit('ma_pop? l_m',l_m, MA_ERR)
 c
 c     Mixed spin
 c
@@ -876,7 +878,7 @@ csh
 csh
                    if (.not. ma_push_get(mt_dbl, 
      $              lenuv*lenwl, 'plus', l_p, k_p)) 
-     $              call errquit('ma? lenuv*lenwl',lenuv*lenwl)
+     $              call errquit('ma? lenuv*lenwl',lenuv*lenwl, MA_ERR)
                    uvwl = 0
                    do l = lrange(1,syml), lrange(2,syml)
                     do w = wrange(1,symw), wrange(2,symw)
@@ -898,7 +900,7 @@ csh
      $              1.0d0,dbl_mb(k_omega),lenuv)
       if (odebug)  call ma_print(dbl_mb(k_omega),lenuv,lenwl,'UVIJ +-')
                    if (.not. ma_pop_stack(l_p))
-     $              call errquit('ma_pop? l_p',l_p)
+     $              call errquit('ma_pop? l_p',l_p, MA_ERR)
                   end if
 csh
        if (odebug) call ma_print(dbl_mb(k_omega),lenuv,lenij,'Omega')
@@ -924,11 +926,11 @@ csh
      $             dbl_mb(k_omega),lenuv,1.0d0)
                   end if
                   if (.not. ma_pop_stack(l_t))
-     $             call errquit('ma_pop? l_t',l_t)
+     $             call errquit('ma_pop? l_t',l_t, MA_ERR)
                  end if
                 end do
                 if (.not. ma_pop_stack(l_omega))
-     $           call errquit('ma_pop? l_omega',l_omega)
+     $           call errquit('ma_pop? l_omega',l_omega, MA_ERR)
                end if
               end do
              end if
@@ -936,9 +938,9 @@ csh
            end do
 c
            if (.not. ma_pop_stack(l_gy))
-     $      call errquit('ma_pop?',l_gy)
+     $      call errquit('ma_pop?',l_gy, MA_ERR)
            if (.not. ma_pop_stack(l_gx))
-     $      call errquit('ma_pop?',l_gx)
+     $      call errquit('ma_pop?',l_gx, MA_ERR)
            next = nxtask(nproc,task_size)
           end if
           count = count + 1
@@ -965,6 +967,7 @@ c     b(a,b,i,j) = Sum(u,v) t(u,v,i,j)C(u,a,spini)C(v,b,spinj)
 c     where u & v are SO's (no spin), a,b,i,j are MO's with spin labels
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "cuccsdtP.fh"
 #include "amplitudes.fh"
@@ -1033,7 +1036,7 @@ csh ***** We have to create an empty g_b_big
       if (odebug) write(*,*) 'Size of g_b_big = ',dummy
       if (.not.ga_create(mt_dbl,dummy,1,'b_big',
      $ -1,1,g_b_big)) call errquit
-     $ ('uccsdt_makeb: room for b_big?',dummy)
+     $ ('uccsdt_makeb: room for b_big?',dummy, GA_ERR)
 csh
 c
 c     Addressing & sizes
@@ -1100,7 +1103,7 @@ c     Transformed MO coefficients
 c
       if (.not. ma_push_get(mt_dbl, nbf*nv(spinb), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*nv',nbf*nv(spinb))
+     $ call errquit('ma? nbf*nv',nbf*nv(spinb), MA_ERR)
       call ga_get(g_part(spinb),1,nbf,no(spinb)+1,nmo,
      $ dbl_mb(k_c),nbf)
 csh
@@ -1111,7 +1114,7 @@ c     Allocate temporary GA
 c
       if (.not.ga_create(mt_dbl,maxlenuv,lenij,'tmp', 
      $ maxlenuv,-1,g_tmp)) call errquit
-     $ ('uccsdt_makeb: room for tmp?',maxlenuv*lenij)
+     $ ('uccsdt_makeb: room for tmp?',maxlenuv*lenij, GA_ERR)
 c
 c     Data parallel transform Omega(u,v,i,j)C(v,b) = tmp(u,b,i,j)
 c     (tmp was allocated big enough to do this).
@@ -1147,10 +1150,10 @@ csh
 csh
              if (.not. ma_push_get(mt_dbl, lenuv, 'buf',
      $        l_buf, k_buf)) 
-     $        call errquit('ma? lenuv',lenuv)
+     $        call errquit('ma? lenuv',lenuv, MA_ERR)
              if (.not. ma_push_get(mt_dbl, lenub, 'tmp',
      $        l_tmp, k_tmp)) 
-     $        call errquit('ma? lenub',lenub)
+     $        call errquit('ma? lenub',lenub, MA_ERR)
 c
 c     (uv) -> (ub) for b (virtual) & v (SO) of same irrep 
 c
@@ -1173,9 +1176,9 @@ csh
      $        symboff(symb,symub)+1,symboff(symb,symub)+lenub,
      $        ij,ij,dbl_mb(k_tmp),lenu)
              if (.not. ma_pop_stack(l_tmp))
-     $        call errquit('ma_pop?',l_tmp)
+     $        call errquit('ma_pop?',l_tmp, MA_ERR)
              if (.not. ma_pop_stack(l_buf))
-     $        call errquit('ma_pop?',l_buf)
+     $        call errquit('ma_pop?',l_buf, MA_ERR)
             end if
            end do
           end if
@@ -1193,10 +1196,10 @@ c     Perform quarter transformation from tmp(u,b,i,j) to t(a,b,i,j)
 c     t(i,a,syma,j,b,symb,symjb)
 c
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nbf*nv(spina), 'c',
      $ l_c, k_c)) 
-     $ call errquit('ma? nbf*nv',nbf*nv(spina))
+     $ call errquit('ma? nbf*nv',nbf*nv(spina), MA_ERR)
       call ga_get(g_part(spina),1,nbf,no(spina)+1,nmo,
      $ dbl_mb(k_c),nbf)
 csh
@@ -1224,7 +1227,7 @@ csh
 csh
          if (.not.ga_create(mt_dbl,lenia,lenjb,'b', 
      $    lenia,-1,g_b)) call errquit
-     $    ('uccsdt_makeb: room for b?',lenia*lenjb)
+     $    ('uccsdt_makeb: room for b?',lenia*lenjb, GA_ERR)
 c
 c     Data-parallel transformation of a
 c
@@ -1259,10 +1262,10 @@ csh
              if (lenu.gt.0) then
               if (.not. ma_push_get(mt_dbl, leniu, 'buf',
      $         l_buf, k_buf)) 
-     $         call errquit('ma? leniu',leniu)
+     $         call errquit('ma? leniu',leniu, MA_ERR)
               if (.not. ma_push_get(mt_dbl, lenia, 'tmp',
      $         l_tmp, k_tmp)) 
-     $         call errquit('ma? lenia',lenia)
+     $         call errquit('ma? lenia',lenia, MA_ERR)
 c
 c     (iu) -> (ia) for a (virtual) & u (SO) of same irrep 
 c
@@ -1296,9 +1299,9 @@ csh
      $         dbl_mb(k_tmp),leni)
               ia = ia + lenia
               if (.not. ma_pop_stack(l_tmp))
-     $         call errquit('ma_pop?',l_tmp)
+     $         call errquit('ma_pop?',l_tmp, MA_ERR)
               if (.not. ma_pop_stack(l_buf))
-     $         call errquit('ma_pop?',l_buf)
+     $         call errquit('ma_pop?',l_buf, MA_ERR)
              end if
             end do
            end if
@@ -1313,7 +1316,7 @@ csh      if (.not. uccsdt_ampfile_write_t2(d_b,
 csh  $    spini, spina, spinj, spinb, symia, 
 csh  $    blo, bhi, g_b))
 csh  $    call errquit('write_t2 failed',0)
-         if (.not. ga_destroy(g_b)) call errquit('GA 999',0)
+         if (.not. ga_destroy(g_b)) call errquit('GA 999',0, GA_ERR)
         endif
        end do
       end do
@@ -1322,9 +1325,9 @@ csh
       if (odebug) write(*,*) 'transformation u -> a done'
       if (odebug) write(*,*) '**************************'
 csh
-      if (.not. ga_destroy(g_tmp)) call errquit('GA 999',0)
+      if (.not. ga_destroy(g_tmp)) call errquit('GA 999',0, GA_ERR)
       if (.not. ma_pop_stack(l_c))
-     $ call errquit('ma_pop?',l_c)
+     $ call errquit('ma_pop?',l_c, MA_ERR)
 c
       return
       end

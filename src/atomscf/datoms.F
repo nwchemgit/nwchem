@@ -2,8 +2,9 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.23 2000-10-23 23:37:44 windus Exp $
+C     $Id: datoms.F,v 1.24 2003-10-17 22:54:15 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
       integer geom, basis
@@ -26,13 +27,15 @@ c
       integer h_tags,  k_tags
 c
       if (.not. geom_ncent(geom, nat_dim)) call errquit
-     $     ('guess atom dens: geom_ncent failed', geom)
+     $     ('guess atom dens: geom_ncent failed', geom, GEOM_ERR)
       if (.not. ma_push_get
      &    (MT_LOG,nat_dim,'atomscf:doatomd:odone',h_odone,k_odone))
-     &    call errquit('ma get atomscf:doatomd:odone failed',911)
+     &    call errquit('ma get atomscf:doatomd:odone failed',911,
+     &       MA_ERR)
       if (.not. ma_push_get
      &    (MT_BYTE,16*nat_dim,'atomscf:doatomd:tags',h_tags,k_tags))
-     &    call errquit('ma get atomscf:doatomd:tags failed',911)
+     &    call errquit('ma get atomscf:doatomd:tags failed',911,
+     &       MA_ERR)
 
       call datoms_do(geom, basis, hatom, g_dens, oprin,
      &     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
@@ -42,13 +45,14 @@ c
       status_ma = status_ma .and. ma_pop_stack(h_tags)
       status_ma = status_ma .and. ma_pop_stack(h_odone)
       if (.not.status_ma) call errquit
-     &    ('doatoms: fatal error popping tags/odone stack',911)
+     &    ('doatoms: fatal error popping tags/odone stack',911, MEM_ERR)
       end
       subroutine datoms_do(geom, basis, hatom, g_dens, oprin,
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom, tags, odone, nat_dim)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -110,15 +114,17 @@ c     Odone keeps track of which centers have been done ... mark
 c     centers that do not seem to be ataoms as done already.
 c     
       if (.not. geom_ncent(geom, natoms)) call errquit
-     $     ('guess atom dens: geom_ncent failed', geom)
+     $     ('guess atom dens: geom_ncent failed', geom, GEOM_ERR)
       if (natoms .gt. nat_dim) call errquit
-     $     ('guess atom dens: mxnat too small ', natoms)
+     $     ('guess atom dens: mxnat too small ', natoms, UNKNOWN_ERR)
 c
       do iat = 1 , natoms
          if (.not. geom_cent_get(geom, iat, tag, coords, charge))
-     $        call errquit('guess atom dens: geom_cent_get?', iat)
+     $        call errquit('guess atom dens: geom_cent_get?', iat,
+     &       GEOM_ERR)
          if (.not. bas_ce2cnr(basis, iat, icnlo, icnhi))
-     $        call errquit('guess atom dens: bas_ce2cnr?', iat)
+     $        call errquit('guess atom dens: bas_ce2cnr?', iat,
+     &       BASIS_ERR)
          odone(iat) =  .not.
      $        (geom_tag_to_element(tag, symbol, element, atn)
      $        .and.  charge.ge.1.0d0 .and. icnhi.gt.0)
@@ -135,7 +141,8 @@ c
 c     
          if (.not. odone(iat)) then
             if (.not. geom_cent_get(geom, iat, tag, coords, charge))
-     $           call errquit('guess atom dens: geom_cent_get?', iat)
+     $           call errquit('guess atom dens: geom_cent_get?', iat,
+     &       GEOM_ERR)
 c     
 c     Decide if this atom is my task
 c     
@@ -163,7 +170,8 @@ c
 c     loop thru atoms with the same tag and add in energy and density
 c     
             if (.not. bas_ce2bfr(basis, iat, ibflo, ibfhi)) 
-     $           call errquit('guess atom dens: bas_ce2bfr', iat)
+     $           call errquit('guess atom dens: bas_ce2bfr', iat,
+     &       BASIS_ERR)
             do jat = iat, natoms
                if ((.not. odone(jat)) .and. tags(iat).eq.tags(jat)) then
                   toteng = toteng + energ
@@ -171,7 +179,8 @@ c
 c
                   if (odens) then
                      if (.not. bas_ce2bfr(basis, jat, jbflo, jbfhi))
-     $                    call errquit('guess atom dens:bas_ce2bfr',jat)
+     $                    call errquit('guess atom dens:bas_ce2bfr',jat,
+     &       BASIS_ERR)
 c     
 c     shift adjusts iiloc() from atom iat to atom jat
 c     
@@ -215,6 +224,7 @@ c
       subroutine atscf_bas_gather(geom, basis, iat, ic, iiloc,
      $     isymax, hatom, znps, element, tag, ospherical)
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "bas.fh"
 #include "cguess.fh"
@@ -266,7 +276,8 @@ c
 c     gather shell / symmetry info
 c     
       if (.not. bas_ce2cnr(basis, iat, icnlo, icnhi))
-     $     call errquit('guess atom dens: bas_ce2cnr?', iat)
+     $     call errquit('guess atom dens: bas_ce2cnr?', iat,
+     &       BASIS_ERR)
       do i = 1 , 4
          nbc(i) = 0
       enddo
@@ -283,7 +294,8 @@ c
       do icont = icnlo, icnhi
          if (.not. bas_continfo(basis, icont, type, nprim, ngen,
      $        sphcart))
-     $        call errquit('guess atom dens: bas_continfo', icont)
+     $        call errquit('guess atom dens: bas_continfo', icont,
+     &       BASIS_ERR)
 *debug:              write(6,*)' basis handle    =',basis
 *debug:              write(6,*)' for contraction =',icont
 *debug:              write(6,*)' type            =',type
@@ -291,9 +303,11 @@ c
 *debug:              write(6,*)' ngen            =',ngen
 *debug:              write(6,*)' sphcart         =',sphcart
          if (.not. bas_cn2bfr(basis, icont, ibflo, ibfhi))
-     $        call errquit('guess atom dens: bas_cn2bfr', icont)
+     $        call errquit('guess atom dens: bas_cn2bfr', icont,
+     &       BASIS_ERR)
          if (nprim.gt.nw_max_prim .or. ngen.gt.nw_max_gen_con) 
-     $       call errquit ('guess atom dens: nprim/ngen too big', 0)
+     $       call errquit ('guess atom dens: nprim/ngen too big', 0,
+     &       UNKNOWN_ERR)
 c     
          if (type .le. 3) then  ! Only s/p/d/f functions
             nbf_per_shell = (ibfhi - ibflo + 1) / ngen
@@ -338,12 +352,15 @@ c
             icont = iicnt(j,ispdf)
             igen  = iisch(j,ispdf)
             if (.not. bas_get_coeff(basis, icont, coeff))
-     $           call errquit('guess atom dens: get_coeff', icont)
+     $           call errquit('guess atom dens: get_coeff', icont,
+     &       BASIS_ERR)
             if (.not. bas_get_exponent(basis, icont, expnt))
-     $           call errquit('guess atom dens: get_expnt', icont)
+     $           call errquit('guess atom dens: get_expnt', icont,
+     &       BASIS_ERR)
             if (.not. bas_continfo(basis, icont, type, nprim,
      $           ngen, sphcart))
-     $           call errquit('guess atom dens: continfo', icont)
+     $           call errquit('guess atom dens: continfo', icont,
+     &       BASIS_ERR)
             
 c..   ic = # number of primitives /contracted /symmetry
             ic(ispdf,j) = nprim

@@ -1,7 +1,8 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out,
      , filnam)
-C$Id: open_3ci.F,v 1.10 2003-02-26 20:37:23 edo Exp $
+C$Id: open_3ci.F,v 1.11 2003-10-17 22:58:10 carlfahl Exp $
       Implicit NONE
+#include "errquit.fh"
       Integer LU, Spin, NA, NI, G_Out
       Character*(*) Name
       Character*(*) FilNam! actualname
@@ -66,7 +67,7 @@ C
      $   DRA_RW, NA, FitLen, LU) .eq. 0) then
          Open_3ci_File = .TRUE.
       Else
-         Call Errquit('Open_3cI_File (DRA) failed', Spin)
+         Call Errquit('Open_3cI_File (DRA) failed', Spin, CALC_ERR)
       EndIf
 C
 #else
@@ -154,7 +155,7 @@ C
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
-           call errquit('open_3ci: eaf_open failed', ierr)
+           call errquit('open_3ci: eaf_open failed', ierr, DISK_ERR)
         endif
       else
 c
@@ -169,7 +170,7 @@ C
  8000 Continue
       Write (LuErr, *) 'Open_3cI_File: Error opening file: ',
      $     FilNam(:LNBlnk(FilNam)), Code
-      Call Errquit('Open_3cI_File', Code)
+      Call Errquit('Open_3cI_File', Code, DISK_ERR)
 C
       Open_3ci_File = .FALSE.
 C

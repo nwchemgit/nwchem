@@ -1,6 +1,7 @@
       subroutine ga_orthog(g_vecs, g_over, ometric)
-C$Id: ga_orthog.F,v 1.11 1995-07-25 00:18:10 gg502 Exp $
+C$Id: ga_orthog.F,v 1.12 2003-10-17 22:58:34 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -40,16 +41,18 @@ c     Allocate local workspace
 c
       if (.not. ma_push_get(mt_dbl, ld*ni, 'ga_orthog: tmp', 
      $     l_tmp, k_tmp)) call errquit('ga_orthog: ma get failed', 
-     $     ld*ni)
+     $     ld*ni, MA_ERR)
       if (ometric) then
          if (.not. ma_push_get(mt_dbl, ld*nu, 'ga_orthog: over', 
      $        l_over, k_over)) call errquit('ga_orthog: ma get failed', 
-     $        ld*ni)
+     $        ld*ni, MA_ERR)
       end if
       if (.not. ma_push_get(mt_dbl, ni, 'ga_orthog: sji', 
-     $     l_s, k_s)) call errquit('ga_orthog: ma get failed', ni)
+     $     l_s, k_s)) call errquit('ga_orthog: ma get failed', ni,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl, nu, 'ga_orthog: w', 
-     $     l_w, k_w)) call errquit('ga_orthog: ma get failed', nu)
+     $     l_w, k_w)) call errquit('ga_orthog: ma get failed', nu,
+     &       MA_ERR)
 c
       call ga_sync()
       if (uhi .ge. ulo) then
@@ -77,15 +80,15 @@ c
 c     Tidy up memory
 c
       if (.not. ma_pop_stack(l_w)) call errquit
-     $     ('ga_orthog: ma error popping w', 0)
+     $     ('ga_orthog: ma error popping w', 0, MA_ERR)
       if (.not. ma_pop_stack(l_s)) call errquit
-     $     ('ga_orthog: ma error popping s', 0)
+     $     ('ga_orthog: ma error popping s', 0, MA_ERR)
       if (ometric) then
          if (.not. ma_pop_stack(l_over)) call errquit
-     $        ('ga_orthog: ma error popping over', 0)
+     $        ('ga_orthog: ma error popping over', 0, MA_ERR)
       end if
       if (.not. ma_pop_stack(l_tmp)) call errquit
-     $     ('ga_orthog: ma error popping tmp', 0)
+     $     ('ga_orthog: ma error popping tmp', 0, MA_ERR)
 c
       call ga_sync
 c
@@ -93,6 +96,7 @@ c
       subroutine ga_orthog_vecs(vecs, ld, ni, ulo, uhi, s, o, nu, w, 
      $     ometric)
       implicit none
+#include "errquit.fh"
 #include "msgids.fh"
 c     
       integer ld, ni, ulo, uhi, nu
@@ -160,13 +164,16 @@ c
                if (npass .lt. 3) then
                   goto 10
                else
-                  call errquit('ga_orthog: failed to orthog vector', i)
+                  call errquit('ga_orthog: failed to orthog vector', i,
+     &       GA_ERR)
                end if
             end if
          end if
 c
-         if (si .eq. 0.0d0) call errquit('ga_orthog: hard zero', i)
-         if (si .lt. 0.0d0) call errquit('ga_orthog: negative', i)
+         if (si .eq. 0.0d0) call errquit('ga_orthog: hard zero', i,
+     &       GA_ERR)
+         if (si .lt. 0.0d0) call errquit('ga_orthog: negative', i,
+     &       GA_ERR)
          scale = 1.0d0/sqrt(si)
          do u = ulo, uhi
             vecs(u,i) = vecs(u,i) * scale

@@ -2,9 +2,10 @@
      &     ctr_quad, rad_quad, xyz,
      &                  ibf,iniz, ifin, zprim,  acc_gauss)
 c
-C$Id: nbf_to_mbf.F,v 1.14 1999-03-13 20:52:56 edo Exp $
+C$Id: nbf_to_mbf.F,v 1.15 2003-10-17 22:55:50 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer basis_hand
       integer mcenters ! [input]
@@ -32,7 +33,7 @@ c
      $     sqrt(-16.0d0*alpha*logeps)
 c
       if (.not.bas_numcont(basis_hand, ncontrset))
-     &   call errquit('Exiting in nbf_to_mbf.',1)
+     &   call errquit('Exiting in nbf_to_mbf.',1, BASIS_ERR)
 c
       call ifill(mcenters,0,iniz,1)
       call ifill(mcenters,0,ifin,1)
@@ -42,7 +43,7 @@ c
       npt=0
       do 400 ictr=1,mcenters
         if (.not.bas_ce2cnr(basis_hand,ictr,ic1,ic2))
-     &       call errquit('Exiting in xc_signf.',11)
+     &       call errquit('Exiting in xc_signf.',11, BASIS_ERR)
         r2=0d0
         if (ictr.ne.ctr_quad) then
           x = xyz(1,ctr_quad) - xyz(1,ictr)
@@ -58,13 +59,13 @@ c       get info about current contraction set
 c       
           if (.not. bas_continfo(basis_hand, icset,  l ,nprim,
      &         ncontr, isphere))
-     &         call errquit('Exiting in xc_signf.',4)
+     &         call errquit('Exiting in xc_signf.',4, BASIS_ERR)
 c         
 c       
 c       get exponents and contraction coefficients for this contraction set
 c       
         if (.not.bas_get_exponent(basis_hand, icset, zprim))
-     &       call errquit('Exiting in xc_signf.',7)
+     &       call errquit('Exiting in xc_signf.',7, BASIS_ERR)
 c       
 c       Determine the minimum Gaussian exponent.
 c       

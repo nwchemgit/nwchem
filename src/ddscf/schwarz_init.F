@@ -1,6 +1,7 @@
       subroutine schwarz_init(geom, basis)
-C$Id: schwarz_init.F,v 1.20 2000-08-08 19:56:37 d3g681 Exp $
+C$Id: schwarz_init.F,v 1.21 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "cschwarz.fh"
@@ -38,7 +39,8 @@ c     Get natoms, nshell, mem2, max2e
 c     
       status = geom_ncent(geom, natoms)
       status = status .and. bas_numcont(basis, nshell)
-      if (.not. status) call errquit('schwarz_init: info failed', 0)
+      if (.not. status) call errquit('schwarz_init: info failed', 0,
+     &       INPUT_ERR)
       call int_mem_2e4c(max2e, mem2)
 c
 c     Allocate space for the compressed arrays ... we shall have
@@ -50,7 +52,7 @@ c
       len_cat = (natri - 1) / (2*nb_per_i) + 1
       if (.not. ma_alloc_get(MT_INT, len_cat, 'schwarz: atoms',
      $     l_cat, k_cat))
-     $     call errquit('schwarz_init: ma_alloc 1', len_cat)
+     $     call errquit('schwarz_init: ma_alloc 1', len_cat, MA_ERR)
       call ifill(len_cat, 0, int_mb(k_cat), 1)
 c
       task_size = max(1,natri/(10*ga_nnodes()))
@@ -59,7 +61,7 @@ c
       len_csh = (nshtri - 1) / (2*nb_per_i) + 1
       if (.not. ma_alloc_get(MT_INT, len_csh, 'schwarz: shells',
      $     l_csh, k_csh))
-     $     call errquit('schwarz_init: ma_alloc 2', len_csh)
+     $     call errquit('schwarz_init: ma_alloc 2', len_csh, MA_ERR)
 
       call ifill(len_csh, 0, int_mb(k_csh), 1)
 c     
@@ -71,7 +73,8 @@ c
       status = status .and.
      $     ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
       if (.not. status)
-     $     call errquit('schwarz_init: insufficient memory', mem2)
+     $     call errquit('schwarz_init: insufficient memory', mem2,
+     &       MA_ERR)
 c
 c     make sure that the integrals are being evaluated to sufficient precision
 c
@@ -86,21 +89,25 @@ c
 c
       do iat = 1, natoms
          if (.not. bas_ce2cnr(basis, iat, ishlo, ishhi))
-     $        call errquit('schwarz_init: bas_ce2cnr failed', ish)
+     $        call errquit('schwarz_init: bas_ce2cnr failed', ish,
+     &       BASIS_ERR)
          do jat = 1, iat
             if (ijat .eq. next) then
                if (.not. bas_ce2cnr(basis, jat, jshlo, jshhi))
-     $              call errquit('schwarz_init: bas_ce2cnr failed', jsh)
+     $              call errquit('schwarz_init: bas_ce2cnr failed', jsh,
+     &       BASIS_ERR)
                at_max = 0.0d0
                do ish = ishlo, ishhi
                   if (.not. bas_cn2bfr(basis, ish, ish_bflo, ish_bfhi))
-     $                 call errquit('schwarz_init: bas_cn2bfr', ish)
+     $                 call errquit('schwarz_init: bas_cn2bfr', ish,
+     &       BASIS_ERR)
                   idim = ish_bfhi - ish_bflo + 1
                   jshtop = jshhi
                   if (iat .eq. jat) jshtop = ish
                   do jsh = jshlo, jshtop
                      if (.not. bas_cn2bfr(basis,jsh,jsh_bflo,jsh_bfhi))
-     $                    call errquit('schwarz_init: bas_cn2bfr', jsh)
+     $                    call errquit('schwarz_init: bas_cn2bfr', jsh,
+     &       BASIS_ERR)
                      jdim = jsh_bfhi - jsh_bflo + 1
 c
                      call int_2e4c(basis, ish, jsh, basis, ish, jsh,
@@ -164,8 +171,10 @@ c
       if (odebug .and. ga_nodeid().eq.0)
      $     write(6,*) ' sch_max ', sch_max
 c
-      if (.not. ma_pop_stack(l_scr)) call errquit('schwarz_init: pop',0)
-      if (.not. ma_pop_stack(l_g)) call errquit('schwarz_init: pop', 1)
+      if (.not. ma_pop_stack(l_scr)) call errquit('schwarz_init: pop',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_g)) call errquit('schwarz_init: pop', 1,
+     &       MA_ERR)
 c
       if (ga_nodeid().eq.0 .and. util_print('schwarz',print_high)) 
      $     then

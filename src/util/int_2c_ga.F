@@ -1,6 +1,7 @@
       subroutine int_2c_ga(ibas, jbas, g, integ_type, Alpha)
-C$Id: int_2c_ga.F,v 1.4 1997-04-01 03:43:42 gg502 Exp $
+C$Id: int_2c_ga.F,v 1.5 2003-10-17 22:58:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "inp.fh"
@@ -46,15 +47,15 @@ c
          type = 4
       else
          write(6,*) ' integ_type = ', integ_type
-         call errquit('int_1e_ga: unknown integ_type', 0)
+         call errquit('int_1e_ga: unknown integ_type', 0, GA_ERR)
       endif
 c
 c     Get info about the basis sets
 c
       if (.not. bas_numcont(ibas, nshell_i)) call errquit
-     $     ('int_2c_ga: bas_numcont failed for ibas', ibas)
+     $     ('int_2c_ga: bas_numcont failed for ibas', ibas, BASIS_ERR)
       if (.not. bas_numcont(jbas, nshell_j)) call errquit
-     $     ('int_2c_ga: bas_numcont failed for jbas', jbas)
+     $     ('int_2c_ga: bas_numcont failed for jbas', jbas, BASIS_ERR)
 c
 c     allocate necessary local temporary arrays on the stack
 c
@@ -70,9 +71,9 @@ c
          call int_mem_2e2c(max1e, mem1)
       EndIf
       if (.not. MA_push_get(MT_DBL,max1e,'int_2c_ga:buf',l_buf,k_buf))
-     $     call errquit('int_2c_ga: ma failed', max1e)
+     $     call errquit('int_2c_ga: ma failed', max1e, MA_ERR)
       if (.not. MA_push_get(MT_DBL, mem1,'int_2c_ga:scr',l_scr,k_scr))
-     $     call errquit('int_2c_ga: ma failed', mem1)
+     $     call errquit('int_2c_ga: ma failed', mem1, MA_ERR)
 c
 c     Loop thru shells with static parallel work decomposition
 c
@@ -83,11 +84,12 @@ c
 C
       do ishell = 1, nshell_i
          if (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) call errquit
-     $        ('int_2c_ga: bas_cn2bfr failed ibas', ibas)
+     $        ('int_2c_ga: bas_cn2bfr failed ibas', ibas, BASIS_ERR)
          do jshell = 1, nshell_j
             if ( ijshell .eq. Next) then
                if (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
-     $              call errquit('int_2c_ga: bas_cn2bfr ?', jbas)
+     $              call errquit('int_2c_ga: bas_cn2bfr ?', jbas,
+     &       BASIS_ERR)
                jdim = jhi - jlo + 1
 c
 c     Generate the integrals
@@ -105,7 +107,8 @@ c
                   call int_2e2c (ibas, ishell, jbas, jshell,
      $                 mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                else
-                  call errquit('int_2c_ga: invalid type?', type)
+                  call errquit('int_2c_ga: invalid type?', type,
+     &       INPUT_ERR)
                endif
 c
 c     Add the integrals into the global array
@@ -122,9 +125,9 @@ c
 c     chop stack at first item allocated
 c
       if (.not. MA_pop_stack(l_scr)) call errquit
-     $     ('int_2c_ga: pop failed', 0)
+     $     ('int_2c_ga: pop failed', 0, MA_ERR)
       if (.not. MA_pop_stack(l_buf)) call errquit
-     $     ('int_2c_ga: pop failed', 0)
+     $     ('int_2c_ga: pop failed', 0, MA_ERR)
 c
       call ga_sync()            ! So that no nasty races can result
 c

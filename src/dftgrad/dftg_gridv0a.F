@@ -11,9 +11,10 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.21 2003-10-13 21:22:51 pollack Exp $
+c     $Id: dftg_gridv0a.F,v 1.22 2003-10-17 22:54:42 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "cdft.fh"
 #include "stdio.fh"
@@ -111,7 +112,7 @@ c     Determine the XC energy functionals.
 c
 c
       if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
-     &   call errquit('exiting in dftg_gridv0.',7)
+     &   call errquit('exiting in dftg_gridv0.',7, BASIS_ERR)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
 c
 c     Define the max number of basis functions, contractions,
@@ -153,17 +154,19 @@ c
 c     Allocate and create info for new basis function evaluator
 c
       if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &     call errquit('Exiting in dftg_gridv0a',0)
+     &     call errquit('Exiting in dftg_gridv0a',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
      &     call errquit('dftg_gridv0a: cannot allocate docset',
      ,     ncontrset)
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
-     &     call errquit('dftg_gridv0a: cannot allocate bas_cent_info',0)
+     &     call errquit('dftg_gridv0a: cannot allocate bas_cent_info',0,
+     &       MA_ERR)
       if (.not.MA_Push_Get(mt_int, 6*ncontrset, 'bas_cset_info',
      &     lbas_cset_info, ibas_cset_info))
-     &     call errquit('dftg_gridv0a: cannot allocate bas_cset_info',0)
+     &     call errquit('dftg_gridv0a: cannot allocate bas_cset_info',0,
+     &       MA_ERR)
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
 c     
@@ -171,10 +174,12 @@ c     rewind grid pts file
 c
       if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
      &                     'grid pts buffer', lrqbuf, irqbuf))
-     &   call errquit('dftg_gen: cannot allocate grid pt buffer', 3)
+     &   call errquit('dftg_gen: cannot allocate grid pt buffer', 3,
+     &       MA_ERR)
       if(n_rec_in_file.eq.0) goto 2001
       if (.not. grid_file_rewind())
-     $   call errquit('grid_setspac: rewinding gridpts?', 0)
+     $   call errquit('grid_setspac: rewinding gridpts?', 0,
+     &       UNKNOWN_ERR)
       nqpts_per_buf = n_per_rec
 c
       ntot_cube=0
@@ -185,7 +190,7 @@ c
          if(.not.grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
      &        rad,dbl_mb(irqbuf),nsubb)) goto 2001
          if(nqpts.gt.buffer_size) call
-     '        errquit(' buffersize exceed by qpts ',nqpts)
+     '        errquit(' buffersize exceed by qpts ',nqpts, UNKNOWN_ERR)
         if(nqpts.eq.0) goto 200
         istep=0
         do 110 ncube=1,nsubb
@@ -217,14 +222,14 @@ c
   200 continue  ! bottom of shell loop
  2001 continue
       if (.not.ma_pop_stack(lrqbuf))
-     &     call errquit('dftg_gridv0a: cannot pop stack', 0)
+     &     call errquit('dftg_gridv0a: cannot pop stack', 0, MA_ERR)
 c
          if (.not.MA_Pop_Stack(lbas_cset_info))
-     &        call errquit('dftg_gridv0a: pop stack failed.',2)
+     &        call errquit('dftg_gridv0a: pop stack failed.',2, MA_ERR)
          if (.not.MA_Pop_Stack(lbas_cent_info))
-     &        call errquit('dftg_gridv0a: pop stack failed.',3)
+     &        call errquit('dftg_gridv0a: pop stack failed.',3, MA_ERR)
       if (.not.MA_Pop_Stack(ldocset))
-     &     call errquit('dftg_gridv0a: pop stack failed.',4)
+     &     call errquit('dftg_gridv0a: pop stack failed.',4, MA_ERR)
 c
       return
       end

@@ -1,13 +1,14 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.22 2003-09-11 16:04:05 edo Exp $
+c     $Id: fock_xc.F,v 1.23 2003-10-17 22:54:32 carlfahl Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
 c     BGJ - 8/98
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "geom.fh"
@@ -118,7 +119,7 @@ c     assumed l3d true AND calc_type=2
 c
       if(l3d.and.calc_type.ne.2.or.
      &   (.not.l3d).and.calc_type.eq.2) call errquit
-     &   ('fxc: calc_type-l3d logic wrong ',0)
+     &   ('fxc: calc_type-l3d logic wrong ',0, UNKNOWN_ERR)
 c
 c     Set up local copies of density matrix handles. The number of 
 c     density matrices needed is ndens*nvec+2. The last two are scf
@@ -148,7 +149,7 @@ c
          chunk(3) = -1
          if (.not. nga_create (MT_DBL, 3, dims, 'XCDensity',chunk,
      &     g_dens_xc)) call errquit
-     &     ('fock_xc: could not allocate g_dens_xc',555)
+     &     ('fock_xc: could not allocate g_dens_xc',555, GA_ERR)
 c
 c     alpha bit
 c
@@ -187,7 +188,8 @@ c
       endif
       if (calc_type .eq. 2) then
          if (.not. bgj_get_scf_dens(g_dens_scf))
-     &        call errquit('fock_xc: cant get scf density handles',0)
+     &        call errquit('fock_xc: cant get scf density handles',0,
+     &       UNKNOWN_ERR)
          alo(1) = 1
          ahi(1) = nbf_ao
          blo(1) = nfock_xc+1
@@ -264,14 +266,15 @@ c
      &      rho_n_dum, Exc_dum,
      &      nfock_xc, calc_type, tdum, .true., triplet)
       else
-         call errquit('fxc: old grid broken ',0)
+         call errquit('fxc: old grid broken ',0, UNKNOWN_ERR)
       endif
 c
 c     Clean up
 c
       if(l3d) then
          if (.not. ga_destroy(g_dens_xc))
-     &      call errquit('fock_xc: could not destroy g_dens_xc',0)
+     &      call errquit('fock_xc: could not destroy g_dens_xc',0,
+     &       GA_ERR)
       endif
       if(ndens.eq.2)  then
 c
@@ -301,10 +304,10 @@ c
 c
       if (calc_type .eq. 2) then
          if (.not. ga_destroy(g_dens_scf(1)))
-     &      call errquit('fock_xc: could not destroy DM',1)
+     &      call errquit('fock_xc: could not destroy DM',1, GA_ERR)
          if (ndens. eq. 2) then
             if (.not. ga_destroy(g_dens_scf(2)))
-     &         call errquit('fock_xc: could not destroy DM',2)
+     &         call errquit('fock_xc: could not destroy DM',2, GA_ERR)
          endif
       endif
 c

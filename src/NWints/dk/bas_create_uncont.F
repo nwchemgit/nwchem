@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.14 2000-08-04 01:14:53 bert Exp $
+c $Id: bas_create_uncont.F,v 1.15 2003-10-17 22:53:48 carlfahl Exp $
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"
@@ -14,6 +14,7 @@ c $Id: bas_create_uncont.F,v 1.14 2000-08-04 01:14:53 bert Exp $
 #include "bgj.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 c
 c     Given a contracted basis, create a new uncontracted basis on rtdb
 c
@@ -71,12 +72,13 @@ c
 c     Get geometry and rtdb handles for basis_in
 c
       if (.not. bas_geom(basis_in,usegeom))
-     $   call errquit('bas_create_uncont: bas_geom failed',0)
+     $   call errquit('bas_create_uncont: bas_geom failed',0, BASIS_ERR)
 c
 c     Create a new fitting basis set
 c
       if (.not. bas_create(basis_out,name))
-     $   call errquit('bas_create_uncont: bas_create failed',0)
+     $   call errquit('bas_create_uncont: bas_create failed',0,
+     &       BASIS_ERR)
 c
 c     Check if the user generated a fitting basis on input called
 c     "D-K basis", if so load, normalize and return
@@ -89,23 +91,27 @@ c
 c     Create a new uncontracted basis and initialize adding function
 c
       if (.not. bas_add_ucnt_init(basis_out)) call errquit
-     &      ('bas_create_uncont: bas_add_ucnt_init failed',0)
+     &      ('bas_create_uncont: bas_add_ucnt_init failed',0,
+     &       BASIS_ERR)
 c
 c     Get # unique centers 
 c
       if (.not. bas_num_uce(basis_in,nuniqatom)) 
-     $   call errquit ('bas_create_uncont: bas_numcont failed',0)
+     $   call errquit ('bas_create_uncont: bas_numcont failed',0,
+     &       BASIS_ERR)
 c
 c     Get maximum number of exponents for unique atoms
 c
       ipr_mx = 0
       do 7 iatom = 1, nuniqatom
          if (.not.bas_uce2cnr(basis_in,iatom,ifirst,ilast))
-     $      call errquit ('bas_create_uncont: bas_uce2cnr failed',0)
+     $      call errquit ('bas_create_uncont: bas_uce2cnr failed',0,
+     &       BASIS_ERR)
          do 8 ishell = ifirst, ilast
             if (.not. bas_ucontinfo(basis_in,ishell,l_type,
      $                             nprim,icont,cartsph))
-     $         call errquit ('bas_create_uncont: bas_ucontinfo ',0)
+     $         call errquit ('bas_create_uncont: bas_ucontinfo ',0,
+     &       BASIS_ERR)
             ipr_mx = ipr_mx + nprim
     8    continue
     7 continue
@@ -113,27 +119,34 @@ c
 c     Make arrays for exponents plus l-types and shells of exponents
 c
       if (.not. ma_push_get(MT_DBL,ipr_mx,'primitives',Expm_a,ExpIm_a))
-     $     call errquit('bas_create_uncont: ma_push_get Exp array',0)
+     $     call errquit('bas_create_uncont: ma_push_get Exp array',0,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_INT,ipr_mx,'ltypes',Lm_a,LIm_a))
-     $     call errquit('bas_create_uncont: ma_push_get L array',0)
+     $     call errquit('bas_create_uncont: ma_push_get L array',0,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_INT,ipr_mx,'shells',Sm_a,SIm_a))
-     $     call errquit('bas_create_uncont: ma_push_get Exp array',0)
+     $     call errquit('bas_create_uncont: ma_push_get Exp array',0,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_INT,ipr_mx,'atoms',Am_a,AIm_a))
-     $     call errquit('bas_create_uncont: ma_push_get Exp array',0)
+     $     call errquit('bas_create_uncont: ma_push_get Exp array',0,
+     &       MA_ERR)
 c
 c     Extract exponents and data from basis_in for all unique atoms 
 c
       counter = 0
       do 1 iatom = 1, nuniqatom
          if (.not.bas_uce2cnr(basis_in,iatom,ifirst,ilast))
-     $      call errquit ('bas_create_uncont: bas_uce2cnr failed',0)
+     $      call errquit ('bas_create_uncont: bas_uce2cnr failed',0,
+     &       BASIS_ERR)
          do 2 ishell = ifirst, ilast
             if (.not. bas_ucontinfo(basis_in,ishell,l_type,
      $                             nprim,icont,cartsph))
-     $         call errquit ('bas_create_uncont: bas_ucontinfo ',0)
+     $         call errquit ('bas_create_uncont: bas_ucontinfo ',0,
+     &       BASIS_ERR)
             if (.not. bas_getu_exponent(basis_in,ishell,
      $                                 dbl_mb(ExpIm_a+counter)))
-     $         call errquit ('bas_create_uncont: bas_getu_exponent',0)
+     $         call errquit ('bas_create_uncont: bas_getu_exponent',0,
+     &       BASIS_ERR)
             do 3 iprim = 1, nprim
                  int_mb(LIm_a+counter+iprim-1) = l_type
                  int_mb(SIm_a+counter+iprim-1) = ishell
@@ -163,18 +176,22 @@ c        in the flexible basis set construction code below
 c
          do 9 iprim = 1, nuniqprim
             if (int_mb(LIm_a+iprim-1) .lt.0) call errquit(
-     $       'Cannot use sp or spd to create flexi fitting basis DK',0)
+     $       'Cannot use sp or spd to create flexi fitting basis DK',0,
+     &       BASIS_ERR)
     9    continue
 c
 c        Get highest angular momentum for array definitions and create arrays
 c
          if (.not. bas_high_angular(basis_in,l_max))
-     $      call errquit('bas_create_uncont: bas_high_angular failed',0)
+     $      call errquit('bas_create_uncont: bas_high_angular failed',0,
+     &       BASIS_ERR)
          ipr_mx = l_max + 1
          if (.not. ma_push_get(MT_DBL,ipr_mx,'maxprim',Pmxm_a,PmxIm_a))
-     $      call errquit('bas_create_uncont: ma_push_get Pmx array',0)
+     $      call errquit('bas_create_uncont: ma_push_get Pmx array',0,
+     &       MA_ERR)
          if (.not. ma_push_get(MT_DBL,ipr_mx,'minprim',Pmnm_a,PmnIm_a))
-     $      call errquit('bas_create_uncont: ma_push_get Pmn array',0)
+     $      call errquit('bas_create_uncont: ma_push_get Pmn array',0,
+     &       MA_ERR)
 c
 c        Loop over each unique center
 c
@@ -239,65 +256,81 @@ c
                nprim = log(maxprim/minprim)/log(dk_ratio) + 1
                alpha = (maxprim/minprim)**(1.0d0/dble(nprim-1))
                if (.not. bas_uce_tag(basis_in,iatom, usetag))
-     $          call errquit('bas_create_uncont: bas_cont_tag failed',0)
+     $          call errquit('bas_create_uncont: bas_cont_tag failed',0,
+     &       BASIS_ERR)
                do 21 iprim = 1, nprim
                   if (.not. bas_add_ucnt(basis_out,usetag,l_type,1,1,
      $                0.0d0,maxprim,1.0d0,1,name, .false.)) call errquit 
-     $                ('bas_create_uncont: bas_add_ucnt',0)
+     $                ('bas_create_uncont: bas_add_ucnt',0, BASIS_ERR)
                   maxprim = maxprim / alpha
    21          continue
    20       continue
    17    continue
          if (.not. ma_pop_stack(Pmnm_a))
-     $     call errquit('bas_create_uncont: ma__pop_stack Pmn array',0)
+     $     call errquit('bas_create_uncont: ma__pop_stack Pmn array',0,
+     &       MA_ERR)
          if (.not. ma_pop_stack(Pmxm_a))
-     $     call errquit('bas_create_uncont: ma__pop_stack Pmx array',0)
+     $     call errquit('bas_create_uncont: ma__pop_stack Pmx array',0,
+     &       MA_ERR)
       else
          do 15 iprim = 1, nuniqprim
             if (.not. bas_uce_tag(basis_in,int_mb(AIm_a+iprim-1),
      $                             usetag)) 
-     $         call errquit ('bas_create_uncont: bas_cont_tag failed',0)
+     $         call errquit ('bas_create_uncont: bas_cont_tag failed',0,
+     &       BASIS_ERR)
             if (.not. bas_add_ucnt(basis_out,usetag,
      $                            int_mb(LIm_a+iprim-1),1,1,0.0d0,
      $                            dbl_mb(ExpIm_a+iprim-1),1.0d0,1,name,
      $                            .false.))
-     $         call errquit ('bas_create_uncont: bas_add_ucnt',0)
+     $         call errquit ('bas_create_uncont: bas_add_ucnt',0,
+     &       BASIS_ERR)
    15    continue
       endif
 c
       if (.not. bas_get_spherical(basis_in,spheri))
-     $     call errquit('bas_create_uncont: bas_get_spherical',0)
+     $     call errquit('bas_create_uncont: bas_get_spherical',0,
+     &       BASIS_ERR)
       if (.not. bas_set_spherical(basis_out,spheri))
-     $     call errquit('bas_create_uncont: bas_set_spherical',0)
+     $     call errquit('bas_create_uncont: bas_set_spherical',0,
+     &       BASIS_ERR)
 c
       if (.not. ma_pop_stack(Am_a))
-     $   call errquit('bas_create_uncont: ma_pop_stack Sm_a',0)
+     $   call errquit('bas_create_uncont: ma_pop_stack Sm_a',0,
+     &       MA_ERR)
       if (.not. ma_pop_stack(Sm_a))
-     $   call errquit('bas_create_uncont: ma_pop_stack Sm_a',0)
+     $   call errquit('bas_create_uncont: ma_pop_stack Sm_a',0,
+     &       MA_ERR)
       if (.not. ma_pop_stack(Lm_a))
-     $   call errquit('bas_create_uncont: ma_pop_stack Lm_a',0)
+     $   call errquit('bas_create_uncont: ma_pop_stack Lm_a',0,
+     &       MA_ERR)
       if (.not. ma_pop_stack(Expm_a))
-     $   call errquit('bas_create_uncont: ma_pop_stack Expm_a',0)
+     $   call errquit('bas_create_uncont: ma_pop_stack Expm_a',0,
+     &       MA_ERR)
 c
 c     Store the uncontracted basis on the RTDB
 c
       if (.not. bas_rtdb_store(usertdb,name,basis_out))
-     $   call errquit('bas_create_uncont: bas_rtdb_store failed',0)
+     $   call errquit('bas_create_uncont: bas_rtdb_store failed',0,
+     &       RTDB_ERR)
 c
 c     Do a delete for bas_add_ucnt_init with the strange name tidy
 c
       if (.not. bas_add_ucnt_tidy(basis_out)) call errquit
-     &      ('bas_create_uncont: bas_add_ucnt_tidy failed',0)
+     &      ('bas_create_uncont: bas_add_ucnt_tidy failed',0,
+     &       BASIS_ERR)
 c
       if (.not. bas_destroy(basis_out))
-     $   call errquit('bas_create_uncont: bas_destroy failed',0)
+     $   call errquit('bas_create_uncont: bas_destroy failed',0,
+     &       BASIS_ERR)
 c
 c     Load the uncontracted basis from the RTDB
 c
       if (.not. bas_create(basis_out,name))
-     $   call errquit('bas_create_uncont: bas_create failed',0)
+     $   call errquit('bas_create_uncont: bas_create failed',0,
+     &       BASIS_ERR)
       if (.not. bas_rtdb_load(usertdb,usegeom,basis_out,name))
-     $   call errquit('bas_create_uncont: bas_rtdb_load failed',0)
+     $   call errquit('bas_create_uncont: bas_rtdb_load failed',0,
+     &       RTDB_ERR)
 c
 c     Normalize the uncontracted fitting basis 
 c

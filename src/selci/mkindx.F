@@ -1,8 +1,9 @@
       subroutine selci_mkindx(ioconf,indxci,ncinew,nnsmax)
 *
-* $Id: mkindx.F,v 1.2 1997-10-31 23:42:13 d3e129 Exp $
+* $Id: mkindx.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
 c
       dimension ioconf(nintpo,noconf), indxci(noconf+1)
@@ -25,16 +26,18 @@ c$doit asis
  20      continue
          if (is.ne.issss) then
             call selci_wrtcon(ifllog, iocc, norbs)
-            call errquit(' mkindx: bad symmetry ',is)
+            call errquit(' mkindx: bad symmetry ',is, INPUT_ERR)
          endif
          if (mod(ns,2).ne.mod(multi-1,2) .or. ns.lt.multi-1) then
             call selci_wrtcon(ifllog, iocc, norbs)
-            call errquit(' mkindx: a reference has invalid ns',i)
+            call errquit(' mkindx: a reference has invalid ns',i,
+     &       INPUT_ERR)
          endif
          nnsmax = max(ns,nnsmax)
          if (nnsmax.gt.nsmax) then
             call selci_wrtcon(ifllog, iocc, norbs)
-            call errquit('mkindx: wmatrx nsmax small, need:',nnsmax)
+            call errquit('mkindx: wmatrx nsmax small, need:',nnsmax,
+     &       INPUT_ERR)
          endif
          indxci(iconf) = ncinew
          ncinew = ncinew + nf(ns)

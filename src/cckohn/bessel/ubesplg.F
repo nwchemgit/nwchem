@@ -5,6 +5,7 @@ c     bessel fuction spline code with new prescription for
 c     the outgoing wave continuum function.
 c
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
       integer rtdb
@@ -69,17 +70,17 @@ c alpha = exponential parameter in test function
 c
 c      read(5,*)lmax,nper,xstart,xmax,nint,alpha
       if(.not.rtdb_get(rtdb,'cckohn:lmax',mt_int,1,lmax))
-     &     call errquit("can not get lmax from rtdb", 100)
+     &     call errquit("can not get lmax from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:nper',mt_int,1,nper))
-     &     call errquit("can not get nper from rtdb", 100)
+     &     call errquit("can not get nper from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:xstart',mt_dbl,1,xstart))
-     &     call errquit("can not get xstart from rtdb", 100)
+     &     call errquit("can not get xstart from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:xmax',mt_dbl,1,xmax))
-     &     call errquit("can not get xmax from rtdb", 100)
+     &     call errquit("can not get xmax from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:nint',mt_int,1,nint))
-     &     call errquit("can not get nint from rtdb", 100)
+     &     call errquit("can not get nint from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:alpha',mt_dbl,1,alpha))
-     &     call errquit("can not get alpha from rtdb", 100)
+     &     call errquit("can not get alpha from rtdb", 100, RTDB_ERR)
       write(6,*)' Greens Function Code '
       write(6,101)lmax,nper,xstart,xmax,nint,alpha
  101  format(/,' L-Max  = ',i5,/,

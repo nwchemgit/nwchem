@@ -20,9 +20,11 @@
 *   Written by K. G. Dyall                                             *
 *                                                                      *
 ************************************************************************
-* $Id: ecp_matpi.F,v 1.2 1999-07-29 01:03:34 d3e129 Exp $
+* $Id: ecp_matpi.F,v 1.3 2003-10-17 22:53:51 carlfahl Exp $
       implicit none
 #include "stdio.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer i,j,k,mlo,mhi,m1,m2,nlo,nhi,n1,n2,nwid,ncol,nfield
       integer a(mlo:mhi,nlo:nhi)
       character*(*) heading
@@ -35,7 +37,7 @@
       end if
       nfield = (nwid-6)/ncol
       if (nfield .lt. 2) call errquit ('Too many columns in ecp_matpi',
-     &    99)
+     &    99, UNKNOWN_ERR)
       write (fmti,'(A,i2,a,i2,a)') '(/6X,',ncol,'I',nfield,')'
       write (fmtr,'(A,i2,a,i2,a)') 
      &    '(X,I3,2X,',ncol,'I',nfield,')'

@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.12 2003-03-22 02:30:01 bylaska Exp $
+* $Id: strfac.F,v 1.13 2003-10-17 22:56:44 carlfahl Exp $
 *
 
 *     ***********************************
@@ -10,6 +10,7 @@
 
       subroutine strfac_init()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "strfac_common.fh"
@@ -37,7 +38,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,(nz*nion),'ex3',ex3(2),ex3(1))
       if (.not. value) 
-     >  call errquit('strfac_init:out of heap memory',0)
+     >  call errquit('strfac_init:out of heap memory',0, MA_ERR)
 
 *     **** allocate indx blocks ****
       do nb=0,1
@@ -51,7 +52,7 @@
      >          MA_alloc_get(mt_int,nfft3d,'k_indx0',
      >                     k_indx(2,nb),k_indx(1,nb))
         if (.not. value) 
-     >  call errquit('strfac_init:out of heap memory',nb+1)
+     >  call errquit('strfac_init:out of heap memory',nb+1, MA_ERR)
 
         do k=0,nz-1
          call D3dB_ktoqp(1,(k+1),q,p)
@@ -85,6 +86,7 @@ C     ***********************************
 
       subroutine strfac_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "strfac_common.fh"
@@ -96,14 +98,14 @@ C     ***********************************
       value = value.and.MA_free_heap(ex2(2))
       value = value.and.MA_free_heap(ex3(2))
       if (.not. value) 
-     >  call errquit('strfac_end:error freeing heap memory',0)
+     >  call errquit('strfac_end:error freeing heap memory',0, MA_ERR)
 
       do nb=0,1
          value = MA_free_heap(i_indx(2,nb))
          value = value.and.MA_free_heap(j_indx(2,nb))
          value = value.and.MA_free_heap(k_indx(2,nb))
          if (.not. value) 
-     >   call errquit('strfac_end:error freeing heap memory',nb)
+     >   call errquit('strfac_end:error freeing heap memory',nb, MA_ERR)
       end do
 
       return

@@ -1,8 +1,9 @@
       SubRoutine DMat(Geom,Basis,g_Vec,g_Dns,nOcc,nBF)
 *
-* $Id: dmat.F,v 1.6 2003-01-10 19:55:18 edo Exp $
+* $Id: dmat.F,v 1.7 2003-10-17 22:54:43 carlfahl Exp $
 *
       Implicit None
+#include "errquit.fh"
 *
 ************************************************************************
 *     Include standard input and memory checking common structures.
@@ -46,7 +47,7 @@ c
       End If
       If (lthi.eq.0 . or . lthj.eq.0) GoTo 9999
       If (lthi.lt.0 . or . lthj.lt.0)
-     &   Call ErrQuit('DMat: Wrong distribution !!!',0)
+     &   Call ErrQuit('DMat: Wrong distribution !!!',0, UNKNOWN_ERR)
 *
 *---- Allocate the local vector
       LResult = MA_Push_Get(MT_Dbl,lthi,'Vector',l_Scr,k_Scr)
@@ -69,7 +70,7 @@ c
       Call GA_Dgemm('N','T',nBF,nBF,nBF,1.d0,g_Vec,g_Scr,0.d0,g_Dns)
 *
       if (.not. ga_destroy(g_Scr)) call errquit
-     &   ('dmat: could not destroy g_Scr', 0)
+     &   ('dmat: could not destroy g_Scr', 0, GA_ERR)
 *
 *---- Normal termination
       Return

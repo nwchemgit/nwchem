@@ -1,11 +1,12 @@
 *
-* $Id: cpsp.F,v 1.15 2003-06-26 21:22:23 bylaska Exp $
+* $Id: cpsp.F,v 1.16 2003-10-17 22:56:03 carlfahl Exp $
 *
 
 #define TCGMSG
 
       subroutine cpsp_init()      
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
@@ -48,7 +49,7 @@
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp),'locp',locp(2),locp(1))
 
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(npsp*npack0,          0.0d0,0,dbl_mb(vl(1)), 1)
       call dcopy(lmmax_max*npsp*npack1*nbrillioun,
@@ -247,6 +248,7 @@ c     cpsp_rc = rc(i,ia)
 
       subroutine cpsp_v_local(vl_out,move,dng,fion)
       implicit none
+#include "errquit.fh"
       complex*16 vl_out(*)
       logical    move
       complex*16 dng(*)
@@ -273,7 +275,8 @@ c     cpsp_rc = rc(i,ia)
       value = MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
-      if (.not. value) call errquit('cpsp_v_local: pushing stack',0)
+      if (.not. value) call errquit('cpsp_v_local: pushing stack',0,
+     &       MA_ERR)
 
       if (move) then
         value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
@@ -283,7 +286,8 @@ c     cpsp_rc = rc(i,ia)
      >          MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
         value = value.and.
      >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-        if (.not. value) call errquit('cpsp_v_local: pushing stack',1)
+        if (.not. value) call errquit('cpsp_v_local: pushing stack',1,
+     &       MA_ERR)
         G(1)  = c_G_indx(1)
         G(2)  = c_G_indx(2)
         G(3)  = c_G_indx(3)
@@ -333,11 +337,13 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
         value = value.and.MA_pop_stack(Gy(2))
         value = value.and.MA_pop_stack(Gx(2))
         value = value.and.MA_pop_stack(xtmp(2))
-        if (.not. value) call errquit('cpsp_v_local: popping stack',0)
+        if (.not. value) call errquit('cpsp_v_local: popping stack',0,
+     &       MA_ERR)
       end if
       value = MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('cpsp_v_local: popping stack',1)
+      if (.not. value) call errquit('cpsp_v_local: popping stack',1,
+     &       MA_ERR)
 
       call nwpw_timing_end(5)
       return 
@@ -352,6 +358,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
       subroutine cpsp_f_vlocal(dng,fion)
       implicit none
+#include "errquit.fh"
       complex*16 dng(*)
       real*8     fion(3,*)
 
@@ -385,7 +392,8 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
      >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not. value) call errquit('cpsp_f_vlocal:pushing stack',0)
+      if (.not. value) call errquit('cpsp_f_vlocal:pushing stack',0,
+     &       MA_ERR)
       G(1)  = c_G_indx(1)
       G(2)  = c_G_indx(2)
       G(3)  = c_G_indx(3)
@@ -428,7 +436,8 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       value = value.and.MA_pop_stack(xtmp(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('cpsp_f_vlocal:popping stack',1)
+      if (.not. value) call errquit('cpsp_f_vlocal:popping stack',1,
+     &       MA_ERR)
 
       call nwpw_timing_end(5)
       return 
@@ -446,6 +455,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       subroutine cpsp_v_nonlocal(ispin,ne,
      >                           psi1,psi2,move,fion)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       complex*16 psi2(*)
@@ -488,7 +498,8 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nn,'zsw1',zsw1(2),zsw1(1))
-      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0)
+      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
+     &       MA_ERR)
 
       if (move) then
         value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
@@ -500,7 +511,8 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
      >          MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
         value = value.and.
      >        MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-        if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1)
+        if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1,
+     &       MA_ERR)
         G(1)  = c_G_indx(1)
         G(2)  = c_G_indx(2)
         G(3)  = c_G_indx(3)
@@ -631,13 +643,15 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
         value = value.and.MA_pop_stack(Gy(2))
         value = value.and.MA_pop_stack(Gx(2))
         value = value.and.MA_pop_stack(xtmp(2))
-        if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',2)
+        if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',2,
+     &       MA_ERR)
       end if
 
       value = MA_pop_stack(zsw1(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',3)
+      if (.not.value) call errquit('cpsp_v_nonlocal:popping stack',3,
+     &       MA_ERR)
 
       call nwpw_timing_end(6)
 
@@ -654,6 +668,7 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
 
       subroutine cpsp_f_vnonlocal(ispin,ne,psi1,fion)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       real*8 fion(3,*)
@@ -694,7 +709,8 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
      >        MA_push_get(mt_dcpl,nfft3d,'vtmp',vtmp(2),vtmp(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,nn,'zsw1',zsw1(2),zsw1(1))
-      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0)
+      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',0,
+     &       MA_ERR)
 
       value = MA_push_get(mt_dbl, nfft3d,'xtmp',xtmp(2),xtmp(1))
       value = value.and.
@@ -705,7 +721,8 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
       value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1)
+      if (.not.value) call errquit('cpsp_v_nonlocal:pushing stack',1,
+     &       MA_ERR)
       G(1)  = c_G_indx(1)
       G(2)  = c_G_indx(2)
       G(3)  = c_G_indx(3)
@@ -818,12 +835,14 @@ c          call Cram_c_pack(nb,dcpl_mb(exi(1)))
       value = value.and.MA_pop_stack(Gy(2))
       value = value.and.MA_pop_stack(Gx(2))
       value = value.and.MA_pop_stack(xtmp(2))
-      if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',2)
+      if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',2,
+     &       MA_ERR)
 
       value = MA_pop_stack(zsw1(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',3)
+      if (.not.value) call errquit('cpsp_f_vnonlocal:popping stack',3,
+     &       MA_ERR)
 
       call nwpw_timing_end(6)
       
@@ -1021,6 +1040,7 @@ c       close(11)
 
       subroutine cpsp_readall()
       implicit none
+#include "errquit.fh"
       
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
@@ -1065,10 +1085,12 @@ c       close(11)
       log_mb(semicore(1)) = .false.
 
       value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,
+     &       MA_ERR)
 
       value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0,
+     &       MA_ERR)
 
 *     **** read pseudopotentials ****
       do ia=1,npsp

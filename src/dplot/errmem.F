@@ -1,8 +1,9 @@
       SubRoutine ErrMem(LResult,Note,iRC)
 *
-* $Id: errmem.F,v 1.3 1997-11-04 10:10:38 d3e129 Exp $
+* $Id: errmem.F,v 1.4 2003-10-17 22:54:43 carlfahl Exp $
 *
       Implicit None
+#include "errquit.fh"
 *
 ************************************************************************
 *
@@ -16,7 +17,7 @@
       If (LResult) Then
          Return
       Else
-         Call ErrQuit(Note,iRC)
+         Call ErrQuit(Note,iRC, UNKNOWN_ERR)
       End If
 *
 *---- Normal termination

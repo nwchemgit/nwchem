@@ -2,7 +2,7 @@
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet)
 c
-c $Id: tddft_contract.F,v 1.3 2002-08-07 17:21:45 edo Exp $
+c $Id: tddft_contract.F,v 1.4 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c (1) A trial density matrix will be decomposed into 
@@ -17,6 +17,7 @@ c symmetric.
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -73,10 +74,10 @@ c
       ichunk(3)=-1
       if (.not.nga_create(mt_dbl,3,idim,'Work trial',
      1  ichunk,g_ntrl)) call errquit
-     2  ('tddft_contract: failed to create g_ntrl',0)
+     2  ('tddft_contract: failed to create g_ntrl',0, GA_ERR)
       if (.not.nga_create(mt_dbl,3,idim,'Work product',
      1  ichunk,g_nprd)) call errquit
-     2  ('tddft_contract: failed to create g_nprd',0)
+     2  ('tddft_contract: failed to create g_nprd',0, GA_ERR)
 c
 c ---------------------------
 c Symmetrize density matrices
@@ -252,12 +253,12 @@ c ------
 c
       do i=1,ipol
         if (.not.ga_destroy(g_sym(i))) call errquit
-     1    ('tddft_contract: failed to deallocate g_sym',0)
+     1    ('tddft_contract: failed to deallocate g_sym',0, GA_ERR)
       enddo
       if (.not.ga_destroy(g_ntrl)) call errquit
-     1  ('tddft_contract: failed to deallocate g_ntrl',0)
+     1  ('tddft_contract: failed to deallocate g_ntrl',0, GA_ERR)
       if (.not.ga_destroy(g_nprd)) call errquit
-     1  ('tddft_contract: failed to deallocate g_nprd',0)
+     1  ('tddft_contract: failed to deallocate g_nprd',0, GA_ERR)
       return
       end
 
@@ -267,7 +268,7 @@ c
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
      2  lhashf,triplet,nvectors)
 c
-c $Id: tddft_contract.F,v 1.3 2002-08-07 17:21:45 edo Exp $
+c $Id: tddft_contract.F,v 1.4 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Contract trial density matrices with 2-e integrals.
 c Multiple trial density matrices are processed simultaneously,
@@ -276,6 +277,7 @@ c drastically reduced.
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -324,17 +326,17 @@ c
       if (ipol.eq.1) then
         if (.not.ma_push_get(mt_dbl,nvectors,'J factors',
      1    l_jf,k_jf)) call errquit
-     2    ('tddft_nga_cont: failed to allocate jf',0)
+     2    ('tddft_nga_cont: failed to allocate jf',0, MA_ERR)
         if (.not.ma_push_get(mt_dbl,nvectors,'K factors',
      1    l_kf,k_kf)) call errquit
-     2    ('tddft_nga_cont: failed to allocate kf',0)
+     2    ('tddft_nga_cont: failed to allocate kf',0, MA_ERR)
       else
         if (.not.ma_push_get(mt_dbl,4*nvectors,'J factors',
      1    l_jf,k_jf)) call errquit
-     2    ('tddft_nga_cont: failed to allocate jf',0)
+     2    ('tddft_nga_cont: failed to allocate jf',0, MA_ERR)
         if (.not.ma_push_get(mt_dbl,4*nvectors,'K factors',
      1    l_kf,k_kf)) call errquit
-     2    ('tddft_nga_cont: failed to allocate kf',0)
+     2    ('tddft_nga_cont: failed to allocate kf',0, MA_ERR)
       endif
       idim(1)=ipol*nvectors
       idim(2)=nbf_ao
@@ -344,11 +346,11 @@ c
       ichunk(3)=-1
       if (.not.nga_create(mt_dbl,3,idim,'Work sym',
      1  ichunk,g_nsym)) call errquit
-     2  ('tddft_nga_cont: failed to create g_nsym',0)
+     2  ('tddft_nga_cont: failed to create g_nsym',0, GA_ERR)
       if (lhashf.and.tda) then
         if (.not.nga_create(mt_dbl,3,idim,'Work',
      1    ichunk,g_work)) call errquit
-     2    ('tddft_nga_cont: failed to create g_work',0)
+     2    ('tddft_nga_cont: failed to create g_work',0, GA_ERR)
       endif
 c
 c ---------------------------
@@ -532,14 +534,14 @@ c Return
 c ------
 c
       if (.not.ma_pop_stack(l_kf)) call errquit
-     1  ('tddft_nga_cont: failed to deallocate kf',0)
+     1  ('tddft_nga_cont: failed to deallocate kf',0, MA_ERR)
       if (.not.ma_pop_stack(l_jf)) call errquit
-     1  ('tddft_nga_cont: failed to deallocate jf',0)
+     1  ('tddft_nga_cont: failed to deallocate jf',0, MA_ERR)
       if (.not.ga_destroy(g_nsym)) call errquit
-     1  ('tddft_nga_cont: failed to deallocate g_nsym',0)
+     1  ('tddft_nga_cont: failed to deallocate g_nsym',0, GA_ERR)
       if (lhashf.and.tda) then
         if (.not.ga_destroy(g_work)) call errquit
-     1    ('tddft_nga_cont: failed to deallocate g_work',0)
+     1    ('tddft_nga_cont: failed to deallocate g_work',0, GA_ERR)
       endif
       return
       end

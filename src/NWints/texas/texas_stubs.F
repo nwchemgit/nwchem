@@ -3,7 +3,7 @@ C these routines are only called by various api routines
 C 
 C RA Kendall 11/95 PNNL
 C
-* $Id: texas_stubs.F,v 1.4 1996-07-26 17:03:26 pg481 Exp $
+* $Id: texas_stubs.F,v 1.5 2003-10-17 22:54:12 carlfahl Exp $
 #define USE_TEXAS
 #if defined(USE_TEXAS)
       subroutine texas_using_it4pnl()
@@ -16,6 +16,8 @@ C
       subroutine texas_set_accy()
       end
       subroutine texas_hf2_m()
-      call errquit(' use_texas is NOPE. should never get here ',911)
+#include "errquit.fh"
+      call errquit(' use_texas is NOPE. should never get here ',911,
+     &       INT_ERR)
       end
 #endif

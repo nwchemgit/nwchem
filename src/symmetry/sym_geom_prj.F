@@ -1,6 +1,7 @@
       subroutine sym_geom_project(geom, tol)
-C     $Id: sym_geom_prj.F,v 1.4 1999-07-14 00:29:10 d3e129 Exp $
+C     $Id: sym_geom_prj.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "sym.fh"
@@ -23,18 +24,19 @@ c
       external geom_check_handle, geom_print
 c     
       if (.not. geom_check_handle(geom, 'sym_geom_project'))
-     $     call errquit('sym_geom_project: bad geom',0)
+     $     call errquit('sym_geom_project: bad geom',0, GEOM_ERR)
 c
       nops = sym_number_ops(geom)
 c     
       nat = ncenter(geom)
       if (.not. ma_push_get(mt_dbl, 3*nat, 'coordtmp', l_tmp, k_tmp))
-     $     call errquit('sym_geom_project: scratch space', 3*nat)
+     $     call errquit('sym_geom_project: scratch space', 3*nat,
+     &       MA_ERR)
 c     
       if (util_print('sym_geom_project', print_debug)) then
          write(6,*) ' sym_geom_project: Input geometry'
          if (.not. geom_print(geom)) call errquit
-     $        ('sym_geom_project: geom print failed',0)
+     $        ('sym_geom_project: geom print failed',0, GEOM_ERR)
       endif
 c
       call dcopy(3*nat, coords(1,1,geom), 1, dbl_mb(k_tmp), 1)
@@ -54,10 +56,10 @@ c
                enddo
             else
                if (.not. geom_print(geom)) call errquit
-     $              ('sym_geom_project: geom print failed',0)
+     $              ('sym_geom_project: geom print failed',0, GEOM_ERR)
                call errquit('sym_geom_project: sym_center_map'//
      $              ' is inconsistent with requested accuracy',
-     $              op)
+     $              op, INPUT_ERR)
             end if
          end do
       end do
@@ -74,10 +76,10 @@ c
       if (util_print('sym_geom_project', print_debug)) then
          write(6,*) ' sym_geom_project: Output geometry'
          if (.not. geom_print(geom)) call errquit
-     $        ('sym_geom_project: geom print failed',0)
+     $        ('sym_geom_project: geom print failed',0, GEOM_ERR)
       endif
 c
-      if (.not.ma_pop_stack(l_tmp)) call errquit('s_g_p: ma?',0)
+      if (.not.ma_pop_stack(l_tmp)) call errquit('s_g_p: ma?',0, MA_ERR)
 c
 c     May have changed the coords ... recompute derived info
 c

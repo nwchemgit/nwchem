@@ -1,8 +1,9 @@
       subroutine util_pname(name, pname)
 *
-* $Id: util_pname.F,v 1.4 1997-10-31 20:45:38 d3e129 Exp $
+* $Id: util_pname.F,v 1.5 2003-10-17 22:58:35 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "inp.fh"
       character*(*) name, pname
@@ -23,7 +24,8 @@ c
          write(6,*) ' util_pname: |',name,'|'
          call util_flush(6)
          call errquit
-     $     ('util_pname: pname too short for name.id',len(pname))
+     $     ('util_pname: pname too short for name.id',len(pname),
+     &       INPUT_ERR)
       endif
       pname = name
       p = ga_nnodes()

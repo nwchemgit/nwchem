@@ -1,8 +1,9 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.58 2003-07-03 01:58:51 edo Exp $
+c     $Id: dft_main0d.F,v 1.59 2003-10-17 22:55:44 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
 c
       integer rtdb              ! rtdb handle [input]
       Logical LResult, IOLGC, oprint, oprint_time, oprint_ioinfo
@@ -58,7 +59,7 @@ c
       if(ga_nodeid().eq.0.and.
      .     util_print('geometry', print_high)) then
         if(.not.geom_print(geom)) call errquit(
-     .       ' dftmain0d: geom print failed',0)
+     .       ' dftmain0d: geom print failed',0, GEOM_ERR)
       endif
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
@@ -71,7 +72,7 @@ c     Determine the characteristics of the AO Gaussian basis set.
 c     This uses the old NWdft data structures, rather than tthe rtdb
 c     
       if (.not. bas_numbf(AO_bas_han, nbf_ao)) then
-         call errquit('Exiting from dft_main0d',1)
+         call errquit('Exiting from dft_main0d',1, BASIS_ERR)
       endif 
       iter = 0
       Etold = 0.D0
@@ -91,7 +92,7 @@ c
 c        Determine the characteristics of the XC Gaussian basis set.
 c     
          if (.not. bas_numbf(XC_bas_han, nbf_xc)) then
-            call errquit('Exiting from scfdriver',4)
+            call errquit('Exiting from scfdriver',4, BASIS_ERR)
          endif 
 c     
 c           Compute the matrix inverse of the 2-ctr OIs.
@@ -99,12 +100,14 @@ c
 *ga:1:0
                if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'XCinv', 
      &                             nbf_xc, 0, g_xcinv)) 
-     &            call errquit('dft_main0d: error creating g_xcinv',0)
+     &            call errquit('dft_main0d: error creating g_xcinv',0,
+     &       GA_ERR)
                call ga_zero(g_xcinv)
 *ga:1:0
             if (.not. ga_create(mt_dbl, nbf_xc, nbf_xc, 'g_oi', 
      &                          nbf_xc, 0, g_oi)) 
-     &         call errquit('dft_main0d: error creating g_oi',0)
+     &         call errquit('dft_main0d: error creating g_oi',0,
+     &       GA_ERR)
             call ga_zero(g_oi)
             call int_1e_ga(xc_bas_han, xc_bas_han,
      .           g_oi, 'overlap', oskel)
@@ -136,16 +139,17 @@ c
                call dft_invdiag(g_oi, g_xcinv, nbf_xc)
             endif
             if (.not. ga_destroy(g_oi)) call errquit
-     &         ('dft_main0d: could not destroy g_oi', 0)
+     &         ('dft_main0d: could not destroy g_oi', 0, GA_ERR)
             if (me.eq.0.and.IOLGC) then
                lmiss = 0
                call dft_invio('XC', g_xcinv, nbf_xc, 'WRITE', lmiss)
                if (lmiss.ne.0)call errquit
-     &         (' dft_main0d; dft_invio - abnormal write of XC ', 0)
+     &         (' dft_main0d; dft_invio - abnormal write of XC ', 0,
+     &       DISK_ERR)
             endif
          if (IOLGC)then
             if (.not. ga_destroy(g_xcinv)) call errquit
-     &         ('dft_main0d: could not destroy g_xcinv', 0)
+     &         ('dft_main0d: could not destroy g_xcinv', 0, GA_ERR)
          endif
       endif
 c
@@ -174,21 +178,22 @@ c
 c        Determine the characteristics of the CD Gaussian basis set.
 c     
          if (.not. bas_numbf(CD_bas_han, nbf_cd)) then
-            call errquit('Exiting from scfdriver',5)
+            call errquit('Exiting from scfdriver',5, BASIS_ERR)
          endif 
 c     
 c        Compute the matrix inverse of the CD 2-ctr ERIs.
 c     
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERI', 
      &                       0, nbf_cd, g_2ceri)) 
-     &      call errquit('dft_main0d: error creating g_2ceri',0)
+     &      call errquit('dft_main0d: error creating g_2ceri',0,
+     &       GA_ERR)
          call ga_zero(g_2ceri)
          call dft_get2eri(CD_bas_han, g_2ceri,oskel)
          if (oskel)call 
      .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                        0, nbf_cd,g_cdinv)) 
-     &      call errquit('dft_main0d: error creating g_cdinv',0)
+     &      call errquit('dft_main0d: error creating g_cdinv',0, GA_ERR)
          call ga_zero(g_cdinv)
          lmiss = 1
 c         if (lmiss.eq.1) then
@@ -232,11 +237,13 @@ c
                lmiss = 0
                call dft_invio('CDI', g_cdinv, nbf_cd, 'WRITE', lmiss)
                if (lmiss.ne.0)call errquit
-     &         (' dft_main0d; dft_invio - abnormal write of CDI ', 0)
+     &         (' dft_main0d; dft_invio - abnormal write of CDI ', 0,
+     &       DISK_ERR)
                lmiss = 0
                call dft_invio('CD', g_2ceri, nbf_cd, 'WRITE', lmiss)
                if (lmiss.ne.0)call errquit
-     &         (' dft_main0d; dft_invio - abnormal write of CD ', 0)
+     &         (' dft_main0d; dft_invio - abnormal write of CD ', 0,
+     &       DISK_ERR)
             endif
             if (oprint_ioinfo)then
                call ga_print(g_cdinv)
@@ -245,9 +252,9 @@ c
 c         endif
          if (IOLGC) then
             if (.not. ga_destroy(g_cdinv)) call errquit
-     &         ('dft_main0d: could not destroy g_xcinv', 0)
+     &         ('dft_main0d: could not destroy g_xcinv', 0, GA_ERR)
             if (.not. ga_destroy(g_2ceri)) call errquit
-     &         ('dft_main0d: could not destroy g_xcinv', 0)
+     &         ('dft_main0d: could not destroy g_xcinv', 0, GA_ERR)
          endif
       endif
 c
@@ -267,7 +274,8 @@ c
       call ga_zero(g_s)
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'ovl eig vals', lsvals, 
      &   isvals))
-     &   call errquit('dft_main0d: cannot allocate ovl eig vals', 0)
+     &   call errquit('dft_main0d: cannot allocate ovl eig vals', 0,
+     &       MA_ERR)
       call dfill(nbf_ao, 0.0d0, dbl_mb(isvals), 1)
       call int_1e_ga(AO_bas_han, AO_bas_han, g_s, 'overlap', oskel)
       if (oskel)call sym_symmetrize(geom, AO_bas_han, .false., g_s)
@@ -332,14 +340,14 @@ c
          call diis_bld12(toll_s, dbl_mb(isvals), g_svecs, g_evecs(1), 
      &        g_tmp,  2)
          if (.not. ga_destroy(g_tmp)) call errquit
-     &      ('dft_main0d: could not destroy g_tmp', 0)
+     &      ('dft_main0d: could not destroy g_tmp', 0, GA_ERR)
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c 
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0)
+     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
       if (odftps) call pstat_on(ps_scfdft)
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
@@ -356,10 +364,10 @@ c
 c     Clean up memory usage.
 c     
       if (.not.ma_pop_stack(lsvals))
-     &     call errquit('dft_main0d: cannot pop stack', 12)
+     &     call errquit('dft_main0d: cannot pop stack', 12, MA_ERR)
 cnos      if (.not.CDFIT)then
          if (.not. ga_destroy(g_s)) call errquit
-     &      ('dft_main0d: could not destroy g_s', 0)
+     &      ('dft_main0d: could not destroy g_s', 0, GA_ERR)
 cnos      endif
       if (me.eq.0) then
          if (CDFIT.and.IOLGC) then
@@ -372,32 +380,32 @@ cnos      endif
       endif
       if (CDFIT.and.(.not.IOLGC)) then
          if (.not. ga_destroy(g_cdinv)) call errquit
-     &      ('dft_main0d: could not destroy g_cdinv', 0)
+     &      ('dft_main0d: could not destroy g_cdinv', 0, GA_ERR)
          if (.not. ga_destroy(g_2ceri)) call errquit
-     &      ('dft_main0d: could not destroy g_2ceri', 0)
+     &      ('dft_main0d: could not destroy g_2ceri', 0, GA_ERR)
       endif
       if (XCFIT.and.(.not.IOLGC))then
          if (.not. ga_destroy(g_xcinv)) call errquit
-     &      ('dft_main0d: could not destroy g_xcinv', 0)
+     &      ('dft_main0d: could not destroy g_xcinv', 0, GA_ERR)
       endif
       if (.not. ga_destroy(g_fock)) call errquit
-     &   ('dft_main0d: could not destroy g_fock', 0)
+     &   ('dft_main0d: could not destroy g_fock', 0, GA_ERR)
       if (ipol.eq.2)then
          if (.not. ga_destroy(g_vxc(2))) call errquit
-     &      ('dft_main0d: could not destroy g_vxc(2)', 0)
+     &      ('dft_main0d: could not destroy g_vxc(2)', 0, GA_ERR)
       endif
       if (ipol.ne.1)then
          if (.not. ga_destroy(g_evecs(2))) call errquit
-     &      ('dft_main0d: could not destroy g_evecs(2)', 0)
+     &      ('dft_main0d: could not destroy g_evecs(2)', 0, GA_ERR)
          if (.not. ga_destroy(g_dens(2))) call errquit
-     &      ('dft_main0d: could not destroy g_dens(2)', 0)
+     &      ('dft_main0d: could not destroy g_dens(2)', 0, GA_ERR)
       endif
       if (.not. ga_destroy(g_evecs(1))) call errquit
-     &   ('dft_main0d: could not destroy g_evecs(1)', 0)
+     &   ('dft_main0d: could not destroy g_evecs(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
-     &   ('dft_main0d: could not destroy g_dens(1)', 0)
+     &   ('dft_main0d: could not destroy g_dens(1)', 0, GA_ERR)
       if (.not. ga_destroy(g_svecs)) call errquit
-     &   ('dft_main0d: could not destroy g_svecs', 0)
+     &   ('dft_main0d: could not destroy g_svecs', 0, GA_ERR)
 c     
 #if defined(DFT_TIMER)
          if (me.eq.0)then

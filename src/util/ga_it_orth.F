@@ -1,6 +1,7 @@
       subroutine ga_iter_orthog(basis, g_c, ometric, osym)
-C$Id: ga_it_orth.F,v 1.6 2000-10-23 16:24:09 windus Exp $
+C$Id: ga_it_orth.F,v 1.7 2003-10-17 22:58:34 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -46,14 +47,18 @@ c
 c     Make scratch arrays
 c     
       call ga_inquire(g_c, type, nbf, nmo)
-      if (nmo .ne. nbf) call errquit('iter_orthog:nmo.ne.nbf',nbf)
+      if (nmo .ne. nbf) call errquit('iter_orthog:nmo.ne.nbf',nbf,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, nbf, nbf, 'iter_orthog:over',
-     $     32, 32, g_s)) call errquit('iter_orthog:ga_create?',nbf)
+     $     32, 32, g_s)) call errquit('iter_orthog:ga_create?',nbf,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, nbf, nmo, 'iter_orthog:tmp',
-     $     32, 32, g_tmp)) call errquit('iter_orthog:ga_create?',nbf)
+     $     32, 32, g_tmp)) call errquit('iter_orthog:ga_create?',nbf,
+     &       GA_ERR)
       if (nmo .ne. nbf) then
          if (.not. ga_create(MT_DBL, nmo, nmo, 'iter_orthog:ms',
-     $        32, 32, g_ms)) call errquit('iter_orthog:ga_create?',nbf)
+     $        32, 32, g_ms)) call errquit('iter_orthog:ga_create?',nbf,
+     &       GA_ERR)
       else
          g_ms = g_s             ! Save space usually
       endif
@@ -116,14 +121,14 @@ c
 c     
       enddo
       write(6,*) ' iter_orthog: failed to converge, error = ', err
-      call errquit('iter_orthog: failed to converge', 0)
+      call errquit('iter_orthog: failed to converge', 0, CALC_ERR)
 c     
  1000 continue
       if (.not. (ga_destroy(g_s) .and. ga_destroy(g_tmp)))
-     $     call errquit('iter_orthog: ga_destroy failed', 0)
+     $     call errquit('iter_orthog: ga_destroy failed', 0, GA_ERR)
       if (nbf .ne. nmo) then
          if (.not. ga_destroy(g_ms))
-     $     call errquit('iter_orthog: ga_destroy failed', 0)
+     $     call errquit('iter_orthog: ga_destroy failed', 0, GA_ERR)
       endif
 c
       call ga_sync()

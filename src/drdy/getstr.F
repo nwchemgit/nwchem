@@ -1,4 +1,4 @@
-C $Id: getstr.F,v 1.1 2001-01-19 17:43:12 windus Exp $
+C $Id: getstr.F,v 1.2 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_getstr(xnum,cstr,nstr,nten,ndec)
 C
 C   get string of numbers for a floating point number xnum
@@ -7,6 +7,7 @@ C      nten = digits before decimal point
 C   on return nstr should equal nten if ndec=0 and ndec+nten+1 for ndec>0
 C 
       Implicit None
+#include "errquit.fh"
 C
       Integer nstr,nten,ndec
       Character*1 cstr(1)
@@ -26,15 +27,15 @@ C
       if (nten+ndec.ge.ndim) then
          write(fu6,*) ' in getstr, nten,ndec=',nten,ndec
          write(fu6,*) ' but their sum must be <',ndim
-         call errquit('drdy_getstr: problem',555)
+         call errquit('drdy_getstr: problem',555, UNKNOWN_ERR)
       else if (nten.le.0) then
          write(fu6,*) ' in getstr, nten=',nten
          write(fu6,*) ' but they must be > 0'
-         call errquit('drdy_getstr: problem',555)
+         call errquit('drdy_getstr: problem',555, UNKNOWN_ERR)
       else if (ndec.lt.0) then
          write(fu6,*) ' in getstr, ndec=',ndec
          write(fu6,*) ' but they must be >= 0'
-         call errquit('drdy_getstr: problem',555)
+         call errquit('drdy_getstr: problem',555, UNKNOWN_ERR)
       endif
       ndig = 0
       r = xnum*(0.1d00**nten)

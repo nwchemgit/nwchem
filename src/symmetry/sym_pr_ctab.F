@@ -1,6 +1,7 @@
       subroutine sym_print_char_table(geom)
-C$Id: sym_pr_ctab.F,v 1.1 1995-12-13 01:28:36 d3g681 Exp $
+C$Id: sym_pr_ctab.F,v 1.2 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
       integer geom              ! [input]
 c
@@ -17,7 +18,8 @@ c
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table(group_name, nop, nir, iclass_dim,
      $     zir, zclass, chars)) 
-     $     call errquit('sym_print_char_table: no char table',0)
+     $     call errquit('sym_print_char_table: no char table',0,
+     &       GEOM_ERR)
       write(6,111) group_name
       write(6,112) (iclass_dim(i),zclass(i),i=1,nir)
       do j = 1, nir

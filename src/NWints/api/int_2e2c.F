@@ -1,4 +1,4 @@
-c $Id: int_2e2c.F,v 1.18 2001-10-18 03:33:27 edo Exp $
+c $Id: int_2e2c.F,v 1.19 2003-10-17 22:53:41 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}
@@ -18,6 +18,7 @@ c basic api routine to generate a block of 2 center two electron integrals
 c eri = <bra_g(ish)|ket_g(jsh)>
 c
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -29,6 +30,7 @@ c
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
 #include "stdio.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c errquit

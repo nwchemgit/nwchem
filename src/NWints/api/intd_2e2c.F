@@ -1,11 +1,12 @@
       subroutine intd_2e2c(brain, ish, ketin, jsh, 
      &       lscr, scr, leri, eri, idatom2)
-c $Id: intd_2e2c.F,v 1.8 1999-07-14 00:28:41 d3e129 Exp $
+c $Id: intd_2e2c.F,v 1.9 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
 c 
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -82,7 +83,7 @@ c
       if (nint*3*4.gt.leri) then
         write(luout,*) 'nint*3*4 = ',nint*3*4
         write(luout,*) 'leri     = ',leri
-        call errquit('intd_2e2c: nint>leri error',911)
+        call errquit('intd_2e2c: nint>leri error',911, INT_ERR)
       endif
 c
 c  check if gencont/sp shell
@@ -101,7 +102,7 @@ c
         write(luout,*)
      &      'intd_2e2c.F: two different geometries for',
      &      ' derivatives?'
-        call errquit('intd_2e2c: geom error ',911)
+        call errquit('intd_2e2c: geom error ',911, GEOM_ERR)
       endif
       
 c

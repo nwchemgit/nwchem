@@ -1,7 +1,8 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s, string)
 
-C$Id: mull_pop.F,v 1.15 2002-04-08 22:43:55 d3k958 Exp $
+C$Id: mull_pop.F,v 1.16 2003-10-17 22:54:33 carlfahl Exp $
       Implicit none
+#include "errquit.fh"
       integer geom,basis
       integer iga_s              ! overlap   GA handle
       integer iga_dens           ! dens. mat GA handle
@@ -30,25 +31,26 @@ c*****************************************************************************
 
 c     
       if(.not.geom_ncent(geom, natoms))
-     &     call errquit(' exiting in mull_pop',0)
+     &     call errquit(' exiting in mull_pop',0, GEOM_ERR)
       if( .not. bas_numcont(basis,nshells) )
-     &     call errquit(' exiting in mull_pop',1)
+     &     call errquit(' exiting in mull_pop',1, BASIS_ERR)
       if ( .not. bas_numbf(basis,nbf) ) 
-     &     call errquit(' exiting in mull_op',1)
+     &     call errquit(' exiting in mull_op',1, BASIS_ERR)
       max_at_bf2 = 0
       do iatom = 1, natoms
         if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
-     $       call errquit('mul_pop: bas_ce2bfr failed', iatom)
+     $       call errquit('mul_pop: bas_ce2bfr failed', iatom,
+     &       BASIS_ERR)
         max_at_bf2 = max(max_at_bf2, ihi-ilo+1)
       enddo
       max_at_bf2 = max_at_bf2*max_at_bf2
 
       if(.not.MA_Push_Get(mt_dbl,max_at_bf2,'PS',lPSmat,iPSmat))
-     &     call errquit(' exiting in mull_pop: insuff stack',21)
+     &     call errquit(' exiting in mull_pop: insuff stack',21, MA_ERR)
       if(.not.MA_Push_Get(mt_dbl,natoms,'q atom',lqatom,iqatom))
-     &     call errquit(' exiting in mull_pop: insuff stack',22)
+     &     call errquit(' exiting in mull_pop: insuff stack',22, MA_ERR)
       if(.not.MA_Push_Get(mt_dbl,nshells,'q shell',lqshell,iqshell))
-     &     call errquit(' exiting in mull_pop: insuff stack',3)
+     &     call errquit(' exiting in mull_pop: insuff stack',3, MA_ERR)
 
       iga_PS=ga_create_atom_blocked(geom, basis, 'PS product')
 
@@ -60,11 +62,11 @@ c
       call ga_sync
 
       if(.not.MA_Pop_Stack(lqshell))
-     &     call errquit(' exiting in mull_pop',33)
+     &     call errquit(' exiting in mull_pop',33, MA_ERR)
       if(.not.MA_Pop_Stack(lqatom))
-     &     call errquit(' exiting in mull_pop',34)
+     &     call errquit(' exiting in mull_pop',34, MA_ERR)
       if(.not.MA_Pop_Stack(lPSmat))
-     &     call errquit(' exiting in mull_pop',35)
+     &     call errquit(' exiting in mull_pop',35, MA_ERR)
       status= ga_destroy(iga_PS)
 c
       if (oscfps) call pstat_off(ps_mull)
@@ -78,6 +80,7 @@ c
      &     qatom,qshell,PSmat, string)
 
       Implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "global.fh"
@@ -113,21 +116,21 @@ c
       call dfill(nshells,0.D0,qshell,1)
 
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('mull_pop: bas_geom failed',basis)
+     $     ('mull_pop: bas_geom failed',basis, BASIS_ERR)
 
        if (.not.bas_numbf(basis,nbf))
-     $     call errquit('bas_numbf failed',0) 
+     $     call errquit('bas_numbf failed',0, BASIS_ERR)
 
       if(.not.ga_create(mt_int,nbf,1,'atom nbf',0,0,g_nbf))
-     $        call errquit('mull_pop ga_create failed', 0)
+     $        call errquit('mull_pop ga_create failed', 0, GA_ERR)
       call ga_zero(g_nbf)
  
       if(.not.ga_create(mt_dbl,nbf,natoms,'ao pop',0,0,g_pop))
-     $        call errquit('mull_pop ga_create failed', 0)
+     $        call errquit('mull_pop ga_create failed', 0, GA_ERR)
       call ga_zero(g_pop)
  
       if (.not. ma_push_get(mt_byte,nbf*16,'bf tags',l_tags,k_tags))
-     $    call errquit(' exiting in mull_pop: insuff stack',3)
+     $    call errquit(' exiting in mull_pop: insuff stack',3, MA_ERR)
 
       call bas_vec_info(basis, byte_mb(k_tags))
 
@@ -143,7 +146,7 @@ c
 
       do iat=me+1,natoms,nproc
         if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
-     &       call errquit(' exiting in mull_pop',4)
+     &       call errquit(' exiting in mull_pop',4, BASIS_ERR)
         call get_atom_block(iga_PS, basis,
      $       iat, iat, PSmat, nbf_at, nbf_at)
         call ga_put(g_nbf,iat,iat,1,1,nbf_at,1)
@@ -151,7 +154,7 @@ c
         mu=0
         do ish=ish1,ish2
           if (.not. bas_cn2bfr(basis,ish,ifirst,ilast))
-     &         call errquit(' exiting in mull_pop.',5)
+     &         call errquit(' exiting in mull_pop.',5, BASIS_ERR)
           do nn=ifirst,ilast
             mu=mu+1
             psmu=PSmat((mu-1)*nbf_at+mu)
@@ -180,13 +183,13 @@ c
        endif
 
       if(.not.ga_destroy(g_pop))
-     $        call errquit('mull_pop ga_destroy failed', 0)
+     $        call errquit('mull_pop ga_destroy failed', 0, GA_ERR)
 
       if(.not.ga_destroy(g_nbf))
-     $        call errquit('mull_pop ga_destroy failed', 0)
+     $        call errquit('mull_pop ga_destroy failed', 0, GA_ERR)
 
       if(.not.MA_Pop_Stack(l_tags))
-     &     call errquit(' exiting in mull_pop',32)
+     &     call errquit(' exiting in mull_pop',32, MA_ERR)
 
       call ga_dgop(Msg_Mull1,qatom,natoms,'+')
       call ga_dgop(Msg_Mull2,qshell,nshells,'+')
@@ -198,10 +201,11 @@ c
      $       '--------------------------')
         do iat=1,natoms
           if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
-     &         call errquit(' exiting in mull_pop',4)
+     &         call errquit(' exiting in mull_pop',4, BASIS_ERR)
 c
           if (.not. geom_cent_get(geom, iat, tag, coord, qnuc)) 
-     $         call errquit('mull_pop: geom_cent_tag failed',0)
+     $         call errquit('mull_pop: geom_cent_tag failed',0,
+     &       GEOM_ERR)
 c
           if (.not. geom_tag_to_element(tag, symbol, element, atn))
      $         symbol = 'X'
@@ -222,7 +226,7 @@ c     Calculate total atomic charges for ecce
 c
       do iat=1,natoms
         if (.not. geom_cent_get(geom, iat, tag, coord, qnuc))
-     $       call errquit('mull_pop: geom_cent_tag failed',0)
+     $       call errquit('mull_pop: geom_cent_tag failed',0, GEOM_ERR)
         qatom(iat) = qnuc - qatom(iat)
       enddo
 c

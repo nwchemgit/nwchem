@@ -1,6 +1,7 @@
       subroutine selci_pkcon(norbs, iocc, mocc, nintpo, nbitpi)
+#include "errquit.fh"
 *
-* $Id: pkcon.F,v 1.2 1997-10-31 23:42:19 d3e129 Exp $
+* $Id: pkcon.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
       dimension iocc(norbs), mocc(nintpo)
 #include "bitops.fh"
@@ -17,7 +18,7 @@ c     no. of elements per integer
 c
       nelpi = nbitpi / 2
       if (nintpo .ne. (norbs+nelpi-1)/nelpi) 
-     &     call errquit('nintpo has strange value ',nintpo)
+     &     call errquit('nintpo has strange value ',nintpo, INPUT_ERR)
 c
       ilo = 1
       do 10 iword = 1, nintpo

@@ -1,8 +1,9 @@
-c $Id: int_chk_sum.F,v 1.22 1999-07-08 19:10:48 d3e129 Exp $
+c $Id: int_chk_sum.F,v 1.23 2003-10-17 22:53:46 carlfahl Exp $
 *
 *rak:      subroutine int_chk_sum(rtdb,basisin,print_ints)
 *rak:      implicit none
 *rak:#include "mafdecls.fh"
+*rak:#include "errquit.fh"
 *rak:#include "global.fh"
 *rak:#include "bas.fh"
 *rak:#include "msgids.fh"
@@ -728,6 +729,7 @@ c
       subroutine int_chk_sum_ov(rtdb,basisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -773,7 +775,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_ov: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_ov: numcont not obtained',ncont,
+     &           INT_ERR)
 c
       call int_mem(max1bf,maxg,mscr1,mscr2)
       memb = max1bf
@@ -781,22 +784,26 @@ c
 c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
-     &    call errquit('int_chk_sum_ov: allocation memb failed',memb)
+     &    call errquit('int_chk_sum_ov: allocation memb failed',memb,
+     &            MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
-     &    call errquit('int_chk_sum_ov: allocation mems failed',mems)
+     &    call errquit('int_chk_sum_ov: allocation mems failed',mems,
+     &           MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'i label buffer',h_ilab,i_ilab))
-     &    call errquit('int_chk_sum_ov: allocation ilab failed',memb)
+     &    call errquit('int_chk_sum_ov: allocation ilab failed',memb,
+     &           MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'j label buffer',h_jlab,i_jlab))
-     &    call errquit('int_chk_sum_ov: allocation jlab failed',memb)
+     &    call errquit('int_chk_sum_ov: allocation jlab failed',memb,
+     &          MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_ov: allocation stats failed',(5*3))
+     &    ('int_chk_sum_ov: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -861,7 +868,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &    call errquit
-     &    ('int_chk_sum_ov: error poping memory stack',0)
+     &    ('int_chk_sum_ov: error poping memory stack',0, MEM_ERR)
 c
 * close file      
       close(unit=69,status='keep')
@@ -871,6 +878,7 @@ c
       subroutine int_chk_sum_ke(rtdb,basisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -916,7 +924,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_ke: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_ke: numcont not obtained',ncont,
+     &           INT_ERR)
 c
       call int_mem(max1bf,maxg,mscr1,mscr2)
       memb = max1bf
@@ -924,22 +933,26 @@ c
 c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
-     &    call errquit('int_chk_sum_ke: allocation memb failed',memb)
+     &    call errquit('int_chk_sum_ke: allocation memb failed',memb,
+     &           MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
-     &    call errquit('int_chk_sum_ke: allocation mems failed',mems)
+     &    call errquit('int_chk_sum_ke: allocation mems failed',mems,
+     &             MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'i label buffer',h_ilab,i_ilab))
-     &    call errquit('int_chk_sum_ke: allocation ilab failed',memb)
+     &    call errquit('int_chk_sum_ke: allocation ilab failed',memb,
+     &            MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'j label buffer',h_jlab,i_jlab))
-     &    call errquit('int_chk_sum_ke: allocation jlab failed',memb)
+     &    call errquit('int_chk_sum_ke: allocation jlab failed',memb,
+     &            MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_ke: allocation stats failed',(5*3))
+     &    ('int_chk_sum_ke: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -1004,7 +1017,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &    call errquit
-     &    ('int_chk_sum_ke: error poping memory stack',0)
+     &    ('int_chk_sum_ke: error poping memory stack',0, MEM_ERR)
 c
 * close file      
       close(unit=69,status='keep')
@@ -1014,6 +1027,7 @@ c
       subroutine int_chk_sum_pe(rtdb,basisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -1059,7 +1073,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_pe: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_pe: numcont not obtained',ncont,
+     &             INT_ERR)
 c
       call int_mem(max1bf,maxg,mscr1,mscr2)
       memb = max1bf
@@ -1067,22 +1082,26 @@ c
 c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
-     &    call errquit('int_chk_sum_pe: allocation memb failed',memb)
+     &    call errquit('int_chk_sum_pe: allocation memb failed',memb,
+     &           MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
-     &    call errquit('int_chk_sum_pe: allocation mems failed',mems)
+     &    call errquit('int_chk_sum_pe: allocation mems failed',mems,
+     &            MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'i label buffer',h_ilab,i_ilab))
-     &    call errquit('int_chk_sum_pe: allocation ilab failed',memb)
+     &    call errquit('int_chk_sum_pe: allocation ilab failed',memb,
+     &            MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'j label buffer',h_jlab,i_jlab))
-     &    call errquit('int_chk_sum_pe: allocation jlab failed',memb)
+     &    call errquit('int_chk_sum_pe: allocation jlab failed',memb,
+     &           MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_pe: allocation stats failed',(5*3))
+     &    ('int_chk_sum_pe: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -1147,7 +1166,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &    call errquit
-     &    ('int_chk_sum_pe: error poping memory stack',0)
+     &    ('int_chk_sum_pe: error poping memory stack',0, MEM_ERR)
 c
 * close file      
       close(unit=69,status='keep')
@@ -1157,6 +1176,7 @@ c
       subroutine int_chk_sum_h1(rtdb,basisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -1202,7 +1222,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_h1: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_h1: numcont not obtained',ncont,
+     &          INT_ERR)
 c
       call int_mem_h1(maxh1,mscrh1)
       memb = maxh1
@@ -1210,22 +1231,26 @@ c
 c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
-     &    call errquit('int_chk_sum_h1: allocation memb failed',memb)
+     &    call errquit('int_chk_sum_h1: allocation memb failed',memb,
+     &           MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
-     &    call errquit('int_chk_sum_h1: allocation mems failed',mems)
+     &    call errquit('int_chk_sum_h1: allocation mems failed',mems,
+     &            MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'i label buffer',h_ilab,i_ilab))
-     &    call errquit('int_chk_sum_h1: allocation ilab failed',memb)
+     &    call errquit('int_chk_sum_h1: allocation ilab failed',memb,
+     &             MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'j label buffer',h_jlab,i_jlab))
-     &    call errquit('int_chk_sum_h1: allocation jlab failed',memb)
+     &    call errquit('int_chk_sum_h1: allocation jlab failed',memb,
+     &             MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_h1: allocation stats failed',(5*3))
+     &    ('int_chk_sum_h1: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -1290,7 +1315,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &    call errquit
-     &    ('int_chk_sum_h1: error poping memory stack',0)
+     &    ('int_chk_sum_h1: error poping memory stack',0, MEM_ERR)
 c
 * close file      
       close(unit=69,status='keep')
@@ -1300,6 +1325,7 @@ c
       subroutine int_chk_sum_3ov(rtdb,basisin,ribasisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -1352,7 +1378,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_3ov: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_3ov: numcont not obtained',ncont,
+     &            INT_ERR)
 c
 c  if (ribasisin = -1) then no ri basis is loaded so use 
 c      regular ao basis
@@ -1372,7 +1399,7 @@ c
 c
       if (.not.bas_numcont(ribasisuse,rincont))
      &    call errquit
-     &    ('int_chk_sum_3ov: rincont not obtained',rincont)
+     &    ('int_chk_sum_3ov: rincont not obtained',rincont, INT_ERR)
 c
       call int_mem_3ov(max3ov,mscr3ov)
       memb = max3ov
@@ -1380,25 +1407,30 @@ c
 c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
-     &    call errquit('int_chk_sum_3ov: allocation memb failed',memb)
+     &    call errquit('int_chk_sum_3ov: allocation memb failed',memb,
+     &                MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
-     &    call errquit('int_chk_sum_3ov: allocation mems failed',mems)
+     &    call errquit('int_chk_sum_3ov: allocation mems failed',mems,
+     &           MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'i label buffer',h_ilab,i_ilab))
-     &    call errquit('int_chk_sum_3ov: allocation ilab failed',memb)
+     &    call errquit('int_chk_sum_3ov: allocation ilab failed',memb,
+     &               MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'j label buffer',h_jlab,i_jlab))
-     &    call errquit('int_chk_sum_3ov: allocation jlab failed',memb)
+     &    call errquit('int_chk_sum_3ov: allocation jlab failed',memb, 
+     &               MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'k label buffer',h_klab,i_klab))
-     &    call errquit('int_chk_sum_3ov: allocation klab failed',memb)
+     &    call errquit('int_chk_sum_3ov: allocation klab failed',memb,
+     &               MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_3ov: allocation stats failed',(5*3))
+     &    ('int_chk_sum_3ov: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -1477,7 +1509,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &    call errquit
-     &    ('int_chk_sum_3ov: error poping memory stack',0)
+     &    ('int_chk_sum_3ov: error poping memory stack',0, MEM_ERR)
 c
 * close file      
       close(unit=69,status='keep')
@@ -1487,6 +1519,7 @@ c
       subroutine int_chk_sum_2e4c(rtdb,basisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -1536,7 +1569,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_2e4c: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_2e4c: numcont not obtained',ncont, 
+     &           INT_ERR)
 c
       call int_mem(max1bf,maxg,mscr1,mscr2)
       memb = maxg
@@ -1546,33 +1580,33 @@ c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
      &    call errquit
-     &    ('int_chk_sum_2e4c: allocation memb failed',memb)
+     &    ('int_chk_sum_2e4c: allocation memb failed',memb, MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
      &    call errquit
-     &    ('int_chk_sum_2e4c: allocation mems failed',mems)
+     &    ('int_chk_sum_2e4c: allocation mems failed',mems, MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,'i label buffer',
      &    h_ilab,i_ilab))
      &    call errquit
-     &    ('int_chk_sum_2e4c: allocation ilab failed',memb)
+     &    ('int_chk_sum_2e4c: allocation ilab failed',memb, MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,'j label buffer',
      &    h_jlab,i_jlab))
      &    call errquit
-     &    ('int_chk_sum_2e4c: allocation jlab failed',memb)
+     &    ('int_chk_sum_2e4c: allocation jlab failed',memb, MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,'k label buffer',
      &    h_klab,i_klab))
      &    call errquit
-     &    ('int_chk_sum_2e4c: allocation klab failed',memb)
+     &    ('int_chk_sum_2e4c: allocation klab failed',memb, MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,'l label buffer',
      &    h_llab,i_llab))
      &    call errquit
-     &    ('int_chk_sum_2e4c: allocation llab failed',memb)
+     &    ('int_chk_sum_2e4c: allocation llab failed',memb, MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_2e4c: allocation stats failed',(5*3))
+     &    ('int_chk_sum_2e4c: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -1655,7 +1689,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &       call errquit
-     &    ('int_chk_sum_2e4c: error poping memory stack',0)
+     &    ('int_chk_sum_2e4c: error poping memory stack',0, MEM_ERR)
 * close file      
       close(unit=69,status='keep')
       call ga_sync()
@@ -1663,6 +1697,7 @@ c
       subroutine int_chk_sum_2e3c(rtdb,basisin,ribasisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -1715,7 +1750,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_2e3c: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_2e3c: numcont not obtained',ncont,
+     &          MEM_ERR)
 c
 c  if (ribasisin = -1) then no ri basis is loaded so use 
 c      regular ao basis
@@ -1735,7 +1771,7 @@ c
 c
       if (.not.bas_numcont(ribasisuse,rincont))
      &    call errquit
-     &    ('int_chk_sum_2e3c: rincont not obtained',rincont)
+     &    ('int_chk_sum_2e3c: rincont not obtained',rincont, MEM_ERR)
 c
       call int_mem_2e3c(max2e3c,mscr2e3c)
       memb = max2e3c
@@ -1744,29 +1780,29 @@ c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
      &    call errquit
-     &    ('int_chk_sum_2e3c: allocation memb failed',memb)
+     &    ('int_chk_sum_2e3c: allocation memb failed',memb, MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
      &    call errquit
-     &    ('int_chk_sum_2e3c: allocation mems failed',mems)
+     &    ('int_chk_sum_2e3c: allocation mems failed',mems, MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'i label buffer',h_ilab,i_ilab))
      &    call errquit
-     &    ('int_chk_sum_2e3c: allocation ilab failed',memb)
+     &    ('int_chk_sum_2e3c: allocation ilab failed',memb, MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'j label buffer',h_jlab,i_jlab))
      &    call errquit
-     &    ('int_chk_sum_2e3c: allocation jlab failed',memb)
+     &    ('int_chk_sum_2e3c: allocation jlab failed',memb, MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'k label buffer',h_klab,i_klab))
      &    call errquit
-     &    ('int_chk_sum_2e3c: allocation klab failed',memb)
+     &    ('int_chk_sum_2e3c: allocation klab failed',memb, MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_2e3c: allocation stats failed',(5*3))
+     &    ('int_chk_sum_2e3c: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -1845,7 +1881,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &    call errquit
-     &    ('int_chk_sum_2e3c: error poping memory stack',0)
+     &    ('int_chk_sum_2e3c: error poping memory stack',0, MEM_ERR)
 c
 * close file      
       close(unit=69,status='keep')
@@ -1855,6 +1891,7 @@ c
       subroutine int_chk_sum_2e2c(rtdb,basisin,ribasisin,print_ints)
       implicit none
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "msgids.fh"
@@ -1906,7 +1943,8 @@ c
 c get number of contractions (shells) ncont
 c
       if (.not.bas_numcont(basisin,ncont))
-     &    call errquit('int_chk_sum_2e2c: numcont not obtained',ncont)
+     &    call errquit('int_chk_sum_2e2c: numcont not obtained',ncont,
+     &           INT_ERR)
 c
 c  if (ribasisin = -1) then no ri basis is loaded so use 
 c      regular ao basis
@@ -1927,7 +1965,7 @@ c                   12345678901
 c
       if (.not.bas_numcont(ribasisuse,rincont))
      &    call errquit
-     &    ('int_chk_sum_2e2c: rincont not obtained',rincont)
+     &    ('int_chk_sum_2e2c: rincont not obtained',rincont, INT_ERR)
 c
       call int_mem_2e2c(max2e2c,mscr2e2c)
       memb = max2e2c
@@ -1936,25 +1974,25 @@ c
 c.... eri/1e buffer
       if (.not.MA_Push_Get(MT_Dbl,memb,'int buffer',hmemb,imemb))
      &    call errquit
-     &    ('int_chk_sum_2e2c: allocation memb failed',memb)
+     &    ('int_chk_sum_2e2c: allocation memb failed',memb, MEM_ERR)
 c.... scratch for integrals
       if (.not.MA_Push_Get(MT_Dbl,mems,'int scr buffer',hmems,imems))
      &    call errquit
-     &    ('int_chk_sum_2e2c: allocation mems failed',mems)
+     &    ('int_chk_sum_2e2c: allocation mems failed',mems, MEM_ERR)
 c...  label buffers
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'i label buffer',h_ilab,i_ilab))
      &    call errquit
-     &    ('int_chk_sum_2e2c: allocation ilab failed',memb)
+     &    ('int_chk_sum_2e2c: allocation ilab failed',memb, MEM_ERR)
       if (.not.MA_Push_Get(MT_Int,memb,
      &    'j label buffer',h_jlab,i_jlab))
      &    call errquit
-     &    ('int_chk_sum_2e2c: allocation jlab failed',memb)
+     &    ('int_chk_sum_2e2c: allocation jlab failed',memb, MEM_ERR)
 c...  summary stats 1e and 2e.  i.e., allocate bigger
       if (.not.MA_Push_Get(MT_Dbl,(5*3),'summary stats',
      &    h_stats,i_stats))
      &    call errquit
-     &    ('int_chk_sum_2e2c: allocation stats failed',(5*3))
+     &    ('int_chk_sum_2e2c: allocation stats failed',(5*3), MEM_ERR)
 c
 c zero memory 
       call ifill(memb,0,    int_mb(i_ilab) ,1)
@@ -2027,7 +2065,7 @@ c
       MAstatus = MAstatus .and. MA_Pop_Stack(hmemb)
       if (.not.MAstatus)
      &    call errquit
-     &    ('int_chk_sum_2e2c: error poping memory stack',0)
+     &    ('int_chk_sum_2e2c: error poping memory stack',0, MEM_ERR)
 c
 * close file      
       close(unit=69,status='keep')

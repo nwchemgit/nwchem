@@ -1,8 +1,9 @@
       subroutine intdd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eh1.F,v 1.11 2003-02-20 02:06:43 bert Exp $
+C $Id: intdd_1eh1.F,v 1.12 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -76,7 +77,7 @@ c
       if (nint*3*3*(nat*3+3).gt.lH1a) then
         write(luout,*) 'nint*3*3*(nat*3+3) = ',nint*3*3*(nat*3+3)
         write(luout,*) 'lH1a       = ',lH1a
-        call errquit('intdd_1eh1: nint>lH1a error',911)
+        call errquit('intdd_1eh1: nint>lH1a error',911, INT_ERR)
       endif
 c
       offset = nint*3*3*nat*3 + 1  ! T is held seperately in H1a
@@ -89,6 +90,7 @@ c
      &       nint,H1a,Ta,nat)
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "apiP.fh"
 #include "nwc_const.fh"
 #include "int_nbf.fh"
@@ -168,7 +170,7 @@ c
       if (igeom.ne.jgeom) then
         write(luout,*)'intdd_1eh1P.F: two different geometries for',
      &         ' derivatives?'
-        call errquit('intdd_1eh1P: geom error ',911)
+        call errquit('intdd_1eh1P: geom error ',911, GEOM_ERR)
       endif
 c
       if (iatom.eq.jatom) then
@@ -197,7 +199,7 @@ c............overlap, k-e,     pot-e,
      &       scr,lscr)
       else
         call errquit('intdd_1eh1: could not do hnd integrals',
-     &                0)
+     &                0, INT_ERR)
       endif
 c
       any_spherical = bas_spherical(ibas).or.bas_spherical(jbas)
@@ -291,7 +293,7 @@ c
       else
       call errquit(
      &        'intdd_1eh1P: cant do sphericals',
-     &        911)
+     &        911, INT_ERR)
       endif
 c
 c now shuffle transformed buffers to contiguous space
@@ -300,7 +302,8 @@ c
       nint_s = i_nbf_s*j_nbf_s
       if (nint_s.gt.nint_x) then
         call errquit
-     &      ('intdd_1eh1: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &      ('intdd_1eh1: nint_s >.nint_x diff=',(nint_s-nint_x), 
+     &      INT_ERR)
       elseif (nint_s.eq.nint_x) then
         return
       else

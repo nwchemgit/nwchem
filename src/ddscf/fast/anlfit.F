@@ -2,7 +2,7 @@
 *      end
       double precision function anl_fit(n, l, x)
 *
-* $Id: anlfit.F,v 1.9 1999-10-19 22:54:44 windus Exp $
+* $Id: anlfit.F,v 1.10 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
 #include "canlfit.fh"
@@ -265,6 +265,7 @@ c
       end
       subroutine anl_fit_init
       implicit none
+#include "errquit.fh"
 #include "canlfit.fh"
 c
       integer n, l, i, nlcnt, k
@@ -297,7 +298,7 @@ c
          do l = n,0,-2
             nlcnt = nlcnt + 1
             if (nlcnt .gt. anl_maxnl) call errquit
-     $           (' anlfit: too many functions?', nlcnt)
+     $           (' anlfit: too many functions?', nlcnt, INPUT_ERR)
             anl_mapnl(l,n) = nlcnt
             do i = 0,anl_npt
                f(i) = anl(n,l,dble(i)*h)
@@ -326,7 +327,7 @@ c$$$               enddo
                   write(6,1) n, l, x, value, anl(n,l,x),
      $                 value-anl(n,l,x)
  1                format(' fit error ', 2i5, 3f20.14, 1p, d9.1)
-                  call errquit('anlfit: bad iterpolation',i)
+                  call errquit('anlfit: bad iterpolation',i, INPUT_ERR)
                endif
             enddo
          enddo
@@ -358,7 +359,8 @@ c
      $              anl_fit(n,l,anl_xhi), 
      $              anl_fit(n,l,anl_xhi)-value
  2             format(' prefac err ', 2i5, 4f20.14,1p,d12.4)
-               call errquit('anlfit: bad asymptote ', n*1000+l)
+               call errquit('anlfit: bad asymptote ', n*1000+l,
+     &       INPUT_ERR)
             endif
          enddo
 c
@@ -372,7 +374,8 @@ c
                goto 333
             endif
          enddo
-         call errquit('aln_fit_init: failed to find asymptote?',n)
+         call errquit('aln_fit_init: failed to find asymptote?',n,
+     &       UNKNOWN_ERR)
  333     continue
       enddo
 c

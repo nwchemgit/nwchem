@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.8 2003-06-30 18:02:56 bylaska Exp $
+* $Id: psp.F,v 1.9 2003-10-17 22:57:38 carlfahl Exp $
 *
 
 #define TCGMSG
@@ -12,6 +12,7 @@
 
       subroutine psp_init()      
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -75,7 +76,7 @@ c     integer    lmmax(nkatmx)
       value = value.and.
      >        MA_alloc_get(mt_dbl,(npsp),'rlocal',rlocal(2),rlocal(1))
 
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(npsp*npack0,          0.0d0,0,dbl_mb(vl(1)), 1)
       call dcopy(lmmax_max*npsp*npack1,0.0d0,0,dbl_mb(vnl(1)),1)
@@ -719,6 +720,7 @@ c             vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
       subroutine v_local(vl_out,move,dng,fion)
       implicit none
+#include "errquit.fh"
       complex*16 vl_out(*)
       logical    move
       complex*16 dng(*)
@@ -773,7 +775,7 @@ c     integer    lmmax(nkatmx)
      >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       G(1)  = G_indx(1)
       G(2)  = G_indx(2)
       G(3)  = G_indx(3)
@@ -837,6 +839,7 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 
       subroutine f_vlocal(dng,fion)
       implicit none
+#include "errquit.fh"
       complex*16 dng(*)
       real*8     fion(3,*)
 
@@ -886,7 +889,7 @@ c     integer    lmmax(nkatmx)
      >        MA_push_get(mt_dbl, nfft3d,'Gy',Gy(2),Gy(1))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       G(1)  = G_indx(1)
       G(2)  = G_indx(2)
       G(3)  = G_indx(3)
@@ -951,6 +954,7 @@ c        call Pack_c_pack(0,dcpl_mb(exi(1)))
 *
       subroutine v_nonlocal(ispin,ne,psi1,psi2,move,fion)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       complex*16 psi2(*)
@@ -1009,7 +1013,7 @@ c     integer    lmmax(nkatmx)
       value = value.and.
      >        MA_push_get(mt_dbl,nn*lmmax_max,'sw1',sw1(2),sw1(1))
       if (.not.value) 
-     >  call errquit('v_nonlocal: out of stack',0)
+     >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
       if (move) then
        value = value.and.
@@ -1022,7 +1026,8 @@ c     integer    lmmax(nkatmx)
      >        MA_push_get(mt_dbl, nfft3d,'Gz',Gz(2),Gz(1))
        value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-       if (.not. value) call errquit('v_nonlocal:out of stack memory',1)
+       if (.not. value) call errquit('v_nonlocal:out of stack memory',1,
+     &       MA_ERR)
        G(1)  = G_indx(1)
        G(2)  = G_indx(2)
        G(3)  = G_indx(3)
@@ -1185,7 +1190,8 @@ c    >             psi2,(2*npack1))
       value = value.and.MA_pop_stack(sw1(2))
       value = value.and.MA_pop_stack(vtmp(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not.value) call errquit('v_nonlocal: popping stack',3)
+      if (.not.value) call errquit('v_nonlocal: popping stack',3,
+     &       MA_ERR)
       call nwpw_timing_end(6)
       return 
       end
@@ -1200,6 +1206,7 @@ c    >             psi2,(2*npack1))
 
       subroutine f_vnonlocal(ispin,ne,psi1,fion)
       implicit none
+#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       real*8 fion(3,*)
@@ -1265,7 +1272,7 @@ c     integer    lmmax(nkatmx)
      >        MA_push_get(mt_dbl,nn,'sw1',sw1(2),sw1(1))
       value = value.and.
      >      MA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       G(1)  = G_indx(1)
       G(2)  = G_indx(2)
       G(3)  = G_indx(3)
@@ -1593,6 +1600,7 @@ c       close(11)
 
       subroutine psp_readall()
       implicit none
+#include "errquit.fh"
       
 #include "mafdecls.fh"
 
@@ -1663,10 +1671,10 @@ c     integer    lmmax(nkatmx)
       log_mb(semicore(1)) = .false.
 
       value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** read pseudopotentials ****
       do ia=1,npsp

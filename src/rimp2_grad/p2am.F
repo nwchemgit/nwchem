@@ -3,11 +3,12 @@ C NAME
 C     rimp2_p2am -- Solve CPHF eqns for relaxed part of density
 C
 C REVISION
-C     $Id: p2am.F,v 1.7 1999-06-16 00:10:28 d3e129 Exp $
+C     $Id: p2am.F,v 1.8 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB ![in]
       Integer TopSpin ![in]
       Integer NFrzO(TopSpin) ![in]
@@ -48,7 +49,7 @@ C
 *ga:1:-1
       If ( .NOT. GA_Create(MT_Dbl, Length, 1, 'RI-MP2 CPHF RHS/Soln', 
      $     -1, -1, g_RHS ) ) Call ErrQuit(
-     $     'RIMP2_P2am: can''t allocate RHS', 0)
+     $     'RIMP2_P2am: can''t allocate RHS', 0, GA_ERR)
 C
 C     Copy appropriate bits of L into RHS
 C
@@ -73,18 +74,18 @@ C     CPHF solver expects RHS on a file.  Name is fixed by CPHF module.
 C
       Call Util_File_name('cphf_rhs', .TRUE., .TRUE., FN_CPHF_RHS)
       If (.NOT. File_Write_GA(FN_CPHF_RHS, g_RHS) ) Call ErrQuit(
-     $     'RIMP2_P2am: can''t write CPHF RHS to file', 0)
+     $     'RIMP2_P2am: can''t write CPHF RHS to file', 0, GA_ERR)
 C
 C     Invoke the CPHF solver
 C
       If ( .NOT. CPHF( RTDB ) ) Call ErrQuit(
-     $     'RIMP2_P2am: cphf solution failed', 0)
+     $     'RIMP2_P2am: cphf solution failed', 0, CALC_ERR)
 C
 C     Once again, solution is returned in a file, name fixed by CPHF module
 C
       Call Util_File_Name('cphf_sol', .TRUE., .TRUE., FN_CPHF_Sol)
       If ( .NOT. File_Read_GA(FN_CPHF_Sol, g_rhs) ) Call ErrQuit(
-     $     'RIMP2_P2am: can''t read CPHF sol''n file', 0)
+     $     'RIMP2_P2am: can''t read CPHF sol''n file', 0, DISK_ERR)
 C
       If ( Util_Print('partial p2', Print_Debug) .OR.
      $     Util_Print('cphf', Print_Debug) ) Call GA_Print(g_RHS)
@@ -122,7 +123,7 @@ C
 C     Free temporary memory
 C
       If ( .NOT. GA_Destroy( g_RHS) ) Call ErrQuit(
-     $     'RIMP2_P2am: can''t destroy CPHF RHS GA', 0)
+     $     'RIMP2_P2am: can''t destroy CPHF RHS GA', 0, GA_ERR)
 C
 C     Clean up files
 C

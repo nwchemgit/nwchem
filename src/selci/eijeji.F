@@ -1,8 +1,9 @@
       subroutine selci_eijeji(e,odonly,i,j,ns,indbar,iocc,w1,w2,work)
 *
-* $Id: eijeji.F,v 1.2 1997-10-31 23:42:00 d3e129 Exp $
+* $Id: eijeji.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension e(*),indbar(*),iocc(*),work(*),
      $     w1(nfmax,nfmax,nsmax),w2(nfmax2,nfmax,nsmax-1)
@@ -25,7 +26,8 @@ c     work must be at least nf(ns)*nf(ns-2)
 c     e is at least nf(ns)*nf(ns)
 c
       if (iocc(i).ne.1 .or. iocc(j).ne.1)
-     $     call errquit('eijeji: wrong occupancy',iocc(i)*10+iocc(j))
+     $     call errquit('eijeji: wrong occupancy',iocc(i)*10+iocc(j),
+     &       INPUT_ERR)
 c
       call selci_eij(work,i,j,ns,indbar,iocc,w1,w2)
 c
@@ -34,7 +36,7 @@ c
 c
       if (odonly) then
          if (numf .gt. maxtmp) call errquit
-     $        ('eijeji: hard dim failed',maxtmp)
+     $        ('eijeji: hard dim failed',maxtmp, CALC_ERR)
          do k = 1, numf
             tmp(k) = 0.0d0
          enddo

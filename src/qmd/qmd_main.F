@@ -1,8 +1,9 @@
       subroutine qmd_forces(irtdb,isag,isat,xs,fs,msa,nsa,energy,lesp)
 c
-c $Id: qmd_main.F,v 1.2 2002-04-10 03:12:19 d3j191 Exp $
+c $Id: qmd_main.F,v 1.3 2003-10-17 22:58:06 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "rtdb.fh"
 #include "geom.fh"
@@ -28,64 +29,66 @@ c
 c
       if(lgeom.eq.0) then
       if(.not.geom_create(igeom,'geometry'))
-     + call errquit('qmd: failed to create geometry',0)
+     + call errquit('qmd: failed to create geometry',0, GEOM_ERR)
       if(.not.ma_push_get(mt_dbl,nsa,'qmdq',l_qmdq,i_qmdq))
-     + call errquit('Failed to allocate qmdq',0)
+     + call errquit('Failed to allocate qmdq',0, MA_ERR)
       if(.not.ma_push_get(mt_byte,16*nsa,'qmdt',l_qmdt,i_qmdt))
-     + call errquit('Failed to allocate qmdt',0)
+     + call errquit('Failed to allocate qmdt',0, MA_ERR)
       call qmd_geom_init(nsa,isag,isat,dbl_mb(i_qmdq),byte_mb(i_qmdt))
       if(.not.geom_cart_set(igeom,nsa,byte_mb(i_qmdt),xs,
-     + dbl_mb(i_qmdq))) call errquit('Failed to initialize geom',0)
+     + dbl_mb(i_qmdq))) call errquit('Failed to initialize geom',0,
+     &       GEOM_ERR)
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
-     + call errquit('Failed to store geom to rtdb',0)
+     + call errquit('Failed to store geom to rtdb',0, RTDB_ERR)
       if(.not.ma_pop_stack(l_qmdt))
-     + call errquit('Failed to deallocate qmdt',0)
+     + call errquit('Failed to deallocate qmdt',0, MA_ERR)
       if(.not.ma_pop_stack(l_qmdq))
-     + call errquit('Failed to deallocate qmdq',0)
+     + call errquit('Failed to deallocate qmdq',0, MA_ERR)
       lgeom=1
       endif
 c
       if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
-     + call errquit('Failed to load geometry from rtdb',0)
+     + call errquit('Failed to load geometry from rtdb',0, RTDB_ERR)
 c
       do 1 i=1,nsa
       isa=isag(i)
       if(.not.geom_cent_get(igeom,isa,tag,c,q))
-     + call errquit('geom_cent_get failed',isa)
+     + call errquit('geom_cent_get failed',isa, GEOM_ERR)
       c(1)=xs(isa,1)*cnm2au
       c(2)=xs(isa,2)*cnm2au
       c(3)=xs(isa,3)*cnm2au
       if(.not.geom_cent_set(igeom,i,tag,c,q))
-     + call errquit('geom_cent_set failed',isa)
+     + call errquit('geom_cent_set failed',isa, GEOM_ERR)
     1 continue
       if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
-     + call errquit('geom_rtdb_store failed',0)
+     + call errquit('geom_rtdb_store failed',0, RTDB_ERR)
 c
       call ga_sync()
       if(jdebug.gt.0) call ma_summarize_allocated_blocks()
       call ga_sync()
       if(.not.task_gradient(irtdb))
-     + call errquit('qmd: Task_gradient failed',0)
+     + call errquit('qmd: Task_gradient failed',0, CALC_ERR)
       call ga_sync()
       if(lesp) then
-      if(.not.esp(irtdb)) call errquit('qmd esp error',0)
+      if(.not.esp(irtdb)) call errquit('qmd esp error',0, RTDB_ERR)
       endif
 c
       if(.not.ma_push_get(mt_dbl,3*msa,'qmdb',l_qmdb,i_qmdb))
-     + call errquit('Failed to allocate qmdq',0)
+     + call errquit('Failed to allocate qmdq',0, MA_ERR)
       if(.not.ma_verify_allocator_stuff())
-     + call errquit('Error qmd_forces 1',0)
+     + call errquit('Error qmd_forces 1',0, MA_ERR)
       call qmd_f(irtdb,isag,dbl_mb(i_qmdb),fs,msa,nsa,energy)
       if(.not.ma_verify_allocator_stuff())
-     + call errquit('Error qmd_forces 2',0)
+     + call errquit('Error qmd_forces 2',0, MA_ERR)
       if(.not.ma_pop_stack(l_qmdb))
-     + call errquit('Failed to deallocate qmdb',0)
+     + call errquit('Failed to deallocate qmdb',0, MA_ERR)
 c
       return
       end
       subroutine qmd_f(irtdb,isag,buf,fs,msa,nsa,energy)
 c
       implicit none
+#include "errquit.fh"
 c
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -99,9 +102,9 @@ c
       integer i,isa
 c
       if(.not.rtdb_get(irtdb,'task:gradient',mt_dbl,3*msa,buf))
-     + call errquit('qmd_f: rtdb_get gradient failed',0)
+     + call errquit('qmd_f: rtdb_get gradient failed',0, RTDB_ERR)
       if(.not.rtdb_get(irtdb,'task:energy',mt_dbl,1,energy))
-     + call errquit('qmd_f: rtdb_get energy failed',0)
+     + call errquit('qmd_f: rtdb_get energy failed',0, RTDB_ERR)
 c
       do 2 i=1,nsa
       isa=isag(i)

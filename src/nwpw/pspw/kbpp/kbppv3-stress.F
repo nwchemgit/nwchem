@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3-stress.F,v 1.5 2002-08-21 21:56:13 bylaska Exp $
+* $Id: kbppv3-stress.F,v 1.6 2003-10-17 22:57:16 carlfahl Exp $
 *
 
 
@@ -13,6 +13,7 @@
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,rlocal)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
@@ -272,7 +273,7 @@
       return
 
  9999 kbppv3_stress = .false.
-      call errquit('Error reading psp_filename',0)
+      call errquit('Error reading psp_filename',0, DISK_ERR)
       END
 
 

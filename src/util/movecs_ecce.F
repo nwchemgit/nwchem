@@ -11,9 +11,10 @@
       subroutine movecs_ecce(nbf, nmo, lo, hi, eval, occ, sym,
      $     g_movecs, scftype, key)
 *
-* $Id: movecs_ecce.F,v 1.1 1999-06-22 23:05:23 d3e129 Exp $
+* $Id: movecs_ecce.F,v 1.2 2003-10-17 22:58:35 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -63,7 +64,7 @@ c
 c     Get the MOs
 c
       if (.not. ma_push_get(mt_dbl, (hi-lo+1)*nbf, 'moecce', l_v, k_v))
-     $     call errquit('movecs_ecce: insufficient memory',0)
+     $     call errquit('movecs_ecce: insufficient memory',0, MA_ERR)
       call ga_get(g_movecs, 1, nbf, lo, hi, dbl_mb(k_v), nbf)
 c
 c     Construct the names
@@ -124,6 +125,6 @@ c
      $     1d-3)
 c
       if (.not. ma_pop_stack(l_v)) call errquit
-     $     ('movecs_ecce: ma stack is corrupt', 0)
+     $     ('movecs_ecce: ma stack is corrupt', 0, MA_ERR)
 c
       end

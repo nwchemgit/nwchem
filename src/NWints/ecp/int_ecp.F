@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.26 2003-01-09 00:49:53 bert Exp $
+* $Id: int_ecp.F,v 1.27 2003-10-17 22:53:51 carlfahl Exp $
       implicit none
 *::cr::7
 *--------------------------------------------------*
@@ -66,6 +66,7 @@ c
 *
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
+#include "errquit.fh"
 *<<<------------------------------------------------------------>
 *<<<-First pass is to explode all information into arrays
 *<<<-The memory used can be reduced by keeping track of the
@@ -83,7 +84,7 @@ c
 c.. check initialization
       if (init_ecp_init) then
         write(6,*)' already called int_ecp_init' 
-        call errquit('int_ecp_init error',911)
+        call errquit('int_ecp_init error',911, INT_ERR)
       endif
       init_ecp_init = .true.
 c.. determine if ecp/so or both are needed
@@ -109,7 +110,8 @@ c.. determine geom
         if (geomso.ne.geomecp) then
           write(luout,*)' geometry used to load ecp ',geomecp
           write(luout,*)' geometry used to load so  ',geomso
-          call errquit('int_ecp_init: ecp/so geometry mismatch',911)
+          call errquit('int_ecp_init: ecp/so geometry mismatch',911,
+     &       GEOM_ERR)
         endif
         geom = geomecp
       endif
@@ -118,50 +120,57 @@ c.. determine geom
 c....
 c.. get total number of centers
       if (.not.geom_ncent(geom,ncenters)) call errquit
-     &    ('int_ecp_init: geom_ncent failed?',911)
+     &    ('int_ecp_init: geom_ncent failed?',911, GEOM_ERR)
 c.. get number of ecp/so/both centers
       n_ecp = 0
       if (o_both) then
         if (.not.ecpso_ncent
      &      (geom,soidin,ecpidin,n_ecp)) call errquit
-     &      ('int_ecp_init: ecpso_ncent failed',911)
+     &      ('int_ecp_init: ecpso_ncent failed',911, INT_ERR)
       else if (o_ecp) then
         if (.not.ecp_ncent
      &      (geom,ecpidin,n_ecp)) call errquit
-     &      ('int_ecp_init: ecp_ncent failed?',911)
+     &      ('int_ecp_init: ecp_ncent failed?',911, INT_ERR)
       else if (o_so) then
         if (.not.so_ncent
      &      (geom,soidin,n_ecp)) call errquit
-     &      ('int_ecp_init: so_ncent failed',911)
+     &      ('int_ecp_init: so_ncent failed',911, INT_ERR)
       else
-        call errquit('int_ecp_init: no so or ecp basis',911)
+        call errquit('int_ecp_init: no so or ecp basis',911,
+     &       BASIS_ERR)
       endif
       if (n_ecp.eq.0) call errquit
-     &    ('int_ecp_init: fatal error no ecp/so centers',911)
+     &    ('int_ecp_init: fatal error no ecp/so centers',911,
+     &       BASIS_ERR)
 
 c.. allocate space for coordintates of ecp/so centers
       if (.not.ma_alloc_get(mt_dbl,
      &    (3*n_ecp),
      &    'ecp center coords',
      &    h_xyzecp, k_xyzecp)) call errquit
-     &    (' int_ecp_init: ecp center coords ma failed ',911)
+     &    (' int_ecp_init: ecp center coords ma failed ',911,
+     &       BASIS_ERR)
       call dfill((3*n_ecp),0.0d00,dbl_mb(k_xyzecp),1)
 
 c.. get coordinates for ecp centers.
       if (o_both) then
         if (.not.ecpso_get_coords(geom,soidin,ecpidin,
      &      n_ecp,dbl_mb(k_xyzecp)))
-     &    call errquit('int_ecp_init: ecpso_get_coords failed',911)
+     &    call errquit('int_ecp_init: ecpso_get_coords failed',911,
+     &       INT_ERR)
       else if (o_ecp) then
         if (.not.ecp_get_coords(geom,ecpidin,
      &      n_ecp,dbl_mb(k_xyzecp)))
-     &    call errquit('int_ecp_init: ecp_get_coords failed',911)
+     &    call errquit('int_ecp_init: ecp_get_coords failed',911,
+     &       INT_ERR)
       else if (o_so) then
         if (.not.so_get_coords(geom,soidin,
      &      n_ecp,dbl_mb(k_xyzecp)))
-     &    call errquit('int_ecp_init: so_get_coords failed',911)
+     &    call errquit('int_ecp_init: so_get_coords failed',911,
+     &       INT_ERR)
       else
-        call errquit('int_ecp_init: no so or ecp basis',911)
+        call errquit('int_ecp_init: no so or ecp basis',911,
+     &       INT_ERR)
       endif
 *      write(6,*)' coordinates after read '
 *      call output(dbl_mb(k_xyzecp),1,3,1,n_ecp,3,n_ecp,1)
@@ -174,39 +183,40 @@ c
 *      if (.not.ecp_print(ecpidin)) stop ' ecp_print error'
       if (o_both) then
         if (.not.bas_num_prim(ecpidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_prim failed?',911)
+     &      ('int_ecp_init:bas_num_prim failed?',911, BASIS_ERR)
         n_zeta_c_e = nz_add
         if (.not.bas_num_prim(soidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_prim failed?',911)
+     &      ('int_ecp_init:bas_num_prim failed?',911,
+     &       BASIS_ERR)
         n_zeta_c_e = n_zeta_c_e + nz_add
         if (.not.bas_num_coef(ecpidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_coef failed?',911)
+     &      ('int_ecp_init:bas_num_coef failed?',911, BASIS_ERR)
         n_zeta_c_c = nz_add
         if (.not.bas_num_coef(soidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_prim failed?',911)
+     &      ('int_ecp_init:bas_num_prim failed?',911, BASIS_ERR)
         n_zeta_c_c = n_zeta_c_c + nz_add
       else if (o_ecp) then
         if (.not.bas_num_prim(ecpidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_prim failed?',911)
+     &      ('int_ecp_init:bas_num_prim failed?',911, BASIS_ERR)
         n_zeta_c_e = nz_add
         if (.not.bas_num_coef(ecpidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_coef failed?',911)
+     &      ('int_ecp_init:bas_num_coef failed?',911, BASIS_ERR)
         n_zeta_c_c = nz_add
       else if (o_so) then
         if (.not.bas_num_prim(soidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_prim failed?',911)
+     &      ('int_ecp_init:bas_num_prim failed?',911, BASIS_ERR)
         n_zeta_c_e = nz_add
         if (.not.bas_num_coef(soidin,nz_add)) call errquit
-     &      ('int_ecp_init:bas_num_coef failed?',911)
+     &      ('int_ecp_init:bas_num_coef failed?',911, BASIS_ERR)
         n_zeta_c_c = nz_add
       else
-        call errquit('int_ecp_init: no so or ecp basis',911)
+        call errquit('int_ecp_init: no so or ecp basis',911, BASIS_ERR)
       endif
 *.. error check for general contraction
       if (n_zeta_c_e.ne.n_zeta_c_c) then
         write(6,*)' possible general contraction on ecp/so basis'
         call errquit ('int_ecp_init: n_zeta_c_e .ne. n_zeta_c_c',
-     &      (n_zeta_c_e- n_zeta_c_c))
+     &      (n_zeta_c_e- n_zeta_c_c), BASIS_ERR)
       endif
       n_zeta_c = n_zeta_c_e ! use e one
 c
@@ -215,24 +225,24 @@ c.. allocate space for ecp/so exponents and ecp/so coefficients
      &    n_zeta_c,
      &    'ecp exponents',
      &    h_ecp_e, k_ecp_e)) call errquit
-     &    (' int_ecp_init: ecp exponent ma failed ',911)
+     &    (' int_ecp_init: ecp exponent ma failed ',911, BASIS_ERR)
       call dfill(n_zeta_c,0.0d00,dbl_mb(k_ecp_e),1)
       if (.not.ma_alloc_get(mt_dbl,
      &    n_zeta_c,
      &    'ecp coefficients',
      &    h_ecp_c, k_ecp_c)) call errquit
-     &    (' int_ecp_init: ecp coefficients ma failed ',911)
+     &    (' int_ecp_init: ecp coefficients ma failed ',911, BASIS_ERR)
       call dfill(n_zeta_c,0.0d00,dbl_mb(k_ecp_c),1)
 c
 c... determine maximum angular momentum of ecp basis
       l_ecp = 0
       if (o_ecp) then
         if (.not.bas_high_angular(ecpidin,l_ecp)) call errquit
-     &      ('int_ecp_init:ecp: bas_high_angular failed',911)
+     &      ('int_ecp_init:ecp: bas_high_angular failed',911, BASIS_ERR)
       endif
       if (o_so) then
         if (.not.bas_high_angular(soidin,l_so)) call errquit
-     &      ('int_ecp_init:so: bas_high_angular failed',911)
+     &      ('int_ecp_init:so: bas_high_angular failed',911, BASIS_ERR)
         l_ecp = max(l_ecp,l_so)
       endif
 c
@@ -243,42 +253,42 @@ c... allocate space for n_prim_C(0:2,-1:l_ecp_max,n_C*2),
      &    (3*l_ecp_sz*n_ecp*2),
      &    'ecp n_prim_C',
      &    h_ecp_nprim_c, k_ecp_nprim_c)) call errquit
-     &    (' int_ecp: ecp nprim_c ma failed ',911)
+     &    (' int_ecp: ecp nprim_c ma failed ',911, BASIS_ERR)
       call ifill((3*l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_nprim_c),1)
 c... allocate space for n_coef_C(-1:l_ecp_max,n_C*2)
       if (.not.ma_alloc_get(mt_int,
      &    (l_ecp_sz*n_ecp*2),
      &    'ecp n_coef_C',
      &    h_ecp_ncoef_c, k_ecp_ncoef_c)) call errquit
-     &    (' int_ecp: ecp ncoef_c ma failed ',911)
+     &    (' int_ecp: ecp ncoef_c ma failed ',911, BASIS_ERR)
       call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ncoef_c),1)
 c... allocate space for ind_C      
       if (.not.ma_alloc_get(mt_int,
      &    (l_ecp_sz*n_ecp*2),
      &    'ecp ind_C',
      &    h_ecp_ind_c, k_ecp_ind_c)) call errquit
-     &      (' int_ecp: ecp ind_c ma failed ',911)
+     &      (' int_ecp: ecp ind_c ma failed ',911, BASIS_ERR)
       call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ind_c),1)
 c... allocate space for ind_z      
       if (.not.ma_alloc_get(mt_int,
      &    (l_ecp_sz*n_ecp*2),
      &    'ecp ind_z',
      &    h_ecp_ind_z, k_ecp_ind_z)) call errquit
-     &      (' int_ecp: ecp ind_z ma failed ',911)
+     &      (' int_ecp: ecp ind_z ma failed ',911, BASIS_ERR)
       call ifill((l_ecp_sz*n_ecp*2),0,int_mb(k_ecp_ind_z),1)
 c... allocate space for l_C      
       if (.not.ma_alloc_get(mt_int,
      &    n_ecp,
      &    'ecp l_C',
      &    h_ecp_l_c, k_ecp_l_c)) call errquit
-     &    (' int_ecp: ecp l_c ma failed ',911)
+     &    (' int_ecp: ecp l_c ma failed ',911, BASIS_ERR)
       call ifill(n_ecp,0,int_mb(k_ecp_l_c),1)
 c... allocate space for ecp center pointer list
       if (.not.ma_alloc_get(mt_int,
      &    n_ecp,
      &    'ecp lexical indeces for ecp centers',
      &    h_ecp_lip, k_ecp_lip)) call errquit
-     &    (' int_ecp: ecp_lip ma failed',911)
+     &    (' int_ecp: ecp_lip ma failed',911, BASIS_ERR)
       call ifill(n_ecp,0,int_mb(k_ecp_lip),1)
 c
       call int_ecp_build_ecp_ptrs(ecpidin,soidin,geom,
@@ -302,17 +312,18 @@ c determine lmax among ao basis and ecp basis
 c l_ecp currently has Lmax for ecp basis
       if (.not.ecp_get_parent_handle(ecpidin,basis_handle))
      &      call errquit
-     &      ('int_ecp_init: ecp_get_parent_handle failed',911)
+     &      ('int_ecp_init: ecp_get_parent_handle failed',911,
+     &       BASIS_ERR)
       if (.not.bas_high_angular(basis_handle,l_bas)) call errquit
      &      ('int_ecp_init: bas_high_angular failed for ao handle',
-     &      911)
+     &      911, BASIS_ERR)
       lmax_both = max(l_ecp,l_bas) + l_bas + 2 
       call ecp_init_c2s(lmax_both,dpdum,dpdum,idum,1,1,.true.,mem_c2s)
       if (.not.ma_alloc_get(mt_dbl,
      &      mem_c2s,
      &      'ecp c2s routines',
      &      h_ecp_c2s, k_ecp_c2s)) call errquit
-     &      ('int_ecp_init: ma failed for c2s',911)
+     &      ('int_ecp_init: ma failed for c2s',911, MA_ERR)
       call dfill(mem_c2s,0.0d00,dbl_mb(k_ecp_c2s),1)
       call ecp_init_c2s(lmax_both,
      &      dbl_mb(k_ecp_c2s),dbl_mb(k_ecp_c2s),mem_c2s,1,1,.false.,
@@ -337,7 +348,7 @@ c
       do ictr=1,ncenters
          if (sym_atom(ig, ictr, qfact))  then
             if(.not.(bas_ce2cnr(basis_handle,ictr,ic1,ic2)))
-     .           call errquit('intecp:basce2cnr failed',0)
+     .           call errquit('intecp:basce2cnr failed',0, BASIS_ERR)
             do i_cont = ic1,ic2
                ic  = sf_ibs_cn2ce(i_cont,bas_id)
                iuc = sf_ibs_cn2ucn(i_cont,bas_id)
@@ -349,7 +360,8 @@ c
                do jctr=ictr,ncenters
                   if (sym_atom(ig, jctr, qfact))  then
                      if(.not.(bas_ce2cnr(basis_handle,jctr,jc1,jc2)))
-     .                    call errquit('intecp:basce2cnr failed',0)
+     .                    call errquit('intecp:basce2cnr failed',0,
+     &       BASIS_ERR)
                      do j_cont = jc1,jc2
                         jc = sf_ibs_cn2ce(j_cont,bas_id)
                         juc = sf_ibs_cn2ucn(j_cont,bas_id)
@@ -425,7 +437,8 @@ c
      &                          dpdum,nV,ncenters,dpdum,lecp_mem,.true.)
                         else
                            call errquit(
-     .                          'int_ecp_init:unknown initializ',911)
+     .                          'int_ecp_init:unknown initializ',911,
+     &       INT_ERR)
                         endif
 c     ! nint block used in api routine int_hf1sp                  
                         lecp_mem = lecp_mem + nV 
@@ -456,6 +469,7 @@ c
       implicit none
 #include "mafdecls.fh"
 #include "ecp_nwc.fh"
+#include "errquit.fh"
 
       logical status
 
@@ -496,7 +510,7 @@ c
       init_ecp_init = .false.
       if (status) return
       call errquit
-     &    ('int_ecp_terminate: error freeing heap',911)
+     &    ('int_ecp_terminate: error freeing heap',911, MEM_ERR)
       end
       subroutine int_ecp_build_ecp_ptrs(ecpidin,soidin,geom,
      &    o_both, o_ecp, o_so,
@@ -561,6 +575,7 @@ c
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
+#include "errquit.fh"
 c
 *      write(6,*)' inside build'
       ecpid = ecpidin + BASIS_HANDLE_OFFSET
@@ -578,19 +593,19 @@ c
       if (o_both) then
         if (.not.
      &      ecpso_list_ncent(geom,soidin,ecpidin,num_ecp,i_cent_C))
-     &      call errquit('ecp_ptrs: ecpso_list failed',911)
+     &      call errquit('ecp_ptrs: ecpso_list failed',911, BASIS_ERR)
       else if (o_ecp) then
         if (.not.ecp_list_ncent(geom,ecpidin,num_ecp,i_cent_C))
-     &      call errquit('ecp_ptrs: ecp_list failed',911)
+     &      call errquit('ecp_ptrs: ecp_list failed',911, BASIS_ERR)
       else if (o_so) then
         if (.not.so_list_ncent(geom,soidin,num_ecp,i_cent_C))
-     &      call errquit('ecp_ptrs: ecpso_list failed',911)
+     &      call errquit('ecp_ptrs: ecpso_list failed',911, BASIS_ERR)
       else 
-        call errquit('ecp_ptrs: should not get here',911)
+        call errquit('ecp_ptrs: should not get here',911, BASIS_ERR)
       endif
       if (num_ecp.ne.n_ecp) call errquit
      &    ('ecp_ptrs: mismatch in num_ecp and n_ecp',
-     &    (num_ecp-n_ecp))
+     &    (num_ecp-n_ecp), BASIS_ERR)
 c
       p_nprim = 0
       do ie = 1,n_ecp
@@ -615,13 +630,15 @@ c
             ncoef = nprim*infbs_cont(CONT_NGEN,iucont,ecpid)
             if (nprim.ne.ncoef) then
               write(6,*)'general contraction ecp basis are invalid now'
-              call errquit('int_ecp_build_ecp_ptrs: error',911)
+              call errquit('int_ecp_build_ecp_ptrs: error',911,
+     &       BASIS_ERR)
             endif
             iexp  = infbs_cont(CONT_IEXP,iucont,ecpid)
             icfp  = infbs_cont(CONT_ICFP,iucont,ecpid)
             irexp = infbs_cont(CONT_IREXP,iucont,ecpid)
             if ((p_nprim+nprim).gt.nz_ecp) call errquit
-     &          ('int_ecp_build_ecp_ptrs:too many coefficients',911)
+     &          ('int_ecp_build_ecp_ptrs:too many coefficients',911,
+     &       BASIS_ERR)
             call ecp_get_n3(
      &          c_exp((p_nprim+1)),
      &          dbl_mb(mb_exndcf(iexp,ecpid)),
@@ -649,13 +666,15 @@ c
             ncoef = nprim*infbs_cont(CONT_NGEN,iucont,soid)
             if (nprim.ne.ncoef) then
               write(6,*)'general contraction so basis are invalid now'
-              call errquit('int_ecp_build_ecp_ptrs: error',911)
+              call errquit('int_ecp_build_ecp_ptrs: error',911,
+     &       BASIS_ERR)
             endif
             iexp  = infbs_cont(CONT_IEXP,iucont,soid)
             icfp  = infbs_cont(CONT_ICFP,iucont,soid)
             irexp = infbs_cont(CONT_IREXP,iucont,soid)
             if ((p_nprim+nprim).gt.nz_ecp) call errquit
-     &          ('int_ecp_build_ecp_ptrs:too many coefficients',911)
+     &          ('int_ecp_build_ecp_ptrs:too many coefficients',911,
+     &       BASIS_ERR)
             call ecp_get_n3(
      &          c_exp((p_nprim+1)),
      &          dbl_mb(mb_exndcf(iexp,soid)),
@@ -782,6 +801,7 @@ c
      &    grexp,
      &    nprim,new0,new1,new2)
       implicit none
+#include "errquit.fh"
 c
 c data structures in the ecp code assume all 0 exponents, all 1 exponents
 c and all 2 exponents are contiguous.  Not enforced in the input.
@@ -817,7 +837,8 @@ c
             write(6,*)' ival    = ',ival
             write(6,*)' grexp(j) = ',grexp(j)
             call errquit
-     &          ('ecp_get_n3: r-exponent not equal to 0,1,2',911)
+     &          ('ecp_get_n3: r-exponent not equal to 0,1,2',911,
+     &       BASIS_ERR)
           endif
           if (ival.eq.i) then
             new(i) = new(i) + 1

@@ -1,6 +1,7 @@
       subroutine sym_movecs_adapt_so(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt_so.F,v 1.3 2000-10-06 21:07:55 edo Exp $
+C$Id: sym_mo_adapt_so.F,v 1.4 2003-10-17 22:55:48 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -77,16 +78,18 @@ c
 c     Get char table and group class info
 c     
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_movecs_adapt: no geometry from basis?', basis) 
+     $     ('sym_movecs_adapt: no geometry from basis?', basis,
+     &       BASIS_ERR)
       nop = sym_number_ops(geom)
       if (.not. ma_push_get(mt_dcpl, 8*nop, 'sym:u', l_u, k_u))
-     $     call errquit('sym_movecs_adapt: unable to alloc u',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc u',0, MA_ERR)
 c     
       call sym_op_classify_so(geom, op_class_index, dcpl_mb(k_u))
       call sym_group_name(geom,group_name)
       if (.not. sym_char_table_so(group_name, nop, nir, iclass_dim,
      $     zir, zclass, chars)) 
-     $     call errquit('sym_print_char_table: no char table',0)
+     $     call errquit('sym_print_char_table: no char table',0,
+     &       GEOM_ERR)
 c
       if (odebug) then
          do i = 0, ga_nodeid()
@@ -106,39 +109,40 @@ c
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_t(1)))
      $     call errquit('sym_movecs_adapt: unable to alloc g_t',
-     $     nbf*nvec)
+     $     nbf*nvec, GA_ERR)
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_t(2)))
      $     call errquit('sym_movecs_adapt: unable to alloc g_t',
-     $     nbf*nvec)
+     $     nbf*nvec, GA_ERR)
 *ga:1:0
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_q(1)))
      $     call errquit('sym_movecs_adapt: unable to alloc g_q',
-     $     nbf*nvec)
+     $     nbf*nvec, GA_ERR)
       if (.not. ga_create(mt_dbl, nbf, nvec, 'sym:tmp',nbf,0,g_q(2)))
      $     call errquit('sym_movecs_adapt: unable to alloc g_q',
-     $     nbf*nvec)
+     $     nbf*nvec, GA_ERR)
 
 c
       g_s = ga_create_atom_blocked(geom, basis,'sym: S')
       call ga_inquire(g_s, type, nbf1, nvec1)
       if (.not. ga_create(mt_dbl, nbf, nbf, 'sym:S',0,0,g_s2))
-     $     call errquit('sym_movecs_adapt: unable to alloc g_s2',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc g_s2',0,
+     &       GA_ERR)
 *ga:1:0
 *      if (.not. ga_create(mt_dbl, nbf, nbf, 'sym:S',0,0,g_s))
 *     $     call errquit('sym_movecs_adapt: unable to alloc g_s',0)
       if (.not. ma_push_get(mt_dbl, 2*nbf, 'sym:v', l_v, k_v))
-     $     call errquit('sym_movecs_adapt: unable to alloc v',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc v',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, 2*nbf, 'sym:q', l_q, k_q))
-     $     call errquit('sym_movecs_adapt: unable to alloc q',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc q',0, MA_ERR)
       if (.not. ma_push_get(mt_dbl, 2*nbf, 'sym:t', l_t, k_t))
-     $     call errquit('sym_movecs_adapt: unable to alloc t',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc t',0, MA_ERR)
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
       nvec_per_proc = (nvec-1)/nproc + 1
       if (.not. ma_push_get(mt_dbl, 2*nir*nvec_per_proc, 'sym:c', 
      $     l_c, k_c))
-     $     call errquit('sym_movecs_adapt: unable to alloc c',0)
+     $     call errquit('sym_movecs_adapt: unable to alloc c',0, MA_ERR)
 c     
       call ga_zero(g_s)
       call ga_zero(g_s2)
@@ -287,14 +291,16 @@ c
  1             format(' sym_movecs_adapt: orbital ',i5,
      $              ' negative proj. '/1x,1p,20d10.2)
                call util_flush(6)
-               call errquit('sym_movecs_adapt: negative proj',0)
+               call errquit('sym_movecs_adapt: negative proj',0,
+     &       GEOM_ERR)
             endif
          enddo
 c
          i1 = idamax(nir, v, 1)
          v1 = v(i1)
          if (v1 .lt. thresh) call errquit
-     $        ('sym_movecs_adapt: no significant component?', 0)
+     $        ('sym_movecs_adapt: no significant component?', 0,
+     &       GEOM_ERR)
 c     
 c     Look for mixing
 c     
@@ -423,23 +429,35 @@ c
       call ga_igop(msg_sym_2, irs, nvec, '+')
       call ga_sync
 c     
-      if (.not. ga_destroy(g_s)) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ga_destroy(g_s2)) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ga_destroy(g_q(1))) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ga_destroy(g_q(2))) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ga_destroy(g_t(1))) call errquit('sym_mos_ad: ga?',0)
-      if (.not. ga_destroy(g_t(2))) call errquit('sym_mos_ad: ga?',0)
+      if (.not. ga_destroy(g_s)) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_s2)) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_q(1))) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_q(2))) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_t(1))) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_t(2))) call errquit('sym_mos_ad: ga?',0,
+     &       GA_ERR)
 c
-      if (.not. ma_pop_stack(l_c)) call errquit('sym_mos_ad: ma?',0)
-      if (.not. ma_pop_stack(l_t)) call errquit('sym_mos_ad: ma?',0)
-      if (.not. ma_pop_stack(l_q)) call errquit('sym_mos_ad: ma?',0)
-      if (.not. ma_pop_stack(l_v)) call errquit('sym_mos_ad: ma?',0)
-      if (.not. ma_pop_stack(l_u)) call errquit('sym_mos_ad: ma?',0)
+      if (.not. ma_pop_stack(l_c)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_t)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_q)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_v)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_u)) call errquit('sym_mos_ad: ma?',0,
+     &       MA_ERR)
 c     
       end
 
       subroutine sym_movecs_apply_op_so(basis, op, nop, nbf2, v, t, u)
       implicit none 
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer basis, op, nop, opp, nbf, i, j, l_tmp, k_tmp, nbf2, ii
       double precision v(*), t(*), fact
@@ -447,7 +465,8 @@ c
 c
       nbf = nbf2/2 
       if (.not. ma_push_get(mt_dbl, nbf, 'tmp', l_tmp, k_tmp))
-     $     call errquit('sym_movecs_apply_so: unable to alloc tmp',0) 
+     $     call errquit('sym_movecs_apply_so: unable to alloc tmp',0,
+     &       MA_ERR)
       do i = 1, 4 
          opp=mod(op-1,nop-1)+1
          call dfill(nbf, 0.0d0, dbl_mb(k_tmp), 1)
@@ -473,7 +492,8 @@ c                  write(*,'(3f10.5)')v(ii),dbl_mb(k_tmp+ii-1),t(ii)
       enddo
 c
       if (.not. ma_pop_stack(l_tmp)) 
-     &     call errquit('sym_movecs_apply: ma?',0)
+     &     call errquit('sym_movecs_apply: ma?',0,
+     &       MA_ERR)
 c
       end
       

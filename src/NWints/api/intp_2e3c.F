@@ -1,6 +1,6 @@
       subroutine intp_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri)
-c $Id: intp_2e3c.F,v 1.9 1999-07-14 00:28:42 d3e129 Exp $
+c $Id: intp_2e3c.F,v 1.10 2003-10-17 22:53:42 carlfahl Exp $
       implicit none
 c
 c basic api routine to generate a block of 3 center two 
@@ -9,6 +9,7 @@ c
 c eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh)>
 c
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -64,7 +65,8 @@ c
 c check initialization
 c
       if (.not.int_chk_init('intp_2e3c'))
-     &       call errquit('intp_2e3c: int_init was not called' ,0)
+     &       call errquit('intp_2e3c: int_init was not called' ,0,
+     &          INT_ERR)
 c
 c     check input shell ranges
 c
@@ -72,7 +74,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
-     &       call errquit('intp_2e3c: invalid contraction/shell',0)
+     &       call errquit('intp_2e3c: invalid contraction/shell',0,
+     &          BASIS_ERR)
 c
 c  check if spherical/gencon/sp shell
 c
@@ -146,7 +149,7 @@ c
           if (nintx.lt.lscr)
      &        call errquit
      &        ('intp_2e3c: not enough scratch for spherical transform',
-     &        911)
+     &        911, INT_ERR)
           call spcart_3ctran(eri,scr,lscr,
      &        int_nbf_x(Lp),int_nbf_s(Lp),Lp,p_gen,bas_spherical(bra),
      &        int_nbf_x(Lc),int_nbf_s(Lc),Lc,c_gen,bas_spherical(ket),
@@ -160,6 +163,6 @@ c
         write(luout,*)' ish   :',ish
         write(luout,*)' jsh   :',jsh
         write(luout,*)' ksh   :',ksh
-        call errquit('intp_2e3c: fatal error ',0)
+        call errquit('intp_2e3c: fatal error ',0, INT_ERR)
       endif
       end

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_sd_ij.F,v 1.2 1999-04-28 22:48:09 windus Exp $
+c $Id: hnd_sd_ij.F,v 1.3 2003-10-17 22:53:53 carlfahl Exp $
 c
 c Taken from HONDO
 c
@@ -14,6 +14,7 @@ c  (disij,djsij,didisij,didjsij,djdjsij).
 c
       implicit none
 #include "hnd_tol.fh"
+#include "errquit.fh"
       integer i_nprim  ! [input] num. prims on function i
       integer i_ngen   ! [input] num general conts on func. i
       integer Li       ! [input] angular momentum of func. i
@@ -138,7 +139,7 @@ c
       elseif(lit.eq.5) then
         cgi=coefi(ig,i_ngen)
       else
-        call errquit('hnd_stv_int: illegal -lit- ', lit)
+        call errquit('hnd_stv_int: illegal -lit- ', lit, INT_ERR)
       endif
 c
 c     ----- j primitive -----
@@ -166,7 +167,7 @@ c
       elseif(ljt.eq.5) then
         cgj=coefj(jg,j_ngen)
       else
-        call errquit('hnd_stv_int: illegal -ljt- ', ljt)
+        call errquit('hnd_stv_int: illegal -ljt- ', ljt, INT_ERR)
       endif
       ax=(axi+aj*xj)*aa1
       ay=(ayi+aj*yj)*aa1

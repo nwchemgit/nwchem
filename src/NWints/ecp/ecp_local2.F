@@ -1,4 +1,4 @@
-C $Id: ecp_local2.F,v 1.6 2000-05-16 20:33:03 windus Exp $
+C $Id: ecp_local2.F,v 1.7 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_local2 (mem_max,DryRun,
@@ -63,6 +63,8 @@ C $Id: ecp_local2.F,v 1.6 2000-05-16 20:33:03 windus Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer l_a,n_prim_a,n_cont_a,l_b,n_prim_b,n_cont_b,n_coef_c,
      &    l_tmp,n_int,p_min,p_max,sphcart,mem_max,ibug
       integer n_prim_c(p_min:p_max)
@@ -196,7 +198,7 @@ C $Id: ecp_local2.F,v 1.6 2000-05-16 20:33:03 windus Exp $
         if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (max(i_free,i,j)-1 .gt. l_tmp) call errquit(
-     &      ' Insufficient memory in ecp_local2',99)
+     &      ' Insufficient memory in ecp_local2',99, MEM_ERR)
         fourpi = pi+pi
         fourpi = fourpi+fourpi
 *

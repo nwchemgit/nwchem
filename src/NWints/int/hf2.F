@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.23 2003-08-03 04:58:36 edo Exp $
+c $Id: hf2.F,v 1.24 2003-10-17 22:54:02 carlfahl Exp $
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,
@@ -9,6 +9,7 @@ c $Id: hf2.F,v 1.23 2003-08-03 04:58:36 edo Exp $
       Implicit none
 #include "stdio.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
 
       Integer NPA,NCA,La
       Integer NPB,NCB,Lb
@@ -62,7 +63,8 @@ c******************************************************************************
       MXD = 0
       istep = MA_sizeof(MT_DBL,1,MT_INT)
       if (istep .gt. 2) call errquit(
-     &    'hf2:Too many integers per real for Ipair addressing',911)
+     &    'hf2:Too many integers per real for Ipair addressing',911,
+     &       INT_ERR)
       istep = 2/istep
 
 c Determine whether general or segmented contraction is used.
@@ -113,7 +115,8 @@ c Assign pointers to scratch space.
           write(LuOut,*) 'IPAIRp:  ',i_IPAIRp 
           write(LuOut,*) 'From the right '
           write(LuOut,*) 'ESp   :  ',i_ESp 
-          call errquit('hf2: Not enough scratch space for hfset AB',911)
+          call errquit('hf2: Not enough scratch space for hfset AB',911,
+     &       MEM_ERR)
         end if
         call hfset(Axyz,Aprims,Acoefs,NPA,NCA,
      &      Bxyz,Bprims,Bcoefs,NPB,NCB,
@@ -146,7 +149,8 @@ c Assign pointers to scratch space.
           write(LuOut,*) 'From the right '
           write(LuOut,*) 'ESp   :  ',i_ESp 
           write(LuOut,*) 'ESq   :  ',i_ESq 
-          call errquit('hf2: Not enough scratch space for hfset CD',911)
+          call errquit('hf2: Not enough scratch space for hfset CD',911,
+     &       MEM_ERR)
         end if
         call hfset(Cxyz,Cprims,Ccoefs,NPC,NCC,
      &      Dxyz,Dprims,Dcoefs,NPD,NCD,
@@ -203,7 +207,8 @@ c Assign pointers to scratch space.
           write(LuOut,*) 'From the right '
           write(LuOut,*) 'ESp   :  ',i_ESp 
           write(LuOut,*) 'ESq   :  ',i_ESq 
-          call errquit('hf2: Not enough scratch space for hfmke',911)
+          call errquit('hf2: Not enough scratch space for hfmke',911,
+     &       MEM_ERR)
         end if
 
         do nd = 0,MXD
@@ -238,7 +243,8 @@ c   If insufficient memory, do multipassing.
         write(LuOut,*) 'Eq    :  ',i_Eq
         write(LuOut,*) 'R0    :  ',i_R0
         write(LuOut,*) 'IJK   :  ',i_IJK
-        call errquit('hf2: Not enough scratch space for hf2mkr',911)
+        call errquit('hf2: Not enough scratch space for hf2mkr',911,
+     &       MEM_ERR)
       end if
 
       MaxPairs = Maxavail/MemPerPair
@@ -358,7 +364,8 @@ c Assign pointers to scratch space.
               write(LuOut,*) 't3  :  ',i_t3
               write(LuOut,*) 't4  :  ',i_t4
             end if
-            call errquit('hf2: Not enough scratch space for hferi',911)
+            call errquit('hf2: Not enough scratch space for hferi',911,
+     &       MEM_ERR)
           else if (doit_PQ) then
             if (GenCon) then
               call hferi_gen(W0(i_Ep+3*ipp),W0(i_Eq+3*ipq),

@@ -2,7 +2,7 @@
      &    use_ma,use_ga,basis)
       implicit none
 *
-* $Id: int_spcart2.F,v 1.5 2000-10-23 15:51:08 windus Exp $
+* $Id: int_spcart2.F,v 1.6 2003-10-17 22:53:46 carlfahl Exp $
 *
 *
 *::include files::
@@ -12,6 +12,8 @@
 #include "global.fh"
 #include "spcartP.fh"
 #include "bas.fh"
+#include "util.fh"
+#include "errquit.fh"
 *
 *::functions::
       logical spcart_init, spcart_terminate
@@ -74,20 +76,23 @@
 *
       if (.not.bas_check_handle(basis,'spcart_get_fullcs_ma'))
      &      call errquit
-     &      ('spcart_get_full_cs:invalid basis handle=>',basis)
+     &      ('spcart_get_full_cs:invalid basis handle=>',basis,
+     &       BASIS_ERR)
 c
       if (.not.bas_high_angular(basis,highang)) call errquit
-     &      ('spcart_get_full_cs:bas_high_angular failed',911)
+     &      ('spcart_get_full_cs:bas_high_angular failed',911,
+     &       BASIS_ERR)
       if (.not.spcart_init(highang,.true.,.false.))call errquit
-     &      ('spcart_get_full_cs:spcart_init failed',911)
+     &      ('spcart_get_full_cs:spcart_init failed',911,
+     &       UNKNOWN_ERR)
 c
       if (.not.bas_numcont(basis,numcont)) call errquit
-     &      ('spcart_get_full_cs:bas_numcont failed',911)
+     &      ('spcart_get_full_cs:bas_numcont failed',911, BASIS_ERR)
       do ishell = 1,numcont
         if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
      &        call errquit
      &      ('spcart_get_full_cs:bas_continfo failed on shell',
-     &        ishell)
+     &        ishell, BASIS_ERR)
         if (type.ge.0) then
           ncart = ncart + ng*((type+1)*(type+2)/2)
           nsph  = nsph  + ng*(2*type + 1)
@@ -97,7 +102,7 @@ c
         else
           spcart_get_full_cs = .false.
           call errquit
-     &      ('spcart_get_full_cs: unrecognized type',type)
+     &      ('spcart_get_full_cs: unrecognized type',type, INT_ERR)
         endif
       enddo
 c
@@ -111,13 +116,13 @@ c
       if (use_ma.and.use_ga) then
         errstring = 'spcart_get_full_cs: FATAL ERROR: '
      &      //'use_ma and use_ga are both true!'
-        call errquit(errstring,911)
+        call errquit(errstring,911, MEM_ERR)
       else if (use_ma) then
         spcart_get_full_cs = spcart_get_full_cs.and.
      &      ma_alloc_get(mt_dbl,(ncart*nsph),
      &      'full ma-based cart,sph matrix',handle,ma_hk)
         if (.not.spcart_get_full_cs) call errquit(
-     &      'spcart_get_full_cs: ma_alloc_get failed',911)
+     &      'spcart_get_full_cs: ma_alloc_get failed',911, MA_ERR)
         if (regular) then
           call spcart_fill_fullcs_ma(numcont,ncart,nsph,
      &        dbl_mb(ma_hk),basis,o_debug)
@@ -146,7 +151,7 @@ c
         else
           errstring = 'spcart_get_full_cs: '
      &        //'invalid matrix type at MA alloc point'
-          call errquit(errstring,911)
+          call errquit(errstring,911, MA_ERR)
         endif
       else if (use_ga) then
         if (regular) then
@@ -154,7 +159,7 @@ c
      &        ga_create(mt_dbl,ncart,nsph,
      &        'regular ga-based cart/sph matrix',0,0,handle)
           if (.not.spcart_get_full_cs) call errquit(
-     &        'spcart_get_full_cs: ga_create failed ',911)
+     &        'spcart_get_full_cs: ga_create failed ',911, GA_ERR)
           call spcart_fill_cs_ga(numcont,ncart,nsph,
      &        handle,basis,.false.,o_debug)
           if (o_debug) then
@@ -166,7 +171,7 @@ c
      &        ga_create(mt_dbl,nsph,ncart,
      &        'inverse ga-based cart/sph matrix',0,0,handle)
           if (.not.spcart_get_full_cs) call errquit(
-     &        'spcart_get_full_cs: ga create failed',911)
+     &        'spcart_get_full_cs: ga create failed',911, GA_ERR)
           call spcart_fill_cs_ga(numcont,ncart,nsph,
      &        handle,basis,.true.,o_debug)
           if (o_debug) then
@@ -186,7 +191,7 @@ c
           call ga_zero(handle)
           if (.not.spcart_get_full_cs) call errquit(
      &        'spcart_get_full_cs:one of two ga_create calls failed',
-     &        911) 
+     &        911, GA_ERR)
           call spcart_fill_cs_ga(numcont,ncart,nsph,
      &        ga_reg_handle,basis,.false.,o_debug)
           call ga_transpose(ga_reg_handle,handle)
@@ -201,21 +206,22 @@ c
           call ga_sync()
           if (.not.ga_destroy(ga_reg_handle))call errquit(
      &        'spcart_get_full_cs:ga_destroy for reg_handle failed',
-     &        911)
+     &        911, GA_ERR)
         else
           errstring = 'spcart_get_full_cs: '
      &        //'invalid matrix type at GA create point'
-          call errquit(errstring,911)
+          call errquit(errstring,911, GA_ERR)
         endif
       else
         errstring = 'spcart_get_full_cs: FATAL ERROR: '
      &      //'use_ma and use_ga are both false'
-        call errquit(errstring,911)
+        call errquit(errstring,911, MEM_ERR)
       endif
 c
       if (do_spcart_terminate) then
         if (.not.spcart_terminate()) call errquit
-     &      ('spcart_get_full_cs:spcart_terminate failed ',911)
+     &      ('spcart_get_full_cs:spcart_terminate failed ',911,
+     &       UNKNOWN_ERR)
       endif
       end
       subroutine spcart_fill_fullcs_ma(numcont,ncart,nsph,matrx,
@@ -225,6 +231,7 @@ c
 #include "bas.fh"
 #include "spcartP.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 *::passed:
       integer numcont
       integer ncart
@@ -264,7 +271,7 @@ c
         if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
      &        call errquit
      &      ('spcart_fill_fullcs_ma:bas_continfo failed on shell',
-     &        ishell)
+     &        ishell, BASIS_ERR)
         if (type.ge.0) then
           l2c = (type+1)*(type+2)/2
           l2s = 2*type + 1
@@ -274,7 +281,8 @@ c
           ng  = 1
         else
           call errquit
-     &      ('spcart_fill_fullcs_ma: unrecognized type',type)
+     &      ('spcart_fill_fullcs_ma: unrecognized type',type,
+     &       INT_ERR)
         endif
         do ig = 1,ng
           if (debug) then
@@ -296,7 +304,8 @@ c
                 if (ic.ne.is) matrx(imc,ims) = 0.0d00
               else
                 call errquit(
-     &              'spcart_fill_fullcs_ma: fatal type error',911)
+     &              'spcart_fill_fullcs_ma: fatal type error',911,
+     &       MA_ERR)
               endif
 *rak:              if (debug)
 *rak:     &            write(luout,*) 'matrx <',imc,',',ims,'> = ',
@@ -315,6 +324,7 @@ c
 #include "bas.fh"
 #include "spcartP.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 *::passed:
       integer numcont
       integer ncart
@@ -354,7 +364,7 @@ c
         if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
      &        call errquit
      &      ('spcart_fill_fulltranscs_ma:bas_continfo failed:shell=',
-     &        ishell)
+     &        ishell, BASIS_ERR)
         if (type.ge.0) then
           l2c = (type+1)*(type+2)/2
           l2s = 2*type + 1
@@ -364,7 +374,8 @@ c
           ng  = 1
         else
           call errquit
-     &      ('spcart_fill_fulltranscs_ma: unrecognized type',type)
+     &      ('spcart_fill_fulltranscs_ma: unrecognized type',type,
+     &       INT_ERR)
         endif
         do ig = 1,ng
           if (debug) then
@@ -387,7 +398,7 @@ c
               else
                 call errquit(
      &              'spcart_fill_fulltranscs_ma: fatal type error',
-     &              911)
+     &              911, INT_ERR)
               endif
 *rak:              if (debug)
 *rak:     &            write(luout,*) 'matrx <',ims,',',imc,'> = ',
@@ -406,6 +417,7 @@ c
 #include "bas.fh"
 #include "spcartP.fh"
 #include "stdio.fh"
+#include "errquit.fh"
 *::passed:
       integer numcont
       integer ncart
@@ -444,7 +456,7 @@ c
         if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
      &        call errquit
      &      ('spcart_fill_fullinvrscs_ma:bas_continfo failed:shell=',
-     &        ishell)
+     &        ishell, BASIS_ERR)
         if (type.ge.0) then
           l2c = (type+1)*(type+2)/2
           l2s = 2*type + 1
@@ -454,7 +466,8 @@ c
           ng  = 1
         else
           call errquit
-     &      ('spcart_fill_fullinvrscs_ma: unrecognized type',type)
+     &      ('spcart_fill_fullinvrscs_ma: unrecognized type',type,
+     &       INT_ERR)
         endif
         do ig = 1,ng
           if (debug) then
@@ -477,7 +490,7 @@ c
               else
                 call errquit(
      &              'spcart_fill_fullinvrscs_ma: fatal type error',
-     &              911)
+     &              911, INT_ERR)
               endif
 *rak:              if (debug)
 *rak:     &            write(luout,*) 'matrx <',ims,',',imc,'> = ',
@@ -497,6 +510,7 @@ c
 #include "spcartP.fh"
 #include "stdio.fh"
 #include "global.fh"
+#include "errquit.fh"
 *::passed:
       integer numcont
       integer ncart
@@ -537,7 +551,7 @@ c
         if (.not.bas_continfo(basis,ishell,type,np,ng,sphcar))
      &        call errquit
      &      ('spcart_fill_cs_ga:bas_continfo failed on shell',
-     &        ishell)
+     &        ishell, BASIS_ERR)
         if (type.ge.0) then
           l2c = (type+1)*(type+2)/2
           l2s = 2*type + 1
@@ -547,7 +561,7 @@ c
           ng  = 1
         else
           call errquit
-     &      ('spcart_fill_cs_ga: unrecognized type',type)
+     &      ('spcart_fill_cs_ga: unrecognized type',type, GA_ERR)
         endif
         do ig = 1,ng
           if (debug) then
@@ -588,7 +602,7 @@ c
      &          ident3,ld)
           else
             call errquit(
-     &          'spcart_fill_cs_ga: fatal type error',911)
+     &          'spcart_fill_cs_ga: fatal type error',911, GA_ERR)
           endif
           if (debug)
      &        call ga_print_patch(ga_matrx,
@@ -607,6 +621,7 @@ c
 *obsolete:#include "spcartP.fh"
 *obsolete:#include "global.fh"
 *obsolete:#include "stdio.fh"
+*obsolete:#include "errquit.fh"
 *obsolete:*:functions
 *obsolete:      logical spcart_init, spcart_terminate
 *obsolete:      external spcart_init, spcart_terminate
@@ -695,6 +710,7 @@ c
 *obsolete:#include "spcartP.fh"
 *obsolete:#include "global.fh"
 *obsolete:#include "stdio.fh"
+*obsolete:#include "errquit.fh"
 *obsolete:*:functions
 *obsolete:      logical spcart_init, spcart_terminate
 *obsolete:      external spcart_init, spcart_terminate
@@ -783,6 +799,7 @@ c
 *obsolete:#include "spcartP.fh"
 *obsolete:#include "global.fh"
 *obsolete:#include "stdio.fh"
+*obsolete:#include "errquit.fh"
 *obsolete:*:functions
 *obsolete:      logical spcart_init, spcart_terminate
 *obsolete:      external spcart_init, spcart_terminate

@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.18 2003-02-23 21:01:26 marat Exp $
+! $Id: paw_basis_data.F,v 1.19 2003-10-17 22:56:57 carlfahl Exp $
 
 !**************************************************
 !
@@ -10,6 +10,7 @@
 !**************************************************
       SUBROUTINE  alloc_paw_basis_data(nt,nb,ng)
       implicit none
+#include "errquit.fh"
       integer nt
       integer nb(nt)
       integer ng(nt)
@@ -76,7 +77,7 @@
       ok = ok .AND. my_alloc(MT_INT,tot_ntype,"i_ngb",i_ngb)
 
       if(.not. ok) then
-        call errquit("failed to allocate paw_basis data ",0)
+        call errquit("failed to allocate paw_basis data ",0, MA_ERR)
       end if
 
       do it=1,tot_ntype
@@ -104,6 +105,7 @@
       SUBROUTINE dealloc_paw_basis_data()
 
       IMPLICIT NONE
+#include "errquit.fh"
 
 #include "paw_ma.fh"
 #include "paw_basis_data.fh"
@@ -141,7 +143,7 @@
         ok = ok .and. my_dealloc(nbasis)
 
         if(.not. ok) then
-          call errquit("failed to deallocate paw_basis data ",0)
+          call errquit("failed to deallocate paw_basis data ",0, MA_ERR)
         end if
 
 

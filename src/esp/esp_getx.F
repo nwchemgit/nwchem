@@ -1,8 +1,9 @@
       subroutine esp_getx(t,x,q,n)
 c
-c $Id: esp_getx.F,v 1.2 1998-08-13 21:35:19 d3j191 Exp $
+c $Id: esp_getx.F,v 1.3 2003-10-17 22:54:52 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "esp_params.fh"
 #include "esp_common.fh"
@@ -16,7 +17,7 @@ c
       integer i,j
 c
       if(.not.geom_cart_get(igeom,natoms,t,x,q))
-     + call errquit('esp: geom_cart_get failed',me)
+     + call errquit('esp: geom_cart_get failed',me, GEOM_ERR)
 c
 c     convert coordinates to nm and find extrema
 c

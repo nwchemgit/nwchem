@@ -1,8 +1,9 @@
 *
-* $Id: rak18.F,v 1.5 2000-02-04 19:53:15 mg201 Exp $
+* $Id: rak18.F,v 1.6 2003-10-17 22:54:39 carlfahl Exp $
 *
       logical function task_computeSld(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -45,29 +46,31 @@ c
      &    sld_thresh = 1.0d-05
 * create geometry handle
       if (.not.geom_create(geom,'geometry'))
-     &      call errquit('task_computeSld: geom_create failed?',911)
+     &      call errquit('task_computeSld: geom_create failed?',911,
+     &       GEOM_ERR)
 * load geometry from rtdb
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
      &      call errquit
-     &      ('task_computeSld: geom_rtdb_load failed?',911)
+     &      ('task_computeSld: geom_rtdb_load failed?',911, RTDB_ERR)
 * create basis set handle
       if (.not.bas_create(basis,'ao basis'))
-     &      call errquit('task_computeSld: bas_create failed?',911)
+     &      call errquit('task_computeSld: bas_create failed?',911,
+     &       BASIS_ERR)
 * load basis set
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
      &      call errquit
-     &      ('task_computeSld: bas_rtdb_load failed?',911)
+     &      ('task_computeSld: bas_rtdb_load failed?',911, BASIS_ERR)
 c
 * query basis set object for the number of functions and shells      
 c
       if (.not.bas_numbf(basis,nbf)) call errquit
-     &      ('task_computeSld: bas_numbf failed?',911)
+     &      ('task_computeSld: bas_numbf failed?',911, BASIS_ERR)
       if (.not.bas_numcont(basis,nshells)) call errquit
-     &      ('task_computeSld: bas_numcont failed?',911)
+     &      ('task_computeSld: bas_numcont failed?',911, BASIS_ERR)
 *
 *normalize basis set
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &      ('task_computeSld: int_normalize failed?',911)
+     &      ('task_computeSld: int_normalize failed?',911, INT_ERR)
 *
 * initialize the integral API
       call int_init(rtdb,1,basis)
@@ -77,28 +80,31 @@ c
 *
 * create an evenly distributed global array for S
       if (.not.ga_create(mt_dbl,nbf,nbf,'overlap matrix',0,0,g_S))
-     &      call errquit('task_computeSld: ga_create failed',911)
+     &      call errquit('task_computeSld: ga_create failed',911,
+     &       GA_ERR)
       call ga_zero(g_S)         ! zero GA memory segment
 *
 * allocate local memory buffers for integrals and scratch space for 
 * the integral API
       if (.not. ma_push_get(mt_dbl,max1e,'integral buffer',
      &      h_buff,k_buff)) call errquit
-     &      ('task_computeSld: could not allocat integral buffer',911)
+     &      ('task_computeSld: could not allocat integral buffer',911,
+     &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,mscr,'integral scratch',
      &      h_scr,k_scr)) call errquit
-     &      ('task_computeSld: could not allocat integral buffer',911)
+     &      ('task_computeSld: could not allocat integral buffer',911,
+     &       MA_ERR)
 c start parallel computational loop
       nproc  = ga_nnodes()
       mynode = ga_nodeid()
       compute_node = (mynode-1)
       do ish = 1,nshells
         if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) call errquit
-     &      ('task_computeSld: bas_cn2bfr failed',911)
+     &      ('task_computeSld: bas_cn2bfr failed',911, BASIS_ERR)
         nbfi = ihi - ilo + 1
         do jsh = 1,nshells
           if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) call errquit
-     &        ('task_computeSld: bas_cn2bfr failed',911)
+     &        ('task_computeSld: bas_cn2bfr failed',911, BASIS_ERR)
           nbfj = jhi - jlo + 1
           compute_node = compute_node + 1
           if (mod(compute_node,nproc).eq.0) then
@@ -115,7 +121,7 @@ c
       status = ma_pop_stack(h_scr)
       status = status .and. ma_pop_stack(h_buff)
       if (.not.status) call errquit
-     &          ('task_computeSld: poping stack failed',911)
+     &          ('task_computeSld: poping stack failed',911, MA_ERR)
 c
       call ga_sync()
       if (util_print('sld overlap',print_high)) then
@@ -128,19 +134,22 @@ c
 * create an evenly distributed global array for eigenvectors
       call ga_sync()
       if (.not.ga_create(mt_dbl,nbf,nbf,'S eigenvectors',0,0,g_V))
-     &      call errquit('task_computeSld: ga_create failed',911)
+     &      call errquit('task_computeSld: ga_create failed',911,
+     &       GA_ERR)
       call ga_zero(g_V)         ! zero GA memory segment
       call ga_sync()
 *
 * allocate memory for eigenvalues
       if (.not. ma_push_get(mt_dbl,nbf,'S eigenvalues',
      &      h_eig,k_eig)) call errquit
-     &      ('task_computeSld: could not allocat integral buffer',911)
+     &      ('task_computeSld: could not allocat integral buffer',911,
+     &       MA_ERR)
 *
 * allocate memory for eigenvalues
       if (.not. ma_push_get(mt_dbl,nbf*nbf,'S eigenvectors',
      &      h_eigvec,k_eigvec)) call errquit
-     &      ('task_computeSld: could not allocat integral buffer',911)
+     &      ('task_computeSld: could not allocat integral buffer',911,
+     &       MA_ERR)
       call dfill(nbf,0.0d00,dbl_mb(k_eig),1)
       call dfill(nbf,0.0d00,dbl_mb(k_eigvec),1)
 c
@@ -163,19 +172,21 @@ c
       endif
       call int_terminate()
       if (.not.bas_destroy(basis)) call errquit
-     &          ('task_computeSld: bas_destroy failed',911)
+     &          ('task_computeSld: bas_destroy failed',911, BASIS_ERR)
       if (.not.geom_destroy(geom)) call errquit
-     &          ('task_computeSld: geom_destroy failed',911)
+     &          ('task_computeSld: geom_destroy failed',911, GEOM_ERR)
 * free memory
       status = ma_pop_stack(h_eigvec)
       status = ma_pop_stack(h_eig)
       if (.not.status) call errquit
-     &          ('task_computeSld: poping stack failed',911)
+     &          ('task_computeSld: poping stack failed',911, MA_ERR)
 * free global arrays
       if (.not.ga_destroy(g_S)) call errquit
-     &          ('task_computeSld: ga_destroy of g_S failed',911)
+     &          ('task_computeSld: ga_destroy of g_S failed',911,
+     &       GA_ERR)
       if (.not.ga_destroy(g_V)) call errquit
-     &          ('task_computeSld: ga_destroy of g_V failed',911)
+     &          ('task_computeSld: ga_destroy of g_V failed',911,
+     &       GA_ERR)
       end
       subroutine print_Sld(eigs,eigvec,n,lunit)
       implicit none

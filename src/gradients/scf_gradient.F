@@ -1,25 +1,29 @@
       logical function mcscf_gradient(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 c     
       logical mcscf, gradients
       external mcscf, gradients
 c
       if (.not. mcscf(rtdb))
-     $     call errquit('mcscf_gradient: mcscf energy failed', 0)
+     $     call errquit('mcscf_gradient: mcscf energy failed', 0,
+     &       CALC_ERR)
 c
       call util_print_push
       call util_print_rtdb_load(rtdb,'mcscf')
       if (.not. gradients(rtdb))
-     $     call errquit('mcscf_gradient: gradients failed', 0)
+     $     call errquit('mcscf_gradient: gradients failed', 0,
+     &       CALC_ERR)
       call util_print_pop
 c
       mcscf_gradient = .true.
 c
       end
       logical function scf_gradient(rtdb)
-c$Id: scf_gradient.F,v 1.8 2000-11-04 03:25:01 d3g681 Exp $
+c$Id: scf_gradient.F,v 1.9 2003-10-17 22:55:09 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 c
       integer rtdb
@@ -28,11 +32,13 @@ c
       external scf, gradients
 c
       if (.not. scf(rtdb))
-     $     call errquit('scf_gradient: scf energy failed', 0)
+     $     call errquit('scf_gradient: scf energy failed', 0,
+     &       CALC_ERR)
       call util_print_push
       call util_print_rtdb_load(rtdb,'scf')
       if (.not. gradients(rtdb))
-     $     call errquit('scf_gradient: gradients failed', 0)
+     $     call errquit('scf_gradient: gradients failed', 0,
+     &       CALC_ERR)
       call util_print_pop
 c
       scf_gradient = .true.

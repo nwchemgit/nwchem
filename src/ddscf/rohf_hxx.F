@@ -2,8 +2,9 @@
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hxx.F,v 1.5 2002-03-28 18:36:31 edo Exp $
+C     $Id: rohf_hxx.F,v 1.6 2003-10-17 22:54:33 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -21,7 +22,7 @@ c
 c
       call ga_zero(g_ax)
       if (pflg.gt.2 .or. pflg.le.0) then
-         call errquit('rohf_hessv_xx: pflg invalid ', pflg)
+         call errquit('rohf_hessv_xx: pflg invalid ', pflg, UNKNOWN_ERR)
       endif
       if (pflg .gt. 0) then
          call ga_dadd( lshift, g_x, 0.d0, g_ax, g_ax )

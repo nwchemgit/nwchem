@@ -1,6 +1,7 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.7 2000-10-25 22:50:16 windus Exp $
+C$Id: sym_sym.F,v 1.8 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -38,7 +39,8 @@ c
 c
 *: ang_max used below
       if (.not. bas_high_angular(basis, ang_max))
-     $     call errquit('sym_symmetrize: bas_high_angular', basis)
+     $     call errquit('sym_symmetrize: bas_high_angular', basis,
+     &       BASIS_ERR)
 *rak:      status = bas_is_spherical(basis)
 *rak:      if (status.and.(ang_max.gt.1)) then
 *rak:        if (ga_nodeid().eq.0) then
@@ -54,7 +56,7 @@ c
 *
       call ga_sync()
       if (.not. ga_duplicate(g_a, g_b, 'sym_sym: b')) call errquit
-     $     ('sym_symmetrize: failed to allocate temp GA', 0)
+     $     ('sym_symmetrize: failed to allocate temp GA', 0, GA_ERR)
       call ga_zero(g_b)
 c
 c     Get all basis set information for efficiency (for small
@@ -62,9 +64,9 @@ c     basis C60 test case bas routine dominate timings, but for
 c     all other cases bas times are small).
 c
       if (.not. geom_ncent(geom, ncent)) call errquit
-     $     ('sym_symmetrize: geom_ncent ?', geom)
+     $     ('sym_symmetrize: geom_ncent ?', geom, GEOM_ERR)
       if (.not. bas_numcont(basis, ncont)) call errquit
-     $     ('sym_symmetrize: basis handle?', 0)
+     $     ('sym_symmetrize: basis handle?', 0, BASIS_ERR)
       status = .true.
       status = status .and. ma_push_get(MT_INT, 2*ncent, 'cecnr',
      $     l_ce_cnr, k_ce_cnr)
@@ -83,7 +85,8 @@ c
       max_at_bf = 0
       do icent = 1, ncent
          if (.not. bas_ce2bfr(basis, icent, ilo, ihi))
-     $        call errquit('rhf_fock_2e: bas_ce2bfr failed', icent)
+     $        call errquit('rhf_fock_2e: bas_ce2bfr failed', icent,
+     &       BASIS_ERR)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       end do
       maxd = max_at_bf**2       ! Size of largest atom block
@@ -101,7 +104,7 @@ c
       status = status .and. ma_push_get(MT_DBL, maxr, 'r',
      $     l_r, k_r)
       if (.not. status) call errquit
-     $     ('sym_symmetrize: ma failed', 2*maxd + maxr)
+     $     ('sym_symmetrize: ma failed', 2*maxd + maxr, MA_ERR)
 c
       nproc  = ga_nnodes()
       ijcent = 0
@@ -136,11 +139,12 @@ c
       status = status .and. ma_pop_stack(l_cn_info)
       status = status .and. ma_pop_stack(l_ce_bfr)
       status = status .and. ma_pop_stack(l_ce_cnr)
-      if (.not. status) call errquit('sym_symmetrize: ma pop?', 0)
+      if (.not. status) call errquit('sym_symmetrize: ma pop?', 0,
+     &       MA_ERR)
 c
       call ga_copy(g_b, g_a)
       if (.not. ga_destroy(g_b)) call errquit
-     $     ('sym_symmetrize: ga_destroy of b', 0)
+     $     ('sym_symmetrize: ga_destroy of b', 0, GA_ERR)
       call ga_sync()
 c
 c*$*optimize(1)
@@ -151,6 +155,7 @@ c
      $     tmp, idim, jdim, r, maxf, ang_max, odensity, ce_cnr,
      $     ce_bfr, cn_info, cn_bfr)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
       integer geom, basis, g_b
       integer icent, jcent, idim, jdim, maxf, ang_max
@@ -234,7 +239,8 @@ c
                i_nbf_per_sh = 1
             else
                i_nbf_per_sh = 0   ! to get rid of compiler warning
-               call errquit('sym_sym2: invalid shell type', itype)
+               call errquit('sym_sym2: invalid shell type', itype,
+     &       INPUT_ERR)
             end if
             do jcn = jcnlo, jcnhi
                jtype    = cn_info(1,jcn)
@@ -249,11 +255,13 @@ c
                   j_nbf_per_sh = 1
                else
                   j_nbf_per_sh = 0  ! to get rid of compiler warning
-                  call errquit('sym_sym2: invalid shell type', jtype)
+                  call errquit('sym_sym2: invalid shell type', jtype,
+     &       INPUT_ERR)
                end if
 c
                if (i_nbf_per_sh.gt.28 .or. j_nbf_per_sh.gt.28)
-     $              call errquit('sym_symmetrize: sum not big enuf',0)
+     $              call errquit('sym_symmetrize: sum not big enuf',0,
+     &       INPUT_ERR)
 c
 c     Loop thru shells in each general contraction and construct
 c     indexes and types of a single shell block

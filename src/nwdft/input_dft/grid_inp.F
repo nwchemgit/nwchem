@@ -1,6 +1,7 @@
       subroutine grid_input(rtdb, module)
 C     $Id: 
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -63,15 +64,17 @@ c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
      .     2001,2100,2200,2300,1700, 1800,1900,1100, 
      &      1200, 1300, 1400,1500, 1600, 1650,1999) ind
-      call errquit('grid_inp: unimplemented directive', ind)
+      call errquit('grid_inp: unimplemented directive', ind,
+     &       INPUT_ERR)
 c     
 c     delley; use delley spatial weights
 c             
   100 continue
 c      ldelley = .true.
-       call errquit(' Delley weights no longer working', 100)
+       call errquit(' Delley weights no longer working', 100,
+     &       INPUT_ERR)
       if (.not. rtdb_put(rtdb, 'dft:delley', mt_log, 1, ldelley))
-     &   call errquit('grid_inp: rtdb_put failed', 100)
+     &   call errquit('grid_inp: rtdb_put failed', 100, RTDB_ERR)
 c
       goto 10
 c     
@@ -79,10 +82,10 @@ c     becke; use becke spatial weights
 c             
   200 lbecke = .true.
       if (.not. rtdb_put(rtdb, 'dft:becke', mt_log, 1, lbecke))
-     &   call errquit('grid_inp: rtdb_put failed', 200)
+     &   call errquit('grid_inp: rtdb_put failed', 200, RTDB_ERR)
       lssw=.false.
       if (.not. rtdb_put(rtdb, 'dft:ssw', mt_log, 1, lssw))
-     &   call errquit('grid_inp: rtdb_put failed', 1700)
+     &   call errquit('grid_inp: rtdb_put failed', 1700, RTDB_ERR)
 c
       goto 10
 
@@ -91,9 +94,9 @@ c     ssf; use ssf spatial weights
 c             
  1700 lssw=.true.
       if (.not. rtdb_put(rtdb, 'dft:ssw', mt_log, 1, lssw))
-     &   call errquit('grid_inp: rtdb_put failed', 1700)
+     &   call errquit('grid_inp: rtdb_put failed', 1700, RTDB_ERR)
       if (.not.rtdb_cput(rtdb, 'dft:ssweights',  1, 'ssf '))
-     &   call errquit('grid_inp: rtdb_cput failed', 1700)
+     &   call errquit('grid_inp: rtdb_cput failed', 1700, RTDB_ERR)
       whichssw='ssf '
 c
       goto 10
@@ -102,9 +105,9 @@ c     erf1; use erf1 spatial weights
 c             
  1800 lssw=.true.
       if (.not. rtdb_put(rtdb, 'dft:ssw', mt_log, 1, lssw))
-     &   call errquit('grid_inp: rtdb_put failed', 1800)
+     &   call errquit('grid_inp: rtdb_put failed', 1800, RTDB_ERR)
       if (.not.rtdb_cput(rtdb, 'dft:ssweights',  1, 'erf1'))
-     &   call errquit('grid_inp: rtdb_cput failed', 1800)
+     &   call errquit('grid_inp: rtdb_cput failed', 1800, RTDB_ERR)
       whichssw='erf1'
 c
       goto 10
@@ -113,9 +116,9 @@ c     erf2; use erf2 spatial weights
 c             
  1900 lssw=.true.
       if (.not. rtdb_put(rtdb, 'dft:ssw', mt_log, 1, lssw))
-     &   call errquit('grid_inp: rtdb_put failed', 1900)
+     &   call errquit('grid_inp: rtdb_put failed', 1900, RTDB_ERR)
       if (.not.rtdb_cput(rtdb, 'dft:ssweights',  1, 'erf2'))
-     &   call errquit('grid_inp: rtdb_cput failed', 1900)
+     &   call errquit('grid_inp: rtdb_cput failed', 1900, RTDB_ERR)
       whichssw='erf2'
 c
       goto 10
@@ -125,23 +128,23 @@ c
   300 gridtype='gausleg'
       leb=.false.
       if (.not. rtdb_put(rtdb, 'dft:lebedev', mt_log, 1, leb))
-     &   call errquit('grid_inp: rtdb_put failed', 590)
+     &   call errquit('grid_inp: rtdb_put failed', 590, RTDB_ERR)
 c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 300) 
+     &   call errquit('grid_inp: rtdb_put failed', 300, RTDB_ERR)
 c
       if (.not. inp_i(nradpts)) then
          write(LuOut,*)' grid_inp: nradpts value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
-     &      call errquit('grid_inp: rtdb_put failed', 900)
+     &      call errquit('grid_inp: rtdb_put failed', 900, RTDB_ERR)
       endif
 c
       if (.not. inp_i(nagrid)) then
          write(LuOut,*)' grid_inp: nagrid value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     &      call errquit('grid_inp: rtdb_put failed', 900)
+     &      call errquit('grid_inp: rtdb_put failed', 900, RTDB_ERR)
       endif
 c
       goto 10
@@ -152,16 +155,16 @@ c
       leb=.true.
 c
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 400) 
+     &   call errquit('grid_inp: rtdb_put failed', 400, RTDB_ERR)
 c
       if (inp_i(nradpts)) then
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
-     &      call errquit('grid_inp: rtdb_put failed', 400)
+     &      call errquit('grid_inp: rtdb_put failed', 400, RTDB_ERR)
       endif
 c
       if (inp_i(iangquad)) then
          if (.not. rtdb_put(rtdb, 'dft:iangquad', mt_int, 1, iangquad))
-     &      call errquit('grid_inp: rtdb_put failed', 400)
+     &      call errquit('grid_inp: rtdb_put failed', 400, RTDB_ERR)
       endif
 c
       goto 10
@@ -170,7 +173,7 @@ c     coarse; use coarse grid definition
 c             
   500 gridtype='xcoarse'
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 500) 
+     &   call errquit('grid_inp: rtdb_put failed', 500, RTDB_ERR)
 c
       goto 10
 c     
@@ -178,7 +181,7 @@ c     coarse; use coarse grid definition
 c             
   600 gridtype='coarse'
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 600) 
+     &   call errquit('grid_inp: rtdb_put failed', 600, RTDB_ERR)
 c
       goto 10
 c     
@@ -186,7 +189,7 @@ c     medium; use medium grid definition
 c             
   700 gridtype='medium'
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 700) 
+     &   call errquit('grid_inp: rtdb_put failed', 700, RTDB_ERR)
 c
       goto 10
 c     
@@ -194,7 +197,7 @@ c     fine; use fine grid definition
 c             
   800 gridtype='fine'
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 800) 
+     &   call errquit('grid_inp: rtdb_put failed', 800, RTDB_ERR)
 c
       goto 10
 c     
@@ -202,7 +205,7 @@ c     xfine; use xfine grid definition
 c             
   900 gridtype='xfine'
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 900) 
+     &   call errquit('grid_inp: rtdb_put failed', 900, RTDB_ERR)
 c
       goto 10
 c     
@@ -210,18 +213,18 @@ c     user; use user defined grid
 c             
  1000 gridtype='user'
       if (.not. rtdb_cput(rtdb, 'dft:gridtype', 1, gridtype))
-     &   call errquit('grid_inp: rtdb_put failed', 1000) 
+     &   call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
       if (.not. inp_i(nradpts)) then
          write(LuOut,*)' grid_inp: nradpts value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nradpts', mt_int, 1, nradpts))
-     &      call errquit('grid_inp: rtdb_put failed', 1000)
+     &      call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
       endif
       if (.not. inp_i(nagrid)) then
          write(LuOut,*)' grid_inp: nagrid value not found. '
       else
          if (.not. rtdb_put(rtdb, 'dft:nagrid', mt_int, 1, nagrid))
-     &      call errquit('grid_inp: rtdb_put failed', 1000)
+     &      call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
       endif
 c
       goto 10
@@ -230,7 +233,7 @@ c     store_wght; store quadrature weights
 c     
  1100 store_wght = .true.
       if (.not. rtdb_put(rtdb, 'dft:store_wght', mt_log, 1, store_wght))
-     &   call errquit('grid_inp: rtdb_put failed', 1100)
+     &   call errquit('grid_inp: rtdb_put failed', 1100, RTDB_ERR)
 c
       goto 10
 c     
@@ -242,7 +245,7 @@ c
          nquad_task = 1
       endif            
       if (.not. rtdb_put(rtdb, 'dft:nquad_task', mt_int, 1, nquad_task))
-     &   call errquit('grid_inp: rtdb_put failed', 1200)
+     &   call errquit('grid_inp: rtdb_put failed', 1200, RTDB_ERR)
 c
       goto 10
 c     
@@ -254,7 +257,7 @@ c
          rm = 2.0d0
       endif            
       if (.not. rtdb_put(rtdb, 'dft:rm', mt_dbl, 1, rm))
-     &   call errquit('grid_inp: rtdb_put failed', 1300)
+     &   call errquit('grid_inp: rtdb_put failed', 1300, RTDB_ERR)
 c
       goto 10
 c
@@ -279,11 +282,11 @@ c
 c     Roland Lindh radial grid
 c
  2300 continue
-      call errquit(' wrong keyword ',999)
+      call errquit(' wrong keyword ',999, INPUT_ERR)
       radgrid='rlindh'
 
  2301 if (.not. rtdb_cput(rtdb,'dft:radgrid', 1,radgrid)) 
-     &   call errquit('grid_inp: rtdb_put failed', 2300) 
+     &   call errquit('grid_inp: rtdb_put failed', 2300, RTDB_ERR)
       goto 10
 
  1400 continue
@@ -291,7 +294,7 @@ c
 c     old grid schem
 c
       if(.not.rtdb_put(rtdb,'dft:grid_on_file',mt_log,1,.false.))
-     &   call errquit('grid_inp: rtdb_put failed', 1400)
+     &   call errquit('grid_inp: rtdb_put failed', 1400, RTDB_ERR)
 c
       goto 10
  1500 continue
@@ -299,7 +302,7 @@ c
 c     new grid schem
 c
       if(.not.rtdb_put(rtdb,'dft:grid_on_file',mt_log,1,.true.))
-     &   call errquit('grid_inp: rtdb_put failed', 1400)
+     &   call errquit('grid_inp: rtdb_put failed', 1400, RTDB_ERR)
 c
       goto 10
  1600 continue
@@ -307,7 +310,7 @@ c
 c     symm off (lebedev)
 c
       if(.not.rtdb_put(rtdb,'dft:gridsym',mt_log,1,.false.))
-     &   call errquit('grid_inp: rtdb_put failed', 1600)
+     &   call errquit('grid_inp: rtdb_put failed', 1600, RTDB_ERR)
 c
       goto 10
  1650 continue
@@ -315,20 +318,20 @@ c
 c     symm on (lebedev)
 c
       if(.not.rtdb_put(rtdb,'dft:gridsym',mt_log,1,.true.))
-     &   call errquit('grid_inp: rtdb_put failed', 1700)
+     &   call errquit('grid_inp: rtdb_put failed', 1700, RTDB_ERR)
 c
       goto 10
  1999 continue
 c
       if(ngridin.ne.0) then
          if (.not. rtdb_put(rtdb, 'dft:ngridin', mt_int, 1, ngridin))
-     &      call errquit('grid_inp: rtdb_put failed', 1000)
+     &      call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
          if(.not. rtdb_cput(rtdb,'dft:grtagin',ngridin,grtagin))
-     &      call errquit('grid_inp: rtdb_put failed', 1000)
+     &      call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
          if(.not.rtdb_put(rtdb,'dft:nradin',mt_int,ngridin,nradin))
-     &      call errquit('grid_inp: rtdb_put failed', 1000)
+     &      call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
          if(.not.rtdb_put(rtdb,'dft:nangin',mt_int,ngridin,nangin))
-     &      call errquit('grid_inp: rtdb_put failed', 1000)
+     &      call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
       endif
       return
 c     
@@ -362,7 +365,7 @@ c
      &       /,' [user ival ival], [store_wght], [nquad_task ival], ',
      &       /,' [rm rval] ')
       call util_flush(LuOut)
-      call errquit('grid_input: invalid format', 0)
+      call errquit('grid_input: invalid format', 0, INPUT_ERR)
 c     
       end
 

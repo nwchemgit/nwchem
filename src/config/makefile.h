@@ -1,5 +1,5 @@
 #
-# $Id: makefile.h,v 1.427 2003-10-09 00:36:06 edo Exp $
+# $Id: makefile.h,v 1.428 2003-10-17 22:54:27 carlfahl Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1471,7 +1471,7 @@ endif
 
 ifeq ($(BUILDING_PYTHON),python)
 #   EXTRA_LIBS += -ltk -ltcl -L/usr/X11R6/lib -lX11 -ldl
-   EXTRA_LIBS +=  -ldl
+   EXTRA_LIBS += -lpthread -ldl
 endif
 
 endif

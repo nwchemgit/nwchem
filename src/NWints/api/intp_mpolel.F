@@ -2,7 +2,7 @@
      &    lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
-* $Id: intp_mpolel.F,v 1.4 1999-07-14 00:28:42 d3e129 Exp $
+* $Id: intp_mpolel.F,v 1.5 2003-10-17 22:53:42 carlfahl Exp $
 *
 c
 c routine to compute multipole integrals at a given lvalue with the
@@ -65,6 +65,7 @@ c
 c
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -122,7 +123,8 @@ c
 c check initialization
 c      
       if (.not.int_chk_init('intp_mpolel'))
-     &       call errquit('intp_mpolel: int_init was not called' ,0)
+     &       call errquit('intp_mpolel: int_init was not called' ,0,
+     &          INT_ERR)
 c
 c  check if gencon/sp shells
 c
@@ -137,7 +139,8 @@ c
       shells_ok = inline_chk_sh(ibas,ish)
       shells_ok = shells_ok .and. inline_chk_sh(jbas,jsh)
       if (.not. shells_ok)
-     &       call errquit('intp_mpolel: invalid contraction/shell',0)
+     &       call errquit('intp_mpolel: invalid contraction/shell',0,
+     &          INT_ERR)
 c
 ***   set defNxyz such that it can handle the maximum multi-pole
 c
@@ -175,7 +178,8 @@ c
       if (i_gen.gt.1 .or. j_gen.gt.1) then
         write(luout,*)
      &      ' hf3ois does not handle general contractions yet'
-        call errquit('intp_mpolel: general contraction error ',911)
+        call errquit('intp_mpolel: general contraction error ',911,
+     &         BASIS_ERR)
       endif
 c
       l_int    = (lval+1)*(lval+2)/2
@@ -185,7 +189,7 @@ c
         write(luout,*)' intp_mpolel: lmpint  = ',lmpint
         write(luout,*)' intp_mpolel: (num_int+l_int*ij_int_x) = ',
      &      (num_int+l_int*ij_int_x)
-        call errquit('intp_mpolel: lmpint too small ',911)
+        call errquit('intp_mpolel: lmpint too small ',911, INT_ERR)
       endif
       num_int =  l_int*ij_int
       call hf3ois(

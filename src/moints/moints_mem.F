@@ -6,8 +6,9 @@ c
 c
        integer function moints_numoper( basis, algo, nbf, nocc,
      $                                  nvir, blen, oprint )
-C$Id: moints_mem.F,v 1.5 1996-10-22 08:42:32 d3g681 Exp $
+C$Id: moints_mem.F,v 1.6 2003-10-17 22:55:26 carlfahl Exp $
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -28,7 +29,8 @@ c
 c
        call int_mem_2e4c(max2e, mem2)
        if (.not.bas_nbf_cn_max(basis,maxbfsh))
-     $     call errquit('moints_numoper: cannot get basis info',0)
+     $     call errquit('moints_numoper: cannot get basis info',0,
+     &       BASIS_ERR)
 c
 c Get minimum local memory that any
 c
@@ -57,7 +59,7 @@ c
        mem_req = mem_req*1.1
        if (mem_req.gt.mem_min_local) call errquit
      $      ('moints_mem: not enough local memory to do transformation',
-     $      mem_req)
+     $      mem_req, MEM_ERR)
 c
 c Reconcile local and global memory requirements
 c
@@ -71,7 +73,8 @@ c
            moints_numoper = gmem_max/(8*nbf*nbf)
            noper_node = moints_numoper/ga_nnodes()
          else
-           call errquit('cannot determine transformation GA',0)
+           call errquit('cannot determine transformation GA',0,
+     &       GA_ERR)
          endif
        endif
 c

@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.12 2003-08-01 23:44:55 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.13 2003-10-17 22:57:13 carlfahl Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -23,6 +23,7 @@
      >                      hml,lmd,
      >                      Hpsi,psi_r)
       implicit none
+#include "errquit.fh"
       logical    verlet
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
@@ -168,7 +169,7 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       if (.not.value) 
-     > call errquit('inner_loop_md:pushing stack',0)
+     > call errquit('inner_loop_md:pushing stack',0, MA_ERR)
       call nwpw_timing_end(12)
      
       call D3dB_nx(1,nx)
@@ -664,7 +665,7 @@ c     real*8     fion(3,natmx)
       value = value.and.MA_pop_stack(tmp1(2))
       value = value.and.MA_pop_stack(tmp_L(2))
       if (.not.value) 
-     > call errquit('inner_loop_md:popping stack',1)
+     > call errquit('inner_loop_md:popping stack',1, MA_ERR)
 
       call nwpw_timing_end(12)
 

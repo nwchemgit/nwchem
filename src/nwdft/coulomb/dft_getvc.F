@@ -4,8 +4,9 @@
      &                     n_semi_bufs, fd, IOLGC, 
      &                     derfit, nmat)
 c
-C$Id: dft_getvc.F,v 1.20 2000-04-22 01:05:43 edo Exp $
+C$Id: dft_getvc.F,v 1.21 2003-10-17 22:55:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c
 #include "bas.fh"
 #include "stdio.fh"
@@ -64,13 +65,13 @@ c
 c
         write(LuOut,*) 'GETVCOUL:  Poisson Eq. solver (iVcoul_opt.eq.2)'
         write(LuOut,*) '           has yet to be implemented.'
-        call errquit('Exiting in getvcoul.',1)
+        call errquit('Exiting in getvcoul.',1, CALC_ERR)
 c
       else
 c
         write(LuOut,*) 'GETVCOUL:  Unknown option indicated by the'
         write(LuOut,*) '           variable iVcoul_opt = ',iVcoul_opt
-        call errquit('Exiting in getvcoul.',2)
+        call errquit('Exiting in getvcoul.',2, CALC_ERR)
 c
       end if
 c

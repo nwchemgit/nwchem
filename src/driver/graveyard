@@ -48,7 +48,7 @@ c
       memsiz=memsiz+mcoord*mcoord
       memsiz=memsiz+mcoord*mcoord
       if (.not. ma_push_get(MT_DBL,memsiz,'mem tfhx',i_ibi,ibi))
-     $     call errquit('hnd_opt_tfhx: ma', memsiz )
+     $     call errquit('hnd_opt_tfhx: ma', memsiz , MA_ERR)
       ihx=ibi+ncart*nzvar
       ihs=ihx+mcoord*mcoord
 c
@@ -75,7 +75,8 @@ c
       enddo
       if (.not. geom_hnd_tfhx(dbl_mb(ihs),dbl_mb(ihx),dbl_mb(ibi),
      $     nvar,ncart,ncart,mcoord))
-     $     call errquit('hnd_opt_tfhx: hnd_tfhx failed', 911)
+     $     call errquit('hnd_opt_tfhx: hnd_tfhx failed', 911,
+     &       GEOM_ERR)
       if(dbug) then
          write(iw,*) '-hs-'
          call hnd_prsq(dbl_mb(ihs),nvar,nvar,mcoord)
@@ -86,7 +87,7 @@ c
       call geom_hnd_put_data('drv.hess',dbl_mb(ihs),mcoord*mcoord)
 c
       if (.not. ma_pop_stack(i_ibi))
-     $     call errquit('hnd_opt_tfhx: ma pop', memsiz )
+     $     call errquit('hnd_opt_tfhx: ma pop', memsiz , MA_ERR)
 c
       return
       end

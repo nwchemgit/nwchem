@@ -1,6 +1,7 @@
       logical function raktest(rtdb)
       implicit none
-c $Id: raktest.F,v 1.95 2000-02-04 19:53:16 mg201 Exp $
+#include "errquit.fh"
+c $Id: raktest.F,v 1.96 2003-10-17 22:54:39 carlfahl Exp $
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -171,13 +172,14 @@ c
       else
         if (me.eq.0) then
           write(luout,*)' unknown raktask number :',raktask
-          call errquit('raktest: fatal error',911)
+          call errquit('raktest: fatal error',911, INPUT_ERR)
         endif
       endif
 c
       end
       subroutine raktest_geomwrt(rtdb)
       implicit none
+#include "errquit.fh"
 c
 #include "stdio.fh"
 #include "geom.fh"
@@ -189,10 +191,12 @@ c
       integer igeom
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+     &    call errquit('raktest_geomwrt: geom_create failed?',911,
+     &       GEOM_ERR)
 c
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911,
+     &       RTDB_ERR)
 c
       do igeom = 1,110
 	new_geom_name = ' '
@@ -214,7 +218,8 @@ c
 
         if (.not.geom_rtdb_store(rtdb,geom,new_geom_name))
      &      call errquit
-     &      ('raktest_geomwrt: geom_rtdb_store (of copy) failed',911)
+     &      ('raktest_geomwrt: geom_rtdb_store (of copy) failed',911,
+     &       RTDB_ERR)
         write(luout,*)' stored geometry ',new_geom_name
       enddo
       end
@@ -261,6 +266,7 @@ c
       end
       subroutine int_xyz_tag(lval,ic,xyz_tag,l_tag)
       implicit none
+#include "errquit.fh"
       integer lval    ! [input] l value
       integer ic      ! [input] cartesean component
       integer l_tag ! [input] length of xyz_tag character array
@@ -286,7 +292,8 @@ c
         elseif (ic.eq.2) then
           xyz_tag(1:3) = ' z '
         else
-          call errquit('int_xyz_tag: error on lval=-1,ic=',ic)          
+          call errquit('int_xyz_tag: error on lval=-1,ic=',ic,
+     &       INPUT_ERR)
         endif
         ixyz = 4
       elseif (lval.gt.0) then
@@ -302,7 +309,7 @@ c
           enddo
         enddo
       else
-        call errquit('int_xyz_tag: error on lval=',lval)
+        call errquit('int_xyz_tag: error on lval=',lval, INPUT_ERR)
       endif
       do i = ixyz, l_tag
         xyz_tag(i:i) = ' '
@@ -311,6 +318,7 @@ c
 c...............................................................................
       subroutine raktest_spcart(rtdb)
       implicit none 
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -336,48 +344,48 @@ c
       external int_normalize, int_norm_2c
 c
       if (.not.geom_create(geom,'geometry')) call errquit
-     &      ('geom create failed',911)
+     &      ('geom create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &      ('geom_rtdb_load failed',911)
+     &      ('geom_rtdb_load failed',911, RTDB_ERR)
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis')) call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, RTDB_ERR)
 c
       write(6,*)' geom/basis loaded'
 c
       write(6,*)' raw basis '
       if (.not. bas_print(basis))
-     $      call errquit(' basis print failed', 0)
+     $      call errquit(' basis print failed', 0, BASIS_ERR)
       write(6,*)' first normalize'
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
       if (.not. bas_print(basis))
-     $      call errquit(' basis print failed', 0)
+     $      call errquit(' basis print failed', 0, BASIS_ERR)
       write(6,*)' second normalize'
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 2'
       if (.not. bas_print(basis))
-     $      call errquit(' basis print failed', 0)
+     $      call errquit(' basis print failed', 0, BASIS_ERR)
 c
       if (.not.bas_numbf(basis,nbf)) call errquit
-     &      ('numbf failed',911)
+     &      ('numbf failed',911, BASIS_ERR)
 c
       nbfsq = nbf*nbf
       if (.not.ma_push_get(mt_dbl,nbfsq,'square cart overlap',
      &      h_cart_s, k_cart_s)) call errquit
-     &      (' cart overlap ma failed ',911)
+     &      (' cart overlap ma failed ',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbfsq,'square spher overlap',
      &      h_sph_s, k_sph_s)) call errquit
-     &      (' sph overlap ma failed ',911)
+     &      (' sph overlap ma failed ',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbfsq,'square cart overlap 2',
      &      h_cart_s2, k_cart_s2)) call errquit
-     &      (' cart2 overlap ma failed ',911)
+     &      (' cart2 overlap ma failed ',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbfsq,'square spher overlap 2',
      &      h_sph_s2, k_sph_s2)) call errquit
-     &      (' sph2 overlap ma failed ',911)
+     &      (' sph2 overlap ma failed ',911, MA_ERR)
 c
       if (.not.bas_numcont(basis,nshell)) call errquit
-     &      ('numcont error',911)
+     &      ('numcont error',911, BASIS_ERR)
 c
       call int_init(rtdb,1,basis)
       call int_mem(max1e,max2e,mscr1,mscr2)
@@ -388,14 +396,14 @@ c
       
 c
       if (.not.ma_push_get(mt_dbl,m_scr,'scr for 1e',h_scr,k_scr))
-     &      call errquit('ma scr failed',911)
+     &      call errquit('ma scr failed',911, MA_ERR)
 c
       if (.not.ma_push_get(mt_dbl,m_buf,'buf for 1e',h_buf,k_buf))
-     &      call errquit('ma buf failed',911)
+     &      call errquit('ma buf failed',911, MA_ERR)
 c
       if (.not.ma_push_get(mt_int,2*nshell,'buf for sp cn2bfr',
      &      h_2bfr,k_2bfr))
-     &      call errquit('ma buf failed',911)
+     &      call errquit('ma buf failed',911, MA_ERR)
       call rak_tospbfr(basis,nshell,nbf_chk,nbf_sp,int_mb(k_2bfr))
 c
       if (nbf_chk.ne.nbf) then
@@ -406,16 +414,18 @@ c
       write(6,*)' nbf_sp ',nbf_sp
 c
       if (.not.ma_push_get(mt_dbl,(nbf*nbf*nbf*nbf),'eri cart 1',
-     &      h_eri_1,k_eri_1)) call errquit('ma failed',911)
+     &      h_eri_1,k_eri_1)) call errquit('ma failed',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,(nbf_sp*nbf_sp*nbf_sp*nbf_sp),
      &    'eri_sp 1',
-     &      h_eri_sp_1,k_eri_sp_1)) call errquit('ma failed',911)
+     &      h_eri_sp_1,k_eri_sp_1)) call errquit('ma failed',911,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_dbl,(nbf*nbf*nbf*nbf),
      &      'eri cart 2',
-     &      h_eri_2,k_eri_2)) call errquit('ma failed',922)
+     &      h_eri_2,k_eri_2)) call errquit('ma failed',922, MA_ERR)
       if (.not.ma_push_get(mt_dbl,(nbf_sp*nbf_sp*nbf_sp*nbf_sp),
      &      'eri_sp  2',
-     &      h_eri_sp_2,k_eri_sp_2)) call errquit('ma failed',922)
+     &      h_eri_sp_2,k_eri_sp_2)) call errquit('ma failed',922,
+     &       MA_ERR)
 c
 c
       call rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
@@ -441,27 +451,27 @@ c
      &      dbl_mb(k_eri_2),
      &      .false., ' cartcart ')
       if (.not.bas_create(sp_basis,'ao sp_basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,sp_basis,'ao sp_basis'))
      &      call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, RTDB_ERR)
 c
       write(6,*)' geom/sp_basis loaded'
 c
       write(6,*)' raw sp_basis '
       if (.not. bas_print(sp_basis))
-     $      call errquit(' sp_basis print failed', 0)
+     $      call errquit(' sp_basis print failed', 0, BASIS_ERR)
       write(6,*)' first normalize'
       if (.not.int_normalize(rtdb,sp_basis)) stop ' norm error 1'
       if (.not. bas_print(sp_basis))
-     $      call errquit(' sp_basis print failed', 0)
+     $      call errquit(' sp_basis print failed', 0, BASIS_ERR)
       if (.not.bas_numbf(sp_basis,nbf_sp)) call errquit
-     &      ('numbf failed',911)
+     &      ('numbf failed',911, BASIS_ERR)
       if (.not.bas_numcont(sp_basis,nshell_sp)) call errquit
-     &      ('numcont error',911)
+     &      ('numcont error',911, BASIS_ERR)
       write(6,*)' sp_basis b4 rak_ovlap'
       if (.not. bas_print(sp_basis))
-     $      call errquit(' sp_basis print failed', 0)
+     $      call errquit(' sp_basis print failed', 0, BASIS_ERR)
       call rak_core(sp_basis,nbf_sp,nshell_sp,
      &      dbl_mb(k_scr),m_scr,
      &      dbl_mb(k_buf),m_buf,
@@ -533,14 +543,14 @@ c
       status = status.and.ma_pop_stack(h_sph_s)
       status = status.and.ma_pop_stack(h_cart_s)
 c
-      if (.not.status) call errquit('ma pop fail',911)
+      if (.not.status) call errquit('ma pop fail',911, MA_ERR)
 c
       if(.not.bas_destroy(basis)) call errquit
-     &      ('basis bas_destroy failed',911)
+     &      ('basis bas_destroy failed',911, BASIS_ERR)
       if(.not.bas_destroy(sp_basis)) call errquit
-     &      ('sp_basis bas_destroy failed',911)
+     &      ('sp_basis bas_destroy failed',911, BASIS_ERR)
       if(.not.geom_destroy(geom)) call errquit
-     &      ('geom_destroy failed',911)
+     &      ('geom_destroy failed',911, GEOM_ERR)
 c
       end
 *.......................................................................
@@ -841,6 +851,7 @@ c
 *.......................................................................
       subroutine rak_tospbfr(basis,nshell,nbf_chk,nbf_sp,cn2bfr)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
       integer nshell, nbf_chk, nbf_sp, basis
       integer cn2bfr(2,nshell)
@@ -850,7 +861,7 @@ c
       nbf_sp  = 0
       do ish = 1,nshell
         if(.not.bas_continfo(basis,ish,type,nprim,ngen,spsp))
-     &        call errquit(' continfo failed ',911)
+     &        call errquit(' continfo failed ',911, BASIS_ERR)
         cn2bfr(1,ish) = nbf_sp + 1
         cn2bfr(2,ish) = nbf_sp + 2*type+1
         nbf_chk = nbf_chk + (type+1)*(type+2)/2
@@ -973,6 +984,7 @@ c. close jsh/ish loops
       subroutine rak_ovlap_test_sp(basis,nbf,nbf_sp,nshell,
      &      scr,mscr,buf,mbuf,s,s_sp,cn2bfr_sp)
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -1014,7 +1026,7 @@ c
         nbfi    = ihi    - ilow + 1
         nbfi_sp = ihi_sp - ilow_sp + 1
         if(.not.bas_continfo(basis,ish,typei,nprim,igen,spsp))
-     &        call errquit(' continfo failed ',911)
+     &        call errquit(' continfo failed ',911, BASIS_ERR)
         do jsh = 1,ish
           if (.not.bas_cn2bfr(basis,jsh,jlow,jhi)) stop 'dead j'
           jlow_sp = cn2bfr_sp(1,jsh)
@@ -1022,7 +1034,7 @@ c
           nbfj    = jhi    - jlow + 1
           nbfj_sp = jhi_sp - jlow_sp + 1
           if(.not.bas_continfo(basis,jsh,typej,nprim,jgen,spsp))
-     &          call errquit(' continfo failed ',911)
+     &          call errquit(' continfo failed ',911, BASIS_ERR)
 c
           nint    = nbfi*nbfj
           nint_sp = nbfi_sp*nbfj_sp
@@ -1151,6 +1163,7 @@ c
       end
       subroutine raktest_3ctr(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"
@@ -1188,29 +1201,29 @@ c
      &    geom_name = 'geometry'
 c
       if(.not.geom_create(geom,geom_name))call errquit
-     &    ('raktest_3ctr: geom create error',911)
+     &    ('raktest_3ctr: geom create error',911, GEOM_ERR)
       if(.not.bas_create(basis,mo_basis))call errquit
-     &    ('raktest_3ctr: basis create error',911)
+     &    ('raktest_3ctr: basis create error',911, BASIS_ERR)
 c
       if(.not.geom_rtdb_load(rtdb,geom,geom_name)) call errquit
-     &    ('raktest_3ctr: geom load ',911)
+     &    ('raktest_3ctr: geom load ',911, RTDB_ERR)
       if(.not.bas_rtdb_load(rtdb,geom,basis,mo_basis)) call errquit
-     &    ('raktest_3ctr: basis load ',911)
+     &    ('raktest_3ctr: basis load ',911, RTDB_ERR)
 c
       basis_id = basis + BASIS_HANDLE_OFFSET
       nshell = ncont_tot_gb(basis_id)
       if (.not.int_normalize(rtdb,basis)) call errquit
-     &    ('raktest_3ctr: error normalizing ',911)
+     &    ('raktest_3ctr: error normalizing ',911, INT_ERR)
 c
       call int_init(rtdb,1,basis)
       memscr = 100 000
       membuf = 1000
       if (.not.ma_push_get(mt_dbl,memscr,' scratch ',
      &    h_scr, k_scr)) call errquit
-     &    (' ma error 1',911)
+     &    (' ma error 1',911, MA_ERR)
       if (.not.ma_push_get(mt_dbl,membuf,' buf ',
      &    h_buf, k_buf)) call errquit
-     &    (' ma error 2',911)
+     &    (' ma error 2',911, MA_ERR)
 c
       do ish = 1,nshell
         do jsh = 1,ish
@@ -1300,13 +1313,14 @@ c
       call int_terminate()
       status = ma_pop_stack(h_buf)
       status = status.and.ma_pop_stack(h_scr)
-      if (.not.status) call errquit('pop failed',911)
+      if (.not.status) call errquit('pop failed',911, MA_ERR)
       status = bas_destroy(basis)
       status = status.and.geom_destroy(geom)
-      if (.not.status) call errquit('b/g destroy failed',911)
+      if (.not.status) call errquit('b/g destroy failed',911, MA_ERR)
       end
       subroutine raktest_stpr(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -1323,19 +1337,20 @@ c
 c
       if (ga_nodeid().eq.0)  then
         if (.not. geom_create(geom, 'geometry'))
-     &         call errquit('raktest_stpr: geom_create?', 911)
+     &         call errquit('raktest_stpr: geom_create?', 911, GEOM_ERR)
         if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &         call errquit('raktest_stpr: no geometry ', 911)
+     &         call errquit('raktest_stpr: no geometry ', 911, RTDB_ERR)
 c get number of atoms = nat
         if (.not. geom_ncent(geom,nat))
-     &      call errquit('raktest_stpr: geom_ncent?',911)
+     &      call errquit('raktest_stpr: geom_ncent?',911, GEOM_ERR)
         if (.not. geom_destroy(geom))
-     &      call errquit('raktest_stpr: geom_destroy?',911)
+     &      call errquit('raktest_stpr: geom_destroy?',911, GEOM_ERR)
         if (.not.
      &         MA_Push_Get(MT_DBL,(3*nat),'stpr fake gradient',
      &         h_grad,k_grad))
      &         call errquit
-     &         ('raktest_stpr: allocation for gradient failed?',911)
+     &         ('raktest_stpr: allocation for gradient failed?',911,
+     &       MA_ERR)
         dbl_mb((k_grad+   0)) =  -0.008697D00
         dbl_mb((k_grad+   1)) =  -0.004076D00
         dbl_mb((k_grad+   2)) =   0.004591D00
@@ -1635,19 +1650,21 @@ c get number of atoms = nat
 c put scf:converged = logical true
         if (.not. rtdb_put(rtdb,'scf:converged', MT_LOG, 1, flag))
      &      call errquit
-     &      ('raktest_stpr: failed to read converged in rtdb', 911)
+     &      ('raktest_stpr: failed to read converged in rtdb', 911,
+     &       RTDB_ERR)
 c put scf:energy   =  real value
         if (.not. rtdb_put(rtdb,'scf:energy', MT_DBL, 1, energy))
      &      call errquit
-     &      ('raktest_stpr: failed to read energy in rtdb', 911)
+     &      ('raktest_stpr: failed to read energy in rtdb', 911,
+     &       RTDB_ERR)
 c put scf:gradient = 3*nat reals
         if (.not. rtdb_put(rtdb, 'scf:gradient', MT_DBL, 
      &       (3*nat),dbl_mb(k_grad)))
      &      call errquit
-     &        ('raktest_stpr: reading gradients failed',911)
+     &        ('raktest_stpr: reading gradients failed',911, RTDB_ERR)
 c free memory
         if (.not. ma_pop_stack(h_grad))
-     &      call errquit('raktest_stpr: pop failed',911)
+     &      call errquit('raktest_stpr: pop failed',911, MA_ERR)
       endif
       call ga_sync()
       call ga_sync()
@@ -1661,6 +1678,7 @@ c free memory
       subroutine raktest_initd(rtdb)
 c raktest = 4
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -1677,7 +1695,8 @@ c
       integer nbas, bases(6), mynbas
 c
       if (.not.bas_rtdb_in(rtdb))
-     &    call errquit('raktest4: error loading known basis sets',911)
+     &    call errquit('raktest4: error loading known basis sets',911,
+     &       BASIS_ERR)
 c
       write(6,*)' number of basis sets in rtdb ',nbasis_rtdb
 c
@@ -1686,20 +1705,21 @@ c
 00100 continue
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest4: geom_create failed',911)
+     &    call errquit('raktest4: geom_create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     &    call errquit('raktest4: geom_create failed',911)
+     &    call errquit('raktest4: geom_create failed',911, RTDB_ERR)
 c
       mynbas = 0
       do 00200 nbas = 1,nbasis_rtdb
         if (bs_names_rtdb(nbas).ne.'ecp basis') then
           mynbas = mynbas + 1
           if(.not.bas_create(bases(mynbas),bs_names_rtdb(mynbas)))
-     &        call errquit('raktest4: bas_create choked',911)
+     &        call errquit('raktest4: bas_create choked',911, BASIS_ERR)
           if(.not.
      &        bas_rtdb_load
      &        (rtdb,geom,bases(mynbas),bs_names_rtdb(mynbas)))
-     &        call errquit('raktest4: bas_rtdb_load choked',911)
+     &        call errquit('raktest4: bas_rtdb_load choked',911,
+     &       RTDB_ERR)
           status = bas_print(bases(mynbas))
           status = gbs_map_print(bases(mynbas))
         endif
@@ -1716,10 +1736,10 @@ c
 c
       do nbas = 1,mynbas
         if (.not.bas_destroy(bases(nbas))) call errquit
-     &        ('raktest_initd: bas_destroy failed',911)
+     &        ('raktest_initd: bas_destroy failed',911, BASIS_ERR)
       enddo
       if (.not.geom_destroy(geom)) call errquit
-     &      ('raktest_initd: _destroy failed',911)
+     &      ('raktest_initd: _destroy failed',911, GEOM_ERR)
 c
       call intd_terminate()
 c
@@ -1727,6 +1747,7 @@ c
       subroutine raktest_init(rtdb)
 c raktest = 5
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -1743,7 +1764,8 @@ c
       integer nbas, bases(6)
 c
       if (.not.bas_rtdb_in(rtdb))
-     &    call errquit('raktest4: error loading known basis sets',911)
+     &    call errquit('raktest4: error loading known basis sets',911,
+     &       BASIS_ERR)
 c
       write(6,*)' number of basis sets in rtdb ',nbasis_rtdb
 c
@@ -1752,17 +1774,17 @@ c
 00100 continue
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest4: geom_create failed',911)
+     &    call errquit('raktest4: geom_create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     &    call errquit('raktest4: geom_create failed',911)
+     &    call errquit('raktest4: geom_create failed',911, RTDB_ERR)
 c
       do 00200 nbas = 1,nbasis_rtdb
         if(.not.bas_create(bases(nbas),bs_names_rtdb(nbas)))
-     &      call errquit('raktest4: bas_create choked',911)
+     &      call errquit('raktest4: bas_create choked',911, BASIS_ERR)
         if(.not.
      &      bas_rtdb_load
      &      (rtdb,geom,bases(nbas),bs_names_rtdb(nbas)))
-     &      call errquit('raktest4: bas_rtdb_load choked',911)
+     &      call errquit('raktest4: bas_rtdb_load choked',911, RTDB_ERR)
         status = bas_print(bases(nbas))
         status = gbs_map_print(bases(nbas))
 00200 continue
@@ -1778,10 +1800,10 @@ c
 c
       do nbas = 1,nbasis_rtdb
         if (.not.bas_destroy(bases(nbas))) call errquit
-     &        ('raktest_init: bas_destroy failed',911)
+     &        ('raktest_init: bas_destroy failed',911, BASIS_ERR)
       enddo
       if (.not.geom_destroy(geom)) call errquit
-     &      ('raktest_init: _destroy failed',911)
+     &      ('raktest_init: _destroy failed',911, GEOM_ERR)
 c
       call int_terminate()
 c
@@ -1938,6 +1960,7 @@ c*          R0(m,n) = R0(m,n) - zan(ic)*R(m,0,n)
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
+#include "errquit.fh"
 
       Logical O2I,KEI,NAI,canAB
 
@@ -1993,8 +2016,8 @@ c******************************************************************************
 *        call hf_print('hf1: b shell',bxyz,bprims,bcoefs,npb,ncb,lb)
 *      endif
       MXD = 0
-      if (KEI) call errquit('hf1tmp: only for pot ints',911)
-      if (O2I) call errquit('hf1tmp: only for pot ints',911)
+      if (KEI) call errquit('hf1tmp: only for pot ints',911, INT_ERR)
+      if (O2I) call errquit('hf1tmp: only for pot ints',911, INT_ERR)
 
 c Determine whether general or segmented contraction is used.
 
@@ -2332,6 +2355,7 @@ c Define the angular momentum indices for shell "B".
       end
       subroutine raktest_gc(rtdb)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #include "rtdb.fh"
@@ -2366,21 +2390,24 @@ c
       write(luout,*)' ============================================ '
 c
       if (.not.geom_create(geom,'geometry'))
-     &      call errquit('raktest_gc: geom_create failed',911)
+     &      call errquit('raktest_gc: geom_create failed',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     &      call errquit('raktest_gc: geom_rtdb_load failed',911)
+     &      call errquit('raktest_gc: geom_rtdb_load failed',911,
+     &       RTDB_ERR)
 c
       if(.not.bas_create(basisseg,'aobasisseg'))
-     &      call errquit('raktest_gc: bas_create choked',911)
+     &      call errquit('raktest_gc: bas_create choked',911, BASIS_ERR)
       if(.not.
      &      bas_rtdb_load(rtdb,geom,basisseg,'aobasisseg'))
-     &      call errquit('raktest_gc: bas_rtdb_load choked',911)
+     &      call errquit('raktest_gc: bas_rtdb_load choked',911,
+     &       RTDB_ERR)
 c
       if(.not.bas_create(basisns,'aobasisns'))
-     &      call errquit('raktest_gc: bas_create choked',911)
+     &      call errquit('raktest_gc: bas_create choked',911, BASIS_ERR)
       if(.not.
      &      bas_rtdb_load(rtdb,geom,basisns,'aobasisns'))
-     &      call errquit('raktest_gc: bas_rtdb_load choked',911)
+     &      call errquit('raktest_gc: bas_rtdb_load choked',911,
+     &       RTDB_ERR)
 c
       bases(1) = basisseg
       bases(2) = basisns
@@ -2410,9 +2437,9 @@ c... get memory requirements for non-segmented basis
       call int_terminate()
       call int_init(rtdb,2,bases)
       if(.not.int_normalize(rtdb,basisseg)) call errquit
-     &      ('raktest_gc: int_normalize seg failed',911)
+     &      ('raktest_gc: int_normalize seg failed',911, INT_ERR)
       if(.not.int_normalize(rtdb,basisns)) call errquit
-     &      ('raktest_gc: int_normalize ns failed',911)
+     &      ('raktest_gc: int_normalize ns failed',911, INT_ERR)
       write(6,*)' after normalization'
       status = bas_print(basisseg)
       status = gbs_map_print(basisseg)
@@ -2429,39 +2456,44 @@ c
       memscr = max(mxs1,mxs2,100000)
 c
       if(.not.ma_push_get(mt_dbl,membuf,'int buff',h_buf,k_buf))
-     &      call errquit('raktest_gc: ma failed 1',911)
+     &      call errquit('raktest_gc: ma failed 1',911, MA_ERR)
       if(.not.ma_push_get(mt_dbl,memscr,'int scr',h_scr,k_scr))
-     &      call errquit('raktest_gc: ma failed 2',911)
+     &      call errquit('raktest_gc: ma failed 2',911, MA_ERR)
 c
       if(.not.bas_numcont(basisseg,ncont_seg))
-     &      call errquit('raktest_gc: bas_numcont failed',911)
+     &      call errquit('raktest_gc: bas_numcont failed',911,
+     &       BASIS_ERR)
       write(luout,*)' ao basis seg number of contractions    :',
      &      ncont_seg
       if(.not.bas_numbf(basisseg,nbf_seg))
-     &      call errquit('raktest_gc: bas_numbf failed',911)
+     &      call errquit('raktest_gc: bas_numbf failed',911,
+     &       BASIS_ERR)
       write(luout,*)' ao basis seg number of basis functions :',
      &      nbf_seg
       if(.not.bas_numcont(basisns,ncont_ns))
-     &      call errquit('raktest_gc: bas_numcont failed',911)
+     &      call errquit('raktest_gc: bas_numcont failed',911,
+     &       BASIS_ERR)
       write(luout,*)' ao basis noseg number of contractions    :',
      &      ncont_ns
       if(.not.bas_numbf(basisns,nbf_ns))
-     &      call errquit('raktest_gc: bas_numbf failed',911)
+     &      call errquit('raktest_gc: bas_numbf failed',911,
+     &       BASIS_ERR)
       write(luout,*)' ao basis noseg number of basis functions :',
      &      nbf_ns
 c
       if (nbf_ns.ne.nbf_seg) call errquit
-     &      ('raktest_gc: nbf_seg.ne.nbf_ns',(nbf_ns-nbf_seg))
+     &      ('raktest_gc: nbf_seg.ne.nbf_ns',(nbf_ns-nbf_seg),
+     &       UNKNOWN_ERR)
 c
       if(.not.ma_push_get(mt_dbl,(nbf_seg*nbf_seg),'overlap seg',
      &      h_s_seg,k_s_seg))
-     &      call errquit('raktest_gc: ma failed 3',911)
+     &      call errquit('raktest_gc: ma failed 3',911, MA_ERR)
       if(.not.ma_push_get(mt_dbl,(nbf_ns*nbf_ns),'overlap noseg',
      &      h_s_ns,k_s_ns))
-     &      call errquit('raktest_gc: ma failed 4',911)
+     &      call errquit('raktest_gc: ma failed 4',911, MA_ERR)
       if(.not.ma_push_get(mt_dbl,(nbf_ns*nbf_ns),'difference matrix',
      &      h_diff,k_diff))
-     &      call errquit('raktest_gc: ma failed 4',911)
+     &      call errquit('raktest_gc: ma failed 4',911, MA_ERR)
 
 c
 c set niter number of iterations
@@ -2623,14 +2655,14 @@ c
       status = status .and. ma_pop_stack(h_s_seg)
       status = status .and. ma_pop_stack(h_scr)
       status = status .and. ma_pop_stack(h_buf)
-      if (.not.status) call errquit('raktest_gc: pop error',911)
+      if (.not.status) call errquit('raktest_gc: pop error',911, MA_ERR)
 c
       if (.not.bas_destroy(basisseg)) call errquit
-     &    ('raktest_gc: bas_destroy failed ?',911)
+     &    ('raktest_gc: bas_destroy failed ?',911, BASIS_ERR)
       if (.not.bas_destroy(basisns)) call errquit
-     &    ('raktest_gc: bas_destroy failed ?',911)
+     &    ('raktest_gc: bas_destroy failed ?',911, BASIS_ERR)
       if (.not.geom_destroy(geom)) call errquit
-     &    ('raktest_gc: geom_destroy failed ?',911)
+     &    ('raktest_gc: geom_destroy failed ?',911, GEOM_ERR)
 c
       call int_terminate()
 c
@@ -2638,6 +2670,7 @@ c
       subroutine raktest_bs_gc(basis,nscr,scr,nbuf,buf,nbf,ncont,S,
      &      OV,KE,PE,msg)
       implicit none
+#include "errquit.fh"
 c
 #include "stdio.fh"
 c
@@ -2674,10 +2707,10 @@ c
       do ish = 1,ncont
         do jsh = 1,ish
           if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) call errquit
-     &          ('raktest_gc: cn2bfr failed',911)
+     &          ('raktest_gc: cn2bfr failed',911, BASIS_ERR)
 *          write(luout,*)'ish = ',ish,' bfr =',ilo,ihi
           if (.not.bas_cn2bfr(basis,jsh,jlo,jhi)) call errquit
-     &          ('raktest_gc: cn2bfr failed',911)
+     &          ('raktest_gc: cn2bfr failed',911, BASIS_ERR)
 *          write(luout,*)'jsh = ',jsh,' bfr =',jlo,jhi
           nint = (ihi-ilo+1)*(jhi-jlo+1)
 *          write(luout,*)'number of integrals = ',nint
@@ -2780,6 +2813,7 @@ c
       subroutine raktest_test9(rtdb)
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -2800,15 +2834,16 @@ c
       external int_normalize
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+     &    call errquit('raktest_geomwrt: geom_create failed?',911,
+     &       GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911, RTDB_ERR)
 c
       if (.not.bas_create(basis,'ao sp_basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao sp_basis'))
      &    call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, BASIS_ERR)
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
 c
       if (.not.geom_print(geom)) stop ' print error'
@@ -2822,10 +2857,10 @@ c
       m_scr = m_scr + (m_scr*110)/100
 c
       if (.not.ma_push_get(mt_dbl,m_scr,'scr for 1e',h_scr,k_scr))
-     &      call errquit('ma scr failed',911)
+     &      call errquit('ma scr failed',911, MA_ERR)
 c
       if (.not.ma_push_get(mt_dbl,m_buf,'buf for 1e',h_buf,k_buf))
-     &      call errquit('ma buf failed',911)
+     &      call errquit('ma buf failed',911, MA_ERR)
 c
       ish = 1
       jsh = 1
@@ -2870,17 +2905,18 @@ c
       status = status.and.ma_pop_stack(h_buf)
       status = status.and.ma_pop_stack(h_scr)
 c
-      if (.not.status) call errquit('ma pop fail',911)
+      if (.not.status) call errquit('ma pop fail',911, MA_ERR)
       call int_terminate()
 c
       if (.not.bas_destroy(basis)) call errquit
-     &    ('9: bas_destroy failed ?',911)
+     &    ('9: bas_destroy failed ?',911, BASIS_ERR)
       if (.not.geom_destroy(geom)) call errquit
-     &    ('9: geom_destroy failed ?',911)
+     &    ('9: geom_destroy failed ?',911, GEOM_ERR)
 c
       end
       subroutine raktest_ecp(rtdb)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "rtdb.fh"
@@ -2894,25 +2930,27 @@ c
 *      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+     &    call errquit('raktest_geomwrt: geom_create failed?',911,
+     &       GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911,
+     &       RTDB_ERR)
       if (.not.geom_print(geom)) stop ' print error'
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
      &    call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, RTDB_ERR)
       if (.not.bas_print(basis)) stop ' print error'
 *      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 2?'
 c
       if (.not.bas_get_ecp_handle(basis,ecpid)) stop 'get/ecp/handle'
 *ecp:      if (.not.bas_create(ecpid,'ecp basis')) call errquit
-*ecp:     &      ('bas_create failed',911)
+*ecp:     &      ('bas_create failed',911, BASIS_ERR)
 *ecp:      if (.not.bas_rtdb_load(rtdb,geom,ecpid,'ecp basis'))
 *ecp:     &    call errquit
-*ecp:     &      ('bas_rtdb_load failed',911)
+*ecp:     &      ('bas_rtdb_load failed',911, RTDB_ERR)
       if (.not.bas_print(ecpid)) stop ' print error'
 c
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
@@ -3205,6 +3243,7 @@ c
       end
       subroutine raktest_geomprt(rtdb)
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "stdio.fh"
@@ -3213,20 +3252,25 @@ c
       integer geom
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_geomprt:create error',911)
+     &    call errquit('raktest_geomprt:create error',911, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
-     &    call errquit('raktest_geomprt:load error',911)
+     &    call errquit('raktest_geomprt:load error',911, RTDB_ERR)
       if (.not.geom_print_distances(geom))
-     &    call errquit('raktest_geomprt:print_distance error',911)
+     &    call errquit('raktest_geomprt:print_distance error',911,
+     &       GEOM_ERR)
       if (.not.geom_print_angles(geom))
-     &    call errquit('raktest_geomprt:print_angles error',911)
+     &    call errquit('raktest_geomprt:print_angles error',911,
+     &       GEOM_ERR)
       if (.not.geom_print_dihedrals(geom))
-     &    call errquit('raktest_geomprt:print_dihedrals error',911)
+     &    call errquit('raktest_geomprt:print_dihedrals error',911,
+     &       GEOM_ERR)
       if (.not.geom_destroy(geom))
-     &    call errquit('raktest_geomprt:destory',911)
+     &    call errquit('raktest_geomprt:destory',911,
+     &       GEOM_ERR)
       end
       subroutine raktest_3cd(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -3247,16 +3291,18 @@ c
 *      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+     &    call errquit('raktest_geomwrt: geom_create failed?',911,
+     &       GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911,
+     &       RTDB_ERR)
       if (.not.geom_print(geom)) stop ' print error'
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
      &    call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, RTDB_ERR)
       if (.not.bas_print(basis)) stop ' print error'
       if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
@@ -3879,6 +3925,7 @@ c
       end
       subroutine raktest_ovd(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -3897,16 +3944,16 @@ c
 *      if (.not.rtdb_print(rtdb,.true.)) stop ' rtdb_p 1?'
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_ovd: geom_create failed?',911)
+     &    call errquit('raktest_ovd: geom_create failed?',911, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_ovd: geom_rtdb_load -ref failed',911)
+     &    ('raktest_ovd: geom_rtdb_load -ref failed',911, RTDB_ERR)
       if (.not.geom_print(geom)) stop ' print error'
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &      ('raktest_ovd:bas_create failed',911)
+     &      ('raktest_ovd:bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
      &    call errquit
-     &      ('raktest_ovd:bas_rtdb_load failed',911)
+     &      ('raktest_ovd:bas_rtdb_load failed',911, RTDB_ERR)
       if (.not.bas_print(basis)) stop ' print error'
       if (.not.gbs_map_print(basis)) stop ' print error'
       if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
@@ -3952,6 +3999,7 @@ c
       subroutine raktest_ovd1(buf,lbuf,scr,lscr,fdo,o,fdp,fdm,
      &    nbf,nat,cmaster,basis,geom)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -4035,7 +4083,8 @@ c
           coords(ixyz,zatom,geom) = coords(ixyz,zatom,geom) + delta
 c.. get coordinates for ecp centers.
           if (.not.geom_coords_ecp(geom,dbl_mb(k_xyzecp),n_ecp))
-     &        call errquit('ecpdebug: geom_coords_ecp failed',911)
+     &        call errquit('ecpdebug: geom_coords_ecp failed',911,
+     &       GEOM_ERR)
           do ish = 1,ncont
             call util_date(date_string)
             lds = inp_strlen(date_string)
@@ -4061,7 +4110,8 @@ c.. get coordinates for ecp centers.
           coords(ixyz,zatom,geom) = coords(ixyz,zatom,geom) - delta
 c.. get coordinates for ecp centers.
           if (.not.geom_coords_ecp(geom,dbl_mb(k_xyzecp),n_ecp))
-     &        call errquit('ecpdebug: geom_coords_ecp failed',911)
+     &        call errquit('ecpdebug: geom_coords_ecp failed',911,
+     &       GEOM_ERR)
           do ish = 1,ncont
             if (.not.bas_cn2bfr(basis,ish,ilo,ihi)) stop 'cn2bfr i'
             do jsh = 1,ncont
@@ -4164,6 +4214,7 @@ c
       end
       subroutine raktest_bd2e(rtdb)
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -4183,16 +4234,17 @@ c
       external int_normalize
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+     &    call errquit('raktest_geomwrt: geom_create failed?',911,
+     &       GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911, RTDB_ERR)
       if (.not.geom_print(geom)) stop ' print error'
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
      &    call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, RTDB_ERR)
       if (.not.bas_print(basis)) stop ' print error'
       if (.not.rtdb_print(rtdb,.false.)) stop ' rtdb_p 2?'
       if (.not.int_normalize(rtdb,basis)) stop ' norm error 1'
@@ -4300,6 +4352,7 @@ c
       subroutine raktest_bd2e_getg(nq_total,nbf,nat,rtdb,basis,geom,
      &    deri,lbuf,buf,labels,lscr,scr)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
       integer nq_total, nbf, nat, rtdb, basis,geom, lbuf, lscr
       double precision deri(3,nat,nbf,nbf,nbf,nbf)
@@ -4333,7 +4386,7 @@ c
                 if (.not.intbd_init4c(
      &              basis,iq,jq,basis,kq,lq,q,q4,.false.,
      &              lscr,scr,lbuf,dbl_dum)) call errquit
-     &              ('intbd_init4c failed',911)
+     &              ('intbd_init4c failed',911, INT_ERR)
 00010           continue
                 more = intbd_2e4c(basis,iq,jq,basis,kq,lq,q,q4,.false.,
      &              1.0d-8,.false.,
@@ -4761,6 +4814,7 @@ c
       end
       subroutine raktest_2ecompare(rtdb)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
@@ -4781,15 +4835,16 @@ c:local
       integer k_bufnw, k_buftxs, k_scr, k_lab, k_eri
 c
       if (.not.geom_create(geom,'geometry'))
-     &    call errquit('raktest_geomwrt: geom_create failed?',911)
+     &    call errquit('raktest_geomwrt: geom_create failed?',911,
+     &       GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911)
+     &    ('raktest_geomwrt: geom_rtdb_load -ref failed',911, RTDB_ERR)
 c
       if (.not.bas_create(basis,'ao basis')) call errquit
-     &      ('bas_create failed',911)
+     &      ('bas_create failed',911, BASIS_ERR)
       if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
      &    call errquit
-     &      ('bas_rtdb_load failed',911)
+     &      ('bas_rtdb_load failed',911, RTDB_ERR)
       if (ga_nodeid().eq.0) then
         if (.not.geom_print(geom)) stop ' print error'
         if (.not.bas_print(basis)) stop ' print error'
@@ -4812,7 +4867,7 @@ c
       if (szbuf.lt.maxg) then
         write(luout,*)' szbuf =',szbuf
         write(luout,*)' maxg  =',maxg
-        call errquit('raktest_2ecompare:fatal error',911)
+        call errquit('raktest_2ecompare:fatal error',911, UNKNOWN_ERR)
       endif
 c
       size_dbls = 3*szbuf+maxscr
@@ -4825,9 +4880,11 @@ c
         call util_flush(luout)
       endif
       if (.not.ma_push_get(mt_dbl,size_dbls,'dbls scr',h_dbls,k_dbls))
-     &    call errquit('raktest_2ecompare:fatal error:ma dbls',911)
+     &    call errquit('raktest_2ecompare:fatal error:ma dbls',911,
+     &       MA_ERR)
       if (.not.ma_push_get(mt_int,size_ints,'ints scr',h_ints,k_ints))
-     &    call errquit('raktest_2ecompare:fatal error:ma ints',911)
+     &    call errquit('raktest_2ecompare:fatal error:ma ints',911,
+     &       MA_ERR)
       k_bufnw  = k_dbls
       k_buftxs = k_bufnw + szbuf
       k_eri    = k_buftxs + szbuf
@@ -5168,6 +5225,7 @@ c
 c initializes integral code to data structers for a integral computation
 c: no print
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "apiP.fh"
 * 
@@ -5317,7 +5375,8 @@ c
           call util_flush(6)
         endif
         call errquit
-     &      ('int_init: logic error with user cando settings',911)
+     &      ('int_init: logic error with user cando settings',911,
+     &       INT_ERR)
       endif
 c
       status = .true.
@@ -5331,7 +5390,7 @@ c
           write(6,'(a,i5)')
      &           ' basis set handle ',bases(ibas)
 00200   continue
-        call errquit('int_init: basis handles hosed ',nbas)
+        call errquit('int_init: basis handles hosed ',nbas, INT_ERR)
       endif
 *      write(6,*)' int_init: basis set handles valid '
 c
@@ -5344,21 +5403,21 @@ c
       ang2use = -1
       do 00300 ibas = 1,nbas
         if(.not.bas_high_angular(bases(ibas),angm))
-     &         call errquit('int_init: angm error',angm)
+     &         call errquit('int_init: angm error',angm, INPUT_ERR)
         ang2use = max(ang2use,angm)
 00300 continue
 *
 * test for higher than h functions  0123456
       if (ang2use.ge.6) call errquit
      &    ('only basis sets with s through h functions are allowed',
-     &    911)
+     &    911, BASIS_ERR)
 *
       call defNxyz(ang2use)
 c
 c initialize spcart stuff 
 c
       if (.not.(spcart_init(ang2use,.true.,.false.))) then
-        call errquit('int_init: spcart_init failed',911)
+        call errquit('int_init: spcart_init failed',911, INT_ERR)
       endif
 c
 c... generate memory requirements and store in structures in apiP.fh
@@ -5387,9 +5446,10 @@ c
 00001 continue
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'int_init')) call errquit
-     &        ('int_init: ecp handle is invalid fatal error',911)
+     &        ('int_init: ecp handle is invalid fatal error',911,
+     &       INT_ERR)
         if (.not.int_ecp_init(ecp_bsh,0,0)) call errquit
-     &        ('int_init: int_ecp_init failed ',911)
+     &        ('int_init: int_ecp_init failed ',911, INT_ERR)
       endif
       init_int = 1
       end

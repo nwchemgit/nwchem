@@ -1,6 +1,7 @@
-C $Id: ratoms.F,v 1.4 2001-04-25 16:42:08 windus Exp $
+C $Id: ratoms.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
       subroutine drdy_ratoms(string,istrt)
       implicit none ! double precision (a-h,o-z)
+#include "errquit.fh"
 #include "drdyP.fh"
 #include "stdio.fh"
 #include "nwc_drdyP.fh"
@@ -62,7 +63,7 @@ c
 C Check for input error
          if (isect.eq.1.or.iend.eq.1) then
             write(fu6,1000)
-            call errquit('Needs an END',555)
+            call errquit('Needs an END',555, INPUT_ERR)
          end if
 c
 c first read in atom number
@@ -96,7 +97,7 @@ c
 c
              if (nfind.eq.0) then 
                 write(fu6,1200)string(istrt:istrt+1)
-                call errquit('ratoms: fatal error',911)
+                call errquit('ratoms: fatal error',911, INPUT_ERR)
              end if
          end if
 c
@@ -135,7 +136,7 @@ c
         write(fu6,*)' number of atoms too large '
         write(fu6,*)' natom (number read) = ',natom
         write(fu6,*)' natoms (dimension)  = ',natoms
-        call errquit('drdy_ratoms: fatal error',911)
+        call errquit('drdy_ratoms: fatal error',911, INPUT_ERR)
       endif
 c
       return

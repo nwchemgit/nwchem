@@ -1,6 +1,7 @@
        logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.48 2003-02-20 01:24:18 mhackler Exp $
+C$Id: direct_mp2.F,v 1.49 2003-10-17 22:55:26 carlfahl Exp $
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -90,22 +91,25 @@ c
        if (.not. rtdb_cget(rtdb, 'title', 1, title))
      $      title = ' '
        if (.not. geom_create(geom, 'geometry'))
-     $      call errquit('direct_mp2: geom_create?', 0)
+     $      call errquit('direct_mp2: geom_create?', 0, GEOM_ERR)
        if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     $      call errquit('direct_mp2: no geometry ', 0)
+     $      call errquit('direct_mp2: no geometry ', 0, RTDB_ERR)
        if (.not. bas_create(basis, 'ao basis'))
-     $      call errquit('direct_mp2: bas_create?', 0)
+     $      call errquit('direct_mp2: bas_create?', 0, BASIS_ERR)
        if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     $      call errquit('direct_mp2: no ao basis ', 0)
+     $      call errquit('direct_mp2: no ao basis ', 0, RTDB_ERR)
        if (.not. rtdb_cget(rtdb, 'input mo vector file', 1,
      $      movecs_in)) call util_file_name
      $      ('movecs',.false.,.false.,movecs_in)
        if (.not. bas_numbf(basis, nbf))
-     $      call errquit('direct_mp2: cannot get basis info',0)
+     $      call errquit('direct_mp2: cannot get basis info',0,
+     &       BASIS_ERR)
        if (.not. bas_numcont(basis,nsh))
-     $      call errquit('direct_mp2: cannot get basis info',0)
+     $      call errquit('direct_mp2: cannot get basis info',0,
+     &       BASIS_ERR)
        if (.not. bas_nbf_cn_max(basis,maxbfsh))
-     $      call errquit('direct_mp2: cannot get basis info',0)
+     $      call errquit('direct_mp2: cannot get basis info',0,
+     &       BASIS_ERR)
        if (.not. rtdb_get(rtdb, 'scf:energy', MT_DBL, 1, scf_energy))
      $      scf_energy = 0.0d0
       if (.not. rtdb_get(rtdb, 'mp2:aotol2e', MT_DBL, 1, tol2e))
@@ -128,11 +132,12 @@ c
 c Reconcile number of electrons and occupied/virtual orbitals
 c
        if (.not. rtdb_get(rtdb, 'scf:nclosed', MT_INT, 1, nocc))
-     $      call errquit('direct_mp2: get of nocc failed',0)
+     $      call errquit('direct_mp2: get of nocc failed',0, RTDB_ERR)
        if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
-     $      call errquit('direct_mp2: get of nopen failed',0)
+     $      call errquit('direct_mp2: get of nopen failed',0, RTDB_ERR)
        if (nopen.ne.0) 
-     $      call errquit('direct_mp2: nopen is not zero',nopen)
+     $      call errquit('direct_mp2: nopen is not zero',nopen,
+     &       INPUT_ERR)
        nelec = 2*nocc
        status = ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ)
 c
@@ -149,29 +154,34 @@ c     Read in MO coefficients and apply swaps as appropriate.
 c
        if (.not. movecs_read_header(movecs_in, title_vecs,
      $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmoarray, 2))
-     $    call errquit('direct_mp2: cannot read MO vectors header',0)
-       if (nsets .ne. 1) call errquit('direct_mp2: rhf only',0)
+     $    call errquit('direct_mp2: cannot read MO vectors header',0,
+     &       INPUT_ERR)
+       if (nsets .ne. 1) call errquit('direct_mp2: rhf only',0,
+     &       INPUT_ERR)
        nmo = nmoarray(1)
 c
        if (nbf.ne.nbf_vecs)  call errquit(
-     $    'direct_mp2: number of basis fun does not match input',0)
+     $    'direct_mp2: number of basis fun does not match input',0,
+     &       BASIS_ERR)
 c
 *ga:1:0
        if (.not. ga_create(mt_dbl, nbf, nmo, 'Molecular orbital', 
      $      nbf, 0, g_vecs)) call errquit
-     $      ('direct_mp2: failed to create GA for MOs',0)
+     $      ('direct_mp2: failed to create GA for MOs',0,
+     &       GA_ERR)
 c
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
-     $      errquit('direct_mp2: cannot read MO vectors',0)
+     $      errquit('direct_mp2: cannot read MO vectors',0, DISK_ERR)
        call movecs_swap(rtdb, 'mp2', 'RHF', g_vecs, dbl_mb(k_occ), 
      $      dbl_mb(k_evals))
 c
 c Get frozen core and virtual offset
 c
        if(.not. geom_freeze(rtdb, geom, 'mp2', occ_frozen)) then
-          call errquit('direct_mp2: unable to get frozen core',0)
+          call errquit('direct_mp2: unable to get frozen core',0,
+     &       GEOM_ERR)
        endif
 
        if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
@@ -202,7 +212,7 @@ c
 c Initialise integrals and screening
 c
        if (.not.int_normalize(rtdb,basis))
-     &     call errquit('direct_mp2: int_normalize failed',0)
+     &     call errquit('direct_mp2: int_normalize failed',0, INT_ERR)
        call int_init(rtdb, 1, basis)
        call schwarz_init(geom, basis)
 c
@@ -226,7 +236,8 @@ c
 *ga:1:0
        if (.not.ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),
      $      'epair',0,0,g_epair))
-     $      call errquit('direct_mp2:cannot create epair array',0)
+     $      call errquit('direct_mp2:cannot create epair array',0,
+     &       GA_ERR)
 c
 c Dummy loop to count number of passes
 c
@@ -242,7 +253,8 @@ c  Enabled disk caching *only* if multipassing required
 c
 C       odisk = odisk.and.(npass.gt.1)
        if (.not.moints_aodisk_init( odisk, oaoreuse ))
-     $    call errquit('direct_mp2: cannot initiliaze ao cache',0)
+     $    call errquit('direct_mp2: cannot initiliaze ao cache',0,
+     &       DISK_ERR)
 c
 c Print info
 c
@@ -403,7 +415,8 @@ c
 c
       emp2 = scf_energy + emp2
       if (.not. rtdb_put(rtdb, 'direct_mp2:energy', mt_dbl, 1, emp2))
-     $     call errquit('direct_mp2: failed storing energy in rtdb', 0)
+     $     call errquit('direct_mp2: failed storing energy in rtdb', 0,
+     &       RTDB_ERR)
 c
       call ecce_print1('total energy', mt_dbl, emp2, 1)
 c
@@ -414,12 +427,14 @@ c
        status = ma_pop_stack(l_evals)
        call schwarz_tidy()
        status = status.and.ma_pop_stack(l_occ)
-       if (.not.status) call errquit('direct_mp2: cannot pop stack?',0)
+       if (.not.status) call errquit('direct_mp2: cannot pop stack?',0,
+     &       MA_ERR)
        status = ga_destroy(g_vecs)
        status = geom_destroy(geom)
        call int_terminate()
        if (.not.bas_destroy(basis))
-     $   call errquit('direct_mp2: cannot free basis handle',0)
+     $   call errquit('direct_mp2: cannot free basis handle',0,
+     &       BASIS_ERR)
 c
        call util_print_pop()
 c

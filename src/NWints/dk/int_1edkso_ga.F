@@ -1,4 +1,4 @@
-c $Id: int_1edkso_ga.F,v 1.1 2002-04-26 22:15:03 bert Exp $
+c $Id: int_1edkso_ga.F,v 1.2 2003-10-17 22:53:48 carlfahl Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the one-electron spin-orbit
 c:tex-Douglas-Kroll(-Hess) integrals for  
@@ -24,6 +24,7 @@ c:tex-\end{verbatim}
 #include "geomP.fh"
 #include "rel_consts.fh"
 #include "bgj.fh"
+#include "errquit.fh"
 c     
 c     Compute the Douglas-Kroll integrals and ADD them to a given global array.
 c
@@ -90,19 +91,22 @@ c
 c     Define the dimensions of the arrays
 c
       if (.not. bas_numbf(dk_fitbas,nbf))
-     $   call errquit('int_1edk_ga: bas_numbf failed',0)
+     $   call errquit('int_1edk_ga: bas_numbf failed',0, BASIS_ERR)
 c
 c     Create a temp g_a of nbf*nbf as temp/help matrix array
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 1',1,1,tempg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 2',1,1,tmpg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
 c
 c     Create transformation matrix r-space to g-space, U
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Umatrix',1,1,Ug_a))
-     $     call errquit('int_1edk_ga: ga_create failed Umatrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed Umatrix',0,
+     &       GA_ERR)
       call ga_zero(Ug_a)
 c
 c     Get kinetic energy matrix p^2/2 in uncontracted basis, diagonalize
@@ -111,7 +115,8 @@ c
 c     Construct, fill Tg_a with kinetic energy matrix integrals
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Tmatrix',1,1,Tg_a))
-     $     call errquit('int_1edk_ga: ga_create failed Tmatrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed Tmatrix',0,
+     &       GA_ERR)
       call ga_zero(Tg_a)
       call int_1e_oldga(dk_fitbas,dk_fitbas,Tg_a,'kinetic',oskel)
 c
@@ -123,7 +128,8 @@ c
       call ga_zero(tempg_a)
       call int_1e_oldga(dk_fitbas,dk_fitbas,tempg_a,'overlap',oskel)
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed psquared',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed psquared',0,
+     &       MA_ERR)
 #ifdef PARALLEL_DIAG
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #else
@@ -131,14 +137,16 @@ c
 #endif
 c
       if (.not. ga_destroy(Tg_a)) 
-     $     call errquit('int_1edk_ga: ga_destroy Tg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy Tg_a',0,
+     &       GA_ERR)
       call dscal(nbf,2.0d0,dbl_mb(p2Im_a),1)
 c
 c     Construct vector E from eigenvalues: E = Sqrt(p^2 c^2 + c^4)
 c                                            = c*Sqrt(p^2 + c^2)
 c
       if (.not. ma_push_get(MT_DBL,nbf,'Evector',Em_a,EIm_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed Evector',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed Evector',0,
+     &       MA_ERR)
       do 10 iloop = 1, nbf
          dbl_mb(EIm_a+iloop-1) = cau*Sqrt(dbl_mb(p2Im_a+iloop-1)+csq)
    10 continue
@@ -147,9 +155,11 @@ c     Construct vector A from E: A = Sqrt((E+c^2)/2E) and
 c               vector K from E: K = c/(E+c^2)
 c
       if (.not. ma_push_get(MT_DBL,nbf,'Avector',Am_a,AIm_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed Avector',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed Avector',0,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL,nbf,'Kvector',Km_a,KIm_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed Kvector',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed Kvector',0,
+     &       MA_ERR)
       do 20 iloop = 1, nbf
          dbl_mb(KIm_a+iloop-1) = cau/(dbl_mb(EIm_a+iloop-1)+csq)  
          dbl_mb(AIm_a+iloop-1) = Sqrt((dbl_mb(EIm_a+iloop-1)+csq)/
@@ -166,14 +176,16 @@ c     Get collection matrices C_ga(1), (2), and (3)
 c
       do iloop = 1, 3
         if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp X',1,1,C_ga(iloop)))
-     $      call errquit('int_1edk_ga: ga_create failed GA C_ga',iloop)
+     $      call errquit('int_1edk_ga: ga_create failed GA C_ga',iloop,
+     &       GA_ERR)
       enddo
 c
 c     Get pxVp matrices X_ga, Y_ga and Z_ga, and transform to U^tVU 
 c
       do iloop = 1, 3
         if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp X',1,1,X_ga(iloop)))
-     $      call errquit('int_1edk_ga: ga_create failed GA X_ga',iloop)
+     $      call errquit('int_1edk_ga: ga_create failed GA X_ga',iloop,
+     &       GA_ERR)
       enddo
 c
       call int_pxvp_ga(dk_fitbas,X_ga(1),X_ga(2),X_ga(3),oskel)
@@ -225,7 +237,8 @@ c
 c     Get the V integrals, do A U^t Vdg_a U A and scale with 1/(Ep+Ep')
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA Vtype Z',1,1,V_ga))
-     $     call errquit('int_1edk_ga: ga_create failed GA V_ga',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA V_ga',0,
+     &       GA_ERR)
       call ga_zero(V_ga)
       call int_1e_oldga(dk_fitbas,dk_fitbas,V_ga,'potential',oskel)
       call ga_zero(tempg_a)
@@ -295,7 +308,8 @@ c
 c     We need 1/(k^2p^2), put them in array first
 c
       if (.not. ma_push_get(MT_DBL,nbf,'MA temp',tempm_a,tempIm_a))
-     $     call errquit('D-K integrals: ma_push_get failed MA temp',0)
+     $     call errquit('D-K integrals: ma_push_get failed MA temp',0,
+     &       MA_ERR)
       do 34 iloop = 1, nbf
          dbl_mb(tempIm_a+iloop-1) = 1.0d0/                 
      $                              dbl_mb(p2Im_a+iloop-1)/
@@ -440,9 +454,9 @@ c
       call ga_dadd(1.0d0,C_ga(3),-1.0d0,tempg_a,C_ga(3))
 c
  1001 if (.not. ma_pop_stack(tempm_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack tempm_a',0, MA_ERR)
       if (.not. ga_destroy(V_ga))
-     $     call errquit('int_1edk_ga: ga_destroy V_ga',0)
+     $     call errquit('int_1edk_ga: ga_destroy V_ga',0, GA_ERR)
 c
 c     Get overlap and multiply with Ug_a to get SXU
 c
@@ -465,22 +479,22 @@ c
 c     Free MA's and GA's that are not needed anymore at this time
 c
       if (.not. ma_pop_stack(Km_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack Km_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack Km_a',0, MA_ERR)
       if (.not. ma_pop_stack(Am_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack Am_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack Am_a',0, MA_ERR)
       if (.not. ma_pop_stack(Em_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack Em_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack Em_a',0, MA_ERR)
       if (.not. ma_pop_stack(p2m_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack p2m_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack p2m_a',0, MA_ERR)
       if (.not. ga_destroy(Ug_a))
-     $     call errquit('int_1edk_ga: ga_destroy Ug_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy Ug_a',0, GA_ERR)
       if (.not. ga_destroy(tmpg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0, GA_ERR)
       if (.not. ga_destroy(tempg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0, GA_ERR)
       do iloop = 1, 3
          if (.not. ga_destroy(X_ga(iloop)))
-     $        call errquit('int_1edk_ga: ga_destroy X_ga',iloop)
+     $        call errquit('int_1edk_ga: ga_destroy X_ga',iloop, GA_ERR)
       enddo
 c
 c     We now have our integrals in a primitive basis in X_ga, Y_ga and Z_ga. If the original
@@ -496,13 +510,16 @@ c     S_-1 is inverse overlap in the uncontracted basis
 c     Scontr_uncon is the mixed basis overlap
 c
       if (.not. bas_numbf(basis_in,nbf_in))
-     $   call errquit('int_1edk_ga: bas_numbf failed',0)
+     $   call errquit('int_1edk_ga: bas_numbf failed',0, BASIS_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf_in,'Mixed overlap',1,1,
-     $     Mixg_a)) call errquit('int_1edk_ga: create mixed overlap',0)
+     $     Mixg_a)) call errquit('int_1edk_ga: create mixed overlap',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp',1,1,tempg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf_in,'GA temp',1,1,tmpg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA tmp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA tmp',0,
+     &       GA_ERR)
 c
 c     Create mixed overlap between basis_in and dk_fitbas
 c
@@ -521,11 +538,12 @@ c
 c     Create integrals in contracted basis g_in via Mixg_a x DKg_a Mixg_a^T
 c
       if (.not. ga_destroy(tmpg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0, GA_ERR)
       if (.not. ga_destroy(tempg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0, GA_ERR)
       if (.not. ga_create(MT_DBL,nbf_in,nbf,'GA temp',1,1,tempg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
       do iloop = 1, 3
          call ga_zero(tempg_a)
          call ga_dgemm('t','n',nbf_in,nbf,nbf,1.0d0,Mixg_a,
@@ -537,12 +555,12 @@ c
 c     Destroy transformation matrices Mixg_a, tempg_a and DKg_a
 c
       if (.not. ga_destroy(tempg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0, GA_ERR)
       if (.not. ga_destroy(Mixg_a))
-     $     call errquit('int_1edk_ga: ga_destroy Mixg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy Mixg_a',0, GA_ERR)
       do iloop = 1, 3
          if (.not. ga_destroy(C_ga(iloop)))
-     $        call errquit('int_1edk_ga: ga_destroy C_ga',iloop)
+     $        call errquit('int_1edk_ga: ga_destroy C_ga',iloop, GA_ERR)
       enddo
 c
       return

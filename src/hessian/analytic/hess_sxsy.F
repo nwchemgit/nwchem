@@ -1,5 +1,5 @@
 C
-C $Id: hess_sxsy.F,v 1.6 2002-01-15 22:53:15 windus Exp $
+C $Id: hess_sxsy.F,v 1.7 2003-10-17 22:55:13 carlfahl Exp $
 C
       subroutine hess_sxsy(hess, e, g_tx, oactive, ncent, nocc, 
      &                      noffset, urestr)
@@ -12,6 +12,7 @@ c     both alpha and beta with the noffset giving the offset into
 c     the g_tx array.
 c
       implicit none
+#include "errquit.fh"
 c
 #include "global.fh"
 #include "mafdecls.fh"
@@ -53,7 +54,7 @@ c     Allocate local scratch space for overlap integral derivatives
 c
       if (.not. ma_push_get(MT_DBL, 2*nocc,'hess_sxsy: scr',
      &     l_scr, k_scr))
-     &     call errquit('hess_sxsy: cannot allocate scr',0)
+     &     call errquit('hess_sxsy: cannot allocate scr',0, MA_ERR)
       ioff = k_scr - 1
       joff = ioff + nocc
 c
@@ -128,7 +129,7 @@ c
       mytask = nxtask(-nproc,icount)
 c
       if (.not. ma_pop_stack(l_scr))
-     &     call errquit('hess_sxsy: failed to pop l_scr',0)
+     &     call errquit('hess_sxsy: failed to pop l_scr',0, MA_ERR)
 c
       return
       end

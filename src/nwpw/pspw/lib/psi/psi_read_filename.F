@@ -1,5 +1,5 @@
 *
-* $Id: psi_read_filename.F,v 1.1 2001-12-31 22:53:00 bylaska Exp $
+* $Id: psi_read_filename.F,v 1.2 2003-10-17 22:57:36 carlfahl Exp $
 *
 
 #define TCGMSG
@@ -11,6 +11,7 @@
 
       subroutine psi_read_filename(filename,ispin,ne,psi2)
       implicit none 
+#include "errquit.fh"
       character*(*) filename
       integer ispin,ne(2)
       double complex psi2(*)
@@ -54,10 +55,10 @@ c     complex*16 tmp(*)
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp2',tmp2(2),tmp2(1))
-       if (.not. value) call errquit('out of stack memory',0)
+       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
       if (taskid.eq.MASTER) then
@@ -109,7 +110,7 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-        call errquit('Error reading wavefunctions', 0)
+        call errquit('Error reading wavefunctions', 0, DISK_ERR)
       end if
 
       if ( (unita(1,1).ne.control_unita(1,1)) .or.
@@ -121,7 +122,7 @@ c     **** send header to all nodes ****
      >     (unita(1,3).ne.control_unita(1,3)) .or.
      >     (unita(2,3).ne.control_unita(2,3)) .or.
      >     (unita(3,3).ne.control_unita(3,3)) ) then
-        call errquit('Error reading wavefunctions', 1)
+        call errquit('Error reading wavefunctions', 1, DISK_ERR)
       end if
 
 

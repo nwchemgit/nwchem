@@ -1,8 +1,9 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.35 2003-03-15 02:49:10 edo Exp $
+c$Id: grid_acc_def.F,v 1.36 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "inp.fh"
 #include "rtdb.fh"
@@ -292,11 +293,11 @@ c
          ngridin=0
       else
          if (.not. rtdb_cget(rtdb,'dft:grtagin',ngridin,grtagin))
-     &        call errquit('grid_inp: rtdb_put failed', 1000)
+     &        call errquit('grid_inp: rtdb_put failed', 1000, RTDB_ERR)
          if(.not.rtdb_get(rtdb,'dft:nradin',mt_int,ngridin,nradin))
-     &        call errquit('grid_inp: rtdb_get failed', 1000)
+     &        call errquit('grid_inp: rtdb_get failed', 1000, RTDB_ERR)
          if(.not.rtdb_get(rtdb,'dft:nangin',mt_int,ngridin,nangin))
-     &        call errquit('grid_inp: rtdb_get failed', 1000)
+     &        call errquit('grid_inp: rtdb_get failed', 1000, RTDB_ERR)
       endif
       if (.not. inp_match(num_gridtypes, .false., gridtype, gridtypes, 
      &   grid_acc_index))then
@@ -308,10 +309,11 @@ c
 c     see if we have lebedev
 c
       if (.not. rtdb_get(rtdb, 'dft:lebedev', mt_log, 1, leb))
-     &   call errquit(' graccdef: grid_inp didnt write leb',0)
+     &   call errquit(' graccdef: grid_inp didnt write leb',0, RTDB_ERR)
 
       goto (8, 8, 8, 8, 8,  6, 7) grid_acc_index
-      call errquit('grid_acc_def: unknown gridtype', grid_acc_index)
+      call errquit('grid_acc_def: unknown gridtype', grid_acc_index,
+     &       INPUT_ERR)
     6 continue
 c
 c     user specified gausleg grid;
@@ -367,7 +369,7 @@ c     shove job_grid_acc into the rtdb
 c
       if (.not. rtdb_put(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))
-     &   call errquit('grid_acc_def: rtdb_put failed', 911)
+     &   call errquit('grid_acc_def: rtdb_put failed', 911, RTDB_ERR)
 c     
 c     Define the quadrature size for each atomic center: 
 c      - nrad, nang, mxnrad, mxnang
@@ -383,7 +385,7 @@ c
                iaz = ictr
                if (.not. geom_cent_get(geom, ictr, tag, 
      &            ictr_coord, ictr_chg))call errquit
-     &            ('grid_acc_def: geom_cent_get failed', 0)
+     &            ('grid_acc_def: geom_cent_get failed', 0, GEOM_ERR)
                goto 40
             endif
          enddo
@@ -407,7 +409,8 @@ c hack for nbo
                   i_atomic_number = 0
                else
                   call errquit
-     &              ('grid_acc_def: non-bq center with zero charge', 0)
+     &              ('grid_acc_def: non-bq center with zero charge', 0,
+     &       INPUT_ERR)
                endif
             endif
             if (i_atomic_number.eq.0)then
@@ -442,7 +445,8 @@ c
             if (.not. geom_tag_to_element(tag, symbol, 
      &         element, i_atomic_number)) then
                if (symbol .ne. 'bq') call errquit
-     &              ('grid_acc_def: center is neither atom nor bq', 0)
+     &              ('grid_acc_def: center is neither atom nor bq', 0,
+     &       INPUT_ERR)
             endif
 c
             if (i_atomic_number.ne.0)then ! not ghost atom; add grid
@@ -506,17 +510,18 @@ c     check mxnrad and mxnang
 c
       if (mxnrad.gt.MXrad)then
          write(luout,*)'grid_acc_def: Too many radial shells.'
-         call errquit(' grid_acc_def: raise MXrad',1)
+         call errquit(' grid_acc_def: raise MXrad',1,
+     &       UNKNOWN_ERR)
       end if
       if((.not.leb).and.mxnang.gt.MXagrid)then
          write(LuOut,*)'grid_acc_def: Too many angular grids.'
-         call errquit(' grid_acc_def: raise MXagrid',3)
+         call errquit(' grid_acc_def: raise MXagrid',3, UNKNOWN_ERR)
       end if
 c
       if (.not. rtdb_put(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
-     &   call errquit('grid_acc_def: rtdb_put failed', 119)
+     &   call errquit('grid_acc_def: rtdb_put failed', 119, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:mxnang', mt_int, 1, mxnang))
-     &   call errquit('grid_acc_def: rtdb_put failed', 119)
+     &   call errquit('grid_acc_def: rtdb_put failed', 119, RTDB_ERR)
 c
 c     debug writes
 c

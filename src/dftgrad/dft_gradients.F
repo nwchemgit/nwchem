@@ -29,9 +29,10 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.13 2000-07-26 01:48:20 edo Exp $
+* $Id: dft_gradients.F,v 1.14 2003-10-17 22:54:42 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 c      
       integer rtdb
 c
@@ -92,14 +93,17 @@ c
 c     Print options
 c     
       if (.not. geom_ncent(geom, nat)) 
-     $     call errquit('dft_gradient: could not get natoms',0)
+     $     call errquit('dft_gradient: could not get natoms',0,
+     &       GEOM_ERR)
 c     
       if (.not. bas_nbf_cn_max(ao_bas_han, max_sh_bf))
-     $     call errquit('dft_gradient: could not get max_sh_bf',0)
+     $     call errquit('dft_gradient: could not get max_sh_bf',0,
+     &       BASIS_ERR)
       max_at_bf = 0
       do i = 1, nat
          if (.not. bas_ce2bfr(ao_bas_han, i, ilo, ihi))
-     $        call errquit('dft_gradient: bas_ce2bfr failed', i)
+     $        call errquit('dft_gradient: bas_ce2bfr failed', i,
+     &       BASIS_ERR)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
 c     
@@ -110,10 +114,11 @@ c
       charge = rcharge
       status = geom_nuc_charge(geom, charge_nuc)
       if (.not.status)then
-         call errquit('dft_gradient: no nuclear charge',0)
+         call errquit('dft_gradient: no nuclear charge',0, GEOM_ERR)
       endif 
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     $     call errquit('dft_gradient: rtdb_get of noc failed', 0) 
+     $     call errquit('dft_gradient: rtdb_get of noc failed', 0,
+     &       RTDB_ERR)
 c     
 c     check if smearing is on
 c
@@ -162,15 +167,15 @@ c     local replication (separate for the different pieces)
 c     
       lforce = nat * 3
       if (.not.ma_alloc_get(mt_dbl, lforce, 'forces',l_force, k_force))
-     $     call errquit('could not allocate l_force',1)
+     $     call errquit('could not allocate l_force',1, MA_ERR)
       call dfill(lforce, 0.0d0, dbl_mb(k_force), 1)
 c     
       if (.not.ma_alloc_get(mt_dbl,lforce,'forces',l_frc_2el,k_frc_2el))
-     $     call errquit('could not allocate l_frc_2el',1)
+     $     call errquit('could not allocate l_frc_2el',1, MA_ERR)
       call dfill(lforce, 0.0d0, dbl_mb(k_frc_2el), 1)
 c     
       if (.not.ma_alloc_get(mt_dbl,lforce,'forces',l_frc_xc,k_frc_xc))
-     $     call errquit('could not allocate l_frc_xc',1)
+     $     call errquit('could not allocate l_frc_xc',1, MA_ERR)
       call dfill(lforce, 0.0d0, dbl_mb(k_frc_xc), 1)
 c     
 c     eigenvalues
@@ -178,7 +183,8 @@ c
       if (ipol .eq. 1)then
          if (.not. ma_alloc_get(mt_dbl, nbf_ao, 'MO evals', l_evals(1),
      $        k_evals(1)))
-     $        call errquit('dft_gradient: could not allocate l_evals',1)
+     $        call errquit('dft_gradient: could not allocate l_evals',1,
+     &       MA_ERR)
       else 
          status = ma_alloc_get(mt_dbl, nbf_ao, 'alpha MO evals',
      $        l_evals(1), k_evals(1))
@@ -186,7 +192,8 @@ c
      $        ma_alloc_get(mt_dbl, nbf_ao, 'beta MO evals',
      $        l_evals(2), k_evals(2))
          if (.not. status)then
-            call errquit('dft_gradient: could not allocate l_evals',1)
+            call errquit('dft_gradient: could not allocate l_evals',1,
+     &       MA_ERR)
          endif 
       endif
 c     
@@ -196,25 +203,28 @@ c     should do k_occ for both spins, in case used at some point...
 c     
       if (.not. ma_alloc_get(mt_dbl, nbf_ao*ipol, 'occ. numbers',
      $     l_occ, k_occ))
-     $     call errquit('dft_gradient: could not allocate l_occ',1)
+     $     call errquit('dft_gradient: could not allocate l_occ',1,
+     &       MA_ERR)
 c     
 c     lookup table and list of active atoms
 c     
       if (.not. ma_alloc_get(MT_LOG, nat, 'active atoms',
      $     l_act, k_act))
-     $     call errquit('grad: could not allocate l_act',1)
+     $     call errquit('grad: could not allocate l_act',1, MA_ERR)
       call grad_active_atoms(rtdb, nat, log_mb(k_act), nactive)
 c     
 c     get MO vectors from file
 c     
       if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     $     call errquit('dft_gradient: DFT MO vectors not defined',0)
+     $     call errquit('dft_gradient: DFT MO vectors not defined',0,
+     &       RTDB_ERR)
       status = movecs_read_header(movecs_in, title_vecs, basis_vecs,
      $     scftype_vecs, nbf_vecs, nsets, nmo, 2)
 c     
       if (ipol .ne. nsets)then  ! 1 for RHF, 2 for UHF
          write (LuOut,*) 'dft_gradient:  ERROR ipol, nsets:',ipol,nsets
-         call errquit('dft_gradient:  ERROR ipol, nsets disagree',2)
+         call errquit('dft_gradient:  ERROR ipol, nsets disagree',2,
+     &       INPUT_ERR)
       endif 
 c     
 c     Should check much more info than just nbf for consistency
@@ -224,7 +234,8 @@ c     get mo eigevectors
 c     
       if (nbf_ao .ne. nbf_vecs)then
          write(LuOut,*)'dft_gradient movecs output = ',movecs_in
-         call errquit('dft_gradient: could not read mo vectors',911)
+         call errquit('dft_gradient: could not read mo vectors',911,
+     &       DISK_ERR)
       else 
          status = .true.
          do ispin = 1, ipol
@@ -237,7 +248,8 @@ c
 c     
       if (.not.status)then
          write(LuOut,*)'dft_gradient movecs output = ',movecs_in
-         call errquit('dft_gradient: could not read mo vectors',917)
+         call errquit('dft_gradient: could not read mo vectors',917,
+     &       DISK_ERR)
       endif
 c
       if(frac_occ) then
@@ -245,7 +257,7 @@ c
 c     smearing, therefore check new nocs
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
-     &   call errquit('dftgforce: failed to alloc tmpm',0)
+     &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
          rhffact = one
 	
         do ispin=1,ipol
@@ -265,7 +277,7 @@ c
           enddo
         enddo
       if (.not.ma_pop_stack(ltmpm))
-     &   call errquit('dftg_force: cannot pop stack',0)
+     &   call errquit('dftg_force: cannot pop stack',0, MA_ERR)
       
       else
         do ispin=1,ipol
@@ -284,7 +296,8 @@ c     free temporary arrays
 c     
          if(frac_occ) then
            if(.not.ga_destroy (g_tmp(ispin))) call
-     *          errquit('dftg_force: could not gadestr gtmp',ispin)
+     *          errquit('dftg_force: could not gadestr gtmp',ispin,
+     &       GA_ERR)
          endif
       enddo 
 c     
@@ -292,41 +305,42 @@ c     Pre-compute mapping vectors
 c     
       if (.not.ma_push_get
      $     (mt_int,nat*2,'cntoce map',lcetobfr,icetobfr))
-     $     call errquit('dft_scf:push_get failed', 13)
+     $     call errquit('dft_scf:push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
      $     (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
-     $     call errquit('dft_scf:push_get failed', 13)
+     $     call errquit('dft_scf:push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
      $     (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
-     $     call errquit('dft_scf:push_get failed', 13)
+     $     call errquit('dft_scf:push_get failed', 13, MA_ERR)
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      $     int_mb(icetobfr), nat, nshells_ao)
       if (.not.ma_pop_stack(lcntobfr))
-     $     call errquit('dft_gradient: cannot pop stack',0)
+     $     call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lcntoce))
-     $     call errquit('dft_gradient: cannot pop stack',0)
+     $     call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
 c     
 c     Pre-compute reduced density matrices over atoms
 c     
       if (.not.ma_push_get(mt_dbl,ipol*nat*nat,'rdens_atom',
      $     lrdens_atom,irdens_atom))
-     $     call errquit('dft_scf: cannot allocate rdens_atom',0)
+     $     call errquit('dft_scf: cannot allocate rdens_atom',0, MA_ERR)
       call dfill(ipol*nat*nat, 0.0d0, dbl_mb(irdens_atom), 1)
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if (.not.ma_push_get(mt_dbl,nscr,'scr',lscr,iscr))
-     $     call errquit('dft_scf: cannot allocate scr',0)
+     $     call errquit('dft_scf: cannot allocate scr',0, MA_ERR)
       call util_ga_mat_reduce(nbf_ao, nat, int_mb(icetobfr), 
      $     iga_dens, ipol, dbl_mb(irdens_atom), 
      $     'rms', dbl_mb(iscr), nbf_ao_mxnbf_ce)
       if (.not.ma_pop_stack(lscr))
-     $     call errquit('dft_scf: cannot pop stack',0)
+     $     call errquit('dft_scf: cannot pop stack',0, MA_ERR)
 c     
       if (ipol .eq. 2)status = ga_destroy(g_vecs(2))
       status = ga_destroy(g_vecs(1))
 c     
       if (.not.status)then
-         call errquit('dft_gradient: could not destroy g_eigen_diag',1)
+         call errquit('dft_gradient: could not destroy g_eigen_diag',1,
+     &       GA_ERR)
       endif 
 c     
       status = ma_free_heap(l_occ)
@@ -349,12 +363,14 @@ c     buffers for one electron integral derivatives
 c     
       status = ma_push_get(mt_dbl, lbuf, 'deriv buffer', l_buf, k_buf)
       if (.not.status) 
-     $     call errquit('dft_gradient: could not allocate buffer',1)
+     $     call errquit('dft_gradient: could not allocate buffer',1,
+     &       MA_ERR)
 c     
       status = ma_push_get(mt_dbl, lscratch, 'deriv scratch', 
      $     l_scr, k_scr)
       if (.not.status) 
-     $     call errquit('dft_gradient: could not allocate scratch',1)
+     $     call errquit('dft_gradient: could not allocate scratch',1,
+     &       MA_ERR)
 c     
 c     allocate local density matrix block
 c     
@@ -364,7 +380,8 @@ c
      $     l_wdens, k_wdens)
       status = status .and. ma_push_get(mt_dbl, lsqa, 'local_density',
      $     l_dens, k_dens)
-      if (.not.status)call errquit('could not allocate l_dens',1)
+      if (.not.status)call errquit('could not allocate l_dens',1,
+     &       MA_ERR)
 c     
 c     store total DM in ga_dens(1)
 c     
@@ -388,14 +405,16 @@ c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c     
          if (.not. ma_push_get(mt_dbl, nbf_cd, 'CD coef',
      $        l_cdcoef, i_cdcoef))
-     $        call errquit('dft_gradient: could not alloc CD coef',0)
+     $        call errquit('dft_gradient: could not alloc CD coef',0,
+     &       MA_ERR)
 c     
          if(.not.bas_nbf_cn_max(cd_bas_han, max_sh_bfcd))
-     $        call errquit('dftg_force: basnbfcdmax broken?',0)
+     $        call errquit('dftg_force: basnbfcdmax broken?',0,
+     &       BASIS_ERR)
          lenvec=max(3*max_sh_bfcd,max_sh_bf*max_sh_bf)
          if (.not. MA_Push_get(MT_DBL, lenvec, 'svec',
      $        lsvec, isvec))
-     $        call errquit('dftg_force: could not alloc svec',0)
+     $        call errquit('dftg_force: could not alloc svec',0, MA_ERR)
          ippp=k_wdens
 c     
          call  dftg_cdfit(ao_bas_han, cd_bas_han,
@@ -409,7 +428,7 @@ c
       endif
 c     
       if (.not.ma_chop_stack(l_buf))
-     $     call errquit('dft_gradient: cannot chop stack',0)
+     $     call errquit('dft_gradient: cannot chop stack',0, MA_ERR)
 c     
 c     restore alpha DM in g_dens(1)
 c     
@@ -425,7 +444,7 @@ c
       call dfill(lforce, 0.0D0, dbl_mb(k_frc_xc),  1)
 c     
       if (.not. ma_push_get(mt_dbl, nat, 's34', l_s34, i_s34))
-     $     call errquit('dft_gradient: could not alloc s34',0)
+     $     call errquit('dft_gradient: could not alloc s34',0, MA_ERR)
 c$$$      write(LuOut,*) ' BEFORE CALL TO GETXC'
 c$$$      call ga_print(iga_dens(1))
 c$$$      call ga_print(iga_dens(2))
@@ -449,7 +468,8 @@ c
          enddo
          if (.not. rtdb_put(rtdb, 'dft:cd+xc gradient', mt_dbl,
      $        lforce, dbl_mb(k_force))) call errquit
-     $        ('dft_gradient: failed storing cd+xc gradient',0)
+     $        ('dft_gradient: failed storing cd+xc gradient',0,
+     &       UNKNOWN_ERR)
 c     
          status = rtdb_parallel (.true.)
       endif
@@ -464,9 +484,9 @@ c
       call ga_sync()
 c     
       if (.not.ma_pop_stack(lrdens_atom))
-     $     call errquit('dft_gradient: cannot pop stack',0)
+     $     call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lcetobfr))
-     $     call errquit('dft_gradient: cannot pop stack',0)
+     $     call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
 c     
 c!!! BGJ test !!!
 c
@@ -499,7 +519,7 @@ c
      &        'j hessian', l_hess, k_hess)
          if (.not.status) 
      &        call errquit('dft_gradients: could not alloc j hessian',
-     &        1)
+     &        1, MA_ERR)
          call dfill(9*nat*nat, 0.0d0, dbl_mb(k_hess), 1)
          if (bgj_print() .gt. 0)
      &        write(LuOut,*)'*** In dft_gradients: calling j_hessian'
@@ -508,7 +528,7 @@ c
          status = MA_pop_stack(l_hess)
          if (.not.status) call
      &        errquit('dft_gradients: could not pop j hessian',
-     &        1)
+     &        1, MA_ERR)
 
          call schwarz_tidy()
          call intdd_terminate()
@@ -543,7 +563,8 @@ c
          if (bgj_print() .gt. 0)
      &        write(*,*)'*** j cpks rhs test: nactive =',nactive
          if (nat.gt.100)
-     &        call errquit('dft_gradients: dimension error in test',0)
+     &        call errquit('dft_gradients: dimension error in test',0,
+     &       UNKNOWN_ERR)
          do i = 1, nat
             if (log_mb(k_act+i-1)) then
                g_rhs(1,i) = ga_create_atom_blocked
@@ -566,7 +587,8 @@ c
             if (log_mb(k_act+i-1)) then
                do j = 1, 3
                   if (.not.ga_destroy(g_rhs(j,i))) then
-                     call errquit('j_cpks_rhs: problem destroying ga',1)
+                     call errquit('j_cpks_rhs: problem destroying ga',1,
+     &       GA_ERR)
                   endif
                enddo
             endif

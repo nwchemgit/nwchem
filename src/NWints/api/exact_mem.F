@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.45 2000-07-18 14:53:13 windus Exp $
+c $Id: exact_mem.F,v 1.46 2003-10-17 22:53:41 carlfahl Exp $
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines
@@ -22,6 +22,7 @@ c:tex-\end{verbatim}
 #include "bas.fh"
 #include "apiP.fh"
 #include "stdio.fh"
+#include "util.fh"
 c
 c:: functions
       logical api_is_atomic_basis
@@ -182,12 +183,14 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::function
 c::passed
 c:tex-\begin{verbatim}
@@ -232,7 +235,7 @@ c
         write(luout,*)' k handle ',kbasin
         write(luout,*)' k name   ',bs_name(kbas)
         write(luout,*)' k contractions ',kt_ucont
-        call errquit('emem_3ov: bad basis info ',911)
+        call errquit('emem_3ov: bad basis info ',911, BASIS_ERR)
       endif
 c
       do 00100 iic = 1,it_ucont
@@ -310,12 +313,14 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
@@ -349,7 +354,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_1e: bad basis info ',911)
+        call errquit('emem_1e: bad basis info ',911, BASIS_ERR)
       endif
 c
       do 00100 ibc = 1, bra_ucont
@@ -422,6 +427,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
@@ -463,6 +469,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -470,6 +477,7 @@ c:tex-\end{verbatim}
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
 #include "rel_nwc.fh"
+#include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
@@ -503,7 +511,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_1e_rel: bad basis info ',911)
+        call errquit('emem_1e_rel: bad basis info ',911, BASIS_ERR)
       endif
 c
       do 00100 ibc = 1, bra_ucont
@@ -591,6 +599,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -600,6 +609,7 @@ c:tex-\end{verbatim}
 #include "bas_ibs_dec.fh"
 #include "stdio.fh"
 #include "apiP.fh"
+#include "util.fh"
 c::functions
       logical cando_sp_u
       external cando_sp_u
@@ -644,7 +654,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_2e4c: bad basis info ',911)
+        call errquit('emem_2e4c: bad basis info ',911, BASIS_ERR)
       endif
 c 
 c relativistic?
@@ -859,12 +869,14 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::functions
 c::passed
 c:tex-\begin{verbatim}
@@ -901,7 +913,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_2e3c: bad basis info ',911)
+        call errquit('emem_2e3c: bad basis info ',911, BASIS_ERR)
       endif
 c
       do 00100 ibc = 1, bra_ucont
@@ -978,12 +990,14 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::functions
 c::passed
 c:tex-\begin{verbatim}
@@ -1021,7 +1035,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_2e2c: bad basis info ',911)
+        call errquit('emem_2e2c: bad basis info ',911, BASIS_ERR)
       endif
 c
       do 00100 ibc = 1, bra_ucont
@@ -1102,6 +1116,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -1111,6 +1126,7 @@ c:tex-\end{verbatim}
 #include "bas_ibs_dec.fh"
 #include "stdio.fh"
 #include "apiP.fh"
+#include "util.fh"
 c::functions
       logical cando_sp_u
       external cando_sp_u
@@ -1166,7 +1182,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_2e4c_full: bad basis info ',911)
+        call errquit('emem_2e4c_full: bad basis info ',911, BASIS_ERR)
       endif
 c 
 c relativistic?
@@ -1351,10 +1367,12 @@ c:tex-\end{verbatim}
       implicit none
 c
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "stdio.fh"
 #include "int_nbf.fh"
+#include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer basisin  ! [input] basis set handle
@@ -1376,7 +1394,7 @@ c
         write(luout,*)' basis handle ',basisin, basis
         write(luout,*)' basis name   ',bs_name(basis)
         write(luout,*)' basis contractions ',num_ucon
-        call errquit('int_nbf_max: bas basis info ',911)
+        call errquit('int_nbf_max: bas basis info ',911, BASIS_ERR)
       endif
 c
       nbf_max = 0
@@ -1407,6 +1425,7 @@ c:tex-
       implicit none
 #include "stdio.fh"
 #include "apiP.fh"
+#include "util.fh"
       mem_2e4c   = 0   ! scr memory size for 4 center integrals
       isz_2e4c   = 0   ! max buffer size for 4 center integrals
       mem_1e     = 0   ! scr memory size for 1 electron integrals
@@ -1504,12 +1523,14 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "mafdecls.fh"
 #include "bas_exndcf_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c::passed
 c:tex-\begin{verbatim}
       integer brain   ! [input] bra basis set handle
@@ -1552,7 +1573,7 @@ c
         write(luout,*)' ket handle ',ketin
         write(luout,*)' ket name   ',bs_name(ket)
         write(luout,*)' ket contractions ',ket_ucont
-        call errquit('emem_1e_rel: bad basis info ',911)
+        call errquit('emem_1e_rel: bad basis info ',911, BASIS_ERR)
       endif
 c
       do 00100 ibc = 1, bra_ucont

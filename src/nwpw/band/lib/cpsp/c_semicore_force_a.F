@@ -9,6 +9,7 @@
 
       subroutine semicore_xc_F(ispin,xcp,fion)
       implicit none
+#include "errquit.fh"
       integer ispin
       real*8  xcp(*)
 
@@ -58,7 +59,7 @@ c     logocal semicore(0:nkatmx)
      >        MA_push_get(mt_dcpl, npack0,'tmpy',tmpy(2),tmpy(1))
       value = value.and.
      >        MA_push_get(mt_dcpl, npack0,'tmpz',tmpz(2),tmpz(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
       call dcopy(n2ft3d,0.0d0,0,dcpl_mb(vxcG(1)),1)

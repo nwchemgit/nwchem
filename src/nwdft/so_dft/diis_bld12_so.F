@@ -7,9 +7,10 @@ c     iwhich = 1; build S
 c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c***********************************************************************
-C$Id: diis_bld12_so.F,v 1.1 2000-04-17 21:45:57 zzhang Exp $
+C$Id: diis_bld12_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
       double precision svals(*) !  S evals [input]
       integer iga_svecs ! GA handle for S evecs [input]
@@ -34,7 +35,7 @@ c
       call ga_sync
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
-     &   call errquit('diis_bld12: failed to alloc tmpm',0)
+     &   call errquit('diis_bld12: failed to alloc tmpm',0, MA_ERR)
 c
       call ga_copy(iga_svecs, iga_stmp)
 c      

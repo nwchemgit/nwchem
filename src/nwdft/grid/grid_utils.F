@@ -1,6 +1,6 @@
       subroutine qshell_sort
 c
-c$Id: grid_utils.F,v 1.21 2003-10-11 00:21:59 edo Exp $
+c$Id: grid_utils.F,v 1.22 2003-10-17 22:55:37 carlfahl Exp $
 c
 c
 c     Sort quadrature shells, most work to least, based on radius 
@@ -122,9 +122,10 @@ c
       end
       Subroutine mbf_ao_max(rtdb,  rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.21 2003-10-11 00:21:59 edo Exp $
+C$Id: grid_utils.F,v 1.22 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -206,25 +207,26 @@ c
    40    continue
 c
          if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &      call errquit('Exiting in mbf_ao_max.',1)
+     &      call errquit('Exiting in mbf_ao_max.',1, BASIS_ERR)
 c
          n1 = 0
 c
          do 60 icset = 1,ncontrset
             if (.not.bas_cn2ce(AO_bas_han, icset, ictr))
-     &         call errquit('Exiting in mbf_ao_max.',2)
+     &         call errquit('Exiting in mbf_ao_max.',2, BASIS_ERR)
 c         
 c           get info about current contraction set
 c         
             if (.not.bas_continfo(AO_bas_han, icset,
      &         itype, nprimo, ncontr, isphere))
-     &         call errquit('Exiting in mbf_ao_max.',3)
+     &         call errquit('Exiting in mbf_ao_max.',3, BASIS_ERR)
 c         
 c           angular momentum
 c         
             l = 0
             if (itype .lt. 0)then
-               call errquit('mbf_ao_max: sp-type orbital not coded', 5)
+               call errquit('mbf_ao_max: sp-type orbital not coded', 5,
+     &       BASIS_ERR)
             else 
                l = itype
             endif 
@@ -237,14 +239,15 @@ c
             elseif (isphere .eq. 1)then !  spherical harmonic
                nbf_ang = 2*l+1
             else 
-               call errquit('mbf_ao_max: illegal isphere value', 6)
+               call errquit('mbf_ao_max: illegal isphere value', 6,
+     &       BASIS_ERR)
             endif 
 c         
 c           get exponents and contraction coefficients for this contraction set
 c         
             call dfill(nbf_ao_mxprim,0.d0,zprim,1)
             if (.not.bas_get_exponent(AO_bas_han, icset, zprim))
-     &         call errquit('Exiting in mbf_ao_max.',7)
+     &         call errquit('Exiting in mbf_ao_max.',7, BASIS_ERR)
 c   
 c           Determine the minimum Gaussian exponent.
 c   
@@ -326,7 +329,7 @@ c      write(6,*)' avail = ',avail
 c      write(6,*)' avail/3 = ',avail
       avail = avail - 1024*1024
       if(avail.lt.0)
-     &         call errquit('xc_setquad: out of memory',avail)
+     &         call errquit('xc_setquad: out of memory',avail, MEM_ERR)
 c      write(6,*)' amt to be used for xc = ',avail
 c     
       if ( (4*max_pr_mbfnq) .gt. avail )then
@@ -355,7 +358,8 @@ Cedo         if(nquad_task.eq.1) then
            nqmax=nqmax*nquad_task
            if (.not. rtdb_put(rtdb, 'dft:nquad_task', mt_int, 1, 
      &          nquad_task))
-     &          call errquit('mbf_ao_max: rtdb_put failed', 911)
+     &          call errquit('mbf_ao_max: rtdb_put failed', 911,
+     &       RTDB_ERR)
          endif
          
       endif
@@ -378,7 +382,8 @@ c
       endif
       if (.not. rtdb_put(rtdb, 'dft:nquad_task', mt_int, 1, 
      &     nquad_task))
-     &     call errquit('mbf_ao_max: rtdb_put failed', 911)
+     &     call errquit('mbf_ao_max: rtdb_put failed', 911,
+     &       RTDB_ERR)
 c
 c      write(6,*)' iAOacc, acc_AO_gauss: ',iAOacc, acc_AO_gauss
 c      write(6,*)' max_mbf, max_pr_mbfnq, max_pr_mbf, max_pr_nq: ',
@@ -499,7 +504,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq,rad,istep)
 c
-C$Id: grid_utils.F,v 1.21 2003-10-11 00:21:59 edo Exp $
+C$Id: grid_utils.F,v 1.22 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
 c

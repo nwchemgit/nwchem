@@ -1,6 +1,7 @@
       double precision function dft_n3cdbl()
-C$Id: dft_n3c.F,v 1.12 2002-02-15 21:10:07 edo Exp $
+C$Id: dft_n3c.F,v 1.13 2003-10-17 22:55:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c****
 c**** nwchem handles
 c****
@@ -37,7 +38,7 @@ c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
 c
       if( .not. bas_nbf_cn_max(AO_bas_han,mxshbf_ao) )then
-        call errquit('Exiting in dft_n3c.',1)
+        call errquit('Exiting in dft_n3c.',1, BASIS_ERR)
       end if
 c      
 c      
@@ -53,11 +54,11 @@ c
          if(spherical_ao) then
             if(.not.bas_continfo(ao_bas_han,ishc,
      &           itype,nprimo,nshbfc,isphere))
-     &           call errquit('Exiting in fitcd.',44)
+     &           call errquit('Exiting in fitcd.',44, BASIS_ERR)
             nshbfc=((itype+1)*(itype+2))/2*nshbfc
          else
             if( .not.bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
-     &           call errquit('Exiting in dft_n3c.',3)
+     &           call errquit('Exiting in dft_n3c.',3, BASIS_ERR)
             nshbfc=ilastc-ifirstc+1
          endif
 c        
@@ -72,12 +73,12 @@ c
              if(spherical_ao) then
                 if(.not.bas_continfo(ao_bas_han,ishd,
      &               itype,nprimo,nshbfd,isphere))
-     &               call errquit('Exiting in fitcd.',44)
+     &               call errquit('Exiting in fitcd.',44, BASIS_ERR)
                 nshbfd=((itype+1)*(itype+2))/2*nshbfd
              else
                 if (.not. bas_cn2bfr( AO_bas_han,ishd,
      &               ifirstd,ilastd))
-     &               call errquit('Exiting in fitvcoul.',4)
+     &               call errquit('Exiting in fitvcoul.',4, BASIS_ERR)
                 nshbfd=ilastd-ifirstd+1
              endif
             ischw1 = ischw1 + dble(nshbfc*nshbfd)
@@ -135,8 +136,9 @@ c
       return
       end
       integer function dft_n3cint()
-C$Id: dft_n3c.F,v 1.12 2002-02-15 21:10:07 edo Exp $
+C$Id: dft_n3c.F,v 1.13 2003-10-17 22:55:35 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -149,7 +151,7 @@ c
       nproc=ga_nnodes()
 c
       if( .not. bas_numcont(AO_bas_han,nshells_ao) )then
-        call errquit('Exiting in dft_3cinc.',1)
+        call errquit('Exiting in dft_3cinc.',1, BASIS_ERR)
       end if
 c
       if(nproc.gt.1) then

@@ -3,8 +3,9 @@
      &       ENERGY, CONVGE, CONVGG, CONVGGM, GRAD_MAX,
      &       E2NEW,NINTER,NAT3,NMODE,TRUSTI,BCKSTP,
      &       CNVGRD,rtdb)
-c $Id: stpr_mkstep.F,v 1.8 1999-05-31 23:26:57 d3g681 Exp $
+c $Id: stpr_mkstep.F,v 1.9 2003-10-17 22:58:22 carlfahl Exp $
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
+#include "errquit.fh"
       LOGICAL BCKSTP,CNVGRD,LPRINT, oprint, oprint_step
 #include "chow.fh"
 #include "util.fh"
@@ -224,7 +225,7 @@ C
    70   CONTINUE
       ELSE
         WRITE(6,*) 'Unexpected type of walk. Program aborts'
-        call errquit('stepper:mkstep: fatal error',911)
+        call errquit('stepper:mkstep: fatal error',911, CALC_ERR)
       ENDIF
    75 CONTINUE
       IF(LPRINT)THEN
@@ -409,6 +410,7 @@ C
       END
       subroutine stpr_active(rtdb,step,nat3)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -442,15 +444,16 @@ c
 c
       nat = nat3/3
       if (nactive.le.0 .or. nactive.gt.nat) call errquit
-     &    ('stpr_active: invalid number of active atoms',nactive)
+     &    ('stpr_active: invalid number of active atoms',nactive,
+     &       INPUT_ERR)
       if (.not.MA_get_index(h_actlist,k_actlist)) call errquit
-     &    ('stpr_active: ma_get_index failed for actlist',911)
+     &    ('stpr_active: ma_get_index failed for actlist',911, MA_ERR)
 *
 * .. get space for step
 *
       if (.not.MA_push_get(mt_dbl,nat3,'stpr:alloc:active:step',
      &    h_step,k_step)) call errquit
-     &    ('stpr_active: ma_push_get failed for step',911)
+     &    ('stpr_active: ma_push_get failed for step',911, MA_ERR)
 *
 * .. copy step to scratch space
 *
@@ -467,9 +470,9 @@ c
         step(indx+2) = dbl_mb(k_step+indx+1)
       enddo
       if (.not.MA_free_heap(h_actlist)) call errquit
-     &    ('stpr_active: ma_free_heap failed for actlist',911)
+     &    ('stpr_active: ma_free_heap failed for actlist',911, MA_ERR)
       if (.not.MA_pop_stack(h_step)) call errquit
-     &    ('stpr_active: ma_pop_stack failed for h_step',911)
+     &    ('stpr_active: ma_pop_stack failed for h_step',911, MA_ERR)
 c
       if (oprint) then
         write(luout,*)' '

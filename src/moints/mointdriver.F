@@ -1,6 +1,7 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.69 2003-02-20 01:24:19 mhackler Exp $
+C$Id: mointdriver.F,v 1.70 2003-10-17 22:55:26 carlfahl Exp $
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -86,7 +87,8 @@ c
        status = status.and.bas_numcont(basis,nsh)
        status = status.and.bas_nbf_cn_max(basis,maxbfsh)
        if (.not. status)
-     $   call errquit('moint_driver: failed to get info', 0)
+     $   call errquit('moint_driver: failed to get info', 0,
+     &       INPUT_ERR)
 c
 c Get algorithm choice
 c
@@ -146,14 +148,16 @@ c
        g_vecs = ga_create_atom_blocked(geom,basis,'Molecular orbital')
        if (.not. movecs_read_header(movecs_in, title_vecs,
      $    basis_vecs, scftype_vecs, nbf_vecs, nsets, nmo, 2))
-     $    call errquit('mointdriver: cannot read MO vectors header',0)
+     $    call errquit('mointdriver: cannot read MO vectors header',0,
+     &       DISK_ERR)
        if (nbf.ne.nbf_vecs)
      $    call errquit(
-     $    'mointdriver: number of basis fun does not match input',0)
+     $    'mointdriver: number of basis fun does not match input',0,
+     &       INPUT_ERR)
        status = MA_push_get(MT_DBL, nbf, 'Evals', l_evals, k_evals)
        if (.not. movecs_read(movecs_in, 1, dbl_mb(k_occ),
      $                       dbl_mb(k_evals), g_vecs)) call
-     $      errquit('mointdriver: cannot read MO vectors',0)
+     $      errquit('mointdriver: cannot read MO vectors',0, DISK_ERR)
 c
 c Get frozen core & virtual offsets
 c
@@ -161,7 +165,8 @@ c
 c Get frozen core and virtual offset
 c
        if(.not. geom_freeze(rtdb, geom, 'mp2', occ_frozen)) then
-          call errquit('direct_mp2: unable to get frozen core',0)
+          call errquit('direct_mp2: unable to get frozen core',0,
+     &       GEOM_ERR)
        endif
 
        if (.not.rtdb_get(rtdb, 'mp2:frozen virtual', MT_INT, 1,
@@ -194,7 +199,8 @@ c
 c Initialise integrals and screening
 c
        if (.not.int_normalize(rtdb,basis))
-     &     call errquit('moint_driver: int_normalize failed',911)
+     &     call errquit('moint_driver: int_normalize failed',911,
+     &       INT_ERR)
        call int_init(rtdb,1, basis)
        call schwarz_init(geom,basis)
 c
@@ -234,7 +240,8 @@ c
 *ga:1:0
        if (.not.ga_create(MT_DBL,1,((nocc_correl*(nocc_correl+1))/2),
      $      'epair',0,0,g_epair))
-     $      call errquit('mointdriver: cannot create epair array',0)
+     $      call errquit('mointdriver: cannot create epair array',0,
+     &       GA_ERR)
 c
 c Symmetry toggle
 c
@@ -413,7 +420,7 @@ c  Memory arithmetic to determine occ segment length
 c
        lmemreq = moints_lmem(basis, nocc, nvir, blen)
        if ((.not.ga_uses_ma()).and.(.not.(ga_memory_limited())))
-     $   call errquit('cannot determine memory limit',0)
+     $   call errquit('cannot determine memory limit',0, GA_ERR)
        gmem = (ga_memory_avail() - lmemreq)*ga_nnodes()
        mxrlen=maxbfsh*maxbfsh*ga_nnodes()*10
        seg_incr = gmem/(nvir*mxrlen)
@@ -483,7 +490,8 @@ c
        status = ma_pop_stack(l_evals)
        call schwarz_tidy()
        status = status.and.ma_pop_stack(l_occ)
-       if (.not.status) call errquit('moints: cannot pop stack?',0)
+       if (.not.status) call errquit('moints: cannot pop stack?',0,
+     &       MA_ERR)
        status = ga_destroy(g_vecs)
 c
 c
@@ -506,6 +514,7 @@ c
 
        integer function moints_occrange( noper, ostart, ilo, ohi )
        implicit none
+#include "errquit.fh"
        integer noper, ostart, ilo, ohi
        integer trioff, i, ihi, ii
        integer ofroz
@@ -518,7 +527,8 @@ c
          if ((ii-trioff).le.noper) ihi = i
        enddo
        if (ihi.eq.0)
-     $   call errquit('moints_occrange: not enough memory to do MP2',0)
+     $   call errquit('moints_occrange: not enough memory to do MP2',0,
+     &       MEM_ERR)
        moints_occrange = ihi
        return
        end

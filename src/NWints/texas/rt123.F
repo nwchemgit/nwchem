@@ -5,7 +5,7 @@ c     Look for lines ending in E that should probably be a D for
 c     double precision.  The stuff on the following line is often
 c     gibberish.
 c
-c$$$c $Id: rt123.F,v 1.8 2002-04-08 18:51:51 windus Exp $
+c$$$c $Id: rt123.F,v 1.9 2003-10-17 22:54:11 carlfahl Exp $
 c$$$C MAR 29 91 PP PUT IN SAFEGURDS AGAINST INFINITE LOOP - IT MAY HAPPEN
 c$$$C   IN DNODE
 c$$$C MAR 26 91 PP FIXED SUBROUTINE FM ACCORDING TO KRZYSZTOF'S INSTRUCTIONS
@@ -1257,6 +1257,7 @@ C
       END
 c$$$      SUBROUTINE ROOT6
 c$$$      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+c$$$#include "errquit.fh"
 c$$$C        *****  THIS ROUTINE EVALUATES RYS ROOTS AND WEIGHTS    *****
 c$$$C        *****  USING THE CHRISTOFFEL FORMULA FOR WEIGHTS.      *****
 c$$$C        *****  ITH ROOT OF THE JTH RYS POLYNOMIAL IS RETURNED  *****

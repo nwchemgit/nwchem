@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.79 2000-08-11 10:32:23 bjohnson Exp $
+# $Id: GNUmakefile,v 1.80 2003-10-17 22:53:32 carlfahl Exp $
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  
@@ -205,7 +205,7 @@ stripdepend:
 
 .PHONY:	source
 source:	
-	cat stubs.f nwchem.F > source
+	cat stubs.F nwchem.F > source
 ifdef SUBDIRS
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \

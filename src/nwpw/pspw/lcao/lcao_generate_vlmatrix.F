@@ -1,8 +1,9 @@
 *
-* $Id: lcao_generate_vlmatrix.F,v 1.2 2001-12-01 23:13:26 bylaska Exp $
+* $Id: lcao_generate_vlmatrix.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
       subroutine lcao_generate_vlmatrix(vlmatrix,phi1,phi2)
       implicit none
+#include "errquit.fh"
       integer vlmatrix
       complex*16 phi1(*)
       complex*16 phi2(*)
@@ -41,7 +42,8 @@
      >  value = value.and.
      >        MA_push_get(mt_dbl,(3*n2ft3d),'rgrid',rgrid(2),rgrid(1))
       if (.not. value) 
-     > call errquit('lcao_generate_vlmatrix: out of stack memory',0)
+     > call errquit('lcao_generate_vlmatrix: out of stack memory',0,
+     &       MA_ERR)
 
 
 *     *****************************************

@@ -18,9 +18,10 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.37 2003-10-13 21:15:51 pollack Exp $
+c$Id: grid_quadv0b.F,v 1.38 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "cgridfile.fh"
 #include "stdio.fh"
 #include "cdft.fh"
@@ -83,7 +84,7 @@ c
          if (mbf_ao.eq.0) return
       else
       if (.not.bas_numcont(AO_bas_han, ncontrset))
-     &     call errquit('Exiting in grid_quadv0b',0)
+     &     call errquit('Exiting in grid_quadv0b',0, BASIS_ERR)
          iniz(1)=1
          ifin(1)=nbf_ao
          do i=1,ncontrset
@@ -96,16 +97,19 @@ c
 c     
       if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
      &     lchi_ao, ichi_ao))
-     &     call errquit('grid_quadv0b: cannot allocate chi_ao',0)
+     &     call errquit('grid_quadv0b: cannot allocate chi_ao',0,
+     &       MA_ERR)
       if(GRAD) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
      .        'delchi_ao', ldelchi_ao, idelchi_ao))
-     &        call errquit('grid_quadv0b: cant alloc delchi_ao',0)
+     &        call errquit('grid_quadv0b: cant alloc delchi_ao',0,
+     &       MA_ERR)
       endif
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicinit(nqpts,
      ,        l_vect1,i_vect1, ldelrho_sig,idelrho_sig))
-     ,        call errquit(' grid_quadv0b: grid_sicinit failed',0)
+     ,        call errquit(' grid_quadv0b: grid_sicinit failed',0,
+     &       CALC_ERR)
       endif
 c     
 c     
@@ -166,7 +170,8 @@ c
      .           rdelchi_atom, rdens_atom, cetobfr,wmax)
 #endif
             else if (do_cpks_r) then
-               call errquit('gridquadv0b: what do do for cpks rhs?',0)
+               call errquit('gridquadv0b: what do do for cpks rhs?',0,
+     &       CALC_ERR)
             endif
 c     
 c     Evaluate the integrated charge density.
@@ -225,7 +230,8 @@ c     add beta to 1 to get alpha+beta
       else
          if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
      &        'Dmat', lDmat,iDmat))
-     &        call errquit('grid_quadv0b: cannot allocate Dmat',0)
+     &        call errquit('grid_quadv0b: cannot allocate Dmat',0,
+     &       MA_ERR)
 c     
          if(do_scf) then
             call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
@@ -264,22 +270,24 @@ c
      &          rdens_atom, cetobfr)
 #endif
          else if (do_cpks_r) then
-            call errquit('gridquadv0b: what do do for cpks rhs?',0)
+            call errquit('gridquadv0b: what do do for cpks rhs?',0,
+     &       CALC_ERR)
          endif
 
          if (.not.ma_pop_stack(lDmat))
-     &      call errquit('grid_quadv0b: cannot pop stack', 1)
+     &      call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
       endif
  2010 continue
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
-     ,        call errquit(' grid_quadv0b: grid_sicend failed',0)
+     ,        call errquit(' grid_quadv0b: grid_sicend failed',0,
+     &       CALC_ERR)
       endif
       if(grad)then
          if (.not.ma_pop_stack(ldelchi_ao))
-     &        call errquit('grid_quadv0b: cannot pop stack', 2)
+     &        call errquit('grid_quadv0b: cannot pop stack', 2, MA_ERR)
       endif
       if (.not.ma_pop_stack(lchi_ao))
-     &     call errquit('grid_quadv0b: cannot pop stack', 3)
+     &     call errquit('grid_quadv0b: cannot pop stack', 3, MA_ERR)
       return
       end

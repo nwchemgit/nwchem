@@ -1,8 +1,9 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv.F,v 1.9 2002-03-28 18:36:32 edo Exp $
+* $Id: uhf_hessv.F,v 1.10 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "cuhf.fh"
 #include "cscf.fh"
 #include "rtdb.fh"
@@ -23,15 +24,19 @@ c     Check dimensions
 c     
 c      if (cuhf_init_flag.ne.1)
       if(.not.cuhf_init_flag)
-     $     call errquit('uhf_hessv: UHF internal block invalid',0)
+     $     call errquit('uhf_hessv: UHF internal block invalid',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_ax,gtype,vlen,nvec)
       if (vlen.ne.cuhf_vlen)
-     $     call errquit('uhf_hessv: invalid vector length',0)
+     $     call errquit('uhf_hessv: invalid vector length',0,
+     &       UNKNOWN_ERR)
       call ga_inquire(g_x,gtype,vlen,nvecp)
       if (vlen.ne.cuhf_vlen)
-     $     call errquit('uhf_hessv: invalid vector length',0)
+     $     call errquit('uhf_hessv: invalid vector length',0,
+     &       UNKNOWN_ERR)
       if (nvecp .ne. nvec) 
-     $     call errquit('uhf_hessv: invalid nvecp',nvecp)
+     $     call errquit('uhf_hessv: invalid nvecp',nvecp,
+     &       UNKNOWN_ERR)
 c
       call ga_zero(g_ax)
 *      write(6,*) ' lshift ', lshift
@@ -49,6 +54,7 @@ c
       end
       subroutine uhf_hessv_1e(acc, g_x, g_ax, nvec)
       implicit none
+#include "errquit.fh"
 #include "cuhf.fh"
 #include "cscf.fh"
 #include "global.fh"
@@ -87,10 +93,12 @@ c
          if (nocc*nvir .gt. 0) then
 *ga:1:0
             if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv1e: tmp1',
-     $           0, 0, g_tmp1)) call errquit('uhf_hv1e: tmp1', 0)
+     $           0, 0, g_tmp1)) call errquit('uhf_hv1e: tmp1', 0,
+     &       GA_ERR)
 *ga:1:0
             if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv1e: tmp2',
-     $           0, 0, g_tmp2)) call errquit('uhf_hv1e: tmp2', 0)
+     $           0, 0, g_tmp2)) call errquit('uhf_hv1e: tmp2', 0,
+     &       GA_ERR)
 c
             do ivec = 1, nvec
                call ga_copy_patch('n',
@@ -111,15 +119,16 @@ c
      $                   g_ax, istart, iend, ivec, ivec)
             enddo
             if (.not. ga_destroy(g_tmp1)) call errquit
-     $           ('uhf_hessv_1e: GA corrupt?', 0)
+     $           ('uhf_hessv_1e: GA corrupt?', 0, GA_ERR)
             if (.not. ga_destroy(g_tmp2)) call errquit
-     $           ('uhf_hessv_1e: GA corrupt?', 0)
+     $           ('uhf_hessv_1e: GA corrupt?', 0, GA_ERR)
          endif
       enddo
 c
       end
       subroutine uhf_hessv_2e(acc, g_x, g_ax, nvec)
       implicit none
+#include "errquit.fh"
 #include "cuhf.fh"
 #include "cscf.fh"
 #include "cscfps.fh"
@@ -186,10 +195,10 @@ c      call ga_print(g_x)
          vbase = nocc+1         ! First virtual
 *ga:1:0
          if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv2e: tmp1',
-     $        0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0)
+     $        0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0, GA_ERR)
 *ga:1:0
          if (.not. ga_create(MT_DBL, nvir, nbf, 'uhf_hv2e: tmp2',
-     $        0, 0, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0)
+     $        0, 0, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0, GA_ERR)
          do ivec = 1, nvec
             g_d = ga_create_atom_blocked(geom, basis, 'uhf_h2e: dens')
             g_j = ga_create_atom_blocked(geom, basis, 'uhf_h2e: dens')
@@ -216,8 +225,10 @@ c      call ga_print(g_x)
                call ga_symmetrize(g_d)
             endif
          enddo
-         if (.not. ga_destroy(g_tmp1)) call errquit('uhf_hv2e: GA?',0)
-         if (.not. ga_destroy(g_tmp2)) call errquit('uhf_hv2e: GA?',0)
+         if (.not. ga_destroy(g_tmp1)) call errquit('uhf_hv2e: GA?',0,
+     &       GA_ERR)
+         if (.not. ga_destroy(g_tmp2)) call errquit('uhf_hv2e: GA?',0,
+     &       GA_ERR)
       enddo
 c
 c     Now make all the J & K matrices with one pass thru the integrals
@@ -262,9 +273,9 @@ c
 c
       do ivec = 1, nvec         ! Don't need the AO densities any more
          if (.not. ga_destroy(g_dens(1,ivec)))
-     $        call errquit('uhf_hessv: GA corrupt?',0)
+     $        call errquit('uhf_hessv: GA corrupt?',0, GA_ERR)
          if (.not. ga_destroy(g_dens(3,ivec)))
-     $        call errquit('uhf_hessv: GA corrupt?',0)
+     $        call errquit('uhf_hessv: GA corrupt?',0, GA_ERR)
       enddo
 c
 c     Now transform to the MO basis and assemble the results
@@ -295,16 +306,16 @@ c
         vbase_diff = nocc_diff+1          ! First virtual
 *ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nocc, 'uhf_hv2e: tmp1',
-     $       0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0)
+     $       0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0, GA_ERR)
 *ga:1:0
         if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv2e: tmp2',
-     $       0, 0, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0)
+     $       0, 0, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0, GA_ERR)
 *ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nocc_diff, 'uhf_hv2e: tmp3',
-     $       0, 0, g_tmp3)) call errquit('uhf_hv2e: tmp3', 0)
+     $       0, 0, g_tmp3)) call errquit('uhf_hv2e: tmp3', 0, GA_ERR)
 *ga:1:0
         if (.not. ga_create(MT_DBL,nvir_diff,nocc_diff,'uhf_hv2e: tmp4',
-     $       0, 0, g_tmp4)) call errquit('uhf_hv2e: tmp4', 0)
+     $       0, 0, g_tmp4)) call errquit('uhf_hv2e: tmp4', 0, GA_ERR)
         do ivec = 1, nvec
            g_j = g_fock(isetoff+1,ivec)
            g_k = g_fock(isetoff+2,ivec)
@@ -346,13 +357,19 @@ c     write(*,*)"g_ax: differet spin, iset = ", iset
 c              call ga_print(g_ax)
            endif
  200       continue
-           if (.not. ga_destroy(g_j)) call errquit('uhf_hessv: GA?',0)
-           if (.not. ga_destroy(g_k)) call errquit('uhf_hessv: GA?',0)
+           if (.not. ga_destroy(g_j)) call errquit('uhf_hessv: GA?',0,
+     &       GA_ERR)
+           if (.not. ga_destroy(g_k)) call errquit('uhf_hessv: GA?',0,
+     &       GA_ERR)
         enddo
-        if (.not. ga_destroy(g_tmp1)) call errquit('uhf_hessv: GA?',0)
-        if (.not. ga_destroy(g_tmp2)) call errquit('uhf_hessv: GA?',0)
-        if (.not. ga_destroy(g_tmp3)) call errquit('uhf_hessv: GA?',0)
-        if (.not. ga_destroy(g_tmp4)) call errquit('uhf_hessv: GA?',0)
+        if (.not. ga_destroy(g_tmp1)) call errquit('uhf_hessv: GA?',0,
+     &       GA_ERR)
+        if (.not. ga_destroy(g_tmp2)) call errquit('uhf_hessv: GA?',0,
+     &       GA_ERR)
+        if (.not. ga_destroy(g_tmp3)) call errquit('uhf_hessv: GA?',0,
+     &       GA_ERR)
+        if (.not. ga_destroy(g_tmp4)) call errquit('uhf_hessv: GA?',0,
+     &       GA_ERR)
       enddo
 c
       end

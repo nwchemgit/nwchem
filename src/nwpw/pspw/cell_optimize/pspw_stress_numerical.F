@@ -1,9 +1,10 @@
 *
-* $Id: pspw_stress_numerical.F,v 1.2 2002-04-25 00:34:38 bylaska Exp $
+* $Id: pspw_stress_numerical.F,v 1.3 2003-10-17 22:57:08 carlfahl Exp $
 *
 
       logical function pspw_stress_numerical(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -29,7 +30,7 @@
 *     **** calculate stress tensor ***
       value = pspw_stress(rtdb)
       if(.not. value) 
-     >   call errquit('pspw_stress did not converge: error',0)
+     >   call errquit('pspw_stress did not converge: error',0, CALC_ERR)
 
 
       if (taskid.eq.MASTER) then
@@ -49,7 +50,8 @@
  
       value = stress_fd(rtdb)
       if(.not. value) 
-     >   call errquit('pspw_stress_numerical did not converge: error',0)
+     >   call errquit('pspw_stress_numerical did not converge: error',0,
+     &       CALC_ERR)
  
 
       call ga_sync()

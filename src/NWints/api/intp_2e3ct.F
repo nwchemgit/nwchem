@@ -1,7 +1,7 @@
       subroutine intp_2e3ct(brain, ish, jsh, ketin, ksh, Rj, Rk, 
      &       lscr, scr, leri, eri)
 *
-* $Id: intp_2e3ct.F,v 1.4 1999-07-14 00:28:42 d3e129 Exp $
+* $Id: intp_2e3ct.F,v 1.5 2003-10-17 22:53:42 carlfahl Exp $
 *
       implicit none
 c
@@ -11,6 +11,7 @@ c
 c eri = <bra_g(ish)bra_g(jsh)|ket_g(ksh)>
 c
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -66,7 +67,8 @@ c
 c check initialization
 c
       if (.not.int_chk_init('intp_2e3ct'))
-     &       call errquit('intp_2e3ct: int_init was not called' ,0)
+     &       call errquit('intp_2e3ct: int_init was not called' ,0,
+     &            INT_ERR)
 c
 c     check input shell ranges
 c
@@ -74,7 +76,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(brain,jsh)
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
-     &       call errquit('intp_2e3ct: invalid contraction/shell',0)
+     &       call errquit('intp_2e3ct: invalid contraction/shell',0,
+     &           BASIS_ERR)
 c
 c  check if spherical/gencon/sp shell
 c
@@ -148,7 +151,7 @@ c
           if (nintx.lt.lscr)
      &        call errquit
      &        ('intp_2e3ct: not enough scratch for spherical transform',
-     &        911)
+     &        911, MEM_ERR)
           call spcart_3ctran(eri,scr,lscr,
      &        int_nbf_x(La),int_nbf_s(La),La,a_gen,bas_spherical(bra),
      &        int_nbf_x(Lb),int_nbf_s(Lb),Lb,b_gen,bas_spherical(bra),
@@ -162,6 +165,6 @@ c
         write(luout,*)' ish   :',ish
         write(luout,*)' jsh   :',jsh
         write(luout,*)' ksh   :',ksh
-        call errquit('intp_2e3ct: fatal error ',0)
+        call errquit('intp_2e3ct: fatal error ',0, INT_ERR)
       endif
       end

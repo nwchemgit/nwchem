@@ -1,4 +1,4 @@
-c $Id: int_l1e3ov.F,v 1.12 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_l1e3ov.F,v 1.13 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l1e3ov}
@@ -18,10 +18,12 @@ c routine to calculate labels for 3 center overlap integrals
 c
       implicit none 
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "geobasmapP.fh"
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c..  errquit
@@ -68,7 +70,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       shells_ok = shells_ok .and. int_chk_sh(k_basis,ksh)
       if (.not.shells_ok)
-     &       call errquit('int_l1e3ov: invalid contraction/shell',0)
+     &       call errquit('int_l1e3ov: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET

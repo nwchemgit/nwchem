@@ -3,7 +3,7 @@
      &                       XYZ,Charge,Tags,AMt,BMt,Dst,
      &                       STD,Tot_Charge)
 *
-* $Id: get_charges.F,v 1.6 2000-10-23 15:51:48 windus Exp $
+* $Id: get_charges.F,v 1.7 2003-10-17 22:54:43 carlfahl Exp $
 *
       Implicit None
 *
@@ -200,6 +200,7 @@
 *
       SubRoutine Pot_At_Pos(Pos,Charg,Pot,nBF,ibas,jbas)
       Implicit None
+#include "errquit.fh"
 *
 ************************************************************************
 #include "mafdecls.fh"
@@ -225,24 +226,24 @@
 *     
 *---- Get info about the basis sets
       If (.not. bas_numcont(ibas, nshell_i)) call errquit
-     &     ('Pot_At_Pos: bas_numcont failed for ibas', ibas)
+     &     ('Pot_At_Pos: bas_numcont failed for ibas', ibas, BASIS_ERR)
       If (.not. bas_numcont(jbas, nshell_j)) call errquit
-     &     ('Pot_At_Pos: bas_numcont failed for jbas', jbas)
+     &     ('Pot_At_Pos: bas_numcont failed for jbas', jbas, BASIS_ERR)
 *     
 *---- Allocate necessary local temporary arrays on the stack
       call int_mem_1e(max1e, mem1)
       if (.not. MA_push_get(MT_DBL,max1e,'buf',l_buf,k_buf))
-     &     call errquit('Pot_At_Pos: ma failed', max1e)
+     &     call errquit('Pot_At_Pos: ma failed', max1e, MA_ERR)
       if (.not. MA_push_get(MT_DBL, mem1,'scr',l_scr,k_scr))
-     &     call errquit('Pot_At_Pos: ma failed', mem1)
+     &     call errquit('Pot_At_Pos: ma failed', mem1, MA_ERR)
 *     
 *---- Get the integrals (use Int_1er from NWDFT module)
       Do jShell = 1, nShell_j
          Do iShell = 1, jShell
             If (.not. bas_cn2bfr(ibas, ishell, ilo, ihi)) 
-     &         call errquit('int_1e_ga: bas_cn2bfr ?', ibas)
+     &         call errquit('int_1e_ga: bas_cn2bfr ?', ibas, BASIS_ERR)
             If (.not. bas_cn2bfr(jbas, jshell, jlo, jhi))
-     &         call errquit('int_1e_ga: bas_cn2bfr ?', jbas)
+     &         call errquit('int_1e_ga: bas_cn2bfr ?', jbas, BASIS_ERR)
             idim = ihi - ilo + 1
             jdim = jhi - jlo + 1
             nInt = idim*jdim

@@ -1,10 +1,11 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.16 2003-07-29 21:21:38 edo Exp $
+* $Id: vib_wrtfreq.F,v 1.17 2003-10-17 22:58:38 carlfahl Exp $
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers
 C
       IMPLICIT none
+#include "errquit.fh"
 c
 #include "rtdb.fh"
 #include "stdio.fh"
@@ -49,7 +50,7 @@ c        dimension problems
         write(luout,*)' maxfrq = ',maxfrq
         write(luout,*)' nat3   = ',nat3
         write(luout,*)' increase maxfrq to ',nat3
-        call errquit('vib_wrtfreq:',nat3)
+        call errquit('vib_wrtfreq:',nat3, INPUT_ERR)
         stop ' error'
       endif
 C
@@ -86,7 +87,7 @@ C00099    WRITE(6,*)EIGVAL(I),FREQ  ! in case of error with format
         call ecce_print1('zero point energy',mt_dbl,zpe,1)
         if(.not. rtdb_put(rtdb,'vib:zpe',MT_DBL,1,zpe))
      &      call errquit('vib_wrtfreq:rtdb_put of ZPE failed',
-     &      555)
+     &      555, RTDB_ERR)
       ENDIF
 10002 FORMAT(1X,//,'From the projected analysis ',/,
      &    'The Zero-Point Energy (Kcal/mol) = ',
@@ -127,14 +128,14 @@ c     &      temp = 298.15d0
             if (.not.MA_alloc_get(mt_dbl,(ntemp),'temp',
      >                            h_actlist,l_actlist))
      >      call errquit(
-     >       'vib_WRTFREQ: ma_get_index failed for actlist',911)
+     >       'vib_WRTFREQ: ma_get_index failed for actlist',911, MA_ERR)
 
             dbl_mb(l_actlist) = 298.15d0
          else        
 
             if (.not.MA_get_index(h_actlist,l_actlist))
      >      call errquit(
-     >       'vib_WRTFREQ: ma_get_index failed for actlist',911)
+     >       'vib_WRTFREQ: ma_get_index failed for actlist',911, MA_ERR)
          end if
 
         do it=1,ntemp
@@ -268,7 +269,7 @@ c     &      temp = 298.15d0
 
 *      *** free heap ***
        if (.not. MA_free_heap(h_actlist))
-     >   call errquit('h_actlist:error freeing heap memory',0)
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
       END IF
 *rak:      IF (NPRI.EQ.0) WRITE (ITAP96,10002)ZPE
@@ -281,6 +282,7 @@ C
 
       subroutine vib_geom_parameters_get(rtdb,M,AA,BB,CC,sigma,linear)
       implicit none
+#include "errquit.fh"
       integer rtdb
       double precision M,AA,BB,CC
       integer          sigma
@@ -315,16 +317,19 @@ C
 
 
       if (.not.geom_create(geom,'geometry')) call errquit
-     &    ('vib_geom_parameters_get: error creating geometry',911)
+     &    ('vib_geom_parameters_get: error creating geometry',911,
+     &       GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom,'geometry')) call errquit
-     &    ('vib_geom_parameters_get: error loading geometry',911)
+     &    ('vib_geom_parameters_get: error loading geometry',911,
+     &       RTDB_ERR)
       if (.not.geom_ncent(geom,natoms)) call errquit
-     &    ('vib_geom_parameters_get: errorgetting number of atoms',911)
+     &    ('vib_geom_parameters_get: errorgetting number of atoms',911,
+     &       GEOM_ERR)
 
 *     **** calculate the symmetry number ****
       nops  = sym_number_ops(geom)
       if (.not. MA_push_get(mt_dbl,(nops*3*4),'r1',r1(2),r1(1)))
-     >   call errquit('vib_geom_parameters_set: push stack',0)
+     >   call errquit('vib_geom_parameters_set: push stack',0, MA_ERR)
       call sym_ops_get(geom,nops,dbl_mb(r1(1)))
       sigma = 1                                                 ! Identity not included
       do ii=1,nops
@@ -342,32 +347,33 @@ C
       end do
 
       if (.not. MA_pop_stack(r1(2)))
-     >  call errquit('vib_geom_parameters_set: pop stack',1)
+     >  call errquit('vib_geom_parameters_set: pop stack',1, MA_ERR)
 
 
 *     ***** calculate molecular weight ****
       M = 0.0d0     
       do ii=1,natoms
          if(.not.geom_mass_get(geom, ii, amass)) call
-     &        errquit(' mass_get  failed ',ii)
+     &        errquit(' mass_get  failed ',ii, GEOM_ERR)
          M = M + amass
       enddo
 
 *     ***** calculate inertia tensor ****
       if (.not. MA_push_get(mt_dbl,(3*natoms),'r1',r1(2),r1(1)))
-     >   call errquit('vib_geom_parameters_set: push stack',2)
+     >   call errquit('vib_geom_parameters_set: push stack',2, MA_ERR)
 
       call dcopy(3*natoms,0.0d0,0,dbl_mb(r1(1)),1)
       do ii=1,natoms
          if (.not.geom_cent_get(geom,ii,t,dbl_mb(r1(1)+(ii-1)*3),q))
-     >   call errquit('vib_geom_parameters_set: error reading ions',0)
+     >   call errquit('vib_geom_parameters_set: error reading ions',0,
+     &       GEOM_ERR)
       end do
 
       call geom_momint0(geom,dbl_mb(r1(1)),natoms,meig,mtensor,.true.,
      .     .false.)
 
       if (.not. MA_pop_stack(r1(2)))
-     >  call errquit('vib_geom_parameters_set: pop stack',3)
+     >  call errquit('vib_geom_parameters_set: pop stack',3, MA_ERR)
       call DSYEV('N','U',3,mtensor,3,meig,work,lwork,ierr)
 
       !meig(1) = fconv*meig(1)  ! convert to cgs units
@@ -396,7 +402,7 @@ C
 
         nops  = sym_number_ops(geom)
         if (.not. MA_push_get(mt_dbl,(nops*3*4),'r1',r1(2),r1(1)))
-     >     call errquit('vib_geom_parameters_set: push stack',4)
+     >     call errquit('vib_geom_parameters_set: push stack',4, MA_ERR)
         call sym_ops_get(geom,nops,dbl_mb(r1(1)))
         sigma = 1                                                 ! Identity not included
         do ii=1,nops
@@ -415,12 +421,12 @@ C
      >       sigma = 2
         end do
         if (.not. MA_pop_stack(r1(2)))
-     >    call errquit('vib_geom_parameters_set: pop stack',5)
+     >    call errquit('vib_geom_parameters_set: pop stack',5, MA_ERR)
 
       end if
 *
       if (.not.geom_destroy(geom)) call errquit
-     &    ('vib_geom_parameters_get: geom_destroy failed',911)
+     &    ('vib_geom_parameters_get: geom_destroy failed',911, GEOM_ERR)
 
       return
       end

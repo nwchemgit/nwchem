@@ -4,9 +4,10 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.37 2003-06-18 23:47:47 edo Exp $
+* $Id: dft_fitcd.F,v 1.38 2003-10-17 22:55:35 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 c
 #include "bas.fh"
 #include "mafdecls.fh"
@@ -85,7 +86,8 @@ c
       call dft_second(ts1)
 #endif
       if (.not.derfit .and. nfit.ne.1) then
-         call errquit('dft_fitcd: nfit must be 1 for regular fits',0)
+         call errquit('dft_fitcd: nfit must be 1 for regular fits',0,
+     &       INPUT_ERR)
       endif
       oprint = util_print('coulomb fit', print_high)
       oprint_ioinfo = util_print('io info',print_debug)
@@ -100,7 +102,7 @@ c     Allocate scratch space.
 c      
       spherical=bas_is_spherical(CD_bas_han)
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd*nfit,'Tvec',lTvec,iTvec))
-     &  call errquit('dft_fitcd: cannot allocate Tvec',0)
+     &  call errquit('dft_fitcd: cannot allocate Tvec',0, MA_ERR)
 c
 c     Initialize the T vector.
 c
@@ -125,14 +127,15 @@ cedo      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
 c      
       Nao2 = nbf_ao_mxnbf_cn*nbf_ao_mxnbf_cn
       if(.not.MA_Push_Get(MT_Dbl,Nao2*nfit,'gather vector',lgvec,igvec))
-     &  call errquit('dft_fitcd: cannot allocate gather vector',0)
+     &  call errquit('dft_fitcd: cannot allocate gather vector',0,
+     &       MA_ERR)
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
       if(.not.MA_Push_Get(MT_Dbl,maxg*nshells_cd,'ERI',lERI,iERI))
-     &  call errquit('dft_fitcd: cannot allocate ERI',0)
+     &  call errquit('dft_fitcd: cannot allocate ERI',0, MA_ERR)
       nscr =  mscratch_2e3c 
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &  call errquit('dft_fitcd: cannot allocate scr',0)
+     &  call errquit('dft_fitcd: cannot allocate scr',0, MA_ERR)
 c
       if(.not.incore)then
         iwhat_max = -1
@@ -156,12 +159,13 @@ c        check to make sure file is there
 c
 c         write(6,*)' fd = ',fd
          if (eaf_length(fd, length) .ne. 0) call errquit
-     $      ('dft_fitcd: unable to determine 3c2e file length',0)
+     $      ('dft_fitcd: unable to determine 3c2e file length',0,
+     &       DISK_ERR)
 c         write(6,*)' length = ',length
          current_nbuf = current_nbuf + 1
          offset = (current_nbuf-1)*n3c_b
          if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)call errquit
-     &      ('dft_fitcd: 3c-2e integral buffer read failed',0)
+     &      ('dft_fitcd: 3c-2e integral buffer read failed',0, DISK_ERR)
          n_batch = nint(i3c_eri(n3c_dbl))
 c         write(6,*)' n_batch = ',n_batch
 c
@@ -172,7 +176,7 @@ c         call errquit(' temp stop in dft_3cincor ',0)
 c
       do 24 ishc = 1,nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
-     &       call errquit('Exiting in dft_fitcd',111)
+     &       call errquit('Exiting in dft_fitcd',111, BASIS_ERR)
         nshbfc = ilastc-ifirstc+1
 c
         do 23 ishd = 1,ishc
@@ -185,7 +189,7 @@ c     &       me,ishc,ishd,ndone,iwhat(ndone),ipoint
 c            call util_flush(LuOut)
 c
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
-     &         call errquit('Exiting in dft_fitcd',1111)
+     &         call errquit('Exiting in dft_fitcd',1111, BASIS_ERR)
             nshbfd = ilastd-ifirstd+1
             Nao2 = nshbfd*nshbfc
 c
@@ -221,7 +225,7 @@ c
                  call dgemm('T','N',nbf_cd,nfit,Nao2,fac,
      &                i3c_ERI(ipoint),Nao2,dbl_mb(igvec),nbf_cd,
      &                1d0,dbl_mb(iTvec),nbf_cd)
-                 call errquit('not impl in dft_fitcd',0)
+                 call errquit('not impl in dft_fitcd',0, UNKNOWN_ERR)
               endif
             end if
 c
@@ -241,7 +245,8 @@ c
               offset = (current_nbuf-1)*n3c_b
               if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)
      &           call errquit
-     &           ('dft_fitcd: 3c-2e integral buffer read failed',0)
+     &           ('dft_fitcd: 3c-2e integral buffer read failed',0,
+     &       DISK_ERR)
               n_batch_read = nint(i3c_eri(n3c_dbl))
 c              write(6,*)' n_batch_read = ',n_batch_read
               n_batch = n_batch + n_batch_read
@@ -304,7 +309,7 @@ c
 c
       do 240 ishc = ishc_be, nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc)) 
-     &       call errquit('Exiting in dft_fitcd',111)
+     &       call errquit('Exiting in dft_fitcd',111, BASIS_ERR)
         nshbfc = ilastc-ifirstc+1
 c
         do 230 ishd = ishd_be, ishc
@@ -315,7 +320,7 @@ c            write(LuOut,*)'me,ishc,ishd,n1,n2', me,ishc,ishd,n1,n2
 c            call util_flush(LuOut)
 c
             if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, ilastd)) 
-     &         call errquit('Exiting in dft_fitcd',1111)
+     &         call errquit('Exiting in dft_fitcd',1111, BASIS_ERR)
             nshbfd = ilastd-ifirstd+1
             Nao2 = nshbfd*nshbfc
 c
@@ -346,7 +351,7 @@ c
 c               Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
 c                  
                 if (.not. bas_cn2bfr( CD_bas_han,ishp,ifirstp,ilastp))
-     &               call errquit('Exiting in fitcd.',5)
+     &               call errquit('Exiting in fitcd.',5, BASIS_ERR)
                 nshbfp = ilastp-ifirstp+1
 c                  
                 Nintegrals = nshbfp*Nao2
@@ -380,7 +385,7 @@ c
                  call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
      &                Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
               else
-                 call errquit('dft_fitcd: not impl',1)
+                 call errquit('dft_fitcd: not impl',1, BASIS_ERR)
               endif
             end if
 c
@@ -416,11 +421,11 @@ c      call dft_tstamp(' in dft_cdfit after 3c2el')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_fitcd: cannot pop stack',0)
+     &  call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
       if(.not.ma_pop_stack(lERI))
-     &  call errquit('dft_fitcd: cannot pop stack',0)
+     &  call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
       if(.not.ma_pop_stack(lgvec))
-     &  call errquit('dft_fitcd: cannot pop stack',0)
+     &  call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
 c
       call ga_dgop(Msg_gop_Tvec,Dbl_MB(iTvec),nbf_cd*nfit,'+')
 c
@@ -454,16 +459,16 @@ c
       if(spherical) then
         if(.not.bas_continfo(CD_bas_han,nshells_cd,
      &       itype,nprimo,nshbf,isphere))
-     &       call errquit('Exiting in fitcd.',44)
+     &       call errquit('Exiting in fitcd.',44, BASIS_ERR)
         nshbf=((itype+1)*(itype+2))/2
         max1e=nbf_cd+nshbf
       endif
       if(.not.MA_Push_Get(MT_Dbl,max1e,'cgtf',lcgtf,icgtf))
-     &     call errquit('dft_fitcd: cannot allocate cgtf',0)
+     &     call errquit('dft_fitcd: cannot allocate cgtf',0, MA_ERR)
       nscr = max(nscr1e, nbf_cd)
 c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
-     &  call errquit('dft_fitcd: cannot allocate scr',0)
+     &  call errquit('dft_fitcd: cannot allocate scr',0, MA_ERR)
 c      
 c     Integrate CD fitting functions in each shell
 c
@@ -473,10 +478,10 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
       do ish = 1,nshells_cd
         if (.not. bas_cn2bfr( CD_bas_han,ish,
      &                       ifirst,ilast))
-     &      call errquit('Exiting in fitcd.',44)
+     &      call errquit('Exiting in fitcd.',44, BASIS_ERR)
           if(.not.bas_continfo(CD_bas_han,ish,
      &         itype,nprimo,nshbf,isphere))
-     &      call errquit('Exiting in fitcd.',44)
+     &      call errquit('Exiting in fitcd.',44, BASIS_ERR)
           if(spherical) then
             nshbf=((itype+1)*(itype+2))/2
           else
@@ -510,14 +515,14 @@ c     &       nbf_cd,nbf_cd,'CD 2cERInv',g_cdinv,'row')
 *ga:1:0
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                       nbf_cd, 0, g_cdinv)) 
-     &      call errquit('dft_fitcd: error creating g_cdinv',0)
+     &      call errquit('dft_fitcd: error creating g_cdinv',0, GA_ERR)
         if (me.eq.0)then
            lmiss = 0
            call dft_invio('CDI',g_cdinv,nbf_cd,'READ',lmiss)
         endif
         call ga_brdcst(2000, lmiss,mitob(1),0)
         if(lmiss.ne.0)call errquit
-     &       (' dft_fitcd; dft_invio - abnormal read of CDI ',0)
+     &       (' dft_fitcd; dft_invio - abnormal read of CDI ',0, GA_ERR)
 cedo        call ga_sync
         if(oprint_ioinfo)then
           call ga_print(g_cdinv)
@@ -595,7 +600,7 @@ c
 c     Need another temp array to store S**(-1) * cgtf
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tcgtf',lTcgtf,iTcgtf))
-     &     call errquit('dft_fitcd: cannot allocate Tcgtf',0)
+     &     call errquit('dft_fitcd: cannot allocate Tcgtf',0, MA_ERR)
       call dfill(nbf_cd,0.D0,dbl_mb(iTcgtf),1)
 c
       next = nxtval(nproc)+1
@@ -640,7 +645,7 @@ c
       enddo
 c
       if (.not.ma_pop_stack(lTcgtf))
-     &   call errquit('dft_fitcd: cannot pop stack',0)
+     &   call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
 #endif
 c      call dft_tstamp(' in dft_cdfit before writ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
@@ -658,7 +663,7 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr,errmsg)
            write(LuOut,*) ga_nodeid(),errmsg
-           call errquit('dft_fitcd: eaf_open failed', ierr)
+           call errquit('dft_fitcd: eaf_open failed', ierr, GA_ERR)
         endif
          do ifit = 1, nfit
             offset=(ifit-1)*8d0*nbf_cd
@@ -669,7 +674,7 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
                write(LuOut,*) ' IO offset ', offset
                write(LuOut,*) ' IO error message ',
      $              errmsg(1:inp_strlen(errmsg))
-               call errquit('dft_fitcd: write failed',ifit)
+               call errquit('dft_fitcd: write failed',ifit, INPUT_ERR)
                endif
          enddo
          ierr=eaf_close(LU)
@@ -680,7 +685,7 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
             write(LuOut,*) ' IO error message ',
      $           errmsg(1:inp_strlen(errmsg))
             call util_flush(luout)
-            call errquit('dft_fitcd: eaf_close failed',0)
+            call errquit('dft_fitcd: eaf_close failed',0, DISK_ERR)
          endif
       endif
 c      
@@ -690,7 +695,8 @@ c
          rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
          if (dabs(rho_int-Q).gt.0.001d0)then
             write(*,*)' rho_int check 1, density',ifit,' = ',rho_int
-            call errquit('dft_fitcd: problem w/fitted density',911)
+            call errquit('dft_fitcd: problem w/fitted density',911,
+     &       UNKNOWN_ERR)
 c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
 c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
          endif
@@ -708,31 +714,32 @@ c
       if (.not.derfit) then
 c
       if (.not. geom_ncent(geom, natoms))
-     &     call errquit('dft_fitcd: geom_ncent failed',73)      
+     &     call errquit('dft_fitcd: geom_ncent failed',73,
+     &       GEOM_ERR)
       if (.not.MA_Push_Get(MT_Dbl,natoms,'qatom',lqatom,iqatom))
-     &   call errquit('dft_fitcd: cannot allocate qatom',0)
+     &   call errquit('dft_fitcd: cannot allocate qatom',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,nshells_cd,'qshell_cd',lqshell_cd, 
      &   iqshell_cd))
-     &   call errquit('dft_fitcd: cannot allocate qshell_cd',0)
+     &   call errquit('dft_fitcd: cannot allocate qshell_cd',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Int,nshells_cd*natoms,'qshtyp_cd',
      &   lqshtyp_cd,iqshtyp_cd))
-     &   call errquit('dft_fitcd: cannot allocate qshtyp_cd',0)
+     &   call errquit('dft_fitcd: cannot allocate qshtyp_cd',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Byte,nshells_cd,'qshell_lab',lqshell_lab,
      &   iqshell_lab))
-     &   call errquit('dft_fitcd: cannot allocate qshell_cd',0)
+     &   call errquit('dft_fitcd: cannot allocate qshell_cd',0, MA_ERR)
 c
       call mull_pop_fit(CD_bas_han, natoms, nshells_cd, nbf_cd, 
      &                  dbl_mb(iqatom), dbl_mb(iqshell_cd), cd_coef, 
      &                  DBL_MB(icgtf), int_mb(iqshtyp_cd), 
      &                  Byte_MB(iqshell_lab))
       if (.not.ma_pop_stack(lqshell_lab))
-     &   call errquit('dft_fitcd: cannot pop stack',0)
+     &   call errquit('dft_fitcd: cannot pop stack',0, MA_ERR)
       if (.not.ma_pop_stack(lqshtyp_cd))
-     &   call errquit('dft_fitcd: cannot pop stack',1)
+     &   call errquit('dft_fitcd: cannot pop stack',1, MA_ERR)
       if (.not.ma_pop_stack(lqshell_cd))
-     &   call errquit('dft_fitcd: cannot pop stack',2)
+     &   call errquit('dft_fitcd: cannot pop stack',2, MA_ERR)
       if (.not.ma_pop_stack(lqatom))
-     &   call errquit('dft_fitcd: cannot pop stack',3)
+     &   call errquit('dft_fitcd: cannot pop stack',3, MA_ERR)
 c
 cedo      call ga_sync
 c      call dft_tstamp(' in dft_cdfit after  mull')
@@ -742,7 +749,7 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      if(IOLGC) call gadest(g_cdinv)
       if (IOLGC)then
          if (.not. ga_destroy(g_cdinv)) call errquit
-     &      ('dft_fitcd: could not destroy g_cdinv', 0)
+     &      ('dft_fitcd: could not destroy g_cdinv', 0, GA_ERR)
       endif         
 c
 c     calculation of Ecoul1
@@ -757,17 +764,18 @@ c
          rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
          if (dabs(rho_int-Q).gt.0.001d0) then
             write(*,*)' rho_int check 2, density',ifit,' = ',rho_int
-            call errquit('dft_fitcd: problem w/fitted density',911)
+            call errquit('dft_fitcd: problem w/fitted density',911,
+     &       UNKNOWN_ERR)
 c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
 c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
          endif
       enddo
       if(.not.ma_pop_stack(lscr))
-     &  call errquit('dft_fitcd: cannot pop stack',4)
+     &  call errquit('dft_fitcd: cannot pop stack',4, MA_ERR)
       if(.not.ma_pop_stack(lcgtf))
-     &  call errquit('dft_fitcd: cannot pop stack',5)
+     &  call errquit('dft_fitcd: cannot pop stack',5, MA_ERR)
       if(.not.ma_pop_stack(lTvec))
-     &  call errquit('dft_fitcd: cannot pop stack',6)
+     &  call errquit('dft_fitcd: cannot pop stack',6, MA_ERR)
       
 #if defined(DFT_TIMER)
       call dft_second(ts2)
@@ -827,6 +835,7 @@ c      call errquit(' temp stop semi-direct ',999)
       Subroutine mull_pop_fit(basis, natoms, nshells, nbf_cd,
      &     qatom, qshell, cd_coef, cgtf, shell_types, shell_labels)
       Implicit none
+#include "errquit.fh"
       integer basis
       integer natoms, nshells, shell_types(natoms,nshells)
       integer ifirst, ilast, nbf_cd
@@ -861,13 +870,13 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 cedo      call ga_sync
       do iat = me+1, natoms, nproc
          if (.not.bas_ce2cnr(basis, iat, ish1, ish2))
-     &      call errquit(' exiting in mull_pop_fit',4)
+     &      call errquit(' exiting in mull_pop_fit',4, BASIS_ERR)
          do ish = ish1, ish2
             if (.not. bas_cn2bfr(basis, ish, ifirst, ilast))
-     &         call errquit(' exiting in mull_pop_fit.',5)
+     &         call errquit(' exiting in mull_pop_fit.',5, BASIS_ERR)
             if (.not. bas_continfo(basis, ish, itype, nprim,
      &                             ncont, icart))
-     &         call errquit(' exiting in mull_pop_fit.',5)
+     &         call errquit(' exiting in mull_pop_fit.',5, BASIS_ERR)
             it = ilast - ifirst + 1
 c            if (itype.le.9)then
 c               shell_labels(ish) = ang_mom_label(itype+1)
@@ -891,7 +900,7 @@ c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
          write(LuOut,10)
          do iat = 1, natoms
             if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
-     &         call errquit(' exiting in mull_pop',4)
+     &         call errquit(' exiting in mull_pop',4, BASIS_ERR)
             do i = 1, nshells
                itype = shell_types(iat,i)
                if (itype.le.9)then

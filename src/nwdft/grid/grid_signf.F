@@ -2,9 +2,10 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim, iandex,iatype_pt_chg)
 c
-C$Id: grid_signf.F,v 1.5 2000-10-25 22:50:14 windus Exp $
+C$Id: grid_signf.F,v 1.6 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer basis
       integer ctr_quad ! atom where the grid is centered [input]
@@ -47,7 +48,7 @@ c
           goto 2001
         endif
         if (.not.bas_ce2cnr(basis,ictr,ic1,ic2))
-     &       call errquit('Exiting in xc_signf.',11)
+     &       call errquit('Exiting in xc_signf.',11, BASIS_ERR)
 c
 c     no bf on center ie but we keep grid
 c
@@ -69,16 +70,16 @@ c
 c       get info about current contraction set
 c       
         if (.not. bas_cn2bfr(basis, icset, ifirst, ilast))
-     &       call errquit('Exiting in xc_signf.',4)
+     &       call errquit('Exiting in xc_signf.',4, BASIS_ERR)
             if (.not. bas_continfo(basis, icset,  l ,nprim,
      &                             dum, dum))
-     &       call errquit('Exiting in xc_signf.',4)
+     &       call errquit('Exiting in xc_signf.',4, BASIS_ERR)
 c       
 c       
 c       get exponents and contraction coefficients for this contraction set
 c       
         if (.not.bas_get_exponent(basis, icset, zprim))
-     &       call errquit('Exiting in xc_signf.',7)
+     &       call errquit('Exiting in xc_signf.',7, BASIS_ERR)
 c       
 c       Determine the minimum Gaussian exponent.
 c       

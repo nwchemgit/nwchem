@@ -3,12 +3,13 @@ C NAME
 C     rimp2_create_dra -- Create DRAs to previously computed sizes
 C
 C REVISION
-C     $Id: create_dra.F,v 1.1 1999-05-28 15:29:39 bernhold Exp $
+C     $Id: create_dra.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_Create_DRA(MaxSpin, TopSpin, NFit, BraKetSame, 
      $     NameI, NameG, IntRange, GamRange, D_Int, D_Gam)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer MaxSpin ![in]
       Integer TopSpin ![in]
@@ -41,7 +42,7 @@ C LOCAL VARIABLES
 C
       If ( TopSpin .gt. MaxSpin ) Call ErrQuit(
      $     'RIMP2_Create_DRA: fatal program error: TopSpin > MaxSpin',
-     $     MaxSpin)
+     $     MaxSpin, INPUT_ERR)
 C
 C     Initialize DRA handles to 0
 C
@@ -66,7 +67,8 @@ C
      $                 J, K))), DRA_RW, N1, NFit, D_Int(Spin, J, K) )
 C
      $                 .ne. 0) Call ErrQuit(
-     $                 'RIMP2_Create_DRA: failed for int spin', Spin)
+     $                 'RIMP2_Create_DRA: failed for int spin', Spin,
+     &       INPUT_ERR)
                EndIf
             EndDo               ! Class (K)
          EndDo                  ! Bra/Ket (J)
@@ -89,7 +91,8 @@ C
      $           DRA_RW, N1, NFit, D_Gam(Spin) )
 C
      $           .ne. 0) Call ErrQuit(
-     $           'RIMP2_Create_DRA: failed for gamma3 spin', Spin)
+     $           'RIMP2_Create_DRA: failed for gamma3 spin', Spin,
+     &       INPUT_ERR)
          EndIf
       EndDo                     ! Spin
 C

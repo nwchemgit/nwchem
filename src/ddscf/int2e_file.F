@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.55 2003-02-01 07:57:46 edo Exp $
+* $Id: int2e_file.F,v 1.56 2003-10-17 22:54:32 carlfahl Exp $
 *
       implicit none
 #include "cint2efile.fh"
@@ -11,6 +11,7 @@
      $     filename,
      $     cachesize, filesize, precision_arg, orestart)
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -41,7 +42,8 @@ c     Currently only allows for restart if entire file is disk resident
 c     ... needs mods to allow writing of memory cached integrals
 c     (actually gets simpler once the file routines do the caching)
 c
-      if (filename.eq.' ') call errquit('int2e_file_open: empty name',0)
+      if (filename.eq.' ') call errquit('int2e_file_open: empty name',0,
+     &       INPUT_ERR)
       call util_pname(filename, actualname)
 c
       otrace = util_print('int2edebug',print_debug)
@@ -113,7 +115,8 @@ c
          else
             if (eaf_stat(actualname, availkb, fstype) .ne. 0)
      $           call errquit
-     $           ('int2e_file_open:unable to stat available disk',0)
+     $           ('int2e_file_open:unable to stat available disk',0,
+     &       DISK_ERR)
             write(6,*) ' non-SCRATCH ', availkb
 c
 c     now eaf_stat returns Mb instead of kb
@@ -148,15 +151,17 @@ c     Figure out the size of an existing file
 c
       if (orestart) then
          if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $        call errquit('int2e_file_open: eaf_open failed', 0)
+     $        call errquit('int2e_file_open: eaf_open failed', 0,
+     &       INT_ERR)
          file_opened = .true.
          if (eaf_length(fd, length) .ne. 0) call errquit
-     $        ('int2e_file_open: unable to determine file length',0)
+     $        ('int2e_file_open: unable to determine file length',0,
+     &       INT_ERR)
 c
          n_rec_in_file = length / (8*rec_len_in_dbl)
          if ((length - 8.0d0*dble(n_rec_in_file*rec_len_in_dbl))
      $        .ne. 0)
-     $        call errquit('int2e_file: bad file length ', 0)
+     $        call errquit('int2e_file: bad file length ', 0, INT_ERR)
 c
          call ga_igop(555, n_rec_in_file, 1, '+')
          if (oinfo) then
@@ -178,6 +183,7 @@ c
       end
       subroutine int2e_packing_info
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 c
 c     Given lab_pack_len, nint_per_dbl, and ocompress
@@ -200,7 +206,8 @@ c     value=64bits labels=64bits
             n_per_rec = (buffer_size/2)
          end if
       else
-         call errquit('int2e_file_open: bad lab_pack_len', lab_pack_len)
+         call errquit('int2e_file_open: bad lab_pack_len', lab_pack_len,
+     &       INT_ERR)
       endif
       n_per_rec = n_per_rec - mod(n_per_rec,2) ! Make it a multiple of 2
 c
@@ -217,12 +224,14 @@ c
             laboff = n_per_rec + 1
          endif
       else
-         call errquit('int2e_mem_size: nint_per_dbl?', nint_per_dbl)
+         call errquit('int2e_mem_size: nint_per_dbl?', nint_per_dbl,
+     &       INT_ERR)
       endif
 c
       end
       logical function int2e_file_close(okeep)
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -238,16 +247,16 @@ c
      $           .and.ga_nodeid().eq.0)) 
      $        call eaf_print_stats(fd)
          if (eaf_close(fd) .ne. 0) call errquit
-     $        ('int2e_file_close: eaf_close failed',0)
+     $        ('int2e_file_close: eaf_close failed',0, UNKNOWN_ERR)
          if (.not. okeep) then
             if (eaf_delete(actualname) .ne. 0) call errquit
-     $           ('int2e_file_close: delete failed', 0)
+     $           ('int2e_file_close: delete failed', 0, INPUT_ERR)
          endif
       endif
 c
       if (l_cache .ne. -1) then
          if (.not. ma_free_heap(l_cache))
-     $        call errquit('int2e_file_close: free heap?',0)
+     $        call errquit('int2e_file_close: free heap?',0, MA_ERR)
       end if
 c
       if (file_opened .or. l_cache.ne.-1) then
@@ -300,6 +309,7 @@ c
       logical function int2e_set_bf_range(
      $     ilo, ihi, jlo, jhi, klo, khi, llo, lhi)
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 c
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
@@ -344,7 +354,8 @@ c
                call int2e_packing_info()
             else
                write(6,*) cur_rec, n_rec_in_file, next_value
-               call errquit('int2e_set_bf_range: more than 255',0)
+               call errquit('int2e_set_bf_range: more than 255',0,
+     &       UNKNOWN_ERR)
             endif
          endif
       endif
@@ -404,6 +415,7 @@ c
       logical function int2e_get_bf_range(
      $     ilo, ihi, jlo, jhi, klo, khi, llo, lhi)
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 c
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
@@ -454,7 +466,8 @@ c
          write(6,*) ' int2e_file: get range next_value', next_value
          write(6,*) ' int2e_file: get range cntr_ptr', cntr_ptr
          call util_flush(6)
-         call errquit('int2e_file_get_bf_range: invalid', 0)
+         call errquit('int2e_file_get_bf_range: invalid', 0,
+     &       INT_ERR)
       end if
 c
       range(1,1) = ilo
@@ -578,6 +591,7 @@ c
       end
       logical function int2e_file_read(maxints, nints, i, j, k, l, g)
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 c
       integer maxints
@@ -612,7 +626,8 @@ c
          if (next_value .gt. n_in_rec) then
             if (.not. int2e_buf_read()) goto 1000 ! EOF
          end if
-         if (next_value .gt. n_in_rec) call errquit('i2efr: uh?', 0)
+         if (next_value .gt. n_in_rec) call errquit('i2efr: uh?', 0,
+     &       UNKNOWN_ERR)
          if (nleft_in_range .le. 0) goto 1000 ! end of range
 c
 	 ibase = range(1,1)
@@ -652,6 +667,7 @@ c
      $           dij, dik, dli, djk, dlj, dlk,
      $           fij, fik, fli, fjk, flj, flk)
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 c
 c     Add the integrals directly from the IO buffer into the
@@ -675,7 +691,8 @@ c
  10   if (next_value .gt. n_in_rec) then
          if (.not. int2e_buf_read()) goto 1000 ! EOF
       end if
-      if (next_value .gt. n_in_rec) call errquit('i2effb: uh?', 0)
+      if (next_value .gt. n_in_rec) call errquit('i2effb: uh?', 0,
+     &       UNKNOWN_ERR)
       if (nleft_in_range .le. 0) goto 1000 ! end of range
 c
       neri = nleft_in_range
@@ -697,6 +714,7 @@ c
      $     tol2e, dens, fock)
      $     
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 c
 c     Replicated data version of above routine
@@ -721,7 +739,8 @@ c
  10   if (next_value .gt. n_in_rec) then
          if (.not. int2e_buf_read()) goto 1000 ! EOF
       end if
-      if (next_value .gt. n_in_rec) call errquit('i2effb: uh?', 0)
+      if (next_value .gt. n_in_rec) call errquit('i2effb: uh?', 0,
+     &       UNKNOWN_ERR)
       if (nleft_in_range .le. 0) goto 1000 ! end of range
 c
       neri = nleft_in_range
@@ -757,6 +776,7 @@ c
       end
       logical function int2e_packed_buf_write(oend)
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -834,7 +854,8 @@ c
       else
          if (.not. file_opened) then
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0)
-     $           call errquit('int2e_file_open: eaf_open failed', 0)
+     $           call errquit('int2e_file_open: eaf_open failed', 0,
+     &       UNKNOWN_ERR)
             file_opened = .true.
          end if
 c
@@ -846,7 +867,8 @@ c
             call eaf_errmsg(ierr, errmsg)
             write(6,*) ' IO offset ', offset
             write(6,*) ' IO error message ',errmsg(1:inp_strlen(errmsg))
-            call errquit('int2e_packed_buf_write: write failed',0)
+            call errquit('int2e_packed_buf_write: write failed',0,
+     &       UNKNOWN_ERR)
          endif
       end if
 c
@@ -891,6 +913,7 @@ c
       end
       logical function int2e_packed_buf_read()
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 #include "cint2esave.fh"
@@ -938,7 +961,7 @@ c
                call eaf_errmsg(ierr,errmsg)
                write(6,*) ga_nodeid(),errmsg
                call errquit('int2e_buf_read:premature end of file',
-     $              cur_rec)
+     $              cur_rec, INPUT_ERR)
             endif
          else
 c
@@ -948,7 +971,8 @@ c
             if (ierr .ne. 0) then
                call eaf_errmsg(ierr,errmsg)
                write(6,*) ga_nodeid(),errmsg
-               call errquit('int2e_buf_read:eaf_wait failed',cur_rec)
+               call errquit('int2e_buf_read:eaf_wait failed',cur_rec,
+     &       UNKNOWN_ERR)
             endif
             oiopending = .false.
 **            call dcopy(rec_len_in_dbl, buf2, 1, buf, 1)
@@ -965,7 +989,8 @@ c
             if (ierr.ne.0) then
                call eaf_errmsg(ierr,errmsg)
                write(6,*) ga_nodeid(),errmsg
-               call errquit('int2e_buf_read:asynch IO failed',cur_rec+1)
+               call errquit('int2e_buf_read:asynch IO failed',cur_rec+1,
+     &       UNKNOWN_ERR)
             endif
          endif
       end if
@@ -1024,6 +1049,7 @@ c
       end
       subroutine int2e_file_reposition_truncate
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "eaf.fh"
 c
@@ -1038,7 +1064,8 @@ c     First load the desired record
 c     
       target_rec = posinfo(3)
       if (target_rec.lt.1 .or. target_rec.gt. cur_rec) 
-     $     call errquit('int2e_reposition : bad target', target_rec)
+     $     call errquit('int2e_reposition : bad target', target_rec,
+     &       UNKNOWN_ERR)
 c
       if (target_rec .ne. cur_rec) then
 c
@@ -1049,7 +1076,8 @@ c
                newfilelen = max(0.0d0,
      $              8.0d0*rec_len_in_dbl*(target_rec-max_cache_rec))
                if (eaf_truncate(fd, newfilelen) .ne. 0) call errquit
-     $              ('int2e_reposition: file truncate failed', 0)
+     $              ('int2e_reposition: file truncate failed', 0,
+     &       UNKNOWN_ERR)
             endif
             n_rec_in_file = target_rec
          endif
@@ -1058,7 +1086,8 @@ c     Read the record and leave the file positioned to write over it
 c
          cur_rec = target_rec
          if (.not. int2e_buf_read()) call errquit
-     $        ('int2e_reposition: failed reading record ', cur_rec)
+     $        ('int2e_reposition: failed reading record ', cur_rec,
+     &       UNKNOWN_ERR)
          cur_rec = target_rec
       endif
 c
@@ -1089,6 +1118,7 @@ c
       end
       subroutine int2e_buf_unpack()
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 c
@@ -1124,7 +1154,7 @@ c
          end do
       else
          call errquit('int2e_buf_unpack: wierd nint_per_dbl',
-     $        nint_per_dbl)
+     $        nint_per_dbl, UNKNOWN_ERR)
       end if
 c
       if (lab_pack_len .eq. 8) then
@@ -1132,12 +1162,14 @@ c
       else if (lab_pack_len .eq. 16) then
          call util_unpack_16(4*n_per_rec, ibuf(laboff), labels)
       else
-         call errquit('int2e_buf_unpack: lab_pack_len?', lab_pack_len)
+         call errquit('int2e_buf_unpack: lab_pack_len?', lab_pack_len,
+     &       UNKNOWN_ERR)
       endif
 c
       end
       subroutine int2e_buf_pack()
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 #include "mafdecls.fh"
 c
@@ -1169,7 +1201,8 @@ c
             ind = ind + 2
          end do
       else
-         call errquit('int2e_buf_pack: wierd nint_per_dbl',nint_per_dbl)
+         call errquit('int2e_buf_pack: wierd nint_per_dbl',nint_per_dbl,
+     &       UNKNOWN_ERR)
       end if
 c
 c     Always compress labels
@@ -1179,7 +1212,8 @@ c
       else if (lab_pack_len .eq. 16) then
          call util_pack_16(4*n_per_rec, ibuf(laboff), labels)
       else
-         call errquit('int2e_buf_pack: bad lab_pack_len', lab_pack_len)
+         call errquit('int2e_buf_pack: bad lab_pack_len', lab_pack_len,
+     &       UNKNOWN_ERR)
       endif
 c
       end
@@ -1203,6 +1237,7 @@ c
       end
       subroutine int2e_buf_cntr_unpack()
       implicit none
+#include "errquit.fh"
 #include "cint2efile.fh"
 c     
       integer i, j, k, l
@@ -1224,12 +1259,14 @@ c
          call util_flush(6)
          call errquit
      $     ('int2e_buf_cntr_unpack: invalid count', 
-     $     labels(1,cntr_ptr))
+     $     labels(1,cntr_ptr),
+     &       UNKNOWN_ERR)
       end if
 c
       end
       logical function int2e_test_mem(geom, basis, tol2e)
       implicit none
+#include "errquit.fh"
 #include "util.fh"
 #include "bas.fh"
 #include "cint2efile.fh"
@@ -1267,7 +1304,7 @@ c
       oinfo  = util_print('int2einfo', print_default) .and.
      $     ga_nodeid().eq.0
       if (.not. bas_numbf(basis, nbf))
-     $     call errquit('int2e: bad bas',0)
+     $     call errquit('int2e: bad bas',0, BASIS_ERR)
       nops = sym_number_ops(geom) + 1
 c
       rec_len_in_dbl = buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
@@ -1316,7 +1353,8 @@ c
       if (localmemsize.gt.0 .or. filesize.ge.0) then
          if (.not. int2e_file_open(int2efilename, 
      $        localmemsize, filesize, tol2e, .false.))
-     $        call errquit('int2e_test_mem: int2e_file_open failed',0)
+     $        call errquit('int2e_test_mem: int2e_file_open failed',0,
+     &       UNKNOWN_ERR)
          int2e_test_mem = .true.
       endif
 *      if (localmemsize.eq.0 .and. oinfo .and. ofirst .and. memsize.eq.0) then

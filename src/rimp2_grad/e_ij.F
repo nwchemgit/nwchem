@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_E_IJ -- Evaluate RI-MP2 energy contributions for IJ batch
 C
 C REVISION
-C     $Id: e_ij.F,v 1.2 1998-07-13 02:38:09 bernhold Exp $
+C     $Id: e_ij.F,v 1.3 2003-10-17 22:58:12 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine RIMP2_E_IJ(TopSpin, SameSpin, ILo, IHi, NVirI,
@@ -11,6 +11,7 @@ C SYNOPSIS
      $   G_I, KeepI, G_J, KeepJ, G_Int, KeepInt, G_T2, KeepT2, G_PairE,
      $   SpinLabel, TopN, TopN_Ind, TopN_Val, ReqI, ReqJ)
       Implicit NONE
+#include "errquit.fh"
 C
       Integer TopSpin  ![in] RHF=1 UHF=2
       Logical SameSpin ![in] I and J have same spin
@@ -91,7 +92,7 @@ C
       If ( .NOT. GA_Create( MT_Dbl, NI*NVirI, NJ*NVirJ,
      $   String1(:Inp_StrLen(String1)), Chunk, Chunk, G_Int) )
      $   Call ErrQuit( 'RIMP2_E_IJ: can''t allocate integral GA',
-     $   NI*NVirI*NJ*NVirJ )
+     $   NI*NVirI*NJ*NVirJ , GA_ERR)
 c$$$C
 c$$$C     At this point, we must insure that the integrals are actually
 c$$$C     finished loading.
@@ -123,11 +124,11 @@ C     Don't need I and J any more
 C
       If ( .NOT. KeepJ) then
          If ( .NOT. GA_Destroy( G_j) ) Call ErrQuit(
-     $      'RIMP2_E_IJ: can''t destroy integral GA J', G_j)
+     $      'RIMP2_E_IJ: can''t destroy integral GA J', G_j, GA_ERR)
       EndIf
       If ( .NOT. KeepI) then
          If ( .NOT. GA_Destroy( G_I) ) Call ErrQuit(
-     $      'RIMP2_E_IJ: can''t destroy integral GA I', G_I)
+     $      'RIMP2_E_IJ: can''t destroy integral GA I', G_I, GA_ERR)
       EndIf
 C     
 C     Antisymmetrize integrals
@@ -135,7 +136,8 @@ C
       Call PStat_On( PS_form_ab)
       If ( .NOT. RIMP2_Asym_I(TopSpin, SameSpin, ILo, IHi, NVirI, 
      $   JLo, JHi, NVirJ, .FALSE., IJTri, G_Int, SpinLabel) )
-     $   Call ErrQuit('RIMP2G_V_E2: can''t antisymmetrize integrals', 0)
+     $   Call ErrQuit('RIMP2G_V_E2: can''t antisymmetrize integrals', 0,
+     &       INT_ERR)
       Call PStat_Off( PS_form_ab)
 c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
 c$$$     $   '       Antisymmetrized integrals done')
@@ -146,7 +148,8 @@ C
       If (.NOT. RIMP2_Mk_T(ILo, IHi, NVirI, JLo, JHI, NVirJ, .FALSE.,
      $   IJTri, G_Int, G_T2, OccEigI, OccEigJ, VirEigI, VirEigJ,
      $   SpinLabel) )
-     $   Call ErrQuit('RIMP2G_V_E2: can''t create amplitude GA', 0)
+     $   Call ErrQuit('RIMP2G_V_E2: can''t create amplitude GA', 0,
+     &       GA_ERR)
       Call PStat_Off( PS_denom)
 c$$$      If ( PrPrgRpt ) Call Progress_Report(LuOut,
 c$$$     $   '       T2 amplitudes done')
@@ -169,11 +172,12 @@ C     Don't need integrals or amplitudes anymore
 C
       If ( .NOT. KeepInt ) then
          If (.NOT. GA_Destroy(G_Int) ) Call ErrQuit(
-     $      'RIMP2_E_IJ: can''t destroy 4c2e integral GA', G_Int)
+     $      'RIMP2_E_IJ: can''t destroy 4c2e integral GA', G_Int,
+     &       GA_ERR)
       EndIf
       If ( .NOT. KeepT2 ) then
          If (.NOT. GA_Destroy(G_T2) ) Call ErrQuit(
-     $      'RIMP2_E_IJ: can''t destroy T2 GA', G_T2)
+     $      'RIMP2_E_IJ: can''t destroy T2 GA', G_T2, GA_ERR)
       EndIf
 C
       Return

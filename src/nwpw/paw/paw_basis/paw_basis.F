@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.24 2003-03-25 02:59:29 edo Exp $
+* $Id: paw_basis.F,v 1.25 2003-10-17 22:56:57 carlfahl Exp $
 *
 
 !**************************************************
@@ -12,6 +12,7 @@
 !**************************************************
       subroutine init_paw_basis()
       implicit none
+#include "errquit.fh"
 
       
 #include "paw_basis.fh"
@@ -42,7 +43,7 @@ c      !*** external functions ***
       ok = ok.and.
      >     MA_push_get(MT_INT,nt, "ng_tmp_array", l_ng,i_ng)
       if (.not.ok) 
-     > call errquit('init_paw_basis: out of stack memory',0)
+     > call errquit('init_paw_basis: out of stack memory',0, MA_ERR)
   
       do it = 1, nt
        call ion_atom_plus_suffix(it,'_basis',fname)
@@ -136,7 +137,7 @@ c     !*** set core charges ***
       ok =        MA_pop_stack(l_ng)
       ok = ok.and.MA_pop_stack(l_nb)
       if (.not.ok) 
-     > call errquit('init_paw_basis:error popping stack',1)
+     > call errquit('init_paw_basis:error popping stack',1, MA_ERR)
 
       return
       end 
@@ -151,6 +152,7 @@ c     !*** set core charges ***
 !**************************************************
       subroutine read_paw_basis_dims(nb,ng,filename)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
@@ -177,7 +179,7 @@ c     !*** set core charges ***
 
       if( .not. assert_file(filename)) then
          write(luout,*)  ' cannot find ',filename
-        call errquit("paswbasis: cannot find file",1)
+        call errquit("paswbasis: cannot find file",1, DISK_ERR)
       end if
 
       call open_file(filename,"r",fp)
@@ -222,6 +224,7 @@ c     !*** set core charges ***
      >                          v_ps,
      >                          aname)
       implicit none
+#include "errquit.fh"
       double precision r1
       double precision rmax
       integer          ngrid
@@ -268,7 +271,7 @@ c     !*** set core charges ***
 
       if( .not. assert_file(aname)) then
         write(luout,*)  ' cannot find ',aname
-        call errquit('paswbasis: cannot find file',2)
+        call errquit('paswbasis: cannot find file',2, DISK_ERR)
       end if
 
       call open_file(aname,"r",fp)

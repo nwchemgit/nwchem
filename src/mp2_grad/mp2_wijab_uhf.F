@@ -8,9 +8,10 @@
      $     eval_a,eval_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
 *
-* $Id: mp2_wijab_uhf.F,v 1.14 1998-12-12 22:48:38 d3g681 Exp $
+* $Id: mp2_wijab_uhf.F,v 1.15 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "eaf.fh"
@@ -69,13 +70,13 @@ c
       nob=nob_hi-nob_lo+1
       nvb=nvb_hi-nvb_lo+1
       if(.not.ma_push_get(mt_dbl,noa*noa,'w_ij_a',l_w_ij_a,k_w_ij_a))
-     $     call errquit('could not alloc w_ij_a',noa*noa)
+     $     call errquit('could not alloc w_ij_a',noa*noa, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nva*nva,'w_ab_a',l_w_ab_a,k_w_ab_a))
-     $     call errquit('could not alloc w_ab_a',nva*nva)
+     $     call errquit('could not alloc w_ab_a',nva*nva, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nob*nob,'w_ij_b',l_w_ij_b,k_w_ij_b))
-     $     call errquit('could not alloc w_ij_b',nob*nob)
+     $     call errquit('could not alloc w_ij_b',nob*nob, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nvb*nvb,'w_ab_b',l_w_ab_b,k_w_ab_b))
-     $     call errquit('could not alloc w_ab_b',nvb*nvb)
+     $     call errquit('could not alloc w_ab_b',nvb*nvb, MA_ERR)
 c     
       zero=0.0d0
       one=1.0d0
@@ -184,7 +185,7 @@ c
       endif
 c     
       if (.not. ma_chop_stack(l_w_ij_a)) call errquit
-     $     ('mp2_wijab_uhf: chop stack failed',0)
+     $     ('mp2_wijab_uhf: chop stack failed',0, MA_ERR)
 c     
       end
 

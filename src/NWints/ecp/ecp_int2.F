@@ -1,4 +1,4 @@
-C $Id: ecp_int2.F,v 1.13 2000-06-09 00:08:24 mg201 Exp $
+C $Id: ecp_int2.F,v 1.14 2003-10-17 22:53:51 carlfahl Exp $
 ************************************************************************
 *                                                                      *
       subroutine ecp_int2 (mem_max,DryRun,
@@ -72,6 +72,8 @@ C $Id: ecp_int2.F,v 1.13 2000-06-09 00:08:24 mg201 Exp $
       implicit none
 #include "stdio.fh"
 #include "ecp_consts.fh"
+#include "util.fh"
+#include "errquit.fh"
       integer i,k,l,
      &    i_ai,ibug,i_ca,i_Ga,i_bi,i_cb,i_Gb,i_free,i_cont_c,i_co,
      &    i_a,i_b,i_c,i_d,i_k,i_t,i_x,i_y,i_z,i_int_a,i_int_b,i_coef,
@@ -151,7 +153,7 @@ C $Id: ecp_int2.F,v 1.13 2000-06-09 00:08:24 mg201 Exp $
         if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
       else
         if (i-1 .gt. ltmp) call errquit(
-     &      ' Insufficient memory in ecp_int2',99)
+     &      ' Insufficient memory in ecp_int2',99, MEM_ERR)
 *
 *   Expand cartesian basis about ECP centre in spherical harmonics
 *
@@ -294,7 +296,7 @@ C $Id: ecp_int2.F,v 1.13 2000-06-09 00:08:24 mg201 Exp $
           if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. ltmp) call errquit(
-     &        ' Insufficient memory in ecp_int2',99)
+     &        ' Insufficient memory in ecp_int2',99, MEM_ERR)
           i_t = i_cont_c
           do i_y = 1,n_pass
             i_z = ind_z(l_c,1,i_t)
@@ -380,7 +382,7 @@ C $Id: ecp_int2.F,v 1.13 2000-06-09 00:08:24 mg201 Exp $
           if (debug_gen) write (LuOut,*) ' This is a dry run'
         else
           if (i_free-1 .gt. ltmp) call errquit(
-     &        ' Insufficient memory in ecp_int2',99)
+     &        ' Insufficient memory in ecp_int2',99, MEM_ERR)
 *
 *       Set up angular coefficients and contract over components of
 *       spherical tensors (sum over q and q').
@@ -467,7 +469,7 @@ C $Id: ecp_int2.F,v 1.13 2000-06-09 00:08:24 mg201 Exp $
           if (debug_addresses) write (LuOut,*) 'mem_max',mem_max
         else
           if (i_free-1 .gt. ltmp) call errquit(
-     &        ' Insufficient memory in ecp_int2',99)
+     &        ' Insufficient memory in ecp_int2',99, MEM_ERR)
           n_row = ncab*n_int_a
           do i_x = 1,n_x
             i_b = i_cb

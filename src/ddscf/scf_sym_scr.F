@@ -1,9 +1,10 @@
       subroutine scf_sym_screen(nclosed, nopen, nvir, irs,
      $                          g_v, ivoff, oprint, maxelt)
 *
-* $Id: scf_sym_scr.F,v 1.6 1997-11-07 11:35:19 d3e129 Exp $
+* $Id: scf_sym_scr.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer nclosed, nopen, nvir ! [input] No. of MOs in each space
@@ -26,7 +27,8 @@ c
 c
       if (.not. ma_push_get(mt_dbl, nclosed+nopen+nvir, 
      $     'scf_sym_screen', l_buf, k_buf)) 
-     $     call errquit('scf_sym_screen: ma?',nclosed+nopen+nvir)
+     $     call errquit('scf_sym_screen: ma?',nclosed+nopen+nvir,
+     &       MA_ERR)
 c
       call ga_sync
 c
@@ -63,7 +65,7 @@ c
       enddo
 c
       if (.not. ma_pop_stack(l_buf))
-     $     call errquit('scf_sym_screen: ma?',-1)
+     $     call errquit('scf_sym_screen: ma?',-1, MA_ERR)
       call ga_sync
 c
       tmp(1) = nmixed

@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.17 2000-04-27 20:58:00 zzhang Exp $
+c     $Id: mcscf_fock.F,v 1.18 2003-10-17 22:55:21 carlfahl Exp $
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
@@ -11,6 +11,7 @@ c
      $     g_coul, eone, etwo, ecore,
      $     g_ifock, g_afock, g_gfock )
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -184,15 +185,15 @@ c
 c     Clean up
 c     
       if (.not.ga_destroy(g_tmp))
-     $     call errquit('mcscf_fock: cannot destroy',0)
+     $     call errquit('mcscf_fock: cannot destroy',0, GA_ERR)
       if (.not.ga_destroy(g_tmp2))
-     $     call errquit('mcscf_fock: cannot destroy',0)
+     $     call errquit('mcscf_fock: cannot destroy',0, GA_ERR)
       if (.not.ga_destroy(g_tmp3))
-     $     call errquit('mcscf_fock: cannot destroy',0)
+     $     call errquit('mcscf_fock: cannot destroy',0, GA_ERR)
       if (.not.ga_destroy(g_cdens))
-     $     call errquit('mcscf_fock: cannot destroy',0)
+     $     call errquit('mcscf_fock: cannot destroy',0, GA_ERR)
       if (.not.ga_destroy(g_adens))
-     $     call errquit('mcscf_fock: cannot destroy',0)
+     $     call errquit('mcscf_fock: cannot destroy',0, GA_ERR)
       if (omcscfprof) call pstat_off(ps_gfock)
       return
       end
@@ -204,6 +205,7 @@ c
 
        subroutine mcscf_denfock_trace(nclosed,nact,nbf,dm1,g_if,g_a)
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
        integer nclosed, nact, nbf
@@ -217,11 +219,13 @@ c
        external check_moblocked
 c
        if (.not.check_moblocked(g_if,nbf,clo,chi))
-     $      call errquit('mcscf_denfock_trace: wrong distrib.',0)
+     $      call errquit('mcscf_denfock_trace: wrong distrib.',0,
+     &       INPUT_ERR)
        if ((clo.gt.0).and.(chi.gt.0)) then
          msize = (chi-clo+1)*nact
          if (.not.ma_push_get(MT_DBL,msize,'ff',l_ff,k_ff))
-     $     call errquit('mcscf_denfock_trace: cannot allocate',0)
+     $     call errquit('mcscf_denfock_trace: cannot allocate',0,
+     &       MA_ERR)
          call dfill(msize,0.d0,dbl_mb(k_ff),1)
          call ga_access(g_if,1,nbf,clo,chi,k_if,ld)
          call mcscf_trace_xyz( nbf,nclosed,nact,clo,chi,dbl_mb(k_if),
@@ -230,7 +234,8 @@ c
          call ga_acc(g_a,nclosed+1,nclosed+nact,clo,chi,dbl_mb(k_ff),
      $               nact,1.d0)
          if (.not.ma_pop_stack(l_ff))
-     $     call errquit('mcscf_denfock_trace: cannot pop stack',0)
+     $     call errquit('mcscf_denfock_trace: cannot pop stack',0,
+     &       MA_ERR)
        endif
        call ga_sync()
        return
@@ -281,6 +286,7 @@ c
        subroutine mcscf_3index_trace( nbf, nclosed, nact, dm2,
      $                                g_coul, g_a )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
        integer nbf,nclosed,nact
@@ -298,10 +304,11 @@ c
        msize = nbf*nact
        nn = nbf*nbf
        if (.not.ma_push_get( MT_DBL, msize, 'ff', l_ff, k_ff ))
-     $   call errquit('mcscf_3index_trace: cannot allocate',0)
+     $   call errquit('mcscf_3index_trace: cannot allocate',0, MA_ERR)
        call dfill(msize,0.d0,dbl_mb(k_ff),1)
        if (.not.ga_check_JKblocked( g_coul, nact, nbf, clo, chi ))
-     $   call errquit('mcscf_3index_trace: wrong distrib operator',0)
+     $   call errquit('mcscf_3index_trace: wrong distrib operator',0,
+     &       GA_ERR)
 c
 c   Loop over (vx), do summation if local
 c
@@ -319,7 +326,7 @@ c
        call ga_acc( g_a, nclosed+1, nclosed+nact, 1, nbf,
      $              dbl_mb(k_ff), nact, 1.d0 )
        if (.not.ma_pop_stack(l_ff))
-     $   call errquit('mcscf_3index_trace: cannot pop stack',0)
+     $   call errquit('mcscf_3index_trace: cannot pop stack',0, MA_ERR)
        call ga_sync()
        return
        end
@@ -368,6 +375,7 @@ c
        double precision function mcscf_act_ener( nbf, nclosed, nact,
      $                                           dm2, g_coul )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "msgids.fh"
@@ -386,7 +394,8 @@ c
 c
        nn = nbf*nbf
        if (.not.ga_check_JKblocked( g_coul, nact, nbf, clo, chi ))
-     $   call errquit('mcscf_3index_trace: wrong distrib operator',0)
+     $   call errquit('mcscf_3index_trace: wrong distrib operator',0,
+     &       GA_ERR)
 c
 c   Loop over (vx), do summation if local
 c
@@ -442,6 +451,7 @@ c
       subroutine mcscf_dump_for_grad(rtdb, geom, basis, nbf, nclosed,
      $     nact,oskel, tol2e, dm1, dm2, g_movecs,  g_coul)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "eaf.fh"
 #include "inp.fh"
@@ -492,13 +502,16 @@ c
 c
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,0,g_afock))
-     $     call errquit('mcscf_orb: cannot allocate active Fock',0)
+     $     call errquit('mcscf_orb: cannot allocate active Fock',0,
+     &       GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,0,g_ifock))
-     $     call errquit('mcscf_orb: cannot allocate inactive Fock',0)
+     $     call errquit('mcscf_orb: cannot allocate inactive Fock',0,
+     &       GA_ERR)
 *ga:1:0
       if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,0,g_gfock))
-     $     call errquit('mcscf_orb: cannot allocate general Fock',0)
+     $     call errquit('mcscf_orb: cannot allocate general Fock',0,
+     &       GA_ERR)
 c      
       call mcscf_fock( geom, basis, nbf, nclosed, nact,
      $     oskel, tol2e, dm1, dm2, g_movecs,
@@ -506,7 +519,8 @@ c
      $     g_ifock, g_afock, g_gfock )
 c
       if (.not. ma_push_get(mt_dbl,nbf*nbf,'buffer',l_buf,k_buf))
-     $     call errquit('mcscf: grad dump ... memory problem',nbf**2)
+     $     call errquit('mcscf: grad dump ... memory problem',nbf**2,
+     &       MA_ERR)
 c
       if (odebug) then
          if (ga_nodeid().eq.0) then
@@ -523,7 +537,8 @@ c
       if (ga_nodeid().eq.0) then
          call util_file_name('mcpdm',.true.,.false.,pdmfilename)
          if (eaf_open(pdmfilename, eaf_rw, pdmfile) .ne. 0)
-     $        call errquit('mcscf: failed opening 2pdm file',0)
+     $        call errquit('mcscf: failed opening 2pdm file',0,
+     &       DISK_ERR)
          offset = 0.0d0
       endif
 c
@@ -538,7 +553,7 @@ c
       if (ga_nodeid() .eq. 0) then
          call ga_get(g_gfock,1,nbf,1,nbf,dbl_mb(k_buf),nbf)
          if (eaf_write(pdmfile, offset, dbl_mb(k_buf), 8*nbf**2).ne.0)
-     $        call errquit('mcscf: failed writing lagrangian',0)
+     $        call errquit('mcscf: failed writing lagrangian',0, GA_ERR)
          offset = offset + 8*nbf**2
       endif
 c
@@ -568,7 +583,8 @@ c
       if (ga_nodeid() .eq. 0) then
          call ga_get(g_gfock,1,nbf,1,nbf,dbl_mb(k_buf),nbf)
          if (eaf_write(pdmfile, offset, dbl_mb(k_buf), 8*nbf**2).ne.0)
-     $        call errquit('mcscf: failed writing lagrangian',0)
+     $        call errquit('mcscf: failed writing lagrangian',0,
+     &       DISK_ERR)
          offset = offset + 8*nbf**2
       endif
 c
@@ -608,9 +624,11 @@ c
 c
       if (ga_nodeid() .eq. 0) then
          if (eaf_write(pdmfile, offset, dm2, 8*nact**4).ne.0)
-     $        call errquit('mcscf: failed writing 2pdm file',0)
+     $        call errquit('mcscf: failed writing 2pdm file',0,
+     &       DISK_ERR)
          if (eaf_close(pdmfile).ne.0)
-     $        call errquit('mcscf: failed closing 2pdm file',0)
+     $        call errquit('mcscf: failed closing 2pdm file',0,
+     &       DISK_ERR)
       endif
 c
       if (ga_nodeid().eq.0 .and. 
@@ -660,15 +678,21 @@ c
          call mull_pop(geom, basis, g_gfock, g_over, 'open shell')
       endif
 c
-      if (.not. ma_pop_stack(l_buf)) call errquit('mcscf: dump MA?',0)
-      if (.not. ga_destroy(g_gfock)) call errquit('mcscf: dump GA?',0)
-      if (.not. ga_destroy(g_ifock)) call errquit('mcscf: dump GA?',0)
-      if (.not. ga_destroy(g_afock)) call errquit('mcscf: dump GA?',0)
-      if (.not. ga_destroy(g_over))  call errquit('mcscf: dump GA?',0)
+      if (.not. ma_pop_stack(l_buf)) call errquit('mcscf: dump MA?',0,
+     &       MA_ERR)
+      if (.not. ga_destroy(g_gfock)) call errquit('mcscf: dump GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_ifock)) call errquit('mcscf: dump GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_afock)) call errquit('mcscf: dump GA?',0,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_over))  call errquit('mcscf: dump GA?',0,
+     &       GA_ERR)
 c
       end
       subroutine mcscf_mpole(rtdb, geom, basis, g_dens)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -729,6 +753,7 @@ c
 c     Store the dipole moment
 c
       if (.not. rtdb_put(rtdb, 'mcscf:dipole', mt_dbl, 
-     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0)
+     $     3, totalmoments(2))) call errquit('multipole: rtdb?',0,
+     &       RTDB_ERR)
 c
       end

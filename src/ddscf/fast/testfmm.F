@@ -1,6 +1,6 @@
       program test
 *
-* $Id: testfmm.F,v 1.2 1999-07-29 00:53:58 d3e129 Exp $
+* $Id: testfmm.F,v 1.3 2003-10-17 22:54:37 carlfahl Exp $
 *
       implicit none
 c
@@ -159,6 +159,7 @@ c
       double precision function fmm_potential(lmax, depth,
      $     dimx, dimy, dimz, potential, x, y, z)
       implicit none
+#include "errquit.fh"
       integer lmax, depth
       double precision dimx, dimy, dimz, x, y, z
       double precision potential((lmax+1)**2,
@@ -187,9 +188,9 @@ c
       yo = (dble(ky)+0.5d0)*hy
       zo = (dble(kz)+0.5d0)*hz
 c
-      if (kx.lt.0 .or. kx.ge.2**depth) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.2**depth) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.2**depth) call errquit('z?',0)
+      if (kx.lt.0 .or. kx.ge.2**depth) call errquit('x?',0, FMM_ERR)
+      if (ky.lt.0 .or. ky.ge.2**depth) call errquit('y?',0, FMM_ERR)
+      if (kz.lt.0 .or. kz.ge.2**depth) call errquit('z?',0, FMM_ERR)
 
 *      if (kx.lt.2 .or. kx.ge.2**depth-2) call errquit('x2?',0)
 *      if (ky.lt.2 .or. ky.ge.2**depth-2) call errquit('y2?',0)
@@ -258,6 +259,7 @@ c
      $     poles, coords, charges, ncharge, list_info, list_next,
      $     map)
       implicit none
+#include "errquit.fh"
       integer lmax, depth, ncharge
       double precision dimx, dimy, dimz
       double precision poles((lmax+1)**2,
@@ -292,7 +294,7 @@ c
       integer max_per_box, min_per_box, ind, n, twod
       double precision avgsq_per_box
 c
-      if (lmax .gt. lq) call errquit('fmm_ctop: lmax>lq', lmax)
+      if (lmax .gt. lq) call errquit('fmm_ctop: lmax>lq', lmax, FMM_ERR)
       twod = 2**depth
       call xlm_init
 c
@@ -313,9 +315,9 @@ c
          yo = (dble(ky)+0.5d0)*hy
          zo = (dble(kz)+0.5d0)*hz
          write(6,*) x, y, z, kx, ky, kz, depth, twod
-         if (kx.lt.0 .or. kx.ge.twod) call errquit('x!',0)
-         if (ky.lt.0 .or. ky.ge.twod) call errquit('y!',0)
-         if (kz.lt.0 .or. kz.ge.twod) call errquit('z!',0)
+         if (kx.lt.0 .or. kx.ge.twod) call errquit('x!',0, FMM_ERR)
+         if (ky.lt.0 .or. ky.ge.twod) call errquit('y!',0, FMM_ERR)
+         if (kz.lt.0 .or. kz.ge.twod) call errquit('z!',0, FMM_ERR)
 c
          call xlm(lmax, x-xo, y-yo, z-zo, q, lq)
          do l = 0, lmax
@@ -376,6 +378,7 @@ c
      $     xlo, xhi, ylo, yhi, zlo, zhi,
      $     list_next, list_info, coords_r, map)
       implicit none
+#include "errquit.fh"
 c
       integer depth, n
       double precision coords(3,n), coords_r(3,n)
@@ -429,9 +432,12 @@ c
          xo = xlo + (dble(kx)+0.5d0)*hx ! Coords of box center
          yo = ylo + (dble(ky)+0.5d0)*hy
          zo = zlo + (dble(kz)+0.5d0)*hz
-         if (kx.lt.0 .or. kx.ge.twod) call errquit('fmm:p2b: x!',0)
-         if (ky.lt.0 .or. ky.ge.twod) call errquit('fmm:p2b: y!',0)
-         if (kz.lt.0 .or. kz.ge.twod) call errquit('fmm:p2b: z!',0)
+         if (kx.lt.0 .or. kx.ge.twod) call errquit('fmm:p2b: x!',0,
+     &       FMM_ERR)
+         if (ky.lt.0 .or. ky.ge.twod) call errquit('fmm:p2b: y!',0,
+     &       FMM_ERR)
+         if (kz.lt.0 .or. kz.ge.twod) call errquit('fmm:p2b: z!',0,
+     &       FMM_ERR)
 c
          list_next(i) = list_info(1,kx,ky,kz)
          list_info(1,kx,ky,kz) = i
@@ -485,6 +491,7 @@ c
      $     n, v_r, list_info,
      $     v_near, oldnumr)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer kx, ky, kz, depth, n, numr, oldnumr
       double precision v_r(n), v_near(*)
@@ -498,9 +505,9 @@ c
       integer kxn, kyn, kzn, dkx, dky, dkz, twod, ninbox, i, ii
 c
       twod = 2**depth
-      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0)
+      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0, FMM_ERR)
+      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0, FMM_ERR)
+      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0, FMM_ERR)
 c
       numr = 1
       do dkz = -well_separated, well_separated
@@ -528,12 +535,14 @@ c
          endif
       enddo
       numr = numr - 1
-      if (numr .ne. oldnumr) call errquit('fmm:avfnp confused',numr)
+      if (numr .ne. oldnumr) call errquit('fmm:avfnp confused',numr,
+     &       FMM_ERR)
 c
       end
       subroutine fmm_make_list_of_near_points(depth, kx, ky, kz, 
      $     n, coords_r, list_info, r, numr)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer kx, ky, kz, depth, n, numr
       double precision coords_r(3,n), r(3,*)
@@ -549,9 +558,10 @@ c
       integer kxn, kyn, kzn, dkx, dky, dkz, twod, ninbox
 c
       twod = 2**depth
-      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0)
+      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0, FMM_ERR)
+      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0, FMM_ERR)
+      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0,
+     &       FMM_ERR)
 c
       numr = 1
       do dkz = -well_separated, well_separated
@@ -585,6 +595,7 @@ c
      $     dimx, dimy, dimz, x, y, z,
      $     coords, charges, ncharge, list_info, map)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, depth
       double precision dimx, dimy, dimz, x, y, z
@@ -609,9 +620,10 @@ c
       ky = int(y/hy) ! Index of box containing point
       kz = int(z/hz) ! Index of box containing point
 c
-      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0)
-      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0)
-      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0)
+      if (kx.lt.0 .or. kx.ge.twod) call errquit('x?',0, FMM_ERR)
+      if (ky.lt.0 .or. ky.ge.twod) call errquit('y?',0,
+     &       FMM_ERR)
+      if (kz.lt.0 .or. kz.ge.twod) call errquit('z?',0, FMM_ERR)
 c
       potential = 0.0d0
 c
@@ -646,6 +658,7 @@ c
       subroutine fmm_potential_at_charges2(lmax, depth,dimx,dimy,dimz,
      $     potential, coords, charges, ncharge, list_info, pot)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, depth
       double precision dimx, dimy, dimz
@@ -670,7 +683,7 @@ c
       double precision xlm_local_potential
       external xlm_local_potential
 c     
-      if (lmax .gt. lq) call errquit('fmm_pac2: lmax>lq', lmax)
+      if (lmax .gt. lq) call errquit('fmm_pac2: lmax>lq', lmax, FMM_ERR)
       twod = 2**depth
       hx = dimx/dble(twod)  ! Size of boxes
       hy = dimy/dble(twod)
@@ -760,6 +773,7 @@ c
       subroutine fmm_potential_at_charges(lmax, depth,dimx,dimy,dimz,
      $     potential, coords, charges, ncharge, list_info, pot)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, depth
       double precision dimx, dimy, dimz
@@ -784,7 +798,7 @@ c
       double precision xlm_local_potential
       external xlm_local_potential
 c     
-      if (lmax .gt. lq) call errquit('fmm_pac: lmax>lq', lmax)
+      if (lmax .gt. lq) call errquit('fmm_pac: lmax>lq', lmax, FMM_ERR)
       twod = 2**depth
       hx = dimx/dble(twod)  ! Size of boxes
       hy = dimy/dble(twod)
@@ -861,6 +875,7 @@ c
       subroutine fmm(lmax, depth, dimx, dimy, dimz, 
      $     mpoles, otree, mpoles0, work, lwork)
       implicit none
+#include "errquit.fh"
       double precision flops, flopsv, flopst, calls
       common /xlmflops/flops, flopsv, flopst, calls
 c
@@ -955,7 +970,8 @@ c
       lenxlm = (lmax+1)**2
 
       if (lwork/lenxlm .lt. 2*((8**(depth+1)-1)/7)) 
-     $     call errquit('fmm: lwork must be ', 2*((8**(depth+1)-1)/7))
+     $     call errquit('fmm: lwork must be ', 2*((8**(depth+1)-1)/7),
+     &       FMM_ERR)
 
 c     In the initial debug implementation copy all data into
 c     workspace and copy results back.  Will do a memory
@@ -980,7 +996,7 @@ c
          parent_poles = poles + (8**level)*2
 c
          if ((parent_poles+2*8**(level-1)-1)*lenxlm .gt. lwork) 
-     $        call errquit('xxxxxxx?',0)
+     $        call errquit('xxxxxxx?',0, FMM_ERR)
 c
 c     Pass multipoles up to the parent and pass short-range potential
 c     to neighbours at the current level.  If we have source terms
@@ -1030,6 +1046,7 @@ c
       subroutine fmm_pass1(lmax, level, dimx, dimy, dimz,
      $     poles, potential, parent_poles, luse)
       implicit none
+#include "errquit.fh"
 #include "fmmP.fh"
       integer lmax, level
       double precision dimx, dimy, dimz
@@ -1066,7 +1083,7 @@ c     q(), etc., are dimensioned lq>=lmax, we are telling the
 c     subroutines below they are dimensioned lmax, thus the
 c     arrays are NOT easily used in this routine.
 c
-      if (lq .lt. lmax) call errquit('fmm_p_m_u: lq ', lmax)
+      if (lq .lt. lmax) call errquit('fmm_p_m_u: lq ', lmax, FMM_ERR)
 c
       twol = 2**level
 c     
@@ -1196,6 +1213,7 @@ c
       subroutine fmm_pass2(lmax, level, 
      $     dimx, dimy, dimz, parent_potential, potential)
       implicit none
+#include "errquit.fh"
       integer lmax, level
       double precision dimx, dimy, dimz
       double precision potential((lmax+1)**2,
@@ -1209,7 +1227,7 @@ c
       parameter (lq = FMM_LMAX)
       double precision q((2*lq+1)*(lq+1))
 c
-      if (lq .lt. lmax) call errquit('fmm_p_f_a: lq ', lmax)
+      if (lq .lt. lmax) call errquit('fmm_p_f_a: lq ', lmax, FMM_ERR)
 c
       hx = dimx/dble(2**level)
       hy = dimy/dble(2**level)

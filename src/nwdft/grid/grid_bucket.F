@@ -1,8 +1,9 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.18 2001-03-08 03:01:24 edo Exp $
+c$Id: grid_bucket.F,v 1.19 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c     
 #include "mafdecls.fh"
 #include "global.fh"
@@ -29,7 +30,7 @@ c
 c
       oprint = util_print('quadrature', print_high)
       if(.not.geom_ncent(geom, nctrs))
-     . call errquit(' gridb_buck: geom cent failed',0)
+     . call errquit(' gridb_buck: geom cent failed',0, GEOM_ERR)
 c
 c     get cubes definition
 c
@@ -64,7 +65,7 @@ c
          l_cube=1.5d0*max_rad/max_xyz**(1d0/3d0)
          if (.not. rtdb_put(rtdb, 'dft:l_cube', 
      $     mt_dbl, 1, l_cube))  
-     .        call errquit('gridbucki: rtdbput failed',0) 
+     .        call errquit('gridbucki: rtdbput failed',0, RTDB_ERR)
       endif 
 c
       do i=1,ntypes
@@ -87,13 +88,13 @@ c
          l_cube=l_cube*2d0
          if (.not. rtdb_put(rtdb, 'dft:l_cube',
      $     mt_dbl, 1, l_cube)) 
-     .        call errquit('gridbucki: rtdbput failed',0)
+     .        call errquit('gridbucki: rtdbput failed',0, RTDB_ERR)
          goto 1
       endif
       if (.not.MA_alloc_Get(MT_int,ntypes*ncubesmx,'howmany cubes',
      ,     l_nxyz,k_nxyz))
      ,     call errquit('grid_buckinit: cannot allocate nxyz',
-     ,     ntypes*ncubesmx)
+     ,     ntypes*ncubesmx, MA_ERR)
       do i=1,ntypes
          ipts=k_nxyz+(i-1)*ncubesmx
          dum=grid_ncubes(dble(rad_cutoff(1,i)),.true.,int_mb(ipts),
@@ -113,7 +114,7 @@ c
 #include "cdft.fh"
 c
       if (.not. MA_free_heap(l_nxyz))
-     .     call errquit(' grid_buckend:cannot popstack',0)
+     .     call errquit(' grid_buckend:cannot popstack',0, MA_ERR)
       return
       end
       subroutine grid_bucket()

@@ -5,7 +5,7 @@ c     dftg_cdfit_gen for fitted J quantities
 c
 c     BGJ - 9/98
 c
-c     $Id: j_nucder_gen.F,v 1.11 2001-04-27 00:26:23 edo Exp $
+c     $Id: j_nucder_gen.F,v 1.12 2003-10-17 22:54:42 carlfahl Exp $
 c
       subroutine j_hessian(g_dens, oactive, nactive, hess)
 c
@@ -44,12 +44,13 @@ c
       subroutine j_deriv_gen(g_dens, oactive, nactive, hess, g_rhs,
      &                       calc_type)
 c
-c     $Id: j_nucder_gen.F,v 1.11 2001-04-27 00:26:23 edo Exp $
+c     $Id: j_nucder_gen.F,v 1.12 2003-10-17 22:54:42 carlfahl Exp $
 c
 c     General routine for J hessian and CPKS RHS without fitting
 c     Should not be called directly by client, but through wrapper routines
 c
       implicit none
+#include "errquit.fh"
 c
 #include "rtdb.fh"
 #include "geom.fh"
@@ -96,12 +97,13 @@ c
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_hess .or. do_cpks_r))
-     &     call errquit('j_deriv_gen: illegal calculation type',0)
+     &     call errquit('j_deriv_gen: illegal calculation type',0,
+     &       INPUT_ERR)
       if (bgj_print() .gt. 0)
      &     write(*,*)'logicals ', do_hess, do_cpks_r
       rtdb = bgj_get_rtdb_handle()
       if (.not. geom_ncent(geom, natoms))
-     &   call errquit('j_deriv_gen: geom_ncent failed',1)
+     &   call errquit('j_deriv_gen: geom_ncent failed',1, GEOM_ERR)
 #if 0
 c     !!! Comment out initialization so that routines accumulate
 c     !!! for storage efficiency
@@ -127,7 +129,7 @@ c     Need additional space for fit required in CPKS RHS
 c
          if (.not. MA_push_get(MT_DBL, nbf_cd*3*natoms, 'db',
      &        l_db, k_db))
-     &        call errquit('j_nucder_gen: could not alloc db',0)
+     &        call errquit('j_nucder_gen: could not alloc db',0, MA_ERR)
       endif
 c
 c     Set up temporary arrays needed by dftg_grad2_gen / dftg_cdfit_gen
@@ -168,12 +170,14 @@ c            call output(dbl_mb(k_db),1,nbf_cd,1,3*natoms,nbf_cd,
 c     &           3*natoms,1)
             if (.not. MA_push_get(MT_DBL, nbf_cd*3*natoms, 'ti_db',
      &           l_ti_db, k_ti_db))
-     &           call errquit('j_nucder_gen: could not alloc ti_db',1)
+     &           call errquit('j_nucder_gen: could not alloc ti_db',1,
+     &       MA_ERR)
             call dcopy(nbf_cd*3*natoms, dbl_mb(k_db), 1,
      &           dbl_mb(k_ti_db), 1)
             call colti(dbl_mb(k_ti_db),nbf_cd,natoms)
             if (.not. MA_pop_stack(l_ti_db))
-     &           call errquit('j_nucder_gen: could not pop ti_hess',1)
+     &           call errquit('j_nucder_gen: could not pop ti_hess',1,
+     &       MA_ERR)
          endif
 c
       else
@@ -199,7 +203,8 @@ c
       if (do_cpks_r) then
 c
          if (.not. ga_duplicate(g_dens, g_t, 'RHS transpose'))
-     &       call errquit('j_deriv_gen: could not create temp GA',0)
+     &       call errquit('j_deriv_gen: could not create temp GA',0,
+     &       GA_ERR)
 c
          do i = 1, natoms
             if (oactive(i)) then
@@ -212,21 +217,22 @@ c!!!                  call ga_zero(g_rhs(j,i))
          enddo
 c
          if (.not. ga_destroy(g_t))
-     &       call errquit('j_deriv_gen: could not destroy temp GA',0)
+     &       call errquit('j_deriv_gen: could not destroy temp GA',0,
+     &       GA_ERR)
 c
       endif
 c
       if (do_cpks_r .and. CDFIT) then
          if (.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .true.))
      &        call errquit('j_nucder_gen: rtdb_put of j_derfit failed',
-     &        1)
+     &        1, RTDB_ERR)
          call fock_j_fit_gen(3*natoms, g_dens, g_rhs, dbl_mb(k_db),
      &        .true., .false.)
          if (.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
      &        call errquit('j_nucder_gen: rtdb_put of j_derfit failed',
-     &        2)
+     &        2, RTDB_ERR)
          if (.not. MA_pop_stack(l_db))
-     &        call errquit('j_nucder_gen: could not pop db',0)
+     &        call errquit('j_nucder_gen: could not pop db',0, MA_ERR)
          do i = 1, natoms
             if (oactive(i)) then
                do j = 1, 3
@@ -251,11 +257,13 @@ c     TI check
 c
             if (.not. MA_push_get(MT_DBL, natoms*natoms*9, 'ti_hess',
      &           l_ti_hess, k_ti_hess))
-     &           call errquit('j_nucder_gen: could not alloc ti_hess',1)
+     &           call errquit('j_nucder_gen: could not alloc ti_hess',1,
+     &       MA_ERR)
             call dcopy(natoms*natoms*9, hess, 1, dbl_mb(k_ti_hess), 1)
             call hessti(dbl_mb(k_ti_hess),natoms)
             if (.not. MA_pop_stack(l_ti_hess))
-     &           call errquit('j_nucder_gen: could not pop ti_hess',1)
+     &           call errquit('j_nucder_gen: could not pop ti_hess',1,
+     &       MA_ERR)
 c
          else if (do_cpks_r) then
 c
@@ -290,7 +298,8 @@ c
                write(*,*)'*** TI check',j
                call ga_print(g_ti(j))
                if (.not.ga_destroy(g_ti(j))) then
-                  call errquit('j_deriv_gen: could not destroy TI',j)
+                  call errquit('j_deriv_gen: could not destroy TI',j,
+     &       GA_ERR)
                endif
             enddo
 c
@@ -310,6 +319,7 @@ c
 c     Allocates temporary storage needed by J nuclear derivative routines
 c
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -331,7 +341,8 @@ c
       max_at_bf = 0
       do i = 1, nat
          if (.not. bas_ce2bfr(ao_bas_han, i, ilo, ihi))
-     &        call errquit('j_nucder_alloc: bas_ce2bfr failed', i)
+     &        call errquit('j_nucder_alloc: bas_ce2bfr failed', i,
+     &       BASIS_ERR)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
       enddo
       ldim1 = max_at_bf
@@ -339,15 +350,18 @@ c
          ldim2 = max_at_bf
       else
          if (.not. bas_nbf_cn_max(cd_bas_han, max_sh_bfcd))
-     &      call errquit('j_nucder_alloc: could not get max_sh_bfcd',0)
+     &      call errquit('j_nucder_alloc: could not get max_sh_bfcd',0,
+     &       BASIS_ERR)
          ldim2 = max_sh_bfcd
       endif
       if (.not. MA_push_get(MT_DBL, ldim1*ldim1, 'd_ija', l_d_ija,
      &     k_d_ija))
-     &     call errquit('j_nucder_alloc: could not alloc d_ija',0)
+     &     call errquit('j_nucder_alloc: could not alloc d_ija',0,
+     &       MA_ERR)
       if (.not. MA_push_get(MT_DBL, ldim2*ldim2, 'd_kla', l_d_kla,
      &     k_d_kla))
-     &     call errquit('j_nucder_alloc: could not alloc d_kla',0)
+     &     call errquit('j_nucder_alloc: could not alloc d_kla',0,
+     &       MA_ERR)
 c
 c     The s34 array serves different purposes in non-fitted and
 c     fitted calculations
@@ -358,7 +372,8 @@ c
          ls34 = nbf_cd
       endif
       if (.not. MA_push_get(MT_DBL, ls34, 's34', l_s34, k_s34))
-     &     call errquit('j_nucder_alloc: could not alloc s34',0)
+     &     call errquit('j_nucder_alloc: could not alloc s34',0,
+     &       MA_ERR)
 c
 c     determine memory requirements for integral derivatives (taken from
 c     dftg_force.F)
@@ -370,10 +385,12 @@ c
       lscr = max(mscratch_1e, mscratch_2e)
       if (CDFIT) lscr = max(lscr, mscratch_2e3c)
       if (.not. MA_push_get(MT_DBL, lbuf, 'deriv buffer', l_buf, k_buf))
-     &     call errquit('j_nucder_alloc: could not allocate buffer',1)
+     &     call errquit('j_nucder_alloc: could not allocate buffer',1,
+     &       MA_ERR)
       if (.not. MA_push_get(MT_DBL, lscr, 'deriv scratch', l_scr,
      &     k_scr))
-     &     call errquit('j_nucder_alloc: could not allocate scratch',1)
+     &     call errquit('j_nucder_alloc: could not allocate scratch',1,
+     &       MA_ERR)
 c
       return
       end
@@ -384,21 +401,26 @@ c
 c     Deallocates temporary storage used by J nuclear derivative routines
 c
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 c
       integer l_d_ija, l_d_kla, l_scr, l_buf, l_s34
 c
       if (.not. MA_pop_stack(l_scr))
-     &     call errquit('j_nucder_dealloc: could not pop scratch',1)
+     &     call errquit('j_nucder_dealloc: could not pop scratch',1,
+     &       MA_ERR)
       if (.not. MA_pop_stack(l_buf))
-     &     call errquit('j_nucder_dealloc: could not pop buffer',1)
+     &     call errquit('j_nucder_dealloc: could not pop buffer',1,
+     &       MA_ERR)
       if (.not. MA_pop_stack(l_s34))
-     &     call errquit('j_nucder_dealloc: could not pop s34',0)
+     &     call errquit('j_nucder_dealloc: could not pop s34',0, MA_ERR)
       if (.not. MA_pop_stack(l_d_kla))
-     &     call errquit('j_nucder_dealloc: could not pop d_kla',0)
+     &     call errquit('j_nucder_dealloc: could not pop d_kla',0,
+     &       MA_ERR)
       if (.not. MA_pop_stack(l_d_ija))
-     &     call errquit('j_nucder_dealloc: could not pop d_ija',0)
+     &     call errquit('j_nucder_dealloc: could not pop d_ija',0,
+     &       MA_ERR)
 c
       return
       end

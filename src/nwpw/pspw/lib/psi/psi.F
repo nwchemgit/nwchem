@@ -1,5 +1,5 @@
 *
-* $Id: psi.F,v 1.41 2003-07-31 23:58:16 bylaska Exp $
+* $Id: psi.F,v 1.42 2003-10-17 22:57:36 carlfahl Exp $
 *
 
 
@@ -66,6 +66,7 @@
 
       subroutine psi_sort_f_orb()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -124,6 +125,7 @@
      >                             maxerror,perror,ii,
      >                             error_out,e0)
       implicit none
+#include "errquit.fh"
       integer maxiteration
       real*8  maxerror,perror 
       integer ii
@@ -258,6 +260,7 @@
 *
       subroutine psi_linesearch_f_orb(ii,theta,e0,de0,t)
       implicit none
+#include "errquit.fh"
       integer ii
       real*8  theta
       real*8  e0,de0
@@ -539,6 +542,7 @@
 
       subroutine psi_sort_virtual()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -550,7 +554,7 @@
 
       value = MA_push_get(mt_dcpl,npack1,'r1',r1(2),r1(1))
       if (.not. value) call errquit(
-     >     'psi_sort_virtual: out of stack memory',0)
+     >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
 
       do ms=1,ispin
 
@@ -581,7 +585,7 @@
 
       value = MA_pop_stack(r1(2))
       if (.not. value) call errquit(
-     >     'psi_sort_virtual: popping stack memory',1)
+     >     'psi_sort_virtual: popping stack memory',1, MA_ERR)
       return
       end
 
@@ -597,6 +601,7 @@
      >                             maxerror,perror,ii,
      >                             error_out,e0)
       implicit none
+#include "errquit.fh"
       integer maxiteration
       real*8  maxerror,perror 
       integer ii
@@ -629,7 +634,7 @@
       value = value.and. 
      >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
-     >     'psi_KS_update_virtual: out of stack memory',0)
+     >     'psi_KS_update_virtual: out of stack memory',0, MA_ERR)
 
       done = .false.
       error0 = 0.0d0 
@@ -718,7 +723,7 @@
       value = value.and.MA_pop_stack(r1(2))
       value = value.and.MA_pop_stack(t0(2))
       if (.not. value) call errquit(
-     >     'psi_KS_update_virtual: popping stack memory',1)
+     >     'psi_KS_update_virtual: popping stack memory',1, MA_ERR)
 
       error_out = dabs(e0-eold)
       e0        = -e0
@@ -738,6 +743,7 @@
 *
       subroutine psi_linesearch_virtual(ii,theta,e0,de0,t)
       implicit none
+#include "errquit.fh"
       integer ii
       real*8  theta
       real*8  e0,de0
@@ -764,7 +770,7 @@
      >        MA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
-     >     'psi_linesearch_virtual: out of stack memory',0)
+     >     'psi_linesearch_virtual: out of stack memory',0, MA_ERR)
  
 
       call Pack_c_Copy(1,dcpl_mb(psi_ptr+(ii-1)*npack1),
@@ -814,7 +820,7 @@
       value =           MA_pop_stack(g(2))
       value = value.and.MA_pop_stack(orb(2))      
       if (.not. value) call errquit(
-     >     'psi_linesearch_virtual: popping stack memory',1)
+     >     'psi_linesearch_virtual: popping stack memory',1, MA_ERR)
 
       return
       end
@@ -1045,6 +1051,7 @@
      >                             maxerror,perror,i,
      >                             error_out)
       implicit none
+#include "errquit.fh"
       integer psi_number
       logical precondition
       integer maxiteration
@@ -1082,7 +1089,7 @@
       value = value.and. 
      >        MA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
       if (.not. value) call errquit(
-     >     'psi_KS_update_orb: out of stack memory',0)
+     >     'psi_KS_update_orb: out of stack memory',0, MA_ERR)
 
       done = .false.
       error0 = 0.0d0 
@@ -1185,7 +1192,7 @@ c    >           .and.(dabs(e0-eold).lt.maxerror)))
       value = value.and.MA_pop_stack(r1(2))
       value = value.and.MA_pop_stack(t0(2))
       if (.not. value) call errquit(
-     >     'psi_KS_update_orb: popping stack memory',1)
+     >     'psi_KS_update_orb: popping stack memory',1, MA_ERR)
 
       error_out = dabs(e0-eold)
       return
@@ -1205,6 +1212,7 @@ c*
 c
 c      real*8 function orb_geodesic_energy(theta)
 c      implicit none
+c#include "errquit.fh"
 c      real*8 theta
 c     
 c#include "mafdecls.fh"
@@ -1262,6 +1270,7 @@ c      end
 *
       subroutine psi_linesearch_update(psi_number,i,theta,e0,de0,t)
       implicit none
+#include "errquit.fh"
       integer psi_number
       integer i
       real*8  theta
@@ -1292,7 +1301,7 @@ c      end
      >        MA_push_get(mt_dcpl,npack1,'g',
      >                       g(2),g(1))
       if (.not. value) call errquit(
-     >     'psi_linesearch_update: out of stack memory',0)
+     >     'psi_linesearch_update: out of stack memory',0, MA_ERR)
  
 
       call Pack_c_Copy(1,dcpl_mb(psi_ptr+(i-1)*npack1),
@@ -1358,7 +1367,7 @@ c     write(*,*)
       value =           MA_pop_stack(g(2))
       value = value.and.MA_pop_stack(orb(2))      
       if (.not. value) call errquit(
-     >     'psi_linesearch_update: popping stack memory',1)
+     >     'psi_linesearch_update: popping stack memory',1, MA_ERR)
 
       return
       end
@@ -1483,6 +1492,7 @@ c     write(*,*)
 *
       subroutine psi_project_out_orb(psi_number,i,Horb)
       implicit none
+#include "errquit.fh"
       integer psi_number
       integer i
       complex*16 Horb(*)
@@ -1500,7 +1510,8 @@ c     write(*,*)
 *     **** allocate stack memory ****
       ok = MA_push_get(mt_dbl,ne(1),'x',x(2),x(1))
       if (.not.ok) 
-     > call errquit('psi_project_out_orb: out of stack memory',0)
+     > call errquit('psi_project_out_orb: out of stack memory',0,
+     &       MA_ERR)
 
 
       if (psi_number.eq.1) then
@@ -1571,7 +1582,8 @@ c    >                        Horb)
 *     **** release stack memory ****
       ok = MA_pop_stack(x(2))
       if (.not. ok) 
-     > call errquit('psi_project_out_orb: poping stack memory',0)
+     > call errquit('psi_project_out_orb: poping stack memory',0,
+     &       MA_ERR)
  
       return
       end
@@ -2112,6 +2124,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     ***********************************
       subroutine rho_1_Fion_Fmm(fion,fmm)
       implicit none
+#include "errquit.fh"
       real*8 fion(*)
       real*8 fmm(*)
 
@@ -2143,7 +2156,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >        MA_push_get(mt_dbl,(3*n2ft3d),'rho',
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
-     >     'rho_1_Fion_Fmm: out of stack memory',0)
+     >     'rho_1_Fion_Fmm: out of stack memory',0, MA_ERR)
 
 
 *     **** Get r_grid and rho ****
@@ -2166,7 +2179,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       value =           MA_pop_stack(rho(2))
       value = value.and.MA_pop_stack(r_grid(2))
       if (.not. value) call errquit(
-     >     'rho_1_Fion_Fmm: error popping stack memory',0)
+     >     'rho_1_Fion_Fmm: error popping stack memory',0, MA_ERR)
 
       return
       end
@@ -2178,6 +2191,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     ***********************************
       subroutine rho_1Fcharge(Fcharge)
       implicit none
+#include "errquit.fh"
       real*8 Fcharge(*)
 
 #include "mafdecls.fh"
@@ -2208,7 +2222,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >        MA_push_get(mt_dbl,(3*n2ft3d),'rho',
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
-     >     'rho_1Fcharge: out of stack memory',0)
+     >     'rho_1Fcharge: out of stack memory',0, MA_ERR)
 
 
 *     **** Get r_grid and rho ****
@@ -2226,7 +2240,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       value =           MA_pop_stack(rho(2))
       value = value.and.MA_pop_stack(r_grid(2))
       if (.not. value) call errquit(
-     >     'rho_1Fcharge: error popping stack memory',0)
+     >     'rho_1Fcharge: error popping stack memory',0, MA_ERR)
 
       return
       end
@@ -2351,6 +2365,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_1check_Tangent(H)
       implicit none
+#include "errquit.fh"
       complex*16 H(*)
 
 #include "mafdecls.fh"
@@ -2367,7 +2382,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
          if (n.eq.0) go to 101  !*** ferromagnetic check ***
          value = MA_push_get(mt_dbl,n*n,'MM',MM(2),MM(1))
          if (.not. value) 
-     >   call errquit('out of stack memory in psi_1check_Tangent',0)
+     >   call errquit('out of stack memory in psi_1check_Tangent',0,
+     &       MA_ERR)
 
          indx = (ms-1)*ne(1)*npack1
 
@@ -2391,7 +2407,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
          value = MA_pop_stack(MM(2))
          if (.not. value) 
      >    call errquit(
-     >         'error popping stack memory in psi_1check_Tangent',0)
+     >         'error popping stack memory in psi_1check_Tangent',0,
+     &       MA_ERR)
 
  101     continue
       end do
@@ -2410,6 +2427,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_1get_Tgradient(THpsi,Eout)
       implicit none
+#include "errquit.fh"
       complex*16 THpsi(*)
       real*8 Eout
 
@@ -2432,7 +2450,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in psi_1get_Tradient',0)
+     >   call errquit('out of stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
 
       call electron_run(dcpl_mb(psi1(1)),
@@ -2455,7 +2474,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in psi_1get_Tradient',0)
+     > call errquit('error popping stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
       return
       end
@@ -2469,6 +2489,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     ***********************************
       subroutine psi_2get_Tgradient(option,THpsi,Eout)
       implicit none
+#include "errquit.fh"
       integer    option
       complex*16 THpsi(*)
       real*8     Eout
@@ -2492,7 +2513,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in psi_1get_Tradient',0)
+     >   call errquit('out of stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
       if (option.le.1) then
         call electron_run(dcpl_mb(psi2(1)),
@@ -2514,7 +2536,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in psi_1get_Tradient',0)
+     > call errquit('error popping stack memory in psi_1get_Tradient',0,
+     &       MA_ERR)
 
       return
       end
@@ -2530,6 +2553,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_1get_TSgradient(THpsi,Eout)
       implicit none
+#include "errquit.fh"
       complex*16 THpsi(*)
       real*8 Eout
 
@@ -2552,7 +2576,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('psi_1get_TSradient:pushing stack',0)
+     >   call errquit('psi_1get_TSradient:pushing stack',0, MA_ERR)
 
 
       call electron_run(dcpl_mb(psi1(1)),
@@ -2575,7 +2599,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('psi_1get_TSgradient:popping stack',1)
+     > call errquit('psi_1get_TSgradient:popping stack',1, MA_ERR)
 
       return
       end
@@ -2591,6 +2615,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *
       subroutine psi_2get_TSgradient(option,THpsi,Eout)
       implicit none
+#include "errquit.fh"
       integer    option
       complex*16 THpsi(*)
       real*8     Eout
@@ -2614,7 +2639,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('psi_2get_TSgradient:pushing stack',0)
+     >   call errquit('psi_2get_TSgradient:pushing stack',0, MA_ERR)
 
       if (option.le.1) then
         call electron_run(dcpl_mb(psi2(1)),
@@ -2636,7 +2661,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('psi_2get_TSgradient:popping stack',1)
+     > call errquit('psi_2get_TSgradient:popping stack',1, MA_ERR)
 
       return
       end
@@ -3017,6 +3042,7 @@ c     real*8 sum1,sum2
 *     ***********************************
       subroutine psi1to2_sd_update(dte)
       implicit none
+#include "errquit.fh"
       real*8 dte
 
 #include "mafdecls.fh"
@@ -3062,7 +3088,7 @@ c     real*8 sum1,sum2
       value = value.and.MA_pop_stack(tmp_L(2))
       if (.not. value)
      >     call errquit(
-     >          'psi1to2_sd_update: stack failure', 0)
+     >          'psi1to2_sd_update: stack failure', 0, MA_ERR)
       return
       end
 
@@ -3074,6 +3100,7 @@ c     real*8 sum1,sum2
 *     ***********************************
       subroutine psi_1force(fion)
       implicit none
+#include "errquit.fh"
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
@@ -3100,7 +3127,7 @@ c    >                            dcpl_mb(dng1(1)))
           value = value.and.
      >            MA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                        r_grid(2),r_grid(1))
-         if (.not. value) call errquit('out of stack memory',0)
+         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
           call D3dB_rr_Sum(1,dbl_mb(rho1(1)),
      >                       dbl_mb(rho1(1)+(ispin-1)*2*nfft3d),
@@ -3112,7 +3139,8 @@ c    >                            dcpl_mb(dng1(1)))
 
           value = MA_pop_stack(r_grid(2))
           value = value.and.MA_pop_stack(tmp(2))
-         if (.not. value) call errquit('error popping stack memory',0)
+         if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
       end if
 
       call f_vnonlocal(ispin,
@@ -3545,6 +3573,7 @@ c        end do
 *     ***********************************
       subroutine psi_diagonalize_hml()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -3558,7 +3587,8 @@ c        end do
 
       value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in psi_diagonalize_hml',0)
+     >   call errquit('out of stack memory in psi_diagonalize_hml',0,
+     &       MA_ERR)
 
 
 *     ***** diagonalize the hamiltonian matrix *****
@@ -3586,7 +3616,8 @@ c    >              dbl_mb(tmp1(1)),ierr)
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack in psi_diagonalize_hml',0)
+     > call errquit('error popping stack in psi_diagonalize_hml',0,
+     &       MA_ERR)
 
 
       return
@@ -3599,6 +3630,7 @@ c    >              dbl_mb(tmp1(1)),ierr)
 *     ***********************************
       subroutine psi_diagonalize_hml_assending()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -3648,6 +3680,7 @@ c    >              dbl_mb(tmp1(1)),ierr)
 *     ***************************
       real*8 function psi_error()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -3660,7 +3693,7 @@ c    >              dbl_mb(tmp1(1)),ierr)
 
       value = MA_push_get(mt_dcpl,(npack1),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in psi_error',0)
+     >   call errquit('out of stack memory in psi_error',0, MA_ERR)
 
 
       error = 0.0d0
@@ -3679,7 +3712,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in psi_error',0)
+     > call errquit('error popping stack memory in psi_error',0, MA_ERR)
 
 
       psi_error = error
@@ -3693,6 +3726,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     ***************************
       real*8 function rho_error()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -3709,7 +3743,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       value = MA_push_get(mt_dbl,(2*nfft3d),'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
-     >   call errquit('out of stack memory in rho_error',0)
+     >   call errquit('out of stack memory in rho_error',0, MA_ERR)
 
 
       call D3dB_nx(1,nx)
@@ -3734,7 +3768,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       value = MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory in rho_error',0)
+     > call errquit('error popping stack memory in rho_error',0, MA_ERR)
 
      
 
@@ -3805,6 +3839,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       logical function psi_initialize()
       implicit none 
+#include "errquit.fh"
 
 
 #include "mafdecls.fh"
@@ -3870,7 +3905,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       value = value.and.
      >        MA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho2_all',rho2_all(2),rho2_all(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 *     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
@@ -3978,6 +4013,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       logical function psi_finalize()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
@@ -4006,7 +4042,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       value = value.and.MA_free_heap(rho2_all(2))
       value = value.and.MA_free_heap(rho1_all(2))
       if (.not. value) 
-     >  call errquit('psi_finalize: error freeing heap',0)
+     >  call errquit('psi_finalize: error freeing heap',0, MA_ERR)
 
       psi_finalize = value
       return
@@ -4037,6 +4073,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       logical function epsi_initialize()
       implicit none 
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -4074,7 +4111,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       value = value.and.
      >        MA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
      >                     eig_excited(2),eig_excited(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2_excited(1)),1)
       call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi1_excited(1)),1)
@@ -4186,6 +4223,7 @@ c     end if
 
       logical function epsi_finalize(writepsi)
       implicit none 
+#include "errquit.fh"
       logical writepsi
 
 #include "mafdecls.fh"
@@ -4202,7 +4240,7 @@ c     end if
       value = value.and.MA_free_heap(psi2_excited(2))
       value = value.and.MA_free_heap(psi1_excited(2))
       if (.not. value) 
-     >  call errquit('epsi_finalize: error freeing heap',0)
+     >  call errquit('epsi_finalize: error freeing heap',0, MA_ERR)
 
       epsi_finalize = value
       return

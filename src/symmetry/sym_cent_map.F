@@ -1,6 +1,7 @@
       integer function sym_center_map(geom,cent,opnum)
-C$Id: sym_cent_map.F,v 1.2 1999-07-14 00:29:10 d3e129 Exp $
+C$Id: sym_cent_map.F,v 1.3 2003-10-17 22:58:24 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -12,11 +13,13 @@ c
       integer addr
 c
       if (.not. geom_check_handle(geom,'sym_center_map'))
-     $     call errquit('sym_center_map: invalid geom', geom)
+     $     call errquit('sym_center_map: invalid geom', geom, GEOM_ERR)
       if (.not. geom_check_cent(geom, 'sym_center_map', cent))
-     $     call errquit('sym_center_map: invalid center', cent)
+     $     call errquit('sym_center_map: invalid center', cent,
+     &       GEOM_ERR)
       if (opnum.lt.0 .or. opnum.gt.sym_num_ops(geom))
-     $     call errquit('sym_center_map: invalid opnum', opnum)
+     $     call errquit('sym_center_map: invalid opnum', opnum,
+     &       INPUT_ERR)
 c
       addr = sym_center_map_index(geom) + opnum - 1
 c

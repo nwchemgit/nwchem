@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.7 2003-04-25 00:41:42 edo Exp $
+c $Id: ga_it2.F,v 1.8 2003-10-17 22:58:34 carlfahl Exp $
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc
@@ -52,6 +52,7 @@ c
       end
       subroutine ga_lkain_test()
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer n, nvec, maxsub, maxiter
@@ -70,11 +71,11 @@ c
       maxiter = 100
 c
       if (.not. ga_create(MT_DBL, n, nvec, 'testx', 0, 0, g_x))
-     $     call errquit('test kain', 1)
+     $     call errquit('test kain', 1, GA_ERR)
       if (.not. ga_create(MT_DBL, n, nvec, 'testx', 0, 0, g_b))
-     $     call errquit('test kain', 2)
+     $     call errquit('test kain', 2, GA_ERR)
       if (.not. ga_create(MT_DBL, n, n, 'testx', 0, 0, g_A))
-     $     call errquit('test kain', 3)
+     $     call errquit('test kain', 3, GA_ERR)
 c
       call ga_ran_fill(g_A, 1, n, 1, n)
       call ga_ran_fill(g_b, 1, n, 1, nvec)
@@ -119,12 +120,13 @@ c
 c
       call ga_summarize(0)
       call ma_summarize_allocated_blocks()
-      call errquit('done',0)
+      call errquit('done',0, MEM_ERR)
 c
       end
       subroutine ga_lkain(g_x, g_b, product, precond, 
      $     tol, mmaxsub, maxiter, odiff, oprint)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
@@ -188,23 +190,29 @@ c
 c
       if (.not. ga_create(MT_DBL, n, maxsub, 'lkain: Y', 
      $     0, 0, g_y))
-     $     call errquit('lkain: failed allocating subspace', maxsub)
+     $     call errquit('lkain: failed allocating subspace', maxsub,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, n, maxsub, 'lkain: Ay', 
      $     0, 0, g_Ay))
-     $     call errquit('lkain: failed allocating subspace2', maxsub)
+     $     call errquit('lkain: failed allocating subspace2', maxsub,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, n, nvec, 'lkain: Ax',
      $     0, 0, g_Ax))
-     $     call errquit('lkain: failed allocating subspace3', nvec)
+     $     call errquit('lkain: failed allocating subspace3', nvec,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, n, nvec, 'lkain: r',
      $     0, 0, g_r))
-     $     call errquit('lkain: failed allocating subspace4', nvec)
+     $     call errquit('lkain: failed allocating subspace4', nvec,
+     &       GA_ERR)
       if (odiff) then
          if (.not. ga_create(MT_DBL, n, nvec, 'lkain: xold',
      $        0, 0, g_xold))
-     $        call errquit('lkain: failed allocating subspace5', nvec)
+     $        call errquit('lkain: failed allocating subspace5', nvec,
+     &       GA_ERR)
          if (.not. ga_create(MT_DBL, n, nvec, 'lkain: xold',
      $        0, 0, g_Axold))
-     $        call errquit('lkain: failed allocating subspace6', nvec)
+     $        call errquit('lkain: failed allocating subspace6', nvec,
+     &       GA_ERR)
          call ga_zero(g_xold)
          call ga_zero(g_Axold)
       end if
@@ -258,11 +266,11 @@ c     Form and solve the subspace equations using SVD in order
 c     to manage near linear dependence in the subspace.
 c     
          if (.not. ga_create(MT_DBL, nsub, nsub, 'lkain: A', 0, 0, g_a))
-     $        call errquit('lkain: allocating g_a?', nsub)
+     $        call errquit('lkain: allocating g_a?', nsub, GA_ERR)
          if (.not. ga_create(MT_DBL, nsub, nvec, 'lkain: B', 0, 0,g_bb))
-     $        call errquit('lkain: allocating g_bb?', nsub)
+     $        call errquit('lkain: allocating g_bb?', nsub, GA_ERR)
          if (.not. ga_create(MT_DBL, nsub, nvec, 'lkain: C', 0, 0, g_c))
-     $        call errquit('lkain: allocating g_c?', nsub)
+     $        call errquit('lkain: allocating g_c?', nsub, GA_ERR)
          call ga_zero(g_a)
          call ga_zero(g_bb)
          call ga_zero(g_c)
@@ -297,9 +305,9 @@ c
          end if
          call ga_add(1.0d0, g_r, 1.0d0, g_x, g_x)
 c
-         if (.not. ga_destroy(g_a)) call errquit('lkain: a',0)
-         if (.not. ga_destroy(g_bb))call errquit('lkain: b',0)
-         if (.not. ga_destroy(g_c)) call errquit('lkain: c',0)
+         if (.not. ga_destroy(g_a)) call errquit('lkain: a',0, GA_ERR)
+         if (.not. ga_destroy(g_bb))call errquit('lkain: b',0, GA_ERR)
+         if (.not. ga_destroy(g_c)) call errquit('lkain: c',0, GA_ERR)
 c
 c     Reduce the subspace as necessary
 c
@@ -326,15 +334,22 @@ c
  100  continue
 c
       if (odiff) then
-         if (.not. ga_destroy(g_xold)) call errquit('lkain: destroy',1)
-         if (.not. ga_destroy(g_Axold)) call errquit('lkain: destroy',2)
+         if (.not. ga_destroy(g_xold)) call errquit('lkain: destroy',1,
+     &       GA_ERR)
+         if (.not. ga_destroy(g_Axold)) call errquit('lkain: destroy',2,
+     &       GA_ERR)
       end if
-      if (.not. ga_destroy(g_Ax)) call errquit('lkain: destroy',20)
-      if (.not. ga_destroy(g_Ay)) call errquit('lkain: destroy',3)
-      if (.not. ga_destroy(g_y)) call errquit('lkain: destroy',4)
-      if (.not. ga_destroy(g_r)) call errquit('lkain: destroy',5)
+      if (.not. ga_destroy(g_Ax)) call errquit('lkain: destroy',20,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_Ay)) call errquit('lkain: destroy',3,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_y)) call errquit('lkain: destroy',4,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_r)) call errquit('lkain: destroy',5,
+     &       GA_ERR)
 c
-      if (.not. converged) call errquit('lkain: not converged',0)
+      if (.not. converged) call errquit('lkain: not converged',0,
+     &       CALC_ERR)
 c
       end
       subroutine ga_kain(
@@ -345,6 +360,7 @@ c
      $     maxsub, maxiter, 
      $     oprint)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -391,7 +407,7 @@ c
      $     ga_nodeid().eq.0
 c
       call ga_inquire(g_x, type, n, nvec)
-      if (nvec .ne. 1) call errquit('kain: nvec?', nvec)
+      if (nvec .ne. 1) call errquit('kain: nvec?', nvec, GA_ERR)
 c
       if (oprint .and. ga_nodeid().eq.0) then
          write(6,1) n, maxsub, tol, trustmin, trustmax, util_wallsec()
@@ -406,13 +422,15 @@ c
 c
       if (.not. ga_create(MT_DBL, n, maxsub, 'kain: Y', 
      $     0, 0, g_y))
-     $     call errquit('kain: failed allocating subspace', maxsub)
+     $     call errquit('kain: failed allocating subspace', maxsub,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, n, maxsub, 'kain: Ay', 
      $     0, 0, g_Ay))
-     $     call errquit('kain: failed allocating subspace2', maxsub)
+     $     call errquit('kain: failed allocating subspace2', maxsub,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL, n, 1, 'kain: Ax',
      $     0, 0, g_Ax))
-     $     call errquit('kain: failed allocating subspace3', 1)
+     $     call errquit('kain: failed allocating subspace3', 1, GA_ERR)
       call ga_zero(g_y)
       call ga_zero(g_Ay)
 c
@@ -469,11 +487,11 @@ c     Solve the subspace equations (lazily using existing GA routine)
 c     
             if (.not. ga_create(MT_DBL,nsub-1,nsub-1,'kain: A',
      $           nsub-1,nsub-1,g_a))
-     $           call errquit('kain: allocating g_a?', nsub)
+     $           call errquit('kain: allocating g_a?', nsub, GA_ERR)
             if (.not. ga_create(MT_DBL,nsub-1,1,'kain: B',nsub-1,1,g_b))
-     $           call errquit('kain: allocating g_bb?', nsub)
+     $           call errquit('kain: allocating g_bb?', nsub, GA_ERR)
             if (.not. ga_create(MT_DBL,nsub-1,1,'kain: C',nsub-1,1,g_c))
-     $           call errquit('kain: allocating g_c?', nsub)
+     $           call errquit('kain: allocating g_c?', nsub, GA_ERR)
             if (ga_nodeid() .eq. 0) then
                call ga_put(g_a, 1, nsub-1, 1, nsub-1, a, maxmaxsub)
                call ga_put(g_b, 1, nsub-1, 1, 1, b, 1)
@@ -489,9 +507,9 @@ c
             write(6,*) ' KAIN SUBSPACE COEFFS'
             call output(c, 1, nsub-1, 1, 1, nsub-1, 1, 1)
             call ga_sync
-            if (.not. ga_destroy(g_a)) call errquit('kain: a',0)
-            if (.not. ga_destroy(g_b)) call errquit('kain: b',0)
-            if (.not. ga_destroy(g_c)) call errquit('kain: c',0)
+            if (.not. ga_destroy(g_a)) call errquit('kain: a',0, GA_ERR)
+            if (.not. ga_destroy(g_b)) call errquit('kain: b',0, GA_ERR)
+            if (.not. ga_destroy(g_c)) call errquit('kain: c',0, GA_ERR)
 c     
 c     Form the correction
 c     
@@ -543,15 +561,19 @@ c
       end do
  100  continue
 c
-      if (.not. ga_destroy(g_Ax)) call errquit('kain: destroy',20)
-      if (.not. ga_destroy(g_Ay)) call errquit('kain: destroy',3)
-      if (.not. ga_destroy(g_y)) call errquit('kain: destroy',4)
+      if (.not. ga_destroy(g_Ax)) call errquit('kain: destroy',20,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_Ay)) call errquit('kain: destroy',3,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_y)) call errquit('kain: destroy',4, GA_ERR)
 c
-      if (.not. converged) call errquit('kain: not converged',0)
+      if (.not. converged) call errquit('kain: not converged',0,
+     &       CALC_ERR)
 c
       end
       subroutine ga_svd_solve_seq(g_a, g_b, g_x, tol)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_a, g_b, g_x
@@ -579,16 +601,17 @@ c
 c
       call ga_inquire(g_a, type, m, n)
       call ga_inquire(g_b, type, nn, nvec)
-      if (nn .ne. n) call errquit('gasvdsol: b does not conform',nn)
+      if (nn .ne. n) call errquit('gasvdsol: b does not conform',nn,
+     &       GA_ERR)
       nsing = min(m,n)
       if (.not. ma_push_get(MT_DBL, nsing, 'gasvdsol', l_val, k_val))
-     $     call errquit('gasvdsol: val',nsing)
+     $     call errquit('gasvdsol: val',nsing, MA_ERR)
       if (.not. ga_create(MT_DBL,m,nsing,'gasvd',0,0,g_u))
-     $     call errquit('gasvdsol: u',m*nsing)
+     $     call errquit('gasvdsol: u',m*nsing, GA_ERR)
       if (.not. ga_create(MT_DBL,nsing,n,'gasvd',0,0,g_vt))
-     $     call errquit('gasvdsol: u',nsing*n)
+     $     call errquit('gasvdsol: u',nsing*n, GA_ERR)
       if (.not. ga_create(MT_DBL,nsing,nvec,'gasvd',0,0,g_tmp))
-     $     call errquit('gasvdsol: tmp',nsing*nvec)
+     $     call errquit('gasvdsol: tmp',nsing*nvec, GA_ERR)
       call ga_zero(g_tmp)
 c
       call ga_svd_seq(g_a, g_u,g_vt,dbl_mb(k_val))
@@ -609,14 +632,19 @@ c
       call ga_zero(g_x)
       call ga_dgemm('t','n',n,nvec,nsing,1.0d0,g_vt,g_tmp,0.0d0,g_x)
 c
-      if (.not. ga_destroy(g_tmp)) call errquit('gasvdsol: des',1)
-      if (.not. ga_destroy(g_u)) call errquit('gasvdsol: des',2)
-      if (.not. ga_destroy(g_vt)) call errquit('gasvdsol: des',3)
-      if (.not. ma_pop_stack(l_val)) call errquit('gasvdsol: pop',4)
+      if (.not. ga_destroy(g_tmp)) call errquit('gasvdsol: des',1,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_u)) call errquit('gasvdsol: des',2,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_vt)) call errquit('gasvdsol: des',3,
+     &       GA_ERR)
+      if (.not. ma_pop_stack(l_val)) call errquit('gasvdsol: pop',4,
+     &       GA_ERR)
 c
       end
       subroutine ga_svd_seq(g_a, g_u, g_vt, values)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
       integer g_a, g_u, g_vt
@@ -643,25 +671,26 @@ c
       if (ga_nodeid() .eq. 0) then
          lwork = 10*max(m,n)
          if (.not. ma_push_get(MT_DBL, m*n, 'gasvd', l_a, k_a))
-     $        call errquit('gasvd: a',m*n)
+     $        call errquit('gasvd: a',m*n, MA_ERR)
          if (.not. ma_push_get(MT_DBL, m*nsing, 'gasvd', l_u, k_u))
-     $        call errquit('gasvd: u',m*nsing)
+     $        call errquit('gasvd: u',m*nsing, MA_ERR)
          if (.not. ma_push_get(MT_DBL, nsing*n, 'gasvd', l_vt, k_vt))
-     $        call errquit('gasvd: vt',nsing*n)
+     $        call errquit('gasvd: vt',nsing*n, MA_ERR)
          if (.not. ma_push_get(MT_DBL, lwork, 'gasvd', l_work, k_work))
-     $        call errquit('gasvd: work',lwork)
+     $        call errquit('gasvd: work',lwork, MA_ERR)
 c
          call ga_get(g_a, 1, m, 1, n, dbl_mb(k_a), m)
 c
          call dgesvd('s','s',m,n,dbl_mb(k_a),m,values,
      $        dbl_mb(k_u),m,dbl_mb(k_vt),nsing,
      $        dbl_mb(k_work),lwork,info)
-         if (info .ne. 0) call errquit('gasvd: failed', info)
+         if (info .ne. 0) call errquit('gasvd: failed', info, MEM_ERR)
 c
          call ga_put(g_u,  1, n,     1, nsing, dbl_mb(k_u),  n)
          call ga_put(g_vt, 1, nsing, 1, m,     dbl_mb(k_vt), n)
 c
-         if (.not. ma_chop_stack(l_a)) call errquit('gasvd ma',0)
+         if (.not. ma_chop_stack(l_a)) call errquit('gasvd ma',0,
+     &       MA_ERR)
       end if
       call ga_sync()
       call ga_brdcst(1,values,n*8,0)

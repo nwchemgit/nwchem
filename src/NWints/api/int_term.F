@@ -1,4 +1,4 @@
-c $Id: int_term.F,v 1.19 1999-12-30 22:15:15 mg201 Exp $
+c $Id: int_term.F,v 1.20 2003-10-17 22:53:42 carlfahl Exp $
 c:tex-
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_terminate}
@@ -13,6 +13,7 @@ c:tex-No formal arguments
 c:tex-
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "apiP.fh"
 #include "candoP.fh"
 #include "stdio.fh"
@@ -33,10 +34,12 @@ c
         call texas_terminate()
       endif
       if (.not.spcart_terminate()) then
-        call errquit('int_terminate: spcart_terminate failed',0)
+        call errquit('int_terminate: spcart_terminate failed',0, 
+     &             INT_ERR)
       endif
       if (.not.hnd_terminate()) then
-        call errquit('int_terminate: hnd_terminate failed', 555)
+        call errquit('int_terminate: hnd_terminate failed', 555,
+     &            INT_ERR)
       endif
       if (any_ecp) then
         call int_ecp_terminate()
@@ -55,7 +58,7 @@ c
       if (doug_kroll) then
        if (.not. bas_destroy(dk_fitbas)) call errquit(
      &   'int_terminate: failed to destroy Douglas-Kroll fitting basis'
-     &   ,0)
+     &   ,0, INT_ERR)
        dk_fitbas = -1
       endif
 c
@@ -75,6 +78,7 @@ c:tex-No formal arguments
 c:tex-
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "stdio.fh"
 #include "apiP.fh"
 #include "candoP.fh"
@@ -95,11 +99,13 @@ c.. parameters for int derivative (hf2d)
       numd_red       = 0
 c
       if (.not.spcart_terminate()) then
-        call errquit('intd_terminate: spcart_terminate failed',0)
+        call errquit('intd_terminate: spcart_terminate failed',0,
+     &         INT_ERR)
       endif
 c
       if (.not.hnd_terminate()) then
-        call errquit('intd_terminate: hnd_terminate failed', 555)
+        call errquit('intd_terminate: hnd_terminate failed', 555,
+     &         INT_ERR)
       endif
 c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then
@@ -120,7 +126,7 @@ c
       if (doug_kroll) then
        if (.not. bas_destroy(dk_fitbas)) call errquit(
      &   'int_terminate: failed to destroy Douglas-Kroll fitting basis'
-     &   ,0)
+     &   ,0, INT_ERR)
        dk_fitbas = -1
       endif
 c
@@ -140,6 +146,7 @@ c:tex-No formal arguments
 c:tex-
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "candoP.fh"
 #include "stdio.fh"
 c::functions
@@ -155,11 +162,13 @@ c
       intd_memthresh = 0
 c
       if (.not.spcart_terminate()) then
-        call errquit('intdd_terminate: spcart_terminate failed',0)
+        call errquit('intdd_terminate: spcart_terminate failed',0,
+     &             INT_ERR)
       endif
 c
       if (.not.hnd_terminate()) then
-        call errquit('intd_terminate: hnd_terminate failed', 555)
+        call errquit('intd_terminate: hnd_terminate failed', 555,
+     &          INT_ERR)
       endif
 c
       if (.not.(user_cando_txs.and.(.not.def_cando_txs))) then

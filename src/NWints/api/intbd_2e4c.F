@@ -1,4 +1,4 @@
-c $Id: intbd_2e4c.F,v 1.12 2000-10-29 04:28:51 d3e129 Exp $
+c $Id: intbd_2e4c.F,v 1.13 2003-10-17 22:53:42 carlfahl Exp $
 *
       logical function intbd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,
@@ -73,6 +73,7 @@ c
      &     ilab, jlab, klab, llab, eri,
      &     l_erilab, nint, lscr, scr)
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
@@ -121,7 +122,8 @@ c
 *
       if (num_q_start.eq.num_q_last) then
          write(luout,*)' l_erilab: too small ',l_erilab
-         call errquit(' intbd_nw_2e4c: infinite blocking loop ',911)
+         call errquit(' intbd_nw_2e4c: infinite blocking loop ',911,
+     &              INT_ERR)
       endif
 c
 *... only do one quartet of derivative integrals at a time!!
@@ -131,26 +133,31 @@ c
       nint_s = 1
 *
       if (.not.bas_cn2bfr(brain,icl(i_q),ilo,ihi))
-     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for ish',911)
+     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for ish',911,
+     &            INT_ERR)
       nint_s = nint_s*(ihi-ilo+1)       ! i partial block size
 *
       if (.not.bas_cn2bfr(brain,jcl(i_q),jlo,jhi))
-     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for jsh',911)
+     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for jsh',911,
+     &          INT_ERR)
       nint_s = nint_s*(jhi-jlo+1)       ! j partial block size
 *
       if (.not.bas_cn2bfr(brain,kcl(i_q),klo,khi))
-     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for ksh',911)
+     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for ksh',911,
+     &                  INT_ERR)
       nint_s = nint_s*(khi-klo+1)       ! k partial block size
 *
       if (.not.bas_cn2bfr(brain,lcl(i_q),llo,lhi))
-     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for lsh',911)
+     &    call errquit(' intbd_nw_2e4c: cn2bfr failed for lsh',911,
+     &          INT_ERR)
       nint_s = nint_s*(lhi-llo+1)       ! l partial block size
 *......
 
       if (nint_s.gt.l_erilab) then
         write(luout,*)' nint_s    = ',nint_s
         write(luout,*)' l_erilab  = ',l_erilab
-        call errquit(' intbd_nw_2e4c: buffer size too small ',911)
+        call errquit(' intbd_nw_2e4c: buffer size too small ',911,
+     &            INT_ERR)
       endif
       numint = int_nint_cart(                    ! get size of cartesian block
      &    brain,icl(i_q),brain,jcl(i_q),
@@ -169,7 +176,7 @@ c
         write(luout,*)' j bf size is ',(jhi-jlo+1)
         write(luout,*)' k bf size is ',(khi-klo+1)
         write(luout,*)' l bf size is ',(lhi-llo+1)
-        call errquit('intbd_nw_2e4c: fatal error',911)
+        call errquit('intbd_nw_2e4c: fatal error',911, INT_ERR)
       endif
 *
 * use memory copy instead of first part of scratch.  Otherwise scratch is 
@@ -185,7 +192,7 @@ c
         write(luout,*)' spherical/real size larger than cartesean size'
         write(luout,*)' nint_s = ',nint_s
         write(luout,*)' numint = ',numint
-        call errquit('intbd_nw_2e4c: fatal error ',911)
+        call errquit('intbd_nw_2e4c: fatal error ',911, INT_ERR)
       endif
 * scr has integral derivatives in nwchem order (nint_s,3,4)      
       nint = 0

@@ -1,4 +1,4 @@
-c $Id: int_l2e3c.F,v 1.14 1999-07-14 00:28:39 d3e129 Exp $
+c $Id: int_l2e3c.F,v 1.15 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e3c}
@@ -17,6 +17,7 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "bas.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -25,6 +26,7 @@ c:tex-\end{verbatim}
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 #include "stdio.fh"
+#include "util.fh"
 c
 c::external subroutines used
 c errquit
@@ -64,7 +66,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
-     &       call errquit('int_l2e3c: invalid contraction/shell',0)
+     &       call errquit('int_l2e3c: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
 c   check canonicalizations of input shells for canket
 c      
@@ -76,7 +79,8 @@ c
         write(luout,*)'                 ish:',ish
         write(luout,*)'                 jsh:',jsh
         write(luout,*)'                 ksh:',ksh
-        call errquit('int_l2e3c: shells not in canonical order',0)
+        call errquit('int_l2e3c: shells not in canonical order',0, 
+     &     BASIS_ERR)
       endif
 c
       bra = brain + BASIS_HANDLE_OFFSET

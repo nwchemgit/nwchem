@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.18 2003-01-24 17:37:37 bert Exp $
+c $Id: int_hf1sp.F,v 1.19 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}
@@ -17,9 +17,11 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
 #include "int_nbf.fh"
+#include "util.fh"
 c::passed
 c:tex-For an integral $<i|Operator|j>$
 c:tex-\begin{verbatim}
@@ -195,7 +197,7 @@ c * (s|s), (s|x), (s|y), (s|z)
         endif
       else
         write(luout,*)'int_hf1sp called by ',msg
-        call errquit('int_hf1sp: unknown case finished',911)
+        call errquit('int_hf1sp: unknown case finished',911, INT_ERR)
       endif
 c
 c
@@ -217,9 +219,11 @@ c:tex-\begin{verbatim}
 c:tex-\end{verbatim}
       implicit none
 #include "apiP.fh"
+#include "errquit.fh"
 #include "stdio.fh"
 #include "nwc_const.fh"
 #include "int_nbf.fh"
+#include "util.fh"
 c::passed
 c:tex-For an integral $<i|Operator|j>$
 c:tex-\begin{verbatim}
@@ -275,7 +279,7 @@ c::local
           write(luout,*)'int_hf1sp_ecp called by ',msg
           call errquit(
      &        'int_hf1sp: unknown center for ECPs',
-     &        911)
+     &        911, INT_ERR)
         endif
         call int_ecp_hf1(
      &      xyzi,expi,coefi,i_nprim,i_ngen,Li,ictri,

@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc_bak.F,v 1.2 2002-02-13 20:02:07 edo Exp $
+* $Id: lcao_wvfnc_bak.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,
@@ -10,6 +10,7 @@
      >						ne)
 
       implicit none
+#include "errquit.fh"
       logical oprint
       integer it_max
       character*30 wavefunction_filename
@@ -153,7 +154,7 @@
      >      'PBE96 (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0)
+            call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
 
         write(*,1117) 

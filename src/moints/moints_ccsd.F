@@ -5,9 +5,10 @@
      $                             g_int1t,
      $                             blen )
 *
-* $Id: moints_ccsd.F,v 1.11 1999-08-20 21:48:49 d3g681 Exp $
+* $Id: moints_ccsd.F,v 1.12 2003-10-17 22:55:26 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -74,7 +75,8 @@ c
       status = bas_numbf(basis,nbf)
       status = status.and.bas_numcont(basis,nsh)
       status = status.and.bas_nbf_cn_max(basis,maxbfsh)
-      if (.not.status) call errquit('moints: cannot get basis info',0)
+      if (.not.status) call errquit('moints: cannot get basis info',0,
+     &       BASIS_ERR)
       nmo1 = mo1_hi - occ_start + 1
       nmo2 = mo2_hi - mo2_lo + 1
 c
@@ -130,7 +132,7 @@ c
       status = ma_push_get(MT_DBL,n_hlp2,'hlp block',l_hlp2,k_hlp2)
       status = ma_push_get(MT_DBL,n_ssni,'ssni block',l_ssni,k_ssni)
       if (.not.(status)) call errquit
-     $     ('moints_ccsd: cannot allocate local memory',0)
+     $     ('moints_ccsd: cannot allocate local memory',0, MA_ERR)
 c
 c Initialize
 c
@@ -216,31 +218,31 @@ c
 c Clean-up
 c
       if (.not. ma_pop_stack(l_ssni))
-     $     call errquit('moints: failed to pop', l_ssni)
+     $     call errquit('moints: failed to pop', l_ssni, MA_ERR)
       if (.not. ma_pop_stack(l_hlp2))
-     $     call errquit('moints: failed to pop', l_hlp2)
+     $     call errquit('moints: failed to pop', l_hlp2, MA_ERR)
       if (.not. ma_pop_stack(l_hlp))
-     $     call errquit('moints: failed to pop', l_hlp)
+     $     call errquit('moints: failed to pop', l_hlp, MA_ERR)
       if (.not. ma_pop_stack(l_ssbbt))
-     $     call errquit('moints: failed to pop', l_ssbbt)
+     $     call errquit('moints: failed to pop', l_ssbbt, MA_ERR)
       if (.not. ma_pop_stack(l_ssbb))
-     $     call errquit('moints: failed to pop', l_ssbb)
+     $     call errquit('moints: failed to pop', l_ssbb, MA_ERR)
       if (.not. ma_pop_stack(l_gmap))
-     $     call errquit('moints: failed to pop', l_gmap)
+     $     call errquit('moints: failed to pop', l_gmap, MA_ERR)
       if (.not. ma_pop_stack(l_rbfmap))
-     $     call errquit('moints: failed to pop', l_rbfmap)
+     $     call errquit('moints: failed to pop', l_rbfmap, MA_ERR)
       if (.not. ma_pop_stack(l_bfmap))
-     $     call errquit('moints: failed to pop', l_bfmap)
+     $     call errquit('moints: failed to pop', l_bfmap, MA_ERR)
       if (.not. ma_pop_stack(l_ghi))
-     $     call errquit('moints: failed to pop', l_ghi)
+     $     call errquit('moints: failed to pop', l_ghi, MA_ERR)
       if (.not. ma_pop_stack(l_glo))
-     $     call errquit('moints: failed to pop', l_glo)
+     $     call errquit('moints: failed to pop', l_glo, MA_ERR)
       if (.not. ma_pop_stack(l_shmap))
-     $     call errquit('moints: failed to pop', l_shmap)
+     $     call errquit('moints: failed to pop', l_shmap, MA_ERR)
       if (.not. ma_pop_stack(l_iscr))
-     $     call errquit('moints: failed to pop', l_iscr)
+     $     call errquit('moints: failed to pop', l_iscr, MA_ERR)
       if (.not. ma_pop_stack(l_eri))
-     $     call errquit('moints: failed to pop', l_eri)
+     $     call errquit('moints: failed to pop', l_eri, MA_ERR)
 c
 c  Second half-transformation
 c
@@ -260,9 +262,9 @@ c
 c  Clean up
 c
       if (.not. ma_pop_stack(l_hlp))
-     $     call errquit('moints: failed to pop', l_hlp)
+     $     call errquit('moints: failed to pop', l_hlp, MA_ERR)
       if (.not. ma_pop_stack(l_mo))
-     $     call errquit('moints: failed to pop', l_mo)
+     $     call errquit('moints: failed to pop', l_mo, MA_ERR)
 c
 c
 #ifdef NOCOMMS

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.15 2003-03-19 00:33:52 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.16 2003-10-17 22:57:10 carlfahl Exp $                       
 c
 
 *  ************************************************************
@@ -12,6 +12,7 @@ c
      >                        current_iteration,
      >                        minimizer)
       implicit none
+#include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
@@ -135,7 +136,8 @@ c     dte = 1.0d0
       value = value.and.
      >        MA_push_get(mt_dcpl,npack1*neall,
      >                     'G0',G0(2),G0(1))
-      if (.not. value) call errquit('cgminimize:out of heap memory',0)
+      if (.not. value) call errquit('cgminimize:out of heap memory',0,
+     &       MA_ERR)
 
 
 
@@ -249,7 +251,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
       value = value.and.
      >        MA_pop_stack(S0(2))
       if (.not. value) 
-     >  call errquit('bfgsminimize:error freeing heap memory',0)
+     >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
 
       call psi_2to1()
       call psi_1toelectron() 

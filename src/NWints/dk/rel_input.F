@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.6 2000-03-16 22:30:53 mg201 Exp $
+* $Id: rel_input.F,v 1.7 2003-10-17 22:53:48 carlfahl Exp $
 *
       implicit none
 #include "rtdb.fh"
@@ -11,6 +11,7 @@
 #include "util.fh"
 #include "stdio.fh"
 #include "rel_consts.fh"
+#include "errquit.fh"
 c     
 c     Read input for the relativistic block
 c     
@@ -24,24 +25,27 @@ c     Set the two relativistic approaches to .false.
 c
       dk_run = .false.
       if (.not. rtdb_put(rtdb, 'doug_kroll', mt_log, 1, dk_run))
-     $   call errquit('rel_input: rtdb_put failed', 0)
+     $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
       dmd_run = .false.
       if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
-     $   call errquit('rel_input: rtdb_put failed', 0)
+     $   call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
 c
 c     Set some relativistic variables we could need later on
 c
-   1  if (.not. inp_read()) call errquit('rel_input: inp_read failed',0)
+   1  if (.not. inp_read()) call errquit('rel_input: inp_read failed',0,
+     &       INPUT_ERR)
       if (.not. inp_a(test))
-     $     call errquit('rel_input: failed to read keyword', 0)
+     $     call errquit('rel_input: failed to read keyword', 0,
+     &       INPUT_ERR)
 c
       if (inp_compare(.false.,'clight', test)) then
 c
          if (.not. inp_f(clight)) then
-            call errquit('rel_input: failed reading clight', 0)
+            call errquit('rel_input: failed reading clight', 0,
+     &       UNKNOWN_ERR)
          else 
            if(.not.rtdb_put(rtdb,'relativistic:clight',mt_dbl,1,clight))
-     $        call errquit('rel_input: rtdb_put failed', 0)
+     $        call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
          endif
          write(luout,10) clight
   10        format(/,'The speed of light used in the relativistic ',
@@ -60,7 +64,7 @@ c
 c        end will be catched in while loop structure
 c
       else
-         call errquit('rel_input: unrecognized directive', 0)
+         call errquit('rel_input: unrecognized directive', 0, INPUT_ERR)
       endif
 c
 c     End of while loop over the input
@@ -78,7 +82,7 @@ c
   20     format(/'Input error relativistic:'/,
      $   'Both Douglas-Kroll and Dyall-Mod-Dirac have been specified !')
          endif
-         call errquit('rel_input: input error',0)
+         call errquit('rel_input: input error',0, INPUT_ERR)
       endif
 c
       return

@@ -1,10 +1,11 @@
       Subroutine matchNxyz(lambda,ic,Nxyz)
-c $Id: matchNxyz.F,v 1.2 2001-10-25 21:22:21 edo Exp $
+c $Id: matchNxyz.F,v 1.3 2003-10-17 22:54:02 carlfahl Exp $
       implicit none
 
       integer lambda, ic, Nxyz(3)
 
 #include "sh_order.fh"
+#include "errquit.fh"
 
       integer l, l3, nc
 
@@ -30,7 +31,7 @@ cedo       l3 = ((l+1)*(l+2)*(l+3))/6
      $         return
        enddo
        call errquit('matchNxyz: invalid shell indices', 
-     $      1000*lambda+100*nxyz(1)+10*nxyz(2)+nxyz(3))
+     $      1000*lambda+100*nxyz(1)+10*nxyz(2)+nxyz(3), BASIS_ERR)
       else
        write(*,*)
        write(*,*) 'MATCHNXYZ:  Shell component ordering was defined for'

@@ -1,6 +1,7 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.25 2002-11-20 21:18:07 bylaska Exp $
+c     $Id: task_optimize.F,v 1.26 2003-10-17 22:58:26 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -47,7 +48,8 @@ c
       wall = util_wallsec()
 c     
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_optimize: failed to invalidate status',0)
+     $     call errquit('task_optimize: failed to invalidate status',0,
+     &       RTDB_ERR)
 c     
       if (ga_nodeid().eq.0 .and. (.not. ousedriver) .and.
      $     util_print('task_optimize', print_low)) then
@@ -61,7 +63,8 @@ c
       endif
 c     
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-     +     call errquit('task_optimize: failed rtdb_cget task:theory',0)
+     +     call errquit('task_optimize: failed rtdb_cget task:theory',0,
+     &       RTDB_ERR)
       if (theory.eq.'md') then
       status=nwmd(rtdb)
       else if (theory.eq.'qmmm') then
@@ -76,15 +79,17 @@ c
       else
          if (ousedriver) then
             if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
-     $           call errquit('task_optimize: rtdb?',0)
+     $           call errquit('task_optimize: rtdb?',0, RTDB_ERR)
             status = driver(rtdb)
          else
             ts   = .false.
             omin = .true.
             if (.not.rtdb_put(rtdb,'stepper:ts',MT_LOG,1,ts))
-     &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &           call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &       RTDB_ERR)
             if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
-     &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &           call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &       RTDB_ERR)
             status = stpr_walk_task(rtdb)
 *rak:            call stpr_walk_reset()
 *rak: 10         if (task_gradient(rtdb)) then
@@ -102,11 +107,14 @@ c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_optimize: failed storing cputime',0)
+     $     call errquit('task_optimize: failed storing cputime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_optimize: failed storing walltime',0)
+     $     call errquit('task_optimize: failed storing walltime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_optimize: failed to set status',0)
+     $     call errquit('task_optimize: failed to set status',0,
+     &       RTDB_ERR)
 c     
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
@@ -120,8 +128,9 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.25 2002-11-20 21:18:07 bylaska Exp $
+c     $Id: task_optimize.F,v 1.26 2003-10-17 22:58:26 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -172,7 +181,8 @@ c
       wall = util_wallsec()
 c     
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_saddle: failed to invalidate status',0)
+     $     call errquit('task_saddle: failed to invalidate status',0,
+     &       RTDB_ERR)
 c     
       if (ga_nodeid().eq.0 .and. 
      $     util_print('task_saddle', print_low) .and. 
@@ -187,7 +197,8 @@ c
       endif
 c     
       if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-     +     call errquit('task_saddle: failed rtdb_cget task:theory',0)
+     +     call errquit('task_saddle: failed rtdb_cget task:theory',0,
+     &       RTDB_ERR)
       if (theory.eq.'qmmm') then
          if (ga_nodeid().eq.0) then
             write(6,*)'task_saddle: qmmm should never be the theory '
@@ -201,15 +212,17 @@ c
          if (ousedriver) then
             modsad = 1
             if (.not. rtdb_put(rtdb,'driver:modsad',mt_int,1,modsad))
-     $           call errquit('task_saddle: rtdb corrupt?', 0)
+     $           call errquit('task_saddle: rtdb corrupt?', 0, RTDB_ERR)
             status = driver(rtdb)
          else
             ts   = .true.
             omin = .false.
             if (.not.rtdb_put(rtdb,'stepper:ts',MT_LOG,1,ts))
-     &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &           call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &       RTDB_ERR)
             if (.not.rtdb_put(rtdb,'stepper:omin',MT_LOG,1,omin))
-     &           call errquit('stpr_store_rtdb: rtdb_put failed',911)
+     &           call errquit('stpr_store_rtdb: rtdb_put failed',911,
+     &       RTDB_ERR)
             status = stpr_walk_task(rtdb)
 *rak:            call stpr_walk_reset()
 *rak: 10         if (task_gradient(rtdb)) then
@@ -227,11 +240,14 @@ c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_saddle: failed storing cputime',0)
+     $     call errquit('task_saddle: failed storing cputime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_saddle: failed storing walltime',0)
+     $     call errquit('task_saddle: failed storing walltime',0,
+     &       RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_saddle: failed to set status',0)
+     $     call errquit('task_saddle: failed to set status',0,
+     &       RTDB_ERR)
 c     
       call ecce_print1('cpu time', mt_dbl, cpu, 1)
       call ecce_print1('wall time', mt_dbl, wall, 1)
@@ -245,8 +261,9 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.25 2002-11-20 21:18:07 bylaska Exp $
+c     $Id: task_optimize.F,v 1.26 2003-10-17 22:58:26 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
@@ -279,7 +296,7 @@ c$$$      logical status
 c
 c$$$      character*32 theory
 c
-      call errquit('lst broken by rjh ',0)
+      call errquit('lst broken by rjh ',0, UNKNOWN_ERR)
       task_lst = .false.
 c$$$      logical  drv_lst 
 c$$$      external drv_lst

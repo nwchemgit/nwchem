@@ -1,8 +1,9 @@
       subroutine psp_formatter_input(rtdb)
 c
-c $Id: psp_formatter_input.F,v 1.3 2002-02-13 20:43:47 edo Exp $
+c $Id: psp_formatter_input.F,v 1.4 2003-10-17 22:57:16 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -51,19 +52,21 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'psp_formatter_input: inp_read failed', 0)
+     >           'psp_formatter_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'psp_formatter_input: failed to read keyword', 0)
+     >           'psp_formatter_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'psp_formatter_input: unknown directive', 0)
+     >           'psp_formatter_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100,  200, 300, 400, 500, 600, 600, 700, 800,
      >      9999) ind
       call errquit(
-     >      'psp_formatter_input: unimplemented directive', ind)
+     >      'psp_formatter_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 
 c     
@@ -71,7 +74,8 @@ c  cell_name
 c     
  100  if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'psp_formatter_input: failed to read keyword', 0)
+     >          'psp_formatter_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -80,7 +84,8 @@ c psp_filename
 c
  200  if (.not. inp_a(psp_filename))
      >     call errquit(
-     >          'psp_formatter_input: failed to read keyword', 0)
+     >          'psp_formatter_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
@@ -89,7 +94,8 @@ c  formatted_filename
 c 
  300  if (.not. inp_a(formatted_filename))
      >     call errquit(
-     >          'psp_formatter_input: failed to read keyword', 0)
+     >          'psp_formatter_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -97,7 +103,8 @@ c  locp
 c 
  400  if (.not. inp_a(l_read))
      >     call errquit(
-     >          'psp_formatter_input: failed to read locp', 0)
+     >          'psp_formatter_input: failed to read locp', 0,
+     &       INPUT_ERR)
       if ((l_read.eq.'s').or.(l_read.eq.'S')) locp = 0
       if ((l_read.eq.'0'))                    locp = 0
       if ((l_read.eq.'p').or.(l_read.eq.'P')) locp = 1
@@ -113,7 +120,8 @@ c  lmax
 c 
  500  if (.not. inp_a(l_read))
      >     call errquit(
-     >          'psp_formatter_input: failed to read locp', 0)
+     >          'psp_formatter_input: failed to read locp', 0,
+     &       INPUT_ERR)
       if ((l_read.eq.'s').or.(l_read.eq.'S')) lmax = 0
       if ((l_read.eq.'0'))                    lmax = 0
       if ((l_read.eq.'p').or.(l_read.eq.'P')) lmax = 1
@@ -129,7 +137,8 @@ c  rlocal
 c 
  600  if (.not. inp_f(rlocal))
      >     call errquit(
-     >          'psp_formatter_input: failed to read rlocal', 0)
+     >          'psp_formatter_input: failed to read rlocal', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -143,19 +152,23 @@ c  formatted_stress_filename
 c 
  800  if (.not. inp_a(formatted_stress_filename))
      >     call errquit(
-     >          'psp_formatter_input: failed to read keyword', 0)
+     >          'psp_formatter_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       goto 10
 
 
 *     ***** add simulation_cell to rtdb ****
  9999 continue
       if (cell_name.eq.' ') 
-     >  call errquit('psp_formatter_input: nead a cell_name', 0)
+     >  call errquit('psp_formatter_input: nead a cell_name', 0,
+     &       INPUT_ERR)
       if (psp_filename.eq.' ') 
-     >  call errquit('psp_formatter_input: nead a psp_filename', 0)
+     >  call errquit('psp_formatter_input: nead a psp_filename', 0,
+     &       INPUT_ERR)
       if (formatted_filename.eq.' ') 
      >  call errquit(
-     >       'psp_formatter_input: nead a formatted_filename', 0)
+     >       'psp_formatter_input: nead a formatted_filename', 0,
+     &       INPUT_ERR)
 
       if (formatted_stress_filename.eq.' ') then
         ind = index(formatted_filename,' ') - 1
@@ -178,53 +191,53 @@ c
       if (.not. rtdb_put(rtdb,'kbpp_number',
      >                     mt_int,1,kbpp_number))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_put failed', 0)
+     >     'psp_formatter_input: rtdb_put failed', 0, RTDB_ERR)
 
 
       rtdb_name = kbpp_name(1:kbpp_len)//':cell_name'
       ind = index(cell_name,' ') - 1
       if (.not. rtdb_cput(rtdb,rtdb_name,1,cell_name(1:ind)))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_cput failed', 0)
+     >     'psp_formatter_input: rtdb_cput failed', 0, RTDB_ERR)
 
       rtdb_name = kbpp_name(1:kbpp_len)//':psp_filename'
       ind = index(psp_filename,' ') - 1
       if (.not. rtdb_cput(rtdb,rtdb_name,
      >                    1,psp_filename(1:ind)))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_cput failed', 0)
+     >     'psp_formatter_input: rtdb_cput failed', 0, RTDB_ERR)
 
       rtdb_name = kbpp_name(1:kbpp_len)//':formatted_filename'
       ind = index(formatted_filename,' ') - 1
       if (.not. rtdb_cput(rtdb,rtdb_name,
      >                     1,formatted_filename(1:ind)))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_cput failed', 0)
+     >     'psp_formatter_input: rtdb_cput failed', 0, RTDB_ERR)
       
       rtdb_name = kbpp_name(1:kbpp_len)//':formatted_stress_filename'
       ind = index(formatted_stress_filename,' ') - 1
       if (.not. rtdb_cput(rtdb,rtdb_name,
      >                     1,formatted_stress_filename(1:ind)))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_cput failed', 0)
+     >     'psp_formatter_input: rtdb_cput failed', 0, RTDB_ERR)
 
       rtdb_name = kbpp_name(1:kbpp_len)//':locp'
       if (.not. rtdb_put(rtdb,rtdb_name,
      >                     mt_int,1,locp))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_put failed', 0)
+     >     'psp_formatter_input: rtdb_put failed', 0, RTDB_ERR)
 
       rtdb_name = kbpp_name(1:kbpp_len)//':lmax'
       if (.not. rtdb_put(rtdb,rtdb_name,
      >                     mt_int,1,lmax))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_put failed', 0)
+     >     'psp_formatter_input: rtdb_put failed', 0, RTDB_ERR)
 
       rtdb_name = kbpp_name(1:kbpp_len)//':rlocal'
       if (.not. rtdb_put(rtdb,rtdb_name,
      >                     mt_dbl,1,rlocal))
      >     call errquit(
-     >     'psp_formatter_input: rtdb_put failed', 0)
+     >     'psp_formatter_input: rtdb_put failed', 0, RTDB_ERR)
 
 
       return

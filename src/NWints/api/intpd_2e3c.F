@@ -1,7 +1,7 @@
       subroutine intpd_2e3c(brain, ish, ketin, jsh, ksh, Ri, Rj, 
      &       lscr, scr, leri, eri, idatom)
 *
-* $Id: intpd_2e3c.F,v 1.4 1999-07-14 00:28:43 d3e129 Exp $
+* $Id: intpd_2e3c.F,v 1.5 2003-10-17 22:53:43 carlfahl Exp $
 *
       implicit none
 c
@@ -11,6 +11,7 @@ c
 c eri = <bra_g(ish)|ket_g(jsh).ket_g(ksh),3=xyz,3=atoms>
 c
 #include "apiP.fh"
+#include "errquit.fh"
 #include "bas.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -71,7 +72,8 @@ c
 c check initialization
 c
       if (.not.int_chk_init('intpd_2e3c'))
-     &       call errquit('intpd_2e3c: int_init was not called' ,0)
+     &       call errquit('intpd_2e3c: int_init was not called' ,0,
+     &           INT_ERR)
 c
 c     check input shell ranges
 c
@@ -79,7 +81,8 @@ c
       shells_ok = shells_ok .and. int_chk_sh(ketin,jsh)
       shells_ok = shells_ok .and. int_chk_sh(ketin,ksh)
       if (.not.shells_ok)
-     &       call errquit('intpd_2e3c: invalid contraction/shell',0)
+     &       call errquit('intpd_2e3c: invalid contraction/shell',0,
+     &         BASIS_ERR)
 c
 c  check if gencon/sp shell
 c
@@ -115,7 +118,7 @@ c
       if (mynint*3*4.gt.leri) then
         write(luout,*) 'nint*3*4 = ',mynint*3*4
         write(luout,*) 'leri     = ',leri
-        call errquit('intpd_2e3c: nint>leri error',911)
+        call errquit('intpd_2e3c: nint>leri error',911, INT_ERR)
       endif
 c.. translate ish center coordinates based on Ri
       call intp_txyz(p_cent,p_geom,Ri,xyz_new_i)
@@ -176,6 +179,6 @@ c
         write(luout,*)' ish   :',ish
         write(luout,*)' jsh   :',jsh
         write(luout,*)' ksh   :',ksh
-        call errquit('intpd_2e3c: fatal error ',0)
+        call errquit('intpd_2e3c: fatal error ',0, INT_ERR)
       endif
       end

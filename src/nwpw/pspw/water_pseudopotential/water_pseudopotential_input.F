@@ -1,5 +1,6 @@
       subroutine water_pseudopotential_input(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "inp.fh"
@@ -48,7 +49,8 @@ c
       value = value.and.geom_ncent(geom,maxion)
       value = value.and.geom_destroy(geom)
       if (.not.value)
-     > call errquit('water_pseudopotential_input:error get maxion',0)
+     > call errquit('water_pseudopotential_input:error get maxion',0,
+     &       GEOM_ERR)
 
 
        
@@ -72,7 +74,8 @@ c
      >        MA_push_get(mt_dbl,(100),
      >                     'tmp_g',tmp_g(2),tmp_g(1))
       if (.not.value)
-     > call errquit('water_pseudopotential_input:error push stack',0)
+     > call errquit('water_pseudopotential_input:error push stack',0,
+     &       MA_ERR)
 
 *     ***** initializations ****
       water_type        = 0
@@ -97,26 +100,29 @@ c
 
  10   if (.not. inp_read()) 
      >  call errquit(
-     >  'water_pseudopotential_input: inp_read failed', 0)
+     >  'water_pseudopotential_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >  call errquit(
-     >  'water_pseudopotential_input: failed to read keyword', 0)
+     >  'water_pseudopotential_input: failed to read keyword', 0,
+     &       INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >  call errquit(
-     >  'water_pseudopotential_input: unknown directive', 0)
+     >  'water_pseudopotential_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100, 200, 300, 400, 500, 600, 700,
      >      9999) ind
       call errquit(
-     >      'cell_optimize_input: unimplemented directive', ind)
+     >      'cell_optimize_input: unimplemented directive', ind,
+     &       INPUT_ERR)
 
 c     
 c  water_type
 c     
  100  if (.not. inp_a(test))
      >  call errquit(
-     >  'water_pseudopotential_input: failed to read water_type', 0)
+     >  'water_pseudopotential_input: failed to read water_type', 0,
+     &       INPUT_ERR)
       if (test.eq.'unknown') water_type = 0
       goto 10
 
@@ -125,7 +131,8 @@ c  water_number
 c
  200  if (.not. inp_i(water_number))
      >  call errquit(
-     > 'water_pseudopotential_input: failed to read water_number:', 0)
+     > 'water_pseudopotential_input: failed to read water_number:', 0,
+     &       INPUT_ERR)
       goto 10
 
 c
@@ -133,7 +140,8 @@ c  start_atom_number
 c
  300  if (.not. inp_i(start_atom_number))
      >  call errquit(
-     > 'water_pseudopotential_input:failed read start_atom_number:',0)
+     > 'water_pseudopotential_input:failed read start_atom_number:',0,
+     &       INPUT_ERR)
       goto 10
      
 c
@@ -144,7 +152,8 @@ c
       value = value.and.inp_f(si)
       if (.not. value)
      >  call errquit(
-     > 'water_pseudopotential_input:failed reading lj_parameters:',0)
+     > 'water_pseudopotential_input:failed reading lj_parameters:',0,
+     &       INPUT_ERR)
 
       int_mb(tmp_ionnum(1)+ljcount) = i
       dbl_mb(tmp_ei(1)    +ljcount) = ei
@@ -157,7 +166,8 @@ c
       value = value.and.inp_f(sw)
       if (.not. value)
      >  call errquit(
-     > 'water_pseudopotential_input:failed reading lj_parameters:',0)
+     > 'water_pseudopotential_input:failed reading lj_parameters:',0,
+     &       INPUT_ERR)
 
       goto 10
 
@@ -170,7 +180,8 @@ c
 
       if (.not. value)
      >  call errquit(
-     > 'water_pseudopotential_input:failed reading sr_basis:',0)
+     > 'water_pseudopotential_input:failed reading sr_basis:',0,
+     &       INPUT_ERR)
       
       int_mb(tmp_iatom(1)+num_basis) = i
       dbl_mb(tmp_c(1)    +num_basis) = ei
@@ -188,7 +199,8 @@ c
 
       if (.not. value)
      >  call errquit(
-     > 'water_pseudopotential_input:failed polarization_parameters:',0)
+     > 'water_pseudopotential_input:failed polarization_parameters:',0,
+     &       INPUT_ERR)
 
       goto 10
 
@@ -274,7 +286,7 @@ c
 
       if (.not.value)
      >  call errquit(
-     > 'water_pseudopotential_input:error writing to rtdb',0)
+     > 'water_pseudopotential_input:error writing to rtdb',0, RTDB_ERR)
 
       value = MA_pop_stack(tmp_g(2))
       value = value.and.MA_pop_stack(tmp_c(2))
@@ -283,7 +295,8 @@ c
       value = value.and.MA_pop_stack(tmp_ei(2))
       value = value.and.MA_pop_stack(tmp_ionnum(2))
       if (.not.value)
-     > call errquit('water_pseudopotential_input:error pop stack',0)
+     > call errquit('water_pseudopotential_input:error pop stack',0,
+     &       MA_ERR)
 
 
 

@@ -1,4 +1,4 @@
-c $Id: int_1edk_ga.F,v 1.27 2001-11-14 18:50:45 edo Exp $
+c $Id: int_1edk_ga.F,v 1.28 2003-10-17 22:53:48 carlfahl Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 
@@ -23,6 +23,7 @@ c:tex-\end{verbatim}
 #include "geomP.fh"
 #include "rel_consts.fh"
 #include "bgj.fh"
+#include "errquit.fh"
 c     
 c     Compute the Douglas-Kroll integrals and ADD them to a given global array.
 c
@@ -96,25 +97,29 @@ c
 c     Define the dimensions of the arrays
 c
       if (.not. bas_numbf(dk_fitbas,nbf))
-     $   call errquit('int_1edk_ga: bas_numbf failed',0)
+     $   call errquit('int_1edk_ga: bas_numbf failed',0, BASIS_ERR)
 c
 c     Create DKg_a of nbf*nbf to store integrals of uncontracted basis
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA D-K',1,1,DKg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA D-K',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA D-K',0,
+     &       GA_ERR)
       call ga_zero(DKg_a)
 c
 c     Create a temp g_a of nbf*nbf as temp/help matrix array
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 1',1,1,tempg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 2',1,1,tmpg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
 c
 c     Create transformation matrix r-space to g-space, U
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Umatrix',1,1,Ug_a))
-     $     call errquit('int_1edk_ga: ga_create failed Umatrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed Umatrix',0,
+     &       GA_ERR)
       call ga_zero(Ug_a)
 c
 c     Get kinetic energy matrix p^2/2 in uncontracted basis, diagonalize
@@ -123,7 +128,8 @@ c
 c     Construct, fill Tg_a with kinetic energy matrix integrals
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Tmatrix',1,1,Tg_a))
-     $     call errquit('int_1edk_ga: ga_create failed Tmatrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed Tmatrix',0,
+     &       GA_ERR)
       call ga_zero(Tg_a)
       call int_1e_oldga(dk_fitbas,dk_fitbas,Tg_a,'kinetic',oskel)
 c
@@ -135,7 +141,8 @@ c
       call ga_zero(tempg_a)
       call int_1e_oldga(dk_fitbas,dk_fitbas,tempg_a,'overlap',oskel)
       if (.not. ma_push_get(MT_DBL,nbf,'psquared',p2m_a,p2Im_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed psquared',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed psquared',0,
+     &       MA_ERR)
 #ifdef PARALLEL_DIAG
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #else
@@ -143,14 +150,16 @@ c
 #endif
 c
       if (.not. ga_destroy(Tg_a)) 
-     $     call errquit('int_1edk_ga: ga_destroy Tg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy Tg_a',0,
+     &       GA_ERR)
       call dscal(nbf,2.0d0,dbl_mb(p2Im_a),1)
 c
 c     Construct vector E from eigenvalues: E = Sqrt(p^2 c^2 + c^4)
 c                                            = c*Sqrt(p^2 + c^2)
 c
       if (.not. ma_push_get(MT_DBL,nbf,'Evector',Em_a,EIm_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed Evector',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed Evector',0,
+     &       MA_ERR)
       do 10 iloop = 1, nbf
          dbl_mb(EIm_a+iloop-1) = cau*Sqrt(dbl_mb(p2Im_a+iloop-1)+csq)
    10 continue
@@ -159,9 +168,11 @@ c     Construct vector A from E: A = Sqrt((E+c^2)/2E) and
 c               vector K from E: K = c/(E+c^2)
 c
       if (.not. ma_push_get(MT_DBL,nbf,'Avector',Am_a,AIm_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed Avector',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed Avector',0,
+     &       MA_ERR)
       if (.not. ma_push_get(MT_DBL,nbf,'Kvector',Km_a,KIm_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed Kvector',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed Kvector',0,
+     &       MA_ERR)
       if (dk_form_type .ne. 0) then   ! Douglas-Kroll     
       do 20 iloop = 1, nbf
          dbl_mb(KIm_a+iloop-1) = cau/(dbl_mb(EIm_a+iloop-1)+csq)  
@@ -184,14 +195,16 @@ c     We have to subtract mc^2 to get the non-relativistic type integrals
 c
       call ga_zero(DKg_a)
       if (.not. ma_push_get(MT_DBL,nbf,'Kinetic',KEm_a,KEIm_a))
-     $     call errquit('int_1edk_ga: ma_push_get failed KEvector',0)
+     $     call errquit('int_1edk_ga: ma_push_get failed KEvector',0,
+     &       MA_ERR)
       do 21 iloop = 1, nbf
          dbl_mb(KEIm_a+iloop-1) = (dbl_mb(p2Im_a+iloop-1)*csq)/
      $                            (dbl_mb(EIm_a+iloop-1)+csq)
    21 continue
       call ga_copy_todiag(DKg_a,dbl_mb(KEIm_a))
       if (.not. ma_pop_stack(KEm_a))
-     $       call errquit('int_1edk_ga: ma_pop_stack KEm_a',0)
+     $       call errquit('int_1edk_ga: ma_pop_stack KEm_a',0,
+     &       MA_ERR)
 c
 c     We have our kinetic energy integrals
 c 
@@ -205,7 +218,8 @@ c     construct RE1R for DK3
 c
       if (dk_form_type .ge. 4) then   ! higher-order DK
       if (.not. ga_create(MT_DBL,nbf,nbf,'RE1Rmatrix',1,1,RE1Rg_a))
-     $     call errquit('int_1edk_ga: ga_create failed RE1Rmatrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed RE1Rmatrix',0,
+     &       GA_ERR)
       call ga_zero(RE1Rg_a)
       endif
 c
@@ -216,7 +230,8 @@ c
 c     First create U^tVU in Vg_a
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Vmatrix',1,1,Vg_a))
-     $     call errquit('int_1edk_ga: ga_create failed Vmatrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed Vmatrix',0,
+     &       GA_ERR)
       call ga_zero(Vg_a)
       call int_1e_oldga(dk_fitbas,dk_fitbas,Vg_a,'potential',oskel)
       call ga_zero(tempg_a)
@@ -242,7 +257,8 @@ c
       endif
       else   ! RESC
       if (.not. ma_push_get(MT_DBL,nbf,'MA temp',tempm_a,tempIm_a))
-     $     call errquit('D-K integrals: ma_push_get failed MA temp',0)
+     $     call errquit('D-K integrals: ma_push_get failed MA temp',0,
+     &       MA_ERR)
       do iloop = 1, nbf
          dbl_mb(tempIm_a+iloop-1) = Sqrt(dbl_mb(KIm_a+iloop-1))  
       enddo   
@@ -263,7 +279,8 @@ c
 c     First create U^t(p.Vp)U in Vdg_a
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'Vdmatrix',1,1,Vdg_a))
-     $     call errquit('int_1edk_ga: ga_create failed Vdmatrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed Vdmatrix',0,
+     &       GA_ERR)
 c
 c     get p.Vp integrals and put them in Vdg_a
 c
@@ -304,7 +321,8 @@ c     copy current DKg_a (i.e.,1st-order even term) into Ev1g_a for DK3
 c
       if (dk_form_type .ge. 4) then   ! higher-order DK
       if (.not. ga_create(MT_DBL,nbf,nbf,'Ev1matrix',1,1,Ev1g_a))
-     $     call errquit('int_1edk_ga: ga_create failed Ev1matrix',0)
+     $     call errquit('int_1edk_ga: ga_create failed Ev1matrix',0,
+     &       GA_ERR)
       call ga_zero(Ev1g_a)
       call ga_copy(DKg_a,Ev1g_a)
       endif
@@ -315,18 +333,19 @@ c     construct final integrals if dk_form_type=1 (see header).
 c 
       if (dk_form_type .eq. 1) then     
          if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0,
+     &       GA_ERR)
          if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0, GA_ERR)
          goto 100
       endif
       if (dk_form_type .eq. 0) then   ! RESC
          if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0, GA_ERR)
          if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0, GA_ERR)
          if (.not. ma_pop_stack(tempm_a))
-     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0, GA_ERR)
          goto 100
       endif
 c
@@ -354,7 +373,8 @@ c
 c     Use an intermediate array to generate combined scaling factors
 c
       if (.not. ma_push_get(MT_DBL,nbf,'MA temp',tempm_a,tempIm_a))
-     $     call errquit('D-K integrals: ma_push_get failed MA temp',0)
+     $     call errquit('D-K integrals: ma_push_get failed MA temp',0,
+     &       MA_ERR)
 c
 c     Term 1: - UAK Vdg_a KAE(p)A Vg_a AU^t
 c     
@@ -586,11 +606,11 @@ c     Skip and construct final integrals if dk_form_type=2 (see header).
 c 
       if (dk_form_type .eq. 2) then
          if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0, GA_ERR)
          if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0, GA_ERR)
          if (.not. ma_pop_stack(tempm_a))
-     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0, MA_ERR)
          goto 100
       endif
       if (dk_form_type .eq. 3) goto 200   ! complete DK2
@@ -621,7 +641,8 @@ c     Term 1: - UAKVdg_aKA R^-2 RE(1)R AVg_aAU^t
 c           = - UKAVdg_aAK^-1p^-2 RE(1)R AVg_aAU^t
 c     
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 3',1,1,tmp2g_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
       call ga_copy(Vdg_a,tempg_a)
       call ga_scale_rlh(tempg_a,dbl_mb(AIm_a),dbl_mb(AIm_a))
       call ga_scale_lh(tempg_a,dbl_mb(KIm_a))
@@ -869,17 +890,17 @@ c
 c
       if (dk_form_type .eq. 4) then   ! incomplete DK3
          if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0, GA_ERR)
          if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0, GA_ERR)
          if (.not. ma_pop_stack(tempm_a))
-     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+     $       call errquit('int_1edk_ga: ma_pop_stack tempm_a',0, MA_ERR)
          if (.not. ga_destroy(Ev1g_a))
-     $        call errquit('int_1edk_ga: ga_destroy W1sqg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy W1sqg_a',0, GA_ERR)
          if (.not. ga_destroy(RE1Rg_a))
-     $        call errquit('int_1edk_ga: ga_destroy RE1Rg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy RE1Rg_a',0, GA_ERR)
          if (.not. ga_destroy(tmp2g_a))
-     $        call errquit('int_1edk_ga: ga_destroy tmp2g_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy tmp2g_a',0, GA_ERR)
          goto 100
       endif
   200 continue
@@ -897,18 +918,24 @@ c     Get pxVp X_ga, Y_ga and Z_ga, and transform to U^tVU and scale
 c     with 1/(Ep+Ep') for W terms
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp X',1,1,X_ga))
-     $     call errquit('int_1edk_ga: ga_create failed GA X_ga',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA X_ga',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Y',1,1,Y_ga))
-     $     call errquit('int_1edk_ga: ga_create failed GA Y_ga',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA Y_ga',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Z',1,1,Z_ga))
-     $     call errquit('int_1edk_ga: ga_create failed GA Z_ga',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA Z_ga',0,
+     &       GA_ERR)
       if (dk_form_type .eq. 5) then   ! complete DK3
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp X',1,1,XpxVp_ga))
-     $     call errquit('int_1edk_ga: ga_create failed GA XpxVp_ga',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA XpxVp_ga',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Y',1,1,YpxVp_ga))
-     $     call errquit('int_1edk_ga: ga_create failed GA YpxVp_ga',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA YpxVp_ga',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA pxVp Z',1,1,ZpxVp_ga))
-     $     call errquit('int_1edk_ga: ga_create failed GA ZpxVp_ga',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA ZpxVp_ga',0,
+     &       GA_ERR)
       endif
 c
       call int_pxvp_ga(dk_fitbas,X_ga,Y_ga,Z_ga,oskel)
@@ -1015,17 +1042,18 @@ c     them back into the contracted basis.
 c
       if (dk_form_type .eq. 3) then   ! complete DK2
          if (.not. ga_destroy(Z_ga))
-     $        call errquit('int_1edk_ga: ga_destroy Z_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy Z_ga',0, GA_ERR)
          if (.not. ga_destroy(Y_ga))
-     $        call errquit('int_1edk_ga: ga_destroy Y_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy Y_ga',0, GA_ERR)
          if (.not. ga_destroy(X_ga))
-     $        call errquit('int_1edk_ga: ga_destroy X_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy X_ga',0, GA_ERR)
          if (.not. ma_pop_stack(tempm_a))
-     $        call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+     $        call errquit('int_1edk_ga: ma_pop_stack tempm_a',0,
+     &       MA_ERR)
          if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0, GA_ERR)
          if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0, GA_ERR)
          goto 100
       endif
 c
@@ -1035,7 +1063,8 @@ c     - UAK(pxV'p)KA R^-2 RE(1)R R^-2 AK(pxV'p)KAU^t
 c   = - UKA(pxV'p) AK^-1p^-2 RE(1)R p^-2K^-1A (pxV'p)AKU^t
 c
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp 4',1,1,tmp3g_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
 c
       do iloop = 1, nbf
          dbl_mb(tempIm_a+iloop-1)
@@ -1578,31 +1607,32 @@ c
 c
       if (dk_form_type .eq. 5) then   ! complete DK3
          if (.not. ga_destroy(Z_ga))
-     $        call errquit('int_1edk_ga: ga_destroy Z_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy Z_ga',0, GA_ERR)
          if (.not. ga_destroy(Y_ga))
-     $        call errquit('int_1edk_ga: ga_destroy Y_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy Y_ga',0, GA_ERR)
          if (.not. ga_destroy(X_ga))
-     $        call errquit('int_1edk_ga: ga_destroy X_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy X_ga',0, GA_ERR)
          if (.not. ma_pop_stack(tempm_a))
-     $        call errquit('int_1edk_ga: ma_pop_stack tempm_a',0)
+     $        call errquit('int_1edk_ga: ma_pop_stack tempm_a',0,
+     &       MA_ERR)
          if (.not. ga_destroy(Ev1g_a))
-     $        call errquit('int_1edk_ga: ga_destroy Ev1g_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Ev1g_a',0, GA_ERR)
          if (.not. ga_destroy(RE1Rg_a))
-     $        call errquit('int_1edk_ga: ga_destroy RE1Rg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy RE1Rg_a',0, GA_ERR)
          if (.not. ga_destroy(tmp2g_a))
-     $        call errquit('int_1edk_ga: ga_destroy tmp2g_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy tmp2g_a',0, GA_ERR)
          if (.not. ga_destroy(XpxVp_ga))
-     $        call errquit('int_1edk_ga: ga_destroy XpxVp_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy XpxVp_ga',0, GA_ERR)
          if (.not. ga_destroy(YpxVp_ga))
-     $        call errquit('int_1edk_ga: ga_destroy YpxVp_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy YpxVp_ga',0, GA_ERR)
          if (.not. ga_destroy(ZpxVp_ga))
-     $        call errquit('int_1edk_ga: ga_destroy ZpxVp_ga',0)
+     $        call errquit('int_1edk_ga: ga_destroy ZpxVp_ga',0, GA_ERR)
          if (.not. ga_destroy(tmp3g_a))
-     $        call errquit('int_1edk_ga: ga_destroy tmp3g_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy tmp3g_a',0, GA_ERR)
          if (.not. ga_destroy(Vdg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vdg_a',0, GA_ERR)
          if (.not. ga_destroy(Vg_a))
-     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0)
+     $        call errquit('int_1edk_ga: ga_destroy Vg_a',0, GA_ERR)
       endif
   100 continue
 c
@@ -1630,19 +1660,19 @@ c
 c     Free MA's and GA's that are not needed anymore at this time
 c
       if (.not. ma_pop_stack(Km_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack Km_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack Km_a',0, MA_ERR)
       if (.not. ma_pop_stack(Am_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack Am_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack Am_a',0, MA_ERR)
       if (.not. ma_pop_stack(Em_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack Em_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack Em_a',0, MA_ERR)
       if (.not. ma_pop_stack(p2m_a))
-     $     call errquit('int_1edk_ga: ma_pop_stack p2m_a',0)
+     $     call errquit('int_1edk_ga: ma_pop_stack p2m_a',0, MA_ERR)
       if (.not. ga_destroy(Ug_a))
-     $     call errquit('int_1edk_ga: ga_destroy Ug_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy Ug_a',0, GA_ERR)
       if (.not. ga_destroy(tmpg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0, GA_ERR)
       if (.not. ga_destroy(tempg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0, GA_ERR)
 c
 c     We now have our integrals in a primitive basis in DKg_a. If the original
 c     basis is contracted we have to transform to this basis. Get transformation
@@ -1657,13 +1687,16 @@ c     S_-1 is inverse overlap in the uncontracted basis
 c     Scontr_uncon is the mixed basis overlap
 c
       if (.not. bas_numbf(basis_in,nbf_in))
-     $   call errquit('int_1edk_ga: bas_numbf failed',0)
+     $   call errquit('int_1edk_ga: bas_numbf failed',0, BASIS_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf_in,'Mixed overlap',1,1,
-     $     Mixg_a)) call errquit('int_1edk_ga: create mixed overlap',0)
+     $     Mixg_a)) call errquit('int_1edk_ga: create mixed overlap',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf,'GA temp',1,1,tempg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
       if (.not. ga_create(MT_DBL,nbf,nbf_in,'GA temp',1,1,tmpg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA tmp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA tmp',0,
+     &       GA_ERR)
 c
 c     Create mixed overlap between basis_in and dk_fitbas
 c
@@ -1682,11 +1715,12 @@ c
 c     Create integrals in contracted basis g_in via Mixg_a x DKg_a Mixg_a^T
 c
       if (.not. ga_destroy(tmpg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tmpg_a',0, GA_ERR)
       if (.not. ga_destroy(tempg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0, GA_ERR)
       if (.not. ga_create(MT_DBL,nbf_in,nbf,'GA temp',1,1,tempg_a))
-     $     call errquit('int_1edk_ga: ga_create failed GA temp',0)
+     $     call errquit('int_1edk_ga: ga_create failed GA temp',0,
+     &       GA_ERR)
       call ga_zero(tempg_a)
       call ga_dgemm('t','n',nbf_in,nbf,nbf,1.0d0,Mixg_a,
      $              DKg_a,0.0d0,tempg_a)
@@ -1697,11 +1731,11 @@ c
 c     Destroy transformation matrices Mixg_a, tempg_a and DKg_a
 c
       if (.not. ga_destroy(tempg_a))
-     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy tempg_a',0, GA_ERR)
       if (.not. ga_destroy(Mixg_a))
-     $     call errquit('int_1edk_ga: ga_destroy Mixg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy Mixg_a',0, GA_ERR)
       if (.not. ga_destroy(DKg_a))
-     $     call errquit('int_1edk_ga: ga_destroy DKg_a',0)
+     $     call errquit('int_1edk_ga: ga_destroy DKg_a',0, GA_ERR)
 c
       return
 c

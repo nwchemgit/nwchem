@@ -1,8 +1,9 @@
 *
-* $Id: pspw_dplot.F,v 1.10 2003-07-28 23:45:57 bylaska Exp $
+* $Id: pspw_dplot.F,v 1.11 2003-10-17 22:57:15 carlfahl Exp $
 *
       logical function pspw_dplot(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
@@ -101,7 +102,7 @@
      >                 ' be in the range ( 1 ...',
      >                   control_ngrid(3),')'
          call util_flush(6)
-         call errquit('PSPW:Bad number of processors:',np)
+         call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
       end if
 
 *     **** initialize D3dB data structure ****
@@ -129,7 +130,7 @@
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
      >                     'psi2',psi2(2),psi2(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
 *     *****  read psi2 wavefunctions ****
@@ -144,7 +145,8 @@
      >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
      >                     'psir',psir(2),psir(1))
 
-      if (.not. value) call errquit('pspw_dplot:out of heap memory',0)
+      if (.not. value) call errquit('pspw_dplot:out of heap memory',0,
+     &       MA_ERR)
 
       call ke_init()
       if (control_version().eq.3) call coulomb_init()
@@ -254,7 +256,8 @@
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 
-      if (.not. value) call errquit('pspw_dplot:freeing heap memory',0)
+      if (.not. value) call errquit('pspw_dplot:freeing heap memory',0,
+     &       MA_ERR)
 
 
       if (taskid.eq.MASTER) then
@@ -387,6 +390,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                      psi_r,
      >                      add_tag,tag)
       implicit none
+#include "errquit.fh"
       integer    rtdb
       integer    ispin,ne(2)
       integer    npack1,nfft3d,nemax
@@ -428,7 +432,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       call Parallel_taskid(taskid)
       n2ft3d = 2*nfft3d
       value = MA_push_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       n1(1) = 1
       n2(1) = ne(1)
@@ -470,7 +474,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
      >                           mt_int,1,number)
         if (.not.value)
      >     call errquit(
-     >     'pspw_dplot: rtdb_get failed for orbital', 0)
+     >     'pspw_dplot: rtdb_get failed for orbital', 0, RTDB_ERR)
 
 
 *       **** outputing density ****
@@ -479,7 +483,7 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
 
           goto ( 710, 720, 730, 740, 750, 760, 770, 780 ) number
           call errquit(
-     >      'dplot_loop: unimplemented directive', number)
+     >      'dplot_loop: unimplemented directive', number, INPUT_ERR)
        
 *          *************
 *          *** total ***
@@ -638,7 +642,7 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
 
 *     **** dealocate MA local variables ****
       value = MA_pop_stack(rho(2))
-      if (.not. value) call errquit('popping of stack memory',0)
+      if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
     
       return
@@ -651,6 +655,7 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
       subroutine dplot_gcube_write(rtdb,filename,
      >                             number,cube_comment,rho)
       implicit none
+#include "errquit.fh"
       integer rtdb
       character*30 filename
       integer      number
@@ -784,7 +789,7 @@ c        if (.not. value) call errquit('reading geometry',0)
       value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** transpose grid ****
       call D3dB_c_transpose_jk(1,rho,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
@@ -795,7 +800,7 @@ c        if (.not. value) call errquit('reading geometry',0)
 *     **** deallocate space ****
       value = MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('popping stack memory',0)
+      if (.not. value) call errquit('popping stack memory',0, MA_ERR)
 
    
 
@@ -1004,6 +1009,7 @@ c     if (.not. value) call errquit('closing geometry',0)
 *     ********************************
       subroutine pspw_add_core_dng(rcut,dng)
       implicit none
+#include "errquit.fh"
       real*8     rcut
       complex*16 dng(*)
 
@@ -1027,7 +1033,8 @@ c     if (.not. value) call errquit('closing geometry',0)
       value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nfft3d,'vg',vg(2),vg(1))
-      if (.not. value) call errquit('pspw_add_core_dng:push stack',0)
+      if (.not. value) call errquit('pspw_add_core_dng:push stack',0,
+     &       MA_ERR)
 
       G(1) = G_indx(1)
       G(2) = G_indx(2)
@@ -1060,7 +1067,8 @@ c     if (.not. value) call errquit('closing geometry',0)
 
       value = MA_pop_stack(vg(2))
       value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) call errquit('pspw_add_core_dng:pop stack',1)
+      if (.not. value) call errquit('pspw_add_core_dng:pop stack',1,
+     &       MA_ERR)
       return
       end
       
@@ -1071,6 +1079,7 @@ c     if (.not. value) call errquit('closing geometry',0)
 *     ********************************
       subroutine pspw_add_core_pot(rcut,vh)
       implicit none
+#include "errquit.fh"
       real*8  rcut
       real*8 vh(*)
 
@@ -1094,7 +1103,8 @@ c     if (.not. value) call errquit('closing geometry',0)
 
       call D3dB_n2ft3d(1,n2ft3d)
       value = MA_push_get(mt_dbl,3*n2ft3d,'rgrid',rgrid(2),rgrid(1))
-      if (.not. value) call errquit('pspw_add_core_pot:push stack',0)
+      if (.not. value) call errquit('pspw_add_core_pot:push stack',0,
+     &       MA_ERR)
 
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
       c       = 1.0d0/rcut
@@ -1125,7 +1135,8 @@ c     if (.not. value) call errquit('closing geometry',0)
       end do
 
       value = MA_pop_stack(rgrid(2))
-      if (.not. value) call errquit('pspw_add_core_pot:pop stack',1)
+      if (.not. value) call errquit('pspw_add_core_pot:pop stack',1,
+     &       MA_ERR)
       return
       end
       
@@ -1137,6 +1148,7 @@ c     if (.not. value) call errquit('closing geometry',0)
 *     ********************************
       subroutine psi_translate(trans,npack1,nemax,psi)
       implicit none
+#include "errquit.fh"
       real*8 trans(3)
       integer npack1,nemax
       complex*16 psi(npack1,nemax)

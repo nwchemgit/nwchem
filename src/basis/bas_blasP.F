@@ -1,12 +1,13 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.11 2000-08-04 01:16:03 bert Exp $
+* $Id: bas_blasP.F,v 1.12 2003-10-17 22:54:17 carlfahl Exp $
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 
      $     rex, expnt, coeffs, ldc, stdtag, oshell_is_rel)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "basdeclsP.fh"
 #include "nwc_const.fh"
@@ -104,7 +105,8 @@ c
         exndcf(SZ_exndcf,ind) = s_new
         call dcopy(s_old,dbl_mb(k_old),1,dbl_mb(k_new),1)
         if (.not.ma_free_heap(h_old)) call errquit
-     &      ('bas_add_ucnt: error freeing old exponents',911)
+     &      ('bas_add_ucnt: error freeing old exponents',911,
+     &       BASIS_ERR)
       endif
 *      if (infbs_head(HEAD_NCONT,ind)+1 .gt. nucont_bsmx) then
       if (infbs_head(HEAD_NCONT,ind) .gt. nucont_bsmx) then
@@ -155,7 +157,7 @@ c
      $     + nprim*ngen
       if (infbs_tags(TAG_FCONT,itag,ind).eq.0) then
          if (itag .ne. ntags) call errquit
-     $        ('bas_add_ucnt: tag error', itag)
+     $        ('bas_add_ucnt: tag error', itag, BASIS_ERR)
          infbs_tags(TAG_FCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
          infbs_tags(TAG_LCONT,itag,ind) = infbs_head(HEAD_NCONT,ind)
       else

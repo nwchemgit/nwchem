@@ -1,5 +1,5 @@
 *
-* $Id: lcao_diis.F,v 1.2 2001-12-06 18:16:39 bylaska Exp $
+* $Id: lcao_diis.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
 
 *     ***********************************************************
@@ -68,6 +68,7 @@
      >                              vhxc_out,
      >                              failed)
       implicit none
+#include "errquit.fh"
       real*8  alpha
       integer vhxc_new(*)
       integer vhxc_out(*)
@@ -127,7 +128,7 @@
 *     **** calculate A  matrices ***
       value = MA_push_get(mt_dbl,size*size,'A',A(2),A(1))
       if (.not.value)
-     > call errquit('lcao_diis: out of memory',0)
+     > call errquit('lcao_diis: out of memory',0, MA_ERR)
 
       value = ga_create(mt_dbl,nbasis,nbasis,
      >                  'err_indx1',nbasis,0,err_indx1(1))
@@ -144,7 +145,7 @@
      >                   'errt',nbasis,0,err_indx2(2))
 
       if (.not.value)
-     > call errquit('lcao_diis: out of ga memory',0)
+     > call errquit('lcao_diis: out of ga memory',0, MA_ERR)
 
 
       do i=1,size 
@@ -207,7 +208,8 @@ c     call lcao_write_matrix_seq(6,size,dbl_mb(A(1)))
       failed = .false.
       value = MA_push_get(mt_dbl,(size),'d',d(2),d(1))
       if (.not. value)
-     > call errquit('lcao_diis_dn_generate: out of stack memory',0)
+     > call errquit('lcao_diis_dn_generate: out of stack memory',0,
+     &       MA_ERR)
       sumt = 0.0d0
       do i=1,size
          indx = (i-1)*size     
@@ -247,7 +249,8 @@ c     call lcao_write_matrix_seq(6,size,dbl_mb(A(1)))
       value = MA_pop_stack(d(2))
       value = value.and.MA_pop_stack(A(2))
       if (.not. value)
-     > call errquit('lcao_diis_dn_generate: popping stack memory',0)
+     > call errquit('lcao_diis_dn_generate: popping stack memory',0,
+     &       MA_ERR)
 
       return
       end

@@ -1,9 +1,10 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.37 2003-01-17 05:04:05 edo Exp $
+c$Id: grid_tasks.F,v 1.38 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c
 #include "cdft.fh"
 #include "rtdb.fh"
@@ -73,10 +74,10 @@ c
 c
       if (filesize.gt.0 .or. memsize.gt.0) then
          if(.not.geom_nuc_rep_energy(geom, Enuc)) 
-     .        call errquit(' gridquad: enucrep failed ',0)
+     .        call errquit(' gridquad: enucrep failed ',0, GEOM_ERR)
          if (.not. grid_file_open(enuc,
      .        gridfilename, memsize, filesize))
-     $        call errquit('grid_tasks: opening gridpts?', 0)
+     $        call errquit('grid_tasks: opening gridpts?', 0, DISK_ERR)
       endif
 c
       owritefile= grid_test_mem (rtdb,  nq_tot)
@@ -90,16 +91,16 @@ c     Allocate some scratch space for construction of the spatial weights
 c
       ndbl = (ncenters*(ncenters+1))/2
       if (.not.MA_Push_Get(MT_Dbl,ndbl,'Rij',lRij,iRij))
-     &   call errquit('  in grid_tasks: cannot allocate Rij',0)
+     &   call errquit('  in grid_tasks: cannot allocate Rij',0, MA_ERR)
 C      call a_dist(xyz, Dbl_MB(iRij), ncenters)
       if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'rq',lrq,irq))
-     &   call errquit('grid_tasks: cannot allocate rq',0)
+     &   call errquit('grid_tasks: cannot allocate rq',0, MA_ERR)
       if (.not.MA_Push_get(mt_dbl,ncenters*npts_per_ang,'p',lp,ip))
-     &   call errquit('grid_tasks: cannot allocate rq',0)
+     &   call errquit('grid_tasks: cannot allocate rq',0, MA_ERR)
       if (.not.MA_Push_get(mt_dbl,nbf_ao_mxprim,'expo',lexpo,iexpo))
-     &   call errquit('grid_tasks: cannot allocate rq',4)
+     &   call errquit('grid_tasks: cannot allocate rq',4, MA_ERR)
       if (.not.MA_Push_get(mt_int,nqshells,'qshat',l_qat,k_qat))
-     &   call errquit('grid_tasks: cannot allocate qat',5)
+     &   call errquit('grid_tasks: cannot allocate qat',5, MA_ERR)
 c      
       nproc=ga_nnodes()
       me=ga_nodeid()
@@ -231,14 +232,14 @@ c
 c     clean up
 c
       if (.not. MA_Pop_Stack(l_qat))
-     &   call errquit('grid_tasks: pop stack failed.',1)
+     &   call errquit('grid_tasks: pop stack failed.',1, MA_ERR)
       if (.not. MA_Pop_Stack(lexpo))
-     &   call errquit('grid_tasks: pop stack failed.',1)
+     &   call errquit('grid_tasks: pop stack failed.',1, MA_ERR)
       if (.not. MA_Pop_Stack(lp))
-     &   call errquit('grid_tasks: pop stack failed.',2)
+     &   call errquit('grid_tasks: pop stack failed.',2, MA_ERR)
       if (.not. MA_Pop_Stack(lrq))
-     &   call errquit('grid_tasks: pop stack failed.',3)
+     &   call errquit('grid_tasks: pop stack failed.',3, MA_ERR)
       if (.not. MA_Pop_Stack(lrij))
-     &   call errquit('grid_tasks: pop stack failed.',4)
+     &   call errquit('grid_tasks: pop stack failed.',4, MA_ERR)
       return
       end 

@@ -1,8 +1,9 @@
       logical function cckohn(rtdb)
 *
-* $Id: cckohn.F,v 1.2 2002-01-19 04:12:06 zzhang Exp $
+* $Id: cckohn.F,v 1.3 2003-10-17 22:54:20 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "util.fh"
@@ -104,17 +105,17 @@ c
 c     generate the free functions
 c     
       if(.not.rtdb_get(rtdb,'cckohn:lmax',mt_int,1,lmax))
-     &     call errquit("can not get lmax from rtdb", 100)
+     &     call errquit("can not get lmax from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:nper',mt_int,1,nper))
-     &     call errquit("can not get nper from rtdb", 100)
+     &     call errquit("can not get nper from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:xstart',mt_dbl,1,xstart))
-     &     call errquit("can not get xstart from rtdb", 100)
+     &     call errquit("can not get xstart from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:xmax',mt_dbl,1,xmax))
-     &     call errquit("can not get xmax from rtdb", 100)
+     &     call errquit("can not get xmax from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:nint',mt_int,1,nint))
-     &     call errquit("can not get nint from rtdb", 100)
+     &     call errquit("can not get nint from rtdb", 100, RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cckohn:alpha',mt_dbl,1,alpha))
-     &     call errquit("can not get alpha from rtdb", 100)
+     &     call errquit("can not get alpha from rtdb", 100, RTDB_ERR)
 c      
       write(6,*)' Greens Function Code '
       write(6,101)lmax,nper,xstart,xmax,nint,alpha
@@ -131,31 +132,34 @@ c
 c     real 
 c
       if(.not.MA_push_get(mt_dbl,npd,'r', l_r, k_r))
-     $     call errquit('cckohn: could not allocate r',npd)
+     $     call errquit('cckohn: could not allocate r',npd, MA_ERR)
       call dfill(npd,0d0,dbl_mb(k_r),1)
 c
 c     complex
 c      
       if(.not.MA_push_get(mt_dcpl,lmaxnp,'wwl', l_wwl, k_wwl))
-     $     call errquit('cckohn: could not allocate wwl',lmaxnp)
+     $     call errquit('cckohn: could not allocate wwl',lmaxnp, MA_ERR)
       call dfill(2*lmaxnp,0d0,dcpl_mb(k_wwl),1)
 c
 c     real 
 c      
       if(.not.MA_push_get(mt_dbl,lmaxnp,'derl', l_derl, k_derl))
-     $     call errquit('cckohn: could not allocate derl',lmaxnp)
+     $     call errquit('cckohn: could not allocate derl',lmaxnp,
+     &       MA_ERR)
       call dfill(lmaxnp,0d0,dbl_mb(k_derl),1)
 c
 c     complex
 c     
       if(.not.MA_push_get(mt_dcpl,lmaxnp,'csc', l_csc, k_csc))
-     $     call errquit('cckohn: could not allocate csc',lmaxnp)
+     $     call errquit('cckohn: could not allocate csc',lmaxnp,
+     &       MA_ERR)
       call dfill(2*lmaxnp,0d0,dcpl_mb(k_csc),1)
 c     
 c     real 
 c     
       if(.not.MA_push_get(mt_dbl,lmaxnp,'csl', l_csl, k_csl))
-     $     call errquit('cckohn: could not allocate csl',lmaxnp)
+     $     call errquit('cckohn: could not allocate csl',lmaxnp,
+     &       MA_ERR)
       call dfill(lmaxnp,0d0,dbl_mb(k_csl),1)
 
       call ubesplg(rtdb,npd,lmax,nper,nint,alpha,

@@ -14,8 +14,9 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac, exso)
-c     $Id: grad2.F,v 1.32 2000-05-24 22:07:49 zzhang Exp $
+c     $Id: grad2.F,v 1.33 2003-10-17 22:55:09 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "global.fh"
 #include "schwarz.fh"
@@ -309,7 +310,8 @@ c
      $                    basis, list(1,1), list(1,2),
      $                    basis, list(1,3), list(1,4),
      $                    nq, q4, .true., lscr, scr, leri, 
-     $                    block_eff)) call errquit('grad2:txs init?',nq)
+     $                    block_eff)) call errquit('grad2:txs init?',nq,
+     &       INT_ERR)
 c     
  10                  omore = intbd_2e4c(
      $                    basis, list(1,1), list(1,2),
@@ -553,6 +555,7 @@ c
      $     blen, ilo, jlo, klo, llo, ihi, jhi, khi, lhi, pdm2d, psum,
      $     jfac, kfac, exso)
       implicit none
+#include "errquit.fh"
       logical omp2,ouhf,orohf,omcscf,exso   ! [input] Wavefunction info
       integer blen
       double precision          ! [input] AO density blocks
@@ -615,7 +618,8 @@ c
                end do
             end do
          else if (orohf) then
-            call errquit('only RHF or UMP2 grads available',110)
+            call errquit('only RHF or UMP2 grads available',110,
+     &       CAPMIS_ERR)
          else                   ! RHF + MP2
             do i = ilo, ihi
                do j = jlo, jhi

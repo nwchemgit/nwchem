@@ -1,6 +1,7 @@
       subroutine sym_movecs_apply_op(basis, op, v, t)
-C$Id: sym_mo_ap_op.F,v 1.2 1997-11-07 01:45:18 d3e129 Exp $
+C$Id: sym_mo_ap_op.F,v 1.3 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "sym.fh"
 #include "bas.fh"
@@ -27,13 +28,15 @@ c
 c     Get basis and geom info
 c     
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('sym_movecs_apply_op: no geometry from basis?', basis)
+     $     ('sym_movecs_apply_op: no geometry from basis?', basis,
+     &       BASIS_ERR)
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('sym_movecs_apply_op: bas_numbf?', basis)
+     $     ('sym_movecs_apply_op: bas_numbf?', basis, BASIS_ERR)
       if (.not. bas_high_angular(basis, ang_max))
-     $     call errquit('sym_movecs_apply_op: bas_high_angular', basis)
+     $     call errquit('sym_movecs_apply_op: bas_high_angular', basis,
+     &       BASIS_ERR)
       if (.not. geom_ncent(geom, ncent)) call errquit
-     $     ('sym_bas_irreps: geom_ncent ?', geom)
+     $     ('sym_bas_irreps: geom_ncent ?', geom, GEOM_ERR)
 c     
 c     Get the transformation matrices for shells
 c
@@ -41,7 +44,7 @@ c
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
       if (.not. ma_push_get(MT_DBL, maxr, 'r', l_r, k_r))
-     $     call errquit('sym_movecs_apply_op: ma failed', maxr)
+     $     call errquit('sym_movecs_apply_op: ma failed', maxr, MA_ERR)
 c
       call sym_bas_op
      &    (geom, op, dbl_mb(k_r), maxf, ang_max, do_spherical)
@@ -52,20 +55,24 @@ c
       do icent = 1, ncent
          jcent = sym_center_map(geom, icent, opinv)
          if (.not. bas_ce2cnr(basis, icent, ishlo, ishhi))
-     $        call errquit('sym_movecs_apply_op: bas_ce2cnr',0)
+     $        call errquit('sym_movecs_apply_op: bas_ce2cnr',0,
+     &       BASIS_ERR)
          if (.not. bas_ce2cnr(basis, jcent, jshlo, jshhi))
-     $        call errquit('sym_movecs_apply_op: bas_ce2cnr',0)
+     $        call errquit('sym_movecs_apply_op: bas_ce2cnr',0,
+     &       BASIS_ERR)
 c
          do ish = ishlo, ishhi
             jsh = jshlo + ish - ishlo ! OP ish -> jsh
 c
             if (.not. bas_continfo(basis, ish, type, nprim, ngen,
      $           sphcart)) call errquit
-     $           ('sym_movecs_apply_op: bas_continfo', ish)
+     $           ('sym_movecs_apply_op: bas_continfo', ish, BASIS_ERR)
             if (.not. bas_cn2bfr(basis, ish, ilo, ihi))
-     $           call errquit('sym_movecs_apply_op: bas_cn2bfr', ish)
+     $           call errquit('sym_movecs_apply_op: bas_cn2bfr', ish,
+     &       BASIS_ERR)
             if (.not. bas_cn2bfr(basis, jsh, jlo, jhi))
-     $           call errquit('sym_movecs_apply_op: bas_cn2bfr', jsh)
+     $           call errquit('sym_movecs_apply_op: bas_cn2bfr', jsh,
+     &       BASIS_ERR)
 c
             if (type .eq. -1) then
 *               call sym_movecs_app_op2(dbl_mb(k_r), maxf, ang_max,
@@ -92,7 +99,7 @@ c
 *      enddo
 c
       if (.not. ma_pop_stack(l_r)) call errquit
-     $     ('sym_movecs_apply_op: ma?', 0)
+     $     ('sym_movecs_apply_op: ma?', 0, MA_ERR)
 c
       end
       subroutine sym_movecs_app_op2(r, maxf, ang_max,

@@ -1,10 +1,11 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.13 2000-10-30 21:37:51 windus Exp $
+C$Id: riscf_fock.F,v 1.14 2003-10-17 22:54:33 carlfahl Exp $
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -70,7 +71,7 @@ C     get 3center integrals and indices
       status = riscf_get_3c_ints (ao_basis, ri_basis, g_three, g_indx, 
      $                npair, odisk)
       if (.not. status) then
-        call errquit ('RISCF not initialized', 110)
+        call errquit ('RISCF not initialized', 110, UNKNOWN_ERR)
       endif
 
 C     in case of in-core method pass the integral array to riscf_square
@@ -96,7 +97,8 @@ C     get number of expansion functions to be processed at the same time
 
 C     temporary arrays (local and global)
       status = bas_nbf_cn_max (ao_basis, mxbf)
-      if (.not.status) call errquit ('problem with bas_nbf_cn_max', 110)
+      if (.not.status) call errquit ('problem with bas_nbf_cn_max', 110,
+     &       BASIS_ERR)
 C     indices (local)
       status = ma_alloc_get (MT_INT, nsh, 'RI indices', l_indx, k_indx)
       mxints = nbf * mxbf
@@ -111,35 +113,41 @@ C     full 3c square matrix (ij|t) (range of t fixed)
       status = ga_create(MT_DBL, n_t*nbf, nbf,'3c-eri square', 0, nbf, 
      $     g_sthree)
       if (.not.status) 
-     $     call errquit ('riscf_fock: error creating 3c square', 110)
+     $     call errquit ('riscf_fock: error creating 3c square', 110,
+     &       GA_ERR)
 C
       if (dovecs) then
 C       Ken Dyalls MO-vector method
 
         if ( scftype .ne. 'ROHF' .and. scftype .ne. 'RHF' )
-     $        call errquit ('Dyall method only for ROHF', 110)
+     $        call errquit ('Dyall method only for ROHF', 110,
+     &       UNKNOWN_ERR)
 *ga:1:0
         status = ga_create(MT_DBL, n_t*nbf, nocc, 'Dyall tmp 1',0, 
      $       nocc, g_x1)
         if (.not.status) 
-     $       call errquit ('riscf_fock: error creating g_x1', 110)
+     $       call errquit ('riscf_fock: error creating g_x1', 110,
+     &       GA_ERR)
 *ga:1:0
         status = ga_create(MT_DBL, nbf, n_t*nocc, 'Dyall tmp 2',0, 
      $       nocc, g_x2)
         if (.not.status) 
-     $       call errquit ('riscf_fock: error creating g_x2', 110)
+     $       call errquit ('riscf_fock: error creating g_x2', 110,
+     &       GA_ERR)
       else
 C       intermediate array T
 *ga:1:0
         status = ga_create(MT_DBL, n_t*nbf, nbf,'3c-eri tmp', 0, nbf,
      $       g_T)
         if (.not.status) 
-     $       call errquit ('riscf_fock: error creating g_T', 110)
+     $       call errquit ('riscf_fock: error creating g_T', 110,
+     &       GA_ERR)
 C       scratch array for transposition of T-blocks
 *ga:1:0
         status = ga_create(MT_DBL, nbf, nbf,'scr', 0, nbf, g_tr)
         if (.not.status) 
-     $       call errquit ('riscf_fock: error creating g_tr', 110)
+     $       call errquit ('riscf_fock: error creating g_tr', 110,
+     &       GA_ERR)
       endif
 
       nproc = ga_nnodes()
@@ -166,11 +174,13 @@ C       two of them to read asynchronously
         status = ga_create(MT_DBL, npair, n_t,'3c-eri #1', 0, nbf, 
      $       g_three_io(1) )
         if (.not.status) 
-     $       call errquit ('riscf_fock: error creating io array 1', 110)
+     $       call errquit ('riscf_fock: error creating io array 1', 110,
+     &       GA_ERR)
         status = ga_create(MT_DBL, npair, n_t,'3c-eri #2', 0, nbf, 
      $       g_three_io(2) )
         if (.not.status) 
-     $       call errquit ('riscf_fock: error creating io array 2', 110)
+     $       call errquit ('riscf_fock: error creating io array 2', 110,
+     &       GA_ERR)
 
 C       and read the first block
         if (oscfps) call pstat_on(ps_riscf_read)
@@ -343,6 +353,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C     calculate number of expansion functions to be processed in one ga_dgemm
 C     from the available memory
       implicit none
+#include "errquit.fh"
 #include "msgids.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -375,7 +386,8 @@ C       l_indx
 C       l_three, l_sthree
         status = bas_nbf_cn_max ( basis, mxbf )
         if ( .not. status ) 
-     $     call errquit ('riscf_use_disk: error getting basis info',110)
+     $     call errquit ('riscf_use_disk: error getting basis info',110,
+     &       BASIS_ERR)
         mfree = mfree - 2 * nbf * mxbf
 
 C       scratch arrays for ga_dgemm: 3 * block size

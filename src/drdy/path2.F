@@ -1,4 +1,4 @@
-C $Id: path2.F,v 1.3 2001-01-19 17:43:12 windus Exp $
+C $Id: path2.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_path2(iopt,delss,delsh,sold,smax,xsign)
 C
 C  Calculate steepest descent path from saddle point
@@ -9,6 +9,7 @@ C              =3, use Page-McIver CLQA algorithm
 C              =4, use Page-McIver CUBE algorithm
 C
       Implicit none
+#include "errquit.fh"
       Integer iopt
       Double Precision delss,delsh,sold,smax,xsign
       Integer i,ierr,j,nbar,nosc
@@ -33,7 +34,7 @@ C
      *       vec0,vec1,u0,scr1,vec2,ierr)
             if (ierr.ne.0) then
                write(fu6,*) ' error in pmlqa'
-               call errquit('error in pmlqa',555)
+               call errquit('error in pmlqa',555, UNKNOWN_ERR)
             endif
          elseif (iopt.eq.3) then
             ierr = 0
@@ -41,7 +42,7 @@ C
      &            dels,delsf,vec0,vec1,u0,scr1,vec2,ierr)
             if (ierr.ne.0) then
                write(fu6,*) ' error in pmclqa'
-               call errquit('error in pmlqa',555)
+               call errquit('error in pmlqa',555, UNKNOWN_ERR)
             endif
          elseif (iopt.ge.4) then
             call drdy_pmcube (n3tm,n3,x,dx,f,fold,amass,dels,delsf,
@@ -87,7 +88,7 @@ C Check for oscillating gradient
             nosc = nosc + 1
             if (nosc .ge. 5) then
                write (fu6,6000)
-               call errquit('The gradient is unstable',555) 
+               call errquit('The gradient is unstable',555, INPUT_ERR)
             endif 
          else
             nosc = 0

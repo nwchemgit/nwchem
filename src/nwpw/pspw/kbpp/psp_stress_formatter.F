@@ -1,9 +1,10 @@
 c
-c $Id: psp_stress_formatter.F,v 1.3 2002-08-21 21:56:13 bylaska Exp $
+c $Id: psp_stress_formatter.F,v 1.4 2003-10-17 22:57:16 carlfahl Exp $
 c
 
       logical function psp_stress_formatter(rtdb)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -39,7 +40,7 @@ c
 *     **** read kbpp_number ***
       if(.not. rtdb_get(rtdb,'kbpp_number',mt_int,1,kbpp_number))
      >    call errquit(
-     >       'psp_stress_formatter: kbpp_number not read', 0)
+     >       'psp_stress_formatter: kbpp_number not read', 0, RTDB_ERR)
 
 
 *     **** loop over kbpp_number ****
@@ -63,34 +64,40 @@ c
       value = rtdb_get(rtdb,rtdb_name,
      >                  mt_int,1,locp)
 
-      if(.not. value) call errquit('psp_stress_formatter: error',1)
+      if(.not. value) call errquit('psp_stress_formatter: error',1,
+     &       RTDB_ERR)
       
       rtdb_name = kbpp_name(1:kbpp_len)//':lmax'
       value = value.and.rtdb_get(rtdb,rtdb_name,
      >                  mt_int,1,lmax)
 
-      if(.not. value) call errquit('psp_stress_formatter: error',2)
+      if(.not. value) call errquit('psp_stress_formatter: error',2,
+     &       RTDB_ERR)
       
       rtdb_name = kbpp_name(1:kbpp_len)//':rlocal'
       value = value.and.rtdb_get(rtdb,rtdb_name,
      >                  mt_dbl,1,rlocal)
 
-      if(.not. value) call errquit('psp_stress_formatter: error',3)
+      if(.not. value) call errquit('psp_stress_formatter: error',3,
+     &       RTDB_ERR)
       rtdb_name = kbpp_name(1:kbpp_len)//':cell_name'
       value = value.and.rtdb_cget(rtdb,rtdb_name,
      >                  1,cell_name)
 
-      if(.not. value) call errquit('psp_stress_formatter: error',4)
+      if(.not. value) call errquit('psp_stress_formatter: error',4,
+     &       RTDB_ERR)
       rtdb_name = kbpp_name(1:kbpp_len)//':psp_filename'
       value = value.and.rtdb_cget(rtdb,rtdb_name,
      >                  1,psp_filename)
 
-      if(.not. value) call errquit('psp_stress_formatter: error',5)
+      if(.not. value) call errquit('psp_stress_formatter: error',5,
+     &       RTDB_ERR)
       rtdb_name = kbpp_name(1:kbpp_len)//':formatted_stress_filename'
       value = value.and.rtdb_cget(rtdb,rtdb_name,
      >                  1,formatted_stress_filename)
 
-      if(.not. value) call errquit('psp_stress_formatter: error',6)
+      if(.not. value) call errquit('psp_stress_formatter: error',6,
+     &       RTDB_ERR)
 
       l = index(cell_name,' ') - 1
       rtdb_unita   = cell_name(1:l)//':unita'
@@ -100,7 +107,8 @@ c
       value = value.and.rtdb_get(rtdb,rtdb_unita,mt_dbl,9,unita)
       value = value.and.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)
       value = value.and.rtdb_cget(rtdb,rtdb_boundry,1,boundry)
-      if(.not. value) call errquit('psp_stress_formatter: error',7)
+      if(.not. value) call errquit('psp_stress_formatter: error',7,
+     &       RTDB_ERR)
 
 
       l = index(boundry,' ') - 1
@@ -120,7 +128,8 @@ c
       end if
 
 *     *** exit if error found ***
-      if(.not. value) call errquit('psp_stress_formatter: error',0)
+      if(.not. value) call errquit('psp_stress_formatter: error',0,
+     &       RTDB_ERR)
 
       end do
 *     **** end kbpp_number loop ***
@@ -138,6 +147,7 @@ c
 *     ***************************************
       subroutine psp_stress_formatter_auto(atom)
       implicit none
+#include "errquit.fh"
       character*2  atom
 
 *     ***** local variables *****
@@ -207,7 +217,8 @@ c
       end if
 
 *     *** exit if error found ***
-      if(.not. value) call errquit('psp_stress_formatter_auto: error',0)
+      if(.not. value) call errquit('psp_stress_formatter_auto: error',0,
+     &       RTDB_ERR)
 
       return
       end

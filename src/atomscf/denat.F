@@ -11,8 +11,9 @@ c
 c
       end
       subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
-C$Id: denat.F,v 1.17 2000-04-13 18:09:04 hvd Exp $
+C$Id: denat.F,v 1.18 2003-10-17 22:54:15 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "cguess.fh"
@@ -84,7 +85,7 @@ c     dynamically allocate memory
 c
       call guess_mem(memq)
       if (.not. ma_push_get(mt_dbl, memq,'atomic guess', l_scr, k_scr))
-     $     call errquit('guess_dens: ma_push failed', memq)
+     $     call errquit('guess_dens: ma_push failed', memq, MA_ERR)
       call dfill(memq,0.0d00,dbl_mb(k_scr),1)
 c
       i10 = k_scr
@@ -110,7 +111,7 @@ c
       icc = itransf + nsq
       last = icc + nsq
       if ((last - i10) .gt. memq) call errquit
-     $     ('guess_dens: memory?', memq)
+     $     ('guess_dens: memory?', memq, MEM_ERR)
 c..
 c.. parse data from rtdb about atoms
 c..
@@ -122,13 +123,16 @@ c
 c
       if (num_z .gt. max_num_z)
      &    call errquit
-     &    ('guess_dens: max_num_z < num_z  delta =',(max_num_z-num_z))
+     &    ('guess_dens: max_num_z < num_z  delta =',(max_num_z-num_z),
+     &       UNKNOWN_ERR)
       if (num_z .gt. 0) then
         if (.not.rtdb_get(rtdb,'atomscf:z',mt_dbl,num_z,z))
-     &      call errquit('guess_dens: read of atomscf:z failed ',911)
+     &      call errquit('guess_dens: read of atomscf:z failed ',911,
+     &       UNKNOWN_ERR)
         if (.not.rtdb_cget(rtdb,'atomscf:tags_z',num_z,tags_z))
      &      call errquit
-     &      ('guess_dens: read of atomscf:tag_z failed',911)
+     &      ('guess_dens: read of atomscf:tag_z failed',911,
+     &       INPUT_ERR)
         if (oprint_mod_z.and.(ga_nodeid().eq.0)) then
           do iii = 1,num_z
             iiilen = inp_strlen(tags_z(iii))
@@ -160,7 +164,7 @@ c
       endif
 c
       if (.not. ma_pop_stack(l_scr))
-     $     call errquit('guess_dens: pop_stack failed', 0)
+     $     call errquit('guess_dens: pop_stack failed', 0, MEM_ERR)
 c     
       if (util_print('debugatscf',print_never))
      $     call atscf_debug(geom,basis)
@@ -171,6 +175,7 @@ c
       end
       subroutine atscf_debug(geom,basis)
       implicit none
+#include "errquit.fh"
       integer geom,basis
 #include "geom.fh"
 c
@@ -178,7 +183,8 @@ c
       integer ncsh_out(4),nosh_out(4),nccup_out(4),nbc_out(4)
       double precision cc_out(2000), energy_out, eps_out(50)
 c
-      if (.not. geom_ncent(geom, nat)) call errquit('atscf_debug',0)
+      if (.not. geom_ncent(geom, nat)) call errquit('atscf_debug',0,
+     &       UNKNOWN_ERR)
       do iat = 1, nat
          call atscf_atomic_scf(geom, basis, iat, .true.,
      $        nl_out, ncsh_out, nosh_out, nccup_out, nbc_out,

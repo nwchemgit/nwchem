@@ -1,6 +1,6 @@
       subroutine hv_write(lun,ix,len,x)
 *
-* $Id: mcscf_debug.F,v 1.12 1999-06-16 00:10:21 d3e129 Exp $
+* $Id: mcscf_debug.F,v 1.13 2003-10-17 22:55:21 carlfahl Exp $
 *
       implicit none
       integer lun, ix, len
@@ -114,6 +114,7 @@ c$$$
 
        subroutine ga_rowprint( text, g_a )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
        character*(*) text
@@ -125,14 +126,14 @@ c$$$
        if (ga_nodeid().eq.0) then
          call ga_inquire(g_a,gtype,vlen,rlen)
          if (.not.ma_push_get(MT_DBL,vlen,'tmp',l_tmp,k_tmp))
-     $     call errquit('ga_rowprint: cannot allocate',0)
+     $     call errquit('ga_rowprint: cannot allocate',0, MA_ERR)
          call ga_get(g_a,1,vlen,1,1,dbl_mb(k_tmp),1)
          write(6,909) text
  909     format(/,a)
          write(6,910) (dbl_mb(k_tmp+i-1),i=1,vlen)
  910     format(6F12.8)
          if (.not.ma_pop_stack(l_tmp))
-     $     call errquit('ga_rowprint: cannot pop stack',0)
+     $     call errquit('ga_rowprint: cannot pop stack',0, MA_ERR)
        endif
        call ga_sync()
        return
@@ -234,6 +235,7 @@ c
       subroutine mcscf_debugger( rtdb, basis, geom, nbf, nclosed, nact,
      $                           g_movecs, evals )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -313,7 +315,8 @@ c
        if (.not.rtdb_get(rtdb,'scf:skeleton',MT_LOG,1,oskel))
      $   oskel = sym_number_ops(geom).gt.0
        if (.not.geom_nuc_rep_energy( geom, enrep ))
-     $   call errquit('mcscf: cannot retrieve nuclear repulsion',0)
+     $   call errquit('mcscf: cannot retrieve nuclear repulsion',0,
+     &       GEOM_ERR)
        if (.not.rtdb_get(rtdb,'mcscf:tol2e',MT_DBL,1,tol2e))        
      $      tol2e = 1.d-12                                                   ! Redundant recovered later
 c
@@ -321,14 +324,16 @@ c  Get electron and spin multiplicity (NB: for info only)
 c  Active elec and multiplicity must be set --- no defaults
 c
        if (.not.rtdb_get(rtdb,'mcscf:nactelec',MT_INT,1,nactel))
-     $   call errquit('number of active electrons not set',0)
+     $   call errquit('number of active electrons not set',0,
+     &       RTDB_ERR)
        if (.not.rtdb_get(rtdb,'mcscf:multiplicity',MT_INT,1,multip))
-     $   call errquit('spin multiplicity not set',0)
+     $   call errquit('spin multiplicity not set',0, RTDB_ERR)
        nela = (nactel + multip - 1)/2
        nelb = nactel - nela
        if ((mod((nactel + multip - 1),2).ne.0).or.
      $    (nela.lt.0).or.(nelb.lt.0))
-     $    call errquit('mcscf: incompatible elec and spin',0)
+     $    call errquit('mcscf: incompatible elec and spin',0,
+     &       INPUT_ERR)
        MOPEN = 2
        MCLOSED = (NACTEL - MOPEN)/2
 c
@@ -359,45 +364,49 @@ c  Allocate Fock and gradient matrices
 c
 *ga:1:0
        if (.not.ga_create(MT_DBL,nbf,nbf,'Act Fock',nbf,0,g_afock))
-     $      call errquit('mcscf: cannot allocate active Fock',0)
+     $      call errquit('mcscf: cannot allocate active Fock',0, GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,nbf,nbf,'In Fock',nbf,0,g_ifock))
-     $      call errquit('mcscf: cannot allocate inactive Fock',0)
+     $      call errquit('mcscf: cannot allocate inactive Fock',0,
+     &       GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,nbf,nbf,'Gen Fock',nbf,0,g_gfock))
-     $      call errquit('mcscf: cannot allocate general Fock',0)
+     $      call errquit('mcscf: cannot allocate general Fock',0,
+     &       GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,orlen,1,'Gradient',0,0,g_grad))
-     $      call errquit('rohf_head: cannot allocate',0)
+     $      call errquit('rohf_head: cannot allocate',0, GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,orlen,1,'Product',0,0,g_prod))
-     $      call errquit('rohf_head: cannot allocate',0)
+     $      call errquit('rohf_head: cannot allocate',0, GA_ERR)
 *ga:1:0
        if (.not.ga_create(MT_DBL,orlen,1,'Arg vec',0,0,g_x))
-     $      call errquit('rohf_head: cannot allocate',0)
+     $      call errquit('rohf_head: cannot allocate',0, GA_ERR)
 c
 c  Create occupation vectors
 c
        if (.not.ma_push_get(MT_DBL, nbf, 'MO occ', l_occ, k_occ))
-     $     call errquit('mcscf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0, MA_ERR)
 c
 c  Allocate 1- & 2-PDM
 c
        if (.not.ma_push_get(MT_DBL, (nact*nact*nact*nact),
      $                      '2P density', l_dm2, k_dm2))
-     $     call errquit('mcscf: cannot allocate MO density',0)
+     $     call errquit('mcscf: cannot allocate MO density',0,
+     &       MA_ERR)
        if (.not.ma_push_get(MT_DBL, (nact*nact),
      $                      '1P density', l_dm1, k_dm1))
-     $     call errquit('mcscf: cannot allocate MO density',0)
+     $     call errquit('mcscf: cannot allocate MO density',0, MA_ERR)
 c
 c  Get orbital symmetries
 c 
        if (.not.ma_push_get(MT_INT, nbf, 'MO sym', l_sym, k_sym))
-     $     call errquit('mcscf: cannot allocate symmetry',0)
+     $     call errquit('mcscf: cannot allocate symmetry',0, MA_ERR)
        call sym_movecs_adapt( basis, 1.d-8, g_movecs,
      $                        int_mb(k_sym), nmixed )
        if (nmixed .ne. 0) call errquit(
-     $   'mcscf: symmetry contamination in starting MOs', nmixed)
+     $   'mcscf: symmetry contamination in starting MOs', nmixed,
+     &       GEOM_ERR)
 c
 c  Print orbital info
 c
@@ -869,30 +878,30 @@ c
  401   continue
 c
        if (.not.ma_pop_stack(l_sym))
-     $      call errquit('mcscf: cannot pop stack?',0)
+     $      call errquit('mcscf: cannot pop stack?',0, MA_ERR)
        if (.not.ma_pop_stack(l_dm1))
-     $      call errquit('mcscf: cannot pop stack?',0)
+     $      call errquit('mcscf: cannot pop stack?',0, MA_ERR)
        if (.not.ma_pop_stack(l_dm2))
-     $      call errquit('mcscf: cannot pop stack?',0)
+     $      call errquit('mcscf: cannot pop stack?',0, MA_ERR)
        if (.not.ma_pop_stack(l_occ))
-     $      call errquit('mcscf: cannot pop stack?',0)
+     $      call errquit('mcscf: cannot pop stack?',0, MA_ERR)
        if (.not.ga_destroy(g_exch))
-     $      call errquit('mcscf: cannot destroy exchange',0)
+     $      call errquit('mcscf: cannot destroy exchange',0, GA_ERR)
        if (.not.ga_destroy(g_coul))
-     $      call errquit('mcscf: cannot destroy Coulomb',0)
+     $      call errquit('mcscf: cannot destroy Coulomb',0, GA_ERR)
 
        if (.not.ga_destroy(g_grad))
-     $      call errquit('rohf_head: cannot destroy gradient',0)
+     $      call errquit('rohf_head: cannot destroy gradient',0, GA_ERR)
        if (.not.ga_destroy(g_prod))
-     $      call errquit('rohf_head: cannot destroy product',0)
+     $      call errquit('rohf_head: cannot destroy product',0, GA_ERR)
        if (.not.ga_destroy(g_x))
-     $      call errquit('rohf_head: cannot destroy product',0)
+     $      call errquit('rohf_head: cannot destroy product',0, GA_ERR)
        if (.not.ga_destroy(g_afock))
-     $      call errquit('rohf_head: cannot destroy afock',0)
+     $      call errquit('rohf_head: cannot destroy afock',0, GA_ERR)
        if (.not.ga_destroy(g_ifock))
-     $      call errquit('rohf_head: cannot destroy ifock',0)
+     $      call errquit('rohf_head: cannot destroy ifock',0, GA_ERR)
        if (.not.ga_destroy(g_gfock))
-     $      call errquit('rohf_head: cannot destroy gfock',0)
+     $      call errquit('rohf_head: cannot destroy gfock',0, GA_ERR)
 
        write(6,771) 
  771   format(///,10x,40('='),
@@ -918,6 +927,7 @@ c
      $                            g_coul, g_exch,
      $                            g_x, g_prod, hh )
        implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
        integer geom, basis
        integer nbf, nclosed, nact
@@ -941,9 +951,9 @@ c
 c
 c
        if (.not.ma_push_get(MT_DBL, orlen, 'H', l_hv, k_hv))
-     $     call errquit('mcscf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0, MA_ERR)
        if (.not.ma_push_get(MT_DBL, orlen, 'Hy', l_hy, k_hy))
-     $     call errquit('mcscf: cannot allocate',0)
+     $     call errquit('mcscf: cannot allocate',0, MA_ERR)
        nvir = nbf - nclosed - nact
 C       goto 10000
        open(unit=88,file='hess',form='unformatted',
@@ -1024,9 +1034,9 @@ c
 c  Clean up
 c
        if (.not.ma_pop_stack(l_hy))
-     $      call errquit('mcscf: damn',0)
+     $      call errquit('mcscf: damn',0, MA_ERR)
        if (.not.ma_pop_stack(l_hv))
-     $      call errquit('mcscf: damn',0)
+     $      call errquit('mcscf: damn',0, MA_ERR)
 
        return
        end
@@ -1040,6 +1050,7 @@ c  and dump to disk
 c
        subroutine makeJK( basis, nbf, nclosed, nact, g_movecs )
        implicit none
+#include "errquit.fh"
 #include "global.fh"
        integer basis, nbf, nclosed, nact, g_movecs
        integer mo_lo, mo_hi, noper, nn, i
@@ -1070,8 +1081,10 @@ c
          call hv_writev(88,nn,tmp)
        enddo
        close(88)
-       if (.not. ga_destroy(g_coul)) call errquit('mcscf: ga?',0)
-       if (.not. ga_destroy(g_exch)) call errquit('mcscf: ga?',0)
+       if (.not. ga_destroy(g_coul)) call errquit('mcscf: ga?',0,
+     &       GA_ERR)
+       if (.not. ga_destroy(g_exch)) call errquit('mcscf: ga?',0,
+     &       GA_ERR)
        return
        end
 

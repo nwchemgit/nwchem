@@ -1,7 +1,8 @@
       subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
      &     acord, oprint, ilbl, threquiv)
-C$Id: sym_map.F,v 1.8 1999-06-14 23:24:01 windus Exp $
+C$Id: sym_map.F,v 1.9 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 c
       integer itype
       integer nareal
@@ -127,7 +128,8 @@ c--   > search those tags to identify atoms in xnew
             write(6,*) ' op   = ', j
             write(6,*) ' xnew   ', (xnew(j,k),k=1,3)
             call util_flush(6)
-            call errquit('sym_map: no match for 1000*op+atom ',1000*j+i)
+            call errquit('sym_map: no match for 1000*op+atom ',1000*j+i,
+     &       INPUT_ERR)
  421        continue
  410     continue
  300  continue
@@ -137,7 +139,8 @@ c
       do i = 1, nareal
          do j = 1, nops
             if (map(j,i).le.0 .or. map(j,i).gt.nareal) call errquit
-     $           ('sym_map: invalid map for 1000*op+atom ',1000*j+i)
+     $           ('sym_map: invalid map for 1000*op+atom ',1000*j+i,
+     &       INPUT_ERR)
          enddo
       enddo
 c     

@@ -1,4 +1,4 @@
-C $Id: Input_for_drdy.F,v 1.8 2002-06-14 14:32:40 windus Exp $
+C $Id: Input_for_drdy.F,v 1.9 2003-10-17 22:54:45 carlfahl Exp $
       Subroutine Input_for_drdy(rtdb)
 C
 C Options in lgs array
@@ -37,6 +37,7 @@ C
 C  All other lgs variables are not used in this version of the code
 C
       Implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "drdyP.fh"
@@ -152,7 +153,7 @@ C
          if (.not.rtdb_cget(rtdb,'drdy:sptheory',1,theory)) then
            write (fu6,6117)
            call errquit('Input_for_drdy: problem with singlepoint',
-     &                   555)
+     &                   555, RTDB_ERR)
          endif
          write (fu6,6116) lgs(39)
       endif
@@ -162,7 +163,7 @@ C
       if (natom.gt.natoms) then
          lexit = .true.
          write (fu6,*) ' number of atoms is greater than max=',natoms
-         call errquit('Input_for_drdy: too many atoms', 555)
+         call errquit('Input_for_drdy: too many atoms', 555, INPUT_ERR)
       endif
       write (fu6,614)
       write (fu6,615) (i,xmass(i),xmass(i)/cau,xmass(i)*ckg,i=1,natom)
@@ -230,7 +231,7 @@ C Input for saddle point
             nf(iop) = 0
          elseif (icode(iop).eq.2) then
             write(fu6,6000) iop
-            call errquit('This option is not supported',555)
+            call errquit('This option is not supported',555, INPUT_ERR)
          elseif (icode(iop).eq.3) then
             nf(iop) = 3*nratom(iop) - 5
          elseif (icode(iop).ge.4) then
@@ -244,7 +245,7 @@ C Input for saddle point
          nf(iop) = 0
       elseif (icode(iop).eq.2) then
          write(fu6,6000) iop
-         call errquit('This option is not supported',555)
+         call errquit('This option is not supported',555, INPUT_ERR)
       elseif (icode(iop).eq.3) then
          nf(iop) = n3 - 6
       elseif (icode(iop).ge.4) then

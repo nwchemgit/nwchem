@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.27 2003-08-09 02:43:44 bylaska Exp $
+* $Id: ion.F,v 1.28 2003-10-17 22:56:42 carlfahl Exp $
 *
 
 *     ***************************
@@ -9,6 +9,7 @@
 *     ***************************
       subroutine ion_end()
       implicit none
+#include "errquit.fh"
 
 #include "mafdecls.fh"
 
@@ -24,7 +25,7 @@
       value = value.and.MA_free_heap(natm(2))
       value = value.and.MA_free_heap(atom(2))
       value = value.and.MA_free_heap(dti(2))
-      if (.not. value) call errquit('ion_end:free heap ',0)
+      if (.not. value) call errquit('ion_end:free heap ',0, MA_ERR)
 
       return
       end
@@ -155,6 +156,7 @@
 *
       logical function ion_init(rtdb)
       implicit none 
+#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
@@ -226,14 +228,14 @@
      >        MA_alloc_get(mt_dbl,(3*nion),'r0',r0(2),r0(1))
       value = value.and.
      >       MA_alloc_get(mt_dbl,(nion),'dti',dti(2),dti(1))
-      if (.not. value) call errquit('out of heap memory',0)
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(3*nion,0.0d0,0,dbl_mb(r2(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r1(1)),1)
       call dcopy(3*nion,0.0d0,0,dbl_mb(r0(1)),1)
       do i=1,nion
          value = geom_cent_get(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
-         if (.not. value) call errquit('error reading ions',0)
+         if (.not. value) call errquit('error reading ions',0, GEOM_ERR)
       end do
 
 *     **** define atom list: nkatm,katm,natm,atom ****
@@ -314,6 +316,7 @@ c         eki1=0.5d0*eki1
 *     ***************************
       character*2 function ion_aname(i)
       implicit none
+#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
@@ -328,10 +331,10 @@ c         eki1=0.5d0*eki1
       real*8 q
 
       if (.not. geom_cent_tag(geom,i,t))
-     >        call errquit(' ion_aname  failed ',i)
+     >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
       if (.not. geom_tag_to_element(t,symbol,name,q))
-     >        call errquit(' ion_aname  failed ',i)
+     >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
       
       ion_aname = symbol
       return
@@ -344,6 +347,7 @@ c         eki1=0.5d0*eki1
 *     ***************************
       real*8 function ion_amass(i)
       implicit none
+#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
@@ -357,7 +361,7 @@ c         eki1=0.5d0*eki1
       real*8 mass
 
       if(.not.geom_mass_get(geom,i,mass))
-     >  call errquit(' geom_mass_get  failed ',i)
+     >  call errquit(' geom_mass_get  failed ',i, GEOM_ERR)
 
       ion_amass = mass*1822.89d0
       return
@@ -387,6 +391,7 @@ c         eki1=0.5d0*eki1
 *     ***********************
       real*8 function ion_q(i)
       implicit none
+#include "errquit.fh"
       integer i
 
 #include "stdio.fh"
@@ -401,7 +406,7 @@ c         eki1=0.5d0*eki1
       character*16 t
 
       if (.not.geom_cent_get(geom,i,t,rxyz,q))
-     >  call errquit('ion_q:geom_cent_get failed ',i)
+     >  call errquit('ion_q:geom_cent_get failed ',i, GEOM_ERR)
 
       ion_q = q
       return

@@ -1,10 +1,11 @@
       subroutine intpd_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1epe.F,v 1.4 1999-10-26 22:23:03 mg201 Exp $
+* $Id: intpd_1epe.F,v 1.5 2003-10-17 22:53:43 carlfahl Exp $
 *
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -56,12 +57,14 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('intpd_1epe'))
-     &    call errquit('intpd_1epe: int_init was not called' ,0)
+     &    call errquit('intpd_1epe: int_init was not called' ,0,
+     &              INT_ERR)
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       if (.not.shells_ok)
-     &    call errquit('intpd_1epe: invalid contraction/shell',0)
+     &    call errquit('intpd_1epe: invalid contraction/shell',0,
+     &             BASIS_ERR)
 c
       ibas = i_basis + BASIS_HANDLE_OFFSET
       jbas = j_basis + BASIS_HANDLE_OFFSET
@@ -121,7 +124,8 @@ c.............. dryrun
      &        (3*ncenter(i_geom)),.false.)
         endif
       else
-        call errquit('intpd_1epe: could not do sp or nw integrals',0)
+        call errquit('intpd_1epe: could not do sp or nw integrals',0,
+     &               INT_ERR)
       endif
 c
       end

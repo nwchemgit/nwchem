@@ -5,9 +5,10 @@
      $     sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $     g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
 *
-* $Id: mp2_make_cphf_rhs.F,v 1.7 1999-06-16 00:10:23 d3e129 Exp $
+* $Id: mp2_make_cphf_rhs.F,v 1.8 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       character*(*) scftype
@@ -31,21 +32,21 @@ c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nva,noa,'temp',0,0,g_lai_a_tr))
-     $     call errquit('could not alloc tran array',1)
+     $     call errquit('could not alloc tran array',1, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nvb,nob,'temp',0,0,g_lai_b_tr))
-     $     call errquit('could not alloc tran array',1)
+     $     call errquit('could not alloc tran array',1, GA_ERR)
       call ga_transpose(g_lai_a,g_lai_a_tr)
       call ga_transpose(g_lai_b,g_lai_b_tr)
       call cphf_rhs_reshape(scftype, 
      $     g_rhs,g_lai_a_tr,g_lai_b_tr,noa,nva,
      $     nob,nvb,nmo,map_a,map_b)
       if(.not.file_write_ga(cphf_rhs,g_rhs))
-     $     call errquit('could not write cphf_rhs',1)
+     $     call errquit('could not write cphf_rhs',1, DISK_ERR)
       if(.not.ga_destroy(g_lai_a_tr))call errquit(
-     $     'could not destroy lai_a_tr handle',1)
+     $     'could not destroy lai_a_tr handle',1, GA_ERR)
       if(.not.ga_destroy(g_lai_b_tr))call errquit(
-     $     'could not destroy lai_b_tr handle',1)
+     $     'could not destroy lai_b_tr handle',1, GA_ERR)
       end
 c     
       subroutine cphf_rhs_reshape(scftype,g_rhs,g_lai_a,g_lai_b,noa,

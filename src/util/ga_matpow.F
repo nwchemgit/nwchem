@@ -3,11 +3,12 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.9 2000-10-30 21:37:52 windus Exp $
+C     $Id: ga_matpow.F,v 1.10 2003-10-17 22:58:34 carlfahl Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
       Implicit NONE
+#include "errquit.fh"
       Integer G_V
       Double Precision Pow, MinEval
 C
@@ -70,7 +71,7 @@ C
       If ( Pow .ne. FP_Half .AND. Pow .ne. -FP_Half
      $   .AND. Pow .ne. -FP_One) Call ErrQuit(
      $   'GA_MatPow: Don''t know how to deal with this exponent',
-     $   Int( 100 * Pow ) )
+     $   Int( 100 * Pow ) , GA_ERR)
 C
       If ( Util_Print('ga_matpow details', Print_Debug) ) then
          If ( GA_NodeID() .eq. 0 )
@@ -86,7 +87,8 @@ C     *********************************
 C
       Call GA_Inquire( G_V, VType, Rows, Cols)
       If ( Rows .ne. Cols )
-     $   Call Errquit('GA_MatPow: Matrix must be square', Rows-Cols)
+     $   Call Errquit('GA_MatPow: Matrix must be square', Rows-Cols,
+     &       GA_ERR)
 C
 C     ************************
 C     * Find eigenstuff of V *
@@ -103,7 +105,7 @@ C
 C
       If ( .NOT. Status )
      $   Call ErrQuit('GA_MatPow: Unable to allocate temporaries',
-     $   (Rows+1)*Cols)
+     $   (Rows+1)*Cols, GA_ERR)
 C
 C     Now we can solve the stupid thing...
 C
@@ -113,7 +115,7 @@ C
       If ( .NOT. GA_Create( VType, Rows, Cols, 'Metric',
      $   -MinChunk, -MinChunk, G_Junk) )
      $   Call ErrQuit('GA_MatPow: Unable to allocate metric',
-     $   Rows*Cols)
+     $   Rows*Cols, GA_ERR)
 C
 C     This is clearly serial, but hopefully soon we should be able to
 C     go back to the standard eigensolver instead of the generalized one.
@@ -132,7 +134,7 @@ C
 #endif
 C
       If ( .NOT. GA_Destroy( G_Junk) )
-     $   Call ErrQuit('GA_MatPow: Unable to free metric', 0)
+     $   Call ErrQuit('GA_MatPow: Unable to free metric', 0, GA_ERR)
 C
 #else /* defined(USE_GEN_DIAG) */
 #if defined(PARALLEL_DIAG)
@@ -255,7 +257,8 @@ C
 C     Now we are done with the local eigenvalue array
 C
       If ( .NOT. MA_Pop_Stack( H_Eval ) )
-     $   Call ErrQuit('GA_MatPow: Unable to free local eigenvalues', 0)
+     $   Call ErrQuit('GA_MatPow: Unable to free local eigenvalues', 0,
+     &       MA_ERR)
 C
 C     ****************************
 C     * V^{-1/2} = X' v^{-1/2} X *
@@ -267,7 +270,7 @@ C
       If ( .NOT. GA_Create( VType, Rows, Cols, 'Temporary matrix',
      $   -MinChunk, -MinChunk, G_Tmp) )
      $   Call ErrQuit('GA_MatPow: Unable to allocate temporary matrix',
-     $   Rows*Cols)
+     $   Rows*Cols, GA_ERR)
 C
       Call GA_DGEMM( 'N', 'T', Rows, Cols, Cols, FP_One, G_V, G_EV,
      $   FP_Zero, G_Tmp)
@@ -281,7 +284,8 @@ C
       Status = Status .and. GA_Destroy( G_EV)
 C
       If ( .NOT. Status )
-     $   Call ErrQuit('GA_MatPow: Unable to free global arrays', 0)
+     $   Call ErrQuit('GA_MatPow: Unable to free global arrays', 0,
+     &       GA_ERR)
 C
       If ( Util_Print('ga_matpow details', Print_Debug) ) then
          If ( GA_NodeID() .eq. 0 )

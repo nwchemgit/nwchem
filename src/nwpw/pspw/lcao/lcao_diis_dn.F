@@ -1,5 +1,5 @@
 *
-* $Id: lcao_diis_dn.F,v 1.2 2001-12-05 01:51:18 bylaska Exp $
+* $Id: lcao_diis_dn.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
 *
 
 *     ***********************************************************
@@ -64,6 +64,7 @@
      >                                 rho_out,
      >                                 failed)
       implicit none
+#include "errquit.fh"
       real*8  alpha
       integer ispin,n2ft3d
       real*8  rho_new(n2ft3d,ispin)
@@ -188,7 +189,8 @@ c     call lcao_write_matrix_seq(6,size,dbl_mb(A(1)))
       failed = .false.
       value = MA_push_get(mt_dbl,(size),'d',d(2),d(1))
       if (.not. value)
-     > call errquit('lcao_diis_dn_generate: out of stack memory',0)
+     > call errquit('lcao_diis_dn_generate: out of stack memory',0,
+     &       MA_ERR)
       sumt = 0.0d0
       do i=1,size
          indx = (i-1)*size     
@@ -221,7 +223,8 @@ c     call lcao_write_matrix_seq(6,size,dbl_mb(A(1)))
       value = MA_pop_stack(d(2))
       value = value.and.MA_pop_stack(A(2))
       if (.not. value)
-     > call errquit('lcao_diis_dn_generate: popping stack memory',0)
+     > call errquit('lcao_diis_dn_generate: popping stack memory',0,
+     &       MA_ERR)
 
       return
       end

@@ -1,4 +1,4 @@
-C $Id: rgeom.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id: rgeom.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       subroutine drdy_rgeom(string,istrt,jtype)
 c     jtype = 1  first reactant 
 c     jtype = 2  second reactant 
@@ -6,6 +6,7 @@ c     jtype = 3  first product
 c     jtype = 4  second product
 c
       Implicit none
+#include "errquit.fh"
 #include "drdyP.fh"
 #include "stdio.fh"
 *::functions:
@@ -32,7 +33,7 @@ c
             write(fu6,1000)
 1000        format(3x,'ERROR:  stationary point geometry specification',
      *               ' must end with and END')
-            call errquit('drdy_rgeom: fatal error',911)
+            call errquit('drdy_rgeom: fatal error',911, INPUT_ERR)
          end if
 c
 c        parse line to get atom number
@@ -49,7 +50,7 @@ c
 1100         format(3x,'ERROR:  invalid atom number in stationary',
      *       ' point geometry specification.  Invalid line is: ',
      *       /1x,a80)
-             call errquit('drdy_rgeom: fatal error',911)
+             call errquit('drdy_rgeom: fatal error',911, INPUT_ERR)
          end if
 c
 c        save atom number
@@ -69,7 +70,7 @@ c
                 write(fu6,1200) string
 1200            format(3x,'ERROR:  invalid cartesian coordinate in',
      *          ' stationary point.  Invalid line is: ',/a80)
-                call errquit('drdy_rgeom: fatal error',911)
+                call errquit('drdy_rgeom: fatal error',911, GEOM_ERR)
              end if
 c
 c            save coordinate

@@ -4,9 +4,10 @@
      &                  cetobfr, natoms,
      &                  g_movecs, noc,  totsic, i_degen, n_levels)
 c
-C$Id: xc_sic.F,v 1.17 2003-01-13 18:34:46 edo Exp $
+C$Id: xc_sic.F,v 1.18 2003-10-17 22:55:53 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 c      
       integer iVxc_opt, nExc, g_dens(*), g_vxc(4), g_wght,
      &        g_xyz,g_nq
@@ -121,24 +122,26 @@ c
           if (size_mat.gt.0) then
             if (.not. ga_create(mt_dbl, size_mat,size_mat,'Mat_m',
      &          size_mat, size_mat, g_matm))
-     &        call errquit('dft_main0d: error creating g_matm',0)
+     &        call errquit('dft_main0d: error creating g_matm',0,
+     &       GA_ERR)
             if (.not. ga_create(mt_dbl, size_mat, 1, 'Vet_u',
      &           size_mat, 1, g_vectu))
-     &        call errquit('dft_main0d: error creating Vet_u',0)
+     &        call errquit('dft_main0d: error creating Vet_u',0,
+     &       GA_ERR)
             if (.not.MA_Push_Get(MT_Dbl, size_mat, 'const_i',
      &               l_consti, i_consti))
-     &       call errquit('xc_sic: cannot allocate vec aux',0)
+     &       call errquit('xc_sic: cannot allocate vec aux',0, MA_ERR)
           end if
           if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'vec aux',
      &                 l_vec_aux, i_vec_aux))
-     &         call errquit('xc_sic: cannot allocate vec aux',0)
+     &         call errquit('xc_sic: cannot allocate vec aux',0, MA_ERR)
           if (size_mat.gt.0) then
             if (.not.MA_Push_Get(MT_Dbl, size_mat, 'vec u',
      &                   l_vec_u, i_vec_u))
-     &           call errquit('xc_sic: cannot allocate vec u',0)
+     &           call errquit('xc_sic: cannot allocate vec u',0, MA_ERR)
             if (.not.ma_push_get(mt_int, size_mat, 'g_aux_sig',
      &                           l_gauxsig, i_gauxsig))
-     &           call errquit('xc_sic:push_get failed', 0)
+     &           call errquit('xc_sic:push_get failed', 0, MA_ERR)
           end if
 c
 c   Start loop of total states by spin        
@@ -260,7 +263,7 @@ c
      &                              nbf_ao, nbf_ao,
      &                              int_mb(i_gauxsig + elem_i - 1)))
      &               call errquit(
-     '                ' xc_sic: error creating i_gauxsig',0)
+     '                ' xc_sic: error creating i_gauxsig',0, GA_ERR)
                 call ga_copy(g_vxc_orb(2),
      &                       int_mb(i_gauxsig + elem_i - 1))
               end if
@@ -320,16 +323,16 @@ c
             do ik = 1, size_mat
               if (.not. ga_destroy(int_mb(i_gauxsig + ik - 1))) 
      &             call errquit ('xc_sic: could not destroy i_gauxsig',
-     &                            0)
+     &                            0, GA_ERR)
             end do
             if (size_mat.gt.0) then
               if (.not.ma_pop_stack(l_gauxsig))
-     &              call errquit('xc_sic: cannot pop stack',0)
+     &              call errquit('xc_sic: cannot pop stack',0, MA_ERR)
               if (.not.ma_pop_stack(l_vec_u))
-     &              call errquit('xc_sic: cannot pop stack',0)
+     &              call errquit('xc_sic: cannot pop stack',0, MA_ERR)
             end if
             if (.not.ma_pop_stack(l_vec_aux))
-     &            call errquit('xc_sic: cannot pop stack',0)
+     &            call errquit('xc_sic: cannot pop stack',0, MA_ERR)
 c
 c  g_vxc_sig is the exchange-correlation potential associate to the OEP
 c
@@ -339,11 +342,11 @@ c
 c
           if (size_mat.gt.0) then
             if (.not.ma_pop_stack(l_consti))
-     &          call errquit('xc_sic: cannot pop stack',0)
+     &          call errquit('xc_sic: cannot pop stack',0, MA_ERR)
             if (.not. ga_destroy(g_matm)) call errquit
-     &         ('xc_getv: could not destroy g_matm', 0)
+     &         ('xc_getv: could not destroy g_matm', 0, GA_ERR)
             if (.not. ga_destroy(g_vectu)) call errquit
-     &         ('xc_getv: could not destroy g_vectu', 0)
+     &         ('xc_getv: could not destroy g_vectu', 0, GA_ERR)
           end if     
   300   continue
         totsic = tot_sic_xc + tot_sic_coul
@@ -353,27 +356,27 @@ c
      &                               tot_sic_xc, totsic
 c
         if (.not. ga_destroy(g_vxc_orb(1))) call errquit
-     &       ('xc_sic: could not destroy g_vxc_orb(1)', 0)
+     &       ('xc_sic: could not destroy g_vxc_orb(1)', 0, GA_ERR)
         if (.not. ga_destroy(g_vxc_orb(2))) call errquit
-     &       ('xc_sic: could not destroy g_vxc_orb(2)', 0)
+     &       ('xc_sic: could not destroy g_vxc_orb(2)', 0, GA_ERR)
         if (.not. ga_destroy(g_orb)) call errquit
-     &       ('xc_sic: could not destroy g_orb', 0)
+     &       ('xc_sic: could not destroy g_orb', 0, GA_ERR)
         if (.not. ga_destroy(g_sic_dens(1))) call errquit
-     &       ('xc_sic: could not destroy g_sic_dens(1)', 0)
+     &       ('xc_sic: could not destroy g_sic_dens(1)', 0, GA_ERR)
         if (.not. ga_destroy(g_sic_dens(2))) call errquit
-     &       ('xc_sic: could not destroy g_sic_dens(2)', 0)
+     &       ('xc_sic: could not destroy g_sic_dens(2)', 0, GA_ERR)
         if (.not. ga_destroy(g_coul_orb)) call errquit
-     &       ('xc_sic: could not destroy g_coul_orb', 0)
+     &       ('xc_sic: could not destroy g_coul_orb', 0, GA_ERR)
         if (.not. ga_destroy(g_vxc_sig(1))) call errquit
-     &       ('xc_sic: could not destroy g_vxc_sig', 0)
+     &       ('xc_sic: could not destroy g_vxc_sig', 0, GA_ERR)
         if (ipol.eq.2) then
           if (.not. ga_destroy(g_vxc_sig(2))) call errquit
-     &     ('xc_sic: could not destroy g_vxc_sig', 0)
+     &     ('xc_sic: could not destroy g_vxc_sig', 0, GA_ERR)
         end if
 c
        elseif (iVxc_opt.eq.1 )then
            call errquit
-     &      ('xc_sic: SIC + XC fitting not implemented', 0)
+     &      ('xc_sic: SIC + XC fitting not implemented', 0, INPUT_ERR)
          endif
 c
       if (oprint_intermediate_xc)then

@@ -1,7 +1,8 @@
       SUBROUTINE vib_GTORS(EQVAL,NOINT,I1,I2,J,K,L1,L2,C,B,NDIM)
 C*MODULE VIB  *DECK GTORS
-* $Id: vib_gtors.F,v 1.2 1995-10-21 09:16:09 d3e129 Exp $
+* $Id: vib_gtors.F,v 1.3 2003-10-17 22:58:37 carlfahl Exp $
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
+#include "errquit.fh"
 C
 C     -----THIS ROUTINE COMPUTES THE B MATRIX ELEMENTS FOR A
 C          "GHOST ATOM" TORSION, SIMILAR TO THE TORSION DEF. BY WILSON.
@@ -182,6 +183,6 @@ C
 C
   320 CONTINUE
       WRITE (6,9008)
-      call errquit('gtors error',911)
+      call errquit('gtors error',911, UNKNOWN_ERR)
  9008 FORMAT(31H ROUNDOFF ERROR IN GTORS - STOP )
       END

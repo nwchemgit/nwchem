@@ -3,7 +3,7 @@
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
      3  symmetry,l_irs,k_irs,tda)
 c
-c $Id: tddft_iguess.F,v 1.10 2003-01-17 20:22:12 sohirata Exp $
+c $Id: tddft_iguess.F,v 1.11 2003-10-17 22:58:29 carlfahl Exp $
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).
@@ -15,6 +15,7 @@ c initial trial vector.
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "global.fh"
@@ -200,30 +201,30 @@ C     1  .and.(vector.ne.'')) write(LuOut,1000)
 C 1000 format(/,2x,'Unable to retrieve initial guess from a file')
       if (.not.ma_push_get(mt_dbl,nov(1)+nov(2),
      1  'eigenvalue differences',l_ediff,k_ediff)) call errquit
-     2  ('tddft_iguess: failed to allocate ediff',0)
+     2  ('tddft_iguess: failed to allocate ediff',0, MA_ERR)
 c Consider nroots+20 smallest eigenvalue differences
 c Extra 20 are there in case the nroots-th vector is degenarate
 c In case of degenaracy, we must increase nroots
       if (.not.ma_push_get(mt_int,nroots+buf,'occupied index',
      1  l_sorto,k_sorto)) call errquit
-     2  ('tddft_iguess: failed to allocate sorto',0)
+     2  ('tddft_iguess: failed to allocate sorto',0, MA_ERR)
       if (.not.ma_push_get(mt_int,nroots+buf,'virtual index',
      1  l_sortv,k_sortv)) call errquit
-     2  ('tddft_iguess: failed to allocate sortv',0)
+     2  ('tddft_iguess: failed to allocate sortv',0, MA_ERR)
       if (.not.ma_push_get(mt_int,nroots+buf,'spin index',
      1  l_sortp,k_sortp)) call errquit
-     2  ('tddft_iguess: failed to allocate sortp',0)
+     2  ('tddft_iguess: failed to allocate sortp',0, MA_ERR)
       if (.not.ma_push_get(mt_int,nroots+buf,'composite index',
      1  l_sorta,k_sorta)) call errquit
-     2  ('tddft_iguess: failed to allocate sorta',0)
+     2  ('tddft_iguess: failed to allocate sorta',0, MA_ERR)
       do i=1,ipol
         if (.not.ma_push_get(mt_dbl,nov(i),'Work trial vector',
      1    l_t(i),k_t(i))) call errquit
-     2    ('tddft_iguess: failed to allocate t',0)
+     2    ('tddft_iguess: failed to allocate t',0, MA_ERR)
       enddo
       if (.not.ma_push_get(mt_int,nroots+buf,'irrep',
      1  l_irrep,k_irrep)) call errquit
-     2  ('tddft_iguess: failed to allocate irrep',0)
+     2  ('tddft_iguess: failed to allocate irrep',0, MA_ERR)
 c
 c ----------------------------------
 c Compute orbital energy differences
@@ -287,7 +288,7 @@ c
           enddo
         enddo
         if (.not.found) call errquit
-     1    ('tddft_iguess: too many roots requested',nroots)
+     1    ('tddft_iguess: too many roots requested',nroots, INPUT_ERR)
         dbl_mb(k_ediff+int_mb(k_sorta+m-1)-1)=huge+huge
       enddo
 c
@@ -327,7 +328,8 @@ c
      1    write(LuOut,9040) nroots,nov(1)+nov(2)
         nroots=nov(1)+nov(2)
         if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
-     1    call errquit('tddft_iguess: failed writing to rtdb',0)
+     1    call errquit('tddft_iguess: failed writing to rtdb',0,
+     &       RTDB_ERR)
       else if (nroots.lt.nov(1)+nov(2)) then
 c       i=nroots
 c  10   continue
@@ -389,20 +391,20 @@ c Return
 c ------
 c
       if (.not.ma_pop_stack(l_irrep)) call errquit 
-     1  ('tddft_iguess: failed to deallocate irrep',0)
+     1  ('tddft_iguess: failed to deallocate irrep',0, MA_ERR)
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_t(i))) call errquit
-     1    ('tddft_iguess: failed to deallocate t',0)
+     1    ('tddft_iguess: failed to deallocate t',0, MA_ERR)
       enddo
       if (.not.ma_pop_stack(l_sorta)) call errquit 
-     1  ('tddft_iguess: failed to deallocate sorta',0)
+     1  ('tddft_iguess: failed to deallocate sorta',0, MA_ERR)
       if (.not.ma_pop_stack(l_sortp)) call errquit 
-     1  ('tddft_iguess: failed to deallocate sortp',0)
+     1  ('tddft_iguess: failed to deallocate sortp',0, MA_ERR)
       if (.not.ma_pop_stack(l_sortv)) call errquit 
-     1  ('tddft_iguess: failed to deallocate sortv',0)
+     1  ('tddft_iguess: failed to deallocate sortv',0, MA_ERR)
       if (.not.ma_pop_stack(l_sorto)) call errquit 
-     1  ('tddft_iguess: failed to deallocate sorto',0)
+     1  ('tddft_iguess: failed to deallocate sorto',0, MA_ERR)
       if (.not.ma_pop_stack(l_ediff)) call errquit 
-     1  ('tddft_iguess: failed to deallocate ediff',0)
+     1  ('tddft_iguess: failed to deallocate ediff',0, MA_ERR)
       return
       end

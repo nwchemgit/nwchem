@@ -1,6 +1,7 @@
       subroutine ga_mix(g_a, n, nvec, b, ld)
-C$Id: ga_mix.F,v 1.4 1995-02-02 18:09:32 d3g681 Exp $
+C$Id: ga_mix.F,v 1.5 2003-10-17 22:58:34 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -33,12 +34,12 @@ c
          if (jhi .gt. nvec) jhi = nvec
          jdim = jhi - jlo + 1
          if (jlo.ne.1 .or. jhi.ne.nvec) call errquit
-     $        ('ga_mix: must distribute by columns', 0)
+     $        ('ga_mix: must distribute by columns', 0, GA_ERR)
 c
          if (.not.ma_push_get(MT_DBL, nvec, 'ga_mix:c', l_c, k_c))
-     $        call errquit('ga_mix: ma_push_get? c', 0)
+     $        call errquit('ga_mix: ma_push_get? c', 0, MA_ERR)
          if (.not.ma_push_get(MT_DBL, nvec, 'ga_mix:a', l_a, k_a))
-     $        call errquit('ga_mix: ma_push_get? a', 0)
+     $        call errquit('ga_mix: ma_push_get? a', 0, MA_ERR)
 c
          do i = ilo, ihi
             call ga_get(g_a, i, i, 1, nvec, dbl_mb(k_a), 1)
@@ -49,8 +50,10 @@ c
             call ga_put(g_a, i, i, 1, nvec, dbl_mb(k_c), 1)
          enddo
 c
-         if (.not. ma_pop_stack(l_a)) call errquit('ga_mix: pop?',0)
-         if (.not. ma_pop_stack(l_c)) call errquit('ga_mix: pop?',0)
+         if (.not. ma_pop_stack(l_a)) call errquit('ga_mix: pop?',0,
+     &       MA_ERR)
+         if (.not. ma_pop_stack(l_c)) call errquit('ga_mix: pop?',0,
+     &       MA_ERR)
        endif
 c
        call ga_sync()

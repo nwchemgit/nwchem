@@ -1,8 +1,9 @@
       subroutine python_input(rtdb)
 *
-* $Id: python_input.F,v 1.2 1999-07-27 21:21:21 d3e129 Exp $
+* $Id: python_input.F,v 1.3 2003-10-17 22:58:02 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "inp.fh"
       integer rtdb
@@ -55,7 +56,7 @@ c
          do k = 1, leading
             if (buf(k:k) .ne. ' ') call errquit
      $           ('python_input: indentation must be >= that'//
-     $           ' of first line',leading)
+     $           ' of first line',leading, INPUT_ERR)
          enddo
          write(1,15) (buf(k:k),k=leading+1,inp_strlen(buf))
          if (oprint)

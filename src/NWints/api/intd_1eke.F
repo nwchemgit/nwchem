@@ -1,11 +1,12 @@
       subroutine intd_1eke(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lTa,Ta,idatom)
-c $Id: intd_1eke.F,v 1.6 2000-01-25 20:03:24 mg201 Exp $
+c $Id: intd_1eke.F,v 1.7 2003-10-17 22:53:42 carlfahl Exp $
 c
 c This routine has NOT been extensively tested. - TLW
 c
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 c::functions
       integer int_nint_cart
       external int_nint_cart
@@ -56,7 +57,7 @@ c                            d[idatom(2),z]/
       if (nint*3*2.gt.lTa) then
         write(luout,*) 'nint*3*2 = ',nint*3*2
         write(luout,*) 'lTa     = ',lTa
-        call errquit('intd_1eke: nint>lTa error',911)
+        call errquit('intd_1eke: nint>lTa error',911, INT_ERR)
       endif
       call intd_1ekeP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
      &    Ta,idatom)
@@ -69,6 +70,7 @@ c
 c returns 1e kinetic derivative integrals for shells/contractions ish,jsh
 c
 #include "stdio.fh"
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -189,7 +191,7 @@ c
         isbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'intd_1eke: no relativistic pointer',911)
+     &      'intd_1eke: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           ibas = lbas
           ucont = uconts
@@ -218,7 +220,7 @@ c
         jsbas = sbas
         uconts = ao_to_ls(ucont)
         if (uconts .eq. 0) call errquit (
-     &      'intd_1eke: no relativistic pointer',911)
+     &      'intd_1eke: no relativistic pointer',911, INT_ERR)
         if (nesc_1e_approx) then
           jbas = lbas
           ucont = uconts
@@ -242,7 +244,7 @@ c
       if (igeom.ne.jgeom) then
         write(luout,*)'intd_1eke: two different geometries for',
      &         ' derivatives?'
-        call errquit('intd_1eke: geom error ',911)
+        call errquit('intd_1eke: geom error ',911, GEOM_ERR)
       endif
 c
       ohnd_ok = cando_hnd_1e(i_basis,ish,0)
@@ -304,7 +306,7 @@ c............overlap, k-e,     pot-e,
      &      scr,lscr)
       else
         call errquit('intd_1eke: could not do hnd or nw integrals',
-     &                0)
+     &                0, INT_ERR)
       endif
 c
 *     Ta now has the cartesian integral block  (jlo:jhi,ilo:ihi,3,2)
@@ -364,7 +366,7 @@ c
       else
         call errquit(
      &        'intd_1eke: should never reach transform blocked else',
-     &        911)
+     &        911, INT_ERR)
       endif
 c
 c now shuffle transformed buffers to contiguous space
@@ -373,7 +375,8 @@ c
       nint_s = i_nbf_s*j_nbf_s
       if (nint_s.gt.nint_x) then
         call errquit
-     &      ('intd_1eke: nint_s >.nint_x diff=',(nint_s-nint_x))
+     &      ('intd_1eke: nint_s >.nint_x diff=',(nint_s-nint_x), 
+     &      INT_ERR)
       elseif (nint_s.eq.nint_x) then
         return
       else

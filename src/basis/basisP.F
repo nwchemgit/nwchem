@@ -1,8 +1,9 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.23 2003-10-07 00:17:38 edo Exp $
+c $Id: basisP.F,v 1.24 2003-10-17 22:54:18 carlfahl Exp $
 #include "nwc_const.fh"
 #include "basP.fh"
+#include "util.fh"
       character *(*) msg
       integer i,j
       write(6,*)'<<<< print_exndcf: ',msg,' >>>>'
@@ -16,6 +17,7 @@ c $Id: basisP.F,v 1.23 2003-10-07 00:17:38 edo Exp $
 *.....................................................................
       logical function bas_add_ucnt_init(basisin)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -36,13 +38,15 @@ c
       exndcf(H_exndcf,basis) = h_tmp
       exndcf(K_exndcf,basis)= k_tmp
       if (.not. bas_add_ucnt_init) call errquit
-     &    ('bas_add_unct_init: error allocating input heap space',911)
+     &    ('bas_add_unct_init: error allocating input heap space',911,
+     &       MEM_ERR)
       call dfill(input_size,0.0d00,dbl_mb(k_tmp),1)
       exndcf(SZ_exndcf,basis) = input_size
       end
 *.....................................................................
       logical function bas_add_ucnt_tidy(basisin)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
@@ -59,7 +63,7 @@ c
       h_tmp = exndcf(H_exndcf,basis)
       bas_add_ucnt_tidy = ma_free_heap(h_tmp)
       if (.not.bas_add_ucnt_tidy) call errquit
-     &    ('bas_add_unct_tidy: error freeing heap',911)
+     &    ('bas_add_unct_tidy: error freeing heap',911, MEM_ERR)
       exndcf(H_exndcf ,basis) = -1
       exndcf(K_exndcf ,basis) = 0
       exndcf(SZ_exndcf,basis) = 0
@@ -380,6 +384,7 @@ c
 c  types 0->S, 1->P, 2->D, 3->F etc. -1->SP -2->SPD
 c
       implicit none
+#include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
@@ -395,7 +400,8 @@ c:: local
       integer ngen
 c
       if(.not.bas_check_handle(basisin,'nbf_from_ucont'))
-     &  call errquit('nbf_from_ucont: bad basis handle',basisin)     
+     &  call errquit('nbf_from_ucont: bad basis handle',basisin,
+     &       BASIS_ERR)
 c
       basis = basisin + BASIS_HANDLE_OFFSET
 c
@@ -416,7 +422,7 @@ c
           nbf_from_ucont = ngen*10/3
         endif
       else 
-        call errquit('nbf_from_ucont: bad cont type',type)
+        call errquit('nbf_from_ucont: bad cont type',type, BASIS_ERR)
       endif
       end
 *.....................................................................
@@ -468,6 +474,7 @@ c
 *.....................................................................
       logical function bas_name_exist_rtdb(rtdb,name)
       implicit none
+#include "errquit.fh"
 *
 * function to determin if "name" has been stored on the 
 * current rtdb in actual or translated by a set directive.
@@ -490,7 +497,7 @@ c::local
 c
       bas_name_exist_rtdb = bas_rtdb_in(rtdb)
       if (.not.bas_name_exist_rtdb) call errquit
-     &    ('bas_name_exist_rtdb: bas_rtdb_in failed',911)
+     &    ('bas_name_exist_rtdb: bas_rtdb_in failed',911, RTDB_ERR)
 c
       bas_name_exist_rtdb = .false.
       if (inp_match

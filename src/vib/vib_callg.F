@@ -1,10 +1,11 @@
       SUBROUTINE vib_CALLG(G,IGDIM,SCR,fv1,fv2,
      &    ROOT,ALPH,LVAL,NROOTS)
-* $Id: vib_callg.F,v 1.4 1997-03-04 06:09:17 d3e129 Exp $
+* $Id: vib_callg.F,v 1.5 2003-10-17 22:58:37 carlfahl Exp $
 C
 C Routine to set up actual spaces for call to GIVENS
 C
       IMPLICIT NONE ! REAL*8 (A-H,O-Z)
+#include "errquit.fh"
       integer igdim, lval, nroots
       double precision g(igdim)
       double precision alph(lval,nroots)
@@ -27,7 +28,8 @@ C
       enddo
 *      call rsg(nroots,nroots,g,scr,root,1,alph,fv1,fv2,ierr)
       call vib_sjacobi(nroots,nroots,g,root,alph,ierr)
-      if (ierr.ne.0) call errquit('vib_callg: vib_sjacobi error',ierr)
+      if (ierr.ne.0) call errquit('vib_callg: vib_sjacobi error',ierr,
+     &       UNKNOWN_ERR)
 *     CALL GIVENS(LVAL,NROOTS,LVAL,NROOTS,G,SCR,ROOT,ALPH) !diagonalize it
 C
       RETURN

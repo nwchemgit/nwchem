@@ -3,9 +3,10 @@
      $     nmo,map_a, map_b,
      $     g_vecs_a,g_vecs_b,basis,scftype)
 *
-* $Id: mp2_make_tot_dens.F,v 1.12 1999-06-16 00:10:23 d3e129 Exp $
+* $Id: mp2_make_tot_dens.F,v 1.13 2003-10-17 22:55:29 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       character*(*) scftype
@@ -97,10 +98,10 @@ c
 c     
 *ga:1:0
       if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',0,0,g_scratch))
-     $     call errquit('mp2_grad: scratch',1)
+     $     call errquit('mp2_grad: scratch',1, GA_ERR)
 *ga:1:0
       if(.not.ga_create(mt_dbl,nbf,nbf,'scratch',0,0,g_tmp))
-     $     call errquit('mp2_grad: scratch',2)
+     $     call errquit('mp2_grad: scratch',2, GA_ERR)
 c     
       call ga_dgemm('n','t',nmo,nbf,nmo,one,g_p_tot_a,g_vecs_a,
      $     zero,g_scratch)
@@ -109,7 +110,7 @@ c
       call ga_symmetrize(g_tmp)
 c     
       if(.not.file_write_ga(p_a_ao,g_tmp))
-     $     call errquit('could not write p_tot_a',1)
+     $     call errquit('could not write p_tot_a',1, DISK_ERR)
 c     
       call ga_dgemm('n','t',nmo,nbf,nmo,one,g_p_tot_b,g_vecs_b,
      $     zero,g_scratch)
@@ -118,12 +119,12 @@ c
       call ga_symmetrize(g_tmp)
 c     
       if(.not.file_write_ga(p_b_ao,g_tmp))
-     $     call errquit('could not write p_tot_b',1)
+     $     call errquit('could not write p_tot_b',1, DISK_ERR)
 c     
       if(.not.ga_destroy(g_scratch))call errquit(
-     $     'could not destroy g_scratch',1)
+     $     'could not destroy g_scratch',1, GA_ERR)
       if(.not.ga_destroy(g_tmp))call errquit(
-     $     'could not destroy g_scratch',1)
+     $     'could not destroy g_scratch',1, GA_ERR)
 c     
       end
 

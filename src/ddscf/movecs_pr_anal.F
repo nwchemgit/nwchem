@@ -2,9 +2,10 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.13 2002-01-07 19:28:11 d3k958 Exp $
+* $Id: movecs_pr_anal.F,v 1.14 2003-10-17 22:54:33 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "global.fh"
@@ -56,28 +57,30 @@ c
          len_r_r2 = 7*nmo
          if (.not. ma_push_get(mt_dbl, len_r_r2, 'nmo:r_and_r2', 
      &      l_r_r2, k_r_r2))call errquit
-     &      ('movecs_pr_anal: cannot allocate r_r2', len_r_r2)
+     &      ('movecs_pr_anal: cannot allocate r_r2', len_r_r2,
+     &       MA_ERR)
          call mo_r_and_r2(basis, g_vecs, dbl_mb(k_r_r2))
       endif
 c
       if (ga_nodeid() .eq. 0) then
          if (.not. bas_numbf(basis, nbf)) call errquit
-     $        ('movecs_anal: basis bad?',basis)
+     $        ('movecs_anal: basis bad?',basis, BASIS_ERR)
          if (.not. ma_push_get(mt_dbl,nbf,'movecs_anal1',l_vecs,k_vecs))
-     $        call errquit('movecs_anal: ma 1 failed', nbf)
+     $        call errquit('movecs_anal: ma 1 failed', nbf, MA_ERR)
          if (.not. ma_push_get(mt_int,nbf,'movecs_anal2',l_list,k_list))
-     $        call errquit('movecs_anal: ma 2 failed', nbf)
+     $        call errquit('movecs_anal: ma 2 failed', nbf, MA_ERR)
          if (.not. ma_push_get(mt_byte,nbf*16,'movecs_anal3',
      $        l_tags,k_tags))
-     $        call errquit('movecs_anal: ma 3 failed', nbf*16)
+     $        call errquit('movecs_anal: ma 3 failed', nbf*16, MA_ERR)
 c
          if (oirs) then
             if (.not. bas_geom(basis, geom)) call errquit
-     $           ('movecs_anal: bas geom', basis)
+     $           ('movecs_anal: bas geom', basis, BASIS_ERR)
             call sym_group_name(geom, zname)
             if (.not. sym_char_table(zname, nop, nir, class_dim,
      $           zir, zclass, chars)) call errquit
-     $           ('movecs_anal: no char table available ',geom)
+     $           ('movecs_anal: no char table available ',geom,
+     &       UNKNOWN_ERR)
          endif
 c     
          call bas_vec_info(basis, byte_mb(k_tags))
@@ -173,10 +176,11 @@ c
          enddo
          call util_flush(LuOut)
          if (.not. ma_chop_stack(l_vecs)) call errquit
-     $        ('bas_vec_info: ma pop?', 0)
+     $        ('bas_vec_info: ma pop?', 0, BASIS_ERR)
       endif
       if (or2) then
-         if (.not. ma_pop_stack(l_r_r2)) call errquit('movecs_anal?',0)
+         if (.not. ma_pop_stack(l_r_r2)) call errquit('movecs_anal?',0,
+     &       MA_ERR)
       endif
 c
       if (oscfps) call pstat_off(ps_moanal)
@@ -188,6 +192,7 @@ c
       implicit none
 c
 #include "global.fh"
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 c
@@ -208,7 +213,8 @@ c
 c     create a global array to store x, y, z and x^2, y^2, z^2 for each AO
 c
       if (.not. ga_create(mt_dbl, 6*nbf, nbf, 'GXLM',
-     $     32,32,g_xlm)) call errquit('mo_r_and_r2: g_xlm',6*nbf*nbf)
+     $     32,32,g_xlm)) call errquit('mo_r_and_r2: g_xlm',6*nbf*nbf,
+     &       GA_ERR)
 c
 c     compute dipoles and quadrupole components for each AO
 c
@@ -243,7 +249,8 @@ c         write(LuOut,*)' x, y, z, x^2, y^2, z^2, r^2 shifted'
 c         call output(r_and_r2, 1, 7, 1, nmo, 7, nmo, 1)
       endif
 c      
-      if (.not. ga_destroy(g_xlm)) call errquit('mo_r_and_r2: ga?',0)
+      if (.not. ga_destroy(g_xlm)) call errquit('mo_r_and_r2: ga?',0,
+     &       GA_ERR)
 c
       return
       end
@@ -251,6 +258,7 @@ c
 c
       implicit none
 c
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -276,11 +284,11 @@ c
       integer lmax              ! Maximum value of L = 2
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('multiplole: bad basis', 0)
+     $     ('multiplole: bad basis', 0, BASIS_ERR)
       if (.not. bas_numcont(basis, nshell)) call errquit
-     $     ('xlm_pole: bas_numcont failed for basis', basis)
+     $     ('xlm_pole: bas_numcont failed for basis', basis, BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit(
-     &     'xlm_pole: bas_nbf_cn_max failed',20)
+     &     'xlm_pole: bas_nbf_cn_max failed',20, BASIS_ERR)
 c
 c
 c     note lmax is hardwired to 2
@@ -298,11 +306,12 @@ c
 c     allocate necessary local temporary arrays on the stack
 c     
       if(.not. ma_push_get(mt_dbl, lmpmax, 'mult:mp', l_mp, k_mp))
-     &     call errquit('xlm_pole: cannot allocate mp', lmpmax)
+     &     call errquit('xlm_pole: cannot allocate mp', lmpmax, MA_ERR)
       if(.not. ma_push_get(mt_dbl, lmpmax, 'mult:xlm', l_xlm, k_xlm))
-     &     call errquit('xlm_pole: cannot allocate xlm', lmpmax)
+     &     call errquit('xlm_pole: cannot allocate xlm', lmpmax, MA_ERR)
       if(.not. ma_push_get(mt_dbl, maxscr, 'mult:scr', l_scr, k_scr))
-     &     call errquit('xlm_pole: cannot allocate scratch', maxscr)
+     &     call errquit('xlm_pole: cannot allocate scratch', maxscr,
+     &       MA_ERR)
 c     
       call ga_zero(g_xlm)
 c
@@ -311,14 +320,16 @@ c
       nproc = ga_nnodes()
       do ishell = 1, nshell
          if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) call errquit
-     &        ('xlm_pole: bas_cn2bfr failed for basis', basis)
+     &        ('xlm_pole: bas_cn2bfr failed for basis', basis,
+     &       BASIS_ERR)
          idim = ihi - ilo + 1
 
          do jshell = 1, nshell
             ijshell = ijshell + 1
             if (mod(ijshell,nproc) .eq. me) then
                if (.not. bas_cn2bfr(basis, jshell, jlo, jhi))
-     &              call errquit('xlm_pole: bas_cn2bfr', basis)
+     &              call errquit('xlm_pole: bas_cn2bfr', basis,
+     &       BASIS_ERR)
                jdim = jhi - jlo + 1
 c     
                call int_mpole(basis, ishell, basis, jshell,
@@ -389,13 +400,17 @@ c      call ga_print(g_xlm)
 c     
 c     clean up stack
 c     
-      if (.not. ma_pop_stack(l_scr)) call errquit('xlm_pole: ma?',0)
-      if (.not. ma_pop_stack(l_xlm)) call errquit('xlm_pole: ma?',0)
-      if (.not. ma_pop_stack(l_mp)) call errquit('xlm_pole: ma?',0)
+      if (.not. ma_pop_stack(l_scr)) call errquit('xlm_pole: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_xlm)) call errquit('xlm_pole: ma?',0,
+     &       MA_ERR)
+      if (.not. ma_pop_stack(l_mp)) call errquit('xlm_pole: ma?',0,
+     &       MA_ERR)
 c
       end
       subroutine xlm_ao_to_mo(g_vecs, g_xlm)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -413,11 +428,13 @@ c
 c
       call ga_inquire(g_vecs, type, nbf, nmo)
       if (.not. ga_create(mt_dbl, nbf, nbf, 'aomotmp',
-     $     32,32,g_tmp1)) call errquit('xlm_ao_mo: tmp1',nbf*nbf)
+     $     32,32,g_tmp1)) call errquit('xlm_ao_mo: tmp1',nbf*nbf,
+     &       GA_ERR)
       if (.not. ga_create(mt_dbl, nbf, nmo, 'aomotmp2',
-     $     32,32,g_tmp2)) call errquit('xlm_ao_mo: tmp2',nmo*nbf)
+     $     32,32,g_tmp2)) call errquit('xlm_ao_mo: tmp2',nmo*nbf,
+     &       GA_ERR)
       if (.not. ma_push_get(mt_dbl,nbf,'xlmtpm',l_tmp, k_tmp))
-     $     call errquit('xlm_ao_mo: tmp', nbf)
+     $     call errquit('xlm_ao_mo: tmp', nbf, MA_ERR)
 c
 c     Must transform the LHS index one mpole at a time so 
 c     might as well do both at the same time since this will
@@ -447,8 +464,11 @@ c
 c      write(LuOut,*) ' THE MO MPOLES'
 c      call ga_print(g_xlm)
 c
-      if (.not. ga_destroy(g_tmp1)) call errquit('xlm_ao_mo?',1)
-      if (.not. ga_destroy(g_tmp2)) call errquit('xlm_ao_mo?',2)
-      if (.not. ma_pop_stack(l_tmp)) call errquit('xlm_ao_mo?',3)
+      if (.not. ga_destroy(g_tmp1)) call errquit('xlm_ao_mo?',1,
+     &       GA_ERR)
+      if (.not. ga_destroy(g_tmp2)) call errquit('xlm_ao_mo?',2,
+     &       GA_ERR)
+      if (.not. ma_pop_stack(l_tmp)) call errquit('xlm_ao_mo?',3,
+     &       MA_ERR)
 c
       end

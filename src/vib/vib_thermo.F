@@ -1,8 +1,9 @@
       subroutine  vib_thermo(rtdb,nat,nat3,
      &    eigvals,masses,coords,scr)
       implicit none
+#include "errquit.fh"
 *
-* $Id: vib_thermo.F,v 1.6 2000-10-23 16:24:13 windus Exp $
+* $Id: vib_thermo.F,v 1.7 2003-10-17 22:58:37 carlfahl Exp $
 *
 * routine to compute the thermodynamic properties under the 
 * rigid rotor harmonic approximation:
@@ -91,13 +92,14 @@ c::-statement function
       my_string = ' '
       theory = ' '
       if (.not.rtdb_cget(rtdb, 'task:theory', 1, theory)) call errquit
-     &      ('vib_thermo: could not read task:theory',911)
+     &      ('vib_thermo: could not read task:theory',911, RTDB_ERR)
       len_theory = inp_strlen(theory)
       my_string = theory(1:len_theory) // ':nopen'
       nopen = 0
       if (.not.rtdb_get(rtdb,my_string,mt_int,1,nopen)) then
         write(luout,*)' theory is :',theory(1:len_theory)
-        call errquit('vib_thermo: could not read --theory--:nopen',911)
+        call errquit('vib_thermo: could not read --theory--:nopen',911,
+     &       RTDB_ERR)
       endif
       multiplicity = nopen + 1
       S_elec  = R_gas*log(dble(multiplicity))
@@ -158,7 +160,8 @@ c::-statement function
       call dfill(3,0.0d00,Ivals,1)
       call dfill((3*3),0.0d00,Ivecs,1)
       call vib_sjacobi(3,3,Itri,Ivals,Ivecs,error)
-      if (error.ne.0) call errquit('vib_thermo: vib_sjacobi failed',911)
+      if (error.ne.0) call errquit('vib_thermo: vib_sjacobi failed',911,
+     &       UNKNOWN_ERR)
 *
       write(luout,*) 'eigenvalues of Inertia Matrix'
       call output(Ivals,1,3,1,1,3,1,1)
@@ -178,7 +181,7 @@ c::-statement function
       if (linear) then
         S_rot = R_gas*(1 + log(Ivals(2)/Sigma*1.0d00))
         if (rtdb_put(rtdb,'vib:linear',mt_log,1,.true.))
-     &    call errquit('vib_thermo: failed to set linear',555)
+     &    call errquit('vib_thermo: failed to set linear',555, RTDB_ERR)
       else
       endif
 *

@@ -3,9 +3,10 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.15 2002-05-10 14:18:07 edo Exp $
+c     $Id: fukui.F,v 1.16 2003-10-17 22:55:44 carlfahl Exp $
 c     
       implicit none
+#include "errquit.fh"
       integer g_dens_HOMO(2), g_dens_LUMO(2), g_orb, g_dens_ss, ik,
      &        g_movecs(2), isp, k_eval(2), g_s,
      &        me, l_temp_vec, i_temp_vec,
@@ -54,7 +55,7 @@ c
       g_orb = ga_create_atom_blocked(geom, AO_bas_han, 'ga_orb')
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'temp vec',
      &   l_temp_vec, i_temp_vec))
-     &   call errquit('fukui: cannot allocate temp vec',0)
+     &   call errquit('fukui: cannot allocate temp vec',0, MA_ERR)
       do isp = 1, 2
          g_dens_HOMO(isp) = ga_create_atom_blocked(geom,
      &                      AO_bas_han, 'ga_dens_orb_homo')
@@ -64,7 +65,7 @@ c
          call ga_zero(g_dens_LUMO(isp))
       end do
       if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('fukui: rtdb_get of noc failed', 0)
+     &   call errquit('fukui: rtdb_get of noc failed', 0, RTDB_ERR)
       g_dens_ss = ga_create_atom_blocked(geom, AO_bas_han,
      &            'ga_dens_orb_ss')
       do isp = 1, ipol
@@ -98,7 +99,7 @@ C        do ik = noc(isp), (noc(isp)+1)
       end do
 c
       if (.not.ma_pop_stack(l_temp_vec))
-     &   call errquit('fukui: cannot pop stack',0)
+     &   call errquit('fukui: cannot pop stack',0, MA_ERR)
 c      
       if (ipol.eq.1) then
          call ga_copy(g_dens_HOMO(1), g_dens_HOMO(2))
@@ -272,7 +273,7 @@ c
       end if
       ion_pot = e_orbital + e_coul + e_xc
       if (.not.rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc)) 
-     &   call errquit('fukui: rtdb_put of noc failed', 0)
+     &   call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
       do isp=1,ipol
         call ga_zero(g_dens(isp))
         call ga_dgemm('n', 't', nbf_ao, nbf_ao,
@@ -324,7 +325,7 @@ c
       end if
       ele_afi = e_orbital + e_coul + e_xc
       if (.not.rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('fukui: rtdb_put of noc failed', 0)
+     &   call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
       do isp=1,ipol
         call ga_zero(g_dens(isp))
         call ga_dgemm('n', 't', nbf_ao, nbf_ao,
@@ -377,7 +378,7 @@ c
         e_xc = int_vxc_H(2) - int_vxc_L(1)
         high_mult = e_orbital + e_coul + e_xc
         if (.not.rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
-     &     call errquit('fukui: rtdb_put of noc failed', 0)
+     &     call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
         do isp=1,ipol
           call ga_zero(g_dens(isp))
           call ga_dgemm('n', 't', nbf_ao, nbf_ao,
@@ -426,7 +427,7 @@ c
         e_xc = int_vxc_H(1) - int_vxc_L(2)
         low_mult = e_orbital + e_coul + e_xc
         if (.not.rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
-     &     call errquit('fukui: rtdb_put of noc failed', 0)
+     &     call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
         do isp=1,ipol
           call ga_zero(g_dens(isp))
           call ga_dgemm('n', 't', nbf_ao, nbf_ao,
@@ -468,39 +469,40 @@ c
       noc(1) = noc_aux_1
       noc(2) = noc_aux_2
       if (.not.rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('fukui: rtdb_put of noc failed', 0)
+     &   call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
       if (.not. ga_destroy(g_dens(1))) call errquit
-     &    ('fukui: could not detroy g_dens(1)',0)
+     &    ('fukui: could not detroy g_dens(1)',0, GA_ERR)
       if (.not. ga_destroy(g_vxc(1))) call errquit
-     &    ('fukui: could not detroy g_vxc(1)',0)
+     &    ('fukui: could not detroy g_vxc(1)',0, GA_ERR)
       if (ipol.eq.2) then
         if (.not. ga_destroy(g_dens(2))) call errquit
-     &    ('fukui: could not detroy g_dens(2)',0)
+     &    ('fukui: could not detroy g_dens(2)',0, GA_ERR)
         if (.not. ga_destroy(g_vxc(2))) call errquit
-     &    ('fukui: could not detroy g_vxc(2)',0)
+     &    ('fukui: could not detroy g_vxc(2)',0, GA_ERR)
       end if
 c
       if (.not. ga_destroy(g_orb)) call errquit
-     &   ('fukui: could not destroy g_orb', 0)
+     &   ('fukui: could not destroy g_orb', 0, GA_ERR)
       if (.not. ga_destroy(g_dens_HOMO(1))) call errquit
-     &   ('fukui: could not destroy g_dens_HOMO', 0)
+     &   ('fukui: could not destroy g_dens_HOMO', 0, GA_ERR)
       if (.not. ga_destroy(g_dens_LUMO(1))) call errquit
-     &   ('fukui: could not destroy g_dens_LUMO', 0)
+     &   ('fukui: could not destroy g_dens_LUMO', 0, GA_ERR)
       if (.not. ga_destroy(g_dens_HOMO(2))) call errquit
-     &   ('fukui: could not destroy g_dens_HOMO_bet', 0)
+     &   ('fukui: could not destroy g_dens_HOMO_bet', 0, GA_ERR)
       if (.not. ga_destroy(g_dens_LUMO(2))) call errquit
-     &   ('fukui: could not destroy g_dens_LUMO_bet', 0)
+     &   ('fukui: could not destroy g_dens_LUMO_bet', 0, GA_ERR)
       if (.not. ga_destroy(g_dens_ss)) call errquit
-     &   ('fukui: could not destroy g_dens_ss', 0)
+     &   ('fukui: could not destroy g_dens_ss', 0, GA_ERR)
       if (.not. ga_destroy(g_s)) call errquit
-     &   ('fukui: could not destroy g_s', 0)
+     &   ('fukui: could not destroy g_s', 0, GA_ERR)
       return
       end
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.15 2002-05-10 14:18:07 edo Exp $
+C$Id: fukui.F,v 1.16 2003-10-17 22:55:44 carlfahl Exp $
       Implicit none
+#include "errquit.fh"
       integer geom,basis
       integer iga_s              ! overlap   GA handle
       integer iga_dens           ! dens. mat GA handle
@@ -527,25 +529,26 @@ c*****************************************************************************
 
 c     
       if(.not.geom_ncent(geom, natoms))
-     &     call errquit(' exiting in mull_pop',0)
+     &     call errquit(' exiting in mull_pop',0, GEOM_ERR)
       if( .not. bas_numcont(basis,nshells) )
-     &     call errquit(' exiting in mull_pop',1)
+     &     call errquit(' exiting in mull_pop',1, BASIS_ERR)
       if ( .not. bas_numbf(basis,nbf) ) 
-     &     call errquit(' exiting in mull_op',1)
+     &     call errquit(' exiting in mull_op',1, BASIS_ERR)
       max_at_bf2 = 0
       do iatom = 1, natoms
         if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
-     $       call errquit('mul_pop: bas_ce2bfr failed', iatom)
+     $       call errquit('mul_pop: bas_ce2bfr failed', iatom,
+     &       BASIS_ERR)
         max_at_bf2 = max(max_at_bf2, ihi-ilo+1)
       enddo
       max_at_bf2 = max_at_bf2*max_at_bf2
 
       if(.not.MA_Push_Get(mt_dbl,max_at_bf2,'PS',lPSmat,iPSmat))
-     &     call errquit(' exiting in mull_pop: insuff stack',21)
+     &     call errquit(' exiting in mull_pop: insuff stack',21, MA_ERR)
       if(.not.MA_Push_Get(mt_dbl,natoms,'q atom',lqatom,iqatom))
-     &     call errquit(' exiting in mull_pop: insuff stack',22)
+     &     call errquit(' exiting in mull_pop: insuff stack',22, MA_ERR)
       if(.not.MA_Push_Get(mt_dbl,nshells,'q shell',lqshell,iqshell))
-     &     call errquit(' exiting in mull_pop: insuff stack',3)
+     &     call errquit(' exiting in mull_pop: insuff stack',3, MA_ERR)
 
       iga_PS=ga_create_atom_blocked(geom, basis, 'PS product')
 
@@ -557,11 +560,11 @@ c
       call ga_sync
 
       if(.not.MA_Pop_Stack(lqshell))
-     &     call errquit(' exiting in mull_pop',33)
+     &     call errquit(' exiting in mull_pop',33, MA_ERR)
       if(.not.MA_Pop_Stack(lqatom))
-     &     call errquit(' exiting in mull_pop',34)
+     &     call errquit(' exiting in mull_pop',34, MA_ERR)
       if(.not.MA_Pop_Stack(lPSmat))
-     &     call errquit(' exiting in mull_pop',35)
+     &     call errquit(' exiting in mull_pop',35, MA_ERR)
       status= ga_destroy(iga_PS)
 c
       if (oscfps) call pstat_off(ps_mull)
@@ -575,6 +578,7 @@ c
      &     qatom,qshell,PSmat)
 
       Implicit none
+#include "errquit.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "global.fh"
@@ -603,17 +607,17 @@ c
       call dfill(nshells,0.D0,qshell,1)
 
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('mull_pop: bas_geom failed',basis)
+     $     ('mull_pop: bas_geom failed',basis, BASIS_ERR)
 
       do iat=me+1,natoms,nproc
         if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
-     &       call errquit(' exiting in mull_pop',4)
+     &       call errquit(' exiting in mull_pop',4, BASIS_ERR)
         call get_atom_block(iga_PS, basis,
      $       iat, iat, PSmat, nbf_at, nbf_at)
         mu=0
         do ish=ish1,ish2
           if (.not. bas_cn2bfr(basis,ish,ifirst,ilast))
-     &         call errquit(' exiting in mull_pop.',5)
+     &         call errquit(' exiting in mull_pop.',5, BASIS_ERR)
           do nn=ifirst,ilast
             mu=mu+1
             psmu=PSmat((mu-1)*nbf_at+mu)
@@ -632,10 +636,11 @@ c
  11     format( ' -----------   ----------------')
         do iat=1,natoms
           if (.not.bas_ce2cnr(basis,iat,ish1,ish2))
-     &         call errquit(' exiting in mull_pop',4)
+     &         call errquit(' exiting in mull_pop',4, BASIS_ERR)
 c
           if (.not. geom_cent_get(geom, iat, tag, coord, qnuc)) 
-     $         call errquit('mull_pop: geom_cent_tag failed',0)
+     $         call errquit('mull_pop: geom_cent_tag failed',0,
+     &       GEOM_ERR)
 c
           if (.not. geom_tag_to_element(tag, symbol, element, atn))
      $         symbol = 'X'
@@ -656,9 +661,10 @@ c
      &                   wght_GA, rho_n, rdens_atom, 
      &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.15 2002-05-10 14:18:07 edo Exp $
+C$Id: fukui.F,v 1.16 2003-10-17 22:55:44 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "stdio.fh"
 c      
       integer nExc
@@ -760,7 +766,7 @@ c
               ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
               call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
               if (.not. ga_destroy(g_vxc(2))) call errquit
-     $             ('xc_getv: ga corrupt?',0)
+     $             ('xc_getv: ga corrupt?',0, GA_ERR)
             else
               call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
@@ -815,9 +821,9 @@ c
                call ga_dadd(1.0d0, g_jk(3), -xfac(1), g_jk(4),
      $              g_jk(2))
                if (.not. ga_destroy(g_jk(3))) call errquit
-     $              ('xc_getv: ga corrupt?',0)
+     $              ('xc_getv: ga corrupt?',0, GA_ERR)
                if (.not. ga_destroy(g_jk(4))) call errquit
-     $              ('xc_getv: ga corrupt?',1)
+     $              ('xc_getv: ga corrupt?',1, GA_ERR)
             endif
          endif
          if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
@@ -849,7 +855,7 @@ c
       if (abs(tot).gt.1e-8) then
          if(xcfit) then
             if (.not. bas_numbf(XC_bas_han,nbf_xc) )then
-               call errquit('Exiting in getvxc.',1)
+               call errquit('Exiting in getvxc.',1, BASIS_ERR)
             endif
             nTrows = nbf_xc
             nTcols = ipol
@@ -857,7 +863,8 @@ c
 c           Allocate scratch space for the "T" matrix.
 c         
             if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
-     &         iTmat))call errquit('xc_getv: cannot allocate Tmat',0)
+     &         iTmat))call errquit('xc_getv: cannot allocate Tmat',0,
+     &       MA_ERR)
             call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
          endif
             call grid_quadv0(rtdb, g_dens, g_vxc, nexc,rho_n,  Exc,
@@ -878,7 +885,7 @@ c
      &                   g_vxc, g_xcinv, IOLGC)
             if (oprint_time)call dft_tstamp(' After call to xc_fitv.  ')
             if (.not.ma_pop_stack(lTmat))
-     &         call errquit('xc_getv: cannot pop stack',0)
+     &         call errquit('xc_getv: cannot pop stack',0, MA_ERR)
 c
          endif
       endif

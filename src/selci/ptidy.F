@@ -1,9 +1,10 @@
       subroutine selci_ptidy(ioconf, nintpo, noconf, ncold, nconmx,
      $     nroot, ept, enew, irange, ptnorm, ptnorm_mp, ept_mp)
 *
-* $Id: ptidy.F,v 1.4 1997-10-31 23:42:21 d3e129 Exp $
+* $Id: ptidy.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "global.fh"
       dimension ioconf(nintpo,nconmx), ept(nroot), enew(nroot),
      &     ptnorm(nroot), irange(21)
@@ -18,9 +19,11 @@ c
 c     collect info from the other processes at end of selection
 c
 c
-      if (nroot.gt.nnn) call errquit('PTIDY: hard dimension fail',nroot)
+      if (nroot.gt.nnn) call errquit('PTIDY: hard dimension fail',nroot,
+     &       CALC_ERR)
 c
-      if (ga_nnodes() .gt. 1024) call errquit('ptidy: too many procs',0)
+      if (ga_nnodes() .gt. 1024) call errquit('ptidy: too many procs',0,
+     &       CALC_ERR)
       call ga_list_nodeid(pmap, ga_nnodes()) ! Map to msg passing layer
 *      write(6,*) ga_nodeid(),' processor map ', 
 *     $     (pmap(i),i=0,ga_nnodes()-1)
@@ -63,7 +66,8 @@ c        call util_flush(6)
      $              islave, node, isync)
                ipt = ipt + new
             else
-               call errquit('ptidy: exceeded nconmx ',noconf)
+               call errquit('ptidy: exceeded nconmx ',noconf,
+     &       UNKNOWN_ERR)
             endif
             call rcv(23, eptn, mdtob(nroot), len, islave, node, isync)
             call rcv(24, enewn, mdtob(nroot), len, islave, node, isync)

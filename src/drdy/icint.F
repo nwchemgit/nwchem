@@ -1,4 +1,4 @@
-C $Id: icint.F,v 1.3 2001-01-19 17:43:12 windus Exp $
+C $Id: icint.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
 c ***************************************************************************
 c     icint
 c ***************************************************************************
@@ -13,6 +13,7 @@ c   done.  Program will stop if an illegal character is passed via the
 c   string 'svalue'.
 c
       implicit double precision (a-h,o-z)
+#include "errquit.fh"
 c
       character * 80 svalue
 c
@@ -36,7 +37,7 @@ c
          j = ichar(svalue(k:k)) - ichar('0')
          if (j.lt.0.or.j.gt.9) then
             write(6,1000)svalue
-            call errquit('drdy_icint: fatal error',911)
+            call errquit('drdy_icint: fatal error',911, UNKNOWN_ERR)
          end if
 1000     format(3x,'ERROR: illegal digit in an integer: ',A80)
 c

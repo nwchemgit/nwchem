@@ -1,8 +1,9 @@
       subroutine analysis_input(rtdb)
 c
-c $Id: analysis_input.F,v 1.3 2002-01-14 17:57:00 bylaska Exp $
+c $Id: analysis_input.F,v 1.4 2003-10-17 22:57:03 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -27,19 +28,19 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'analysis_input: inp_read failed', 0)
+     >           'analysis_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >      'analysis_input: failed to read keyword', 0)
+     >      'analysis_input: failed to read keyword', 0, INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'analysis_input: unknown directive', 0)
+     >           'analysis_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100,100, 200,200,
      >      9999) ind
       call errquit(
-     >   'analysis_input: unimplemented directive', ind)
+     >   'analysis_input: unimplemented directive', ind, INPUT_ERR)
 
 
 c
@@ -47,7 +48,8 @@ c  psp_filename
 c
  100  if (.not. inp_a(test))
      >     call errquit(
-     >          'analysis_input: failed to read psp_filename', 0)
+     >          'analysis_input: failed to read psp_filename', 0,
+     &       INPUT_ERR)
 
       call analysis_expansion_coef(test,lorb,rtdb)
       lorb = -1
@@ -58,7 +60,7 @@ c  lorb
 c
  200  if (.not. inp_i(lorb))
      >        call errquit(
-     >        'analysis_input: lorb read failed', 0)
+     >        'analysis_input: lorb read failed', 0, INPUT_ERR)
       goto 10
 
  9999 continue

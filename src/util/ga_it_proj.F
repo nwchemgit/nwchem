@@ -1,5 +1,5 @@
       block data ga_block_project
-C$Id: ga_it_proj.F,v 1.2 1999-06-16 00:10:28 d3e129 Exp $
+C$Id: ga_it_proj.F,v 1.3 2003-10-17 22:58:34 carlfahl Exp $
       implicit none
 #include "cproject.fh"
 c
@@ -12,6 +12,7 @@ c
       subroutine ga_init_project(n, nroot, maxiter, maxsub, tol,
      $     precond, product, oprint, eval0)
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "cproject.fh"
@@ -36,17 +37,18 @@ c
 ***** if (oproject) return
       if (.not. oproject) then
          if (nroot .gt. max_proj) call errquit
-     $        ('ga_init_project: max_proj exceeded', nroot)
+     $        ('ga_init_project: max_proj exceeded', nroot, INPUT_ERR)
 c     
          nroot_proj = nroot
          n_proj     = n
 *ga:1:0
          if (.not. ga_create(MT_DBL, n, nroot, 'ga_project', 0, nroot,
-     $        g_proj)) call errquit('ga_init_project: ga_create?', 0)
+     $        g_proj)) call errquit('ga_init_project: ga_create?', 0,
+     &       GA_ERR)
          call ga_zero(g_proj)
       else
          if (nroot_proj.ne.nroot .or. n_proj.ne.n) call errquit
-     $        ('ga_init_project: mismatch of dimensions', 0)
+     $        ('ga_init_project: mismatch of dimensions', 0, GA_ERR)
       endif
 c     
       if (.not. ga_iter_diag(n, nroot, maxiter, maxsub, tol,
@@ -62,7 +64,7 @@ c
                call util_flush(6)
             endif
             if (nroot_proj .eq. 0) call errquit
-     $           ('ga_init_project: no roots extracted', 0)
+     $           ('ga_init_project: no roots extracted', 0, GA_ERR)
          endif
       endif
 c     
@@ -71,12 +73,14 @@ c
       end
       subroutine ga_term_project
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "cproject.fh"
 c
       if (oproject) then
          if(.not. ga_destroy(g_proj))
-     &      call errquit('ga_term_project: ga_destroy failed',911)
+     &      call errquit('ga_term_project: ga_destroy failed',911,
+     &       GA_ERR)
       endif
       oproject = .false.
 c

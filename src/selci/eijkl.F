@@ -1,9 +1,10 @@
       subroutine selci_eijkl(e,i,j,k,l,ns,indbar,iocc,w1,w2,
      $     work,numf,numf2)
 *
-* $Id: eijkl.F,v 1.4 1998-03-14 01:45:13 d3g681 Exp $
+* $Id: eijkl.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 #include "ciinfo.fh"
       dimension e(numf,*),indbar(*),iocc(*),w1(nfmax,nfmax,nsmax),
      $     w2(nfmax2,nfmax,nsmax-1),work(numf,*)
@@ -26,7 +27,8 @@ c     Assumes that arrives with occupation of i .ge. that of k
 c     !!! I don't think that this version does assume this ...
 c     !!! the previous one did
 c
-      if (iocc(i).lt.iocc(k)) call errquit('eijkl: iocc ',iocc(i))
+      if (iocc(i).lt.iocc(k)) call errquit('eijkl: iocc ',iocc(i),
+     &       UNKNOWN_ERR)
 c
 c     iocc(i) = 0 (uoc), 1 (soc), 3 (doc)
 c
@@ -69,7 +71,7 @@ c
       numf2 = nf(ns2)
       if (idimt.lt.numfin*numf2)
      $     call errquit('new eijkl: get rid of stupid local array',
-     $     numfin*numf2)
+     $     numfin*numf2, UNKNOWN_ERR)
 c
       indbar(k) = kb
       indbar(l) = lb

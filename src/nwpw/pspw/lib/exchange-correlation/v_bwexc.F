@@ -10,6 +10,7 @@
       
       subroutine v_bwexc(n2ft3d,ispin,dn,xcp,xce)
       implicit none
+#include "errquit.fh"
       integer n2ft3d
       integer  ispin
       real*8  dn(n2ft3d,2)
@@ -66,7 +67,7 @@ c        *****                          agr,fn,fdn      *****
      >        MA_push_get(mt_dbl, n2ft3d,'fdn',fdn(2),fdn(1))
         tmp(1) = fdn(1)
 
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
 
@@ -179,7 +180,8 @@ c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
          value = value.and.MA_pop_stack(gry(2))
          value = value.and.MA_pop_stack(grx(2))
          value = value.and.MA_pop_stack(rho(2))
-         if (.not. value) call errquit('cannot pop stack memory',0)
+         if (.not. value) call errquit('cannot pop stack memory',0,
+     &       MA_ERR)
 
 
 
@@ -229,7 +231,7 @@ c        *****                          agr,fn,fdn      *****
         fdn(2) = xfdn(1) +   n2ft3d
         fdn(3) = xfdn(1) + 2*n2ft3d
         tmp(1) = xfdn(1)
-      if (.not. value) call errquit('out of stack memory',0)
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
 c        ***** calculate rhoup  ****
@@ -516,7 +518,8 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          value = value.and.MA_pop_stack(grupy(2))
          value = value.and.MA_pop_stack(grupx(2))
          value = value.and.MA_pop_stack(rhoup(2))
-         if (.not. value) call errquit('cannot pop stack memory',0)
+         if (.not. value) call errquit('cannot pop stack memory',0,
+     &       MA_ERR)
 
 
       end if

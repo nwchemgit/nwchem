@@ -4,13 +4,14 @@ C     RIMP2_XF_Driver -- Three-center integral transformation for V
 C     approximation RIMP2 calculation
 C
 C REVISION
-C     $Id: rimp2_xf.F,v 1.7 2003-02-26 20:37:23 edo Exp $
+C     $Id: rimp2_xf.F,v 1.8 2003-10-17 22:58:10 carlfahl Exp $
 C
 C SYNOPSIS
       Logical Function RIMP2_XF_Driver(RTDB, Geom, AOBas, FitBas, 
      $   TopSpin, D_Int, FNInt, ALo, AHi, ILo, IHi,
      $   NILimit, Neglect, MinEVal, Approx, G_C,actualname)
       Implicit NONE
+#include "errquit.fh"
       Integer RTDB, Geom, AOBas, FitBas, TopSpin, NILimit
       Integer ALo(TopSpin), AHi(TopSpin), ILo(TopSpin), IHi(TopSpin)
       Double precision Neglect, MinEVal
@@ -97,7 +98,7 @@ C
      $   FitBas, MinEVal, G_V)
 C
       If (.NOT. Status )
-     $   Call ErrQuit('Failed to compute V^{-1/2}', 0)
+     $   Call ErrQuit('Failed to compute V^{-1/2}', 0, CALC_ERR)
       Call PStat_Off( PS_Fit_xf )
 C
       If ( Util_Print('fit xf', Print_Debug) ) Call GA_Print(G_V)
@@ -154,16 +155,18 @@ C
          Else
             Write (LuErr, *) 'Unknown approximation ', Approx
             Call ErrQuit('RIMP2_XF_Driver: Unrecognized approximation',
-     $         0)
+     $         0, INPUT_ERR)
          EndIf
 C         Write (0, *) 'Node ', GA_NodeID(), LInt, LScr
 C
          If ( .NOT. MA_Push_Get( MT_Dbl, LInt, 'Integral eval',
      $      H_Int, I_Int)) Call ErrQuit(
-     $      'RIMP2_XF_Driver: Unable to allocate local mem.', LInt)
+     $      'RIMP2_XF_Driver: Unable to allocate local mem.', LInt,
+     &       MA_ERR)
          If ( .NOT. MA_Push_Get( MT_Dbl, LScr, 'Integral scr',
      $      H_Scr, I_Scr)) Call ErrQuit(
-     $      'RIMP2_XF_Driver: Unable to allocate local mem.', LScr)
+     $      'RIMP2_XF_Driver: Unable to allocate local mem.', LScr,
+     &       MA_ERR)
 C
 C        Find out how much space a single occupied orbital
 C        takes up.
@@ -172,18 +175,21 @@ C
 C
          If ( .NOT. GA_Create_One_By_Shells( MT_Dbl, NA * 1,
      $      FitBas, 'Output integral matrix', G_Out) ) Call ErrQuit(
-     $      'RIMP2_XF_Driver: Unable to allocate minimal GA', ISpin)
+     $      'RIMP2_XF_Driver: Unable to allocate minimal GA', ISpin,
+     &       GA_ERR)
 C
          Final_Avail = MA_SizeOf(MT_Byte, GA_Memory_Avail(), MT_Dbl)
          Block_Size = Initial_Avail - Final_Avail
 C
          If (.NOT. GA_Destroy( G_Out ) ) Call ErrQuit(
-     $      'RIMP2_XF_Driver: Unable to destroy a GA!', ISpin)
+     $      'RIMP2_XF_Driver: Unable to destroy a GA!', ISpin, GA_ERR)
 C
          If ( .NOT. MA_Pop_Stack( H_Scr) ) Call ErrQuit(
-     $      'RIMP2_XF_Driver: Unable to free local memory!', ISpin)
+     $      'RIMP2_XF_Driver: Unable to free local memory!', ISpin,
+     &       MA_ERR)
          If ( .NOT. MA_Pop_Stack( H_Int) ) Call ErrQuit(
-     $      'RIMP2_XF_Driver: Unable to free local memory!', ISpin)
+     $      'RIMP2_XF_Driver: Unable to free local memory!', ISpin,
+     &       MA_ERR)
 C
 C        Figure out how many blocks we can hold.  Remember we need
 C        room for two matching arrays.
@@ -219,7 +225,7 @@ C
          If ( .NOT. Status )
      $      Call ErrQuit(
      $      'RIMP2_XF_Driver:  Can''t allocate global arrays',
-     $      ISpin)
+     $      ISpin, GA_ERR)
 C
 C        *****************************************************
 C        * Create the file to hold the transformed integrals *
@@ -233,7 +239,8 @@ C
 #endif
 C
          If ( .NOT. Status ) Call ErrQuit(
-     $      'RIMP2_XF_Driver: Unable to open integral file', ISpin)
+     $      'RIMP2_XF_Driver: Unable to open integral file', ISpin,
+     &       DISK_ERR)
 C
 C        *************************
 C        * Do the transformation *
@@ -252,12 +259,12 @@ C
          Else
             Write (LuErr, *) 'Unknown approximation ', Approx
             Call ErrQuit('RIMP2_XF_Driver: Unrecognized approximation',
-     $         0)
+     $         0, INPUT_ERR)
          EndIf
 C
          If ( .NOT. Status ) Call ErrQuit(
      $      'RIMP2_XF_Driver: Transformation trouble for spin',
-     $      ISpin)
+     $      ISpin, INPUT_ERR)
 C
 C        Free global arrays we are done with
 C
@@ -266,7 +273,7 @@ C
 C
          If ( .NOT. Status ) Call ErrQuit(
      $      'RIMP2_XF_Driver:  Unable to free global arrays',
-     $      ISpin)
+     $      ISpin, GA_ERR)
 C
 #ifdef DEBUG
          write(luout,*) ga_nodeid(),'xf try close FD ',D_Int(ISpin)
@@ -276,7 +283,7 @@ C
 C
          If ( .NOT. Status ) Call ErrQuit(
      $      'RIMP2_XF_Driver:  Problems closing integral file',
-     $      ISpin)
+     $      ISpin, DISK_ERR)
 C         
       EndDo ! ISpin
 C
@@ -286,7 +293,7 @@ C
       Status = Status .AND. GA_Destroy( G_V )
 C
       If ( .NOT. Status ) Call ErrQuit(
-     $   'RIMP2_XF_Driver:  Unable to free GAs ', 0)
+     $   'RIMP2_XF_Driver:  Unable to free GAs ', 0, GA_ERR)
 C
       Call Schwarz_Tidy
 C

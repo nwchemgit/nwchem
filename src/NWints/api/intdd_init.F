@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.10 2002-01-16 18:25:19 windus Exp $
+c $Id: intdd_init.F,v 1.11 2003-10-17 22:53:42 carlfahl Exp $
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}
@@ -18,6 +18,7 @@ c Initializes integral second derivative code
 c
       implicit none
 #include "stdio.fh"
+#include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -164,7 +165,8 @@ c
           call util_flush(6)
         endif
         call errquit
-     &      ('intdd_init: logic error with user cando settings',911)
+     &      ('intdd_init: logic error with user cando settings',911, 
+     &        INT_ERR)
       endif
       status = .true.
       do 00100 ibas=1,nbas
@@ -176,7 +178,7 @@ c
           write(luout,'(a,i5)')
      &           ' basis set handle ',bases(ibas)
 00200   continue
-        call errquit('intdd_init: basis handles hosed ',nbas)
+        call errquit('intdd_init: basis handles hosed ',nbas, INT_ERR)
       endif
 *      write(luout,*)' intdd_init: basis set handles valid '
 c
@@ -189,14 +191,14 @@ c
       ang2use = -1
       do 00300 ibas = 1,nbas
         if(.not.bas_high_angular(bases(ibas),angm))
-     &         call errquit('intdd_init: angm error',angm)
+     &         call errquit('intdd_init: angm error',angm, INT_ERR)
         ang2use = max(ang2use,angm)
 00300 continue
 *
 * test for higher than g functions  0123456
       if (ang2use.ge.5) call errquit
      &    ('only basis sets with s through g functions are allowed',
-     &    911)
+     &    911, INT_ERR)
 *
 c.. for second derivatives add 2
       call defNxyz(ang2use+2)
@@ -204,7 +206,7 @@ c
 c initialize spcart stuff 
 c
       if (.not.(spcart_init((ang2use+1),.true.,.false.))) then
-        call errquit('intdd_init: spcart_init failed',911)
+        call errquit('intdd_init: spcart_init failed',911, INT_ERR)
       endif
 c.. read in approximate memory from rtdb
 c.  
@@ -236,7 +238,8 @@ c
       nbf2use = 0
       do ibas = 1,nbas
         if (.not.bas_nbf_cn_max(bases(ibas),nbf2use_test))
-     &      call errquit('intdd_init: bas_nbf_cn_max failed',911)
+     &      call errquit('intdd_init: bas_nbf_cn_max failed',911,
+     &             INT_ERR)
         nbf2use = max(nbf2use,nbf2use_test)
       enddo
       maxgdd  = 78*nbf2use*nbf2use*nbf2use*nbf2use  ! maxg for 2e2nd derivs
@@ -259,7 +262,8 @@ c
 00001 continue
       if (any_ecp) then
         if (.not.ecp_check_handle(ecp_bsh,'intdd_init')) call errquit
-     &        ('intdd_init: ecp handle is invalid fatal error',911)
+     &        ('intdd_init: ecp handle is invalid fatal error',911,
+     &         INT_ERR)
       endif
 *
 c See if any basis has an attached SO potential
@@ -274,11 +278,12 @@ c See if any basis has an attached SO potential
 00002 continue
       if (any_so) then
         if (.not.so_check_handle(so_bsh,'intdd_init')) call errquit
-     &        ('intdd_init: so handle is invalid fatal error',911)
+     &        ('intdd_init: so handle is invalid fatal error',911,
+     &         INT_ERR)
       endif
       if (any_so.or.any_ecp) then
         if (.not.int_ecp_init(ecp_bsh,so_bsh,1)) call errquit
-     &        ('intdd_init: int_ecp_init failed ',911)
+     &        ('intdd_init: int_ecp_init failed ',911, INT_ERR)
       endif
       init_int   = 1
       init_intd  = 1

@@ -1,9 +1,10 @@
-C $Id: restor.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+C $Id: restor.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
       Subroutine drdy_restor(lhead,jop,lsad,llopt)
 C
 C Read reactant, product, and saddle point information from fu30 file
 C
       Implicit None
+#include "errquit.fh"
 C
 #include "drdyP.fh"
 #include "stdio.fh"
@@ -63,7 +64,7 @@ C            write(fu6,*) s,v
 C            write(fu6,3005) ifrgrp(1,iop)
          elseif (icode(iop).eq.2) then
             write(fu6,6000) iop
-            call errquit('drdy_restor: fatal error',911)
+            call errquit('drdy_restor: fatal error',911, UNKNOWN_ERR)
          else
             nend = 3*nratom(iop)
             nfreq = nf(iop)

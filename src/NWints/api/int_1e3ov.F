@@ -1,4 +1,4 @@
-c $Id: int_1e3ov.F,v 1.17 2000-04-19 23:53:32 edo Exp $
+c $Id: int_1e3ov.F,v 1.18 2003-10-17 22:53:41 carlfahl Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1e3ov}
@@ -14,6 +14,7 @@ c
 c:tex-\end{verbatim}
       implicit none
 #include "nwc_const.fh"
+#include "errquit.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
 #include "geobasmapP.fh"
@@ -23,6 +24,7 @@ c:tex-\end{verbatim}
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
 #include "stdio.fh"
+#include "util.fh"
 c:: external subroutines used
 c..  errquit
 c::functions
@@ -64,20 +66,22 @@ c
 c check initialization and shells
 c
       if (.not.int_chk_init('int_1e3ov'))
-     &       call errquit('int_1e3ov: int_init was not called' ,0)
+     &       call errquit('int_1e3ov: int_init was not called' ,0,
+     &       INT_ERR)
       nint_ck = int_nint_cart(i_basis,ish,j_basis,jsh,k_basis,ksh,
      ,     k_basis,0)
       if (nint_ck.gt.lov3) then
         write(luout,*) 'nint = ',nint_ck
         write(luout,*) 'leri     = ',lov3
-        call errquit('int_1e3ov: nint>leri error',911)
+        call errquit('int_1e3ov: nint>leri error',911, INT_ERR)
       endiF
 c
       shells_ok = int_chk_sh(i_basis,ish)
       shells_ok = shells_ok .and. int_chk_sh(j_basis,jsh)
       shells_ok = shells_ok .and. int_chk_sh(k_basis,ksh)
       if (.not.shells_ok)
-     &    call errquit('int_1e3ov: invalid contraction/shell',0)
+     &    call errquit('int_1e3ov: invalid contraction/shell',0,
+     &       BASIS_ERR)
 c
       call int_nogencont_check(i_basis,'int_1e3ov:i_basis')
       call int_nogencont_check(j_basis,'int_1e3ov:j_basis')

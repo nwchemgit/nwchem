@@ -1,6 +1,7 @@
       subroutine sym_print_ops(geom)
-C$Id: sym_pr_ops.F,v 1.1 1995-12-13 01:28:38 d3g681 Exp $
+C$Id: sym_pr_ops.F,v 1.2 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "sym.fh"
 #include "inp.fh"
       integer geom
@@ -39,7 +40,7 @@ c
      $           ' about axis (',
      $           f5.2,',',f5.2,',',f5.2,')')
          else
-            call errquit('sym_print_ops: unknown op?',op)
+            call errquit('sym_print_ops: unknown op?',op, INPUT_ERR)
          endif
 c
          do i = 1, 3

@@ -1,9 +1,10 @@
       double precision function selci_fcidim(nelec, multi, issss,
      $     norbs, isym)
 *
-* $Id: fcidim.F,v 1.3 1997-10-31 23:42:02 d3e129 Exp $
+* $Id: fcidim.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
 *
 #include "implicit.fh"
+#include "errquit.fh"
 c
       dimension isym(norbs)
 c
@@ -30,7 +31,8 @@ c
      $     issss.lt.0 .or. issss.gt.7) then
          write(6,*) ' nelec, multi, issss ', nelec, multi, issss
          write(6,*) ' ib, ia , maxb, maxa ',ib,ia,maxb, maxa
-         call errquit(' fcidim: exceeded maxa or maxb or issss ',0)
+         call errquit(' fcidim: exceeded maxa or maxb or issss ',0,
+     &       INPUT_ERR)
       endif
       r1(issss,ib,ia) = 1.0d0
 c
@@ -79,7 +81,8 @@ c
                      if (ian.ge.0 .and. ibn.le.maxb) then
                         r2(isn,ibn,ian) = r2(isn,ibn,ian) + r1(is,ib,ia)
                      else if (ibn.gt.maxb) then
-                        call errquit('fcidim: ibn.gt.maxb',ibn)
+                        call errquit('fcidim: ibn.gt.maxb',ibn,
+     &       INPUT_ERR)
                      endif
 c
 c     arc=3 : a->a-1, b->b

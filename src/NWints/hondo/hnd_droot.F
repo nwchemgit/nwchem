@@ -210,6 +210,7 @@ c
       real*16 r, dr, delta
 #endif
 #include "stdio.fh"
+#include "errquit.fh"
       integer k, k1, m, i
       dimension a(10),rt(10)
 #if defined(LINUX) || defined(CRAY) || defined(WIN32)
@@ -242,7 +243,8 @@ c
       write(luout,15) m,k
    15 format(//,' root number ',i3,' was not found for polynomial',
      1 ' of order ',i3,//)
-      call errquit('hnd_rysnod: root not found', 555)
+      call errquit('hnd_rysnod: root not found', 555,
+     &       INT_ERR)
    20 r5=r1
       p5=p1
       r6=r2

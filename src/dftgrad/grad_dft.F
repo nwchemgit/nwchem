@@ -32,9 +32,10 @@ c
       end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.31 2001-03-26 20:06:42 edo Exp $
+* $Id: grad_dft.F,v 1.32 2003-10-17 22:54:42 carlfahl Exp $
 *
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"
@@ -73,7 +74,7 @@ c
       call ecce_print_module_entry ('dft')
 c
       if (.not. rtdb_cget(rtdb, 'dft:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0)
+     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
       if(theory .eq. 'dft')then 
          status = rtdb_get(rtdb, 'dft:converged', MT_LOG, 1, converged) 
       else if(theory .eq. 'sodft')then 
@@ -87,7 +88,7 @@ c
         endif
         call errquit(
      &       'dft grad_dft: no converged DFT wavefunction available',
-     &     0)
+     &     0, UNKNOWN_ERR)
       endif 
 c
 c     Extract high level info from the data-base setting defaults
@@ -156,9 +157,9 @@ c
      &        '  wavefunction    = ', a/)
          if (util_print('debug',print_debug) )then
             if (.not. geom_print(geom)) 
-     &         call errquit('grad_dft: geom_print ?',0)
+     &         call errquit('grad_dft: geom_print ?',0, GEOM_ERR)
             if (.not. bas_print(ao_bas_han)) 
-     &         call errquit('grad_dft: bas_print ?',0)
+     &         call errquit('grad_dft: bas_print ?',0, BASIS_ERR)
          endif
       endif
 c
@@ -173,11 +174,13 @@ c
 c
       if(CDFIT)then
         if (.not. bas_destroy(cd_bas_han))
-     &     call errquit('grad_dft:not able to destroy CD_bas:',86)
+     &     call errquit('grad_dft:not able to destroy CD_bas:',86,
+     &       BASIS_ERR)
       endif
       if(XCFIT)then
         if (.not.bas_destroy(XC_bas_han))
-     &     call errquit('grad_dft:not able to destroy XC_bas:',86)
+     &     call errquit('grad_dft:not able to destroy XC_bas:',86,
+     &       BASIS_ERR)
       endif
 
       call intd_terminate()
@@ -190,7 +193,8 @@ c
 c
       if (.not.((bas_destroy(ao_bas_han)) .and. (geom_destroy(geom)) ) )
      &   call errquit
-     &   ('grad_dft:error destroying geom and ao_bas_han handles',911)
+     &   ('grad_dft:error destroying geom and ao_bas_han handles',911,
+     &       BASIS_ERR)
 c
 c     terminate integral scope
 c

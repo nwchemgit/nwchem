@@ -1,6 +1,7 @@
       subroutine sym_vec_symmetrize(geom, basis, vec)
-C$Id: sym_vec_sym.F,v 1.4 1997-11-07 01:45:20 d3e129 Exp $
+C$Id: sym_vec_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
       implicit none
+#include "errquit.fh"
 #include "global.fh"
 #include "geom.fh"
 #include "bas.fh"
@@ -37,9 +38,9 @@ c     basis C60 test case bas routine dominate timings, but for
 c     all other cases bas times are small).
 c
       if (.not. geom_ncent(geom, ncent)) call errquit
-     $     ('sym_symmetrize: geom_ncent ?', geom)
+     $     ('sym_symmetrize: geom_ncent ?', geom, GEOM_ERR)
       if (.not. bas_numcont(basis, ncont)) call errquit
-     $     ('sym_symmetrize: basis handle?', 0)
+     $     ('sym_symmetrize: basis handle?', 0, BASIS_ERR)
       status = .true.
       status = status .and. ma_push_get(MT_INT, 2*ncent, 'cecnr',
      $     l_ce_cnr, k_ce_cnr)
@@ -53,17 +54,18 @@ c
       call bas_all_cn_info(basis, int_mb(k_cn_info),int_mb(k_cn_bfr))
 c
       if (.not. bas_numbf(basis, nbf)) call errquit
-     $     ('sym_vec_symmetrize: bas_numbf failed',0)
+     $     ('sym_vec_symmetrize: bas_numbf failed',0, BASIS_ERR)
 c
       if (.not. bas_high_angular(basis, ang_max))
-     $     call errquit('sym_symmetrize: bas_high_angular', basis)
+     $     call errquit('sym_symmetrize: bas_high_angular', basis,
+     &       BASIS_ERR)
       maxf = ((ang_max+1)*(ang_max+2))/2 ! Size of largest cart. shell
       maxr = (ang_max+1)*maxf*maxf ! Size of transformation matrices
 c
       if (.not. ma_push_get(MT_DBL, nbf, 'tmp', l_tmp, k_tmp))
-     $     call errquit('sym_vec_symmetrize: ma failed', nbf)
+     $     call errquit('sym_vec_symmetrize: ma failed', nbf, MA_ERR)
       if (.not. ma_push_get(MT_DBL, maxr, 'r', l_r, k_r))
-     $     call errquit('sym_vec_symmetrize: ma failed', maxr)
+     $     call errquit('sym_vec_symmetrize: ma failed', maxr, MA_ERR)
 c
       call sym_vec_symm2(geom, basis, vec, dbl_mb(k_tmp), 
      $     dbl_mb(k_r), maxf, ang_max,
@@ -76,13 +78,15 @@ c
       status = status .and. ma_pop_stack(l_cn_info)
       status = status .and. ma_pop_stack(l_ce_bfr)
       status = status .and. ma_pop_stack(l_ce_cnr)
-      if (.not. status) call errquit('sym_symmetrize: ma pop?', 0)
+      if (.not. status) call errquit('sym_symmetrize: ma pop?', 0,
+     &       MA_ERR)
 c
       end
       subroutine sym_vec_symm2(geom, basis, vec, 
      $     tmp, r, maxf, ang_max, ce_cnr,
      $     ce_bfr, cn_info, cn_bfr, nbf, ncent)
       implicit none
+#include "errquit.fh"
 #include "bas.fh"
       integer geom, basis
       integer icent, icent_new, maxf, ang_max, nbf, ncent

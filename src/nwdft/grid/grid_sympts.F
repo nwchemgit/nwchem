@@ -2,9 +2,10 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.20 2003-08-08 21:03:11 edo Exp $
+c$Id: grid_sympts.F,v 1.21 2003-10-17 22:55:37 carlfahl Exp $
 c
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer geom
       integer nops ! [out]
@@ -20,10 +21,10 @@ c
       if(nops.ne.0) then
          if (.not.MA_push_Get(MT_Dbl,nops*3*4,'symops',
      ,        l_symops(1),k_symops(1))) call errquit(
-     '        '     grid_sympt: mpush get failed',1)
+     '        '     grid_sympt: mpush get failed',1, MA_ERR)
          if (.not.MA_push_Get(MT_Dbl,nops*3*3,'symops',
      ,        l_symops(2),k_symops(2))) call errquit(
-     '        '     grid_sympt: mpush get failed',1)
+     '        '     grid_sympt: mpush get failed',1, MA_ERR)
          call sym_ops_get(geom,nops,dbl_mb(k_symops(1)))
          call grid_c5trash(nops,dbl_mb(k_symops(1)))
       else
@@ -31,24 +32,25 @@ c
       endif
       if (.not.MA_push_Get(MT_Dbl,mxang*4,'gridscr',
      ,     l_gridscr,k_gridscr)) call errquit(
-     '     '     grid_sympt: mpush get failed',2)
+     '     '     grid_sympt: mpush get failed',2, MA_ERR)
       if (.not.MA_push_Get(MT_int,mxang,'iscr',
      ,     l_iscr,k_iscr)) call errquit(
-     '     '     grid_sympt: mpush get failed',3)
+     '     '     grid_sympt: mpush get failed',3, MA_ERR)
       return
       end
       subroutine grid_sympts2(l_symops,l_gridscr)
       implicit none
+#include "errquit.fh"
 #include "mafdecls.fh"
       integer l_symops(2) ! [in]  symops handle
       integer l_gridscr ! [in]  grid handle
 c      
 c     
       if (.not.MA_chop_stack(l_gridscr)) call errquit(
-     '     '     grid_sympt: free stack failed',1)
+     '     '     grid_sympt: free stack failed',1, MA_ERR)
       if(l_symops(1).ne.-999) then
       if (.not.MA_chop_stack(l_symops(1))) call errquit(
-     '     '     grid_sympt: free stack failed',2)
+     '     '     grid_sympt: free stack failed',2, MA_ERR)
       endif
       return
       end
@@ -57,6 +59,7 @@ c
      ,     aqbuf, nq, fnxyz,nxyz,
      ,     gridscr,nops,ops,gops,iscr)
       implicit none
+#include "errquit.fh"
 #include "cdft.fh"
 #include "util.fh"
 #include "global.fh"
@@ -140,7 +143,7 @@ cedo         write(6,'(A,I4),A,1PE20.12)') '         final nq ',nq_left
               write(LuOut,*) 'ww ',abs(wsum-1d0)
                call errquit(
      '           'grid_sympts: lost weights normaliz ',
-     ,           log10((abs(wsum-1d0))))
+     ,           log10((abs(wsum-1d0))), UNKNOWN_ERR)
             endif
          endif
          iang_done=iang

@@ -1,8 +1,9 @@
 c
-c $Id: cpsd_input.F,v 1.6 2002-01-14 17:55:07 bylaska Exp $
+c $Id: cpsd_input.F,v 1.7 2003-10-17 22:57:13 carlfahl Exp $
 c
       subroutine cpsd_input(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -70,13 +71,13 @@ c
 
  10   if (.not. inp_read()) 
      >     call errquit(
-     >           'cpsd_input: inp_read failed', 0)
+     >           'cpsd_input: inp_read failed', 0, INPUT_ERR)
       if (.not. inp_a(test))
      >     call errquit(
-     >           'cpsd_input: failed to read keyword', 0)
+     >           'cpsd_input: failed to read keyword', 0, INPUT_ERR)
       if (.not. inp_match(num_dirs, .false., test, dirs, ind))
      >     call errquit(
-     >           'cpsd_input: unknown directive', 0)
+     >           'cpsd_input: unknown directive', 0, INPUT_ERR)
 
 
       goto ( 100,100, 200, 300,300, 400,400, 500,500, 600,600, 
@@ -85,7 +86,7 @@ c
      >       1500,1600,1700,1800,1900,
      >      9999) ind
       call errquit(
-     >      'cpsd_input: unimplemented directive', ind)
+     >      'cpsd_input: unimplemented directive', ind, INPUT_ERR)
 
 
 c     
@@ -93,11 +94,11 @@ c  cell_name
 c     
  100  if (.not. inp_a(cell_name))
      >     call errquit(
-     >          'cpsd_input: failed to read cell_name', 0)
+     >          'cpsd_input: failed to read cell_name', 0, INPUT_ERR)
       ind = index(cell_name,' ') - 1
       value = rtdb_cput(rtdb,'cpsd:cell_name',1,cell_name(1:ind))
       if (.not.value)
-     > call errquit('cpsd_input: writing cell_name', 0)
+     > call errquit('cpsd_input: writing cell_name', 0, RTDB_ERR)
       goto 10
 
 
@@ -108,7 +109,8 @@ c
       value = rtdb_put(rtdb,'cpsd:geometry_optimize',mt_log,1,
      >                       geometry_optimize)
       if (.not.value)
-     > call errquit('cpsd_input: writing geometry_optimize', 0)
+     > call errquit('cpsd_input: writing geometry_optimize', 0,
+     &       RTDB_ERR)
       goto 10
 
 
@@ -117,17 +119,17 @@ c  formatted_psp_filename
 c 
  300  if (.not. inp_a(test))
      >     call errquit(
-     >          'cpsd_input: failed to read psp_filename', 0)
+     >          'cpsd_input: failed to read psp_filename', 0, INPUT_ERR)
       npsp = npsp + 1
       id = 'cpsd:psp'//CHAR(npsp)
       ind = index(test,' ') - 1
          if (.not. rtdb_cput(rtdb,id,
      >                    1,test(1:ind)))
      >        call errquit(
-     >        'cpsd_input: rtdb_cput failed', 0)
+     >        'cpsd_input: rtdb_cput failed', 0, RTDB_ERR)
       value = rtdb_put(rtdb,'cpsd:npsp',     mt_int,1,npsp)
       if (.not.value)
-     > call errquit('cpsd_input: writing npsp', 0)
+     > call errquit('cpsd_input: writing npsp', 0, RTDB_ERR)
       goto 10
 
 
@@ -136,13 +138,14 @@ c  input_wavefunction_filename
 c 
  400  if (.not. inp_a(input_wavefunction_filename))
      >     call errquit(
-     >          'cpsd_input: failed to read input_wavefunction', 0)
+     >          'cpsd_input: failed to read input_wavefunction', 0,
+     &       INPUT_ERR)
 
       ind = index(input_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpsd:input_wavefunction_filename',
      >                    1,input_wavefunction_filename(1:ind))
       if (.not.value)
-     > call errquit('cpsd_input: writing input vectors', 0)
+     > call errquit('cpsd_input: writing input vectors', 0, RTDB_ERR)
       goto 10
 
 c
@@ -150,13 +153,14 @@ c  output_wavefunction_filename
 c 
  500  if (.not. inp_a(output_wavefunction_filename))
      >     call errquit(
-     >          'cpsd_input: failed to read output_wavefunction', 0)
+     >          'cpsd_input: failed to read output_wavefunction', 0,
+     &       INPUT_ERR)
 
       ind = index(output_wavefunction_filename,' ') - 1
       value = rtdb_cput(rtdb,'cpsd:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
       if (.not.value)
-     > call errquit('cpsd_input: writing output vectors', 0)
+     > call errquit('cpsd_input: writing output vectors', 0, RTDB_ERR)
       goto 10
 
 
@@ -165,10 +169,10 @@ c  fake_mass
 c 
  600  if (.not. inp_f(fake_mass))
      >     call errquit(
-     >          'wvfnc_init_input: failed to read nup', 0)
+     >          'wvfnc_init_input: failed to read nup', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpsd:fake_mass',mt_dbl,1,fake_mass)
       if (.not.value)
-     > call errquit('cpsd_input: writing fake_mass', 0)
+     > call errquit('cpsd_input: writing fake_mass', 0, RTDB_ERR)
       goto 10
  
 c
@@ -176,10 +180,10 @@ c  time_step
 c 
  700  if (.not. inp_f(time_step))
      >     call errquit(
-     >          'wvfnc_init_input: failed to read ndown', 0)
+     >          'wvfnc_init_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpsd:time_step',mt_dbl,1,time_step)
       if (.not.value)
-     > call errquit('cpsd_input: writing time_step', 0)
+     > call errquit('cpsd_input: writing time_step', 0, RTDB_ERR)
       goto 10
  
  
@@ -188,13 +192,13 @@ c  loop
 c 
  800  if (.not. inp_i(loop(1)))
      >     call errquit(
-     >          'wvfnc_init_input: failed to read ndown', 0)
+     >          'wvfnc_init_input: failed to read ndown', 0, INPUT_ERR)
       if (.not. inp_i(loop(2)))
      >     call errquit(
-     >          'wvfnc_init_input: failed to read ndown', 0)
+     >          'wvfnc_init_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpsd:loop',mt_int,2,loop)
       if (.not.value)
-     > call errquit('cpsd_input: writing loop', 0)
+     > call errquit('cpsd_input: writing loop', 0, RTDB_ERR)
       goto 10
  
  
@@ -209,7 +213,7 @@ c
       tolerances(3) = fe
  901  value = rtdb_put(rtdb,'cpsd:tolerances',mt_dbl,3,tolerances)
       if (.not.value)
-     > call errquit('cpsd_input: writing tolerances', 0)
+     > call errquit('cpsd_input: writing tolerances', 0, RTDB_ERR)
       goto 10
 
 c
@@ -217,10 +221,10 @@ c  energy_cutoff
 c 
  1000 if (.not. inp_f(ecut))
      >     call errquit(
-     >          'cpsd_input: failed to read ndown', 0)
+     >          'cpsd_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
       if (.not.value)
-     > call errquit('cpsd_input: writing ecut', 0)
+     > call errquit('cpsd_input: writing ecut', 0, RTDB_ERR)
       goto 10
 
 c
@@ -228,10 +232,10 @@ c  wavefunction_cutoff
 c 
  1100 if (.not. inp_f(wcut))
      >     call errquit(
-     >          'cpsd_input: failed to read ndown', 0)
+     >          'cpsd_input: failed to read ndown', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
       if (.not.value)
-     > call errquit('cpsd_input: writing wcut', 0)
+     > call errquit('cpsd_input: writing wcut', 0, RTDB_ERR)
       goto 10
 
 c
@@ -239,32 +243,33 @@ c  ewald_rcut
 c 
  1200 if (.not. inp_f(rcut))
      >     call errquit(
-     >          'cpsd_input: failed to read rcut', 0)
+     >          'cpsd_input: failed to read rcut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpsd:rcut',mt_dbl,1,rcut)
       if (.not.value)
-     > call errquit('cpsd_input: writing rcut', 0)
+     > call errquit('cpsd_input: writing rcut', 0, RTDB_ERR)
       goto 10
 c
 c  ewald_ncut
 c 
  1300 if (.not. inp_i(ncut))
      >     call errquit(
-     >          'cpsd_input: failed to read ncut', 0)
+     >          'cpsd_input: failed to read ncut', 0, INPUT_ERR)
       value = rtdb_put(rtdb,'cpsd:ncut',mt_int,1,ncut)
       if (.not.value)
-     > call errquit('cpsd_input: writing ncut', 0)
+     > call errquit('cpsd_input: writing ncut', 0, RTDB_ERR)
       goto 10
 c
 c  exchange_correlation
 c 
  1400  if (.not. inp_a(exchange_correlation))
      >     call errquit(
-     >          'cpsd_input: failed to read exchange_correlation', 0)
+     >          'cpsd_input: failed to read exchange_correlation', 0,
+     &       INPUT_ERR)
       ind = index(exchange_correlation,' ') - 1
       value = rtdb_cput(rtdb,'cpsd:exchange_correlation',
      >                    1,exchange_correlation(1:ind))
       if (.not.value)
-     > call errquit('cpsd_input: writing xc', 0)
+     > call errquit('cpsd_input: writing xc', 0, RTDB_ERR)
       goto 10
 
 c
@@ -274,7 +279,7 @@ c
       value = rtdb_put(rtdb,'cpsd:fractional_coordinates',mt_log,1,
      >                       frac_coord)
       if (.not.value)
-     > call errquit('cpsd_input: writing frac', 0)
+     > call errquit('cpsd_input: writing frac', 0, RTDB_ERR)
       goto 10
 
 
@@ -285,14 +290,14 @@ c
       value = rtdb_put(rtdb,'cpsd:mulliken',mt_log,1,
      >                       mulliken)
       if (.not.value)
-     > call errquit('cpsd_input: writing mulliken', 0)
+     > call errquit('cpsd_input: writing mulliken', 0, RTDB_ERR)
       goto 10
 c
 c  multiplicity
 c
  1700 if (.not. inp_i(multiplicity))
      >     call errquit(
-     >          'cgsd_input: failed to read mult', 0)
+     >          'cgsd_input: failed to read mult', 0, INPUT_ERR)
       if (multiplicity.lt.1) then
          multiplicity = 1
          ispin        = 1
@@ -301,7 +306,7 @@ c
       end if
       value = rtdb_put(rtdb,'cpsd:mult',mt_int,1,multiplicity)
       if (.not.value)
-     > call errquit('cpsd_input: writing mult', 0)
+     > call errquit('cpsd_input: writing mult', 0, RTDB_ERR)
       goto 10
 c
 c  dft
@@ -309,7 +314,7 @@ c
  1800 ispin = 1
       value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
       if (.not.value)
-     > call errquit('cpsd_input: writing ispin', 0)
+     > call errquit('cpsd_input: writing ispin', 0, RTDB_ERR)
       goto 10
 c
 c  odft
@@ -317,7 +322,7 @@ c
  1900 ispin = 2
       value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,ispin)
       if (.not.value)
-     > call errquit('cpsd_input: writing ispin', 0)
+     > call errquit('cpsd_input: writing ispin', 0, RTDB_ERR)
       goto 10
 
 
@@ -335,6 +340,7 @@ c
 
       subroutine cpsd_input_default(rtdb)
       implicit none
+#include "errquit.fh"
       integer rtdb
 
 #include "inp.fh"
@@ -443,7 +449,7 @@ c     output_wavefunction_filename = ' '
 *    ***** Error writing to RTDB *****
       if (.not.value)
      >  call errquit(
-     >       'cpsd_default: error writing to rtdb', 0)
+     >       'cpsd_default: error writing to rtdb', 0, RTDB_ERR)
 
 
       return

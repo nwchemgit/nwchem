@@ -1,8 +1,9 @@
       subroutine xc_sicinit(rtdb, test_sic, condfukui, exact_pot,
      &                      l_degen, i_degen, noc, act_levels)
       implicit none
+#include "errquit.fh"
 c     
-c     $Id: xc_sicutil.F,v 1.5 2000-05-18 18:16:05 jolguin Exp $
+c     $Id: xc_sicutil.F,v 1.6 2003-10-17 22:55:53 carlfahl Exp $
 c     
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -25,7 +26,7 @@ c
         tot_oc = noc(1) + noc(2)
         if (.not.MA_Push_Get(MT_Int, tot_oc, 'degen_homo',
      &     l_degen, i_degen(1)))
-     &     call errquit('dft_scf: cannot allocate degen homo',0)
+     &     call errquit('dft_scf: cannot allocate degen homo',0, MA_ERR)
       end if
       return
       end

@@ -5,6 +5,7 @@
 *     ************************************
       subroutine pspw_Lubin_water_analysis(rtdb,ispin,ne,n2ft3d,dn)
       implicit none
+#include "errquit.fh"
       integer rtdb
       integer ispin,ne(2)
       integer n2ft3d
@@ -25,11 +26,12 @@
 *       **** error check ***
         if (mod(nactive_atoms,3).ne.0) 
      >   call errquit(
-     >     'pspw_Lubin_Water_analysis: atoms not multiple of 3',911)
+     >     'pspw_Lubin_Water_analysis: atoms not multiple of 3',911,
+     &       INPUT_ERR)
 
          if (.not.MA_get_index(h_actlist,l_actlist))
      >   call errquit(
-     >     'pspw_Lubin_Water_analysis: ma_get_index failed',911)
+     >     'pspw_Lubin_Water_analysis: ma_get_index failed',911, MA_ERR)
 
          nwater = nactive_atoms/3
          do ii=1,nwater
@@ -39,7 +41,7 @@
 
 *       **** free heap ****
         if (.not. MA_free_heap(h_actlist))
-     >   call errquit('h_actlist:error freeing heap memory',0)
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
       end if
 
@@ -54,6 +56,7 @@
       subroutine pspw_sub_Lubin(ispin,ne,n2ft3d,dn,
      >                                     indx)
       implicit none
+#include "errquit.fh"
       integer ispin,ne(2)
       integer n2ft3d
       real*8 dn(n2ft3d,ispin)
@@ -149,7 +152,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl, n2ft3d,'fcut',fcut(2),fcut(1))     
       if (.not. value) 
-     >   call errquit('Lubin_analysis: out of stack memory',0)
+     >   call errquit('Lubin_analysis: out of stack memory',0, MA_ERR)
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -253,7 +256,8 @@ c        ncharge   = 8
       value = value.and.MA_pop_stack(rgx(2))
       value = value.and.MA_pop_stack(rgrid(2))
       if (.not. value) 
-     >   call errquit('Lubin analysis: cannot pop stack memory',0)
+     >   call errquit('Lubin analysis: cannot pop stack memory',0,
+     &       MA_ERR)
 
       return
 
