@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.71 1997-04-06 21:01:06 d3g681 Exp $
+# $Id: GNUmakefile,v 1.72 1997-04-16 16:54:18 d3g681 Exp $
 
 include ../config/makefile.h
 
@@ -43,7 +43,8 @@ endif
 
    LIB_TARGETS = testsolve testecce
 
- OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS)
+ OBJ_OPTIMIZE =  ga_matpow.o util_pack.o dabssum.o dabsmax.o $(BLAS) \
+                 ga_it_lsolve.o ga_it_orth.o ga_orthog.o 
 
   SUBDIRS = md5
 
@@ -51,8 +52,8 @@ endif
         OBJ = output.o errquit.o ffflush.o \
               print_center.o util_flush.o \
               util_host.o util_date.o \
-	      ga_orthog.o input_echo.o \
-              ga_it_orth.o ga_it_lsolve.o ga_iter_diag.o \
+	      input_echo.o \
+              ga_iter_diag.o \
               ga_maxelt.o ga_pcg_min.o line_search.o \
               ga_orth_vec.o ga_ran_fill.o ga_mix.o \
               ga_it_proj.o ga_screen.o ga_get_diag.o \
