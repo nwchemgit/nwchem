@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.6 2003-10-25 00:45:22 marat Exp $
+C $Id: geninterface.F,v 1.7 2003-10-28 21:48:40 edo Exp $
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C
@@ -113,7 +113,8 @@ C  Need to get the input file name and the rtdb_name taken care of
       ostartup = .true.
       ocontinue = .false.
       if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
-     $     call errquit('initialize_qm: rtdb_open empty failed ', 555,0)
+     $     call errquit('initialize_qm: rtdb_open empty failed ',
+     $   555,0)
       call util_set_rtdb_state(rtdb,.true.,.false.,.false.)
       call util_file_info_rtdb(rtdb)
       call geom_hnd_parallel(.true.)
@@ -390,7 +391,8 @@ C
       call flush(6)
 
       if (.not.setCoordinates(coords))
-     $     call errquit('evaluateObjective: setCoordinates failed',555,0)
+     $     call errquit('evaluateObjective: setCoordinates failed',
+     $    555,0)
 
       if (.not.task_energy(rtdb))
      $     call errquit('evaluateObjective:task_energy failed',555,0)

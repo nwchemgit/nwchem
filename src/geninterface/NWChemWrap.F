@@ -293,7 +293,8 @@ C  Close the parallel environment
      $      call errquit('getNumCoordinates: geom_create failed',555,0)
 
       if (.not.geom_rtdb_load(rtdb, geom,'geometry'))
-     $      call errquit('getNumCoordinates: geom_rtdb_load failed',555,0)
+     $      call errquit('getNumCoordinates: geom_rtdb_load failed',
+     $   555,0)
 
       if (.not.geom_ncent(geom,ncent))
      $      call errquit
