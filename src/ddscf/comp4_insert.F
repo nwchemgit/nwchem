@@ -6,7 +6,7 @@ c
       double precision s        ! Value to be inserted
       integer nb_per_i          ! No. of bytes per integer
 c
-      integer v                 ! Value after compression
+      integer v,vv                 ! Value after compression
       integer index, nbits      ! Index into compressed array
 c
 c     Map value to log10 with range 4,...,-11 and values outside
@@ -32,7 +32,8 @@ c
 *      write(6,*) s, ' -> ', v, index, nbits
 c
 #if defined(CRAY)
-      m(index) = ior(m(index), shiftl(v, nbits))
+      vv=shiftl(v, nbits)
+      m(index) = ior(m(index),vv)
 #else
       m(index) = ior(m(index), lshift(v, nbits))
 #endif

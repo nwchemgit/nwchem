@@ -5,7 +5,7 @@ c
       integer n                 ! Bin the first n entries
       integer nb_per_i          ! No. of bytes per integer
 c
-      integer v                 ! Value after compression
+      integer v,vv,vvv                 ! Value after compression
       integer index, nbits, i
       integer bins(0:15)
       double precision fast(0:15)
@@ -22,7 +22,9 @@ c
          index = (i - 1)/(2*nb_per_i) + 1
          nbits = 4*(i - (index-1)*(2*nb_per_i) - 1)
 #if defined(CRAY)
-         v = iand(shiftr(iand(m(index), shiftl(v, nbits)), nbits),15)
+         vvv =  shiftl(v, nbits)
+         vv = shiftr(iand(m(index), vvv), nbits)
+         v = iand(vv,15)
 #else
          v = iand(rshift(iand(m(index), lshift(v, nbits)), nbits),15)
 #endif
