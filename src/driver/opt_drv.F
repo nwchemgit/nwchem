@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.97 2003-05-09 17:03:52 edo Exp $
+* $Id: opt_drv.F,v 1.98 2003-07-08 01:27:29 edo Exp $
 *
       implicit none
 #include "global.fh"
@@ -825,6 +825,7 @@ C
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "mafdecls.fh"
 c
       integer nvar
       logical old_hessian
@@ -849,7 +850,7 @@ c
  10      old_hessian = .false.
       endif
 c
- 20   call ga_brdcst(323, old_hessian, mitob(1), 0)
+ 20   call ga_brdcst(323, old_hessian, ma_sizeof(mt_log,1,mt_byte), 0)
 c
       end
       subroutine driver_opt_del_hess()
