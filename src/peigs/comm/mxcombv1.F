@@ -35,7 +35,7 @@ c               The user must pass mxcombv1 a data buffer, datbuf, of length at
 c               least mxlbuf() = bufsiz bytes.  This routine allows one to
 c               find out how much workspace is required.
 c
-#include "cmbbfr1.h"
+	include 'cmbbfr1.h'
         mxlbuf = bufsiz
         return
         end
@@ -126,7 +126,7 @@ c
 c     
 c     Local variables -- see code for usage.
 c
-#include "datasizes.h"
+	include 'datasizes.h'
 *
       integer mypnum, mylpos
       integer prtnr, prtlpos
@@ -140,7 +140,7 @@ c
       integer iretrn
       integer istat
       integer env(4)
-#include "cmbbfr1.h"
+	include 'cmbbfr1.h'
       integer datbuf(*)
 c
 c     EXPRESS-environment common block that contains certain variables
