@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.5 1997-06-24 22:43:16 d3e129 Exp $
+# $Id: nwparse.pl,v 1.6 1997-06-25 21:37:56 d3e129 Exp $
 #
 #
 #
@@ -69,10 +69,40 @@ foreach $filename (@FILES_TO_PARSE) {
     if ($debug) {print "\ndebug: file for parsed output is: $fileout\n";}
     open(FILE_OUTPUT,$fileout) || die "fatal error: Could not open file:$fileout\n";
     
+    $selcipt_block = 0;
     $gradient_block = 0;
     $lines = 0 ;
     while (<FILE_TO_PARSE>){
 	$lines ++;
+	if ($selcipt_block && /^\s*$/) {
+	    $selcipt_block = 0;
+	    $num_energies = @ci_energy;
+	    $num_test = @pt_correc;
+	    if ($num_test != $num_energies) {
+		die "number of ci+pt energies different than number of corrections\n";
+	    }
+	    $num_test = @cipt_ene;
+	    if ($num_test != $num_energies) {
+		die "number of ci+pt energies different than number of summed ci+pt energies\n";
+	    }
+	    $num_test = @pt_norm;
+	    if ($num_test != $num_energies) {
+		die "number of ci+pt energies different than number of pt norms\n";
+	    }
+	    if (! $quiet) {
+		printf " ci energy   pt correction ci+pt energy PT norm\n";
+		printf " ----------  ------------- ------------ -------\n";
+		}
+	    printf FILE_OUTPUT "ci energy   pt correction ci+pt energy PT norm\n";
+	    printf FILE_OUTPUT "----------  ------------- ------------ -------\n";
+	    for ($itok = 0;$itok < $num_energies; $itok++){
+		if (! $quiet){
+		    printf "%11.5f %13.5f %12.5f %7.3f\n", $ci_energy[$itok], $pt_correc[$itok], $cipt_ene[$itok], $pt_norm[$itok];
+		}
+		    printf FILE_OUTPUT "%11.5f %13.5f %12.5f %7.3f\n", $ci_energy[$itok], $pt_correc[$itok], $cipt_ene[$itok], $pt_norm[$itok];
+	    }
+	    
+	}
 	if ($gradient_block && /^\s*$/) {
 	    $gradient_block = 0;
 	    $num_atoms = @atoms;
@@ -233,6 +263,7 @@ foreach $filename (@FILES_TO_PARSE) {
 		    print " number of coords: $num_coords @coords\n";
 		}
 	    }
+	    else {print "possible bad gradient block\n";}
 	}
 	if (/atom               coordinates                        gradient/){
 	    @atoms = ();
@@ -244,6 +275,50 @@ foreach $filename (@FILES_TO_PARSE) {
 	if (/x          y          z           x          y          z/){
 	    $gradient_block++ ;
 	    if ($debug) {print "debug:g2: $_";}
+	}
+	if ($selcipt_block == 2){
+	    if ($debug){print "debug:selci get info block: $_";}
+	    @line_tokens = split(' ');
+	    $num_line_tokens = @line_tokens;
+	    if ($debug) {print "debug:num tok: $num_line_tokens\n"};
+	    if ($num_line_tokens == 5){
+		push(@ci_energy, $line_tokens[1]);
+		push(@pt_correc, $line_tokens[2]);
+		push(@cipt_ene,  $line_tokens[3]);
+		push(@pt_norm,   $line_tokens[4]);
+	    }
+	    else {print "possible bad selci or selci+pt energy block\n";}
+	}
+	if (/^ EN\|/ || /^ MP\|/) {
+	    if ($selcipt_block == 1){
+		@ci_energy = ();
+		@pt_correc = ();
+		@cipt_ene  = ();
+		@pt_norm   = ();
+	    }
+	    $selcipt_block++ ;
+	    if ($debug) {print "debug:selcipt inc:$selcipt_block: line: $_";}
+	}
+	if (/^ Root/ && /final energy/){
+	    if ($debug) {print "\ndebug: $_";}
+	    @line_tokens = split(' ');
+	    $num_line_tokens = @line_tokens;
+	    if ($debug) {
+		print "debug:line_tokens: @line_tokens \n";
+		print "debug:number     : $num_line_tokens \n";
+	    }
+	    for ($itok = 0; $itok < ($num_line_tokens - 1); $itok++){
+		if ($itok == 1) {
+		    if (! $quiet) {printf "%4d ", @line_tokens[$itok];}
+		    printf FILE_OUTPUT "%4d ", @line_tokens[$itok];
+		}
+		else{
+		    if (! $quiet) {printf "%s ", @line_tokens[$itok];}
+		    printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+		}
+	    }
+	    if (! $quiet){printf "%.5f\n", @line_tokens[$itok]}
+	    printf FILE_OUTPUT "%.5f\n", @line_tokens[$itok]
 	}
     }
     
