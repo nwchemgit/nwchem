@@ -3,7 +3,7 @@
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     rdens_atom, cntoce, cntobfr, cetobfr, natoms,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.24 1999-05-10 22:43:44 edo Exp $
+c     $Id: dft_fitvc.F,v 1.25 1999-06-09 00:53:50 edo Exp $
       implicit none
 c      
 #include "bas.fh"
@@ -83,7 +83,6 @@ c
 c      
       me=ga_nodeid()
       nproc  = ga_nnodes()
-      call ga_sync
 c      
 c     Compute the fitted Vcoul.
 c      
@@ -119,8 +118,6 @@ c
         CD_coef_max = max(shmax, CD_coef_max)
     5 continue
       if (IOLGC)then
-c         call gacrea(geom,CD_bas_han,
-c     &               nbf_cd,nbf_cd,'CD 2cERI',g_2ceri,'row')
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                       nbf_cd, 1, g_2ceri)) 
      &      call errquit('dft_fitvc: error creating g_2ceri',0)
@@ -141,16 +138,15 @@ c
       ischw1 = 0
       ischw2 = 0
       
-      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+c      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      icount = nshells_ao*(nshells_ao+1)/nproc/2
 c      
 c     check for zero ... must be at least 1
 c
       icount = max(icount,1)
       if(nproc.eq.1)icount = 1
 c      
-      call ga_sync
-c      call dft_tstamp(' In dft_fitvc 1          ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+
 c
       Nao2 = nbf_ao_mxnbf_cn**2
       if(.not.MA_Push_Get(MT_Dbl,Nao2*nmat,'isvec',lsvec,isvec))
@@ -177,17 +173,6 @@ c
         iwhat_max = -1
         goto 25
       endif
-c      call ga_sync
-c      do n1 = 0, nproc
-c        if(me.eq.n1)then
-c          write(LuOut,*)' me, n_batch ', me, n_batch
-c          call util_flush(LuOut)
-c          call i_output(iwhat, 1, n_batch, 1, 1, n_batch, 1, 1)
-c          call util_flush(LuOut)
-c        endif
-c        call ga_sync
-c      enddo
-c      call ga_sync
 c
 c     Exhaust in-core 3c 2e- buffers first.
 c
@@ -199,26 +184,18 @@ c     check for semi-direct, if so, load 1st buffer
 c
       n3c_b = 8*n3c_dbl
       current_nbuf = 0
-c      write(6,*)' n_semi_bufs = ',n_semi_bufs
       if (n_semi_bufs.gt.0)then
-c         write(*,*)'*** In n_semi_bufs case'
 c
 c        check to make sure file is there
 c
-c         write(6,*)' fd = ',fd
          if (eaf_length(fd, length) .ne. 0) call errquit
      $      ('dft_fitcd: unable to determine 3c2e file length',0)
-c         write(6,*)' length = ',length
          current_nbuf = current_nbuf + 1
          offset = (current_nbuf-1)*n3c_b
          if (eaf_read(fd, offset, i3c_eri, n3c_b) .ne. 0)call errquit
      &      ('dft_fitcd: 3c-2e integral buffer read failed',0)
          n_batch = nint(i3c_eri(n3c_dbl))
-c         write(6,*)' n_batch = ',n_batch
-c
-c        temp stop
-c
-c         call errquit(' temp stop in dft_3cincor ',0)
+
       endif
 c     
 #if defined(DFT_TIMER)
@@ -227,9 +204,8 @@ c
       call tcllct(t_sub(1,1),ts2,ts1)
       call dft_second(ts1)
 #endif
-      call ga_sync
-c      call dft_tstamp(' In dft_fitvc 2          ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
+
+
 c     
       do 24 ishc = 1, nshells_ao
         if (.not. bas_cn2bfr( AO_bas_han, ishc, ifirstc, ilastc))
@@ -358,9 +334,7 @@ c
         ishd_be = 1
       endif
 c
-      call ga_sync
 c      call dft_tstamp(' In dft_fitvc 3           ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       n1 = nxtask(nproc,icount)
       n2 = 0
@@ -477,7 +451,6 @@ c
   241 continue
 c
 c      call dft_tstamp(' In dft_fitvc 4          ')
-c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0)
@@ -514,7 +487,6 @@ c     !!! Not needed if not doing Ecoul2
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'scr',lscr,iscr))
      &  call errquit('dft_fitvc: cannot allocate scr',0)
 c
-      call ga_sync
 c      call dft_tstamp(' In dft_fitvc 5          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
@@ -535,25 +507,23 @@ c
 c     
       next=nxtval(-nproc)
 c     
-      call ga_sync
+
 c      call dft_tstamp(' In dft_fitvc 6          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       Ecoul2=Ecoul2*0.5D0
-c      if(IOLGC) call gadest(g_2ceri)
+c
+c         write(*,*)'*** After destroy g_2ceri'
+c      call ga_sync
+      call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
       if (IOLGC)then
          if (.not. ga_destroy(g_2ceri)) call errquit
      &   ('dft_fitvc: could not destroy g_2ceri', 0)
       endif         
 c
-c         write(*,*)'*** After destroy g_2ceri'
-      call ga_sync
-      call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
-c
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitvc: cannot pop stack',0)
 c
-      call ga_sync
 c      call dft_tstamp(' In dft_fitvc 7          ')
 c      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c      

@@ -2,7 +2,7 @@
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd, 
      &                       cntoce, cntobfr, cetobfr, natoms)
 c 
-C$Id: dft_3cincor.F,v 1.14 1999-05-10 23:49:20 edo Exp $
+C$Id: dft_3cincor.F,v 1.15 1999-06-09 00:53:49 edo Exp $
 c
       implicit none
 c    
@@ -45,7 +45,7 @@ c
       integer availkb, current_nbuf, n3c_b
       character*20 fstype
       character*255 filename, actualname
-      integer fd, other_stuff, n_batch_buf
+      integer fd, other_stuff, n_batch_buf,errnob
       logical oprint_semi_file, file_opened
       logical oprint_3c2e
       double precision offset
@@ -54,7 +54,7 @@ c
       double precision q1
 c      write(0,*) ' in 3CINCO',itol2e
 c
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 6'
       THRESHOLD=10.d0**(-itol2e)
       oprint_semi_file = util_print('semi-direct info', print_default)
       oprint_3c2e = util_print('3c 2e integrals', print_default)
@@ -68,7 +68,7 @@ c
 c     temp set n_semi_bufs = 10
 c
 c      n_semi_bufs = 10
-c      write(6,*)' n_semi_bufs = ',n_semi_bufs
+c      write(6,*)' n_semi_bufs = ',n_semi_bufs,me
 c
       n3c_b = 8*n3c_dbl
       other_stuff = 8*(2*nbf_ao**2 + 2*nbf_cd**2 + 2*nbf_xc**2
@@ -108,7 +108,8 @@ c
 c      
 c     Parallelize the loop over the products of AO shells.
 c      
-      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
+      icount = nshells_ao*(nshells_ao+1)/nproc/2
+c      icount = (nshells_ao + mod(nshells_ao,2))/(2*nproc)
 c      
 c     check for zero ... must be at least 1
 c
@@ -139,7 +140,7 @@ c
      &  call errquit('dft_3cincor: cannot allocate scr',0)
 c
       call ga_sync
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 7'
 c
       nxtbuf = batch_max
       nbufs = icount
@@ -186,7 +187,8 @@ c
 c               compute the 3 center 2e- integrals between this given pair 
 c               of ao shells and cd shell.
 c
-                n_chk = ndone+nintegrals-1
+c                n_chk = ndone+nintegrals-1
+                n_chk = ndone+maxg-1
                 if( (n_chk) .gt. n3c_dbl) then
                   write(LuOut,*) ' nlast n3cdbl ',n_chk, n3c_dbl
                   call errquit('dft_3cincor: blew out buf of dbles',999)
@@ -213,16 +215,19 @@ c
 c
               n_batch = n_batch + 1
               n_batch_buf = n_batch_buf + 1
-              if( n_batch.gt.n_bmax)
-     &          call errquit('dft_3cincor: blew out buf of ints',n_bmax)
+              if( n_batch.gt.n_bmax) then
+                 call errquit('dft_3cincor: blew out buf of ints',
+     .                n_bmax)
+              else
+                 iwhat(n_batch)=(ishc*(ishc-1))/2 + ishd-1
 c
-              iwhat(n_batch)=(ishc*(ishc-1))/2 + ishd-1
 c            
 c             Check to see if there is room to store another batch of
 c             integrals in the local buffer.  If so, do next task,
 c             otherwise go wait for global sync.
 c
               if(nbufs.eq.0)nxtbuf = ndone + batch_max
+              endif
 c
 c              write(LuOut,1111)me,ishc,ishd,n1,n2,nxtbuf,n3c_dbl, 
 c     &                         n_batch, iwhat(n_batch), ndone
@@ -253,9 +258,11 @@ c               put number of batches as last element in buffer
 c
                 i3c_eri(n3c_dbl) = dble(n_batch_buf)
 c  
-                if (eaf_write(fd, offset, i3c_eri, n3c_b) .ne. 0)
-     &             call errquit
-     &             ('dft_3cincor: 3c-2e integral buffer write failed',0)
+                errnob=eaf_write(fd, offset, i3c_eri, n3c_b)
+                if (errnob .ne. 0)
+     &             call errquit(
+     .               'dft_3cincor: 3c-2e integral buffer write failed',
+     .               errnob)
 c                
 c               now clear buffer and continue
 c
@@ -264,7 +271,7 @@ c
                 ndone = 1
                 n_batch_buf = 0
 c                write(6,*)' resetting nxtbuf & ndone: ',nxtbuf,ndone
-                call ga_sync
+c                call ga_sync
 c
 c               check to see if there is still more disk space available:
 c
@@ -273,7 +280,7 @@ c
 c
 c               need global space available check here
 c
-                call ga_igop(msg_max_3c_incore, availkb, 1, 'min')
+c                call ga_igop(msg_max_3c_incore, availkb, 1, 'min')
 c
                 if (availkb*1024 .gt. (2*n3c_b + other_stuff))then
                    if (me.eq.0.and.oprint_semi_file)then
@@ -306,8 +313,8 @@ c
 c     Either all integrals have been computed and are incore or all
 c     local buffers are full. 
 c
-      call ga_sync
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
+      if (.not.ma_verify_allocator_stuff()) call 
+     *     errquit(' ma ck 8',me)
       if (n_semi_bufs.gt.0)then
 c
 c        dump last buffer     
@@ -328,18 +335,21 @@ c
       endif
 c
   242 continue
+
+      call nxtask_nleft (-nproc, icount, n1, nbufs)
 c
 c     Determine last shell-pair computed.
 c
       iwhat_max = iwhat(n_batch)
       call ga_igop(msg_max_3c_incore, iwhat_max, 1, 'max')
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 9'
 c
 c     Determine total number of shell pairs.
 c
       ntasks = (nshells_ao*(nshells_ao+1))/2
 c
       nlast = iwhat_max + 1
+
       ratio = dble(nlast)/dble(ntasks)
 c
 c     Find last ishc and ishd; add 1 to iwhat_max since starting at 0.
@@ -380,7 +390,7 @@ c
      &  call errquit('dft_3cincor: cannot pop stack',0)
 c
       call nxtask_nleft (-nproc, icount, n1, nbufs)
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 8'
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 10'
 c
 c      call ga_sync
 c      do n1 = 0, nproc
@@ -423,7 +433,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: dft_3cincor.F,v 1.14 1999-05-10 23:49:20 edo Exp $
+C$Id: dft_3cincor.F,v 1.15 1999-06-09 00:53:49 edo Exp $
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k
