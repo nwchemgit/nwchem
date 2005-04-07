@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.9 2005-02-17 01:57:07 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.10 2005-04-07 01:36:35 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -46,12 +46,18 @@ c
       status = .true.
 
       if (optimization.eq.'all') then
+         if(qmmm_print_debug())
+     >      write(*,*) "going into md_em"
          call md_em()
       else if (optimization.eq.'mm') then
+         if(qmmm_print_debug())
+     >      write(*,*) "going into md_em"
          call md_em()
       else if (optimization.eq.'qm') then
          if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
      $        call errquit('task_optimize: rtdb?',0, RTDB_ERR)
+         if(qmmm_print_debug())
+     >      write(*,*) "going into driver"
          status = driver(rtdb)
          call mm_print_info()
       endif

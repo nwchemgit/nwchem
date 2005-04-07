@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.36 2005-03-09 00:22:55 marat Exp $
+c $Id: qmmm_main.F,v 1.37 2005-04-07 01:36:35 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -104,7 +104,7 @@ c     ---------------------------------------------------
 c
 c     create full geometry with bq charges for qm module
 c     -------------------------------------------------- 
-      call qmmm_create_full_geom(inrtdb)
+      call qmmm_create_full_geom0(inrtdb)
  
 c
 c     get qmmm data
@@ -239,6 +239,7 @@ c
 c    restore normal qm geometry (i.e. without bq's)
 c    ---------------------------------------------
       call qmmm_restore_qm_geom(inrtdb)
+      call qmmm_unset_actlist(inrtdb)
 
       if(qmmm_print_debug())
      > write(*,*) "out "//pname
@@ -304,6 +305,18 @@ c
      &    pname//' ma_pop_stack ',
      &    0, MA_ERR)
 
+
+      end
+
+      subroutine qmmm_unset_actlist(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+c
+      integer rtdb
+      logical ignore
+
+      ignore = rtdb_delete(rtdb, 'geometry:actlist')
 
       end
 
