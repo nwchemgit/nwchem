@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.180 2005-02-22 00:32:05 edo Exp $
+C     $Id: geom_input.F,v 1.181 2005-04-08 21:28:55 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -2583,7 +2583,7 @@ C
             ENDDO
          ELSEif(
      .           inp_compare(.false.,atname(iat)(1:2),'bq').or.
-     .           inp_compare(.false.,atname(iat)(1:1),'X')
+     .           inp_compare(.false.,atname(iat)(1:2),'X ')
      .           ) then
 c
 c     try to detect bq"atom symbol" or X"atom symbol"
@@ -2653,6 +2653,24 @@ C
            TAGS(  ICENTER)(2: 2)=' '                  
         ENDIF
       ENDDO
+c
+c     ----- Check for X and remove them from list -----
+c
+ 230  continue
+      do icenter=1,ncenter
+         if (inp_compare(.false.,tags(icenter)(1:2),'x ')) then
+            do jcenter=icenter+1,ncenter
+               coords(1,jcenter-1)=coords(1,jcenter)
+               coords(2,jcenter-1)=coords(2,jcenter)
+               coords(3,jcenter-1)=coords(3,jcenter)
+               charge(jcenter-1)=charge(jcenter)
+               tags(jcenter-1)=tags(jcenter)
+            enddo
+            ncenter=ncenter-1
+            found_cart = .true.
+            goto 230
+         endif
+      enddo
 C
       RETURN
  9999 FORMAT(A80)
