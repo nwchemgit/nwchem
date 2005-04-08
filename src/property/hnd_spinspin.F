@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.5 2004-12-09 00:15:21 bert Exp $
+c $Id: hnd_spinspin.F,v 1.6 2005-04-08 21:30:59 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -178,6 +178,11 @@ c
           if (ga_nodeid().eq.0) write(luout,7000)
           goto 911
       endif
+c
+c     Make sure the CPHF knows that a DFT run is also UHF
+c
+      if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, scftyp))
+     $    call errquit('hnd_spinspin: put of scftyp failed',0, RTDB_ERR)
 c
 c     Allocate array for tensor data (5 x # of pairs x 9, one for each term)
 c
