@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.38 2005-04-03 07:03:56 marat Exp $
+C$Id: int_1e_ga.F,v 1.39 2005-04-08 06:29:10 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"
@@ -67,6 +67,8 @@ c
          type = 5 
       else if (inp_compare(.false., integ_type1, 'cos_chg_pot'))then 
          type = 6 
+      else if (inp_compare(.false., integ_type1, 'bq_pot'))then 
+         if(.not.dobq) return
       else
          write(6,*) ' integ_type1 = ', integ_type1
          call errquit('int_1e_ga: unknown integ_type', 0, INT_ERR)
