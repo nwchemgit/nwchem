@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.54 2005-04-05 19:31:49 marat Exp $
+c $Id: qmmm_geom.F,v 1.55 2005-04-09 01:42:01 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -509,6 +509,12 @@ c      if(.not.bq_set(hbq,nbq,dbl_mb(i_qbq),dbl_mb(i_cbq)))
       if(.not.rtdb_cput(irtdb,'geometry',1,'full_geometry'))
      + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
 
+       if(ga_nodeid().eq.0) 
+     > call qmmm_print_pdb_bq(nbq,"-bq.pdb",
+     >                    dbl_mb(i_cbq),
+     >                    dbl_mb(i_qbq))
+
+
 
       if(qmmm_print_debug())
      > write(*,*) pname//" finished"
@@ -789,6 +795,49 @@ c     -----------------------------
 
 
       end
+
+      subroutine qmmm_print_pdb_bq(nt,myname,c,q)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      double precision c(3,nt)
+      double precision q(nt)
+      character*16 t
+      character*(*) myname
+      character*(nw_max_path_len) filename
+
+      integer i
+      integer n
+      integer nf
+      integer ns
+
+      call util_file_prefix("",filename)
+      nf=inp_strlen(filename)-1
+      ns=inp_strlen(myname)
+      filename = filename(1:nf)//myname(1:ns)
+
+      open(unit=46,status="unknown",form="formatted",file=filename)
+
+      t = "Bq"
+      do i=1,nt
+       write(46,FMT=9000)
+     >           i,t,c(1,i)*0.529177249d00,
+     >            c(2,i)*0.529177249d00,
+     >            c(3,i)*0.529177249d00, q(i)
+
+      end do
+9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
+
+      call util_flush(46)
+      close(46)
+
+
+      end
+
 
       subroutine qmmm_print_pdbi(nt,ai,c,q,t)
       implicit none
