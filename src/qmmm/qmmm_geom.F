@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.55 2005-04-09 01:42:01 marat Exp $
+c $Id: qmmm_geom.F,v 1.56 2005-04-09 02:04:09 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -488,6 +488,14 @@ c      if(.not.bq_set(hbq,nbq,dbl_mb(i_qbq),dbl_mb(i_cbq)))
       if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
+
+      charge = 0.0d0
+      do i=1,nbq
+       charge = charge + dbl_mb(i_qbq+i-1)
+      end do
+      if(ga_nodeid().eq.0) then
+       write(*,*) "Total Bq charge is", charge
+      end if
 
       if(ga_nodeid().eq.0) then
         call util_print_centered(6,"QMMM geometry with Bq charges",
