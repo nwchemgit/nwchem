@@ -19,6 +19,12 @@ c
          readbq = .false.
       end if
 
+      if (.not.rtdb_get(irtdb,'qmmm:bq-solute',mt_log,1,allbqs))
+     >     allbqs = .false.
+c
+      if (.not.rtdb_get(irtdb,'qmmm:bq-solvent',mt_log,1,allbqw))
+     >     allbqw = .false.
+
       end
 
       subroutine qmmm_bq_data_load()
@@ -46,6 +52,10 @@ c
       link = .true.
 
       call qmmm_bq_data_dealloc()
+c
+c
+      if(allbqs) call mm_activate_bqszone()
+      if(allbqw) call mm_activate_bqwzone()
 c
       call mm_prune_bqzone()
 c

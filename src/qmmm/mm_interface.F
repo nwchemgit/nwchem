@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.46 2005-03-09 00:19:29 marat Exp $
+c $Id: mm_interface.F,v 1.47 2005-04-09 02:42:46 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -280,6 +280,62 @@ c
       else
       call mm_get_solute_tot_na_gen(nbq,mm_bqzone)
       end if
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_activate_bqszone()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+c
+      integer i
+      integer nsaloc
+      integer nwmloc
+      integer bq_exclude
+      integer psz
+      character*32 pname
+      pname = "mm_activate_bqszone"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_nsaloc(nsaloc)
+      call mm_get_nwmloc(nwmloc)
+      call mm_get_psz(psz)
+
+      do i=1,nsaloc
+          int_mb(psz+i-1)=1
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_activate_bqwzone()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+c
+      integer i
+      integer nsaloc
+      integer nwmloc
+      integer bq_exclude
+      integer pwz
+      character*32 pname
+      pname = "mm_activate_bqwzone"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_nsaloc(nsaloc)
+      call mm_get_nwmloc(nwmloc)
+      call mm_get_pwz(pwz)
+
+      do i=1,nwmloc
+          int_mb(pwz+i-1)=1
+      end do
+
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
