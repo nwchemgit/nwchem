@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.112 2005-04-03 06:05:50 marat Exp $
+* $Id: opt_drv.F,v 1.113 2005-04-12 22:56:00 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -3192,7 +3192,7 @@ c
      $        ('driver_energy_step: energy failed',0,0)
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, ep))
      $     call errquit('driver: could not get energy',0,0)
-         if (abs(ep-e0) .lt. 1e-4) then
+         if (abs(ep-e0) .lt. 1e-6) then
             write(6,*) ' Increasing the step ', ep-e0, step
             step = step*10.0d0
             goto 10
