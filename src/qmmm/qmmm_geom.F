@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.56 2005-04-09 02:04:09 marat Exp $
+c $Id: qmmm_geom.F,v 1.57 2005-04-12 17:58:52 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -37,12 +37,19 @@ c     local variables
       integer nb
       integer k
       integer h_mqm,i_mqm
+      logical hide_geom
+      character*30 operation
       character*32 pname
 
       pname = "qmmm_geom_init"
 
       if(qmmm_print_debug())
      >    write(*,*) "in",pname
+
+      hide_geom  = .true.
+      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+      if (operation.eq.'property') hide_geom = .false.
 
       nqm   = qmmm_get_nqm()
       nps   = qmmm_get_nps()
@@ -58,13 +65,6 @@ c     local variables
       i_lb  = qmmm_get_i_lb()
       i_ips = qmmm_get_i_ips()
 
-c
-c     activate all atoms by default
-c     -----------------------------
-      do i=1,nqm
-        log_mb(i_act+i-1)=.true.
-      end do
-
 
       call mm_get_solute_geom_quant(nqm,
      >                 int_mb(i_ind),
@@ -73,15 +73,6 @@ c     -----------------------------
      >                 dbl_mb(i_q),
      >                 dbl_mb(i_m))
 
-      if(qmmm_print_debug())
-     >    write(*,*) "mm_get_solute_cons_quant",pname
-
-      call mm_get_solute_cons_quant(nqm,
-     >                       int_mb(i_ind),
-     >                       log_mb(i_act))
-
-      if(qmmm_print_debug())
-     >    write(*,*) "out mm_get_solute_cons_quant",pname
 
       do i=1,nqm
         int_mb(i_num+i-1)=int(dbl_mb(i_q+i-1))
@@ -128,44 +119,58 @@ c     --------------------------
         end do
       end if
 
-c 
-c     force inactivation of hydrogen links
-c     ------------------------------------
-      if(qmmm_h_link() .and. nlink.gt.0) then
-        do i=1,nlink
-          i1=nqm-nlink+i
-          log_mb(i_act+i1-1)=.false.
-        end do
-      end if
+c     ---------------------
+c     start geometry hiding 
+c     ---------------------
+      do i=1,nqm
+        log_mb(i_act+i-1)=.true.
+      end do
 
-      if(qmmm_fixlinks() .and. nlink.gt.0) then
+      if(hide_geom) then
+        call mm_get_solute_cons_quant(nqm,
+     >                         int_mb(i_ind),
+     >                         log_mb(i_act))
 
-        if(.not.ma_push_get(mt_int,nlink,'mqm',h_mqm,i_mqm))
-     +     call errquit( pname//'Failed to allocate memory for mqm',
+
+        if(qmmm_h_link() .and. nlink.gt.0) then
+          do i=1,nlink
+            i1=nqm-nlink+i
+            log_mb(i_act+i1-1)=.false.
+          end do
+        end if
+
+        if(qmmm_fixlinks() .and. nlink.gt.0) then
+
+          if(.not.ma_push_get(mt_int,nlink,'mqm',h_mqm,i_mqm))
+     +       call errquit( pname//'Failed to allocate memory for mqm',
+     +       nlink, MA_ERR)
+           if(.not.qmmm_map(nqm,int_mb(i_ai),
+     >                   nlink,int_mb(i_lb),
+     >                   int_mb(i_mqm)))  
+     >       call errquit( pname//'Failed to map', 0, 0)
+
+
+          do i=1,nlink
+            i1=int_mb(i_mqm+i-1)
+            log_mb(i_act+i1-1)=.false.
+          end do
+
+          if(.not.ma_pop_stack(h_mqm))
+     +     call errquit( pname//'Failed to deallocate memory for mqm',
      +     nlink, MA_ERR)
-         if(.not.qmmm_map(nqm,int_mb(i_ai),
-     >                 nlink,int_mb(i_lb),
-     >                 int_mb(i_mqm)))  
-     >     call errquit( pname//'Failed to map', 0, 0)
 
+        end if
+c     ----------------------
+c     end of geometry hiding 
+c     ----------------------
 
-        do i=1,nlink
-          i1=int_mb(i_mqm+i-1)
-          log_mb(i_act+i1-1)=.false.
-        end do
+        if(qmmm_print_debug()) then
+          write(*,*) "list of active atoms"
+          do i=1,nqm
+            write(*,*) i, log_mb(i_act+i-1)
+          end do
+        end if
 
-        if(.not.ma_pop_stack(h_mqm))
-     +   call errquit( pname//'Failed to deallocate memory for mqm',
-     +   nlink, MA_ERR)
-
-      end if
-
-
-      if(qmmm_print_debug()) then
-        write(*,*) "list of active atoms"
-        do i=1,nqm
-          write(*,*) i, log_mb(i_act+i-1)
-        end do
       end if
 
       if (.not.rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
@@ -410,7 +415,7 @@ c     local variables
 
       integer hbq
 
-      pname = "qmmm_create_full_geom0"
+      pname = "qmmm_create_full_geom"
 
       if(qmmm_print_debug())
      > write(*,*) " in "//pname
@@ -741,8 +746,16 @@ c     local variables
 c
       pname = "qmmm_restore_qm_geom"
 
+      if(qmmm_print_debug())
+     > write(*,*) " in "//pname
 
       ignore = rtdb_delete(irtdb,'geometry')
+      if(bq_get_handle("qmmm charges",hbq)) then
+        write(*,*) "destroying bq's"
+        if(.not.bq_destroy(hbq))
+     +  call errquit(pname//'cannot destroy qmmm bq handle',0, CALC_ERR)
+      end if
+
 C      if(.not.rtdb_delete(irtdb,'geometry'))
 C     + call errquit(pname//' to  delete geom name in rtdb',0, RTDB_ERR)
 
@@ -760,6 +773,9 @@ c     -----------------------------
           call errquit('qmmm: Failed to set charge',0,
      &       RTDB_ERR)
       end if
+
+      if(qmmm_print_debug())
+     > write(*,*) " out "//pname
 
       end
 
@@ -845,7 +861,6 @@ c     -----------------------------
 
 
       end
-
 
       subroutine qmmm_print_pdbi(nt,ai,c,q,t)
       implicit none
