@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.38 2005-04-12 22:22:53 edo Exp $
+c$Id: grid_acc_def.F,v 1.39 2005-04-12 22:53:52 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -447,9 +447,9 @@ c
                      nrad(itype) = grid_params(grid_acc_index,1,grptr,
      &                                    i_atomic_number)
                   if(grid_acc_index.le.5) then
-                     iangquad=grid_params(grid_acc_index,2,2,
+                     iangat=grid_params(grid_acc_index,2,2,
      &                                    i_atomic_number)
-                     nang(itype) = xc_leb_acc2nrd(iangquad)
+                     nang(itype) = xc_leb_acc2nrd(iangat)
                      iangquad=max(iangquad,iangat)
                   else
 c     user defined lebedev
