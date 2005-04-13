@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.5 2005-04-13 19:09:09 marat Exp $
+c $Id: hnd_elpmap.F,v 1.6 2005-04-13 23:39:38 marat Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -105,6 +105,7 @@ c
 c     ----- add nuclear contribution -----
 c
          elpotn = -dbl_mb(k_epot+iat-1)
+         elpotbq = 0.0d0
          do 210 i = 1,nat
             xn  = dbl_mb(k_xyzpt  +3*(i-1)) - xp
             yn  = dbl_mb(k_xyzpt+1+3*(i-1)) - yp
@@ -154,10 +155,10 @@ c        ----------------------------------
                yn = dbl_mb(i_cbq+3*(i-1)+1) - yp
                zn = dbl_mb(i_cbq+3*(i-1)+2) - zp
                rr =  sqrt(xn*xn + yn*yn + zn*zn)
-               elpotbq = dbl_mb(i_qbq+i-1)/rr
-               elpotn = elpotn + elpotbq
+               elpotbq = elpotbq+dbl_mb(i_qbq+i-1)/rr
             end do
          end if
+         elpotn = elpotn + elpotbq
 c        end of external bq contributions
 c        -------------------------------
          if (.not. geom_cent_tag(geom,iat,at_tag)) call
