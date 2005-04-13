@@ -43,6 +43,9 @@
        logical  bq_activate
        external bq_activate
 
+       logical  bq_deactivate
+       external bq_deactivate
+
        logical  bq_get_active
        external bq_get_active
 

@@ -1,11 +1,12 @@
-c $Id: bq_data.F,v 1.7 2005-04-06 19:53:06 edo Exp $
+c $Id: bq_data.F,v 1.8 2005-04-13 02:02:01 marat Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.7 2005-04-06 19:53:06 edo Exp $
+C$Id: bq_data.F,v 1.8 2005-04-13 02:02:01 marat Exp $
       implicit none
 #include "bq_data.fh"
 c     
       integer i             
       data bq_active /max_bq*.false./
+      data bq_mem /max_bq*.false./
       data bq_ncent /max_bq*0/
 
       end
@@ -73,10 +74,12 @@ c      local variables
        bq_activate = .true.
        if(handle .lt.0 .or. handle .gt. max_bq) then
          bq_activate = .false.
+         write(*,*) "bq handle is out of bounds"
          return
        end if
        if(bq_ncent(handle).eq.0) then
          bq_activate = .false.
+         write(*,*) "bq ncent is zero"
          return
        end if
 
@@ -186,6 +189,7 @@ c      local variables
        bq_ncent(handle)  = n
        bq_charge(handle) = h_q
        bq_coord(handle)  = h_c
+       bq_mem(handle)    = .true.
 
        return
        end
@@ -371,7 +375,7 @@ c      local variables
        end if
 
        if(bq_ncent(handle).eq.0) then
-          write(*,*) "no bqs"
+          write(*,*) "No charges are found"
           return
        end if
 
@@ -388,16 +392,21 @@ c      local variables
      &      0, MA_ERR)
 
        if(ga_nodeid().eq.0) then
+         call util_print_centered(6,
+     >      "Bq Structure Information",
+     >              36, .true.)
       
-         write(*,*) "bq information"
-         write(*,*) "  name", bq_name(handle)
-         write(*,*) "  number of charges",bq_ncent(handle)
+         write(*,*) "Name: ", bq_name(handle)
+         write(*,*) "Number of centers: ",bq_ncent(handle)
          do i=1,bq_ncent(handle)
-           write(*,'(4F12.6)') dbl_mb(i_q+i-1),
-     >          (dbl_mb(i_c+3*(i-1)+k-1),k=1,3) 
+           write(6,FMT=9000)
+     >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3),
+     >           dbl_mb(i_q+i-1)
+
          end do
 
        end if
+9000   format(i5,2x,"Bq",4x,3f15.8,3x,"charge",3x,f15.8)
 
        return
        end
@@ -430,6 +439,10 @@ c      local variables
        bq_active(handle)=.false.
 
        if(bq_ncent(handle).eq.0) return
+       bq_ncent(handle) = 0 
+
+       if(.not.bq_mem(handle)) return
+       bq_mem(handle) = .false.
         
        h_q = bq_charge(handle)
        h_c = bq_coord(handle)
@@ -444,7 +457,6 @@ c      local variables
      &      pname//' unable to deallocate heap space',
      &      0, MA_ERR)
 
-       bq_ncent(handle) = 0 
 
        return
        end
@@ -544,7 +556,7 @@ c      local variables
        bq_on = .false.
 
        do i=1,max_bq
-        if(bq_active(i)) then
+        if(bq_active(i).and.bq_ncent(i).gt.0) then
           bq_on = .true.
           return
         end if
