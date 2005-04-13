@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.57 2005-04-12 17:58:52 marat Exp $
+c $Id: qmmm_geom.F,v 1.58 2005-04-13 02:10:06 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -462,6 +462,132 @@ c        return
       i_t   = qmmm_get_i_t()
       i_m   = qmmm_get_i_m()
 
+c      i_cbq = qmmm_get_i_cbq()
+c      i_qbq = qmmm_get_i_qbq()
+c      h_cbq = qmmm_get_h_cbq()
+c      h_qbq = qmmm_get_h_qbq()
+
+c
+c     fix hydrogen link atoms
+c     -----------------------
+      call qmmm_adjust_link_coord()
+
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_cart_set(igeom,nqm,byte_mb(i_t),
+     + dbl_mb(i_c),dbl_mb(i_q)))
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
+
+      if(.not.geom_masses_set(igeom,nqm,dbl_mb(i_m)))
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+      call geom_compute_values(igeom)
+
+      if(ga_nodeid().eq.0) then
+        call util_print_centered(6,"Full QMMM geometry",
+     >              36, .true.)
+        if(.not.geom_print_pdb(igeom,6))
+     +    call errquit('qmmm: Failed to print pdb geometry',0)
+      end if
+
+      if(.not.geom_rtdb_store(irtdb,igeom,'full_geometry'))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+      if(qmmm_print_debug())
+     > write(*,*) pname//" : full geometry is stored in rtdb"
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+      if(.not.rtdb_cput(irtdb,'geometry',1,'full_geometry'))
+     + call errquit('qmmm: to store geom name to rtdb',0, RTDB_ERR)
+
+      if(qmmm_print_debug())
+     > write(*,*) pname//" finished"
+
+      end
+
+      subroutine qmmm_create_full_geom1(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "bq.fh"
+      integer irtdb
+c     local variables
+      integer i
+      integer nqm
+      integer nbq
+      integer ntot
+
+      integer igeom
+      integer i_c
+      integer i_t
+      integer i_m
+      integer i_ind
+      integer i_num
+      integer i_q
+      integer i_cbq, h_cbq
+      integer i_qbq, h_qbq
+      logical nobq
+      logical bq_dynamical
+      double precision charge
+      character*32 pname
+
+      integer hbq
+
+      pname = "qmmm_create_full_geom"
+
+      if(qmmm_print_debug())
+     > write(*,*) " in "//pname
+
+      if (.not. rtdb_get(irtdb,'qmmm:remove_bq',mt_log,1,nobq)) then
+        nobq=.false.
+      end if
+
+c
+c     load bq information (coord and charges)
+c     into qmmm common arrays from md module
+c     --------------------------------------
+      
+      bq_dynamical = qmmm_bq_dynamical()
+      if(qmmm_print_debug())
+     >       write(*,*) pname,"bq_dynamical",bq_dynamical
+      if(.not.nobq) then
+         if(bq_dynamical) then
+           call qmmm_bq_data_load()
+           if(qmmm_print_debug())
+     >       write(*,*) pname,"updated Bq's"
+         else
+           if(qmmm_print_debug())
+     >       write(*,*) pname,"Bq's are not updated"
+         end if
+      end if
+
+      nqm   = qmmm_get_nqm()
+      nbq   = qmmm_get_nbq()
+      ntot  = nbq+nqm
+
+c     nothing to do if no bq's
+c     -----------------------
+      if(nbq.eq.0) then
+      if(qmmm_print_debug())
+     > write(*,*) "qmmm: no bq charges were found"
+c        return
+      end if
+
+      i_ind = qmmm_get_i_ai()
+      i_num = qmmm_get_i_num()
+      i_c   = qmmm_get_i_c()
+      i_q   = qmmm_get_i_q()
+      i_t   = qmmm_get_i_t()
+      i_m   = qmmm_get_i_m()
+
       i_cbq = qmmm_get_i_cbq()
       i_qbq = qmmm_get_i_qbq()
       h_cbq = qmmm_get_h_cbq()
@@ -750,11 +876,11 @@ c
      > write(*,*) " in "//pname
 
       ignore = rtdb_delete(irtdb,'geometry')
-      if(bq_get_handle("qmmm charges",hbq)) then
-        write(*,*) "destroying bq's"
-        if(.not.bq_destroy(hbq))
-     +  call errquit(pname//'cannot destroy qmmm bq handle',0, CALC_ERR)
-      end if
+c      if(bq_get_handle("qmmm charges",hbq)) then
+c        write(*,*) "destroying bq's"
+c        if(.not.bq_destroy(hbq))
+c     +  call errquit(pname//'cannot destroy qmmm bq handle',0, CALC_ERR)
+c      end if
 
 C      if(.not.rtdb_delete(irtdb,'geometry'))
 C     + call errquit(pname//' to  delete geom name in rtdb',0, RTDB_ERR)
@@ -776,47 +902,6 @@ c     -----------------------------
 
       if(qmmm_print_debug())
      > write(*,*) " out "//pname
-
-      end
-
-      subroutine qmmm_print_pdb(nt,myname,c,q,t)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "qmmm.fh"
-#include "util.fh"
-#include "inp.fh"
-      integer nt
-      double precision c(3,nt)
-      double precision q(nt)
-      character*16 t(nt)
-      character*(*) myname
-      character*(nw_max_path_len) filename
-
-      integer i
-      integer n
-      integer nf
-      integer ns
-
-      call util_file_prefix("",filename)
-      nf=inp_strlen(filename)-1
-      ns=inp_strlen(myname)
-      filename = filename(1:nf)//myname(1:ns)
-
-      open(unit=46,status="unknown",form="formatted",file=filename)
-
-      do i=1,nt
-       write(46,FMT=9000)
-     >           i,t(i),c(1,i)*0.529177249d00,
-     >            c(2,i)*0.529177249d00,
-     >            c(3,i)*0.529177249d00, q(i)
-
-      end do
-9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
-
-      call util_flush(46)
-      close(46)
-
 
       end
 
@@ -1535,4 +1620,6 @@ c     -------------
 
 
       end
+
+
 

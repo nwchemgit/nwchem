@@ -3,16 +3,20 @@
 c
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "bq.fh"
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
       integer irtdb
 c
+      character*30 pname
+
+      pname = "qmmm_bq_data_init"
       nbqs=0
       nbqw=0
       nbq=nbqs+nbqw
 
        if (.not.rtdb_get(irtdb,'qmmm:bq_exclude',mt_int,1,bq_exclude))
-     + call errquit('qmmm_data_init: qmmm:bq_exclude',bq_exclude,
+     + call errquit(pname,bq_exclude,
      &       RTDB_ERR)
 
       if (.not. rtdb_get(irtdb,'qmmm:readbq',mt_log,1,readbq)) then
@@ -24,6 +28,9 @@ c
 c
       if (.not.rtdb_get(irtdb,'qmmm:bq-solvent',mt_log,1,allbqw))
      >     allbqw = .false.
+
+      if(.not.bq_create("qmmm charges",bq_handle))
+     + call errquit(pname//'Failed bq_create',0,CALC_ERR) 
 
       end
 
@@ -37,12 +44,15 @@ c
 #include "qmmm_utils.fh"
 #include "qmmm_params.fh"
 #include "global.fh"
+#include "bq.fh"
+#include "util.fh"
       logical link
       integer i,k
       integer i_lb
       integer i_mbq,h_mbq
       integer nlink
       integer il
+      double precision charge
       character*32 pname
 
       pname = "qmmm_bq_data_load"
@@ -68,12 +78,6 @@ c
 c
       nbq=nbqs+nbqw
       
-      if(qmmm_master()) then
-         write(*,*) "Total number of Bq charges",nbq
-         write(*,*) "Number of solute Bq charges",nbqs
-         write(*,*) "Number of solvent Bq charges",nbqw
-      end if
-
       if(nbq.eq.0) return
 
       call qmmm_bq_data_alloc()
@@ -153,6 +157,41 @@ c     -------------------------------------------
       if(qmmm_print_debug()) 
      >       write(*,*) "finished setting up solvent bq charges"
 
+c
+c     exit now if all bq's should be excluded
+c     ---------------------------------------
+      if( bq_exclude.eq.qmmm_all_atoms) return
+c
+      if(qmmm_master()) then
+         write(*,*) "Total number of Bq charges",nbq
+         write(*,*) "Number of solute Bq charges",nbqs
+         write(*,*) "Number of solvent Bq charges",nbqw
+      end if
+c     
+c     save bq indexes
+      call qmmm_save_bq_index()
+
+      if(.not.bq_pset(bq_handle,nbq,h_qbq,h_cbq))
+     + call errquit(pname//'Failed bq_pset',0,CALC_ERR)
+      if(.not.bq_activate(bq_handle)) 
+     + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
+
+      charge = 0.0d0
+      do i=1,nbq
+       charge = charge + dbl_mb(i_qbq+i-1)
+      end do
+      if(ga_nodeid().eq.0) then
+       write(*,*) "Total Bq charge: ", charge
+      end if
+
+      if(util_print('bq_geom', print_high)) 
+     + call bq_print_info(bq_handle)
+
+       if(ga_nodeid().eq.0) 
+     > call qmmm_print_pdb_bq(nbq,"-bq.pdb",
+     >                    dbl_mb(i_cbq),
+     >                    dbl_mb(i_qbq))
+
       if(qmmm_print_debug()) then
         call util_print_centered(6,"Bq information",
      >              36, .true.)
@@ -162,9 +201,6 @@ c     -------------------------------------------
      >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
         end do
       end if
-c     
-c     save bq indexes
-      call qmmm_save_bq_index()
 
       if(qmmm_print_debug()) 
      >       write(*,*) "out",pname
@@ -254,6 +290,8 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
+#include "bq.fh"
+      logical ignore
 
       if(nbq.eq.0) return
 
@@ -272,6 +310,9 @@ c
        nbqs=0
        nbqw=0
        nbq=0
+
+       ignore = bq_deactivate(bq_handle)
+
 
       end
 

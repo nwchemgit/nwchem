@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.5 2005-02-17 01:57:07 marat Exp $
+c $Id: qmmm_utils.F,v 1.6 2005-04-13 02:10:06 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -84,5 +84,74 @@ c     local variables:
 
       qmmm_map = .false.
       return
+      end
+
+      subroutine qmmm_print_bq(nt,c,q)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      double precision c(3,nt)
+      double precision q(nt)
+      character*16 t
+
+      integer i
+
+
+      t = "Bq"
+      do i=1,nt
+       write(6,FMT=9000)
+     >           i,t,c(1,i)*0.529177249d00,
+     >            c(2,i)*0.529177249d00,
+     >            c(3,i)*0.529177249d00, q(i)
+
+      end do
+9000  format(i5,2x,a16,1x,3f15.8,3x,"charge",3x,f15.8)
+
+
+      end
+
+      subroutine qmmm_print_pdb(nt,myname,c,q,t)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      double precision c(3,nt)
+      double precision q(nt)
+      character*16 t(nt)
+      character*(*) myname
+      character*(nw_max_path_len) filename
+
+      integer i
+      integer n
+      integer nf
+      integer ns
+
+      call util_file_prefix("",filename)
+      nf=inp_strlen(filename)-1
+      ns=inp_strlen(myname)
+      filename = filename(1:nf)//myname(1:ns)
+
+      open(unit=46,status="unknown",form="formatted",file=filename)
+
+      do i=1,nt
+       write(46,FMT=9000)
+     >           i,t(i),c(1,i)*0.529177249d00,
+     >            c(2,i)*0.529177249d00,
+     >            c(3,i)*0.529177249d00, q(i)
+
+      end do
+9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
+
+      call util_flush(46)
+      close(46)
+
+
       end
 
