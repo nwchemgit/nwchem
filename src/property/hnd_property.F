@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.16 2004-12-16 18:46:12 bert Exp $
+* $Id: hnd_property.F,v 1.17 2005-04-13 22:11:16 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -61,6 +61,13 @@ c
      &       INPUT_ERR)
       if (theory.eq.'hyb') theory = 'dft'
       use_theory = theory
+c
+c     get external movecs if any (MV)
+c     ------------------------------
+      if (.not. rtdb_cget(rtdb, 'prop:vectors', 1, vectors_in)) then
+            vectors_in = ' '
+            write(*,*) "external vectors are not found"
+      end if
 c
 c     Check if we are running spinspin or shielding. In that case we
 c     have to remove symmetry from the geometry.
@@ -203,27 +210,31 @@ c
 c
 c     Make sure the energy and vectors have been calculated
 c
-      if(.not.task_energy(rtdb)) call errquit
-     *  ('hnd_property: energy failure', 555, CALC_ERR)
+  
+      if(vectors_in.eq.' ') then
+        if(.not.task_energy(rtdb)) call errquit
+     *    ('hnd_property: energy failure', 555, CALC_ERR)
 c
-c     Making sure scf_init realizes that ODFT is UHF
+c       Making sure scf_init realizes that ODFT is UHF
 c
-c     if (theory.eq.'dft') then
-c        if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, 'UHF')) call
-c    &       errquit('hnd_property: rtdb_cput failed',100,RTDB_ERR)
-c     endif
+c       if (theory.eq.'dft') then
+c          if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, 'UHF')) call
+c    &         errquit('hnd_property: rtdb_cput failed',100,RTDB_ERR)
+c       endif
 c
-c     Depending on calculation write prop:input vectors to rtdb
+c       Depending on calculation write prop:input vectors to rtdb
 c
-      if (theory.eq.'dft') then
-         if (.not. rtdb_cget(rtdb,'dft:input vectors',1,vectors_in))
-     &       call errquit('hnd_property: rtdb_cget failed', 100,
-     &                    RTDB_ERR)
-      elseif (theory.eq.'scf') then
-         if (.not. rtdb_cget(rtdb,'scf:input vectors',1,vectors_in))
-     &       call errquit('hnd_property: rtdb_cget failed', 100,
-     &                    RTDB_ERR)
-      endif
+        if (theory.eq.'dft') then
+           if (.not. rtdb_cget(rtdb,'dft:input vectors',1,vectors_in))
+     &         call errquit('hnd_property: rtdb_cget failed', 100,
+     &                      RTDB_ERR)
+        elseif (theory.eq.'scf') then
+           if (.not. rtdb_cget(rtdb,'scf:input vectors',1,vectors_in))
+     &         call errquit('hnd_property: rtdb_cget failed', 100,
+     &                      RTDB_ERR)
+        endif
+      end if
+
       if (.not. rtdb_cput(rtdb,'prop:input vectors',1,vectors_in))
      &    call errquit('hnd_property: rtdb_cput failed', 100,
      &                 RTDB_ERR)

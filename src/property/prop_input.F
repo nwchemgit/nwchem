@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.14 2005-01-04 16:49:53 bert Exp $
+* $Id: prop_input.F,v 1.15 2005-04-13 22:11:16 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -191,6 +191,8 @@ c
          octupole  = 0
       elseif ( inp_compare(.false., 'quadrupole', test)) then
          quadrupole  = 0
+      elseif ( inp_compare(.false., 'vectors', test)) then
+         if(.not.inp_a(movecs_in)) goto 10000
       elseif ( inp_compare(.false., 'dipole', test)) then
          dipole  = 0
       elseif ( inp_compare(.false., 'nbofile', test)) then
@@ -351,6 +353,12 @@ c>>>    store real parameters in rtdb
 c       
 cc        if (.not. rtdb_put(rtdb, 'inp:xxx', mt_dbl, 1, xxx))
 cc     $       call errquit('dft_input: rtdb_put failed', 0)
+c
+       if(movecs_in.ne.' ') then
+         if (.not. rtdb_cput(rtdb, 'prop:vectors',1, movecs_in))
+     $      call errquit('prop_input: rtdb_cput failed', 555, RTDB_ERR)
+       end if
+
         return
 c       
 10000   continue !  die with error
