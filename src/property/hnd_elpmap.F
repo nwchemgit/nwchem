@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.4 2004-12-06 20:20:02 bert Exp $
+c $Id: hnd_elpmap.F,v 1.5 2005-04-13 19:09:09 marat Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -29,6 +29,12 @@ c
       double precision xp, yp, zp, xn, yn, zn, zan
       double precision elpotn
       double precision rr
+c     bq variables (MV)
+      logical dobq
+      integer bq_ncent
+      integer i_cbq
+      integer i_qbq
+      double precision elpotbq
 c
 c     Initialize integrals
 c
@@ -72,12 +78,25 @@ c     ----- calculate electronic contribution at all points -----
 c
       call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(k_xyzpt),nat,
      &                dbl_mb(k_epot),0)
+
+      dobq = .false.
+      if(geom_extbq_on()) then
+        dobq = .true.
+        bq_ncent = geom_extbq_ncenter()
+        i_cbq = geom_extbq_coord()
+        i_qbq = geom_extbq_charge()
+      end if
+
 c
 c     ----- collect and output results of all points -----
 c
       if (ga_nodeid().gt.0) goto 300
 c
-      write(luout,9997)
+      if(dobq) then
+        write(luout,9992)
+      else
+        write(luout,9997)
+      end if
       do 230  iat=1,nat    
          xp = dbl_mb(k_xyzpt  +3*(iat-1))
          yp = dbl_mb(k_xyzpt+1+3*(iat-1))
@@ -127,13 +146,36 @@ c
             if (.not.ma_chop_stack(l_efcc)) call
      &         errquit('hnd_elpmap: chop stack l_efcc',913,ma_err)
          endif
-c
+c        adding external bq contributions(MV)
+c        ----------------------------------
+         if (dobq) then
+            do i = 1,bq_ncent
+               xn = dbl_mb(i_cbq+3*(i-1)  ) - xp
+               yn = dbl_mb(i_cbq+3*(i-1)+1) - yp
+               zn = dbl_mb(i_cbq+3*(i-1)+2) - zp
+               rr =  sqrt(xn*xn + yn*yn + zn*zn)
+               elpotbq = dbl_mb(i_qbq+i-1)/rr
+               elpotn = elpotn + elpotbq
+            end do
+         end if
+c        end of external bq contributions
+c        -------------------------------
          if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &      errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
-         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) call
+c        geom_tag_to_element returns false for Bq elements (MV)
+c        -----------------------------------------------------
+         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) then 
+            if(symbol.ne."bq") call
      &      errquit('hnd_elfmap: geom_tag_to_element failed',0,GEOM_ERR)
-         write(luout,9995) iat,symbol,xp,yp,zp,elpotn,
-     &                     dbl_mb(k_epot+iat-1)
+         end if
+c
+         if(dobq) then
+           write(luout,9991) iat,symbol,xp,yp,zp,elpotn,
+     &                       dbl_mb(k_epot+iat-1),elpotbq
+         else
+           write(luout,9995) iat,symbol,xp,yp,zp,elpotn,
+     &                       dbl_mb(k_epot+iat-1)
+         end if
 c
 c        ----- store ecce data -----
 c
@@ -175,7 +217,7 @@ c
      1       /,10x,'Electrostatic potential/diamagnetic shielding',
      2       /,10x,45(1H-),/)
  9998 format(' Not enough core in -elpmap-')
- 9997 format(3x,'Point',6x,'X',9x,'Y',9x,'Z',5x,'Potential(a.u.)',
+ 9997 format(3x,'Point',6x,'X',9x,'Y',9x,'Z',5x,'Total Potential(a.u.)',
      1       3x,'Diamagnetic shielding(a.u.)')
  9996 format(' --- Warning - electrostatic potential at ',
      1 3f10.5,' . contribution from nucleus ',i3,' ignored')
@@ -183,4 +225,10 @@ c
  9994 format(' 1 a.u. = 9.07618 esu/cm ( or statvolts ) ')
  9993 format(' --- Warning - electrostatic potential at ',
      1 3f10.5,' . contribution from  -efc-  ',i3,' ignored')
+c   
+ 9992 format(3x,'Point',6x,'X',9x,'Y',9x,'Z',5x,'Total Potential(a.u.)',
+     1       3x,'Diamagnetic shielding(a.u.)',
+     2       3x,'External Bq potential')
+ 9991 format(i5,1x,a2,3F10.5,f15.6,6x,f15.6,12x,f15.6)
+ 
       END
