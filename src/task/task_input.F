@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.38 2005-04-01 03:13:14 marat Exp $
+* $Id: task_input.F,v 1.39 2005-04-13 07:22:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -174,6 +174,7 @@ c
      >      operation.ne.'hessian' .and.
      >      operation.ne.'freq' .and.
      >      operation.ne.'gradient' .and.
+     >      operation.ne.'property' .and.
      >      operation.ne.'dynamics' .and.
      >      operation.ne.'et' ) call errquit
      &      ("task_input:"//operation//"not supported with QMMM",911,
