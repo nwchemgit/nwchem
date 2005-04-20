@@ -1,6 +1,6 @@
       subroutine hnd_efgmap(rtdb,basis,geom)
 c
-c $Id: hnd_efgmap.F,v 1.4 2004-09-08 20:53:02 bert Exp $
+c $Id: hnd_efgmap.F,v 1.5 2005-04-20 23:56:26 marat Exp $
 c
 c     This routine calculates the electric field gradient and 
 c     the orientation of the EFG for a given density at the
@@ -33,6 +33,12 @@ c
       double precision pi, deg, efgxx, efgyy, efgzz, efgxy, efgxz, efgyz
       double precision rr, rr5, eta
       logical status
+c     bq variables (MV)
+      logical dobq
+      integer bq_ncent
+      integer i_cbq
+      integer i_qbq
+      double precision elpotbq
 c
 c     Initialize integrals
 c
@@ -74,6 +80,17 @@ c
 c
       call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(k_xyzpt),nat,
      &                dbl_mb(k_efgs),2)
+c
+c     get bq structures if any (MV)
+c     -----------------------------
+      dobq = .false.
+      if(geom_extbq_on()) then
+        dobq = .true.
+        bq_ncent = geom_extbq_ncenter()
+        i_cbq = geom_extbq_coord()
+        i_qbq = geom_extbq_charge()
+      end if
+
 c
 c     ----- collect and output results of all points -----
 c 
@@ -148,6 +165,28 @@ c
      &         errquit('hnd_efgmap: chop stack l_efcc',913,ma_err)
          endif
 c
+c        adding external bq contributions(MV)
+c        ----------------------------------
+         if (dobq) then
+            do i = 1,bq_ncent
+               xn = dbl_mb(i_cbq+3*(i-1)  ) - xp
+               yn = dbl_mb(i_cbq+3*(i-1)+1) - yp
+               zn = dbl_mb(i_cbq+3*(i-1)+2) - zp
+               rr =  sqrt(xn*xn + yn*yn + zn*zn)
+               if (rr.lt.1.0d-3) then
+                  write(luout,9993) xp,yp,zp,i
+                  goto 220
+               endif
+               rr5=rr*rr*rr*rr*rr
+               efgxx = efgxx - dbl_mb(i_qbq+i-1)*xn*xn/rr5
+               efgyy = efgyy - dbl_mb(i_qbq+i-1)*yn*yn/rr5
+               efgzz = efgzz - dbl_mb(i_qbq+i-1)*zn*zn/rr5
+               efgxy = efgxy - dbl_mb(i_qbq+i-1)*xn*yn/rr5
+               efgxz = efgxz - dbl_mb(i_qbq+i-1)*xn*zn/rr5
+               efgyz = efgyz - dbl_mb(i_qbq+i-1)*yn*zn/rr5
+            end do
+         end if
+c
          dbl_mb(k_efgs  +6*(iat-1)) = 2.0d0*efgxx - efgyy - efgzz
          dbl_mb(k_efgs+1+6*(iat-1)) = 2.0d0*efgyy - efgxx - efgzz
          dbl_mb(k_efgs+2+6*(iat-1)) = 2.0d0*efgzz - efgxx - efgyy
@@ -175,8 +214,15 @@ c        ----- store ecce data -----
 c
          if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &      errquit('hnd_efgmap: geom_cent_tag failed',0,GEOM_ERR)
-         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) call
+c        geom_tag_to_element returns false for Bq elements (MV)
+c        -----------------------------------------------------
+         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) then 
+            if(symbol.ne."bq") call
      &      errquit('hnd_efgmap: geom_tag_to_element failed',0,GEOM_ERR)
+         end if
+c
+c         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) call
+c     &      errquit('hnd_efgmap: geom_tag_to_element failed',0,GEOM_ERR)
          call ecce_print1_char('atom name',symbol,1)
          call ecce_print2('EFG tensor',MT_DBL,vec,3,3,3)
 c
