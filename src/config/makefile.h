@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.501 2005-02-19 05:32:37 edo Exp $
+# $Id: makefile.h,v 1.502 2005-04-21 20:39:57 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1624,8 +1624,8 @@ endif # end of ia32 bit
         FOPTIONS   += -cpp -Wp,-P
         FOPTIONS   += -fno-second-underscore -fixedform
         FOPTIONS   += -align64
-        FOPTIMIZE   = -O3 -OPT:Ofast:IEEE_arith=1:IEEE_NaN_inf=ON:Olimit=12000:ro=2:fold_reassociate=OFF#:div_split=OFF:fast_nint=OFF
-        FVECTORIZE  = -O3 -OPT:Ofast -fno-math-errno
+        FOPTIMIZE   = -O3 -OPT:Ofast:IEEE_arith=1:IEEE_NaN_inf=ON:Olimit=12000:ro=1:fold_reassociate=OFF#:div_split=OFF:fast_nint=OFF
+        FVECTORIZE  = -O3 -OPT:Ofast:ro=1 -fno-math-errno
         DEFINES  += -DCHKUNDFLW -DPSCALE
         FDEBUG = -g -O2
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
