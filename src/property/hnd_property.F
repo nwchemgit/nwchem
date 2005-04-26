@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.17 2005-04-13 22:11:16 marat Exp $
+* $Id: hnd_property.F,v 1.18 2005-04-26 23:36:15 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -42,8 +42,9 @@ c
 c
       logical grid_clinit, task_energy
       external grid_clinit, task_energy
-      integer nopen,mult,ipol
 c
+      logical nocheck
+
 c     Initialization
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
@@ -65,9 +66,15 @@ c
 c     get external movecs if any (MV)
 c     ------------------------------
       if (.not. rtdb_cget(rtdb, 'prop:vectors', 1, vectors_in)) then
-            vectors_in = ' '
-            write(*,*) "external vectors are not found"
+        vectors_in = ' '
       end if
+c
+c     skip checking if requested(MV)
+c     ------------------------------
+      if (.not. rtdb_get(rtdb, 'prop:nocheck',mt_log, 1, nocheck)) then
+        nocheck = .false.
+      end if
+c      
 c
 c     Check if we are running spinspin or shielding. In that case we
 c     have to remove symmetry from the geometry.
@@ -132,7 +139,7 @@ c
       if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
      $    call errquit('hnd_property: rtdb_put failed',ithresh,
      &                 RTDB_ERR)
-      if (theory.eq.'dft') then
+      if (theory.eq.'dft' .and. .not. nocheck) then
          ithresh = 1.0d-8
          if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
      $       tthresh = 1.0d-4
