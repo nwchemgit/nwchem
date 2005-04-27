@@ -80,7 +80,6 @@ c
         f(1,i) = -q(i)*f(1,i) 
         f(2,i) = -q(i)*f(2,i) 
         f(3,i) = -q(i)*f(3,i) 
-        write(*,*) f(1,i),f(2,i),f(3,i)
       end do
 c 
 c     clean up rtdb
