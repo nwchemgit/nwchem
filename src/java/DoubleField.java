@@ -17,7 +17,7 @@ public class DoubleField extends JTextField implements KeyListener{
   }
 
   public double getValue(){
-    if(isValid()){ return var; } else { return def; };
+    if(isValid()){ return var; } else { return def; }
   }
 
   public boolean isValid(){

@@ -17,7 +17,7 @@ public class IntegerField extends JTextField implements KeyListener {
   }
 
   public int getValue(){
-    if(isValid()){ return var; } else { return def; };
+    if(isValid()){ return var; } else { return def; }
   }
 
   public boolean isValid(){

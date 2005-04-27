@@ -199,7 +199,7 @@ class nwchem_Times extends JFrame implements ActionListener, ChangeListener, Win
       };
       storeData();
       return true;
-    } catch (Exception e) {return false;};
+    } catch (Exception e) {return false;}
   };
 
     void storeData(){

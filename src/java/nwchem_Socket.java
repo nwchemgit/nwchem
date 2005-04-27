@@ -71,8 +71,8 @@ class nwchem_Socket extends JFrame implements ActionListener, ChangeListener, Wi
 	  //	  plotData(inLine);
 	  if(inLine.startsWith("tETpV")) { plotData(inLine); };
 	};
-      };
-    } catch (Exception s) { s.printStackTrace(); };
+      }
+    } catch (Exception s) { s.printStackTrace(); }
   }
   
   public void plotData(String card){
