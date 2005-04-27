@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.10 2005-04-07 01:36:35 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.11 2005-04-27 18:34:47 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -60,6 +60,10 @@ c
      >      write(*,*) "going into driver"
          status = driver(rtdb)
          call mm_print_info()
+c
+c        forcing driver to never fail
+c        ---------------------------
+         status = .true.         
       endif
 c     
       cpu  = util_cpusec() - cpu
