@@ -1,6 +1,6 @@
       subroutine int_init_1eelec(maxbuf,maxscr,basis,nder,npt)
 c
-c $Id: hnd_init_1eelec.F,v 1.1 2004-12-03 22:36:10 bert Exp $
+c $Id: hnd_init_1eelec.F,v 1.2 2005-04-27 00:23:52 marat Exp $
 c
       implicit none
 c
@@ -36,7 +36,7 @@ c     Calculate maximum scratch space needed
 c
       mroots = (2*lmax+max(nder,0)-2)/2+1
       maxscr = 3*lmax*lmax*mroots
-      if (nder.gt.1) maxscr = 3*maxscr
+      if (nder.ge.1) maxscr = (nder+1)*maxscr
 c
 c     Set pointers for scratch space
 c
