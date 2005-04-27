@@ -1,6 +1,6 @@
       subroutine hnd_elfmap(rtdb,basis,geom)
 c
-c $Id: hnd_elfmap.F,v 1.3 2004-12-06 20:20:02 bert Exp $
+c $Id: hnd_elfmap.F,v 1.4 2005-04-27 00:08:11 marat Exp $
 c
 c     This routine calculates the electric field
 c     for a given density at the atomic positions.
@@ -30,6 +30,14 @@ c
       double precision elf(3), elfld
       double precision rr, rr3
 c
+c     property grid points variables (MV)
+      integer h_prp_c,i_prp_c
+      integer ma_prp_type          
+      integer nprp
+      character*26 prp_date
+      logical do_points
+      integer l_tefld,k_tefld
+c
 c     Initialize integrals
 c
       call int_init(rtdb,1, basis)
@@ -47,15 +55,10 @@ c
 c
        call ecce_print_module_entry('EField')
 c
-c     ----- define points for calculation -----
-c           1. nuclei
-c
       if (.not.geom_ncent(geom,nat)) call
      &    errquit('hnd_elfmap: geom_ncent',911,GEOM_ERR)
 c
       if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
-     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
-      if (.not. ma_push_get(mt_dbl,6*nat,'efld pnt',l_efld,k_efld))
      &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
@@ -65,10 +68,38 @@ c
      &     dbl_mb(k_zanpt+iat-1))) call
      &     errquit('hnd_elfmap: geom_cent_get',911,GEOM_ERR)
    30 continue
+c     
+c     define points for the calculation now 
+c     either custom grid or (default) nuclei positions (M.V.)
+c     -------------------------------------------------
+      if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
+     >                 nprp, prp_date)) then
+        nprp = nprp/3
+        if (.not. ma_push_get(mt_dbl,3*nprp,'prop:xyz',h_prp_c,i_prp_c))
+     &    call errquit('hnd_elfmap: prop:xyz',911,MA_ERR)
+        if (.not. rtdb_get(rtdb,'prop:xyz',mt_dbl,
+     >                      3*nprp,dbl_mb(i_prp_c)))
+     &    call errquit('hnd_elfmap: prop:xyz failed',911,RTDB_ERR)
+        do_points = .true.
+      else
+        nprp = nat
+        if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
+     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+        call dcopy(3*nat,dbl_mb(k_xyzpt),1,dbl_mb(i_prp_c),1)
+        do_points = .false.
+      end if
+c
+      if (.not. ma_push_get(mt_dbl,6*nprp,'efld pnt',l_efld,k_efld))
+     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+c
+c     total electric field array (M.V.)
+c     --------------------------------
+      if (.not. ma_push_get(mt_dbl,3*nprp,'tot field',l_tefld,k_tefld))
+     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
 c
 c     ----- calculate electronic contribution at all points -----
 c
-      call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(k_xyzpt),nat,
+      call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c),nprp,
      &                dbl_mb(k_efld),1)
 c
 c     ----- collect and output results of all points -----
@@ -76,10 +107,10 @@ c
       if (ga_nodeid().gt.0) goto 300
 c
       write(luout,9997)
-      do 230  iat=1,nat
-         xp = dbl_mb(k_xyzpt  +3*(iat-1))
-         yp = dbl_mb(k_xyzpt+1+3*(iat-1))
-         zp = dbl_mb(k_xyzpt+2+3*(iat-1))
+      do 230  iat=1,nprp
+         xp = dbl_mb(i_prp_c  +3*(iat-1))
+         yp = dbl_mb(i_prp_c+1+3*(iat-1))
+         zp = dbl_mb(i_prp_c+2+3*(iat-1))
 c
 c     ----- add nuclear contribution -----
 c
@@ -135,19 +166,34 @@ c
      &         errquit('hnd_elfmap: chop stack l_efcc',913,ma_err)
          endif
 c
-         if (.not. geom_cent_tag(geom,iat,at_tag)) call
-     &      errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
-         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) call
-     &      errquit('hnd_elfmap: geom_tag_to_element failed',0,GEOM_ERR)
+         dbl_mb(k_tefld  +3*(iat-1)) = elf(1)
+         dbl_mb(k_tefld+1+3*(iat-1)) = elf(2)
+         dbl_mb(k_tefld+2+3*(iat-1)) = elf(3)
+
          elfld   = sqrt(elf(1)*elf(1) + elf(2)*elf(2) + elf(3)*elf(3))
-         write(luout,9995) iat,symbol,xp,yp,zp,elf(1),elf(2),elf(3),
-     &                     elfld
+         if(do_points) then
 c
-c        ----- store ecce data -----
+c        skipping printout due to potentially large number of points
+c        -----------------------------------------------------------
+c           write(luout,9995) iat,"point",xp,yp,zp,elf(1),elf(2),elf(3),
+c     &                       elfld
+         else
+           if (.not. geom_cent_tag(geom,iat,at_tag)) call
+     &        errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
+         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) then 
+            if(symbol.ne."bq") call
+     &      errquit('hnd_elfmap: geom_tag_to_element failed',0,GEOM_ERR)
+         end if
+           write(luout,9995) iat,symbol,xp,yp,zp,elf(1),elf(2),elf(3),
+     &                       elfld
 c
-         call ecce_print1_char('atom name',symbol,1)
-         call ecce_print1('EField components',MT_DBL,elf,3)
-         call ecce_print1('EField',MT_DBL,elfld,1)
+c          ----- store ecce data -----
+c
+           call ecce_print1_char('atom name',symbol,1)
+           call ecce_print1('EField components',MT_DBL,elf,3)
+           call ecce_print1('EField',MT_DBL,elfld,1)
+         
+         end if
 c
   230 continue ! Assembling and printing next atom
 c
@@ -157,13 +203,27 @@ c
 c     ----- release memory block -----
 c
   300 call ga_sync()
+
+c
+c     if custom grid is requested save final electric 
+c     into rtdb(M.V.)
+c     -----------------------------------------------
+      if(do_points) then
+        if (.not. rtdb_put(rtdb,'prop:efield_xyz',mt_dbl,
+     >                        3*nprp,dbl_mb(k_tefld)))
+     &      call errquit('hnd_elfmap: efield_xyz failed',0,RTDB_ERR)
+      end if
 c
 c     ------- Deallocate MA memory ------
 c
-      if (.not.ma_pop_stack(l_zanpt)) call errquit
-     &   ('hnd_elfmap, ma_pop_stack of l_zanpt failed',911,MA_ERR)
+      if (.not.ma_pop_stack(l_tefld)) call errquit
+     &   ('hnd_elfmap, ma_pop_stack of l_efld failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_efld)) call errquit
      &   ('hnd_elfmap, ma_pop_stack of l_efld failed',911,MA_ERR)
+      if (.not.ma_pop_stack(h_prp_c)) call errquit
+     &   ('hnd_elfmap, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
+      if (.not.ma_pop_stack(l_zanpt)) call errquit
+     &   ('hnd_elfmap, ma_pop_stack of l_zanpt failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_xyzpt)) call errquit
      &   ('hnd_elfmap, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
 c
