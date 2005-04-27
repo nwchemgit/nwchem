@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.37 2005-04-07 01:36:35 marat Exp $
+c $Id: qmmm_main.F,v 1.38 2005-04-27 00:54:07 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -42,12 +42,19 @@ c
       logical fixqm
       logical ignore_mm
       logical ignore_qm
+      logical static_qm
 c
+      logical task_energy_doit
+      external task_energy_doit
       logical task_gradient_doit
       external task_gradient_doit
       double precision norm
       integer nbqs, nbqw
       logical link
+c 
+      integer i_cbq,i_qbq
+c
+      integer igeom
 
       pname = 'qmmm_main'
       if(qmmm_print_debug()) 
@@ -84,6 +91,9 @@ c     --------------------------
       if (.not.rtdb_get(inrtdb,'qmmm:ignore_mm',mt_log,1,ignore_mm))
      >   ignore_mm = .false.
 
+      if (.not.rtdb_get(inrtdb,'qmmm:static_qm',mt_log,1,static_qm))
+     >   static_qm = .false.
+
       if (.not.rtdb_get(inrtdb,'qmmm:ignore_qm',mt_log,1,ignore_qm)) 
      >   ignore_qm = .false.
 
@@ -104,8 +114,7 @@ c     ---------------------------------------------------
 c
 c     create full geometry with bq charges for qm module
 c     -------------------------------------------------- 
-      call qmmm_create_full_geom0(inrtdb)
- 
+      call qmmm_create_full_geom(inrtdb)
 c
 c     get qmmm data
 c     ------------
@@ -118,6 +127,8 @@ c     ------------
 c
       i_ai  = qmmm_get_i_ai()
       i_ibq = qmmm_get_i_ibq()
+      i_cbq   = qmmm_get_i_cbq()
+      i_qbq   = qmmm_get_i_qbq()
 
 c
 c     allocate gradient arrays
@@ -144,14 +155,26 @@ c     calculate qm contributions to gradients and energy
 c     --------------------------------------------------
       if (.not. rtdb_cget(inrtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
-      if(optimization.eq."mm") 
-     > call qmmm_set_actlist(nqm-nlink+1,ntot,inrtdb)
       if(ignore_qm) then
         energy = 0.0d0
         call dfill(3*ntot,0,dbl_mb(i_g),1)
       else
-        status = task_gradient_doit(inrtdb,theory,energy,dbl_mb(i_g))
+        if(optimization.eq."mm") then 
+          if(.not.static_qm)  
+     >    status = task_energy_doit(inrtdb,theory,energy)
+        else
+          status = task_gradient_doit(inrtdb,theory,energy,dbl_mb(i_g))
+        end if
       end if
+c
+c
+c     do forces on bq's
+c     ----------------
+      call qmmm_bq_forces(inrtdb,nbq,
+     >                    dbl_mb(i_cbq),
+     >                    dbl_mb(i_qbq),
+     >                    dbl_mb(i_g+3*nqm))       
+c
 c
       if(ga_nodeid().eq.0) 
      >  write(*,*) "qm portion of qmmm energy",energy
@@ -194,10 +217,6 @@ c     ----------------------------------------
      > write(*,*) "qnorm",norm
 c
       call qmmm_push_qm_grad_qm(inrtdb,3*nqm,dbl_mb(i_gqm))
-c      if(.not.rtdb_put(inrtdb,'qmmm:gradient',mt_dbl,
-c     >                 3*nqm,dbl_mb(i_gqm)))
-c     >   call errquit(pname//'rtdb_put gradient failed',0, RTDB_ERR)
-
 c
 c     add quantum contributions on bq region
 c     --------------------------------------
@@ -256,6 +275,7 @@ c    ---------------------------------------------
  
       return
       end
+
       subroutine qmmm_set_actlist(n1,n2,rtdb)
       implicit none
 c
