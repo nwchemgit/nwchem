@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.6 2005-04-13 23:39:38 marat Exp $
+c $Id: hnd_elpmap.F,v 1.7 2005-04-28 00:15:24 marat Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -35,6 +35,13 @@ c     bq variables (MV)
       integer i_cbq
       integer i_qbq
       double precision elpotbq
+c     property grid points variables (MV)
+      integer h_prp_c,i_prp_c
+      integer ma_prp_type          
+      integer nprp
+      character*26 prp_date
+      logical do_points
+      integer l_tepot,k_tepot
 c
 c     Initialize integrals
 c
@@ -63,8 +70,6 @@ c
 c
       if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
      &    call errquit('hnd_elpmap: ma failed',911,MA_ERR)
-      if (.not. ma_push_get(mt_dbl,nat,'epot pnt',l_epot,k_epot))
-     &    call errquit('hnd_elpmap: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_elpmap: ma failed',911,MA_ERR)
 c
@@ -73,10 +78,38 @@ c
      &     dbl_mb(k_zanpt+iat-1))) call
      &     errquit('hnd_elpmap: geom_cent_get',911,GEOM_ERR)
    30 continue
+c     
+c     define points for the calculation now 
+c     either custom grid or (default) nuclei positions (M.V.)
+c     -------------------------------------------------
+      if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
+     >                 nprp, prp_date)) then
+        nprp = nprp/3
+        if (.not. ma_push_get(mt_dbl,3*nprp,'prop:xyz',h_prp_c,i_prp_c))
+     &    call errquit('hnd_elfmap: prop:xyz',911,MA_ERR)
+        if (.not. rtdb_get(rtdb,'prop:xyz',mt_dbl,
+     >                      3*nprp,dbl_mb(i_prp_c)))
+     &    call errquit('hnd_elfmap: prop:xyz failed',911,RTDB_ERR)
+        do_points = .true.
+      else
+        nprp = nat
+        if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
+     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+        call dcopy(3*nat,dbl_mb(k_xyzpt),1,dbl_mb(i_prp_c),1)
+        do_points = .false.
+      end if
 c
+      if (.not. ma_push_get(mt_dbl,nprp,'epot pnt',l_epot,k_epot))
+     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+c
+c     total electric field array (M.V.)
+c     --------------------------------
+      if (.not. ma_push_get(mt_dbl,nprp,'tot epot',l_tepot,k_tepot))
+     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+cc
 c     ----- calculate electronic contribution at all points -----
 c
-      call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(k_xyzpt),nat,
+      call hnd_elfcon(basis,geom,g_dens(ndens),dbl_mb(i_prp_c),nprp,
      &                dbl_mb(k_epot),0)
 
       dobq = .false.
@@ -97,10 +130,10 @@ c
       else
         write(luout,9997)
       end if
-      do 230  iat=1,nat    
-         xp = dbl_mb(k_xyzpt  +3*(iat-1))
-         yp = dbl_mb(k_xyzpt+1+3*(iat-1))
-         zp = dbl_mb(k_xyzpt+2+3*(iat-1))
+      do 230  iat=1,nprp
+         xp = dbl_mb(i_prp_c  +3*(iat-1))
+         yp = dbl_mb(i_prp_c+1+3*(iat-1))
+         zp = dbl_mb(i_prp_c+2+3*(iat-1))
 c
 c     ----- add nuclear contribution -----
 c
@@ -170,12 +203,24 @@ c        -----------------------------------------------------
      &      errquit('hnd_elfmap: geom_tag_to_element failed',0,GEOM_ERR)
          end if
 c
-         if(dobq) then
-           write(luout,9991) iat,symbol,xp,yp,zp,elpotn,
-     &                       dbl_mb(k_epot+iat-1),elpotbq
+         dbl_mb(k_tepot+iat-1) = elpotn
+         if(do_points) then
+           symbol = "pt"
+           if(dobq) then
+             write(luout,9991) iat,symbol,xp,yp,zp,elpotn,
+     &                         dbl_mb(k_epot+iat-1),elpotbq
+           else
+             write(luout,9995) iat,symbol,xp,yp,zp,elpotn,
+     &                         dbl_mb(k_epot+iat-1)
+           end if
          else
-           write(luout,9995) iat,symbol,xp,yp,zp,elpotn,
-     &                       dbl_mb(k_epot+iat-1)
+           if(dobq) then
+             write(luout,9991) iat,symbol,xp,yp,zp,elpotn,
+     &                         dbl_mb(k_epot+iat-1),elpotbq
+           else
+             write(luout,9995) iat,symbol,xp,yp,zp,elpotn,
+     &                         dbl_mb(k_epot+iat-1)
+           end if
          end if
 c
 c        ----- store ecce data -----
@@ -194,12 +239,25 @@ c     ----- release memory block -----
 c
   300 call ga_sync()
 c
+c     if custom grid is requested save final electric 
+c     into rtdb(M.V.)
+c     -----------------------------------------------
+      if(do_points) then
+        if (.not. rtdb_put(rtdb,'prop:epot_xyz',mt_dbl,
+     >                        nprp,dbl_mb(k_tepot)))
+     &      call errquit('hnd_elpmap: epot_xyz failed',0,RTDB_ERR)
+      end if
+cc
 c     ------- Deallocate MA memory ------
 c
-      if (.not.ma_pop_stack(l_zanpt)) call errquit
-     &   ('hnd_elpmap, ma_pop_stack of l_zanpt failed',911,MA_ERR)
+      if (.not.ma_pop_stack(l_tepot)) call errquit
+     &   ('hnd_elpmap, ma_pop_stack of l_tepot failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_epot)) call errquit
      &   ('hnd_elpmap, ma_pop_stack of l_epot failed',911,MA_ERR)
+      if (.not.ma_pop_stack(h_prp_c)) call errquit
+     &   ('hnd_elpmap, ma_pop_stack of h_prp_c failed',911,MA_ERR)
+      if (.not.ma_pop_stack(l_zanpt)) call errquit
+     &   ('hnd_elpmap, ma_pop_stack of l_zanpt failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_xyzpt)) call errquit
      &   ('hnd_elpmap, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
 c
