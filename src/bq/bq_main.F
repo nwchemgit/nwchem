@@ -1,4 +1,4 @@
-c $Id: bq_main.F,v 1.2 2005-04-03 07:38:48 marat Exp $
+c $Id: bq_main.F,v 1.3 2005-04-28 19:39:38 marat Exp $
 
       function bq_init(rtdb)
       implicit none
@@ -59,6 +59,7 @@ c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"
+#include "global.fh"
 
       integer geom
       double precision e
@@ -75,6 +76,7 @@ c
       integer i_c,i_t,i_q
       integer ioff,joff
       double precision rx,ry,rz,r
+      double precision ebq
 c
        logical  bq_ncenter
        external bq_ncenter
@@ -126,6 +128,7 @@ c
      + dbl_mb(i_c),dbl_mb(i_q)))
      + call errquit(pname//':Failed to get geometry',0, GEOM_ERR)
 
+      ebq = 0.0d0
       do i = 1,ncent
          ioff = i_c+(i-1)*3
          do j = 1, bq_ncent
@@ -137,9 +140,15 @@ c
            rz = dbl_mb(ioff+2)-dbl_mb(joff+2)
            rz = rz*rz
            r  = sqrt(rx+ry+rz)
-           e = e + dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)/r
+           ebq = ebq + dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)/r
          end do
       end do
+c
+      if(ga_nodeid().eq.0) then
+        write(*,*) "Bq nuclear interaction energy is", ebq 
+      end if
+c 
+      e = e + ebq
 c
       if(.not.ma_pop_stack(h_t))
      & call errquit(pname//': Failed to deallocate stack t_all',0,
