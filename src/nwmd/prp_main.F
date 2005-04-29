@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.103 2004-01-31 21:13:06 d3j191 Exp $
+c $Id: prp_main.F,v 1.104 2005-04-29 14:48:01 d3j191 Exp $
 c
       implicit none
 c
@@ -255,7 +255,7 @@ c
 c
       if(nsf.gt.0) then
       do 33 i=1,nsf
-      it=isprop+(i-1)*29
+      it=isprop+(i-1)*30
       p(it+2)=ess(i,i,6,1)
       p(it+3)=ess(i,i,5,1)
       p(it+5)=esw(i,6,1)
