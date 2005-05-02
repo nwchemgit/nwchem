@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.7 2005-05-02 18:04:18 bert Exp $
+c $Id: hnd_spinspin.F,v 1.8 2005-05-02 18:12:50 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -221,6 +221,11 @@ c     Get the nuclear g-factors and scale the results with those.
 c
       if (ga_nodeid().eq.0) then
       write(LuOut,9996)
+c
+c     Print out tensor information, and write to Ecce file if necessary
+c
+      call ecce_print_module_entry('spinspin')
+c
       do ixy = 1, ipairs
          i = int_mb(k_pr+ixy-1)
          j = int_mb(k_pr+ixy+ipairs-1)
@@ -271,10 +276,6 @@ c
          write(LuOut,9006) (dbl_mb(i_off+i),i=0,8)
          write(LuOut,9803) isotr
          write(LuOut,'(/)')
-c
-c     Print out tensor information, and write to Ecce file if necessary
-c
-         call ecce_print_module_entry('spinspin')
 c
 c     Print Ecce information
 c
