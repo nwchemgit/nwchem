@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.201 2005-02-17 01:54:20 marat Exp $
+c $Id: md_main.F,v 1.202 2005-05-02 23:55:45 marat Exp $
 c
       implicit none
 c
@@ -533,16 +533,29 @@ c
       ecrit=epot
       if(icrit.eq.1) ecrit=epot
 c
-      if(ecrit.gt.epsd.and.isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
+c     changing the logic here so that bad coordinates
+c     are not preserved in the last md iteration (M.V.)
+c     ------------------------------------------------
+      if(ecrit.gt.epsd) then
 c
-      call cf_restor(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
-     + dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
-     + dbl_mb(i_vs),nsaloc)
+        call cf_restor(dbl_mb(i_xw),dbl_mb(i_yw),dbl_mb(i_fw),
+     +   dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),dbl_mb(i_ys),dbl_mb(i_fs),
+     +   dbl_mb(i_vs),nsaloc)
 c
-      dx=half*dx
-      da=half*da
-      call timer_stop(201)
-      goto 1
+      if(isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
+        dx=half*dx
+        da=half*da
+        call timer_stop(201)
+        goto 1
+      else
+c
+c       this insures the global restoration of coordinates
+c       so that the right restart file written out
+c       --------------------------------------------------
+        call md_finit(int_mb(i_iw),int_mb(i_is),dbl_mb(i_xw),
+     +   dbl_mb(i_xwm),dbl_mb(i_xs),dbl_mb(i_fw),dbl_mb(i_fs),
+     +   dbl_mb(i_xsm),dbl_mb(i_xsmp))
+      endif
       endif
 c
       edif=ecrit-epsd
@@ -2781,7 +2794,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.201 2005-02-17 01:54:20 marat Exp $
+c $Id: md_main.F,v 1.202 2005-05-02 23:55:45 marat Exp $
 c
       implicit none
 c
@@ -2858,8 +2871,8 @@ c
      + '            dfx         dfy         dfz',/)
 c
       lpair=.false.
-      xdv=0.000001
-c      xdv=dx0sd
+c      xdv=0.000001
+      xdv=dx0sd
 c
       do 1 i=1,nsaloc
       fst(i,1)=fs(i,1)
