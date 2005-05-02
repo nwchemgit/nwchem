@@ -1,10 +1,11 @@
 *
-* $Id: coulomb_screened.F,v 1.14 2004-11-10 23:05:33 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.15 2005-05-02 23:56:09 bylaska Exp $
 
 
 *
-      subroutine coulomb_screened_init(rcut,pp)
+      subroutine coulomb_screened_init(flag,rcut,pp)
       implicit none 
+      integer flag
       real*8 rcut,pp
 
 #include "mafdecls.fh"
@@ -30,8 +31,10 @@
 *     **** external functions ****
       integer  G_indx
       real*8   util_erf,lattice_omega,lattice_unita
+      real*8   kiril_coulomb_transform, kiril_coulomb_transform0
       external G_indx
       external util_erf,lattice_omega,lattice_unita
+      external kiril_coulomb_transform, kiril_coulomb_transform0
 
       call nwpw_timing_start(7)
       call Parallel_taskid(taskid)
@@ -75,6 +78,12 @@
       end do
       dV     = lattice_omega()/dble(nx*ny*nz)
       scal1  = 1.0d0/dble(nx*ny*nz)
+
+
+*     ***********************************************
+*     ***** use aperiodic definitions of kernel ******
+*     ***********************************************
+      if (flag.eq.0) then
 
 *     ***********************************
 *     *** Set up the Green's function ***
@@ -208,6 +217,35 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
          dbl_mb(gk2(1)+k-1) =  dbl_mb(glr(1)+2*(k-1)) 
       end do
 
+
+
+
+*     ***********************************************
+*     ***** use periodic definitions of kernel ******
+*     ***********************************************
+      else
+        call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+
+*       **** short-range part of Greens function ****
+        call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+        do i=1,nfft3d
+
+           gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >           + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >           + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+
+           if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+              temp = kiril_coulomb_transform0(flag,rcut,pp)
+           else
+              temp = kiril_coulomb_transform(flag,gg,rcut,pp)
+           end if
+           dbl_mb(gk2(1)+i-1) = temp
+        end do
+
+      end if
+
+
+
 *     *** Pack the kernel ****
       call Pack_t_pack(0,dbl_mb(gk2(1)))
       call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(vc_indx))
@@ -322,7 +360,8 @@ c     real*8  tmp1(*)
 
 *     This function returns the fourier transform of 
 *
-*            v_kiril = exp(-(r/rcut)**pp)/r
+*             if flag==1  v_kiril = exp(-(r/rcut)**pp)/r
+*     or      if flag==2  v_kiril = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)/r
 *
 *     Entry - gg: g squared
 *             rcut: 
@@ -335,8 +374,9 @@ c     real*8  tmp1(*)
 *                             |
 *                            / 0
 
-      real*8 function kiril_coulomb_transform(gg,rcut,pp)
+      real*8 function kiril_coulomb_transform(flag,gg,rcut,pp)
       implicit none
+      integer flag
       real*8 gg,rcut,pp
 
 *     **** local variables ****
@@ -352,16 +392,25 @@ c     real*8  tmp1(*)
       fourpi = 4.0d0*(4.0d0*datan(1.0d0))
 
       sum = 0.0d0
-      do i=2,nrho-1
-         r = (i-1)*drho
-c        sum = sum + sin(q*r)*dexp(-(r/rcut)**pp)
+      r = 0.0d0
+      if (flag.eq.1) then
+       do i=2,nrho-1
+         r = r + drho
+         sum = sum + sin(q*r)*dexp(-(r/rcut)**pp)
+        end do
+        r = drho*(nrho-1)
+        sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
+      else
+       do i=2,nrho-1
+c        r = (i-1)*drho
+         r = r + drho
          sum = sum + sin(q*r)
      >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-      end do
-      r = drho*(nrho-1)
-c      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
-      sum = sum + 0.5d0*sin(q*r)
+        end do
+        r = drho*(nrho-1)
+        sum = sum + 0.5d0*sin(q*r)
      >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+      end if
 
       kiril_coulomb_transform = (fourpi/q)*sum*drho
       return
@@ -375,7 +424,8 @@ c      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
 
 *     This function returns the fourier transform of 
 *
-*            v_kiril = exp(-(r/rcut)**pp)/r
+*           if flag==1   v_kiril = exp(-(r/rcut)**pp)/r
+*     or    if flag==2   v_kiril = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)/r
 *
 *     Entry - 
 *             rcut: 
@@ -388,8 +438,9 @@ c      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
 *                             |
 *                            / 0
 
-      real*8 function kiril_coulomb_transform0(rcut,pp)
+      real*8 function kiril_coulomb_transform0(flag,rcut,pp)
       implicit none
+      integer flag
       real*8 rcut,pp
 
 *     **** local variables ****
@@ -404,16 +455,25 @@ c      sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
       fourpi = 4.0d0*(4.0d0*datan(1.0d0))
 
       sum = 0.0d0
-      do i=2,nrho-1
-         r = (i-1)*drho
-c        sum = sum + r*dexp(-(r/rcut)**pp)
-         sum = sum + r*
-     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-      end do
-      r = drho*(nrho-1)
-c      sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
-      sum = sum + 0.5d0*r*
-     >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+      r   = 0.0d0
+      if (flag.eq.1) then
+        do i=2,nrho-1
+           r = r + drho
+           sum = sum + r*dexp(-(r/rcut)**pp)
+        end do
+        r = drho*(nrho-1)
+        sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
+      else
+        do i=2,nrho-1
+c          r = (i-1)*drho
+           r = r + drho
+           sum = sum + r*
+     >          *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+        end do
+        r = drho*(nrho-1)
+        sum = sum + 0.5d0*r*
+     >       *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
+      end if
 
       kiril_coulomb_transform0 = (fourpi)*sum*drho
       return
