@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.8 2005-05-02 18:12:50 bert Exp $
+c $Id: hnd_spinspin.F,v 1.9 2005-05-03 22:43:30 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -279,8 +279,10 @@ c
 c
 c     Print Ecce information
 c
+         call ecce_print1('index atom one',MT_INT,i,1)
          call ecce_print1_char('symbol atom one',symbola,1)
          call ecce_print1('isotope atom one',MT_INT,isonra,1)
+         call ecce_print1('index atom two',MT_INT,j,1)
          call ecce_print1_char('symbol atom two',symbolb,1)
          call ecce_print1('isotope atom two',MT_INT,isonrb,1)
          call ecce_print2('spinspin tensor',MT_DBL,
