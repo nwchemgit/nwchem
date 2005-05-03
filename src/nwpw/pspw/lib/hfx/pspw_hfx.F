@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.8 2004-11-11 19:54:57 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.9 2005-05-03 00:00:43 bylaska Exp $
 *
 
 *     *************************
@@ -20,7 +20,7 @@
 
 *     **** local variables ****
       logical value
-      integer ma_type
+      integer ma_type,flag
       integer n1,n2,n3,mapping,ms
 
 *     **** external functions ****
@@ -85,6 +85,11 @@
      >       pp = 8.0d0
 
          if (.not. rtdb_get(rtdb,
+     >                      'pspw:HFX_screening_type',
+     >                      mt_int,1,flag)) 
+     >       flag = 0
+
+         if (.not. rtdb_get(rtdb,
      >                      'pspw:HFX_relax',
      >                      mt_log,1,relaxed)) 
      >       relaxed = .true.
@@ -110,7 +115,7 @@
 
 *        **** initialize coulomb_screened ****
          if (solver_type.eq.1) then
-              call coulomb_screened_init(rcut,pp)
+              call coulomb_screened_init(flag,rcut,pp)
 
 *        **** initialize free-space coulomb if necessary ****
          else
