@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.9 2005-05-03 00:00:43 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.10 2005-05-03 00:51:16 bylaska Exp $
 *
 
 *     *************************
@@ -20,7 +20,7 @@
 
 *     **** local variables ****
       logical value
-      integer ma_type,flag
+      integer ma_type
       integer n1,n2,n3,mapping,ms
 
 *     **** external functions ****
@@ -250,6 +250,7 @@
           write(unit,1006)
            if (rcut.ge.0.0d0) write(unit,1008) rcut
            if (rcut.ge.0.0d0) write(unit,1009) pp
+           if (rcut.ge.0.0d0) write(unit,1011) flag
         else
           write(unit,1007)
         end if
@@ -273,6 +274,8 @@
      >       E10.3)
  1010 FORMAT(6x,"- HFX scaling parameter (pspw:HFX_parameter)     :",
      >       E10.3)
+ 1011 FORMAT(6x,"- HFX screening type (pspw:HFX_screening_type)   :",
+     >       I2)
       end
 
 *     ****************************

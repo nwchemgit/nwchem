@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.16 2005-05-03 00:46:33 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.17 2005-05-03 00:53:51 bylaska Exp $
 
 
 *
@@ -264,7 +264,7 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
       call nwpw_timing_end(7)
 
 *     ***** DEBUG printing *****
-      call coulomb_screened_init_print(rcut,pp)
+c      call coulomb_screened_init_print(rcut,pp)
 
 
 

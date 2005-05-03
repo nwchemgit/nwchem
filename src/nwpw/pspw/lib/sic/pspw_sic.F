@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.31 2005-05-02 23:59:01 bylaska Exp $
+* $Id: pspw_sic.F,v 1.32 2005-05-03 00:49:24 bylaska Exp $
 *
 
 *     *************************
@@ -19,7 +19,7 @@
 
 *     **** local variables ****
       logical value,sic_on
-      integer ma_type,flag
+      integer ma_type
       integer n1,n2,n3,mapping
 
 *     **** external functions ****
@@ -238,6 +238,7 @@
           write(unit,1004)
            if (rcut.ge.0.0d0) write(unit,1006) rcut
            if (rcut.ge.0.0d0) write(unit,1007) pp
+           if (rcut.ge.0.0d0) write(unit,1010) flag
         else
           write(unit,1005)
         end if
@@ -261,6 +262,8 @@
      >       E10.3)
  1009 FORMAT(6x,"- SIC xc_parameter    (pspw:SIC_xc_parameter)    :",
      >       E10.3)
+ 1010 FORMAT(6x,"- SIC screening type (pspw:SIC_screening_type)   :",
+     >       I2)
       end
 
 *     ****************************
