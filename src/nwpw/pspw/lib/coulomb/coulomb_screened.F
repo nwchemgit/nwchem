@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.15 2005-05-02 23:56:09 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.16 2005-05-03 00:46:33 bylaska Exp $
 
 
 *
@@ -224,6 +224,9 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 *     ***** use periodic definitions of kernel ******
 *     ***********************************************
       else
+        i=0
+        j=0
+        k=0
         call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
 *       **** short-range part of Greens function ****
@@ -261,7 +264,7 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
       call nwpw_timing_end(7)
 
 *     ***** DEBUG printing *****
-c      call coulomb_screened_init_print(rcut,pp)
+      call coulomb_screened_init_print(rcut,pp)
 
 
 
