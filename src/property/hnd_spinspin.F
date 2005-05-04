@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.9 2005-05-03 22:43:30 bert Exp $
+c $Id: hnd_spinspin.F,v 1.10 2005-05-04 22:23:34 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -22,7 +22,7 @@ c
       integer l_occ, k_occ, l_eval, k_eval
       integer l_xyz, k_xyz, l_zan, k_zan, l_tr, k_tr
       integer l_pr, k_pr, l_un, k_un, l_data, k_data
-      integer g_dens(3), vectors(2), geomnew, i, j, i_off
+      integer g_dens(3), vectors(2), geomnew, i, j, i_off, ii, jj
       integer isonra, isonrb
       double precision atn, isotr, aniso, znuc
       character*3 scftyp
@@ -265,15 +265,15 @@ c
 c
 c     Sum components into FC section
 c
-         do i = 0, 8
+         do ii = 0, 8
             value = 0.0d0
-            do j = 0, 4
-               value = value + dbl_mb(i_off+9*j+i)
+            do jj = 0, 4
+               value = value + dbl_mb(i_off+9*jj+ii)
             enddo
-            dbl_mb(i_off+i) = value
+            dbl_mb(i_off+ii) = value
          enddo
          isotr = (dbl_mb(i_off)+dbl_mb(i_off+4)+dbl_mb(i_off+8))/3.0d0
-         write(LuOut,9006) (dbl_mb(i_off+i),i=0,8)
+         write(LuOut,9006) (dbl_mb(i_off+ii),ii=0,8)
          write(LuOut,9803) isotr
          write(LuOut,'(/)')
 c
