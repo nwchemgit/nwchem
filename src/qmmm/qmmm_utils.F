@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.6 2005-04-13 02:10:06 marat Exp $
+c $Id: qmmm_utils.F,v 1.7 2005-05-04 20:29:33 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -152,6 +152,25 @@ c     local variables:
       call util_flush(46)
       close(46)
 
+
+      end
+
+      subroutine qmmm_set_ma_char(nt,myname,t)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      character*16 t(nt)
+      character*(*) myname
+
+      integer i
+
+      do i=1,nt
+       t(i) = myname
+      end do
 
       end
 
