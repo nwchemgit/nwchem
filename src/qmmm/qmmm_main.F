@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.38 2005-04-27 00:54:07 marat Exp $
+c $Id: qmmm_main.F,v 1.39 2005-05-04 17:51:36 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -170,10 +170,12 @@ c
 c
 c     do forces on bq's
 c     ----------------
+      if(.not.ignore_qm) then
       call qmmm_bq_forces(inrtdb,nbq,
      >                    dbl_mb(i_cbq),
      >                    dbl_mb(i_qbq),
      >                    dbl_mb(i_g+3*nqm))       
+      end if
 c
 c
       if(ga_nodeid().eq.0) 
