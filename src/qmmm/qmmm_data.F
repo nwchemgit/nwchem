@@ -378,6 +378,15 @@ c     --------------------------
        do i=1,nqm
          log_mb(i_act+i-1) = .false.
        end do
+c
+c     charge array
+c     -------------
+      if(.not.ma_alloc_get(MT_DBL, nqm, 'qmmm esp charge array',
+     &      h_qs, i_qs) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nqm, MA_ERR)
+      call dfill(nqm,0,dbl_mb(i_qs),1)
+
     
       end
 
@@ -414,6 +423,11 @@ c     --------------------------
       if(.not.ma_free_heap(h_act))
      & call errquit('qmmm ai: Failed to deallocate heap',nqm,
      &       MA_ERR)
+
+      if(.not.ma_free_heap(h_qs))
+     & call errquit('qmmm qs: Failed to deallocate heap',nqm,
+     &       MA_ERR)
+
 
       if(nlink.ne.0) then
        if(.not.ma_free_heap(h_lb))
@@ -503,6 +517,15 @@ c     --------------------------
       integer qmmm_get_i_q
 
       qmmm_get_i_q = i_q
+
+      end 
+
+      function qmmm_get_i_qs()
+      implicit none
+#include "qmmm_data.fh"
+      integer qmmm_get_i_qs
+
+      qmmm_get_i_qs = i_qs
 
       end 
 
