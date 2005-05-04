@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.fh,v 1.19 2005-03-04 01:16:24 marat Exp $
+c $Id: qmmm.fh,v 1.20 2005-05-04 20:21:24 marat Exp $
 c
       integer qmmm_get_nlink
       integer qmmm_get_nbq
@@ -83,7 +83,11 @@ c
       character*32 qmmm_get_interface
       external qmmm_get_interface
 
+      integer   qmmm_get_i_ibq_act
+      external qmmm_get_i_ibq_act
 
+      integer   qmmm_get_i_qs
+      external qmmm_get_i_qs
 
 
 
