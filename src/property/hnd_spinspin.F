@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.10 2005-05-04 22:23:34 bert Exp $
+c $Id: hnd_spinspin.F,v 1.11 2005-05-05 22:54:17 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -249,19 +249,19 @@ c
          write(LuOut,9000) i,isonra,symbola,j,isonrb,symbolb,gfaci,gfacj
          isotr=(dbl_mb(i_off)+dbl_mb(i_off+4)+dbl_mb(i_off+8))
          isotr=isotr/3.0d0
-         write(LuOut,9001) (dbl_mb(i_off   +i),i=0,8),isotr
+         write(LuOut,9001) (dbl_mb(i_off   +ii),ii=0,8),isotr
          isotr=(dbl_mb(i_off+9)+dbl_mb(i_off+13)+dbl_mb(i_off+17))
          isotr=isotr/3.0d0
-         write(LuOut,9002) (dbl_mb(i_off+ 9+i),i=0,8),isotr
+         write(LuOut,9002) (dbl_mb(i_off+ 9+ii),ii=0,8),isotr
          isotr=(dbl_mb(i_off+18)+dbl_mb(i_off+22)+dbl_mb(i_off+26))
          isotr=isotr/3.0d0
-         write(LuOut,9003) (dbl_mb(i_off+18+i),i=0,8),isotr
+         write(LuOut,9003) (dbl_mb(i_off+18+ii),ii=0,8),isotr
          isotr=(dbl_mb(i_off+27)+dbl_mb(i_off+31)+dbl_mb(i_off+35))
          isotr=isotr/3.0d0
-         write(LuOut,9004) (dbl_mb(i_off+27+i),i=0,8),isotr
+         write(LuOut,9004) (dbl_mb(i_off+27+ii),ii=0,8),isotr
          isotr=(dbl_mb(i_off+36)+dbl_mb(i_off+40)+dbl_mb(i_off+44))
          isotr=isotr/3.0d0
-         write(LuOut,9005) (dbl_mb(i_off+36+i),i=0,8),isotr
+         write(LuOut,9005) (dbl_mb(i_off+36+ii),ii=0,8),isotr
 c
 c     Sum components into FC section
 c
