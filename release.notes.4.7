@@ -1,0 +1,105 @@
+NWChem Version 4.7 Release Notes
+(Also available at 
+http://www.emsl.pnl.gov/docs/nwchem/release-notes/release.notes.4.7.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 4.7. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+The changes for version 4.7 are listed at the bottom of this file.
+
+A completely new QM/MM module that interfaces between classical molecular mechanics and quantum
+mechanical modules is now available in NWChem.  The user is referred to the User Manual for more 
+information. 
+
+Additional major additions to the capabilities include: 
+o Properties module expanded with additional NMR properties for both SCF and DFT:
+  - Hyperfine coupling (Fermi-Contact and Spin-Dipole expectation values)
+  - Indirect spin-spin coupling
+  - Shielding now also available for DFT wave functions
+o task property now requires the specification of the theory (scf or dft), making the
+  calculation of properties a single task instead of two (task scf; task property)
+o Ability to use driver for optimization and transition states search for quantum region
+o Self-consistent evaluation of metaGGA energies have been implemented in the DFT module.
+o Prototype PBE0 exchange-correlation functional and Hartree-Fock (xc= pbe0, hf) added to PSPW
+
+
+Again, for each of these capabilities, the user is referred to the User Manual 
+for more information. 
+
+Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the User Manual. 
+
+CCSD(T):
+  o Restart capability, allowing user to start triples without redoing CCSD, has been added
+
+COSMO:
+  o Limitations on number of surface charges has been removed
+  o Spherical basis sets can be used
+
+DFT:
+  o Self-consistent evaluation of metaGGA energies have been
+    implemented in the DFT module.
+
+Geometry:
+  o Maximum number of QM atoms increased to 3000.
+
+Integrals: 
+  o Memory management of integrals has been improved
+    
+NBO: 
+  o The NBO module has been removed from 4.7
+  o However the NBO interface that produces files digestible by the standalone NBO is still there.
+
+NWPW:
+  o Pseudoptential library: most of the periodic table is now
+    included in pspw_default. The size of the PAW library files has been reduced.
+  o CPI and TETER formated pseudopotential are now readable in PSPW and BAND
+  o Hilbert decomposed FFT added to PSPW and PAW
+  o Numerical stresses added to PSPW, BAND and PAW
+  o PSPW: sic exchange-correlation functionals (xc = lda-sic, lda-0.4sic, pbe96-sic, pbe96-0.4sic)
+  o PSPW: projected density of states (DOS)
+  o PSPW: Velocity and Temperature simulated annealing algorithms in PSPW Car-Parrinello
+  o PSPW: prototype PBE0 exchange-correlation functional and Hartree-Fock (xc= pbe0, hf)
+  o PSPW: prototye center of rotation contraint added to PSPW Car-Parrinello
+  o PSPW: prototye fractional occupation
+  o BAND: faster lmbfgs minimizer and band-by-band minimizer added
+  o BAND: Density of states(DOS) and DOS integration
+  o BAND: Band structure code for plotting band structures including virtual orbital
+  o PAW: faster conjugate-gradient and lmbfgs minimizers
+  o PAW: 1d paw basis generator added
+  o PAW: local pseudopotential added to .jpp files for faster restarting
+  o PAW: prototype radial grid parallization
+  o BUG FIX: translation constraint fixed in PSPW and PAW Car-Parrinello
+  o BUG FIX: PBE96 semicore stress (analytitic) fixed in PSPW
+   
+Properties:
+  o All properties can now be calculated with spherical basis sets
+  o All properties can be calculated with SCF and DFT wave functions
+  o Task property has changed to Task <theory> property (theory = scf or dft)
+  o New propeties were added (see new capabilities above)
+  o Improved linear response for NMR shielding, quick convergence
+
+QMMM:
+
+  o New interface between classical molecular mechanics and quantum mechanical modules
+  o Major improvements in handling link atoms
+  o Ability to use driver for optimization and transition states search for quantum region
+  o Ability to fix atoms in the quantum region using classical molecular mechanics module
+  o Computation of partial numerical hessian and frequencies for the quantum region
+
+TDDFT:
+  o BUG FIX: wrong use of symmetry in non abelian point groups. Now
+    NWChem bails out when TDDFT is run on non abelain point groups.
+  o reduced memory requirements
+
+
+A general FAQ is available at
+http://www.emsl.pnl.gov/docs/nwchem/support/faq/NWChem_FAQ.html
+
+A complete list of Known Bugs is available at
+http://www.emsl.pnl.gov/docs/nwchem/support/known_bugs.4.7.html
+
