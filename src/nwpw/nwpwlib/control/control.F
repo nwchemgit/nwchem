@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.71 2005-05-14 18:41:05 bylaska Exp $
+* $Id: control.F,v 1.72 2005-05-17 01:56:29 bylaska Exp $
 *
 
 *     ***********************************
@@ -3204,3 +3204,104 @@ c      end
       return
       end
 
+
+
+*     ************************************
+*     *                                  *
+*     *  control_optimize_cell_strategy  *
+*     *                                  *
+*     ************************************
+
+      integer function control_optimize_cell_strategy()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer optimize_strategy
+
+      if (.not.rtdb_get(rtdb,'cell_optimize:optimize_strategy',
+     >                 mt_int,1,optimize_strategy))
+     >  optimize_strategy = 0
+
+      control_optimize_cell_strategy = optimize_strategy
+      return
+      end
+
+
+
+
+*     *************************************
+*     *                                   *
+*     *  control_optimize_lattice_vectors *
+*     *                                   *
+*     *************************************
+
+      integer function control_optimize_lattice_vectors(u,v)
+      implicit none
+      integer u,v
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer optimize_lattice_vectors(3,3)
+
+      if (.not.rtdb_get(rtdb,'cell_optimize:optimize_lattice_vectors',
+     >                 mt_int,9,optimize_lattice_vectors)) then
+
+        optimize_lattice_vectors(1,1) =1
+        optimize_lattice_vectors(2,1) =1
+        optimize_lattice_vectors(3,1) =1
+        optimize_lattice_vectors(1,2) =1
+        optimize_lattice_vectors(2,2) =1
+        optimize_lattice_vectors(3,2) =1
+        optimize_lattice_vectors(1,3) =1
+        optimize_lattice_vectors(2,3) =1
+        optimize_lattice_vectors(3,3) =1
+      end if
+
+      control_optimize_lattice_vectors = optimize_lattice_vectors(u,v)
+      return
+      end
+
+*     *************************************
+*     *                                   *
+*     *  control_optimize_lattice         *
+*     *                                   *
+*     *************************************
+
+      integer function control_optimize_lattice(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer optimize_lattice(6)
+
+      if (.not.rtdb_get(rtdb,'cell_optimize:optimize_lattice',
+     >                 mt_int,6,optimize_lattice)) then
+
+        optimize_lattice(1) =1
+        optimize_lattice(2) =1
+        optimize_lattice(3) =1
+        optimize_lattice(4) =1
+        optimize_lattice(5) =1
+        optimize_lattice(6) =1
+      end if
+
+      control_optimize_lattice = optimize_lattice(i)
+      return
+      end 
