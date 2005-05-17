@@ -1,5 +1,5 @@
 *
-* $Id: coptopt.fh,v 1.12 2002-05-10 02:16:43 bylaska Exp $
+* $Id: coptopt.fh,v 1.13 2005-05-17 02:04:50 bylaska Exp $
 *
 c
 c     Defintions of /coptopt/ and /coptimize/
@@ -49,7 +49,7 @@ c
      $     moddir,              ! [user] +/- mode for initial saddle step
      $     vardir,              ! [user] +/- var  for initial saddle step
      $     modsad,              ! [user] 0=minim, 1=saddle
-     $     nat,                 ! no. of atoms (+ 3 pretend if ostress)
+     $     nat,                 ! no. of atoms (+ 3 pretend if ostress, or + 2 pretend if ostress2)
      $     nat_real,            ! no. of real atoms (i.e., no cell param)
      $     ncart,               ! no. of cartesians = 3*nat
      $     nzmat,               ! no. of zmatrix integers
@@ -70,6 +70,7 @@ c
      $     oprint,              ! print information
      $     odebug,              ! print debug data
      $     ostress,             ! include stress
+     $     ostress2,            ! include lattice gradients
      $     ocheckgrad,          ! verify the gradient
      $     oactive(max_cent)    ! active atom flags
 c
@@ -88,7 +89,7 @@ c     integers
      $     izfrz, isystype, nactive,
 c     logicals
      $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug,
-     $     ostress, ocheckgrad, oactive
+     $     ostress, ostress2, ocheckgrad, oactive
 c     characters
       common/ccdrv_optopt/
      $     zvarname, xyz

@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.113 2005-04-12 22:56:00 marat Exp $
+* $Id: opt_drv.F,v 1.114 2005-05-17 02:04:50 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1041,8 +1041,17 @@ c
       endif
       if (.not. rtdb_get(rtdb,'driver:ocheckgrad',mt_log,1,ocheckgrad))
      $     ocheckgrad = .false.
-      if (.not. rtdb_get(rtdb,'includestress',mt_log,1,ostress))
-     $     ostress = .false.
+
+      if (.not. rtdb_get(rtdb,'includestress',mt_log,1,ostress)) then
+         ostress = .false.
+      end if
+      if (.not. rtdb_get(rtdb,'includelattice',mt_log,1,ostress2)) then
+         ostress2 = .false.
+      end if
+      if ((.not.ostress).and.(ostress2)) ostress2 = .false.
+      if ((ostress)     .and.(ostress2)) ostress  = .false.
+      write(*,*) "ostress:",ostress,ostress2
+      
 c
 c     Force sensible options
 c
@@ -1145,6 +1154,12 @@ c
             if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0,
      &       GEOM_ERR)
          endif
+         if (ostress2) then
+            write(6,*) ' INCLUDING LATTICE GRADIENTS !!!!!'
+            if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0,
+     &       GEOM_ERR)
+         endif
+
          call util_flush(6)
       endif
 c     
@@ -1155,7 +1170,8 @@ c     there there are 3 more atoms which will parameterize the
 c     unit cell.
 c     
       nat_real = nat
-      if (ostress) nat = nat + 3
+      if (ostress)  nat = nat + 3
+      if (ostress2) nat = nat + 2
       ncart = 3*nat
       if (zcoord) then
          nvar = nzvar
@@ -2910,6 +2926,7 @@ c     2) symmetrize dx
 c     3) dq = dx*B
 c
       if (ostress) return       ! Yikes!
+      if (ostress2) return       ! Yikes!
 c
       if (.not. ma_push_get(mt_dbl, ncart*nvar,'binv',l_bi, k_bi))
      $     call errquit('driver_sym: memory for binv', ncart*nvar,
@@ -3011,6 +3028,10 @@ c
          if (.not. geom_amatrix_get(geom, coords(3*nat_real+1)))
      $        call errquit('driver: failed to get amatrix',0,0)
       endif
+      if (ostress2) then
+         if (.not. geom_lattice_get(geom, coords(3*nat_real+1)))
+     $        call errquit('driver: failed to get lattice',0,0)
+      endif
 c
       opt_geom_cart_coords_get = .true.
 c
@@ -3034,6 +3055,11 @@ c
          if (.not. geom_amatrix_set(geom, coords(3*nat_real+1)))
      $        call errquit('driver: failed to set amatrix',0,0)
       endif
+      if (ostress2) then
+         if (.not. geom_lattice_set(geom, coords(3*nat_real+1)))
+     $        call errquit('driver: failed to set lattice',0,0)
+      endif
+
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. geom_frac_to_cart(geom, coords))
      $           call errquit('driver: frac_to_cart?',0,0)
@@ -3094,6 +3120,27 @@ c
            call errquit('driver: no stress in theory',0,RTDB_ERR)
          end if
       endif
+
+      if (ostress2) then
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $   call errquit('driver: stress theory not specified',0,RTDB_ERR)
+         if (theory.eq.'pspw') then
+          if (.not. rtdb_get(rtdb, 'pspw:lstress', mt_dbl, 6,
+     $        gx(3*nat_real+1))) call errquit
+     $        ('driver: could not get stress',0,0)
+         else if (theory.eq.'band') then
+          if (.not. rtdb_get(rtdb, 'band:lstress', mt_dbl, 6,
+     $        gx(3*nat_real+1))) call errquit
+     $        ('driver: could not get stress',0,0)
+         else if (theory.eq.'paw') then
+          if (.not. rtdb_get(rtdb, 'paw:lstress', mt_dbl, 6,
+     $        gx(3*nat_real+1))) call errquit
+     $        ('driver: could not get stress',0,0)
+         else
+           call errquit('driver: no stress in theory',0,RTDB_ERR)
+         end if
+      endif
+
 c
       end
       subroutine driver_check_grad(rtdb,geom)
