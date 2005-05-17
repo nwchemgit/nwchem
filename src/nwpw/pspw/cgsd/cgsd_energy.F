@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.52 2004-12-18 20:01:52 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.53 2005-05-17 01:53:52 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -632,9 +632,10 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 *     *				*
 *     ***************************
 
-      subroutine cgsd_energy_stress(stress)
+      subroutine cgsd_energy_stress(stress,lstress)
       implicit none
       real*8 stress(3,3)
+      real*8 lstress(6)
 
       integer taskid,MASTER
       parameter (MASTER=0)
@@ -646,8 +647,14 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 
 *     **** external functions ****
       logical  psp_semicore
+      integer  control_optimize_cell_strategy
+      integer  control_optimize_lattice_vectors
+      integer  control_optimize_lattice
       real*8   lattice_omega,lattice_unita
       external psp_semicore
+      external control_optimize_cell_strategy
+      external control_optimize_lattice_vectors
+      external control_optimize_lattice
       external lattice_omega,lattice_unita
 
 
@@ -701,6 +708,11 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
           ht(u,v)=lattice_unita(v,u)
        end do
        end do
+
+      call cell_lattice_gradient(stress,lstress)
+
+*      **** apply lattice_vector constraints ****
+       call zero_cell_constraint(stress,lstress)
  
 **     **** define stress tensor ****
        call dcopy(9,0.0d0,0,sigma,1)
@@ -716,8 +728,23 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 c     *** call dscal(9,-1.0d0,stress,1)
       call write_stress(stress,"total gradient")
 
+      if (taskid.eq.MASTER) then
+        write(*,*)
+        write(*,1811) "dE/da     = ",lstress(1)
+        write(*,1811) "dE/db     = ",lstress(2)
+        write(*,1811) "dE/dc     = ",lstress(3)
+        write(*,1811) "dE/dalpha = ",lstress(4)
+        write(*,1811) "dE/dbeta  = ",lstress(5)
+        write(*,1811) "dE/dgamma = ",lstress(6)
+        write(*,*)
+      end if
+
       call write_stress(sigma,"Internal Stress Tensor")
+
       return
+ 1800 FORMAT('Lattice Constraint: gradient(',i1,',',i1,')-->0')
+ 1801 FORMAT('Lattice Constraint: gradient(',i1,')-->0')
+ 1811 FORMAT(5X,A14,F11.5)
       end
 
       subroutine write_stress(stress,name)
@@ -765,7 +792,7 @@ c     *** call dscal(9,-1.0d0,stress,1)
  1917 FORMAT(10X,'pressure = ',E9.3,' au',
      >      /10X,'         = ',E9.3,' Mbar'
      >      /10X,'         = ',E9.3,' GPa',
-     >      /10X,'         = ',E9.3,' atm')
+     >      /10X,'         = ',E9.3,' atm'/)
       end if
 
       return

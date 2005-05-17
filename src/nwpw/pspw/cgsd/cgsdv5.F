@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.58 2005-02-09 02:39:02 bylaska Exp $
+* $Id: cgsdv5.F,v 1.59 2005-05-17 01:53:52 bylaska Exp $
 *
 
 ***********************************************************************
@@ -45,7 +45,7 @@
       integer ne(2),ms
       real*8  E(10),en(2)
       real*8  dipole(3)
-      real*8  stress(3,3)
+      real*8  stress(3,3),lstress(6)
 
 *     **** gradient variables ****
       integer fion(2)
@@ -478,10 +478,11 @@ c     end if
 
 *     **** calculate the stress tensor ****
       call dcopy(9,0.0d0,0,stress,1)
+      call dcopy(6,0.0d0,0,lstress,1)
       if (flag.eq.3) then
          call psp_stress_init()
          call psp_stress_readall()
-         call cgsd_energy_stress(stress)
+         call cgsd_energy_stress(stress,lstress)
          call psp_stress_end()
       end if
 
@@ -506,6 +507,9 @@ c     end if
         value = value.and.
      >        rtdb_put(rtdb,'pspw:stress',mt_dbl,
      >                 9,stress)
+        value = value.and.
+     >        rtdb_put(rtdb,'pspw:lstress',mt_dbl,
+     >                 6,lstress)
       end if
       if (.not. value) call errquit('cgsdv5: error writing rtdb',0,
      &       RTDB_ERR)
