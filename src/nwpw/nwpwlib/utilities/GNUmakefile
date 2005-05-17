@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.23 2004-12-06 20:03:24 bylaska Exp $
+# $Id: GNUmakefile,v 1.24 2005-05-17 01:55:56 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -20,14 +20,14 @@
 		densityofstates.o \
 		MOTION_nframes.o \
 		spdf_name.o \
+		cell.o \
 		cellgeometry.o
-
 
 	  OBJ = 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F
 
   LIB_DEFINES = 
 
