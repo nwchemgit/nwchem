@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.135 2005-04-01 02:34:20 marat Exp $
+C$Id: geom.F,v 1.136 2005-05-17 01:58:45 bylaska Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -2516,6 +2516,165 @@ c
       volume=volume_direct(geom)
 
       end
+
+      logical function geom_lattice_get(geom,lattice)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "errquit.fh"
+c     
+      integer geom,i,j               ! [input]
+      double precision lattice(6)    ! [output]
+      real*8 rad,scale
+      logical  geom_check_handle,geom_get_user_scale
+      external geom_check_handle,geom_get_user_scale
+
+      geom_lattice_get = geom_check_handle(geom, 'geom_lattice_get')
+      if (.not. geom_lattice_get) return
+      if (.not. geom_get_user_scale(geom,scale))
+     $     call errquit('geom_lattice_get: call eric!',0, GEOM_ERR)
+c
+
+      rad = 4.0d0*datan(1.0d0)/180.0d0
+      lattice(1) = lattice_vectors(1,geom)*scale
+      lattice(2) = lattice_vectors(2,geom)*scale
+      lattice(3) = lattice_vectors(3,geom)*scale
+      lattice(4) = lattice_angles(1,geom)*rad 
+      lattice(5) = lattice_angles(2,geom)*rad 
+      lattice(6) = lattice_angles(3,geom)*rad 
+      end
+
+      logical function geom_lattice_set(geom,lattice)
+      implicit none
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      integer geom,i,j               ! [input]
+      double precision lattice(6)    ! [output]
+c
+      integer iang
+      double precision rad,dperm
+      double precision c(3,3),vol,scale,amat(3,3),gmat(3,3)
+      double precision c1,c2,c3,s3,cdist(3),cang(3)
+
+*     *** external functions ***
+      logical geom_check_handle, geom_get_user_scale
+      external geom_check_handle,geom_get_user_scale
+      double precision deter3
+      external         deter3
+
+c
+      geom_lattice_set = geom_check_handle(geom, 'geom_lattice_set')
+      if (.not. geom_lattice_set) return
+      if (.not. geom_get_user_scale(geom,scale))
+     $     call errquit('geom_lattice_set: call eric!',0, GEOM_ERR)
+
+      rad = 180.0d0/(4.0d0*datan(1.0d0))
+      lattice_vectors(1,geom) = lattice(1)/scale
+      lattice_vectors(2,geom) = lattice(2)/scale
+      lattice_vectors(3,geom) = lattice(3)/scale
+      lattice_angles(1,geom)  = lattice(4)*rad
+      lattice_angles(2,geom)  = lattice(5)*rad
+      lattice_angles(3,geom)  = lattice(6)*rad
+      cdist(1) = lattice(1)
+      cdist(2) = lattice(2)
+      cdist(3) = lattice(3)
+      cang(1)  = lattice(4)
+      cang(2)  = lattice(5)
+      cang(3)  = lattice(6)
+c
+c--------> build the metrical matrix (atomic units)
+c
+      do 200 i=1,3
+        gmat(i,i)=cdist(i)**2
+  200 continue
+      iang=3
+      do 210 i=1,3
+        do 220 j=i+1,3
+          gmat(i,j)=cdist(i)*cdist(j)*dcos(cang(iang))
+          gmat(j,i)=gmat(i,j)
+          iang=iang-1
+  220   continue
+  210 continue
+c
+      do 230 i=1,3
+        do 240 j=1,3
+          metric_matrix(i,j,geom)=gmat(i,j)
+  240   continue
+  230 continue
+
+      dperm = deter3(gmat)
+*
+      vol=dsqrt(dperm)
+      volume_direct(geom)=vol
+c
+
+      c1=dcos(cang(1))
+      c2=dcos(cang(2))
+      c3=dcos(cang(3))
+      s3=dsin(cang(3))
+      amat(1,1) = cdist(1)*s3
+      amat(1,2) = 0.0d+00
+      amat(1,3) = (cdist(3)*(c2-c1*c3)/s3)
+      amat(2,1) = cdist(1)*c3
+      amat(2,2) = cdist(2)
+      amat(2,3) = cdist(3)*c1
+      amat(3,1) = 0.0d+00
+      amat(3,2) = 0.0d+00
+      amat(3,3) = (vol/(cdist(1)*cdist(2)*s3))
+c
+      do i=1,3
+        do j=1,3
+          amatrix(i,j,geom) = amat(i,j)
+        end do
+      end do
+c
+c     Mmmm ... the original code only set this stuff from the input
+c     using the a,b,c,alpha,beta,gamma, but now we have changed
+c     the amatrix ... need to update ainv and also recompute the
+c     other crap ... for now just set the other crap to crap so that
+c     we'll know if it is used
+c
+      do i = 1,3
+         do j = 1,3
+            metric_matrix(i,j,geom) = 1d300
+            bmatrix(i,j,geom) = 1d300
+         end do
+         recip_lat_vectors(i,geom) = 1d300
+         recip_lat_angles(i,geom) = 1d300
+      end do
+c
+c     HERE SHOULD RECOMPUTE AMATRIX WITH STANDARD ORIENTATION
+c     SINCE IF THE GEOMETRY IS STORED AND RELOADED THE
+c     STANDARD ORIENTATION IS IMPOSED.
+c
+c     Update the amatrix inverse
+c      - Since amat=[a1,a2,a3]
+c              ainv=[b1,b2,b3]^t
+c
+      call dfill(9,0.0d0,c,1)
+      c(1,1) = amat(2,2)*amat(3,3) - amat(3,2)*amat(2,3)  ! = b(1,1)
+      c(1,2) = amat(3,2)*amat(1,3) - amat(1,2)*amat(3,3)  ! = b(2,1)
+      c(1,3) = amat(1,2)*amat(2,3) - amat(2,2)*amat(1,3)  ! = b(3,1)
+      c(2,1) = amat(2,3)*amat(3,1) - amat(3,3)*amat(2,1)  ! = b(1,2)
+      c(2,2) = amat(3,3)*amat(1,1) - amat(1,3)*amat(3,1)  ! = b(2,2)
+      c(2,3) = amat(1,3)*amat(2,1) - amat(2,3)*amat(1,1)  ! = b(3,2)
+      c(3,1) = amat(2,1)*amat(3,2) - amat(3,1)*amat(2,2)  ! = b(1,3)
+      c(3,2) = amat(3,1)*amat(1,2) - amat(1,1)*amat(3,2)  ! = b(2,3)
+      c(3,3) = amat(1,1)*amat(2,2) - amat(2,1)*amat(1,2)  ! = b(3,3)
+      vol = amat(1,1)*c(1,1)
+     >    + amat(2,1)*c(1,2)
+
+c
+      call dscal(9,1.0d0/vol,c,1)
+c
+      call dcopy(9,c,1,amatrix_inv(1,1,geom),1)
+
+      return
+      end
+
+
       logical function geom_amatrix_get(geom,amat)
       implicit none
 #include "nwc_const.fh"
