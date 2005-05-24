@@ -290,6 +290,7 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
               if (l.eq.0) write(6,1516)
               if (l.eq.1) write(6,1517)
               if (l.eq.2) write(6,1518)
+              if (l.eq.3) write(6,1519)
               WRITE(6,1530) I,psp_atom(ion_katm(I)),L,SUBTTL,
      >               (dbl_mb(A(1)+LL-1+(N-1)*36+(I-1)*36*nemax),
      >                        LL=L1,L2)
@@ -315,10 +316,18 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
      >       ' E=',E12.5,' (',F8.3,'eV)'/)
  1516 FORMAT(30x,'  s')
  1517 FORMAT(30x,' px         py         pz')
- 1518 FORMAT(30x,'dzz     dx2-y2        dxy        dyz        dzx')
- 1519 FORMAT(30x,'  s',
-     >      /30x,' px         py        pz '
-     >      /30x,'dzz     dx2-y2        dxy        dyz        dzx')
+ 1518 FORMAT(27x,'d3z2-1        dxy        dyz        dzx     dx2-y2')
+ 1519 FORMAT(30x,' f1         f2         f3         f4         f5',
+     >           '         f6         f7',
+     >      /27x,' x(3x2  y(3(1-z2)   z(x2-y2)        xyz   x(5z2-1)',
+     >           '   y(5z2-1)   z(5z2-3)'
+     >      /24x,'-3(1-z2))      -4y2)' ) 
+
+c 1519 FORMAT(30x,'  s',
+c     >      /30x,' px         py        pz '
+c     >      /27x,'d3z2-1        dxy        dyz        dzx     dx2-y2',
+c     >      /30x,' f1         f2        f3          f4         f5', 
+c     >           '         f6         f7')
 
  1520 FORMAT(A2,2X,A4,2X,A1,2X,A10)
  1530 FORMAT(I2,3X,A2,3X,I1,8F11.5)

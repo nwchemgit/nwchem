@@ -1,9 +1,9 @@
 *
-* $Id: blyp.f,v 1.1 2005-02-09 02:19:35 bylaska Exp $
+* $Id: blyp.f,v 1.2 2005-05-24 17:36:27 bylaska Exp $
 *
 
 
-*     blyp restricted  calc.    
+*     blyp restricted  calc.
 *
 *
 *
@@ -32,18 +32,18 @@
       real*8    x_parameter, c_parameter
 
 
-      
+
 *     *****Becke exchange parameter*******
       real*8 beta
       parameter (beta = 0.0042d0)
 
 *     *****local variables****************
       integer i
-      real*8 n,fnx,fnx_lda,fdnx 
+      real*8 n,fnx,fnx_lda,fdnx
       real*8 xe
-      real*8 agr 
-      real*8 n_ponethird, n_pfourthirds 
-      real*8 chi, chidn,chiddn 
+      real*8 agr
+      real*8 n_ponethird, n_pfourthirds
+      real*8 chi, chidn,chiddn
       real*8 pi
       real*8 lda_c,c2
       real*8 H,F,Fdchi
@@ -73,8 +73,8 @@
 
 *******density cutoff parameters********************
       real*8 DNS_CUT, ETA
-      parameter (DNS_CUT        =      1.0d-20)
-      parameter (ETA            =      1.0d-20)
+      parameter (DNS_CUT        =      1.0d-40)
+      parameter (ETA            =      1.0d-70)
 *******LYP correlation parameters a, b, c, d********
       parameter (a              =      0.04918d0)
       parameter (b              =      0.132d0)
@@ -98,18 +98,18 @@
       Cf             = (3.0d0/10.0d0)*(3.0d0*pi*pi)**2.0d0/3.0d0
 
 
-      
-      
-  
-     
+
+
+
+
       pi = 4.0d0*datan(1.0d0)
-*     define lda constant***************************** 
+*     define lda constant*****************************
       lda_c = (3.0d0/2.0d0)*(3.0d0/(4.0d0 * pi))**(1.0d0/3.0d0)
 *     ***********************************************
 
       do i=1,n2ft3d
        n        = rho_in(i) + ETA
-       agr      = agr_in(i)
+       agr      = agr_in(i) + ETA
 ******************************************************************
 *     *******calc. becke exchange energy density, fnx, fdnx*******
 *****************************************************************
@@ -118,7 +118,7 @@
        n_pfourthirds   = n**(4.0d0/3.0d0)
        c2   = 2**(1.0d0/3.0d0)
 
-*      **calculate chi, chidn, chiddn     
+*      **calculate chi, chidn, chiddn
        chi            = agr/n_pfourthirds
        chidn          = -1.0*(4.0d0/3.0d0)*chi/n
        chiddn         = 1/n_pfourthirds
@@ -127,24 +127,24 @@
        H              = beta*c2*n_pfourthirds
 
 *      **calculate F and dF/dchi
-       F              = chi*chi/(1.0d0+6.0d0*beta*c2*chi*log(c2*chi 
+       F              = chi*chi/(1.0d0+6.0d0*beta*c2*chi*log(c2*chi
      &                  + dsqrt(1.0d0+c2*c2*chi*chi)))
        Fdchi          = 2.0d0*F/chi - (F*F/(chi*chi))
-     &                  *(6.0d0*beta*c2*log(c2*chi+sqrt(1.0d0 
+     &                  *(6.0d0*beta*c2*log(c2*chi+sqrt(1.0d0
      &                  +c2*c2*chi*chi))+6.0d0*beta*c2*c2*chi
      &                  /dsqrt(1.0d0 + c2*c2*chi*chi))
 
-*      *calculate fnx and fdnx 
+*      *calculate fnx and fdnx
        fnx_lda        = -1.0d0*lda_c/c2 * (4.0d0/3.0d0) * n_ponethird
        fnx            = fnx_lda - (4.0d0/3.0d0)*H*F/n - H*Fdchi*chidn
        fdnx           = -1.0d0*H*Fdchi*chiddn
 
 *      *calculate exchange energy density
-       xe             = -1.0d0*(lda_c/c2)*n_ponethird 
+       xe             = -1.0d0*(lda_c/c2)*n_ponethird
      &                - (c2*beta*n_ponethird*chi*chi)
-     &                /(1.0d0+6.0d0*beta*c2*chi*log(c2*chi 
-     &                + dsqrt(1.0d0+c2*c2*chi*chi))) 
-       
+     &                /(1.0d0+6.0d0*beta*c2*chi*log(c2*chi
+     &                + dsqrt(1.0d0+c2*c2*chi*chi)))
+
 ******calculate LYP correlation energy***************
        agr2 = agr*agr
 

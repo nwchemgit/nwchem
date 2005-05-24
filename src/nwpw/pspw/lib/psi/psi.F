@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.60 2005-02-09 02:39:10 bylaska Exp $
+* $Id: psi.F,v 1.61 2005-05-24 17:36:27 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.60  2005/02/09 02:39:10  bylaska
+* .............................EJB
+*
 * Revision 1.59  2005/01/17 20:51:33  edo
 * fixed a  couple of FPEs
 *
@@ -3859,7 +3862,18 @@ c    >                            dcpl_mb(dng1(1)))
 *     **** finished? 11/24/04 - still need to test ***
       gga = control_gga()
       if ((gga.eq.1).or.(gga.eq.2)) then
-       call v_bwexc_euv(gga,2*nfft3d,ispin,dbl_mb(rho1_all(1)),tstress)
+       call v_bwexc_euv(gga,2*nfft3d,ispin,dbl_mb(rho1_all(1)),
+     >                  1.0d0,1.0d0,tstress)
+       do v=1,3
+       do u=1,3
+          stress(u,v) = stress(u,v) + tstress(u,v)
+       end do
+       end do
+      end if 
+
+      if (gga.eq.3) then
+       call v_bwexc_euv(1,2*nfft3d,ispin,dbl_mb(rho1_all(1)),
+     >                  0.75d0,1.0d0,tstress)
        do v=1,3
        do u=1,3
           stress(u,v) = stress(u,v) + tstress(u,v)
@@ -3952,6 +3966,9 @@ c    >                            dcpl_mb(dng1(1)))
 
       return
       end
+
+
+
 
 *     ***********************************
 *     *					*

@@ -1,5 +1,5 @@
 *
-* $Id: stress_fd.F,v 1.5 2004-11-29 16:05:20 bylaska Exp $
+* $Id: stress_fd.F,v 1.6 2005-05-24 17:36:26 bylaska Exp $
 *
       logical function stress_fd(rtdb)
       implicit none
@@ -31,6 +31,9 @@
       double precision alpha_stress(3,3)
       double precision RIJ_stress(3,3)
       double precision ewaldG_stress(3,3)
+      double precision ehsic_stress(3,3)
+      double precision excsic_stress(3,3)
+      double precision hfx_stress(3,3)
 
       integer date_len
       character*40 date_string
@@ -59,6 +62,9 @@
       call dcopy(9,0.0d0,0,ewald_stress,   1)
       call dcopy(9,0.0d0,0,local_stress,   1)
       call dcopy(9,0.0d0,0,nonlocal_stress,1)
+      call dcopy(9,0.0d0,0,ehsic_stress,1)
+      call dcopy(9,0.0d0,0,excsic_stress,1)
+      call dcopy(9,0.0d0,0,hfx_stress,1)
 
 
       do j=1,3
@@ -110,6 +116,17 @@
      >        rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = E
 
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+      ehsic_stress(i,j) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+      excsic_stress(i,j) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+      hfx_stress(i,j) = E
 
 *     *****************************
 *     **** - finite difference ****
@@ -151,6 +168,15 @@
       value = value.and.rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
       nonlocal_stress(i,j) = nonlocal_stress(i,j) - E
 
+      value = value.and.rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+      ehsic_stress(i,j) = ehsic_stress(i,j) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+      excsic_stress(i,j) = excsic_stress(i,j) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+      hfx_stress(i,j) = hfx_stress(i,j) - E
+
       end do
       end do
       call dscal(9,(0.5d0/alpha),ke_stress,1)
@@ -159,6 +185,9 @@
       call dscal(9,(0.5d0/alpha),ewald_stress,1)
       call dscal(9,(0.5d0/alpha),local_stress,1)
       call dscal(9,(0.5d0/alpha),nonlocal_stress,1)
+      call dscal(9,(0.5d0/alpha),ehsic_stress,1)
+      call dscal(9,(0.5d0/alpha),excsic_stress,1)
+      call dscal(9,(0.5d0/alpha),hfx_stress,1)
 
       call write_stress(ke_stress,"ke FD")
       call write_stress(hartree_stress,"coulomb FD")
@@ -166,6 +195,9 @@
       call write_stress(nonlocal_stress,"nonlocal FD")
       call write_stress(xc_stress,"xc FD")
       call write_stress(ewald_stress,"ewald FD")
+      call write_stress(ehsic_stress,"Eh SIC FD")
+      call write_stress(excsic_stress,"Exc SIC FD")
+      call write_stress(hfx_stress,"HFX FD")
 
       call dcopy(9,ke_stress,1,stress,1)
       call daxpy(9,1.0d0,xc_stress,1,stress,1)
@@ -173,6 +205,9 @@
       call daxpy(9,1.0d0,ewald_stress,1,stress,1)
       call daxpy(9,1.0d0,local_stress,1,stress,1)
       call daxpy(9,1.0d0,nonlocal_stress,1,stress,1)
+      call daxpy(9,1.0d0,ehsic_stress,1,stress,1)
+      call daxpy(9,1.0d0,excsic_stress,1,stress,1)
+      call daxpy(9,1.0d0,hfx_stress,1,stress,1)
       call write_stress(stress,"TOTAL FD")
 
 

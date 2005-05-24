@@ -1,5 +1,5 @@
 *
-* $Id: blyp-eric.f,v 1.1 2005-02-09 02:19:35 bylaska Exp $
+* $Id: blyp-eric.f,v 1.2 2005-05-24 17:36:27 bylaska Exp $
 *
 
 
@@ -99,7 +99,8 @@
 *     ***********************************************
 
       do i=1,n2ft3d
-       n        = rho_in(i) + ETA
+       if (rho_in(i).gt.ETA) then
+       n        = rho_in(i) 
        agr      = agr_in(i)
 ******************************************************************
 *     *******calc. becke exchange energy density, fnx, fdnx*******
@@ -166,10 +167,19 @@
 
 *******final result for restricted LYP*****************************
 
+c       write(*,*) "blyp:",i,n,agr,ce,fnc,fdnc
+
+
 
        xce(i)          = x_parameter*xe   + c_parameter*ce
        fn(i)           = x_parameter*fnx  + c_parameter*fnc
        fdn(i)          = x_parameter*fdnx + c_parameter*fdnc
+
+       else
+       xce(i) = 0.0d0
+       fn(i)  = 0.0d0
+       fdn(i) = 0.0d0
+       end if
 
       end do
       return

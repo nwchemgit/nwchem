@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.5 2005-02-09 02:39:05 bylaska Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.6 2005-05-24 17:36:26 bylaska Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2)
@@ -122,6 +122,7 @@
               call aorbs_aorb(i,phi1)
               call Pack_cc_dot(1,phi1,phi2,sum)
               sum = sum*scal1
+c              write(*,*) "vhxc:",i,j,sum
 
               call ga_fill_patch(vhxcmatrix(ms),i,i,j,j,sum)
               call ga_fill_patch(vhxcmatrix(ms),j,j,i,i,sum)

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.53 2005-05-17 01:53:52 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.54 2005-05-24 17:36:26 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -646,12 +646,12 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       real*8  sigma(3,3),xcstress(3,3)
 
 *     **** external functions ****
-      logical  psp_semicore
+      logical  psp_semicore,pspw_SIC,pspw_HFX
       integer  control_optimize_cell_strategy
       integer  control_optimize_lattice_vectors
       integer  control_optimize_lattice
       real*8   lattice_omega,lattice_unita
-      external psp_semicore
+      external psp_semicore,pspw_SIC,pspw_HFX
       external control_optimize_cell_strategy
       external control_optimize_lattice_vectors
       external control_optimize_lattice
@@ -701,6 +701,21 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
       call ewald_stress(tstress)
       call daxpy(9,1.0d0,tstress,1,stress,1)
       call write_stress(tstress,"ewald")
+
+*     **** SIC energy component : dE_SIC/dhuv ****
+      if (pspw_SIC())  then
+        call electron_SIC_stress(tstress)
+        call daxpy(9,1.0d0,tstress,1,stress,1)
+        call write_stress(tstress,"SIC")
+      end if
+
+*     **** HFX energy component : dE_HFX/dhuv ****
+      if (pspw_hfx())  then
+        call electron_HFX_stress(tstress)
+        call daxpy(9,1.0d0,tstress,1,stress,1)
+        call write_stress(tstress,"HFX")
+      end if
+
 
 **     **** define ht ****
        do v=1,3

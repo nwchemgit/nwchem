@@ -1,5 +1,5 @@
 c
-c     $Id: nominimize.F,v 1.4 2004-11-29 16:05:21 bylaska Exp $ 
+c     $Id: nominimize.F,v 1.5 2005-05-24 17:36:26 bylaska Exp $ 
 c
 
       subroutine nominimize(E)
@@ -21,6 +21,7 @@ c
       integer neall,npack1
       real*8 e_pol,e_vib,e_cav
       real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
+      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       
 
 *     **** external functions ****
@@ -68,6 +69,11 @@ c
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+
+*     ***** pspw_SIC and pspw_HFX external functions ****
+      logical  pspw_SIC,pspw_HFX
+      external pspw_SIC,pspw_HFX
+
 
       call Pack_npack(1,npack1)
       neall = psi_ne(1)+psi_ne(2)
@@ -142,6 +148,24 @@ c      call psi_1toelectron()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
       end if
+
+
+*     **** SIC corrections ****
+      if (pspw_SIC()) then
+         call electron_SIC_energies(ehsic,phsic,exsic,pxsic)
+         E(22) = ehsic
+         E(23) = exsic
+         E(24) = phsic
+         E(25) = pxsic
+      end if
+
+*     **** HFX terms ****
+      if (pspw_HFX()) then
+         call electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
+      end if
+
 
       value = MA_free_heap(G1(2))
       if (.not. value) 

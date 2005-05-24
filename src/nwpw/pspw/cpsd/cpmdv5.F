@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.47 2005-02-09 02:37:04 bylaska Exp $
+* $Id: cpmdv5.F,v 1.48 2005-05-24 17:36:26 bylaska Exp $
 *
 
 ***********************************************************************
@@ -552,6 +552,12 @@
 *     *** fei io ****
       call fei_init()
 
+*     **** ecce print ****
+      call ecce_print_module_entry('task optimize')
+      call ecce_print_module_entry('driver')
+      call movecs_ecce_print_off()
+
+
 
 
 *     ************************************
@@ -727,6 +733,7 @@
            call Nose_reset_T(Te_new,Tr_new)
          end if
 
+
 *        **** exit early ****
          if (control_out_of_time()) then
             if (taskid.eq.MASTER) 
@@ -756,6 +763,10 @@
 
 *     **** close OMOTION file ****
       if (mulliken) call Orb_End()
+
+*     **** ecce print ****
+      call ecce_print_module_exit('driver', 'ok')
+      call ecce_print_module_exit('task optimize', 'ok')
 
 
       if (taskid.eq.MASTER) CALL nwpw_message(3)

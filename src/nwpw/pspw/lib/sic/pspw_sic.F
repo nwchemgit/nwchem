@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.32 2005-05-03 00:49:24 bylaska Exp $
+* $Id: pspw_sic.F,v 1.33 2005-05-24 17:36:28 bylaska Exp $
 *
 
 *     *************************
@@ -283,7 +283,7 @@
 
 *     **** local variables ****
       logical value
-      integer i,n2ft3d,n1,n2,n3,npack
+      integer i,n2ft3d,n1,n2,n3,npack,gga
       integer dn(2),xcp(2),xce(2),tmp1(2),index
       !integer index2
       real*8  scal1,scal2,dv,exc,pxc,eh,ph
@@ -300,6 +300,8 @@
       ex_sic = 0.0d0
       px_sic = 0.0d0
       if ((norbs.ne.0).and.relaxed) then
+
+        gga = control_gga()
         call Pack_npack(1,npack)
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -330,13 +332,13 @@
 
 
 *          **** generate exchange-correlation potential ****
-           if (control_gga().eq.0) then
+           if (gga.eq.0) then
              call vxc(n2ft3d,2,dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dbl_mb(tmp1(1)))
            else
-             call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
+             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
@@ -474,7 +476,7 @@ c    >                        Hpsi_k(index2))
 
 *     **** local variables ****
       logical value
-      integer i,n2ft3d,n1,n2,n3,npack
+      integer i,n2ft3d,n1,n2,n3,npack,gga
       integer dn(2),xcp(2),xce(2),tmp1(2),index
       !integer index2
       real*8  scal1,scal2,dv,exc,pxc,eh,ph
@@ -495,6 +497,7 @@ c    >                        Hpsi_k(index2))
         exsic = 0.0d0
         pxsic = 0.0d0
 
+        gga = control_gga()
         call Pack_npack(1,npack)
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -525,13 +528,13 @@ c    >                        Hpsi_k(index2))
 
 
 *          **** generate exchange-correlation potential ****
-           if (control_gga().eq.0) then
+           if (gga.eq.0) then
              call vxc(n2ft3d,2,dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dbl_mb(tmp1(1)))
            else
-             call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
+             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
@@ -657,7 +660,7 @@ c    >                        Hpsi_k(index2))
 
 *     **** local variables ****
       logical value
-      integer i,j,n2ft3d,nx,ny,nz,npack,n1(2),n2(2)
+      integer i,j,n2ft3d,nx,ny,nz,npack,n1(2),n2(2),gga
       integer index,index1,indext,ms
       integer indexi,indexj
       integer dn(2),xcp(2),xce(2),tmp1(2),vsic(2),rhoi(2)
@@ -676,6 +679,7 @@ c    >                        Hpsi_k(index2))
       n1(2) = ne(1)+1
       n2(2) = ne(1)+ne(2)
       
+        gga = control_gga()
         call Pack_npack(1,npack)
         call D3dB_nx(1,nx)
         call D3dB_ny(1,ny)
@@ -723,14 +727,14 @@ c    >                        Hpsi_k(index2))
 
 
 *          **** generate exchange-correlation potential ****
-           if (control_gga().eq.0) then
+           if (gga.eq.0) then
              call vxc(n2ft3d,2,
      >                      dbl_mb(dn(1)),
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dbl_mb(tmp1(1)))
            else
-             call v_bwexc(n2ft3d,2,dbl_mb(dn(1)),
+             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(xce(1)))
@@ -950,3 +954,166 @@ c    >                        Hpsi_k(index2))
 
       return
       end
+
+
+
+*     *************************
+*     *                       *
+*     *     pspw_SIC_euv      *
+*     *                       *
+*     *************************
+      subroutine pspw_SIC_euv(ispin,psi_r,stress)
+      implicit none
+      integer ispin
+      real*8  psi_r(*)
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "pspw_sic.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,n2ft3d,n1,n2,n3,npack,u,v,gga
+      integer dn(2),xcp(2),xce(2),tmp1(2),index
+      !integer index2
+      real*8  scal1,scal2,dv,exc,pxc,eh,ph
+      real*8 hm(3,3),scal,pi,tstress(3,3)
+
+*     **** external functions ****
+      integer  control_gga
+      real*8   lattice_omega,lattice_unitg
+      external control_gga
+      external lattice_omega,lattice_unitg
+
+      call dcopy(9,0.0d0,0,stress,1)
+      if ((norbs.ne.0)) then
+        call coulomb_screened_euv_init(flag,rcut,pp)
+
+*       *** define hm ****
+        pi   = 4.0d0*datan(1.0d0)
+        scal = 1.0d0/(2.0d0*pi)
+        do v=1,3
+        do u=1,3
+           hm(u,v) = scal*lattice_unitg(u,v)
+        end do
+        end do
+
+        gga = control_gga()
+        call Pack_npack(1,npack)
+        call D3dB_nx(1,n1)
+        call D3dB_ny(1,n2)
+        call D3dB_nz(1,n3)
+        call D3dB_n2ft3d(1,n2ft3d)
+        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_SIC',dn(2),dn(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(2*n2ft3d),'xcpSC',xcp(2),xcp(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(2*n2ft3d),'xceSC',xce(2),xce(1))
+        value = value.and.
+     >             MA_push_get(mt_dbl,(n2ft3d),'tmp1C',tmp1(2),tmp1(1))
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+
+        scal1 = 1.0d0/dble(n1*n2*n3)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+        do i=1,norbs
+
+           index  = (int_mb(orbital_list(1)+i-1)-1)*n2ft3d + 1
+           !index2 = (int_mb(orbital_list(1)+i-1)-1)*npack  + 1
+
+*          **** generate dn ****
+           call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
+           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+
+*          **** generate exchange-correlation potential ****
+           if (gga.eq.0) then
+             call vxc(n2ft3d,2,dbl_mb(dn(1)),
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)),
+     >                      dbl_mb(tmp1(1)))
+           else
+             call v_bwexc(gga,n2ft3d,2,dbl_mb(dn(1)),
+     >                    1.0d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
+           end if
+
+
+*          **** get exchange-correlation energy ****
+           call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xce(1)),exc)
+           call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(xcp(1)),pxc)
+           if (ispin.eq.1) exc= exc + exc
+           if (ispin.eq.1) pxc= pxc + pxc
+           exc = exc*dv
+           pxc = pxc*dv
+
+
+*          **** LDA part ****
+           do v=1,3
+           do u=1,3
+              stress(u,v) = stress(u,v) - xc_parameter*(exc-pxc)*hm(u,v)
+           end do
+           end do
+
+
+*          **** PBE96 GGA part ****
+           if ((gga.eq.1).or.(gga.eq.2)) then
+            call v_bwexc_euv(gga,n2ft3d,ispin,dbl_mb(dn(1)),
+     >                       1.0d0,1.0d0,tstress)
+            do v=1,3
+            do u=1,3
+               stress(u,v) = stress(u,v) - xc_parameter*tstress(u,v)
+            end do
+            end do
+           end if
+
+
+*          ***** screened coulomb solver ****
+           if (solver_type.eq.1) then
+
+*            **** generate dng ****
+             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+     >                                dbl_mb(dn(1)))
+             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*            **** get Ecoul energy ****
+             call coulomb_screened_euv(dbl_mb(dn(1)),tstress)
+             if (ispin.eq.1) call dscal(9,2.0d0,tstress,1)
+
+*            **** apply the h_parameter ****
+             call dscal(9,h_parameter,tstress,1)
+
+*          ***** free-space coulomb solver ****
+           else
+             write(*,*) "ERROR free-space coulomb solver called"
+             call errquit('error: not periodic boundary conditions',0,0)
+           end if
+           
+           do v=1,3
+           do u=1,3
+              stress(u,v) = stress(u,v) - tstress(u,v)
+           end do
+           end do
+
+        end do
+
+        call coulomb_screened_euv_end()
+        value = MA_pop_stack(tmp1(2))
+        value = value.and.MA_pop_stack(xce(2))
+        value = value.and.MA_pop_stack(xcp(2))
+        value = value.and.MA_pop_stack(dn(2))
+        if (.not. value) 
+     >     call errquit('pspw_SIC_euv:popping stack memory',0,
+     &       MA_ERR)
+
+      end if
+
+
+      return
+      end
+

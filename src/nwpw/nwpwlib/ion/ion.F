@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.39 2005-01-31 04:44:03 bylaska Exp $
+* $Id: ion.F,v 1.40 2005-05-24 17:36:24 bylaska Exp $
 *
 
 *     ***************************
@@ -45,7 +45,6 @@
 
 *     **** ion common block ****
 #include "ion.fh"
-
 
       integer geom
       common / ION2/ geom
@@ -1821,3 +1820,64 @@ c     **** ouput xyz format ****
  
  1250 FORMAT(A2,6X,I4,3x,3F14.6)
       end
+
+*     ********************************
+*     *                              *
+*     *         ion_ecce             *
+*     *                              *
+*     ********************************
+
+      subroutine ion_ecce()
+
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "ion.fh"
+
+      integer geom1a
+      common / ION2/ geom1a
+
+      logical value
+      integer rt(2),qt(2),tt(2)
+
+      double precision angstrom_to_au 
+      data angstrom_to_au /1.88972598858d0/
+
+      call dscal(nion*3, 1.0d0/angstrom_to_au, dbl_mb(r1(1)), 1)
+      call ecce_print2('cartesian coordinates', mt_dbl,
+     >     dbl_mb(r1(1)), 3, 3, nion)
+      call dscal(nion*3, angstrom_to_au, dbl_mb(r1(1)), 1)
+c
+
+      value = MA_push_get(mt_dbl, (3*nion), 'rt',rt(2),rt(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl, (nion),   'qt',qt(2),qt(1))
+      value = value.and.
+     >        MA_push_get(mt_byte,(16*nion),'tt',tt(2),tt(1))
+      value = value.and.
+     >        geom_cart_get(geom1a,nion,byte_mb(tt(1)),
+     >                                dbl_mb(rt(1)),
+     >                                dbl_mb(qt(1)))
+      if (.not. value) call errquit('error ion_ecce',0,0)
+
+      call ecce_print1('atomic charges', mt_dbl, dbl_mb(qt(1)), nion)
+      call ion_ecce_tmp(nion, byte_mb(tt(1)))
+      call ecce_print1_char('group name', "C1", 1)
+
+      value = MA_pop_stack(tt(2))
+      value = value.and.MA_pop_stack(qt(2))
+      value = value.and.MA_pop_stack(rt(2))
+      if (.not. value) call errquit('popping stack',0,0)
+
+c
+      return
+      end
+
+
+      subroutine ion_ecce_tmp(nion,tags)
+      integer nion
+      character*16 tags
+      dimension tags(*)
+      call ecce_print1_char('atomic tags', tags(1), nion)
+      return
+      end
+

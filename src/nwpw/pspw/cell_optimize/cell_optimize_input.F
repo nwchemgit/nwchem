@@ -16,30 +16,33 @@ c
       character*30 dirs(num_dirs)
       character*255 test
 
-      data dirs / 'cell_name:',
-     >            'optimize:',
-     >            'optimize_lattice:',
-     >            'optimize_lattice_vectors:',
-     >            'lattice_tolerances:',
-     >            'lattice_vectors_tolerances:',
-     >            'cycles:',
+      data dirs / 'cell_name',
+     >            'optimize',
+     >            'optimize_lattice',
+     >            'optimize_lattice_vectors',
+     >            'lattice_tolerances',
+     >            'lattice_vectors_tolerances',
+     >            'cycles',
      >            'end'/
 c
       integer ntokens
       parameter (ntokens=6)
       character*10 tokens(ntokens)
       data tokens /'lat_a', 'lat_b', 'lat_c',
-     &     'alpha', 'beta', 'gamma' /
+     >     'alpha', 'beta', 'gamma' /
 
 
       integer ntokens2
-      parameter (ntokens2=3)
+      parameter (ntokens2=9)
       character*10 tokens2(ntokens2)
-      data tokens2 /'a1', 'a2', 'a3'/
+      data tokens2 /'a11', 'a21', 'a31',
+     >              'a12', 'a22', 'a32',
+     >              'a13', 'a23', 'a33' /
 
       character*30     cell_name
       integer          optimize_strategy,cycles
       integer          optimize_lattice(6)
+      integer          optimize_lattice_vectors(9)
       double precision lattice_tolerances(6),fe
        
 
@@ -47,7 +50,7 @@ c
 *     ***** initializations ****
       cell_name             = 'cell_default'
 
-      optimize_strategy = 0  ! 0-lattice_vectors, 1-lattice
+      optimize_strategy = 0  ! 0-complete lattice, 1-specified lattice, 2-specified lattice_vectors
       cycles            = 10
       optimize_lattice(1) = 1
       optimize_lattice(2) = 1
@@ -55,6 +58,16 @@ c
       optimize_lattice(4) = 1
       optimize_lattice(5) = 1
       optimize_lattice(6) = 1
+      optimize_lattice_vectors(1) = 1
+      optimize_lattice_vectors(2) = 1
+      optimize_lattice_vectors(3) = 1
+      optimize_lattice_vectors(4) = 1
+      optimize_lattice_vectors(5) = 1
+      optimize_lattice_vectors(6) = 1
+      optimize_lattice_vectors(7) = 1
+      optimize_lattice_vectors(8) = 1
+      optimize_lattice_vectors(9) = 1
+   
 
       lattice_tolerances(1) = 1.0d-3
       lattice_tolerances(2) = 1.0d-3
@@ -100,7 +113,9 @@ c
      >     call errquit(
      >          'cell_optimize_input: failed to read optimize:', 0,
      &       INPUT_ERR)
-      if (test.eq.'lattice') optimize_strategy = 1
+      if (test.eq.'all')             optimize_strategy = 0
+      if (test.eq.'lattice')         optimize_strategy = 1
+      if (test.eq.'lattice_vectors') optimize_strategy = 2
       goto 10
 
 c
@@ -138,12 +153,15 @@ c
 c
 c  optimize_lattice_vectors
 c
- 400  optimize_lattice(1) = 0
-      optimize_lattice(2) = 0
-      optimize_lattice(3) = 0
-      optimize_lattice(4) = 0
-      optimize_lattice(5) = 0
-      optimize_lattice(6) = 0
+ 400  optimize_lattice_vectors(1) = 0
+      optimize_lattice_vectors(2) = 0
+      optimize_lattice_vectors(3) = 0
+      optimize_lattice_vectors(4) = 0
+      optimize_lattice_vectors(5) = 0
+      optimize_lattice_vectors(6) = 0
+      optimize_lattice_vectors(7) = 0
+      optimize_lattice_vectors(8) = 0
+      optimize_lattice_vectors(9) = 0
  401  if (.not. inp_a(test)) goto 420
 
       if (.not. inp_match(ntokens2, .false., test, tokens2, ind))
@@ -151,13 +169,25 @@ c
      >           'optimize_lattice_vectors: unknown directive', 0,
      &       INPUT_ERR)
 
-      goto (411,412,413) ind
+      goto (411,412,413,414,415,416,417,418,419) ind
 c
- 411      optimize_lattice(1) = 1
+ 411      optimize_lattice_vectors(1) = 1
           goto 401
- 412      optimize_lattice(2) = 1
+ 412      optimize_lattice_vectors(2) = 1
           goto 401
- 413      optimize_lattice(3) = 1
+ 413      optimize_lattice_vectors(3) = 1
+          goto 401
+ 414      optimize_lattice_vectors(4) = 1
+          goto 401
+ 415      optimize_lattice_vectors(5) = 1
+          goto 401
+ 416      optimize_lattice_vectors(6) = 1
+          goto 401
+ 417      optimize_lattice_vectors(7) = 1
+          goto 401
+ 418      optimize_lattice_vectors(8) = 1
+          goto 401
+ 419      optimize_lattice_vectors(9) = 1
           goto 401
 
  420      goto 10
@@ -218,6 +248,9 @@ c
       value = value.and. 
      >        rtdb_put(rtdb,'cell_optimize:optimize_lattice',
      >                 mt_int,6,optimize_lattice)
+      value = value.and. 
+     >        rtdb_put(rtdb,'cell_optimize:optimize_lattice_vectors',
+     >                 mt_int,9,optimize_lattice_vectors)
       value = value.and. 
      >        rtdb_put(rtdb,'cell_optimize:lattice_tolerances',
      >                 mt_dbl,6,lattice_tolerances)

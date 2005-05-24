@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.38 2005-02-09 02:39:08 bylaska Exp $
+* $Id: electron.F,v 1.39 2005-05-24 17:36:27 bylaska Exp $
 *
 
 
@@ -647,6 +647,45 @@ c      end
       pxsic0 = pxsic
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      electron_SIC_stress        *
+*     *                                 *
+*     ***********************************
+      subroutine electron_SIC_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+      call pspw_SIC_euv(ispin,dbl_mb(psi_r(1)),stress)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      electron_HFX_stress        *
+*     *                                 *
+*     ***********************************
+      subroutine electron_HFX_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+      call pspw_energy_euv_HFX(ispin,dbl_mb(psi_r(1)),stress)
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*

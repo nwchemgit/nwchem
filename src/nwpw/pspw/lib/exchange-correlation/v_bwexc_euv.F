@@ -1,5 +1,5 @@
 *
-* $Id: v_bwexc_euv.F,v 1.4 2005-02-09 02:19:36 bylaska Exp $
+* $Id: v_bwexc_euv.F,v 1.5 2005-05-24 17:36:27 bylaska Exp $
 *
 
       
@@ -11,12 +11,15 @@
 *    ************************************
 *
       
-      subroutine v_bwexc_euv(gga,n2ft3d,ispin,dn,stress)
+      subroutine v_bwexc_euv(gga,n2ft3d,ispin,dn,
+     >                       x_parameter,c_parameter,
+     >                       stress)
       implicit none
       integer gga
       integer n2ft3d
       integer  ispin
       real*8  dn(n2ft3d,2)
+      real*8  x_parameter,c_parameter
       real*8  stress(3,3)
 
 
@@ -134,7 +137,7 @@ c        ***** calculate fdn=df/d|grad n|  ****
          call gen_PBE96_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
-     >                                1.0d0,1.0d0,
+     >                                x_parameter,c_parameter,
      >                                dbl_mb(xce(1)), !*** not used ??***
      >                                dbl_mb(fn(1)),  !*** not used ??***
      >                                dbl_mb(fdn(1)))
@@ -143,7 +146,7 @@ c        ***** calculate fdn=df/d|grad n|  ****
          call gen_BLYP_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
-     >                                1.0d0,1.0d0,
+     >                                x_parameter,c_parameter,
      >                                dbl_mb(xce(1)), !*** not used ??***
      >                                dbl_mb(fn(1)),  !*** not used ??***
      >                                dbl_mb(fdn(1)))
@@ -392,7 +395,7 @@ c        ***** calculate    ****
 c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
          call gen_PBE96_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
-     >                                  1.0d0,1.0d0,
+     >                                  x_parameter,c_parameter,
      >                                  dbl_mb(xce(1)), !*** not used ***
      >                                  dbl_mb(fn(1)), !*** not used ***
      >                                  dbl_mb(fdn(1)))

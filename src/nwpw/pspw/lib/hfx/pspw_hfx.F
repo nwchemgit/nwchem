@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.10 2005-05-03 00:51:16 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.11 2005-05-24 17:36:27 bylaska Exp $
 *
 
 *     *************************
@@ -692,6 +692,121 @@
 #include "pspw_hfx.fh"
 
       pspw_hfx_relaxed = relaxed
+      return
+      end
+
+
+
+
+
+
+*     *****************************
+*     *                           *
+*     *     pspw_energy_euv_HFX   *
+*     *                           *
+*     *****************************
+      subroutine pspw_energy_euv_HFX(ispin0,psi_r,stress)
+      implicit none
+      integer ispin0
+      real*8  psi_r(*)
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,j,n2ft3d,n1,n2,n3,ms,u,v
+      integer dn(2),index1,index2
+      real*8  scal1,scal2,dv,eh,ph
+      real*8  tstress(3,3)
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      
+      call dcopy(9,0.0d0,0,stress,1)
+      if (((norbs(1)+norbs(2)).ne.0)) then
+        call coulomb_screened_euv_init(flag,rcut,pp)
+
+
+        call D3dB_nx(1,n1)
+        call D3dB_ny(1,n2)
+        call D3dB_nz(1,n3)
+        call D3dB_n2ft3d(1,n2ft3d)
+        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+        scal1 = 1.0d0/dble(n1*n2*n3)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+
+        do ms=1,ispin
+        do i=1,norbs(ms)
+         do j=1,i
+
+           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+*          **** generate dnij ****
+           call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),dbl_mb(dn(1)))
+           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+
+*          ***** screened coulomb solver ****
+           if (solver_type.eq.1) then
+
+*            **** generate dng ****
+             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+     >                                dbl_mb(dn(1)))
+             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call Pack_c_pack(0,dbl_mb(dn(1)))
+
+*            **** get Ecoul energy ****
+             call coulomb_screened_euv(dbl_mb(dn(1)),tstress)
+             if (ispin.eq.1) call dscal(9,2.0d0,tstress,1)
+
+*            **** apply the hfx_parameter ****
+             call dscal(9,hfx_parameter,tstress,1)
+
+*          ***** free-space coulomb solver ****
+           else
+             write(*,*) "ERROR free-space coulomb solver called"
+             call errquit('error: not periodic boundary conditions',0,0)
+           end if
+
+           do v=1,3
+           do u=1,3
+              stress(u,v) = stress(u,v) - tstress(u,v)
+           end do
+           end do
+
+           !**** include off diagonal terms ****
+           if (i.ne.j) then
+             do v=1,3
+             do u=1,3
+                stress(u,v) = stress(u,v) - tstress(u,v)
+             end do
+             end do
+           end if
+
+
+         end do
+        end do
+        end do
+
+
+        call coulomb_screened_euv_end()
+        value = MA_pop_stack(dn(2))
+        if (.not. value) 
+     >     call errquit('pspw_energy_euv_HFX:popping stack memory',0,
+     &       MA_ERR)
+
+      end if
+
       return
       end
 

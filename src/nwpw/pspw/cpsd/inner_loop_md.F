@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.20 2005-02-09 02:37:04 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.21 2005-05-24 17:36:26 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -722,6 +722,25 @@ c        end if
       else
         E(1) = E(2)+E(3)+E(4)
       end if
+
+
+
+*      **** write ecce data ****
+       call ecce_print_module_entry('task gradient')
+
+       call ion_ecce()
+       call ecce_print1('total energy', mt_dbl, E(2), 1)
+       call ecce_print2('total gradient', mt_dbl, dbl_mb(fion(1)),
+     $        3,3,natmx)
+       call ecce_print1('gradient norm', mt_dbl, E(1), 1)
+       call ecce_print1('orbital gradient norm', mt_dbl, E(4), 1)
+c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
+       call ecce_print_module_exit('task gradient', 'ok')
+
+
+
+
+
 
       call nwpw_timing_end(10)
 

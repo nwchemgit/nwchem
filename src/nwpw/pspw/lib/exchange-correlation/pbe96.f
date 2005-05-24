@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.4 2005-02-09 02:19:35 bylaska Exp $
+* $Id: pbe96.f,v 1.5 2005-05-24 17:36:27 bylaska Exp $
 *
 
 *    ************************************
@@ -574,6 +574,9 @@ c        **** PBE96 correlation fdn and fdnc derivatives ****
          fn(i)  = x_parameter*fnx  + c_parameter*fnc
          fdn(i) = x_parameter*fdnx + c_parameter*fdnc
          
+
+c       write(*,*) "pbe96:",i,ec,fnc,fdnc
+
 
       end do
 

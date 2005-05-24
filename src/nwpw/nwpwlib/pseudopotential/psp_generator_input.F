@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.27 2005-02-08 01:25:56 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.28 2005-05-24 17:36:25 bylaska Exp $
 c
 
 *     ***************************************
@@ -616,7 +616,8 @@ c        *** BLYP ***
              read(99,*,ERR=31,END=31) ch_tmp
            end do
    31      write(99,*) '<exchange>    becke <end>'
-           write(99,*) '<correlation> lyp   <end>'
+c           write(99,*) '<correlation> lyp   <end>'
+           write(99,*) '<correlation> off   <end>'
            close(unit=99)
          end if
 
@@ -848,7 +849,8 @@ c        *** BLYP ***
              read(99,*,ERR=31,END=31) ch_tmp
            end do
    31      write(99,*) '<exchange>    becke <end>'
-           write(99,*) '<correlation> lyp   <end>'
+c           write(99,*) '<correlation> lyp   <end>'
+           write(99,*) '<correlation> off   <end>'
            close(unit=99)
 
 

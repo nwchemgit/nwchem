@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.18 2005-02-09 02:39:05 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.19 2005-05-24 17:36:26 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -37,7 +37,7 @@
       integer vlmatrix,vnlmatrix,vhxcmatrix(2),vhxc_new(2)
       integer psimatrix(2),hmatrix(2)
       integer nbasis,nbasis2,n2ft3d,npack1,it
-      real*8  rho_error,rho_error_old,total_dn
+      real*8  rho_error,rho_error_old,total_dn,sum
       character*30 filename
 
 *     **** external functions ****
@@ -242,7 +242,7 @@
          write(6,1305)
          call util_flush(6)
 
-        write(*,*)
+        write(6,*)
       end if
 
 *     ********************************
@@ -273,6 +273,8 @@
      >                           vhxcmatrix,
      >                           dcpl_mb(phi1(1)),
      >                           dcpl_mb(phi2(1)))
+       sum = ga_ddot(vhxcmatrix(1),vhxcmatrix(1))
+c       write(*,*) "SUM:",sum
 
 c     call lcao_diis_init(5,ispin,nbasis)
       rho_error = 10000.0d0
@@ -317,6 +319,8 @@ c     call lcao_diis_init(5,ispin,nbasis)
      >                           vhxc_new,
      >                           dcpl_mb(phi1(1)),
      >                           dcpl_mb(phi2(1)))
+       sum = ga_ddot(vhxc_new(1),vhxc_new(1))
+c       write(*,*) "SUM new:",sum
 
          call ga_add((1.0d0),vhxc_new(1),
      >              (-1.0d0),vhxcmatrix(1),

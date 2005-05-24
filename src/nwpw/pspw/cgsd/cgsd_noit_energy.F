@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.2 2003-10-17 22:57:10 carlfahl Exp $                       
+c     $Id: cgsd_noit_energy.F,v 1.3 2005-05-24 17:36:26 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*
@@ -52,6 +52,9 @@ c     call psi_2to1()
       value = value.and.rtdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
       value = value.and.rtdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
       value = value.and.rtdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
+      value = value.and.rtdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(22))
+      value = value.and.rtdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(23))
+      value = value.and.rtdb_put(rtdb,'pspw:E_hfx',     mt_dbl,1,E(26))
       if (.not. value) call errquit(
      >   'cgsd_noit_energy: numerical stress - error writing rtdb',0,
      &       RTDB_ERR)
