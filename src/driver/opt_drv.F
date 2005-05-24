@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.114 2005-05-17 02:04:50 bylaska Exp $
+* $Id: opt_drv.F,v 1.115 2005-05-24 23:01:25 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -3159,6 +3159,7 @@ c
 c
       integer i,ia,k
       double precision e0, ep, em, grad, hess, step
+      double precision step0
 c
       logical task_gradient, task_energy, opt_geom_cart_coords_get,
      $     opt_geom_cart_coords_set
@@ -3211,6 +3212,9 @@ c
       call opt_get_grad(rtdb,geom) ! Into gx
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, e0))
      $     call errquit('driver: could not get energy',0,0)
+
+      if (.not.rtdb_get(rtdb,"driver:checkgradstep",mt_dbl,1,step0)) 
+     >  step0 = 0.01
 c
       if (ga_nodeid() .eq. 0) 
      >   write(6,8) "comp","anal-g","num-g","error","hess","step","de" 
@@ -3223,7 +3227,7 @@ c      do i = 1, ncart
          i = i +1
          if(oactive(ia)) then
 c
-         step = 0.01
+         step = step0
 c
  10      continue
          if (.not. geom_rtdb_load(rtdb,geom,'checkgrad')) 
