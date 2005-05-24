@@ -1,5 +1,5 @@
 *
-* $Id: stress_fd.F,v 1.6 2005-05-24 17:36:26 bylaska Exp $
+* $Id: stress_fd.F,v 1.7 2005-05-24 20:09:17 bylaska Exp $
 *
       logical function stress_fd(rtdb)
       implicit none
@@ -11,6 +11,10 @@
 #include "inp.fh"
 #include "util.fh"
 #include "geom.fh"
+
+      logical oprint
+      integer taskid,MASTER
+      parameter (MASTER=0)
 
       integer l,i,j
       integer r1(2),geom,nion
@@ -42,6 +46,8 @@
       logical  pspw_noit_energy
       external pspw_noit_energy
 
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
 
 *     **** initialize and read in geometry object ****
       value     = value.and.geom_create(geom,'geometry')
@@ -80,13 +86,13 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
-      write(6,*)
-      write(6,
+      if (oprint) write(6,*)
+      if (oprint) write(6,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita2(i,j),'(+)',
      &   'wall time:',util_wallsec(),
      &   'date:',date_string(1:date_len)
-      call util_flush(6)
+      if (oprint) call util_flush(6)
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
       value = value.and.pspw_noit_energy(rtdb)
@@ -137,13 +143,13 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
-      write(6,*)
-      write(6,
+      if (oprint) write(6,*)
+      if (oprint) write(6,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
      &   'amatrix i,j:',i,j,unita3(i,j),'(-)',
      &   'wall time:',util_wallsec(),
      &   'date:',date_string(1:date_len)
-      call util_flush(6)
+      if (oprint) call util_flush(6)
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
     
