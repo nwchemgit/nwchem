@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.54 2005-05-24 17:36:26 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.55 2005-05-24 20:02:17 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -743,6 +743,7 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
 c     *** call dscal(9,-1.0d0,stress,1)
       call write_stress(stress,"total gradient")
 
+      call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
         write(*,*)
         write(*,1811) "dE/da     = ",lstress(1)
