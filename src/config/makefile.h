@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.503 2005-04-25 21:34:25 edo Exp $
+# $Id: makefile.h,v 1.504 2005-05-26 00:23:54 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1454,7 +1454,11 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
            DEFINES  += -DBAD_GACCESS
          endif
        else
+        ifeq ($(FC),gfortran)
+         FOPTIONS += -fdefault-integer-8
+        else
          FOPTIONS += -i8
+       endif
          DEFINES  += -DEXT_INT
        endif
   MAKEFLAGS = -j 1 --no-print-directory
@@ -1588,6 +1592,9 @@ endif # end of ia32 bit
       ifeq ($(FC),ifort)
        _FC=ifc
       endif
+      ifeq ($(FC),gfortran)
+       _FC=gfortran
+      endif
       ifeq ($(_FC),ifc)
        _IFCV81= $(shell ifc -v  2>&1|egrep "Version "|head -1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
        ifeq ($(_IFCV81),Y)
@@ -1663,6 +1670,18 @@ endif # end of ia32 bit
        COPTIONS += -pg
        LDOPTIONS += -pg
      endif
+
+      ifeq ($(_FC),gfortran)
+#gcc version 4.1.0 20050525 (experimental)
+        LINK.f = gfortran  $(LDFLAGS) 
+#        FOPTIONS   += -x f77-cpp-input
+        FOPTIONS   += -Wextra -Wunused -Wuninitialized -pedantic
+        FOPTIMIZE   = -O3 
+        FOPTIMIZE  += -mfpmath=sse -ffast-math
+        FOPTIMIZE  += -fprefetch-loop-arrays -ftree-loop-linear
+        FDEBUG = -g -O 
+        DEFINES  += -DCHKUNDFLW -DGCC4
+      endif
 endif
 
     ifeq ($(_CPU),ppc64)

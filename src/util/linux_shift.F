@@ -1,6 +1,8 @@
+#ifdef GCC4
+#else
       integer function ishft(i,j)
 *
-* $Id: linux_shift.F,v 1.3 1997-10-31 20:45:33 d3e129 Exp $
+* $Id: linux_shift.F,v 1.4 2005-05-26 00:23:57 edo Exp $
 *
       implicit none
       integer i,j
@@ -12,3 +14,4 @@ c
       if(j.lt.0) ishft=rshift(i,-j)
       return
       end
+#endif

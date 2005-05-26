@@ -1,4 +1,4 @@
-c $Id: util_perf_test.F,v 1.2 2003-08-13 20:22:23 edo Exp $
+c $Id: util_perf_test.F,v 1.3 2005-05-26 00:23:57 edo Exp $
 c------------------------------------------------------------------------
 c Program perf.x is used to test performance of GA put, get, accumulate  |
 c It has to be executed on four processors.                              |
@@ -26,7 +26,7 @@ c     call ga_initialize()
          if (ga_nodeid().eq.0) then
          write(6,*) '[This test requires 4 processors]'
          write(6,*) '[This test will be skipped]'
-         call ffflush(6)
+         call util_flush(6)
          endif
          return
       endif
@@ -134,7 +134,7 @@ c
      &           '           accumulate'
         write(6,*)' bytes    dim     sec      MB/s     sec      MB/s',
      &           '     sec      MB/s'
-        call flush(6)
+        call util_flush(6)
       endif
       call ga_sync()
 c
@@ -173,7 +173,7 @@ c
         if (me .eq. 0) then
           write(6,77)bytes, chunk(loop), tg, 
      &          1d-6*bytes/tg,tp, 1d-6*bytes/tp, ta, 1d-6*bytes/ta
-          call flush(6)
+          call util_flush(6)
         endif
       enddo
 c
@@ -397,7 +397,7 @@ c
      &           '           accumulate'
         write(6,*)' bytes    dim     sec      MB/s     sec      MB/s',
      &           '     sec      MB/s'
-        call flush(6)
+        call util_flush(6)
       endif
       call ga_sync()
 c
@@ -436,7 +436,7 @@ c
         if (me .eq. 0) then
           write(6,77)bytes, chunk(loop), tg, 
      &          1d-6*bytes/tg,tp, 1d-6*bytes/tp, ta, 1d-6*bytes/ta
-          call flush(6)
+          call util_flush(6)
         endif
       enddo
 c

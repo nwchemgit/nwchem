@@ -1,5 +1,5 @@
       subroutine util_getarg(iarg_in,arg)
-* $Id: util_getarg.F,v 1.9 2004-12-30 23:27:15 edo Exp $
+* $Id: util_getarg.F,v 1.10 2005-05-26 00:23:57 edo Exp $
 *
 * The statement call util_getarg( k , arg ) gets the  kth  command-
 * line argument and puts it into the string arg.
@@ -8,7 +8,7 @@
 #include "errquit.fh"
       integer iarg_in
       character*(*) arg
-#if defined(EXT_INT)
+#if defined(EXT_INT) && !defined(GCC4)
       integer*4 iarg
 #else
       integer iarg
