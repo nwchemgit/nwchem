@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.15 2004-12-30 23:27:14 edo Exp $
+C     $Id: get_inp_file.F,v 1.16 2005-05-26 00:25:59 edo Exp $
       implicit none
 #include "inp.fh"
 #include "global.fh"
@@ -31,7 +31,7 @@ c
 #else
       integer iargc
 #endif
-#if !(defined(IFCV8) || defined(HPUX)) 
+#if !(defined(IFCV8) || defined(HPUX)||defined(GCC4)) 
       external iargc
 #endif
 c     
