@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.504 2005-05-26 00:23:54 edo Exp $
+# $Id: makefile.h,v 1.505 2005-05-27 01:50:43 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1311,6 +1311,9 @@ ifeq ($(LINUXCPU),x86)
  ifeq ($(FC),ifort)
      _FC=ifc
  endif
+ ifeq ($(FC),gfortran)
+   _FC=gfortran
+  endif
   ifeq ($(_FC),ifc)
   FOPTIONS   =  -align    -mp1 -w -g -vec_report3
   ifdef  USE_GPROF
@@ -1349,6 +1352,22 @@ ifeq ($(LINUXCPU),x86)
       FOPTIMIZE += -ansi_alias-
     endif
   endif
+      ifeq ($(_FC),gfortran)
+#gcc version 4.1.0 20050525 (experimental)
+        LINK.f = gfortran  $(LDFLAGS) 
+        FOPTIONS   = -Wextra -Wunused -malign-double -ffast-math
+        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
+        ifeq ($(_CPU),i786)
+          FOPTIONS += -march=pentium4 -msse2 
+          FVECTORIZE = $(FOPTIMIZE) -O3 -ftree-vectorize 
+          FVECTORIZE += -ftree-vectorizer-verbose=1
+#        FOPTIMIZE  += -fprefetch-loop-arrays -ftree-loop-linear
+        else
+          FOPTIONS +=  -ffloat-store
+        endif
+        FDEBUG = -g -O0
+        DEFINES  += -DCHKUNDFLW -DGCC4
+      endif
 
   ifeq ($(CC),icc)
     COPTIONS   =   -mp1 -w -g -vec_report3
@@ -1675,7 +1694,7 @@ endif # end of ia32 bit
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
 #        FOPTIONS   += -x f77-cpp-input
-        FOPTIONS   += -Wextra -Wunused -Wuninitialized -pedantic
+        FOPTIONS   += -Wextra -Wunused -Wuninitialized
         FOPTIMIZE   = -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
         FOPTIMIZE  += -fprefetch-loop-arrays -ftree-loop-linear

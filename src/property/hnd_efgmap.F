@@ -1,6 +1,6 @@
       subroutine hnd_efgmap(rtdb,basis,geom)
 c
-c $Id: hnd_efgmap.F,v 1.5 2005-04-20 23:56:26 marat Exp $
+c $Id: hnd_efgmap.F,v 1.6 2005-05-27 01:51:04 edo Exp $
 c
 c     This routine calculates the electric field gradient and 
 c     the orientation of the EFG for a given density at the
@@ -144,15 +144,14 @@ c
             if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
      &         dbl_mb(k_efcz))) call 
      &         errquit('hnd_efgmap: rtdb get failed efcz',913,rtdb_err)
-            do 220 i = 1,nefc
+            do i = 1,nefc
                xn = dbl_mb(k_efcc+3*(i-1)  ) - xp
                yn = dbl_mb(k_efcc+3*(i-1)+1) - yp
                zn = dbl_mb(k_efcc+3*(i-1)+2) - zp
                rr =  sqrt(xn*xn + yn*yn + zn*zn)
                if (rr.lt.1.0d-3) then
                   write(luout,9993) xp,yp,zp,i
-                  goto 220
-               endif
+               else
                rr5=rr*rr*rr*rr*rr
                efgxx = efgxx - dbl_mb(k_efcz+i-1)*xn*xn/rr5
                efgyy = efgyy - dbl_mb(k_efcz+i-1)*yn*yn/rr5
@@ -160,7 +159,9 @@ c
                efgxy = efgxy - dbl_mb(k_efcz+i-1)*xn*yn/rr5
                efgxz = efgxz - dbl_mb(k_efcz+i-1)*xn*zn/rr5
                efgyz = efgyz - dbl_mb(k_efcz+i-1)*yn*zn/rr5
-  220       continue
+            endif
+            enddo
+ 220        continue
             if (.not.ma_chop_stack(l_efcc)) call 
      &         errquit('hnd_efgmap: chop stack l_efcc',913,ma_err)
          endif
@@ -175,8 +176,7 @@ c        ----------------------------------
                rr =  sqrt(xn*xn + yn*yn + zn*zn)
                if (rr.lt.1.0d-3) then
                   write(luout,9993) xp,yp,zp,i
-                  goto 220
-               endif
+               else
                rr5=rr*rr*rr*rr*rr
                efgxx = efgxx - dbl_mb(i_qbq+i-1)*xn*xn/rr5
                efgyy = efgyy - dbl_mb(i_qbq+i-1)*yn*yn/rr5
@@ -184,6 +184,7 @@ c        ----------------------------------
                efgxy = efgxy - dbl_mb(i_qbq+i-1)*xn*yn/rr5
                efgxz = efgxz - dbl_mb(i_qbq+i-1)*xn*zn/rr5
                efgyz = efgyz - dbl_mb(i_qbq+i-1)*yn*zn/rr5
+               endif
             end do
          end if
 c

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.47 2005-01-12 01:48:42 edo Exp $
+#$Id: GNUmakefile,v 1.48 2005-05-27 01:51:04 edo Exp $
 
 include ../config/makefile.h
 
@@ -128,5 +128,10 @@ ifeq ($(TARGET),MACX)
   ifeq ($(FC),g77)
     FOPTIMIZE +=-fno-fast-math
   endif
+endif
+ifeq ($(_FC),gfortran)
+  ifeq ($(_CPU),i786)
+    FOPTIMIZE +=-ffloat-store
+ endif
 endif
 

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.184 2005-05-26 00:23:57 edo Exp $
+# $Id: GNUmakefile,v 1.185 2005-05-27 01:51:04 edo Exp $
 
 include ../config/makefile.h
 
@@ -104,9 +104,6 @@ ifeq ($(_CPU),ia64)
 endif
 ifeq ($(_CPU),x86_64)
   EXTRA_OBJ = linux_cpu.o linux_shift.o linux_random.o   erfc.o  linux_setfpucw.o
-  ifeq ($(FC),gfortran)
-    EXTRA_OBJ += util_cflush.o
-  endif
   ifeq ($(FC),pathf90)
     EXTRA_OBJ += util_cflush.o
   endif
