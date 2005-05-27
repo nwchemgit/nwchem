@@ -32,9 +32,156 @@ c
       if(.not.bq_create("qmmm charges",bq_handle))
      + call errquit(pname//'Failed bq_create',0,CALC_ERR) 
 
+      call qmmm_bq_data_load()
+
       end
 
       subroutine qmmm_bq_data_load()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "bq.fh"
+#include "util.fh"
+      logical link
+      integer i,k
+      integer i_lb
+      integer i_mbq,h_mbq
+      integer nlink
+      integer il
+      double precision charge
+      character*32 pname
+
+      pname = "qmmm_bq_data_load"
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "in",pname
+      link = .true.
+
+      call qmmm_bq_data_dealloc()
+c
+c
+      if(allbqs) call mm_activate_bqszone()
+      if(allbqw) call mm_activate_bqwzone()
+c
+      call mm_prune_bqzone()
+c
+      if(readbq) then
+         call qmmm_read_nbq()
+      else
+         call mm_get_tot_nbqs(nbqs,link)
+         call mm_get_tot_nbqw(nbqw)
+      end if
+c
+      nbq=nbqs+nbqw
+      call mm_get_tot_nact_bq(nbqa)
+      
+      if(nbq.eq.0) return
+
+      call qmmm_bq_data_alloc()
+
+c     get global index
+      if(readbq) then
+        call qmmm_read_ibq()
+        call mm_reset_solute_bqzone(nbqs,int_mb(i_ibq))
+        call mm_reset_solvent_bqzone(nbqw,int_mb(i_ibq+nbqs))
+      else
+        if(nbqs.ne.0) then
+          call mm_get_solute_bq_ind(nbqs,link,int_mb(i_ibq))
+        end if
+        if(nbqw.ne.0) then
+          call mm_get_solvent_ind_bq(nbqw,int_mb(i_ibq+nbqs))
+        end if
+      end if
+
+      if(nbqs.ne.0) then
+        call mm_get_solute_geom_bq(nbqs,link,
+     >                       int_mb(i_ibq),
+     >                       dbl_mb(i_cbq),
+     >                       dbl_mb(i_qbq))
+
+        if(bq_exclude.eq.qmmm_all_atoms) then
+          do i=1,nbqs
+             dbl_mb(i_qbq+i-1) = 0.0d0
+          end do
+        end if
+      end if
+      if(qmmm_print_debug()) 
+     >       write(*,*) "finished setting up solute bq charges"
+c
+c     append solvent bq coord and charges from MM
+c     -------------------------------------------    
+      if(nbqw.ne.0) then
+        call mm_get_solvent_geom(nbqw,int_mb(i_ibq+nbqs),
+     >                       dbl_mb(i_cbq+3*nbqs),
+     >                       dbl_mb(i_qbq+nbqs))
+      end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "finished setting up solvent bq charges"
+
+c
+      if(qmmm_master()) then
+         write(*,*) "Total number of Bq charges",nbq
+         write(*,*) "Number of solute Bq charges",nbqs
+         write(*,*) "Number of solvent Bq charges",nbqw
+      end if
+c     
+c     save bq indexes
+      call qmmm_save_bq_index()
+
+      if(.not.bq_pset(bq_handle,nbq,h_qbq,h_cbq))
+     + call errquit(pname//'Failed bq_pset',0,CALC_ERR)
+      if(.not.bq_activate(bq_handle)) 
+     + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
+
+c
+c     get active list of bqs
+c     ------------------------
+
+      call mm_get_solute_act_bq_ind(nbqa,
+     >                       int_mb(i_ibqa))
+
+
+      write(*,*) "active bqs",nbqa,(int_mb(i_ibqa+i-1),i=1,nbqa)
+
+      charge = 0.0d0
+      do i=1,nbq
+       charge = charge + dbl_mb(i_qbq+i-1)
+      end do
+      if(ga_nodeid().eq.0) then
+       write(*,*) "Total Bq charge: ", charge
+      end if
+
+      if(util_print('bq_geom', print_high)) 
+     + call bq_print_info(bq_handle)
+
+       if(ga_nodeid().eq.0) 
+     > call qmmm_print_pdb_bq(nbq,"-bq.pdb",
+     >                    dbl_mb(i_cbq),
+     >                    dbl_mb(i_qbq))
+
+      if(qmmm_print_debug()) then
+        call util_print_centered(6,"Bq information",
+     >              36, .true.)
+        write(*,'(/,A,T20,A,/)') "global index","coordinates(au)"
+        do i=1,nbqs+nbqw
+         write(*,'(I5,T20,3F12.6)') int_mb(i_ibq+i-1),
+     >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
+        end do
+      end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "out",pname
+    
+      end
+
+      subroutine qmmm_bq_data_load0()
       implicit none
 c
 #include "mafdecls.fh"
@@ -207,6 +354,35 @@ c     save bq indexes
     
       end
 
+      subroutine qmmm_bq_coord_update()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      if(nbqs.ne.0) then
+        call mm_get_solute_coord_bq(nbqs,
+     >                       int_mb(i_ibq),
+     >                       dbl_mb(i_cbq))
+
+      end if
+
+c
+c     append solvent bq coord and charges from MM
+c     -------------------------------------------    
+      if(nbqw.ne.0) then
+        call mm_get_solvent_coord(nbqw,int_mb(i_ibq+nbqs),
+     >                       dbl_mb(i_cbq+3*nbqs))
+      end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "finshed updating up bq coords"
+    
+      end
+
       subroutine qmmm_bq_update()
       implicit none
 c
@@ -266,7 +442,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_bq_data.fh"
-
+      integer i
       if(nbq.eq.0) return
 
       if(.not.ma_alloc_get(mt_dbl,3*nbq,'cbq',h_cbq,i_cbq))
@@ -281,6 +457,11 @@ c
      + call errquit('qmmm: Failed to allocate memory for ibq',nbq,
      &       MA_ERR)
       call ifill(nbq,0,int_mb(i_ibq),1)
+
+      if(.not.ma_alloc_get(mt_int,nbqa,'i_ibqa',h_ibqa,i_ibqa))
+     + call errquit('qmmm: Failed to allocate memory for i_ibqa',nbq,
+     &       MA_ERR)
+      call ifill(nbqa,0,int_mb(i_ibqa),1)
       
       end
 
@@ -295,6 +476,10 @@ c
 
       if(nbq.eq.0) return
 
+      if(.not.ma_free_heap(h_ibqa))
+     + call errquit('qmmm:memory deallocation for ibqa',nbqa,
+     &       MA_ERR)
+  
       if(.not.ma_free_heap(h_ibq))
      + call errquit('qmmm:memory deallocation for ibq',nbq,
      &       MA_ERR)
@@ -323,6 +508,16 @@ c
       integer qmmm_get_nbq
 
       qmmm_get_nbq = nbqs+nbqw
+
+      end 
+
+      function qmmm_get_nbqa()
+      implicit none
+#include "qmmm_bq_data.fh"
+
+      integer qmmm_get_nbqa
+
+      qmmm_get_nbqa = nbqa
 
       end 
 
@@ -388,6 +583,15 @@ c
       integer qmmm_get_i_ibq
 
       qmmm_get_i_ibq = i_ibq
+
+      end 
+
+      function qmmm_get_i_ibqa()
+      implicit none
+#include "qmmm_bq_data.fh"
+      integer qmmm_get_i_ibqa
+
+      qmmm_get_i_ibqa = i_ibqa
 
       end 
 
@@ -552,6 +756,46 @@ c     local variables
       call util_flush(46)
       close(46)
 
+
+      end
+
+      subroutine qmmm_get_cqbqa(nt,
+     >                       c,
+     >                       q)
+      implicit none
+
+#include "qmmm_bq_data.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      integer nt
+      double precision c(3,nt)
+      double precision q(nt)
+c
+      integer i,j,k,ia
+      integer ii,jj
+
+      write(*,*) "debug"
+      do i=1,nbq
+        write(*,'(F12.6)') dbl_mb(i_qbq+i-1)
+      end do
+
+
+      ia = 0
+      do i=1,nbq 
+        ii = int_mb(i_ibq+i-1)
+        do j=1,nbqa
+          jj = int_mb(i_ibqa+j-1)
+          if(ii.eq.jj) then
+             ia = ia + 1
+             q(ia) = dbl_mb(i_qbq+i-1)
+             do k=1,3
+               c(k,ia) = dbl_mb(i_cbq+(i-1)*3+k-1)
+             end do
+          end if
+        end do
+      end do
 
       end
 

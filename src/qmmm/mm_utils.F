@@ -312,6 +312,24 @@ c         mm_bqzone = mm_bqzone .and. iand(int_mb(psdt+i-1),lqlink).eq.0
          
        end
 
+      function mm_active_bq(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_active_bq
+c        local variables
+         integer psdt,psz
+
+         call mm_get_psdt(psdt)
+         call mm_get_psz(psz)
+
+         mm_active_bq = (iand(int_mb(psdt+i-1),mfixed).ne.lfixed).and.
+     >               (iand(int_mb(psdt+i-1),lquant).eq.0).and.
+     >               (int_mb(psz+i-1).gt.0)
+         
+       end
+
       function mm_fixed(i)
          implicit none
 #include "mafdecls.fh"
@@ -324,6 +342,21 @@ c        local variables
          call mm_get_psdt(psdt)
 
          mm_fixed = iand(int_mb(psdt+i-1),mfixed).eq.lfixed
+         
+       end
+
+      function mm_active(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_active
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+
+         mm_active = iand(int_mb(psdt+i-1),mfixed).ne.lfixed
          
        end
 
@@ -352,6 +385,23 @@ c        local variables
 
          mm_link_bqzone = iand(int_mb(psdt+i-1),lquant).eq.0
          mm_link_bqzone = mm_link_bqzone .and. int_mb(psz+i-1).gt.0
+         
+       end
+
+      function mm_qmbqzone(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_qmbqzone
+c        local variables
+         integer psdt,psz
+
+         call mm_get_psdt(psdt)
+         call mm_get_psz(psz)
+
+         mm_qmbqzone = iand(int_mb(psdt+i-1),lquant).eq.0 .or.
+     >                 int_mb(psz+i-1).gt.0
          
        end
 

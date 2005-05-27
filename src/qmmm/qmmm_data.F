@@ -31,37 +31,42 @@ c
       call mm_get_tot_nqm(nqm)
       if(ga_nodeid().eq.0) 
      >  write(*,*) "number of quantum atoms",nqm
-
-      if(qmmm_h_link()) then
-        call mm_count_links(nlink,h_lb,i_lb)
-        nqm = nqm + nlink
-        if(ga_nodeid().eq.0) 
-     >  write(*,*) "number of link atoms",nlink
-      else
-        nlink = 0
-        call mm_count_qlinks(nps,h_ips,i_ips)
-      end if
 c
 c     allocate data arrays
 c     --------------------
       call qmmm_data_alloc()
-
 c 
 c     establish persistent mapping between mm and qm atoms
 c     first go pure quantum atoms and then links
 c     ----------------------------------------------------
-      call mm_get_solute_quant_ind(nqm-nlink,int_mb(i_ai))
-      if(nlink.gt.0) then
-        do i=1,nlink
-          int_mb(i_ai+nqm-nlink+i-1)=int_mb(i_lb+nlink+i-1)
-        end do
-c        call mm_get_solute_link_ind(nlink,int_mb(i_ai+nqm-nlink))
-      end if
-
+      call mm_get_solute_quant_ind(nqm,int_mb(i_ai))
       if(.not.rtdb_get(irtdb,'charge',mt_dbl,1,qcharge)) then
         qcharge = 0.0d0    
       end if
 
+c       
+c     get mm constraints if any
+c     ------------------------
+      call mm_get_solute_cons(nqm,
+     >                       int_mb(i_ai),
+     >                       log_mb(i_act))
+
+
+      end
+
+      subroutine qmmm_get_nqm_act(nqm_act)
+      implicit none
+#include "mafdecls.fh"
+#include "qmmm_data.fh"
+c
+      integer nqm_act
+c
+      integer i
+      
+      nqm_act = 0
+      do i=1,nqm
+        if(log_mb(i_act+i-1)) nqm_act = nqm_act + 1
+      end do
 
       end
 
@@ -71,6 +76,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_data.fh"
+#include "qmmm_link_data.fh"
 #include "qmmm_params.fh"
 #include "rtdb.fh"
 #include "global.fh"
@@ -302,7 +308,6 @@ c      end if
      + call errquit('qmmm_data_init: qmmm:linkatm',link_atom,
      &       RTDB_ERR)
 
-      nlink = -1 
       nqm   = -1 
 
       end
@@ -323,50 +328,6 @@ c     -------------
      &      'qmmm_data_alloc: unable to allocate heap space',
      &      nqm, MA_ERR)
       call ifill(nqm,-1,int_mb(i_ai),1)
-c
-c     coordinqme array
-c     -------------
-      if(.not.ma_alloc_get(MT_DBL, 3*nqm, 'qmmm coord array',
-     &      h_c, i_c) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-      call dfill(3*nqm,0,dbl_mb(i_c),1)
-
-c
-c     charge array
-c     -------------
-      if(.not.ma_alloc_get(MT_DBL, nqm, 'qmmm charge array',
-     &      h_q, i_q) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-      call dfill(nqm,0,dbl_mb(i_q),1)
-
-c
-c     mass array
-c     -------------
-      if(.not.ma_alloc_get(MT_DBL, nqm, 'qmmm mass array',
-     &      h_m, i_m) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-      call dfill(nqm,0,dbl_mb(i_m),1)
-
-c
-c     tag array
-c     -------------
-      if(.not.ma_alloc_get(MT_BYTE, 16*nqm, 'qmmm tag array',
-     &      h_t, i_t) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-
-c
-c     atomic number array
-c     -------------------
-      if(.not.ma_alloc_get(MT_INT, nqm, 'qmmm inum array',
-     &      h_num, i_num) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-      call ifill(nqm,0,int_mb(i_num),1)
-
 c   
 c     index list of active atoms  
 c     --------------------------
@@ -376,16 +337,60 @@ c     --------------------------
      &      nqm, MA_ERR)
       
        do i=1,nqm
-         log_mb(i_act+i-1) = .false.
+         log_mb(i_act+i-1) = .true.
        end do
 c
-c     charge array
-c     -------------
-      if(.not.ma_alloc_get(MT_DBL, nqm, 'qmmm esp charge array',
-     &      h_qs, i_qs) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-      call dfill(nqm,0,dbl_mb(i_qs),1)
+c
+cc     coordinqme array
+cc     -------------
+c      if(.not.ma_alloc_get(MT_DBL, 3*nqm, 'qmmm coord array',
+c     &      h_c, i_c) ) call errquit(
+c     &      'qmmm_data_alloc: unable to allocate heap space',
+c     &      nqm, MA_ERR)
+c      call dfill(3*nqm,0,dbl_mb(i_c),1)
+c
+cc
+cc     charge array
+cc     -------------
+c      if(.not.ma_alloc_get(MT_DBL, nqm, 'qmmm charge array',
+c     &      h_q, i_q) ) call errquit(
+c     &      'qmmm_data_alloc: unable to allocate heap space',
+c     &      nqm, MA_ERR)
+c      call dfill(nqm,0,dbl_mb(i_q),1)
+c
+cc
+cc     mass array
+cc     -------------
+c      if(.not.ma_alloc_get(MT_DBL, nqm, 'qmmm mass array',
+c     &      h_m, i_m) ) call errquit(
+c     &      'qmmm_data_alloc: unable to allocate heap space',
+c     &      nqm, MA_ERR)
+c      call dfill(nqm,0,dbl_mb(i_m),1)
+c
+cc
+cc     tag array
+cc     -------------
+c      if(.not.ma_alloc_get(MT_BYTE, 16*nqm, 'qmmm tag array',
+c     &      h_t, i_t) ) call errquit(
+c     &      'qmmm_data_alloc: unable to allocate heap space',
+c     &      nqm, MA_ERR)
+c
+cc
+cc     atomic number array
+cc     -------------------
+c      if(.not.ma_alloc_get(MT_INT, nqm, 'qmmm inum array',
+c     &      h_num, i_num) ) call errquit(
+c     &      'qmmm_data_alloc: unable to allocate heap space',
+c     &      nqm, MA_ERR)
+c      call ifill(nqm,0,int_mb(i_num),1)
+c
+cc     charge array
+cc     -------------
+c      if(.not.ma_alloc_get(MT_DBL, nqm, 'qmmm esp charge array',
+c     &      h_qs, i_qs) ) call errquit(
+c     &      'qmmm_data_alloc: unable to allocate heap space',
+c     &      nqm, MA_ERR)
+c      call dfill(nqm,0,dbl_mb(i_qs),1)
 
     
       end
@@ -396,50 +401,38 @@ c     -------------
 #include "errquit.fh"
 #include "qmmm_data.fh"
 
-      if(.not.ma_free_heap(h_num))
-     & call errquit('qmmm c: Failed to deallocate heap',nqm,
-     &       MA_ERR)
+c      if(.not.ma_free_heap(h_num))
+c     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
+c
+c      if(.not.ma_free_heap(h_t))
+c     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
+c 
+c      if(.not.ma_free_heap(h_m))
+c     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
+c 
+c      if(.not.ma_free_heap(h_q))
+c     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
+c     
+c      if(.not.ma_free_heap(h_c))
+c     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
 
-      if(.not.ma_free_heap(h_t))
-     & call errquit('qmmm c: Failed to deallocate heap',nqm,
-     &       MA_ERR)
- 
-      if(.not.ma_free_heap(h_m))
-     & call errquit('qmmm c: Failed to deallocate heap',nqm,
-     &       MA_ERR)
- 
-      if(.not.ma_free_heap(h_q))
-     & call errquit('qmmm c: Failed to deallocate heap',nqm,
-     &       MA_ERR)
-     
-      if(.not.ma_free_heap(h_c))
-     & call errquit('qmmm c: Failed to deallocate heap',nqm,
+      if(.not.ma_free_heap(h_act))
+     & call errquit('qmmm ai: Failed to deallocate heap',nqm,
      &       MA_ERR)
 
       if(.not.ma_free_heap(h_ai))
      & call errquit('qmmm ai: Failed to deallocate heap',nqm,
      &       MA_ERR)
 
-      if(.not.ma_free_heap(h_act))
-     & call errquit('qmmm ai: Failed to deallocate heap',nqm,
-     &       MA_ERR)
-
-      if(.not.ma_free_heap(h_qs))
-     & call errquit('qmmm qs: Failed to deallocate heap',nqm,
-     &       MA_ERR)
-
-
-      if(nlink.ne.0) then
-       if(.not.ma_free_heap(h_lb))
-     &   call errquit('qmmm ai: Failed to deallocate heap',nqm,
-     &       MA_ERR)
-       end if
-
-      if(nps.ne.0) then
-       if(.not.ma_free_heap(h_ips))
-     &   call errquit('qmmm ai: Failed to deallocate heap',nps,
-     &       MA_ERR)
-       end if
+c
+c      if(.not.ma_free_heap(h_qs))
+c     & call errquit('qmmm qs: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
 
 
        return
@@ -455,50 +448,12 @@ c     -------------
 
       end 
 
-      function qmmm_get_nlink()
-      implicit none
-#include "qmmm_data.fh"
-
-      integer qmmm_get_nlink
-
-      qmmm_get_nlink = nlink
-
-      end 
-
-      function qmmm_get_nps()
-      implicit none
-#include "qmmm_data.fh"
-
-      integer qmmm_get_nps
-
-      qmmm_get_nps = nps
-
-      end 
-
       function qmmm_get_i_ai()
       implicit none
 #include "qmmm_data.fh"
       integer qmmm_get_i_ai
 
       qmmm_get_i_ai = i_ai
-
-      end 
-
-      function qmmm_get_i_lb()
-      implicit none
-#include "qmmm_data.fh"
-      integer qmmm_get_i_lb
-
-      qmmm_get_i_lb = i_lb
-
-      end 
-
-      function qmmm_get_i_ips()
-      implicit none
-#include "qmmm_data.fh"
-      integer qmmm_get_i_ips
-
-      qmmm_get_i_ips = i_ips
 
       end 
 
@@ -589,38 +544,6 @@ c     -------------
       double precision qmmm_get_qcharge
 
       qmmm_get_qcharge = qcharge
-
-      end 
-
-      function qmmm_get_link_atom()
-      implicit none
-#include "qmmm_data.fh"
-
-      integer qmmm_get_link_atom
-
-      qmmm_get_link_atom = link_atom
-
-      end 
-
-      function qmmm_h_link()
-      implicit none
-#include "qmmm_data.fh"
-#include "qmmm_params.fh"
-
-      logical qmmm_h_link
-
-      qmmm_h_link=link_atom.eq.qmmm_hydrogen
-
-      end 
-
-      function qmmm_halogen_link()
-      implicit none
-#include "qmmm_data.fh"
-#include "qmmm_params.fh"
-
-      logical qmmm_halogen_link
-
-      qmmm_halogen_link=link_atom.eq.qmmm_halogen
 
       end 
 

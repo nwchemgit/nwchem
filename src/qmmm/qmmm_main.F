@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.39 2005-05-04 17:51:36 marat Exp $
+c $Id: qmmm_main.F,v 1.40 2005-05-27 17:59:22 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -259,7 +259,7 @@ c    -------------------------------------
 c
 c    restore normal qm geometry (i.e. without bq's)
 c    ---------------------------------------------
-      call qmmm_restore_qm_geom(inrtdb)
+      call qmmm_restore_geom(inrtdb)
       call qmmm_unset_actlist(inrtdb)
 
       if(qmmm_print_debug())

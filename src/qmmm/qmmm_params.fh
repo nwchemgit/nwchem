@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_params.fh,v 1.5 2004-12-17 02:21:49 marat Exp $
+c $Id: qmmm_params.fh,v 1.6 2005-05-27 17:59:22 marat Exp $
 c
 c
 c     atom type parameters
@@ -40,3 +40,5 @@ c     ---------------
       integer max_nb
       parameter(max_nb=4)
 
+      integer max_driver_atoms
+      parameter(max_driver_atoms=3000)

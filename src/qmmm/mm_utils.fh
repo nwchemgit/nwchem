@@ -1,5 +1,5 @@
 c
-c $Id: mm_utils.fh,v 1.4 2004-12-21 02:09:41 marat Exp $
+c $Id: mm_utils.fh,v 1.5 2005-05-27 17:59:22 marat Exp $
 c
       logical  mm_quant
       external mm_quant
@@ -22,12 +22,21 @@ c
       logical  mm_bqwzone
       external mm_bqwzone
 
+      logical  mm_qmbqzone
+      external mm_qmbqzone
+
       logical  mm_identity
       external mm_identity
 
 
       logical  mm_fixed
       external mm_fixed
+
+      logical  mm_active
+      external mm_active
+
+      logical  mm_active_bq
+      external mm_active_bq
 
       integer mm_element
       external mm_element

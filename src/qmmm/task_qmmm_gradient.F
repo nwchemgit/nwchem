@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.18 2005-03-04 01:16:25 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.19 2005-05-27 17:59:22 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -38,6 +38,7 @@ c
 
       else if (interface.eq.'qm') then
          task_qmmm_gradient = qmmm_gradient(rtdb)
+c         call qmmm_push_grad_qm(rtdb)
       endif
 c
       end
@@ -58,6 +59,8 @@ c
       integer rtdb
       logical qmmm_gradient
       logical status
+      logical task_energy_doit
+      external task_energy_doit
       logical task_gradient_doit
       external task_gradient_doit
       character*255 theory
@@ -65,35 +68,41 @@ c
       double precision mm_energy
       double precision qm_energy
       integer i_g,h_g 
-      integer i_gmm,h_gmm 
+      integer i_gt,h_gt
       integer i_ai
       double precision eatoms
-      integer nqm,nbq
       logical link
       integer ntot
-      logical ignore_mm
-      logical ignore_qm
       character*30 operation
       logical do_actlist
       logical do_print
       logical save_rst
+      integer nfg,ng
+      integer i_ifg,i_ig
+      integer nact
+
+      status = .true.
 
       call util_print_push() 
       call util_print_rtdb_load(rtdb, 'qmmm')
-
-      link = .false.
-
       
-      if (.not. rtdb_get(rtdb,'qmmm:ignore_mm',mt_log,1,ignore_mm)) then
-         ignore_mm = .false.
-      end if
+      ng  = qmmm_geom_get_ng()
+      i_ig = qmmm_geom_get_i_ig()
+      nfg = qmmm_geom_get_nfg()
+      i_ifg = qmmm_geom_get_i_ifg()
 
-      if (.not. rtdb_get(rtdb,'qmmm:ignore_qm',mt_log,1,ignore_qm)) then
-         ignore_qm = .false.
-      end if
+      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm grad array',
+     &      h_g, i_g) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      3*ntot, MA_ERR)
+      call dfill(3*nfg,0,dbl_mb(i_g),1)
 
+      if(.not.ma_alloc_get(MT_DBL, 3*ng, 'qmmm grad array',
+     &      h_gt, i_gt) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      3*ntot, MA_ERR)
+      call dfill(3*ng,0,dbl_mb(i_gt),1)
 
-      status = .true.
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 
@@ -115,68 +124,52 @@ c
        if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
 
-c     get qm coordinates from geometry object
-      call qmmm_get_qm_coord_qm(rtdb)
-c     push qm coordinates to mm module
-      call qmmm_push_qm_coord_mm(rtdb)
+      call qmmm_push_coord_mm(rtdb)
+
 c     calculate mm gradients
       call mm_task_sp()
-
-c     h_qmm will hold mm contribution to forces on quantum atoms
-      nqm  = qmmm_get_nqm()
-      if(.not.ma_alloc_get(MT_DBL, 3*nqm, 'qmmm mm grad array',
-     &      h_gmm, i_gmm) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      nqm, MA_ERR)
-      call dfill(3*nqm,0,dbl_mb(i_gmm),1)
-
-      i_ai = qmmm_get_i_ai()
-      call mm_get_solute_force_quant(nqm,
-     &                     link,
-     &                     int_mb(i_ai),
-     &                     dbl_mb(i_gmm))
- 
-
-c     create full geometry object with Bq's
-      call qmmm_create_full_geom(rtdb)
-      call qmmm_print_current_geom(rtdb)
-
-      nbq  = qmmm_get_nbq()
-      ntot = nqm+nbq
-
-c     h_g will hold QM gradient for the full system
-      if(.not.ma_alloc_get(MT_DBL, 3*ntot, 'qmmm grad array',
-     &      h_g, i_g) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      3*ntot, MA_ERR)
-      call dfill(3*ntot,0,dbl_mb(i_g),1)
 c
-      if(do_actlist) 
-     >  call qmmm_load_fixed_atoms(rtdb)
+c     create full geometry
+c     -------------------
+      call qmmm_create_full_geom(rtdb)
+      call qmmm_bq_coord_update()
+c
+      call qmmm_map_fixed_atoms(rtdb,nact)
+c
+c     QM energy calculation
+c     --------------------
+      if(nact.ne.0) then
+        status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
+        call qmmm_links_adjust_forces(nfg,
+     &                       int_mb(i_ifg),
+     &                       dbl_mb(i_g))
 
 
-c     calculate gradients from qm
-      status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
+        call mm_add_solute_force(nfg,
+     &                     int_mb(i_ifg),
+     &                     dbl_mb(i_g))
 
-      if(ignore_qm) call dfill(3*ntot,0,dbl_mb(i_g),1)
-      if(ignore_mm) call dfill(3*nqm,0,dbl_mb(i_gmm),1)
+        call qmmm_bq_gradient(rtdb)
+       else
+        status = task_energy_doit(rtdb,theory,qm_energy)
+      end if
 
-c     add on classical contributions
-      call daxpy(3*nqm,1.0d0,dbl_mb(i_gmm),1,dbl_mb(i_g),1)
-      
-      call qmmm_link_forces_qm(ntot,dbl_mb(i_g))
 
-c     push final gradients onto qm module
-      call qmmm_push_qm_grad_qm(rtdb,3*nqm,dbl_mb(i_g))
+      call mm_get_solute_force(ng,
+     &                     int_mb(i_ig),
+     &                     dbl_mb(i_gt))
+
+      if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,
+     +                 3*ng,dbl_mb(i_gt)))
+     +   call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
 
 c     take care of the energies
+c
       mm_energy = 0.0d0
       if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
      $     call errquit('qmmm: failed getting  md energy',0,RTDB_ERR)
 
       mm_energy = mm_energy/cau2kj
-      if(ignore_qm) qm_energy = 0.0d0
-      if(ignore_mm) mm_energy = 0.0d0
       energy = qm_energy + mm_energy-eatoms
 
       if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
@@ -188,11 +181,12 @@ c     take care of the energies
       if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
-       if(.not.ma_free_heap(h_gmm))
-     & call errquit('qmmm g: Failed to deallocate heap',nqm,
+      if(.not.ma_free_heap(h_gt))
+     & call errquit('qmmm g: Failed to deallocate heap',nfg,
      &       MA_ERR)
+
       if(.not.ma_free_heap(h_g))
-     & call errquit('qmmm g: Failed to deallocate heap',nqm,
+     & call errquit('qmmm g: Failed to deallocate heap',nfg,
      &       MA_ERR)
 
       call qmmm_print_energy(rtdb)
@@ -200,18 +194,154 @@ c     take care of the energies
       qmmm_gradient=status
 
 c
-      call qmmm_restore_qm_geom(rtdb)
+      call qmmm_restore_geom(rtdb)
 
       call util_print_pop()
       if(save_rst)
      > call mm_write_restart()
 
-      if(do_actlist) 
-     >  call qmmm_unload_fixed_atoms(rtdb)
+      call qmmm_restore_fixed_atoms(rtdb)
 
       if(do_print)
      >  call mm_print_info()
 
+      end
+
+      subroutine qmmm_push_grad_qm(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+c
+      integer i_ig
+      integer i_gt,h_gt
+      integer ng
+
+      
+      ng   = qmmm_geom_get_ng()
+      i_ig = qmmm_geom_get_i_ig()
+
+      if(.not.ma_alloc_get(MT_DBL, 3*ng, 'qmmm grad array',
+     &      h_gt, i_gt) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      3*ng, MA_ERR)
+      call dfill(3*ng,0,dbl_mb(i_gt),1)
+
+      call mm_get_solute_force(ng,
+     &                     int_mb(i_ig),
+     &                     dbl_mb(i_gt))
+
+      if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,
+     +                 3*ng,dbl_mb(i_gt)))
+     +   call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
+
+      if(.not.ma_free_heap(h_gt))
+     & call errquit('qmmm g: Failed to deallocate heap',ng,
+     &       MA_ERR)
+
+      end
+
+      subroutine qmmm_bq_gradient(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+c 
+      integer i_c,h_c
+      integer i_q,h_q
+      integer i_i,h_i
+      integer i_g,h_g
+  
+      integer i,k,na
+      character*30 pname
+
+
+      pname = "qmmm_bq_gradient"
+
+      na  = qmmm_get_nbqa() 
+     
+      if(na.eq.0) return
+
+      if(.not.ma_push_get(MT_INT, na, 'active bq index',
+     &      h_i, i_i) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      na, MA_ERR)
+      call ifill(na,0,int_mb(i_i),1)
+
+      if(.not.ma_push_get(MT_DBL, na, 'active bq charges',
+     &      h_q, i_q) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      na, MA_ERR)
+      call dfill(na,0.0d0,dbl_mb(i_q),1)
+
+      if(.not.ma_push_get(MT_DBL,3*na, 'active bq coord',
+     &      h_c, i_c) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      3*na, MA_ERR)
+      call dfill(3*na,0.0d0,dbl_mb(i_c),1)
+
+      if(.not.ma_push_get(MT_DBL,3*na, 'active bq forces',
+     &      h_g, i_g) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      3*na, MA_ERR)
+      call dfill(3*na,0.0d0,dbl_mb(i_g),1)
+
+
+      i_i = qmmm_get_i_ibqa()
+
+      call qmmm_get_cqbqa(na,
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_q))
+
+
+      call qmmm_bq_forces(rtdb,
+     >                    na,
+     >                    dbl_mb(i_c),
+     >                    dbl_mb(i_q),
+     >                    dbl_mb(i_g))
+
+      call mm_add_solute_force(na,
+     &                     int_mb(i_i),
+     &                     dbl_mb(i_g))
+ 
+
+      if(.not.ma_pop_stack(h_g))
+     &      call errquit(
+     &      pname//'unable to pop stack',0,MA_ERR)
+
+      if(.not.ma_pop_stack(h_c))
+     &      call errquit(
+     &      pname//'unable to pop stack',0,MA_ERR)
+
+      if(.not.ma_pop_stack(h_q))
+     &      call errquit(
+     &      pname//'unable to pop stack',0,MA_ERR)
+
+      if(.not.ma_pop_stack(h_i))
+     &      call errquit(
+     &      pname//'unable to pop stack',0,MA_ERR)
+
+      call qmmm_restore_geom(rtdb)
+
+      
       end
 
       subroutine qmmm_push_qm_grad_qm(irtdb,n,g)
@@ -272,8 +402,11 @@ c     local variables
 
       end
 
-      subroutine qmmm_load_fixed_atoms1(rtdb)
+      subroutine qmmm_map_fixed_atoms(rtdb,nact1)
       implicit none
+c
+c this will map active atom list from auxiliary geometry in qm modules
+c to a  geometry used in task gradient. 
 c
 #include "rtdb.fh"
 #include "util.fh"
@@ -286,208 +419,129 @@ c
 #include "qmmm.fh"
 c
       integer rtdb
-c
-      logical prior_cons
-      character*32 namespace
-      character*32 pname
-      integer nqm,nact,nfix
-      integer i,j
-      integer i_cons,h_cons
-      integer i_act
-      integer icent
-      integer i_lfix,h_lfix
-      integer ma_type
-     
-      pname = "qmmm_create_fixed_atoms"
-     
-      call cons_inquire_fixed_atoms
-     >   (
-     >   prior_cons,
-     >   rtdb
-     >   )
-
-      if(.not.prior_cons) return
-
-      write(*,*) "found prior constraints"
-      if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
-     $        nact, h_cons)) then
-            if (.not. ma_get_index(h_cons, i_cons))
-     $           call errquit(pname,h_cons,
-     &       MA_ERR)
-      end if
-
-      call cons_sort_i(nact,int_mb(i_cons))
-
-      namespace = "qmmm_old_cons"
-      call cons_save_fixed_atoms(namespace,rtdb)
-      call cons_unload_fixed_atoms(rtdb)
-
-      nqm  = qmmm_get_nqm()
-      i_act = qmmm_get_i_act()
-
-
-      if(.not.ma_push_get(MT_LOG, nqm, 'qmmm lfix',
-     &      h_lfix, i_lfix) ) call errquit(
-     &      pname//' unable to allocate stack',
-     &      nqm, MA_ERR)
-
-
-      do i=1,nqm
-        log_mb(i_lfix+i-1)=.true.
-      end do
-
-      do i=1,nact
-        j = int_mb(i_cons+i-1)
-        log_mb(i_lfix+j-1)=.false.
-        write(*,*) "j=",j
-      end do
-
-      if (.not.ma_free_heap(h_cons))
-     $   call errquit(pname,h_cons,
-     &       MA_ERR)
-
-      if(.not.ma_push_get(MT_INT, nqm-nact, 'qmmm cons',
-     &      h_cons, i_cons) ) call errquit(
-     &      pname//' unable to allocate stack',
-     &      nqm, MA_ERR)
-
-
-
-      do i=1,nact
-        int_mb(i_cons+i-1) = -1
-      end do
-
-
-      icent = 0
-      nfix = 0
-      do i=1,nqm
-        if(log_mb(i_act+i-1)) then
-          icent = icent + 1
-          if(log_mb(i_lfix+icent-1)) then
-            nfix = nfix+1
-            int_mb(i_cons+nfix-1) = i
-            write(*,*) "i_cons,nfix",int_mb(i_cons+nfix-1),nfix
-          end if
-        end if
-      end do
-
-
-      namespace = "qmmm_new_cons"
-      write(*,*) "nfix=",nfix
-      write(*,*) (int_mb(i_cons+i-1),i=1,nfix)
-
-      call cons_add_fixed_atoms(namespace,nfix,int_mb(i_cons),rtdb)
-      call cons_load_fixed_atoms(namespace,rtdb)
-
-      if (.not. ma_pop_stack(h_cons) ) call errquit(
-     &    pname//' ma_pop_stack ',
-     &    0, MA_ERR)
-
-
-      if (.not. ma_pop_stack(h_lfix) ) call errquit(
-     &    pname//' ma_pop_stack ',
-     &    0, MA_ERR)
-
-      end
-
-      subroutine qmmm_load_fixed_atoms(rtdb)
-      implicit none
-c
-#include "rtdb.fh"
-#include "util.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "nwc_const.fh"
-#include "geom.fh"
-#include "qmmm_params.fh"
-#include "qmmm.fh"
-c
-      integer rtdb
-c
-      logical prior_cons
-      character*32 pname
-      integer nqm,nact,nfix
       integer nact1
+c
+      logical prior_cons
+      character*32 pname
+      integer nact
       integer i,j
       integer i_cons,h_cons
-      integer i_act
-      integer icent
-      integer i_lfix,h_lfix
+      integer i_act,h_act
       integer ma_type
+      integer ng,nfg,nbqa
+      integer i_ig,i_ifg,i_ibqa
+      integer jj0,jj,ii
+      integer nlink
+      integer i_lb
      
-      pname = "qmmm_create_fixed_atoms"
+      pname = "qmmm_map_fixed_atoms"
+c
+c     pointers to global index for auxiliary (i_ig)
+c     and gradient geometry (i_ifg)
+c     --------------------------------------------
+      ng   = qmmm_geom_get_ng()
+      i_ig = qmmm_geom_get_i_ig()
+
+      nfg   = qmmm_geom_get_nfg()
+      i_ifg = qmmm_geom_get_i_ifg()
+
+      nbqa   = qmmm_get_nbqa()
+      i_ibqa = qmmm_get_i_ibqa()
+  
+      nlink  = qmmm_get_nlink()
+      i_lb   = qmmm_get_i_lb()
      
+c
+c     get active list
+c     --------------
       if (rtdb_ma_get(rtdb, 'geometry:actlist', ma_type,
      $        nact, h_cons)) then
-            if (.not. ma_get_index(h_cons, i_cons))
+
+        if (.not. ma_get_index(h_cons, i_cons))
      $           call errquit(pname,h_cons,
      &       MA_ERR)
-      else
-       return
-      end if
 
-      if (.not.rtdb_delete(rtdb, 'geometry:actlist'))
+        if (.not.rtdb_delete(rtdb, 'geometry:actlist'))
      $       call errquit(pname,0,
      &       RTDB_ERR)
 
-      if (.not.rtdb_put(rtdb, 'qmmm:actlist',
+        if (.not.rtdb_put(rtdb, 'qmmm:actlist',
      >       mt_int,nact,int_mb(i_cons)))
      $       call errquit(pname,0,
      &       RTDB_ERR)
 
-      call cons_sort_i(nact,int_mb(i_cons))
+      else
+        nact = ng
+        if(.not.ma_alloc_get(mt_int, nact, 'qmmm actlist',
+     &      h_cons, i_cons) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nact, MA_ERR)
+        do i=1,nact
+           int_mb(i_cons+i-1) = i
+        end do
+      end if
 
-      nqm  = qmmm_get_nqm()
-      i_act = qmmm_get_i_act()
-
-
-      if(.not.ma_push_get(MT_LOG, nqm, 'qmmm lfix',
-     &      h_lfix, i_lfix) ) call errquit(
+      write(*,*) pname,"1"
+c
+c     create new active list
+c     ----------------------
+      if(.not.ma_push_get(MT_INT, nfg, 'qmmm fixed atom list',
+     &      h_act, i_act) ) call errquit(
      &      pname//' unable to allocate stack',
-     &      nqm, MA_ERR)
+     &      nact, MA_ERR)
 
-
-      do i=1,nqm
-        log_mb(i_lfix+i-1)=.true.
-      end do
-
-      do i=1,nact
-        j = int_mb(i_cons+i-1)
-        log_mb(i_lfix+j-1)=.false.
-      end do
-
-
-      icent = 0
-      nact1 = 0
-      do i=1,nqm
-        if(log_mb(i_act+i-1)) then
-          icent = icent + 1
-          if(.not.log_mb(i_lfix+icent-1)) then
-            nact1=nact1+1
-            int_mb(i_cons+nact1-1) = i
+      nact1=0
+      do i=1,nfg
+        ii = int_mb(i_ifg+i-1)
+        do j=1,ng
+         jj0 = int_mb(i_cons+j-1)
+         jj  = int_mb(i_ig+jj0-1)
+         if(ii.eq.jj) then
+            nact1 = nact1 + 1
+            int_mb(i_act+nact1-1) = i
+            goto 1
           end if
-        end if
+        end do
+        do j=1,nbqa
+         jj  = int_mb(i_ibqa+j-1)
+         if(ii.eq.jj) then
+            nact1 = nact1 + 1
+            int_mb(i_act+nact1-1) = i
+            goto 1
+          end if
+        end do
+        do j=1,nlink
+         jj  = int_mb(i_lb+nlink+j-1)
+         if(ii.eq.jj) then
+            nact1 = nact1 + 1
+            int_mb(i_act+nact1-1) = i
+            goto 1
+          end if
+        end do
+1       continue
       end do
 
-      if (.not.rtdb_put(rtdb, 'geometry:actlist',
-     >        mt_int,nact1,int_mb(i_cons)))
-     $       call errquit(pname,0,
-     &       RTDB_ERR)
+      write(*,*) pname,"2"
 
+      if(nact1.ne.0) then
+        if (.not.rtdb_put(rtdb, 'geometry:actlist',
+     >          mt_int,nact1,int_mb(i_act)))
+     >         call errquit(pname,0,
+     >         RTDB_ERR)
+      end if
 
       if (.not.ma_free_heap(h_cons))
      $   call errquit(pname,h_cons,
      &       MA_ERR)
 
 
-      if (.not. ma_pop_stack(h_lfix) ) call errquit(
+      if (.not. ma_pop_stack(h_act) ) call errquit(
      &    pname//' ma_pop_stack ',
      &    0, MA_ERR)
 
       end
 
-      subroutine qmmm_unload_fixed_atoms(rtdb)
+      subroutine qmmm_restore_fixed_atoms(rtdb)
       implicit none
 c
 #include "rtdb.fh"
@@ -506,8 +560,11 @@ c
       integer nact
       integer i_cons,h_cons
       integer ma_type
+      logical ignore
      
-      pname = "qmmm_unload_fixed_atoms"
+      pname = "qmmm_restore_fixed_atoms"
+     
+      ignore = rtdb_delete(rtdb, 'geometry:actlist')
      
       if (rtdb_ma_get(rtdb, 'qmmm:actlist', ma_type,
      $        nact, h_cons)) then

@@ -1,12 +1,11 @@
 c
-c $Id: qmmm_data.fh,v 1.19 2005-05-04 20:19:43 marat Exp $
+c $Id: qmmm_data.fh,v 1.20 2005-05-27 17:59:22 marat Exp $
 c
       logical master
       logical fixlinks
       logical bq_dynamical
       double precision bqzone
-      integer nps
-      integer nqm,nlink
+      integer nqm
       integer i_ai,h_ai
       integer i_act,h_act
       integer i_c,h_c
@@ -17,21 +16,16 @@ c
       integer i_atn,h_atn
       integer i_num,h_num
       integer i_g,h_g
-      integer i_lb,h_lb
-      integer i_ips,h_ips
       integer i_gmm,h_gmm
       double precision qcharge
       character*32 qmmm_interface
       character*32 qmmm_optimization
 
 
-      integer link_atom
 
       common/qmmm_data/ qcharge,
      &                 bqzone,
      &                 nqm,
-     &                 nlink,
-     &                 nps,
      &                 i_ai,h_ai,
      &                 i_act,h_act,
      &                 i_atn,h_atn,
@@ -42,10 +36,7 @@ c
      &                 i_qs,h_qs,
      &                 i_num,h_num,
      &                 i_g,h_g,
-     &                 i_lb,h_lb,
-     &                 i_ips,h_ips,
      &                 i_gmm,h_gmm,
-     &                 link_atom,
      &                 fixlinks,
      &                 bq_dynamical,
      &                 qmmm_interface,

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.7 2005-05-04 20:29:33 marat Exp $
+c $Id: qmmm_utils.F,v 1.8 2005-05-27 17:59:22 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -83,6 +83,37 @@ c     local variables:
       end do
 
       qmmm_map = .false.
+      return
+      end
+
+      function qmmm_map1(nr,ar,
+     >                     n,a,nm,map)
+      implicit none
+      integer nr
+      integer ar(nr)
+      integer n
+      integer a(n)
+      integer nm
+      integer map(n)
+      integer qmmm_map1
+c
+c     local variables:
+      integer i
+      integer ir
+
+      nm = 0
+      do ir=1,nr
+        do i=1,n
+          if(a(i).eq.ar(ir)) then
+            map(i)=ir
+            nm = nm + 1 
+          end if
+        end do 
+        if(nm.eq.n) goto 1
+      end do
+
+1     qmmm_map1 = nm
+
       return
       end
 
