@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.19 2005-05-27 17:59:22 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.20 2005-05-29 18:53:07 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -80,6 +80,8 @@ c
       integer nfg,ng
       integer i_ifg,i_ig
       integer nact
+      integer ngs,ngw
+      integer i
 
       status = .true.
 
@@ -87,6 +89,8 @@ c
       call util_print_rtdb_load(rtdb, 'qmmm')
       
       ng  = qmmm_geom_get_ng()
+      ngs  = qmmm_geom_get_ngs()
+      ngw  = qmmm_geom_get_ngw()
       i_ig = qmmm_geom_get_i_ig()
       nfg = qmmm_geom_get_nfg()
       i_ifg = qmmm_geom_get_i_ifg()
@@ -155,9 +159,19 @@ c     --------------------
       end if
 
 
-      call mm_get_solute_force(ng,
+      call mm_get_solute_force(ngs,
      &                     int_mb(i_ig),
      &                     dbl_mb(i_gt))
+
+      call mm_get_solvent_force(ngw,
+     &                     int_mb(i_ig+ngs),
+     &                     dbl_mb(i_gt+3*ngs))
+
+      
+      write(*,*) "final forces"
+      do i=1,3*ng
+      write(*,*) dbl_mb(i_gt+i-1)
+      end do
 
       if(.not.rtdb_put(rtdb,'qmmm:gradient',mt_dbl,
      +                 3*ng,dbl_mb(i_gt)))
@@ -280,12 +294,6 @@ c
      
       if(na.eq.0) return
 
-      if(.not.ma_push_get(MT_INT, na, 'active bq index',
-     &      h_i, i_i) ) call errquit(
-     &      pname//'unable to allocate heap space',
-     &      na, MA_ERR)
-      call ifill(na,0,int_mb(i_i),1)
-
       if(.not.ma_push_get(MT_DBL, na, 'active bq charges',
      &      h_q, i_q) ) call errquit(
      &      pname//'unable to allocate heap space',
@@ -305,8 +313,6 @@ c
       call dfill(3*na,0.0d0,dbl_mb(i_g),1)
 
 
-      i_i = qmmm_get_i_ibqa()
-
       call qmmm_get_cqbqa(na,
      >                      dbl_mb(i_c),
      >                      dbl_mb(i_q))
@@ -318,10 +324,16 @@ c
      >                    dbl_mb(i_q),
      >                    dbl_mb(i_g))
 
-      call mm_add_solute_force(na,
-     &                     int_mb(i_i),
-     &                     dbl_mb(i_g))
+      write(*,*) "bq forces"
+      do i=1,3*na
+      write(*,*) dbl_mb(i_g+i-1)
+      end do
+
+c      call mm_add_solute_force(na,
+c     &                     int_mb(i_i),
+c     &                     dbl_mb(i_g))
  
+       call qmmm_bq_push_grad(na,dbl_mb(i_g))
 
       if(.not.ma_pop_stack(h_g))
      &      call errquit(
@@ -332,10 +344,6 @@ c
      &      pname//'unable to pop stack',0,MA_ERR)
 
       if(.not.ma_pop_stack(h_q))
-     &      call errquit(
-     &      pname//'unable to pop stack',0,MA_ERR)
-
-      if(.not.ma_pop_stack(h_i))
      &      call errquit(
      &      pname//'unable to pop stack',0,MA_ERR)
 
@@ -445,9 +453,6 @@ c     --------------------------------------------
       nfg   = qmmm_geom_get_nfg()
       i_ifg = qmmm_geom_get_i_ifg()
 
-      nbqa   = qmmm_get_nbqa()
-      i_ibqa = qmmm_get_i_ibqa()
-  
       nlink  = qmmm_get_nlink()
       i_lb   = qmmm_get_i_lb()
      
@@ -481,7 +486,6 @@ c     --------------
         end do
       end if
 
-      write(*,*) pname,"1"
 c
 c     create new active list
 c     ----------------------
@@ -502,14 +506,6 @@ c     ----------------------
             goto 1
           end if
         end do
-        do j=1,nbqa
-         jj  = int_mb(i_ibqa+j-1)
-         if(ii.eq.jj) then
-            nact1 = nact1 + 1
-            int_mb(i_act+nact1-1) = i
-            goto 1
-          end if
-        end do
         do j=1,nlink
          jj  = int_mb(i_lb+nlink+j-1)
          if(ii.eq.jj) then
@@ -521,7 +517,6 @@ c     ----------------------
 1       continue
       end do
 
-      write(*,*) pname,"2"
 
       if(nact1.ne.0) then
         if (.not.rtdb_put(rtdb, 'geometry:actlist',

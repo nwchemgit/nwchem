@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.48 2005-05-27 17:59:22 marat Exp $
+c $Id: mm_interface.F,v 1.49 2005-05-29 18:52:49 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -137,7 +137,7 @@ c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
-      subroutine mm_get_tot_nact(nqm)
+      subroutine mm_get_solute_tot_nact(nqm)
       implicit none
 c
 #include "mafdecls.fh"
@@ -154,7 +154,7 @@ c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
-      subroutine mm_get_tot_nact_bq(nqm)
+      subroutine mm_get_solvent_tot_nact(nqm)
       implicit none
 c
 #include "mafdecls.fh"
@@ -167,7 +167,24 @@ c
       pname = "mm_get_tot_nqm"
       if(qmmm_print_debug()) write(*,*) "in "//pname
 c
-      call mm_get_solute_tot_na_gen(nqm,mm_active_bq)
+      call mm_get_solvent_tot_na_gen(nqm,mm_active_w)
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_tot_nact_bqs(nqm)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+#include "qmmm.fh"
+c
+      integer nqm
+      character*32 pname
+      pname = "mm_get_tot_nqm"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+      call mm_get_solute_tot_na_gen(nqm,mm_active_bqs)
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
@@ -272,6 +289,60 @@ c
       call mm_get_nbqw(tmp(1))
       call ga_igop(msg_qmmm_nbqw,tmp,1,'+')
       nbq=tmp(1)
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_solvent_tot_na_gen(na,mm_type)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "qmmm.fh"
+c
+      integer na
+      logical mm_type
+      external mm_type
+
+      integer tmp(1)
+      character*32 pname
+      pname = "mm_get_solvent_na_gen"
+
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+      call mm_get_solvent_na_gen(tmp(1),mm_type)
+      call ga_igop(msg_qmmm_nbqw,tmp,1,'+')
+      na=tmp(1)
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_solvent_na_gen(na,mm_type)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "qmmm_params.fh"
+#include "mm_utils.fh"
+#include "qmmm.fh"
+c
+      integer na
+      logical mm_type
+      external mm_type
+c
+      integer i
+      integer mwa
+      integer nwmloc
+      character*32 pname
+      pname = "mm_get_solvent_na_gen"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_mwa(mwa)
+      call mm_get_nwmloc(nwmloc)
+
+      na=0
+      do i=1,nwmloc
+        write(*,*) "mm_active_w",mm_active_w(i)
+        if(mm_type(i)) na=na+mwa
+      end do
+
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
@@ -517,7 +588,25 @@ c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
-      subroutine mm_get_solute_act_bq_ind(nt,ind)
+      subroutine mm_get_solvent_act_ind(nt,ind)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+#include "msgids.fh"
+      integer nt
+      integer ind(nt)
+      character*32 pname
+      pname = "mm_get_solute_act_ind"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+      
+      call mm_get_solvent_ind_gen(nt,mm_active_w,ind)
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_solute_act_bqs_ind(nt,ind)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -531,7 +620,7 @@ c
       pname = "mm_get_solute_act_bq_ind"
       if(qmmm_print_debug()) write(*,*) "in "//pname
       
-      call mm_get_solute_ind_gen(nt,mm_active_bq,ind)
+      call mm_get_solute_ind_gen(nt,mm_active_bqs,ind)
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
@@ -1040,6 +1129,31 @@ c     mm local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_get_solute_cons_bq(nt,
+     >                       ai,
+     >                       act)
+      implicit none
+
+#include "mm_utils.fh"
+#include "qmmm.fh"
+
+
+      integer nt
+      integer ai(nt)
+      logical act(nt)
+      character*32 pname
+      pname = "mm_get_solute_cons_bq"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+      
+      call mm_get_solute_cons_gen(nt,
+     >                       mm_bqzone,
+     >                       ai,
+     >                       act)
+
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_get_solute_cons_quant_link(nt,
      >                       ai,
      >                       act)
@@ -1123,7 +1237,7 @@ c     mm local variables
 
 
       do i=1,nt
-         if(int_mb(i_act+i-1).eq.1) act(i)=.false.
+         act(i)=int_mb(i_act+i-1).eq.0
       end do
 
       if(.not.ma_pop_stack(l_act))
@@ -1190,7 +1304,6 @@ c     mm local variables
 
       do i=1,nt
          act(i) = int_mb(i_act+i-1).eq.0
-         if(int_mb(i_act+i-1).eq.0) act(i)= .true.
       end do
 
       if(.not.ma_pop_stack(l_act))
@@ -1299,6 +1412,85 @@ c     mm local variables
 
       subroutine mm_get_solvent_geom(nt,
      >                       ai,
+     >                       inum,
+     >                       t,
+     >                       c,
+     >                       q)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      logical mm_type
+      integer ai(nt)
+      double precision c(3,nt)
+      double precision q(nt)
+      integer inum(nt)
+      character*16 t(nt)
+      double precision cf_wcharge
+      external cf_wcharge
+
+      integer i,j,k,m,j1
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pxw
+      integer pwl
+      character*32 pname
+      pname = "mm_get_solvent_geom"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call dfill(3*nt,0.0d0,c,1)
+      call dfill(nt,0.0d0,q,1)
+      call ifill(nt,0,inum,1)
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pxw(pxw)
+      call mm_get_pwl(pwl)
+
+ 
+      do i=1,nwm
+         do j=1,nt/mwa
+           if(int_mb(pwl+i-1).eq.ai(j)) then
+              do m=1,mwa
+                j1=(j-1)*mwa+m
+                do k=1,3
+                  c(k,j1)=dbl_mb(pxw+(i-1)+(k-1)*mwm+(m-1)*3*mwm)
+                  c(k,j1)=c(k,j1)*cnm2au
+                end do
+                inum(j1)=0
+                q(j1) = cf_wcharge(m)
+              end do
+           end if
+         end do
+      end do
+
+
+      call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
+      call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
+      call ga_igop(msg_qmmm_inumw,inum,nt,'+')
+
+      do i=1,nt
+         call cf_num2tag(inum(i),t(i))
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_solvent_geom_bq(nt,
+     >                       ai,
      >                       c,
      >                       q)
       implicit none
@@ -1354,6 +1546,7 @@ c     mm local variables
                      c(k,j1)=dbl_mb(pxw+(i-1)+(k-1)*mwm+(m-1)*3*mwm)
                      c(k,j1)=c(k,j1)*cnm2au
                    end do
+                   write(*,*) 'cf_wcharge(m)',cf_wcharge(m)
                    q(j1) = cf_wcharge(m)
                  end do
               end if
@@ -1407,7 +1600,7 @@ c     mm local variables
       call mm_get_pwl(pwl)
  
       do i=1,nwm
-        if(mm_bqwzone(i)) then
+c        if(mm_bqwzone(i)) then
             do j=1,nt/mwa
               if(int_mb(pwl+i-1).eq.ai(j)) then
                  do m=1,mwa
@@ -1419,7 +1612,7 @@ c     mm local variables
                  end do
               end if
             end do
-        end if
+c        end if
       end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
@@ -1482,6 +1675,76 @@ c     mm local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_get_solvent_cons_bq(nt,
+     >                       ai,
+     >                       act)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      logical act(nt)
+
+      integer i,j,k,m,j1
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pxw
+      integer pwl
+      integer i_act,l_act
+
+      character*32 pname
+      pname = "mm_get_solvent_cons_bq"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      if(.not.ma_push_get(mt_int,nt,'i_act',l_act,i_act))
+     + call errquit('qmmm: Failed to allocate memory for i_act',nt,
+     &       MA_ERR)
+      call ifill(nt,0,int_mb(i_act),1)
+
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pxw(pxw)
+      call mm_get_pwl(pwl)
+ 
+      do i=1,nwm
+        if(mm_bqwzone(i).and.mm_fixed_w(i)) then
+            do j=1,nt/mwa
+              if(int_mb(pwl+i-1).eq.ai(j)) then
+                 do m=1,mwa
+                 int_mb(i_act+(j-1)*mwa+m-1)=1
+                 end do
+              end if
+            end do
+        end if
+      end do
+
+      call ga_igop(msg_qmmm_wact,int_mb(i_act),nt,'+')
+
+      do i=1,nt
+         act(i)=int_mb(i_act+i-1).eq.0
+      end do
+
+      if(.not.ma_pop_stack(l_act))
+     + call errquit('qmmm: Failed to deallocate memory for act',nt,
+     &       MA_ERR)
+
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_get_solvent_force(nt,
      >                       ai,
      >                       g)
@@ -1522,7 +1785,7 @@ c     mm local variables
       call mm_get_pwl(pwl)
  
       do i=1,nwm
-        if(mm_bqwzone(i)) then
+c        if(mm_bqwzone(i)) then
             do j=1,nt/mwa
               if(int_mb(pwl+i-1).eq.ai(j)) then
                  do m=1,mwa
@@ -1534,7 +1797,7 @@ c     mm local variables
                  end do
               end if
             end do
-        end if
+c        end if
       end do
 
       call ga_dgop(msg_qmmm_forcew,g,3*nt,'+')
@@ -1588,6 +1851,66 @@ c     mm local variables
                    do k=1,3
                      ioff=pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm
                      dbl_mb(ioff)=-g(k,j1)*cau2kj/cau2nm
+                   end do
+                 end do
+              end if
+            end do
+        end if
+      end do
+
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_add_solvent_force(nt,
+     >                       ai,
+     >                       g)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision g(3,nt)
+
+      integer i,j,k,m,j1,ioff
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pfw
+      integer pwl
+      character*32 pname
+      pname = "mm_add_solvent_force"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pfw(pfw)
+      call mm_get_pwl(pwl)
+ 
+      write(*,*) pname
+      do i=1,nwm
+        if(mm_bqwzone(i)) then
+            do j=1,nt/mwa
+              write(*,*) int_mb(pwl+i-1),ai(j)
+              if(int_mb(pwl+i-1).eq.ai(j)) then
+                 do m=1,mwa
+                   j1=(j-1)*mwa+m
+                   do k=1,3
+                     ioff=pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm
+                     write(*,*) "active g",g(k,j1)
+                     dbl_mb(ioff)=dbl_mb(ioff)-g(k,j1)*cau2kj/cau2nm
                    end do
                  end do
               end if

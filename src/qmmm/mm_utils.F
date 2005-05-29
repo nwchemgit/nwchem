@@ -79,6 +79,15 @@
 
        end
 
+       subroutine mm_get_pwdt(pwdt)
+         implicit none
+#include "md_common.fh"
+         integer pwdt
+         
+         pwdt = i_iw+(lwdyn-1)*mwm
+
+       end
+
        subroutine mm_get_pwl(pwl)
          implicit none
 #include "md_common.fh"
@@ -312,21 +321,53 @@ c         mm_bqzone = mm_bqzone .and. iand(int_mb(psdt+i-1),lqlink).eq.0
          
        end
 
-      function mm_active_bq(i)
+      function mm_active_bqs(i)
          implicit none
 #include "mafdecls.fh"
 #include "md_common.fh"
          integer i
-         logical mm_active_bq
+         logical mm_active_bqs
 c        local variables
          integer psdt,psz
 
          call mm_get_psdt(psdt)
          call mm_get_psz(psz)
 
-         mm_active_bq = (iand(int_mb(psdt+i-1),mfixed).ne.lfixed).and.
+         mm_active_bqs = (iand(int_mb(psdt+i-1),mfixed).ne.lfixed).and.
      >               (iand(int_mb(psdt+i-1),lquant).eq.0).and.
      >               (int_mb(psz+i-1).gt.0)
+         
+       end
+
+      function mm_active_bqw(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_active_bqw
+c        local variables
+         integer pwdt,pwz
+
+         call mm_get_pwdt(pwdt)
+         call mm_get_pwz(pwz)
+
+         mm_active_bqw = (iand(int_mb(pwdt+i-1),mfixed).ne.lfixed).and.
+     >               (int_mb(pwz+i-1).gt.0)
+         
+       end
+
+      function mm_fixed_w(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_fixed_w
+c        local variables
+         integer pwdt
+
+         call mm_get_pwdt(pwdt)
+
+         mm_fixed_w = iand(int_mb(pwdt+i-1),mfixed).eq.lfixed
          
        end
 
@@ -357,6 +398,21 @@ c        local variables
          call mm_get_psdt(psdt)
 
          mm_active = iand(int_mb(psdt+i-1),mfixed).ne.lfixed
+         
+       end
+
+      function mm_active_w(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_active_w
+c        local variables
+         integer pwdt
+
+         call mm_get_pwdt(pwdt)
+
+         mm_active_w = iand(int_mb(pwdt+i-1),mfixed).ne.lfixed
          
        end
 

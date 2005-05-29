@@ -1,11 +1,11 @@
 c
-c $Id: qmmm_bq_data.fh,v 1.5 2005-05-27 17:59:22 marat Exp $
+c $Id: qmmm_bq_data.fh,v 1.6 2005-05-29 18:53:07 marat Exp $
 c
       integer bq_exclude
       integer nbqa
       integer nbq
       integer nbqs
-      integer nbqw
+      integer nbqw,mbqw
       integer i_cbqs,h_cbqs
       integer i_cbqw,h_cbqw
       integer i_qbqs,h_qbqs
@@ -14,6 +14,7 @@ c
       integer i_qbq,h_qbq
       integer i_tbq,h_tbq
       integer i_ibq,h_ibq
+      integer i_abq,h_abq
       integer i_ibqa,h_ibqa
       logical readbq
       logical allbqs,allbqw
@@ -27,9 +28,10 @@ c
      &                     nbq,
      &                     nbqa,
      &                     nbqs,
-     &                     nbqw,
+     &                     nbqw,mbqw,
      &                     bq_handle,
      &                     i_ibq,h_ibq,
+     &                     i_abq,h_abq,
      &                     i_ibqa,h_ibqa,
      &                     i_cbqs,h_cbqs,
      &                     i_cbqw,h_cbqw,

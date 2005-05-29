@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.59 2005-05-27 17:59:22 marat Exp $
+c $Id: qmmm_geom.F,v 1.60 2005-05-29 18:53:07 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb)
       implicit none
@@ -39,19 +39,23 @@ c     local variables
       nbq = qmmm_get_nbq()
       i_ibq = qmmm_get_i_ibq()
 
-      call mm_get_tot_nact(ng)
+      call mm_get_solute_tot_nact(ngs)
+      call mm_get_solvent_tot_nact(ngw)
+      ng = ngs+ngw
+      write(*,*) "number of active waters",ngw
 
       if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
      + call errquit(pname//'Failed to allocate heap',ng,
      &       MA_ERR)
 
-      call mm_get_solute_act_ind(ng,int_mb(i_ig))
+      call mm_get_solute_act_ind(ngs,int_mb(i_ig))
+      call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
 
-      write(*,*) "ng,i_ig",ng,(int_mb(i_ig+i-1),i=1,ng)
- 
-      call qmmm_create_geom(irtdb,
-     >                      ng,
+      call qmmm_create_geom1(irtdb,
+     >                      ngs,
      >                      int_mb(i_ig),
+     >                      ngw,
+     >                      int_mb(i_ig+ngs),
      >                      "geometry",.false.)
 
 
@@ -498,6 +502,123 @@ c
 
       if(link)  
      +   call qmmm_links_adjust(n,ai,byte_mb(i_t),
+     + dbl_mb(i_c),dbl_mb(i_q),int_mb(i_atn))
+
+
+      do i=1,n
+         if(.not.geom_atn_to_default_mass(int_mb(i_atn+i-1),
+     >                                    dbl_mb(i_m+i-1)))  
+     >    call errquit(pname,0, GEOM_ERR)
+      end do
+
+      if(.not.geom_cart_set(igeom,n,byte_mb(i_t),
+     + dbl_mb(i_c),dbl_mb(i_q)))
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
+
+      if(.not.geom_masses_set(igeom,n,dbl_mb(i_m)))
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+      call geom_compute_values(igeom)
+
+      if(.not.geom_print(igeom))
+     + call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
+
+      if(.not.geom_rtdb_store(irtdb,igeom,aname))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+c
+c     release temporary memory
+c     ------------------------
+      if(.not.ma_pop_stack(h_t))
+     & call errquit('qmmm: Failed to deallocate stack t_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_atn))
+     & call errquit('qmmm: Failed to deallocate stack t_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_m))
+     & call errquit('qmmm: Failed to deallocate stack m_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_q))
+     & call errquit('qmmm: Failed to deallocate stack q_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_c))
+     & call errquit('qmmm: Failed to deallocate stack c_all',n,
+     &       MA_ERR)
+
+      if(qmmm_print_debug())
+     > write(*,*) "out "//pname
+ 
+      end
+
+      subroutine qmmm_create_geom1(irtdb,ns,ais,nw,aiw,aname,link)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+      integer irtdb
+      integer ns
+      integer ais(ns)
+      integer nw
+      integer aiw(nw)
+      character*(*) aname
+      logical link
+c
+      integer i
+      integer igeom
+      character*32 pname
+      integer i_q,h_q
+      integer i_c,h_c
+      integer i_t,h_t
+      integer i_m,h_m
+      integer i_atn,h_atn
+      integer i_il
+      integer n
+ 
+      pname = "qmmm_create_geom"
+      if(qmmm_print_debug())
+     > write(*,*) "in "//pname
+
+      n = ns+nw
+      if(.not.ma_push_get(mt_dbl,3*n,'c',h_c,i_c))
+     + call errquit('qmmm: Failed to allocate memory for c',
+     + 3*n, MA_ERR)
+      if(.not.ma_push_get(mt_dbl,n,'q',h_q,i_q))
+     + call errquit('qmmm: Failed to allocate memory for q',n,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_dbl,n,'m',h_m,i_m))
+     + call errquit('qmmm: Failed to allocate memory for m',n,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_int,n,'inum',h_atn,i_atn))
+     + call errquit('qmmm: Failed to allocate memory for atn',n,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_byte,16*n,'t',h_t,i_t))
+     + call errquit('qmmm: Failed to allocate memory for t',n,
+     &       MA_ERR)
+
+      call mm_get_solute_geom(ns,
+     >                 ais,
+     >                 int_mb(i_atn),
+     >                 byte_mb(i_t),
+     >                 dbl_mb(i_c),
+     >                 dbl_mb(i_q))
+
+      call mm_get_solvent_geom(nw,
+     >                 aiw,
+     >                 int_mb(i_atn+ns),
+     >                 byte_mb(i_t+16*ns),
+     >                 dbl_mb(i_c+3*ns),
+     >                 dbl_mb(i_q+ns))
+
+      if(.not.geom_create(igeom,aname))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(link)  
+     +   call qmmm_links_adjust(ns,ais,byte_mb(i_t),
      + dbl_mb(i_c),dbl_mb(i_q),int_mb(i_atn))
 
 
@@ -1406,9 +1527,13 @@ c    --------------------------------------
       if(ncent.ne.ng) 
      >    call errquit(pname//"mismatch in geometries",ncent+10000*ng,0)
 
-      call mm_set_solute_coord(ng,
+      call mm_set_solute_coord(ngs,
      >                         int_mb(i_ig),
      >                         dbl_mb(i_ctmp))
+
+      call mm_set_solvent_coord(ngw,
+     >                         int_mb(i_ig+ngs),
+     >                         dbl_mb(i_ctmp+3*ngs))
 
 
       if(.not.ma_pop_stack(h_ctmp))
@@ -1610,6 +1735,26 @@ c     -------------
       integer qmmm_geom_get_ng
 
       qmmm_geom_get_ng = ng
+
+      end 
+
+      function qmmm_geom_get_ngs()
+      implicit none
+#include "qmmm_geom_data.fh"
+
+      integer qmmm_geom_get_ngs
+
+      qmmm_geom_get_ngs = ngs
+
+      end 
+
+      function qmmm_geom_get_ngw()
+      implicit none
+#include "qmmm_geom_data.fh"
+
+      integer qmmm_geom_get_ngw
+
+      qmmm_geom_get_ngw = ngw
 
       end 
 
