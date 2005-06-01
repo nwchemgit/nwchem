@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.4 2005-05-27 17:59:22 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.5 2005-06-01 16:27:03 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -29,15 +29,15 @@ c
       task_qmmm_energy = .true.
 c      
       if (interface.eq.'mm') then
-         call qmmm_get_qm_coord_qm(rtdb)
-         call qmmm_push_qm_coord_mm(rtdb)
-         call md_sp()
-         if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,energy))
-     $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
-
-         if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy/cau2kj))
-     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
-
+c         call qmmm_get_qm_coord_qm(rtdb)
+c         call qmmm_push_qm_coord_mm(rtdb)
+c         call md_sp()
+c         if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,energy))
+c     $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
+c
+c         if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy/cau2kj))
+c     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+c
       else if (interface.eq.'qm') then
          task_qmmm_energy= qmmm_energy(rtdb)
       endif
@@ -87,21 +87,21 @@ c     external functions
 
        if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
-      call qmmm_print_current_geom(rtdb)
+      call qmmm_geom_print_current(rtdb)
 c
-      call qmmm_push_coord_mm(rtdb)
+      call qmmm_geom_push_active(rtdb)
       call mm_task_sp()
 c
 c     create full geometry
 c     -------------------
-      call qmmm_create_full_geom(rtdb)
+      call qmmm_geom_create_full(rtdb)
       call qmmm_bq_coord_update()
 
 c     QM energy calculation
 c     --------------------
       status = task_energy_doit(rtdb,theory,qm_energy)
 c
-      call qmmm_restore_geom(rtdb)
+      call qmmm_geom_restore(rtdb)
 
 c     combine QM and MM energies
 c     -------------------------

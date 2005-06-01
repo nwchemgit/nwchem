@@ -388,6 +388,7 @@ c
 #include "qmmm.fh"
 #include "global.fh"
 c
+      integer i
       if(nbqs.ne.0) then
         call mm_get_solute_coord_bq(nbqs,
      >                       int_mb(i_ibq),
@@ -399,65 +400,22 @@ c
 c     append solvent bq coord and charges from MM
 c     -------------------------------------------    
       if(nbqw.ne.0) then
+        write(*,*) "qmmm_bq_coord_update 1",ga_nodeid()
+        call ga_sync()
         call mm_get_solvent_coord(nbqw,int_mb(i_ibq+nbqs),
      >                       dbl_mb(i_cbq+3*nbqs))
       end if
 
-      if(qmmm_print_debug()) 
-     >       write(*,*) "finshed updating up bq coords"
-    
-      end
-
-      subroutine qmmm_bq_update()
-      implicit none
-c
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "qmmm_bq_data.fh"
-#include "qmmm.fh"
-#include "global.fh"
-      logical link
-      integer i,k
-c
-      link = .true.
-      if(qmmm_print_debug()) then
-         write(*,*) "Total number of Bq charges",nbq
-         write(*,*) "Number of solute Bq charges",nbqs
-         write(*,*) "Number of solvent Bq charges",nbqw
-      end if
-
-      if(nbq.eq.0) return
-
-      if(nbqs.ne.0) then
-        call mm_get_solute_geom_bq(nbqs,link,
-     >                       int_mb(i_ibq),
-     >                       dbl_mb(i_cbq),
-     >                       dbl_mb(i_qbq))
-
-      end if
-
-c
-c     append solvent bq coord and charges from MM
-c     -------------------------------------------    
-      if(nbqw.ne.0) then
-        call mm_get_solvent_ind_bq(nbqw,int_mb(i_ibq+nbqs))
-        call mm_get_solvent_geom_bq(nbqw,int_mb(i_ibq+nbqs),
-     >                       dbl_mb(i_cbq+3*nbqs),
-     >                       dbl_mb(i_qbq+nbqs))
-      end if
-
-      if(qmmm_print_debug()) then
-        call util_print_centered(6,"Bq information",
-     >              36, .true.)
-        write(*,'(/,A,T20,A,/)') "global index","coordinates(au)"
-        do i=1,nbqs+nbqw
-         write(*,'(I5,T20,3F12.6)') int_mb(i_ibq+i-1),
-     >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
+      
+      if(qmmm_master()) then
+        write(*,*) "qmmm_bq_coord_update"
+        do i=3*nbqs,3*(nbqw+nbqs)
+          write(*,*) dbl_mb(i_cbq+i-1)
         end do
       end if
 
       if(qmmm_print_debug()) 
-     >       write(*,*) "finshed updating up bq charges"
+     >       write(*,*) "finshed updating up bq coords"
     
       end
 
@@ -624,15 +582,6 @@ c
       integer qmmm_get_i_ibqa
 
       qmmm_get_i_ibqa = i_ibqa
-
-      end 
-
-      function qmmm_get_i_tbq()
-      implicit none
-#include "qmmm_bq_data.fh"
-      integer qmmm_get_i_tbq
-
-      qmmm_get_i_tbq = i_tbq
 
       end 
 
@@ -911,41 +860,6 @@ c
         end if
       end do
 
-
-      end
-
-      subroutine qmmm_get_cqbqa0(nt,
-     >                       c,
-     >                       q)
-      implicit none
-
-#include "qmmm_bq_data.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-      integer nt
-      double precision c(3,nt)
-      double precision q(nt)
-c
-      integer i,j,k,ia
-      integer ii,jj
-
-
-      ia = 0
-      do i=1,nbq 
-        ii = int_mb(i_ibq+i-1)
-        do j=1,nbqa
-          jj = int_mb(i_ibqa+j-1)
-          if(ii.eq.jj) then
-             ia = ia + 1
-             q(ia) = dbl_mb(i_qbq+i-1)
-             do k=1,3
-               c(k,ia) = dbl_mb(i_cbq+(i-1)*3+k-1)
-             end do
-          end if
-        end do
-      end do
 
       end
 

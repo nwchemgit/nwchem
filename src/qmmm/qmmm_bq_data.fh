@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq_data.fh,v 1.6 2005-05-29 18:53:07 marat Exp $
+c $Id: qmmm_bq_data.fh,v 1.7 2005-06-01 16:27:02 marat Exp $
 c
       integer bq_exclude
       integer nbqa
@@ -12,7 +12,6 @@ c
       integer i_qbqw,h_qbqw
       integer i_cbq,h_cbq
       integer i_qbq,h_qbq
-      integer i_tbq,h_tbq
       integer i_ibq,h_ibq
       integer i_abq,h_abq
       integer i_ibqa,h_ibqa
@@ -36,7 +35,6 @@ c
      &                     i_cbqs,h_cbqs,
      &                     i_cbqw,h_cbqw,
      &                     i_qbq,h_qbq,
-     &                     i_tbq,h_tbq,
      &                     i_cbq,h_cbq,
      &                     i_qbqw,h_qbqw,
      &                     i_qbqs,h_qbqs

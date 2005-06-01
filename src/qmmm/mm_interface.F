@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.49 2005-05-29 18:52:49 marat Exp $
+c $Id: mm_interface.F,v 1.50 2005-06-01 16:27:02 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1649,6 +1649,7 @@ c     mm local variables
       if(qmmm_print_debug()) write(*,*) "in "//pname
 
 
+      call dfill(3*nt,0.0d0,c,1)
 
       call mm_get_mwa(mwa)
       call mm_get_mwm(mwm)
@@ -1671,6 +1672,8 @@ c     mm local variables
             end do
         end if
       end do
+
+      call ga_dgop(msg_qmmm_cw,c,3*nt,'+')
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end

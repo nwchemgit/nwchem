@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.40 2005-05-27 17:59:22 marat Exp $
+c $Id: qmmm_main.F,v 1.41 2005-06-01 16:27:03 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -59,222 +59,222 @@ c
       pname = 'qmmm_main'
       if(qmmm_print_debug()) 
      >  write(*,*) "in "//pname
+cc
+cc     make sure qmmm is initialized
+cc     -----------------------------
+c      if (.not. rtdb_get(inrtdb,'qmmm:init',mt_log,1,qmmm_init))
+c     $     qmmm_init=.false.
+c      if(.not.qmmm_init) return
+cc
+cc     nothing should be calculated if
+cc     qm module (e.g. driver is in charge)
+cc     -----------------------------------
+c      interface = qmmm_get_interface()
+c      if(interface.eq.'qm') then
+c      if(qmmm_print_debug())
+c     > write(*,*) "exiting out of qmmm_forces since interface is set qm"
+c        energy = 0
+c        return
+c      end if
 c
-c     make sure qmmm is initialized
-c     -----------------------------
-      if (.not. rtdb_get(inrtdb,'qmmm:init',mt_log,1,qmmm_init))
-     $     qmmm_init=.false.
-      if(.not.qmmm_init) return
+c      if (.not. rtdb_cget(inrtdb, 'qmmm:optimization', 1, optimization))
+c     $     call errquit(pname//'failed to get optimization flag',0,0)
+c     
+cc 
+cc     get other options from rtdb
+cc     --------------------------
+c      tag ="qmmm:fixqm" 
+c      if (.not.rtdb_get(inrtdb,tag,mt_log,1,fixqm)) 
+c     >      call errquit(pname//'failed to get fixqm',0,
+c     >       RTDB_ERR)
+c      
+c      if (.not.rtdb_get(inrtdb,'qmmm:ignore_mm',mt_log,1,ignore_mm))
+c     >   ignore_mm = .false.
 c
-c     nothing should be calculated if
-c     qm module (e.g. driver is in charge)
-c     -----------------------------------
-      interface = qmmm_get_interface()
-      if(interface.eq.'qm') then
-      if(qmmm_print_debug())
-     > write(*,*) "exiting out of qmmm_forces since interface is set qm"
-        energy = 0
-        return
-      end if
-
-      if (.not. rtdb_cget(inrtdb, 'qmmm:optimization', 1, optimization))
-     $     call errquit(pname//'failed to get optimization flag',0,0)
-     
+c      if (.not.rtdb_get(inrtdb,'qmmm:static_qm',mt_log,1,static_qm))
+c     >   static_qm = .false.
+c
+c      if (.not.rtdb_get(inrtdb,'qmmm:ignore_qm',mt_log,1,ignore_qm)) 
+c     >   ignore_qm = .false.
+c
+c       if (.not.rtdb_get(inrtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
+c     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+cc
+cc     link are now treated as classical atoms
+cc     ----------------------------------------
+c      link = .false.
+cc
+cc     get coordinates for qm region from mm module
+cc     -------------------------------------------- 
+c      call qmmm_get_qm_coord_mm(inrtdb)
+cc
+cc     propagate coordinates for qm region into qm modules
+cc     ---------------------------------------------------
+c      call qmmm_push_qm_coord_qm(inrtdb)
+cc
+cc     create full geometry with bq charges for qm module
+cc     -------------------------------------------------- 
+c      call qmmm_create_full_geom(inrtdb)
+cc
+cc     get qmmm data
+cc     ------------
+c      nqm   = qmmm_get_nqm()
+c      nbq   = qmmm_get_nbq ()
+c      nbqs  = qmmm_get_nbqs()
+c      nbqw  = qmmm_get_nbqw()
+c      nlink = qmmm_get_nlink()
+c      ntot = nqm+nbq
+cc
+c      i_ai  = qmmm_get_i_ai()
+c      i_ibq = qmmm_get_i_ibq()
+c      i_cbq   = qmmm_get_i_cbq()
+c      i_qbq   = qmmm_get_i_qbq()
+c
+cc
+cc     allocate gradient arrays
+cc     ------------------------
+c      if(.not.ma_alloc_get(MT_DBL, 3*ntot, 'qmmm grad array',
+c     &      h_g, i_g) ) call errquit(
+c     &      pname//'unable to allocate heap space',
+c     &      3*ntot, MA_ERR)
+c      call dfill(3*ntot,0,dbl_mb(i_g),1)
+c
+c      if(.not.ma_alloc_get(MT_DBL, 3*nqm, 'qmmm grad array',
+c     &      h_gqm, i_gqm) ) call errquit(
+c     &      pname//'unable to allocate heap space',
+c     &      3*nqm, MA_ERR)
+c      call dfill(3*nqm,0,dbl_mb(i_gqm),1)
+c
+c      if(.not.ma_alloc_get(MT_DBL, 3*nbq, 'qmmm grad array',
+c     &      h_gbq, i_gbq) ) call errquit(
+c     &      pname//'unable to allocate heap space',
+c     &      3*nqm, MA_ERR)
+c      call dfill(3*nbq,0,dbl_mb(i_gbq),1)
+cc
+cc     calculate qm contributions to gradients and energy
+cc     --------------------------------------------------
+c      if (.not. rtdb_cget(inrtdb, 'task:theory', 1, theory))
+c     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+c      if(ignore_qm) then
+c        energy = 0.0d0
+c        call dfill(3*ntot,0,dbl_mb(i_g),1)
+c      else
+c        if(optimization.eq."mm") then 
+c          if(.not.static_qm)  
+c     >    status = task_energy_doit(inrtdb,theory,energy)
+c        else
+c          status = task_gradient_doit(inrtdb,theory,energy,dbl_mb(i_g))
+c        end if
+c      end if
+cc
+cc
+cc     do forces on bq's
+cc     ----------------
+c      if(.not.ignore_qm) then
+c      call qmmm_bq_forces(inrtdb,nbq,
+c     >                    dbl_mb(i_cbq),
+c     >                    dbl_mb(i_qbq),
+c     >                    dbl_mb(i_g+3*nqm))       
+c      end if
+cc
+cc
+c      if(ga_nodeid().eq.0) 
+c     >  write(*,*) "qm portion of qmmm energy",energy
+cc
+c      energy = energy-eatoms
+c      energy=energy*cau2kj
+cc
+cc     get classical forces
+cc     -------------------
+c      call mm_get_solute_force_quant(nqm,
+c     >                               link,
+c     >                               int_mb(i_ai),
+c     >                               dbl_mb(i_gqm))
+c
+c      call mm_get_solute_force_bq(nbqs,
+c     >                               int_mb(i_ibq),
+c     >                               dbl_mb(i_gbq))
+c
+c
+c      call mm_get_solvent_force(nbqw,
+c     >                          int_mb(i_ibq+nbqs),
+c     >                          dbl_mb(i_gbq+3*nbqs))
+c
+c
+cc
+cc     add quantum contributions
+cc     or zero out all forces on quantum region
+cc     ----------------------------------------
+c      norm = 0.0d0
+c      if(fixqm) then
+c        call dfill(3*nqm,0,dbl_mb(i_gqm),1)
+c      else
+c        do i=1,3*nqm
+c           dbl_mb(i_gqm+i-1)=dbl_mb(i_gqm+i-1)+dbl_mb(i_g+i-1)
+c           norm = norm + dbl_mb(i_gqm+i-1)*dbl_mb(i_gqm+i-1)
+c        end do
+c      end if
+c      norm = sqrt(norm)
+c      if(qmmm_print_debug())
+c     > write(*,*) "qnorm",norm
+cc
+c      call qmmm_push_qm_grad_qm(inrtdb,3*nqm,dbl_mb(i_gqm))
+cc
+cc     add quantum contributions on bq region
+cc     --------------------------------------
+c      norm = 0.0d0
+c      do i=1,3*nbq
+c         dbl_mb(i_gbq+i-1)=dbl_mb(i_gbq+i-1)+dbl_mb(i_g+3*nqm+i-1)
+c         norm = norm + dbl_mb(i_gbq+i-1)*dbl_mb(i_gbq+i-1)
+c      end do
+c      norm = sqrt(norm/nbq)
+c      if(qmmm_print_debug())
+c     > write(*,*) "bqnorm",norm
+c
+cc
+cc    add link forces
+cc    ---------------
+c      call qmmm_link_forces_qm(nqm,dbl_mb(i_gqm))
+c      call qmmm_link_forces_mm(nqm,nbq,dbl_mb(i_gqm),
+c     >                         int_mb(i_ibq),
+c     >                         dbl_mb(i_gbq))
+c
+cc
+cc    propagate final forces into mm module
+cc    -------------------------------------
+c      call mm_set_solute_force_quant(nqm,
+c     >                               .true.,
+c     >                               int_mb(i_ai),
+c     >                               dbl_mb(i_gqm))
+c
+c      call mm_set_solute_force_bq(nbqs,
+c     >                               int_mb(i_ibq),
+c     >                               dbl_mb(i_gbq))
+c
+c
+c      call mm_set_solvent_force(nbqw,
+c     >                          int_mb(i_ibq+nbqs),
+c     >                          dbl_mb(i_gbq+3*nbqs))
+c
+cc
+cc    restore normal qm geometry (i.e. without bq's)
+cc    ---------------------------------------------
+c      call qmmm_restore_geom(inrtdb)
+c      call qmmm_unset_actlist(inrtdb)
+c
+c      if(qmmm_print_debug())
+c     > write(*,*) "out "//pname
+c
+c      if(.not.ma_free_heap(h_gbq))
+c     & call errquit(pname//'gbq: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
+c      if(.not.ma_free_heap(h_gqm))
+c     & call errquit(pname//' gqm: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
+c      if(.not.ma_free_heap(h_g))
+c     & call errquit(pname//' g: Failed to deallocate heap',nqm,
+c     &       MA_ERR)
 c 
-c     get other options from rtdb
-c     --------------------------
-      tag ="qmmm:fixqm" 
-      if (.not.rtdb_get(inrtdb,tag,mt_log,1,fixqm)) 
-     >      call errquit(pname//'failed to get fixqm',0,
-     >       RTDB_ERR)
-      
-      if (.not.rtdb_get(inrtdb,'qmmm:ignore_mm',mt_log,1,ignore_mm))
-     >   ignore_mm = .false.
-
-      if (.not.rtdb_get(inrtdb,'qmmm:static_qm',mt_log,1,static_qm))
-     >   static_qm = .false.
-
-      if (.not.rtdb_get(inrtdb,'qmmm:ignore_qm',mt_log,1,ignore_qm)) 
-     >   ignore_qm = .false.
-
-       if (.not.rtdb_get(inrtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
-     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
-c
-c     link are now treated as classical atoms
-c     ----------------------------------------
-      link = .false.
-c
-c     get coordinates for qm region from mm module
-c     -------------------------------------------- 
-      call qmmm_get_qm_coord_mm(inrtdb)
-c
-c     propagate coordinates for qm region into qm modules
-c     ---------------------------------------------------
-      call qmmm_push_qm_coord_qm(inrtdb)
-c
-c     create full geometry with bq charges for qm module
-c     -------------------------------------------------- 
-      call qmmm_create_full_geom(inrtdb)
-c
-c     get qmmm data
-c     ------------
-      nqm   = qmmm_get_nqm()
-      nbq   = qmmm_get_nbq ()
-      nbqs  = qmmm_get_nbqs()
-      nbqw  = qmmm_get_nbqw()
-      nlink = qmmm_get_nlink()
-      ntot = nqm+nbq
-c
-      i_ai  = qmmm_get_i_ai()
-      i_ibq = qmmm_get_i_ibq()
-      i_cbq   = qmmm_get_i_cbq()
-      i_qbq   = qmmm_get_i_qbq()
-
-c
-c     allocate gradient arrays
-c     ------------------------
-      if(.not.ma_alloc_get(MT_DBL, 3*ntot, 'qmmm grad array',
-     &      h_g, i_g) ) call errquit(
-     &      pname//'unable to allocate heap space',
-     &      3*ntot, MA_ERR)
-      call dfill(3*ntot,0,dbl_mb(i_g),1)
-
-      if(.not.ma_alloc_get(MT_DBL, 3*nqm, 'qmmm grad array',
-     &      h_gqm, i_gqm) ) call errquit(
-     &      pname//'unable to allocate heap space',
-     &      3*nqm, MA_ERR)
-      call dfill(3*nqm,0,dbl_mb(i_gqm),1)
-
-      if(.not.ma_alloc_get(MT_DBL, 3*nbq, 'qmmm grad array',
-     &      h_gbq, i_gbq) ) call errquit(
-     &      pname//'unable to allocate heap space',
-     &      3*nqm, MA_ERR)
-      call dfill(3*nbq,0,dbl_mb(i_gbq),1)
-c
-c     calculate qm contributions to gradients and energy
-c     --------------------------------------------------
-      if (.not. rtdb_cget(inrtdb, 'task:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
-      if(ignore_qm) then
-        energy = 0.0d0
-        call dfill(3*ntot,0,dbl_mb(i_g),1)
-      else
-        if(optimization.eq."mm") then 
-          if(.not.static_qm)  
-     >    status = task_energy_doit(inrtdb,theory,energy)
-        else
-          status = task_gradient_doit(inrtdb,theory,energy,dbl_mb(i_g))
-        end if
-      end if
-c
-c
-c     do forces on bq's
-c     ----------------
-      if(.not.ignore_qm) then
-      call qmmm_bq_forces(inrtdb,nbq,
-     >                    dbl_mb(i_cbq),
-     >                    dbl_mb(i_qbq),
-     >                    dbl_mb(i_g+3*nqm))       
-      end if
-c
-c
-      if(ga_nodeid().eq.0) 
-     >  write(*,*) "qm portion of qmmm energy",energy
-c
-      energy = energy-eatoms
-      energy=energy*cau2kj
-c
-c     get classical forces
-c     -------------------
-      call mm_get_solute_force_quant(nqm,
-     >                               link,
-     >                               int_mb(i_ai),
-     >                               dbl_mb(i_gqm))
-
-      call mm_get_solute_force_bq(nbqs,
-     >                               int_mb(i_ibq),
-     >                               dbl_mb(i_gbq))
-
-
-      call mm_get_solvent_force(nbqw,
-     >                          int_mb(i_ibq+nbqs),
-     >                          dbl_mb(i_gbq+3*nbqs))
-
-
-c
-c     add quantum contributions
-c     or zero out all forces on quantum region
-c     ----------------------------------------
-      norm = 0.0d0
-      if(fixqm) then
-        call dfill(3*nqm,0,dbl_mb(i_gqm),1)
-      else
-        do i=1,3*nqm
-           dbl_mb(i_gqm+i-1)=dbl_mb(i_gqm+i-1)+dbl_mb(i_g+i-1)
-           norm = norm + dbl_mb(i_gqm+i-1)*dbl_mb(i_gqm+i-1)
-        end do
-      end if
-      norm = sqrt(norm)
-      if(qmmm_print_debug())
-     > write(*,*) "qnorm",norm
-c
-      call qmmm_push_qm_grad_qm(inrtdb,3*nqm,dbl_mb(i_gqm))
-c
-c     add quantum contributions on bq region
-c     --------------------------------------
-      norm = 0.0d0
-      do i=1,3*nbq
-         dbl_mb(i_gbq+i-1)=dbl_mb(i_gbq+i-1)+dbl_mb(i_g+3*nqm+i-1)
-         norm = norm + dbl_mb(i_gbq+i-1)*dbl_mb(i_gbq+i-1)
-      end do
-      norm = sqrt(norm/nbq)
-      if(qmmm_print_debug())
-     > write(*,*) "bqnorm",norm
-
-c
-c    add link forces
-c    ---------------
-      call qmmm_link_forces_qm(nqm,dbl_mb(i_gqm))
-      call qmmm_link_forces_mm(nqm,nbq,dbl_mb(i_gqm),
-     >                         int_mb(i_ibq),
-     >                         dbl_mb(i_gbq))
-
-c
-c    propagate final forces into mm module
-c    -------------------------------------
-      call mm_set_solute_force_quant(nqm,
-     >                               .true.,
-     >                               int_mb(i_ai),
-     >                               dbl_mb(i_gqm))
-
-      call mm_set_solute_force_bq(nbqs,
-     >                               int_mb(i_ibq),
-     >                               dbl_mb(i_gbq))
-
-
-      call mm_set_solvent_force(nbqw,
-     >                          int_mb(i_ibq+nbqs),
-     >                          dbl_mb(i_gbq+3*nbqs))
-
-c
-c    restore normal qm geometry (i.e. without bq's)
-c    ---------------------------------------------
-      call qmmm_restore_geom(inrtdb)
-      call qmmm_unset_actlist(inrtdb)
-
-      if(qmmm_print_debug())
-     > write(*,*) "out "//pname
-
-      if(.not.ma_free_heap(h_gbq))
-     & call errquit(pname//'gbq: Failed to deallocate heap',nqm,
-     &       MA_ERR)
-      if(.not.ma_free_heap(h_gqm))
-     & call errquit(pname//' gqm: Failed to deallocate heap',nqm,
-     &       MA_ERR)
-      if(.not.ma_free_heap(h_g))
-     & call errquit(pname//' g: Failed to deallocate heap',nqm,
-     &       MA_ERR)
- 
       return
       end
 
