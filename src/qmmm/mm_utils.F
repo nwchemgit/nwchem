@@ -243,6 +243,18 @@ c        local variables
          
        end
 
+       function mm_ww(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         double precision  mm_ww
+c        local variables
+
+         mm_ww = dbl_mb(i_wws+i-1)
+         
+       end
+
        function mm_quant_link(i)
          implicit none
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.50 2005-06-01 16:27:02 marat Exp $
+c $Id: mm_interface.F,v 1.51 2005-06-02 05:15:00 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -961,7 +961,8 @@ c
      >                       inum,
      >                       t,
      >                       c,
-     >                       q)
+     >                       q,
+     >                       m)
       implicit none
 
 #include "qmmm_params.fh"
@@ -979,6 +980,7 @@ c
       character*16 t(nt)
       double precision c(3,nt)
       double precision q(nt)
+      double precision m(nt)
 
       integer i,j,k
 
@@ -993,6 +995,7 @@ c     mm local variables
 
       call dfill(3*nt,0.0d0,c,1)
       call dfill(nt,0.0d0,q,1)
+      call dfill(nt,0.0d0,m,1)
       call ifill(nt,0,inum,1)
 
       call mm_get_msa(msa)
@@ -1000,19 +1003,19 @@ c     mm local variables
       call mm_get_psl(psl)
       call mm_get_pxs(pxs)
 
-
       do i=1,nsa
         do j=1,nt
           if(int_mb(psl+i-1).eq.ai(j)) then
              do k=1,3
                c(k,j)=dbl_mb(pxs+(i-1)+(k-1)*msa)*cnm2au
              end do
+             inum(j)=mm_element(i) 
+             q(j) = dble(inum(j))
+             if(.not.geom_atn_to_default_mass(inum(j),m(j)))
+     >         call errquit(pname,0, GEOM_ERR)
              if(mm_bqzone(i).or.mm_link(i)) then
                inum(j) = 0
                q(j) = mm_solute_charge(i)
-             else
-               inum(j)=mm_element(i) 
-               q(j) = dble(inum(j))
              end if
           end if
         end do
@@ -1021,6 +1024,7 @@ c     mm local variables
       call ga_dgop(msg_qmmm_c,c,3*nt,'+')
       call ga_dgop(msg_qmmm_chg,q,nt,'+')
       call ga_igop(msg_qmmm_inum,inum,nt,'+')
+      call ga_dgop(msg_qmmm_m,m,nt,'+')
 
       do i=1,nt
          call cf_num2tag(inum(i),t(i))
@@ -1415,7 +1419,8 @@ c     mm local variables
      >                       inum,
      >                       t,
      >                       c,
-     >                       q)
+     >                       q,
+     >                       mw)
       implicit none
 
 #include "qmmm_params.fh"
@@ -1432,6 +1437,7 @@ c     mm local variables
       integer ai(nt)
       double precision c(3,nt)
       double precision q(nt)
+      double precision mw(nt)
       integer inum(nt)
       character*16 t(nt)
       double precision cf_wcharge
@@ -1452,6 +1458,7 @@ c     mm local variables
 
       call dfill(3*nt,0.0d0,c,1)
       call dfill(nt,0.0d0,q,1)
+      call dfill(nt,0.0d0,mw,1)
       call ifill(nt,0,inum,1)
 
       call mm_get_mwa(mwa)
@@ -1472,6 +1479,7 @@ c     mm local variables
                 end do
                 inum(j1)=0
                 q(j1) = cf_wcharge(m)
+                mw(j1) = mm_ww(m)
               end do
            end if
          end do
@@ -1480,6 +1488,7 @@ c     mm local variables
 
       call ga_dgop(msg_qmmm_cbqw,c,3*nt,'+')
       call ga_dgop(msg_qmmm_qbqw,q,nt,'+')
+      call ga_dgop(msg_qmmm_mw,mw,nt,'+')
       call ga_igop(msg_qmmm_inumw,inum,nt,'+')
 
       do i=1,nt

@@ -1,7 +1,7 @@
 c
-c $Id: qmmm_geom.F,v 1.61 2005-06-01 16:27:03 marat Exp $
+c $Id: qmmm_geom.F,v 1.62 2005-06-02 05:15:00 marat Exp $
 c
-      subroutine qmmm_geom_init(irtdb)
+      subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -15,15 +15,12 @@ c
 #include "inp.fh"
 #include "qmmm_params.fh"
       integer irtdb
+      logical ageom
 c     local variables
       integer i
       integer nqm,nlink
       integer i_ind,i_lb
-      integer i_tmp,h_tmp
-      integer i_act,h_act
       integer ig,ng0
-      integer nbq,i_ibq
-      character*30 region
       character*32 pname
 
       pname = "qmmm_geom_init"
@@ -31,41 +28,46 @@ c     local variables
       if(qmmm_print_debug())
      >    write(*,*) "in",pname
 
+      aux_geom = ageom
+
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
       i_ind = qmmm_get_i_ai()
       i_lb  = qmmm_get_i_lb()
 
-      nbq = qmmm_get_nbq()
-      i_ibq = qmmm_get_i_ibq()
-
-      call mm_get_solute_tot_nact(ngs)
-      call mm_get_solvent_tot_nact(ngw)
-      ng = ngs+ngw
-      write(*,*) "number of active waters",ngw
-
-      if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
-     + call errquit(pname//'Failed to allocate heap',ng,
-     &       MA_ERR)
-
-      call mm_get_solute_act_ind(ngs,int_mb(i_ig))
-      call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
-
-      call qmmm_geom_create_active(irtdb)
-c      call qmmm_geom_create(irtdb,
-c     >                      ngs,
-c     >                      int_mb(i_ig),
-c     >                      ngw,
-c     >                      int_mb(i_ig+ngs),
-c     >                      "geometry",.false.)
-
+c
+c     initialize indexing for a full qm geometry
+c     ------------------------------------------
       nfg = nqm + nlink
-
       if(.not.ma_alloc_get(mt_int,nfg,'qmmm fullg ind',h_ifg,i_ifg))
      + call errquit(pname//'Failed to allocate heap',nfg,
      &       MA_ERR)
       call icopy(nqm,int_mb(i_ind),1,int_mb(i_ifg),1)
       call icopy(nlink,int_mb(i_lb+nlink),1,int_mb(i_ifg+nqm),1)
+
+c
+c     create active geometry if any
+c     -----------------------------
+      if(aux_geom) then
+        call mm_get_solute_tot_nact(ngs)
+        call mm_get_solvent_tot_nact(ngw)
+        ng = ngs+ngw
+
+        if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
+     +   call errquit(pname//'Failed to allocate heap',ng,
+     &         MA_ERR)
+
+        call mm_get_solute_act_ind(ngs,int_mb(i_ig))
+        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
+ 
+        call qmmm_geom_create_active(irtdb)
+      else
+        ngs = 0
+        ngw = 0
+        ng =  0
+        call qmmm_geom_create_full(irtdb)
+      end if
+
 
       if(qmmm_print_debug())
      >    write(*,*) "out",pname
@@ -78,20 +80,19 @@ c     >                      "geometry",.false.)
 #include "errquit.fh"
 #include "qmmm_geom_data.fh"
       
+      if(ng.ne.0 ) then
+       if(.not.ma_free_heap(h_ig))
+     &   call errquit('qmmm h_ig: Failed to deallocate heap',ng,
+     &       MA_ERR)
+       ng = 0
+      end if
+
 
       if(nfg.ne.0) then
        if(.not.ma_free_heap(h_ifg))
      &   call errquit('qmmm h_ifg: Failed to deallocate heap',h_ifg,
      &       MA_ERR)
        nfg = 0
-      end if
-
-
-      if(ng.ne.0) then
-       if(.not.ma_free_heap(h_ig))
-     &   call errquit('qmmm h_ig: Failed to deallocate heap',ng,
-     &       MA_ERR)
-       ng = 0
       end if
 
        return
@@ -123,6 +124,7 @@ c
       integer i_atn,h_atn
       integer i_il
       integer n
+      logical ignore
  
       pname = "qmmm_geom_create"
       if(qmmm_print_debug())
@@ -151,7 +153,8 @@ c
      >                 int_mb(i_atn),
      >                 byte_mb(i_t),
      >                 dbl_mb(i_c),
-     >                 dbl_mb(i_q))
+     >                 dbl_mb(i_q),
+     >                 dbl_mb(i_m))
 
       if(nw.ne.0) 
      >  call mm_get_solvent_geom(nw,
@@ -159,7 +162,10 @@ c
      >                   int_mb(i_atn+ns),
      >                   byte_mb(i_t+16*ns),
      >                   dbl_mb(i_c+3*ns),
-     >                   dbl_mb(i_q+ns))
+     >                   dbl_mb(i_q+ns),
+     >                   dbl_mb(i_m+ns))
+
+      ignore = rtdb_delete(irtdb,aname)
 
       if(.not.geom_create(igeom,aname))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -169,11 +175,11 @@ c
      + dbl_mb(i_c),dbl_mb(i_q),int_mb(i_atn))
 
 
-      do i=1,n
-         if(.not.geom_atn_to_default_mass(int_mb(i_atn+i-1),
-     >                                    dbl_mb(i_m+i-1)))  
-     >    call errquit(pname,0, GEOM_ERR)
-      end do
+c      do i=1,n
+c         if(.not.geom_atn_to_default_mass(int_mb(i_atn+i-1),
+c     >                                    dbl_mb(i_m+i-1)))  
+c     >    call errquit(pname,0, GEOM_ERR)
+c      end do
 
       if(.not.geom_cart_set(igeom,n,byte_mb(i_t),
      + dbl_mb(i_c),dbl_mb(i_q)))
@@ -309,6 +315,8 @@ c     local variables
 
       pname = "qmmm_geom_push_active"
 
+      if(.not.aux_geom) return
+
       if(qmmm_print_debug())
      >    write(*,*) "in",pname
 
@@ -342,6 +350,8 @@ c     local variables
       character*32 pname
 c
       pname = "qmmm_restore_qm_geom"
+
+      if(.not.aux_geom) return
 
       if(qmmm_print_debug())
      > write(*,*) " in "//pname
@@ -431,6 +441,67 @@ c    --------------------------------------
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
+      end
+
+      subroutine qmmm_geom_get_grad(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "qmmm_geom_data.fh"
+      integer irtdb
+c
+      integer n,ns,nw
+      integer i_igt,i_gt,h_gt
+      integer i
+
+      if(aux_geom) then
+        ns=ngs
+        nw=ngw
+        i_igt = i_ig
+      else
+        ns = ng
+        nw = 0
+        i_igt = i_ifg
+      end if
+
+      n = ns+nw
+      
+      if(.not.ma_push_get(MT_DBL, 3*n, 'qmmm grad array',
+     &      h_gt, i_gt) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      3*n, MA_ERR)
+      call dfill(3*n,0,dbl_mb(i_gt),1)
+
+
+      if(ns.ne.0) 
+     &  call mm_get_solute_force(ns,
+     &                     int_mb(i_igt),
+     &                     dbl_mb(i_gt))
+
+      if(nw.ne.0) 
+     &  call mm_get_solvent_force(nw,
+     &                     int_mb(i_igt+ns),
+     &                     dbl_mb(i_gt+3*ns))
+
+      
+      write(*,*) "final forces"
+      do i=1,3*n
+      write(*,*) dbl_mb(i_gt+i-1)
+      end do
+
+      if(.not.rtdb_put(irtdb,'qmmm:gradient',mt_dbl,
+     +                 3*n,dbl_mb(i_gt)))
+     +   call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)
+
+      if(.not.ma_pop_stack(h_gt))
+     &      call errquit(
+     &      'qmmm_data_alloc: unable to pop stack',
+     &      3*n, MA_ERR)
+ 
       end
 
       subroutine qmmm_geom_print_current(irtdb)

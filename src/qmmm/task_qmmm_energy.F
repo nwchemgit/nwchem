@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.5 2005-06-01 16:27:03 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.6 2005-06-02 05:15:00 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -72,6 +72,12 @@ c     external functions
       logical ignore_qm
       logical  task_energy_doit
       external task_energy_doit
+      character*30 pname
+
+      pname ="qmmm energy"
+
+      if(qmmm_print_debug())
+     >       write(*,*) "in "//pname
 
       call util_print_push() 
       call util_print_rtdb_load(rtdb, 'qmmm')
@@ -141,6 +147,9 @@ c     -------------------------
       qmmm_energy=status
 
       call util_print_pop()
+
+      if(qmmm_print_debug())
+     >       write(*,*) "out "//pname
 
       end
 

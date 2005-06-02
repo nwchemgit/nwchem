@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.46 2005-05-27 17:59:22 marat Exp $
+c $Id: qmmm.F,v 1.47 2005-06-02 05:15:00 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -19,6 +19,8 @@ c
       logical ignore
       logical checkgrad
       character*32 pname
+      character*30 operation
+      logical aux_geom
 c
       call qmmm_print_header()
 c
@@ -46,7 +48,25 @@ c     --------------------------------------------
 
       call qmmm_bq_data_init(irtdb)
 
-      call qmmm_geom_init(irtdb)
+      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+
+      if(operation.eq."optimize") then
+        aux_geom = .true.
+      else if(operation.eq."freq") then
+        aux_geom = .true.
+      else if(operation.eq."hessian") then
+        aux_geom = .true.
+      else if(operation.eq."gradient") then
+        aux_geom = .false.
+      else if(operation.eq."energy") then
+        aux_geom = .false.
+      else if(operation.eq."property") then
+        aux_geom = .false.
+      end if
+
+      call qmmm_geom_init(irtdb,aux_geom)
+
 
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)

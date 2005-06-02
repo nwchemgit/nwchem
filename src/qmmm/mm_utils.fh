@@ -1,5 +1,5 @@
 c
-c $Id: mm_utils.fh,v 1.6 2005-05-29 18:53:07 marat Exp $
+c $Id: mm_utils.fh,v 1.7 2005-06-02 05:15:00 marat Exp $
 c
       logical  mm_quant
       external mm_quant
@@ -51,4 +51,7 @@ c
 
       double precision mm_solute_charge
       external mm_solute_charge
+
+      double precision mm_ww
+      external mm_ww
 
