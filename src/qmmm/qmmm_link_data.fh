@@ -1,0 +1,17 @@
+c
+c $Id: qmmm_link_data.fh,v 1.1 2005-06-02 19:59:04 marat Exp $
+c
+      integer link_atom
+      integer nlink,nps
+      integer i_lb,h_lb
+      integer i_ips,h_ips
+
+
+      common/qmmm_link_data/ nlink,
+     &                 nps,
+     &                 link_atom,
+     &                 i_lb,h_lb,
+     &                 i_ips,h_ips
+
+
+
