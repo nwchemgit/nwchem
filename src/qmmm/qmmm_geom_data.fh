@@ -1,0 +1,20 @@
+c
+c $Id: qmmm_geom_data.fh,v 1.1 2005-06-03 19:13:56 marat Exp $
+c
+      character*256 oldgeom
+      logical aux_geom
+      integer ng,nfg
+      integer ngw,ngs
+      integer i_ig,h_ig
+      integer i_ifg,h_ifg
+
+
+      common/qmmm_geom_data/ aux_geom,
+     &                 ng,nfg,
+     &                 ngw,ngs,
+     &                 oldgeom,
+     &                 i_ig,h_ig,
+     &                 i_ifg,h_ifg
+
+
+
