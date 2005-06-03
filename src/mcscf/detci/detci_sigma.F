@@ -10,7 +10,7 @@ c
      $     ataba, atabb, ntij, nsblk,
      $     h, g, f, g_civec, g_sigma )
 *
-* $Id: detci_sigma.F,v 1.19 2004-09-07 06:11:38 windus Exp $
+* $Id: detci_sigma.F,v 1.20 2005-06-03 21:46:11 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -302,7 +302,7 @@ c  Block over strings for finer granularity
 c
       nsblk = (20*numnodes)/(norb*norb)
       nsblk = max(nsblk,1)
-      NSBLK = 2
+      NSBLK = min(2,nekla)
       if (numnodes.eq.1) nsblk = 1
       sseg = (nekla/nsblk)
       if (mod(nekla,nsblk).ne.0) sseg = sseg + 1
