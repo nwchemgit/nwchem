@@ -103,11 +103,6 @@ c     get global index
       end if
 
 
-      write(*,*) "solvent global index"
-      do i=nbqs+1,nbq
-        write(*,*) int_mb(i_ibq+i-1)
-      end do
-
       if(nbqs.ne.0) then
         call mm_get_solute_geom_bq(nbqs,link,
      >                       int_mb(i_ibq),
@@ -166,14 +161,6 @@ c     ------------------------
            nbqa = nbqa + 1
          end if
       end do
-  
-      do i=nbqs+1,nbq
-        write(*,'(L2,3F12.6)') 
-     >      log_mb(i_abq+i-1),
-     >      (cau2ang*dbl_mb(i_cbq+(i-1)*3+j-1),j=1,3) 
-      end do
-
-      write(*,*) "nbqa",nbqa
 
       charge = 0.0d0
       do i=1,nbq
@@ -227,18 +214,8 @@ c
 c     append solvent bq coord and charges from MM
 c     -------------------------------------------    
       if(nbqw.ne.0) then
-        write(*,*) "qmmm_bq_coord_update 1",ga_nodeid()
-        call ga_sync()
         call mm_get_solvent_coord(nbqw,int_mb(i_ibq+nbqs),
      >                       dbl_mb(i_cbq+3*nbqs))
-      end if
-
-      
-      if(qmmm_master()) then
-        write(*,*) "qmmm_bq_coord_update"
-        do i=3*nbqs,3*(nbqw+nbqs)
-          write(*,*) dbl_mb(i_cbq+i-1)
-        end do
       end if
 
       if(qmmm_print_debug()) 
@@ -613,20 +590,12 @@ c
          end if
       end do
 
-      write(*,*) "active bq index"
-      do i=nbqsa+1,nbqwa
-        write(*,*)  int_mb(i_ibqg+i-1)
-      end do
 
       if(nbqsa.ne.0)   
      >  call mm_add_solute_force(nbqsa,
      >                            int_mb(i_ibqg),
      >                            g)
 
-      write(*,*) "debug 1"
-      do i=1,3*nbqwa*mwa
-        write(*,*) g(3*nbqsa+i)
-      end do
 
       if(nbqwa.ne.0)   
      > call mm_add_solvent_force(mwa*nbqwa,
@@ -634,13 +603,6 @@ c
      >                            g(3*nbqsa+1))
 
      
-
-      write(*,*) "i_ibqg",(int_mb(i_ibqg+i-1),i=1,nbqwa+nbqsa)
-
-      write(*,*) "active solvent forces"
-      do i=1,3*nt
-        write(*,*) g(i)
-      end do
 
       if(.not.ma_pop_stack(h_ibqg))
      +   call errquit( pname//'Failed to deallocate memory for ibqg',
@@ -679,14 +641,12 @@ c
         end if
       end do
 
-      write(*,*) "active waters"
       do i=nbqs+1,nbq
         if(log_mb(i_abq+i-1)) then
            ia = ia + 1
            q(ia) = dbl_mb(i_qbq+i-1)
            do k=1,3
              c(k,ia) = dbl_mb(i_cbq+(i-1)*3+k-1)
-             write(*,*) c(k,ia)*cau2ang
            end do
         end if
       end do

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.62 2005-06-02 05:15:00 marat Exp $
+c $Id: qmmm_geom.F,v 1.63 2005-06-03 19:12:17 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -21,6 +21,7 @@ c     local variables
       integer nqm,nlink
       integer i_ind,i_lb
       integer ig,ng0
+      integer mwa
       character*32 pname
 
       pname = "qmmm_geom_init"
@@ -34,6 +35,8 @@ c     local variables
       nlink = qmmm_get_nlink()
       i_ind = qmmm_get_i_ai()
       i_lb  = qmmm_get_i_lb()
+     
+      call mm_get_mwa(mwa)
 
 c
 c     initialize indexing for a full qm geometry
@@ -61,6 +64,17 @@ c     -----------------------------
         call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
  
         call qmmm_geom_create_active(irtdb)
+
+        if(qmmm_master()) then
+           write(*,*) "active solute index"
+           do i=1,ngs
+             write(*,*) int_mb(i_ig+i-1)
+           end do
+           write(*,*) "active solvent index"
+           do i=1,ngw/mwa
+             write(*,*) int_mb(i_ig+ngs+i-1)
+           end do
+        end if
       else
         ngs = 0
         ngw = 0
@@ -68,6 +82,7 @@ c     -----------------------------
         call qmmm_geom_create_full(irtdb)
       end if
 
+      call qmmm_geom_print(irtdb,"geometry","-active.pdb")
 
       if(qmmm_print_debug())
      >    write(*,*) "out",pname
@@ -189,8 +204,10 @@ c      end do
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 
-      if(.not.geom_print(igeom))
-     + call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
+      if(qmmm_master()) then
+        if(.not.geom_print(igeom))
+     +   call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
+      end if
 
       if(.not.geom_rtdb_store(irtdb,igeom,aname))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -243,7 +260,9 @@ c     local variables
       if(qmmm_print_debug())
      >    write(*,*) "in",pname
 
-      write(*,*) "nfg=",nfg
+      if(qmmm_print_debug())
+     > write(*,*) "nfg=",nfg
+
       call qmmm_geom_create(irtdb,
      >                      nfg,
      >                      int_mb(i_ifg),
@@ -443,6 +462,80 @@ c    --------------------------------------
 
       end
 
+      subroutine qmmm_geom_print(irtdb,gname,fname)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+      integer irtdb
+      character*(*) gname    
+      character*(*) fname    
+c     local variables
+      integer ncent
+      integer igeom
+      integer i_c,h_c,i_q,h_q,i_t,h_t
+      character*32 pname
+
+      pname = "qmmm_geom_push"
+
+c    --------------------------------------
+c    get qm coordinates out of geometry
+c    --------------------------------------
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not. geom_ncent(igeom, ncent) ) 
+     >    call errquit("qmmm:geom_ncent",0,0)
+
+      if(.not.ma_push_get(mt_dbl,3*ncent,'ctmp',h_c,i_c))
+     + call errquit( pname//'Failed to allocate memory for c',
+     + 3*ncent, MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,ncent,'qtmp',h_q,i_q))
+     + call errquit('qmmm: Failed to allocate memory for q',ncent,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_byte,16*ncent,'ttmp',h_t,i_t))
+     + call errquit('qmmm: Failed to allocate memory for t',ncent,
+     &       MA_ERR)
+
+      if(.not.geom_cart_get(igeom,ncent,byte_mb(i_t),
+     + dbl_mb(i_c),dbl_mb(i_q)))
+     + call errquit('qmmm: Failed to get geometry',0, GEOM_ERR)
+
+
+      if(qmmm_master()) then
+        call qmmm_print_pdb(ncent,fname,
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_q),
+     >                       byte_mb(i_t))
+      end if
+
+      if(.not.ma_pop_stack(h_t))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ncent,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_q))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ncent,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_c))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ncent,
+     &       MA_ERR)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+
+      end
+
       subroutine qmmm_geom_get_grad(irtdb)
       implicit none
 #include "mafdecls.fh"
@@ -488,11 +581,6 @@ c
      &                     dbl_mb(i_gt+3*ns))
 
       
-      write(*,*) "final forces"
-      do i=1,3*n
-      write(*,*) dbl_mb(i_gt+i-1)
-      end do
-
       if(.not.rtdb_put(irtdb,'qmmm:gradient',mt_dbl,
      +                 3*n,dbl_mb(i_gt)))
      +   call errquit('qmmm: rtdb_out gradient failed',0, RTDB_ERR)

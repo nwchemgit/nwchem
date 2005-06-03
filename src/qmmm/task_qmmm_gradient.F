@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.22 2005-06-02 05:15:00 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.23 2005-06-03 19:12:17 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -245,11 +245,6 @@ c
      >                    dbl_mb(i_q),
      >                    dbl_mb(i_g))
 
-      write(*,*) "bq forces"
-      do i=1,3*na
-      write(*,*) dbl_mb(i_g+i-1)
-      end do
-
 c      call mm_add_solute_force(na,
 c     &                     int_mb(i_i),
 c     &                     dbl_mb(i_g))
@@ -379,11 +374,8 @@ c     ----------------------
         ii = int_mb(i_ifg+i-1)
         do j=1,nact
          jj0 = int_mb(i_cons+j-1)
-         write(*,*) "jj0",jj0
          jj  = int_mb(i_ig+jj0-1)
-         write(*,*) "jj",jj
          if(ii.eq.jj) then
-            write(*,*) "nact1",nact1
             nact1 = nact1 + 1
             int_mb(i_act+nact1-1) = i
             goto 1

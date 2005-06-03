@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.51 2005-06-02 05:15:00 marat Exp $
+c $Id: mm_interface.F,v 1.52 2005-06-03 19:12:17 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -339,7 +339,6 @@ c
 
       na=0
       do i=1,nwmloc
-        write(*,*) "mm_active_w",mm_active_w(i)
         if(mm_type(i)) na=na+mwa
       end do
 
@@ -773,6 +772,16 @@ c     -----------------------------
       end do
 
       call ga_igop(msg_qmmm_ind_solvent,ind,nt,'+')
+
+      
+c      do i=1,nt
+c       write(85,*) ind(i)
+c      end do
+c      call qmmm_sort(nt/mwa,ind)
+c      do i=1,nt
+c       write(86,*) ind(i)
+c      end do
+c      stop
 
       if(.not.ma_pop_stack(l_ioff))
      + call errquit('qmmm: Failed to deallocate memory for ioff',np,
@@ -1555,7 +1564,6 @@ c     mm local variables
                      c(k,j1)=dbl_mb(pxw+(i-1)+(k-1)*mwm+(m-1)*3*mwm)
                      c(k,j1)=c(k,j1)*cnm2au
                    end do
-                   write(*,*) 'cf_wcharge(m)',cf_wcharge(m)
                    q(j1) = cf_wcharge(m)
                  end do
               end if
@@ -1911,17 +1919,14 @@ c     mm local variables
       call mm_get_pfw(pfw)
       call mm_get_pwl(pwl)
  
-      write(*,*) pname
       do i=1,nwm
         if(mm_bqwzone(i)) then
             do j=1,nt/mwa
-              write(*,*) int_mb(pwl+i-1),ai(j)
               if(int_mb(pwl+i-1).eq.ai(j)) then
                  do m=1,mwa
                    j1=(j-1)*mwa+m
                    do k=1,3
                      ioff=pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm
-                     write(*,*) "active g",g(k,j1)
                      dbl_mb(ioff)=dbl_mb(ioff)-g(k,j1)*cau2kj/cau2nm
                    end do
                  end do
