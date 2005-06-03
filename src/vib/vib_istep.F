@@ -2,7 +2,7 @@
      &    eigenvecs,eigenvals,coords,
      &    steps,stepsave,master)
 *
-* $Id: vib_istep.F,v 1.8 2003-10-17 22:58:37 carlfahl Exp $
+* $Id: vib_istep.F,v 1.9 2005-06-03 23:54:51 marat Exp $
 *
 * routine to compute the direction vector, magnitudes, updated
 * geometries for all negative eigenvalues in the current spectrum.
@@ -203,7 +203,7 @@ c
       integer my_sign, my_quad
       integer imode, ivec, iatom, ixyz, istep
       integer geom
-      character*255 mydir, filename
+      character*255 mydir, filename,filename1
 *      character*30 tag, element
       double precision length_of_step, scale
 *      double precision charge, atn
@@ -268,6 +268,11 @@ c
         iatom = (imode-1) / 3 + 1
         mydir = ' '
         call util_directory_name(mydir, .false., 0)
+        filename = ' '
+        write(filename1,10001)
+     &      mydir(1:inp_strlen(mydir)),imode
+        open(unit=89,file=filename1,
+     &       form='formatted',status='new', err=99901)
         do istep = 1, num_steps
           filename = ' '
           write(filename,10000)
@@ -287,6 +292,9 @@ c
           if (.not.geom_cart_coords_set(geom,coords)) call errquit
      &        ('vib_modestep: geom_cart_coords_set failed',911,
      &       GEOM_ERR)
+          if (.not.geom_print_xyz(geom,89))
+     &        call errquit('vib_modestep: geom_print_xyz failed',911,
+     &       GEOM_ERR)
           call util_file_unlink(filename)
           open(unit=88,file=filename,
      &        form='formatted',status='new', err=99901)
@@ -295,6 +303,7 @@ c
      &       GEOM_ERR)
           close(unit=88,status='keep',err=99902)
         enddo
+        close(unit=89,status='keep',err=99902)
       enddo
 *
       call dcopy(nat3,master,1,coords,1) ! restore master coordinates
@@ -302,6 +311,7 @@ c
      &    ('vib_modestep: geom_destroy failed',911, GEOM_ERR)
       return
 10000 format(a,'/freq.m-',i3.3,'.s-',i3.3,'.xyz')
+10001 format(a,'/freq.m-',i3.3,'.xyz')
 99901 write(luout,*)' could not open file ',filename
       call errquit('vib_modestep: fatal error ',911, DISK_ERR)
 99902 write(luout,*)' could not close file ',filename
