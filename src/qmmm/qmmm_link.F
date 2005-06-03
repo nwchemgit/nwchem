@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_link.F,v 1.1 2005-06-03 19:13:56 marat Exp $
+c $Id: qmmm_link.F,v 1.2 2005-06-03 19:15:52 marat Exp $
 c
       subroutine qmmm_links_init(irtdb)
       implicit none
@@ -227,15 +227,6 @@ c     local variables:
       logical qmmm_halogen_link
 
       qmmm_halogen_link=link_atom.eq.qmmm_halogen
-
-      end 
-
-      function qmmm_get_i_lb()
-      implicit none
-#include "qmmm_link_data.fh"
-      integer qmmm_get_i_lb
-
-      qmmm_get_i_lb = i_lb
 
       end 
 
