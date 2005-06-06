@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.52 2005-06-03 19:12:17 marat Exp $
+c $Id: mm_interface.F,v 1.53 2005-06-06 23:59:31 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -746,7 +746,8 @@ c
 c     accumulate offsets
 c     ------------------
       me = ga_nodeid()
-      call mm_get_nbqw(nqa)
+      call mm_get_solvent_na_gen(nqa,mm_type)
+c      call mm_get_nbqw(nqa)
 c     number of water molecules = 
 c     number of atoms/number of atoms per molecule 
       nqa=nqa/mwa
