@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.63 2004-12-08 23:57:39 bert Exp $
+* $Id: prp.F,v 1.64 2005-06-07 19:55:55 marat Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
       implicit double precision (a-h,o-z)
@@ -16,10 +16,10 @@
       logical     out 
       data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
-     2     nogiao,noston
+     2     nogiao,noston,nospinspin
      3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
      4       1,    1,    1,    1,    1,    1,    1,    1, 
-     5       1,    1/
+     5       1,    1,    1/
 c
       out   =.false.
       some  =.true.        
