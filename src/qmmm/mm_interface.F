@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.53 2005-06-06 23:59:31 marat Exp $
+c $Id: mm_interface.F,v 1.54 2005-06-07 17:11:24 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -91,7 +91,6 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
-      write(*,*) "uqmmm",uqmmm
       call prp_print()
 c
 c     print energies

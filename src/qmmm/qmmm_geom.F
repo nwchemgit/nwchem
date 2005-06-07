@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.63 2005-06-03 19:12:17 marat Exp $
+c $Id: qmmm_geom.F,v 1.64 2005-06-07 17:11:24 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -65,7 +65,7 @@ c     -----------------------------
  
         call qmmm_geom_create_active(irtdb)
 
-        if(qmmm_master()) then
+        if(qmmm_print_debug()) then
            write(*,*) "active solute index"
            do i=1,ngs
              write(*,*) int_mb(i_ig+i-1)
@@ -171,6 +171,7 @@ c
      >                 dbl_mb(i_q),
      >                 dbl_mb(i_m))
 
+
       if(nw.ne.0) 
      >  call mm_get_solvent_geom(nw,
      >                   aiw,
@@ -179,6 +180,7 @@ c
      >                   dbl_mb(i_c+3*ns),
      >                   dbl_mb(i_q+ns),
      >                   dbl_mb(i_m+ns))
+
 
       ignore = rtdb_delete(irtdb,aname)
 
