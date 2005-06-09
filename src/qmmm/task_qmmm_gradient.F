@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.23 2005-06-03 19:12:17 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.24 2005-06-09 19:20:34 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -20,6 +20,16 @@ c
       external qmmm_gradient
 c     local variables
       character*32 interface
+      logical save_rst
+      character*30 operation
+
+      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+
+      save_rst = .false.
+      if (operation.eq.'optimize' .or.
+     >    operation.eq.'saddle') save_rst = .true.
+
 
       interface = qmmm_get_interface()
 c
@@ -37,6 +47,8 @@ c     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
 
       else if (interface.eq.'qm') then
          task_qmmm_gradient = qmmm_gradient(rtdb)
+         if(save_rst)
+     >    call mm_write_restart()
       endif
 c
       end
