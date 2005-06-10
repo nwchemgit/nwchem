@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.167 2005-01-08 19:29:00 d3j191 Exp $
+c $Id: md_start.F,v 1.168 2005-06-10 23:32:55 marat Exp $
 c
       implicit none
 c
@@ -1087,7 +1087,8 @@ c
       endif
 c
       if(.not.rtdb_cget(irtdb,'task:operation',1,operat))
-     + call md_abort('md_rtdbin: rtdg_cget failed',138)
+c     + call md_abort('md_rtdbin: rtdg_cget failed',138)
+     + operat='energy'
 c
       if(operat.eq.'energy'.or.operat.eq.'ENERGY') then
       ntype=0
