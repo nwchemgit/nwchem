@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.70 2005-06-11 06:50:40 marat Exp $
+* $Id: task.F,v 1.71 2005-06-11 07:17:38 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -175,9 +175,7 @@ c
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
-          write(*,*) "doing esp"
           status=esp(rtdb)
-          write(*,*) "end doing esp"
          elseif(inp_compare(.false.,'prepare',theory)) then
           status=prepar(rtdb)
          elseif(inp_compare(.false.,'analysis',theory)) then
@@ -275,7 +273,6 @@ cc
 99999 continue
 c
       if (task_qmmm) then
-        write(*,*) "ending qmmm"
         status = qmmm_end(rtdb)
 
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
