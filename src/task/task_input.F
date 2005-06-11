@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.40 2005-06-10 23:34:59 marat Exp $
+* $Id: task_input.F,v 1.41 2005-06-11 06:50:40 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -168,6 +168,7 @@ c
      &       RTDB_ERR)
         if (operation.ne.'energy' .and.
      >      theory.ne.'dplot' .and.
+     >      theory.ne.'esp' .and.
      >      operation.ne.'optimize' .and.
      >      operation.ne.'neb' .and.
      >      operation.ne.'saddle' .and.

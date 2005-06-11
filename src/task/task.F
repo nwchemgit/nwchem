@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.69 2005-04-03 07:39:25 marat Exp $
+* $Id: task.F,v 1.70 2005-06-11 06:50:40 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -175,7 +175,9 @@ c
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
+          write(*,*) "doing esp"
           status=esp(rtdb)
+          write(*,*) "end doing esp"
          elseif(inp_compare(.false.,'prepare',theory)) then
           status=prepar(rtdb)
          elseif(inp_compare(.false.,'analysis',theory)) then
@@ -268,7 +270,12 @@ c     *** task_paw handles paw specific "operations" ***
             endif
          endif
       endif
+cc
+      call ga_sync()
+99999 continue
+c
       if (task_qmmm) then
+        write(*,*) "ending qmmm"
         status = qmmm_end(rtdb)
 
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
@@ -286,10 +293,8 @@ c
               call errquit("failed to uninitialize bq", 0, CALC_ERR)
         end if
       end if
-cc
-      call ga_sync()
-99999 continue
-c
+
+
       task_wall = task_wall + util_wallsec()
       task_cpu  = task_cpu  + util_cpusec()
       if (oprint_task_times) then
