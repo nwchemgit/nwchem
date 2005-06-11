@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.6 2005-06-02 05:15:00 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.7 2005-06-11 05:47:47 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -16,34 +16,62 @@ c
       integer rtdb
       logical task_qmmm_energy
 c     external functions
-      logical qmmm_energy
-      external qmmm_energy 
+      logical qmmm_energy_gradient
+      external qmmm_energy_gradient 
 
 c     local variables
       logical ignore
       character*32 interface
+      logical save_rst
+      logical do_print
+      character*30 operation
       double precision energy
+c
+      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+c
+      if (.not. rtdb_cput(rtdb, 'qmmm:operation', 1, "energy"))
+     $     call errquit('qmmm: failed setting operation', 0, RTDB_ERR)
+c
+      save_rst = .false.
+      if (operation.eq.'optimize' .or.
+     >    operation.eq.'saddle') save_rst = .true.
+c
+      do_print = .false.
+      if (operation.eq.'energy') do_print = .true.
 c
       interface = qmmm_get_interface()
 c
       task_qmmm_energy = .true.
 c      
       if (interface.eq.'mm') then
-c         call qmmm_get_qm_coord_qm(rtdb)
-c         call qmmm_push_qm_coord_mm(rtdb)
-c         call md_sp()
-c         if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,energy))
-c     $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
+         call qmmm_geom_push_active(rtdb)
+         call md_sp()
+         if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,energy))
+     $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
 c
-c         if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy/cau2kj))
-c     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy/cau2kj))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+c
+         call qmmm_print_energy2(rtdb)
 c
       else if (interface.eq.'qm') then
-         task_qmmm_energy= qmmm_energy(rtdb)
+         call qmmm_geom_push_active(rtdb)
+         call mm_task_sp()
+         task_qmmm_energy= qmmm_energy_gradient(rtdb,.false.)
+         call qmmm_energy_rtdb_push(rtdb)
+         call qmmm_print_energy(rtdb)
+         if(save_rst)
+     >    call mm_write_restart()
+         if(do_print)
+     >     call mm_print_info()
       endif
 c
+      if (.not. rtdb_delete(rtdb, 'qmmm:operation'))
+     $     call errquit('qmmm: failed deleting operation', 0, RTDB_ERR)
+c
       end
-
+c
       function qmmm_energy(rtdb)
       implicit none
 c
@@ -153,6 +181,44 @@ c     -------------------------
 
       end
 
+      subroutine qmmm_energy_rtdb_push(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      double precision eatoms
+      double precision energy
+      double precision mm_energy
+      double precision qm_energy
+
+      if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
+     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
+     $     call errquit('qmmm: failed getting  md energy',0,RTDB_ERR)
+
+      if (.not. rtdb_get(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
+     $     call errquit('qmmm: failed getting  md energy',0,RTDB_ERR)
+
+      mm_energy = mm_energy/cau2kj
+      energy = qm_energy + mm_energy-eatoms
+
+      if (.not. rtdb_put(rtdb,'qmmm:mm_energy',mt_dbl,1,mm_energy))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+
+      if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+
+      end
 
 
 

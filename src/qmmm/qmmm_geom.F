@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.64 2005-06-07 17:11:24 marat Exp $
+c $Id: qmmm_geom.F,v 1.65 2005-06-11 05:47:46 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -47,6 +47,14 @@ c     ------------------------------------------
      &       MA_ERR)
       call icopy(nqm,int_mb(i_ind),1,int_mb(i_ifg),1)
       call icopy(nlink,int_mb(i_lb+nlink),1,int_mb(i_ifg+nqm),1)
+c
+c    allocate gradient array
+c    -----------------------
+      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm grad array',
+     &      h_g, i_g) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      3*nfg, MA_ERR)
+      call dfill(3*nfg,0,dbl_mb(i_g),1)
 
 c
 c     create active geometry if any
@@ -76,9 +84,10 @@ c     -----------------------------
            end do
         end if
       else
-        ngs = 0
+        ngs = nfg
         ngw = 0
-        ng =  0
+        ng =  nfg
+        i_ig = i_ifg
         call qmmm_geom_create_full(irtdb)
       end if
 
@@ -95,7 +104,7 @@ c     -----------------------------
 #include "errquit.fh"
 #include "qmmm_geom_data.fh"
       
-      if(ng.ne.0 ) then
+      if(aux_geom) then
        if(.not.ma_free_heap(h_ig))
      &   call errquit('qmmm h_ig: Failed to deallocate heap',ng,
      &       MA_ERR)
@@ -104,6 +113,9 @@ c     -----------------------------
 
 
       if(nfg.ne.0) then
+       if(.not.ma_free_heap(h_g))
+     &   call errquit('qmmm h_g: Failed to deallocate heap',h_g,
+     &       MA_ERR)
        if(.not.ma_free_heap(h_ifg))
      &   call errquit('qmmm h_ifg: Failed to deallocate heap',h_ifg,
      &       MA_ERR)
@@ -674,6 +686,16 @@ c     -------------
       integer qmmm_geom_get_i_ig
 
       qmmm_geom_get_i_ig = i_ig
+
+      end 
+
+      function qmmm_geom_get_i_g()
+      implicit none
+#include "qmmm_geom_data.fh"
+
+      integer qmmm_geom_get_i_g
+
+      qmmm_geom_get_i_g = i_g
 
       end 
 

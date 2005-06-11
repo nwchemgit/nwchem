@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.24 2005-06-09 19:20:34 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.25 2005-06-11 05:47:47 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -16,39 +16,51 @@ c
       integer rtdb
       logical  task_qmmm_gradient
 c
-      logical  qmmm_gradient
-      external qmmm_gradient
+      logical  qmmm_energy_gradient
+      external qmmm_energy_gradient
 c     local variables
       character*32 interface
       logical save_rst
+      logical do_print
       character*30 operation
-
+      double precision energy
+c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
-
+c
       save_rst = .false.
       if (operation.eq.'optimize' .or.
      >    operation.eq.'saddle') save_rst = .true.
-
-
+c
+      do_print = .false.
+      if (operation.eq.'gradient') do_print = .true.
+c
       interface = qmmm_get_interface()
 c
-      
       task_qmmm_gradient = .true.
       if (interface.eq.'mm') then
-c         call qmmm_get_qm_coord_qm(rtdb)
-c         call qmmm_push_qm_coord_mm(rtdb)
-c         call md_sp()
-c         if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,energy))
-c     $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
+         call qmmm_geom_push_active(rtdb)
+         call md_sp()
+         if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,energy))
+     $     call errquit('qmmm: failed getting  md energy', 0, RTDB_ERR)
 c
-c         if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy/cau2kj))
-c     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy/cau2kj))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+c
+         call qmmm_geom_get_grad(rtdb)
+         call qmmm_print_energy2(rtdb)
 
       else if (interface.eq.'qm') then
-         task_qmmm_gradient = qmmm_gradient(rtdb)
+         call qmmm_geom_push_active(rtdb)
+         call mm_task_sp()
+         task_qmmm_gradient = qmmm_energy_gradient(rtdb,.true.)
+         call qmmm_geom_get_grad(rtdb)
+         call qmmm_energy_rtdb_push(rtdb)
+         call qmmm_print_energy(rtdb)
          if(save_rst)
      >    call mm_write_restart()
+         if(do_print)
+     >     call mm_print_info()
       endif
 c
       end
@@ -74,72 +86,42 @@ c
       logical task_gradient_doit
       external task_gradient_doit
       character*255 theory
-      double precision energy
-      double precision mm_energy
       double precision qm_energy
       integer i_g,h_g 
-      double precision eatoms
-c      integer ntot
-      character*30 operation
-      logical do_actlist
-      logical do_print
-      logical save_rst
       integer nfg
       integer i_ifg
       integer nact
-      character*32 interface
       character*30 pname
 
       status = .true.
-      interface = qmmm_get_interface()
 
       call util_print_push() 
       call util_print_rtdb_load(rtdb, 'qmmm')
       
       nfg = qmmm_geom_get_nfg()
       i_ifg = qmmm_geom_get_i_ifg()
+      i_g = qmmm_geom_get_i_g()
 
-      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm grad array',
-     &      h_g, i_g) ) call errquit(
-     &      'qmmm_data_alloc: unable to allocate heap space',
-     &      3*nfg, MA_ERR)
       call dfill(3*nfg,0,dbl_mb(i_g),1)
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 
-      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
-     $     operation = 'energy'
-
-      do_actlist = .false.
-      if (operation.eq.'hessian' .or.
-     >    operation.eq.'frequencies' .or.
-     >    operation.eq.'freq') do_actlist=.true.
-
-      save_rst = .false.
-      if (operation.eq.'optimize' .or.
-     >    operation.eq.'saddle') save_rst = .true.
-
-      do_print = .false.
-      if (operation.eq.'gradient') do_print = .true.
-
-       if (.not.rtdb_get(rtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
-     $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
-
-      call qmmm_geom_push_active(rtdb)
-
-c     calculate mm gradients
-      call mm_task_sp()
 c
 c     create full geometry
 c     -------------------
       call qmmm_geom_create_full(rtdb)
+c
+c     update coordinates of classical charges
+c     ---------------------------------------
       call qmmm_bq_coord_update()
 c
+c     create active atom list for qm atoms
+c     ------------------------------------
       call qmmm_map_fixed_atoms(rtdb,nact)
 c
-c     QM energy calculation
-c     --------------------
+c     qm atoms gradients if any
+c     -------------------------
       if(nact.ne.0) then
         status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
         call qmmm_links_adjust_forces(nfg,
@@ -151,51 +133,119 @@ c     --------------------
      &                     int_mb(i_ifg),
      &                     dbl_mb(i_g))
 
-        call qmmm_bq_gradient(rtdb)
        else
         status = task_energy_doit(rtdb,theory,qm_energy)
       end if
 c
-      call qmmm_geom_get_grad(rtdb)
+c     gradients on classical atoms if any
+c     -----------------------------------
+      call qmmm_bq_gradient(rtdb)
 c
-c     take care of the energies
-c
-      mm_energy = 0.0d0
-      if (.not. rtdb_get(rtdb,'md:energy',mt_dbl,1,mm_energy))
-     $     call errquit('qmmm: failed getting  md energy',0,RTDB_ERR)
-
-      mm_energy = mm_energy/cau2kj
-      energy = qm_energy + mm_energy-eatoms
-
       if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
-
-      if (.not. rtdb_put(rtdb,'qmmm:mm_energy',mt_dbl,1,mm_energy))
-     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
-
-      if (.not. rtdb_put(rtdb,'qmmm:energy',mt_dbl,1,energy))
-     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
-
-      if(.not.ma_free_heap(h_g))
-     & call errquit('qmmm g: Failed to deallocate heap',nfg,
-     &       MA_ERR)
-
-      call qmmm_print_energy(rtdb)
- 
-      qmmm_gradient=status
-
 c
       call qmmm_geom_restore(rtdb)
-
-      call util_print_pop()
-      if(save_rst)
-     > call mm_write_restart()
-
+c
       call qmmm_restore_fixed_atoms(rtdb)
+c
+      qmmm_gradient=status
+c
+      call util_print_pop()
+      end
 
-      if(do_print)
-     >  call mm_print_info()
+      function qmmm_energy_gradient(rtdb,do_grad)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      logical do_grad
+      logical qmmm_energy_gradient
+      logical status
+      logical task_energy_doit
+      external task_energy_doit
+      logical task_gradient_doit
+      external task_gradient_doit
+      character*255 theory
+      double precision qm_energy
+      integer i_g,h_g 
+      integer nfg
+      integer i_ifg
+      integer nact
+      character*30 pname
 
+      status = .true.
+
+      call util_print_push() 
+      call util_print_rtdb_load(rtdb, 'qmmm')
+      
+      nfg = qmmm_geom_get_nfg()
+      i_ifg = qmmm_geom_get_i_ifg()
+      i_g = qmmm_geom_get_i_g()
+
+      call dfill(3*nfg,0,dbl_mb(i_g),1)
+
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
+
+c
+c     create full geometry
+c     -------------------
+      call qmmm_geom_create_full(rtdb)
+c
+c     update coordinates of classical charges
+c     ---------------------------------------
+      call qmmm_bq_coord_update()
+c
+c     create active atom list for qm atoms
+c     ------------------------------------
+      if(do_grad) then
+        call qmmm_map_fixed_atoms(rtdb,nact)
+      else
+        nact = 0
+      end if
+c
+c     qm atoms gradients if any
+c     -------------------------
+      if(nact.ne.0) then
+        status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
+        call qmmm_links_adjust_forces(nfg,
+     &                       int_mb(i_ifg),
+     &                       dbl_mb(i_g))
+
+
+        call mm_add_solute_force(nfg,
+     &                     int_mb(i_ifg),
+     &                     dbl_mb(i_g))
+
+       else
+        status = task_energy_doit(rtdb,theory,qm_energy)
+      end if
+c
+c     gradients on classical atoms if any
+c     -----------------------------------
+      if(do_grad) 
+     >  call qmmm_bq_gradient(rtdb)
+c
+      if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
+     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
+c
+      call qmmm_geom_restore(rtdb)
+c
+      if(do_grad)
+     > call qmmm_restore_fixed_atoms(rtdb)
+c
+      qmmm_energy_gradient=status
+c
+      call util_print_pop()
       end
 
       subroutine qmmm_bq_gradient(rtdb)
@@ -257,10 +307,6 @@ c
      >                    dbl_mb(i_q),
      >                    dbl_mb(i_g))
 
-c      call mm_add_solute_force(na,
-c     &                     int_mb(i_i),
-c     &                     dbl_mb(i_g))
- 
        call qmmm_bq_push_grad(na,dbl_mb(i_g))
 
       if(.not.ma_pop_stack(h_g))
