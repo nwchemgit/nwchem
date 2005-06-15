@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.65 2005-06-11 05:47:46 marat Exp $
+c $Id: qmmm_geom.F,v 1.66 2005-06-15 05:39:00 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -55,6 +55,15 @@ c    -----------------------
      &      pname//'unable to allocate heap space',
      &      3*nfg, MA_ERR)
       call dfill(3*nfg,0,dbl_mb(i_g),1)
+c
+c    allocate esp charges
+c    --------------------
+      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm esp charges',
+     &      h_qs, i_qs) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      3*nfg, MA_ERR)
+      call dfill(3*nfg,0,dbl_mb(i_qs),1)
+
 
 c
 c     create active geometry if any
@@ -113,6 +122,9 @@ c     -----------------------------
 
 
       if(nfg.ne.0) then
+       if(.not.ma_free_heap(h_qs))
+     &   call errquit('qmmm h_qs: Failed to deallocate heap',h_qs,
+     &       MA_ERR)
        if(.not.ma_free_heap(h_g))
      &   call errquit('qmmm h_g: Failed to deallocate heap',h_g,
      &       MA_ERR)

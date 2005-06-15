@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom_data.fh,v 1.2 2005-06-11 05:47:46 marat Exp $
+c $Id: qmmm_geom_data.fh,v 1.3 2005-06-15 05:39:00 marat Exp $
 c
       character*256 oldgeom
       logical aux_geom
@@ -8,6 +8,7 @@ c
       integer i_ig,h_ig
       integer i_ifg,h_ifg
       integer i_g,h_g
+      integer i_qs,h_qs
 
 
       common/qmmm_geom_data/ aux_geom,
@@ -16,6 +17,7 @@ c
      &                 oldgeom,
      &                 i_ig,h_ig,
      &                 i_g,h_g,
+     &                 i_qs,h_qs,
      &                 i_ifg,h_ifg
 
 
