@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.185 2005-05-27 01:51:04 edo Exp $
+# $Id: GNUmakefile,v 1.186 2005-06-20 06:01:49 marat Exp $
 
 include ../config/makefile.h
 
@@ -167,7 +167,6 @@ endif
               util_debug.o \
               util_erf.o  \
               ga_it2.o \
-              bead_list.o \
               ma_print.o freeze_input.o ga_extra.o \
               util_test.o util_ga_test.o util.o util_patch_test.o \
               util_ndim_test.o util_perf_test.o util_test_lu.o util_test_eig.o \
