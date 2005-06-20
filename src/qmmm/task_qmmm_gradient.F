@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.25 2005-06-11 05:47:47 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.26 2005-06-20 05:57:35 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -102,7 +102,6 @@ c
       i_ifg = qmmm_geom_get_i_ifg()
       i_g = qmmm_geom_get_i_g()
 
-      call dfill(3*nfg,0,dbl_mb(i_g),1)
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
@@ -122,6 +121,8 @@ c     ------------------------------------
 c
 c     qm atoms gradients if any
 c     -------------------------
+      qm_energy = 0.0d0
+      call dfill(3*nfg,0,dbl_mb(i_g),1)
       if(nact.ne.0) then
         status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
         call qmmm_links_adjust_forces(nfg,
@@ -134,12 +135,14 @@ c     -------------------------
      &                     dbl_mb(i_g))
 
        else
-        status = task_energy_doit(rtdb,theory,qm_energy)
+        if(nfg.ne.0) 
+     >  status = task_energy_doit(rtdb,theory,qm_energy)
       end if
 c
 c     gradients on classical atoms if any
 c     -----------------------------------
-      call qmmm_bq_gradient(rtdb)
+      if(nfg.ne.0) 
+     > call qmmm_bq_gradient(rtdb)
 c
       if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
@@ -191,7 +194,6 @@ c
       i_ifg = qmmm_geom_get_i_ifg()
       i_g = qmmm_geom_get_i_g()
 
-      call dfill(3*nfg,0,dbl_mb(i_g),1)
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
@@ -213,8 +215,11 @@ c     ------------------------------------
         nact = 0
       end if
 c
+c
 c     qm atoms gradients if any
 c     -------------------------
+      qm_energy=0.0d0
+      call dfill(3*nfg,0,dbl_mb(i_g),1)
       if(nact.ne.0) then
         status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
         call qmmm_links_adjust_forces(nfg,
@@ -227,12 +232,13 @@ c     -------------------------
      &                     dbl_mb(i_g))
 
        else
-        status = task_energy_doit(rtdb,theory,qm_energy)
+        if(nfg.ne.0)  
+     >  status = task_energy_doit(rtdb,theory,qm_energy)
       end if
 c
 c     gradients on classical atoms if any
 c     -----------------------------------
-      if(do_grad) 
+      if(do_grad.and.nfg.ne.0) 
      >  call qmmm_bq_gradient(rtdb)
 c
       if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
