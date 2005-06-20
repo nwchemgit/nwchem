@@ -1,5 +1,5 @@
 c
-c     $Id: bead_list.F,v 1.1 2004-02-11 02:37:09 marat Exp $
+c     $Id: bead_list.F,v 1.2 2005-06-20 06:02:46 marat Exp $
 c
 c
 c     This file contains a list of beads, where a bead is defined
@@ -352,6 +352,7 @@ c
       rtdb_name = tag(1:taglen)//':perm_movecs'
       value = value.and.
      >        rtdb_cget(bead_rtdb,rtdb_name,1,perm_name)
+      call util_file_name_resolve(perm_name, .false.)
       permlen = inp_strlen(perm_name)
       
       rtdb_name = tag(1:taglen)//':size'
@@ -361,6 +362,7 @@ c
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':movecs_name'
       value = value.and.
      >        rtdb_cget(bead_rtdb,rtdb_name,1,movecs_name)
+      call util_file_name_resolve(movecs_name, .false.)
       movecslen = inp_strlen(movecs_name)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
@@ -377,6 +379,9 @@ c
 *     *** copy bead movecs to taskmovecs ***
       if (ga_nodeid().eq.0) then
         inquire(file=movecs_name,exist=status)
+         write(*,*) "STATUS1 a:",status
+         write(*,*) "STATUS2 a:",movecs_name
+         write(*,*) "STATUS3 a:",perm_name
         if (status) then
            call util_file_copy(movecs_name(1:movecslen),
      >                         perm_name(1:permlen))
@@ -391,6 +396,9 @@ c
 *     *** copy taskmovecs to bead movecs ****
       if (ga_nodeid().eq.0) then
          inquire(file=perm_name,exist=status)
+         write(*,*) "STATUS1 b:",status
+         write(*,*) "STATUS2 b:",perm_name
+         write(*,*) "STATUS3 b:",movecs_name
          if (status) then
             call util_file_copy(perm_name(1:permlen),
      >                          movecs_name(1:movecslen))
@@ -908,7 +916,7 @@ c
       name(3:3) = CHAR(j4+ICHAR('0'))
       name(4:4) = CHAR(j3+ICHAR('0'))
       name(5:5) = CHAR(j2+ICHAR('0'))
-      name(6:6) = CHAR(j2+ICHAR('0'))
+      name(6:6) = CHAR(j1+ICHAR('0'))
       name(7:7) = CHAR(j0+ICHAR('0'))
       bead_index_name = name
       return
