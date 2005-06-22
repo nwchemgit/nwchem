@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.46 2004-12-20 21:25:16 edo Exp $
+* $Id: task_gradient.F,v 1.47 2005-06-22 22:37:36 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -142,7 +142,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.46 2004-12-20 21:25:16 edo Exp $
+* $Id: task_gradient.F,v 1.47 2005-06-22 22:37:36 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -237,25 +237,43 @@ c     Actually do the deed
 c
       prefix = theory           ! Most common
 c
-      if (numerical) then
-         status = task_num_grad(rtdb)
-      else if (theory .eq. 'scf') then
-         status = scf_gradient(rtdb)
+      if (theory .eq. 'scf') then
+         if (numerical) then
+           status = task_num_grad(rtdb)
+         else
+           status = scf_gradient(rtdb)
+         endif
       else if (theory .eq. 'dft') then
-         status = dft_energy_gradient(rtdb)
-         if(.not.status.and.xc_chktau()) then
-            numerical = .true.
-            status=task_num_grad(rtdb)
+         if (numerical) then
+           status=task_num_grad(rtdb)
+         else
+           status = dft_energy_gradient(rtdb)
+           if(.not.status.and.xc_chktau()) then
+              numerical = .true.
+              status=task_num_grad(rtdb)
+           endif
          endif
       else if (theory .eq. 'sodft') then
-         status = sodft_energy_gradient(rtdb)
+         if (numerical) then
+           status=task_num_grad(rtdb)
+         else
+           status = sodft_energy_gradient(rtdb)
+         endif
       else if (theory .eq. 'mp2' .or. theory .eq. 'semi_dir_mp2') then
-         prefix = 'mp2'
-         if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
+         if (numerical) then
+           status=task_num_grad(rtdb)
+         else
+           prefix = 'mp2'
+           if(.not. rtdb_cput(rtdb,'sdmp2:task',1,'gradient'))
      $        call errquit('task_gradient: rtdb_put failed',0, RTDB_ERR)
-         status = semi_dir_mp2(rtdb)
+           status = semi_dir_mp2(rtdb)
+         endif
       else if (theory .eq. 'mcscf') then
-         status = mcscf_gradient(rtdb)
+         if (numerical) then
+           status=task_num_grad(rtdb)
+         else
+           status = mcscf_gradient(rtdb)
+         endif
       else if (theory .eq. 'rimp2') then
          status = task_num_grad(rtdb) ! Only numerical
       else if (theory .eq. 'rimp2_grad') then
