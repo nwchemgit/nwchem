@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.247 2004-11-12 01:24:47 edo Exp $
+c     $Id: dft_scf.F,v 1.248 2005-06-22 22:27:01 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -47,6 +47,7 @@ c
       logical oprint
       double precision rms(2), derr(2)
       integer noc(2), nmo(2), icall(2)
+      integer mclosed(2), mopen(2)  ! used for cosmo_charges: used in same way as scf does
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
@@ -273,10 +274,16 @@ c
 c        noc(1) = No. of electrons alpha
 c     
          nTotEl = 2*noc(1)
+         mclosed(1)=noc(1)
+         mopen(1)=0
       else
 c     
          nTotEl = noc(1) + noc(2)
          nmo(2) = nmo(1)
+         mclosed(1)=0
+         mclosed(2)=0
+         mopen(1)=noc(1)
+         mopen(2)=noc(2)
       endif
 c
 c    Jorge Garza/Begin
@@ -688,7 +695,7 @@ c
       rms(1) = 0.d0
       rms(2) = 0.d0
       if (cosmo_on.and.cosmo_phase.eq.2) call cosmo_charges(rtdb,
-     $   ao_bas_han,geom,ecosmo,odbug,ipol,g_movecs,nclosed,nopen,
+     $   ao_bas_han,geom,ecosmo,odbug,ipol,g_movecs,mclosed,mopen,
      $   nbf_ao, nmo)
 c
 c     Determine HOMO energy (for Zhan-Nichols-Dixon AC)
