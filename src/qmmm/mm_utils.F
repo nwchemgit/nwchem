@@ -243,6 +243,20 @@ c        local variables
          
        end
 
+       function mm_classical(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_classical
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+         mm_classical = iand(int_mb(psdt+i-1),lquant).eq.0
+         
+       end
+
        function mm_ww(i)
          implicit none
 #include "mafdecls.fh"

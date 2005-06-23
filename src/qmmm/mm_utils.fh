@@ -1,5 +1,5 @@
 c
-c $Id: mm_utils.fh,v 1.7 2005-06-02 05:15:00 marat Exp $
+c $Id: mm_utils.fh,v 1.8 2005-06-23 17:32:02 marat Exp $
 c
       logical  mm_quant
       external mm_quant
@@ -39,6 +39,9 @@ c
 
       logical  mm_active
       external mm_active
+
+      logical  mm_classical
+      external mm_classical
 
       logical  mm_active_bqs
       external mm_active_bqs
