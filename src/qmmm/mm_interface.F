@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.54 2005-06-07 17:11:24 marat Exp $
+c $Id: mm_interface.F,v 1.55 2005-06-23 00:14:57 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -28,7 +28,9 @@ c     -------------------
      &       RTDB_ERR)
 c
       call md_rdinp()
+      if(qmmm_print_debug()) write(*,*) "0 "//pname
       call md_start()
+      if(qmmm_print_debug()) write(*,*) "1 "//pname
   
 
 c     this call is very important

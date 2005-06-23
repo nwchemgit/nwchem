@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.47 2005-06-02 05:15:00 marat Exp $
+c $Id: qmmm.F,v 1.48 2005-06-23 00:14:57 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -51,6 +51,7 @@ c     --------------------------------------------
       if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
 
+      
       if(operation.eq."optimize") then
         aux_geom = .true.
       else if(operation.eq."freq") then
@@ -63,6 +64,8 @@ c     --------------------------------------------
         aux_geom = .false.
       else if(operation.eq."property") then
         aux_geom = .false.
+      else
+        aux_geom = .true.
       end if
 
       call qmmm_geom_init(irtdb,aux_geom)
