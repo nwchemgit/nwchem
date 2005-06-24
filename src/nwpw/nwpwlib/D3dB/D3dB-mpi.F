@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.10 2005-02-10 00:36:57 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.11 2005-06-24 19:24:16 bylaska Exp $
 *
 
 #ifdef MPI
@@ -734,8 +734,291 @@ c      call nwpw_timing_end(2)
 c      return
 c      end
 c
-
-
 #endif
 
 
+#ifdef MPI
+
+      
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose1_jk	*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_c_ptranspose1_jk(nbb,A,tmp1,tmp2)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation          *
+*               A(i,k,j) <- A(i,j,k)                * 
+*                                                   *
+*      np = the number of worker nodes              *
+*      proc#=0...(np-1)
+*                                                   *
+*       this transpose uses more buffer space       *
+*       then transpose2                             *
+*****************************************************
+      implicit none
+      integer nbb
+      complex*16  A(*)
+      complex*16  tmp1(*),tmp2(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer iq_to_i1(2,0:1)
+      integer iq_to_i2(2,0:1)
+      integer iz_to_i2(2,0:1)
+      integer i1_start(2,0:1)
+      integer i2_start(2,0:1)
+      common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
+     >                       i1_start,i2_start
+
+
+*     **** local variables ***
+      logical value
+      integer i,q
+      integer proc_to,proc_from,it
+      integer size,msgtype,source
+c     integer msglen,type,nbytes
+c     integer msgid
+      integer msglen,type
+c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer status(2),request(2),reqcnt
+      integer taskid,np
+      integer mpierr,n1,n2
+      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+     >                     'status',status(2),status(1))
+      value = value.and.
+     >        MA_push_get(mt_int,np,
+     >                     'request',request(2),request(1))
+      if (.not. value)
+     > call errquit(' D3dB_c_ptranspose1_jk:out of stack',0,MA_ERR)
+
+
+      n1 = int_mb(i1_start(1,nbb)+np) - 1
+      n2 = int_mb(i2_start(1,nbb)+np) - 1
+
+*     **** pack A(i) array ****
+       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      call dcopy(2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+         
+
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np) 
+
+         msgtype = 1
+         source=proc_from
+         type   = 1
+         msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
+     >          -  int_mb(i2_start(1,nbb)+it+1-1))
+         
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    source,type,MPI_COMM_WORLD,
+     >                    int_mb(request(1)+reqcnt-1),mpierr) 
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np) 
+         msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
+     >              - int_mb(i1_start(1,nbb)+it+1-1))
+         msgtype   = 1
+      
+         if (msglen.gt.0) then
+            call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+         end if
+
+      end do
+   
+*     **** wait for completion of mp_send, also do a sync ****
+      call MPI_WAITALL(reqcnt,int_mb(request(1)),
+     >                        int_mb(status(1)),mpierr)
+
+*     **** unpack A(i) array ****
+      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      
+
+      !*** deallocate memory ***
+      value =           MA_pop_stack(request(2))
+      value = value.and.MA_pop_stack(status(2))
+      if (.not. value)
+     > call errquit(' D3dB_c_ptranspose1_jk:popping stack',0,MA_ERR)
+
+      return
+      end
+
+
+
+
+      
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose2_jk	*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_c_ptranspose2_jk(nbb,A,tmp1,tmp2)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation          *
+*               A(i,k,j) <- A(i,j,k)                * 
+*                                                   *
+*      np = the number of worker nodes              *
+*      proc#=0...(np-1)
+*                                                   *
+*       this transpose uses more buffer space       *
+*       then transpose2                             *
+*****************************************************
+      implicit none
+      integer nbb
+      complex*16  A(*)
+      complex*16  tmp1(*),tmp2(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "mpif.h"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer iq_to_i1(2,0:1)
+      integer iq_to_i2(2,0:1)
+      integer iz_to_i2(2,0:1)
+      integer i1_start(2,0:1)
+      integer i2_start(2,0:1)
+      common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
+     >                       i1_start,i2_start
+
+
+*     **** local variables ***
+      logical value
+      integer i,q
+      integer proc_to,proc_from,it
+      integer size,msgtype,source
+c     integer msglen,type,nbytes
+c     integer msgid
+      integer msglen,type
+c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
+      integer status(2),request(2),reqcnt
+      integer taskid,np
+      integer mpierr,n1,n2
+      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+*     **** allocate memory ****
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+     >                     'status',status(2),status(1))
+      value = value.and.
+     >        MA_push_get(mt_int,np,
+     >                     'request',request(2),request(1))
+      if (.not. value)
+     > call errquit(' D3dB_c_ptranspose2_jk:out of stack',0,MA_ERR)
+
+
+      n1 = int_mb(i1_start(1,nbb)+np) - 1
+      n2 = int_mb(i2_start(1,nbb)+np) - 1
+
+*     **** pack A(i) array ****
+       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      call dcopy(2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+         
+
+*     **** receive packed array data ****
+      reqcnt = 0
+      do it = 1,np-1
+
+*        **** synchronous receive of tmp ****
+         proc_from = mod((taskid)-it+np, np) 
+
+         msgtype = 1
+         source=proc_from
+         type   = 1
+         msglen = (int_mb(i2_start(1,nbb)+it+2-1) 
+     >          -  int_mb(i2_start(1,nbb)+it+1-1))
+         
+
+         if (msglen.gt.0) then
+            reqcnt = reqcnt + 1
+            call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    source,type,MPI_COMM_WORLD,
+     >                    int_mb(request(1)+reqcnt-1),mpierr) 
+         end if
+
+      end do
+
+*     **** send packed array to other processors ****
+      do it = 1,np-1
+
+*        **** synchronous send of tmp ****
+         proc_to   = mod((taskid)+it, np) 
+         msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
+     >              - int_mb(i1_start(1,nbb)+it+1-1))
+         msgtype   = 1
+      
+         if (msglen.gt.0) then
+            call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+         end if
+
+      end do
+   
+*     **** wait for completion of mp_send, also do a sync ****
+      call MPI_WAITALL(reqcnt,int_mb(request(1)),
+     >                        int_mb(status(1)),mpierr)
+
+*     **** unpack A(i) array ****
+      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      
+
+      !*** deallocate memory ***
+      value =           MA_pop_stack(request(2))
+      value = value.and.MA_pop_stack(status(2))
+      if (.not. value)
+     > call errquit(' D3dB_c_ptranspose2_jk:popping stack',0,MA_ERR)
+
+      return
+      end
+
+
+#endif

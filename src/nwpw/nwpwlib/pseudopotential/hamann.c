@@ -353,7 +353,7 @@ double	*pc_psp;
 
       /* construct final psp V2l */
       for (k=0; k<Ngrid; ++k)
-         if (fabs(w2l[k]) > SMALL)
+         if ((fabs(w2l[k]) > SMALL) || (r[k]<0.1))              /* hacking */
             V2l[k] = V1l[k] 
 		+ (gamma*del*pow(r[k],nu1)*Fcut[k]/(2.0*w2l[k]))
                 * ( 

@@ -1,5 +1,5 @@
 *
-* $Id: mask_init.F,v 1.8 2004-03-15 15:17:41 bylaska Exp $
+* $Id: mask_init.F,v 1.9 2005-06-24 19:24:17 bylaska Exp $
 *
 
       subroutine mask_end()
@@ -65,6 +65,7 @@
       nyh = ny/2
       nzh = nz/2
 
+
 *     **** set all masker on ****
       do nb=0,1
       do i=1,nfft3d
@@ -120,6 +121,7 @@ c    >                        + i+1
          end do
          nwave_entire(nb) = nwave(nb)
          call D3dB_ISumAll(nwave_entire(nb))
+
       end do
 
       return

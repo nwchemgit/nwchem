@@ -1,5 +1,5 @@
 c
-c $Id: brillouin_zone_input.F,v 1.7 2004-12-21 16:58:35 bylaska Exp $
+c $Id: brillouin_zone_input.F,v 1.8 2005-06-24 19:24:17 bylaska Exp $
 c
 
 *     *************************************************
@@ -18,7 +18,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 5)
+      parameter (num_dirs = 6)
       character*22 dirs(num_dirs)
       character*255 test
 
@@ -30,6 +30,7 @@ c
 
       data dirs / 'zone_name:','zone_name',
      >            'kvector:','kvector',
+     >            'path',
      >            'end'/
 
 c     
@@ -51,7 +52,7 @@ c
      &       INPUT_ERR)
 
 
-      goto ( 100,100,200,200, 
+      goto ( 100,100,200,200,300,
      >      9999) ind
       call errquit(
      >      'brillouine_zone_input: unimplemented directive', ind,
@@ -113,6 +114,12 @@ c
 
       goto 10
 
+c
+c path
+c
+ 300  call band_path_set(rtdb,num_kvectors,kvs)
+
+      goto 10
 
 *     ***** add brillouin_zone to rtdb ****
  9999 continue
@@ -302,4 +309,455 @@ c
      >       'dos_states_set: heap failed 3', 0, MA_ERR)
 
       return 
+      end
+
+*     *************************************************
+*     *                                               *
+*     *             band_path_set                     *
+*     *                                               *
+*     *************************************************
+
+      subroutine band_path_set(rtdb,nk,kvs)
+      implicit none
+      integer rtdb
+      integer nk
+      integer kvs(2)
+
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     *** local variables ***
+      integer i,k,ii,ind,count,count2
+      character*25 test
+
+      integer num_cells         ! No. of known directives
+      parameter (num_cells = 8)
+      character*22 cells(num_cells)
+      data cells / 'sc','fcc','bcc',
+     >             'rhombohedral','hexagonal',
+     >             'simple-tetragonal',
+     >             'simple-orthorhombic',
+     >             'bct' /
+
+      integer pcount,  plist(100)
+      integer pcount2, plist2(100)
+      real*8  kvector(4),kvector1(4),kvector2(4),dist,dk
+      logical goodpoint
+      integer kvs_new(2)
+
+
+      if (.not. inp_f(dk)) dk = 0.05d0  !** read in dk increment
+
+      if (.not. inp_a(test))
+     >     call errquit(
+     >           'band_path_set: inp_read failed', 0, INPUT_ERR)
+
+      if (.not. inp_match(num_cells, .false., test, cells, ind))
+     >     call errquit(
+     >           'band_path_set: unknown cell', 0,
+     >       INPUT_ERR)
+     
+      call band_path_plist(pcount,plist)
+      write(*,*) "plist:",pcount,(plist(ii),ii=1,pcount)
+
+*     *** remove non-special points ***
+      pcount2 = 0
+      do ii=1,pcount
+        call band_path_point(ind,plist(ii),kvector,goodpoint)
+        if (goodpoint) then
+          pcount2=pcount2+1
+          plist2(pcount2) = plist(ii)
+        end if
+      end do
+      write(*,*) "plist2:",pcount2,(plist2(ii),ii=1,pcount2)
+
+*     *** add segments ***
+      do ii=1,pcount2-1
+        call band_path_point(ind,plist2(ii),  kvector1,goodpoint)
+        call band_path_point(ind,plist2(ii+1),kvector2,goodpoint)
+        dist = dsqrt( (kvector2(1)-kvector1(1))**2
+     >              + (kvector2(2)-kvector1(2))**2
+     >              + (kvector2(3)-kvector1(3))**2)
+        count  = dist/dk
+        count2 = count
+        if (ii.eq.(pcount2-1)) count2=count2+1
+        do i=1,count2
+          kvector(1) = kvector1(1) 
+     >               + (i-1)*((kvector2(1)-kvector1(1))/dble(count))
+          kvector(2) = kvector1(2) 
+     >               + (i-1)*((kvector2(2)-kvector1(2))/dble(count))
+          kvector(3) = kvector1(3) 
+     >               + (i-1)*((kvector2(3)-kvector1(3))/dble(count))
+
+          nk = nk + 1
+          if (.not. MA_alloc_get(mt_dbl,(4*nk),
+     >        'kvs_new',kvs_new(2),kvs_new(1)))
+     >        call errquit(
+     >       'band_path_set: heap failed 1', 0, MA_ERR)
+
+           if (nk.gt.1) then
+            do k=1,(nk-1)
+            dbl_mb(kvs_new(1) + 4*(k-1))   = dbl_mb(kvs(1) + 4*(k-1))
+            dbl_mb(kvs_new(1) + 4*(k-1)+1) = dbl_mb(kvs(1) + 4*(k-1)+1)
+            dbl_mb(kvs_new(1) + 4*(k-1)+2) = dbl_mb(kvs(1) + 4*(k-1)+2)
+            dbl_mb(kvs_new(1) + 4*(k-1)+3) = dbl_mb(kvs(1) + 4*(k-1)+3)
+            end do
+            if (.not.MA_free_heap(kvs(2)))
+     >      call errquit(
+     >          'band_path_set: heap failed 2', 0, MA_ERR)
+           end if
+           dbl_mb(kvs_new(1) + 4*(nk-1))   = kvector(1)
+           dbl_mb(kvs_new(1) + 4*(nk-1)+1) = kvector(2)
+           dbl_mb(kvs_new(1) + 4*(nk-1)+2) = kvector(3)
+           dbl_mb(kvs_new(1) + 4*(nk-1)+3) = kvector(4)
+           kvs(1) = kvs_new(1)
+           kvs(2) = kvs_new(2)
+       end do 
+      end do
+
+      write(*,*) "nk=",nk
+      return
+      end
+
+
+      subroutine band_path_plist(pcount,plist)
+      implicit none
+      integer pcount,plist(*)
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     *** local variables ***
+      integer ind
+      character*25 test
+
+      integer num_points
+      parameter (num_points = 24)
+      character*6 points(num_points)
+      data points / 'gamma',
+     >              'a','b','c','d','e',
+     >              'f','g','h','k','l','m',
+     >              'n','p','q','r','s',
+     >              't','u','v','w','x',
+     >              'y','z'/
+
+      pcount = 0
+      do while (inp_a(test)) 
+
+        if (inp_match(num_points, .false., test, points, ind)) then
+          pcount = pcount + 1
+          plist(pcount) = ind
+        end if
+
+      end do
+
+      return
+      end
+
+
+
+      subroutine band_path_point(cell,p,kvector,goodpoint)
+      implicit none
+      integer cell,p
+      real*8 kvector(4)
+      logical goodpoint
+
+#include "errquit.fh"
+
+      goodpoint = .false.
+      kvector(4) = -1.0d0
+
+      goto ( 100, 200, 300, 400, 500, 600, 700, 800) cell
+      call errquit(
+     >      'band_path_point: unimplemented cell',cell,INPUT_ERR)
+
+c
+c sc, special points gamma, m, r,x
+c
+  100 if (p.eq.1) then     !gamma
+        kvector(1) = 0.0d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.12) then    !m
+        kvector(1) = 0.5d0
+        kvector(2) = 0.5d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.16) then    !r
+        kvector(1) = 0.5d0
+        kvector(2) = 0.5d0
+        kvector(3) = 0.5d0
+        goodpoint = .true.
+      end if
+      if (p.eq.22) then    !x
+        kvector(1) = 0.0d0
+        kvector(2) = 0.5d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+
+      goto 9999
+
+
+c
+c fcc, special points gamma,k,l,u,w,x
+c
+  200 if (p.eq.1) then     !gamma
+        kvector(1) = 0.0d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.10) then    !k
+        kvector(1) = 0.375d0
+        kvector(2) = 0.375d0
+        kvector(3) = 0.750d0
+        goodpoint = .true.
+      end if
+      if (p.eq.11) then   !l
+        kvector(1) = 0.5d0
+        kvector(2) = 0.5d0
+        kvector(3) = 0.5d0
+        goodpoint = .true.
+      end if
+      if (p.eq.19) then   !u
+        kvector(1) =  0.625d0
+        kvector(2) =  0.250d0
+        kvector(3) =  0.625d0
+        goodpoint = .true.
+      end if
+      if (p.eq.21) then   !w
+        kvector(1) = 0.50d0
+        kvector(2) = 0.25d0
+        kvector(3) = 0.75d0
+        goodpoint = .true.
+      end if
+      if (p.eq.22) then   !x
+        kvector(1) = 0.5d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.5d0
+        goodpoint = .true.
+      end if
+
+      goto 9999
+
+c
+c bcc, special points gamma,h,n,p
+c
+  300 if (p.eq.1) then     !gamma
+        kvector(1) = 0.0d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.9) then   !h
+        kvector(1) =  0.5d0
+        kvector(2) = -0.5d0
+        kvector(3) =  0.5d0
+        goodpoint = .true.
+      end if
+      if (p.eq.13) then   !n
+        kvector(1) = 0.5d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.14) then   !p
+        kvector(1) = 0.25d0
+        kvector(2) = 0.25d0
+        kvector(3) = 0.25d0
+        goodpoint = .true.
+      end if
+
+      goto 9999
+
+c
+c rhombohedral
+c
+  400 write(*,*) "Rhombohedral path not implemented"
+      goto 9999
+
+c
+c hexagonal, special points gamma,a,h,k,l,m
+c
+  500 if (p.eq.1) then     !gamma
+        kvector(1) = 0.0d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.2) then   !a
+        kvector(1) = 0.00d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.9) then   !h
+        kvector(1) = 1.0d0/3.0d0 - 1.0d0/(3.0d0*dsqrt(3.0d0))
+        kvector(2) = 1.0d0/3.0d0 + 1.0d0/(3.0d0*dsqrt(3.0d0))
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.10) then   !k
+        kvector(1) = 1.0d0/3.0d0 - 1.0d0/(3.0d0*dsqrt(3.0d0))
+        kvector(2) = 1.0d0/3.0d0 + 1.0d0/(3.0d0*dsqrt(3.0d0))
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.11) then   !l
+        kvector(1) = 0.50d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.12) then   !m
+        kvector(1) = 0.50d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      goto 9999
+
+c
+c simple tetragonal, special points gamma,a,m,r,x,z
+c
+  600 if (p.eq.1) then     !gamma
+        kvector(1) = 0.0d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.2) then   !a
+        kvector(1) = 0.50d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.12) then   !m
+        kvector(1) = 0.50d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.16) then   !r
+        kvector(1) = 0.00d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.22) then   !x
+        kvector(1) = 0.00d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.24) then   !z
+        kvector(1) = 0.00d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+
+      goto 9999
+c
+c simple orthorhombic, special points gamma,r,s,t,u,x,y,z
+c
+  700 if (p.eq.1) then     !gamma
+        kvector(1) = 0.0d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.16) then   !r
+        kvector(1) = 0.50d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.17) then   !s
+        kvector(1) = 0.50d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.18) then   !t
+        kvector(1) = 0.00d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.19) then   !u
+        kvector(1) = 0.50d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+      if (p.eq.22) then   !x
+        kvector(1) = 0.50d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.23) then   !y
+        kvector(1) = 0.00d0
+        kvector(2) = 0.50d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.24) then   !z
+        kvector(1) = 0.00d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.50d0
+        goodpoint = .true.
+      end if
+
+      goto 9999
+c
+c bct body-centerd tetragonal, special points gamma,m,n,p,x
+c
+  800 if (p.eq.1) then     !gamma
+        kvector(1) = 0.0d0
+        kvector(2) = 0.0d0
+        kvector(3) = 0.0d0
+        goodpoint = .true.
+      end if
+      if (p.eq.12) then   !m
+        kvector(1) = 0.00d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.13) then   !n
+        kvector(1) = 0.00d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.14) then   !p
+        kvector(1) = 0.00d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+      if (p.eq.22) then   !x
+        kvector(1) = 0.00d0
+        kvector(2) = 0.00d0
+        kvector(3) = 0.00d0
+        goodpoint = .true.
+      end if
+
+      goto 9999
+
+
+ 9999 continue
+
+
+
+      return
       end

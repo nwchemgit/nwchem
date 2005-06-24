@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.15 2004-11-11 19:54:57 bylaska Exp $
+* $Id: psi_H.F,v 1.16 2005-06-24 19:24:18 bylaska Exp $
 *
 
 *     *************************************
@@ -166,7 +166,8 @@ c     complex*16 vpsi(nfft3d)
      >                         dcpl_mb(vpsi(1)))
 
 *           **** put vpsi_r in k-space ****
-            call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            !call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            call D3dB_rc_pfft3f(1,1,dcpl_mb(vpsi(1)))
             call Pack_c_pack(1,dcpl_mb(vpsi(1)))
 
 *           **** add to Hpsi_k ****

@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.39 2005-05-24 17:36:27 bylaska Exp $
+* $Id: electron.F,v 1.40 2005-06-24 19:24:18 bylaska Exp $
 *
 
 
@@ -1312,7 +1312,8 @@ c    >                     hmlt(shift+1))
 
       call Pack_c_Copy(1,orb,dbl_mb(tmp_r(1)))
       call Pack_c_unpack(1,  dbl_mb(tmp_r(1)))
-      call D3dB_cr_fft3b(1,  dbl_mb(tmp_r(1))) 
+      !call D3dB_cr_fft3b(1,  dbl_mb(tmp_r(1))) 
+      call D3dB_cr_pfft3b(1,1,dbl_mb(tmp_r(1))) 
 
 
 *     **** get Hpsi ****
@@ -1400,7 +1401,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >                        dbl_mb(psi_r(1)+(n-1)*n2ft3d))
      
       call Pack_c_unpack(1,   dbl_mb(psi_r(1)+(n-1)*n2ft3d))
-      call D3dB_cr_fft3b(1,   dbl_mb(psi_r(1)+(n-1)*n2ft3d)) 
+      !call D3dB_cr_fft3b(1,   dbl_mb(psi_r(1)+(n-1)*n2ft3d)) 
+      call D3dB_cr_pfft3b(1,1,dbl_mb(psi_r(1)+(n-1)*n2ft3d)) 
       call D3dB_r_Zero_Ends(1,dbl_mb(psi_r(1)+(n-1)*n2ft3d))
 
       return
@@ -1530,7 +1532,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       call D3dB_rr_Sum(1,dn,dn(1+(ispin-1)*n2ft3d),dbl_mb(tmp1(1)))
       call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
-      call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
+      !call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
+      call D3dB_rc_pfft3f(1,0,dbl_mb(tmp1(1)))
       call Pack_c_pack(0,dbl_mb(tmp1(1)))
       call Pack_c_Copy(0,dbl_mb(tmp1(1)),dng)
 
@@ -1596,7 +1599,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       
 *       **** fourier transform k-space potentials ****
         call Pack_c_unpack(0,dbl_mb(vall(1)))
-        call D3dB_cr_fft3b(1,dbl_mb(vall(1)))
+        !call D3dB_cr_fft3b(1,dbl_mb(vall(1)))
+        call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
 
 *       **** add v_field to vall ****
         if (field_exist)
@@ -1612,7 +1616,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       
 *        **** fourier transform k-space potentials ****
          call Pack_c_unpack(0,dbl_mb(vall(1)))
-         call D3dB_cr_fft3b(1,dbl_mb(vall(1)))
+         !call D3dB_cr_fft3b(1,dbl_mb(vall(1)))
+         call D3dB_cr_pfft3b(1,0,dbl_mb(vall(1)))
 
 *        **** add vlr_l, vc and v_field to vall ****
          call D3dB_rr_Sum(1,dbl_mb(vall(1)),
@@ -1956,7 +1961,8 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     **** average Kohn-Sham v_local energy ****
        call Pack_c_Copy(0,dcpl_mb(vl(1)),dbl_mb(tmp1(1)))
       call Pack_c_unpack(0,dbl_mb(tmp1(1)))
-      call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+      !call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+      call D3dB_cr_pfft3b(1,0,dbl_mb(tmp1(1)))
       elocal = 0.0d0
       do ms=1,ispin
          do n=n1(ms),n2(ms)

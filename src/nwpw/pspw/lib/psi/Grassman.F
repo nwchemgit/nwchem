@@ -1,8 +1,13 @@
 *
-* $Id: Grassman.F,v 1.14 2004-02-22 18:56:38 bylaska Exp $
+* $Id: Grassman.F,v 1.15 2005-06-24 19:24:18 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.14  2004/02/22 18:56:38  bylaska
+* Input and io changes for simulation_cell
+* Grsm_ggm2_sym_dot routine used in paw_overlap_matrix_gen
+* ...EBJ
+*
 * Revision 1.13  2003/10/31 22:16:38  bylaska
 * bug fixes ... EJB
 *
@@ -420,7 +425,8 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
 
       do k=1,n
         call Pack_c_unpack(1,A(1,k))
-        call D3dB_cr_fft3b(1,A(1,k))
+        !call D3dB_cr_fft3b(1,A(1,k))
+        call D3dB_cr_pfft3b(1,1,A(1,k))
       end do
       !call D3dB_ncr_fft3b(1,n,A)
 

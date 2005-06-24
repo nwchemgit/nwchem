@@ -1,5 +1,5 @@
 *
-* $Id: pspw_sic.F,v 1.33 2005-05-24 17:36:28 bylaska Exp $
+* $Id: pspw_sic.F,v 1.34 2005-06-24 19:24:19 bylaska Exp $
 *
 
 *     *************************
@@ -375,7 +375,8 @@ c    >                            dbl_mb(dn(1)))
 
              call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
      >                              dbl_mb(dn(1)))
-             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
@@ -386,7 +387,8 @@ c    >                            dbl_mb(dn(1)))
 *            **** generate Vcoul ****
              call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
              call Pack_c_unpack(0,dbl_mb(tmp1(1)))
-             call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+             !call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+             call D3dB_cr_pfft3b(1,0,dbl_mb(tmp1(1)))
 
 
 
@@ -566,7 +568,8 @@ c    >                        Hpsi_k(index2))
 *            **** generate dng ****
              call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
      >                                dbl_mb(dn(1)))
-             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****
@@ -756,13 +759,15 @@ c    >                        Hpsi_k(index2))
 
              call D3dB_r_SMul(1,scal1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
      >                              dbl_mb(dn(1)))
-             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** generate Vcoul ****
              call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
              call Pack_c_unpack(0,dbl_mb(tmp1(1)))
-             call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+             !call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+             call D3dB_cr_pfft3b(1,0,dbl_mb(tmp1(1)))
 
 
 *          ***** free-space coulomb solver ****
@@ -1078,7 +1083,8 @@ c    >                        Hpsi_k(index2))
 *            **** generate dng ****
              call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
      >                                dbl_mb(dn(1)))
-             call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
              call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *            **** get Ecoul energy ****

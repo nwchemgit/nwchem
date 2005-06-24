@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.36 2005-02-10 00:36:57 bylaska Exp $
+* $Id: D3dB-new.F,v 1.37 2005-06-24 19:24:16 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -415,6 +415,45 @@ c     p = p_map(k)
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *           D3dB_ijktoindex1p     *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_ijktoindex1p(nb,i,j,k,indx,p)
+      implicit none
+      integer nb
+      integer i,j,k
+      integer indx,p
+
+#include "mafdecls.fh"
+#include "D3dB.fh"
+
+      integer q
+
+      !**** slab mapping ***
+      if (mapping.eq.1) then
+      q = int_mb(q_map(1,nb)+j-1)
+      p = int_mb(p_map(1,nb)+j-1)
+
+      indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*nz(nb)
+
+      !**** hilbert mapping ****
+      else
+      q = int_mb(q_map2(1,nb)+(k-1)+(i-1)*(nz(nb)))
+      p = int_mb(p_map2(1,nb)+(k-1)+(i-1)*(nz(nb)))
+
+      indx = j + (q-1)*ny(nb)
+      end if
+
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -1032,9 +1071,12 @@ c      end
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
+
+
+
 *     *** local variables ***
       integer i,j,k,q,indx,ierr
-      integer nxh,nxhy,nxhz,indx0,indx1
+      integer nxh,nxhy,nxhz,indx0,indx1,indx2
 
       
       !integer tmp1(2),tmp2(2),tmp3(2)
@@ -1093,6 +1135,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx0 = 0
       do q=1,nq(nb)
       do i=1,nxh
+
          indx  = i + indx0
          indx1 = indx
          do k=1,nz(nb)
@@ -1104,6 +1147,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             A(indx1) = dcpl_mb(tmp2(1)+k-1)
             indx1 = indx1 + nxh
          end do
+
       end do
       indx0 = indx0 + nxhz
       end do
@@ -1141,6 +1185,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx0 = 0
       do q=1,nq(nb)
       do i=1,(nx(nb)/2+1)
+      
          indx  = i + indx0
          indx1 = indx
          do j=1,ny(nb)
@@ -1152,6 +1197,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             A(indx1) = dcpl_mb(tmp2(1)+j-1)
             indx1 = indx1 + nxh
          end do
+
       end do
       indx0 = indx0 + nxhy
       end do
@@ -1575,9 +1621,11 @@ c      end
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
+
+
 *     *** local variables ***
-      integer i,j,k,q,indx,indx1,ierr
-      integer nxh
+      integer i,j,k,q,indx,indx1,ierr,indx2,indx0
+      integer nxh,nxhy,nxhz
 
       !integer tmp1(2),tmp2(2),tmp3(2)
       integer tmp2(2),tmp3(2)
@@ -1595,6 +1643,8 @@ c      end
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       nxh = (nx(nb)/2+1)
+      nxhz = nxh*nz(nb)
+      nxhy = nxh*ny(nb)
 
       !**********************
       !**** slab mapping ****
@@ -1668,6 +1718,7 @@ c        call zffts(A(i),ny(nb),(nx(nb)/2+1),nq(nb),
 c     >           (nx(nb)/2+1)*nq(nb),1,ierr)
 c      end do
 #else
+
       !call dcffti(ny(nb),dcpl_mb(tmp1(1)))
       do i=1,nxh
       indx = i
@@ -1689,6 +1740,10 @@ c      end do
       end do
       
       end do
+
+
+
+
 #endif
 
 
@@ -1724,6 +1779,7 @@ c      end do
       indx  = i
       indx1 = i
       do q=1,nq(nb)
+
          do k=1,nz(nb)
             !indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
             dcpl_mb(tmp2(1)+k-1) = A(indx)
@@ -1735,8 +1791,10 @@ c      end do
             A(indx1) = dcpl_mb(tmp2(1)+k-1)
             indx1 = indx1 + nxh
          end do
+
       end do
       end do
+
 #endif
 
 *     ********************************************
@@ -5688,3 +5746,47 @@ c     integer i2_start(NFFT3+1)
 
 
 
+      subroutine D3dB_pfft_index1_copy(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex*16  a(*),b(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do i=1,n
+        b(i) = a(index(i))
+      end do
+      return
+      end
+
+      subroutine D3dB_pfft_index2_copy(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex*16  a(*),b(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do i=1,n
+        b(index(i)) = a(i)
+      end do
+      return
+      end
+
+      subroutine D3dB_pfft_index2_zero(n,index,a)
+      implicit none
+      integer n
+      integer index(*)
+      complex*16  a(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do i=1,n
+        a(index(i)) = 0.0d0
+      end do
+      return
+      end

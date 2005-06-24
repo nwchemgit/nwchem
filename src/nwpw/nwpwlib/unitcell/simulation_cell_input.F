@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.8 2005-01-15 23:41:13 bylaska Exp $
+c $Id: simulation_cell_input.F,v 1.9 2005-06-24 19:24:18 bylaska Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -311,11 +311,11 @@ c
      >     call errquit(
      >     'simulation_cell_input: BCC inp_read(L) failed', 0,
      &       INPUT_ERR)
-      unita(1,1) =  ll/2.0d0
+      unita(1,1) = -ll/2.0d0
       unita(2,1) =  ll/2.0d0
       unita(3,1) =  ll/2.0d0
-      unita(1,2) = -ll/2.0d0
-      unita(2,2) =  ll/2.0d0
+      unita(1,2) =  ll/2.0d0
+      unita(2,2) = -ll/2.0d0
       unita(3,2) =  ll/2.0d0
       unita(1,3) =  ll/2.0d0
       unita(2,3) =  ll/2.0d0

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.59 2005-05-17 01:53:52 bylaska Exp $
+* $Id: cgsdv5.F,v 1.60 2005-06-24 19:24:18 bylaska Exp $
 *
 
 ***********************************************************************
@@ -212,6 +212,8 @@
       call G_init()
       call mask_init()
       call Pack_init()
+
+      call D3dB_pfft_init()
 
 
 *     **** read in wavefunctions and initialize psi ****
@@ -566,6 +568,7 @@ c     end if
       call psp_end()
       call ion_end_FixIon()
       !call D3dB_n_fft_end(1)
+      call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 
