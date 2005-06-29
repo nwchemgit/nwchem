@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.13 2005-06-11 05:47:46 marat Exp $
+c $Id: qmmm_output.F,v 1.14 2005-06-29 00:44:49 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -98,10 +98,6 @@ c
 
       tag = "qmmm:uqmatm"
       write(luout,20) "reference energy",tag,eatoms
-
-      tag = "qmmm:fixlinks"
-      write(luout,21) "fixed link bonds",tag,fixlinks
-
 
       tag ="qmmm:fixqm" 
       write(luout,21) "fixed qm region",tag,fixqm

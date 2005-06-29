@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.66 2005-06-15 05:39:00 marat Exp $
+c $Id: qmmm_geom.F,v 1.67 2005-06-29 00:44:48 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -22,6 +22,7 @@ c     local variables
       integer i_ind,i_lb
       integer ig,ng0
       integer mwa
+      character*255 geom
       character*32 pname
 
       pname = "qmmm_geom_init"
@@ -64,7 +65,6 @@ c    --------------------
      &      3*nfg, MA_ERR)
       call dfill(3*nfg,0,dbl_mb(i_qs),1)
 
-
 c
 c     create active geometry if any
 c     -----------------------------
@@ -80,6 +80,16 @@ c     -----------------------------
         call mm_get_solute_act_ind(ngs,int_mb(i_ig))
         call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
  
+        if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
+          call qmmm_geom_push(irtdb,
+     >                          ngs,
+     >                          int_mb(i_ig),
+     >                          ngw,
+     >                          int_mb(i_ig+ngs),
+     >                          geom)
+
+        end if
+
         call qmmm_geom_create_active(irtdb)
 
         if(qmmm_print_debug()) then
@@ -213,14 +223,8 @@ c
 
       if(link)  
      +   call qmmm_links_adjust(ns,ais,byte_mb(i_t),
-     + dbl_mb(i_c),dbl_mb(i_q),int_mb(i_atn))
+     + dbl_mb(i_c),dbl_mb(i_q))
 
-
-c      do i=1,n
-c         if(.not.geom_atn_to_default_mass(int_mb(i_atn+i-1),
-c     >                                    dbl_mb(i_m+i-1)))  
-c     >    call errquit(pname,0, GEOM_ERR)
-c      end do
 
       if(.not.geom_cart_set(igeom,n,byte_mb(i_t),
      + dbl_mb(i_c),dbl_mb(i_q)))
@@ -452,7 +456,7 @@ c    --------------------------------------
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-      if(.not.geom_rtdb_load(irtdb,igeom,'geometry'))
+      if(.not.geom_rtdb_load(irtdb,igeom,aname))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
       if(.not. geom_ncent(igeom, ncent) ) 

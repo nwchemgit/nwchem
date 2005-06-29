@@ -16,7 +16,6 @@ c
       character*255 token
       double precision  eatoms
       double precision bqzone
-      logical fixlinks
       logical bq_dynamical
       integer linkatm,bq_exclude
       logical status
@@ -48,25 +47,6 @@ c
      >       RTDB_ERR)
         goto 2
       endif
-c
-      if (inp_compare(.false.,"link_bonds", token ) .or.
-     >    inp_compare(.false.,"link_bond", token)) then
-        if(.not.inp_a(token)) call errquit(' no link_bonds option',0,
-     &         INPUT_ERR)
-        if(inp_compare(.false.,"free", token)) then
-          fixlinks=.false.
-        else if(inp_compare(.false.,"fixed", token)) then
-          fixlinks=.true.
-        else
-          call errquit('unknown option for linkbonds',0,INPUT_ERR)
-        end if
-        tag="qmmm:fixlinks"
-        if (.not.rtdb_put(rtdb,tag,mt_log,1,fixlinks)) 
-     >        call errquit(pname//'failed to store'//tag,0,
-     >         RTDB_ERR)
-
-        goto 2
-       end if
 c
       if(inp_compare(.false.,'link_atoms',token) .or.
      >   inp_compare(.false.,'link_atom',token)) then

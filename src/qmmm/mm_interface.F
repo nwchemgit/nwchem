@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.56 2005-06-23 17:32:02 marat Exp $
+c $Id: mm_interface.F,v 1.57 2005-06-29 00:44:48 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1025,7 +1025,7 @@ c     mm local variables
              if(.not.geom_atn_to_default_mass(inum(j),m(j)))
      >         call errquit(pname,0, GEOM_ERR)
              if(mm_bqzone(i).or.mm_link(i)) then
-               inum(j) = 0
+c               inum(j) = 0
                q(j) = mm_solute_charge(i)
              end if
           end if
@@ -1536,7 +1536,8 @@ c     mm local variables
       call ga_igop(msg_qmmm_inumw,inum,nt,'+')
 
       do i=1,nt
-         call cf_num2tag(inum(i),t(i))
+          t(i) = "Bqw"
+c         call cf_num2tag(inum(i),t(i))
       end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname

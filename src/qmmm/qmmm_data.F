@@ -75,7 +75,6 @@ c      character*32 interface
       pname = "qmmm_data_init: "
 
       master = ga_nodeid().eq.0
-      fixlinks = .false.
 
       eatoms = 0.0d0
       linkatm=qmmm_hydrogen
@@ -116,17 +115,6 @@ c
       end if
       if(master) 
      > write(6,20) "bqzone radius",tag,bqzone
-
-
-      tag = "qmmm:fixlinks"
-      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixlinks)) then
-        if (.not.rtdb_put(irtdb,tag,mt_log,1,fixlinks)) 
-     >      call errquit(pname//'failed to store fixlinks',0,
-     >       RTDB_ERR)
-
-       end if
-      if(master)
-     > write(6,21) "fixed link bonds",tag,fixlinks
 
 
       tag ="qmmm:bq_exclude" 
@@ -359,17 +347,6 @@ c     -------------
       logical qmmm_bq_dynamical
 
       qmmm_bq_dynamical = bq_dynamical
-
-      end 
-
-      function qmmm_fixlinks()
-      implicit none
-#include "qmmm_data.fh"
-#include "qmmm_params.fh"
-
-      logical qmmm_fixlinks
-
-      qmmm_fixlinks = fixlinks
 
       end 
 

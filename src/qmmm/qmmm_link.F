@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_link.F,v 1.2 2005-06-03 19:15:52 marat Exp $
+c $Id: qmmm_link.F,v 1.3 2005-06-29 00:44:48 marat Exp $
 c
       subroutine qmmm_links_init(irtdb)
       implicit none
@@ -248,7 +248,7 @@ c     local variables:
 
       end 
 
-      subroutine qmmm_links_adjust(n, ai, t, c, q, atn)
+      subroutine qmmm_links_adjust(n, ai, t, c, q)
       implicit none
 #include "qmmm.fh"
 #include "qmmm_params.fh"
@@ -261,7 +261,6 @@ c     local variables:
       character*16 t(n)    
       double precision c(3, n) 
       double precision q(n) 
-      integer atn(n) 
  
 c     local variables:
       integer i,j,k
@@ -293,7 +292,6 @@ c     local variables:
               c(k,icl) = rh
            end do
            q(icl) = 1.0d0
-           atn(icl) = 1
            t(icl) = "H_L"
          else
            write(*,*) "no links found"
@@ -303,7 +301,6 @@ c     local variables:
          if( icq.ne.0) then
            q(icq) = 9.0d0
            t(icq) = "F_L"
-           atn(icq) = 9
          end if
         end if
       end do

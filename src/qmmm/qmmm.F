@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.49 2005-06-23 17:32:02 marat Exp $
+c $Id: qmmm.F,v 1.50 2005-06-29 00:44:48 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -20,7 +20,9 @@ c
       logical checkgrad
       character*32 pname
       character*30 operation
+      character*255 geom
       logical aux_geom
+      logical loadgeom
 c
       call qmmm_print_header()
 c
@@ -69,8 +71,16 @@ c     --------------------------------------------
         aux_geom = .true.
       end if
 
+      if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
+        loadgeom = .true.
+        aux_geom = .true.
+      else
+        loadgeom = .false.
+      end if
+
       call qmmm_geom_init(irtdb,aux_geom)
 
+      if(loadgeom) call md_sp()
 
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
