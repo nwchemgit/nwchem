@@ -160,20 +160,6 @@
 
        end
 
-       subroutine mm_get_solute_coord(i,r)
-         implicit none
-#include "md_common.fh"
-#include "mafdecls.fh"
-         integer i
-         double precision r(3) 
-         integer j
-         
-         do j=1,3
-           r(j) = dbl_mb(i_xs+(i-1)+(j-1)*msa)
-         end do
-
-       end
-
        subroutine mm_get_pxw(pxw)
          implicit none
 #include "md_common.fh"

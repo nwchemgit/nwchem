@@ -48,7 +48,6 @@ c
 #include "global.fh"
 #include "bq.fh"
 #include "util.fh"
-      logical link
       integer i,k
       integer i_lb
       integer i_mbq,h_mbq
@@ -62,7 +61,6 @@ c
 
       if(qmmm_print_debug()) 
      >       write(*,*) "in",pname
-      link = .true.
 
       call qmmm_bq_data_dealloc()
 c
@@ -75,7 +73,7 @@ c
       if(readbq) then
          call qmmm_read_nbq()
       else
-         call mm_get_tot_nbqs(nbqs,link)
+         call mm_get_tot_nbqs(nbqs)
          call mm_get_tot_nbqw(nbqw)
       end if
 c
@@ -95,7 +93,7 @@ c     get global index
         call mm_reset_solvent_bqzone(nbqw,int_mb(i_ibq+nbqs))
       else
         if(nbqs.ne.0) then
-          call mm_get_solute_bq_ind(nbqs,link,int_mb(i_ibq))
+          call mm_get_solute_bq_ind(nbqs,int_mb(i_ibq))
         end if
         if(nbqw.ne.0) then
           call mm_get_solvent_ind_bq(nbqw,int_mb(i_ibq+nbqs))
@@ -104,17 +102,13 @@ c     get global index
 
 
       if(nbqs.ne.0) then
-        call mm_get_solute_geom_bq(nbqs,link,
+        call mm_get_solute_geom_bq(nbqs,
      >                       int_mb(i_ibq),
      >                       dbl_mb(i_cbq),
      >                       dbl_mb(i_qbq))
 
-        if(bq_exclude.eq.qmmm_all_atoms) then
-          do i=1,nbqs
-             dbl_mb(i_qbq+i-1) = 0.0d0
-          end do
-        end if
       end if
+
       if(qmmm_print_debug()) 
      >       write(*,*) "finished setting up solute bq charges"
 c
@@ -148,11 +142,11 @@ c
 c     get active list of bqs
 c     ------------------------
       if(nbqs.ne.0) 
-     >   call mm_get_solute_cons_bq(nbqs,int_mb(i_ibq),
+     >   call mm_get_solute_cons(nbqs,int_mb(i_ibq),
      >                       log_mb(i_abq))
 
       if(nbqw.ne.0) 
-     >  call mm_get_solvent_cons_bq(nbqw,int_mb(i_ibq+nbqs),
+     >  call mm_get_solvent_cons(nbqw,int_mb(i_ibq+nbqs),
      >                       log_mb(i_abq+nbqs))
 
       nbqa = 0 
@@ -193,6 +187,39 @@ c     ------------------------
     
       end
 
+      subroutine qmmm_bq_print_info()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "bq.fh"
+#include "util.fh"
+      integer i,k
+      character*32 pname
+
+      pname = "qmmm_bq_print_info"
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "in",pname
+
+        call util_print_centered(6,"Bq information",
+     >              36, .true.)
+        write(*,'(/,A,T20,A,/)') "global index","coordinates(au)"
+        do i=1,nbqs+nbqw
+         write(*,'(I5,T20,3F12.6)') int_mb(i_ibq+i-1),
+     >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
+        end do
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "out",pname
+    
+      end
+
       subroutine qmmm_bq_coord_update()
       implicit none
 c
@@ -204,7 +231,7 @@ c
 c
       integer i
       if(nbqs.ne.0) then
-        call mm_get_solute_coord_bq(nbqs,
+        call mm_get_solute_coord(nbqs,
      >                       int_mb(i_ibq),
      >                       dbl_mb(i_cbq))
 
