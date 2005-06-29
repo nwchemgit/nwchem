@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.57 2005-06-29 00:44:48 marat Exp $
+c $Id: mm_interface.F,v 1.58 2005-06-29 20:56:29 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -34,7 +34,10 @@ c
   
 
 c     this call is very important
-c      call mm_task_sp()
+c
+c     for some strange reasons md_sp() has to be called twice
+c     to stabilize bqzone flag for waters (MV)
+      call md_sp()
       call md_sp()
       if(qmmm_print_debug()) write(*,*) "out "//pname
 c
