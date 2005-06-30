@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.27 2005-06-30 20:22:38 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.28 2005-06-30 20:24:03 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -470,14 +470,14 @@ c     ----------------------
             goto 1
           end if
         end do
-c        do j=1,nal
-c         jj  = int_mb(i_al+j-1)
-c         if(ii.eq.jj) then
-c            nact1 = nact1 + 1
-c            int_mb(i_act+nact1-1) = i
-c            goto 1
-c          end if
-c        end do
+        do j=1,nal
+         jj  = int_mb(i_al+j-1)
+         if(ii.eq.jj) then
+            nact1 = nact1 + 1
+            int_mb(i_act+nact1-1) = i
+            goto 1
+          end if
+        end do
 1       continue
       end do
 
