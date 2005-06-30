@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.2 2005-06-30 00:28:39 marat Exp $
+c $Id: qmmm_cons.F,v 1.3 2005-06-30 18:15:26 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -20,6 +20,7 @@ c
       logical fixs
       logical freeqmlink
       logical freeqm
+      logical fixqm
 c
       if (.not. rtdb_get(irtdb,'qmmm:fixsolvent',mt_log,1,fixw))
      $     fixw=.false.
@@ -32,9 +33,13 @@ c
 
       if (.not. rtdb_get(irtdb,'qmmm:freeqm',mt_log,1,freeqm))
      $     freeqm=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixqm',mt_log,1,fixqm))
+     $     fixqm=.false.
      
       if(fixw) call mm_fix_solvent()
       if(fixs) call mm_fix_solute(mm_classical)
+      if(fixqm) call mm_fix_solute(mm_quant)
       if(freeqmlink) call mm_free_solute(mm_quant_link)
       if(freeqm) call mm_free_solute(mm_quant)
 
