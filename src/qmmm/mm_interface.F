@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.59 2005-06-29 23:28:29 marat Exp $
+c $Id: mm_interface.F,v 1.60 2005-06-30 00:07:00 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -798,61 +798,6 @@ c
 
       call mm_get_solvent_ind_gen(nt,mm_bqwzone,ind)
     
-      if(qmmm_print_debug()) write(*,*) "out "//pname
-      end
-
-      subroutine mm_get_solute_geom_quant(nt,
-     >                       ai,
-     >                       t,
-     >                       c,
-     >                       q,
-     >                       m)
-      implicit none
-
-#include "qmmm_params.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "geom.fh"
-#include "qmmm.fh"
-#include "msgids.fh"
-#include "mm_utils.fh"
-
-      integer nt
-      integer ai(nt)
-      character*16 t(nt)
-      double precision c(3,nt)
-      double precision q(nt)
-      double precision m(nt)
-c
-      integer i
-      integer i_num,h_num
-      character*32 pname
-      pname = "mm_get_solute_geom_quant"
-      if(qmmm_print_debug()) write(*,*) "in "//pname
-
-      if(.not.ma_push_get(mt_int,nt,'inum',h_num,i_num))
-     + call errquit('qmmm: Failed to allocate memory for inum',nt,
-     &       MA_ERR)
- 
-      call mm_get_solute_geom_gen(nt,
-     >                       mm_quant_link,
-     >                       ai,
-     >                       int_mb(i_num),
-     >                       t,
-     >                       c,
-     >                       q)
-
-      do i=1,nt
-         if(.not.geom_tag_to_default_mass(t(i),m(i)))
-     &   call errquit('qmmm: Failed to set masses',0, GEOM_ERR)
-         q(i)=dble(int_mb(i_num+i-1))
-      end do
-
-      if(.not.ma_pop_stack(h_num))
-     & call errquit('qmmm: Failed to deallocate stack',nt,
-     &       MA_ERR)
- 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
