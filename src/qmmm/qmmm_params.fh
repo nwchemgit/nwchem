@@ -1,16 +1,17 @@
 c
-c $Id: qmmm_params.fh,v 1.7 2005-06-23 17:32:02 marat Exp $
+c $Id: qmmm_params.fh,v 1.8 2005-06-30 00:28:39 marat Exp $
 c
 c
 c     atom type parameters
 c     -------------------
-      integer lquant,lqlink,lqsoft,lqhigh,lqzone,lfixed
+      integer lquant,lqlink,lqsoft,lqhigh,lqzone,lfixed,mfixed
       parameter(lquant=16)
       parameter(lqlink=32)
       parameter(lqsoft=64)
       parameter(lqhigh=128)
       parameter(lqzone=64)
       parameter(lfixed=8)
+      parameter(mfixed=12)
       
       integer qmmm_hydrogen
       integer qmmm_halogen

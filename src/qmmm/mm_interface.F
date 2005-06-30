@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.60 2005-06-30 00:07:00 marat Exp $
+c $Id: mm_interface.F,v 1.61 2005-06-30 00:28:39 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1151,6 +1151,39 @@ c     mm local variables
       do i=1,nsa
         if(mm_type(i)) then
            int_mb(psdt+i-1)=ior(int_mb(psdt+i-1),lfixed)
+        end if
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_free_solute(mm_type)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+
+      logical mm_type
+      external mm_type
+
+      integer i,j,k
+
+c     mm local variables
+      integer nsa
+      integer psdt
+      character*32 pname
+      pname = "mm_free_solute"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_nsaloc(nsa)
+      call mm_get_psdt(psdt)
+
+      do i=1,nsa
+        if(mm_type(i)) then
+           int_mb(psdt+i-1)=iand(int_mb(psdt+i-1),not(mfixed))
         end if
       end do
 
