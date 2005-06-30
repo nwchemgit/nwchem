@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.14 2005-06-29 00:44:49 marat Exp $
+c $Id: qmmm_output.F,v 1.15 2005-06-30 20:22:38 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -55,7 +55,6 @@ c
       character*32 pname
       character*32 optimization
       real*8 eatoms
-      logical fixqm
       integer linkatm,bq_exclude
 
       
@@ -66,12 +65,6 @@ c
            call errquit(pname//'failed to get '//tag,0,
      >       RTDB_ERR)
       end if
-
-      tag ="qmmm:fixqm" 
-      if (.not.rtdb_get(irtdb,tag,mt_log,1,fixqm)) then
-           call errquit(pname//'failed to store fixqm',0,
-     >       RTDB_ERR)
-       end if
 
       tag ="qmmm:bq_exclude" 
       if (.not.rtdb_get(irtdb,tag,mt_int,1,bq_exclude)) then
@@ -98,9 +91,6 @@ c
 
       tag = "qmmm:uqmatm"
       write(luout,20) "reference energy",tag,eatoms
-
-      tag ="qmmm:fixqm" 
-      write(luout,21) "fixed qm region",tag,fixqm
 
       tag ="qmmm:bq_exclude" 
       if(bq_exclude.eq.qmmm_hydrogen) then

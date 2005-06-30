@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.26 2005-06-20 05:57:35 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.27 2005-06-30 20:22:38 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -214,6 +214,7 @@ c     ------------------------------------
       else
         nact = 0
       end if
+      write(*,*) "number of active atoms", nact
 c
 c
 c     qm atoms gradients if any
@@ -359,9 +360,10 @@ c
       integer ma_type
       integer ng,nfg
       integer i_ig,i_ifg
-      integer jj0,jj,ii
+      integer jj0,jj,ii,ii0
       integer nlink
       integer i_lb
+      integer nal,h_al,i_al
      
       pname = "qmmm_map_fixed_atoms"
 
@@ -433,6 +435,29 @@ c     ----------------------
      &      pname//' unable to allocate stack',
      &      nact, MA_ERR)
 
+      if(nlink.ne.0) then
+
+        if(.not.ma_push_get(MT_INT, nlink, 'qmmm tmp link',
+     &        h_al, i_al) ) call errquit(
+     &        pname//' unable to allocate stack',
+     &        nact, MA_ERR)
+
+        nal=0
+        do i=1,nact
+         ii0 = int_mb(i_cons+i-1)
+         ii  = int_mb(i_ig+ii0-1)
+         do j=1,nlink
+           jj  = int_mb(i_lb+j-1)
+           if(jj.eq.ii) then
+             nal=nal+1
+             int_mb(i_al+nal-1)=int_mb(i_lb+nlink+j-1)
+           end if
+         end do 
+        end do
+       end if
+
+
+
       nact1=0
       do i=1,nfg
         ii = int_mb(i_ifg+i-1)
@@ -445,14 +470,14 @@ c     ----------------------
             goto 1
           end if
         end do
-        do j=1,nlink
-         jj  = int_mb(i_lb+nlink+j-1)
-         if(ii.eq.jj) then
-            nact1 = nact1 + 1
-            int_mb(i_act+nact1-1) = i
-            goto 1
-          end if
-        end do
+c        do j=1,nal
+c         jj  = int_mb(i_al+j-1)
+c         if(ii.eq.jj) then
+c            nact1 = nact1 + 1
+c            int_mb(i_act+nact1-1) = i
+c            goto 1
+c          end if
+c        end do
 1       continue
       end do
 
@@ -471,7 +496,7 @@ c     ----------------------
      &       MA_ERR)
 
 
-      if (.not. ma_pop_stack(h_act) ) call errquit(
+      if (.not. ma_chop_stack(h_act) ) call errquit(
      &    pname//' ma_pop_stack ',
      &    0, MA_ERR)
 

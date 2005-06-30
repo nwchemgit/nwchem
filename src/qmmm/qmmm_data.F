@@ -16,7 +16,6 @@ c
       character*32 optimization
       character*32 link_ecp
       real*8 eatoms,qatoms
-      logical fixqm
       integer linkatm,bq_exclude
       character*30 operation
       integer i_list,h_list
@@ -66,7 +65,6 @@ c
 c      character*32 interface
       character*32 link_ecp
       double precision  eatoms,qatoms
-      logical fixqm
       integer linkatm,bq_exclude
       character*30 operation
       logical ignore
@@ -187,7 +185,6 @@ c
       if (master) 
      >  write(6,22) "ecp on link atoms",tag,link_ecp
 
-      fixqm = .false.
       qmmm_interface='qm'
 
       tag='task:operation'
@@ -198,44 +195,30 @@ c
 c
       if (inp_compare(.false., 'energy', operation)) then
         if (optimization.eq.'all') then
-           fixqm = .false.
            qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'mm') then
-           fixqm = .true.
            qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'qm') then
-           fixqm = .false.
            qmmm_interface = "qm"
         endif
       else if (inp_compare(.false., 'optimize', operation)) then
         if (optimization.eq.'all') then
-           fixqm = .false.
            qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'mm') then
-           fixqm = .true.
            qmmm_interface = "mm"
            bq_dynamical=.true.
         else if (optimization.eq.'qm') then
-           fixqm = .false.
            qmmm_interface = "qm"
            bq_dynamical=.false.
         endif
       else if (inp_compare(.false., 'saddle', operation)) then
-        fixqm = .false.
         qmmm_interface = "qm"
       else if (inp_compare(.false.,'dynamics',operation)) then
         qmmm_interface = "mm"
       end if
-
-      tag ="qmmm:fixqm" 
-      if (.not.rtdb_put(irtdb,tag,mt_log,1,fixqm)) 
-     >      call errquit(pname//'failed to store fixqm',0,
-     >       RTDB_ERR)
-      if (master) 
-     >  write(6,21) "fixed qm region",tag,fixqm
 
 
       tag ="qmmm:interface"
