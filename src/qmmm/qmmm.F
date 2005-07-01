@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.50 2005-06-29 00:44:48 marat Exp $
+c $Id: qmmm.F,v 1.51 2005-07-01 01:20:55 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -20,6 +20,7 @@ c
       logical checkgrad
       character*32 pname
       character*30 operation
+      character*30 optimization
       character*255 geom
       logical aux_geom
       logical loadgeom
@@ -70,6 +71,12 @@ c     --------------------------------------------
       else
         aux_geom = .true.
       end if
+
+      if (.not. rtdb_cget(irtdb, 'qmmm:optimization', 1, optimization))
+     $     call errquit('qmmm_optimize: failed ',0,0)
+
+      if (optimization.ne.'qm') aux_geom = .false.
+      
 
       if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
         loadgeom = .true.
