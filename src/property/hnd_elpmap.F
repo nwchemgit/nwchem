@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.7 2005-04-28 00:15:24 marat Exp $
+c $Id: hnd_elpmap.F,v 1.8 2005-07-01 00:40:20 marat Exp $
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.
@@ -194,6 +194,7 @@ c        ----------------------------------
          elpotn = elpotn + elpotbq
 c        end of external bq contributions
 c        -------------------------------
+         if(.not.do_points) then
          if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &      errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
 c        geom_tag_to_element returns false for Bq elements (MV)
@@ -201,6 +202,7 @@ c        -----------------------------------------------------
          if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) then 
             if(symbol.ne."bq") call
      &      errquit('hnd_elfmap: geom_tag_to_element failed',0,GEOM_ERR)
+         end if
          end if
 c
          dbl_mb(k_tepot+iat-1) = elpotn
