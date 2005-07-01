@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.28 2005-06-30 20:24:03 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.29 2005-07-01 00:43:45 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -183,6 +183,7 @@ c
       integer nfg
       integer i_ifg
       integer nact
+      logical frozen_density
       character*30 pname
 
       status = .true.
@@ -194,6 +195,9 @@ c
       i_ifg = qmmm_geom_get_i_ifg()
       i_g = qmmm_geom_get_i_g()
 
+      if (.not. rtdb_get(rtdb,'qmmm:frozen_density',
+     $                   mt_log,1,frozen_density))
+     $     frozen_density=.false.
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
@@ -214,7 +218,6 @@ c     ------------------------------------
       else
         nact = 0
       end if
-      write(*,*) "number of active atoms", nact
 c
 c
 c     qm atoms gradients if any
@@ -232,9 +235,14 @@ c     -------------------------
      &                     int_mb(i_ifg),
      &                     dbl_mb(i_g))
 
-       else
-        if(nfg.ne.0)  
-     >  status = task_energy_doit(rtdb,theory,qm_energy)
+      else
+        if(nfg.ne.0) then  
+         if(frozen_density) then
+         call qmmm_bq_energy(qm_energy,rtdb)
+         else
+         status = task_energy_doit(rtdb,theory,qm_energy)
+         end if
+         end if
       end if
 c
 c     gradients on classical atoms if any
@@ -328,7 +336,92 @@ c
      &      call errquit(
      &      pname//'unable to pop stack',0,MA_ERR)
 
-      call qmmm_geom_restore(rtdb)
+      
+      end
+
+      subroutine qmmm_bq_energy(e,rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geom.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "bq.fh"
+c
+      integer rtdb
+      double precision e
+c 
+      integer i_c,h_c
+      integer i_q,h_q
+  
+      integer i,na
+      integer bq_handle
+      logical ext_bq_found
+      character*30 pname
+
+
+      pname = "qmmm_bq_energy"
+
+      if(qmmm_print_debug())
+     >   write(*,*) "in"//pname
+
+      na  = qmmm_get_nbqa() 
+     
+      if(na.eq.0) return
+
+      if(.not.ma_push_get(MT_DBL, na, 'active bq charges',
+     &      h_q, i_q) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      na, MA_ERR)
+      call dfill(na,0.0d0,dbl_mb(i_q),1)
+
+      if(.not.ma_push_get(MT_DBL,3*na, 'active bq coord',
+     &      h_c, i_c) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      3*na, MA_ERR)
+      call dfill(3*na,0.0d0,dbl_mb(i_c),1)
+
+      call qmmm_get_cqbqa(na,
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_q))
+
+
+
+      if(bq_get_active(bq_handle)) then
+        ext_bq_found = .true.
+        if(.not.bq_deactivate(bq_handle)) call errquit(
+     &      pname//'unable to deactivate bqs',0,0)
+
+      else
+       ext_bq_found = .false.
+      end if
+
+      call qmmm_bq_energy_gen(rtdb,
+     >                    na,
+     >                    dbl_mb(i_c),
+     >                    dbl_mb(i_q),
+     >                    e)
+
+      if(ext_bq_found) then
+        if(.not.bq_activate(bq_handle)) call errquit(
+     &      pname//'unable to activate bqs',0,0)
+      end if
+
+      if(.not.ma_pop_stack(h_c))
+     &      call errquit(
+     &      pname//'unable to pop stack',0,MA_ERR)
+
+      if(.not.ma_pop_stack(h_q))
+     &      call errquit(
+     &      pname//'unable to pop stack',0,MA_ERR)
+
+      if(qmmm_print_debug())
+     >   write(*,*) "out"//pname
 
       
       end

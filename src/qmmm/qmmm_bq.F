@@ -1,8 +1,8 @@
 c
-c $Id: qmmm_bq.F,v 1.12 2005-04-28 19:51:04 marat Exp $
+c $Id: qmmm_bq.F,v 1.13 2005-07-01 00:43:45 marat Exp $
 c
 c
-      subroutine qmmm_bq_energy(rtdb,n,c,q,e)
+      subroutine qmmm_bq_energy_gen(rtdb,n,c,q,e)
 *
       implicit none
 #include "errquit.fh"
@@ -97,6 +97,11 @@ c     ------------
       ignore = rtdb_delete(rtdb,"prop:epot_xyz")
       ignore = rtdb_delete(rtdb,"prop:xyz")
       ignore = rtdb_delete(rtdb,"prop:vectors")
+      ignore = rtdb_delete(rtdb,"prop:nocheck")
+
+      if (.not. rtdb_put(rtdb,'prop:esp',
+     >                   mt_int,1,1))
+     &    call errquit(pname//'prop: efield failed',911,RTDB_ERR)
 
       if (.not.ma_pop_stack(h_epot)) call errquit
      &   (pname//'ma_pop_stack of h_epot failed',911,MA_ERR)
@@ -190,5 +195,9 @@ c     ------------
       ignore = rtdb_delete(rtdb,"prop:efield_xyz")
       ignore = rtdb_delete(rtdb,"prop:xyz")
       ignore = rtdb_delete(rtdb,"prop:vectors")
+
+      if (.not. rtdb_put(rtdb,'prop:efield',
+     >                   mt_int,1,1))
+     &    call errquit(pname//'prop: efield failed',911,RTDB_ERR)
 
       end
