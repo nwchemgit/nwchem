@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.29 2005-07-01 00:43:45 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.30 2005-07-01 02:44:39 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -457,6 +457,8 @@ c
       integer nlink
       integer i_lb
       integer nal,h_al,i_al
+      integer h_am,i_am
+      logical aflag
      
       pname = "qmmm_map_fixed_atoms"
 
@@ -466,7 +468,7 @@ c
 c     pointers to global index for auxiliary (i_ig)
 c     and gradient geometry (i_ifg)
 c     --------------------------------------------
-      ng   = qmmm_geom_get_ng()
+      ng   = qmmm_geom_get_ngs()
       i_ig = qmmm_geom_get_i_ig()
 
       nfg   = qmmm_geom_get_nfg()
@@ -528,6 +530,15 @@ c     ----------------------
      &      pname//' unable to allocate stack',
      &      nact, MA_ERR)
 
+      if(.not.ma_push_get(MT_LOG, ng, 'tmp qmmm act atom list',
+     &      h_am, i_am) ) call errquit(
+     &      pname//' unable to allocate stack',
+     &      ng, MA_ERR)
+
+      call mm_get_solute_cons(ng,int_mb(i_ig),
+     >                       log_mb(i_am))
+
+
       if(nlink.ne.0) then
 
         if(.not.ma_push_get(MT_INT, nlink, 'qmmm tmp link',
@@ -539,9 +550,10 @@ c     ----------------------
         do i=1,nact
          ii0 = int_mb(i_cons+i-1)
          ii  = int_mb(i_ig+ii0-1)
+         aflag = log_mb(i_am+ii0-1)
          do j=1,nlink
            jj  = int_mb(i_lb+j-1)
-           if(jj.eq.ii) then
+           if(aflag.and.(jj.eq.ii)) then
              nal=nal+1
              int_mb(i_al+nal-1)=int_mb(i_lb+nlink+j-1)
            end if
@@ -557,7 +569,8 @@ c     ----------------------
         do j=1,nact
          jj0 = int_mb(i_cons+j-1)
          jj  = int_mb(i_ig+jj0-1)
-         if(ii.eq.jj) then
+         aflag = log_mb(i_am+jj0-1)
+         if(aflag.and.(ii.eq.jj)) then
             nact1 = nact1 + 1
             int_mb(i_act+nact1-1) = i
             goto 1
