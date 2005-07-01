@@ -1,6 +1,6 @@
       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e4c.F,v 1.20 2004-12-03 22:34:31 bert Exp $
+c $Id: intd_2e4c.F,v 1.21 2005-07-01 00:02:47 bert Exp $
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 
@@ -519,12 +519,14 @@ c::local
       integer z
       integer offset_x, offset_s
 *
+#if defined(VECTOR_MODE)
       if (nint_x*nblocks.gt.lscr) then
         write(luout,*)' calling routine: ',ctine
         call errquit
      &      ('int_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr),
      &         INT_ERR)
       endif
+#endif
       if (nint_s.gt.nint_x) then
         call errquit
      &      ('int_c2s_mv: nint_s >.nint_x diff=',(nint_s-nint_x),
