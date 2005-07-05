@@ -1,6 +1,6 @@
       subroutine int_init_pso(maxbuf,maxscr,basis,npt)
 c
-c $Id: hnd_init_pso.F,v 1.1 2004-12-03 22:36:10 bert Exp $
+c $Id: hnd_init_pso.F,v 1.2 2005-07-05 19:31:41 bert Exp $
 c
       implicit none
 c
@@ -40,6 +40,7 @@ c
       mroots = (2*lmax+2-2)/2+1
       iblk = lmax*(lmax+1)*3*mroots
       maxscr = 3*iblk
+      maxscr = max(maxbuf,maxscr)
 c
 c     Set pointers for scratch space
 c

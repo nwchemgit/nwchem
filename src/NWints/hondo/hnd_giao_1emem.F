@@ -1,4 +1,4 @@
-c $Id: hnd_giao_1emem.F,v 1.1 2004-07-21 16:24:34 bert Exp $
+c $Id: hnd_giao_1emem.F,v 1.2 2005-07-05 19:31:41 bert Exp $
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- giao memory routine
@@ -36,6 +36,7 @@ c
       enddo
       scrmem = gh01(11) + 3*((2*maxang+3)/2+1)*(maxang+2)**2
       mem_1e = max(mem_1e,scrmem)
+      mem_1e = max(mem_1e,isz_1e)
 c
       gh01(12) = gh01(1) + (maxang+2)*(maxang+3)
 c
