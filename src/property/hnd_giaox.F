@@ -1,5 +1,5 @@
       subroutine hnd_giaox(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.8 2004-12-16 18:46:12 bert Exp $
+c $Id: hnd_giaox.F,v 1.9 2005-07-05 19:27:10 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -608,8 +608,8 @@ c
 c
       do iatom = 1, sh_atom
          ioff = (iatom-1)*9
-         if (.not. geom_cent_get(geom, iatom, tag, dbl_mb(k_xyz), 
-     &       dbl_mb(k_zan))) call 
+         if (.not. geom_cent_get(geom, int_mb(k_tmp+iatom-1), tag, 
+     &       dbl_mb(k_xyz), dbl_mb(k_zan))) call 
      &       errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
          if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
      &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
