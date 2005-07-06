@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.115 2005-05-24 23:01:25 marat Exp $
+* $Id: opt_drv.F,v 1.116 2005-07-06 20:22:19 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1050,7 +1050,6 @@ c
       end if
       if ((.not.ostress).and.(ostress2)) ostress2 = .false.
       if ((ostress)     .and.(ostress2)) ostress  = .false.
-      write(*,*) "ostress:",ostress,ostress2
       
 c
 c     Force sensible options
