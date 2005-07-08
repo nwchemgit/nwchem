@@ -8,7 +8,7 @@
      ,     qwght, ldew, ffunc)
 #endif
 c
-c$Id: xc_perdew86.F,v 1.22 2003-02-17 22:58:32 edo Exp $
+c$Id: xc_perdew86.F,v 1.23 2005-07-08 00:25:21 edo Exp $
 c
       implicit none
 c
@@ -209,6 +209,8 @@ c
      &              delrho(n,3,1)*delrho(n,3,2))
             gam12 = sqrt(abs(gamma))
             zeta = (rho(n,2) - rho(n,3))*arho
+            if(zeta.lt.-1d0) zeta=-1d0
+            if(zeta.gt.1d0) zeta=1d0
             d1z(1) =  (1.d0 - zeta)*arho
             d1z(2) = -(1.d0 + zeta)*arho
 #ifdef SECOND_DERIV
@@ -403,15 +405,21 @@ c
             rhoval = rho(n,1)
             if (ipol.eq.1) then
                zeta = 0.0d0
+               d1zeta(1) = 1.d0/rhoval
+               d1zeta(2) =-1.d0/rhoval
+               fz = 0d0
+               d1fz = 0d0
             else
                zeta = (rho(n,2)-rho(n,3))/rhoval
+               if(zeta.lt.-1d0) zeta=-1d0
+               if(zeta.gt.1d0) zeta=1d0
+               fz = fzeta(zeta)
+               d1fz = d1fzeta(zeta)
+               d1zeta(1) = (1.d0-zeta)/rhoval
+               d1zeta(2) =-(1.d0+zeta)/rhoval
             endif
             rs = rsfact/abs(rhoval)**ONE3
             d1rs = -ONE3*rs/rhoval
-            fz = fzeta(zeta)
-            d1fz = d1fzeta(zeta)
-            d1zeta(1) = (1.d0-zeta)/rhoval
-            d1zeta(2) =-(1.d0+zeta)/rhoval
 #ifdef SECOND_DERIV
             d2rs = -FOUR3*d1rs/rhoval
             d2fz = d2fzeta(zeta)
