@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.72 2005-05-17 01:56:29 bylaska Exp $
+* $Id: control.F,v 1.73 2005-07-09 22:44:22 bylaska Exp $
 *
 
 *     ***********************************
@@ -3305,3 +3305,32 @@ c      end
       control_optimize_lattice = optimize_lattice(i)
       return
       end 
+
+
+
+*     ************************************
+*     *                                  *
+*     *      control_lmax_multipole      *
+*     *                                  *
+*     ************************************
+
+      integer function control_lmax_multipole()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer lmax
+
+      if (.not.rtdb_get(rtdb,'nwpw:lmax_multipole',mt_int,1,lmax))
+     >  lmax = -1
+
+      control_lmax_multipole = lmax
+      return
+      end
+
+

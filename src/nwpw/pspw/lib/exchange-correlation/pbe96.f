@@ -1,5 +1,5 @@
 *
-* $Id: pbe96.f,v 1.5 2005-05-24 17:36:27 bylaska Exp $
+* $Id: pbe96.f,v 1.6 2005-07-09 22:44:23 bylaska Exp $
 *
 
 *    ************************************
@@ -38,10 +38,12 @@
       real*8 fdn(n2ft3d,3)
       
 *     **** Density cutoff parameter ****
-      real*8 DNS_CUT,ETA,ETA2
+      real*8 DNS_CUT,ETA,ETA2,alpha_zeta,alpha_zeta2
       parameter (DNS_CUT = 1.0d-20)
       parameter (ETA=1.0d-20)
       parameter (ETA2=1.0d-14)
+      parameter (alpha_zeta=(1.0d0-ETA2))
+      parameter (alpha_zeta2=(1.0d0-ETA2))
 
 c     ***** PBE96 GGA exchange constants ******
       real*8 MU,KAPPA
@@ -51,17 +53,21 @@ c     ***** PBE96 GGA exchange constants ******
 c     ****** PBE96 GGA correlation constants ******
       real*8 GAMMA,BETA,BOG
       parameter (GAMMA	= 0.031090690869655d0)
-      parameter (BETA	= 0.066724550603149d0)
+      !parameter (BETA	= 0.066724550603149d0)
+      parameter (BETA	= 0.066725d0)
       parameter (BOG    = BETA/GAMMA)
 
 
 c     ****** Perdew-Wang92 LDA correlation coefficients *******
-      real*8 GAM,FZZ
+      real*8 GAM,iGAM,FZZ,iFZZ
       parameter (GAM  	= 0.519842099789746329d0)
+      parameter (iGAM  	= 1.0d0/GAM)
       parameter (FZZ    = (8.0d0/(9.0d0*GAM)) )
+      parameter (iFZZ    = 0.125d0*9.0d0*GAM)
 
       real*8 A_1,A1_1,B1_1,B2_1,B3_1,B4_1     
       parameter (A_1  = 0.0310907d0)
+      !parameter (A_1  = 0.031091d0)
       parameter (A1_1 =	0.2137000d0)
       parameter (B1_1 =	7.5957000d0)
       parameter (B2_1 =	3.5876000d0)
@@ -70,6 +76,7 @@ c     ****** Perdew-Wang92 LDA correlation coefficients *******
 
       real*8 A_2,A1_2,B1_2,B2_2,B3_2,B4_2     
       parameter (A_2  =  0.01554535d0)
+      !parameter (A_2  =  0.015545d0)
       parameter (A1_2 =	 0.20548000d0)
       parameter (B1_2 =	14.11890000d0)
       parameter (B2_2 =	 6.19770000d0)
@@ -78,6 +85,7 @@ c     ****** Perdew-Wang92 LDA correlation coefficients *******
       
       real*8 A_3,A1_3,B1_3,B2_3,B3_3,B4_3     
       parameter (A_3  =  0.0168869d0)
+      !parameter (A_3  =  0.016887d0)
       parameter (A1_3 =	 0.1112500d0)
       parameter (B1_3 =	10.3570000d0)
       parameter (B2_3 =	 3.6231000d0)
@@ -85,13 +93,14 @@ c     ****** Perdew-Wang92 LDA correlation coefficients *******
       parameter (B4_3 =	 0.4967100d0)
 
 c     **** other constants ****
-      real*8 onethird,fourthird,onesixthm
+      real*8 onethird,fourthird,fivethird,onesixthm
       real*8 twothird,sevensixthm
       real*8 onethirdm
       parameter (onethird=1.0d0/3.0d0)
       parameter (onethirdm=-1.0d0/3.0d0)
       parameter (twothird=2.0d0/3.0d0)
       parameter (fourthird=4.0d0/3.0d0)
+      parameter (fivethird=5.0d0/3.0d0)
       parameter (onesixthm=-1.0d0/6.0d0)
       parameter (sevensixthm=-7.0d0/6.0d0)
 
@@ -111,6 +120,8 @@ c     **** local variables ****
       real*8 zet,twoksg
       real*8 zet_nup    ! zet_nup = n*dzet/dnup
       real*8 zet_ndn    ! zet_nup = n*dzet/dnup
+      real*8 zetp_1_3,zetm_1_3
+      real*8 zetpm_1_3,zetmm_1_3
       real*8 phi,phi3,phi4
       real*8 phi_zet
       real*8 A,A2
@@ -177,6 +188,10 @@ c        ************
          fnxup = fourthird*(exup - ex_lda*Fs*s)
          fdnxup = fdnx_const*Fs
 
+c         exup = ex_lda
+c         fnxup = fourthird*(exup)
+c         fdnxup = 0.0d0
+
 			
 c        **************
 c        **** down ****
@@ -198,6 +213,9 @@ c        **************
          fnxdn  = fourthird*(exdn - ex_lda*Fs*s)
          fdnxdn = fdnx_const*Fs
 
+c         exdn   = ex_lda
+c         fnxdn  = fourthird*(exdn)
+c         fdnxdn = 0.0d0
 			
          ex = (exup*nup+ exdn*ndn)/ (nup+ndn)
          
@@ -209,8 +227,8 @@ c        *******************************************************************
          agr   = agr_in(i,3)
 
          zet = (nup-ndn)/n
-         if (zet.gt.0.0d0) zet = zet - ETA2
-         if (zet.lt.0.0d0) zet = zet + ETA2
+c         if (zet.gt.0.0d0) zet = zet - ETA2
+c         if (zet.lt.0.0d0) zet = zet + ETA2
 c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n**2
 c        if (dabs(dn_in(i,1)).gt.DNS_CUT) zet_ndn = -2*nup/n**2
 c        if (dabs(dn_in(i,2)).gt.DNS_CUT) zet_nup =  2*ndn/n
@@ -218,11 +236,20 @@ c        zet_nup =  2*ndn/n
 c        zet_ndn = -2*nup/n
          zet_nup = -(zet - 1.0d0)
          zet_ndn = -(zet + 1.0d0)
+         zetpm_1_3 = (1.0d0+zet*alpha_zeta)**onethirdm
+         zetmm_1_3 = (1.0d0-zet*alpha_zeta)**onethirdm
+         zetp_1_3  = (1.0d0+zet*alpha_zeta)*zetpm_1_3**2
+         zetm_1_3  = (1.0d0-zet*alpha_zeta)*zetmm_1_3**2
 
-         phi = ( (1.0d0+zet)**twothird + (1.0d0-zet)**twothird)/2.0d0
 
-         phi_zet = ( (1.0d0+zet)**onethirdm 
-     >             - (1.0d0-zet)**onethirdm)/3.0d0
+         phi = 0.5d0*( zetp_1_3**2 + zetm_1_3**2)
+         phi_zet = alpha_zeta*( zetpm_1_3 - zetmm_1_3)/3.0d0
+         F =(  (1.0d0+zet*alpha_zeta)*zetp_1_3
+     >       + (1.0d0-zet*alpha_zeta)*zetm_1_3
+     >       - 2.0d0)*iGAM
+
+         FZ = (zetp_1_3 - zetm_1_3)*(alpha_zeta*fourthird*iGAM)
+
 
 
 *        **** calculate Wigner radius ****
@@ -232,6 +259,7 @@ c        zet_ndn = -2*nup/n
 *        **** calculate n*drs/dn ****
 c        rs_n = onethirdm*rs/n
          rs_n = onethirdm*rs
+
 
 
 c        **** calculate t ****
@@ -286,25 +314,22 @@ c        **************************************************
 
          eca    = Q0*Q2
          eca_rs = -2.0d0*A_3*A1_3*Q2-Q0*Q3/(Q1*(1+Q1))
+
          
          z4 = zet**4
-         F =(  (1.0d0+zet)**fourthird
-     >       + (1.0d0-zet)**fourthird
-     >       - 2.0d0)/GAM
             
-         ec_lda = ecu*(1.0d0-F*z4) + ecp*F*z4 
+         ec_lda = ecu*(1.0d0-F*z4) 
+     >          + ecp*F*z4 
      >          - eca*F*(1.0d0-z4)/FZZ
          
          ec_lda_rs = ecu_rs*(1.0d0-F*z4)
      >             + ecp_rs*F*z4 
      >             - eca_rs*F*(1.0d0-z4)/FZZ
-         FZ = fourthird*((1.D0+zet)**onethird-(1.D0-zet)**onethird)
-     >       /GAM
-         ec_lda_zet = 4.D0*(zet**3)*F*(ecp-ecu+eca/FZZ)
-     >          + FZ*(z4*ecp-z4*ecu
-     >          - (1.D0-z4)*eca/FZZ)
 
-         
+         ec_lda_zet = (4.0d0*(zet**3)*F + FZ*z4)*(ecp-ecu+eca*iFZZ)
+     >              - FZ*eca*iFZZ
+
+
          
      
 c        ********************************************
@@ -315,7 +340,7 @@ c        ********************************************
          PON  = -ec_lda/(phi3*GAMMA)
          tau  = DEXP(PON)
 
-         A = BOG/(tau-1.D0+ETA)
+         A = BOG/(tau-1.0d0+ETA)
          A2 = A*A
          t2 = t*t
          t4 = t2*t2
@@ -343,10 +368,12 @@ c        ********************************************
          
          Hpbe_t      = (GAMMA*phi3/Ipbe)*Ipbe_t
 
-        ec_lda_nup = zet_nup * ec_lda_zet
-     >             + rs_n    * ec_lda_rs
-        ec_lda_ndn = zet_ndn * ec_lda_zet
-     >             + rs_n    * ec_lda_rs
+         ec_lda_nup = ec_lda_zet 
+     >              - zet * ec_lda_zet
+     >              + rs_n * ec_lda_rs
+         ec_lda_ndn = -ec_lda_zet
+     >              - zet  * ec_lda_zet
+     >              + rs_n * ec_lda_rs
 
 
 
@@ -361,10 +388,12 @@ c        ********************************************
 
 
          ec = ec_lda + Hpbe
+
 c        fncup  = ec + n*(ec_lda_nup + Hpbe_nup)
 c        fncdn  = ec + n*(ec_lda_ndn + Hpbe_ndn)
          fncup  = ec + (ec_lda_nup + Hpbe_nup)
          fncdn  = ec + (ec_lda_ndn + Hpbe_ndn)
+
 
          xce(i)   = x_parameter*ex     + c_parameter*ec
          fn(i,1)  = x_parameter*fnxup  + c_parameter*fncup
@@ -382,6 +411,8 @@ c        fdn(i,3) = n*t_agr*Hpbe_t
       return
       end
       
+
+
 
 
 *    ************************************

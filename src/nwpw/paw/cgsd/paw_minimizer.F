@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.7 2005-02-09 02:38:54 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.8 2005-07-09 22:44:22 bylaska Exp $
 *
 
 ***********************************************************************
@@ -61,7 +61,7 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       real*8  icharge
-      integer i,k,ia,nion,minimizer,mapping
+      integer i,k,ia,nion,minimizer,mapping,lmax
   
 
 *     **** external functions ****
@@ -88,11 +88,11 @@
 
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
-      integer  control_ngrid,pack_nwave
+      integer  control_ngrid,pack_nwave,control_lmax_multipole
       integer  ion_nion,ion_natm,ion_katm,ion_nkatm
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
-      external control_ngrid,pack_nwave
+      external control_ngrid,pack_nwave,control_lmax_multipole
       external ion_nion,ion_natm,ion_katm,ion_nkatm
 
       character*12 control_boundry
@@ -205,6 +205,9 @@
       call mask_init()
       call Pack_init()
 
+      call D3dB_pfft_init()
+
+
 *     **** initialize Gaunt array ****
 c     call current_second(t1)
       call paw_gaunt_init()
@@ -292,8 +295,10 @@ c     call current_second(t1)
       call phafac()
       call paw_ovlp_init(ispin,ne)
       call paw_nonlocal_init(ispin,ne)
-      call init_paw_density(0)
-      call init_paw_xc(ispin,0)
+      lmax = control_lmax_multipole()
+      if (lmax.lt.0) lmax =  paw_basis_max_mult_l()
+      call init_paw_density(lmax)
+      call init_paw_xc(ispin,lmax)
 
       !call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
       !call paw_ovlp_weights_set()
@@ -422,6 +427,7 @@ c     write(*,*) "time10:",t2-t1
      >                 pack_nwave_all(1),pack_nwave(1)
          write(6,1260) paw_mult_rcut(),paw_mult_ncut()
          write(6,1270)
+         write(6,1262) lmax
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_tole(),control_tolc()
          if (minimizer.eq.5) then
@@ -556,6 +562,7 @@ c      call paw_vloc_end()
       call paw_xc_end()
       call paw_gaunt_end()
 
+      call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 
@@ -688,6 +695,7 @@ c      call paw_vloc_end()
   
  1260 FORMAT(5X,' ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1262 FORMAT(5X,' core integration lmax=',I2)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,

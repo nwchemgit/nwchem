@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.4 2005-02-01 02:50:06 bylaska Exp $
+* $Id: cpsi_KS.F,v 1.5 2005-07-09 22:44:21 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.4  2005/02/01 02:50:06  bylaska
+* Various updates...EJB
+*
 * Revision 1.3  2004/11/14 23:31:50  bylaska
 * Band structure plotting code has been added to the BAND module.  The code the following task is used to run the code,
 *
@@ -952,12 +955,12 @@ c     >           theta
      >                                   +(j-1)*npack1
      >                                   +(nb-1)*(ne(1)+ne(2))*npack1),
      >                          dcpl_mb(psi1(1)
-     >                                  +(i-1)*npack1)
-     >                                  +(nb-1)*(ne(1)+ne(2))*npack1)
+     >                                  +(i-1)*npack1
+     >                                  +(nb-1)*(ne(1)+ne(2))*npack1))
              call Cram_c_Copy(nb,dcpl_mb(r1(1)),
      >                          dcpl_mb(psi1(1)
-     >                                  +(j-1)*npack1)
-     >                                  +(nb-1)*(ne(1)+ne(2))*npack1)
+     >                                  +(j-1)*npack1
+     >                                  +(nb-1)*(ne(1)+ne(2))*npack1))
            end if
 
          end do

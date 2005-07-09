@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.48 2005-05-24 17:36:26 bylaska Exp $
+* $Id: cpmdv5.F,v 1.49 2005-07-09 22:44:22 bylaska Exp $
 *
 
 ***********************************************************************
@@ -233,6 +233,9 @@
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)
+
+      call D3dB_pfft_init()
+
 
 *     ***** allocate psi2, psi1, and psi0 wavefunctions ****
       call psi_get_ne(ispin,ne)
@@ -1120,6 +1123,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       value = MA_free_heap(psi0(2))
       value = MA_free_heap(psi1(2))
       value = MA_free_heap(psi2(2))
+      call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 

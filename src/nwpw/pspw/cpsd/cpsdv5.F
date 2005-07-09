@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.38 2005-02-09 02:37:04 bylaska Exp $
+* $Id: cpsdv5.F,v 1.39 2005-07-09 22:44:22 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -212,6 +212,9 @@
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)      
+
+      call D3dB_pfft_init()
+
 
  
 *     **** read ions ****
@@ -860,6 +863,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       value = MA_free_heap(lmd(2))
       value = MA_free_heap(psi1(2))
       value = MA_free_heap(psi2(2))
+      call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 

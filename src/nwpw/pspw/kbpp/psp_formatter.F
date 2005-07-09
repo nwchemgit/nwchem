@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.9 2004-10-14 00:28:42 bylaska Exp $
+c $Id: psp_formatter.F,v 1.10 2005-07-09 22:44:23 bylaska Exp $
 c
 
 *     ***************************************
@@ -129,9 +129,9 @@ c
 
 
 *     ***************************************
-*     *										*
-*     *			psp_formatter_auto			*
-*     *										*
+*     *                                     *
+*     *		psp_formatter_auto          *
+*     *                                     *
 *     ***************************************
       subroutine psp_formatter_auto(atom)
       implicit none

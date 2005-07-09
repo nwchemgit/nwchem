@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.1 2005-06-24 19:52:38 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.2 2005-07-09 22:44:21 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -42,7 +42,7 @@
       integer i,j,k
       integer index,index2
       double precision ggcut,g1,g2,g3,gg
-      integer zero_arow3(2)
+      integer zero_arow2(2),zero_arow3(2)
 
 *     **** external functions ***
       real*8   lattice_ggcut,lattice_wggcut,lattice_unitg
@@ -71,11 +71,11 @@
      >               'zero_slab23',zero_slab23(2,0),zero_slab23(1,0))
          value = value.and.MA_alloc_get(mt_log,(nxh+1),
      >               'zero_slab23',zero_slab23(2,1),zero_slab23(1,1))
-
-         value = value.and.MA_alloc_get(mt_log,(nxh+1)*ny(1),
-     >                     'zero_arow3',zero_arow3(2),zero_arow3(1))
-
          if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+
+         value = value.and.MA_push_get(mt_log,(nxh+1)*ny(1),
+     >                     'zero_arow3',zero_arow3(2),zero_arow3(1))
+         if (.not. value) call errquit('out of stack memory',0,MA_ERR)
 
 
          do nb=0,1
@@ -187,8 +187,8 @@
 
         
          end do
-         value = MA_free_heap(zero_arow3(2))
-         if (.not. value) call errquit('error freeing heap',0,MA_ERR)
+         value = MA_pop_stack(zero_arow3(2))
+         if (.not. value) call errquit('error freeing stack',0,MA_ERR)
 
       !*** mapping == 2 ***
       else
@@ -208,6 +208,12 @@
      >               'zero_slab23',zero_slab23(2,1),zero_slab23(1,1))
          if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
+         value = value.and.MA_push_get(mt_log,(nxh+1)*nz(1),
+     >                     'zero_arow2',zero_arow2(2),zero_arow2(1))
+         value = value.and.MA_push_get(mt_log,(nxh+1)*ny(1),
+     >                     'zero_arow3',zero_arow3(2),zero_arow3(1))
+         if (.not. value) call errquit('out of stack memory',0,MA_ERR)
+
 
          do nb=0,1
          if (nb.eq.0) then
@@ -219,6 +225,9 @@
 *        **** find zero_row3 - (i,j,*) rows that are zero ****
          do q = 1,nq3(1)
            log_mb(zero_row3(1,nb)+q-1) =.true.
+         end do
+         do q = 1,(nxh+1)*ny(1)
+           log_mb(zero_arow3(1)+q-1) =.true.
          end do
 
          do k2 = -nyh+1, nyh-1
@@ -245,6 +254,7 @@
             if (gg.lt.-eps) zrow = .false.
           end do
           if (.not.zrow) then
+            log_mb(zero_arow3(1)+i-1+(nxh+1)*(j-1)) =.false.
             q = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
             p = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
             if (p.eq.taskid) then
@@ -294,6 +304,8 @@
            q = int_mb(q_map2(1,1)+(k-1)+(i-1)*(nz(1)))
            p = int_mb(p_map2(1,1)+(k-1)+(i-1)*(nz(1)))
 
+           log_mb(zero_arow2(1)+i-1+(nxh+1)*(k-1))
+     >       = log_mb(zero_slab23(1,nb)+i-1)
            if (p.eq.taskid) then
             log_mb(zero_row2(1,nb)+q-1)
      >       = log_mb(zero_slab23(1,nb)+i-1)
@@ -301,9 +313,17 @@
          end do
          end do
 
+         call D3dB_c_ptranspose_ijk_init(nb,
+     >                                   log_mb(zero_arow2(1)),
+     >                                   log_mb(zero_arow3(1)))
+
 
 
          end do
+
+       value =           MA_pop_stack(zero_arow3(2))
+       value = value.and.MA_pop_stack(zero_arow2(2))
+       if (.not. value) call errquit('error pop stack',0,MA_ERR)
 
 
       end if
@@ -325,6 +345,7 @@
 
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "D3dB.fh"
 #include "D3dB_pfft.fh"
 
 
@@ -348,7 +369,23 @@
      >                       j1_start,j2_start
 
 
+*     *** hilbert tranpose data structure ****
+      integer h_iq_to_i1(2,6,0:1)
+      integer h_iq_to_i2(2,6,0:1)
+      integer h_iz_to_i2(2,6,0:1)
+      integer h_iz_to_i2_count(6,0:1)
+      integer h_i1_start(2,6,0:1)
+      integer h_i2_start(2,6,0:1)
+      common / ptrans_blk_ijk / h_iq_to_i1,
+     >                         h_iq_to_i2,
+     >                         h_iz_to_i2,
+     >                         h_iz_to_i2_count,
+     >                         h_i1_start,
+     >                         h_i2_start
+
+
       logical value
+      integer i
 
       value =           MA_free_heap(zero_row2(2,0))
       value = value.and.MA_free_heap(zero_row2(2,1))
@@ -357,6 +394,7 @@
       value = value.and.MA_free_heap(zero_slab23(2,0))
       value = value.and.MA_free_heap(zero_slab23(2,1))
 
+      if (mapping.eq.1) then
       value = value.and.MA_free_heap(iq_to_i1(2,0))
       value = value.and.MA_free_heap(iq_to_i1(2,1))
       value = value.and.MA_free_heap(iq_to_i2(2,0))
@@ -378,6 +416,22 @@
       value = value.and.MA_free_heap(j1_start(2,1))
       value = value.and.MA_free_heap(j2_start(2,0))
       value = value.and.MA_free_heap(j2_start(2,1))
+      end if
+
+      if (mapping.eq.2) then
+      do i=1,6
+      value = value.and.MA_free_heap(h_i1_start(2,i,0))
+      value = value.and.MA_free_heap(h_i2_start(2,i,0))
+      value = value.and.MA_free_heap(h_iq_to_i1(2,i,0))
+      value = value.and.MA_free_heap(h_iq_to_i2(2,i,0))
+      value = value.and.MA_free_heap(h_iz_to_i2(2,i,0))
+      value = value.and.MA_free_heap(h_i1_start(2,i,1))
+      value = value.and.MA_free_heap(h_i2_start(2,i,1))
+      value = value.and.MA_free_heap(h_iq_to_i1(2,i,1))
+      value = value.and.MA_free_heap(h_iq_to_i2(2,i,1))
+      value = value.and.MA_free_heap(h_iz_to_i2(2,i,1))
+      end do
+      end if
 
       if (.not. value) call errquit('error freeing heap',0,MA_ERR)
 
@@ -410,7 +464,7 @@
 *                                                   *
 *       Exit - A is transformed and the imaginary   *
 *              part of A is set to zero             *
-*       uses - D3dB_c_transpose_jk, dcopy           *
+*       uses - D3dB_c_ptranspose_jk, dcopy           *
 *                                                   *
 *****************************************************
 
@@ -522,7 +576,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #endif
 
 *     ********************************************
-*     ***         Do a transpose of A          ***
+*     ***         Do a ptranspose of A          ***
 *     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
 *     ********************************************
       call D3dB_c_ptranspose1_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
@@ -641,7 +695,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
-      call D3dB_c_transpose_ijk(nb,3,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+      call D3dB_c_ptranspose_ijk(nbb,3,A,
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
 
 *     *************************************************
 *     ***     do fft along ky dimension             ***
@@ -665,7 +721,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
-      call D3dB_c_transpose_ijk(nb,4,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+      call D3dB_c_ptranspose_ijk(nbb,4,A,
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
 
 *     *************************************************
 *     ***     do fft along kx dimension             ***
@@ -727,7 +785,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *                                                   *
 *       Exit - A is transformed                     *
 *                                                   *
-*       uses - transpose1 subroutine                *
+*       uses - ptranspose1 subroutine                *
 *                                                   *
 *****************************************************
 
@@ -855,7 +913,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     ********************************************
-*     ***         Do a transpose of A          ***
+*     ***         Do a ptranspose of A          ***
 *     ***      A(ky,nz(nb),ky) <- A(kx,ky,nz(nb))      ***
 *     ********************************************
       call D3dB_c_ptranspose2_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
@@ -950,7 +1008,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
 #endif
 
-      call D3dB_c_transpose_ijk(nb,1,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+      call D3dB_c_ptranspose_ijk(nbb,1,A,
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***     do fft along ny(nb) dimension        ***
@@ -974,7 +1034,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
-      call D3dB_c_transpose_ijk(nb,2,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+      call D3dB_c_ptranspose_ijk(nbb,2,A,
+     >                          dcpl_mb(tmp2(1)),
+     >                          dbl_mb(tmp3(1)))
 
 *     ********************************************
 *     ***     do fft along ny(nb) dimension        ***
@@ -1175,3 +1237,570 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end
 
 
+
+
+
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose_ijk_init	*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_c_ptranspose_ijk_init(nbb,zero_arow2,zero_arow3)
+      implicit none
+      integer nbb
+      logical zero_arow2(*)
+      logical zero_arow3(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     *** hilbert tranpose data structure ****
+      integer h_iq_to_i1(2,6,0:1)
+      integer h_iq_to_i2(2,6,0:1)
+      integer h_iz_to_i2(2,6,0:1)
+      integer h_iz_to_i2_count(6,0:1)
+      integer h_i1_start(2,6,0:1)
+      integer h_i2_start(2,6,0:1)
+      common / ptrans_blk_ijk / h_iq_to_i1,
+     >                         h_iq_to_i2,
+     >                         h_iz_to_i2,
+     >                         h_iz_to_i2_count,
+     >                         h_i1_start,
+     >                         h_i2_start
+
+*     **** local variables ****
+      logical value,iszero
+      integer proc_to,proc_from
+      integer pto,qto,np,taskid
+      integer phere,qhere
+      integer index1,index2,index3,itmp
+      integer i,j,k,it
+
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+
+*     ********************************************************
+*     **** map1to2 mapping - done - tranpose operation #1  ***
+*     ****   (ny,nz,nx/2+1)  <-- (nx/2+1,ny,nz)            ***
+*     ****   use zero_arow2                                ***
+*     ********************************************************
+
+*     **** allocate trans_blk_ijk common block ****
+      value = MA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >                     'h_iq_to_i1_1',
+     >                      h_iq_to_i1(2,1,nbb),
+     >                      h_iq_to_i1(1,1,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >                     'h_iq_to_i2_1',
+     >                      h_iq_to_i2(2,1,nbb),
+     >                      h_iq_to_i2(1,1,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >                     'h_iz_to_i2_1',
+     >                      h_iz_to_i2(2,1,nbb),
+     >                      h_iz_to_i2(1,1,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i1_start_1',
+     >                      h_i1_start(2,1,nbb),
+     >                      h_i1_start(1,1,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i2_start_1',
+     >                      h_i2_start(2,1,nbb),
+     >                      h_i2_start(1,1,nbb))
+      if (.not.value)
+     > call errquit('D3dB_transpose_ijk_initt:out of heap',0,MA_ERR)
+
+      index1 = 1 
+      index2 = 1
+      index3 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(h_i1_start(1,1,nbb)+it) = index1
+         int_mb(h_i2_start(1,1,nbb)+it) = index2
+
+         do k=1,nz(1)
+         do j=1,ny(1)
+         do i=1,(nx(1)/2+1)
+            iszero = zero_arow2(i+(k-1)*(nx(1)/2+1)) 
+
+*           **** packing scheme **** 
+            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
+            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+
+            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
+            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+            
+           
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               itmp = i + (qhere-1)*(nx(1)/2+1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i1(1,1,nbb)+index1-1) = itmp
+               index1 = index1 + 1
+               end if
+            end if
+             
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               itmp = j + (qto-1)*ny(1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i2(1,1,nbb)+index2-1) =  itmp
+               index2 = index2 + 1
+               else
+               int_mb(h_iz_to_i2(1,1,nbb)+index3-1) =  itmp
+               index3 = index3 + 1
+               end if
+            end if
+
+         end do
+         end do
+         end do
+
+      end do
+      int_mb(h_i1_start(1,1,nbb)+np) = index1
+      int_mb(h_i2_start(1,1,nbb)+np) = index2
+      h_iz_to_i2_count(1,nbb) = index3 - 1
+
+
+
+
+
+*     *********************************************************
+*     **** map2to3 mapping - done - transpose operation #2 ****
+*     ****    (nz,nx/2+1,ny)  <-- (ny,nz,nx/2+1)           ****
+*     ****    use zero_arow3                               ****
+*     *********************************************************
+
+*     **** allocate trans_blk_ijk common block ****
+      value = MA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >                     'h_iq_to_i1_2',
+     >                      h_iq_to_i1(2,2,nbb),
+     >                      h_iq_to_i1(1,2,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >                     'h_iq_to_i2_2',
+     >                      h_iq_to_i2(2,2,nbb),
+     >                      h_iq_to_i2(1,2,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >                     'h_iz_to_i2_2',
+     >                      h_iz_to_i2(2,2,nbb),
+     >                      h_iz_to_i2(1,2,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i1_start_2',
+     >                      h_i1_start(2,2,nbb),
+     >                      h_i1_start(1,2,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i2_start_2',
+     >                      h_i2_start(2,2,nbb),
+     >                      h_i2_start(1,2,nbb))
+      if (.not.value)
+     > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
+
+      index1 = 1
+      index2 = 1
+      index3 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(h_i1_start(1,2,nbb)+it) = index1
+         int_mb(h_i2_start(1,2,nbb)+it) = index2
+
+         do k=1,nz(1)
+         do j=1,ny(1)
+         do i=1,(nx(1)/2+1)
+
+            iszero = zero_arow3(i+(j-1)*(nx(1)/2+1))
+
+*           **** packing scheme ****
+            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
+            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+
+            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+
+
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               itmp = j + (qhere-1)*ny(1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i1(1,2,nbb)+index1-1) = itmp
+               index1 = index1 + 1
+               end if
+            end if
+
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               itmp = k + (qto-1)*nz(1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i2(1,2,nbb)+index2-1) = itmp
+               index2 = index2 + 1
+               else  
+               int_mb(h_iz_to_i2(1,2,nbb)+index3-1) = itmp
+               index3 = index3 + 1
+               end if
+            end if
+
+
+         end do
+         end do
+         end do
+
+      end do
+      int_mb(h_i1_start(1,2,nbb)+np) = index1
+      int_mb(h_i2_start(1,2,nbb)+np) = index2
+      h_iz_to_i2_count(2,nbb) = index3 - 1
+
+
+
+
+
+
+*     ********************************************************
+*     **** map3to2 mapping - done - tranpose operation #3 ****
+*     ****  (ny,nz,nx/2+1)  <-- (nz,nx/2+1,ny)            ****
+*     ****   use zero_arow3                               ****
+*     ********************************************************
+
+*     **** allocate trans_blk_ijk common block ****
+      value = MA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >                     'h_iq_to_i1_3',
+     >                      h_iq_to_i1(2,3,nbb),
+     >                      h_iq_to_i1(1,3,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >                     'h_iq_to_i2_3',
+     >                      h_iq_to_i2(2,3,nbb),
+     >                      h_iq_to_i2(1,3,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >                     'h_iz_to_i2_3',
+     >                      h_iz_to_i2(2,3,nbb),
+     >                      h_iz_to_i2(1,3,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i1_start_3',
+     >                      h_i1_start(2,3,nbb),
+     >                      h_i1_start(1,3,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i2_start_3',
+     >                      h_i2_start(2,3,nbb),
+     >                      h_i2_start(1,3,nbb))
+      if (.not.value)
+     > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
+
+      index1 = 1
+      index2 = 1
+      index3 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(h_i1_start(1,3,nbb)+it) = index1
+         int_mb(h_i2_start(1,3,nbb)+it) = index2
+
+         do k=1,nz(1)
+         do j=1,ny(1)
+         do i=1,(nx(1)/2+1)
+
+            iszero = zero_arow3(i+(j-1)*(nx(1)/2+1))
+
+*           **** packing scheme ****
+            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+
+            pto   = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
+            qto   = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+
+
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               itmp = k + (qhere-1)*nz(1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i1(1,3,nbb)+index1-1) = itmp
+               index1 = index1 + 1
+               end if
+            end if
+
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               itmp = j + (qto-1)*ny(1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i2(1,3,nbb)+index2-1) = itmp
+               index2 = index2 + 1
+               else
+               int_mb(h_iz_to_i2(1,3,nbb)+index3-1) = itmp
+               index3 = index3 + 1
+               end if
+            end if
+
+
+         end do
+         end do
+         end do
+
+      end do
+      int_mb(h_i1_start(1,3,nbb)+np) = index1
+      int_mb(h_i2_start(1,3,nbb)+np) = index2
+      h_iz_to_i2_count(3,nbb) = index3 - 1
+
+
+
+
+*     ********************************************************
+*     **** map2to1 mapping - done - tranpose operation #4 ****
+*     ****  (nx/2+1,ny,nz)  <-- (ny,nz,nx/2+1)            ****
+*     ****  use zero_arow2                                ****
+*     ********************************************************
+
+*     **** allocate trans_blk_ijk common block ****
+      value = MA_alloc_get(mt_int,(ny(1)*nq2(1)),
+     >                     'h_iq_to_i1_4',
+     >                      h_iq_to_i1(2,4,nbb),
+     >                      h_iq_to_i1(1,4,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >                     'h_iq_to_i2_4',
+     >                      h_iq_to_i2(2,4,nbb),
+     >                      h_iq_to_i2(1,4,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >                     'h_iz_to_i2_4',
+     >                      h_iz_to_i2(2,4,nbb),
+     >                      h_iz_to_i2(1,4,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i1_start_4',
+     >                      h_i1_start(2,4,nbb),
+     >                      h_i1_start(1,4,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i2_start_4',
+     >                      h_i2_start(2,4,nbb),
+     >                      h_i2_start(1,4,nbb))
+      if (.not.value)
+     > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
+
+      index1 = 1
+      index2 = 1
+      index3 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(h_i1_start(1,4,nbb)+it) = index1
+         int_mb(h_i2_start(1,4,nbb)+it) = index2
+
+         do k=1,nz(1)
+         do j=1,ny(1)
+         do i=1,(nx(1)/2+1)
+
+            iszero = zero_arow2(i+(k-1)*(nx(1)/2+1))
+
+*           **** packing scheme ****
+            phere = int_mb(p_map2(1,1)+(k-1)+(i-1)*nz(1))
+            qhere = int_mb(q_map2(1,1)+(k-1)+(i-1)*nz(1))
+
+            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
+            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+
+
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               itmp = j + (qhere-1)*ny(1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i1(1,4,nbb)+index1-1) = itmp
+               index1 = index1 + 1
+               end if
+            end if
+
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               itmp = i + (qto-1)*(nx(1)/2+1)
+               if (.not.iszero) then
+               int_mb(h_iq_to_i2(1,4,nbb)+index2-1) = itmp
+               index2 = index2 + 1
+               else
+               int_mb(h_iz_to_i2(1,4,nbb)+index3-1) = itmp
+               index3 = index3 + 1
+               end if
+            end if
+
+
+         end do
+         end do
+         end do
+
+      end do
+      int_mb(h_i1_start(1,4,nbb)+np) = index1
+      int_mb(h_i2_start(1,4,nbb)+np) = index2
+      h_iz_to_i2_count(4,nbb) = index3 - 1
+
+
+
+
+
+*     **********************************************************
+*     **** map1to3 mapping  - done - tranpose operation # 5 ****
+*     **********************************************************
+
+*     **** allocate trans_blk_ijk common block ****
+      value = MA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >                     'h_iq_to_i1_5',
+     >                      h_iq_to_i1(2,5,nbb),
+     >                      h_iq_to_i1(1,5,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >                     'h_iq_to_i2_5',
+     >                      h_iq_to_i2(2,5,nbb),
+     >                      h_iq_to_i2(1,5,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >                     'h_iz_to_i2_5',
+     >                      h_iz_to_i2(2,5,nbb),
+     >                      h_iz_to_i2(1,5,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i1_start_5',
+     >                      h_i1_start(2,5,nbb),
+     >                      h_i1_start(1,5,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i2_start_5',
+     >                      h_i2_start(2,5,nbb),
+     >                      h_i2_start(1,5,nbb))
+      if (.not.value)
+     > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
+
+      index1 = 1
+      index2 = 1
+      index3 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(h_i1_start(1,5,nbb)+it) = index1
+         int_mb(h_i2_start(1,5,nbb)+it) = index2
+
+         do k=1,nz(1)
+         do j=1,ny(1)
+         do i=1,(nx(1)/2+1)
+
+*           **** packing scheme ****
+            phere = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
+            qhere = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+
+            pto   = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            qto   = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+
+
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               itmp = i + (qhere-1)*(nx(1)/2+1)
+               int_mb(h_iq_to_i1(1,5,nbb)+index1-1) = itmp
+               index1 = index1 + 1
+            end if
+
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               itmp = k + (qto-1)*nz(1)
+               int_mb(h_iq_to_i2(1,5,nbb)+index2-1) = itmp
+               index2 = index2 + 1
+            end if
+
+         end do
+         end do
+         end do
+
+      end do
+      int_mb(h_i1_start(1,5,nbb)+np) = index1
+      int_mb(h_i2_start(1,5,nbb)+np) = index2
+      h_iz_to_i2_count(5,nbb) = index3 - 1
+
+
+
+
+
+
+*     *************************
+*     **** map3to1 mapping ****
+*     *************************
+
+*     **** allocate trans_blk_ijk common block ****
+      value = MA_alloc_get(mt_int,(nz(1)*nq3(1)),
+     >                     'h_iq_to_i1_6',
+     >                      h_iq_to_i1(2,6,nbb),
+     >                      h_iq_to_i1(1,6,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >                     'h_iq_to_i2_6',
+     >                      h_iq_to_i2(2,6,nbb),
+     >                      h_iq_to_i2(1,6,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,((nx(1)/2+1)*nq1(1)),
+     >                     'h_iz_to_i2_6',
+     >                      h_iz_to_i2(2,6,nbb),
+     >                      h_iz_to_i2(1,6,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i1_start_6',
+     >                      h_i1_start(2,6,nbb),
+     >                      h_i1_start(1,6,nbb))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(np+1),
+     >                     'h_i2_start_6',
+     >                      h_i2_start(2,6,nbb),
+     >                      h_i2_start(1,6,nbb))
+      if (.not.value)
+     > call errquit('D3dB_transpose_ijk_init:out of heap',0,MA_ERR)
+
+      index1 = 1
+      index2 = 1
+      index3 = 1
+      do it=0,np-1
+         proc_to   = mod(taskid+it,np)
+         proc_from = mod(taskid-it+np,np)
+         int_mb(h_i1_start(1,6,nbb)+it) = index1
+         int_mb(h_i2_start(1,6,nbb)+it) = index2
+
+         do k=1,nz(1)
+         do j=1,ny(1)
+         do i=1,(nx(1)/2+1)
+
+*           **** packing scheme ****
+            phere = int_mb(p_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+            qhere = int_mb(q_map3(1,1)+(i-1)+(j-1)*(nx(1)/2+1))
+
+            pto   = int_mb(p_map1(1,1)+(j-1)+(k-1)*ny(1))
+            qto   = int_mb(q_map1(1,1)+(j-1)+(k-1)*ny(1))
+
+
+            if ((phere.eq.taskid).and.(pto.eq.proc_to)) then
+               itmp = k + (qhere-1)*nz(1)
+               int_mb(h_iq_to_i1(1,6,nbb)+index1-1) = itmp
+               index1 = index1 + 1
+            end if
+
+*           **** unpacking scheme ****
+            if ((pto.eq.taskid).and.(phere.eq.proc_from)) then
+               itmp = i + (qto-1)*(nx(1)/2+1)
+               int_mb(h_iq_to_i2(1,6,nbb)+index2-1) = itmp
+               index2 = index2 + 1
+            end if
+
+         end do
+         end do
+         end do
+
+      end do
+      int_mb(h_i1_start(1,6,nbb)+np) = index1
+      int_mb(h_i2_start(1,6,nbb)+np) = index2
+      h_iz_to_i2_count(6,nbb) = index3 - 1
+
+
+      return
+      end

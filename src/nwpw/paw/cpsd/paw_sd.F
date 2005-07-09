@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.74 2005-02-09 02:38:57 bylaska Exp $
+* $Id: paw_sd.F,v 1.75 2005-07-09 22:44:22 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.74  2005/02/09 02:38:57  bylaska
+* ..............EJB
+*
 * Revision 1.73  2004/09/04 17:56:21  bylaska
 * Added local potential to the projector file (.jpp).
 * More updates to constraint force.
@@ -209,7 +212,7 @@
       integer ierr
 
 *     **** local variables ****
-      integer ms
+      integer ms,lmax
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8  EV,pi
@@ -258,11 +261,11 @@
 
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
-      integer  control_ngrid,pack_nwave
+      integer  control_ngrid,pack_nwave,control_lmax_multipole
       integer  ion_nion,ion_natm,ion_katm,ion_nkatm
       external pack_nwave_all
       external control_it_in,control_it_out,control_gga,control_version
-      external control_ngrid,pack_nwave
+      external control_ngrid,pack_nwave,control_lmax_multipole
       external ion_nion,ion_natm,ion_katm,ion_nkatm
 
       character*12 control_boundry
@@ -358,6 +361,9 @@
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)      
+
+      call D3dB_pfft_init()
+
 
 *     **** initialize Gaunt array ****
       call paw_gaunt_init()
@@ -527,8 +533,11 @@ c      call paw_vloc_init()
       call phafac()
       call paw_ovlp_init(ispin,ne)
       call paw_nonlocal_init(ispin,ne)
-      call init_paw_density(0)
-      call init_paw_xc(ispin,0)
+      lmax = control_lmax_multipole()
+      if (lmax.lt.0) lmax =  paw_basis_max_mult_l()
+      call init_paw_density(lmax)
+      call init_paw_xc(ispin,lmax)
+
 
 *     *** intialize paw force ***      
       if (control_move()) call paw_force_init()
@@ -671,6 +680,7 @@ c      call paw_vloc_init()
      >                 pack_nwave_all(1),pack_nwave(1)
          write(6,1260) paw_mult_rcut(),paw_mult_ncut()
          write(6,1270)
+         write(6,1262) lmax
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_tole(),control_tolc(),control_tolr()
          write(6,1300)
@@ -979,6 +989,9 @@ c      call paw_vloc_end()
       if (.not. value) call errquit('paw_sd:error freeing heap',2,
      &       MA_ERR)
 
+
+      call D3dB_pfft_end()
+
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
 
@@ -1110,6 +1123,7 @@ c    .   ' (',F6.3,' smooth)')
  1260 FORMAT(5X,' smooth compensation (ewald) summation: cut radius=',
      &       F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f11.8)
+ 1262 FORMAT(5X,' core integration lmax=',I2)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
