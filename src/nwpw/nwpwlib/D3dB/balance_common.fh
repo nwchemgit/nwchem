@@ -1,0 +1,19 @@
+*
+* $Id: balance_common.fh,v 1.1 2005-07-12 22:21:23 bylaska Exp $
+*
+
+*     **** Balance Common Block ****
+      integer packet_size_list(2),indx_start_list(2)
+      integer proc_to_list(2),proc_from_list(2)
+      integer npacket_list(2)
+      integer receiver_list(2),sender_list(2)
+      integer maxsize
+      common /Balance_Block/ packet_size_list,
+     >                       indx_start_list,
+     >                       proc_to_list,
+     >                       proc_from_list,
+     >                       npacket_list,
+     >                       receiver_list,
+     >                       sender_list,
+     >                       maxsize
+
