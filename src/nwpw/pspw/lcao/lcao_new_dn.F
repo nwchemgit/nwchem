@@ -1,5 +1,5 @@
 *
-* $Id: lcao_new_dn.F,v 1.2 2003-10-17 22:57:20 carlfahl Exp $
+* $Id: lcao_new_dn.F,v 1.3 2005-07-12 21:26:33 bylaska Exp $
 *
       subroutine lcao_new_dn(ispin,ne,n2ft3d,dn,
      >                           psimatrix,phi)
@@ -50,7 +50,7 @@
 
 *           **** put in real-space ***
             call Pack_c_unpack(1,dbl_mb(tmp(1)))
-            call D3dB_cr_fft3b(1,dbl_mb(tmp(1)))
+            call D3dB_cr_pfft3b(1,1,dbl_mb(tmp(1)))
 
 *           **** add to density ****
             do k=1,n2ft3d

@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.18 2004-04-24 21:08:46 bylaska Exp $
+* $Id: pack.F,v 1.19 2005-07-12 21:26:33 bylaska Exp $
 *
 
 *     ***********************************
@@ -213,7 +213,7 @@
       
 *     **** local variables ****
       logical value
-      integer i,nfft3d
+      integer nfft3d,n
       integer tmp1(2)
 
       call nwpw_timing_start(9)
@@ -225,9 +225,11 @@
       call dcopy(2*nfft3d,A,1,dcpl_mb(tmp1(1)),1)
       call dcopy(2*nfft3d,0.0d0,0,A,1)
 
-      do i=1,(nida(nb)+nidb(nb))
-        A(i) = dcpl_mb(tmp1(1) + int_mb(pack(1,nb)+i-1)-1)
-      end do
+c      do i=1,(nida(nb)+nidb(nb))
+c        A(i) = dcpl_mb(tmp1(1) + int_mb(pack(1,nb)+i-1)-1)
+c      end do
+      n = nida(nb)+nidb(nb)
+      call Pack_c_indexcopy(n,int_mb(pack(1,nb)),dcpl_mb(tmp1(1)),A)
 
       value = MA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
@@ -239,6 +241,75 @@
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *           Pack_c_mpack          *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_c_mpack(nb,m,A)
+      implicit none
+      integer    nb,m
+      complex*16 A(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb2(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:1)
+      common / pack2_blk / nidb
+
+
+*     **** local variables ****
+      logical value
+      integer i,j,nfft3d,n,shift
+      integer tmp1(2)
+
+      call nwpw_timing_start(9)
+
+
+      call D3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
+
+      shift=1
+      n = nida(nb)+nidb(nb)
+      do j=1,m
+        call dcopy(2*nfft3d,A(shift),1,dcpl_mb(tmp1(1)),1)
+        call dcopy(2*nfft3d,0.0d0,0,A(shift),1)
+        call Pack_c_indexcopy(n,int_mb(pack(1,nb)),
+     >                        dcpl_mb(tmp1(1)),
+     >                        A(shift))
+        call Balance_c_balance(nb,A(shift))
+        shift = shift+nfft3d
+      end do
+
+      value = MA_pop_stack(tmp1(2))
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+      subroutine Pack_c_indexcopy(n,indx,A,B)
+      implicit none
+      integer n
+      integer indx(*)
+      complex*16 A(*), B(*)
+
+      integer i
+      do i=1,n
+        B(i) = A(indx(i))
+      end do
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -1811,5 +1882,217 @@ c      end do
 
       return
       end
+
+
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	          Pack_c_pack_start	*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_c_pack_start(nb,A,tmp1,request,reqcnt)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      integer    request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb2(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:1)
+      common / pack2_blk / nidb
+
+      
+*     **** local variables ****
+      logical value
+      integer nfft3d,n
+
+      call nwpw_timing_start(9)
+
+      call D3dB_nfft3d(1,nfft3d)
+
+      call dcopy(2*nfft3d,A,1,tmp1,1)
+      call dcopy(2*nfft3d,0.0d0,0,A,1)
+
+      n = nida(nb)+nidb(nb)
+      call Pack_c_indexcopy(n,int_mb(pack(1,nb)),tmp1,A)
+
+
+      call Balance_c_balance_start(nb,A,request,reqcnt)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *           Pack_c_pack_end       *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_c_pack_end(nb,tmp1,request,reqcnt)
+      implicit none
+      integer    nb
+      complex*16 tmp1(*)
+      integer    request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb2(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:1)
+      common / pack2_blk / nidb
+
+
+*     **** local variables ****
+      logical value
+      integer nfft3d,n
+
+      call nwpw_timing_start(9)
+
+
+      call Balance_c_balance_end(nb,tmp1,request,reqcnt)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	     Pack_c_unpack_start	*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_c_unpack_start(nb,A,tmp1,request,reqcnt)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      integer    request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb2(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:1)
+      common / pack2_blk / nidb
+
+
+      call nwpw_timing_start(9)
+      call Pack_c_Copy(nb,A,tmp1)
+      call Balance_c_unbalance_start(nb,tmp1)
+
+      call nwpw_timing_end(9)
+  
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	          Pack_c_unpack_mid	*	
+*     *					*
+*     ***********************************
+
+      subroutine Pack_c_unpack_mid(nb,tmp1,tmp2,tmp1z,tmp2z,
+     >                         request,reqcnt)
+      implicit none
+      integer    nb
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      complex*16 tmp1z(*)
+      complex*16 tmp2z(*)
+      integer    request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb2(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:1)
+      common / pack2_blk / nidb
+
+
+*     **** local variables ****
+      logical value
+      integer i,nfft3d
+
+
+      call nwpw_timing_start(9)
+      call Balance_c_unbalance_end(nb,tmp1)
+
+      
+      call D3dB_nfft3d(1,nfft3d)
+
+      call dcopy(2*(nida(nb)+nidb(nb)),tmp1,1,tmp2,1)
+      call dcopy(2*nfft3d,0.0d0,0,tmp1,1)
+      do i=1,(nida(nb)+nidb(nb))
+        tmp1(int_mb(pack(1,nb)+i-1)) = tmp2(i)
+      end do
+
+
+*     **** make the kx=0 plane complete **** 
+      call D3dB_c_timereverse_start(1,tmp1,tmp1z,tmp2z,request,reqcnt)
+
+      call nwpw_timing_end(9)
+  
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	       Pack_c_unpack_end	*	
+*     *					*
+*     ***********************************
+      subroutine Pack_c_unpack_end(nb,tmp1,tmp1z,tmp2z,request,reqcnt)
+      implicit none
+      integer    nb
+      complex*16 tmp1(*)
+      complex*16 tmp1z(*)
+      complex*16 tmp2z(*)
+      integer    request(*),reqcnt
+      
+
+      call nwpw_timing_start(9)
+
+      call D3dB_c_timereverse_end(1,tmp1,tmp1z,tmp2z,request,reqcnt)
+
+      call nwpw_timing_end(9)
+  
+      return
+      end
+
 
 

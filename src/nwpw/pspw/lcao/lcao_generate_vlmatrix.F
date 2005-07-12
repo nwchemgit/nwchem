@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vlmatrix.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
+* $Id: lcao_generate_vlmatrix.F,v 1.4 2005-07-12 21:26:33 bylaska Exp $
 *
       subroutine lcao_generate_vlmatrix(vlmatrix,phi1,phi2)
       implicit none
@@ -72,7 +72,7 @@
 *     **** fourier transform k-space potentials ****
 *     **********************************************
       call Pack_c_unpack(0,dcpl_mb(vl(1)))
-      call D3dB_cr_fft3b(1,dcpl_mb(vl(1)))
+      call D3dB_cr_pfft3b(1,0,dcpl_mb(vl(1)))
 
 *     **********************************
 *     **** add vlr_l                ****
@@ -94,7 +94,7 @@
 *       **** get psi_r ****
          call Pack_c_Copy(1,phi2,dbl_mb(vpsi))
          call Pack_c_unpack(1,dbl_mb(vpsi))
-         call D3dB_cr_fft3b(1,dbl_mb(vpsi))
+         call D3dB_cr_pfft3b(1,1,dbl_mb(vpsi))
          call D3dB_r_Zero_Ends(1,dbl_mb(vpsi))
 
          call D3dB_rr_Mul(1,dcpl_mb(vl(1)),
@@ -104,7 +104,7 @@
 *        *******************************
 *        **** get vpsi_r in k-space ****
 *        *******************************
-         call D3dB_rc_fft3f(1,dbl_mb(vpsi))
+         call D3dB_rc_pfft3f(1,1,dbl_mb(vpsi))
          call Pack_c_pack(1,dbl_mb(vpsi))
          call Pack_c_Copy(1,dbl_mb(vpsi),phi2)
 

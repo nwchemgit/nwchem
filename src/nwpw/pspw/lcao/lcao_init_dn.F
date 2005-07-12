@@ -1,5 +1,5 @@
 *
-* $Id: lcao_init_dn.F,v 1.3 2003-10-17 22:57:20 carlfahl Exp $
+* $Id: lcao_init_dn.F,v 1.4 2005-07-12 21:26:33 bylaska Exp $
 *
       subroutine lcao_init_dn(ispin,ne,n2ft3d,dn,phi)
       implicit none
@@ -50,7 +50,7 @@
          call aorbs_aorb(i,phi)
          call Pack_c_Copy(1,phi,dbl_mb(tmp(1)))
          call Pack_c_unpack(1,dbl_mb(tmp(1)))
-         call D3dB_cr_fft3b(1,dbl_mb(tmp(1)))
+         call D3dB_cr_pfft3b(1,1,dbl_mb(tmp(1)))
 
         do ms=1,ispin
            do k=1,n2ft3d

@@ -1,8 +1,11 @@
 *
-* $Id: Grassman.F,v 1.15 2005-06-24 19:24:18 bylaska Exp $
+* $Id: Grassman.F,v 1.16 2005-07-12 21:26:33 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.15  2005/06/24 19:24:18  bylaska
+* various FFT updates, and symmetry point paths added to band_structure...EJB
+*
 * Revision 1.14  2004/02/22 18:56:38  bylaska
 * Input and io changes for simulation_cell
 * Grsm_ggm2_sym_dot routine used in paw_overlap_matrix_gen
@@ -420,15 +423,36 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
       complex*16 A(nfft3d,n)
 
 *     **** local variables ****
-      integer k
+      logical done
+      integer k,indx1,indx2
 
 
-      do k=1,n
-        call Pack_c_unpack(1,A(1,k))
-        !call D3dB_cr_fft3b(1,A(1,k))
-        call D3dB_cr_pfft3b(1,1,A(1,k))
+*     **** external functions ****
+      logical  D3dB_pfft3_queue_filled
+      external D3dB_pfft3_queue_filled
+
+c      do k=1,n
+c        call Pack_c_unpack(1,A(1,k))
+c        !call D3dB_cr_fft3b(1,A(1,k))
+c        !call D3dB_cr_pfft3b(1,1,A(1,k))
+c      end do
+c      call D3dB_cr_mpfft3b(1,1,n,A)
+
+      indx1=1
+      indx2=1
+      done = .false.
+      do while (.not.done)
+        if (indx1.le.n) then
+           call D3dB_cr_pfft3b_queuein(1,A(1,indx1))
+           indx1 = indx1 + 1
+        end if
+
+        if ((D3dB_pfft3_queue_filled()).or.(indx1.gt.n)) then
+           call D3dB_cr_pfft3b_queueout(1,A(1,indx2))
+           indx2 = indx2 + 1
+        end if
+        done = ((indx1.gt.n).and.(indx2.gt.n))
       end do
-      !call D3dB_ncr_fft3b(1,n,A)
 
       return
       end
@@ -442,7 +466,7 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
 *     ****************************
 *
 *     A = FFT[A]
-*     uses - D3dB_rc_fft3f,Pack_c_pack
+*     uses - D3dB_rc_fft3f,Pack_c_mpack
 
       subroutine Grsm_hg_fftf(nfft3d,n,A)
       implicit none
@@ -456,8 +480,8 @@ c        call D3dB_c_SMul(1,scale,A(1,k),C(1,k))
       !call D3dB_nrc_fft3f(1,n,A)
       do k=1,n
         call D3dB_rc_fft3f(1,A(1,k))
-        call Pack_c_pack(1,A(1,k))
       end do
+      call Pack_c_mpack(1,n,A)
 
       return
       end

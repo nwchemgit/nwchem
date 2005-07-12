@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.6 2005-05-24 17:36:26 bylaska Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.7 2005-07-12 21:26:33 bylaska Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2)
@@ -74,11 +74,11 @@
 
       if (control_version().eq.3) then
          call D3dB_r_SMul(1,scal1,dbl_mb(rho),dbl_mb(rho))
-         call D3dB_rc_fft3f(1,dbl_mb(rho))
+         call D3dB_rc_pfft3f(1,0,dbl_mb(rho))
          call Pack_c_pack(0,dbl_mb(rho))
          call coulomb_v(dbl_mb(rho),dbl_mb(xvc))
          call Pack_c_unpack(0,dbl_mb(xvc))
-         call D3dB_cr_fft3b(1,dbl_mb(xvc))
+         call D3dB_cr_pfft3b(1,0,dbl_mb(xvc))
       else
          call coulomb2_v(dbl_mb(rho),dbl_mb(xvc))
       end if
@@ -97,7 +97,7 @@
 *       **** get psi_r ****
          call Pack_c_Copy(1,phi2,dbl_mb(vpsi))
          call Pack_c_unpack(1,dbl_mb(vpsi))
-         call D3dB_cr_fft3b(1,dbl_mb(vpsi))
+         call D3dB_cr_pfft3b(1,1,dbl_mb(vpsi))
          call D3dB_r_Zero_Ends(1,dbl_mb(vpsi))
 
          do ms=1,ispin
@@ -112,7 +112,7 @@
 *           *******************************
 *           **** get vpsi_r in k-space ****
 *           *******************************
-            call D3dB_rc_fft3f(1,dbl_mb(vall))
+            call D3dB_rc_pfft3f(1,1,dbl_mb(vall))
             call Pack_c_pack(1,dbl_mb(vall))
             call Pack_c_Copy(1,dbl_mb(vall),phi2)
 

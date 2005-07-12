@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.2 2005-07-09 22:44:21 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.3 2005-07-12 21:26:31 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -45,7 +45,9 @@
       integer zero_arow2(2),zero_arow3(2)
 
 *     **** external functions ***
+      integer  control_pfft3_qsize
       real*8   lattice_ggcut,lattice_wggcut,lattice_unitg
+      external control_pfft3_qsize
       external lattice_ggcut,lattice_wggcut,lattice_unitg
 
 
@@ -328,6 +330,8 @@
 
       end if
 
+      call D3dB_pfft3_queue_init(control_pfft3_qsize())
+
       return
       end
 
@@ -435,6 +439,7 @@
 
       if (.not. value) call errquit('error freeing heap',0,MA_ERR)
 
+      call D3dB_pfft3_queue_end()
       return
       end
 
@@ -1039,7 +1044,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                          dbl_mb(tmp3(1)))
 
 *     ********************************************
-*     ***     do fft along ny(nb) dimension        ***
+*     ***     do fft along nz(nb) dimension        ***
 *     ***   A(kz,kx,ky) <- fft1d[A(nz(nb),kx,ky)]  ***
 *     ********************************************
 #ifdef MLIB
@@ -1804,3 +1809,1683 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       return
       end
+
+
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	        D3dB_cr_mpfft3b		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_cr_mpfft3b(nb,nbb,m,A)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation of       *
+*      a three dimensional complex to complex       *
+*      inverse fft                                  *
+*           A(nx,ny(nb),nz(nb)) <- FFT3^(-1)[A(kx,ky,kz)]   * 
+*                                                   *
+*      Entry - 					    *
+*              A: a column distribuded 3d block     *
+*              tmp: tempory work space must be at   *
+*                    least the size of (complex)    *
+*                    (nfft*nfft + 1) + 10*nfft      * 
+*                                                   *
+*       Exit - A is transformed and the imaginary   *
+*              part of A is set to zero             *
+*       uses - D3dB_c_ptranspose_jk, dcopy           *
+*                                                   *
+*****************************************************
+
+      implicit none
+      integer nb,nbb,m
+      complex*16  A(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+
+
+*     *** local variables ***
+      integer i,j,k,q,indx,ierr,ii,shift,shift0
+      integer nxh,nxhy,nxhz,indx0,indx1,indx2
+
+      
+      !integer tmp1(2),tmp2(2),tmp3(2)
+      integer tmp2(2),tmp3(2)
+      logical value
+
+
+      call nwpw_timing_start(1)
+
+*     ***** allocate temporary space ****
+      !call D3dB_nfft3d(nb,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'ffttmp2',
+     >                    tmp2(2),tmp2(1))
+      value = value.and.
+     >      MA_push_get(mt_dbl,(n2ft3d(nb)),'ffttmp3',tmp3(2),tmp3(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+       nxh = (nx(nb)/2+1)
+       nxhz = nxh*nz(nb)
+       nxhy = nxh*ny(nb)
+      
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+      shift = 1
+      do ii=1,m
+      shift0=shift-1
+*     *************************************************
+*     ***     do fft along kz dimension             ***
+*     ***   A(kx,nz(nb),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
+*     *************************************************
+#ifdef MLIB
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(nb)
+      do i=1,nxh
+       indx2 = indx2 + 1
+       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+
+         indx = i+indx0
+         indx1 = indx
+         do k=1,nz(nb)
+            dcpl_mb(tmp2(1)+k-1) = A(indx+shift0)
+            indx = indx + nxh
+         end do
+         call z1dfft(dcpl_mb(tmp2(1)),nz(nb),
+     >               dcpl_mb(tmpz(1,nb)),-2,ierr)
+         do k=1,nz(nb)
+            A(indx1+shift0) = dcpl_mb(tmp2(1)+k-1)
+            indx1 = indx1 + nxh
+         end do
+       end if
+      end do
+      indx0 = indx0+nxhz
+      end do
+      !call dscal((nx(nb)+2)*ny(nb)*nq(nb),dble(nz(nb)),A(shift),1)
+
+#else
+      !call dcffti(nz(nb),dcpl_mb(tmp1(1)))
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(nb)
+      do i=1,nxh
+       indx2 = indx2 + 1
+       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+
+         indx  = i + indx0
+         indx1 = indx
+         do k=1,nz(nb)
+            dcpl_mb(tmp2(1)+k-1) = A(shift0+indx)
+            indx = indx + nxh
+         end do
+         call dcfftb(nz(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpz(1,nb)))
+         do k=1,nz(nb)
+            A(shift0+indx1) = dcpl_mb(tmp2(1)+k-1)
+            indx1 = indx1 + nxh
+         end do
+
+       end if
+      end do
+      indx0 = indx0 + nxhz
+      end do
+#endif
+
+*     ********************************************
+*     ***         Do a ptranspose of A          ***
+*     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
+*     ********************************************
+      call D3dB_c_ptranspose1_jk(nbb,A(shift),
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
+      shift = shift + nfft3d(nb)
+      end do
+
+      shift = 1
+      do ii=1,m
+      shift0 = shift-1
+*     *************************************************
+*     ***     do fft along ky dimension             ***
+*     ***   A(kx,ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ky,nz(nb))]  ***
+*     *************************************************
+#ifdef MLIB
+     
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(nb)
+      do i=1,nxh
+        indx2 = indx2 + 1
+        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+
+          indx  = i + indx0
+          indx1 = indx
+          do j=1,ny(nb)
+            dcpl_mb(tmp2(1)+j-1) = A(shift0+indx)
+            indx = indx + nxh
+          end do
+          call z1dfft(dcpl_mb(tmp2(1)),ny(nb),
+     >               dcpl_mb(tmpy(1,nb)),-2,ierr)
+          do j=1,ny(nb)
+            A(shift0+indx1) = dcpl_mb(tmp2(1)+j-1)
+            indx1 = indx1 + nxh
+          end do
+        end if
+      end do
+      indx0 = indx0 + nxhy
+      end do
+      
+#else
+    
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(nb)
+      do i=1,nxh
+        indx2 = indx2 + 1
+
+        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+
+         indx  = i + indx0
+         indx1 = indx
+         do j=1,ny(nb)
+            dcpl_mb(tmp2(1)+j-1) = A(shift0+indx)
+            indx = indx + nxh
+         end do
+         call dcfftb(ny(nb),dcpl_mb(tmp2(1)),dcpl_mb(tmpy(1,nb)))
+         do j=1,ny(nb)
+            A(shift0+indx1) = dcpl_mb(tmp2(1)+j-1)
+            indx1 = indx1 + nxh
+         end do
+
+        end if
+      end do
+      indx0 = indx0 + nxhy
+      end do
+#endif
+
+*     *************************************************
+*     ***     do fft along kx dimension             ***
+*     ***   A(nx(nb),ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ny(nb),nz(nb))]  ***
+*     *************************************************
+#ifdef MLIB
+      !call drc1ft (dbl_mb(tmp3(1)),nx(nb),dcpl_mb(tmp1(1)),-3,ierr)
+      indx = 1
+      do q=1,nq(nb)
+      do j=1,ny(nb)
+         call drc1ft(A(shift0+indx),nx(nb),dcpl_mb(tmpx(1,nb)),-2,ierr)
+         indx = indx + nxh
+      end do
+      end do
+
+#else
+      call cshift1_fftb(nx(nb),ny(nb),nq(nb),1,A(shift))
+      indx = 1
+      do q=1,nq(nb)
+      do j=1,ny(nb)
+         !indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
+         call drfftb(nx(nb),A(shift0+indx),dcpl_mb(tmpx(1,nb)))
+         indx = indx + nxh
+      end do
+      end do
+      call zeroend_fftb(nx(nb),ny(nb),nq(nb),1,A(shift))
+#endif
+
+      shift = shift + nfft3d(nb)
+      end do
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+      shift = 1
+      do ii=1,m
+      shift0=shift-1
+
+*     *************************************************
+*     ***     do fft along kz dimension             ***
+*     ***   A(nz(nb),kx,ky) <- fft1d^(-1)[A(kz,kx,ky)]  ***
+*     *************************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq3(nb)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         call z1dfft(A(shift0+indx),nz(nb),dcpl_mb(tmpz(1,nb)),-2,ierr)
+         end if
+         indx = indx + nz(nb)
+      end do
+#else
+      indx = 1
+      do q=1,nq3(nb)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         call dcfftb(nz(nb),A(shift0+indx),dcpl_mb(tmpz(1,nb)))
+         end if
+         indx = indx + nz(nb)
+      end do
+#endif
+
+      call D3dB_c_ptranspose_ijk(nbb,3,A(shift),
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
+
+*     *************************************************
+*     ***     do fft along ky dimension             ***
+*     ***   A(ny(nb),nz(nb),kx) <- fft1d^(-1)[A(ky,nz(nb),kx)]  ***
+*     *************************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq2(nb)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         call z1dfft(A(shift0+indx),ny(nb),dcpl_mb(tmpy(1,nb)),-2,ierr)
+         end if
+         indx = indx + ny(nb)
+      end do
+#else
+      indx = 1
+      do q=1,nq2(nb)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         call dcfftb(ny(nb),A(shift0+indx),dcpl_mb(tmpy(1,nb)))
+         end if
+         indx = indx + ny(nb)
+      end do
+#endif
+
+      call D3dB_c_ptranspose_ijk(nbb,4,A(shift),
+     >                           dcpl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)))
+
+*     *************************************************
+*     ***     do fft along kx dimension             ***
+*     ***   A(nx(nb),ny(nb),nz(nb)) <- fft1d^(-1)[A(kx,ny(nb),nz(nb))]  ***
+*     *************************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq1(nb)
+         !indx = 1 + (q-1)*(nx(nb)/2+1)
+         call drc1ft(A(shift0+indx),nx(nb),dcpl_mb(tmpx(1,nb)),-2,ierr)
+         indx = indx + nxh
+      end do
+#else
+      call cshift1_fftb(nx(nb),nq1(nb),1,1,A(shift))
+      indx = 1
+      do q=1,nq1(nb)
+         !indx = 1 + (q-1)*(nx(nb)/2+1)
+         call drfftb(nx(nb),A(shift0+indx),dcpl_mb(tmpx(1,nb)))
+         indx = indx + nxh
+      end do
+      call zeroend_fftb(nx(nb),nq1(nb),1,1,A(shift))
+#endif
+
+      shift = shift + nfft3d(nb)
+      end do
+
+
+      end if
+    
+*     **** deallocate temporary space  ****
+      value = MA_pop_stack(tmp3(2))
+      value = MA_pop_stack(tmp2(2))
+      !value = MA_pop_stack(tmp1(2))
+
+      call nwpw_timing_end(1)
+      return
+      end
+
+
+
+
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_pfftfx             *
+*     *                                 *
+*     ***********************************
+*
+*     do fft along nx(1) dimension       
+*
+*        A(kx,ny(1),nz(1)) <- fft1d[A(nx(1),ny(1),nz(1))] 
+*     
+
+      subroutine D3dB_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer mapping
+      integer nbb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+      !*** local variables ***
+      integer j,q,indx,nxh
+
+
+       nxh = (nx(1)/2+1)
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+#ifdef MLIB
+      call drcfts(A,nx(1),1,ny(1)*nq(1),
+     >                  nx(1)+2,1,ierr)
+#else
+      indx = 1
+      do q=1,nq(1)
+      do j=1,ny(1)
+         call drfftf(nx(1),A(indx),dcpl_mb(tmpx(1,1)))
+         indx = indx + nxh
+      end do
+      end do
+      call cshift_fftf(nx(1),ny(1),nq(1),1,A)
+#endif
+      call dcopy((nx(1)+2)*ny(1)*nq(1),A,1,tmp1,1)
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+#ifdef MLIB
+      call drcfts(A,nx(1),1,nq1(1),
+     >                  nx(1)+2,1,ierr)
+#else
+      indx = 1
+      do q=1,nq1(1)
+         call drfftf(nx(1),A(indx),dcpl_mb(tmpx(1,1)))
+         indx = indx + nxh
+      end do
+      call cshift_fftf(nx(1),nq1(1),1,1,A)
+#endif
+
+      call D3dB_c_ptranspose_ijk_start(nbb,1,A,tmp1,tmp2,request,reqcnt)
+
+      end if
+
+      return
+      end
+
+
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_pfftfy             *
+*     *                                 *
+*     ***********************************
+*
+*     do fft along ny(1) dimension       
+*
+*        A(kx,ny(1),nz(1)) <- fft1d[A(nx(1),ny(1),nz(1))] 
+*     
+
+      subroutine D3dB_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+
+      !*** local variables ***
+      integer i,j,k,indx,indx0,indx1,indx2,q,nxh,nxhy
+
+      nxh = (nx(1)/2+1)
+      nxhy = nxh*ny(1)
+
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+*     ********************************************
+*     ***     do fft along ny(1) dimension        ***
+*     ***   A(kx,ky,nz(1)) <- fft1d[A(kx,ny(1),nz(1))]  ***
+*     ********************************************
+
+#ifdef MLIB
+
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(1)
+      do i=1,nxh
+        indx2 = indx2 + 1
+        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+
+         indx  = i + indx0
+         indx1 = indx
+         do j=1,ny(1)
+            tmp2(j) = tmp1(indx)
+            indx = indx + nxh
+         end do
+         call z1dfft(tmp2,ny(1),dcpl_mb(tmpy(1,1)),1,ierr)
+         do j=1,ny(1)
+            tmp1(indx1) = tmp2(j)
+            indx1 = indx1 + nxh
+         end do
+
+        end if
+      end do
+      indx0 = indx0 + nxhy
+      end do
+#else
+
+       indx0 = 0
+       indx2 = 0
+       do q=1,nq(1)
+       do i=1,nxh
+        indx2 = indx2 + 1
+        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+
+          indx  = i + indx0
+          indx1 = indx
+          do k=1,ny(1)
+             tmp2(k) = tmp1(indx)
+             indx = indx + nxh
+          end do
+          call dcfftf(ny(1),tmp2,dcpl_mb(tmpy(1,1)))
+          do k=1,ny(1)
+             tmp1(indx1) = tmp2(k)
+             indx1 = indx1 + nxh
+          end do
+
+        end if
+       end do
+       indx0 = indx0 + nxhy
+       end do
+
+#endif
+
+
+*     ********************************************
+*     ***         Do a ptranspose of A          ***
+*     ***      A(ky,nz(1),ky) <- A(kx,ky,nz(1))      ***
+*     ********************************************
+      call D3dB_c_ptranspose2_jk_start(nbb,tmp1,tmp2,tmp1,
+     >                                 request,reqcnt)
+
+
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call D3dB_c_ptranspose_ijk_end(nbb,1,tmp1,tmp2,request,reqcnt)
+
+*     ********************************************
+*     ***     do fft along ny(1) dimension        ***
+*     ***   A(ky,nz(1),kx) <- fft1d[A(ny(1),nz(1),kx)]  ***
+*     ********************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq2(1)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         call z1dfft(tmp1(indx),ny(1),dcpl_mb(tmpy(1,1)),1,ierr)
+         end if
+         indx = indx + ny(1)
+      end do
+#else
+      indx = 1
+      do q=1,nq2(1)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)))
+         end if
+         indx = indx + ny(1)
+      end do
+#endif
+
+      call D3dB_c_ptranspose_ijk_start(nbb,2,tmp1,tmp2,tmp1,
+     >                                 request,reqcnt)
+
+
+      end if
+
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_pfftfz             *
+*     *                                 *
+*     ***********************************
+*
+
+      subroutine D3dB_pfftfz(nbb,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+
+      !*** local variables ***
+      integer i,k,q,nxh,nxhz
+      integer indx,indx0,indx1,indx2
+
+
+       nxh = (nx(1)/2+1)
+       nxhz = nxh*nz(1)
+
+
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+      call D3dB_c_ptranspose2_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+
+*     ********************************************
+*     ***     do fft along nz(1) dimension        ***
+*     ***   A(kx,kz,ky) <- fft1d[A(kx,nz(1),ky)]  ***
+*     ********************************************
+
+#ifdef MLIB
+
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(1)
+      do i=1,nxh
+        indx2 = indx2 + 1
+        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+
+         indx  = i + indx0
+         indx1 = indx
+         do k=1,nz(1)
+            tmp1(k) = tmp2(indx)
+            indx = indx + nxh
+         end do
+         call z1dfft(tmp1,nz(1),dcpl_mb(tmpz(1,1)),1,ierr)
+         do k=1,nz(1)
+            tmp2(indx1) = tmp1(k)
+            indx1 = indx1 + nxh
+         end do
+        end if
+      end do
+      indx0 = indx0 + nxhz
+      end do
+#else
+
+       indx0 = 0
+       indx2 = 0
+       do q=1,nq(1)
+       do i=1,nxh
+        indx2 = indx2 + 1
+        if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+
+          indx  = i + indx0
+          indx1 = indx
+          do k=1,nz(1)
+             tmp1(k) = tmp2(indx)
+             indx = indx + nxh
+          end do
+          call dcfftf(nz(1),tmp1,dcpl_mb(tmpz(1,1)))
+          do k=1,nz(1)
+             tmp2(indx1) = tmp1(k)
+             indx1 = indx1 + nxh
+          end do
+
+        end if
+       end do
+       indx0 = indx0 + nxhz
+       end do
+
+#endif
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+      call D3dB_c_ptranspose_ijk_end(nbb,2,tmp2,tmp1,request,reqcnt)
+
+*     ********************************************
+*     ***     do fft along nz(1) dimension        ***
+*     ***   A(kz,kx,ky) <- fft1d[A(nz(1),kx,ky)]  ***
+*     ********************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq3(1)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         call z1dfft(tmp2(indx),nz(1),dcpl_mb(tmpz(1,1)),1,ierr)
+         end if
+         indx = indx + nz(1)
+      end do
+#else
+      indx = 1
+      do q=1,nq3(1)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         call dcfftf(nz(1),tmp2(indx),dcpl_mb(tmpz(1,1)))
+         end if
+         indx = indx + nz(1)
+      end do
+#endif
+
+      end if
+
+
+      call Pack_c_pack_start(nbb,tmp2,tmp1,request,reqcnt)
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_pfftf_final        *
+*     *                                 *
+*     ***********************************
+*
+
+      subroutine D3dB_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      call Pack_c_pack_end(nbb,tmp2,request,reqcnt)
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_pfftf_step         *
+*     *                                 *
+*     ***********************************
+*
+
+      subroutine D3dB_pfftf_step(step,nbb,A,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer step
+      integer nbb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+      if (step.eq.1) then
+         call D3dB_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.2) then
+         call D3dB_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.3) then
+         call D3dB_pfftfz(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.4) then
+         call D3dB_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
+      end if
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	        D3dB_pfftbz		*
+*     *					*
+*     ***********************************
+
+*                                                  
+*      This routine performs the operation of      
+*      a three dimensional complex to complex     
+*      inverse fft                                
+*           A(nx,ny(1),nz(1)) <- FFT3^(-1)[A(kx,ky,kz)]  
+*                                                  
+*      Entry -                                     
+*              A: a column distribuded 3d block    
+*              tmp: tempory work space must be at  
+*                    least the size of (complex)   
+*                    (nfft*nfft + 1) + 10*nfft     
+*                                               
+*       Exit - A is transformed and the imaginary
+*              part of A is set to zero          
+*       uses - D3dB_c_ptranspose_jk, dcopy        
+*                                                  
+
+
+      subroutine D3dB_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16  tmp1(*)
+      complex*16  tmp2(*)
+      integer     request,reqcnt
+      
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+
+
+*     *** local variables ***
+      integer i,k,q,indx,ierr
+      integer nxh,nxhz,indx0,indx1,indx2
+
+
+      call nwpw_timing_start(1)
+
+       nxh = (nx(1)/2+1)
+       nxhz = nxh*nz(1)
+      
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+*     *************************************************
+*     ***     do fft along kz dimension             ***
+*     ***   A(kx,nz(1),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
+*     *************************************************
+#ifdef MLIB
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(1)
+      do i=1,nxh
+       indx2 = indx2 + 1
+       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+
+         indx = i+indx0
+         indx1 = indx
+         do k=1,nz(1)
+            tmp2(k) = tmp1(indx)
+            indx = indx + nxh
+         end do
+         call z1dfft(tmp2,nz(1),
+     >               dcpl_mb(tmpz(1,1)),-2,ierr)
+         do k=1,nz(1)
+            tmp1(indx1) = tmp2(k)
+            indx1 = indx1 + nxh
+         end do
+       end if
+      end do
+      indx0 = indx0+nxhz
+      end do
+
+#else
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(1)
+      do i=1,nxh
+       indx2 = indx2 + 1
+       if (.not.log_mb(zero_row3(1,nbb)+indx2-1)) then
+
+         indx  = i + indx0
+         indx1 = indx
+         do k=1,nz(1)
+            tmp2(k) = tmp1(indx)
+            indx = indx + nxh
+         end do
+         call dcfftb(nz(1),tmp2,dcpl_mb(tmpz(1,1)))
+         do k=1,nz(1)
+            tmp1(indx1) = tmp2(k)
+            indx1 = indx1 + nxh
+         end do
+
+       end if
+      end do
+      indx0 = indx0 + nxhz
+      end do
+#endif
+
+*     ********************************************
+*     ***         Do a ptranspose of A          ***
+*     ***      A(kx,ky,nz(1)) <- A(kx,nz(1),ky)      ***
+*     ********************************************
+      call D3dB_c_ptranspose1_jk_start(nbb,tmp1,tmp2,tmp1,
+     >                                 request,reqcnt)
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+
+*     *************************************************
+*     ***     do fft along kz dimension             ***
+*     ***   A(nz(1),kx,ky) <- fft1d^(-1)[A(kz,kx,ky)]  ***
+*     *************************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq3(1)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         call z1dfft(tmp1(indx),nz(1),dcpl_mb(tmpz(1,1)),-2,ierr)
+         end if
+         indx = indx + nz(1)
+      end do
+#else
+      indx = 1
+      do q=1,nq3(1)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+         call dcfftb(nz(1),tmp1(indx),dcpl_mb(tmpz(1,1)))
+         end if
+         indx = indx + nz(1)
+      end do
+#endif
+
+      call D3dB_c_ptranspose_ijk_start(nbb,3,tmp1,tmp2,tmp1,
+     >                                 request,reqcnt)
+
+
+      end if
+    
+      call nwpw_timing_end(1)
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	        D3dB_pfftby		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_pfftby(nbb,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16  tmp1(*)
+      complex*16  tmp2(*)
+      integer     request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+
+*     *** local variables ***
+      integer i,j,q,indx,ierr
+      integer nxh,nxhy,indx0,indx1,indx2
+
+      
+      call nwpw_timing_start(1)
+
+       nxh = (nx(1)/2+1)
+       nxhy = nxh*ny(1)
+      
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+
+*     ********************************************
+*     ***         Do a ptranspose of A          ***
+*     ***      A(kx,ky,nz(1)) <- A(kx,nz(1),ky)      ***
+*     ********************************************
+      call D3dB_c_ptranspose1_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+
+*     *************************************************
+*     ***     do fft along ky dimension             ***
+*     ***   A(kx,ny(1),nz(1)) <- fft1d^(-1)[A(kx,ky,nz(1))]  ***
+*     *************************************************
+#ifdef MLIB
+     
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(1)
+      do i=1,nxh
+        indx2 = indx2 + 1
+        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+
+          indx  = i + indx0
+          indx1 = indx
+          do j=1,ny(1)
+            tmp1(j) = tmp2(indx)
+            indx = indx + nxh
+          end do
+          call z1dfft(tmp1,ny(1),
+     >               dcpl_mb(tmpy(1,1)),-2,ierr)
+          do j=1,ny(1)
+            tmp2(indx1) = tmp1(j)
+            indx1 = indx1 + nxh
+          end do
+        end if
+      end do
+      indx0 = indx0 + nxhy
+      end do
+      
+#else
+    
+      indx0 = 0
+      indx2 = 0
+      do q=1,nq(1)
+      do i=1,nxh
+        indx2 = indx2 + 1
+
+        if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
+
+         indx  = i + indx0
+         indx1 = indx
+         do j=1,ny(1)
+            tmp1(j) = tmp2(indx)
+            indx = indx + nxh
+         end do
+         call dcfftb(ny(1),tmp1,dcpl_mb(tmpy(1,1)))
+         do j=1,ny(1)
+            tmp2(indx1) = tmp1(j)
+            indx1 = indx1 + nxh
+         end do
+
+        end if
+      end do
+      indx0 = indx0 + nxhy
+      end do
+#endif
+
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+      call D3dB_c_ptranspose_ijk_end(nbb,3,tmp2,tmp1,request,reqcnt)
+
+*     *************************************************
+*     ***     do fft along ky dimension             ***
+*     ***   A(ny(1),nz(1),kx) <- fft1d^(-1)[A(ky,nz(1),kx)]  ***
+*     *************************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq2(1)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         call z1dfft(tmp2(indx),ny(1),dcpl_mb(tmpy(1,1)),-2,ierr)
+         end if
+         indx = indx + ny(1)
+      end do
+#else
+      indx = 1
+      do q=1,nq2(1)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+         call dcfftb(ny(1),tmp2(indx),dcpl_mb(tmpy(1,1)))
+         end if
+         indx = indx + ny(1)
+      end do
+#endif
+
+      call D3dB_c_ptranspose_ijk_start(nbb,4,tmp2,tmp1,tmp2,
+     >                                 request,reqcnt)
+
+
+      end if
+
+      call nwpw_timing_end(1)
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	        D3dB_pfftbx		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16  tmp1(*)
+      complex*16  tmp2(*)
+      integer     request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_fft / tmpx,tmpy,tmpz
+
+
+
+*     *** local variables ***
+      integer j,q,indx,ierr
+      integer nxh
+
+      call nwpw_timing_start(1)
+
+      nxh = (nx(1)/2+1)
+      
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+
+*     *************************************************
+*     ***     do fft along kx dimension             ***
+*     ***   A(nx(1),ny(1),nz(1)) <- fft1d^(-1)[A(kx,ny(1),nz(1))]  ***
+*     *************************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq(1)
+      do j=1,ny(1)
+         call drc1ft(tmp2(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
+         indx = indx + nxh
+      end do
+      end do
+
+#else
+      call cshift1_fftb(nx(1),ny(1),nq(1),1,tmp2)
+      indx = 1
+      do q=1,nq(1)
+      do j=1,ny(1)
+         call drfftb(nx(1),tmp2(indx),dcpl_mb(tmpx(1,1)))
+         indx = indx + nxh
+      end do
+      end do
+      call zeroend_fftb(nx(1),ny(1),nq(1),1,tmp2)
+#endif
+      call dcopy((nx(1)+2)*ny(1)*nq(1),tmp2,1,tmp1,1)
+
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+
+
+      call D3dB_c_ptranspose_ijk_end(nbb,4,tmp1,tmp2,request,reqcnt)
+
+*     *************************************************
+*     ***     do fft along kx dimension             ***
+*     ***   A(nx(1),ny(1),nz(1)) <- fft1d^(-1)[A(kx,ny(1),nz(1))]  ***
+*     *************************************************
+#ifdef MLIB
+      indx = 1
+      do q=1,nq1(1)
+         call drc1ft(tmp1(indx),nx(1),dcpl_mb(tmpx(1,1)),-2,ierr)
+         indx = indx + nxh
+      end do
+#else
+      call cshift1_fftb(nx(1),nq1(1),1,1,tmp1)
+      indx = 1
+      do q=1,nq1(1)
+         call drfftb(nx(1),tmp1(indx),dcpl_mb(tmpx(1,1)))
+         indx = indx + nxh
+      end do
+      call zeroend_fftb(nx(1),nq1(1),1,1,tmp1)
+#endif
+
+
+
+      end if
+    
+      call nwpw_timing_end(1)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_pfftb_step         *
+*     *                                 *
+*     ***********************************
+*
+
+      subroutine D3dB_pfftb_step(step,nbb,A,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer step
+      integer nbb
+      complex*16 A(*)
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      integer    request(*),reqcnt
+
+
+#include "mafdecls.fh"
+
+      integer tmp1z(2),tmp2z(2)
+      common / pfft_queuez_common / tmp1z,tmp2z
+
+
+      if (step.eq.1) then
+         call Pack_c_unpack_start(nbb,A,tmp1,request,reqcnt)
+      else if (step.eq.2) then
+         call Pack_c_unpack_mid(nbb,tmp1,tmp2,
+     >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
+     >                          request,reqcnt)
+      else if (step.eq.3) then
+         call Pack_c_unpack_end(nbb,tmp1,
+     >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
+     >                          request,reqcnt)
+      else if (step.eq.4) then
+         call D3dB_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.5) then
+         call D3dB_pfftby(nbb,tmp1,tmp2,request,reqcnt)
+      else if (step.eq.6) then
+         call D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
+      end if
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_pfft3_queue_init       *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_pfft3_queue_init(qmax_in)
+      implicit none
+      integer qmax_in
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+      
+      integer tmp1z(2),tmp2z(2)
+      common / pfft_queuez_common / tmp1z,tmp2z
+
+      logical value
+      integer np,size,zpalne_size
+
+      qmax  = qmax_in
+      qsize = 0
+      last_index = qmax
+
+      call Parallel_np(np)
+      size  = nfft3d(1)*qmax*2
+      value = MA_alloc_get(mt_dcpl,size,'tmp',tmp(2),tmp(1))
+
+      size  = np*qmax*2
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'request',request(2),request(1))
+      size  = qmax
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'qindx',qindx(2),qindx(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'qstatus',qstatus(2),qstatus(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,size,'reqcnt',reqcnt(2),reqcnt(1))
+
+
+      call D3dB_zplane_size(1,zplane_size)
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,(zplane_size),
+     >                    'tmp1z',tmp1z(2),tmp1z(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,(zplane_size),
+     >                    'tmp2z',tmp2z(2),tmp2z(1))
+      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_pfft3_queue_end        *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_pfft3_queue_end()
+      implicit none
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+
+      integer tmp1z(2),tmp2z(2)
+      common / pfft_queuez_common / tmp1z,tmp2z
+
+
+
+      logical value
+
+
+      value =           MA_free_heap(tmp(2))
+      value = value.and.MA_free_heap(request(2))
+      value = value.and.MA_free_heap(qindx(2))
+      value = value.and.MA_free_heap(qstatus(2))
+      value = value.and.MA_free_heap(reqcnt(2))
+      value = value.and.MA_free_heap(tmp1z(2))
+      value = value.and.MA_free_heap(tmp2z(2))
+      if (.not. value) call errquit('error freeing heap',0,MA_ERR)
+
+      return
+      end
+
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_pfft3_queue_filled     *
+*     *                                 *
+*     ***********************************
+
+      logical function D3dB_pfft3_queue_filled()
+      implicit none
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+
+
+      D3dB_pfft3_queue_filled = (qsize.ge.qmax)
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_rc_pfft3f_queuein      *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rc_pfft3f_queuein(nbb,A)
+      implicit none
+      integer nbb
+      complex*16 A(*)
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3
+      integer q,indx,status,np
+
+      call Parallel_np(np)
+
+      do q=1,qsize
+         indx   = int_mb(qindx(1)+q-1)
+         int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+         status = int_mb(qstatus(1)+indx-1)
+         shift1=nfft3d(1)*(2*(indx-1))
+         shift2=nfft3d(1)*(2*(indx-1)+1)
+         shift3=2*np*(indx-1)
+         call D3dB_pfftf_step(status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+      end do
+
+      qsize = qsize + 1
+      last_index = last_index+1
+      if (last_index.gt.qmax) last_index = 1
+      int_mb(qindx(1)+qsize-1)        = last_index
+      int_mb(qstatus(1)+last_index-1) = 1
+      status = 1
+      shift1=nfft3d(1)*(2*(last_index-1))
+      shift2=nfft3d(1)*(2*(last_index-1)+1)
+      shift3=2*np*(last_index-1)
+
+      call D3dB_pfftf_step(status,nbb,A,
+     >                     dcpl_mb(tmp(1)+shift1),
+     >                     dcpl_mb(tmp(1)+shift2),
+     >                     int_mb(request(1)+shift3),
+     >                     int_mb(reqcnt(1)+last_index-1))
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_rc_pfft3f_queueout     *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_rc_pfft3f_queueout(nbb,A)
+      implicit none
+      integer nbb
+      complex*16 A(*)
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3
+      integer q,indx,indx1,status,np
+
+      call Parallel_np(np)
+
+c      do q=1,qsize
+c         indx   = int_mb(qindx(1)+q-1)
+c         int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+c         status = int_mb(qstatus(1)+indx-1)
+c         shift1=nfft3d(1)*(2*(indx-1))
+c         shift2=nfft3d(1)*(2*(indx-1)+1)
+c         shift3=2*np*(indx-1)
+c         call D3dB_pfftf_step(status,nbb,A,
+c     >                        dcpl_mb(tmp(1)+shift1),
+c     >                        dcpl_mb(tmp(1)+shift2),
+c     >                        int_mb(request(1)+shift3),
+c     >                        int_mb(reqcnt(1)+indx-1))
+c      end do
+
+      indx1   = int_mb(qindx(1))
+      do while (int_mb(qstatus(1)+indx1-1).lt.4)
+         do q=1,qsize
+            indx   = int_mb(qindx(1)+q-1)
+            int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+            status = int_mb(qstatus(1)+indx-1)
+            shift1=nfft3d(1)*(2*(indx-1))
+            shift2=nfft3d(1)*(2*(indx-1)+1)
+            shift3=2*np*(indx-1)
+            call D3dB_pfftf_step(status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+         end do
+      end do
+
+      qsize = qsize -1
+      do q=1,qsize
+        int_mb(qindx(1)+q-1) = int_mb(qindx(1)+q)
+      end do
+
+      shift2=nfft3d(1)*(2*(indx1-1)+1)
+      call Pack_c_Copy(nbb,dcpl_mb(tmp(1)+shift2),A)
+
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_cr_pfft3b_queuein      *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_cr_pfft3b_queuein(nbb,A)
+      implicit none
+      integer nbb
+      complex*16 A(*)
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3
+      integer q,indx,status,np
+
+      call Parallel_np(np)
+
+      do q=1,qsize
+         indx   = int_mb(qindx(1)+q-1)
+         int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+         status = int_mb(qstatus(1)+indx-1)
+         shift1=nfft3d(1)*(2*(indx-1))
+         shift2=nfft3d(1)*(2*(indx-1)+1)
+         shift3=2*np*(indx-1)
+         call D3dB_pfftb_step(status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+      end do
+
+      qsize = qsize + 1
+      last_index = last_index+1
+      if (last_index.gt.qmax) last_index = 1
+      int_mb(qindx(1)+qsize-1)        = last_index
+      int_mb(qstatus(1)+last_index-1) = 1
+      status = 1
+      shift1=nfft3d(1)*(2*(last_index-1))
+      shift2=nfft3d(1)*(2*(last_index-1)+1)
+      shift3=2*np*(last_index-1)
+
+      call D3dB_pfftb_step(status,nbb,A,
+     >                     dcpl_mb(tmp(1)+shift1),
+     >                     dcpl_mb(tmp(1)+shift2),
+     >                     int_mb(request(1)+shift3),
+     >                     int_mb(reqcnt(1)+last_index-1))
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     D3dB_cr_pfft3b_queueout     *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_cr_pfft3b_queueout(nbb,A)
+      implicit none
+      integer nbb
+      complex*16 A(*)
+
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+#include "D3dB_pfft.fh"
+
+
+      !**** pfft_queue ****
+      integer qindx(2),qstatus(2)
+      integer tmp(2),request(2),reqcnt(2)
+      integer qmax,qsize,last_index
+      common / pfft_queue_common / qindx,qstatus,tmp,request,reqcnt,
+     >                             qmax,qsize,last_index
+
+      !*** local variables ***
+      integer shift1,shift2,shift3
+      integer q,indx,indx1,status,np
+
+      call Parallel_np(np)
+
+c      do q=1,qsize
+c         indx   = int_mb(qindx(1)+q-1)
+c         int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+c         status = int_mb(qstatus(1)+indx-1)
+c         shift1=nfft3d(1)*(2*(indx-1))
+c         shift2=nfft3d(1)*(2*(indx-1)+1)
+c         shift3=2*np*(indx-1)
+c         call D3dB_pfftb_step(status,nbb,A,
+c     >                        dcpl_mb(tmp(1)+shift1),
+c     >                        dcpl_mb(tmp(1)+shift2),
+c     >                        int_mb(request(1)+shift3),
+c     >                        int_mb(reqcnt(1)+indx-1))
+c      end do
+
+      indx1   = int_mb(qindx(1))
+      do while (int_mb(qstatus(1)+indx1-1).lt.6)
+         do q=1,qsize
+            indx   = int_mb(qindx(1)+q-1)
+            int_mb(qstatus(1)+indx-1) = int_mb(qstatus(1)+indx-1) + 1
+            status = int_mb(qstatus(1)+indx-1)
+            shift1=nfft3d(1)*(2*(indx-1))
+            shift2=nfft3d(1)*(2*(indx-1)+1)
+            shift3=2*np*(indx-1)
+            call D3dB_pfftb_step(status,nbb,A,
+     >                        dcpl_mb(tmp(1)+shift1),
+     >                        dcpl_mb(tmp(1)+shift2),
+     >                        int_mb(request(1)+shift3),
+     >                        int_mb(reqcnt(1)+indx-1))
+         end do
+      end do
+
+      qsize = qsize -1
+      do q=1,qsize
+        int_mb(qindx(1)+q-1) = int_mb(qindx(1)+q)
+      end do
+
+      shift1=nfft3d(1)*(2*(indx1-1))
+      call dcopy(2*nfft3d(1),dcpl_mb(tmp(1)+shift1),1,A,1)
+
+      return
+      end
+

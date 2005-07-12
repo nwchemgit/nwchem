@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.16 2005-06-24 19:24:18 bylaska Exp $
+* $Id: psi_H.F,v 1.17 2005-07-12 21:26:33 bylaska Exp $
 *
 
 *     *************************************
@@ -55,14 +55,14 @@
 *     **** tempory space ****
 c     complex*16 vall(nfft3d)
 c     complex*16 vpsi(nfft3d)
-      integer nfft3d,n2ft3d,npack1
+      integer nfft3d,n2ft3d,npack1,indx1,indx2
       integer vall(2),vpsi(2),Hpsi_r(2)
-      logical value
+      logical value,done
 
 
 *     **** external functions ****
-      logical  pspw_SIC,pspw_SIC_relaxed
-      logical  pspw_HFX,pspw_HFX_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,D3dB_pfft3_queue_filled
+      logical  pspw_HFX,pspw_HFX_relaxed,D3dB_pfft3_queue_filled
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed
       external pspw_HFX,pspw_HFX_relaxed
@@ -149,33 +149,46 @@ c     complex*16 vpsi(nfft3d)
 *     **************************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r +Vsic*psi_r] **** 
 *     ************************************************************** 
-      do ms=1,ispin
-         do n=n1(ms),n2(ms)
+      indx1 = 1
+      indx2 = 1
+      done  = .false.
+      do while (.not.done)
+         if (indx1.le.n2(ispin)) then
+            ms = 1
+            if (indx1.gt.n2(1)) ms = 2
 
 *           **** vpsi_r = (vall_r+xcp)*psi_r + Hpsi_r****
             call D3dB_rr_Sum(1,dcpl_mb(vall(1)),
      >                       xcp(1+(ms-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
             call D3dB_rr_Mul(1,dcpl_mb(vpsi(1)),
-     >                       psi_r(1+(n-1)*n2ft3d),
+     >                       psi_r(1+(indx1-1)*n2ft3d),
      >                       dcpl_mb(vpsi(1)))
 
             if ((dosic).or.(dohfx))
      >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
-     >                         dbl_mb(Hpsi_r(1)+(n-1)*n2ft3d),
+     >                         dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
      >                         dcpl_mb(vpsi(1)))
 
 *           **** put vpsi_r in k-space ****
-            !call D3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
-            call D3dB_rc_pfft3f(1,1,dcpl_mb(vpsi(1)))
-            call Pack_c_pack(1,dcpl_mb(vpsi(1)))
+            call D3dB_rc_pfft3f_queuein(1,dcpl_mb(vpsi(1)))
+            indx1 = indx1 + 1
+
+         end if
+
+         if ((D3dB_pfft3_queue_filled()).or.(indx1.gt.n2(ispin))) then
+            call D3dB_rc_pfft3f_queueout(1,dcpl_mb(vpsi(1)))
 
 *           **** add to Hpsi_k ****
             call Pack_cc_daxpy(1,(-scal1),
      >                           dcpl_mb(vpsi(1)),
-     >                           Hpsi_k(1+(n-1)*npack1))
-         end do
+     >                           Hpsi_k(1+(indx2-1)*npack1))
+            indx2 = indx2 + 1
+         end if
+
+         done = ((indx1.gt.n2(ispin)).and.(indx2.gt.n2(ispin)))
       end do
+ 
 
       call nwpw_timing_start(12)
 

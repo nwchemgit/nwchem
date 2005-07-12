@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.37 2005-06-24 19:24:16 bylaska Exp $
+* $Id: D3dB-new.F,v 1.38 2005-07-12 21:26:31 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1909,6 +1909,29 @@ c    >        + (n-1)*(nx+2)*ny*nq
 
       return
       end 
+
+
+      subroutine cshift_fftf_ab(nx,ny,nq,ne,A,B)
+      implicit none
+      integer nx,ny,nq,ne
+      real*8 A(*)
+      real*8 B(*)
+
+      integer i,j,indx
+
+      indx = 1
+      do j=1,(ny*nq*ne)
+         do i=nx,2,-1
+            B(indx+i) = A(indx+i-1)
+         end do
+         B(indx+1)    = 0.0d0
+         B(indx+nx+1) = 0.0d0
+         indx = indx + (nx+2)
+      end do
+
+      return
+      end
+
 
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.73 2005-07-09 22:44:22 bylaska Exp $
+* $Id: control.F,v 1.74 2005-07-12 21:26:32 bylaska Exp $
 *
 
 *     ***********************************
@@ -3333,4 +3333,30 @@ c      end
       return
       end
 
+
+
+*     ************************************
+*     *                                  *
+*     *      control_pfft3_qsize          *
+*     *                                  *
+*     ************************************
+
+      integer function control_pfft3_qsize()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer qmax
+
+      if (.not.rtdb_get(rtdb,'nwpw:pfft3_qsize',mt_int,1,qmax))
+     >  qmax = 2
+
+      control_pfft3_qsize = qmax
+      return
+      end
 
