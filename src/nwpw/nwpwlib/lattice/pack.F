@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.19 2005-07-12 21:26:33 bylaska Exp $
+* $Id: pack.F,v 1.20 2005-07-12 22:01:26 bylaska Exp $
 *
 
 *     ***********************************
@@ -2005,7 +2005,7 @@ c      end do
 
       call nwpw_timing_start(9)
       call Pack_c_Copy(nb,A,tmp1)
-      call Balance_c_unbalance_start(nb,tmp1)
+      call Balance_c_unbalance_start(nb,tmp1,request,reqcnt)
 
       call nwpw_timing_end(9)
   
@@ -2048,7 +2048,7 @@ c      end do
 
 
       call nwpw_timing_start(9)
-      call Balance_c_unbalance_end(nb,tmp1)
+      call Balance_c_unbalance_end(nb,tmp1,request,reqcnt)
 
       
       call D3dB_nfft3d(1,nfft3d)
