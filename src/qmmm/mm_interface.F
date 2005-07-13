@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.61 2005-06-30 00:28:39 marat Exp $
+c $Id: mm_interface.F,v 1.62 2005-07-13 15:06:39 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -90,11 +90,6 @@ c
 #include "qmmm.fh"
 #include "md_common.fh"
 #include "mafdecls.fh"
-c
-      call prp_proper(0,stime,eww,dbl_mb(i_esw),
-     + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm,
-     + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
-     + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
       call prp_print()
 c
