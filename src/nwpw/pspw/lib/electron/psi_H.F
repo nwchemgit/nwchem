@@ -1,5 +1,5 @@
 *
-* $Id: psi_H.F,v 1.17 2005-07-12 21:26:33 bylaska Exp $
+* $Id: psi_H.F,v 1.18 2005-07-13 00:20:36 bylaska Exp $
 *
 
 *     *************************************
@@ -62,9 +62,9 @@ c     complex*16 vpsi(nfft3d)
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_pfft3_queue_filled
-      logical  pspw_HFX,pspw_HFX_relaxed,D3dB_pfft3_queue_filled
+      logical  pspw_HFX,pspw_HFX_relaxed
       real*8   lattice_omega
-      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed,D3dB_pfft3_queue_filled
       external pspw_HFX,pspw_HFX_relaxed
       external lattice_omega
 
