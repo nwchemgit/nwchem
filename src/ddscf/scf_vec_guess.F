@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.50 2004-02-17 17:42:37 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.51 2005-07-13 22:11:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -214,7 +214,8 @@ c        the symmetry adaption. Also, sym adapt thoroughly
 c        since the strong linear dependence in the 
 c        random vectors may cause loss of precision.
 c
-         call movecs_project(rtdb, nmo, geom, basis, g_movecs,1)
+         call movecs_project(rtdb, nmo, geom, basis, g_movecs,1,
+     A        calling_module)
          call ga_orthog_mos(basis, g_movecs)
          if (oadapt) then
             call scf_movecs_sym_adapt(basis, g_movecs, .false.,
@@ -223,7 +224,8 @@ c
      &           0, '- projected ', .true.,int_mb(k_irs))
          endif
          if (scftype .eq. 'UHF') then
-         call movecs_project(rtdb, nmo, geom, basis, g_movecs,2)
+         call movecs_project(rtdb, nmo, geom, basis, g_movecs,2,
+     A           calling_module)
          call ga_orthog_mos(basis, g_movecs(2))
          if (oadapt) then
             call scf_movecs_sym_adapt(basis, g_movecs(2), .false.,

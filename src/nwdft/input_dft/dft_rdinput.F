@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.120 2005-02-26 00:08:36 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.121 2005-07-13 22:11:45 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -985,5 +985,31 @@ c
 c
       call ga_sync
 c
+      return
+      end
+      integer function dft_nbases(bases)
+      implicit none
+#include "cdft.fh"
+      integer bases(3)
+c
+      integer i
+c
+      dft_nbases=1
+      if(CDFIT) dft_nbases=dft_nbases+1
+      if(XCFIT) dft_nbases=dft_nbases+1
+c
+      if(XCFIT.and.CDFIT) then
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
+        bases(3) = XC_bas_han
+      elseif((.not.XCFIT).and.CDFIT) then
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
+      elseif((.not.CDFIT).and.XCFIT) then
+        bases(1) = AO_bas_han
+        bases(2) = XC_bas_han
+      else
+        bases(1) = AO_bas_han
+      endif
       return
       end

@@ -1,5 +1,6 @@
-      subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset)
-C$Id: movecs_proj.F,v 1.18 2003-10-17 22:54:33 carlfahl Exp $
+      subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset,
+     A     calling_module)
+C$Id: movecs_proj.F,v 1.19 2005-07-13 22:11:43 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -48,12 +49,15 @@ c
       character*80 old_basis_name, old_filename, old_title
       character*80 project(2), basis_name_from_file
       character*20 old_scftype
+      character*(*) calling_module
       logical oprint, oprint_info
 
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
-      integer ga_create_atom_blocked
+      integer ga_create_atom_blocked,anggg
       external ga_create_atom_blocked
+      integer nbases,dft_nbases
+      external dft_nbases
       logical int_normalize
       external int_normalize
 
@@ -172,7 +176,14 @@ c      if (.not. ga_create(mt_dbl, nbf, old_nbf, 'Temp',
       call int_init(rtdb,2,basis_handles)
       call int_1e_ga(basis, old_basis, g_over, 'overlap', .false.)
       call int_terminate
-      call int_init(rtdb, 1, basis) !  WRONG WRONG WRONG
+      if (.not. bas_high_angular(basis,anggg))
+     &   call errquit('rdinput: basis set error:', 0, 0)
+      if(calling_module.eq.'dft') then
+         nbases=dft_nbases(basis_handles)
+         call int_init(rtdb, nbases, basis_handles) !  RIGHT?
+      else
+         call int_init(rtdb, 1, basis) !  WRONG WRONG WRONG
+      endif
       if (.not. bas_destroy(old_basis)) call errquit
      $     ('movecs_project: bas_destroy?',0, BASIS_ERR)
 
