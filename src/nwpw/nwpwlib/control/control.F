@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.74 2005-07-12 21:26:32 bylaska Exp $
+* $Id: control.F,v 1.75 2005-07-13 00:17:42 bylaska Exp $
 *
 
 *     ***********************************
@@ -3354,7 +3354,7 @@ c      end
       integer qmax
 
       if (.not.rtdb_get(rtdb,'nwpw:pfft3_qsize',mt_int,1,qmax))
-     >  qmax = 2
+     >  qmax = 4
 
       control_pfft3_qsize = qmax
       return
