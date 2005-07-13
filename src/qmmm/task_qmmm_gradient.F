@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.30 2005-07-01 02:44:39 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.31 2005-07-13 15:11:50 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -219,6 +219,10 @@ c     ------------------------------------
         nact = 0
       end if
 c
+      if(qmmm_print_debug()) then
+        write(*,*) "number of active qm atoms",nact
+      end if
+c
 c
 c     qm atoms gradients if any
 c     -------------------------
@@ -238,6 +242,9 @@ c     -------------------------
       else
         if(nfg.ne.0) then  
          if(frozen_density) then
+           if(qmmm_print_debug()) then
+              write(*,*) "frozen qm density"
+           end if
          call qmmm_bq_energy(qm_energy,rtdb)
          else
          status = task_energy_doit(rtdb,theory,qm_energy)
