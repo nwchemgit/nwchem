@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.60 2005-06-24 19:24:18 bylaska Exp $
+* $Id: cgsdv5.F,v 1.61 2005-07-13 23:53:54 bylaska Exp $
 *
 
 ***********************************************************************
@@ -621,6 +621,15 @@ c     end if
          write(6,1808) '  masking and packing        : ', 
      >                 nwpw_timing(9),
      >                 nwpw_timing(9)/dble(electron_count())           
+         write(6,1808) '  queue fft                  : ', 
+     >                 nwpw_timing(30),
+     >                 nwpw_timing(30)/dble(electron_count())           
+         write(6,1808) '  queue fft (serial)         : ', 
+     >                 nwpw_timing(31),
+     >                 nwpw_timing(31)/dble(electron_count())           
+         write(6,1808) '  queue fft (message passing): ', 
+     >                 nwpw_timing(32),
+     >                 nwpw_timing(32)/dble(electron_count())           
          end if
          write(6,*)
          CALL nwpw_MESSAGE(4)

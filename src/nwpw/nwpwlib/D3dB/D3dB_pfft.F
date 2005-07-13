@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.4 2005-07-13 00:13:08 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.5 2005-07-13 23:53:18 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2194,6 +2194,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
+      call nwpw_timing_start(31)
 #ifdef MLIB
       call drcfts(A,nx(1),1,ny(1)*nq(1),
      >                  nx(1)+2,1,ierr)
@@ -2208,12 +2209,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call cshift_fftf(nx(1),ny(1),nq(1),1,A)
 #endif
       call dcopy((nx(1)+2)*ny(1)*nq(1),A,1,tmp1,1)
+      call nwpw_timing_end(31)
 
 
       !*************************
       !**** hilbert mapping ****
       !*************************
       else
+      call nwpw_timing_start(31)
 
 #ifdef MLIB
       call drcfts(A,nx(1),1,nq1(1),
@@ -2227,7 +2230,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call cshift_fftf(nx(1),nq1(1),1,1,A)
 #endif
 
+      call nwpw_timing_end(31)
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_start(nbb,1,A,tmp1,tmp2,request,reqcnt)
+      call nwpw_timing_end(32)
 
       end if
 
@@ -2282,6 +2288,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
+      call nwpw_timing_start(31)
 
 *     ********************************************
 *     ***     do fft along ny(1) dimension        ***
@@ -2346,8 +2353,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***         Do a ptranspose of A          ***
 *     ***      A(ky,nz(1),ky) <- A(kx,ky,nz(1))      ***
 *     ********************************************
+      call nwpw_timing_end(31)
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose2_jk_start(nbb,tmp1,tmp2,tmp1,
      >                                 request,reqcnt)
+      call nwpw_timing_end(32)
 
 
 
@@ -2356,7 +2366,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !**** hilbert mapping ****
       !*************************
       else
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_end(nbb,1,tmp1,tmp2,request,reqcnt)
+      call nwpw_timing_end(32)
+      call nwpw_timing_start(31)
 
 *     ********************************************
 *     ***     do fft along ny(1) dimension        ***
@@ -2380,8 +2393,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
+      call nwpw_timing_end(31)
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_start(nbb,2,tmp1,tmp2,tmp1,
      >                                 request,reqcnt)
+      call nwpw_timing_end(32)
 
 
       end if
@@ -2434,7 +2450,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !**********************
       if (mapping.eq.1) then
 
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose2_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+      call nwpw_timing_end(32)
+      call nwpw_timing_start(31)
 
 *     ********************************************
 *     ***     do fft along nz(1) dimension        ***
@@ -2490,6 +2509,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
        end do
        indx0 = indx0 + nxhz
        end do
+      call nwpw_timing_end(31)
 
 #endif
 
@@ -2498,7 +2518,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !**** hilbert mapping ****
       !*************************
       else
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_end(nbb,2,tmp2,tmp1,request,reqcnt)
+      call nwpw_timing_end(32)
+      call nwpw_timing_start(31)
 
 *     ********************************************
 *     ***     do fft along nz(1) dimension        ***
@@ -2521,11 +2544,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(1)
       end do
 #endif
+      call nwpw_timing_end(31)
 
       end if
 
 
+
+      call nwpw_timing_start(32)
       call Pack_c_pack_start(nbb,tmp2,tmp1,request,reqcnt)
+      call nwpw_timing_end(32)
 
       return
       end
@@ -2554,7 +2581,9 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
 
+      call nwpw_timing_start(32)
       call Pack_c_pack_end(nbb,tmp2,request,reqcnt)
+      call nwpw_timing_end(32)
 
       return
       end
@@ -2642,7 +2671,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nxh,nxhz,indx0,indx1,indx2
 
 
-      call nwpw_timing_start(1)
 
        nxh = (nx(1)/2+1)
        nxhz = nxh*nz(1)
@@ -2652,6 +2680,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !**********************
       if (mapping.eq.1) then
 
+      call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along kz dimension             ***
 *     ***   A(kx,nz(1),ky) <- fft1d^(-1)[A(kx,kz,ky)]  ***
@@ -2711,8 +2740,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***         Do a ptranspose of A          ***
 *     ***      A(kx,ky,nz(1)) <- A(kx,nz(1),ky)      ***
 *     ********************************************
+      call nwpw_timing_end(31)
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose1_jk_start(nbb,tmp1,tmp2,tmp1,
      >                                 request,reqcnt)
+      call nwpw_timing_end(32)
 
 
       !*************************
@@ -2721,6 +2753,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       else
 
 
+      call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along kz dimension             ***
 *     ***   A(nz(1),kx,ky) <- fft1d^(-1)[A(kz,kx,ky)]  ***
@@ -2743,13 +2776,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
+      call nwpw_timing_end(31)
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_start(nbb,3,tmp1,tmp2,tmp1,
      >                                 request,reqcnt)
+      call nwpw_timing_end(32)
 
 
       end if
     
-      call nwpw_timing_end(1)
       return
       end
 
@@ -2784,7 +2819,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer nxh,nxhy,indx0,indx1,indx2
 
       
-      call nwpw_timing_start(1)
 
        nxh = (nx(1)/2+1)
        nxhy = nxh*ny(1)
@@ -2799,7 +2833,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***         Do a ptranspose of A          ***
 *     ***      A(kx,ky,nz(1)) <- A(kx,nz(1),ky)      ***
 *     ********************************************
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose1_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+      call nwpw_timing_end(32)
+      call nwpw_timing_start(31)
 
 *     *************************************************
 *     ***     do fft along ky dimension             ***
@@ -2859,6 +2896,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
+      call nwpw_timing_end(31)
 
 
       !*************************
@@ -2866,8 +2904,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !*************************
       else
 
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_end(nbb,3,tmp2,tmp1,request,reqcnt)
 
+      call nwpw_timing_end(32)
+      call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along ky dimension             ***
 *     ***   A(ny(1),nz(1),kx) <- fft1d^(-1)[A(ky,nz(1),kx)]  ***
@@ -2890,13 +2931,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #endif
 
+      call nwpw_timing_end(31)
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_start(nbb,4,tmp2,tmp1,tmp2,
      >                                 request,reqcnt)
+      call nwpw_timing_end(32)
 
 
       end if
 
-      call nwpw_timing_end(1)
       return
       end
 
@@ -2930,7 +2973,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer j,q,indx,ierr
       integer nxh
 
-      call nwpw_timing_start(1)
 
       nxh = (nx(1)/2+1)
       
@@ -2939,6 +2981,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       !**********************
       if (mapping.eq.1) then
 
+      call nwpw_timing_start(31)
 *     *************************************************
 *     ***     do fft along kx dimension             ***
 *     ***   A(nx(1),ny(1),nz(1)) <- fft1d^(-1)[A(kx,ny(1),nz(1))]  ***
@@ -2967,6 +3010,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 
+      call nwpw_timing_end(31)
+*     *************************************************
       !*************************
       !**** hilbert mapping ****
       !*************************
@@ -2974,7 +3019,10 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 
+      call nwpw_timing_start(32)
       call D3dB_c_ptranspose_ijk_end(nbb,4,tmp1,tmp2,request,reqcnt)
+      call nwpw_timing_end(32)
+      call nwpw_timing_start(31)
 
 *     *************************************************
 *     ***     do fft along kx dimension             ***
@@ -2996,11 +3044,11 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call zeroend_fftb(nx(1),nq1(1),1,1,tmp1)
 #endif
 
+      call nwpw_timing_end(31)
 
 
       end if
     
-      call nwpw_timing_end(1)
       return
       end
 
@@ -3029,15 +3077,21 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
       if (step.eq.1) then
+         call nwpw_timing_start(32)
          call Pack_c_unpack_start(nbb,A,tmp1,request,reqcnt)
+         call nwpw_timing_end(32)
       else if (step.eq.2) then
+         call nwpw_timing_start(32)
          call Pack_c_unpack_mid(nbb,tmp1,tmp2,
      >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
      >                          request,reqcnt)
+         call nwpw_timing_end(32)
       else if (step.eq.3) then
+         call nwpw_timing_start(32)
          call Pack_c_unpack_end(nbb,tmp1,
      >                          dcpl_mb(tmp1z(1)),dcpl_mb(tmp2z(1)),
      >                          request,reqcnt)
+         call nwpw_timing_end(32)
       else if (step.eq.4) then
          call D3dB_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.5) then
@@ -3230,6 +3284,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer shift1,shift2,shift3
       integer q,indx,status,np
 
+      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
       call Parallel_np(np)
 
       do q=1,qsize
@@ -3262,6 +3318,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
 
+      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
       return
       end
 
@@ -3298,6 +3356,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
 
+      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
       call Parallel_np(np)
 
 c      do q=1,qsize
@@ -3339,6 +3399,8 @@ c      end do
       shift2=nfft3d(1)*(2*(indx1-1)+1)
       call Pack_c_Copy(nbb,dcpl_mb(tmp(1)+shift2),A)
 
+      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
       return
       end
 
@@ -3376,6 +3438,8 @@ c      end do
       integer shift1,shift2,shift3
       integer q,indx,status,np
 
+      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
       call Parallel_np(np)
 
       do q=1,qsize
@@ -3408,6 +3472,8 @@ c      end do
      >                     int_mb(request(1)+shift3),
      >                     int_mb(reqcnt(1)+last_index-1))
 
+      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
       return
       end
 
@@ -3445,6 +3511,11 @@ c      end do
       integer q,indx,indx1,status,np
 
       call Parallel_np(np)
+
+      call nwpw_timing_start(1)
+      call nwpw_timing_start(30)
+
+
 
 c      do q=1,qsize
 c         indx   = int_mb(qindx(1)+q-1)
@@ -3485,6 +3556,8 @@ c      end do
       shift1=nfft3d(1)*(2*(indx1-1))
       call dcopy(2*nfft3d(1),dcpl_mb(tmp(1)+shift1),1,A,1)
 
+      call nwpw_timing_end(1)
+      call nwpw_timing_end(30)
       return
       end
 
