@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.13 2005-07-12 21:26:31 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.14 2005-07-13 21:51:38 bylaska Exp $
 *
 
 #ifdef MPI
@@ -1277,7 +1277,7 @@ c            recieve data....
       if (np.gt.1) then
 
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
      >                     'status',status(2),status(1))
       if (.not. value)
      > call errquit('Balance_c_balance_end:out of stack',0,MA_ERR)
@@ -1396,7 +1396,7 @@ c            send data....
 
       if (np.gt.1) then
       !**** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
      >                     'status',status(2),status(1))
       if (.not. value)
      > call errquit('Balance_c_unbalance_end:out of stack',0,MA_ERR)
@@ -1589,7 +1589,7 @@ c            send data....
 
       if (np.gt.1) then
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
      >                     'status',status(2),status(1))
       if (.not. value)
      > call errquit(' D3dB_c_ptranspose2_jk_end:out of stack',0,MA_ERR)
@@ -1788,7 +1788,7 @@ c            send data....
 
       if (np.gt.1) then
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
      >                     'status',status(2),status(1))
       if (.not. value)
      > call errquit(' D3dB_c_ptranspose2_jk_end:out of stack',0,MA_ERR)
@@ -1998,7 +1998,7 @@ c            send data....
 
       if (np.gt.1) then
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
      >                     'status',status(2),status(1))
       if (.not. value) 
      > call errquit(' D3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
@@ -2209,7 +2209,7 @@ c     integer i2_start(NFFT3+1)
 
       if (np.gt.1) then
 *     **** allocate memory ****
-      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
+      value = MA_push_get(mt_int,MPI_STATUS_SIZE*np*2,
      >                     'status',status(2),status(1))
       if (.not. value)
      > call errquit(' D3dB_c_timereverse_end:out of stack',0,MA_ERR)
