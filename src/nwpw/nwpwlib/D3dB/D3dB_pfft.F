@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.3 2005-07-12 21:26:31 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.4 2005-07-13 00:13:08 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2167,7 +2167,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       subroutine D3dB_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
       implicit none
-      integer mapping
       integer nbb
       complex*16 A(*)
       complex*16 tmp1(*)
