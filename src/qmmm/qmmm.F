@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.51 2005-07-01 01:20:55 marat Exp $
+c $Id: qmmm.F,v 1.52 2005-07-13 15:07:45 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -19,6 +19,7 @@ c
       logical ignore
       logical checkgrad
       character*32 pname
+      character*32 theory
       character*30 operation
       character*30 optimization
       character*255 geom
@@ -55,7 +56,9 @@ c     --------------------------------------------
       if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
 
-      
+      if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
+     + call errquit('task: no task input for theory?',0, RTDB_ERR)
+
       if(operation.eq."optimize") then
         aux_geom = .true.
       else if(operation.eq."freq") then
@@ -77,6 +80,8 @@ c     --------------------------------------------
 
       if (optimization.ne.'qm') aux_geom = .false.
       
+      if (inp_compare(.false.,'esp',theory)) aux_geom=.false.
+      
 
       if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
         loadgeom = .true.
@@ -84,6 +89,9 @@ c     --------------------------------------------
       else
         loadgeom = .false.
       end if
+
+      if(qmmm_print_debug()) 
+     >  write(*,*) "aux_geom",aux_geom
 
       call qmmm_geom_init(irtdb,aux_geom)
 
