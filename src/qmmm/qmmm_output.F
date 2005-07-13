@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.15 2005-06-30 20:22:38 marat Exp $
+c $Id: qmmm_output.F,v 1.16 2005-07-13 16:42:01 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -230,7 +230,7 @@ c     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
       end
 
-      subroutine qmmm_print_energy1(irtdb,energy,qm_energy)
+      subroutine qmmm_print_energy1(irtdb,tot_energy,qm_energy)
       implicit none
 c
 #include "mafdecls.fh"
@@ -241,6 +241,7 @@ c
 #include "qmmm.fh"
 
       integer irtdb
+      double precision tot_energy
       double precision energy, mm_energy, qm_energy,eatoms
 c
       character*32 pname
@@ -251,6 +252,8 @@ c
 
       if (.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)
+
+      energy = tot_energy
 
       qm_energy = qm_energy/cau2kj
       energy = energy/cau2kj
