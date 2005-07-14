@@ -1,6 +1,6 @@
       subroutine hnd_spind(rtdb,basis,geom)
 c
-c $Id: hnd_spind.F,v 1.4 2004-12-06 20:20:02 bert Exp $
+c $Id: hnd_spind.F,v 1.5 2005-07-14 22:09:28 bert Exp $
 c
 c     This routine calculates the Fermi Contact Term and
 c     Spin-Dipolar terms for a given (spin) density at the
@@ -30,7 +30,7 @@ c
       double precision pi, betae, betan, convf, con, aiso, spnden
       double precision ge, emf, vl, auev, evmhz, gmhz, gnu
       double precision spndxx, spndyy, spndzz, spndxy, spndxz, spndyz
-      double precision a(6),vec(3,3),eig(3),hbar,gnuc
+      double precision a(6),vec(3,3),vec2(3,3),eig(3),hbar,gnuc
 c
       logical atom_gfac
       integer ga_create_atom_blocked
@@ -189,12 +189,12 @@ c
             ij = ij + 1
             vec(i,j) = a(ij)
             vec(j,i) = a(ij)
+            vec2(i,j) = a(ij)*con*gnu
+            vec2(j,i) = a(ij)*con*gnu
   434    continue
          call ecce_print1_char('atom name',symbol,1)
-         call ecce_print2('spin-dipole tensor',MT_DBL,vec,3,3,3)
+         call ecce_print2('spin-dipole tensor',MT_DBL,vec2,3,3,3)
          call hnd_diag(vec,eig,3,.false.,.false.)
-         call ecce_print1('spin-dipole eigenvalues',MT_DBL,eig,3)
-         call ecce_print2('spin-dipole eigenvectors',MT_DBL,vec,3,3,3)
          fac1 = con*gnu
          fac2 = con*gnu/gmhz
          write(luout,9992)
@@ -208,6 +208,11 @@ c
          write(luout,9986) ((vec(i,j),j=1,3),i=1,3)
          write(luout,*)
          write(luout,*)
+         do i = 1, 3
+            eig(i) = eig(i)*con*gnu
+         enddo
+         call ecce_print1('spin-dipole eigenvalues',MT_DBL,eig,3)
+         call ecce_print2('spin-dipole eigenvectors',MT_DBL,vec,3,3,3)
   430 continue
 c
       call ecce_print_module_exit('spin-dipole','ok')
