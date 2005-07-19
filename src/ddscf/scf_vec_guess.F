@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.51 2005-07-13 22:11:43 edo Exp $
+c     $Id: scf_vec_guess.F,v 1.52 2005-07-19 17:14:10 bert Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -215,7 +215,7 @@ c        since the strong linear dependence in the
 c        random vectors may cause loss of precision.
 c
          call movecs_project(rtdb, nmo, geom, basis, g_movecs,1,
-     A        calling_module)
+     A        calling_module,k_eval)
          call ga_orthog_mos(basis, g_movecs)
          if (oadapt) then
             call scf_movecs_sym_adapt(basis, g_movecs, .false.,
@@ -225,7 +225,7 @@ c
          endif
          if (scftype .eq. 'UHF') then
          call movecs_project(rtdb, nmo, geom, basis, g_movecs,2,
-     A           calling_module)
+     A           calling_module,k_eval+nbf)
          call ga_orthog_mos(basis, g_movecs(2))
          if (oadapt) then
             call scf_movecs_sym_adapt(basis, g_movecs(2), .false.,

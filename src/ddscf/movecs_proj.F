@@ -1,6 +1,6 @@
       subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset,
-     A     calling_module)
-C$Id: movecs_proj.F,v 1.19 2005-07-13 22:11:43 edo Exp $
+     A     calling_module, k_eval)
+C$Id: movecs_proj.F,v 1.20 2005-07-19 17:14:10 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -10,7 +10,7 @@ C$Id: movecs_proj.F,v 1.19 2005-07-13 22:11:43 edo Exp $
 #include "inp.fh"
 #include "util.fh"
 c
-      integer rtdb, geom, basis, g_vecs(2)
+      integer rtdb, geom, basis, g_vecs(2), k_eval
       double precision one, zero, mone
 c
 c     Project the MO vectors in old_basis_name into the current basis.  
@@ -119,12 +119,9 @@ c      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
       if (.not. ma_push_get(mt_dbl, old_nbf, 'Old occ',
      $     l_old_occ, k_old_occ)) call errquit
      $     ('movecs_project: ma old occ', old_nbf, MA_ERR)
-      if (.not. ma_push_get(mt_dbl, old_nbf, 'Old evals',
-     $     l_old_evals, k_old_evals)) call errquit
-     $     ('movecs_project: ma old evals', old_nbf, MA_ERR)
 *
       if (.not. movecs_read(old_filename, iset, dbl_mb(k_old_occ),
-     $     dbl_mb(k_old_evals), g_old_vecs)) call errquit
+     $     dbl_mb(k_evals), g_old_vecs)) call errquit
      $     ('movecs_project: failed reading old vectors', 0, INPUT_ERR)
 *
       if (oprint_info) then
@@ -151,8 +148,6 @@ c      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
 *         call output(dbl_mb(k_old_occ),1,old_nbf,1,1,old_nbf,1,1)
       end if
 *
-      if (.not. ma_pop_stack(l_old_evals)) call errquit
-     $     ('movecs_project: ma pop', 0, MA_ERR)
       if (.not. ma_pop_stack(l_old_occ)) call errquit
      $     ('movecs_project: ma pop', 0, MA_ERR)
 
