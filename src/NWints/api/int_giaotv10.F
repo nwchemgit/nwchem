@@ -1,4 +1,4 @@
-c $Id: int_giaotv10.F,v 1.1 2004-07-21 16:13:46 bert Exp $
+c $Id: int_giaotv10.F,v 1.2 2005-07-19 17:48:14 bert Exp $
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaotv10}
@@ -142,8 +142,8 @@ c
       if (itype.eq.-1) igen = 1
       if (jtype.eq.-1) jgen = 1
       call spcart_2cBtran(tv10,scr,lscr,
-     &    i_nbf_x,int_nbf_s(itype),itype,igen,trani,
      &    j_nbf_x,int_nbf_s(jtype),jtype,jgen,tranj,
+     &    i_nbf_x,int_nbf_s(itype),itype,igen,trani,
      &    3,.false.)
 c
 c     We now have the integrals in array (nsph_ints,3)
