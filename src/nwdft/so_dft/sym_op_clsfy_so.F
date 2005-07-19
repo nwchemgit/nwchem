@@ -1,5 +1,5 @@
       subroutine sym_op_classify_so(geom, op_class_index, sym_ap_so)
-C$Id: sym_op_clsfy_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
+C$Id: sym_op_clsfy_so.F,v 1.3 2005-07-19 16:56:43 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "sym.fh"
@@ -209,30 +209,30 @@ c
      +     0.0d0,-1.0d0,0.0d0,
      +     0.0d0,0.0d0,-1.0d0/
 c
-      sigma(1,1)=cmplx(0.0d0,0.0d0)
-      sigma(2,1)=cmplx(0.0d0,0.0d0)
-      sigma(1,2)=cmplx(0.0d0,0.0d0)
-      sigma(2,2)=cmplx(0.0d0,0.0d0)
+      sigma(1,1)=dcmplx(0.0d0,0.0d0)
+      sigma(2,1)=dcmplx(0.0d0,0.0d0)
+      sigma(1,2)=dcmplx(0.0d0,0.0d0)
+      sigma(2,2)=dcmplx(0.0d0,0.0d0)
 c
-      iden(1,1)=cmplx(1.0d0,0.0d0)
-      iden(2,1)=cmplx(0.0d0,0.0d0)
-      iden(1,2)=cmplx(0.0d0,0.0d0)
-      iden(2,2)=cmplx(1.0d0,0.0d0)
+      iden(1,1)=dcmplx(1.0d0,0.0d0)
+      iden(2,1)=dcmplx(0.0d0,0.0d0)
+      iden(1,2)=dcmplx(0.0d0,0.0d0)
+      iden(2,2)=dcmplx(1.0d0,0.0d0)
 c
-      sigma_x(1,1)=cmplx(0.0d0,0.0d0)
-      sigma_x(2,1)=cmplx(1.0d0,0.0d0)
-      sigma_x(1,2)=cmplx(1.0d0,0.0d0)
-      sigma_x(2,2)=cmplx(0.0d0,0.0d0)
+      sigma_x(1,1)=dcmplx(0.0d0,0.0d0)
+      sigma_x(2,1)=dcmplx(1.0d0,0.0d0)
+      sigma_x(1,2)=dcmplx(1.0d0,0.0d0)
+      sigma_x(2,2)=dcmplx(0.0d0,0.0d0)
 c
-      sigma_y(1,1)=cmplx(0.0d0, 0.0d0)
-      sigma_y(2,1)=cmplx(0.0d0, 1.0d0)
-      sigma_y(1,2)=cmplx(0.0d0,-1.0d0)
-      sigma_y(2,2)=cmplx(0.0d0, 0.0d0)
+      sigma_y(1,1)=dcmplx(0.0d0, 0.0d0)
+      sigma_y(2,1)=dcmplx(0.0d0, 1.0d0)
+      sigma_y(1,2)=dcmplx(0.0d0,-1.0d0)
+      sigma_y(2,2)=dcmplx(0.0d0, 0.0d0)
 c
-      sigma_z(1,1)=cmplx(1.0d0,0.0d0)
-      sigma_z(2,1)=cmplx(0.0d0,0.0d0)
-      sigma_z(1,2)=cmplx(0.0d0,0.0d0)
-      sigma_z(2,2)=cmplx(-1.0d0,0.0d0)
+      sigma_z(1,1)=dcmplx(1.0d0,0.0d0)
+      sigma_z(2,1)=dcmplx(0.0d0,0.0d0)
+      sigma_z(1,2)=dcmplx(0.0d0,0.0d0)
+      sigma_z(2,2)=dcmplx(-1.0d0,0.0d0)
 c      
       pi = 4.0d0*atan(1.0d0)
       nop = sym_number_ops(geom)
@@ -264,13 +264,13 @@ c
       endif
       if(power .lt. 0)power=order+power
       phi = -pi*power/order 
-      fact = cmplx(cos(phi),0d0)
+      fact = dcmplx(cos(phi),0d0)
       call zaxpy(4, fact, iden,    1, sigma, 1)
-      fact = cmplx(0.0d0, sin(phi)*direction(1))
+      fact = dcmplx(0.0d0, sin(phi)*direction(1))
       call zaxpy(4, fact, sigma_x, 1, sigma, 1)
-      fact = cmplx(0.0d0, sin(phi)*direction(2))
+      fact = dcmplx(0.0d0, sin(phi)*direction(2))
       call zaxpy(4, fact, sigma_y, 1, sigma, 1)
-      fact = cmplx(0.0d0, sin(phi)*direction(3))
+      fact = dcmplx(0.0d0, sin(phi)*direction(3))
       call zaxpy(4, fact, sigma_z, 1, sigma, 1)
       if(h .gt. nop)call zscal(4,(-1.0d0,0.0d0),sigma,1)
       return

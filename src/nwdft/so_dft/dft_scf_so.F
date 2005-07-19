@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.31 2005-02-11 07:27:42 edo Exp $
+c     $Id: dft_scf_so.F,v 1.32 2005-07-19 16:56:43 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1031,7 +1031,7 @@ cso     &                   g_moso(2),  Dbl_MB(k_eval(1)))
 c      write(*,*)"compare"
       do i = 1, nbf_mo 
          do j = 1, nbf_mo
-            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=(0.0, 0.0)
+            DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=dcmplx(0.0, 0.0)
          enddo
       enddo
       do i = 1, nbf_mo 
@@ -1040,13 +1040,13 @@ c         write(*,*)"i=", i
 c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
          do j=1,i 
             DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
-     =           cmplx(dbl_mb(ibuff+j-1),0d0)
+     =           dcmplx(dbl_mb(ibuff+j-1),0d0)
          enddo 
          call ga_get(g_fockso(2), 1,i, i,i, dbl_mb(ibuff),1)
          do j=1,i 
             DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))=
      $               DCpl_mb(ia+(nbf_mo)*(i-1)+(j-1))
-     $           +cmplx(0d0,dbl_mb(ibuff+j-1))
+     $           +dcmplx(0d0,dbl_mb(ibuff+j-1))
          enddo 
       enddo
       call ga_zero(g_moso(1))
@@ -1056,16 +1056,16 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
      $            DCpl_mb(iwork), LLWORK, Dbl_mb(irwork), INFO )
       do i = 1, nbf_mo
          do j = 1, nbf_mo 
-            dbl_mb(ibuff+j-1)=0
+            dbl_mb(ibuff+j-1)=0.0d0
             dbl_mb(ibuff+j-1)=dble(DCpl_mb(ia+nbf_mo*(i-1)+(j-1)))
          enddo 
          i1=i
          call ga_put(g_moso(1),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
          trace = ddot(nbf_mo,dbl_mb(ibuff),1,dbl_mb(ibuff),1) 
          do j = 1, nbf_mo 
-            dbl_mb(ibuff+j-1)=0
+            dbl_mb(ibuff+j-1)=0.0d0
             dbl_mb(ibuff+j-1)=
-     $             aimag(cmplx(DCpl_mb(ia+nbf_mo*(i-1)+(j-1))))
+     $             dimag(dcmplx(DCpl_mb(ia+nbf_mo*(i-1)+(j-1))))
          enddo
          i1=i 
          call ga_put(g_moso(2),1,nbf_mo,i1,i1,dbl_mb(ibuff),1)
