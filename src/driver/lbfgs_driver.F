@@ -1,4 +1,4 @@
-      subroutine lbfgs_driver(irtdb)
+      logical function lbfgs_driver(irtdb)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -77,9 +77,7 @@ c
       iprint(1)= 1
       iprint(2)= 0
 c
-c     we do not wish to provide the diagonal matrices Hk0, and 
-c     therefore set DIAGCO to FALSE.
-c
+      lbfgs_driver = .true.
  20   continue
       if (.not. task_gradient(irtdb))
      $   call errquit('driver: task_gradient failed',0, GEOM_ERR)
@@ -93,7 +91,10 @@ c
      >           dbl_mb(i_d),iprint,eps,xtol,
      >           dbl_mb(i_scr),iflag,iter)
 
-      if(iflag.le.0) go to 50
+      if(iflag.le.0) then
+          lbfgs_driver=.false.
+          go to 50
+      end if
       icall=icall + 1
       if(iter.gt.maxiter) go to 50
       if(.not.geom_cart_coords_set(igeom,dbl_mb(i_c)))
