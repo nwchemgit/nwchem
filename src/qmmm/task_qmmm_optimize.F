@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.11 2005-04-27 18:34:47 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.12 2005-07-20 20:47:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -14,6 +14,7 @@ c     $Id: task_qmmm_optimize.F,v 1.11 2005-04-27 18:34:47 marat Exp $
 c     
       logical  status
 c     
+      logical ouselbfgs
       character*32 theory
       character*32 optimization
       character*32 pname
@@ -43,6 +44,9 @@ c
      +     call errquit('task_optimize: failed rtdb_cget task:theory',0,
      &       RTDB_ERR)
 
+      if (.not. rtdb_get(rtdb, 'opt:lbfgs', mt_log, 1, ouselbfgs))
+     $     ouselbfgs = .false.
+
       status = .true.
 
       if (optimization.eq.'all') then
@@ -58,7 +62,11 @@ c
      $        call errquit('task_optimize: rtdb?',0, RTDB_ERR)
          if(qmmm_print_debug())
      >      write(*,*) "going into driver"
+          if(ouselbfgs) then
+          call lbfgs_driver(rtdb)
+          else
          status = driver(rtdb)
+          end if
          call mm_print_info()
 c
 c        forcing driver to never fail
