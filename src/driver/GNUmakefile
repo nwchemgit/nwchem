@@ -1,12 +1,12 @@
 #
-# $Id: GNUmakefile,v 1.21 2005-06-20 06:08:21 marat Exp $
+# $Id: GNUmakefile,v 1.22 2005-07-20 06:19:00 marat Exp $
 #
 
 LIBRARY = libdriver.a
 
 OBJ_OPTIMIZE = driver_input.o 
 
-OBJ = oniom.o opt_drv.o 
+OBJ = oniom.o opt_drv.o lbfgs.o lbfgs_driver.o
 
 USES_BLAS = opt_drv.F oniom.F 
 
