@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.26 2003-10-17 22:58:26 carlfahl Exp $
+c     $Id: task_optimize.F,v 1.27 2005-07-20 20:43:35 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -33,16 +33,26 @@ c
       double precision cpu, wall
 c     
       logical ousedriver, status, ts, omin
+      logical ouselbfgs
 c     
       character*32 theory
 c     
       logical  task_gradient, stpr_walk_task, driver, nwmd
       external task_gradient, stpr_walk_task, driver, nwmd
+      logical lbfgs_driver
+      external lbfgs_driver
 c     
       call ecce_print_module_entry('task optimize')
 c     
       if (.not. rtdb_get(rtdb, 'opt:driver', mt_log, 1, ousedriver))
      $     ousedriver = .true.
+c
+      if (.not. rtdb_get(rtdb, 'opt:lbfgs', mt_log, 1, ouselbfgs))
+     $     ouselbfgs = .false.
+      if(ouselbfgs) then
+          ousedriver = .false.
+          write(*,*) "lbfgs"
+      end if
 c     
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -81,6 +91,8 @@ c
             if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
      $           call errquit('task_optimize: rtdb?',0, RTDB_ERR)
             status = driver(rtdb)
+         else if(ouselbfgs) then
+            status =  lbfgs_driver(rtdb)
          else
             ts   = .false.
             omin = .true.
@@ -128,7 +140,7 @@ c
 c     
       end
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.26 2003-10-17 22:58:26 carlfahl Exp $
+c     $Id: task_optimize.F,v 1.27 2005-07-20 20:43:35 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -261,7 +273,7 @@ c
 c     
       end
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.26 2003-10-17 22:58:26 carlfahl Exp $
+c     $Id: task_optimize.F,v 1.27 2005-07-20 20:43:35 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
