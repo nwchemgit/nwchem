@@ -1,6 +1,6 @@
       subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset,
      A     calling_module, k_eval)
-C$Id: movecs_proj.F,v 1.20 2005-07-19 17:14:10 bert Exp $
+C$Id: movecs_proj.F,v 1.21 2005-07-21 01:58:04 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -121,7 +121,7 @@ c      if (.not. ga_create(mt_dbl, old_nbf, old_nbf, 'Old vectors',
      $     ('movecs_project: ma old occ', old_nbf, MA_ERR)
 *
       if (.not. movecs_read(old_filename, iset, dbl_mb(k_old_occ),
-     $     dbl_mb(k_evals), g_old_vecs)) call errquit
+     $     dbl_mb(k_eval), g_old_vecs)) call errquit
      $     ('movecs_project: failed reading old vectors', 0, INPUT_ERR)
 *
       if (oprint_info) then
