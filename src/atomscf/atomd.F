@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag)
-C$Id: atomd.F,v 1.12 2004-03-15 22:26:48 edo Exp $
+C$Id: atomd.F,v 1.13 2005-07-21 20:31:04 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -210,6 +210,7 @@ c.......................................................................
          knteps = 0
          do i = 1 , nsym
             nbc1 = nbc(i)
+            if(nbc1.ne.0) then
             nbc2 = nbc1**2
             nbc3 = (nbc2+nbc1)/2
             if (ncsh(i).ne.0) then
@@ -251,6 +252,7 @@ c.......................................................................
                   enddo
                end if
             end if
+            endif
          enddo
          if (nitscf.ge.maxitr) nconv = 1
          if (nconv.le.0) go to 110

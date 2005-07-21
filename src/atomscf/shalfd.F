@@ -1,5 +1,5 @@
       subroutine shalfd(s,v,n)
-C$Id: shalfd.F,v 1.4 2003-10-17 22:54:15 carlfahl Exp $
+C$Id: shalfd.F,v 1.5 2005-07-21 20:31:04 edo Exp $
       implicit none
 #include "errquit.fh"
 c.......................................................................
@@ -30,7 +30,9 @@ c
       call jacod(s,v,n,nnd,nn,1,n,scr1,scr2,n)
       icount = 1
       do i = 1 , n
-         scr1(i) = 1.0d0/sqrt(s(icount))
+         scr1(i) = 0d0
+         if(s(icount).gt.0d0)
+     D   scr1(i) = 1.0d0/sqrt(s(icount))
          icount = icount + i + 1
       enddo
       icount = 0
