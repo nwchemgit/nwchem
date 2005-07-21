@@ -1,12 +1,13 @@
       subroutine util_char_ga_brdcst(type, string, origin)
 *
-* $Id: util_ch_brd.F,v 1.4 2003-10-17 22:58:35 carlfahl Exp $
+* $Id: util_ch_brd.F,v 1.5 2005-07-21 01:59:35 edo Exp $
 *
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+#include "mafdecls.fh"
       integer type
       character*(*) string
       integer origin
@@ -30,7 +31,8 @@ c
       if (ls .gt.len(string)) call errquit
      $     ('util_char_ga_brdcst: receiving string too small',ls,
      &       GA_ERR)
-      if (ls .gt. 0) call ga_brdcst(type, c, mitob(ls), origin)
+      if (ls .gt. 0) call ga_brdcst(type, c, 
+     A     MA_sizeof(MT_INT,ls,MT_BYTE),origin)
 c
       string = ' ' 
       do i = 1,ls
