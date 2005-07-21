@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.71 2005-02-17 01:58:58 edo Exp $
+$Id: INSTALL,v 1.72 2005-07-21 01:06:02 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -619,6 +619,29 @@ To compile the latest version of GA for NWChem, following these steps:
    8) If all of your environmental variables are set, start with step 5 of
       the Basic Build Instructions.  If they are not set, start with step 2.
 
+
+ARMCI-RELATED INSTALLATION ISSUES
+---------------------------------------------------------------
+
+The ARMCI_NETWORK environmental variable must be defined in order to 
+achieve best performance on high performance networks. The following
+table summarize supported combinations of ARMCI_NETWORK and NWCHEM_TARGET.
+
+  ARMCI_NETWORK   NWCHEM_TARGET Network          Protocol
+  ---------------------------------------------------------
+  GM              LINUX         Myrinet          GM
+                  LINUX64
+  VIA             LINUX         Giganet/CLAN     VIA
+  MELLANOX        LINUX         Infiniband       VAPI
+                  LINUX64
+  ELAN3 or        LINUX         Quadrics/QsNet   Elan3/Shmem
+  QUADRICS        DECOSF
+                  LINUX64
+  ELAN4           LINUX64       Quadrics/QsNetII Elan4
+
+For more information/support, you are referred to the ARMCI support page at
+section 2.1.2 of the following URL
+http://www.emsl.pnl.gov/docs/global/um/build.html
 
 RUNNING ON FUJITSU VPP 300/500/700/5000
 ---------------------------------------------------------------
