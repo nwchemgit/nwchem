@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.204 2005-07-20 20:44:43 marat Exp $
+# $Id: make_nwchem_config,v 1.205 2005-07-21 01:10:44 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -18,7 +18,7 @@
 KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver dftgrad scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
-        property gapss nwpw fft rimp2_grad python analyz nwmd cafe space \
+        property nwpw fft rimp2_grad python analyz nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
         perfm neb
 
@@ -28,7 +28,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 
 KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -ldftgrad -lplnwv -lnwdft -lgradients \
-                    -lcphf -lscfaux -lgapss -lesp -lddscf -lguess -lhessian \
+                    -lcphf -lscfaux -lesp -lddscf -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -lqhop\
                     -lpfft -ldplot -loimp2 -lpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
@@ -65,7 +65,7 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md argos alldev pnnl pnnldev 
 
-EXP_all = $(filter-out uccsdt python develop gapss oimp2 scfaux plane_wave rimp2_grad vscf geninterface,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out uccsdt python develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
@@ -81,7 +81,7 @@ EXP_argos = prepar analyz
 EXP_md  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
           ccsd vib property dftgrad mp2_grad geninterface
-EXP_qmmm = $(filter-out hessian tce uccsdt python develop gapss oimp2 scfaux plane_wave rimp2_grad vscf geninterface,$(KNOWN_MODULE_SUBDIRS) )
+EXP_qmmm = $(filter-out hessian tce uccsdt python develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface,$(KNOWN_MODULE_SUBDIRS) )
 
 # Check each expansion
 
@@ -116,7 +116,6 @@ endif
 # will be hard to generate automatically.
 
 MODULES := $(patsubst geninterface,geninterface,$(MODULES) )
-MODULES := $(patsubst gapss,gapss atomscf nwdft ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst property,property ddscf,$(MODULES) )
 
@@ -194,7 +193,6 @@ MOD_LIBS := $(patsubst ccsd,-lccsd,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst mcscf,-lmcscf,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst moints,-lmoints,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst nwdft,-lnwdft,$(MOD_LIBS) )
-MOD_LIBS := $(patsubst gapss,-lgapss,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2,-lrimp2,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst rimp2_grad,-lrimp2g,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst oimp2,-loimp2,$(MOD_LIBS) )
@@ -247,7 +245,6 @@ STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst mcscf,mcscf mcscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst moints,atwtest direct_mp2 moints_full,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwdft,nwdft xc_chktau dft_fitcd grid_cleanup dft_fitvc grid_quadv0_gen dft_input xc_quadv0_gen dft_energy sodft_energy,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst gapss,gapss gap_parse,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2,rimp2,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst rimp2_grad,rimp2g,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst oimp2,oimp2,$(STUBROUTINES) )

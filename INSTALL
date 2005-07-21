@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.72 2005-07-21 01:06:02 edo Exp $
+$Id: INSTALL,v 1.73 2005-07-21 01:10:41 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -219,7 +219,7 @@ BASIC BUILD INSTRUCTIONS:
        % make nwchem_config
 
     Combinations of these tags are allowed.  For example,
-       % setenv NWCHEM_MODULES "all gapss python" 
+       % setenv NWCHEM_MODULES "all python" 
     will build the union of these three module identifiers.  
 
 6) If your NWCHEM_TARGET is CRAY-T3E or cray-sv2, perform the
