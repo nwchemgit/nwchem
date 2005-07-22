@@ -1,0 +1,58 @@
+top_srcdir=@abs_top_srcdir@
+include lib/MakeVars
+
+
+default: .chemistry-stamp
+	cd lib; $(MAKE)
+
+.chemistry-stamp: .babel-stamp
+	rm -f .chemistry-temp .chemistry-stamp
+	touch .chemistry-temp
+	cd Chemistry/server/cxx; $(MAKE)
+	mv .chemistry-temp .chemistry-stamp
+
+.babel-stamp:
+	rm -f .babel-stamp
+	touch .babel-temp
+	$(INSTALL) $(INSTALLDIROPT) $(REPO)
+	rm -f $(REPO)/NWChem*
+	$(BABEL) $(BABEL_FLAGS) --text=xml \
+	-R$(CCA_SPEC_BABEL_SHARE)/xml -R$(CCAFE_SHARE)/xml \
+	-R$(CCA_CHEM_REPO) -o$(REPO) $(SIDL_FILES)
+	mv .babel-temp .babel-stamp
+	$(INSTALL) $(INSTALLDIROPT) $(objdir)/sidl
+	$(INSTALL) $(INSTALLFILEOPT) $(top_srcdir)/sidl/*.sidl $(objdir)/sidl
+
+
+SUBDIRS = \
+      Chemistry/server/cxx \
+      lib
+
+
+clean:
+	for i in $(SUBDIRS); do \
+	  cd $${i}; $(MAKE) clean; \
+	done
+	rm -f repo/*; rm -f include/*
+	rm -f .chemistry-stamp .babel-stamp
+					  
+INST = $(shell echo `find lib/*.cca`; echo `find sidl`; echo `find repo`; \
+       echo `find include`)
+BINLIST = $(shell echo `find bin/*`)
+
+install:
+	$(INSTALL) $(INSTALLDIROPT) $(prefix)
+	for i in $(INST); do \
+	  if test -d $${i}; then \
+	    $(INSTALL) $(INSTALLDIROPT) $${i} $(prefix); \
+	  elif test -f $${i} && test -x $${i}; then \
+	    $(INSTALL) -D $(INSTALLLIBOPT) $${i} $(prefix)/$${i}; \
+	  elif test -f $${i} && ! test -x $${i}; then \
+	    $(INSTALL) -D $(INSTALLFILEOPT) $${i} $(prefix)/$${i}; \
+	  fi; \
+	done
+	for i in $(BINLIST); do \
+	  $(INSTALL) -D $(INSTALLBINOPT) $${i} $(prefix)/$${i}; \
+	done
+	cd lib; $(MAKE) install
+																       

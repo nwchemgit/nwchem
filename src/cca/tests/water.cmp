@@ -1,0 +1,10 @@
+permanent_dir /tmp
+geometry units angstrom noautosym noautoz nocenter;
+H 0.0       0.0        0.0;
+end
+set loadbalancing:dynamic f;
+scf;
+  maxiter 200;
+  tol2e 1e-13;
+end
+

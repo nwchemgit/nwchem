@@ -1,0 +1,29 @@
+# Rules to create libraries
+
+include ../lib/MakeVars
+
+default: $(objdir)/lib/lib$(SERVER).la \
+         $(objdir)/lib/components.cca
+
+server-object-list: $(SERVER_OBJDIRS)/object-list
+	@rm -f server-object-list
+	@for i in $(SERVER_OBJDIRS); do \
+	  cat $${i}/object-list >> server-object-list; \
+	done
+
+$(objdir)/lib/lib$(SERVER).la: ./server-object-list $(SERVER_OBJS)
+	$(LTLINK) $(CXX) -o $@ $(SERVER_OBJS) $(LTLINKLIBOPTS) $(SERVER_LIBS) $(LIBS) $(EXTRA_LIBS)
+
+$(objdir)/lib/components.cca: ./components.cca
+	@$(INSTALL) $(INSTALLDIROPT) $(objdir)/lib
+	$(INSTALL) $(INSTALLLIBOPT) ./components.cca $(objdir)/lib
+
+install:
+	$(INSTALL) $(INSTALLDIROPT) $(prefix)/lib
+	$(LTINST) $(INSTALL) $(INSTALLLIBOPT) lib$(SERVER).la $(prefix)/lib
+	$(INSTALL) $(INSTALLLIBOPT) components.cca $(prefix)/lib
+
+clean:
+	rm -f lib$(SERVER).la
+	rm -f server-object-list
+	rm -rf .libs

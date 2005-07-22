@@ -1,0 +1,12 @@
+top_srcdir=@top_srcdir@
+
+#CLIENT = nwchem_cxx_client
+SERVER = nwchem_cxx_server
+
+#CLIENT_PACKAGES = Chemistry
+SERVER_PACKAGES = Chemistry  
+
+SERVER_LIBS = -R$(prefix)/lib -L$(objdir)/lib 
+	      
+include $(top_srcdir)/lib/Makefile.libs
+

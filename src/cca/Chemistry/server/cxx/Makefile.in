@@ -1,0 +1,13 @@
+top_srcdir=@top_srcdir@
+srcdir=$(top_srcdir)/Chemistry/server/cxx
+
+BABEL_TARGETS = \
+  NWChem.Chemistry_QC_Model \
+  NWChem.Chemistry_QC_ModelFactory \
+  NWChem.Chemistry_QC_GaussianBasisSet \
+  NWChem.Chemistry_QC_GaussianShell \
+  NWChem.Physics_Units 
+
+CLIENT_OR_SERVER = server
+
+include $(top_srcdir)/lib/Makefile.objs

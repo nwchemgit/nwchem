@@ -1,0 +1,48 @@
+#!ccaffeine bootstrap file. 
+# ------- don't change anything ABOVE this line.-------------
+path set @libdir@
+path append @CCA_CHEM_LIB@
+path append @NWCHEM_LIB@
+path append @TAO_LIB@
+
+repository get-global Chemistry.Chemistry_MoleculeFactory
+repository get-global NWChemFactory.ChemistryQCModelFactory
+repository get-global ChemDrivers.SimpleDriver
+
+create Chemistry.Chemistry_MoleculeFactory molfactory
+create NWChemFactory.ChemistryQCModelFactory chemfactory
+create ChemDrivers.SimpleDriver driver
+
+connect driver ModelFactory chemfactory ModelFactory
+connect chemfactory MoleculeFactory molfactory MoleculeFactory
+
+parameter chemfactory configure scratchParam /tmp
+parameter chemfactory configure theoryParam scf
+parameter chemfactory configure configParam @abs_top_srcdir@/verification/h2o-hf-nwchem/water.cmp
+parameter chemfactory configure coordParam @abs_top_srcdir@/verification/h2o-hf-nwchem/h2o.xyz
+parameter chemfactory configure basisSetParam sto-3g
+
+go driver go
+
+disconnect driver ModelFactory chemfactory ModelFactory
+disconnect chemfactory MoleculeFactory molfactory MoleculeFactory
+
+remove molfactory
+remove chemfactory
+remove driver
+
+create Chemistry.Chemistry_MoleculeFactory molfactory
+create NWChemFactory.ChemistryQCModelFactory chemfactory
+create ChemDrivers.SimpleDriver driver
+
+connect driver ModelFactory chemfactory ModelFactory
+connect chemfactory MoleculeFactory molfactory MoleculeFactory
+
+parameter chemfactory configure scratchParam /tmp
+parameter chemfactory configure theoryParam scf
+parameter chemfactory configure configParam @abs_top_srcdir@/verification/h2o-hf-nwchem/water.cmp
+parameter chemfactory configure coordParam @abs_top_srcdir@/verification/validation/h2o-hf-nwchem/h2o.xyz
+parameter chemfactory configure basisSetParam 6-31g
+
+go driver go
+exit

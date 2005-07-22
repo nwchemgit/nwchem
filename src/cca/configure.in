@@ -1,0 +1,75 @@
+dnl do not use the cache
+define([AC_CACHE_LOAD], ) 
+define([AC_CACHE_SAVE], ) 
+
+AC_INIT(sidl/chemistry-nwchem.sidl)
+
+dnl Find the full path to the object directory
+objdir=`pwd`
+AC_SUBST(objdir)
+
+dnl ====================================================================
+dnl Check for the NWCHEM build directory
+
+NWCHEMDIR=$NWCHEM_TOP
+AC_ARG_WITH(nwchem-dir,
+  [  --with-nwchem-dir       path to the NWChem build directory.],
+  [ NWCHEMDIR=$withval ]
+)
+if test -z $NWCHEMDIR || ! test -d $NWCHEMDIR; then
+  echo "Error: NWChem not found, use --with-nwchem-dir or --disable-nwchem"
+  exit
+fi
+echo "NWChem build directory is $NWCHEMDIR"
+AC_SUBST(NWCHEMDIR)
+
+NWCHEMTARGET=$NWCHEM_TARGET
+AC_ARG_WITH(nwchem-target,
+  [  --with-nwchem-target    architecture NWChem was built for.],
+  [ NWCHEMTARGET=$withval ]
+)
+if test -z $NWCHEMTARGET || ! test -d $NWCHEMDIR/lib/$NWCHEMTARGET; then
+  echo "Error: NWChem target not found, use --with-nwchem-target or --disable-nwchem"
+  exit
+fi
+echo "NWChem target is $NWCHEMTARGET"
+AC_SUBST(NWCHEMTARGET)
+
+
+dnl =====================================================================
+dnl Check if cca-chem-config is given
+AC_ARG_WITH(cca-chem-config,
+[  --with-cca-chem-config  Specifies full pathname of cca-chem-config script.],
+[  CCA_CHEM_CONFIG=$withval]
+)
+if test -z $CCA_CHEM_CONFIG; then
+  echo "Error: cca-chem-config not found, please use --with-cca-chem-config"
+  exit
+fi
+
+echo "CCA_CHEM_CONFIG is $CCA_CHEM_CONFIG"
+AC_SUBST(CCA_CHEM_CONFIG)
+
+CCA_CHEM_INCLUDE=`$CCA_CHEM_CONFIG --includedir`
+CCA_CHEM_LIB=`$CCA_CHEM_CONFIG --libdir`
+CCA_CHEM_PREFIX=`$CCA_CHEM_CONFIG --prefix`
+CCA_CHEM_REPO=$CCA_CHEM_PREFIX/repo
+
+AC_SUBST(CCA_CHEM_INCLUDE)
+AC_SUBST(CCA_CHEM_LIB)
+AC_SUBST(CCA_CHEM_REPO)
+
+CCAFE_CONFIG=`$CCA_CHEM_CONFIG --ccafe-config`
+ENABLE_PYTHON="no" # no need for python checks
+  
+					     
+AC_CHECK_CCA()
+
+AC_OUTPUT(
+  Makefile
+  lib/MakeVars
+  lib/Makefile
+  lib/components.cca
+  Chemistry/server/cxx/Makefile
+)
+		  

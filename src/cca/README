@@ -1,0 +1,13 @@
+change config.txt if necessary and source it
+compile NWChem with target nwdft
+(include dft grid if standalone NWChem doesn't link)
+Note that hessian modules is not included for target nwdft
+For target nwdft util.o is generated twice (one of them needs to be renamed)
+copy all object files to nwchem-4.7/obj by using
+find ./ -name "*.o" -exec cp {} ~/nwchem-4.7/obj \; -print
+create obj directory outside nwchem build and copy Makefile.sumo over there
+make -f Makefile.sumo
+go to nwchem-4.7/src/cca/build source config.txt and type make
+make install
+cd nwchem-4.7/src/cca
+ccafe-single --ccafe-rc CCAFERC

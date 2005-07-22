@@ -1,0 +1,20 @@
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void nwchem_nwchemstart_(const char* st, int len);
+void nwchem_nwchemend_();
+void nwchem_setcoordinates_(double* coords);
+void nwchem_setcoordinatesfromfile_(const char* st);
+void nwchem_getcoordinates_(double* coords);
+void nwchem_getnumcoordinates_(int* num);
+void nwchem_setbasisset_(const char* st, int len);
+void nwchem_settheory_(const char* st);
+void nwchem_taskenergy_(double* en);
+void nwchem_taskgradient_(double* grad);
+void nwchem_taskhessian_(double* hess);
+
+#ifdef __cplusplus
+}
+#endif
+

@@ -1,0 +1,118 @@
+
+# directories
+interface_dir=@abs_top_srcdir@/include
+objdir=@objdir@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+REPO=$(objdir)/repo
+
+# cca-chem-generic
+CCA_CHEM_REPO=@CCA_CHEM_REPO@
+CCA_CHEM_INCLUDE=@CCA_CHEM_INCLUDE@
+CCA_CHEM_LIB=@CCA_CHEM_LIB@
+
+
+# specs
+CCA_SPEC_BABEL_INCLUDE=@CCA_SPEC_BABEL_INCLUDE@
+CCA_SPEC_BABEL_LIB=@CCA_SPEC_BABEL_LIB@
+CCA_SPEC_BABEL_SHARE=@CCA_SPEC_BABEL_SHARE@
+
+# babel
+BABEL_BIN=@BABEL_BIN@
+BABEL=$(BABEL_BIN)/babel
+BABEL_INCLUDE=@BABEL_INCLUDE@
+BABEL_LIB=@BABEL_LIB@
+BABEL_FLAGS= -E --suppress-timestamp -R$(CCA_SPEC_BABEL_SHARE)/xml -R$(CCAFE_SHARE)/xml -R$(CCA_CHEM_REPO) -R$(objdir)/repo
+           
+#ccafe
+CCAFE_INCLUDE=@CCAFE_INCLUDE@
+CCAFE_SHARE=@CCAFE_SHARE@
+CCA_SPEC_CLASSIC_INCLUDE=@CCA_SPEC_CLASSIC_INCLUDE@
+
+# libtool
+LIBTOOL=@BABEL_LIBTOOL@
+LTCOMP=$(LIBTOOL) --mode=compile
+LTLINK=$(LIBTOOL) --mode=link
+LTINST=$(LIBTOOL) --mode=install
+LTLINKLIBOPTS = -rpath $(prefix)/lib
+LTLINKBINOPTS =
+
+# compilers and options
+CPPFLAGS += -I./ -I$(objdir)/include -I$(interface_dir) \
+            -I$(BABEL_INCLUDE) -I$(CCA_SPEC_BABEL_INCLUDE) \
+            -I$(CCA_SPEC_CLASSIC_INCLUDE) -I$(CCAFE_INCLUDE) -I$(CCA_CHEM_INCLUDE)
+ifeq (@CCAFE_MPI_ENABLE@,yes)
+  CPPFLAGS += -I@CCAFE_MPI_INCLUDE@ -DHAVE_CCAFE_MPI
+endif
+CC=@BABEL_CC@
+CFLAGS=@BABEL_CFLAGS@
+CXX=@BABEL_CXX@
+CXXFLAGS=@BABEL_CXXFLAGS@
+
+# install options
+INSTALL = /usr/bin/install
+INSTALLDIROPT = -d -m 0755
+INSTALLLIBOPT = -m 0755
+INSTALLBINOPT = -m 0755
+INSTALLFILEOPT = -m 0644
+
+# idl files
+SIDL_FILES = @abs_top_srcdir@/sidl/chemistry-nwchem.sidl 
+
+# so we don't have to include babel.make
+FILE_BASES := $(shell echo $(BABEL_TARGETS) | sed s/\\./\\_/g )
+IORHDRS = $(FILE_BASES:%=%_IOR.h)
+STUBHDRS = $(FILE_BASES:%=%.hh)
+STUBSRCS = $(FILE_BASES:%=%.cc)
+ifeq ($(CLIENT_OR_SERVER),server)
+  IORSRCS = $(FILE_BASES:%=%_IOR.c)
+  IMPLHDRS = $(FILE_BASES:%=%_Impl.hh)
+  IMPLSRCS = $(FILE_BASES:%=%_Impl.cc)
+  SKELSRCS = $(FILE_BASES:%=%_Skel.cc)
+endif
+ENUM_BASES := $(shell echo $(BABEL_ENUMS) | sed s/\\./\\_/g )
+STUBHDRS += $(ENUM_BASES:%=%.hh)
+IORHDRS  += $(ENUM_BASES:%=%_IOR.h)
+PACKAGE_BASES := $(shell echo $(BABEL_PACKAGES) | sed s/\\./\\_/g )
+STUBHDRS += $(PACKAGE_BASES:%=%.hh)
+IORHDRS += $(PACKAGE_BASES:%=%_IOR.h)
+
+# used in Makefile.objs
+GEN_SRCS = $(IORHDRS) $(IORSRCS) $(STUBHDRS) $(STUBSRCS) \
+           $(IMPLHDRS) $(IMPLSRCS) $(SKELSRCS)
+CXX_SRCS = $(IMPLSRCS) $(SKELSRCS) $(STUBSRCS) $(EXTRA_CXX_SRCS)
+CC_SRCS = $(IORSRCS)
+OBJS = $(CXX_SRCS:%.cc=%.lo) $(CC_SRCS:%.c=%.lo)
+INCLUDES = $(STUBHDRS) $(IORHDRS) $(EXTRA_INCLUDES)
+
+ifeq ($(CLIENT_OR_SERVER),client)
+  BABEL_ARGS = --client=C++
+else
+  BABEL_ARGS = --server=C++
+endif
+
+# used in Makefile.libs
+CLIENT_OBJDIRS = $(CLIENT_PACKAGES:%=../%/client/cxx)
+SERVER_OBJDIRS = $(SERVER_PACKAGES:%=../%/server/cxx)
+CLIENT_OBJS = $(shell cat ./client-object-list)
+SERVER_OBJS = $(shell cat ./server-object-list)
+LIBS = -L$(BABEL_LIB) -Wl,-rpath,$(BABEL_LIB) -lsidl \
+       -L$(CCA_SPEC_BABEL_LIB) -Wl,-rpath,$(CCA_SPEC_BABEL_LIB) -lcca \
+       -L$(CCA_CHEM_LIB) -WL, -rpath,$(CCA_CHEM_LIB) -lccachem_cxx_server -lccachem_cxx_client
+
+NWCHEM_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET)  $(NWCHEM_TOP)/src/stubs.o -lnwchem-sumo -lpario -lglobal -lpeigs -lma -larmci -L/usr/local/mpich/lib  -ltcgmsg-mpi -lmpich -llapack -lblas -lm
+
+
+#NWCHEM_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET) $(NWCHEM_TOP)/src/stubs.o -lgeninterface -lnwctask -lccsd -lmcscf -lselci -lmp2 -lmoints -lstepper -ldriver -ldftgrad -lnwdft -lgradients -lcphf -lesp -lddscf -lguess -lhessian -lvib -lnwcutil -lrimp2 -lproperty -lnwints -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -lqhop -lpfft -ldplot -ldrdy -lqmmm -lqmd -lesp -letrans -ltddft -ltce -lcons -lperfm -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lnwcutil -lnwctask -lperfm -llapack  -lblas -larmci -L/usr/local/mpich/lib  -ltcgmsg-mpi -lmpich  -lm
+
+EXTRA_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -lgeninterface -lnwcutil \
+             -lnwctask -lccsd -lmp2 -lmoints -lstepper\
+             -ldriver -ldftgrad -lnwdft -lgradients -lcphf -lddscf -lguess -lhessian \
+             -lvib -lrimp2 -lproperty -lnwints -lnwcutil \
+             -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET) -lpario -lglobal \
+             -lma -lpeigs  -llapack  -lblas -L$(MPI_LIB)  -ltcgmsg-mpi -lmpich \
+             -larmci -lm
+
+EXTRA_LIBS = $(NWCHEM_LIBS)
+#LIBS += $(EXTRA_LIBS)
+												  

@@ -1,0 +1,33 @@
+#!ccaffeine bootstrap file. 
+# ------- don't change anything ABOVE this line.-------------
+path set /usr/local/cca-chem-generic/lib
+path append /usr/local/cca-chem-apps/lib
+path append /afs/scl/user/fangp/nwchem-4.7/src/cca/obj/lib
+
+repository get-global Chemistry.Chemistry_MoleculeFactory
+repository get-global NWChem.Chemistry_QC_ModelFactory
+repository get-global ChemDrivers.SimpleDriver
+
+create Chemistry.Chemistry_MoleculeFactory molfactory
+create NWChem.Chemistry_QC_ModelFactory chemfactory
+create ChemDrivers.SimpleDriver driver
+
+connect driver ModelFactory chemfactory ModelFactory
+connect chemfactory MoleculeFactory molfactory MoleculeFactory
+
+parameter chemfactory configure scratchParam /tmp
+parameter chemfactory configure theoryParam scf
+parameter chemfactory configure configParam /afs/scl/user/fangp/nwchem-4.7/src/cca/tests/water.cmp
+parameter chemfactory configure coordParam /afs/scl/user/fangp/nwchem-4.7/src/cca/tests/h2o.xyz
+parameter chemfactory configure basisSetParam sto-3g
+
+go driver go
+
+disconnect driver ModelFactory chemfactory ModelFactory
+disconnect chemfactory MoleculeFactory molfactory MoleculeFactory
+
+remove molfactory
+remove chemfactory
+remove driver
+
+exit

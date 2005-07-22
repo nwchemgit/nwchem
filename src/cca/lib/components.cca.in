@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<libInfo>
+<scl>
+   <library uri="@prefix@/lib/libnwchem_cxx_server.so"
+    scope="global" resolution="now" >
+      <class name="NWChem.Chemistry_QC_Model" desc="ior/impl" /> 
+      <class name="NWChem.Chemistry_QC_ModelFactory" desc="ior/impl" /> 
+      <class name="NWChem.Physics_Units" desc="ior/impl" />
+      <class name="NWChem.Chemistry_QC_GaussianShell" desc="ior/impl" />
+      <class name="NWChem.Chemistry_QC_GaussianBasisSet" desc="ior/impl" />
+   </library>
+</scl>
+<componentDeployment name="NWChem.Chemistry_QC_ModelFactory"
+ paletteClassAlias="NWChem.Chemistry_QC_ModelFactory" >
+  <environment>
+     <ccaSpec binding="babel" /> <library loading="dynamic" />
+  </environment>
+</componentDeployment>
+</libInfo>	 

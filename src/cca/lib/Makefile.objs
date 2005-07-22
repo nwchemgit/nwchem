@@ -1,0 +1,73 @@
+# Rules to create server/client objects
+
+include ../../../lib/MakeVars
+
+default: $(GEN_SRCS) $(OBJS) object-list
+
+$(GEN_SRCS): .babel-stamp
+	@if test -f $@; then \
+	  touch $@; \
+	else \
+	  rm -f .babel-stamp; \
+	  $(MAKE) .babel-stamp; \
+	fi
+
+$(EXTRA_CXX_SRCS): .babel-stamp
+
+.babel-stamp: ../../../.babel-stamp
+	@rm -f .babel-stamp .babel-temp; touch .babel-temp
+	for i in $(IMPLHDRS) $(IMPLSRCS) $(EXTRA_CXX_SRCS) $(EXTRA_INCLUDES); \
+          do \
+            if test ! -e $${i}; then \
+              ln -s $(srcdir)/$${i}; \
+            fi; \
+          done
+	$(BABEL) $(BABEL_FLAGS) $(BABEL_ARGS) $(BABEL_TARGETS) \
+	  $(BABEL_ENUMS) $(BABEL_PACKAGES)
+	@mv -f .babel-temp $@
+	@$(INSTALL) $(INSTALLDIROPT) $(objdir)/include
+	for i in $(INCLUDES); \
+          do \
+            $(INSTALL) $(INSTALLFILEOPT) $${i} $(objdir)/include; \
+          done
+
+../../../.babel-stamp:
+	cd ../../..; $(MAKE) .babel-stamp;
+
+object-list:
+	@rm -f object-list
+	@location=`pwd`; \
+	for i in $(OBJS); do \
+	  echo $${location}/$${i} >> object-list; \
+	done
+
+clean:
+	rm -f $(IORHDRS) $(IORSRCS) $(STUBHDRS) $(STUBSRCS) \
+                   $(SKELHDRS) $(SKELSRCS)
+	rm -f babel.make object-list .babel-stamp
+	rm -r -f *.d *.o *.lo .libs
+	for i in $(IMPLHDRS) $(IMPLSRCS) $(EXTRA_CXX_SRCS) $(EXTRA_INCLUDES); \
+          do \
+            if test -L $${i}; then \
+              /bin/rm $${i}; \
+            fi; \
+          done
+
+%.lo: %.c
+	$(LTCOMP) $(CC) $(CPPFLAGS) $(CFLAGS) -c $<
+
+%.lo: %.cc
+	$(LTCOMP) $(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $<
+
+ifneq ($(MAKECMDGOALS),clean)
+include $(OBJS:%.lo=%.d)
+%.d: %.c
+	set -e; $(CC) -M $(CPPFLAGS) $< \
+                | sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+                [ -s $@ ] || rm -f $@
+%.d: %.cc
+	set -e; $(CXX) -M $(CPPFLAGS) $< \
+                | sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; \
+                [ -s $@ ] || rm -f $@
+endif
+
