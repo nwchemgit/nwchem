@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag)
-C$Id: atomd.F,v 1.13 2005-07-21 20:31:04 edo Exp $
+C$Id: atomd.F,v 1.14 2005-07-25 18:40:25 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -137,7 +137,7 @@ c.......................................................................
          do i = 1 , ndim
             ss(i) = s(i)
             fc(i) = s(i)
-	    fo(i)=0.d0
+            fo(i)=0.d0
          enddo
 c.......................................................................
 c
