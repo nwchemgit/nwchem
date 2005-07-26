@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.86 2005-04-02 02:04:09 marat Exp $
+# $Id: GNUmakefile,v 1.87 2005-07-26 05:29:38 edo Exp $
 
 
 ifeq ($(USE_TEXAS),YEP)
@@ -44,7 +44,7 @@ endif
    LIBRARY = libnwints.a
 
  USES_BLAS = int_1e3ov.F int_hf1sp.F int_lgen1e.F intb_2e4c.F intbd_2e4c.F intd_1e3ov.F \
-             intd_1eh1.F intd_2e2c.F intd_2e4c.F intd_mpolel.F intp_txyz.F intpd_mpolel.F  intbdd_2e4c.F
+             intd_1eh1.F intd_2e2c.F intd_2e4c.F intd_mpolel.F intp_txyz.F intpd_mpolel.F  intbdd_2e4c.F  int_2e4c.F
 
 
 include ../../config/makefile.h
