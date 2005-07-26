@@ -24,8 +24,8 @@ c
       integer i_scr,h_scr
       integer i_d,h_d
       integer nscr
-      integer maxiter
-      double precision energy
+      integer maxiter,nrest
+      double precision energy,stp1
       logical task_gradient
       external task_gradient
       character*32 pname
@@ -38,7 +38,6 @@ c
       eps= 1.0d-5
       xtol= 1.0d-16
       icall=0
-      iflag=0
 
       if(.not.geom_create(igeom,'geometry'))
      + call errquit(pname//'Failed to create geometry',0, GEOM_ERR)
@@ -73,9 +72,12 @@ c
      +  maxiter = 20   
 
 c
+      stp1 = 0.0d0
+10    continue
       n=100
       iprint(1)= 1
       iprint(2)= 0
+      iflag=0
 c
       lbfgs_driver = .true.
  20   continue
@@ -86,11 +88,26 @@ c
       if (.not. rtdb_get(irtdb, 'task:gradient', mt_dbl, 3*ncent,
      $  dbl_mb(i_g))) call errquit('driver: could not get gradient',0,0)
 
+      write(*,*) "stp1, energy",stp1, energy
       call lbfgs(3*ncent,m,dbl_mb(i_c),energy,
      >           dbl_mb(i_g),diagco,
      >           dbl_mb(i_d),iprint,eps,xtol,
-     >           dbl_mb(i_scr),iflag,iter)
+     >           dbl_mb(i_scr),iflag,iter,stp1)
 
+c
+c     if line search exited due to may function evaluations
+c     try restarting 
+      if(iflag.eq.-1) then
+       if(master.eq.0) then
+          write(6,*) "@ too many function evaluations"
+          write(6,*) "@ restarting the optimization"
+          call util_flush(6) 
+       end if
+c       iflag=0
+c       call dfill(nscr,0.0d0,dbl_mb(i_scr),1)
+c       stp1=1.0
+       go to 20
+      end if
       if(iflag.le.0) then
           lbfgs_driver=.false.
           go to 50

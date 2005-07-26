@@ -6,7 +6,7 @@ C     LBFGS SUBROUTINE
 C     ****************
 C
       SUBROUTINE LBFGS(N,M,X,F,G,DIAGCO,DIAG,IPRINT,EPS,
-     >                 XTOL,W,IFLAG,ITER)
+     >                 XTOL,W,IFLAG,ITER,STP1)
 C
       INTEGER N,M,IPRINT(2),IFLAG,ITER
       DOUBLE PRECISION X(N),G(N),DIAG(N),W(N*(2*M+1)+2*M)
@@ -228,7 +228,7 @@ C
 C     - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 C
       DOUBLE PRECISION GTOL,ONE,ZERO,GNORM,GRMS,DDOT,STP1,FTOL,STPMIN,
-     .                 STPMAX,STP,YS,YY,SQ,YR,BETA,XNORM
+     .                 STPMAX,STP,YS,YY,SQ,YR,BETA,XNORM,GMAX,G0
       INTEGER MP,LP,NFUN,POINT,ISPT,IYPT,MAXFEV,INFO,
      .        BOUND,NPT,CP,I,NFEV,INMC,IYCN,ISCN
       LOGICAL FINISH
@@ -279,7 +279,13 @@ C
  50   W(ISPT+I)= -G(I)*DIAG(I)
       GNORM= DSQRT(DDOT(N,G,1,G,1))
       GRMS= GNORM/SQRT(REAL(N))
-      STP1= ONE/GNORM
+      GMAX=0.0
+      DO I=1,N
+        G0=ABS(G(I))
+        GMAX = MAX(GMAX,G0)
+      END DO
+      IF(STP1.EQ.0.0d0)
+     *   STP1= ONE/GNORM
 C
 C     PARAMETERS FOR LINE SEARCH ROUTINE
 C     
@@ -287,7 +293,7 @@ C
       MAXFEV= 20
 C
       IF(IPRINT(1).GE.0) CALL LB1(IPRINT,ITER,NFUN,
-     *                     GRMS,N,M,X,F,G,STP,FINISH)
+     *                     GRMS,GMAX,N,M,X,F,G,STP,FINISH)
 C
 C    --------------------
 C     MAIN ITERATION LOOP
@@ -366,6 +372,7 @@ C     ----------------------------------------------------
  172  CONTINUE
       CALL MCSRCH(N,X,F,G,W(ISPT+POINT*N+1),STP,FTOL,
      *            XTOL,MAXFEV,INFO,NFEV,DIAG)
+      STP1=STP
       IF (INFO .EQ. -1) THEN
         IFLAG=1
         RETURN
@@ -391,10 +398,15 @@ C
       XNORM= DSQRT(DDOT(N,X,1,X,1))
       XNORM= DMAX1(1.0D0,XNORM)
 C      IF (GNORM/XNORM .LE. EPS) FINISH=.TRUE.
+      GMAX=0.0
+      DO I=1,N
+        G0=ABS(G(I))
+        GMAX = MAX(GMAX,G0)
+      END DO
       IF (GRMS .LE. EPS) FINISH=.TRUE.
 C
       IF(IPRINT(1).GE.0) CALL LB1(IPRINT,ITER,NFUN,
-     *               GRMS,N,M,X,F,G,STP,FINISH)
+     *               GRMS,GMAX,N,M,X,F,G,STP,FINISH)
       IF (FINISH) THEN
          IFLAG=0
          RETURN
@@ -435,7 +447,7 @@ C     LAST LINE OF SUBROUTINE LBFGS
 C
 C
       SUBROUTINE LB1(IPRINT,ITER,NFUN,
-     *                     GNORM,N,M,X,F,G,STP,FINISH)
+     *                     GNORM,GMAX,N,M,X,F,G,STP,FINISH)
 C
 C     -------------------------------------------------------------
 C     THIS ROUTINE PRINTS MONITORING INFORMATION. THE FREQUENCY AND
@@ -443,7 +455,7 @@ C     AMOUNT OF OUTPUT ARE CONTROLLED BY IPRINT.
 C     -------------------------------------------------------------
 C
       INTEGER IPRINT(2),ITER,NFUN,LP,MP,N,M,MASTER
-      DOUBLE PRECISION X(N),G(N),F,GNORM,STP,GTOL,STPMIN,STPMAX
+      DOUBLE PRECISION X(N),G(N),F,GNORM,STP,GTOL,GMAX,STPMIN,STPMAX
       LOGICAL FINISH
       COMMON /LB3/MP,LP,GTOL,STPMIN,STPMAX
       COMMON /LB3P/MASTER
@@ -453,7 +465,7 @@ C     forcing to exit if not master node (MV)
       IF (ITER.EQ.0)THEN
            WRITE(MP,10)
            WRITE(MP,20) N,M
-           WRITE(MP,30)F,GNORM
+           WRITE(MP,30)F,GNORM,GMAX,STP
                  IF (IPRINT(2).GE.1)THEN
                      WRITE(MP,40)
                      WRITE(MP,50) (X(I),I=1,N)
@@ -467,13 +479,13 @@ C     forcing to exit if not master node (MV)
               IF (IPRINT(1).NE.0)THEN
                    IF(MOD(ITER-1,IPRINT(1)).EQ.0.OR.FINISH)THEN
                          IF(IPRINT(2).GT.1.AND.ITER.GT.1) WRITE(MP,70)
-                         WRITE(MP,80)ITER,NFUN,F,GNORM,STP
+                         WRITE(MP,80)ITER,NFUN,F,GNORM,GMAX,STP
                    ELSE
                          RETURN
                    ENDIF
               ELSE
                    IF( IPRINT(2).GT.1.AND.FINISH) WRITE(MP,70)
-                   WRITE(MP,80)ITER,NFUN,F,GNORM,STP
+                   WRITE(MP,80)ITER,NFUN,F,GNORM,GMAX,STP
               ENDIF
               IF (IPRINT(2).EQ.2.OR.IPRINT(2).EQ.3)THEN
                     IF (FINISH)THEN
@@ -493,12 +505,14 @@ C
  10   FORMAT('*************************************************')
  20   FORMAT('  N=',I5,'   NUMBER OF CORRECTIONS=',I2,
      .       /,  '       INITIAL VALUES')
- 30   FORMAT('@ F= ',1PD10.3,'   GNORM= ',1PD10.3)
+ 30   FORMAT('@ F=',F12.6,' GNORM=',F12.6,' GMAX=',F12.6,
+     *        ' STEP= ',F12.6)
  40   FORMAT(' VECTOR X= ')
  50   FORMAT(6(2X,1PD10.3))
  60   FORMAT(' GRADIENT VECTOR G= ')
- 70   FORMAT(/'   I   NFN',4X,'FUNC',8X,'GNORM',7X,'STEPLENGTH'/)
- 80   FORMAT('@ ',2(I4,1X),3X,3(F12.6,2X))
+ 70   FORMAT(/'   I   NFN',4X,'FUNC',8X,'GRMS',
+     *     7X,'GMAX',7X,'STEPLENGTH'/)
+ 80   FORMAT('@ ',2(I4,1X),3X,4(F12.6,2X))
  90   FORMAT(' FINAL POINT X= ')
  100  FORMAT(/' THE MINIMIZATION TERMINATED WITHOUT DETECTING ERRORS.',
      .       /' IFLAG = 0')
