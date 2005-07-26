@@ -1,10 +1,9 @@
-# $Id: GNUmakefile,v 1.15 2000-08-22 19:07:28 d3e129 Exp $
+# $Id: GNUmakefile,v 1.16 2005-07-26 23:51:56 edo Exp $
        HEADERS = 
   OBJ_OPTIMIZE = vib_callg.o
            OBJ = vib_bcalc.o \
                  vib_bdiha5.o \
                  vib_bend.o \
-                 vib_bmat.o \
                  vib_bstr.o \
                  vib_cebdab.o \
                  vib_chkhess.o \
@@ -17,10 +16,8 @@
                  vib_hmass.o \
                  vib_libe.o \
                  vib_nmass.o \
-                 vib_opla.o \
                  vib_prdata.o \
                  vib_prntpd.o \
-                 vib_przdat.o \
                  vib_rdinp.o \
                  vib_setup.o \
                  vib_tors.o \
