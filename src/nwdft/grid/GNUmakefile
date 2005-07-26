@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.49 2005-02-15 19:30:59 edo Exp $
+# $Id: GNUmakefile,v 1.50 2005-07-26 05:51:11 edo Exp $
 
       OBJ_OPTIMIZE= \
         grid_pscreen.o \
@@ -51,7 +51,7 @@ LIB_INCLUDES = -I../include
 
    USES_BLAS = grid_invariant.F grid_beckew.F grid_file.F grid_setspac.F \
  grid_quadv0a.F grid_quadv0b.F grid_quadvw.F grid_tasks.F grid_pscreen.F \
-grid_quadvw1.F grid_xcfit.F grid_sympts.F grid_ssw.F
+grid_quadvw1.F grid_xcfit.F grid_sympts.F grid_ssw.F grid_finpts.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
