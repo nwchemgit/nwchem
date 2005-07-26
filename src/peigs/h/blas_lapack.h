@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.24 2003-08-13 21:34:47 edo Exp $
+ $Id: blas_lapack.h,v 1.25 2005-07-26 06:06:52 edo Exp $
   c defines */
 
 #define NO_EVEC 0
@@ -124,6 +124,24 @@
 #define DLAMCHB 2.0000000000000000e+00
 #define DLAMCHS 2.2250738585072014e-308
 #define DLAMCHU 2.2250738585072014e-308
+
+#define dscal_  sscal_
+#define ddot_   sdot_
+#define daxpy_  saxpy_
+#define dnrm2_  snrm2_
+#define dasum_  sasum_
+#define dcopy_  scopy_
+#define idamax_ isamax_
+
+/*
+  lapack
+  */
+
+#define dlagtf_ slagtf_
+#define dlagts_ slagts_
+#define dlamch_ slamch_
+#define dlarnv_ slarnv_
+
 
 #endif
 #ifdef PENTIUM
