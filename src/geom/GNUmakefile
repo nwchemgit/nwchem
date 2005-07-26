@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.56 2004-12-29 01:58:47 edo Exp $
+#$Id: GNUmakefile,v 1.57 2005-07-26 05:28:31 edo Exp $
 
  LIBRARY = libnwcutil.a
 
@@ -10,7 +10,7 @@
 
  HEADERS = geom.fh geomP.fh
 
- USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F geom_3d.F
+ USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F geom_3d.F geom_getsym.F
 include ../config/makefile.h
 include ../config/makelib.h
 
