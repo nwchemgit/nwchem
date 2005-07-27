@@ -1,6 +1,6 @@
       subroutine driver_input(rtdb)
 *
-* $Id: driver_input.F,v 1.11 2003-10-17 22:54:49 carlfahl Exp $
+* $Id: driver_input.F,v 1.12 2005-07-27 23:05:13 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -14,6 +14,7 @@ c
       character*255 field
       double precision ascale, bscale, tscale, hscale
       logical ignore
+      integer mh
 c
 c     So that task knows that driver is in control
 c
@@ -60,6 +61,16 @@ c
          if(.not. inp_f(xmax_tol))
      $        call errquit('driver_input: xmax',911, INPUT_ERR)
          if (.not. rtdb_put(rtdb,'driver:xmax_tol',mt_dbl,1,xmax_tol))
+     $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
+c
+      else if (inp_compare(.false.,'mh', field)) then
+         if(.not. inp_i(mh))
+     $        call errquit('driver_input: mh',911, INPUT_ERR)
+         if (.not. rtdb_put(rtdb,'driver:mh',mt_int,1,mh))
+     $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
+c
+      else if (inp_compare(.false.,'lbfgs', field)) then
+         if (.not. rtdb_put(rtdb,'driver:lbfgs',mt_log,1,.true.))
      $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
 c
       else if (inp_compare(.false.,'loose', field)) then
