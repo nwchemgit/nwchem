@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.12 2005-07-20 20:47:03 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.13 2005-07-27 23:24:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -21,6 +21,9 @@ c
 c     
       logical   driver
       external  driver
+
+      logical   lbfgsb_driver
+      external  lbfgsb_driver
 
       call util_print_push() 
       call util_print_rtdb_load(rtdb, 'qmmm')
@@ -63,7 +66,7 @@ c
          if(qmmm_print_debug())
      >      write(*,*) "going into driver"
           if(ouselbfgs) then
-          call lbfgs_driver(rtdb)
+          status =  lbfgsb_driver(rtdb)
           else
          status = driver(rtdb)
           end if

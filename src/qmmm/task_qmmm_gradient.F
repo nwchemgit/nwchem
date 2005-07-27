@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.32 2005-07-20 20:49:16 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.33 2005-07-27 23:24:49 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -234,9 +234,7 @@ c     -------------------------
      &                       int_mb(i_ifg),
      &                       dbl_mb(i_g))
 
-        write(*,*) "qm energy before",qm_energy
         call qmmm_cons_reaction(rtdb,.true.,qm_energy,dbl_mb(i_g))
-        write(*,*) "qm energy after",qm_energy
 
         call mm_add_solute_force(nfg,
      &                     int_mb(i_ifg),
