@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.71 2005-06-11 07:17:38 marat Exp $
+* $Id: task.F,v 1.72 2005-07-27 23:03:16 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -72,6 +72,9 @@ c
 
       logical bq_init,bq_end
       external bq_init,bq_end
+c
+      logical  task_qmmm_esp
+      external task_qmmm_esp
 c
       logical task_qmmm_optimize
       external task_qmmm_optimize
@@ -175,7 +178,11 @@ c
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
-          status=esp(rtdb)
+           if(task_qmmm) then
+             status = task_qmmm_esp(rtdb)
+           else
+             status = esp(rtdb)
+           endif
          elseif(inp_compare(.false.,'prepare',theory)) then
           status=prepar(rtdb)
          elseif(inp_compare(.false.,'analysis',theory)) then
