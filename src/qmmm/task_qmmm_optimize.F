@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.13 2005-07-27 23:24:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.14 2005-07-28 22:11:13 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -21,6 +21,9 @@ c
 c     
       logical   driver
       external  driver
+
+      logical   qmmm_lbfgsb_driver
+      external  qmmm_lbfgsb_driver
 
       logical   lbfgsb_driver
       external  lbfgsb_driver
@@ -50,6 +53,10 @@ c
       if (.not. rtdb_get(rtdb, 'opt:lbfgs', mt_log, 1, ouselbfgs))
      $     ouselbfgs = .false.
 
+      if (.not. rtdb_get(rtdb, 'driver:lbfgs', mt_log, 
+     $                   1, ouselbfgs))
+     $     ouselbfgs = .false.
+
       status = .true.
 
       if (optimization.eq.'all') then
@@ -66,9 +73,9 @@ c
          if(qmmm_print_debug())
      >      write(*,*) "going into driver"
           if(ouselbfgs) then
-          status =  lbfgsb_driver(rtdb)
+            status =  qmmm_lbfgsb_driver(rtdb)
           else
-         status = driver(rtdb)
+            status = driver(rtdb)
           end if
          call mm_print_info()
 c

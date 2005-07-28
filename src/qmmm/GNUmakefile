@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.20 2005-06-23 17:32:02 marat Exp $
+# $Id: GNUmakefile,v 1.21 2005-07-28 22:11:13 marat Exp $
 #
 
- OBJ =  mm_interface.o   
+ OBJ =  mm_interface.o   qmmm_lbfgsb.o
  OBJ_OPTIMIZE =  qmmm_utils.o task_qmmm_energy.o qmmm_main.o qmmm_data.o \
                  qmmm_geom.o  qmmm.o qmmm_input.o mm_utils.o qmmm_bq_data.o \
                  task_qmmm_gradient.o task_qmmm_optimize.o task_qmmm_dynamics.o qmmm_output.o \

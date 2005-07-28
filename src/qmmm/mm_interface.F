@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.62 2005-07-13 15:06:39 marat Exp $
+c $Id: mm_interface.F,v 1.63 2005-07-28 22:11:13 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -133,6 +133,25 @@ c
       if(qmmm_print_debug()) write(*,*) "in "//pname
 c
       call mm_get_solute_tot_na_gen(nqm,mm_quant)
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_tot_nact(nact)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+#include "qmmm.fh"
+c
+      integer nact,nacts,nactw
+      character*32 pname
+      pname = "mm_get_tot_nact"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+      call mm_get_solute_tot_nact(nacts)
+      call mm_get_solvent_tot_nact(nactw)
+      nact = nacts + nactw
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 

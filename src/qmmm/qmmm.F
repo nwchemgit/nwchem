@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.52 2005-07-13 15:07:45 marat Exp $
+c $Id: qmmm.F,v 1.53 2005-07-28 22:11:13 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -25,6 +25,7 @@ c
       character*255 geom
       logical aux_geom
       logical loadgeom
+      logical ouselbfgs
 c
       call qmmm_print_header()
 c
@@ -59,8 +60,15 @@ c     --------------------------------------------
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('task: no task input for theory?',0, RTDB_ERR)
 
+      if (.not. rtdb_get(irtdb, 'driver:lbfgs', mt_log, 1, ouselbfgs))
+     $     ouselbfgs = .false.
+
       if(operation.eq."optimize") then
-        aux_geom = .true.
+        if(ouselbfgs) then
+          aux_geom = .false.
+        else
+          aux_geom = .true.
+        end if
       else if(operation.eq."freq") then
         aux_geom = .true.
       else if(operation.eq."hessian") then
