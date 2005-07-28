@@ -50,6 +50,7 @@ c       the driver.
  
       character*60     task, csave
       character*60     pname
+      character*16     xyz
       logical          lsave(4)
       integer          m, iprint
       integer isave(44)
@@ -103,6 +104,9 @@ c
 c
       if (.not. rtdb_get(irtdb,'driver:nptopt',mt_int,1,maxiter))
      $     maxiter=20
+c
+      if (.not. rtdb_cget(irtdb,'driver:xyz',1,xyz))
+     $     xyz = ' '
 c
       if(.not.geom_create(igeom,'geometry'))
      + call errquit(pname//'Failed to create geometry',0, GEOM_ERR)
@@ -258,9 +262,11 @@ c       so we have to save it into rtdb
      +                                dbl_mb(i_g),
      +                                xmax,xrms,gmax,grms)
 
-            call lbfgsb_print_info(isave(30)+1,f,f-f0,xmax,xrms,
+            call lbfgsb_print_info(isave(30)+1,
+     +                               igeom,
+     +                               f,f-f0,xmax,xrms,
      +                               gmax,grms,
-     +                               tol)
+     +                               tol,xyz)
 
             if(lbfgsb_converged(xmax,xrms,gmax,grms,tol)) then
                task='CONVERGED: MET CONVERGENCE CRITERIA'
@@ -370,22 +376,32 @@ c
 c
       end
 
-      subroutine lbfgsb_print_info(istep,e,de,xmax,xrms,gmax,grms,
-     +                             tol)
+      subroutine lbfgsb_print_info(istep,igeom,
+     +                             e,de,xmax,xrms,gmax,grms,
+     +                             tol,xyz)
       implicit none
+#include "util.fh"
+#include "geom.fh"
+#include "inp.fh"
+#include "errquit.fh"
       integer n
 c
 c     Compute stuff used for printing and convergence tests
 c
-      integer istep
+      integer istep,igeom
       double precision e,de,grms,gmax,xrms,xmax,tol(4)
+      character*(*) xyz
       character*1 mark
       character*9 cvg1, cvg2, cvg3, cvg4
 
-      double precision util_wallsec
-      external util_wallsec
+c      double precision util_wallsec
+c      external util_wallsec
       double precision gmax_tol,grms_tol
       double precision xmax_tol,xrms_tol
+      character*255 filename, dir
+      character*30 pname
+c
+      pname = "lbfgsb_print_info"
 c
       gmax_tol = tol(1)
       grms_tol = tol(2)
@@ -417,6 +433,25 @@ c
      $     a1,i5,f17.8,1p,d9.1,0p,4f9.5,f9.1,/,
      $     1x,5x,17x,9x,4a9,/)
 
+      if (xyz.ne.' ') then
+         dir      = ' '
+         filename = ' ' 
+         call util_directory_name(dir, .false., 0)
+         write(filename,13) dir(1:inp_strlen(dir)), 
+     $        xyz(1:inp_strlen(xyz)),istep-1
+ 13      format(a,'/',a,'-',i3.3,'.xyz')
+         write(*,*) filename
+         open(88,file=filename,form='formatted',status='unknown',
+     $        err=133)
+         if (.not. geom_print_xyz(igeom, 88))
+     $        call errquit('driver: geom_print_xyz?',0, GEOM_ERR)
+         close(88,status='keep',err=133)
+      endif
+c
+      return
+c
+ 133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
+c
       end
 
 c======================= The end of driver1 ============================
