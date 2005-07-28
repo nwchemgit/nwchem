@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.73 2005-07-21 01:10:41 edo Exp $
+$Id: INSTALL,v 1.74 2005-07-28 15:51:17 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -24,11 +24,15 @@ installation before beginning.  The sections for this guide are
    GA Related Issues           -  only for people that want to try out the
                                   latest version of GA or are having problems
                                   with GA on their platform
+   ARMCI-related installation  -  ARMCI installation on high
+     issues                       performance networks
    Running on Fujitsu machines -  some notes on the Fujitsu system
    Building and Running NWChem -  system information for clusters
      on Myrinet clusters          using Myrinet interconnect
    Building and Running NWChem -  system information for clusters
      on Giganet clusters          using Giganet interconnect
+   Building and Running NWChem -  system information for clusters
+     on Infiniband clusters          using Infiniband interconnect
    Building for Windows        -  brief instructions for compiling under
                                   Windows NT or Windows 98
    Memory Script               -  information about a script that can help
@@ -677,9 +681,6 @@ MPI_LIB=$MPI_LOC/lib
 MPI_INCLUDE=$MPI_LOC/include
 LIBMPI=-lmpich             
 
-optional variable
-USE_MPIF=y
-
 To run NWChem, you need to set the following enviromental variable:
 
 GMPI_SHMEM_FILE /tmp/$USER.gm 
@@ -714,6 +715,30 @@ MPI_COMM=VIA
 ------------------------------------------------
 Note*: Giganet clusters can be configured with MPICH or MPI.
        Please see the above notes "Building with MPI" for further details.
+
+BUILDING AND RUNNING NWCHEM ON INFINIBAND CLUSTERS:
+------------------------------------------------
+Before starting the NWChem compilation, the following environmental
+variables must be defined:
+
+ARMCI_NETWORK=MELLANOX
+
+Prior to installing NWChem, you must have installed the Mellanox and
+the MVAPICH over IB softwares (http://www.mellanox.com and
+http://nowlab.cis.ohio-state.edu/projects/mpi-iba/download.html ) on
+the system.  
+Before starting the NWChem compilation, the following environmental 
+variables must be defined:
+
+USE_MPI=y
+IB_HOME="location of MELLANOX software"
+IB_INCLUDE=$IB_HOME/include  
+IB_LIB=$IB_HOME/lib
+ARMCI_NETWORK=MELLANOX
+MPI_LOC="location of MVAPICH software"
+MPI_LIB=$MPI_LOC/lib
+MPI_INCLUDE=$MPI_LOC/include
+LIBMPI=-lmpich             
 
 RUNNING ON ALPHA SC SERVERS
 ---------------------------
