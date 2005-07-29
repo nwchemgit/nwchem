@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs-b_driver.F,v 1.3 2005-07-28 17:29:15 marat Exp $
+* $Id: lbfgs-b_driver.F,v 1.4 2005-07-29 17:19:40 marat Exp $
 *
 c        Modified driver for use in NWChem (MV)
 c
@@ -89,6 +89,7 @@ c
 
       double precision tol(4)
       integer maxiter
+      integer nfmax
 
       pname = "lbfgsb_driver"
 
@@ -120,6 +121,10 @@ c
 
       if (.not. rtdb_get(irtdb,'driver:mh',mt_int,1,m))
      $        m = 5
+
+      if (.not. rtdb_get(irtdb,'driver:nfmax',mt_int,1,nfmax))
+     $        nfmax = 20
+
 
       nc = 3*ncent
       nwa =  2*m*nc+4*nc+12*m*m+12*m
@@ -205,7 +210,7 @@ c     This is the call to the L-BFGS-B code.
  
 
       if(master) then
-        call setulb(nc,m,
+        call setulb(nc,m,nfmax,
      +              dbl_mb(i_x),
      +              dbl_mb(i_l),
      +              dbl_mb(i_u),

@@ -1,10 +1,11 @@
  
-      subroutine setulb(n, m, x, l, u, nbd, f, g, factr, pgtol, wa, iwa,
+      subroutine setulb(n, m,nfmax, x, l, u, 
+     +                 nbd, f, g, factr, pgtol, wa, iwa,
      +                 task, iprint,  csave, lsave, isave, dsave)
  
       character*60     task, csave
       logical          lsave(4)
-      integer          n, m, iprint, 
+      integer          n, m,nfmax, iprint, 
      +                 nbd(n), iwa(3*n), isave(44)
       double precision f, factr, pgtol, x(n), l(n), u(n), g(n),
      +                 wa(2*m*n+4*n+12*m*m+12*m), dsave(29)
@@ -235,7 +236,7 @@ c     ************
       lyg  = isave(19)
       lygo = isave(20)
 
-      call mainlb(n,m,x,l,u,nbd,f,g,factr,pgtol,
+      call mainlb(n,m,nfmax,x,l,u,nbd,f,g,factr,pgtol,
      +  wa(lws),wa(lwy),wa(lsy),wa(lss),wa(lyy),wa(lwt),
      +  wa(lwn),wa(lsnd),wa(lz),wa(lr),wa(ld),wa(lt),
      +  wa(lwa),wa(lsg),wa(lsgo),wa(lyg),wa(lygo),
@@ -248,14 +249,15 @@ c     ************
 
 c======================= The end of setulb =============================
  
-      subroutine mainlb(n, m, x, l, u, nbd, f, g, factr, pgtol, ws, wy,
+      subroutine mainlb(n, m, nfmax,x, l, u, 
+     +                  nbd, f, g, factr, pgtol, ws, wy,
      +                  sy, ss, yy, wt, wn, snd, z, r, d, t, wa, sg,
      +                  sgo, yg, ygo, index, iwhere, indx2, task,
      +                  iprint, csave, lsave, isave, dsave)
  
       character*60     task, csave
       logical          lsave(4)
-      integer          n, m, iprint, nbd(n), index(n),
+      integer          n, m,nfmax, iprint, nbd(n), index(n),
      +                 iwhere(n), indx2(n), isave(23)
       double precision f, factr, pgtol,
      +                 x(n), l(n), u(n), g(n), z(n), r(n), d(n), t(n), 
@@ -734,7 +736,12 @@ c     Generate the search direction d:=z-x.
       call lnsrlb(n,l,u,nbd,x,f,fold,gd,gdold,g,d,r,t,z,stp,dnorm,
      +            dtd,xstep,stpmx,iter,ifun,iback,nfgv,info,task,
      +            boxed,cnstnd,csave,isave(22),dsave(17))
-      if (info .ne. 0 .or. iback .ge. 20) then
+c
+c     THIS IS WHERE NUMBER OF FUNCTION EVALUATIONS IS SET
+c
+c      if (info .ne. 0 .or. iback .ge. 20) then
+c      changing from a hardwired number to input parameter(MV)
+      if (info .ne. 0 .or. iback .ge. nfmax) then
 c          restore the previous iterate.
          call dcopy(n,t,1,x,1)
          call dcopy(n,r,1,g,1)

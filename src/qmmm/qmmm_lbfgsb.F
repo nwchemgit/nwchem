@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.1 2005-07-28 22:11:13 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.2 2005-07-29 17:19:23 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -92,6 +92,7 @@ c
 
       double precision tol(4)
       integer maxiter
+      integer nfmax
 
       pname = "qmmm_lbfgsb_driver"
 
@@ -116,6 +117,9 @@ c
 
       if (.not. rtdb_get(irtdb,'driver:mh',mt_int,1,m))
      $        m = 5
+
+      if (.not. rtdb_get(irtdb,'driver:nfmax',mt_int,1,nfmax))
+     $        nfmax = 20
 
       nc = 3*ncent
       nwa =  2*m*nc+4*nc+12*m*m+12*m
@@ -210,7 +214,7 @@ c        ------- the beginning of the loop ----------
 c     This is the call to the L-BFGS-B code.
  
 
-      call setulb(nc,m,
+      call setulb(nc,m,nfmax,
      +            dbl_mb(i_x),
      +            dbl_mb(i_l),
      +            dbl_mb(i_u),
