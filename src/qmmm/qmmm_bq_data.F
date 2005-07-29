@@ -164,6 +164,11 @@ c     ------------------------
        write(*,*) "Total Bq charge: ", charge
       end if
 
+      if(ga_nodeid().eq.0) then
+       write(*,*) "number of active bqs ",nbqa
+      end if
+
+
       if(util_print('bq_geom', print_high)) 
      + call bq_print_info(bq_handle)
 
