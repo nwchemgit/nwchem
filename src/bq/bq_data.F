@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.8 2005-04-13 02:02:01 marat Exp $
+c $Id: bq_data.F,v 1.9 2005-08-04 16:53:25 marat Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.8 2005-04-13 02:02:01 marat Exp $
+C$Id: bq_data.F,v 1.9 2005-08-04 16:53:25 marat Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -219,6 +219,7 @@ c      local variables
        bq_ncent(handle)  = n
        bq_charge(handle) = h_q
        bq_coord(handle)  = h_c
+       bq_mem(handle)    = .false.
 
        return
        end
