@@ -326,7 +326,8 @@ c
        nbqw=0
        nbq=0
 
-       ignore = bq_deactivate(bq_handle)
+c       ignore = bq_deactivate(bq_handle)
+       ignore = bq_destroy(bq_handle)
 
 
       end
