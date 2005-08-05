@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.1 2005-08-05 20:39:35 bylaska Exp $
+* $Id: band_dplot.F,v 1.2 2005-08-05 21:38:51 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -341,14 +341,14 @@
 
 
  1249 FORMAT(/' computational grids:')
- 1250 FORMAT(5X,' density cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
+ 1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc ',I3,' cutoff=',F7.3,
      &        '  fft=',I3,'x',I3,'x',I3,
      &       '( ',I8,' waves ',I8,' per task)')
 
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,'number of zone points:',I3)
+ 1256 FORMAT(5x,' number of zone points:',I3)
       end
 
 
