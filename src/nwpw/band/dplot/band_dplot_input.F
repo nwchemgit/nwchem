@@ -1,5 +1,5 @@
 c
-c $Id: band_dplot_input.F,v 1.1 2005-08-05 20:39:36 bylaska Exp $
+c $Id: band_dplot_input.F,v 1.2 2005-08-05 22:24:24 bylaska Exp $
 c
 
 
@@ -52,11 +52,19 @@ c
      >              'alpha',
      >              'beta'   /
 
+
+      integer num_fnames          ! No. of orbital directives
+      parameter (num_fnames = 3)
+      character*22 fnames(num_fnames)
+      data fnames / 'density',
+     >              'real',
+     >              'complex' /
+
       logical value
       integer ind               ! Index of matched directive
-      integer       number,count,ia,nb
-      integer       name1_len,name2_len,name3_len
-      character*30  name1,name2,name3
+      integer       number,count,ia,nb,onumber
+      integer       name1_len,name2_len,name3_len,name4_len
+      character*30  name1,name2,name3,name4
       character*30  filename
       character*30  wavefunction_filename
       character*255 test
@@ -160,7 +168,19 @@ c
 c  orbital
 c     
 *     *** read orbital number ****
- 300  if (.not. inp_i(number))
+ 300  if (.not. inp_a(test))
+     >   call errquit(
+     >       'band_dplot_input: failed to read orbital keyword', 0,
+     &       INPUT_ERR)
+
+*     *** orbital number ****
+      if (.not.inp_match(num_fnames,.false.,test,fnames,onumber))
+     >     onumber = 1
+*     !*** onumber = 1 - density
+*     !*** onumber = 2 - real
+*     !*** onumber = 3 - complex
+
+      if (.not. inp_i(number))
      >   call errquit(
      >       'band_dplot_input: failed to read orbital number', 0,
      &       INPUT_ERR)
@@ -180,9 +200,11 @@ c
       name1 = 'band_dplot:filename'//CHAR(count-1+ia)
       name2 = 'band_dplot:number'//CHAR(count-1+ia)
       name3 = 'band_dplot:nb'//CHAR(count-1+ia)
+      name4 = 'band_dplot:onumber'//CHAR(count-1+ia)
       name1_len = index(name1,' ') - 1
       name2_len = index(name2,' ') - 1
       name3_len = index(name3,' ') - 1
+      name4_len = index(name4,' ') - 1
 
       ind = index(filename,' ') - 1
       value = rtdb_cput(rtdb,name1(1:name1_len),1,filename(1:ind))
@@ -190,6 +212,8 @@ c
      >                           mt_int,1,number)
       value = value.and.rtdb_put(rtdb,name3(1:name3_len),
      >                           mt_int,1,nb)
+      value = value.and.rtdb_put(rtdb,name4(1:name4_len),
+     >                           mt_int,1,onumber)
       value = value.and.rtdb_put(rtdb,'band_dplot:count',
      >                           mt_int,1,count)
       if (.not.value)

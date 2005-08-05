@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.2 2005-08-05 21:38:51 bylaska Exp $
+* $Id: band_dplot.F,v 1.3 2005-08-05 22:25:25 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -348,7 +348,7 @@
      &       '( ',I8,' waves ',I8,' per task)')
 
  1255 FORMAT(/' brillouin zone:')
- 1256 FORMAT(5x,' number of zone points:',I3)
+ 1256 FORMAT(5x,'number of zone points:',I3)
       end
 
 
@@ -383,7 +383,7 @@
       parameter (MASTER=0)
 
       integer n2ft3d
-      integer i,count,number,ia,nb
+      integer i,count,number,ia,nb,onumber
       integer n1(2),n2(2),nn(2)
       integer nx,ny,nz
       integer rho(2)
@@ -560,6 +560,12 @@
            if (.not.rtdb_get(rtdb,name3(1:name3_len),mt_int,1,nb)) then
              nb = 1
            end if
+           name3 = 'band_dplot:onumber'//CHAR(i-1+ia)
+           name3_len = index(name3,' ') - 1
+           if (.not.rtdb_get(rtdb,name3(1:name3_len),
+     >                       mt_int,1,onumber)) then
+             onumber = 1
+           end if
            if ((number.gt.nemax).or.(number.lt.1)) then
               if (taskid.eq.MASTER) then
                 write(*,*)  '   Bad orbital number ', number,
@@ -568,19 +574,49 @@
               number = 1
            end if
        
-           call C3dB_r_Zero(1,dbl_mb(rho(1)))
-           call C3dB_cr_aSqrpy(1, 1.0d0,
+           if (onumber.eq.1) then
+             call C3dB_r_Zero(1,dbl_mb(rho(1)))
+             call C3dB_cr_aSqrpy(1, 1.0d0,
      >                         psi_r(1,number,nb),
      >                         dbl_mb(rho(1)))
-           call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
 
-           if (.not.add_tag) then
-           if (taskid.eq.MASTER) then
+             if (.not.add_tag) then
+             if (taskid.eq.MASTER) then
              write(*,801) number,nb,filename(1:ind)
  801         format('    writing density of orbital ',I4,
      >              ' of brillioun zone ',I4,
      >              ' to filename: ',A)
-           end if
+             end if
+             end if
+           else if (onumber.eq.2) then
+             call C3dB_r_Zero(1,dbl_mb(rho(1)))
+             call C3dB_cr_real(1, 
+     >                         psi_r(1,number,nb),
+     >                         dbl_mb(rho(1)))
+             if (.not.add_tag) then
+             if (taskid.eq.MASTER) then
+             write(*,802) number,nb,filename(1:ind)
+ 802         format('    writing real part of orbital ',I4,
+     >              ' of brillioun zone ',I4,
+     >              ' to filename: ',A)
+             end if
+             end if
+
+           else if (onumber.eq.3) then
+             call C3dB_r_Zero(1,dbl_mb(rho(1)))
+             call C3dB_cr_imag(1,
+     >                         psi_r(1,number,nb),
+     >                         dbl_mb(rho(1)))
+             if (.not.add_tag) then
+             if (taskid.eq.MASTER) then
+             write(*,803) number,nb,filename(1:ind)
+ 803         format('    writing imaginary part of orbital ',I4,
+     >              ' of brillioun zone ',I4,
+     >              ' to filename: ',A)
+             end if
+             end if
+
            end if
           cube_comment = 'SCF Molecular Orbitals'
         end if
@@ -864,7 +900,7 @@ c        if (.not. value) call errquit('reading geometry',0)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** transpose grid ****
-c      call C3dB_c_transpose_jk(1,rho,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+      call C3dB_r_transpose_jk(1,rho,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
 *     **** write grid ****
       call C3dB_r_FormatWrite_reverse(1,unit_id,rho,dcpl_mb(tmp1(1)))
