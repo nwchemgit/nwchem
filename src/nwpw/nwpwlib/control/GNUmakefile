@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2004-05-14 16:11:59 edo Exp $
+# $Id: GNUmakefile,v 1.9 2005-08-05 20:39:36 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
@@ -7,6 +7,7 @@
 			psi_get_ne.o \
 			psi_get_version.o \
 			psi_get_header.o \
+			cpsi_get_header.o \
 			get_psp_type.o
 
 

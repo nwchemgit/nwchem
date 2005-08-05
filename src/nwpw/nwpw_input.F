@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.30 2005-07-09 22:44:15 bylaska Exp $
+c $Id: nwpw_input.F,v 1.31 2005-08-05 20:39:35 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 70)
+      parameter (num_dirs = 71)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -31,7 +31,7 @@ c
      >            'analysis',
      >            'cell_optimize',
      >            'qmmm',
-     >            'dplot',
+     >            'dplot','band_dplot',
      >            'band',
      >            'brillouin_zone',
      >            'cell_name:',
@@ -128,7 +128,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800,
-     >       900, 1000,1100,1200,1300,1400,1500,1600,
+     >       900, 1000,1100,1200,1300,1400,1500,1600,1650,
      >       1700,1800,1900,2000,2100,2200,2300,2400,
      >       2500,2600,2700,2800,2900,3000,3100,3200,
      >       3300,3400,3500,3400,3500,3600,3000,
@@ -241,6 +241,12 @@ c
 c dplot
 c
  1600 call pspw_dplot_input(rtdb) 
+      goto 10
+
+c
+c dplot
+c
+ 1650 call band_dplot_input(rtdb) 
       goto 10
 
 c

@@ -1,5 +1,5 @@
 *
-* $Id: task_band.F,v 1.4 2004-12-21 16:58:35 bylaska Exp $
+* $Id: task_band.F,v 1.5 2005-08-05 20:39:35 bylaska Exp $
 *
 
       logical function task_band(rtdb)
@@ -18,20 +18,21 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 5)
+      parameter (num_dirs = 6)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'structure',
      >            'dos',
      >            'noit_energy',
      >            'stress',
-     >            'cell_optimize' /
+     >            'cell_optimize',
+     >            'band_dplot' /
 
 c     *** define external functions ****
       logical  band_structure,band_noit_energy,band_stress
-      logical  band_cell_optimize
+      logical  band_cell_optimize,band_dplot
       external band_structure,band_noit_energy,band_stress
-      external band_cell_optimize
+      external band_cell_optimize,band_dplot
 c
 c
       value = .false.
@@ -43,7 +44,7 @@ c
 c
 c
 c
-      goto ( 100, 110, 200, 300, 400 ) ind
+      goto ( 100, 110, 200, 300, 400, 500 ) ind
       call errquit('task band: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -105,6 +106,18 @@ c
       value = .true.
       value = rtdb_parallel(.true.)
       value = band_cell_optimize(rtdb)
+      call ga_sync()
+      goto 9999
+
+c
+c  band_dplot
+c
+ 500  if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> BAND Parallel Module - band_dplot <<<<"
+      end if
+      value = .true.
+      value = rtdb_parallel(.true.)
+      value = band_dplot(rtdb)
       call ga_sync()
       goto 9999
 

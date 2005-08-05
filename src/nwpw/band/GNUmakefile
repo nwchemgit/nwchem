@@ -1,7 +1,7 @@
 #
-# $Id: GNUmakefile,v 1.7 2004-11-29 16:05:16 bylaska Exp $
+# $Id: GNUmakefile,v 1.8 2005-08-05 20:39:35 bylaska Exp $
 #
-      SUBDIRS = minimizer structure cell_optimize kbpp makepsi lib
+      SUBDIRS = minimizer structure cell_optimize kbpp makepsi lib dplot
 
 		OBJ_OPTIMIZE = 	task_band.o \
 				band_energy.o \

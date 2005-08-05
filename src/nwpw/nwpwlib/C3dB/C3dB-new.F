@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.16 2004-05-05 19:33:49 bylaska Exp $
+* $Id: C3dB-new.F,v 1.17 2005-08-05 20:39:36 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1000,6 +1000,33 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
       do i=1,nfft3d_map(nb)
          C(i) = scale*A(i)
+      end do
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        C3dB_rc_SMul             *
+*     *                                 *
+*     ***********************************
+
+*  This routine performs the operation  C = scale * A
+* where scale and A are real*8 numbers.
+
+      subroutine C3dB_rc_SMul(nb,scale,A,C)
+      implicit none
+      integer    nb
+      real*8     scale
+      real*8 A(*)
+      complex*16 C(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         C(i) = dcmplx(scale*A(i),0.0d0)
       end do
       return
       end
@@ -2512,4 +2539,99 @@ c      end
       return
       end
 
+
+
+*     *******************************************
+*     *						*
+*     *	       C3dB_r_FormatWrite_reverse	*	
+*     *						*
+*     *******************************************
+
+      subroutine C3dB_r_FormatWrite_reverse(nb,iunit,A,tmp)
+      implicit none 
+      integer nb
+      integer iunit
+      real*8     A(*)
+      real*8     tmp(*)
+
+#include "C3dB.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer rcv_len,rcv_proc
+
+      
+*     *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer p_from, p_here,q
+      integer i,j,k,index
+      integer dest,source,status,msglen,idum
+
+      call Parallel_taskid(taskid)
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+*     **** master node reads from file and distributes ****
+      if (taskid.eq.MASTER) then
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call C3dB_ktoqp(nb,k,q,p_from)
+              if (p_from.eq.MASTER) then
+                 index = (q-1)*(nx(nb))*ny(nb) 
+     >                 + (j-1)*(nx(nb)) + i
+                 tmp(k) = A(index)
+              else
+                 msglen  = 1
+                 status  = msglen
+                 source  = p_from
+
+                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
+                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
+     >                         source,rcv_proc,1)
+
+              end if
+            end do
+            write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
+       
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do i=1,nx(nb)
+         do j=1,ny(nb)
+
+            do k=1,nz(nb)
+              call D3dB_ktoqp(nb,k,q,p_here)
+              if (p_here.eq.taskid) then
+
+                 index = (q-1)*(nx(nb))*ny(nb) 
+     >                 + (j-1)*(nx(nb)) + i
+                 tmp(1) = A(index)
+
+                 msglen  = 1
+                 dest    = MASTER
+
+                 call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
+     >                         dest,rcv_proc,1)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
+
+              end if
+            end do
+
+         end do
+         end do
+      end if
+
+
+      end if
+
+*     **** wait ****
+      return
+      end
 

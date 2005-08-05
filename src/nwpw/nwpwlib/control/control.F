@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.75 2005-07-13 00:17:42 bylaska Exp $
+* $Id: control.F,v 1.76 2005-08-05 20:39:36 bylaska Exp $
 *
 
 *     ***********************************
@@ -18,7 +18,7 @@
 #include "control.fh"
 
       logical value 
-      integer ispin0,ne(2)
+      integer ispin0,ne(2),nbrill
 
 *     **** control_nose common block ****
       logical nose
@@ -838,6 +838,35 @@ c     >                  1,output_wavefunction_filename)
          call psi_get_header(i,ngrid,unita,ispin0,ne)
          if (i.eq.3) boundry = 'periodic'
          if (i.eq.4) boundry = 'aperiodic'
+
+*        **** dummy variables ****
+         move       = .false.
+         frac_coord = .false.
+         gga = 0
+         fake_mass = 400000.0d0
+         time_step = 5.8d0
+         loop(1) = 0
+         loop(2) = 0
+         tolerances(1) = 1.0d-9
+         tolerances(2) = 1.0d-9
+         tolerances(3) = 1.0d-4
+         ecut=9000.0d0
+         wcut=9000.0d0
+         rcut = 0.0d0
+         ncut = 0
+         npsp = 0
+
+         control_read = value
+         return
+
+
+*     **** band_dplot: stuff ****
+      else if (code.eq.10) then
+         value = .true.
+         value = rtdb_cget(rtdb,'band_dplot:wavefunction_filename',
+     >                  1,input_wavefunction_filename)
+         call psi_get_header(i,ngrid,unita,ispin0,ne,nbrill)
+         if (i.eq.5) boundry = 'periodic'
 
 *        **** dummy variables ****
          move       = .false.
