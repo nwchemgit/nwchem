@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.41 2005-06-11 06:50:40 marat Exp $
+* $Id: task_input.F,v 1.42 2005-08-05 20:46:24 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -115,6 +115,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'pspw_dplot')) then
             operation='pspw_dplot'
+         else if (inp_compare(.false.,test,
+     >                        'band_dplot')) then
+            operation='band_dplot'
          else if (inp_compare(.false.,test,
      >                        'wannier')) then
             operation='wannier'
