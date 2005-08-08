@@ -1,7 +1,9 @@
-# $Id: GNUmakefile,v 1.3 2005-03-31 03:20:30 marat Exp $
+# $Id: GNUmakefile,v 1.4 2005-08-08 21:55:11 edo Exp $
   LIBRARY = libbq.a
   
   OBJ = bq_input.o bq_data.o bq_rtdb.o bq_main.o
+
+  USES_BLAS = bq_input.F
  
  
 
