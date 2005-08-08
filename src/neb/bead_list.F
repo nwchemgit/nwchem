@@ -1,5 +1,5 @@
 c
-c     $Id: bead_list.F,v 1.2 2005-06-20 06:02:46 marat Exp $
+c     $Id: bead_list.F,v 1.3 2005-08-08 23:50:37 marat Exp $
 c
 c
 c     This file contains a list of beads, where a bead is defined
@@ -319,7 +319,7 @@ c     Entry - tag: name of bead list
 c             i: bead number
 c
 c 
-      subroutine run_bead_list(tag,i)
+      subroutine run_bead_list(tag,i,task_gradient_gen)
       implicit none
       character*(*) tag
       integer i
@@ -340,10 +340,10 @@ c
       common /bead_list/ bead_rtdb
 
 *     **** external functions ****
-      logical     task_gradient
+      logical     task_gradient_gen
+      external    task_gradient_gen
       character*7 bead_index_name
       integer     inp_strlen
-      external    task_gradient
       external    bead_index_name
       external    inp_strlen
 
@@ -389,7 +389,7 @@ c
       end if
 
 *     *** run gradient task ***
-      value=value.and.task_gradient(bead_rtdb)
+      value=value.and.task_gradient_gen(bead_rtdb)
       if (.not.value) call errquit('run_bead_list failed',1,0)
 
 
@@ -450,9 +450,11 @@ c
 c     Entry - tag: name of bead list
 c
 c 
-      subroutine runall_bead_list(tag)
+      subroutine runall_bead_list(tag,task_gradient_gen)
       implicit none
       character*(*) tag
+      logical     task_gradient_gen
+      external    task_gradient_gen
      
 *     *** local variables ***
       integer i,nbeads
@@ -463,7 +465,7 @@ c
 
       nbeads = size_bead_list(tag)
       do i=1,nbeads
-        call run_bead_list(tag,i)
+        call run_bead_list(tag,i,task_gradient_gen)
       end do
 
       return
@@ -483,9 +485,11 @@ c
 c     Entry - tag: name of bead list
 c
 c 
-      subroutine runmid_bead_list(tag)
+      subroutine runmid_bead_list(tag,task_gradient_gen)
       implicit none
       character*(*) tag
+      logical     task_gradient_gen
+      external    task_gradient_gen
      
 *     *** local variables ***
       integer i,nbeads
@@ -496,7 +500,7 @@ c
 
       nbeads = size_bead_list(tag)
       do i=2,(nbeads-1)
-        call run_bead_list(tag,i)
+        call run_bead_list(tag,i,task_gradient_gen)
       end do
 
       return
