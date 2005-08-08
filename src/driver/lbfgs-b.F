@@ -822,7 +822,7 @@ c     Compute d=newx-oldx, r=newg-oldg, rr=y'y and dr=y's.
          ddum = -gdold
       else
          dr = (gd - gdold)*stp
-	 call dscal(n,stp,d,1)
+         call dscal(n,stp,d,1)
          ddum = -gdold*stp
       endif
  
@@ -1589,7 +1589,7 @@ c        temporarily set f1 and f2 for col=0.
 
       if (col .gt. 0) then
 c                          update c = c + dt*p.
-	 call daxpy(col2,dt,p,1,c,1)
+         call daxpy(col2,dt,p,1,c,1)
  
 c           choose wbp,
 c           the row of W corresponding to the breakpoint encountered.
@@ -1603,9 +1603,9 @@ c           the row of W corresponding to the breakpoint encountered.
 c           compute (wbp)Mc, (wbp)Mp, and (wbp)M(wbp)'.
          call bmv(m,sy,wt,col,wbp,v,info)
 	 if (info .ne. 0) return
-	 wmc = ddot(col2,c,1,v,1)
-	 wmp = ddot(col2,p,1,v,1) 
-	 wmw = ddot(col2,wbp,1,v,1)
+         wmc = ddot(col2,c,1,v,1)
+         wmp = ddot(col2,p,1,v,1) 
+         wmw = ddot(col2,wbp,1,v,1)
  
 c           update p = p - dibp*wbp. 
        	 call daxpy(col2,-dibp,wbp,1,p,1)
@@ -1946,7 +1946,7 @@ c              R_z is the upper triangular part of S'ZZ'Y.
 c                                 shift old part of WN1.
             do 10 jy = 1, m - 1
                js = m + jy
-	       call dcopy(m-jy,wn1(jy+1,jy+1),1,wn1(jy,jy),1)
+               call dcopy(m-jy,wn1(jy+1,jy+1),1,wn1(jy,jy),1)
  	       call dcopy(m-jy,wn1(js+1,js+1),1,wn1(js,js),1)
  	       call dcopy(m-1,wn1(m+2,jy+1),1,wn1(m+1,jy),1)
   10        continue
@@ -2103,7 +2103,7 @@ c        upper triangle of (2,2) block of wn.
 
       do 72 is = col+1, col2
          do 74 js = is, col2
-	       wn(is,js) = wn(is,js) + ddot(col,wn(1,is),1,wn(1,js),1)
+            wn(is,js) = wn(is,js) + ddot(col,wn(1,is),1,wn(1,js),1)
   74        continue
   72     continue
 
@@ -2597,8 +2597,8 @@ c        add new information: the last row of SY
 c                                             and the last column of SS:
       pointr = head
       do 51 j = 1, col - 1
-	 sy(col,j) = ddot(n,d,1,wy(1,pointr),1)
-	 ss(j,col) = ddot(n,ws(1,pointr),1,d,1)
+         sy(col,j) = ddot(n,d,1,wy(1,pointr),1)
+         ss(j,col) = ddot(n,ws(1,pointr),1,d,1)
          pointr = mod(pointr,m) + 1
   51  continue
       if (stp .eq. one) then

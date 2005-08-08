@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.24 2005-07-28 17:29:15 marat Exp $
+# $Id: GNUmakefile,v 1.25 2005-08-08 22:25:14 edo Exp $
 #
 
 LIBRARY = libdriver.a
@@ -8,7 +8,7 @@ OBJ_OPTIMIZE = driver_input.o
 
 OBJ = oniom.o opt_drv.o lbfgs.o lbfgs-b.o lbfgs_driver.o lbfgs_utils.o lbfgs-b_driver.o
 
-USES_BLAS = opt_drv.F oniom.F lbfgs-b.F
+USES_BLAS = opt_drv.F oniom.F lbfgs-b.F lbfgs-b_driver.F
 
 include ../config/makefile.h
 include ../config/makelib.h
