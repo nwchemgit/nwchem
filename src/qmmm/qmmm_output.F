@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.16 2005-07-13 16:42:01 marat Exp $
+c $Id: qmmm_output.F,v 1.17 2005-08-10 18:34:54 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -170,8 +170,8 @@ c
 
       write(*,*) 
 19    FORMAT(72("-"))
-20    FORMAT(1X,A,T34,F12.6)
-21    FORMAT(1X,A,T34,F12.6," (",E12.6,2X, "kjoule/mol)")
+20    FORMAT(1X,A,T34,F18.9)
+21    FORMAT(1X,A,T34,F18.9," (",E12.6,2X, "kjoule/mol)")
 
 
       end
@@ -224,8 +224,8 @@ c     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
       write(*,*) 
 19    FORMAT(72("-"))
-20    FORMAT(1X,A,T34,F12.6)
-21    FORMAT(1X,A,T34,F12.6," (",E12.6,2X, "kjoule/mol)")
+20    FORMAT(1X,A,T34,F18.9)
+21    FORMAT(1X,A,T34,F18.9," (",E12.6,2X, "kjoule/mol)")
 
 
       end
