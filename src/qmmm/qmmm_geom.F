@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.67 2005-06-29 00:44:48 marat Exp $
+c $Id: qmmm_geom.F,v 1.68 2005-08-10 18:40:43 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -43,6 +43,7 @@ c
 c     initialize indexing for a full qm geometry
 c     ------------------------------------------
       nfg = nqm + nlink
+      if(nfg.eq.0) goto 111
       if(.not.ma_alloc_get(mt_int,nfg,'qmmm fullg ind',h_ifg,i_ifg))
      + call errquit(pname//'Failed to allocate heap',nfg,
      &       MA_ERR)
@@ -68,9 +69,11 @@ c    --------------------
 c
 c     create active geometry if any
 c     -----------------------------
+111   continue
       if(aux_geom) then
         call mm_get_solute_tot_nact(ngs)
-        call mm_get_solvent_tot_nact(ngw)
+c       call mm_get_solvent_tot_nact(ngw)
+        ngw = 0
         ng = ngs+ngw
 
         if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
@@ -78,7 +81,7 @@ c     -----------------------------
      &         MA_ERR)
 
         call mm_get_solute_act_ind(ngs,int_mb(i_ig))
-        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
+c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
  
         if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
           call qmmm_geom_push(irtdb,
@@ -122,6 +125,7 @@ c     -----------------------------
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_geom_data.fh"
+      logical ignore
       
       if(aux_geom) then
        if(.not.ma_free_heap(h_ig))
@@ -143,6 +147,7 @@ c     -----------------------------
      &       MA_ERR)
        nfg = 0
       end if
+
 
        return
       end
