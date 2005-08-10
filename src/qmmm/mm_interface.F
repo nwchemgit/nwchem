@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.63 2005-07-28 22:11:13 marat Exp $
+c $Id: mm_interface.F,v 1.64 2005-08-10 18:28:29 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -28,10 +28,7 @@ c     -------------------
      &       RTDB_ERR)
 c
       call md_rdinp()
-      if(qmmm_print_debug()) write(*,*) "0 "//pname
       call md_start()
-      if(qmmm_print_debug()) write(*,*) "1 "//pname
-  
 
 c     this call is very important
 c
@@ -39,6 +36,47 @@ c     for some strange reasons md_sp() has to be called twice
 c     to stabilize bqzone flag for waters (MV)
       call md_sp()
       call md_sp()
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+c
+      return
+      end
+
+      subroutine mm_reload_rst(irtdb0,filename)
+c     convenience routine to load
+c     different restart file into qmmm simulations
+c     irtdb0   - rtdb handle              [in]
+c     filename - name of the restart file [in]
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "mafdecls.fh"
+c
+      integer irtdb0
+      character*(*) filename
+c
+      integer includ
+      character*32 pname
+      integer j
+c
+      pname = "mm_reload_rst"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c 
+c     first clean up all prior md stuff
+c     ---------------------------------
+      call md_finish()
+c
+c     set the name of the new restart file
+c     ------------------------------------
+      j = index(filename,'.rst')-1
+      if(.not.rtdb_cput(irtdb0,'md:project',1,filename(1:j)))
+     + call errquit(pname//'Failed to set md:project',0,
+     +       RTDB_ERR)
+c
+c     now initialize md structures again
+c     ----------------------------------
+      call mm_init(irtdb0)
+c
       if(qmmm_print_debug()) write(*,*) "out "//pname
 c
       return
@@ -61,6 +99,54 @@ c
 
       rfile = " "
       call util_file_name("rst", .false., .false., rfile)
+
+      lfnrst = 54
+      call md_wrtrst(lfnrst,rfile,.false.)
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      subroutine mm_restart_filename(filename)
+      implicit none
+c
+#include "util.fh"
+#include "md_common.fh"
+#include "inp.fh"
+c
+      character*(*) filename
+
+      filename = filrst
+      end
+
+      subroutine mm_system_prefix(prefix)
+      implicit none
+c
+#include "util.fh"
+#include "md_common.fh"
+#include "inp.fh"
+c
+      character*(*) prefix
+      integer i
+
+      i=index(filtop,'.top')-1
+      prefix = filtop(1:i)
+      end
+
+      subroutine mm_write_restart_named(rfile)
+      implicit none
+c
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+c
+      character*(*) rfile
+      integer lfnrst
+      integer nf
+      character*32 pname
+c
+      pname = "mm_write_restart_named"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
 
       lfnrst = 54
       call md_wrtrst(lfnrst,rfile,.false.)
@@ -1204,6 +1290,44 @@ c     mm local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_free_solute_res(nr,resid)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+
+      integer nr
+      integer resid(nr)
+
+c     mm local variables
+      integer i,ir
+      integer psg
+      integer nsa
+      integer psdt
+      character*32 pname
+      pname = "mm_free_solute_res"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_nsaloc(nsa)
+      call mm_get_psdt(psdt)
+      call mm_get_psg(psg)
+
+      do i=1,nsa
+        do ir=1,nr
+        if(int_mb(psg+i-1).eq.resid(ir)) then
+           int_mb(psdt+i-1)=iand(int_mb(psdt+i-1),not(mfixed))
+        else
+           int_mb(psdt+i-1)=ior(int_mb(psdt+i-1),lfixed)
+        end if
+        end do
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_get_solute_coord_gen(nt,
      >                       mm_type,
      >                       ai,
@@ -2113,9 +2237,11 @@ c     local variables
       integer pfs
       character*32 pname
 
+      write(*,*) pname,"1"
       pname = "mm_add_solute_force_gen"
       if(qmmm_print_debug()) write(*,*) "in "//pname
 
+      write(*,*) pname,"2"
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
       call mm_get_psdt(psdt)
@@ -2522,6 +2648,73 @@ c     local variables
          end do
          call cf_num2tag(mm_element(i),t)
          write(23,FMT=9000)
+     >            int_mb(psl+i-1), 
+     >            t,
+     >            int_mb(psg+i-1),
+     >            c(1)*0.529177249d00,
+     >            c(2)*0.529177249d00,
+     >            c(3)*0.529177249d00,
+     >            int_mb(psz+i-1),
+     >            mm_quant(i),
+     >            mm_fixed(i)
+
+      end do
+      end if
+
+9000  FORMAT("ATOM",T7,I5,T13,A4,T23,I4,T31,
+     >       F8.3,T39,F8.3,T47,F8.3,T55,I2,
+     >       T60,L2,T62,L2)
+
+
+      call ga_sync()
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_print_system_file(fn)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+
+      integer fn
+
+c     local variables
+      integer i,k
+      integer msa
+      integer nsa
+      integer psl
+      integer psz
+      integer pxs
+      integer psg
+      double precision c(3)
+      character*16 t
+      character*32 pname
+      pname = "mm_print_system"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psz(psz)
+      call mm_get_pxs(pxs)
+      call mm_get_psg(psg)
+
+      if(ga_nodeid().eq.0) then
+      do i=1,nsa
+         do k=1,3
+           c(k)=dbl_mb(pxs+(i-1)+(k-1)*msa)*cnm2au
+         end do
+         call cf_num2tag(mm_element(i),t)
+         write(fn,FMT=9000)
      >            int_mb(psl+i-1), 
      >            t,
      >            int_mb(psg+i-1),
