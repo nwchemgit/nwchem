@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.7 2005-06-11 05:47:47 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.8 2005-08-10 18:37:03 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -26,6 +26,9 @@ c     local variables
       logical do_print
       character*30 operation
       double precision energy
+
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in task_qmmm_energy"
 c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
