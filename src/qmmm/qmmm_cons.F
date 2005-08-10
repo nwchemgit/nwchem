@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.5 2005-07-20 20:49:16 marat Exp $
+c $Id: qmmm_cons.F,v 1.6 2005-08-10 18:46:32 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -95,7 +95,7 @@ c
      
       pname = "qmmm_cons_reaction"
 
-      if(qmmm_print_default()) 
+      if(qmmm_print_debug()) 
      +  write(*,*) "in",pname
 
       nfg = qmmm_geom_get_nfg()
