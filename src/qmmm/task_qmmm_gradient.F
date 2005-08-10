@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.33 2005-07-27 23:24:49 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.34 2005-08-10 18:30:35 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -186,6 +186,16 @@ c
       logical frozen_density
       character*30 pname
 
+      pname = "qmmm_energy_gradient"
+
+      write(*,*) pname,do_grad
+      if(qmmm_print_debug()) then
+         if(do_grad) then
+           write(*,*) pname,"doing gradient"
+         else
+           write(*,*) pname,"doing energy" 
+         end if
+      end if
       status = .true.
 
       call util_print_push() 
@@ -268,6 +278,8 @@ c
      > call qmmm_restore_fixed_atoms(rtdb)
 c
       qmmm_energy_gradient=status
+c
+      call mm_print_system()
 c
       call util_print_pop()
       end
