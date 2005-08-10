@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.14 2005-07-28 22:11:13 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.15 2005-08-10 18:48:57 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -21,12 +21,24 @@ c
 c     
       logical   driver
       external  driver
-
+c
+      logical   driver1
+      external  driver1
+c
       logical   qmmm_lbfgsb_driver
       external  qmmm_lbfgsb_driver
 
+      logical   qmmm_pes
+      external  qmmm_pes
       logical   lbfgsb_driver
       external  lbfgsb_driver
+      integer nr,resid(1),i,k
+      logical ignore
+      logical divcon
+      logical opes
+
+      nr = 1
+
 
       call util_print_push() 
       call util_print_rtdb_load(rtdb, 'qmmm')
@@ -50,14 +62,25 @@ c
      +     call errquit('task_optimize: failed rtdb_cget task:theory',0,
      &       RTDB_ERR)
 
-      if (.not. rtdb_get(rtdb, 'opt:lbfgs', mt_log, 1, ouselbfgs))
-     $     ouselbfgs = .false.
-
       if (.not. rtdb_get(rtdb, 'driver:lbfgs', mt_log, 
      $                   1, ouselbfgs))
      $     ouselbfgs = .false.
 
+      if (.not. rtdb_get(rtdb, 'qmmm:pes', mt_log, 
+     $                   1, opes))
+     $     opes = .false.
+
+      if (.not. rtdb_get(rtdb, 'driver:divcon', mt_log, 
+     $                   1, divcon))
+     $     divcon = .false.
+
+
       status = .true.
+
+      if(opes) then
+        status=qmmm_pes(rtdb)
+        go to 110
+      end if
 
       if (optimization.eq.'all') then
          if(qmmm_print_debug())
@@ -74,16 +97,19 @@ c
      >      write(*,*) "going into driver"
           if(ouselbfgs) then
             status =  qmmm_lbfgsb_driver(rtdb)
+          else if(divcon) then
+            status = driver1(rtdb)
           else
             status = driver(rtdb)
           end if
-         call mm_print_info()
+c         call mm_print_info()
 c
 c        forcing driver to never fail
 c        ---------------------------
          status = .true.         
       endif
 c     
+110   continue
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
       if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
@@ -102,4 +128,198 @@ c
       call util_print_pop()
 c     
       end
+c
+      function driver1(rtdb)
+c     $Id: task_qmmm_optimize.F,v 1.15 2005-08-10 18:48:57 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+      integer rtdb
+      logical driver1
+      double precision cpu, wall
+c     
+      logical  status
+c     
+      character*32 pname
+c     
+      logical   driver
+      external  driver
+      logical   qmmm_energy_gradient
+      external  qmmm_energy_gradient
+      integer nr,resid(2),i,k,resall(3)
+      logical ignore
+      character*255 filename, dir,xyz
+      double precision energy
 
+      xyz = "test"
+      nr = 1
+      resall(1)=1
+      resall(2)=2
+      resall(3)=3
+
+      pname = "driver1"
+
+      do i=1,10
+      do k=1,58,2
+      resid(1) = k
+      resid(2) = k+1
+      call qmmm_geom_data_release()
+      ignore = rtdb_delete(rtdb,'geometry')
+      call mm_free_solute_res(2,resid)
+      call qmmm_geom_init(rtdb,.true.)
+      write(*,*) "debug 3"
+      write(*,*) "debug 4"
+      status = driver(rtdb)
+      call mm_write_restart()
+         dir      = ' '
+         filename = ' ' 
+         call util_directory_name(dir, .false., 0)
+         write(filename,13) dir(1:inp_strlen(dir)), 
+     $        xyz(1:inp_strlen(xyz)),i,k
+ 13      format(a,'/',a,'-',i3.3,'-',i3.3,'.pdb')
+         open(88,file=filename,form='formatted',status='unknown',
+     $        err=133)
+
+         call mm_print_system_file(88)
+         write(*,*) "filename",filename(1:inp_strlen(filename))
+         close(88,status='keep',err=133)
+c
+c      call mm_free_solute_res(3,resall)
+c      call mm_task_sp()
+c      status = qmmm_energy_gradient(rtdb,.false.) 
+c      call qmmm_energy_rtdb_push(rtdb)
+c      if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,energy))
+c     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+c      write(*,*) "qmmm_energy",i,k,energy
+      end do
+      end do
+      call mm_print_info()
+
+      return
+
+ 133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
+     
+      end
+
+      function qmmm_pes(irtdb)
+c     $Id: task_qmmm_optimize.F,v 1.15 2005-08-10 18:48:57 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "msgids.fh"
+#include "tcgmsg.fh"
+      integer irtdb
+      logical qmmm_pes
+      double precision cpu, wall
+c     
+      logical  status
+c     
+      character*32 pname
+c     
+      logical   driver
+      external  driver
+      logical ignore
+      character*255 filename, dir,xyz,prefix
+      character*255 filename0
+      double precision energy
+      double precision rb(2)
+      integer np
+      integer ip
+      double precision dr
+      double precision r
+      logical ofile
+
+      pname = "qmmm_pes"
+
+c
+c     get lower/upper  limits for pes scan
+c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_bounds',mt_dbl,
+     +                    2,rb))
+     + call errquit(pname//'Failed to get pes bounds',
+     + 1, RTDB_ERR)
+
+c
+c     get number of points for pes scan
+c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_npoints',mt_int,
+     +                    1,np))
+     + call errquit(pname//'Failed to get pes points',
+     + 1, RTDB_ERR)
+
+c
+c     directory name to dump restart files
+c     ------------------------------------
+      dir      = ' '
+      call util_directory_name(dir, .false., 0)
+c
+c     file prefix from mm module
+c     --------------------------
+      call mm_system_prefix(prefix)
+      write(*,*) "pes, mm_system_prefix", prefix(1:inp_strlen(prefix))
+c 
+c     set increments and initial value
+c     --------------------------------
+      dr = (rb(2)-rb(1))/(np-1)
+      r  = rb(1)
+c
+c     actually do the scan
+c     --------------------
+      do ip=1,np
+        if (.not. rtdb_put(irtdb,'qmmm:r_spring',mt_dbl,
+     +                     1,r))
+     +  call errquit(pname//'Failed to set r_spring',
+     +  1, RTDB_ERR)
+
+c       construct restart file name  
+        filename0 = ' '
+        call mm_restart_filename(filename0)
+c        write(filename0,14)  prefix(1:inp_strlen(prefix)),
+c     $                       ip
+        filename = ' '
+        write(filename,13) dir(1:inp_strlen(dir)), 
+     $     prefix(1:inp_strlen(prefix)),ip
+
+c       load restart file if it exists      
+        if(ga_nodeid().eq.0) then 
+          inquire(file=filename,exist=ofile)
+          write(*,*) "pes found file",
+     >               filename(1:inp_strlen(filename)),
+     >               ofile
+          call util_file_copy(filename(1:inp_strlen(filename)),
+     >                        filename0(1:inp_strlen(filename0)))
+        end if
+        call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+        call ga_sync()
+        if(ofile) then
+          call mm_reload_rst(irtdb,filename0)
+        end if
+       write(*,*) "pes point ",ip,r,dr,
+     >             filename0(1:inp_strlen(filename0))
+        status = driver(irtdb)
+        if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
+     $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+        write(*,*) "pes energy",ip,r,energy
+        call mm_write_restart_named(filename)
+         r = r + dr
+      end do
+
+ 13      format(a,'/',a,'_pes',i3.3,'.rst')
+ 14      format(a,'_pes',i3.3,'.rst')
+
+      return
+      end
