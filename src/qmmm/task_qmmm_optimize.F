@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.15 2005-08-10 18:48:57 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.16 2005-08-11 16:38:19 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -130,7 +130,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.15 2005-08-10 18:48:57 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.16 2005-08-11 16:38:19 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -209,7 +209,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_pes(irtdb)
-c     $Id: task_qmmm_optimize.F,v 1.15 2005-08-10 18:48:57 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.16 2005-08-11 16:38:19 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -310,6 +310,8 @@ c       load restart file if it exists
         end if
        write(*,*) "pes point ",ip,r,dr,
      >             filename0(1:inp_strlen(filename0))
+c       recreate active geometry
+        call qmmm_geom_create_active(irtdb)
         status = driver(irtdb)
         if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
