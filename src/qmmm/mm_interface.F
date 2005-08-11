@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.64 2005-08-10 18:28:29 marat Exp $
+c $Id: mm_interface.F,v 1.65 2005-08-11 17:31:14 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -2237,11 +2237,9 @@ c     local variables
       integer pfs
       character*32 pname
 
-      write(*,*) pname,"1"
       pname = "mm_add_solute_force_gen"
       if(qmmm_print_debug()) write(*,*) "in "//pname
 
-      write(*,*) pname,"2"
       call mm_get_msa(msa)
       call mm_get_nsaloc(nsa)
       call mm_get_psdt(psdt)
