@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.16 2005-08-11 16:38:19 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.17 2005-08-11 21:00:43 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -130,7 +130,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.16 2005-08-11 16:38:19 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.17 2005-08-11 21:00:43 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -209,7 +209,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_pes(irtdb)
-c     $Id: task_qmmm_optimize.F,v 1.16 2005-08-11 16:38:19 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.17 2005-08-11 21:00:43 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -270,7 +270,7 @@ c
 c     file prefix from mm module
 c     --------------------------
       call mm_system_prefix(prefix)
-      write(*,*) "pes, mm_system_prefix", prefix(1:inp_strlen(prefix))
+c      write(*,*) "pes, mm_system_prefix", prefix(1:inp_strlen(prefix))
 c 
 c     set increments and initial value
 c     --------------------------------
@@ -300,16 +300,17 @@ c       load restart file if it exists
           write(*,*) "pes found file",
      >               filename(1:inp_strlen(filename)),
      >               ofile
-          call util_file_copy(filename(1:inp_strlen(filename)),
+          if(ofile) 
+     >     call util_file_copy(filename(1:inp_strlen(filename)),
      >                        filename0(1:inp_strlen(filename0)))
+          write(*,*) "pes point ",ip,r,dr,
+     >             filename0(1:inp_strlen(filename0))
         end if
         call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
         call ga_sync()
         if(ofile) then
           call mm_reload_rst(irtdb,filename0)
         end if
-       write(*,*) "pes point ",ip,r,dr,
-     >             filename0(1:inp_strlen(filename0))
 c       recreate active geometry
         call qmmm_geom_create_active(irtdb)
         status = driver(irtdb)
