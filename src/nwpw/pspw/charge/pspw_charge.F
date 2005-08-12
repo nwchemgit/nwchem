@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.12 2004-12-18 20:01:53 bylaska Exp $
+c $Id: pspw_charge.F,v 1.13 2005-08-12 23:07:40 bylaska Exp $
 c
   
 ***********************************************************
@@ -907,8 +907,274 @@ c
 
 
 
+*********************************************************************************************************
 
 
+
+
+*     **********************************
+*     *	                               *
+*     *  pspw_charge_Generate_V_qmmm   *
+*     *                                *
+*     **********************************
+
+      subroutine pspw_charge_Generate_V_qmmm(r1,charge1,n1,
+     >                                       n2ft3d,rgrid,Vqm)
+      implicit none
+      real*8 r1(3,*),charge1(*)
+      integer n1
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 Vqm(*)
+
+
+*     ***** local variables ****
+      integer ii,ia,k,p1,p2,po2
+      real*8 x1,y1,z1,q1,r,r2,rc,ttt,sss
+      real*8 rc1,rc2,rr1,rr1p
+      real*8  s_sigma
+      integer n_sigma
+
+      if (n1.gt.0) then
+
+        s_sigma = (0.37d0/0.3d0)/0.529177d0  ! should give covalent radii for spc water
+        n_sigma = 4
+
+*        **** short-range repulsion ****
+         p1  = n_sigma
+         po2 = n_sigma/2
+         p2  = n_sigma+1
+         do ii=1,n1
+            x1 = r1(1,ii)
+            y1 = r1(2,ii)
+            z1 = r1(3,ii)
+            q1 = -charge1(ii)
+            rc = abs(q1)*s_sigma
+            if (rc.gt.1.5d0) rc=1.5d0 !stupid check
+            rc1 = abs(q1)*rc**p1
+            rc2 = rc**p2
+            do k=1,n2ft3d
+               r2 = (rgrid(1,k)-x1)**2
+     >            + (rgrid(2,k)-y1)**2
+     >            + (rgrid(3,k)-z1)**2
+               r = dsqrt(r2)
+               rr1  = r2**po2
+               rr1p = r*rr1
+               ttt = rc1 + q1*rr1
+               sss = rc2 +    rr1p
+               ttt = ttt/sss
+               Vqm(k) = Vqm(k) + ttt
+            end do
+         end do   
+
+
+      end if
+
+      return
+      end
+
+
+
+
+
+
+*     **********************************
+*     *	                               *
+*     *  pspw_charge_rho_Fcharge_qmmm  *
+*     *                                *
+*     **********************************
+*
+*     Calculates the force on the qmmm charges from the electronic density
+*
+
+      subroutine pspw_charge_rho_Fcharge_qmmm(r1,qcharge,nion,
+     >                                     n2ft3d,rgrid,rho,dv,fcharge)
+      implicit none
+      real*8  r1(3,*),qcharge(*)
+      integer nion
+      integer n2ft3d
+      real*8 rgrid(3,*)
+      real*8 rho(*)
+      real*8 dv
+      real*8 fcharge(3,*)
+
+
+*     ***** local variables ****
+      integer i,j
+      real*8 rx,ry,rz,c
+      real*8 fx,fy,fz,v
+      real*8 x,y,z,q,r,r2,rc
+      real*8 ttt,sss,rr1,rr1m,rr1p,rc1,rc1p,p1,po2,p2
+      integer n_sigma
+      real*8  s_sigma
+
+*     **** external functions ****
+
+      if (nion.gt.0) then
+
+      s_sigma = (0.37d0/0.3d0)/0.529177d0  ! should give covalent radii for spc water
+      n_sigma = 4
+ 
+      p1  = n_sigma
+      p2  = n_sigma+1
+      po2 = n_sigma/2
+      do j=1,nion
+         x = r1(1,j)
+         y = r1(2,j)
+         z = r1(3,j)
+         q = -qcharge(j)
+         rc = abs(q)*s_sigma
+         if (rc.gt.1.5d0) rc=1.5d0  ! stupid check
+         rc1  = rc**p1
+         rc1p = rc**p2
+         fx = 0.0d0
+         fy = 0.0d0
+         fz = 0.0d0
+         do i=1,n2ft3d
+            rx = x - rgrid(1,i)
+            ry = y - rgrid(2,i)
+            rz = z - rgrid(3,i)
+            r2 = (rx**2 + ry**2 + rz**2)
+            r  = dsqrt(r2)
+
+            rr1m = r*r2**(po2-1)
+            rr1  = r*rr1m
+            rr1p = r2*rr1m
+            ttt = abs(q)*rc1  + q*rr1
+            sss =        rc1p + rr1p
+
+            v = q*p1*rr1m - p2*rr1*ttt/sss
+            v = v/(r*sss)
+
+            fx = fx + rho(i)*rx*v
+            fy = fy + rho(i)*ry*v
+            fz = fz + rho(i)*rz*v
+         end do
+
+         call D3dB_SumAll(fx)
+         call D3dB_SumAll(fy)
+         call D3dB_SumAll(fz)
+         fcharge(1,j) = fcharge(1,j) - fx*dv
+         fcharge(2,j) = fcharge(2,j) - fy*dv
+         fcharge(3,j) = fcharge(3,j) - fz*dv
+      end do
+
+
+      end if
+
+      return
+      end
+
+
+
+
+
+*     **********************************
+*     *	                               *
+*     *   pspw_charge_Energy_ion_qmmm  *
+*     *                                *
+*     **********************************
+
+*    This routine calculates the energy between the QM ions and point charges.
+
+      real*8 function pspw_charge_Energy_ion_qmmm(r1,qcharge,nion)
+      implicit none
+      real*8 r1(3,*),qcharge(*)
+      integer nion
+
+
+*     **** local variables ****
+      integer i,ii,ia
+      real*8  qi, xi, yi, zi
+      real*8  qii,xii,yii,zii
+      real*8  r,energy
+
+*     **** external functions ****
+      integer   ion_nion,ion_katm
+      real*8    ion_rion,psp_zv
+      external  ion_nion,ion_katm
+      external  ion_rion,psp_zv
+
+      energy = 0.0d0
+      do ii=1,ion_nion()
+         ia = ion_katm(ii)
+         qii = psp_zv(ia)
+         xii = ion_rion(1,ii)
+         yii = ion_rion(2,ii)
+         zii = ion_rion(3,ii)
+         do i=1,nion
+            xi = r1(1,i)
+            yi = r1(2,i)
+            zi = r1(3,i)
+            qi = qcharge(i)
+            r = (xi-xii)**2 + (yi-yii)**2 + (zi-zii)**2
+            r = dsqrt(r)
+            energy = energy + qi*qii/r
+         end do
+      end do
+
+      pspw_charge_Energy_ion_qmmm = energy
+      return
+      end
+
+
+
+
+*     **********************************
+*     *	                               *
+*     *  pspw_charge_Fion_Fcharge_qmmm *
+*     *                                *
+*     **********************************
+
+*    This routine calculates the forces between the QM ions and point charges.
+*
+*     Exit - fion: force on the QM ions
+*            fcharge: force on the point charges
+*
+*     Uses - ion_nion,Q_Electrostatic_Force
+*
+*     Author - Eric Bylaska
+
+      subroutine pspw_charge_Fion_Fcharge_qmmm(r1,qcharge,nion,
+     >                                         fion,fcharge)
+      implicit none
+      real*8 r1(3,*),qcharge(*)
+      integer nion
+      real*8 fion(3,*)
+      real*8 fcharge(3,*)
+
+*     **** local variables ****
+      integer i,j,nion_ion
+      real*8  qi,ri(3),qj,rj(3)
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion
+      real*8   psp_zv,ion_rion
+      external ion_katm,ion_nion
+      external psp_zv,ion_rion
+
+      if (nion.gt.0) then      
+     
+        nion_ion = ion_nion()
+
+        do i=1,nion_ion
+           qi = psp_zv(ion_katm(i))
+           ri(1) = ion_rion(1,i)
+           ri(2) = ion_rion(2,i)
+           ri(3) = ion_rion(3,i)
+           do j=1,nion
+              qj = qcharge(j)            
+              rj(1) = r1(1,j)
+              rj(2) = r1(2,j)
+              rj(3) = r1(3,j)
+              call Q_Electrostatic_Force(ri,qi,fion(1,i),
+     >                                 rj,qj,fcharge(1,j))
+           end do
+        end do
+
+      end if
+      return
+      end
 
 
 
