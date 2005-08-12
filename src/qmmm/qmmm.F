@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.53 2005-07-28 22:11:13 marat Exp $
+c $Id: qmmm.F,v 1.54 2005-08-12 01:12:11 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -26,6 +26,7 @@ c
       logical aux_geom
       logical loadgeom
       logical ouselbfgs
+      logical oprint
 c
       call qmmm_print_header()
 c
@@ -34,8 +35,11 @@ c
       call util_print_push() 
       call util_print_rtdb_load(irtdb, 'qmmm')
 c
-      if(qmmm_print_debug()) 
-     >  write(*,*) ga_nodeid(),"in "//pname
+      oprint = util_print("debug_info", print_debug)
+      oprint = oprint .and. (ga_nodeid().eq.0)
+c
+      if(oprint) 
+     >  write(*,*)"in "//pname
 
       ignore = MA_set_hard_fail(.true.)
     
@@ -86,10 +90,11 @@ c     --------------------------------------------
       if (.not. rtdb_cget(irtdb, 'qmmm:optimization', 1, optimization))
      $     call errquit('qmmm_optimize: failed ',0,0)
 
-      if (optimization.ne.'qm') aux_geom = .false.
+      if (optimization.ne.'qm' ) aux_geom = .false.
       
+      if (optimization.eq.'tandem' ) aux_geom = .true.
+
       if (inp_compare(.false.,'esp',theory)) aux_geom=.false.
-      
 
       if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
         loadgeom = .true.
@@ -98,9 +103,10 @@ c     --------------------------------------------
         loadgeom = .false.
       end if
 
-      if(qmmm_print_debug()) 
+      if(oprint) 
      >  write(*,*) "aux_geom",aux_geom
 
+      write(*,*) "aux_geom",aux_geom
       call qmmm_geom_init(irtdb,aux_geom)
 
       if(loadgeom) call md_sp()
@@ -109,8 +115,8 @@ c     --------------------------------------------
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
 
-      if(qmmm_print_debug()) 
-     >  write(*,*) ga_nodeid(),"out "//pname
+      if(oprint) 
+     >  write(*,*) "out "//pname
 
 
       if (.not. rtdb_get(irtdb,'qmmm:checkgrad',mt_log,1,checkgrad))

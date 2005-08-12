@@ -108,6 +108,7 @@ c
         status = inp_compare(.false.,'all',token)
         status = status .or. inp_compare(.false.,'qm',token)
         status = status .or. inp_compare(.false.,'mm',token)
+        status = status .or. inp_compare(.false.,'tandem',token)
         if(.not.status) then
          call errquit('unknown option for optimization',0,INPUT_ERR)
         end if

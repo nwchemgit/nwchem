@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.17 2005-08-11 21:00:43 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -28,6 +28,8 @@ c
       logical   qmmm_lbfgsb_driver
       external  qmmm_lbfgsb_driver
 
+      logical   qmmm_tandem_optimization
+      external  qmmm_tandem_optimization
       logical   qmmm_pes
       external  qmmm_pes
       logical   lbfgsb_driver
@@ -40,8 +42,8 @@ c
       nr = 1
 
 
-      call util_print_push() 
-      call util_print_rtdb_load(rtdb, 'qmmm')
+c      call util_print_push() 
+c      call util_print_rtdb_load(rtdb, 'qmmm')
 c
       pname = "task_qmmm_optimize"
 c
@@ -78,7 +80,11 @@ c
       status = .true.
 
       if(opes) then
-        status=qmmm_pes(rtdb)
+        if(ouselbfgs) then
+          status=qmmm_pes(rtdb,qmmm_lbfgsb_driver)
+        else
+          status=qmmm_pes(rtdb,driver)
+        end if
         go to 110
       end if
 
@@ -86,6 +92,8 @@ c
          if(qmmm_print_debug())
      >      write(*,*) "going into md_em"
          call md_em()
+      else if (optimization.eq.'tandem') then
+         status =  qmmm_tandem_optimization(rtdb)
       else if (optimization.eq.'mm') then
          if(qmmm_print_debug())
      >      write(*,*) "going into md_em"
@@ -125,12 +133,12 @@ c
       call mm_write_restart()
       task_qmmm_optimize = status
 c
-      call util_print_pop()
+c      call util_print_pop()
 c     
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.17 2005-08-11 21:00:43 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -208,8 +216,77 @@ c      write(*,*) "qmmm_energy",i,k,energy
      
       end
 
-      function qmmm_pes(irtdb)
-c     $Id: task_qmmm_optimize.F,v 1.17 2005-08-11 21:00:43 marat Exp $
+      function qmmm_tandem_optimization(rtdb)
+c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "mm_utils.fh"
+
+      integer rtdb
+      logical qmmm_tandem_optimization
+c
+      logical  status
+c     
+      character*32 pname
+c     
+      logical   driver
+      external  driver
+      logical   qmmm_energy_gradient
+      external  qmmm_energy_gradient
+      integer   i
+      logical ignore
+      double precision energy
+      integer ncycles
+
+      pname = "qmmm_tandem_optimization"
+
+      qmmm_tandem_optimization = .true.
+
+      if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
+     +  ncycles = 1
+
+      write(*,*) "tandem optimization",ncycles
+
+      do i=1,ncycles
+       call mm_fix_solute(mm_classical) 
+       ignore = rtdb_delete(rtdb,'geometry')
+       call qmmm_geom_create_active(rtdb)
+       call qmmm_set_interface("qm")
+       status = driver(rtdb)
+       call mm_free_solute(mm_classical)
+
+       call mm_fix_solute(mm_quant)
+       call qmmm_set_interface("mm")
+       if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
+     $                   mt_log,1,.true.))
+     $     call errquit(pname,0, RTDB_ERR)
+       call md_em()
+       if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
+     $                   mt_log,1,.false.))
+     $     call errquit(pname,0, RTDB_ERR)
+       call mm_free_solute(mm_quant)
+
+       status = qmmm_energy_gradient(rtdb,.false.) 
+       call qmmm_energy_rtdb_push(rtdb)
+       if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+       write(*,*) "qmmm_energy",i,energy
+
+      end do
+      return
+
+      end
+
+      function qmmm_pes(irtdb,optimizer)
+c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -223,6 +300,8 @@ c     $Id: task_qmmm_optimize.F,v 1.17 2005-08-11 21:00:43 marat Exp $
 #include "msgids.fh"
 #include "tcgmsg.fh"
       integer irtdb
+      logical optimizer
+      external optimizer
       logical qmmm_pes
       double precision cpu, wall
 c     
@@ -313,7 +392,7 @@ c       load restart file if it exists
         end if
 c       recreate active geometry
         call qmmm_geom_create_active(irtdb)
-        status = driver(irtdb)
+        status = optimizer(irtdb)
         if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
         write(*,*) "pes energy",ip,r,energy

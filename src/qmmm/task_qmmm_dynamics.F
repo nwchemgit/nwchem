@@ -1,6 +1,6 @@
       logical function task_qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.2 2004-10-22 19:02:19 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.3 2005-08-12 01:12:11 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -14,8 +14,8 @@ c
       logical status
       double precision cpu,wall
 c
-      call util_print_push() 
-      call util_print_rtdb_load(rtdb, 'qmmm')
+c      call util_print_push() 
+c      call util_print_rtdb_load(rtdb, 'qmmm')
 c
       call ecce_print_module_entry('task dynamics')
 c
@@ -63,7 +63,7 @@ c
 c         
       task_qmmm_dynamics = status
 c
-      call util_print_pop()
+c      call util_print_pop()
 c
       end
 

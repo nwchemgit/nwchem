@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.34 2005-08-10 18:30:35 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.35 2005-08-12 01:12:11 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -95,8 +95,8 @@ c
 
       status = .true.
 
-      call util_print_push() 
-      call util_print_rtdb_load(rtdb, 'qmmm')
+c      call util_print_push() 
+c      call util_print_rtdb_load(rtdb, 'qmmm')
       
       nfg = qmmm_geom_get_nfg()
       i_ifg = qmmm_geom_get_i_ifg()
@@ -153,7 +153,7 @@ c
 c
       qmmm_gradient=status
 c
-      call util_print_pop()
+c      call util_print_pop()
       end
 
       function qmmm_energy_gradient(rtdb,do_grad)
@@ -198,8 +198,8 @@ c
       end if
       status = .true.
 
-      call util_print_push() 
-      call util_print_rtdb_load(rtdb, 'qmmm')
+c      call util_print_push() 
+c      call util_print_rtdb_load(rtdb, 'qmmm')
       
       nfg = qmmm_geom_get_nfg()
       i_ifg = qmmm_geom_get_i_ifg()
@@ -281,7 +281,7 @@ c
 c
       call mm_print_system()
 c
-      call util_print_pop()
+c      call util_print_pop()
       end
 
       subroutine qmmm_bq_gradient(rtdb)

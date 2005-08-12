@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.8 2005-08-10 18:37:03 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.9 2005-08-12 01:12:11 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -110,8 +110,8 @@ c     external functions
       if(qmmm_print_debug())
      >       write(*,*) "in "//pname
 
-      call util_print_push() 
-      call util_print_rtdb_load(rtdb, 'qmmm')
+c      call util_print_push() 
+c      call util_print_rtdb_load(rtdb, 'qmmm')
       
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
@@ -177,7 +177,7 @@ c     -------------------------
 
       qmmm_energy=status
 
-      call util_print_pop()
+c      call util_print_pop()
 
       if(qmmm_print_debug())
      >       write(*,*) "out "//pname

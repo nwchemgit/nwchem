@@ -56,6 +56,7 @@ c
 #include "rtdb.fh"
 #include "global.fh"
 #include "inp.fh"
+#include "util.fh"
 
       integer irtdb
 c
@@ -73,7 +74,10 @@ c      character*32 interface
       pname = "qmmm_data_init: "
 
       master = ga_nodeid().eq.0
-
+c
+      oprint_debug = util_print("debug_info", print_debug)
+      oprint_debug = oprint_debug .and. (ga_nodeid().eq.0)
+c
       eatoms = 0.0d0
       linkatm=qmmm_hydrogen
       bq_exclude=qmmm_no_atoms
@@ -162,6 +166,7 @@ c
 
        else if (optimization .ne. "all" .and.
      >          optimization .ne. "mm" .and.
+     >          optimization .ne. "tandem" .and.
      >          optimization .ne. "qm" ) then
             call errquit(pname//'unknown value'//tag,0,
      >       RTDB_ERR)
@@ -360,10 +365,10 @@ c
 c 
       logical oprint
 
-      oprint = util_print("debug_info", print_debug)
+c      oprint = util_print("debug_info", print_debug)
+c      qmmm_print_debug = oprint .and. (ga_nodeid().eq.0)
 
-      qmmm_print_debug = oprint .and. (ga_nodeid().eq.0)
-
+       qmmm_print_debug = oprint_debug
       end 
 
       function qmmm_get_bqzone()
@@ -381,6 +386,15 @@ c
       character*(*) qmmm_get_interface
 
       qmmm_get_interface = qmmm_interface      
+
+      end 
+
+      subroutine qmmm_set_interface(a_interface)
+      implicit none
+#include "qmmm_data.fh"
+      character*(*) a_interface
+
+      qmmm_interface = a_interface      
 
       end 
 
