@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.35 2005-08-12 01:12:11 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.36 2005-08-12 21:49:07 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -560,6 +560,13 @@ c     ----------------------
      >                       log_mb(i_am))
 
 
+c     --------------------------------------------
+c     find total number (nal) of link atoms
+c     that are bonded to active qm atoms
+c     and store their global index in i_al
+c     Note that link atoms are always indexed
+c     by the global index of the classical atom 
+c     --------------------------------------------
       if(nlink.ne.0) then
 
         if(.not.ma_push_get(MT_INT, nlink, 'qmmm tmp link',
@@ -569,21 +576,38 @@ c     ----------------------
 
         nal=0
         do i=1,nact
+c        get global index next active atom in the auxilary geometry
          ii0 = int_mb(i_cons+i-1)
          ii  = int_mb(i_ig+ii0-1)
          aflag = log_mb(i_am+ii0-1)
-         do j=1,nlink
-           jj  = int_mb(i_lb+j-1)
-           if(aflag.and.(jj.eq.ii)) then
-             nal=nal+1
-             int_mb(i_al+nal-1)=int_mb(i_lb+nlink+j-1)
-           end if
-         end do 
+         if(aflag) then
+           do j=1,nlink
+c            get index of qm atom bonded to a link atom
+             jj  = int_mb(i_lb+j-1)
+c            if qm atom bonded to a link atom is active
+c            store corresponding index of the link atom
+             if(aflag.and.(jj.eq.ii)) then
+               nal=nal+1
+               int_mb(i_al+nal-1)=int_mb(i_lb+nlink+j-1)
+             end if
+           end do 
+         end if
         end do
        end if
 
+      if(qmmm_print_debug())
+     >   write(*,*) "i_al",nal,(int_mb(i_al+i-1),i=1,nal)
+c     ------------------------------------------------
 
-
+c     ------------------------------------------------
+c     construct active atom index
+c     note that if classical boundary atom is
+c     active the corresponding link atom is automatically
+c     flagged as active in the first do loop because it 
+c     carries the same global index. The second do loop takes
+c     care of the case when qm boundary atom is active using
+c     link index constructed above
+c     ------------------------------------------------
       nact1=0
       do i=1,nfg
         ii = int_mb(i_ifg+i-1)
