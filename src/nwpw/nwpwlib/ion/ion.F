@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.40 2005-05-24 17:36:24 bylaska Exp $
+* $Id: ion.F,v 1.41 2005-08-12 23:10:23 bylaska Exp $
 *
 
 *     ***************************
@@ -1573,6 +1573,26 @@ c         eki1=0.5d0*eki1
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
       call dcopy((3*nion),dbl_mb(r2(1)),1,dbl_mb(r1(1)),1)
+
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *      ion_rion_reset     *
+*     *                         *
+*     ***************************
+
+      subroutine ion_rion_reset(rion)
+      implicit none
+      real*8 rion(*)
+
+#include "mafdecls.fh"
+
+***** ion common block ****
+#include "ion.fh"
+
+      call dcopy((3*nion),rion,1,dbl_mb(r1(1)),1)
 
       return
       end
