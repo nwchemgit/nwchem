@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.54 2005-08-12 01:12:11 marat Exp $
+c $Id: qmmm.F,v 1.55 2005-08-12 01:54:58 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -51,7 +51,7 @@ c     (note it will also want operation)
 c     --------------------------------------------
       call mm_init(irtdb)
 
-      call qmmm_cons_init()
+      call qmmm_cons_init(irtdb)
       call qmmm_links_init(irtdb)
 
       call qmmm_data_init(irtdb)
