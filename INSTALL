@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.74 2005-07-28 15:51:17 edo Exp $
+$Id: INSTALL,v 1.75 2005-08-16 20:16:44 windus Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -399,6 +399,12 @@ G)  Please note that the .nwchemrc does not handle the pseudopotential
    IMPORTANT: If you don't put the last slash ("/") after "data",
          nwchem will not be able to find the nwpw library files.
 
+   It is can also be useful to use the NWCHEM_BASIS_LIBRARY environment variable
+when testing a new installation when an old one exists.  This will allow you to
+overwrite the value of nwchem_basis_library in your .nwchemrc file and point to 
+the new basis library.  For example:
+   setenve NWCHEM_BASIS_LIBRARY "$NWCHEM/data-4.6/libraries/"
+Do not forget the trailing "/".
 
 BUILDING WITH MPI:
 ------------------
@@ -506,6 +512,9 @@ BUILDING WITH PYTHON:
  
        % setenv PYTHONHOME /usr/local/Python-1.5.1
        % setenv PYTHONVERSION 1.5
+
+       (Note that the third number in the version should not be kept:
+        2.2.3 should be set as 2.2 )
 
    4)  Proceed with the rest of the build as described in the
        Basic Build Instructions.
