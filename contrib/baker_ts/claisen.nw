@@ -1,0 +1,87 @@
+#
+# example from
+#
+#    Jon Baker, Fora Chan,
+#    "The location of transition states:
+#     A comparison of Cartesian, Z-Matrix, and Natural Internal Coordinates",
+#    J.Comp.Chem. 17 (1996) 888-904.
+#
+# Example 17.
+#
+start ts_example_17
+
+memory total 80 mb
+
+geometry autosym units angstrom noautoz print
+    zmatrix
+        c1
+        c2  1 l1
+        c3  2 l2 1 a2
+        o4  3 l3 2 a3  1 d3
+        c5  4 l4 3 a4  2 d4
+        c6  5 l5 4 a5  3 d5
+        h7  1 r1 2 ah1 3 dh1
+        h8  1 r2 2 ah2 3 dh2
+        h9  2 r3 1 ah3 3 dh3
+        h10 3 r4 2 ah4 1 dh4
+        h11 3 r5 2 ah5 1 dh5
+        h12 6 r6 5 ah6 4 dh6
+        h13 6 r7 5 ah7 4 dh7
+        h14 5 r8 6 ah8 4 dh8
+    variables
+        l1  1.420
+        l2  1.405
+        l3  2.008
+        l4  1.310
+        l5  1.410
+        r1  1.09
+	r2  1.09
+	r3  1.09
+	r4  1.09
+	r5  1.09
+	r6  1.09
+	r7  1.09
+	r8  1.09
+	a2  120.0
+	a3  101.1
+	a4  103.5
+	a5  120.0
+	ah1 115.0
+	ah2 115.0
+	ah3 120.0
+	ah4 115.0
+	ah5 115.0
+	ah6 115.0
+	ah7 115.0
+	ah8 120.0
+	d3  -66.8
+	d4   56.6
+	d5  -67.8
+	dh1 -30.0
+	dh2 180.0
+	dh3 180.0
+	dh4 180.0
+	dh5  30.0
+	dh6 180.0
+	dh7 -30.0
+	dh8 180.0
+    end
+end
+
+basis
+  c library 3-21g
+  o library 3-21g
+  h library 3-21g
+end
+
+scf 
+   print low
+end
+
+driver
+   maxiter 50
+end
+
+task scf freq
+task scf saddle
+task scf freq

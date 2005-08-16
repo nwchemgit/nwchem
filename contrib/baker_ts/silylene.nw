@@ -1,0 +1,75 @@
+#
+# example from
+#
+#    Jon Baker, Fora Chan,
+#    "The location of transition states:
+#     A comparison of Cartesian, Z-Matrix, and Natural Internal Coordinates",
+#    J.Comp.Chem. 17 (1996) 888-904.
+#
+# Example 18.
+#
+start ts_example_18
+
+memory total 80 mb
+
+geometry autosym units angstrom noautoz print
+    zmatrix
+	C1
+	C2      1       L1
+	Si3     2       L2      1 A1
+	H4      1       L3      2 A2    3       D1
+	H5      1       L4      2 A3    3       D2
+	H6      1       L5      2 A4    3       D3
+	H7      2       L6      1 A5    3       D4
+	H8      2       L7      1 A6    3       D5
+	H9      3       L8      2 A7    1       D6
+	H10     3       L9      2 A8    1       D7
+	H11     3       L10     2 A9    1       D8
+    variables
+	L1      1.52
+	L2      2.30
+	L3      1.10
+	L4      1.09
+	L5      1.11
+	L6      1.09
+	L7      1.10
+	L8      1.48
+	L9      1.50
+	L10     1.48
+	A1      119.26
+	A2      114.17
+	A3      115.06
+	A4      108.63
+	A5      108.12
+	A6      108.93
+	A7      108.93
+	A8      41.00
+	A9      109.12
+	D1      -65.13
+	D2      62.27
+	D3      178.92
+	D4      121.91
+	D5      -122.55
+	D6      -55.52
+	D7      65.18
+	D8      -174.11
+    end
+end
+
+basis
+  c  library 3-21g
+  si library 3-21g
+  h  library 3-21g
+end
+
+scf 
+   print low
+end
+
+driver
+   maxiter 50
+end
+
+task scf freq
+task scf saddle
+task scf freq
