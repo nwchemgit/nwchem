@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.2 2005-07-29 17:19:23 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.3 2005-08-16 22:09:42 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -193,7 +193,7 @@ c     Set bounds if any
       end do
 
 c     We now define the starting point.
-      call mm_get_solute_act_ind(ncent,int_mb(i_id))
+      call mm_get_solute_ind_act(ncent,int_mb(i_id))
       call mm_get_solute_coord(ncent,
      >                       int_mb(i_id),
      >                       dbl_mb(i_x))

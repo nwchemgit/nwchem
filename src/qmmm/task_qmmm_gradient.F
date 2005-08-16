@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.36 2005-08-12 21:49:07 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.37 2005-08-16 22:09:42 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -198,9 +198,6 @@ c
       end if
       status = .true.
 
-c      call util_print_push() 
-c      call util_print_rtdb_load(rtdb, 'qmmm')
-      
       nfg = qmmm_geom_get_nfg()
       i_ifg = qmmm_geom_get_i_ifg()
       i_g = qmmm_geom_get_i_g()
@@ -281,7 +278,6 @@ c
 c
       call mm_print_system()
 c
-c      call util_print_pop()
       end
 
       subroutine qmmm_bq_gradient(rtdb)
@@ -556,8 +552,19 @@ c     ----------------------
      &      pname//' unable to allocate stack',
      &      ng, MA_ERR)
 
-      call mm_get_solute_cons(ng,int_mb(i_ig),
+c
+c     get fixed atoms as specified by mm
+c     if using aux_geom we assume that all the atoms there
+c     are active by construction
+c     ----------------------------------------------------
+      if(qmmm_aux_geom()) then
+        do i=1,ng
+         log_mb(i_am+i-1)=.true.
+        end do
+      else
+        call mm_get_solute_cons(ng,int_mb(i_ig),
      >                       log_mb(i_am))
+      end if
 
 
 c     --------------------------------------------

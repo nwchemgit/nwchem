@@ -1,0 +1,19 @@
+c
+c $Id: qmmm_cons_data.fh,v 1.1 2005-08-16 22:09:42 marat Exp $
+c
+      integer nacts,nactw
+      integer i_acts,h_acts
+      integer i_actw,h_actw
+      integer i_maps,h_maps
+      integer i_mapw,h_mapw
+      
+      integer nacts_qm,nacts_link,nacts_mm
+
+      common/qmmm_cons_data/ nacts,nactw,
+     &                 nacts_qm,nacts_link,nacts_mm,
+     &                 i_acts,h_acts,
+     &                 i_actw,h_actw,
+     &                 i_maps,h_maps,
+     &                 i_mapw,h_mapw
+
+

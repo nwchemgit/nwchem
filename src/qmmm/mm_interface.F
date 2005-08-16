@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.65 2005-08-11 17:31:14 marat Exp $
+c $Id: mm_interface.F,v 1.66 2005-08-16 22:09:42 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -663,7 +663,7 @@ c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
-      subroutine mm_get_solute_act_ind(nt,ind)
+      subroutine mm_get_solute_ind_act(nt,ind)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -674,14 +674,14 @@ c
       integer nt
       integer ind(nt)
       character*32 pname
-      pname = "mm_get_solute_act_ind"
+      pname = "mm_get_solute_ind_act"
       if(qmmm_print_debug()) write(*,*) "in "//pname
       
       call mm_get_solute_ind_gen(nt,mm_active,ind)
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
-      subroutine mm_get_solvent_act_ind(nt,ind)
+      subroutine mm_get_solvent_ind_act(nt,ind)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -692,7 +692,7 @@ c
       integer nt
       integer ind(nt)
       character*32 pname
-      pname = "mm_get_solute_act_ind"
+      pname = "mm_get_solvent_ind_act"
       if(qmmm_print_debug()) write(*,*) "in "//pname
       
       call mm_get_solvent_ind_gen(nt,mm_active_w,ind)
@@ -1150,7 +1150,7 @@ c     mm local variables
 
 
       do i=1,nt
-         act(i)=int_mb(i_act+i-1).eq.0
+         act(i)=act(i).and.(int_mb(i_act+i-1).eq.0)
       end do
 
       if(.not.ma_pop_stack(l_act))
@@ -1219,7 +1219,89 @@ c     mm local variables
 
       if(.not.ma_pop_stack(l_act))
      + call errquit('qmmm: Failed to deallocate memory for act',nt,
-     &       MA_ERR)
+     +       MA_ERR)
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_fix_solute_region(nt,mm_type,ai)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+
+      logical mm_type
+      external mm_type
+      integer nt
+      integer ai(nt)
+
+      integer i,j,k
+
+c     mm local variables
+      integer nsa
+      integer psdt
+      integer psl
+      character*32 pname
+      pname = "mm_fix_solute_region"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_nsaloc(nsa)
+      call mm_get_psdt(psdt)
+      call mm_get_psl(psl)
+
+      do i=1,nsa
+        if(mm_type(i)) then
+        if(int_mb(psl+i-1).eq.ai(j)) then
+        do j=1,nt
+           int_mb(psdt+i-1)=ior(int_mb(psdt+i-1),lfixed)
+        end do
+        end if
+        end if
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_free_solute_region(nt,mm_type,ai)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+
+      logical mm_type
+      external mm_type
+      integer nt
+      integer ai(nt)
+
+      integer i,j,k
+
+c     mm local variables
+      integer nsa
+      integer psdt
+      integer psl
+      character*32 pname
+      pname = "mm_fix_solute_region"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_nsaloc(nsa)
+      call mm_get_psdt(psdt)
+      call mm_get_psl(psl)
+
+      do i=1,nsa
+        if(mm_type(i)) then
+        if(int_mb(psl+i-1).eq.ai(j)) then
+        do j=1,nt
+           int_mb(psdt+i-1)=iand(int_mb(psdt+i-1),not(mfixed))
+        end do
+        end if
+        end if
+      end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
@@ -1285,6 +1367,42 @@ c     mm local variables
         if(mm_type(i)) then
            int_mb(psdt+i-1)=iand(int_mb(psdt+i-1),not(mfixed))
         end if
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_fix_solute_res(nr,resid)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+
+      integer nr
+      integer resid(nr)
+
+c     mm local variables
+      integer i,ir
+      integer psg
+      integer nsa
+      integer psdt
+      character*32 pname
+      pname = "mm_fix_solute_res"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_nsaloc(nsa)
+      call mm_get_psdt(psdt)
+      call mm_get_psg(psg)
+
+      do i=1,nsa
+        do ir=1,nr
+        if(int_mb(psg+i-1).eq.resid(ir)) then
+           int_mb(psdt+i-1)=ior(int_mb(psdt+i-1),lfixed)
+        end if
+        end do
       end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
@@ -1861,7 +1979,7 @@ c     mm local variables
       call ga_igop(msg_qmmm_wact,int_mb(i_act),nt,'+')
 
       do i=1,nt
-         act(i)=int_mb(i_act+i-1).eq.0
+         act(i)=act(i).and.(int_mb(i_act+i-1).eq.0)
       end do
 
       if(.not.ma_pop_stack(l_act))
@@ -2308,6 +2426,54 @@ c     local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_get_rms_solute_force_gen(mm_type,grms)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "msgids.fh"
+      logical mm_type
+      double precision  grms
+      external mm_type
+c     local variables
+      integer i,j,k
+      integer msa
+      integer nsa
+      integer psdt
+      integer psl
+      integer pfs
+      integer ntot
+      character*32 pname
+
+      pname = "mm_get_rms_solute_force_gen"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_pfs(pfs)
+c
+      ntot = 0
+      do i=1,nsa
+        if(mm_type(i)) then
+           ntot = ntot + 1
+           do k=1,3
+             grms=grms + dbl_mb(pfs+(i-1)+(k-1)*msa)*
+     >                   dbl_mb(pfs+(i-1)+(k-1)*msa)
+           end do
+        end if
+      end do
+c
+      call ga_dgop(msg_qmmm_force,grms,1,'+')
+      call ga_igop(msg_qmmm_nqm,ntot,1,'+')
+c
+      grms = sqrt(grms/dble(ntot))*cau2nm/cau2kj
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_get_solute_force_gen(nt,mm_type,ai,g)
       implicit none
 #include "global.fh"
@@ -2359,7 +2525,7 @@ c     local variables
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
-c
+
       subroutine mm_set_solute_coord_quant(nt,
      >                       link,
      >                       ai,

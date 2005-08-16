@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.6 2005-08-10 18:46:32 marat Exp $
+c $Id: qmmm_cons.F,v 1.7 2005-08-16 22:09:42 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -13,6 +13,7 @@ c
 #include "geom.fh"
 #include "qmmm.fh"
 #include "global.fh"
+#include "qmmm_cons_data.fh"
       integer irtdb
 c
       character*32 pname
@@ -23,6 +24,69 @@ c
       logical fixqm
       logical fixqmlink
 c
+      integer i
+      character*26 ma_date
+      integer ma_type
+      integer nr
+      integer h_ires,i_ires
+c
+c     get total number of active atoms and global index
+c     as specified by mm input
+c     ------------------------------------------------
+      call mm_get_solute_tot_na_gen(nacts_qm,mm_active_qm)
+      call mm_get_solute_tot_na_gen(nacts_link,mm_active_link)
+      call mm_get_solute_tot_na_gen(nacts_mm,mm_active_classical)
+      call mm_get_solute_tot_nact(nacts)
+      call mm_get_solvent_tot_nact(nactw)
+
+      if(.not.ma_alloc_get(MT_INT, nacts, 'qmmm acts',
+     &      h_acts, i_acts) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nacts, MA_ERR)
+      call ifill(nacts,-1,int_mb(i_acts),1)
+
+      if(.not.ma_alloc_get(MT_INT, nactw, 'qmmm actw',
+     &      h_actw, i_actw) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nacts, MA_ERR)
+      call ifill(nactw,-1,int_mb(i_actw),1)
+c
+      if(nacts_qm.ne.0)  
+     >  call mm_get_solute_ind_gen(nacts_qm,
+     >                           mm_active_qm,
+     >                           int_mb(i_acts))
+c 
+      if(nacts_link.ne.0)  
+     >  call mm_get_solute_ind_gen(nacts_link,
+     >                           mm_active_link,
+     >                           int_mb(i_acts+nacts_qm))
+c
+      if(nacts_mm.ne.0)  
+     >  call mm_get_solute_ind_gen(nacts_mm,
+     >                    mm_active_classical,
+     >                    int_mb(i_acts+nacts_qm+nacts_link))
+
+      call mm_get_solvent_ind_act(nactw,int_mb(i_actw))
+
+      if(.not.ma_alloc_get(MT_LOG, nacts, 'qmmm maps',
+     &      h_maps, i_maps) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nacts, MA_ERR)
+
+      if(.not.ma_alloc_get(MT_LOG, nactw, 'qmmm mapw',
+     &      h_mapw, i_mapw) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nactw, MA_ERR)
+
+      do i=1,nacts
+        log_mb(i_maps+i-1) = .true.
+      end do
+
+      do i=1,nactw
+        log_mb(i_mapw+i-1) = .true.
+      end do
+
+
       if (.not. rtdb_get(irtdb,'qmmm:fixsolvent',mt_log,1,fixw))
      $     fixw=.false.
 
@@ -41,21 +105,67 @@ c
       if (.not. rtdb_get(irtdb,'qmmm:fixqmlink',mt_log,1,fixqmlink))
      $     fixqmlink=.false.
 
+      if(.not.rtdb_get_info(irtdb, 'qmmm:fixres', ma_type,
+     $        nr, ma_date))   
+     $   nr = 0
        
-     
-      if(fixw) call mm_fix_solvent()
-      if(fixs) call mm_fix_solute(mm_classical)
-      if(fixqm) then
-         write(*,*) "fixing quantum atoms"
-         call mm_fix_solute(mm_quant)
+      if(nr.ne.0) then
+        if(.not.ma_push_get(mt_int,nr,'ires',h_ires,i_ires))
+     +   call errquit( pname//'Failed to allocate memory for ires',
+     +   nr, MA_ERR)
+        if (.not. rtdb_get(irtdb,'qmmm:fixres',
+     +            mt_int,nr,int_mb(i_ires)))
+     +   call errquit( pname//'Failed ires',0,0)
       end if
+     
+
+      if(fixw) then
+        do i=1,nactw
+          log_mb(i_mapw+i-1) = .false.
+        end do
+      end if
+c
+      if(fixs) then
+        do i=nacts_qm+nacts_link+1,nacts
+          log_mb(i_maps+i-1) = .false.
+        end do
+      end if
+c
+      if(fixqm) then
+        do i=1,nacts_qm
+          log_mb(i_maps+i-1) = .false.
+        end do
+      end if
+c
       if(fixqmlink) then
-         write(*,*) "fixing quantum+link atoms"
-         call mm_fix_solute(mm_quant_link)
+        do i=nacts_qm+1,nacts_qm+nacts_link
+          log_mb(i_maps+i-1) = .false.
+        end do
+      end if
+c      if(fixs) call mm_fix_solute(mm_classical)
+c      if(fixqm) then
+c         write(*,*) "fixing quantum atoms"
+c         call mm_fix_solute(mm_quant)
+c      end if
+c      if(fixqmlink) then
+c         write(*,*) "fixing quantum+link atoms"
+c         call mm_fix_solute(mm_quant_link)
+c      end if
+c
+c      if(nr.ne.0) call mm_fix_solute_res(nr,int_mb(i_ires))
+c
+c      if(freeqmlink) call mm_free_solute(mm_quant_link)
+c      if(freeqm) call mm_free_solute(mm_quant)
+
+      if(nr.ne.0) then
+        if(.not.ma_pop_stack(h_ires))
+     &   call errquit(pname//'stack deallocation h_ires',nr,
+     &         MA_ERR)
       end if
 
-      if(freeqmlink) call mm_free_solute(mm_quant_link)
-      if(freeqm) call mm_free_solute(mm_quant)
+      do i=1,nacts
+        write(*,*) "qmmm cons maps",i,log_mb(i_maps+i-1)
+      end do
 
       return
       end
@@ -99,7 +209,6 @@ c
      +  write(*,*) "in",pname
 
       nfg = qmmm_geom_get_nfg()
-
 
       if(.not.ma_alloc_get(mt_int,2*ns,'qmmm rcons ind',h_is,i_is))
      + call errquit(pname//'Failed to allocate memory for is',
@@ -265,6 +374,126 @@ c
 
       return 
       end
+c
+      subroutine qmmm_cons_get_nacts(n)
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+
+      integer i,n
+
+      n = 0
+      do i=1,nacts
+        if( log_mb(i_maps+i-1)) n = n + 1
+      end do
+
+      end 
+c
+      subroutine qmmm_cons_get_i_acts(ai)
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+
+      integer ai(*)
+
+      integer i,n
+
+      do i=1,nacts
+        if( log_mb(i_maps+i-1)) then
+          n = n + 1
+          ai(n) = int_mb(i_acts+i-1)
+        end if
+      end do
+
+      end 
+
+      subroutine qmmm_cons_get_actmaps(n,ai,amap)
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+
+      integer n,ai(n)
+      logical amap(n)
+
+      integer i,j
 
 
+      do j=1,n
+       amap(j) = .false. 
+      end do
 
+      do i=1,nacts
+        if( log_mb(i_maps+i-1)) then
+        do j=1,n
+          if(int_mb(i_acts+i-1).eq.ai(j)) then
+            amap(j) = .true.
+            go to 11
+          end if
+        end do
+        end if
+11      continue
+
+      end do
+
+      end 
+
+      subroutine qmmm_cons_get_actmapw(n,ai,amap)
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+
+      integer n,ai(n)
+      logical amap(n)
+
+      integer i,j
+
+
+      do j=1,n
+       amap(j) = .false. 
+      end do
+
+      do i=1,nactw
+        if( log_mb(i_mapw+i-1)) then
+        do j=1,n
+          if(int_mb(i_actw+i-1).eq.ai(j)) then
+            amap(j) = .true.
+            go to 11
+          end if
+        end do
+        end if
+11      continue
+
+      end do
+
+      end 
+
+      subroutine qmmm_cons_end()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_cons_data.fh"
+
+      character*32 pname
+c
+      pname = "qmmm_cons_end"
+c
+      if(.not.ma_free_heap(h_mapw))
+     & call errquit(pname//'Failed to deallocate heap h_mapw',0,
+     &       MA_ERR)
+
+      if(.not.ma_free_heap(h_maps))
+     & call errquit(pname//'Failed to deallocate heap h_maps',0,
+     &       MA_ERR)
+
+      if(.not.ma_free_heap(h_actw))
+     & call errquit(pname//'Failed to deallocate heap h_actw',0,
+     &       MA_ERR)
+
+
+      if(.not.ma_free_heap(h_acts))
+     & call errquit(pname//'Failed to deallocate heap h_acts',0,
+     &       MA_ERR)
+
+
+       return
+      end

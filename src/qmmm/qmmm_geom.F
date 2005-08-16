@@ -1,7 +1,124 @@
 c
-c $Id: qmmm_geom.F,v 1.68 2005-08-10 18:40:43 marat Exp $
+c $Id: qmmm_geom.F,v 1.69 2005-08-16 22:09:42 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "mm_utils.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_geom_data.fh"
+#include "inp.fh"
+#include "qmmm_params.fh"
+      integer irtdb
+      logical ageom
+c     local variables
+      integer i
+      integer nqm,nlink
+      integer i_ind,i_lb
+      integer ig,ng0
+      integer mwa
+      character*255 geom
+      character*32 pname
+
+      pname = "qmmm_geom_init"
+
+      if(qmmm_print_debug())
+     >    write(*,*) "in",pname
+
+      aux_geom = ageom
+
+      nqm   = qmmm_get_nqm()
+      nlink = qmmm_get_nlink()
+      i_ind = qmmm_get_i_ai()
+      i_lb  = qmmm_get_i_lb()
+     
+      call mm_get_mwa(mwa)
+
+c
+c     initialize indexing for a full qm geometry
+c     ------------------------------------------
+      nfg = nqm + nlink
+      if(nfg.eq.0) goto 111
+      if(.not.ma_alloc_get(mt_int,nfg,'qmmm fullg ind',h_ifg,i_ifg))
+     + call errquit(pname//'Failed to allocate heap',nfg,
+     &       MA_ERR)
+      call icopy(nqm,int_mb(i_ind),1,int_mb(i_ifg),1)
+      call icopy(nlink,int_mb(i_lb+nlink),1,int_mb(i_ifg+nqm),1)
+c
+c    allocate gradient array
+c    -----------------------
+      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm grad array',
+     &      h_g, i_g) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      3*nfg, MA_ERR)
+      call dfill(3*nfg,0,dbl_mb(i_g),1)
+c
+c    allocate esp charges
+c    --------------------
+      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm esp charges',
+     &      h_qs, i_qs) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      3*nfg, MA_ERR)
+      call dfill(3*nfg,0,dbl_mb(i_qs),1)
+
+c
+c     create active geometry if any
+c     -----------------------------
+111   continue
+      if(aux_geom) then
+        call qmmm_cons_get_nacts(ngs)
+        ngw = 0
+        ng = ngs+ngw
+
+        if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
+     +   call errquit(pname//'Failed to allocate heap',ng,
+     &         MA_ERR)
+
+        call qmmm_cons_get_i_acts(int_mb(i_ig))
+
+        if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
+          call qmmm_geom_push(irtdb,
+     >                          ngs,
+     >                          int_mb(i_ig),
+     >                          ngw,
+     >                          int_mb(i_ig+ngs),
+     >                          geom)
+
+        end if
+
+        call qmmm_geom_create_active(irtdb)
+
+        if(qmmm_print_debug()) then
+           write(*,*) "active solute index"
+           do i=1,ngs
+             write(*,*) int_mb(i_ig+i-1)
+           end do
+           write(*,*) "active solvent index"
+           do i=1,ngw/mwa
+             write(*,*) int_mb(i_ig+ngs+i-1)
+           end do
+        end if
+      else
+        ngs = nfg
+        ngw = 0
+        ng =  nfg
+        i_ig = i_ifg
+        call qmmm_geom_create_full(irtdb)
+      end if
+
+      call qmmm_geom_print(irtdb,"geometry","-active.pdb")
+
+      if(qmmm_print_debug())
+     >    write(*,*) "out",pname
+
+      end
+
+      subroutine qmmm_geom_init0(irtdb,ageom)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -80,7 +197,7 @@ c       call mm_get_solvent_tot_nact(ngw)
      +   call errquit(pname//'Failed to allocate heap',ng,
      &         MA_ERR)
 
-        call mm_get_solute_act_ind(ngs,int_mb(i_ig))
+        call mm_get_solute_ind_act(ngs,int_mb(i_ig))
 c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
  
         if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
@@ -730,3 +847,12 @@ c     -------------
 
       end 
 
+      function qmmm_aux_geom()
+      implicit none
+#include "qmmm_geom_data.fh"
+
+      logical qmmm_aux_geom
+
+      qmmm_aux_geom = aux_geom
+
+      end 

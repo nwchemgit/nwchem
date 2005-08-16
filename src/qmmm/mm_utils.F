@@ -413,6 +413,60 @@ c        local variables
          
        end
 
+      function mm_active_qm(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_active_qm
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+
+         mm_active_qm = (iand(int_mb(psdt+i-1),mfixed).ne.lfixed)
+     >                   .and.
+     >                  (iand(int_mb(psdt+i-1),lquant).ne.0) 
+         
+       end
+
+      function mm_active_classical(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_active_classical
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+
+         mm_active_classical = 
+     >                (iand(int_mb(psdt+i-1),mfixed).ne.lfixed)
+     >                .and.
+     >               (iand(int_mb(psdt+i-1),lqlink).eq.0) 
+     >                .and.
+     >               (iand(int_mb(psdt+i-1),lquant).eq.0) 
+         
+       end
+
+      function mm_active_link(i)
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_active_link
+c        local variables
+         integer psdt
+
+         call mm_get_psdt(psdt)
+
+         mm_active_link = (iand(int_mb(psdt+i-1),mfixed).ne.lfixed)
+     >                .and.
+     >               (iand(int_mb(psdt+i-1),lqlink).ne.0) 
+         
+       end
+
       function mm_active_w(i)
          implicit none
 #include "mafdecls.fh"

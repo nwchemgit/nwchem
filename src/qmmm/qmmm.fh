@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.fh,v 1.23 2005-06-11 05:47:46 marat Exp $
+c $Id: qmmm.fh,v 1.24 2005-08-16 22:09:42 marat Exp $
 c
       integer qmmm_get_nlink
       integer qmmm_get_nbq
@@ -110,4 +110,13 @@ c
 
       integer   qmmm_geom_get_i_g
       external  qmmm_geom_get_i_g
+
+      logical   qmmm_aux_geom
+      external  qmmm_aux_geom
+
+c      integer   qmmm_cons_get_nacts
+c      external  qmmm_cons_get_nacts
+c
+c      integer   qmmm_cons_get_i_acts
+c      external  qmmm_cons_get_i_acts
 

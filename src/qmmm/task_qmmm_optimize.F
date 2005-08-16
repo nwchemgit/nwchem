@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -40,10 +40,6 @@ c
       logical opes
 
       nr = 1
-
-
-c      call util_print_push() 
-c      call util_print_rtdb_load(rtdb, 'qmmm')
 c
       pname = "task_qmmm_optimize"
 c
@@ -138,7 +134,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -217,7 +213,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -244,6 +240,7 @@ c
       integer   i
       logical ignore
       double precision energy
+      double precision grms_quantum
       integer ncycles
 
       pname = "qmmm_tandem_optimization"
@@ -261,6 +258,7 @@ c
        call qmmm_geom_create_active(rtdb)
        call qmmm_set_interface("qm")
        status = driver(rtdb)
+       call mm_get_rms_solute_force_gen(mm_quant,grms_quantum)
        call mm_free_solute(mm_classical)
 
        call mm_fix_solute(mm_quant)
@@ -278,7 +276,7 @@ c
        call qmmm_energy_rtdb_push(rtdb)
        if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
-       write(*,*) "qmmm_energy",i,energy
+       write(*,*) "qmmm_energy",i,energy,grms_quantum
 
       end do
       return
@@ -286,7 +284,7 @@ c
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.18 2005-08-12 01:12:11 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

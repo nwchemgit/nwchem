@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_data.fh,v 1.22 2005-08-12 01:12:11 marat Exp $
+c $Id: qmmm_data.fh,v 1.23 2005-08-16 22:09:42 marat Exp $
 c
       logical master
       logical oprint_debug
@@ -8,6 +8,7 @@ c
       double precision bqzone
       integer nqm
       integer i_ai,h_ai
+      integer i_ai_act,h_ai_act
       double precision qcharge
       character*32 qmmm_interface
       character*32 qmmm_optimization
@@ -18,6 +19,7 @@ c
      &                 bqzone,
      &                 nqm,
      &                 i_ai,h_ai,
+     &                 i_ai_act,h_ai_act,
      &                 fixlinks,
      &                 bq_dynamical,
      &                 qmmm_interface,
