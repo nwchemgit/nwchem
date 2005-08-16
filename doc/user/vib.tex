@@ -1,4 +1,4 @@
-% $Id: vib.tex,v 1.13 2002-02-13 18:17:12 windus Exp $
+% $Id: vib.tex,v 1.14 2005-08-16 23:33:53 windus Exp $
 \label{sec:vib}
 
 The nuclear hessian which is used to compute the vibrational
@@ -29,6 +29,9 @@ Elements" by John Emsley, Oxford University Press, (C) 1989, ISBN
 0-19-855237-8.} If the abundance was roughly equal, the mass of the
 isotope with the longest half life was used.
 
+In addition, the vibrational analysis is given at the default standard
+temperature of 298.15 degrees.
+
 \section{Vibrational Module Input}
 
 All input for the Vibrational Module is optional since the default
@@ -40,10 +43,12 @@ module input can begin with \verb+vib+, \verb+freq+, \verb+frequency+
 and has the form:
 \begin{verbatim}
   {freq || vib || frequency}
-    reuse [<string> hessian_filename]
-    mass <integer> lexical_index <real> new_mass
-    mass <string> tag_identifier <real> new_mass
-    animate [<real> step_size_for_animation]     
+    [reuse [<string hessian_filename>]]
+    [mass <integer lexical_index> <real new_mass>]
+    [mass <string tag_identifier> <real new_mass>]
+    [{temp || temperature} <integer number_of_temperatures> \
+          <real temperature1 temperature2 ...>]
+    [animate [<real step_size_for_animation>]]
   end
 \end{verbatim}
 
@@ -120,6 +125,23 @@ end
 task scf frequencies
 \end{verbatim}
 
+\subsection{Temp or Temperature}
+The ``VIB'' module can generate the vibrational analysis at various
+temperatures other than at standard room temperature.  Either
+temp or temperature can be used to initiate this command.
+
+To modify the temperature of the computation you can simply use:
+\begin{verbatim}
+  temp 4 298.15 300.0 350.0 400.0
+\end{verbatim}
+
+At this point, the temperatures are persistant and so the user 
+must "reset" the temperature if the standard behavior is required
+after setting the temperatures in a previous ``VIB'' command, i.e.
+\begin{verbatim}
+  temp 1 298.15
+\end{verbatim}
+
 \subsection{Animation} 
 The ``VIB'' module also can generate mode animation input files in the
 standard xyz file format for graphics packages like
@@ -148,7 +170,8 @@ units.
 
 \subsection{An Example Input Deck}
 This example input deck will optimize the geometry for the given basis
-set, compute the frequencies for H$_2$O, D$_2$O, HDO, and TDO.
+set, compute the frequencies for H$_2$O, H$_2$O at different temperatures,
+D$_2$O, HDO, and TDO.
 \begin{verbatim}
 start  h2o
 title Water 
@@ -168,8 +191,14 @@ task scf optimize
 scf; thresh 1e-8; print none; end
 task scf freq 
 
+freq
+ reuse; temp 4 298.15 300.0 350.0 400.0
+end
+task scf freq
+
 freq 
  reuse; mass H 2.014101779
+ temp 1 298.15
 end
 task scf freq
 

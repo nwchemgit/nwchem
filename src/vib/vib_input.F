@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *
-* $Id: vib_input.F,v 1.3 2003-10-17 22:58:37 carlfahl Exp $
+* $Id: vib_input.F,v 1.4 2005-08-16 23:34:05 windus Exp $
 *
 c
 c  {freq||vib}
@@ -31,6 +31,10 @@ c
       integer num_mod_mass
       double precision new_mass, animate_step
       integer len, num_on_line
+      integer numtemps, l_temp, k_temp, itemp
+      double precision valuetemp
+
+
       num_mod_mass = 0
       old_num_mod_mass = 0
       reported = .false.
@@ -87,6 +91,40 @@ c
             o_hessfile = .false.
           endif
           goto 00010
+
+        else if ((inp_compare(.false.,test,'temperature')).or.
+     &           (inp_compare(.false.,test,'temp'))) then
+          if (.not. inp_i(numtemps)) 
+     &      call errquit(
+     &         'freq_vib_input: Forgot the number of temperatures',
+     &         911, INPUT_ERR)
+          if (numtemps.gt.0) then
+            if (.not.MA_push_get(MT_dbl, numtemps, 'Temps',l_temp,
+     &           k_temp))
+     &        call errquit('freq_vib_input: failed to allocate temps',
+     &          911, INPUT_ERR)
+            do itemp = 1, numtemps
+              if (.not. inp_f(valuetemp))
+     &          call errquit(
+     &            'freq_vib_input: failed to read a temperature',
+     &            911, INPUT_ERR)
+              dbl_mb(k_temp - 1 + itemp) = valuetemp
+            enddo
+            if (.not.rtdb_put(rtdb,'vib:temperature',mt_dbl,
+     &        numtemps, dbl_mb(k_temp)))
+     &        call errquit(
+     &          'freq_vib_input: failed to write temps to rtdb',
+     &          911, RTDB_ERR)
+            if (.not.ma_pop_stack(l_temp))
+     &        call errquit(
+     &          'freq_vib_input: failed to release l_temp', 911,
+     &          MA_ERR)
+          else
+            call errquit('freq_vib_input: Sorry, the nTemp <= 0',
+     &        911, INPUT_ERR)
+          endif
+          goto 00010
+
         else if (inp_compare(.false.,test,'mass')) then
           if (.not.rtdb_get
      &        (rtdb,'vib:remass:count',mt_int,1,old_num_mod_mass))

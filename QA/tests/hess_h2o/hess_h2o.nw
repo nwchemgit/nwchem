@@ -17,8 +17,14 @@ task scf optimize
 scf; thresh 1e-8; print none; end
 task scf freq 
 
+freq
+  reuse; temperature 4 298.15 300.0 350.0 400.0
+end
+task scf freq
+
 freq 
  reuse; mass H 2.014101779
+ temperature 1 298.15
 end
 task scf freq
 
