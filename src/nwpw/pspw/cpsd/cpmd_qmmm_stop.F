@@ -25,8 +25,7 @@
       real*8   t1,t2,t3,t4,av
 
 *     **** lattice variables ****
-      integer ngrid(3),nwave,nfft3d,n2ft3d
-      integer npack1
+      integer ngrid(3),nwave,n2ft3d
 
 *     **** electronic variables ****
       real*8 icharge
@@ -44,7 +43,7 @@
       integer nfft3d
       integer npack1
       integer ispin
-      integer ne(2),nemax,icount
+      integer ne(2),nemax
       integer psi0(2),psi1(2),psi2(2)
       integer dn(2)
       integer Hpsi(2),psir(2)
@@ -71,7 +70,7 @@
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
       real*8  ekg,eki0,eki1,sum
       real*8  eke0,eke1
-      real*8  EV,pi,dt
+      real*8  EV,pi
       integer i,j,k,ia,n,nn
       integer ii,jj,index,indx
       integer it_in,it_out

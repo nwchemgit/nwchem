@@ -1,5 +1,5 @@
 *
-* $Id: cpmd_qmmm_start.F,v 1.1 2005-08-12 23:08:42 bylaska Exp $
+* $Id: cpmd_qmmm_start.F,v 1.2 2005-08-17 20:58:39 bylaska Exp $
 *
 
       logical function cpmd_qmmm_start(rtdb)
@@ -48,7 +48,7 @@
       integer nfft3d
       integer npack1
       integer ispin
-      integer ne(2),nemax,icount
+      integer ne(2),nemax
       integer psi0(2),psi1(2),psi2(2)
       integer dn(2)
       integer Hpsi(2),psir(2)
@@ -68,7 +68,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA,found
+      logical verlet,SA,found
       integer ms
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz

@@ -22,7 +22,7 @@
       integer nfft3d
       integer npack1
       integer ispin
-      integer ne(2),nemax,icount
+      integer ne(2),nemax
       integer psi0(2),psi1(2),psi2(2)
       integer dn(2)
       integer Hpsi(2),psir(2)
