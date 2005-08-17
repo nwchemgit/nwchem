@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.75 2005-08-16 20:16:44 windus Exp $
+$Id: INSTALL,v 1.76 2005-08-17 15:18:31 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -403,7 +403,7 @@ G)  Please note that the .nwchemrc does not handle the pseudopotential
 when testing a new installation when an old one exists.  This will allow you to
 overwrite the value of nwchem_basis_library in your .nwchemrc file and point to 
 the new basis library.  For example:
-   setenve NWCHEM_BASIS_LIBRARY "$NWCHEM/data-4.6/libraries/"
+   setenv NWCHEM_BASIS_LIBRARY "$NWCHEM/data-4.7/libraries/"
 Do not forget the trailing "/".
 
 BUILDING WITH MPI:
