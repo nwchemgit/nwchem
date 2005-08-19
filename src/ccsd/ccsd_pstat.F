@@ -1,5 +1,5 @@
       subroutine ccsd_pstat_init(rtdb)
-c  $Id: ccsd_pstat.F,v 2.2 2004-12-16 23:02:58 edo Exp $
+c  $Id: ccsd_pstat.F,v 2.3 2005-08-19 04:50:57 edo Exp $
       implicit none
 #include "pstat.fh"
 #include "ccsdps.fh"
@@ -57,6 +57,8 @@ c
      $     ps_itrdrv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:tengy', pstat_qstat, 0, junk,
      $     ps_tengy)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('ccsd:total', pstat_qstat, 0, junk,
+     $     ps_ccsd)) call errquit('ccsd: ccsd_pstat_init', 0,0)
 c       
       call pstat_on(ps_ccsd)
       occsdps = .true.
@@ -96,6 +98,7 @@ c
          if(.not.pstat_free(ps_sxy))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_itrdrv))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_tengy))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_ccsd))call errquit('ccsd_pstat?', 0,0)
 c
       endif
 c
