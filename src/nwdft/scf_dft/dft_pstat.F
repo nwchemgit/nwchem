@@ -94,6 +94,7 @@ c
          if (.not. pstat_free(ps_dft))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_xmrge))call errquit('dft_pstat?', 0,0)
          if (.not. pstat_free(ps_xcopy))call errquit('dft_pstat?', 0,0)
+         if (.not. pstat_free(ps_scfend))call errquit('dft_pstat?', 0,0)
 c
       endif
 c
