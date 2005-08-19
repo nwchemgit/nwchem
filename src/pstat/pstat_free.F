@@ -1,5 +1,5 @@
       Logical Function PStat_Free( Handle )
-C$Id: pstat_free.F,v 1.6 2003-10-17 22:58:01 carlfahl Exp $
+C$Id: pstat_free.F,v 1.7 2005-08-19 19:17:39 edo Exp $
       Implicit NONE
 #include "errquit.fh"
       Integer Handle
@@ -17,6 +17,8 @@ c
       endif
 c
       pstat_active(handle) = .false.
+      pstat_start_flop(handle) = 0d0
+      pstat_flop(handle) = 0d0
 c
       PStat_Free = .TRUE.
 c
