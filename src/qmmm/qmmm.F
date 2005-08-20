@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.56 2005-08-16 22:09:42 marat Exp $
+c $Id: qmmm.F,v 1.57 2005-08-20 18:04:12 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -144,7 +144,7 @@ c
       qmmm_end = .true.
 c
       call mm_end()
-      call qmmm_geom_data_release()
+      call qmmm_geom_end()
       call qmmm_bq_data_dealloc()
       call qmmm_data_release()
       call qmmm_link_data_release()

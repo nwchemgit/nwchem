@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -134,7 +134,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -174,7 +174,7 @@ c
       do k=1,58,2
       resid(1) = k
       resid(2) = k+1
-      call qmmm_geom_data_release()
+      call qmmm_geom_end()
       ignore = rtdb_delete(rtdb,'geometry')
       call mm_free_solute_res(2,resid)
       call qmmm_geom_init(rtdb,.true.)
@@ -213,7 +213,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -253,15 +253,16 @@ c
       write(*,*) "tandem optimization",ncycles
 
       do i=1,ncycles
-       call mm_fix_solute(mm_classical) 
+       call qmmm_cons_reset()
+       call qmmm_cons_set(rtdb,"fix","mm_solute")
        ignore = rtdb_delete(rtdb,'geometry')
-       call qmmm_geom_create_active(rtdb)
+       call qmmm_geom_init_aux(rtdb)
        call qmmm_set_interface("qm")
        status = driver(rtdb)
        call mm_get_rms_solute_force_gen(mm_quant,grms_quantum)
-       call mm_free_solute(mm_classical)
 
-       call mm_fix_solute(mm_quant)
+       call qmmm_cons_reset()
+       call qmmm_cons_set(rtdb,"fix","qmlink")
        call qmmm_set_interface("mm")
        if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
      $                   mt_log,1,.true.))
@@ -284,7 +285,7 @@ c
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.19 2005-08-16 22:09:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

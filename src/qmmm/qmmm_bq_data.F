@@ -811,7 +811,6 @@ c
      >                            g(3*nbqsa+1))
 
      
-
       if(.not.ma_pop_stack(h_ibqg))
      +   call errquit( pname//'Failed to deallocate memory for ibqg',
      +   nbqa, MA_ERR)

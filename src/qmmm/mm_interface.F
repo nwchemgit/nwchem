@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.66 2005-08-16 22:09:42 marat Exp $
+c $Id: mm_interface.F,v 1.67 2005-08-20 18:03:45 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -714,6 +714,84 @@ c
       if(qmmm_print_debug()) write(*,*) "in "//pname
       
       call mm_get_solute_ind_gen(nt,mm_active_bqs,ind)
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_solute_info_gen(nt,mm_type,ind,ires)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "mm_utils.fh"
+#include "msgids.fh"
+      integer nt
+      logical mm_type
+      integer ind(nt)
+      integer ires(nt)
+      external mm_type
+
+c     local variables
+      integer i
+      integer ioff,ioq
+      integer me
+      integer np
+      integer nqa
+      integer l_ioff,i_ioff
+      integer nsa
+      integer psl
+      character*32 pname
+      pname = "mm_get_solute_ind_gen"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call ifill(nt,0,ind,1)
+
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+
+      np=ga_nnodes()
+
+      if(.not.ma_push_get(mt_int,np,'ioff',l_ioff,i_ioff))
+     + call errquit('qmmm: Failed to allocate memory for ioff',np,
+     &       MA_ERR)
+
+      call ifill(np,0,int_mb(i_ioff),1)
+
+c
+c     accumulate offsets
+c     ------------------
+      me = ga_nodeid()
+c      call mm_get_nqm(nqa)
+      call mm_get_solute_na_gen(nqa,mm_type)
+      do i=me+1,np
+        int_mb(i_ioff+i-1)=nqa
+      end do    
+      call ga_igop(msg_qmmm_offset,int_mb(i_ioff),np,'+')
+c
+c     set offset for a current node
+c     -----------------------------
+      if(me.gt.0) then
+        ioff=int_mb(i_ioff+me-1)
+      else
+        ioff=0
+      end if
+
+      ioq=ioff
+      do i=1,nsa
+      if(mm_type(i)) then
+         ioq=ioq+1
+         ind(ioq)=int_mb(psl+i-1)
+      endif
+      end do
+       
+      call ga_igop(msg_qmmm_ind,ind,nt,'+')
+
+      if(.not.ma_pop_stack(l_ioff))
+     + call errquit('qmmm: Failed to deallocate memory for ioff',np,
+     &       MA_ERR)
+
+      call qmmm_sort(nt,ind)
+
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
@@ -2135,6 +2213,64 @@ c     mm local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_zero_solvent_force(nt,
+     >                       ai,
+     >                       map)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      logical map(nt)
+
+      integer i,j,k,m,j1,ioff
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pfw
+      integer pwl
+      character*32 pname
+      pname = "mm_set_solvent_force"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pfw(pfw)
+      call mm_get_pwl(pwl)
+ 
+      do i=1,nwm
+         do j=1,nt/mwa
+           if(int_mb(pwl+i-1).eq.ai(j)) then
+              do m=1,mwa
+                j1=(j-1)*mwa+m
+                if(.not.map(j1)) then
+                write(*,*) "zeroing solvent force"
+                do k=1,3
+                  ioff=pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm
+                  dbl_mb(ioff)=0.0d0
+                end do
+                end if
+              end do
+           end if
+         end do
+      end do
+
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_add_solvent_force(nt,
      >                       ai,
      >                       g)
@@ -2156,6 +2292,7 @@ c     mm local variables
       integer i,j,k,m,j1,ioff
 
 c     mm local variables
+      double precision f0,f1
       integer mwa
       integer mwm
       integer nwm
@@ -2171,7 +2308,7 @@ c     mm local variables
       call mm_get_nwmloc(nwm)
       call mm_get_pfw(pfw)
       call mm_get_pwl(pwl)
- 
+
       do i=1,nwm
         if(mm_bqwzone(i)) then
             do j=1,nt/mwa
@@ -2329,6 +2466,51 @@ c     local variables
               end if
             end do
         end if
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_zero_solute_force(nt,ai,map)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "msgids.fh"
+      integer nt
+      integer ai(nt)
+      logical map(nt)
+c     local variables
+      integer i,j,k
+      integer msa
+      integer nsa
+      integer psdt
+      integer psl
+      integer pfs
+      character*32 pname
+
+      pname = "mm_set_solute_force_gen"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psdt(psdt)
+      call mm_get_psl(psl)
+      call mm_get_pfs(pfs)
+
+      do i=1,nsa
+        do j=1,nt
+          if(int_mb(psl+i-1).eq.ai(j)) then
+             if(.not.map(j)) then
+             do k=1,3
+               dbl_mb(pfs+(i-1)+(k-1)*msa)=0.0d0
+             end do
+             end if
+          end if
+        end do
       end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname

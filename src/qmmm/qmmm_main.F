@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.42 2005-06-11 05:47:46 marat Exp $
+c $Id: qmmm_main.F,v 1.43 2005-08-20 18:04:12 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -65,6 +65,8 @@ c     -----------------------------------
 
       if(.not.qmmm_energy_gradient(inrtdb,do_grad)) 
      $   call errquit(pname//'failed qmmm_energy_gradient',0,0)
+
+      if(do_grad) call qmmm_cons_fixed()
 
       if (.not.rtdb_get(inrtdb,'qmmm:uqmatm',mt_dbl,1,eatoms))
      $     call errquit('qmmm: failed getting  ref energy',0,RTDB_ERR)

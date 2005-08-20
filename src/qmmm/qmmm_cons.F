@@ -1,8 +1,121 @@
 c
-c $Id: qmmm_cons.F,v 1.7 2005-08-16 22:09:42 marat Exp $
+c $Id: qmmm_cons.F,v 1.8 2005-08-20 18:04:12 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
+      implicit none
+c
+#include "mm_utils.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "qmmm_cons_data.fh"
+      integer irtdb
+c
+      character*32 pname
+      logical fixw
+      logical fixs
+      logical freeqmlink
+      logical freeqm
+      logical fixqm
+      logical fixqmlink
+c
+      integer i
+      character*26 ma_date
+      integer ma_type
+      integer nr
+      integer h_ires,i_ires
+c
+c     get total number of active atoms and global index
+c     as specified by mm input
+c     ------------------------------------------------
+      call mm_get_solute_tot_na_gen(nacts_qm,mm_active_qm)
+      call mm_get_solute_tot_na_gen(nacts_link,mm_active_link)
+      call mm_get_solute_tot_na_gen(nacts_mm,mm_active_classical)
+      call mm_get_solute_tot_nact(nacts)
+      call mm_get_solvent_tot_nact(nactw)
+
+      if(.not.ma_alloc_get(MT_INT, nacts, 'qmmm acts',
+     &      h_acts, i_acts) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nacts, MA_ERR)
+      call ifill(nacts,-1,int_mb(i_acts),1)
+
+      if(.not.ma_alloc_get(MT_INT, nactw, 'qmmm actw',
+     &      h_actw, i_actw) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nacts, MA_ERR)
+      call ifill(nactw,-1,int_mb(i_actw),1)
+c
+      if(nacts_qm.ne.0)  
+     >  call mm_get_solute_ind_gen(nacts_qm,
+     >                           mm_active_qm,
+     >                           int_mb(i_acts))
+c 
+      if(nacts_link.ne.0)  
+     >  call mm_get_solute_ind_gen(nacts_link,
+     >                           mm_active_link,
+     >                           int_mb(i_acts+nacts_qm))
+c
+      if(nacts_mm.ne.0)  
+     >  call mm_get_solute_ind_gen(nacts_mm,
+     >                    mm_active_classical,
+     >                    int_mb(i_acts+nacts_qm+nacts_link))
+
+      call mm_get_solvent_ind_act(nactw,int_mb(i_actw))
+
+      if(.not.ma_alloc_get(MT_LOG, nacts, 'qmmm maps',
+     &      h_maps, i_maps) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nacts, MA_ERR)
+
+      if(.not.ma_alloc_get(MT_LOG, nactw, 'qmmm mapw',
+     &      h_mapw, i_mapw) ) call errquit(
+     &      'qmmm_data_alloc: unable to allocate heap space',
+     &      nactw, MA_ERR)
+
+      do i=1,nacts
+        log_mb(i_maps+i-1) = .true.
+      end do
+
+      do i=1,nactw
+        log_mb(i_mapw+i-1) = .true.
+      end do
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixsolvent',mt_log,1,fixw))
+     $     fixw=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixsolute',mt_log,1,fixs))
+     $     fixs=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:freeqmlink',mt_log,1,freeqmlink))
+     $     freeqmlink=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:freeqm',mt_log,1,freeqm))
+     $     freeqm=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixqm',mt_log,1,fixqm))
+     $     fixqm=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixqmlink',mt_log,1,fixqmlink))
+     $     fixqmlink=.false.
+
+
+      if(fixw) call qmmm_cons_set(irtdb,"fix","solvent")
+      if(fixs) call qmmm_cons_set(irtdb,"fix","mm_solute")
+      if(fixqm) call qmmm_cons_set(irtdb,"fix","qm")
+      if(fixqmlink) call qmmm_cons_set(irtdb,"fix","qmlink")
+      if(freeqmlink) call qmmm_cons_set(irtdb,"free","qmlink")
+      if(freeqm) call qmmm_cons_set(irtdb,"free","qm")
+
+      return
+      end
+c
+      subroutine qmmm_cons_init0(irtdb)
       implicit none
 c
 #include "mm_utils.fh"
@@ -162,9 +275,235 @@ c      if(freeqm) call mm_free_solute(mm_quant)
      &   call errquit(pname//'stack deallocation h_ires',nr,
      &         MA_ERR)
       end if
+      return
+      end
+c
+      subroutine qmmm_cons_get_map(nt,ai,map)
+      implicit none
+c
+#include "mm_utils.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "qmmm_cons_data.fh"
+      integer nt
+      integer ai(nt)
+      logical map(nt)
+c
+      character*32 pname
+      integer i,j
+
+      do j=1,nt
+         map(j) = .false.
+      end do
+      do i=1,nacts
+        do j=1,nt
+        if(int_mb(i_acts+i-1).eq.ai(j)) then
+          map(j) = log_mb(i_maps+i-1) 
+        end if
+        end do
+      end do
+
+      return
+      end
+c
+      subroutine qmmm_cons_set(irtdb,atype,aregion)
+      implicit none
+c
+#include "mm_utils.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "qmmm_cons_data.fh"
+      integer irtdb
+      character*(*) atype
+      character*(*) aregion
+c
+      character*32 pname
+      logical fixw
+      logical fixs
+      logical freeqmlink
+      logical freeqm
+      logical fixqm
+      logical fixqmlink
+c
+      integer i
+      logical flag
+
+      if(atype.eq.'fix') then
+         flag = .false.
+      else if(atype.eq.'free') then
+         flag = .true.
+      else
+         call errquit('unknown constraint type',
+     +   0,0)
+      end if
+c
+      if(aregion.eq.'solvent') then
+        do i=1,nactw
+          log_mb(i_mapw+i-1) = flag
+        end do
+      else if(aregion.eq.'all') then
+        do i=1,nacts
+          log_mb(i_maps+i-1) = flag
+        end do
+      else if(aregion.eq.'mm_solute') then
+        do i=nacts_qm+nacts_link+1,nacts
+          log_mb(i_maps+i-1) = flag
+        end do
+      else if(aregion.eq.'qm') then
+        do i=1,nacts_qm
+          log_mb(i_maps+i-1) = flag
+        end do
+      else if(aregion.eq.'qmlink') then
+        do i=1,nacts_qm+nacts_link
+          log_mb(i_maps+i-1) = flag
+        end do
+      end if
+
+      return
+      end
+c
+      subroutine qmmm_cons_fixed()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "qmmm.fh"
+#include "qmmm_cons_data.fh"
+      character*32 pname
+ 
+      pname = "qmmm_cons_fixed"
+c
+      if(qmmm_print_debug()) 
+     +  write(*,*) "in",pname
+c
+      call mm_zero_solute_force(nacts,
+     >                          int_mb(i_acts),
+     >                          log_mb(i_maps))
+c
+      call mm_zero_solvent_force(nactw,
+     >                          int_mb(i_actw),
+     >                          log_mb(i_mapw))
+c
+      if(qmmm_print_debug()) 
+     +  write(*,*) "out",pname
+c
+      return
+      end
+c
+      subroutine qmmm_cons_set0(irtdb)
+      implicit none
+c
+#include "mm_utils.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "qmmm_cons_data.fh"
+      integer irtdb
+c
+      character*32 pname
+      logical fixw
+      logical fixs
+      logical freeqmlink
+      logical freeqm
+      logical fixqm
+      logical fixqmlink
+c
+      integer i
+      character*26 ma_date
+      integer ma_type
+      integer nr
+      integer h_ires,i_ires
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixsolvent',mt_log,1,fixw))
+     $     fixw=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixsolute',mt_log,1,fixs))
+     $     fixs=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:freeqmlink',mt_log,1,freeqmlink))
+     $     freeqmlink=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:freeqm',mt_log,1,freeqm))
+     $     freeqm=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixqm',mt_log,1,fixqm))
+     $     fixqm=.false.
+
+      if (.not. rtdb_get(irtdb,'qmmm:fixqmlink',mt_log,1,fixqmlink))
+     $     fixqmlink=.false.
+
+      if(.not.rtdb_get_info(irtdb, 'qmmm:fixres', ma_type,
+     $        nr, ma_date))   
+     $   nr = 0
+       
+      if(nr.ne.0) then
+        if(.not.ma_push_get(mt_int,nr,'ires',h_ires,i_ires))
+     +   call errquit( pname//'Failed to allocate memory for ires',
+     +   nr, MA_ERR)
+        if (.not. rtdb_get(irtdb,'qmmm:fixres',
+     +            mt_int,nr,int_mb(i_ires)))
+     +   call errquit( pname//'Failed ires',0,0)
+      end if
+
+      if(fixw) then
+        do i=1,nactw
+          log_mb(i_mapw+i-1) = .false.
+        end do
+      end if
+c
+      if(fixs) then
+        do i=nacts_qm+nacts_link+1,nacts
+          log_mb(i_maps+i-1) = .false.
+        end do
+      end if
+c
+      if(fixqm) then
+        do i=1,nacts_qm
+          log_mb(i_maps+i-1) = .false.
+        end do
+      end if
+c
+      if(fixqmlink) then
+        do i=nacts_qm+1,nacts_qm+nacts_link
+          log_mb(i_maps+i-1) = .false.
+        end do
+      end if
+
+      if(nr.ne.0) then
+        if(.not.ma_pop_stack(h_ires))
+     &   call errquit(pname//'stack deallocation h_ires',nr,
+     &         MA_ERR)
+      end if
+      return
+      end
+c
+      subroutine qmmm_cons_reset()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "qmmm_cons_data.fh"
+c
+      integer i
 
       do i=1,nacts
-        write(*,*) "qmmm cons maps",i,log_mb(i_maps+i-1)
+        log_mb(i_maps+i-1) = .true.
+      end do
+
+      do i=1,nactw
+        log_mb(i_mapw+i-1) = .true.
       end do
 
       return
@@ -398,6 +737,7 @@ c
 
       integer i,n
 
+      n = 0
       do i=1,nacts
         if( log_mb(i_maps+i-1)) then
           n = n + 1
@@ -445,18 +785,21 @@ c
       integer n,ai(n)
       logical amap(n)
 
-      integer i,j
+      integer i,j,m
+      integer mwa
 
-
+      call mm_get_mwa(mwa)
       do j=1,n
        amap(j) = .false. 
       end do
 
       do i=1,nactw
         if( log_mb(i_mapw+i-1)) then
-        do j=1,n
+        do j=1,n/mwa
           if(int_mb(i_actw+i-1).eq.ai(j)) then
-            amap(j) = .true.
+            do m=1,mwa
+            amap((j-1)*mwa+m) = .true.
+            end do
             go to 11
           end if
         end do

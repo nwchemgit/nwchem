@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.37 2005-08-16 22:09:42 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.38 2005-08-20 18:04:12 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -188,7 +188,6 @@ c
 
       pname = "qmmm_energy_gradient"
 
-      write(*,*) pname,do_grad
       if(qmmm_print_debug()) then
          if(do_grad) then
            write(*,*) pname,"doing gradient"
@@ -562,7 +561,7 @@ c     ----------------------------------------------------
          log_mb(i_am+i-1)=.true.
         end do
       else
-        call mm_get_solute_cons(ng,int_mb(i_ig),
+        call qmmm_cons_get_map(ng,int_mb(i_ig),
      >                       log_mb(i_am))
       end if
 

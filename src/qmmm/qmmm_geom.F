@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.69 2005-08-16 22:09:42 marat Exp $
+c $Id: qmmm_geom.F,v 1.70 2005-08-20 18:04:12 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -20,7 +20,6 @@ c     local variables
       integer i
       integer nqm,nlink
       integer i_ind,i_lb
-      integer ig,ng0
       integer mwa
       character*255 geom
       character*32 pname
@@ -30,7 +29,6 @@ c     local variables
       if(qmmm_print_debug())
      >    write(*,*) "in",pname
 
-      aux_geom = ageom
 
       nqm   = qmmm_get_nqm()
       nlink = qmmm_get_nlink()
@@ -70,39 +68,8 @@ c
 c     create active geometry if any
 c     -----------------------------
 111   continue
-      if(aux_geom) then
-        call qmmm_cons_get_nacts(ngs)
-        ngw = 0
-        ng = ngs+ngw
-
-        if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
-     +   call errquit(pname//'Failed to allocate heap',ng,
-     &         MA_ERR)
-
-        call qmmm_cons_get_i_acts(int_mb(i_ig))
-
-        if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
-          call qmmm_geom_push(irtdb,
-     >                          ngs,
-     >                          int_mb(i_ig),
-     >                          ngw,
-     >                          int_mb(i_ig+ngs),
-     >                          geom)
-
-        end if
-
-        call qmmm_geom_create_active(irtdb)
-
-        if(qmmm_print_debug()) then
-           write(*,*) "active solute index"
-           do i=1,ngs
-             write(*,*) int_mb(i_ig+i-1)
-           end do
-           write(*,*) "active solvent index"
-           do i=1,ngw/mwa
-             write(*,*) int_mb(i_ig+ngs+i-1)
-           end do
-        end if
+      if(ageom) then
+        call qmmm_geom_init_aux(irtdb)
       else
         ngs = nfg
         ngw = 0
@@ -112,6 +79,71 @@ c     -----------------------------
       end if
 
       call qmmm_geom_print(irtdb,"geometry","-active.pdb")
+
+      if(qmmm_print_debug())
+     >    write(*,*) "out",pname
+
+      end
+
+      subroutine qmmm_geom_init_aux(irtdb)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "mm_utils.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_geom_data.fh"
+#include "inp.fh"
+#include "qmmm_params.fh"
+      integer irtdb
+c     local variables
+      integer i
+      character*255 geom
+      character*32 pname
+
+      pname = "qmmm_geom_init_aux"
+
+      if(qmmm_print_debug())
+     >    write(*,*) "in",pname
+
+      if(aux_geom) call qmmm_geom_aux_end()
+
+      call qmmm_cons_get_nacts(ngs)
+      ngw = 0
+      ng = ngs+ngw
+
+      if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
+     + call errquit(pname//'Failed to allocate heap',ng,
+     &       MA_ERR)
+
+      call qmmm_cons_get_i_acts(int_mb(i_ig))
+
+      if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
+        call qmmm_geom_push(irtdb,
+     >                        ngs,
+     >                        int_mb(i_ig),
+     >                        ngw,
+     >                        int_mb(i_ig+ngs),
+     >                        geom)
+
+        if(.not.rtdb_delete(irtdb,"qmmm:geom"))
+     >     call errquit(pname//' qmmm:geom',0,
+     &       RTDB_ERR)
+      end if
+
+      call qmmm_geom_create_active(irtdb)
+
+      if(qmmm_print_debug()) then
+         write(*,*) "active solute index"
+         do i=1,ngs
+           write(*,*) int_mb(i_ig+i-1)
+         end do
+      end if
+
+      aux_geom = .true.
 
       if(qmmm_print_debug())
      >    write(*,*) "out",pname
@@ -237,20 +269,30 @@ c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
 
       end
 
-      subroutine qmmm_geom_data_release()
+      subroutine qmmm_geom_aux_end()
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_geom_data.fh"
       logical ignore
       
-      if(aux_geom) then
        if(.not.ma_free_heap(h_ig))
-     &   call errquit('qmmm h_ig: Failed to deallocate heap',ng,
+     &   call errquit('Failed to deallocate heap',ng,
      &       MA_ERR)
        ng = 0
-      end if
+       aux_geom = .false.
 
+       return
+      end
+
+      subroutine qmmm_geom_end()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_geom_data.fh"
+      logical ignore
+      
+      if(aux_geom) call qmmm_geom_aux_end()
 
       if(nfg.ne.0) then
        if(.not.ma_free_heap(h_qs))
