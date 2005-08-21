@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -27,7 +27,10 @@ c
 c
       logical   qmmm_lbfgsb_driver
       external  qmmm_lbfgsb_driver
-
+c
+      logical   qmmm_mixed_optimization
+      external  qmmm_mixed_optimization
+c
       logical   qmmm_tandem_optimization
       external  qmmm_tandem_optimization
       logical   qmmm_pes
@@ -89,7 +92,7 @@ c
      >      write(*,*) "going into md_em"
          call md_em()
       else if (optimization.eq.'tandem') then
-         status =  qmmm_tandem_optimization(rtdb)
+         status =  qmmm_mixed_optimization(rtdb)
       else if (optimization.eq.'mm') then
          if(qmmm_print_debug())
      >      write(*,*) "going into md_em"
@@ -134,7 +137,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -213,7 +216,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -284,8 +287,136 @@ c
 
       end
 
+      function qmmm_mixed_optimization(rtdb)
+c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "mm_utils.fh"
+
+      integer rtdb
+      logical qmmm_mixed_optimization
+c
+      logical  status
+c     
+      character*32 pname
+c     
+      logical   driver
+      external  driver
+      logical   qmmm_lbfgsb_driver
+      external  qmmm_lbfgsb_driver
+      logical   qmmm_energy_gradient
+      external  qmmm_energy_gradient
+      integer   i,k
+      logical ignore
+      double precision energy
+      double precision grms_quantum
+      double precision grms_classical
+      integer ncycles
+      integer maxiter(3)
+      character*30 region(3)
+      character*30 interface(3)
+      character*30 method(3)
+
+      pname = "qmmm_mixed_optimization"
+
+      qmmm_mixed_optimization = .true.
+
+      if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
+     +  ncycles = 1
+
+      if (.not. rtdb_get(rtdb,'qmmm:maxiter',mt_int,3,maxiter)) then
+         maxiter(1) = 20
+         maxiter(2) = 100
+         maxiter(3) = 100
+      end if
+
+      region(1) = "qmlink"
+      region(2) = "mm_solute"
+      region(3) = "solvent"
+
+      interface(1) = "qm"
+      interface(2) = "qm"
+      interface(3) = "mm"
+
+      method(1) = "bfgs"
+      method(2) = "lbfgs"
+      method(3) = "sd"
+
+      do i=1,ncycles
+       do k=1,3
+c
+       if(maxiter(k).eq.0) goto 111
+c
+       write(*,*) "qmmm_mixed_optimization",
+     >            k,method(k),region(k),maxiter(k)
+       call qmmm_cons_reset()
+       call qmmm_cons_set(rtdb,"fix","solute")
+       call qmmm_cons_set(rtdb,"fix","solvent")
+c
+       call qmmm_cons_set(rtdb,"free",region(k))
+       ignore = rtdb_delete(rtdb,'geometry')
+       call qmmm_geom_init_aux(rtdb)
+c
+       if(method(k).eq."bfgs") then
+         if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter(k)))
+     $        call errquit(pname,0, RTDB_ERR)
+         call qmmm_set_interface("qm")
+         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
+     $       mt_log,1,.false.))
+     $      call errquit(pname,0, RTDB_ERR)
+         status = driver(rtdb)
+       else if(method(k).eq."lbfgs") then
+         if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter(k)))
+     $        call errquit(pname,0, RTDB_ERR)
+         call qmmm_set_interface("qm")
+         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
+     $       mt_log,1,.true.))
+     $      call errquit(pname,0, RTDB_ERR)
+         status =  qmmm_lbfgsb_driver(rtdb)
+       else if(method(k).eq."sd") then
+         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
+     $       mt_log,1,.false.))
+     $      call errquit(pname,0, RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
+     $       mt_log,1,.true.))
+     $      call errquit(pname,0, RTDB_ERR)
+         if(.not.rtdb_put(rtdb,'md:msdit',mt_int,1,maxiter(k)))
+     +      call errquit(pname,0,RTDB_ERR)
+         call md_em()
+       else
+         call errquit(pname//'unknown method',0, RTDB_ERR)
+       end if
+111    continue
+       end do
+       call qmmm_cons_reset()
+       if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
+     $       mt_log,1,.false.))
+     $      call errquit(pname,0, RTDB_ERR)
+        status = qmmm_energy_gradient(rtdb,.true.) 
+       call qmmm_energy_rtdb_push(rtdb)
+       if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,energy))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+       call mm_get_rms_solute_force_gen(mm_quant,grms_quantum)
+       call mm_get_rms_solute_force_gen(mm_classical,grms_classical)
+       write(*,*) "qmmm_energy",i,energy,grms_quantum,grms_classical
+
+
+       end do
+
+      return
+
+      end
+
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.20 2005-08-20 18:04:12 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
