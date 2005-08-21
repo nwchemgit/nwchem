@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.3 2005-08-16 22:09:42 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.4 2005-08-21 00:26:57 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -37,7 +37,7 @@ c        Written by
 c                           Ciyou Zhu
 c        in collaboration with R.H. Byrd, P. Lu-Chen and J. Nocedal.
 c     **************
-      logical function qmmm_lbfgsb_driver(irtdb)
+      function qmmm_lbfgsb_driver(irtdb)
       implicit none
 #include "geom.fh" 
 #include "mafdecls.fh"
@@ -46,6 +46,7 @@ c     **************
 #include "global.fh"
  
       integer          irtdb
+      logical qmmm_lbfgsb_driver
  
 c     Declare the variables needed by the code.
 c       A description of all these variables is given at the end of 
@@ -113,7 +114,8 @@ c
       if (.not. rtdb_cget(irtdb,'driver:xyz',1,xyz))
      $     xyz = ' '
 
-      call mm_get_solute_tot_nact(ncent)
+c      call mm_get_solute_tot_nact(ncent)
+       call qmmm_cons_get_nacts(ncent)
 
       if (.not. rtdb_get(irtdb,'driver:mh',mt_int,1,m))
      $        m = 5
@@ -193,7 +195,8 @@ c     Set bounds if any
       end do
 
 c     We now define the starting point.
-      call mm_get_solute_ind_act(ncent,int_mb(i_id))
+c      call mm_get_solute_ind_act(ncent,int_mb(i_id))
+      call qmmm_cons_get_i_acts(int_mb(i_id))
       call mm_get_solute_coord(ncent,
      >                       int_mb(i_id),
      >                       dbl_mb(i_x))
@@ -317,6 +320,7 @@ c
       return 
 
       end
+
 c======================= The end of driver1 ============================
 
 c     --------------------------------------------------------------
