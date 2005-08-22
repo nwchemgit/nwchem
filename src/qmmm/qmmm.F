@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.58 2005-08-22 01:59:57 marat Exp $
+c $Id: qmmm.F,v 1.59 2005-08-22 02:12:56 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -106,7 +106,6 @@ c     --------------------------------------------
       if(oprint) 
      >  write(*,*) "aux_geom",aux_geom
 
-      write(*,*) "aux_geom",aux_geom
       call qmmm_geom_init(irtdb,aux_geom)
 
       if(loadgeom) call md_sp()
