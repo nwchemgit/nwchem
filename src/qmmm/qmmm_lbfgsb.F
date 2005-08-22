@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.4 2005-08-21 00:26:57 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.5 2005-08-22 01:51:43 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -258,6 +258,7 @@ c        go back to the minimization routine.
 c       the minimization routine has returned with a new iterate,
 c       so we have to save it into rtdb
         if (task(1:5) .eq. 'NEW_X')  then
+          call mm_write_restart()
           rtdb_mode = rtdb_parallel(.false.)
           if(master) then
             call lbfgs_compute_info(nc,
