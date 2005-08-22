@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.70 2005-08-20 18:04:12 marat Exp $
+c $Id: qmmm_geom.F,v 1.71 2005-08-22 01:05:39 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -276,11 +276,15 @@ c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
 #include "qmmm_geom_data.fh"
       logical ignore
       
+      if(.not.aux_geom) return
        if(.not.ma_free_heap(h_ig))
      &   call errquit('Failed to deallocate heap',ng,
      &       MA_ERR)
-       ng = 0
        aux_geom = .false.
+       ngs = nfg
+       ngw = 0
+       ng =  nfg
+       i_ig = i_ifg
 
        return
       end

@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.22 2005-08-22 01:05:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -137,7 +137,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.22 2005-08-22 01:05:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -216,7 +216,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.22 2005-08-22 01:05:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -288,7 +288,7 @@ c
       end
 
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.22 2005-08-22 01:05:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -319,6 +319,7 @@ c
       double precision energy
       double precision grms_quantum
       double precision grms_classical
+      double precision grms_solvent
       integer ncycles
       integer maxiter(3)
       character*30 region(3)
@@ -349,14 +350,19 @@ c
       method(1) = "bfgs"
       method(2) = "lbfgs"
       method(3) = "sd"
+c
+c     print informational header
+c     --------------------------
 
       do i=1,ncycles
        do k=1,3
 c
        if(maxiter(k).eq.0) goto 111
 c
-       write(*,*) "qmmm_mixed_optimization",
+       if(qmmm_master()) 
+     >  write(*,*) "qmmm_mixed_optimization",
      >            k,method(k),region(k),maxiter(k)
+
        call qmmm_cons_reset()
        call qmmm_cons_set(rtdb,"fix","solute")
        call qmmm_cons_set(rtdb,"fix","solvent")
@@ -373,6 +379,8 @@ c
      $       mt_log,1,.false.))
      $      call errquit(pname,0, RTDB_ERR)
          status = driver(rtdb)
+         call mm_get_rms_solute_force_gen(mm_quant_link,grms_quantum)
+         write(*,*) "grms_quantum",grms_quantum
        else if(method(k).eq."lbfgs") then
          if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter(k)))
      $        call errquit(pname,0, RTDB_ERR)
@@ -382,9 +390,8 @@ c
      $      call errquit(pname,0, RTDB_ERR)
          status =  qmmm_lbfgsb_driver(rtdb)
        else if(method(k).eq."sd") then
-         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $       mt_log,1,.false.))
-     $      call errquit(pname,0, RTDB_ERR)
+         call qmmm_set_interface("mm")
+         call qmmm_geom_aux_end()
          if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
      $       mt_log,1,.true.))
      $      call errquit(pname,0, RTDB_ERR)
@@ -404,9 +411,13 @@ c
        call qmmm_energy_rtdb_push(rtdb)
        if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
-       call mm_get_rms_solute_force_gen(mm_quant,grms_quantum)
+       call mm_get_rms_solute_force_gen(mm_quant_link,grms_quantum)
        call mm_get_rms_solute_force_gen(mm_classical,grms_classical)
-       write(*,*) "qmmm_energy",i,energy,grms_quantum,grms_classical
+       call mm_get_rms_solvent_force_gen(mm_active_w,grms_solvent)
+c
+       if(qmmm_master()) 
+     $  write(*,*) "@@",i,energy,grms_quantum,grms_classical,
+     $                          grms_solvent
 
 
        end do
@@ -416,7 +427,7 @@ c
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.21 2005-08-21 02:04:20 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.22 2005-08-22 01:05:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

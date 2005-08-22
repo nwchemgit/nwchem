@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.67 2005-08-20 18:03:45 marat Exp $
+c $Id: mm_interface.F,v 1.68 2005-08-22 01:05:39 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -2156,6 +2156,64 @@ c        end if
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_get_rms_solvent_force_gen(mm_type,grms)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      logical mm_type
+      external mm_type
+      double precision grms
+
+      integer i,k,m,ioff
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pfw
+      integer pwl
+      integer ntot
+      double precision g
+      character*32 pname
+      pname = "mm_get_rms_solvent_force_gen"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pfw(pfw)
+ 
+      ntot = 0
+      grms = 0.0d0
+      do i=1,nwm
+        if(mm_type(i)) then
+          ntot = ntot + 1
+            do m=1,mwa
+              do k=1,3
+                ioff=pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm
+                g=dbl_mb(ioff)
+                grms = grms + g*g
+              end do
+            end do
+       end if
+      end do
+
+      call ga_dgop(msg_qmmm_forcew,grms,1,'+')
+      call ga_dgop(msg_qmmm_nqm,ntot,1,'+')
+c
+      grms = sqrt(grms/dble(ntot))*cau2nm/cau2kj
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_set_solvent_force(nt,
      >                       ai,
      >                       g)
@@ -2638,12 +2696,13 @@ c
       call mm_get_pfs(pfs)
 c
       ntot = 0
+      grms = 0.0d0
       do i=1,nsa
         if(mm_type(i)) then
            ntot = ntot + 1
            do k=1,3
              grms=grms + dbl_mb(pfs+(i-1)+(k-1)*msa)*
-     >                   dbl_mb(pfs+(i-1)+(k-1)*msa)
+     >                   dbl_mb(pfs+(i-1)+(k-1)*msa) 
            end do
         end if
       end do
