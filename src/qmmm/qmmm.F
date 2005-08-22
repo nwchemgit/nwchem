@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.57 2005-08-20 18:04:12 marat Exp $
+c $Id: qmmm.F,v 1.58 2005-08-22 01:59:57 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -92,7 +92,7 @@ c     --------------------------------------------
 
       if (optimization.ne.'qm' ) aux_geom = .false.
       
-      if (optimization.eq.'tandem' ) aux_geom = .true.
+      if (optimization.eq.'tandem' ) aux_geom = .false.
 
       if (inp_compare(.false.,'esp',theory)) aux_geom=.false.
 
