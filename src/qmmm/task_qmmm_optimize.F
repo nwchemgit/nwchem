@@ -1,5 +1,5 @@
       logical function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.23 2005-08-22 01:20:08 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.24 2005-08-22 16:31:33 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -137,7 +137,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.23 2005-08-22 01:20:08 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.24 2005-08-22 16:31:33 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -216,7 +216,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.23 2005-08-22 01:20:08 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.24 2005-08-22 16:31:33 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -288,7 +288,7 @@ c
       end
 
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.23 2005-08-22 01:20:08 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.24 2005-08-22 16:31:33 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -327,6 +327,7 @@ c
       character*30 region(3)
       character*30 interface(3)
       character*30 method(3)
+      character*48 string
 
       pname = "qmmm_mixed_optimization"
 
@@ -355,6 +356,19 @@ c
 c
 c     print informational header
 c     --------------------------
+      if(qmmm_master()) then
+        string = "Mixed Mode QM/MM Optimization"
+        call util_print_centered(luout,
+     >      string(1:inp_strlen(string)), 
+     >      1,.true.)
+
+        string = ' '
+        do k=1,3
+          write(luout,13) k,
+     >                    region(k),method(k),maxiter(k)
+        end do 
+13      format("region",i1,":  ",a10,"with ",a10,"maxiter =",i3)
+      end if
 
       do i=1,ncycles
        do k=1,3
@@ -427,7 +441,7 @@ c
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.23 2005-08-22 01:20:08 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.24 2005-08-22 16:31:33 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
