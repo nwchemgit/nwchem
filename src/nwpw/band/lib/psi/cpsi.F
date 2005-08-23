@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.19 2005-02-01 02:50:06 bylaska Exp $
+* $Id: cpsi.F,v 1.20 2005-08-23 14:12:00 bylaska Exp $
 *
 
 
@@ -1278,3 +1278,64 @@ c      end do
 
 
 
+*     ***************************
+*     *                         *
+*     *      cpsi_dospsi_write  *
+*     *                         *
+*     ***************************
+
+      subroutine cpsi_dospsi_write(k)
+      implicit none
+      integer k
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+
+*     **** local variables ****
+      character*30 filename
+
+*     **** external functions ****
+      character*7 c_index_name
+      external    c_index_name
+
+*     ***** write psi1 wavefunctions ****
+      filename = 'dos'//c_index_name(k)//'.movecs'
+      call cpsi_write_filename(filename,ispin,ne,nbrillioun,
+     >                         dcpl_mb(psi1(1)))
+
+      return
+      end
+
+
+
+*     ***************************
+*     *                         *
+*     *      cpsi_dospsi_read   *
+*     *                         *
+*     ***************************
+
+      subroutine cpsi_dospsi_read(k)
+      implicit none
+      integer k
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+
+*     **** local variables ****
+      character*30 filename
+
+*     **** external functions ****
+      character*7 c_index_name
+      external    c_index_name
+
+*     ***** write psi1 wavefunctions ****
+      filename = 'dos'//c_index_name(k)//'.movecs'
+      call cpsi_read_filename(filename,ispin,ne,nbrillioun,
+     >                         dcpl_mb(psi1(1)))
+
+      return
+      end

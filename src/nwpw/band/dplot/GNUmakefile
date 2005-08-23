@@ -1,9 +1,10 @@
 #
-# $Id: GNUmakefile,v 1.1 2005-08-05 20:39:35 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2005-08-23 14:12:00 bylaska Exp $
 #
  OBJ_OPTIMIZE = \
 				band_dplot_input.o \
-				band_dplot.o 
+				band_dplot.o \
+				band_dplot_iteration.o 
 
 
 	  OBJ = 

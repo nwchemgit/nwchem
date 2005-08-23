@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.61 2005-07-13 23:53:54 bylaska Exp $
+* $Id: cgsdv5.F,v 1.62 2005-08-23 14:12:01 bylaska Exp $
 *
 
 ***********************************************************************
@@ -130,8 +130,8 @@
       external control_ks_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
-      logical  control_print,control_qmmm
-      external control_print,control_qmmm
+      logical  control_print,control_qmmm,control_balance
+      external control_print,control_qmmm,control_balance
       integer  control_mapping
       external control_mapping
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
@@ -286,6 +286,11 @@ c     value = psi_initialize()
          write(6,1111) np
          if (mapping.eq.1) write(6,1112) 
          if (mapping.eq.2) write(6,1113) 
+         if (control_balance()) then
+           write(6,1114)
+         else
+           write(6,1116)
+         end if
          write(6,1115)
 
          write(6,1121) control_boundry(),control_version()
@@ -657,7 +662,9 @@ c     end if
  1111 FORMAT(/' number of processors used:',I3)
  1112 FORMAT( ' parallel mapping         : slab')
  1113 FORMAT( ' parallel mapping         : hilbert')
+ 1114 FORMAT( ' parallel mapping         : balanced')
  1115 FORMAT(/' options:')
+ 1116 FORMAT( ' parallel mapping         : not balanced')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')

@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.8 2003-10-17 22:56:11 carlfahl Exp $
+* $Id: Stiefel.F,v 1.9 2005-08-23 14:12:00 bylaska Exp $
 *
 
 
@@ -237,6 +237,40 @@
       return
       end                   
        
+
+*     ****************************
+*     *                          *
+*     *       Stfl_hr_aSqrpy     *
+*     *                          *
+*     ****************************
+*
+*     C(1:nfft3d,ms) = Sum(ispin,ne) A(1:nfft3d,n)**2*weight(n)
+*     uses - C3dB_cr_aSqrpy
+
+      subroutine  Stfl_hr_aSqrpy(nfft3d,ne,weight,A,C)
+      implicit none
+      integer nfft3d,ne
+      complex*16 A(nfft3d,ne)
+      real*8     weight(*)
+      real*8     C(nfft3d)
+
+*     **** local variables ****
+      integer n
+      real*8  scal2
+
+*     ***** external functions *****
+      real*8   lattice_omega
+      external lattice_omega
+
+      scal2 = 1.0d0/lattice_omega()
+
+      do n=1,ne
+        call C3dB_cr_aSqrpy(1,scal2*weight(n),A(1,n),C)
+      end do
+      return
+      end
+
+
 
 *     ****************************
 *     *                		 *

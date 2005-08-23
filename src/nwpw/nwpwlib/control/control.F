@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.76 2005-08-05 20:39:36 bylaska Exp $
+* $Id: control.F,v 1.77 2005-08-23 14:12:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -52,6 +52,11 @@
 *     **** get parallel mapping ****
       if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
          mapping = 1
+      end if
+
+*     **** get balance mapping ****
+      if (.not.rtdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
+         balance = .false.
       end if
 
 
@@ -2771,6 +2776,23 @@ c      end
       control_gram_schmidt=gram_schmidt
       return
       end
+
+
+*     ***************************
+*     *                         *
+*     *     control_balance     *
+*     *                         *
+*     ***************************
+      logical function control_balance()
+      implicit none
+
+#include "control.fh"
+
+      control_balance=balance
+      return
+      end
+
+
 
 *     *****************************
 *     *                	 	  *

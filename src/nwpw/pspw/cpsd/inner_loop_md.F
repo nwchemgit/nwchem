@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.21 2005-05-24 17:36:26 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.22 2005-08-23 14:12:02 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -53,7 +53,7 @@
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
-      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
+      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
@@ -215,6 +215,7 @@ c     real*8     fion(3,natmx)
       if ((control_version().eq.4).or.(field_exist))
      >   call lattice_r_grid(dbl_mb(r_grid(1)))
 
+      espring = 0.0d0
 
 *     ******************************************
 *     ****                                  ****
@@ -648,13 +649,14 @@ c        end if
 
 *     **** total energy ****
       Eold=E(1)
-      E(2) = eorbit + eion + exc - ehartr - pxc
+      E(2) = eorbit + eion + exc - ehartr - pxc + espring
       E(3) = eke
       E(4) = ion_ke()
       E(5) = eorbit
       E(6) = ehartr
       E(7) = exc
       E(8) = eion
+      E(22) = espring
 
 *     ******** QM/MM energies ******
       if (pspw_qmmm_found()) then

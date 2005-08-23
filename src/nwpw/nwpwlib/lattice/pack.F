@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.20 2005-07-12 22:01:26 bylaska Exp $
+* $Id: pack.F,v 1.21 2005-08-23 14:12:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -10,11 +10,11 @@
 
       subroutine Pack_Init()
       implicit none
-#include "errquit.fh"
 
 
 #include "mafdecls.fh"
 #include "mask_common.fh"
+#include "errquit.fh"
 
 
 *     **** common block for pack ****
@@ -38,6 +38,10 @@
       integer nx,ny,nz
       integer nxh,nyh,nzh      
       integer nwave_in(0:1),nwave_out(0:1)
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
 
 
 
@@ -145,7 +149,12 @@
 
       nwave_in(0) = nida(0) + nidb(0)
       nwave_in(1) = nida(1) + nidb(1)
-      call Balance_Init(2,nwave_in,nwave_out)
+      if (control_balance()) then
+        call Balance_Init(2,nwave_in,nwave_out)
+      else
+        nwave_out(0) = nwave_in(0)
+        nwave_out(1) = nwave_in(1)
+      end if
       nidb2(0) = nidb(0) + (nwave_out(0)-nwave_in(0))
       nidb2(1) = nidb(1) + (nwave_out(1)-nwave_in(1))
 
@@ -167,9 +176,9 @@
 
       subroutine Pack_end()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block for pack ****
       integer nida(0:1),nidb(0:1)
@@ -178,12 +187,16 @@
 
       logical value
 
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
       value = MA_free_heap(pack(2,0))
       value = value.and.
      >        MA_free_heap(pack(2,1))
       if (.not. value) call errquit('error freeing heap memory',0,
      &       MA_ERR)
-      call Balance_End()
+      if (control_balance()) call Balance_End()
       return
       end
 
@@ -197,11 +210,11 @@
 
       subroutine Pack_c_pack(nb,A)
       implicit none
-#include "errquit.fh"
       integer    nb
       complex*16 A(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block for pack ****
       integer nida(0:1),nidb2(0:1)
@@ -215,6 +228,10 @@
       logical value
       integer nfft3d,n
       integer tmp1(2)
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
 
       call nwpw_timing_start(9)
 
@@ -235,7 +252,7 @@ c      end do
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
-      call Balance_c_balance(nb,A)
+      if (control_balance()) call Balance_c_balance(nb,A)
 
       call nwpw_timing_end(9)
 
@@ -271,6 +288,10 @@ c      end do
       integer i,j,nfft3d,n,shift
       integer tmp1(2)
 
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
       call nwpw_timing_start(9)
 
 
@@ -286,7 +307,7 @@ c      end do
         call Pack_c_indexcopy(n,int_mb(pack(1,nb)),
      >                        dcpl_mb(tmp1(1)),
      >                        A(shift))
-        call Balance_c_balance(nb,A(shift))
+        if (control_balance()) call Balance_c_balance(nb,A(shift))
         shift = shift+nfft3d
       end do
 
@@ -319,11 +340,11 @@ c      end do
 
       subroutine Pack_t_pack(nb,A)
       implicit none
-#include "errquit.fh"
       integer nb
       real*8  A(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block for pack ****
       integer nida(0:1),nidb2(0:1)
@@ -337,6 +358,10 @@ c      end do
       logical value
       integer i,nfft3d
       integer tmp1(2)
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
 
       call nwpw_timing_start(9)
 
@@ -353,7 +378,7 @@ c      end do
       value = MA_pop_stack(tmp1(2))
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
-      call Balance_t_balance(nb,A)
+      if (control_balance()) call Balance_t_balance(nb,A)
 
       call nwpw_timing_end(9)
 
@@ -369,11 +394,11 @@ c      end do
 
       subroutine Pack_i_pack(nb,A)
       implicit none
-#include "errquit.fh"
       integer    nb
       integer    A(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block for pack ****
       integer nida(0:1),nidb2(0:1)
@@ -387,6 +412,10 @@ c      end do
       logical value
       integer i,nfft3d
       integer tmp1(2)
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
 
       call nwpw_timing_start(9)
 
@@ -405,7 +434,7 @@ c      end do
       if (.not.value) call errquit('error popping stack',0, MA_ERR)
 
 
-      call Balance_i_balance(nb,A)
+      if (control_balance()) call Balance_i_balance(nb,A)
 
       call nwpw_timing_end(9)
 
@@ -423,11 +452,11 @@ c      end do
 
       subroutine Pack_c_unpack(nb,A)
       implicit none
-#include "errquit.fh"
       integer    nb
       complex*16 A(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** common block for pack ****
       integer nida(0:1),nidb2(0:1)
@@ -444,9 +473,13 @@ c      end do
       integer tmp2(2)
 c      integer indx1,indx2
 
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
 
       call nwpw_timing_start(9)
-      call Balance_c_unbalance(nb,A)
+      if (control_balance()) call Balance_c_unbalance(nb,A)
 
       call D3dB_nfft3d(1,nfft3d)
       
@@ -1916,6 +1949,10 @@ c      end do
       logical value
       integer nfft3d,n
 
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
       call nwpw_timing_start(9)
 
       call D3dB_nfft3d(1,nfft3d)
@@ -1927,7 +1964,8 @@ c      end do
       call Pack_c_indexcopy(n,int_mb(pack(1,nb)),tmp1,A)
 
 
-      call Balance_c_balance_start(nb,A,request,reqcnt)
+      if (control_balance()) 
+     >  call Balance_c_balance_start(nb,A,request,reqcnt)
 
       call nwpw_timing_end(9)
       return
@@ -1965,10 +2003,15 @@ c      end do
       logical value
       integer nfft3d,n
 
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
       call nwpw_timing_start(9)
 
 
-      call Balance_c_balance_end(nb,tmp1,request,reqcnt)
+      if (control_balance()) 
+     > call Balance_c_balance_end(nb,tmp1,request,reqcnt)
 
       call nwpw_timing_end(9)
       return
@@ -2002,10 +2045,14 @@ c      end do
       integer nidb(0:1)
       common / pack2_blk / nidb
 
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
 
       call nwpw_timing_start(9)
       call Pack_c_Copy(nb,A,tmp1)
-      call Balance_c_unbalance_start(nb,tmp1,request,reqcnt)
+      if (control_balance())
+     >   call Balance_c_unbalance_start(nb,tmp1,request,reqcnt)
 
       call nwpw_timing_end(9)
   
@@ -2046,9 +2093,14 @@ c      end do
       logical value
       integer i,nfft3d
 
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
 
       call nwpw_timing_start(9)
-      call Balance_c_unbalance_end(nb,tmp1,request,reqcnt)
+      if (control_balance()) 
+     >  call Balance_c_unbalance_end(nb,tmp1,request,reqcnt)
 
       
       call D3dB_nfft3d(1,nfft3d)

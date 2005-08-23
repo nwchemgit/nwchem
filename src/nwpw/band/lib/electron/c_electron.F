@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.15 2005-02-09 02:38:42 bylaska Exp $
+* $Id: c_electron.F,v 1.16 2005-08-23 14:12:00 bylaska Exp $
 *
 
 *     ***********************************
@@ -758,7 +758,6 @@ c     >                  dcpl_mb(psi_r(1)))
 
       subroutine c_electron_gen_densities(psi_k,dn,dng,dnall)
       implicit none
-#include "errquit.fh"
       complex*16 psi_k(*)
       real*8     dn(*)
       complex*16 dng(*)
@@ -766,6 +765,7 @@ c     >                  dcpl_mb(psi_r(1)))
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
+#include "errquit.fh"
 
      
 *     **** local variables ****
@@ -932,15 +932,14 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
 *     ***********************************
 
       subroutine c_electron_gen_scf_potentials(dn,dng,dnall)
-
       implicit none
-#include "errquit.fh"
       real*8     dn(*)
       complex*16 dng(*)
       real*8     dnall(*)
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
+#include "errquit.fh"
 
 
 *     ***** local variables ****
@@ -1293,4 +1292,32 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
 
 
 
+
+
+*     ******************************************
+*     *                                        *
+*     *     c_electron_gen_weighted_density    *
+*     *                                        *
+*     ******************************************
+
+      subroutine c_electron_gen_weighted_density(ms,weight,rho)
+      implicit none
+      integer ms
+      real*8  weight(*)
+      real*8  rho(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer ishift
+
+*     **** generate weighted rho ****
+      ishift = (ms-1)*ne(1)*nfft3d
+      call Stfl_hr_aSqrpy(nfft3d,ne(ms),
+     >                      weight,
+     >                      dcpl_mb(psi_r(1)+ishift),
+     >                      rho)
+      return
+      end
 

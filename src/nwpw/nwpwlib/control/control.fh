@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.19 2005-01-28 01:32:41 bylaska Exp $
+* $Id: control.fh,v 1.20 2005-08-23 14:12:01 bylaska Exp $
 *
 
 *     **** control common block ****
@@ -23,7 +23,7 @@ c     character*20 pspnames(MAXPSP)
       integer	  ispin,multiplicity
       integer     est_finish_time,est_step_time
       logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
-      logical     rotation,translation
+      logical     rotation,translation,balance
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       common / control_block / 
      >                         unita,tolerances,scaling,sa_decay,
@@ -36,7 +36,8 @@ c     character*20 pspnames(MAXPSP)
      >                         maxit_orb,maxit_orbs,scf_algorithm,
      >                         ks_algorithm,
      >                         move,frac_coord,SA,fei,fei_quench,
-     >                         gram_schmidt,rotation,translation
+     >                         gram_schmidt,rotation,translation,
+     >                         balance
       common / control_blkchar / 
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,

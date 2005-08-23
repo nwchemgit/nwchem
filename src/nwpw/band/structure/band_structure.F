@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.11 2005-02-17 22:31:51 bylaska Exp $
+* $Id: band_structure.F,v 1.12 2005-08-23 14:12:01 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -38,12 +38,12 @@
       integer ngrid(3),nwave,nfft3d
 
 *     ***** energy variables ****
-      integer vall(2),nn,nb,ispin,ne(2)
-      real*8  E(10),en(2)
+      integer vall(2),nn,nb,ispin,ne(2),rho(2)
+      real*8  E(10),en(2),ein
       real*8  dipole(3)
       real*8  stress(3,3)
 
-      integer eigs_dos(2),dosgrid(3)
+      integer eigs_dos(2),dosgrid(3),weight_dos(2)
 
 *     **** gradient variables ****
       integer fion(2)
@@ -53,16 +53,20 @@
       integer ierr
 
 *     **** local variables ****
-      logical newpsi
+      logical newpsi,grid3d
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       real*8  pathlength,dist,kold(3),emin,emax
-      integer ii,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx,npoints
+      integer ii,jj,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
+      integer npoints
       integer mapping
       character*255 full_filename
+      character*30 filename
+      character*72 cube_comment
+
+
 
   
-
 
 *     **** external functions ****
 *     **** external functions ****
@@ -429,6 +433,63 @@
         call control_dos_grid_structure(dosgrid)
 
 
+
+*     **** DOS_dplot calculation ****
+      else if (flag.eq.2) then
+        if (taskid.eq.MASTER) 
+     >   write(luout,*) "DOS_dplot of states calculation"
+
+        call control_dos_grid_structure(dosgrid)
+        isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))
+        value =           MA_alloc_get(mt_dbl,isize,
+     >                       'weight_dos',weight_dos(2),weight_dos(1))
+        value = value.and.MA_alloc_get(mt_dbl,isize,
+     >                       'eigs_dos',eigs_dos(2),eigs_dos(1))
+        value = value.and.MA_alloc_get(mt_dbl,ispin*nfft3d,
+     >                       'rho',rho(2),rho(1))
+        if (.not. value)
+     >   call errquit('band_structure:out of heap memory',0, MA_ERR)
+
+       !**** get eigs_dos from rtdb ****
+        if (.not.rtdb_get(rtdb,'dos:eigs_dos',mt_dbl,
+     >                    isize,dbl_mb(eigs_dos(1)))) then
+         call errquit('band_structure:cannot read eig_dos from rtdb',
+     >                0,RTDB_ERR)
+        end if
+
+       !**** get dos:ein from rtdb ****
+        if (.not.rtdb_get(rtdb,'dos:ein',mt_dbl,1,ein)) then
+         call errquit('band_structure:cannot read dos:ein from rtdb',
+     >                0,RTDB_ERR)
+        end if
+
+        call band_dos_weights_generate(dosgrid(1),dosgrid(2),dosgrid(3),
+     >                                 dbl_mb(eigs_dos(1)),ne(1),
+     >                                 ein,
+     >                                 dbl_mb(weight_dos(1)))
+        ii = dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+        if (ispin.eq.2)
+     >  call band_dos_weights_generate(dosgrid(1),dosgrid(2),dosgrid(3),
+     >                                dbl_mb(eigs_dos(1)+ii),ne(2),
+     >                                ein,
+     >                                dbl_mb(weight_dos(1)+ii))
+        call dcopy(ispin*nfft3d,0.0d0,0,dbl_mb(rho(1)),1)
+
+        write(*,*) "Ein=",ein
+        do k=1,dosgrid(1)*dosgrid(2)*dosgrid(3)
+           write(*,*)
+           write(*,*) "brillioun k=",k
+           write(*,*) "---------------------"
+           do ii=1,ne(1)
+              write(*,*) "weight=",k,ii,
+     >         dbl_mb(weight_dos(1)
+     >                +(ii-1)
+     >                +(k-1)*ne(1))
+           end do
+        end do
+
+
+
 *     **** band structure calculation ****
       else
        if (taskid.eq.MASTER) write(luout,*) "band structure calculation"
@@ -487,6 +548,7 @@
         end if
       end if
       value = cpsi_initialize(ortho)
+      if (flag.eq.2) call cpsi_dospsi_read(k)
 
 
 *     **** allocate eigs_dos if first iteration ****
@@ -542,6 +604,24 @@
      >                   brillioun_k(2,nb),
      >                   brillioun_k(3,nb)
            write(luout,1500)
+           if (flag.eq.2) then
+           do i=0,NN-1
+             ii = cpsi_ne(1)-i
+             write(luout,1511) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
+     >                     dbl_mb(weight_dos(1)+(ii-1)+(k-1)*ne(1))
+           end do
+           do i=0,cpsi_ne(2)-1
+             ii = cpsi_ne(1)-i
+             jj = cpsi_ne(2)-i + dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+             write(luout,1511)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
+     >                      dbl_mb(weight_dos(1)+(ii-1)+(k-1)*ne(1)),
+     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
+     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV,
+     >                      dbl_mb(weight_dos(1)+(jj-1)+(k-1)*ne(2))
+           end do
+           else
            do i=0,NN-1
              write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
      >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
@@ -552,12 +632,14 @@
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
            end do
+           end if
            write(58,'(1000E14.6)') pathlength,
      >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
            if (ispin.eq.2)
      >      write(59,'(1000E14.6)') pathlength,
      >          (cpsi_eigenvalue(nb,2,i),i=1,cpsi_ne(2))
          
+           !*** set eigs_dos ***
            if (flag.eq.1) then
             do i=1,cpsi_ne(1)
              indx = eigs_dos(1) 
@@ -572,14 +654,32 @@
              dbl_mb(indx) = cpsi_eigenvalue(nb,2,i)
             end do
            end if
-                  
+
       end if
 
+      !*** set rho ***
+      if (flag.eq.2) then
+        ii = (k-1)*ne(1)
+        call c_electron_gen_weighted_density(1,
+     >                               dbl_mb(weight_dos(1)+ii),
+     >                               dbl_mb(rho(1)))
+        ii = (k-1)*ne(2)+dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+        if (ispin.eq.2)
+     >  call c_electron_gen_weighted_density(2,
+     >                               dbl_mb(weight_dos(1)+ii),
+     >                               dbl_mb(rho(1)+nfft3d))
+      end if
+                  
 
 
-*     **** deallocate heap memory ****
+
+*     **** writeout dospsi -- needed for task band dos_dplot ****
+      if (flag.eq.1) call cpsi_dospsi_write(k)
+
+*     **** finalize and deallocate cpsi ****
       value = cpsi_finalize(.true.)
 
+*     **** deallocate heap memory ****
       call c_electron_finalize()
       call c_geodesic_finalize()
       call c_ewald_end()
@@ -640,6 +740,58 @@
      >                           npoints,emin,emax)
           close(58)
         end if
+
+        !**** put eigs_dos on rtdb for use by task band dos_dplot ***
+        if (.not.rtdb_put(rtdb,'dos:eigs_dos',mt_dbl,
+     >                    isize,dbl_mb(eigs_dos(1)))) then
+         call errquit('band_structure:cannot write eig_dosto rtdb',
+     >                0,RTDB_ERR)
+        end if
+      end if
+
+
+*                |***************************|
+******************     DOS_dplot plotting    **********************
+*                |***************************|
+      if (flag.eq.2) then
+
+
+        grid3d = .false.
+        if (rtdb_get(rtdb,'band_dplot:3d_grid:nx',mt_int,1,i))
+     >    grid3d = .true.
+
+        if (.not.rtdb_cget(rtdb,'dos:dplot_up',1,filename)) then
+           filename     = 'dos_up.cube '
+        end if
+        indx = index(filename,' ') - 1
+        write(cube_comment,'(A,F8.3)') "dos up density, e=",ein
+        write(*,*) '   writing dos up density E=',ein,
+     >                  ' to filename: ',filename(1:11)
+        if (grid3d) then
+             call band_dplot_gcube_write3d(rtdb,filename,
+     >                         -1,cube_comment,dbl_mb(rho(1)))
+        else
+             call band_dplot_gcube_write(rtdb,filename,
+     >                         -1,cube_comment,dbl_mb(rho(1)))
+        endif
+
+        if (ispin.eq.2) then
+          if (.not.rtdb_cget(rtdb,'dos:dplot_dn',1,filename)) then
+             filename     = 'dos_dn.cube '
+          end if
+          indx = index(filename,' ') - 1
+          write(cube_comment,'(A,F8.3)') "dos down density, e=",ein
+          write(*,*) '   writing dos down density E=',ein,
+     >                  ' to filename: ',filename(1:11)
+          if (grid3d) then
+             call band_dplot_gcube_write3d(rtdb,filename,
+     >                        -2,cube_comment,dbl_mb(rho(1)+nfft3d))
+          else
+             call band_dplot_gcube_write(rtdb,filename,
+     >                        -2,cube_comment,dbl_mb(rho(1)+nfft3d))
+          endif
+        end if
+
       end if
     
 
@@ -654,7 +806,14 @@
       value = MA_free_heap(vall(2)) 
       if ((flag.eq.1).and.(taskid.eq.MASTER))      ! deallocate eigs_dos
      >  value = value.and.MA_free_heap(eigs_dos(2)) 
+
+      if (flag.eq.2) then
+        value = value.and.MA_free_heap(weight_dos(2)) 
+        value = value.and.MA_free_heap(eigs_dos(2)) 
+        value = value.and.MA_free_heap(rho(2)) 
+      end if
       
+      call ion_write(rtdb)
       call ion_end()
       call C3dB_end(1)
       IF (control_gga().eq.1) THEN
@@ -803,6 +962,7 @@
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  dplot weight=',F8.3))
  1600 FORMAT(/' Total BAND energy   :',E19.10)
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
@@ -1387,4 +1547,357 @@ c      end do
       Nstates_Tetra = ds
       return
       end
+
+
+
+*     *********************************************
+*     *                                           *
+*     *            band_dos_weights_generate      *
+*     *                                           *
+*     *********************************************
+
+      subroutine band_dos_weights_generate(idx,idy,idz,
+     >                                     eigs,neigs,
+     >                                     ein,weight)
+      implicit none
+      integer idx,idy,idz
+      real*8 eigs(idx,idy,idz,*)
+      integer neigs
+      real*8 ein
+      real*8 weight(neigs,idx,idy,idz)
+
+*     **** local variables ****
+      integer dosgrid(3)
+      integer i,j,k,ii,jj,kk,ncubes,ntetra,count
+      integer ishft,jshft,kshft
+      integer k1_d(4),k2_d(4),k3_d(4),k1_dd(4),k2_dd(4),k3_dd(4)
+      integer id,d1(4),d2(4)
+      integer itetra(4,6)
+      real*8  VT,VG
+      real*8  B(3,3),unitg(3,3),e,ecube(8),wcube(8)
+      real*8  k1,k2,k3,kx,ky,kz,kkx,kky,kkz,r,rmax
+
+*     **** external functions ****
+      real*8   lattice_unitg
+      external lattice_unitg
+
+      dosgrid(1) = idx
+      dosgrid(2) = idy
+      dosgrid(3) = idz
+
+
+      do j=1,3
+      do i=1,3
+        B(i,j) = lattice_unitg(i,j)
+      end do  
+      end do  
+
+*     **** volume of reciprocal unit cell, VG ****
+      unitg(1,1) = B(2,2)*B(3,3) - B(3,2)*B(2,3)
+      unitg(2,1) = B(3,2)*B(1,3) - B(1,2)*B(3,3)
+      unitg(3,1) = B(1,2)*B(2,3) - B(2,2)*B(1,3)
+
+      unitg(1,2) = B(2,3)*B(3,1) - B(3,3)*B(2,1)
+      unitg(2,2) = B(3,3)*B(1,1) - B(1,3)*B(3,1)
+      unitg(3,2) = B(1,3)*B(2,1) - B(2,3)*B(1,1)
+
+      unitg(1,3) = B(2,1)*B(3,2) - B(3,1)*B(2,2)
+      unitg(2,3) = B(3,1)*B(1,2) - B(1,1)*B(3,2)
+      unitg(3,3) = B(1,1)*B(2,2) - B(2,1)*B(1,2)
+      VG = B(1,1)*unitg(1,1)
+     >   + B(2,1)*unitg(2,1)
+     >   + B(3,1)*unitg(3,1)
+      
+      ncubes = dosgrid(1)*dosgrid(2)*dosgrid(3)
+      ntetra = ncubes*6
+      VT = VG/dble(ntetra)
+
+
+*     ********************************
+*     **** find shortest diagonal ****
+*     ********************************
+
+*     **** (000) ---- (111) ****
+      k1_d(1) = 0
+      k2_d(1) = 0
+      k3_d(1) = 0
+      k1_dd(1) = 1
+      k2_dd(1) = 1
+      k3_dd(1) = 1
+      d1(1) = 0
+      d2(1) = 7
+
+*     **** (001) ---- (110) ****
+      k1_d(2) = 1
+      k2_d(2) = 0
+      k3_d(2) = 0
+      k1_dd(2) = 0
+      k2_dd(2) = 1
+      k3_dd(2) = 1
+      d1(2) = 1
+      d2(2) = 6
+
+*     **** (010) ---- (101) ****
+      k1_d(3) = 0
+      k2_d(3) = 1
+      k3_d(3) = 0
+      k1_dd(3) = 1
+      k2_dd(3) = 0
+      k3_dd(3) = 1
+      d1(3) = 2
+      d2(3) = 5
+
+*     **** (011) ---- (100) ****
+      k1_d(4) = 1
+      k2_d(4) = 1
+      k3_d(4) = 0
+      k1_dd(4) = 0
+      k2_dd(4) = 0
+      k3_dd(4) = 1
+      d1(4) = 3
+      d2(4) = 4
+
+      id = 1
+      rmax = 9.99d9
+      do i=1,4
+         kx = k1_d(i)*B(1,1) + k2_d(i)*B(1,2) + k3_d(i)*B(1,3)
+         ky = k1_d(i)*B(2,1) + k2_d(i)*B(2,2) + k3_d(i)*B(2,3)
+         kz = k1_d(i)*B(3,1) + k2_d(i)*B(3,2) + k3_d(i)*B(3,3)
+
+         kkx = k1_dd(i)*B(1,1) + k2_dd(i)*B(1,2) + k3_dd(i)*B(1,3)
+         kky = k1_dd(i)*B(2,1) + k2_dd(i)*B(2,2) + k3_dd(i)*B(2,3)
+         kkz = k1_dd(i)*B(3,1) + k2_dd(i)*B(3,2) + k3_dd(i)*B(3,3)
+         r = (kx-kkx)**2 + (ky-kky)**2 + (kz-kkz)**2
+         !write(unit,*) "diagonal distance:",i,r,rmax
+         if (r.lt.rmax) then
+           rmax = r
+           id = i
+         end if
+      end do
+
+
+*     **** define six tetradrons - clunky but don't know defn of cOR in fortran ****
+      if (id.eq.1) then
+        itetra(1,1) = 0   +1
+        itetra(2,1) = 7   +1
+        itetra(3,1) = 1   +1
+        itetra(4,1) = 3   +1
+
+        itetra(1,2) = 0   +1
+        itetra(2,2) = 7   +1
+        itetra(3,2) = 1   +1
+        itetra(4,2) = 5   +1
+
+        itetra(1,3) = 0   +1
+        itetra(2,3) = 7   +1
+        itetra(3,3) = 2   +1
+        itetra(4,3) = 3   +1
+
+        itetra(1,4) = 0   +1
+        itetra(2,4) = 7   +1
+        itetra(3,4) = 2   +1
+        itetra(4,4) = 6   +1
+
+        itetra(1,5) = 0   +1
+        itetra(2,5) = 7   +1
+        itetra(3,5) = 4   +1
+        itetra(4,5) = 5   +1
+
+        itetra(1,6) = 0   +1
+        itetra(2,6) = 7   +1
+        itetra(3,6) = 4   +1
+        itetra(4,6) = 6   +1
+      else if (id.eq.2) then
+        itetra(1,1) = 1   +1
+        itetra(2,1) = 6   +1
+        itetra(3,1) = 0   +1
+        itetra(4,1) = 2   +1
+
+        itetra(1,2) = 1   +1
+        itetra(2,2) = 6   +1
+        itetra(3,2) = 0   +1
+        itetra(4,2) = 4   +1
+
+        itetra(1,3) = 1   +1
+        itetra(2,3) = 6   +1
+        itetra(3,3) = 3   +1
+        itetra(4,3) = 2   +1
+
+        itetra(1,4) = 1   +1
+        itetra(2,4) = 6   +1
+        itetra(3,4) = 3   +1
+        itetra(4,4) = 7   +1
+
+        itetra(1,5) = 1   +1
+        itetra(2,5) = 6   +1
+        itetra(3,5) = 5   +1
+        itetra(4,5) = 4   +1
+
+        itetra(1,6) = 1   +1
+        itetra(2,6) = 6   +1
+        itetra(3,6) = 5   +1
+        itetra(4,6) = 7   +1
+      else if (id.eq.3) then
+        itetra(1,1) = 2   +1
+        itetra(2,1) = 5   +1
+        itetra(3,1) = 3   +1
+        itetra(4,1) = 1   +1
+
+        itetra(1,2) = 2   +1
+        itetra(2,2) = 5   +1
+        itetra(3,2) = 3   +1
+        itetra(4,2) = 7   +1
+
+        itetra(1,3) = 2   +1
+        itetra(2,3) = 5   +1
+        itetra(3,3) = 0   +1
+        itetra(4,3) = 1   +1
+
+        itetra(1,4) = 2   +1
+        itetra(2,4) = 5   +1
+        itetra(3,4) = 0   +1
+        itetra(4,4) = 4   +1
+
+        itetra(1,5) = 2   +1
+        itetra(2,5) = 5   +1
+        itetra(3,5) = 6   +1
+        itetra(4,5) = 7   +1
+
+        itetra(1,6) = 2   +1
+        itetra(2,6) = 5   +1
+        itetra(3,6) = 6   +1
+        itetra(4,6) = 4   +1
+      else if (id.eq.4) then
+        itetra(1,1) = 3   +1
+        itetra(2,1) = 4   +1
+        itetra(3,1) = 2    +1
+        itetra(4,1) = 0   +1
+
+        itetra(1,2) = 3   +1
+        itetra(2,2) = 4   +1
+        itetra(3,2) = 2   +1
+        itetra(4,2) = 6   +1
+
+        itetra(1,3) = 3   +1
+        itetra(2,3) = 4   +1
+        itetra(3,3) = 1   +1
+        itetra(4,3) = 0   +1
+
+        itetra(1,4) = 3   +1
+        itetra(2,4) = 4   +1
+        itetra(3,4) = 1   +1
+        itetra(4,4) = 5   +1
+
+        itetra(1,5) = 3   +1
+        itetra(2,5) = 4   +1
+        itetra(3,5) = 7   +1
+        itetra(4,5) = 6   +1
+
+        itetra(1,6) = 3   +1
+        itetra(2,6) = 4   +1
+        itetra(3,6) = 7   +1
+        itetra(4,6) = 5   +1
+      end if
+
+
+
+      
+      e = ein
+
+      call dcopy(dosgrid(1)*dosgrid(2)*dosgrid(3)*neigs,
+     >           0.0d0,0,weight,1)
+      do kk=1,dosgrid(3)
+      do jj=1,dosgrid(2)
+      do ii=1,dosgrid(1)
+        ishft = ii+1
+        jshft = jj+1
+        kshft = kk+1
+        if (ishft.gt.dosgrid(1)) ishft=1
+        if (jshft.gt.dosgrid(2)) jshft=1
+        if (kshft.gt.dosgrid(3)) kshft=1
+        do i=1,neigs
+          ecube(1) = eigs(ii,       jj,    kk, i)  ! (000)
+          ecube(2) = eigs(ishft,    jj,    kk, i)  ! (001)
+          ecube(3) = eigs(ii,    jshft,    kk, i)  ! (010)
+          ecube(4) = eigs(ishft, jshft,    kk, i)  ! (011)
+          ecube(5) = eigs(ii,       jj, kshft, i)  ! (100)
+          ecube(6) = eigs(ishft,    jj, kshft, i)  ! (101)
+          ecube(7) = eigs(   ii, jshft, kshft, i)  ! (110)
+          ecube(8) = eigs(ishft, jshft, kshft, i)  ! (111)
+         
+          call Dstates_weight_Cube(e,itetra,ecube,wcube)
+          weight(i,ii,      jj,   kk) = weight(i,ii,      jj,   kk) 
+     >                                + wcube(1)
+          weight(i,ishft,   jj,   kk) = weight(i,ishft,   jj,   kk)
+     >                                + wcube(2)
+          weight(i,ii,   jshft,   kk) = weight(i,ii,   jshft,   kk) 
+     >                                + wcube(3)
+          weight(i,ishft,jshft,   kk) = weight(i,ishft,jshft,   kk)
+     >                                + wcube(4)
+          weight(i,ii,      jj,kshft) = weight(i,ii,      jj,kshft)
+     >                                + wcube(5)
+          weight(i,ishft,   jj,kshft) = weight(i,ishft,   jj,kshft)
+     >                                + wcube(6)
+          weight(i,   ii,jshft,kshft) = weight(i,   ii,jshft,kshft)
+     >                                + wcube(7)
+          weight(i,ishft,jshft,kshft) = weight(i,ishft,jshft,kshft)
+     >                                + wcube(8)
+        end do
+      end do
+      end do
+      end do
+      call dscal(dosgrid(1)*dosgrid(2)*dosgrid(3)*neigs,
+     >          (VT/VG),weight,1)
+
+
+      return
+      end
+
+
+      subroutine Dstates_weight_Cube(e,itetra,ecube,wcube)
+      implicit none
+      real*8  e
+      integer itetra(4,6)
+      real*8  ecube(8)
+      real*8  wcube(8)
+
+*     **** local variables ****
+      integer i,j,k
+      real*8 ds,etetra(4),swap
+
+*     **** external functions ****
+      real*8   Dstates_Tetra
+      external Dstates_Tetra
+
+
+*     **** sum over 6 tetrahedrons ****
+      call dcopy(8,0.0d0,0,wcube,1)
+      do k=1,6
+        etetra(1) = ecube(itetra(1,k))
+        etetra(2) = ecube(itetra(2,k))
+        etetra(3) = ecube(itetra(3,k))
+        etetra(4) = ecube(itetra(4,k))
+
+*       **** bubble sort ****
+        do j=1,3
+        do i=j+1,4
+          if (etetra(j).gt.etetra(i)) then
+            swap      = etetra(i)
+            etetra(i) = etetra(j)
+            etetra(j) = swap
+          end if
+        end do
+        end do
+
+        ds = Dstates_Tetra(e,etetra)
+
+        wcube(itetra(1,k)) = wcube(itetra(1,k)) + 0.25d0*ds
+        wcube(itetra(2,k)) = wcube(itetra(2,k)) + 0.25d0*ds
+        wcube(itetra(3,k)) = wcube(itetra(3,k)) + 0.25d0*ds
+        wcube(itetra(4,k)) = wcube(itetra(4,k)) + 0.25d0*ds
+      end do
+
+      return
+      end
+
 

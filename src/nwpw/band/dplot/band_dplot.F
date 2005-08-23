@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.3 2005-08-05 22:25:25 bylaska Exp $
+* $Id: band_dplot.F,v 1.4 2005-08-23 14:12:00 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -386,8 +386,9 @@
       integer i,count,number,ia,nb,onumber
       integer n1(2),n2(2),nn(2)
       integer nx,ny,nz
-      integer rho(2)
-      real*8  scal1,scal2
+      integer rho(2),orb(2)
+      real*8  scal1,scal2,kv(3),w
+      complex*16 phafac
 
       character*72 cube_comment
       character*30 name1,name2,name3
@@ -397,9 +398,9 @@
 
 *     **** external functions ****
       integer  control_version
-      real*8   lattice_omega
+      real*8   lattice_omega, brillioun_k
       external control_version
-      external lattice_omega
+      external lattice_omega, brillioun_k
 
       
       grid3d = .false.
@@ -407,7 +408,8 @@
      >  grid3d = .true.
 
       call Parallel_taskid(taskid)
-      value = MA_push_get(mt_dbl,(nfft3d),'rho',rho(2),rho(1))
+      value =           MA_push_get(mt_dbl,nfft3d,'rho',rho(2),rho(1))
+      value = value.and.MA_push_get(mt_dcpl,nfft3d,'orb',orb(2),orb(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       n1(1) = 1
@@ -553,6 +555,15 @@
  790       continue
            number = -number
 
+           if (grid3d) then
+             call band_dplot_gcube_write3d(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+           else
+             call band_dplot_gcube_write(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+           endif
+
+
 *       **** outputing wavefunction ****
         else
            name3 = 'band_dplot:nb'//CHAR(i-1+ia)
@@ -573,6 +584,10 @@
               end if
               number = 1
            end if
+           kv(1) = brillioun_k(1,nb)
+           kv(2) = brillioun_k(2,nb)
+           kv(3) = brillioun_k(3,nb)
+           cube_comment = 'SCF Molecular Orbitals'
        
            if (onumber.eq.1) then
              call C3dB_r_Zero(1,dbl_mb(rho(1)))
@@ -589,11 +604,16 @@
      >              ' to filename: ',A)
              end if
              end if
+             if (grid3d) then
+               call band_dplot_gcube_write3d(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+             else
+               call band_dplot_gcube_write(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+             endif
+
            else if (onumber.eq.2) then
              call C3dB_r_Zero(1,dbl_mb(rho(1)))
-             call C3dB_cr_real(1, 
-     >                         psi_r(1,number,nb),
-     >                         dbl_mb(rho(1)))
              if (.not.add_tag) then
              if (taskid.eq.MASTER) then
              write(*,802) number,nb,filename(1:ind)
@@ -602,12 +622,22 @@
      >              ' to filename: ',A)
              end if
              end if
+             if (grid3d) then
+               call band_dplot_gcube_write3d_orb(rtdb,filename,
+     >                         number,cube_comment,
+     >                         kv,psi_r(1,number,nb),.true.)
+             else
+               call C3dB_c_Copy(1,psi_r(1,number,nb),dcpl_mb(orb(1)))
+               call band_kvtimesorb(kv,dcpl_mb(orb(1)))
+               call C3dB_cr_real(1,
+     >                           dcpl_mb(orb(1)),
+     >                           dbl_mb(rho(1)))
+               call band_dplot_gcube_write(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+             endif
 
            else if (onumber.eq.3) then
              call C3dB_r_Zero(1,dbl_mb(rho(1)))
-             call C3dB_cr_imag(1,
-     >                         psi_r(1,number,nb),
-     >                         dbl_mb(rho(1)))
              if (.not.add_tag) then
              if (taskid.eq.MASTER) then
              write(*,803) number,nb,filename(1:ind)
@@ -616,24 +646,31 @@
      >              ' to filename: ',A)
              end if
              end if
+             if (grid3d) then
+               call band_dplot_gcube_write3d_orb(rtdb,filename,
+     >                         number,cube_comment,
+     >                         kv,psi_r(1,number,nb),.false.)
+             else
+               call C3dB_c_Copy(1,psi_r(1,number,nb),dcpl_mb(orb(1)))
+               call band_kvtimesorb(kv,dcpl_mb(orb(1)))
+               call C3dB_cr_imag(1,
+     >                           dcpl_mb(orb(1)),
+     >                           dbl_mb(rho(1)))
+               call band_dplot_gcube_write(rtdb,filename,
+     >                         number,cube_comment,dbl_mb(rho(1)))
+             endif
 
            end if
-          cube_comment = 'SCF Molecular Orbitals'
+
         end if
 
-        if (grid3d) then
-          call band_dplot_gcube_write3d(rtdb,filename,
-     >                         number,cube_comment,dbl_mb(rho(1)))
-        else
-          call band_dplot_gcube_write(rtdb,filename,
-     >                         number,cube_comment,dbl_mb(rho(1)))
-        endif
 
       end do
 
 
 *     **** dealocate MA local variables ****
-      value = MA_pop_stack(rho(2))
+      value =           MA_pop_stack(orb(2))
+      value = value.and.MA_pop_stack(rho(2))
       if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
 
@@ -1288,3 +1325,429 @@ c     if (.not. value) call errquit('closing geometry',0)
       end 
 
 
+
+
+      subroutine band_dplot_gcube_write3d_orb(rtdb,filename,
+     >                                        number,cube_comment,
+     >                                        orb,kv,isreal)
+      implicit none
+      integer rtdb
+      character*30 filename
+      integer      number
+      character*72 cube_comment
+      complex*16   orb(*)
+      real*8       kv(3)
+      logical      isreal
+     
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer unit_id
+      parameter (unit_id = 72)
+
+      integer taskid
+      integer MASTER
+      parameter (MASTER=0)
+
+
+*     **** geometry variables ****
+c     integer geom1
+c     character*16 t
+      integer nion,nion2
+      real*8 q,rxyz(3),p(3)
+      real*8 position_tolerance
+
+*     **** lattice variables ****
+      integer np1,np2,np3
+      real*8 ua(3,3),r0(3)
+
+      integer nx,ny,nz
+      integer nxh,nyh,nzh
+      real*8 sx,sy,sz,xy,xz,yz,scal1
+      real*8 dx,dy,dz,w
+      real*8  sizex(2),sizey(2),sizez(2)
+      real*8 xaxis(3),yaxis(3),zaxis(3),qq(3)
+    
+
+      integer l,orb_flag,i,j,k,ii,jj,kk,indx
+      character*255 full_filename
+      integer nfft3d,tmp1(2),tmp2(2),tmp3(2)
+      integer Gx,Gy,Gz
+      complex*16 phafac,wc
+
+*     **** external functions ****
+      integer  ion_nion      
+      real*8   lattice_unita,ion_rion,ion_q
+      external ion_nion
+      external lattice_unita,ion_rion,ion_q
+
+      integer  c_G_indx
+      external c_G_indx
+
+
+      call parallel_taskid(taskid)
+
+      
+*     **** OPEN cube FILE ****
+      if (taskid.eq.MASTER) then
+         call util_file_name_noprefix(filename,.false.,
+     >                                .false.,
+     >                       full_filename)
+         l = index(full_filename,' ') -1
+         OPEN(unit_id,file=full_filename(1:l),form='formatted')
+         WRITE(unit_id,*) 'molecule'
+         WRITE(unit_id,*)  cube_comment
+      end if
+
+*     **** open geom ****
+      nion = ion_nion()
+
+*     **** read the origin ***
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:o',
+     >               mt_dbl,3,r0)) then
+        r0(1) = 0.0
+        r0(2) = 0.0
+        r0(3) = 0.0
+      end if
+
+*     **** read the x-axis,y-axis,z-axis ****
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:x',
+     >               mt_dbl,3,xaxis)) then
+        xaxis(1) = 1.0
+        xaxis(2) = 0.0
+        xaxis(3) = 0.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:y',
+     >               mt_dbl,3,yaxis)) then
+        yaxis(1) = 0.0
+        yaxis(2) = 1.0
+        yaxis(3) = 0.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:z',
+     >               mt_dbl,3,zaxis)) then
+        zaxis(1) = 0.0
+        zaxis(2) = 0.0
+        zaxis(3) = 1.0
+      end if
+
+*     ** normalization of x **
+      sx = dsqrt(xaxis(1)**2+xaxis(2)**2+xaxis(3)**2)
+      do i=1,3
+        xaxis(i) = xaxis(i) / sx
+      end do
+
+*     ** orthogonalization of y wrt x **
+      xy = xaxis(1)*yaxis(1)+xaxis(2)*yaxis(2)+xaxis(3)*yaxis(3)
+      do i=1,3
+        yaxis(i) = yaxis(i) - xy*xaxis(i)
+      end do
+
+*     ** normalization of y **
+      sy = dsqrt(yaxis(1)**2+yaxis(2)**2+yaxis(3)**2)
+      do i=1,3
+        yaxis(i) = yaxis(i) / sy
+      end do
+
+*     ** orthogonalization of z wrt x **
+      xz = xaxis(1)*zaxis(1)+xaxis(2)*zaxis(2)+xaxis(3)*zaxis(3)
+      do i=1,3
+        zaxis(i) = zaxis(i) - xz*xaxis(i)
+      end do
+
+*     ** orthogonalization of z wrt y **
+      yz = yaxis(1)*zaxis(1)+yaxis(2)*zaxis(2)+yaxis(3)*zaxis(3)
+      do i=1,3
+        zaxis(i) = zaxis(i) - yz*yaxis(i)
+      end do
+
+*     ** normalization of z **
+      sz = dsqrt(zaxis(1)**2+zaxis(2)**2+zaxis(3)**2)
+      do i=1,3
+        zaxis(i) = zaxis(i) / sz
+      end do
+
+
+
+*     **** read nx,ny,and nz ****
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:nx',
+     >               mt_int,1,nx))
+     >  nx = 32
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:ny',
+     >               mt_int,1,ny))
+     >  ny = 32
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:nz',
+     >               mt_int,1,nz))
+     >  nz = 32
+       nxh = nx/2
+       nyh = ny/2
+       nzh = nz/2
+
+*     **** read sizex,sizey,sizez ****
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizex',
+     >               mt_dbl,2,sizex)) then
+        sizex(1) = 0.0
+        sizex(2) = 10.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizey',
+     >               mt_dbl,2,sizey)) then
+        sizey(1) = 0.0
+        sizey(2) = 10.0
+      end if
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:3d_grid:sizez',
+     >               mt_dbl,2,sizez)) then
+        sizez(1) = 0.0
+        sizez(2) = 10.0
+      end if
+
+      if (taskid.eq.MASTER) then
+         write(*,*)
+         write(*,1240) 
+         write(*,1241) r0
+         write(*,1242) xaxis,sizex,nx
+         write(*,1243) yaxis,sizey,ny
+         write(*,1244) zaxis,sizez,nz
+         write(*,*)
+         write(*,*)
+      end if
+ 1240 FORMAT(5x,'    3d-Grid Generation')
+ 1241 FORMAT(5x,'    origin=<',3f8.3,' >')
+ 1242 FORMAT(5x,'    x-axis=<',3f8.3,' >   xmin,xmax=',2F8.3,' nx=',I3)
+ 1243 FORMAT(5x,'    y-axis=<',3f8.3,' >   ymin,ymax=',2F8.3,' ny=',I3)
+ 1244 FORMAT(5x,'    z-axis=<',3f8.3,' >   zmin,zmax=',2F8.3,' nz=',I3)
+
+
+      call C3dB_nx(1,np1)
+      call C3dB_ny(1,np2)
+      call C3dB_nz(1,np3)
+
+      dx = (sizex(2)-sizex(1))/dble(nx)
+      dy = (sizey(2)-sizey(1))/dble(ny)
+      dz = (sizez(2)-sizez(1))/dble(nz)
+      do i=1,3
+         ua(i,1) = dx*xaxis(i)
+         ua(i,2) = dy*yaxis(i)
+         ua(i,3) = dz*zaxis(i)
+      end do
+
+*     ** shift origin **
+      qq(1) = r0(1) + 0.5d0*(sizex(1)+sizex(2))
+     >       - 0.5d0*(lattice_unita(1,1)
+     >               +lattice_unita(1,2)
+     >               +lattice_unita(1,3))
+      qq(2) = r0(2) + 0.5d0*(sizey(1)+sizey(2))
+     >       - 0.5d0*(lattice_unita(2,1)
+     >               +lattice_unita(2,2)
+     >               +lattice_unita(2,3))
+      qq(3) = r0(3) + 0.5d0*(sizez(1)+sizez(2))
+     >       - 0.5d0*(lattice_unita(3,1)
+     >               +lattice_unita(3,2)
+     >               +lattice_unita(3,3))
+
+      r0(1) = r0(1) + sizex(1)
+      r0(2) = r0(2) + sizey(1)
+      r0(3) = r0(3) + sizez(1)
+
+
+
+
+*     **** get position_tolerance and nion2 = nion+special_positions ****
+      if (.not.
+     >      rtdb_get(rtdb,'band_dplot:position_tolerance',
+     >               mt_dbl,1,position_tolerance))
+     >      position_tolerance = 0.0d0
+
+      nion2 = nion
+      do i=1,nion
+c        value = geom_cent_get(geom1,i,t,rxyz,q)
+c        if (.not. value) call errquit('reading geometry',0)
+         rxyz(1) = ion_rion(1,i)
+         rxyz(2) = ion_rion(2,i)
+         rxyz(3) = ion_rion(3,i)
+         call special_position_count(position_tolerance,
+     >                                   rxyz,nion2)
+      end do
+
+
+      if (taskid.eq.MASTER) then
+         orb_flag = 1
+         if (number.gt.0) orb_flag = -1
+
+         write(unit_id,'(I5,3F12.6)') orb_flag*nion2,r0
+         write(unit_id,'(I5,3F12.6)') nx,ua(1,1),ua(2,1),ua(3,1)
+         write(unit_id,'(I5,3F12.6)') ny,ua(1,2),ua(2,2),ua(3,2)
+         write(unit_id,'(I5,3F12.6)') nz,ua(1,3),ua(2,3),ua(3,3)
+      end if
+
+
+*     **** write geometry ****
+      do i=1,nion
+c        value = geom_cent_get(geom1,i,t,rxyz,q)
+c        if (.not. value) call errquit('reading geometry',0)
+         rxyz(1) = ion_rion(1,i)
+         rxyz(2) = ion_rion(2,i)
+         rxyz(3) = ion_rion(3,i)
+         q       = ion_q(i)
+         if (taskid.eq.MASTER) then
+           WRITE(unit_id,'(I5,4F12.6)') int(q),q,rxyz
+           call special_position_tolerance(position_tolerance,
+     >                                   unit_id,q,rxyz)
+         end if
+      end do
+
+*     **** write orbital header ****
+      if (number.gt.0) then
+         if (taskid.eq.MASTER) write(unit_id,*) 1,number 
+      end if
+
+*     **** allocate space ****
+      call C3dB_nfft3d(1,nfft3d)
+      value = MA_push_get(mt_dcpl,(nfft3d), 'ffttmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nfft3d), 'ffttmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(nx*ny*nz),'tmp3',tmp3(2),tmp3(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+
+*     **** fft density  ****
+      scal1=1.0d0/dble(np1*np2*np3)
+      call C3dB_c_SMul(1,scal1,orb,dcpl_mb(tmp2(1)))
+      call C3dB_rc_fft3f(1,dcpl_mb(tmp2(1)))
+      call Cram_c_pack(0,dcpl_mb(tmp2(1)))
+
+
+*     **** density at mesh points ****
+      Gx= c_G_indx(1)
+      Gy= c_G_indx(2)
+      Gz= c_G_indx(3)
+      do k=1,nz
+      do j=1,ny
+      do i=1,nx
+        ii = i-1-nxh
+        jj = j-1-nyh
+        kk = k-1-nzh
+        p(1) = ii*ua(1,1) + jj*ua(1,2) + kk*ua(1,3) + qq(1)
+        p(2) = ii*ua(2,1) + jj*ua(2,2) + kk*ua(2,3) + qq(2)
+        p(3) = ii*ua(3,1) + jj*ua(3,2) + kk*ua(3,3) + qq(3)
+        do l=1,nfft3d
+          w = dbl_mb(Gx+l-1)*p(1) 
+     >      + dbl_mb(Gy+l-1)*p(2) 
+     >      + dbl_mb(Gz+l-1)*p(3)
+          dcpl_mb(tmp1(1)+l-1)=dcmplx(dcos(w),-dsin(w))
+        end do
+        call Cram_c_pack(0,dcpl_mb(tmp1(1)))
+        call Cram_cc_zdot(0,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)),wc)
+        w = kv(1)*p(1) + kv(2)*p(2) + kv(3)*p(3)
+        phafac = dcmplx(dcos(w),dsin(w))
+        wc = phafac*wc
+        indx = (i-1) + (j-1)*nx + (k-1)*nx*ny
+        if (isreal) then
+           dbl_mb(tmp3(1)+indx) = dreal(wc)
+        else
+           dbl_mb(tmp3(1)+indx) = dimag(wc)
+        end if
+      end do
+      end do
+      end do
+
+*     **** write grid ****
+      if (taskid.eq.MASTER) then
+      do i=1,nx
+      do j=1,ny
+        write(unit_id,'(6e13.5)') 
+     >    (dbl_mb(tmp3(1)+(i-1) 
+     >                   +(j-1)*nx 
+     >                   +(k-1)*nx*ny),k=1,nz)
+      end do
+      end do
+      end if
+
+*     **** deallocate space ****
+      value = MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('popping stack memory',0, MA_ERR)
+
+   
+
+*     **** close geom ****
+c     value = geom_destroy(geom1)
+c     if (.not. value) call errquit('closing geometry',0)
+
+
+
+*     **** CLOSE cube FILE ****
+      if (taskid.eq.MASTER) then
+         CLOSE(unit_id)     
+      end if
+
+      return
+      end 
+
+
+      subroutine band_kvtimesorb(kv,orb)
+      implicit none
+      real*8     kv(3)
+      complex*16 orb(*)
+
+*     *** local variables ***
+      integer    taskid,index,p
+      integer    i,j,k,k1,k2,k3
+      integer    nx,ny,nz,nhx,nhy,nhz
+      real*8     a(3,3),w
+      complex*16 phafac
+
+*     *** external functions ***
+      real*8   lattice_unita
+      external lattice_unita
+
+      call Parallel_taskid(taskid)
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+
+      nhx = nx/2
+      nhy = ny/2
+      nhz = nz/2
+
+      do i=1,3
+         a(i,1) = lattice_unita(i,1)/nx
+         a(i,2) = lattice_unita(i,2)/ny
+         a(i,3) = lattice_unita(i,3)/nz
+      end do
+
+      do k3=-nhz,nhz-1
+      do k2=-nhy,nhy-1
+      do k1=-nhx,nhx-1
+        i = k1 + nhx
+        j = k2 + nhy
+        k = k3 + nhz
+        call C3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
+        if (p.eq.taskid) then
+           w = kv(1)*(a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3)
+     >       + kv(2)*(a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3)
+     >       + kv(3)*(a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3)
+           phafac = dcmplx(dcos(w),dsin(w))
+           orb(index) = orb(index)*phafac
+        end if
+      end do
+      end do
+      end do
+
+      return
+      end

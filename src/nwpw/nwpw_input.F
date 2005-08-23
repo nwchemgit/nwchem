@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.31 2005-08-05 20:39:35 bylaska Exp $
+c $Id: nwpw_input.F,v 1.32 2005-08-23 14:11:59 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 71)
+      parameter (num_dirs = 73)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -85,6 +85,8 @@ c
      >            'rotation',
      >            'translation',
      >            'integrate_mult_l',
+     >            'balance',
+     >            'nobalance',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -135,6 +137,7 @@ c
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
+     >       5200,5300,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -869,6 +872,22 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 5100, RTDB_ERR)
       goto 10
+
+c
+c  balance
+c
+ 5200 if (.not.rtdb_put(rtdb,'nwpw:balance',mt_log,1,.true.))
+     >  call errquit('nwpw_input: error writing to rtdb',5200,RTDB_ERR)
+
+      goto 10
+c
+c  nobalance
+c
+ 5300 if (.not.rtdb_put(rtdb,'nwpw:balance',mt_log,1,.false.))
+     >  call errquit('nwpw_input: error writing to rtdb',5300,RTDB_ERR)
+
+      goto 10
+
 
 
 
