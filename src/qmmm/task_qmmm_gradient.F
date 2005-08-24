@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.38 2005-08-20 18:04:12 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.39 2005-08-24 18:42:43 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -204,7 +204,14 @@ c
       if (.not. rtdb_get(rtdb,'qmmm:frozen_density',
      $                   mt_log,1,frozen_density))
      $     frozen_density=.false.
-
+c
+c     disable frozen density if any of qm atoms are active
+c     ----------------------------------------------------
+      if(frozen_density) then
+        call qmmm_cons_get_nacts_qm(nact)
+        if(nact.gt.0) frozen_density = .false.
+      end if
+      
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 

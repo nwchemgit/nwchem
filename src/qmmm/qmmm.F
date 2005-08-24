@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.59 2005-08-22 02:12:56 marat Exp $
+c $Id: qmmm.F,v 1.60 2005-08-24 18:42:42 marat Exp $
 c
 c
       function qmmm_init(irtdb)
@@ -21,7 +21,6 @@ c
       character*32 pname
       character*32 theory
       character*30 operation
-      character*30 optimization
       character*255 geom
       logical aux_geom
       logical loadgeom
@@ -64,16 +63,7 @@ c     --------------------------------------------
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('task: no task input for theory?',0, RTDB_ERR)
 
-      if (.not. rtdb_get(irtdb, 'driver:lbfgs', mt_log, 1, ouselbfgs))
-     $     ouselbfgs = .false.
-
-      if(operation.eq."optimize") then
-        if(ouselbfgs) then
-          aux_geom = .false.
-        else
-          aux_geom = .true.
-        end if
-      else if(operation.eq."freq") then
+      if(operation.eq."freq") then
         aux_geom = .true.
       else if(operation.eq."hessian") then
         aux_geom = .true.
@@ -84,15 +74,8 @@ c     --------------------------------------------
       else if(operation.eq."property") then
         aux_geom = .false.
       else
-        aux_geom = .true.
+        aux_geom = .false.
       end if
-
-      if (.not. rtdb_cget(irtdb, 'qmmm:optimization', 1, optimization))
-     $     call errquit('qmmm_optimize: failed ',0,0)
-
-      if (optimization.ne.'qm' ) aux_geom = .false.
-      
-      if (optimization.eq.'tandem' ) aux_geom = .false.
 
       if (inp_compare(.false.,'esp',theory)) aux_geom=.false.
 

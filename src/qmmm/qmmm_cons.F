@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.9 2005-08-21 02:04:20 marat Exp $
+c $Id: qmmm_cons.F,v 1.10 2005-08-24 18:42:43 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -713,6 +713,20 @@ c
 
       return 
       end
+c
+      subroutine qmmm_cons_get_nacts_qm(n)
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+
+      integer i,n
+
+      n = 0
+      do i=1,nacts_qm
+        if( log_mb(i_maps+i-1)) n = n + 1
+      end do
+
+      end 
 c
       subroutine qmmm_cons_get_nacts(n)
       implicit none

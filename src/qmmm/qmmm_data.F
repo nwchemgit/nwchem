@@ -11,16 +11,7 @@ c
 
       integer irtdb
 c
-      character*32 tag
       character*32 pname
-      character*32 optimization
-      character*32 link_ecp
-      real*8 eatoms,qatoms
-      integer linkatm,bq_exclude
-      character*30 operation
-      integer i_list,h_list
-      integer i_nlist,h_nlist
-      integer i
       logical qmmm_h_link
       external qmmm_h_link
 
@@ -60,16 +51,17 @@ c
 
       integer irtdb
 c
-      character*32 tag
+      character*84 tag
       character*32 pname
       character*32 optimization
-c      character*32 interface
       character*32 link_ecp
-      double precision  eatoms,qatoms
+      double precision  eatoms
       integer linkatm,bq_exclude
       character*30 operation
+      character*30 region(3)
+      integer nregion
       logical ignore
-      logical flag
+      integer i
 
       pname = "qmmm_data_init: "
 
@@ -81,7 +73,6 @@ c
       eatoms = 0.0d0
       linkatm=qmmm_hydrogen
       bq_exclude=qmmm_no_atoms
-      optimization = "qm"
       link_ecp = "auto"
 c
 c     initialize rtdb parameters
@@ -158,22 +149,66 @@ c
          end if
        end if
      
+      optimization = "bfgs"
       tag ="qmmm:optimization"
       if (.not.rtdb_cget(irtdb,tag,1,optimization)) then
         if (.not.rtdb_cput(irtdb,tag,1,optimization)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
 
-       else if (optimization .ne. "all" .and.
-     >          optimization .ne. "mm" .and.
-     >          optimization .ne. "tandem" .and.
-     >          optimization .ne. "qm" ) then
-            call errquit(pname//'unknown value'//tag,0,
+      end if
+      if (master) 
+     >  write(6,22) "optimization method",tag,optimization
+
+c
+c     region definitions
+c     ------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) then
+        nregion = 1
+        region(1) = "qmlink"
+      else
+        if (.not.rtdb_cget(irtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+      end if
+      if (.not.rtdb_put(irtdb,tag(1:inp_strlen(tag))//"_n",
+     >                  mt_int,1,nregion)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >                   RTDB_ERR)
+      if (.not.rtdb_cput(irtdb,tag,nregion,region)) 
+     >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
 
-       end if
-      if (master) 
-     >  write(6,22) "optimization region",tag,optimization
+      if (master) then
+      do i=1,nregion
+       write(6,*) "region",i,region(i)
+      end do
+      end if
+c
+c     method definitions
+c     ------------------
+c      tag ="qmmm:method"
+c      if (rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
+c     >                 mt_int,1,nmethod)) then
+c        if (.not.rtdb_cget(irtdb,tag,nmethod,method)) 
+c     >      call errquit(pname,tag,0,RTDB_ERR)
+c        if (.not.rtdb_put(irtdb,tag(1:inp_strlen(tag))//"_n",
+c     >                    mt_int,1,nmethod)) 
+c     >        call errquit(pname//'failed to store'//tag,0,
+c     >                     RTDB_ERR)
+c        if (.not.rtdb_cput(irtdb,tag,nmethod,method)) 
+c     >        call errquit(pname//'failed to store'//tag,0,
+c     >         RTDB_ERR)
+c
+c        if (master) then
+c        do i=1,nmethod
+c         write(6,*) "method",i,method(i)
+c        end do
+c        end if
+c
+c      end if
+
 
       tag ="qmmm:link_ecp"
       if (.not.rtdb_cget(irtdb,tag,1,link_ecp)) then
@@ -198,41 +233,11 @@ c
       if (master) 
      >  write(6,22) "operation",tag,operation
 c
-      if (inp_compare(.false., 'energy', operation)) then
-        if (optimization.eq.'all') then
-           qmmm_interface = "mm"
-           bq_dynamical=.true.
-        else if (optimization.eq.'mm') then
-           qmmm_interface = "mm"
-           bq_dynamical=.true.
-        else if (optimization.eq.'qm') then
-           qmmm_interface = "qm"
-        endif
-      else if (inp_compare(.false., 'optimize', operation)) then
-        if (optimization.eq.'all') then
-           qmmm_interface = "mm"
-           bq_dynamical=.true.
-        else if (optimization.eq.'mm') then
-           qmmm_interface = "mm"
-           bq_dynamical=.true.
-        else if (optimization.eq.'qm') then
-           qmmm_interface = "qm"
-           bq_dynamical=.false.
-        endif
-      else if (inp_compare(.false., 'saddle', operation)) then
-        qmmm_interface = "qm"
-      else if (inp_compare(.false.,'dynamics',operation)) then
-        qmmm_interface = "mm"
-      end if
-
-
       tag ="qmmm:interface"
       ignore = rtdb_cget(irtdb,tag,1,qmmm_interface)
-c      if (.not.rtdb_cget(irtdb,tag,1,interface)) then
-c         if (.not.rtdb_cput(irtdb,tag,1,interface)) 
-c     >        call errquit(pname//'failed to store'//tag,0,
-c     >         RTDB_ERR)
-c      end if
+      if (.not.rtdb_cget(irtdb,tag,1,qmmm_interface)) then
+         qmmm_interface = "qm"
+      end if
       if (master) 
      >  write(6,22) "interface api",tag,qmmm_interface
 
@@ -243,8 +248,6 @@ c      end if
      >       RTDB_ERR)
 
       end if
-      if(master)
-     > write(6,21) "dynamical bq update",tag,bq_dynamical
 
       if (master) 
      >  write(6,23) 
@@ -271,7 +274,6 @@ c
 #include "errquit.fh"
 #include "qmmm_data.fh"
 c
-      integer i
 c
 c     indexing array
 c     -------------
@@ -363,7 +365,6 @@ c
 
       logical qmmm_print_debug
 c 
-      logical oprint
 
 c      oprint = util_print("debug_info", print_debug)
 c      qmmm_print_debug = oprint .and. (ga_nodeid().eq.0)
