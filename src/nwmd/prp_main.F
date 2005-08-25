@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.104 2005-04-29 14:48:01 d3j191 Exp $
+c $Id: prp_main.F,v 1.105 2005-08-25 23:36:26 marat Exp $
 c
       implicit none
 c
@@ -591,7 +591,7 @@ c
       do 1  i=1,nprop
       j=ixp(i)
       if(lp(j)) write(lfnout,1001) pronam(j)(1:39),p(j),pronam(j)(40:50)
- 1001 format(1x,a39,t41,1pe12.5,1x,a11)
+ 1001 format(1x,a39,t41,1pe18.9,1x,a11)
     1 continue
 c
       return
