@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.68 2005-08-22 01:05:39 marat Exp $
+c $Id: mm_interface.F,v 1.69 2005-08-25 23:44:52 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1631,6 +1631,57 @@ c     mm local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_get_solute_coord_raw(nt,
+     >                       ai,
+     >                       c)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+
+      integer i,j,k
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer pxs
+      character*32 pname
+      pname = "mm_get_solute_coord_gen"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call dfill(3*nt,0.0d0,c,1)
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_pxs(pxs)
+
+      do i=1,nsa
+         do j=1,nt
+           if(int_mb(psl+i-1).eq.ai(j)) then
+              do k=1,3
+                c(k,j)=dbl_mb(pxs+(i-1)+(k-1)*msa)
+              end do
+           end if
+         end do
+      end do
+
+      call ga_dgop(msg_qmmm_c1,c,3*nt,'+')
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_print_solute_coord()
       implicit none
 
@@ -2666,6 +2717,54 @@ c     local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_get_solute_force_raw(nt,ai,g)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "msgids.fh"
+      integer nt
+      integer ai(nt)
+      double precision  g(3,nt)
+c     local variables
+      integer i,j,k
+      integer msa
+      integer nsa
+      integer psdt
+      integer psl
+      integer pfs
+      character*32 pname
+
+      pname = "mm_get_solute_force"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call dfill(3*nt,0.0d0,g,1)
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psdt(psdt)
+      call mm_get_psl(psl)
+      call mm_get_pfs(pfs)
+
+      do i=1,nsa
+         do j=1,nt
+           if(int_mb(psl+i-1).eq.ai(j)) then
+              do k=1,3
+                g(k,j)=-dbl_mb(pfs+(i-1)+(k-1)*msa)
+              end do
+           end if
+         end do
+      end do
+
+      call ga_dgop(msg_qmmm_force,g,3*nt,'+')
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_get_rms_solute_force_gen(mm_type,grms)
       implicit none
 #include "global.fh"
@@ -2878,6 +2977,54 @@ c     mm local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_set_solute_coord_raw(nt,
+     >                       ai,
+     >                       c)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+
+      integer i,j,k
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer pxs
+      character*32 pname
+      pname = "mm_set_solute_coord"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_pxs(pxs)
+
+      do i=1,nsa
+         do j=1,nt
+           if(int_mb(psl+i-1).eq.ai(j)) then
+              do k=1,3
+                dbl_mb(pxs+(i-1)+(k-1)*msa)=c(k,j)
+              end do
+           end if
+         end do
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_set_solute_coord(nt,
      >                       ai,
      >                       c)
@@ -3010,6 +3157,76 @@ c     local variables
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
 
+      subroutine mm_print_system_pdb()
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+
+
+c     local variables
+      integer i,k
+      integer msa
+      integer nsa
+      integer psl
+      integer psz
+      integer pxs
+      integer psg
+      double precision c(3)
+      character*16 t
+      character*32 pname
+      pname = "mm_print_system"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psz(psz)
+      call mm_get_pxs(pxs)
+      call mm_get_psg(psg)
+
+      if(ga_nodeid().eq.0) then
+      do i=1,nsa
+         do k=1,3
+c           c(k)=dbl_mb(pxs+(i-1)+(k-1)*msa)*cnm2au
+           c(k)=dbl_mb(pxs+(i-1)+(k-1)*msa)
+         end do
+         call cf_num2tag(mm_element(i),t)
+         write(23,FMT=9000)
+     >            int_mb(psl+i-1), 
+     >            t,
+     >            int_mb(psg+i-1),
+c     >            c(1)*0.529177249d00,
+c     >            c(2)*0.529177249d00,
+c     >            c(3)*0.529177249d00,
+     >            c(1),
+     >            c(2),
+     >            c(3),
+     >            int_mb(psz+i-1),
+     >            mm_quant(i),
+     >            mm_fixed(i)
+
+      end do
+      end if
+
+9000  FORMAT("ATOM",T7,I5,T13,A4,T23,I4,T31,
+     >       F8.3,T39,F8.3,T47,F8.3,T55,I2,
+     >       T60,L2,T62,L2)
+
+
+      call ga_sync()
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
       subroutine mm_print_system()
       implicit none
 
@@ -3049,16 +3266,20 @@ c     local variables
       if(ga_nodeid().eq.0) then
       do i=1,nsa
          do k=1,3
-           c(k)=dbl_mb(pxs+(i-1)+(k-1)*msa)*cnm2au
+c           c(k)=dbl_mb(pxs+(i-1)+(k-1)*msa)*cnm2au
+           c(k)=dbl_mb(pxs+(i-1)+(k-1)*msa)
          end do
          call cf_num2tag(mm_element(i),t)
          write(23,FMT=9000)
      >            int_mb(psl+i-1), 
      >            t,
      >            int_mb(psg+i-1),
-     >            c(1)*0.529177249d00,
-     >            c(2)*0.529177249d00,
-     >            c(3)*0.529177249d00,
+c     >            c(1)*0.529177249d00,
+c     >            c(2)*0.529177249d00,
+c     >            c(3)*0.529177249d00,
+     >            c(1),
+     >            c(2),
+     >            c(3),
      >            int_mb(psz+i-1),
      >            mm_quant(i),
      >            mm_fixed(i)
@@ -3067,8 +3288,8 @@ c     local variables
       end if
 
 9000  FORMAT("ATOM",T7,I5,T13,A4,T23,I4,T31,
-     >       F8.3,T39,F8.3,T47,F8.3,T55,I2,
-     >       T60,L2,T62,L2)
+     >       F12.6,4X,F12.6,4X,F12.6,4X,I2,
+     >       4x,L2,4x,L2)
 
 
       call ga_sync()
