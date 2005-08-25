@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.38 2005-07-12 21:26:31 bylaska Exp $
+* $Id: D3dB-new.F,v 1.39 2005-08-25 22:15:01 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -198,6 +198,7 @@ c           k_map(q_map(k)) = k
 
 
 
+
       !**** double grid map1 defined wrt to single grid         ****
       !**** makes expand and contract routines trivial parallel ****
       if (nb.eq.1) then
@@ -215,14 +216,24 @@ c           k_map(q_map(k)) = k
      >                          nz(nb),nx(nb)/2+1,
      >                          int_mb(p_map2(1,nb)),
      >                          int_mb(q_map2(1,nb)),nq2(nb))
-      call generate_map_indexes(taskid,np,
+      call generate_map_indexes_2(taskid,np,
      >                          nx(nb)/2+1,ny(nb),
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
 
-c     write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
-c     write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
-c     write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
+      if (taskid.eq.0) then
+      write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
+      write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
+      write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
+
+      write(*,*) 'hilbert map nb=',nb
+      do j=0,ny(nb)-1
+        write(*,'(A,80I4)') 'hilbert map:',
+     >   (int_mb(p_map3(1,nb)+k+j*(nx(nb)/2+1)), k=0,nx(nb)/2)
+      end do
+      write(*,*)
+      end if
+     
 
       nfft3d(nb) = (nx(nb)/2+1)*nq1(nb)
       if ((ny(nb)*nq2(nb)).gt.nfft3d(nb)) nfft3d(nb) = ny(nb)*nq2(nb)

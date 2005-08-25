@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.21 2005-08-23 14:12:01 bylaska Exp $
+* $Id: pack.F,v 1.22 2005-08-25 22:15:14 bylaska Exp $
 *
 
 *     ***********************************
@@ -147,6 +147,7 @@
 
       end do
 
+
       nwave_in(0) = nida(0) + nidb(0)
       nwave_in(1) = nida(1) + nidb(1)
       if (control_balance()) then
@@ -164,6 +165,10 @@
       call D3dB_ISumAll(nwave_all(0))
       call D3dB_ISumAll(nwave_all(1)) 
 
+      write(*,*) " nida(0),nidb(0),nidb2(0):",taskid,nida(0),
+     >                                      nidb(0),nidb2(0)
+      write(*,*) " nida(1),nidb(1),nidb2(1):",taskid,nida(1),
+     >                                      nidb(1),nidb2(1)
        
       return 
       end

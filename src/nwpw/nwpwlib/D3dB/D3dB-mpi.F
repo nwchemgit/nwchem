@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.14 2005-07-13 21:51:38 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.15 2005-08-25 22:15:01 bylaska Exp $
 *
 
 #ifdef MPI
@@ -238,13 +238,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 *     **** it = 0, transpose data on same thread ****
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-      do i=1,msglen
-         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1)
-     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
-      end do
+      call dcopy(2*msglen,tmp1(int_mb(i1_start(1,nb))),1,
+     >                    tmp2(int_mb(i2_start(1,nb))),1)
 
 
 *     **** receive packed array data ****
@@ -406,13 +401,8 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-      do i=1,msglen
-         tmp2(int_mb(h_i2_start(1,op,nb)+1-1)+i-1) 
-     > = tmp1(int_mb(h_i1_start(1,op,nb)+1-1)+i-1)
-      end do
+      call dcopy(2*msglen,tmp1(int_mb(h_i1_start(1,op,nb))),1,
+     >                    tmp2(int_mb(h_i2_start(1,op,nb))),1)
          
 
 *     **** receive packed array data ****
@@ -569,13 +559,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-#ifndef CRAY
-!DIR$ ivdep
-#endif
-      do i=1,msglen
-         tmp2(int_mb(h_i2_start(1,op,nb)+1-1)+i-1) 
-     > = tmp1(int_mb(h_i1_start(1,op,nb)+1-1)+i-1)
-      end do
+      call dcopy(msglen,tmp1(int_mb(h_i1_start(1,op,nb))),1,
+     >                  tmp2(int_mb(h_i2_start(1,op,nb))),1)
          
 
 *     **** receive packed array data ****
