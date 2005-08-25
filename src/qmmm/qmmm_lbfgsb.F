@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.5 2005-08-22 01:51:43 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.6 2005-08-25 23:42:34 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -240,7 +240,7 @@ c     function f and gradient g values at the current x.
      >                     int_mb(i_id),
      >                     dbl_mb(i_x))
 
-        call mm_task_sp()
+        call md_sp_qmmm()
         if (.not. qmmm_energy_gradient(irtdb,.true.))
      $    call errquit(pname//'qmmm_energy_gradient failed'
      $                  ,0, GEOM_ERR)
