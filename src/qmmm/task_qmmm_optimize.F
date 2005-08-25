@@ -1,5 +1,5 @@
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -127,7 +127,7 @@ c
 
 
       if (.not. rtdb_get(rtdb, 'qmmm:mixed', mt_log, 
-     $                   1, divcon))
+     $                   1, omixed))
      $     omixed = .false.
 
 
@@ -144,6 +144,7 @@ c     --------
         go to 110
       end if
       if(omixed) then
+        if(qmmm_master()) write(*,*) "mixed optimization"
         status=qmmm_mixed_optimization(rtdb)
         go to 110
       end if
@@ -229,7 +230,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -308,7 +309,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -380,7 +381,7 @@ c
       end
 
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -541,7 +542,7 @@ c
       end
 
       function qmmm_optimizer(rtdb,region,method,maxiter,rhofix)
-c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -656,7 +657,7 @@ c     ------------------------------------
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
