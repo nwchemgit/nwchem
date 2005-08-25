@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.9 2005-06-01 16:27:03 marat Exp $
+c $Id: qmmm_utils.F,v 1.10 2005-08-25 23:56:01 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -240,6 +240,49 @@ c     local variables:
 
       end do
 9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
+
+      call util_flush(46)
+      close(46)
+
+
+      end
+
+      subroutine qmmm_print_pdb_forces(nt,myname,c,f)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      double precision c(3,nt)
+      double precision f(3,nt)
+      character*16 t
+      character*(*) myname
+      character*(nw_max_path_len) filename
+
+      integer i
+      integer n
+      integer nf
+      integer ns
+
+      call util_file_prefix("",filename)
+      nf=inp_strlen(filename)-1
+      ns=inp_strlen(myname)
+      filename = filename(1:nf)//myname(1:ns)
+
+      open(unit=46,status="unknown",form="formatted",file=filename)
+
+      t = "Bq"
+      do i=1,nt
+       write(46,FMT=9000)
+     >           i,t,c(1,i)*0.529177249d00,
+     >            c(2,i)*0.529177249d00,
+     >            c(3,i)*0.529177249d00, 
+     >            f(1,i),f(2,i),f(3,i)
+
+      end do
+9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,3F12.6)
 
       call util_flush(46)
       close(46)
