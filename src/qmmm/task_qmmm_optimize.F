@@ -1,5 +1,5 @@
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.26 2005-08-24 22:07:21 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -47,6 +47,7 @@ c
       integer resid(1),i,k
       logical ignore
       logical omixed
+      logical ofrozen
       logical divcon
       logical opes
 c
@@ -120,6 +121,11 @@ c
      $                   1, divcon))
      $     divcon = .false.
 
+      if (.not. rtdb_get(rtdb, 'qmmm:frozen_density', mt_log, 
+     $                   1, ofrozen))
+     $     ofrozen = .false.
+
+
       if (.not. rtdb_get(rtdb, 'qmmm:mixed', mt_log, 
      $                   1, divcon))
      $     omixed = .false.
@@ -166,7 +172,7 @@ c
        if(maxiter(k).eq.0) goto 111
 c
        status = qmmm_optimizer(rtdb,region(k),method(k),
-     >                         maxiter(k),.true.)
+     >                         maxiter(k),ofrozen)
 111    continue
        end do
        end do
@@ -223,7 +229,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.26 2005-08-24 22:07:21 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -302,7 +308,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.26 2005-08-24 22:07:21 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -374,7 +380,7 @@ c
       end
 
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.26 2005-08-24 22:07:21 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -535,7 +541,7 @@ c
       end
 
       function qmmm_optimizer(rtdb,region,method,maxiter,rhofix)
-c     $Id: task_qmmm_optimize.F,v 1.26 2005-08-24 22:07:21 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -650,7 +656,7 @@ c     ------------------------------------
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.26 2005-08-24 22:07:21 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.27 2005-08-25 23:52:22 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

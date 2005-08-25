@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.69 2005-08-25 23:44:52 marat Exp $
+c $Id: mm_interface.F,v 1.70 2005-08-25 23:52:22 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -199,7 +199,7 @@ c
 c
 c      lpair = .false.
 c      llong = .false.
-      call md_sp()
+      call md_sp_qmmm()
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return

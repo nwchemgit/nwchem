@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.39 2005-08-24 18:42:43 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.40 2005-08-25 23:52:22 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -52,7 +52,7 @@ c
 
       else if (interface.eq.'qm') then
          call qmmm_geom_push_active(rtdb)
-         call mm_task_sp()
+         call md_sp_qmmm()
          task_qmmm_gradient = qmmm_energy_gradient(rtdb,.true.)
          call qmmm_geom_get_grad(rtdb)
          call qmmm_energy_rtdb_push(rtdb)
