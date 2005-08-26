@@ -1,5 +1,5 @@
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -47,7 +47,7 @@ c
       integer resid(1),i,k
       logical ignore
       logical omixed
-      logical ofrozen
+      logical oesp
       logical divcon
       logical opes
 c
@@ -121,9 +121,10 @@ c
      $                   1, divcon))
      $     divcon = .false.
 
-      if (.not. rtdb_get(rtdb, 'qmmm:frozen_density', mt_log, 
-     $                   1, ofrozen))
-     $     ofrozen = .false.
+
+      if (.not. rtdb_get(rtdb, 'qmmm:esp_density', mt_log, 
+     $                   1, oesp))
+     $     oesp = .false.
 
 
       if (.not. rtdb_get(rtdb, 'qmmm:mixed', mt_log, 
@@ -168,15 +169,16 @@ c     --------------------------
       end if
 
       do i=1,ncycles
+       if(oesp) call qmmm_esp_reset(rtdb)
        do k=1,nregion
 c
        if(maxiter(k).eq.0) goto 111
 c
        status = qmmm_optimizer(rtdb,region(k),method(k),
-     >                         maxiter(k),ofrozen)
+     >                         maxiter(k))
 111    continue
        end do
-       end do
+      end do
 
 c
 c
@@ -230,7 +232,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -309,7 +311,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -381,7 +383,7 @@ c
       end
 
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -541,8 +543,8 @@ c
 
       end
 
-      function qmmm_optimizer(rtdb,region,method,maxiter,rhofix)
-c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
+      function qmmm_optimizer(rtdb,region,method,maxiter)
+c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -559,7 +561,6 @@ c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
       logical qmmm_optimizer
       character*(*) region,method
       integer maxiter
-      logical rhofix 
 c
       logical  status
 c     
@@ -585,10 +586,6 @@ c
       pname = "qmmm_optimizer"
 
       qmmm_optimizer = .true.
-
-      if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $       mt_log,1,rhofix))
-     $      call errquit(pname,0, RTDB_ERR)
 c
       if(method.eq." ") then
         if(region.eq."qm") then
@@ -657,7 +654,7 @@ c     ------------------------------------
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.28 2005-08-25 23:54:40 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

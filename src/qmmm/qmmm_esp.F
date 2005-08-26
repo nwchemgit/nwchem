@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.2 2005-08-26 22:10:52 marat Exp $
+c $Id: qmmm_esp.F,v 1.3 2005-08-26 23:15:42 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -80,6 +80,7 @@ c
      >                        dbl_mb(i_q_qm+i-1)
       end do
 
+      ignore = rtdb_delete(rtdb,'qmmm:esp')
       if (.not. rtdb_put(rtdb,'qmmm:esp',
      >                   mt_dbl,nqm,dbl_mb(i_q_qm)))
      &    call errquit(pname//'qmmm:esp',911,RTDB_ERR)
@@ -221,6 +222,17 @@ c     ------------
       if (.not.ma_pop_stack(h_epot)) call errquit
      &   (pname//'ma_pop_stack of h_epot failed',911,MA_ERR)
 
+
+      end
+
+      subroutine qmmm_esp_reset(rtdb)
+      implicit none
+#include "rtdb.fh"
+c
+      integer rtdb
+      logical ignore
+
+      ignore = rtdb_delete(rtdb,'qmmm:esp')
 
       end
 
