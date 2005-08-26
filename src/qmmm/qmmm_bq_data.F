@@ -205,6 +205,56 @@ c     >                       log_mb(i_abq+nbqs))
     
       end
 
+      subroutine qmmm_bq_data_update_active()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "bq.fh"
+#include "util.fh"
+      integer i,k
+      character*32 pname
+
+      pname = "qmmm_bq_data_create_active"
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "in",pname
+c
+      do i=1,nbq
+         log_mb(i_abq+i-1)= .false.
+      end do
+c
+c     get active list of bqs
+c     ------------------------
+      if(nbqs.ne.0) 
+     >   call qmmm_cons_get_actmaps(nbqs,int_mb(i_ibq),
+     >                       log_mb(i_abq))
+
+      if(nbqw.ne.0) 
+     >  call  qmmm_cons_get_actmapw(nbqw,int_mb(i_ibq+nbqs),
+     >                       log_mb(i_abq+nbqs))
+
+      nbqa = 0 
+      do i=1,nbq
+         if(log_mb(i_abq+i-1)) then
+           nbqa = nbqa + 1
+         end if
+      end do
+
+      if(ga_nodeid().eq.0) then
+       write(*,*) "number of active bqs ",nbqa
+      end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "out",pname
+    
+      end
+
       subroutine qmmm_bq_data_load0()
       implicit none
 c

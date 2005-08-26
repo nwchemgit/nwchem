@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.13 2005-07-01 00:43:45 marat Exp $
+c $Id: qmmm_bq.F,v 1.14 2005-08-26 18:17:57 marat Exp $
 c
 c
       subroutine qmmm_bq_energy_gen(rtdb,n,c,q,e)
@@ -119,6 +119,7 @@ c     ------------
 #include "rtdb.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "qmmm.fh"
 c
       integer rtdb
       integer n
@@ -129,6 +130,7 @@ c
       character*32 pname
       character*3 theory
       character*255 vectors_in
+      character*255 ostring
 c
       integer i
       logical ignore
@@ -137,6 +139,13 @@ c
       external property
 c
       pname = "qmmm_bq_forces"
+c
+      if(qmmm_master()) then
+        call util_print_centered(luout,
+     >  "Calculating forces on classical charges",
+     >  32,.true.)
+        write(luout,*) "Total number of charges",n
+      end if
 c
 c     make bq coords available for property calcs 
 c     -------------------------------------------------------- 

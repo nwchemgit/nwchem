@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.10 2005-08-24 18:42:43 marat Exp $
+c $Id: qmmm_cons.F,v 1.11 2005-08-26 18:17:57 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -348,6 +348,8 @@ c
       end if
 c
       if(aregion.eq.'solvent') then
+        if(qmmm_master()) 
+     >       write(*,*) "fixing all solvent charges",nactw,flag
         do i=1,nactw
           log_mb(i_mapw+i-1) = flag
         end do
@@ -738,6 +740,20 @@ c
       n = 0
       do i=1,nacts
         if( log_mb(i_maps+i-1)) n = n + 1
+      end do
+
+      end 
+c
+      subroutine qmmm_cons_get_nactw(n)
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+
+      integer i,n
+
+      n = 0
+      do i=1,nactw
+        if( log_mb(i_mapw+i-1)) n = n + 1
       end do
 
       end 

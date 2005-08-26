@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.40 2005-08-25 23:52:22 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.41 2005-08-26 18:17:57 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -310,6 +310,8 @@ c
 
 
       pname = "qmmm_bq_gradient"
+
+      call qmmm_bq_data_update_active()
 
       na  = qmmm_get_nbqa() 
      
