@@ -22,6 +22,7 @@ c
       integer linkatm,bq_exclude
       logical status
       integer ip,np
+      logical ltoken
 c
       pname = "qmmm_input: "
 c
@@ -107,6 +108,27 @@ c     -------------------
      >       RTDB_ERR)
           goto 2
       endif
+c
+      if(inp_compare(.false.,'frozen_density',token)) then
+        if(.not.inp_a(token)) then
+         write(*,*) "please provide an option for geom"
+         call errquit('qmmm_input: geom',0,
+     &         INPUT_ERR)
+        end if
+        tag="qmmm:frozen_density"
+        if(inp_compare(.false.,'on',token)) then
+          ltoken=.true.
+        else if (inp_compare(.false.,'off',token)) then
+          ltoken=.false.
+        else
+           call errquit(pname//'unknown token'//tag,0,
+     >       RTDB_ERR)
+        end if
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,ltoken)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+          goto 2
+      end if  
 c
       if(inp_compare(.false.,'geom',token)) then
         if(.not.inp_a(token)) then
