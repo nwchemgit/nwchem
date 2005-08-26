@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.41 2005-08-26 18:17:57 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.42 2005-08-26 22:10:52 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -65,97 +65,6 @@ c
 c
       end
 
-      function qmmm_gradient(rtdb)
-      implicit none
-c
-#include "rtdb.fh"
-#include "util.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "nwc_const.fh"
-#include "geom.fh"
-#include "qmmm_params.fh"
-#include "qmmm.fh"
-c
-      integer rtdb
-      logical qmmm_gradient
-      logical status
-      logical task_energy_doit
-      external task_energy_doit
-      logical task_gradient_doit
-      external task_gradient_doit
-      character*255 theory
-      double precision qm_energy
-      integer i_g,h_g 
-      integer nfg
-      integer i_ifg
-      integer nact
-      character*30 pname
-
-      status = .true.
-
-c      call util_print_push() 
-c      call util_print_rtdb_load(rtdb, 'qmmm')
-      
-      nfg = qmmm_geom_get_nfg()
-      i_ifg = qmmm_geom_get_i_ifg()
-      i_g = qmmm_geom_get_i_g()
-
-
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
-
-c
-c     create full geometry
-c     -------------------
-      call qmmm_geom_create_full(rtdb)
-c
-c     update coordinates of classical charges
-c     ---------------------------------------
-      call qmmm_bq_coord_update()
-c
-c     create active atom list for qm atoms
-c     ------------------------------------
-      call qmmm_map_fixed_atoms(rtdb,nact)
-c
-c     qm atoms gradients if any
-c     -------------------------
-      qm_energy = 0.0d0
-      call dfill(3*nfg,0,dbl_mb(i_g),1)
-      if(nact.ne.0) then
-        status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
-        call qmmm_links_adjust_forces(nfg,
-     &                       int_mb(i_ifg),
-     &                       dbl_mb(i_g))
-
-
-        call mm_add_solute_force(nfg,
-     &                     int_mb(i_ifg),
-     &                     dbl_mb(i_g))
-
-       else
-        if(nfg.ne.0) 
-     >  status = task_energy_doit(rtdb,theory,qm_energy)
-      end if
-c
-c     gradients on classical atoms if any
-c     -----------------------------------
-      if(nfg.ne.0) 
-     > call qmmm_bq_gradient(rtdb)
-c
-      if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
-     $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
-c
-      call qmmm_geom_restore(rtdb)
-c
-      call qmmm_restore_fixed_atoms(rtdb)
-c
-      qmmm_gradient=status
-c
-c      call util_print_pop()
-      end
-
       function qmmm_energy_gradient(rtdb,do_grad)
       implicit none
 c
@@ -183,7 +92,7 @@ c
       integer nfg
       integer i_ifg
       integer nact
-      logical frozen_density
+      logical frozen_density,esp
       character*30 pname
 
       pname = "qmmm_energy_gradient"
@@ -205,11 +114,18 @@ c
      $                   mt_log,1,frozen_density))
      $     frozen_density=.false.
 c
-c     disable frozen density if any of qm atoms are active
+      if (.not. rtdb_get(rtdb,'qmmm:esp_density',
+     $                   mt_log,1,esp))
+     $     esp=.false.
+c
+c     disable frozen density/esp if any of qm atoms are active
 c     ----------------------------------------------------
-      if(frozen_density) then
+      if(frozen_density.or.esp) then
         call qmmm_cons_get_nacts_qm(nact)
-        if(nact.gt.0) frozen_density = .false.
+        if(nact.gt.0) then
+           frozen_density = .false.
+           esp = .false.
+        end if
       end if
       
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -259,7 +175,7 @@ c     -------------------------
            if(qmmm_print_debug()) then
               write(*,*) "frozen qm density"
            end if
-         call qmmm_bq_energy(qm_energy,rtdb)
+         call qmmm_bq_energy(qm_energy,rtdb,esp)
          else
          status = task_energy_doit(rtdb,theory,qm_energy)
          call qmmm_cons_reaction(rtdb,.false.,qm_energy,dbl_mb(i_g))
@@ -270,7 +186,7 @@ c
 c     gradients on classical atoms if any
 c     -----------------------------------
       if(do_grad.and.nfg.ne.0) 
-     >  call qmmm_bq_gradient(rtdb)
+     >  call qmmm_bq_gradient(rtdb,esp)
 c
       if (.not. rtdb_put(rtdb,'qmmm:qm_energy',mt_dbl,1,qm_energy))
      $     call errquit('qmmm: failed put energy', 0, RTDB_ERR)
@@ -286,7 +202,7 @@ c
 c
       end
 
-      subroutine qmmm_bq_gradient(rtdb)
+      subroutine qmmm_bq_gradient(rtdb,esp)
       implicit none
 c
 #include "rtdb.fh"
@@ -300,12 +216,14 @@ c
 #include "qmmm.fh"
 c
       integer rtdb
+      logical esp
 c 
       integer i_c,h_c
       integer i_q,h_q
       integer i_g,h_g
   
       integer i,na
+      double precision e
       character*30 pname
 
 
@@ -341,13 +259,27 @@ c
      >                      dbl_mb(i_q))
 
 
-      call qmmm_bq_forces(rtdb,
-     >                    na,
-     >                    dbl_mb(i_c),
-     >                    dbl_mb(i_q),
-     >                    dbl_mb(i_g))
+      if(esp) then
+      
+        call qmmm_bq_esp_grad(rtdb,
+     >                      na,
+     >                      dbl_mb(i_q),
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_g))
 
-       call qmmm_bq_push_grad(na,dbl_mb(i_g))
+      else
+
+        call qmmm_bq_forces(rtdb,
+     >                      na,
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_q),
+     >                      dbl_mb(i_g))
+
+
+      end if
+
+
+      call qmmm_bq_push_grad(na,dbl_mb(i_g))
 
       if(.not.ma_pop_stack(h_g))
      &      call errquit(
@@ -364,7 +296,7 @@ c
       
       end
 
-      subroutine qmmm_bq_energy(e,rtdb)
+      subroutine qmmm_bq_energy(e,rtdb,esp)
       implicit none
 c
 #include "rtdb.fh"
@@ -379,6 +311,7 @@ c
 #include "bq.fh"
 c
       integer rtdb
+      logical esp
       double precision e
 c 
       integer i_c,h_c
@@ -417,24 +350,35 @@ c
 
 
 
-      if(bq_get_active(bq_handle)) then
-        ext_bq_found = .true.
-        if(.not.bq_deactivate(bq_handle)) call errquit(
-     &      pname//'unable to deactivate bqs',0,0)
+      if(esp) then 
+
+        call qmmm_bq_esp_energy(rtdb,
+     >                      na,
+     >                      dbl_mb(i_q),
+     >                      dbl_mb(i_c),
+     >                      e)
 
       else
-       ext_bq_found = .false.
-      end if
+        if(bq_get_active(bq_handle)) then
+          ext_bq_found = .true.
+          if(.not.bq_deactivate(bq_handle)) call errquit(
+     &        pname//'unable to deactivate bqs',0,0)
 
-      call qmmm_bq_energy_gen(rtdb,
-     >                    na,
-     >                    dbl_mb(i_c),
-     >                    dbl_mb(i_q),
-     >                    e)
+        else
+         ext_bq_found = .false.
+        end if
 
-      if(ext_bq_found) then
-        if(.not.bq_activate(bq_handle)) call errquit(
-     &      pname//'unable to activate bqs',0,0)
+        call qmmm_bq_energy_gen(rtdb,
+     >                      na,
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_q),
+     >                      e)
+
+        if(ext_bq_found) then
+          if(.not.bq_activate(bq_handle)) call errquit(
+     &        pname//'unable to activate bqs',0,0)
+        end if
+
       end if
 
       if(.not.ma_pop_stack(h_c))

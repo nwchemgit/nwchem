@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.1 2005-06-15 05:39:00 marat Exp $
+c $Id: qmmm_esp.F,v 1.2 2005-08-26 22:10:52 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -39,6 +39,9 @@ c
       task_qmmm_esp = .true.
 c
       lespfile = 33
+c
+      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
+     +   call errquit('esp: rtdb_put newgrd failed',0,0)
 c
       if(.not.esp(rtdb)) 
      &    call errquit(pname//'failed esp call', 100,
@@ -221,4 +224,195 @@ c     ------------
 
       end
 
+      subroutine qmmm_bq_esp_grad(rtdb,nbq,qbq,cbq,g)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      integer nbq
+      double precision qbq(nbq)
+      double precision cbq(3,nbq)
+      double precision g(3,*)
+c
+      character*32 pname
+c
+      integer i,k
+c    
+      integer nqm
+      integer nlink
+      integer igeom
+c
+      double precision zqm,zbq
+      double precision xp, yp, zp, xn, yn, zn
+      double precision rr,rr3
+c
+      integer i_c_esp,h_c_esp
+      integer i_q_esp,h_q_esp
+      integer i_cbq
+      integer i_qbq
+      logical esp
+      external esp
+      logical  task_qmmm_esp
+      external task_qmmm_esp
+c
+      pname = "qmmm_bq_esp_energy"
+c
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+c
+      if(.not.geom_rtdb_load(rtdb,igeom,"geometry"))
+     + call errquit('qmmm: Failed to load geom to rtdb',0, RTDB_ERR)
+c
+      if(.not. geom_ncent(igeom,nqm))
+     +    call errquit('qmmm: geom_ncent',0,0)
+c
+      if(.not.ma_push_get(mt_dbl,3*nqm,'c_esp',h_c_esp,i_c_esp))
+     + call errquit('qmmm: Failed to qmocate memory for c_qm',
+     + 3*nqm, MA_ERR)
+c
+      if(.not.ma_push_get(mt_dbl,3*nqm,'q_esp',h_q_esp,i_q_esp))
+     + call errquit('qmmm: Failed to qmocate memory for q_qm',
+     + 3*nqm, MA_ERR)
+c  
+      if(.not.geom_cart_coords_get(igeom,dbl_mb(i_c_esp)))
+     + call errquit(pname,0, GEOM_ERR)
+c
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+c
+111   continue
+      if (.not. rtdb_get(rtdb,'qmmm:esp',
+     >    mt_dbl,nqm,dbl_mb(i_q_esp))) then
+       if(.not.task_qmmm_esp(rtdb)) 
+     >   call errquit('failed qmmm esp',0, 0)
+       goto 111
+      end if
+ 
+      do i=1,nqm
+        xp = dbl_mb(i_c_esp  +3*(i-1))
+        yp = dbl_mb(i_c_esp+1+3*(i-1))
+        zp = dbl_mb(i_c_esp+2+3*(i-1))
+        zqm = dbl_mb(i_q_esp+i-1)
+        do k = 1,nbq
+          zbq = qbq(k)
+          xn  = cbq(1,k) - xp
+          yn  = cbq(2,k) - yp
+          zn  = cbq(3,k) - zp
+          rr =  sqrt(xn*xn + yn*yn + zn*zn)
+          rr3=rr*rr*rr
+          g(1,k)= g(1,k) - zqm*zbq*xn/rr3
+          g(2,k)= g(2,k) - zqm*zbq*yn/rr3
+          g(3,k)= g(3,k) - zqm*zbq*zn/rr3
+        end do
+      end do
+
+      if (.not.ma_pop_stack(h_q_esp)) call errquit
+     &   (pname//'ma_pop_stack failed',911,MA_ERR)
+      if (.not.ma_pop_stack(h_c_esp)) call errquit
+     &   (pname//'ma_pop_stack failed',911,MA_ERR)
+
+
+      end
+
+      subroutine qmmm_bq_esp_energy(rtdb,nbq,qbq,cbq,e)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      integer nbq
+      double precision qbq(nbq)
+      double precision cbq(3,nbq)
+      double precision e
+c
+      character*32 pname
+c
+      integer i,k
+c    
+      integer nqm
+      integer nlink
+      integer igeom
+c
+      double precision zqm,zbq
+      double precision xp, yp, zp, xn, yn, zn
+      double precision rr,rr3
+c
+      integer i_c_esp,h_c_esp
+      integer i_q_esp,h_q_esp
+      integer i_cbq
+      integer i_qbq
+      logical esp
+      external esp
+      logical  task_qmmm_esp
+      external task_qmmm_esp
+c
+      pname = "qmmm_bq_esp_energy"
+c
+      if(.not.geom_create(igeom,'geometry'))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+c
+      if(.not.geom_rtdb_load(rtdb,igeom,"geometry"))
+     + call errquit('qmmm: Failed to load geom to rtdb',0, RTDB_ERR)
+c
+      if(.not. geom_ncent(igeom,nqm))
+     +    call errquit('qmmm: geom_ncent',0,0)
+c
+      if(.not.ma_push_get(mt_dbl,3*nqm,'c_esp',h_c_esp,i_c_esp))
+     + call errquit('qmmm: Failed to qmocate memory for c_qm',
+     + 3*nqm, MA_ERR)
+c
+      if(.not.ma_push_get(mt_dbl,3*nqm,'q_esp',h_q_esp,i_q_esp))
+     + call errquit('qmmm: Failed to qmocate memory for q_qm',
+     + 3*nqm, MA_ERR)
+c  
+      if(.not.geom_cart_coords_get(igeom,dbl_mb(i_c_esp)))
+     + call errquit(pname,0, GEOM_ERR)
+c
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+c
+111   continue
+      if (.not. rtdb_get(rtdb,'qmmm:esp',
+     >    mt_dbl,nqm,dbl_mb(i_q_esp))) then
+       if(.not.task_qmmm_esp(rtdb)) 
+     >   call errquit('failed qmmm esp',0, 0)
+       goto 111
+      end if
+ 
+      e = 0.0d0
+      do i=1,nqm
+        xp = dbl_mb(i_c_esp  +3*(i-1))
+        yp = dbl_mb(i_c_esp+1+3*(i-1))
+        zp = dbl_mb(i_c_esp+2+3*(i-1))
+        zqm = dbl_mb(i_q_esp+i-1)
+        do k = 1,nbq
+          zbq = qbq(k)
+          xn  = cbq(1,k) - xp
+          yn  = cbq(2,k) - yp
+          zn  = cbq(3,k) - zp
+          rr =  sqrt(xn*xn + yn*yn + zn*zn)
+          e = e + zqm*zbq/rr
+        end do
+      end do
+
+      if (.not.ma_pop_stack(h_q_esp)) call errquit
+     &   (pname//'ma_pop_stack failed',911,MA_ERR)
+      if (.not.ma_pop_stack(h_c_esp)) call errquit
+     &   (pname//'ma_pop_stack failed',911,MA_ERR)
+
+
+      end
 
