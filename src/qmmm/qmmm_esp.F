@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.3 2005-08-26 23:15:42 marat Exp $
+c $Id: qmmm_esp.F,v 1.4 2005-08-26 23:58:45 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -30,6 +30,7 @@ c
       integer nqm
 c
       integer i_ifg
+      logical status
 c
       logical esp
       external esp
@@ -50,8 +51,19 @@ c
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-      if(.not.geom_rtdb_load(rtdb,igeom,"esp:geometry"))
-     + call errquit('qmmm: Failed to load geom to rtdb',0, RTDB_ERR)
+      status = geom_rtdb_load(rtdb,igeom,"cresp:geometry")
+
+      if(.not.status)
+     +  status = geom_rtdb_load(rtdb,igeom,"resp:geometry")
+
+      if(.not.status)
+     +  status = geom_rtdb_load(rtdb,igeom,"cesp:geometry")
+
+      if(.not.status)
+     +  status = geom_rtdb_load(rtdb,igeom,"esp:geometry")
+
+      if(.not.status)
+     + call errquit(pname,0, RTDB_ERR)
 
       if(.not. geom_ncent(igeom,nqm))
      +    call errquit('qmmm: geom_ncent',0,0)
@@ -75,10 +87,13 @@ c
         if(.not.geom_print_pdb(igeom,6))
      +    call errquit('qmmm: Failed to print xyzq geometry',0,0)
 
-      do i=1,nqm
-       write(luout,'(4f20.10)') (dbl_mb(i_c_qm+(i-1)*3+k-1),k=1,3),
-     >                        dbl_mb(i_q_qm+i-1)
-      end do
+      if(ga_nodeid().eq.0) then
+        call util_print_centered(luout,"QM/MM esp charges",32,.true.)
+        do i=1,nqm
+         write(luout,'(4f20.10)') (dbl_mb(i_c_qm+(i-1)*3+k-1),k=1,3),
+     >                          dbl_mb(i_q_qm+i-1)
+        end do
+      end if
 
       ignore = rtdb_delete(rtdb,'qmmm:esp')
       if (.not. rtdb_put(rtdb,'qmmm:esp',
