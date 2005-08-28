@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.6 2005-08-25 23:42:34 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.7 2005-08-28 02:00:52 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -174,11 +174,11 @@ c     We wish to have output at every iteration.
 
 c     We specify the tolerances in the stopping criteria.
 
-      factr=1.0d+7
-      pgtol=1.0d-5
+c      factr=1.0d+7
+c      pgtol=1.0d-5
 
-c      factr=0.0d0
-c      pgtol=0.0d0
+      factr=0.0d0
+      pgtol=0.0d0
 
 c     We specify the dimension n of the sample problem and the number
 c        m of limited memory corrections stored.  (n and m should not
