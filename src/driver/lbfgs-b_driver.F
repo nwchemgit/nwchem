@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs-b_driver.F,v 1.4 2005-07-29 17:19:40 marat Exp $
+* $Id: lbfgs-b_driver.F,v 1.5 2005-08-28 01:57:29 marat Exp $
 *
 c        Modified driver for use in NWChem (MV)
 c
@@ -168,11 +168,11 @@ c     We wish to have output at every iteration.
 
 c     We specify the tolerances in the stopping criteria.
 
-      factr=1.0d+7
-      pgtol=1.0d-5
+c      factr=1.0d+7
+c      pgtol=1.0d-5
 
-c      factr=0.0d0
-c      pgtol=0.0d0
+      factr=0.0d0
+      pgtol=0.0d0
 
 c     We specify the dimension n of the sample problem and the number
 c        m of limited memory corrections stored.  (n and m should not
