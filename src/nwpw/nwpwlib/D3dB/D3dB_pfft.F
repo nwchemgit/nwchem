@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.5 2005-07-13 23:53:18 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.6 2005-08-29 21:19:58 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -3133,7 +3133,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       common / pfft_queuez_common / tmp1z,tmp2z
 
       logical value
-      integer np,size,zpalne_size
+      integer np,size,zplane_sizetmp
 
       qmax  = qmax_in
       qsize = 0
@@ -3155,12 +3155,12 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >        MA_alloc_get(mt_int,size,'reqcnt',reqcnt(2),reqcnt(1))
 
 
-      call D3dB_zplane_size(1,zplane_size)
+      call D3dB_zplane_size(1,zplane_sizetmp)
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(zplane_size),
+     >        MA_alloc_get(mt_dcpl,(zplane_sizetmp),
      >                    'tmp1z',tmp1z(2),tmp1z(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(zplane_size),
+     >        MA_alloc_get(mt_dcpl,(zplane_sizetmp),
      >                    'tmp2z',tmp2z(2),tmp2z(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
