@@ -1,5 +1,5 @@
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -37,6 +37,9 @@ c
 c
       logical   qmmm_optimizer
       external  qmmm_optimizer
+c
+      logical   qmmm_energy_gradient
+      external  qmmm_energy_gradient
 c
       logical   qmmm_tandem_optimization
       external  qmmm_tandem_optimization
@@ -169,47 +172,35 @@ c     --------------------------
       end if
 
       do i=1,ncycles
+       if(ga_nodeid().eq.0) then
+         write(luout,14) i
+14     format("@------ncycle=",I3,"-------")
+       end if
        if(oesp) call qmmm_esp_reset(rtdb)
        do k=1,nregion
 c
-       if(maxiter(k).eq.0) goto 111
+         if(maxiter(k).eq.0) goto 111
 c
-       status = qmmm_optimizer(rtdb,region(k),method(k),
+         status = qmmm_optimizer(rtdb,region(k),method(k),
      >                         maxiter(k))
 111    continue
        end do
       end do
 
-c
-c
-c      if (optimization.eq.'all') then
-c         if(qmmm_print_debug())
-c     >      write(*,*) "going into md_em"
-c         call md_em()
-c      else if (optimization.eq.'tandem') then
-c         status =  qmmm_mixed_optimization(rtdb)
-c      else if (optimization.eq.'mm') then
-c         if(qmmm_print_debug())
-c     >      write(*,*) "going into md_em"
-c         call md_em()
-c      else if (optimization.eq.'qm') then
-c         if (.not. rtdb_put(rtdb,'driver:modsad',mt_int, 1, 0))
-c     $        call errquit('task_optimize: rtdb?',0, RTDB_ERR)
-c         if(qmmm_print_debug())
-c     >      write(*,*) "going into driver"
-c          if(ouselbfgs) then
-c            status =  qmmm_lbfgsb_driver(rtdb)
-c          else if(divcon) then
-c            status = driver1(rtdb)
-c          else
-c            status = driver(rtdb)
-c          end if
-c         call mm_print_info()
-c
-c        forcing driver to never fail
-c        ---------------------------
-         status = .true.         
-c      endif
+      if(ga_nodeid().eq.0) then
+         write(luout,15) 
+15     format("@------optimization finished-------")
+      end if
+
+      call qmmm_cons_reset()
+      call qmmm_bq_data_update_active()
+      call qmmm_set_interface("qm")
+      call mm_task_sp()
+      status = qmmm_energy_gradient(rtdb,.false.) 
+      call qmmm_energy_rtdb_push(rtdb)
+      call qmmm_print_energy3(rtdb)
+
+      status = .true.         
 c     
 110   continue
       cpu  = util_cpusec() - cpu
@@ -226,13 +217,11 @@ c
 c     
       call mm_write_restart()
       task_qmmm_optimize = status
-c
-c      call util_print_pop()
 c     
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -311,7 +300,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -383,7 +372,7 @@ c
       end
 
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -544,7 +533,7 @@ c
       end
 
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -607,6 +596,8 @@ c     --------------------------
       call qmmm_cons_set(rtdb,"fix","solvent")
       call qmmm_cons_set(rtdb,"free",region)
 c
+      call qmmm_bq_data_update_active()
+c
        if(qmmm_master()) then
          write(string,14) region,
      >                    method
@@ -654,7 +645,7 @@ c     ------------------------------------
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.29 2005-08-26 23:15:42 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
