@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.4 2005-08-26 23:58:45 marat Exp $
+c $Id: qmmm_esp.F,v 1.5 2005-08-29 01:18:19 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -17,7 +17,7 @@ c
       logical task_qmmm_esp
 c
       character*32 pname
-      character*80 espfile
+      character*255 espfile
       integer lespfile
 c
       integer i,k
@@ -144,7 +144,7 @@ c
       character*32 pname
       character*3 theory
       character*255 vectors_in
-      character*80 grdfil
+      character*255 grdfil
 c
       integer i,k
       logical ignore
