@@ -1,6 +1,6 @@
 
 *
-* $Id: generate_map_indexes.F,v 1.5 2005-08-25 22:15:01 bylaska Exp $
+* $Id: generate_map_indexes.F,v 1.6 2005-08-29 03:59:53 bylaska Exp $
 *
 
 *     ***********************************
@@ -187,7 +187,6 @@
           q = q+1
         end if
       end do
-      write(*,*) "jdfljdl:",taskid,nq
 
 
       do k=1,nz
@@ -207,4 +206,82 @@
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *        generate_map_indexes_3   *
+*     *                                 *
+*     ***********************************
+
+      subroutine generate_map_indexes_3(taskid,np,ny,nz,p_map,q_map,nq)
+      implicit none
+      integer taskid,np
+      integer ny,nz
+      integer p_map(*)
+      integer q_map(*)
+      integer nq
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+
+      !**** local variables ****
+      logical value
+      integer i,j,k,q,p,jj,kk,p1,q1,p2,q2
+      integer nq1,nq2,rmdr1
+
+
+      nq = 0
+      p=0
+      q=1
+      do k=1,nz
+      do j=1,ny
+        p_map(j+(k-1)*ny) = p
+        q_map(j+(k-1)*ny) = q
+        if (taskid.eq.p) nq = nq + 1
+
+        p = p + 1
+        if (p.ge.np) then
+          p = 0
+          q = q+1
+        end if
+      end do
+      end do
+
+      do k=0,(nz/2-1)
+        i = k+2
+        j = nz-k
+        p1 = p_map(1+(i-1)*ny)
+        q1 = q_map(1+(i-1)*ny)
+        p2 = p_map(1+(j-1)*ny)
+        q2 = q_map(1+(j-1)*ny)
+
+        value = .false.
+        jj=2
+        kk=1
+        do while (.not.value)
+          p = p_map(jj+(kk-1)*ny)
+          q = q_map(jj+(kk-1)*ny)
+
+          value = (p.eq.p1)
+          if (value) then
+             p_map(jj+(kk-1)*ny) = p2
+             q_map(jj+(kk-1)*ny) = q2
+             p_map(1+(j-1)*ny)   = p
+             q_map(1+(j-1)*ny)   = q
+          else
+             kk = kk+1
+             if (kk.gt.nz) then
+               kk=1
+               jj=jj+1
+             end if
+          end if
+        end do
+
+      end do
+
+      return
+      end
+
 

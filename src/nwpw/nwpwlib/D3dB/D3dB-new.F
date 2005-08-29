@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.39 2005-08-25 22:15:01 bylaska Exp $
+* $Id: D3dB-new.F,v 1.40 2005-08-29 03:59:52 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -216,7 +216,7 @@ c           k_map(q_map(k)) = k
      >                          nz(nb),nx(nb)/2+1,
      >                          int_mb(p_map2(1,nb)),
      >                          int_mb(q_map2(1,nb)),nq2(nb))
-      call generate_map_indexes_2(taskid,np,
+      call generate_map_indexes_3(taskid,np,
      >                          nx(nb)/2+1,ny(nb),
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
@@ -226,6 +226,13 @@ c           k_map(q_map(k)) = k
       write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
       write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
 
+      write(*,*) 'hilbert map nb=',nb
+      do j=0,ny(nb)-1
+        write(*,'(A,80I4)') 'hilbert map:',
+     >   j,(int_mb(p_map3(1,nb)+j*(nx(nb)/2+1)))
+      end do
+      write(*,*)
+      
       write(*,*) 'hilbert map nb=',nb
       do j=0,ny(nb)-1
         write(*,'(A,80I4)') 'hilbert map:',
