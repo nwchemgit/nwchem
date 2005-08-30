@@ -1,5 +1,5 @@
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -221,7 +221,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -300,7 +300,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 
       function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -372,7 +372,7 @@ c
       end
 
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -533,7 +533,7 @@ c
       end
 
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -581,6 +581,8 @@ c
           method = "bfgs"
         else if (region.eq."qmlink") then
           method = "bfgs"
+        else if (region.eq."mm") then
+          method = "sd"
         else if (region.eq."solvent") then
           method = "sd"
         else
@@ -645,7 +647,7 @@ c     ------------------------------------
       end
 
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.30 2005-08-29 01:19:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
