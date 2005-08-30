@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.6 2005-08-30 21:58:54 marat Exp $
+c $Id: qmmm_esp.F,v 1.7 2005-08-30 22:26:12 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -41,6 +41,8 @@ c
       external esp
 c
       pname = "task_qmmm_esp"
+c
+      if(qmmm_print_debug()) write(luout,*) "in "//pname
 c
       task_qmmm_esp = .true.
 c
@@ -98,16 +100,13 @@ c     ---------------------------------------
      + dbl_mb(i_c_qm),dbl_mb(i_q_qm)))
      + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
 
-        if(.not.geom_print_pdb(igeom,6))
-     +    call errquit('qmmm: Failed to print xyzq geometry',0,0)
-
-      if(ga_nodeid().eq.0) then
-        call util_print_centered(luout,"QM/MM esp charges",32,.true.)
-        do i=1,nqm
-         write(luout,'(4f20.10)') (dbl_mb(i_c_qm+(i-1)*3+k-1),k=1,3),
-     >                          dbl_mb(i_q_qm+i-1)
-        end do
-      end if
+c      if(ga_nodeid().eq.0) then
+c        call util_print_centered(luout,"QM/MM esp charges",32,.true.)
+c        do i=1,nqm
+c         write(luout,'(4f20.10)') (dbl_mb(i_c_qm+(i-1)*3+k-1),k=1,3),
+c     >                          dbl_mb(i_q_qm+i-1)
+c        end do
+c      end if
 
       ignore = rtdb_delete(rtdb,'qmmm:esp')
       if (.not. rtdb_put(rtdb,'qmmm:esp',
@@ -137,6 +136,10 @@ c     ---------------------------------------
      &   (pname//'ma_pop_stack failed',911,MA_ERR)
       if (.not.ma_pop_stack(h_c_qm)) call errquit
      &   (pname//'ma_pop_stack failed',911,MA_ERR)
+
+      if(qmmm_print_debug()) write(luout,*) "out "//pname
+
+      return
 
       end
 
