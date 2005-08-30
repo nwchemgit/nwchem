@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.5 2005-08-29 01:18:19 marat Exp $
+c $Id: qmmm_esp.F,v 1.6 2005-08-30 21:58:54 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -12,12 +12,14 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "inp.fh"
 c
       integer rtdb
       logical task_qmmm_esp
 c
       character*32 pname
       character*255 espfile
+      character*80 tag
       integer lespfile
 c
       integer i,k
@@ -31,6 +33,9 @@ c
 c
       integer i_ifg
       logical status
+c
+      logical  geom_rtdb_ncent
+      external geom_rtdb_ncent
 c
       logical esp
       external esp
@@ -51,19 +56,28 @@ c
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-      status = geom_rtdb_load(rtdb,igeom,"cresp:geometry")
-
-      if(.not.status)
-     +  status = geom_rtdb_load(rtdb,igeom,"resp:geometry")
-
-      if(.not.status)
-     +  status = geom_rtdb_load(rtdb,igeom,"cesp:geometry")
-
-      if(.not.status)
-     +  status = geom_rtdb_load(rtdb,igeom,"esp:geometry")
+c
+c     pick the best available charge geometry
+c     ---------------------------------------
+      tag = "cresp:geometry"
+      status = geom_rtdb_ncent(rtdb,tag(1:inp_strlen(tag)),nqm)
+      if(.not.status) then
+        tag = "resp:geometry"
+        status =  geom_rtdb_ncent(rtdb,tag(1:inp_strlen(tag)),nqm)
+      end if
+      if(.not.status) then
+        tag = "cesp:geometry"
+        status =  geom_rtdb_ncent(rtdb,tag(1:inp_strlen(tag)),nqm)
+      end if
+      if(.not.status) then
+        tag = "esp:geometry"
+        status =  geom_rtdb_ncent(rtdb,tag(1:inp_strlen(tag)),nqm)
+      end if
 
       if(.not.status)
      + call errquit(pname,0, RTDB_ERR)
+
+      status = geom_rtdb_load(rtdb,igeom,tag(1:inp_strlen(tag)))
 
       if(.not. geom_ncent(igeom,nqm))
      +    call errquit('qmmm: geom_ncent',0,0)
