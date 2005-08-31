@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.12 2005-08-30 22:58:01 marat Exp $
+c $Id: qmmm_cons.F,v 1.13 2005-08-31 00:00:06 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -779,6 +779,25 @@ c
           ai(n) = int_mb(i_acts+i-1)
         end if
       end do
+
+      end 
+
+      subroutine qmmm_cons_print()
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+      integer i
+
+      write(*,*) "solute cons"
+      do i=1,nacts
+        write(*,*) int_mb(i_acts+i-1),log_mb(i_maps+i-1)
+      end do
+
+      write(*,*) "solvent cons"
+      do i=1,nactw
+        write(*,*)  int_mb(i_actw+i-1),log_mb(i_mapw+i-1)
+      end do
+
 
       end 
 

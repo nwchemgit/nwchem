@@ -1,6 +1,6 @@
       logical function task_qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.3 2005-08-12 01:12:11 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.4 2005-08-31 00:00:09 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -13,6 +13,15 @@
 c
       logical status
       double precision cpu,wall
+c
+      character*84 tag
+      character*30 region(3)
+      character*30 pname
+      integer nregion
+c
+      pname = "task_qmmm_dynamics"
+
+c
 c
 c      call util_print_push() 
 c      call util_print_rtdb_load(rtdb, 'qmmm')
@@ -30,6 +39,28 @@ c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
      $     call errquit('task_dynamics: failed to invalidate status',0,
      &       RTDB_ERR)
+c
+c     region definitions
+c     ------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+      if(nregion.gt.3) 
+     >      call errquit(pname//"too many regions",0,0)
+      if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     define set of active atoms
+c     --------------------------
+      call qmmm_cons_reset()
+      call qmmm_cons_set(rtdb,"fix","solute")
+      call qmmm_cons_set(rtdb,"fix","solvent")
+      call qmmm_cons_set(rtdb,"free",region(1))
+c
+      call qmmm_bq_data_update_active()
+c
+      call qmmm_set_interface("mm")
 c
 c     Actually do the deed
 c
