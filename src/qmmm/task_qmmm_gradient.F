@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.43 2005-08-28 02:01:45 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.44 2005-08-31 19:06:22 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -117,6 +117,8 @@ c
       if (.not. rtdb_get(rtdb,'qmmm:esp_density',
      $                   mt_log,1,esp))
      $     esp=.false.
+      
+      if(esp) frozen_density=.true.
 c
 c     disable frozen density/esp if any of qm atoms are active
 c     ----------------------------------------------------
