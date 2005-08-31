@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.121 2005-07-13 22:11:45 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.122 2005-08-31 01:57:36 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -757,6 +757,13 @@ c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
      &   call errquit('rdinput: bas_create?',102, BASIS_ERR)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
+      if(theory.eq.'sodft') then
+         write(luout,*)
+     C        ' WARNING: CD fitting not compatible with spinorbit'
+         write(luout,*)
+     C        ' WARNING: disabling CD fitting'
+         CDFIT=.false.
+      endif
       if (CDFIT)then
          if (.not. int_norm_2c(rtdb,CD_bas_han))
      &      call errquit('rdinput: int_norm_2c failed', 208, BASIS_ERR)
@@ -991,8 +998,6 @@ c
       implicit none
 #include "cdft.fh"
       integer bases(3)
-c
-      integer i
 c
       dft_nbases=1
       if(CDFIT) dft_nbases=dft_nbases+1
