@@ -1,5 +1,8 @@
+c**************************************************
+c     Main driver for all qmmm optimization tasks *
+c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -16,43 +19,102 @@ c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
 c     
       logical  status
 c     
-      logical ouselbfgs
-      character*32 theory
-      character*32 optimization
+      character*32 pname
+c     
+      logical   qmmm_mixed_optimization
+      external  qmmm_mixed_optimization
+c
+      logical   qmmm_pes
+      external  qmmm_pes
+c
+      logical divcon
+      logical opes
+c
+      pname = "task_qmmm_optimize"
+c
+      cpu  = util_cpusec()
+      wall = util_wallsec()
+c
+      if(qmmm_print_debug())
+     >  write(*,*) "in " //pname, ga_nodeid()
+
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
+     $     call errquit('task_optimize: failed to invalidate status',0,
+     &       RTDB_ERR)
+
+c
+c     figure out the optimization task
+c     --------------------------------
+      if (.not. rtdb_get(rtdb, 'qmmm:pes', mt_log, 
+     $                   1, opes))
+     $     opes = .false.
+
+      if (.not. rtdb_get(rtdb, 'driver:divcon', mt_log, 
+     $                   1, divcon))
+     $     divcon = .false.
+
+
+      status = .true.
+c
+c     pes task
+c     --------
+      if(opes) then
+          status=qmmm_pes(rtdb)
+        go to 110
+      end if
+c
+c     default multiregion optimization
+c     --------------------------------
+      status = qmmm_mixed_optimization(rtdb)
+c
+110   continue
+      cpu  = util_cpusec() - cpu
+      wall = util_wallsec() - wall
+      if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
+     $     call errquit('task_optimize: failed storing cputime',0,
+     &       RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
+     $     call errquit('task_optimize: failed storing walltime',0,
+     &       RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
+     $     call errquit('task_optimize: failed to set status',0,
+     &       RTDB_ERR)
+c     
+      call mm_write_restart()
+      task_qmmm_optimize = status
+c     
+      end
+c
+      function qmmm_mixed_optimization(rtdb)
+c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+      integer rtdb
+      logical qmmm_mixed_optimization
+      double precision cpu, wall
+c     
+      logical  status
+c     
+      integer   i,k
       character*84 tag
       character*32 pname
       character*48 string
 c     
-      logical   driver
-      external  driver
-c
-      logical   driver1
-      external  driver1
-c
-      logical   qmmm_lbfgsb_driver
-      external  qmmm_lbfgsb_driver
-c
-      logical   qmmm_mixed_optimization
-      external  qmmm_mixed_optimization
-c
       logical   qmmm_optimizer
       external  qmmm_optimizer
 c
       logical   qmmm_energy_gradient
       external  qmmm_energy_gradient
 c
-      logical   qmmm_tandem_optimization
-      external  qmmm_tandem_optimization
-      logical   qmmm_pes
-      external  qmmm_pes
-      logical   lbfgsb_driver
-      external  lbfgsb_driver
-      integer resid(1),i,k
-      logical ignore
-      logical omixed
       logical oesp
-      logical divcon
-      logical opes
 c
       character*30 region(3)
       character*30 method(3)
@@ -62,7 +124,7 @@ c
       integer nregion
       integer ncycles
 c
-      pname = "task_qmmm_optimize"
+      pname = "qmmm_mixed_optimization"
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
@@ -111,52 +173,18 @@ c     ---------------------
 c
       if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
      +  ncycles = 1
-c     
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .false.))
-     $     call errquit('task_optimize: failed to invalidate status',0,
-     &       RTDB_ERR)
-
-      if (.not. rtdb_get(rtdb, 'qmmm:pes', mt_log, 
-     $                   1, opes))
-     $     opes = .false.
-
-      if (.not. rtdb_get(rtdb, 'driver:divcon', mt_log, 
-     $                   1, divcon))
-     $     divcon = .false.
-
 
       if (.not. rtdb_get(rtdb, 'qmmm:esp_density', mt_log, 
      $                   1, oesp))
      $     oesp = .false.
 
 
-      if (.not. rtdb_get(rtdb, 'qmmm:mixed', mt_log, 
-     $                   1, omixed))
-     $     omixed = .false.
-
-
       status = .true.
-c
-c     pes task
-c     --------
-      if(opes) then
-        if(ouselbfgs) then
-          status=qmmm_pes(rtdb,qmmm_lbfgsb_driver)
-        else
-          status=qmmm_pes(rtdb,driver)
-        end if
-        go to 110
-      end if
-      if(omixed) then
-        if(qmmm_master()) write(*,*) "mixed optimization"
-        status=qmmm_mixed_optimization(rtdb)
-        go to 110
-      end if
 c
 c     print informational header
 c     --------------------------
       if(qmmm_master()) then
-        string = "QM/MM Optimization"
+        string = "QM/MM Multiple Region Optimization"
         call util_print_centered(luout,
      >      string(1:inp_strlen(string)), 
      >      0,.true.)
@@ -205,23 +233,14 @@ c
 110   continue
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
-      if (.not. rtdb_put(rtdb, 'task:cputime', mt_dbl, 1, cpu))
-     $     call errquit('task_optimize: failed storing cputime',0,
-     &       RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'task:walltime', mt_dbl, 1, wall))
-     $     call errquit('task_optimize: failed storing walltime',0,
-     &       RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, status))
-     $     call errquit('task_optimize: failed to set status',0,
-     &       RTDB_ERR)
 c     
       call mm_write_restart()
-      task_qmmm_optimize = status
+      qmmm_mixed_optimization = status
 c     
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -298,242 +317,9 @@ c      write(*,*) "qmmm_energy",i,k,energy
  133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
      
       end
-
-      function qmmm_tandem_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "geom.fh"
-#include "global.fh"
-#include "stdio.fh"
-#include "util.fh"
-#include "qmmm.fh"
-#include "inp.fh"
-#include "mm_utils.fh"
-
-      integer rtdb
-      logical qmmm_tandem_optimization
 c
-      logical  status
-c     
-      character*32 pname
-c     
-      logical   driver
-      external  driver
-      logical   qmmm_energy_gradient
-      external  qmmm_energy_gradient
-      integer   i
-      logical ignore
-      double precision energy
-      double precision grms_quantum
-      integer ncycles
-
-      pname = "qmmm_tandem_optimization"
-
-      qmmm_tandem_optimization = .true.
-
-      if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
-     +  ncycles = 1
-
-      write(*,*) "tandem optimization",ncycles
-
-      do i=1,ncycles
-       call qmmm_cons_reset()
-       call qmmm_cons_set(rtdb,"fix","mm_solute")
-       ignore = rtdb_delete(rtdb,'geometry')
-       call qmmm_geom_init_aux(rtdb)
-       call qmmm_set_interface("qm")
-       status = driver(rtdb)
-       call mm_get_rms_solute_force_gen(mm_quant,grms_quantum)
-
-       call qmmm_cons_reset()
-       call qmmm_cons_set(rtdb,"fix","qmlink")
-       call qmmm_set_interface("mm")
-       if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $                   mt_log,1,.true.))
-     $     call errquit(pname,0, RTDB_ERR)
-       call md_em()
-       if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $                   mt_log,1,.false.))
-     $     call errquit(pname,0, RTDB_ERR)
-       call mm_free_solute(mm_quant)
-
-       status = qmmm_energy_gradient(rtdb,.false.) 
-       call qmmm_energy_rtdb_push(rtdb)
-       if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,energy))
-     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
-       write(*,*) "qmmm_energy",i,energy,grms_quantum
-
-      end do
-      return
-
-      end
-
-      function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
-      implicit none
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "geom.fh"
-#include "global.fh"
-#include "stdio.fh"
-#include "util.fh"
-#include "qmmm.fh"
-#include "inp.fh"
-#include "mm_utils.fh"
-
-      integer rtdb
-      logical qmmm_mixed_optimization
-c
-      logical  status
-c     
-      character*32 pname
-c     
-      logical   driver
-      external  driver
-      logical   qmmm_lbfgsb_driver
-      external  qmmm_lbfgsb_driver
-      logical   qmmm_energy_gradient
-      external  qmmm_energy_gradient
-      logical task_qmmm_gradient
-      external task_qmmm_gradient
-      integer   i,k
-      logical ignore
-      double precision energy
-      double precision grms_quantum
-      double precision grms_classical
-      double precision grms_solvent
-      integer ncycles
-      integer maxiter(3)
-      character*30 region(3)
-      character*30 interface(3)
-      character*30 method(3)
-      character*48 string
-
-      pname = "qmmm_mixed_optimization"
-
-      qmmm_mixed_optimization = .true.
-
-      if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
-     +  ncycles = 1
-
-      if (.not. rtdb_get(rtdb,'qmmm:maxiter',mt_int,3,maxiter)) then
-         maxiter(1) = 20
-         maxiter(2) = 100
-         maxiter(3) = 100
-      end if
-
-      region(1) = "qmlink"
-      region(2) = "mm_solute"
-      region(3) = "solvent"
-
-      interface(1) = "qm"
-      interface(2) = "qm"
-      interface(3) = "mm"
-
-      method(1) = "bfgs"
-      method(2) = "lbfgs"
-      method(3) = "sd"
-c
-c     print informational header
-c     --------------------------
-      if(qmmm_master()) then
-        string = "Mixed Mode QM/MM Optimization"
-        call util_print_centered(luout,
-     >      string(1:inp_strlen(string)), 
-     >      0,.true.)
-
-        string = ' '
-        do k=1,3
-          if(maxiter(k).ne.0)
-     >     write(luout,13) k,
-     >         region(k),method(k),maxiter(k)
-        end do 
-13      format("region",i1,":  ",a10,"with ",a10,"maxiter =",i3)
-        write(luout,'(//)')
-      end if
-
-      do i=1,ncycles
-       do k=1,3
-c
-       if(maxiter(k).eq.0) goto 111
-c
-       if(qmmm_master()) then
-         write(string,14) region(k),
-     >                    method(k)
-14       format("Optimizing " ,a10," region with ",a10)
-         call util_print_centered(luout,
-     >        string(1:inp_strlen(string)),
-     >        30,.true.)
-
-       end if
-
-       call qmmm_cons_reset()
-       call qmmm_cons_set(rtdb,"fix","solute")
-       call qmmm_cons_set(rtdb,"fix","solvent")
-c
-       call qmmm_cons_set(rtdb,"free",region(k))
-c
-       if(method(k).eq."bfgs") then
-         call qmmm_geom_init_aux(rtdb)
-         if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter(k)))
-     $        call errquit(pname,0, RTDB_ERR)
-         call qmmm_set_interface("qm")
-         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $       mt_log,1,.false.))
-     $      call errquit(pname,0, RTDB_ERR)
-         status = driver(rtdb)
-         ignore = rtdb_delete(rtdb,'geometry')
-         call qmmm_geom_aux_end(rtdb)
-       else if(method(k).eq."lbfgs") then
-         if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter(k)))
-     $        call errquit(pname,0, RTDB_ERR)
-         call qmmm_set_interface("qm")
-         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $       mt_log,1,.true.))
-     $      call errquit(pname,0, RTDB_ERR)
-         status =  qmmm_lbfgsb_driver(rtdb)
-       else if(method(k).eq."sd") then
-         call qmmm_set_interface("mm")
-         if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $       mt_log,1,.true.))
-     $      call errquit(pname,0, RTDB_ERR)
-         if(.not.rtdb_put(rtdb,'md:msdit',mt_int,1,maxiter(k)))
-     +      call errquit(pname,0,RTDB_ERR)
-         call md_em()
-       else
-         call errquit(pname//'unknown method',0, RTDB_ERR)
-       end if
-111    continue
-       end do
-       call qmmm_set_interface("qm")
-       call qmmm_cons_reset()
-       if (.not. rtdb_put(rtdb,'qmmm:frozen_density',
-     $       mt_log,1,.false.))
-     $      call errquit(pname,0, RTDB_ERR)
-       status = task_qmmm_gradient(rtdb) 
-       if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,energy))
-     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
-       call mm_get_rms_solute_force_gen(mm_quant_link,grms_quantum)
-       call mm_get_rms_solute_force_gen(mm_classical,grms_classical)
-       call mm_get_rms_solvent_force_gen(mm_active_w,grms_solvent)
-c
-       if(qmmm_master()) 
-     $  write(*,*) "@@",i,energy,grms_quantum,grms_classical,
-     $                          grms_solvent
-
-
-       end do
-
-      return
-
-      end
-
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -645,9 +431,9 @@ c     ------------------------------------
       return
 
       end
-
+c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.31 2005-08-30 22:58:03 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -766,3 +552,124 @@ c       recreate active geometry
 
       return
       end
+
+c      function qmmm_pes(irtdb,optimizer)
+cc     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+c      implicit none
+c#include "errquit.fh"
+c#include "mafdecls.fh"
+c#include "rtdb.fh"
+c#include "geom.fh"
+c#include "global.fh"
+c#include "stdio.fh"
+c#include "util.fh"
+c#include "qmmm.fh"
+c#include "inp.fh"
+c#include "msgids.fh"
+c#include "tcgmsg.fh"
+c      integer irtdb
+c      logical optimizer
+c      external optimizer
+c      logical qmmm_pes
+c      double precision cpu, wall
+cc     
+c      logical  status
+cc     
+c      character*32 pname
+cc     
+c      logical   driver
+c      external  driver
+c      logical ignore
+c      character*255 filename, dir,xyz,prefix
+c      character*255 filename0
+c      double precision energy
+c      double precision rb(2)
+c      integer np
+c      integer ip
+c      double precision dr
+c      double precision r
+c      logical ofile
+c
+c      pname = "qmmm_pes"
+c
+cc
+cc     get lower/upper  limits for pes scan
+cc     ------------------------------------
+c      if (.not. rtdb_get(irtdb,'qmmm:pes_bounds',mt_dbl,
+c     +                    2,rb))
+c     + call errquit(pname//'Failed to get pes bounds',
+c     + 1, RTDB_ERR)
+c
+cc
+cc     get number of points for pes scan
+cc     ------------------------------------
+c      if (.not. rtdb_get(irtdb,'qmmm:pes_npoints',mt_int,
+c     +                    1,np))
+c     + call errquit(pname//'Failed to get pes points',
+c     + 1, RTDB_ERR)
+c
+cc
+cc     directory name to dump restart files
+cc     ------------------------------------
+c      dir      = ' '
+c      call util_directory_name(dir, .false., 0)
+cc
+cc     file prefix from mm module
+cc     --------------------------
+c      call mm_system_prefix(prefix)
+cc      write(*,*) "pes, mm_system_prefix", prefix(1:inp_strlen(prefix))
+cc 
+cc     set increments and initial value
+cc     --------------------------------
+c      dr = (rb(2)-rb(1))/(np-1)
+c      r  = rb(1)
+cc
+cc     actually do the scan
+cc     --------------------
+c      do ip=1,np
+c        if (.not. rtdb_put(irtdb,'qmmm:r_spring',mt_dbl,
+c     +                     1,r))
+c     +  call errquit(pname//'Failed to set r_spring',
+c     +  1, RTDB_ERR)
+c
+cc       construct restart file name  
+c        filename0 = ' '
+c        call mm_restart_filename(filename0)
+cc        write(filename0,14)  prefix(1:inp_strlen(prefix)),
+cc     $                       ip
+c        filename = ' '
+c        write(filename,13) dir(1:inp_strlen(dir)), 
+c     $     prefix(1:inp_strlen(prefix)),ip
+c
+cc       load restart file if it exists      
+c        if(ga_nodeid().eq.0) then 
+c          inquire(file=filename,exist=ofile)
+c          write(*,*) "pes found file",
+c     >               filename(1:inp_strlen(filename)),
+c     >               ofile
+c          if(ofile) 
+c     >     call util_file_copy(filename(1:inp_strlen(filename)),
+c     >                        filename0(1:inp_strlen(filename0)))
+c          write(*,*) "pes point ",ip,r,dr,
+c     >             filename0(1:inp_strlen(filename0))
+c        end if
+c        call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+c        call ga_sync()
+c        if(ofile) then
+c          call mm_reload_rst(irtdb,filename0)
+c        end if
+cc       recreate active geometry
+c        call qmmm_geom_create_active(irtdb)
+c        status = optimizer(irtdb)
+c        if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
+c     $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+c        write(*,*) "pes energy",ip,r,energy
+c        call mm_write_restart_named(filename)
+c         r = r + dr
+c      end do
+c
+c 13      format(a,'/',a,'_pes',i3.3,'.rst')
+c 14      format(a,'_pes',i3.3,'.rst')
+c
+c      return
+c      end
