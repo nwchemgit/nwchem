@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -147,7 +147,8 @@ c     method definitions if any
 c     -------------------------
       tag ="qmmm:method"
       do i=1,nregion
-        method(i) = " "
+        call qmmm_optimization_method(method(i),
+     >                                region(i))
       end do
       if (rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
      >                 mt_int,1,nmethod)) then
@@ -161,7 +162,8 @@ c     max iterations if any
 c     ---------------------
       tag ="qmmm:maxiter"
       do i=1,nregion
-        maxiter(i) = -1
+        call qmmm_optimization_maxiter(maxiter(i),
+     >                                region(i))
       end do
       if (rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
      >                 mt_int,1,nmaxiter)) then
@@ -184,25 +186,25 @@ c
 c     print informational header
 c     --------------------------
       if(qmmm_master()) then
-        string = "QM/MM Multiple Region Optimization"
-        call util_print_centered(luout,
-     >      string(1:inp_strlen(string)), 
-     >      0,.true.)
+        write(luout,10) 
+        write(luout,12)
+        write(luout,12) " QM/MM Multiple Region Optimization"
 
-        string = ' '
         do k=1,nregion
-          if(maxiter(k).ne.0)
-     >     write(luout,13) k,
-     >         region(k),method(k),maxiter(k)
+            write(luout,13) k,region(k),method(k),maxiter(k)
         end do 
-13      format("region",i1,":  ",a10,"with ",a10,"maxiter =",i3)
-        write(luout,'(//)')
+10      format("@",48("-"))
+12      format("@",a)
+13      format("@ region",i1,":  ",a10,"with ",a10,"maxiter =",i3)
+        write(luout,12)
+        write(luout,10)
       end if
 
       do i=1,ncycles
        if(ga_nodeid().eq.0) then
          write(luout,14) i
-14     format("@------ncycle=",I3,"-------")
+         write(luout,12)
+14     format("@ ncycle =",I3)
        end if
        if(oesp) call qmmm_esp_reset(rtdb)
        do k=1,nregion
@@ -216,8 +218,11 @@ c
       end do
 
       if(ga_nodeid().eq.0) then
+         write(luout,10) 
+         write(luout,12) 
          write(luout,15) 
-15     format("@------optimization finished-------")
+         write(luout,12) 
+15     format("@  OPTIMIZATION FINISHED ")
       end if
 
       call qmmm_cons_reset()
@@ -240,7 +245,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -318,8 +323,73 @@ c      write(*,*) "qmmm_energy",i,k,energy
      
       end
 c
+      subroutine qmmm_optimization_method(method,region)
+c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "mm_utils.fh"
+
+      character*(*) region,method
+c
+      if(region.eq."qm") then
+        method = "bfgs"
+      else if (region.eq."qmlink") then
+        method = "bfgs"
+      else if (region.eq."mm") then
+        method = "sd"
+      else if (region.eq."solvent") then
+        method = "sd"
+      else
+        method = "lbfgs"
+      end if
+
+      return
+
+      end
+c
+      subroutine qmmm_optimization_maxiter(maxiter,region)
+c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "mm_utils.fh"
+
+      integer       maxiter
+      character*(*) region
+c
+      if(region.eq."qm") then
+        maxiter = 20
+      else if (region.eq."qmlink") then
+        maxiter = 20
+      else if (region.eq."mm") then
+        maxiter = 100
+      else if (region.eq."solvent") then
+        maxiter = 100
+      else
+        maxiter = 50
+      end if
+
+      return
+
+      end
+c
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -362,21 +432,6 @@ c
 
       qmmm_optimizer = .true.
 c
-      if(method.eq." ") then
-        if(region.eq."qm") then
-          method = "bfgs"
-        else if (region.eq."qmlink") then
-          method = "bfgs"
-        else if (region.eq."mm") then
-          method = "sd"
-        else if (region.eq."solvent") then
-          method = "sd"
-        else
-          method = "lbfgs"
-        end if
-      endif
-
-c
 c     define set of active atoms
 c     --------------------------
       call qmmm_cons_reset()
@@ -387,12 +442,10 @@ c
       call qmmm_bq_data_update_active()
 c
        if(qmmm_master()) then
-         write(string,14) region,
+         write(luout,14) region,
      >                    method
-14       format("Optimizing " ,a10," region with ",a10)
-         call util_print_centered(luout,
-     >        string(1:inp_strlen(string)),
-     >        30,.true.)
+14       format("@",/,"@ Optimizing " ,a10," region with ",a10,
+     >          /,"@")
 
        end if
 
@@ -401,27 +454,21 @@ c     perform an optimization as requested
 c     ------------------------------------
       if(method.eq."bfgs") then
          call qmmm_geom_init_aux(rtdb)
-         if(maxiter.ge.0) then
-           if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter))
+         if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter))
      $        call errquit(pname,0, RTDB_ERR)
-         end if
          call qmmm_set_interface("qm")
          status = driver(rtdb)
          ignore = rtdb_delete(rtdb,'geometry')
          call qmmm_geom_aux_end(rtdb)
        else if(method.eq."lbfgs") then
-         if(maxiter.ge.0) then
-           if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter))
+         if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter))
      $        call errquit(pname,0, RTDB_ERR)
-         end if
          call qmmm_set_interface("qm")
          status =  qmmm_lbfgsb_driver(rtdb)
        else if(method.eq."sd") then
          call qmmm_set_interface("mm")
-         if(maxiter.ge.0) then
-           if(.not.rtdb_put(rtdb,'md:msdit',mt_int,1,maxiter))
+         if(.not.rtdb_put(rtdb,'md:msdit',mt_int,1,maxiter))
      +      call errquit(pname,0,RTDB_ERR)
-         end if
          call md_em()
        else
          call errquit(pname//'unknown method',0, RTDB_ERR)
@@ -433,7 +480,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -554,7 +601,7 @@ c       recreate active geometry
       end
 
 c      function qmmm_pes(irtdb,optimizer)
-cc     $Id: task_qmmm_optimize.F,v 1.32 2005-08-31 18:48:17 marat Exp $
+cc     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
 c      implicit none
 c#include "errquit.fh"
 c#include "mafdecls.fh"
