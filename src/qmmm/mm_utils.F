@@ -7,6 +7,15 @@
 
        end
 
+       subroutine mm_set_sd_maxiter(n)
+         implicit none
+#include "md_common.fh"
+         integer n
+         
+         msdit = n 
+
+       end
+
        subroutine mm_get_lquant(lquant0)
          implicit none
 #include "md_common.fh"

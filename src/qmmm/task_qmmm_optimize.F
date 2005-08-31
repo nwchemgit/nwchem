@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -245,7 +245,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -324,7 +324,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -356,7 +356,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -389,7 +389,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -467,8 +467,7 @@ c     ------------------------------------
          status =  qmmm_lbfgsb_driver(rtdb)
        else if(method.eq."sd") then
          call qmmm_set_interface("mm")
-         if(.not.rtdb_put(rtdb,'md:msdit',mt_int,1,maxiter))
-     +      call errquit(pname,0,RTDB_ERR)
+         call mm_set_sd_maxiter(maxiter)
          call md_em()
        else
          call errquit(pname//'unknown method',0, RTDB_ERR)
@@ -480,7 +479,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -601,7 +600,7 @@ c       recreate active geometry
       end
 
 c      function qmmm_pes(irtdb,optimizer)
-cc     $Id: task_qmmm_optimize.F,v 1.33 2005-08-31 20:20:49 marat Exp $
+cc     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
 c      implicit none
 c#include "errquit.fh"
 c#include "mafdecls.fh"
