@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_link.F,v 1.3 2005-06-29 00:44:48 marat Exp $
+c $Id: qmmm_link.F,v 1.4 2005-09-01 13:13:43 nwchem Exp $
 c
       subroutine qmmm_links_init(irtdb)
       implicit none
@@ -281,7 +281,7 @@ c     local variables:
         icq = 0
         do j=1,n
           if(ai(j).eq.int_mb(i_lb+i-1)) icq = j
-          if(ai(j).eq.int_mb(i_lb++nlink+i-1)) icl = j
+          if(ai(j).eq.int_mb(i_lb+nlink+i-1)) icl = j
         end do
         if(qmmm_h_link()) then
          if(icq.ne.0 .and. icl.ne.0) then
