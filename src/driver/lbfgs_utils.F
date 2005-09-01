@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs_utils.F,v 1.1 2005-07-28 17:29:15 marat Exp $
+* $Id: lbfgs_utils.F,v 1.2 2005-09-01 00:47:50 marat Exp $
       subroutine lbfgs_compute_info(n,x,x0,g,xmax,xrms,gmax,grms)
       implicit none
 #include "rtdb.fh"
@@ -98,7 +98,7 @@ c
       if (xmax .lt. xmax_tol) cvg4 = '     ok  '
 
       mark = '@'
-      if (istep .gt. 1) mark = ' '
+      if (istep-1 .gt. 1) mark = ' '
       write(6,1) mark, mark
       mark = '@'
       write(6,2) mark, istep-1, e, de,

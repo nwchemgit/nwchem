@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.116 2005-07-06 20:22:19 marat Exp $
+* $Id: opt_drv.F,v 1.117 2005-09-01 00:47:51 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -111,6 +111,8 @@ c
             converged = .true.
             goto 100
          endif
+
+        if(istep.gt.nptopt) goto 200
 c
 c     Generate a new search direction
 c
@@ -143,7 +145,7 @@ c
          if (.not. util_test_time_remaining(rtdb,required)) goto 200
 c
       enddo                     ! End of iterative loop
-      istep = istep - 1         ! Since we fell out
+c      istep = istep - 1         ! Since we fell out
  200  if (oprint) write(6,201)
  201  format(/,1x,63('-')/,1x,'Failed to converge in maximum number',
      $     ' of steps or available time'/,1x,63('-')/)
