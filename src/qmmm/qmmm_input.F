@@ -23,6 +23,7 @@ c
       logical status
       integer ip,np
       logical ltoken
+      logical ignore
 c
       pname = "qmmm_input: "
 c
@@ -108,6 +109,33 @@ c     -------------------
      >       RTDB_ERR)
           goto 2
       endif
+c
+      if(inp_compare(.false.,'density',token)) then
+        if(.not.inp_a(token)) then
+         call errquit('qmmm_input: density',0,
+     &         INPUT_ERR)
+        end if
+        if(inp_compare(.false.,'static',token)) then
+          tag="qmmm:frozen_density"
+          if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        else if (inp_compare(.false.,'espfit',token)) then
+          tag="qmmm:esp_density"
+          if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        else if (inp_compare(.false.,'dynamical',token)) then
+          tag="qmmm:frozen_density"
+          ignore = rtdb_delete(rtdb,tag)
+          tag="qmmm:esp_density"
+          ignore = rtdb_delete(rtdb,tag)
+        else
+           call errquit(pname//'unknown token'//tag,0,
+     >       RTDB_ERR)
+        end if
+        goto 2
+      end if  
 c
       if(inp_compare(.false.,'frozen_density',token)) then
         if(.not.inp_a(token)) then

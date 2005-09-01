@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -193,6 +193,7 @@ c     --------------------------
         do k=1,nregion
             write(luout,13) k,region(k),method(k),maxiter(k)
         end do 
+        write(luout,12)
 10      format("@",48("-"))
 12      format("@",a)
 13      format("@ region",i1,":  ",a10,"with ",a10,"maxiter =",i3)
@@ -245,7 +246,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -324,7 +325,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -356,7 +357,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -389,7 +390,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -427,6 +428,8 @@ c
       double precision grms_classical
       double precision grms_solvent
       integer ncycles
+      logical oesp,ofrozen
+      integer nact
 
       pname = "qmmm_optimizer"
 
@@ -439,16 +442,44 @@ c     --------------------------
       call qmmm_cons_set(rtdb,"fix","solvent")
       call qmmm_cons_set(rtdb,"free",region)
 c
+      if (.not. rtdb_get(rtdb, 'qmmm:esp_density', mt_log, 
+     $                   1, oesp))
+     $     oesp = .false.
+c
+      if (.not. rtdb_get(rtdb, 'qmmm:frozen_density', mt_log, 
+     $                   1, ofrozen))
+     $     ofrozen = .false.
+c
+      write(*,*) "oesp,ofrozen",oesp,ofrozen
       call qmmm_bq_data_update_active()
 c
-       if(qmmm_master()) then
+      call qmmm_cons_get_nacts_qm(nact)
+c
+      oesp = oesp.and.(nact.eq.0)
+      ofrozen = ofrozen.and.(nact.eq.0)
+c
+      if(qmmm_master()) then
+        if(oesp) then
          write(luout,14) region,
      >                    method
-14       format("@",/,"@ Optimizing " ,a10," region with ",a10,
+        else if (ofrozen) then
+         write(luout,15) region,
+     >                    method
+        else
+         write(luout,16) region,
+     >                    method
+        end if
+
+      end if
+
+14       format("@",/,"@ Optimizing " ,a10," region with ",a6,
+     >          /,"@ and esp fitted charges for the qm region",
+     >           /,"@")
+15       format("@",/,"@ Optimizing " ,a10," region with ",a6,
+     >          /,"@ and static density for the qm region",
      >          /,"@")
-
-       end if
-
+16       format("@",/,"@ Optimizing " ,a10," region with ",a6,
+     >          /,"@")
 c
 c     perform an optimization as requested
 c     ------------------------------------
@@ -479,7 +510,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -600,7 +631,7 @@ c       recreate active geometry
       end
 
 c      function qmmm_pes(irtdb,optimizer)
-cc     $Id: task_qmmm_optimize.F,v 1.34 2005-08-31 20:39:28 marat Exp $
+cc     $Id: task_qmmm_optimize.F,v 1.35 2005-09-01 00:49:05 marat Exp $
 c      implicit none
 c#include "errquit.fh"
 c#include "mafdecls.fh"
