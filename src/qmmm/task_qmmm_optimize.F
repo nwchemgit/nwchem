@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -123,6 +123,9 @@ c
       integer nmaxiter
       integer nregion
       integer ncycles
+c
+      character*255 rfile
+      character*255 stub
 c
       pname = "qmmm_mixed_optimization"
 c
@@ -201,6 +204,9 @@ c     --------------------------
         write(luout,10)
       end if
 
+c
+c     start the optimization cycle
+c     ----------------------------
       do i=1,ncycles
        if(ga_nodeid().eq.0) then
          write(luout,14) i
@@ -216,6 +222,15 @@ c
      >                         maxiter(k))
 111    continue
        end do
+c
+c      save restart file
+c      -----------------
+       stub = " "
+       rfile = " "
+       write(stub,'(i3.3,"rst")') i
+       call util_file_name(stub(1:inp_strlen(stub)),.false.,
+     >                     .false.,rfile)
+       call mm_write_restart_named(rfile)
       end do
 
       if(ga_nodeid().eq.0) then
@@ -246,7 +261,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -325,7 +340,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -357,7 +372,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -390,7 +405,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -450,7 +465,6 @@ c
      $                   1, ofrozen))
      $     ofrozen = .false.
 c
-      write(*,*) "oesp,ofrozen",oesp,ofrozen
       call qmmm_bq_data_update_active()
 c
       call qmmm_cons_get_nacts_qm(nact)
@@ -510,7 +524,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -583,6 +597,9 @@ c
 c     actually do the scan
 c     --------------------
       do ip=1,np
+        if(ga_nodeid().eq.0) then
+          write(*,15) ip,r
+        end if
         if (.not. rtdb_put(irtdb,'qmmm:r_spring',mt_dbl,
      +                     1,r))
      +  call errquit(pname//'Failed to set r_spring',
@@ -591,8 +608,6 @@ c     --------------------
 c       construct restart file name  
         filename0 = ' '
         call mm_restart_filename(filename0)
-c        write(filename0,14)  prefix(1:inp_strlen(prefix)),
-c     $                       ip
         filename = ' '
         write(filename,13) dir(1:inp_strlen(dir)), 
      $     prefix(1:inp_strlen(prefix)),ip
@@ -600,14 +615,12 @@ c     $                       ip
 c       load restart file if it exists      
         if(ga_nodeid().eq.0) then 
           inquire(file=filename,exist=ofile)
-          write(*,*) "pes found file",
-     >               filename(1:inp_strlen(filename)),
-     >               ofile
-          if(ofile) 
-     >     call util_file_copy(filename(1:inp_strlen(filename)),
+          if(ofile) then 
+           write(*,*) "pes: found restart file",
+     >               filename(1:inp_strlen(filename))
+          call util_file_copy(filename(1:inp_strlen(filename)),
      >                        filename0(1:inp_strlen(filename0)))
-          write(*,*) "pes point ",ip,r,dr,
-     >             filename0(1:inp_strlen(filename0))
+          end if
         end if
         call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
         call ga_sync()
@@ -617,19 +630,22 @@ c       load restart file if it exists
         status = qmmm_mixed_optimization(irtdb)
         if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
-        write(*,*) "pes energy",ip,r,energy
+        if(ga_nodeid().eq.0) 
+     >     write(*,16) energy,r
         call mm_write_restart_named(filename)
          r = r + dr
       end do
 
  13      format(a,'/',a,'_pes',i3.3,'.rst')
  14      format(a,'_pes',i3.3,'.rst')
+ 15      format("@pes: point ", I2,3X,"spring length = ",F12.6)
+ 16      format("@pes: energy =  ", F18.12,3X,"length = ",F12.6)
 
       return
       end
 
 c      function qmmm_pes(irtdb,optimizer)
-cc     $Id: task_qmmm_optimize.F,v 1.36 2005-09-02 20:28:27 marat Exp $
+cc     $Id: task_qmmm_optimize.F,v 1.37 2005-09-05 23:14:40 marat Exp $
 c      implicit none
 c#include "errquit.fh"
 c#include "mafdecls.fh"
