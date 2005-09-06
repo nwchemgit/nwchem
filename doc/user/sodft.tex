@@ -1,5 +1,5 @@
 %
-% $Id: sodft.tex,v 1.7 2004-04-22 04:50:29 edo Exp $
+% $Id: sodft.tex,v 1.8 2005-09-06 22:49:41 windus Exp $
 %
 \label{sec:sodft}
 
@@ -23,11 +23,14 @@ Some of the DFT options are not available in the SODFT. These are \verb+max_ovl+
 Besides using the standard ECP and basis sets, see Section \ref{sec:ecp} for details, one 
 also has to specify a spin-orbit (SO) potential. The input specification for the SO potential
 can be found in section \ref{sec:spinorb_ecp}. At this time we have not included any spin-orbit
-potentials in the basis set library.
+potentials in the basis set library.  
 
 Note: One should use a combination of ECP and SO potentials that were designed for the same 
 size core, i.e. don't use a small core ECP potential with a large core SO potential (it will
 produce erroneous results).
+
+Also, note that charge fitting basis sets will not work with
+spin-orbit calculations.
 
 The following is an example of a calculation of $\mathrm{UO_2}$:
 
