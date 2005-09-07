@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.13 2005-08-12 23:07:40 bylaska Exp $
+c $Id: pspw_charge.F,v 1.14 2005-09-07 17:32:11 bylaska Exp $
 c
   
 ***********************************************************
@@ -23,23 +23,28 @@ c
  
       subroutine pspw_charge_init(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "pspw_charge.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
       logical value
-      integer i
+      integer i,pzero,zero,G(3),npack0,nfft3d,gk(2),gk2(2),taskid
+      real*8  gg,temp,temp2,pi,fourpi,epsilon,scal2
       character*16 t
 
 *     **** external functions ****
       logical     ion_chargeexist,control_qmmm
+      integer     G_indx
+      real*8      lattice_omega
       external    ion_chargeexist,control_qmmm
+      external    G_indx
+      external    lattice_omega
 
 
 *     *************************
@@ -110,6 +115,77 @@ c
            if (.not.rtdb_get(rtdb,'nwpw:charge_ncut',mt_int,1,n_sigma))
      >       n_sigma = 4
         end if
+
+        if (charge_type.eq.4) then
+           if (.not.rtdb_get(rtdb,
+     >         'nwpw:charge_rcut',mt_dbl,1,s_sigma))
+     >       s_sigma = 0.8d0
+           epsilon = 1.0d0/s_sigma
+
+
+           call Parallel_taskid(taskid)
+           pi = 4.0d0*datan(1.0d0)
+           fourpi = 4.0d0*pi
+           scal2  = 1.0d0/lattice_omega()
+           call D3dB_nfft3d(1,nfft3d)
+           call Pack_npack(0,npack0)
+           G(1) = G_indx(1)
+           G(2) = G_indx(2)
+           G(3) = G_indx(3)
+
+*          **** allocate vc_charge memory ****
+           value =           MA_alloc_get(mt_dbl,npack0,'point_vc',
+     >                                    vc_charge(2),vc_charge(1))
+           value = value.and.MA_alloc_get(mt_dbl,npack0,'point_vc2',
+     >                                    vc2_charge(2),vc2_charge(1))
+           if (.not.value) call errquit('out of heap memory',0,MA_ERR)
+           value = MA_push_get(mt_dbl,nfft3d,'gk',gk(2),gk(1))
+           value = value.and.
+     >             MA_push_get(mt_dbl,nfft3d,'gk2',gk2(2),gk2(1))
+           if (.not.value) call errquit('out of stack memory',0,MA_ERR)
+
+
+*          ***** find the G==0 point in the lattice *****
+           call D3dB_ijktoindexp(1,1,1,1,zero,pzero)
+
+*          **** long-range and short-range part of Greens function ****
+           call dcopy(nfft3d,0.0d0,0,dbl_mb(gk(1)), 1)
+           call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+           do i=1,nfft3d
+
+              gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >              + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >              + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+               if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+                 !temp = pi/epsilon**2
+                 temp = 0.0d0
+              else
+               temp = (fourpi/gg)*dexp(-gg/(4.0d0*epsilon**2))
+               temp = (fourpi/gg)
+              end if
+              temp2 = 2.0d0*dexp(-gg/(epsilon**2))
+
+              dbl_mb(gk(1) +i-1) = temp
+              dbl_mb(gk2(1)+i-1) = temp2
+           end do
+           call Pack_t_pack(0,dbl_mb(gk(1)))
+           call Pack_t_Copy(0,dbl_mb(gk(1)),dbl_mb(vc_charge(1)))
+           call Pack_t_pack(0,dbl_mb(gk2(1)))
+           call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(vc2_charge(1)))
+           call Pack_t_SMul(0,scal2,dbl_mb(vc_charge(1)),
+     >                              dbl_mb(vc_charge(1)))
+           call Pack_t_SMul(0,scal2,dbl_mb(vc2_charge(1)),
+     >                              dbl_mb(vc2_charge(1)))
+
+           value =           MA_pop_stack(gk2(2))
+           value = value.and.MA_pop_stack(gk(2))
+           if (.not. value)
+     >     call errquit('pspw_charge_init_init: poppingstack memory',0,
+     >       MA_ERR)
+
+           call qstrfac_init(nion)
+           call qphafac_rion(dbl_mb(r1(1)))
+        end if
       
 
       end if
@@ -121,23 +197,24 @@ c
 
 *     **********************************
 *     *	                               *
-*     *        pspw_charge_destroy       *
+*     *        pspw_charge_destroy     *
 *     *                                *
 *     **********************************
       subroutine pspw_charge_destroy()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "pspw_charge.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
 
       if (nion.gt.0) then
         value = geom_destroy(geom)
+
         if (.not. value) 
      >     call errquit('error destroying chargegeometry', 0, GEOM_ERR)
       end if
@@ -273,16 +350,21 @@ c
 
       subroutine pspw_charge_end()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "pspw_charge.fh"
+#include "errquit.fh"
 
       logical value
 
       if (nion.gt.0) then
         value = MA_free_heap(r1(2))
         value = value.and.MA_free_heap(charge(2))
+        if (charge_type.eq.4) then
+          value=value.and.MA_free_heap(vc2_charge(2))
+          value=value.and.MA_free_heap(vc_charge(2))
+          call qstrfac_end()
+        end if
         if (.not.value) 
      >    call errquit('pspw_charge_end: freeing heap',0, MA_ERR)
       end if
@@ -338,6 +420,14 @@ c
           write(unit,1170)   
           write(unit,1171) s_d,s_rho,s_sigma   
         end if
+        if (charge_type.eq.3) then
+          write(unit,1175)
+          write(unit,1176) n_sigma, s_sigma
+        end if
+        if (charge_type.eq.4) then
+          write(unit,1177)
+          write(unit,1178) s_sigma
+        end if
         write(unit,1180)   
         do ii=1,nion
           write(unit,1190) ii,pspw_charge_aname(ii),
@@ -353,6 +443,10 @@ c
  1160 format(/' Point charges used:')
  1170 format(/' Switching charges used:')
  1171 FORMAT(5X, '(d,rho,sigma) = (',3E11.3,' )  ')
+ 1175 format(/' qmmm charges used:')
+ 1176 format(5x,'(n_sigma,s_sigma) = (',I3,E11.3,')  ')
+ 1177 format(/' periodic charges used:')
+ 1178 format(5x,' s_sigma=',E11.3)
  1180 FORMAT(/' position of point charges (au): ')
  1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - charge = ',F10.3)
       end
@@ -429,17 +523,19 @@ c
 
 #include "mafdecls.fh"
 #include "pspw_charge.fh"
+#include "errquit.fh"
 
 *     ***** local variables ****
-      integer ii,ia,k,p1,p2,po2
-      real*8 x1,y1,z1,q1,r,r2,rc,epsilon,ttt,sss
-      real*8 rc1,rc2,rr1,rr1p
+      logical value
+      integer ii,ia,k,p1,p2,po2,npack0,exi(2),tmp(2),nx,ny,nz
+      real*8  x1,y1,z1,q1,r,r2,rc,epsilon,ttt,sss,scal1,scal2
+      real*8  rc1,rc2,rr1,rr1p
 
 *     **** external functions ****
       integer  ion_katm
       external ion_katm
-      real*8   util_erf
-      external util_erf
+      real*8   util_erf,lattice_omega
+      external util_erf,lattice_omega
 
 
       if (nion.gt.0) then
@@ -513,6 +609,45 @@ c
                  Vqm(k) = Vqm(k) + ttt
               end do
            end do   
+           call sub_coulomb_screened_init_print(Vqm,1.0d0,q1)
+
+         else if (charge_type.eq.4) then
+
+           call D3dB_nx(1,nx)
+           call D3dB_ny(1,ny)
+           call D3dB_nz(1,nz)
+           scal1  = 1.0d0/dble(nx*ny*nz)
+           scal2  = 1.0d0/lattice_omega()
+           call Pack_npack(0,npack0)
+           value = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+           value = value.and.
+     >             MA_push_get(mt_dcpl,npack0,'tmp',tmp(2),tmp(1))
+           if (.not.value) call errquit('out of stack memory',0,MA_ERR)
+
+           call dcopy(n2ft3d,0.0d0,0,Vqm,1)
+           call dcopy(2*npack0,0.0d0,0,dcpl_mb(tmp(1)),1)
+           call dcopy(2*npack0,0.0d0,0,dcpl_mb(exi(1)),1)
+           do ii=1,nion
+             q1 = -dbl_mb(charge(1)+ii-1)
+             call qstrfac_pack(0,ii,dcpl_mb(exi(1)))
+             call Pack_cc_daxpy(0,q1,dcpl_mb(exi(1)),Vqm)
+             call Pack_cc_daxpy(0,dabs(q1),dcpl_mb(exi(1)),
+     >                                     dcpl_mb(tmp(1)))
+           end do
+           call Pack_tc_Mul(0,dbl_mb(vc_charge(1)),Vqm,Vqm)
+           call Pack_tc_Mul(0,dbl_mb(vc2_charge(1)),dcpl_mb(tmp(1)),
+     >                                              dcpl_mb(tmp(1)))
+           !call Pack_cc_Sum(0,dcpl_mb(tmp(1)),Vqm,Vqm)
+           call Pack_c_unpack(0,Vqm)
+           call D3dB_cr_fft3b(1,Vqm)
+           value =           MA_pop_stack(tmp(2))
+           value = value.and.MA_pop_stack(exi(2))
+           if (.not. value)
+     >     call errquit('pspw_charge_Generate_V:poppingstack memory',0,
+     >       MA_ERR)
+
+           call sub_coulomb_screened_init_print(Vqm,1.0d0,q1)
+
 
          end if
 

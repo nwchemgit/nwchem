@@ -1,18 +1,20 @@
 c
-c $Id: pspw_charge.fh,v 1.4 2004-12-18 20:01:53 bylaska Exp $
+c $Id: pspw_charge.fh,v 1.5 2005-09-07 17:32:12 bylaska Exp $
 c
 
 *     ***** pspw_charge common block ************************************
       integer r1(2)
       integer charge(2)
+      integer vc_charge(2),vc2_charge(2)
       integer nion
       integer charge_type,geom,n_sigma
       real*8  s_d,s_rho,s_sigma
       common / pspw_charge / 
-     > r1,          ! charge positions
-     > charge,      ! charges
-     > nion,        ! number charges
-     > charge_type, ! 1-point charges,2-switching charge,3-charge model
+     > r1,                        ! charge positions
+     > charge,                    ! charges
+     > vc_charge, vc2_charge,     ! fourier transforms of periodic potentials
+     > nion,                      ! number charges
+     > charge_type,               ! 1-point charges,2-switching charge,3-charge model,4-periodic model
      > s_d,s_rho,s_sigma,n_sigma, ! parameters for switching charge model 
      > geom
 *     ******************************************************************
