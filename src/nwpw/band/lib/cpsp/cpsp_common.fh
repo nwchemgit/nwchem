@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_common.fh,v 1.1 2002-01-11 18:25:59 bylaska Exp $
+* $Id: cpsp_common.fh,v 1.2 2005-09-07 23:55:03 bylaska Exp $
 *
 
 *     **** common blocks ****
@@ -15,4 +15,10 @@
       character*2 atom(nkatmx)
       common / cpsp_block / vl,vnl,vnlnrm,zv,amass,rc,
      >                     lmmax,lmax,locp,npsp,atom
+
+*     **** common block for psp stress ****
+      integer    dvl(2)
+      integer    dvnl(2)
+      common / cpsp2_block / dvl,dvnl
+
 

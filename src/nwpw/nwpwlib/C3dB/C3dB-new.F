@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.18 2005-08-05 22:25:25 bylaska Exp $
+* $Id: C3dB-new.F,v 1.19 2005-09-07 23:55:04 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2579,11 +2579,11 @@ c     integer i2_start(NFFT3+1)
 
       subroutine C3dB_Vector_SumAll(n,sum)
 c     implicit none
-#include "errquit.fh"
       integer n
       real*8  sum(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 #ifdef TCGMSG
 #include "tcgmsg.fh"

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.62 2005-08-23 14:12:01 bylaska Exp $
+* $Id: cgsdv5.F,v 1.63 2005-09-07 23:55:04 bylaska Exp $
 *
 
 ***********************************************************************
@@ -635,6 +635,9 @@ c     end if
          write(6,1808) '  queue fft (message passing): ', 
      >                 nwpw_timing(32),
      >                 nwpw_timing(32)/dble(electron_count())           
+         write(6,1808) '  HFX potential              : ', 
+     >                 nwpw_timing(33),
+     >                 nwpw_timing(33)/dble(electron_count())           
          end if
          write(6,*)
          CALL nwpw_MESSAGE(4)

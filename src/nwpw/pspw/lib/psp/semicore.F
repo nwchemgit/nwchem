@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.7 2004-05-05 19:33:51 bylaska Exp $
+* $Id: semicore.F,v 1.8 2005-09-07 23:55:05 bylaska Exp $
 *
 
 #define TCGMSG
@@ -428,6 +428,7 @@ c     logical semicore(0:nkatmx)
 *     **** compute V ****
       VV = -electron_pxc_rho(dbl_mb(dncore(1)))
 
+
 *     **** compute W ****
       do u=1,3
       do s=u,3
@@ -481,7 +482,7 @@ c     logical semicore(0:nkatmx)
 
 *     *** local variables ***
       logical value
-      real*8 scal2,fourpi,ss
+      real*8 scal2,fourpi,ss,sum
       integer ii,ia
       integer npack0,nfft3d,n2ft3d
       integer exi(2),tmp1(2),tmp2(2),tmp3(2),Gu,Gs
@@ -529,6 +530,8 @@ c     logical semicore(0:nkatmx)
       call Pack_tt_Mul(0,dbl_mb(tmp3(1)),
      >                   dcpl_mb(Gs),
      >                   dbl_mb(tmp3(1)))
+      
+
 
 *     **** calculate Aus ****  
       call dcopy(n2ft3d,0.0d0,0,Aus,1)
@@ -557,6 +560,7 @@ c     logical semicore(0:nkatmx)
            call Pack_c_unpack(0,dcpl_mb(tmp2(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1)))
+
 
 *          ****  add tmp1*tmp2=phi*dphi*dphi/dG density ****
            call D3dB_rr_Mul(1,dcpl_mb(tmp1(1)),

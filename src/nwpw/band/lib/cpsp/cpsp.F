@@ -1,15 +1,15 @@
 *
-* $Id: cpsp.F,v 1.18 2004-11-14 23:31:49 bylaska Exp $
+* $Id: cpsp.F,v 1.19 2005-09-07 23:55:03 bylaska Exp $
 *
 
 #define TCGMSG
 
       subroutine cpsp_init()      
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
+#include "errquit.fh"
 
       !integer nfft3d
       integer npack0,npack1,nbrillioun
@@ -248,7 +248,6 @@ c     cpsp_rc = rc(i,ia)
 
       subroutine cpsp_v_local(vl_out,move,dng,fion)
       implicit none
-#include "errquit.fh"
       complex*16 vl_out(*)
       logical    move
       complex*16 dng(*)
@@ -256,6 +255,7 @@ c     cpsp_rc = rc(i,ia)
 
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
+#include "errquit.fh"
 
 *     *** local variables ***
       integer nfft3d,npack0
@@ -358,12 +358,12 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
       subroutine cpsp_f_vlocal(dng,fion)
       implicit none
-#include "errquit.fh"
       complex*16 dng(*)
       real*8     fion(3,*)
 
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
+#include "errquit.fh"
 
 
 *     *** local variables ***
@@ -455,7 +455,6 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       subroutine cpsp_v_nonlocal(ispin,ne,
      >                           psi1,psi2,move,fion)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       complex*16 psi2(*)
@@ -464,6 +463,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
+#include "errquit.fh"
 
 
 
@@ -782,13 +782,13 @@ c           call Cram_c_pack(nb,dcpl_mb(exi(1)))
 
       subroutine cpsp_f_vnonlocal(ispin,ne,psi1,fion)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       complex*16 psi1(*)
       real*8 fion(3,*)
 
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
+#include "errquit.fh"
 
 
 *     *** local variables ***
@@ -1154,11 +1154,11 @@ c       close(11)
 
       subroutine cpsp_readall()
       implicit none
-#include "errquit.fh"
       
 #include "mafdecls.fh"
 #include "cpsp_common.fh"
 #include "c_semicore_common.fh"
+#include "errquit.fh"
 
 
 

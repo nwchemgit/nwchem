@@ -1,5 +1,5 @@
 *
-* $Id: pspw_hfx.F,v 1.12 2005-06-24 19:24:18 bylaska Exp $
+* $Id: pspw_hfx.F,v 1.13 2005-09-07 23:55:05 bylaska Exp $
 *
 
 *     *************************
@@ -278,6 +278,8 @@
      >       I2)
       end
 
+
+
 *     ****************************
 *     *                    	 *
 *     *     pspw_potential_HFX   *
@@ -306,6 +308,7 @@
       external lattice_omega,coulomb_screened_e
 
 
+      call nwpw_timing_start(33)
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
@@ -326,6 +329,8 @@
         scal2 = 1.0d0/lattice_omega()
         dv = scal1/scal2
 
+*       ***** screened coulomb solver ****
+        if (solver_type.eq.1) then
         do ms=1,ispin0
         do i=1,norbs(ms)
          dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
@@ -340,33 +345,23 @@
    
 
 *          ***** screened coulomb solver ****
-           if (solver_type.eq.1) then
-
-             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
+           call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
      >                              dbl_mb(dn(1)))
-             !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
-             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
-             call Pack_c_pack(0,dbl_mb(dn(1)))
+           !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
+           call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
+           call Pack_c_pack(0,dbl_mb(dn(1)))
 
-*            **** get Ecoul energy ****
-             eh = coulomb_screened_e(dbl_mb(dn(1)))
+*          **** get Ecoul energy ****
+           eh = coulomb_screened_e(dbl_mb(dn(1)))
 
 
-*            **** generate Vcoul ****
-             call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
-             call Pack_c_unpack(0,dbl_mb(vij(1)))
-             !call D3dB_cr_fft3b(1,dbl_mb(vij(1)))
-             call D3dB_cr_pfft3b(1,0,dbl_mb(vij(1)))
+*          **** generate Vcoul ****
+           call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+           call Pack_c_unpack(0,dbl_mb(vij(1)))
+           !call D3dB_cr_fft3b(1,dbl_mb(vij(1)))
+           call D3dB_cr_pfft3b(1,0,dbl_mb(vij(1)))
         
 
-
-*          ***** free-space coulomb solver ****
-           else
-
-              call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
-              call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
-              eh = 0.5d0*eh*dv
-           end if
 
 *          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
            eh = eh*hfx_parameter
@@ -419,6 +414,83 @@
         end do
         end do
 
+*       ***** free-space coulomb solver ****
+        else
+        do ms=1,ispin0
+        do i=1,norbs(ms)
+         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+         do j=1,i
+           index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
+           index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+
+*          **** generate dnij for Vij  ****
+           call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),dbl_mb(dn(1)))
+           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+   
+
+
+           call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+           call D3dB_rr_dot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
+           eh = 0.5d0*eh*dv
+
+*          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+           eh = eh*hfx_parameter
+           call D3dB_r_SMul(1,hfx_parameter,
+     >                      dbl_mb(vij(1)),
+     >                      dbl_mb(vij(1)))
+           if (ispin0.eq.1) eh = eh + eh
+           ph = 2.0d0*eh
+
+
+           ehfx = ehfx - eh
+           phfx = phfx - ph
+           dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1) - eh
+
+*          **** generate (Vij)*psi_r ***
+           call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                        psi_r(index2),
+     >                        dbl_mb(tmp1(1)))
+           call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+
+*          **** add -(Vij)*psi_r to Hpsi_r ***
+           call D3dB_rr_Sub(1,Hpsi_r(index1),
+     >                        dbl_mb(tmp1(1)),
+     >                        Hpsi_r(index1))
+
+
+
+           !**** include off diagonal terms ****
+           if (i.ne.j) then
+              ehfx = ehfx - eh
+              phfx = phfx - ph
+              dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
+     >                                   - eh
+
+*             **** generate (Vij)*psi_r ***
+              call D3dB_rr_Mul(1,dbl_mb(vij(1)),
+     >                        psi_r(index1),
+     >                        dbl_mb(tmp2(1)))
+              call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
+
+*             **** add -(Vij)*psi_r to Hpsi_r ***
+              call D3dB_rr_Sub(1,Hpsi_r(index2),
+     >                        dbl_mb(tmp2(1)),
+     >                        Hpsi_r(index2))
+           end if
+
+
+         end do
+        end do
+        end do
+        end if
+
+
+
+
+
+
         value =           MA_pop_stack(tmp2(2))
         value = value.and.MA_pop_stack(tmp1(2))
         value = value.and.MA_pop_stack(vij(2))
@@ -428,8 +500,14 @@
      &       MA_ERR)
 
       end if
+      call nwpw_timing_end(33)
+
       return
       end
+
+
+
+
 
 
 

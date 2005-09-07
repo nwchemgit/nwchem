@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.7 2004-11-29 16:05:17 bylaska Exp $
+* $Id: cke.F,v 1.8 2005-09-07 23:55:03 bylaska Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -206,7 +206,7 @@ c     real*8 G(nfft3d,3)
       integer u,v,s
       logical value
 
-      real*8 pi,scal,sum,kx,ky,kz
+      real*8 pi,scal,sum,kx,ky,kz,weight
       real*8 hm(3,3),Aus(3,3)
       integer tmp1(2),tmp2(2)
 
@@ -263,6 +263,7 @@ c     real*8 G(nfft3d,3)
 *     **** calculate Aus = Sum(k)Sum(n)Sum(G) psi(G+k,n)**2 (G(u)+k(u))(G(s)+k(s)) ****
       call dcopy(9,0.0d0,0,Aus,1)    
       do nb=1,nbrillioun
+        weight = brillioun_weight(nb)
         kx = brillioun_k(1,nb)
         ky = brillioun_k(2,nb)
         kz = brillioun_k(3,nb)
@@ -270,9 +271,9 @@ c     real*8 G(nfft3d,3)
         call dcopy(nfft3d,dbl_mb(c_G_indx(2)),1,dbl_mb(G(1,2)),1)
         call dcopy(nfft3d,dbl_mb(c_G_indx(3)),1,dbl_mb(G(1,3)),1)
         do i = 1,nfft3d
-          dbl_mb(G(1,1)) =  dbl_mb(G(1,1)+i-1)+kx
-          dbl_mb(G(1,2)) =  dbl_mb(G(1,2)+i-1)+ky
-          dbl_mb(G(1,2)) =  dbl_mb(G(1,3)+i-1)+kz
+          dbl_mb(G(1,1)+i-1) =  dbl_mb(G(1,1)+i-1)+kx
+          dbl_mb(G(1,2)+i-1) =  dbl_mb(G(1,2)+i-1)+ky
+          dbl_mb(G(1,3)+i-1) =  dbl_mb(G(1,3)+i-1)+kz
         end do
         call Cram_r_pack(nb,dbl_mb(G(1,1)))
         call Cram_r_pack(nb,dbl_mb(G(1,2)))
@@ -293,7 +294,7 @@ c     real*8 G(nfft3d,3)
      >                       dcpl_mb(tmp2(1)),
      >                       sum)
            
-             Aus(u,s) = Aus(u,s) + sum*brillioun_weight(nb)
+             Aus(u,s) = Aus(u,s) + sum*weight
           end do
           end do
         end do

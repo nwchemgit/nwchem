@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.36 2005-02-09 02:38:48 bylaska Exp $
+* $Id: band_minimizer.F,v 1.37 2005-09-07 23:55:04 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -41,7 +41,7 @@
 *     ***** energy variables ****
       real*8  E(10)
       real*8  dipole(3)
-      real*8  stress(3,3)
+      real*8  stress(3,3),lstress(6)
 
 *     **** gradient variables ****
       integer fion(2)
@@ -434,11 +434,12 @@ c           write(luout,1154) cpsp_nprj(ia)
 
 *     **** calculate the stress tensor ****
       call dcopy(9,0.0d0,0,stress,1)
+      call dcopy(6,0.0d0,0,lstress,1)
       if (flag.eq.3) then
-         !call psp_stress_init()
-         !call psp_stress_readall()
-         call c_cgsd_energy_stress(stress)
-         !call psp_stress_end()
+         call cpsp_stress_init()
+         call cpsp_stress_readall()
+         call c_cgsd_energy_stress(stress,lstress)
+         call cpsp_stress_end()
       end if
 
 
@@ -461,6 +462,9 @@ c           write(luout,1154) cpsp_nprj(ia)
         value = value.and.
      >        rtdb_put(rtdb,'band:stress',mt_dbl,
      >                 9,stress)
+        value = value.and.
+     >        rtdb_put(rtdb,'band:lstress',mt_dbl,
+     >                 6,lstress)
       end if
       if (.not. value) 
      > call errquit('band_minimizer: error writing rtdb',0, RTDB_ERR)

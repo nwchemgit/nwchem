@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.18 2005-05-24 17:36:27 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.19 2005-09-07 23:55:05 bylaska Exp $
 
 
 *
@@ -549,6 +549,7 @@ c          r = (i-1)*drho
       integer np1,np2,np3
       integer nph1,nph2,nph3
       real*8  a(3,3),r,pp2,dV,scal1
+      real*8  x,y,z
 
       integer rtdb
       integer  control_rtdb
@@ -582,7 +583,7 @@ c          r = (i-1)*drho
       dV    = lattice_omega()/dble(np1*np2*np3)
 
 
-      call D3dB_r_SMul(1,scal1,vc,vc)
+      !call D3dB_r_SMul(1,scal1,vc,vc)
 
 *     **** grid points in coordination space ****
       k3=0
@@ -609,10 +610,11 @@ c    >            + i+1
           !r(3) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
           if (dabs(r).gt.1.0d-4) then
-          write(56,*) r,vc(index),
-     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
+c          write(56,*) r,vc(index),
+c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
+          write(56,'(4E14.4)') r,vc(index),pp/dabs(r),pp
           else
-          write(56,*) r,vc(index),0.0d0
+          write(56,'(4E14.4)') r,vc(index),0.0d0,pp
           end if
 
          end if

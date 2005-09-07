@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.16 2005-08-23 14:12:00 bylaska Exp $
+* $Id: c_electron.F,v 1.17 2005-09-07 23:55:03 bylaska Exp $
 *
 
 *     ***********************************
@@ -461,7 +461,7 @@
          pxc= pxc + pxc 
       else
          call C3dB_rr_dot(1,dn(1+nfft3d),
-     >                    dbl_mb(xcp(1)+2*nfft3d),
+     >                    dbl_mb(xcp(1)+nfft3d),
      >                    pxc2)
          pxc= pxc + pxc2
       end if
@@ -473,6 +473,51 @@
 
 
  
+
+*     ***********************************
+*     *                                 *
+*     *         c_electron_pxc_rho      *
+*     *                                 *
+*     ***********************************
+      real*8 function c_electron_pxc_rho(rho)
+      implicit none
+      real*8 rho(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer nx,ny,nz
+      real*8  pxc,pxc2,dv
+
+*     **** external functions *****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+
+*     **** get exchange-correlation energy ****
+      call C3dB_rr_dot(1,rho,
+     >                 dbl_mb(xcp(1)),
+     >                 pxc)
+      if (ispin.eq.1) then
+         pxc= pxc + pxc
+      else
+         call C3dB_rr_dot(1,rho,
+     >                    dbl_mb(xcp(1)+nfft3d),
+     >                    pxc2)
+         pxc= pxc + pxc2
+      end if
+      pxc = pxc*dv
+
+      c_electron_pxc_rho =  pxc
+      return
+      end
+
 
 *     ***********************************
 *     *					*

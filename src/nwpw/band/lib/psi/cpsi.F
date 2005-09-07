@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.20 2005-08-23 14:12:00 bylaska Exp $
+* $Id: cpsi.F,v 1.21 2005-09-07 23:55:04 bylaska Exp $
 *
 
 
@@ -749,6 +749,187 @@ c      end if
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         c_rho_1exc_stress       *
+*     *                                 *
+*     ***********************************
+      subroutine c_rho_1exc_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+#include "errquit.fh"
+
+
+
+*     ***** local variables ****
+      logical value
+      integer u,v,gga
+      real*8 exc,pxc
+      real*8 pi,scal,hm(3,3),tstress(3,3)
+      integer trho(2),n2ft3d
+      integer ms,i,j,k,q,nx,ny,nz,nq,indx1,indx2
+
+*
+
+*     **** external functions ****
+      integer  control_gga
+      real*8   c_rho_1exc,c_rho_1pxc,lattice_unitg,lattice_omega
+      external control_gga
+      external c_rho_1exc,c_rho_1pxc,lattice_unitg,lattice_omega
+
+*     *** define hm ****
+      pi   = 4.0d0*datan(1.0d0)
+      scal = 1.0d0/(2.0d0*pi)
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+      end do
+      end do
+
+*     **** LDA part ****
+      exc = c_rho_1exc()
+      pxc = c_rho_1pxc()
+      do v=1,3
+      do u=1,3
+         stress(u,v) = (exc-pxc)*hm(u,v)
+      end do
+      end do
+
+*     **** PBE96 GGA part ****
+      gga = control_gga()
+      if ((gga.eq.1).or.(gga.eq.2)) then
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         call D3dB_nq(1,nq)
+         n2ft3d = (nx+2)*ny*nq
+         value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
+         if (.not. value) call errquit(
+     >     'c_rho_1exc_stress: out of stack memory',1, MA_ERR)
+
+
+         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(trho(1)),1)
+         do ms=1,ispin
+         do q=1,nq
+         do j=1,ny
+         do i=1,nx
+            indx1 = (i-1)
+     >            + (j-1)*nx
+     >            + (q-1)*nx*ny
+     >            + (ms-1)*nfft3d
+            indx2 = (i-1)
+     >            + (j-1)*(nx+2)
+     >            + (q-1)*(nx+2)*ny
+     >            + (ms-1)*n2ft3d
+            dbl_mb(trho(1)+indx2) = dbl_mb(rho1_all(1)+indx1)
+
+         end do
+         end do
+         end do
+         end do
+         
+         call v_bwexc_euv(gga,n2ft3d,ispin,dbl_mb(trho(1)),
+     >                  1.0d0,1.0d0,tstress)
+         do v=1,3
+         do u=1,3
+          stress(u,v) = stress(u,v) + tstress(u,v)
+         end do
+         end do
+
+         value = MA_pop_stack(trho(2))
+         if (.not. value) call errquit(
+     >     'c_rho_1exc_stress: error popping stack memory',1,
+     >       MA_ERR)
+      end if
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *       c_rho_1semicore_stress    *
+*     *                                 *
+*     ***********************************
+      subroutine c_rho_1semicore_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** not finished ****
+      call c_semicore_euv(stress)
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         c_dng_1vlocal_stress    *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_dng_1vlocal_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      call cpsp_v_local_euv(dcpl_mb(dng1(1)),stress)
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        cpsi_1vnonlocal_stress   *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1vnonlocal_stress(stress)
+      implicit none
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+
+
+*     ***** local variables ****
+      integer u,v
+      real*8 evnl
+      real*8 pi,scal,hm(3,3)
+
+*     **** external functions ****
+      real*8   cpsi_1vnl,lattice_unitg
+      external cpsi_1vnl,lattice_unitg
+
+*     *** define hm ****
+      pi   = 4.0d0*datan(1.0d0)
+      scal = 1.0d0/(2.0d0*pi)
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+      end do
+      end do
+
+      call cpsp_v_nonlocal_euv_2(ispin,ne,dcpl_mb(psi1(1)),stress)
+      evnl = cpsi_1vnl()
+      do v=1,3
+      do u=1,3
+         stress(u,v) = stress(u,v) - evnl*hm(u,v)
+      end do
+      end do
+
+      return
+      end
 
 
 

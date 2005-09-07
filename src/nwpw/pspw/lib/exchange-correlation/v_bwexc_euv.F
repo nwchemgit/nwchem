@@ -1,5 +1,5 @@
 *
-* $Id: v_bwexc_euv.F,v 1.5 2005-05-24 17:36:27 bylaska Exp $
+* $Id: v_bwexc_euv.F,v 1.6 2005-09-07 23:55:05 bylaska Exp $
 *
 
       
@@ -192,31 +192,38 @@ c        ***** calculate df/d|grad n| *(grad n)/|grad n| ****
 *        **** W(u,s) = Sum(G) [i*G(u)*dcongj(rhog)*gr(s)] ****
 *        ****         where gr(1)=grx,gr(2)=gry,gr(3)=grz ****
           
-         call Pack_c_pack(0,dbl_mb(rhog(1)))
+         !call Pack_c_pack(0,dbl_mb(rhog(1)))
+         call mask_C(0,dbl_mb(rhog(1)))
          do u=1,3
 
 *          **** agr = i*G(u)*grx ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grx(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
            W(u,1) = sum*omega
 
 *          **** agr = i*G(u)*gry ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(gry(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
            W(u,2) = sum*omega
 
 *          **** agr = i*G(u)*grz ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grz(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhog(1)),dbl_mb(agr(1)),sum)
            W(u,3) = sum*omega
          end do
 
@@ -512,62 +519,76 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
 
 *        **** W(u,s) = Sum(G) [i*G(u)*dcongj(rhoup)*grup(s)] ****
 *        ****         where grup(1)=grupx,grup(2)=grupy,grup(3)=grupz ****
-         call Pack_c_pack(0,dbl_mb(rhoup(1)))
+         !call Pack_c_pack(0,dbl_mb(rhoup(1)))
+         call mask_C(0,dbl_mb(rhoup(1)))
          do u=1,3
 
 *          **** agr = i*G(u)*grupx ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grupx(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
            W(u,1) = sum*omega
 
 *          **** agr = i*G(u)*grupy ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grupy(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
            W(u,2) = sum*omega
 
 *          **** agr = i*G(u)*grupz ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grupz(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhoup(1)),dbl_mb(agr(1)),sum)
            W(u,3) = sum*omega
          end do
 
 
 *        **** W(u,s) = Sum(G) [i*G(u)*dcongj(rhodn)*grup(s)] ****
 *        ****         where grdn(1)=grdnx,grup(2)=grdny,grup(3)=grdnz ****
-         call Pack_c_pack(0,dbl_mb(rhodn(1)))
+         !call Pack_c_pack(0,dbl_mb(rhodn(1)))
+         call mask_C(0,dbl_mb(rhodn(1)))
          do u=1,3
 
 *          **** agr = i*G(u)*grdnx ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grdnx(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
            W(u,1) = W(u,1) + sum*omega
 
 *          **** agr = i*G(u)*grdny ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grdny(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
            W(u,2) = W(u,2) + sum*omega
 
 *          **** agr = i*G(u)*grdnz ****
            call D3dB_ic_Mul(1,dbl_mb(G_indx(u)),
      >                        dbl_mb(grdnz(1)),
      >                        dbl_mb(agr(1)))
-           call Pack_c_pack(0,dbl_mb(agr(1)))
-           call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           call mask_C(0,dbl_mb(agr(1)))
+           call D3dB_cc_dot(1,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
+           !call Pack_c_pack(0,dbl_mb(agr(1)))
+           !call Pack_cc_dot(0,dbl_mb(rhodn(1)),dbl_mb(agr(1)),sum)
            W(u,3) = W(u,3) + sum*omega
          end do
 
