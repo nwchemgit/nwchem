@@ -1,12 +1,12 @@
 *
-* $Id: band_dplot_iteration.F,v 1.1 2005-08-23 14:15:46 bylaska Exp $
+* $Id: band_dplot_iteration.F,v 1.2 2005-09-08 01:30:23 bylaska Exp $
 *
       subroutine band_dplot_iteration_init()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "errquit.fh"
 
 *     **** dplot_iteration_block ****
       logical exist

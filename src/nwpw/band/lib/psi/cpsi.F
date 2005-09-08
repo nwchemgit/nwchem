@@ -1,6 +1,56 @@
 *
-* $Id: cpsi.F,v 1.21 2005-09-07 23:55:04 bylaska Exp $
+* $Id: cpsi.F,v 1.22 2005-09-08 01:30:23 bylaska Exp $
 *
+
+
+*     ***************************
+*     *                         *
+*     *      cpsi_iptr_psi      *
+*     *                         *
+*     ***************************
+      integer function cpsi_iptr_psi(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      integer iptr
+
+      if (i.eq.2) then
+        iptr = psi2(1)
+      else
+        iptr = psi1(1)
+      end if
+      cpsi_iptr_psi = iptr
+      return
+      end
+
+
+
+*     ***************************
+*     *                         *
+*     *      cpsi_iptr_dn       *
+*     *                         *
+*     ***************************
+      integer function cpsi_iptr_dn(i)
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      integer iptr
+
+      if (i.eq.2) then
+        iptr = rho2(1)
+      else
+        iptr = rho1(1)
+      end if
+      cpsi_iptr_dn = iptr
+      return
+      end
+
 
 
 *     ***************************

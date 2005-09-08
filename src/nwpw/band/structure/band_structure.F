@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.12 2005-08-23 14:12:01 bylaska Exp $
+* $Id: band_structure.F,v 1.13 2005-09-08 01:30:23 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -127,6 +127,10 @@
       external control_mapping
       integer  control_num_kvectors_structure,control_excited_ne
       external control_num_kvectors_structure,control_excited_ne
+      logical  band_dplot_iteration_check
+      external band_dplot_iteration_check
+      integer  cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
+      external cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
     
 
 
@@ -256,6 +260,7 @@
       call c_electron_init()
       call c_geodesic_init()
       call linesearch_init()
+      call band_dplot_iteration_init()
 
 
 
@@ -575,6 +580,12 @@
       call cpsi_KS_minimize(1,.false.,control_tole(),control_tolc())
       call cpsi_check_indx(k)
 
+      if (band_dplot_iteration_check(k)) then
+        call band_dplot_iteration(k,ispin,ne,1,
+     >                            dcpl_mb(cpsi_iptr_psi(1)),
+     >                            dbl_mb(cpsi_iptr_dn(1)),
+     >                            dcpl_mb(c_electron_iptr_psir()))
+      end if
 
       if (taskid.eq.MASTER) then
 

@@ -1,6 +1,27 @@
 *
-* $Id: c_electron.F,v 1.17 2005-09-07 23:55:03 bylaska Exp $
+* $Id: c_electron.F,v 1.18 2005-09-08 01:30:23 bylaska Exp $
 *
+
+
+*     **********************************
+*     *                                *
+*     *      c_electron_iptr_psir      *
+*     *                                *
+*     **********************************
+      integer function c_electron_iptr_psir()
+      implicit none
+      integer i
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+      integer iptr
+
+      iptr = psi_r(1)
+      c_electron_iptr_psir = iptr
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -9,10 +30,10 @@
 *     ***********************************
       subroutine c_electron_init()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
+#include "errquit.fh"
 
 
 *     **** local variables ****
