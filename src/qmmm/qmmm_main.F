@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.43 2005-08-20 18:04:12 marat Exp $
+c $Id: qmmm_main.F,v 1.44 2005-09-09 19:06:38 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -56,7 +56,7 @@ c     -----------------------------------
 
       if (.not. rtdb_cget(inrtdb, 'qmmm:operation', 1, operation))
      $     operation = ' '
-       
+
       if(operation.eq.'energy') then
         do_grad=.false.
       else

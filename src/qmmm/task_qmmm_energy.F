@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.10 2005-08-25 23:52:22 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.11 2005-09-09 19:06:41 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -21,6 +21,7 @@ c     external functions
 
 c     local variables
       logical ignore
+      logical traj
       character*32 interface
       logical save_rst
       logical do_print
@@ -33,8 +34,13 @@ c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
 c
+      if (.not. rtdb_get(rtdb, 'qmmm:trajectory', mt_log,1,traj))
+     $     traj = .false.
+c
       if (.not. rtdb_cput(rtdb, 'qmmm:operation', 1, "energy"))
      $     call errquit('qmmm: failed setting operation', 0, RTDB_ERR)
+c
+      if(operation.ne.'energy') traj = .false.
 c
       save_rst = .false.
       if (operation.eq.'optimize' .or.
@@ -46,6 +52,12 @@ c
       interface = qmmm_get_interface()
 c
       task_qmmm_energy = .true.
+      if(traj) then
+        if(qmmm_print_debug()) 
+     $     write(*,*) "doing traj"
+        call md_spi()
+        return
+      end if
 c      
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
