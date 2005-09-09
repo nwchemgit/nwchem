@@ -1,4 +1,4 @@
-% $Id: qmmm.tex,v 1.11 2005-02-09 23:47:37 bylaska Exp $
+% $Id: qmmm.tex,v 1.12 2005-09-09 21:03:36 marat Exp $
 
 \label{sec:qmmm}
 
@@ -166,10 +166,13 @@ The  input follows standard NWChem format:
     [ eref <double precision default 0.0d0>]
     [ bqzone <double precision default 9.0d0>]
     [ bq_exclude  <(none||all||linkbond||linkbond_H) default none>]
-    [ bq_update  <(static||dynamic) >]
     [ link_atoms <(hydrogen||halogen) default halogen>]
     [ link_ecp  <(auto||user) default auto>]
-    [ optimization  <(all||mm|qm) default qm>]
+    [ region   < [region1]  [region2]  [region3] default link  ]
+    [ method   [method1]  [method2]  [method3]  ]
+    [ maxiter  [maxiter1] [maxiter2] [maxiter3] ]
+    [ ncycles  < [number] default 1 > ]
+    [ density  [espfit] [static] [dynamical] default dynamical ]
   end
 \end{verbatim}
 
@@ -225,14 +228,6 @@ using the prepare module{\ref{sec:prepare}}.
 
 \item
 \begin{verbatim}
- bq_update  <(static||dynamic)
-\end{verbatim}
-This directive controls whether the bqzone stays fixed ({\it static}) or constantly 
-updated ({\it dynamic}) during the calculation. In most cases direct specification of this keyword
-will not be necessary as its value will be set automatically based on the nature of the calculation.
-
-\item
-\begin{verbatim}
 link_atoms <(hydrogen||halogen) default halogen>
 \end{verbatim}
 
@@ -264,15 +259,75 @@ The name tag for fluoride link atoms is F{\_}L.
 
 \item
 \begin{verbatim}
-optimization  <(all||mm|qm) default qm>
+region  < [region1]  [region2]  [region3] default "qmlink" >
 \end{verbatim}
 
-This directive specifies which region will be optimized during qmmm optimization. If set to {\it all} both qm and mm
-region will be optimized simultaneously using mm optimization module, if {\it mm} only mm portion will be optimized
-using mm optimization module, finally if {\it qm} is specified then only qm region will be optimized using driver
-module. 
+This directive specifies active region(s) for optimization, dynamics, and frequency QMMM calculations.
+Up to three regions can be specified, those are limited to "qm" - all quantum atoms, "qmlink" - quantum and link atoms,
+"mm{\_}solute" - all classical atoms excluding link atoms, "solvent" all solvent atoms, "solute" - all solute atoms quantum or not,
+"mm" all classical solute and solvent atoms, excluding link atoms.
+Only the first region will be used in dynamics and frequency calculations. In the geometry optimizations, all three regions will
+be optimized in succession possibly with different optimization algorithms (see directives {\it method},  {\it maxiter},
+{\it ncycles} below).
+The default value for this directive would be to use single "qmlink" region
 
- 
+\item
+\begin{verbatim}
+method   [method1]  [method2]  [method3]
+\end{verbatim}
+
+This directive controls which optimization algorithm will be used for the regions as defined
+by {\it regions} directive. The allowed values are "bfgs" aka driver, "lbfgs" limited memory version of quasi-newton,
+and "sd" simple steepest descent algorithm. The "bfgs" is the most expensive algorithm and is not 
+recomended for more than ~100 particles (this essentially restricts its usage only to "qm" or "qmlink" regions).
+The "lbfgs" algorithm is recomended for both small and large regions and should be used whenever is possible (in many
+cases it outperforms "bfgs"). Finally "sd" the most ineficient and slow way to optimize regions, yet it is the only option
+available for the optimization of solvent regions. The default is to assign "sd" to optimization involving solvent region (if any),
+and "lbfgs" to all others.
+
+
+
+\item
+\begin{verbatim}
+maxiter  [maxiter1] [maxiter2] [maxiter3]
+\end{verbatim}
+
+This directive controls maximum number of iterations for the optimizations of regions as defined by
+by {\it regions} directive. 
+
+
+
+\item
+\begin{verbatim}
+maxiter  [maxiter1] [maxiter2] [maxiter3]
+\end{verbatim}
+
+This directive controls maximum number of iterations for the optimizations of regions as defined by
+by {\it regions} directive. 
+
+
+\item
+\begin{verbatim}
+density  [espfit] [static] [dynamical] default dynamical
+\end{verbatim}
+
+This directive controls the way electron density of the quantum region is treated when calculating
+electrostatic interactions with classical charges. This directive affects QMMM calculations where both
+quantum and link atoms are inactive ( i.e. active region is "mm{\_}solute","solvent", or "mm" ).
+If set to "espfit" electron density of the quantum region will be approximated to by point charges
+fitted by ESP procedure. This can dramatically speed up both dynamical and optimization tasks that involve purely classical regions.
+Note that "espfit" option does require movecs file which for example
+can be obtained by running qmmm energy calculation prior to optimization. 
+The "static" option will freeze the electron density when quantum and link atoms are inactive. It is more accurate than
+"espfit" option but also more expensive. Finally, the default "dynamical" option means that the electron density
+is treated the normal way throught the solution of Schrodinger equation. All calculations that involve any geometry
+changes in quantum or links atoms will automatically use this option.
+
+\begin{verbatim}
+ncycles  < [number] default 1 >
+\end{verbatim}
+
+This directive controls the number of optimization cycles where the defined regions will be optimized in succession.
 
 \end{itemize}
 
