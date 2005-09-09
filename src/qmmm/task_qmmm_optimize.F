@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -223,6 +223,18 @@ c
 111    continue
        end do
 c
+c     evaluate energy each cycle
+c     updating pair lists and periodic
+c     conditions at the same time
+c     ---------------------------
+      call qmmm_cons_reset()
+      call qmmm_bq_data_update_active()
+      call qmmm_set_interface("qm")
+      call md_sp()
+      status = qmmm_energy_gradient(rtdb,.false.) 
+      call qmmm_energy_rtdb_push(rtdb)
+      call qmmm_print_energy3(rtdb)
+c
 c      save restart file
 c      -----------------
        stub = " "
@@ -241,21 +253,21 @@ c      -----------------
 15     format("@  OPTIMIZATION FINISHED ")
       end if
 
-c
-c     calculate final energy
-c     ---------------------
-c
-c     removing all the constraints
-      call qmmm_cons_reset()
-      call qmmm_bq_data_update_active()
-c
-      call qmmm_set_interface("qm")
-c      call mm_task_sp()
-c     this will update pair lists
-      call md_sp()
-      status = qmmm_energy_gradient(rtdb,.false.) 
-      call qmmm_energy_rtdb_push(rtdb)
-      call qmmm_print_energy3(rtdb)
+cc
+cc     calculate final energy
+cc     ---------------------
+cc
+cc     removing all the constraints
+c      call qmmm_cons_reset()
+c      call qmmm_bq_data_update_active()
+cc
+c      call qmmm_set_interface("qm")
+cc      call mm_task_sp()
+cc     this will update pair lists
+c      call md_sp()
+c      status = qmmm_energy_gradient(rtdb,.false.) 
+c      call qmmm_energy_rtdb_push(rtdb)
+c      call qmmm_print_energy3(rtdb)
 
       status = .true.         
 c     
@@ -269,7 +281,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -348,7 +360,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -376,7 +388,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -409,7 +421,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -528,7 +540,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -649,7 +661,7 @@ c       load restart file if it exists
       end
 
 c      function qmmm_pes(irtdb,optimizer)
-cc     $Id: task_qmmm_optimize.F,v 1.40 2005-09-07 22:46:51 marat Exp $
+cc     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
 c      implicit none
 c#include "errquit.fh"
 c#include "mafdecls.fh"
