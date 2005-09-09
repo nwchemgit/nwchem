@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.70 2005-08-25 23:52:22 marat Exp $
+c $Id: mm_interface.F,v 1.71 2005-09-09 06:45:42 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -166,6 +166,58 @@ c
       call md_wrtrst(lfnrst,rfile,.false.)
 c      call md_wrtrst(lfnqrs,filqrs,.false.)
       call md_finish()
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      function mm_skip_frame(fn,n)
+      implicit none
+#include "md_common.fh"
+#include "qmmm.fh"
+      integer n,fn
+      logical mm_skip_frame
+      character*32 pname
+c
+      external sp_skip
+      logical  sp_skip
+c
+      pname = "mm_skip_frame"
+c
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+      mm_skip_frame = sp_skip(fn,n)
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      function mm_read_frame(fn,n)
+      implicit none
+#include "md_common.fh"
+#include "qmmm.fh"
+#include "mafdecls.fh"
+      integer n,fn
+      logical mm_read_frame
+      character*32 pname
+c
+      external sp_skip,sp_rdtrj
+      logical  sp_skip,sp_rdtrj
+c
+      pname = "mm_read_frame"
+c
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+      if(n.gt.1) then
+        mm_read_frame = sp_skip(lfntri,n-1)
+        if(.not.mm_read_frame) return
+      end if
+c 
+      mm_read_frame = sp_rdtrj(fn,lxw,lvw,lfw,lxs,lvs,lfs,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs),nwmloc,nsaloc)
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return
