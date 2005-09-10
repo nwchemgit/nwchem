@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.72 2005-07-27 23:03:16 marat Exp $
+* $Id: task.F,v 1.73 2005-09-10 01:20:35 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -41,7 +41,7 @@ c
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
-      logical task_qmmm, task_python, task_thermo,task_bq
+      logical oqmmm, task_python, task_thermo,task_bq
       logical task_version, task_vscf
       logical task_paw 
       logical task_pspw,task_band
@@ -97,8 +97,8 @@ c
       if (rtdb_get(rtdb, 'task:debug', mt_log, 1, odebug))
      $     call util_debug(rtdb)
 *
-      if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
-     &    task_qmmm = .false.
+      if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
+     &    oqmmm = .false.
 c
       if (rtdb_cget(rtdb,'bq',1,bqname)) then
          task_bq = .true.
@@ -117,7 +117,7 @@ c
 c
 c     if needed initialize qmmm for the duration of the task
 c
-      if (task_qmmm) then
+      if (oqmmm) then
         status = qmmm_init(rtdb)
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
               call errquit("failed to initialize qmmm", 0, CALC_ERR)
@@ -178,7 +178,7 @@ c
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
-           if(task_qmmm) then
+           if(oqmmm) then
              status = task_qmmm_esp(rtdb)
            else
              status = esp(rtdb)
@@ -218,7 +218,7 @@ c
       else if (inp_compare(.false., 'hessian', operation)) then
          status = task_hessian(rtdb)
       else if (inp_compare(.false., 'optimize', operation)) then
-         if(task_qmmm) then
+         if(oqmmm) then
            status = task_qmmm_optimize(rtdb)
          else
            status = task_optimize(rtdb)
@@ -234,7 +234,7 @@ c
       else if (inp_compare(.false., 'freq', operation)) then
          status = task_freq(rtdb)
       else if (inp_compare(.false.,'dynamics',operation)) then
-         if(task_qmmm) then
+         if(oqmmm) then
            status = task_qmmm_dynamics(rtdb)
          else
            status = task_dynamics(rtdb)
@@ -279,7 +279,7 @@ cc
       call ga_sync()
 99999 continue
 c
-      if (task_qmmm) then
+      if (oqmmm) then
         status = qmmm_end(rtdb)
 
         if ((ga_nodeid().eq.0) .and. (.not. status)) then
