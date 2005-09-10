@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.22 2005-08-25 22:15:14 bylaska Exp $
+* $Id: pack.F,v 1.23 2005-09-10 00:15:19 bylaska Exp $
 *
 
 *     ***********************************
@@ -165,10 +165,10 @@
       call D3dB_ISumAll(nwave_all(0))
       call D3dB_ISumAll(nwave_all(1)) 
 
-      write(*,*) " nida(0),nidb(0),nidb2(0):",taskid,nida(0),
-     >                                      nidb(0),nidb2(0)
-      write(*,*) " nida(1),nidb(1),nidb2(1):",taskid,nida(1),
-     >                                      nidb(1),nidb2(1)
+c      write(*,*) " nida(0),nidb(0),nidb2(0):",taskid,nida(0),
+c     >                                      nidb(0),nidb2(0)
+c      write(*,*) " nida(1),nidb(1),nidb2(1):",taskid,nida(1),
+c     >                                      nidb(1),nidb2(1)
        
       return 
       end
