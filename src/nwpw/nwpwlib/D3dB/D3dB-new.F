@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.40 2005-08-29 03:59:52 bylaska Exp $
+* $Id: D3dB-new.F,v 1.41 2005-09-10 00:41:37 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -221,25 +221,25 @@ c           k_map(q_map(k)) = k
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
 
-      if (taskid.eq.0) then
-      write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
-      write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
-      write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
-
-      write(*,*) 'hilbert map nb=',nb
-      do j=0,ny(nb)-1
-        write(*,'(A,80I4)') 'hilbert map:',
-     >   j,(int_mb(p_map3(1,nb)+j*(nx(nb)/2+1)))
-      end do
-      write(*,*)
-      
-      write(*,*) 'hilbert map nb=',nb
-      do j=0,ny(nb)-1
-        write(*,'(A,80I4)') 'hilbert map:',
-     >   (int_mb(p_map3(1,nb)+k+j*(nx(nb)/2+1)), k=0,nx(nb)/2)
-      end do
-      write(*,*)
-      end if
+c      if (taskid.eq.0) then
+c      write(*,*) taskid,"nq2=",nq2(nb), ny(nb)*nq2(nb)
+c      write(*,*) taskid,"nq1=",nq1(nb),(nx(nb)/2+1)*nq1(nb)
+c      write(*,*) taskid,"nq3=",nq3(nb), nz(nb)*nq3(nb)
+c
+c      write(*,*) 'hilbert map nb=',nb
+c      do j=0,ny(nb)-1
+c        write(*,'(A,80I4)') 'hilbert map:',
+c     >   j,(int_mb(p_map3(1,nb)+j*(nx(nb)/2+1)))
+c      end do
+c      write(*,*)
+c      
+c      write(*,*) 'hilbert map nb=',nb
+c      do j=0,ny(nb)-1
+c        write(*,'(A,80I4)') 'hilbert map:',
+c     >   (int_mb(p_map3(1,nb)+k+j*(nx(nb)/2+1)), k=0,nx(nb)/2)
+c      end do
+c      write(*,*)
+c      end if
      
 
       nfft3d(nb) = (nx(nb)/2+1)*nq1(nb)
