@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.11 2005-09-09 19:06:41 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.12 2005-09-10 01:23:05 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -16,12 +16,134 @@ c
       integer rtdb
       logical task_qmmm_energy
 c     external functions
+      logical  task_qmmm_energy_sp
+      external task_qmmm_energy_sp
+c
+      logical  task_qmmm_energy_spi
+      external task_qmmm_energy_spi
+c     local variables
+      logical traj
+      character*30 operation
+
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in task_qmmm_energy"
+c
+      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+c
+      if (.not. rtdb_get(rtdb, 'qmmm:trajectory', mt_log,1,traj))
+     $     traj = .false.
+c
+      if(operation.ne.'energy') traj = .false.
+c
+      if(traj) then
+        task_qmmm_energy = task_qmmm_energy_spi(rtdb)
+      else
+        task_qmmm_energy = task_qmmm_energy_sp(rtdb)
+      end if
+c
+      end
+c
+      function task_qmmm_energy_spi(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      logical task_qmmm_energy_spi
+c     external functions
+      logical qmmm_energy_gradient
+      external qmmm_energy_gradient 
+
+c     local variables
+      integer i,iframe
+      logical ignore
+      character*32 interface
+      character*255 filename
+      logical save_rst
+      logical do_print
+      character*30 operation
+      double precision energy
+      integer fn
+      integer trn(3)
+      character*30 pname
+c
+      logical  mm_read_frame
+      external mm_read_frame
+      logical  mm_skip_frame
+      external mm_skip_frame
+c
+      pname = "task_qmmm_energy_spi"
+c
+      task_qmmm_energy_spi = .true.
+c
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+c
+      if(.not.qmmm_get_io_unit(fn)) 
+     >   call errquit("cannot get file number",0,0)
+c
+      if (.not.rtdb_cget(rtdb,"qmmm:trajectory_file",1,filename)) 
+     >      call errquit(pname//'failed to get trajectory filename',0,
+     >       RTDB_ERR)
+c
+      open(unit=fn,file=filename,
+     + form='formatted',status='old',err=9999)
+      rewind(fn)
+c
+      if (.not.rtdb_get(rtdb,"qmmm:trajectory_n",mt_int,3,trn)) 
+     >      call errquit(pname//'failed to get trn',0,
+     >       RTDB_ERR)
+
+      write(*,*) "trn",trn(1),trn(2),trn(3)
+      if(.not.mm_read_frame(fn,trn(1)))
+     >    call errquit(pname//'failed to get skip frames',
+     >                 0,0)
+
+      do i=trn(1),trn(2),trn(3)
+        call qmmm_geom_push_active(rtdb)
+        call md_sp()
+        task_qmmm_energy_spi = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+
+        if(.not.mm_read_frame(fn,trn(3))) go to 23
+
+      end do
+      close(fn)
+23    continue
+      return
+
+ 9999 continue
+      call errquit('Failed to open file '//filename,0,0)
+
+      end
+c
+      function task_qmmm_energy_sp(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      logical task_qmmm_energy_sp
+c     external functions
       logical qmmm_energy_gradient
       external qmmm_energy_gradient 
 
 c     local variables
       logical ignore
-      logical traj
       character*32 interface
       logical save_rst
       logical do_print
@@ -34,13 +156,8 @@ c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
 c
-      if (.not. rtdb_get(rtdb, 'qmmm:trajectory', mt_log,1,traj))
-     $     traj = .false.
-c
       if (.not. rtdb_cput(rtdb, 'qmmm:operation', 1, "energy"))
      $     call errquit('qmmm: failed setting operation', 0, RTDB_ERR)
-c
-      if(operation.ne.'energy') traj = .false.
 c
       save_rst = .false.
       if (operation.eq.'optimize' .or.
@@ -51,13 +168,7 @@ c
 c
       interface = qmmm_get_interface()
 c
-      task_qmmm_energy = .true.
-      if(traj) then
-        if(qmmm_print_debug()) 
-     $     write(*,*) "doing traj"
-        call md_spi()
-        return
-      end if
+      task_qmmm_energy_sp = .true.
 c      
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
@@ -73,7 +184,7 @@ c
       else if (interface.eq.'qm') then
          call qmmm_geom_push_active(rtdb)
          call md_sp_qmmm()
-         task_qmmm_energy= qmmm_energy_gradient(rtdb,.false.)
+         task_qmmm_energy_sp= qmmm_energy_gradient(rtdb,.false.)
          call qmmm_energy_rtdb_push(rtdb)
          call qmmm_print_energy(rtdb)
          if(save_rst)

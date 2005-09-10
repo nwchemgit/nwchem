@@ -1,6 +1,44 @@
 c
-c $Id: qmmm.F,v 1.60 2005-08-24 18:42:42 marat Exp $
+c $Id: qmmm.F,v 1.61 2005-09-10 01:22:56 marat Exp $
 c
+c
+      function task_qmmm_generic(rtdb,operation)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      character*(*) operation
+      logical  task_qmmm_generic
+c
+      logical  task_qmmm_gradient
+      external task_qmmm_gradient
+c
+      logical  task_qmmm_energy
+      external task_qmmm_energy
+c
+      logical  task_qmmm_optimize
+      external task_qmmm_optimize
+c
+      logical  task_qmmm_dynamics
+      external task_qmmm_dynamics
+c     local variables
+      logical ostatus
+      
+      if(operation.eq."energy") then
+        ostatus = task_qmmm_energy(rtdb) 
+      else if (operation.eq."gradient") then
+        ostatus = task_qmmm_gradient(rtdb)
+      else if (operation.eq."dynamics") then
+        ostatus = task_qmmm_dynamics(rtdb)
+      end if 
+      end
 c
       function qmmm_init(irtdb)
       implicit none

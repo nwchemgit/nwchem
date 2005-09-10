@@ -91,6 +91,37 @@ c     --------------
 c
 c     link atom basis set
 c     -------------------
+      if(inp_compare(.false.,'trajectory',token)) then
+        if(.not.inp_a(token)) then
+         call errquit('qmmm_input: trajectory filename',0,
+     &         INPUT_ERR)
+        end if
+        do ip=1,3
+          itoken(ip) = ip
+        end do
+        np = inp_n_field()
+        do ip=1,min(np-2,3)
+          if(.not.inp_i(itoken(ip))) 
+     +      call errquit('qmmm_input: trajectory',0,
+     +         INPUT_ERR)
+        end do
+        tag = "qmmm:trajectory"
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        tag = "qmmm:trajectory_file"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        tag = "qmmm:trajectory_n"
+        if (.not.rtdb_put(rtdb,tag,mt_int,3,itoken)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     link atom basis set
+c     -------------------
       if(inp_compare(.false.,'link_ecps',token) .or.
      >   inp_compare(.false.,'link_ecp',token)) then
         if(.not.inp_a(token)) then

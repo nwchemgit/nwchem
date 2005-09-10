@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.71 2005-09-09 06:45:42 marat Exp $
+c $Id: mm_interface.F,v 1.72 2005-09-10 01:22:49 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -208,16 +208,20 @@ c
 c
       if(qmmm_print_debug()) write(*,*) "in "//pname
 c
+      write(*,*) "debug 0",n
       if(n.gt.1) then
-        mm_read_frame = sp_skip(lfntri,n-1)
+        mm_read_frame = sp_skip(fn,n-1)
         if(.not.mm_read_frame) return
       end if
+      write(*,*) "debug 1",n
 c 
       mm_read_frame = sp_rdtrj(fn,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_fs),nwmloc,nsaloc)
+c
+      write(*,*) "debug 1",n
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return

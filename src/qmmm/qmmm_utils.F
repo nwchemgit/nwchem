@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.10 2005-08-25 23:56:01 marat Exp $
+c $Id: qmmm_utils.F,v 1.11 2005-09-10 01:23:03 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -319,4 +319,27 @@ c     local variables:
 
       end
 
+      function qmmm_get_io_unit(fn)
+
+      implicit none
+      integer fn
+      logical qmmm_get_io_unit
+c 
+      integer k
+      logical ostatus
+c
+      do k=80,90
+        INQUIRE(UNIT=k,OPENED=ostatus)
+        ostatus = .not.ostatus
+        if(ostatus) 
+     >    INQUIRE(UNIT=k,EXIST=ostatus)
+        if(ostatus) then
+          fn = k
+          qmmm_get_io_unit = .true.
+          return
+        end if 
+      end do
+      qmmm_get_io_unit = .false.
+      return
+      end
 
