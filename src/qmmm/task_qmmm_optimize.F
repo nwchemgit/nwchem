@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -118,11 +118,14 @@ c
 c
       character*30 region(3)
       character*30 method(3)
+      character*30 xyz(3)
       integer maxiter(3)
       integer nmethod
+      integer nxyz
       integer nmaxiter
       integer nregion
       integer ncycles
+      character*60 xyzfile,xyztmp
 c
       character*255 rfile
       character*255 stub
@@ -160,6 +163,21 @@ c     -------------------------
         if (.not.rtdb_cget(rtdb,tag,nmethod,method)) 
      >       call errquit(pname//tag,0,RTDB_ERR)
       end if
+c
+c     xyz files
+c     ---------
+      tag ="qmmm:xyz"
+      do i=1,nregion
+        xyz(i) = " "
+      end do
+      if (rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nxyz)) then
+        if(nxyz.gt.3) 
+     >       call errquit(pname//"too many xyz",0,0)
+        if (.not.rtdb_cget(rtdb,tag,nxyz,xyz)) 
+     >       call errquit(pname//tag,0,RTDB_ERR)
+      end if
+c
 c
 c     max iterations if any
 c     ---------------------
@@ -217,9 +235,15 @@ c     ----------------------------
        do k=1,nregion
 c
          if(maxiter(k).eq.0) goto 111
-c
+         xyzfile = " "
+         if(xyz(k).ne." ") then
+           xyztmp  = xyz(k)
+           write(xyzfile,'(A,"-",I3.3)') 
+     >       xyztmp(1:inp_strlen(xyztmp)),i 
+         end if
+
          status = qmmm_optimizer(rtdb,region(k),method(k),
-     >                         maxiter(k))
+     >                         xyzfile,maxiter(k))
 111    continue
        end do
 c
@@ -281,7 +305,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -360,7 +384,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -388,7 +412,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -420,8 +444,8 @@ c
 
       end
 c
-      function qmmm_optimizer(rtdb,region,method,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+      function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
+c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -436,7 +460,7 @@ c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
 
       integer rtdb
       logical qmmm_optimizer
-      character*(*) region,method
+      character*(*) region,method,xyz
       integer maxiter
 c
       logical  status
@@ -515,6 +539,8 @@ c     perform an optimization as requested
 c     ------------------------------------
       if(method.eq."bfgs") then
          call qmmm_geom_init_aux(rtdb)
+         if (.not. rtdb_cput(rtdb,'driver:xyz',1,xyz))
+     $        call errquit(pname,0, RTDB_ERR)
          if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter))
      $        call errquit(pname,0, RTDB_ERR)
          call qmmm_set_interface("qm")
@@ -522,6 +548,8 @@ c     ------------------------------------
          ignore = rtdb_delete(rtdb,'geometry')
          call qmmm_geom_aux_end(rtdb)
        else if(method.eq."lbfgs") then
+         if (.not. rtdb_cput(rtdb,'driver:xyz',1,xyz))
+     $        call errquit(pname,0, RTDB_ERR)
          if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter))
      $        call errquit(pname,0, RTDB_ERR)
          call qmmm_set_interface("qm")
@@ -540,7 +568,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -661,7 +689,7 @@ c       load restart file if it exists
       end
 
 c      function qmmm_pes(irtdb,optimizer)
-cc     $Id: task_qmmm_optimize.F,v 1.41 2005-09-09 19:21:39 marat Exp $
+cc     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
 c      implicit none
 c#include "errquit.fh"
 c#include "mafdecls.fh"

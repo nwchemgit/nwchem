@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.11 2005-09-10 01:23:03 marat Exp $
+c $Id: qmmm_utils.F,v 1.12 2005-09-11 00:39:04 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -163,16 +163,21 @@ c     local variables:
       integer n
       integer nf
       integer ns
+      integer un
 
-      call util_file_prefix("",filename)
+      call util_file_prefix(" ",filename)
       nf=inp_strlen(filename)-1
       ns=inp_strlen(myname)
       filename = filename(1:nf)//myname(1:ns)
+c
+      if(.not.qmmm_get_io_unit(un)) 
+     >   call errquit("cannot get file number",0,0)
+c
 
-      open(unit=46,status="unknown",form="formatted",file=filename)
+      open(unit=un,status="unknown",form="formatted",file=filename)
 
       do i=1,nt
-       write(46,FMT=9000)
+       write(un,FMT=9000)
      >           i,t(i),c(1,i)*0.529177249d00,
      >            c(2,i)*0.529177249d00,
      >            c(3,i)*0.529177249d00, q(i)
@@ -180,8 +185,8 @@ c     local variables:
       end do
 9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
 
-      call util_flush(46)
-      close(46)
+      call util_flush(un)
+      close(un)
 
 
       end
@@ -290,13 +295,14 @@ c     local variables:
 
       end
 
-      subroutine qmmm_print_pdbi(nt,ai,c,q,t)
+      subroutine qmmm_print_pdbi(un,nt,ai,c,q,t)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm.fh"
 #include "util.fh"
 #include "inp.fh"
+      integer un
       integer nt
       integer ai(nt)
       double precision c(3,nt)
@@ -309,13 +315,46 @@ c     local variables:
       integer ns
 
       do i=1,nt
-       write(6,FMT=9000)
+       write(un,FMT=9000)
      >           ai(i),t(i),c(1,i)*0.529177249d00,
      >            c(2,i)*0.529177249d00,
      >            c(3,i)*0.529177249d00, q(i)
 
       end do
 9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
+
+      end
+
+      subroutine qmmm_print_xyz(un,nt,c,t)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer un
+      integer nt
+      integer ai(nt)
+      double precision c(3,nt)
+      double precision q(nt)
+      character*16 t(nt)
+
+      integer i
+      integer n
+      integer nf
+      integer ns
+
+      write(un,FMT=1) nt
+
+      do i=1,nt
+       write(un,FMT=2)
+     >            t(i),c(1,i)*0.529177249d00,
+     >            c(2,i)*0.529177249d00,
+     >            c(3,i)*0.529177249d00
+
+      end do
+1     FORMAT(1X,I9,/, "   ")
+2     FORMAT(1X,A5,6X,3(F12.6,4X))
 
       end
 

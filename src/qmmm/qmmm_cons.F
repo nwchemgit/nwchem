@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.13 2005-08-31 00:00:06 marat Exp $
+c $Id: qmmm_cons.F,v 1.14 2005-09-11 00:38:49 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -779,6 +779,39 @@ c
           ai(n) = int_mb(i_acts+i-1)
         end if
       end do
+
+      end 
+c
+      subroutine qmmm_cons_print_region(un,aform)
+      implicit none
+#include "qmmm_cons_data.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      integer un
+      character*(*) aform
+
+      integer i,n
+      integer i_id,h_id
+      character*30 pname
+
+      pname = "qmmm_cons_print_region"
+
+      call qmmm_cons_get_nacts(n)
+
+      if(.not.ma_push_get(mt_int,n,'qmmm_cons i_id',h_id,i_id))
+     + call errquit( pname//'Failed to allocate memory for id',
+     + n, MA_ERR)
+       call ifill(n,0,int_mb(i_id),1)
+
+      call qmmm_cons_get_i_acts(int_mb(i_id))
+
+      call qmmm_region_print(un,n,int_mb(i_id),aform)
+       
+      if(.not.ma_pop_stack(h_id))
+     + call errquit( pname//'Failed to pop stack for id',
+     + n, MA_ERR)
+       
 
       end 
 

@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.7 2005-08-28 02:00:52 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.8 2005-09-11 00:39:02 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -44,6 +44,7 @@ c     **************
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "global.fh"
+#include "stdio.fh"
  
       integer          irtdb
       logical qmmm_lbfgsb_driver
@@ -258,6 +259,7 @@ c        go back to the minimization routine.
 c       the minimization routine has returned with a new iterate,
 c       so we have to save it into rtdb
         if (task(1:5) .eq. 'NEW_X')  then
+          call qmmm_lbfgs_print_xyz(isave(30),xyz)
           call mm_write_restart()
           rtdb_mode = rtdb_parallel(.false.)
           if(master) then
@@ -480,3 +482,41 @@ c     ttime = dble(itemp)*1.0d-2
 c     return
 c     end
 c-----------------------------------------------------------------------
+      subroutine qmmm_lbfgs_print_xyz(istep,xyz)
+      implicit none
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "errquit.fh"
+      integer n
+c
+      integer istep
+      character*(*) xyz
+
+      character*255 filename, dir
+      character*30 pname
+      integer fn
+c
+      pname = "qmmm_lbfgs_print_xyz"
+c
+      if (xyz.ne.' ') then
+         dir      = ' '
+         filename = ' ' 
+         call util_directory_name(dir, .false., 0)
+         write(filename,13) dir(1:inp_strlen(dir)), 
+     $        xyz(1:inp_strlen(xyz)),istep
+ 13      format(a,'/',a,'-',i3.3,'.xyz')
+         if(.not.qmmm_get_io_unit(fn)) 
+     >     call errquit("cannot get file number",0,0)
+         open(fn,file=filename,form='formatted',status='unknown',
+     $        err=133)
+         call qmmm_cons_print_region(fn,"xyz")
+         close(fn,status='keep',err=133)
+      endif
+c
+      return
+c
+ 133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
+c
+      end
+

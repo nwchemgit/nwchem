@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.71 2005-08-22 01:05:39 marat Exp $
+c $Id: qmmm_geom.F,v 1.72 2005-09-11 00:38:54 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -431,6 +431,103 @@ c     ------------------------
       if(.not.ma_pop_stack(h_c))
      & call errquit('qmmm: Failed to deallocate stack c_all',n,
      &       MA_ERR)
+
+      if(qmmm_print_debug())
+     > write(*,*) "out "//pname
+ 
+      end
+
+      subroutine qmmm_region_print(un,ns,ais,aform)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+      integer irtdb
+      integer un
+      integer ns
+      integer ais(ns)
+      character*(*) aform
+c
+      integer i
+      integer igeom
+      character*32 pname
+      integer i_q,h_q
+      integer i_c,h_c
+      integer i_t,h_t
+      integer i_m,h_m
+      integer i_atn,h_atn
+      integer i_il
+      integer n
+      logical ignore
+ 
+      pname = "qmmm_region_print"
+      if(qmmm_print_debug())
+     > write(*,*) "in "//pname
+
+      n = ns
+      if(n.eq.0) goto 999
+      if(.not.ma_push_get(mt_dbl,3*n,'c',h_c,i_c))
+     + call errquit('qmmm: Failed to allocate memory for c',
+     + 3*n, MA_ERR)
+      if(.not.ma_push_get(mt_dbl,n,'q',h_q,i_q))
+     + call errquit('qmmm: Failed to allocate memory for q',n,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_dbl,n,'m',h_m,i_m))
+     + call errquit('qmmm: Failed to allocate memory for m',n,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_int,n,'inum',h_atn,i_atn))
+     + call errquit('qmmm: Failed to allocate memory for atn',n,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_byte,16*n,'t',h_t,i_t))
+     + call errquit('qmmm: Failed to allocate memory for t',n,
+     &       MA_ERR)
+
+        call mm_get_solute_geom(ns,
+     >                 ais,
+     >                 int_mb(i_atn),
+     >                 byte_mb(i_t),
+     >                 dbl_mb(i_c),
+     >                 dbl_mb(i_q),
+     >                 dbl_mb(i_m))
+
+      if(qmmm_master()) then
+        if(aform.eq."pdbi") then
+        call qmmm_print_pdbi(un,n,
+     >                      ais,
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_q),
+     >                      byte_mb(i_t))
+        else if (aform.eq."xyz") then
+        call qmmm_print_xyz(un,n,
+     >                      dbl_mb(i_c),
+     >                      byte_mb(i_t))
+
+
+        end if
+      end if
+c
+c     release temporary memory
+c     ------------------------
+      if(.not.ma_pop_stack(h_t))
+     & call errquit('qmmm: Failed to deallocate stack t_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_atn))
+     & call errquit('qmmm: Failed to deallocate stack t_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_m))
+     & call errquit('qmmm: Failed to deallocate stack m_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_q))
+     & call errquit('qmmm: Failed to deallocate stack q_all',n,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_c))
+     & call errquit('qmmm: Failed to deallocate stack c_all',n,
+     &       MA_ERR)
+
+999   continue
 
       if(qmmm_print_debug())
      > write(*,*) "out "//pname

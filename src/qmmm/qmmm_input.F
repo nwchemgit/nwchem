@@ -242,6 +242,28 @@ c
           goto 2
       endif
 c
+      if(inp_compare(.false.,'xyz',token)) then
+        np = inp_n_field()
+        do ip = 1,np-1
+        mtoken(ip) = " "
+        if(.not.inp_a(mtoken(ip))) then
+         call errquit('qmmm_input',0,
+     &         INPUT_ERR)
+        end if
+        if(mtoken(ip).eq."none") 
+     $     mtoken(ip) = " "
+        end do
+        tag="qmmm:xyz_n"
+        if (.not.rtdb_put(rtdb,tag,mt_int,1,np-1)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        tag="qmmm:xyz"
+        if (.not.rtdb_cput(rtdb,tag,np-1,mtoken)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+          goto 2
+      endif
+c
       if(inp_compare(.false.,'region',token)) then
         np = inp_n_field()
         do ip = 1,np-1
