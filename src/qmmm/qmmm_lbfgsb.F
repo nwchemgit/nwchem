@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.8 2005-09-11 00:39:02 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.9 2005-09-11 01:44:12 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -496,6 +496,9 @@ c
       character*255 filename, dir
       character*30 pname
       integer fn
+      logical master
+
+      master = qmmm_master()
 c
       pname = "qmmm_lbfgs_print_xyz"
 c
@@ -508,10 +511,12 @@ c
  13      format(a,'/',a,'-',i3.3,'.xyz')
          if(.not.qmmm_get_io_unit(fn)) 
      >     call errquit("cannot get file number",0,0)
-         open(fn,file=filename,form='formatted',status='unknown',
+         if(master)   
+     $    open(fn,file=filename,form='formatted',status='unknown',
      $        err=133)
          call qmmm_cons_print_region(fn,"xyz")
-         close(fn,status='keep',err=133)
+         if(master)   
+     $   close(fn,status='keep',err=133)
       endif
 c
       return
