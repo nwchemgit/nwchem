@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.72 2005-09-11 00:38:54 marat Exp $
+c $Id: qmmm_geom.F,v 1.73 2005-09-11 22:23:42 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -323,6 +323,7 @@ c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
 #include "rtdb.fh"
 #include "qmmm.fh"
 #include "global.fh"
+#include "stdio.fh"
       integer irtdb
       integer ns
       integer ais(ns)
@@ -334,6 +335,7 @@ c
       integer i
       integer igeom
       character*32 pname
+      character*255 buf 
       integer i_q,h_q
       integer i_c,h_c
       integer i_t,h_t
@@ -403,8 +405,15 @@ c
       call geom_compute_values(igeom)
 
       if(qmmm_master()) then
-        if(.not.geom_print(igeom))
-     +   call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
+        buf = " "
+        write(buf,*) "globally indexed xyz file for ",
+     +    aname
+        call util_print_centered(luout,
+     +   buf,40,.true.)
+         call qmmm_print_xyzi(luout,ns,ais,
+     +        dbl_mb(i_c),byte_mb(i_t))
+c        if(.not.geom_print(igeom))
+c     +   call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
       end if
 
       if(.not.geom_rtdb_store(irtdb,igeom,aname))

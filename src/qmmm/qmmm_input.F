@@ -168,35 +168,27 @@ c
         goto 2
       end if  
 c
-      if(inp_compare(.false.,'frozen_density',token)) then
-        if(.not.inp_a(token)) then
-         write(*,*) "please provide an option for geom"
-         call errquit('qmmm_input: geom',0,
-     &         INPUT_ERR)
-        end if
-        tag="qmmm:frozen_density"
-        if(inp_compare(.false.,'on',token)) then
-          ltoken=.true.
-        else if (inp_compare(.false.,'off',token)) then
-          ltoken=.false.
-        else
-           call errquit(pname//'unknown token'//tag,0,
+      if(inp_compare(.false.,'geom',token)) then
+        np = inp_n_field()
+        if(np.ne.3) 
+     >    call errquit(pname//'geom needs two arguments',0,
      >       RTDB_ERR)
-        end if
-        if (.not.rtdb_put(rtdb,tag,mt_log,1,ltoken)) 
+        do ip = 1,np-1
+          if(.not.inp_a(mtoken(ip))) then
+             call errquit(pname//" geom" ,0,
+     &           INPUT_ERR)
+          end if
+        end do
+        tag="qmmm:geom"
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
-          goto 2
-      end if  
-c
-      if(inp_compare(.false.,'geom',token)) then
-        if(.not.inp_a(token)) then
-         write(*,*) "please provide an option for geom"
-         call errquit('qmmm_input: geom',0,
-     &         INPUT_ERR)
-        end if
-        tag="qmmm:geom"
-        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+        tag="qmmm:geom_file"
+        if (.not.rtdb_cput(rtdb,tag,1,mtoken(1))) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        tag="qmmm:geom_region"
+        if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
           goto 2
