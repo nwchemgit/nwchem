@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.72 2005-09-10 01:22:49 marat Exp $
+c $Id: mm_interface.F,v 1.73 2005-09-12 01:28:19 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1001,16 +1001,6 @@ c     -----------------------------
       end do
 
       call ga_igop(msg_qmmm_ind_solvent,ind,nt,'+')
-
-      
-c      do i=1,nt
-c       write(85,*) ind(i)
-c      end do
-c      call qmmm_sort(nt/mwa,ind)
-c      do i=1,nt
-c       write(86,*) ind(i)
-c      end do
-c      stop
 
       if(.not.ma_pop_stack(l_ioff))
      + call errquit('qmmm: Failed to deallocate memory for ioff',np,
@@ -3127,6 +3117,134 @@ c     mm local variables
       end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_set_solute_coord_file(aname)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "msgids.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "inp.fh"
+      character*(*) aname    
+c     local variables
+      integer ns,ns1
+      integer i
+      integer k
+      logical title
+
+
+      integer i_itmp,h_itmp
+      integer i_ctmp,h_ctmp
+      character*32 pname
+      character*30 buf
+      character*1 buf1
+
+      integer fn
+      logical master
+
+      pname = "qmmm_geom_push_file"
+      master = qmmm_master()
+
+
+      if(master) then  
+        if(.not.qmmm_get_io_unit(fn)) 
+     >       call errquit("cannot get file number",0,0)
+c
+        open(fn,file=aname,form='formatted',status='old',
+     $          err=133)
+      end if
+      
+c     get number of atoms
+      if(master) then
+         read(fn,*) ns
+      else
+         ns = 0
+      end if
+
+      write(*,*) "read ns",ns
+
+      call ga_igop(msg_qmmm_nqm,ns,1,'+')
+      write(*,*) "ns=",ns,ga_nodeid()
+      call ga_sync()
+
+      if(.not.ma_push_get(mt_int,ns,'itmp',h_itmp,i_itmp))
+     + call errquit( pname//'Failed to allocate memory for itmp',
+     + ns, MA_ERR)
+      call ifill(ns,0,int_mb(i_itmp),1)
+
+      if(.not.ma_push_get(mt_dbl,3*ns,'ctmp',h_ctmp,i_ctmp))
+     + call errquit( pname//'Failed to allocate memory for ctmp',
+     + 3*ns, MA_ERR)
+      call dfill(3*ns,0.0d0,dbl_mb(i_ctmp),1)
+
+c
+c     read the coords and global index
+c     --------------------------------
+      if(master) then
+c     testing for the presence of the title
+        rewind(fn)
+        title =.false.
+        do i=1,ns+2
+          read(fn,*,end=1) buf
+          write(*,*) buf(1:inp_strlen(buf))
+        end do
+        title = .true.
+1       continue
+c       title or not read coordinates now
+        rewind(fn) 
+        read(fn,*) buf
+        if(title) 
+     +     read(fn,*) buf
+
+        do i=1,ns
+         read(fn,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+     +               int_mb(i_itmp+i-1)
+         write(*,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+     +               int_mb(i_itmp+i-1)
+
+        end do
+        close(fn)
+        do i=1,3*ns
+          dbl_mb(i_ctmp+i-1) = dbl_mb(i_ctmp+i-1)/cau2ang
+        end do
+      end if
+c
+      call ga_igop(msg_qmmm_ind,int_mb(i_itmp),ns,'+')
+      call ga_dgop(msg_qmmm_c1,dbl_mb(i_ctmp),3*ns,'+')
+c
+      if(ga_nodeid().eq.1) then
+      write(*,*) "coord on node 1"
+      do i=1,ns
+         write(*,*) (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+     +               int_mb(i_itmp+i-1)
+
+      end do
+      end if
+
+      call ga_sync
+c
+      call mm_set_solute_coord(ns,
+     >                         int_mb(i_itmp),
+     >                         dbl_mb(i_ctmp))
+
+c
+      if(.not.ma_pop_stack(h_ctmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ns,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_itmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack i_itmp',ns,
+     &       MA_ERR)
+
+      return
+
+ 133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
+
       end
 
       subroutine mm_debug0()

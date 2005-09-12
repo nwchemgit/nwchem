@@ -170,8 +170,8 @@ c
 c
       if(inp_compare(.false.,'geom',token)) then
         np = inp_n_field()
-        if(np.ne.3) 
-     >    call errquit(pname//'geom needs two arguments',0,
+        if(np.ne.2) 
+     >    call errquit(pname//'geom needs one argument',0,
      >       RTDB_ERR)
         do ip = 1,np-1
           if(.not.inp_a(mtoken(ip))) then
@@ -187,10 +187,10 @@ c
         if (.not.rtdb_cput(rtdb,tag,1,mtoken(1))) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
-        tag="qmmm:geom_region"
-        if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
-     >      call errquit(pname//'failed to store'//tag,0,
-     >       RTDB_ERR)
+c        tag="qmmm:geom_region"
+c        if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
+c     >      call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
           goto 2
       endif
 c
