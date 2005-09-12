@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.73 2005-09-12 01:28:19 marat Exp $
+c $Id: mm_interface.F,v 1.74 2005-09-12 01:39:52 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -3164,10 +3164,8 @@ c     get number of atoms
          ns = 0
       end if
 
-      write(*,*) "read ns",ns
 
       call ga_igop(msg_qmmm_nqm,ns,1,'+')
-      write(*,*) "ns=",ns,ga_nodeid()
       call ga_sync()
 
       if(.not.ma_push_get(mt_int,ns,'itmp',h_itmp,i_itmp))

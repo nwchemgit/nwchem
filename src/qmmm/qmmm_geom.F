@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.74 2005-09-12 01:28:31 marat Exp $
+c $Id: qmmm_geom.F,v 1.75 2005-09-12 01:40:01 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -65,8 +65,6 @@ c    --------------------
       call dfill(3*nfg,0,dbl_mb(i_qs),1)
 c
       if (rtdb_cget(irtdb,"qmmm:geom_file",1,geom)) then
-        write(*,*) geom,ga_nodeid()
-         call ga_sync()
         call mm_set_solute_coord_file(geom)
       end if
 c
