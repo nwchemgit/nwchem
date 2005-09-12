@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.75 2005-09-12 06:00:34 marat Exp $
+c $Id: mm_interface.F,v 1.76 2005-09-12 06:41:57 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -3128,6 +3128,7 @@ c     mm local variables
 #include "qmmm_params.fh"
 #include "global.fh"
 #include "inp.fh"
+#include "stdio.fh"
       character*(*) aname    
 c     local variables
       integer ns,ns1
@@ -3149,6 +3150,10 @@ c     local variables
       pname = "qmmm_geom_push_file"
       master = qmmm_master()
 
+      filename = aname(1:inp_strlen(aname))
+      call util_print_centered(luout,
+     + "Loading external geometry from "//
+     +   filename,40,.true.)
       dir      = ' '
       call util_directory_name(dir, .false., 0)
       filename = ' '
@@ -3193,7 +3198,6 @@ c     testing for the presence of the title
         title =.false.
         do i=1,ns+2
           read(fn,*,end=1) buf
-          write(*,*) buf(1:inp_strlen(buf))
         end do
         title = .true.
 1       continue
@@ -3206,7 +3210,7 @@ c       title or not read coordinates now
         do i=1,ns
          read(fn,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
      +               int_mb(i_itmp+i-1)
-         write(*,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+         write(luout,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
      +               int_mb(i_itmp+i-1)
 
         end do
