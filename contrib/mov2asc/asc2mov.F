@@ -8,7 +8,7 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: asc2mov.F,v 1.6 2002-11-20 22:20:51 d3k958 Exp $
+C     $Id: asc2mov.F,v 1.7 2005-09-12 23:42:39 edo Exp $
 C
 #include "mafdecls.fh"
 c
@@ -32,26 +32,39 @@ c
       character*26 date
       character*20 scftype20
 C
+#if defined(CRAY)
+      integer*4 length,ierror,iarg
+#else
       Integer IArgc
       External IArgc
+#endif
 C
       double precision energy, enrep
 C     Interpret command line
 C
+#ifdef CRAY
+      integer*4 ipxfargc
+      external ipxfargc
+      nargs =ipxfargc() 
+#else
       NArgs = IArgc()
+#endif
       If ( NArgs .ne. 3) then
          Write (0, *) 'Usage: asc2mov guess_nbf infile outfile'
          Call Exit(1)
       EndIf
-#ifdef _CRAY
-      Call pxfGetArg(1, data, 255, ok)
+#ifdef CRAY
+      iarg=1
+      Call pxfGetArg(iarg, data, length, ierror)
 #else
       Call GetARg(1, data)
 #endif
       Read(Data, '(I10)') Guess_NBF
-#ifdef _CRAY
-      Call pxfGetArg(2, afilename, 255, ok)
-      Call pxfGetArg(3, bfilename, 255, ok)
+#ifdef CRAY
+      iarg=2
+      Call pxfGetArg(iarg, afilename, 255, ok)
+      iarg=3
+      Call pxfGetArg(iarg, bfilename, 255, ok)
 #else
       Call GetARg(2, afilename)
       Call GetARg(3, bfilename)
