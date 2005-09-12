@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.74 2005-09-12 01:39:52 marat Exp $
+c $Id: mm_interface.F,v 1.75 2005-09-12 06:00:34 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -3141,6 +3141,7 @@ c     local variables
       character*32 pname
       character*30 buf
       character*1 buf1
+      character*255 filename, dir
 
       integer fn
       logical master
@@ -3148,12 +3149,17 @@ c     local variables
       pname = "qmmm_geom_push_file"
       master = qmmm_master()
 
-
+      dir      = ' '
+      call util_directory_name(dir, .false., 0)
+      filename = ' '
+      write(filename,13) dir(1:inp_strlen(dir)), 
+     $     aname(1:inp_strlen(aname))
+ 13      format(a,'/',a)
       if(master) then  
         if(.not.qmmm_get_io_unit(fn)) 
      >       call errquit("cannot get file number",0,0)
 c
-        open(fn,file=aname,form='formatted',status='old',
+        open(fn,file=filename,form='formatted',status='old',
      $          err=133)
       end if
       

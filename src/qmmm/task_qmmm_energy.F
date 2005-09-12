@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.12 2005-09-10 01:23:05 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.13 2005-09-12 06:00:42 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -73,6 +73,7 @@ c     local variables
       integer fn
       integer trn(3)
       character*30 pname
+      character*80 geom_file
 c
       logical  mm_read_frame
       external mm_read_frame
@@ -101,13 +102,17 @@ c
      >      call errquit(pname//'failed to get trn',0,
      >       RTDB_ERR)
 
-      write(*,*) "trn",trn(1),trn(2),trn(3)
+      if (rtdb_cget(rtdb,"qmmm:geom_file",1,geom_file)) 
+     >    geom_file = " "
+
       if(.not.mm_read_frame(fn,trn(1)))
      >    call errquit(pname//'failed to get skip frames',
      >                 0,0)
 
+
       do i=trn(1),trn(2),trn(3)
-        call qmmm_geom_push_active(rtdb)
+        if(geom_file.ne." ") 
+     >     call mm_set_solute_coord_file(geom_file)
         call md_sp()
         task_qmmm_energy_spi = qmmm_energy_gradient(rtdb,.false.)
         call qmmm_energy_rtdb_push(rtdb)
