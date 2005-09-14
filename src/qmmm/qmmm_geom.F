@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.75 2005-09-12 01:40:01 marat Exp $
+c $Id: qmmm_geom.F,v 1.76 2005-09-14 16:41:22 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -415,8 +415,8 @@ c
      +   buf,40,.true.)
          call qmmm_print_xyzi(luout,ns,ais,
      +        dbl_mb(i_c),byte_mb(i_t))
-c        if(.not.geom_print(igeom))
-c     +   call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
+        if(.not.geom_print(igeom))
+     +   call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
       end if
 
       if(.not.geom_rtdb_store(irtdb,igeom,aname))
