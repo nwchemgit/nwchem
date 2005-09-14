@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.76 2005-09-12 06:41:57 marat Exp $
+c $Id: mm_interface.F,v 1.77 2005-09-14 01:53:57 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -55,7 +55,6 @@ c
       integer irtdb0
       character*(*) filename
 c
-      integer includ
       character*32 pname
       integer j
 c
@@ -91,7 +90,6 @@ c
 c
       character*255 rfile
       integer lfnrst
-      integer nf
       character*32 pname
 c
       pname = "mm_write_restart"
@@ -142,7 +140,6 @@ c
 c
       character*(*) rfile
       integer lfnrst
-      integer nf
       character*32 pname
 c
       pname = "mm_write_restart_named"
@@ -215,6 +212,10 @@ c
       end if
       write(*,*) "debug 1",n
 c 
+c     note that lxw,..., are output flags indicating whether
+c     corresponding quantites (coords, vel, ..)
+c     were found/read from file
+c     ------------------------------------------------------
       mm_read_frame = sp_rdtrj(fn,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,
      + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
@@ -223,6 +224,39 @@ c
 c
       write(*,*) "debug 1",n
 c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      subroutine mm_write_frame(fn)
+      implicit none
+#include "md_common.fh"
+#include "qmmm.fh"
+#include "mafdecls.fh"
+      integer fn
+      character*32 pname
+c
+      pname = "mm_write_frame"
+c
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+c     atom redistribution
+c
+      call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
+     + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_gs),int_mb(i_is),nsaloc)
+
+c      call md_sp()
+c
+c     here we writing only solvent and solute coords
+c     we could also write out velocities,forces, etc
+c     ----------------------------------------------
+      call sp_wrttrj(fn,.true.,.false.,.false.,.true.,.false.,.false.,
+     + stime,pres,temp,tempw,temps,
+     + int_mb(i_iw),dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_fw),
+     + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
+     + dbl_mb(i_fs))
+
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return
       end
@@ -559,7 +593,6 @@ c
       integer i
       integer nsaloc
       integer nwmloc
-      integer bq_exclude
       integer psz
       character*32 pname
       pname = "mm_activate_bqszone"
@@ -587,7 +620,6 @@ c
       integer i
       integer nsaloc
       integer nwmloc
-      integer bq_exclude
       integer pwz
       character*32 pname
       pname = "mm_activate_bqwzone"
@@ -1236,7 +1268,7 @@ c
       logical mm_type
       external mm_type
 
-      integer i,j,k
+      integer i,j
       integer i_act,l_act
 
 
@@ -1302,7 +1334,7 @@ c     mm local variables
       integer ai(nt)
       logical act(nt)
 
-      integer i,j,k
+      integer i,j
       integer i_act,l_act
 
 
@@ -1362,7 +1394,7 @@ c     mm local variables
       integer nt
       integer ai(nt)
 
-      integer i,j,k
+      integer i,j
 
 c     mm local variables
       integer nsa
@@ -1403,7 +1435,7 @@ c     mm local variables
       integer nt
       integer ai(nt)
 
-      integer i,j,k
+      integer i,j
 
 c     mm local variables
       integer nsa
@@ -1442,7 +1474,7 @@ c     mm local variables
       logical mm_type
       external mm_type
 
-      integer i,j,k
+      integer i
 
 c     mm local variables
       integer nsa
@@ -1475,7 +1507,7 @@ c     mm local variables
       logical mm_type
       external mm_type
 
-      integer i,j,k
+      integer i
 
 c     mm local variables
       integer nsa
@@ -1788,7 +1820,6 @@ c     mm local variables
 #include "mm_utils.fh"
 
       integer nt
-      logical mm_type
       integer ai(nt)
       double precision c(3,nt)
       double precision q(nt)
@@ -2113,7 +2144,7 @@ c     mm local variables
       integer ai(nt)
       logical act(nt)
 
-      integer i,j,k,m,j1
+      integer i,j,m
 
 c     mm local variables
       integer mwa
@@ -2276,7 +2307,6 @@ c     mm local variables
       integer mwm
       integer nwm
       integer pfw
-      integer pwl
       integer ntot
       double precision g
       character*32 pname
@@ -2447,7 +2477,6 @@ c     mm local variables
       integer i,j,k,m,j1,ioff
 
 c     mm local variables
-      double precision f0,f1
       integer mwa
       integer mwm
       integer nwm
@@ -2824,11 +2853,9 @@ c     local variables
       double precision  grms
       external mm_type
 c     local variables
-      integer i,j,k
+      integer i,k
       integer msa
       integer nsa
-      integer psdt
-      integer psl
       integer pfs
       integer ntot
       character*32 pname
@@ -3131,7 +3158,7 @@ c     mm local variables
 #include "stdio.fh"
       character*(*) aname    
 c     local variables
-      integer ns,ns1
+      integer ns
       integer i
       integer k
       logical title
@@ -3141,13 +3168,12 @@ c     local variables
       integer i_ctmp,h_ctmp
       character*32 pname
       character*30 buf
-      character*1 buf1
       character*255 filename, dir
 
       integer fn
       logical master
 
-      pname = "qmmm_geom_push_file"
+      pname = "mm_set_solute_coord_file"
       master = qmmm_master()
 
       filename = aname(1:inp_strlen(aname))
@@ -3252,6 +3278,165 @@ c
       return
 
  133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
+
+      end
+
+      subroutine mm_create_trj_from_xyz(in_xyz,out_trj)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "msgids.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      character*(*) in_xyz
+      character*(*) out_trj
+c     local variables
+      integer ns
+      integer i
+      integer k
+      logical title
+
+
+      integer i_itmp,h_itmp
+      integer i_ctmp,h_ctmp
+      character*32 pname
+      character*30 buf
+      character*255 filename
+      character*255 xyzfile
+      character*255 trjfile
+      character*255 message
+
+      integer fn_xyz,fn_trj
+      logical master
+
+      pname = "mm_create_trj_from_xyz"
+      master = qmmm_master()
+c
+      xyzfile = in_xyz(1:inp_strlen(in_xyz))
+      call util_file_name_resolve(xyzfile, .false.)
+c
+      trjfile = out_trj(1:inp_strlen(out_trj))
+      call util_file_name_resolve(trjfile, .false.)
+
+      filename = in_xyz(1:inp_strlen(xyzfile))
+      call util_print_centered(luout,
+     + "Loading external xyz frames from "//
+     +   filename,
+     +   40,.true.)
+c
+      filename = out_trj(1:inp_strlen(out_trj))
+      call util_print_centered(luout,
+     + "Creating mm trajectory file "//
+     +   filename,
+     +   40,.true.)
+cc
+      if(master) then  
+        if(.not.qmmm_get_io_unit(fn_xyz)) 
+     >       call errquit("cannot get file number",0,0)
+        filename = xyzfile
+        open(fn_xyz,file=filename,form='formatted',status='old',
+     $          err=133)
+c
+        if(.not.qmmm_get_io_unit(fn_trj)) 
+     >       call errquit("cannot get file number",0,0)
+        filename = trjfile
+        open(fn_trj,file=filename,form='formatted',status='unknown',
+     $          err=133)
+c       write header for trj file
+        call cf_trjhdr(fn_trj)
+      end if
+c     get number of atoms
+      message = " number of atoms "
+      if(master) then
+         read(fn_xyz,*,err=134,end=135) ns
+         rewind(fn_xyz)
+      else
+         ns = 0
+      end if
+      title = .true.
+
+
+      call ga_igop(msg_qmmm_nqm,ns,1,'+')
+      call ga_sync()
+
+      if(.not.ma_push_get(mt_int,ns,'itmp',h_itmp,i_itmp))
+     + call errquit( pname//'Failed to allocate memory for itmp',
+     + ns, MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,3*ns,'ctmp',h_ctmp,i_ctmp))
+     + call errquit( pname//'Failed to allocate memory for ctmp',
+     + 3*ns, MA_ERR)
+
+2     continue
+
+c
+c     read the coords and global index
+c     --------------------------------
+      if(master) then
+        read(fn_xyz,*,err=134,end=3) buf
+        write(*,*) "debug 1 "
+        if(title) 
+     +     read(fn_xyz,*) buf
+
+        do i=1,ns
+         read(fn_xyz,*,err=134,end=135) buf, 
+     +        (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+     +        int_mb(i_itmp+i-1)
+         write(luout,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+     +               int_mb(i_itmp+i-1)
+
+        end do
+        do i=1,3*ns
+          dbl_mb(i_ctmp+i-1) = dbl_mb(i_ctmp+i-1)/cau2ang
+        end do
+      else
+        call ifill(ns,0,int_mb(i_itmp),1)
+        call dfill(3*ns,0.0d0,dbl_mb(i_ctmp),1)
+      end if
+c
+      call ga_igop(msg_qmmm_ind,int_mb(i_itmp),ns,'+')
+      call ga_dgop(msg_qmmm_c1,dbl_mb(i_ctmp),3*ns,'+')
+      call ga_sync()
+c
+c      if(ga_nodeid().eq.1) then
+c      write(*,*) "coord on node 1"
+c      do i=1,ns
+c         write(*,*) (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+c     +               int_mb(i_itmp+i-1)
+c      end do
+c      end if
+c
+      call mm_set_solute_coord(ns,
+     >                         int_mb(i_itmp),
+     >                         dbl_mb(i_ctmp))
+c
+      call mm_write_frame(fn_trj)
+      goto 2
+c
+ 3    continue
+c
+      if(.not.ma_pop_stack(h_ctmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ns,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_itmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack i_itmp',ns,
+     &       MA_ERR)
+
+      if(master) then
+        close(fn_xyz)
+        close(fn_trj)
+      end if
+      return
+
+ 133  call errquit(pname//'error opening/closing '//filename,0, 0)
+ 134  call errquit(pname//'error reading xyz file'//message,0, 0)
+ 135  call errquit(pname//'error premature end of file',0, 0)
 
       end
 
@@ -3611,10 +3796,10 @@ c     local variables:
       integer h_lb
       integer i_lb
 c     local variables:
-      integer i,in
+      integer i
       integer psb
       integer msb
-      integer ind1,ind2,ind0
+      integer ind1,ind2
       integer ind_qm,ind_l
       integer iqm
       integer nqm
@@ -3714,10 +3899,10 @@ c     local variables:
       integer h_ips
       integer i_ips
 c     local variables:
-      integer nl,i,j,in
+      integer nl,i,j
       integer psb
       integer msb
-      integer ind1,ind2,ind0
+      integer ind1,ind2
       integer ind_qm,ind_l
       integer iqm
       integer nqm

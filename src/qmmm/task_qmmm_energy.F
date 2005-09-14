@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.13 2005-09-12 06:00:42 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.14 2005-09-14 01:53:57 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -66,6 +66,7 @@ c     local variables
       logical ignore
       character*32 interface
       character*255 filename
+      character*255 buf
       logical save_rst
       logical do_print
       character*30 operation
@@ -74,6 +75,8 @@ c     local variables
       integer trn(3)
       character*30 pname
       character*80 geom_file
+      character*3  ftype
+      logical master
 c
       logical  mm_read_frame
       external mm_read_frame
@@ -87,6 +90,8 @@ c
       if(qmmm_print_debug()) 
      $  write(*,*) "in ",pname
 c
+      master = qmmm_master()
+c
       if(.not.qmmm_get_io_unit(fn)) 
      >   call errquit("cannot get file number",0,0)
 c
@@ -94,15 +99,35 @@ c
      >      call errquit(pname//'failed to get trajectory filename',0,
      >       RTDB_ERR)
 c
-      open(unit=fn,file=filename,
-     + form='formatted',status='old',err=9999)
-      rewind(fn)
+      if(index(filename,".xyzi").ne.0) then
+        ftype = "xyz"
+      else if(index(filename,".trj").ne.0) then
+        ftype = "trj"
+      else if(index(filename,".tri").ne.0) then
+        ftype = "trj"
+      else
+        call errquit(pname//" unknown trajectory format "//
+     >               filename,0,0)
+      end if
+c
+      if(ftype.eq."xyz") then
+        i = index(filename,".xyzi")
+        buf = filename
+        filename = buf(1:i)//"tri"
+        call mm_create_trj_from_xyz(buf,filename)
+      end if
+c
+      call util_file_name_resolve(filename,.false.)
+      if(master) then
+        open(unit=fn,file=filename,
+     +   form='formatted',status='old',err=9999)
+      end if
 c
       if (.not.rtdb_get(rtdb,"qmmm:trajectory_n",mt_int,3,trn)) 
      >      call errquit(pname//'failed to get trn',0,
      >       RTDB_ERR)
 
-      if (rtdb_cget(rtdb,"qmmm:geom_file",1,geom_file)) 
+      if (.not.rtdb_cget(rtdb,"qmmm:geom_file",1,geom_file)) 
      >    geom_file = " "
 
       if(.not.mm_read_frame(fn,trn(1)))
@@ -121,8 +146,10 @@ c
         if(.not.mm_read_frame(fn,trn(3))) go to 23
 
       end do
-      close(fn)
-23    continue
+ 23   continue
+c
+      if(master) 
+     >  close(fn)
       return
 
  9999 continue
