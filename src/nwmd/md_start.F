@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.168 2005-06-10 23:32:55 marat Exp $
+c $Id: md_start.F,v 1.169 2005-09-14 22:15:54 d3j191 Exp $
 c
       implicit none
 c
@@ -28,7 +28,7 @@ c
      + nwm,mwm,nwa,mwa,nsf,msf,nsm,msm,nsa,msa,
      + loadb,lbpair,factld,ipolt.ne.0,.false.,temp,tempw,temps,lqmd,
      + iguide,lfndbg,idebug,projct,mbbreq,nserie,isload,ireset,icntrl,
-     + nseq,i_lseq,ndums,nbget,madbox)
+     + nseq,i_lseq,ndums,nbget,nprec,madbox)
       endif
 c
 c     start the analysis API
@@ -50,7 +50,7 @@ c
      + issscl,delta,nfanal,lpbc,npgdec,xfield,xfvect,xffreq,
      + npener,icntrl,nbias,mropt,includ,ltwin,
      + nseq,i_lseq,nfhop,rhop,thop,ndums,ipbtyp,lfnhop,iradgy,
-     + 0)
+     + 0,nprec)
 c     + nbget)
 c
       if(mlambd.gt.0.and.ilambd.gt.0.and.ilambd.le.mlambd)
@@ -968,6 +968,8 @@ c     + call md_abort('md_rtdbin: rtdb_get failed',92)
       if(.not.rtdb_get(irtdb,'md:nfnewf',mt_int,1,nfnewf))
      + call md_abort('md_rtdbin: rtdb_get failed',89)
       if(.not.rtdb_get(irtdb,'md:nbget',mt_int,1,nbget))
+     + call md_abort('md_rtdbin: rtdb_get failed',89)
+      if(.not.rtdb_get(irtdb,'md:nprec',mt_int,1,nprec))
      + call md_abort('md_rtdbin: rtdb_get failed',89)
 c
       if(.not.rtdb_get(irtdb,'md:fguide',mt_dbl,1,fguide))

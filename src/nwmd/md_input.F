@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.89 2004-10-22 00:50:19 marat Exp $
+c $Id: md_input.F,v 1.90 2005-09-14 22:15:54 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       integer mbbreq,nfwcoo,nfwvel,ioload,iprof,isload,icntrl,istart
       integer ifidi,ncoll,ipopt,ivopt,ilambd,mlambd,includ,npforc
       integer iprop,iprpmf,nfhop,ipbtyp,iradgy,idifco,nfnewf,ncolt
-      integer icmopt,imembr,icrit,nbget
+      integer icmopt,imembr,icrit,nbget,nprec
       real*8 dx0sd,dxsdmx,dxmsd,dx0cg,dxcgmx,dxmcg,edacq,fdacq,ddacq
       real*8 delta,stime,tstep,prsext,prsrlx,compr,tmpext,tmprlx
       real*8 tmsrlx,tgauss,rshort,rlong,ptol,tlwsha,tlssha,factld
@@ -153,6 +153,7 @@ c
       ngz=nbz
       len=0
       nbget=0
+      nprec=0
       iprop=0
       nfhop=0
       rhop=0.35d0
@@ -1371,6 +1372,10 @@ c
       nffet=1
       goto 600
       endif
+      if(inp_compare(.false.,'precision',item)) then
+      if(.not.inp_i(nprec)) call md_abort('md_input: error coord',20)
+      goto 600
+      endif
       if(inp_compare(.false.,'coord',item)) then
       if(.not.inp_i(nfcoor)) call md_abort('md_input: error coord',20)
       goto 600
@@ -1925,6 +1930,8 @@ c     + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nfnewf',mt_int,1,nfnewf))
      + call md_abort('md_input: rtdb_put failed',0)
       if(.not.rtdb_put(irtdb,'md:nbget',mt_int,1,nbget))
+     + call md_abort('md_input: rtdb_put failed',0)
+      if(.not.rtdb_put(irtdb,'md:nprec',mt_int,1,nprec))
      + call md_abort('md_input: rtdb_put failed',0)
 c
       if(.not.rtdb_put(irtdb,'md:fguide',mt_dbl,1,fguide))

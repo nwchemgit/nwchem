@@ -6,10 +6,10 @@
      + nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
      + ldb,lbp,fld,lpol,lfre,temp,tempw,temps,lqd,iguidi,
      + ldbg,idbg,prjct,mbbi,nseri,isld,irset,ictrl,nseqi,
-     + i_lseqi,ndumsi,nbgeti,madbxi)
+     + i_lseqi,ndumsi,nbgeti,npreci,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.141 2005-01-14 01:53:53 edo Exp $
+c $Id: sp_init.F,v 1.142 2005-09-14 22:15:51 d3j191 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       integer npxi,npyi,npzi,nbxi,nbyi,nbzi,isld,irset,nseqi,i_lseqi
       integer nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer lenscr,ldb,lbp,npbt,nbxt,iguidi,mbbi,nseri,ictrl,ndumsi
-      integer nbgeti,madbxi
+      integer nbgeti,npreci,madbxi
       logical lpol,lfre,ignore,lpbc,lqd
       character*80 prjct
 c
@@ -54,6 +54,7 @@ c
       isload=isld
       ireset=irset
       nbget=nbgeti
+      nprec=npreci
       ibget=nbget
       madbox=madbxi
 c
@@ -3244,6 +3245,7 @@ c
     3 continue
       endif
     2 continue
+      if(nprec.eq.0) then
       if(lfw) then
       if(lvw) then
       do 61 i=1,numw
@@ -3272,6 +3274,38 @@ c
  1005 format(3f8.3)
       if(ibw(i).lt.0) call md_abort('Missing solvent in wtrst',i)
     7 continue
+      endif
+      endif
+      else
+      if(lfw) then
+      if(lvw) then
+      do 261 i=1,numw
+      write(lfntrj,2014) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),
+     + (bfw(i,j,k),j=1,3),k=1,nwa)
+ 2014 format(6e12.6,/,3e12.6)
+      if(ibw(i).lt.0) call md_abort('Missing solvent in wttrj',i)
+  261 continue
+      else
+      do 271 i=1,numw
+      write(lfntrj,2015) ((bxw(i,j,k),j=1,3),(bfw(i,j,k),j=1,3),k=1,nwa)
+ 2015 format(3e12.6,/,3e12.6)
+      if(ibw(i).lt.0) call md_abort('Missing solvent in wtrst',i)
+  271 continue
+      endif
+      else
+      if(lvw) then
+      do 26 i=1,numw
+      write(lfntrj,2004) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
+ 2004 format(6e12.6)
+      if(ibw(i).lt.0) call md_abort('Missing solvent in wttrj',i)
+   26 continue
+      else
+      do 27 i=1,numw
+      write(lfntrj,2005) ((bxw(i,j,k),j=1,3),k=1,nwa)
+ 2005 format(3e12.6)
+      if(ibw(i).lt.0) call md_abort('Missing solvent in wtrst',i)
+   27 continue
+      endif
       endif
       endif
       number=number+numw
@@ -3345,6 +3379,7 @@ c
    10 continue
       endif
     9 continue
+      if(nprec.eq.0) then
       if(lfs) then
       if(lvs) then
       do 111 i=1,nums
@@ -3373,6 +3408,38 @@ c
  1007 format(3f8.3)
       if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
    12 continue
+      endif
+      endif
+      else
+      if(lfs) then
+      if(lvs) then
+      do 2111 i=1,nums
+      write(lfntrj,2016) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3),
+     + (bfs(i,j),j=1,3)
+ 2016 format(6e12.6,/,3e12.6)
+      if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
+ 2111 continue
+      else
+      do 2121 i=1,nums
+      write(lfntrj,1017) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
+ 2017 format(3e12.6,/,3e12.6)
+      if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
+ 2121 continue
+      endif
+      else
+      if(lvs) then
+      do 211 i=1,nums
+      write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+ 2006 format(6e12.6)
+      if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
+  211 continue
+      else
+      do 212 i=1,nums
+      write(lfntrj,1007) (bxs(i,j),j=1,3)
+ 2007 format(3e12.6)
+      if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
+  212 continue
+      endif
       endif
       endif
       number=number+nums
@@ -3568,6 +3635,7 @@ c
       do 1 icyc=1,ncyc
       if(nwm-number.lt.numw) numw=nwm-number
 c
+      if(nprec.eq.0) then
       if(lfw) then
       if(lvw) then
       do 61 i=1,numw
@@ -3592,6 +3660,34 @@ c
       read(lfntri,1005) ((bxw(i,j,k),j=1,3),k=1,nwa)
  1005 format(3f8.3)
     7 continue
+      endif
+      endif
+      else
+      if(lfw) then
+      if(lvw) then
+      do 261 i=1,numw
+      read(lfntri,2014) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),
+     + (bfw(i,j,k),j=1,3),k=1,nwa)
+ 2014 format(6e12.6,/,3e12.6)
+  261 continue
+      else
+      do 271 i=1,numw
+      read(lfntri,2015) ((bxw(i,j,k),j=1,3),(bfw(i,j,k),j=1,3),k=1,nwa)
+ 2015 format(3e12.6,/,3e12.6)
+  271 continue
+      endif
+      else
+      if(lvw) then
+      do 26 i=1,numw
+      read(lfntri,2004) ((bxw(i,j,k),j=1,3),(bvw(i,j,k),j=1,3),k=1,nwa)
+ 2004 format(6e12.6)
+   26 continue
+      else
+      do 27 i=1,numw
+      read(lfntri,2005) ((bxw(i,j,k),j=1,3),k=1,nwa)
+ 2005 format(3e12.6)
+   27 continue
+      endif
       endif
       endif
 c
@@ -3655,6 +3751,7 @@ c
       do 8 icyc=1,ncyc
       if(nsa-number.lt.nums) nums=nsa-number
 c
+      if(nprec.eq.0) then
       if(lfs) then
       if(lvs) then
       do 111 i=1,nums
@@ -3679,6 +3776,34 @@ c
       read(lfntri,1007) (bxs(i,j),j=1,3)
  1007 format(3f8.3)
    12 continue
+      endif
+      endif
+      else
+      if(lfs) then
+      if(lvs) then
+      do 2111 i=1,nums
+      read(lfntri,2016) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3),
+     + (bfs(i,j),j=1,3)
+ 2016 format(6e12.6,/,3e12.6)
+ 2111 continue
+      else
+      do 2121 i=1,nums
+      read(lfntri,2017) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
+ 2017 format(3e12.6,/,3e12.6)
+ 2121 continue
+      endif
+      else
+      if(lvs) then
+      do 211 i=1,nums
+      read(lfntri,2006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+ 2006 format(6e12.6)
+  211 continue
+      else
+      do 212 i=1,nums
+      read(lfntri,2007) (bxs(i,j),j=1,3)
+ 2007 format(3e12.6)
+  212 continue
+      endif
       endif
       endif
 c
