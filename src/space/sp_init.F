@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,npreci,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.142 2005-09-14 22:15:51 d3j191 Exp $
+c $Id: sp_init.F,v 1.143 2005-09-15 06:42:25 marat Exp $
 c
       implicit none
 c
@@ -3245,6 +3245,8 @@ c
     3 continue
       endif
     2 continue
+c     begin solvent output
+c     low precision 
       if(nprec.eq.0) then
       if(lfw) then
       if(lvw) then
@@ -3276,6 +3278,7 @@ c
     7 continue
       endif
       endif
+c     high precision 
       else
       if(lfw) then
       if(lvw) then
@@ -3308,6 +3311,7 @@ c
       endif
       endif
       endif
+c     end of solvent output
       number=number+numw
     1 continue
       endif
@@ -3379,6 +3383,8 @@ c
    10 continue
       endif
     9 continue
+c     begin solute output
+c     low precision
       if(nprec.eq.0) then
       if(lfs) then
       if(lvs) then
@@ -3411,6 +3417,7 @@ c
       endif
       endif
       else
+c     high precision
       if(lfs) then
       if(lvs) then
       do 2111 i=1,nums
@@ -3421,7 +3428,7 @@ c
  2111 continue
       else
       do 2121 i=1,nums
-      write(lfntrj,1017) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
+      write(lfntrj,2017) (bxs(i,j),j=1,3),(bfs(i,j),j=1,3)
  2017 format(3e12.6,/,3e12.6)
       if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
  2121 continue
@@ -3429,19 +3436,20 @@ c
       else
       if(lvs) then
       do 211 i=1,nums
-      write(lfntrj,1006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
+      write(lfntrj,2006) (bxs(i,j),j=1,3),(bvs(i,j),j=1,3)
  2006 format(6e12.6)
       if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
   211 continue
       else
       do 212 i=1,nums
-      write(lfntrj,1007) (bxs(i,j),j=1,3)
+      write(lfntrj,2007) (bxs(i,j),j=1,3)
  2007 format(3e12.6)
       if(ibs(i).lt.0) call md_abort('Missing solute atom in wtrst',i)
   212 continue
       endif
       endif
-      endif
+      end if
+c     end solute output
       number=number+nums
     8 continue
       endif
@@ -3563,6 +3571,7 @@ c
 c
       return
       end
+c
       logical function sp_rtrj(lfntri,lxw,lvw,lfw,lxs,lvs,lfs,
      + stime,pres,temp,tempw,temps,iwl,iwlp,xw,vw,fw,xwcr,
      + isl,islp,xs,vs,fs,ipl,nb,ibw,bxw,bvw,bfw,brw,ibs,bxs,bvs,bfs)
@@ -3873,6 +3882,7 @@ c
       return
 c
       end
+c
       subroutine sp_wrtmro(lfnmro,stime,pres,temp,tempw,temps,
      + iwl,xw,vw,xwcr,isl,xs,vs,prjct)
 c
