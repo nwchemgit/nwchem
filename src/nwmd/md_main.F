@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.206 2005-09-14 22:15:54 d3j191 Exp $
+c $Id: md_main.F,v 1.207 2005-09-15 00:48:49 marat Exp $
 c
       implicit none
 c
@@ -1443,7 +1443,6 @@ c
       call ga_brdcst(mrg_d30,krun,ma_sizeof(mt_int,1,mt_byte),0)
 c
       do 1 irun=krun+1,mrun
-      print*,'irun=',irun
 c
       if(me.eq.0) then
       if(nfcoor.gt.0.or.nfscoo.gt.0.or.nfvelo.gt.0.or.nfsvel.gt.0) then
@@ -1470,15 +1469,10 @@ c     initialize parameters
 c
       call cf_lambda(lamtyp,irun,maxlam,elam,lfnout,lfnpmf,
      + rlambd,dlambd,filnam)
-      call ga_sync()
-      print*,me,' a'
-      call ga_sync()
 c
 c     property initialization
 c
       call prp_init()
-      print*,me,' b'
-      call ga_sync()
 c
       if(mropt.ge.2) then
       if(me.eq.0) then
@@ -1503,14 +1497,8 @@ c
       kdacq=0
   398 continue
       endif
-      print*,me,' c'
-      call ga_sync()
       call ga_brdcst(mrg_d31,kequi,ma_sizeof(mt_int,1,mt_byte),0)
-      print*,me,' d'
-      call ga_sync()
       call ga_brdcst(mrg_d32,kdacq,ma_sizeof(mt_int,1,mt_byte),0)
-      print*,me,' e'
-      call ga_sync()
 c
 c     kequi will be 0 if no records could be read from lfnmri, and
 c     the coordinates and velocities will be used from the previous 
@@ -1526,8 +1514,6 @@ c
      + call md_abort('Error reading mri in sp_rdmri',0)
       endif
       endif
-      print*,me,' f',mropt
-      call ga_sync()
 c
       lxw=.false.
       lvw=.false.
@@ -1540,8 +1526,6 @@ c
       kdacq=0
       call prp_init
       endif
-      print*,me,' g'
-      call ga_sync()
 c
 c     equilibration
 c
@@ -1550,8 +1534,6 @@ c
       lprpmf=.false.
       iprpmf=0
       do 2 iequi=kequi+1,mequi
-      print*,me,'iequi=',iequi
-      call ga_sync()
 c
       mdstep=mdstep+1
       lpmfc=npmf.gt.1.and.iequi.gt.npmf
@@ -1576,7 +1558,6 @@ c
       lprpmf=.true.
       iprpmf=-1
       do 3 idacq=kdacq+1,mdacq
-      print*,me,'idacq=',idacq
 c
       mdstep=mdstep+1
 c
@@ -2905,7 +2886,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.206 2005-09-14 22:15:54 d3j191 Exp $
+c $Id: md_main.F,v 1.207 2005-09-15 00:48:49 marat Exp $
 c
       implicit none
 c
