@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.57 2005-09-15 00:01:36 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.58 2005-09-15 01:18:05 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -42,7 +42,7 @@ c#include "rtdb.fh"
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
-      real*8      control_tole,control_tolc
+      real*8      control_tole,control_tolc,pspw_SIC_ESI
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
@@ -50,7 +50,7 @@ c#include "rtdb.fh"
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       external control_print,control_psi_tmp
-      external control_tole,control_tolc
+      external control_tole,control_tolc,pspw_SIC_ESI
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
 
 
@@ -300,6 +300,7 @@ c#include "rtdb.fh"
              end do
            end do
 
+           write(luout,*) "ESI= ",pspw_SIC_ESI()
          end if
 
 *        **** write out KS eigenvalues ****
