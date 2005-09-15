@@ -51,7 +51,7 @@
 *     **** xc energy component : dE_xc/dhuv ****
       call dcopy(9,0.0d0,0,tstress,1)
       call c_rho_1exc_stress(tstress)
-      call daxpy(9,1.0d0,tstress,1,xcstress,1)
+      call dcopy(9,tstress,1,xcstress,1)
       call write_stress(tstress,"xc1")
 
 *     **** Core-correction Coulomb energy component : dE_core/dhuv ****
