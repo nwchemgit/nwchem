@@ -1,5 +1,5 @@
       subroutine dplot_dosinit(rtdb,filename)
-C $Id: dplot_dos.F,v 1.1 2005-09-17 04:33:43 edo Exp $
+C $Id: dplot_dos.F,v 1.2 2005-09-17 04:56:32 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -12,7 +12,6 @@ C $Id: dplot_dos.F,v 1.1 2005-09-17 04:33:43 edo Exp $
       double precision trasl,sigma ! [in]
       integer nstep,change ! [in]
       double precision e1,e2 ![in]
-      integer i1,i2 ![in] 1,nmo?
 c
       logical movecs_read,movecs_read_header,int_normalize
       external movecs_read,movecs_read_header,int_normalize
@@ -26,7 +25,7 @@ c
       integer nmo(2)        
       integer iset
       integer g_vecs(2)
-      integer l_eval,k_eval,l_focc,k_focc,l_evecs,k_evecs,
+      integer l_eval,k_eval,l_focc,k_focc,
      K     k_proj,l_proj,k_c,l_c,k_sc,l_sc,k_fproj,l_fproj
       double precision span
       integer nproj,angproj
@@ -147,13 +146,13 @@ c     neeed to generalize to uhf
 c
       integer i1,i2 ![in] 1,nmo?
       integer nocc(2)
-      integer n,maxn,j,spin,i
+      integer maxn,spin,i
       double precision eps
       parameter(maxn=10000,eps=1d-12)
       double precision focc,eval,dos(maxn,2)
       integer ien
       double precision emin,emax,de,ei
-      double precision sqpi,maxdos,fac,factpi
+      double precision sqpi,factpi
       double precision au2ev,efermi,fval
       parameter(au2ev=27.21d0)
 c
