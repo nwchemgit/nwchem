@@ -1,0 +1,335 @@
+      subroutine dplot_dosinit(rtdb,filename)
+C $Id: dplot_dos.F,v 1.1 2005-09-17 04:33:43 edo Exp $
+      implicit none
+#include "geom.fh"
+#include "bas.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "global.fh"
+      integer rtdb ![in]
+      character*(*) filename ! [in]
+      double precision trasl,sigma ! [in]
+      integer nstep,change ! [in]
+      double precision e1,e2 ![in]
+      integer i1,i2 ![in] 1,nmo?
+c
+      logical movecs_read,movecs_read_header,int_normalize
+      external movecs_read,movecs_read_header,int_normalize
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+      character*255 title,basis_name,scftype
+      integer nbf 
+      integer geom,basis
+      integer nsets             ! Returns no. of functions in each set
+      integer ldnmo             ! Inputs size of nmo
+      integer nmo(2)        
+      integer iset
+      integer g_vecs(2)
+      integer l_eval,k_eval,l_focc,k_focc,l_evecs,k_evecs,
+     K     k_proj,l_proj,k_c,l_c,k_sc,l_sc,k_fproj,l_fproj
+      double precision span
+      integer nproj,angproj
+      logical doproj
+c
+c     geom 1st
+      if (.not.geom_create(geom,'geometry'))
+     &     call errquit('dplotdos: geom_create failed',0,0)
+      if (.not.geom_rtdb_load(rtdb,geom,'geometry'))
+     &     call errquit('dplotdos: geom_rtdb_load failed',0,0)
+c     basis 2nd
+      if (.not.bas_create(basis,'ao basis'))
+     &   call errquit('dplotdos: bas_create failed',0,0)
+      if (.not.bas_rtdb_load(rtdb,geom,basis,'ao basis'))
+     &   call errquit('dplotdos: bas_rtdb_load failed',0,0)
+      if (.not.int_normalize(rtdb,basis))
+     &   call errquit('dplotdos: int_normalize failed',0,0)
+      if (.not.bas_numbf(basis,nbf))
+     &   call errquit('dplotdos: bas_numbf failed',0,0)
+c     get evals and evecs
+      ldnmo=2
+      if(.not.movecs_read_header(filename(1:inp_strlen(filename)), 
+     A     title, basis_name, 
+     $     scftype, nbf, nsets, nmo, ldnmo))
+     E     call errquit('mreadh failed ',0,0)
+      g_vecs(1) = ga_create_atom_blocked(geom, basis, 'Scr')
+      if(nsets.eq.2) 
+     G     g_vecs(2) = ga_create_atom_blocked(geom, basis, 'scr2')
+c
+c     alloc focc,eval,evecs
+c
+      if(.not.MA_Push_Get(MT_dbl,nsets*nbf,'evals',l_eval,k_eval))
+     A     call errquit(' pushget failed ',0,0)
+      if(.not.MA_Push_Get(MT_dbl,nsets*nbf,'foccs',l_focc,k_focc))
+     A     call errquit(' pushget failed ',0,0)
+      do iset=1,nsets
+         if(.not.movecs_read(filename(1:inp_strlen(filename)), 
+     I        iset, 
+     F        dbl_mb(k_focc+(iset-1)*nbf), 
+     E        dbl_mb(k_eval+(iset-1)*nbf), 
+     G        g_vecs(iset))) call
+     A        errquit(' movecsread failed ',0,0)
+      enddo
+      change=0
+      e1=0d0
+      e2=0d0
+      trasl=0d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_nstep',mt_int,
+     &   1,nstep)) nstep=1000
+      if (.not.rtdb_get(rtdb,'dplot:dos_sigma',mt_dbl,
+     &   1,sigma)) sigma=0.025d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_span',mt_dbl,
+     &   1,span)) span=5d0
+      if (.not.rtdb_get(rtdb,'dplot:dos_doproj',mt_log,
+     &   1,doproj)) doproj=.false.
+      if(doproj) then
+         if (.not.rtdb_get(rtdb,'dplot:angproj',mt_int,
+     &        1,angproj)) angproj=-1
+         if(angproj.ne.-1) then
+            call int_init(rtdb,1,basis)
+         if(.not.MA_Push_Get(MT_int,nbf,'aproj',l_proj,k_proj))
+     A     call errquit(' pushget failed ',0,0)
+            call dplot_getaproj(geom,basis,nbf,angproj,
+     A        nproj,int_mb(k_proj))
+      write(0,*) 'DD nprojs ',nproj
+         if(.not.MA_Push_Get(MT_dbl,nbf,'fproj',l_fproj,k_fproj))
+     A     call errquit(' pushget failed ',0,0)
+         if(.not.MA_Push_Get(MT_dbl,nbf,'ccc',l_c,k_c))
+     A     call errquit(' pushget failed ',0,0)
+         if(.not.MA_Push_Get(MT_dbl,nbf,'sscc',l_sc,k_sc))
+     A     call errquit(' pushget failed ',0,0)
+c     neeed to generalize to uhf
+         call dplot_pmull(geom,basis,g_vecs(1),nbf,
+     p     dbl_mb(k_fproj),nproj,int_mb(k_proj),
+     c     dbl_mb(k_c),dbl_mb(k_sc))
+            call int_terminate
+         if(.not.ma_chop_stack(l_c)) call errquit
+     D     ('dplotdos: machopstack failed ',0,0)
+         else
+            doproj=.false.
+         endif
+      endif
+      call dplot_dos(nbf,span,trasl,nstep,sigma,
+     P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),
+     C     change,e1,e2,nsets,
+     A     dbl_mb(k_focc),dbl_mb(k_eval))
+      if(.not.ma_chop_stack(l_eval)) call errquit
+     D     ('dplotdos: machopstack failed ',0,0)
+      if(.not.ga_destroy(g_vecs(1))) call errquit
+     A ('dplotdos: gadestr failed ',0,0)
+
+      if(nsets.eq.2) then
+      if(.not.ga_destroy(g_vecs(2))) call errquit
+     A ('dplotdos: gadestr failed ',0,0)
+      endif
+      if(.not.geom_destroy(geom)) call errquit
+     A ('dplotdos: geomdestr failed ',0,0)
+      if(.not.bas_destroy(basis)) call errquit
+     A ('dplotdos: basdestr failed ',0,0)
+      return
+      end
+      subroutine dplot_dos(nbf,span,trasl,nstep,sigma,
+     P     doproj,nproj,shproj,fproj,
+     C     change,e1,e2,ipol,
+     A     foccs,evals)
+      implicit none
+      integer nbf ![in]
+      double precision trasl,sigma ! [in]
+      double precision span ![in]
+      integer nstep,change ! [in]
+      integer ipol ![in]
+      double precision e1,e2 ![in]
+      logical doproj
+      integer nproj,shproj(*)
+      double precision fproj(*)
+      double precision evals(nbf,2),
+     * foccs(nbf,2)
+c
+      integer i1,i2 ![in] 1,nmo?
+      integer nocc(2)
+      integer n,maxn,j,spin,i
+      double precision eps
+      parameter(maxn=10000,eps=1d-12)
+      double precision focc,eval,dos(maxn,2)
+      integer ien
+      double precision emin,emax,de,ei
+      double precision sqpi,maxdos,fac,factpi
+      double precision au2ev,efermi,fval
+      parameter(au2ev=27.21d0)
+c
+      if(nstep.gt.maxn) call errquit(
+     A     ' edo lazy ',0,0)
+      i1=1
+      i2=nbf
+c
+c     trasl=-[E(N)-E(N-1)-e_HOMO]
+c
+      sigma=sigma/au2ev*0.5d0
+      factpi=0.5d0/acos(-1d0)
+      sqpi=sigma*sqrt(acos(-1d0))
+!      read(5,*) i1,i2
+      emax=-200000d0
+      emin=20000d0
+      do spin=1,ipol
+        do i=i1,i2
+          if(i.lt.i2) then
+             if(foccs(i,spin).gt.eps.and.foccs(i+1,spin).lt.eps) then
+
+                 nocc(spin)=i
+                 efermi=evals(i,spin)
+      write(0,*)' homo eval no. ',nocc(spin),
+     A                ' energy (eV)=',efermi*au2ev
+
+                endif
+c     HOMO
+          endif
+       enddo
+      enddo
+      emin=efermi-span/au2ev
+      emax=efermi+span/au2ev
+      write(0,*) ' au extrm ',emin,emax
+      write(0,*) ' ev extrm ',emin*au2ev,emax*au2ev
+      if(change.eq.1) then
+         emax=(-e1+trasl)/au2ev
+         emin=(-e2+trasl)/au2ev
+         de=(emax-emin)/(nstep-1)
+      else
+         de=(emax-emin)/(nstep-1)
+      endif
+      do spin=1,ipol
+        do ien=1,nstep
+          dos(ien,spin)=0d0
+        enddo
+        do i=i1,i2
+           eval=evals(i,spin)
+           focc=foccs(i,spin)
+          ei=emin
+          fval=1d0
+          if(doproj) fval=fproj(i)
+          do ien=0,nstep-1
+!            dos(ien+1,spin)=dos(ien+1,spin)+focc*
+            dos(ien+1,spin)=dos(ien+1,spin)+fval*
+c
+c lorentzian broadening
+c
+     +           sigma/(sigma*sigma+(eval-ei)**2)*factpi
+c
+c gaussian
+c
+c     +           exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
+            ei=ei+de
+          enddo
+        enddo
+      enddo
+      ei=emin
+      write(0,*) ' parte ei ',ei
+      do ien=1,nstep
+c        write(6,11) ei,dos(ien+1,1)*fac,dos(ien+1,2)*fac
+c        write(6,11) ei*au2ev+trasl,(dos(ien+1,1)+dos(ien+1,2))*fac
+         if(ipol.eq.1) then
+            write(16,11) ei*au2ev+trasl,dos(ien+1,1)
+         else
+            write(16,11) ei*au2ev+trasl,dos(ien+1,1),dos(ien+1,2)
+         endif
+   11   format(3(2x,1pe14.6))
+        ei=ei+de
+      enddo
+        
+      end
+      subroutine dplot_pmull(geom,basis,g_evecs,nbf,
+     p     projsh,nproj,shproj,
+     c     c,sc)
+      implicit none
+#include "global.fh"
+      integer geom
+      integer basis,g_evecs
+      double precision projsh(*)
+      integer nbf
+      integer nproj
+      integer shproj(*)
+      double precision c(nbf),sc(nbf)
+c
+      integer i,j
+      integer mu
+c
+c     forms p_shell^i (i-th MO)=
+c     \sum_mu part of shell \sum_nu C_mu_i C_nu_i S_mu_nu
+c     = \sum'_mu C_mu_i (\sum_nu S_mu_nu C_nu_i)
+c     = \sum'_mu C_mu_i SC_mu_i
+c
+      integer g_s,g_sc
+      integer  ga_create_atom_blocked
+      external ga_create_atom_blocked
+c     get mulliken
+c     get S
+      g_s = ga_create_atom_blocked(geom, basis, 'AO ovl')
+      g_sc = ga_create_atom_blocked(geom, basis, 'AO ovl')
+      call int_1e_ga(basis, basis, g_s, 'overlap', .false.)
+c     get SC
+      call ga_dgemm('n', 'n', nbf, nbf, nbf,1d0,g_s,
+     $     g_evecs, 0d0, g_sc)
+      call dcopy(nbf,0d0,0,projsh,1)
+!      call ga_print(g_evecs)
+!      call ga_print(g_sc)
+      do i=1+ga_nodeid(),nproj,ga_nnodes()
+         mu=shproj(i)
+c     get  mu-th row
+         call ga_get(g_evecs, mu,mu,1, nbf, c,1)
+         call ga_get(g_sc, mu,mu,1, nbf, sc,1)
+         do j=1,nbf
+            projsh(j)=projsh(j)+c(j)*sc(j)
+         enddo
+      enddo
+      call ga_sync()
+      call ga_dgop(1984,projsh,nbf,'+')
+      if(.not.ga_destroy(g_s)) call errquit
+     A ('dplotdos: gadestr failed ',0,0)
+      if(.not.ga_destroy(g_sc)) call errquit
+     A ('dplotdos: gadestr failed ',0,0)
+      return
+      end
+      subroutine dplot_getaproj(geom,basis,nbf,angproj,
+     A        nproj,proj)
+      implicit none
+#include "bas.fh"
+#include "geom.fh"
+#include "errquit.fh"
+      integer geom
+      integer basis
+      integer nbf
+      integer angproj
+      integer nproj
+      integer proj(*)
+c     
+      integer natoms,iat,ic1,ic2,icset,ifirst,ilast,
+     ,     l,nprim,dum,ifun
+c     
+      if(.not.geom_ncent(geom,natoms)) call errquit(
+     g     ' geomncent ',0,0)
+      nproj=0
+      do iat=1,natoms
+        if (.not.bas_ce2cnr(basis,iat,ic1,ic2))
+     &       call errquit('Exiting in xc_signf.',11, BASIS_ERR)
+       do icset = ic1,ic2
+c
+c       get info about current contraction set
+c
+        if (.not. bas_cn2bfr(basis, icset, ifirst, ilast))
+     &       call errquit('Exiting in grid_signf.',4, BASIS_ERR)
+            if (.not. bas_continfo(basis, icset,  l ,nprim,
+     &                             dum, dum))
+     &       call errquit('Exiting in grid_signf.',4, BASIS_ERR)
+
+            if(l.eq.angproj) then
+               do ifun=ifirst,ilast
+                  nproj=nproj+1
+                  proj(nproj)=ifun
+                  write(0,*) 'i pp ',nproj,proj(nproj)
+               enddo
+            endif
+         enddo
+      enddo
+
+c
+      return
+      end

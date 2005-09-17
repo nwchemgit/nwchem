@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.11 2003-10-25 00:56:20 marat Exp $
+* $Id: dplot_input.F,v 1.12 2005-09-17 04:33:43 edo Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -19,7 +19,7 @@
       Double Precision Ext_From_To(3,2),ValueR
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 11)
+      Parameter (Num_Dirs  = 12)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
       Parameter (Num_Spin  = 4)
@@ -33,10 +33,11 @@
       Character*3   Charges
 !      character*30 tag
       Character*80  File_Vec,File_Vec2,File_Out
-      logical lgaussian
+      logical lgaussian,dodos
 *
       Data Dirs / 'LimitXYZ','Vectors','Output','Title','Orbitals',
      &            'Spin','Where','Charges','Gaussian','print',
+     A     'dos',
      .     'End' /
       Data Allowed_Units / 'angstrom','au','bohr' /
       Data Allowed_What  / 'density','view' /
@@ -51,6 +52,7 @@
       What      = 'density'
       Spin      = 'total'
       Where     = 'grid'
+      dodos =.false.
 c
 c     try to get a scf movecs
 c
@@ -89,6 +91,7 @@ c
      &   Call ErrQuit('DPlot_Input: unknown directive',0,
      &       INPUT_ERR)
       GoTo (100, 200, 300, 400, 500, 600, 700, 800, 900, 964, 
+     .     1997,
      .     9999) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind,
      &       INPUT_ERR)
@@ -212,6 +215,9 @@ c
  964  continue
       goto 10
       call util_print_input(rtdb, 'dft')
+ 1997 continue
+      dodos=.true.
+      goto 10
  9999 Continue
 *
       If (Charges.eq.'yes') What = 'charges'
@@ -274,5 +280,9 @@ c      write(0,*) ' vec1 and 2',File_vec,File_vec2
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - Where',0,
      &       RTDB_ERR)
 *
+      If (.not.rtdb_put(rtdb,'dplot:dodos',mt_log,
+     &   1,dodos))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - dodos',0,
+     &       RTDB_ERR)
       End
 

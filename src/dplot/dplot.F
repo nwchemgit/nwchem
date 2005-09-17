@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.28 2003-10-27 02:34:17 edo Exp $
+* $Id: dplot.F,v 1.29 2005-09-17 04:33:43 edo Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -47,7 +47,7 @@
       character*30 tag
       Character*255 Title
       Logical LResult, DeBug
-      logical lgaussian
+      logical lgaussian,dodos
 c     
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -70,6 +70,16 @@ c
 ***************************************
       if (.not. rtdb_get(rtdb, 'dplot:lgaussian', mt_log, 1,
      &   lgaussian)) call errquit('dpinput:rtdbget failed',11, RTDB_ERR)
+      If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
+     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0,
+     &       RTDB_ERR)
+      if (.not. rtdb_get(rtdb, 'dplot:dodos', mt_log, 1,
+     &   dodos)) call errquit('dpinput:rtdbget failed',11, RTDB_ERR)
+      if(dodos) then
+         call dplot_dosinit(rtdb,file_vec)
+         DPlot = .TRUE.
+         return
+      endif
       If (.not.rtdb_cget(rtdb,'dplot:Units',1,Units))
      &   Call ErrQuit('DPlot: rtdb_get failed - Units',0, RTDB_ERR)
       If (Debug . and . iProc.eq.0)
@@ -103,9 +113,6 @@ c
          Write(LuOut,*)
       End If
 *
-      If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
-     &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0,
-     &       RTDB_ERR)
       if (inp_compare(.false.,File_Vec,' ')) then
         tag = 'scf:input  vectors'
         write(0,*) ' trying scf '
