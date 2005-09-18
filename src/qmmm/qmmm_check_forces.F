@@ -54,9 +54,9 @@ c
 c     define set of active atoms
 c     --------------------------
       call qmmm_cons_reset()
-      call qmmm_cons_set(rtdb,"fix","solute")
-      call qmmm_cons_set(rtdb,"fix","solvent")
-      call qmmm_cons_set(rtdb,"free",region(1))
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region(1))
 c
 
 c
@@ -235,9 +235,9 @@ c
 c     define set of active atoms
 c     --------------------------
       call qmmm_cons_reset()
-      call qmmm_cons_set(rtdb,"fix","solute")
-      call qmmm_cons_set(rtdb,"fix","solvent")
-      call qmmm_cons_set(rtdb,"free",region(1))
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region(1))
 c
 
       call mm_print_system()

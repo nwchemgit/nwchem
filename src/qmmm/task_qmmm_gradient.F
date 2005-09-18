@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.44 2005-08-31 19:06:22 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.45 2005-09-18 23:06:38 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -18,6 +18,8 @@ c
 c
       logical  qmmm_energy_gradient
       external qmmm_energy_gradient
+      logical  qmmm_neb_gradient
+      external qmmm_neb_gradient
 c     local variables
       character*32 interface
       logical save_rst
@@ -25,6 +27,7 @@ c     local variables
       character*30 operation
       double precision energy
 c
+      write(*,*) "in task_qmmm_gradient"
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
 c
@@ -38,6 +41,11 @@ c
       interface = qmmm_get_interface()
 c
       task_qmmm_gradient = .true.
+      if(operation.eq."neb") then
+        task_qmmm_gradient = 
+     >     qmmm_neb_gradient(rtdb)
+        goto 20
+      end if
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
          call md_sp()
@@ -62,6 +70,8 @@ c
          if(do_print)
      >     call mm_print_info()
       endif
+c
+ 20   continue
 c
       end
 
@@ -88,7 +98,7 @@ c
       external task_gradient_doit
       character*255 theory
       double precision qm_energy
-      integer i_g,h_g 
+      integer i_g
       integer nfg
       integer i_ifg
       integer nact
@@ -204,6 +214,85 @@ c
 c
       end
 
+      function qmmm_neb_gradient(irtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+      integer irtdb
+      logical qmmm_neb_gradient
+c     
+      logical  status
+c     
+      character*32 pname
+      character*255 prefix
+      character*255 rstfile
+      character*255 neb_region
+c     
+      logical   qmmm_mixed_optimization
+      external  qmmm_mixed_optimization
+      logical   qmmm_energy_gradient
+      external  qmmm_energy_gradient
+
+      pname = "qmmm_neb_gradient"
+      if(qmmm_print_debug()) 
+     > write(luout,*) "in ", pname
+c 
+      qmmm_neb_gradient = .true.
+c
+c     get common prefix for filenames
+c     -------------------------------
+      if (.not. rtdb_cget(irtdb,'geometry',1,prefix))
+     + call errquit(pname//'Failed to neb geometry',
+     + 1, RTDB_ERR)
+c
+c     get definition of neb region
+c     ----------------------------
+      if (.not. rtdb_cget(irtdb,"qmmm:neb_region",
+     +                    1,neb_region))
+     + call errquit(pname//'Failed neb region',
+     + 1, RTDB_ERR)
+c
+c     construct restart file name  
+c     ---------------------------
+      rstfile = prefix(1:inp_strlen(prefix))//
+     +          ".rst"
+c
+c     propagate coord of neb region
+c     -----------------------------
+      call qmmm_geom_push_active(irtdb)
+c     
+c     do inital energy in case esp charges are needed
+c     -----------------------------------------------
+      call md_sp()
+      status = qmmm_energy_gradient(irtdb,.false.)
+c
+c     now relax other regions as requested
+c     ------------------------------------
+      status = qmmm_mixed_optimization(irtdb)
+c     
+c     do final energy and gradient
+c     ----------------------------
+      call qmmm_cons_free_exclusive(neb_region)
+      call md_sp()
+      status = qmmm_energy_gradient(irtdb,.true.)
+      call qmmm_geom_get_grad(irtdb)
+      call qmmm_energy_rtdb_push(irtdb)
+c
+c     finally save restart file just in case
+c     --------------------------------------
+      call mm_write_restart_named(rstfile)
+
+      qmmm_neb_gradient = status
+
+      return
+      end
+
       subroutine qmmm_bq_gradient(rtdb,esp)
       implicit none
 c
@@ -224,8 +313,7 @@ c
       integer i_q,h_q
       integer i_g,h_g
   
-      integer i,na
-      double precision e
+      integer na
       character*30 pname
 
 
@@ -317,8 +405,7 @@ c
 c 
       integer i_c,h_c
       integer i_q,h_q
-  
-      integer i,na
+      integer na 
       integer bq_handle
       logical ext_bq_found
       character*30 pname
@@ -510,14 +597,14 @@ c     get fixed atoms as specified by mm
 c     if using aux_geom we assume that all the atoms there
 c     are active by construction
 c     ----------------------------------------------------
-      if(qmmm_aux_geom()) then
-        do i=1,ng
-         log_mb(i_am+i-1)=.true.
-        end do
-      else
+c      if(qmmm_aux_geom()) then
+c        do i=1,ng
+c         log_mb(i_am+i-1)=.true.
+c        end do
+c      else
         call qmmm_cons_get_map(ng,int_mb(i_ig),
      >                       log_mb(i_am))
-      end if
+c      end if
 
 
 c     --------------------------------------------

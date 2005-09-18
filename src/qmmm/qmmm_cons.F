@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.14 2005-09-11 00:38:49 marat Exp $
+c $Id: qmmm_cons.F,v 1.15 2005-09-18 23:06:38 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -105,12 +105,12 @@ c
      $     fixqmlink=.false.
 
 
-      if(fixw) call qmmm_cons_set(irtdb,"fix","solvent")
-      if(fixs) call qmmm_cons_set(irtdb,"fix","mm_solute")
-      if(fixqm) call qmmm_cons_set(irtdb,"fix","qm")
-      if(fixqmlink) call qmmm_cons_set(irtdb,"fix","qmlink")
-      if(freeqmlink) call qmmm_cons_set(irtdb,"free","qmlink")
-      if(freeqm) call qmmm_cons_set(irtdb,"free","qm")
+      if(fixw) call qmmm_cons_set("fix","solvent")
+      if(fixs) call qmmm_cons_set("fix","mm_solute")
+      if(fixqm) call qmmm_cons_set("fix","qm")
+      if(fixqmlink) call qmmm_cons_set("fix","qmlink")
+      if(freeqmlink) call qmmm_cons_set("free","qmlink")
+      if(freeqm) call qmmm_cons_set("free","qm")
 
       return
       end
@@ -311,7 +311,7 @@ c
       return
       end
 c
-      subroutine qmmm_cons_set(irtdb,atype,aregion)
+      subroutine qmmm_cons_set(atype,aregion)
       implicit none
 c
 #include "mm_utils.fh"
@@ -323,7 +323,6 @@ c
 #include "qmmm.fh"
 #include "global.fh"
 #include "qmmm_cons_data.fh"
-      integer irtdb
       character*(*) atype
       character*(*) aregion
 c
@@ -376,6 +375,20 @@ c
         end do
       end if
 
+      return
+      end
+c
+      subroutine qmmm_cons_free_exclusive(aregion)
+      implicit none
+c
+#include "qmmm_cons_data.fh"
+      character*(*) aregion
+c
+      call qmmm_cons_reset()
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",aregion)
+c
       return
       end
 c

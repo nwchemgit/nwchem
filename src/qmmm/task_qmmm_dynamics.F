@@ -1,6 +1,6 @@
       logical function task_qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.4 2005-08-31 00:00:09 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.5 2005-09-18 23:06:38 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -54,9 +54,9 @@ c
 c     define set of active atoms
 c     --------------------------
       call qmmm_cons_reset()
-      call qmmm_cons_set(rtdb,"fix","solute")
-      call qmmm_cons_set(rtdb,"fix","solvent")
-      call qmmm_cons_set(rtdb,"free",region(1))
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region(1))
 c
       call qmmm_bq_data_update_active()
 c

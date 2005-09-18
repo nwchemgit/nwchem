@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.13 2005-09-11 22:23:52 marat Exp $
+c $Id: qmmm_utils.F,v 1.14 2005-09-18 23:06:38 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -368,6 +368,7 @@ c
       integer ai(nt)
       double precision c(3,nt)
       character*16 t(nt)
+      character*4 t1
 
       integer i
       integer n
@@ -377,8 +378,10 @@ c
       write(un,FMT=1) nt
 
       do i=1,nt
-       write(un,FMT=2)
-     >            t(i),c(1,i)*0.529177249d00,
+        t1 = t(i)
+c       write(un,FMT=2)
+       write(un,*)
+     >            t1,c(1,i)*0.529177249d00,
      >            c(2,i)*0.529177249d00,
      >            c(3,i)*0.529177249d00,ai(i)
 

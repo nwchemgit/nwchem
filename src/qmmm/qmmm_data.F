@@ -79,7 +79,15 @@ c     initialize rtdb parameters
       if(master)
      > call util_print_centered(6,
      >    "QM/MM Interface Parameters",32,.true.)
-
+c
+c     get the operation
+c     -----------------
+      tag='task:operation'
+      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+      if (master) 
+     >  write(6,22) "operation",tag,operation
+c
       tag = "qmmm:uqmatm"
       if (.not.rtdb_get(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) then
         if (.not.rtdb_put(irtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) 
@@ -166,8 +174,12 @@ c     ------------------
       tag ="qmmm:region"
       if (.not.rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
      >                 mt_int,1,nregion)) then
-        nregion = 1
-        region(1) = "qmlink"
+        if(operation.ne."energy" .and.
+     >     operation.ne."gradient" .and.
+     >     operation.ne."neb" )
+     >     call errquit(pname//'cannot find '//tag,0,
+     >       RTDB_ERR)
+        nregion = 0
       else
         if (.not.rtdb_cget(irtdb,tag,nregion,region)) 
      >      call errquit(pname//tag,0,RTDB_ERR)
@@ -176,39 +188,19 @@ c     ------------------
      >                  mt_int,1,nregion)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >                   RTDB_ERR)
-      if (.not.rtdb_cput(irtdb,tag,nregion,region)) 
+      if(nregion.ne.0) then 
+        if (.not.rtdb_cput(irtdb,tag,nregion,region)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
+      end if
 
       if (master) then
+      tag = " "
+      write(tag,'("qmmm:region ",I1)') i
       do i=1,nregion
-       write(6,*) "region",i,region(i)
+       write(6,22) tag,region(i)
       end do
       end if
-c
-c     method definitions
-c     ------------------
-c      tag ="qmmm:method"
-c      if (rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
-c     >                 mt_int,1,nmethod)) then
-c        if (.not.rtdb_cget(irtdb,tag,nmethod,method)) 
-c     >      call errquit(pname,tag,0,RTDB_ERR)
-c        if (.not.rtdb_put(irtdb,tag(1:inp_strlen(tag))//"_n",
-c     >                    mt_int,1,nmethod)) 
-c     >        call errquit(pname//'failed to store'//tag,0,
-c     >                     RTDB_ERR)
-c        if (.not.rtdb_cput(irtdb,tag,nmethod,method)) 
-c     >        call errquit(pname//'failed to store'//tag,0,
-c     >         RTDB_ERR)
-c
-c        if (master) then
-c        do i=1,nmethod
-c         write(6,*) "method",i,method(i)
-c        end do
-c        end if
-c
-c      end if
-
 
       tag ="qmmm:link_ecp"
       if (.not.rtdb_cget(irtdb,tag,1,link_ecp)) then
@@ -226,13 +218,6 @@ c      end if
      >  write(6,22) "ecp on link atoms",tag,link_ecp
 
       qmmm_interface='qm'
-
-      tag='task:operation'
-      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
-     $     operation = 'energy'
-      if (master) 
-     >  write(6,22) "operation",tag,operation
-c
       tag ="qmmm:interface"
       ignore = rtdb_cget(irtdb,tag,1,qmmm_interface)
       if (.not.rtdb_cget(irtdb,tag,1,qmmm_interface)) then

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.76 2005-09-14 16:41:22 marat Exp $
+c $Id: qmmm_geom.F,v 1.77 2005-09-18 23:06:38 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -17,7 +17,6 @@ c
       integer irtdb
       logical ageom
 c     local variables
-      integer i
       integer nqm,nlink
       integer i_ind,i_lb
       integer mwa
@@ -72,7 +71,7 @@ c     create active geometry if any
 c     -----------------------------
 111   continue
       if(ageom) then
-        call qmmm_geom_init_aux(irtdb)
+        call qmmm_geom_init_aux(irtdb,"geometry")
       else
         ngs = nfg
         ngw = 0
@@ -88,7 +87,7 @@ c     -----------------------------
 
       end
 
-      subroutine qmmm_geom_init_aux(irtdb)
+      subroutine qmmm_geom_init_aux(irtdb,aname)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -102,6 +101,7 @@ c     -----------------------------
 #include "inp.fh"
 #include "qmmm_params.fh"
       integer irtdb
+      character*(*) aname
 c     local variables
       integer i
       character*255 geom
@@ -137,7 +137,8 @@ c     local variables
      &       RTDB_ERR)
       end if
 
-      call qmmm_geom_create_active(irtdb)
+      if(aname.ne."none")
+     +  call qmmm_geom_create_active(irtdb,aname)
 
       if(qmmm_print_debug()) then
          write(*,*) "active solute index"
@@ -153,7 +154,7 @@ c     local variables
 
       end
 
-      subroutine qmmm_geom_init0(irtdb,ageom)
+      subroutine qmmm_geom_init_neb(irtdb)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -167,105 +168,46 @@ c     local variables
 #include "inp.fh"
 #include "qmmm_params.fh"
       integer irtdb
-      logical ageom
 c     local variables
-      integer i
-      integer nqm,nlink
-      integer i_ind,i_lb
-      integer ig,ng0
-      integer mwa
-      character*255 geom
+      character*255 filename
+      character*255 region
+      character*255 rstfile(2)
       character*32 pname
 
-      pname = "qmmm_geom_init"
+      pname = "qmmm_geom_init_neb"
 
       if(qmmm_print_debug())
      >    write(*,*) "in",pname
 
-      aux_geom = ageom
-
-      nqm   = qmmm_get_nqm()
-      nlink = qmmm_get_nlink()
-      i_ind = qmmm_get_i_ai()
-      i_lb  = qmmm_get_i_lb()
-     
-      call mm_get_mwa(mwa)
-
+c     get neb region definition
+c     -------------------------
+      if (.not.rtdb_cget(irtdb,"qmmm:neb_region",2,region)) 
+     >      call errquit(pname//"neb_region",0,RTDB_ERR)
 c
-c     initialize indexing for a full qm geometry
-c     ------------------------------------------
-      nfg = nqm + nlink
-      if(nfg.eq.0) goto 111
-      if(.not.ma_alloc_get(mt_int,nfg,'qmmm fullg ind',h_ifg,i_ifg))
-     + call errquit(pname//'Failed to allocate heap',nfg,
-     &       MA_ERR)
-      call icopy(nqm,int_mb(i_ind),1,int_mb(i_ifg),1)
-      call icopy(nlink,int_mb(i_lb+nlink),1,int_mb(i_ifg+nqm),1)
+c     define set of active atoms
+c     --------------------------
+      call qmmm_cons_free_exclusive(region)
 c
-c    allocate gradient array
-c    -----------------------
-      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm grad array',
-     &      h_g, i_g) ) call errquit(
-     &      pname//'unable to allocate heap space',
-     &      3*nfg, MA_ERR)
-      call dfill(3*nfg,0,dbl_mb(i_g),1)
+c     initialize auxiliary geometry
+c     but do not create geometry object itself
+c     ----------------------------------------
+      call qmmm_geom_init_aux(irtdb,"none")
 c
-c    allocate esp charges
-c    --------------------
-      if(.not.ma_alloc_get(MT_DBL, 3*nfg, 'qmmm esp charges',
-     &      h_qs, i_qs) ) call errquit(
-     &      pname//'unable to allocate heap space',
-     &      3*nfg, MA_ERR)
-      call dfill(3*nfg,0,dbl_mb(i_qs),1)
+c     get rstfile names for the starting and ending
+c     point of neb path
+c     ---------------------------------------------
+      if (.not.rtdb_cget(irtdb,"qmmm:neb_path",2,rstfile)) 
+     >      call errquit(pname//"neb_path",0,RTDB_ERR)
 
-c
-c     create active geometry if any
-c     -----------------------------
-111   continue
-      if(aux_geom) then
-        call mm_get_solute_tot_nact(ngs)
-c       call mm_get_solvent_tot_nact(ngw)
-        ngw = 0
-        ng = ngs+ngw
+      filename = rstfile(1)
+      call util_file_name_resolve(filename,.false.)
+      call mm_reload_rst(irtdb,filename)
+      call qmmm_geom_create_active(irtdb,"neb_start")
 
-        if(.not.ma_alloc_get(mt_int,ng,'qmmm geom index',h_ig,i_ig))
-     +   call errquit(pname//'Failed to allocate heap',ng,
-     &         MA_ERR)
-
-        call mm_get_solute_ind_act(ngs,int_mb(i_ig))
-c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
- 
-        if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
-          call qmmm_geom_push(irtdb,
-     >                          ngs,
-     >                          int_mb(i_ig),
-     >                          ngw,
-     >                          int_mb(i_ig+ngs),
-     >                          geom)
-
-        end if
-
-        call qmmm_geom_create_active(irtdb)
-
-        if(qmmm_print_debug()) then
-           write(*,*) "active solute index"
-           do i=1,ngs
-             write(*,*) int_mb(i_ig+i-1)
-           end do
-           write(*,*) "active solvent index"
-           do i=1,ngw/mwa
-             write(*,*) int_mb(i_ig+ngs+i-1)
-           end do
-        end if
-      else
-        ngs = nfg
-        ngw = 0
-        ng =  nfg
-        i_ig = i_ifg
-        call qmmm_geom_create_full(irtdb)
-      end if
-
-      call qmmm_geom_print(irtdb,"geometry","-active.pdb")
+      filename = rstfile(2)
+      call util_file_name_resolve(filename,.false.)
+      call mm_reload_rst(irtdb,filename)
+      call qmmm_geom_create_active(irtdb,"neb_end")
 
       if(qmmm_print_debug())
      >    write(*,*) "out",pname
@@ -277,7 +219,6 @@ c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_geom_data.fh"
-      logical ignore
       
       if(.not.aux_geom) return
        if(.not.ma_free_heap(h_ig))
@@ -297,7 +238,6 @@ c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "qmmm_geom_data.fh"
-      logical ignore
       
       if(aux_geom) call qmmm_geom_aux_end()
 
@@ -335,7 +275,6 @@ c        call mm_get_solvent_act_ind(ngw,int_mb(i_ig+ngs))
       character*(*) aname
       logical link
 c
-      integer i
       integer igeom
       character*32 pname
       character*255 buf 
@@ -344,7 +283,6 @@ c
       integer i_t,h_t
       integer i_m,h_m
       integer i_atn,h_atn
-      integer i_il
       integer n
       logical ignore
  
@@ -457,23 +395,18 @@ c     ------------------------
 #include "rtdb.fh"
 #include "qmmm.fh"
 #include "global.fh"
-      integer irtdb
       integer un
       integer ns
       integer ais(ns)
       character*(*) aform
 c
-      integer i
-      integer igeom
       character*32 pname
       integer i_q,h_q
       integer i_c,h_c
       integer i_t,h_t
       integer i_m,h_m
       integer i_atn,h_atn
-      integer i_il
       integer n
-      logical ignore
  
       pname = "qmmm_region_print"
       if(qmmm_print_debug())
@@ -589,7 +522,7 @@ c     local variables
 
       end
 
-      subroutine qmmm_geom_create_active(irtdb)
+      subroutine qmmm_geom_create_active(irtdb,aname)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -602,6 +535,7 @@ c     local variables
 #include "qmmm_geom_data.fh"
 #include "inp.fh"
       integer irtdb
+      character*(*) aname
 c     local variables
       character*32 pname
 
@@ -615,7 +549,7 @@ c     local variables
      >                      int_mb(i_ig),
      >                      ngw,
      >                      int_mb(i_ig+ngs),
-     >                      "geometry",.false.)
+     >                      aname,.false.)
 
 
       if(qmmm_print_debug())
@@ -659,6 +593,43 @@ c     local variables
 
       end
 
+      subroutine qmmm_geom_push_gen(irtdb,aname)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "mm_utils.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_geom_data.fh"
+#include "inp.fh"
+      integer irtdb
+      character*(*) aname
+c     local variables
+      character*32 pname
+
+      pname = "qmmm_geom_push_active"
+
+      if(.not.aux_geom) return
+
+      if(qmmm_print_debug())
+     >    write(*,*) "in",pname
+
+      call qmmm_geom_push(irtdb,
+     >                      ngs,
+     >                      int_mb(i_ig),
+     >                      ngw,
+     >                      int_mb(i_ig+ngs),
+     >                      aname)
+
+
+      if(qmmm_print_debug())
+     >    write(*,*) "out",pname
+
+      end
+
       subroutine qmmm_geom_restore(irtdb)
       implicit none
 #include "mafdecls.fh"
@@ -671,8 +642,6 @@ c     local variables
       integer irtdb
 c     local variables
       logical ignore
-      integer hbq
-      double precision charge
       character*32 pname
 c
       pname = "qmmm_restore_qm_geom"
@@ -710,16 +679,10 @@ c
       character*(*) aname    
 c     local variables
       integer ntot
-      integer nqm
       integer ncent
-      integer icent
-      integer i
-      integer k
 
 
       integer igeom
-      integer i_c
-      integer i_act
       integer i_ctmp,h_ctmp
       character*32 pname
 
@@ -856,7 +819,6 @@ c    --------------------------------------
 c
       integer n,ns,nw
       integer i_igt,i_gt,h_gt
-      integer i
 
       if(aux_geom) then
         ns=ngs

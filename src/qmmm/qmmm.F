@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.62 2005-09-12 01:28:27 marat Exp $
+c $Id: qmmm.F,v 1.63 2005-09-18 23:06:36 marat Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -111,23 +111,21 @@ c     --------------------------------------------
         aux_geom = .false.
       else if(operation.eq."property") then
         aux_geom = .false.
+      else if(operation.eq."neb") then
+        aux_geom = .false.
       else
         aux_geom = .false.
       end if
 
       if (inp_compare(.false.,'esp',theory)) aux_geom=.false.
 
-c      if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
-c        loadgeom = .true.
-c        aux_geom = .true.
-c      else
-c        loadgeom = .false.
-c      end if
-
       if(oprint) 
      >  write(*,*) "aux_geom",aux_geom
 
       call qmmm_geom_init(irtdb,aux_geom)
+      if(operation.eq."neb") then
+         call qmmm_geom_init_neb(irtdb)
+      end if
 
       if(loadgeom) call md_sp()
 

@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.14 2005-09-14 01:53:57 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.15 2005-09-18 23:06:38 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -110,6 +110,8 @@ c
      >               filename,0,0)
       end if
 c
+c     convert xyz trajectory into mm trajectory
+c     -----------------------------------------
       if(ftype.eq."xyz") then
         i = index(filename,".xyzi")
         buf = filename
@@ -156,7 +158,142 @@ c
       call errquit('Failed to open file '//filename,0,0)
 
       end
+cc
+c      function task_qmmm_energy_path(rtdb)
+c      implicit none
+cc
+c#include "rtdb.fh"
+c#include "util.fh"
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "qmmm_params.fh"
+c#include "qmmm.fh"
+cc
+c      integer rtdb
+c      logical task_qmmm_energy_path
+cc     external functions
+c      logical qmmm_energy_gradient
+c      external qmmm_energy_gradient 
 c
+cc     local variables
+c      integer i,iframe
+c      logical ignore
+c      character*32 interface
+c      character*255 filename
+c      character*255 buf
+c      logical save_rst
+c      logical do_print
+c      character*30 operation
+c      double precision energy
+c      integer fn
+c      integer trn(3)
+c      character*30 pname
+c      character*80 geom_file
+c      character*3  ftype
+c      logical master
+c      character*255 prefix
+c      integer nbeads
+cc
+c      logical  mm_read_frame
+c      external mm_read_frame
+c      logical  mm_skip_frame
+c      external mm_skip_frame
+cc
+c      pname = "task_qmmm_energy_path"
+cc
+c      task_qmmm_energy_path = .true.
+cc
+c      if(qmmm_print_debug()) 
+c     $  write(*,*) "in ",pname
+cc
+c      master = qmmm_master()
+cc
+cc     file prefix from mm module
+cc     --------------------------
+cc      call mm_system_prefix(prefix)
+cc
+cc      if(.not.qmmm_get_io_unit(fn)) 
+cc     >   call errquit("cannot get file number",0,0)
+cc
+cc     get pathway dimension (aka number of beads) and common
+cc     filename prefix
+c      if (.not.rtdb_get(rtdb,"qmmm:pathway_size",mt_int,1,nbeads)) 
+c     >      call errquit(pname//'failed to get trajectory filename',0,
+c     >       RTDB_ERR)
+c      if (.not.rtdb_cget(rtdb,"qmmm:pathway_prefix",1,prefix)) 
+c     >      call errquit(pname//'failed to get trajectory filename',0,
+c     >       RTDB_ERR)
+cc
+c      do i=1,nbeads
+c        if(geom_file.ne." ") 
+c     >     call mm_set_solute_coord_file(geom_file)
+c        call md_sp()
+c        task_qmmm_energy_path = qmmm_energy_gradient(rtdb,.false.)
+c        call qmmm_energy_rtdb_push(rtdb)
+c        call qmmm_print_energy(rtdb)
+c      end do
+cc
+c      if(index(filename,".xyzi").ne.0) then
+c        ftype = "xyz"
+c      else if(index(filename,".trj").ne.0) then
+c        ftype = "trj"
+c      else if(index(filename,".tri").ne.0) then
+c        ftype = "trj"
+c      else
+c        call errquit(pname//" unknown trajectory format "//
+c     >               filename,0,0)
+c      end if
+cc
+cc     convert xyz trajectory into mm trajectory
+cc     -----------------------------------------
+c      if(ftype.eq."xyz") then
+c        i = index(filename,".xyzi")
+c        buf = filename
+c        filename = buf(1:i)//"tri"
+c        call mm_create_trj_from_xyz(buf,filename)
+c      end if
+cc
+c      call util_file_name_resolve(filename,.false.)
+c      if(master) then
+c        open(unit=fn,file=filename,
+c     +   form='formatted',status='old',err=9999)
+c      end if
+cc
+c      if (.not.rtdb_get(rtdb,"qmmm:trajectory_n",mt_int,3,trn)) 
+c     >      call errquit(pname//'failed to get trn',0,
+c     >       RTDB_ERR)
+c
+c      if (.not.rtdb_cget(rtdb,"qmmm:geom_file",1,geom_file)) 
+c     >    geom_file = " "
+c
+c      if(.not.mm_read_frame(fn,trn(1)))
+c     >    call errquit(pname//'failed to get skip frames',
+c     >                 0,0)
+c
+c
+c      do i=trn(1),trn(2),trn(3)
+c        if(geom_file.ne." ") 
+c     >     call mm_set_solute_coord_file(geom_file)
+c        call md_sp()
+c        task_qmmm_energy_path = qmmm_energy_gradient(rtdb,.false.)
+c        call qmmm_energy_rtdb_push(rtdb)
+c        call qmmm_print_energy(rtdb)
+c
+c        if(.not.mm_read_frame(fn,trn(3))) go to 23
+c
+c      end do
+c 23   continue
+cc
+c      if(master) 
+c     >  close(fn)
+c      return
+c
+c 9999 continue
+c      call errquit('Failed to open file '//filename,0,0)
+c
+c      end
+cc
       function task_qmmm_energy_sp(rtdb)
       implicit none
 c

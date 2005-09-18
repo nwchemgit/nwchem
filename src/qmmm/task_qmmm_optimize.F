@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -132,6 +132,8 @@ c
 c
       pname = "qmmm_mixed_optimization"
 c
+      qmmm_mixed_optimization = .true.
+c
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -144,6 +146,11 @@ c     ------------------
       if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
      >                 mt_int,1,nregion)) 
      >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     no region so exiting out
+c     -----------------------
+      if(nregion.eq.0) return
+
       if(nregion.gt.3) 
      >      call errquit(pname//"too many regions",0,0)
       if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
@@ -277,25 +284,20 @@ c      -----------------
 15     format("@  OPTIMIZATION FINISHED ")
       end if
 
-cc
-cc     calculate final energy
-cc     ---------------------
-cc
-cc     removing all the constraints
-c      call qmmm_cons_reset()
-c      call qmmm_bq_data_update_active()
-cc
-c      call qmmm_set_interface("qm")
-cc      call mm_task_sp()
-cc     this will update pair lists
-c      call md_sp()
-c      status = qmmm_energy_gradient(rtdb,.false.) 
-c      call qmmm_energy_rtdb_push(rtdb)
-c      call qmmm_print_energy3(rtdb)
-
       status = .true.         
 c     
 110   continue
+c
+c     final energy evaluation
+c     ---------------------------
+      call qmmm_cons_reset()
+      call qmmm_bq_data_update_active()
+      call qmmm_set_interface("qm")
+      call md_sp()
+      status = qmmm_energy_gradient(rtdb,.false.) 
+      call qmmm_energy_rtdb_push(rtdb)
+      call qmmm_print_energy3(rtdb)
+c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - wall
 c     
@@ -305,7 +307,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -384,7 +386,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -412,7 +414,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -445,7 +447,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -493,9 +495,9 @@ c
 c     define set of active atoms
 c     --------------------------
       call qmmm_cons_reset()
-      call qmmm_cons_set(rtdb,"fix","solute")
-      call qmmm_cons_set(rtdb,"fix","solvent")
-      call qmmm_cons_set(rtdb,"free",region)
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region)
 c
       if (.not. rtdb_get(rtdb, 'qmmm:esp_density', mt_log, 
      $                   1, oesp))
@@ -538,7 +540,7 @@ c
 c     perform an optimization as requested
 c     ------------------------------------
       if(method.eq."bfgs") then
-         call qmmm_geom_init_aux(rtdb)
+         call qmmm_geom_init_aux(rtdb,"geometry")
          if (.not. rtdb_cput(rtdb,'driver:xyz',1,xyz))
      $        call errquit(pname,0, RTDB_ERR)
          if (.not. rtdb_put(rtdb,'driver:nptopt',mt_int,1,maxiter))
@@ -568,7 +570,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -688,123 +690,4 @@ c       load restart file if it exists
       return
       end
 
-c      function qmmm_pes(irtdb,optimizer)
-cc     $Id: task_qmmm_optimize.F,v 1.42 2005-09-11 00:39:06 marat Exp $
-c      implicit none
-c#include "errquit.fh"
-c#include "mafdecls.fh"
-c#include "rtdb.fh"
-c#include "geom.fh"
-c#include "global.fh"
-c#include "stdio.fh"
-c#include "util.fh"
-c#include "qmmm.fh"
-c#include "inp.fh"
-c#include "msgids.fh"
-c#include "tcgmsg.fh"
-c      integer irtdb
-c      logical optimizer
-c      external optimizer
-c      logical qmmm_pes
-c      double precision cpu, wall
-cc     
-c      logical  status
-cc     
-c      character*32 pname
-cc     
-c      logical   driver
-c      external  driver
-c      logical ignore
-c      character*255 filename, dir,xyz,prefix
-c      character*255 filename0
-c      double precision energy
-c      double precision rb(2)
-c      integer np
-c      integer ip
-c      double precision dr
-c      double precision r
-c      logical ofile
-c
-c      pname = "qmmm_pes"
-c
-cc
-cc     get lower/upper  limits for pes scan
-cc     ------------------------------------
-c      if (.not. rtdb_get(irtdb,'qmmm:pes_bounds',mt_dbl,
-c     +                    2,rb))
-c     + call errquit(pname//'Failed to get pes bounds',
-c     + 1, RTDB_ERR)
-c
-cc
-cc     get number of points for pes scan
-cc     ------------------------------------
-c      if (.not. rtdb_get(irtdb,'qmmm:pes_npoints',mt_int,
-c     +                    1,np))
-c     + call errquit(pname//'Failed to get pes points',
-c     + 1, RTDB_ERR)
-c
-cc
-cc     directory name to dump restart files
-cc     ------------------------------------
-c      dir      = ' '
-c      call util_directory_name(dir, .false., 0)
-cc
-cc     file prefix from mm module
-cc     --------------------------
-c      call mm_system_prefix(prefix)
-cc      write(*,*) "pes, mm_system_prefix", prefix(1:inp_strlen(prefix))
-cc 
-cc     set increments and initial value
-cc     --------------------------------
-c      dr = (rb(2)-rb(1))/(np-1)
-c      r  = rb(1)
-cc
-cc     actually do the scan
-cc     --------------------
-c      do ip=1,np
-c        if (.not. rtdb_put(irtdb,'qmmm:r_spring',mt_dbl,
-c     +                     1,r))
-c     +  call errquit(pname//'Failed to set r_spring',
-c     +  1, RTDB_ERR)
-c
-cc       construct restart file name  
-c        filename0 = ' '
-c        call mm_restart_filename(filename0)
-cc        write(filename0,14)  prefix(1:inp_strlen(prefix)),
-cc     $                       ip
-c        filename = ' '
-c        write(filename,13) dir(1:inp_strlen(dir)), 
-c     $     prefix(1:inp_strlen(prefix)),ip
-c
-cc       load restart file if it exists      
-c        if(ga_nodeid().eq.0) then 
-c          inquire(file=filename,exist=ofile)
-c          write(*,*) "pes found file",
-c     >               filename(1:inp_strlen(filename)),
-c     >               ofile
-c          if(ofile) 
-c     >     call util_file_copy(filename(1:inp_strlen(filename)),
-c     >                        filename0(1:inp_strlen(filename0)))
-c          write(*,*) "pes point ",ip,r,dr,
-c     >             filename0(1:inp_strlen(filename0))
-c        end if
-c        call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
-c        call ga_sync()
-c        if(ofile) then
-c          call mm_reload_rst(irtdb,filename0)
-c        end if
-cc       recreate active geometry
-c        call qmmm_geom_create_active(irtdb)
-c        status = optimizer(irtdb)
-c        if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
-c     $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
-c        write(*,*) "pes energy",ip,r,energy
-c        call mm_write_restart_named(filename)
-c         r = r + dr
-c      end do
-c
-c 13      format(a,'/',a,'_pes',i3.3,'.rst')
-c 14      format(a,'_pes',i3.3,'.rst')
-c
-c      return
-c      end
+
