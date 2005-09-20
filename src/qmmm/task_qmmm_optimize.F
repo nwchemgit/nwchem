@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -307,7 +307,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -386,7 +386,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -414,7 +414,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -447,7 +447,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -570,7 +570,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.43 2005-09-18 23:06:38 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -604,7 +604,9 @@ c
       integer ip
       double precision dr
       double precision r
+      integer i1,i2,i3
       logical ofile
+      logical backward
 
       pname = "qmmm_pes"
 
@@ -623,7 +625,10 @@ c     ------------------------------------
      +                    1,np))
      + call errquit(pname//'Failed to get pes points',
      + 1, RTDB_ERR)
-
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_backward',mt_log,
+     +                    1,backward))
+     +  backward = .false.
 c
 c     directory name to dump restart files
 c     ------------------------------------
@@ -639,10 +644,21 @@ c     set increments and initial value
 c     --------------------------------
       dr = (rb(2)-rb(1))/(np-1)
       r  = rb(1)
+
+      if(backward) then
+        i1=np
+        i2=1
+        i3=-1
+      else
+        i1=1
+        i2=np
+        i3=1
+      end if
 c
 c     actually do the scan
 c     --------------------
-      do ip=1,np
+      do ip=i1,i2,i3
+        r  = rb(1)+dr*(ip-1) 
         if(ga_nodeid().eq.0) then
           write(*,15) ip,r
         end if
@@ -679,7 +695,6 @@ c       load restart file if it exists
         if(ga_nodeid().eq.0) 
      >     write(*,16) energy,r
         call mm_write_restart_named(filename)
-         r = r + dr
       end do
 
  13      format(a,'/',a,'_pes',i3.3,'.rst')
