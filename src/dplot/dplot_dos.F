@@ -1,5 +1,5 @@
       subroutine dplot_dosinit(rtdb,filename)
-C $Id: dplot_dos.F,v 1.3 2005-09-20 00:17:28 edo Exp $
+C $Id: dplot_dos.F,v 1.4 2005-09-20 21:04:16 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -91,13 +91,13 @@ c
      &        status='unknown', access='sequential',form='formatted',
      &           err=111)
       End If
-      write(0,*) ' DOS output goes to file ',
+      if(ga_nodeid().eq.0) write(0,*) ' DOS output goes to file ',
      A     dfile(1:inp_strlen(dfile))
-      write(0,*) ' dopro ',doproj
+      if(ga_nodeid().eq.0) write(0,*) ' dopro ',doproj
       if(doproj) then
          if (.not.rtdb_get(rtdb,'dplot:angproj',mt_int,
      &        1,angproj)) angproj=-1
-         write(0,*) ' angproj ',angproj
+         if(ga_nodeid().eq.0) write(0,*) ' angproj ',angproj
          if(angproj.ne.-1) then
             call int_init(rtdb,1,basis)
          if(.not.MA_Push_Get(MT_int,nbf,'aproj',l_proj,k_proj))
@@ -110,7 +110,6 @@ c
          enddo
             call dplot_getaproj(geom,basis,nbf,angproj,
      A        nproj,int_mb(k_proj))
-      write(0,*) 'DD nprojs ',nproj
          if(.not.MA_Push_Get(MT_dbl,nbf,'fproj',l_fproj,k_fproj))
      A     call errquit(' pushget failed ',0,0)
          if(.not.MA_Push_Get(MT_dbl,nbf,'ccc',l_c,k_c))
@@ -176,6 +175,8 @@ c
       double precision emin,emax,de,ei
       double precision sqpi,factpi
       double precision au2ev,efermi,fval
+      double precision tinteg,pinteg,adde,renrm
+      double precision nelec 
       parameter(au2ev=27.21d0)
 c
       if(nstep.gt.maxn) call errquit(
@@ -190,14 +191,15 @@ c
       sqpi=sigma*sqrt(acos(-1d0))
       emax=-200000d0
       emin=20000d0
+      nelec=0d0
       do spin=1,ipol
         do i=i1,i2
+          if(foccs(i,spin).ge.eps) nelec=nelec+foccs(i,spin)
           if(i.lt.i2) then
              if(foccs(i,spin).gt.eps.and.foccs(i+1,spin).lt.eps) then
-
                  nocc(spin)=i
                  efermi=evals(i,spin)
-      write(0,*)' homo eval no. ',nocc(spin),
+            if(ga_nodeid().eq.0) write(0,*)' homo eval no. ',nocc(spin),
      A                ' energy (eV)=',efermi*au2ev
 
                 endif
@@ -207,8 +209,8 @@ c     HOMO
       enddo
       emin=efermi-span/au2ev
       emax=efermi+span/au2ev
-      write(0,*) ' au extrm ',emin,emax
-      write(0,*) ' ev extrm ',emin*au2ev,emax*au2ev
+      if(ga_nodeid().eq.0) write(0,*) ' au extrm ',emin,emax
+      if(ga_nodeid().eq.0) write(0,*) ' ev extrm ',emin*au2ev,emax*au2ev
       if(change.eq.1) then
          emax=(-e1+trasl)/au2ev
          emin=(-e2+trasl)/au2ev
@@ -216,6 +218,8 @@ c     HOMO
       else
          de=(emax-emin)/(nstep-1)
       endif
+      tinteg=0d0
+      pinteg=0d0
       do spin=1,ipol
         do ien=1,nstep
           dos(ien,spin)=0d0
@@ -227,30 +231,38 @@ c     HOMO
           fval=1d0
           if(doproj) fval=fproj(i)
           do ien=0,nstep-1
-            dos(ien+1,spin)=dos(ien+1,spin)+fval*
 c
 c lorentzian broadening
 c
-     +           sigma/(sigma*sigma+(eval-ei)**2)*factpi
+            adde=sigma/(sigma*sigma+(eval-ei)**2)*factpi
 c
 c gaussian
 c
-c     +           exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
+c           adde=exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
+           if(foccs(i,spin).gt.eps) then
+              tinteg=tinteg+adde
+              pinteg=pinteg+adde*fval
+           endif
+            dos(ien+1,spin)=dos(ien+1,spin)+fval*adde
             ei=ei+de
           enddo
         enddo
       enddo
       ei=emin
       if(ga_nodeid().eq.0) then
-      write(0,*) ' parte ei ',ei
+      renrm=dble(nelec)/tinteg
+      if(ga_nodeid().eq.0) then
+         write(0,'(A,F14.2)') '  no. electrons in energy range ',nelec
+         write(0,'(A,F14.2)') ' integrated PDOS ',pinteg*renrm
+      endif
       do ien=1,nstep
 c        write(6,11) ei,dos(ien+1,1)*fac,dos(ien+1,2)*fac
 c        write(6,11) ei*au2ev+trasl,(dos(ien+1,1)+dos(ien+1,2))*fac
          if(ipol.eq.1) then
-            write(16,11) ei*au2ev+trasl,dos(ien+1,1)+trasly
+            write(16,11) ei*au2ev+trasl,dos(ien+1,1)*renrm+trasly
          else
             write(16,11) ei*au2ev+trasl,
-     V           dos(ien+1,1)+trasly,dos(ien+1,2)+trasly
+     V           dos(ien+1,1)*renrm+trasly,dos(ien+1,2)*renrm+trasly
          endif
    11   format(3(2x,1pe14.6))
         ei=ei+de
