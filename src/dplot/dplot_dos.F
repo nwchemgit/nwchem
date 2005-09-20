@@ -1,5 +1,5 @@
       subroutine dplot_dosinit(rtdb,filename)
-C $Id: dplot_dos.F,v 1.2 2005-09-17 04:56:32 edo Exp $
+C $Id: dplot_dos.F,v 1.3 2005-09-20 00:17:28 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
@@ -27,7 +27,8 @@ c
       integer g_vecs(2)
       integer l_eval,k_eval,l_focc,k_focc,
      K     k_proj,l_proj,k_c,l_c,k_sc,l_sc,k_fproj,l_fproj
-      double precision span
+      double precision span,trasly
+      character*24 dfile
       integer nproj,angproj
       logical doproj
 c
@@ -81,13 +82,32 @@ c
      &   1,span)) span=5d0
       if (.not.rtdb_get(rtdb,'dplot:dos_doproj',mt_log,
      &   1,doproj)) doproj=.false.
+      if (.not.rtdb_get(rtdb,'dplot:dos_trasly',mt_dbl,
+     &   1,trasly)) trasly=0d0
+      If (.not.rtdb_cget(rtdb,'dplot:File_Out',1,dfile))
+     &   dfile='fort.16'
+      If (ga_nodeid().eq.0 ) Then
+         open(unit=16,file=dfile(1:inp_strlen(dfile)),
+     &        status='unknown', access='sequential',form='formatted',
+     &           err=111)
+      End If
+      write(0,*) ' DOS output goes to file ',
+     A     dfile(1:inp_strlen(dfile))
+      write(0,*) ' dopro ',doproj
       if(doproj) then
          if (.not.rtdb_get(rtdb,'dplot:angproj',mt_int,
      &        1,angproj)) angproj=-1
+         write(0,*) ' angproj ',angproj
          if(angproj.ne.-1) then
             call int_init(rtdb,1,basis)
          if(.not.MA_Push_Get(MT_int,nbf,'aproj',l_proj,k_proj))
      A     call errquit(' pushget failed ',0,0)
+c
+c     set all projections true
+c         
+         do iset=1,nbf
+            int_mb(k_proj+iset-1)=1
+         enddo
             call dplot_getaproj(geom,basis,nbf,angproj,
      A        nproj,int_mb(k_proj))
       write(0,*) 'DD nprojs ',nproj
@@ -109,7 +129,7 @@ c     neeed to generalize to uhf
          endif
       endif
       call dplot_dos(nbf,span,trasl,nstep,sigma,
-     P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),
+     P     doproj,nproj,int_mb(k_proj),dbl_mb(k_fproj),trasly,
      C     change,e1,e2,nsets,
      A     dbl_mb(k_focc),dbl_mb(k_eval))
       if(.not.ma_chop_stack(l_eval)) call errquit
@@ -126,14 +146,16 @@ c     neeed to generalize to uhf
       if(.not.bas_destroy(basis)) call errquit
      A ('dplotdos: basdestr failed ',0,0)
       return
+ 111  call errquit(' failed to open file ',0,0)
       end
       subroutine dplot_dos(nbf,span,trasl,nstep,sigma,
-     P     doproj,nproj,shproj,fproj,
+     P     doproj,nproj,shproj,fproj,trasly,
      C     change,e1,e2,ipol,
      A     foccs,evals)
       implicit none
+#include "global.fh"
       integer nbf ![in]
-      double precision trasl,sigma ! [in]
+      double precision trasl,sigma,trasly ! [in]
       double precision span ![in]
       integer nstep,change ! [in]
       integer ipol ![in]
@@ -166,7 +188,6 @@ c
       sigma=sigma/au2ev*0.5d0
       factpi=0.5d0/acos(-1d0)
       sqpi=sigma*sqrt(acos(-1d0))
-!      read(5,*) i1,i2
       emax=-200000d0
       emin=20000d0
       do spin=1,ipol
@@ -206,7 +227,6 @@ c     HOMO
           fval=1d0
           if(doproj) fval=fproj(i)
           do ien=0,nstep-1
-!            dos(ien+1,spin)=dos(ien+1,spin)+focc*
             dos(ien+1,spin)=dos(ien+1,spin)+fval*
 c
 c lorentzian broadening
@@ -221,19 +241,23 @@ c     +           exp(-((eval-ei)/sigma)**2)/sigma/sqrt(acos(-1d0))
         enddo
       enddo
       ei=emin
+      if(ga_nodeid().eq.0) then
       write(0,*) ' parte ei ',ei
       do ien=1,nstep
 c        write(6,11) ei,dos(ien+1,1)*fac,dos(ien+1,2)*fac
 c        write(6,11) ei*au2ev+trasl,(dos(ien+1,1)+dos(ien+1,2))*fac
          if(ipol.eq.1) then
-            write(16,11) ei*au2ev+trasl,dos(ien+1,1)
+            write(16,11) ei*au2ev+trasl,dos(ien+1,1)+trasly
          else
-            write(16,11) ei*au2ev+trasl,dos(ien+1,1),dos(ien+1,2)
+            write(16,11) ei*au2ev+trasl,
+     V           dos(ien+1,1)+trasly,dos(ien+1,2)+trasly
          endif
    11   format(3(2x,1pe14.6))
         ei=ei+de
       enddo
-        
+      endif
+      call ga_sync()
+      
       end
       subroutine dplot_pmull(geom,basis,g_evecs,nbf,
      p     projsh,nproj,shproj,
@@ -262,22 +286,23 @@ c
 c     get mulliken
 c     get S
       g_s = ga_create_atom_blocked(geom, basis, 'AO ovl')
+      call ga_zero(g_s)
       g_sc = ga_create_atom_blocked(geom, basis, 'AO ovl')
       call int_1e_ga(basis, basis, g_s, 'overlap', .false.)
 c     get SC
       call ga_dgemm('n', 'n', nbf, nbf, nbf,1d0,g_s,
      $     g_evecs, 0d0, g_sc)
       call dcopy(nbf,0d0,0,projsh,1)
-!      call ga_print(g_evecs)
-!      call ga_print(g_sc)
-      do i=1+ga_nodeid(),nproj,ga_nnodes()
-         mu=shproj(i)
+      do i=1+ga_nodeid(),nbf,ga_nnodes()
+         if(shproj(i).ne.0) then
+            mu=i
 c     get  mu-th row
          call ga_get(g_evecs, mu,mu,1, nbf, c,1)
          call ga_get(g_sc, mu,mu,1, nbf, sc,1)
          do j=1,nbf
             projsh(j)=projsh(j)+c(j)*sc(j)
          enddo
+         endif
       enddo
       call ga_sync()
       call ga_dgop(1984,projsh,nbf,'+')
@@ -319,16 +344,14 @@ c
      &                             dum, dum))
      &       call errquit('Exiting in grid_signf.',4, BASIS_ERR)
 
-            if(l.eq.angproj) then
+            if(l.ne.angproj) then
                do ifun=ifirst,ilast
                   nproj=nproj+1
-                  proj(nproj)=ifun
-                  write(0,*) 'i pp ',nproj,proj(nproj)
+                  proj(ifun)=0
                enddo
             endif
          enddo
       enddo
-
 c
       return
       end
