@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.77 2005-09-18 23:06:38 marat Exp $
+c $Id: qmmm_geom.F,v 1.78 2005-09-22 20:54:07 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -200,12 +200,16 @@ c     ---------------------------------------------
      >      call errquit(pname//"neb_path",0,RTDB_ERR)
 
       filename = rstfile(1)
-      call util_file_name_resolve(filename,.false.)
+c     if files reside in perm directory
+c     this turned off for now because it forces topology
+c     file to be in perm directory as well
+c     --------------------------------------------------
+c      call util_file_name_resolve(filename,.false.)
       call mm_reload_rst(irtdb,filename)
       call qmmm_geom_create_active(irtdb,"neb_start")
 
       filename = rstfile(2)
-      call util_file_name_resolve(filename,.false.)
+c      call util_file_name_resolve(filename,.false.)
       call mm_reload_rst(irtdb,filename)
       call qmmm_geom_create_active(irtdb,"neb_end")
 

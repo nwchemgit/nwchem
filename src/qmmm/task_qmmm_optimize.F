@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.45 2005-09-22 20:54:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.45 2005-09-22 20:54:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -307,7 +307,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.45 2005-09-22 20:54:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -386,7 +386,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.45 2005-09-22 20:54:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -414,7 +414,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.45 2005-09-22 20:54:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -447,7 +447,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.45 2005-09-22 20:54:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -570,7 +570,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.44 2005-09-20 17:54:32 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.45 2005-09-22 20:54:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -602,11 +602,14 @@ c
       double precision rb(2)
       integer np
       integer ip
+      integer in
       double precision dr
       double precision r
       integer i1,i2,i3
       logical ofile
       logical backward
+      logical loadrst
+      integer ncycles
 
       pname = "qmmm_pes"
 
@@ -621,14 +624,24 @@ c     ------------------------------------
 c
 c     get number of points for pes scan
 c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_ncycles',mt_int,
+     +                    1,ncycles))
+     + ncycles = 1
+c
+c     get number of points for pes scan
+c     ------------------------------------
       if (.not. rtdb_get(irtdb,'qmmm:pes_npoints',mt_int,
      +                    1,np))
      + call errquit(pname//'Failed to get pes points',
      + 1, RTDB_ERR)
-c
+cc
       if (.not. rtdb_get(irtdb,'qmmm:pes_backward',mt_log,
      +                    1,backward))
      +  backward = .false.
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_loadrst',mt_log,
+     +                    1,loadrst))
+     +  loadrst = .false.
 c
 c     directory name to dump restart files
 c     ------------------------------------
@@ -645,6 +658,7 @@ c     --------------------------------
       dr = (rb(2)-rb(1))/(np-1)
       r  = rb(1)
 
+      do in=1,ncycles
       if(backward) then
         i1=np
         i2=1
@@ -674,27 +688,31 @@ c       construct restart file name
         write(filename,13) dir(1:inp_strlen(dir)), 
      $     prefix(1:inp_strlen(prefix)),ip
 
-c       load restart file if it exists      
-        if(ga_nodeid().eq.0) then 
-          inquire(file=filename,exist=ofile)
-          if(ofile) then 
-           write(*,*) "pes: found restart file",
-     >               filename(1:inp_strlen(filename))
-          call util_file_copy(filename(1:inp_strlen(filename)),
-     >                        filename0(1:inp_strlen(filename0)))
+c       start load restart file if it exists and requested     
+        if(loadrst) then
+          if(ga_nodeid().eq.0) then 
+            inquire(file=filename,exist=ofile)
+            if(ofile) then 
+             write(*,*) "pes: found restart file",
+     >                 filename(1:inp_strlen(filename))
+            call util_file_copy(filename(1:inp_strlen(filename)),
+     >                          filename0(1:inp_strlen(filename0)))
+            end if
           end if
+          call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+          call ga_sync()
+          if(ofile) 
+     >      call mm_reload_rst(irtdb,filename0)
         end if
-        call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
-        call ga_sync()
-        if(ofile) then
-          call mm_reload_rst(irtdb,filename0)
-        end if
+c       end load restart 
         status = qmmm_mixed_optimization(irtdb)
         if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
         if(ga_nodeid().eq.0) 
      >     write(*,16) energy,r
         call mm_write_restart_named(filename)
+      end do
+      backward = .not.backward
       end do
 
  13      format(a,'/',a,'_pes',i3.3,'.rst')

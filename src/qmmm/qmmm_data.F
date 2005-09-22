@@ -180,19 +180,15 @@ c     ------------------
      >     call errquit(pname//'cannot find '//tag,0,
      >       RTDB_ERR)
         nregion = 0
-      else
+      end if      
+      if(nregion.ne.0) then
         if (.not.rtdb_cget(irtdb,tag,nregion,region)) 
-     >      call errquit(pname//tag,0,RTDB_ERR)
+     >      call errquit(pname//"failed to get"//tag,0,RTDB_ERR)
       end if
       if (.not.rtdb_put(irtdb,tag(1:inp_strlen(tag))//"_n",
      >                  mt_int,1,nregion)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >                   RTDB_ERR)
-      if(nregion.ne.0) then 
-        if (.not.rtdb_cput(irtdb,tag,nregion,region)) 
-     >      call errquit(pname//'failed to store'//tag,0,
-     >       RTDB_ERR)
-      end if
 
       if (master) then
       tag = " "
