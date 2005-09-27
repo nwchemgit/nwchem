@@ -3,14 +3,14 @@
      &                       iniz, ifin, rho, delrho, 
      &                       hess, qwght, qxyz, xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq, rdens_atom, cetobfr, 
+     &                       Pmat, dmat, rq, rdens_atom, cetobfr, 
      ,     ibf_ao,rqbuf,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d,triplet,tau,Mmat)
 c
-c$Id: grid_quadv0a.F,v 1.40 2004-12-16 18:39:22 bert Exp $
+c$Id: grid_quadv0a.F,v 1.41 2005-09-27 00:35:01 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -126,7 +126,7 @@ c
      &                       iniz, ifin, rho, delrho, 
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq, rdens_atom,  cetobfr, 
+     &                       Pmat, dmat,rq, rdens_atom,  cetobfr, 
      ,           ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .           int_mb(i_iscratch),
      ,           log_mb(idocset),rchi_atom,rdelchi_atom,

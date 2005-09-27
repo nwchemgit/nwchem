@@ -1,4 +1,4 @@
-c     $Id: xc_vdw.F,v 1.3 2005-04-04 20:29:50 edo Exp $
+c     $Id: xc_vdw.F,v 1.4 2005-09-27 00:35:03 edo Exp $
       subroutine xc_vdw(rtdb,geom,exc,force,what,s6)
       implicit none
       character *(*) what
@@ -58,7 +58,7 @@ c
       if(what.eq.'energy') then
          evdw=xc_vdw_e(s6,n,dbl_mb(i_xyz),int_mb(iz))
          if(oprint.and.ga_nodeid().eq.0) 
-     W        write(luout,*) ' vdW contrib ',evdw
+     W        write(luout,*) ' s6 =',s6,' vdW contrib ',evdw
          Exc=Exc+evdw
       elseif(what.eq.'forces') then
       if (.not.MA_push_get(MT_Dbl,n*3,'xyz',l_fvdw,i_fvdw))
@@ -66,7 +66,7 @@ c
          call xc_vdw_der(s6,n,dbl_mb(i_xyz),int_mb(iz),
      D     dbl_mb(i_fvdw))
          if(oprinth.and.ga_nodeid().eq.0) then
-             write(luout,*) ' vdW contrib '
+             write(luout,*) ' vdW contrib for S6=',s6
              do i=1,n
                 write(luout,'(I2,3F10.7," F = ",3(1PE13.5))')
      Z               int_mb(iz+i-1),

@@ -4,7 +4,7 @@
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz,
      &                         iandex, expo, ccoef, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
+     &                         Cmat2, Bmat,  Fmat, Pmat, Dmat, rq,
      &                         rq0, hh,  
      .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
      .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
@@ -12,7 +12,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_griddo.F,v 1.3 2004-12-16 18:44:13 bert Exp $
+c     $Id: dftg_griddo.F,v 1.4 2005-09-27 00:35:03 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -187,7 +187,7 @@ c
      &                       iniz, ifin, rho, delrho, 
      &                       hess, qwght, qxyz, xyz,iscr,nscr,
      &                    expo, ccoef, Bmat, Fmat, 
-     &                    Pmat, rq,  rdens_atom, cetobfr, 
+     &                    Pmat, dmat, rq,  rdens_atom, cetobfr, 
      ,                    ibf_ao,dbl_mb(ibp),rchi_atom,rdelchi_atom,
      ,                    Ex, Ec, amat,cmat,idum1,
      ,                    Amat2, Cmat2,
@@ -196,7 +196,7 @@ c
      &                    tau, kske,Mmat,
      ,     int_mb(k_qat),
      ,     int_mb(k_qsh),dbl_mb(irqbuf),dbl_mb(irij),rho_int,
-     D     func,d_qwght,Dmat,rq0,hh,ppp,ff,zzz,
+     D     func,d_qwght,rq0,hh,ppp,ff,zzz,
      D     drhonuc,ddelrhonuc,d2scr,force,
      D     acc_ao_gauss,
      L     do_force,do_hess,ldew,gradchi,hesschi,der3chi,oactive,

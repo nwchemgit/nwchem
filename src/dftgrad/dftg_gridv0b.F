@@ -3,7 +3,7 @@
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
+     &                         Cmat2, Bmat, Fmat, Pmat, Dmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,bas_cent_info,bas_cset_info,docset,
      .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.26 2004-03-31 00:25:28 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.27 2005-09-27 00:35:03 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -99,7 +99,7 @@ c
       double precision acc_AO_gauss 
       double precision Ex, Ec
       double precision rho_int ! [in/out]
-      double precision dabsmax,wmax
+      double precision dabsmax,wmax,dum
       external dabsmax
       integer grid_nbfm
       external grid_nbfm
@@ -187,10 +187,13 @@ c
          
 c
                wmax= dabsmax(nqpts,qwght)
-               call xc_rhogen(tol_rho, AO_bas_han, iga_dens, max_at_bf,
-     &              natoms, ipol, nqpts, nbf_ao, mbf_ao,
-     &              ldelley, grad, Fmat, Pmat, Bmat,
-     &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
+               call xc_rhogen(0,
+     T              tol_rho, AO_bas_han, iga_dens, max_at_bf,
+     &              natoms, 1,1,1,
+     I              ipol, nqpts, nbf_ao, mbf_ao, grad,
+     P              (ipol*(ipol+1))/2,
+     F              Fmat, Pmat, Bmat,dmat,
+     &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),0d0,
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
      &              rdens_atom, cetobfr,wmax, tau, kske)
@@ -203,17 +206,17 @@ c
                   if (grad)
      &               call dfill(ipol*3*nqpts*3*nactive,0.D0,
      &                          ddelrhonuc,1)
-#if 1
-                  call xc_rhogen_nucder(tol_rho, AO_bas_han, iga_dens,
-     &                 max_at_bf, natoms, curatoms, ncuratoms, 
-     &                 ipol, nqpts, nbf_ao, mbf_ao, grad, 
+                  call xc_rhogen(2,
+     &                 tol_rho, AO_bas_han, iga_dens,max_at_bf, 
+     N                 natoms, curatoms, ncuratoms, 1,
+     &                 ipol, nqpts, nbf_ao, mbf_ao, grad, ipol,
      &                 Fmat, Pmat, Bmat, Dmat,
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                 dbl_mb(iheschi_ao), ibf_ao, iniz, ifin,
      &                 drhonuc, ddelrhonuc,
      &                 rchi_atom,
-     &                 rdelchi_atom, rdens_atom, cetobfr,1d0)
-#endif
+     &                 rdelchi_atom, rdens_atom, cetobfr,1d0,
+     D                 0d0,.false.)
                endif
 c
 c         
@@ -298,7 +301,6 @@ c
                   call xc_cpks_coeff(drhonuc,
      &                 ddelrhonuc, Amat2, Cmat2, Cmat, delrho,
      &                 3*ncuratoms, ipol, nqpts, GRAD, .false.)
-#if 1
                   call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat,
      &                 drhonuc, Bmat, ddelrhonuc,
      &                 Dmat, Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao),
@@ -307,8 +309,6 @@ c
      &                 AO_bas_han, natoms, iniz, ifin, g_rhs,
      &                 ibf_ao, rchi_atom,
      &                 rdelchi_atom, rdens_atom, cetobfr)
-#endif
-#if 1
 c
 c     Second part: Basis function derivative contribution
 c
@@ -328,7 +328,6 @@ c
      &                 AO_bas_han, natoms, iniz, ifin, g_rhs,
      &                 ibf_ao, rchi_atom,
      &                 rdelchi_atom, rdens_atom, cetobfr)
-#endif
 c
                endif
  2010          continue

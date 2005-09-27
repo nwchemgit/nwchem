@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.21 2004-03-31 00:25:28 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.22 2005-09-27 00:35:03 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.21 2004-03-31 00:25:28 edo Exp $
+c $Id: dftg_gridv0.F,v 1.22 2005-09-27 00:35:03 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -453,8 +453,8 @@ c
      &                   int_mb(iandex), dbl_mb(iexpo),
      &                   dbl_mb(iAmat), dbl_mb(k_Amat2),
      &                   dbl_mb(iCmat), dbl_mb(k_Cmat2),
-     &                   dbl_mb(iBmat), dbl_mb(iDmat),
-     &                   dbl_mb(iFmat), dbl_mb(iPmat), 
+     &                   dbl_mb(iBmat), 
+     &                   dbl_mb(iFmat), dbl_mb(iPmat), dbl_mb(iDmat),
      &                   dbl_mb(irq), dbl_mb(irq0), dbl_mb(ihh),
      ,     int_mb(iibf_ao),int_mb(k_curatoms),
      ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),dbl_mb(ippp),
@@ -478,8 +478,8 @@ c
      &                   dbl_mb(iqxyz), dbl_mb(ixyz),
      &        int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
      &          dbl_mb(iAmat), dbl_mb(k_Amat2),dbl_mb(iCmat), 
-     &        dbl_mb(k_Cmat2), dbl_mb(iBmat), dbl_mb(iDmat),
-     &                   dbl_mb(iFmat), dbl_mb(iPmat), dbl_mb(irq), 
+     &        dbl_mb(k_Cmat2), dbl_mb(iBmat), 
+     &      dbl_mb(iFmat), dbl_mb(iPmat), dbl_mb(iDmat),dbl_mb(irq), 
      &        dbl_mb(irq0), dbl_mb(ihh),
      ,        int_mb(iibf_ao),int_mb(k_curatoms),dbl_mb(irchi_atom),
      ,           dbl_mb(irdelchi_atom),dbl_mb(ippp),

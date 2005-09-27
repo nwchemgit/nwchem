@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.22 2002-02-15 00:44:19 edo Exp $
+* $Id: cgridfile.fh,v 1.23 2005-09-27 00:35:01 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -30,6 +30,7 @@ c
       logical file_opened       ! True if a physical file is open
       logical filedump_opened  ! True if a physical file is open
       integer gr_unit !
+      parameter(gr_unit=85)
 c
       logical oasyncio          ! If true use asynchronous IO
       logical oiopending        ! If true asynchronous IO is pending
@@ -86,7 +87,6 @@ c     integer
      $     next_value,
      $     l_cache, k_cache,
      $     max_file_rec, max_cache_rec, cur_cub,nsubb,ntot_sub,
-     .     gr_unit,
      $     n_in_rec_tot,
 c     logicals
      .     grid_written,

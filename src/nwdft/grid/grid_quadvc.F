@@ -7,12 +7,12 @@
      &     iniz, ifin, rho, delrho, 
      &     hess,  xyz,iscr,nscr,
      &     expo, ccoef, Bmat, Fmat, 
-     &     Pmat, rq, rdens_atom, cetobfr, 
+     &     Pmat, dmat,rq, rdens_atom, cetobfr, 
      ,     ibf_ao,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d,triplet, tau, kske,Mmat)
-C$Id: grid_quadvc.F,v 1.24 2004-12-16 18:39:22 bert Exp $
+C$Id: grid_quadvc.F,v 1.25 2005-09-27 00:35:01 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "cdft.fh"
@@ -98,10 +98,6 @@ c
      .     ).or.
      .     ((n.gt.0).and.(nwrbuf+1.eq.n_per_rec))
       if(buffwrite.or.cube_done) then
-!      write(6,11) ictr_buf,ntot_cube,nq_out,nwrbuf,cube_done,
-!     ,        buffwrite
-! 11   format(' ictr ',i2,' nrchi ',i4,' nq_out ',i4,' nwrb ',i4,
-!     ,     ' cd ',i1,' bw ',i1) 
          if(nq_out.ne.0) 
      .    call grid_quadv0b(
      ,        ictr_buf,qxyz, qwght, nq_out,
@@ -111,7 +107,7 @@ c
      &        iniz, ifin, rho, delrho, 
      &        hess,  xyz,iscr,nscr,
      &        expo, ccoef, Bmat, Fmat, 
-     &        Pmat, rq,  rdens_atom, cetobfr, 
+     &        Pmat, dmat, rq,  rdens_atom, cetobfr, 
      ,        ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .        int_mb(i_iscratch),
      '        log_mb(idocset),rchi_atom,rdelchi_atom,

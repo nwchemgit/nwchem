@@ -11,20 +11,20 @@
      &     iniz, ifin, rho, delrho, 
      &     hess, qwght, qxyz, xyz,iscr,
      &     expo, Bmat, Fmat, 
-     &     Pmat, rq,  rdens_atom, cetobfr, 
+     &     Pmat, dmat, rq,  rdens_atom, cetobfr, 
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
      ,     tau, kske,Mmat,
-     D     func,d_qwght,Dmat,rq0,hh,ppp,ff,zzz,
+     D     func,d_qwght,rq0,hh,ppp,ff,zzz,
      D     drhonuc,ddelrhonuc,d2scr,force,
      D     acc_ao_gauss,
      L     do_force,do_hess,ldew,gradchi,hesschi,der3chi,oactive,
      I     iandex,max_at_bf,curatoms,g_rhs,
      I     nbf_ao_mxnbf_ce2,nactive)
 c
-c$Id: dftg_loop.F,v 1.2 2004-03-31 00:25:28 edo Exp $
+c$Id: dftg_loop.F,v 1.3 2005-09-27 00:35:01 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -64,7 +64,7 @@ c
       logical kske
       double precision tau(*), Mmat(*)
 CA
-      double precision func(*),d_qwght(*),dmat(*),
+      double precision func(*),d_qwght(*),
      D     rq0(*),hh(*),ppp(*),ff(*),zzz(*),force(*)
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
      ,     acc_ao_gauss

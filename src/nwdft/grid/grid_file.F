@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.62 2005-01-29 01:52:45 edo Exp $
+* $Id: grid_file.F,v 1.63 2005-09-27 00:35:01 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -71,7 +71,6 @@ c
       cur_cub = -99
       nsubb=0
       ntot_sub=0
-      gr_unit=85
       rec_len_in_dbl = 4*buffer_size + ma_sizeof(mt_int, 1, mt_dbl)
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)

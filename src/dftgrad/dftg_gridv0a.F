@@ -3,7 +3,7 @@
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
+     &                         Cmat2, Bmat, Fmat, Pmat, dmat, rq,
      &                         rq0, hh,  
      .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
      .     drhonuc,ddelrhonuc,d2scr,nscr,
@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.27 2004-09-29 23:53:49 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.28 2005-09-27 00:35:03 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -204,7 +204,7 @@ c
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
+     &                         Cmat2, Bmat, Fmat, Pmat, Dmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,

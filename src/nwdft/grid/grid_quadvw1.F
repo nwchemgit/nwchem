@@ -9,14 +9,14 @@
      &     iniz, ifin, rho, delrho, 
      &     hess, qwght, qxyz, xyz,iscr,nscr,
      &     expo, ccoef, Bmat, Fmat, 
-     &     Pmat, rq,  rdens_atom, cetobfr, 
+     &     Pmat, dmat, rq,  rdens_atom, cetobfr, 
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d,triplet, tau, kske,Mmat)
 c
-c$Id: grid_quadvw1.F,v 1.18 2004-12-16 18:39:22 bert Exp $
+c$Id: grid_quadvw1.F,v 1.19 2005-09-27 00:35:01 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -90,7 +90,7 @@ c
      &        iniz, ifin, rho, delrho, 
      &        hess,  xyz,iscr,nscr,
      &        expo, ccoef, Bmat, Fmat, 
-     &        Pmat, rq, rdens_atom, cetobfr, 
+     &        Pmat, dmat, rq, rdens_atom, cetobfr, 
      ,        ibf_ao,rchi_atom,rdelchi_atom,
      ,        Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,

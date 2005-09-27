@@ -10,7 +10,7 @@
      &                       iniz, ifin, rho, delrho, 
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, rq, rdens_atom,  cetobfr, 
+     &                       Pmat, dmat, rq, rdens_atom,  cetobfr, 
      ,     ibf_ao,bas_cent_info,bas_cset_info,iscratch,docset,
      ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
@@ -18,7 +18,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.42 2004-12-16 18:39:22 bert Exp $
+c$Id: grid_quadv0b.F,v 1.43 2005-09-27 00:35:01 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -43,7 +43,7 @@ c !!! temp !!! ***
       integer bas_cent_xinfo(3,natoms),bas_cset_xinfo(6,*)
       logical docsetx(*)
       integer iscratch(*)
-      double precision acc_AO_gauss, rad, dummy(1),rho0
+      double precision acc_AO_gauss, rad, rho0
       integer nbf_ao_mxnbf_ce2, mbf_ao, npol, ncontrset, maxdbas
       integer lchi_ao, ichi_ao, ldelchi_ao, idelchi_ao
       integer ldmat,idmat,i, grid_nbfm
@@ -139,10 +139,12 @@ c
       wmax= dabsmax(nqpts,qwght)
       if(do_scf.or.do_nmrks_r) then
          if (odftps) call pstat_on(ps_xcrho)
-            call xc_rhogen(tol_rho, AO_bas_han, g_dens,
-     &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
-     &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
-     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+            call xc_rhogen(0,
+     T        tol_rho,AO_bas_han,g_dens,nbf_ao_mxnbf_ce, 
+     N        natoms, 1,1,1,
+     I        ipol, nqpts, nbf_ao, mbf_ao, GRAD, (ipol*(ipol+1))/2,
+     F        Fmat, Pmat, Bmat, dmat,
+     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,wmax, tau, kske)
@@ -159,21 +161,25 @@ c
          endif
       else  if (do_cpks_l) then
 #ifdef QUADV0_REVERT
-            call xc_rhogen(tol_rho, AO_bas_han, g_dens(2),
-     &           nbf_ao_mxnbf_ce, natoms, ipol, nqpts, nbf_ao,
-     &           mbf_ao, ldelley, GRAD, Fmat, Pmat, Bmat, 
-     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+            call xc_rhogen(0,
+     T        tol_rho, AO_bas_han, g_dens(2), nbf_ao_mxnbf_ce, 
+     N        natoms, 1,1,1,
+     I        ipol, nqpts, nbf_ao, mbf_ao, GRAD, (ipol*(ipol+1))/2,
+     F        Fmat, Pmat, Bmat, dmat,
+     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,1d0,tau, kske)
 #else
-            call xc_rhogen_pert(tol_rho, AO_bas_han, g_dens,
-     &           nbf_ao_mxnbf_ce, natoms, nmat+1,ipol, nqpts, 
-     .           nbf_ao, mbf_ao, GRAD, Fmat, Pmat, Bmat, 
-     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 
+            call xc_rhogen(1,
+     T           tol_rho, AO_bas_han, g_dens, nbf_ao_mxnbf_ce, 
+     N           natoms, 1,1, nmat+1,
+     I           ipol, nqpts, nbf_ao, mbf_ao, GRAD, ipol,
+     F           Fmat, Pmat, Bmat, dmat,
+     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, 
-     .           rdelchi_atom, rdens_atom, cetobfr,wmax)
+     .           rdelchi_atom, rdens_atom, cetobfr,wmax,0d0,.false.)
 #endif
             else if (do_cpks_r) then
                call errquit('gridquadv0b: what do do for cpks rhs?',0,
@@ -219,7 +225,7 @@ c     add beta to 1 to get alpha+beta
       if (odftps) call pstat_on(ps_excf)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), Amat,
      &     Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
-     &     GRAD, .false., dummy, do_cpks_l .or. do_cpks_r, 
+     &     GRAD, .false., 0d0, do_cpks_l .or. do_cpks_r, 
      &      tau, kske, Mmat)
       if (odftps) call pstat_off(ps_excf)
 
@@ -328,7 +334,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.42 2004-12-16 18:39:22 bert Exp $
+C$Id: grid_quadv0b.F,v 1.43 2005-09-27 00:35:01 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -468,7 +474,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.42 2004-12-16 18:39:22 bert Exp $
+C$Id: grid_quadv0b.F,v 1.43 2005-09-27 00:35:01 edo Exp $
 c
       implicit none
 #include "errquit.fh"

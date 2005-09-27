@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.17 2005-03-28 23:45:43 edo Exp $
+* $Id: dft_gradients.F,v 1.18 2005-09-27 00:35:03 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -84,6 +84,7 @@ c
       double precision charge, charge_nuc, rhffact, tol2e, onem,
      , toll
       double precision dum,vdw
+      double precision fant_a,fant_d
       parameter(toll=1.d-9)
       logical  oprint_force_comps
 c     
@@ -467,6 +468,16 @@ c
       if(vdw.ne.0d0) call xc_vdw(rtdb,geom,dum,
      A     dbl_mb(k_frc_xc), 'forces',vdw)
 c     
+c
+c     add Bonacic-Fantucci repulsive term
+c
+      if (.not.rtdb_get(rtdb, 'dft:fant_d', mt_dbl, 1,
+     &   fant_d)) fant_d=-1d0
+      if (.not.rtdb_get(rtdb, 'dft:fant_a', mt_dbl, 1,
+     &   fant_a)) fant_a=-1d0
+      if(fant_a.ne.-1d0.and.fant_d.ne.-1d0)
+     A     call dftg_fant(geom,nat,fant_a,fant_d,
+     A     dbl_mb(k_frc_xc))
       status = ma_pop_stack (l_s34)
 c     
       if (ga_nodeid() .eq. 0)then
@@ -612,5 +623,55 @@ c!!! BGJ test !!!
       status = ga_destroy (iga_dens(1))
       status = ga_destroy (g_force)
 c     
+      return
+      end
+      subroutine dftg_fant(geom,natoms,a,d,forces)
+C     Bonacic-Kouteck, V.; Cespiva, L.; Fantucci, P.; Pittner, J.; Kouteck, J. J. 
+C     Chem. Phys. 1994, 98, 490.
+C     Mitric, R.; Hartmann, M.; Stanca, B.; Bonacic-Koutecky, V.; Fantucci, P.;
+C     J. Phys. Chem. A.; (Article); 2001; 105(39); 8892-8905
+C     The core-core repulsion has been corrected according to
+C     (CC(rij) ) l/rij + D exp(-arij)). 
+C     Constants D and a obtained for 1e-RECP's from the fitting procedure
+C     described in Appendix A necessery for corection of core-core potential: 
+C     DAg-Ag ) 1619.887392, aAg-Ag ) 2.49630105, 
+C     DAu-Au ) 1911.131090, aAu-Au ) 2.46590129, 
+C     DAu-Ag ) 1765.509532, aAu-Ag ) 2.48110117. 
+      implicit none
+#include "errquit.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+      integer geom,natoms
+      double precision a,d,forces(3,*)
+c
+      integer i,j,B
+      double precision qi,qj
+      double precision xB(3),xj(3),rBj,ffant,drbjdxb
+      character*16 tag
+c     
+      do B=1,natoms
+         if (.not. geom_cent_get(geom, B, tag, 
+     &        xB, qi))call errquit
+     &        ('grid_acc_def: geom_cent_get failed', 0, GEOM_ERR)
+         do j=1,natoms
+            if(B.ne.j) then
+               if (.not. geom_cent_get(geom, j, tag, 
+     &              xj, qj))call errquit
+     &              ('grid_acc_def: geom_cent_get failed', 0, GEOM_ERR)
+               rBj=sqrt((xB(1)-xj(1))**2+(xB(2)-xj(2))**2+
+     +              (xB(3)-xj(3))**2)
+                  ffant=d*exp(-a*rBj)*(-a)
+               do i=1,3
+                  drBjdxb=1d0/rBj*(xB(i)-xj(i))
+                  forces(i,B)=forces(i,B) + ffant*drBjdxB
+               enddo
+            endif
+
+         enddo
+      enddo
+!      if(ga_nodeid().eq.0)
+!     W     write(luout,*) 
+!     W     ' Bonacic-Koutecky Fantucci-Repulsive Term ',dft_fant
       return
       end

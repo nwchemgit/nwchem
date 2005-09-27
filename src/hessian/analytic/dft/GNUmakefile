@@ -1,12 +1,10 @@
-# $Id: GNUmakefile,v 1.10 2005-02-15 19:30:59 edo Exp $
+# $Id: GNUmakefile,v 1.11 2005-09-27 00:36:57 edo Exp $
 
 OBJ =  		xc_d2expl.o 
 OBJ_OPTIMIZE =  xc_cpks_coeff.o \
 		xc_exit_index.o \
 		xc_init_index.o \
 		xc_nucder_gen.o \
-		xc_rhogen_nucder.o \
-		xc_rhogen_pert.o \
 		dft_3dacc.o \
 		xc_tabcd_cpks_lhs.o \
 		xc_tabcd_cpks_rhs.o
@@ -20,8 +18,6 @@ LIB_INCLUDES = -I../../../nwdft/include
 
    USES_BLAS = 	xc_cpks_coeff.F \
                 xc_d2expl.F \
-		xc_rhogen_nucder.F \
-		xc_rhogen_pert.F \
 		xc_tabcd_cpks_lhs.F \
 		xc_tabcd_cpks_rhs.F\
                 xc_nucder_gen.F

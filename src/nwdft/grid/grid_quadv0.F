@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.45 2005-02-15 19:30:59 edo Exp $
+C$Id: grid_quadv0.F,v 1.46 2005-09-27 00:35:01 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -55,7 +55,8 @@ c
       integer lxyz, ixyz, lcharge, icharge, 
      &        lqxyz, iqxyz, lqwght, iqwght, 
      &        lniz, iniz, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
-     &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat, 
+     &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat,
+     D        ldmat,idmat,
      &        lhess, ihess, lrq, irq, 
      &        lfin, ifin, ltags, itags,
      &        ltau, itau,  lmmat, immat
@@ -184,6 +185,13 @@ c
      &   call errquit('grid_den: cannot allocate DENSF',0, MA_ERR)
       if (.not.MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce2,'DENS',lPmat,iPmat))
      &   call errquit('grid_den: cannot allocate DENS',0, MA_ERR)
+      if(kske) then
+         if (.not.MA_Push_Get(MT_dbl,n_per_rec*3*nbf_ao_mxnbf_ce2,
+     D        'DENS',ldmat,idmat))
+     &        call errquit('grid_den: cannot allocate DENS',0, MA_ERR)
+      else
+         idmat=0
+      endif
       if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho',lrho,irho))
      &   call errquit('grid_den: cannot allocate rho',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho,
@@ -273,7 +281,7 @@ c
       if(xcfit) nibf=max(nibf,nbf_xc)
       if (.not.MA_Push_Get(mt_int, nibf, 'ibf_ao', libf_ao,
      &     iibf_ao))
-     &     call errquit('grid_quadv0a: cannot allocate ibf_ao',2,
+     &     call errquit('grid_quadv0: cannot allocate ibf_ao',2,
      &       MA_ERR)
       if (.not.MA_Push_get(MT_dbl, 4*buffer_size+4, 
      &                     'quad pts buffer', lrqbuf, irqbuf))
@@ -293,7 +301,7 @@ c
       if (.not.MA_Push_get(mt_dbl,irqlen,'rq',lrq,irq))
      &   call errquit('grid_den: cannot allocate rq',0, MA_ERR)
       if (.not.MA_Push_Get(mt_dbl,irqlen,'bp',lbp,ibp))
-     &     call errquit('grid_quadv0a: cannot allocate bp',4, MA_ERR)
+     &     call errquit('grid_quadv0: cannot allocate bp',4, MA_ERR)
 c
 c     compute variables for scratch space in function evaluation
 c     assumes cartesian; spherical set would only require 2*MXang + 1
@@ -317,7 +325,7 @@ c
      &     n_per_rec*max_elem_ang_scr) + 1)
      
       if (.not.MA_Push_Get(mt_dbl,nscr,'func scr',lscr,iscr))
-     &     call errquit('grid_quadv0a: cannot allocate bp',4, MA_ERR)
+     &     call errquit('grid_quadv0: cannot allocate bp',4, MA_ERR)
 
       Ex=0d0
       Ec=0d0
@@ -333,7 +341,7 @@ c
      .        dbl_mb(iscr),nscr,
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
-     &        dbl_mb(iPmat), dbl_mb(irq), 
+     &        dbl_mb(iPmat), dbl_mb(idmat),dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(irqbuf),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
@@ -368,7 +376,7 @@ c
      .        dbl_mb(iscr),nscr,
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
-     &        dbl_mb(iPmat), dbl_mb(irq), 
+     &        dbl_mb(iPmat), dbl_mb(idmat),dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(ibp),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
