@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.19 2005-09-27 00:35:03 edo Exp $
+* $Id: xc_rhogen.F,v 1.20 2005-09-27 04:29:42 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -90,7 +90,6 @@ c     points
       g_update(2)=g_dens(2)	
 
       if(what.eq.0) then
-         npert=1
          call dcopy(nq*npol,0.D0,0,rho,1)
          if (grad)call dcopy(3*nq*ipol,0.D0,0,delrho,1)
          
@@ -107,7 +106,6 @@ c
          call dfill(nq*ipol*npert,0.D0,rho,1)
          if (grad)call dfill(3*nq*ipol*npert,0.D0,delrho,1)
       elseif(what.eq.2) then
-         npert=1
          kske=.false.
          call dfill(nq*ipol*3*ncuratoms,0.D0,rho,1)
          if (grad)call dfill(3*nq*ipol*3*ncuratoms,0.D0,delrho,1)
