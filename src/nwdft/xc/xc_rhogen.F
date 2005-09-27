@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.20 2005-09-27 04:29:42 edo Exp $
+* $Id: xc_rhogen.F,v 1.21 2005-09-27 20:05:05 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -72,16 +72,18 @@ c
       double precision tol_rho_tmp, aaa
       double precision dabsmax
       integer nstride,nql,g_update(2),jjj,iii
-      logical lodd,doffd
+      logical lodd,doffd,w2grad
       external dabsmax
 
 
 c
 c     Evaluate the charge density and its gradient at each of the sampling 
 c     points 
-      doffd=(what.eq.2.and.grad).or.
+      w2grad=what.eq.2.and.grad
+      doffd=w2grad.or.
      W     (what.eq.0.and.kske)
       lodd=mod(nq,2).ne.0
+      
       nql=nq
       if(lodd) nql=nq-1
       npol = (ipol*(ipol+1))/2
@@ -382,7 +384,7 @@ c
 c                 Compute delXiat(r)*Xjat(r)*Diat,jat
 c                  
                   do nu = inizia, ifinia
-                     call dfill(nq,0.d0,ff,1)
+                     call dcopy(nq,0.d0,0,ff,1)
                      if(what.eq.2) then
                      if (grad) call dfill(nq*3,0.d0,ffd,1)
                      endif
@@ -392,10 +394,8 @@ c
                         icount = icount+nnia
                         if (abs(aaa).gt.tol_rho_tmp)then
                           call daxpy(nq,aaa,chi(1,mu),1,ff,1)
-                          if(what.eq.2) then
-                           if (grad)
+                          if(w2grad) 
      &                       call daxpy(nq*3,aaa,delchi(1,1,mu),1,ffd,1)
-                           endif
                         endif
                      enddo
                      if(what.eq.0) then

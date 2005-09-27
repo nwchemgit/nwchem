@@ -1,8 +1,3 @@
-#if 0
-#define QUADV0_REVERT
-#else
-#undef QUADV0_REVERT
-#endif
       Subroutine grid_quadv0b(
      ,     ictr_buf,qxyz, qwght, nqpts,rad,grad,
      .     g_dens, ncoef_max, natoms, 
@@ -18,7 +13,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.43 2005-09-27 00:35:01 edo Exp $
+c$Id: grid_quadv0b.F,v 1.44 2005-09-27 20:05:05 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -160,17 +155,6 @@ c
      &           tau, kske)
          endif
       else  if (do_cpks_l) then
-#ifdef QUADV0_REVERT
-            call xc_rhogen(0,
-     T        tol_rho, AO_bas_han, g_dens(2), nbf_ao_mxnbf_ce, 
-     N        natoms, 1,1,1,
-     I        ipol, nqpts, nbf_ao, mbf_ao, GRAD, (ipol*(ipol+1))/2,
-     F        Fmat, Pmat, Bmat, dmat,
-     &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
-     &           ibf_ao, iniz, ifin, rho, delrho, 
-     &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,1d0,tau, kske)
-#else
             call xc_rhogen(1,
      T           tol_rho, AO_bas_han, g_dens, nbf_ao_mxnbf_ce, 
      N           natoms, 1,1, nmat+1,
@@ -180,7 +164,6 @@ c
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, 
      .           rdelchi_atom, rdens_atom, cetobfr,wmax,0d0,.false.)
-#endif
             else if (do_cpks_r) then
                call errquit('gridquadv0b: what do do for cpks rhs?',0,
      &       CALC_ERR)
@@ -200,13 +183,8 @@ c           Evaluate the XC potential and energy sampling matrices.
 c           Set up pointer to the SCF density for the CPS LHS case.
 c
             if (do_cpks_l) then
-#ifdef QUADV0_REVERT
-               iscf_rho = 1
-               iscf_delrho = 1
-#else
                iscf_rho = 1 + nqpts*ipol*nmat
                iscf_delrho = 1 + nqpts*3*ipol*nmat
-#endif
             else
                iscf_rho = 1
                iscf_delrho = 1
@@ -249,11 +227,12 @@ c     add beta to 1 to get alpha+beta
 c     
          if(do_scf) then
          if (odftps) call pstat_on(ps_tabcd)
-            call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
-     &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
-     &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
-     &           AO_bas_han, 
+            call xc_tabcd(0,l3d,
+     T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
+     D        Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
+     N        0d0,0,1,
+     I        ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
+     G        GRAD, AO_bas_han, 
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &           rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,kske,Mmat)
@@ -281,16 +260,6 @@ c
             if (.not.ma_pop_stack(lEmat))
      &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
          else if (do_cpks_l) then
-#ifdef QUADV0_REVERT
-            call xc_tabcd(l3d,tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
-     &           Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &           Dbl_MB(idelchi_ao), ipol, nqpts, mbf_ao, 
-     &           nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, 
-     &           AO_bas_han, 
-     &           natoms, iniz, ifin, g_vxc, ibf_ao,
-     &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,kske,Mmat)
-#else
 c
 c     Combine derivs of functional with deriv densities to get coeffs
 c     of bfn pairs in CPKS LHS - these are written back into rho and
@@ -299,14 +268,14 @@ c
             call xc_cpks_coeff(rho, delrho, Amat2, Cmat2, Cmat,
      &           delrho(iscf_delrho), nmat, ipol, nqpts, GRAD,
      &           triplet)
-            call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat, rho, Bmat,
-     &          delrho, Dbl_MB(iDmat), Dbl_MB(ichi_ao), 
-     &          Dbl_MB(idelchi_ao), nmat, ipol, nqpts, mbf_ao,
-     &          nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD, AO_bas_han,
-     &          natoms, iniz, ifin, g_vxc, ibf_ao,
-     &          rchi_atom, rdelchi_atom,
-     &          rdens_atom, cetobfr)
-#endif
+            call xc_tabcd(1,l3d,
+     T           tol_rho,Fmat,Pmat, rho, Bmat,delrho, Dbl_MB(iDmat), 
+     C           Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
+     N           0d0,0,nmat, 
+     I           ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
+     G           GRAD, AO_bas_han, natoms, iniz, ifin, 
+     G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
+     &          rdens_atom, cetobfr,.false.,0d0)
          else if (do_cpks_r) then
             call errquit('gridquadv0b: what do do for cpks rhs?',0,
      &       CALC_ERR)
@@ -334,7 +303,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.43 2005-09-27 00:35:01 edo Exp $
+C$Id: grid_quadv0b.F,v 1.44 2005-09-27 20:05:05 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -474,7 +443,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.43 2005-09-27 00:35:01 edo Exp $
+C$Id: grid_quadv0b.F,v 1.44 2005-09-27 20:05:05 edo Exp $
 c
       implicit none
 #include "errquit.fh"

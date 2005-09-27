@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.27 2005-09-27 00:35:03 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.28 2005-09-27 20:05:03 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -301,14 +301,16 @@ c
                   call xc_cpks_coeff(drhonuc,
      &                 ddelrhonuc, Amat2, Cmat2, Cmat, delrho,
      &                 3*ncuratoms, ipol, nqpts, GRAD, .false.)
-                  call xc_tabcd_cpks_lhs(tol_rho, Fmat, Pmat,
-     &                 drhonuc, Bmat, ddelrhonuc,
-     &                 Dmat, Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao),
-     &                 3*ncuratoms, ipol, nqpts, mbf_ao,
-     &                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD,
-     &                 AO_bas_han, natoms, iniz, ifin, g_rhs,
-     &                 ibf_ao, rchi_atom,
-     &                 rdelchi_atom, rdens_atom, cetobfr)
+                  call xc_tabcd(1,.true.,
+     T                 tol_rho, Fmat, Pmat, drhonuc, Bmat, ddelrhonuc,
+     &                 Dmat, 
+     C                 Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
+     &                 0d0,0,3*ncuratoms, 
+     I                 ipol,nqpts,mbf_ao,
+     N                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
+     G                 GRAD,AO_bas_han, natoms, iniz, ifin, 
+     G                 g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
+     R                 rdens_atom, cetobfr,.false.,0d0)
 c
 c     Second part: Basis function derivative contribution
 c
@@ -319,15 +321,16 @@ c
                   if (grad) then
                      call transform_Cmat(delrho, Cmat, ipol, nqpts)
                   endif
-                  call xc_tabcd_cpks_rhs(tol_rho, Fmat, Pmat, Amat,
-     &                 Bmat, Cmat, Dmat, Dbl_MB(ichi_ao),
-     &                 Dbl_MB(idelchi_ao), dbl_mb(iheschi_ao),
-     &                 curatoms,
-     &                 ncuratoms, ipol, nqpts, mbf_ao,
-     &                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD,
-     &                 AO_bas_han, natoms, iniz, ifin, g_rhs,
-     &                 ibf_ao, rchi_atom,
-     &                 rdelchi_atom, rdens_atom, cetobfr)
+                  call xc_tabcd(2,.true.,
+     &                 tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dmat, 
+     C                 Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 
+     H                 dbl_mb(iheschi_ao),
+     &                 curatoms, ncuratoms, 1,
+     I                 ipol, nqpts, mbf_ao,
+     &                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
+     G                 GRAD, AO_bas_han, natoms, iniz, ifin, 
+     G                 g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
+     R                 rdens_atom, cetobfr,.false.,0d0)
 c
                endif
  2010          continue
