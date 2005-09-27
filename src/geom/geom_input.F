@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.183 2005-09-27 18:44:03 bert Exp $
+C     $Id: geom_input.F,v 1.184 2005-09-27 23:07:21 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -1928,7 +1928,7 @@ C
 #include "nwc_const.fh"
       PARAMETER     (MXATOM=nw_max_atom)
       PARAMETER     (MXCOOR=nw_max_coor)
-      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=nw_max_zmt)
+      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=nw_max_zmat)
       PARAMETER     (MAXPRM=100)
       PARAMETER     (MXIZMT=nw_max_izmat)
       PARAMETER     (MAXLST=10+1)
