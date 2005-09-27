@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.28 2005-09-27 20:05:03 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.29 2005-09-27 20:15:05 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -99,7 +99,7 @@ c
       double precision acc_AO_gauss 
       double precision Ex, Ec
       double precision rho_int ! [in/out]
-      double precision dabsmax,wmax,dum
+      double precision dabsmax,wmax
       external dabsmax
       integer grid_nbfm
       external grid_nbfm

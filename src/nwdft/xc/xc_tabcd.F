@@ -1,11 +1,10 @@
 c
-C$Id: xc_tabcd.F,v 1.12 2005-09-27 20:05:05 edo Exp $
+C$Id: xc_tabcd.F,v 1.13 2005-09-27 20:15:02 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
 c     BGJ - 8/98
 c
-#include "dft2drv.fh"
       Subroutine xc_tabcd(what,l3d,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
      &                    chi, delchi, heschi, 
@@ -18,9 +17,10 @@ c
 c     We're using xc_tabcd for CPKS purposes
 c
       implicit none
+#include "dft2drv.fh"
 c
       Logical GRAD
-      logical what ! [in]
+      integer what ! [in]
 cwhat=0
 cwhat=1 CPKS_LHS
 cwhat=2 CPKS_RHS
@@ -44,7 +44,6 @@ c                  ! e.g. number of perturbations for CPSCF
       double precision rdelchi_atom(natoms)
       double precision rdens_atom(natoms,natoms,ipol)
       integer cetobfr(2,natoms)
-c#if defined(TABCD_ORIG)
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
@@ -107,11 +106,10 @@ c
      &            2, 4, 5,
      &            3, 5, 6 /
 c
-ccpksrhs
 c         0: l3d=.f.    & n3d=1
 ccc	rhs: l3d=.true. & n3d=3
 ccc	lhs: l3d=.true. & n3d=1
-ccccc
+c
       if(what.eq.0) then
         n3d=1
       elseif(what.eq.1) then
