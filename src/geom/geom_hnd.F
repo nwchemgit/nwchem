@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.46 2004-09-24 17:46:15 edo Exp $
+* $Id: geom_hnd.F,v 1.47 2005-09-27 18:44:03 bert Exp $
 *
       subroutine geom_bandbi(geom)
       implicit none
@@ -3329,7 +3329,7 @@ C
 #include "stdio.fh"
 #include "nwc_const.fh"
       PARAMETER     (MXATOM=nw_max_atom)
-      PARAMETER     (MAXGEO=MXATOM+1,MAXZMT=40,MAXVAR=256)
+      PARAMETER     (MAXGEO=MXATOM+1,MAXZMT=40,MAXVAR=nw_max_zmat)
       LOGICAL       DBUG
       LOGICAL       LST
       LOGICAL       READY
@@ -3874,7 +3874,7 @@ C
 #include "stdio.fh"
 #include "nwc_const.fh"
       PARAMETER     (MXATOM=nw_max_atom)
-      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
+      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=nw_max_zmat)
       LOGICAL       DBUG
       LOGICAL       CART
       CHARACTER*8   ATNAME
