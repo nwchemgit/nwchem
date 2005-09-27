@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.181 2005-04-08 21:28:55 bert Exp $
+C     $Id: geom_input.F,v 1.182 2005-09-27 00:01:24 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -2582,8 +2582,9 @@ C
                ENDIF
             ENDDO
          ELSEif(
-     .           inp_compare(.false.,atname(iat)(1:2),'bq').or.
-     .           inp_compare(.false.,atname(iat)(1:2),'X ')
+     .           .not.(inp_compare(.false.,atname(iat)(1:2),'Xe')).and.
+     .           (inp_compare(.false.,atname(iat)(1:2),'bq').or.
+     .           inp_compare(.false.,atname(iat)(1:1),'X'))
      .           ) then
 c
 c     try to detect bq"atom symbol" or X"atom symbol"
