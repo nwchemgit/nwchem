@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.30 2005-09-28 22:32:43 edo Exp $
+* $Id: xc_chkgrad.F,v 1.31 2005-09-28 23:29:20 edo Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -13,10 +13,12 @@ c
       tot = xfac(3) + xfac(4) + xfac(5) + xfac(6) + xfac(7) +
      + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
      + xfac(14)+xfac(15)+xfac(16)+xfac(17)+xfac(18) +xfac(19) +
+     +     xfac(22)+
      +     cfac(2) + cfac(4) + cfac(5) + cfac(12) +
      +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
      + cfac(19) + cfac(20)+cfac(21)+cfac(22)+cfac(23) + cfac(24) +
-     + xfac(25) + cfac(25) +cfac(26)+xfac(20)+xfac(21)+cfac(27)
+     + xfac(25) + cfac(25) +cfac(26)+xfac(20)+xfac(21)+cfac(27) +
+     +     cfac(28)
       if (abs(tot).gt.eps.or.lb94.or.cs00)then
          xc_chkgrad = .true.
       else
