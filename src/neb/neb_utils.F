@@ -1,5 +1,5 @@
 *
-* $Id: neb_utils.F,v 1.1 2005-08-08 23:50:37 marat Exp $
+* $Id: neb_utils.F,v 1.2 2005-09-28 23:05:46 marat Exp $
 *
       subroutine neb_path_energy(bead_list,dpath,epath)
       implicit none
@@ -511,9 +511,21 @@
 *     **** local variables ****
       logical value
       integer geom,nion
+      character*255 geom_name
+      integer geomlen
+*     **** external functions ****
+      integer     inp_strlen
+      character*7 bead_index_name
+      external    inp_strlen
+      external    bead_index_name
+
+
+      geom_name   = 'neb_bead'//bead_index_name(1)//':geom'
+      geomlen     = inp_strlen(geom_name)
 
       value = geom_create(geom,'neb_tmp')
-      value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
+      value = value.and.geom_rtdb_load(rtdb,geom,
+     >                                 geom_name(1:geomlen))
       value = value.and.geom_ncent(geom,nion)
       value = value.and.geom_masses_get(geom,nion,m)
       value = value.and.geom_destroy(geom)
@@ -545,8 +557,7 @@ c      integer i, j, num, ma_type, nactive_atoms, l_actlist
 c      logical ignore
       logical oprint
       character*80 title,neb_movecs
-c      character*8 source, test
-c      character*32 theory
+      logical custom_path
 c     
       oprint = util_print('information', print_low)
      $     .and. (ga_nodeid() .eq. 0)
@@ -574,6 +585,9 @@ c
       if (.not.rtdb_cget(rtdb,'neb:movecs',1,neb_movecs)) then
          call util_file_prefix('movecs',neb_movecs)
       end if
+
+      if (.not.rtdb_get(rtdb,'neb:custom_path',mt_log,1,custom_path)) 
+     >    custom_path = .false.
  
       if (.not.rtdb_get(rtdb,'neb:nbeads',mt_int,1,nbeads)) then
          nbeads = 5
@@ -598,7 +612,11 @@ c
 
 *     **** create bead_list *** 
       call init_bead_list(rtdb,bead_list,neb_movecs)
-      call neb_initial_path(rtdb,bead_list,nbeads)
+      if(custom_path) then
+        call neb_initial_path(rtdb,bead_list,nbeads)
+      else
+        call neb_initial_path_custom(rtdb,bead_list,nbeads)
+      end if
 
       return
       end
@@ -669,6 +687,41 @@ c
       value = value.and.MA_pop_stack(r1(2))
       if (.not.value) call errquit('neb_initial_path failed',3,0)
 
+
+      return
+      end
+
+      subroutine neb_initial_path_custom(rtdb,bead_list,nbeads)
+      implicit none
+      integer rtdb
+      character*(*) bead_list
+      integer nbeads
+
+#include "mafdecls.fh"
+#include "geom.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,geomlen,movecslen
+      character*255 geom_name,movecs_name
+
+*     **** external functions ****
+      integer     inp_strlen
+      character*7 bead_index_name
+      external    inp_strlen
+      external    bead_index_name
+
+      do i=1,nbeads
+        geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
+        movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+        geomlen     = inp_strlen(geom_name)
+        movecslen   = inp_strlen(movecs_name)
+
+        call add_bead_list(bead_list,
+     >                     movecs_name(1:movecslen),
+     >                     geom_name(1:geomlen))
+
+      end do
 
       return
       end

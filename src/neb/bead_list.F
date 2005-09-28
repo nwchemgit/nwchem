@@ -1,5 +1,5 @@
 c
-c     $Id: bead_list.F,v 1.3 2005-08-08 23:50:37 marat Exp $
+c     $Id: bead_list.F,v 1.4 2005-09-28 23:05:46 marat Exp $
 c
 c
 c     This file contains a list of beads, where a bead is defined
@@ -354,6 +354,7 @@ c
      >        rtdb_cget(bead_rtdb,rtdb_name,1,perm_name)
       call util_file_name_resolve(perm_name, .false.)
       permlen = inp_strlen(perm_name)
+
       
       rtdb_name = tag(1:taglen)//':size'
       value = rtdb_get(bead_rtdb,rtdb_name,mt_int,1,size) 
@@ -379,9 +380,6 @@ c
 *     *** copy bead movecs to taskmovecs ***
       if (ga_nodeid().eq.0) then
         inquire(file=movecs_name,exist=status)
-         write(*,*) "STATUS1 a:",status
-         write(*,*) "STATUS2 a:",movecs_name
-         write(*,*) "STATUS3 a:",perm_name
         if (status) then
            call util_file_copy(movecs_name(1:movecslen),
      >                         perm_name(1:permlen))
@@ -396,9 +394,6 @@ c
 *     *** copy taskmovecs to bead movecs ****
       if (ga_nodeid().eq.0) then
          inquire(file=perm_name,exist=status)
-         write(*,*) "STATUS1 b:",status
-         write(*,*) "STATUS2 b:",perm_name
-         write(*,*) "STATUS3 b:",movecs_name
          if (status) then
             call util_file_copy(perm_name(1:permlen),
      >                          movecs_name(1:movecslen))

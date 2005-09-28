@@ -1,7 +1,6 @@
 *
-* $Id: neb_drv.F,v 1.2 2005-08-08 23:50:37 marat Exp $
+* $Id: neb_drv.F,v 1.3 2005-09-28 23:05:46 marat Exp $
 *
-*   last modified June 2003 by Renee M. Van Ginhoven
 
       logical function neb(rtdb)
       implicit none
@@ -57,12 +56,7 @@ c
       endif
       newchain = .false.
 
-
-      IF (ga_nodeid().eq.0)
-     >       write(*,*) "hera:",bead_list
       nbeads = size_bead_list(bead_list)
-      IF (ga_nodeid().eq.0)
-     >        write(*,*) "herb:",bead_list
       nion   = nion_bead_list(bead_list,1)
       ng     = 3*nion*nbeads
 
@@ -92,17 +86,11 @@ c
       if (.not.value) 
      >  call errquit('neb failed - increase stack memory',1,0)
 
-      IF (ga_nodeid().eq.0)
-     >       write(*,*) "herc:",bead_list,nbeads
 *     *** set dti ***
       value  = MA_push_get(mt_dbl,nion,'mass',mass(2),mass(1))      
       if (.not.value) 
      >  call errquit('neb failed - increase stack memory',2,0)
-      IF (ga_nodeid().eq.0)
-     >       write(*,*) "hercc:",bead_list
       call neb_masses_get(rtdb,dbl_mb(mass(1)))
-      IF (ga_nodeid().eq.0)
-     >      write(*,*) "herccc:",bead_list
 
       do i=1,nbeads
         do it=1,nion
@@ -117,8 +105,6 @@ c
       value = MA_pop_stack(mass(2))      
       if (.not.value) call errquit('neb failed',3,0)
   
-      IF (ga_nodeid().eq.0)
-     >       write(*,*) "herd:",bead_list,nbeads
 
 *     **** initial step ****
       call runall_bead_list(bead_list,task_gradient)
