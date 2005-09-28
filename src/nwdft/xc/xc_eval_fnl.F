@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.48 2003-12-18 21:54:40 pollack Exp $
+c     $Id: xc_eval_fnl.F,v 1.49 2005-09-28 22:32:43 edo Exp $
 c
       implicit none
 c
@@ -136,6 +136,11 @@ C
          dohcth=.true.
          nx=20
          nc=26
+      elseif (abs(xfac(22)).gt.eps.or.abs(cfac(28)).gt.eps)then
+         whichf='b973'
+         dohcth=.true.
+         nx=22
+         nc=28
       endif
        if(dohcth) then  
          if (.not. do_2nd) then

@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.82 2004-10-06 20:21:47 pollack Exp $ 
+% $Id: dft.tex,v 1.83 2005-09-28 22:32:43 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -47,7 +47,7 @@ the DFT module are:
 
 
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147]\
+     [becke97]  [becke97-1] [becke97-2] [becke97-3] [becke98] [hcth] [hcth120] [hcth147]\
       [hcth407] [becke97gga1]  [hcth407p]\
       [mpw91] [mpw1k] [xft97] [cft97] [ft97] \
       [xpkzb99] [cpkzb99] [xtpss03] [ctpss03] [xctpssh]\
@@ -176,7 +176,7 @@ has the same effect.
 \label{sec:xc}
 \begin{verbatim}
   XC [[acm] [b3lyp] [beckehandh] [pbe0]\
-     [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147] \
+     [becke97]  [becke97-1] [becke97-2] [becke97-3] [becke98] [hcth] [hcth120] [hcth147] \
       [hcth407] [becke97gga1] [hcth407p] \
       [optx] [hcthp14] [mpw91] [mpw1k] [xft97] [cft97] [ft97]\
       [HFexch <real prefactor default 1.0>] \
@@ -654,6 +654,7 @@ acm        & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
 becke97    & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[15]\\
 becke97-1  & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[15]\\
 becke97-2  & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[22]\\
+becke97-3  & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[31]\\
 becke98    & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[16]\\
 pbe0       & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[17]\\
 mpw1k      & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[26]\\
@@ -712,17 +713,18 @@ J. Chem. Phys {\bf 114}, 3958 (2001).\\
 \item C. Adamo and V. Barone, J.~Chem.~Phys. {\bf 108}, 664 (1998).\\
 \item M.Filatov and W.Thiel, Mol.Phys. {\bf 91}, 847 (1997).\\
 \item M.Filatov and W.Thiel, Int.J.Quantum Chem. {\bf 62}, 603 (1997).\\
-\item B.J.Lynch, P.L.Fast, M.Harris and D.G.Truhlar, J. Phys. Chem. A
+\item B.J. Lynch, P.L. Fast, M. Harris and D.G. Truhlar, J. Phys. Chem. A
 {\bf 104}, 4811(2000).\\
 \item  J.P.~Perdew, S.~Kurth, A.~Zupan and P.~Blaha, 
-Phys. Rev. Lett. {\bf 82}, 2544 (1999) \\
+Phys. Rev. Lett. {\bf 82}, 2544 (1999).\\
 \item A.~D.~Boese, A.~Chandra, J.~M.~L.~Martin and D.~Marx,
-  J. Chem. Phys. {\bf 119}, 5965 (2003) \\
-\item J. Tao,J.Perdew,V. Staroverov and G. Scuseria,
-Phys. Rev. Let. {\bf 91}, 146401-1 (2003)\\
+  J. Chem. Phys. {\bf 119}, 5965 (2003). \\
+\item J. Tao,J.Perdew, V. Staroverov and G. Scuseria,
+Phys. Rev. Let. {\bf 91}, 146401-1 (2003).\\
 \item V. Staroverov, G. Scuseria,
-J. Tao and J.Perdew,
-J. Chem Phys. {\bf 119}, 12129 (2003)
+J. Tao and J.Perdew, J. Chem Phys. {\bf 119}, 12129 (2003). \\
+\item  T.W. Keal, D.J. Tozer, J. Chem. Phys {\bf 123}, 
+121103 (2005).\\
 \end{enumerate}
 }
 %\end{table}
@@ -920,7 +922,7 @@ near the HOMO (eg metallic clusters)
 This  option allows fractional occupation of the molecular orbitals.
 A Gaussian broadening function of exponent {\tt smear} is used as described in 
 the paper:
-R.W. Warren RW and B.I. Dunlap, Chem. Phys. Letters {\bf 262}, 384 (1996).\\
+R.W. Warren and B.I. Dunlap, Chem. Phys. Letters {\bf 262}, 384 (1996).\\
 The user must be aware that an additional energy term is added to the total
 energy in order to have
 energies and gradients consistent.
