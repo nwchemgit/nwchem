@@ -176,6 +176,7 @@ c     ------------------
      >                 mt_int,1,nregion)) then
         if(operation.ne."energy" .and.
      >     operation.ne."gradient" .and.
+     >     operation.ne."property" .and.
      >     operation.ne."neb" )
      >     call errquit(pname//'cannot find '//tag,0,
      >       RTDB_ERR)

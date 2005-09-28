@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.46 2005-09-26 05:28:24 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.47 2005-09-28 05:27:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -86,7 +86,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.46 2005-09-26 05:28:24 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.47 2005-09-28 05:27:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -307,7 +307,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.46 2005-09-26 05:28:24 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.47 2005-09-28 05:27:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -386,7 +386,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.46 2005-09-26 05:28:24 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.47 2005-09-28 05:27:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -414,7 +414,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.46 2005-09-26 05:28:24 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.47 2005-09-28 05:27:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -447,7 +447,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.46 2005-09-26 05:28:24 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.47 2005-09-28 05:27:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -570,7 +570,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.46 2005-09-26 05:28:24 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.47 2005-09-28 05:27:03 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -598,6 +598,8 @@ c
       logical ignore
       character*255 filename, dir,xyz,prefix
       character*255 filename0
+      character*255 movecs
+      character*255 movecs0
       double precision energy
       double precision rb(2)
       integer np
@@ -609,6 +611,7 @@ c
       logical ofile
       logical backward
       logical loadrst
+      logical loadmovecs
       integer ncycles
       integer istart
       integer iend
@@ -655,6 +658,10 @@ c
      +                    1,loadrst))
      +  loadrst = .false.
 c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_loadmovecs',mt_log,
+     +                    1,loadmovecs))
+     +  loadmovecs = .false.
+c
 c     directory name to dump restart files
 c     ------------------------------------
       dir      = ' '
@@ -664,6 +671,12 @@ c     file prefix from mm module
 c     --------------------------
       call mm_system_prefix(prefix)
 c      write(*,*) "pes, mm_system_prefix", prefix(1:inp_strlen(prefix))
+c
+c     construct movecs file name  
+      movecs0 = ' '
+      call util_file_name("movecs",.false.,.false.,movecs0)        
+      ignore = rtdb_delete(irtdb,'dft:input vectors')
+      ignore = rtdb_delete(irtdb,'scf:input vectors')
 c 
 c     set increments and initial value
 c     --------------------------------
@@ -717,12 +730,38 @@ c       start load restart file if it exists and requested
      >      call mm_reload_rst(irtdb,filename0)
         end if
 c       end load restart 
+c       start load movecs if it exists and requested     
+        movecs = ' '
+        write(movecs,17) dir(1:inp_strlen(dir)), 
+     $   prefix(1:inp_strlen(prefix)),ip
+        if(loadmovecs) then
+          if(ga_nodeid().eq.0) then 
+            inquire(file=movecs,exist=ofile)
+            if(ofile) then 
+             write(*,*) "pes: found movecs file",
+     >                 movecs(1:inp_strlen(movecs))
+            call util_file_copy(movecs(1:inp_strlen(movecs)),
+     >                          movecs0(1:inp_strlen(movecs0)))
+            end if
+          end if
+          call ga_sync()
+        end if
+c       end load restart 
         status = qmmm_mixed_optimization(irtdb)
         if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
         if(ga_nodeid().eq.0) 
      >     write(*,16) energy,r
         call mm_write_restart_named(filename)
+        if(ga_nodeid().eq.0) then 
+           write(*,*) "pes: saving movecs file",
+     >                 movecs0(1:inp_strlen(movecs0)),
+     >                 movecs(1:inp_strlen(movecs))
+          call util_file_copy(movecs0(1:inp_strlen(movecs0)),
+     >                        movecs(1:inp_strlen(movecs)))
+        end if
+        call ga_sync()
+
       end do
       backward = .not.backward
       end do
@@ -731,6 +770,7 @@ c       end load restart
  14      format(a,'_pes',i3.3,'.rst')
  15      format("@pes: point ", I2,3X,"spring length = ",F12.6)
  16      format("@pes: energy =  ", F18.12,3X,"length = ",F12.6)
+ 17      format(a,'/',a,'_pes',i3.3,'.movecs')
 
       return
       end
