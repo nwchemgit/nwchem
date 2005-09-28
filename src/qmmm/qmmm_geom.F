@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.79 2005-09-28 17:08:20 marat Exp $
+c $Id: qmmm_geom.F,v 1.80 2005-09-28 22:32:48 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -233,9 +233,13 @@ c     ---------------------------------------------
          if(ofile) then
            geomname = ' '
            write(geomname,14) i 
-           call qmmm_geom_create_rst(irtdb,geomname,rstfile(2))
+           call qmmm_geom_create_rst
+     >             (irtdb,
+     >              geomname,
+     >              filename0(1:inp_strlen(filename0)))
          else
-           call errquit(pname,0,0)
+           call errquit(pname//"cannot find"//
+     >          filename0(1:inp_strlen(filename0)),0,0)
          end if
        end do
       end if
@@ -346,6 +350,7 @@ c
 #include "qmmm.fh"
 #include "global.fh"
 #include "stdio.fh"
+#include "inp.fh"
       integer irtdb
       integer ns
       integer ais(ns)
@@ -364,10 +369,13 @@ c
       integer i_atn,h_atn
       integer n
       logical ignore
+      integer geomlen
  
       pname = "qmmm_geom_create"
       if(qmmm_print_debug())
      > write(*,*) "in "//pname
+
+      geomlen = inp_strlen(aname)
 
       n = ns+nw
       if(.not.ma_push_get(mt_dbl,3*n,'c',h_c,i_c))
@@ -406,9 +414,9 @@ c
      >                   dbl_mb(i_m+ns))
 
 
-      ignore = rtdb_delete(irtdb,aname)
+      ignore = rtdb_delete(irtdb,aname(1:geomlen))
 
-      if(.not.geom_create(igeom,aname))
+      if(.not.geom_create(igeom,aname(1:geomlen)))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
       if(link)  
@@ -427,7 +435,7 @@ c
       if(qmmm_master()) then
         buf = " "
         write(buf,*) "globally indexed xyz file for ",
-     +    aname
+     +    aname(1:geomlen)
         call util_print_centered(luout,
      +   buf,40,.true.)
          call qmmm_print_xyzi(luout,ns,ais,
@@ -436,7 +444,7 @@ c
      +   call errquit('qmmm: Failed to print geom',0, RTDB_ERR)
       end if
 
-      if(.not.geom_rtdb_store(irtdb,igeom,aname))
+      if(.not.geom_rtdb_store(irtdb,igeom,aname(1:geomlen)))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
        if(.not.geom_destroy(igeom))
