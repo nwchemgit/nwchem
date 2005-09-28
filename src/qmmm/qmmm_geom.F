@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.78 2005-09-22 20:54:07 marat Exp $
+c $Id: qmmm_geom.F,v 1.79 2005-09-28 17:08:20 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -167,12 +167,19 @@ c     local variables
 #include "qmmm_geom_data.fh"
 #include "inp.fh"
 #include "qmmm_params.fh"
+#include "msgids.fh"
+#include "tcgmsg.fh"
       integer irtdb
 c     local variables
       character*255 filename
+      character*255 filename0
       character*255 region
+      character*255 prefix
       character*255 rstfile(2)
+      character*255 geomname
       character*32 pname
+      integer nbeads,i
+      logical ofile
 
       pname = "qmmm_geom_init_neb"
 
@@ -181,8 +188,11 @@ c     local variables
 
 c     get neb region definition
 c     -------------------------
-      if (.not.rtdb_cget(irtdb,"qmmm:neb_region",2,region)) 
+      if (.not.rtdb_cget(irtdb,"qmmm:neb_region",1,region)) 
      >      call errquit(pname//"neb_region",0,RTDB_ERR)
+c
+        filename0 = ' '
+        call mm_restart_filename(filename0)
 c
 c     define set of active atoms
 c     --------------------------
@@ -196,22 +206,87 @@ c
 c     get rstfile names for the starting and ending
 c     point of neb path
 c     ---------------------------------------------
-      if (.not.rtdb_cget(irtdb,"qmmm:neb_path",2,rstfile)) 
-     >      call errquit(pname//"neb_path",0,RTDB_ERR)
+      if (rtdb_cget(irtdb,"qmmm:neb_path_limits",2,rstfile)) then 
+        call qmmm_geom_create_rst(irtdb,"neb_start",rstfile(1))
+        call qmmm_geom_create_rst(irtdb,"neb_end",rstfile(2))
+      else
+       if (.not.rtdb_get(irtdb,'neb:nbeads',mt_int,1,nbeads)) then
+          nbeads = 5
+       end if
+       call mm_system_prefix(prefix)
+       do i=1,nbeads
+         filename = ' '
+         write(filename,13) 
+     >      prefix(1:inp_strlen(prefix)),i
+         call util_file_name_resolve(filename,.false.)
+         if(ga_nodeid().eq.0) then 
+           inquire(file=filename,exist=ofile)
+           if(ofile) then 
+            write(*,*) "neb: found restart file",
+     >                filename(1:inp_strlen(filename))
+           call util_file_copy(filename(1:inp_strlen(filename)),
+     >                         filename0(1:inp_strlen(filename0)))
+           end if
+         end if
+         call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+         call ga_sync()
+         if(ofile) then
+           geomname = ' '
+           write(geomname,14) i 
+           call qmmm_geom_create_rst(irtdb,geomname,rstfile(2))
+         else
+           call errquit(pname,0,0)
+         end if
+       end do
+      end if
+c      filename = rstfile(1)
+cc     if files reside in perm directory
+cc     this turned off for now because it forces topology
+cc     file to be in perm directory as well
+cc     --------------------------------------------------
+cc      call util_file_name_resolve(filename,.false.)
+c      call mm_reload_rst(irtdb,filename)
+c      call qmmm_geom_create_active(irtdb,"neb_start")
+c
+c      filename = rstfile(2)
+cc      call util_file_name_resolve(filename,.false.)
+c      call mm_reload_rst(irtdb,filename)
+c      call qmmm_geom_create_active(irtdb,"neb_end")
 
-      filename = rstfile(1)
-c     if files reside in perm directory
-c     this turned off for now because it forces topology
-c     file to be in perm directory as well
-c     --------------------------------------------------
-c      call util_file_name_resolve(filename,.false.)
-      call mm_reload_rst(irtdb,filename)
-      call qmmm_geom_create_active(irtdb,"neb_start")
+      if(qmmm_print_debug())
+     >    write(*,*) "out",pname
 
-      filename = rstfile(2)
-c      call util_file_name_resolve(filename,.false.)
-      call mm_reload_rst(irtdb,filename)
-      call qmmm_geom_create_active(irtdb,"neb_end")
+ 13      format(a,'_pes',i3.3,'.rst')
+ 14      format('neb_bead_',i6.6,":geom")
+
+      end
+
+      subroutine qmmm_geom_create_rst(irtdb,geomname,rstfile)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "global.fh"
+#include "mm_utils.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_geom_data.fh"
+#include "inp.fh"
+#include "qmmm_params.fh"
+      integer irtdb
+      character*(*) geomname
+      character*(*) rstfile
+c     local variables
+      character*32 pname
+
+      pname = "qmmm_geom_create_rst"
+
+      if(qmmm_print_debug())
+     >    write(*,*) "in",pname
+c
+      call mm_reload_rst(irtdb,rstfile)
+      call qmmm_geom_create_active(irtdb,geomname)
 
       if(qmmm_print_debug())
      >    write(*,*) "out",pname
