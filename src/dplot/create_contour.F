@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.31 2005-02-11 21:03:46 edo Exp $
+* $Id: create_contour.F,v 1.32 2005-09-29 22:48:13 edo Exp $
 *
       Implicit None
 #include "errquit.fh"
@@ -73,8 +73,9 @@
       me = ga_nodeid()
       nodes = ga_nnodes()
 *
-***      Call dcopy(nGrid,0.0d0,0,Values,1)
       call dfill(ngrid, 0.0d0, values, 1)
+      call int_init(rtdb,1,AO_Bas_Han)
+
 
 *
 *---- Evaluate distances between each center and the grid points (use
@@ -256,12 +257,13 @@ c
      .        int_mb(k_iniz),int_mb(k_ifin),
      ,        dbl_mb(k_scr1),dbl_mb(irchi_atom))
 
-         call xc_rhogen(TOLL,AO_Bas_Han,g_Dns,
-     &                  nbf_ao_mxnbf_ce,nAtom,1,ngrpp,nBF,mBF,
-     &                  .false.,.false.,
+         call xc_rhogen(0,
+     T        TOLL,AO_Bas_Han,g_Dns,
+     &                  nbf_ao_mxnbf_ce,nAtom,1,1,1,
+     U        1,ngrpp,nBF,mBF,.false.,1,
      &                  Dbl_mb(k_FMat),Dbl_mb(k_PMat),
-     &                  Dbl_mb(k_BMat),
-     &                  Dbl_mb(k_Scr1),0,Int_mb(k_ibf),
+     &                  Dbl_mb(k_BMat),0d0,
+     &                  Dbl_mb(k_Scr1),0,0d0,Int_mb(k_ibf),
      &                  Int_mb(k_iniz),Int_mb(k_ifin),
      &                  Values(iOffg),0,
      &              dbl_mb(irchi_atom), 0,
@@ -295,6 +297,7 @@ c
          call errquit(' cc: heap',0,0)
       endif
 *
+      call int_terminate
       Return
       End
 *
