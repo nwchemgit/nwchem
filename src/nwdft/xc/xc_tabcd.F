@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.13 2005-09-27 20:15:02 edo Exp $
+C$Id: xc_tabcd.F,v 1.14 2005-09-29 01:24:23 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -7,6 +7,7 @@ c     BGJ - 8/98
 c
       Subroutine xc_tabcd(what,l3d,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
+     N     Emat,Fmat,qxyz,xyz,
      &                    chi, delchi, heschi, 
      N     curatoms,ncuratoms,nmat,
      I     ipol, nq, nbf, max_at_bf, max_at_bf2, 
@@ -17,6 +18,8 @@ c
 c     We're using xc_tabcd for CPKS purposes
 c
       implicit none
+#include "mafdecls.fh"
+#include "dftpara.fh"
 #include "dft2drv.fh"
 c
       Logical GRAD
@@ -24,6 +27,7 @@ c
 cwhat=0
 cwhat=1 CPKS_LHS
 cwhat=2 CPKS_RHS
+cwhat=2 NMR_RHS
       integer basis
       integer max_at_bf ! [input]
       integer max_at_bf2 ! [input]
@@ -49,6 +53,11 @@ c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol,*), Cmat(nq,3,ipol,*)
       double precision Mmat(nq,ipol) 
+c     nmr
+      double precision Emat(nq,max_at_bf)
+      double precision Fmat(nq,3,max_at_bf)
+      double precision qxyz(3,*)                     ! [input] grid point coordinates
+      double precision xyz(3,*)                  ! [input] nuclear coordinates
       logical kske
 
 c#elif defined(TABCD_CPKS_LHS)
@@ -92,14 +101,15 @@ c
       logical l3d
       integer jrsh,jrsh2,n3d,idir,jdir
       integer g_update(2)
-#include "mafdecls.fh"
-#include "dftpara.fh"
+cnmr
+      double precision Rij(3) ! vector R(jat) - R(iat)
+      integer inia, iq, ix, ix1, ix2
 c
 c     Indexing array for basis function hessian columns as if
 c     it were a 3x3 matrix
 c
       integer indh(3,3)
-      logical w01,w02
+      logical w01,w02,w013
       double precision ddot
       external ddot
       data indh / 1, 2, 3,
@@ -116,10 +126,13 @@ c
          n3d=1
       elseif(what.eq.2) then
          n3d=3
+      elseif(what.eq.3) then
+         n3d=3
       else
          call errquit(' wrong what value for xctabcd ',0,0)
       endif
       w01=what.eq.0.or.what.eq.1
+      w013=w01.or.what.eq.3
       w02=what.eq.0.or.what.eq.2
 c
 c
@@ -153,7 +166,7 @@ c
          if (inizia.eq.0)goto 430
          FUNC_MAXI = rchi_atom(iat)
          if(GRAD) FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
-         if(what.eq.0.or.what.eq.1) then
+         if(what.eq.0.or.what.eq.1.or.what.eq.3) then
             if (((AC_MAX*FUNC_MAXI).lt.tol_rho)) goto 430
          else
 c
@@ -213,6 +226,7 @@ c
 c
             lastjat=iat
             if(what.eq.2) lastjat=natoms
+            if(what.eq.3) lastjat=iat-1
             do 168 jat = 1, lastjat
                if(what.eq.2) then
 c
@@ -228,29 +242,71 @@ c
                if (inizja.eq.0) goto 168
                FUNC_MAXJ = rchi_atom(jat)
                if(grad) FUNC_MAXJ = max(rchi_atom(jat),FUNC_MAXJ)
-               if(w01) then
+               if(w013) then
                   if (BD_MAX*FUNC_MAXJ.lt.tol_rho) goto 168
                else
 c
 c     !!! Should something be done with cutoffs for other cases? !!!
 c               
                endif
+               if(what.eq.3) then
+                  do jdir = 1,n3d
+                     Rij(jdir) = 0.5d0*(xyz(jdir,jat)-xyz(jdir,iat))
+                  enddo
+               endif
                ifinja = ifin(jat)
                jfirst = cetobfr(1,jat)
                jlast = cetobfr(2,jat)
                nbfja = jlast - jfirst + 1
                nnja = ifinja - inizja + 1
-               if(what.eq.2) then
+               if(what.eq.2.or.what.eq.3) then
 c
 c              Loop over x, y, z directions for derivative XC mats
 c
-                  call dfill(n3d*max_at_bf2, 0.d0, TTmat,1) 
+                  call dcopy(n3d*nbfia*nbfja, 0d0,0, TTmat,1) 
                endif
                do 150 jdir = 1,n3d
+c
+                  if(what.eq.3) then
+                     ix1 = mod(jdir,3)+1
+                     ix2 = mod(jdir+1,3)+1
+                     do inia = 1, nnia
+                        if (GRAD) then
+                           do iq = 1, nq
+                              Emat(iq,inia) = (Rij(ix1)*qxyz(ix2,iq)
+     &                             -  Rij(ix2)*qxyz(ix1,iq))
+     &                                   * Bmat(iq,inia)
+     &                             + (Rij(ix1)*Dmat(iq,ix2,inia)
+     &                             -  Rij(ix2)*Dmat(iq,ix1,inia))
+                           enddo
+                        else
+                           do iq = 1, nq
+                              Emat(iq,inia) = (Rij(ix1)*qxyz(ix2,iq)
+     &                             -  Rij(ix2)*qxyz(ix1,iq))
+     &                             * Bmat(iq,inia)
+                           enddo
+                        endif
+                     enddo
+                     if (GRAD) then
+                        do inia = 1, nnia
+                           do ix = 1, 3
+                              do iq = 1, nq
+                                 Fmat(iq,ix,inia) = 
+     (                                (Rij(ix1)*qxyz(ix2,iq)
+     &                                -  Rij(ix2)*qxyz(ix1,iq))
+     &                                * Dmat(iq,ix,inia)
+                              enddo
+                           enddo
+                        enddo
+                     endif
+                  endif
 c
                   if(w01) then
                      call dgemm('t', 'n', nnia, nnja, nq, 1.d0, Bmat,
      &                    nq, chi(1,inizja), nq, 0.d0, Tmat, nnia)
+                  elseif(what.eq.3) then
+                     call dgemm('t', 'n', nnia, nnja, nq, 1.0d0, Emat,
+     &                    nq, chi(1,inizja), nq, 0.0d0, Tmat, nnia)
                   else
 c     Note the sign change for a nuclear derivative, and also that the
 c     leading dimension of delchi must be set correctly
@@ -263,6 +319,10 @@ c     leading dimension of delchi must be set correctly
                         call dgemm('t', 'n', nnia, nnja, 3*nq,
      &                       1.d0, Dmat, 3*nq, delchi(1,1,inizja), 
      &                       3*nq, 1.d0, Tmat, nnia)
+                     elseif(what.eq.3) then
+                        call dgemm('t', 'n', nnia, nnja, 3*nq,
+     &                       1.0d0, Fmat, 3*nq, delchi(1,1,inizja), 
+     &                       3*nq, 1.0d0, Tmat, nnia)
                      else
                         indT = 0
                         do nu = 1, nnja
@@ -288,11 +348,13 @@ c     leading dimension of delchi must be set correctly
      &                    nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
                   endif
                      
-  150          continue
+  150          continue! jdir (loop over x, y, z directions for nmr)
                if(what.eq.0) then
                   jrsh=ii	
                elseif(what.eq.1) then
                   jrsh=imat+(ii-1)*nmat
+               elseif(what.eq.3) then
+                  jrsh=(ii-1)*n3d+1
                else
                   if (dabsmax(nbfia*nbfja*3,ttmat).lt.tol_rho)goto 168
                   jrsh=1+(jat-1)*3+(ii-1)*3*natoms
@@ -309,7 +371,7 @@ c     leading dimension of delchi must be set correctly
 c
 c                 check to see if can skip and use ga_symmetrize
 c
-                  if ((w01.and.iat.ne.jat).or.what.eq.2) then
+                  if ((w013.and.iat.ne.jat).or.what.eq.2) then
 c     For CPKS RHS, we update with transpose even for iat = jat,
 c     since that is necessary to get both contributions
 c     mu * del(nu) and del(mu) * nu
@@ -318,6 +380,9 @@ c     mu * del(nu) and del(mu) * nu
                         call transp_mat(TTmat, Tmat,
      ,                       nbfia, nbfja)
                      else
+                        if(what.eq.3) then
+                          call dscal(n3d*nbfia*nbfja,-1.0d0,TTmat,1)
+                       endif
                         call transp_mat3(n3d,TTmat, Tmat,
      ,                       nbfia, nbfja)
                      endif

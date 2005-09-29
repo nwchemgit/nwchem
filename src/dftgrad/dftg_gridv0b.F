@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.29 2005-09-27 20:15:05 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.30 2005-09-29 01:24:23 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -304,6 +304,7 @@ c
                   call xc_tabcd(1,.true.,
      T                 tol_rho, Fmat, Pmat, drhonuc, Bmat, ddelrhonuc,
      &                 Dmat, 
+     N                 0d0,0d0,0d0,0d0,
      C                 Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
      &                 0d0,0,3*ncuratoms, 
      I                 ipol,nqpts,mbf_ao,
@@ -323,6 +324,7 @@ c
                   endif
                   call xc_tabcd(2,.true.,
      &                 tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dmat, 
+     N                 0d0,0d0,0d0,0d0,
      C                 Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 
      H                 dbl_mb(iheschi_ao),
      &                 curatoms, ncuratoms, 1,
