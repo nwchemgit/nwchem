@@ -1,5 +1,5 @@
 *
-* $Id: neb_drv.F,v 1.3 2005-09-28 23:05:46 marat Exp $
+* $Id: neb_drv.F,v 1.4 2005-09-29 00:17:12 marat Exp $
 *
 
       logical function neb(rtdb)
@@ -249,19 +249,19 @@ c
 !        END IF
 
          if (oprint) then
-           mark = '@'
+           mark = '@neb'
            if (it .gt. 1) mark = ' '
            write(6,1) mark, mark
-           mark = '@'
+           mark = '@neb'
            write(6,2) mark, it-1, path_energy, dE,
      $       Gmax, Grms, Xrms, Xmax, util_wallsec()
  1         format(
-     $        /,a1,' Step     Path Energy   Delta E   Gmax',
+     $        /,a4,' Step     Path Energy   Delta E   Gmax',
      $        '     Grms     Xrms     Xmax   Walltime',
-     $        /,a1,' ---- ---------------- -------- --------',
+     $        /,a4,' ---- ---------------- -------- --------',
      $        ' -------- -------- -------- --------')
  2         format(
-     $        a1,i5,f17.8,1p,d9.1,0p,4f9.5,f9.1,/,
+     $        a4,i5,f17.8,1p,d9.1,0p,4f9.5,f9.1,/,
      $        1x,5x,17x,9x,4a9,/)
          endif
 

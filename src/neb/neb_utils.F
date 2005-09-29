@@ -1,5 +1,5 @@
 *
-* $Id: neb_utils.F,v 1.2 2005-09-28 23:05:46 marat Exp $
+* $Id: neb_utils.F,v 1.3 2005-09-29 00:17:12 marat Exp $
 *
       subroutine neb_path_energy(bead_list,dpath,epath)
       implicit none
@@ -613,9 +613,9 @@ c
 *     **** create bead_list *** 
       call init_bead_list(rtdb,bead_list,neb_movecs)
       if(custom_path) then
-        call neb_initial_path(rtdb,bead_list,nbeads)
-      else
         call neb_initial_path_custom(rtdb,bead_list,nbeads)
+      else
+        call neb_initial_path(rtdb,bead_list,nbeads)
       end if
 
       return
