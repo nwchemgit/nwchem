@@ -1,5 +1,5 @@
 *
-* $Id: neb_drv.F,v 1.4 2005-09-29 00:17:12 marat Exp $
+* $Id: neb_drv.F,v 1.5 2005-09-29 00:46:48 marat Exp $
 *
 
       logical function neb(rtdb)
@@ -14,7 +14,7 @@
 c     
 *     **** local variables ****     
       logical value, newchain, svalue,verlet,oprint
-      character    mark
+      character*4    mark
       character*50 bead_list
       integer ii
       integer i,it,nbeads,nion,ng,iterNEB,nebsteps
