@@ -3,7 +3,7 @@
      &                    Amat, Cmat, nq, ipol, Ex, Ec,  qwght,
      &                    ldew,func,funcname)     
 c
-c$Id: xc_hcth.F,v 1.33 2005-09-28 22:32:43 edo Exp $
+c$Id: xc_hcth.F,v 1.34 2005-09-29 00:02:26 edo Exp $
 c
       Implicit none
 c
@@ -110,7 +110,7 @@ c
      &                      Amat, Amat2, Cmat, Cmat2, nq, ipol,
      &                      Ex, Ec,  qwght, ldew,func,funcname)
 c
-c$Id: xc_hcth.F,v 1.33 2005-09-28 22:32:43 edo Exp $
+c$Id: xc_hcth.F,v 1.34 2005-09-29 00:02:26 edo Exp $
 c
       Implicit none
 #include "errquit.fh"
@@ -342,7 +342,7 @@ c X s,3
       data (coeffs(10,n),n=1,numfunc)/
      ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.678549d+01,
      ,     0.00000000d0,-4.10750d0, -5.86760d0 ,0d0       , -2.6290d0,
-     ,     -0.495944d+01,0.d0000000000,+1.3890D0,+1.051158D+01/
+     ,     -0.495944d+01,0.d0000000000,+1.3890D0,-1.051158D+01/
 c C ss,3
       data (coeffs(11,n),n=1,numfunc)/
      ,      0.0000000d0,0.0d000000, 0.00000000d0,-0.802496d+00,
