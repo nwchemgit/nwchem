@@ -13,7 +13,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.44 2005-09-27 20:05:05 edo Exp $
+c$Id: grid_quadv0b.F,v 1.45 2005-09-30 15:50:13 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -229,6 +229,7 @@ c
          if (odftps) call pstat_on(ps_tabcd)
             call xc_tabcd(0,l3d,
      T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
+     D        0d0,0d0,0d0,0d0,
      D        Dbl_MB(ichi_ao), dbl_MB(idelchi_ao), 0d0,
      N        0d0,0,1,
      I        ipol, nqpts, mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
@@ -246,14 +247,14 @@ c
      &           'iFmat', lFmat,iFmat))
      &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
      &          MA_ERR)
-            call xc_tabcd_giao_nmr_rhs(tol_rho, Fmat, Pmat, Amat, Bmat,
-     &           Cmat, Dbl_MB(iDmat), Dbl_MB(iEmat), Dbl_MB(iFmat),
-     &           qxyz,xyz,
-     &           Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), ipol, nqpts,
-     &           mbf_ao, nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, GRAD,
-     &           AO_bas_han,
-     &           natoms, iniz, ifin, g_vxc, ibf_ao,
-     &           rchi_atom, rdelchi_atom,
+            call xc_tabcd(3,.true.,
+     T           tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
+     E           Dbl_MB(iEmat), Dbl_MB(iFmat),  qxyz,xyz,
+     &           Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
+     N           0d0,0,1,
+     I           ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
+     G           GRAD, AO_bas_han,natoms, iniz, ifin, 
+     G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,kske,Mmat)
             if (.not.ma_pop_stack(lFmat))
      &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
@@ -270,6 +271,7 @@ c
      &           triplet)
             call xc_tabcd(1,l3d,
      T           tol_rho,Fmat,Pmat, rho, Bmat,delrho, Dbl_MB(iDmat), 
+     N           0d0,0d0,0d0,0d0,
      C           Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
      N           0d0,0,nmat, 
      I           ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
@@ -303,7 +305,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.44 2005-09-27 20:05:05 edo Exp $
+C$Id: grid_quadv0b.F,v 1.45 2005-09-30 15:50:13 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -443,7 +445,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.44 2005-09-27 20:05:05 edo Exp $
+C$Id: grid_quadv0b.F,v 1.45 2005-09-30 15:50:13 edo Exp $
 c
       implicit none
 #include "errquit.fh"
