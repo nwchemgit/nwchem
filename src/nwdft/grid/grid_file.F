@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.63 2005-09-27 00:35:01 edo Exp $
+* $Id: grid_file.F,v 1.64 2005-09-30 21:06:08 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -155,7 +155,7 @@ c
          open(unit=gr_unit,file=grinfo,status='unknown',
      .        form='formatted')
 #else
-#if defined(AIX) || defined(XLFLINUX) 
+#if defined(AIX) || defined(XLFLINUX) ||defined(GCC4)
          close(unit=gr_unit,status='keep',iostat=ioserr)
 #endif	
          open(unit=gr_unit,file=grinfo,status='replace',
@@ -262,8 +262,8 @@ c
       if(okeep) then
          inquire(file=grinfo,exist=lstatus)
          if(lstatus) then
-         rewind(gr_unit)
-            read(gr_unit,*,err=199) 
+            rewind(gr_unit,iostat=ioserr,err=199)
+            read(gr_unit,*,err=199,iostat=ioserr) 
             write(gr_unit,99,err=199) max_file_rec
  99         format(I72)
             write(gr_unit,99,err=199) max_cache_rec
@@ -299,7 +299,7 @@ c
       grid_file_close = .true.
 c
       return
- 199  write(0,*) ' write failure on grinfo'
+ 199  write(0,*) ' write failure on grinfo: iostat=',ioserr
       grid_file_close=.false.
       return
       end
