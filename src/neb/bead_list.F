@@ -1,5 +1,5 @@
 c
-c     $Id: bead_list.F,v 1.4 2005-09-28 23:05:46 marat Exp $
+c     $Id: bead_list.F,v 1.5 2005-09-30 22:38:59 marat Exp $
 c
 c
 c     This file contains a list of beads, where a bead is defined
@@ -387,6 +387,8 @@ c
       end if
 
 *     *** run gradient task ***
+      if(.not.rtdb_put(bead_rtdb,"neb:ibead",mt_int,1,i))
+     >  call errquit('neb:ibead put',0,0)
       value=value.and.task_gradient_gen(bead_rtdb)
       if (.not.value) call errquit('run_bead_list failed',1,0)
 
