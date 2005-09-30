@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.34 2004-06-29 19:59:31 edo Exp $
+* $Id: task_num_grad.F,v 1.35 2005-09-30 19:17:08 yuri Exp $
 *
 #include "inp.fh"
       logical analytic
@@ -74,6 +74,9 @@ c
 #include "mafdecls.fh"
 #include "util.fh"
 #include "inp.fh"
+#ifdef USE_SUBGROUPS
+#include "util_sgroup.fh"
+#endif
       integer rtdb              ! [input] 
       logical func              ! [input]
       external func
@@ -111,6 +114,28 @@ c
      $     task_delete_state, fd_step_energy
       external task_energy, task_save_state, task_restore_state, 
      $     task_delete_state, fd_step_energy
+c
+#ifdef USE_SUBGROUPS
+      integer ipcount
+      logical rtdb_status
+      logical util_sgstart
+      external util_sgstart
+      integer ncpus
+
+      ncpus=ga_nnodes()
+      write (6,*) 'In USE_SUBGROUPS: ncpus=',ncpus
+      if (ncpus.eq.1) then
+       write (6,*) 'SUBGROUPS code is deactivated'
+      else 
+       gosmp=.true.
+c       cpusperg_array(1)=2
+c       cpusperg_array(2)=4
+       if(.not.util_sgstart(rtdb)) 
+     $  call errquit('Error in SUBGROUPS init', 0, RTDB_ERR) 
+       ipcount=mygroup-2
+       write(6,*) 'mygroup and ipcount is ', mygroup, ipcount
+      endif
+#endif
 c
       num_grad = .false.
       osaved = .false.
@@ -226,7 +251,16 @@ c
       endif
 c
       call dfill(natoms3, 0.0d0, dbl_mb(k_grad), 1)
+c
+      write (6,*) 'nvec=',nvec
       do ivec = 1, nvec
+#ifdef USE_SUBGROUPS
+       if (ncpus.gt.1) then
+         ipcount=ipcount+1
+         if (mod(ipcount,ngroups).ne.0) goto 1234
+         write (6,*) 'mygroup=',mygroup,' ivec=',ivec
+       endif
+#endif
 c
          if (ofivept) then
             if (.not.fd_step_energy(rtdb, geom, natoms, dbl_mb(k_coord),
@@ -314,7 +348,7 @@ c
          call daxpy(natoms3, grad, dbl_mb(k_vec+(ivec-1)*natoms3), 1,
      $        dbl_mb(k_grad), 1)
 c     
-      enddo
+ 1234 enddo
 c
 c     Symmetrize the gradient to get rid of symmetry breaking noise
 c
@@ -340,6 +374,39 @@ c
          write(6,*)
          call util_flush(6)
       endif
+#ifdef USE_SUBGROUPS
+      if (ncpus.gt.1) then
+      if (ga_nodeid().gt.0) then
+       call dfill (natoms3,0.0d0,dbl_mb(k_grad),1)
+      endif
+      call util_sgend(rtdb)
+      call ga_dgop(1,dbl_mb(k_grad),natoms3,'+')
+c
+c     Symmetrize the gradient to get rid of symmetry breaking noise
+c
+      call sym_grad_symmetrize(geom, dbl_mb(k_grad))
+
+      write (6,*) "Print summed up gradient" 
+      if (ga_nodeid().eq.0) then
+         tmp = theory
+         call inp_ucase(tmp)
+         write(6,3000) tmp(1:inp_strlen(tmp)),
+     $        'x','y','z','x','y','z'
+         do i = 1, natoms
+            if (.not. geom_cent_get(geom, i, thetag, crd, q))
+     $           call errquit('task:numg geom_cent_get?',0, GEOM_ERR)
+            write(6,4000) i, thetag,
+     $           (dbl_mb(k_coord+3*(i-1)+j),j=0,2),
+     $           (dbl_mb(k_grad +3*(i-1)+j),j=0,2)
+         enddo
+         write(6,*)
+ 3000    format(/,/,25X,A,' ENERGY GRADIENTS',/,/,4X,'atom',15X,
+     $        'coordinates',
+     $        24X,'gradient',/,6X,2(1X,(3(10X,A1))))
+ 4000    format(1X,I3,1X,A4,2(1X,3(1X,F10.6)))
+      endif
+      endif
+#endif
 c
 c     store the gradient in gname
 c

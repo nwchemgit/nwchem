@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.7 2004-12-01 18:27:38 edo Exp $
+C$Id: util_sgroup.F,v 1.8 2005-09-30 19:16:08 yuri Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -11,12 +11,22 @@ c
       integer nprocs, nsize, midproc, proclist(1000)
       integer i,errout
       character*256 grtdbname
-      logical parallel, gosmp, lstatus
+      logical lstatus
 c
-      if (.not.rtdb_get(rtdb, 'rtdbio_parallel', mt_log, 1,
-     &   parallel))parallel=.false.
-      if (.not.rtdb_get(rtdb, 'gosmp', mt_log, 1,
-     &   gosmp))gosmp=.false.
+c Read number of subgroups from input
+c
+      if (.not.rtdb_get(rtdb, 'subgroups_number', mt_int, 1,
+     &   ngroups))ngroups=1
+      gosmp=.false.
+      if (ngroups.eq.ga_cluster_nnodes()) then
+       gosmp=.true.
+       ngroups=ga_cluster_nnodes()
+      endif
+      if (ngroups.gt.ga_cluster_nnodes()) then
+       call errquit('Too many subgroups are requested',0,0)
+      endif
+
+      write (6,*) 'ngroups=',ngroups,' gosmp=',gosmp
 c
 c     preliminary rtdb cloning
 c
@@ -25,55 +35,55 @@ c
       if (.not. rtdb_close(rtdb, 'keep')) call errquit(
      *     ' failed to close rtdb for sg ',0,0)
 c
-c     predefine ngroups for rtdb cloning
-c
-      if(gosmp) then
-!         ngroups=ga_cluster_nnodes()
-      else
-         ngroups=2
-      endif
-c
 c    Create groups
 c   
       write(luout,*) 'Creating groups'
       if(gosmp) then
-         call util_sggosmp()
-         call util_sgrtdb(rtdb,rtdb_fname,grtdbname,parallel)
+         call util_sginit()
+         call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
          util_sgstart=.true.
       else
-         call util_sgrtdb(rtdb,rtdb_fname,grtdbname,.true.)
-         call util_sggoidle(util_sgstart)
+         call util_sginit_irreg()
+         call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
+         util_sgstart=.true.
       endif
       sgactive=util_sgstart
-      if(parallel) then
-      call util_pname0(rtdb_fname,grtdbname,mygroup,ngroups)
-      endif
       if (.not. rtdb_open(grtdbname, 'old', rtdb)) call errquit
      (     (' rtdb_open old failed ',0,0)
-      write(0,*) ga_nodeid(),' of group',mygroup,
+      write(6,*) ga_nodeid(),' of group',mygroup,
      *     'active = ',sgactive, 'rtdbname ',grtdbname
+c
+c     Create movecs for each subgroup
+c
+      write (6,*) 'mygroup=',mygroup,' rtdb=',rtdb,
+     $            ' grtdbname=',grtdbname
+      call util_sgmovecs(rtdb)
 c
 c     nasty hack stdoutput redirect to fort.90+group for 
 c     groupid gt 0
 c
       luout_0=luout
-      if(mygroup.ne.1.and.gosmp) then
-         luout=90+mygroup
-         write(0,*) mygroup,'new value for luout',luout
-         if(ga_nodeid().eq.0) then
-            inquire(luout, exist=lstatus,iostat=errout)
-            if(lstatus) then
-               open(luout,  status='old',iostat=errout)
-               if(errout.eq.0)close(luout, status='delete')
-            else
-               write(0,*) ' fort.9x not there'
-            endif
-            open(luout, status='new')
-         endif
-         call ga_sync()
-      endif
+c      if(mygroup.ne.1.and.gosmp) then
+c        luout=90+mygroup
+c        write(6,*) mygroup,'new value for luout',luout
+c        if(ga_nodeid().eq.0) then
+c           inquire(luout, exist=lstatus,iostat=errout)
+c           write(6,*) 'lstatus=',lstatus
+c           if(lstatus) then
+c              open(luout,  status='old',iostat=errout)
+c              if(errout.eq.0)close(luout, status='delete')
+c           else
+c              write(6,*) ' fort.9x not there'
+c           endif
+c           open(luout, status='new')
+c           write(6,*) 'after the open statement'
+c        endif
+c        call ga_sync()
+c      endif
+      write(6,*) 'everyone should have an open file at this point'
       return
       end
+
       subroutine util_sgend(rtdb)
       implicit none
 #include "stdio.fh"
@@ -87,6 +97,9 @@ c
          if (.not. rtdb_close(rtdb, 'delete'))call errquit
      (        (' sgend: rtdb_close and delete failed ',0,0)
       endif
+      if(mygroup.ne.1) then
+        close(luout, status='keep')
+      endif
       luout=luout_0
       write(luout,*) 'end of subgroups call '
       call ga_pgroup_set_default(ga_pgroup_get_world())
@@ -98,12 +111,10 @@ c
       
       return
       end
-      subroutine util_sgrtdb(rtdb,rtdbname,grtdbname,
-     ,     parallel)
+      subroutine util_sgrtdb(rtdb,rtdbname,grtdbname)
       implicit none
       integer rtdb
       character*(*) rtdbname,grtdbname
-      logical parallel
 #include "stdio.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -117,19 +128,6 @@ c
       external util_system
 c
       write(luout,*) 'util_sgrtdb start'
-      if(parallel) then
-         do ii=1,ngroups
-            call util_pname0(rtdbname,grtdbname,ii,ngroups)
-c     
-c     creates rtdb file grtdbname=rtdbname.ii
-c     
-            ortdbstate=rtdb_parallel(.true.)
-            if(.not.rtdb_clone(rtdb,grtdbname))
-     .           call errquit('oo ',0,0)
-            ortdbstate2=rtdb_parallel(ortdbstate)
-         enddo
-         call ga_sync()
-      else
 c
 c     do a copy of rtdb to scratch_dir for each SMP node
 c
@@ -169,16 +167,17 @@ c
             cmd = cmd1
             if (util_system (cmd) .eq. 0) then
                Write (0,*) cmd, ' OK'
+               Write (6,*) 'cmd done'
             else
                Write (0,*) cmd, ' failed '
-!               call errquit('util_sgrtdb: problem with system call',
-!     *              0, 0)
+               call errquit('util_sgrtdb: problem with system call',
+     *              0, 0)
             endif
          endif
-            grtdbname=scratchrtdb
-      endif
+         grtdbname=scratchrtdb
       return
       end
+
       subroutine util_sggosmp()
       implicit none
 c
@@ -190,8 +189,6 @@ c
       integer me,inode,nnodes
       integer i,j,proclist(maxgroups)
 c
-      ngroups=ga_cluster_nnodes()
-
       me=ga_nodeid()
       inode = ga_cluster_nodeid()
       nnodes = ga_cluster_nprocs(inode)
@@ -214,62 +211,124 @@ c
       enddo
       return
       end
-      subroutine util_sggoidle(active)
+
+      subroutine util_sginit_irreg()
       implicit none
 c
-c     creates two subgroups
-c     one active
-c     second idle
+c     creates custom subgroups
 c
 #include "stdio.fh"
 #include "global.fh"
 #include "util_sgroup.fh"
-      logical active
+      integer me,inode,nnodes
+      integer i,j,proclist(maxgroups,maxcpus), myprocid,
+     $ proc_counter,group_counter
 c
-      integer nproc,midproc,nprocs
-      integer i,proclist(maxgroups)
-      integer nsize
-c      
-      nprocs = ga_nnodes()
-      midproc = nprocs/2
-c
-c     hardwired value of 2 subgroups
-c
-      ngroups=2
-      do i = 1, midproc
-        proclist(i) = i - 1
-      end do
-      nsize = midproc
-      if (ga_nodeid().eq.0) then
-        do i = 1, nsize
-          write(luout,*) 'Group 1 ',i,proclist(i)
-        end do
-      endif
-      grouplist(1) = ga_pgroup_create(proclist,nsize)
-      do i  = midproc + 1, nprocs
-        proclist(i-midproc) = i - 1
-      end do
-      nsize = nprocs - midproc
-      if (ga_nodeid().eq.0) then
-        do i = 1, nsize
-          write(luout,*) 'Group 2 ',i,proclist(i)
-        end do
-      endif
-      grouplist(2) = ga_pgroup_create(proclist,nsize)
-      write(luout,*) 'Groups are created'
-      if (ga_nodeid().lt.midproc) then
-        call ga_pgroup_set_default(grouplist(1))
-c
-c     active
-c
-        active=.true.
-        mygroup=1
-      else
-        call ga_pgroup_set_default(grouplist(2))
-c
-c     inactive
-c        
-        active=.false.
-        mygroup=2
-      endif
+      me=ga_nodeid()
+      inode = ga_cluster_nodeid()
+!      nnodes = ga_cluster_nprocs(inode)
+
+      proc_counter=1
+      group_counter=1
+      do i=0,ga_cluster_nnodes()-1
+         do j=0,ga_cluster_nprocs(i)-1
+
+           proclist(group_counter,proc_counter)=
+     $     ga_cluster_procid(i,j)
+           myprocid=ga_cluster_procid(inode,j)
+           if (proclist(i,j).eq.myprocid) mygroup=group_counter
+
+           if (cpusperg_array(group_counter).eq.proc_counter) then
+             group_counter=group_counter+1
+             proc_counter=0
+           end if
+           proc_counter=proc_counter+1
+         enddo
+      enddo
+
+      grouplist(mygroup)=
+     $ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
+
+      call ga_sync()
+      call ga_pgroup_set_default(grouplist(mygroup))
+
+      me=ga_nodeid()
+      write (6,*) 'me=',me,' is the part of subg=',mygroup
+
+      return
       end
+
+      subroutine util_sginit()
+      implicit none
+c
+c     Create subgroups
+c
+#include "stdio.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "util_sgroup.fh"
+      integer cur_mygroup,me
+
+      cur_mygroup=ga_pgroup_split(ngroups)
+      if (cur_mygroup.eq.-1) then
+         call errquit('Died in ga_pgroup_split',0,0)
+      endif
+      call ga_pgroup_set_default(cur_mygroup)
+      mygroup=ga_pgroup_get_default()
+
+      me=ga_nodeid()
+      write (6,*) 'me=',me,' is the part of subg=',mygroup
+
+      return
+      end
+c
+      subroutine util_sgmovecs(rtdb)
+      implicit none
+      integer rtdb
+#include "stdio.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util_sgroup.fh"
+      character*255 movecs_in,sg_movecs_out,tag,theory
+      logical movecs_out_l
+c
+c Tested only for the case when movecs are created
+c
+
+c
+c Read movecs filename with path
+c
+       if (.not.(rtdb_cget(rtdb,'scf:input vectors',1,movecs_in).or.
+     $           rtdb_cget(rtdb,'dft:input vectors',1, movecs_in)))
+     $ movecs_in = 'atomic'
+        if (movecs_in.eq.'atomic')
+     $  call util_file_name('movecs',.true.,.false.,movecs_in)
+c
+c Create movecs.mygroup
+c
+        call util_pname0(movecs_in,sg_movecs_out,mygroup,ngroups)
+  
+        write(6,*) 'mygroup=',mygroup,
+     $             ' movecs_in',movecs_in,
+     $             ' sg_movecs_out=',sg_movecs_out
+c
+c Set output movecs
+c
+      if (.not.(rtdb_cget(rtdb,'task:theory',1,theory)))
+     *     call errquit('rtdb_get task:theory failed',0,0)
+      if (theory.eq.'dft') then
+       tag='dft:output vectors'
+      else
+       tag='scf:output vectors'
+      endif
+c
+      if (.not. rtdb_cput(rtdb,tag,1,
+     $    sg_movecs_out)) then
+       write (6,*) 'error in rtdb_cput'
+      endif
+c
+      return
+      end
+

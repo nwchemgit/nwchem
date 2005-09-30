@@ -1,13 +1,16 @@
-C$Id: util_sgroup.fh,v 1.3 2004-12-01 01:59:04 edo Exp $
-	integer maxgroups
+C$Id: util_sgroup.fh,v 1.4 2005-09-30 19:16:35 yuri Exp $
+	integer maxgroups,maxcpus
 	parameter(maxgroups=512)
+        parameter(maxcpus=512)
 	integer grouplist(maxgroups)! sgroup handle
+        integer cpusperg_array(maxgroups)
 	integer mygroup
 	integer ngroups
 	integer luout_0
-	logical sgactive
+	logical sgactive, gosmp
         character*256 rtdb_fname
 	common /sgroup/ grouplist,
-     *	  ngroups, mygroup,sgactive,luout_0
+     *	  ngroups, mygroup,sgactive, gosmp, luout_0,
+     *    cpusperg_array
 	common /sgroupchr/rtdb_fname
 
