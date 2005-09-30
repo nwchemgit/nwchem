@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.23 2004-12-16 23:02:58 edo Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.24 2005-09-30 19:18:12 yuri Exp $
       implicit none
 #include "errquit.fh"
 #include "util.fh"
@@ -74,7 +74,8 @@ c - starting vectors
 
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
 
-      call util_file_name('t2', .false.,.false.,t2file)
+c Changes by YA: second param from false to true
+      call util_file_name('t2', .true.,.true.,t2file)
 
 c - if converged, read vectors and return
 c - else check if one can restart
