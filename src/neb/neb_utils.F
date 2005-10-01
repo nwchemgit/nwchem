@@ -1,5 +1,5 @@
 *
-* $Id: neb_utils.F,v 1.3 2005-09-29 00:17:12 marat Exp $
+* $Id: neb_utils.F,v 1.4 2005-10-01 05:46:27 marat Exp $
 *
       subroutine neb_path_energy(bead_list,dpath,epath)
       implicit none
@@ -25,11 +25,11 @@
       nion   = nion_bead_list(bead_list,1)
       ng     = 3*nion*nbeads
 
-      value  = MA_push_get(mt_dbl,nbeads,'e',e(2),e(1))
+      value  = MA_alloc_get(mt_dbl,nbeads,'e',e(2),e(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,3*nion,'r',r(2),r(1))
+     >         MA_alloc_get(mt_dbl,3*nion,'r',r(2),r(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'c',c(2),c(1))
+     >         MA_alloc_get(mt_dbl,ng,'c',c(2),c(1))
       if (.not.value) 
      > call errquit('neb_path_energy failed - increase stack',0,0)
     
@@ -53,9 +53,9 @@
          epath = epath + 0.5d0*dbl_mb(e(1)+i-1)*dist
          epath = epath + 0.5d0*dbl_mb(e(1)+i  )*dist
       end do
-      value = value.and.MA_pop_stack(c(2))
-      value = value.and.MA_pop_stack(r(2))
-      value = value.and.MA_pop_stack(e(2))      
+      value = value.and.MA_free_heap(c(2))
+      value = value.and.MA_free_heap(r(2))
+      value = value.and.MA_free_heap(e(2))      
       if (.not.value) call errquit('neb_path_energy failed',1,0)
 
       return

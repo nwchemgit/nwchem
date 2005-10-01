@@ -1,5 +1,5 @@
 *
-* $Id: neb_drv.F,v 1.5 2005-09-29 00:46:48 marat Exp $
+* $Id: neb_drv.F,v 1.6 2005-10-01 05:46:27 marat Exp $
 *
 
       logical function neb(rtdb)
@@ -66,28 +66,28 @@ c
 
 
 *     **** allocate space for gradients and coordinates ****
-      value  = MA_push_get(mt_dbl,nbeads,'e1',e1(2),e1(1))
+      value  = MA_alloc_get(mt_dbl,nbeads,'e1',e1(2),e1(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'g0',g0(2),g0(1))
+     >         MA_alloc_get(mt_dbl,ng,'g0',g0(2),g0(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'g1',g1(2),g1(1))
+     >         MA_alloc_get(mt_dbl,ng,'g1',g1(2),g1(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'s',s(2),s(1))
+     >         MA_alloc_get(mt_dbl,ng,'s',s(2),s(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'t1',t1(2),t1(1))
+     >         MA_alloc_get(mt_dbl,ng,'t1',t1(2),t1(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'v1',v1(2),v1(1))
+     >         MA_alloc_get(mt_dbl,ng,'v1',v1(2),v1(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'c0',c0(2),c0(1))
+     >         MA_alloc_get(mt_dbl,ng,'c0',c0(2),c0(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'c1',c1(2),c1(1))
+     >         MA_alloc_get(mt_dbl,ng,'c1',c1(2),c1(1))
       value  = value.and.
-     >         MA_push_get(mt_dbl,ng,'dti',dti(2),dti(1))
+     >         MA_alloc_get(mt_dbl,ng,'dti',dti(2),dti(1))
       if (.not.value) 
      >  call errquit('neb failed - increase stack memory',1,0)
 
 *     *** set dti ***
-      value  = MA_push_get(mt_dbl,nion,'mass',mass(2),mass(1))      
+      value  = MA_alloc_get(mt_dbl,nion,'mass',mass(2),mass(1))      
       if (.not.value) 
      >  call errquit('neb failed - increase stack memory',2,0)
       call neb_masses_get(rtdb,dbl_mb(mass(1)))
@@ -102,7 +102,7 @@ c
      >    = -(time_step**2)/dbl_mb(mass(1)+it-1)
         end do
       end do
-      value = MA_pop_stack(mass(2))      
+      value = MA_free_heap(mass(2))      
       if (.not.value) call errquit('neb failed',3,0)
   
 
@@ -268,15 +268,15 @@ c
   
       end do
 
-      value = value.and.MA_pop_stack(dti(2))
-      value = value.and.MA_pop_stack(c1(2))
-      value = value.and.MA_pop_stack(c0(2))
-      value = value.and.MA_pop_stack(v1(2))
-      value = value.and.MA_pop_stack(t1(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(g1(2))
-      value = value.and.MA_pop_stack(g0(2))
-      value = value.and.MA_pop_stack(e1(2))      
+      value = value.and.MA_free_heap(dti(2))
+      value = value.and.MA_free_heap(c1(2))
+      value = value.and.MA_free_heap(c0(2))
+      value = value.and.MA_free_heap(v1(2))
+      value = value.and.MA_free_heap(t1(2))
+      value = value.and.MA_free_heap(s(2))
+      value = value.and.MA_free_heap(g1(2))
+      value = value.and.MA_free_heap(g0(2))
+      value = value.and.MA_free_heap(e1(2))      
       if (.not.value) call errquit('neb failed',4,0)
 
       call ga_sync()
