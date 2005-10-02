@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.77 2005-09-14 01:53:57 marat Exp $
+c $Id: mm_interface.F,v 1.78 2005-10-02 17:25:04 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -76,6 +76,50 @@ c     now initialize md structures again
 c     ----------------------------------
       call mm_init(irtdb0)
 c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+c
+      return
+      end
+
+      subroutine mm_reload_rst_default(irtdb0,filename)
+c     convenience routine to load
+c     restart file in perm directory into default restart file
+c     irtdb0   - rtdb handle              [in]
+c     filename - name of the restart file in the perm directory[in]
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "qmmm.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+c
+      integer irtdb0
+      character*(*) filename
+c
+      character*32 pname
+      character*255 filename0
+      integer j
+c
+      pname = "mm_reload_rst_default"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+c     get default restart filename
+c     ----------------------------
+      filename0 = ' '
+      call mm_restart_filename(filename0)
+c
+c     copy restart file to a default one
+c     ---------------------------------
+      call util_file_name_resolve(filename,.false.)
+      if(ga_nodeid().eq.0) then 
+        write(*,*) "copying filename", filename
+        call util_file_copy(filename(1:inp_strlen(filename)),
+     >                      filename0(1:inp_strlen(filename0)))
+      end if
+      call ga_sync()
+      call mm_reload_rst(irtdb0,filename0)
+c 
       if(qmmm_print_debug()) write(*,*) "out "//pname
 c
       return

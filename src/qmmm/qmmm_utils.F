@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.14 2005-09-18 23:06:38 marat Exp $
+c $Id: qmmm_utils.F,v 1.15 2005-10-02 17:25:07 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -412,6 +412,32 @@ c
         end if 
       end do
       qmmm_get_io_unit = .false.
+      return
+      end
+
+      function qmmm_file_exist(filename,perm)
+
+      implicit none
+#include "msgids.fh"
+#include "tcgmsg.fh"
+#include "global.fh"
+      character*(*) filename
+      logical perm
+      logical qmmm_file_exist
+c 
+      character*255 filename0
+      logical ofile
+c
+      filename0 = filename
+      if(perm)
+     >    call util_file_name_resolve(filename0,.false.)
+      if(ga_nodeid().eq.0) then 
+        inquire(file=filename0,exist=ofile)
+      end if
+      call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+      call ga_sync()
+c
+      qmmm_file_exist = ofile
       return
       end
 

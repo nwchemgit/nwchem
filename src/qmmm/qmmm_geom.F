@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.80 2005-09-28 22:32:48 marat Exp $
+c $Id: qmmm_geom.F,v 1.81 2005-10-02 17:25:07 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -155,6 +155,8 @@ c     local variables
       end
 
       subroutine qmmm_geom_init_neb(irtdb)
+c      initalizes geometry structures needed
+c      for neb runs
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -194,8 +196,8 @@ c
         filename0 = ' '
         call mm_restart_filename(filename0)
 c
-c     define set of active atoms
-c     --------------------------
+c     activate atoms in neb region only
+c     ---------------------------------
       call qmmm_cons_free_exclusive(region)
 c
 c     initialize auxiliary geometry
@@ -213,7 +215,8 @@ c     ---------------------------------------------
        if (.not.rtdb_get(irtdb,'neb:nbeads',mt_int,1,nbeads)) then
           nbeads = 5
        end if
-       call mm_system_prefix(prefix)
+      if (.not.rtdb_cget(irtdb,"qmmm:neb_path",1,prefix))
+     >  call mm_system_prefix(prefix)
        do i=1,nbeads
          filename = ' '
          write(filename,13) 
@@ -239,28 +242,15 @@ c     ---------------------------------------------
      >              filename0(1:inp_strlen(filename0)))
          else
            call errquit(pname//"cannot find"//
-     >          filename0(1:inp_strlen(filename0)),0,0)
+     >          filename(1:inp_strlen(filename)),0,0)
          end if
        end do
       end if
-c      filename = rstfile(1)
-cc     if files reside in perm directory
-cc     this turned off for now because it forces topology
-cc     file to be in perm directory as well
-cc     --------------------------------------------------
-cc      call util_file_name_resolve(filename,.false.)
-c      call mm_reload_rst(irtdb,filename)
-c      call qmmm_geom_create_active(irtdb,"neb_start")
-c
-c      filename = rstfile(2)
-cc      call util_file_name_resolve(filename,.false.)
-c      call mm_reload_rst(irtdb,filename)
-c      call qmmm_geom_create_active(irtdb,"neb_end")
 
       if(qmmm_print_debug())
      >    write(*,*) "out",pname
 
- 13      format(a,'_pes',i3.3,'.rst')
+ 13      format(a,i3.3,'.rst')
  14      format('neb_bead_',i6.6,":geom")
 
       end

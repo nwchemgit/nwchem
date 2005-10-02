@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.45 2005-09-18 23:06:38 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.46 2005-10-02 17:25:07 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -27,7 +27,6 @@ c     local variables
       character*30 operation
       double precision energy
 c
-      write(*,*) "in task_qmmm_gradient"
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
 c
@@ -228,11 +227,14 @@ c
       logical qmmm_neb_gradient
 c     
       logical  status
+      logical  loadrst
 c     
       character*32 pname
       character*255 prefix
       character*255 rstfile
+      character*255 rstfile0
       character*255 neb_region
+      integer ibead
 c     
       logical   qmmm_mixed_optimization
       external  qmmm_mixed_optimization
@@ -245,11 +247,16 @@ c
 c 
       qmmm_neb_gradient = .true.
 c
-c     get common prefix for filenames
-c     -------------------------------
-      if (.not. rtdb_cget(irtdb,'geometry',1,prefix))
-     + call errquit(pname//'Failed to neb geometry',
-     + 1, RTDB_ERR)
+c     which bead we are doing here
+c     ---------------------------
+      if(.not.rtdb_get(irtdb,"neb:ibead",mt_int,1,ibead))
+     >  call errquit('neb:ibead put',0,0)
+c
+c     construct restart file name  
+c     ---------------------------
+      call mm_system_prefix(prefix)
+      write(rstfile,13) prefix(1:inp_strlen(prefix)),ibead
+c      call util_file_name_resolve(rstfile,.false.)
 c
 c     get definition of neb region
 c     ----------------------------
@@ -258,10 +265,12 @@ c     ----------------------------
      + call errquit(pname//'Failed neb region',
      + 1, RTDB_ERR)
 c
-c     construct restart file name  
-c     ---------------------------
-      rstfile = prefix(1:inp_strlen(prefix))//
-     +          ".rst"
+c     load restart file from perm dir if any
+c     --------------------------------------
+      if(qmmm_file_exist(rstfile,.true.)) then
+        call mm_reload_rst_default(irtdb,rstfile)
+      end if
+      call ga_sync()
 c
 c     propagate coord of neb region
 c     -----------------------------
@@ -284,12 +293,14 @@ c     ----------------------------
       call qmmm_geom_get_grad(irtdb)
       call qmmm_energy_rtdb_push(irtdb)
 c
-c     finally save restart file just in case
-c     --------------------------------------
+c     finally save restart file to perm
+c     ---------------------------------
+      call util_file_name_resolve(rstfile,.false.)
       call mm_write_restart_named(rstfile)
 
       qmmm_neb_gradient = status
 
+ 13   format(a,'_neb',i3.3,'.rst')
       return
       end
 
