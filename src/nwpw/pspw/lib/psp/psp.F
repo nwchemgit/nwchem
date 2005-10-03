@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.17 2004-05-05 19:43:24 edo Exp $
+* $Id: psp.F,v 1.18 2005-10-03 20:45:54 edo Exp $
 *
 
 #define TCGMSG
@@ -867,8 +867,12 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                  + (ia-1)*(nmax_max*lmmax_max))
 
            !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
            k = and(l_prj,1)
            sd_function = (k.eq.0)
+#endif
 
 
 *          **** phase factor does not matter therefore ****
@@ -1152,7 +1156,11 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                  +(ia-1)*(nmax_max*lmmax_max))
 
            !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
            k = and(l_prj,1)
+#endif
            sd_function = (k.eq.0)
 
 
@@ -1219,7 +1227,11 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                                  + (ia-1)*(nmax_max*lmmax_max))
 
            !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
            k = and(l_prj,1)
+#endif
            sd_function = (k.eq.0)
 
 
