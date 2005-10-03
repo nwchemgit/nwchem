@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.186 2005-06-20 06:01:49 marat Exp $
+# $Id: GNUmakefile,v 1.187 2005-10-03 21:18:01 edo Exp $
 
 include ../config/makefile.h
 
@@ -195,6 +195,9 @@ ifeq ($(TARGET),INTERIX)
 DEFINES += -DNOSOCKLEN
 endif
 ifeq ($(TARGET),LINUX)
+DEFINES += -DNEED_LOC
+endif
+ifeq ($(TARGET),LINUX64)
 DEFINES += -DNEED_LOC
 endif
 
