@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2000-10-24 02:38:23 d3j191 Exp $
+# $Id: GNUmakefile,v 1.7 2005-10-03 21:18:07 edo Exp $
 #
 
  OBJ_OPTIMIZE =  nwmd.o md_start.o md_input.o md_main.o \
@@ -15,6 +15,9 @@ USES_BLAS=
 include ../config/makefile.h
 
 ifeq ($(TARGET),LINUX)
+DEFINES += -DNEED_LOC
+endif
+ifeq ($(TARGET),LINUX64)
 DEFINES += -DNEED_LOC
 endif
 
