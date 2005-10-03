@@ -1,3 +1,4 @@
+start cosmo_h2o
 echo
  title "h2o"
 geometry nocenter noautosym
