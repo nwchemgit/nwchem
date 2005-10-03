@@ -1,5 +1,5 @@
 *
-* $Id: neb_drv.F,v 1.7 2005-10-03 00:07:18 marat Exp $
+* $Id: neb_drv.F,v 1.8 2005-10-03 00:38:47 marat Exp $
 *
 
       logical function neb(rtdb)
@@ -124,10 +124,10 @@ c
 
       IF (ga_nodeid().eq.0) THEN
       write(*,*)
-      write(*,*) "Initial Path Energy         "
-      write(*,*) "----------------------------"
+      write(*,*) "neb: Initial Path Energy    "
+      write(*,*) "neb: -----------------------"
       do i=1,nbeads
-         write(*,*) i,dbl_mb(e1(1)+i-1)
+         write(*,*) "neb: ",i,dbl_mb(e1(1)+i-1)
       end do
       write(*,*)
       END IF
@@ -155,6 +155,8 @@ c
 
       do it=1,iterNEB
 
+         IF (ga_nodeid().eq.0)
+     >         write(*,*)'neb: iteration #',it
 *        *** save old forces  and coordinates ***
          call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(c0(1)),1)
          call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(g0(1)),1)
@@ -163,7 +165,7 @@ c
 
           if(verlet) THEN
             IF (ga_nodeid().eq.0)
-     >         write(*,*)'using verlet algroithm'
+     >         write(*,*)'neb: using verlet algroithm'
             call neb_verlet_update(ng,
      >                         dbl_mb(c0(1)),
      >                         dbl_mb(c1(1)),
@@ -181,7 +183,7 @@ c
      >                            dbl_mb(g1(1)))
 
           else 
-            if(oprint) write(*,*)'using cg algorithm'
+            if(oprint) write(*,*)'neb: using cg algorithm'
             call neb_cg_direction(ng,
      >                         dbl_mb(g0(1)),
      >                         dbl_mb(g1(1)),
@@ -189,7 +191,7 @@ c
 
             do ii=1,10
 
-            if(oprint)  write(*,*) "refining time step"
+            if(oprint)  write(*,*) "neb: refining time step"
               call neb_move(ng,
      >                      time_step,
      >                      dbl_mb(c0(1)),
@@ -197,6 +199,7 @@ c
      >                      dbl_mb(s(1)))
 
               call neb_coords_set(bead_list,dbl_mb(c1(1)))
+              if(oprint)  write(*,*) "neb: running internal beads"
               call runmid_bead_list(bead_list,task_gradient)
               call neb_energies_get(bead_list,dbl_mb(e1(1)))
               call neb_gradient_get(bead_list,
@@ -206,12 +209,16 @@ c
      >                             dbl_mb(g1(1)))
 
               norm = dsqrt(ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1))
-              if(oprint)  write(*,*) "norm=",norm
-              if(oprint)  write(*,*) "norm0=",norm0
+              if(oprint)  write(*,*) "neb: new gnorm=",norm
+              if(oprint)  write(*,*) "neb: old gnorm0=",norm0
               if(norm.gt.norm0) then
                 time_step=time_step/2.0d0
+                if(oprint)  
+     >            write(*,*) "neb: reducing time step",time_step 
               else
                 call dscal(ng,time_step,dbl_mb(s(1)),1)
+                if(oprint)  
+     >            write(*,*) "neb: accepting time step"
                 go to 19
               end if
            
@@ -224,10 +231,10 @@ c
 *        *** RRR write out cumulative path energy
          IF (ga_nodeid().eq.0) THEN
          write(*,*)
-         write(*,*) "Path Energy #",it
+         write(*,*) "neb: Path Energy #",it
          write(*,*) "----------------------------"
          do i=1,nbeads
-            write(*,*) i,dbl_mb(e1(1)+i-1)
+            write(*,*) "neb: ",i,dbl_mb(e1(1)+i-1)
          end do
          write(*,*)
          END IF
