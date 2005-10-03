@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.93 2004-04-21 22:52:34 d3j191 Exp $
+c $Id: sp_main.F,v 1.94 2005-10-03 21:08:11 edo Exp $
 c
       implicit none
 c
@@ -3510,6 +3510,7 @@ c
 #include "sp_common.fh"
 #include "mafdecls.fh"
 #include "msgids.fh"
+#include "bitops.fh"
 c
       integer sp_btop
       external sp_btop
