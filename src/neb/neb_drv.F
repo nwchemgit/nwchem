@@ -1,5 +1,5 @@
 *
-* $Id: neb_drv.F,v 1.6 2005-10-01 05:46:27 marat Exp $
+* $Id: neb_drv.F,v 1.7 2005-10-03 00:07:18 marat Exp $
 *
 
       logical function neb(rtdb)
@@ -107,6 +107,8 @@ c
   
 
 *     **** initial step ****
+      if (ga_nodeid().eq.0) 
+     >   write(*,*) "neb: Calculating Initial Path Energy "
       call runall_bead_list(bead_list,task_gradient)
       call neb_energies_get(bead_list,dbl_mb(e1(1)))
       call neb_coords_get(bead_list,dbl_mb(c1(1)))

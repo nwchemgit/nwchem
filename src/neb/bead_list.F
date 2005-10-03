@@ -1,5 +1,5 @@
 c
-c     $Id: bead_list.F,v 1.5 2005-09-30 22:38:59 marat Exp $
+c     $Id: bead_list.F,v 1.6 2005-10-03 00:07:18 marat Exp $
 c
 c
 c     This file contains a list of beads, where a bead is defined
@@ -389,6 +389,8 @@ c
 *     *** run gradient task ***
       if(.not.rtdb_put(bead_rtdb,"neb:ibead",mt_int,1,i))
      >  call errquit('neb:ibead put',0,0)
+      if(ga_nodeid().eq.0) 
+     > write(*,*) "neb: running bead ",i
       value=value.and.task_gradient_gen(bead_rtdb)
       if (.not.value) call errquit('run_bead_list failed',1,0)
 
@@ -431,6 +433,10 @@ c
       value = value.and.geom_rtdb_store(bead_rtdb,geom,'geometry')
       value = value.and.geom_destroy(geom)
       if (.not.value) call errquit('run_bead_list failed',4,0)
+      if(ga_nodeid().eq.0) then 
+       write(*,*) "neb: finished bead ",i
+       write(*,*) "neb: final energy",energy
+      end if
 
       return
       end
