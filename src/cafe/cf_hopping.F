@@ -1,7 +1,7 @@
       logical function cf_hopping(stimei,issgm,isgan,ishop,
      + xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.15 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_hopping.F,v 1.16 2005-10-03 21:03:12 edo Exp $
 c
       implicit none
 c
@@ -156,6 +156,8 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "util.fh"
+#include "bitops_decls.fh"
+#include "bitops_funcs.fh"
 c
       integer lseq(mseq),issgm(msa)
       integer lda(10,*),nsaloc,isgan(msa),ishop(msa)
@@ -269,7 +271,7 @@ c      xs(j,3)=0.9d0*xs(j+ndxrel,3)+0.1d0*xs(j,3)
       xs(j,1)=rda(1,i)
       xs(j,2)=rda(2,i)
       xs(j,3)=rda(3,i)
-      ishop(j)=xor(ishop(j),1)
+      ishop(j)=ieor(ishop(j),1)
       if(lda(10,i).ne.0) then
       x(1)=xs(j,1)
       x(2)=xs(j,2)
