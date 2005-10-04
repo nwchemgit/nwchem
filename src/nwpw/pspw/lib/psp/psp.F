@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.18 2005-10-03 20:45:54 edo Exp $
+* $Id: psp.F,v 1.19 2005-10-04 18:48:04 edo Exp $
 *
 
 #define TCGMSG
@@ -871,8 +871,8 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
            k = iand(l_prj,1)
 #else
            k = and(l_prj,1)
-           sd_function = (k.eq.0)
 #endif
+           sd_function = (k.eq.0)
 
 
 *          **** phase factor does not matter therefore ****
