@@ -4,7 +4,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.23 2005-09-19 19:13:31 edo Exp $
+* $Id: et_calc.F,v 1.24 2005-10-04 01:35:49 edo Exp $
 c
 *
 #include "rtdb.fh"
@@ -26,7 +26,7 @@ c
       integer g_u,g_vt,g_phandle(2)
       integer g_av,g_bu,g_t,g_h1
       integer g_avecsa,g_avecsb,g_bvecsa,g_bvecsb
-      integer mem2, max2e, lena, lenb,lenn0,lenn1
+      integer mem2, max2e, lena, lenb
       integer method_2e, anmo(2), bnmo(2), nbf_file, nset
 
       logical et_movecs_read
@@ -39,7 +39,7 @@ c
       external movecs_read_header
 
       character*255 a_file, b_file, basis_name,
-     E     a_filedir,b_filedir,dirss
+     E     a_filedir,b_filedir
       character*2 pname(2)
 
       double precision Vba
@@ -731,7 +731,7 @@ c
       character*(*) file,dirfile
 c
       character*255 dirss
-      integer lenn0,lenn1
+      integer lenn0,lenn1,i
 c
 
       call util_directory_name(dirss, .false., ga_nodeid())
@@ -740,7 +740,9 @@ c
       lenn0=inp_strlen(dirss)+2
       lenn1=inp_strlen(dirss)+inp_strlen(file)+1
       dirfile(lenn0:lenn1)=file(1:inp_strlen(file))
-      dirfile(lenn1+1:lenn1+2)='  '
+      do i=lenn1+1,255
+      dirfile(i:i)=' '
+      enddo
       
       return
       end
