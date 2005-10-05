@@ -1,9 +1,15 @@
 *
-* $Id: psi.F,v 1.61 2005-05-24 17:36:27 bylaska Exp $
+* $Id: psi.F,v 1.62 2005-10-05 21:21:30 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.61  2005/05/24 17:36:27  bylaska
+* Stresses added to SIC and HFX.
+* ....BLYP functional updates
+* ....ECCE hacks
+* ...EJB
+*
 * Revision 1.60  2005/02/09 02:39:10  bylaska
 * .............................EJB
 *
@@ -4132,6 +4138,27 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       psi_hml = dbl_mb(hml(1)-1 + i 
      >                          + (j-1)*ne(ms) 
      >                          + (ms-1)*ne(1)*ne(1)) 
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_iptr_hml            *
+*     *                                 *
+*     ***********************************
+      integer function psi_iptr_hml(ms,i,j)
+      implicit none
+      integer ms
+      integer i,j
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      psi_iptr_hml = (hml(1)-1 + i
+     >                          + (j-1)*ne(ms)
+     >                          + (ms-1)*ne(1)*ne(1))
 
       return
       end

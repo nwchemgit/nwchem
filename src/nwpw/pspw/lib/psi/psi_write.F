@@ -1,5 +1,5 @@
 *
-* $Id: psi_write.F,v 1.9 2004-03-01 05:14:33 bylaska Exp $
+* $Id: psi_write.F,v 1.10 2005-10-05 21:21:30 bylaska Exp $
 *
 
 *     ***********************************
@@ -98,6 +98,7 @@ c    >                       full_filename)
       if (taskid.eq.MASTER) then
         call closefile(6)
       end if
+
 
       value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp(2))
