@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.58 2005-09-15 01:18:05 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.59 2005-10-05 21:23:27 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -42,15 +42,17 @@ c#include "rtdb.fh"
       character*2 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
-      real*8      control_tole,control_tolc,pspw_SIC_ESI
+      integer     psi_iptr_hml
+      real*8      control_tole,control_tolc
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       external psp_semicore,pspw_qmmm_found,pspw_charge_found
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
+      external psi_iptr_hml
       external control_print,control_psi_tmp
-      external control_tole,control_tolc,pspw_SIC_ESI
+      external control_tole,control_tolc
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
 
 
@@ -291,16 +293,22 @@ c#include "rtdb.fh"
 
 *        **** write out <psi|H|psi> matrix ****
          if (pspw_SIC()) then
-           write(luout,1331)
            do ms=1,psi_ispin()
-             do j=1,psi_ne(ms)
-             do i=1,psi_ne(ms)
-               write(luout,1341) ms,i,j,psi_hml(ms,i,j)
-             end do
-             end do
+             if (ms.eq.1) write(luout,1331)
+             if (ms.eq.2) write(luout,1332)
+             !*** call Gainsville matrix output ***
+             call output(dbl_mb(psi_iptr_hml(ms,1,1)),
+     >                    1,psi_ne(ms),1,psi_ne(ms),
+     >                    psi_ne(ms),psi_ne(ms),1)
+
+c            do j=1,psi_ne(ms)
+c            do i=1,psi_ne(ms)
+c              write(luout,1341) ms,i,j,psi_hml(ms,i,j)
+c            end do
+c            end do
+
            end do
 
-           write(luout,*) "ESI= ",pspw_SIC_ESI()
          end if
 
 *        **** write out KS eigenvalues ****
@@ -373,7 +381,8 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
- 1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')
+ 1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted density)')
+ 1332 FORMAT(/' Elements of Hamiltonian matrix (down density)')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
  1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')

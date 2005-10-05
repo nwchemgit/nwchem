@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.10 2004-05-24 14:43:28 bylaska Exp $
+* $Id: pspw_wannier.F,v 1.11 2005-10-05 21:23:27 bylaska Exp $
 *
 
       logical function pspw_wannier(rtdb)
@@ -174,6 +174,7 @@
       call mask_init()
       call Pack_init()
       call Pack_npack(1,npack1)      
+      call D3dB_pfft_init()
 
 
 *     ***** allocate psi and psi_r wavefunctions ****
@@ -408,6 +409,7 @@ c        end if
       call mask_end()
       call Pack_end()
       call G_end()
+      call D3dB_pfft_end()
       call D3dB_end(1)
 
       value =           MA_free_heap(A(2))      

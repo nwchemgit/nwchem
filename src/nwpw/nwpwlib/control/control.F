@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.77 2005-08-23 14:12:01 bylaska Exp $
+* $Id: control.F,v 1.78 2005-10-05 21:24:22 bylaska Exp $
 *
 
 *     ***********************************
@@ -118,6 +118,7 @@ c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
      >                     'pbe96-sic')) then
         gga = 1
         value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+
       else if (inp_compare(.false.,exchange_correlation,
      >                    'lda-0.4sic')) then
         gga = 0
@@ -134,6 +135,7 @@ c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
      >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+
       else if (inp_compare(.false.,exchange_correlation,
      >                    'lda-0.2sic')) then
         gga = 0
@@ -150,6 +152,7 @@ c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
      >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.20d0)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.20d0)
+
       else
         gga = 0
       end if

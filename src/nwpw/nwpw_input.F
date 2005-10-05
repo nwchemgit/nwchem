@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.32 2005-08-23 14:11:59 bylaska Exp $
+c $Id: nwpw_input.F,v 1.33 2005-10-05 21:24:22 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -96,7 +96,7 @@ c
        character*30 exchange_correlation
        double precision fake_mass,time_step,rcut
        integer loop(2),ncut,cell_expand(3)
-       double precision tolerances(3),ecut,wcut,fe
+       double precision tolerances(3),ecut,wcut,fe,ff
        double precision alpha,emin,emax
        integer npoints
        logical mulliken,allow_translation
@@ -543,12 +543,13 @@ c
 
       if ((inp_compare(.false.,exchange_correlation,'lda-sic')).or.
      >    (inp_compare(.false.,exchange_correlation,'pbe96-sic'))) then
-       if (inp_f(fe)) then
-         value = value.and.
-     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,fe)
-         value = value.and.
+       if (.not.inp_f(fe)) fe = 1.0d0
+       if (.not.inp_f(ff)) ff = fe
+       value = value.and.
      >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,fe)
-       end if
+       value = value.and.
+     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,ff)
+
       end if
 
 
