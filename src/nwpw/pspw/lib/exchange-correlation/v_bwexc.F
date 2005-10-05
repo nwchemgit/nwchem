@@ -1,5 +1,5 @@
 *
-* $Id: v_bwexc.F,v 1.5 2005-02-09 02:19:36 bylaska Exp $
+* $Id: v_bwexc.F,v 1.6 2005-10-05 21:19:08 bylaska Exp $
 *
 
       
@@ -359,12 +359,24 @@ c        ***** calculate agr = |grad nup +grad ndn| ****
  
 c        ***** calculate xce,fn=(df/dnup,df/dndn) and               ****
 c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
+         if (gga.eq.1) then
          call gen_PBE96_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
      >                                  x_parameter,c_parameter,
      >                                  xce,
      >                                  dbl_mb(fn(1)),
      >                                  dbl_mb(fdn(1)))
+
+         else if (gga.eq.2) then
+         call gen_BLYP_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >                                  x_parameter,c_parameter,
+     >                                  xce,
+     >                                  dbl_mb(fn(1)),
+     >                                  dbl_mb(fdn(1)))
+         else
+          call errquit('bad gga',0,0)
+         end if
 
          
 *        **** calculate df/d|grad nup|* (grad nup)/|grad nup|  ****
