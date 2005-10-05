@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.78 2005-10-05 21:24:22 bylaska Exp $
+* $Id: control.F,v 1.79 2005-10-05 21:25:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -56,7 +56,7 @@
 
 *     **** get balance mapping ****
       if (.not.rtdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
-         balance = .false.
+         balance = .true.
       end if
 
 
