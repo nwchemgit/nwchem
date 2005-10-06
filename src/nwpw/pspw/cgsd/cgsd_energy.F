@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.59 2005-10-05 21:23:27 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.60 2005-10-06 01:04:34 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -381,8 +381,8 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
- 1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted density)')
- 1332 FORMAT(/' Elements of Hamiltonian matrix (down density)')
+ 1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
+ 1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
  1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')

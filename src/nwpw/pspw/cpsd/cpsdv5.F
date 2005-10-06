@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.39 2005-07-09 22:44:22 bylaska Exp $
+* $Id: cpsdv5.F,v 1.40 2005-10-06 01:04:35 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -146,8 +146,8 @@
       integer      control_mapping
       external     control_mapping
 
-      logical  control_translation,control_rotation
-      external control_translation,control_rotation
+      logical  control_translation,control_rotation,control_balance
+      external control_translation,control_rotation,control_balance
 
 
 *                            |************|
@@ -378,6 +378,11 @@
          write(6,1111) np
          if (mapping.eq.1) write(6,1112)
          if (mapping.eq.2) write(6,1113)
+         if (control_balance()) then
+           write(6,1114)
+         else
+           write(6,1116)
+         end if
 
          write(6,1115)
          IF(control_move()) THEN
@@ -753,16 +758,17 @@ c    >              dbl_mb(lmd(1)),ierr)
 
 *        **** write out diagonal <psi|H|psi> matrix ****
          if (pspw_SIC()) then
-           n = ne(1)
-           nn = n*n
-           write(6,1331)
-           do ms=1,ispin
-           do i=n1(ms),n2(ms)
-             ii = i-n1(ms)
-             indx = (ii+1) + ii*n +(ms-1)*nn
-             write(6,1341) ms,ii+1,ii+1,
-     >                       dbl_mb(hml(1)+indx-1)
-           end do
+
+          n = ne(1)
+          nn = n*n
+          do ms=1,ispin
+             if (ms.eq.1) write(6,1331)
+             if (ms.eq.2) write(6,1332)
+             !*** call Gainsville matrix output ***
+             call output(dbl_mb(hml(1)+(ms-1)*nn),
+     >                    1,ne(ms),1,ne(ms),
+     >                    n,n,1)
+
            end do
 
 *        **** write out KS eigenvalues ****
@@ -927,7 +933,9 @@ c    >              dbl_mb(lmd(1)),ierr)
  1111 FORMAT(/' number of processors used:',I3)
  1112 FORMAT( ' parallel mapping         : slab')
  1113 FORMAT( ' parallel mapping         : hilbert')
+ 1114 FORMAT( ' parallel mapping         : balanced')
  1115 FORMAT(/' options:')
+ 1116 FORMAT( ' parallel mapping         : not balanced')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
@@ -980,7 +988,8 @@ c    >              dbl_mb(lmd(1)),ierr)
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
- 1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')
+ 1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
+ 1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
  1341 FORMAT(I3,2I3,' H=',E16.6)
  1350 FORMAT(/' orthonormality')

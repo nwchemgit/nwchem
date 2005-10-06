@@ -1,5 +1,5 @@
 *
-* $Id: MOTION.F,v 1.6 2004-05-16 05:38:07 edo Exp $
+* $Id: MOTION.F,v 1.7 2005-10-06 01:04:35 bylaska Exp $
 
 *  Note - The format of the MOTION file was changed on 5-8-2002.
 *
@@ -51,7 +51,8 @@
 
       call Parallel_taskid(taskid)
 
-      value = rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename)
+      if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
+     > call util_file_prefix('ion_motion',filename)
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)

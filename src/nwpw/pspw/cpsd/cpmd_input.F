@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.12 2004-11-10 23:05:32 bylaska Exp $
+c $Id: cpmd_input.F,v 1.13 2005-10-06 01:04:35 bylaska Exp $
 c
 
 
@@ -544,12 +544,19 @@ c     output_v_wavefunction_filename = ' '
       rcut=0.0d0
       ncut=0
       npsp = 0
-      xyz_filename = 'XYZ'
-      emotion_filename    = 'EMOTION'
-      eigmotion_filename  = 'EIGMOTION'
-      hmotion_filename    = 'HMOTION'
-      omotion_filename    = 'OMOTION'
-      ion_motion_filename = 'MOTION'
+
+      call util_file_prefix('xyz',xyz_filename)
+      call util_file_prefix('emotion',emotion_filename)
+      call util_file_prefix('eigmotion',eigmotion_filename)
+      call util_file_prefix('hmotion',hmotion_filename)
+      call util_file_prefix('omotion',omotion_filename)
+      call util_file_prefix('ion_motion',ion_motion_filename)
+c      xyz_filename = 'XYZ'
+c      emotion_filename    = 'EMOTION'
+c      eigmotion_filename  = 'EIGMOTION'
+c      hmotion_filename    = 'HMOTION'
+c      omotion_filename    = 'OMOTION'
+c      ion_motion_filename = 'MOTION'
 
       nose = .false.
       Pe = 100.00d0

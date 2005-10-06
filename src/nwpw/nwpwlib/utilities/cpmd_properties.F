@@ -1,5 +1,5 @@
 c
-c     $Id: cpmd_properties.F,v 1.4 2003-10-17 22:56:53 carlfahl Exp $
+c     $Id: cpmd_properties.F,v 1.5 2005-10-06 01:04:34 bylaska Exp $
 c
 
 *     *********************************
@@ -18,9 +18,9 @@ c
       character*30 filename
       character*255 full_filename
 
-      value = rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename)
-      if (.not. value)
-     >    call errquit('cpmd_properties: cant get MOTION',0, RTDB_ERR)
+      if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
+     >  call util_file_prefix('ion_motion',filename)
+
       call util_file_name_noprefix(filename,.false.,
      >                             .false.,
      >                    full_filename)

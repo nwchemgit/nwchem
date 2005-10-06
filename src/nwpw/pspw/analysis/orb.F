@@ -1,5 +1,5 @@
 c
-c $Id: orb.F,v 1.7 2004-05-18 21:56:46 bylaska Exp $
+c $Id: orb.F,v 1.8 2005-10-06 01:04:34 bylaska Exp $
 c
 
 *     ***********************************
@@ -87,7 +87,9 @@ c
 
 
 
-      value = rtdb_cget(rtdb,'cpmd:omotion_filename',1,filename)
+      if (.not.rtdb_cget(rtdb,'cpmd:omotion_filename',1,filename))
+     > call util_file_prefix('omotion',filename)
+
       call util_file_name_noprefix(filename,.false.,.false.,
      >                    full_filename)
       if (taskid.eq.MASTER) then
