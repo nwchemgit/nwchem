@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.10 2005-10-06 19:11:24 bylaska Exp $
+* $Id: D3dB-tcgmsg.F,v 1.11 2005-10-06 19:57:25 bylaska Exp $
 *
 
 #ifdef TCGMSG
@@ -811,8 +811,7 @@ c
       integer  rcv_len,rcv_proc
 
 *     **** local variables ***
-      integer i,c
-      integer it
+      integer c,it
       integer source
       integer msglen
       integer pfrom,pto
@@ -932,8 +931,7 @@ c
       integer  rcv_len,rcv_proc
 
 *     **** local variables ***
-      integer i,c
-      integer it
+      integer c,it
       integer source
       integer msglen
       integer pfrom,pto
@@ -1054,7 +1052,7 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
-      integer index1,index2
+      integer index1
 
 
       call Parallel_taskid(taskid)
@@ -1284,7 +1282,7 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** local variables ***
-      integer i,c,it
+      integer c,it
       integer source
       integer msglen
       integer pfrom,pto
@@ -1455,8 +1453,7 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** local variables ***
-      integer i,c,it
-      integer it
+      integer c,it
       integer source
       integer msglen
       integer pfrom,pto
@@ -1633,7 +1630,7 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** local variables ***
-      integer i,c,n1
+      integer c,n1
       integer it
       integer source
       integer msglen
@@ -1815,7 +1812,7 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** local variables ***
-      integer i,c,n1,n2,n3
+      integer c,n1,n2,n3
       integer it
       integer source
       integer msglen

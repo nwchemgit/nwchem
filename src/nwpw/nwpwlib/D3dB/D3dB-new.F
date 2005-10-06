@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.41 2005-09-10 00:41:37 bylaska Exp $
+* $Id: D3dB-new.F,v 1.42 2005-10-06 19:57:25 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -74,7 +74,7 @@ ccccccccccc  #define TCGMSG
 #include "D3dB.fh"
 
 
-      integer j,k,q,p
+      integer k,q,p
 *     integer kn
       integer taskid,np
       logical value
@@ -924,8 +924,6 @@ c     msglen = 8
       common	/ D3dB_fft / tmpx,tmpy,tmpz
 
       logical value
-      integer ierr
-
 
       !call D3dB_nfft3d(nb,nfft3d)
 
@@ -1093,8 +1091,8 @@ c      end
 
 
 *     *** local variables ***
-      integer i,j,k,q,indx,ierr
-      integer nxh,nxhy,nxhz,indx0,indx1,indx2
+      integer i,j,k,q,indx
+      integer nxh,nxhy,nxhz,indx0,indx1
 
       
       !integer tmp1(2),tmp2(2),tmp3(2)
@@ -1359,7 +1357,7 @@ c      end do
       integer nx,ny,nq,ne
       real*8 A(*)
 
-      integer i,j,q,n,indx
+      integer i,j,indx
 c     do n=1,ne
 c     do q=1,nq
 
@@ -1642,7 +1640,7 @@ c      end
 
 
 *     *** local variables ***
-      integer i,j,k,q,indx,indx1,ierr,indx2,indx0
+      integer i,j,k,q,indx,indx1
       integer nxh,nxhy,nxhz
 
       !integer tmp1(2),tmp2(2),tmp3(2)
@@ -2810,9 +2808,6 @@ c     integer i2_start(NFFT3+1)
       integer channel_proc(2,NBLOCKS)
       integer channel_type(2,NBLOCKS)
       common / channel_blk / channel_proc,channel_type,Nchannels
-      integer pair1(2),pair2(2)
-      integer pair_step(2)
-      integer step,Nstep,icount
 
 
 *     **** local variables ****
@@ -2921,12 +2916,8 @@ c     i2_start(np+1) = index2
       integer step,Nstep,icount
 
 *     **** local variables ****
-      integer proc_to,proc_from
-      integer pto,qto,np,taskid
-      integer pfrom,qfrom
-      integer phere,qhere
-      integer index1,index2,itmp
-      integer i,j,k,it
+      integer np,taskid
+      integer i,j
       logical value
 
 *     **** external functions ****
@@ -4723,7 +4714,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8 eta
       parameter (eta=1.0d-9)
 
-      integer i,j,q,index
+      integer index
 
       !do q=1,nq(nb)
       !do j=1,ny(nb)
@@ -4760,7 +4751,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 #include "D3dB.fh"
 
 
-      integer i,j,q,index
+      integer index
 
       !do q=1,nq(nb)
       !do j=1,ny(nb)
@@ -5490,9 +5481,8 @@ cpgi$r opt=1
 
 *     **** local variables ****
       integer proc_to,proc_from
-      integer pto,qto,np,taskid
-      integer pfrom,qfrom
-      integer phere,qhere,itmp,itmp2
+      integer pto,np,taskid
+      integer phere,itmp,itmp2
       integer index1,index2
       integer it,size
       integer i2,j2,k2
@@ -5605,14 +5595,13 @@ c     integer i2_start(NFFT3+1)
 
 *     **** local variables ****
       integer proc_to,proc_from
-      integer pto,qto,np,taskid
-      integer pfrom,qfrom
-      integer phere,qhere
+      integer pto,np,taskid
+      integer phere
       integer index1,index2,itmp,itmp2
       integer it
       integer i2,j2,k2
       integer i3,j3,k3
-      integer nyh,nzh,indx_size
+      integer nyh,nzh
       logical value
 
       !**** external functions ****
