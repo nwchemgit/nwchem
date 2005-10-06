@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.9 2005-06-24 19:24:16 bylaska Exp $
+* $Id: D3dB-tcgmsg.F,v 1.10 2005-10-06 19:11:24 bylaska Exp $
 *
 
 #ifdef TCGMSG
@@ -999,6 +999,895 @@ c
       
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_c_timereverse_start     *
+*     *                                 *
+*     ***********************************
+*                                           
+*      This routine performs the operation   
+*            A(i,j,k) <- conjugate(A(i,-j,-k))
+*                                              
+*      np = the number of worker nodes          
+*      proc#=0...(np-1)                          
+*                                                 
+      subroutine D3dB_c_timereverse_start(nb,A,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer     nb
+      complex*16  A(*)
+      complex*16  tmp1(*)
+      complex*16  tmp2(*)
+      integer     request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+c     integer iq_to_i1(2**NFFT2*NSLABS)
+c     integer iq_to_i2(2**NFFT2*NSLABS)
+c     integer i1_start(NFFT3+1)
+c     integer i2_start(NFFT3+1)
+      integer iq_to_i1(2,NBLOCKS)
+      integer iq_to_i2(2,NBLOCKS)
+      integer i1_start(2,NBLOCKS)
+      integer i2_start(2,NBLOCKS)
+      common / timereverse_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
+
+*     **** Used to avoid asynchronous communications ****
+      integer Nchannels(NBLOCKS)
+      integer channel_proc(2,NBLOCKS)
+      integer channel_type(2,NBLOCKS)
+      common / channel_blk / channel_proc,channel_type,Nchannels
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+      integer  rcv_len,rcv_proc
+
+*     **** local variables ***
+      integer i,c
+      integer it
+      integer source
+      integer msglen
+      integer pfrom,pto
+      integer taskid,np
+      integer index1,index2
+
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+*     **** pack A(i) array ****
+      do index1=int_mb(i1_start(1,nb)+1-1),
+     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
+         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
+      end do
+
+*     **** it = 0, transpose data on same thread ****
+      msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
+      do i=1,msglen
+         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1)
+     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
+      end do
+
+
+      do c=1,Nchannels(nb)
+*        **** receive packed array data ****
+         if (int_mb(channel_type(1,nb)+c-1) .eq. 1) then
+            pfrom=int_mb(channel_proc(1,nb)+c-1)
+            it = mod((taskid+np-pfrom),np)
+
+            source=pfrom
+            msglen = (int_mb(i2_start(1,nb)+it+2-1)
+     >             -  int_mb(i2_start(1,nb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
+     >                  mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+            end if
+         end if
+
+*        **** send packed array to other processors ****
+         if (int_mb(channel_type(1,nb)+c-1) .eq. 0) then
+            pto=int_mb(channel_proc(1,nb)+c-1)
+            it = mod((pto-taskid+np),np)
+
+            msglen    = (int_mb(i1_start(1,nb)+it+2-1)
+     >                - int_mb(i1_start(1,nb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
+     >                  mdtob(2*msglen),pto,1)
+            end if
+         end if
+
+      end do
+
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    D3dB_c_timereverse_end       *
+*     *                                 *
+*     ***********************************
+*                                           
+*      This routine performs the operation   
+*            A(i,j,k) <- conjugate(A(i,-j,-k))
+*                                              
+*      np = the number of worker nodes          
+*      proc#=0...(np-1)                          
+*                                                 
+      subroutine D3dB_c_timereverse_end(nb,A,tmp1,tmp2,request,reqcnt)
+      implicit none
+      integer     nb
+      complex*16  A(*)
+      complex*16  tmp1(*)
+      complex*16  tmp2(*)
+      integer     request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+
+*     **** indexing variables ****
+      integer iq_to_i1(2,NBLOCKS)
+      integer iq_to_i2(2,NBLOCKS)
+      integer i1_start(2,NBLOCKS)
+      integer i2_start(2,NBLOCKS)
+      common / timereverse_blk / iq_to_i1,iq_to_i2,i1_start,i2_start
+
+
+*     **** local variables ***
+      integer np
+      integer index2
+
+
+      call Parallel_np(np)
+
+*     **** unpack A(i) array ****
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do index2=int_mb(i2_start(1,nb)+1-1),
+     >         (int_mb(i2_start(1,nb)+np+1-1)-1)
+        A(int_mb(iq_to_i2(1,nb)+index2-1))=dconjg(tmp2(index2))
+      end do
+
+      return
+      end
+
+
+*     ************************************
+*     *                                  *
+*     *         Balance_c_balance_start  *
+*     *                                  *
+*     ************************************
+
+      subroutine Balance_c_balance_start(nb,A,request,reqcnt)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      integer    request(*),reqcnt
+
+      call Balance_c_balance(nb,A)
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *         Balance_c_balance_end    *
+*     *                                  *
+*     ************************************
+* 
+      subroutine Balance_c_balance_end(nb,A,request,reqcnt)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      integer    request(*),reqcnt
+
+*     *** dummy routine ***
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *    Balance_c_unbalance_start     *
+*     *                                  *
+*     ************************************
+
+      subroutine Balance_c_unbalance_start(nb,A,request,reqcnt)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      integer    request(*),reqcnt
+
+      call Balance_c_unbalance(nb,A)
+      return
+      end
+
+*     ************************************
+*     *                                  *
+*     *       Balance_c_unbalance_end    *
+*     *                                  *
+*     ************************************
+
+      subroutine Balance_c_unbalance_end(nb,A,request,reqcnt)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      integer    request(*),reqcnt
+
+*     *** dummy routine ***
+      return
+      end
+
+
+
+      
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose1_jk_start	*
+*     *					*
+*     ***********************************
+
+*                                           
+*      This routine performs the operation   
+*               A(i,k,j) <- A(i,j,k)          
+*                                              
+*      np = the number of worker nodes          
+*      proc#=0...(np-1)
+*                                                
+*       this transpose uses more buffer space     
+*       then transpose2                            
+*
+
+      subroutine D3dB_c_ptranspose1_jk_start(nbb,A,tmp1,tmp2,
+     >                                       request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16  A(*)
+      complex*16  tmp1(*),tmp2(*)
+      integer request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+*     **** indexing variables ****
+      integer iq_to_i1(2,0:1)
+      integer iq_to_i2(2,0:1)
+      integer iz_to_i2(2,0:1)
+      integer i1_start(2,0:1)
+      integer i2_start(2,0:1)
+      common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
+     >                       i1_start,i2_start
+
+*     **** Used to avoid asynchronous communications ****
+      integer Nchannels(NBLOCKS)
+      integer channel_proc(2,NBLOCKS)
+      integer channel_type(2,NBLOCKS)
+      common / channel_blk / channel_proc,channel_type,Nchannels
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+      integer  rcv_len,rcv_proc
+
+
+*     **** local variables ***
+      integer i,c,it
+      integer source
+      integer msglen
+      integer pfrom,pto
+      integer taskid,np
+      integer n1
+
+      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+
+
+      n1 = int_mb(i1_start(1,nbb)+np) - 1
+
+*     **** pack A(i) array ****
+       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      call dcopy(2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+         
+
+      do c=1,Nchannels(1)
+*        **** receive packed array data ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 1) then
+            pfrom=int_mb(channel_proc(1,1)+c-1)
+            it = mod((taskid+np-pfrom),np)
+
+            source=pfrom
+            msglen = (int_mb(i2_start(1,nbb)+it+2-1)
+     >             -  int_mb(i2_start(1,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+            end if
+         end if
+
+*        **** send packed array to other processors ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 0) then
+            pto=int_mb(channel_proc(1,1)+c-1)
+            it = mod((pto-taskid+np),np)
+
+            msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
+     >                - int_mb(i1_start(1,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),pto,1)
+            end if
+         end if
+
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose1_jk_end	*
+*     *					*
+*     ***********************************
+
+*                                           
+*      This routine performs the operation   
+*               A(i,k,j) <- A(i,j,k)          
+*                                              
+*      np = the number of worker nodes          
+*      proc#=0...(np-1)
+*                                                
+*       this transpose uses more buffer space     
+*       then transpose2                            
+*
+
+      subroutine D3dB_c_ptranspose1_jk_end(nbb,A,tmp2,request,reqcnt)
+
+      implicit none
+      integer nbb
+      complex*16  A(*)
+      complex*16  tmp2(*)
+      integer     request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer iq_to_i1(2,0:1)
+      integer iq_to_i2(2,0:1)
+      integer iz_to_i2(2,0:1)
+      integer i1_start(2,0:1)
+      integer i2_start(2,0:1)
+      common / ptrans_blk1 / iq_to_i1,iq_to_i2,iz_to_i2,
+     >                       i1_start,i2_start
+
+*     **** local variables ***
+      integer np,n2
+      
+      call Parallel_np(np)
+
+*     **** unpack A(i) array ****
+      n2 = int_mb(i2_start(1,nbb)+np) - 1
+      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+
+      return
+      end
+
+
+      
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose2_jk_start	*
+*     *					*
+*     ***********************************
+
+*                                           
+*      This routine performs the operation   
+*               A(i,k,j) <- A(i,j,k)          
+*                                              
+*      np = the number of worker nodes          
+*      proc#=0...(np-1)
+*                                                
+*       this transpose uses more buffer space     
+*       then transpose2                            
+*
+
+      subroutine D3dB_c_ptranspose2_jk_start(nbb,A,tmp1,tmp2,
+     >                                       request,reqcnt)
+      implicit none
+      integer nbb
+      complex*16  A(*)
+      complex*16  tmp1(*),tmp2(*)
+      integer request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer iq_to_i1(2,0:1)
+      integer iq_to_i2(2,0:1)
+      integer iz_to_i2(2,0:1)
+      integer i1_start(2,0:1)
+      integer i2_start(2,0:1)
+      common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
+     >                       i1_start,i2_start
+
+
+
+*     **** Used to avoid asynchronous communications ****
+      integer Nchannels(NBLOCKS)
+      integer channel_proc(2,NBLOCKS)
+      integer channel_type(2,NBLOCKS)
+      common / channel_blk / channel_proc,channel_type,Nchannels
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+      integer  rcv_len,rcv_proc
+
+
+*     **** local variables ***
+      integer i,c,it
+      integer it
+      integer source
+      integer msglen
+      integer pfrom,pto
+      integer taskid,np
+      integer n1
+
+      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+
+      n1 = int_mb(i1_start(1,nbb)+np) - 1
+
+*     **** pack A(i) array ****
+       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
+      call dcopy(2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+         
+
+      do c=1,Nchannels(1)
+*        **** receive packed array data ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 1) then
+            pfrom=int_mb(channel_proc(1,1)+c-1)
+            it = mod((taskid+np-pfrom),np)
+
+            source=pfrom
+            msglen = (int_mb(i2_start(1,nbb)+it+2-1)
+     >             -  int_mb(i2_start(1,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+            end if
+         end if
+
+*        **** send packed array to other processors ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 0) then
+            pto=int_mb(channel_proc(1,1)+c-1)
+            it = mod((pto-taskid+np),np)
+
+            msglen    = (int_mb(i1_start(1,nbb)+it+2-1)
+     >                - int_mb(i1_start(1,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),pto,1)
+            end if
+         end if
+
+      end do
+
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose2_jk_end	*
+*     *					*
+*     ***********************************
+
+*                                           
+*      This routine performs the operation   
+*               A(i,k,j) <- A(i,j,k)          
+*                                              
+*      np = the number of worker nodes          
+*      proc#=0...(np-1)
+*                                                
+*       this transpose uses more buffer space     
+*       then transpose2                            
+*
+
+      subroutine D3dB_c_ptranspose2_jk_end(nbb,A,tmp2,request,reqcnt)
+
+      implicit none
+      integer nbb
+      complex*16  A(*)
+      complex*16  tmp2(*)
+      integer     request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer iq_to_i1(2,0:1)
+      integer iq_to_i2(2,0:1)
+      integer iz_to_i2(2,0:1)
+      integer i1_start(2,0:1)
+      integer i2_start(2,0:1)
+      common / ptrans_blk2 / iq_to_i1,iq_to_i2,iz_to_i2,
+     >                       i1_start,i2_start
+
+
+*     **** local variables ***
+      integer np,n2
+      
+      call Parallel_np(np)
+
+*     **** unpack A(i) array ****
+      n2 = int_mb(i2_start(1,nbb)+np) - 1
+      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_pfft_index2_zero(nfft3d(1)-n2,int_mb(iz_to_i2(1,nbb)),A)
+      
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose_ijk_start	*
+*     *					*
+*     ***********************************
+*                                                
+*      This routine performs the operation      
+*               A(i,k,j) <- A(i,j,k)           
+*                                             
+*      np = the number of worker nodes       
+*      proc#=0...(np-1)
+*                                           
+*       this transpose uses more buffer space 
+*       then transpose2                      
+*
+
+
+      subroutine D3dB_c_ptranspose_ijk_start(nbb,op,A,tmp1,tmp2,
+     >                                       request,reqcnt)
+
+      implicit none
+      integer nbb,op
+      complex*16  A(*)
+      complex*16  tmp1(*),tmp2(*)
+      integer     request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer h_iq_to_i1(2,6,0:1)
+      integer h_iq_to_i2(2,6,0:1)
+      integer h_iz_to_i2(2,6,0:1)
+      integer h_iz_to_i2_count(6,0:1)
+      integer h_i1_start(2,6,0:1)
+      integer h_i2_start(2,6,0:1)
+      common / ptrans_blk_ijk / h_iq_to_i1,
+     >                         h_iq_to_i2,
+     >                         h_iz_to_i2,
+     >                         h_iz_to_i2_count,
+     >                         h_i1_start,
+     >                         h_i2_start
+
+*     **** Used to avoid asynchronous communications ****
+      integer Nchannels(NBLOCKS)
+      integer channel_proc(2,NBLOCKS)
+      integer channel_type(2,NBLOCKS)
+      common / channel_blk / channel_proc,channel_type,Nchannels
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+      integer  rcv_len,rcv_proc
+
+
+*     **** local variables ***
+      integer i,c,n1
+      integer it
+      integer source
+      integer msglen
+      integer pfrom,pto
+      integer taskid,np
+
+      
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+*     **** pack A(i) array ****
+      n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
+      call D3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),A,tmp1)
+
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
+     >       - int_mb(h_i2_start(1,op,nbb)+1-1)
+      call dcopy(2*msglen,
+     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
+     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+
+
+
+      do c=1,Nchannels(1)
+*        **** receive packed array data ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 1) then
+            pfrom=int_mb(channel_proc(1,1)+c-1)
+            it = mod((taskid+np-pfrom),np)
+
+            source=pfrom
+            msglen = (int_mb(h_i2_start(1,op,nbb)+it+2-1)
+     >             -  int_mb(h_i2_start(1,op,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+            end if
+         end if
+
+*        **** send packed array to other processors ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 0) then
+            pto=int_mb(channel_proc(1,1)+c-1)
+            it = mod((pto-taskid+np),np)
+
+            msglen    = (int_mb(h_i1_start(1,op,nbb)+it+2-1)
+     >                -  int_mb(h_i1_start(1,op,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),pto,1)
+            end if
+         end if
+
+      end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose_ijk_end	*
+*     *					*
+*     ***********************************
+*                                                  
+*      This routine performs the operation        
+*               A(i,k,j) <- A(i,j,k)             
+*                                               
+*      np = the number of worker nodes         
+*      proc#=0...(np-1)                       
+*                                            
+*       this transpose uses more buffer space 
+*       then transpose2                      
+*
+
+      subroutine D3dB_c_ptranspose_ijk_end(nbb,op,A,tmp2,
+     >                                 request,reqcnt)
+
+      implicit none
+      integer nbb,op
+      complex*16  A(*)
+      complex*16  tmp2(*)
+      integer request(*),reqcnt
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer h_iq_to_i1(2,6,0:1)
+      integer h_iq_to_i2(2,6,0:1)
+      integer h_iz_to_i2(2,6,0:1)
+      integer h_iz_to_i2_count(6,0:1)
+      integer h_i1_start(2,6,0:1)
+      integer h_i2_start(2,6,0:1)
+      common / ptrans_blk_ijk / h_iq_to_i1,
+     >                         h_iq_to_i2,
+     >                         h_iz_to_i2,
+     >                         h_iz_to_i2_count,
+     >                         h_i1_start,
+     >                         h_i2_start
+
+*     **** local variables ***
+      integer n2,n3,np
+
+      
+      call Parallel_np(np)
+
+*     **** unpack A(i) array ****
+      n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
+      n3 = h_iz_to_i2_count(op,nbb)
+      call D3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
+      call D3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
+
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	   D3dB_c_ptranspose_ijk	*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_c_ptranspose_ijk(nbb,op,A,tmp1,tmp2)
+
+*****************************************************
+*                                                   *
+*      This routine performs the operation          *
+*               A(i,k,j) <- A(i,j,k)                * 
+*                                                   *
+*      np = the number of worker nodes              *
+*      proc#=0...(np-1)
+*                                                   *
+*       this transpose uses more buffer space       *
+*       then transpose2                             *
+*****************************************************
+      implicit none
+      integer nbb,op
+      complex*16  A(*)
+      complex*16  tmp1(*),tmp2(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "D3dB.fh"
+
+
+*     **** indexing variables ****
+      integer h_iq_to_i1(2,6,0:1)
+      integer h_iq_to_i2(2,6,0:1)
+      integer h_iz_to_i2(2,6,0:1)
+      integer h_iz_to_i2_count(6,0:1)
+      integer h_i1_start(2,6,0:1)
+      integer h_i2_start(2,6,0:1)
+      common / ptrans_blk_ijk / h_iq_to_i1,
+     >                         h_iq_to_i2,
+     >                         h_iz_to_i2,
+     >                         h_iz_to_i2_count,
+     >                         h_i1_start,
+     >                         h_i2_start
+
+*     **** Used to avoid asynchronous communications ****
+      integer Nchannels(NBLOCKS)
+      integer channel_proc(2,NBLOCKS)
+      integer channel_type(2,NBLOCKS)
+      common / channel_blk / channel_proc,channel_type,Nchannels
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+      integer  rcv_len,rcv_proc
+
+
+*     **** local variables ***
+      integer i,c,n1,n2,n3
+      integer it
+      integer source
+      integer msglen
+      integer pfrom,pto
+      integer taskid,np
+
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+
+      n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
+      n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
+      n3 = h_iz_to_i2_count(op,nbb)
+
+
+*     **** pack A(i) array ****
+      call D3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),A,tmp1)
+
+
+*     **** it = 0, transpose data on same thread ****  
+      msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
+     >       - int_mb(h_i2_start(1,op,nbb)+1-1)
+      call dcopy(2*msglen,
+     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
+     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+
+
+      do c=1,Nchannels(1)
+*        **** receive packed array data ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 1) then
+            pfrom=int_mb(channel_proc(1,1)+c-1)
+            it = mod((taskid+np-pfrom),np)
+
+            source=pfrom
+            msglen = (int_mb(h_i2_start(1,op,nbb)+it+2-1)
+     >             -  int_mb(h_i2_start(1,op,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),rcv_len,
+     >                  source,rcv_proc,1)
+            end if
+         end if
+
+*        **** send packed array to other processors ****
+         if (int_mb(channel_type(1,1)+c-1) .eq. 0) then
+            pto=int_mb(channel_proc(1,1)+c-1)
+            it = mod((pto-taskid+np),np)
+
+            msglen    = (int_mb(h_i1_start(1,op,nbb)+it+2-1)
+     >                -  int_mb(h_i1_start(1,op,nbb)+it+1-1))
+
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
+     >                  mdtob(2*msglen),pto,1)
+            end if
+         end if
+
+      end do
+
+*     **** unpack A(i) array ****
+      call D3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
+      call D3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
+
+      
+      return
+      end
+
+
+
 
 
 #endif
