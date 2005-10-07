@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.24 2005-10-07 21:03:59 edo Exp $
+* $Id: xc_rhogen.F,v 1.25 2005-10-07 21:32:11 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -19,6 +19,9 @@ c     BGJ - 8/98
 cedo#define FDIST 1
 #ifdef FDIST
 #include "dist.fh"
+#else
+      integer monitor_comm
+      integer monitor_comp
 #endif
 
       Logical GRAD         ! true when use grad corrected funct.[input]
@@ -531,7 +534,7 @@ c
 c
       subroutine get_atom_block_nb(g_array, basis, iat, jat, buf,
      $     idim, jdim,nbhandle)
-C$Id: xc_rhogen.F,v 1.24 2005-10-07 21:03:59 edo Exp $
+C$Id: xc_rhogen.F,v 1.25 2005-10-07 21:32:11 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"

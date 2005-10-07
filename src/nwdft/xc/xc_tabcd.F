@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.17 2005-10-07 21:03:59 edo Exp $
+C$Id: xc_tabcd.F,v 1.18 2005-10-07 21:32:11 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -24,6 +24,9 @@ c
 cedo#define FDIST 1
 #ifdef FDIST
 #include "dist.fh"
+#else
+      integer monitor_comm_ga_acc
+      integer monitor_comp_ga_acc
 #endif
 c
       Logical GRAD
