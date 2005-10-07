@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.72 2004-07-27 16:20:04 bert Exp $
+C$Id: nwdft.F,v 1.73 2005-10-07 19:48:06 edo Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -139,7 +139,7 @@ c
             if(.not.xc_gotxc()) then
                grid_ok=.true.
             else
-               grid_ok=grid_reopen(rtdb,geom)
+               grid_ok=grid_reopen(geom)
             endif
             igok=0
             if(grid_ok) igok=1

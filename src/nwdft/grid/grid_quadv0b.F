@@ -13,7 +13,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.45 2005-09-30 15:50:13 edo Exp $
+c$Id: grid_quadv0b.F,v 1.46 2005-10-07 19:48:06 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -26,10 +26,6 @@ c
 #include "util.fh"
 #include "grid_quad.fh"
 #include "grid_sic.fh"
-c !!! temp !!! ***
-#include "rtdb.fh"
-#include "bgj.fh"
-c !!! temp !!! ***
 #include "dftps.fh"
       integer  nqpts    ! [in] no. grid points  to be processed
       integer  ictr_buf ! [in] ctr of grid
@@ -305,7 +301,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.45 2005-09-30 15:50:13 edo Exp $
+C$Id: grid_quadv0b.F,v 1.46 2005-10-07 19:48:06 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -445,7 +441,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.45 2005-09-30 15:50:13 edo Exp $
+C$Id: grid_quadv0b.F,v 1.46 2005-10-07 19:48:06 edo Exp $
 c
       implicit none
 #include "errquit.fh"

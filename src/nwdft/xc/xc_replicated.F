@@ -6,7 +6,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.20 2004-11-24 22:52:40 edo Exp $
+C$Id: xc_replicated.F,v 1.21 2005-10-07 19:48:06 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -39,6 +39,12 @@ c
       if(ga_nodeid().eq.0)write(0,*)'  g_dens ',g_dens(1)
 #endif
       k_repxc(1)=-1
+c     nonblocking
+c     non blocking
+      if (.not. rtdb_get(rtdb, 'dft:nbacc', mt_log, 1,
+     N  dftnbacc)) dftnbacc=.false.
+      if (.not. rtdb_get(rtdb, 'dft:nbget', mt_log, 1,
+     N  dftnbget)) dftnbget=.false.
       if(.not.goforit) then
          xcreplicated=.false.
          return
@@ -150,7 +156,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.20 2004-11-24 22:52:40 edo Exp $
+C$Id: xc_replicated.F,v 1.21 2005-10-07 19:48:06 edo Exp $
 c
       implicit none
 #include "errquit.fh"

@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.22 2005-09-27 20:15:02 edo Exp $
+* $Id: xc_rhogen.F,v 1.23 2005-10-07 19:48:06 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -22,8 +22,6 @@ c
 c what=0 dens
 c what=1 pert
 c what=2 nucder
-c      logical xc_chktau
-c      external xc_chktau
 
  
 #include "dftpara.fh"
@@ -72,6 +70,8 @@ c
       double precision tol_rho_tmp, aaa
       double precision dabsmax
       integer nstride,nql,g_update(2),jjj,iii
+      integer nbhandl
+      logical nbfirst
       logical lodd,doffd,w2grad
       external dabsmax
 
@@ -82,6 +82,7 @@ c     points
       w2grad=what.eq.2.and.grad
       doffd=w2grad.or.
      W     (what.eq.0.and.kske)
+      nbfirst=.true.
       lodd=mod(nq,2).ne.0
       
       nql=nq
@@ -213,8 +214,14 @@ c
                endif
 c
                if(what.ne.1) then
-               call get_atom_block(g_update(ii), basis,
-     &                             iat, jat, Pmat, idim, jdim)
+                  if(dftnbget) then
+                     call get_atom_block_nb(g_update(ii), basis,
+     &                    iat, jat, Pmat, idim, jdim, nbhandl)
+                     call ga_nbwait(nbhandl)
+                  else
+                     call get_atom_block(g_update(ii), basis,
+     &                    iat, jat, Pmat, idim, jdim)
+                  endif
                else
                 call ga_get(g_dens(ipert+(ii-1)*npert), 
      %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
@@ -508,3 +515,37 @@ c
       return
       end
 c
+      subroutine get_atom_block_nb(g_array, basis, iat, jat, buf,
+     $     idim, jdim,nbhandle)
+C$Id: xc_rhogen.F,v 1.23 2005-10-07 19:48:06 edo Exp $
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "bas.fh"
+c
+      integer g_array, basis, iat, jat, idim, jdim
+      integer nbhandle
+      double precision buf(*)
+c
+      integer ilo, ihi, jlo, jhi
+c
+c     get the block of the matrix g_array (over basis functions)
+c     corresponding to the atoms iat and jat, putting the
+c     result into buf(1:idim, 1:jdim) as a dense array. 
+c     idim, jdim are returned
+c
+      if (.not. bas_ce2bfr(basis, iat, ilo, ihi))
+     $     call errquit('get_atom_block: ce2bfr failed', 0, BASIS_ERR)
+      if (.not. bas_ce2bfr(basis, jat, jlo, jhi))
+     $     call errquit('get_atom_block: ce2bfr failed', 0, BASIS_ERR)
+      idim = ihi - ilo + 1
+      jdim = jhi - jlo + 1
+c
+      if (idim.gt.0 .and. jdim.gt.0) then
+         call ga_nbget(g_array, ilo, ihi, jlo, jhi, buf, idim,
+     E        nbhandle)
+      endif
+*      write(6,*) ' gab: ', iat, jat
+*      call output(buf, 1, idim, 1, jdim, idim, jdim, 1)
+c
+      end

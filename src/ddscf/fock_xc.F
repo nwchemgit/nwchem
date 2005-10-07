@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.32 2005-02-15 19:30:57 edo Exp $
+c     $Id: fock_xc.F,v 1.33 2005-10-07 19:48:04 edo Exp $
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c
@@ -256,7 +256,7 @@ c
 c     
 c     check if we can get the grid from a file
 c         
-      grid_written=grid_reopen(rtdb,geom)
+      grid_written=grid_reopen(geom)
          call grid_quadv0_gen(rtdb, 
      &      int_mb(igxcd),
      &      g_xc, nexc_dum,

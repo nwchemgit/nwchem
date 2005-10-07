@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.64 2005-09-30 21:06:08 edo Exp $
+* $Id: grid_file.F,v 1.65 2005-10-07 19:48:06 edo Exp $
 *
       implicit none
 #include "cgridfile.fh"
@@ -33,7 +33,12 @@ c
       double precision availkb
       character*20 fstype
       character*(nw_max_path_len) scratchdir
-      integer me,ioserr,ierr,ios
+#ifdef GCC4
+      integer*4 ioserr,ierr,ios
+#else
+      integer ioserr,ierr,ios
+#endif
+      integer me
       double precision util_scratch_dir_avail_for_me
       character*80 errmsg
       external util_scratch_dir_avail_for_me
@@ -879,15 +884,13 @@ c
 
       return
       end
-      logical function grid_reopen(rtdb,geom)
+      logical function grid_reopen(geom)
       implicit none
 #include "errquit.fh"
 #include "geom.fh"
 #include "cgridfile.fh"
 #include "bgj.fh"
-#include "rtdb.fh"
 c
-      integer rtdb ![in]
       integer geom ![in]
 c
       double precision enuc

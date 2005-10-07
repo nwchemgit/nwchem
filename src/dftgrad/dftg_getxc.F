@@ -1,7 +1,7 @@
       Subroutine dftg_getxc(rtdb, natom, iga_dens, force, oactive, 
      &                      nactive,  rdens_atom, cetobfr)
 *
-* $Id: dftg_getxc.F,v 1.40 2005-03-28 23:45:43 edo Exp $
+* $Id: dftg_getxc.F,v 1.41 2005-10-07 19:48:06 edo Exp $
 *
       implicit none
 c      
@@ -65,7 +65,7 @@ c        Compute via direct numerical quadrature.
 c
 c     check if we can get the grid from a file
 c         
-         grid_written=grid_reopen(rtdb,geom)
+         grid_written=grid_reopen(geom)
       endif
       if(grid_written) then
          call grid_setquad(rtdb)

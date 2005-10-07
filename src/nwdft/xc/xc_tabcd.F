@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.14 2005-09-29 01:24:23 edo Exp $
+C$Id: xc_tabcd.F,v 1.15 2005-10-07 19:48:06 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -21,6 +21,7 @@ c
 #include "mafdecls.fh"
 #include "dftpara.fh"
 #include "dft2drv.fh"
+#include "dist.fh"
 c
       Logical GRAD
       integer what ! [in]
@@ -59,7 +60,6 @@ c     nmr
       double precision qxyz(3,*)                     ! [input] grid point coordinates
       double precision xyz(3,*)                  ! [input] nuclear coordinates
       logical kske
-
 c#elif defined(TABCD_CPKS_LHS)
 c
 c     Note: Meaning of dimensioning of Amat and Cmat changes for
@@ -111,6 +111,8 @@ c
       integer indh(3,3)
       logical w01,w02,w013
       double precision ddot
+      integer nbhandl1,nbhandl2
+      logical nbfirst1,nbfirst2
       external ddot
       data indh / 1, 2, 3,
      &            2, 4, 5,
@@ -134,6 +136,9 @@ c
       w01=what.eq.0.or.what.eq.1
       w013=w01.or.what.eq.3
       w02=what.eq.0.or.what.eq.2
+c     nonblocking
+      nbfirst1=.true.
+      nbfirst2=.true.
 c
 c
 c     Beginning of loop over multiple XC matrices
@@ -144,6 +149,7 @@ c     Compute the matrix product for the XC potential and energy:
 c
 c              T = transpose(A*B) + transpose(C*D)
 c
+         call starttimer(monitor_comp_ga_acc)
          A_MAX = dabsmax(nq*ipol,Amat(1,1,imat))
          if (GRAD) then
             C_MAX = dabsmax(nq*3*ipol,Cmat(1,1,1,imat))
@@ -151,6 +157,7 @@ c
             C_MAX = 0d0
          endif
          AC_MAX = max(A_MAX,C_MAX)
+         call endtimer(monitor_comp_ga_acc)
 c
 c     repl stuff
 c
@@ -180,6 +187,7 @@ c
          nbfia = ilast - ifirst + 1
          do 405 ii = 1, ipol
             do mu = 1, nnia
+               call starttimer(monitor_comp_ga_acc)
                mu1 = mu+inizia-1
                if (GRAD) then
                   do n = 1, nq
@@ -210,6 +218,8 @@ c
                   enddo
                endif
             enddo
+c     Monitoring 
+            call endtimer(monitor_comp_ga_acc)
 c
 c            write(6,*) ' xc_tabcd: BMAT '
 c            call output(bmat, 1, nq, 1, nnia, nq, max_at_bf, 1)
@@ -249,6 +259,9 @@ c
 c     !!! Should something be done with cutoffs for other cases? !!!
 c               
                endif
+ 
+c     Monitoring 
+            call starttimer(monitor_comp_ga_acc)
                if(what.eq.3) then
                   do jdir = 1,n3d
                      Rij(jdir) = 0.5d0*(xyz(jdir,jat)-xyz(jdir,iat))
@@ -349,6 +362,8 @@ c     leading dimension of delchi must be set correctly
                   endif
                      
   150          continue! jdir (loop over x, y, z directions for nmr)
+c     Monitoring 
+            call endtimer(monitor_comp_ga_acc)
                if(what.eq.0) then
                   jrsh=ii	
                elseif(what.eq.1) then
@@ -357,17 +372,34 @@ c     leading dimension of delchi must be set correctly
                   jrsh=(ii-1)*n3d+1
                else
                   if (dabsmax(nbfia*nbfja*3,ttmat).lt.tol_rho)goto 168
+
                   jrsh=1+(jat-1)*3+(ii-1)*3*natoms
                endif
                   jrsh2=jrsh+n3d-1
+
+
+c     Monitoring
+               call starttimer( monitor_comm_ga_acc )
+
                   if(l3d) then
                      call dft_3dacc(g_vxc, ttmat,
      &                    jrsh,jrsh2,
      %                 ifirst, ilast, jfirst, jlast, nbfia)
                   else
-                     call upd_atom_block(g_update(ii),
-     .                    basis,iat,jat,TTmat)
+                     if(dftnbacc) then
+                        if(.not.nbfirst1) then	
+                           call ga_nbwait(nbhandl1)
+                        endif			
+                        nbfirst1=.false.
+                        call upd_atombl_nb(g_update(ii),
+     .                       basis,iat,jat,ttmat,nbhandl1)
+                     else
+                        call upd_atom_block(g_update(ii),
+     .                       basis,iat,jat,ttmat)
+                     endif
                   endif
+c     Monitoring
+               call endtimer( monitor_comm_ga_acc)
 c
 c                 check to see if can skip and use ga_symmetrize
 c
@@ -376,6 +408,7 @@ c     For CPKS RHS, we update with transpose even for iat = jat,
 c     since that is necessary to get both contributions
 c     mu * del(nu) and del(mu) * nu
                      
+            call starttimer(monitor_comp_ga_acc)
                      if(n3d.eq.1) then
                         call transp_mat(TTmat, Tmat,
      ,                       nbfia, nbfja)
@@ -386,15 +419,31 @@ c     mu * del(nu) and del(mu) * nu
                         call transp_mat3(n3d,TTmat, Tmat,
      ,                       nbfia, nbfja)
                      endif
+            call endtimer(monitor_comp_ga_acc)
                      
+c     Monitoring 
+               call starttimer(monitor_comm_ga_acc)
+
                      if(l3d) then
                      call dft_3dacc(g_vxc, tmat,
      &                       jrsh,jrsh2,
      %                       jfirst, jlast, ifirst, ilast, nbfja)
                   else
-                     call upd_atom_block(g_update(ii), basis, jat,iat,
-     &                    tmat)
+                     if(dftnbacc) then
+                        if(.not.nbfirst1) then	
+                           call ga_nbwait(nbhandl2)
+                        endif			
+                        nbfirst2=.false.
+                        call upd_atombl_nb(g_update(ii),
+     .                       basis,jat,iat,tmat,nbhandl2)
+                     else
+                        call upd_atom_block(g_update(ii),basis,
+     J                       jat,iat,tmat)
+                     endif
                   endif
+c     Monitoring 
+               call endtimer(monitor_comm_ga_acc)
+
                endif
   168       continue
   405    continue
@@ -406,3 +455,50 @@ c      write(6,*)' g_vxc(2) from xc_tabcd '
 c      call ga_print(g_vxc(2))
       return
       end
+      subroutine upd_atombl_nb(g_array, basis, iat, jat, buf,
+     $     nbhandle)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "bas.fh"
+c
+      integer g_array, basis, iat, jat
+      integer nbhandle
+      double precision buf(*)
+      logical status
+c
+      integer ilo, ihi, jlo, jhi, idim, jdim
+c
+c     add atom block buf info of the matrix g_array (over basis functions)
+c
+      status= bas_ce2bfr(basis, iat, ilo, ihi)
+      status=status.and. bas_ce2bfr(basis, jat, jlo, jhi)
+      if (.not. status)
+     $     call errquit('upd_atom_block: ce2bfr failed', 0, BASIS_ERR)
+c
+      idim = ihi - ilo + 1
+      jdim = jhi - jlo + 1
+c     
+      if (idim.gt.0 .and. jdim.gt.0) 
+     $     call ga_nbacc(g_array, ilo, ihi, jlo, jhi, buf, idim,
+     $        1.0d0,nbhandle)
+c
+      end
+#ifndef FDIST
+      subroutine starttimer(in)
+      integer in
+      return
+      end
+      subroutine endtimer(in)
+      integer in
+      return
+      end
+      subroutine newdist(in)
+      integer in
+      return
+      end
+      subroutine printdist(in)
+      integer in
+      return
+      end
+#endif

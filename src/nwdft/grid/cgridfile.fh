@@ -1,5 +1,5 @@
 *
-* $Id: cgridfile.fh,v 1.23 2005-09-27 00:35:01 edo Exp $
+* $Id: cgridfile.fh,v 1.24 2005-10-07 19:48:06 edo Exp $
 *
 c
 c     Internal common for grid routines
@@ -29,7 +29,11 @@ c
       integer max_cache_rec     ! Max no. of records to put in cache
       logical file_opened       ! True if a physical file is open
       logical filedump_opened  ! True if a physical file is open
+#ifdef GCC4
+      integer*4 gr_unit !
+#else
       integer gr_unit !
+#endif
       parameter(gr_unit=85)
 c
       logical oasyncio          ! If true use asynchronous IO
