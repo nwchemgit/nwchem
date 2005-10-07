@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.15 2005-10-07 19:48:06 edo Exp $
+C$Id: xc_tabcd.F,v 1.16 2005-10-07 20:58:32 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -22,6 +22,7 @@ c
 #include "dftpara.fh"
 #include "dft2drv.fh"
 #include "dist.fh"
+cedo#define FDIST 1
 c
       Logical GRAD
       integer what ! [in]
@@ -430,7 +431,7 @@ c     Monitoring
      %                       jfirst, jlast, ifirst, ilast, nbfja)
                   else
                      if(dftnbacc) then
-                        if(.not.nbfirst1) then	
+                        if(.not.nbfirst2) then	
                            call ga_nbwait(nbhandl2)
                         endif			
                         nbfirst2=.false.
