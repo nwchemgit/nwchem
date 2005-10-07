@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.23 2005-10-07 19:48:06 edo Exp $
+* $Id: xc_rhogen.F,v 1.24 2005-10-07 21:03:59 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -15,7 +15,12 @@ c     BGJ - 8/98
      &                     tau, kske)
       implicit none
 #include "errquit.fh"
-c
+#include "dftpara.fh"
+cedo#define FDIST 1
+#ifdef FDIST
+#include "dist.fh"
+#endif
+
       Logical GRAD         ! true when use grad corrected funct.[input]
       Logical kske         ! true if tau(kohn-sham KE) used in functional [in]
       integer what  ![in]
@@ -24,7 +29,6 @@ c what=1 pert
 c what=2 nucder
 
  
-#include "dftpara.fh"
       integer basis        ! basis handle           [input]
       integer ipol         ! no. of spin states     [input]
       integer ipol2
@@ -212,6 +216,9 @@ c
 c     !!! Cutoff temporarily commented out for other cases !!!
 c
                endif
+c     Monitoring 
+               call starttimer( monitor_comm )
+
 c
                if(what.ne.1) then
                   if(dftnbget) then
@@ -223,15 +230,20 @@ c
      &                    iat, jat, Pmat, idim, jdim)
                   endif
                else
-                call ga_get(g_dens(ipert+(ii-1)*npert), 
+                  call ga_get(g_dens(ipert+(ii-1)*npert), 
      %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
-            endif
+               endif
+
+c     Monitoring
+               call endtimer( monitor_comm )
 c
                if (wmax*FUNC_MAXI*FUNC_MAXJ*
      .              dabsmax(nbfia*nbfja,Pmat).lt.tol_rho)goto 210
                call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, ifirst, 
      &                      jfirst, ibf(inizia), ibf(inizja))
                if(iat.ne.jat) call dscal(nnia*nnja,2d0,F,1)
+c              Monitoring 
+               call starttimer( monitor_comp )
 
 
                if(what.eq.1) then
@@ -495,6 +507,8 @@ c
                   endif
                enddo
             endif
+c           Monitoring
+	    call endtimer( monitor_comp )
   210       continue
   215       continue
  216        continue
@@ -517,7 +531,7 @@ c
 c
       subroutine get_atom_block_nb(g_array, basis, iat, jat, buf,
      $     idim, jdim,nbhandle)
-C$Id: xc_rhogen.F,v 1.23 2005-10-07 19:48:06 edo Exp $
+C$Id: xc_rhogen.F,v 1.24 2005-10-07 21:03:59 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"

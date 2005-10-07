@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.16 2005-10-07 20:58:32 edo Exp $
+C$Id: xc_tabcd.F,v 1.17 2005-10-07 21:03:59 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -21,8 +21,10 @@ c
 #include "mafdecls.fh"
 #include "dftpara.fh"
 #include "dft2drv.fh"
-#include "dist.fh"
 cedo#define FDIST 1
+#ifdef FDIST
+#include "dist.fh"
+#endif
 c
       Logical GRAD
       integer what ! [in]
