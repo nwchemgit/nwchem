@@ -1,5 +1,5 @@
 /* hilbert.c -
-$Id: hilbert.c,v 1.6 2005-10-07 19:34:21 bylaska Exp $
+$Id: hilbert.c.bak,v 1.1 2005-10-07 19:34:21 bylaska Exp $
    Author - Eric Bylaska
 
    This file contains 2d hilbert mapping routines
@@ -7,8 +7,6 @@ $Id: hilbert.c,v 1.6 2005-10-07 19:34:21 bylaska Exp $
 */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 #include "typesf2c.h"
 #include "olist.h"
 
@@ -38,16 +36,13 @@ void FATR hilbert2d_map_(sizex_ptr,sizey_ptr,map)
 Integer     *sizex_ptr,*sizey_ptr;
 Integer     map[];
 {
+
     int i,j,size,sizex,sizey;
-    int ii,jj,iii,jjj;
     int level,count;
-    double dx,dy,x2,y2,dx2,dy2;
-    OList_Type olist2;
-    int *map2,*mapii,*mapjj;
+    OList_Type olist;
 
    sizex = *sizex_ptr;
    sizey = *sizey_ptr;
-
 
    size = sizex;
    if (sizey>size) size = sizey;
@@ -61,60 +56,22 @@ Integer     map[];
       count = count*2;
    }
 
-   map2  = (int *) malloc(count*count*sizeof(int));
-   mapii = (int *) malloc(count*count*sizeof(int));
-   mapjj = (int *) malloc(count*count*sizeof(int));
+   /*
+     printf("Hilbert Level = %d, nx = %d,ny = %d\n",level,sizex,sizey);
+   */
 
-
-   create_olist(&olist2,count*count);
-   for (jj=0; jj<count; ++jj)
-   for (ii=0; ii<count; ++ii)
+   create_olist(&olist,size*size);
+   for (j=0; j<sizey; ++j)
+   for (i=0; i<sizex; ++i)
    {
-
-      map2[ii+jj*count] = hilbert2d(ii,jj,level);
-      insert_olist(&olist2,map2[ii+jj*count]);
+      map[i+j*sizex] = hilbert2d(i,j,level);
+      insert_olist(&olist,map[i+j*sizex]);
    }
-   for (jj=0; jj<count; ++jj)
-   for (ii=0; ii<count; ++ii)
-      map2[ii+jj*count] = index_olist(&olist2,map2[ii+jj*count]);
+   for (j=0; j<sizey; ++j)
+   for (i=0; i<sizex; ++i)
+      map[i+j*sizex] = index_olist(&olist,map[i+j*sizex]);
 
-   destroy_olist(&olist2);
-
-   for (jj=0; jj<count; ++jj)
-   for (ii=0; ii<count; ++ii)
-   {
-      mapii[map2[ii+jj*count]] = ii;
-      mapjj[map2[ii+jj*count]] = jj;
-   }
-
-
-   dx2 = 1.0/((double) count);
-   dy2 = 1.0/((double) count);
-   dx =  1.0/((double) sizex);
-   dy =  1.0/((double) sizey);
-
-   for (j=0; j<sizex*sizey; ++j) map[j] = -9;
-
-   iii = 0;
-   for (jjj=0; jjj<count*count; ++jjj)
-   {
-      ii = mapii[jjj];
-      jj = mapjj[jjj];
-
-      x2 = dx2*(ii+0.5);
-      y2 = dy2*(jj+0.5);
-      i = rint((x2/dx) - 0.5);
-      j = rint((y2/dy) - 0.5);
-
-      if (map[i+j*sizex] == -9)
-      {
-        map[i+j*sizex] = iii;
-        ++iii;
-      }
-   }
-   free(mapii);
-   free(mapjj);
-   free(map2);
+   destroy_olist(&olist);
 
 }
 
@@ -149,6 +106,7 @@ int     level,high;
 int     *start;
 {
    int  direction,parent_direction,
+        iparent,jparent,
         crnr,length,
         count;
 

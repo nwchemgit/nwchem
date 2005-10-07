@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.42 2005-10-06 19:57:25 bylaska Exp $
+* $Id: D3dB-new.F,v 1.43 2005-10-07 19:34:21 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -216,7 +216,7 @@ c           k_map(q_map(k)) = k
      >                          nz(nb),nx(nb)/2+1,
      >                          int_mb(p_map2(1,nb)),
      >                          int_mb(q_map2(1,nb)),nq2(nb))
-      call generate_map_indexes_3(taskid,np,
+      call generate_map_indexes(taskid,np,
      >                          nx(nb)/2+1,ny(nb),
      >                          int_mb(p_map3(1,nb)),
      >                          int_mb(q_map3(1,nb)),nq3(nb))
