@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.19 2005-10-08 05:00:37 edo Exp $
+C$Id: xc_tabcd.F,v 1.20 2005-10-08 07:10:50 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -103,6 +103,7 @@ c
       integer n,lastjat
       double precision chi1
       double precision dabsmax
+      double precision tolrho15
       external dabsmax
       logical l3d
       integer jrsh,jrsh2,n3d,idir,jdir
@@ -128,6 +129,7 @@ c         0: l3d=.f.    & n3d=1
 ccc	rhs: l3d=.true. & n3d=3
 ccc	lhs: l3d=.true. & n3d=1
 c
+      tolrho15=tol_rho**1.25d0
       if(what.eq.0) then
         n3d=1
       elseif(what.eq.1) then
@@ -376,6 +378,7 @@ c     leading dimension of delchi must be set correctly
 c     Monitoring 
             call endtimer(monitor_comp_ga_acc)
                if(what.eq.0) then
+                  if (dabsmax(nbfia*nbfja,ttmat).lt.tolrho15) goto 168
                   jrsh=ii	
                elseif(what.eq.1) then
                   jrsh=imat+(ii-1)*nmat
