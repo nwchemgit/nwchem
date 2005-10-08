@@ -1,6 +1,6 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: scat_mat.F,v 1.7 2002-02-22 20:04:11 edo Exp $
+C$Id: scat_mat.F,v 1.8 2005-10-08 05:00:37 edo Exp $
       implicit none
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst
@@ -19,7 +19,39 @@ c
           TT((ibf(i)-ifirst+1),jj)=T(i,j)
         enddo
       enddo
-      
+      end
+      subroutine scat_matup(TT,T,Ni,Nj,mi,mj,
+     I     ifirst,jfirst,ibf,jbf)
+      implicit none
+      integer mi,mj,Ni,Nj
+      integer ifirst,jfirst
+      integer ibf(mi),jbf(mj)
+      double precision T(mi,mj),TT(Ni,Nj)
+c
+      integer i,j,jj
+
+c
+c     scatter into matrix
+c     prepare for ga_symm
+c     
+      call dcopy(Ni*Nj,0.d0,0,TT,1)
+      if(ifirst.eq.jfirst) then
+         do j =1,mi
+            TT((ibf(j)-jfirst+1),
+     A           ibf(j)-jfirst+1)=T(j,j)
+            do i = j+1,mi
+               TT((ibf(i)-ifirst+1),
+     A              ibf(j)-jfirst+1)=T(i,j)*2d0
+            enddo
+         enddo
+      else
+         do j = 1,mj
+            jj=jbf(j)-jfirst+1
+            do i =1,mi
+               TT((ibf(i)-ifirst+1),jj)=T(i,j)*2d0
+            enddo
+         enddo
+      endif
       return
       end
 C

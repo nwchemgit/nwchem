@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.46 2005-09-27 00:35:01 edo Exp $
+C$Id: grid_quadv0.F,v 1.47 2005-10-08 04:58:22 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -395,6 +395,14 @@ c
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit('grid_den: cannot pop stack',0, MA_ERR)
       call ga_sync()
+      if(do_scf.and.(.not.l3d)) then
+c         write(0,*) ' symmetr scf l r',do_scf,do_cpks_l,do_cpks_r,
+c     A        calc_type
+c         call ga_print(g_vxc(1))
+         call ga_symmetrize(g_vxc(1))
+         if(ipol.eq.2) call ga_symmetrize(g_vxc(2))
+c         call ga_print(g_vxc(1))
+      endif
 c
       call ga_igop(Msg_nqtot,nqtot,1,'+')
       call ga_dgop(Msg_Excrho,dummy,3,'+')

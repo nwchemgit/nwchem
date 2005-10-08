@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.18 2005-10-07 21:32:11 edo Exp $
+C$Id: xc_tabcd.F,v 1.19 2005-10-08 05:00:37 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -115,7 +115,7 @@ c     Indexing array for basis function hessian columns as if
 c     it were a 3x3 matrix
 c
       integer indh(3,3)
-      logical w01,w02,w013
+      logical w01,w02,w013,dofull
       double precision ddot
       integer nbhandl1,nbhandl2
       logical nbfirst1,nbfirst2
@@ -142,7 +142,7 @@ c
       w01=what.eq.0.or.what.eq.1
       w013=w01.or.what.eq.3
       w02=what.eq.0.or.what.eq.2
-c     nonblocking
+      dofull=what.ne.0.or.l3d
       nbfirst1=.true.
       nbfirst2=.true.
 c
@@ -359,8 +359,13 @@ c     leading dimension of delchi must be set correctly
                   endif
                   if(n3d.eq.1) then
                      call dfill(max_at_bf2, 0.d0, TTmat, 1)
-                     call scat_mat(TTmat, Tmat, nbfia, nbfja, nnia,
-     &                    nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
+                     if(dofull) then
+                        call scat_mat(TTmat, Tmat, nbfia, nbfja, nnia,
+     &                       nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
+                     else
+                        call scat_matup(TTmat, Tmat, nbfia, nbfja, nnia,
+     &                       nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
+                     endif
                   else
                      call scat_mat3(n3d,jdir,
      &                    TTmat, Tmat, nbfia, nbfja, nnia,
@@ -406,6 +411,7 @@ c     Monitoring
                   endif
 c     Monitoring
                call endtimer( monitor_comm_ga_acc)
+               if(what.ne.0.or.l3d) then
 c
 c                 check to see if can skip and use ga_symmetrize
 c
@@ -414,42 +420,43 @@ c     For CPKS RHS, we update with transpose even for iat = jat,
 c     since that is necessary to get both contributions
 c     mu * del(nu) and del(mu) * nu
                      
-            call starttimer(monitor_comp_ga_acc)
+                     call starttimer(monitor_comp_ga_acc)
                      if(n3d.eq.1) then
                         call transp_mat(TTmat, Tmat,
      ,                       nbfia, nbfja)
                      else
                         if(what.eq.3) then
-                          call dscal(n3d*nbfia*nbfja,-1.0d0,TTmat,1)
-                       endif
+                           call dscal(n3d*nbfia*nbfja,-1.0d0,TTmat,1)
+                        endif
                         call transp_mat3(n3d,TTmat, Tmat,
      ,                       nbfia, nbfja)
                      endif
-            call endtimer(monitor_comp_ga_acc)
+                     call endtimer(monitor_comp_ga_acc)
                      
 c     Monitoring 
-               call starttimer(monitor_comm_ga_acc)
-
+                     call starttimer(monitor_comm_ga_acc)
+                     
                      if(l3d) then
-                     call dft_3dacc(g_vxc, tmat,
+                        call dft_3dacc(g_vxc, tmat,
      &                       jrsh,jrsh2,
      %                       jfirst, jlast, ifirst, ilast, nbfja)
-                  else
-                     if(dftnbacc) then
-                        if(.not.nbfirst2) then	
-                           call ga_nbwait(nbhandl2)
-                        endif			
-                        nbfirst2=.false.
-                        call upd_atombl_nb(g_update(ii),
-     .                       basis,jat,iat,tmat,nbhandl2)
                      else
-                        call upd_atom_block(g_update(ii),basis,
-     J                       jat,iat,tmat)
+                        if(dftnbacc) then
+                           if(.not.nbfirst2) then	
+                              call ga_nbwait(nbhandl2)
+                           endif			
+                           nbfirst2=.false.
+                           call upd_atombl_nb(g_update(ii),
+     .                          basis,jat,iat,tmat,nbhandl2)
+                        else
+                           call upd_atom_block(g_update(ii),basis,
+     J                          jat,iat,tmat)
+                        endif
                      endif
-                  endif
 c     Monitoring 
-               call endtimer(monitor_comm_ga_acc)
-
+                     call endtimer(monitor_comm_ga_acc)
+                     
+                  endif
                endif
   168       continue
   405    continue
