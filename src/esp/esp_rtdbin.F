@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.16 2003-10-19 06:14:28 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.17 2005-10-08 05:25:26 edo Exp $
 c
       implicit none
 c
@@ -28,9 +28,6 @@ c
       if(.not.geom_ncent(igeom,natoms))
      + call md_abort('esp: geom_ncent failed',me)
 c
-      if(.not.geom_nuc_charge(igeom,chgnuc))
-     + call md_abort('esp: geom_nuc_charge failed',me)
-c
 c     load the basis set
 c
       if(.not.bas_create(ibasis,'ao basis'))
@@ -44,6 +41,9 @@ c
 c     
       if(bas_is_spherical(ibasis)) 
      + call md_abort('esp does not work with spherical basis ',me)
+c
+      if(.not.geom_nuc_charge(igeom,chgnuc))
+     + call md_abort('esp: geom_nuc_charge failed',me)
 c
 c     get cutoff radius and gridspacing
 c
