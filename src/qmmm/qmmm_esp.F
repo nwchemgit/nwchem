@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.8 2005-10-11 18:41:21 marat Exp $
+c $Id: qmmm_esp.F,v 1.9 2005-10-11 22:39:39 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -206,13 +206,22 @@ c
      >    call errquit(pname//"no free file unit",0,0)
 
 c     
+c     construct espfilename
+c     ----------------------
+      if(.not.rtdb_cget(rtdb,"qmmm:espfilename",1,espfile))
+     >     espfile = " "
+      if(espfile.eq." ") then
+        call util_file_name('esp',.false.,.false.,espfile)
+      else
+        call util_file_name_resolve(espfile,.false.)
+      end if
+c     
 c     aborting if no espfile
 c     ----------------------
       if(ga_nodeid().eq.0) then
-        call util_file_name('esp',.false.,.false.,espfile)
         inquire(file=espfile,exist=ofile)
         if(.not.ofile) 
-     >   call errquit(pname//'espfile not found',0,0)
+     >   call errquit(pname//'espfile not found'//espfile,0,0)
       end if
 c
 c     number of esp charges = full geometry
