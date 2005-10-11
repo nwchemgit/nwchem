@@ -1,5 +1,5 @@
 *
-* $Id: v_exc.f,v 1.4 2002-08-26 23:45:25 bylaska Exp $
+* $Id: v_exc.f,v 1.5 2005-10-11 22:37:04 bylaska Exp $
 *
 
       subroutine vxc(n2ft3d,ispin,dn,xcp,xce,x)
@@ -105,6 +105,7 @@
   200 continue
       
       call nwpw_timing_end(4)
+
 
       return
       end

@@ -1,8 +1,9 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.7 2005-07-12 21:26:33 bylaska Exp $
+* $Id: lcao_generate_vhxcmatrix.F,v 1.8 2005-10-11 22:37:03 bylaska Exp $
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
-     >                                    vhxcmatrix,phi1,phi2)
+     >                                    vhxcmatrix,phi1,phi2,
+     >                                    ehartr,exc,pxc)
       implicit none
 #include "errquit.fh"
       integer ispin,n2ft3d
@@ -10,6 +11,7 @@
       integer vhxcmatrix(2)
       complex*16 phi1(*)
       complex*16 phi2(*)
+      real*8     ehartr,exc,pxc
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -18,14 +20,16 @@
       logical value
       integer ms,i,j,nbasis,npack1,nfft3d,gga
       integer nx,ny,nz
-      real*8  sum,scal1,scal2,dv
-      integer xcp(2),tmp1(2),tmp2(2),vpsi,vall,xvc,rho
+      real*8  sum,scal1,scal2,dv,exc2,pxc2
+      integer xcp(2),tmp1(2),tmp2(2),dnall(2),vpsi,vall,xvc,rho
 
 *     ***** external functions ****
+      logical  psp_semicore
       integer  aorbs_nbasis,control_version,control_gga
-      real*8   lattice_omega
+      real*8   lattice_omega,coulomb_e
+      external psp_semicore
       external aorbs_nbasis,control_version,control_gga
-      external lattice_omega
+      external lattice_omega,coulomb_e
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -41,6 +45,8 @@
      >        MA_push_get(mt_dbl,(2*n2ft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(2*n2ft3d),'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(2*n2ft3d),'dnall',dnall(2),dnall(1))
       xvc  = tmp1(1)
       rho  = tmp1(1)+n2ft3d
       vpsi = tmp2(1)
@@ -53,18 +59,53 @@
 *     *************************************************
 *     **** generate exchange-correlation potential ****
 *     *************************************************
+      if (psp_semicore(0)) then
+           call semicore_density(dbl_mb(tmp1(1)))
+           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
+      else
+           call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+      end if
+      do ms=1,ispin
+          call D3dB_rr_Sum(1,dn(1,ms),
+     >                     dbl_mb(tmp1(1)),
+     >                     dbl_mb(dnall(1) +(ms-1)*n2ft3d))
+      end do
+
+
+
+
       gga = control_gga()
       if (gga.eq.0) then
-        call vxc(n2ft3d,ispin,dn,
+        call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(tmp1(1)),
      >                    dbl_mb(tmp2(1)))
       else
-        call v_bwexc(gga,n2ft3d,ispin,dn,
+        call v_bwexc(gga,n2ft3d,ispin,dbl_mb(dnall(1)),
      >                    1.0d0,1.0d0,
      >                    dbl_mb(xcp(1)),
      >                    dbl_mb(tmp1(1)))
       end if
+
+*     **** get exchange-correlation energy ****
+      call D3dB_rr_dot(1,dbl_mb(dnall(1)),dbl_mb(tmp1(1)),exc)
+      call D3dB_rr_dot(1,dn(1,1),dbl_mb(xcp(1)),pxc)
+      if (ispin.eq.1) then
+         exc= exc + exc
+         pxc= pxc + pxc
+      else
+         call D3dB_rr_dot(1,dbl_mb(dnall(1)+n2ft3d),
+     >                      dbl_mb(tmp1(1)),exc2)
+         call D3dB_rr_dot(1,dn(1,2),dbl_mb(xcp(1)+n2ft3d),pxc2)
+         exc= exc + exc2
+         pxc= pxc + pxc2
+      end if
+      exc = exc*dv
+      pxc = pxc*dv
+      value = MA_pop_stack(dnall(2))
+      if (.not. value) 
+     > call errquit('lcao_geneate_vhxcmatrix: popping stack memory',1,
+     &       MA_ERR)
 
 
 *     ************************************
@@ -76,11 +117,14 @@
          call D3dB_r_SMul(1,scal1,dbl_mb(rho),dbl_mb(rho))
          call D3dB_rc_pfft3f(1,0,dbl_mb(rho))
          call Pack_c_pack(0,dbl_mb(rho))
+         ehartr = coulomb_e(dbl_mb(rho))
          call coulomb_v(dbl_mb(rho),dbl_mb(xvc))
          call Pack_c_unpack(0,dbl_mb(xvc))
          call D3dB_cr_pfft3b(1,0,dbl_mb(xvc))
       else
          call coulomb2_v(dbl_mb(rho),dbl_mb(xvc))
+         call D3dB_rr_dot(1,dbl_mb(rho),dbl_mb(xvc),ehartr)
+         ehartr = 0.5d0*ehartr*dv
       end if
 
 
@@ -130,9 +174,12 @@ c              write(*,*) "vhxc:",i,j,sum
          end do
       end do
 
-      value = MA_pop_stack(tmp2(2))
-      value = MA_pop_stack(tmp1(2))
-      value = MA_pop_stack(xcp(2))
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(xcp(2))
+      if (.not. value) 
+     > call errquit('lcao_geneate_vhxcmatrix: popping stack memory',2,
+     &       MA_ERR)
      
       return
       end

@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.19 2005-05-24 17:36:26 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.20 2005-10-11 22:37:03 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -30,39 +30,42 @@
       parameter (ALPHA=0.30d0)
 
       logical value,value2,oprint
-      integer ms,i,ia,icharge,ne_excited(2)
-      integer dn(2),phi1(2),phi2(2)
+      integer ms,i,ia,icharge,ne_excited(2),nn
+      integer dn(2),phi1(2),phi2(2),rho(2),vc(2)
       integer ee(2),eigs(2)
       integer smatrix,kematrix
       integer vlmatrix,vnlmatrix,vhxcmatrix(2),vhxc_new(2)
       integer psimatrix(2),hmatrix(2)
       integer nbasis,nbasis2,n2ft3d,npack1,it
       real*8  rho_error,rho_error_old,total_dn,sum
+      real*8  Etotal,Eorbs,Ehart,Eexc,Eion,EV,de,olde,pxc
+      real*8  cpu1,cpu2,cpu3,cpu4,cpu5,t1,t2,t3,t4,av
+      real*8  scal1,scal2,dv
       character*30 filename
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
       character*2 psp_atom
-      integer     aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax
+      integer     aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,ion_nion
       integer     psp_locp,psp_lmmax,ion_natm,psp_npsp
       integer     control_version
       integer     ewald_ncut,ewald_nshl3d
       real*8      psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
-      real*8      ewald_rcut
+      real*8      ewald_rcut,ewald_e,ion_ion_e,coulomb_e
       real*8      ewald_mandelung
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      real*8      lattice_unitg
+      real*8      lattice_unitg,control_tole,control_tolc
       external    psp_semicore,aorbs_init,aorbs_readall
       external    psp_atom
-      external    aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax
+      external    aorbs_norbs,aorbs_nbasis,ion_nkatm,psp_lmax,ion_nion
       external    psp_locp,psp_lmmax,ion_natm,psp_npsp
       external    control_version
       external    ewald_ncut,ewald_nshl3d
       external    psp_ncore,psp_rcore,psp_rlocal,psp_rc,psp_zv
-      external    ewald_rcut
+      external    ewald_rcut,ewald_e,ion_ion_e,coulomb_e
       external    ewald_mandelung
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
-      external    lattice_unitg
+      external    lattice_unitg,control_tole,control_tolc
       integer  pack_nwave_all
       integer  control_gga
       integer  control_ngrid,pack_nwave
@@ -77,7 +80,11 @@
       external     control_excited_ne
       external     control_input_epsi
 
+
       oprint = oprint_in
+
+      if ((taskid.eq.MASTER).and.oprint) call current_second(cpu1)
+
       call Parallel_taskid(taskid)
       call D3dB_n2ft3d(1,n2ft3d)
       call Pack_npack(1,npack1)
@@ -104,6 +111,10 @@
      >        MA_alloc_get(mt_dcpl,(npack1),'phi2',phi2(2),phi2(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(2*nbasis),'ee',ee(2),ee(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(n2ft3d),'rho',rho(2),rho(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(n2ft3d),'vc',vc(2),vc(1))
       eigs(1) = ee(1)
       eigs(2) = ee(1) + nbasis
 
@@ -244,11 +255,26 @@
 
         write(6,*)
       end if
+      if ((taskid.eq.MASTER).and.oprint) call current_second(cpu2)
+
+
+
 
 *     ********************************
 *     **** generate phaze factors ****
 *     ********************************
       call phafac()
+      if (psp_semicore(0)) call semicore_density_update()
+
+
+*     **** get ewald energy ****
+      Eion = 0.0d0
+      if (control_version().eq.3) Eion = ewald_e()
+
+*     **** get free-space ion-ion energy ****
+      if (control_version().eq.4) Eion = ion_ion_e()
+
+
 
 *     **********************************
 *     **** initialize lcao matrices ****
@@ -272,13 +298,17 @@
      >                           dbl_mb(dn(1)),
      >                           vhxcmatrix,
      >                           dcpl_mb(phi1(1)),
-     >                           dcpl_mb(phi2(1)))
+     >                           dcpl_mb(phi2(1)),
+     >                           Ehart,Eexc,pxc)
        sum = ga_ddot(vhxcmatrix(1),vhxcmatrix(1))
-c       write(*,*) "SUM:",sum
 
 c     call lcao_diis_init(5,ispin,nbasis)
       rho_error = 10000.0d0
+      if ((taskid.eq.MASTER).and.oprint) call current_second(cpu3)
+      if ((taskid.eq.MASTER).and.oprint) CALL nwpw_MESSAGE(8)
+
       do it=0,it_max-1
+
          do ms=1,ispin
 
 *          **** generate spin hamiltonian ****
@@ -318,7 +348,8 @@ c     call lcao_diis_init(5,ispin,nbasis)
      >                           dbl_mb(dn(1)),
      >                           vhxc_new,
      >                           dcpl_mb(phi1(1)),
-     >                           dcpl_mb(phi2(1)))
+     >                           dcpl_mb(phi2(1)),
+     >                           Ehart,Eexc,pxc)
        sum = ga_ddot(vhxc_new(1),vhxc_new(1))
 c       write(*,*) "SUM new:",sum
 
@@ -340,20 +371,41 @@ c       write(*,*) "SUM new:",sum
          if (it.eq.0) talpha=ALPHA
          if (rho_error.gt.rho_error_old) talpha=0.5d0*talpha
 
+c        *** orbital energies ***
+         Eorbs = 0.0d0
+         do ms=1,ispin
+         do i=1,ne(ms)
+            Eorbs = Eorbs + dbl_mb(eigs(ms)+i-1)
+         end do
+         end do
+
+C        *** Calculate total energy ***
+         olde   = Etotal
+         Etotal = 0.0d0
+         Etotal = Eorbs + Eion + Eexc - pxc - Ehart 
+         de     = dabs(Etotal-olde)
+
+
 
          if ((oprint).and.(taskid.eq.MASTER))
-     >     write(*,*) "vhxc error:",it,rho_error,talpha
-         if (rho_error.lt.1.0d-8) go to 50
-         if ((oprint)) then
-            do ms=1,ispin
-              call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),total_dn)
-              total_dn = total_dn*lattice_omega()
-              total_dn = total_dn/dble(ngrid(1)*ngrid(2)*ngrid(3))
-              if (taskid.eq.MASTER) 
-     >         write(*,*) "ms,dn:",ms,total_dn
-            end do
+     >     write(*,510) it,Etotal,de,rho_error,talpha
+  510 FORMAT(I8,E20.10,3E15.5)
 
+         if ((de.lt.control_tole()).and.
+     >       (rho_error.lt.control_tolc())) then
+           if ((oprint).and.(taskid.eq.MASTER))
+     >        write(*,*) ' *** tolerance ok.     iteration terminated.'
+           go to 50
          end if
+c         if ((oprint)) then
+c            do ms=1,ispin
+c              call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),total_dn)
+c              total_dn = total_dn*lattice_omega()
+c              total_dn = total_dn/dble(ngrid(1)*ngrid(2)*ngrid(3))
+c              if (taskid.eq.MASTER) 
+c     >         write(*,*) "ms,dn:",ms,total_dn
+c            end do
+c         end if
 
          call ga_add(talpha,vhxc_new(1),
      >               (1.0d0-talpha),vhxcmatrix(1),
@@ -375,8 +427,17 @@ c        end if
 
 
       end do
+      if ((oprint).and.(taskid.eq.MASTER))
+     > write(*,*) '*** arived at the Maximum iiteration.   terminated.'
+
+ 50   if ((taskid.eq.MASTER).and.oprint) call current_second(cpu4)
+      if ((taskid.eq.MASTER).and.oprint) CALL nwpw_MESSAGE(3)
+      if ((taskid.eq.MASTER).and.oprint) write(*,*)
+      if ((taskid.eq.MASTER).and.oprint) write(*,*)
+
+
 c 50   call lcao_diis_end()
- 50   call lcao_write_psi(wavefunction_filename,
+      call lcao_write_psi(wavefunction_filename,
      >                    version,
      >                    ngrid,
      >                    unita,
@@ -400,9 +461,90 @@ c 50   call lcao_diis_end()
      >                    psimatrix,dcpl_mb(phi2(1)))
 
 
+*:::::::::::::::::   report summary of results  :::::::::::::::::::::::
+
+      if ((taskid.eq.MASTER).and.oprint) then
+      write(*,*)
+      write(*,1410)
+      end if
+
+C     **** caluclate number of Density ****
+      do ms=1,ispin
+         call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),total_dn)
+         total_dn = total_dn*lattice_omega()
+         total_dn = total_dn/dble(ngrid(1)*ngrid(2)*ngrid(3))
+         if ((taskid.eq.MASTER).and.oprint) then
+         write(*,*) 'Spin=',MS,' Total Orbital Density:', total_dn
+         end if
+      end do
+
+
+      if ((taskid.eq.MASTER).and.oprint) then
+      write(*,1430) Etotal,Etotal/ion_nion()
+      write(*,1440) Eorbs, Eorbs/(ne(1)+ne(ispin))
+      write(*,1450) Ehart, Ehart/(ne(1)+ne(ispin))
+      write(*,1460) Eexc,  Eexc/(ne(1)+ne(ispin))
+      write(*,1470) Eion,  Eion/ion_nion()
+
+C     * write out the eigenvalues *
+      nn = ne(1) - ne(2)
+      EV = 27.2116d0
+      WRITE(*,*) ' '
+      WRITE(*,*) 'Filled Eigenvalues ...'
+      do i=0,nn-1
+         WRITE(*,1510) dbl_mb(eigs(1)+ne(1)-i),
+     >                 dbl_mb(eigs(1)+ne(1)-i)*EV
+      end do
+      do i=0,ne(2)-1
+         WRITE(*,1510) dbl_mb(eigs(1)+ne(1)-i-nn),
+     >                 dbl_mb(eigs(1)+ne(1)-i-nn)*EV,
+     >                 dbl_mb(eigs(2)+ne(2)-i),   
+     >                 dbl_mb(eigs(2)+ne(2)-i) 
+      end do
+      if (ispin.eq.1) then
+       WRITE(*,*)
+       WRITE(*,*) 'Virtual Eigenvalues ...'
+       do i=0,(nbasis-ne(1))-1
+         WRITE(*,1510) dbl_mb(eigs(1)+nbasis-i),
+     >                 dbl_mb(eigs(1)+nbasis-i)*EV
+       end do
+      else
+        write(*,*) "unrestricted virtuals????"
+      end if
+
+      end if
+
+
+
+
+*:::::::::::::::::::   report consumed cputime  :::::::::::::::::::::::
+      if ((taskid.eq.MASTER).and.oprint) call current_second(cpu5)
+
+
+      t1 = cpu2 - cpu1
+      t2 = cpu3 - cpu2
+      t3 = cpu4 - cpu3
+      t4 = cpu5 - cpu1
+      av = t3/it_max
+      if ((taskid.eq.MASTER).and.oprint) then
+      WRITE(*,*)
+      WRITE(*,*) '----------------------'
+      WRITE(*,*) 'Proglogue        : ',t1
+      WRITE(*,*) 'Setup Matrices   : ',t2
+      WRITE(*,*) 'Convergence Loop : ',t3
+      WRITE(*,*) 'Total            : ',t4
+      WRITE(*,*) 'CpuTime/Step     : ',av
+      end if
+      if ((taskid.eq.MASTER).and.oprint) CALL nwpw_MESSAGE(4)
+      
+
+
+
 
 *     ***** free heap memory ****
   100 continue
+      value2 = MA_free_heap(vc(2))
+      value2 = MA_free_heap(rho(2))
       value2 = MA_free_heap(dn(2))
       value2 = MA_free_heap(phi1(2))
       value2 = MA_free_heap(phi2(2))
