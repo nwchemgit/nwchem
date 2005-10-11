@@ -1,5 +1,5 @@
 /*
- $Id: linux_setfpucw.c,v 1.11 2004-08-19 12:42:19 edo Exp $
+ $Id: linux_setfpucw.c,v 1.12 2005-10-11 23:53:46 edo Exp $
  */
 #include <stdio.h>
 #ifdef __CYGWIN__
@@ -10,7 +10,7 @@
 #define __USE_GNU
 #include <fenv.h>
 #endif
-//#define FPSWAMOD /* this modifies fpswa behavior on ia64 */
+/*#define FPSWAMOD /* this modifies fpswa behavior on ia64 */
 
 void linux_trapfpe_(void) { 
 int retval;
