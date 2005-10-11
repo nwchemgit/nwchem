@@ -307,6 +307,10 @@ c
           if(.not.rtdb_put(rtdb,"qmmm:readbq",mt_log,1,.true.))
      >     call errquit(pname//'failed to store '//tag,0,
      >        RTDB_ERR)
+        else if(inp_compare(.false.,'esp',token)) then
+          if(.not.rtdb_put(rtdb,"qmmm:readesp",mt_log,1,.true.))
+     >     call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
         else
           call errquit('unknown option for load',0,INPUT_ERR)
         end if
