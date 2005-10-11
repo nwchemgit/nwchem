@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.18 2005-09-27 00:35:03 edo Exp $
+* $Id: dft_gradients.F,v 1.19 2005-10-11 22:07:22 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -49,7 +49,7 @@ c
 c
 c!!! BGJ test !!!
 #include "bgj.fh"
-      integer l_hess, k_hess, g_rhs(3,100), j
+      integer l_hess, k_hess, g_rhs(3,nw_max_atom), j
 c!!! BGJ test !!!
       double precision  zero, one, two
       Parameter (zero=0.d0, one=1.d0, two=2.d0)
@@ -60,8 +60,7 @@ c
       external movecs_read_header, movecs_read
       integer nmo(2), noc(2)
       integer iga_dens(2), g_vecs(2), g_force
-      Integer k_dens, l_dens,
-     $     k_evals(2), l_evals(2)
+      Integer k_evals(2), l_evals(2)
       double precision grad_norm, grad_max
       external grad_norm, grad_max
       character*255 title_vecs, basis_vecs
@@ -74,7 +73,7 @@ c
       integer l_force, k_force, l_occ, k_occ, l_act, k_act, 
      $     l_buf, k_buf, l_scr, k_scr, l_wdens, k_wdens, 
      $     l_cdcoef, i_cdcoef, ippp, isvec, lsvec,
-     $     ilo, ihi, i_s34, l_s34, 
+     $     ilo, ihi, 
      $     k_frc_2el, k_frc_xc, 
      $     l_frc_2el, l_frc_xc
       integer lcntoce, icntoce, lcntobfr, icntobfr,
@@ -317,9 +316,7 @@ c
 c     
       call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
      $     int_mb(icetobfr), nat, nshells_ao)
-      if (.not.ma_pop_stack(lcntobfr))
-     $     call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
-      if (.not.ma_pop_stack(lcntoce))
+      if (.not.ma_chop_stack(lcntoce))
      $     call errquit('dft_gradient: cannot pop stack',0, MA_ERR)
 c     
 c     Pre-compute reduced density matrices over atoms
@@ -350,24 +347,26 @@ c
          status = ma_free_heap (l_evals(2))
       endif 
       status = ma_free_heap (l_evals(1))
+      IF (CDFIT)then
 c     
 c     determine memory requirements for integral gradients
 c     
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call int_mem_2e3c(max2e3c, mscratch_2e3c)
       lbuf = max(max1e, max2e)
-      if (CDFIT) lbuf = max(lbuf, max2e3c) + 500
+      lbuf = max(lbuf, max2e3c) + 500
       lscratch = max(mscratch_1e, mscratch_2e)
-      if (CDFIT) lscratch = max(lscratch, mscratch_2e3c)
+      lscratch = max(lscratch, mscratch_2e3c)
 c     
 c     one-electron contribution
 c     buffers for one electron integral derivatives
 c     
       status = ma_push_get(mt_dbl, lbuf, 'deriv buffer', l_buf, k_buf)
-      maavail=MA_inquire_avail(mt_dbl)
-      if(.not.status)
-     &    call errquit('dft_gradient: could not allocate buffer',
+      if(.not.status) then
+         maavail=MA_inquire_avail(mt_dbl)
+         call errquit('dft_gradient: could not allocate buffer',
      &     8*(lbuf-maavail),  MA_ERR)
+      endif
 c     
       status = ma_push_get(mt_dbl, lscratch, 'deriv scratch', 
      $     l_scr, k_scr)
@@ -381,8 +380,6 @@ c
 c     
       status = ma_push_get(mt_dbl, lsqa, 'local_w_density', 
      $     l_wdens, k_wdens)
-      status = status .and. ma_push_get(mt_dbl, lsqa, 'local_density',
-     $     l_dens, k_dens)
       if (.not.status)call errquit('could not allocate l_dens',1,
      &       MA_ERR)
 c     
@@ -396,11 +393,6 @@ c     define threshold for Schwarz screening (same as in DFT)
 c     
       tol2e=10.d0**(-itol2e)
 c     
-c     zero force component vector
-c     
-      call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el), 1)
-c     
-      IF (CDFIT)then
 c     
 c     compute 3 center coulomb derivative
 c     
@@ -428,7 +420,6 @@ c
      $        DBL_MB(i_cdcoef), oskel)
 c     
          call ga_dgop(msg_grad_2el, dbl_mb(k_frc_2el), lforce, '+')
-      endif
 c     
       if (.not.ma_chop_stack(l_buf))
      $     call errquit('dft_gradient: cannot chop stack',0, MA_ERR)
@@ -439,15 +430,11 @@ c
          onem = -1.d0
          call ga_dadd(one, iga_dens(1), onem, iga_dens(2), iga_dens(1))
       endif 
+      endif
 c     
 c     get exchange-correlation contribution to the gradient
 c     
-c     zero force component vector
 c     
-      call dfill(lforce, 0.0D0, dbl_mb(k_frc_xc),  1)
-c     
-      if (.not. ma_push_get(mt_dbl, nat, 's34', l_s34, i_s34))
-     $     call errquit('dft_gradient: could not alloc s34',0, MA_ERR)
 c$$$      write(LuOut,*) ' BEFORE CALL TO GETXC'
 c$$$      call ga_print(iga_dens(1))
 c$$$      call ga_print(iga_dens(2))
@@ -478,7 +465,6 @@ c
       if(fant_a.ne.-1d0.and.fant_d.ne.-1d0)
      A     call dftg_fant(geom,nat,fant_a,fant_d,
      A     dbl_mb(k_frc_xc))
-      status = ma_pop_stack (l_s34)
 c     
       if (ga_nodeid() .eq. 0)then
          status = rtdb_parallel (.false.)
