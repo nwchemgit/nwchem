@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.505 2005-05-27 01:50:43 edo Exp $
+# $Id: makefile.h,v 1.506 2005-10-11 22:07:06 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1615,6 +1615,7 @@ endif # end of ia32 bit
        _FC=gfortran
       endif
       ifeq ($(_FC),ifc)
+     _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -1 | awk ' /sse3/  {print "Y"}')
        _IFCV81= $(shell ifc -v  2>&1|egrep "Version "|head -1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
        ifeq ($(_IFCV81),Y)
 # to get EM64T
@@ -1630,7 +1631,12 @@ endif # end of ia32 bit
         endif
         FDEBUG= -O2 -g
         FOPTIMIZE = -O3 -prefetch  -unroll 
-        FOPTIMIZE +=  -tpp7 -xW -ip
+        FOPTIMIZE +=  -tpp7 -ip
+        ifeq ($(_GOTSSE3),Y) 
+          FOPTIMIZE += -xP -no-prec-div
+        else
+          FOPTIMIZE += -xW
+        endif
       endif	
       
       USE_LIB64 = y #for python linking
