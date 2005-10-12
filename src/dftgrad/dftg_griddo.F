@@ -12,7 +12,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_griddo.F,v 1.4 2005-09-27 00:35:03 edo Exp $
+c     $Id: dftg_griddo.F,v 1.5 2005-10-12 00:28:23 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -141,7 +141,7 @@ c
 c
 c     allocate scratch array for grid compression
 c
-      if (grad)then
+      if (grad.or.kske)then
          gradchi = .true.
          hesschi = .true.
          der3chi = do_hess

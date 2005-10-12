@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.30 2005-09-29 01:24:23 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.31 2005-10-12 00:28:23 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -52,8 +52,8 @@ c
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 
-c      double precision tau(n_per_rec,3,ipol)
-      double precision tau(*),Mmat(*)
+      double precision tau(n_per_rec,3,ipol)
+      double precision Mmat(*)
  
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
@@ -180,7 +180,7 @@ c                 reduce chi(nq,mbf_ao) to chi(natoms)
 c                 reduce delchi(nq,3,mbf_ao) to delchi(natoms)
          call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,           dbl_mb(ichi_ao),rchi_atom)
-         if(grad) 
+         if(grad.or.kske) 
      .        call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,           dbl_mb(idelchi_ao),rdelchi_atom)
 c         
@@ -192,7 +192,7 @@ c
      &              natoms, 1,1,1,
      I              ipol, nqpts, nbf_ao, mbf_ao, grad,
      P              (ipol*(ipol+1))/2,
-     F              Fmat, Pmat, Bmat,dmat,
+     F              Fmat, Pmat, Bmat, Dmat,
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),0d0,
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
@@ -238,9 +238,10 @@ c
                if (do_force) then
 c 
                  call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
-     &                            grad, nbf_ao, mbf_ao, natoms, nqpts,
+     &                            grad, kske, nbf_ao, mbf_ao, natoms, 
+     &                            nqpts,
      &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
-     &                            dbl_mb(iheschi_ao), Amat, Cmat,
+     &                            dbl_mb(iheschi_ao), Amat, Cmat, Mmat,
      &                            ibf_ao, iniz, ifin,
      &                            ppp, ff, 
      &                            zzz, hh, iga_dens, force,

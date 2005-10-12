@@ -1,10 +1,10 @@
-      Subroutine dftg_quadv0_b(ictr, ldew, AO_bas_han, ipol, GRAD, 
+      Subroutine dftg_quadv0_b(ictr, ldew, AO_bas_han, ipol, GRAD, kske,
      &                         nbf_ao, mbf_ao, nat, nq, chi, delchi, 
-     &                         heschi, Amat, Cmat, ibf, iniz, ifin, 
-     &                         PPP, F, zzz, hh, g_dens, force, 
+     &                         heschi, Amat, Cmat, Mmat, ibf, iniz, 
+     &                         ifin, PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.7 2003-10-17 22:54:42 carlfahl Exp $
+* $Id: dftg_quadv0b.F,v 1.8 2005-10-12 00:28:23 edo Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -18,7 +18,7 @@ c
       integer ictr
       integer ipol, nbf_ao, mbf_ao, nat, nq
       Integer AO_bas_han
-      logical GRAD, oactive(nat)
+      logical GRAD, oactive(nat), kske
       double precision zzz(3,mbf_ao)
       double precision PPP(nbf_ao), F(mbf_ao)
       integer ibf(mbf_ao), iniz(nat), ifin(nat)
@@ -36,6 +36,7 @@ c
 c     Vxc and its GCA part
 c     
       double precision Amat(nq,ipol), Cmat(nq,3,ipol)
+      double precision Mmat(nq,ipol)
 c     
 c     force vector
 c     
@@ -110,6 +111,33 @@ c
                            zzz(1,nu) = zzz(1,nu) + z1
                            zzz(2,nu) = zzz(2,nu) + z2
                            zzz(3,nu) = zzz(3,nu) + z3
+                        enddo
+                     endif
+                     if (kske)then
+                        do nu = 1, mbf_ao
+                           z1 = 0.d0
+                           z2 = 0.d0
+                           z3 = 0.d0
+                           do n = 1, nq
+c                  
+c                             Kinetic energy density part
+c                  
+                              z1 = z1 + (delchi(n,1,nu)*heschi(n,1,mu) +
+     &                                   delchi(n,2,nu)*heschi(n,2,mu) +
+     &                                   delchi(n,3,nu)*heschi(n,3,mu))
+     &                                  *Mmat(n,ispin)
+                              z2 = z2 + (delchi(n,1,nu)*heschi(n,2,mu) +
+     &                                   delchi(n,2,nu)*heschi(n,4,mu) +
+     &                                   delchi(n,3,nu)*heschi(n,5,mu))
+     &                                  *Mmat(n,ispin)
+                              z3 = z3 + (delchi(n,1,nu)*heschi(n,3,mu) +
+     &                                   delchi(n,2,nu)*heschi(n,5,mu) +
+     &                                   delchi(n,3,nu)*heschi(n,6,mu))
+     &                                  *Mmat(n,ispin)
+                           enddo
+                           zzz(1,nu) = zzz(1,nu) + z1*0.25d0
+                           zzz(2,nu) = zzz(2,nu) + z2*0.25d0
+                           zzz(3,nu) = zzz(3,nu) + z3*0.25d0
                         enddo
                      endif
                      call dgemv('n',3,mbf_ao,-two,zzz,3,F,1,0d0,

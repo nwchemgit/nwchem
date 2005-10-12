@@ -9,10 +9,10 @@ c
 c
       status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
       status = nwdft(rtdb)
-      if(xc_chktau()) then
-         dft_energy_gradient=.false.
-         return
-      endif
+chvd  if(xc_chktau()) then
+chvd     dft_energy_gradient=.false.
+chvd     return
+chvd  endif
       if (status) status = grad_dft(rtdb)
       dft_energy_gradient = status
       call grid_cleanup(.true.)
@@ -36,7 +36,7 @@ c
       end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.34 2004-12-20 21:25:19 edo Exp $
+* $Id: grad_dft.F,v 1.35 2005-10-12 00:28:23 edo Exp $
 *
       implicit none
 #include "errquit.fh"

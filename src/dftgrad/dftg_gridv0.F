@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.22 2005-09-27 00:35:03 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.23 2005-10-12 00:28:23 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.22 2005-09-27 00:35:03 edo Exp $
+c $Id: dftg_gridv0.F,v 1.23 2005-10-12 00:28:23 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -67,9 +67,9 @@ c
 c
       integer cetobfr(2,natoms)
       double precision rdens_atom(ipol*natoms*natoms)
-      logical GRAD, GRADCHI, HESSCHI, DER3CHI
-      logical xc_chkgrad,xc_rep_close
-      external xc_chkgrad,xc_rep_close
+      logical GRAD, GRADCHI, HESSCHI, DER3CHI, kske
+      logical xc_chkgrad,xc_rep_close, xc_chktau
+      external xc_chkgrad,xc_rep_close, xc_chktau
            
       logical ldew, oprint
       double precision eps
@@ -86,7 +86,7 @@ c
      &        lPmat, iPmat, lrho, irho, lBmat, iBmat, lDmat, iDmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
      &        ltags, itags,
-     &        itau, ltau, immat, lmmat
+     &        itau, ltau, iMmat, lMmat
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat, len_Dmat
       integer lzzz,  izzz, lff, iff, lppp, ippp
@@ -98,7 +98,7 @@ c
       integer nscr,icrad,iprad,iang
       integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nbf_ao_mxnbf_ce
-      integer lgthpmat,nelem_tau
+      integer lgthpmat,nelem_tau,nelem_mmat
       integer lscr,iscr
       integer nxtask
       external nxtask
@@ -115,13 +115,6 @@ c     &     do_hess, do_cpks_r
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint = util_print('quadrature', print_high)
-c
-c     weight derivatives switched on by default
-c
-      if (.not. rtdb_get(rtdb, 'dft:weight derivatives', mt_log, 1, 
-     &   ldew))ldew=.true.
-      if(ldew.and.(me.eq.0).and.oprint) 
-     .     write(LuOut,*) '  weight derivatives on'
 c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
@@ -142,8 +135,21 @@ c     see if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()
 c
+c     see if any Kinetic Energy Density is not null
+c
+      kske=xc_chktau()
+c
+c     weight derivatives switched on by default
+c
+      if (.not. rtdb_get(rtdb, 'dft:weight derivatives', mt_log, 1, 
+     &   ldew))ldew=.true.
+c     weight deriv bit missing for metaggas
+      if(kske) ldew=.false.
+      if(ldew.and.(me.eq.0).and.oprint) 
+     .     write(LuOut,*) '  weight derivatives on'
+c
 c     !!! Are these logicals ever used? Are they in a common block? !!!
-      if (grad) then
+      if (grad.or.kske) then
          gradchi = .true.
          hesschi = .true.
          der3chi = do_hess
@@ -269,22 +275,24 @@ c
      &       MA_ERR)
 
 c
-c    not used for the moment, neither tau nor mmat
+c    not used for the moment, neither tau nor Mmat
 c	
-      nelem_tau=1
+      if (kske) then
+         nelem_tau  = 3*ipol*n_per_rec
+         nelem_mmat = ipol*n_per_rec
+      else
+         nelem_tau  = 1
+         nelem_mmat = 1
+      endif
 c      nelem_tau=3*npol*n_per_rec
 
       if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'tau',ltau,itau))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
      &       MA_ERR)
 
-      if (.not.MA_Push_Get(MT_Dbl,nelem_tau,'Mmat',lmmat,immat))
+      if (.not.MA_Push_Get(MT_Dbl,nelem_mmat,'Mmat',lMmat,iMmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',
      &   13, MA_ERR)
-
-
-
-
 c
 c     Note: hessian and cpks rhs need a larger version of Bmat
 c     See xc_quadv0.F
@@ -300,7 +308,7 @@ c
 c
 c     hessian and cpks rhs also need a Dmat
 c
-      if (do_hess .or. do_cpks_r) then
+      if (do_hess .or. do_cpks_r.or.kske) then
          len_Dmat = n_per_rec*3*nbf_ao_mxnbf_ce
          if (.not.MA_Push_Get(mt_dbl,len_Dmat,'Dmat',lDmat,iDmat))
      &        call errquit(' exiting in dftg_gridv0: insuff stack',131,
@@ -464,7 +472,7 @@ c
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
      &                   rdens_atom,  cetobfr,
-     &                    dbl_mb(itau), dbl_mb(immat) )
+     &                    dbl_mb(itau), dbl_mb(iMmat) )
       else
        if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
      &     call errquit
@@ -489,7 +497,7 @@ c
      &                   force, hess, g_rhs, do_force, do_hess,
      &                   do_cpks_r, natoms, oactive, nactive,
      &                   rdens_atom,  cetobfr,
-     &                    dbl_mb(itau), dbl_mb(immat) )
+     &                    dbl_mb(itau), dbl_mb(iMmat) )
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dftg_gridv0: cannot pop stack',21, MA_ERR)
       endif
