@@ -1,7 +1,8 @@
 # find ./ -name "*.o" -exec cp {} ~/nwchem-4.7/obj \; -print
 
 target:
-	ar rcv $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libnwchem-sumo.a obj/*.o
+	find $(NWCHEM_TOP)/src/cca -name "*.o" -exec rm {} \; -print
+	find $(NWCHEM_TOP)/src -name "*.o" | xargs ar rcv $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libnwchem-sumo.a 
 	ranlib $(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)/libnwchem-sumo.a	
 
 clean:
