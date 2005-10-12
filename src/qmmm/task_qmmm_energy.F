@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.15 2005-09-18 23:06:38 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.16 2005-10-12 00:46:32 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -20,9 +20,12 @@ c     external functions
       external task_qmmm_energy_sp
 c
       logical  task_qmmm_energy_spi
+      logical  task_qmmm_energy_ti
+      external task_qmmm_energy_ti
       external task_qmmm_energy_spi
 c     local variables
       logical traj
+      logical ti
       character*30 operation
 
       if(qmmm_print_debug()) 
@@ -34,14 +37,26 @@ c
       if (.not. rtdb_get(rtdb, 'qmmm:trajectory', mt_log,1,traj))
      $     traj = .false.
 c
+      if (.not. rtdb_get(rtdb, 'qmmm:ti', mt_log,1,ti))
+     $     ti = .false.
+c
       if(operation.ne.'energy') traj = .false.
+c
+      if(ti) then
+        task_qmmm_energy = task_qmmm_energy_ti(rtdb)
+        goto 1
+      end if
 c
       if(traj) then
         task_qmmm_energy = task_qmmm_energy_spi(rtdb)
-      else
-        task_qmmm_energy = task_qmmm_energy_sp(rtdb)
+        goto 1
       end if
 c
+      task_qmmm_energy = task_qmmm_energy_sp(rtdb)
+c
+ 1    continue
+      return
+
       end
 c
       function task_qmmm_energy_spi(rtdb)
@@ -149,6 +164,205 @@ c
 
       end do
  23   continue
+c
+      if(master) 
+     >  close(fn)
+      return
+
+ 9999 continue
+      call errquit('Failed to open file '//filename,0,0)
+
+      end
+c
+      function task_qmmm_energy_ti(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+c
+      integer rtdb
+      logical task_qmmm_energy_ti
+c     external functions
+      logical qmmm_energy_gradient
+      external qmmm_energy_gradient 
+
+c     local variables
+      integer i,iframe
+      logical ignore
+      character*32 interface
+      character*255 filename
+      character*255 buf
+      logical save_rst
+      logical do_print
+      character*30 operation
+      double precision energy
+      integer fn
+      integer trn(3)
+      integer nfr,nfra
+      character*30 pname
+      character*255 geom_file
+      character*255 esp_file
+      character*3  ftype
+      logical master
+      integer i_e1,h_e1
+      integer i_e2,h_e2
+      character*30 region(3)
+      integer nregion
+      character*84 tag
+c
+      logical  mm_read_frame
+      external mm_read_frame
+      logical  mm_skip_frame
+      external mm_skip_frame
+c
+      pname = "task_qmmm_energy_ti"
+c
+      task_qmmm_energy_ti = .true.
+c
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+c
+c     region definitions
+c     ------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     no region so exiting out
+c     -----------------------
+      if(nregion.eq.0) return
+
+      if(nregion.gt.3) 
+     >      call errquit(pname//"too many regions",0,0)
+      if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     define set of active atoms
+c     --------------------------
+      call qmmm_cons_reset()
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region(1))
+c
+c
+      master = qmmm_master()
+c
+      if(.not.qmmm_get_io_unit(fn)) 
+     >   call errquit("cannot get file number",0,0)
+c
+      if (.not.rtdb_cget(rtdb,"qmmm:trajectory_file",1,filename)) 
+     >      call errquit(pname//'failed to get trajectory filename',0,
+     >       RTDB_ERR)
+c
+      if(index(filename,".xyzi").ne.0) then
+        ftype = "xyz"
+      else if(index(filename,".trj").ne.0) then
+        ftype = "trj"
+      else if(index(filename,".tri").ne.0) then
+        ftype = "trj"
+      else
+        call errquit(pname//" unknown trajectory format "//
+     >               filename,0,0)
+      end if
+c
+c     convert xyz trajectory into mm trajectory
+c     -----------------------------------------
+      if(ftype.eq."xyz") then
+        i = index(filename,".xyzi")
+        buf = filename
+        filename = buf(1:i)//"tri"
+        call mm_create_trj_from_xyz(buf,filename)
+      end if
+c
+      call util_file_name_resolve(filename,.false.)
+      if(master) then
+        open(unit=fn,file=filename,
+     +   form='formatted',status='old',err=9999)
+      end if
+c
+      if (.not.rtdb_get(rtdb,"qmmm:trajectory_n",mt_int,3,trn)) 
+     >      call errquit(pname//'failed to get trn',0,
+     >       RTDB_ERR)
+
+      if (.not.rtdb_cget(rtdb,"qmmm:ti_geom_file",1,geom_file)) 
+     >    geom_file = " "
+
+      if (.not.rtdb_cget(rtdb,"qmmm:ti_esp_file",1,esp_file)) 
+     >    geom_file = " "
+
+c
+c     total number of frames to process
+c     ---------------------------------
+      nfr = MAX((trn(2)-trn(1)+trn(3))/trn(3),0)
+      if(master) 
+     >   write(*,*) "ti: total number of frames",nfr
+c
+      if(.not.ma_alloc_get(MT_DBL, nfr, 'qmmm ti e1',
+     &      h_e1, i_e1) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nfr, MA_ERR)
+      call dfill(nfr,0,dbl_mb(i_e1),1)
+c
+      if(.not.ma_alloc_get(MT_DBL, nfr, 'qmmm ti e2',
+     &      h_e2, i_e2) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nfr, MA_ERR)
+      call dfill(nfr,0,dbl_mb(i_e2),1)
+c
+      nfra = 0
+
+      if(.not.mm_read_frame(fn,trn(1)))
+     >    call errquit(pname//'failed to get skip frames',
+     >                 0,0)
+
+
+      do i=trn(1),trn(2),trn(3)
+        nfra = nfra + 1
+        call md_sp()
+        task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,dbl_mb(i_e1+i-1)))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+        if(master) write(*,*) "ti:e1",dbl_mb(i_e1+i-1)
+        if(.not.mm_read_frame(fn,trn(3))) go to 23
+
+      end do
+ 23   continue
+
+      rewind(fn)
+
+      if(.not.mm_read_frame(fn,trn(1)))
+     >    call errquit(pname//'failed to get skip frames',
+     >                 0,0)
+
+
+      do i=trn(1),trn(2),trn(3)
+        if(geom_file.ne." ") 
+     >     call mm_set_solute_coord_file(geom_file)
+        call md_sp()
+        task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,dbl_mb(i_e2+i-1)))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+        if(master) write(*,*) "ti:e2",dbl_mb(i_e2+i-1)
+
+        if(.not.mm_read_frame(fn,trn(3))) go to 24
+
+      end do
+ 24   continue
+
+
 c
       if(master) 
      >  close(fn)

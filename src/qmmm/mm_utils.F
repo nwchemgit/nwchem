@@ -264,6 +264,18 @@ c        local variables
          
        end
 
+       function mm_record()
+         implicit none
+#include "mafdecls.fh"
+#include "md_common.fh"
+         integer i
+         logical mm_record
+c        local variables
+
+         mm_record = lxw.or.lxs
+         
+       end
+
        function mm_quant_link(i)
          implicit none
 #include "mafdecls.fh"
