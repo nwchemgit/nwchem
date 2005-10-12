@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.506 2005-10-11 22:07:06 edo Exp $
+# $Id: makefile.h,v 1.507 2005-10-12 20:53:48 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1656,7 +1656,7 @@ endif # end of ia32 bit
         FOPTIONS   += -cpp -Wp,-P
         FOPTIONS   += -fno-second-underscore -fixedform
         FOPTIONS   += -align64
-        FOPTIMIZE   = -O3 -OPT:Ofast:IEEE_arith=1:IEEE_NaN_inf=ON:Olimit=12000:ro=1:fold_reassociate=OFF#:div_split=OFF:fast_nint=OFF
+        FOPTIMIZE   = -O3 -OPT:Ofast:IEEE_arith=1:IEEE_NaN_inf=ON:Olimit=12000:ro=1:fold_reassociate=ON#:div_split=OFF:fast_nint=OFF
         FVECTORIZE  = -O3 -OPT:Ofast:ro=1 -fno-math-errno
         DEFINES  += -DCHKUNDFLW -DPSCALE
         FDEBUG = -g -O2
@@ -1697,15 +1697,24 @@ endif # end of ia32 bit
      endif
 
       ifeq ($(_FC),gfortran)
+     _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -1 | awk ' /3dnowext/  {print "Y"}')
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
 #        FOPTIONS   += -x f77-cpp-input
         FOPTIONS   += -Wextra -Wunused -Wuninitialized
         FOPTIMIZE   = -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
-        FOPTIMIZE  += -fprefetch-loop-arrays -ftree-loop-linear
+        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
         FDEBUG = -g -O 
         DEFINES  += -DCHKUNDFLW -DGCC4
+        ifeq ($(_GOT3DNOW),Y) 
+#we guess its an opteron
+          FOPTIMIZE += -march=opteron -mtune=opteron
+        else
+#we guess its a nocona em64t
+          FOPTIMIZE += -march=nocona -mtune=nocona
+        endif
+#        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
       endif
 endif
 
