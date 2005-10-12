@@ -20,6 +20,6 @@ dft
  decomp
  print low
 end
-task dft optimize numerical
+task dft optimize 
 
 
