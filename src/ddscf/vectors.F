@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.53 2005-01-12 18:12:46 edo Exp $
+C$Id: vectors.F,v 1.54 2005-10-13 01:09:01 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -10,6 +10,7 @@ C$Id: vectors.F,v 1.53 2005-01-12 18:12:46 edo Exp $
 #include "cscfps.fh"
 #include "inp.fh"
 #include "stdio.fh"
+#include "mafdecls.fh"
 c
 c     Temporary routine
 c
@@ -28,13 +29,15 @@ c
       integer lentit
       integer lenbas
       integer ok, i
+      integer ioserr,inntsize
       character*20 scftype20
 c
       if (oscfps) call pstat_on(ps_vecio)
       ok = 0
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted', file=filename,
-     $        err=1000)
+     $        iostat=ioserr,err=1000)
          read(unitno, err=1001, end=2001) ! SKIP convergence info
          read(unitno, err=1001, end=2001) scftype20
          scftype = scftype20
@@ -62,23 +65,24 @@ c
          ok = 1
       endif
 c
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
       movecs_read_header = ok .eq. 1
       if (.not. movecs_read_header) return
 c
       call util_char_ga_brdcst(Msg_Vec_Ttl, title, 0)
       call util_char_ga_brdcst(Msg_Vec_Nam, basis_name, 0)
       call util_char_ga_brdcst(Msg_Vec_Type, scftype, 0)
-      call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
-      call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, mitob(1), 0)
-      call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, mitob(nsets), 0)
+      call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, inntsize, 0)
+      call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, inntsize, 0)
+      call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, inntsize*nbf, 0)
 c
       if (oscfps) call pstat_off(ps_vecio)
 c
       return
 c
  1000 write(6,*) ' movecs_read_header: failed to open ',
-     $     filename(1:inp_strlen(filename))
+     $     filename(1:inp_strlen(filename)),
+     A ' IERR = ', ioserr
       call util_flush(luout)
       ok = 0
       goto 10
@@ -130,10 +134,12 @@ c
       integer l_vecs, k_vecs
       integer unitno
       parameter (unitno = 67)
+      integer inntsize
 c     
       l_vecs = -1               ! An invalid MA handle
 c
       if (oscfps) call pstat_on(ps_vecio)
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -182,11 +188,11 @@ c
      $      ('movecs_read: pop failed', l_vecs, MA_ERR)
       endif
       call ga_sync()
-      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
       if (ok .eq. 1) then
-	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, mitob(1), 0)
-	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, mdtob(nbf), 0)
-	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ,   mdtob(nbf), 0)
+	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, inntsize, 0)
+	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, inntsize*nbf, 0)
+	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ, inntsize*nbf, 0)
       endif
 c
       movecs_read = ok .eq. 1
@@ -342,8 +348,10 @@ c
       character*20 scftype20    ! DECL MUST match movecs_converged routine
       character*128 basis_name, trans_name
       double precision energy, enrep
+      integer inntsize
 c
       if (oscfps) call pstat_on(ps_vecio)
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
 c
 c     Generate info to go into convergence and restart line
@@ -433,7 +441,7 @@ c
          ok = 1
       endif
 c
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0) ! Propagate status
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
 c
       movecs_write = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
@@ -820,10 +828,12 @@ c
       character*26 date, filedate
       integer geom, ma_type, nelem
       integer unitno            ! Unit no. for reading
+      integer inntsize
       parameter (unitno = 67)   ! These need to be managed !!!
       logical status, oldmode
 c
       status = .false.
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
 c
       oldmode =  rtdb_parallel(.false.)
       if (ga_nodeid() .eq. 0) then
@@ -866,7 +876,7 @@ c
       endif
 c
  10   oldmode =  rtdb_parallel(oldmode)
-      call ga_brdcst(1311, status, mitob(1), 0)
+      call ga_brdcst(1311, status, inntsize, 0)
       movecs_converged = status
       return
 c
@@ -897,8 +907,10 @@ c
       double precision offset
       integer lgth
       character*255 errmsg
+      integer inntsize
 c
       ok = 1
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       if (ga_nodeid() .eq. 0) then
          offset=0d0
          ierr=eaf_open(fname(1:inp_strlen(fname)),
@@ -972,9 +984,9 @@ c
       end if
 c
  10   call ga_sync()
-      call ga_brdcst(1, ok, mitob(1), 0) ! Propagate status
-      call ga_brdcst(2, nrow, mitob(1), 0)
-      call ga_brdcst(3, ncol, mitob(1), 0)
+      call ga_brdcst(1, ok, inntsize, 0) ! Propagate status
+      call ga_brdcst(2, nrow, inntsize, 0)
+      call ga_brdcst(3, ncol, inntsize, 0)
       call util_char_ga_brdcst(4, title, 0)
 c
       file_read_ga_info = ok .eq. 1
@@ -1009,8 +1021,10 @@ c
       integer ierr
       double precision offset
       integer lgth
+      integer inntsize
       character*255 errmsg
 c
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync
 c
       ok = 0
@@ -1082,7 +1096,7 @@ c
       endif
 c
  10   call ga_sync
-      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)        ! Propagate status
 c
       file_write_ga_patch = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
@@ -1152,8 +1166,10 @@ c
       integer ierr
       double precision offset
       integer lgth
+      integer inntsize
       character*255 errmsg
 c
+      inntsize=ma_sizeof(MT_INT,1,MT_BYTE)
       call ga_sync()
 c
       ok = 0
@@ -1170,7 +1186,7 @@ c
            write(LuOut,*) ga_nodeid(),errmsg
            goto 1000
         endif
-        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        lgth=inntsize
         ierr = eaf_read(unitno, offset, len1,lgth)
         offset=offset+lgth
         lgth=len1
@@ -1180,10 +1196,10 @@ c
         ierr = eaf_read(unitno, offset, gtitle(1:len1),lgth)
 #endif
         offset=offset+lgth
-        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        lgth=inntsize
         ierr = eaf_read(unitno, offset, nrow,lgth)
         offset=offset+lgth
-        lgth=ma_sizeof(MT_INT,1,MT_BYTE)
+        lgth=inntsize
         ierr = eaf_read(unitno, offset, ncol,lgth)
         if (ierr .ne. 0) then
            call eaf_errmsg(ierr, errmsg)
@@ -1225,7 +1241,7 @@ c
       endif
 c
  10   call ga_sync()
-      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, mitob(1), 0)        ! Propagate status
+      call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0)        ! Propagate status
 c
       file_read_ga_patch = ok .eq. 1
       if (ga_nodeid() .eq. 0 .and.
