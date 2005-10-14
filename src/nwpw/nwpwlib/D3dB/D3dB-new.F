@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.43 2005-10-07 19:34:21 bylaska Exp $
+* $Id: D3dB-new.F,v 1.44 2005-10-14 01:31:57 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -100,9 +100,9 @@ ccccccccccc  #define TCGMSG
 
 
 *     ****** cyclic ******
-      p = 0
-      q = 1
-      do k=1,nz(nb)
+       p = 0
+       q = 1
+       do k=1,nz(nb)
          int_mb(q_map(1,nb)+k-1) = q
          int_mb(p_map(1,nb)+k-1) = p
          if (p .eq. taskid) nq(nb) = q
@@ -112,7 +112,33 @@ ccccccccccc  #define TCGMSG
             p = 0
             q = q + 1
          end if
-      end do
+       end do
+
+c      if (nb.eq.1) then
+c       p = 0
+c       q = 1
+c       do k=1,nz(nb)
+c         int_mb(q_map(1,nb)+k-1) = q
+c         int_mb(p_map(1,nb)+k-1) = p
+c         if (p .eq. taskid) nq(nb) = q
+c
+c         p        = p+1
+c         if (p .ge. np) then
+c            p = 0
+c            q = q + 1
+c         end if
+c       end do
+c      else if (nb.eq.2) then
+c       p = 0
+c       q = 1
+c       do k=1,nz(1)
+c         int_mb(q_map(1,nb)+k-1)       = int_mb(q_map(1,1)+k-1)
+c         int_mb(q_map(1,nb)+k+nz(1)-1) = int_mb(q_map(1,1)+k-1)+nq(1)
+c         int_mb(p_map(1,nb)+k-1)       = int_mb(p_map(1,1)+k-1)
+c         int_mb(p_map(1,nb)+k+nz(1)-1) = int_mb(p_map(1,1)+k-1)
+c       end do
+c
+c      end if
 
 *     ***** block  ******
 *     **** make sure nz(nb) is a multiple of np ****

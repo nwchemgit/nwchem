@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.6 2005-08-29 21:19:58 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.7 2005-10-14 01:31:57 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -91,17 +91,13 @@
          end if
 
 *        **** find zero_row3 - (i,j,*) rows that are zero ****
-         do k2 = 1,ny(1)
-         do k1 = 1,nxh+1
-           log_mb(zero_arow3(1)+k1-1+(nxh+1)*(k2-1)) =.true.
-           !log_mb(zero_arow3(1)+k1-1+(nxh+1)*(k2-1)) =.false.
-           call D3dB_ktoqp(1,k2,q,p)
-           if (p.eq.taskid) then
-             index2 = k1 + (nxh+1)*(q-1)
-             log_mb(zero_row3(1,nb)+index2-1) =.true.
-           end if
+         do q=1,(nxh+1)*nq(1)
+             log_mb(zero_row3(1,nb)+q-1) =.true.
          end do
+         do q=1,(nxh+1)*ny(1)
+           log_mb(zero_arow3(1)+q-1) =.true.
          end do
+
 
          do k2 = -nyh+1, nyh-1
          do k1 = 0,nxh-1
@@ -114,14 +110,14 @@
           zrow = .true.
           do k3 = -nzh+1, nzh-1
             g1 = k1*lattice_unitg(1,1)
-     >         + k2*lattice_unitg(1,2)
-     >         + k3*lattice_unitg(1,3)
+     >         + k3*lattice_unitg(1,2)
+     >         + k2*lattice_unitg(1,3)
             g2 = k1*lattice_unitg(2,1)
-     >         + k2*lattice_unitg(2,2)
-     >         + k3*lattice_unitg(2,3)
+     >         + k3*lattice_unitg(2,2)
+     >         + k2*lattice_unitg(2,3)
             g3 = k1*lattice_unitg(3,1)
-     >         + k2*lattice_unitg(3,2)
-     >         + k3*lattice_unitg(3,3)
+     >         + k3*lattice_unitg(3,2)
+     >         + k2*lattice_unitg(3,3)
             gg = g1*g1 + g2*g2 + g3*g3
             gg= gg-ggcut
             if (gg.lt.-eps) zrow = .false.
@@ -922,6 +918,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     ***      A(ky,nz(nb),ky) <- A(kx,ky,nz(nb))      ***
 *     ********************************************
       call D3dB_c_ptranspose2_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+c      call D3dB_c_transpose_jk(nbb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 *     ********************************************
