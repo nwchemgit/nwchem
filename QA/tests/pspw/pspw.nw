@@ -23,6 +23,7 @@ set nwpw:minimizer 2
 nwpw 
    simulation_cell
      ngrid 8 8 8
+     SC 20.0      #Not checking automatic unit cell generation
    end
 end
 task pspw energy
@@ -60,7 +61,11 @@ set nwpw:excited_ne 4 0
 
 nwpw 
    simulation_cell
-     BCC 32.0
+     #BCC 32.0   #BCC cell definition has been changed-testing old definition
+     lattice_vectors
+       16.000  16.000  16.000
+      -16.000  16.000  16.000
+       16.000  16.000 -16.000
    end
 end
 task pspw energy
