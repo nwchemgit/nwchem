@@ -1,5 +1,5 @@
 /*
- $Id: mgscs.c,v 1.12 2004-10-20 16:25:58 edo Exp $
+ $Id: mgscs.c,v 1.13 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -118,7 +118,7 @@ Integer mgscs(n, vecA, mapA, b1, bn, c1, cn, iwork, work )
   extern void mapdif1_();
 
   extern void g_exit_();
-  extern void pxerbla_();
+  extern void pxerbla2_();
 
   extern void dscal_();
   extern void dcopy_();

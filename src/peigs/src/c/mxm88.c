@@ -1,5 +1,5 @@
 /*
- $Id: mxm88.c,v 1.3 2000-10-24 18:25:50 d3g270 Exp $
+ $Id: mxm88.c,v 1.4 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -133,7 +133,7 @@ void mxm88 ( n, colQ, mapQ, m, colW, mapW, iwork, work, iptr)
     */
   
   extern DoublePrecision ddot_();
-  extern void pxerbla_();
+  extern void pxerbla2_();
   extern void daxpy_();
   extern void dcopy_();
   extern void zero_out();
@@ -225,10 +225,10 @@ void mxm88 ( n, colQ, mapQ, m, colW, mapW, iwork, work, iptr)
   
   linfo = 0;
   j = *n * sizeof(Integer);
-  pxerbla_( &j , (char *) mapQ, mapQ, n, iscrat, &i );
+  pxerbla2_( &j , (char *) mapQ, mapQ, n, iscrat, &i );
   linfo = min(linfo, i);
   j = *m * sizeof(Integer);;
-  pxerbla_( &j, (char *) mapW, mapQ, n, iscrat, &i);
+  pxerbla2_( &j, (char *) mapW, mapQ, n, iscrat, &i);
   
   linfo = min(linfo, i);
   g_exit_( &linfo, "Mapping inconsistancies calling MXM8 \n", mapQ, n, iwork, work );

@@ -1,5 +1,5 @@
 /*
- $Id: choleski9.c,v 1.7 2000-10-24 18:25:46 d3g270 Exp $
+ $Id: choleski9.c,v 1.8 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -211,7 +211,7 @@ void choleski( n, vecA, mapA, iscratch, scratch, info )
   linfo = 0;
   k = (*n + 1)*sizeof(Integer);
   iwork = iscratch + *n + 1;
-  pxerbla_ ( &k, (char *) iscratch, mapA, n, iwork, &linfo );
+  pxerbla2_ ( &k, (char *) iscratch, mapA, n, iwork, &linfo );
   
   g_exit_ ( &linfo, "CHOLESKI: Mapping inconsistancies.\n", mapA, n, iwork, scratch);
   

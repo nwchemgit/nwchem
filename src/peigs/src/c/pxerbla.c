@@ -1,5 +1,5 @@
 /*
- $Id: pxerbla.c,v 1.3 2000-10-24 18:25:54 d3g270 Exp $
+ $Id: pxerbla.c,v 1.4 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -33,7 +33,7 @@
  */
 /*
 
-PeIGS internal error utility: pxerbla_
+PeIGS internal error utility: pxerbla2_
 
 global list check of some a given list
 
@@ -49,7 +49,7 @@ user input errors
 
 #include "globalp.c.h"
 
-void pxerbla_( n, array, procmap, len, iwork, info )
+void pxerbla2_( n, array, procmap, len, iwork, info )
      char *array;
      Integer *n, *procmap, *len, *iwork, *info;
 {
@@ -173,7 +173,7 @@ void pxerbla_( n, array, procmap, len, iwork, info )
     *info = -50;  /* not even in the list of processors */
 
 #ifdef DEBUG2
-  fprintf(stderr, " out pxerbla me = %d \n", me);
+  fprintf(stderr, " out pxerbla2 me = %d \n", me);
 #endif
 
   return;

@@ -1,5 +1,5 @@
 /*
- $Id: mxm_ll1.c,v 1.3 2000-10-24 18:25:50 d3g270 Exp $
+ $Id: mxm_ll1.c,v 1.4 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -199,11 +199,11 @@ void mxm_llx( n, colL, mapL, m, colF, mapF, iscratch, scratch)
 
     linfo = 0;
     ll = *n * sizeof(Integer);
-    pxerbla_ ( &ll, mapL, mapL, n, iscrat, &i );
+    pxerbla2_ ( &ll, mapL, mapL, n, iscrat, &i );
     linfo = min(linfo, i);
     ll = *m * sizeof(Integer);
 
-    pxerbla_ ( &ll, mapF, mapL, n, iscrat, &i);
+    pxerbla2_ ( &ll, mapF, mapL, n, iscrat, &i);
 
     linfo = min(linfo, i);
 

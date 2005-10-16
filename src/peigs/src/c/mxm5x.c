@@ -1,5 +1,5 @@
 /*
- $Id: mxm5x.c,v 1.4 2000-10-24 18:25:50 d3g270 Exp $
+ $Id: mxm5x.c,v 1.5 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -141,7 +141,7 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
   extern void xerbla_();
   extern void mapdif1_();
   extern void g_exit_();
-  extern void pxerbla_();
+  extern void pxerbla2_();
   extern Integer fil_mapvec_();
   extern void chol_pipe_bcast();
   extern void gshellsort_();
@@ -245,11 +245,11 @@ void mxm5x( n, rowU, mapU, m, colF, mapF, iscratch, scratch)
     
     linfo = 0;
     ll = *n * sizeof(Integer);
-    pxerbla_( &ll, (char *) mapU, mapU, n, iscrat, &i );
+    pxerbla2_( &ll, (char *) mapU, mapU, n, iscrat, &i );
     linfo = min(linfo, i);
     ll = *m * sizeof(Integer);
     
-    pxerbla_( &ll, (char *) mapF, mapU, n, iscrat, &i);
+    pxerbla2_( &ll, (char *) mapF, mapU, n, iscrat, &i);
     
     linfo = min(linfo, i);
     

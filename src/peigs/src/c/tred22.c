@@ -1,5 +1,5 @@
 /*
- $Id: tred22.c,v 1.7 2004-10-20 16:25:58 edo Exp $
+ $Id: tred22.c,v 1.8 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -263,7 +263,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   extern void mapdif1_();
 
   extern void g_exit_();
-  extern void pxerbla_();
+  extern void pxerbla2_();
 
   extern void dscal_();
   extern void dcopy_();
@@ -370,7 +370,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   linfo = 0;
   k = (*n + 1)*sizeof(Integer);
   iscrat += *n + 1;
-  pxerbla_( &k, (char *)iwork, mapA, n, iscrat, &linfo );
+  pxerbla2_( &k, (char *)iwork, mapA, n, iscrat, &linfo );
   if( linfo != 0 )
     linfo = -1;
 
@@ -379,7 +379,7 @@ Integer tred2(n, vecA, mapA, Q, mapQ, diag, upperdiag, iwork, work )
   iscrat = iwork;
   linfo = 0;
   k = *n * sizeof(Integer);
-  pxerbla_( &k, (char *) mapQ, mapA, n, iscrat, &linfo );
+  pxerbla2_( &k, (char *) mapQ, mapA, n, iscrat, &linfo );
   
   mapdif1_( n, mapQ, n, mapA, iscrat, &j );
   if( linfo != 0  || j != 0 )

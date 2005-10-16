@@ -1,4 +1,4 @@
-/* $Id: peigs_types.h,v 1.6 1999-07-28 00:39:18 d3e129 Exp $ */
+/* $Id: peigs_types.h,v 1.7 2005-10-16 19:43:57 edo Exp $ */
 
 /* b_ortho.c */
 void b_ortho (Integer *n, DoublePrecision **colB, Integer *mapB, Integer *m, DoublePrecision **colZ, Integer *mapZ, DoublePrecision **ibuffptr, Integer *iwork, DoublePrecision *work, DoublePrecision *ort, Integer *info);
@@ -237,8 +237,8 @@ void pstein (Integer *n, DoublePrecision *dd, DoublePrecision *ee, Integer *meig
 /* pstein_old.c */
 void pstein (Integer *n, DoublePrecision *dd, DoublePrecision *ee, Integer *meigval, DoublePrecision *eval, Integer *iblock, Integer *nsplit, Integer *isplit, Integer *mapZ, DoublePrecision **vecZ, DoublePrecision *ddwork, Integer *iiwork, Integer **ppiwork, Integer *info);
 
-/* pxerbla.c */
-void pxerbla_ (Integer *n, char *array, Integer *procmap, Integer *len, Integer *iwork, Integer *info);
+/* pxerbla2_.c */
+void pxerbla2_ (Integer *n, char *array, Integer *procmap, Integer *len, Integer *iwork, Integer *info);
 
 /* qsort.c */
 Integer iqsort (Integer **v, Integer left, Integer right);

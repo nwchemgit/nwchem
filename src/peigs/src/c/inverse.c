@@ -1,5 +1,5 @@
 /*
- $Id: inverse.c,v 1.5 2004-10-20 16:39:57 edo Exp $
+ $Id: inverse.c,v 1.6 2005-10-16 19:43:57 edo Exp $
  *======================================================================
  *
  * DISCLAIMER
@@ -211,7 +211,7 @@ void inverseL ( msize, col, map, iwork, buffer, info)
   extern void xerbla_();
   extern void bbcast00();
   extern Integer count_list();
-  extern void pxerbla_();
+  extern void pxerbla2_();
   extern void g_exit_();
   extern Integer fil_mapvec_();
   extern void dcopy_();
@@ -278,7 +278,7 @@ void inverseL ( msize, col, map, iwork, buffer, info)
   j = n + 1;
   j = j*sizeof(Integer);
   
-  pxerbla_( &j, (char *) iscrat, map, msize, iwork + n + 1, &linfo );
+  pxerbla2_( &j, (char *) iscrat, map, msize, iwork + n + 1, &linfo );
   
   linfo = -abs(linfo);
   

@@ -1,5 +1,5 @@
 /*
- $Id: choleski_f.c,v 1.2 1999-07-28 00:39:07 d3e129 Exp $
+ $Id: choleski_f.c,v 1.3 2005-10-16 19:43:50 edo Exp $
  *
  *
  *
@@ -61,7 +61,7 @@ void choleski_( n, colQ, mapQ, iwork, work, info)
   extern Integer fil_mapvec_();
   extern void choleski();
   extern Integer count_list();
-  extern void xerbla_(), pxerbla_();
+  extern void xerbla_(), pxerbla2_();
   extern void g_exit_();
   
    i = 0;
@@ -111,7 +111,7 @@ void choleski_( n, colQ, mapQ, iwork, work, info)
   iscrat = iwork + *n + 1;
   
   i = i * sizeof(Integer);
-  pxerbla_( &i, (char *) iwork, mapQ, n, iscrat, &linfo );
+  pxerbla2_( &i, (char *) iwork, mapQ, n, iscrat, &linfo );
   
   g_exit_( &linfo, "Choleski:Mapping inconsistancies.\n", mapQ, n, iwork, work );
   
