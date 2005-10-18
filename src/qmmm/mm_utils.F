@@ -61,6 +61,24 @@
 
        end
 
+       subroutine mm_get_temp(temp0)
+         implicit none
+#include "md_common.fh"
+         double precision temp0
+         
+         temp0 = temp 
+
+       end
+
+       subroutine mm_get_stime(stime0)
+         implicit none
+#include "md_common.fh"
+         double precision stime0
+         
+         stime0 = stime
+
+       end
+
        subroutine mm_get_mwm(mwm0)
          implicit none
 #include "md_common.fh"
