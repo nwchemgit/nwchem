@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.175 2005-09-14 22:15:56 d3j191 Exp $
+c $Id: cf_main.F,v 1.176 2005-10-18 17:01:11 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -2722,14 +2722,14 @@ c
 c
       call cf_fix_sw(lfnout,lfn,numfix,iwgmn,iwdt,numw,
      + isgan,isatt,isdt,issgm,nums,byte_mb(i_snam),xwm,xs,
-     + int_mb(i_ibnd(2)),mbt(2),int_mb(i_temp))
+     + int_mb(i_ibnd(2)),mbt(2),numb(2),int_mb(i_temp))
 c
       if(.not.ma_pop_stack(l_temp)) 
      + call md_abort('Unable to deallocate temp array in cf_fix',0) 
       return
       end
       subroutine cf_fix_sw(lfnout,lfn,numfix,iwgmn,iwdt,numw,
-     + isgan,isatt,isdt,issgm,nums,snam,xwm,xs,idb,nsb,itemp)
+     + isgan,isatt,isdt,issgm,nums,snam,xwm,xs,idb,msb,nsb,itemp)
 c
       implicit none
 c
@@ -2742,9 +2742,9 @@ c
       integer cf_atonum,cf_numcon
       external cf_atonum,cf_numcon
 c
-      integer lfnout,lfn,numfix,numw,nums,nsb
+      integer lfnout,lfn,numfix,numw,nums,msb,nsb
       integer iwdt(mwm),iwgmn(mwm),isgan(msa),isatt(msa),isdt(msa)
-      integer issgm(msa),idb(nsb,4),itemp(nsatot)
+      integer issgm(msa),idb(msb,4),itemp(nsatot)
       character*16 snam(nsatot)
       real*8 xwm(mwm,3),xs(msa,3)
 c
