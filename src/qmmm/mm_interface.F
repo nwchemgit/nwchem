@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.78 2005-10-02 17:25:04 marat Exp $
+c $Id: mm_interface.F,v 1.79 2005-10-18 22:06:23 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -204,7 +204,7 @@ c
 c
       pname = "mm_end"
       if(qmmm_print_debug()) write(*,*) "in "//pname
-      call md_wrtrst(lfnrst,rfile,.false.)
+c      call md_wrtrst(lfnrst,rfile,.false.)
 c      call md_wrtrst(lfnqrs,filqrs,.false.)
       call md_finish()
 c
