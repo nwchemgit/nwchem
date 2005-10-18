@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.207 2005-09-15 00:48:49 marat Exp $
+c $Id: md_main.F,v 1.208 2005-10-18 19:16:39 d3j191 Exp $
 c
       implicit none
 c
@@ -71,6 +71,12 @@ c
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
+c
+c     center of mass coordinates
+c
+      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
@@ -266,6 +272,12 @@ c
       call sp_travel(box,dbl_mb(i_xw),dbl_mb(i_vw),dbl_mb(i_xwcr),
      + dbl_mb(i_gw),int_mb(i_iw),nwmloc,dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_gs),int_mb(i_is),nsaloc)
+c
+c     center of mass coordinates
+c
+      call cf_cenmas(nwmloc,dbl_mb(i_xw),dbl_mb(i_xwm),nsaloc,
+     + int_mb(i_is+(lsatt-1)*msa),int_mb(i_is+(lsmol-1)*msa),
+     + dbl_mb(i_xs),dbl_mb(i_xsm),dbl_mb(i_gsm))
 c
       call cf_mass(dbl_mb(i_wws),dbl_mb(i_wws+mwa),
      + int_mb(i_is+(lsatt-1)*msa),nsaloc)
@@ -2886,7 +2898,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.207 2005-09-15 00:48:49 marat Exp $
+c $Id: md_main.F,v 1.208 2005-10-18 19:16:39 d3j191 Exp $
 c
       implicit none
 c
