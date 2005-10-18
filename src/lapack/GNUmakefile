@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.49 2005-10-12 20:53:50 edo Exp $
+#$Id: GNUmakefile,v 1.50 2005-10-18 00:32:53 edo Exp $
 
 include ../config/makefile.h
 
@@ -44,7 +44,9 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dsygv.o       dsytd2.o      dsytrd.o       dtrtri.o     \
                dlasq1.o      dlasq2.o      dlasq3.o       dlasq5.o     \
                dlasq4.o      dlasq6.o      dposv.o        dtrtrs.o     \
-               dpotrs.o           \
+               dpotrs.o      dlaebz.o      dstedc.o       \
+               dlaed0.o dlaed1.o dlaed2.o dlaed3.o dlaed4.o dlaed5.o dlaed6.o dlaed7.o dlaed8.o dlaed9.o \
+               dlamrg.o      dlaeda.o \
                ilaenv.o ieeeck.o      lsamen.o                                  \
                zheev.o       zhegs2.o      zhegst.o       zhegv.o      \
                zhetd2.o      zhetrd.o      zlacgv.o       zladiv.o     \
@@ -92,7 +94,10 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                ssterf.o      ssyev.o       ssygs2.o       ssygst.o     \
                ssygv.o       ssytd2.o      ssytrd.o       strtri.o     \
                slasq1.o      slasq2.o      slasq3.o       slasq5.o     \
-               slasq4.o      slasq6.o      sposv.o \
+               slasq4.o      slasq6.o      sposv.o        strtrs.o\
+               spotrs.o      slaebz.o      sstedc.o       \
+               slaed0.o slaed1.o slaed2.o slaed3.o slaed4.o slaed5.o slaed6.o slaed7.o slaed8.o slaed9.o \
+               slamrg.o      slaeda.o \
                ilaenv.o    ieeeck.o   lsamen.o                                  \
                cheev.o       chegs2.o      chegst.o       chegv.o      \
                chetd2.o      chetrd.o      clacgv.o       cladiv.o     \
