@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.79 2005-10-18 22:06:23 marat Exp $
+c $Id: mm_interface.F,v 1.80 2005-10-19 00:35:27 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -238,6 +238,7 @@ c
 #include "md_common.fh"
 #include "qmmm.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
       integer n,fn
       logical mm_read_frame
       character*32 pname
@@ -249,12 +250,11 @@ c
 c
       if(qmmm_print_debug()) write(*,*) "in "//pname
 c
-      write(*,*) "debug 0",n
       if(n.gt.1) then
         mm_read_frame = sp_skip(fn,n-1)
         if(.not.mm_read_frame) return
       end if
-      write(*,*) "debug 1",n
+      call ga_sync()
 c 
 c     note that lxw,..., are output flags indicating whether
 c     corresponding quantites (coords, vel, ..)
@@ -266,8 +266,10 @@ c     ------------------------------------------------------
      + dbl_mb(i_xwcr),int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),
      + dbl_mb(i_fs),nwmloc,nsaloc)
 c
-      write(*,*) "debug 1",n
-c
+      call ga_brdcst(msg_qmmm_misc,mm_read_frame,
+     >               ma_sizeof(mt_log,1,mt_byte),0)
+      call ga_sync()
+
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return
       end
@@ -3293,15 +3295,6 @@ c
       call ga_igop(msg_qmmm_ind,int_mb(i_itmp),ns,'+')
       call ga_dgop(msg_qmmm_c1,dbl_mb(i_ctmp),3*ns,'+')
 c
-      if(ga_nodeid().eq.1) then
-      write(*,*) "coord on node 1"
-      do i=1,ns
-         write(*,*) (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
-     +               int_mb(i_itmp+i-1)
-
-      end do
-      end if
-
       call ga_sync
 c
       call mm_set_solute_coord(ns,
