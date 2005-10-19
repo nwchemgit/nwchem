@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.18 2005-08-29 01:19:57 marat Exp $
+c $Id: qmmm_output.F,v 1.19 2005-10-19 00:33:51 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -172,6 +172,39 @@ c
 19    FORMAT(72("-"))
 20    FORMAT(1X,A,T34,F18.9)
 21    FORMAT(1X,A,T34,F18.9," (",E12.6,2X, "kjoule/mol)")
+
+
+      end
+
+      subroutine qmmm_print_spring_energy(irtdb)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_data.fh"
+#include "qmmm_params.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+
+      integer irtdb
+c
+      character*32 pname
+      double precision e,deds
+
+      if (.not. rtdb_get(irtdb,'qmmm:spring_e',mt_dbl,
+     +                    1,e))
+     + return 
+
+      if (.not. rtdb_get(irtdb,'qmmm:spring_deds',mt_dbl,
+     +                    1,deds))
+     + call errquit(pname//'Failed to get spring_deds',
+     + 1, RTDB_ERR)
+
+      if(.not.qmmm_master()) return
+
+      write(*,21) "spring energy (derivative)", e,deds
+
+21    FORMAT(1X,A,T34,F18.9," (",E12.6,2X, ")")
 
 
       end

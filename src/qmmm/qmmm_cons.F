@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.15 2005-09-18 23:06:38 marat Exp $
+c $Id: qmmm_cons.F,v 1.16 2005-10-19 00:33:51 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -555,6 +555,7 @@ c
       integer i_as,h_as
       integer i_rs,h_rs
       double precision k0,r0
+      double precision econs,deds
 c
       if (.not. rtdb_get(irtdb,'qmmm:n_spring',mt_int,1,ns))
      $     ns = 0
@@ -632,12 +633,28 @@ c    --------------------------------------
      >                       do_grad,
      >                       k0,
      >                       r0,
-     >                       etot,
+     >                       econs,
      >                       int_mb(i_is),
      >                       dbl_mb(i_as),
      >                       dbl_mb(i_rs),
      >                       dbl_mb(i_c),
+     >                       deds,
      >                       g)
+      etot  = etot + econs
+c
+      if (.not. rtdb_put(irtdb,'qmmm:spring_e',mt_dbl,
+     +                    1,econs))
+     + call errquit(pname//'Failed to set spring_e',
+     + 1, RTDB_ERR)
+
+      if (.not. rtdb_put(irtdb,'qmmm:spring_deds',mt_dbl,
+     +                    1,deds))
+     + call errquit(pname//'Failed to set spring_deds',
+     + 1, RTDB_ERR)
+
+      if(qmmm_master()) then
+        write(*,*) "spring_e",econs,deds
+      end if
  
       if(.not.ma_free_heap(h_c))
      + call errquit(pname//'Failed to deallocate memory for is',
@@ -663,11 +680,12 @@ c
      >                       do_grad,
      >                       k0,
      >                       r0,
-     >                       etot,
+     >                       econs,
      >                       ind,
      >                       a,
      >                       r,
      >                       c,
+     >                       deds,
      >                       g)
       implicit none
 
@@ -682,7 +700,8 @@ c
       logical do_grad
       double precision k0,r0
       integer ind(2,ns)
-      double precision etot
+      double precision econs
+      double precision deds
       double precision  a(ns)
       double precision  r(ns)
       double precision g(3,nat)
@@ -712,8 +731,9 @@ c
       do is=1,ns
         ehalf = ehalf+a(is)*r(is)
       end do
-      e = ehalf*ehalf*k0
-      etot = etot + e
+      econs = ehalf*ehalf*k0
+      deds = -2.0*k0*ehalf
+
 
       if(.not.do_grad) return
 
