@@ -1,5 +1,5 @@
 #
-# $Id: data.dbl2sngl,v 1.4 2003-08-14 03:57:13 edo Exp $
+# $Id: data.dbl2sngl,v 1.5 2005-10-19 21:47:49 edo Exp $
 #
 #
 # this file contains the transliterations for both the 
@@ -142,6 +142,41 @@ dsygv     ssygv
 dsytd2    ssytd2    
 dsytrd    ssytrd    
 dtrtri    strtri    
+dlasq1    slasq1
+dlasq2    slasq2
+dlasq3    slasq3
+dlasq4    slasq4
+dlasq5    slasq5
+dlasq6    slasq6
+dposv     sposv 
+dpostrs   spotrs
+dtrtrs    strtrs
+dlaebz    slaebz
+dlaed0    slaed0
+dlaed1    slaed1
+dlaed2    slaed2
+dlaed3    slaed3
+dlaed4    slaed4
+dlaed5    slaed5
+dlaed6    slaed6 
+dlaed7    slaed7
+dlaed8    slaed8
+dlaed9    slaed9
+dlamrg    slaemrg
+dlaeda    slaeda
+dgeev     sgeev
+dgebak    sgebak
+dgebal    sgebal
+dhseqr    shseqr
+dorghr    sorghr
+dtrevc    strevc
+dlaln2    slaln2
+dlahqr    slahqr
+dgehd2    sgehd2
+dlahns    slahns
+dlarfx    slarfx
+dlahrd    slahrd
+dlanv2    slanv2
 # ilaenv    ilaenv    identical to conversion needed
 # lsamen    lsamen    identical to conversion needed
 # xerbla    xerbla    identical to conversion needed
