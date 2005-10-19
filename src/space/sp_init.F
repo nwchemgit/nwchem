@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,npreci,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.143 2005-09-15 06:42:25 marat Exp $
+c $Id: sp_init.F,v 1.144 2005-10-19 03:50:05 d3j191 Exp $
 c
       implicit none
 c
@@ -455,7 +455,7 @@ c
       if(np.gt.1) call ga_igop(msp_07,mbox,1,'max')
 c
       mwa=max(1,nwa)
-      msag=max(1,(mbox-30+madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
+      msag=max(1,msa,(mbox-30+madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
       msa=max(1,msa,(mbox-30+madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
       mwmg=max(1,msag/mwa+1)
       mwm=max(1,mwm,msa/mwa+1)
