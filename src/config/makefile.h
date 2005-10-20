@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.507 2005-10-12 20:53:48 edo Exp $
+# $Id: makefile.h,v 1.508 2005-10-20 21:10:40 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1994,12 +1994,15 @@ endif
 ifdef USE_SCALAPACK
   DEFINES += -DSCALAPACK
   CORE_LIBS += $(SCALAPACK)
-  ifndef BLASOPT
-      CORE_LIBS +=  -llapack  -lblas 
-  else
-       CORE_LIBS +=  $(BLASOPT) -llapack -lblas
-  endif
 endif
+ifdef BLASOPT
+       CORE_LIBS +=  $(BLASOPT) 
+endif
+ifdef USE_64TO32
+      CORE_LIBS +=  -l64to32
+endif
+      CORE_LIBS +=  -llapack  -lblas 
+
 
 ifdef USE_SUBGROUPS
   DEFINES += -DGANXTVAL -DUSE_SUBGROUPS

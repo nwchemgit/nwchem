@@ -1,5 +1,7 @@
-#$Id: GNUmakefile,v 1.50 2005-10-18 00:32:53 edo Exp $
-
+#$Id: GNUmakefile,v 1.51 2005-10-20 21:10:40 edo Exp $
+ifdef USE_64TO32
+USE_INTEGER4=y
+endif
 include ../config/makefile.h
 
        LIBRARY = liblapack.a

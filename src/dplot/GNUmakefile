@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.15 2005-09-17 04:33:43 edo Exp $
+#$Id: GNUmakefile,v 1.16 2005-10-20 21:10:40 edo Exp $
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ_OPTIMIZE = dplot.o get_grid.o create_contour.o dmat.o errmem.o \
@@ -6,7 +6,7 @@
          dplot_defgrid.o dplot_dump.o dplot_dos.o
 
    LIBRARY = libdplot.a
- USES_BLAS = dplot.F dmat.F create_contour.F  get_charges.F 
+ USES_BLAS = dplot.F dmat.F create_contour.F  get_charges.F  dplot_dos.F
 
 include ../config/makefile.h
 include ../config/makelib.h

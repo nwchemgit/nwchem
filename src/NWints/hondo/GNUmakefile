@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 2004-12-03 22:36:10 bert Exp $
+# $Id: GNUmakefile,v 1.15 2005-10-20 21:10:38 edo Exp $
 
 include ../../config/makefile.h
 
@@ -67,7 +67,9 @@ include ../../config/makefile.h
 
        LIBRARY = libnwints.a
 
-     USES_BLAS = hnd_stvint.F hnd_stvintd.F hnd_stvintdd.F
+     USES_BLAS = hnd_stvint.F hnd_stvintd.F hnd_stvintdd.F\
+hnd_elfder.F hnd_pso.F hnd_dso.F hnd_giaoh11.F hnd_giaoh01.F hnd_giaotv10.F hnd_giaol10.F hnd_giaos10.F
+
 include ../../config/makelib.h
   ifeq ($(FC),efc)
             FOPTIONS += -save

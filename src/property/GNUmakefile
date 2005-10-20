@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.24 2005-09-29 01:24:21 edo Exp $
+# $Id: GNUmakefile,v 1.25 2005-10-20 21:10:40 edo Exp $
 #
 
 
@@ -36,7 +36,8 @@
 
     LIB_INCLUDES = -I../nwdft/include -I../ddscf
 
-USES_BLAS = 
+USES_BLAS = hnd_elfcon.F wnbofile.F hnd_spinspin.F hnd_mtpole.F hnd_mulken.F hnd_elpmap.F hnd_elfmap.F hnd_mtpcon.F giaofock.F hnd_spinspin.F 
+
 
 HEADERS = prop.fh atomdata.fh
 

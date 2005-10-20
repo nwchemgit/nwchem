@@ -1,5 +1,7 @@
-#$Id: GNUmakefile,v 1.36 2004-11-14 04:43:42 edo Exp $
-
+#$Id: GNUmakefile,v 1.37 2005-10-20 21:10:39 edo Exp $
+ifdef USE_64TO32
+USE_INTEGER4=y
+endif
 include ../config/makefile.h
 
        LIBRARY = libblas.a

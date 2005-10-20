@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.5 2003-01-30 19:33:35 edo Exp $
+#$Id: GNUmakefile,v 1.6 2005-10-20 21:10:40 edo Exp $
 
 OBJ = tddft_energy.o tddft_input.o tddft_init.o tddft_memory.o tddft_iguess.o \
 tddft_dump.o tddft_davidson.o tddft_transfm.o tddft_contract.o tddft_epsilon.o \
@@ -9,7 +9,7 @@ OBJ_OPTIMIZE =
 
 LIBRARY = libtddft.a
 
-USES_BLAS = 
+USES_BLAS = tddft_diagon.F tddft_transfm.F tddft_dgeev.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #
