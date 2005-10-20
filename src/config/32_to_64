@@ -1,0 +1,56 @@
+#!/bin/csh -f
+#
+# $Id: 32_to_64,v 1.1 2005-10-20 01:04:24 edo Exp $
+#
+
+@ useperl = 1
+
+if ($useperl) then
+
+  if (-x /msrc/apps/bin/perl) then
+     set perlexe    = /msrc/apps/bin/perl
+  else if (-x /usr/local/bin/perl) then
+     set perlexe    = /usr/local/bin/perl
+  else if (-x /usr/local/gnu/bin/perl) then
+     set perlexe    = /usr/local/gnu/bin/perl
+  else if (-x /usr/gnu/bin/perl) then
+     set perlexe    = /usr/gnu/bin/perl
+  else
+# assume perl is in your path
+     set perlexe = perl
+  endif
+  set perlscript = {$NWCHEM_TOP}/src/config/32_to_64.pl
+
+else
+
+  echo "should not be here";
+  exit 1;
+
+set sufx = .dbl
+
+endif
+
+set JOB_LIMIT = 4
+if (`hostname` == circus) set JOB_LIMIT = 20
+if (`hostname` == mcurie) set JOB_LIMIT = 3
+@ njob = 0
+
+foreach file ($argv)
+
+  echo converting $file to double precision
+  if ($useperl) then
+     ($perlexe $perlscript $file) &	
+  else
+     (sed -f $sed_script  < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file;\
+      sed -f $sed_script2 < $file > {$file}{$sufx} && mv -f {$file}{$sufx} $file)&
+  endif
+
+   @ njob ++
+   if ($njob >= $JOB_LIMIT) then
+     wait
+     @ njob = 0
+   endif
+
+end
+
+if ($njob > 0) wait

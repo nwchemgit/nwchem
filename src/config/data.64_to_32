@@ -1,0 +1,209 @@
+#
+# $Id: data.64_to_32,v 1.1 2005-10-20 01:04:24 edo Exp $
+#
+#
+# this file contains the transliterations for both the 
+# blas and lapack routines.  The format of this file is:
+# "double_name" "single_name"  
+# one pair per line.  Lines that begin with "#" are 
+# processed as comments.
+#
+# This file is used by both dbl2sngl.pl and sngl2dbl.pl 
+# and the format is assumed as above by both scripts:
+# 
+# Written:  3/14/97
+# By:       Ricky A. Kendall
+#           High Performance Computational Chemistry Group
+#           Theory Modeling and Simulation Program
+#           Environmental Molecular Sciences Laboratory
+#           Pacific Northwest National Laboratory
+#           P.O. Box 999
+#           Richland, WA 99352-0999
+#           email: ra_kendall@pnl.gov
+#
+# blas transliterations
+dasum      yasum         
+daxpy      yaxpy         
+dcopy      ycopy         
+ddot       ydot          
+dgemm      ygemm         
+dgemv      ygemv         
+dger       yger          
+dnrm2      ynrm2         
+drot       yrot          
+dscal      yscal         
+dspmv      yspmv         
+dspr       yspr          
+dswap      yswap         
+dsymm      ysymm         
+dsymv      ysymv         
+dsyr2      ysyr2         
+dsyr2k     ysyr2k        
+dsyrk      ysyrk         
+dtrmm      ytrmm         
+dtrmv      ytrmv         
+dtrsm      ytrsm         
+dtrsv      ytrsv         
+dznrm2     ycnrm2        
+idamax     iyamax        
+zaxpy      xaxpy         
+zcopy      xcopy         
+zdotc      xdotc         
+zdscal     xsscal        
+zgemm      xgemm         
+zgemv      xgemv         
+zgerc      xgerc         
+zhemm      xhemm         
+zhemv      xhemv         
+zher2      xher2         
+zher2k     xher2k        
+zherk      xherk         
+zscal      xscal         
+zswap      xswap         
+ztrmm      xtrmm         
+ztrmv      xtrmv         
+ztrsm      xtrsm         
+ztrsv      xtrsv            
+# lapack transliterations
+dbdsqr    ybdsqr    
+dgebd2    ygebd2    
+dgebrd    ygebrd    
+dgelq2    ygelq2    
+dgelqf    ygelqf    
+dgeqr2    ygeqr2    
+dgeqrf    ygeqrf    
+dgesv     ygesv    
+dgesvd    ygesvd    
+dgetf2    ygetf2    
+dgetrf    ygetrf    
+dgetrs    ygetrs    
+dlabrd    ylabrd    
+dlacon    ylacon    
+dlacpy    ylacpy    
+dladiv    yladiv
+dlae2     ylae2    
+dlaev2    ylaev2    
+dlagtf    ylagtf    
+dlagts    ylagts    
+dlange    ylange    
+dlansp    ylansp    
+dlanst    ylanst
+dlansy    ylansy    
+dlapy2    ylapy2    
+dlapy3    ylapy3
+dlarf     ylarf    
+dlarfb    ylarfb    
+dlarfg    ylarfg    
+dlarft    ylarft    
+dlarnv    ylarnv    
+dlartg    ylartg    
+dlaruv    ylaruv    
+dlas2     ylas2    
+dlascl    ylascl    
+dlaset    ylaset    
+dlasr     ylasr    
+dlasrt    ylasrt
+dlassq    ylassq    
+dlasv2    ylasv2    
+dlaswp    ylaswp    
+dlatrd    ylatrd    
+dlauu2    ylauu2    
+dlauum    ylauum    
+dlazro    ylazro    
+dorg2l    yorg2l    
+dorg2r    yorg2r    
+dorgbr    yorgbr    
+dorgl2    yorgl2    
+dorglq    yorglq    
+dorgql    yorgql    
+dorgqr    yorgqr    
+dorgtr    yorgtr    
+dorm2r    yorm2r    
+dormbr    yormbr    
+dorml2    yorml2    
+dormlq    yormlq    
+dormqr    yormqr    
+dpotf2    ypotf2    
+dpotrf    ypotrf    
+dpotri    ypotri    
+dposv     yposv     
+dspcon    yspcon    
+dsprfs    ysprfs    
+dspsvx    yspsvx    
+dsptrf    ysptrf    
+dsptrs    ysptrs    
+dsteqr    ysteqr    
+dsterf    ysterf    
+dsyev     ysyev    
+dsygs2    ysygs2    
+dsygst    ysygst    
+dsygv     ysygv    
+dsytd2    ysytd2    
+dsytrd    ysytrd    
+dtrtri    ytrtri    
+dlasq1    ylasq1
+dlasq2    ylasq2
+dlasq3    ylasq3
+dlasq4    ylasq4
+dlasq5    ylasq5
+dlasq6    ylasq6
+dposv     yposv 
+dpostrs   ypotrs
+dtrtrs    ytrtrs
+dlaebz    ylaebz
+dlaed0    ylaed0
+dlaed1    ylaed1
+dlaed2    ylaed2
+dlaed3    ylaed3
+dlaed4    ylaed4
+dlaed5    ylaed5
+dlaed6    ylaed6 
+dlaed7    ylaed7
+dlaed8    ylaed8
+dlaed9    ylaed9
+dlamrg    ylaemrg
+dlaeda    ylaeda
+dgeev     ygeev
+dgebak    ygebak
+dgebal    ygebal
+dhseqr    yhseqr
+dorghr    yorghr
+dtrevc    ytrevc
+dlaln2    ylaln2
+dlahqr    ylahqr
+dgehd2    ygehd2
+dlahns    ylahns
+dlarfx    ylarfx
+dlahrd    ylahrd
+dlanv2    ylanv2
+# ilaenv    ilaenv    identical to conversion needed
+# lsamen    lsamen    identical to conversion needed
+# xerbla    xerbla    identical to conversion needed
+# lsame     lsame     identical to conversion needed
+zheev     xheev
+zhegs2    xhegs2   
+zhegst    xhegst   
+zhegv     xhegv    
+zhetd2    xhetd2   
+zhetrd    xhetrd   
+zlacgv    xlacgv   
+zladiv    xladiv   
+zlanhe    xlanhe   
+zlarf     xlarf    
+zlarfb    xlarfb   
+zlarfg    xlarfg   
+zlarft    xlarft   
+zlascl    xlascl   
+zlaset    xlaset   
+zlasr     xlasr    
+zlassq    xlassq   
+zlatrd    xlatrd   
+zpotf2    xpotf2   
+zpotrf    xpotrf   
+zsteqr    xsteqr   
+zung2l    xung2l   
+zung2r    xung2r   
+zungql    xungql   
+zungqr    xungqr   
+zungtr    xungtr   
+izamax    ixamax

@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.47 2004-04-25 20:16:14 edo Exp $
+# $Id: makelib.h,v 1.48 2005-10-20 01:04:24 edo Exp $
 
 #
 # A makefile for a library should
@@ -229,7 +229,7 @@ endif
 endif
 
 ifdef USES_BLAS
-.PHONY:	sngl_to_dbl dbl_to_sngl
+.PHONY:	sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64
 sngl_to_dbl:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
@@ -242,9 +242,21 @@ ifdef SUBDIRS
 endif
 	$(CNFDIR)/dbl_to_sngl $(USES_BLAS)
 
+64_to_32:
+ifdef SUBDIRS
+	$(MAKESUBDIRS)
+endif
+	$(CNFDIR)/64_to_32 $(USES_BLAS)
+
+32_to_64:
+ifdef SUBDIRS
+	$(MAKESUBDIRS)
+endif
+	$(CNFDIR)/32_to_64 $(USES_BLAS)
+
 else
 
-sngl_to_dbl dbl_to_sngl:
+sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.12 2004-06-25 18:16:32 d3h325 Exp $
+# $Id: GNUmakefile,v 1.13 2005-10-20 01:04:21 edo Exp $
 #
 # This makefile has to be processed by GNU make
 #
@@ -102,7 +102,7 @@ source:
 	
 depend:
 	@echo No dependency analysis here
-sngl_to_dbl dbl_to_sngl:
+sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@echo No blas conversion done here
 #
 # This is a convenience target that will make the TAGS file for current 

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.15 1999-08-03 23:10:40 d3e129 Exp $
+#$Id: GNUmakefile,v 1.16 2005-10-20 01:04:24 edo Exp $
 #
 # This directory is a central repository for all include
 # files.  The makefile in each subdirectory should contain
@@ -15,7 +15,7 @@ includes:
 		(cd $(SRCDIR)/$$dir; $(MAKE) include_stamp) ; \
 	done
 
-include_stamp sngl_to_dbl dbl_to_sngl:
+include_stamp sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@echo Nothing to be done
 
 # In this directory, clean does not do anything -- we only want get rid of

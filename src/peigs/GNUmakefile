@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.27 2000-01-19 22:36:16 d3e129 Exp $
+# $Id: GNUmakefile,v 1.28 2005-10-20 01:04:24 edo Exp $
 #
 
 LIBRARY = libpeigs.a
@@ -37,7 +37,7 @@ realclean: clean
 	rm -f $(LIBDIR)/$(LIBRARY)
 	rm -f peigs_stamp.$(TARGET) include_stamp
 
-sngl_to_dbl dbl_to_sngl:
+sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@echo No conversion necessary
 
 depend:
