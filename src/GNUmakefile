@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.81 2003-12-31 22:30:23 nwchem Exp $
+# $Id: GNUmakefile,v 1.82 2005-10-20 16:08:15 edo Exp $
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  
@@ -139,7 +139,7 @@ cleanDEP:
 	done
 	@/bin/rm -f dependencies
 
-sngl_to_dbl dbl_to_sngl:
+sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@$(MAKE) directories
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
