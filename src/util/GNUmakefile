@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.187 2005-10-03 21:18:01 edo Exp $
+# $Id: GNUmakefile,v 1.188 2005-10-20 20:06:19 edo Exp $
 
 include ../config/makefile.h
 
@@ -183,7 +183,7 @@ endif
               bgj.fh bgj_common.fh nwc_const.fh errquit.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
-                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F util_file_name.F dgefa.f
+                ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F util_file_name.F dgefa.f util_patch_test.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH

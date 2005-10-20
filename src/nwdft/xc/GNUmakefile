@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.96 2005-10-19 23:40:52 edo Exp $
+# $Id: GNUmakefile,v 1.97 2005-10-20 20:05:05 edo Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -46,7 +46,7 @@ endif
 
 
    USES_BLAS = xc_fitv.F xc_dirac.F xc_tabcd.F xc_rhogen.F xc_beckew.F xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
-xc_eval_basis.F xc_fd.F  xc_optc.F xc_atomblock.F xc_vdw.F
+xc_eval_basis.F xc_fd.F  xc_optc.F xc_atomblock.F xc_vdw.F scat_mat.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
