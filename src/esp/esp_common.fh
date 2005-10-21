@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.11 2005-08-28 17:57:06 marat Exp $
+c $Id: esp_common.fh,v 1.12 2005-10-21 02:28:35 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
@@ -13,17 +13,17 @@ c
       integer l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,
      + l_d,idptr,l_e,ieptr,l_o,ioptr,l_v,ivptr,l_a,iaptr,l_b,ibptr,
      + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr,
-     + lg_v,lg_d
+     + lg_v,lg_d,l_l,ilptr
       common/esp_ptr/l_t,itptr,l_x,ixptr,l_q,iqptr,l_g,igptr,
      + l_d,idptr,l_e,ieptr,l_o,ioptr,l_v,ivptr,l_a,iaptr,l_b,ibptr,
      + l_c,icptr,l_ak,iakptr,l_qk,iqkptr,l_n,inptr,l_qf,iqfptr,
-     + lg_v,lg_d
+     + lg_v,lg_d,l_l,ilptr
 c
 c     esp_atm : atom information
 c     --------------------------
 c
       real*8 rcut,spac,xmin(3),xmax(3),charge,chgnuc,chgele,radius(107)
-      real*8 rcon(500),resa,resb,toler,dipmom(4),rms(2,4),quamom(3,3,4)
+      real*8 rcon(500),resa,resb,toler,dipmom(5),rms(2,5),quamom(3,3,5)
       integer natoms,nbf,mgrid(3),mxgrid,ngrid,nset,nmo,nocc,nconst,ndim
       integer ncon,icon(2500),irest,niter,maxit,ihfree,ngto,ngfr,idump
       integer lfngrd,nf,mbf,lscrn,newgrd,lfner,lfnplt,lfnxyz,lfnchg
@@ -36,7 +36,7 @@ c
 c
 c     esp_chr : character variables
 c
-      character*12 labelf(4),labelc(4)
+      character*12 labelf(5),labelc(5)
       character*255 movfil,grdfil,erfil,pltfil,xyzfil,chgfil
       character*255 title,basnam
       common/esp_chr/title,basnam,movfil,grdfil,labelf,labelc,erfil,

@@ -1,6 +1,6 @@
       subroutine esp_elemom(x,qf)
 c
-c $Id: esp_elemom.F,v 1.4 1997-10-09 15:46:59 d3j191 Exp $
+c $Id: esp_elemom.F,v 1.5 2005-10-21 02:28:35 d3j191 Exp $
 c
       implicit none
 c
@@ -10,7 +10,7 @@ c
 #include "geom.fh"
 #include "mafdecls.fh"
 c
-      real*8 x(3,natoms),qf(ndim,4)
+      real*8 x(3,natoms),qf(ndim,5)
 c
       real*8 xc(3),dm,ch,xq(3),rq
       integer i,ix,j,jx,k,l

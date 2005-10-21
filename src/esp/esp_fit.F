@@ -1,6 +1,6 @@
-      subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n,qf)
+      subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n,qf,l,tag)
 c
-c $Id: esp_fit.F,v 1.7 2003-10-19 06:07:31 d3j191 Exp $
+c $Id: esp_fit.F,v 1.8 2005-10-21 02:28:35 d3j191 Exp $
 c
       implicit none
 c
@@ -13,16 +13,19 @@ c
 #include "global.fh"
 c
       real*8 g(3,mxgrid),v(mxgrid)
-      real*8 x(3,natoms),q(natoms),qf(ndim,4)
+      real*8 x(3,natoms),q(natoms),qf(ndim,5)
       real*8 a(ndim,ndim),b(ndim),c(ndim)
       real*8 akeep(ndim,ndim),qkeep(natoms)
-      integer n(natoms)
+      integer n(natoms),l(natoms)
+      character*16 tag(natoms)
+      logical keep,luncon
 c
-      integer i,j,k,jcon,lcon
+      integer i,j,k,jcon,lcon,ndima
       integer l_it0,l_it1,l_it2,l_dt,ii0ptr,ii1ptr,ii2ptr,idtptr
-      real*8 sum,dif,difm
+      real*8 sum,dif,difm,d
 c
       nf=1
+      luncon=.true.
 c
 c     set up matrix of linear coefficients
 c
@@ -58,15 +61,15 @@ c
 c
       do 7 j=1,natoms
       a(natoms+1,j)=one
-      do 8 i=2,nconst
-      a(natoms+i,j)=zero
-    8 continue
+c      do 8 i=2,nconst
+c      a(natoms+i,j)=zero
+c    8 continue
     7 continue
-      do 9 i=1,nconst
-      do 10 j=1,nconst
-      a(natoms+i,natoms+j)=zero
-   10 continue
-    9 continue
+c      do 9 i=1,nconst
+c      do 10 j=1,nconst
+c      a(natoms+i,natoms+j)=zero
+c   10 continue
+c    9 continue
 c
 c     construct column vector c
 c
@@ -81,11 +84,13 @@ c
    11 continue
       c(natoms+1)=charge
 c
+      ndima=natoms+1
       jcon=0
       do 13 i=2,nconst
       c(natoms+i)=rcon(i-1)
       jcon=jcon+1
       lcon=icon(jcon)
+      if(lcon.lt.0) goto 13
       do 14 j=1,lcon
       jcon=jcon+1
       k=icon(jcon)
@@ -97,6 +102,7 @@ c
       a(-k,natoms+i)=-one
       endif
    14 continue
+      ndima=ndima+1
    13 continue
       do 15 i=1,ndim
       do 16 j=1,ndim
@@ -142,14 +148,14 @@ c
 c
 c     constrained esp fitting
 c
-      if(nconst.gt.1) then
+      if(ndima.gt.natoms+1) then
       nf=nf+1
       labelf(nf)='      ESP   '
       labelc(nf)='     constr '
 c
 c     invert the matrix a
 c
-      call esp_matinv(a,ndim,int_mb(ii0ptr),int_mb(ii1ptr),
+      call esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
      + int_mb(ii2ptr),dbl_mb(idtptr),ndim)
 c
 c     matrix multiplication b = A_inv * c
@@ -168,12 +174,18 @@ c     restraint fitting
 c
       if(irest.gt.0) then
       nf=nf+1
+      luncon=.true.
       labelf(nf)='     RESP   '
       labelc(nf)='            '
 c
    23 continue
 c
       if(irest.eq.1) then
+      do 127 i=1,ndim
+      do 128 j=1,ndim
+      a(i,j)=akeep(i,j)
+  128 continue
+  127 continue
       do 24 i=1,natoms
       if(ihfree.eq.0.or.n(i).ne.1) a(i,i)=akeep(i,i)+resa
    24 continue
@@ -201,7 +213,7 @@ c
       qkeep(i)=q(i)
    29 continue
       endif
-      if(nf.ne.4) then
+      if(luncon) then
 c
 c     invert the matrix a
 c
@@ -222,7 +234,7 @@ c
 c
 c     invert the matrix a
 c
-      call esp_matinv(a,ndim,int_mb(ii0ptr),int_mb(ii1ptr),
+      call esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
      + int_mb(ii2ptr),dbl_mb(idtptr),ndim)
 c
 c     matrix multiplication b = A_inv * c
@@ -247,7 +259,7 @@ c
       if(dif.gt.toler.and.niter.lt.maxit) goto 26
       endif
 c
-      if(nf.eq.3) then
+      if(nf.eq.3.and.luncon) then
       nf=nf+1
       labelf(nf)='      RESP  '
       labelc(nf)='     constr '
@@ -256,6 +268,89 @@ c
       a(i,j)=akeep(i,j)
    36 continue
    35 continue
+      goto 23
+      endif
+c
+c     second stage RESP
+c
+      if(luncon) then
+      nf=nf+1
+      luncon=.false.
+      labelf(nf)='      RESP2 '
+      labelc(nf)='     constr '
+      do 37 i=1,natoms
+      l(i)=1
+   37 continue
+      do 38 i=1,natoms-1
+      do 39 j=i+1,natoms
+      if((tag(i)(1:2).eq.'C '.and.tag(j)(1:2).eq.'H ').or.
+     + (tag(i)(1:2).eq.'H '.and.tag(j)(1:2).eq.'C ')) then
+      d=sqrt((x(1,i)-x(1,j))**2+(x(2,i)-x(2,j))**2+(x(3,i)-x(3,j))**2)
+      if(cau2nm*d.lt.0.12) then
+      l(i)=0
+      l(j)=0
+      endif
+      endif
+   39 continue
+   38 continue
+      do 40 i=natoms+2,ndim
+      do 41 j=1,ndim
+      akeep(i,j)=zero
+      akeep(j,i)=zero
+   41 continue
+   40 continue
+      ndima=natoms+1
+      print*,'nconst=',nconst
+      jcon=0
+      do 42 i=2,nconst
+      jcon=jcon+1
+      lcon=icon(jcon)
+      if(lcon.lt.0) lcon=-lcon
+      keep=.false.
+      do 43 j=1,lcon
+      jcon=jcon+1
+      k=icon(jcon)
+      if(l(k).eq.0) keep=.true.
+      if(k.gt.0) then
+      akeep(ndima+1,k)=one
+      akeep(k,ndima+1)=one
+      else
+      akeep(ndima+1,-k)=-one
+      akeep(-k,ndima+1)=-one
+      endif
+   43 continue
+      c(ndima+1)=rcon(i-1)
+      if(keep) ndima=ndima+1
+   42 continue
+      do 45 i=1,natoms
+      if(tag(i)(1:2).eq.'C ') then
+      k=0
+      do 46 j=1,natoms
+      if(tag(j)(1:2).eq.'H ') then
+      d=sqrt((x(1,i)-x(1,j))**2+(x(2,i)-x(2,j))**2+(x(3,i)-x(3,j))**2)
+      if(cau2nm*d.lt.0.12) then
+      if(k.gt.0) then
+      ndima=ndima+1
+      akeep(ndima,k)=one
+      akeep(k,ndima)=one
+      akeep(ndima,j)=-one
+      akeep(j,ndima)=-one
+      c(ndima)=zero
+      endif
+      k=j
+      endif
+      endif
+   46 continue
+      endif
+   45 continue
+      do 44 i=1,natoms
+      if(l(i).eq.1) then
+      ndima=ndima+1
+      akeep(ndima,i)=one
+      akeep(i,ndima)=one
+      c(ndima)=q(i)
+      endif
+   44 continue
       goto 23
       endif
 c

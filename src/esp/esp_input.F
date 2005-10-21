@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.16 2003-10-19 06:09:37 d3j191 Exp $
+c $Id: esp_input.F,v 1.17 2005-10-21 02:28:35 d3j191 Exp $
 c
       implicit none
 c
@@ -19,6 +19,7 @@ c
       integer idump,ifrom,j,lscrn,newgrd,k,l,m
       real*8 rcut,spac,radius(107),rcon(500),resa,resb
       real*8 toler,factor,probe,scrtol
+      logical lstage2
 c
       me=ga_nodeid()
       np=ga_nnodes()
@@ -223,6 +224,13 @@ c
       if(.not.inp_f(rcon(nconst))) then
       if(.not.inp_a(item))
      + call md_abort('esp_input: constrain error',0)
+      if(inp_compare(.false.,'stage2',item)) then
+      if(.not.inp_a(item))
+     + call md_abort('esp_input: constrain error',0)
+      lstage2=.true.
+      else
+      lstage2=.false.
+      endif
       if(inp_compare(.false.,'equal',item)) then
       if(.not.inp_i(i))
      + call md_abort('esp_input: constrain error',0)
@@ -233,6 +241,7 @@ c
       if(ncon+2.gt.maxcon)
      + call md_abort('Increase dimension maxcon',ncon)
       icon(ncon)=2
+      if(lstage2) icon(ncon)=-2
       icon(ncon+1)=-i
       icon(ncon+2)=j
       rcon(nconst)=0.0d0

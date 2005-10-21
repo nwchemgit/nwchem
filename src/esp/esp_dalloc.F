@@ -1,6 +1,6 @@
       subroutine esp_dalloc
 c
-c $Id: esp_dalloc.F,v 1.6 2003-10-19 06:07:31 d3j191 Exp $
+c $Id: esp_dalloc.F,v 1.7 2005-10-21 02:28:35 d3j191 Exp $
 c
       implicit none
 c
@@ -29,6 +29,8 @@ c
      + call md_abort('esp: ma_pop_stack e failed',me)
       if(.not.ma_pop_stack(l_d))
      + call md_abort('esp: ma_pop_stack d failed',me)
+      if(.not.ma_pop_stack(l_l))
+     + call md_abort('esp: ma_pop_stack l failed',me)
       if(.not.ma_pop_stack(l_n))
      + call md_abort('esp: ma_pop_stack n failed',me)
       if(.not.ma_pop_stack(l_qf))

@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.10 1999-04-03 06:13:37 d3j191 Exp $
+c $Id: esp.F,v 1.11 2005-10-21 02:28:35 d3j191 Exp $
 c
       implicit none
 c
@@ -73,7 +73,8 @@ c     do the fitting
 c
       call esp_fit(dbl_mb(igptr),dbl_mb(ivptr),dbl_mb(ixptr),
      + dbl_mb(iqptr),dbl_mb(iaptr),dbl_mb(ibptr),dbl_mb(icptr),
-     + dbl_mb(iakptr),dbl_mb(iqkptr),int_mb(inptr),dbl_mb(iqfptr))
+     + dbl_mb(iakptr),dbl_mb(iqkptr),int_mb(inptr),dbl_mb(iqfptr),
+     + int_mb(ilptr),byte_mb(itptr))
 c
 c     calculate the electrical moments
 c

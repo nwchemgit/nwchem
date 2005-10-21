@@ -1,6 +1,6 @@
       subroutine esp_wrtinp(q)
 c
-c $Id: esp_wrtinp.F,v 1.7 1998-12-23 19:41:24 d3j191 Exp $
+c $Id: esp_wrtinp.F,v 1.8 2005-10-21 02:28:35 d3j191 Exp $
 c
       implicit none
 c
@@ -65,8 +65,15 @@ c
       do 1 i=1,nconst-1
       jcon=jcon+1
       lcon=icon(jcon)
+      if(lcon.gt.0) then
       write(lfnout,611) rcon(i),(icon(jcon+j),j=1,lcon)
   611 format(' Constraint charge',f12.6,' on atoms',10i5,/,(39x,10i5))
+      else
+      lcon=-lcon
+      write(lfnout,1611) rcon(i),(icon(jcon+j),j=1,lcon)
+ 1611 format(' Constraint charge',f12.6,' in 2nd stage on atoms',10i5,
+     + /,(39x,10i5))
+      endif
       jcon=jcon+lcon
     1 continue
       endif

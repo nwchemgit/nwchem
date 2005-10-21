@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.13 2003-10-19 06:13:20 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.14 2005-10-21 02:28:35 d3j191 Exp $
 c
       implicit none
 c
@@ -24,7 +24,7 @@ c     l_x ixptr 'x'    :  3*natoms : atomic coordinates
 c     l_q iqptr 'q'    :    natoms : atomic charges
 c     l_qf iqfptr 'qf' :  4*natoms : fitted atomic charges
 c
-      ndim=natoms+nconst
+      ndim=2*natoms+nconst
       if(.not.ma_push_get(mt_byte,natoms*16,'t',l_t,itptr))
      + call md_abort('esp: ma_push_get t failed',me)
       if(.not.ma_push_get(mt_dbl,natoms*3,'x',l_x,ixptr))
@@ -33,10 +33,12 @@ c
      + call md_abort('esp: ma_push_get q failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'qk',l_qk,iqkptr))
      + call md_abort('esp: ma_push_get qk failed',me)
-      if(.not.ma_push_get(mt_dbl,4*ndim,'qf',l_qf,iqfptr))
+      if(.not.ma_push_get(mt_dbl,5*ndim,'qf',l_qf,iqfptr))
      + call md_abort('esp: ma_push_get qf failed',me)
       if(.not.ma_push_get(mt_int,natoms,'n',l_n,inptr))
      + call md_abort('esp: ma_push_get n failed',me)
+      if(.not.ma_push_get(mt_int,natoms,'l',l_l,ilptr))
+     + call md_abort('esp: ma_push_get l failed',me)
 c
 c     get atomic coordinates
 c
