@@ -1,6 +1,6 @@
-      subroutine esp_matinv(a,n,is,iad1,iad2,d,mdm)
+      logical function esp_matinv(a,n,is,iad1,iad2,d,mdm)
 c
-c $Id: esp_matinv.F,v 1.6 2003-10-19 06:07:32 d3j191 Exp $
+c $Id: esp_matinv.F,v 1.7 2005-10-21 19:22:39 d3j191 Exp $
 c
       implicit none
 c
@@ -45,7 +45,11 @@ c
       iad2(i)=k
       b=a(i,k)
 c
-      if(dabs(b).lt.tiny) call md_abort('esp_matinv singular matrix',me)
+      if(dabs(b).lt.tiny) then
+      esp_matinv=.false.
+      return
+      endif
+c
       a(i,k)=one/b
       do 5 l=1,n
       if(l.ne.k) a(i,l)=-a(i,l)/b
@@ -82,5 +86,6 @@ c
    14 continue
    12 continue
 c
+      esp_matinv=.true.
       return
       end

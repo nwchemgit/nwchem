@@ -1,6 +1,6 @@
       subroutine esp_wrtinp(q)
 c
-c $Id: esp_wrtinp.F,v 1.8 2005-10-21 02:28:35 d3j191 Exp $
+c $Id: esp_wrtinp.F,v 1.9 2005-10-21 19:22:40 d3j191 Exp $
 c
       implicit none
 c

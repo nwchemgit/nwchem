@@ -1,6 +1,6 @@
       subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n,qf,l,tag)
 c
-c $Id: esp_fit.F,v 1.8 2005-10-21 02:28:35 d3j191 Exp $
+c $Id: esp_fit.F,v 1.9 2005-10-21 19:22:39 d3j191 Exp $
 c
       implicit none
 c
@@ -11,6 +11,9 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "global.fh"
+c
+      logical esp_matinv
+      external esp_matinv
 c
       real*8 g(3,mxgrid),v(mxgrid)
       real*8 x(3,natoms),q(natoms),qf(ndim,5)
@@ -90,7 +93,7 @@ c
       c(natoms+i)=rcon(i-1)
       jcon=jcon+1
       lcon=icon(jcon)
-      if(lcon.lt.0) goto 13
+c      if(lcon.lt.0) goto 13
       do 14 j=1,lcon
       jcon=jcon+1
       k=icon(jcon)
@@ -128,8 +131,9 @@ c
 c
 c     invert the matrix a
 c
-      call esp_matinv(a,natoms+1,int_mb(ii0ptr),int_mb(ii1ptr),
-     + int_mb(ii2ptr),dbl_mb(idtptr),ndim)
+      if(.not.esp_matinv(a,natoms+1,int_mb(ii0ptr),int_mb(ii1ptr),
+     + int_mb(ii2ptr),dbl_mb(idtptr),ndim))
+     + call md_abort('Singular matrix in esp_fit',1)
 c
 c     matrix multiplication b = A_inv * c
 c
@@ -140,6 +144,9 @@ c
    18 continue
       qf(i,nf)=sum
    17 continue
+c
+c     set matrix a back
+c
       do 19 i=1,ndim
       do 20 j=1,ndim
       a(i,j)=akeep(i,j)
@@ -155,8 +162,9 @@ c
 c
 c     invert the matrix a
 c
-      call esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
-     + int_mb(ii2ptr),dbl_mb(idtptr),ndim)
+      if(.not.esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
+     + int_mb(ii2ptr),dbl_mb(idtptr),ndim))
+     + call md_abort('Singular matrix in esp_fit',2)
 c
 c     matrix multiplication b = A_inv * c
 c
@@ -217,8 +225,9 @@ c
 c
 c     invert the matrix a
 c
-      call esp_matinv(a,natoms+1,int_mb(ii0ptr),int_mb(ii1ptr),
-     + int_mb(ii2ptr),dbl_mb(idtptr),ndim)
+      if(.not.esp_matinv(a,natoms+1,int_mb(ii0ptr),int_mb(ii1ptr),
+     + int_mb(ii2ptr),dbl_mb(idtptr),ndim))
+     + call md_abort('Singular matrix in esp_fit',3)
 c
 c     matrix multiplication b = A_inv * c
 c
@@ -230,12 +239,18 @@ c
       q(i)=sum
       qf(i,nf)=sum
    30 continue
+c      goto 9999
       else
 c
 c     invert the matrix a
 c
-      call esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
-     + int_mb(ii2ptr),dbl_mb(idtptr),ndim)
+      if(.not.esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
+     + int_mb(ii2ptr),dbl_mb(idtptr),ndim)) then
+      if(me.eq.0) write(lfnout,1999)
+ 1999 format(/,' Second stage RESP could not be completed because',
+     + ' of a singular constraint matrix',/)
+      goto 9999
+      endif
 c
 c     matrix multiplication b = A_inv * c
 c
@@ -261,6 +276,7 @@ c
 c
       if(nf.eq.3.and.luncon) then
       nf=nf+1
+      luncon=.false.
       labelf(nf)='      RESP  '
       labelc(nf)='     constr '
       do 35 i=1,ndim
@@ -273,7 +289,7 @@ c
 c
 c     second stage RESP
 c
-      if(luncon) then
+      if(nf.eq.4.or.luncon) then
       nf=nf+1
       luncon=.false.
       labelf(nf)='      RESP2 '
@@ -300,27 +316,35 @@ c
    41 continue
    40 continue
       ndima=natoms+1
-      print*,'nconst=',nconst
       jcon=0
       do 42 i=2,nconst
       jcon=jcon+1
       lcon=icon(jcon)
       if(lcon.lt.0) lcon=-lcon
-      keep=.false.
+      do 143 j=1,lcon
+      if(l(iabs(icon(jcon+j))).eq.0) goto 144
+ 143  continue
+      jcon=jcon+lcon
+      goto 42
+ 144  continue
+      ndima=ndima+1
       do 43 j=1,lcon
-      jcon=jcon+1
-      k=icon(jcon)
-      if(l(k).eq.0) keep=.true.
+      k=icon(jcon+j)
       if(k.gt.0) then
-      akeep(ndima+1,k)=one
-      akeep(k,ndima+1)=one
+      akeep(ndima,k)=one
+      akeep(k,ndima)=one
       else
-      akeep(ndima+1,-k)=-one
-      akeep(-k,ndima+1)=-one
+      akeep(ndima,-k)=-one
+      akeep(-k,ndima)=-one
       endif
    43 continue
-      c(ndima+1)=rcon(i-1)
-      if(keep) ndima=ndima+1
+      if(me.eq.0)
+     + write(lfnout,1043) rcon(i-1),
+     + (icon(jcon+j),tag(iabs(icon(jcon+j)))(1:2),j=1,lcon)
+ 1043 format(' Stage 2 constraint charge ',f12.6,' on atoms',
+     + 8(i5,a2),/,(47x,8(i5,a2)))
+      jcon=jcon+lcon
+      c(ndima)=rcon(i-1)
    42 continue
       do 45 i=1,natoms
       if(tag(i)(1:2).eq.'C ') then
@@ -355,6 +379,7 @@ c
       endif
 c
       endif
+ 9999 continue
 c
 c     deallocate work arrays
 c

@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.12 2005-10-21 02:28:35 d3j191 Exp $
+c $Id: esp_common.fh,v 1.13 2005-10-21 19:22:39 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------

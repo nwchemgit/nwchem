@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.16 2005-10-21 02:28:35 d3j191 Exp $
+c $Id: esp_out.F,v 1.17 2005-10-21 19:22:39 d3j191 Exp $
 c
       implicit none
 c

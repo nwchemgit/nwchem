@@ -1,6 +1,6 @@
       logical function esp(irtdb0)
 c
-c $Id: esp.F,v 1.11 2005-10-21 02:28:35 d3j191 Exp $
+c $Id: esp.F,v 1.12 2005-10-21 19:22:39 d3j191 Exp $
 c
       implicit none
 c
