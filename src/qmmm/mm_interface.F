@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.80 2005-10-19 00:35:27 marat Exp $
+c $Id: mm_interface.F,v 1.81 2005-10-23 00:21:56 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -3335,8 +3335,6 @@ c     local variables
       integer i
       integer k
       logical title
-
-
       integer i_itmp,h_itmp
       integer i_ctmp,h_ctmp
       character*32 pname
@@ -3347,29 +3345,38 @@ c     local variables
       character*255 message
 
       integer fn_xyz,fn_trj
+      logical end_of_file
       logical master
 
       pname = "mm_create_trj_from_xyz"
       master = qmmm_master()
+c
+c     we assume that xyz file has a title
+c     -----------------------------------
+      title = .true.
 c
       xyzfile = in_xyz(1:inp_strlen(in_xyz))
       call util_file_name_resolve(xyzfile, .false.)
 c
       trjfile = out_trj(1:inp_strlen(out_trj))
       call util_file_name_resolve(trjfile, .false.)
-
+c
       filename = in_xyz(1:inp_strlen(xyzfile))
-      call util_print_centered(luout,
+      if(master) 
+     + call util_print_centered(luout,
      + "Loading external xyz frames from "//
      +   filename,
      +   40,.true.)
 c
       filename = out_trj(1:inp_strlen(out_trj))
-      call util_print_centered(luout,
+      if(master) 
+     + call util_print_centered(luout,
      + "Creating mm trajectory file "//
      +   filename,
      +   40,.true.)
-cc
+c
+c     prepare files for reading/writing
+c     ---------------------------------
       if(master) then  
         if(.not.qmmm_get_io_unit(fn_xyz)) 
      >       call errquit("cannot get file number",0,0)
@@ -3385,20 +3392,23 @@ c
 c       write header for trj file
         call cf_trjhdr(fn_trj)
       end if
+c
 c     get number of atoms
+c     ------------------
       message = " number of atoms "
       if(master) then
-         read(fn_xyz,*,err=134,end=135) ns
+         read(fn_xyz,*,err=134) ns
          rewind(fn_xyz)
-      else
-         ns = 0
       end if
-      title = .true.
-
-
-      call ga_igop(msg_qmmm_nqm,ns,1,'+')
+      call ga_brdcst(msg_qmmm_nqm,
+     >     ns,
+     >     ma_sizeof(mt_int,1,mt_byte),
+     >     0)
       call ga_sync()
 
+c
+c     temporary stack memory
+c     ----------------------
       if(.not.ma_push_get(mt_int,ns,'itmp',h_itmp,i_itmp))
      + call errquit( pname//'Failed to allocate memory for itmp',
      + ns, MA_ERR)
@@ -3407,45 +3417,49 @@ c     get number of atoms
      + call errquit( pname//'Failed to allocate memory for ctmp',
      + 3*ns, MA_ERR)
 
-2     continue
-
 c
 c     read the coords and global index
 c     --------------------------------
+2     continue
       if(master) then
+        end_of_file = .true.
+        message = " number of atoms field"
         read(fn_xyz,*,err=134,end=3) buf
-        write(*,*) "debug 1 "
+        end_of_file = .false.
+        message = " title field"
         if(title) 
-     +     read(fn_xyz,*) buf
+     +     read(fn_xyz,*,err=134,end=135) buf
 
         do i=1,ns
          read(fn_xyz,*,err=134,end=135) buf, 
      +        (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
      +        int_mb(i_itmp+i-1)
-         write(luout,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
-     +               int_mb(i_itmp+i-1)
-
         end do
-        do i=1,3*ns
-          dbl_mb(i_ctmp+i-1) = dbl_mb(i_ctmp+i-1)/cau2ang
-        end do
-      else
-        call ifill(ns,0,int_mb(i_itmp),1)
-        call dfill(3*ns,0.0d0,dbl_mb(i_ctmp),1)
+        call dscal(3*ns,1/cau2ang,dbl_mb(i_ctmp),1)
       end if
 c
-      call ga_igop(msg_qmmm_ind,int_mb(i_itmp),ns,'+')
-      call ga_dgop(msg_qmmm_c1,dbl_mb(i_ctmp),3*ns,'+')
+3     continue
+c
+c     check if end of file was found
+c     ------------------------------
+      call ga_brdcst(msg_qmmm_misc,end_of_file,
+     >               ma_sizeof(mt_log,1,mt_byte),0)
+      if(end_of_file) goto 4
+c
+c     send coords/index to others
+c     ---------------------------
+      call ga_brdcst(msg_qmmm_ind,
+     >     int_mb(i_itmp),
+     >     ns*ma_sizeof(mt_int,1,mt_byte),
+     >     0)
+      call ga_brdcst(msg_qmmm_c1,
+     >     dbl_mb(i_ctmp),
+     >     3*ns*ma_sizeof(mt_dbl,1,mt_byte),
+     >     0)
       call ga_sync()
 c
-c      if(ga_nodeid().eq.1) then
-c      write(*,*) "coord on node 1"
-c      do i=1,ns
-c         write(*,*) (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
-c     +               int_mb(i_itmp+i-1)
-c      end do
-c      end if
-c
+c     push coords to mm
+c     -----------------
       call mm_set_solute_coord(ns,
      >                         int_mb(i_itmp),
      >                         dbl_mb(i_ctmp))
@@ -3453,7 +3467,7 @@ c
       call mm_write_frame(fn_trj)
       goto 2
 c
- 3    continue
+ 4    continue
 c
       if(.not.ma_pop_stack(h_ctmp))
      & call errquit('qmmm: 
@@ -3473,7 +3487,7 @@ c
 
  133  call errquit(pname//'error opening/closing '//filename,0, 0)
  134  call errquit(pname//'error reading xyz file'//message,0, 0)
- 135  call errquit(pname//'error premature end of file',0, 0)
+ 135  call errquit(pname//'error end of file at'//message,0, 0)
 
       end
 
