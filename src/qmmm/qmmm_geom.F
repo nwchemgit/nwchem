@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.81 2005-10-02 17:25:07 marat Exp $
+c $Id: qmmm_geom.F,v 1.82 2005-10-23 00:44:15 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -527,7 +527,10 @@ c
      >                      dbl_mb(i_c),
      >                      byte_mb(i_t))
 
-
+        else if (aform.eq."xyzi") then
+        call qmmm_print_xyzi(un,n,ais,
+     >                      dbl_mb(i_c),
+     >                      byte_mb(i_t))
         end if
       end if
 c
