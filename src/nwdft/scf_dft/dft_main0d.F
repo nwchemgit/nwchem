@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.63 2004-11-15 23:02:39 edo Exp $
+c     $Id: dft_main0d.F,v 1.64 2005-10-24 00:29:32 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -20,6 +20,9 @@ c
 #include "schwarz.fh"
 #include "msgids.fh"
 #include "dftps.fh"
+#ifdef SCALAPACK
+#include "dft_scaleig.fh"
+#endif
 c     
 c     
       integer  ga_create_atom_blocked
@@ -40,6 +43,7 @@ c
       logical dft_scf_so 
       external dft_scf_so 
       character*80 theory
+
 c     
 c     
       dft_main0d = .false.
@@ -179,8 +183,9 @@ c
          call dft_get2eri(CD_bas_han, g_2ceri,oskel)
          if (oskel)call 
      .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
-      if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
-     &      call errquit('dft_main0d: error creating g_cdinv',0, GA_ERR)
+         if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
+     &    call errquit('dft_main0d: error creating g_cdinv',0, GA_ERR)
+         if (odftps) call pstat_on(ps_inv)
          call ga_zero(g_cdinv)
          lmiss = 1
 c         if (lmiss.eq.1) then
@@ -215,9 +220,11 @@ c         if (lmiss.eq.1) then
                call dft_invdiag(g_2ceri, g_cdinv, 
      &                          nbf_cd)
             endif
+            if (odftps) call pstat_off(ps_inv)
 c
 c     second build of g_2ceri needed becuase previous calls destroyed it
 c     
+            if (odftps) call pstat_on(ps_2cer)
             call ga_zero(g_2ceri)
             call dft_get2eri(CD_bas_han, g_2ceri,oskel)
             if (oskel)call 
@@ -245,6 +252,7 @@ c         endif
             if (.not. ga_destroy(g_2ceri)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0, GA_ERR)
          endif
+            if (odftps) call pstat_off(ps_2cer)
       endif
 c
 c     Done with CD setup stuff
@@ -281,7 +289,12 @@ c
       call ga_zero(g_svecs)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
-      call ga_pdsyev(g_s, g_svecs, Dbl_MB(isvals))
+      if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,pdsyev))
+     &     pdsyev='x'
+      if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
+     &     nb=0
+         call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals),nb,
+     P     pdsyev) 
 #else
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
 #endif

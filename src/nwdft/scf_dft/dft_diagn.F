@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.12 2004-11-15 23:02:39 edo Exp $
+c     $Id: dft_diagn.F,v 1.13 2005-10-24 00:29:32 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -12,6 +12,9 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "dftps.fh"
+#ifdef SCALAPACK
+#include "dft_scaleig.fh"
+#endif
       logical levelshifting ! [in]
       integer g_tmp   ! [in]
       integer g_fock   ! [in]
@@ -97,8 +100,8 @@ c
       if (odftps) call pstat_on(ps_diag)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
-      call ga_pdsyev(
-     .     g_fockt,  g_vecstt, evals)
+      call dft_scaleig(g_fockt, g_vecstt, evals,
+     P     nb, pdsyev) 
 #else
       call ga_diag_std(
      .     g_fockt,  g_vecstt, evals)
@@ -176,3 +179,24 @@ c
       endif
       return
       end
+#ifdef SCALAPACK
+      subroutine dft_scaleig(g_s,g_svecs,evals,
+     A     nb, pdsyev)
+      implicit none
+      integer g_s,g_svecs
+      double precision evals(*)
+      character*1 pdsyev
+      integer nb
+c
+      if(pdsyev.eq.'x') then
+         call ga_pdsyev(g_s, g_svecs, evals,nb)
+      elseif(pdsyev.eq.'d') then
+         call ga_pdsyevd(g_s, g_svecs, evals,nb)
+      elseif(pdsyev.eq.'r') then
+         call ga_pdsyevr(g_s, g_svecs, evals,nb)
+      else
+         call errquit(' wrong pdsyev value',0,0)
+      endif
+      return
+      end
+#endif

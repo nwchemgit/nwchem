@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.248 2005-06-22 22:27:01 bert Exp $
+c     $Id: dft_scf.F,v 1.249 2005-10-24 00:29:32 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1455,21 +1455,21 @@ c
  23   format(51x,1p,1d10.2)
  1111 format(15x,'Core Energy:              ',f20.10)
  222  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '    Exchange-Corr. energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12//
-     &     ' Numeric. integr. density =', f20.12//
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '    Exchange-Corr. energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12//
+     &     ' Numeric. integr. density =', f22.12//
      &     '     Total iterative time =', f9.1,'s'//)
  223  format(//
-     &     '         Total DFT energy =', f20.12/
-     &     '      One electron energy =', f20.12/
-     &     '           Coulomb energy =', f20.12/
-     &     '          Exchange energy =', f20.12/
-     &     '       Correlation energy =', f20.12/
-     &     ' Nuclear repulsion energy =', f20.12//
-     &     ' Numeric. integr. density =', f20.12//
+     &     '         Total DFT energy =', f22.12/
+     &     '      One electron energy =', f22.12/
+     &     '           Coulomb energy =', f22.12/
+     &     '          Exchange energy =', f22.12/
+     &     '       Correlation energy =', f22.12/
+     &     ' Nuclear repulsion energy =', f22.12//
+     &     ' Numeric. integr. density =', f22.12//
      &     '     Total iterative time =', f9.1,'s'//)
  4224 format(10x,' HOMO = ',f7.3,' LUMO = ',f7.3,
      &              ' RLSHIFT = ',f7.3,' HL_GAP = ',f7.3)
