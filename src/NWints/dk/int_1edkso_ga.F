@@ -1,4 +1,4 @@
-c $Id: int_1edkso_ga.F,v 1.2 2003-10-17 22:53:48 carlfahl Exp $
+c $Id: int_1edkso_ga.F,v 1.3 2005-10-24 21:04:08 edo Exp $
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the one-electron spin-orbit
 c:tex-Douglas-Kroll(-Hess) integrals for  
@@ -131,7 +131,11 @@ c
      $     call errquit('int_1edk_ga: ma_push_get failed psquared',0,
      &       MA_ERR)
 #ifdef PARALLEL_DIAG
+#ifdef SCALAPACK
+         call ga_pdsygv(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
+#else
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
+#endif
 #else
       call ga_diag_seq(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #endif
