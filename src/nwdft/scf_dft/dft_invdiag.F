@@ -1,6 +1,6 @@
       Subroutine dft_invdiag(g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.12 2003-10-17 22:55:44 carlfahl Exp $
+C$Id: dft_invdiag.F,v 1.13 2005-10-24 20:52:08 edo Exp $
       implicit none
 #include "errquit.fh"
 c      
@@ -12,6 +12,9 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "stdio.fh"
+#ifdef SCALAPACK
+#include "dft_scaleig.fh"
+#endif
 c
       integer me,nproc,i,j,g_tmp2
       integer lev,iev,ltmp,itmp
@@ -33,7 +36,12 @@ c
 C     diag
       call ga_sync
 #if defined(PARALLEL_DIAG)         
+#ifdef SCALAPACK
+      call dft_scaleig(g_a, g_tmp2, DBl_MB(iev),
+     P     nb, pdsyev) 
+#else
       call ga_diag_std(g_A,g_tmp2,DBl_MB(iev))
+#endif
 #else
       call ga_diag_std_seq(g_A,g_tmp2,DBl_MB(iev))
 #endif
