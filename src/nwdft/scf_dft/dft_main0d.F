@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.64 2005-10-24 00:29:32 edo Exp $
+c     $Id: dft_main0d.F,v 1.65 2005-10-24 19:42:56 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -22,6 +22,8 @@ c
 #include "dftps.fh"
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
+      integer ga_cholesky,ga_llt_i
+      external ga_cholesky,ga_llt_i
 #endif
 c     
 c     
@@ -169,6 +171,7 @@ c
 c     
 c        Determine the characteristics of the CD Gaussian basis set.
 c     
+         if (odftps) call pstat_on(ps_2cer)
          if (.not. bas_numbf(CD_bas_han, nbf_cd)) then
             call errquit('Exiting from scfdriver',5, BASIS_ERR)
          endif 
@@ -181,6 +184,7 @@ c
      &       GA_ERR)
          call ga_zero(g_2ceri)
          call dft_get2eri(CD_bas_han, g_2ceri,oskel)
+         if (odftps) call pstat_off(ps_2cer)
          if (oskel)call 
      .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
          if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
@@ -192,7 +196,12 @@ c         if (lmiss.eq.1) then
             call ga_zero(g_cdinv)
             info = 0
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+            call ga_copy(g_2ceri, g_cdinv)
+            info= ga_cholesky('U',g_cdinv)
+#else
             call ga_chol(g_2ceri, g_cdinv, info)
+#endif
 #else 
             call ga_chol_seq(g_2ceri, g_cdinv, info)
 #endif
@@ -207,10 +216,16 @@ c         if (lmiss.eq.1) then
             if (info.eq.0) then
                g_tmpb = g_2ceri
 #if defined(PARALLEL_DIAG)
+#ifdef SCALAPACK
+               info = ga_llt_i('U',g_cdinv,-1)
+#else
                call ga_inverse(g_cdinv, g_tmpb)
+#endif
                if (odftps) call pstat_on(ps_bdgemm)
+#ifndef SCALAPACK
                call ga_dgemm('T', 'N', nbf_cd, nbf_cd, nbf_cd, 1.d0, 
      &              g_tmpb, g_tmpb, 0.d0, g_cdinv)
+#endif
                if (odftps) call pstat_off(ps_bdgemm)
 #else 
                call ga_copy(g_cdinv, g_tmpb)
@@ -221,6 +236,7 @@ c         if (lmiss.eq.1) then
      &                          nbf_cd)
             endif
             if (odftps) call pstat_off(ps_inv)
+#ifndef SCALAPACK            
 c
 c     second build of g_2ceri needed becuase previous calls destroyed it
 c     
@@ -229,6 +245,8 @@ c
             call dft_get2eri(CD_bas_han, g_2ceri,oskel)
             if (oskel)call 
      .           sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
+            if (odftps) call pstat_off(ps_2cer)
+#endif
             if (IOLGC.and.(me.eq.0)) then
                lmiss = 0
                call dft_invio('CDI', g_cdinv, nbf_cd, 'WRITE', lmiss)
@@ -252,7 +270,6 @@ c         endif
             if (.not. ga_destroy(g_2ceri)) call errquit
      &         ('dft_main0d: could not destroy g_xcinv', 0, GA_ERR)
          endif
-            if (odftps) call pstat_off(ps_2cer)
       endif
 c
 c     Done with CD setup stuff
