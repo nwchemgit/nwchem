@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.65 2005-10-24 19:42:56 edo Exp $
+c     $Id: dft_main0d.F,v 1.66 2005-10-26 22:40:05 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -62,6 +62,10 @@ c
       endif
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
+#ifdef SCALAPACK
+      call slexit
+      call slexit2
+#endif
 c     
 c     Evaluate the nuclear replusion energy.
 c     
@@ -307,7 +311,7 @@ c
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,pdsyev))
-     &     pdsyev='x'
+     &     pdsyev='v'
       if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
      &     nb=0
          call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals),nb,

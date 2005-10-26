@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.13 2005-10-24 00:29:32 edo Exp $
+c     $Id: dft_diagn.F,v 1.14 2005-10-26 22:40:05 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -188,8 +188,10 @@ c
       character*1 pdsyev
       integer nb
 c
-      if(pdsyev.eq.'x') then
+      if(pdsyev.eq.'v') then
          call ga_pdsyev(g_s, g_svecs, evals,nb)
+      elseif(pdsyev.eq.'x') then
+         call ga_pdsyevx(g_s, g_svecs, evals,nb)
       elseif(pdsyev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
       elseif(pdsyev.eq.'r') then
