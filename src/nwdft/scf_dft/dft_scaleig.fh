@@ -1,0 +1,6 @@
+c     
+c     $Id: dft_scaleig.fh,v 1.1 2005-10-26 23:33:11 edo Exp $
+c     
+      character*1 pdsyev
+      integer nb
+      common /dft_scaleigp/ nb, pdsyev	
