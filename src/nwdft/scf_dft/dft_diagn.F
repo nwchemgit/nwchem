@@ -4,7 +4,7 @@
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.14 2005-10-26 22:40:05 edo Exp $
+c     $Id: dft_diagn.F,v 1.15 2005-10-26 23:57:43 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -194,8 +194,10 @@ c
          call ga_pdsyevx(g_s, g_svecs, evals,nb)
       elseif(pdsyev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
+#ifdef USE_PDSYEVR
       elseif(pdsyev.eq.'r') then
          call ga_pdsyevr(g_s, g_svecs, evals,nb)
+#endif
       else
          call errquit(' wrong pdsyev value',0,0)
       endif
