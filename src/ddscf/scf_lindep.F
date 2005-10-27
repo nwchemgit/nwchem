@@ -1,5 +1,5 @@
       subroutine scf_lindep(rtdb, geom, basis, g_u, n_indep)
-c     $Id: scf_lindep.F,v 1.5 2004-11-24 23:03:19 edo Exp $
+c     $Id: scf_lindep.F,v 1.6 2005-10-27 00:12:45 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -51,7 +51,7 @@ c
 c
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK
-       call ga_pdsyev(g_over, g_u, dbl_mb(k_ev))
+       call ga_pdsyev(g_over, g_u, dbl_mb(k_ev), 0)
 #else
        call ga_diag_std(g_over, g_u, dbl_mb(k_ev))
 #endif

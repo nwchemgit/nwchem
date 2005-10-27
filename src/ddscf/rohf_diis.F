@@ -1,5 +1,5 @@
       logical function rohf_diis_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: rohf_diis.F,v 1.21 2004-11-24 23:03:19 edo Exp $
+C     $Id: rohf_diis.F,v 1.22 2005-10-27 00:12:45 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -428,7 +428,7 @@ c
      &       MA_ERR)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
-      call ga_pdsyev(g_over, g_xorth, dbl_mb(k_e))
+      call ga_pdsyev(g_over, g_xorth, dbl_mb(k_e), 0)
 #else
       call ga_diag_std( g_over, g_xorth, dbl_mb(k_e))
 #endif
