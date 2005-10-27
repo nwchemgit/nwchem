@@ -1,5 +1,5 @@
 #
-# $Id: data.64_to_32,v 1.2 2005-10-20 21:10:40 edo Exp $
+# $Id: data.64_to_32,v 1.3 2005-10-27 00:36:39 edo Exp $
 #
 #
 # this file contains the transliterations for both the 
@@ -173,6 +173,7 @@ dlahns    ylahns
 dlarfx    ylarfx
 dlahrd    ylahrd
 dlanv2    ylanv2
+dgehrd    ygehrd
 # ilaenv    ilaenv    identical to conversion needed
 # lsamen    lsamen    identical to conversion needed
 # xerbla    xerbla    identical to conversion needed

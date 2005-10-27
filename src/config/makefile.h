@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.508 2005-10-20 21:10:40 edo Exp $
+# $Id: makefile.h,v 1.509 2005-10-27 00:36:39 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1044,11 +1044,11 @@ ifdef USE_INTEGER4
 else
    FOPTIONS += -qintsize=8
         DEFINES += -DEXT_INT
-  CORE_LIBS +=  -llapack -lblas
+  CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif
   LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
-
+  XLFBREN = y
 
  EXPLICITF = TRUE
   FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
@@ -1993,13 +1993,36 @@ endif
 
 ifdef USE_SCALAPACK
   DEFINES += -DSCALAPACK
-  CORE_LIBS += $(SCALAPACK)
+ifeq ($(XLFBREN),y) 
+  CORE_LIBS +=  -brename:.iceil_,.iceil \
+	      -brename:.blacs_pinfo_,.blacs_pinfo \
+	      -brename:.blacs_get_,.blacs_get \
+	      -brename:.blacs_gridinit_,.blacs_gridinit \
+	      -brename:.blacs_gridinfo_,.blacs_gridinfo \
+	      -brename:.blacs_gridexit_,.blacs_gridexit \
+	      -brename:.indxg2p_,.indxg2p \
+	      -brename:.descinit_,.descinit \
+	      -brename:.numroc_,.numroc \
+	      -brename:.pdlamch_,.pdlamch \
+	      -brename:.pdsyev_,.pdsyev \
+	      -brename:.pdsyevd_,.pdsyevd \
+	      -brename:.pdsyevx_,.pdsyevx \
+	      -brename:.pdsygvx_,.pdsygvx \
+	      -brename:.pdpotri_,.pdpotri \
+	      -brename:.pdpotrf_,.pdpotrf \
+	      -brename:.pdpotrs_,.pdpotrs \
+	      -brename:.pdgetrf_,.pdgetrf \
+	      -brename:.pdgetrs_,.pdgetrs 
+endif
+  CORE_LIBS += $(SCALAPACK) $(PBLAS) $(BLACS)
+
 endif
 ifdef BLASOPT
        CORE_LIBS +=  $(BLASOPT) 
 endif
 ifdef USE_64TO32
       CORE_LIBS +=  -l64to32
+NWSUBDIRS += 64to32blas
 endif
       CORE_LIBS +=  -llapack  -lblas 
 
