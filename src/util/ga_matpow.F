@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.11 2005-10-24 21:04:05 edo Exp $
+C     $Id: ga_matpow.F,v 1.12 2005-10-27 00:15:15 edo Exp $
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)
@@ -129,7 +129,7 @@ C
 C
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
-         call ga_pdsygv(g_v, g_junk, g_ev, dbl_mb(eval_idx))
+         call ga_pdsygv(g_v, g_junk, g_ev, dbl_mb(eval_idx),0)
 #else
       Call GA_Diag( G_V, G_Junk, G_EV, Dbl_MB(Eval_Idx))
 #endif
