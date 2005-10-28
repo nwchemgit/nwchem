@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.68 2003-10-21 23:51:25 edo Exp $
+C$Id: scf.F,v 1.69 2005-10-28 00:12:54 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -34,7 +34,7 @@ c
       external int_normalize
       logical cphf_poliz, do_poliz
       external cphf_poliz
-      integer necp
+      integer necp,itype
 c
 c     Make sure database is parallel, 
 c     and initialize performance statistics
@@ -73,6 +73,11 @@ c
             write(6,*)
          endif
 c
+         if(.not. geom_systype_get(geom,itype))
+     &        itype = 0
+         if(itype.ne.0) call errquit(
+     A     'scf: code working only for molecules',itype, INPUT_ERR)
+
          if (.not. geom_ncent(geom, natoms)) call errquit
      $        ('scf: geom_ncent failed', 0, GEOM_ERR)
 c
