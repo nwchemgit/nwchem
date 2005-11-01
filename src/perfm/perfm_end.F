@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_end.F,v 1.4 2004-10-18 20:32:06 edo Exp $
+c     $Id: perfm_end.F,v 1.5 2005-11-01 21:19:33 edo Exp $
 c
       subroutine perfm_end()
       implicit none
@@ -31,10 +31,9 @@ c
       call ga_dgop(msg_perfm_sum,flpsum,1, '+')
 c
       if(ga_nodeid().eq.0) then
-!         write(luout,*) 'Real_time: ', real_time
-!         write(luout,*) ' Proc_time: ', proc_time
-!         write(luout,*) ' Total flpins: ', flpins
-!         write(luout,*) ' MFLOPS: ', mflops
+      call PAPIf_get_real_usec(usn)
+      usn = usn - uso
+      real_time= usn*1d-6
          write(luout,12) ' Aggregate GFloating-point ops: ', 
      ,        flpsum*conv2m
          write(luout,12) ' Aggregate GFLOPS (Real_time): ', 

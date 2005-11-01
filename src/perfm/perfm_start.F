@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_start.F,v 1.3 2004-10-18 20:32:06 edo Exp $
+c     $Id: perfm_start.F,v 1.4 2005-11-01 21:19:33 edo Exp $
 c
       subroutine perfm_start()
       implicit none
@@ -27,6 +27,7 @@ c
      $ perfm_error(retval,
      $ ' perfm_start: could not query papi setdebug ')
 
+      call PAPIf_get_real_usec(uso)
       call PAPIf_flips( real_time, proc_time, flpins, mflops, retval )
       if (retval .NE. PAPI_OK) call 
      $ perfm_error(retval,
