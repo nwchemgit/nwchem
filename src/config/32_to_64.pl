@@ -1,5 +1,5 @@
 #
-# $Id: 32_to_64.pl,v 1.1 2005-10-20 01:04:24 edo Exp $
+# $Id: 32_to_64.pl,v 1.2 2005-11-02 19:09:13 edo Exp $
 #
 #
 # perl script to do transliteration from "single" values to "double" values
@@ -87,6 +87,14 @@ foreach $file (@ARGV){
 
 		    if (/^[ ]{5}[^\s]/) {
 			s/([ ]{5}.)$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+		    }
+#this takes care of the tab chars in C
+		    if (/^[ \t]/){
+			s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+		    }
+#this takes care of declarations in C
+		    if (/^[ \S]/){
+			s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
 		    }
 		    if (/^[ \d]/){
 			s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;

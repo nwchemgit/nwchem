@@ -1,5 +1,5 @@
 #
-# $Id: data.64_to_32,v 1.3 2005-10-27 00:36:39 edo Exp $
+# $Id: data.64_to_32,v 1.4 2005-11-02 19:09:13 edo Exp $
 #
 #
 # this file contains the transliterations for both the 
@@ -22,7 +22,7 @@
 #           email: ra_kendall@pnl.gov
 #
 # blas transliterations
-dasum      yasum         
+dasum      yasum
 daxpy      yaxpy         
 dcopy      ycopy         
 ddot       ydot          
@@ -174,6 +174,7 @@ dlarfx    ylarfx
 dlahrd    ylahrd
 dlanv2    ylanv2
 dgehrd    ygehrd
+dstebz    ystebz
 # ilaenv    ilaenv    identical to conversion needed
 # lsamen    lsamen    identical to conversion needed
 # xerbla    xerbla    identical to conversion needed
@@ -205,3 +206,188 @@ zungql    xungql
 zungqr    xungqr   
 zungtr    xungtr   
 izamax    ixamax
+#underline for peigs
+dasum_     yasum_
+daxpy_     yaxpy_
+dcopy_     ycopy_        
+ddot_      ydot_         
+dgemm_     ygemm_        
+dgemv_     ygemv_        
+dger_      yger_         
+dnrm2_     ynrm2_        
+drot_      yrot_         
+dscal_     yscal_        
+dspmv_     yspmv_        
+dspr_      yspr_         
+dswap_     yswap_        
+dsymm_     ysymm_        
+dsymv_     ysymv_        
+dsyr2_     ysyr2_        
+dsyr2k_    ysyr2k_       
+dsyrk_     ysyrk_        
+dtrmm_     ytrmm_        
+dtrmv_     ytrmv_        
+dtrsm_     ytrsm_        
+dtrsv_     ytrsv_        
+dznrm2_    ycnrm2_       
+idamax_    iyamax_       
+zaxpy_     xaxpy_        
+zcopy_     xcopy_        
+zdotc_     xdotc_        
+zdscal_    xsscal_       
+zgemm_     xgemm_        
+zgemv_     xgemv_        
+zgerc_     xgerc_        
+zhemm_     xhemm_        
+zhemv_     xhemv_        
+zher2_     xher2_        
+zher2k_    xher2k_       
+zherk_     xherk_        
+zscal_     xscal_        
+zswap_     xswap_        
+ztrmm_     xtrmm_        
+ztrmv_     xtrmv_        
+ztrsm_     xtrsm_        
+ztrsv_     xtrsv_           
+#_lapack transliterations
+dbdsqr_   ybdsqr_
+dgebd2_   ygebd2_   
+dgebrd_   ygebrd_   
+dgelq2_   ygelq2_   
+dgelqf_   ygelqf_   
+dgeqr2_   ygeqr2_   
+dgeqrf_   ygeqrf_   
+dgesv_    ygesv_   
+dgesvd_   ygesvd_   
+dgetf2_   ygetf2_   
+dgetrf_   ygetrf_   
+dgetrs_   ygetrs_   
+dlabrd_   ylabrd_   
+dlacon_   ylacon_   
+dlacpy_   ylacpy_   
+dladiv_   yladiv_
+dlae2_    ylae2_
+dlaev2_   ylaev2_   
+dlagtf_   ylagtf_   
+dlagts_   ylagts_   
+dlange_   ylange_   
+dlansp_   ylansp_   
+dlanst_   ylanst_
+dlansy_   ylansy_
+dlarf_    ylarf_   
+dlarfb_   ylarfb_   
+dlarfg_   ylarfg_   
+dlarft_   ylarft_   
+dlarnv_   ylarnv_   
+dlaruv_   ylaruv_   
+dlas2_    ylas2_   
+dlascl_   ylascl_   
+dlaset_   ylaset_   
+dlasr_    ylasr_   
+dlasrt_   ylasrt_
+dlassq_   ylassq_
+dlasv2_   ylasv2_   
+dlaswp_   ylaswp_   
+dlatrd_   ylatrd_   
+dlauu2_   ylauu2_   
+dlauum_   ylauum_   
+dlazro_   ylazro_   
+dorg2l_   yorg2l_   
+dorg2r_   yorg2r_   
+dorgbr_   yorgbr_   
+dorgl2_   yorgl2_   
+dorglq_   yorglq_   
+dorgql_   yorgql_   
+dorgqr_   yorgqr_   
+dorgtr_   yorgtr_   
+dorm2r_   yorm2r_   
+dormbr_   yormbr_   
+dorml2_   yorml2_   
+dormlq_   yormlq_   
+dormqr_   yormqr_   
+dpotf2_   ypotf2_   
+dpotrf_   ypotrf_   
+dpotri_   ypotri_   
+dposv_    yposv_    
+dspcon_   yspcon_   
+dsprfs_   ysprfs_   
+dspsvx_   yspsvx_   
+dsptrf_   ysptrf_   
+dsptrs_   ysptrs_   
+dsteqr_   ysteqr_   
+dsterf_   ysterf_   
+dsyev_    ysyev_   
+dsygs2_   ysygs2_   
+dsygst_   ysygst_   
+dsygv_    ysygv_   
+dsytd2_   ysytd2_   
+dsytrd_   ysytrd_   
+dtrtri_   ytrtri_   
+dlasq1_   ylasq1_
+dlasq2_   ylasq2_
+dlasq3_   ylasq3_
+dlasq4_   ylasq4_
+dlasq5_   ylasq5_
+dlasq6_   ylasq6_
+dposv_    yposv_
+dpostrs_  ypotrs_
+dtrtrs_   ytrtrs_
+dlaebz_   ylaebz_
+dlaed0_   ylaed0_
+dlaed1_   ylaed1_
+dlaed2_   ylaed2_
+dlaed3_   ylaed3_
+dlaed4_   ylaed4_
+dlaed5_   ylaed5_
+dlaed6_   ylaed6 _
+dlaed7_   ylaed7_
+dlaed8_   ylaed8_
+dlaed9_   ylaed9_
+dlamrg_   ylaemrg_
+dlaeda_   ylaeda_
+dgeev_    ygeev_
+dgebak_   ygebak_
+dgebal_   ygebal_
+dhseqr_   yhseqr_
+dorghr_   yorghr_
+dtrevc_   ytrevc_
+dlaln2_   ylaln2_
+dlahqr_   ylahqr_
+dgehd2_   ygehd2_
+dlahns_   ylahns_
+dlarfx_   ylarfx_
+dlahrd_   ylahrd_
+dlanv2_   ylanv2_
+dgehrd_   ygehrd_
+dstebz_   ystebz_
+#_ilaenv    ilaenv_   identical to conversion needed
+#_lsamen    lsamen_   identical to conversion needed
+#_xerbla    xerbla_   identical to conversion needed
+#_lsame     lsame_    identical to conversion needed
+zheev_    xheev_
+zhegs2_   xhegs2_   
+zhegst_   xhegst_  
+zhegv_    xhegv_   
+zhetd2_   xhetd2_  
+zhetrd_   xhetrd_  
+zlacgv_   xlacgv_  
+zladiv_   xladiv_  
+zlanhe_   xlanhe_  
+zlarf_    xlarf_   
+zlarfb_   xlarfb_  
+zlarfg_   xlarfg_  
+zlarft_   xlarft_  
+zlascl_   xlascl_  
+zlaset_   xlaset_  
+zlasr_    xlasr_   
+zlassq_   xlassq_  
+zlatrd_   xlatrd_  
+zpotf2_   xpotf2_  
+zpotrf_   xpotrf_  
+zsteqr_   xsteqr_  
+zung2l_   xung2l_  
+zung2r_   xung2r_  
+zungql_   xungql_  
+zungqr_   xungqr_  
+zungtr_   xungtr_  
+izamax_   ixamax_
