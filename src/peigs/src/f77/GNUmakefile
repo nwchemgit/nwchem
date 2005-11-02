@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.22 2004-10-22 01:15:28 edo Exp $
+# $Id: GNUmakefile,v 1.23 2005-11-02 04:27:01 edo Exp $
 #
 
 include ../../../config/makefile.h
@@ -61,8 +61,8 @@ clean:
 		-rm -f *.o
 		-rm -f *.s
 ifdef REMOVESF
-		-rm -f dgetavec.f dlaebz2.f dlagtf1.f \
-		dlasy2.f dlasyf.f dspevx2.f dstebz3.f \
+		-rm -f dgetavec.f dlaebz2.f  \
+		dspevx2.f dstebz3.f \
 		neblw2.f sneblw2.f sstebz3.f
 endif
 		-rm -f F*.f
