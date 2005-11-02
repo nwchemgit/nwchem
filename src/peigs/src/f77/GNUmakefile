@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.23 2005-11-02 04:27:01 edo Exp $
+# $Id: GNUmakefile,v 1.24 2005-11-02 19:04:42 edo Exp $
 #
 
 include ../../../config/makefile.h
@@ -66,6 +66,14 @@ ifdef REMOVESF
 		neblw2.f sneblw2.f sstebz3.f
 endif
 		-rm -f F*.f
+
+ CNFDIR := $(NWCHEM_TOP)/src/config
+.PHONY:	 64_to_32 32_to_64
+64_to_32:
+	$(CNFDIR)/64_to_32 "*c *f *F"
+
+32_to_64:
+	$(CNFDIR)/32_to_64 "*c *f *F"
 
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<

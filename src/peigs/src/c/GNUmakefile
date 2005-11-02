@@ -1,4 +1,4 @@
-## $Id: GNUmakefile,v 1.27 2004-10-19 21:55:10 edo Exp $
+## $Id: GNUmakefile,v 1.28 2005-11-02 19:04:42 edo Exp $
 
 include ../../../config/makefile.h
 include ../../DEFS
@@ -269,6 +269,14 @@ clustrxx4.o:	clustrxx4.c
 
 peigs_tldlfact.o:	peigs_tldlfact.c
 		$(peigs_CC) -c peigs_tldlfact.c
+
+     CNFDIR := $(NWCHEM_TOP)/src/config
+.PHONY:	 64_to_32 32_to_64
+64_to_32:
+	$(CNFDIR)/64_to_32 "*c *f *F"
+
+32_to_64:
+	$(CNFDIR)/32_to_64 "*c *f *F"
 
 .c.o:;	$(peigs_CC) $(OPTC) -c $<
 .f.o:;	$(peigs_FC) $(OPT) -c $<

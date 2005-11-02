@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.16 2004-10-14 21:58:46 edo Exp $
+# $Id: GNUmakefile,v 1.17 2005-11-02 19:04:43 edo Exp $
 #
 include ../../config/makefile.h
 include ../DEFS
@@ -38,6 +38,14 @@ endif
 
 realclean:
 		clean
+
+ CNFDIR := $(NWCHEM_TOP)/src/config
+.PHONY:	 64_to_32 32_to_64
+64_to_32:
+	$(CNFDIR)/64_to_32 "*c *f *F"
+
+32_to_64:
+	$(CNFDIR)/32_to_64 "*c *f *F"
 
 .SUFFIXES:	.o .s .F .f .c
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 1999-07-28 00:39:07 d3e129 Exp $
+# $Id: GNUmakefile,v 1.6 2005-11-02 19:04:43 edo Exp $
 #
 
 include ../../config/makefile.h
@@ -32,6 +32,14 @@ all:		$(COBJ)
 
 clean:		
 		-rm -f *.o
+
+ CNFDIR := $(NWCHEM_TOP)/src/config
+.PHONY:	 64_to_32 32_to_64
+64_to_32:
+	$(CNFDIR)/64_to_32 "*c *f *F"
+
+32_to_64:
+	$(CNFDIR)/32_to_64 "*c *f *F"
 
 .c.o:	 ;	$(peigs_CC) -c $<
  

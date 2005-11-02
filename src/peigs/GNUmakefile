@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.28 2005-10-20 01:04:24 edo Exp $
+# $Id: GNUmakefile,v 1.29 2005-11-02 19:04:38 edo Exp $
 #
 
 LIBRARY = libpeigs.a
@@ -37,8 +37,20 @@ realclean: clean
 	rm -f $(LIBDIR)/$(LIBRARY)
 	rm -f peigs_stamp.$(TARGET) include_stamp
 
-sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
+sngl_to_dbl dbl_to_sngl:
 	@echo No conversion necessary
+
+64_to_32:
+	(cd ./src/c; $(MAKE) 64_to_32)
+	(cd ./src/f77; $(MAKE) 64_to_32)
+	(cd ./comm; $(MAKE) 64_to_32)
+	(cd ./ctof; $(MAKE) 64_to_32)
+
+32_to_64:
+	(cd ./src/c; $(MAKE) 32_to_64)
+	(cd ./src/f77; $(MAKE) 32_to_64)
+	(cd ./comm; $(MAKE) 32_to_64)
+	(cd ./ctof; $(MAKE) 32_to_64)
 
 depend:
 	@echo No dependencies in include
