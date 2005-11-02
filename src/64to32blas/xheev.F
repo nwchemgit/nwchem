@@ -1,0 +1,25 @@
+      SUBROUTINE xHEEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, RWORK,
+     $                  INFO )
+c
+* $Id: xheev.F,v 1.1 2005-11-02 17:13:58 edo Exp $
+c
+      implicit none
+#include "y64.fh"
+      CHARACTER          JOBZ, UPLO
+      INTEGER            INFO, LDA, LWORK, N
+*     ..
+*     .. Array Arguments ..
+      DOUBLE PRECISION   RWORK( * ), W( * )
+      COMPLEX*16         A( LDA, * ), WORK( * )
+c
+      INTGR4            INFO4, LDA4, LWORK4, N4
+c
+      lda4=lda
+      lwork4=lwork
+      n4=n
+c
+      call ZHEEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, RWORK,
+     $                  INFO )
+      info=info4
+      RETURN
+      END
