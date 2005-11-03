@@ -1,6 +1,6 @@
       SUBROUTINE YGESVD( JOBU, JOBVT, M, N, A, LDA, S, U, LDU, VT, LDVT,
      $                   WORK, LWORK, INFO )
-* $Id: ygesvd.F,v 1.1 2005-11-02 17:14:00 edo Exp $
+* $Id: ygesvd.F,v 1.2 2005-11-03 03:55:56 edo Exp $
       implicit none
 #include "y64.fh"
       CHARACTER          JOBU, JOBVT
@@ -17,8 +17,8 @@ c
       n4=n
       lwork4=lwork
 c
-      call DGESVD( JOBU, JOBVT, M, N, A, LDA, S, U, LDU, VT, LDVT,
-     $                   WORK, LWORK, INFO )
+      call DGESVD( JOBU, JOBVT, M4,N4,A, LDA4, S, U, LDU4, VT, LDVT4,
+     $                   WORK, LWORK4, INFO4 )
       info=info4
 
       RETURN
