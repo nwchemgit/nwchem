@@ -1,7 +1,7 @@
       SUBROUTINE xHEEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, RWORK,
      $                  INFO )
 c
-* $Id: xheev.F,v 1.1 2005-11-02 17:13:58 edo Exp $
+* $Id: xheev.F,v 1.2 2005-11-03 06:09:53 edo Exp $
 c
       implicit none
 #include "y64.fh"
@@ -18,8 +18,8 @@ c
       lwork4=lwork
       n4=n
 c
-      call ZHEEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, RWORK,
-     $                  INFO )
+      call ZHEEV( JOBZ, UPLO, N4, A, LDA4, W, WORK, LWORK4, RWORK,
+     $                  INFO4 )
       info=info4
       RETURN
       END
