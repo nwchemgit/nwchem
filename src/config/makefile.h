@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.509 2005-10-27 00:36:39 edo Exp $
+# $Id: makefile.h,v 1.510 2005-11-04 01:55:16 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -918,7 +918,17 @@ ifeq ($(TARGET),IBM64)
    FOPTIONS = -qEXTNAME -qnosave -qalign=4k -q64 -qxlf77=leadzero
    COPTIONS = -q64
   FOPTIMIZE = -O3 -qstrict -NQ40000 -NT80000  -qarch=auto -qtune=auto
+RSQRT=y
+    FDEBUG = -O2 -qmaxmem=8192
   ifdef RSQRT
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+  endif
+    XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+  ifdef XLF8
+    FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
+    FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
+    FOPTIMIZE  += -qipa -qhot -qlargepage -qessl 
+    FOPTIONS += -blpdata  
     FOPTIMIZE  += -qfloat=rsqrt:fltint
     FVECTORIZE  += -qfloat=rsqrt:fltint
   endif
@@ -944,6 +954,7 @@ endif
   LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
    CORE_LIBS += -llapack $(BLASOPT) -lblas
+  XLFBREN = y
 
 
   EXPLICITF = TRUE
