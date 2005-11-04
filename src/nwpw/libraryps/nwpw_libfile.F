@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.13 2004-12-20 05:18:57 bylaska Exp $
+* $Id: nwpw_libfile.F,v 1.14 2005-11-04 19:31:30 bylaska Exp $
 *
 
 *
@@ -137,10 +137,12 @@ c     >   //'_basis'
         else if (library_type.eq.2) then
           ind = index(library_name,' ')  -1
           filename= library_name(1:ind)
+          call util_file_name_resolve(filename, .false.)
         !*** teter filename ***
         else if (library_type.eq.3) then
           ind = index(library_name,' ')  -1
           filename= library_name(1:ind)
+          call util_file_name_resolve(filename, .false.)
         end if
 
 
