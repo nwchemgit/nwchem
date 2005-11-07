@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.66 2005-10-26 22:40:05 edo Exp $
+c     $Id: dft_main0d.F,v 1.67 2005-11-07 22:18:14 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -63,8 +63,14 @@ c
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
 #ifdef SCALAPACK
+#if defined(PARALLEL_DIAG)
       call slexit
       call slexit2
+      if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,yev))
+     &     yev='d'
+      if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
+     &     nb=0
+#endif
 #endif
 c     
 c     Evaluate the nuclear replusion energy.
@@ -202,7 +208,9 @@ c         if (lmiss.eq.1) then
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
             call ga_copy(g_2ceri, g_cdinv)
+            call ga_sync()
             info= ga_cholesky('U',g_cdinv)
+            if(me.eq.0) write(0,*) ' chol info ',info
 #else
             call ga_chol(g_2ceri, g_cdinv, info)
 #endif
@@ -310,12 +318,8 @@ c
       call ga_zero(g_svecs)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
-      if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,pdsyev))
-     &     pdsyev='v'
-      if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
-     &     nb=0
          call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals),nb,
-     P     pdsyev) 
+     P     yev) 
 #else
       call ga_diag_std(g_s, g_svecs, Dbl_MB(isvals))
 #endif

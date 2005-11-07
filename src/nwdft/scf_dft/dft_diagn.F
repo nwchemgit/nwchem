@@ -1,10 +1,11 @@
+cedo#define USE_PDSYEVR 1
       subroutine dft_diagn(levelshifting,
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.15 2005-10-26 23:57:43 edo Exp $
+c     $Id: dft_diagn.F,v 1.16 2005-11-07 22:18:14 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -101,7 +102,7 @@ c
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
       call dft_scaleig(g_fockt, g_vecstt, evals,
-     P     nb, pdsyev) 
+     P     nb, yev) 
 #else
       call ga_diag_std(
      .     g_fockt,  g_vecstt, evals)
@@ -181,21 +182,21 @@ c
       end
 #ifdef SCALAPACK
       subroutine dft_scaleig(g_s,g_svecs,evals,
-     A     nb, pdsyev)
+     A     nb, yev)
       implicit none
       integer g_s,g_svecs
       double precision evals(*)
-      character*1 pdsyev
+      character*1 yev
       integer nb
 c
-      if(pdsyev.eq.'v') then
+      if(yev.eq.'v') then
          call ga_pdsyev(g_s, g_svecs, evals,nb)
-      elseif(pdsyev.eq.'x') then
+      elseif(yev.eq.'x') then
          call ga_pdsyevx(g_s, g_svecs, evals,nb)
-      elseif(pdsyev.eq.'d') then
+      elseif(yev.eq.'d') then
          call ga_pdsyevd(g_s, g_svecs, evals,nb)
 #ifdef USE_PDSYEVR
-      elseif(pdsyev.eq.'r') then
+      elseif(yev.eq.'r') then
          call ga_pdsyevr(g_s, g_svecs, evals,nb)
 #endif
       else

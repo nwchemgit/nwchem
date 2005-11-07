@@ -1,6 +1,6 @@
 c     
-c     $Id: dft_scaleig.fh,v 1.1 2005-10-26 23:33:11 edo Exp $
+c     $Id: dft_scaleig.fh,v 1.2 2005-11-07 22:18:15 edo Exp $
 c     
-      character*1 pdsyev
+      character*1 yev
       integer nb
-      common /dft_scaleigp/ nb, pdsyev	
+      common /dft_scaleigp/ nb, yev	

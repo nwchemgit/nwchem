@@ -1,6 +1,6 @@
       Subroutine dft_invdiag(g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.13 2005-10-24 20:52:08 edo Exp $
+C$Id: dft_invdiag.F,v 1.14 2005-11-07 22:18:14 edo Exp $
       implicit none
 #include "errquit.fh"
 c      
@@ -38,7 +38,7 @@ C     diag
 #if defined(PARALLEL_DIAG)         
 #ifdef SCALAPACK
       call dft_scaleig(g_a, g_tmp2, DBl_MB(iev),
-     P     nb, pdsyev) 
+     P     nb, yev) 
 #else
       call ga_diag_std(g_A,g_tmp2,DBl_MB(iev))
 #endif
