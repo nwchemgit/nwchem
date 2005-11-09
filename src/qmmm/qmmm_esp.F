@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.9 2005-10-11 22:39:39 marat Exp $
+c $Id: qmmm_esp.F,v 1.10 2005-11-09 22:42:48 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -19,6 +19,7 @@ c
 c
       character*32 pname
       character*255 espfile
+      character*255 prefix
       character*80 tag
       integer lespfile
 c
@@ -133,8 +134,12 @@ c      end if
      &    call errquit(pname//'qmmm:esp',911,RTDB_ERR)
 
 
+      call mm_restart_filename(prefix)
+      i = index(prefix,".rst")-1
+      espfile = prefix(1:i)//".esp"
+      call util_file_name_resolve(espfile,.false.)
       if(ga_nodeid().eq.0) then
-        call util_file_name('esp',.false.,.false.,espfile)
+c        call util_file_name('esp',.false.,.false.,espfile)
         open(unit=lespfile,file=espfile,
      >       form='formatted',status='unknown')
         do  i=1,nqm
@@ -184,6 +189,7 @@ c
 c
       character*32 pname
       character*255 espfile
+      character*255 prefix
       integer lespfile
       integer i
       logical ignore
@@ -208,13 +214,13 @@ c
 c     
 c     construct espfilename
 c     ----------------------
-      if(.not.rtdb_cget(rtdb,"qmmm:espfilename",1,espfile))
-     >     espfile = " "
-      if(espfile.eq." ") then
-        call util_file_name('esp',.false.,.false.,espfile)
-      else
+      if(.not.rtdb_cget(rtdb,"qmmm:espfilename",1,espfile)) then
+        call mm_restart_filename(prefix)
+        i = index(prefix,".rst")-1
+        espfile = prefix(1:i)//".esp"
         call util_file_name_resolve(espfile,.false.)
       end if
+      call util_file_name_resolve(espfile,.false.)
 c     
 c     aborting if no espfile
 c     ----------------------

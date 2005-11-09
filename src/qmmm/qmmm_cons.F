@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.16 2005-10-19 00:33:51 marat Exp $
+c $Id: qmmm_cons.F,v 1.17 2005-11-09 22:42:48 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -353,6 +353,13 @@ c
       else if(aregion.eq.'solute') then
         do i=1,nacts
           log_mb(i_maps+i-1) = flag
+        end do
+      else if(aregion.eq.'all') then
+        do i=1,nacts
+          log_mb(i_maps+i-1) = flag
+        end do
+        do i=1,nactw
+          log_mb(i_mapw+i-1) = flag
         end do
       else if(aregion.eq.'mm') then
         do i=1,nactw

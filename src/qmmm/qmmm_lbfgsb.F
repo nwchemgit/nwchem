@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.9 2005-09-11 01:44:12 marat Exp $
+* $Id: qmmm_lbfgsb.F,v 1.10 2005-11-09 22:42:48 marat Exp $
 *
 c        Modified lbfgs driver for use with QMMM
 c
@@ -117,6 +117,7 @@ c
 
 c      call mm_get_solute_tot_nact(ncent)
        call qmmm_cons_get_nacts(ncent)
+       
 
       if (.not. rtdb_get(irtdb,'driver:mh',mt_int,1,m))
      $        m = 5

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.19 2005-10-19 00:33:51 marat Exp $
+c $Id: qmmm_output.F,v 1.20 2005-11-09 22:42:48 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -138,6 +138,7 @@ c
 c
       character*32 pname
       double precision energy, mm_energy, qm_energy,eatoms
+      double precision bq_energy
 
       
       pname = "qmmm_print_energy:"
@@ -155,12 +156,18 @@ c
       if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
+      if (.not. rtdb_get(irtdb,'dft:bq_energy',mt_dbl,1,bq_energy))
+     $     bq_energy = 0.0d0
+
+
       if(.not.qmmm_master()) return
 
       write(*,19) 
       write(*,21) "QM/MM Energy"
       write(*,19) 
       write(*,21) "quantum energy", qm_energy, qm_energy*cau2kj
+      if(bq_energy.ne.0.0d0) 
+     >  write(*,21) "Bq-electron energy", bq_energy, bq_energy*cau2kj
       write(*,21) "quantum energy adjusted", qm_energy-eatoms,
      >            (qm_energy-eatoms)*cau2kj
       write(*,21) "classical energy", mm_energy,
@@ -223,6 +230,7 @@ c
 c
       character*32 pname
       double precision energy, mm_energy, qm_energy,eatoms
+      double precision bq_energy
 
       
       pname = "qmmm_print_energy:"
@@ -240,12 +248,17 @@ c
       if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
+      if (.not. rtdb_get(irtdb,'dft:bq_energy',mt_dbl,1,bq_energy))
+     $     bq_energy = 0.0d0
+
       if(.not.qmmm_master()) return
 
       write(*,19) 
       write(*,21) "QM/MM Energy"
       write(*,19) 
       write(*,21) "quantum energy", qm_energy, qm_energy*cau2kj
+      if(bq_energy.ne.0.0d0) 
+     >  write(*,21) "Bq-electron energy", bq_energy, bq_energy*cau2kj
       write(*,21) "quantum energy adjusted", qm_energy-eatoms,
      >            (qm_energy-eatoms)*cau2kj
       write(*,21) "classical energy", mm_energy,
@@ -275,6 +288,7 @@ c
 c
       character*32 pname
       double precision energy, mm_energy, qm_energy,eatoms
+      double precision bq_energy
 
       
       pname = "qmmm_print_energy:"
@@ -292,6 +306,9 @@ c     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
       if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
+      if (.not. rtdb_get(irtdb,'dft:bq_energy',mt_dbl,1,bq_energy))
+     $     bq_energy = 0.0d0
+
       if(.not.qmmm_master()) return
 
       mm_energy = energy-qm_energy+eatoms
@@ -300,6 +317,8 @@ c     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
       write(*,21) "QM/MM Energy"
       write(*,19) 
       write(*,21) "quantum energy", qm_energy, qm_energy*cau2kj
+      if(bq_energy.ne.0.0d0) 
+     >  write(*,21) "Bq-electron energy", bq_energy, bq_energy*cau2kj
       write(*,21) "quantum energy adjusted", qm_energy-eatoms,
      >            (qm_energy-eatoms)*cau2kj
       write(*,21) "classical energy", mm_energy,

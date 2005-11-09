@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.18 2005-10-23 00:42:35 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.19 2005-11-09 22:42:49 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -599,7 +599,8 @@ c
      >      mt_dbl,1,dbl_mb(i_e2+i-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
         call ga_sync()
-        if(master) write(*,*) "ti:",
+        if(master) write(*,'(A,I4,4F12.6)') 
+     >      "ti:",
      >      nfra,
      >      stime,
      >      temp,
@@ -612,6 +613,16 @@ c
 
       end do
  23   continue
+c
+      if(.not.ma_free_heap(h_e2))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nfr, MA_ERR)
+
+      if(.not.ma_free_heap(h_e1))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nfr, MA_ERR)
 
 c
       if(master) 
@@ -657,6 +668,10 @@ c     local variables
       character*30 region(3)
       integer nregion
       character*84 tag
+      character*30 pname
+
+      pname = "task_qmmm_energy_sp"
+
 c
       if(qmmm_print_debug()) 
      $  write(*,*) "in task_qmmm_energy_sp"
@@ -678,36 +693,23 @@ c
 c
       task_qmmm_energy_sp = .true.
 c
-c     region definitions
-c     ------------------
+c     process region definitions
+c     --------------------------
       tag ="qmmm:region"
       if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
      >                 mt_int,1,nregion)) 
-     >      call errquit(tag,0,RTDB_ERR)
-c
-c     no region so exiting out
-c     -----------------------
-      if(nregion.eq.0) return
-
-      if(nregion.gt.3) 
-     >      call errquit("too many regions",0,0)
-      if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
-     >      call errquit(tag,0,RTDB_ERR)
-c
-c     define set of active atoms
-c     --------------------------
-      call qmmm_cons_reset()
-      call qmmm_cons_set("fix","solute")
-      call qmmm_cons_set("fix","solvent")
-      call qmmm_cons_set("free",region(1))
-      if(ga_nodeid().eq.0) 
-     > call util_print_centered(luout,
-     >   "Coordinates of the active region",
-     >   30,.true.)
-      call qmmm_cons_print_region(6,"xyzi")
-      call qmmm_cons_reset()
-      if(ga_nodeid().eq.0) call util_flush(luout)
-cc      
+     >      call errquit(pname//tag,0,RTDB_ERR)
+      if(nregion.gt.0) then
+        if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
+     >        call errquit(pname//tag,0,RTDB_ERR)
+        call qmmm_cons_free_exclusive(region(1))
+        if(ga_nodeid().eq.0) 
+     >   call util_print_centered(luout,
+     >     "Coordinates of the active region",
+     >     30,.true.)
+        call qmmm_cons_print_region(6,"xyzi")
+      end if
+ 
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
          call md_sp()

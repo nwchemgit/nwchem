@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.81 2005-10-23 00:21:56 marat Exp $
+c $Id: mm_interface.F,v 1.82 2005-11-09 22:42:48 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -207,6 +207,21 @@ c
 c      call md_wrtrst(lfnrst,rfile,.false.)
 c      call md_wrtrst(lfnqrs,filqrs,.false.)
       call md_finish()
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      subroutine mm_write_restart_default()
+      implicit none
+#include "md_common.fh"
+#include "qmmm.fh"
+      character*32 pname
+c
+      pname = "mm_write_restart_default"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+      call md_wrtrst(lfnrst,rfile,.false.)
+      call md_wrtrst(lfnqrs,filqrs,.false.)
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return
