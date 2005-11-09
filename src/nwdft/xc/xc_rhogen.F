@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.26 2005-11-09 02:29:27 edo Exp $
+* $Id: xc_rhogen.F,v 1.27 2005-11-09 19:30:22 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -308,44 +308,9 @@ c
 c     
 c     Compute nuclear gradient of delrho
 c     
-                        do n = 1, nq
-                           delrho(n,1,ii,1+jjj) =
-     &                          delrho(n,1,ii,1+jjj) -
-     &                          heschi(n,1,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,1,mu)*ffd(n,1,mu-inizja+1)
-                           delrho(n,2,ii,1+jjj) =
-     &                          delrho(n,2,ii,1+jjj) -
-     &                          heschi(n,2,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,1,mu)*ffd(n,2,mu-inizja+1)
-                           delrho(n,3,ii,1+jjj) =
-     &                          delrho(n,3,ii,1+jjj) -
-     &                          heschi(n,3,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,1,mu)*ffd(n,3,mu-inizja+1)
-                           delrho(n,1,ii,2+jjj) =
-     &                          delrho(n,1,ii,2+jjj) -
-     &                          heschi(n,2,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,2,mu)*ffd(n,1,mu-inizja+1)
-                           delrho(n,2,ii,2+jjj) =
-     &                          delrho(n,2,ii,2+jjj) -
-     &                          heschi(n,4,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,2,mu)*ffd(n,2,mu-inizja+1)
-                           delrho(n,3,ii,2+jjj) =
-     &                          delrho(n,3,ii,2+jjj) -
-     &                          heschi(n,5,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,2,mu)*ffd(n,3,mu-inizja+1)
-                           delrho(n,1,ii,3+jjj) =
-     &                          delrho(n,1,ii,3+jjj) -
-     &                          heschi(n,3,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,3,mu)*ffd(n,1,mu-inizja+1)
-                           delrho(n,2,ii,3+jjj) =
-     &                          delrho(n,2,ii,3+jjj) -
-     &                          heschi(n,5,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,3,mu)*ffd(n,2,mu-inizja+1)
-                           delrho(n,3,ii,3+jjj) =
-     &                          delrho(n,3,ii,3+jjj) -
-     &                          heschi(n,6,mu)*ff(n,mu-inizja+1) -
-     &                          delchi(n,3,mu)*ffd(n,3,mu-inizja+1)
-                        enddo
+                        call xc_drhonuc(nq,ipol,
+     D                       delrho,heschi,delchi,ff,ffd,
+     M                       ii,mu,inizja,jjj)
                      endif
                   endif
                enddo ! close of mu loop
@@ -355,109 +320,46 @@ c
 c
 c                 Compute delXiat(r)*Xjat(r)*Diat,jat
 c                  
-                  do nu = inizia, ifinia
-                     call dcopy(nq,0.d0,0,ff,1)
-                     if(what.eq.2) then
-                     if (grad) call dfill(nq*3,0.d0,ffd,1)
-                     endif
-                     icount = nu-inizia+1
-                     do mu = inizja, ifinja
-                        aaa = F(icount)
-                        icount = icount+nnia
-                        if (abs(aaa).gt.tol_rho_tmp)then
-                          call daxpy(nq,aaa,chi(1,mu),1,ff,1)
-                          if(w2grad) 
-     &                       call daxpy(nq*3,aaa,delchi(1,1,mu),1,ffd,1)
-                        endif
+               call dgemm('n','t',nq,nnia,nnja,1d0,
+     A              chi(1,inizja),nq,F,nnia,0d0,ff,nq)
+                  if(w2grad) 
+     C              call dgemm('n','t',nq*3,nnia,nnja,1d0,
+     A                    delchi(1,1,inizja),nq*3,F,nnia,0d0,ffd,nq*3)
+               do nu=inizia,ifinia
+                  if(what.lt.2) then
+c     weird
+!     jj=i0+ii
+!     if(what.eq.1) jj=ii
+                     jj=ii
+                     do n=1,nq
+                        delrho(n,1,jj,ipert) = delrho(n,1,jj,ipert) + 
+     P                       delchi(n,1,nu)*ff(n,nu-inizia+1)
+                        delrho(n,2,jj,ipert) = delrho(n,2,jj,ipert) + 
+     P                       delchi(n,2,nu)*ff(n,nu-inizia+1)
+                        delrho(n,3,jj,ipert) = delrho(n,3,jj,ipert) + 
+     P                       delchi(n,3,nu)*ff(n,nu-inizia+1)
                      enddo
-                     if(what.eq.0) then
-                        do n = 1, nql,nstride
-                           delrho(n,1,ii,1) = delrho(n,1,ii,1) + 
-     &                          delchi(n,1,nu)*ff(n,1)
-                           delrho(n+1,1,ii,1) = delrho(n+1,1,ii,1) + 
-     &                          delchi(n+1,1,nu)*ff(n+1,1)
-                           delrho(n,2,ii,1) = delrho(n,2,ii,1) + 
-     &                          delchi(n,2,nu)*ff(n,1)
-                           delrho(n+1,2,ii,1) = delrho(n+1,2,ii,1) + 
-     &                          delchi(n+1,2,nu)*ff(n+1,1)
-                           delrho(n,3,ii,1) = delrho(n,3,ii,1) + 
-     &                          delchi(n,3,nu)*ff(n,1)
-                           delrho(n+1,3,ii,1) = delrho(n+1,3,ii,1) + 
-     &                          delchi(n+1,3,nu)*ff(n+1,1)
-                        enddo
-                        if(lodd) then
-                           delrho(nq,1,ii,1) = delrho(nq,1,ii,1) + 
-     &                          delchi(nq,1,nu)*ff(nq,1)
-                           delrho(nq,2,ii,1) = delrho(nq,2,ii,1) + 
-     &                          delchi(nq,2,nu)*ff(nq,1)
-                           delrho(nq,3,ii,1) = delrho(nq,3,ii,1) + 
-     &                          delchi(nq,3,nu)*ff(nq,1)
-                        endif
-                     elseif(what.eq.1) then
-                        do n = 1, nq
-                           delrho(n,1,ii,ipert)=delrho(n,1,ii,ipert) + 
-     &                          delchi(n,1,nu)*ff(n,1)
-                           delrho(n,2,ii,ipert)=delrho(n,2,ii,ipert) + 
-     &                          delchi(n,2,nu)*ff(n,1)
-                           delrho(n,3,ii,ipert)=delrho(n,3,ii,ipert) + 
-     &                          delchi(n,3,nu)*ff(n,1)
-                     enddo
-                     elseif(what.eq.2) then
-                        iii=(iatcur-1)*3
+                  elseif(what.eq.2) then
+                     iii=(iatcur-1)*3
                      do n = 1, nq
-c	 !!! Check with Jeff about any sign conventions here !!!
                         rho(n,ii,1+iii) = rho(n,ii,1+iii) - 
-     &                                       delchi(n,1,nu)*ff(n,1)
+     &                       delchi(n,1,nu)*ff(n,nu-inizia+1)
                         rho(n,ii,2+iii) = rho(n,ii,2+iii) - 
-     &                                       delchi(n,2,nu)*ff(n,1)
+     &                       delchi(n,2,nu)*ff(n,nu-inizia+1)
                         rho(n,ii,3+iii) = rho(n,ii,3+iii) - 
-     &                                       delchi(n,3,nu)*ff(n,1)
-                        enddo
-                     if (grad) then
-c
-c                       Compute nuclear gradient of delrho
-c
-                        do n = 1, nq
-                           delrho(n,1,ii,1+iii) =
-     &                     delrho(n,1,ii,1+iii) -
-     &                          heschi(n,1,nu)*ff(n,1) -
-     &                          delchi(n,1,nu)*ffd(n,1,1)
-                           delrho(n,2,ii,1+iii) =
-     &                     delrho(n,2,ii,1+iii) -
-     &                          heschi(n,2,nu)*ff(n,1) -
-     &                          delchi(n,1,nu)*ffd(n,2,1)
-                           delrho(n,3,ii,1+iii) =
-     &                     delrho(n,3,ii,1+iii) -
-     &                          heschi(n,3,nu)*ff(n,1) -
-     &                          delchi(n,1,nu)*ffd(n,3,1)
-                           delrho(n,1,ii,2+iii) =
-     &                     delrho(n,1,ii,2+iii) -
-     &                          heschi(n,2,nu)*ff(n,1) -
-     &                          delchi(n,2,nu)*ffd(n,1,1)
-                           delrho(n,2,ii,2+iii) =
-     &                     delrho(n,2,ii,2+iii) -
-     &                          heschi(n,4,nu)*ff(n,1) -
-     &                          delchi(n,2,nu)*ffd(n,2,1)
-                           delrho(n,3,ii,2+iii) =
-     &                     delrho(n,3,ii,2+iii) -
-     &                          heschi(n,5,nu)*ff(n,1) -
-     &                          delchi(n,2,nu)*ffd(n,3,1)
-                           delrho(n,1,ii,3+iii) =
-     &                     delrho(n,1,ii,3+iii) -
-     &                          heschi(n,3,nu)*ff(n,1) -
-     &                          delchi(n,3,nu)*ffd(n,1,1)
-                           delrho(n,2,ii,3+iii) =
-     &                     delrho(n,2,ii,3+iii) -
-     &                          heschi(n,5,nu)*ff(n,1) -
-     &                          delchi(n,3,nu)*ffd(n,2,1)
-                           delrho(n,3,ii,3+iii) =
-     &                     delrho(n,3,ii,3+iii) -
-     &                          heschi(n,6,nu)*ff(n,1) -
-     &                          delchi(n,3,nu)*ffd(n,3,1)
-                        enddo
+     &                    delchi(n,3,nu)*ff(n,nu-inizia+1)
+                     enddo
+                     if(grad) then
+c     
+c     Compute nuclear gradient of delrho
+c     
+                        call xc_drhonuc(nq,ipol,
+     D                       delrho,heschi,delchi,ff,ffd,
+     M                       ii,nu,inizia,iii)
+                        
                      endif
                   endif
-               enddo
+               enddo            ! end of nu loop
             endif
   210       continue
   215       continue
@@ -481,7 +383,7 @@ c
 c
       subroutine get_atom_block_nb(g_array, basis, iat, jat, buf,
      $     idim, jdim,nbhandle)
-C$Id: xc_rhogen.F,v 1.26 2005-11-09 02:29:27 edo Exp $
+C$Id: xc_rhogen.F,v 1.27 2005-11-09 19:30:22 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -512,4 +414,50 @@ c
 *      write(6,*) ' gab: ', iat, jat
 *      call output(buf, 1, idim, 1, jdim, idim, jdim, 1)
 c
+      end
+      subroutine xc_drhonuc(nq,ipol,
+     D     delrho,heschi,delchi,ff,ffd,
+     M     ii,mu,muoffs,jjj)
+      implicit none
+      integer nq,ipol
+      double precision delrho(nq,3,ipol,*)
+      double precision heschi(nq,6,*)
+      double precision delchi(nq,3,*)
+      double precision ff(nq,*)
+      double precision ffd(nq,3,*)
+      integer ii,mu,muoffs,jjj
+c
+      integer n,mu2
+      mu2=mu-muoffs+1
+c
+      do n = 1, nq
+         delrho(n,1,ii,1+jjj) = delrho(n,1,ii,1+jjj) -
+     &        heschi(n,1,mu)*ff(n,mu2) -
+     &        delchi(n,1,mu)*ffd(n,1,mu2)
+         delrho(n,2,ii,1+jjj) = delrho(n,2,ii,1+jjj) -
+     &        heschi(n,2,mu)*ff(n,mu2) -
+     &        delchi(n,1,mu)*ffd(n,2,mu2)
+         delrho(n,3,ii,1+jjj) = delrho(n,3,ii,1+jjj) -
+     &        heschi(n,3,mu)*ff(n,mu2) -
+     &        delchi(n,1,mu)*ffd(n,3,mu2)
+         delrho(n,1,ii,2+jjj) = delrho(n,1,ii,2+jjj) -
+     &        heschi(n,2,mu)*ff(n,mu2) -
+     &        delchi(n,2,mu)*ffd(n,1,mu2)
+         delrho(n,2,ii,2+jjj) = delrho(n,2,ii,2+jjj) -
+     &        heschi(n,4,mu)*ff(n,mu2) -
+     &        delchi(n,2,mu)*ffd(n,2,mu2)
+         delrho(n,3,ii,2+jjj) = delrho(n,3,ii,2+jjj) -
+     &        heschi(n,5,mu)*ff(n,mu2) -
+     &        delchi(n,2,mu)*ffd(n,3,mu2)
+         delrho(n,1,ii,3+jjj) = delrho(n,1,ii,3+jjj) -
+     &        heschi(n,3,mu)*ff(n,mu2) -
+     &        delchi(n,3,mu)*ffd(n,1,mu2)
+         delrho(n,2,ii,3+jjj) = delrho(n,2,ii,3+jjj) -
+     &        heschi(n,5,mu)*ff(n,mu2) -
+     &        delchi(n,3,mu)*ffd(n,2,mu2)
+         delrho(n,3,ii,3+jjj) = delrho(n,3,ii,3+jjj) -
+     &        heschi(n,6,mu)*ff(n,mu2) -
+     &        delchi(n,3,mu)*ffd(n,3,mu2)
+      enddo
+      return
       end
