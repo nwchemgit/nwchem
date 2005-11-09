@@ -1,5 +1,5 @@
       SUBROUTINE YGEHRD( N, ILO, IHI, A, LDA, TAU, WORK, LWORK, INFO )
-c $Id: ygehrd.F,v 1.1 2005-11-02 17:14:00 edo Exp $
+c $Id: ygehrd.F,v 1.2 2005-11-09 02:07:17 edo Exp $
 *
       implicit none
 #include "y64.fh"
@@ -11,7 +11,6 @@ c
       IHI4=ihi
       ILO4=ilo
       LDA4=lda
-      write(0,*) ' ilo4 ihi4 ',ilo4,ihi4
       LWORK4=lwork
       N4=n
 c
