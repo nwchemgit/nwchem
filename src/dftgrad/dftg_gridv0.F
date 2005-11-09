@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.23 2005-10-12 00:28:23 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.24 2005-11-09 05:35:23 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.23 2005-10-12 00:28:23 edo Exp $
+c $Id: dftg_gridv0.F,v 1.24 2005-11-09 05:35:23 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -297,11 +297,7 @@ c
 c     Note: hessian and cpks rhs need a larger version of Bmat
 c     See xc_quadv0.F
 c
-      if (do_force) then
-         len_Bmat = n_per_rec
-      else if (do_hess .or. do_cpks_r) then
-         len_Bmat = n_per_rec*nbf_ao_mxnbf_ce
-      endif
+      len_Bmat = n_per_rec*nbf_ao_mxnbf_ce
       if (.not.MA_Push_Get(mt_dbl,len_Bmat,'Bmat',lBmat,iBmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',31,
      &       MA_ERR)
