@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.24 2005-11-02 19:04:42 edo Exp $
+# $Id: GNUmakefile,v 1.25 2005-11-10 02:06:04 edo Exp $
 #
 
 include ../../../config/makefile.h
@@ -37,7 +37,7 @@ FOBJ = samax.o \
 endif
 
 
-EOBJ	= xerbl2.o ilaenv1.o menode.o pairup.o xstop.o
+EOBJ	= xerbl2.o  menode.o pairup.o xstop.o
 
 all:		$(FOBJ) $(EOBJ)
 
@@ -70,10 +70,14 @@ endif
  CNFDIR := $(NWCHEM_TOP)/src/config
 .PHONY:	 64_to_32 32_to_64
 64_to_32:
-	$(CNFDIR)/64_to_32 "*c *f *F"
+	$(CNFDIR)/64_to_32 types.f inverm.F \
+	 dgetavec.F dgetavec2.f dgetavec3.f dgetavec4.F \
+	dptsvx2.f dspevx2.F
 
 32_to_64:
-	$(CNFDIR)/32_to_64 "*c *f *F"
+	$(CNFDIR)/32_to_64 types.f inverm.F \
+	 dgetavec.F dgetavec2.f dgetavec3.f dgetavec4.F \
+	dptsvx2.f dspevx2.F
 
 .f.o:; $(peigs_FC) -c $<
 .F.o:; $(peigs_FC) -c $<
