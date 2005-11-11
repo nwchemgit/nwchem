@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,npreci,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.144 2005-10-19 03:50:05 d3j191 Exp $
+c $Id: sp_init.F,v 1.145 2005-11-11 17:48:18 d3j191 Exp $
 c
       implicit none
 c
@@ -1098,7 +1098,7 @@ c
       isl(j,lsct2)=ibs(j,8)
       isl(j,lsct3)=ibs(j,9)
       isl(j,lssss)=ibs(j,10)
-      isl(j,lsdyn)=ibs(j,11)
+      isl(j,lsdyn)=5*ibs(j,11)
       isl(j,lsbox)=nbox
       isl(j,lsnod)=node
       isl(j,lshop)=0
