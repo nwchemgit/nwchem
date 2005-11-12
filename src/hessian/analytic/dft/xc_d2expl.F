@@ -3,7 +3,7 @@ c     Computes explicit nuclear 2nd derivatives of the XC energy
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_d2expl.F,v 1.12 2004-03-26 01:59:52 edo Exp $
+c     $Id: xc_d2expl.F,v 1.13 2005-11-12 00:32:49 edo Exp $
 c
       Subroutine xc_d2expl(tol_rho, scr, Amat, Amat2, Acof2, Cmat,
      &     Cmat2, Ccof2, F, Pmat, ff, s, chi, delchi, heschi, d3chi,
@@ -58,7 +58,7 @@ c
 c
       double precision Pmat(max_at_bf*max_at_bf) ! scratch vector
       double precision F(max_at_bf*max_at_bf)    ! scratch vector
-      double precision ff(nq,3), s(nq)   ! scratch arrays
+      double precision ff(nq,3,*), s(nq,max_at_bf)   ! scratch arrays
 c
 c     Sampling Matrices for the XC Functional Derivatives
 c
@@ -88,7 +88,7 @@ c
       integer n
       double precision aaa, fdchix, fdchiy, fdchiz,
      &                 ccc1, ccc2, ccc3
-      double precision T(3,3)
+      double precision T(3,3),t6(6)
       integer idir, jdir
 c
 c     The following parameter definitions must be consistent with
@@ -116,6 +116,7 @@ c
      &                                            iiyzz=9,
      &                                                    iizzz=10 )
 c
+      double precision duefac
       double precision dabsmax
       external dabsmax
 c
@@ -145,7 +146,6 @@ c
 c
          do 20 jat = 1, iat
             jatcur = curatoms(jat)
-c     !!! are quadratic loops necessary?
             if (jatcur.eq.0) goto 20
 c
             call dfill(9,0.d0,T,1)
@@ -322,58 +322,47 @@ c             GC:    Xiat(r)*  d3Xjat(r)*Diat,jat -> hess(jat,jat)
 c
                if (jatcur .ne. 0) then
                   call dfill(9,0.d0,T,1)
-                  icount = 0
-                  do mu = inizja, ifinja
-                     call dfill(nq,0.d0,s,1)
+                  call dgemm('n','n',nq,nnja,nnia,1d0,
+     A                 chi(1,inizia),nq,F,nnia,0d0,s,nq)
+                  if (grad)
+     G                 call dgemm('n','n',nq*3,nnja,nnia,1d0,
+     A                 delchi(1,1,inizia),nq*3,F,nnia,0d0,ff,nq*3)
+                  t6(1)=0d0
+                  t6(2)=0d0
+                  t6(3)=0d0
+                  t6(4)=0d0
+                  t6(5)=0d0
+                  t6(6)=0d0
+                  do mu=inizja,ifinja
                      if (GRAD) then
-                        call dfill(nq*3,0.d0,ff,1)
-                     endif
-                     do nu = inizia, ifinia
-                        icount = icount+1
-                        aaa = F(icount)
-                        if (abs(aaa).gt.tol_rho_tmp)then
-                           call daxpy(nq,aaa,chi(1,nu),1,s,1)
-                           if (GRAD) then
-                            call daxpy(nq*3,aaa,delchi(1,1,nu),1,ff,1)
-                           endif
-                        endif
-                     enddo
-c
-c     Prepare coefficient of hessXjat
-c
-                     if (GRAD) then
-#ifdef IFCLINUX
-CDIR$ NOVECTOR
-#endif
                         do n = 1, nq
-                           ff(n,1) = Amat(n,ii)*s(n)
-     &                             + Cmat(n,1,ii)*ff(n,1)
-     &                             + Cmat(n,2,ii)*ff(n,2)
-     &                             + Cmat(n,3,ii)*ff(n,3)
+                           ff(n,1,1) = 
+     S                          Amat(n,ii)*s(n,mu-inizja+1)
+     &                          + Cmat(n,1,ii)*ff(n,1,mu-inizja+1)
+     &                          + Cmat(n,2,ii)*ff(n,2,mu-inizja+1)
+     &                          + Cmat(n,3,ii)*ff(n,3,mu-inizja+1)
                         enddo
                      else
-#ifdef IFCLINUX
-CDIR$ NOVECTOR
-#endif
                         do n = 1, nq
-                           ff(n,1) = Amat(n,ii)*s(n)
+                           ff(n,1,1) = Amat(n,ii)*
+     *                          s(n,mu-inizja+1)
                         enddo
                      endif
-c
-                     do n = 1, nq
-                        aaa = ff(n,1)
-                        T(1,1) = T(1,1) + heschi(n,1,mu)*aaa
-                        T(1,2) = T(1,2) + heschi(n,2,mu)*aaa
-                        T(1,3) = T(1,3) + heschi(n,3,mu)*aaa
-                        T(2,2) = T(2,2) + heschi(n,4,mu)*aaa
-                        T(2,3) = T(2,3) + heschi(n,5,mu)*aaa
-                        T(3,3) = T(3,3) + heschi(n,6,mu)*aaa
-                     enddo
-                     if (GRAD) then
+                     call dgemv('t',nq, 6, 1d0,heschi(1,1,mu),nq,
+     Y                    ff(1,1,1),1,1d0,t6,1)
+                  enddo
+                  T(1,1) = t(1,1)+t6(1)
+                  T(1,2) = t(1,2)+t6(2)
+                  T(1,3) = t(1,3)+t6(3)
+                  T(2,2) = t(2,2)+t6(4)
+                  T(2,3) = t(2,3)+t6(5)
+                  T(3,3) = t(3,3)+t6(6)
+                  if (GRAD) then
+                     do mu = inizja, ifinja
                         do n = 1, nq
-                           ccc1 = Cmat(n,1,ii)*s(n)
-                           ccc2 = Cmat(n,2,ii)*s(n)
-                           ccc3 = Cmat(n,3,ii)*s(n)
+                           ccc1 = Cmat(n,1,ii)*s(n,mu-inizja+1)
+                           ccc2 = Cmat(n,2,ii)*s(n,mu-inizja+1)
+                           ccc3 = Cmat(n,3,ii)*s(n,mu-inizja+1)
                            T(1,1) = T(1,1) + d3chi(n,iixxx,mu)*ccc1
      &                                     + d3chi(n,iixxy,mu)*ccc2
      &                                     + d3chi(n,iixxz,mu)*ccc3
@@ -393,10 +382,11 @@ c
      &                                     + d3chi(n,iiyzz,mu)*ccc2
      &                                     + d3chi(n,iizzz,mu)*ccc3
                         enddo
-                     endif
-                  enddo
-c
-                  if (iat.ne.jat) call dscal(9,2.d0,T,1)
+                     enddo
+                  endif
+c     
+                  duefac=1d0
+                  if (iat.ne.jat) duefac=2d0
 c
                   T(2,1) = T(1,2)
                   T(3,1) = T(1,3)
@@ -404,7 +394,7 @@ c
                   do jdir = 1,3
                      do idir = 1,3
                         hess(idir,jat,jdir,jat) =
-     &                  hess(idir,jat,jdir,jat) + T(idir,jdir)
+     &                  hess(idir,jat,jdir,jat) + T(idir,jdir)*duefac
                      enddo
                   enddo
                endif
@@ -415,58 +405,48 @@ c              GC:   d3Xiat(r)*   Xjat(r)*Diat,jat -> hess(iat,iat)
 c
                if (iatcur .ne. 0) then
                   call dfill(9,0.d0,T,1)
-                  do nu = inizia, ifinia
-                     call dfill(nq,0.d0,s,1)
+                  call dgemm('n','t',nq,nnia,nnja,1d0,
+     A                 chi(1,inizja),nq,F,nnia,0d0,s,nq)
+                  if (grad)
+     G                 call dgemm('n','t',nq*3,nnia,nnja,1d0,
+     A                 delchi(1,1,inizja),nq*3,F,nnia,0d0,ff,nq*3)
+                  t6(1)=0d0
+                  t6(2)=0d0
+                  t6(3)=0d0
+                  t6(4)=0d0
+                  t6(5)=0d0
+                  t6(6)=0d0
+                  do nu=inizia,ifinia
                      if (GRAD) then
-                        call dfill(nq*3,0.d0,ff,1)
-                     endif
-                     icount = nu-inizia+1
-                     do mu = inizja, ifinja
-                        aaa = F(icount)
-                        icount = icount+nnia
-                        if (abs(aaa).gt.tol_rho_tmp)then
-                           call daxpy(nq,aaa,chi(1,mu),1,s,1)
-                           if (GRAD) then
-                            call daxpy(nq*3,aaa,delchi(1,1,mu),1,ff,1)
-                           endif
-                        endif
-                     enddo
-c
-c     Prepare coefficient of hessXiat
-c
-                     if (GRAD) then
-#ifdef IFCLINUX
-CDIR$ NOVECTOR
-#endif
                         do n = 1, nq
-                           ff(n,1) = Amat(n,ii)*s(n)
-     &                             + Cmat(n,1,ii)*ff(n,1)
-     &                             + Cmat(n,2,ii)*ff(n,2)
-     &                             + Cmat(n,3,ii)*ff(n,3)
+                           ff(n,1,1) = 
+     S                          Amat(n,ii)*s(n,nu-inizia+1)
+     &                             + Cmat(n,1,ii)*ff(n,1,nu-inizia+1)
+     &                             + Cmat(n,2,ii)*ff(n,2,nu-inizia+1)
+     &                             + Cmat(n,3,ii)*ff(n,3,nu-inizia+1)
                         enddo
                      else
-#ifdef IFCLINUX
-CDIR$ NOVECTOR
-#endif
                         do n = 1, nq
-                           ff(n,1) = Amat(n,ii)*s(n)
+                           ff(n,1,1) = 
+     A                          Amat(n,ii)*s(n,nu-inizia+1)
                         enddo
                      endif
-c
-                     do n = 1, nq
-                        aaa = ff(n,1)
-                        T(1,1) = T(1,1) + heschi(n,1,nu)*aaa
-                        T(1,2) = T(1,2) + heschi(n,2,nu)*aaa
-                        T(1,3) = T(1,3) + heschi(n,3,nu)*aaa
-                        T(2,2) = T(2,2) + heschi(n,4,nu)*aaa
-                        T(2,3) = T(2,3) + heschi(n,5,nu)*aaa
-                        T(3,3) = T(3,3) + heschi(n,6,nu)*aaa
-                     enddo
-                     if (GRAD) then
+                     call dgemv('t',nq, 6, 1d0,heschi(1,1,nu),nq,
+     Y                    ff(1,1,1),1,1d0,t6,1)
+                  enddo
+                  T(1,1) = t(1,1)+t6(1)
+                  T(1,2) = t(1,2)+t6(2)
+                  T(1,3) = t(1,3)+t6(3)
+                  T(2,2) = t(2,2)+t6(4)
+                  T(2,3) = t(2,3)+t6(5)
+                  T(3,3) = t(3,3)+t6(6)
+                  if (GRAD) then
+                     do nu = inizia, ifinia
+c     
                         do n = 1, nq
-                           ccc1 = Cmat(n,1,ii)*s(n)
-                           ccc2 = Cmat(n,2,ii)*s(n)
-                           ccc3 = Cmat(n,3,ii)*s(n)
+                           ccc1 = Cmat(n,1,ii)*s(n,nu-inizia+1)
+                           ccc2 = Cmat(n,2,ii)*s(n,nu-inizia+1)
+                           ccc3 = Cmat(n,3,ii)*s(n,nu-inizia+1)
                            T(1,1) = T(1,1) + d3chi(n,iixxx,nu)*ccc1
      &                                     + d3chi(n,iixxy,nu)*ccc2
      &                                     + d3chi(n,iixxz,nu)*ccc3
@@ -486,10 +466,11 @@ c
      &                                     + d3chi(n,iiyzz,nu)*ccc2
      &                                     + d3chi(n,iizzz,nu)*ccc3
                         enddo
-                     endif
-                  enddo
+                     enddo
+                  endif
 c
-                  if (iat.ne.jat) call dscal(9,2.d0,T,1)
+                  duefac=1d0
+                  if (iat.ne.jat) duefac=2d0
 c
                   T(2,1) = T(1,2)
                   T(3,1) = T(1,3)
@@ -497,7 +478,7 @@ c
                   do jdir = 1,3
                      do idir = 1,3
                         hess(idir,iat,jdir,iat) =
-     &                  hess(idir,iat,jdir,iat) + T(idir,jdir)
+     &                  hess(idir,iat,jdir,iat) + T(idir,jdir)*duefac
                      enddo
                   enddo
                endif
@@ -507,26 +488,13 @@ c
                if (jatcur .ne. 0 .and. iatcur .ne. 0) then
                   call dfill(9,0.d0,T,1)
                   icount = 0
+                  call dgemm('n','n',nq*3,nnja,nnia,1d0,
+     A                 delchi(1,1,inizia),nq*3,F,nnia,0d0,ff,nq*3)
                   do mu = inizja, ifinja
-                     call dfill(nq*3,0.d0,ff,1)
-                     if (GRAD) then
-                        call dfill(nq*6,0.d0,scr,1)
-                     endif
-                     do nu = inizia, ifinia
-                        icount = icount+1
-                        aaa = F(icount)
-                        if (abs(aaa).gt.tol_rho_tmp)then
-                           call daxpy(nq*3,aaa,delchi(1,1,nu),1,ff,1)
-                           if (GRAD) then
-                              call daxpy(nq*6,aaa,heschi(1,1,nu),1,
-     &                             scr,1)
-                           endif
-                         endif
-                     enddo
                      do n = 1, nq
-                        fdchix = Amat(n,ii)*ff(n,1)
-                        fdchiy = Amat(n,ii)*ff(n,2)
-                        fdchiz = Amat(n,ii)*ff(n,3)
+                        fdchix = Amat(n,ii)*ff(n,1,mu-inizja+1)
+                        fdchiy = Amat(n,ii)*ff(n,2,mu-inizja+1)
+                        fdchiz = Amat(n,ii)*ff(n,3,mu-inizja+1)
                         T(1,1) = T(1,1) + fdchix*delchi(n,1,mu)
                         T(1,2) = T(1,2) + fdchix*delchi(n,2,mu)
                         T(1,3) = T(1,3) + fdchix*delchi(n,3,mu)
@@ -537,59 +505,58 @@ c
                         T(3,2) = T(3,2) + fdchiz*delchi(n,2,mu)
                         T(3,3) = T(3,3) + fdchiz*delchi(n,3,mu)
                      enddo
-                     if (GRAD) then
+                  enddo
+                  if (GRAD) then
+                     do mu = inizja, ifinja
+                        call dfill(nq*6,0.d0,scr,1)
+                        do nu = inizia, ifinia
+                           icount = icount+1
+                           aaa = F(icount)
+                           if (abs(aaa).gt.tol_rho_tmp)then
+                              call daxpy(nq*6,aaa,heschi(1,1,nu),1,
+     &                             scr,1)
+                           endif
+                        enddo
+                        do n = 1,nq
+                           s(n,1) = Cmat(n,1,ii)*scr(n,iixx)
+     &                          + Cmat(n,2,ii)*scr(n,iixy)
+     &                          + Cmat(n,3,ii)*scr(n,iixz)
+                           s(n,2) = Cmat(n,1,ii)*scr(n,iixy)
+     &                          + Cmat(n,2,ii)*scr(n,iiyy)
+     &                          + Cmat(n,3,ii)*scr(n,iiyz)
+                           s(n,3) = Cmat(n,1,ii)*scr(n,iixz)
+     &                          + Cmat(n,2,ii)*scr(n,iiyz)
+     &                          + Cmat(n,3,ii)*scr(n,iizz)
+                        enddo
+                        call dgemm('t','n',3,3,nq,1d0,
+     A                       s,nq,delchi(1,1,mu),nq,1d0,T,3)
                         do n = 1, nq
-                           ccc1 = Cmat(n,1,ii)*heschi(n,iixx,mu)
+                           s(n,1) = Cmat(n,1,ii)*heschi(n,iixx,mu)
      &                          + Cmat(n,2,ii)*heschi(n,iixy,mu)
      &                          + Cmat(n,3,ii)*heschi(n,iixz,mu)
-                           ccc2 = Cmat(n,1,ii)*heschi(n,iixy,mu)
+                           s(n,2) = Cmat(n,1,ii)*heschi(n,iixy,mu)
      &                          + Cmat(n,2,ii)*heschi(n,iiyy,mu)
      &                          + Cmat(n,3,ii)*heschi(n,iiyz,mu)
-                           ccc3 = Cmat(n,1,ii)*heschi(n,iixz,mu)
+                           s(n,3) = Cmat(n,1,ii)*heschi(n,iixz,mu)
      &                          + Cmat(n,2,ii)*heschi(n,iiyz,mu)
      &                          + Cmat(n,3,ii)*heschi(n,iizz,mu)
-                           T(1,1) = T(1,1) + ff(n,1)*ccc1
-                           T(1,2) = T(1,2) + ff(n,1)*ccc2
-                           T(1,3) = T(1,3) + ff(n,1)*ccc3
-                           T(2,1) = T(2,1) + ff(n,2)*ccc1
-                           T(2,2) = T(2,2) + ff(n,2)*ccc2
-                           T(2,3) = T(2,3) + ff(n,2)*ccc3
-                           T(3,1) = T(3,1) + ff(n,3)*ccc1
-                           T(3,2) = T(3,2) + ff(n,3)*ccc2
-                           T(3,3) = T(3,3) + ff(n,3)*ccc3
-                           fdchix = Cmat(n,1,ii)*scr(n,iixx)
-     &                            + Cmat(n,2,ii)*scr(n,iixy)
-     &                            + Cmat(n,3,ii)*scr(n,iixz)
-                           fdchiy = Cmat(n,1,ii)*scr(n,iixy)
-     &                            + Cmat(n,2,ii)*scr(n,iiyy)
-     &                            + Cmat(n,3,ii)*scr(n,iiyz)
-                           fdchiz = Cmat(n,1,ii)*scr(n,iixz)
-     &                            + Cmat(n,2,ii)*scr(n,iiyz)
-     &                            + Cmat(n,3,ii)*scr(n,iizz)
-                           T(1,1) = T(1,1) + fdchix*delchi(n,1,mu)
-                           T(1,2) = T(1,2) + fdchix*delchi(n,2,mu)
-                           T(1,3) = T(1,3) + fdchix*delchi(n,3,mu)
-                           T(2,1) = T(2,1) + fdchiy*delchi(n,1,mu)
-                           T(2,2) = T(2,2) + fdchiy*delchi(n,2,mu)
-                           T(2,3) = T(2,3) + fdchiy*delchi(n,3,mu)
-                           T(3,1) = T(3,1) + fdchiz*delchi(n,1,mu)
-                           T(3,2) = T(3,2) + fdchiz*delchi(n,2,mu)
-                           T(3,3) = T(3,3) + fdchiz*delchi(n,3,mu)
                         enddo
-                     endif
-                  enddo
+                        call dgemm('t','n',3,3,nq,1d0,
+     A                       ff(1,1,mu-inizja+1),nq,s,nq,1d0,T,3)
+                     enddo
+                  endif
 c
 c     This term always comes with a factor of 2 in front
 c
-                  call dscal(9,2.d0,T,1)
+                  duefac=2d0
 c
                   do jdir = 1,3
                      do idir = 1,3
                         hess(idir,iat,jdir,jat) =
-     &                  hess(idir,iat,jdir,jat) + T(idir,jdir)
+     &                  hess(idir,iat,jdir,jat) + T(idir,jdir)*duefac
                         if (iat.ne.jat) then
                            hess(jdir,jat,idir,iat) =
-     &                     hess(jdir,jat,idir,iat) + T(idir,jdir)
+     &                     hess(jdir,jat,idir,iat) + T(idir,jdir)*duefac
                         endif
                      enddo
                   enddo

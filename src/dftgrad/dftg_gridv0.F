@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.24 2005-11-09 05:35:23 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.25 2005-11-12 00:32:49 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.24 2005-11-09 05:35:23 edo Exp $
+c $Id: dftg_gridv0.F,v 1.25 2005-11-12 00:32:49 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -363,7 +363,8 @@ c
      &           1, MA_ERR)
          endif
          if(do_hess) then
-            if (.not.MA_push_get(mt_dbl, 15*n_per_rec, 'd2scr',
+            if (.not.MA_push_get(mt_dbl, 
+     1           15*n_per_rec*nbf_ao_mxnbf_ce, 'd2scr',
      &           l_d2scr, k_d2scr)) call errquit
      &           ('dftg_gridv0: not enough stack for d2scr',0, MA_ERR)
          endif

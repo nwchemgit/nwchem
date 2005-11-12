@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.20 2005-10-08 07:10:50 edo Exp $
+C$Id: xc_tabcd.F,v 1.21 2005-11-12 00:32:47 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -13,7 +13,7 @@ c
      I     ipol, nq, nbf, max_at_bf, max_at_bf2, 
      G     GRAD, basis, natoms, iniz, ifin, 
      &                    g_vxc, ibf, rchi_atom, rdelchi_atom, 
-     &                    rdens_atom, cetobfr,kske,Mmat)
+     &                    rdens_atom, cetobfr,kske,Mmat,scr)
 c
 c     We're using xc_tabcd for CPKS purposes
 c
@@ -102,6 +102,7 @@ c
       integer ii, mu, mu1
       integer n,lastjat
       double precision chi1
+      double precision scr(nq)
       double precision dabsmax
       double precision tolrho15
       external dabsmax
@@ -118,6 +119,7 @@ c
       integer indh(3,3)
       logical w01,w02,w013,dofull
       double precision ddot
+      double precision raa,rbb
       integer nbhandl1,nbhandl2
       logical nbfirst1,nbfirst2
       external ddot
@@ -271,9 +273,9 @@ c
 c     Monitoring 
             call starttimer(monitor_comp_ga_acc)
                if(what.eq.3) then
-                  do jdir = 1,n3d
-                     Rij(jdir) = 0.5d0*(xyz(jdir,jat)-xyz(jdir,iat))
-                  enddo
+                     Rij(1) = 0.5d0*(xyz(1,jat)-xyz(1,iat))
+                     Rij(2) = 0.5d0*(xyz(2,jat)-xyz(2,iat))
+                     Rij(3) = 0.5d0*(xyz(3,jat)-xyz(3,iat))
                endif
                ifinja = ifin(jat)
                jfirst = cetobfr(1,jat)
@@ -291,32 +293,32 @@ c
                   if(what.eq.3) then
                      ix1 = mod(jdir,3)+1
                      ix2 = mod(jdir+1,3)+1
+                     raa=rij(ix1)
+                     rbb=rij(ix2)
+                     do iq = 1, nq
+                        scr(iq) = raa*qxyz(ix2,iq) - rbb*qxyz(ix1,iq)
+                     enddo
                      do inia = 1, nnia
+                        do iq = 1, nq
+                           Emat(iq,inia) = scr(iq)*Bmat(iq,inia)
+                        enddo
                         if (GRAD) then
                            do iq = 1, nq
-                              Emat(iq,inia) = (Rij(ix1)*qxyz(ix2,iq)
-     &                             -  Rij(ix2)*qxyz(ix1,iq))
-     &                                   * Bmat(iq,inia)
-     &                             + (Rij(ix1)*Dmat(iq,ix2,inia)
-     &                             -  Rij(ix2)*Dmat(iq,ix1,inia))
-                           enddo
-                        else
-                           do iq = 1, nq
-                              Emat(iq,inia) = (Rij(ix1)*qxyz(ix2,iq)
-     &                             -  Rij(ix2)*qxyz(ix1,iq))
-     &                             * Bmat(iq,inia)
+                              Emat(iq,inia) = Emat(iq,inia)+
+     &                             (raa*Dmat(iq,ix2,inia)
+     &                             -  rbb*Dmat(iq,ix1,inia))
                            enddo
                         endif
                      enddo
                      if (GRAD) then
                         do inia = 1, nnia
-                           do ix = 1, 3
                               do iq = 1, nq
-                                 Fmat(iq,ix,inia) = 
-     (                                (Rij(ix1)*qxyz(ix2,iq)
-     &                                -  Rij(ix2)*qxyz(ix1,iq))
-     &                                * Dmat(iq,ix,inia)
-                              enddo
+                                 Fmat(iq,1,inia) = scr(iq)
+     &                                * Dmat(iq,1,inia)
+                                 Fmat(iq,2,inia) = scr(iq)
+     &                                * Dmat(iq,2,inia)
+                                 Fmat(iq,3,inia) = scr(iq)
+     &                                * Dmat(iq,3,inia)
                            enddo
                         enddo
                      endif
@@ -350,11 +352,13 @@ c     leading dimension of delchi must be set correctly
                            nu1 = nu+inizja-1
                            do mu = 1, nnia
                               indT = indT + 1
-                              do idir = 1, 3
-                                 Tmat(indT) = Tmat(indT)-
-     *                                ddot(nq,Dmat(1,idir,mu),1,
-     &                                heschi(1,indh(idir,jdir),nu1),1)
-                              enddo
+                              Tmat(indT) = Tmat(indT)-
+     *                             ddot(nq,Dmat(1,1,mu),1,
+     &                             heschi(1,indh(1,jdir),nu1),1) -
+     *                             ddot(nq,Dmat(1,2,mu),1,
+     &                             heschi(1,indh(2,jdir),nu1),1) -
+     *                             ddot(nq,Dmat(1,3,mu),1,
+     &                             heschi(1,indh(3,jdir),nu1),1)
                            enddo
                         enddo
                      endif

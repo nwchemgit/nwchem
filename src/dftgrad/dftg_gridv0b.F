@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.31 2005-10-12 00:28:23 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.32 2005-11-12 00:32:49 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -265,9 +265,12 @@ c
      &                    errquit('dftg_gridv0b: cant alloc Ccof2',1,
      &       MA_ERR)
                   endif
-                  call xc_d2expl(tol_rho, d2scr(3*nqpts+1), Amat, Amat2,
+                  call xc_d2expl(tol_rho, 
+     D                 d2scr(3*nqpts*nbf_ao_mxnbf_ce+1),
+     A                 Amat, Amat2,
      &                 dbl_mb(k_Acof2), Cmat, Cmat2, dbl_mb(k_Ccof2),
-     &                 Fmat, Pmat, d2scr, d2scr(3*nqpts+1),
+     &                 Fmat, Pmat, d2scr, 
+     D                 d2scr(3*nqpts*nbf_ao_mxnbf_ce+1),
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                 dbl_mb(iheschi_ao), dbl_mb(id3chi_ao),
      &                 curatoms, ncuratoms, ipol, nqpts,
@@ -312,7 +315,7 @@ c
      N                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
      G                 GRAD,AO_bas_han, natoms, iniz, ifin, 
      G                 g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
-     R                 rdens_atom, cetobfr,.false.,0d0)
+     R                 rdens_atom, cetobfr,.false.,0d0,0d0)
 c
 c     Second part: Basis function derivative contribution
 c
@@ -333,7 +336,7 @@ c
      &                 nbf_ao_mxnbf_ce, nbf_ao_mxnbf_ce2, 
      G                 GRAD, AO_bas_han, natoms, iniz, ifin, 
      G                 g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
-     R                 rdens_atom, cetobfr,.false.,0d0)
+     R                 rdens_atom, cetobfr,.false.,0d0,0d0)
 c
                endif
  2010          continue

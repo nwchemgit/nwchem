@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.28 2005-11-09 21:12:18 edo Exp $
+* $Id: xc_rhogen.F,v 1.29 2005-11-12 00:32:47 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -124,14 +124,17 @@ c
       i0=ipol-1
 c
       FUNC_MAX = dabsmax(natoms,rchi_atom)
-      DELFUNC_MAX=1d0
+      DELFUNC_MAX=0d0
       if(grad) DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
 c
 
       do 230 iat = 1, natoms
          inizia = iniz(iat)
          if (inizia.eq.0)goto 230
-         if(what.eq.2) iatcur = curatoms(iat)
+         if(what.eq.2) then
+            iatcur = curatoms(iat)
+            iii=(iatcur-1)*3
+         endif
          ifinia = ifin(iat)
          ifirst = cetobfr(1,iat)
          ilast = cetobfr(2,iat)
@@ -167,6 +170,7 @@ c
             if (inizja.eq.0)goto 220
             if(what.eq.2) then
                jatcur = curatoms(jat)
+               jjj=(jatcur-1)*3
                if (jatcur.eq.0.and.iatcur.eq.0) goto 220
             endif
             ifinja = ifin(jat)
@@ -227,25 +231,12 @@ c
                   call ga_get(g_dens(ipert+(ii-1)*npert), 
      %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
                endif
-
 c
                if (wmax*FUNC_MAXI*FUNC_MAXJ*
      .              dabsmax(nbfia*nbfja,Pmat).lt.tol_rho)goto 210
                call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, ifirst, 
      &                      jfirst, ibf(inizia), ibf(inizja))
                if(iat.ne.jat) call dscal(nnia*nnja,2d0,F,1)
-
-
-               if(what.eq.1) then
-c
-c     !!! Put in cutoff based on Pmat elements? !!!
-c
-               endif
-               if(what.eq.2) then
-c
-c     !!! Put in some type of cutoff? !!!
-c
-               endif
 c
 c              Compute Xiat(r)*Xjat(r)*Diat,jat
 c
@@ -290,7 +281,6 @@ c
      P                    delrho(1,1,ii,ipert),delchi(1,1,mu),
      F                    ff(1,mu-inizja+1))
                   elseif(what.eq.2) then
-                     jjj=(jatcur-1)*3
                      call xc_dchiffp(nq,ipol2,
      P                    rho(1,ii,1+jjj),
      D                    delchi(1,1,mu),ff(1,mu-inizja+1),
@@ -323,7 +313,6 @@ c
      P                    delrho(1,1,ii,ipert),delchi(1,1,nu),
      F                    ff(1,nu-inizia+1))
                   elseif(what.eq.2) then
-                     iii=(iatcur-1)*3
                      call xc_dchiffp(nq,ipol2,
      P                    rho(1,ii,1+iii),
      D                    delchi(1,1,nu),ff(1,nu-inizia+1),
@@ -363,7 +352,7 @@ c
 c
       subroutine get_atom_block_nb(g_array, basis, iat, jat, buf,
      $     idim, jdim,nbhandle)
-C$Id: xc_rhogen.F,v 1.28 2005-11-09 21:12:18 edo Exp $
+C$Id: xc_rhogen.F,v 1.29 2005-11-12 00:32:47 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"

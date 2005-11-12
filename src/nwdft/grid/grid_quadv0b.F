@@ -13,7 +13,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.46 2005-10-07 19:48:06 edo Exp $
+c$Id: grid_quadv0b.F,v 1.47 2005-11-12 00:32:49 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -47,7 +47,7 @@ c
       double precision acc_xc_gauss
       logical l3d
       logical triplet, kske
-      integer lemat,iemat,lfmat,ifmat
+      integer lemat,iemat,lfmat,ifmat,k_scr,l_scr
 
       double precision tau(*), Mmat(*)
 C
@@ -232,7 +232,7 @@ c
      G        GRAD, AO_bas_han, 
      &           natoms, iniz, ifin, g_vxc, ibf_ao,
      &           rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,kske,Mmat)
+     &           rdens_atom, cetobfr,kske,Mmat,0d0)
          if (odftps) call pstat_off(ps_tabcd)
          else if (do_nmrks_r) then
             if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
@@ -243,6 +243,10 @@ c
      &           'iFmat', lFmat,iFmat))
      &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
      &          MA_ERR)
+            if (.not.MA_Push_Get(mt_dbl,nqpts,
+     &           'iFmat', l_scr,k_scr))
+     &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
+     &          MA_ERR)
             call xc_tabcd(3,.true.,
      T           tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
      E           Dbl_MB(iEmat), Dbl_MB(iFmat),  qxyz,xyz,
@@ -251,10 +255,8 @@ c
      I           ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
      G           GRAD, AO_bas_han,natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
-     &           rdens_atom, cetobfr,kske,Mmat)
-            if (.not.ma_pop_stack(lFmat))
-     &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
-            if (.not.ma_pop_stack(lEmat))
+     &           rdens_atom, cetobfr,kske,Mmat,dbl_mb(k_scr))
+            if (.not.ma_chop_stack(lEmat))
      &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
          else if (do_cpks_l) then
 c
@@ -273,7 +275,7 @@ c
      I           ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
      G           GRAD, AO_bas_han, natoms, iniz, ifin, 
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
-     &          rdens_atom, cetobfr,.false.,0d0)
+     &          rdens_atom, cetobfr,.false.,0d0,0d0)
          else if (do_cpks_r) then
             call errquit('gridquadv0b: what do do for cpks rhs?',0,
      &       CALC_ERR)
@@ -301,7 +303,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.46 2005-10-07 19:48:06 edo Exp $
+C$Id: grid_quadv0b.F,v 1.47 2005-11-12 00:32:49 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -441,7 +443,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.46 2005-10-07 19:48:06 edo Exp $
+C$Id: grid_quadv0b.F,v 1.47 2005-11-12 00:32:49 edo Exp $
 c
       implicit none
 #include "errquit.fh"
