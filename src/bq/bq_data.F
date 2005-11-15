@@ -1,6 +1,6 @@
-c $Id: bq_data.F,v 1.9 2005-08-04 16:53:25 marat Exp $
+c $Id: bq_data.F,v 1.10 2005-11-15 22:51:06 bylaska Exp $
       block data initial_bq_data
-C$Id: bq_data.F,v 1.9 2005-08-04 16:53:25 marat Exp $
+C$Id: bq_data.F,v 1.10 2005-11-15 22:51:06 bylaska Exp $
       implicit none
 #include "bq_data.fh"
 c     
@@ -356,18 +356,22 @@ c      local variables
 #include "bq_data.fh"
 #include "errquit.fh"
 #include "rtdb.fh"
+#include "util.fh"
 #include "global.fh"
 
        integer handle
 c      local variables
-       integer i
+       integer i,printlevel
        integer k
        integer h_c,i_c
        integer h_q,i_q
        character*(32) pname
-       logical status
+       logical status,oprint
 
        pname = "bq_print_info"
+
+       call util_print_get_level(printlevel)
+       oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
 
        if(handle .lt.0 .or. handle .gt. max_bq) then
            call errquit(
@@ -392,9 +396,9 @@ c      local variables
      &      pname//' unable to locate charge handle',
      &      0, MA_ERR)
 
-       if(ga_nodeid().eq.0) then
+       if (oprint) then
          call util_print_centered(6,
-     >      "Bq Structure Information",
+     >      "Bq Structure Information (Angstroms)",
      >              36, .true.)
       
          write(*,*) "Name: ", bq_name(handle)
@@ -405,6 +409,8 @@ c      local variables
      >           dbl_mb(i_q+i-1)
 
          end do
+         write(*,*)
+         write(*,*)
 
        end if
 9000   format(i5,2x,"Bq",4x,3f15.8,3x,"charge",3x,f15.8)
