@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.19 2005-11-09 22:42:49 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.20 2005-11-17 19:03:36 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -466,6 +466,7 @@ c     local variables
       integer nregion
       character*84 tag
       integer offset 
+      double precision de
 c
       logical  mm_read_frame
       external mm_read_frame
@@ -590,6 +591,7 @@ c
         call mm_set_solute_coord_file(geom_file)
         if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file))
      >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+        call qmmm_esp_reset(rtdb)
 
         call md_sp()
         task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
@@ -613,6 +615,19 @@ c
 
       end do
  23   continue
+c
+      de = 0.0d0
+      do i=1,nfra
+         
+        de = de + dbl_mb(i_e2+i-1)-
+     >       dbl_mb(i_e1+i-1)
+
+      end do
+      de = de/nfra
+
+      if(master) then
+        write(*,*) "free energy difference",de
+      end if
 c
       if(.not.ma_free_heap(h_e2))
      &      call errquit(
@@ -708,6 +723,7 @@ c     --------------------------
      >     "Coordinates of the active region",
      >     30,.true.)
         call qmmm_cons_print_region(6,"xyzi")
+        call qmmm_cons_reset()
       end if
  
       if (interface.eq.'mm') then

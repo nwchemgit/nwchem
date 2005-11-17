@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.10 2005-11-09 22:42:48 marat Exp $
+c $Id: qmmm_esp.F,v 1.11 2005-11-17 19:03:36 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -440,12 +440,15 @@ c
       integer i_q_esp,h_q_esp
       integer i_cbq
       integer i_qbq
+      logical master 
       logical esp
       external esp
       logical  task_qmmm_esp
       external task_qmmm_esp
 c
       pname = "qmmm_bq_esp_energy"
+c
+      master = qmmm_master()
 c
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -473,9 +476,12 @@ c
 111   continue
       if (.not. rtdb_get(rtdb,'qmmm:esp',
      >    mt_dbl,nqm,dbl_mb(i_q_esp))) then
+       if(master) write(luout,*) "redoing esp charges"
        if(.not.task_qmmm_esp(rtdb)) 
      >   call errquit('failed qmmm esp',0, 0)
        goto 111
+      else
+       if(master) write(luout,*) "using old esp charges"
       end if
  
       do i=1,nqm
@@ -537,12 +543,15 @@ c
       integer i_q_esp,h_q_esp
       integer i_cbq
       integer i_qbq
+      logical master
       logical esp
       external esp
       logical  task_qmmm_esp
       external task_qmmm_esp
 c
       pname = "qmmm_bq_esp_energy"
+c
+      master = qmmm_master()
 c
       if(.not.geom_create(igeom,'geometry'))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -570,9 +579,12 @@ c
 111   continue
       if (.not. rtdb_get(rtdb,'qmmm:esp',
      >    mt_dbl,nqm,dbl_mb(i_q_esp))) then
+       if(master) write(luout,*) "redoing esp charges"
        if(.not.task_qmmm_esp(rtdb)) 
      >   call errquit('failed qmmm esp',0, 0)
        goto 111
+      else
+       if(master) write(luout,*) "using old esp charges"
       end if
  
       e = 0.0d0
