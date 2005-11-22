@@ -244,6 +244,8 @@ c
         write(6,*)"  spring parameters (i,j,k,r0):",iat,jat,k,r0
         write(6,*)"  spring length and energy    :",r,e
         write(6,*)"  spring forces               :",(f(i),i=1,3)
+        write(6,*)"  spring deriv                :",
+     >            -2.0*k*(r-r0)
        end if
 
       if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
