@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.97 2005-11-22 01:24:29 d3j191 Exp $
+c $Id: ana_task.F,v 1.98 2005-11-22 23:23:47 d3j191 Exp $
 c
       implicit none
 c
@@ -20,13 +20,13 @@ c
       character*80 card
       integer nsai,msai,nwmi,mwmi,nwai,mwai,it
       integer nframe,nread,num,i,j,k,ivec,ia,ja
-      real*8 rms0,rms1,val,value,range
+      real*8 rms0,rms1,val,range
       character*3 fmt
       logical active
 c
-      logical ana_rdfram
+      logical ana_rdfram,ana_wrtvec
       real*8 ana_bond,ana_angle,ana_torsion
-      external ana_rdfram
+      external ana_rdfram,ana_wrtvec
       external ana_bond,ana_angle,ana_torsion
       integer idpdb,i_temp,l_temp
       logical lsuper,lsaver
@@ -1388,80 +1388,9 @@ c
       nframe=nframe+1
       if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 6
       endif
-      if(me.eq.0) then
-      open(unit=lfnvec,file=filvec(1:index(filvec,' ')-1),
-     + form='formatted',status='unknown',err=9999)
-      open(unit=lfnecc,file=filecc(1:index(filecc,' ')-1),
-     + form='formatted',status='unknown',err=9999)
-      k=0
-      do 15 i=1,nsel
-      value=0.0d0
-      do 16 j=1,3
-      value=value+(dbl_mb(i_cov+k))**2
-      k=k+1
-   16 continue
-      write(lfnvec,5555)
-     + (dbl_mb(i_xdat+k-4+j),j=1,3),
-     + (dbl_mb(i_cov+k-4+j),j=1,3)
- 5555 format('draw vector2 {',3f12.6,'} {',3f12.6,'} 1.0 10')
-   15 continue
 c
-      write(lfnecc,3013)
- 3013 format('%begin%input file%1%char',/,
-     + 'geometry noautosym units nm')
-      do 314 i=1,nsa
-      if(int_mb(i_osel+i-1).eq.1) then
-      if(byte_mb(i_snam+(i-1)*16+5).eq.'2'.or.
-     + byte_mb(i_snam+(i-1)*16+5).eq.'3'.or.
-     + byte_mb(i_snam+(i-1)*16+5).eq.'4') then
-      write(lfnecc,3014) ' ',byte_mb(i_snam+(i-1)*16+6),
-     + (dbl_mb(i_xadat+i-1+j*msa),j=0,2)
-      else
-      write(lfnecc,3014) (byte_mb(i_snam+(i-1)*16+j),j=5,6),
-     + (dbl_mb(i_xadat+i-1+j*msa),j=0,2)
-      endif
- 3014 format(2a1,1x,3f12.6)
-      endif
-  314 continue
-      write(lfnecc,3012) nselo
- 3012 format('end',/,'basis "ao basis" spherical print',/,
-     + ' C library "6-31+G*"',/,
-     + ' N library "6-31+G*"',/,
-     + ' O library "6-31+G*"',/,
-     + ' H library "6-31+G*"',/,
-     + ' S library "6-31+G*"',/,
-     + ' P library "6-31+G*"',/,
-     + ' Ca library "6-31+G*"',/,
-     + ' Na library "6-31+G*"',/,
-     + 'end',/,
-     + 'task scf gradient',/,
-     + '%end%input file%1%char',/,
-     + 'task_gradient%begin%total gradient%3 ',i7,'%double')
+      if(.not.ana_wrtvec(ivec,fil,dbl_mb(i_xadat))) goto 9999
 c
-      k=0
-      do 315 i=1,nsa
-      if(int_mb(i_osel+i-1).eq.1) then
-      if(int_mb(i_isel+i-1).eq.0) then
-      write(lfnecc,3015) 0.0d0,0.0d0,0.0d0
- 3015 format(3f12.6)
-      else
-      write(lfnecc,3015) (dbl_mb(i_cov+k+j),j=0,2)
-      k=k+3
-      endif
-      endif
-  315 continue
-      write(lfnecc,3011) nselo
- 3011 format('task_gradient%end%total gradient%3 ',i7,'%double')
-c
-      close(unit=lfnvec)
-      close(unit=lfnecc)
-      close(unit=lfnval)
-      close(unit=lfnprj)
-      write(*,'(/,a,i5,a,a)') ' Projection of vector ',ivec,
-     +' written to ',fil(1:index(fil,' ')-1)
-      close(unit=lfntrj)
-      write(*,'(a)') ' Closing trj file '
-      endif
       lesd=.false.
 c
       goto 1
@@ -1623,5 +1552,104 @@ c
       write(lfnana,1003) (atom(j),j=1,4)
     4 continue
 c
+      return
+      end
+      logical function ana_wrtvec(ivec,fil,xa)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "ana_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+      integer ivec
+      character*255 fil
+      integer i,j,k,l
+      real*8 value,xa(msa,3)
+c
+      if(me.eq.0) then
+      open(unit=lfnvec,file=filvec(1:index(filvec,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      open(unit=lfnecc,file=filecc(1:index(filecc,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      k=0
+      l=0
+      do 15 i=1,nsel
+      value=0.0d0
+      do 16 j=1,3
+      value=value+(dbl_mb(i_cov+k))**2
+      k=k+1
+   16 continue
+      l=l+1
+      write(lfnvec,5555)
+     + (10.0*xa(l,j),j=1,3),
+     + (dbl_mb(i_cov+k-4+j),j=1,3)
+ 5555 format('draw vector2 {',3f12.6,'} {',3f12.6,'} 1.0 10')
+   15 continue
+c
+      write(lfnecc,3013)
+ 3013 format('%begin%input file%1%char',/,
+     + 'geometry noautosym units nm')
+      do 314 i=1,nsa
+      if(int_mb(i_osel+i-1).eq.1) then
+      if(byte_mb(i_snam+(i-1)*16+5).eq.'2'.or.
+     + byte_mb(i_snam+(i-1)*16+5).eq.'3'.or.
+     + byte_mb(i_snam+(i-1)*16+5).eq.'4') then
+      write(lfnecc,3014) ' ',byte_mb(i_snam+(i-1)*16+6),
+     + (dbl_mb(i_xadat+i-1+j*msa),j=0,2)
+      else
+      write(lfnecc,3014) (byte_mb(i_snam+(i-1)*16+j),j=5,6),
+     + (dbl_mb(i_xadat+i-1+j*msa),j=0,2)
+      endif
+ 3014 format(2a1,1x,3f12.6)
+      endif
+  314 continue
+      write(lfnecc,3012) nselo
+ 3012 format('end',/,'basis "ao basis" spherical print',/,
+     + ' C library "6-31+G*"',/,
+     + ' N library "6-31+G*"',/,
+     + ' O library "6-31+G*"',/,
+     + ' H library "6-31+G*"',/,
+     + ' S library "6-31+G*"',/,
+     + ' P library "6-31+G*"',/,
+     + ' Ca library "6-31+G*"',/,
+     + ' Na library "6-31+G*"',/,
+     + 'end',/,
+     + 'task scf gradient',/,
+     + '%end%input file%1%char',/,
+     + 'task_gradient%begin%total gradient%3 ',i7,'%double')
+c
+      k=0
+      do 315 i=1,nsa
+      if(int_mb(i_osel+i-1).eq.1) then
+      if(int_mb(i_isel+i-1).eq.0) then
+      write(lfnecc,3015) 0.0d0,0.0d0,0.0d0
+ 3015 format(3f12.6)
+      else
+      write(lfnecc,3015) (dbl_mb(i_cov+k+j),j=0,2)
+      k=k+3
+      endif
+      endif
+  315 continue
+      write(lfnecc,3011) nselo
+ 3011 format('task_gradient%end%total gradient%3 ',i7,'%double')
+c
+      close(unit=lfnvec)
+      close(unit=lfnecc)
+      close(unit=lfnval)
+      close(unit=lfnprj)
+      write(*,'(/,a,i5,a,a)') ' Projection of vector ',ivec,
+     +' written to ',fil(1:index(fil,' ')-1)
+      close(unit=lfntrj)
+      write(*,'(a)') ' Closing trj file '
+      endif
+      ana_wrtvec=.true.
+      return
+ 9999 continue
+      ana_wrtvec=.false.
       return
       end
