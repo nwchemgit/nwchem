@@ -110,7 +110,9 @@ c      print*,'TOPOLOGY FILE ',filtop(1:index(filtop,' ')-1)
      + call md_abort('Failed to allocate itmp',0)
       do 14 i=1,nas
       read(lfntop,1005) sname,aname,imol(i),num,j
- 1005 format(a5,5x,a5,6x,2i5,15x,i5)
+ 1005 format(a5,5x,a5,4x,2i7,14x,i5)
+c 1005 format(a5,5x,a5,6x,2i5,15x,i5)
+c      write(*,1005) sname,aname,imol(i),num,j
       write(44,2004) sname,aname,num
       write(sgmnam(i),2004) sname,aname,num
       qs(i)=dbl_mb(i_tmp-1+j)
@@ -250,7 +252,8 @@ c
     9 continue
       do 10  i=1,nas
       read(lfntop,1005) sname,aname,num,j
- 1005 format(a5,5x,a5,11x,i5,15x,i5)
+ 1005 format(a5,5x,a5,11x,i7,14x,i5)
+c 1005 format(a5,5x,a5,11x,i5,15x,i5)
       nsgm=max(nsgm,num)
    10 continue
       do 11 i=1,nbs

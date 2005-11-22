@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.96 2005-01-11 15:34:36 d3j191 Exp $
+c $Id: ana_task.F,v 1.97 2005-11-22 01:24:29 d3j191 Exp $
 c
       implicit none
 c
@@ -1400,7 +1400,10 @@ c
       value=value+(dbl_mb(i_cov+k))**2
       k=k+1
    16 continue
-      write(lfnvec,'(i5,f12.6)') i,sqrt(value)
+      write(lfnvec,5555)
+     + (dbl_mb(i_xdat+k-4+j),j=1,3),
+     + (dbl_mb(i_cov+k-4+j),j=1,3)
+ 5555 format('draw vector2 {',3f12.6,'} {',3f12.6,'} 1.0 10')
    15 continue
 c
       write(lfnecc,3013)
