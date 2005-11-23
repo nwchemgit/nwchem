@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.249 2005-10-24 00:29:32 edo Exp $
+c     $Id: dft_scf.F,v 1.250 2005-11-23 07:55:15 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -676,6 +676,7 @@ c
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
          endif
+      if (odftps) call pstat_on(ps_scfend)
          goto 1970
       endif
  1000 continue
@@ -768,6 +769,7 @@ c
          call ga_symmetrize(g_focks(ispin))
       enddo
       call dft_convpam(oprint_conv_details,iter,etnew,etold,enuc)
+
 
       if (diising)then
 c     
