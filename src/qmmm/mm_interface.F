@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.82 2005-11-09 22:42:48 marat Exp $
+c $Id: mm_interface.F,v 1.83 2005-11-23 23:32:58 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -175,7 +175,7 @@ c
       prefix = filtop(1:i)
       end
 
-      subroutine mm_write_restart_named(rfile)
+      subroutine mm_write_restart_named(rfile,lv)
       implicit none
 c
 #include "util.fh"
@@ -183,6 +183,8 @@ c
 #include "inp.fh"
 c
       character*(*) rfile
+      logical lv
+c
       integer lfnrst
       character*32 pname
 c
@@ -190,7 +192,7 @@ c
       if(qmmm_print_debug()) write(*,*) "in "//pname
 
       lfnrst = 54
-      call md_wrtrst(lfnrst,rfile,.false.)
+      call md_wrtrst(lfnrst,rfile,lv)
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return

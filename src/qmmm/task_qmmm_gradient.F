@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.46 2005-10-02 17:25:07 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.47 2005-11-23 23:32:59 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -296,7 +296,7 @@ c
 c     finally save restart file to perm
 c     ---------------------------------
       call util_file_name_resolve(rstfile,.false.)
-      call mm_write_restart_named(rstfile)
+      call mm_write_restart_named(rstfile,.false.)
 
       qmmm_neb_gradient = status
 
