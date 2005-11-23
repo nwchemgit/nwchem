@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.20 2005-11-17 19:03:36 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.21 2005-11-23 23:25:40 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -201,7 +201,7 @@ c       calculate energy
 c       save numbered restart file
         buf = ' '
         write(buf,14) prefix(1:inp_strlen(prefix)),ifr 
-        call mm_write_restart_named(buf)
+        call mm_write_restart_named(buf,.false.)
         offset = trn(3)
       end do
  23   continue
@@ -595,6 +595,237 @@ c
 
         call md_sp()
         task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,dbl_mb(i_e2+i-1)))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+        call ga_sync()
+        if(master) write(*,'(A,I4,4F12.6)') 
+     >      "ti:",
+     >      nfra,
+     >      stime,
+     >      temp,
+     >      dbl_mb(i_e1+i-1),
+     >      dbl_mb(i_e2+i-1)
+
+        if(master) call util_flush(6)
+        ignore = rtdb_delete(rtdb,"qmmm:espfilename")
+        offset = trn(3)
+
+      end do
+ 23   continue
+c
+      de = 0.0d0
+      do i=1,nfra
+         
+        de = de + dbl_mb(i_e2+i-1)-
+     >       dbl_mb(i_e1+i-1)
+
+      end do
+      de = de/nfra
+
+      if(master) then
+        write(*,*) "free energy difference",de
+      end if
+c
+      if(.not.ma_free_heap(h_e2))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nfr, MA_ERR)
+
+      if(.not.ma_free_heap(h_e1))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nfr, MA_ERR)
+
+c
+      if(master) 
+     >  close(fn)
+
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+      if(master) call util_flush(6)
+      return
+
+ 9999 continue
+      call errquit('Failed to open file '//filename,0,0)
+
+      end
+c
+      function task_qmmm_energy_ti1(rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer rtdb
+      logical task_qmmm_energy_ti1
+c     external functions
+      logical qmmm_energy_gradient
+      external qmmm_energy_gradient 
+
+c     local variables
+      double precision temp
+      double precision stime
+      integer i,iframe
+      logical ignore
+      character*32 interface
+      character*255 filename
+      character*255 buf
+      logical save_rst
+      logical do_print
+      character*30 operation
+      double precision energy
+      integer fn
+      integer trn(3)
+      integer nfr,nfra
+      character*30 pname
+      character*255 geom_file
+      character*255 esp_file
+      character*3  ftype
+      logical master
+      integer i_e1,h_e1
+      integer i_e2,h_e2
+      character*30 region(3)
+      integer nregion
+      character*84 tag
+      integer offset 
+      double precision de
+c
+      logical  mm_read_frame
+      external mm_read_frame
+      logical  mm_skip_frame
+      external mm_skip_frame
+c
+      pname = "task_qmmm_energy_ti1"
+c
+      task_qmmm_energy_ti1 = .true.
+c
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+c
+c     region definitions
+c     ------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     no region so exiting out
+c     -----------------------
+      if(nregion.eq.0) return
+
+      if(nregion.gt.3) 
+     >      call errquit(pname//"too many regions",0,0)
+      if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     define set of active atoms
+c     --------------------------
+      call qmmm_cons_reset()
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region(1))
+c
+c
+      master = qmmm_master()
+c
+      if (.not.rtdb_cget(rtdb,"qmmm:trajectory_file",1,filename)) 
+     >      call errquit(pname//'failed to get trajectory filename',0,
+     >       RTDB_ERR)
+c
+      if(index(filename,".xyzi").ne.0) then
+        ftype = "xyz"
+      else if(index(filename,".trj").ne.0) then
+        ftype = "trj"
+      else if(index(filename,".tri").ne.0) then
+        ftype = "trj"
+      else
+        call errquit(pname//" unknown trajectory format "//
+     >               filename,0,0)
+      end if
+c
+c     convert xyz trajectory into mm trajectory
+c     -----------------------------------------
+      if(ftype.eq."xyz") then
+        i = index(filename,".xyzi")
+        buf = filename
+        filename = buf(1:i)//"tri"
+        call mm_create_trj_from_xyz(buf,filename)
+      end if
+c
+      call util_file_name_resolve(filename,.false.)
+      if(master) then
+        if(.not.qmmm_get_io_unit(fn)) 
+     >   call errquit("cannot get file number",0,0)
+        open(unit=fn,file=filename,
+     +   form='formatted',status='old',err=9999)
+      end if
+c
+      if (.not.rtdb_get(rtdb,"qmmm:trajectory_n",mt_int,3,trn)) 
+     >      call errquit(pname//'failed to get trn',0,
+     >       RTDB_ERR)
+
+      if (.not.rtdb_cget(rtdb,"qmmm:ti_geom_file",1,geom_file)) 
+     >       call errquit(pname//'failed to get ti_geom_file ',
+     >                 0,0)
+
+      if (.not.rtdb_cget(rtdb,"qmmm:ti_esp_file",1,esp_file)) 
+     >    call errquit(pname//'failed to get qmmm:ti_esp_file',
+     >                 0,0)
+
+c
+c     total number of frames to process
+c     ---------------------------------
+      nfr = MAX((trn(2)-trn(1)+trn(3))/trn(3),0)
+      if(master) 
+     >   write(*,*) "ti: total number of frames",nfr
+c
+      if(.not.ma_alloc_get(MT_DBL, nfr, 'qmmm ti e1',
+     &      h_e1, i_e1) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nfr, MA_ERR)
+      call dfill(nfr,0,dbl_mb(i_e1),1)
+c
+      if(.not.ma_alloc_get(MT_DBL, nfr, 'qmmm ti e2',
+     &      h_e2, i_e2) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nfr, MA_ERR)
+      call dfill(nfr,0,dbl_mb(i_e2),1)
+c
+      nfra = 0
+
+
+      offset = trn(1)
+      do i=trn(1),trn(2),trn(3)
+        if(.not.mm_read_frame(fn,offset))
+     >      call errquit(pname//'failed to get skip frames',
+     >                   0,0)
+        nfra = nfra + 1
+        call mm_get_temp(temp)
+        call mm_get_stime(stime)
+        call md_sp()
+        task_qmmm_energy_ti1 = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,dbl_mb(i_e1+i-1)))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+        call mm_set_solute_coord_file(geom_file)
+        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+        call qmmm_esp_reset(rtdb)
+
+        call md_sp()
+        task_qmmm_energy_ti1 = qmmm_energy_gradient(rtdb,.false.)
         call qmmm_energy_rtdb_push(rtdb)
         call qmmm_print_energy(rtdb)
         if (.not. rtdb_get(rtdb,'qmmm:energy',
