@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.67 2005-11-07 22:18:14 edo Exp $
+c     $Id: dft_main0d.F,v 1.68 2005-11-23 08:32:07 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -197,6 +197,7 @@ c
          if (odftps) call pstat_off(ps_2cer)
          if (oskel)call 
      .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
+         call ga_sync()
          if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
      &    call errquit('dft_main0d: error creating g_cdinv',0, GA_ERR)
          if (odftps) call pstat_on(ps_inv)
@@ -210,7 +211,6 @@ c         if (lmiss.eq.1) then
             call ga_copy(g_2ceri, g_cdinv)
             call ga_sync()
             info= ga_cholesky('U',g_cdinv)
-            if(me.eq.0) write(0,*) ' chol info ',info
 #else
             call ga_chol(g_2ceri, g_cdinv, info)
 #endif
@@ -230,6 +230,15 @@ c         if (lmiss.eq.1) then
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
                info = ga_llt_i('U',g_cdinv,-1)
+            if (info.ne.0)then
+               if (me.eq.0)then
+                  write(LuOut,*)' Problem in performing a Invers. '
+                  write(LuOut,*)' of the 2-ctr ERI '
+               endif
+               call ga_sync
+               call errquit('dft_main0d: inverse failed ',0,0)
+            endif
+               
 #else
                call ga_inverse(g_cdinv, g_tmpb)
 #endif
@@ -316,6 +325,7 @@ c
       if (.not. ga_duplicate(g_s, g_svecs, 'AO ovl eig vecs'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
       call ga_zero(g_svecs)
+      if (odftps) call pstat_on(ps_diag)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
          call dft_scaleig(g_s, g_svecs, Dbl_MB(isvals),nb,
@@ -326,6 +336,7 @@ c
 #else 
       call ga_diag_std_seq(g_s, g_svecs, Dbl_MB(isvals))
 #endif
+      if (odftps) call pstat_off(ps_diag)
 c     
       if (.not. ga_duplicate(g_s, g_evecs(1), 'alpha evecs'))
      &     call errquit('dft_main0d: error creating ga',0,GA_ERR)
