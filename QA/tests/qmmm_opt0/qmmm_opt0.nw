@@ -1,7 +1,7 @@
 memory total 800 Mb
 
 start asa 
-#
+
 #prepare
 #  system asa_ref
 #  source asa.pdb
@@ -15,11 +15,11 @@ start asa
 #  center
 #  orient
 #  solvate
-#  fix segments beyond 1.0 2:_OG
+#  fix segments beyond 0.5 2:_OG
 #  update lists
 #  ignore
-#  write asa_em.rst 
-#  write asa_em.pdb   # Write out PDB file to check structure
+#  write asa_ref.rst 
+#  write asa_ref.pdb   # Write out PDB file to check structure
 #end
 #task prepare
 #
@@ -36,6 +36,7 @@ task prepare
 md
   system asa_qmmm
   noshake solute
+  cells 2 2 2
 end
 
 basis "ao basis" 
