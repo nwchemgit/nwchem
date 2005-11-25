@@ -33,6 +33,10 @@ read asa_ref.rst
 write asa_qmmm.rst
 end
 task prepare
+#----------------------------------------
+# noshake solute always have tobe present
+# if optimizing classical solvent
+#---------------------------------------
 md
   system asa_qmmm
   noshake solute
