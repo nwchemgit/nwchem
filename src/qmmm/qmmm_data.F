@@ -366,7 +366,7 @@ c      qmmm_print_debug = oprint .and. (ga_nodeid().eq.0)
       function qmmm_get_interface()
       implicit none
 #include "qmmm_data.fh"
-      character*(*) qmmm_get_interface
+      character*32 qmmm_get_interface
 
       qmmm_get_interface = qmmm_interface      
 

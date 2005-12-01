@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.21 2005-11-23 23:25:40 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.22 2005-12-01 20:04:58 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -19,6 +19,9 @@ c     external functions
       logical  task_qmmm_energy_sp
       external task_qmmm_energy_sp
 c
+      logical  task_qmmm_energy_pes
+      external task_qmmm_energy_pes
+c
       logical  task_qmmm_energy_spi
       logical  task_qmmm_energy_ti
       external task_qmmm_energy_ti
@@ -26,6 +29,7 @@ c
 c     local variables
       logical traj
       logical ti
+      logical opes
       character*30 operation
 
       if(qmmm_print_debug()) 
@@ -37,10 +41,18 @@ c
       if (.not. rtdb_get(rtdb, 'qmmm:trajectory', mt_log,1,traj))
      $     traj = .false.
 c
+      if (.not. rtdb_get(rtdb, 'task:qmmm_pes', mt_log,1,opes))
+     $     opes = .false.
+c
       if (.not. rtdb_get(rtdb, 'qmmm:ti', mt_log,1,ti))
      $     ti = .false.
 c
       if(operation.ne.'energy') traj = .false.
+c
+      if(opes) then
+        task_qmmm_energy = task_qmmm_energy_pes(rtdb)
+        goto 1
+      end if
 c
       if(ti) then
         task_qmmm_energy = task_qmmm_energy_ti(rtdb)
@@ -1134,5 +1146,215 @@ c
 
       end
 
+      function task_qmmm_energy_pes(irtdb)
+c     $Id: task_qmmm_energy.F,v 1.22 2005-12-01 20:04:58 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "msgids.fh"
+#include "tcgmsg.fh"
+      integer irtdb
+      logical task_qmmm_energy_pes
+      double precision cpu, wall
+c     
+      logical  status
+c     
+      character*32 pname
+c     
+      logical   task_qmmm_energy_sp
+      external  task_qmmm_energy_sp
+      logical ignore
+      character*255 filename, dir,xyz,prefix
+      character*255 filename0
+      character*255 movecs
+      character*255 movecs0
+      double precision energy
+      double precision rb(2)
+      integer np
+      integer ip
+      integer in
+      double precision dr
+      double precision r
+      integer i1,i2,i3
+      logical ofile
+      logical backward
+      logical loadrst
+      logical loadmovecs
+      integer ncycles
+      integer istart
+      integer iend
+      logical pes_spring
+
+      pname = "task_qmmm_energy_pes"
+
+c
+c     get lower/upper  limits for pes scan
+c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_spring',mt_dbl,
+     +                    2,rb))
+     + pes_spring = .false.
+
+c
+c     get number of points for pes scan
+c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_ncycles',mt_int,
+     +                    1,ncycles))
+     + ncycles = 1
+c
+c     get number of points for pes scan
+c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_npoints',mt_int,
+     +                    1,np))
+     + call errquit(pname//'Failed to get pes points',
+     + 1, RTDB_ERR)
+c
+c     get starting point
+c     ------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_istart',mt_int,
+     +                    1,istart))
+     +    istart = 1
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_iend',mt_int,
+     +                    1,iend))
+     +    iend = np
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_backward',mt_log,
+     +                    1,backward))
+     +  backward = .false.
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_loadrst',mt_log,
+     +                    1,loadrst))
+     +  loadrst = .false.
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_loadmovecs',mt_log,
+     +                    1,loadmovecs))
+     +  loadmovecs = .false.
+c
+c     directory name to dump restart files
+c     ------------------------------------
+      dir      = ' '
+      call util_directory_name(dir, .false., 0)
+c
+c     file prefix from mm module
+c     --------------------------
+      call mm_system_prefix(prefix)
+c
+c     construct movecs file name  
+      movecs0 = ' '
+      call util_file_name("movecs",.false.,.false.,movecs0)        
+      ignore = rtdb_delete(irtdb,'dft:input vectors')
+      ignore = rtdb_delete(irtdb,'scf:input vectors')
+c 
+c     set increments and initial value for spring
+c     -------------------------------------------
+      if(pes_spring) then
+        dr = (rb(2)-rb(1))/(np-1)
+        r  = rb(1)
+      end if
+
+      ncycles = 1
+      do in=1,ncycles
+      if(backward) then
+        i1=iend
+        i2=istart
+        i3=-1
+      else
+        i1=istart
+        i2=iend
+        i3=1
+      end if
+c
+c     actually do the scan
+c     --------------------
+      do ip=i1,i2,i3
+        if(pes_spring) then
+          r  = rb(1)+dr*(ip-1) 
+          if(ga_nodeid().eq.0) then
+            write(*,15) ip,r
+          end if
+          if (.not. rtdb_put(irtdb,'qmmm:r_spring',mt_dbl,
+     +                       1,r))
+     +    call errquit(pname//'Failed to set r_spring',
+     +    1, RTDB_ERR)
+        end if
+
+        filename0 = ' '
+        write(filename0,14) 
+     $     prefix(1:inp_strlen(prefix)),ip
+        filename = ' '
+        write(filename,13) dir(1:inp_strlen(dir)), 
+     $     prefix(1:inp_strlen(prefix)),ip
+
+c       start load restart file if it exists and requested     
+        if(loadrst) then
+          if(ga_nodeid().eq.0) then 
+            inquire(file=filename,exist=ofile)
+            if(ofile) then 
+             write(*,*) "pes: found restart file",
+     >                 filename(1:inp_strlen(filename))
+            call util_file_copy(filename(1:inp_strlen(filename)),
+     >                          filename0(1:inp_strlen(filename0)))
+            end if
+          end if
+          call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+          call ga_sync()
+          if(ofile) 
+     >      call mm_reload_rst(irtdb,filename0)
+        end if
+c       end load restart 
+c       start load movecs if it exists and requested     
+        movecs = ' '
+        write(movecs,17) dir(1:inp_strlen(dir)), 
+     $   prefix(1:inp_strlen(prefix)),ip
+        if(loadmovecs) then
+          if(ga_nodeid().eq.0) then 
+            inquire(file=movecs,exist=ofile)
+            if(ofile) then 
+             write(*,*) "pes: found movecs file",
+     >                 movecs(1:inp_strlen(movecs))
+            call util_file_copy(movecs(1:inp_strlen(movecs)),
+     >                          movecs0(1:inp_strlen(movecs0)))
+            end if
+          end if
+          call ga_sync()
+        end if
+c       end load restart 
+        status = task_qmmm_energy_sp(irtdb)
+        if(ga_nodeid().eq.0) then 
+           write(*,*) "pes: saving restart file",
+     >                 filename
+        end if
+        call mm_write_restart_named(filename,.true.)
+        if(ga_nodeid().eq.0) then 
+           write(*,*) "pes: saving movecs file",
+     >                 movecs0(1:inp_strlen(movecs0)),
+     >                 movecs(1:inp_strlen(movecs))
+          call util_file_copy(movecs0(1:inp_strlen(movecs0)),
+     >                        movecs(1:inp_strlen(movecs)))
+        end if
+        call ga_sync()
+
+      end do
+      backward = .not.backward
+      loadrst = .true.
+      loadmovecs = .true.
+      end do
+      task_qmmm_energy_pes = status
+
+ 13      format(a,'/',a,'_pes',i3.3,'.rst')
+ 14      format(a,'_pes',i3.3,'.rst')
+ 15      format("@pes: point ", I2,3X,"spring length = ",F12.6)
+ 16      format("@pes: energy =  ", F18.12,3X,"length = ",F12.6)
+ 17      format(a,'/',a,'_pes',i3.3,'.movecs')
+
+      return
+      end
 
 
