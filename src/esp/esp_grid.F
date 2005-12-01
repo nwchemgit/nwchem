@@ -1,6 +1,6 @@
       subroutine esp_grid(x,q,g,v)
 c
-c $Id: esp_grid.F,v 1.8 2003-10-19 06:07:31 d3j191 Exp $
+c $Id: esp_grid.F,v 1.9 2005-12-01 00:54:12 marat Exp $
 c
       implicit none
 c
@@ -47,10 +47,13 @@ c
       d=(g(1,ngrid)-x(1,i))*(g(1,ngrid)-x(1,i))
      + +(g(2,ngrid)-x(2,i))*(g(2,ngrid)-x(2,i))
      + +(g(3,ngrid)-x(3,i))*(g(3,ngrid)-x(3,i))
-      if(d.lt.rad2) goto 3
-      if(d.lt.dmin) dmin=d
+c      if(d.lt.rad2) goto 3
+      if(rad2-d.gt.small) goto 3
+c      if(d.lt.dmin) dmin=d
+       if(dmin-d.gt.small) dmin=d
     4 continue
-      if(dmin.lt.rcut2) then
+c      if(dmin.lt.rcut2) then
+      if(rcut2-dmin.gt.small) then
 cx      write(*,'(i5,7f12.6)') ngrid,(x(i,1),i=1,3),
 cx     + (g(i,ngrid),i=1,3),sqrt(dmin)
       ngrid=ngrid+1

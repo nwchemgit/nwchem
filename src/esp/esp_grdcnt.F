@@ -1,6 +1,6 @@
       subroutine esp_grdcnt(x,q)
 c
-c $Id: esp_grdcnt.F,v 1.1 1998-12-28 21:54:36 d3j191 Exp $
+c $Id: esp_grdcnt.F,v 1.2 2005-12-01 00:54:12 marat Exp $
 c
       implicit none
 c
@@ -33,10 +33,13 @@ c
       d=(g(1)-x(1,i))*(g(1)-x(1,i))
      + +(g(2)-x(2,i))*(g(2)-x(2,i))
      + +(g(3)-x(3,i))*(g(3)-x(3,i))
-      if(d.lt.rad2) goto 3
-      if(d.lt.dmin) dmin=d
+c      if(d.lt.rad2) goto 3
+       if(rad2-d.gt.small) goto 3
+c      if(d.lt.dmin) dmin=d
+      if(dmin-d.gt.small) dmin=d
     4 continue
-      if(dmin.lt.rcut2) then
+c      if(dmin.lt.rcut2) then
+      if(rcut2-dmin.gt.small) then
       mxgrid=mxgrid+1
       endif
     3 continue
