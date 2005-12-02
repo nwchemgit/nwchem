@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.51 2005-11-23 23:32:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -87,7 +87,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.51 2005-11-23 23:32:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -312,7 +312,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.51 2005-11-23 23:32:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -384,6 +384,8 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end do
       call mm_print_info()
 
+      driver1 = status
+
       return
 
  133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
@@ -391,7 +393,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.51 2005-11-23 23:32:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -421,7 +423,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.51 2005-11-23 23:32:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -454,7 +456,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.51 2005-11-23 23:32:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -577,7 +579,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.51 2005-11-23 23:32:59 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -772,6 +774,7 @@ c       end load restart
       end do
       backward = .not.backward
       end do
+      qmmm_pes = status
 
  13      format(a,'/',a,'_pes',i3.3,'.rst')
  14      format(a,'_pes',i3.3,'.rst')
