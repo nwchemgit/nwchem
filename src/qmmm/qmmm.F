@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.63 2005-09-18 23:06:36 marat Exp $
+c $Id: qmmm.F,v 1.64 2005-12-02 19:42:55 marat Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -38,6 +38,7 @@ c     local variables
       else if (operation.eq."dynamics") then
         ostatus = task_qmmm_dynamics(rtdb)
       end if 
+      task_qmmm_generic = ostatus
       end
 c
       function qmmm_init(irtdb)
