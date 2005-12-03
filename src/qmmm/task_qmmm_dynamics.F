@@ -1,6 +1,6 @@
        function task_qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.7 2005-11-23 23:24:32 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.8 2005-12-03 00:44:48 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -71,10 +71,11 @@ c
 
        function qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.7 2005-11-23 23:24:32 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.8 2005-12-03 00:44:48 marat Exp $
 *
       implicit none
 #include "errquit.fh"
+#include "qmmm.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
@@ -85,7 +86,7 @@ c
 c
       character*30 pname
 c
-      character*30 interface
+      character*32 interface
       character*84 tag
       character*30 region(3)
       integer nregion
@@ -114,7 +115,7 @@ c     --------------------------
 c
       call qmmm_bq_data_update_active()
 c
-      call qmmm_get_interface(interface)
+      interface = qmmm_get_interface()
       call qmmm_set_interface("mm")
 c
 c     Actually do the deed
@@ -130,7 +131,7 @@ c
       end
 
       function qmmm_pes_dynamics(irtdb)
-c     $Id: task_qmmm_dynamics.F,v 1.7 2005-11-23 23:24:32 marat Exp $
+c     $Id: task_qmmm_dynamics.F,v 1.8 2005-12-03 00:44:48 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
