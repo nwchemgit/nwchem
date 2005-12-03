@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_link.F,v 1.4 2005-09-01 13:13:43 nwchem Exp $
+c $Id: qmmm_link.F,v 1.5 2005-12-03 00:53:54 marat Exp $
 c
       subroutine qmmm_links_init(irtdb)
       implicit none
@@ -236,6 +236,15 @@ c     local variables:
       integer qmmm_get_i_lb
 
       qmmm_get_i_lb = i_lb
+
+      end 
+
+      function qmmm_get_link_atom_index()
+      implicit none
+#include "qmmm_link_data.fh"
+      integer qmmm_get_link_atom_index
+
+      qmmm_get_link_atom_index = i_lb+nlink
 
       end 
 

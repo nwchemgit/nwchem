@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.11 2005-11-17 19:03:36 marat Exp $
+c $Id: qmmm_esp.F,v 1.12 2005-12-03 00:53:54 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -607,6 +607,37 @@ c
      &   (pname//'ma_pop_stack failed',911,MA_ERR)
       if (.not.ma_pop_stack(h_c_esp)) call errquit
      &   (pname//'ma_pop_stack failed',911,MA_ERR)
+
+
+      end
+
+      subroutine qmmm_esp_input_file()
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "stdio.fh"
+c
+      integer nlink
+      integer ail
+      integer aig
+      integer un
+ 
+      
+      nlink =  qmmm_get_nlink()
+      ail   =  qmmm_get_link_atom_index()
+      aig   =  qmmm_geom_get_i_ifg()
+     
+      if(qmmm_master()) then
+        if(.not.qmmm_get_io_unit(un)) 
+     >     call errquit("cannot get file number",0,0)
+
+        open(unit=un,status="scratch",form="formatted")
+      end if
 
 
       end
