@@ -1,6 +1,6 @@
       subroutine esp_plt(x,q,g,t)
 c
-c $Id: esp_plt.F,v 1.6 2003-10-19 06:07:32 d3j191 Exp $
+c $Id: esp_plt.F,v 1.7 2005-12-05 15:48:40 d3j191 Exp $
 c
       implicit none
 c
@@ -87,8 +87,8 @@ c
  2000 format('* Coordinates in XYZ format',/,i5)
       do 5 i=1,natoms
       write(lfnxyz,2001) t(i)(1:index(t(i),' ')-1),
-     + (10.0d0*cau2nm*x(j,i),j=1,3)
- 2001 format(a,1x,3f12.6)
+     + (10.0d0*cau2nm*x(j,i),j=1,3),q(i,4)
+ 2001 format(a,t3,4f12.6)
     5 continue
       close(lfnxyz)
       endif
