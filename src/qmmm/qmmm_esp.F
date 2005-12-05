@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.12 2005-12-03 00:53:54 marat Exp $
+c $Id: qmmm_esp.F,v 1.13 2005-12-05 19:34:32 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -618,16 +618,22 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "qmmm.fh"
+#include "qmmm_utils.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "stdio.fh"
 c
+      integer nfg
       integer nlink
       integer ail
       integer aig
       integer un
+      integer i_tmp,h_tmp,n_tmp
+      character*30 pname
  
+      pname = "qmmm_esp_input_file"
       
+      nfg   =  qmmm_geom_get_nfg()
       nlink =  qmmm_get_nlink()
       ail   =  qmmm_get_link_atom_index()
       aig   =  qmmm_geom_get_i_ifg()
@@ -639,6 +645,18 @@ c
         open(unit=un,status="scratch",form="formatted")
       end if
 
+      if(.not.ma_push_get(mt_int,nfg,'tmp qmmm index',h_tmp,i_tmp))
+     + call errquit(pname//'memory allocation for tmp qmmm index ',
+     + nfg, MA_ERR)
+
+      if(.not.qmmm_map(nfg,int_mb(aig),
+     >                 nlink,int_mb(ail),
+     >                 int_mb(i_tmp)))
+     + call errquit(pname//'failed qmmm map ',
+     + 0, MA_ERR)
+
+
+      close(un)
 
       end
 

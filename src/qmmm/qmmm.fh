@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.fh,v 1.28 2005-12-05 18:52:47 marat Exp $
+c $Id: qmmm.fh,v 1.29 2005-12-05 19:34:32 marat Exp $
 c
       integer qmmm_get_nlink
       integer qmmm_get_nbq
@@ -122,6 +122,7 @@ c
 
       integer qmmm_get_link_atom_index
       external qmmm_get_link_atom_index
+
 
 c      integer   qmmm_cons_get_nacts
 c      external  qmmm_cons_get_nacts
