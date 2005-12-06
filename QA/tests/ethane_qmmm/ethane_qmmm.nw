@@ -28,6 +28,13 @@ echo
 #end
 #task prepare
 
+prepare
+read eth0.rst
+write eth_em.rst
+end
+
+task prepare
+
 md
  system eth_em
  sd 5 init 0.001 
@@ -45,15 +52,13 @@ xc b3lyp
 iterations 100
 end
 
-driver
-clear
-end
-
 qmmm
  eatoms -68.8154
  bq_exclude none
  link_atoms halogen
- optimization all
+ region all
+ method lbfgs
+ maxiter 5
 end
 
 task qmmm dft optimize 
