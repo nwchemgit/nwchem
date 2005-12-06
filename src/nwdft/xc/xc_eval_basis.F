@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.13 2004-01-27 20:37:41 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.14 2005-12-06 05:50:34 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -2348,12 +2348,15 @@ c
 #ifdef CHKUNDFLW
       double precision rmax,undovl,zz
 cedo      parameter(undovl=-700d0)
-      parameter(undovl=-160d0)
+!      parameter(undovl=-160d0)
+c 20 digits ln(10)=2.3025
+      parameter(undovl=-20d0*2.3025d0)
 #endif
 c
 c
 c     Store results for first primitive directly and then sum the rest
 c
+      call dcopy(nq,0d0,0,crad,1) 
 #ifdef CHKUNDFLW
       rmax=r2(1)
       do n=2,nq
@@ -2379,7 +2382,6 @@ c
          endif
 #endif
       else
-         call dcopy(nq,0d0,0,crad,1) 
          do iprimo = 1, nprimo
             zeta = -zprim(iprimo)
             t0 = ccoef(iprimo,1)
