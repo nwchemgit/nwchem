@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.510 2005-11-04 01:55:16 edo Exp $
+# $Id: makefile.h,v 1.511 2005-12-06 23:02:25 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1653,10 +1653,10 @@ endif # end of ia32 bit
       USE_LIB64 = y #for python linking
 
       ifeq ($(_FC),pgf90)
-        FOPTIONS   +=    -Mrecursive -Mdalign -Mllalign -Kieee 
-        FOPTIONS   +=    -tp k8-64  
+        FOPTIONS   += -Mdalign -Mllalign -Kieee 
+        FOPTIONS   += -tp k8-64  
 #        FOPTIONS   +=    -Ktrap=fp
-        FOPTIMIZE   =  -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
+        FOPTIMIZE   = -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
         FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
         FDEBUG = -g -O0 
         DEFINES  += -DCHKUNDFLW -DPGLINUX
