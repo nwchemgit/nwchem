@@ -1,0 +1,43 @@
+Title "QM/MM Ala-Ser-Ala: Ser sidechain in QM"
+
+memory noverify  heap 25 mb   stack 86 mb  global 86 mb
+
+start asa 
+
+#prepare
+#  system asa_qmmm
+#  source asa.pdb
+#  new_top new_seq 
+#  new_rst
+#  modify atom 2:_CB quantum
+#  modify atom 2:2HB quantum
+#  modify atom 2:3HB quantum
+#  modify atom 2:_OG quantum
+#  modify atom 2:_HG quantum
+#  update lists
+#  ignore
+#  write asa_em.rst 
+#  write asa_em.pdb   # Write out PDB file to check structure
+#end; task prepare
+
+
+md
+  system asa_em
+  noshake solute
+end
+
+basis "ao basis" 
+  * library "6-31G*"
+end
+
+dft
+ iterations 100
+end
+
+qmmm
+ eatoms -114.77
+ bq_exclude none
+end
+
+task qmmm dft gradient
+
