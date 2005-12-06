@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.64 2005-12-02 19:42:55 marat Exp $
+c $Id: qmmm.F,v 1.65 2005-12-06 00:19:40 marat Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -79,7 +79,7 @@ c
       if(oprint) 
      >  write(*,*)"in "//pname
 
-      ignore = MA_set_hard_fail(.true.)
+c      ignore = MA_set_hard_fail(.true.)
     
       qmmm_init = .true.
 
