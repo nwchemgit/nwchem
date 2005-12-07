@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.15 2005-10-27 00:12:45 edo Exp $
+C$Id: movecs_rotate.F,v 1.16 2005-12-07 05:34:57 edo Exp $
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -31,7 +31,7 @@ c
       double precision xyyx,xyyy,xyyz
       double precision xzyx,xzyy,xzyz
       double precision xmid, ymid, zmid, norm
-      double precision xrot, drot, zrot, det
+      double precision xrott, yrott, zrott, det
       integer lact, lold, lcharge, ltags
       integer iact, iold, icharge, itags
       integer l_a, k_a, l_b, k_b
@@ -254,12 +254,12 @@ c
          x2 = dbl_mb(iold+3*(i-1)+0)
          y2 = dbl_mb(iold+3*(i-1)+1)
          z2 = dbl_mb(iold+3*(i-1)+2)
-         xrot = x2*rot(1,1) + y2*rot(2,1) + z2*rot(3,1)
-         drot = x2*rot(1,2) + y2*rot(2,2) + z2*rot(3,2)
-         zrot = x2*rot(1,3) + y2*rot(2,3) + z2*rot(3,3)
-         x2 = xrot + xmid
-         y2 = drot + ymid
-         z2 = zrot + zmid
+         xrott = x2*rot(1,1) + y2*rot(2,1) + z2*rot(3,1)
+         yrott = x2*rot(1,2) + y2*rot(2,2) + z2*rot(3,2)
+         zrott = x2*rot(1,3) + y2*rot(2,3) + z2*rot(3,3)
+         x2 = xrott + xmid
+         y2 = yrott + ymid
+         z2 = zrott + zmid
          x2 = x2 / 1.889725989d0
          y2 = y2 / 1.889725989d0
          z2 = z2 / 1.889725989d0
@@ -355,7 +355,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.15 2005-10-27 00:12:45 edo Exp $
+C$Id: movecs_rotate.F,v 1.16 2005-12-07 05:34:57 edo Exp $
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -477,7 +477,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.15 2005-10-27 00:12:45 edo Exp $
+C$Id: movecs_rotate.F,v 1.16 2005-12-07 05:34:57 edo Exp $
       implicit none
 #include "geom.fh"
 #include "bas.fh"
