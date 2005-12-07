@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.13 2005-12-05 19:34:32 marat Exp $
+c $Id: qmmm_esp.F,v 1.14 2005-12-07 19:39:31 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -52,6 +52,9 @@ c
       if(qmmm_print_debug()) write(luout,*) "in "//pname
 c
       task_qmmm_esp = .true.
+
+c
+      call qmmm_esp_input_file(rtdb)
 c
       if(.not.rtdb_get(rtdb,'qmmm:readesp',mt_log,1,readesp))
      +   readesp = .false.
@@ -611,7 +614,7 @@ c
 
       end
 
-      subroutine qmmm_esp_input_file()
+      subroutine qmmm_esp_input_file(rtdb)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -623,16 +626,25 @@ c
 #include "util.fh"
 #include "stdio.fh"
 c
+      integer rtdb
+c
+      integer i
       integer nfg
       integer nlink
       integer ail
       integer aig
       integer un
       integer i_tmp,h_tmp,n_tmp
+      character*30 filename
       character*30 pname
+c
+      logical nw_inp_from_file1
+      external nw_inp_from_file1
  
       pname = "qmmm_esp_input_file"
+      filename = "esp.nw"
       
+      if(qmmm_print_debug()) write(*,*) "in ",pname
       nfg   =  qmmm_geom_get_nfg()
       nlink =  qmmm_get_nlink()
       ail   =  qmmm_get_link_atom_index()
@@ -642,8 +654,15 @@ c
         if(.not.qmmm_get_io_unit(un)) 
      >     call errquit("cannot get file number",0,0)
 
-        open(unit=un,status="scratch",form="formatted")
+c        open(unit=un,status="scratch",form="formatted")
+        open(unit=un,status="unknown",form="formatted",file=filename)
       end if
+
+      if(qmmm_master())
+     >  write(un,899)
+
+      if(qmmm_master())
+     >  write(un,900)
 
       if(.not.ma_push_get(mt_int,nfg,'tmp qmmm index',h_tmp,i_tmp))
      + call errquit(pname//'memory allocation for tmp qmmm index ',
@@ -655,8 +674,73 @@ c
      + call errquit(pname//'failed qmmm map ',
      + 0, MA_ERR)
 
+      do i=1,nlink
+      if(qmmm_master()) 
+     >   write(un,901) int_mb(i_tmp+i-1)
+      end do
+
+      if(.not.ma_pop_stack(h_tmp))
+     + call errquit(pname//'memory deallocation for tmp qmmm index ',
+     + nfg, MA_ERR)
+
+      if(qmmm_master())
+     >  write(un,902)
+
+899   FORMAT("esp")
+900   FORMAT("recalculate")
+901   FORMAT("constrain 0.0 ",I5)
+902   FORMAT("end")
 
       close(un)
+      call ga_sync()
+      if(.not.nw_inp_from_file1(rtdb, filename))
+     + call errquit(pname//'parsing input file',0,0)
 
       end
 
+      logical function nw_inp_from_file1(rtdb, filename)
+*
+* $Id: qmmm_esp.F,v 1.14 2005-12-07 19:39:31 marat Exp $
+*
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+#include "stdio.fh"
+c
+      integer rtdb
+      character*(*) filename
+c
+      logical input_parse, status
+      external input_parse
+c
+      if (ga_nodeid() .eq. 0) then
+         if (util_print('nw_inp_from_file',print_low)) then
+            write(LuOut,*) ' Reading NWChem input from ', 
+     $           filename(1:inp_strlen(filename))
+            call util_flush(LuOut)
+         endif
+         open(94,file=filename,form='formatted',status='old',err=100)
+         write(*,*) "debug 0 "
+         call inp_save_state()  ! save state of any inp unit
+         write(*,*) "debug 1 "
+         call inp_init(94,6)
+      endif
+         write(*,*) "debug 2 "
+c
+      status = input_parse(rtdb)
+         write(*,*) "debug 3 "
+c
+      if (ga_nodeid() .eq. 0) then
+         call inp_restore_state() ! restore state of any inp unit
+         close(4,status='keep')
+      endif
+c
+      nw_inp_from_file1 = .true.
+      return
+c
+ 100  call errquit(filename,0, INPUT_ERR)
+c
+      end
