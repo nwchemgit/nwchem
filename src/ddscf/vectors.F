@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.54 2005-10-13 01:09:01 edo Exp $
+C$Id: vectors.F,v 1.55 2005-12-07 05:29:04 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -74,7 +74,7 @@ c
       call util_char_ga_brdcst(Msg_Vec_Type, scftype, 0)
       call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, inntsize, 0)
       call ga_brdcst(Msg_Vec_Set+MSGINT, nsets, inntsize, 0)
-      call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, inntsize*nbf, 0)
+      call ga_brdcst(Msg_Vec_NMO+MSGINT, nmo, inntsize*nsets, 0)
 c
       if (oscfps) call pstat_off(ps_vecio)
 c
