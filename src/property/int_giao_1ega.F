@@ -1,6 +1,6 @@
       subroutine int_giao_1ega(ibas,jbas,g,integ_type,xyzpt,nat,
      &                         oskel)
-C$Id: int_giao_1ega.F,v 1.3 2004-12-06 20:15:36 bert Exp $
+C$Id: int_giao_1ega.F,v 1.4 2005-12-07 17:15:29 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -131,6 +131,7 @@ c
       else
          call int_init_1eelec(max1e,mem1,ibas,2,nat)
       endif
+      mem1 = max(mem1,max1e)
 c
       if(.not.MA_push_get(MT_DBL,max1e,'int_giao_1ega:buf',l_buf,k_buf))
      $     call errquit('int_giao_1ega: ma failed', max1e, MA_ERR)
