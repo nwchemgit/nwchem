@@ -1,0 +1,36 @@
+Title "QM/MM of Lys monomer"
+
+
+memory total 800 Mb
+
+
+start lys
+
+echo
+
+
+basis "ao basis" 
+  O library "6-31G*"
+  H library "6-31G*"
+  C library "6-31G*"
+  N library "6-31G*"
+  F library "6-31G*"
+end
+
+
+# There is a net charge on NH3 group
+charge 1.0
+
+# Specify any SCF details
+dft
+ iterations 100
+end
+
+md
+ system lys_qmmm
+ cutoff 1.9   qmmm 1.8
+end
+
+task qmmm dft energy
+task qmmm esp
+
