@@ -1,3 +1,5 @@
+cedo#define NBACC 1
+cedo#define NBGET 1
       subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
       implicit none
 #include "nwc_const.fh"
@@ -145,6 +147,10 @@ c
       integer ibflo, ibfhi, jbflo, jbfhi, kbflo, kbfhi, lbflo, lbfhi
       logical ieqj, keql
 c
+      logical ijfirst,jifirst,ikfirst,jlfirst,ilfirst,jkfirst
+      integer ijhand,jihand,ikhand,jlhand,ilhand,jkhand
+      integer dklhand,dikhand,djlhand,dilhand,djkhand
+c
       integer nproc
 c     
 c     smax  = schwarz_max()
@@ -154,48 +160,54 @@ c
       task_size = nshell*(nshell+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
+      ijfirst=.true.
+      jifirst=.true.
+      ikfirst=.true.
+      jlfirst=.true.
+      ilfirst=.true.
+      jkfirst=.true.
 c     
 c     Parallel loop over shells
 c     
       ijklblock = 0
       next = nxtask(nproc,task_size)
       do ish = 1, nshell
+         if (.not. bas_cn2bfr(basis, ish, ibflo, ibfhi))
+     $        call errquit('giaofock: bas_cn2bfr ?', basis,
+     $        BASIS_ERR)
+         idim = ibfhi - ibflo + 1
          do jsh = 1, ish
+            if (.not. bas_cn2bfr(basis, jsh, jbflo, jbfhi))
+     $           call errquit('giaofock: bas_cn2bfr ?', basis,
+     $           BASIS_ERR)
+            jdim = jbfhi - jbflo + 1
+            ieqj = ish.eq.jsh
             do ksh = 1, nshell
+               if (.not. bas_cn2bfr(basis, ksh, kbflo, kbfhi))
+     $              call errquit('giaofock: bas_cn2bfr ?', basis,
+     $              BASIS_ERR)
+               kdim = kbfhi - kbflo + 1
                do lsh = 1, ksh 
                   if (next .eq. ijklblock) then
-                     if (.not. bas_cn2bfr(basis, ish, ibflo, ibfhi))
-     $                   call errquit('giaofock: bas_cn2bfr ?', basis,
-     $                                 BASIS_ERR)
-                     idim = ibfhi - ibflo + 1
-                     if (.not. bas_cn2bfr(basis, jsh, jbflo, jbfhi))
-     $                   call errquit('giaofock: bas_cn2bfr ?', basis,
-     $                                 BASIS_ERR)
-                     jdim = jbfhi - jbflo + 1
-                     if (.not. bas_cn2bfr(basis, ksh, kbflo, kbfhi))
-     $                   call errquit('giaofock: bas_cn2bfr ?', basis,
-     $                                 BASIS_ERR)
-                     kdim = kbfhi - kbflo + 1
                      if (.not. bas_cn2bfr(basis, lsh, lbflo, lbfhi))
      $                   call errquit('giaofock: bas_cn2bfr ?', basis,
      $                                 BASIS_ERR)
                      ldim = lbfhi - lbflo + 1
 c
-                     ieqj = ish.eq.jsh
                      keql = ksh.eq.lsh
 c     
 c     Get blocks of the one-particle densities
 c     
                      call new_get_giaodens_block(g_dens, blen, 
-     $                    kbflo, kbfhi, lbflo, lbfhi, d_kl)
+     $                    kbflo, kbfhi, lbflo, lbfhi, d_kl,dklhand)
                      call new_get_giaodens_block(g_dens, blen, 
-     $                    ibflo, ibfhi, kbflo, kbfhi, d_ik)
+     $                    ibflo, ibfhi, kbflo, kbfhi, d_ik,dikhand)
                      call new_get_giaodens_block(g_dens, blen, 
-     $                    jbflo, jbfhi, lbflo, lbfhi, d_jl)
+     $                    jbflo, jbfhi, lbflo, lbfhi, d_jl,djlhand)
                      call new_get_giaodens_block(g_dens, blen, 
-     $                    ibflo, ibfhi, lbflo, lbfhi, d_il)
+     $                    ibflo, ibfhi, lbflo, lbfhi, d_il,dilhand)
                      call new_get_giaodens_block(g_dens, blen, 
-     $                    jbflo, jbfhi, kbflo, kbfhi, d_jk)
+     $                    jbflo, jbfhi, kbflo, kbfhi, d_jk,djkhand)
 c
                      call dcopy(3*blen*blen, 0d0, 0, f_ij, 1)
                      call dcopy(3*blen*blen, 0d0, 0, f_ji, 1)
@@ -208,23 +220,36 @@ c
      $                    basis,ish,jsh,basis,ksh,lsh,
      $                    lscr,scr,leri,eri)
 c     
+#ifdef NBGET
+                     call ga_nbwait(dklhand)
+                     call ga_nbwait(dikhand)
+                     call ga_nbwait(djlhand)
+                     call ga_nbwait(dilhand)
+                     call ga_nbwait(djkhand)
+#endif
                      call new_giao_doit(leri,eri,tol2e,
      $                          d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_ji, f_ik, f_jl, f_il, f_jk, 
      $                    blen, idim, jdim, kdim, ldim, ieqj, keql,kfac)
 c
                      call new_acc_giaofock_block(g_fock, blen, 
-     $                    ibflo, ibfhi, jbflo, jbfhi, f_ij)
+     $                    ibflo, ibfhi, jbflo, jbfhi, f_ij,
+     F                    ijfirst,ijhand)
                      call new_acc_giaofock_block(g_fock, blen, 
-     $                    jbflo, jbfhi, ibflo, ibfhi, f_ji)
+     $                    jbflo, jbfhi, ibflo, ibfhi, f_ji,
+     F                    jifirst,jihand)
                      call new_acc_giaofock_block(g_fock, blen, 
-     $                    ibflo, ibfhi, kbflo, kbfhi, f_ik)
+     $                    ibflo, ibfhi, kbflo, kbfhi, f_ik,
+     F                    ikfirst,ikhand)
                      call new_acc_giaofock_block(g_fock, blen, 
-     $                    jbflo, jbfhi, lbflo, lbfhi, f_jl)
+     $                    jbflo, jbfhi, lbflo, lbfhi, f_jl,
+     F                    jlfirst,jlhand)
                      call new_acc_giaofock_block(g_fock, blen, 
-     $                    ibflo, ibfhi, lbflo, lbfhi, f_il)
+     $                    ibflo, ibfhi, lbflo, lbfhi, f_il,
+     F                    ilfirst,ilhand)
                      call new_acc_giaofock_block(g_fock, blen, 
-     $                    jbflo, jbfhi, kbflo, kbfhi, f_jk)
+     $                    jbflo, jbfhi, kbflo, kbfhi, f_jk,
+     F                    jkfirst,jkhand)
 c                                         
                      next = nxtask(nproc,task_size)
                   end if
@@ -245,22 +270,35 @@ c
       end
 
       subroutine new_get_giaodens_block(
-     $     g_dens, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
+     $     g_dens, blen, ibflo, ibfhi, jbflo, jbfhi, buf, hand)
       implicit none
-      integer  g_dens, blen, ibflo, ibfhi, jbflo, jbfhi
+      integer  g_dens, blen, ibflo, ibfhi, jbflo, jbfhi, hand
       double precision buf(*)
 c
       call dcopy(blen*blen,0d0,0,buf,1)
+#ifdef NBGET
+      call ga_nbget(g_dens,ibflo,ibfhi,jbflo,jbfhi,buf,blen,hand)
+#else
       call ga_get(g_dens,ibflo,ibfhi,jbflo,jbfhi,buf,blen)
+#endif
 c
       end
       subroutine new_acc_giaofock_block(
-     $     g_fock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
+     $     g_fock, blen, ibflo, ibfhi, jbflo, jbfhi, buf,
+     F     first,hand)
       implicit none
       integer  g_fock, blen, ibflo, ibfhi, jbflo, jbfhi
       integer alo(3), ahi(3), bln(2)
       double precision buf(blen,blen,3)
+      logical first
+      integer hand
+      double precision eps
+      parameter(eps=1d-14)
+      double precision dabsmax
+      external dabsmax
 c
+      if(dabsmax(blen*blen*3,buf).lt.eps)
+     R     return
       alo(1) = ibflo
       ahi(1) = ibfhi
       alo(2) = jbflo
@@ -269,7 +307,15 @@ c
       ahi(3) = 3
       bln(1) = blen
       bln(2) = blen
+#ifdef NBACC
+      if(.not.first) then	
+         call ga_nbwait(hand)
+      endif			
+      first=.false.
+      call nga_nbacc(g_fock,alo,ahi,buf,bln,1d0,hand)
+#else
       call nga_acc(g_fock,alo,ahi,buf,bln,1d0)
+#endif
 c
       end
 c

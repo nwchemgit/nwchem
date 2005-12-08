@@ -1,5 +1,6 @@
+cedo#define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.32 2005-02-24 00:59:43 edo Exp $
+c $Id: shell_fock_build.F,v 1.33 2005-12-08 01:50:12 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -311,7 +312,15 @@ c
       external intb_init4c, intb_2e4c
 c
       integer nproc,bledo,bledoij,bledoijk
+      logical firstij,firstkl,firstik,firstjl,firstil,firstjk
+      integer handij,handkl,handik,handjl,handil,handjk
 c     
+      firstij=.true.
+      firstkl=.true.
+      firstik=.true.
+      firstjl=.true.
+      firstil=.true.
+      firstjk=.true.
       smax  = schwarz_max()
       call int_acc_std()
 c
@@ -525,17 +534,23 @@ c
                      if (omore) goto 10
 c                                      
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, ibflo, ibfhi, jbflo, jbfhi, f_ij)
+     $                 bledo, ibflo, ibfhi, jbflo, jbfhi, f_ij,
+     F                    handij, firstij)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, kbflo, kbfhi, lbflo, lbfhi, f_kl)
+     $                 bledo, kbflo, kbfhi, lbflo, lbfhi, f_kl,
+     F                    handkl, firstkl)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, ibflo, ibfhi, kbflo, kbfhi, f_ik)
+     $                 bledo, ibflo, ibfhi, kbflo, kbfhi, f_ik,
+     F                    handik, firstik)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, jbflo, jbfhi, lbflo, lbfhi, f_jl)
+     $                 bledo, jbflo, jbfhi, lbflo, lbfhi, f_jl,
+     F                    handjl, firstjl)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, ibflo, ibfhi, lbflo, lbfhi, f_il)
+     $                 bledo, ibflo, ibfhi, lbflo, lbfhi, f_il,
+     F                    handil, firstil)
                      call new_acc_fock_block(g_fock, nfock, 
-     $                 bledo, jbflo, jbfhi, kbflo, kbfhi, f_jk)
+     $                 bledo, jbflo, jbfhi, kbflo, kbfhi, f_jk,
+     F                    handjk, firstjk)
 c
                      next = nxtask(nproc,task_size)
                   end if
@@ -608,7 +623,8 @@ c
       end
 c
       subroutine new_acc_fock_block(
-     $   g_fock, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf)
+     $   g_fock, nfock, blen, ibflo, ibfhi, jbflo, jbfhi, buf,
+     H     hand, first)
       implicit none
       integer nfock, g_fock, blen 
       integer ibflo, ibfhi, jbflo, jbfhi
@@ -616,7 +632,15 @@ c
 c
       integer i, index
       integer lo(3), hi(3), ld(2)
+      integer hand
+      logical first
+      double precision eps
+      parameter(eps=1d-14)
+      double precision dabsmax
+      external dabsmax
 c
+      if(dabsmax(blen*blen*nfock,buf).lt.eps)
+     R     return
       lo(1) = 1
       hi(1) = nfock
       lo(2) = ibflo
@@ -625,7 +649,15 @@ c
       hi(3) = jbfhi
       ld(1) = nfock
       ld(2) = blen
+#ifdef NBACC
+      if(.not.first) then	
+         call ga_nbwait(hand)
+      endif			
+      first=.false.
+      call nga_nbacc(g_fock,lo,hi,buf,ld,1d0,hand)
+#else
       call nga_acc(g_fock, lo, hi, buf, ld, 1d0)
+#endif
 c
       end
 C
