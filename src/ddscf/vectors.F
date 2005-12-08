@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.55 2005-12-07 05:29:04 edo Exp $
+C$Id: vectors.F,v 1.56 2005-12-08 01:15:42 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -134,12 +134,13 @@ c
       integer l_vecs, k_vecs
       integer unitno
       parameter (unitno = 67)
-      integer inntsize
+      integer inntsize,ddblsize
 c     
       l_vecs = -1               ! An invalid MA handle
 c
       if (oscfps) call pstat_on(ps_vecio)
       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      ddblsize=MA_sizeof(MT_DBL,1,MT_BYTE)
       call ga_sync()
       ok = 0
       if (ga_nodeid() .eq. 0) then
@@ -191,8 +192,8 @@ c
       call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
       if (ok .eq. 1) then
 	 call ga_brdcst(Msg_Vec_NBF+MSGINT, nbf, inntsize, 0)
-	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, inntsize*nbf, 0)
-	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ, inntsize*nbf, 0)
+	 call ga_brdcst(Msg_Vec_EVal+MSGDBL, evals, ddblsize*nbf, 0)
+	 call ga_brdcst(Msg_Vec_Occ+MSGDBL, occ, ddblsize*nbf, 0)
       endif
 c
       movecs_read = ok .eq. 1
