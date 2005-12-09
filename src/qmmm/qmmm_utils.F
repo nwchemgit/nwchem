@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.16 2005-10-23 00:48:50 marat Exp $
+c $Id: qmmm_utils.F,v 1.17 2005-12-09 00:09:38 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -83,6 +83,33 @@ c     local variables:
       end do
 
       qmmm_map = .false.
+      return
+      end
+
+      subroutine qmmm_sort_unique(nr,ar,
+     >                     n,a)
+      implicit none
+      integer nr
+      integer ar(nr)
+      integer n
+      integer a(nr)
+c
+c     local variables:
+c
+      integer i
+      integer ir
+      integer im
+
+      n = 0
+      do ir=1,nr
+        do i=1,im
+          if(ar(ir).eq.a(i)) goto 1
+        end do 
+        n = n + 1
+        a(n) = ar(ir)
+1       continue
+      end do
+
       return
       end
 

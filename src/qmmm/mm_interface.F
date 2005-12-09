@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.83 2005-11-23 23:32:58 marat Exp $
+c $Id: mm_interface.F,v 1.84 2005-12-09 00:09:38 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -1309,6 +1309,60 @@ c     mm local variables
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end
+
+      subroutine mm_get_solute_charge_gen(nt,
+     >                       mm_type,
+     >                       ai,
+     >                       q)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      logical mm_type
+      integer ai(nt)
+      double precision q(nt)
+      external mm_type
+
+      integer i,j,k
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer pxs
+      character*32 pname
+      pname = "mm_get_solute_geom_gen"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call dfill(nt,0.0d0,q,1)
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+
+
+      do i=1,nsa
+        if(mm_type(i)) then
+            do j=1,nt
+              if(int_mb(psl+i-1).eq.ai(j)) then
+                 q(j) = mm_solute_charge(i)
+              end if
+            end do
+        end if
+      end do
+
+      call ga_dgop(msg_qmmm_chg,q,nt,'+')
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
 c
       subroutine mm_get_solute_cons_gen(nt,
      >                       mm_type,
@@ -1717,6 +1771,114 @@ c     mm local variables
       end do
 
       call ga_dgop(msg_qmmm_c1,c,3*nt,'+')
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_solute_group(nt,
+     >                       mm_type,
+     >                       ai,
+     >                       grp)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      integer grp(nt)
+      external mm_type
+      logical mm_type
+
+      integer i,j,k
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer psg
+      character*32 pname
+      pname = "mm_get_solute_group"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call ifill(nt,0,grp,1)
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psg(psg)
+
+      do i=1,nsa
+        if(mm_type(i)) then
+         do j=1,nt
+           if(int_mb(psl+i-1).eq.ai(j)) then
+              grp(j)=int_mb(psg+i-1)
+           end if
+         end do
+        end if
+      end do
+
+      call ga_igop(msg_qmmm_c1,grp,nt,'+')
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_get_solute_res(nt,
+     >                       mm_type,
+     >                       ai,
+     >                       sgm)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      integer ai(nt)
+      integer sgm(nt)
+      external mm_type
+      logical mm_type
+
+      integer i,j,k
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer psgm
+      character*32 pname
+      pname = "mm_get_solute_group"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+      call ifill(nt,0,sgm,1)
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_psgm(psgm)
+
+      do i=1,nsa
+        if(mm_type(i)) then
+         do j=1,nt
+           if(int_mb(psl+i-1).eq.ai(j)) then
+              sgm(j)=int_mb(psgm+i-1)
+           end if
+         end do
+        end if
+      end do
+
+      call ga_igop(msg_qmmm_c1,sgm,nt,'+')
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
       end

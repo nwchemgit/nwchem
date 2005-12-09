@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.14 2005-12-07 19:39:31 marat Exp $
+c $Id: qmmm_esp.F,v 1.15 2005-12-09 00:09:38 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -622,6 +622,7 @@ c
 #include "geom.fh"
 #include "qmmm.fh"
 #include "qmmm_utils.fh"
+#include "mm_utils.fh"
 #include "rtdb.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -630,32 +631,43 @@ c
 c
       integer i
       integer nfg
+      integer nqm
       integer nlink
       integer ail
       integer aig
+      integer aiq
       integer un
+      integer i_q,h_q
       integer i_tmp,h_tmp,n_tmp
+      integer i_grp,h_grp,n_grp
+      integer i_grpd,h_grpd,n_grpd
       character*30 filename
       character*30 pname
 c
-      logical nw_inp_from_file1
-      external nw_inp_from_file1
+      logical nw_inp_from_file
+      external nw_inp_from_file
+      logical nw_inp_from_unit
+      external nw_inp_from_unit
  
       pname = "qmmm_esp_input_file"
       filename = "esp.nw"
       
       if(qmmm_print_debug()) write(*,*) "in ",pname
       nfg   =  qmmm_geom_get_nfg()
+      nqm   =  qmmm_get_nqm()
       nlink =  qmmm_get_nlink()
       ail   =  qmmm_get_link_atom_index()
+      aiq   =  qmmm_get_i_ai()
       aig   =  qmmm_geom_get_i_ifg()
+
+      n_grp = nqm
      
       if(qmmm_master()) then
         if(.not.qmmm_get_io_unit(un)) 
      >     call errquit("cannot get file number",0,0)
 
-c        open(unit=un,status="scratch",form="formatted")
-        open(unit=un,status="unknown",form="formatted",file=filename)
+        open(unit=un,status="scratch",form="formatted")
+c        open(unit=un,status="unknown",form="formatted",file=filename)
       end if
 
       if(qmmm_master())
@@ -666,6 +678,18 @@ c        open(unit=un,status="scratch",form="formatted")
 
       if(.not.ma_push_get(mt_int,nfg,'tmp qmmm index',h_tmp,i_tmp))
      + call errquit(pname//'memory allocation for tmp qmmm index ',
+     + nfg, MA_ERR)
+
+      if(.not.ma_push_get(mt_int,n_grp,'tmp qmmm group',h_grp,i_grp))
+     + call errquit(pname//'memory allocation for tmp qmmm group ',
+     + nfg, MA_ERR)
+
+      if(.not.ma_push_get(mt_int,n_grp,'tmp qmmm group',h_grpd,i_grpd))
+     + call errquit(pname//'memory allocation for tmp qmmm group ',
+     + nfg, MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,n_grp,'tmp qmmm charge',h_q,i_q))
+     + call errquit(pname//'memory allocation for tmp qmmm group ',
      + nfg, MA_ERR)
 
       if(.not.qmmm_map(nfg,int_mb(aig),
@@ -679,6 +703,36 @@ c        open(unit=un,status="scratch",form="formatted")
      >   write(un,901) int_mb(i_tmp+i-1)
       end do
 
+      call mm_get_solute_charge_gen(nqm,
+     >                       mm_quant,
+     >                       int_mb(aiq),
+     >                       dbl_mb(i_q))
+
+      if(qmmm_master()) then
+      write(*,*) "debug 0"
+      do i=1,nqm
+        write(*,*) int_mb(aiq+i-1),dbl_mb(i_q+i-1)
+      end do
+      end if
+ 
+      call mm_get_solute_res(nqm,
+     >                       mm_quant,
+     >                       int_mb(aiq),
+     >                       int_mb(i_grp))
+
+      call qmmm_sort_unique(nqm,int_mb(aiq),n_grpd,int_mb(i_grpd))
+      if(.not.ma_pop_stack(h_q))
+     + call errquit(pname//'memory deallocation for tmp qmmm index ',
+     + nfg, MA_ERR)
+
+      if(.not.ma_pop_stack(h_grpd))
+     + call errquit(pname//'memory deallocation for tmp qmmm index ',
+     + nfg, MA_ERR)
+
+      if(.not.ma_pop_stack(h_grp))
+     + call errquit(pname//'memory deallocation for tmp qmmm index ',
+     + nfg, MA_ERR)
+
       if(.not.ma_pop_stack(h_tmp))
      + call errquit(pname//'memory deallocation for tmp qmmm index ',
      + nfg, MA_ERR)
@@ -691,16 +745,19 @@ c        open(unit=un,status="scratch",form="formatted")
 901   FORMAT("constrain 0.0 ",I5)
 902   FORMAT("end")
 
-      close(un)
       call ga_sync()
-      if(.not.nw_inp_from_file1(rtdb, filename))
+c      if(.not.nw_inp_from_file(rtdb, filename))
+      if(qmmm_master())
+     >  rewind(un)
+      if(.not.nw_inp_from_unit(rtdb, un))
      + call errquit(pname//'parsing input file',0,0)
+      close(un)
 
       end
 
-      logical function nw_inp_from_file1(rtdb, filename)
+      logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.14 2005-12-07 19:39:31 marat Exp $
+* $Id: qmmm_esp.F,v 1.15 2005-12-09 00:09:38 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -711,36 +768,23 @@ c        open(unit=un,status="scratch",form="formatted")
 #include "stdio.fh"
 c
       integer rtdb
-      character*(*) filename
+      integer un
 c
-      logical input_parse, status
+      logical input_parse, ignore
       external input_parse
 c
       if (ga_nodeid() .eq. 0) then
-         if (util_print('nw_inp_from_file',print_low)) then
-            write(LuOut,*) ' Reading NWChem input from ', 
-     $           filename(1:inp_strlen(filename))
-            call util_flush(LuOut)
-         endif
-         open(94,file=filename,form='formatted',status='old',err=100)
-         write(*,*) "debug 0 "
          call inp_save_state()  ! save state of any inp unit
-         write(*,*) "debug 1 "
-         call inp_init(94,6)
+         call inp_init(un,6)
       endif
-         write(*,*) "debug 2 "
 c
-      status = input_parse(rtdb)
-         write(*,*) "debug 3 "
+      ignore = input_parse(rtdb)
 c
       if (ga_nodeid() .eq. 0) then
          call inp_restore_state() ! restore state of any inp unit
-         close(4,status='keep')
       endif
 c
-      nw_inp_from_file1 = .true.
+      nw_inp_from_unit = .true.
       return
-c
- 100  call errquit(filename,0, INPUT_ERR)
 c
       end

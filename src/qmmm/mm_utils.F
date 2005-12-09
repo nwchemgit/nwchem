@@ -142,6 +142,15 @@
 
        end
 
+       subroutine mm_get_psgm(psgm)
+         implicit none
+#include "md_common.fh"
+         integer psgm
+         
+         psgm = i_is+(lssgm-1)*msa
+
+       end
+
        subroutine mm_get_psat(psat)
          implicit none
 #include "md_common.fh"
