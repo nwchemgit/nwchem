@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.15 2005-12-09 00:09:38 marat Exp $
+c $Id: qmmm_esp.F,v 1.16 2005-12-09 19:51:34 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -54,7 +54,7 @@ c
       task_qmmm_esp = .true.
 
 c
-      call qmmm_esp_input_file(rtdb)
+c      call qmmm_esp_input_file(rtdb)
 c
       if(.not.rtdb_get(rtdb,'qmmm:readesp',mt_log,1,readesp))
      +   readesp = .false.
@@ -627,6 +627,11 @@ c
 #include "util.fh"
 #include "stdio.fh"
 c
+c     cannot get mm charges on qm atoms
+c     since we zeroed them out in the prepare
+c     also cannot do esp input several times in
+c     succession for constraints it doest not
+c     keep the memory
       integer rtdb
 c
       integer i
@@ -757,7 +762,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.15 2005-12-09 00:09:38 marat Exp $
+* $Id: qmmm_esp.F,v 1.16 2005-12-09 19:51:34 marat Exp $
 *
       implicit none
 #include "errquit.fh"
