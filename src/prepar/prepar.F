@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.58 2003-12-05 20:46:42 d3j191 Exp $
+c $Id: prepar.F,v 1.59 2005-12-09 16:56:36 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -382,7 +382,8 @@ c      close(unit=lfntmp,status='delete')
 c   13 continue
 c
 c
-      if(lqhopmem) call qhop_finish()
+      call qhop_finish()
+c
 c     signal other nodes to return
 c     ----------------------------
 c
