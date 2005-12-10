@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.22 2005-12-01 20:04:58 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.23 2005-12-10 22:43:04 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -953,21 +953,21 @@ c
 c
 c     process region definitions
 c     --------------------------
-      tag ="qmmm:region"
-      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
-     >                 mt_int,1,nregion)) 
-     >      call errquit(pname//tag,0,RTDB_ERR)
-      if(nregion.gt.0) then
-        if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
-     >        call errquit(pname//tag,0,RTDB_ERR)
-        call qmmm_cons_free_exclusive(region(1))
-        if(ga_nodeid().eq.0) 
-     >   call util_print_centered(luout,
-     >     "Coordinates of the active region",
-     >     30,.true.)
-        call qmmm_cons_print_region(6,"xyzi")
-        call qmmm_cons_reset()
-      end if
+c      tag ="qmmm:region"
+c      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
+c     >                 mt_int,1,nregion)) 
+c     >      call errquit(pname//tag,0,RTDB_ERR)
+c      if(nregion.gt.0) then
+c        if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
+c     >        call errquit(pname//tag,0,RTDB_ERR)
+c        call qmmm_cons_free_exclusive(region(1))
+c        if(ga_nodeid().eq.0) 
+c     >   call util_print_centered(luout,
+c     >     "Coordinates of the active region",
+c     >     30,.true.)
+c        call qmmm_cons_print_region(6,"xyzi")
+c        call qmmm_cons_reset()
+c      end if
  
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
@@ -1147,7 +1147,7 @@ c
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.22 2005-12-01 20:04:58 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.23 2005-12-10 22:43:04 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
