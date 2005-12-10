@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.82 2005-10-23 00:44:15 marat Exp $
+c $Id: qmmm_geom.F,v 1.83 2005-12-10 22:44:11 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -22,6 +22,9 @@ c     local variables
       integer mwa
       character*255 geom
       character*32 pname
+      character*30 region(3)
+      integer nregion
+      character*84 tag
 
       pname = "qmmm_geom_init"
 
@@ -71,7 +74,22 @@ c     create active geometry if any
 c     -----------------------------
 111   continue
       if(ageom) then
+c
+c       process region definitions
+c       --------------------------
+        tag ="qmmm:region"
+        if (.not.rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
+     >                   mt_int,1,nregion)) 
+     >        call errquit(pname//tag,0,RTDB_ERR)
+        if(nregion.gt.0) then
+          if (.not.rtdb_cget(irtdb,tag,nregion,region)) 
+     >          call errquit(pname//tag,0,RTDB_ERR)
+          call qmmm_cons_free_exclusive(region(1))
+        end if
+c
         call qmmm_geom_init_aux(irtdb,"geometry")
+        call qmmm_bq_data_update_active()
+
       else
         ngs = nfg
         ngw = 0
