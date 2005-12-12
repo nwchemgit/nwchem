@@ -1,0 +1,28 @@
+memory total 500 Mb
+
+start nacl
+
+
+charge 0
+
+basis "ao basis"
+ * library "3-21G"
+end
+
+dft
+XC b3lyp
+iterations 5000
+end
+
+md
+ system nacl_ref
+ cutoff 8.0 qmmm 8.0
+ noshake solute
+end
+
+qmmm
+region qmlink 
+end
+
+task qmmm dft freq numerical
+

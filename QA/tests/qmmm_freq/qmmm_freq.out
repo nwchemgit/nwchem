@@ -1,0 +1,1927 @@
+ argument  1 = qmmm_freq.nw
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 4.7
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
+                         1999, 2000, 2001, 2002, 2003, 2004
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC06-76RLO-1830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = colibry
+    program       = /home/marat/codes/nwchem/bin/LINUX/nwchem
+    date          = Sun Dec 11 17:16:04 2005
+
+    compiled      = Sat Dec 10 10:23:28 PST 2005
+    source        = /home/marat/codes/nwchem
+    nwchem branch = Development
+    input         = qmmm_freq.nw
+    prefix        = nacl.
+    data base     = ./nacl.db
+    status        = startup
+    nproc         =    2
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   16384001 doubles =    125.0 Mbytes
+    stack     =   16384001 doubles =    125.0 Mbytes
+    global    =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total     =   65536002 doubles =    500.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  library name resolved from: .nwchemrc
+  library file name is: </home/marat/codes/nwchem/src/basis/libraries/>
+  
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                           3-21G                    on all atoms 
+
+
+ ****************************************************
+ *      NWChem QM/MM Interface Module               *
+ *                                                  *
+ *      Developed Marat Valiev 2004                 *
+ ****************************************************
+                    QM/MM Interface Parameters
+                    --------------------------
+ operation             task:operation        freq                                                          
+ reference energy      qmmm:uqmatm               0.000000  <--- Warning zero value is not advisable !!!    
+ bqzone radius         qmmm:bqzone               8.000000                                                  
+ excluded bq's         qmmm:bq_exclude       none                                                          
+ link atom type        qmmm:linkatm          hydrogens                                                     
+ optimization method   qmmm:optimization     bfgs                                                          
+ qmmm:region *         qmlink                                                        
+ ecp on link atoms     qmmm:link_ecp         auto                                                          
+ interface api         qmmm:interface        qm                                                            
+ ------------------------------------------------------
+
+
+ Force field is amber
+ number of quantum atoms 2
+ Total number of Bq charges 804
+ Number of solute Bq charges 0
+ Number of solvent Bq charges 804
+ Total Bq charge:   0.
+ number of active bqs  804
+                       globally indexed xyz file for geometry
+                      ---------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7721380481
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.7369327630   -19.9860689702
+
+ number of active bqs  0
+
+
+                   NWChem Nuclear Hessian and Frequency Analysis
+                   ---------------------------------------------
+
+
+
+                         NWChem Finite-difference Hessian
+                         --------------------------------
+
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                      Geometry "full_geometry" -> "        "
+                      --------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7721380481
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.7369327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  Na (Sodium)
+  -----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  5.47613000E+02  0.067491
+  1 S  8.20678000E+01  0.393505
+  1 S  1.76917000E+01  0.665605
+
+  2 S  1.75407000E+01 -0.111937
+  2 S  3.79398000E+00  0.254654
+  2 S  9.06441000E-01  0.844417
+
+  3 P  1.75407000E+01  0.128233
+  3 P  3.79398000E+00  0.471533
+  3 P  9.06441000E-01  0.604273
+
+  4 S  5.01824000E-01 -0.219660
+  4 S  6.09458000E-02  1.089120
+
+  5 P  5.01824000E-01  0.009066
+  5 P  6.09458000E-02  0.997202
+
+  6 S  2.44349000E-02  1.000000
+
+  7 P  2.44349000E-02  1.000000
+
+  Cl (Chlorine)
+  -------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.37640000E+03  0.064583
+  1 S  2.07857000E+02  0.380363
+  1 S  4.51554000E+01  0.678190
+
+  2 S  6.08014000E+01 -0.098764
+  2 S  1.39765000E+01  0.051134
+  2 S  3.88710000E+00  0.991337
+
+  3 P  6.08014000E+01  0.108598
+  3 P  1.39765000E+01  0.458682
+  3 P  3.88710000E+00  0.601962
+
+  4 S  1.35299000E+00 -0.222401
+  4 S  5.26955000E-01  1.182520
+
+  5 P  1.35299000E+00  0.219216
+  5 P  5.26955000E-01  0.822321
+
+  6 S  1.66714000E-01  1.000000
+
+  7 P  1.66714000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Na                          3-21G                   7       13   4s3p
+ Cl                          3-21G                   7       13   4s3p
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     2
+          No. of electrons :    28
+           Alpha electrons :    14
+            Beta electrons :    14
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: ***
+          AO basis - number of functions:    26
+                     number of shells:    14
+          Convergence on energy requested: 1.00E-06
+          Convergence on density requested: 1.00E-05
+          Convergence on gradient requested: 5.00E-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+  WARNING: Sum of nonlocal correlation is   0.81
+  Sum of components do not equal unity or 0. 
+  WARNING: Sum of nonlocal exchange is   0.92
+  Sum of components do not equal unity or 0. 
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Na                  1.80       88          11.0       434
+          Cl                  1.00       88          10.0       590
+          Grid pruning is: on 
+          Number of quadrature shells:   176
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00E-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        *** iters           *** iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00E-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00E-08
+          Spatial weight screening/radius(au): 2.28E+01
+
+ Bq nuclear interaction energy is  0.135228883
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -618.13829678
+ Bq nuclear interaction energy is  0.135228883
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -618.006621
+ 1-e energy   =    -938.593886
+ 2-e energy   =     280.679898
+ HOMO         =      -0.500322
+ LUMO         =       0.008335
+
+ Bq nuclear interaction energy is  0.135228883
+   Time after variat. SCF:      0.5
+   Time prior to 1st pass:      0.5
+
+ #quartets = 5.108E+03 #integrals = 5.490E+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./nacl.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      3        Max. records in file   =  69700
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+ Bq nuclear interaction energy is  0.135228883
+
+ Grid_pts file          = ./nacl.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     20        Max. recs in file   =    371711
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        0.00                   0
+          Stack Space remaining (MW):       16.35            16347654
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -619.4488564221 -6.59E+02  2.98E-02  2.29E-01     1.5
+ Bq nuclear interaction energy is  0.135228883
+ d= 0,ls=0.0,diis     2   -619.4537341252 -4.88E-03  1.45E-02  1.44E-01     2.0
+ Bq nuclear interaction energy is  0.135228883
+ d= 0,ls=0.0,diis     3   -619.4730572759 -1.93E-02  1.78E-03  2.33E-03     2.5
+ Bq nuclear interaction energy is  0.135228883
+ d= 0,ls=0.0,diis     4   -619.4734058336 -3.49E-04  3.97E-05  1.17E-06     3.1
+ Bq nuclear interaction energy is  0.135228883
+ d= 0,ls=0.0,diis     5   -619.4734060000 -1.66E-07  3.03E-06  4.97E-09     3.6
+ Bq nuclear interaction energy is  0.135228883
+
+
+         Total DFT energy =     -619.473406000018
+      One electron energy =     -941.549344799572
+           Coulomb energy =      324.896711342819
+    Exchange-Corr. energy =      -42.728139474728
+ Nuclear repulsion energy =       39.907366931463
+
+ Numeric. integr. density =       27.999999952482
+
+     Total iterative time =      3.1s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    5  Occ=2.000000E+00  E=-7.049367E+00
+              MO Center= -1.0E+00, -2.7E-01, -9.1E-01, r^2= 5.9E-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      0.895755  2 Cl pz                16     -0.311148  2 Cl px         
+    17     -0.210263  2 Cl py         
+
+ Vector    6  Occ=2.000000E+00  E=-7.048264E+00
+              MO Center= -1.0E+00, -2.7E-01, -9.1E-01, r^2= 5.9E-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17     -0.864425  2 Cl py                16      0.440226  2 Cl px         
+
+ Vector    7  Occ=2.000000E+00  E=-2.188575E+00
+              MO Center=  8.8E-01,  6.0E-01,  4.5E-01, r^2= 2.1E-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -1.021441  1 Na s                  1      0.269282  1 Na s          
+
+ Vector    8  Occ=2.000000E+00  E=-1.115855E+00
+              MO Center=  8.8E-01,  5.9E-01,  4.4E-01, r^2= 2.4E-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -0.895166  1 Na px                 5      0.417651  1 Na pz         
+
+ Vector    9  Occ=2.000000E+00  E=-1.114954E+00
+              MO Center=  8.8E-01,  5.9E-01,  4.4E-01, r^2= 2.4E-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.811612  1 Na pz                 4      0.441410  1 Na py         
+     3      0.350789  1 Na px         
+
+ Vector   10  Occ=2.000000E+00  E=-1.113467E+00
+              MO Center=  8.8E-01,  6.0E-01,  4.4E-01, r^2= 2.4E-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.884337  1 Na py                 5     -0.381325  1 Na pz         
+     3     -0.229744  1 Na px         
+
+ Vector   11  Occ=2.000000E+00  E=-7.042152E-01
+              MO Center= -9.7E-01, -2.7E-01, -8.9E-01, r^2= 8.4E-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      0.578657  2 Cl s                 23      0.540777  2 Cl s          
+    15     -0.478507  2 Cl s          
+
+ Vector   12  Occ=2.000000E+00  E=-2.583068E-01
+              MO Center= -1.0E+00, -2.7E-01, -8.9E-01, r^2= 1.3E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20     -0.434473  2 Cl px                24     -0.416777  2 Cl px         
+    26      0.261513  2 Cl pz                21     -0.257060  2 Cl py         
+    25     -0.249742  2 Cl py                22      0.245269  2 Cl pz         
+    16      0.208357  2 Cl px         
+
+ Vector   13  Occ=2.000000E+00  E=-2.561341E-01
+              MO Center= -1.0E+00, -2.6E-01, -9.0E-01, r^2= 1.4E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.507488  2 Cl pz                26      0.478088  2 Cl pz         
+    18     -0.242648  2 Cl pz                20      0.234009  2 Cl px         
+    24      0.195856  2 Cl px         
+
+ Vector   14  Occ=2.000000E+00  E=-2.461145E-01
+              MO Center= -1.0E+00, -2.5E-01, -9.0E-01, r^2= 1.3E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21     -0.498732  2 Cl py                25     -0.478089  2 Cl py         
+    20      0.280723  2 Cl px                24      0.267718  2 Cl px         
+    17      0.238290  2 Cl py         
+
+ Vector   15  Occ=0.000000E+00  E=-3.118188E-03
+              MO Center=  8.5E-01,  8.7E-01,  9.4E-01, r^2= 7.5E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.816880  1 Na s                  6      0.244546  1 Na s          
+     2     -0.185397  1 Na s                 23     -0.167572  2 Cl s          
+
+ Vector   16  Occ=0.000000E+00  E= 4.498936E-02
+              MO Center=  6.5E-01,  2.8E-01,  4.6E-01, r^2= 1.6E+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.796415  1 Na px                12      0.767846  1 Na py         
+    10     -0.315232  1 Na s                 23      0.284583  2 Cl s          
+    13      0.281600  1 Na pz                 6      0.177755  1 Na s          
+
+ Vector   17  Occ=0.000000E+00  E= 4.859137E-02
+              MO Center=  9.8E-01,  6.0E-01,  4.3E-01, r^2= 1.4E+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12     -0.645669  1 Na py                13     -0.553114  1 Na pz         
+    11      0.527227  1 Na px                 6      0.274075  1 Na s          
+
+ Vector   18  Occ=0.000000E+00  E= 5.235770E-02
+              MO Center=  8.1E-01,  9.4E-01,  3.0E-02, r^2= 1.6E+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.903195  1 Na pz                12     -0.603927  1 Na py         
+    11      0.322084  1 Na px                10     -0.289579  1 Na s          
+     6      0.199623  1 Na s          
+
+ Vector   19  Occ=0.000000E+00  E= 1.123917E-01
+              MO Center=  1.9E+00,  7.3E-01,  1.1E+00, r^2= 1.2E+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     -1.857793  1 Na s                 10      1.797237  1 Na s          
+     9     -0.443557  1 Na pz                11      0.437772  1 Na px         
+     7     -0.400769  1 Na px                13      0.323290  1 Na pz         
+     8     -0.228330  1 Na py         
+
+ Vector   20  Occ=0.000000E+00  E= 1.372912E-01
+              MO Center=  8.8E-01,  6.0E-01,  4.6E-01, r^2= 1.2E+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7     -1.240994  1 Na px                 9      1.044289  1 Na pz         
+    11      0.970847  1 Na px                13     -0.829226  1 Na pz         
+
+ Vector   21  Occ=0.000000E+00  E= 1.590407E-01
+              MO Center=  9.2E-01,  4.3E-01,  4.9E-01, r^2= 9.4E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.568396  1 Na py                12     -1.056259  1 Na py         
+     9     -0.318889  1 Na pz                13      0.234797  1 Na pz         
+     4     -0.194638  1 Na py                 6     -0.181990  1 Na s          
+
+ Vector   22  Occ=0.000000E+00  E= 1.868802E-01
+              MO Center=  5.2E-01,  5.3E-01, -6.1E-02, r^2= 9.4E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.264846  1 Na px                 9      1.242323  1 Na pz         
+     6     -1.120620  1 Na s                 13     -0.760553  1 Na pz         
+    11     -0.752428  1 Na px                10      0.684502  1 Na s          
+    23      0.494119  2 Cl s                  8      0.429414  1 Na py         
+    24      0.379681  2 Cl px                26      0.252672  2 Cl pz         
+
+ Vector   23  Occ=0.000000E+00  E= 6.308315E-01
+              MO Center= -1.1E+00, -5.7E-01, -1.2E+00, r^2= 3.0E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23     -1.814847  2 Cl s                 19      1.686981  2 Cl s          
+    21     -0.427242  2 Cl py                22     -0.422314  2 Cl pz         
+    25      0.397485  2 Cl py                26      0.383330  2 Cl pz         
+    15     -0.371747  2 Cl s                 10      0.359186  1 Na s          
+    20     -0.221556  2 Cl px                11     -0.212631  1 Na px         
+
+ Vector   24  Occ=0.000000E+00  E= 6.439494E-01
+              MO Center= -1.0E+00, -2.8E-01, -8.0E-01, r^2= 2.4E+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      1.002934  2 Cl pz                26     -0.982376  2 Cl pz         
+    20     -0.591624  2 Cl px                24      0.580592  2 Cl px         
+    21     -0.445717  2 Cl py                25      0.437672  2 Cl py         
+    18     -0.291451  2 Cl pz                16      0.171895  2 Cl px         
+
+ Bq nuclear interaction energy is  0.135228883
+
+ center of mass
+ --------------
+ x =  -0.50638891 y =   0.13966413 z =  -0.70408099
+
+ moments of inertia (a.u.)
+ ------------------
+         127.364415278896         -81.357604097160        -127.333435494130
+         -81.357604097160         269.714438743321         -57.786758292387
+        -127.333435494130         -57.786758292387         216.193820813739
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000    -14.000000    -14.000000     28.000000
+
+     1   1 0 0      3.291232      8.926395      8.926395    -14.561557
+     1   0 1 0      1.534985     -1.100974     -1.100974      3.736933
+     1   0 0 1      2.362697     11.174383     11.174383    -19.986069
+
+     2   2 0 0    -14.262810    -54.076437    -54.076437     93.890064
+     2   1 1 0      1.059955    -18.084663    -18.084663     37.229282
+     2   1 0 1     -1.291119    -36.497241    -36.497241     71.703364
+     2   0 2 0    -13.034395    -15.655289    -15.655289     18.276182
+     2   0 1 1      0.225973    -12.465134    -12.465134     25.156241
+     2   0 0 2    -15.916332    -36.864560    -36.864560     57.812789
+
+
+ Parallel integral file used       2 records with       0 large values
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473406000 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473406000 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775448258 (-.125379E+05  kjoule/mol)
+ total qmmm energy                   -624.248854258 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+
+ Saving state for dft with suffix hess
+        ./nacl.movecs
+
+  
+ initial hessian
+
+ zero matrix
+
+  
+ atom:   1 xyz: 1(+) wall time:       5.1      date:  Sun Dec 11 17:16:09 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.885136        0.594810        0.442686         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.88513557     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7075272797
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.4515566649     3.7369327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.133532356
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.133532356
+ Bq nuclear interaction energy is  0.133532356
+   Time after variat. SCF:      3.7
+   Time prior to 1st pass:      3.7
+ Bq nuclear interaction energy is  0.133532356
+ Bq nuclear interaction energy is  0.133532356
+ Bq nuclear interaction energy is  0.133532356
+ Bq nuclear interaction energy is  0.133532356
+
+
+         Total DFT energy =     -619.473445048655
+      One electron energy =     -941.421503345865
+           Coulomb energy =      324.835005413737
+    Exchange-Corr. energy =      -42.728006752623
+ Nuclear repulsion energy =       39.841059636095
+
+ Numeric. integr. density =       28.000000081343
+
+     Total iterative time =      2.0s
+
+
+ Bq nuclear interaction energy is  0.133532356
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.672664   1.124029   0.836556   -0.003733  -0.004178   0.000438
+   2 Cl     -1.932403  -0.507493  -1.716952    0.000000   0.000000   0.000000
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473445049 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473445049 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775436538 (-.125379E+05  kjoule/mol)
+ total qmmm energy                   -624.248881586 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   1 xyz: 1(-) wall time:       8.7      date:  Sun Dec 11 17:16:12 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.874552        0.594810        0.442686         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87455203     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.8368844534
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.6715566649     3.7369327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.136933738
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.136933738
+ Bq nuclear interaction energy is  0.136933738
+   Time after variat. SCF:      6.7
+   Time prior to 1st pass:      6.7
+ Bq nuclear interaction energy is  0.136933738
+ Bq nuclear interaction energy is  0.136933738
+ Bq nuclear interaction energy is  0.136933738
+ Bq nuclear interaction energy is  0.136933738
+
+
+         Total DFT energy =     -619.473363783498
+      One electron energy =     -941.678276674873
+           Coulomb energy =      324.959431701972
+    Exchange-Corr. energy =      -42.728337001927
+ Nuclear repulsion energy =       39.973818191330
+
+ Numeric. integr. density =       28.000000081794
+
+     Total iterative time =      2.0s
+
+
+ Bq nuclear interaction energy is  0.136933738
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.652664   1.124029   0.836556   -0.004395  -0.004481   0.000096
+   2 Cl     -1.932403  -0.507493  -1.716952    0.000000   0.000000   0.000000
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473363783 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473363783 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775459896 (-.125380E+05  kjoule/mol)
+ total qmmm energy                   -624.248823679 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   1 xyz: 2(+) wall time:      12.3      date:  Sun Dec 11 17:16:16 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.600102        0.442686         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.60010217     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7427281538
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.8469327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.134138161
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.134138161
+ Bq nuclear interaction energy is  0.134138161
+   Time after variat. SCF:      9.7
+   Time prior to 1st pass:      9.7
+ Bq nuclear interaction energy is  0.134138161
+ Bq nuclear interaction energy is  0.134138161
+ Bq nuclear interaction energy is  0.134138161
+
+
+         Total DFT energy =     -619.473449419685
+      One electron energy =     -941.489715799114
+           Coulomb energy =      324.867394543852
+    Exchange-Corr. energy =      -42.727994479114
+ Nuclear repulsion energy =       39.876866314691
+
+ Numeric. integr. density =       28.000000081755
+
+     Total iterative time =      1.5s
+
+
+ Bq nuclear interaction energy is  0.134138161
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.134029   0.836556   -0.003911  -0.004339   0.000391
+   2 Cl     -1.932403  -0.507493  -1.716952    0.000000   0.000000   0.000000
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473449420 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473449420 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775414496 (-.125379E+05  kjoule/mol)
+ total qmmm energy                   -624.248863915 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   1 xyz: 2(-) wall time:      15.4      date:  Sun Dec 11 17:16:19 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.589519        0.442686         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.58951863     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.8014330215
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.6269327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.136310634
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.136310634
+ Bq nuclear interaction energy is  0.136310634
+   Time after variat. SCF:     12.3
+   Time prior to 1st pass:     12.3
+ Bq nuclear interaction energy is  0.136310634
+ Bq nuclear interaction energy is  0.136310634
+ Bq nuclear interaction energy is  0.136310634
+
+
+         Total DFT energy =     -619.473362766281
+      One electron energy =     -941.609507048721
+           Coulomb energy =      324.926743961649
+    Exchange-Corr. energy =      -42.728343334816
+ Nuclear repulsion energy =       39.937743655607
+
+ Numeric. integr. density =       27.999999951038
+
+     Total iterative time =      1.6s
+
+
+ Bq nuclear interaction energy is  0.136310634
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.114029   0.836556   -0.004215  -0.004318   0.000146
+   2 Cl     -1.932403  -0.507493  -1.716952    0.000000   0.000000   0.000000
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473362766 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473362766 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775480588 (-.125380E+05  kjoule/mol)
+ total qmmm energy                   -624.248843354 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   1 xyz: 3(+) wall time:      18.6      date:  Sun Dec 11 17:16:22 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.447978         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44797807
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7261878705
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.7369327630   -19.8760689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.13433912
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.13433912
+ Bq nuclear interaction energy is  0.13433912
+   Time after variat. SCF:     14.9
+   Time prior to 1st pass:     14.9
+ Bq nuclear interaction energy is  0.13433912
+ Bq nuclear interaction energy is  0.13433912
+ Bq nuclear interaction energy is  0.13433912
+ Bq nuclear interaction energy is  0.13433912
+
+
+         Total DFT energy =     -619.473402627228
+      One electron energy =     -941.458798415616
+           Coulomb energy =      324.852920950444
+    Exchange-Corr. energy =      -42.728052153077
+ Nuclear repulsion energy =       39.860526991020
+
+ Numeric. integr. density =       27.999999979745
+
+     Total iterative time =      2.1s
+
+
+ Bq nuclear interaction energy is  0.13433912
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.846556   -0.003893  -0.004207   0.000412
+   2 Cl     -1.932403  -0.507493  -1.716952    0.000000   0.000000   0.000000
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473402627 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473402627 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775469691 (-.125380E+05  kjoule/mol)
+ total qmmm energy                   -624.248872318 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   1 xyz: 3(-) wall time:      22.2      date:  Sun Dec 11 17:16:26 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.437395         1
+  Cl           -1.022584       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.43739453
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.8180675089
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.7369327630   -20.0960689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.13611929
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.13611929
+ Bq nuclear interaction energy is  0.13611929
+   Time after variat. SCF:     18.0
+   Time prior to 1st pass:     18.0
+ Bq nuclear interaction energy is  0.13611929
+ Bq nuclear interaction energy is  0.13611929
+ Bq nuclear interaction energy is  0.13611929
+ Bq nuclear interaction energy is  0.13611929
+
+
+         Total DFT energy =     -619.473407968723
+      One electron energy =     -941.640670709459
+           Coulomb energy =      324.941366358396
+    Exchange-Corr. energy =      -42.728290416581
+ Nuclear repulsion energy =       39.954186798921
+
+ Numeric. integr. density =       27.999999966443
+
+     Total iterative time =      2.1s
+
+
+ Bq nuclear interaction energy is  0.13611929
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.826556   -0.004235  -0.004451   0.000124
+   2 Cl     -1.932403  -0.507493  -1.716952    0.000000   0.000000   0.000000
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473407969 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473407969 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775426228 (-.125379E+05  kjoule/mol)
+ total qmmm energy                   -624.248834197 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   2 xyz: 1(+) wall time:      25.8      date:  Sun Dec 11 17:16:30 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.017292       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.01729213    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.8368844534
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.3915566649     3.7369327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.13378972
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.13378972
+ Bq nuclear interaction energy is  0.13378972
+   Time after variat. SCF:     21.0
+   Time prior to 1st pass:     21.0
+ Bq nuclear interaction energy is  0.13378972
+ Bq nuclear interaction energy is  0.13378972
+ Bq nuclear interaction energy is  0.13378972
+ Bq nuclear interaction energy is  0.13378972
+ Bq nuclear interaction energy is  0.13378972
+
+
+         Total DFT energy =     -619.473411725147
+      One electron energy =     -941.676801208125
+           Coulomb energy =      324.961191069836
+    Exchange-Corr. energy =      -42.728475759940
+ Nuclear repulsion energy =       39.970674173082
+
+ Numeric. integr. density =       27.999999949990
+
+     Total iterative time =      2.6s
+
+
+ Bq nuclear interaction energy is  0.13378972
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.836556   -0.004315  -0.004433   0.000108
+   2 Cl     -1.922403  -0.507493  -1.716952   -0.000415   0.005632   0.005704
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473411725 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473411725 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775412358 (-.125378E+05  kjoule/mol)
+ total qmmm energy                   -624.248824083 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   2 xyz: 1(-) wall time:      30.0      date:  Sun Dec 11 17:16:34 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.027876       -0.268554       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02787567    -0.26855380    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7075272797
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.7315566649     3.7369327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.136662162
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.136662162
+ Bq nuclear interaction energy is  0.136662162
+   Time after variat. SCF:     24.7
+   Time prior to 1st pass:     24.7
+ Bq nuclear interaction energy is  0.136662162
+ Bq nuclear interaction energy is  0.136662162
+ Bq nuclear interaction energy is  0.136662162
+ Bq nuclear interaction energy is  0.136662162
+ Bq nuclear interaction energy is  0.136662162
+
+
+         Total DFT energy =     -619.473397214865
+      One electron energy =     -941.422950786073
+           Coulomb energy =      324.833230855453
+    Exchange-Corr. energy =      -42.727866725488
+ Nuclear repulsion energy =       39.844189441242
+
+ Numeric. integr. density =       28.000000080785
+
+     Total iterative time =      2.5s
+
+
+ Bq nuclear interaction energy is  0.136662162
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.836556   -0.003813  -0.004226   0.000426
+   2 Cl     -1.942403  -0.507493  -1.716952   -0.001043   0.005411   0.005320
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473397215 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473397215 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775481151 (-.125380E+05  kjoule/mol)
+ total qmmm energy                   -624.248878366 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   2 xyz: 2(+) wall time:      34.1      date:  Sun Dec 11 17:16:38 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.022584       -0.263262       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26326203    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.8014330215
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.9069327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.133014425
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.133014425
+ Bq nuclear interaction energy is  0.133014425
+   Time after variat. SCF:     28.2
+   Time prior to 1st pass:     28.2
+ Bq nuclear interaction energy is  0.133014425
+ Bq nuclear interaction energy is  0.133014425
+ Bq nuclear interaction energy is  0.133014425
+
+
+         Total DFT energy =     -619.473350241996
+      One electron energy =     -941.605628139370
+           Coulomb energy =      324.926134261947
+    Exchange-Corr. energy =      -42.728303810651
+ Nuclear repulsion energy =       39.934447446078
+
+ Numeric. integr. density =       27.999999951042
+
+     Total iterative time =      1.5s
+
+
+ Bq nuclear interaction energy is  0.133014425
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.836556   -0.004167  -0.004400   0.000196
+   2 Cl     -1.932403  -0.497493  -1.716952   -0.000619   0.005631   0.005601
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473350242 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473350242 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775492241 (-.125381E+05  kjoule/mol)
+ total qmmm energy                   -624.248842483 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   2 xyz: 2(-) wall time:      37.2      date:  Sun Dec 11 17:16:41 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.022584       -0.273846       -0.908572         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.27384557    -0.90857190
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7427281538
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.5669327630   -19.9860689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.13744217
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.13744217
+ Bq nuclear interaction energy is  0.13744217
+   Time after variat. SCF:     30.8
+   Time prior to 1st pass:     30.8
+ Bq nuclear interaction energy is  0.13744217
+ Bq nuclear interaction energy is  0.13744217
+ Bq nuclear interaction energy is  0.13744217
+
+
+         Total DFT energy =     -619.473460734510
+      One electron energy =     -941.493606972711
+           Coulomb energy =      324.868010370146
+    Exchange-Corr. energy =      -42.728034455709
+ Nuclear repulsion energy =       39.880170323763
+
+ Numeric. integr. density =       28.000000081732
+
+     Total iterative time =      1.5s
+
+
+ Bq nuclear interaction energy is  0.13744217
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.836556   -0.003959  -0.004256   0.000341
+   2 Cl     -1.932403  -0.517493  -1.716952   -0.000841   0.005410   0.005420
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473460735 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473460735 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775401757 (-.125378E+05  kjoule/mol)
+ total qmmm energy                   -624.248862492 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   2 xyz: 3(+) wall time:      40.3      date:  Sun Dec 11 17:16:44 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.022584       -0.268554       -0.903280         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.90328013
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.8180675089
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.7369327630   -19.8160689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.132989403
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.132989403
+ Bq nuclear interaction energy is  0.132989403
+   Time after variat. SCF:     33.3
+   Time prior to 1st pass:     33.3
+ Bq nuclear interaction energy is  0.132989403
+ Bq nuclear interaction energy is  0.132989403
+ Bq nuclear interaction energy is  0.132989403
+ Bq nuclear interaction energy is  0.132989403
+
+
+         Total DFT energy =     -619.473350099466
+      One electron energy =     -941.637286901361
+           Coulomb energy =      324.941162899419
+    Exchange-Corr. energy =      -42.728283009054
+ Nuclear repulsion energy =       39.951056911529
+
+ Numeric. integr. density =       27.999999966448
+
+     Total iterative time =      2.0s
+
+
+ Bq nuclear interaction energy is  0.132989403
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.836556   -0.004224  -0.004402   0.000126
+   2 Cl     -1.932403  -0.507493  -1.706952   -0.000537   0.005611   0.005670
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473350099 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473350099 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775484398 (-.125380E+05  kjoule/mol)
+ total qmmm energy                   -624.248834497 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+ atom:   2 xyz: 3(-) wall time:      44.0      date:  Sun Dec 11 17:16:48 2005
+
+                    globally indexed xyz file for full_geometry
+                   --------------------------------------------
+         2
+   
+  Na            0.879844        0.594810        0.442686         1
+  Cl           -1.022584       -0.268554       -0.913864         2
+
+
+                Geometry "full_geometry" -> "                     "
+                ---------------------------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Na                  11.0000     0.87984380     0.59481040     0.44268630
+    2 Cl                  17.0000    -1.02258390    -0.26855380    -0.91386367
+
+      Atomic Mass 
+      ----------- 
+
+      Na                22.989800
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)      39.7261878705
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+   -14.5615566649     3.7369327630   -20.1560689702
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Bq nuclear interaction energy is  0.137475421
+  Caching 1-el integrals 
+ Bq nuclear interaction energy is  0.137475421
+ Bq nuclear interaction energy is  0.137475421
+   Time after variat. SCF:     36.4
+   Time prior to 1st pass:     36.4
+ Bq nuclear interaction energy is  0.137475421
+ Bq nuclear interaction energy is  0.137475421
+ Bq nuclear interaction energy is  0.137475421
+ Bq nuclear interaction energy is  0.137475421
+
+
+         Total DFT energy =     -619.473460380081
+      One electron energy =     -941.462188009587
+           Coulomb energy =      324.853123938200
+    Exchange-Corr. energy =      -42.728059600454
+ Nuclear repulsion energy =       39.863663291759
+
+ Numeric. integr. density =       28.000000081002
+
+     Total iterative time =      2.0s
+
+
+ Bq nuclear interaction energy is  0.137475421
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 Na      1.662664   1.124029   0.836556   -0.003903  -0.004256   0.000411
+   2 Cl     -1.932403  -0.507493  -1.726952   -0.000921   0.005431   0.005350
+
+------------------------------------------------------------------------
+ QM/MM Energy
+------------------------------------------------------------------------
+ quantum energy                      -619.473460380 (-.162643E+07  kjoule/mol)
+ quantum energy adjusted             -619.473460380 (-.162643E+07  kjoule/mol)
+ classical energy                      -4.775409192 (-.125378E+05  kjoule/mol)
+ total qmmm energy                   -624.248869573 (-.163897E+07  kjoule/mol)
+------------------------------------------------------------------------
+
+  
+  finite difference hessian delta =   0.01
+
+              1        2        3        4        5        6      
+    1    0.0340   0.0133   0.0182  -0.0251  -0.0104  -0.0160
+    2    0.0133   0.0133   0.0059  -0.0104  -0.0072  -0.0073
+    3    0.0182   0.0059   0.0204  -0.0159  -0.0072  -0.0143
+    4   -0.0251  -0.0104  -0.0159   0.0615   0.0204  -0.0063
+    5   -0.0104  -0.0072  -0.0072   0.0204   0.0362  -0.0052
+    6   -0.0160  -0.0073  -0.0143  -0.0063  -0.0052   0.0453
+  
+
+  finite difference derivative dipole; delta =   0.01
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.8735     [    4.1954]
+ d_dipole_x/<atom=   1,y> =    -0.0007     [   -0.0035]
+ d_dipole_x/<atom=   1,z> =    -0.0084     [   -0.0402]
+ d_dipole_x/<atom=   2,x> =    -0.8080     [   -3.8810]
+ d_dipole_x/<atom=   2,y> =    -0.0039     [   -0.0186]
+ d_dipole_x/<atom=   2,z> =     0.0440     [    0.2114]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =    -0.0081     [   -0.0391]
+ d_dipole_y/<atom=   1,y> =     0.8920     [    4.2844]
+ d_dipole_y/<atom=   1,z> =    -0.0109     [   -0.0524]
+ d_dipole_y/<atom=   2,x> =     0.0213     [    0.1022]
+ d_dipole_y/<atom=   2,y> =    -0.8682     [   -4.1699]
+ d_dipole_y/<atom=   2,z> =     0.0234     [    0.1122]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =    -0.0082     [   -0.0394]
+ d_dipole_z/<atom=   1,y> =    -0.0054     [   -0.0260]
+ d_dipole_z/<atom=   1,z> =     0.8742     [    4.1991]
+ d_dipole_z/<atom=   2,x> =     0.0639     [    0.3068]
+ d_dipole_z/<atom=   2,y> =     0.0142     [    0.0680]
+ d_dipole_z/<atom=   2,z> =    -0.8790     [   -4.2220]
+  
+  
+  triangle hessian written to ./nacl.hess
+  derivative dipole written to ./nacl.fd_ddipole
+
+ Deleting state for dft with suffix hess
+        ./nacl.movecs
+
+
+
+  Vibrational analysis via the FX method 
+
+  See chapter 2 in "Molecular Vibrations" by Wilson, Decius and Cross
+
+  Vib: Default input used 
+
+  Nuclear Hessian passed symmetry test 
+
+
+
+ ---------------------------- Atom information ----------------------------
+     atom    #        X              Y              Z            mass
+ --------------------------------------------------------------------------
+    Na       1  1.6626637E+00  1.1240287E+00  8.3655581E-01  2.2989800E+01
+    Cl       2 -1.9324034E+00 -5.0749309E-01 -1.7169519E+00  3.4968850E+01
+ --------------------------------------------------------------------------
+
+
+
+
+          ----------------------------------------------------
+          MASS-WEIGHTED NUCLEAR HESSIAN (Hartree/Bohr/Bohr/Kamu)
+          ----------------------------------------------------
+
+
+              1           2           3           4           5           6
+   ----- ----- ----- ----- -----
+    1   1.47706E+00
+    2   5.79129E-01 5.77590E-01
+    3   7.90044E-01 2.56281E-01 8.86686E-01
+    4  -8.85896E-01-3.66026E-01-5.61205E-01 1.75847E+00
+    5  -3.66327E-01-2.54331E-01-2.54937E-01 5.83624E-01 1.03610E+00
+    6  -5.64517E-01-2.56938E-01-5.03286E-01-1.80510E-01-1.49999E-01 1.29476E+00
+
+
+
+          -------------------------------------------------
+          NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES
+          -------------------------------------------------
+                 (Frequencies expressed in cm-1)
+
+                    1           2           3           4           5           6
+ 
+ Frequency         74.16       96.30      111.44      138.44      217.75      303.33
+ 
+           1    -0.10025     0.09063    -0.09118     0.01630    -0.04088     0.12241
+           2     0.13577    -0.05597    -0.13086    -0.03902    -0.01541     0.05520
+           3     0.11151     0.10251     0.10951     0.00636    -0.04248     0.08196
+           4     0.00553     0.07560    -0.03378    -0.07636    -0.08355    -0.09433
+           5     0.02729     0.00907    -0.03201     0.14579    -0.05744    -0.04680
+           6     0.03037     0.09182    -0.04269     0.01758     0.12600    -0.03517
+
+
+
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||         Derivative Dipole Moments (debye/angs)
+  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
+ ------ ---------- || ------------------ ------------------ -----------------
+    1       74.162 ||      -0.441               0.470             0.344
+    2       96.300 ||       0.102              -0.269             0.064
+    3      111.444 ||      -0.264              -0.438             0.635
+    4      138.441 ||       0.366              -0.782            -0.061
+    5      217.754 ||       0.182               0.183            -0.738
+    6      303.327 ||       0.870               0.409             0.454
+ ----------------------------------------------------------------------------
+
+
+
+  
+  
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||                 Infra Red Intensities
+  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
+ ------ ---------- || -------------- ----------------- ---------- -----------
+    1       74.162 ||    0.023135           0.534        22.553       8.486
+    2       96.300 ||    0.003758           0.087         3.663       1.378
+    3      111.444 ||    0.028770           0.664        28.046      10.553
+    4      138.441 ||    0.032454           0.749        31.637      11.904
+    5      217.754 ||    0.026490           0.611        25.824       9.716
+    6      303.327 ||    0.048974           1.130        47.743      17.963
+ ----------------------------------------------------------------------------
+
+
+
+
+
+        Vibrational analysis via the FX method 
+  --- with translations and rotations projected out ---
+  --- via the Eckart algorithm                      ---
+ Dependent rotation vector no. 3
+  found in ECKART; assuming linear geometry
+ Projected Nuclear Hessian trans-rot subspace norm:1.5619E-34
+                         (should be close to zero!) 
+
+
+From the projected analysis 
+The Zero-Point Energy (Kcal/mol) =           0.43201483
+
+ center of mass
+ --------------
+ x =  -0.50638891 y =   0.13966413 z =  -0.70408099
+
+ moments of inertia (a.u.)
+ ------------------
+         127.364415278896         -81.357604097160        -127.333435494130
+         -81.357604097160         269.714438743321         -57.786758292387
+        -127.333435494130         -57.786758292387         216.193820813739
+
+ Rotational Constants
+ --------------------
+ A=   0.000000 cm-1  (  0.000000 K)
+ B=   0.196324 cm-1  (  0.282461 K)
+ C=   0.196324 cm-1  (  0.282461 K)
+
+
+ Temperature                      =   298.15K
+
+
+ Linear Molecule                   
+
+ Zero-Point correction to Energy  =    0.432 kcal/mol  (  0.000688 au)
+ Thermal correction to Energy     =    2.174 kcal/mol  (  0.003465 au)
+ Thermal correction to Enthalpy   =    2.766 kcal/mol  (  0.004408 au)
+
+ Total Entropy                    =   55.294 cal/mol-K
+   - Translational                =   38.075 cal/mol-K (mol. weight =  57.9587)
+   - Rotational                   =   15.815 cal/mol-K (symmetry #  =        1)
+   - Vibrational                  =    1.405 cal/mol-K
+
+ Cv (constant volume heat capacity) =    6.635 cal/mol-K
+   - Translational                  =    2.979 cal/mol-K
+   - Rotational                     =    1.986 cal/mol-K
+   - Vibrational                    =    1.669 cal/mol-K
+
+
+
+          -------------------------------------------------
+          NORMAL MODE EIGENVECTORS IN CARTESIAN COORDINATES
+          -------------------------------------------------
+             (Projected Frequencies expressed in cm-1)
+
+                    1           2           3           4           5           6
+ 
+ P.Frequency        0.00        0.00        0.00        0.00        0.00      302.11
+ 
+           1     0.02265     0.06456    -0.08108     0.00162    -0.12999     0.12387
+           2     0.00408     0.02347    -0.13280     0.00073     0.14877     0.05621
+           3     0.07199     0.09841     0.12927     0.00115     0.06464     0.08798
+           4     0.09302     0.05901    -0.03468    -0.09215    -0.01160    -0.08144
+           5    -0.11691     0.11583     0.00187    -0.01196     0.00063    -0.03696
+           6     0.05021     0.04721    -0.02209     0.14128    -0.00739    -0.05784
+
+
+
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||    Projected Derivative Dipole Moments (debye/angs)
+  Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
+ ------ ---------- || ------------------ ------------------ -----------------
+    1        0.000 ||      -0.256               0.515             0.110
+    2        0.000 ||       0.046              -0.379             0.237
+    3        0.000 ||      -0.215              -0.586             0.632
+    4        0.000 ||       0.394               0.059            -0.621
+    5        0.000 ||      -0.505               0.634             0.300
+    6      302.108 ||       0.820               0.371             0.580
+ ----------------------------------------------------------------------------
+
+
+
+  
+  
+ ----------------------------------------------------------------------------
+ Normal Eigenvalue ||           Projected Infra Red Intensities
+  Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
+ ------ ---------- || -------------- ----------------- ---------- -----------
+    1        0.000 ||    0.014883           0.343        14.509       5.459
+    2        0.000 ||    0.008739           0.202         8.520       3.206
+    3        0.000 ||    0.034234           0.790        33.373      12.557
+    4        0.000 ||    0.023603           0.545        23.009       8.657
+    5        0.000 ||    0.032416           0.748        31.601      11.890
+    6      302.108 ||    0.049705           1.147        48.455      18.231
+ ----------------------------------------------------------------------------
+
+
+
+ vib:animation  F
+
+ Task  times  cpu:       39.3s     wall:       47.6s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 1019     1019     1.08e+05 1.12e+04 3442       12        0        0     
+number of processes/call 1.00e+00 1.00e+00 1.02e+00 2.00e+00 0.00e+00
+bytes total:             1.64e+07 4.28e+06 6.94e+06 1.34e+03 0.00e+00 0.00e+00
+bytes remote:            2.33e+05 1.49e+05 2.08e+05 6.72e+02 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 381536 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        60	       136
+	current total bytes		         0	         0
+	maximum total bytes		 134671924	 252195556
+	maximum total K-bytes		    134672	    252196
+	maximum total M-bytes		       135	       253
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 4.7" (2005), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+            Please use the following citation when publishing results
+            obtained with NWChem:
+
+            E. Apra, T. L. Windus, T. P. Straatsma, E. J. Bylaska, W. de Jong,
+            S. Hirata, M. Valiev, M. T. Hackler, L. Pollack, K. Kowalski,
+            R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,
+            V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown, G. Cisneros,
+            G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,
+            J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt,
+            P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,
+            D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson,
+            J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
+            B. Meng, T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave,
+            H. Taylor, G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+            "NWChem, A Computational Chemistry Package for Parallel Computers, 
+            Version 4.7" (2005),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:       39.4s     wall:       47.7s
