@@ -23,6 +23,10 @@ c
          readbq = .false.
       end if
 
+      if (.not. rtdb_get(irtdb,'qmmm:bqsave',mt_log,1,bqsave)) then
+         bqsave = .false.
+      end if
+
       if (.not.rtdb_get(irtdb,'qmmm:bq-solute',mt_log,1,allbqs))
      >     allbqs = .false.
 c
@@ -139,7 +143,8 @@ c
 c     
 c     save bq index into the file
 c     ---------------------------
-      call qmmm_save_bq_index()
+      if(bqsave)  
+     +  call qmmm_save_bq_index()
 c
 c     create and activate bq structure in bq module
 c     ---------------------------------------------
@@ -255,169 +260,6 @@ c     ------------------------
     
       end
 
-      subroutine qmmm_bq_data_load0()
-      implicit none
-c
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "qmmm_bq_data.fh"
-#include "qmmm.fh"
-#include "qmmm_utils.fh"
-#include "qmmm_params.fh"
-#include "global.fh"
-#include "bq.fh"
-#include "util.fh"
-      integer i,k
-      integer i_lb
-      integer i_mbq,h_mbq
-      integer nlink
-      integer il,j
-      double precision charge
-      integer mwa
-      character*32 pname
-
-      pname = "qmmm_bq_data_load"
-
-      if(qmmm_print_debug()) 
-     >       write(*,*) "in",pname
-
-      call qmmm_bq_data_dealloc()
-c
-c     reset bq flags for solute and solvent
-c     -------------------------------------
-      if(allbqs) call mm_activate_bqszone()
-      if(allbqw) call mm_activate_bqwzone()
-c
-c     exclude bq's as specified by qmmm input
-c     ---------------------------------------
-      call mm_prune_bqzone()
-c
-c     get numbers of solute and solvent bq's
-c     --------------------------------------
-      if(readbq) then
-         call qmmm_read_nbq()
-      else
-         call mm_get_tot_nbqs(nbqs)
-         call mm_get_tot_nbqw(nbqw)
-      end if
-      call mm_get_mwa(mwa)
-      nbq=nbqs+nbqw
-      mbqw = nbqw/mwa
-
-      if(nbq.eq.0) return
-
-c     allocate bq structure
-c     ---------------------
-      call qmmm_bq_data_alloc()
-
-c     get global index for bq charges
-c     -------------------------------
-      if(readbq) then
-        call qmmm_read_ibq()
-        call mm_reset_solute_bqzone(nbqs,int_mb(i_ibq))
-        call mm_reset_solvent_bqzone(nbqw,int_mb(i_ibq+nbqs))
-      else
-        if(nbqs.ne.0) then
-          call mm_get_solute_bq_ind(nbqs,int_mb(i_ibq))
-        end if
-        if(nbqw.ne.0) then
-          call mm_get_solvent_ind_bq(nbqw,int_mb(i_ibq+nbqs))
-        end if
-      end if
-c
-c     get solute bq coord and charges from MM
-c     ---------------------------------------
-      if(nbqs.ne.0) then
-        call mm_get_solute_geom_bq(nbqs,
-     >                       int_mb(i_ibq),
-     >                       dbl_mb(i_cbq),
-     >                       dbl_mb(i_qbq))
-
-      end if
-
-      if(qmmm_print_debug()) 
-     >       write(*,*) "finished setting up solute bq charges"
-c
-c     append solvent bq coord and charges from MM
-c     -------------------------------------------    
-      if(nbqw.ne.0) then
-        call mm_get_solvent_geom_bq(nbqw,int_mb(i_ibq+nbqs),
-     >                       dbl_mb(i_cbq+3*nbqs),
-     >                       dbl_mb(i_qbq+nbqs))
-      end if
-  
-      if(qmmm_print_debug()) 
-     >       write(*,*) "finished setting up solvent bq charges"
-
-c
-      if(qmmm_master()) then
-         write(*,*) "Total number of Bq charges",nbq
-         write(*,*) "Number of solute Bq charges",nbqs
-         write(*,*) "Number of solvent Bq charges",nbqw
-      end if
-c     
-c     save bq index into the file
-c     ---------------------------
-      call qmmm_save_bq_index()
-c
-c     create and activate bq structure in bq module
-c     ---------------------------------------------
-      if(.not.bq_pset(bq_handle,nbq,h_qbq,h_cbq))
-     + call errquit(pname//'Failed bq_pset',0,CALC_ERR)
-      if(.not.bq_activate(bq_handle)) 
-     + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
-c
-c     get active list of bqs
-c     ------------------------
-      if(nbqs.ne.0) 
-     >   call mm_get_solute_cons(nbqs,int_mb(i_ibq),
-     >                       log_mb(i_abq))
-      if(nbqw.ne.0) 
-     >  call mm_get_solvent_cons(nbqw,int_mb(i_ibq+nbqs),
-     >                       log_mb(i_abq+nbqs))
-
-      nbqa = 0 
-      do i=1,nbq
-         if(log_mb(i_abq+i-1)) then
-           nbqa = nbqa + 1
-         end if
-      end do
-
-      charge = 0.0d0
-      do i=1,nbq
-       charge = charge + dbl_mb(i_qbq+i-1)
-      end do
-      if(ga_nodeid().eq.0) then
-       write(*,*) "Total Bq charge: ", charge
-      end if
-
-      if(ga_nodeid().eq.0) then
-       write(*,*) "number of active bqs ",nbqa
-      end if
-
-
-      if(util_print('bq_geom', print_high)) 
-     + call bq_print_info(bq_handle)
-
-       if(ga_nodeid().eq.0) 
-     > call qmmm_print_pdb_bq(nbq,"-bq.pdb",
-     >                    dbl_mb(i_cbq),
-     >                    dbl_mb(i_qbq))
-
-      if(qmmm_print_debug()) then
-        call util_print_centered(6,"Bq information",
-     >              36, .true.)
-        write(*,'(/,A,T20,A,/)') "global index","coordinates(au)"
-        do i=1,nbqs+nbqw
-         write(*,'(I5,T20,3F12.6)') int_mb(i_ibq+i-1),
-     >              (dbl_mb(i_cbq+3*(i-1)+k-1),k=1,3)
-        end do
-      end if
-
-      if(qmmm_print_debug()) 
-     >       write(*,*) "out",pname
-    
-      end
       subroutine qmmm_bq_print_info()
       implicit none
 c
