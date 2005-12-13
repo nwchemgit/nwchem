@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.53 2005-12-13 23:39:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -87,7 +87,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.53 2005-12-13 23:39:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -117,6 +117,7 @@ c
 c
       logical oesp
 c
+      logical oconv
       character*30 region(3)
       character*30 method(3)
       character*30 xyz(3)
@@ -127,6 +128,7 @@ c
       integer nregion
       integer ncycles
       character*60 xyzfile,xyztmp
+      double precision enew,eold,etol
 c
       character*255 rfile
       character*255 stub
@@ -140,6 +142,13 @@ c
 c
       if(qmmm_print_debug())
      >  write(*,*) "in " //pname, ga_nodeid()
+c
+c     region definitions
+c     ------------------
+      tag ="qmmm:convergence"
+      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag)),
+     >                 mt_dbl,1,etol)) 
+     >      etol = 1.0d-4
 c
 c     region definitions
 c     ------------------
@@ -233,6 +242,7 @@ c     --------------------------
 c
 c     start the optimization cycle
 c     ----------------------------
+      eold = 0.0d0
       do i=1,ncycles
        if(ga_nodeid().eq.0) then
          write(luout,14) i
@@ -267,6 +277,8 @@ c     ---------------------------
       call qmmm_energy_rtdb_push(rtdb)
       call qmmm_print_energy3(rtdb)
       call qmmm_print_spring_energy(rtdb)
+      if (.not. rtdb_get(rtdb,'qmmm:energy',mt_dbl,1,enew))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 c
 c      save restart file
 c      -----------------
@@ -276,8 +288,15 @@ c      -----------------
        call util_file_name(stub(1:inp_strlen(stub)),.false.,
      >                     .false.,rfile)
        call mm_write_restart_named(rfile,.false.)
+c
+c      test for convergence
+c      --------------------
+       oconv = i.gt.1.and.
+     >         abs(enew-eold).lt.etol
+       if(oconv) goto 109
+       eold = enew
       end do
-
+109   continue
       if(ga_nodeid().eq.0) then
          write(luout,10) 
          write(luout,12) 
@@ -312,7 +331,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.53 2005-12-13 23:39:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -393,7 +412,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.53 2005-12-13 23:39:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -423,7 +442,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.53 2005-12-13 23:39:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -456,7 +475,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.53 2005-12-13 23:39:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -579,7 +598,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.52 2005-12-02 22:14:23 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.53 2005-12-13 23:39:23 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

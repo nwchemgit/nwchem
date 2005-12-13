@@ -24,6 +24,7 @@ c
       integer ip,np
       logical ltoken
       logical ignore
+      double precision f
 c
       pname = "qmmm_input: "
 c
@@ -54,6 +55,17 @@ c     -----------------
         if (.not.rtdb_put(rtdb,"qmmm:uqmatm",mt_dbl,1,eatoms)) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     convergence
+c     -----------
+      if (inp_compare(.false.,"convergence", token)) then
+        if (.not.inp_f(f))
+     >    call errquit(pname//'failed to read convergence',0, INPUT_ERR)
+        tag = "qmmm:convergence"
+        if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag)),mt_dbl,1,f)) 
+     >      goto 999
         goto 2
       endif
 c
