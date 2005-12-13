@@ -1,4 +1,4 @@
-% $Id: qmmm.tex,v 1.13 2005-12-13 00:11:33 marat Exp $
+% $Id: qmmm.tex,v 1.14 2005-12-13 23:50:25 marat Exp $
 
 \label{sec:qmmm}
 
@@ -322,13 +322,27 @@ The name tag for fluoride link atoms is F{\_}L.
 
 \item
 \begin{verbatim}
-region  < [region1]  [region2]  [region3] default "qmlink" >
+region  < [region1]  [region2]  [region3] >
 \end{verbatim}
 
-This directive specifies active region(s) for optimization, dynamics, and frequency QM/MM calculations.
-Up to three regions can be specified, those are limited to "qm" - all quantum atoms, "qmlink" - quantum and link atoms,
-"mm{\_}solute" - all classical atoms excluding link atoms, "solvent" all solvent atoms, "solute" - all solute atoms quantum or not,
-"mm" all classical solute and solvent atoms, excluding link atoms.
+This directive specifies active region(s) for optimization, dynamics, and frequency calculations.
+Up to three regions can be specified, those are limited to 
+\begin{itemize}
+\item
+"qm" - all quantum atoms
+\item
+"qmlink" - quantum and link atoms,
+\item
+"mm{\_}solute" - all classical atoms excluding link atoms
+\item
+"solvent" all solvent atoms
+\item
+"solute" - all solute atoms quantum or not,
+\item
+"mm" all classical solute and solvent atoms, excluding link atoms
+\item
+"all" all atoms 
+\end{itemize}
 Only the first region will be used in dynamics and frequency calculations. In the geometry optimizations, all three regions will
 be optimized in succession possibly with different optimization algorithms (see directives {\it method},  {\it maxiter},
 {\it ncycles} below).
@@ -361,15 +375,6 @@ by {\it regions} directive.
 
 \item
 \begin{verbatim}
-maxiter  [maxiter1] [maxiter2] [maxiter3]
-\end{verbatim}
-
-This directive controls maximum number of iterations for the optimizations of regions as defined by
-by {\it regions} directive. 
-
-
-\item
-\begin{verbatim}
 density  [espfit] [static] [dynamical] default dynamical
 \end{verbatim}
 
@@ -385,11 +390,34 @@ The "static" option will freeze the electron density when quantum and link atoms
 is treated the normal way throught the solution of Schrodinger equation. All calculations that involve any geometry
 changes in quantum or links atoms will automatically use this option.
 
+\item
 \begin{verbatim}
 ncycles  < [number] default 1 >
 \end{verbatim}
 
 This directive controls the number of optimization cycles where the defined regions will be optimized in succession.
+See also {\it etol}
+
+\item
+\begin{verbatim}
+load  < esp > [<filename>]
+\end{verbatim}
+
+This directive instructs to load external file (located in permanent directory) containing esp charges for QM region.
+If filename is not provided it will be constructed from the name of the restart file by replacing ".rst" 
+suffix with ".esp".
+Note that file containing esp charges is always generated whenever esp charge calculation is performed,
+
+\item
+\begin{verbatim}
+convergence  < double precision etol default 1.0d-4> 
+\end{verbatim}
+
+This directive controls convergence of geometry optimization. The optimization is deemed converged if absolute difference in 
+total energies between consequitive optimization cycles becomes less than 
+{\it etol} 
+
+
 
 \end{itemize}
 
