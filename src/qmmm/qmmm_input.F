@@ -27,6 +27,8 @@ c
 c
       pname = "qmmm_input: "
 c
+      write(luout,*) "in ",pname
+c
       call inp_set_field(0)
 c
 c     start parsing input
@@ -89,8 +91,8 @@ c     --------------
         goto 2
       endif
 c
-c     link atom basis set
-c     -------------------
+c     trajectory
+c     ----------
       if(inp_compare(.false.,'trajectory',token)) then
         if(.not.inp_a(token)) then
          call errquit('qmmm_input: trajectory filename',0,
@@ -304,13 +306,18 @@ c
      +    call errquit("please provide an option for load",
      +                0, INPUT_ERR)
         if(inp_compare(.false.,'bq',token)) then
-          if(.not.rtdb_put(rtdb,"qmmm:readbq",mt_log,1,.true.))
-     >     call errquit(pname//'failed to store '//tag,0,
-     >        RTDB_ERR)
+          tag = "qmmm:readbq"
+          if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
+     >     goto 999
         else if(inp_compare(.false.,'esp',token)) then
-          if(.not.rtdb_put(rtdb,"qmmm:readesp",mt_log,1,.true.))
-     >     call errquit(pname//'failed to store '//tag,0,
-     >        RTDB_ERR)
+          tag = "qmmm:readesp"
+          if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
+     >     goto 999
+          if(inp_a(token)) then
+            tag = "qmmm:espfilename"
+            if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >       goto 999
+          end if
         else
           call errquit('unknown option for load',0,INPUT_ERR)
         end if
@@ -358,6 +365,7 @@ c     -------------------
       end if
 c
       if (token.eq.'end') then
+        write(luout,*) "out of ",pname
         return
       endif
 c
@@ -366,4 +374,7 @@ c
        call errquit(pname//'failed ',0,
      >        RTDB_ERR)
       return
+999   call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+
       end
