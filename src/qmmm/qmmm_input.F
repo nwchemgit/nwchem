@@ -309,6 +309,11 @@ c
           tag = "qmmm:readbq"
           if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
      >     goto 999
+          if(inp_a(token)) then
+            tag = "qmmm:bqfilename"
+            if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >       goto 999
+          end if
         else if(inp_compare(.false.,'esp',token)) then
           tag = "qmmm:readesp"
           if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
