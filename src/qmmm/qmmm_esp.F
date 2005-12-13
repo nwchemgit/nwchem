@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.17 2005-12-09 23:02:48 marat Exp $
+c $Id: qmmm_esp.F,v 1.18 2005-12-13 22:57:03 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -158,7 +158,6 @@ c      end if
       espfile = prefix(1:i)//".esp"
       call util_file_name_resolve(espfile,.false.)
       if(ga_nodeid().eq.0) then
-c        call util_file_name('esp',.false.,.false.,espfile)
         open(unit=lespfile,file=espfile,
      >       form='formatted',status='unknown')
         do  i=1,nqm
@@ -778,7 +777,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.17 2005-12-09 23:02:48 marat Exp $
+* $Id: qmmm_esp.F,v 1.18 2005-12-13 22:57:03 marat Exp $
 *
       implicit none
 #include "errquit.fh"
