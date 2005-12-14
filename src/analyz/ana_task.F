@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.98 2005-11-22 23:23:47 d3j191 Exp $
+c $Id: ana_task.F,v 1.99 2005-12-14 00:44:22 d3j191 Exp $
 c
       implicit none
 c
@@ -64,6 +64,7 @@ c
       lfnord=95
       lfnsel=96
       lfndie=97
+      lfnamp=98
 c
       ltop=.false.
 c
@@ -1324,6 +1325,7 @@ c
       filecc=fil(1:index(fil,' ')-1)//'.ecce.out'
       filmin=fil(1:index(fil,' ')-1)//'_min.pdb'
       filmax=fil(1:index(fil,' ')-1)//'_max.pdb'
+      filamp=fil(1:index(fil,' ')-1)//'.amp'
       else
       filprj=fil
       fmt=filprj(i+1:i+3)
@@ -1332,6 +1334,7 @@ c
       filecc=fil(1:i-1)//'.ecce.out'
       filmin=fil(1:i-1)//'_min.pdb'
       filmax=fil(1:i-1)//'_max.pdb'
+      filamp=fil(1:i-1)//'.amp'
       endif
 c
       if(nsel.eq.0) call md_abort('No atoms selected',0)
@@ -1576,6 +1579,8 @@ c
      + form='formatted',status='unknown',err=9999)
       open(unit=lfnecc,file=filecc(1:index(filecc,' ')-1),
      + form='formatted',status='unknown',err=9999)
+      open(unit=lfnamp,file=filvec(1:index(filamp,' ')-1),
+     + form='formatted',status='unknown',err=9999)
       k=0
       l=0
       do 15 i=1,nsel
@@ -1589,6 +1594,7 @@ c
      + (10.0*xa(l,j),j=1,3),
      + (dbl_mb(i_cov+k-4+j),j=1,3)
  5555 format('draw vector2 {',3f12.6,'} {',3f12.6,'} 1.0 10')
+      write(lfnamp,'(i5,f12.6)') i,sqrt(value)
    15 continue
 c
       write(lfnecc,3013)
@@ -1642,6 +1648,7 @@ c
       close(unit=lfnecc)
       close(unit=lfnval)
       close(unit=lfnprj)
+      close(unit=lfnamp)
       write(*,'(/,a,i5,a,a)') ' Projection of vector ',ivec,
      +' written to ',fil(1:index(fil,' ')-1)
       close(unit=lfntrj)
