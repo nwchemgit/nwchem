@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint,isel)
 c
-c $Id: ana_pltgrd.F,v 1.20 2005-12-14 15:06:20 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.21 2005-12-14 15:46:15 d3j191 Exp $
 c
       implicit none
 c
@@ -28,6 +28,7 @@ c
       if(np.gt.1) then
       call ga_brdcst(mag_d01,nsa,ma_sizeof(mt_int,1,mt_byte),0)
       call ga_brdcst(mag_d01,nq,ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mag_d01,box,3*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
 c
 c     allocate memory for coordinates and charges
@@ -257,7 +258,8 @@ c      write(*,'(3e20.12)') xg,yg,zg
       g(ix,iy,iz)=g(ix,iy,iz)+138.9354d0*
      + q(i,lplt)/sqrt(dx**2+dy**2+dz**2)
       endif
-c      write(*,'(4i5,3e20.12)') ix,iy,iz,i,g(ix,iy,iz),q(i,lplt),
+c      write(*,'(5i5,3f12.6,3e20.12)') me,ix,iy,iz,i,
+c     + dx,dy,dz,g(ix,iy,iz),q(i,lplt),
 c     + sqrt((xg-x(i,1))**2+(yg-x(i,2))**2+(zg-x(i,3))**2)
     7 continue
     6 continue
