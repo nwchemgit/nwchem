@@ -224,12 +224,8 @@ c     ------------------
      >  write(6,22) "interface api",tag,qmmm_interface
 
       tag = "qmmm:bq_dynamical"
-      if (.not.rtdb_get(irtdb,tag,mt_log,1,bq_dynamical)) then
-        if (.not.rtdb_put(irtdb,tag,mt_log,1,bq_dynamical)) 
-     >      call errquit(pname//'failed to store'//tag,0,
-     >       RTDB_ERR)
-
-      end if
+      if (.not.rtdb_get(irtdb,tag,mt_log,1,bq_dynamical)) 
+     >  bq_dynamical = .false.
 
       if (master) 
      >  write(6,23) 

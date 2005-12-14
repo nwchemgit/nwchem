@@ -361,6 +361,8 @@ c
         end if
         if(inp_compare(.false.,'static',token)) then
           bq_dynamical=.false.
+        else if(inp_compare(.false.,'dynamical',token)) then
+          bq_dynamical=.true.
         else if(inp_compare(.false.,'dynamic',token)) then
           bq_dynamical=.true.
         else

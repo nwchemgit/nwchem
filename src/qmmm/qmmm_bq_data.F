@@ -156,16 +156,12 @@ c
 c     get active list of bqs
 c     ------------------------
       if(nbqs.ne.0) 
-c     >   call mm_get_solute_cons(nbqs,int_mb(i_ibq),
-c     >                       log_mb(i_abq))
      >   call qmmm_cons_get_actmaps(nbqs,int_mb(i_ibq),
      >                       log_mb(i_abq))
 
       if(nbqw.ne.0) 
      >  call  qmmm_cons_get_actmapw(nbqw,int_mb(i_ibq+nbqs),
      >                       log_mb(i_abq+nbqs))
-c     >  call mm_get_solvent_cons(nbqw,int_mb(i_ibq+nbqs),
-c     >                       log_mb(i_abq+nbqs))
 
       nbqa = 0 
       do i=1,nbq
