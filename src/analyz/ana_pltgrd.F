@@ -1,11 +1,12 @@
       subroutine ana_pltgrd(lprint,isel)
 c
-c $Id: ana_pltgrd.F,v 1.19 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.20 2005-12-14 15:06:20 d3j191 Exp $
 c
       implicit none
 c
 #include "ana_common.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
       logical lprint
       integer isel(nsa)
@@ -17,11 +18,17 @@ c
 c
 c     open the charge file
 c
+      if(me.eq.0) then
       open(unit=lfnchg,file=filchg(1:index(filchg,' ')-1),
      + form='formatted',status='old',err=9999)
 c
       read(lfnchg,1000) nsa,nq,box
  1000 format(i7,i3,3f12.6)
+      endif
+      if(np.gt.1) then
+      call ga_brdcst(mag_d01,nsa,ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mag_d01,nq,ma_sizeof(mt_int,1,mt_byte),0)
+      endif
 c
 c     allocate memory for coordinates and charges
 c
@@ -43,6 +50,7 @@ c
       ngz=ngrd(3)
       mgrd=ngx*ngy*ngz
 c
+      if(me.eq.0) then
       if(lprint) write(*,2000) ngrd,rcut,
      + filchg(1:index(filchg,' ')-1),
      + filplt(1:index(filplt,' ')-1)
@@ -51,6 +59,8 @@ c
      + f12.6,' nm',/,' Charges from ',a,' written to ',a)
       if(lprint.and.iesppb.gt.0) write(*,2001)
  2001 format(' Periodic boundary conditions')
+c
+      endif
 c
       if(.not.ma_push_get(mt_dbl,mgrd,'grid',l_grid,i_grid)) then
       call md_abort('Failed to allocate memory for grid',me)
