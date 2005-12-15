@@ -1,6 +1,6 @@
 cedo#define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.33 2005-12-08 01:50:12 edo Exp $
+c $Id: shell_fock_build.F,v 1.34 2005-12-15 23:27:25 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -314,6 +314,8 @@ c
       integer nproc,bledo,bledoij,bledoijk
       logical firstij,firstkl,firstik,firstjl,firstil,firstjk
       integer handij,handkl,handik,handjl,handil,handjk
+      logical dorepl
+      integer g_densrep,g_dens0,g_fockrep,g_fock0
 c     
       firstij=.true.
       firstkl=.true.
@@ -328,6 +330,20 @@ c
       task_size = nshblocks*(nshblocks+1)/2
       task_size = task_size*(task_size+1)/2
       task_size = max(1,task_size/(20*nproc))
+c
+c     replicated DM and Fock Matrix
+c
+      dorepl = ga_cluster_nnodes().gt.1
+      if(dorepl) then
+         call util_mirrmat(1,g_dens,g_densrep)
+         g_dens0=g_dens
+         g_dens=g_densrep
+#if 0
+         call util_mirrmat(1,g_fock,g_fockrep)
+         g_fock0=g_fock
+         g_fock=g_fockrep
+#endif
+      endif
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
 c     Parallel loop over quartets of reordered shell blocks
@@ -566,6 +582,15 @@ c
 c
       next = nxtask(-nproc,task_size)
       call ga_sync()
+      if(dorepl) then
+         call util_mirrstop(1,g_densrep)
+         g_dens=g_dens0
+#if 0
+         call util_mirrmerge(g_fockrep,g_fock0)
+         call util_mirrstop(1,g_fockrep)
+         g_fock=g_fock0
+#endif
+      endif
 c     
 *      write(6,*) ' numq ', numq
 c     
