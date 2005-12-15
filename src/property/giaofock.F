@@ -1,6 +1,7 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
       subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
+c $Id: giaofock.F,v 1.6 2005-12-15 21:22:16 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -150,8 +151,10 @@ c
       logical ijfirst,jifirst,ikfirst,jlfirst,ilfirst,jkfirst
       integer ijhand,jihand,ikhand,jlhand,ilhand,jkhand
       integer dklhand,dikhand,djlhand,dilhand,djkhand
+      integer g_densrep,g_dens0,g_fockrep,g_fock0
 c
       integer nproc
+      logical dorepl
 c     
 c     smax  = schwarz_max()
 c     call int_acc_std()
@@ -166,6 +169,19 @@ c
       jlfirst=.true.
       ilfirst=.true.
       jkfirst=.true.
+c
+c     mirrored DM and Fock Mat
+c
+      dorepl = ga_cluster_nnodes().gt.1
+      if(dorepl) then
+         call util_mirrmat(1,g_dens,g_densrep)
+         g_dens0=g_dens
+         g_dens=g_densrep
+         call util_mirrmat(1,g_fock,g_fockrep)
+         g_fock0=g_fock
+         g_fock=g_fockrep
+      endif
+
 c     
 c     Parallel loop over shells
 c     
@@ -265,6 +281,13 @@ c     call int_acc_std()
 c
       next = nxtask(-nproc,task_size)
       call ga_sync()
+      if(dorepl) then
+         call util_mirrstop(1,g_densrep)
+         g_dens=g_dens0
+         call util_mirrmerge(g_fockrep,g_fock0)
+         call util_mirrstop(1,g_fockrep)
+         g_fock=g_fock0
+      endif
 c     
       return
       end
@@ -336,9 +359,12 @@ c
      $     f_ij(blen,blen,3), f_ji(blen,blen,3), 
      $     f_ik(blen,blen,3), f_jl(blen,blen,3), 
      $     f_il(blen,blen,3), f_jk(blen,blen,3)
-      double precision fac
-      integer idim, jdim, kdim, ldim
-      logical ieqj, keql
+      double precision fac,er2fac,errsum,errdif,
+     V     erif,erif3,facij
+      integer idim, jdim, kdim, ldim,integ0
+      logical ieqj, keql,doik,dojk
+      double precision eps
+      parameter(eps=1d-16)
 c
       integer integ, i, j, k, l, v,m
 c
@@ -346,25 +372,33 @@ c
          integ = 0
          do i = 1, idim
             do j = 1, jdim
+               facij = 1.0d0
+               if (ieqj.and.i.ge.j) facij = 0.5d0
                do k = 1, kdim
+                  dojk=abs(d_jk(j,k)).gt.eps
+                  doik=abs(d_ik(i,k)).gt.eps
                   do l= 1, ldim
                      integ = integ + 1
 c
 c  Needs the following if statements, otherwise integrals are included double
 c
-                     fac = 1.0d0
-                     if (ieqj.and.i.ge.j) fac = fac/2.0d0
-                     if (keql.and.k.ge.l) fac = fac/2.0d0
-            f_ij(i,j,v) = f_ij(i,j,v) + d_kl(k,l)*eri(integ,v)*2.0d0*fac
-            f_ji(j,i,v) = f_ji(j,i,v) - d_kl(k,l)*eri(integ,v)*2.0d0*fac
-            f_ik(i,k,v) = f_ik(i,k,v) - d_jl(j,l)*
-     &                    (eri(integ,v)-eri(integ,v+3))*0.5d0*fac*kfac
-            f_il(i,l,v) = f_il(i,l,v) - d_jk(j,k)*
-     &                    (eri(integ,v)+eri(integ,v+3))*0.5d0*fac*kfac
-            f_jk(j,k,v) = f_jk(j,k,v) - d_il(i,l)*
-     &                    (-eri(integ,v)-eri(integ,v+3))*0.5d0*fac*kfac
-            f_jl(j,l,v) = f_jl(j,l,v) - d_ik(i,k)*
-     &                    (-eri(integ,v)+eri(integ,v+3))*0.5d0*fac*kfac
+                     fac=facij
+                     if (keql.and.k.ge.l) fac = facij/2.0d0
+                     erif=eri(integ,v)*fac
+                     if(abs(d_kl(k,l)).gt.eps) then
+                        er2fac=erif*2.0d0*d_kl(k,l)
+                        f_ij(i,j,v) = f_ij(i,j,v) + er2fac
+                        f_ji(j,i,v) = f_ji(j,i,v) - er2fac
+                     endif
+                     erif3=eri(integ,v+3)*fac
+                     errsum=(erif+erif3)*0.5d0*kfac
+                     errdif=(erif-erif3)*0.5d0*kfac
+                     f_ik(i,k,v) = f_ik(i,k,v) - d_jl(j,l)*errdif
+                     f_jk(j,k,v) = f_jk(j,k,v) + d_il(i,l)*errsum
+                     if (dojk)
+     F                    f_il(i,l,v) = f_il(i,l,v) - d_jk(j,k)*errsum
+                     if (doik)
+     F                    f_jl(j,l,v) = f_jl(j,l,v) + d_ik(i,k)*errdif
                   end do
                end do
             end do
