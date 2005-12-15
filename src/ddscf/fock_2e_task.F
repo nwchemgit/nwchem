@@ -16,7 +16,7 @@
 #include "cscfps.fh"
 #include "sym.fh"
 c
-c     $Id: fock_2e_task.F,v 1.33 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id: fock_2e_task.F,v 1.34 2005-12-15 21:39:16 edo Exp $
 c
 c     Given an block of atomic quartets, fetch the necessary blocks
 c     of the density matrices, call fock_2e_b to add in
@@ -204,7 +204,7 @@ c     These for sorting shells within each atom pair block
 c
       integer max_pair_t, max_sh, max_at
       parameter (max_at = 10)
-      parameter (max_pair_t = 10000, max_sh = 64) ! Should dynamically alloc
+      parameter (max_pair_t = 100000, max_sh = 64) ! Should dynamically alloc
       double precision skl(max_sh*max_sh) ! Should be just max shell block
       double precision sij(max_sh*max_sh) ! Should be just max shell block
       integer ijlist(2,max_sh*max_sh), ij

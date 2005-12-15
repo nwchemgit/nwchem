@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.43 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id: ao_replicated.F,v 1.44 2005-12-15 21:39:16 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -39,7 +39,7 @@ c
       integer l_fock, k_fock, l_dens, k_dens, l_rdens, k_rdens
       integer l_q4, k_q4, k_ijkl, l_ijkl
       integer tdim
-      parameter (tdim = 10000)  ! Max no. of distinct pair types
+      parameter (tdim = 100000)  ! Max no. of distinct pair types
       integer l_plist, k_plist, l_ps, k_ps, l_pinfo, k_pinfo
       logical status
       logical int2e_test_mem, int2e_buf_write, int2e_file_rewind
