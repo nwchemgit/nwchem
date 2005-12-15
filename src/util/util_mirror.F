@@ -1,5 +1,5 @@
       subroutine util_mirrmat(nmat,g_a,g_amirr)
-c $Id: util_mirror.F,v 1.1 2005-12-15 20:15:17 edo Exp $
+c $Id: util_mirror.F,v 1.2 2005-12-15 20:23:07 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -31,9 +31,11 @@ c
       enddo
       plist=ga_pgroup_get_mirror()
       call nga_inquire(g_a, type, ndim, dims)
+#ifdef DEBUG
       write(0,123) ga_nodeid(), ' ndim ',ndim,' dims ',
      D     dims(1),dims(2),dims(3)
  123  format(I2,A,I2,A,3I4)
+#endif
       if(ndim.gt.maxdim) call errquit(
      Q     ' mirrclone: increase maxdim  to ',ndim,0)
       if(.not.nga_create_config(MT_DBL, ndim, dims,
