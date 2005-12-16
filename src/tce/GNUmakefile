@@ -1,12 +1,13 @@
-#$Id: GNUmakefile,v 1.26 2004-05-13 20:57:29 edo Exp $
+#$Id: GNUmakefile,v 1.27 2005-12-16 22:18:06 kowalski Exp $
 #
 # CCSDTQ, CCSDTQ_LAMBDA, EOM-CCSDTQ will not be compiled by default.
 # To include these, setenv CCSDTQ yes; make realclean; make.
 
-SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
-          cisd cisdt cisdtq mbpt1 mbpt2 mbpt3 mbpt4 \
-          ccsd_lambda ccsdt_lambda ccsdtq_lambda \
-          eomccsd eomccsdt eomccsdtq
+ SUBDIRS = include ccd ccsd lccd lccsd qcisd ccsdt ccsdtq \
+           cisd cisdt cisdtq mbpt1 mbpt2 mbpt3 mbpt4 \
+           ccsd_lambda ccsdt_lambda ccsdtq_lambda \
+           eomccsd eomccsdt eomccsdtq ccsd_t cr-eomccsd_t \
+           
 
 OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_filename.o createfile.o deletefile.o reconcilefile.o dratoga.o gatodra.o gatoeaf.o \
@@ -26,7 +27,10 @@ OBJ_OPTIMIZE = tce_input.o tce_init.o tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.
       tce_y1_offset.o tce_y2_offset.o tce_y3_offset.o tce_y4_offset.o \
       tce_jacobi_x1.o tce_jacobi_x2.o tce_jacobi_x3.o tce_jacobi_x4.o \
       tce_jacobi_y1.o tce_jacobi_y2.o tce_jacobi_y3.o tce_jacobi_y4.o \
-      parT_t3_fuse.o tce_mbpt2.o tce_energy.o tce_energy_fragment.o
+      tce_mbpt2.o tce_energy.o tce_energy_fragment.o tce_sort.o tce_sortacc.o tce_restricted.o \
+      tce_hash.o get_hash_block.o put_hash_block.o add_hash_block.o \
+      tce_residual_t3a.o tce_t3a_offset.o tce_jacobi_t3a.o \
+      tce_x3a_offset.o tce_jacobi_x3a.o 
 
 LIB_INCLUDES = -I./include
 
