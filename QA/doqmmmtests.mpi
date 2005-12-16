@@ -1,10 +1,12 @@
 #!/bin/csh -f
 #
-# $Id: doqmmmtests.mpi,v 1.1 2005-12-06 22:57:24 marat Exp $
+# $Id: doqmmmtests.mpi,v 1.2 2005-12-16 02:42:22 marat Exp $
 #
 #---   small tests
 ./runtests.mpi.unix procs $1 qmmm_grad0
 ./runtests.mpi.unix procs $1 lys_qmmm
 ./runtests.mpi.unix procs $1 ethane_qmmm
 ./runtests.mpi.unix procs $1 qmmm_opt0
+echo "qmmm frequency  test  may  fail"
+./runtests.mpi.unix procs $1 qmmm_freq
 
