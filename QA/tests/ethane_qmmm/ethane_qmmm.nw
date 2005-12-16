@@ -54,7 +54,7 @@ end
 
 qmmm
  eatoms -68.8154
- bq_exclude none
+ mm_charges exclude none
  link_atoms halogen
  region all
  method lbfgs

@@ -36,7 +36,14 @@ end
 
 qmmm
  eatoms -114.77
- bq_exclude none
+ mm_charges exclude all
+end
+
+task qmmm dft gradient
+
+qmmm
+ eatoms -114.77
+ mm_charges expand all
 end
 
 task qmmm dft gradient
