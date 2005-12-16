@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.30 2003-12-10 23:07:32 sohirata Exp $
+c $Id: tce_init.F,v 1.31 2005-12-16 22:16:05 kowalski Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -36,7 +36,7 @@ c
       integer nclosed, nopen
       double precision a
       character*60 ctype
-      character*20 cperturbative
+      character*60 cperturbative
       integer itol2e
       logical nodezero
       logical dummy
@@ -175,7 +175,6 @@ c
          call errquit('tce_init: failed to get number of cores',0,
      1   GEOM_ERR)
       endif
-
       if (ipol.eq.2) nfc(2) = nfc(1)
       if (.not.rtdb_get(rtdb,'tce:frozen virtual',
      1  mt_int,1,nfv(1))) nfv(1) = 0
@@ -264,6 +263,8 @@ c     --------------------------
 c     Determine calculation type
 c     --------------------------
 c
+      activecalc = .false.
+c
       if (reference.eq.0) then
         a=0.0d0
         do n=2,numfunc
@@ -275,8 +276,9 @@ c
         if ((a.gt.1.0d-8).or.(dabs(xfac(1)-1.0d0)).gt.1.0d-8)
      1    write(LuOut,9500)
       endif
-      if ((perturbative.ne.'none').and.(model.ne.'ccsd'))
-     1  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
+      if ((perturbative.ne.'none').and.
+     1    (model.ne.'ccsd').and.(model.ne.'ccsdt'))
+     2  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       cperturbative = 'none'
       if (model.eq.'ccd') then
         ctype='Coupled-cluster doubles'
@@ -301,14 +303,44 @@ c
         else if (perturbative.eq.'[t]') then
           ctype='Coupled-cluster singles & doubles w/ perturbation'
           cperturbative = '[T] or +T(CCSD)'
+        else if (perturbative.eq.'cr_(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'Completely renormalized (T)'
+        else if (perturbative.eq.'lr_(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'locally renormalized (T)'
+        else if (perturbative.eq.'lr_(tq1)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'locally renormalized (TQ)-1'
+        else if (perturbative.eq.'lr_(tq1p)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'locally renormalized (TQ)'
+        else if (perturbative.eq.'cr_[t]') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'Completely renormalized [T]'
+        else if (perturbative.eq.'2_t') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '(2) triples only'
+        else if (perturbative.eq.'2_tq') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = '(2) triples & quadruples (nonfactorized)'
+        else if (perturbative.eq.'creom_(t)') then
+          ctype='Coupled-cluster singles & doubles w/ perturbation'
+          cperturbative = 'completely renormalized EOMCCSD(T)'
         endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccsd').and.
      3      (module.ne.'uccsd(t)').and.
-     4      (module.ne.'uccsd[t]'))
-     5    call errquit('tce_init: ucc/uccsd module overridden',0,
-     4    UNKNOWN_ERR)
+     4      (module.ne.'uccsd[t]').and.
+     6      (module.ne.'cr-ccsd(t)').and.
+     6      (module.ne.'lr-ccsd(t)').and.
+     6      (module.ne.'lrsd(tq1p)').and.
+     6      (module.ne.'lrsd(tq)-1').and.
+     6      (module.ne.'creom_(t)').and.
+     7      (module.ne.'cr-ccsd[t]'))
+     8    call errquit('tce_init: ucc/uccsd module overridden',0,
+     9    UNKNOWN_ERR)
       else if (model.eq.'lccsd') then
         ctype='Linearized coupled-cluster singles & doubles'
         if ((module.ne.'tce').and.
@@ -316,8 +348,24 @@ c
      2      (module.ne.'ulccsd'))
      3    call errquit('tce_init: ucc/ulccsd module overridden',0,
      4    UNKNOWN_ERR)
+      else if (model.eq.'ccsdta') then
+        activecalc = .true.
+        ctype='Coupled-cluster singles, doubles, & active triples'
+        if (perturbative.eq.'2_q') then
+          ctype='Coupled-cluster through triples w/ perturbation'
+          cperturbative = '(2) quadruples (nonfactorized)'
+        endif
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdt'))
+     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
+     4    UNKNOWN_ERR)
       else if (model.eq.'ccsdt') then
         ctype='Coupled-cluster singles, doubles, & triples'
+        if (perturbative.eq.'2_q') then
+          ctype='Coupled-cluster through triples w/ perturbation'
+          cperturbative = '(2) quadruples (nonfactorized)'
+        endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccsdt'))
@@ -468,6 +516,47 @@ c
         enddo
       endif
 c
+c     ---------------
+c     Active orbitals
+c     ---------------
+c
+      if(activecalc) THEN
+      if (.not.rtdb_get(rtdb,'tce:active_oa',mt_int,1,oactive(1)))
+     1  call errquit('tce_init: failed to read oactive',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'tce:active_ob',mt_int,1,oactive(2)))
+     1  call errquit('tce_init: failed to read oactive',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'tce:active_va',mt_int,1,vactive(1)))
+     1  call errquit('tce_init: failed to read oactive',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'tce:active_vb',mt_int,1,vactive(2)))
+     1  call errquit('tce_init: failed to read oactive',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'tce:act_excit_lvl',mt_int,1,numact))
+     1  call errquit('tce_init: failed to read numact',0,RTDB_ERR)
+      if (restricted) then
+        oactive(2) = oactive(1)
+        vactive(2) = vactive(1)
+      endif
+      do i = 1, ipol
+        if (oactive(i).gt.nocc(i)-nfc(i)) call errquit
+     1  ('tce_init: reduce the active space',0,RTDB_ERR)
+        if (vactive(i).gt.nmo(i)-nocc(i)-nfv(i)) call errquit
+     1  ('tce_init: reduce the active space',0,RTDB_ERR)
+      enddo
+        if (numact.le.0.or.numact.gt.3) call errquit
+     1  ('tce_init: change active excit. level: t3a_lvl',0,RTDB_ERR)
+      do i = 1, ipol
+        if (oactive(i).le.0) call errquit
+     1  ('tce_init: incorrect size of active space',0,RTDB_ERR)
+        if (vactive(i).le.0) call errquit
+     1  ('tce_init: incorrect size of active space',0,RTDB_ERR)
+      enddo
+      end if
+      if(.not.activecalc) THEN
+       oactive(1) = 0
+       oactive(2) = 0
+       vactive(1) = 0
+       vactive(2) = 0 
+      end if
+c
 c     ----------------------
 c     Initialize integrators
 c     ----------------------
@@ -569,6 +658,11 @@ c
         else if (ipol.eq.2) then
           write(LuOut,9440) nfv(1),nfv(2)
         endif
+        if(activecalc) then
+         write(LuOut,9540) oactive(1),oactive(2)
+         write(LuOut,9550) vactive(1),vactive(2)
+         write(LuOut,9555) numact
+        end if
         write(LuOut,9420) multchar(mult)
         write(LuOut,9050) nbf
         write(LuOut,9060) nshells
@@ -673,6 +767,11 @@ c
      1  '!! WARNING !! The number of MO is less than the number of AO')
  9500 format(/,2x,
      1  '!! WARNING !! A non-HF reference wave function')
+ 9540 format(3x,' Alpha active occupieds :',2x,i4,/,
+     1       3x,'  Beta active occupieds :',2x,i4)
+ 9550 format(3x,'  Alpha active virtuals :',2x,i4,/,
+     1       3x,'   Beta active virtuals :',2x,i4)
+ 9555 format(3x,'  T3 active excitation level :',2x,i4)
 c
 c     ------
 c     Return

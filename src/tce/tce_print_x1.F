@@ -1,6 +1,6 @@
       subroutine tce_print_x1(d_r1,k_r1_offset,r1_thresh)
 c
-c $Id: tce_print_x1.F,v 1.1 2003-10-19 00:52:09 sohirata Exp $
+c $Id: tce_print_x1.F,v 1.2 2005-12-16 22:16:05 kowalski Exp $
 c
 c Prints the X1 tensor
 c
@@ -39,8 +39,8 @@ c
             size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
             if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
      1        call errquit('tce_print_x1: MA problem',0,MA_ERR)
-            call get_block(d_r1,dbl_mb(k_r1),size,
-     1        int_mb(k_r1_offset+(p1b-noab-1)*noab+h2b-1))
+            call get_hash_block(d_r1,dbl_mb(k_r1),size,
+     1        int_mb(k_r1_offset),((p1b-noab-1)*noab+h2b-1))
             i = 0
             do p1 = 1,int_mb(k_range+p1b-1)
               do h2 = 1,int_mb(k_range+h2b-1)

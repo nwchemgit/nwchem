@@ -3,7 +3,7 @@
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3  d_r1,d_r2,d_r3,d_r4,omega,residual)
 c
-c $Id: tce_eom_xdiagon.F,v 1.2 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_xdiagon.F,v 1.3 2005-12-16 22:16:04 kowalski Exp $
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -58,6 +58,7 @@ c
       nodezero = (ga_nodeid().eq.0)
 c
 c     Allocate
+c
 c
       if (.not.ma_push_get(mt_dbl,nxtrials*nxtrials,'hbar',
      1  l_hbar,k_hbar)) call errquit('tce_eom_xdiagon: MA problem',0,
@@ -290,7 +291,13 @@ c
      2      UNKNOWN_ERR)
           if (needx1) call tce_jacobi_x1(d_r1,k_x1_offset)
           if (needx2) call tce_jacobi_x2(d_r2,k_x2_offset)
-          if (needx3) call tce_jacobi_x3(d_r3,k_x3_offset)
+          if (needx3) then
+           if(activecalc) then 
+            call tce_jacobi_x3a(d_r3,k_x3_offset)
+           else 
+            call tce_jacobi_x3(d_r3,k_x3_offset)
+           end if
+          end if
           if (needx4) call tce_jacobi_x4(d_r4,k_x4_offset)
           if (needx1) call dscalfile(1.0d0/residual(ivec),d_r1,size_x1)
           if (needx2) call dscalfile(1.0d0/residual(ivec),d_r2,size_x2)

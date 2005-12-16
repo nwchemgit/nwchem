@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.9 2004-05-06 08:08:42 edo Exp $
+c $Id: tce_residual_t1.F,v 1.10 2005-12-16 22:16:05 kowalski Exp $
 c
       implicit none
 #include "global.fh"
@@ -53,8 +53,8 @@ c
               size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
               if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
      1          call errquit('tce_residual_t1: MA problem',0,MA_ERR)
-              call get_block(d_r1,dbl_mb(k_r1),size,
-     1          int_mb(k_r1_offset+(p1b-noab-1)*noab+h2b-1))
+              call get_hash_block(d_r1,dbl_mb(k_r1),size,
+     1          int_mb(k_r1_offset),((p1b-noab-1)*noab+h2b-1))
               if (nodezero.and.util_print('residual',
      1          print_debug)) call ma_print_compact
      2          (dbl_mb(k_r1),size,1,'t1 residual')

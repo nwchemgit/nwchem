@@ -1,6 +1,6 @@
       subroutine tce_residual_t4(d_r4,k_r4_offset,residual)
 c
-c $Id: tce_residual_t4.F,v 1.5 2003-10-19 00:52:09 sohirata Exp $
+c $Id: tce_residual_t4.F,v 1.6 2005-12-16 22:16:05 kowalski Exp $
 c
       implicit none
 #include "global.fh"
@@ -129,8 +129,8 @@ c
      1                    l_r4,k_r4))
      2                    call errquit('tce_residual_t4: MA problem',0,
      3                    MA_ERR)
-                        call get_block(d_r4,dbl_mb(k_r4),size,
-     1                    int_mb(k_r4_offset+(((((((p1b-noab-1)*nvab
+                        call get_hash_block(d_r4,dbl_mb(k_r4),size,
+     1                    int_mb(k_r4_offset),((((((((p1b-noab-1)*nvab
      2                    +p2b-noab-1)*nvab+p3b-noab-1)*nvab
      3                    +p4b-noab-1)*noab+h5b-1)*noab
      4                    +h6b-1)*noab+h7b-1)*noab+h8b-1))

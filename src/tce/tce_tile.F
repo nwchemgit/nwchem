@@ -1,6 +1,6 @@
       subroutine tce_tile(rtdb)
 c
-c $Id: tce_tile.F,v 1.15 2003-10-19 00:52:10 sohirata Exp $
+c $Id: tce_tile.F,v 1.16 2005-12-16 22:16:05 kowalski Exp $
 c
 c     Reorder and tile orbitals.  Minimal tiling scheme is
 c     hole(alpha), hole(beta), particle(alpha), particle(beta)
@@ -27,11 +27,17 @@ c
       double precision size
       integer sym
       integer any, hole, particle
-      integer i,j,k,nblocks
+      integer i,j,k,l,nblocks
       logical nodezero
       integer spin_tmp(max_size)
       integer sym_tmp(max_size)
       integer range_tmp(max_size)
+      integer active_tiles(max_size)
+c CCSDtq...
+      integer j_a,j_ia
+      integer l_a,l_ia
+      integer nblocks_a,nblocks_ia 
+c CCSDtq...
       character*4 irrepname
       character*5 spinname(2)
       data spinname/'alpha','beta '/
@@ -108,6 +114,11 @@ c
         size = dfloat(available)
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))
+        isize = min(isize,int(size))
+      else if (model.eq."ccsdta") then
+        size = dfloat(available)
+        size = size / 6.0d0
+        size = size ** (1.0d0/6.0d0)
         isize = min(isize,int(size))
       else if (model.eq."ccsdt") then
         size = dfloat(available)
@@ -204,11 +215,12 @@ c
       i = 0
       noa = 0
       do sym = 0, nirreps
-        j = 0
-        do hole = nfc(1)+1, nocc(1)
+        j_ia = 0           !occ. inactive index
+        j_a  = 0           !occ.   active index
+        do hole = nfc(1)+1, nocc(1)-oactive(1)
           if (int_mb(k_irs(1)+hole-1).eq.sym) then          
              i = i + 1
-             j = j + 1
+             j_ia = j_ia + 1
              int_mb(k_irs_sorted+i-1)=sym
              int_mb(k_spin_sorted+i-1)=1
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+hole-1)
@@ -216,30 +228,56 @@ c
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
           endif
         enddo
+        do hole =nocc(1)-oactive(1)+1,nocc(1)
+          if (int_mb(k_irs(1)+hole-1).eq.sym) then
+             i = i + 1
+             j_a = j_a + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=1
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+hole-1)
+             call ga_get(g_movecs(1),1,nbf,hole,hole,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+          endif
+        enddo
+        j=j_ia+j_a
         if (j.gt.0) then
-           nblocks = j/isize + 1
-           do k = 1,nblocks
+           nblocks_ia = j_ia/isize
+           nblocks_a  =  j_a/isize
+c           nblocks = nblocks_ia+nblocks_a
+           if (j_ia .gt. isize*nblocks_ia) nblocks_ia = nblocks_ia+1
+           if (j_a  .gt. isize*nblocks_a)  nblocks_a  = nblocks_a+1
+           l_ia = 0
+           do k = 1,nblocks_ia
              noa = noa + 1
+             active_tiles(noa) = 0
              spin_tmp(noa) = 1
              sym_tmp(noa) = sym
-             if (k.eq.nblocks) then
-               range_tmp(noa) = j-(j/nblocks)*(nblocks-1)
-             else
-               range_tmp(noa) = j/nblocks
-             endif
+             range_tmp(noa) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa)
+           enddo
+           l_a = 0
+           do k = 1,nblocks_a
+             noa = noa + 1
+             active_tiles(noa) = 1
+             spin_tmp(noa) = 1
+             sym_tmp(noa) = sym
+             range_tmp(noa) = k*j_a/nblocks_a-l_a
+             l_a = l_a + range_tmp(noa)
            enddo
         endif
       enddo
+      oatiles(1)=nblocks_a
 c
 c     Hole Beta
 c
       nob = 0
       do sym = 0, nirreps
-        j = 0
-        do hole = nfc(ipol)+1, nocc(ipol)
+        j_ia = 0
+        j_a  = 0
+        do hole = nfc(ipol)+1, nocc(ipol)-oactive(ipol)
           if (int_mb(k_irs(ipol)+hole-1).eq.sym) then          
              i = i + 1
-             j = j + 1
+             j_ia = j_ia + 1
              int_mb(k_irs_sorted+i-1)=sym
              int_mb(k_spin_sorted+i-1)=2
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+hole-1)
@@ -247,30 +285,60 @@ c
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
           endif
         enddo
+        do hole=nocc(ipol)-oactive(ipol)+1,nocc(ipol)
+          if (int_mb(k_irs(ipol)+hole-1).eq.sym) then
+             i = i + 1
+             j_a = j_a + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=2
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+hole-1)
+             call ga_get(g_movecs(ipol),1,nbf,hole,hole,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+          endif
+        enddo
+        j=j_ia+j_a
         if (j.gt.0) then
-           nblocks = j/isize + 1
-           do k = 1,nblocks
+           nblocks_ia = j_ia/isize
+           nblocks_a  =  j_a/isize
+c           nblocks = nblocks_ia+nblocks_a
+           if (j_ia .gt. isize*nblocks_ia) nblocks_ia = nblocks_ia+1
+           if (j_a  .gt. isize*nblocks_a)  nblocks_a  = nblocks_a+1
+           l_ia = 0
+           do k = 1,nblocks_ia
              nob = nob + 1
+             active_tiles(noa+nob) = 0
              spin_tmp(noa+nob) = 2
              sym_tmp(noa+nob) = sym
-             if (k.eq.nblocks) then
-               range_tmp(noa+nob) = j-(j/nblocks)*(nblocks-1)
-             else
-               range_tmp(noa+nob) = j/nblocks
-             endif
+             range_tmp(noa+nob) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa+nob)
+           enddo
+           l_a=0
+           do k = 1,nblocks_a
+             nob = nob + 1
+             active_tiles(noa+nob) = 1
+             spin_tmp(noa+nob) = 2
+             sym_tmp(noa+nob) = sym
+             range_tmp(noa+nob) = k*j_a/nblocks_a-l_a
+             l_a = l_a + range_tmp(noa+nob)
+c *** debug ***
+           write(6,*)'range active',k,nblocks_a,range_tmp(noa+nob)
+           call util_flush(LuOut)  
+c *************
            enddo
         endif
       enddo
+      oatiles(ipol)=nblocks_a
 c
 c     Particle Alpha
 c
       nva = 0
       do sym = 0, nirreps
-        j = 0
-        do particle = nocc(1)+1, nmo(1)-nfv(1)
+        j_ia = 0
+        j_a  = 0
+        do particle = nocc(1)+1, nocc(1)+vactive(1)
           if (int_mb(k_irs(1)+particle-1).eq.sym) then          
              i = i + 1
-             j = j + 1
+             j_a = j_a + 1
              int_mb(k_irs_sorted+i-1)=sym
              int_mb(k_spin_sorted+i-1)=1
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+particle-1)
@@ -278,30 +346,57 @@ c
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
           endif
         enddo
+        do particle = nocc(1)+vactive(1)+1, nmo(1)-nfv(1)
+          if (int_mb(k_irs(1)+particle-1).eq.sym) then
+             i = i + 1
+             j_ia = j_ia + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=1
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+particle-1)
+             call ga_get(g_movecs(1),1,nbf,particle,particle,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+          endif
+        enddo
+        j=j_a+j_ia
         if (j.gt.0) then
-           nblocks = j/isize + 1
-           do k = 1,nblocks
+           nblocks_a   = j_a/isize
+           nblocks_ia  =  j_ia/isize
+c           nblocks = nblocks_a+nblocks_ia
+           if (j_a .gt. isize*nblocks_a) nblocks_a = nblocks_a+1
+           if (j_ia  .gt. isize*nblocks_ia)  nblocks_ia  = nblocks_ia+1
+           nblocks = nblocks_a+nblocks_ia
+           l_a = 0
+           do k = 1,nblocks_a
              nva = nva + 1
+             active_tiles(noa+nob+nva) = 1
              spin_tmp(noa+nob+nva) = 1
              sym_tmp(noa+nob+nva) = sym
-             if (k.eq.nblocks) then
-               range_tmp(noa+nob+nva) = j-(j/nblocks)*(nblocks-1)
-             else
-               range_tmp(noa+nob+nva) = j/nblocks
-             endif
+             range_tmp(noa+nob+nva) = k*j_a/nblocks_a-l_a
+             l_a = l_a + range_tmp(noa+nob+nva)
+           enddo
+           l_ia = 0
+           do k = 1,nblocks_ia
+             nva = nva + 1
+             active_tiles(noa+nob+nva) = 0 
+             spin_tmp(noa+nob+nva) = 1
+             sym_tmp(noa+nob+nva) = sym
+             range_tmp(noa+nob+nva) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa+nob+nva)
            enddo
         endif
       enddo
+      vatiles(1)=nblocks_a
 c
 c     Particle Beta
 c
       nvb = 0
       do sym = 0, nirreps
-        j = 0
-        do particle = nocc(ipol)+1, nmo(ipol)-nfv(ipol)
+        j_ia = 0
+        j_a  = 0
+        do particle = nocc(ipol)+1, nocc(ipol)+vactive(ipol)
           if (int_mb(k_irs(ipol)+particle-1).eq.sym) then          
              i = i + 1
-             j = j + 1
+             j_a = j_a + 1
              int_mb(k_irs_sorted+i-1)=sym
              int_mb(k_spin_sorted+i-1)=2
              dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+particle-1)
@@ -309,25 +404,70 @@ c
      1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
           endif
         enddo
+        do particle = nocc(ipol)+vactive(ipol)+1, nmo(ipol)-nfv(ipol)
+          if (int_mb(k_irs(ipol)+particle-1).eq.sym) then
+             i = i + 1
+             j_ia = j_ia + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=2
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+particle-1)
+             call ga_get(g_movecs(ipol),1,nbf,particle,particle,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+          endif
+        enddo
+        j=j_a+j_ia
         if (j.gt.0) then
-           nblocks = j/isize + 1
-           do k = 1,nblocks
+           nblocks_a   = j_a/isize
+           nblocks_ia  =  j_ia/isize
+c           nblocks = nblocks_a+nblocks_ia  
+           if (j_a .gt. isize*nblocks_a) nblocks_a = nblocks_a+1
+           if (j_ia  .gt. isize*nblocks_ia)  nblocks_ia  = nblocks_ia+1
+           nblocks = nblocks_a+nblocks_ia 
+           l_a = 0
+           do k = 1,nblocks_a
              nvb = nvb + 1
+             active_tiles(noa+nob+nva+nvb) = 1
              spin_tmp(noa+nob+nva+nvb) = 2
              sym_tmp(noa+nob+nva+nvb) = sym
-             if (k.eq.nblocks) then
-               range_tmp(noa+nob+nva+nvb) = j-(j/nblocks)*(nblocks-1)
-             else
-               range_tmp(noa+nob+nva+nvb) = j/nblocks
-             endif
+             range_tmp(noa+nob+nva+nvb) = k*j_a/nblocks_a-l_a
+             l_a = l_a + range_tmp(noa+nob+nva+nvb)
+           enddo
+           l_ia = 0
+           do k = 1,nblocks_ia
+             nvb = nvb + 1
+             active_tiles(noa+nob+nva+nvb) = 0
+             spin_tmp(noa+nob+nva+nvb) = 2
+             sym_tmp(noa+nob+nva+nvb) = sym
+             range_tmp(noa+nob+nva+nvb) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa+nob+nva+nvb)
            enddo
         endif
       enddo
+      vatiles(ipol)=nblocks_a
 c
 c     Holes and particles
 c
       noab = noa + nob
       nvab = nva + nvb
+c *** debug ***
+c      write(6,*)'testkk'
+c      write(6,*)'oactive(1)=',oactive(1)
+c      write(6,*)'oactive(2)=',oactive(2)
+c      write(6,*)'vactive(1)=',vactive(1)
+c      write(6,*)'vactive(2)=',vactive(2)
+c      write(6,*)'ipol=',ipol
+c      write(6,*)'nvb=',nvb
+c      write(6,*)'j_a=',j_a
+c      write(6,*)'j_ia=',j_ia
+c      write(6,*)'vatiles(1)=',vatiles(1)
+c      write(6,*)'vatiles(2)=',vatiles(2)
+c      write(6,*)'ACTIVE TILES'
+c       do i=1,noab+nvab
+c        write(6,*) active_tiles(i)
+c       enddo
+c      write(6,*)'        '
+c      call util_flush(LuOut)
+c *************
 c
 c     Allocate tiling related arrays
 c
@@ -343,11 +483,17 @@ c
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"alpha-izer",
      1  l_alpha,k_alpha)) call errquit("tce_tile: MA problem",8,
      2  MA_ERR)
+      if(activecalc) THEN
+      if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Active blocks ",
+     1  l_active,k_active)) call errquit("tce_tile: MA problem",9,
+     2  MA_ERR)
+      end if
       j = 0
       do i = 1,noa+nob+nva+nvb
         int_mb(k_spin+i-1)=spin_tmp(i)
         int_mb(k_sym+i-1)=sym_tmp(i)
         int_mb(k_range+i-1)=range_tmp(i)
+        int_mb(k_active+i-1)=active_tiles(i)
         int_mb(k_offset+i-1)=j
         j = j + range_tmp(i)
       enddo

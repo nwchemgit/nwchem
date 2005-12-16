@@ -1,6 +1,6 @@
       logical function tce_energy_fragment(rtdb)
 c
-c $Id: tce_energy_fragment.F,v 1.6 2004-11-02 17:10:59 edo Exp $
+c $Id: tce_energy_fragment.F,v 1.7 2005-12-16 22:16:04 kowalski Exp $
 c
 c Wrapper for tce_energy for fragment MO calculations.
 c
@@ -15,13 +15,14 @@ c
 c
       integer rtdb             ! Run-time database
       integer fragment         ! -1 if not fragment MO
-      integer nfrags, ifrag, jfrag
+      integer nfrags, ifrag, jfrag, kfrag
       double precision energy
       integer k_fcount, l_fcount
       integer k_fdipole, l_fdipole
       integer k_fdipole_2, l_fdipole_2
       integer k_efrags, l_efrags
       integer k_efragpairs, l_efragpairs
+      integer k_efragtriplets, l_efragtriplets
       logical dipole
       logical scf_only
       logical dft_only
@@ -63,7 +64,7 @@ c
       if (.not.rtdb_get(rtdb,'fragment:damping',mt_dbl,1,damping))
      1  damping = 1.0d0
       if (.not.rtdb_get(rtdb,'tce:fragment',mt_int,1,fragment))
-     1  fragment=0
+     1  call errquit('tce_energy_fragment',0,RTDB_ERR)
       if (fragment.eq.-1) then
         tce_energy_fragment = tce_energy(rtdb,.true.)
         return
@@ -356,25 +357,70 @@ c
               endif
             enddo
           enddo
+c
+c         Trimer fragments
+c
+          if (.not.ma_push_get(mt_dbl,nfrags**3,'fragment triplet',
+     1      l_efragtriplets,k_efragtriplets)) call errquit
+     2      ('tce_energy_fragment: failed to allocate efrags',0,MA_ERR)
+          do ifrag = 1, nfrags-2
+            do jfrag = ifrag+1, nfrags-1
+              do kfrag = jfrag+1, nfrags
+                call select_fragmenttriplet(rtdb,ifrag,jfrag,kfrag,
+     1            dbl_mb(k_fdipole))
+                if (.not.dft_energy(rtdb)) call errquit
+     1            ('tce_energy_fragment: dft',0,
+     2            UNKNOWN_ERR)
+                if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,
+     1            energy))
+     2            call errquit('tce_energy_fragment: dft energy',
+     3            0,RTDB_ERR)
+                dbl_mb(k_efragtriplets+(kfrag-1)*nfrags*nfrags+
+     1            (ifrag-1)*nfrags+jfrag-1) = energy
+                if (nodezero) write(LuOut,9330) ifrag,jfrag,kfrag,
+     1            dbl_mb(k_efragtriplets+(kfrag-1)*nfrags*nfrags+
+     2            (ifrag-1)*nfrags+jfrag-1)
+              enddo
+            enddo
+          enddo
           if (nodezero) write(LuOut,*)
           if (nodezero) write(LuOut,9000)
           if (nodezero) write(LuOut,*)
           if (fragment.eq.0) then
             energy = 0.0d0
+            do ifrag = 1, nfrags-2
+              do jfrag = ifrag+1, nfrags-1
+                do kfrag = jfrag+1, nfrags
+                if (nodezero) write(LuOut,9330) ifrag,jfrag,kfrag,
+     1          dbl_mb(k_efragtriplets+(kfrag-1)*nfrags*nfrags+
+     2            (ifrag-1)*nfrags+jfrag-1)
+                energy = energy
+     1          + dbl_mb(k_efragtriplets+(kfrag-1)*nfrags*nfrags+
+     2            (ifrag-1)*nfrags+jfrag-1)
+     3          - dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+     4          - dbl_mb(k_efragpairs+(ifrag-1)*nfrags+kfrag-1)
+     5          - dbl_mb(k_efragpairs+(jfrag-1)*nfrags+kfrag-1)
+     6          + dbl_mb(k_efrags+ifrag-1)
+     7          + dbl_mb(k_efrags+jfrag-1)
+     8          + dbl_mb(k_efrags+kfrag-1)
+                enddo
+              enddo
+            enddo
             do ifrag = 1, nfrags-1
               do jfrag = ifrag+1, nfrags
                 if (nodezero) write(LuOut,9030) ifrag,jfrag,
      1          dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
                 energy = energy
      1                 + dbl_mb(k_efragpairs+(ifrag-1)*nfrags+jfrag-1)
+     2          - dbl_mb(k_efrags+ifrag-1)
+     3          - dbl_mb(k_efrags+jfrag-1)
               enddo
             enddo
             do ifrag = 1, nfrags
               if (nodezero) write(LuOut,9010) ifrag,
      1          dbl_mb(k_efrags+ifrag-1),int_mb(k_fcount+ifrag-1)
               energy = energy
-     1               - dfloat(max(0,int_mb(k_fcount+ifrag-1)-1))
-     2               * dbl_mb(k_efrags+ifrag-1)
+     1               + dbl_mb(k_efrags+ifrag-1)
             enddo
             if (nodezero) write(LuOut,9020) energy
           else
@@ -419,6 +465,8 @@ c
           endif
           if (.not.rtdb_put(rtdb,'tce:energy',mt_dbl,1,energy))
      1      call errquit('tce_energy_fragment: RTDB problem',0,RTDB_ERR)
+          if (.not.ma_pop_stack(l_efragtriplets))
+     1      call errquit("tce_energy_fragment: MA problem",1,MA_ERR)
           if (.not.ma_pop_stack(l_efragpairs))
      1      call errquit("tce_energy_fragment: MA problem",1,MA_ERR)
           if (.not.ma_pop_stack(l_efrags))
@@ -444,6 +492,7 @@ c
  9035 format(1x,'@ Fragment pair',i3,i3,' skipped')
  9040 format(1x,'@ Fragment',i3,' dipole = ',3F10.6,
      1          ' a.u. residual = ',F20.15)
+ 9330 format(1x,'@ Fragment triplet',3i3,' energy = ',F25.15,' hartree')
  9050 format(1x,'@ Dipole residual = ',3F20.15)
  9110 format(1x,'@         Fragment',i3,' excitation energy = ',
      1  F15.5,' eV ',i4,' times')

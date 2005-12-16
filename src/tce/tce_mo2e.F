@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.11 2003-10-19 00:52:08 sohirata Exp $
+c $Id: tce_mo2e.F,v 1.12 2005-12-16 22:16:05 kowalski Exp $
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c
@@ -169,9 +169,9 @@ c
                     call ma_print_compact(dbl_mb(k_pqrs),
      1              sf_size_pq*sf_size_rs,1,'MO 2e')
                   endif
-                  call put_block(d_mo2e,dbl_mb(k_pqrs),
-     1              sf_size_pq*sf_size_rs,int_mb(k_2e_offset
-     2              +(((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
+                  call put_hash_block(d_mo2e,dbl_mb(k_pqrs),
+     1              sf_size_pq*sf_size_rs,int_mb(k_2e_offset),
+     2              ((((pb-1)*Nb+qb-1)*Nb+rb-1)*Nb+sb-1))
                   if (.not.ma_pop_stack(l_pqrs)) 
      1              call errquit('tcc_mo2e: MA problem',5,MA_ERR)
                   if (.not.ma_pop_stack(l_sl)) 

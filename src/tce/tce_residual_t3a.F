@@ -1,6 +1,6 @@
-      subroutine tce_residual_t3(d_r3,k_r3_offset,residual)
+      subroutine tce_residual_t3a(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3.F,v 1.8 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_residual_t3a.F,v 1.1 2005-12-16 22:16:05 kowalski Exp $
 c
       implicit none
 #include "global.fh"
@@ -29,6 +29,7 @@ c
       integer nxtval
       external nxtval
       logical nodezero
+      logical acolo
 c
 c     =====================
 c     Zero scratch residual
@@ -55,6 +56,7 @@ c
               do h5b = h4b,noab
                 do h6b = h5b,noab
                   if (next.eq.count) then
+                    if(acolo(p1b,p2b,p3b,h4b,h5b,h6b)) then
                     if (int_mb(k_spin+p1b-1)
      1                 +int_mb(k_spin+p2b-1)
      2                 +int_mb(k_spin+p3b-1)
@@ -116,6 +118,7 @@ c
                     endif
                     endif
                     endif
+                    endif         !active
                     next = nxtval(nprocs)
                   endif
                   count = count + 1

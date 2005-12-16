@@ -2,7 +2,7 @@
      1  size_y1,size_y2,size_y3,size_y4,
      2  k_y1_offset,k_y2_offset,k_y3_offset,k_y4_offset)
 c
-c $Id: tce_eom_yguess.F,v 1.3 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_yguess.F,v 1.4 2005-12-16 22:16:04 kowalski Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_y
@@ -115,8 +115,8 @@ c
               if (needy1) then
                 call tce_filenameindexed(nytrials,'y1',filename)
                 call createfile(filename,y1(nytrials),size_y1)
-                call put_block(y1(nytrials),dbl_mb(k_y1),size,
-     1            int_mb(k_y1_offset+(h3b-1)*nvab+p1b-noab-1))
+                call put_hash_block(y1(nytrials),dbl_mb(k_y1),size,
+     1            int_mb(k_y1_offset),((h3b-1)*nvab+p1b-noab-1))
                 call gatodra(y1(nytrials))
                 call gatoeaf(y1(nytrials))
                 y1_exist(nytrials) = .true.

@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.18 2004-12-10 18:00:00 edo Exp $
+c $Id: tce_input.F,v 1.19 2005-12-16 22:14:02 kowalski Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -12,7 +12,9 @@ c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
 c                 [virtual <integer nfzv default 0>]]
 c        [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ|| \ 
 c          CCSD(T)||CCSD[T]||QCISD||CISD||CISDT||CISDTQ|| \
-c          MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
+c          MBPT2||MBPT3||MBPT4||MP2||MP3||MP4|| \
+c          CR-CCSD(T)||CR-CCSD[T]||LR-CCSD(T)||LR-CCSD(TQ)||CCSD(2)_T||CCSD(2)||
+c          CCSDT(2)_Q) default CCSD]
 c        [THRESH <double thresh default 1e-6>]
 c        [MAXITER <integer maxiter default 100>]
 c        [PRINT (none||low||medium||high||debug)]
@@ -24,8 +26,13 @@ c        [TARGETSYM <character targetsym default 'none'>]
 c        [SYMMETRY]
 c        [DIPOLE]
 c        [TILESIZE <no default (automatically adjusted)>]
-c        [(NO)FOCK <logical recompf default .true.>]
 c        [FRAGMENT <default -1 (off)>]
+c        [(NO)FOCK <logical recompf default .true.>]
+c        [ACTIVE_OA <default 0>]
+c        [ACTIVE_OB <default 0>]
+c        [ACTIVE_VA <default 0>]
+c        [ACTIVE_VB <default 0>]
+c        [T3A_LVL   <default 0>]
 c     END
 c
 c     TASK TCE ENERGY
@@ -47,8 +54,12 @@ c        [TARGETSYM <character targetsym default 'none'>]
 c        [SYMMETRY]
 c        [DIPOLE]
 c        [TILESIZE <no default (automatically adjusted)>]
-c        [(NO)FOCK <logical recompf default .true.>]
 c        [FRAGMENT <default -1 (off)>]
+c        [(NO)FOCK <logical recompf default .true.>]
+c        [ACTIVE_OA <default 0>]
+c        [ACTIVE_OB <default 0>]
+c        [ACTIVE_VA <default 0>]
+c        [ACTIVE_VB <default 0>]
 c     END
 c
 c     TASK UCCSDT ENERGY
@@ -78,8 +89,11 @@ c
       character*4 targetsym
       logical symmetry
       logical left
-      character*10 perturbative
       logical recompf
+      character*10 perturbative
+      integer oactive(2)
+      integer vactive(2)
+      integer numact
 c
 c -------------------------------------
 c What input block are we dealing with?
@@ -189,6 +203,35 @@ c
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
+c     ACTIVE_OA,OB (Number of active occupied orbitals)
+c
+      oactive(1)=0
+      if (.not.rtdb_put(rtdb,'tce:active_oa',mt_int,1,oactive(1)))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      oactive(2)=0
+      if (.not.rtdb_put(rtdb,'tce:active_ob',mt_int,1,oactive(2)))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     ACTIVE_VA,VB (Number of active virtual orbitals)
+c
+      vactive(1)=0
+      if (.not.rtdb_put(rtdb,'tce:active_va',mt_int,1,vactive(1)))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      vactive(2)=0
+      if (.not.rtdb_put(rtdb,'tce:active_vb',mt_int,1,vactive(2)))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c    ACTIVE EXCITATION LEVEL (number of active orbitals in T3)
+c
+      numact=0
+      if (.not.rtdb_put(rtdb,'tce:act_excit_lvl',mt_int,1,numact))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
 c ----------
 c Read input
 c ----------
@@ -265,6 +308,16 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+      else if (inp_compare(.false.,test,'ccsdta')) then
+        if (module.eq.'tce') then
+        model='ccsdta'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
       else if (inp_compare(.false.,test,'ccsdt')) then
         if (module.eq.'tce') then
         model='ccsdt'
@@ -307,6 +360,144 @@ c
      2    RTDB_ERR)
         perturbative='[t]'
         if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'cr-ccsd(t)')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='cr_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'lr-ccsd(t)')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='lr_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'creomsd(t)')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='creom_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'lr-ccsd(tq)-1')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='lr_(tq1)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'lr-ccsd(tq)-1p')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='lr_(tq1p)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'cr-ccsd[t]')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='cr_[t]'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'ccsd(2)_t')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='2_t'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        left=.true.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'ccsd(2)')) then
+        if (module.eq.'tce') then
+        model='ccsd'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='2_tq'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        left=.true.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+      else if (inp_compare(.false.,test,'ccsdt(2)_q')) then
+        if (module.eq.'tce') then
+        model='ccsdt'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='2_q'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        left=.true.
+        if (.not.rtdb_put(rtdb,'tce:left',mt_log,1,left))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
         else
@@ -563,6 +754,51 @@ c
       else if (inp_compare(.false.,test,'nofock')) then
         recompf=.false.
         if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     ACTIVE_OA (Number of active occupied orbitals)
+c
+      else if (inp_compare(.false.,test,'active_oa')) then
+        if (.not.inp_i(oactive(1)))
+     1    call errquit('tce_input: no active_oa given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:active_oa',mt_int,1,oactive(1)))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     ACTIVE_OB (Number of active occupied orbitals)
+c
+      else if (inp_compare(.false.,test,'active_ob')) then
+        if (.not.inp_i(oactive(2)))
+     1    call errquit('tce_input: no active_ob given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:active_ob',mt_int,1,oactive(2)))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     ACTIVE_VA (Number of active virtual orbitals)
+c
+      else if (inp_compare(.false.,test,'active_va')) then
+        if (.not.inp_i(vactive(1)))
+     1    call errquit('tce_input: no active_va given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:active_va',mt_int,1,vactive(1)))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     ACTIVE_VB (Number of active virtual orbitals)
+c
+      else if (inp_compare(.false.,test,'active_vb')) then
+        if (.not.inp_i(vactive(2)))
+     1    call errquit('tce_input: no active_vb given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:active_vb',mt_int,1,vactive(2)))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     ACTIVE_EXCIT_LVL (T3 active excitation level)
+c
+      else if (inp_compare(.false.,test,'t3a_lvl')) then
+        if (.not.inp_i(numact))
+     1    call errquit('tce_input: no t3a_lvl given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:act_excit_lvl',mt_int,1,numact))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c

@@ -1,7 +1,7 @@
       subroutine tce_guess_t2(d_mo2e,k_2e_offset,
      1                        d_t2,k_t2_offset)
 c
-c $Id: tce_guess_t2.F,v 1.7 2003-10-19 00:52:07 sohirata Exp $
+c $Id: tce_guess_t2.F,v 1.8 2005-12-16 22:16:05 kowalski Exp $
 c
       implicit none
 #include "global.fh"
@@ -58,8 +58,8 @@ c
      1                * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
                  if (.not.ma_push_get(mt_dbl,size,'t2',l_t2,k_t2))
      1             call errquit('tce_guess_t2: MA problem',0,MA_ERR)
-                 call get_block(d_mo2e,dbl_mb(k_t2),size,
-     1             int_mb(k_2e_offset+(((p1b-1)*(noab+nvab)+p2b-1)
+                 call get_hash_block(d_mo2e,dbl_mb(k_t2),size,
+     1             int_mb(k_2e_offset),((((p1b-1)*(noab+nvab)+p2b-1)
      2             *(noab+nvab)+h3b-1)*(noab+nvab)+h4b-1))
                  i = 0
                  do p1 = 1,int_mb(k_range+p1b-1)
@@ -78,8 +78,8 @@ c
                  enddo
                  if (util_print('t2',print_debug))
      1             call ma_print_compact(dbl_mb(k_t2),size,1,'t2')
-                 call put_block(d_t2,dbl_mb(k_t2),size,
-     1             int_mb(k_t2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
+                 call put_hash_block(d_t2,dbl_mb(k_t2),size,
+     1             int_mb(k_t2_offset),((((p1b-noab-1)*nvab+p2b-noab-1)
      2             *noab+h3b-1)*noab+h4b-1))
                  if (.not.ma_pop_stack(l_t2))
      1             call errquit('tce_guess_t2: MA problem',1,MA_ERR)

@@ -2,7 +2,7 @@
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 c
-c $Id: tce_eom_xguess.F,v 1.3 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_eom_xguess.F,v 1.4 2005-12-16 22:16:04 kowalski Exp $
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_x
@@ -15,6 +15,8 @@ c
 #include "tce.fh"
 #include "errquit.fh"
 #include "util.fh"
+      logical guessx2
+      parameter (guessx2 = .true.)
       logical needx1
       logical needx2
       logical needx3
@@ -28,10 +30,11 @@ c
       integer k_x3_offset
       integer k_x4_offset
       logical nodezero
-      integer p1b
-      integer h3b
-      integer p1,h3
+      integer p1b,p2b
+      integer h3b,h4b
+      integer p1,p2,h3,h4
       integer l_x1,k_x1
+      integer l_x2,k_x2
       integer l_diff,k_diff
       integer size
       integer ivec, jvec
@@ -67,7 +70,11 @@ c
           endif
         enddo
       enddo
-      nroots_reduced = min(ivec, nroots)
+      if (model.eq.'cis') then
+        nroots_reduced = ivec
+      else
+        nroots_reduced = min(ivec, nroots)
+      endif
       maxdiff = 0.0d0
   100 continue
       nextmaxdiff = 1.0d99
@@ -115,8 +122,8 @@ c
               if (needx1) then
                 call tce_filenameindexed(nxtrials,'x1',filename)
                 call createfile(filename,x1(nxtrials),size_x1)
-                call put_block(x1(nxtrials),dbl_mb(k_x1),size,
-     1            int_mb(k_x1_offset+(p1b-noab-1)*noab+h3b-1))
+                call put_hash_block(x1(nxtrials),dbl_mb(k_x1),size,
+     1            int_mb(k_x1_offset),((p1b-noab-1)*noab+h3b-1))
                 call gatodra(x1(nxtrials))
                 call gatoeaf(x1(nxtrials))
                 x1_exist(nxtrials) = .true.
@@ -152,6 +159,131 @@ c
           endif
         enddo
       enddo
+c
+c     Make trial X2
+c
+      maxdiff=0.30d0
+      if (guessx2.and.needx2) then
+      do p1b = noab+1,noab+nvab
+        do p2b = p1b,noab+nvab
+          do h3b = 1,noab
+            do h4b = h3b,noab
+              if (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)
+     1          .eq. int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1)) then
+              if ((.not.restricted).or.
+     1          (int_mb(k_spin+p1b-1)+int_mb(k_spin+p2b-1)+
+     2          int_mb(k_spin+h3b-1)+int_mb(k_spin+h4b-1).ne.8)) then
+              if (ieor(int_mb(k_sym+p1b-1),ieor(int_mb(k_sym+p2b-1),
+     1          ieor(int_mb(k_sym+h3b-1),int_mb(k_sym+h4b-1))))
+     2          .eq. irrep_x) then
+              size = int_mb(k_range+p1b-1) * int_mb(k_range+p2b-1)
+     1             * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
+              if (.not.ma_push_get(mt_dbl,size,'x2',l_x2,k_x2))
+     1          call errquit('tce_eom_xguess: MA problem',0,MA_ERR)
+              do p1 = 1,int_mb(k_range+p1b-1)
+                do p2 = 1,int_mb(k_range+p2b-1)
+                  do h3 = 1,int_mb(k_range+h3b-1)
+                    do h4 = 1,int_mb(k_range+h4b-1)
+                if (+dbl_mb(k_evl_sorted+int_mb(k_offset+p1b-1)+p1-1)
+     1              +dbl_mb(k_evl_sorted+int_mb(k_offset+p2b-1)+p2-1)
+     2              -dbl_mb(k_evl_sorted+int_mb(k_offset+h3b-1)+h3-1)
+     3              -dbl_mb(k_evl_sorted+int_mb(k_offset+h4b-1)+h4-1)
+     4              .le. maxdiff*2.0d0) then
+                if (((p1b.ne.p2b).or.(p1.lt.p2)).and.
+     1              ((h3b.ne.h4b).or.(h3.lt.h4))) then
+                  nxtrials = nxtrials + 1
+                  call dfill(size,0.0d0,dbl_mb(k_x2),1)
+                  if ((p1b.eq.p2b).and.(h3b.eq.h4b)) then 
+                  dbl_mb(k_x2+(((p1-1)*int_mb(k_range+p2b-1)
+     1                         +(p2-1))*int_mb(k_range+h3b-1)
+     2                         +(h3-1))*int_mb(k_range+h4b-1)+h4-1)
+     3              = 0.5d0
+                  dbl_mb(k_x2+(((p2-1)*int_mb(k_range+p2b-1)
+     1                         +(p1-1))*int_mb(k_range+h3b-1)
+     2                         +(h3-1))*int_mb(k_range+h4b-1)+h4-1)
+     3              = -0.5d0
+                  dbl_mb(k_x2+(((p1-1)*int_mb(k_range+p2b-1)
+     1                         +(p2-1))*int_mb(k_range+h3b-1)
+     2                         +(h4-1))*int_mb(k_range+h4b-1)+h3-1)
+     3              = -0.5d0
+                  dbl_mb(k_x2+(((p2-1)*int_mb(k_range+p2b-1)
+     1                         +(p1-1))*int_mb(k_range+h3b-1)
+     2                         +(h4-1))*int_mb(k_range+h4b-1)+h3-1)
+     3              = 0.5d0
+                  else if (p1b.eq.p2b) then
+                  dbl_mb(k_x2+(((p1-1)*int_mb(k_range+p2b-1)
+     1                         +(p2-1))*int_mb(k_range+h3b-1)
+     2                         +(h3-1))*int_mb(k_range+h4b-1)+h4-1)
+     3              = dsqrt(0.5d0)
+                  dbl_mb(k_x2+(((p2-1)*int_mb(k_range+p2b-1)
+     1                         +(p1-1))*int_mb(k_range+h3b-1)
+     2                         +(h3-1))*int_mb(k_range+h4b-1)+h4-1)
+     3              = -dsqrt(0.5d0)
+                  else if (h3b.eq.h4b) then
+                  dbl_mb(k_x2+(((p1-1)*int_mb(k_range+p2b-1)
+     1                         +(p2-1))*int_mb(k_range+h3b-1)
+     2                         +(h3-1))*int_mb(k_range+h4b-1)+h4-1)
+     3              = dsqrt(0.5d0)
+                  dbl_mb(k_x2+(((p1-1)*int_mb(k_range+p2b-1)
+     1                         +(p2-1))*int_mb(k_range+h3b-1)
+     2                         +(h4-1))*int_mb(k_range+h4b-1)+h3-1)
+     3              = -dsqrt(0.5d0)
+                  else
+                  dbl_mb(k_x2+(((p1-1)*int_mb(k_range+p2b-1)
+     1                         +(p2-1))*int_mb(k_range+h3b-1)
+     2                         +(h3-1))*int_mb(k_range+h4b-1)+h4-1)
+     3              = 1.0d0
+                  endif
+                  if (nxtrials.gt.maxtrials) call errquit
+     1              ('tce_eom_xguess: problem too large',nxtrials,
+     2              CALC_ERR)
+                  if (needx1) then
+                    call tce_filenameindexed(nxtrials,'x1',filename)
+                    call createfile(filename,x1(nxtrials),size_x1)
+                    call gatodra(x1(nxtrials))
+                    call gatoeaf(x1(nxtrials))
+                    x1_exist(nxtrials) = .true.
+                  endif
+                  if (needx2) then
+                    call tce_filenameindexed(nxtrials,'x2',filename)
+                    call createfile(filename,x2(nxtrials),size_x2)
+                    call put_hash_block(x2(nxtrials),dbl_mb(k_x2),size,
+     1                int_mb(k_x2_offset),((((p1b-noab-1)*nvab
+     2                +p2b-noab-1)*noab+h3b-1)*noab+h4b-1))
+                    call gatodra(x2(nxtrials))
+                    call gatoeaf(x2(nxtrials))
+                    x2_exist(nxtrials) = .true.
+                  endif
+                  if (needx3) then
+                    call tce_filenameindexed(nxtrials,'x3',filename)
+                    call createfile(filename,x3(nxtrials),size_x3)
+                    call gatodra(x3(nxtrials))
+                    call gatoeaf(x3(nxtrials))
+                    x3_exist(nxtrials) = .true.
+                  endif
+                  if (needx4) then
+                    call tce_filenameindexed(nxtrials,'x4',filename)
+                    call createfile(filename,x4(nxtrials),size_x4)
+                    call gatodra(x4(nxtrials))
+                    call gatoeaf(x4(nxtrials))
+                    x4_exist(nxtrials) = .true.
+                  endif
+                endif
+                endif
+                    enddo
+                  enddo
+                enddo
+              enddo
+              if (.not.ma_pop_stack(l_x2))
+     1          call errquit('tce_eom_xguess: MA problem',3,MA_ERR)
+              endif
+              endif
+              endif
+            enddo
+          enddo
+        enddo
+      enddo
+      endif
       if (nxtrials.lt.nroots_reduced)
      1  call errquit('there is a bug in the program',0,UNKNOWN_ERR)
       if (nodezero) then

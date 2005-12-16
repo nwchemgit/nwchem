@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.9 2003-10-19 00:52:10 sohirata Exp $
+c $Id: tce_tidy.F,v 1.10 2005-12-16 22:16:05 kowalski Exp $
 c
 c     Terminate TCE modulem.
 c
@@ -31,6 +31,7 @@ c
         write(LuOut,9000) 'add_block    ', cpusecs(4), cpusecs(54)
         write(LuOut,9000) 'get_block    ', cpusecs(5), cpusecs(55)
         write(LuOut,9000) 'reconcilefile', cpusecs(6), cpusecs(56)
+        write(LuOut,9000) 'tce_sort     ', cpusecs(7), cpusecs(57)
       endif
       do i=ipol,1,-1
         if (.not.ma_pop_stack(l_irs(i))) call errquit

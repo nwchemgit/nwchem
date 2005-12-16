@@ -1,6 +1,6 @@
       subroutine tce_ao2e(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e.F,v 1.13 2003-10-19 00:52:06 sohirata Exp $
+c $Id: tce_ao2e.F,v 1.14 2005-12-16 22:16:04 kowalski Exp $
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c
@@ -111,18 +111,19 @@ c     =======================
 c
       call int_mem_2e4c(work1,work2)
       if (.not.ma_push_get(mt_dbl,work1,'work1',l_work1,k_work1))
-     1  call errquit('tce_ao2e: MA problem',0,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem work1',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,work2,'work2',l_work2,k_work2))
-     1  call errquit('tce_ao2e: MA problem',1,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem work2',1,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nbf*nbf,'ij',l_ij,k_ij))
-     1  call errquit('tce_ao2e: MA problem',4,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem k_ij',4,MA_ERR)
       if (.not.ma_push_get(mt_dbl,N*nbf,'pj',l_pj,k_pj))
-     1  call errquit('tce_ao2e: MA problem',5,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem p_ij',5,MA_ERR)
       if (.not.ma_push_get(mt_dbl,N*N,'pq',l_pq,k_pq))
-     1  call errquit('tce_ao2e: MA problem',6,MA_ERR)
+     1  call errquit('tce_ao2e: MA problem k_pq',6,MA_ERR)
       if (.not.ma_push_get(mt_dbl,sf_size_pq,'pq_packed',
-     1  l_pq_packed,k_pq_packed)) call errquit('tce_ao2e: MA problem',7,
-     2  MA_ERR)
+     1  l_pq_packed,k_pq_packed)) 
+     2  call errquit('tce_ao2e: MA problem pq_packed',7,
+     3  MA_ERR)
 c
 c     ================
 c     Loop over shells
@@ -137,16 +138,16 @@ c
             if (util_print('ao2e',print_debug))
      1        write(LuOut,9190) lsh,ksh,ga_nodeid()
             if (.not.bas_cn2bfr(ao_bas_han,ksh,klo,khi))
-     1        call errquit('tce_ao2e: basis fn range problem',0,
+     1        call errquit('tce_ao2e: basis fn range problem 1',0,
      2        BASIS_ERR)
             krange = khi - klo + 1
             if (.not.bas_cn2bfr(ao_bas_han,lsh,llo,lhi))
-     1        call errquit('tce_ao2e: basis fn range problem',1,
+     1        call errquit('tce_ao2e: basis fn range problem 2',1,
      2        BASIS_ERR)
             lrange = lhi - llo + 1
             if (.not.ma_push_get(mt_dbl,sf_size_kl*krange*lrange,
      1        'ao2e',l_ijkl,k_ijkl))
-     2        call errquit('tce_ao2e: MA problem',18,MA_ERR)
+     2        call errquit('tce_ao2e: MA problem k_ijkl',18,MA_ERR)
             do ijkl = 1,sf_size_kl*krange*lrange
               dbl_mb(k_ijkl+ijkl-1) = 0.0d0
             enddo
@@ -214,7 +215,7 @@ c
               enddo
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 
-     1        call errquit('tce_ao2e: MA problem',16,MA_ERR)
+     1        call errquit('tce_ao2e: MA problem x1',16,MA_ERR)
             next = nxtval(nprocs)
           endif
           count = count + 1

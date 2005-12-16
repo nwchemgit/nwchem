@@ -1,6 +1,6 @@
       subroutine tce_residual_t2(d_r2,k_r2_offset,residual)
 c
-c $Id: tce_residual_t2.F,v 1.7 2003-10-19 00:52:09 sohirata Exp $
+c $Id: tce_residual_t2.F,v 1.8 2005-12-16 22:16:05 kowalski Exp $
 c
       implicit none
 #include "global.fh"
@@ -66,8 +66,8 @@ c
      1                 * int_mb(k_range+h3b-1) * int_mb(k_range+h4b-1)
                   if (.not.ma_push_get(mt_dbl,size,'r2',l_r2,k_r2))
      1              call errquit('tce_residual_t2: MA problem',0,MA_ERR)
-                  call get_block(d_r2,dbl_mb(k_r2),size,
-     1              int_mb(k_r2_offset+(((p1b-noab-1)*nvab+p2b-noab-1)
+                  call get_hash_block(d_r2,dbl_mb(k_r2),size,
+     1              int_mb(k_r2_offset),((((p1b-noab-1)*nvab+p2b-noab-1)
      2              *noab+h3b-1)*noab+h4b-1))
                   if (nodezero.and.util_print('residual',
      1              print_debug)) call ma_print_compact
