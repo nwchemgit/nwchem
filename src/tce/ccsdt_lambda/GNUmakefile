@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2004-12-11 00:06:29 edo Exp $
+#$Id: GNUmakefile,v 1.3 2005-12-16 22:34:44 kowalski Exp $
 
 OBJ_OPTIMIZE = ccsdt_lambda3.o ccsdt_density1.o \
 ccsdt_lambda1.o\
@@ -501,3 +501,4 @@ HEADERS =
 
 include ../../config/makefile.h
 include ../../config/makelib.h
+
