@@ -290,28 +290,52 @@ c
           goto 2
       endif
 c    
-       if(inp_compare(.false.,'bq_exclude',token)) then
-        tag="qmmm:bq_exclude"
-        if(.not.inp_a(token)) call errquit('qmmm_input:  bq_exclude ',0,
-     &       INPUT_ERR)
-        if(token.eq.'linkbond_H') then
-          bq_exclude=qmmm_linkbond_H
-        else if(token.eq.'linkbond') then
-          bq_exclude=qmmm_linkbond
-        else if(token.eq.'linkres') then
-          bq_exclude=qmmm_linkres
-        else if(token.eq.'all') then
-          bq_exclude=qmmm_all_atoms
-        else if(token.eq.'none') then
-          bq_exclude=qmmm_no_atoms
-        else
-         call errquit('unknown option for bq_exclude',0,INPUT_ERR)
+       if(inp_compare(.false.,'mm_charges',token)) then
+600     continue
+        if(.not.inp_a(token)) goto 1
+        if(inp_compare(.false.,'exclude',token)) then
+         tag="qmmm:bq_exclude"
+         if(.not.inp_a(token)) goto 998
+         if(token.eq.'linkbond_H') then
+           bq_exclude=qmmm_linkbond_H
+         else if(token.eq.'linkbond') then
+           bq_exclude=qmmm_linkbond
+         else if(token.eq.'linkres') then
+           bq_exclude=qmmm_linkres
+         else if(token.eq.'all') then
+           bq_exclude=qmmm_all_atoms
+         else if(token.eq.'none') then
+           bq_exclude=qmmm_no_atoms
+         else
+          call errquit('unknown option for charge',0,INPUT_ERR)
+         end if
+         if (.not.rtdb_put(rtdb,tag,mt_int,1,bq_exclude)) 
+     >       call errquit(pname//'failed to store bq_exclude',0,
+     >        RTDB_ERR)
+        else if (inp_compare(.false.,'expand',token)) then
+         if(.not.inp_a(token)) goto 998
+         tag="qmmm:bq_expand"
+         if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >       goto 999
+        else if (inp_compare(.false.,'save',token)) then
+         if(.not.inp_a(token)) goto 998
+         tag="qmmm:bq:save:file"
+         if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >       goto 999
+         write(*,*) "found qmmm:bq:save:file",token
+        else if (inp_compare(.false.,'load',token)) then
+         if(.not.inp_a(token)) goto 998
+         tag="qmmm:bq:load:file"
+         if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >       goto 999
+        else if(inp_compare(.false.,'update',token)) then
+          if(.not.inp_i(itoken(1))) goto 998
+          tag="qmmm:bq_update"
+          if (.not.rtdb_put(rtdb,tag,mt_int,1,itoken(1))) 
+     >        goto 999
         end if
-        if (.not.rtdb_put(rtdb,tag,mt_int,1,bq_exclude)) 
-     >      call errquit(pname//'failed to store bq_exclude',0,
-     >       RTDB_ERR)
-        goto 2
-      endif
+        goto 600
+      end if
 c
       if(inp_compare(.false.,'load',token)) then
         if (.not.inp_a(token))
@@ -352,29 +376,6 @@ c
 
         goto 2
       end if
-
-      if(inp_compare(.false.,'bq_update',token)) then
-        if(.not.inp_a(token)) then
-         write(*,*) "please provide an option for "//token
-         call errquit('qmmm_input: '//token,0,
-     &         INPUT_ERR)
-        end if
-        if(inp_compare(.false.,'static',token)) then
-          bq_dynamical=.false.
-        else if(inp_compare(.false.,'dynamical',token)) then
-          bq_dynamical=.true.
-        else if(inp_compare(.false.,'dynamic',token)) then
-          bq_dynamical=.true.
-        else
-          call errquit('unknown option for bq_update',0,INPUT_ERR)
-        end if
-        tag="qmmm:bq_dynamical"
-        if (.not.rtdb_put(rtdb,tag,mt_log,1,bq_dynamical)) 
-     >      call errquit(pname//'failed to store'//tag,0,
-     >       RTDB_ERR)
-        goto 2
-      end if
-
 c     
 c     print level 
 c     -------------------
@@ -393,6 +394,8 @@ c
        call errquit(pname//'failed ',0,
      >        RTDB_ERR)
       return
+998   call errquit(pname//'no token found '//token,0,
+     >        RTDB_ERR)
 999   call errquit(pname//'failed to store '//tag,0,
      >        RTDB_ERR)
 

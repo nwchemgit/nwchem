@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.47 2005-11-23 23:32:59 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.48 2005-12-16 02:18:07 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -114,6 +114,8 @@ c
          end if
       end if
       status = .true.
+
+      call qmmm_bq_data_update_active()
 
       nfg = qmmm_geom_get_nfg()
       i_ifg = qmmm_geom_get_i_ifg()

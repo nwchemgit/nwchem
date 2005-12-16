@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.83 2005-12-10 22:44:11 marat Exp $
+c $Id: qmmm_geom.F,v 1.84 2005-12-16 02:18:07 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -88,7 +88,7 @@ c       --------------------------
         end if
 c
         call qmmm_geom_init_aux(irtdb,"geometry")
-        call qmmm_bq_data_update_active()
+c        call qmmm_bq_data_update_active()
 
       else
         ngs = nfg
@@ -482,7 +482,7 @@ c     ------------------------
  
       end
 
-      subroutine qmmm_region_print(un,ns,ais,aform)
+      subroutine qmmm_region_print(un,ns,nw,ais,aform)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -492,7 +492,8 @@ c     ------------------------
 #include "global.fh"
       integer un
       integer ns
-      integer ais(ns)
+      integer nw
+      integer ais(ns+nw)
       character*(*) aform
 c
       character*32 pname
@@ -507,7 +508,7 @@ c
       if(qmmm_print_debug())
      > write(*,*) "in "//pname
 
-      n = ns
+      n = ns+nw
       if(n.eq.0) goto 999
       if(.not.ma_push_get(mt_dbl,3*n,'c',h_c,i_c))
      + call errquit('qmmm: Failed to allocate memory for c',
@@ -525,13 +526,24 @@ c
      + call errquit('qmmm: Failed to allocate memory for t',n,
      &       MA_ERR)
 
-        call mm_get_solute_geom(ns,
+      if(ns.ne.0) 
+     >   call mm_get_solute_geom(ns,
      >                 ais,
      >                 int_mb(i_atn),
      >                 byte_mb(i_t),
      >                 dbl_mb(i_c),
      >                 dbl_mb(i_q),
      >                 dbl_mb(i_m))
+
+      if(nw.ne.0) 
+     >   call mm_get_solvent_geom(nw,
+     >                 ais(ns+1),
+     >                 int_mb(i_atn+ns),
+     >                 byte_mb(i_t+16*ns),
+     >                 dbl_mb(i_c+3*ns),
+     >                 dbl_mb(i_q+ns),
+     >                 dbl_mb(i_m+ns))
+
 
       if(qmmm_master()) then
         if(aform.eq."pdbi") then

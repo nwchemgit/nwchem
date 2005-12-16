@@ -1,7 +1,7 @@
       subroutine qmmm_forces(inrtdb,mwm,nwm,mwa,nwa,iwz,xw,fw,
      + msa,nsa,isat,isdt,isq,isz,xs,fs,energy)
 c
-c $Id: qmmm_main.F,v 1.44 2005-09-09 19:06:38 marat Exp $
+c $Id: qmmm_main.F,v 1.45 2005-12-16 02:18:07 marat Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -63,6 +63,7 @@ c     -----------------------------------
         do_grad=.true.
       end if
 
+      call  qmmm_bq_data_reload()
       if(.not.qmmm_energy_gradient(inrtdb,do_grad)) 
      $   call errquit(pname//'failed qmmm_energy_gradient',0,0)
 

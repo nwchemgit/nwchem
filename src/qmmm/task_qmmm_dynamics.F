@@ -1,6 +1,6 @@
        function task_qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.8 2005-12-03 00:44:48 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.9 2005-12-16 02:18:07 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -71,7 +71,7 @@ c
 
        function qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.8 2005-12-03 00:44:48 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.9 2005-12-16 02:18:07 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -113,7 +113,7 @@ c     define set of active atoms
 c     --------------------------
       call qmmm_cons_free_exclusive(region(1))
 c
-      call qmmm_bq_data_update_active()
+c      call qmmm_bq_data_update_active()
 c
       interface = qmmm_get_interface()
       call qmmm_set_interface("mm")
@@ -131,7 +131,7 @@ c
       end
 
       function qmmm_pes_dynamics(irtdb)
-c     $Id: task_qmmm_dynamics.F,v 1.8 2005-12-03 00:44:48 marat Exp $
+c     $Id: task_qmmm_dynamics.F,v 1.9 2005-12-16 02:18:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

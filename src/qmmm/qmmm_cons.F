@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.17 2005-11-09 22:42:48 marat Exp $
+c $Id: qmmm_cons.F,v 1.18 2005-12-16 02:18:07 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -831,13 +831,15 @@ c
       integer un
       character*(*) aform
 
-      integer i,n
+      integer i,ns,nw,n
       integer i_id,h_id
       character*30 pname
 
       pname = "qmmm_cons_print_region"
 
-      call qmmm_cons_get_nacts(n)
+      call qmmm_cons_get_nacts(ns)
+      call qmmm_cons_get_nactw(nw)
+      n = ns+nw
 
       if(.not.ma_push_get(mt_int,n,'qmmm_cons i_id',h_id,i_id))
      + call errquit( pname//'Failed to allocate memory for id',

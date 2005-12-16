@@ -8,6 +8,7 @@ c
 #include "qmmm_bq_data.fh"
       integer irtdb
 c
+      character*30 bq_expand
       character*30 pname
 
       pname = "qmmm_bq_data_init"
@@ -19,19 +20,57 @@ c
      + call errquit(pname,bq_exclude,
      &       RTDB_ERR)
 
-      if (.not. rtdb_get(irtdb,'qmmm:readbq',mt_log,1,readbq)) then
-         readbq = .false.
+      if (.not. rtdb_get(irtdb,'qmmm:bq_update',mt_int,1,bq_update)) 
+     +    bq_update = 0
+      
+      readbq = .false.
+      if (rtdb_cget(irtdb,"qmmm:bq:load:file",1,bqfile_in)) then
+        if(bqfile_in.ne."none") then
+         readbq = .true.
+         if(bqfile_in.eq."default") then
+           call util_file_name("bq.ind",.false.,.false.,bqfile_in)
+         else
+           call util_file_name_resolve(bqfile_in,.false.)
+         end if
+        end if
       end if
 
-      if (.not. rtdb_get(irtdb,'qmmm:bqsave',mt_log,1,bqsave)) then
-         bqsave = .false.
-      end if
 
-      if (.not.rtdb_get(irtdb,'qmmm:bq-solute',mt_log,1,allbqs))
-     >     allbqs = .false.
+      bqsave = .false.
+      if (rtdb_cget(irtdb,'qmmm:bq:save:file',1,bqfile_out)) then
+        if(bqfile_out.ne."none") then
+         bqsave = .true.
+         if(bqfile_out.eq."default") then
+           call util_file_name("bq.ind",.false.,.false.,bqfile_out)
+         else
+           call util_file_name_resolve(bqfile_out,.false.)
+         end if
+        end if
+      end if
 c
-      if (.not.rtdb_get(irtdb,'qmmm:bq-solvent',mt_log,1,allbqw))
-     >     allbqw = .false.
+      if (.not.rtdb_cget(irtdb,"qmmm:bq_expand",1,bq_expand)) 
+     >      bq_expand = "none"
+      if(bq_expand.eq."none") then
+        allbqs = .false.
+        allbqw = .false.
+      else if(bq_expand.eq."all") then
+        allbqs = .true.
+        allbqw = .true.
+      else if(bq_expand.eq."solute") then
+        allbqs = .true.
+        allbqw = .false.
+      else if(bq_expand.eq."solvent") then
+        allbqs = .false.
+        allbqw = .true.
+      else
+       call errquit(pname,"unknown option for charge expand",0,0)
+      end if
+c
+c      if (.not.rtdb_get(irtdb,'qmmm:bq-solute',mt_log,1,allbqs))
+c     >     allbqs = .false.
+cc
+c      if (.not.rtdb_get(irtdb,'qmmm:bq-solvent',mt_log,1,allbqw))
+c     >     allbqw = .false.
 
       if(.not.bq_create("qmmm charges",bq_handle))
      + call errquit(pname//'Failed bq_create',0,CALC_ERR) 
@@ -153,23 +192,6 @@ c     ---------------------------------------------
       if(.not.bq_activate(bq_handle)) 
      + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
 c
-c     get active list of bqs
-c     ------------------------
-      if(nbqs.ne.0) 
-     >   call qmmm_cons_get_actmaps(nbqs,int_mb(i_ibq),
-     >                       log_mb(i_abq))
-
-      if(nbqw.ne.0) 
-     >  call  qmmm_cons_get_actmapw(nbqw,int_mb(i_ibq+nbqs),
-     >                       log_mb(i_abq+nbqs))
-
-      nbqa = 0 
-      do i=1,nbq
-         if(log_mb(i_abq+i-1)) then
-           nbqa = nbqa + 1
-         end if
-      end do
-
       charge = 0.0d0
       do i=1,nbq
        charge = charge + dbl_mb(i_qbq+i-1)
@@ -177,11 +199,6 @@ c     ------------------------
       if(ga_nodeid().eq.0) then
        write(*,*) "Total Bq charge: ", charge
       end if
-
-      if(ga_nodeid().eq.0) then
-       write(*,*) "number of active bqs ",nbqa
-      end if
-
 
       if(util_print('bq_geom', print_high)) 
      + call bq_print_info(bq_handle)
@@ -204,6 +221,35 @@ c     ------------------------
       if(qmmm_print_debug()) 
      >       write(*,*) "out",pname
     
+      end
+
+      subroutine qmmm_bq_data_reload()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+      integer counter
+      character*32 pname
+      save    counter
+      DATA counter /0/
+
+      pname = "qmmm_bq_data_reload"
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "in",pname
+
+      counter = counter + 1
+      if(counter.eq.bq_update) then
+        call  qmmm_bq_data_load()
+        counter = 0
+      end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "out",pname
+
+      return
       end
 
       subroutine qmmm_bq_data_update_active()
@@ -241,6 +287,45 @@ c     ------------------------
      >                       log_mb(i_abq+nbqs))
 
       nbqa = 0 
+      do i=1,nbq
+         if(log_mb(i_abq+i-1)) then
+           nbqa = nbqa + 1
+         end if
+      end do
+
+      if(ga_nodeid().eq.0) then
+       write(*,*) "Total number of active Bq charges ",nbqa
+      end if
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "out",pname
+    
+      end
+
+      subroutine qmmm_bq_data_reset_active()
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_bq_data.fh"
+#include "qmmm.fh"
+#include "qmmm_utils.fh"
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "bq.fh"
+#include "util.fh"
+      integer i,k
+      character*32 pname
+
+      pname = "qmmm_bq_data_create_active"
+
+      if(qmmm_print_debug()) 
+     >       write(*,*) "in",pname
+c
+      do i=1,nbq
+         log_mb(i_abq+i-1)= .true.
+      end do
+      nbqa = nbq
       do i=1,nbq
          if(log_mb(i_abq+i-1)) then
            nbqa = nbqa + 1
@@ -546,6 +631,7 @@ c
 
       subroutine qmmm_read_ibq()
       implicit none
+#include "stdio.fh"
 #include "errquit.fh"
 #include "qmmm.fh"
 #include "util.fh"
@@ -557,22 +643,27 @@ c
 
 c     local variables
       integer nf
-      character*(nw_max_path_len) filename
       character*30 pname
 
       integer i
+      integer fn
       integer anbq,anbqs,anbqw
 
       pname = "qmmm_read_ibq"
 
       if(qmmm_master()) then
-        call util_file_name("bq.ind",.false.,.false., filename)
-        open(unit=46,status="old",form="formatted",file=filename)
-        read(46,*) anbqs,anbqw,anbq
+        if(.not.qmmm_get_io_unit(fn)) 
+     >       call errquit("cannot get file number",0,0)
+        open(unit=fn,status="old",form="formatted",file=bqfile_in)
+        read(fn,*) anbqs,anbqw,anbq
         do i=1,anbq
-          read(46,*) int_mb(i_ibq+i-1)
+          read(fn,*) int_mb(i_ibq+i-1)
         end do
-        close(46)
+        close(fn)
+        call util_print_centered(luout,
+     >              "Bq index has been read from external file "//
+     >               bqfile_in,
+     >              36, .true.)
       end if
       call ga_brdcst(msg_qmmm_ind,int_mb(i_ibq),
      >      nbq*ma_sizeof(mt_int,1,mt_byte),0)
@@ -594,15 +685,16 @@ c     local variables
 
 c     local variables
       integer nf
-      character*(nw_max_path_len) filename
 
       integer i
-
+      integer fn
+ 
       if(qmmm_master()) then
-        call util_file_name("bq.ind",.false.,.false., filename)
-        open(unit=46,status="old",form="formatted",file=filename)
-        read(46,*) nbqs,nbqw
-        close(46)
+        if(.not.qmmm_get_io_unit(fn)) 
+     >       call errquit("cannot get file number",0,0)
+        open(unit=fn,status="old",form="formatted",file=bqfile_in)
+        read(fn,*) nbqs,nbqw
+        close(fn)
       end if
 
       call ga_brdcst(msg_qmmm_nbqs,nbqs,ma_sizeof(mt_int,1,mt_byte),0)
@@ -613,9 +705,11 @@ c     local variables
 
       subroutine qmmm_save_bq_index()
       implicit none
+#include "stdio.fh"
 #include "errquit.fh"
 #include "qmmm.fh"
 #include "util.fh"
+#include "global.fh"
 #include "inp.fh"
 #include "qmmm_bq_data.fh"
 #include "mafdecls.fh"
@@ -625,22 +719,31 @@ c     local variables
       character*(nw_max_path_len) filename
 
       integer i
-
+      integer fn
  
-      if(.not.qmmm_master()) return
+      if(qmmm_master()) then
 
-      call util_file_name("bq.ind",.false.,.false., filename)
+      if(.not.qmmm_get_io_unit(fn))
+     >       call errquit("cannot get file number",0,0)
 
-      open(unit=46,status="unknown",form="formatted",file=filename)
+      open(unit=fn,status="unknown",form="formatted",file=bqfile_out)
 
-      write(46,*) nbqs,nbqw,nbq
+      write(fn,*) nbqs,nbqw,nbq
       do i=1,nbq
-       write(46,*) int_mb(i_ibq+i-1)
+       write(fn,*) int_mb(i_ibq+i-1)
       end do
 
-      call util_flush(46)
-      close(46)
+      call util_flush(fn)
+      close(fn)
 
+      call util_print_centered(luout,
+     >              "Bq index has been saved to external file "//
+     >               bqfile_out,
+     >              36, .true.)
+
+      end if
+
+      call ga_sync()
 
       end
 

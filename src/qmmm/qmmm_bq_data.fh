@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq_data.fh,v 1.8 2005-12-13 22:56:32 marat Exp $
+c $Id: qmmm_bq_data.fh,v 1.9 2005-12-16 02:18:07 marat Exp $
 c
       integer bq_exclude
       integer nbqa
@@ -17,15 +17,21 @@ c
       integer i_ibqa,h_ibqa
       logical readbq
       logical allbqs,allbqw
+      integer bq_update
       integer bq_handle
-      character*255 bqfile
+      character*255 bqfile_in
+      character*255 bqfile_out
       logical bqsave
 
 
-      common/qmmm_bq_data/ bq_exclude,
+      common/qmmm_bq_data/   
+     &                     bqfile_in,
+     &                     bqfile_out,
+     &                     bq_exclude,
      &                     readbq,
      &                     allbqs,
      &                     allbqw,
+     &                     bq_update,
      &                     nbq,
      &                     nbqa,
      &                     nbqs,
@@ -40,6 +46,6 @@ c
      &                     i_cbq,h_cbq,
      &                     i_qbqw,h_qbqw,
      &                     i_qbqs,h_qbqs,
-     &                     bqsave,bqfile
+     &                     bqsave
 
 
