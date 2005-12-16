@@ -1,4 +1,4 @@
-c $Id: tce.fh,v 1.2 2003-10-19 01:02:35 sohirata Exp $
+c $Id: tce.fh,v 1.3 2005-12-16 22:06:57 kowalski Exp $
 c
 c Include file for TCE module
 c
@@ -17,6 +17,12 @@ c
       integer nocc(2)          ! Number of alpha, beta electrons
       integer nmo(2)           ! Number of alpha, beta orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
+      integer oactive(2)       ! Number of active occupieds
+      integer vactive(2)       ! Number of active virtuals
+      integer oatiles(2)       ! Number of active occupied tiles
+      integer vatiles(2)       ! Number of active unoccupied tiles
+      integer l_active,k_active ! Active tiles (0-inactive, 1 otherwise)
+      integer numact           !Active excitation level
       character*10 model       ! CC model
       character*10 perturbative! PT model
       logical left             ! Dipole moments & dipole transition moments
@@ -46,6 +52,7 @@ c
       integer filehandles(max_files)     ! File handle holder
       integer filesizes(max_files)       ! File size holder
       logical fileisga(max_files)        ! True if a file is a GA
+      logical activecalc       !True for CCSDt, CCSDtq, EOMCCSDt,EOMCCSDtq
       integer nfiles           ! Number of files
       integer ioalg            ! 0 = Fortran Direct Access 
                                ! 1 = C Low-Level I/O
@@ -158,7 +165,7 @@ c
       integer irrep_t3         ! Totally symmetric
       parameter (irrep_t3 = 0)
       integer irrep_c          ! Totally symmetric
-      parameter (irrep_c = 0)
+cccx      parameter (irrep_c = 0)
       integer irrep_x          ! Irreducible representation of X vector
       integer irrep_y          ! Irreducible representation of Y vector
       integer irrep_d          ! Irreducible representation of D vector
@@ -181,7 +188,8 @@ c
      1  r4_pointer,nroots,nroots_reduced,nxtrials,nytrials,x1,y1,x2,y2,
      2  x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
      3  irrep_x,irrep_y,irrep_d,target,filesizes,xc1,xc2,xc3,xc4,
-     4  yc1,yc2,yc3,yc4
+     4  yc1,yc2,yc3,yc4,oactive,vactive,oatiles,vatiles,
+     5  l_active,k_active,numact,irrep_c
 c
 c     Doubles
 c
@@ -202,4 +210,4 @@ c
      4  x3_exist,y3_exist,x4_exist,y4_exist,xp1_exist,yp1_exist,
      5  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
      6  symmetry,fileisga,xc1_exist,xc2_exist,xc3_exist,xc4_exist,
-     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist
+     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist,activecalc
