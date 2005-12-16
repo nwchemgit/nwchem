@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint,isel)
 c
-c $Id: ana_pltgrd.F,v 1.21 2005-12-14 15:46:15 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.22 2005-12-16 20:44:29 d3j191 Exp $
 c
       implicit none
 c
@@ -160,8 +160,6 @@ c
       call ga_brdcst(mag_d04,spac,3*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
 c
-c      write(*,'(3i5,3f12.6)') ngrd,spac
-c
       return
       end
       subroutine ana_espgrd(x,q,t,g,lprint,isel)
@@ -187,11 +185,6 @@ c
       real*8 xg,yg,zg,value
       real*8 dx,dy,dz
       real*8 boxh(3)
-c
-c      write(*,3000) filplt(1:index(filplt,' ')-1)
-c 3000 format(' filplt= ',a)
-c      write(*,3001) filxyz(1:index(filxyz,' ')-1)
-c 3001 format(' filxyz= ',a)
 c
       mgrd=ngx*ngy*ngz
       lplt=1
@@ -224,7 +217,6 @@ c
       yg=dble(iy-1)*spac(2)+xmin(2)
       do 6 iz=1,ngz
       zg=dble(iz-1)*spac(3)+xmin(3)
-c      write(*,'(3e20.12)') xg,yg,zg
       do 7 i=1,nsa
       if(isel(i).gt.0) then
       dx=xg-x(i,1)
@@ -258,9 +250,6 @@ c      write(*,'(3e20.12)') xg,yg,zg
       g(ix,iy,iz)=g(ix,iy,iz)+138.9354d0*
      + q(i,lplt)/sqrt(dx**2+dy**2+dz**2)
       endif
-c      write(*,'(5i5,3f12.6,3e20.12)') me,ix,iy,iz,i,
-c     + dx,dy,dz,g(ix,iy,iz),q(i,lplt),
-c     + sqrt((xg-x(i,1))**2+(yg-x(i,2))**2+(zg-x(i,3))**2)
     7 continue
     6 continue
     5 continue

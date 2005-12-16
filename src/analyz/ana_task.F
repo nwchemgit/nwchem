@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.99 2005-12-14 00:44:22 d3j191 Exp $
+c $Id: ana_task.F,v 1.100 2005-12-16 20:44:29 d3j191 Exp $
 c
       implicit none
 c
@@ -712,9 +712,12 @@ c
       if(ana_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
       nread=nread+1
       if(nread.lt.idpdb) goto 222
-      if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
+      if(lsuper) then
+      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+      call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
+      endif
       if(fmt.eq.'pdb') then
       call ana_wrtpdb(lfncop,filcop,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xdat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.not.lsonly,
@@ -845,6 +848,7 @@ c
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+      call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
       call ana_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
      + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
      + int_mb(i_wsel),int_mb(i_ndxw))
@@ -961,9 +965,12 @@ c
       if(nread.lt.ifrfr) goto 10
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c
-      if(lsuper) call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
+      if(lsuper) then
+      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+      call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
+      endif
 c
 c     evaluate bond lenghts
 c
@@ -1189,6 +1196,7 @@ c
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+      call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
       endif
 c
       call ana_xaver(dbl_mb(i_xdat+ifr-1),dbl_mb(i_xadat+ifr-1),
@@ -1257,6 +1265,7 @@ c
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+      call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
 c
@@ -1369,6 +1378,7 @@ c
       call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+      call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
 c
@@ -1660,3 +1670,41 @@ c
       ana_wrtvec=.false.
       return
       end
+      subroutine ana_xcollect(x,ifrom,nx,mx)
+c
+      implicit none
+c
+#include "ana_common.fh"
+#include "ana_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+      integer ifrom,nx,mx
+      real*8 x(mx,3)
+c
+      integer i,j
+c
+      if(np.gt.1) then
+c
+      do 1 j=1,3
+      do 2 i=1,ifrom-1
+      x(i,j)=zero
+    2 continue
+    1 continue
+c
+      do 3 j=1,3
+      do 4 i=ifrom+nx+1,mx
+      x(i,j)=zero
+    4 continue
+    3 continue
+c
+      call ga_dgop(mag_d08,x,3*mx,'+')
+c
+      endif
+c
+      return
+      end
+     
