@@ -1,16 +1,19 @@
-      subroutine util_mirrmat(nmat,g_a,g_amirr)
-c $Id: util_mirror.F,v 1.2 2005-12-15 20:23:07 edo Exp $
+      subroutine util_mirrmat(nmat,g_a,g_amirr,
+     D     docopy, dozero)
+c $Id: util_mirror.F,v 1.3 2005-12-17 01:23:01 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer nmat,g_a(*),g_amirr(*)
+      logical docopy, dozero
 c
       integer i
+c     need to add sanity check on docopy vs dozero
       do i=1,nmat
          call util_mirrclone(g_a(i),g_amirr(i))
          call ga_mask_sync(.true.,.false.)
-         call ga_copy(g_a(i),g_amirr(i))
-
+         if(docopy) call ga_copy(g_a(i),g_amirr(i))
+         if(dozero) call ga_zero(g_amirr(i))
       enddo
       return
       end
@@ -70,5 +73,18 @@ c
       call ga_merge_mirrored(g_densrep)
       call ga_mask_sync(.true.,.false.)
       call ga_copy(g_densrep,g_dens)
+      return
+      end
+      subroutine util_mirrmrgadd(g_densrep,g_dens)
+      implicit none
+      integer g_densrep,g_dens,g_densdis
+#include "global.fh"
+c
+      if(.not.ga_duplicate(g_dens, g_densdis, 'GA distr'))
+     C     call errquit(' utilmirr: gaduplicate failed ',0,0)
+      call util_mirrmerge(g_densrep,g_densdis)
+      call util_mirrstop(1,g_densrep)
+      call ga_add(1d0,g_densdis,1d0,g_dens,g_dens)
+      call util_mirrstop(1,g_densdis)
       return
       end
