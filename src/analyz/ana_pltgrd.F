@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint,isel)
 c
-c $Id: ana_pltgrd.F,v 1.22 2005-12-16 20:44:29 d3j191 Exp $
+c $Id: ana_pltgrd.F,v 1.23 2005-12-17 01:08:52 d3j191 Exp $
 c
       implicit none
 c
@@ -158,6 +158,7 @@ c
       call ga_brdcst(mag_d02,xmin,3*ma_sizeof(mt_dbl,1,mt_byte),0)
       call ga_brdcst(mag_d03,ngrd,3*ma_sizeof(mt_int,1,mt_byte),0)
       call ga_brdcst(mag_d04,spac,3*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mag_d05,q,nsa*nq*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
 c
       return
