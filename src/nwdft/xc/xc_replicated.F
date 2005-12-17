@@ -6,7 +6,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.22 2005-12-15 23:20:58 edo Exp $
+C$Id: xc_replicated.F,v 1.23 2005-12-17 01:26:23 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -118,7 +118,8 @@ c
                   call ga_mask_sync(.true.,.false.)
                   call ga_copy(g_dens(ii),g_repdm(ii))
                else
-                  call util_mirrmat(1,g_dens(ii),g_repdm(ii))
+                  call util_mirrmat(1,g_dens(ii),g_repdm(ii),
+     T                 .true.,.false.)
                endif
             endif
          enddo
@@ -154,7 +155,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.22 2005-12-15 23:20:58 edo Exp $
+C$Id: xc_replicated.F,v 1.23 2005-12-17 01:26:23 edo Exp $
 c
       implicit none
 #include "errquit.fh"

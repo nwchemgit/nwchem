@@ -1,6 +1,6 @@
 cedo#define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.34 2005-12-15 23:27:25 edo Exp $
+c $Id: shell_fock_build.F,v 1.35 2005-12-17 01:26:25 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -316,6 +316,7 @@ c
       integer handij,handkl,handik,handjl,handil,handjk
       logical dorepl
       integer g_densrep,g_dens0,g_fockrep,g_fock0
+      logical docopy,dozero
 c     
       firstij=.true.
       firstkl=.true.
@@ -335,14 +336,16 @@ c     replicated DM and Fock Matrix
 c
       dorepl = ga_cluster_nnodes().gt.1
       if(dorepl) then
-         call util_mirrmat(1,g_dens,g_densrep)
+         docopy=.true.
+         dozero=.false.
+         call util_mirrmat(1,g_dens,g_densrep,docopy,dozero)
          g_dens0=g_dens
          g_dens=g_densrep
-#if 0
-         call util_mirrmat(1,g_fock,g_fockrep)
+         docopy=.false.
+         dozero=.true.
+         call util_mirrmat(1,g_fock,g_fockrep,docopy,dozero)
          g_fock0=g_fock
          g_fock=g_fockrep
-#endif
       endif
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
@@ -585,11 +588,8 @@ c
       if(dorepl) then
          call util_mirrstop(1,g_densrep)
          g_dens=g_dens0
-#if 0
-         call util_mirrmerge(g_fockrep,g_fock0)
-         call util_mirrstop(1,g_fockrep)
+         call util_mirrmrgadd(g_fockrep,g_fock0)
          g_fock=g_fock0
-#endif
       endif
 c     
 *      write(6,*) ' numq ', numq

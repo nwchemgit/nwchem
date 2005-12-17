@@ -1,7 +1,7 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
       subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
-c $Id: giaofock.F,v 1.6 2005-12-15 21:22:16 edo Exp $
+c $Id: giaofock.F,v 1.7 2005-12-17 01:26:25 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -170,14 +170,14 @@ c
       ilfirst=.true.
       jkfirst=.true.
 c
-c     mirrored DM and Fock Mat
+c     replicated DM and Fock
 c
       dorepl = ga_cluster_nnodes().gt.1
       if(dorepl) then
-         call util_mirrmat(1,g_dens,g_densrep)
+         call util_mirrmat(1,g_dens,g_densrep,.true.,.false.)
          g_dens0=g_dens
          g_dens=g_densrep
-         call util_mirrmat(1,g_fock,g_fockrep)
+         call util_mirrmat(1,g_fock,g_fockrep,.true.,.false.)
          g_fock0=g_fock
          g_fock=g_fockrep
       endif
