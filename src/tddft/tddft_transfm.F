@@ -1,7 +1,7 @@
       subroutine tddft_transfm(ivector,g_vector,g_movecs,
      1  nbf_ao,nocc,nmo,nfc,nfv,ipol,g_density,itype)
 c
-c $Id: tddft_transfm.F,v 1.5 2005-12-19 21:56:42 edo Exp $
+c $Id: tddft_transfm.F,v 1.6 2005-12-19 22:32:52 edo Exp $
 c
 c itype=1
 c
@@ -84,7 +84,6 @@ c
 #if 0
           if (nodezero.and.util_print('transform',print_debug)) 
      1      write(LuOut,9000) ivector,i
-          write(0,*) ga_nodeid(),' type vec sp ',itype,ivector,i
           call dfill(nbf_ao**2,0.0d0,dbl_mb(k_w1),1)
           l=0
           do j=nfc(i)+1,nocc(i)
@@ -130,7 +129,9 @@ c
           ilo=1
           ihi=ilo+l1l0
           l1l0=l1l0+1
+          call ga_sync()
           do j=nfc(i)+1,nocc(i)
+             call ga_mask_sync(.false.,.false.)
              call ga_copy_patch('N', g_vector(i), 
      A            ilo, ihi, ivector, ivector,
      B            g_vpatch, 
@@ -138,6 +139,7 @@ c
              ilo=ilo+l1l0
              ihi=ihi+l1l0
           enddo
+          call ga_sync()
 C     MO*V
           call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,1d0,
      G         g_movecs(i),g_vpatch,
@@ -166,6 +168,7 @@ c Transform AO to MO
 c ------------------
 c
         do i=1,ipol
+#if 0
           if (nodezero.and.util_print('transform',print_debug)) 
      1      write(LuOut,9000) ivector,i
           call dfill(nbf_ao**2,0.0d0,dbl_mb(k_w3),1)
@@ -202,6 +205,42 @@ c
      1          dbl_mb(k_w1+(j-1)*nbf_ao+k-1),1)
             enddo
           enddo
+#else
+          if(.not.ga_duplicate(g_density(i), g_dd,' tddft '))
+     A         call errquit('tddfttransfm: gadupl failed ',0,0)
+          if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
+     1      'trial vectors1',-1,-1,g_vpatch))
+     A         call errquit('tddfttransfm: gadupl failed ',0,0)
+          call ga_zero(g_vpatch)
+C     MO(tranps)*DM
+          call ga_dgemm('T','N',nbf_ao,nbf_ao,nbf_ao,1d0,
+     G         g_movecs(i),g_density(i),
+     ,     0d0,g_dd)
+C     (MO(transp)*DM)*MO
+          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,1d0,
+     G         g_dd,g_movecs(i),
+     ,     0d0,g_vpatch)
+          if(.not.ga_destroy(g_dd))
+     A         call errquit('tddfttransfm: gadestr failed ',0,0)
+          l0=nocc(i)+1
+          l1=nmo(i)-nfv(i)
+          l1l0=l1-l0
+          ilo=1
+          ihi=ilo+l1l0
+          l1l0=l1l0+1
+          call ga_sync()
+          do j=nfc(i)+1,nocc(i)
+             call ga_mask_sync(.false.,.false.)
+             call ga_copy_patch('N', 
+     B            g_vpatch,  l0, l1, j, j,
+     G            g_vector(i), ilo, ihi, ivector, ivector)
+             ilo=ilo+l1l0
+             ihi=ihi+l1l0
+          enddo
+          call ga_sync()
+          if(.not.ga_destroy(g_vpatch))
+     A         call errquit('tddfttransfm: gadestr failed ',0,0)
+#endif
         enddo
 c
 c ------------
