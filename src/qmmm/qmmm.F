@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.65 2005-12-06 00:19:40 marat Exp $
+c $Id: qmmm.F,v 1.66 2005-12-19 21:16:47 marat Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -31,6 +31,7 @@ c
 c     local variables
       logical ostatus
       
+      ostatus = .false.
       if(operation.eq."energy") then
         ostatus = task_qmmm_energy(rtdb) 
       else if (operation.eq."gradient") then
@@ -55,15 +56,11 @@ c
       integer irtdb
       logical qmmm_init
 c
-      logical ignore
       logical checkgrad
       character*32 pname
       character*32 theory
       character*30 operation
-      character*255 geom
       logical aux_geom
-      logical loadgeom
-      logical ouselbfgs
       logical oprint
 c
       call qmmm_print_header()
@@ -79,7 +76,6 @@ c
       if(oprint) 
      >  write(*,*)"in "//pname
 
-c      ignore = MA_set_hard_fail(.true.)
     
       qmmm_init = .true.
 
@@ -128,7 +124,7 @@ c     --------------------------------------------
          call qmmm_geom_init_neb(irtdb)
       end if
 
-      if(loadgeom) call md_sp()
+      call md_sp()
 
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
