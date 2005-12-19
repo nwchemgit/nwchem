@@ -1,7 +1,7 @@
       subroutine tddft_transfm(ivector,g_vector,g_movecs,
      1  nbf_ao,nocc,nmo,nfc,nfv,ipol,g_density,itype)
 c
-c $Id: tddft_transfm.F,v 1.4 2003-10-17 22:58:29 carlfahl Exp $
+c $Id: tddft_transfm.F,v 1.5 2005-12-19 21:56:42 edo Exp $
 c
 c itype=1
 c
@@ -46,6 +46,7 @@ c
       integer l_w2,k_w2        ! MA handle for a work array
       integer l_w3,k_w3        ! MA handle for MO vectors
       integer i,j,k,l
+      integer g_dd,g_vpatch,l0,l1,l1l0,ilo,ihi
       logical nodezero
 c
       nodezero=(ga_nodeid().eq.0)
@@ -80,9 +81,10 @@ c Retrieve a vector from GA
 c -------------------------
 c
         do i=1,ipol
+#if 0
           if (nodezero.and.util_print('transform',print_debug)) 
      1      write(LuOut,9000) ivector,i
- 9000     format(' Vector: ',i5,' Spin: ',i5)
+          write(0,*) ga_nodeid(),' type vec sp ',itype,ivector,i
           call dfill(nbf_ao**2,0.0d0,dbl_mb(k_w1),1)
           l=0
           do j=nfc(i)+1,nocc(i)
@@ -114,6 +116,41 @@ c
      2      0.0d0,dbl_mb(k_w1),nbf_ao)
           call ga_put(g_density(i),1,nbf_ao,1,nbf_ao,
      1      dbl_mb(k_w1),nbf_ao)
+#else
+          if(.not.ga_duplicate(g_density(i), g_dd,' tddft '))
+     A         call errquit('tddfttransfm: gadupl failed ',0,0)
+          call ga_copy(g_density(i), g_dd)
+          if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
+     1      'trial vectors1',-1,-1,g_vpatch))
+     A         call errquit('tddfttransfm: gadupl failed ',0,0)
+          call ga_zero(g_vpatch)
+          l0=nocc(i)+1
+          l1=nmo(i)-nfv(i)
+          l1l0=l1-l0
+          ilo=1
+          ihi=ilo+l1l0
+          l1l0=l1l0+1
+          do j=nfc(i)+1,nocc(i)
+             call ga_copy_patch('N', g_vector(i), 
+     A            ilo, ihi, ivector, ivector,
+     B            g_vpatch, 
+     C            l0, l1, j, j)
+             ilo=ilo+l1l0
+             ihi=ihi+l1l0
+          enddo
+C     MO*V
+          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,1d0,
+     G         g_movecs(i),g_vpatch,
+     ,     0d0,g_dd)
+C     (MO*V)*MO(transp)
+          call ga_dgemm('N','T',nbf_ao,nbf_ao,nbf_ao,1d0,
+     G         g_dd,g_movecs(i),
+     ,     0d0,g_density(i))
+          if(.not.ga_destroy(g_dd))
+     A         call errquit('tddfttransfm: gadestr failed ',0,0)
+          if(.not.ga_destroy(g_vpatch))
+     A         call errquit('tddfttransfm: gadestr failed ',0,0)
+#endif
           if (util_print('transform',print_debug)) 
      1      call ga_print(g_density(i))
         enddo
@@ -186,4 +223,5 @@ c
       if (.not.ma_pop_stack(l_w1)) call errquit
      1  ('tddft_transfm: failed to deallocate w1',0, MA_ERR)
       return
+ 9000 format(' Vector: ',i5,' Spin: ',i5)
       end
