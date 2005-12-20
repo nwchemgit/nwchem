@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2005-12-16 21:54:43 kowalski Exp $
+#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
 
 OBJ_OPTIMIZE = c1_c1.o  c2_c2.o  cr_eomccsd_t.o cr_eomccsd_t_gr.o t2t12.o  \
                nr0.o c1excit2.o c2excit2.o q3rexpt2.o cr_s_m3.o \
@@ -117,7 +117,77 @@ LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = 
+USES_BLAS = c1_c1.F c2_c2.F\
+c2excit2.F \
+cr_eomccsd_t_n2_1_1_2_2.F \
+cr_eomccsd_t_n2_1_1_2.F \
+cr_eomccsd_t_n2_1_1_3.F \
+cr_eomccsd_t_n2_1_1.F \
+cr_eomccsd_t_n2_1_2.F \
+cr_eomccsd_t_n2_1_3_1.F \
+cr_eomccsd_t_n2_1_3_2_1.F \
+cr_eomccsd_t_n2_1_3_2.F \
+cr_eomccsd_t_n2_1_3_3.F \
+cr_eomccsd_t_n2_1_3.F \
+cr_eomccsd_t_n2_1_4_1.F \
+cr_eomccsd_t_n2_1_4.F \
+cr_eomccsd_t_n2_1_5_1.F \
+cr_eomccsd_t_n2_1_5.F \
+cr_eomccsd_t_n2_1_6_1.F \
+cr_eomccsd_t_n2_1_6.F \
+cr_eomccsd_t_n2_1_7_2.F \
+cr_eomccsd_t_n2_1_7.F \
+cr_eomccsd_t_n2_1_8_2.F \
+cr_eomccsd_t_n2_1_8.F \
+cr_eomccsd_t_n2_1_9.F \
+cr_eomccsd_t_n2_1.F \
+cr_eomccsd_t_n2_2_1_2.F \
+cr_eomccsd_t_n2_2_1_3.F \
+cr_eomccsd_t_n2_2_1_4.F \
+cr_eomccsd_t_n2_2_1.F \
+cr_eomccsd_t_n2_2.F \
+cr_eomccsd_t_n2_3_1.F \
+cr_eomccsd_t_n2_3_2_1.F \
+cr_eomccsd_t_n2_3_2.F \
+cr_eomccsd_t_n2_3_3_2.F \
+cr_eomccsd_t_n2_3_3.F \
+cr_eomccsd_t_n2_3_4.F \
+cr_eomccsd_t_n2_3.F \
+cr_eomccsd_t_n2_4_1_1.F \
+cr_eomccsd_t_n2_4_1_2_1.F \
+cr_eomccsd_t_n2_4_1_2.F \
+cr_eomccsd_t_n2_4_1_3_1.F \
+cr_eomccsd_t_n2_4_1_3.F \
+cr_eomccsd_t_n2_4_1_4.F \
+cr_eomccsd_t_n2_4_1.F \
+cr_eomccsd_t_n2_4_2_2_2.F \
+cr_eomccsd_t_n2_4_2_2.F \
+cr_eomccsd_t_n2_4_2_3.F \
+cr_eomccsd_t_n2_4_2_4.F \
+cr_eomccsd_t_n2_4_2.F \
+cr_eomccsd_t_n2_4.F \
+cr_eomccsd_t_n2_5_2_2_2.F \
+cr_eomccsd_t_n2_5_2_2.F \
+cr_eomccsd_t_n2_5_2_3.F \
+cr_eomccsd_t_n2_5_2.F \
+cr_eomccsd_t_n2_5_3_2.F \
+cr_eomccsd_t_n2_5_3.F \
+cr_eomccsd_t_n2_5_4_2.F \
+cr_eomccsd_t_n2_5_4.F \
+cr_eomccsd_t_n2_5_5_2.F \
+cr_eomccsd_t_n2_5_5.F \
+cr_eomccsd_t_n2_5_6.F \
+cr_eomccsd_t_n2_5.F \
+cr_eomccsd_t_n2_6_2.F \
+cr_eomccsd_t_n2_6_3_2.F \
+cr_eomccsd_t_n2_6_3.F \
+cr_eomccsd_t_n2_6_4.F \
+cr_eomccsd_t_n2_6.F \
+cr_s_m3.F \
+nr0.F \
+q3rexpt2.F \
+t2t12.F
+
 
 LIB_DEFINES = -DDEBUG_PRINT
 #

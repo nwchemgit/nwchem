@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2003-09-16 21:54:20 sohirata Exp $
+#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
 
 OBJ_OPTIMIZE = qcisd_e.o qcisd_t1.o qcisd_t2.o
 
@@ -6,7 +6,7 @@ LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = 
+USES_BLAS = qcisd_e.F qcisd_t1.F qcisd_t2.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #

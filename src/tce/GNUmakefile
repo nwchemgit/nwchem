@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.27 2005-12-16 22:18:06 kowalski Exp $
+#$Id: GNUmakefile,v 1.28 2005-12-20 21:19:37 edo Exp $
 #
 # CCSDTQ, CCSDTQ_LAMBDA, EOM-CCSDTQ will not be compiled by default.
 # To include these, setenv CCSDTQ yes; make realclean; make.
@@ -37,7 +37,10 @@ LIB_INCLUDES = -I./include
 LIBRARY = libtce.a
 
 USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
-            tce_residual_t3.F tce_residual_t4.F
+            tce_residual_t3.F tce_residual_t4.F tce_residual_t3a.F \
+            tce_ao2e.F tce_mo2e.F tce_guess_t1.F tce_diis.F tce_mod1.F \
+            tce_eom_xdiagon.F dscalfile.F tce_eom_ydiagon.F\
+            tce_ao1e.F tce_aod1.F tce_mo1e.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #
