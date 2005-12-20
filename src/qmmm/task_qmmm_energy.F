@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.24 2005-12-20 01:50:20 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.25 2005-12-20 18:30:24 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -1147,7 +1147,7 @@ c
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.24 2005-12-20 01:50:20 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.25 2005-12-20 18:30:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1197,7 +1197,7 @@ c
 c
 c     get lower/upper  limits for pes scan
 c     ------------------------------------
-      if (.not. rtdb_get(irtdb,'qmmm:pes_spring',mt_dbl,
+      if (.not. rtdb_get(irtdb,'qmmm:pes_bounds',mt_dbl,
      +                    2,rb))
      + pes_spring = .false.
 
