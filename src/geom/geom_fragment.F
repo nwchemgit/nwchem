@@ -1,6 +1,6 @@
       subroutine geom_fragment(rtdb,nfrags_return)
 c
-c $Id: geom_fragment.F,v 1.4 2004-03-23 21:19:27 sohirata Exp $
+c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
 c
 c     Subroutines and functions in this file are to help
 c     perform almost automatically the fragment MO for 
@@ -145,6 +145,35 @@ c
         if (.not.ma_pop_stack(l_map2))
      1    call errquit("geom_fragment: MA problem",1,MA_ERR)
       endif
+
+c----------------------------------------------------------------------
+c     write(*,*) "@ WARNING PROGRAM MODIFIED"
+c     nfrags = 7
+c     do iatom = 1, 10
+c       f_map(iatom) = 1
+c     enddo
+c     do iatom =11, 13
+c       f_map(iatom) = 2
+c     enddo
+c     do iatom =23, 25
+c       f_map(iatom) = 2
+c     enddo
+c     do iatom =26, 31
+c       f_map(iatom) = 3
+c     enddo
+c     do iatom =14, 16
+c       f_map(iatom) = 4
+c     enddo
+c     do iatom =17, 19
+c       f_map(iatom) = 5
+c     enddo
+c     do iatom =20, 22
+c       f_map(iatom) = 6
+c     enddo
+c     do iatom =32, 34
+c       f_map(iatom) = 7
+c     enddo
+c----------------------------------------------------------------------
        
       if (.not.geom_destroy(geom))
      1  call errquit('geom_fragment: geom_destroy failed',0,GEOM_ERR)
@@ -173,7 +202,7 @@ c
 
       subroutine select_fragment(rtdb,ifrag,dipole)
 c
-c $Id: geom_fragment.F,v 1.4 2004-03-23 21:19:27 sohirata Exp $
+c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment.
 c
@@ -276,7 +305,7 @@ c
  
       subroutine select_fragmentpair(rtdb,ifrag,jfrag,dipole,r)
 c
-c $Id: geom_fragment.F,v 1.4 2004-03-23 21:19:27 sohirata Exp $
+c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment pair.
 c
@@ -390,6 +419,113 @@ c
             f_coords(1,jatom) = cx - dipole(1,kfrag) * e/d
             f_coords(2,jatom) = cy - dipole(2,kfrag) * e/d
             f_coords(3,jatom) = cz - dipole(3,kfrag) * e/d
+            f_tags(jatom) = 'Bq'
+            f_charges(jatom) = - 0.5d0 * d/e
+          endif
+        endif
+      enddo
+      if (.not.geom_cart_set(f_geom,jatom,
+     1  f_tags,f_coords,f_charges))
+     2  call errquit('geom_fragment: geom_cart_set',0, RTDB_ERR)
+      if (nodezero) then
+      if (.not.geom_print(f_geom))
+     1  call errquit('geom_fragment: geom_create failed',0,GEOM_ERR)
+      endif
+      if (.not.geom_rtdb_store(rtdb,f_geom,'geometry'))
+     1  call errquit('geom_fragment: failed to store geom',0,RTDB_ERR)
+      if (.not.geom_destroy(f_geom))
+     1  call errquit('geom_fragment: geom_create failed',0,GEOM_ERR)
+ 9010 format('.',i3.3)
+      return
+      end
+ 
+ 
+ 
+      subroutine select_fragmenttriplet(rtdb,ifrag,jfrag,kfrag,dipole)
+c
+c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
+c
+c     Overwrite the main geometry entry in RTDB by that of a fragment triplet.
+c
+c     Written by So Hirata in collaboration with Hideo Sekino.
+c
+      implicit none
+#include "rtdb.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "geom.fh"
+#include "geom_fragment.fh"
+#include "inp.fh"
+c
+      integer rtdb             ! Runtime database handle
+      integer ifrag
+      integer jfrag
+      integer kfrag
+      double precision dipole(3,*)
+      integer lfrag
+      integer iatom
+      integer jatom
+      integer f_geom
+      integer ncent
+      double precision cx, cy, cz, c, d
+      double precision e
+      logical nodezero
+c
+      nodezero = (ga_nodeid().eq.0)
+      if (.not.rtdb_get(rtdb,'fragment:dipole_length',mt_dbl,1,e))
+     1  e = 0.1d0
+      if (.not.geom_create(f_geom,'fragmentpair'))
+     1  call errquit('geom_fragment: geom_create failed',0,GEOM_ERR)
+      if (.not.geom_rtdb_load(rtdb,f_geom,'original'))
+     1  call errquit('geom_fragment: no geometry found',0, RTDB_ERR)
+      if (.not.geom_ncent(f_geom,ncent))
+     1  call errquit('geom_fragment: no geometry found',0, RTDB_ERR)
+      jatom = 0
+      do lfrag = 1, nfrags
+        if ((lfrag.eq.ifrag).or.(lfrag.eq.jfrag)
+     1  .or.(lfrag.eq.kfrag)) then
+          do iatom = 1, ncent
+            if (f_map(iatom).eq.lfrag) then
+              jatom = jatom + 1
+              f_coords(1,jatom) = coords(1,iatom)
+              f_coords(2,jatom) = coords(2,iatom)
+              f_coords(3,jatom) = coords(3,iatom)
+              f_tags(jatom) = tags(iatom)
+              f_charges(jatom) = charges(iatom)
+            endif
+          enddo
+        else
+          cx = 0.0d0
+          cy = 0.0d0
+          cz = 0.0d0
+          c  = 0.0d0
+          do iatom = 1, ncent
+            if (f_map(iatom).eq.lfrag) then
+              cx = cx + charges(iatom) * coords(1,iatom)
+              cy = cy + charges(iatom) * coords(2,iatom)
+              cz = cz + charges(iatom) * coords(3,iatom)
+              c  = c  + charges(iatom)
+            endif
+          enddo
+          cx = cx / c
+          cy = cy / c
+          cz = cz / c
+          d  = dsqrt(dipole(1,lfrag)**2
+     1              +dipole(2,lfrag)**2
+     2              +dipole(3,lfrag)**2)
+          if (d.ne.0.0d0) then
+            jatom = jatom + 1
+            f_coords(1,jatom) = cx + dipole(1,lfrag) * e/d
+            f_coords(2,jatom) = cy + dipole(2,lfrag) * e/d
+            f_coords(3,jatom) = cz + dipole(3,lfrag) * e/d
+            f_tags(jatom) = 'Bq'
+            f_charges(jatom) = 0.5d0 * d/e
+            jatom = jatom + 1
+            f_coords(1,jatom) = cx - dipole(1,lfrag) * e/d
+            f_coords(2,jatom) = cy - dipole(2,lfrag) * e/d
+            f_coords(3,jatom) = cz - dipole(3,lfrag) * e/d
             f_tags(jatom) = 'Bq'
             f_charges(jatom) = - 0.5d0 * d/e
           endif
