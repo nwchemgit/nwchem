@@ -1,7 +1,7 @@
       subroutine tddft_transfm(ivector,g_vector,g_movecs,
      1  nbf_ao,nocc,nmo,nfc,nfv,ipol,g_density,itype)
 c
-c $Id: tddft_transfm.F,v 1.6 2005-12-19 22:32:52 edo Exp $
+c $Id: tddft_transfm.F,v 1.7 2005-12-20 00:17:27 edo Exp $
 c
 c itype=1
 c
@@ -118,7 +118,7 @@ c
 #else
           if(.not.ga_duplicate(g_density(i), g_dd,' tddft '))
      A         call errquit('tddfttransfm: gadupl failed ',0,0)
-          call ga_copy(g_density(i), g_dd)
+          call ga_zero(g_dd)
           if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
      1      'trial vectors1',-1,-1,g_vpatch))
      A         call errquit('tddfttransfm: gadupl failed ',0,0)
@@ -141,11 +141,11 @@ c
           enddo
           call ga_sync()
 C     MO*V
-          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,1d0,
+          call ga_dgemm('N','N',nbf_ao,nocc(i),l1,1d0,
      G         g_movecs(i),g_vpatch,
      ,     0d0,g_dd)
 C     (MO*V)*MO(transp)
-          call ga_dgemm('N','T',nbf_ao,nbf_ao,nbf_ao,1d0,
+          call ga_dgemm('N','T',nbf_ao,nbf_ao,nocc(i),1d0,
      G         g_dd,g_movecs(i),
      ,     0d0,g_density(i))
           if(.not.ga_destroy(g_dd))
@@ -211,19 +211,19 @@ c
           if (.not.ga_create(mt_dbl,nbf_ao,nbf_ao,
      1      'trial vectors1',-1,-1,g_vpatch))
      A         call errquit('tddfttransfm: gadupl failed ',0,0)
+          l0=nocc(i)+1
+          l1=nmo(i)-nfv(i)
           call ga_zero(g_vpatch)
 C     MO(tranps)*DM
-          call ga_dgemm('T','N',nbf_ao,nbf_ao,nbf_ao,1d0,
+          call ga_dgemm('T','N',l1,nbf_ao,nbf_ao,1d0,
      G         g_movecs(i),g_density(i),
      ,     0d0,g_dd)
 C     (MO(transp)*DM)*MO
-          call ga_dgemm('N','N',nbf_ao,nbf_ao,nbf_ao,1d0,
+          call ga_dgemm('N','N',l1,nocc(i),nbf_ao,1d0,
      G         g_dd,g_movecs(i),
      ,     0d0,g_vpatch)
           if(.not.ga_destroy(g_dd))
      A         call errquit('tddfttransfm: gadestr failed ',0,0)
-          l0=nocc(i)+1
-          l1=nmo(i)-nfv(i)
           l1l0=l1-l0
           ilo=1
           ihi=ilo+l1l0
