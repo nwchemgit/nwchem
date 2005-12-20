@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.23 2005-12-10 22:43:04 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.24 2005-12-20 01:50:20 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -41,7 +41,7 @@ c
       if (.not. rtdb_get(rtdb, 'qmmm:trajectory', mt_log,1,traj))
      $     traj = .false.
 c
-      if (.not. rtdb_get(rtdb, 'task:qmmm_pes', mt_log,1,opes))
+      if (.not. rtdb_get(rtdb, 'qmmm:pes', mt_log,1,opes))
      $     opes = .false.
 c
       if (.not. rtdb_get(rtdb, 'qmmm:ti', mt_log,1,ti))
@@ -1147,7 +1147,7 @@ c
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.23 2005-12-10 22:43:04 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.24 2005-12-20 01:50:20 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
