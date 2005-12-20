@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, mfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.29 2003-10-17 22:54:32 carlfahl Exp $
+c$Id: fock_2e.F,v 1.30 2005-12-20 01:05:14 edo Exp $
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c
@@ -139,6 +139,16 @@ c !!! from the test below
 c         write(*,*)'*** fock_2e: no xc, returning'
          return
       endif
+      if(nfock.ne.1.and.nfock.ne.4) then
+         if(ga_nodeid().eq.0) then
+            write(0,*) ' WARNING: likely restart: nfock = ',nfock
+         endif
+         if (.not.rtdb_put(bgj_get_rtdb_handle(),'bgj:xc_active',
+     M        MT_LOG,1,.false.)) 
+     C        call errquit(' fock2e: bgjrtdbput failed',0,0)
+         return
+      endif
+
 
 c      write(*,*)'*** fock_2e: nfock =',nfock
       if (nfock.gt.maxfocks)
