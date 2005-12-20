@@ -1,4 +1,4 @@
-% $Id: qmmm.tex,v 1.14 2005-12-13 23:50:25 marat Exp $
+% $Id: qmmm.tex,v 1.15 2005-12-20 01:50:48 marat Exp $
 
 \label{sec:qmmm}
 
@@ -226,16 +226,19 @@ The QM/MM interface parameters define the interaction between classical and quan
 The  input follows standard NWChem format:
 \begin{verbatim}
   qmmm
-    [ eref <double precision default 0.0d0>]
-    [ bqzone <double precision default 9.0d0>]
-    [ bq_exclude  <(none||all||linkbond||linkbond_H) default none>]
-    [ link_atoms <(hydrogen||halogen) default halogen>]
-    [ link_ecp  <(auto||user) default auto>]
-    [ region   < [region1]  [region2]  [region3] > ]
-    [ method   [method1]  [method2]  [method3]  ]
-    [ maxiter  [maxiter1] [maxiter2] [maxiter3] ]
-    [ ncycles  < [number] default 1 > ]
-    [ density  [espfit] [static] [dynamical] default dynamical ]
+  [ eref <double precision default 0.0d0>]
+  [ bqzone <double precision default 9.0d0>]
+  [ mm_charges [exclude <(none||all||linkbond||linkbond_H) default none>]
+           [ expand  <none||all||solute||solvent> default none]
+           [ update  <integer default 0>] 
+        
+  [ link_atoms <(hydrogen||halogen) default hydrogen>]
+  [ link_ecp  <(auto||user) default auto>]
+  [ region   < [region1]  [region2]  [region3] > ]
+  [ method   [method1]  [method2]  [method3]  ]
+  [ maxiter  [maxiter1] [maxiter2] [maxiter3] ]
+  [ ncycles  < [number] default 1 > ]
+  [ density  [espfit] [static] [dynamical] default dynamical ]
   end
 \end{verbatim}
 
@@ -261,33 +264,59 @@ suitably chosen value of {\it eref}
 
 \item
 \begin{verbatim}
- bqzone <double precision default 9.0d0>
+ cutoff <double precision default 9.0d0>
 \end{verbatim}
 
 This directive defines the radius of the zone (in angstroms) around the quantum region
 where classical residues/segments
-will be allowed to interact with quantum region electrostatically. It should be noted
+will be allowed to interact with quantum region both electrostatically and through
+Van der Waals interactions. It should be noted
 that classical atoms interacting with quantum region via bonded interactions are always
-included in the bqzone (this is true even if bqzone is set to $0.0$). In addition, even if one atom
+included (this is true even if bqzone is set to $0.0$). In addition, even if one atom
 of a given charged group is in the bqzone (residues are typically treated as one charged group) then the whole
-group will be included in the bqzone.
+group will be included.
 
 
 \item
 \begin{verbatim}
- bq_exclude  <(none||all||linkbond||linkbond_H) default none>
+mm_charges [exclude <(none||all||linkbond||linkbond_H) default none>]
+           [expand  <none||all||solute||solvent> default none]
+           [update  <integer default 0>] 
 \end{verbatim}
 
-This directive operates in conjunction with bqzone keyword offering additional level of control
-on electrostatic interactions between quantum and classical regions. Default value {\it none} will
-leave bqzone unchanged, {\it all} will remove all atoms from the bqzone resulting in 
-no electrostatic interactions between 
-classical and quantum regions, 
-{\it linkbond} will result in the removal of all atoms that are connected to a quantum region
+This directive controls treatment of classical point (MM) charges that are interacting
+with QM region. For most QM/MM applications the use of directive will be not be necessary. Its
+absence would be simply mean that all MM charges within the cuttof distance ( as specified by {\it cutoff} ) as
+well those belonging to the charges groups directly bonded to QM region will be allowed to interact with QM region.
+
+Keyword {\it exclude} specifies the subset MM charges that will be specifically excluded from interacting with QM region.
+\begin{itemize}
+\item
+{\it none} default value reverts to the original set of MM charges as described above.
+\item
+{\it all} excludes all MM charges from interacting 
+with QM region ("gas phase" calculation). 
+\item
+{\it linkbond} excludes MM charges that are connected to a quantum region
 by at most two bonds,
-{\it linkbond{\_}H} is similar to {\it linkbond} but will only remove hydrogen atoms.
-If necccessary, further modifications of the electrostatic interactions can be achieved 
-using the prepare module{\ref{sec:prepare}}.
+\item
+{\it linkbond{\_}H} similar to {\it linkbond} but excludes only hydrogen atoms.
+\end{itemize}
+
+Keyword {\it expand} expands the set MM charges interacting with QM region beyond the limits imposed by {\it cutoff} value.
+\begin{itemize}
+\item
+{\it none} default value reverts to the original set of MM charges
+\item
+{\it solute} expands electrostatic interaction to all solute MM charges
+\item
+{\it solvent} expands electrostatic interaction to all solvent MM charges
+\item
+{\it all} expands electrostatic interaction to all MM charges
+\end{itemize}
+
+Keyword {\it update} specifies how often list of MM charges will be updated in the course of the calculation. Default behavior
+is not to update.
 
 \item
 \begin{verbatim}
