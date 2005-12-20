@@ -6,7 +6,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.23 2005-12-17 01:26:23 edo Exp $
+C$Id: xc_replicated.F,v 1.24 2005-12-20 23:29:21 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -27,6 +27,8 @@ c
 c
       integer xcrep_glob,ii
       logical xcreplicated_l,oprint,xcrepirrg
+      logical util_mirrmat
+      external util_mirrmat
       integer plist,dims(2),nblock(2)
       integer l_map,k_map,procsmp
       integer gnblock(2)
@@ -49,6 +51,7 @@ c     non blocking
          xcreplicated=.false.
          return
       endif
+      xcreplicated_l=.true.
       if (.not. rtdb_get(rtdb, 'dft:dorepdm', mt_log, 1, 
      .     dorepdm))
      &     dorepdm=.true.
@@ -118,7 +121,8 @@ c
                   call ga_mask_sync(.true.,.false.)
                   call ga_copy(g_dens(ii),g_repdm(ii))
                else
-                  call util_mirrmat(1,g_dens(ii),g_repdm(ii),
+                  xcreplicated_l=
+     X                 util_mirrmat(1,g_dens(ii),g_repdm(ii),
      T                 .true.,.false.)
                endif
             endif
@@ -130,7 +134,6 @@ c
          endif
             
          
-      xcreplicated_l=.true.
 c
 c     check if everyone is ok
 c
@@ -155,7 +158,7 @@ c
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.23 2005-12-17 01:26:23 edo Exp $
+C$Id: xc_replicated.F,v 1.24 2005-12-20 23:29:21 edo Exp $
 c
       implicit none
 #include "errquit.fh"

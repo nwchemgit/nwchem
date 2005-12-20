@@ -1,6 +1,6 @@
-cedo#define NBACC 1
+#define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.35 2005-12-17 01:26:25 edo Exp $
+c $Id: shell_fock_build.F,v 1.36 2005-12-20 23:29:19 edo Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -315,8 +315,10 @@ c
       logical firstij,firstkl,firstik,firstjl,firstil,firstjk
       integer handij,handkl,handik,handjl,handil,handjk
       logical dorepl
-      integer g_densrep,g_dens0,g_fockrep,g_fock0
-      logical docopy,dozero
+      integer g_densrep,g_dens0,g_fockrep,g_fock0,dorep_glob
+      logical docopy,dozero,dorepd,dorepf
+      logical util_mirrmat
+      external util_mirrmat
 c     
       firstij=.true.
       firstkl=.true.
@@ -334,18 +336,27 @@ c
 c
 c     replicated DM and Fock Matrix
 c
-      dorepl = ga_cluster_nnodes().gt.1
-      if(dorepl) then
+      dorepl=.false.
+      if(ga_cluster_nnodes().gt.1) then
          docopy=.true.
          dozero=.false.
-         call util_mirrmat(1,g_dens,g_densrep,docopy,dozero)
-         g_dens0=g_dens
-         g_dens=g_densrep
+         dorepd=util_mirrmat(1,g_dens,g_densrep,docopy,dozero)
          docopy=.false.
          dozero=.true.
-         call util_mirrmat(1,g_fock,g_fockrep,docopy,dozero)
-         g_fock0=g_fock
-         g_fock=g_fockrep
+         dorepf=util_mirrmat(1,g_fock,g_fockrep,docopy,dozero)
+         dorepl=dorepd.and.dorepf
+         dorep_glob=0
+         if(dorepl) dorep_glob=1
+         call ga_igop(375,dorep_glob,1, '+')
+         dorepl=dorep_glob.eq.ga_nnodes()
+         if(dorepl) then
+            g_dens0=g_dens
+            g_dens=g_densrep
+            g_fock0=g_fock
+            g_fock=g_fockrep
+         else
+            if(dorepd) call util_mirrstop(1,g_dens)
+         endif
       endif
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
 c     
@@ -617,8 +628,8 @@ c
       hi(3) = jbfhi
       ld(1) = ndens
       ld(2) = blen
-      call nga_get(g_dens, lo, hi, buf, ld) 
 c
+      call nga_get(g_dens, lo, hi, buf, ld) 
       call scale_dens_block(buf,ndens,blen,ibflo,ibfhi,
      *   jbflo,jbfhi,fac)
 c
