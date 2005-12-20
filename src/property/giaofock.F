@@ -1,7 +1,7 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
       subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
-c $Id: giaofock.F,v 1.7 2005-12-17 01:26:25 edo Exp $
+c $Id: giaofock.F,v 1.8 2005-12-20 23:29:14 edo Exp $
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -151,10 +151,12 @@ c
       logical ijfirst,jifirst,ikfirst,jlfirst,ilfirst,jkfirst
       integer ijhand,jihand,ikhand,jlhand,ilhand,jkhand
       integer dklhand,dikhand,djlhand,dilhand,djkhand
-      integer g_densrep,g_dens0,g_fockrep,g_fock0
+      integer g_densrep,g_dens0,g_fockrep,g_fock0,dorep_glob
 c
       integer nproc
-      logical dorepl
+      logical dorepl,dorepd,dorepf
+      logical util_mirrmat
+      external util_mirrmat
 c     
 c     smax  = schwarz_max()
 c     call int_acc_std()
@@ -172,14 +174,23 @@ c
 c
 c     replicated DM and Fock
 c
-      dorepl = ga_cluster_nnodes().gt.1
-      if(dorepl) then
-         call util_mirrmat(1,g_dens,g_densrep,.true.,.false.)
-         g_dens0=g_dens
-         g_dens=g_densrep
-         call util_mirrmat(1,g_fock,g_fockrep,.true.,.false.)
-         g_fock0=g_fock
-         g_fock=g_fockrep
+      dorepl=.false.
+      if(ga_cluster_nnodes().gt.1) then
+         dorepd=util_mirrmat(1,g_dens,g_densrep,.true.,.false.)
+         dorepf=util_mirrmat(1,g_fock,g_fockrep,.true.,.false.)
+         dorepl=dorepd.and.dorepf
+         dorep_glob=0
+         if(dorepl) dorep_glob=1
+         call ga_igop(375,dorep_glob,1, '+')
+         dorepl=dorep_glob.eq.ga_nnodes()
+         if(dorepl) then
+            g_dens0=g_dens
+            g_dens=g_densrep
+            g_fock0=g_fock
+            g_fock=g_fockrep
+         else
+            if(dorepd) call util_mirrstop(1,g_dens)
+         endif
       endif
 
 c     
