@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.54 2005-12-14 15:06:20 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.55 2005-12-21 22:18:16 d3j191 Exp $
 c
       implicit none
 c
@@ -255,6 +255,13 @@ c
       write(iunit,7003)
  7003 format('}')
       endif
+      endif
+c
+      if(fmt.eq.'pdb') then
+      write(fname,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.pdb '
+      write(*,'(a,a)') 'Writing ',fname
+      call ana_wrtpdb(lfnchg,fname,sgmnam,isel,x,iwsel,w,
+     + .true.,.false.,ndxw)
       endif
 c
       if(fmt.eq.'pov') then
