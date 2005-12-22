@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.20 2005-10-11 22:37:03 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.21 2005-12-22 01:40:10 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -182,12 +182,15 @@
       
          IF (control_gga().eq.0) THEN
             write(6,1131) 'Vosko et al parameterization'
-         ELSE IF (control_gga().eq.1) THEN
+         ELSE IF (control_gga().eq.10) THEN
             write(6,1131)
      >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.2) THEN
+         ELSE IF (control_gga().eq.11) THEN
             write(6,1131)
      >      'BLYP (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.12) THEN
+            write(6,1131)
+     >      'revPBE (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
