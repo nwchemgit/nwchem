@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.37 2005-09-07 23:55:04 bylaska Exp $
+* $Id: band_minimizer.F,v 1.38 2005-12-22 01:35:04 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -204,7 +204,7 @@ c      external      cpsp_comment
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      IF ((control_gga().eq.1).or.(control_gga().eq.2)) THEN
+      IF ((control_gga().ge.10).or.(control_gga().lt.100)) THEN
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call G_init()
       call mask_init()
@@ -281,12 +281,15 @@ c      external      cpsp_comment
 
          IF (control_gga().eq.0) THEN
             write(luout,1131) 'Vosko et al parameterization'
-         ELSE IF (control_gga().eq.1) THEN
+         ELSE IF (control_gga().eq.10) THEN
             write(luout,1131)
      >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.2) THEN
+         ELSE IF (control_gga().eq.11) THEN
             write(luout,1131)
      >      'BLYP (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.12) THEN
+            write(luout,1131)
+     >      'revPBE (White and Bird) parameterization'
          ELSE
             write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
@@ -505,7 +508,7 @@ c           write(luout,1154) cpsp_nprj(ia)
       call ion_end()
       call ion_end_FixIon()
       call C3dB_end(1)
-      IF ((control_gga().eq.1).or.(control_gga().eq.2)) THEN
+      IF ((control_gga().ge.10).or.(control_gga().lt.100)) THEN
       call mask_end()
       call G_end()
       call D3dB_end(1)

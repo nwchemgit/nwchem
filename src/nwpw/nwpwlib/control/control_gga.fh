@@ -1,0 +1,318 @@
+*
+* $Id: control_gga.fh,v 1.1 2005-12-22 01:35:04 bylaska Exp $
+*
+
+
+*  exchange-correlation settings
+*
+*   gga = -1 off
+*
+*   **** LDAs ****
+*   gga = 0 vosko,
+*   gga = 1-9 (reserved for other lda's)
+*
+*   **** GGAs ****
+*   gga = 10 pbe96
+*   gga = 11 blyp
+*   gga = 12 revpbe
+*   gga = 13-99 (reserved for other gga's)
+*
+*   **** hybrids ****
+*   gga = 100-109 (reserved for lda hybrids)
+*   gga = 110  pbe0
+*   gga = 111  b3lyp
+*   gga = 112  revpbe0
+*   gga = 113-199 (reserved for hybrids)
+*   gga = 200 hartree-fock
+*
+*
+
+*
+*     no exchange-correlation functions
+*
+      if (inp_compare(.false.,exchange_correlation,'off')) then
+        gga = -1
+
+*     *** LDAs ***
+      else if (inp_compare(.false.,exchange_correlation,'vosko')) then
+        gga = 0
+      else if (inp_compare(.false.,exchange_correlation,'svwn5')) then
+        gga = 0
+      else if (inp_compare(.false.,exchange_correlation,'lda')) then
+        gga = 0
+      else if (inp_compare(.false.,exchange_correlation,'lsda')) then
+        gga = 0
+        value = rtdb_put(rtdb,'cpsd:ispin',mt_int,1,2)
+        value = rtdb_put(rtdb,'cpmd:ispin',mt_int,1,2)
+        value = rtdb_put(rtdb,'cgsd:ispin',mt_int,1,2)
+
+
+*     **** GGAs ****
+      else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
+        gga = 10
+      else if (inp_compare(.false.,exchange_correlation,'blyp')) then
+        gga = 11
+      else if (inp_compare(.false.,exchange_correlation,'revpbe')) then
+        gga = 12
+
+
+
+*     **** Hartree-Fock ***
+      else if (inp_compare(.false.,exchange_correlation,'hf')) then
+        gga = 200
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'hartree-fock')) then
+        gga = 200
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+
+
+*     **** hybrid functionals ****
+      else if (inp_compare(.false.,exchange_correlation,'pbe0')) then
+        gga = 110
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+
+      else if (inp_compare(.false.,exchange_correlation,'revpbe0')) then
+        gga = 112
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+
+
+*     **** SIC hybrids ****
+      else if (inp_compare(.false.,exchange_correlation,'lda-sic')) then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe96-sic')) then
+        gga = 10
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'blyp-sic')) then
+        gga = 11
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe-sic')) then
+        gga = 12
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                    'lda-0.5sic')) then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'pbe96-0.5sic')) then
+        gga = 10
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'blyp-0.5sic')) then
+        gga = 11
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'revpbe-0.5sic')) then
+        gga = 12
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                    'lda-sic/2')) then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'pbe96-sic/2')) then
+        gga = 10
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'blyp-0.5sic')) then
+        gga = 11
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'revpbe-0.5sic')) then
+        gga = 12
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.50d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.50d0)
+
+
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                    'lda-0.4sic')) then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'pbe96-0.4sic')) then
+        gga = 10
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'blyp-0.4sic')) then
+        gga = 11
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'revpbe-0.4sic')) then
+        gga = 12
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.40d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.40d0)
+
+
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                    'lda-0.25sic')) then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'pbe96-0.25sic')) then
+        gga = 10
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'blyp-0.25sic')) then
+        gga = 11
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'revpbe-0.25sic')) then
+        gga = 12
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                    'lda-sic/4')) then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'pbe96-sic/4')) then
+        gga = 10
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'blyp-sic/4')) then
+        gga = 11
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'revpbe-sic/4')) then
+        gga = 12
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.25d0)
+
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                    'lda-0.2sic')) then
+        gga = 0
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.20d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.20d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'pbe96-0.2sic')) then
+        gga = 10
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.20d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.20d0)
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'blyp-0.2sic')) then
+        gga = 11
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.20d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.20d0)
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >         'revpbe-0.2sic')) then
+        gga = 12
+        value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,0.20d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.20d0)
+
+
+      else
+        gga = 0
+      end if
+
+

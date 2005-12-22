@@ -1,5 +1,5 @@
 *
-* $Id: v_bwexc.F,v 1.6 2005-10-05 21:19:08 bylaska Exp $
+* $Id: v_bwexc.F,v 1.7 2005-12-22 01:35:06 bylaska Exp $
 *
 
       
@@ -117,7 +117,7 @@ c        ***** calculate agr = |grad n| ****
 
 
 c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
-         if (gga.eq.1) then
+         if (gga.eq.10) then
          call gen_PBE96_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
@@ -125,8 +125,17 @@ c        ***** calculate xce,fn=df/dn, and fdn=df/d|grad n|  ****
      >                                xce,
      >                                dbl_mb(fn(1)),
      >                                dbl_mb(fdn(1)))
-         else if (gga.eq.2) then
+         else if (gga.eq.11) then
          call gen_BLYP_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                x_parameter,c_parameter,
+     >                                xce,
+     >                                dbl_mb(fn(1)),
+     >                                dbl_mb(fdn(1)))
+
+         else if (gga.eq.12) then
+         call gen_revPBE_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
      >                                x_parameter,c_parameter,
@@ -359,7 +368,7 @@ c        ***** calculate agr = |grad nup +grad ndn| ****
  
 c        ***** calculate xce,fn=(df/dnup,df/dndn) and               ****
 c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
-         if (gga.eq.1) then
+         if (gga.eq.10) then
          call gen_PBE96_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
      >                                  x_parameter,c_parameter,
@@ -367,8 +376,15 @@ c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
      >                                  dbl_mb(fn(1)),
      >                                  dbl_mb(fdn(1)))
 
-         else if (gga.eq.2) then
+         else if (gga.eq.11) then
          call gen_BLYP_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >                                  x_parameter,c_parameter,
+     >                                  xce,
+     >                                  dbl_mb(fn(1)),
+     >                                  dbl_mb(fdn(1)))
+         else if (gga.eq.12) then
+         call gen_revPBE_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
      >                                  x_parameter,c_parameter,
      >                                  xce,

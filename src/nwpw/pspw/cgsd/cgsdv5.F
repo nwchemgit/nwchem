@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.63 2005-09-07 23:55:04 bylaska Exp $
+* $Id: cgsdv5.F,v 1.64 2005-12-22 01:35:05 bylaska Exp $
 *
 
 ***********************************************************************
@@ -301,16 +301,24 @@ c     value = psi_initialize()
             write(6,1131) 'off'
          ELSE IF (control_gga().eq.0) THEN
             write(6,1131) 'LDA (Vosko et al) parameterization'
-         ELSE IF (control_gga().eq.1) THEN
+         ELSE IF (control_gga().eq.10) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.2) THEN
+         ELSE IF (control_gga().eq.11) THEN
             write(6,1131) 
      >      'BLYP (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.3) THEN
+         ELSE IF (control_gga().eq.12) THEN
+            write(6,1131) 
+     >      'revPBE (White and Bird) parameterization'
+
+         ELSE IF (control_gga().eq.110) THEN
             write(6,1131) 
      >      'PBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.4) THEN
+         ELSE IF (control_gga().eq.112) THEN
+            write(6,1131) 
+     >      'revPBE0 (White and Bird) parameterization'
+
+         ELSE IF (control_gga().eq.200) THEN
             write(6,1131) 'Hartree-Fock'
          ELSE
             write(6,1131) 'unknown parameterization'

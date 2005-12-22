@@ -24,7 +24,7 @@ Comment:
 3 2 1.6
 
 <ref_potential_matching_radius> 2.5
-<ref_potential_at_zero> -3.5
+<ref_potential_at_zero> 0
 <compensation_charge_radius> 1.5
 <nodal_constraint> on
 <projector_method> vanderbilt

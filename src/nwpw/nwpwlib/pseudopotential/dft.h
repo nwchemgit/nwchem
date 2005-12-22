@@ -1,5 +1,5 @@
 /*
- $Id: dft.h,v 1.2 2005-02-08 01:25:56 bylaska Exp $
+ $Id: dft.h,v 1.3 2005-12-22 01:35:04 bylaska Exp $
 */
 #ifndef _DFT_H_
 #define _DFT_H_
@@ -14,10 +14,12 @@
 #include	"hartree.h"
 #include	"dirac_exchange.h"
 #include        "pbe_exchange.h"
+#include        "revpbe_exchange.h"
 #include	"perdew_zunger.h"
 #include        "perdew_wang.h"
 #include	"vosko.h"
 #include        "pbe_correlation.h"
+#include        "revpbe_correlation.h"
 #include        "becke_exchange.h"
 #include        "lyp_correlation.h"
 
@@ -37,7 +39,8 @@ extern	void	R_Correlation_DFT();
 #define Exchange_Dirac          -8201
 #define Exchange_PBE96          -8202
 #define Exchange_Becke          -8204
-#define Exchange_Off            -8205
+#define Exchange_revPBE         -8205
+#define Exchange_Off            -8206
 
 
 /* Correlation type: Correlation_Type */
@@ -46,7 +49,8 @@ extern	void	R_Correlation_DFT();
 #define Correlation_Perdew_Wang         -8303
 #define Correlation_PBE96               -8304
 #define Correlation_LYP                 -8305
-#define Correlation_Off                 -8306
+#define Correlation_revPBE              -8306
+#define Correlation_Off                 -8307
 
 
 /* used for setting solver parameters */

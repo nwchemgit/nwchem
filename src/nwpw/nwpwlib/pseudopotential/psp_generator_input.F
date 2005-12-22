@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.29 2005-10-06 19:18:43 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.30 2005-12-22 01:35:04 bylaska Exp $
 c
 
 *     ***************************************
@@ -598,7 +598,7 @@ c        *** Vosko ***
            if (hprint) write(*,*) "+ generated using Vosko et al."
 
 c        *** PBE96 ***
-         else if (control_gga().eq.1) then
+         else if ((control_gga().eq.10).or.(control_gga().eq.110)) then
            if (hprint) write(*,*) "+ generated using PBE96"
            open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
            do while(.true.)
@@ -609,7 +609,7 @@ c        *** PBE96 ***
            close(unit=99)
 
 c        *** BLYP ***
-         else if (control_gga().eq.2) then
+         else if (control_gga().eq.11) then
            if (hprint) write(*,*) "+ generated using BLYP"
            open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
            do while(.true.)
@@ -617,7 +617,17 @@ c        *** BLYP ***
            end do
    31      write(99,*) '<exchange>    becke <end>'
            write(99,*) '<correlation> lyp   <end>'
-c           write(99,*) '<correlation> off   <end>'
+           close(unit=99)
+
+c        *** revPBE ***
+         else if ((control_gga().eq.12).or.(control_gga().eq.112)) then
+           if (hprint) write(*,*) "+ generated using revPBE"
+           open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+           do while(.true.)
+             read(99,*,ERR=32,END=32) ch_tmp
+           end do
+   32      write(99,*) '<exchange>    revpbe <end>'
+           write(99,*) '<correlation> revpbe <end>'
            close(unit=99)
          end if
 
@@ -831,7 +841,7 @@ c        *** Vosko ***
            if (hprint) write(*,*) "+ generated using Vosko et al."
 
 c        *** PBE96 ***
-         else if (control_gga().eq.1) then
+         else if ((control_gga().eq.10).or.(control_gga().eq.110)) then
            if (hprint) write(*,*) "+ generated using PBE96"
            open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
            do while(.true.)
@@ -842,7 +852,7 @@ c        *** PBE96 ***
            close(unit=99)
 
 c        *** BLYP ***
-         else if (control_gga().eq.2) then
+         else if (control_gga().eq.11) then
            if (hprint) write(*,*) "+ generated using BLYP"
            open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
            do while(.true.)
@@ -850,6 +860,17 @@ c        *** BLYP ***
            end do
    31      write(99,*) '<exchange>    becke <end>'
            write(99,*) '<correlation> lyp   <end>'
+           close(unit=99)
+
+c        *** revPBE ***
+         else if ((control_gga().eq.12).or.(control_gga().eq.112)) then
+           if (hprint) write(*,*) "+ generated using revPBE"
+           open(unit=99,file=sdir_name(1:h)//'/junk.inp',status='old')
+           do while(.true.)
+             read(99,*,ERR=32,END=32) ch_tmp
+           end do
+   32      write(99,*) '<exchange>    revpbe <end>'
+           write(99,*) '<correlation> revpbe <end>'
 c           write(99,*) '<correlation> off   <end>'
            close(unit=99)
 

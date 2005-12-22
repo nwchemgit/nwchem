@@ -1,5 +1,5 @@
 *
-* $Id: v_bwexc_euv.F,v 1.6 2005-09-07 23:55:05 bylaska Exp $
+* $Id: v_bwexc_euv.F,v 1.7 2005-12-22 01:35:06 bylaska Exp $
 *
 
       
@@ -133,7 +133,7 @@ c        ***** calculate agr = |grad n| ****
 
     
 c        ***** calculate fdn=df/d|grad n|  ****
-         if (gga.eq.1) then
+         if (gga.eq.10) then
          call gen_PBE96_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
@@ -142,8 +142,16 @@ c        ***** calculate fdn=df/d|grad n|  ****
      >                                dbl_mb(fn(1)),  !*** not used ??***
      >                                dbl_mb(fdn(1)))
 
-         else if (gga.eq.2) then
+         else if (gga.eq.11) then
          call gen_BLYP_BW_restricted(n2ft3d,
+     >                                dbl_mb(rho(1)),
+     >                                dbl_mb(agr(1)),
+     >                                x_parameter,c_parameter,
+     >                                dbl_mb(xce(1)), !*** not used ??***
+     >                                dbl_mb(fn(1)),  !*** not used ??***
+     >                                dbl_mb(fdn(1)))
+         else if (gga.eq.12) then
+         call gen_revPBE_BW_restricted(n2ft3d,
      >                                dbl_mb(rho(1)),
      >                                dbl_mb(agr(1)),
      >                                x_parameter,c_parameter,
@@ -400,12 +408,31 @@ c        ***** calculate agr = |grad nup +grad ndn| ****
  
 c        ***** calculate    ****
 c        *****  fdn=(dfx/d|grad nup|,dfx/d|grad ndn|,dfc/d|grad n|) ****
+         if (gga.eq.10) then
          call gen_PBE96_BW_unrestricted(n2ft3d,dn,
      >                                  dbl_mb(agr(1)),
      >                                  x_parameter,c_parameter,
      >                                  dbl_mb(xce(1)), !*** not used ***
      >                                  dbl_mb(fn(1)), !*** not used ***
      >                                  dbl_mb(fdn(1)))
+         else if (gga.eq.11) then
+         call gen_BLYP_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >                                  x_parameter,c_parameter,
+     >                                  dbl_mb(xce(1)), !*** not used ***
+     >                                  dbl_mb(fn(1)), !*** not used ***
+     >                                  dbl_mb(fdn(1)))
+         else if (gga.eq.12) then
+         call gen_revPBE_BW_unrestricted(n2ft3d,dn,
+     >                                  dbl_mb(agr(1)),
+     >                                  x_parameter,c_parameter,
+     >                                  dbl_mb(xce(1)), !*** not used ***
+     >                                  dbl_mb(fn(1)), !*** not used ***
+     >                                  dbl_mb(fdn(1)))
+
+         else 
+          call errquit('bad gga',0,0)
+         end if
 
          
 *        **** calculate df/d|grad nup|* (grad nup)/|grad nup|  ****

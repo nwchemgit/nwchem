@@ -1,6 +1,11 @@
 *
-* $Id: paw_cpmd.F,v 1.17 2005-07-09 22:44:22 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.18 2005-12-22 01:35:05 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.17  2005/07/09 22:44:22  bylaska
+* adding Louie FFT....EJB
+* flag added for PAW xc and comp angular integration.
+* ....EJB
+*
 * Revision 1.16  2005/02/09 02:38:57  bylaska
 * ..............EJB
 *
@@ -570,12 +575,15 @@ c      call paw_vloc_init()
          if (ispin.eq.2) write(6,1130) 'unrestricted'
          IF (control_gga().eq.0) THEN
             write(6,1131) 'Vosko et al parameterization'
-         ELSE IF (control_gga().eq.1) THEN
+         ELSE IF (control_gga().eq.10) THEN
             write(6,1131) 
      >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.2) THEN
+         ELSE IF (control_gga().eq.11) THEN
             write(6,1131) 
      >      'BLYP (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.12) THEN
+            write(6,1131) 
+     >      'revPBE (White and Bird) parameterization'
          ELSE
             write(6,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0,0)

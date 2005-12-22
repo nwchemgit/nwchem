@@ -1,5 +1,5 @@
 /*
- $Id: dft.c,v 1.3 2005-02-08 01:25:56 bylaska Exp $
+ $Id: dft.c,v 1.4 2005-12-22 01:35:04 bylaska Exp $
    dft.c - 
    Author - Eric Bylaska
 
@@ -46,6 +46,7 @@ void	init_DFT(char	*filename)
       if (strcmp("dirac",w)==0) Exchange_Type=Exchange_Dirac;
       if (strcmp("pbe96",w)==0) Exchange_Type=Exchange_PBE96;
       if (strcmp("becke",w)==0) Exchange_Type=Exchange_Becke;
+      if (strcmp("revpbe",w)==0) Exchange_Type=Exchange_revPBE;
       if (strcmp("off",w)  ==0) Exchange_Type=Exchange_Off;
    }
    fclose(fp);
@@ -81,6 +82,8 @@ void	init_DFT(char	*filename)
 	Correlation_Type=Correlation_Perdew_Wang;
       if (strcmp("lyp",w)  ==0)
         Correlation_Type=Correlation_LYP;
+      if (strcmp("revpbe",w)  ==0)       
+	Correlation_Type=Correlation_revPBE;
       if (strcmp("off",w)  ==0)       
 	Correlation_Type=Correlation_Off;
    }
@@ -119,6 +122,8 @@ double	*Px;
       R_PBE96_Exchange(rho,Vx,Ex,Px);
    else if (Exchange_Type==Exchange_Becke)
       R_Becke_Exchange(rho,Vx,Ex,Px);
+   else if (Exchange_Type==Exchange_revPBE)
+      R_revPBE_Exchange(rho,Vx,Ex,Px);
    else
    {
       *Ex   = 0.0;
@@ -148,6 +153,8 @@ double	*Pc;
       R_Perdew_Wang(rho,Vc,Ec,Pc);
    else if (Correlation_Type==Correlation_LYP)
       R_LYP_Correlation(rho,Vc,Ec,Pc);
+   else if (Correlation_Type==Correlation_revPBE)
+      R_revPBE_Correlation(rho,Vc,Ec,Pc);
    else
    {
       *Ec   = 0.0;
@@ -203,6 +210,8 @@ char	*exchange_Name_DFT()
      s = "PBE96 (Perdew, Burke, and Ernzerhof) parameterization";
    else if (Exchange_Type==Exchange_Becke)
      s = "Becke88 parameterization";
+   else if (Exchange_Type==Exchange_revPBE)
+     s = "revPBE (Norskov) parameterization";
    else
      s = "No Exchange";
 
@@ -222,6 +231,8 @@ char	*correlation_Name_DFT()
        s = "Perdew and Wang parameterization";
     else if (Correlation_Type==Correlation_LYP)
        s = "LYP (Lee, Yang, Parr) parameterization";
+    else if (Correlation_Type==Correlation_revPBE)
+       s = "revPBE (Norskov) parameterization";
     else
        s = "No Correlation";
 

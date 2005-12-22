@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.22 2005-08-23 14:12:02 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.23 2005-12-22 01:35:06 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -344,13 +344,18 @@ c     real*8     fion(3,natmx)
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)),
      >                      dcpl_mb(tmp1(1)))
-        else if ((gga.eq.1).or.(gga.eq.2)) then
+        else if ((gga.ge.10).and.(gga.lt.100)) then
           call v_bwexc(gga,n2ft3d,ispin,dbl_mb(dnall(1)),
      >                      1.0d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
-        else if (gga.eq.3) then
-          call v_bwexc(1,n2ft3d,ispin,dbl_mb(dnall(1)),
+        else if (gga.eq.110) then
+          call v_bwexc(10,n2ft3d,ispin,dbl_mb(dnall(1)),
+     >                      0.75d0,1.0d0,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
+        else if (gga.eq.112) then
+          call v_bwexc(12,n2ft3d,ispin,dbl_mb(dnall(1)),
      >                      0.75d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))

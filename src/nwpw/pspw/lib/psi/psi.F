@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.62 2005-10-05 21:21:30 bylaska Exp $
+* $Id: psi.F,v 1.63 2005-12-22 01:35:07 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.62  2005/10/05 21:21:30  bylaska
+* psi_iptr_write added...EJB
+*
 * Revision 1.61  2005/05/24 17:36:27  bylaska
 * Stresses added to SIC and HFX.
 * ....BLYP functional updates
@@ -3867,7 +3870,7 @@ c    >                            dcpl_mb(dng1(1)))
 *     **** PBE96 GGA part ****
 *     **** finished? 11/24/04 - still need to test ***
       gga = control_gga()
-      if ((gga.eq.1).or.(gga.eq.2)) then
+      if ((gga.ge.10).or.(gga.lt.100)) then
        call v_bwexc_euv(gga,2*nfft3d,ispin,dbl_mb(rho1_all(1)),
      >                  1.0d0,1.0d0,tstress)
        do v=1,3
@@ -3877,8 +3880,18 @@ c    >                            dcpl_mb(dng1(1)))
        end do
       end if 
 
-      if (gga.eq.3) then
-       call v_bwexc_euv(1,2*nfft3d,ispin,dbl_mb(rho1_all(1)),
+      if (gga.eq.110) then
+       call v_bwexc_euv(10,2*nfft3d,ispin,dbl_mb(rho1_all(1)),
+     >                  0.75d0,1.0d0,tstress)
+       do v=1,3
+       do u=1,3
+          stress(u,v) = stress(u,v) + tstress(u,v)
+       end do
+       end do
+      end if 
+
+      if (gga.eq.112) then
+       call v_bwexc_euv(12,2*nfft3d,ispin,dbl_mb(rho1_all(1)),
      >                  0.75d0,1.0d0,tstress)
        do v=1,3
        do u=1,3
