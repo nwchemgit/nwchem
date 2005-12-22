@@ -8,16 +8,16 @@ echo
 
 charge -18
 
-geometry o noprint
+geometry o noprint noautosym
 O 0 0 0
 symmetry c2v
 end
-geometry ni noprint
+geometry ni noprint  noautosym
 Ni 0 0 0
 symmetry c2v
 end
 
-geometry  nio_old units angstrom noautoz noprint
+geometry  nio_old units angstrom noautoz noprint noautosym
 bqn    0     2.1   0.0 charge +2
 bqn    0    -2.1   0.0 charge +2
 bqn   2.1    0.0   0.0 charge +2
@@ -38,9 +38,10 @@ bq     0     0    -4.2 charge -2
 symmetry c2v
 end
 
+
 basis "ao basis" spherical
-ni library 6-31g*
-O library 6-31g*
+ni library "Wachters+f"
+o library "DZP (Dunning)"
 END
 
 dft
@@ -55,7 +56,8 @@ dft
 odft
 mult 3
 vectors input atomic swap alpha 16 14 output  nia.mos
-convergence lshift 1.
+convergence lshift 0.5
+#max_ovl
 end
 task dft
 
@@ -85,7 +87,11 @@ dft
 vectors input fragment o.mos \
 nia.mos nib.mos output nio.mos
 smear
+convergence lshift 0.25
+#  convergence  damp 35 ncydp 0 dampon 9999999999 dampoff 1.e-5 
+iterations 50
 end
+
 task dft energy 
 
 title "new bq input"
@@ -95,7 +101,7 @@ title "new bq input"
 
 charge +2
 
-geometry  nio_new units angstrom noautoz nocenter
+geometry  nio_new units angstrom noautoz nocenter noprint noautosym
  O     0     0     0
  Ni    0     0     2.1
  Ni    0     0    -2.1
