@@ -1,9 +1,9 @@
 #
-# $Id: GNUmakefile,v 1.24 2005-12-19 21:24:32 marat Exp $
+# $Id: GNUmakefile,v 1.25 2005-12-22 18:32:20 marat Exp $
 #
 
 
-OBJ_OPTIMIZE =  qmmm.o task_qmmm_gradient.o mm_interface.o qmmm_link.o \
+OBJ =  qmmm.o task_qmmm_gradient.o mm_interface.o qmmm_link.o \
        qmmm_data.o qmmm_lbfgsb.o \
        qmmm_utils.o task_qmmm_energy.o qmmm_main.o \
        qmmm_check_forces.o qmmm_bq.o qmmm_esp.o qmmm_cons.o \

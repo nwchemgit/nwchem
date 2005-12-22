@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.25 2005-12-20 18:30:24 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.26 2005-12-22 18:32:20 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -1147,7 +1147,7 @@ c
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.25 2005-12-20 18:30:24 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.26 2005-12-22 18:32:20 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1197,9 +1197,11 @@ c
 c
 c     get lower/upper  limits for pes scan
 c     ------------------------------------
+      pes_spring = .true.
       if (.not. rtdb_get(irtdb,'qmmm:pes_bounds',mt_dbl,
      +                    2,rb))
      + pes_spring = .false.
+      write(*,*) "pes_spring",pes_spring
 
 c
 c     get number of points for pes scan
@@ -1247,10 +1249,19 @@ c     --------------------------
       call mm_system_prefix(prefix)
 c
 c     construct movecs file name  
-      movecs0 = ' '
-      call util_file_name("movecs",.false.,.false.,movecs0)        
       ignore = rtdb_delete(irtdb,'dft:input vectors')
       ignore = rtdb_delete(irtdb,'scf:input vectors')
+      movecs0 = ' '
+      call util_file_name("tmp.movecs",.false.,.false.,movecs0)        
+      if (.not. rtdb_cput(irtdb,'scf:input vectors',
+     +                    1,movecs0))
+     + call errquit(pname//'Failed to set scf:input vectors',
+     + 1, RTDB_ERR)
+      if (.not. rtdb_cput(irtdb,'dft:input vectors',
+     +                    1,movecs0))
+     + call errquit(pname//'Failed to set dft:input vectors',
+     + 1, RTDB_ERR)
+
 c 
 c     set increments and initial value for spring
 c     -------------------------------------------
