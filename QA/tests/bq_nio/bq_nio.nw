@@ -56,7 +56,7 @@ dft
 odft
 mult 3
 vectors input atomic swap alpha 16 14 output  nia.mos
-convergence lshift 0.5
+convergence lshift 0.15 hl_tol 20d0
 #max_ovl
 end
 task dft
@@ -86,10 +86,8 @@ dft
   odft
 vectors input fragment o.mos \
 nia.mos nib.mos output nio.mos
-smear
-convergence lshift 0.25
-#  convergence  damp 35 ncydp 0 dampon 9999999999 dampoff 1.e-5 
-iterations 50
+convergence lshift 0.15 hl_tol 20d0
+iterations 100
 end
 
 task dft energy 
