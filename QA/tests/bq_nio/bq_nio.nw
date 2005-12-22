@@ -54,7 +54,8 @@ charge +2
 dft
 odft
 mult 3
-vectors input atomic output  nia.mos
+vectors input atomic swap alpha 16 14 output  nia.mos
+convergence lshift 1.
 end
 task dft
 
@@ -63,7 +64,7 @@ charge +2
 dft
 odft
 mult -3
-vectors input atomic output  nib.mos
+vectors input atomic swap beta 16 14 output  nib.mos
 end
 task dft
 
