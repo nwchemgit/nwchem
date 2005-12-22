@@ -84,6 +84,7 @@ dft
   odft
 vectors input fragment o.mos \
 nia.mos nib.mos output nio.mos
+smear
 end
 task dft energy 
 

@@ -1,4 +1,14 @@
+ARMCI configured for 2 cluster nodes. Network protocol is 'Mellanox VAPI'.
 0 using x=512 SHMMAX=524288KB
+2 using x=512 SHMMAX=524288KB
+
+0:swr=50000 rwr=6400 ssg=59 rsg=59
+
+1:swr=50000 rwr=6400 ssg=59 rsg=59
+
+2:swr=50000 rwr=6400 ssg=59 rsg=59
+
+3:swr=50000 rwr=6400 ssg=59 rsg=59
  argument  1 = bq_nio.nw
  
 
@@ -90,6 +100,7 @@ dft
   odft
 vectors input fragment o.mos \
 nia.mos nib.mos output nio.mos
+smear
 end
 task dft energy
 
@@ -215,18 +226,18 @@ task dft energy
            Job information
            ---------------
 
-    hostname      = grissino
+    hostname      = compute-0-1.local
     program       = /home/edo/nwchem/bin/LINUX64/nwchem
-    date          = Wed Dec 21 18:06:18 2005
+    date          = Wed Dec 21 18:08:43 2005
 
-    compiled      = Wed Dec 21 15:39:24 PST 2005
+    compiled      = Wed Dec 21 12:22:52 PST 2005
     source        = /home/edo/nwchem
     nwchem branch = Development
     input         = bq_nio.nw
     prefix        = bq_nio.
     data base     = ./bq_nio.db
     status        = startup
-    nproc         =    2
+    nproc         =    4
     time left     =     -1s
 
 
@@ -246,7 +257,7 @@ task dft energy
            ---------------------
  
   0 permanent = .
-  0 scratch   = .
+  0 scratch   = /state/partition1
  
  
  
@@ -259,15 +270,9 @@ task dft energy
                                  ----------------
                                    old bq input
                                    ------------
- sym_nwc nata                      1
- sym_nwc nata                      1
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
  
- sym_nwc nata                     17
-  library name resolved from: .nwchemrc
-  library file name is: </home/edo/nwchem/src/basis/libraries/>
-  
                       Basis "ao basis" -> "" (spherical)
                       -----
   ni (Nickel)
@@ -458,7 +463,7 @@ task dft energy
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:   29 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   28 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
  
@@ -466,11 +471,11 @@ task dft energy
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 b2          4 b1          5 a1      
-     6 a1          7 b2          8 a1          9 b1         10 a1      
-    11 a1         12 a2         13 b2         14 b1         15 a1      
-    16 b1         17 a1         18 b2         19 a1         20 b2      
-    21 a1         22 b1         23 a2         24 a1      
+     1 a1          2 a1          3 a1          4 b2          5 b1      
+     6 a1          7 b2          8 b1          9 a1         10 a1      
+    11 a1         12 b2         13 a2         14 b1         15 a1      
+    16 b1         17 b2         18 a1         19 a1         20 b1      
+    21 b2         22 a1         23 a1         24 a1      
  
  
    Symmetry analysis of molecular orbitals - initial beta
@@ -481,7 +486,7 @@ task dft energy
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:   29 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   28 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
  
@@ -489,21 +494,21 @@ task dft energy
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 b2          4 b1          5 a1      
-     6 a1          7 b2          8 a1          9 b1         10 a1      
-    11 a1         12 a2         13 b2         14 b1         15 a1      
-    16 b1         17 a1         18 b2         19 a1         20 b2      
-    21 a1         22 b1         23 a2         24 a1      
+     1 a1          2 a1          3 a1          4 b2          5 b1      
+     6 a1          7 b2          8 b1          9 a1         10 a1      
+    11 a1         12 b2         13 a2         14 b1         15 a1      
+    16 b1         17 b2         18 a1         19 a1         20 b1      
+    21 b2         22 a1         23 a1         24 a1      
  
-   Time after variat. SCF:      0.7
-   Time prior to 1st pass:      0.7
+   Time after variat. SCF:      1.1
+   Time prior to 1st pass:      1.1
 
  #quartets = 3.081D+03 #integrals = 2.369D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./bq_nio.aoints.0
+ Integral file          = /state/partition1/bq_nio.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  28571
+ Max. records in memory =      2        Max. records in file   =  55810
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -516,310 +521,316 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -1504.5895582122 -1.50D+03  2.01D-02  2.18D+00     1.3
-                                                     1.73D-02  1.86D+00
- d= 0,ls=0.0,diis     2  -1505.0589525275 -4.69D-01  3.68D-02  3.75D-01     1.3
-                                                     4.66D-03  3.17D-01
- d= 0,ls=0.0,diis     3  -1505.6787730038 -6.20D-01  1.20D-03  3.33D-01     1.3
-                                                     1.06D-03  3.02D-01
- d= 0,ls=0.0,diis     4  -1505.7103020064 -3.15D-02  3.71D-03  2.10D-01     1.4
-                                                     3.38D-03  1.94D-01
- d= 0,ls=0.0,diis     5  -1505.7626926930 -5.24D-02  6.06D-04  8.27D-03     1.4
-                                                     6.91D-04  9.16D-03
- d= 0,ls=0.0,diis     6  -1505.7647698029 -2.08D-03  2.44D-04  6.37D-04     1.4
-                                                     3.41D-04  7.85D-04
- d= 0,ls=0.0,diis     7  -1505.7649613618 -1.92D-04  4.62D-05  8.73D-07     1.4
-                                                     6.41D-05  1.10D-06
- d= 0,ls=0.0,diis     8  -1505.7649630662 -1.70D-06  1.26D-05  7.34D-08     1.4
-                                                     2.19D-05  6.17D-08
- d= 0,ls=0.0,diis     9  -1505.7649631783 -1.12D-07  2.18D-06  4.45D-08     1.4
-                                                     2.54D-06  3.18D-08
+ d= 0,ls=0.0,diis     1  -1504.6008861062 -1.50D+03  1.98D-02  2.19D+00     1.5
+                                                     1.74D-02  1.87D+00
+ d= 0,ls=0.0,diis     2  -1505.0715986266 -4.71D-01  3.72D-02  3.78D-01     1.5
+                                                     4.66D-03  3.19D-01
+ d= 0,ls=0.0,diis     3  -1505.6796333916 -6.08D-01  1.21D-03  3.33D-01     1.5
+                                                     1.06D-03  2.97D-01
+ d= 0,ls=0.0,diis     4  -1505.7110466815 -3.14D-02  3.73D-03  2.09D-01     1.6
+                                                     3.36D-03  1.90D-01
+ d= 0,ls=0.0,diis     5  -1505.7628582764 -5.18D-02  5.85D-04  7.84D-03     1.6
+                                                     6.58D-04  8.48D-03
+ d= 0,ls=0.0,diis     6  -1505.7647925991 -1.93D-03  2.07D-04  5.95D-04     1.7
+                                                     2.98D-04  7.13D-04
+ d= 0,ls=0.0,diis     7  -1505.7649624796 -1.70D-04  2.50D-05  3.23D-07     1.7
+                                                     3.80D-05  4.36D-07
+ d= 0,ls=0.0,diis     8  -1505.7649631238 -6.44D-07  8.44D-06  8.89D-08     1.7
+                                                     1.31D-05  5.46D-08
+ d= 0,ls=0.0,diis     9  -1505.7649631818 -5.79D-08  1.81D-06  3.20D-08     1.8
+                                                     1.76D-06  2.22D-08
 
 
-         Total DFT energy =    -1505.764963178254
-      One electron energy =    -2073.599641499254
-           Coulomb energy =      629.267155089271
-    Exchange-Corr. energy =      -61.432476768271
+         Total DFT energy =    -1505.764963181762
+      One electron energy =    -2073.599286463893
+           Coulomb energy =      629.266776722442
+    Exchange-Corr. energy =      -61.432453440311
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =        0.000000000000
 
-     Total iterative time =      0.7s
+     Total iterative time =      0.6s
 
 
  
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
  
- Vector    3  Occ=1.000000D+00  E=-3.371469D+01  Symmetry=a1
-              MO Center= -2.3D-19, -1.1D-19, -2.2D-18, r^2= 1.6D-02
+ Vector    3  Occ=1.000000D+00  E=-3.371470D+01  Symmetry=b1
+              MO Center=  1.7D-16,  3.1D-18, -1.4D-17, r^2= 1.6D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -0.996158  1 Ni pz         
+     3     -0.996158  1 Ni px         
  
  Vector    4  Occ=1.000000D+00  E=-3.367237D+01  Symmetry=b2
-              MO Center= -1.9D-25, -3.4D-18, -7.6D-21, r^2= 1.6D-02
+              MO Center= -8.4D-25, -1.6D-18,  2.6D-19, r^2= 1.6D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -0.996345  1 Ni py         
+     4      0.996345  1 Ni py         
  
- Vector    5  Occ=1.000000D+00  E=-3.367237D+01  Symmetry=b1
-              MO Center= -5.4D-18,  7.8D-18,  2.4D-18, r^2= 1.6D-02
+ Vector    5  Occ=1.000000D+00  E=-3.367237D+01  Symmetry=a1
+              MO Center=  1.1D-17,  3.6D-18,  3.4D-17, r^2= 1.6D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.996345  1 Ni px         
+     5     -0.996345  1 Ni pz         
  
- Vector    6  Occ=1.000000D+00  E=-5.681680D+00  Symmetry=a1
-              MO Center= -2.7D-18, -6.8D-18,  6.5D-17, r^2= 1.8D-01
+ Vector    6  Occ=1.000000D+00  E=-5.681684D+00  Symmetry=a1
+              MO Center= -1.3D-16,  1.1D-16,  2.4D-18, r^2= 1.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.084951  1 Ni s                  2     -0.451587  1 Ni s          
  
- Vector    7  Occ=1.000000D+00  E=-4.156840D+00  Symmetry=a1
-              MO Center= -4.5D-17, -2.7D-17,  6.1D-17, r^2= 2.0D-01
+ Vector    7  Occ=1.000000D+00  E=-4.156845D+00  Symmetry=b1
+              MO Center=  3.4D-16,  8.2D-17,  3.0D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9     -1.066434  1 Ni pz                 5      0.378703  1 Ni pz         
+     7     -1.066434  1 Ni px                 3      0.378703  1 Ni px         
  
- Vector    8  Occ=1.000000D+00  E=-4.071252D+00  Symmetry=b1
-              MO Center= -1.8D-16,  3.3D-16, -3.5D-16, r^2= 2.0D-01
+ Vector    8  Occ=1.000000D+00  E=-4.071255D+00  Symmetry=a1
+              MO Center=  1.6D-17,  2.3D-17,  2.6D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.066012  1 Ni px                 3     -0.377944  1 Ni px         
+     9     -1.066012  1 Ni pz                 5      0.377944  1 Ni pz         
  
- Vector    9  Occ=1.000000D+00  E=-4.071250D+00  Symmetry=b2
-              MO Center=  9.2D-26,  3.0D-19,  3.8D-17, r^2= 2.0D-01
+ Vector    9  Occ=1.000000D+00  E=-4.071254D+00  Symmetry=b2
+              MO Center=  7.5D-27, -9.4D-17,  4.5D-18, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.066012  1 Ni py                 4     -0.377944  1 Ni py         
  
- Vector   10  Occ=1.000000D+00  E=-1.472480D+00  Symmetry=b1
-              MO Center=  3.0D-16,  7.7D-18,  2.3D-16, r^2= 3.0D-01
+ Vector   10  Occ=1.000000D+00  E=-1.472470D+00  Symmetry=b1
+              MO Center= -6.2D-17, -2.9D-17, -5.1D-16, r^2= 3.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -0.761220  1 Ni d  1              26     -0.417791  1 Ni d  1       
+    21      0.761219  1 Ni d  1              26      0.417792  1 Ni d  1       
  
- Vector   11  Occ=1.000000D+00  E=-1.472448D+00  Symmetry=b2
-              MO Center= -8.3D-18, -1.5D-16, -2.2D-16, r^2= 3.0D-01
+ Vector   11  Occ=1.000000D+00  E=-1.472452D+00  Symmetry=a2
+              MO Center= -1.5D-16,  5.1D-16,  6.8D-17, r^2= 3.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19     -0.761216  1 Ni d -1              24     -0.417796  1 Ni d -1       
+    18     -0.761217  1 Ni d -2              23     -0.417795  1 Ni d -2       
  
- Vector   12  Occ=1.000000D+00  E=-1.433904D+00  Symmetry=a1
-              MO Center= -3.6D-16,  7.3D-17, -1.6D-16, r^2= 3.1D-01
+ Vector   12  Occ=1.000000D+00  E=-1.433910D+00  Symmetry=a1
+              MO Center= -1.9D-17,  2.7D-17,  3.8D-17, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20     -0.756506  1 Ni d  0              25     -0.423743  1 Ni d  0       
+    22      0.655156  1 Ni d  2              20     -0.378251  1 Ni d  0       
+    27      0.366971  1 Ni d  2              25     -0.211870  1 Ni d  0       
  
- Vector   13  Occ=1.000000D+00  E=-1.385670D+00  Symmetry=a2
-              MO Center= -7.7D-18, -5.4D-16,  1.9D-17, r^2= 3.1D-01
+ Vector   13  Occ=1.000000D+00  E=-1.385673D+00  Symmetry=b2
+              MO Center= -3.6D-17, -3.4D-16,  5.2D-17, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18     -0.751607  1 Ni d -2              23     -0.430140  1 Ni d -2       
+    19      0.751607  1 Ni d -1              24      0.430139  1 Ni d -1       
  
- Vector   14  Occ=1.000000D+00  E=-1.385669D+00  Symmetry=a1
-              MO Center=  5.4D-16, -4.5D-17, -2.2D-17, r^2= 3.1D-01
+ Vector   14  Occ=1.000000D+00  E=-1.385673D+00  Symmetry=a1
+              MO Center=  6.5D-18,  3.3D-17, -4.1D-16, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.751607  1 Ni d  2              27     -0.430139  1 Ni d  2       
+    20      0.650912  1 Ni d  0              22      0.375801  1 Ni d  2       
+    25      0.372512  1 Ni d  0              27      0.215068  1 Ni d  2       
  
- Vector   15  Occ=0.000000D+00  E=-5.744158D-01  Symmetry=a1
-              MO Center= -1.4D-15, -7.5D-16,  4.9D-17, r^2= 2.4D+00
+ Vector   15  Occ=0.000000D+00  E=-5.744179D-01  Symmetry=a1
+              MO Center= -3.0D-16,  2.5D-17, -8.0D-16, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10     -0.818333  1 Ni s                  6      0.257987  1 Ni s          
-    14      0.240254  1 Ni s          
+    10     -0.818337  1 Ni s                  6      0.257987  1 Ni s          
+    14      0.240250  1 Ni s          
  
- Vector   16  Occ=0.000000D+00  E=-3.952638D-01  Symmetry=a1
-              MO Center= -3.4D-16, -1.8D-16,  1.8D-15, r^2= 3.9D+00
+ Vector   16  Occ=0.000000D+00  E=-3.952613D-01  Symmetry=b1
+              MO Center= -1.5D-15, -4.9D-16,  1.1D-16, r^2= 3.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.699938  1 Ni pz                17      0.382948  1 Ni pz         
+    11      0.699934  1 Ni px                15      0.382953  1 Ni px         
  
- Vector   17  Occ=0.000000D+00  E=-3.850157D-01  Symmetry=b2
-              MO Center=  6.8D-18,  7.2D-16,  3.2D-17, r^2= 4.1D+00
+ Vector   17  Occ=0.000000D+00  E=-3.850174D-01  Symmetry=a1
+              MO Center=  2.3D-16,  1.5D-16, -1.6D-16, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -0.661861  1 Ni py                16     -0.424074  1 Ni py         
+    13      0.661867  1 Ni pz                17      0.424068  1 Ni pz         
  
- Vector   18  Occ=0.000000D+00  E=-3.850099D-01  Symmetry=b1
-              MO Center=  6.1D-16,  1.3D-16,  9.1D-17, r^2= 4.1D+00
+ Vector   18  Occ=0.000000D+00  E=-3.850170D-01  Symmetry=b2
+              MO Center=  3.7D-17,  4.9D-17, -8.2D-17, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -0.661848  1 Ni px                15     -0.424088  1 Ni px         
+    12     -0.661866  1 Ni py                16     -0.424069  1 Ni py         
  
- Vector   19  Occ=0.000000D+00  E=-2.076092D-01  Symmetry=a1
-              MO Center= -1.2D-14, -3.9D-16,  6.1D-15, r^2= 7.8D+00
+ Vector   19  Occ=0.000000D+00  E=-2.076098D-01  Symmetry=a1
+              MO Center=  1.1D-14, -2.3D-17, -1.0D-14, r^2= 7.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14     -1.852489  1 Ni s                 10     -1.676002  1 Ni s          
+    14     -1.852490  1 Ni s                 10     -1.676000  1 Ni s          
  
- Vector   20  Occ=0.000000D+00  E=-1.365335D-01  Symmetry=a1
-              MO Center= -6.5D-17,  2.8D-17, -8.0D-15, r^2= 8.9D+00
+ Vector   20  Occ=0.000000D+00  E=-1.365335D-01  Symmetry=b1
+              MO Center= -9.4D-15, -2.3D-16, -7.8D-18, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.372503  1 Ni pz                13     -1.254942  1 Ni pz         
+    15     -1.372502  1 Ni px                11      1.254945  1 Ni px         
  
- Vector   21  Occ=0.000000D+00  E=-1.278203D-01  Symmetry=b2
-              MO Center= -5.6D-18,  3.9D-16,  5.7D-17, r^2= 8.7D+00
+ Vector   21  Occ=0.000000D+00  E=-1.278215D-01  Symmetry=a1
+              MO Center= -3.0D-17,  9.5D-17,  1.1D-14, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.360357  1 Ni py                12     -1.275434  1 Ni py         
+    17      1.360359  1 Ni pz                13     -1.275431  1 Ni pz         
  
- Vector   22  Occ=0.000000D+00  E=-1.278195D-01  Symmetry=b1
-              MO Center=  1.3D-14,  1.2D-16,  4.5D-16, r^2= 8.7D+00
+ Vector   22  Occ=0.000000D+00  E=-1.278213D-01  Symmetry=b2
+              MO Center= -5.9D-18, -7.5D-17, -2.5D-17, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.360353  1 Ni px                11     -1.275441  1 Ni px         
+    16     -1.360359  1 Ni py                12      1.275432  1 Ni py         
  
- Vector   23  Occ=0.000000D+00  E= 1.364392D+00  Symmetry=b1
-              MO Center=  1.7D-16,  1.6D-16, -8.2D-16, r^2= 7.0D-01
+ Vector   23  Occ=0.000000D+00  E= 1.364389D+00  Symmetry=b1
+              MO Center= -3.0D-16,  2.3D-16,  3.2D-16, r^2= 7.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26     -1.000665  1 Ni d  1              21      0.772285  1 Ni d  1       
+    26      1.000665  1 Ni d  1              21     -0.772286  1 Ni d  1       
  
- Vector   24  Occ=0.000000D+00  E= 1.364397D+00  Symmetry=b2
-              MO Center= -4.9D-17,  1.7D-16, -1.3D-16, r^2= 7.0D-01
+ Vector   24  Occ=0.000000D+00  E= 1.364392D+00  Symmetry=a2
+              MO Center= -4.0D-17,  3.3D-16,  1.6D-16, r^2= 7.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      1.000663  1 Ni d -1              19     -0.772289  1 Ni d -1       
+    23     -1.000664  1 Ni d -2              18      0.772288  1 Ni d -2       
  
  
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
  
- Vector    3  Occ=1.000000D+00  E=-3.361441D+01  Symmetry=a1
-              MO Center= -8.7D-19, -3.5D-18,  4.7D-16, r^2= 1.6D-02
+ Vector    3  Occ=1.000000D+00  E=-3.361442D+01  Symmetry=b1
+              MO Center= -6.0D-16,  1.6D-18, -2.0D-18, r^2= 1.6D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -0.997478  1 Ni pz         
+     3      0.997478  1 Ni px         
  
- Vector    4  Occ=1.000000D+00  E=-3.361290D+01  Symmetry=b2
-              MO Center=  5.8D-18,  3.0D-16, -2.6D-18, r^2= 1.6D-02
+ Vector    4  Occ=1.000000D+00  E=-3.361291D+01  Symmetry=b2
+              MO Center= -1.9D-28, -1.1D-16, -3.9D-18, r^2= 1.6D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -0.997101  1 Ni py         
+     4      0.997101  1 Ni py         
  
- Vector    5  Occ=1.000000D+00  E=-3.361290D+01  Symmetry=b1
-              MO Center= -5.6D-17,  2.6D-17, -6.3D-18, r^2= 1.6D-02
+ Vector    5  Occ=1.000000D+00  E=-3.361290D+01  Symmetry=a1
+              MO Center= -1.8D-26, -5.6D-29, -1.0D-15, r^2= 1.6D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3     -0.997101  1 Ni px         
+     5      0.997101  1 Ni pz         
  
- Vector    6  Occ=1.000000D+00  E=-5.485307D+00  Symmetry=a1
-              MO Center=  5.0D-17,  2.2D-16,  4.9D-16, r^2= 1.8D-01
+ Vector    6  Occ=1.000000D+00  E=-5.485313D+00  Symmetry=a1
+              MO Center= -1.4D-16,  3.2D-16, -2.7D-18, r^2= 1.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.084669  1 Ni s                  2     -0.449519  1 Ni s          
+     6     -1.084669  1 Ni s                  2      0.449519  1 Ni s          
  
- Vector    7  Occ=1.000000D+00  E=-3.880100D+00  Symmetry=b2
-              MO Center= -4.6D-17, -1.9D-16,  1.1D-16, r^2= 2.0D-01
+ Vector    7  Occ=1.000000D+00  E=-3.880105D+00  Symmetry=b2
+              MO Center= -3.2D-17,  4.2D-16,  1.0D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -1.065349  1 Ni py                 4      0.375570  1 Ni py         
+     8      1.065350  1 Ni py                 4     -0.375570  1 Ni py         
  
- Vector    8  Occ=1.000000D+00  E=-3.880098D+00  Symmetry=b1
-              MO Center= -4.3D-17,  2.1D-25, -6.7D-17, r^2= 2.0D-01
+ Vector    8  Occ=1.000000D+00  E=-3.880105D+00  Symmetry=a1
+              MO Center=  2.9D-17,  2.9D-17, -1.0D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -1.065350  1 Ni px                 3      0.375570  1 Ni px         
+     9     -1.065350  1 Ni pz                 5      0.375570  1 Ni pz         
  
- Vector    9  Occ=1.000000D+00  E=-3.827253D+00  Symmetry=a1
-              MO Center=  1.8D-17,  1.3D-16, -7.4D-16, r^2= 2.0D-01
+ Vector    9  Occ=1.000000D+00  E=-3.827258D+00  Symmetry=b1
+              MO Center= -1.2D-15, -1.0D-16,  2.0D-17, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.065467  1 Ni pz                 5     -0.374697  1 Ni pz         
+     7     -1.065467  1 Ni px                 3      0.374697  1 Ni px         
  
- Vector   10  Occ=1.000000D+00  E=-1.372736D+00  Symmetry=a1
-              MO Center= -2.3D-16, -1.1D-16,  6.5D-16, r^2= 3.1D-01
+ Vector   10  Occ=1.000000D+00  E=-1.372740D+00  Symmetry=a1
+              MO Center=  1.4D-15,  1.2D-15, -2.9D-17, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20     -0.746880  1 Ni d  0              25     -0.436133  1 Ni d  0       
+    22      0.646817  1 Ni d  2              27      0.377702  1 Ni d  2       
+    20     -0.373441  1 Ni d  0              25     -0.218067  1 Ni d  0       
  
- Vector   11  Occ=1.000000D+00  E=-1.295685D+00  Symmetry=a2
-              MO Center= -4.9D-16,  8.3D-17, -2.6D-18, r^2= 3.2D-01
+ Vector   11  Occ=1.000000D+00  E=-1.295689D+00  Symmetry=b2
+              MO Center= -8.7D-18, -3.7D-16,  1.4D-16, r^2= 3.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.738744  1 Ni d -2              23      0.446336  1 Ni d -2       
+    19     -0.738745  1 Ni d -1              24     -0.446334  1 Ni d -1       
  
- Vector   12  Occ=1.000000D+00  E=-1.295684D+00  Symmetry=a1
-              MO Center=  1.5D-16,  4.8D-16, -1.1D-16, r^2= 3.2D-01
+ Vector   12  Occ=1.000000D+00  E=-1.295689D+00  Symmetry=a1
+              MO Center=  1.0D-15, -3.4D-16,  1.0D-15, r^2= 3.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.738744  1 Ni d  2              27     -0.446335  1 Ni d  2       
+    20     -0.639771  1 Ni d  0              25     -0.386536  1 Ni d  0       
+    22     -0.369373  1 Ni d  2              27     -0.223168  1 Ni d  2       
  
- Vector   13  Occ=0.000000D+00  E=-5.612535D-01  Symmetry=a1
-              MO Center=  8.4D-16, -2.4D-15,  7.9D-16, r^2= 2.5D+00
+ Vector   13  Occ=0.000000D+00  E=-5.612547D-01  Symmetry=a1
+              MO Center= -1.8D-16, -6.2D-15,  5.4D-15, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.779926  1 Ni s                 14     -0.282444  1 Ni s          
-     6     -0.261037  1 Ni s          
+    10     -0.779929  1 Ni s                 14      0.282441  1 Ni s          
+     6      0.261036  1 Ni s          
  
- Vector   14  Occ=0.000000D+00  E=-4.082363D-01  Symmetry=b2
-              MO Center= -1.6D-26, -5.3D-16,  8.1D-15, r^2= 4.0D-01
+ Vector   14  Occ=0.000000D+00  E=-4.082416D-01  Symmetry=a2
+              MO Center=  2.2D-15,  3.2D-16,  4.4D-17, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      0.643361  1 Ni d -1              24      0.556165  1 Ni d -1       
+    18      0.643361  1 Ni d -2              23      0.556164  1 Ni d -2       
  
- Vector   15  Occ=0.000000D+00  E=-4.082342D-01  Symmetry=b1
-              MO Center= -7.9D-17,  2.9D-27,  3.6D-15, r^2= 4.0D-01
+ Vector   15  Occ=0.000000D+00  E=-4.082401D-01  Symmetry=b1
+              MO Center= -2.0D-14,  2.5D-18,  1.9D-15, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.643360  1 Ni d  1              26      0.556165  1 Ni d  1       
+    21      0.643361  1 Ni d  1              26      0.556165  1 Ni d  1       
  
- Vector   16  Occ=0.000000D+00  E=-3.847446D-01  Symmetry=a1
-              MO Center=  1.6D-16,  5.1D-16, -3.4D-15, r^2= 4.2D+00
+ Vector   16  Occ=0.000000D+00  E=-3.847463D-01  Symmetry=b1
+              MO Center=  1.9D-17,  4.0D-16, -2.0D-15, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.645574  1 Ni pz                17      0.441350  1 Ni pz         
+    11     -0.645581  1 Ni px                15     -0.441344  1 Ni px         
  
- Vector   17  Occ=0.000000D+00  E=-3.793616D-01  Symmetry=b1
-              MO Center= -1.4D-15, -1.5D-16, -4.1D-15, r^2= 4.3D+00
+ Vector   17  Occ=0.000000D+00  E=-3.793616D-01  Symmetry=b2
+              MO Center= -1.4D-15,  1.4D-14, -3.2D-16, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -0.630632  1 Ni px                15     -0.457056  1 Ni px         
+    12      0.630635  1 Ni py                16      0.457052  1 Ni py         
  
- Vector   18  Occ=0.000000D+00  E=-3.793610D-01  Symmetry=b2
-              MO Center=  3.6D-16,  2.0D-15, -8.0D-15, r^2= 4.3D+00
+ Vector   18  Occ=0.000000D+00  E=-3.793613D-01  Symmetry=a1
+              MO Center=  2.0D-14,  1.5D-16, -5.7D-15, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -0.630633  1 Ni py                16     -0.457054  1 Ni py         
+    13     -0.630633  1 Ni pz                17     -0.457054  1 Ni pz         
  
- Vector   19  Occ=0.000000D+00  E=-2.023545D-01  Symmetry=a1
-              MO Center=  1.9D-15,  2.6D-14, -4.5D-14, r^2= 7.7D+00
+ Vector   19  Occ=0.000000D+00  E=-2.023550D-01  Symmetry=a1
+              MO Center= -1.3D-14, -5.6D-14, -5.1D-14, r^2= 7.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14     -1.846551  1 Ni s                 10     -1.694298  1 Ni s          
+    14      1.846551  1 Ni s                 10      1.694296  1 Ni s          
  
- Vector   20  Occ=0.000000D+00  E=-1.246323D-01  Symmetry=a1
-              MO Center=  1.7D-16, -3.5D-16,  4.8D-14, r^2= 8.6D+00
+ Vector   20  Occ=0.000000D+00  E=-1.246338D-01  Symmetry=b1
+              MO Center=  1.4D-14,  7.9D-17, -4.3D-16, r^2= 8.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17     -1.354848  1 Ni pz                13      1.283745  1 Ni pz         
+    15      1.354850  1 Ni px                11     -1.283742  1 Ni px         
  
- Vector   21  Occ=0.000000D+00  E=-1.207436D-01  Symmetry=b1
-              MO Center= -1.3D-15,  9.4D-17,  7.6D-16, r^2= 8.6D+00
+ Vector   21  Occ=0.000000D+00  E=-1.207440D-01  Symmetry=b2
+              MO Center= -4.9D-17,  4.7D-14, -5.1D-17, r^2= 8.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.349643  1 Ni px                11     -1.291191  1 Ni px         
+    16     -1.349644  1 Ni py                12      1.291190  1 Ni py         
  
- Vector   22  Occ=0.000000D+00  E=-1.207434D-01  Symmetry=b2
-              MO Center=  4.4D-17, -2.6D-14, -5.2D-16, r^2= 8.6D+00
+ Vector   22  Occ=0.000000D+00  E=-1.207437D-01  Symmetry=a1
+              MO Center=  5.0D-17, -3.3D-17,  5.1D-14, r^2= 8.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.349644  1 Ni py                12     -1.291191  1 Ni py         
+    17      1.349644  1 Ni pz                13     -1.291191  1 Ni pz         
  
- Vector   23  Occ=0.000000D+00  E= 1.413977D+00  Symmetry=a1
-              MO Center=  3.9D-16,  3.7D-16, -8.1D-17, r^2= 6.9D-01
+ Vector   23  Occ=0.000000D+00  E= 1.413972D+00  Symmetry=a1
+              MO Center= -4.7D-17,  1.4D-16, -1.4D-16, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25     -0.992794  1 Ni d  0              20      0.786150  1 Ni d  0       
+    27      0.859786  1 Ni d  2              22     -0.680826  1 Ni d  2       
+    25     -0.496395  1 Ni d  0              20      0.393073  1 Ni d  0       
  
- Vector   24  Occ=0.000000D+00  E= 1.456958D+00  Symmetry=a1
-              MO Center= -2.7D-16,  1.4D-17,  1.5D-16, r^2= 6.8D-01
+ Vector   24  Occ=0.000000D+00  E= 1.456953D+00  Symmetry=a1
+              MO Center= -2.3D-23,  1.0D-16,  8.0D-16, r^2= 6.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      0.988264  1 Ni d  2              22     -0.793812  1 Ni d  2       
+    25      0.855863  1 Ni d  0              20     -0.687462  1 Ni d  0       
+    27      0.494130  1 Ni d  2              22     -0.396904  1 Ni d  2       
  
 
    alpha - beta orbital overlaps 
@@ -837,7 +848,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     22     21     27     26     23     24     25     31     32     33
+    beta     22     21     27     26     23     24     25     32     31     33
  overlap   1.000  1.000  0.990  0.990  1.000  1.000  1.000  1.000  1.000  1.000
 
 
@@ -851,10 +862,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       <S2> =      2.0013 (Exact =     2.0000)
  
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        1.4s     wall:        1.6s
+ Task  times  cpu:        1.3s     wall:        1.8s
  
  
                                 NWChem Input Module
@@ -962,11 +973,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 a1          4 b2          5 b1      
-     6 a1          7 a1          8 b1          9 b2         10 a1      
-    11 a2         12 a1         13 b1         14 b2         15 a1      
-    16 b2         17 b1         18 a1         19 a1         20 b2      
-    21 b1         22 a1      
+     1 a1          2 a1          3 b1          4 b2          5 a1      
+     6 a1          7 b2          8 a1          9 b1         10 a1      
+    11 a1         12 b1         13 a2         14 b2         15 a1      
+    16 a1         17 b2         18 b1         19 a1         20 a1      
+    21 b2         22 b1      
  
  
    Symmetry analysis of molecular orbitals - initial beta
@@ -985,21 +996,21 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 a1          4 b2          5 b1      
-     6 a1          7 a1          8 b1          9 b2         10 a1      
-    11 a2         12 a1         13 b1         14 b2         15 a1      
-    16 b2         17 b1         18 a1         19 a1         20 b2      
-    21 b1         22 a1      
+     1 a1          2 a1          3 b1          4 b2          5 a1      
+     6 a1          7 b2          8 a1          9 b1         10 a1      
+    11 a1         12 b1         13 a2         14 a1         15 a1      
+    16 b2         17 b2         18 b1         19 a1         20 a1      
+    21 b2         22 b1      
  
-   Time after variat. SCF:      2.1
-   Time prior to 1st pass:      2.1
+   Time after variat. SCF:      2.4
+   Time prior to 1st pass:      2.4
 
  #quartets = 3.081D+03 #integrals = 2.369D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./bq_nio.aoints.0
+ Integral file          = /state/partition1/bq_nio.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  28571
+ Max. records in memory =      2        Max. records in file   =  55810
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1016,31 +1027,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                                      2.01D-02  2.18D+00
  d= 0,ls=0.0,diis     2  -1505.0589525275 -4.69D-01  4.66D-03  3.17D-01     2.7
                                                      3.68D-02  3.75D-01
- d= 0,ls=0.0,diis     3  -1505.6787730038 -6.20D-01  1.06D-03  3.02D-01     2.7
+ d= 0,ls=0.0,diis     3  -1505.6787730038 -6.20D-01  1.06D-03  3.02D-01     2.8
                                                      1.20D-03  3.33D-01
  d= 0,ls=0.0,diis     4  -1505.7103020064 -3.15D-02  3.38D-03  1.94D-01     2.8
                                                      3.71D-03  2.10D-01
- d= 0,ls=0.0,diis     5  -1505.7626926930 -5.24D-02  6.91D-04  9.16D-03     2.8
+ d= 0,ls=0.0,diis     5  -1505.7626926930 -5.24D-02  6.91D-04  9.16D-03     2.9
                                                      6.06D-04  8.27D-03
- d= 0,ls=0.0,diis     6  -1505.7647698029 -2.08D-03  3.41D-04  7.85D-04     2.8
+ d= 0,ls=0.0,diis     6  -1505.7647698029 -2.08D-03  3.41D-04  7.85D-04     2.9
                                                      2.44D-04  6.37D-04
- d= 0,ls=0.0,diis     7  -1505.7649613618 -1.92D-04  6.41D-05  1.10D-06     2.8
+ d= 0,ls=0.0,diis     7  -1505.7649613618 -1.92D-04  6.41D-05  1.10D-06     2.9
                                                      4.62D-05  8.73D-07
- d= 0,ls=0.0,diis     8  -1505.7649630662 -1.70D-06  2.19D-05  6.17D-08     2.8
+ d= 0,ls=0.0,diis     8  -1505.7649630662 -1.70D-06  2.19D-05  6.17D-08     3.0
                                                      1.26D-05  7.34D-08
- d= 0,ls=0.0,diis     9  -1505.7649631783 -1.12D-07  2.54D-06  3.18D-08     2.8
+ d= 0,ls=0.0,diis     9  -1505.7649631783 -1.12D-07  2.54D-06  3.18D-08     3.0
                                                      2.18D-06  4.45D-08
 
 
-         Total DFT energy =    -1505.764963178254
-      One electron energy =    -2073.599641499254
-           Coulomb energy =      629.267155089271
+         Total DFT energy =    -1505.764963178256
+      One electron energy =    -2073.599641499257
+           Coulomb energy =      629.267155089273
     Exchange-Corr. energy =      -61.432476768271
  Nuclear repulsion energy =        0.000000000000
 
  Numeric. integr. density =        0.000000000000
 
-     Total iterative time =      0.7s
+     Total iterative time =      0.6s
 
 
  
@@ -1048,226 +1059,231 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     ------------------------------------------
  
  Vector    6  Occ=1.000000D+00  E=-5.485307D+00  Symmetry=a1
-              MO Center= -1.3D-17,  2.3D-16, -4.1D-18, r^2= 1.8D-01
+              MO Center=  2.7D-16, -1.7D-15,  6.9D-17, r^2= 1.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.084669  1 Ni s                  2     -0.449519  1 Ni s          
  
  Vector    7  Occ=1.000000D+00  E=-3.880100D+00  Symmetry=b1
-              MO Center= -3.2D-16, -1.5D-16, -2.9D-16, r^2= 2.0D-01
+              MO Center= -2.0D-16,  2.4D-18,  3.0D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      1.065349  1 Ni px                 3     -0.375570  1 Ni px         
  
- Vector    8  Occ=1.000000D+00  E=-3.880098D+00  Symmetry=b2
-              MO Center=  2.1D-17, -3.1D-16, -5.4D-17, r^2= 2.0D-01
+ Vector    8  Occ=1.000000D+00  E=-3.880098D+00  Symmetry=a1
+              MO Center=  6.4D-16,  4.0D-17, -3.7D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -1.065350  1 Ni py                 4      0.375570  1 Ni py         
+     9      1.065350  1 Ni pz                 5     -0.375570  1 Ni pz         
  
- Vector    9  Occ=1.000000D+00  E=-3.827253D+00  Symmetry=a1
-              MO Center=  9.8D-18,  3.1D-18,  2.6D-17, r^2= 2.0D-01
+ Vector    9  Occ=1.000000D+00  E=-3.827253D+00  Symmetry=b2
+              MO Center= -5.5D-18,  1.6D-15,  2.2D-18, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9     -1.065467  1 Ni pz                 5      0.374697  1 Ni pz         
+     8     -1.065467  1 Ni py                 4      0.374697  1 Ni py         
  
  Vector   10  Occ=1.000000D+00  E=-1.372736D+00  Symmetry=a1
-              MO Center=  2.0D-16,  2.0D-17,  4.6D-16, r^2= 3.1D-01
+              MO Center=  5.6D-17,  1.6D-16,  3.2D-16, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.746880  1 Ni d  0              25      0.436133  1 Ni d  0       
+    22     -0.646818  1 Ni d  2              27     -0.377703  1 Ni d  2       
+    20     -0.373439  1 Ni d  0              25     -0.218066  1 Ni d  0       
  
- Vector   11  Occ=1.000000D+00  E=-1.295685D+00  Symmetry=a2
-              MO Center= -2.3D-17,  2.6D-17,  1.2D-16, r^2= 3.2D-01
+ Vector   11  Occ=1.000000D+00  E=-1.295685D+00  Symmetry=b1
+              MO Center= -6.3D-16,  7.0D-18, -4.9D-16, r^2= 3.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18     -0.738744  1 Ni d -2              23     -0.446336  1 Ni d -2       
+    21      0.738744  1 Ni d  1              26      0.446336  1 Ni d  1       
  
  Vector   12  Occ=1.000000D+00  E=-1.295684D+00  Symmetry=a1
-              MO Center=  3.8D-17, -1.2D-16, -1.2D-16, r^2= 3.2D-01
+              MO Center=  2.0D-17,  2.4D-16, -6.2D-17, r^2= 3.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.738744  1 Ni d  2              27     -0.446335  1 Ni d  2       
+    20      0.639771  1 Ni d  0              25      0.386538  1 Ni d  0       
+    22     -0.369371  1 Ni d  2              27     -0.223167  1 Ni d  2       
  
  Vector   13  Occ=0.000000D+00  E=-5.612535D-01  Symmetry=a1
-              MO Center=  1.6D-15, -1.8D-15, -1.0D-14, r^2= 2.5D+00
+              MO Center=  2.2D-15, -5.1D-16,  1.3D-15, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10     -0.779926  1 Ni s                 14      0.282444  1 Ni s          
-     6      0.261037  1 Ni s          
+    10      0.779926  1 Ni s                 14     -0.282444  1 Ni s          
+     6     -0.261037  1 Ni s          
  
- Vector   14  Occ=0.000000D+00  E=-4.082363D-01  Symmetry=b1
-              MO Center= -4.0D-15, -1.1D-24,  5.8D-15, r^2= 4.0D-01
+ Vector   14  Occ=0.000000D+00  E=-4.082363D-01  Symmetry=a2
+              MO Center= -8.4D-16, -8.6D-16,  1.8D-17, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -0.643361  1 Ni d  1              26     -0.556165  1 Ni d  1       
+    18     -0.643361  1 Ni d -2              23     -0.556165  1 Ni d -2       
  
  Vector   15  Occ=0.000000D+00  E=-4.082342D-01  Symmetry=b2
-              MO Center=  3.4D-25, -1.4D-15,  1.3D-15, r^2= 4.0D-01
+              MO Center= -2.3D-25, -1.3D-15,  8.7D-16, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     19      0.643360  1 Ni d -1              24      0.556165  1 Ni d -1       
  
- Vector   16  Occ=0.000000D+00  E=-3.847446D-01  Symmetry=a1
-              MO Center=  4.7D-15,  1.7D-15,  1.2D-14, r^2= 4.2D+00
+ Vector   16  Occ=0.000000D+00  E=-3.847446D-01  Symmetry=b2
+              MO Center=  8.2D-16, -9.7D-15, -8.4D-16, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.645574  1 Ni pz                17      0.441350  1 Ni pz         
+    12      0.645574  1 Ni py                16      0.441350  1 Ni py         
  
- Vector   17  Occ=0.000000D+00  E=-3.793616D-01  Symmetry=b2
-              MO Center=  9.8D-17,  2.2D-16, -2.1D-15, r^2= 4.3D+00
+ Vector   17  Occ=0.000000D+00  E=-3.793616D-01  Symmetry=a1
+              MO Center=  5.5D-17,  1.1D-15, -1.1D-15, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -0.630632  1 Ni py                16     -0.457056  1 Ni py         
+    13     -0.630632  1 Ni pz                17     -0.457056  1 Ni pz         
  
  Vector   18  Occ=0.000000D+00  E=-3.793610D-01  Symmetry=b1
-              MO Center= -8.4D-15, -5.1D-17, -4.6D-15, r^2= 4.3D+00
+              MO Center= -7.8D-16,  8.7D-16,  4.3D-16, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.630633  1 Ni px                15      0.457054  1 Ni px         
  
  Vector   19  Occ=0.000000D+00  E=-2.023545D-01  Symmetry=a1
-              MO Center=  7.3D-15,  2.9D-15,  2.1D-15, r^2= 7.7D+00
+              MO Center=  8.1D-15, -7.7D-15, -7.3D-15, r^2= 7.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14     -1.846551  1 Ni s                 10     -1.694298  1 Ni s          
+    14      1.846551  1 Ni s                 10      1.694298  1 Ni s          
  
- Vector   20  Occ=0.000000D+00  E=-1.246323D-01  Symmetry=a1
-              MO Center= -5.7D-16, -4.6D-16, -4.1D-15, r^2= 8.6D+00
+ Vector   20  Occ=0.000000D+00  E=-1.246323D-01  Symmetry=b2
+              MO Center= -2.2D-16,  1.8D-14, -1.2D-16, r^2= 8.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17     -1.354848  1 Ni pz                13      1.283745  1 Ni pz         
+    16     -1.354848  1 Ni py                12      1.283745  1 Ni py         
  
- Vector   21  Occ=0.000000D+00  E=-1.207436D-01  Symmetry=b2
-              MO Center=  2.5D-17, -1.2D-15,  6.8D-16, r^2= 8.6D+00
+ Vector   21  Occ=0.000000D+00  E=-1.207436D-01  Symmetry=a1
+              MO Center= -5.3D-17,  3.2D-17,  7.1D-15, r^2= 8.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.349643  1 Ni py                12     -1.291191  1 Ni py         
+    17     -1.349643  1 Ni pz                13      1.291191  1 Ni pz         
  
  Vector   22  Occ=0.000000D+00  E=-1.207434D-01  Symmetry=b1
-              MO Center= -9.4D-17, -4.4D-19, -5.0D-16, r^2= 8.6D+00
+              MO Center= -9.5D-15, -1.5D-16,  8.9D-17, r^2= 8.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15     -1.349644  1 Ni px                11      1.291191  1 Ni px         
+    15      1.349644  1 Ni px                11     -1.291191  1 Ni px         
  
  Vector   23  Occ=0.000000D+00  E= 1.413977D+00  Symmetry=a1
-              MO Center= -1.3D-15,  2.1D-16, -1.2D-15, r^2= 6.9D-01
+              MO Center=  1.2D-15,  8.7D-16,  7.4D-16, r^2= 6.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.992794  1 Ni d  0              20     -0.786150  1 Ni d  0       
+    27      0.859784  1 Ni d  2              22     -0.680825  1 Ni d  2       
+    25      0.496397  1 Ni d  0              20     -0.393075  1 Ni d  0       
  
  
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
  
  Vector    6  Occ=1.000000D+00  E=-5.681680D+00  Symmetry=a1
-              MO Center=  6.9D-18, -1.1D-17,  5.0D-17, r^2= 1.8D-01
+              MO Center=  3.5D-17, -5.5D-17,  4.6D-17, r^2= 1.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      1.084951  1 Ni s                  2     -0.451587  1 Ni s          
  
- Vector    7  Occ=1.000000D+00  E=-4.156840D+00  Symmetry=a1
-              MO Center= -6.8D-18, -4.3D-17, -1.0D-16, r^2= 2.0D-01
+ Vector    7  Occ=1.000000D+00  E=-4.156840D+00  Symmetry=b2
+              MO Center=  1.6D-16, -3.2D-16,  3.1D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.066434  1 Ni pz                 5     -0.378703  1 Ni pz         
+     8     -1.066434  1 Ni py                 4      0.378703  1 Ni py         
  
- Vector    8  Occ=1.000000D+00  E=-4.071252D+00  Symmetry=b2
-              MO Center= -4.3D-18,  6.4D-17,  1.2D-16, r^2= 2.0D-01
+ Vector    8  Occ=1.000000D+00  E=-4.071252D+00  Symmetry=a1
+              MO Center= -3.3D-16, -2.2D-16, -2.3D-16, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -1.066012  1 Ni py                 4      0.377944  1 Ni py         
+     9     -1.066012  1 Ni pz                 5      0.377944  1 Ni pz         
  
  Vector    9  Occ=1.000000D+00  E=-4.071250D+00  Symmetry=b1
-              MO Center=  2.0D-18,  5.8D-26, -3.2D-17, r^2= 2.0D-01
+              MO Center=  1.8D-17,  1.7D-25,  4.1D-18, r^2= 2.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -1.066012  1 Ni px                 3      0.377944  1 Ni px         
+     7      1.066012  1 Ni px                 3     -0.377944  1 Ni px         
  
  Vector   10  Occ=1.000000D+00  E=-1.472480D+00  Symmetry=b2
-              MO Center= -4.1D-18,  1.8D-16, -8.9D-17, r^2= 3.0D-01
+              MO Center= -9.1D-18,  3.6D-17, -5.3D-16, r^2= 3.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19     -0.761220  1 Ni d -1              24     -0.417791  1 Ni d -1       
+    19      0.761220  1 Ni d -1              24      0.417791  1 Ni d -1       
  
- Vector   11  Occ=1.000000D+00  E=-1.472448D+00  Symmetry=b1
-              MO Center=  1.1D-15,  1.6D-17,  7.1D-17, r^2= 3.0D-01
+ Vector   11  Occ=1.000000D+00  E=-1.472448D+00  Symmetry=a2
+              MO Center= -1.5D-16,  4.9D-17,  2.4D-17, r^2= 3.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.761216  1 Ni d  1              26      0.417796  1 Ni d  1       
+    18      0.761216  1 Ni d -2              23      0.417796  1 Ni d -2       
  
  Vector   12  Occ=1.000000D+00  E=-1.433904D+00  Symmetry=a1
-              MO Center= -8.5D-17, -1.5D-16,  2.9D-16, r^2= 3.1D-01
+              MO Center= -1.2D-16,  2.8D-16, -2.4D-16, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.756506  1 Ni d  0              25      0.423743  1 Ni d  0       
+    22      0.655159  1 Ni d  2              20      0.378243  1 Ni d  0       
+    27      0.366975  1 Ni d  2              25      0.211866  1 Ni d  0       
  
- Vector   13  Occ=1.000000D+00  E=-1.385670D+00  Symmetry=a2
-              MO Center=  1.4D-16, -3.6D-17,  2.6D-17, r^2= 3.1D-01
+ Vector   13  Occ=1.000000D+00  E=-1.385670D+00  Symmetry=b1
+              MO Center=  2.7D-16, -4.6D-18,  5.3D-17, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.751607  1 Ni d -2              23      0.430140  1 Ni d -2       
+    21     -0.751607  1 Ni d  1              26     -0.430140  1 Ni d  1       
  
  Vector   14  Occ=1.000000D+00  E=-1.385669D+00  Symmetry=a1
-              MO Center=  8.1D-17,  3.7D-18, -2.3D-18, r^2= 3.1D-01
+              MO Center= -5.7D-17,  4.0D-17,  5.6D-16, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.751607  1 Ni d  2              27     -0.430139  1 Ni d  2       
+    20      0.650916  1 Ni d  0              22     -0.375794  1 Ni d  2       
+    25      0.372515  1 Ni d  0              27     -0.215064  1 Ni d  2       
  
  Vector   15  Occ=0.000000D+00  E=-5.744158D-01  Symmetry=a1
-              MO Center= -1.5D-16, -2.2D-16, -9.9D-16, r^2= 2.4D+00
+              MO Center= -2.5D-16, -6.9D-17,  1.2D-15, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10     -0.818333  1 Ni s                  6      0.257987  1 Ni s          
     14      0.240254  1 Ni s          
  
- Vector   16  Occ=0.000000D+00  E=-3.952638D-01  Symmetry=a1
-              MO Center= -4.4D-16,  1.6D-16, -2.3D-15, r^2= 3.9D+00
+ Vector   16  Occ=0.000000D+00  E=-3.952638D-01  Symmetry=b2
+              MO Center=  5.1D-17,  4.4D-15,  9.6D-18, r^2= 3.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      0.699938  1 Ni pz                17      0.382948  1 Ni pz         
+    12     -0.699938  1 Ni py                16     -0.382948  1 Ni py         
  
  Vector   17  Occ=0.000000D+00  E=-3.850157D-01  Symmetry=b1
-              MO Center=  1.2D-16,  2.8D-17, -3.6D-17, r^2= 4.1D+00
+              MO Center=  2.3D-16,  1.8D-17, -2.8D-17, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.661861  1 Ni px                15      0.424074  1 Ni px         
  
- Vector   18  Occ=0.000000D+00  E=-3.850099D-01  Symmetry=b2
-              MO Center=  1.5D-17,  4.9D-16, -2.9D-16, r^2= 4.1D+00
+ Vector   18  Occ=0.000000D+00  E=-3.850099D-01  Symmetry=a1
+              MO Center= -2.5D-17, -5.7D-17, -2.1D-15, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.661848  1 Ni py                16      0.424088  1 Ni py         
+    13     -0.661848  1 Ni pz                17     -0.424088  1 Ni pz         
  
  Vector   19  Occ=0.000000D+00  E=-2.076092D-01  Symmetry=a1
-              MO Center= -7.3D-17,  4.6D-17,  6.7D-15, r^2= 7.8D+00
+              MO Center=  7.6D-16, -3.2D-14,  5.3D-15, r^2= 7.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     14     -1.852489  1 Ni s                 10     -1.676002  1 Ni s          
  
- Vector   20  Occ=0.000000D+00  E=-1.365335D-01  Symmetry=a1
-              MO Center= -6.8D-16, -4.1D-16, -4.0D-15, r^2= 8.9D+00
+ Vector   20  Occ=0.000000D+00  E=-1.365335D-01  Symmetry=b2
+              MO Center=  2.9D-17,  2.8D-14,  6.8D-17, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.372503  1 Ni pz                13     -1.254942  1 Ni pz         
+    16      1.372503  1 Ni py                12     -1.254942  1 Ni py         
  
  Vector   21  Occ=0.000000D+00  E=-1.278203D-01  Symmetry=b1
-              MO Center=  7.7D-17, -7.5D-19, -2.9D-17, r^2= 8.7D+00
+              MO Center= -7.9D-16, -5.0D-18,  6.0D-18, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      1.360357  1 Ni px                11     -1.275434  1 Ni px         
  
- Vector   22  Occ=0.000000D+00  E=-1.278195D-01  Symmetry=b2
-              MO Center= -1.1D-16,  6.9D-18,  4.7D-17, r^2= 8.7D+00
+ Vector   22  Occ=0.000000D+00  E=-1.278195D-01  Symmetry=a1
+              MO Center= -8.6D-17,  2.0D-16, -4.8D-15, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.360353  1 Ni py                12     -1.275441  1 Ni py         
+    17     -1.360353  1 Ni pz                13      1.275441  1 Ni pz         
  
  Vector   23  Occ=0.000000D+00  E= 1.364392D+00  Symmetry=b2
-              MO Center= -3.4D-17,  2.4D-17, -2.6D-17, r^2= 7.0D-01
+              MO Center=  4.3D-16,  2.8D-16,  4.1D-16, r^2= 7.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24     -1.000665  1 Ni d -1              19      0.772285  1 Ni d -1       
+    24      1.000665  1 Ni d -1              19     -0.772285  1 Ni d -1       
  
 
    alpha - beta orbital overlaps 
@@ -1299,10 +1315,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       <S2> =      2.0013 (Exact =     0.0000)
  
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        1.4s     wall:        1.6s
+ Task  times  cpu:        1.2s     wall:        2.3s
  
  
                                 NWChem Input Module
@@ -1400,9 +1416,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 a1          4 b2          5 b1      
-     6 a1          7 b2          8 b1          9 a1         10 a1      
-    11 a1         12 b2         13 b1         14 a2      
+     1 a1          2 a1          3 b2          4 b1          5 a1      
+     6 a1          7 b2          8 a1          9 b1         10 a1      
+    11 a1         12 a2         13 b1         14 b2      
  
  
    Symmetry analysis of molecular orbitals - initial beta
@@ -1421,19 +1437,19 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 a1          4 b2          5 b1      
-     6 a1          7 b2          8 b1          9 a1         10 a1      
-    11 a1         12 b2         13 b1         14 a2      
+     1 a1          2 a1          3 b2          4 b1          5 a1      
+     6 a1          7 b2          8 a1          9 b1         10 a1      
+    11 a1         12 a2         13 b1         14 b2      
  
-   Time after variat. SCF:      2.9
-   Time prior to 1st pass:      2.9
+   Time after variat. SCF:      3.1
+   Time prior to 1st pass:      3.1
 
  #quartets = 2.310D+02 #integrals = 1.077D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./bq_nio.aoints.0
+ Integral file          = /state/partition1/bq_nio.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  28571
+ Max. records in memory =      2        Max. records in file   =  55810
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1447,11 +1463,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  !! scf_movecs_sym_adapt:   11 vectors were symmetry contaminated
 
 
- !! scf_movecs_sym_adapt:   10 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    9 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
 
            Memory utilization after 1st SCF pass: 
@@ -1460,10 +1476,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -73.5786189500 -7.36D+01  6.68D-02  1.58D+00     2.9
+ d= 0,ls=0.0,diis     1    -73.5786189500 -7.36D+01  6.68D-02  1.58D+00     3.2
                                                      6.68D-02  1.58D+00
 
- !! scf_movecs_sym_adapt:    9 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
   Symmetry fudging
 
@@ -1476,30 +1492,30 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
- d= 0,ls=0.0,diis     2    -73.9719481306 -3.93D-01  2.48D-02  5.88D-01     3.0
+ d= 0,ls=0.0,diis     2    -73.9719481306 -3.93D-01  2.48D-02  5.88D-01     3.3
                                                      2.48D-02  5.88D-01
 
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
   Symmetry fudging
 
+ !! scf_movecs_sym_adapt:    6 vectors were symmetry contaminated
+
+
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
-
-
- !! scf_movecs_sym_adapt:    9 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    9 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    7 vectors were symmetry contaminated
 
- d= 0,ls=0.0,diis     3    -74.1879931784 -2.16D-01  2.89D-04  5.09D-05     3.0
+ d= 0,ls=0.0,diis     3    -74.1879931784 -2.16D-01  2.89D-04  5.09D-05     3.3
                                                      2.89D-04  5.09D-05
 
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    7 vectors were symmetry contaminated
 
 
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
@@ -1508,7 +1524,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  !! scf_movecs_sym_adapt:    6 vectors were symmetry contaminated
 
- d= 0,ls=0.0,diis     4    -74.1880100733 -1.69D-05  5.80D-05  1.03D-06     3.0
+ d= 0,ls=0.0,diis     4    -74.1880100733 -1.69D-05  5.80D-05  1.03D-06     3.4
                                                      5.80D-05  1.03D-06
 
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
@@ -1518,14 +1534,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    6 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    4 vectors were symmetry contaminated
 
- d= 0,ls=0.0,diis     5    -74.1880106333 -5.60D-07  1.10D-05  5.77D-08     3.0
+ d= 0,ls=0.0,diis     5    -74.1880106333 -5.60D-07  1.10D-05  5.77D-08     3.4
                                                      1.10D-05  5.77D-08
+  Singularity in Pulay matrix. Error and Fock matrices removed. 
 
  !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
@@ -1538,10 +1555,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    6 vectors were symmetry contaminated
 
- d= 0,ls=0.0,diis     6    -74.1880106554 -2.20D-08  6.64D-08  4.36D-12     3.0
-                                                     6.64D-08  4.36D-12
+ d= 0,ls=0.0,diis     6    -74.1880106554 -2.20D-08  6.68D-08  4.36D-12     3.5
+                                                     6.68D-08  4.36D-12
 
 
          Total DFT energy =      -74.188010655351
@@ -1552,174 +1569,174 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Numeric. integr. density =        0.000000000000
 
-     Total iterative time =      0.1s
+     Total iterative time =      0.3s
 
 
  
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
  
- Vector    2  Occ=1.000000D+00  E=-2.467179D-01  Symmetry=a1
-              MO Center= -6.7D-17,  2.5D-32, -3.8D-17, r^2= 5.2D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.645058  1 O  s                  2      0.440585  1 O  s          
-     1     -0.224701  1 O  s          
- 
- Vector    3  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b2
-              MO Center= -2.3D-49, -9.2D-33, -3.3D-17, r^2= 7.3D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     8      0.614838  1 O  py                 4      0.538437  1 O  py         
- 
- Vector    4  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=a1
-              MO Center=  1.6D-36, -4.3D-36,  4.2D-17, r^2= 7.3D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.614838  1 O  pz                 5      0.538437  1 O  pz         
- 
- Vector    5  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b1
-              MO Center=  1.2D-16,  3.3D-18, -9.7D-18, r^2= 7.3D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.614838  1 O  px                 3     -0.538437  1 O  px         
- 
- Vector    6  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=b1
-              MO Center=  3.5D-15, -6.8D-19, -1.3D-18, r^2= 1.0D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     3     -1.022806  1 O  px                 7      0.978785  1 O  px         
- 
- Vector    7  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=b2
-              MO Center= -1.0D-39, -2.7D-32, -3.1D-17, r^2= 1.0D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     4     -1.022806  1 O  py                 8      0.978785  1 O  py         
- 
- Vector    8  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=a1
-              MO Center=  1.0D-32, -3.7D-34, -4.5D-16, r^2= 1.0D+00
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     5      1.022806  1 O  pz                 9     -0.978785  1 O  pz         
- 
- Vector    9  Occ=0.000000D+00  E= 2.135484D+00  Symmetry=a1
-              MO Center= -3.4D-15, -2.5D-33,  3.8D-16, r^2= 9.6D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     2     -1.507570  1 O  s                  6      1.408394  1 O  s          
- 
- Vector   10  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a1
-              MO Center= -1.6D-19, -4.8D-34,  8.4D-17, r^2= 6.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.996836  1 O  d  0       
- 
- Vector   11  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a1
-              MO Center= -1.1D-16,  8.1D-34, -1.4D-17, r^2= 6.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    14      0.996836  1 O  d  2       
- 
- Vector   12  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a2
-              MO Center= -8.4D-34, -2.6D-18, -1.1D-33, r^2= 6.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.000000  1 O  d -2       
- 
- Vector   13  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b2
-              MO Center=  6.3D-34,  9.3D-33,  6.4D-17, r^2= 6.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    11     -1.000000  1 O  d -1       
- 
- Vector   14  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b1
-              MO Center= -5.5D-34, -4.8D-33,  1.1D-17, r^2= 6.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.000000  1 O  d  1       
- 
- 
-                     DFT Final Beta Molecular Orbital Analysis
-                     -----------------------------------------
- 
- Vector    2  Occ=1.000000D+00  E=-2.467179D-01  Symmetry=a1
-              MO Center= -2.1D-31, -1.9D-33, -6.3D-16, r^2= 5.2D-01
+ Vector    2  Occ=1.000000D+00  E=-2.467178D-01  Symmetry=a1
+              MO Center=  3.5D-31,  2.7D-15, -1.1D-16, r^2= 5.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6     -0.645058  1 O  s                  2     -0.440585  1 O  s          
      1      0.224701  1 O  s          
  
- Vector    3  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b2
-              MO Center=  2.7D-50,  4.8D-33, -4.5D-17, r^2= 7.3D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     8     -0.614838  1 O  py                 4     -0.538437  1 O  py         
- 
- Vector    4  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b1
-              MO Center=  1.6D-31,  1.1D-36, -2.9D-19, r^2= 7.3D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.614838  1 O  px                 3     -0.538437  1 O  px         
- 
- Vector    5  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=a1
-              MO Center= -2.1D-16,  3.3D-17,  7.5D-16, r^2= 7.3D-01
+ Vector    3  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=a1
+              MO Center= -1.1D-34,  4.1D-36,  6.2D-17, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9     -0.614838  1 O  pz                 5     -0.538437  1 O  pz         
  
- Vector    6  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=b2
-              MO Center= -1.7D-39,  2.0D-32, -2.8D-17, r^2= 1.0D+00
+ Vector    4  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b1
+              MO Center= -2.5D-32,  2.5D-35,  1.8D-18, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      1.022806  1 O  py                 8     -0.978785  1 O  py         
+     7     -0.614838  1 O  px                 3     -0.538437  1 O  px         
+ 
+ Vector    5  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b2
+              MO Center= -6.2D-16, -2.7D-15, -1.9D-18, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.614838  1 O  py                 4      0.538437  1 O  py         
+ 
+ Vector    6  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=b2
+              MO Center= -1.2D-16,  6.9D-15, -1.3D-17, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4     -1.022806  1 O  py                 8      0.978785  1 O  py         
  
  Vector    7  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=b1
-              MO Center= -2.8D-33,  4.9D-38,  1.7D-17, r^2= 1.0D+00
+              MO Center= -3.7D-32,  5.9D-34, -1.5D-17, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      1.022806  1 O  px                 7     -0.978785  1 O  px         
  
  Vector    8  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=a1
-              MO Center= -4.2D-17, -2.1D-18, -5.2D-15, r^2= 1.0D+00
+              MO Center= -3.9D-33, -2.3D-31, -1.1D-15, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      1.022806  1 O  pz                 9     -0.978785  1 O  pz         
  
  Vector    9  Occ=0.000000D+00  E= 2.135484D+00  Symmetry=a1
-              MO Center= -2.8D-31,  2.9D-31,  5.1D-15, r^2= 9.6D-01
+              MO Center=  2.9D-31, -6.9D-15,  1.1D-15, r^2= 9.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2     -1.507570  1 O  s                  6      1.408394  1 O  s          
  
  Vector   10  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a1
-              MO Center=  1.8D-34, -4.5D-34, -1.2D-17, r^2= 6.1D-01
+              MO Center= -8.7D-34, -1.3D-17, -8.5D-18, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -0.996588  1 O  d  0       
+    14     -0.942900  1 O  d  2              12      0.333075  1 O  d  0       
  
  Vector   11  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a1
-              MO Center= -8.1D-34, -2.1D-33,  4.9D-18, r^2= 6.1D-01
+              MO Center= -2.4D-34,  8.6D-18,  4.0D-17, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    14     -0.996588  1 O  d  2       
+    12     -0.942900  1 O  d  0              14     -0.333075  1 O  d  2       
  
- Vector   12  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b1
-              MO Center=  2.5D-16, -2.6D-34, -1.7D-17, r^2= 6.1D-01
-   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
-  ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.000000  1 O  d  1       
- 
- Vector   13  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a2
-              MO Center= -2.0D-33,  9.1D-34,  2.3D-33, r^2= 6.1D-01
+ Vector   12  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a2
+              MO Center=  7.4D-16,  8.3D-32, -2.8D-47, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10     -1.000000  1 O  d -2       
  
- Vector   14  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b2
-              MO Center=  1.9D-33, -3.1D-17,  7.3D-17, r^2= 6.1D-01
+ Vector   13  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b2
+              MO Center=  4.4D-50,  2.0D-33,  1.5D-17, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11     -1.000000  1 O  d -1       
+ 
+ Vector   14  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b1
+              MO Center= -2.9D-32, -4.8D-33,  1.3D-17, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13     -1.000000  1 O  d  1       
+ 
+ 
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+ 
+ Vector    2  Occ=1.000000D+00  E=-2.467178D-01  Symmetry=a1
+              MO Center=  5.8D-32,  1.4D-15, -8.0D-17, r^2= 5.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6     -0.645058  1 O  s                  2     -0.440585  1 O  s          
+     1      0.224701  1 O  s          
+ 
+ Vector    3  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b1
+              MO Center= -3.3D-32,  3.5D-34, -1.4D-17, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.614838  1 O  px                 3      0.538437  1 O  px         
+ 
+ Vector    4  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=b2
+              MO Center= -5.0D-17, -1.4D-15, -4.1D-17, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.614838  1 O  py                 4      0.538437  1 O  py         
+ 
+ Vector    5  Occ=1.000000D+00  E= 4.585879D-01  Symmetry=a1
+              MO Center=  8.0D-33, -1.4D-32,  1.1D-16, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.614838  1 O  pz                 5      0.538437  1 O  pz         
+ 
+ Vector    6  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=b1
+              MO Center= -9.1D-33, -2.6D-34,  3.8D-17, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3     -1.022806  1 O  px                 7      0.978785  1 O  px         
+ 
+ Vector    7  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=b2
+              MO Center= -3.6D-18,  4.9D-17,  1.7D-18, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      1.022806  1 O  py                 8     -0.978785  1 O  py         
+ 
+ Vector    8  Occ=0.000000D+00  E= 2.054752D+00  Symmetry=a1
+              MO Center= -3.6D-34,  7.9D-32, -9.4D-16, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5     -1.022806  1 O  pz                 9      0.978785  1 O  pz         
+ 
+ Vector    9  Occ=0.000000D+00  E= 2.135484D+00  Symmetry=a1
+              MO Center= -5.3D-36, -6.1D-17,  1.0D-15, r^2= 9.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -1.507570  1 O  s                  6      1.408394  1 O  s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a1
+              MO Center= -1.5D-34,  5.3D-18, -1.0D-16, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.967108  1 O  d  0              14     -0.254367  1 O  d  2       
+ 
+ Vector   11  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a1
+              MO Center=  4.2D-34,  5.9D-18, -8.9D-18, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.967108  1 O  d  2              12      0.254367  1 O  d  0       
+ 
+ Vector   12  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=a2
+              MO Center=  5.4D-17, -1.6D-34, -2.7D-49, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      1.000000  1 O  d -2       
+ 
+ Vector   13  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b2
+              MO Center= -2.5D-48, -3.7D-33,  3.9D-17, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.000000  1 O  d -1       
+ 
+ Vector   14  Occ=0.000000D+00  E= 3.033147D+00  Symmetry=b1
+              MO Center= -1.3D-32,  2.0D-33, -2.4D-17, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.000000  1 O  d  1       
  
 
    alpha - beta orbital overlaps 
@@ -1727,13 +1744,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      5      4      7      6      8      9     10
- overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+    beta      1      2      5      3      4      7      6      8      9     11
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  0.827
 
 
    alpha     11     12     13     14
-    beta     11     13     14     12
- overlap   1.000  1.000  1.000  1.000
+    beta     10     12     13     14
+ overlap   0.827  1.000  1.000  1.000
 
      --------------------------
      Expectation value of S2:  
@@ -1741,16 +1758,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       <S2> =      0.0000 (Exact =     0.0000)
  
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.2s     wall:        0.3s
+ Task  times  cpu:        0.4s     wall:        1.5s
  
  
                                 NWChem Input Module
                                 -------------------
  
  
+   smearing value not found; defaulting to 1d-3 Hartree.
                                  NWChem DFT Module
                                  -----------------
  
@@ -1798,6 +1816,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           dE  on:    start            ASAP                start   
           dE off:    2 iters         30 iters            30 iters 
 
+          Smearing applied: 0.10D-02 (hartree)
  
       Screening Tolerance Information
       -------------------------------
@@ -1886,13 +1905,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 b2          4 a1          5 b1      
-     6 a1          7 a1          8 a1          9 b2         10 b1      
-    11 a1         12 a1         13 b1         14 b2         15 b1      
-    16 b2         17 a1         18 a2         19 a1         20 a1      
-    21 a1         22 a1         23 b1         24 b2         25 a1      
-    26 b1         27 b2         28 a1         29 a1         30 a2      
-    31 a1         32 b1         33 b2         34 a1         35 a1      
+     1 a1          2 a1          3 a1          4 b1          5 b2      
+     6 a1          7 a1          8 b1          9 b2         10 a1      
+    11 a1         12 b1         13 a1         14 b2         15 b1      
+    16 a2         17 a1         18 b2         19 a1         20 a1      
+    21 a1         22 b2         23 b1         24 a1         25 a1      
+    26 b1         27 a1         28 b2         29 a1         30 b1      
+    31 a1         32 b2         33 b1         34 a1         35 a1      
     36 a1         37 a1         38 a2         39 b2         40 b1      
     41 a1      
  
@@ -1906,22 +1925,22 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 b2          4 b1          5 a1      
-     6 a1          7 a1          8 a1          9 b2         10 b1      
-    11 a1         12 b2         13 b1         14 a1         15 a1      
-    16 a2         17 a1         18 a1         19 a1         20 a1      
-    21 b1         22 b2         23 a1         24 a1         25 b2      
-    26 b1         27 b2         28 b1         29 a1         30 a2      
-    31 a1         32 b2         33 b1         34 a1         35 a1      
-    36 a1         37 a1         38 b1         39 a2         40 b2      
+     1 a1          2 a1          3 b1          4 b2          5 a1      
+     6 a1          7 a1          8 b1          9 b2         10 a1      
+    11 a1         12 b2         13 a1         14 b1         15 a1      
+    16 b2         17 a1         18 a1         19 a1         20 b2      
+    21 b1         22 a1         23 a1         24 b2         25 a1      
+    26 b1         27 b2         28 a2         29 a1         30 b1      
+    31 a1         32 b1         33 b2         34 a1         35 a1      
+    36 a1         37 a1         38 a2         39 b2         40 b1      
     41 a1      
  
-   Time after variat. SCF:      3.2
-   Time prior to 1st pass:      3.2
+   Time after variat. SCF:      3.7
+   Time prior to 1st pass:      3.7
 
- Integral file          = ./bq_nio.aoints.0
+ Integral file          = /state/partition1/bq_nio.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     31        Max. records in file   =  28571
+ Max. records in memory =     16        Max. records in file   =  55810
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1930,405 +1949,436 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
+ sigma= .10D-02 eFermi=  1.14502 T*S= -2.15E-47 nel(1)=   31.00 nel(2)=   31.00
+
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       11.07            11070437
+           Heap Space remaining (MW):       12.05            12053477
           Stack Space remaining (MW):       13.11            13105829
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -3093.1265167564 -3.17D+03  4.78D-03  1.04D-01     6.3
-                                                     4.78D-03  1.04D-01
- d= 0,ls=0.0,diis     2  -3093.2002688040 -7.38D-02  4.01D-03  6.69D-03     6.4
-                                                     4.01D-03  6.69D-03
- d= 0,ls=0.0,diis     3  -3093.2185784570 -1.83D-02  4.53D-03  3.43D-03     6.5
-                                                     4.53D-03  3.43D-03
- d= 0,ls=0.0,diis     4  -3093.2412175121 -2.26D-02  4.62D-03  1.16D-02     6.6
-                                                     4.62D-03  1.16D-02
- d= 0,ls=0.0,diis     5  -3093.2178697799  2.33D-02  3.56D-03  7.67D-03     6.7
-                                                     3.56D-03  7.67D-03
- d= 0,ls=0.0,diis     6  -3093.2112284101  6.64D-03  2.25D-03  1.05D-02     6.8
-                                                     2.25D-03  1.05D-02
- d= 0,ls=0.0,diis     7  -3093.2115744869 -3.46D-04  1.89D-03  1.94D-02     6.9
-                                                     1.89D-03  1.94D-02
- d= 0,ls=0.0,diis     8  -3093.2134201093 -1.85D-03  3.94D-03  1.08D-02     7.0
-                                                     3.94D-03  1.08D-02
- d= 0,ls=0.0,diis     9  -3093.2199781797 -6.56D-03  1.08D-03  2.26D-03     7.1
-                                                     1.08D-03  2.26D-03
- d= 0,ls=0.0,diis    10  -3093.2212812616 -1.30D-03  1.01D-03  1.51D-04     7.2
-                                                     1.01D-03  1.51D-04
- d= 0,ls=0.0,diis    11  -3093.2210477791  2.33D-04  8.96D-05  2.09D-04     7.4
-                                                     8.96D-05  2.09D-04
- d= 0,ls=0.0,diis    12  -3093.2211175003 -6.97D-05  1.49D-03  2.28D-04     7.5
-                                                     1.49D-03  2.28D-04
- d= 0,ls=0.0,diis    13  -3093.2205340608  5.83D-04  2.58D-04  7.22D-05     7.6
-                                                     2.58D-04  7.22D-05
- d= 0,ls=0.0,diis    14  -3093.2205512208 -1.72D-05  1.27D-04  2.55D-06     7.7
-                                                     1.27D-04  2.55D-06
- d= 0,ls=0.0,diis    15  -3093.2205549408 -3.72D-06  6.85D-05  1.16D-06     7.8
-                                                     6.85D-05  1.16D-06
- d= 0,ls=0.0,diis    16  -3093.2205554025 -4.62D-07  3.21D-05  7.81D-07     7.9
-                                                     3.21D-05  7.81D-07
- d= 0,ls=0.0,diis    17  -3093.2205542188  1.18D-06  4.01D-05  2.51D-07     8.0
-                                                     4.01D-05  2.51D-07
- d= 0,ls=0.0,diis    18  -3093.2205545552 -3.36D-07  7.69D-06  8.64D-08     8.1
-                                                     7.69D-06  8.64D-08
+ d= 0,ls=0.0,diis     1  -3093.1362225268 -3.17D+03  1.08D-02  1.08D-01     5.5
+                                                     1.08D-02  1.08D-01
+ sigma= .10D-02 eFermi=  1.14174 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     2  -3093.2673020978 -1.31D-01  1.27D-02  4.24D-02     5.8
+                                                     1.27D-02  4.24D-02
+ sigma= .10D-02 eFermi=  1.18571 T*S= -5.60E-81 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     3  -3093.4218963613 -1.55D-01  1.46D-02  1.37D-01     6.0
+                                                     1.46D-02  1.37D-01
+ sigma= .10D-02 eFermi=  1.24081 T*S= -5.34E-26 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     4  -3093.2433372455  1.79D-01  1.62D-02  6.73D-02     6.1
+                                                     1.62D-02  6.73D-02
+ sigma= .10D-02 eFermi=  1.25609 T*S= -2.77E-12 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     5  -3093.2265937353  1.67D-02  2.17D-02  5.15D-01     6.3
+                                                     2.17D-02  5.15D-01
+ sigma= .10D-02 eFermi=  1.23306 T*S= -5.24E-73 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     6  -3093.3562208292 -1.30D-01  2.63D-02  1.48D+00     6.5
+                                                     2.63D-02  1.48D+00
+ sigma= .10D-02 eFermi=  1.23453 T*S= -2.65E-36 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     7  -3093.1824676137  1.74D-01  3.75D-03  3.25D-01     6.7
+                                                     3.75D-03  3.25D-01
+ sigma= .10D-02 eFermi=  1.23204 T*S= -3.61E-55 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     8  -3093.1982443814 -1.58D-02  1.09D-03  3.46D-01     6.9
+                                                     1.09D-03  3.46D-01
+ sigma= .10D-02 eFermi=  1.23777 T*S= -1.81E-29 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     9  -3093.1994646544 -1.22D-03  1.83D-03  3.27D-01     7.1
+                                                     1.83D-03  3.27D-01
+ sigma= .10D-02 eFermi=  1.23779 T*S= -2.57E-12 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    10  -3093.1992211193  2.44D-04  2.44D-03  3.50D-01     7.2
+                                                     2.44D-03  3.50D-01
+ sigma= .10D-02 eFermi=  1.23315 T*S= -1.38E-05 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    11  -3093.1993348895 -1.14D-04  3.25D-03  3.21D-01     7.4
+                                                     3.25D-03  3.21D-01
+ sigma= .10D-02 eFermi=  1.24178 T*S= -1.07E-26 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    12  -3093.2063313358 -7.00D-03  2.70D-02  2.47D-01     7.6
+                                                     2.70D-02  2.45D-01
+ sigma= .10D-02 eFermi=  1.21837 T*S= -1.53-151 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    13  -3093.3973624986 -1.91D-01  2.08D-02  1.29D+00     7.8
+                                                     2.11D-02  1.31D+00
+ sigma= .10D-02 eFermi=  1.24214 T*S= -9.76E-06 nel(1)=   31.00 nel(2)=   31.00
+
+  Swapped AB - resetting Diis
+ d= 0,ls=0.0,diis    14  -3093.3443506801  5.30D-02  2.77D-02  3.91D-01     8.0
+                                                     2.79D-02  4.06D-01
+ sigma= .10D-02 eFermi=  1.24090 T*S= -3.40-264 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    15  -3093.3904859705 -4.61D-02  6.97D-03  1.34D+00     8.2
+                                                     6.87D-03  1.28D+00
+ sigma= .10D-02 eFermi=  1.23554 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    16  -3093.6714884926 -2.81D-01  1.78D-03  1.80D-01     8.3
+                                                     1.77D-03  1.76D-01
+ sigma= .10D-02 eFermi=  1.23742 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    17  -3093.7145360949 -4.30D-02  3.56D-04  1.33D-03     8.6
+                                                     3.55D-04  1.34D-03
+ sigma= .10D-02 eFermi=  1.23654 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    18  -3093.7151387784 -6.03D-04  1.70D-04  4.40D-04     8.8
+                                                     1.69D-04  4.37D-04
+ sigma= .10D-02 eFermi=  1.23663 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    19  -3093.7153425504 -2.04D-04  4.80D-05  1.34D-05     9.0
+                                                     4.78D-05  1.32D-05
+ sigma= .10D-02 eFermi=  1.23664 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    20  -3093.7153565985 -1.40D-05  7.76D-06  2.88D-07     9.2
+                                                     7.77D-06  2.80D-07
+ sigma= .10D-02 eFermi=  1.23664 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    21  -3093.7153569511 -3.53D-07  1.97D-06  1.09D-08     9.4
+                                                     1.97D-06  1.30D-08
 
 
-         Total DFT energy =    -3093.220554555162
-      One electron energy =    -4554.443575991401
-           Coulomb energy =     1512.657554989400
-    Exchange-Corr. energy =     -131.211568443932
+         Total DFT energy =    -3093.715356951084
+      One electron energy =    -4532.426243067785
+           Coulomb energy =     1489.624932176431
+    Exchange-Corr. energy =     -130.691080950501
  Nuclear repulsion energy =       79.777034890771
 
  Numeric. integr. density =        0.000000000000
 
-     Total iterative time =      4.9s
+     Total iterative time =      5.7s
 
 
  
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
  
- Vector   20  Occ=1.000000D+00  E= 4.503226D-02  Symmetry=a1
-              MO Center=  3.0D-18, -1.5D-17, -4.9D-03, r^2= 5.5D-01
+ Vector   20  Occ=1.000000D+00  E= 4.243332D-03  Symmetry=a1
+              MO Center=  2.8D-17, -1.3D-17, -2.7D-03, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.610042   5 O  s                 2      0.451249   5 O  s         
-     1     -0.223429   5 O  s         
+     6      0.597989   5 O  s                 2      0.458637   5 O  s         
+     1     -0.223223   5 O  s         
  
- Vector   21  Occ=1.000000D+00  E= 7.359537D-01  Symmetry=b1
-              MO Center= -8.6D-16, -2.0D-17,  2.4D-01, r^2= 1.3D+00
+ Vector   21  Occ=1.000000D+00  E= 3.686523D-01  Symmetry=b2
+              MO Center= -5.6D-16, -3.1D-16, -2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.570014   5 O  px                3     -0.484293   5 O  px        
-    35     -0.248167   6 Ni d  1      
+    67     -0.797578  12 Ni d -1             72     -0.365370  12 Ni d -1      
  
- Vector   22  Occ=1.000000D+00  E= 7.359954D-01  Symmetry=b2
-              MO Center= -5.4D-17,  2.4D-16,  2.4D-01, r^2= 1.3D+00
+ Vector   22  Occ=1.000000D+00  E= 3.686529D-01  Symmetry=b1
+              MO Center= -2.7D-18,  1.1D-15, -2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -0.570365   5 O  py                4     -0.484627   5 O  py        
-    33      0.246882   6 Ni d -1      
+    69      0.797578  12 Ni d  1             74      0.365371  12 Ni d  1      
  
- Vector   23  Occ=1.000000D+00  E= 7.472104D-01  Symmetry=a1
-              MO Center=  4.3D-16,  4.4D-16,  3.9D-02, r^2= 1.1D+00
+ Vector   23  Occ=1.000000D+00  E= 3.730975D-01  Symmetry=a2
+              MO Center=  5.8D-16, -1.1D-15, -2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -0.545772   5 O  pz                9     -0.489161   5 O  pz        
-    34     -0.172768   6 Ni d  0             68      0.153008  12 Ni d  0      
+    66     -0.802240  12 Ni d -2             71     -0.362488  12 Ni d -2      
  
- Vector   24  Occ=1.000000D+00  E= 8.045270D-01  Symmetry=b1
-              MO Center= -5.0D-16,  1.8D-17,  1.8D+00, r^2= 8.5D-01
+ Vector   24  Occ=1.000000D+00  E= 4.174807D-01  Symmetry=a1
+              MO Center=  7.1D-17, -5.7D-18, -2.0D+00, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35     -0.725336   6 Ni d  1             40     -0.387435   6 Ni d  1      
-     7      0.200628   5 O  px                3      0.190469   5 O  px        
+    68      0.781628  12 Ni d  0             73      0.361196  12 Ni d  0      
  
- Vector   25  Occ=1.000000D+00  E= 8.048690D-01  Symmetry=b2
-              MO Center= -1.4D-17,  1.6D-16,  1.8D+00, r^2= 8.5D-01
+ Vector   25  Occ=1.000000D+00  E= 4.301265D-01  Symmetry=a1
+              MO Center=  3.0D-17,  3.2D-18, -2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    33      0.725723   6 Ni d -1             38      0.387724   6 Ni d -1      
-     8      0.199623   5 O  py                4      0.189624   5 O  py        
+    70     -0.801503  12 Ni d  2             75     -0.363518  12 Ni d  2      
  
- Vector   26  Occ=1.000000D+00  E= 9.011636D-01  Symmetry=a2
-              MO Center= -1.3D-17, -6.4D-17,  2.1D+00, r^2= 3.0D-01
+ Vector   26  Occ=1.000000D+00  E= 5.346505D-01  Symmetry=a1
+              MO Center= -1.6D-16,  8.3D-17,  1.9D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32     -0.759872   6 Ni d -2             37     -0.419431   6 Ni d -2      
+    34      0.752828   6 Ni d  0             39      0.373557   6 Ni d  0      
  
- Vector   27  Occ=1.000000D+00  E= 9.060854D-01  Symmetry=a1
-              MO Center= -6.8D-17, -3.8D-16,  2.1D+00, r^2= 3.0D-01
+ Vector   27  Occ=1.000000D+00  E= 5.509878D-01  Symmetry=a1
+              MO Center=  1.2D-17, -1.2D-17,  2.1D+00, r^2= 2.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36     -0.765048   6 Ni d  2             41     -0.411858   6 Ni d  2      
+    36     -0.786856   6 Ni d  2             41     -0.383704   6 Ni d  2      
  
- Vector   28  Occ=1.000000D+00  E= 9.415527D-01  Symmetry=a1
-              MO Center= -5.5D-16,  1.8D-16,  2.1D-01, r^2= 5.3D+00
+ Vector   28  Occ=1.000000D+00  E= 7.235320D-01  Symmetry=b1
+              MO Center=  9.1D-16, -5.7D-17, -4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34      0.498928   6 Ni d  0             68      0.437127  12 Ni d  0      
-    31      0.321460   6 Ni pz               28     -0.301947   6 Ni s         
-    65     -0.298883  12 Ni pz               39      0.283336   6 Ni d  0      
-    62     -0.275749  12 Ni s                73      0.251331  12 Ni d  0      
-    24     -0.238131   6 Ni s                58     -0.226525  12 Ni s         
+     7      0.596986   5 O  px                3      0.523996   5 O  px        
  
- Vector   29  Occ=1.000000D+00  E= 9.885093D-01  Symmetry=a2
-              MO Center= -6.1D-17, -3.3D-17, -2.1D+00, r^2= 3.1D-01
+ Vector   29  Occ=1.000000D+00  E= 7.235420D-01  Symmetry=b2
+              MO Center= -9.9D-17, -1.4D-16, -4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    66      0.747776  12 Ni d -2             71      0.434890  12 Ni d -2      
+     8     -0.596995   5 O  py                4     -0.523983   5 O  py        
  
- Vector   30  Occ=1.000000D+00  E= 9.899544D-01  Symmetry=a1
-              MO Center= -4.3D-17, -1.7D-16, -3.4D-01, r^2= 4.2D+00
+ Vector   30  Occ=1.000000D+00  E= 7.459356D-01  Symmetry=a1
+              MO Center= -1.6D-16,  1.2D-16,  7.2D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    68     -0.552855  12 Ni d  0             34      0.460059   6 Ni d  0      
-    73     -0.310036  12 Ni d  0             39      0.253869   6 Ni d  0      
-     5     -0.230137   5 O  pz                9     -0.181742   5 O  pz        
+     5      0.548279   5 O  pz                9      0.500957   5 O  pz        
+    34     -0.215470   6 Ni d  0      
  
- Vector   31  Occ=1.000000D+00  E= 9.937356D-01  Symmetry=a1
-              MO Center=  2.3D-17,  8.7D-17, -2.1D+00, r^2= 3.1D-01
+ Vector   31  Occ=1.000000D+00  E= 9.866431D-01  Symmetry=a1
+              MO Center= -3.4D-16,  3.7D-16, -1.2D-03, r^2= 7.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70     -0.753509  12 Ni d  2             75     -0.427016  12 Ni d  2      
+    65      0.658322  12 Ni pz               31     -0.653932   6 Ni pz        
+    62      0.636153  12 Ni s                28      0.632128   6 Ni s         
+    58      0.505306  12 Ni s                24      0.500800   6 Ni s         
+     6     -0.350211   5 O  s                61     -0.308494  12 Ni pz        
+    27      0.304249   6 Ni pz        
  
- Vector   32  Occ=0.000000D+00  E= 1.158353D+00  Symmetry=a1
-              MO Center=  9.9D-16, -2.9D-16,  1.0D-01, r^2= 7.2D+00
+ Vector   32  Occ=0.000000D+00  E= 1.351796D+00  Symmetry=b1
+              MO Center= -1.5D-15,  3.0D-17, -8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    65     -0.596007  12 Ni pz               31      0.582066   6 Ni pz        
-    62     -0.567304  12 Ni s                28     -0.549226   6 Ni s         
-    58     -0.447286  12 Ni s                24     -0.446366   6 Ni s         
-     6      0.347431   5 O  s                34     -0.281346   6 Ni d  0      
-    27     -0.274536   6 Ni pz               61      0.272854  12 Ni pz        
+    63     -0.859838  12 Ni px               29     -0.852980   6 Ni px        
+    59      0.467170  12 Ni px               25      0.459122   6 Ni px        
+     3      0.174252   5 O  px        
  
- Vector   33  Occ=0.000000D+00  E= 1.370860D+00  Symmetry=b2
-              MO Center= -1.1D-17, -6.3D-16,  7.0D-03, r^2= 1.3D+01
+ Vector   33  Occ=0.000000D+00  E= 1.351797D+00  Symmetry=b2
+              MO Center= -2.1D-16, -5.7D-16, -8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    30      0.854245   6 Ni py               64      0.850607  12 Ni py        
-    26     -0.449656   6 Ni py               60     -0.447027  12 Ni py        
-     4     -0.174352   5 O  py        
+    64     -0.859837  12 Ni py               30     -0.852980   6 Ni py        
+    60      0.467171  12 Ni py               26      0.459123   6 Ni py        
+     4      0.174254   5 O  py        
  
- Vector   34  Occ=0.000000D+00  E= 1.370865D+00  Symmetry=b1
-              MO Center=  1.3D-15,  3.9D-17,  7.1D-03, r^2= 1.3D+01
+ Vector   34  Occ=0.000000D+00  E= 1.527104D+00  Symmetry=b1
+              MO Center=  8.0D-17, -9.9D-16,  2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29     -0.854251   6 Ni px               63     -0.850588  12 Ni px        
-    25      0.449625   6 Ni px               59      0.447015  12 Ni px        
-     3      0.174355   5 O  px        
+    35      0.663547   6 Ni d  1             40      0.501987   6 Ni d  1      
+    63      0.243889  12 Ni px               29     -0.227192   6 Ni px        
+    25      0.167387   6 Ni px        
  
- Vector   35  Occ=0.000000D+00  E= 1.582623D+00  Symmetry=b2
-              MO Center=  2.4D-17, -1.5D-14, -7.6D-03, r^2= 1.7D+01
+ Vector   35  Occ=0.000000D+00  E= 1.527104D+00  Symmetry=b2
+              MO Center= -6.0D-16,  2.2D-15,  2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    64     -1.121071  12 Ni py               30      1.119261   6 Ni py        
-    26     -0.496331   6 Ni py               60      0.495032  12 Ni py        
+    33     -0.663547   6 Ni d -1             38     -0.501987   6 Ni d -1      
+    64      0.243890  12 Ni py               30     -0.227189   6 Ni py        
+    26      0.167385   6 Ni py        
  
- Vector   36  Occ=0.000000D+00  E= 1.582625D+00  Symmetry=b1
-              MO Center= -5.7D-15, -7.8D-18, -7.6D-03, r^2= 1.7D+01
+ Vector   36  Occ=0.000000D+00  E= 1.538444D+00  Symmetry=a2
+              MO Center=  7.5D-16,  1.1D-15,  2.1D+00, r^2= 3.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    63      1.121079  12 Ni px               29     -1.119240   6 Ni px        
-    25      0.496305   6 Ni px               59     -0.495021  12 Ni px        
+    32      0.685865   6 Ni d -2             37      0.509191   6 Ni d -2      
  
- Vector   37  Occ=0.000000D+00  E= 1.641449D+00  Symmetry=a1
-              MO Center=  2.7D-15,  1.3D-14,  1.7D-01, r^2= 2.4D+01
+ Vector   37  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b2
+              MO Center= -1.2D-17, -5.8D-15,  1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31      1.539329   6 Ni pz               65      1.503495  12 Ni pz        
-    27     -0.585148   6 Ni pz               61     -0.547473  12 Ni pz        
-    62      0.449878  12 Ni s                28     -0.411838   6 Ni s         
-     9     -0.156775   5 O  pz        
+    30     -1.106480   6 Ni py               64      1.104210  12 Ni py        
+    60     -0.510112  12 Ni py               26      0.491460   6 Ni py        
  
- Vector   38  Occ=0.000000D+00  E= 1.673388D+00  Symmetry=a1
-              MO Center= -1.9D-16,  9.0D-16, -1.4D-01, r^2= 1.9D+01
+ Vector   38  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b1
+              MO Center= -1.4D-14, -1.4D-16,  1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28     -0.913457   6 Ni s                62     -0.843404  12 Ni s         
-    65      0.710087  12 Ni pz               31     -0.614754   6 Ni pz        
-    61     -0.478603  12 Ni pz               27      0.469140   6 Ni pz        
-    24     -0.338796   6 Ni s                58     -0.334794  12 Ni s         
+    29     -1.106479   6 Ni px               63      1.104211  12 Ni px        
+    59     -0.510113  12 Ni px               25      0.491460   6 Ni px        
  
- Vector   39  Occ=0.000000D+00  E= 1.705846D+00  Symmetry=a1
-              MO Center=  2.7D-15,  3.0D-15, -3.7D-02, r^2= 9.3D+00
+ Vector   39  Occ=0.000000D+00  E= 1.600931D+00  Symmetry=a1
+              MO Center=  3.5D-15,  1.4D-15, -2.0D+00, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    62     -1.753478  12 Ni s                28      1.684295   6 Ni s         
-    31     -0.804274   6 Ni pz               65     -0.772468  12 Ni pz        
-    58     -0.670142  12 Ni s                24      0.596122   6 Ni s         
-     5     -0.211247   5 O  pz               20      0.195931   6 Ni s         
-    54     -0.194425  12 Ni s         
+    65      1.495062  12 Ni pz               31      0.962499   6 Ni pz        
+    61     -0.815321  12 Ni pz               28     -0.429683   6 Ni s         
+    58      0.375403  12 Ni s                27     -0.204968   6 Ni pz        
+     9     -0.173313   5 O  pz               24      0.163141   6 Ni s         
  
- Vector   40  Occ=0.000000D+00  E= 1.791410D+00  Symmetry=a1
-              MO Center= -6.0D-16,  4.4D-16,  2.8D-01, r^2= 5.7D+00
+ Vector   40  Occ=0.000000D+00  E= 1.604899D+00  Symmetry=a1
+              MO Center= -5.0D-15, -1.2D-15,  1.8D+00, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      1.256525   6 Ni s                58      0.958836  12 Ni s         
-    28      0.750149   6 Ni s                62      0.416792  12 Ni s         
-    27      0.352391   6 Ni pz               61     -0.284789  12 Ni pz        
-     2      0.249727   5 O  s                 6      0.174781   5 O  s         
+    31     -1.250054   6 Ni pz               27      0.753766   6 Ni pz        
+    62     -0.456178  12 Ni s                65     -0.433334  12 Ni pz        
+    58      0.422545  12 Ni s                24      0.371973   6 Ni s         
+     6      0.174577   5 O  s                 2      0.158200   5 O  s         
+    61     -0.151186  12 Ni pz        
  
- Vector   41  Occ=0.000000D+00  E= 1.860644D+00  Symmetry=b2
-              MO Center=  1.6D-17,  4.6D-16, -2.0D+00, r^2= 5.6D-01
+ Vector   41  Occ=0.000000D+00  E= 1.651798D+00  Symmetry=a1
+              MO Center=  1.0D-14,  1.6D-15, -1.5D-02, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    67     -0.630776  12 Ni d -1             72     -0.538838  12 Ni d -1      
-    60     -0.206332  12 Ni py        
+    28     -1.383407   6 Ni s                65      0.802748  12 Ni pz        
+    62      0.547468  12 Ni s                58     -0.394084  12 Ni s         
+    31      0.340418   6 Ni pz               24     -0.332590   6 Ni s         
+     5      0.268900   5 O  pz               20     -0.193416   6 Ni s         
+     9      0.181978   5 O  pz               54      0.169937  12 Ni s         
  
  
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
  
- Vector   20  Occ=1.000000D+00  E= 4.503226D-02  Symmetry=a1
-              MO Center=  1.3D-16,  8.1D-17,  4.9D-03, r^2= 5.5D-01
+ Vector   20  Occ=1.000000D+00  E= 4.242516D-03  Symmetry=a1
+              MO Center= -5.2D-18, -2.7D-17,  2.7D-03, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.610042   5 O  s                 2      0.451249   5 O  s         
-     1     -0.223429   5 O  s         
+     6     -0.597989   5 O  s                 2     -0.458638   5 O  s         
+     1      0.223223   5 O  s         
  
- Vector   21  Occ=1.000000D+00  E= 7.359537D-01  Symmetry=b2
-              MO Center= -3.9D-18,  7.8D-16, -2.4D-01, r^2= 1.3D+00
+ Vector   21  Occ=1.000000D+00  E= 3.686651D-01  Symmetry=b1
+              MO Center= -2.5D-17, -1.1D-15,  2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -0.570014   5 O  py                4     -0.484293   5 O  py        
-    67     -0.248167  12 Ni d -1      
+    35      0.797577   6 Ni d  1             40      0.365371   6 Ni d  1      
  
- Vector   22  Occ=1.000000D+00  E= 7.359954D-01  Symmetry=b1
-              MO Center= -2.3D-15, -3.5D-17, -2.4D-01, r^2= 1.3D+00
+ Vector   22  Occ=1.000000D+00  E= 3.686658D-01  Symmetry=b2
+              MO Center= -1.4D-15, -3.0D-17,  2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.570365   5 O  px                3     -0.484627   5 O  px        
-    69      0.246882  12 Ni d  1      
+    33     -0.797577   6 Ni d -1             38     -0.365372   6 Ni d -1      
  
- Vector   23  Occ=1.000000D+00  E= 7.472104D-01  Symmetry=a1
-              MO Center=  3.6D-16, -8.6D-16, -3.9D-02, r^2= 1.1D+00
+ Vector   23  Occ=1.000000D+00  E= 3.731103D-01  Symmetry=a2
+              MO Center=  1.4D-15,  1.1D-15,  2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.545772   5 O  pz                9      0.489161   5 O  pz        
-    68     -0.172768  12 Ni d  0             34      0.153008   6 Ni d  0      
+    32     -0.802239   6 Ni d -2             37     -0.362489   6 Ni d -2      
  
- Vector   24  Occ=1.000000D+00  E= 8.045270D-01  Symmetry=b2
-              MO Center=  1.3D-17, -1.6D-16, -1.8D+00, r^2= 8.5D-01
+ Vector   24  Occ=1.000000D+00  E= 4.174932D-01  Symmetry=a1
+              MO Center= -2.3D-17, -2.4D-16,  2.0D+00, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    67     -0.725336  12 Ni d -1             72     -0.387435  12 Ni d -1      
-     8      0.200628   5 O  py                4      0.190469   5 O  py        
+    34      0.781625   6 Ni d  0             39      0.361196   6 Ni d  0      
  
- Vector   25  Occ=1.000000D+00  E= 8.048690D-01  Symmetry=b1
-              MO Center=  2.1D-15, -1.1D-17, -1.8D+00, r^2= 8.5D-01
+ Vector   25  Occ=1.000000D+00  E= 4.301394D-01  Symmetry=a1
+              MO Center=  3.2D-18,  2.7D-17,  2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    69     -0.725723  12 Ni d  1             74     -0.387724  12 Ni d  1      
-     7     -0.199623   5 O  px                3     -0.189624   5 O  px        
+    36      0.801502   6 Ni d  2             41      0.363519   6 Ni d  2      
  
- Vector   26  Occ=1.000000D+00  E= 9.011636D-01  Symmetry=a2
-              MO Center= -8.7D-17, -2.7D-17, -2.1D+00, r^2= 3.0D-01
+ Vector   26  Occ=1.000000D+00  E= 5.346388D-01  Symmetry=a1
+              MO Center=  5.5D-17,  1.3D-16, -1.9D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    66      0.759872  12 Ni d -2             71      0.419431  12 Ni d -2      
+    68     -0.752831  12 Ni d  0             73     -0.373557  12 Ni d  0      
  
- Vector   27  Occ=1.000000D+00  E= 9.060854D-01  Symmetry=a1
-              MO Center=  1.6D-16,  8.9D-17, -2.1D+00, r^2= 3.0D-01
+ Vector   27  Occ=1.000000D+00  E= 5.509752D-01  Symmetry=a1
+              MO Center=  4.8D-16, -1.0D-16, -2.1D+00, r^2= 2.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70     -0.765048  12 Ni d  2             75     -0.411858  12 Ni d  2      
+    70     -0.786857  12 Ni d  2             75     -0.383703  12 Ni d  2      
  
- Vector   28  Occ=1.000000D+00  E= 9.415527D-01  Symmetry=a1
-              MO Center= -8.6D-16, -1.5D-16, -2.1D-01, r^2= 5.3D+00
+ Vector   28  Occ=1.000000D+00  E= 7.235312D-01  Symmetry=b2
+              MO Center= -1.8D-17, -3.2D-15,  4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    68     -0.498928  12 Ni d  0             34     -0.437127   6 Ni d  0      
-    65      0.321460  12 Ni pz               62      0.301947  12 Ni s         
-    31     -0.298883   6 Ni pz               73     -0.283336  12 Ni d  0      
-    28      0.275749   6 Ni s                39     -0.251331   6 Ni d  0      
-    58      0.238131  12 Ni s                24      0.226525   6 Ni s         
+     8     -0.596985   5 O  py                4     -0.523997   5 O  py        
  
- Vector   29  Occ=1.000000D+00  E= 9.885093D-01  Symmetry=a2
-              MO Center=  1.0D-16,  2.1D-17,  2.1D+00, r^2= 3.1D-01
+ Vector   29  Occ=1.000000D+00  E= 7.235412D-01  Symmetry=b1
+              MO Center=  3.0D-16, -3.3D-17,  4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32      0.747776   6 Ni d -2             37      0.434890   6 Ni d -2      
+     7     -0.596994   5 O  px                3     -0.523984   5 O  px        
  
- Vector   30  Occ=1.000000D+00  E= 9.899544D-01  Symmetry=a1
-              MO Center=  7.1D-18,  2.5D-16,  3.4D-01, r^2= 4.2D+00
+ Vector   30  Occ=1.000000D+00  E= 7.459345D-01  Symmetry=a1
+              MO Center= -1.1D-17,  1.1D-16, -7.2D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34      0.552855   6 Ni d  0             68     -0.460059  12 Ni d  0      
-    39      0.310036   6 Ni d  0             73     -0.253869  12 Ni d  0      
-     5     -0.230137   5 O  pz                9     -0.181742   5 O  pz        
+     5      0.548281   5 O  pz                9      0.500958   5 O  pz        
+    68      0.215459  12 Ni d  0      
  
- Vector   31  Occ=1.000000D+00  E= 9.937356D-01  Symmetry=a1
-              MO Center=  1.1D-16, -1.8D-17,  2.1D+00, r^2= 3.1D-01
+ Vector   31  Occ=1.000000D+00  E= 9.866431D-01  Symmetry=a1
+              MO Center=  3.5D-15,  3.6D-15,  1.2D-03, r^2= 7.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      0.753509   6 Ni d  2             41      0.427016   6 Ni d  2      
+    31      0.658322   6 Ni pz               65     -0.653932  12 Ni pz        
+    28     -0.636152   6 Ni s                62     -0.632129  12 Ni s         
+    24     -0.505306   6 Ni s                58     -0.500800  12 Ni s         
+     6      0.350210   5 O  s                27     -0.308493   6 Ni pz        
+    61      0.304249  12 Ni pz        
  
- Vector   32  Occ=0.000000D+00  E= 1.158353D+00  Symmetry=a1
-              MO Center=  3.1D-16,  1.1D-16, -1.0D-01, r^2= 7.2D+00
+ Vector   32  Occ=0.000000D+00  E= 1.351796D+00  Symmetry=b2
+              MO Center= -5.1D-17, -2.7D-15,  8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31     -0.596007   6 Ni pz               65      0.582066  12 Ni pz        
-    28      0.567304   6 Ni s                62      0.549226  12 Ni s         
-    24      0.447286   6 Ni s                58      0.446366  12 Ni s         
-     6     -0.347431   5 O  s                68      0.281346  12 Ni d  0      
-    61     -0.274536  12 Ni pz               27      0.272854   6 Ni pz        
+    30      0.859834   6 Ni py               64      0.852983  12 Ni py        
+    26     -0.467168   6 Ni py               60     -0.459124  12 Ni py        
+     4     -0.174251   5 O  py        
  
- Vector   33  Occ=0.000000D+00  E= 1.370860D+00  Symmetry=b1
-              MO Center=  2.8D-16,  1.7D-17, -7.0D-03, r^2= 1.3D+01
+ Vector   33  Occ=0.000000D+00  E= 1.351797D+00  Symmetry=b1
+              MO Center= -2.3D-15, -4.0D-18,  8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    63     -0.854245  12 Ni px               29     -0.850607   6 Ni px        
-    59      0.449656  12 Ni px               25      0.447027   6 Ni px        
-     3      0.174352   5 O  px        
+    29     -0.859834   6 Ni px               63     -0.852983  12 Ni px        
+    25      0.467169   6 Ni px               59      0.459125  12 Ni px        
+     3      0.174254   5 O  px        
  
- Vector   34  Occ=0.000000D+00  E= 1.370865D+00  Symmetry=b2
-              MO Center= -1.9D-17, -1.1D-15, -7.1D-03, r^2= 1.3D+01
+ Vector   34  Occ=0.000000D+00  E= 1.527092D+00  Symmetry=b2
+              MO Center= -2.3D-15, -2.5D-16, -2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    64     -0.854251  12 Ni py               30     -0.850588   6 Ni py        
-    60      0.449625  12 Ni py               26      0.447015   6 Ni py        
-     4      0.174355   5 O  py        
+    67      0.663559  12 Ni d -1             72      0.501990  12 Ni d -1      
+    30      0.243821   6 Ni py               64     -0.227119  12 Ni py        
+    60      0.167353  12 Ni py        
  
- Vector   35  Occ=0.000000D+00  E= 1.582623D+00  Symmetry=b1
-              MO Center= -1.4D-15, -3.8D-18,  7.6D-03, r^2= 1.7D+01
+ Vector   35  Occ=0.000000D+00  E= 1.527092D+00  Symmetry=b1
+              MO Center= -5.2D-16,  8.6D-16, -2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29     -1.121071   6 Ni px               63      1.119261  12 Ni px        
-    59     -0.496331  12 Ni px               25      0.495032   6 Ni px        
+    69      0.663559  12 Ni d  1             74      0.501990  12 Ni d  1      
+    29     -0.243822   6 Ni px               63      0.227116  12 Ni px        
+    59     -0.167351  12 Ni px        
  
- Vector   36  Occ=0.000000D+00  E= 1.582625D+00  Symmetry=b2
-              MO Center= -1.1D-17, -8.2D-15,  7.6D-03, r^2= 1.7D+01
+ Vector   36  Occ=0.000000D+00  E= 1.538431D+00  Symmetry=a2
+              MO Center=  2.5D-15,  1.0D-16, -2.1D+00, r^2= 3.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    30      1.121079   6 Ni py               64     -1.119240  12 Ni py        
-    60      0.496305  12 Ni py               26     -0.495021   6 Ni py        
+    66      0.685867  12 Ni d -2             71      0.509187  12 Ni d -2      
  
- Vector   37  Occ=0.000000D+00  E= 1.641449D+00  Symmetry=a1
-              MO Center=  2.8D-15, -1.2D-15, -1.7D-01, r^2= 2.4D+01
+ Vector   37  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b1
+              MO Center=  4.4D-15, -2.3D-16, -1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    65      1.539329  12 Ni pz               31      1.503495   6 Ni pz        
-    61     -0.585148  12 Ni pz               27     -0.547473   6 Ni pz        
-    28     -0.449878   6 Ni s                62      0.411838  12 Ni s         
-     9     -0.156775   5 O  pz        
+    63     -1.106493  12 Ni px               29      1.104227   6 Ni px        
+    25     -0.510121   6 Ni px               59      0.491471  12 Ni px        
  
- Vector   38  Occ=0.000000D+00  E= 1.673388D+00  Symmetry=a1
-              MO Center= -4.5D-18,  1.2D-15,  1.4D-01, r^2= 1.9D+01
+ Vector   38  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b2
+              MO Center= -1.5D-16, -6.3D-15, -1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    62     -0.913457  12 Ni s                28     -0.843404   6 Ni s         
-    31     -0.710087   6 Ni pz               65      0.614754  12 Ni pz        
-    27      0.478603   6 Ni pz               61     -0.469140  12 Ni pz        
-    58     -0.338796  12 Ni s                24     -0.334794   6 Ni s         
+    64     -1.106492  12 Ni py               30      1.104227   6 Ni py        
+    26     -0.510122   6 Ni py               60      0.491471  12 Ni py        
  
- Vector   39  Occ=0.000000D+00  E= 1.705846D+00  Symmetry=a1
-              MO Center= -2.8D-17,  5.4D-15,  3.7D-02, r^2= 9.3D+00
+ Vector   39  Occ=0.000000D+00  E= 1.600932D+00  Symmetry=a1
+              MO Center=  4.8D-16, -2.8D-15,  2.0D+00, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      1.753478   6 Ni s                62     -1.684295  12 Ni s         
-    65     -0.804274  12 Ni pz               31     -0.772468   6 Ni pz        
-    24      0.670142   6 Ni s                58     -0.596122  12 Ni s         
-     5     -0.211247   5 O  pz               54     -0.195931  12 Ni s         
-    20      0.194425   6 Ni s         
+    31      1.495133   6 Ni pz               65      0.962687  12 Ni pz        
+    27     -0.815295   6 Ni pz               62      0.429690  12 Ni s         
+    24     -0.375330   6 Ni s                61     -0.205075  12 Ni pz        
+     9     -0.173317   5 O  pz               58     -0.163095  12 Ni s         
  
- Vector   40  Occ=0.000000D+00  E= 1.791410D+00  Symmetry=a1
-              MO Center=  3.9D-17, -7.4D-16, -2.8D-01, r^2= 5.7D+00
+ Vector   40  Occ=0.000000D+00  E= 1.604899D+00  Symmetry=a1
+              MO Center= -4.6D-16,  1.3D-15, -1.8D+00, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    58      1.256525  12 Ni s                24      0.958836   6 Ni s         
-    62      0.750149  12 Ni s                28      0.416792   6 Ni s         
-    61     -0.352391  12 Ni pz               27      0.284789   6 Ni pz        
-     2      0.249727   5 O  s                 6      0.174781   5 O  s         
+    65      1.249907  12 Ni pz               61     -0.753745  12 Ni pz        
+    28     -0.456152   6 Ni s                31      0.433096   6 Ni pz        
+    24      0.422577   6 Ni s                58      0.372005  12 Ni s         
+     6      0.174595   5 O  s                 2      0.158216   5 O  s         
+    27      0.151304   6 Ni pz        
  
- Vector   41  Occ=0.000000D+00  E= 1.860644D+00  Symmetry=b1
-              MO Center= -1.2D-16,  1.8D-17,  2.0D+00, r^2= 5.6D-01
+ Vector   41  Occ=0.000000D+00  E= 1.651798D+00  Symmetry=a1
+              MO Center= -3.0D-15,  5.9D-15,  1.5D-02, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35      0.630776   6 Ni d  1             40      0.538838   6 Ni d  1      
-    25      0.206332   6 Ni px        
+    62      1.383372  12 Ni s                31      0.802729   6 Ni pz        
+    28     -0.547598   6 Ni s                24      0.394013   6 Ni s         
+    65      0.340498  12 Ni pz               58      0.332536  12 Ni s         
+     5      0.268909   5 O  pz               54      0.193419  12 Ni s         
+     9      0.181982   5 O  pz               20     -0.169948   6 Ni s         
  
 
    alpha - beta orbital overlaps 
@@ -2336,53 +2386,53 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      2      1      4      3      8      9     10      5      6      7
+    beta      2      1      4      3     10      9      8      7      6      5
  overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     13     12     19     18     17     16     15     14     20
+    beta     11     13     12     17     19     18     14     15     16     20
  overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     22     21     23     41     42     29     31     28     26     30
- overlap   0.904  0.904  0.999  0.925  0.926  1.000  0.998  0.991  1.000  0.980
+    beta     34     35     36     26     27     24     25     29     28     30
+ overlap   0.963  0.963  0.989  0.983  1.000  0.983  1.000  0.991  0.991  0.990
 
 
    alpha     31     32     33     34     35     36     37     38     39     40
-    beta     27     32     34     33     36     35     37     38     39     40
- overlap   0.998  0.990  0.999  0.999  0.999  0.999  0.999  0.997  0.997  0.982
+    beta     31     33     32     21     22     23     38     37     40     39
+ overlap   1.000  0.999  0.999  0.963  0.963  0.989  0.964  0.964  0.904  0.904
 
 
    alpha     41     42     43     44     45     46     47     48     49     50
-    beta     24     25     43     46     47     44     45     48     49     51
- overlap   0.925  0.926  0.984  0.754  0.754  0.754  0.754  0.771  0.770  0.996
+    beta     42     42     43     45     44     47     46     48     49     51
+ overlap   0.695  0.704  0.987  0.743  0.743  0.745  0.745  0.874  0.874  0.997
 
 
    alpha     51     52     53     54     55     56     57     58     59     60
-    beta     50     52     53     54     56     55     57     58     65     66
- overlap   0.996  1.000  0.999  0.999  0.981  0.981  1.000  1.000  0.972  0.972
+    beta     50     52     53     54     56     55     57     58     64     63
+ overlap   0.997  0.991  0.988  0.997  0.910  0.910  0.999  0.945  0.962  0.994
 
 
    alpha     61     62     63     64     65     66     67     68     69     70
-    beta     63     64     61     62     59     60     67     68     75     78
- overlap   0.998  0.999  0.998  0.999  0.972  0.972  0.764  0.765  1.000  1.000
+    beta     65     66     60     59     61     62     68     67     76     75
+ overlap   0.903  0.903  0.994  0.962  0.903  0.903  0.872  0.872  1.000  0.999
 
 
    alpha     71     72     73     74     75     76     77     78     79     80
-    beta     79     80     76     77     69     73     74     70     71     72
- overlap   0.727  0.726  0.844  0.844  1.000  0.844  0.844  1.000  0.727  0.726
+    beta     77     78     80     79     70     69     71     72     74     73
+ overlap   0.878  0.878  0.671  0.671  0.999  1.000  0.878  0.878  0.671  0.671
 
 
    alpha     81     82
     beta     81     82
- overlap   0.991  0.992
+ overlap   0.991  0.991
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      2.0235 (Exact =     0.0000)
+      <S2> =      3.0035 (Exact =     0.0000)
  
 
  center of mass
@@ -2404,20 +2454,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
      1   1 0 0      0.000000      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
-     1   0 0 1      0.000000     -7.709038      7.709038      0.000000
+     1   0 0 1      0.000005     11.880731    -11.880727      0.000000
  
-     2   2 0 0    -21.935130    -10.967029    -10.968101      0.000000
+     2   2 0 0    -35.880436    -17.940197    -17.940239      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000      0.000000
-     2   0 2 0    -21.935130    -10.968101    -10.967029      0.000000
+     2   0 2 0    -35.880436    -17.940246    -17.940189      0.000000
      2   0 1 1      0.000000      0.000000      0.000000      0.000000
-     2   0 0 2     51.954895   -414.977574   -414.977574    881.910042
+     2   0 0 2     63.421403   -409.244325   -409.244315    881.910042
  
 
- Parallel integral file used      18 records with       0 large values
+ Parallel integral file used      19 records with       0 large values
 
 
- Task  times  cpu:        5.2s     wall:        6.8s
+ Task  times  cpu:        6.0s     wall:        7.5s
  
  
                                 NWChem Input Module
@@ -2433,7 +2483,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
  
- sym_nwc nata                      3
  
  
                           Geometry "nio_new" -> "       "
@@ -2483,8 +2532,24 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Ni                    0.00000000     0.00000000     2.10000000
  Ni                    0.00000000     0.00000000    -2.10000000
  
-                   Bq Structure Information (Angstroms)
-                   ------------------------------------
+  returnin sca    1.88972598858000     
+  got scale    1.88972598858000     
+qxyz    2.000000    0.000000    2.100000    0.000000
+qxyz    2.000000    0.000000   -2.100000    0.000000
+qxyz    2.000000    2.100000    0.000000    0.000000
+qxyz    2.000000   -2.100000    0.000000    0.000000
+qxyz   -2.000000    0.000000    2.100000    2.100000
+qxyz   -2.000000    0.000000   -2.100000    2.100000
+qxyz   -2.000000    2.100000    0.000000    2.100000
+qxyz   -2.000000   -2.100000    0.000000    2.100000
+qxyz   -2.000000    0.000000    0.000000    4.200000
+qxyz   -2.000000    0.000000    2.100000   -2.100000
+qxyz   -2.000000    0.000000   -2.100000   -2.100000
+qxyz   -2.000000    2.100000    0.000000   -2.100000
+qxyz   -2.000000   -2.100000    0.000000   -2.100000
+qxyz   -2.000000    0.000000    0.000000   -4.200000
+                         Bq Structure Information
+                         ------------------------
  Name: default                                                                 
  Number of centers:                     14
     1  Bq         0.00000000     2.10000000     0.00000000   charge        2.00000000
@@ -2501,16 +2566,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    12  Bq         2.10000000     0.00000000    -2.10000000   charge       -2.00000000
    13  Bq        -2.10000000     0.00000000    -2.10000000   charge       -2.00000000
    14  Bq         0.00000000     0.00000000    -4.20000000   charge       -2.00000000
- 
- 
- bq:default:coord                                                               
-                                                                                
-                                                                                
-                   
- bq:default:coord                                                               
-                                                                                
-                                                                                
-                   
                                  NWChem DFT Module
                                  -----------------
  
@@ -2558,6 +2613,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           dE  on:    start            ASAP                start   
           dE off:    2 iters         30 iters            30 iters 
 
+          Smearing applied: 0.10D-02 (hartree)
  
       Screening Tolerance Information
       -------------------------------
@@ -2568,7 +2624,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Schwarz screening/accCoul: 1.00D-08
           Spatial weight screening/radius(au): 2.96D+01
 
- Bq nuclear interaction energy is  -131.893864709209     
+ Bq nuclear interaction energy is  -131.893864709108     
  
    Fragment Molecular Orbital Initial Guess
    ----------------------------------------
@@ -2647,13 +2703,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 b2          4 a1          5 b1      
-     6 a1          7 a1          8 a1          9 b2         10 b1      
-    11 a1         12 a1         13 b1         14 b2         15 b1      
-    16 b2         17 a1         18 a2         19 a1         20 a1      
-    21 a1         22 a1         23 b1         24 b2         25 a1      
-    26 b1         27 b2         28 a1         29 a1         30 a2      
-    31 a1         32 b1         33 b2         34 a1         35 a1      
+     1 a1          2 a1          3 a1          4 b1          5 b2      
+     6 a1          7 a1          8 b1          9 b2         10 a1      
+    11 a1         12 b1         13 a1         14 b2         15 b1      
+    16 a2         17 a1         18 b2         19 a1         20 a1      
+    21 a1         22 b2         23 b1         24 a1         25 a1      
+    26 b1         27 a1         28 b2         29 a1         30 b1      
+    31 a1         32 b2         33 b1         34 a1         35 a1      
     36 a1         37 a1         38 a2         39 b2         40 b1      
     41 a1      
  
@@ -2667,23 +2723,23 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   Orbital symmetries:
  
-     1 a1          2 a1          3 b2          4 b1          5 a1      
-     6 a1          7 a1          8 a1          9 b2         10 b1      
-    11 a1         12 b2         13 b1         14 a1         15 a1      
-    16 a2         17 a1         18 a1         19 a1         20 a1      
-    21 b1         22 b2         23 a1         24 a1         25 b2      
-    26 b1         27 b2         28 b1         29 a1         30 a2      
-    31 a1         32 b2         33 b1         34 a1         35 a1      
-    36 a1         37 a1         38 b1         39 a2         40 b2      
+     1 a1          2 a1          3 b1          4 b2          5 a1      
+     6 a1          7 a1          8 b1          9 b2         10 a1      
+    11 a1         12 b2         13 a1         14 b1         15 a1      
+    16 b2         17 a1         18 a1         19 a1         20 b2      
+    21 b1         22 a1         23 a1         24 b2         25 a1      
+    26 b1         27 b2         28 a2         29 a1         30 b1      
+    31 a1         32 b1         33 b2         34 a1         35 a1      
+    36 a1         37 a1         38 a2         39 b2         40 b1      
     41 a1      
  
- Bq nuclear interaction energy is  -131.893864709209     
-   Time after variat. SCF:      8.3
-   Time prior to 1st pass:      8.3
+ Bq nuclear interaction energy is  -131.893864709108     
+   Time after variat. SCF:      9.7
+   Time prior to 1st pass:      9.7
 
- Integral file          = ./bq_nio.aoints.0
+ Integral file          = /state/partition1/bq_nio.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     31        Max. records in file   =  28571
+ Max. records in memory =     16        Max. records in file   =  55810
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -2692,478 +2748,512 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
+ sigma= .10D-02 eFermi=  1.14502 T*S= -2.15E-47 nel(1)=   31.00 nel(2)=   31.00
+
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       11.07            11070511
+           Heap Space remaining (MW):       12.05            12053551
           Stack Space remaining (MW):       13.11            13106417
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1  -3093.1265167564 -3.17D+03  4.78D-03  1.04D-01    11.4
-                                                     4.78D-03  1.04D-01
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     2  -3093.2002688040 -7.38D-02  4.01D-03  6.69D-03    11.5
-                                                     4.01D-03  6.69D-03
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     3  -3093.2185784570 -1.83D-02  4.53D-03  3.43D-03    11.7
-                                                     4.53D-03  3.43D-03
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     4  -3093.2412175121 -2.26D-02  4.62D-03  1.16D-02    11.8
-                                                     4.62D-03  1.16D-02
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     5  -3093.2178697799  2.33D-02  3.56D-03  7.67D-03    11.9
-                                                     3.56D-03  7.67D-03
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     6  -3093.2112284101  6.64D-03  2.25D-03  1.05D-02    12.0
-                                                     2.25D-03  1.05D-02
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     7  -3093.2115744869 -3.46D-04  1.89D-03  1.94D-02    12.1
-                                                     1.89D-03  1.94D-02
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     8  -3093.2134201093 -1.85D-03  3.94D-03  1.08D-02    12.2
-                                                     3.94D-03  1.08D-02
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis     9  -3093.2199781797 -6.56D-03  1.08D-03  2.26D-03    12.3
-                                                     1.08D-03  2.26D-03
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    10  -3093.2212812616 -1.30D-03  1.01D-03  1.51D-04    12.4
-                                                     1.01D-03  1.51D-04
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    11  -3093.2210477791  2.33D-04  8.96D-05  2.09D-04    12.6
-                                                     8.96D-05  2.09D-04
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    12  -3093.2211175003 -6.97D-05  1.49D-03  2.28D-04    12.7
-                                                     1.49D-03  2.28D-04
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    13  -3093.2205340608  5.83D-04  2.58D-04  7.22D-05    12.8
-                                                     2.58D-04  7.22D-05
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    14  -3093.2205512208 -1.72D-05  1.27D-04  2.55D-06    12.9
-                                                     1.27D-04  2.55D-06
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    15  -3093.2205549408 -3.72D-06  6.85D-05  1.16D-06    13.0
-                                                     6.85D-05  1.16D-06
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    16  -3093.2205554024 -4.62D-07  3.21D-05  7.81D-07    13.1
-                                                     3.21D-05  7.81D-07
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    17  -3093.2205542188  1.18D-06  4.01D-05  2.51D-07    13.2
-                                                     4.01D-05  2.51D-07
- Bq nuclear interaction energy is  -131.893864709209     
- d= 0,ls=0.0,diis    18  -3093.2205545552 -3.36D-07  7.69D-06  8.64D-08    13.4
-                                                     7.69D-06  8.64D-08
- Bq nuclear interaction energy is  -131.893864709209     
+ d= 0,ls=0.0,diis     1  -3093.1362225268 -3.17D+03  1.08D-02  1.08D-01    11.5
+                                                     1.08D-02  1.08D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.14174 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     2  -3093.2673020978 -1.31D-01  1.27D-02  4.24D-02    11.7
+                                                     1.27D-02  4.24D-02
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.18571 T*S= -5.60E-81 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     3  -3093.4218963613 -1.55D-01  1.46D-02  1.37D-01    11.9
+                                                     1.46D-02  1.37D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.24081 T*S= -5.34E-26 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     4  -3093.2433372455  1.79D-01  1.62D-02  6.73D-02    12.1
+                                                     1.62D-02  6.73D-02
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.25609 T*S= -2.77E-12 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     5  -3093.2265937353  1.67D-02  2.17D-02  5.15D-01    12.2
+                                                     2.17D-02  5.15D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23306 T*S= -5.24E-73 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     6  -3093.3562208292 -1.30D-01  2.63D-02  1.48D+00    12.4
+                                                     2.63D-02  1.48D+00
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23453 T*S= -2.65E-36 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     7  -3093.1824676137  1.74D-01  3.75D-03  3.25D-01    12.6
+                                                     3.75D-03  3.25D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23204 T*S= -3.61E-55 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     8  -3093.1982443814 -1.58D-02  1.09D-03  3.46D-01    12.7
+                                                     1.09D-03  3.46D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23777 T*S= -1.81E-29 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis     9  -3093.1994646544 -1.22D-03  1.83D-03  3.27D-01    12.9
+                                                     1.83D-03  3.27D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23779 T*S= -2.57E-12 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    10  -3093.1992211193  2.44D-04  2.44D-03  3.50D-01    13.0
+                                                     2.44D-03  3.50D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23315 T*S= -1.38E-05 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    11  -3093.1993348895 -1.14D-04  3.25D-03  3.21D-01    13.2
+                                                     3.25D-03  3.21D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.24178 T*S= -1.07E-26 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    12  -3093.2063313358 -7.00D-03  2.70D-02  2.47D-01    13.4
+                                                     2.70D-02  2.45D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.21837 T*S= -1.53-151 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    13  -3093.3973624986 -1.91D-01  2.08D-02  1.29D+00    13.5
+                                                     2.11D-02  1.31D+00
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.24214 T*S= -9.76E-06 nel(1)=   31.00 nel(2)=   31.00
+
+  Swapped AB - resetting Diis
+ d= 0,ls=0.0,diis    14  -3093.3443506801  5.30D-02  2.77D-02  3.91D-01    13.7
+                                                     2.79D-02  4.06D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.24090 T*S= -3.40-264 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    15  -3093.3904859705 -4.61D-02  6.97D-03  1.34D+00    13.9
+                                                     6.87D-03  1.28D+00
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23554 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    16  -3093.6714884926 -2.81D-01  1.78D-03  1.80D-01    14.0
+                                                     1.77D-03  1.76D-01
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23742 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    17  -3093.7145360949 -4.30D-02  3.56D-04  1.33D-03    14.2
+                                                     3.55D-04  1.34D-03
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23654 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    18  -3093.7151387784 -6.03D-04  1.70D-04  4.40D-04    14.4
+                                                     1.69D-04  4.37D-04
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23663 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    19  -3093.7153425504 -2.04D-04  4.80D-05  1.34D-05    14.6
+                                                     4.78D-05  1.32D-05
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23664 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    20  -3093.7153565985 -1.40D-05  7.76D-06  2.88D-07    14.7
+                                                     7.77D-06  2.80D-07
+ Bq nuclear interaction energy is  -131.893864709108     
+ sigma= .10D-02 eFermi=  1.23664 T*S=  0.00E+00 nel(1)=   31.00 nel(2)=   31.00
+
+ d= 0,ls=0.0,diis    21  -3093.7153569511 -3.53D-07  1.97D-06  1.09D-08    14.9
+                                                     1.97D-06  1.30D-08
+ Bq nuclear interaction energy is  -131.893864709108     
 
 
-         Total DFT energy =    -3093.220554555164
-      One electron energy =    -4554.443575991225
-           Coulomb energy =     1512.657554989318
-    Exchange-Corr. energy =     -131.211568443927
- Nuclear repulsion energy =       79.777034890670
+         Total DFT energy =    -3093.715356951079
+      One electron energy =    -4532.426243067780
+           Coulomb energy =     1489.624932176432
+    Exchange-Corr. energy =     -130.691080950501
+ Nuclear repulsion energy =       79.777034890771
 
  Numeric. integr. density =        0.000000000000
 
-     Total iterative time =      5.0s
+     Total iterative time =      5.2s
 
 
  
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
  
- Vector   20  Occ=1.000000D+00  E= 4.503226D-02  Symmetry=a1
-              MO Center=  2.7D-16, -5.6D-17, -4.9D-03, r^2= 5.5D-01
+ Vector   20  Occ=1.000000D+00  E= 4.243332D-03  Symmetry=a1
+              MO Center= -9.3D-18, -6.0D-18, -2.7D-03, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6     -0.610042  1 O  s                  2     -0.451249  1 O  s          
-     1      0.223429  1 O  s          
+     6      0.597989  1 O  s                  2      0.458637  1 O  s          
+     1     -0.223223  1 O  s          
  
- Vector   21  Occ=1.000000D+00  E= 7.359537D-01  Symmetry=b1
-              MO Center= -2.0D-15, -2.1D-17,  2.4D-01, r^2= 1.3D+00
+ Vector   21  Occ=1.000000D+00  E= 3.686523D-01  Symmetry=b2
+              MO Center=  2.8D-16, -3.4D-17, -2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.570014  1 O  px                 3      0.484293  1 O  px         
-    35      0.248167  2 Ni d  1       
+    67      0.797578  3 Ni d -1              72      0.365370  3 Ni d -1       
  
- Vector   22  Occ=1.000000D+00  E= 7.359954D-01  Symmetry=b2
-              MO Center=  2.0D-17,  7.9D-16,  2.4D-01, r^2= 1.3D+00
+ Vector   22  Occ=1.000000D+00  E= 3.686529D-01  Symmetry=b1
+              MO Center=  1.2D-17,  1.0D-16, -2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -0.570365  1 O  py                 4     -0.484627  1 O  py         
-    33      0.246882  2 Ni d -1       
+    69      0.797578  3 Ni d  1              74      0.365371  3 Ni d  1       
  
- Vector   23  Occ=1.000000D+00  E= 7.472104D-01  Symmetry=a1
-              MO Center=  4.3D-16, -3.5D-16,  3.9D-02, r^2= 1.1D+00
+ Vector   23  Occ=1.000000D+00  E= 3.730975D-01  Symmetry=a2
+              MO Center= -3.0D-16, -4.3D-17, -2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.545772  1 O  pz                 9      0.489161  1 O  pz         
-    34      0.172768  2 Ni d  0              68     -0.153008  3 Ni d  0       
+    66     -0.802240  3 Ni d -2              71     -0.362488  3 Ni d -2       
  
- Vector   24  Occ=1.000000D+00  E= 8.045270D-01  Symmetry=b1
-              MO Center= -7.3D-16, -2.3D-17,  1.8D+00, r^2= 8.5D-01
+ Vector   24  Occ=1.000000D+00  E= 4.174807D-01  Symmetry=a1
+              MO Center= -2.1D-17, -2.5D-17, -2.0D+00, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35      0.725336  2 Ni d  1              40      0.387435  2 Ni d  1       
-     7     -0.200628  1 O  px                 3     -0.190469  1 O  px         
+    68      0.781628  3 Ni d  0              73      0.361196  3 Ni d  0       
  
- Vector   25  Occ=1.000000D+00  E= 8.048690D-01  Symmetry=b2
-              MO Center= -2.4D-18,  1.1D-16,  1.8D+00, r^2= 8.5D-01
+ Vector   25  Occ=1.000000D+00  E= 4.301265D-01  Symmetry=a1
+              MO Center= -3.4D-18,  4.4D-17, -2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    33      0.725723  2 Ni d -1              38      0.387724  2 Ni d -1       
-     8      0.199623  1 O  py                 4      0.189624  1 O  py         
+    70     -0.801503  3 Ni d  2              75     -0.363518  3 Ni d  2       
  
- Vector   26  Occ=1.000000D+00  E= 9.011636D-01  Symmetry=a2
-              MO Center= -6.5D-18, -4.0D-17,  2.1D+00, r^2= 3.0D-01
+ Vector   26  Occ=1.000000D+00  E= 5.346505D-01  Symmetry=a1
+              MO Center=  1.0D-16,  4.8D-16,  1.9D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32     -0.759872  2 Ni d -2              37     -0.419431  2 Ni d -2       
+    34     -0.752828  2 Ni d  0              39     -0.373557  2 Ni d  0       
  
- Vector   27  Occ=1.000000D+00  E= 9.060854D-01  Symmetry=a1
-              MO Center=  1.4D-16,  1.5D-16,  2.1D+00, r^2= 3.0D-01
+ Vector   27  Occ=1.000000D+00  E= 5.509878D-01  Symmetry=a1
+              MO Center=  2.6D-17,  2.8D-17,  2.1D+00, r^2= 2.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      0.765048  2 Ni d  2              41      0.411858  2 Ni d  2       
+    36     -0.786856  2 Ni d  2              41     -0.383704  2 Ni d  2       
  
- Vector   28  Occ=1.000000D+00  E= 9.415527D-01  Symmetry=a1
-              MO Center=  7.9D-16, -1.7D-16,  2.1D-01, r^2= 5.3D+00
+ Vector   28  Occ=1.000000D+00  E= 7.235320D-01  Symmetry=b1
+              MO Center= -2.3D-16, -3.4D-17, -4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34      0.498928  2 Ni d  0              68      0.437127  3 Ni d  0       
-    31      0.321460  2 Ni pz                28     -0.301947  2 Ni s          
-    65     -0.298883  3 Ni pz                39      0.283336  2 Ni d  0       
-    62     -0.275749  3 Ni s                 73      0.251331  3 Ni d  0       
-    24     -0.238131  2 Ni s                 58     -0.226525  3 Ni s          
+     7      0.596986  1 O  px                 3      0.523996  1 O  px         
  
- Vector   29  Occ=1.000000D+00  E= 9.885093D-01  Symmetry=a2
-              MO Center=  1.4D-16, -7.5D-17, -2.1D+00, r^2= 3.1D-01
+ Vector   29  Occ=1.000000D+00  E= 7.235420D-01  Symmetry=b2
+              MO Center= -6.2D-18,  4.1D-16, -4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    66     -0.747776  3 Ni d -2              71     -0.434890  3 Ni d -2       
+     8      0.596995  1 O  py                 4      0.523983  1 O  py         
  
- Vector   30  Occ=1.000000D+00  E= 9.899544D-01  Symmetry=a1
-              MO Center=  1.2D-16,  8.2D-18, -3.4D-01, r^2= 4.2D+00
+ Vector   30  Occ=1.000000D+00  E= 7.459356D-01  Symmetry=a1
+              MO Center=  4.2D-17, -1.2D-16,  7.2D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    68     -0.552855  3 Ni d  0              34      0.460059  2 Ni d  0       
-    73     -0.310036  3 Ni d  0              39      0.253869  2 Ni d  0       
-     5     -0.230137  1 O  pz                 9     -0.181742  1 O  pz         
+     5     -0.548279  1 O  pz                 9     -0.500957  1 O  pz         
+    34      0.215470  2 Ni d  0       
  
- Vector   31  Occ=1.000000D+00  E= 9.937356D-01  Symmetry=a1
-              MO Center=  7.7D-17, -8.7D-17, -2.1D+00, r^2= 3.1D-01
+ Vector   31  Occ=1.000000D+00  E= 9.866431D-01  Symmetry=a1
+              MO Center= -7.3D-17, -1.5D-15, -1.2D-03, r^2= 7.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70     -0.753509  3 Ni d  2              75     -0.427016  3 Ni d  2       
+    65      0.658322  3 Ni pz                31     -0.653932  2 Ni pz         
+    62      0.636153  3 Ni s                 28      0.632128  2 Ni s          
+    58      0.505306  3 Ni s                 24      0.500800  2 Ni s          
+     6     -0.350211  1 O  s                 61     -0.308494  3 Ni pz         
+    27      0.304249  2 Ni pz         
  
- Vector   32  Occ=0.000000D+00  E= 1.158353D+00  Symmetry=a1
-              MO Center=  5.0D-16, -1.0D-16,  1.0D-01, r^2= 7.2D+00
+ Vector   32  Occ=0.000000D+00  E= 1.351796D+00  Symmetry=b1
+              MO Center= -7.3D-15,  1.1D-16, -8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    65     -0.596007  3 Ni pz                31      0.582066  2 Ni pz         
-    62     -0.567304  3 Ni s                 28     -0.549226  2 Ni s          
-    58     -0.447286  3 Ni s                 24     -0.446366  2 Ni s          
-     6      0.347431  1 O  s                 34     -0.281346  2 Ni d  0       
-    27     -0.274536  2 Ni pz                61      0.272854  3 Ni pz         
+    63      0.859838  3 Ni px                29      0.852980  2 Ni px         
+    59     -0.467170  3 Ni px                25     -0.459122  2 Ni px         
+     3     -0.174252  1 O  px         
  
- Vector   33  Occ=0.000000D+00  E= 1.370860D+00  Symmetry=b2
-              MO Center=  1.7D-17,  7.3D-16,  7.0D-03, r^2= 1.3D+01
+ Vector   33  Occ=0.000000D+00  E= 1.351797D+00  Symmetry=b2
+              MO Center= -1.0D-17, -8.3D-15, -8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    30     -0.854245  2 Ni py                64     -0.850607  3 Ni py         
-    26      0.449656  2 Ni py                60      0.447027  3 Ni py         
-     4      0.174352  1 O  py         
+    64     -0.859837  3 Ni py                30     -0.852980  2 Ni py         
+    60      0.467171  3 Ni py                26      0.459123  2 Ni py         
+     4      0.174254  1 O  py         
  
- Vector   34  Occ=0.000000D+00  E= 1.370865D+00  Symmetry=b1
-              MO Center=  7.0D-16, -3.9D-17,  7.1D-03, r^2= 1.3D+01
+ Vector   34  Occ=0.000000D+00  E= 1.527104D+00  Symmetry=b1
+              MO Center=  8.9D-16,  7.3D-16,  2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29      0.854251  2 Ni px                63      0.850588  3 Ni px         
-    25     -0.449625  2 Ni px                59     -0.447015  3 Ni px         
-     3     -0.174355  1 O  px         
+    35     -0.663547  2 Ni d  1              40     -0.501987  2 Ni d  1       
+    63     -0.243889  3 Ni px                29      0.227192  2 Ni px         
+    25     -0.167387  2 Ni px         
  
- Vector   35  Occ=0.000000D+00  E= 1.582623D+00  Symmetry=b2
-              MO Center=  3.7D-18, -1.6D-14, -7.6D-03, r^2= 1.7D+01
+ Vector   35  Occ=0.000000D+00  E= 1.527104D+00  Symmetry=b2
+              MO Center=  2.1D-16,  1.0D-15,  2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    64     -1.121071  3 Ni py                30      1.119261  2 Ni py         
-    26     -0.496331  2 Ni py                60      0.495032  3 Ni py         
+    33     -0.663547  2 Ni d -1              38     -0.501987  2 Ni d -1       
+    64      0.243890  3 Ni py                30     -0.227189  2 Ni py         
+    26      0.167385  2 Ni py         
  
- Vector   36  Occ=0.000000D+00  E= 1.582625D+00  Symmetry=b1
-              MO Center= -4.3D-15,  4.8D-18, -7.6D-03, r^2= 1.7D+01
+ Vector   36  Occ=0.000000D+00  E= 1.538444D+00  Symmetry=a2
+              MO Center= -1.8D-16, -1.7D-15,  2.1D+00, r^2= 3.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    63     -1.121079  3 Ni px                29      1.119240  2 Ni px         
-    25     -0.496305  2 Ni px                59      0.495021  3 Ni px         
+    32      0.685865  2 Ni d -2              37      0.509191  2 Ni d -2       
  
- Vector   37  Occ=0.000000D+00  E= 1.641449D+00  Symmetry=a1
-              MO Center=  2.1D-15,  8.4D-15,  1.7D-01, r^2= 2.4D+01
+ Vector   37  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b2
+              MO Center= -4.6D-17,  1.2D-15,  1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31      1.539329  2 Ni pz                65      1.503495  3 Ni pz         
-    27     -0.585148  2 Ni pz                61     -0.547473  3 Ni pz         
-    62      0.449878  3 Ni s                 28     -0.411838  2 Ni s          
-     9     -0.156775  1 O  pz         
+    30      1.106480  2 Ni py                64     -1.104210  3 Ni py         
+    60      0.510112  3 Ni py                26     -0.491460  2 Ni py         
  
- Vector   38  Occ=0.000000D+00  E= 1.673388D+00  Symmetry=a1
-              MO Center= -1.9D-16, -9.3D-16, -1.4D-01, r^2= 1.9D+01
+ Vector   38  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b1
+              MO Center=  4.7D-15,  6.1D-16,  1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      0.913457  2 Ni s                 62      0.843404  3 Ni s          
-    65     -0.710087  3 Ni pz                31      0.614754  2 Ni pz         
-    61      0.478603  3 Ni pz                27     -0.469140  2 Ni pz         
-    24      0.338796  2 Ni s                 58      0.334794  3 Ni s          
+    29      1.106479  2 Ni px                63     -1.104211  3 Ni px         
+    59      0.510113  3 Ni px                25     -0.491460  2 Ni px         
  
- Vector   39  Occ=0.000000D+00  E= 1.705846D+00  Symmetry=a1
-              MO Center=  1.7D-15,  8.8D-15, -3.7D-02, r^2= 9.3D+00
+ Vector   39  Occ=0.000000D+00  E= 1.600931D+00  Symmetry=a1
+              MO Center= -3.4D-15, -3.0D-15, -2.0D+00, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    62      1.753478  3 Ni s                 28     -1.684295  2 Ni s          
-    31      0.804274  2 Ni pz                65      0.772468  3 Ni pz         
-    58      0.670142  3 Ni s                 24     -0.596122  2 Ni s          
-     5      0.211247  1 O  pz                20     -0.195931  2 Ni s          
-    54      0.194425  3 Ni s          
+    65     -1.495062  3 Ni pz                31     -0.962499  2 Ni pz         
+    61      0.815321  3 Ni pz                28      0.429683  2 Ni s          
+    58     -0.375403  3 Ni s                 27      0.204968  2 Ni pz         
+     9      0.173313  1 O  pz                24     -0.163141  2 Ni s          
  
- Vector   40  Occ=0.000000D+00  E= 1.791410D+00  Symmetry=a1
-              MO Center= -3.8D-16, -2.8D-16,  2.8D-01, r^2= 5.7D+00
+ Vector   40  Occ=0.000000D+00  E= 1.604899D+00  Symmetry=a1
+              MO Center=  5.3D-15,  1.2D-15,  1.8D+00, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      1.256525  2 Ni s                 58      0.958836  3 Ni s          
-    28      0.750149  2 Ni s                 62      0.416792  3 Ni s          
-    27      0.352391  2 Ni pz                61     -0.284789  3 Ni pz         
-     2      0.249727  1 O  s                  6      0.174781  1 O  s          
+    31     -1.250054  2 Ni pz                27      0.753766  2 Ni pz         
+    62     -0.456178  3 Ni s                 65     -0.433334  3 Ni pz         
+    58      0.422545  3 Ni s                 24      0.371973  2 Ni s          
+     6      0.174577  1 O  s                  2      0.158200  1 O  s          
+    61     -0.151186  3 Ni pz         
  
- Vector   41  Occ=0.000000D+00  E= 1.860644D+00  Symmetry=b2
-              MO Center=  1.6D-17, -3.2D-16, -2.0D+00, r^2= 5.6D-01
+ Vector   41  Occ=0.000000D+00  E= 1.651798D+00  Symmetry=a1
+              MO Center= -2.7D-15,  3.7D-15, -1.5D-02, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    67     -0.630776  3 Ni d -1              72     -0.538838  3 Ni d -1       
-    60     -0.206332  3 Ni py         
+    28     -1.383407  2 Ni s                 65      0.802748  3 Ni pz         
+    62      0.547468  3 Ni s                 58     -0.394084  3 Ni s          
+    31      0.340418  2 Ni pz                24     -0.332590  2 Ni s          
+     5      0.268900  1 O  pz                20     -0.193416  2 Ni s          
+     9      0.181978  1 O  pz                54      0.169937  3 Ni s          
  
  
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
  
- Vector   20  Occ=1.000000D+00  E= 4.503226D-02  Symmetry=a1
-              MO Center= -1.5D-16,  1.2D-16,  4.9D-03, r^2= 5.5D-01
+ Vector   20  Occ=1.000000D+00  E= 4.242516D-03  Symmetry=a1
+              MO Center= -7.7D-20,  8.4D-18,  2.7D-03, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.610042  1 O  s                  2      0.451249  1 O  s          
-     1     -0.223429  1 O  s          
+     6     -0.597989  1 O  s                  2     -0.458638  1 O  s          
+     1      0.223223  1 O  s          
  
- Vector   21  Occ=1.000000D+00  E= 7.359537D-01  Symmetry=b2
-              MO Center=  3.8D-17, -2.2D-15, -2.4D-01, r^2= 1.3D+00
+ Vector   21  Occ=1.000000D+00  E= 3.686651D-01  Symmetry=b1
+              MO Center=  4.8D-17, -2.1D-16,  2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -0.570014  1 O  py                 4     -0.484293  1 O  py         
-    67     -0.248167  3 Ni d -1       
+    35      0.797577  2 Ni d  1              40      0.365371  2 Ni d  1       
  
- Vector   22  Occ=1.000000D+00  E= 7.359954D-01  Symmetry=b1
-              MO Center=  7.3D-16,  8.4D-17, -2.4D-01, r^2= 1.3D+00
+ Vector   22  Occ=1.000000D+00  E= 3.686658D-01  Symmetry=b2
+              MO Center=  4.1D-17, -1.1D-16,  2.1D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.570365  1 O  px                 3      0.484627  1 O  px         
-    69     -0.246882  3 Ni d  1       
+    33      0.797577  2 Ni d -1              38      0.365372  2 Ni d -1       
  
- Vector   23  Occ=1.000000D+00  E= 7.472104D-01  Symmetry=a1
-              MO Center= -1.8D-16,  7.9D-16, -3.9D-02, r^2= 1.1D+00
+ Vector   23  Occ=1.000000D+00  E= 3.731103D-01  Symmetry=a2
+              MO Center= -8.6D-19,  2.3D-16,  2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -0.545772  1 O  pz                 9     -0.489161  1 O  pz         
-    68      0.172768  3 Ni d  0              34     -0.153008  2 Ni d  0       
+    32     -0.802239  2 Ni d -2              37     -0.362489  2 Ni d -2       
  
- Vector   24  Occ=1.000000D+00  E= 8.045270D-01  Symmetry=b2
-              MO Center= -3.1D-17,  2.2D-16, -1.8D+00, r^2= 8.5D-01
+ Vector   24  Occ=1.000000D+00  E= 4.174932D-01  Symmetry=a1
+              MO Center= -6.0D-18,  1.6D-16,  2.0D+00, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    67      0.725336  3 Ni d -1              72      0.387435  3 Ni d -1       
-     8     -0.200628  1 O  py                 4     -0.190469  1 O  py         
+    34      0.781625  2 Ni d  0              39      0.361196  2 Ni d  0       
  
- Vector   25  Occ=1.000000D+00  E= 8.048690D-01  Symmetry=b1
-              MO Center= -4.0D-16,  2.9D-17, -1.8D+00, r^2= 8.5D-01
+ Vector   25  Occ=1.000000D+00  E= 4.301394D-01  Symmetry=a1
+              MO Center=  2.0D-17,  2.3D-17,  2.1D+00, r^2= 2.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    69      0.725723  3 Ni d  1              74      0.387724  3 Ni d  1       
-     7      0.199623  1 O  px                 3      0.189624  1 O  px         
+    36     -0.801502  2 Ni d  2              41     -0.363519  2 Ni d  2       
  
- Vector   26  Occ=1.000000D+00  E= 9.011636D-01  Symmetry=a2
-              MO Center=  6.0D-17, -1.1D-16, -2.1D+00, r^2= 3.0D-01
+ Vector   26  Occ=1.000000D+00  E= 5.346388D-01  Symmetry=a1
+              MO Center= -2.0D-16, -1.8D-16, -1.9D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    66     -0.759872  3 Ni d -2              71     -0.419431  3 Ni d -2       
+    68      0.752831  3 Ni d  0              73      0.373557  3 Ni d  0       
  
- Vector   27  Occ=1.000000D+00  E= 9.060854D-01  Symmetry=a1
-              MO Center= -2.0D-16, -2.1D-17, -2.1D+00, r^2= 3.0D-01
+ Vector   27  Occ=1.000000D+00  E= 5.509752D-01  Symmetry=a1
+              MO Center=  2.7D-17, -6.4D-17, -2.1D+00, r^2= 2.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70      0.765048  3 Ni d  2              75      0.411858  3 Ni d  2       
+    70     -0.786857  3 Ni d  2              75     -0.383703  3 Ni d  2       
  
- Vector   28  Occ=1.000000D+00  E= 9.415527D-01  Symmetry=a1
-              MO Center=  5.7D-16,  2.8D-15, -2.1D-01, r^2= 5.3D+00
+ Vector   28  Occ=1.000000D+00  E= 7.235312D-01  Symmetry=b2
+              MO Center=  4.8D-17,  7.7D-16,  4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    68     -0.498928  3 Ni d  0              34     -0.437127  2 Ni d  0       
-    65      0.321460  3 Ni pz                62      0.301947  3 Ni s          
-    31     -0.298883  2 Ni pz                73     -0.283336  3 Ni d  0       
-    28      0.275749  2 Ni s                 39     -0.251331  2 Ni d  0       
-    58      0.238131  3 Ni s                 24      0.226525  2 Ni s          
+     8      0.596985  1 O  py                 4      0.523997  1 O  py         
  
- Vector   29  Occ=1.000000D+00  E= 9.885093D-01  Symmetry=a2
-              MO Center=  2.5D-17,  9.5D-18,  2.1D+00, r^2= 3.1D-01
+ Vector   29  Occ=1.000000D+00  E= 7.235412D-01  Symmetry=b1
+              MO Center= -3.9D-16, -1.4D-17,  4.7D-04, r^2= 9.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32      0.747776  2 Ni d -2              37      0.434890  2 Ni d -2       
+     7      0.596994  1 O  px                 3      0.523984  1 O  px         
  
- Vector   30  Occ=1.000000D+00  E= 9.899544D-01  Symmetry=a1
-              MO Center= -1.7D-16, -1.4D-16,  3.4D-01, r^2= 4.2D+00
+ Vector   30  Occ=1.000000D+00  E= 7.459345D-01  Symmetry=a1
+              MO Center=  8.2D-18, -3.7D-18, -7.2D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34     -0.552855  2 Ni d  0              68      0.460059  3 Ni d  0       
-    39     -0.310036  2 Ni d  0              73      0.253869  3 Ni d  0       
-     5      0.230137  1 O  pz                 9      0.181742  1 O  pz         
+     5     -0.548281  1 O  pz                 9     -0.500958  1 O  pz         
+    68     -0.215459  3 Ni d  0       
  
- Vector   31  Occ=1.000000D+00  E= 9.937356D-01  Symmetry=a1
-              MO Center= -2.0D-17, -5.3D-17,  2.1D+00, r^2= 3.1D-01
+ Vector   31  Occ=1.000000D+00  E= 9.866431D-01  Symmetry=a1
+              MO Center= -1.6D-15, -2.0D-15,  1.2D-03, r^2= 7.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      0.753509  2 Ni d  2              41      0.427016  2 Ni d  2       
+    31     -0.658322  2 Ni pz                65      0.653932  3 Ni pz         
+    28      0.636152  2 Ni s                 62      0.632129  3 Ni s          
+    24      0.505306  2 Ni s                 58      0.500800  3 Ni s          
+     6     -0.350210  1 O  s                 27      0.308493  2 Ni pz         
+    61     -0.304249  3 Ni pz         
  
- Vector   32  Occ=0.000000D+00  E= 1.158353D+00  Symmetry=a1
-              MO Center= -5.5D-16, -9.9D-16, -1.0D-01, r^2= 7.2D+00
+ Vector   32  Occ=0.000000D+00  E= 1.351796D+00  Symmetry=b2
+              MO Center=  5.4D-17,  6.1D-15,  8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31     -0.596007  2 Ni pz                65      0.582066  3 Ni pz         
-    28      0.567304  2 Ni s                 62      0.549226  3 Ni s          
-    24      0.447286  2 Ni s                 58      0.446366  3 Ni s          
-     6     -0.347431  1 O  s                 68      0.281346  3 Ni d  0       
-    61     -0.274536  3 Ni pz                27      0.272854  2 Ni pz         
+    30      0.859834  2 Ni py                64      0.852983  3 Ni py         
+    26     -0.467168  2 Ni py                60     -0.459124  3 Ni py         
+     4     -0.174251  1 O  py         
  
- Vector   33  Occ=0.000000D+00  E= 1.370860D+00  Symmetry=b1
-              MO Center= -3.1D-16, -2.3D-17, -7.0D-03, r^2= 1.3D+01
+ Vector   33  Occ=0.000000D+00  E= 1.351797D+00  Symmetry=b1
+              MO Center=  2.7D-15,  2.2D-17,  8.9D-03, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    63      0.854245  3 Ni px                29      0.850607  2 Ni px         
-    59     -0.449656  3 Ni px                25     -0.447027  2 Ni px         
-     3     -0.174352  1 O  px         
+    29      0.859834  2 Ni px                63      0.852983  3 Ni px         
+    25     -0.467169  2 Ni px                59     -0.459125  3 Ni px         
+     3     -0.174254  1 O  px         
  
- Vector   34  Occ=0.000000D+00  E= 1.370865D+00  Symmetry=b2
-              MO Center=  1.1D-17, -2.3D-16, -7.1D-03, r^2= 1.3D+01
+ Vector   34  Occ=0.000000D+00  E= 1.527092D+00  Symmetry=b2
+              MO Center=  1.6D-15, -3.3D-16, -2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    64      0.854251  3 Ni py                30      0.850588  2 Ni py         
-    60     -0.449625  3 Ni py                26     -0.447015  2 Ni py         
-     4     -0.174355  1 O  py         
+    67     -0.663559  3 Ni d -1              72     -0.501990  3 Ni d -1       
+    30     -0.243821  2 Ni py                64      0.227119  3 Ni py         
+    60     -0.167353  3 Ni py         
  
- Vector   35  Occ=0.000000D+00  E= 1.582623D+00  Symmetry=b1
-              MO Center= -1.8D-15, -7.1D-19,  7.6D-03, r^2= 1.7D+01
+ Vector   35  Occ=0.000000D+00  E= 1.527092D+00  Symmetry=b1
+              MO Center=  2.7D-16,  1.1D-15, -2.0D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29     -1.121071  2 Ni px                63      1.119261  3 Ni px         
-    59     -0.496331  3 Ni px                25      0.495032  2 Ni px         
+    69      0.663559  3 Ni d  1              74      0.501990  3 Ni d  1       
+    29     -0.243822  2 Ni px                63      0.227116  3 Ni px         
+    59     -0.167351  3 Ni px         
  
- Vector   36  Occ=0.000000D+00  E= 1.582625D+00  Symmetry=b2
-              MO Center= -1.7D-17,  3.5D-15,  7.6D-03, r^2= 1.7D+01
+ Vector   36  Occ=0.000000D+00  E= 1.538431D+00  Symmetry=a2
+              MO Center= -1.2D-15, -7.9D-16, -2.1D+00, r^2= 3.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    30     -1.121079  2 Ni py                64      1.119240  3 Ni py         
-    60     -0.496305  3 Ni py                26      0.495021  2 Ni py         
+    66     -0.685867  3 Ni d -2              71     -0.509187  3 Ni d -2       
  
- Vector   37  Occ=0.000000D+00  E= 1.641449D+00  Symmetry=a1
-              MO Center=  4.4D-15, -3.1D-15, -1.7D-01, r^2= 2.4D+01
+ Vector   37  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b1
+              MO Center= -9.3D-15, -1.3D-16, -1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    65      1.539329  3 Ni pz                31      1.503495  2 Ni pz         
-    61     -0.585148  3 Ni pz                27     -0.547473  2 Ni pz         
-    28     -0.449878  2 Ni s                 62      0.411838  3 Ni s          
-     9     -0.156775  1 O  pz         
+    63      1.106493  3 Ni px                29     -1.104227  2 Ni px         
+    25      0.510121  2 Ni px                59     -0.491471  3 Ni px         
  
- Vector   38  Occ=0.000000D+00  E= 1.673388D+00  Symmetry=a1
-              MO Center= -2.1D-16, -6.1D-16,  1.4D-01, r^2= 1.9D+01
+ Vector   38  Occ=0.000000D+00  E= 1.565003D+00  Symmetry=b2
+              MO Center= -3.4D-16,  2.9D-15, -1.1D-01, r^2= 1.7D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    62     -0.913457  3 Ni s                 28     -0.843404  2 Ni s          
-    31     -0.710087  2 Ni pz                65      0.614754  3 Ni pz         
-    27      0.478603  2 Ni pz                61     -0.469140  3 Ni pz         
-    58     -0.338796  3 Ni s                 24     -0.334794  2 Ni s          
+    64      1.106492  3 Ni py                30     -1.104227  2 Ni py         
+    26      0.510122  2 Ni py                60     -0.491471  3 Ni py         
  
- Vector   39  Occ=0.000000D+00  E= 1.705846D+00  Symmetry=a1
-              MO Center=  2.1D-16, -1.0D-15,  3.7D-02, r^2= 9.3D+00
+ Vector   39  Occ=0.000000D+00  E= 1.600932D+00  Symmetry=a1
+              MO Center=  4.0D-15,  2.6D-15,  2.0D+00, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28     -1.753478  2 Ni s                 62      1.684295  3 Ni s          
-    65      0.804274  3 Ni pz                31      0.772468  2 Ni pz         
-    24     -0.670142  2 Ni s                 58      0.596122  3 Ni s          
-     5      0.211247  1 O  pz                54      0.195931  3 Ni s          
-    20     -0.194425  2 Ni s          
+    31      1.495133  2 Ni pz                65      0.962687  3 Ni pz         
+    27     -0.815295  2 Ni pz                62      0.429690  3 Ni s          
+    24     -0.375330  2 Ni s                 61     -0.205075  3 Ni pz         
+     9     -0.173317  1 O  pz                58     -0.163095  3 Ni s          
  
- Vector   40  Occ=0.000000D+00  E= 1.791410D+00  Symmetry=a1
-              MO Center=  1.6D-16,  1.2D-16, -2.8D-01, r^2= 5.7D+00
+ Vector   40  Occ=0.000000D+00  E= 1.604899D+00  Symmetry=a1
+              MO Center=  9.2D-16, -1.2D-15, -1.8D+00, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    58     -1.256525  3 Ni s                 24     -0.958836  2 Ni s          
-    62     -0.750149  3 Ni s                 28     -0.416792  2 Ni s          
-    61      0.352391  3 Ni pz                27     -0.284789  2 Ni pz         
-     2     -0.249727  1 O  s                  6     -0.174781  1 O  s          
+    65     -1.249907  3 Ni pz                61      0.753745  3 Ni pz         
+    28      0.456152  2 Ni s                 31     -0.433096  2 Ni pz         
+    24     -0.422577  2 Ni s                 58     -0.372005  3 Ni s          
+     6     -0.174595  1 O  s                  2     -0.158216  1 O  s          
+    27     -0.151304  2 Ni pz         
  
- Vector   41  Occ=0.000000D+00  E= 1.860644D+00  Symmetry=b1
-              MO Center= -1.0D-15, -9.6D-18,  2.0D+00, r^2= 5.6D-01
+ Vector   41  Occ=0.000000D+00  E= 1.651798D+00  Symmetry=a1
+              MO Center=  2.7D-15, -3.8D-15,  1.5D-02, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35     -0.630776  2 Ni d  1              40     -0.538838  2 Ni d  1       
-    25     -0.206332  2 Ni px         
+    62      1.383372  3 Ni s                 31      0.802729  2 Ni pz         
+    28     -0.547598  2 Ni s                 24      0.394013  2 Ni s          
+    65      0.340498  3 Ni pz                58      0.332536  3 Ni s          
+     5      0.268909  1 O  pz                54      0.193419  3 Ni s          
+     9      0.181982  1 O  pz                20     -0.169948  2 Ni s          
  
- Bq nuclear interaction energy is  -131.893864709209     
+ Bq nuclear interaction energy is  -131.893864709108     
 
    alpha - beta orbital overlaps 
    ----------------------------- 
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      2      1      4      3      8      9     10      5      6      7
+    beta      2      1      4      3     10      9      8      7      6      5
  overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     13     12     19     18     17     16     15     14     20
+    beta     11     13     12     17     19     18     14     15     16     20
  overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     22     21     23     41     42     29     31     28     26     30
- overlap   0.904  0.904  0.999  0.925  0.926  1.000  0.998  0.991  1.000  0.980
+    beta     34     35     36     26     27     24     25     29     28     30
+ overlap   0.963  0.963  0.989  0.983  1.000  0.983  1.000  0.991  0.991  0.990
 
 
    alpha     31     32     33     34     35     36     37     38     39     40
-    beta     27     32     34     33     36     35     37     38     39     40
- overlap   0.998  0.990  0.999  0.999  0.999  0.999  0.999  0.997  0.997  0.982
+    beta     31     33     32     21     22     23     38     37     40     39
+ overlap   1.000  0.999  0.999  0.963  0.963  0.989  0.964  0.964  0.904  0.904
 
 
    alpha     41     42     43     44     45     46     47     48     49     50
-    beta     24     25     43     46     47     44     45     48     49     51
- overlap   0.925  0.926  0.984  0.754  0.754  0.754  0.754  0.771  0.770  0.996
+    beta     42     42     43     45     44     47     46     48     49     51
+ overlap   0.695  0.704  0.987  0.743  0.743  0.745  0.745  0.874  0.874  0.997
 
 
    alpha     51     52     53     54     55     56     57     58     59     60
-    beta     50     52     53     54     56     55     57     58     65     66
- overlap   0.996  1.000  0.999  0.999  0.981  0.981  1.000  1.000  0.972  0.972
+    beta     50     52     53     54     56     55     57     58     64     63
+ overlap   0.997  0.991  0.988  0.997  0.910  0.910  0.999  0.945  0.962  0.994
 
 
    alpha     61     62     63     64     65     66     67     68     69     70
-    beta     63     64     61     62     59     60     67     68     75     78
- overlap   0.998  0.999  0.998  0.999  0.972  0.972  0.764  0.765  1.000  1.000
+    beta     65     66     60     59     61     62     68     67     76     75
+ overlap   0.903  0.903  0.994  0.962  0.903  0.903  0.872  0.872  1.000  0.999
 
 
    alpha     71     72     73     74     75     76     77     78     79     80
-    beta     79     80     76     77     69     73     74     70     71     72
- overlap   0.727  0.726  0.844  0.844  1.000  0.844  0.844  1.000  0.727  0.726
+    beta     77     78     80     79     70     69     71     72     74     73
+ overlap   0.878  0.878  0.671  0.671  0.999  1.000  0.878  0.878  0.671  0.671
 
 
    alpha     81     82
     beta     81     82
- overlap   0.991  0.992
+ overlap   0.991  0.991
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      2.0235 (Exact =     0.0000)
+      <S2> =      3.0035 (Exact =     0.0000)
  
 
  center of mass
@@ -3185,27 +3275,26 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
      1   1 0 0      0.000000      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
-     1   0 0 1      0.000000     -7.709038      7.709038      0.000000
+     1   0 0 1      0.000005     11.880731    -11.880727      0.000000
  
-     2   2 0 0    -21.935130    -10.967029    -10.968101      0.000000
+     2   2 0 0    -35.880436    -17.940197    -17.940239      0.000000
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000      0.000000
-     2   0 2 0    -21.935130    -10.968101    -10.967029      0.000000
+     2   0 2 0    -35.880436    -17.940246    -17.940189      0.000000
      2   0 1 1      0.000000      0.000000      0.000000      0.000000
-     2   0 0 2     51.954895   -414.977574   -414.977574    881.910042
+     2   0 0 2     63.421403   -409.244325   -409.244315    881.910042
  
 
- Parallel integral file used      18 records with       0 large values
+ Parallel integral file used      20 records with       0 large values
 
 
- Task  times  cpu:        5.2s     wall:        5.5s
+ Task  times  cpu:        5.6s     wall:        7.3s
  
  
                                 NWChem Input Module
                                 -------------------
  
  
- hdbm needs www www 
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -3216,12 +3305,37 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 2482     2482     7.63e+04 3.09e+04 4531        0        0        0     
-number of processes/call 1.02e+00 1.03e+00 1.20e+00 0.00e+00 0.00e+00
-bytes total:             1.90e+08 9.04e+07 7.63e+07 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            2.55e+07 7.66e+06 1.38e+07 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 3173728 bytes
+calls: 2799     2799     5.38e+04 2.16e+04 3740        0        0        0     
+number of processes/call 1.42e+00 1.18e+00 2.29e+00 0.00e+00 0.00e+00
+bytes total:             1.82e+08 5.17e+07 7.97e+07 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.10e+08 1.45e+07 5.23e+07 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1126400 bytes
  
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'bq:default:charge', handle 5, address 0xd6c5cb0:
+	type of elements:		double precision
+	number of elements:		14
+	address of client space:	0xd6c5d08
+	index for client space:		6633342
+	total number of bytes:		208
+heap block 'bq:default:coord', handle 4, address 0xd6c5b00:
+	type of elements:		double precision
+	number of elements:		42
+	address of client space:	0xd6c5b58
+	index for client space:		6633288
+	total number of bytes:		432
+MA_summarize_allocated_blocks: scan completed: 2 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         2	         0
+	maximum number of blocks	        22	        19
+	current total bytes		       640	         0
+	maximum total bytes		   8429008	  19362336
+	maximum total K-bytes		      8430	     19363
+	maximum total M-bytes		         9	        20
 
 
 
@@ -3260,36 +3374,9 @@ Max memory consumed for GA by this process: 3173728 bytes
                       Richland, Washington 99352-0999, USA.
 
 
-       Aggregate GFloating-point ops:      12.20
-        Aggregate GFLOPS (Real_time):       0.77
-        Aggregate GFLOPS (Proc_time):       0.91
-                    Average   GFLOPS:       0.38
-                    Max       GFLOPS:       0.43
-                    Min       GFLOPS:       0.34
 
- Total times  cpu:       13.4s     wall:       15.9s
-MA_summarize_allocated_blocks: starting scan ...
-heap block 'bq:default:charge', handle 43, address 0xd621800:
-	type of elements:		double precision
-	number of elements:		14
-	address of client space:	0xd621858
-	index for client space:		6586268
-	total number of bytes:		208
-heap block 'bq:default:coord', handle 42, address 0xd621650:
-	type of elements:		double precision
-	number of elements:		42
-	address of client space:	0xd6216a8
-	index for client space:		6586214
-	total number of bytes:		432
-MA_summarize_allocated_blocks: scan completed: 2 heap blocks, 0 stack blocks
-MA usage statistics:
-
-	allocation statistics:
-					      heap	     stack
-					      ----	     -----
-	current number of blocks	         2	         0
-	maximum number of blocks	        22	        19
-	current total bytes		       640	         0
-	maximum total bytes		  16293328	  17922336
-	maximum total K-bytes		     16294	     17923
-	maximum total M-bytes		        17	        18
+ Total times  cpu:       14.6s     wall:       21.9s
+VIP(4): hobul.c[556]: HOBUL_delete: Invoked while 0x3 resources are still allocated
+VIP(2): EVAPI_release_hca_hndl HOBUL_delete failed return: Resource is busy
+VIP(4): hobul.c[556]: HOBUL_delete: Invoked while 0x3 resources are still allocated
+VIP(2): EVAPI_release_hca_hndl HOBUL_delete failed return: Resource is busy
