@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.14 2005-09-07 17:32:11 bylaska Exp $
+c $Id: pspw_charge.F,v 1.15 2005-12-23 05:36:42 marat Exp $
 c
   
 ***********************************************************
@@ -50,21 +50,25 @@ c
 *     *************************
 *     **** read in charge data ****
 *     *************************
-      if (ion_chargeexist()) then
-    
+      bqext  = geom_extbq_on()
+      bqgeom = ion_chargeexist()
+
+      write(*,*) "Hera:",bqext,bqgeom
+     
+      if(bqext.and.bqgeom)
+     +  call errquit("pspw_charge_init: cannot have both bq structures",
+     +               0,0)
+      if(bqext) then
+        nion = geom_extbq_ncenter()
+        charge(1) = geom_extbq_charge()
+        r1(1)     = geom_extbq_coord()
+      else if (bqgeom) then
          value = geom_create(geom,'chargegeometry')
          value = value.and.geom_rtdb_load(rtdb,geom,'chargegeometry')
          value = value.and.geom_ncent(geom,nion)
          if (.not. value) 
      >     call errquit('pspw_charge_init: opening chargegeometry',0,
      &       GEOM_ERR)
-      else
-         nion = 0
-      end if
-
-
-*     **** don't do anything if there are no charges atoms ****
-      if (nion.gt.0) then
 
 *        ***** Allocate pspw_charge geometries, and charges *****
          value = MA_alloc_get(mt_dbl,(3*nion),
@@ -72,10 +76,9 @@ c
          value = value.and.
      >           MA_alloc_get(mt_dbl,(nion),
      >                        'charge_charge',charge(2),charge(1))
-         if (.not. value) 
+         if (.not. value)
      >      call errquit('pspw_charge_init: pushing heap memory',0,
      &       MA_ERR)
-
 
 *        **** read in charge geometries, and charges ****
          do i=1,nion
@@ -87,6 +90,14 @@ c
          if (.not. value) 
      >   call errquit('pspw_charge_init:error reading chargegeometry',0,
      &       GEOM_ERR)
+
+      else 
+         nion = 0
+      end if
+
+
+*     **** don't do anything if there are no charges atoms ****
+      if (nion.gt.0) then
 
 *       **** set charge_type ****
         if (.not.rtdb_get(rtdb,
@@ -212,7 +223,7 @@ c
 *     **** local variables ****
       logical value
 
-      if (nion.gt.0) then
+      if (bqgeom) then
         value = geom_destroy(geom)
 
         if (.not. value) 
@@ -250,6 +261,7 @@ c
 *     *******************************
 *     **** write out charge data ****
 *     *******************************
+      if (bqgeom) then
       if (nion.gt.0) then
         value = .true.
         do i=1,nion
@@ -266,6 +278,7 @@ c
         value = value.and.geom_destroy(geom)
         if (.not. value) call errquit('error writing chargegeometry', 0,
      &       GEOM_ERR)
+      end if
       end if
 
       return
@@ -293,11 +306,15 @@ c
       character*16 t,name
       real*8 q
 
-      if (.not. geom_cent_tag(geom,i,t))
+      if (bqgeom) then
+        if (.not. geom_cent_tag(geom,i,t))
      >        call errquit(' pspw_charge_aname: failed ',i, GEOM_ERR)
 
-      if (.not. geom_tag_to_element(t,symbol,name,q)) then
-        symbol = 'bq'
+        if (.not. geom_tag_to_element(t,symbol,name,q)) then
+          symbol = 'bq'
+        end if
+      else
+         symbol = 'bq'
       end if
 
       pspw_charge_aname = symbol
@@ -358,8 +375,12 @@ c
       logical value
 
       if (nion.gt.0) then
-        value = MA_free_heap(r1(2))
-        value = value.and.MA_free_heap(charge(2))
+        value = .true.
+        if (bqgeom) then
+           value = value.and.MA_free_heap(r1(2))
+           value = value.and.MA_free_heap(charge(2))
+        end if
+
         if (charge_type.eq.4) then
           value=value.and.MA_free_heap(vc2_charge(2))
           value=value.and.MA_free_heap(vc_charge(2))
