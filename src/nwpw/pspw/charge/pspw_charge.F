@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.15 2005-12-23 05:36:42 marat Exp $
+c $Id: pspw_charge.F,v 1.16 2005-12-23 06:15:04 marat Exp $
 c
   
 ***********************************************************
@@ -356,6 +356,18 @@ c
       if (nion.gt.0) value = .true.
 
       pspw_charge_found = value
+      return
+      end
+c
+      logical function pspw_bqext()
+      implicit none
+
+#include "pspw_charge.fh"
+ 
+      logical value
+
+      pspw_bqext = bqext
+
       return
       end
 
