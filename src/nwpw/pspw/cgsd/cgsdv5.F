@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.64 2005-12-22 01:35:05 bylaska Exp $
+* $Id: cgsdv5.F,v 1.65 2005-12-23 06:14:35 marat Exp $
 *
 
 ***********************************************************************
@@ -60,6 +60,7 @@
       real*8  EV,pi
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping
+      integer nbq
   
 
 
@@ -137,6 +138,8 @@
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
+      logical pspw_bqext
+      external pspw_bqext
 
 *                            |************|
 *****************************|  PROLOGUE  |****************************
@@ -513,6 +516,7 @@ c     end if
      >                 3,dipole)
       end if
       if (flag.gt.0) then
+        if(pspw_bqext()) nion = ion_nion()
         value = value.and.
      >        rtdb_put(rtdb,'pspw:gradient',mt_dbl,
      >                 3*nion,dbl_mb(fion(1)))
