@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.10 2005-06-30 00:08:34 marat Exp $
+* $Id: cosmo.F,v 1.11 2005-12-24 10:21:07 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -180,6 +180,7 @@ c
 #include "prop.fh"
 #include "geom.fh"
 #include "bas.fh"
+#include "msgids.fh"
 c
       integer rtdb
       integer geom
@@ -202,6 +203,15 @@ c
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       double precision vdwr(103)
       double precision vander(36)
+c
+      integer i
+      integer atn(203)
+      double precision arad(203)
+      character*16 aname,symb,elem
+      integer fn
+      character*255 map
+      logical util_io_unit
+      external util_io_unit
 c
       data zero   /0.0d+00/
       data one    /1.0d+00/
@@ -260,6 +270,60 @@ c
          write(Luout,*) 'in cosmo_initialize ...'
       endif
 c
+      do i=1,36
+         vdwr(i)=vander(i) 
+      enddo
+c
+c     start processing cosmo map
+c     --------------------------
+      nmap = 0
+      if(.not.rtdb_cget(rtdb,'cosmo:map',1,map))
+     +  map = "none"
+      
+      if(map.ne."none") then
+        call util_file_name_resolve(map,.false.)
+        if(me.eq.0) then
+        if(.not.util_io_unit(80,90,fn))
+     +     call errquit('cosmo_initialize:cannot get free unit', 0,
+     +       0)
+
+        open(unit=fn,status="old",form="formatted",file=map)
+        write(luout,9982) map(1:inp_strlen(map))
+10      continue
+        read(fn,*,end=11) aname                 
+        if(aname.ne." ") then
+         nmap = nmap + 1
+         goto 10
+        end if
+11      continue
+        rewind(fn)
+        do i=1,nmap
+         read(fn,*) aname,arad(i)
+         if(.not.geom_tag_to_element(aname, symb, elem, atn(i))) 
+     +     call errquit('cosmo_initialize:cannot resolve map'
+     +                  //aname, 0,0)
+          write(luout,9981) symb,arad(i)
+        end do
+        close(fn)
+        end if
+        call ga_brdcst(msg_cosmo0,nmap,
+     >                 ma_sizeof(mt_int,1,mt_byte),0)
+        call ga_brdcst(msg_cosmo1,atn,
+     >                 nmap*ma_sizeof(mt_int,1,mt_byte),0)
+        call ga_brdcst(msg_cosmo2,arad,
+     >                 nmap*ma_sizeof(mt_dbl,1,mt_byte),0)
+        call ga_sync()
+
+        do i=1,nmap
+          vdwr(atn(i)) = arad(i)
+        end do
+
+      end if
+c
+c     end processing cosmo map
+c     --------------------------
+
+c
 c     Create a geometry for the COSMO efc charges, to be used later on
 c
       if (.not. geom_create(cosmo_geom_efc, 'cosmo efc geom'))
@@ -284,9 +348,6 @@ c
      &   dbl_mb(k_coscoor),dbl_mb(k_coszan))) call errquit
      $    (' cosmo_initialize: geom_cart_get failed.',911, GEOM_ERR)
 c
-      do i=1,36
-         vdwr(i)=vander(i) 
-      enddo
       do iat=1,nat
          rad=vdwr(nint(dbl_mb(k_coszan+iat-1)))
          if (geom_any_ecp(geom).and.geom_ecp_get(geom,iat)) then
@@ -439,6 +500,8 @@ c
  9985 format(/)
  9984 format(' screen =  one              = ',f9.5)
  9983 format(' charge screening approach  = ',i3)
+ 9982 format(' processing cosmo map from ',a)
+ 9981 format(a16,4x,f9.5)
       end
 c
       subroutine cosmo_tidy()
