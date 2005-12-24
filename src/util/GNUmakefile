@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.189 2005-12-15 20:15:17 edo Exp $
+# $Id: GNUmakefile,v 1.190 2005-12-24 10:19:10 marat Exp $
 
 include ../config/makefile.h
 
@@ -154,6 +154,7 @@ endif
 	      ga_trace_dg.o \
               lcopy.o util_legal.o \
               util_file_name.o \
+              util_io_unit.o \
               util_speak.o util_rtdb_speak.o util_file_copy.o \
               util_file_unlink.o util_system.o util_sleep.o \
               util_rtdb_state.o ecce_print.o \
