@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.73 2005-10-07 19:48:06 edo Exp $
+C$Id: nwdft.F,v 1.74 2005-12-27 23:06:38 marat Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -126,7 +126,9 @@ c           Start with gas_phase run
 c
             cosmo_last = .true.
             cosmo_on = .true.
-            cosmo_phase = 1
+            if(.not.rtdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
+     >         cosmo_phase = 1
+
          endif
       endif
 c
