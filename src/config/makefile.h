@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.511 2005-12-06 23:02:25 edo Exp $
+# $Id: makefile.h,v 1.512 2005-12-28 21:08:25 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1480,7 +1480,9 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       endif
        ifdef USE_INTEGER4
          ifneq ($(_FC),g77)
-           FOPTIONS += -i4 
+           ifneq ($(FC),gfortran)
+             FOPTIONS += -i4 
+           endif
            DEFINES  += -DBAD_GACCESS
          endif
        else
@@ -1658,7 +1660,7 @@ endif # end of ia32 bit
 #        FOPTIONS   +=    -Ktrap=fp
         FOPTIMIZE   = -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
         FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
-        FDEBUG = -g -O0 
+        FDEBUG = -g -O2
         DEFINES  += -DCHKUNDFLW -DPGLINUX
       endif
       ifeq ($(FC),pathf90)
@@ -1667,6 +1669,7 @@ endif # end of ia32 bit
         FOPTIONS   += -cpp -Wp,-P
         FOPTIONS   += -fno-second-underscore -fixedform
         FOPTIONS   += -align64
+#        FOPTIONS   += -LANG:heap_allocation_threshold=0
         FOPTIMIZE   = -O3 -OPT:Ofast:IEEE_arith=1:IEEE_NaN_inf=ON:Olimit=12000:ro=1:fold_reassociate=ON#:div_split=OFF:fast_nint=OFF
         FVECTORIZE  = -O3 -OPT:Ofast:ro=1 -fno-math-errno
         DEFINES  += -DCHKUNDFLW -DPSCALE
