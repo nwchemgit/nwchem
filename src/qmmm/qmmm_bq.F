@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.14 2005-08-26 18:17:57 marat Exp $
+c $Id: qmmm_bq.F,v 1.15 2005-12-29 03:06:59 marat Exp $
 c
 c
       subroutine qmmm_bq_energy_gen(rtdb,n,c,q,e)
@@ -128,7 +128,7 @@ c
       double precision f(3,n)
 
       character*32 pname
-      character*3 theory
+      character*32 theory
       character*255 vectors_in
       character*255 ostring
 c
@@ -138,6 +138,7 @@ c
       logical property
       external property
 c
+      write(*,*) "debug 1 "
       pname = "qmmm_bq_forces"
 c
       if(qmmm_master()) then
