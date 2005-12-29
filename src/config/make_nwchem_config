@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.206 2005-07-27 23:01:26 marat Exp $
+# $Id: make_nwchem_config,v 1.207 2005-12-29 17:50:06 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -32,7 +32,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -lqhop\
                     -lpfft -ldplot -loimp2 -lpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
-                    -ltddft -ltce -lgeninterface -lbq -lcons -lperfm -lneb
+                    -lpspw -ltddft -ltce -lgeninterface -lbq -lcons -lperfm -lneb
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
