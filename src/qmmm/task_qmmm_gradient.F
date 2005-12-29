@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.48 2005-12-16 02:18:07 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.49 2005-12-29 03:07:29 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -328,10 +328,18 @@ c
   
       integer na
       character*30 pname
+      character*32 theory
+      logical pspw_bq_gradient
+      external pspw_bq_gradient
 
+
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit(pname//'theory not specified',555,
+     &       INPUT_ERR)
 
       pname = "qmmm_bq_gradient"
 
+      write(*,*) "theory debug",theory
 
       na  = qmmm_get_nbqa() 
      
@@ -369,7 +377,19 @@ c
      >                      dbl_mb(i_c),
      >                      dbl_mb(i_g))
 
-      else
+      else if (theory.eq."pspw") then
+
+         if(.not.pspw_bq_gradient(rtdb,
+     >                      na,
+     >                      dbl_mb(i_c),
+     >                      dbl_mb(i_q),
+     >                      dbl_mb(i_g)))
+     >   call errquit(
+     &      pname//'pspw_bq_gradient',0,0)
+
+
+ 
+      else 
 
         call qmmm_bq_forces(rtdb,
      >                      na,
