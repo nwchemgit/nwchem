@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.5 2004-08-12 18:39:41 bylaska Exp $
+# $Id: GNUmakefile,v 1.6 2005-12-29 00:24:17 edo Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_psi.o \
@@ -17,7 +17,7 @@
 
       LIBRARY = libpaw.a
 
-    USES_BLAS =  paw_psi.F
+    USES_BLAS =  paw_psi.F  paw_geodesic.F paw_electron.F paw_psi2.F
 
   LIB_DEFINES =
 
