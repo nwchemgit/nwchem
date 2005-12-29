@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.512 2005-12-28 21:08:25 edo Exp $
+# $Id: makefile.h,v 1.513 2005-12-29 00:34:24 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -37,9 +37,7 @@ endif
 #
 # Do a setenv for NWCHEM_TARGET to be the machine and NWCHEM_TARGET_CPU the CPU to build for
 #
-# NWCHEM_TARGET :  CONVEX-SPP
-#                  CRAY-T3D
-#                  CRAY-T3E
+# NWCHEM_TARGET :  
 #                  CYGNUS       (Windows under Cygwin tools)
 #                  DECOSF
 #                  IBM
@@ -54,7 +52,6 @@ endif
 #                  LAPI         NWCHEM_TARGET_CPU : P2SC
 #                      (uses thread safe libraries and LAPI)
 #
-# Note that the preprocessor flags for CRAY-T3D and CRAY-T3E are CRAY_T3D and CRAY_T3E respectively
 #
 
 ifndef NWCHEM_TARGET
@@ -432,54 +429,6 @@ ifeq ($(TARGET),PURESOLARIS)
 #end of puresolaris
 endif
 
-
-ifeq ($(TARGET),CRAY-T3D)
-#
-# CRAY-T3D cross-compiled on YMP (atw)
-#
-   CORE_SUBDIRS_EXTRA =	blas lapack # Only a couple of routines not in scilib
-               RANLIB = echo
-            MAKEFLAGS = -j 4 --no-print-directory
-              INSTALL = @echo $@ is built
-        OUTPUT_OPTION = 
-
-                   FC = cf77 
-                  CPP = cpp -P  -N
-#                   FC = /mpp/bin/cf77 
-#                  CPP = /mpp/lib/cpp -P  -N
-# gpp does not eat elif
-#                 CPP = /usr/lib/gpp -P  -F
-# need jump since with all modules code is too big for branches
-# noieeedivide seems safe and should be faster
-             FOPTIONS = -dp -Ccray-t3d 
-             COPTIONS = -Tcray-t3d -hjump
-# To make executable smaller use scalar optimization and no -g on all code.
-# symmetry/(dosymops.F,sym_movecs_apply_op) break with scalar
-# (it is handled separately in symmetry/makefile)
-# !! Note that -O option disables any -Wf"-o options" but we need
-# !! jump so cannot use -O.
-               FDEBUG = -Wf"-o scalar,jump,noieeedivide"
-# Not sure yet if these are fully safe ... aggress,unroll
-            FOPTIMIZE = -Wf"-o scalar,jump,noieeedivide,aggress,unroll"
-               CDEBUG = -O 1
-            COPTIMIZE = -O
-# -s eliminates symbol tables to make executable smaller (remove -s
-# if you want to debug) ... the T3 does load the symbol table (stupid!)
-# No need for forcing of block data here as long as each one is
-# referenced by an external statement in the code.
-            LDOPTIONS = -s -Drdahead=on -L$(LIBDIR) 
-
-# Compilation also depends on compilers defining CRAY
-              DEFINES = -DCRAY_T3D -DUSE_FCD
-
-#               LINK.f = /mpp/bin/mppldr $(LDOPTIONS)
-               LINK.f = mppldr $(LDFLAGS)
-
-            CORE_LIBS += -llapack $(BLASOPT) -lblas 
-
-      EXPLICITF     = TRUE
-      FCONVERT      = $(CPP) $(CPPFLAGS)  $< | sed '/^\#/D'  > $*.f
-endif
 
 ifeq ($(TARGET),CRAY-T3E)
 #
@@ -1206,7 +1155,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 #
 #
 # Linux or Cygwin under Windows running on an x86 using g77
-# f2c has not been tested in years and is not supported
 #
        NICE = nice -2
       SHELL := $(NICE) /bin/sh
@@ -1375,6 +1323,11 @@ ifeq ($(LINUXCPU),x86)
 #        FOPTIMIZE  += -fprefetch-loop-arrays -ftree-loop-linear
         else
           FOPTIONS +=  -ffloat-store
+        endif
+        ifdef USE_F2C
+#possible segv with use of zdotc (e.g. with GOTO BLAS)
+#http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
+          FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         FDEBUG = -g -O0
         DEFINES  += -DCHKUNDFLW -DGCC4
@@ -1714,12 +1667,16 @@ endif # end of ia32 bit
      _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -1 | awk ' /3dnowext/  {print "Y"}')
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-#        FOPTIONS   += -x f77-cpp-input
         FOPTIONS   += -Wextra -Wunused -Wuninitialized
         FOPTIMIZE   = -O3 
         FOPTIMIZE  += -mfpmath=sse -ffast-math
         FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
         FDEBUG = -g -O 
+        ifdef USE_F2C
+#possible segv with use of zdotc (e.g. with GOTO BLAS)
+#http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
+          FOPTIONS +=  -ff2c -fno-second-underscore
+        endif
         DEFINES  += -DCHKUNDFLW -DGCC4
         ifeq ($(_GOT3DNOW),Y) 
 #we guess its an opteron
@@ -1910,43 +1867,6 @@ ifeq ($(TARGET),cray-sv2)
 endif
 
 
-#-do not use# ifeq ($(TARGET),PGLINUX)
-#-do not use# #
-#-do not use# # Linux running on an x86 using g77
-#-do not use# # to use f2c/gcc, define environment variable USE_F2C
-#-do not use# #
-#-do not use#        NICE = nice
-#-do not use#       SHELL := $(NICE) /bin/sh
-#-do not use#     CORE_SUBDIRS_EXTRA = blas lapack
-#-do not use#          CC = gcc
-#-do not use#      RANLIB = ranlib
-#-do not use#   MAKEFLAGS = -j 1 --no-print-directory
-#-do not use#     INSTALL = @echo $@ is built
-#-do not use#
-#-do not use#   FOPTIONS  = -Mdalign -Minform,warn -Mnolist 
-#-do not use# #         FC = sleep 2;pgf77
-#-do not use#           FC = pgf77
-#-do not use# #         FC = sleep 2;pghpf -Mf90
-#-do not use#
-#-do not use#    COPTIONS =  -Wall -m486 -malign-double
-#-do not use# ifeq ($(NWCHEM_TARGET_CPU),604)
-#-do not use#    COPTIONS =  -Wall
-#-do not use# endif
-#-do not use#   FOPTIMIZE = -O2
-#-do not use#   COPTIMIZE = -g -02
-#-do not use#
-#-do not use#     DEFINES = -DLINUX -DPGLINUX
-#-do not use#
-#-do not use#   LDOPTIONS = -g
-#-do not use#      LINK.f = pgf77 $(LDFLAGS)
-#-do not use#   CORE_LIBS = -lnwcutil -lpario -lglobal -lma -lpeigs -llapack -lblas
-#-do not use#  EXTRA_LIBS = 
-#-do not use#
-#-do not use#         CPP = gcc -E -nostdinc -undef -P
-#-do not use#    FCONVERT = (/bin/cp $< /tmp/$$$$.c; \
-#-do not use# 			$(CPP) $(CPPFLAGS) /tmp/$$$$.c | sed '/^$$/d' > $*.f; \
-#-do not use# 			/bin/rm -f /tmp/$$$$.c) || exit 1
-#-do not use# endif
 
 
 ###################################################################
