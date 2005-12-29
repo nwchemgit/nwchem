@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.41 2005-12-22 01:35:06 bylaska Exp $
+* $Id: electron.F,v 1.42 2005-12-29 03:06:08 marat Exp $
 *
 
 
@@ -173,6 +173,24 @@
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *		electron_genrho		*
+*     *					*
+*     ***********************************
+      subroutine electron_genrho(psi_k,dn)
+      implicit none
+      complex*16 psi_k(*)
+      real*8     dn(*)
+
+
+      call electron_gen_psi_r(psi_k)
+      call electron_gen_density(psi_k,dn)
+
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -1407,6 +1425,79 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
       return
       end
+
+*     ***************************
+*     *				*
+*     *	 electron_gen_density	*
+*     *				*
+*     ***************************
+
+      subroutine electron_gen_density(psi_k,dn)
+      implicit none
+      complex*16 psi_k(*)
+      real*8     dn(*)
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+#include "frac_occ.fh"
+
+     
+*     **** local variables ****
+      integer i
+      integer ms,n2ft3d
+      integer n,n1(2),n2(2)
+      real*8  scal2
+      integer tmp1(2)
+      logical value
+
+*     ***** external functions *****
+      logical  psp_semicore
+      real*8   lattice_omega
+      external psp_semicore
+      external lattice_omega
+
+
+      n1(1) = 1
+      n1(2) = ne(1) + 1
+      n2(1) = ne(1)
+      n2(2) = ne(1) + ne(2)
+
+      n2ft3d = 2*nfft3d
+      scal2 = 1.0d0/lattice_omega()
+
+
+*     *********************
+*     **** generate dn ****
+*     *********************
+      call dcopy(2*n2ft3d,0.0d0,0,dn,1)
+      if (fractional) then
+      do ms=1,ispin
+         do n=n1(ms),n2(ms)
+            do i=1,n2ft3d
+               dn(i+(ms-1)*n2ft3d)
+     >            = dn(i+(ms-1)*n2ft3d)
+     >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
+     >             *dbl_mb(fweight(1)+n-1)
+            end do
+         end do
+         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+      end do
+      else
+      do ms=1,ispin
+         do n=n1(ms),n2(ms)
+            do i=1,n2ft3d
+               dn(i+(ms-1)*n2ft3d) 
+     >            = dn(i+(ms-1)*n2ft3d) 
+     >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
+            end do
+         end do
+         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+      end do
+      end if
+
+      return
+      end
+
 
 
 *     ***************************

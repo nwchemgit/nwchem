@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.60 2005-10-06 01:04:34 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.61 2005-12-29 03:05:57 marat Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -481,11 +481,14 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       external pspw_qmmm_nion,pspw_charge_nion
       external ion_rion,pspw_qmmm_rion,pspw_charge_rion
       external pspw_charge_charge
+      logical  pspw_bqext
+      external pspw_bqext
 
 
       allow_translation = control_allow_translation()
       nion = ion_nion()
-      if (pspw_charge_found()) nion = nion + pspw_charge_nion()
+      if (pspw_charge_found().and.
+     >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
       if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
 
       call dcopy(3*nion,0.0d0,0,G1,1)
@@ -497,10 +500,14 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       if (control_version().eq.4) call ion_ion_f(G1)
 
       if (pspw_charge_found()) then
-         nion1 = ion_nion()
-         call pspw_charge_Fion_Fcharge(G1,G1(1,nion1+1))
-         call pspw_charge_Fcharge(G1(1,nion1+1))
-         call rho_1Fcharge(G1(1,nion1+1))
+        if(pspw_bqext()) then
+           call pspw_charge_charge_Fion(G1)
+         else
+           nion1 = ion_nion()
+           call pspw_charge_Fion_Fcharge(G1,G1(1,nion1+1))
+           call pspw_charge_Fcharge(G1(1,nion1+1))
+           call rho_1Fcharge(G1(1,nion1+1))
+         end if
       end if
 
       if (pspw_qmmm_found()) then
@@ -556,7 +563,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
     
 
 *       **** print out charge positions ***
-        if (pspw_charge_found()) then
+        if (pspw_charge_found().and.(.not.pspw_bqext())) then
           do i=1,pspw_charge_nion()
             i1 = ion_nion() + i
             if (ion_q_FixIon(i1)) then
@@ -592,7 +599,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
 
 *       **** print out charge forces ***
-        if (pspw_charge_found()) then
+        if (pspw_charge_found().and.(.not.pspw_bqext())) then
           do i=1,pspw_charge_nion()
             i1 = ion_nion() + i
             write(luout,1190) i1,pspw_charge_aname(i),

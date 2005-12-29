@@ -1,22 +1,15 @@
 *
-* $Id: cgsdv5.F,v 1.66 2005-12-29 03:05:57 marat Exp $
+* $Id: pspw_bq_gradient.F,v 1.1 2005-12-29 03:05:57 marat Exp $
 *
 
-***********************************************************************
-*                      cgsdv5-mpi  (MPI code)                         *
-*                                                                     *
-*     This is a developing cgsdv5 parallel code for NWCHEM            *
-*       + tcgmsg message passing library used                         *
-*       + my own slap-decomposed parallel 3d-FFT(real->complex) used  *
-*                                                                     *
-*                                                                     *
-***********************************************************************
 
-      logical function cgsdv5(rtdb,flag)
+      logical function pspw_bq_gradient(rtdb,n_bq,r_bq,q_bq,f_bq)
       implicit none
-#include "errquit.fh"
       integer rtdb
-      integer flag
+      integer n_bq
+      double precision r_bq(3,*)
+      double precision q_bq(*)
+      double precision f_bq(3,*)
 
 #include "global.fh"
 #include "mafdecls.fh"
@@ -24,8 +17,8 @@
 #include "inp.fh"
 #include "util.fh"
 #include "frac_occ.fh"
-
 #include "nwpw_timing.fh"
+#include "errquit.fh"
       
 *     **** parallel variables ****
       integer  taskid,np
@@ -227,17 +220,7 @@ c     value = psi_initialize()
       call center_geom(cx,cy,cz)
       call center_mass(gx,gy,gz)
 
-*     **** allocate psp data structure and read in psedupotentials into it ****
-      call psp_init()
-      call psp_readall()
-      if (psp_semicore(0)) call semicore_check()
 
-*     **** initialize G,mask,ke,coulomb,and ewald data structures ****
-      call ke_init()
-      if (control_version().eq.3) call coulomb_init()
-      if (control_version().eq.4) call coulomb2_init()
-      call strfac_init()
-      if (control_version().eq.3) call ewald_init()
 
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
@@ -248,35 +231,23 @@ c     value = psi_initialize()
       end if
       value = psi_initialize()
 
-      !call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))
 
 *     **** electron and geodesic data structures ****
       call electron_init()
-      if ((minimizer.eq.4).or.(minimizer.eq.7)) then  !debug
-        call geodesic2_init()
-      else
-         call geodesic_init()
-      end if
+      call psi_1genrho()
 
-*     **** initialize QM/MM ****
-      call pspw_init_APC(rtdb)
-      call pspw_qmmm_init(rtdb)
-      call pspw_charge_init(rtdb)
+
 
 *     **** initialize SIC and HFX ****
       ne(1) = psi_ne(1)
       ne(2) = psi_ne(2)
-      call pspw_init_SIC(rtdb,ne)
-      call pspw_init_HFX(rtdb,psi_ispin(),ne)
+      !call pspw_init_SIC(rtdb,ne)
+      !call pspw_init_HFX(rtdb,psi_ispin(),ne)
 
-*     **** initialize FixIon constraint ****
-      call ion_init_FixIon(rtdb)
 
 *     **** initialize frac_occ data structure ****
       call frac_occ_init(rtdb,psi_ispin(),ne)
 
-*     **** initialize linesearching ****
-      call linesearch_init()
 
 
 
@@ -285,166 +256,6 @@ c     value = psi_initialize()
 ******************   summary of input data  **********************
 *                |**************************|
 
-      if (oprint) then
-         write(6,1111) np
-         if (mapping.eq.1) write(6,1112) 
-         if (mapping.eq.2) write(6,1113) 
-         if (control_balance()) then
-           write(6,1114)
-         else
-           write(6,1116)
-         end if
-         write(6,1115)
-
-         write(6,1121) control_boundry(),control_version()
-         if (psi_ispin().eq.1) write(6,1130) "restricted"
-         if (psi_ispin().eq.2) write(6,1130) "unrestricted"
-         if (qmmm) write(6,1122)
-         IF (control_gga().eq.-1) THEN
-            write(6,1131) 'off'
-         ELSE IF (control_gga().eq.0) THEN
-            write(6,1131) 'LDA (Vosko et al) parameterization'
-         ELSE IF (control_gga().eq.10) THEN
-            write(6,1131) 
-     >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.11) THEN
-            write(6,1131) 
-     >      'BLYP (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.12) THEN
-            write(6,1131) 
-     >      'revPBE (White and Bird) parameterization'
-
-         ELSE IF (control_gga().eq.110) THEN
-            write(6,1131) 
-     >      'PBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.112) THEN
-            write(6,1131) 
-     >      'revPBE0 (White and Bird) parameterization'
-
-         ELSE IF (control_gga().eq.200) THEN
-            write(6,1131) 'Hartree-Fock'
-         ELSE
-            write(6,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0, INPUT_ERR)
-         END IF
-         if (fractional) write(6,1132)
-         call pspw_print_SIC(6)
-         call pspw_print_HFX(6)
-         write(6,1140)
-         do ia = 1,psp_npsp()
-           write(6,1150) ia,psp_atom(ia),
-     >                    psp_zv(ia),psp_lmax(ia)
-           comment = psp_comment(ia)
-           i = inp_strlen(comment)
-           write(6,1157) comment(1:i)
-           write(6,1158) psp_psp_type(ia)
-           write(6,1152) psp_lmax(ia)
-           write(6,1153) psp_locp(ia)
-           write(6,1154) psp_nprj(ia)
-           if (control_version().eq.4) write(6,1156) psp_rlocal(ia)
-           if (psp_semicore(ia))
-     >         write(6,1155) psp_rcore(ia),psp_ncore(ia)
-           write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
-           write(6,*)
-         end do
-
-         icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
-         en(1)     = psi_ne(1)
-         en(psi_ispin()) = psi_ne(psi_ispin())
-         if (fractional) then
-            icharge = 0
-            do ms=1,psi_ispin()
-            en(ms) =0.0
-            do i=1,ne(ms)
-              k = fweight(1)+(i-1)+(ms-1)*ne(1)
-              icharge = icharge - (3-psi_ispin())*dbl_mb(k)
-              en(ms) = en(ms) + dbl_mb(k)
-            end do
-            end do
-         end if
-         icharge = icharge + ion_TotalCharge()
-         write(6,1159) icharge
-
-         write(6,1160)
-         write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
-         if (hprint) then
-         write(6,1180)
-         do I=1,ion_nion()
-           if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
-           else
-           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
-     >                   ion_amass(I)/1822.89d0
-           end if
-         end do
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
-
-         call pspw_qmmm_Print(6)
-         call pspw_charge_Print(6)
-         end if
-
-         !write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
-         if (fractional) then
-          write(6,1219) en(1),en(psi_ispin()),' (   fractional)'
-          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
-         else
-          write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
-          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
-         end if
-         write(6,1230)
-         write(6,1233) control_cell_name()
-         write(6,1241) lattice_unita(1,1),
-     >                 lattice_unita(2,1),
-     >                 lattice_unita(3,1)
-         write(6,1242) lattice_unita(1,2),
-     >                 lattice_unita(2,2),
-     >                 lattice_unita(3,2)
-         write(6,1243) lattice_unita(1,3),
-     >                 lattice_unita(2,3),
-     >                 lattice_unita(3,3)
-         write(6,1244) lattice_unitg(1,1),
-     >                 lattice_unitg(2,1),
-     >                 lattice_unitg(3,1)
-         write(6,1245) lattice_unitg(1,2),
-     >                 lattice_unitg(2,2),
-     >                 lattice_unitg(3,2)
-         write(6,1246) lattice_unitg(1,3),
-     >                 lattice_unitg(2,3),
-     >                 lattice_unitg(3,3)
-         call lattice_abc_abg(a,b,c,alpha,beta,gamma)
-         write(6,1232) a,b,c,alpha,beta,gamma
-         write(6,1231) lattice_omega()
-         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 pack_nwave_all(0),pack_nwave(0)
-         write(6,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 pack_nwave_all(1),pack_nwave(1)
-         if (control_version().eq.3) then
-         write(6,1260) ewald_rcut(),ewald_ncut()
-         write(6,1261) ewald_mandelung()
-         end if
-         write(6,1270)
-         write(6,1280) control_time_step(),control_fake_mass()
-         write(6,1290) control_tole(),control_tolc()
-         if (minimizer.eq.5) then
-           write(6,1291)
-           if (control_ks_algorithm().eq.0) 
-     >       write(6,1292) "conjugate gradient"
-           if (control_ks_algorithm().eq.1) 
-     >       write(6,1292) "rmm-diis"
-           write(6,1295) control_ks_maxit_orb(),control_ks_maxit_orbs()
-           if (control_scf_algorithm().eq.0) 
-     >       write(6,1293) "simple mixing"
-           if (control_scf_algorithm().eq.1) 
-     >       write(6,1293) "Anderson mixing"
-           if (control_scf_algorithm().eq.2) 
-     >       write(6,1293) "Johnson-Pulay mixing"
-           write(6,1294) control_ks_alpha()
-         end if
-         write(6,1300)
-         call util_flush(6)
-      end if
 
 *                |***************************|
 ******************     call CG minimizer     **********************
@@ -455,136 +266,38 @@ c     if (flag.eq.1) then
 c       call control_gradient_iterations()
 c     end if
 
-*     **** calculate energy ****
-      if (flag.eq.-1) then
-        EV= cgsd_noit_energy()
-      else
-        EV= cgsd_energy(newpsi)
-      end if
-
-*     **** calculate excited state orbitals ****
-      call cgsd_excited()
-
-*     **** calculate oep eigenvalues ****
-      call cgsd_oep_eigenvalues()
-
-*     **** extra energy output for QA test ****
-      if (lprint) write(6,1600) EV
-
-*     **** calculate the spin contamination ****
-      if (flag.gt.-1) call psi_spin2(dipole(1))
-      
-*     **** calculate the dipole ***
-      dipole(1) = 0.0d0
-      dipole(2) = 0.0d0
-      dipole(3) = 0.0d0
-      if (flag.gt.-1) call rho_dipole(dipole)
 
 *     ****  calculate gradient ***
-      if (flag.gt.0) then
-      nion = ion_nion()
-      if (pspw_charge_found().and.
-     >    (.not.pspw_bqext())) nion = nion + pspw_charge_nion()
-      if (pspw_qmmm_found())   nion = nion + pspw_qmmm_nion()
-
-      value = MA_push_get(mt_dbl,(3*nion),
-     >                       'fion',fion(2),fion(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-     
-      call cgsd_energy_gradient(dbl_mb(fion(1)))
-      call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
-      end if
-
-*     **** calculate the stress tensor ****
-      call dcopy(9,0.0d0,0,stress,1)
-      call dcopy(6,0.0d0,0,lstress,1)
-      if (flag.eq.3) then
-         call psp_stress_init()
-         call psp_stress_readall()
-         call cgsd_energy_stress(stress,lstress)
-         call psp_stress_end()
-      end if
-
-
-*     *************************************************************
-*     **** output energy, dipole, and gradient to rtdb for use ****
-*     **** by task_energy and task_gradient                    ****
-*     *************************************************************
-      if (flag.gt.-1) then
-      value = rtdb_put(rtdb,'pspw:energy',mt_dbl,1,EV)
-      value = value.and.
-     >        rtdb_put(rtdb,'pspw:dipole',mt_dbl,
-     >                 3,dipole)
-      end if
-      if (flag.gt.0) then
-        value = value.and.
-     >        rtdb_put(rtdb,'pspw:gradient',mt_dbl,
-     >                 3*nion,dbl_mb(fion(1)))
-        value = value.and.MA_pop_stack(fion(2))
-      end if
-      if (flag.eq.3) then
-        value = value.and.
-     >        rtdb_put(rtdb,'pspw:stress',mt_dbl,
-     >                 9,stress)
-        value = value.and.
-     >        rtdb_put(rtdb,'pspw:lstress',mt_dbl,
-     >                 6,lstress)
-      end if
-      if (.not. value) call errquit('cgsdv5: error writing rtdb',0,
-     &       RTDB_ERR)
+      call dcopy(3*n_bq,0.0d0,0,f_bq,1)
+      call pspw_charge_ion_Fcharge_qmmm(r_bq,q_bq,n_bq,f_bq)
+      call rho_1Fcharge_qmmm(r_bq,q_bq,n_bq,f_bq)
 
       if (taskid.eq.MASTER) call current_second(cpu3)
 
-*                |***************************|
-******************         Epilogue          **********************
-*                |***************************|
 
-*     **** calculate Mulliken Populations ***
-      if (control_Mulliken()) call psi_Mulliken(rtdb)
-
-
-
-
-*     **** calculate Mulliken Populations ***
 
 *     **** write wavefunctions to file and finalize psi ****
-      if (flag.eq.-1) then
-        value = psi_finalize(.false.)
-      else
-        value = psi_finalize(.true.)
-      end if
+      value = psi_finalize(.false.)
 
 *     **** write geometry to rtdb ****
-      call pspw_charge_write(rtdb)
-      call pspw_qmmm_write(rtdb)
       call ion_write(rtdb)
 
 
 *     **** deallocate heap memory ****
       call electron_finalize()
-      if ((minimizer.eq.4).or.(minimizer.eq.7)) then
-        call geodesic2_finalize()
-      else
-        call geodesic_finalize()
-      end if
-      if (control_version().eq.3) call ewald_end()
-      call strfac_end()
-      if (control_version().eq.3) call coulomb_end()
-      if (control_version().eq.4) call coulomb2_end()
-      call ke_end()
+
+   
+  
       call mask_end()
       call Pack_end()
       call G_end()
-      call pspw_end_SIC()
-      call pspw_end_HFX()
-      call pspw_end_APC()
+      !call pspw_end_SIC()
+      !call pspw_end_HFX()
+     
       call pspw_charge_end()
-      call pspw_qmmm_end()
+      
       call frac_occ_end()
       call ion_end()
-      call psp_end()
-      call ion_end_FixIon()
-      !call D3dB_n_fft_end(1)
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
@@ -606,51 +319,6 @@ c     end if
          write(6,1804) T2
          write(6,1805) T3
          write(6,1806) T4
-         write(6,1807) AV,electron_count(),linesearch_count()
-
-         if (oprint) then
-         write(6,1809) 'Time spent doing               ',
-     >              'total','step'
-         write(6,1808) '  FFTs                       : ', 
-     >                 nwpw_timing(1),
-     >                 nwpw_timing(1)/dble(electron_count())           
-         write(6,1808) '  dot products               : ', 
-     >                 nwpw_timing(2),
-     >                 nwpw_timing(2)/dble(electron_count())           
-         write(6,1808) '  geodesic                   : ', 
-     >                 nwpw_timing(10),
-     >                 nwpw_timing(10)/dble(electron_count())           
-         write(6,1808) '  exchange correlation       : ', 
-     >                 nwpw_timing(4),
-     >                 nwpw_timing(4)/dble(electron_count())           
-         write(6,1808) '  local pseudopotentials     : ', 
-     >                 nwpw_timing(5),
-     >                 nwpw_timing(5)/dble(electron_count())           
-         write(6,1808) '  non-local pseudopotentials : ', 
-     >                 nwpw_timing(6),
-     >                 nwpw_timing(6)/dble(electron_count())           
-         write(6,1808) '  hartree potentials         : ', 
-     >                 nwpw_timing(7),
-     >                 nwpw_timing(7)/dble(electron_count())           
-         write(6,1808) '  structure factors          : ', 
-     >                 nwpw_timing(8),
-     >                 nwpw_timing(8)/dble(electron_count())           
-         write(6,1808) '  masking and packing        : ', 
-     >                 nwpw_timing(9),
-     >                 nwpw_timing(9)/dble(electron_count())           
-         write(6,1808) '  queue fft                  : ', 
-     >                 nwpw_timing(30),
-     >                 nwpw_timing(30)/dble(electron_count())           
-         write(6,1808) '  queue fft (serial)         : ', 
-     >                 nwpw_timing(31),
-     >                 nwpw_timing(31)/dble(electron_count())           
-         write(6,1808) '  queue fft (message passing): ', 
-     >                 nwpw_timing(32),
-     >                 nwpw_timing(32)/dble(electron_count())           
-         write(6,1808) '  HFX potential              : ', 
-     >                 nwpw_timing(33),
-     >                 nwpw_timing(33)/dble(electron_count())           
-         end if
          write(6,*)
          CALL nwpw_MESSAGE(4)
       end if 
@@ -658,7 +326,7 @@ c     end if
 
 
       call Parallel_Finalize()
-      cgsdv5 = value
+      pspw_bq_gradient = .true.
       return
 
 
@@ -787,6 +455,6 @@ c     end if
  9000 if (taskid.eq.MASTER) write(6,9010) ierr
       call Parallel_Finalize()
 
-      cgsdv5 = value
+      pspw_bq_gradient=.true.
       return
       END

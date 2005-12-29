@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.16 2005-12-23 06:15:04 marat Exp $
+c $Id: pspw_charge.F,v 1.17 2005-12-29 03:06:03 marat Exp $
 c
   
 ***********************************************************
@@ -978,6 +978,66 @@ c
 
 *     **********************************
 *     *	                               *
+*     *    pspw_charge_charge_Fion     *
+*     *                                *
+*     **********************************
+
+*    This routine calculates the forces between the QM ions and point charges.
+*
+*     Exit - fion: force on the QM ions
+*            fcharge: force on the point charges
+*
+*     Uses - ion_nion,Q_Electrostatic_Force
+*
+*     Author - Eric Bylaska
+
+      subroutine pspw_charge_charge_Fion(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "pspw_charge.fh"
+
+*     **** local variables ****
+      integer i,j,nion_ion
+      real*8  qi,ri(3),qj,rj(3)
+      real*8  fcharge(3)
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion
+      real*8   psp_zv,ion_rion
+      external ion_katm,ion_nion
+      external psp_zv,ion_rion
+
+      if (nion.gt.0) then      
+     
+        fcharge(1) = 0.0d0
+        fcharge(2) = 0.0d0
+        fcharge(3) = 0.0d0
+        nion_ion = ion_nion()
+
+        do i=1,nion_ion
+           qi = psp_zv(ion_katm(i))
+           ri(1) = ion_rion(1,i)
+           ri(2) = ion_rion(2,i)
+           ri(3) = ion_rion(3,i)
+           do j=1,nion
+              qj = dbl_mb(charge(1)+j-1)            
+              rj(1) = dbl_mb(r1(1)+3*(j-1))
+              rj(2) = dbl_mb(r1(1)+3*(j-1)+1)
+              rj(3) = dbl_mb(r1(1)+3*(j-1)+2)
+              call Q_Electrostatic_Force(ri,qi,fion(1,i),
+     >                                 rj,qj,fcharge)
+           end do
+        end do
+
+      end if
+      return
+      end
+
+
+*     **********************************
+*     *	                               *
 *     *     pspw_charge_Energy_charge  *
 *     *                                *
 *     **********************************
@@ -1343,6 +1403,65 @@ c
       end if
       return
       end
+
+*     **********************************
+*     *	                               *
+*     *  pspw_charge_ion_Fcharge_qmmm  *
+*     *                                *
+*     **********************************
+
+*    This routine calculates the forces between the QM ions and point charges.
+*
+*     Exit - fion: force on the QM ions
+*            fcharge: force on the point charges
+*
+*     Uses - ion_nion,Q_Electrostatic_Force
+*
+*     Author - Eric Bylaska
+
+      subroutine pspw_charge_ion_Fcharge_qmmm(r1,qcharge,nion,fcharge)
+      implicit none
+      real*8 r1(3,*),qcharge(*)
+      integer nion
+      real*8 fcharge(3,*)
+
+*     **** local variables ****
+      integer i,j,nion_ion
+      real*8  qi,ri(3),qj,rj(3)
+      real*8 fion(3)
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion
+      real*8   psp_zv,ion_rion
+      external ion_katm,ion_nion
+      external psp_zv,ion_rion
+
+      fion(1) = 0.0d0
+      fion(2) = 0.0d0
+      fion(3) = 0.0d0
+      if (nion.gt.0) then      
+     
+        nion_ion = ion_nion()
+
+        do i=1,nion_ion
+           qi = psp_zv(ion_katm(i))
+           ri(1) = ion_rion(1,i)
+           ri(2) = ion_rion(2,i)
+           ri(3) = ion_rion(3,i)
+           do j=1,nion
+              qj = qcharge(j)            
+              rj(1) = r1(1,j)
+              rj(2) = r1(2,j)
+              rj(3) = r1(3,j)
+              call Q_Electrostatic_Force(ri,qi,fion,
+     >                                 rj,qj,fcharge(1,j))
+           end do
+        end do
+
+      end if
+      return
+      end
+
 
 
 
