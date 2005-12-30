@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.18 2005-12-16 02:18:07 marat Exp $
+c $Id: qmmm_cons.F,v 1.19 2005-12-30 22:34:38 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -380,7 +380,11 @@ c
         do i=1,nacts_qm+nacts_link
           log_mb(i_maps+i-1) = flag
         end do
-      end if
+      else if(aregion.eq.'link') then
+        do i=nacts_qm+1,nacts_qm+nacts_link
+          log_mb(i_maps+i-1) = flag
+        end do
+       end if
 
       return
       end
