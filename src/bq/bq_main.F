@@ -1,4 +1,4 @@
-c $Id: bq_main.F,v 1.3 2005-04-28 19:39:38 marat Exp $
+c $Id: bq_main.F,v 1.4 2005-12-30 01:26:28 edo Exp $
 
       function bq_init(rtdb)
       implicit none
@@ -75,6 +75,10 @@ c
       integer h_c,h_t,h_q
       integer i_c,i_t,i_q
       integer ioff,joff
+#ifdef NO_BQGEM
+#include "inp.fh"
+      character*2 bqchar
+#endif
       double precision rx,ry,rz,r
       double precision ebq
 c
@@ -131,6 +135,11 @@ c
       ebq = 0.0d0
       do i = 1,ncent
          ioff = i_c+(i-1)*3
+#ifdef NO_BQGEM
+         bqchar(1:1)=byte_mb(i_t+16*(i-1))
+         bqchar(2:2)=byte_mb(i_t+16*(i-1)+1)
+         if (.not.inp_compare(.false.,'bq', bqchar) ) then
+#endif
          do j = 1, bq_ncent
            joff = i_cbq+(j-1)*3
            rx = dbl_mb(ioff)-dbl_mb(joff)
@@ -142,6 +151,9 @@ c
            r  = sqrt(rx+ry+rz)
            ebq = ebq + dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)/r
          end do
+#ifdef NO_BQGEM
+      endif
+#endif
       end do
 c
       if(ga_nodeid().eq.0) then
