@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.41 2004-10-30 00:55:12 edo Exp $
+C$Id: dft_densm.F,v 1.42 2006-01-03 21:18:19 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -31,6 +31,7 @@ C$Id: dft_densm.F,v 1.41 2004-10-30 00:55:12 edo Exp $
       double precision tdots       ! total energy
       logical search0,fon
       integer nel_fon(2),nmo_fon(2)
+      integer ilo,ihi,jlo,jhi,numi,numj,icount
 
 c
       integer i,isp,g_tmp
@@ -120,14 +121,32 @@ c
                endif
             enddo
             call ga_zero(g_tmp)
-            do i=1+me,nmo(isp),nproc
-               if(focc(i+ipoint).gt.toll) then
-                  call get_col(g_vecs(isp), nbf, i, DBL_MB(itmpm))
-                  call dscal(nbf, focc(i+ipoint), DBL_MB(itmpm), 1)
-                  call put_col(g_tmp, nbf, i, DBL_MB(itmpm))
+            call ga_distribution(g_vecs(isp),
+     .           ga_nodeid(), ilo, ihi, jlo, jhi)
+            if (ilo.gt.0 .and. ilo.le.ihi) then
+               numi =  ihi-ilo+1
+               numj =  jhi-jlo+1
+               if (.not. MA_Push_Get(MT_Dbl, numi*numj, 'matS',
+     T              ltmpm, itmpm)) call errquit(
+     T              'dftdensm: failed to alloc tmpm',0,0)
+               if (numi.gt.0 .and. numj.gt.0) then
+                  call ga_get(g_vecs(isp),ilo,ihi,jlo,jhi,
+     .                 dbl_mb(itmpm),numi)
+                  icount=itmpm
+                  do i=jlo,jhi
+                     if(focc(i+ipoint).gt.toll) then
+                        call dscal(numi, focc(i+ipoint), 
+     D                       DBL_MB(icount), 1)
+                     else
+                        call dcopy(numi, 0d0,0, DBL_MB(icount), 1)
+                     endif
+                     icount=icount+numi
+                  enddo
+                  call ga_put(g_tmp,ilo,ihi,jlo,jhi,
+     .                 dbl_mb(itmpm),numi)
                endif
-            enddo
-            do i=1,nmo(isp)
+            endif 
+           do i=1,nmo(isp)
                ntot(isp)=ntot(isp)+focc(i+ipoint)
             enddo
             call ga_sync()
