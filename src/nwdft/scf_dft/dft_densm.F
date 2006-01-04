@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.42 2006-01-03 21:18:19 edo Exp $
+C$Id: dft_densm.F,v 1.43 2006-01-04 00:54:55 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -126,10 +126,10 @@ c
             if (ilo.gt.0 .and. ilo.le.ihi) then
                numi =  ihi-ilo+1
                numj =  jhi-jlo+1
-               if (.not. MA_Push_Get(MT_Dbl, numi*numj, 'matS',
-     T              ltmpm, itmpm)) call errquit(
-     T              'dftdensm: failed to alloc tmpm',0,0)
                if (numi.gt.0 .and. numj.gt.0) then
+                  if (.not. MA_Push_Get(MT_Dbl, numi*numj, 'matS',
+     T                 ltmpm, itmpm)) call errquit(
+     T                 'dftdensm: failed to alloc tmpm',0,0)
                   call ga_get(g_vecs(isp),ilo,ihi,jlo,jhi,
      .                 dbl_mb(itmpm),numi)
                   icount=itmpm
@@ -144,6 +144,8 @@ c
                   enddo
                   call ga_put(g_tmp,ilo,ihi,jlo,jhi,
      .                 dbl_mb(itmpm),numi)
+                  if (.not.ma_pop_stack(ltmpm)) call errquit
+     T                 ('dft_densm: cannot pop stack',0, MA_ERR)
                endif
             endif 
            do i=1,nmo(isp)
@@ -153,8 +155,6 @@ c
             call ga_dgemm('n', 't', nbf, nbf, noc(isp),1.d0,g_tmp,
      $           g_vecs(isp), zero, g_dens(isp))
          enddo                  ! end of loop over spins
-         if (.not.ma_pop_stack(ltmpm))
-     &        call errquit('dft_densm: cannot pop stack',0, MA_ERR)
            if (.not. ga_destroy(g_tmp)) call errquit
      &          ('dft_densm: could not destroy g_tmp', 0, GA_ERR)
 c     
