@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.14 2003-10-17 22:55:44 carlfahl Exp $
+c     $Id: dft_canorg.F,v 1.15 2006-01-04 01:40:58 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -20,27 +20,43 @@ c
       integer me, nproc, i
       integer ltmpm, itmpm,ndep
       double precision aaz
+      integer ilo,ihi,jlo,jhi,numi,numj,icount
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
       ndep=nbf-nmo
       
 c
-      if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
-     &   call errquit('diis_bld12: failed to alloc tmpm',0, MA_ERR)
 c     
 c        Build Xij
 c     
       call ga_zero(g_xij)
-      do i = me+1, nmo, nproc
-         aaz = svals(i+ndep)
-         call get_col(g_svecs, nbf_ao, i+ndep, DBL_MB(itmpm))
-         aaz = 1.d0/sqrt(aaz)
-         call dscal(nbf_ao, aaz, DBL_MB(itmpm), 1)
-         call put_col(g_xij, nbf_ao, i, DBL_MB(itmpm))
-      enddo
-      if(.not.MA_Pop_Stack(ltmpm)) call errquit(
-     .     'failed popstack in dftcanorg ',0, MA_ERR)
+      call ga_distribution(g_svecs,
+     .           ga_nodeid(), ilo, ihi, jlo, jhi)
+      if (ilo.gt.0 .and. ilo.le.ihi) then
+         numi =  ihi-ilo+1
+         numj =  jhi-jlo+1
+         if (numi.gt.0 .and. numj.gt.0) then
+            if (.not. MA_Push_Get(MT_Dbl, numi*numj, 'tmpm', 
+     T           ltmpm, itmpm)) call errquit(
+     T           'dftcano: failed to alloc tmpm',0, MA_ERR)
+            call ga_get(g_svecs,ilo,ihi,jlo,jhi,
+     .           dbl_mb(itmpm),numi)
+            icount=itmpm
+            do i=jlo,jhi
+               if(i-ndep.ge.1) then
+                  aaz = svals(i)
+                  aaz = 1.d0/sqrt(aaz)
+                  call dscal(numi, aaz, DBL_MB(icount), 1)
+                  call ga_put(g_xij,ilo,ihi,i-ndep,i-ndep,
+     .                 dbl_mb(icount),numi)
+               endif
+               icount=icount+numi
+            enddo
+            if(.not.MA_Pop_Stack(ltmpm)) call errquit(
+     .           'failed popstack in dftcanorg ',0, 0)
+         endif
+      endif
 c     
       return
       end
@@ -355,8 +371,6 @@ c
  2224 format(10x,'HOMO = ',f6.2,' LUMO (with shift) = ',f6.2,
      &     /,10x,'Unshifted LUMO is less than HOMO.',
      &     /,10x,'Turning levelshifting OFF this iteration.')
- 4224 format(10x,' HOMO = ',f6.2,' LUMO = ',f6.2,
-     &              ' RLSHIFT = ',f6.2,' HL_GAP = ',f6.2)
 
       end
       double precision function dft_rabuck(ipol,iter,n_rabuck,noc,
