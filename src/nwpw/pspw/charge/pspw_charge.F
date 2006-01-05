@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.18 2006-01-04 01:15:58 marat Exp $
+c $Id: pspw_charge.F,v 1.19 2006-01-05 02:38:51 bylaska Exp $
 c
   
 ***********************************************************
@@ -624,9 +624,9 @@ c
               x1 = dbl_mb(r1(1)+3*(ii-1))
               y1 = dbl_mb(r1(1)+3*(ii-1)+1)
               z1 = dbl_mb(r1(1)+3*(ii-1)+2)
-              q1 = -dbl_mb(charge(1)+ii-1)
+              q1 = dbl_mb(charge(1)+ii-1)
               rc = abs(q1)*s_sigma
-              if (rc.gt.1.5d0) rc=1.5d0 !stupid check
+              if (rc.gt.1.0d0) rc=1.0d0 !stupid check
               !rc1 = abs(q1)*rc**p1
               rc1 = rc**p1
               rc2 = rc**p2
@@ -635,15 +635,15 @@ c
      >              + (rgrid(2,k)-y1)**2
      >              + (rgrid(3,k)-z1)**2
                  r = dsqrt(r2)
-                 rr1  = r2**po2
-                 rr1p = r*rr1
-                 ttt = q1*(rc1 - rr1)
-                 sss =    (rc2 - rr1p)
-                 ttt = ttt/sss
-                 Vqm(k) = Vqm(k) + ttt
+                 rr1  = r**p1
+                 rr1p = r**p2
+                 ttt = (rc1 - rr1)
+                 sss = (rc2 - rr1p)
+
+                 Vqm(k) = Vqm(k) - q1*(ttt/sss)
               end do
            end do   
-           call sub_coulomb_screened_init_print(Vqm,1.0d0,q1)
+           !call sub_coulomb_screened_init_print(Vqm,1.0d0,q1)
 
          else if (charge_type.eq.4) then
 
@@ -714,7 +714,7 @@ c
       real*8 rx,ry,rz,c
       real*8 fx,fy,fz,verf,yerf,v
       real*8 x,y,z,q,r,r2,rc,epsilon,depsilon,sqrt_pi
-      real*8 ttt,sss,rr1,rr1m,rr1p,rc1,rc1p
+      real*8 ttt,sss,rr1,rr1m,rr1p,rc1,rc2,rc1p
       double precision tttp,sssp
 
 *     **** external functions ****
@@ -822,11 +822,13 @@ c
          x = dbl_mb(r1(1)+3*(j-1))
          y = dbl_mb(r1(1)+3*(j-1)+1)
          z = dbl_mb(r1(1)+3*(j-1)+2)
+
          q = -dbl_mb(charge(1)+j-1)
          rc = abs(q)*s_sigma
-         if (rc.gt.1.5d0) rc=1.5d0  ! stupid check
-         rc1  = rc**p1
-         rc1p = rc**p2
+         if (rc.gt.1.0d0) rc=1.0d0 !stupid check
+         rc1 = rc**p1
+         rc2 = rc**p2
+
          fx = 0.0d0
          fy = 0.0d0
          fz = 0.0d0
@@ -834,23 +836,30 @@ c
             rx = x - rgrid(1,i)
             ry = y - rgrid(2,i)
             rz = z - rgrid(3,i)
-            r2 = (rx**2 + ry**2 + rz**2)
-            r  = dsqrt(r2)
+            r  = dsqrt(rx*rx + ry*ry + rz*rz)
 
+            !rr1m = r**(p1-1)
+            !rr1  = r*rr1m
+            !rr1p = r2*rr1m
             rr1m = r**(p1-1)
-            rr1  = r*rr1m
-            rr1p = r2*rr1m
+            rr1  = r**p1
+            rr1p = r**p2
 
             ttt = (rc1 -  rr1)
-            sss = (rc1p - rr1p)
+            sss = (rc2 - rr1p)
+
             tttp = -p1*rr1m
             sssp = -p2*rr1
 
-            v = q*(tttp - ttt*sssp/sss)/sss
+            if (r .gt. 1.0d-8) then
+              v  = q*(tttp - (ttt/sss)*sssp)/(sss*r)
+            else
+              v  = 0.0d0
+            end if
 
-            fx = fx + rho(i)*(rx/r)*v
-            fy = fy + rho(i)*(ry/r)*v
-            fz = fz + rho(i)*(rz/r)*v
+            fx = fx + rho(i)*rx*v
+            fy = fy + rho(i)*ry*v
+            fz = fz + rho(i)*rz*v
          end do
 
          call D3dB_SumAll(fx)
@@ -915,7 +924,7 @@ c
             energy = energy + qi*qii/r
          end do
       end do
-      energy = 0.0d0
+
 
       pspw_charge_Energy_ion = energy
       return
@@ -971,11 +980,8 @@ c
               rj(1) = dbl_mb(r1(1)+3*(j-1))
               rj(2) = dbl_mb(r1(1)+3*(j-1)+1)
               rj(3) = dbl_mb(r1(1)+3*(j-1)+2)
-c              call Q_Electrostatic_Force(ri,qi,fion(1,i),
-c     >                                 rj,qj,fcharge(1,j))
-               fcharge(1,j) = 0.0d0
-               fcharge(2,j) = 0.0d0
-               fcharge(3,j) = 0.0d0
+              call Q_Electrostatic_Force(ri,qi,fion(1,i),
+     >                                 rj,qj,fcharge(1,j))
            end do
         end do
 
@@ -1034,8 +1040,8 @@ c     >                                 rj,qj,fcharge(1,j))
               rj(1) = dbl_mb(r1(1)+3*(j-1))
               rj(2) = dbl_mb(r1(1)+3*(j-1)+1)
               rj(3) = dbl_mb(r1(1)+3*(j-1)+2)
-c              call Q_Electrostatic_Force(ri,qi,fion(1,i),
-c     >                                 rj,qj,fcharge)
+              call Q_Electrostatic_Force(ri,qi,fion(1,i),
+     >                                 rj,qj,fcharge)
            end do
         end do
 
@@ -1173,7 +1179,7 @@ c     >                                 rj,qj,fcharge)
 
       if (n1.gt.0) then
 
-        s_sigma = (0.37d0/0.3d0)/0.529177d0  ! should give covalent radii for spc water
+        s_sigma = ((0.37d0/0.3d0)/0.529177d0)  ! should give covalent radii for spc water
         n_sigma = 4
 
 *        **** short-range repulsion ****
@@ -1184,10 +1190,10 @@ c     >                                 rj,qj,fcharge)
             x1 = r1(1,ii)
             y1 = r1(2,ii)
             z1 = r1(3,ii)
-            q1 = -charge1(ii)
+            q1 = charge1(ii)
 c           a way to define covalent radius
             rc = abs(q1)*s_sigma
-            if (rc.gt.1.5d0) rc=1.5d0 !stupid check
+            if (rc.gt.1.0d0) rc=1.0d0 !stupid check
             !rc1 = abs(q1)*rc**p1
             rc1 = rc**p1
             rc2 = rc**p2
@@ -1196,12 +1202,12 @@ c           a way to define covalent radius
      >            + (rgrid(2,k)-y1)**2
      >            + (rgrid(3,k)-z1)**2
                r = dsqrt(r2)
-               rr1  = r2**po2
-               rr1p = r*rr1
-               ttt = q1*(rc1 - rr1)
-               sss = rc2 - rr1p
-               ttt = ttt/sss
-               Vqm(k) = Vqm(k) + ttt
+               rr1  = r**p1
+               rr1p = r**p2
+               ttt = (rc1 - rr1)
+               sss = (rc2 - rr1p)
+
+               Vqm(k) = Vqm(k) - q1*(ttt/sss)
             end do
          end do   
 
@@ -1242,7 +1248,7 @@ c           a way to define covalent radius
       real*8 rx,ry,rz,c
       real*8 fx,fy,fz,v
       real*8 x,y,z,q,r,r2,rc
-      real*8 ttt,sss,rr1,rr1m,rr1p,rc1,rc1p
+      real*8 ttt,sss,rr1,rr1m,rr1p,rc1,rc2,rc1p
       double precision tttp,sssp
       integer n_sigma
       real*8  s_sigma
@@ -1263,9 +1269,9 @@ c           a way to define covalent radius
          z = r1(3,j)
          q = -qcharge(j)
          rc = abs(q)*s_sigma
-         if (rc.gt.1.5d0) rc=1.5d0  ! stupid check
-         rc1  = rc**p1
-         rc1p = rc**p2
+         if (rc.gt.1.0d0) rc=1.0d0  ! stupid check
+         rc1 = rc**p1
+         rc2 = rc**p2
          fx = 0.0d0
          fy = 0.0d0
          fz = 0.0d0
@@ -1273,22 +1279,30 @@ c           a way to define covalent radius
             rx = x - rgrid(1,i)
             ry = y - rgrid(2,i)
             rz = z - rgrid(3,i)
-            r2 = (rx**2 + ry**2 + rz**2)
-            r  = dsqrt(r2)
+            r  = dsqrt(rx*rx + ry*ry + rz*rz)
 
+            !rr1m = r**(p1-1)
+            !rr1  = r*rr1m
+            !rr1p = r2*rr1m
             rr1m = r**(p1-1)
-            rr1  = r*rr1m
-            rr1p = r2*rr1m
+            rr1  = r**p1
+            rr1p = r**p2
+
             ttt = (rc1  - rr1)
-            sss = (rc1p - rr1p)
+            sss = (rc2 - rr1p)
+
             tttp = -p1*rr1m
             sssp = -p2*rr1
 
-            v = q*(tttp - ttt*sssp/sss)/sss
+            if (r .gt. 1.0d-8) then
+              v  = q*(tttp - (ttt/sss)*sssp)/(sss*r)
+            else
+              v  = 0.0d0
+            end if
 
-            fx = fx + rho(i)*(rx/r)*v
-            fy = fy + rho(i)*(ry/r)*v
-            fz = fz + rho(i)*(rz/r)*v
+            fx = fx + rho(i)*rx*v
+            fy = fy + rho(i)*ry*v
+            fz = fz + rho(i)*rz*v
          end do
 
          call D3dB_SumAll(fx)
@@ -1298,12 +1312,12 @@ c           a way to define covalent radius
          fcharge(2,j) = fcharge(2,j) - fy*dv
          fcharge(3,j) = fcharge(3,j) - fz*dv
 
-         call D3dB_r_dsum(1,rho,sss)
-         write(*,*) "fq-elc a,",j,q,nion,n2ft3d,dv,sss*dv
-         write(*,*) "fq-elc b,",j,r1(1,j),r1(2,j),r1(3,j)
-         write(*,*) "fq-elc c,",j,fcharge(1,j),fcharge(2,j),fcharge(3,j)
-         write(*,*) "fq-elc d,",j,fx,fy,fz
-         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
+c         call D3dB_r_dsum(1,rho,sss)
+c         write(*,*) "fq-elc a,",j,q,nion,n2ft3d,dv,sss*dv
+c         write(*,*) "fq-elc b,",j,r1(1,j),r1(2,j),r1(3,j)
+c         write(*,*) "fq-elc c,",j,fcharge(1,j),fcharge(2,j),fcharge(3,j)
+c         write(*,*) "fq-elc d,",j,fx,fy,fz
+c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
       end do
 
 
@@ -1359,7 +1373,6 @@ c           a way to define covalent radius
             energy = energy + qi*qii/r
          end do
       end do
-      energy = 0.0d0
 
       pspw_charge_Energy_ion_qmmm = energy
       return
@@ -1415,11 +1428,8 @@ c           a way to define covalent radius
               rj(1) = r1(1,j)
               rj(2) = r1(2,j)
               rj(3) = r1(3,j)
-c              call Q_Electrostatic_Force(ri,qi,fion(1,i),
-c     >                                 rj,qj,fcharge(1,j))
-               fcharge(1,j) = 0.0d0
-               fcharge(2,j) = 0.0d0
-               fcharge(3,j) = 0.0d0
+              call Q_Electrostatic_Force(ri,qi,fion(1,i),
+     >                                 rj,qj,fcharge(1,j))
            end do
         end do
 
@@ -1476,11 +1486,8 @@ c     >                                 rj,qj,fcharge(1,j))
               rj(1) = r1(1,j)
               rj(2) = r1(2,j)
               rj(3) = r1(3,j)
-c              call Q_Electrostatic_Force(ri,qi,fion,
-c     >                                 rj,qj,fcharge(1,j))
-              fcharge(1,j) = 0.0d0
-              fcharge(2,j) = 0.0d0
-              fcharge(3,j) = 0.0d0
+              call Q_Electrostatic_Force(ri,qi,fion,
+     >                                 rj,qj,fcharge(1,j))
            end do
         end do
 
