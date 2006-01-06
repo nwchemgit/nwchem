@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_op.F,v 1.1 2006-01-06 01:58:46 edo Exp $
+C$Id: xc_op.F,v 1.2 2006-01-06 20:47:30 edo Exp $
 c
       implicit none
 c      
@@ -57,7 +57,8 @@ c
       double precision kalpha,kbeta, rho13a, rho13b,rhoa,rhob
       double precision banb, hbab, hbabx
       double precision dhdab,dhdabx,dkadra,dkbdrb,dkadxa,dkbdxb,
-     A     dbabdra,dbabdrb,dbabdga,dbabdgb,dkadga,dkbdgb
+     A     dbabdra,dbabdrb,dbabdga,dbabdgb,dkadga,dkbdgb,
+     A     dbabdka,dbabdkb
 #ifdef SECOND_DERIV
       double precision rhom23, d2g, d2gdenom
 #endif
@@ -66,8 +67,10 @@ c
       darcsinh(x)=1d0/dsqrt(1d0+x*x)
       hbabx(x) = (1.5214d0*x + 0.5764d0)/
      /           (x**2*(x**2+1.1284d0*x+0.3183d0))
-      dhdabx(x) = -(4.5642d0*x**3+5.7391d0*x**2+2.4355*x+0.3669d0)/
-     /           (x**3*((x**2+1.1284d0*x+0.3183d0)**2))
+!      dhdabx(x) = 0d0
+      dhdabx(x) = -(4.5642d0*x**4+5.7391d0*x**3+
+     +     2.4355*x**2+0.3669d0*x)/
+     /           ((x**4+1.1284d0*x**3+0.3183d0*x**2)**2)
 c
 c     Uniform electron gas constant
 c
@@ -82,59 +85,64 @@ c
 c
 c           Spin alpha:
 c
-            rho13 = (0.5d0*rho(n,1))**(1.d0/3.d0)
-            rho43 = rho13**4 
+            rhoa=rho(n,1)*0.5d0
+            rho13a = (rhoa)**(1.d0/3.d0)
+            rho43 = rho13a**4 
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
+            gamma = 0.25d0 * gamma
             if (dsqrt(gamma).gt.tol_rho)then
-               gamma = 0.25d0 * gamma
                x = sqrt(gamma) / rho43
+               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
+               g = 2d0*BETA*x*x / gdenom
+               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
+               dg = g*(2d0/x-dgdenom/gdenom)
+
+               kalpha= C + g
+               
+               dkadxa = dg
+               
+               dkadra = -(4d0/3d0)*x*dkadxa/rhoa
+               dkadga = (dkadxa/rho43)*0.5d0/dsqrt(gamma)
             else
                x = 0d0
+               g=0d0
+               kalpha= C
+               dkadxa = 0d0
+               dkadra = 0d0
+               dkadga = 0d0
             endif
 c
-            gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-            g = -BETA*x*x / gdenom
-            dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-            dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
 c
-            kalpha= C - 2d0*g
-            
-            banb = qabop * rho13 * kalpha *0.5d0
+          
+            banb = qabop * rho13a * kalpha *0.5d0
 
-            hbab = hbabx(banb)
+            if(banb.ne.0) then
+               dbabdra = banb*0.5d0*
+     /              (1d0/(3d0*rhoa)+dkadra/kalpha)
 
-            Ec = Ec - 0.25d0*rho(n,1)**2*hbab*qwght(n)*fac
-            if(ldew)func(n) = func(n) + 0.25d0*rho(n,1)**2*hbab*fac
-            Amat(n,1) = Amat(n,1) + 0d0
+               dbabdga = banb/kalpha*dkadga*0.5d0
+               
+               hbab = hbabx(banb)
+               dhdab = dhdabx(banb)
+            else
+               dbabdra =0d0
+               dbabdga =0d0
+               hbab = 0d0
+               dhdab = 0d0
+            endif
+
+            Ec = Ec - rhoa**2*hbab*qwght(n)*fac
+            if(ldew)func(n) = func(n) - rhoa**2*hbab*fac
+            Amat(n,1) = Amat(n,1) - 
+     -           (rhoa*hbab + rhoa**2*dhdab*dbabdra)*fac
 
 c
             if (x.gt.tol_rho) then
-               t = 0.5d0 * dg / sqrt(gamma) * fac
-               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 0d0
-c               Cmat(n,1,1) = Cmat(n,1,1) + t*delrho(n,1,1)
-c               Cmat(n,2,1) = Cmat(n,2,1) + t*delrho(n,2,1)
-c               Cmat(n,3,1) = Cmat(n,3,1) + t*delrho(n,3,1)
-            endif
-c
-#ifdef SECOND_DERIV
-            if(lfac) g = g + C           ! Add local contribution back to g
-            rhom23 = rho13 / (0.5d0*rho(n,1))
-            d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
-     &           + BETA*x*x*d2gdenom/gdenom**2
-     &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
-c
-            Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*fac
-            Cmat2(n,D2_RA_GAA) = Cmat2(n,D2_RA_GAA)
-     &           - (4d0/3d0)*(rhom23**2/rho(n,1))*d2g*fac
-            if (x.gt.tol_rho) then
-               Cmat2(n,D2_GAA_GAA) = Cmat2(n,D2_GAA_GAA)
-     &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
-            endif
-#endif
+                Cmat(n,D1_GAA) = Cmat(n,D1_GAA) - 
+     -              rhoa**2*dhdab*dbabdga*fac
+             endif
 c
  10      continue
 c
@@ -143,8 +151,8 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
-            if (dabs(rho(n,1)).lt.tol_rho) goto 20
-            if (dabs(rho(n,2)).ge.tol_rho)  then
+            if (abs(rho(n,1)).lt.tol_rho) goto 20
+            if (dabs(rho(n,2)).ge.tol_rho*0.5d0)  then
 c
 c           Spin alpha:
 c
@@ -157,18 +165,16 @@ c
                if (dsqrt(gamma).gt.tol_rho)then
                   x = sqrt(gamma) / rho43
                   gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-                  g = -BETA*x*x / gdenom
+                  g = 2d0*BETA*x*x / gdenom
                   dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-                  dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+                  dg = g*(2d0/x-dgdenom/gdenom)
 c
 c
 c     K \sigma from eq. 16 of JCP 1999
 c
-                  kalpha= C - 2d0*g
+                  kalpha= C + g
                   
-                  dkadxa = (4d0*BETA*x + 12d0*BETA**2*x**2*
-     *                 (arcsinh(x)-x*darcsinh(x)))/
-     /                 (1+6d0*BETA*x*arcsinh(x))**2
+                  dkadxa = dg
                   
                   dkadra = -(4d0/3d0)*x*dkadxa/rhoa
 
@@ -179,7 +185,6 @@ c
             else
                rhoa=0d0
                rho13a=0d0
-               rho43=0d0
             endif
             if(x.eq.0d0) then
                g=0d0
@@ -191,7 +196,7 @@ c
 c     
 c           Spin beta:
 c
-            if (dabs(rho(n,3)).ge.tol_rho) then
+            if (dabs(rho(n,3)).ge.tol_rho*0.5d0) then
 c
                rhob=rho(n,3)
                rho13b = abs(rhob)**(1.d0/3.d0)*sign(1d0,rhob)
@@ -202,15 +207,13 @@ c
                if (dsqrt(gamma).gt.tol_rho)then
                   x = sqrt(gamma) / rho43
                   gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-                  g = -BETA*x*x / gdenom
+                  g = 2d0*BETA*x*x / gdenom
                   dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-                  dg = BETA*x*(x*dgdenom - 2d0*gdenom) / gdenom**2
+                  dg = g*(2d0/x-dgdenom/gdenom)
 c     
-                  kbeta= C - 2d0*g
+                  kbeta= C + g
                   
-                  dkbdxb = (4d0*BETA*x + 12d0*BETA**2*x**2*
-     *                 (arcsinh(x)-x*darcsinh(x)))/
-     /                 (1+6d0*BETA*x*arcsinh(x))**2
+                  dkbdxb = dg
             
                   dkbdrb = -(4d0/3d0)*x*dkbdxb/rhob
             
@@ -222,7 +225,6 @@ c
                if(rho13a.eq.0) goto 20
                rhob=0d0
                rho13b=0d0
-               rho43=0d0
                x=0d0
             endif
             if(x.eq.0d0) then
@@ -235,63 +237,48 @@ c
             banb = qabop*(rho13a*kalpha*rho13b*kbeta)/
      /           (rho13a*kalpha+rho13b*kbeta)
 
-            if(rhoa.ne.0) then
-               dbabdra = qabop*
-     *              (rho13b*kbeta/(rho13a*kalpha+rho13b*kbeta))**2 *
-     *              (kalpha/(3d0*rho13a**2)+rho13a*dkadra)
-            else
-               dbabdra = 0d0
-            endif
-
-            if(rhob.ne.0) then
-               dbabdrb = qabop*
-     *              (rho13a*kalpha/(rho13a*kalpha+rho13b*kbeta))**2 *
-     *              (kbeta/(3d0*rho13b**2)+rho13b*dkbdrb)
-            else
-               dbabdrb = 0d0
-            endif
-
-            dbabdga = qabop*rho13a*
-     *           (rho13b*kbeta/(rho13a*kalpha+rho13b*kbeta))**2 *
-     *           dkadga
-            dbabdgb = qabop*rho13b*
-     *           (rho13a*kalpha/(rho13a*kalpha+rho13b*kbeta))**2 *
-     *           dkbdgb
             if(banb.ne.0) then
+               dbabdra = banb*kbeta*rho13b/
+     /              (rho13a*kalpha+rho13b*kbeta)*
+     /              (1d0/(3d0*rhoa)+dkadra/kalpha)
+               dbabdrb = banb*kalpha*rho13a/
+     /              (rho13a*kalpha+rho13b*kbeta)*
+     /              (1d0/(3d0*rhob)+dkbdrb/kbeta)
+
+               dbabdga = banb*rho13b*kbeta/
+     /              ((rho13a*kalpha+rho13b*kbeta)*kalpha)*
+     *              dkadga
+               dbabdgb = banb*rho13a*kalpha/
+     /              ((rho13a*kalpha+rho13b*kbeta)*kbeta)*
+     *              dkbdgb
+
                hbab = hbabx(banb)
                dhdab = dhdabx(banb)
             else
+               dbabdra =0d0
+               dbabdrb =0d0
+               dbabdga =0d0
+               dbabdgb =0d0
                hbab = 0d0
                dhdab = 0d0
             endif
 
             Ec = Ec - rhoa*rhob*hbab*qwght(n)*fac
             if (ldew) func(n) = func(n) - rhoa*rhob*hbab*fac
-            Amat(n,1) = Amat(n,1) - rhob*hbab - rhoa*rhob*dhdab*dbabdra
-            Amat(n,2) = Amat(n,2) - rhoa*hbab - rhoa*rhob*dhdab*dbabdrb
+            Amat(n,1) = Amat(n,1) - 
+     -           (rhob*hbab + rhoa*rhob*dhdab*dbabdra)*fac
+            Amat(n,2) = Amat(n,2) - 
+     -           (rhoa*hbab + rhoa*rhob*dhdab*dbabdrb)*fac
 c
 c
-            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) - rhoa*rhob*dhdab*dbabdga
-            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) - rhoa*rhob*dhdab*dbabdgb
+            if (x.gt.tol_rho) then
+               Cmat(n,D1_GAA) = Cmat(n,D1_GAA) - 
+     -              rhoa*rhob*dhdab*dbabdga*fac
+               Cmat(n,D1_GBB) = Cmat(n,D1_GBB) - 
+     -              rhoa*rhob*dhdab*dbabdgb*fac
+            endif
                
 c
-#ifdef SECOND_DERIV
-            if(lfac) g = g + C           ! Add local contribution back to g
-            rhom23 = rho13 / rho(n,3)
-            d2gdenom = 6d0*BETA*darcsinh(x)*(2d0 - x*x/(x*x+1d0))
-            d2g = -2d0*BETA/gdenom + 4d0*BETA*x*dgdenom/gdenom**2
-     &           + BETA*x*x*d2gdenom/gdenom**2
-     &           - 2d0*BETA*x*x*(dgdenom)**2/gdenom**3
-c
-            Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)
-     &           + (4d0/9d0)*rhom23*(g-x*dg+4d0*x*x*d2g)*fac
-            Cmat2(n,D2_RB_GBB) = Cmat2(n,D2_RB_GBB)
-     &           - (2d0/3d0)*(rhom23**2/rho(n,3))*d2g*fac
-            if (x.gt.tol_rho) then
-               Cmat2(n,D2_GBB_GBB) = Cmat2(n,D2_GBB_GBB)
-     &              - 0.25d0*gamma**(-1.5d0)*(dg-x*d2g)*fac
-            endif
-#endif
 c
  20      continue
 c

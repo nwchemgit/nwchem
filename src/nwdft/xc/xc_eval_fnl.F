@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.50 2006-01-06 01:54:29 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.51 2006-01-06 20:47:30 edo Exp $
 c
       implicit none
 c
@@ -374,7 +374,7 @@ c
      &           Ec, qwght,ldew,func)
          else
             call errquit('2nds not available ',0,0)
-!            call xc_ft97_d2()
+!            call xc_op_d2()
          endif
       endif
 

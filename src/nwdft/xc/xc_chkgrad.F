@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.32 2006-01-06 01:54:29 edo Exp $
+* $Id: xc_chkgrad.F,v 1.33 2006-01-06 20:47:30 edo Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -89,7 +89,8 @@ c     hcth functionals
      .     cfac(21).ne.0d0.or.
      .     cfac(22).ne.0d0.or.
      .     cfac(23).ne.0d0.or.
-     .     cfac(28).ne.0d0)
+     .     cfac(28).ne.0d0.or.
+     .     cfac(36).ne.0d0)
       return
       end
 
