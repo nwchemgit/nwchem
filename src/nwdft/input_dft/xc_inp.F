@@ -49,7 +49,7 @@ c     xctpssh => 4175
 
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 52,numfunc=30)
+      parameter (num_dirs = 53,numfunc=40)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -75,7 +75,8 @@ c
      ,     'optx','optc','becke97-2','mpw91',
      ,     'ft97','xft97','cft97',
      &     'xpkzb99','mpw1k','cpkzb99','hcth407p','xtpss03',
-     &     'ctpss03', 'xctpssh' , 'becke97-3'/
+     &     'ctpss03', 'xctpssh' , 'becke97-3',
+     E     'op'/
 
 c
 c     Only these few arrays are initialized (not defaults).
@@ -107,6 +108,7 @@ c
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
      &  3600,4000, 3650, 3110,4100,4150,4175,4500,
+     E     1997,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
@@ -1359,7 +1361,30 @@ c
       if (.not. inp_f(xfac(9))) then
          xfac(9) = 1.0d0
       endif
-       goto 10
+      goto 10
+c     
+c     OP; OP Tsuneda Suzumura Hirao functional for correlation
+c             
+ 1997 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' OP is a nonlocal functional;',
+     &           ' "local" descriptor is ignored. '                   
+            call inp_prev_field()
+c     
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            write(LuOut,*)' The OP functional cannot be conveniently',
+     &           ' split into local and nonlocal pieces; '
+            write(LuOut,*)' total OP is assumed desired. '                   
+            call inp_prev_field()
+         endif
+      endif
+      lcfac(36) = .true.
+      nlcfac(36) = .true.
+      if (.not. inp_f(cfac(36))) then
+         cfac(36) = 1.0d0
+      endif            
+c     
+      goto 10
  1999 continue
 c
 c     Check nonlocal COR functionals: perdew86, perdew91, pbe96 to

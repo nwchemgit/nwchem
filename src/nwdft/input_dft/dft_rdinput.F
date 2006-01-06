@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.123 2005-09-28 22:32:41 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.124 2006-01-06 01:54:34 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -629,6 +629,7 @@ c
       cname(26)='         HCTH407+ Correlation Functional'
       cname(27)='   TPSS03 metaGGA Correlation Functional'
       cname(28)='      Becke 1997-3 Correlation Potential'
+      cname(36)='                OP Correlation Potential'
 
 c
 c     Exchange functional name defaults.
