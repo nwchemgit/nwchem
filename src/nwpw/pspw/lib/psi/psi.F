@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.65 2006-01-06 21:48:43 bylaska Exp $
+* $Id: psi.F,v 1.66 2006-01-06 22:52:28 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.65  2006/01/06 21:48:43  bylaska
+* io changes for inversion symmetry....EJB
+*
 * Revision 1.64  2005/12/29 03:06:09  marat
 * qmmm interface stuff
 *
@@ -4732,99 +4735,109 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       return
       end
 
-
-
-
-*     **************************************
-*     *                                    *
-*     *              psi_is_ab             *
-*     *                                    *
-*     **************************************
-
-*     This function resturns
-*        0 - if psi(n) is purely real
-*        1 - if psi(n) is purely imaginary
-*        2 - if psi(n) is mixed
-*
-      character*4 function psi_is_ab(n)
+      subroutine psi_ab_gen_irrep_names(virtual)
       implicit none
-      integer n
+      logical virtual
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "psi.fh"
 
+      integer irreps(2)
+      common / ab_irrep / irreps
+
       character*4 abvalue
-      integer k
+      integer k,n,ptr,nn
       real*8  a,b,tmpa,tmpb
 
-      a = 0.0d0
-      b = 0.0d0
-      do k=1,npack1
-         tmpa = dble( dcpl_mb(psi1(1)+k-1+(n-1)*npack1))
-         tmpb = dimag(dcpl_mb(psi1(1)+k-1+(n-1)*npack1))
-         a = a + tmpa*tmpa
-         b = b + tmpb*tmpb
-      end do
-      call D3dB_SumAll(a)
-      call D3dB_SumAll(b)
-
-      if      ((b .lt. 1.0d-6).and.(a .gt. 1.0d-6)) then
-         abvalue = '[ag]'
-      else if ((a .lt. 1.0d-6).and.(b .gt. 1.0d-6)) then
-         abvalue = '[au]'
+      if (virtual) then
+          ptr = psi1_excited(1)
+          nn  = ne_excited(1)+ne_excited(2)
       else
-         abvalue = '    '
+         ptr = psi1(1)
+         nn  = ne(1)+ne(2)
       end if
-        
 
-      psi_is_ab = abvalue
+      if (.not.MA_alloc_get(mt_int,nn,
+     >                     'irreps',irreps(2),irreps(1)))
+     > call errquit('psi_ab_gen_irrep_names',0, MA_ERR)
+
+      do n=1,nn
+         a = 0.0d0
+         b = 0.0d0
+         do k=1,npack1
+            tmpa = dble( dcpl_mb(ptr+k-1+(n-1)*npack1))
+            tmpb = dimag(dcpl_mb(ptr+k-1+(n-1)*npack1))
+            a = a + tmpa*tmpa
+            b = b + tmpb*tmpb
+         end do
+         call D3dB_SumAll(a)
+         call D3dB_SumAll(b)
+
+         if      ((b .lt. 1.0d-6).and.(a .gt. 1.0d-6)) then
+            int_mb(irreps(1)+n-1) = 1
+         else if ((a .lt. 1.0d-6).and.(b .gt. 1.0d-6)) then
+            int_mb(irreps(1)+n-1) = -1
+         else
+            int_mb(irreps(1)+n-1) = 0
+         end if
+      end do
+
+      
+      return
+      end
+
+      subroutine psi_ab_kill_irrep_names()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      integer irreps(2)
+      common / ab_irrep / irreps
+     
+      if (.not.MA_free_heap(irreps(2)))
+     >  call errquit('psi_ab_gen_irrep_names: error freeing heap',
+     >               0, MA_ERR)
+
       return
       end
 
 
+
 *     **************************************
 *     *                                    *
-*     *          psi_virtual_is_ab         *
+*     *         psi_ab_irrep_name          *
 *     *                                    *
 *     **************************************
 
 *     This function resturns
-*        0 - if psi(n) is purely real
-*        1 - if psi(n) is purely imaginary
-*        2 - if psi(n) is mixed
+*        '[ag]' - if psi(n) is purely real
+*        '[au]' - if psi(n) is purely imaginary
+*        '    ' - if psi(n) is mixed
 *
-      character*4 function psi_virtual_is_ab(n)
+*   Not psi_ab_gen_irrep_names needs to be called before this is used.
+*
+      character*4 function psi_ab_irrep_name(n)
       implicit none
       integer n
 
 #include "mafdecls.fh"
-#include "psi.fh"
+
+      integer irreps(2)
+      common / ab_irrep / irreps
 
       character*4 abvalue
-      integer k
-      real*8  a,b,tmpa,tmpb
 
-      a = 0.0d0
-      b = 0.0d0
-      do k=1,npack1
-         tmpa = dble( dcpl_mb(psi1_excited(1)+k-1+(n-1)*npack1))
-         tmpb = dimag(dcpl_mb(psi1_excited(1)+k-1+(n-1)*npack1))
-         a = a + tmpa*tmpa
-         b = b + tmpb*tmpb
-      end do
-      call D3dB_SumAll(a)
-      call D3dB_SumAll(b)
-
-      if      ((b .lt. 1.0d-6).and.(a .gt. 1.0d-6)) then
+      if      (int_mb(irreps(1)+n-1).eq.1) then
          abvalue = '[ag]'
-      else if ((a .lt. 1.0d-6).and.(b .gt. 1.0d-6)) then
+      else if (int_mb(irreps(1)+n-1).eq.-1) then
          abvalue = '[au]'
       else
          abvalue = '    '
       end if
 
-
-      psi_virtual_is_ab = abvalue
+      psi_ab_irrep_name = abvalue
       return
       end
 

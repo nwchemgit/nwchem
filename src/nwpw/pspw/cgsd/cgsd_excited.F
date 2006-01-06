@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.6 2006-01-06 21:48:43 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.7 2006-01-06 22:52:28 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -45,8 +45,8 @@ c#include "rtdb.fh"
       external    psi_virtual
       integer     control_symmetry
       external    control_symmetry
-      character*4 psi_virtual_is_ab
-      external    psi_virtual_is_ab
+      character*4 psi_ab_irrep_name
+      external    psi_ab_irrep_name
       
 
 
@@ -69,6 +69,7 @@ c#include "rtdb.fh"
       call psi_gen_density_potentials(1)
       call psi_minimize_virtual()
 
+      if (control_symmetry().gt.0) call psi_ab_gen_irrep_names(.true.)
 
       if (taskid.eq.MASTER) then
         write(*,1500)
@@ -79,16 +80,16 @@ c#include "rtdb.fh"
           do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
             write(*,1512) psi_virtual(1,I),
      >                    psi_virtual(1,I)*EV,
-     >                    psi_virtual_is_ab(I)
+     >                    psi_ab_irrep_name(I)
           end do
 
           do I=psi_ne_excited(2),1,-1
             write(*,1512)  psi_virtual(1,I),
      >                     psi_virtual(1,I)*EV,
-     >                     psi_virtual_is_ab(I),
+     >                     psi_ab_irrep_name(I),
      >                     psi_virtual(2,I),
      >                     psi_virtual(2,I)*EV,
-     >                     psi_virtual_is_ab(I+psi_ne_excited(1))
+     >                     psi_ab_irrep_name(I+psi_ne_excited(1))
           end do
         else
           do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
@@ -107,6 +108,9 @@ c#include "rtdb.fh"
         write(*,*)
 
       end if
+      if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
+
+
 
 *     **** calculate Density of States ***
       rtdb = control_rtdb()

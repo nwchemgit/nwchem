@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.62 2006-01-06 21:48:42 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.63 2006-01-06 22:52:28 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -54,8 +54,8 @@ c#include "rtdb.fh"
       external control_print,control_psi_tmp
       external control_tole,control_tolc
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
-      character*4 psi_is_ab
-      external    psi_is_ab
+      character*4 psi_ab_irrep_name
+      external    psi_ab_irrep_name
       integer     control_symmetry
       external    control_symmetry
 
@@ -214,6 +214,7 @@ c#include "rtdb.fh"
       call center_mass(gx,gy,gz)
 
 *:::::::::::::::::   report summary of results  :::::::::::::::::::::::
+      if (control_symmetry().gt.0) call psi_ab_gen_irrep_names(.false.)
       if (oprint) then
          neall = (psi_ne(1)+psi_ne(2))
          write(luout,1304)
@@ -324,32 +325,32 @@ c            end do
              do I=1,NN
                write(luout,1513) psi_eigenvalue(1,I),
      >                           psi_eigenvalue(1,I)*EV,
-     >                           psi_is_ab(I),
+     >                           psi_ab_irrep_name(I),
      >                           dbl_mb(fweight(1)+i-1)
              end do
              do I=1,psi_ne(2)
                write(luout,1513)  psi_eigenvalue(1,I+NN),
      >                            psi_eigenvalue(1,I+NN)*EV,
-     >                            psi_is_ab(I),
+     >                            psi_ab_irrep_name(I),
      >                            dbl_mb(fweight(1)+i-1+NN),
      >                            psi_eigenvalue(2,I),
      >                            psi_eigenvalue(2,I)*EV,
-     >                            psi_is_ab(I+psi_ne(1)),
+     >                            psi_ab_irrep_name(I+psi_ne(1)),
      >                            dbl_mb(fweight(1)+i-1+psi_ne(1))
              end do
              else
              do I=1,NN
                  write(luout,1512) psi_eigenvalue(1,I),
      >                           psi_eigenvalue(1,I)*EV,
-     >                           psi_is_ab(I)
+     >                           psi_ab_irrep_name(I)
              end do
              do I=1,psi_ne(2)
                write(luout,1512)  psi_eigenvalue(1,I+NN),
      >                            psi_eigenvalue(1,I+NN)*EV,
-     >                            psi_is_ab(I),
+     >                            psi_ab_irrep_name(I),
      >                            psi_eigenvalue(2,I),
      >                            psi_eigenvalue(2,I)*EV,
-     >                            psi_is_ab(I+psi_ne(1))
+     >                            psi_ab_irrep_name(I+psi_ne(1))
              end do
              end if
 
@@ -386,6 +387,7 @@ c            end do
         
 
       end if
+      if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
 
       rtdb = control_rtdb()
       if (control_DOS()) call psi_DOS(rtdb)
