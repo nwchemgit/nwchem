@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.64 2005-12-29 03:06:09 marat Exp $
+* $Id: psi.F,v 1.65 2006-01-06 21:48:43 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.64  2005/12/29 03:06:09  marat
+* qmmm interface stuff
+*
 * Revision 1.63  2005/12/22 01:35:07  bylaska
 * revPBE added and gga logic restructured....EJB
 *
@@ -4626,6 +4629,208 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 
 *     ***************************
+*     *                         *
+*     *         psi_a_sum       *
+*     *                         *
+*     ***************************
+      real*8 function psi_a_sum(npack1,psi)
+      implicit none
+      integer npack1
+      complex*16 psi(*)
+
+      integer k
+      real*8 a,tmp
+
+      a = 0.0d0
+      do k=1,npack1
+         tmp = dble(psi(k))
+         a = a + tmp*tmp
+      end do
+      call D3dB_SumAll(a)
+
+      psi_a_sum = a
+      return
+      end
+
+
+
+
+*     ***************************
+*     *                         *
+*     *         psi_b_sum       *
+*     *                         *
+*     ***************************
+      real*8 function psi_b_sum(npack1,psi)
+      implicit none
+      integer npack1
+      complex*16 psi(*)
+
+
+      integer k
+      real*8 b,tmp
+
+      b = 0.0d0
+      do k=1,npack1
+         tmp = dimag(psi(k))
+         b = b + tmp*tmp
+      end do
+      call D3dB_SumAll(b)
+
+      psi_b_sum = b
+      return
+      end
+
+*     **************************************
+*     *                                    *
+*     *          psi_symm_project          *
+*     *                                    *
+*     **************************************
+      subroutine psi_a_project(npack1,psi)
+      implicit none
+      integer npack1
+      complex*16 psi(*)
+      integer k
+      real*8 tmp
+      do k=1,npack1
+        tmp    = dble(psi(k))
+        psi(k) = dcmplx(tmp,0.0d0)
+      end do
+      return
+      end
+      subroutine psi_b_project(npack1,psi)
+      implicit none
+      integer npack1
+      complex*16 psi(*)
+      integer k
+      real*8 tmp
+      do k=1,npack1
+        tmp    = dimag(psi(k))
+        psi(k) = dcmplx(0.0d0,tmp)
+      end do
+      return
+      end
+
+      subroutine psi_symm_project(ispin,ne,npack1,psi1)
+      implicit none
+      integer ispin,ne(2),npack1
+      complex*16 psi1(npack1,*)
+
+      integer i
+      real*8   a,b
+      real*8   psi_a_sum,psi_b_sum
+      external psi_a_sum,psi_b_sum
+
+      do i=1,(ne(1)+ne(2))
+          a = psi_a_sum(npack1,psi1(1,i))
+          b = psi_b_sum(npack1,psi1(1,i))
+          if (a.ge.b) then
+             call psi_a_project(npack1,psi1(1,i))
+          else
+             call psi_b_project(npack1,psi1(1,i))
+          end if
+      end do
+      return
+      end
+
+
+
+
+*     **************************************
+*     *                                    *
+*     *              psi_is_ab             *
+*     *                                    *
+*     **************************************
+
+*     This function resturns
+*        0 - if psi(n) is purely real
+*        1 - if psi(n) is purely imaginary
+*        2 - if psi(n) is mixed
+*
+      character*4 function psi_is_ab(n)
+      implicit none
+      integer n
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      character*4 abvalue
+      integer k
+      real*8  a,b,tmpa,tmpb
+
+      a = 0.0d0
+      b = 0.0d0
+      do k=1,npack1
+         tmpa = dble( dcpl_mb(psi1(1)+k-1+(n-1)*npack1))
+         tmpb = dimag(dcpl_mb(psi1(1)+k-1+(n-1)*npack1))
+         a = a + tmpa*tmpa
+         b = b + tmpb*tmpb
+      end do
+      call D3dB_SumAll(a)
+      call D3dB_SumAll(b)
+
+      if      ((b .lt. 1.0d-6).and.(a .gt. 1.0d-6)) then
+         abvalue = '[ag]'
+      else if ((a .lt. 1.0d-6).and.(b .gt. 1.0d-6)) then
+         abvalue = '[au]'
+      else
+         abvalue = '    '
+      end if
+        
+
+      psi_is_ab = abvalue
+      return
+      end
+
+
+*     **************************************
+*     *                                    *
+*     *          psi_virtual_is_ab         *
+*     *                                    *
+*     **************************************
+
+*     This function resturns
+*        0 - if psi(n) is purely real
+*        1 - if psi(n) is purely imaginary
+*        2 - if psi(n) is mixed
+*
+      character*4 function psi_virtual_is_ab(n)
+      implicit none
+      integer n
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      character*4 abvalue
+      integer k
+      real*8  a,b,tmpa,tmpb
+
+      a = 0.0d0
+      b = 0.0d0
+      do k=1,npack1
+         tmpa = dble( dcpl_mb(psi1_excited(1)+k-1+(n-1)*npack1))
+         tmpb = dimag(dcpl_mb(psi1_excited(1)+k-1+(n-1)*npack1))
+         a = a + tmpa*tmpa
+         b = b + tmpb*tmpb
+      end do
+      call D3dB_SumAll(a)
+      call D3dB_SumAll(b)
+
+      if      ((b .lt. 1.0d-6).and.(a .gt. 1.0d-6)) then
+         abvalue = '[ag]'
+      else if ((a .lt. 1.0d-6).and.(b .gt. 1.0d-6)) then
+         abvalue = '[au]'
+      else
+         abvalue = '    '
+      end if
+
+
+      psi_virtual_is_ab = abvalue
+      return
+      end
+
+
+       
+*     ***************************
 *     *				*
 *     *		rho_dipole	*
 *     *				*
@@ -4708,8 +4913,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer rtdb,ind
-      integer  control_rtdb,control_ngrid
-      external control_rtdb,control_ngrid
+      integer  control_rtdb,control_ngrid,control_symmetry
+      external control_rtdb,control_ngrid,control_symmetry
       character*30 filename
       character*30 control_input_psi
       external     control_input_psi
@@ -4821,6 +5026,17 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
      >                      dcpl_mb(psi2(1)))
      
 
+*     **** force inversion symmetry ****
+      if (control_symmetry().eq.1)  then
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+         write(*,*)
+         write(*,*) 
+     >   "Projecting wavefunctions to have inversion symmetry"
+         write(*,*)
+         end if
+         call psi_symm_project(ispin,ne,npack1,dcpl_mb(psi1(1)))
+      end if 
 
 *     **** Ortho Check ****
       call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
@@ -4964,6 +5180,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       external     control_input_epsi
       logical  wvfnc_expander
       external wvfnc_expander
+      integer  control_symmetry
+      external control_symmetry
 
 
 *     ***** get ispin, and ne, and nfft3d ****
@@ -5045,6 +5263,19 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 *     *****  read initial wavefunctions into psi1  ****
       call epsi_read(ispin0,ne_excited,dcpl_mb(psi1_excited(1)))
+
+*     **** force inversion symmetry ****
+      if (control_symmetry().eq.1)  then
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+         write(*,*)
+         write(*,*)
+     >   "Projecting virtual wavefunctions to have inversion symmetry"
+         write(*,*)
+         end if
+         call psi_symm_project(ispin0,ne_excited,npack1,
+     >                         dcpl_mb(psi1_excited(1)))
+      end if
 
 
 

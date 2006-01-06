@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.61 2005-12-29 03:05:57 marat Exp $                       
+c     $Id: cgsd_energy.F,v 1.62 2006-01-06 21:48:42 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -54,6 +54,10 @@ c#include "rtdb.fh"
       external control_print,control_psi_tmp
       external control_tole,control_tolc
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
+      character*4 psi_is_ab
+      external    psi_is_ab
+      integer     control_symmetry
+      external    control_symmetry
 
 
       call Parallel_taskid(taskid)
@@ -315,31 +319,69 @@ c            end do
            write(luout,1500)
            NN=psi_ne(1)-psi_ne(2)
            EV=27.2116
-           if (fractional) then
-           do I=1,NN
-             write(luout,1511) psi_eigenvalue(1,I),
-     >                         psi_eigenvalue(1,I)*EV,
-     >                         dbl_mb(fweight(1)+i-1)
-           end do
-           do I=1,psi_ne(2)
-             write(luout,1511)  psi_eigenvalue(1,I+NN),
-     >                          psi_eigenvalue(1,I+NN)*EV,
-     >                          dbl_mb(fweight(1)+i-1+NN),
-     >                          psi_eigenvalue(2,I),
-     >                          psi_eigenvalue(2,I)*EV,
-     >                          dbl_mb(fweight(1)+i-1+psi_ne(1))
-           end do
+           if (control_symmetry().gt.0) then
+             if (fractional) then
+             do I=1,NN
+               write(luout,1513) psi_eigenvalue(1,I),
+     >                           psi_eigenvalue(1,I)*EV,
+     >                           psi_is_ab(I),
+     >                           dbl_mb(fweight(1)+i-1)
+             end do
+             do I=1,psi_ne(2)
+               write(luout,1513)  psi_eigenvalue(1,I+NN),
+     >                            psi_eigenvalue(1,I+NN)*EV,
+     >                            psi_is_ab(I),
+     >                            dbl_mb(fweight(1)+i-1+NN),
+     >                            psi_eigenvalue(2,I),
+     >                            psi_eigenvalue(2,I)*EV,
+     >                            psi_is_ab(I+psi_ne(1)),
+     >                            dbl_mb(fweight(1)+i-1+psi_ne(1))
+             end do
+             else
+             do I=1,NN
+                 write(luout,1512) psi_eigenvalue(1,I),
+     >                           psi_eigenvalue(1,I)*EV,
+     >                           psi_is_ab(I)
+             end do
+             do I=1,psi_ne(2)
+               write(luout,1512)  psi_eigenvalue(1,I+NN),
+     >                            psi_eigenvalue(1,I+NN)*EV,
+     >                            psi_is_ab(I),
+     >                            psi_eigenvalue(2,I),
+     >                            psi_eigenvalue(2,I)*EV,
+     >                            psi_is_ab(I+psi_ne(1))
+             end do
+             end if
+
            else
-           do I=1,NN
-             write(luout,1510) psi_eigenvalue(1,I),
-     >                         psi_eigenvalue(1,I)*EV
-           end do
-           do I=1,psi_ne(2)
-             write(luout,1510)  psi_eigenvalue(1,I+NN),
-     >                          psi_eigenvalue(1,I+NN)*EV,
-     >                          psi_eigenvalue(2,I),
-     >                          psi_eigenvalue(2,I)*EV
-           end do
+             if (fractional) then
+             do I=1,NN
+               write(luout,1511) psi_eigenvalue(1,I),
+     >                           psi_eigenvalue(1,I)*EV,
+     >                           dbl_mb(fweight(1)+i-1)
+             end do
+             do I=1,psi_ne(2)
+               write(luout,1511)  psi_eigenvalue(1,I+NN),
+     >                            psi_eigenvalue(1,I+NN)*EV,
+     >                            dbl_mb(fweight(1)+i-1+NN),
+     >                            psi_eigenvalue(2,I),
+     >                            psi_eigenvalue(2,I)*EV,
+     >                            dbl_mb(fweight(1)+i-1+psi_ne(1))
+             end do
+             else
+             do I=1,NN
+               write(luout,1510) psi_eigenvalue(1,I),
+     >                           psi_eigenvalue(1,I)*EV
+             end do
+             do I=1,psi_ne(2)
+               write(luout,1510)  psi_eigenvalue(1,I+NN),
+     >                            psi_eigenvalue(1,I+NN)*EV,
+     >                            psi_eigenvalue(2,I),
+     >                            psi_eigenvalue(2,I)*EV
+             end do
+             end if
+
+
            end if
         
 
@@ -420,7 +462,9 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
      >        ' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
- 1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
+ 1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))
+ 1513 FORMAT(2(E18.7,' (',F8.3,'eV)',A4,' occ=',F5.3))
 
  1700 FORMAT(/' QM/MM-pol-vib/CAV Energies')
  1701 FORMAT( ' --------------------------')

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.66 2005-12-29 03:05:57 marat Exp $
+* $Id: cgsdv5.F,v 1.67 2006-01-06 21:48:43 bylaska Exp $
 *
 
 ***********************************************************************
@@ -247,6 +247,7 @@ c     value = psi_initialize()
         newpsi = .false.
       end if
       value = psi_initialize()
+
 
       !call D3dB_n_fft_init(1,psi_ne(1)+psi_ne(2))
 

@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.5 2004-03-01 05:14:33 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.6 2006-01-06 21:48:43 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -43,6 +43,10 @@ c#include "rtdb.fh"
       external    epsi_initialize,epsi_finalize,epsi_filefind
       external    psi_ne_excited,control_excited_ne,control_rtdb
       external    psi_virtual
+      integer     control_symmetry
+      external    control_symmetry
+      character*4 psi_virtual_is_ab
+      external    psi_virtual_is_ab
       
 
 
@@ -70,17 +74,35 @@ c#include "rtdb.fh"
         write(*,1500)
         NN=psi_ne_excited(1)-psi_ne_excited(2)
         EV=27.2116
-        do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
-          write(*,1510) psi_virtual(1,I),
-     >                  psi_virtual(1,I)*EV
-        end do
+        if (control_symmetry().eq.1) then
 
-        do I=psi_ne_excited(2),1,-1
-          write(*,1510)  psi_virtual(1,I),
-     >                   psi_virtual(1,I)*EV,
-     >                   psi_virtual(2,I),
-     >                   psi_virtual(2,I)*EV
-        end do
+          do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
+            write(*,1512) psi_virtual(1,I),
+     >                    psi_virtual(1,I)*EV,
+     >                    psi_virtual_is_ab(I)
+          end do
+
+          do I=psi_ne_excited(2),1,-1
+            write(*,1512)  psi_virtual(1,I),
+     >                     psi_virtual(1,I)*EV,
+     >                     psi_virtual_is_ab(I),
+     >                     psi_virtual(2,I),
+     >                     psi_virtual(2,I)*EV,
+     >                     psi_virtual_is_ab(I+psi_ne_excited(1))
+          end do
+        else
+          do I=psi_ne_excited(1),(psi_ne_excited(2)+1),-1
+            write(*,1510) psi_virtual(1,I),
+     >                    psi_virtual(1,I)*EV
+          end do
+
+          do I=psi_ne_excited(2),1,-1
+            write(*,1510)  psi_virtual(1,I),
+     >                     psi_virtual(1,I)*EV,
+     >                     psi_virtual(2,I),
+     >                     psi_virtual(2,I)*EV
+          end do
+        end if
         write(*,*)
         write(*,*)
 
@@ -105,6 +127,7 @@ c#include "rtdb.fh"
  1301 FORMAT(//'== Virtual Orbital Calculation =='/)
  1500 FORMAT(/' virtual orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+ 1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))
       end
 
 
