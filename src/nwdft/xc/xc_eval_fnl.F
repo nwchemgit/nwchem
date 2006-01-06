@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.51 2006-01-06 20:47:30 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.52 2006-01-06 23:39:30 edo Exp $
 c
       implicit none
 c
@@ -366,10 +366,18 @@ c
          endif
       endif
 
-      if (abs(cfac(36)).gt.eps)then
+      if ((abs(cfac(36)).gt.eps).or.(abs(cfac(37)).gt.eps))then
+         if(abs(cfac(36)).gt.eps) then
+            nc=36
+            whichf='be88'
+         endif
+         if(abs(cfac(37)).gt.eps) then
+            nc=37
+            whichf='pb96'
+         endif
          if (.not. do_2nd) then
-            call xc_op(tol_rho,
-     .           cfac(36),lcfac(36),nlcfac(36), 
+            call xc_op(tol_rho,whichf,
+     .           cfac(nc),lcfac(nc),nlcfac(nc), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ec, qwght,ldew,func)
          else

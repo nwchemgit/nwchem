@@ -1,19 +1,22 @@
 #ifndef SECOND_DERIV
-      Subroutine xc_op(tol_rho, fac, lfac, nlfac, rho, delrho, 
+      Subroutine xc_op(tol_rho, whichf, 
+     &     fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ec, qwght,ldew,func)
 #else
-      Subroutine xc_op_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
+      Subroutine xc_op_d2(tol_rho, whichf, 
+     &     fac, lfac, nlfac, rho, delrho, 
      &                         Amat, Amat2, Cmat, Cmat2, nq, ipol, Ec,
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_op.F,v 1.2 2006-01-06 20:47:30 edo Exp $
+C$Id: xc_op.F,v 1.3 2006-01-06 23:39:30 edo Exp $
 c
       implicit none
 c      
 #include "dft2drv.fh"
 c
       double precision tol_rho, fac, Ec
+      character*4 whichf
       integer nq, ipol
       logical lfac, nlfac,ldew
       double precision func(*)  ! value of the functional [output]
@@ -41,41 +44,35 @@ c
       double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
 #endif
 c
-      double precision BETA,QABOP
-      Parameter (BETA = 0.0042D0, QABOP=2.3670D0)
+      double precision QABOP,QAB88OP,QABPBOP
+      Parameter (QAB88OP=2.3670D0,QABPBOP=2.3789D0)
 c
 c References:
 c    Tsuneda, Suzumura, Hirao, JCP 110, 10664 (1999)
-c    Becke, Phys. Rev. A 38, 3098 (1988)
+c    Tsuneda, Suzumura, Hirao, JCP 111, 5656 (1999)
 c
 c***************************************************************************
 c
       integer n
-      double precision arcsinh, darcsinh
-      double precision C, rho13, rho43, gamma, x, g, gdenom, dg,
-     &     dgdenom, t
+      double precision rho13, rho43, gamma, x
       double precision kalpha,kbeta, rho13a, rho13b,rhoa,rhob
       double precision banb, hbab, hbabx
       double precision dhdab,dhdabx,dkadra,dkbdrb,dkadxa,dkbdxb,
      A     dbabdra,dbabdrb,dbabdga,dbabdgb,dkadga,dkbdgb,
      A     dbabdka,dbabdkb
-#ifdef SECOND_DERIV
-      double precision rhom23, d2g, d2gdenom
-#endif
 c
-      arcsinh(x)=log(x+dsqrt(1d0+x*x))
-      darcsinh(x)=1d0/dsqrt(1d0+x*x)
       hbabx(x) = (1.5214d0*x + 0.5764d0)/
      /           (x**2*(x**2+1.1284d0*x+0.3183d0))
-!      dhdabx(x) = 0d0
       dhdabx(x) = -(4.5642d0*x**4+5.7391d0*x**3+
      +     2.4355*x**2+0.3669d0*x)/
      /           ((x**4+1.1284d0*x**3+0.3183d0*x**2)**2)
 c
-c     Uniform electron gas constant
-c
-      C =  3d0*(0.75d0/acos(-1d0))**(1d0/3d0)
-c
+      if(whichf.eq.'be88') then
+         QABOP=QAB88OP
+      endif
+      if(whichf.eq.'pb96') then
+         QABOP=QABPBOP
+      endif
       if (ipol.eq.1) then
 c
 c        ======> SPIN-RESTRICTED <======
@@ -94,22 +91,14 @@ c
             gamma = 0.25d0 * gamma
             if (dsqrt(gamma).gt.tol_rho)then
                x = sqrt(gamma) / rho43
-               gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-               g = 2d0*BETA*x*x / gdenom
-               dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-               dg = g*(2d0/x-dgdenom/gdenom)
-
-               kalpha= C + g
-               
-               dkadxa = dg
-               
+               call xc_kop(tol_rho,whichf,x,
+     &              kalpha, dkadxa)
                dkadra = -(4d0/3d0)*x*dkadxa/rhoa
                dkadga = (dkadxa/rho43)*0.5d0/dsqrt(gamma)
             else
-               x = 0d0
-               g=0d0
-               kalpha= C
-               dkadxa = 0d0
+               x=0d0
+               call xc_kop(tol_rho,whichf,x,
+     &              kalpha, dkadxa)
                dkadra = 0d0
                dkadga = 0d0
             endif
@@ -164,20 +153,10 @@ c
      &              delrho(n,3,1)*delrho(n,3,1)
                if (dsqrt(gamma).gt.tol_rho)then
                   x = sqrt(gamma) / rho43
-                  gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-                  g = 2d0*BETA*x*x / gdenom
-                  dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-                  dg = g*(2d0/x-dgdenom/gdenom)
-c
-c
-c     K \sigma from eq. 16 of JCP 1999
-c
-                  kalpha= C + g
-                  
-                  dkadxa = dg
+                  call xc_kop(tol_rho,whichf,x,
+     &                 kalpha, dkadxa)
                   
                   dkadra = -(4d0/3d0)*x*dkadxa/rhoa
-
                   dkadga = dkadxa*0.5d0/(rho43*sqrt(gamma))
                else
                   x = 0d0
@@ -187,9 +166,8 @@ c
                rho13a=0d0
             endif
             if(x.eq.0d0) then
-               g=0d0
-               kalpha= C
-               dkadxa = 0d0
+               call xc_kop(tol_rho,whichf,x,
+     &              kalpha, dkadxa)
                dkadra = 0d0
                dkadga = 0d0
             endif
@@ -206,17 +184,10 @@ c
      &              delrho(n,3,2)*delrho(n,3,2)
                if (dsqrt(gamma).gt.tol_rho)then
                   x = sqrt(gamma) / rho43
-                  gdenom = 1d0 + 6d0*BETA*x*arcsinh(x)
-                  g = 2d0*BETA*x*x / gdenom
-                  dgdenom = 6d0*BETA*(arcsinh(x) + x*darcsinh(x))
-                  dg = g*(2d0/x-dgdenom/gdenom)
-c     
-                  kbeta= C + g
-                  
-                  dkbdxb = dg
+                  call xc_kop(tol_rho,whichf,x,
+     &                 kbeta, dkbdxb)
             
                   dkbdrb = -(4d0/3d0)*x*dkbdxb/rhob
-            
                   dkbdgb = dkbdxb*0.5d0/(rho43*sqrt(gamma))
                else
                   x = 0d0
@@ -228,8 +199,8 @@ c
                x=0d0
             endif
             if(x.eq.0d0) then
-               kbeta=C
-               dkbdxb = 0d0
+               call xc_kop(tol_rho,whichf,x,
+     &              kbeta, dkbdxb)
                dkbdrb = 0d0
                dkbdgb=  0d0
             endif
