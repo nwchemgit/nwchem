@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv,g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.32 2005-07-19 16:56:43 bert Exp $
+c     $Id: dft_scf_so.F,v 1.33 2006-01-06 01:55:37 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1051,7 +1051,7 @@ c         write(*,*)(dbl_mb(ibuff+ijk), ijk=0,nbf_mo-1)
       enddo
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
-      call ZHEEV( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, 
+      call zheev( 'V', 'U', nbf_mo, DCpl_mb(ia), nbf_mo, 
      $            Dbl_mb(k_eval(1)), 
      $            DCpl_mb(iwork), LLWORK, Dbl_mb(irwork), INFO )
       do i = 1, nbf_mo
