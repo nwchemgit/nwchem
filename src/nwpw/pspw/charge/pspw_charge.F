@@ -1,5 +1,5 @@
 c
-c $Id: pspw_charge.F,v 1.19 2006-01-05 02:38:51 bylaska Exp $
+c $Id: pspw_charge.F,v 1.20 2006-01-06 00:57:47 bylaska Exp $
 c
   
 ***********************************************************
@@ -53,7 +53,6 @@ c
       bqext  = geom_extbq_on()
       bqgeom = ion_chargeexist()
 
-      write(*,*) "Hera:",bqext,bqgeom
      
       if(bqext.and.bqgeom)
      +  call errquit("pspw_charge_init: cannot have both bq structures",

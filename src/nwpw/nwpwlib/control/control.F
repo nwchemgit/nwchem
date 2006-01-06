@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.81 2005-12-22 01:35:04 bylaska Exp $
+* $Id: control.F,v 1.82 2006-01-06 00:57:46 bylaska Exp $
 *
 
 *     ***********************************
@@ -726,6 +726,12 @@ c     >                  1,output_wavefunction_filename)
          control_read = value
          return
       end if
+
+*     *****************************
+*     ***** symmetry variables ****
+*     *****************************
+      if (.not.rtdb_get(rtdb,'nwpw:symmetry',mt_int,1,symm_number))
+     >   symm_number = 0
 
 *     **********************
 *     ***** cell: stuff ****
@@ -3232,3 +3238,18 @@ c      end
       return
       end
 
+
+*     ************************************
+*     *                                  *
+*     *         control_symmetry         *
+*     *                                  *
+*     ************************************
+
+      integer function control_symmetry()
+      implicit none
+
+#include "control.fh"
+
+      control_symmetry = symm_number
+      return
+      end

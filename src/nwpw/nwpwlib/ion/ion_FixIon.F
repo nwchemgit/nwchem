@@ -17,6 +17,13 @@
       integer ion_number(2)
       common / FixIon_Block / ion_number,count
 
+
+*     **** FixIon2 common block - inverse forces ****
+      integer count2
+      integer ion_number1(2),ion_number1r(2)
+      common / FixIon2_Block / ion_number1,ion_number1r,count2
+
+
       integer taskid
       integer MASTER
       parameter(MASTER=0)
@@ -120,12 +127,58 @@
           write(*,*)
          end if
       end if
+
+
+
+
+      if (rtdb_ma_get(rtdb, 'geometry:inversionlist', ma_type,
+     >        nconstraints, h_actlist)) then
+
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'ion_init_FixIon: ma_get_index failed for actlist',911,
+     &       MA_ERR)
+
+
+
+           count2 = nconstraints/2
+*          ***** allocate constraint list, ion_number, from heap ****
+           if (.not. MA_alloc_get(mt_int,count2,
+     >       'ion_number1',ion_number1(2),ion_number1(1)))
+     >         call errquit('out of heap memory',0, MA_ERR)
+           if (.not. MA_alloc_get(mt_int,count2,
+     >       'ion_number1r',ion_number1r(2),ion_number1r(1)))
+     >         call errquit('out of heap memory',0, MA_ERR)
+
+           do i=1,count2
+              int_mb(ion_number1(1)+i-1)  = int_mb(l_actlist+2*i-1-1)
+              int_mb(ion_number1r(1)+i-1) = int_mb(l_actlist+2*i-1)
+           end do
+
+
+
+*       *** free heap ***
+        if (.not. MA_free_heap(h_actlist))
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
+      end if
+
+
+      if (count2.ne.0) then
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+          write(*,*) 
+          write(*,1004) (int_mb(ion_number1(1)+i-1),
+     >                   int_mb(ion_number1r(1)+i-1), i=1,count2)
+          write(*,*)
+         end if
+      end if
    
 *     *** initialize molecular constraints ****
       call molecular_init(rtdb)
 
       return
  1003 FORMAT(1x,"Fixed ion positions:",10I5)
+ 1004 FORMAT(1x,"Inversion constraints:",10I5)
       end
 
 
@@ -146,6 +199,13 @@
       integer ion_number(2)
       common / FixIon_Block / ion_number,count
 
+*     **** FixIon2 common block - inverse forces ****
+      integer count2
+      integer ion_number1(2),ion_number1r(2)
+      common / FixIon2_Block / ion_number1,ion_number1r,count2
+
+
+
 *     **** local variables ****
       integer i
 
@@ -156,6 +216,19 @@
             force(3,int_mb(ion_number(1)+i-1)) = 0.0d0
          end do
       end if
+
+
+      if (count2.ne.0) then
+         do i=1,count2
+            force(1,int_mb(ion_number1r(1)+i-1)) =
+     >     -force(1,int_mb(ion_number1(1)+i-1))
+            force(2,int_mb(ion_number1r(1)+i-1)) =
+     >     -force(2,int_mb(ion_number1(1)+i-1))
+            force(3,int_mb(ion_number1r(1)+i-1)) = 
+     >     -force(3,int_mb(ion_number1(1)+i-1))
+         end do
+      end if
+
 
       return
       end
@@ -214,12 +287,26 @@
       integer ion_number(2)
       common / FixIon_Block / ion_number,count
 
+*     **** FixIon2 common block - inverse forces ****
+      integer count2
+      integer ion_number1(2),ion_number1r(2)
+      common / FixIon2_Block / ion_number1,ion_number1r,count2
+
+
+
       logical value
 
       if (count.gt.0) then
         value =  MA_free_heap(ion_number(2)) 
         if (.not. value)
      >  call errquit('ion_number(2):error freeing heap memory',0,
+     &       MA_ERR)
+      end if
+      if (count2.gt.0) then
+        value =            MA_free_heap(ion_number1(2)) 
+        value =  value.and.MA_free_heap(ion_number1r(2)) 
+        if (.not. value)
+     >  call errquit('ion_number1(2):error freeing heap memory',0,
      &       MA_ERR)
       end if
 

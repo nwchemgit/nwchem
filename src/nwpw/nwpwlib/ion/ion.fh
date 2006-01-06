@@ -1,5 +1,6 @@
 
 *     **** ion common block ****
+      logical     sym_inversion
       integer     nion,nkatm
       integer     r2(2),r1(2),r0(2)
       integer     katm(2),natm(2),atom(2)
@@ -10,5 +11,6 @@
      >              atom,       ! character*2 atom(nkatm)
      >              nion,		! number of ions
      >              nkatm,		! number of kinds of ions
-     >              dti			! Verlet/steepest descent alpha
+     >              dti,		! Verlet/steepest descent alpha
+     >              sym_inversion     !true if inversion symmetry
 
