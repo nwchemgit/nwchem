@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.4 2004-09-05 02:18:25 bylaska Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.5 2006-01-07 00:55:29 marat Exp $                       
 
 
 *     ***************************
@@ -185,6 +185,7 @@ c#include "rtdb.fh"
 
 *     **** diagonalize hamiltonian and rotate psi  ****
 *     **** but skip if doing an SIC calculations   ****
+c     BUG!!!!!!
       call psi_spin_density(en)
       call paw_psi_1gen_hml()
 

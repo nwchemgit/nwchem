@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.21 2005-02-10 00:24:25 bylaska Exp $
+! $Id: paw_basis_data.F,v 1.22 2006-01-07 00:55:36 marat Exp $
 
 !**************************************************
 !
@@ -35,7 +35,7 @@
         tot_ngrid      = tot_ngrid     + ng(it)
       end do
 
-      ok = MA_set_auto_verify(.TRUE.)
+c      ok = MA_set_auto_verify(.TRUE.)
 
       ok = .TRUE.
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.9 2005-12-22 01:35:05 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.10 2006-01-07 00:55:29 marat Exp $
 *
 
 ***********************************************************************
@@ -133,12 +133,15 @@
 *****************************|  PROLOGUE  |****************************
 *                            |************|
 
-      value = MA_set_error_print(.true.)
-      value = MA_set_auto_verify(.true.)
+c      value = MA_set_error_print(.true.)
+c      value = MA_set_auto_verify(.true.)
       value = .true.
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
+c
+c     energy array
+c     ------------
       call dcopy(10,0.0d0,0,E,1)
 
 
@@ -147,6 +150,9 @@
       call Parallel_np(np)
       call Parallel_taskid(taskid)
 
+c
+c     get stuff from rtdb    
+c     -------------------
       value = control_read(8,rtdb)
       if (.not. value) 
      > call errquit('error reading control',0, INPUT_ERR)
@@ -195,6 +201,7 @@
       n2ft3d = 2*nfft3d
 
 *     ***** Initialize double D3dB data structure ****
+c     for aperiodic
       if (control_version().eq.4)
      >   call D3dB_Init(2,2*ngrid(1),2*ngrid(2),2*ngrid(3),mapping)
 
@@ -205,6 +212,9 @@
       call mask_init()
       call Pack_init()
 
+c
+c     FFT for fermi sphere
+c     --------------------
       call D3dB_pfft_init()
 
 
@@ -223,7 +233,7 @@ c     write(*,*) "time1:",t2-t1
 
 *     **** allocate paw data structure and read in paw basis into it ****
 c     call current_second(t1)
-      value = MA_set_auto_verify(.true.)
+c      value = MA_set_auto_verify(.true.)
       call init_paw_basis()
 c     call current_second(t2)
 c     write(*,*) "time2:",t2-t1

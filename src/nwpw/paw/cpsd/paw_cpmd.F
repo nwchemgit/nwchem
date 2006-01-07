@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.18 2005-12-22 01:35:05 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.19 2006-01-07 00:55:33 marat Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.18  2005/12/22 01:35:05  bylaska
+* revPBE added and gga logic restructured....EJB
+*
 * Revision 1.17  2005/07/09 22:44:22  bylaska
 * adding Louie FFT....EJB
 * flag added for PAW xc and comp angular integration.
@@ -346,7 +349,7 @@
 
 
 *     **** allocate paw data structure and read in paw basis into it ****
-      value = MA_set_auto_verify(.true.)
+c      value = MA_set_auto_verify(.true.)
       call init_paw_basis()
 
 *     *** initialize paw matrices ***      
