@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests,v 1.53 2005-01-08 01:34:22 edo Exp $
+# $Id: doqmtests,v 1.54 2006-01-07 01:18:25 edo Exp $
 #
 #---   small tests
 set np = 1
@@ -21,6 +21,7 @@ echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 #---   medium tests
 ./runtests.unix procs $np dft_feco5 
 ./runtests.unix procs $np dft_siosi3
+./runtests.unix procs $np dft_cr2
 ./runtests.unix procs $np dft_x
 ./runtests.unix procs $np dft_mpw1k dft_li2freq
 echo 'The intermediate values for this test may cause some differences.'
