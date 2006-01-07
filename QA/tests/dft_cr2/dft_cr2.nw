@@ -1,0 +1,68 @@
+# $Id: dft_cr2.nw,v 1.1 2006-01-07 01:15:49 edo Exp $
+
+echo
+
+title "Cr2 dimer - Antiferromagnetic solution"
+
+start dft_cr2
+geometry cra
+cr 0 0 0
+symmetry c2v
+end
+geometry crb
+cr 0 0 0
+symmetry c2v
+end
+geometry cr2
+cr 0 0 0
+cr 0 0 1.7
+symmetry c2v
+end
+
+basis spherical
+* library "Wachters+f"
+end
+driver
+clear
+end
+dft
+convergence energy 1d-9
+mult 7
+xc pbeop
+end
+set quickguess t
+
+set geometry cra
+dft
+mult 7
+vectors input atomic output cra.mos
+end
+task dft
+set geometry crb
+dft
+mult -7
+vectors input atomic output crb.mos
+end
+task dft
+
+set geometry cr2
+dft
+odft
+mult 1
+smear
+vectors input fragment cra.mos crb.mos output cr2.mos
+end
+task dft
+
+task dft optimize
+
+unset dft:converged
+
+title "Cr2 dimer - Closed Shell solution"
+
+dft
+mult 1
+vectors input atomic output cr2cs.mos
+end
+
+task dft optimize
