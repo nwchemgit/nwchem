@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.53 2004-04-17 01:45:10 edo Exp $
+C $Id: hess_init.F,v 1.54 2006-01-10 21:01:49 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -26,7 +26,7 @@ c
 c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
       integer dftnoc(2), numfunc, nbsize
-      parameter(numfunc = 30) ! took this from gradient code, may need to be
+      parameter(numfunc = 40) ! took this from gradient code, may need to be
                               ! changed in the future
       logical oprint, omp2
       logical cdfit, frac_occ
