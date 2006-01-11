@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.52 2006-01-06 23:39:30 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.53 2006-01-11 02:05:01 edo Exp $
 c
       implicit none
 c
@@ -307,11 +307,39 @@ c
       endif
       if (abs(xfac(7)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_xpbe96(tol_rho, xfac(7), lxfac(7), nlxfac(7), 
+            call xc_xpbe96('orig',
+     T           tol_rho, xfac(7), lxfac(7), nlxfac(7), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
          else
-            call xc_xpbe96_d2(tol_rho, xfac(7), lxfac(7), nlxfac(7), 
+            call xc_xpbe96_d2('orig',
+     T           tol_rho, xfac(7), lxfac(7), nlxfac(7), 
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         endif
+      endif
+      if (abs(xfac(30)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xpbe96('rpbe',
+     T           tol_rho, xfac(30), lxfac(30), nlxfac(30), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call xc_xpbe96_d2('rpbe',
+     T           tol_rho, xfac(30), lxfac(30), nlxfac(30), 
+     &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         endif
+      endif
+      if (abs(xfac(31)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xpbe96('revp',
+     T           tol_rho, xfac(31), lxfac(31), nlxfac(31), 
+     &           rho, delrho, Amat, Cmat, nq, ipol, 
+     &           Ex, qwght,ldew,func)
+         else
+            call xc_xpbe96_d2('revp',
+     T           tol_rho, xfac(31), lxfac(31), nlxfac(31), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif

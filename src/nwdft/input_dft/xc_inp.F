@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.47 2006-01-06 23:39:27 edo Exp $
+C$Id: xc_inp.F,v 1.48 2006-01-11 02:04:58 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -49,7 +49,7 @@ c     xctpssh => 4175
 
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs = 55,numfunc=40)
+      parameter (num_dirs = 57,numfunc=40)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -76,7 +76,7 @@ c
      ,     'ft97','xft97','cft97',
      &     'xpkzb99','mpw1k','cpkzb99','hcth407p','xtpss03',
      &     'ctpss03', 'xctpssh' , 'becke97-3',
-     E     'op', 'bop', 'pbeop'/
+     E     'op', 'bop', 'pbeop','rpbe','revpbe'/
 
 c
 c     Only these few arrays are initialized (not defaults).
@@ -108,7 +108,7 @@ c
      ,     2500, 2600, 2700, 2510, 2610, 2710,1812,1847,2800,2900,
      , 3000, 3100,3200,3300,3400,3500,3700,3800,3810,3820,
      &  3600,4000, 3650, 3110,4100,4150,4175,4500,
-     E     1997, 2046, 2047,
+     E     1997, 2046, 2047, 2201, 2202,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
@@ -1105,6 +1105,69 @@ c
       endif
        goto 10
 
+c     
+c     rpbe; Perdew-Burke-Ernzerhof + Norskov exchange 
+c     
+ 2201  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' rpbe "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(30) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(30) = .true.
+            nlxfac(30) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(30) = .true.
+         nlxfac(30) = .true.
+      endif
+      if (.not. inp_f(xfac(30))) then
+         xfac(30) = 1.0d0
+      endif
+       goto 10
+c     
+c     revpbe; Perdew-Burke-Ernzerhof + W Yang exchange 
+c     
+ 2202  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' rpbe "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(31) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(31) = .true.
+            nlxfac(31) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(31) = .true.
+         nlxfac(31) = .true.
+      endif
+      if (.not. inp_f(xfac(31))) then
+         xfac(31) = 1.0d0
+      endif
+       goto 10
+
 c            META GGA
 
 c     
@@ -1524,53 +1587,13 @@ c
      &   call errquit('xc_inp: rtdb_put failed', 7, RTDB_ERR)
       return
 c     
-10000 write(LuOut,10001)
+10000 write(luout,777)
+ 777  format(/,' xc [acm],')
+      do n=2,num_dirs
+         write(luout,778) dirs(n)
+ 778     format(' [',A10,'],')
+      enddo
 
-10001 format(/,' xc [[acm], [b3lyp], [beckehandh], [HFexch rval], ',
-     &       /,' [becke88 local/nonlocal rval], ',
-     &       /,' [lyp local/nonlocal rval], ',
-     &       /,' [perdew81 local rval], ',
-     &       /,' [perdew86 nonlocal rval], ',
-     &       /,' [perdew91 nonlocal rval], ',
-     &       /,' [pw91lda local rval], ',
-     &       /,' [slater local rval], ',
-     &       /,' [vwn_1 local rval], ',
-     &       /,' [vwn_2 local rval], ',
-     &       /,' [vwn_3 local rval], ',
-     &       /,' [vwn_4 local rval], ',
-     &       /,' [vwn_5 local rval], ',
-     &       /,' [vwn_1_rpa local rval]] ',
-     &       /,' [becke97] ',
-     &       /,' [becke97-1] ',
-     &       /,' [becke97-2] ',
-     &       /,' [becke97-3] ',
-     &       /,' [cpbe96 nonlocal rval]',
-     &       /,' [xpbe96] ',
-     &       /,' [gill96] ',
-     &       /,' [xperdew91] ',
-     &       /,' [cbecke97] ',
-     &       /,' [xbecke97] ',
-     &       /,' [cbecke97-1',
-     &       /,' [xbecke97-1',
-     &       /,' [xhcth] ',
-     &       /,' [chcth] ',
-     &       /,' [hcth120] ',
-     &       /,' [hcth147] ',
-     &       /,' [hcth407] ',
-     &       /,' [hcthp14]',
-     &       /,' [optx]',
-     &       /,' [becke97gga1]',
-     &       /,' [mpw91]',
-     &       /,' [ft97]',
-     &       /,' [xft97]',
-     &       /,' [cft97]',
-     &       /,' [xpkzb99]',
-     &       /,' [cpkzb99]',
-     &       /,' [hcth407p]',
-     &       /,' [xtpss03]',
-     &       /,' [ctpss03]',
-     &       /,' [xctpssh]')
- 
       call util_flush(LuOut)
       call errquit('xc_input: invalid format', 0, INPUT_ERR)
 c     

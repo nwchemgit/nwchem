@@ -1,25 +1,30 @@
-c     Perdew-Burke-Ernzerhof '96 exchange functional 
+c     PBE exchange functional 
 c
 c     References:
 c     [a] J.P. Perdew, K. Burke, and M. Ernzerhof, PRL 77, 3865 (1996).
 c     [b] J.P. Perdew and Y. Wang, Phys. Rev. B 33, 8800 (1986).;
 c                                               40, 3399 (1989) (E).
+c     Hammer, Hansen and Norskov, PRB 59, 7413 (1999) [RPBE]
+c     Zhang and Yang, PRL 80, 890 (1998) [RevPBE]
 c
 #ifndef SECOND_DERIV
-      Subroutine xc_xpbe96(tol_rho, fac, lfac, nlfac, rho, delrho, 
+      Subroutine xc_xpbe96(whichf,
+     W     tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                     Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
 #else
-      Subroutine xc_xpbe96_d2(tol_rho, fac, lfac, nlfac, rho, delrho, 
+      Subroutine xc_xpbe96_d2(whichf,
+     W     tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                        Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
      &                        qwght,ldew,func)
 #endif
 c
-c$Id: xc_xpbe96.F,v 1.9 2004-09-10 18:52:08 edo Exp $
+c$Id: xc_xpbe96.F,v 1.10 2006-01-11 02:05:01 edo Exp $
 c
       implicit none
 c
 #include "dft2drv.fh"
 c      
+      character*4 whichf
       double precision fac, Ex
       integer nq, ipol
       logical lfac, nlfac,ldew
@@ -44,13 +49,14 @@ c
       double precision Amat2(nq,NCOL_AMAT2), Cmat2(nq,NCOL_CMAT2)
 #endif
 c
-      double precision tol_rho, pi, um, uk, umk
+      double precision tol_rho, pi, um, uk, umk,ukrev,umkrev
       double precision C, Cs
       double precision F43, F13
 #ifdef SECOND_DERIV
       double precision F73
 #endif
       parameter(um=0.2195149727645171d0, uk=0.8040d0, umk=um/uk)
+      parameter(ukrev=1.245d0, umkrev=um/ukrev)
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
 #ifdef SECOND_DERIV
       parameter (F73=7.d0/3.d0)
@@ -58,10 +64,24 @@ c
 c
       integer n
       double precision rrho, rho43, rho13, gamma, gam12, s, d1s(2),
-     &     s2, d, d2, g, gp, d1g(2)
+     &      d, g, gp, d1g(2)
 #ifdef SECOND_DERIV
       double precision rhom23, d2s(3), gpp, d2g(3)
 #endif
+      double precision gpbe0,gpbe1,gpbe2
+      double precision grpbe0,grpbe1,grpbe2
+      double precision grevpbe0,grevpbe1,grevpbe2
+      gpbe0(s)= uk*(1d0 - 1d0/(1d0+umk*s*s))
+      gpbe1(s)= 2d0*um*s/(1d0+umk*s*s)**2
+      gpbe2(s)= 2d0*um*(1d0-4d0*umk*s*s/(1d0+umk*s*s))/(1d0+umk*s*s)**2
+      grevpbe0(s)= ukrev*(1d0 - 1d0/(1d0+umkrev*s*s))
+      grevpbe1(s)= 2d0*um*s/(1d0+umkrev*s*s)**2
+      grevpbe2(s)= 2d0*um*(1d0-4d0*umkrev*s*s/(1d0+umkrev*s*s))/
+     /     (1d0+umkrev*s*s)**2
+      grpbe0(s)= uk*(1d0 - exp(-umk*s*s))
+      grpbe1(s)= 2d0*um*s*exp(-umk*s*s)
+      grpbe2(s)= 2d0*um*exp(-umk*s*s)*(1d0-2d0*umk*s*s)
+      
 c
       pi = acos(-1.d0)
       C = -3d0/(4d0*pi)*(3d0*pi*pi)**F13
@@ -98,17 +118,23 @@ c
             gam12 = dsqrt(gamma)
             if (.not.(nlfac.and.gam12.gt.tol_rho**2)) goto 10
 c
+
             s = Cs*gam12/rho43
             d1s(1) = -F43*s*rrho
             d1s(2) = 0.5d0*s/gamma
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
-            s2 = s*s
-            d = 1d0/(1d0+umk*s2)
-            d2 = d*d
-            g = uk - uk*d
-            gp = 2d0*um*s*d2
+            if(whichf.eq.'revp') then
+               g=grevpbe0(s)
+               gp=grevpbe1(s)
+            elseif(whichf.eq.'rpbe') then
+               g=grpbe0(s)
+               gp=grpbe1(s)
+            else
+               g=gpbe0(s)
+               gp=gpbe1(s)
+            endif
 c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
@@ -120,7 +146,13 @@ c
             d2s(1) = -F73*d1s(1)*rrho
             d2s(2) = -F43*d1s(2)*rrho
             d2s(3) = -0.5d0*d1s(2)/gamma
-            gpp = 2d0*um*d2*(1d0-4d0*umk*s2*d)
+            if(whichf.eq.'revp') then
+               gpp=grevpbe2(s)
+            elseif(whichf.eq.'rpbe') then
+               gpp=grpbe2(s)
+            else
+               gpp=gpbe2(s)
+            endif
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
             d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
@@ -176,11 +208,17 @@ c
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
-            s2 = s*s
-            d = 1d0/(1d0+umk*s2)
-            d2 = d*d
-            g = uk - uk*d
-            gp = 2d0*um*s*d2
+
+            if(whichf.eq.'revp') then
+               g=grevpbe0(s)
+               gp=grevpbe1(s)
+            elseif(whichf.eq.'rpbe') then
+               g=grpbe0(s)
+               gp=grpbe1(s)
+            else
+               g=gpbe0(s)
+               gp=gpbe1(s)
+            endif
 c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
@@ -192,7 +230,13 @@ c
             d2s(1) = -F73*d1s(1)*rrho
             d2s(2) = -F43*d1s(2)*rrho
             d2s(3) = -0.5d0*d1s(2)/gamma
-            gpp = 2d0*um*d2*(1d0-4d0*umk*s2*d)
+            if(whichf.eq.'revp') then
+               gpp=grevpbe2(s)
+            elseif(whichf.eq.'rpbe') then
+               gpp=grpbe2(s)
+            else
+               gpp=gpbe2(s)
+            endif
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
             d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)
@@ -238,11 +282,16 @@ c
 c
 c     Evaluate the GC part of F(s), i.e. g(s) = F(s) - 1
 c
-            s2 = s*s
-            d = 1d0/(1d0+umk*s2)
-            d2 = d*d
-            g = uk - uk*d
-            gp = 2d0*um*s*d2
+            if(whichf.eq.'revp') then
+               g=grevpbe0(s)
+               gp=grevpbe1(s)
+            elseif(whichf.eq.'rpbe') then
+               g=grpbe0(s)
+               gp=grpbe1(s)
+            else
+               g=gpbe0(s)
+               gp=gpbe1(s)
+            endif
 c
             d1g(1) = gp*d1s(1)
             d1g(2) = gp*d1s(2)
@@ -254,7 +303,13 @@ c
             d2s(1) = -F73*d1s(1)*rrho
             d2s(2) = -F43*d1s(2)*rrho
             d2s(3) = -0.5d0*d1s(2)/gamma
-            gpp = 2d0*um*d2*(1d0-4d0*umk*s2*d)
+            if(whichf.eq.'revp') then
+               gpp=grevpbe2(s)
+            elseif(whichf.eq.'rpbe') then
+               gpp=grpbe2(s)
+            else
+               gpp=gpbe2(s)
+            endif
             d2g(1) = gp*d2s(1) + gpp*d1s(1)*d1s(1)
             d2g(2) = gp*d2s(2) + gpp*d1s(1)*d1s(2)
             d2g(3) = gp*d2s(3) + gpp*d1s(2)*d1s(2)

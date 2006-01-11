@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.33 2006-01-06 20:47:30 edo Exp $
+* $Id: xc_chkgrad.F,v 1.34 2006-01-11 02:05:01 edo Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -14,6 +14,7 @@ c
      + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
      + xfac(14)+xfac(15)+xfac(16)+xfac(17)+xfac(18) +xfac(19) +
      +     xfac(22)+
+     +     xfac(30)+xfac(31)+
      +     cfac(2) + cfac(4) + cfac(5) + cfac(12) +
      +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
      + cfac(19) + cfac(20)+cfac(21)+cfac(22)+cfac(23) + cfac(24) +
