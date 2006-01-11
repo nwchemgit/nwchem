@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.86 2006-01-11 02:45:19 edo Exp $ 
+% $Id: dft.tex,v 1.87 2006-01-11 20:13:18 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -599,79 +599,76 @@ task dft optimize numerical
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \twocolumn
 \begin{table}[htp]
-
-%\centering
-\begin{tabular}{|l|cccccc|r|}
+\centering
+{\small 
+\begin{tabular}{|l|p{0.12cm}p{0.12cm}cccp{0.35cm}|c|}
 \hline
-           &          &             &        &      &        &      &    \\
-Keyword    & X        & C           & GGA    & meta & Hybrid & 2nds & Ref.\\
-           &          &             &        &      &        &      &    \\
+Keyword    & X        & C           & GGA    & Meta & Hybr. & 2nd  & Ref.\\
 \hline
- slater    & $\star$  &             &        &      &        &  Y   &[1] \\
+{\tt  slater  }& $\star$  &             &        &      &        &  Y   &[1] \\
 \hline                                                  
-vwn\_1     &          &   $\star$   &        &      &        &  Y   &[2] \\
-vwn\_2     &          &   $\star$   &        &      &        &  Y   &[2] \\
-vwn\_3     &          &   $\star$   &        &      &        &  Y   &[2] \\
-vwn\_4     &          &   $\star$   &        &      &        &  Y   &[2] \\
-vwn\_5     &          &   $\star$   &        &      &        &  Y   &[2] \\
-vwn\_1\_rpa&          &   $\star$   &        &      &        &  Y   &[2] \\
-perdew81   &          &   $\star$   &        &      &        &  Y   &[3] \\
-pw91lda    &          &   $\star$   &        &      &        &  Y   &[4] \\
+{\tt  vwn\_1   }&          &   $\star$   &        &      &        &  Y   &[2] \\
+{\tt  vwn\_2   }&          &   $\star$   &        &      &        &  Y   &[2] \\
+{\tt  vwn\_3   }&          &   $\star$   &        &      &        &  Y   &[2] \\
+{\tt  vwn\_4   }&          &   $\star$   &        &      &        &  Y   &[2] \\
+{\tt  vwn\_5   }&          &   $\star$   &        &      &        &  Y   &[2] \\
+{\tt  vwn\_1\_rpa}&          &   $\star$   &        &      &        &  Y   &[2] \\
+{\tt  perdew81 }&          &   $\star$   &        &      &        &  Y   &[3] \\
+{\tt  pw91lda  }&          &   $\star$   &        &      &        &  Y   &[4] \\
 \hline                                                  
-becke88    & $\star$  &             &  $\star$  &   &        &  Y   &[5]\\
-xperdew91  & $\star$  &             &  $\star$  &   &        &  Y   &[6]\\
-xpbe96     & $\star$  &             &  $\star$  &   &        &  Y   &[7]\\
-gill96     & $\star$  &             &  $\star$  &   &        &  Y   &[8]\\
-optx       & $\star$  &             &  $\star$  &   &        &  N   &[20]\\
-mpw91      & $\star$  &             &  $\star$  &   &        &  Y   &[23]\\
-xft97      & $\star$  &             &  $\star$  &   &        &  N   &[24]\\
-rpbe       & $\star$  &             &  $\star$  &   &        &  Y   &[34]\\
-revpbe     & $\star$  &             &  $\star$  &   &        &  Y   &[35]\\
+{\tt  becke88  }& $\star$  &             &  $\star$  &   &        &  Y   &[5]\\
+{\tt  xperdew91}& $\star$  &             &  $\star$  &   &        &  Y   &[6]\\
+{\tt  xpbe96   }& $\star$  &             &  $\star$  &   &        &  Y   &[7]\\
+{\tt  gill96   }& $\star$  &             &  $\star$  &   &        &  Y   &[8]\\
+{\tt  optx     }& $\star$  &             &  $\star$  &   &        &  N   &[20]\\
+{\tt  mpw91    }& $\star$  &             &  $\star$  &   &        &  Y   &[23]\\
+{\tt  xft97    }& $\star$  &             &  $\star$  &   &        &  N   &[24]\\
+{\tt  rpbe     }& $\star$  &             &  $\star$  &   &        &  Y   &[33]\\
+{\tt  revpbe   }& $\star$  &             &  $\star$  &   &        &  Y   &[34]\\
 \hline                                                  
-perdew86   &          &   $\star$   &  $\star$  &   &       &  Y   &[9]\\
-lyp        &          &   $\star$   &  $\star$  &   &       &  Y   &[10]\\
-perdew91   &          &   $\star$   &  $\star$  &   &       &  Y   &[6]\\
-cpbe96     &          &   $\star$   &  $\star$  &   &       &  Y   &[7]\\
-cft97      &          &   $\star$   &  $\star$  &   &       &  N   &[25]\\
-op         &          &   $\star$   &  $\star$  &   &       &  N   &[32]\\
+{\tt  perdew86 }&          &   $\star$   &  $\star$  &   &       &  Y   &[9]\\
+{\tt  lyp      }&          &   $\star$   &  $\star$  &   &       &  Y   &[10]\\
+{\tt  perdew91 }&          &   $\star$   &  $\star$  &   &       &  Y   &[6]\\
+{\tt  cpbe96   }&          &   $\star$   &  $\star$  &   &       &  Y   &[7]\\
+{\tt  cft97    }&          &   $\star$   &  $\star$  &   &       &  N   &[24]\\
+{\tt  op       }&          &   $\star$   &  $\star$  &   &       &  N   &[31]\\
 \hline                                                  
-hcth       & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[11]\\
-hcth120    & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[12]\\
-hcth147    & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[12]\\
-hcth407    & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[19]\\
-becke97gga1 & $\star$ &   $\star$   &  $\star$  &   &       &  N   &[18]\\
-hcthp14    & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[21]\\
-ft97       & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[24,25]\\
-htch407p   & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[28]\\
-bop        & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[32]\\
-pbeop      & $\star$  &   $\star$   &  $\star$  &   &       &  N   &[33]\\
+{\tt  hcth     }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[11]\\
+{\tt  hcth120  }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[12]\\
+{\tt  hcth147  }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[12]\\
+{\tt  hcth407  }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[19]\\
+{\tt  becke97gga1}& $\star$ &   $\star$   &  $\star$  &   &       &  N   &[18]\\
+{\tt  hcthp14  }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[21]\\
+{\tt  ft97     }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[24]\\
+{\tt  htch407p }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[27]\\
+{\tt  bop      }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[31]\\
+{\tt  pbeop    }& $\star$  &   $\star$   &  $\star$  &   &       &  N   &[32]\\
 \hline                                                  
-xpkzb99    & $\star$  &             &           &$\star$&   &  N   &[27]\\
-cpkzb99    &          &  $\star$    &           &$\star$&   &  N   &[27]\\
-xtpss03    & $\star$  &             &           &$\star$&   &  N   &[29]\\
-ctpss03    &          &  $\star$    &           &$\star$&   &  N   &[29]\\
-xctpssh    &          &             &       &$\star$&$\star$&  N   &[30]\\
-
+{\tt  xpkzb99  }& $\star$  &             &           &$\star$&   &  N   &[26]\\
+{\tt  cpkzb99  }&          &  $\star$    &           &$\star$&   &  N   &[26]\\
+{\tt  xtpss03  }& $\star$  &             &           &$\star$&   &  N   &[28]\\
+{\tt  ctpss03  }&          &  $\star$    &           &$\star$&   &  N   &[28]\\
+{\tt  xctpssh  }&          &             &       &$\star$&$\star$&  N   &[28]\\
 \hline
-beckehandh & $\star$  &   $\star$   &           &   & $\star$  &  Y   &[13]\\
-b3lyp      & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
-acm        & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
-becke97    & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[15]\\
-becke97-1  & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[15]\\
-becke97-2  & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[22]\\
-becke97-3  & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[31]\\
-becke98    & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[16]\\
-pbe0       & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[17]\\
-mpw1k      & $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[26]\\
+{\tt  beckehandh}& $\star$  &   $\star$   &           &   & $\star$  &  Y   &[13]\\
+{\tt  b3lyp    }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
+{\tt  acm      }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
+{\tt  becke97  }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[15]\\
+{\tt  becke97-1}& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[15]\\
+{\tt  becke97-2}& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[22]\\
+{\tt  becke97-3}& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[30]\\
+{\tt  becke98  }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  N   &[16]\\
+{\tt  pbe0     }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[17]\\
+{\tt  mpw1k    }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[25]\\
 \hline
 \end{tabular}
 \caption{Table of available Exchange (X) and Correlation (C) functionals.
-GGA is the Generalized Gradient Approximation, and meta refers to
-Meta-GGAs. The column {\em 2nds} refers to second derivatives of the
+GGA is the Generalized Gradient Approximation, and Meta refers to Meta-GGAs.
+The column {\em 2nd} refers to second derivatives of the
 energy with respect to nuclear position. }
 \label{tablexc}
+}
 \end{table}
-
 
 
 
@@ -691,12 +688,12 @@ Can.~J.~Phys.~{\bf 58}, 1200 (1980). \\
 M.R.~Pederson, D.J.~Singh and C.~Fiolhais, Phys. Rev. B {\bf 46}, 6671
 (1992). \\
 \item  J.P.~Perdew, K.~Burke and M.~Ernzerhof, 
-Phys. Rev. Lett. {\bf 77}, 3865 (1996); {\bf 78 }, 1396 (1997).\\
+Phys. Rev. Lett. {\bf 77}, 3865 (1996); {\bf 78 }, 1396 (1997)\\
 \item  P.W.Gill , Mol. Phys. {\bf 89}, 433 (1996). \\
 \item  J.~P.~Perdew, Phys.~Rev.~B   {\bf33}, 8822 (1986). \\
 \item C.~Lee, W.~Yang and R.~G.~Parr, Phys.~Rev.~B {\bf 37}, 785
 (1988). \\
-\item  F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.\\ Handy, 
+\item  F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C\\ Handy, 
     J. Chem. Phys. {\bf 109}, 6264 (1998). \\
 \item   A.D.Boese, N.L.Doltsinis, N.C.Handy and
 M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
@@ -705,30 +702,30 @@ M.Sprik. J. Chem. Phys. {\bf 112}, 1670 (2000). \\
 \item A.D.Becke, J. Chem. Phys. {\bf 107}, 8554 (1997). \\
 \item  H.L.Schmider and A.D.~Becke, J.~Chem.~Phys.~{\bf 108},
 9624 (1998). \\
-\item C.Adamo and V.Barone, J.~Chem.~Phys. {\bf 110}, 6158 (1998).\\
-\item  A.J.Cohen and N.C. Handy, Chem. Phys. Lett. {\bf 316}, 160 (2000).\\
+\item C.Adamo and V.Barone, J.~Chem.~Phys. {\bf 110}, 6158 (1998)\\
+\item  A.J.Cohen and N.C. Handy, Chem. Phys. Lett. {\bf 316}, 160 (2000)\\
 \item  A.D.Boese,  N.C.Handy, J. Chem. Phys. {\bf 114}, 5497
 (2001). \\
-\item  N.C.Handy, A.J. Cohen, Mol. Phys. {\bf 99}, 403 (2001).\\
+\item  N.C.Handy, A.J. Cohen, Mol. Phys. {\bf 99}, 403 (2001)\\
 \item G. Menconi, P.J. Wilson, D.J. Tozer, 
-J. Chem. Phys {\bf 114}, 3958 (2001).\\
+J. Chem. Phys {\bf 114}, 3958 (2001)\\
 \item  P.J. Wilson, T.J. Bradley, D.J. Tozer, J. Chem. Phys {\bf 115}, 
-9233 (2001).\\
-\item C. Adamo and V. Barone, J.~Chem.~Phys. {\bf 108}, 664 (1998).\\
-\item M.Filatov and W.Thiel, Mol.Phys. {\bf 91}, 847 (1997).\\
-\item M.Filatov and W.Thiel, Int.J.Quantum Chem. {\bf 62}, 603 (1997).\\
+9233 (2001)\\
+\item C. Adamo and V. Barone, J.~Chem.~Phys. {\bf 108}, 664 (1998)\\
+\item M.Filatov and W.Thiel, Mol.Phys. {\bf 91}, 847 (1997).
+ M.Filatov and W.Thiel, Int.J.Quantum Chem. {\bf 62}, 603 (1997)\\
 \item B.J. Lynch, P.L. Fast, M. Harris and D.G. Truhlar, J. Phys. Chem. A
-{\bf 104}, 4811(2000).\\
+{\bf 104}, 4811(2000)\\
 \item  J.P.~Perdew, S.~Kurth, A.~Zupan and P.~Blaha, 
-Phys. Rev. Lett. {\bf 82}, 2544 (1999).\\
+Phys. Rev. Lett. {\bf 82}, 2544 (1999)\\
 \item A.~D.~Boese, A.~Chandra, J.~M.~L.~Martin and D.~Marx,
   J. Chem. Phys. {\bf 119}, 5965 (2003). \\
 \item J. Tao,J.Perdew, V. Staroverov and G. Scuseria,
-Phys. Rev. Let. {\bf 91}, 146401-1 (2003).\\
+Phys. Rev. Let. {\bf 91}, 146401-1 (2003)\\
 \item V. Staroverov, G. Scuseria,
 J. Tao and J.Perdew, J. Chem.Phys. {\bf 119}, 12129 (2003). \\
 \item  T.W. Keal, D.J. Tozer, J. Chem. Phys {\bf 123}, 
-121103 (2005).\\
+121103 (2005)\\
 \item T. Tsuneda, T. Suzumura and K. Hirao,
 J. Chem Phys. {\bf 110}, 10664 (1999)\\
 \item T. Tsuneda, T. Suzumura and K. Hirao,
