@@ -1,0 +1,61 @@
+<HTML>
+<HEAD>
+<TITLE>Reporting NWChem problems</TITLE>
+</HEAD>
+
+<BODY bgcolor="#FFFFFF">
+<center><h1>Java reporting tool for NWChem</h1></center>
+
+ There is a new tool developed by Danielle Farrar
+ for reporting NWChem 
+ problems.  You can invoke this tool on mpp1 by typing: <p>
+
+ /u/nwchem/bin/report<p> 
+
+ This sets the environment so that java will work for you and then runs 
+ the java application. <p> 
+
+ Note that you will need to make sure that your DISPLAY variable is set
+ correctly on mpp1 (i.e. setenv DISPLAY your.hostname:0.0) and that you
+ are allowing X windows on your local machine (i.e. xhost + mpp1.emsl.pnl.gov).<p>
+
+ If you put a file "nwchemsupport" in your home directory with your 
+ proper email address (e.g., david.dixon@pnl.gov) this tool will 
+ automatically pick this up as your preferred email address for this 
+ tool.  You may link this file to your .forward if you like:<p> 
+
+ ln -s .forward nwchemsupport<p> 
+
+ The tool looks very much like the NWChem support queue web page but there is 
+ something extra.  The tool allows you to attach your input file, 
+ output file and an additional file (your error file on mpp1) to 
+ the message.  The attachment mechanism uses the standard file browsing 
+ mechanisms you are used to with java and other GUIs.  <p>
+
+ Using this tool will help the NWChem staff better serve your needs.  <p>
+
+ For users inside PNNL:<br>
+ This tool is available as well from AFS on your workstations.  It has 
+ only been tested for the SUNs but should work with any workstation 
+ that has DFS mounted.  We use the 1.1.3 java tools in DFS land on the 
+ suns.  <p>
+
+
+ /msrc/proj/nwchem/bin/report  <p>
+
+ will set your java environment and run the application for you.  <p>
+
+For users outside PNNL:<br>
+This tool is available for the offsite contact person for NWChem.  (Remember
+that support is not provided for general users of NWChem who are not PNNL
+collaborators.)  The report tool is available in the standard distribution
+of NWChem.  Java
+1.1 will be needed since the tool is based on that version of the java.awt
+event handling.
+<p>
+<hr>
+<p>
+<i> Created by Theresa Windus<br>
+Last modified: November 18, 1998</i>
+</body>
+</html>

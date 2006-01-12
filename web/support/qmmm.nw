@@ -1,0 +1,107 @@
+#  This is a single NWChem input file which will start from a
+#  PDB format file and run a QM/MM calculation.
+#
+#  Time steps and durations have been extended to better reflect
+#  what is necessary for better results.  The workshop version
+#  had settings to make things complete faster.
+
+Title "QM/MM Potassium Hexahydrate: Prep, Minimization, Dynamics."  
+
+memory noverify heap 8 mb stack 54 mb global 54 mb
+
+start K6H2O 
+
+echo
+
+# A basis set must be defined for the ESP charges on water 
+basis noprint
+ K library 6-31G* 
+ H library 6-31G*
+ O library 6-31G*
+end
+
+# Assign segments for quantum mechanics region
+# and solvate system. Maybe better done separately.
+#  Easiest way to do that is add the keyword 'stop'
+#  right after this prepare task.
+prepare
+ system K6H2O_em
+ modify segment 1 quantum
+ #modify segment 2 quantum
+ #modify segment 3 quantum
+ #modify segment 4 quantum
+ #modify segment 5 quantum
+ #modify segment 6 quantum
+ #modify segment 7 quantum
+ center; orient
+ touch 0.23
+ expand 0.1
+ solvate
+ update lists
+end; task prepare
+
+# This is an optional step to write out the solvated system
+# as a PDB file.
+prepare
+ read K6H2O_em.rst
+ write pdb Kaq.pdb
+end; task prepare
+
+# A basis set must be defined for the QM part 
+basis noprint
+ K library sto-3g
+ H library sto-3g
+ O library sto-3g
+end
+
+# There is a net charge on the potassium ion.
+charge 1.0
+
+# Specify any SCF details
+scf
+ print low geometry
+end
+
+# Define MM part of calculation for geometru optimization.
+# ==> BE SURE TO SET MEMORY ASIDE FOR QM PART
+md
+ system K6H2O_em
+ sd 50   init 0.01   min 0.00001   max 0.05
+ cg 30   init 0.01   min 1.0E-8    cy 10
+ cutoff 0.9   qmmm 0.5
+ memory 15000
+end
+
+# Define combined QM/MM part.  Need to give quantum energy
+# for atoms in atomic units (Hartrees).
+qmmm
+ eatoms -1043.05
+end
+
+# Run QM/MM optimization.
+task qmmm scf optimize
+
+# Need to write out restart file for dynamics simulation.
+# Optionally write out the current coordinates as PDB file.
+prepare
+ read  K6H2O_em.qrs
+ write Kaq_opt.pdb
+ write K6H2O_md.rst
+end; task prepare
+
+# Define changes to MM part for dynamics simulation.
+md
+ system K6H2O_md
+ cutoff 0.9   qmmm 0.5
+ memory 15000
+ step 0.0005  equil 100  data 500
+ isotherm 300.0  trelax 0.1
+ print step 20  stat 100 
+ record rest 10  coord 1
+ update pairs 2  
+end
+
+# Run QM/MM dynamics.
+task qmmm scf dynamics 
+
+

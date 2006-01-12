@@ -1,0 +1,2078 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<BR>
+<BR>
+<table width="650"><tr><td>
+<center><h1>NWChem Frequently Asked Questions</h1></center>
+
+<ol>
+ <li> <a href="#geninf">General information about NWChem</a>
+  <ol>
+   <li> <a href="#0">Where is the NWChem homepage?</a></li>
+   <li> <a href="#1">Where is the User's Manual?</a></li>
+   <li> <a href="#2">Where is the Programmer's Manual?</a></li>
+   <li> <a href="#3">What citation should I use when publicizing results obtained from NWChem?</a></li>
+   <li> <a href="#4">How do I submit a job on MPP2?</a></li>
+   <li> <a href="#5">Is there any on-line training available?</a></li>
+   <li> <a href="#6">Where do I go for help with a GA problem?</a></li>
+   <li> <a href="#7">Where do I go for help with NWChem problems?</a></li>
+  </ol></li>
+ <li> <a href="#input">Input Problems</a>
+  <ol>
+   <li> <a href="#notask">I get the message:<tt> ! warning: processed input with no task</tt>. What is wrong?</a></li>
+  </ol></li>
+ <li> <a href="#initguess">Initial Guess and Convergence Problems</a>
+  <ol>
+   <li> <a href="#8">I am having problems getting my initial guess
+         in the correct order.  How I do use the swap directive?</a></li>
+   <li> <a href="#openguess">I am having problems getting an open shell sytem to converge.  What strategies will help me?</a></li>
+  <li> <a href="#minchargeguess">I am having problems converging an ionic, extended system.  What can I do?</a></li>
+  <li> <a href="#accbbsconv">I am having convergence problems with the final iterations of a calculation using a large basis set.  What can I do?</a></li>
+  <li> <a href="#compfragguess">Do you have an example of a complex fragment guess?</a></li>
+  </ol></li>
+ <li> <a href="#basissets">Basis Sets</a>
+  <ol>
+   <li> <a href="#basistags">How do the basis sets get assigned to the atoms in my input deck?</a></li>
+  </ol></li>
+ <li> <a href="#opt">Optimization Issues (including transition states)</a>
+  <ol>
+   <li> <a href="#first">I want to optimize the structure of my molecule.
+     What should I try first?
+        </a></li>
+   <li> <a href="#accel">How do I accelerate a geometry optimization using information from
+    a lower (cheaper) level of theory, and does this really help?
+        </a></li>
+   <li> <a href="#stepper">When should I use STEPPER rather than DRIVER?
+        </a></li>
+   <li> <a href="#autozfail">AUTOZ fails to generate valid internal coordinates.  Now what?
+        </a></li>
+   <li> <a href="#inithess">What initial guess is Driver using for the Hessian?
+        </a></li>
+   <li> <a href="#stuck">My geometry optimization initially converged rapidly but
+      now seems to be stuck.
+        </a></li>
+   <li> <a href="#constant">How do I keep some internal variables constant while optimizing
+    the others?
+        </a></li>
+   <li> <a href="#sameval">How do I constrain some internal variables to be the same
+    value within a sign?
+        </a></li>
+   <li> <a href="#restart">How do I restart a geometry optimization?
+        </a></li>
+   <li> <a href="#symm">Can I use symmetry while optimizing the geometry?
+        </a></li>
+   <li> <a href="#adjust">How do I adjust the value of (or change in any way) some internal
+     coordinates in an existing geometry?
+        </a></li>
+   <li> <a href="#scan">How do I scan a potential energy surface?
+        </a></li>
+   <li> <a href="#findts">How do I find a transition state?
+        </a></li>
+  </ol></li>
+ <li><a href="#mp2"> MP2 </a></li>
+  <ol>
+  <li><a href="#howmp2prop">How do I calculate MP2 properties? </a></li>
+  <li><a href="#mp2symm">My high symmetry MP2 calculation is taking longer that it
+      should.  Why is this?</a></li>
+  </ol>
+ <li><a href="#dft"> SCF/DFT</a></li>
+  <ol>
+  <li><a href="#g9xgrid">How do I reproduce the XC numerical grid used in G9X? </a></li>
+  <li><a href="#cdfit">Which Columb fitting basis set should I use?</a></li>
+  <li><a href="#lumoenergy">Are the DFT  unoccupied orbital  energies shifted?</a></li>
+  <li><a href="#aorepl">I got the error message: "<tt>ao_replicated: insufficient memory XXXXXXXX</tt>"; what can I do?</a></li>
+  <li><a href="#x3lyp">How can I do a X3LYP calculation in NWChem?</a></li>
+  <li><a href="#bqs">How do you address Bq's to get an integration grid?</a></li>
+  </ol>
+ <li><a href="#gapss"> GAPSS</a></li>
+  <ol>
+  <li><a href="#gapssdistr">Is the GAPSS module available? </a></li>
+  <li><a href="#gapsscomp">I get the error message "gap_parse is not in this build of NWChem", how do I get GAPSS to work? </a></li>
+  <li><a href="#gapssener">Can I do geometry optimizations with GAPSS?</a></li>
+  </ol>
+ <li><a href="#qmmm"> QMMM</a></li>
+  <ol>
+  <li><a href="#qmmminput">How do I run a QM/MM calculation?</a></li>
+  </ol>
+  <li><a href="#moldynam"> Molecular Dynamics</a></li>
+    <ol>
+    <li><a href="#moldynam_restart">How do I restart a Molecular Dynamics calculation?</a></li>
+  </ol>
+ <li><a href="#dirdyvtst"> DIRDYVTST</a></li>
+  <ol>
+  <li><a href="#dirdyexamples">How do I run a DIRDYVTST calculation?</a></li>
+  </ol>
+ <li><a href="#linuxclusters"> Linux Clusters</a></li>
+  <ol>
+  <li><a href="#linuxhw">What hardware configuration is suggested for running NWChem on Linux cluster? </a></li>
+  <li><a href="#myrinet">How do I install  and run NWChem on Myrinet clusters?</a></li>
+  <li><a href="#giganet">How do I install NWChem on Giganet clusters?</a></li>
+  <li><a href="#freebsdmem">How do I increase the shared memory segment in FreeBSD?</a></li>
+  </ol>
+ <li><a href="#ibmsp"> IBM SP</a></li>
+  <ol>
+  <li><a href="#lapi">What is the target for running NWChem on IBM SPs? </a></li>
+  <li><a href="#lapiiniterr">I have a lapi_init error.  How do I fix this problem?</a></li>
+  <li><a href="#asyncio">I have a load error when trying to run NWChem.  How do I fix this problem?</a></li>
+  <li><a href="#rtgrqon">Thread scheduling policy change from AIX 4.3 to 4.3.3 which effects performance.</a></li>
+  <li><a href="#filelimit">How do I use more than 2 GB of disk space?</a></li>
+  </ol>
+ <li><a href="#ibm"> IBM </a></li>
+  <ol>
+  <li><a href="#ibm64python">How do I install a Python library
+ compatible with the NWCHEM_TARGET IBM64? </a></li>
+</ol>
+ <li><a href="#win32"> Windows 32</a></li>
+  <ol>
+  <li><a href="#win32compile">How do I compile NWChem on Windows NT and
+Windows 98? </a></li>
+  </ol>
+ <li><a href="#decosf"> DECOSF</a></li>
+  <ol>
+  <li><a href="#decsegv">What is causing a segmentation violation in DECOSF 4.0? </a></li>
+  <li><a href="#decmainit">What is causing the <tt>ma_init failed</tt> error message? </a></li>
+  <li><a href="#decsmpopt">How to fix the segfault in single node runs on
+  HP AlphaServer SC 2.5? </a></li>
+ </ol>
+ <li><a href="#sgi"> SGI</a></li>
+  <ol>
+  <li><a href="#sgimpi">How can I improve parallel performances under SGI? </a></li>
+  <li><a href="#sgitfpscs">How can I improve performances under SGITFP? </a></li>
+  <li><a href="#sgitfpmpich">How do I install the MPI version of SGITFP? </a></li>
+ </ol>
+ <li><a href="#itanium"> Itanium</a></li>
+ <ol>
+ <li><a href="#itaniumcompiler">Which version of the Intel compiler should I use?</a></li>
+ </ol>
+ <li>Useful Chemistry links</li>
+  <ol>
+  <li><a href="http://www.ccl.net/chemistry/">Computational Chemistry List</a></li>
+  <li><a href="http://www.ccl.net/cca/documents/dyoung/topics-orig/">David Young's Computational Chemistry Topics</a></li>
+  <li><a href="http://www.emsl.pnl.gov/forms/basisform.html">EMSL Gaussian Basis Set Order Form</a></li>
+  <li><a href="http://webbook.nist.gov/">NIST WebBook</a></li>
+  <li><a href="http://www.rcsb.org/pdb/">Protein Data Bank</a></li>
+  <li><a href="http://www.webelements.com/">WebElements Periodic Table</a></li>
+  </ol>
+</ol>
+
+<pre>
+
+</pre>
+<a name="geninf"></a>
+<h3>General information about NWChem</h3>
+<hr>
+<p>
+<a name="0"></a>
+<font color="purple">Where is the NWChem homepage?</font>
+<p>
+<a href="http://www.emsl.pnl.gov/docs/nwchem/nwchem_main.html">NWChem homepage</a>
+</p>
+
+
+<hr>
+<p>
+<a name="1"></a>
+<font color="purple">Where is the User's Manual?</font>
+<p>
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/index.html">
+NWChem User's Manual</a>
+</p>
+
+<hr>
+<p>
+<a name="2"></a>
+<font color="purple">Where is the Programmer's Manual?</font>
+<p>
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/prog/index.html">
+NWChem Programmer's Manual</a>
+</p>
+
+<hr>
+<p>
+<a name="3"></a>
+<font color="purple">What citation should I use when publicizing results obtained from NWChem?</font>
+<p>
+Please see the <a href="../citation.html">NWChem Citation</a> page for the citation to use when publicizing
+results obtained from NWChem.
+</p>
+
+
+<hr>
+<p>
+<a name="4"></a>
+<font color="purple">How do I submit a job on MPP2?</font>
+<p>
+There is an <tt>llnw</tt> script used for submitting NWChem jobs on MPP2
+located
+in <tt>/home/scicons/bin</tt>.
+
+Please refer to the <a href="http://mscf.emsl.pnl.gov/hardware/intro_paracomputers.shtml" target="_blank">MSCF website</a> for more details.
+</p>
+
+
+<hr>
+<p>
+<a name="5"></a>
+<font color="purple">Is there any on-line training available?</font>
+<p>
+The slides from the <a href="http://www.emsl.pnl.gov/cgi-bin/mscf-training/pachelbel?HOME" target="_blank">
+NWChem / Ecc&eacute Tutorial workshop, July 1999</a> are now
+available.
+</p>
+
+<hr>
+<p>
+<a name="6"></a>
+<font color="purple">Where do I go for help with a GA problem?</font>
+<p>
+If you have problems with GA, please checkout the
+<a href="http://www.emsl.pnl.gov/docs/global/support.html" target="_blank">
+Global Arrays Support Page</a>.  If your problem is not resolved there,
+please send an e-mail to <a href="mailto:hpctools@emsl.pnl.gov">
+Global Arrays Support</a> with a full description of your problem.
+</p>
+
+<hr>
+<p>
+<a name="7"></a>
+<font color="purple">Where do I go for help with NWChem problems?</font>
+<p>
+First, look at the <a href="NWChem_FAQ.html">FAQ</a> (this page) and
+<a href="known_bugs.html">Known Bugs</a> pages to see if your problem is
+described.  If not, then please follow the directions on the
+<a href="support.html">Reporting Problems with NWChem</a> page.  This
+includes procedures for contacting the developers, directions for signing
+onto the nwchem-users list, and the archives of the nwchem-users list.
+</p>
+
+
+<hr>
+<br><br>
+<p>
+<a name="input"></a>
+<h3>Input Problems</h3>
+</p>
+
+<hr>
+<p>
+<a name="notask"></a>
+<font color="purple">I get the message:<tt> ! warning: processed input with no task</tt>. What is wrong? </font>
+<p>
+Have you used emacs to create your input file?
+Emacs usually does not put and an end-of-line
+as a  last character of the file,
+therefore the NWChem input parser ignores
+the last line of your input
+(the one containing the <tt>task</tt> directive).
+<p>
+To fix the problem,  add one more blank line
+after the task line and your task directive will be executed.
+</p>
+
+
+<hr>
+<br><br>
+<p>
+<a name="initguess"></a>
+<h3>Initial Guess and Convergence Problems</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="8"></a>
+<font color="purple"> I am having problems getting my initial guess
+         in the correct order.  How I do use the swap directive? </font>
+<p>
+Remember that you can <b>(and should!)</b> look at your initial orbitals
+by putting the line<br>
+<p>
+print "initial vectors"
+<p>
+into the SCF block of your input deck.  If the order isn't correct, you can use
+the "swap" directive to change the order of the orbitals.
+<p>
+For example:
+<pre>
+vectors atomic swap 173 175 174 176 output end.movecs
+</pre>
+will cause the orbitals 173 - 175 to be swapped to 175, 176, 173 and 174.
+Note that the swaps are pairwise: first 173 and 175 are swapped, then the
+the current orbitals 174 and 176 are swapped.  More information on initial orbitals
+can be obtained in <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001250000000000000000" target="_blank">
+Section 10.5</a> of the <a href="../doc/user/index.html" target="_blank">User's Manual</a>.
+</p>
+
+<hr>
+<p>
+<a name="openguess"></a>
+<font color="purple"> I am having problems getting an open shell system to converge.  What strategies will help me?</font>
+<p>
+Open shell systems, especially those containing transition metals or heavy
+elements with many unoccupied d and f orbitals, can be especially hard
+to converge.  Running a spin unrestricted calculation can exacerbate the
+problem since all other possible spin states can mix into the wavefunction.
+It may also be true that your particular calculation has multireference
+character and, by using SCF or DFT, you are forcing it into a single
+determinate wavefunction.
+<p>
+That being said, to converge your system, you need to guide the code
+to the particular state that you want.  This may be a very difficult
+task and different starting guesses can converge to different solutions,
+especially if there is symmetry breaking.  Here are four different
+suggestions to help you with your problem:
+<ol>
+<li> Use Auf bau construction.  Start by removing most or all of the
+open-shell electrons and converge the resulting closed-shell wavefunction.
+Incrementally add the missing electrons, maintaining a closed-shell form for
+the wavefunction until the last calculation.  Once you have an ROHF
+wavefunction converged, then do the UHF calculation if desired (note that
+UHF is the only option with the DFT code).  When adding electrons, pay
+attention to how well separated the virtual orbitals are in energy.</li>
+<li> Converge a very high multiplicity state and then incrementally
+pair electrons until you get the state you want.</li>
+<li> Converge in a minimal basis set where there is very little variational
+freedom and it is not as expensive to run many iterations.  Then
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001250000000000000000">project</a>
+to a larger basis set (you can use this
+<a href="http://www.emsl.pnl.gov/docs/nwchem/support/proj.nw">example</a>
+as a model).
+It is also useful to use spherical functions since this
+tends to decrease the amount of linear dependence.  This method isn't
+as reliable as the previous methods.</li>
+<li> Use the <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001251000000000000000">fragment</a>
+guess.  This is especially useful if you know the configuration of the atoms.
+Prepare the atoms in the appropriate state and assemble the molecule from the fragments.
+If you want an antiferromagnetic state, this is the only way to do it.</li>
+</ol>
+</p>
+
+<hr>
+<p>
+<a name="minchargeguess"></a>
+<font color="purple"> I am having problems converging an ionic, extended system.  What can I do?</font>
+<p>
+This problem usually shows up when a minimum basis set is used and where a
+lot of charge has to be moved a long way but the minimal basis does not
+providea lot of coupling between the orbitals.  The initial guess may be
+modified by
+<ol>
+<li><a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001252000000000000000">putting the charge on the atoms</a>
+where it is believed to be,</li>
+<li> look at the orbitals and
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001250000000000000000">swap the orbitals</a>
+to obtain the correct occupation, or</li>
+<li> ue the <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.h
+tml#SECTION001251000000000000000">fragment</a> guess.</li>
+</ol>
+Better yet, use a better basis set which will allow for better coupling of
+the orbitals!
+</p>
+
+<hr>
+<p>
+<a name="accbbsconv"></a>
+
+<font color="purple"> I am having convergence problems with the final iterations of a calculation using a large basis set.  What can I do?</font>
+<p>
+This problem generally occurs when high precision is necessary because of
+near linear dependencies in the basis set and there is insufficient precision
+in the computed gradient or hessian vector product to converge to the
+requested threshold.  The first item to check is to make sure that the convergence
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001270000000000000000">threshold</a> is realistic (not below 1e<sup>-7</sup> or
+perhaps 1e<sup>-8</sup>).  If doing an MP2 gradient with the
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node17.html#SECTION001712000000000000000">TIGHT</a> directive, make sure the SCF input block is
+after the MP2 block and then in the SCF block put
+<pre>
+SCF
+  thresh 1e-7
+  tol2e 1e-10
+END
+</pre>
+This may still not fix the problem if the calculation is using the semi-direct
+algorithm.  In this case:
+<ol>
+<li>Run the calculation on enough nodes to run fully disk resident,</li>
+<li>Run as before, but switch off the density screening with<p>
+    set fock:densityscreen f<p></li>
+<li>Run the calculation fully direct.</li>
+</ol>
+
+<hr>
+<p>
+<a name="compfragguess"></a>
+
+<font color="purple"> Do you have an example of a complex fragment guess?</font>
+<p>
+The following is an advanced fragment guess (NOT for beginners!).  It consists
+of two Fe<sup>3+</sup> ions in a simulated lattice and the objective is
+to compute the energy difference between the ferro and anti-ferromagnetic
+states.  This is accomplished by first using the atomic guess to do an ROHF
+calculation on an Fe<sup>3+</sup> ion with d<sup>5</sup> occupation.  The
+next calculation is on the high spin system and it merely has to start from
+the two ions ... the open shell orbitals will automatically be contiguous and
+so nothing else is needed.
+<p>
+The final calculation is a UHF for which the 5 open shell electrons on one
+atom must be spin up and on the other spin down.  The initial guess orbitals
+start off from the previous high spin solution.
+However, the d orbitals
+on the second atom must have the beta orbitals in the right place, hence
+the swap directive.  The net result is a completely localized guess with the
+desired spin coupling.
+
+<pre>
+start fe2
+
+geometry noautoz autosym
+  Fe  1.45 0.071  0.84
+  Fe -1.45 0.071 -0.84
+
+  Bq   3.02  0.84  0.03 charge -1.
+  Bq  -0.00  1.04  0.03 charge -1.
+  Bq   1.33 -1.67  0.03 charge -1.
+  Bq   2.78 -0.69  2.33 charge -1.
+  Bq   1.45  1.61  2.33 charge -1.
+  Bq   0.11 -0.69  2.33 charge -1.
+  Bq  -1.33 -1.67  0.03 charge -1.
+  Bq  -3.02  0.84  0.03 charge -1.
+  Bq  -0.12 -0.69 -2.25 charge -1.
+  Bq  -1.45  1.61 -2.25 charge -1.
+  Bq  -2.78 -0.69 -2.25 charge -1.
+end
+
+geometry Fe
+  Fe  0 0 0
+symmetry c2v
+end
+
+basis
+  Fe library sto-3g
+end
+
+set atomscf:tags_z Fe
+set atomscf:z      3.
+
+title "Initial calculation on Fe3+"
+
+set geometry Fe
+charge 3
+scf; rohf ; nopen 5; vectors atomic output fe.mos; end
+task scf
+
+title "Ferro-magnetic state"
+
+unset geometry
+charge -5
+
+scf; print "initial vector analysis"; rohf; nopen 10
+vectors fragment fe.mos fe.mos output feferr.mos;
+maxiter 0
+print mulliken
+end
+task scf ignore
+
+title "Anti-ferro-magnetic state"
+scf; uhf; nopen 0;
+  vectors input feferr.mos output feantif.mos\
+     swap beta 19 24  20 25  21 26  22 27  23 28
+maxiter 99
+end
+task scf
+</pre>
+For DFT calculation you can either the same method just shown or a
+different approach that is illustrated in this
+<a href="http://www.emsl.pnl.gov/docs/nwchem/support/fe2dft.nw">example</a>.
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="basissets"></a>
+<h3>Basis Sets</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="basistags"></a>
+<font color="purple"> How do the basis sets get assigned to the atoms in my input deck?</font>
+<p>
+The tags associated with atoms (e.g. H, H1, Hydrogen) are mapped to the tags
+used in the basis set definitions by:
+<ol>
+<li> If there is an exact match, then use it<p>
+  E.g., if H1 appears in both the geometry and the basis, then the H1
+  basis set is used.</li><p>
+<li> If there is not an exact match, then if there is a basis set defined for
+  that element, then use it<p>
+  E.g., if H1 appears in the geometry but not in the basis, then try to
+  use a basis set for H or for Hydrogen.  It will not try to match another
+  tag such as H2 in the basis set.</li><p>
+<li> If two definitions are given for an element in the basis set, then use
+  the definition such that the basis set tag is completely matched (or
+  is a substring) of the geometry tag.<p>
+  E.g., if H1, Hydrogen1, and Hydro1 appear in the geometry and H and
+  Hydrogen appear in the basis, H1 will map to H, Hydrogen1 will map to
+  Hydrogen, and Hydro1 will map to H.  You are STRONGLY advised not to
+  do perverse inputs such as Hydro1 which can only cause confusion.</li>
+</ol>
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="opt"></a>
+<h3>Optimization Issues (including transition states)</h3>
+</p>
+
+<hr>
+<p>
+<a name="first"></a>
+<font color="purple">I want to optimize the structure of my molecule.  What should I
+    try first?
+</font>
+<p>
+The optimizer of first choice should be the default option of
+    user-specified Cartesian coordinates and DRIVER using redundant
+    internal coordinates (AUTOZ - automatic Z-matrix).  The example
+    input optimizes the structure of H3C-COOH using 3-21g SCF.
+
+<pre>
+
+         geometry
+           c   -0.017    -0.030    -0.077
+           c   -0.017    -0.030     1.422
+           h    0.922    -0.030     1.764
+           h   -0.487     0.783     1.764
+           h   -0.487    -0.844     1.764
+           o   -0.580    -1.005    -0.727
+           o    0.545     0.944    -0.727
+           h    0.545     0.944    -1.727
+         end
+
+         basis
+           c library 3-21g; h library 3-21g; o library 3-21g
+         end
+
+         task scf optimize
+
+</pre>
+AUTOZ will generate a set of redundant internal coordinates
+    for the optimization.  Under some circumstances AUTOZ will fail
+    to generate a good set of coordinates, in which case Cartesians
+    will be used.  If you specify the geometry with a Z-matrix then
+    your coordinates will be used for the optimization.
+<p>
+    Needless to say a good guess for the geometry is very important.
+    If you don't have a good guess, then first optimize with an
+    inexpensive level of theory to get a good guess.
+</p>
+
+<hr>
+<p>
+<a name="accel"></a>
+<font color="purple">How do I accelerate a geometry optimization using information from
+    a lower (cheaper) level of theory, and does this really help?
+</font>
+<p>
+It can help a lot and is especially worth doing for most large
+    basis set calculations with correlated wavefunctions.
+<p>
+    The geometry and Hessian information from a previous optimization
+    are used by default --- if you saved them.  You should keep all
+    of the files that NWChem puts into its permanent directory.
+<p>
+<ol>
+<li>Set the permanent directory to be somewhere permanent (sic).
+       The default is the current directory, which for a batch job on the
+       EMSL HP is /scratch.  If you plan on running both optimizations
+       in the same input then you don't really need to do this, but if
+       anything goes wrong you can only restart if you have saved the
+       files.</li>
+<li>Run the first optimization with a low-level theory.
+<li>In the same job, or a subsequent one, specify the new
+       wavefunction parameters and run the second optimization.  By
+       default the calculation will restart from the previously
+       converged geometry, but if you can estimate better values you
+       can specify a new geometry (e.g., MP2 often predicts longer bond
+       lengths than Hartree-Fock).
+</ol>
+<p>
+    In the first example below, the geometry of H3C-COOH is first
+    optimized using 3-21g SCF, and then, starting from the 3-21g SCF
+    geometry and Hessian information, re-optimized with cc-pvdz MP2.
+    The first optimization required 8 steps, taking 105s on a 360 MHz
+    SUN Ultra-60.  The second optimization required 4 steps and 3882s.
+    If the MP2 optimization is repeated starting again from the 3-21g
+    SCF geometry, but not using the Hessian information then it takes 6
+    steps and 4,900s.
+<p>
+<pre>
+
+         permanent_dir /u/mydir
+
+         geometry
+           zmatrix
+             c
+             c 1 cc
+             h 2 ch1 1 hcc1
+             h 2 ch2 1 hcc2 3 t1
+             h 2 ch3 1 hcc3 3 t2
+             o 1 co1 2 occ1 3 t3
+             o 1 co2 2 occ2 3 t4
+             h 7 oh  1 hoc  6 t5
+           variables
+             cc     1.5;    ch1    1.0;    ch2     1.0
+             ch3    1.0;    co1    1.3;    co2     1.3
+             oh     1.0;    hcc1 110.0;    hcc2  110.0
+             hcc3 110.0;    occ1 120.0;    occ2  120.0
+             hoc  120.0;    t1   120.0;    t2   -120.0
+             t3   120.0;    t4   -60.0;    t5      0.0
+           end
+         end
+
+         basis
+           c library 3-21g; h library 3-21g; o library 3-21g
+         end
+
+         scf; print low; end
+
+         task scf optimize
+
+         basis spherical
+           c library cc-pvdz; h library cc-pvdz; o library cc-pvdz
+         end
+
+         mp2; freeze atomic; end
+
+         task mp2 optimize
+
+</pre>
+    This next example performs SCF geometry optimizations of the water
+    dimer in a sequence of increasing basis sets.  Each calculation
+    starts from the geometry and updated-Hessian from the previous one.
+    The steps taken for each successive optimization are, 11, 6, 7, 9,
+    4, 4, 4 and the total calculation took 966s.  If the Hessian
+    information is not reused (but still using the previous geometry)
+    the steps taken are 11, 11, 13, 13, 6, 11, 10, taking 2100s.
+<pre>
+
+         driver; print low; end
+         scf; print none; thresh 1e-6; end
+
+         geometry autosym
+            o     0.00000000     0.97541911     1.02217553
+            h     0.75298271     0.97541911     1.58779814
+            h    -0.75298271     0.97541911     1.58779814
+            h     0.00000000    -0.44494805    -0.43332878
+            o     0.00000000    -1.08950470    -1.12453116
+            h     0.00000000    -0.59320543    -1.92342244
+         end
+
+         python
+           basis = 'basis print spherical; o library %s; h library %s; end'
+           for b in ('sto-3g','3-21g','6-31g','6-31g*','6-31g**',
+                     '6-311g**','6-311G(2df,2pd)'):
+             input_parse(basis % (b,b))
+             task_optimize('scf')
+         end
+
+         task python
+
+</pre>
+</p>
+
+
+<hr>
+<p>
+<a name="stepper"></a>
+<font color="purple">When should I use STEPPER rather than DRIVER?
+</font>
+<p>
+    In releases prior to 3.3, STEPPER was much more robust than DRIVER,
+    especially for transition state searches, though when DRIVER did
+    converge it was usually faster.  However, in release 3.3 DRIVER has
+    been completely rewritten, AUTOZ has been extensively modified, and
+    the diagonal guess for internal coordinates has also been
+    substantially improved.  The net result is that if internal
+    coordinates are available (AUTOZ or Z-matrix) then DRIVER is always
+    preferable since STEPPER can only use Cartesians.  There is less
+    data for the performance difference in Cartesians, but again DRIVER
+    seems to have the edge, perhaps because it is less conservative and
+    the use of a line search also enables it to take larger steps.
+<p>
+    However, STEPPER was designed for stream-bed walking and has robust
+    algorithms for following normal modes from a minimum up to
+    transition states.  DRIVER can do this, but is not as robust.  So if
+    you want to walk a long way along a mode, and are prepared to
+    compute a full Hessian at the minimum geometry, then STEPPER is for
+    you.
+</p>
+
+<hr>
+<p>
+<a name="autozfail"></a>
+<font color="purple">AUTOZ fails to generate valid internal coordinates.  Now what?
+</font>
+<p>
+    If AUTOZ fails, NWChem will default to using Cartesian coordinates
+    (and ignore any zcoord data) so you don't have to do anything
+    unless you really need to use internal coordinates. An exception are
+    certain cases where we have a molecule that contains a linear chain
+    of 4 or more atoms, in which case the code will fail (see item 2.
+    for work arounds). For small
+    systems you can easily construct a Z-matrix, but for larger systems
+    this can be quite hard.
+<p>
+    First check your input.  Are you using the correct units?  The
+    default is Angstroms.  If you input atomic units but did not tell
+    NWChem, then it's no wonder things are breaking.  Also, is the
+    geometry physically sensible?  If atoms are too close to each other
+    you'll get many unphysical bonds, whereas if they are too far
+    apart AUTOZ will not be able to figure out how to connect things.
+<p>
+    Once the obvious has been checked, there are several possible modes
+    of failure, some of which may be worked around in the input.
+<ol>
+<li>Strictly linear molecules with 3 or more atoms.  AUTOZ does not
+       generate linear bend coordinates, but, just as in a real
+       Z-matrix, you can specify a dummy center that is not co-linear.
+       There are two relevant tips:
+  <ul>
+  <li>constrain the dummy center to be not co-linear otherwise the
+         center could become co-linear. Also, the inevitable small
+         forces on the dummy center can confuse the optimizer.</li>
+  <li>put the dummy center far enough away so that only one
+         connection is generated.
+  </ul>
+<pre>
+
+       E.g., this input for acetylene will not use internals
+
+       geometry
+         h  0  0  0
+         c  0  0  1
+         c  0  0  2.2
+         h  0  0  3.2
+       end
+
+       but this one will
+
+       geometry
+         zcoord
+           bond    2 3  3.0  cx constant
+           angle 1 2 3 90.0 hcx constant
+         end
+         h  0  0  0
+         c  0  0  1
+         x  3  0  1
+         c  0  0  2.2
+         h  0  0  3.2
+       end
+
+</pre></li>
+<li>Larger molecules that contain a strictly linear chain of four or
+       more atoms (that ends in a free atom). For these molecules the
+       autoz will fail and the code can currently not recover by using
+       cartesians. One has to explicitly define noautoz in the geometry
+       input to make it work. If internal coordinates are required one
+       can fix it in the same manner as described above. However, you can
+       also force a connection to a real nearby atom.</li>
+<li>Very highly connected systems generate too many internal
+       coordinates which can make optimization in redundant internals
+       less efficient than in Cartesians.  For systems such as clusters
+       of atoms or small molecules, try using a smaller value of the
+       scaling factor for covalent radii
+<p>
+       zcoord; cvr_scaling 0.9; end
+<p>
+       In addition to this you can also try specifying a minimal set of
+       bonds to connect the fragments.</li>
+</ol>
+<p>
+       If these together don't work, then you're out of luck.  Use
+       Cartesians or construct a Z-matrix.
+</p>
+
+<hr>
+<p>
+<a name="inithess"></a>
+<font color="purple">What initial guess is Driver using for the Hessian?
+</font>
+<p>
+<pre>
+
+    If (restart file exists) then
+      Attempt to use that data
+    Endif
+
+    If ((no restart file) or (could not use the file)) then
+      If (requested use of Cartesian Hessian with INHESS=2) then
+          Use the Hessian from a previous NWChem frequency calculation
+      Else
+        If ((you input a Z-matrix) or (input Cartesians with AUTOZ)) then
+        .   Modified Fisher-Almlof rules are used to form a guess that is
+        .   diagonal in the internal coordinate space.
+        Else if (you input Cartesian coordinates) then
+        .   0.5 * a unit matrix is used
+        Endif
+      Endif
+    Endif
+
+</pre>
+    Driver's restart information may be discarded by putting the CLEAR
+    directive into the DRIVER input block, or by deleting the
+    *.drv.hess file in the permanent directory.  Note that the CLEAR
+    directive is not remembered, so that subsequent geometry
+    optimizations will use restart info unless also preceded by a
+    DRIVER input block with a CLEAR directive.
+<p>
+    The restart filename expected by Driver is *.drv.hess, while the
+    the filename when INHESS=2 is *.hess.
+</p>
+
+<hr>
+<p>
+<a name="stuck"></a>
+<font color="purple">My geometry optimization initially converged rapidly but now seems to
+    be stuck.
+</font>
+<p>
+<ol>
+<li>One cause could be insufficient precision in the gradient.
+       Sometimes higher precision than the default is necessary,
+       especially if you have asked for tight convergence.  Also, if
+       you are using DFT, or MP2 in a large diffuse basis, then the
+       gradient itself may be not be sufficiently accurate by default.
+       The precision in the gradient can be improved by
+  <ol>
+  <li> SCF ... simply decrease THRESH.  The default is 1d-4.  A value
+         of 1d-6 should suffice. If you are asking for tight
+         convergence, or in pathological cases such as strong linear
+         dependence, then use 1d-8.</li>
+  <li> DFT ... improve the resolution of the grid (try FINE or one of
+         the Lebedev grids) and the convergence threshold for the
+         density.  You can check if the grid resolution is adequate by
+         looking at the value of the numerically integrated density.
+         The error in this number is roughly the same magnitude as that
+         in the gradients.  If this error is too large and you are
+         already using a FINE or XFINE grid, try increasing the
+         screening radius (e.g., TOLERANCES ACCQRAD 20).</li>
+  <li> MP2 ... use the TIGHT keyword.  This tightens up thresholds in
+         the SCF, CPHF and MP2.</li>
+  </ol></li>
+<li>If the geometry has changed a lot and you are using AUTOZ the
+       redundant internals generated at the initial geometry may no
+       longer be appropriate.  Try restarting the optimization from the
+       last good geometry generating new redundant variables using the
+       directive REDOAUTOZ.</li>
+<li>Did you input your own Z-matrix or specify additional
+       coordinates for AUTOZ?  If the variables don't correspond to
+       standard molecular internal coordinates then the initial guess
+       for the Hessian is not necessarily very good, and the actual
+       Hessian may not be well conditioned.  You can switch from your
+       own Z-matrix to redundant internals with this trick
+<pre>
+       geometry
+         zmatrix
+           your z-matrix data
+         end
+       end
+
+       geometry adjust    # Discards z-matrix and uses autoz
+       end
+
+</pre></li>
+<li>Flat potential energy surfaces such as internal coordinates
+       (e.g., some torsions) dominated by weak interactions, or floppy
+       molecules/clusters are tough problems.  Try getting a better
+       starting geometry and some more Hessian information by
+       optimizing at the lowest acceptable level of theory before using
+       more expensive models.</li>
+</ol>
+</p>
+
+<hr>
+<p>
+<a name="constant"></a>
+<font color="purple">How do I keep some internal variables constant while optimizing
+    the others?
+</font>
+<p>
+<ol>
+<li>
+If you are defining your own Z-matrix, then parameters specified
+       in the constants section are frozen in any geometry optimization.
+<pre>
+
+       E.g., water with the bond angle frozen
+
+       geometry
+         zmatrix
+           o
+           h 1 0.98
+           h 1 0.98 2 hoh
+         constants
+           hoh 105.0
+         end
+       end
+
+</pre></li>
+<li>If you are using redundant internal coordinates then user
+       defined internal coordinates flagged with the keyword constant
+       are frozen during the optimization.  If no value is given for a
+       user defined variable, then the value implicit in the Cartesian
+       coordinates is used.  If a value is given, then it is imposed
+       upon the Cartesian coordinates while attempting to make only
+       minor changes in the other internal coordinates.
+<p>
+       E.g., water with the bond angle frozen at the value defined
+       by the Cartesian coordinates.
+<pre>
+
+       geometry autosym
+         zcoord; angle 3 1 2 constant; end
+         O   0.000     0.0     0.119
+         H   0.777     0.0    -0.477
+         H  -0.777     0.0    -0.477
+       end
+
+</pre>
+       E.g., water with the bond angle held at 103 degrees.
+<pre>
+
+       geometry autosym
+         zcoord; angle 3 1 2 103.0 constant; end
+         O   0.000     0.0     0.119
+         H   0.777     0.0    -0.477
+         H  -0.777     0.0    -0.477
+       end
+
+</pre></li>
+</ol>
+</p>
+
+
+<hr>
+<p>
+<a name="sameval"></a>
+
+<font color="purple">How do I constrain some internal variables to be the same
+    value within a sign?
+</font>
+<p>
+    With either user-defined redundant internal coordinates, or a
+    user-defined Z-matrix, variables with the same non-blank name are
+    forced to have the same value even if they are not related by
+    symmetry.  A sign may be optionally employed to orient torsion
+    angles.
+<p>
+    E.g. CH3-CF3 - related bonds, angles and torsions are forced to be
+    equivalent.  Note the use of a sign on TOR1.
+<pre>
+
+       geometry
+         zmatrix
+           C
+           C 1 CC
+           H 1 CH1 2 HCH1
+           H 1 CH2 2 HCH2 3  TOR1
+           H 1 CH2 2 HCH2 3 -TOR1
+           F 2 CF1 1 CCF1 3  TOR3
+           F 2 CF2 1 CCF2 6  FCH1  1
+           F 2 CF2 1 CCF2 6  FCH2 -1
+           variables
+             CH1   1.08
+             CH2   1.08
+             CF1   1.37
+             CF2   1.37
+             HCH1  104.2
+             HCH2  104.7
+             CCF1  112.0
+             CCF2  112.0
+             TOR1  109.4
+             FCH1  106.8
+             FCH2  106.8
+             CC    1.49
+             TOR3  180.0
+         end
+       end
+
+</pre>
+</p>
+
+
+<hr>
+<p>
+<a name="restart"></a>
+<font color="purple">How do I restart a geometry optimization?
+</font>
+<p>
+    If you have saved the restart information that is kept in the
+    permanent directory, then you can restart a calculation, as long as
+    it did not crash while writing to the data base.
+<p>
+    Following are two input files.  The first starts a geometry
+    optimization for ammonia.  If this stops for nearly any reason such
+    as it was interrupted, ran out of time or disk space, or exceeded
+    the maximum number of iterations, then it may be restarted with the
+    second job.
+<p>
+    The key points are
+<ol>
+<li>The first job contains a START directive with a name for the
+       calculation.</li>
+
+<li>All subsequent jobs should contain a RESTART directive with the
+       same name for the calculation.</li>
+
+<li>All jobs must specify the same permanent directory.  The default
+       permanent directory is the current directory.</li>
+
+<li>If you want to change anything in the restart job, just put the
+       data before the task directive.  Otherwise, all options will be
+       the same as in the original job.</li>
+</ol>
+<p>
+    Job 1.
+<pre>
+
+         start ammonia
+         permanent_dir /u/myfiles
+
+         geometry
+           zmatrix
+             n
+             h 1 nh
+             h 1 nh 2 hnh
+             h 1 nh 2 hnh 3 hnh -1
+           variables
+             nh 1.
+             hnh 115.
+           end
+         end
+
+         basis
+           n library 3-21g; h library 3-21g
+         end
+
+         task scf optimize
+
+</pre>
+    Job 2.
+<pre>
+
+         restart ammonia
+         permanent_dir /u/myfiles
+
+         task scf optimize
+
+</pre>
+</p>
+
+
+<hr>
+<p>
+<a name="symm"></a>
+<font color="purple">Can I use symmetry while optimizing the geometry?
+</font>
+<p>
+    Yes.
+<p>
+    With Cartesian coordinates either
+<ul>
+<li>list all atoms in any orientation and use the AUTOSYM keyword for
+    automatic detection of the point group, or </li>
+
+<li>list all, or just the unique, atoms in the standard NWChem
+    orientation for the point group and specify the point group with
+    the SYMMETRY directive. </li>
+</ul>
+    If you are using a Z-matrix you can only use the AUTOSYM keyword.
+</p>
+
+<hr>
+<p>
+<a name="adjust"></a>
+<font color="purple">How do I adjust the value of (or change in any way) some internal
+     coordinates in an existing geometry?
+</font>
+<p>
+     NWChem provides the <tt>adjust</tt> keyword on the GEOMETRY directive
+<p>
+     E.g., force the bond angle in an existing geometry for water to
+     be 103.0 degrees.  Here, the initial geometry is input, but it could
+     have come from any source, including a previous optimization.
+<pre>
+
+     geometry
+         O   0.000     0.0     0.119
+         H   0.777     0.0    -0.477
+         H  -0.777     0.0    -0.477
+     end
+
+     geometry adjust
+         zcoord; angle 3 1 2 103.0 constant; end
+     end
+
+</pre>
+</p>
+
+
+<hr>
+<p>
+<a name="scan"></a>
+<font color="purple">How do I scan a potential energy surface?
+</font>
+<p>
+     E.g., scanning the OH bond and HON bond angle in hydroxylamine in
+     order to find a starting geometry for a transition state search.
+
+<ol>
+<li>You can do it manually:
+<pre>
+
+        basis; n library 3-21g; h library 3-21g; o library 3-21g; end
+
+        geometry # Hydroxylamine
+          n  -0.239    -0.678   0.0
+          o   0.237     0.710   0.0
+          h  -0.579     1.226   0.0
+          h   0.179    -1.084   0.822
+          h   0.179    -1.084  -0.822
+        end
+
+        geometry adjust
+          zcoord
+            bond  3 2    1.2525 oh
+            angle 3 2 1 84.3   hon constant
+          end
+        end
+        task scf optimize
+
+        geometry adjust
+          zcoord
+            bond  3 2    1.538 oh
+            angle 3 2 1 65.3   hon constant
+          end
+        end
+        task scf optimize
+
+        geometry adjust
+          zcoord
+            bond  3 2    1.8235 oh
+            angle 3 2 1 46.3   hon constant
+          end
+        end
+        task scf optimize
+
+</pre></li>
+<li>Or, you can use a Python program.  The scan_input() procedure
+        is defined in nwgeom.py and is documented there.
+<pre>
+
+        basis; n library 3-21g; h library 3-21g; o library 3-21g; end
+
+        geometry # Hydroxylamine
+          n  -0.239    -0.678   0.0
+          o   0.237     0.710   0.0
+          h  -0.579     1.226   0.0
+          h   0.179    -1.084   0.822
+          h   0.179    -1.084  -0.822
+        end
+
+        python
+          from nwgeom import *
+
+          geom = '''
+            geometry adjust
+              zcoord
+                bond  3 2 %f oh
+                angle 3 2 1 %f hon constant
+              end
+            end
+          '''
+
+          results = scan_input(geom,
+                               [0.967, 103.3],
+                               [2.109,  26.96],
+                               3, 'scf', task_optimize)
+        end
+
+        task python
+
+</pre></li>
+</ol>
+</p>
+
+
+<hr>
+<p>
+<a name="findts"></a>
+<font color="purple">How do I find a transition state?
+</font>
+<p>
+     A fairly reliable approach is to
+<p>
+<ol>
+<li>Optimize the reactants and products</li>
+
+<li>Identify the key internal variables involved in the reaction</li>
+
+<li>Generate an initial guess for the saddle geometry by either
+        guessing or scanning the coordinates.  Do a constrained
+        minimization at this point to relax the geometry.</li>
+
+<li>From the relaxed initial guess, search for the saddle point
+        using the default options (releasing unnecessary constraints).
+        The default option is to take the first step uphill.  If this
+        does not manage to locate the negative mode, then try taking
+        the first step along one of the bonds being made/broken
+        (using the DRIVER directive VARDIR).</li>
+</ol>
+<p>
+     Steps 1) & 3) are covered elsewhere in the FAQ.  Step
+     2) is your problem.  Step 4) is done as follows
+<p>
+     E.g., find the transition state for CH3+HF <-> CH4 + F
+     given a starting guess for the transition state.
+<pre>
+
+       geometry autosym
+          c    0.000   0.000  -1.220
+          h    0.000   0.000   0.029
+          h    1.063   0.000  -1.407
+          h   -0.531  -0.921  -1.407
+          h   -0.531   0.921  -1.407
+          f    0.000   0.000   1.279
+       end
+
+       basis
+         c library 3-21g; h library 3-21g; f library 3-21g
+       end
+
+       scf; doublet; uhf; thresh 1e-6; print none; end
+
+       task scf saddle
+
+</pre>
+       Note that it is often necessary to specify manually internal
+       coordinates for the bonds being broken/made since the algorithms
+       inside AUTOZ are optimized for geometries near minima.
+<p>
+Another useful tip is to tighten up the precision in the gradient, which
+can decrease the number of steps needed to reach the transition state.
+       The precision in the gradient can be improved by
+<ul>
+<li>SCF ... simply decrease THRESH.  The default is 1d-4.  A value
+         of 1d-6 should suffice. If you are asking for tight
+         convergence, or in pathological cases such as strong linear
+         dependence, then use 1d-8.</li>
+
+<li>DFT ... improve the resolution of the grid (try FINE or one of
+         the Lebedev grids) and the convergence threshold for the
+         density.  You can check if the grid resolution is adequate by
+         looking at the value of the numerically integrated density.
+         The error in this number is roughly the same magnitude as that
+         in the gradients.  If this error is too large and you are
+         already using a FINE or XFINE grid, try increasing the
+         screening radius (e.g., TOLERANCES ACCQRAD 20).</li>
+
+<li>MP2 ... use the TIGHT keyword.  This tightens up thresholds in
+         the SCF, CPHF and MP2.</li>
+</ul>
+</p>
+
+
+<hr>
+<br><br>
+<p>
+<a name="mp2"></a>
+<h3>MP2 Properties</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="howmp2prop"></a>
+<font color="purple">How do I calculate MP2 properties?
+</font>
+<p>
+The default molecular orbital file
+$file_prefix$.movecs is used unless a VECTORS
+subdirective is provided in the PROPERTY directive. It is therefore
+necessary to include a VECTORS directive if the MO
+vectors to be analyzed are not coming from the default
+file, e.g., if they have been previously redirected, or if
+MP2 natural orbitals (file extension ".mp2nos") are
+being anaylzed.  So, to calculate MP2 properties, a PROPERTY
+block directive similar to the one in the following example would
+be appropriate:
+<pre>
+     start h2o
+     title; Water MP2 properties example
+
+     geometry
+       O 0  0     0
+       H 0  1.430 1.107
+       H 0 -1.430 1.107
+     end
+
+     basis
+       H library sto-3g
+       O library sto-3g
+     end
+
+     task mp2
+
+     property
+       octupole
+       efield
+       vectors h2o.mp2nos
+     end
+
+     task property
+</pre>
+</p>
+
+<hr>
+<p>
+<a name="mp2symm"></a>
+<font color="purple">My high symmetry MP2 calculation is taking longer that it
+      should.  Why is this?
+</font>
+<p>
+Currently MP2 can only use Abelian point groups and does not have descent of
+symmetry implemented (meaning that it does not know how to use a proper
+Abelian point group instead of an input non-Abelian group).  The user must
+define the proper Abelian point group, orient the molecule into this point
+group, and then run the MP2.
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="dft"></a>
+<h3>SCF/DFT</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="g9xgrid"></a>
+<font color="purple">How do I reproduce the XC numerical grid used in G9X?
+</font>
+<p>
+G9X and NWChem default grids are different. To get a grid close to the default
+G9X grid you need the following input lines.
+<pre>
+dft
+ grid ssf euler lebedev 75 11
+end
+</pre>
+</p>
+
+
+<hr>
+<p>
+<a name="cdfit"></a>
+<font color="purple">Which Coulomb fitting basis set should I use?
+</font>
+<p>
+We strongly recommend use of the Ahlrichs Auxilliary basis sets for fitting
+the Coulomb potentatial in DFT calculations. The following is an example
+of an in input file using this basis set.
+<pre>
+basis "cd basis"
+ C library "Ahlrichs Coulomb Fitting"
+end
+</pre>
+
+For analysis of the accuracy of this basis set, see <br>
+Skylaris, C.-K.; Gagliardi, L.; Handy, N.C.; Ioannou, A.G.; Spencer, S.; Willetts, A.,
+Journal of Molecular Structure: THEOCHEM <b>501-502</b>,  229 (2000).
+</p>
+
+
+<hr>
+<p>
+<a name="lumoenergy"></a>
+<font color="purple"> Are the DFT unoccupied orbital energies shifted?</font>
+<p>
+Yes, in all versions of NWChem including 4.0 and below, the DFT unoccupied
+orbital energies are shifted by the amount of level-shifting used to
+converge the wavefunction.  If you use these energies for any reason, you
+need to subtract out the level-shifting value.  Check out the
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node13.html#SECTION001350000000000000000">DFT Convergence</a> section of the User Manual for more
+information about level-shifting.
+</p>
+
+<hr>
+<p>
+<a name="aorepl"></a>
+<font color="purple">I got the error message: "<tt>ao_replicated: insufficient memory XXXXXXXX</tt>"; what can I do?</font>
+<p>
+<!There are two possible ways to fix this problem>
+You can fix this problem by having the code adopting the distributed data Fock build (that is less memory demanding compared to the default replicated
+data build). This is accomplished by adding the following line
+anywhere in you input file
+<pre>
+ set fock:replicated logical .false.
+</pre>
+
+<! 2) try to increase the memory allocation to make the replicated data
+  algorithm go. This can be done by introducing the memory line
+  as described in the Users Manual>
+
+
+<! Option 1) is safer, but the  replicated data algorithm (option 2) is
+faster.>
+</p>
+
+<hr>
+<p>
+<a name="x3lyp"></a>
+<font color="purple">How can I do an X3LYP calculation in NWChem?</font>
+<p>The X3LYP functional is not available as a keyword. However, using section 11.3 (specifically 11.3.1 and 11.3.2)
+of the NWChem user manual, and applying the parameters of the X3LYP paper on
+<a href="http://www.pnas.org/cgi/content/full/101/9/2673" target="_blank">
+http://www.pnas.org/cgi/content/full/101/9/2673</a> by Xu and Goddard you can define this exchange-correlation
+functional using the following line in the DFT input block:</p>
+
+<pre>XC vwn_1_rpa 0.129 lyp 0.871 Hfexch 0.218 slater 0.782 becke88 nonlocal 0.542 xperdew91 nonlocal 0.167</pre>
+
+<hr>
+<p>
+<a name="bqs"></a>
+<font color="purple">How do you address Bq's to get an integration grid?</font>
+<p>Particular care is required to compute BSSE by the counter-poise method for the DFT module.
+In order to include terms deriving from the numerical grid used in the XC integration, the user must label the
+ghost atoms not just bq, but bq followed by the given atomic symbol. For example, the first component
+needed to compute the BSSE for the water dimer, should be written as follows:</p>
+
+<pre>
+geometry h2o autosym units au
+ O        0.00000000     0.00000000     0.22143139
+ H        1.43042868     0.00000000    -0.88572555
+ H       -1.43042868     0.00000000    -0.88572555
+ bqH      0.71521434     0.00000000    -0.33214708
+ bqH     -0.71521434     0.00000000    -0.33214708
+ bqO      0.00000000     0.00000000    -0.88572555
+end
+
+basis
+ H library aug-cc-pvdz
+ O library aug-cc-pvdz
+ bqH library H aug-cc-pvdz
+ bqO library O aug-cc-pvdz
+end
+</pre>
+
+<p>Please note that the ``ghost'' oxygen atom has been labeled bqO, and not just bq.</p>
+
+
+<hr>
+<br><br>
+<p>
+<a name="gapss"></a>
+<h3>GAPSS</h3>
+</p>
+
+<hr>
+<p>
+<a name="gapssdistr"></a>
+<font color="purple">Is the GAPSS module available?
+</font>
+<p>
+The GAPSS module is available in the source code, however, we no
+longer provide any support for this module.
+</p>
+
+<hr>
+<p>
+<a name="gapsscomp"></a>
+<font color="purple"> I get the error message "gap_parse is not in this build of NWChem", how do I get GAPSS to work?
+</font>
+<p>
+Follow this procedure
+<pre>
+1) cd $NWCHEM_TOP/src
+2) make nwchem_config NWCHEM_MODULES="all gapss"
+3) make
+</pre>
+</p>
+
+<hr>
+<p>
+<a name="gapssener"></a>
+<font color="purple">Can I do geometry optimizations with GAPSS?
+</font>
+<p>
+No, the distributed version of GAPSS does not have analytical gradients.
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="qmmm"></a>
+<h3>QMMM</h3>
+</p>
+
+<hr>
+<p>
+<a name="qmmminput"></a>
+<font color="purple">How do I run a QM/MM calculation?</font>
+<p>
+You need to have an nwchem input file (<a href="http://www.emsl.pnl.gov/docs/nwchem/support/qmmm.nw">example for K(H<sub>2</sub>O)<sub>6</sub></a>), and
+an associated pdb file (<a href="http://www.emsl.pnl.gov/docs/nwchem/support/K6H2O.pdb">example for K(H<sub>2</sub>O)<sub>6</sub></a>).
+The PDB file must be complete, containing  both the QM and MM
+atoms.
+
+The nwchem input file must contain a prepare section and fields relative
+to the QM region and the md inputs. A template follows (Note that the
+memory and eatoms value are only examples.)  The
+<a href="http://www.emsl.pnl.gov/docs/nwchem/support/qmmm.nw">example for K(H<sub>2</sub>O)<sub>6</sub></a> contains comments with more information.
+
+<pre>
+start SYSTEM
+
+memory  heap 8 mb  stack 54 mb  global 54 mb
+
+prepare
+   system SYSTEM_CALC
+   Define quantum atoms
+   Add solvent
+   update lists
+end
+
+basis
+   basis set
+end
+
+scf
+   SCF input
+   print low
+end
+
+md
+   system SYSTEM_CALC
+   MD input
+   memory 15000
+end
+qmmm
+   eatoms -190.0
+end
+task qmmm scf ( energy | optimize | dynamics )
+</pre>
+
+For detailes on the <tt>eatoms</tt> field, please have a look at the QM/MM section of
+the Users' <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node31.html#SECTION003110000000000000000"> Manual</a>.
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="moldynam"></a>
+<h3>Molecular Dynamics</h3>
+</p>
+
+<hr><p>
+<a name="moldynam_restart"></a>
+<font color="purple">How do I restart a Molecular Dynamics calculation?
+</font>
+<p>
+The restart file that was used to run the "task md dynamics" will contain the updated coordinates if you have a "record rest ###"
+where ### is some number of steps (like 500).  The restart file will have the prefix of the system name used in the md input block.
+ For example,
+
+<pre>
+# Start warming solute: initially at 50 K
+# This file already exists: QJDa_md1.rst"
+md
+  system QJDa_md1
+  cutoff 0.9
+  pme  grid 64 order 4
+  leapfrog equil 0  data 10000  step 0.001
+  print step 1000 stat 10000
+  isotherm 50 trelax 0.1 0.1
+  update pairs 10  center 100 motion 100
+  record prop 50
+  record rest 500
+  record scoor 100
+  load pairs 20  size 0.75
+end
+task md dynamics
+
+# Continue warming solute: at 100 K
+task shell "cp QJDa_md1.rst QJDa_md2.rst"
+md
+  system QJDa_md2
+  cutoff 0.9
+  pme  grid 64 order 4
+  leapfrog equil 0  data 10000  step 0.001
+  print step 1000 stat 10000
+  isotherm 100 trelax 0.1 0.1
+  update pairs 10  center 100 motion 100
+  record prop 50
+  record rest 500
+  record scoor 100
+  load pairs 20  size 0.75
+end
+task md dynamics
+</pre>
+
+The QJDa_md2.rst file will have the final restart information.
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="dirdyvtst"></a>
+<h3>DIRDYVTST</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="dirdyexamples"></a>
+<font color="purple">How do I run a DIRDYVTST calculation?
+</font>
+<p>
+Using the DIRDYVTST module is relatively straightforward and the user is referred to the
+DIRDYVTST section of the Users' <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node39.html#SECTION003920000000000000000"> Manual</a>.  A <a href="http://www.emsl.pnl.gov/docs/nwchem/support/examples/dirdyvtst/drdyvtst.tar"> set of examples </a> are available in a tar file.
+</p>
+<hr>
+<br><br>
+<p>
+<a name="linuxclusters"></a>
+<h3>Linux Clusters</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="linuxhw"></a>
+<font color="purple">What hardware configuration is suggested for running NWChem on Linux cluster?
+</font>
+<p>
+Most of the NWChem modules are not going to perform well on large Linux clusters
+that use just Fast Ethernet for communication. For optimal performance,
+you need to use either <a href="#giganet">Giganet</a> or <a href="#myrinet"> Myrinet</a> interconnects.
+</p>
+
+<hr>
+<p>
+<a name="myrinet"></a>
+<font color="purple">How do I install and run NWChem on Myrinet clusters?
+</font>
+<p>
+Prior to installing NWChem, you must have installed the <a href="http://www.myri.com/scs/linux/index.html">GM</a> and the
+<a href="http://www.myri.com/scs/index.html"> MPICH over GM</a>
+softwares on the system.
+
+<p>Before starting the NWChem compilation, the following environmental variables
+must be defined
+<pre>
+USE_MPI=y
+GM_HOME="location of GM software"
+GM_INCLUDE=$GM_HOME/include
+GM_LIB=$GM_HOME/lib
+ARMCI_NETWORK=GM
+MPI_LOC="location of MPICH-GM software"
+MPI_LIB=$MPI_LOC/lib
+MPI_INCLUDE=$MPI_LOC/include
+LIBMPI=-lmpich
+</pre>
+
+To run NWChem, you need to set the following enviromental variable
+<pre>
+GMPI_SHMEM_FILE /tmp/$USER.gm
+
+</pre>
+The next step is to launch the program. One way to do it is by using
+the mpirun.ch_gm script supplied in the MPICH-GM tar file. The
+command to execute is
+<pre>
+mpirun.ch_gm --gm-use-shmem $NWCHEM_TOP/bin/LINUX/nwchem
+</pre>
+or
+<pre>
+mpiexec $NWCHEM_TOP/bin/LINUX/nwchem
+</pre>
+
+<hr>
+<p>
+<a name="giganet"></a>
+<font color="purple">How do I install NWChem on Giganet clusters?
+</font>
+<p>
+Before starting the NWChem compilation, the following environmental variables
+must be defined
+<pre>
+ARMCI_NETWORK=VIA
+LIBMPI="-lmpipro -lpthread"
+</pre>
+To run NWChem, you need to set the following environmental variable
+<pre>
+MPI_COMM=VIA
+</pre>
+</p>
+
+<hr>
+<p>
+<a name="freebsdmem"></a>
+<font color="purple">How do I increase the shared memory segment in FreeBSD?</font>
+<p>
+To increase the shared memory segments on FreeBSD the
+following two sysctl's should be added to the startup scripts
+(e.g. /etc/rc.local):
+<pre>
+sysctl -w kern.ipc.shmmax=67108864
+sysctl -w kern.ipc.shmall=16384
+</pre>
+the first sysctl allocates 64Mbytes of memory, the second does
+the same thing in 4k pages (4k * 16384 = 64M), you <b>must</b> set both
+sysctl.
+</p>
+
+
+<hr>
+<br><br>
+<p>
+<a name="ibmsp"></a>
+<h3>IBM SP</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="lapi"></a>
+<font color="purple">What is the target for running NWChem on IBM SPs?
+</font>
+<p>
+The right target is <pre>LAPI</pre>
+IBM binaries are not going to work on IBM SP systems.
+For further details, have a look at the Users's manual <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node40.html#SECTION004050000000000000000">Running on an IBM SP</a>.
+</p>
+
+<hr>
+<p>
+<a name="lapiiniterr"></a>
+<font color="purple"> I have a lapi_init error.  How do I fix this problem?</font>
+<p>
+If you get a message similar to:
+<pre>
+  0: lapi_init failed 419(1a3)
+system message: Operation not permitted.
+ERRIR:  0031-250  task 0: terminated
+</pre>
+you need to set the environment variable MP_MSG_API.  You can either do this in your environment:
+<pre>
+setenv MP_MSG_API lapi
+</pre>
+or you can set it in your LoadLeveller script:
+<pre>
+# @ network.lapi = css0, not_shared, US
+</pre>
+The LoadLeveller method is preferred since it sets several other useful
+variables.
+NOTE: If you are using SMP nodes (i.e. more than one processor per node),
+change the "not_shared" to "shared".
+</p>
+
+<hr>
+<p>
+<a name="asyncio"></a>
+<font color="purple"> I have a load error when trying to run NWChem.  How do
+I fix this problem?
+</font>
+<p>
+If you get a message similar to:
+<pre>
+exec(): 0509-036 Cannot load program /usr/local/NWChem/bin/nwchem because of the
+ following errors:
+        0509-023 Symbol kaio_rdwr in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+        0509-023 Symbol listio in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+        0509-023 Symbol acancel in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+        0509-023 Symbol iosuspend in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+        0509-022 Cannot load library libc.a[aio.o].
+        0509-026 System error: Cannot run a file that does not have a valid format.
+</pre>
+The problem is that Asynchronous I/O is not turned on for your system.  There
+are two possible solutions.  The first and best solution is to have the
+system administrator turn on Asynchronous I/O on all of the nodes.  This can
+be done by:
+<ol>
+<li> Enter smit </li>
+<li> Go to "Devices" </li>
+<li> Go to "Asynchronous I/O" </li>
+<li> Go to "Change / Show Characteristics of Asynchronous I/O" </li>
+<li> Change "State of fast path" to "enable" </li>
+<li> Make sure "STATE to be configured at system restart" is set to "available" </li>
+<li> Exit smit</li>
+</ol>
+The nodes will need to be rebooted for the change to take effect.
+<p>
+The second solution is to compile GA without Asynchronous I/O turned on.
+This WILL slow down the performance of NWChem.
+<ol>
+<li>cd $NWCHEM_TOP/src/tools/pario</li>
+<li>make TARGET=LAPI clean</li>
+<li>make TARGET=LAPI CC="cc -DNOAIO" LARGE_FILES=y</li>
+<li>cd $NWCHEM_TOP/src</li>
+<li>make link</li>
+</ol>
+</p>
+
+<hr>
+<p>
+<a name="rtgrqon"></a>
+<font color="purple">Thread scheduling policy change from AIX 4.3 to 4.3.3 which
+ effects performance.
+</font>
+<p>
+The default thread scheduling policy changed from AIX version 4.3 to 4.3.3
+which effects MPI and LAPI programs that rely on switch packet arrival
+interrupts (such as NWChem).  This directly effects the performance of
+NWChem.  To change the default, you need to set the environment variable
+RT_GRQ.  You can either do this in your environment:
+<pre>
+setenv RT_GRQ ON
+</pre>
+or you can set it in your LoadLeveller script:
+<pre>
+# @ environment      =    RT_GRQ=ON
+</pre>
+Note that you may have other variables to set with the environment line.  Just
+add the variable onto the existing line using a semi-colon as a separator.  For
+example:
+<pre>
+# @ environment      =    COPY_ALL; MP_INFOLEVEL=3; MP_PULSE=0;
+MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield; RT_GRQ=ON; restart=no
+</pre>
+</p>
+
+<hr>
+<p>
+<a name="filelimit"></a>
+<font color="purple">How do I use more than 2 GB of disk space?</font>
+<p>
+During the compilation, the environment variable LARGE_FILES needs to be
+set (i.e. setenv LARGE_FILES TRUE).  Also, you should make sure that the
+file sizes on your system are not limited to 2 GB (type "limit" and check
+the output).  If the sizes are limited, ask your system adminitrator to
+change the limit for you.
+</p>
+
+
+
+
+<hr>
+<br><br>
+<p>
+<a name="ibm"></a>
+<h3>IBM </h3>
+</p>
+
+
+<hr>
+<p>
+<a name="ibm64python"></a>
+<font color="purple">How do I install a Python library
+ compatible with the NWCHEM_TARGET IBM64?
+</font>
+<p>
+<ol>
+<li> download the python source from <a href="http://www.python.org/ftp/python/src/py152.tgz">www.python.org</a> </li>
+
+<li> extract the file from the source tar file and cd to the python
+source directory
+
+<li> tell the makefile framework the generate 64-bit object with xlc
+
+<pre>    setenv CFLAGS "-q64" </pre>
+
+</li>
+
+<li> configure python
+
+<pre>    ./configure --without-gcc     </pre>
+
+</li>
+
+<li> instead of typing just <tt>make</tt>, type
+
+<pre>   make CC="xlc -q64" AR="ar -X64" </pre>
+
+</li>
+
+<li> instead of typing just <tt>make install</tt>, type
+
+<pre>   make CC="xlc -q64" AR="ar -X64" install </pre>
+</li>
+
+</ol>
+</p>
+
+
+
+<hr>
+<br><br>
+<p>
+<a name="win32"></a>
+<h3>Windows 32</h3>
+</p>
+
+<hr>
+<p>
+<a name="win32compile"></a>
+<font color="purple">How do I compile NWChem on Windows NT and
+Windows 98?</font>
+<p>
+The right target is <tt>WIN32.</tt> Before starting the compilation,
+you must have installed the
+Compaq Visual Fortran compiler (version 6.0 and 6.1 have been successfully
+tested) and the NT.MPICH library
+(<a href="http://www-unix.mcs.anl.gov/~ashton/mpich.nt/">http://www-unix.mcs.anl.gov/~ashton/mpich.nt/</a> ).
+Then, you need to have defined this series of variables  (that you can
+set in <tt> autoexec.bat</tt>)
+<pre>
+set NWCHEM_TOP=c:\nwchem
+set NWCHEM_TARGET=WIN32
+set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\INCLUDE
+set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\lib
+set NWCHEM_EXTRA_LIBS=%MPI_LIB%\mpich.lib
+</pre>
+To start the compilation, start the Microsoft makefile utility from
+the top level source directory by typing
+<pre>
+nmake
+</pre>
+The name of the executable is <tt> nw32.exe </tt>
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="decosf"></a>
+<h3>DECOSF</h3>
+</p>
+
+<hr>
+<p>
+<a name="decsegv"></a>
+<font color="purple">What is causing a segmentation violation in DECOSF 4.0?</font>
+<p>
+The <tt>-automatic</tt> Fortran compiler option is causing this problem under DECOSF 4.0 using version 5.2 of the f77 compiler. To get a working executable,
+you need to edit <tt>$NWCHEM_TOP/src/config/makefile.h</tt> at line <tt>1051</tt>. The modified line 1051 must therefore be
+<p><tt>FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check
+nounderflow \</tt>
+<br><tt>-check nopower -check nooverflow -warn argument_checking
+-warn unused #-automatic</tt>
+</p>
+
+<hr>
+<p>
+<a name="decmainit"></a>
+<font color="purple">What is causing the <tt>ma_init failed</tt> error message?</font>
+<p>
+If NWChem crashes with the error message
+<pre>
+MA error: MA_init: could not allocate XXXXXXXXX bytes
+ ------------------------------------------------------------------------
+ nwchem.F: ma_init failed (ga_uses_ma=T)      911
+</pre>
+this is most likely due to the act the default <tt>datasize</tt> on DECOSF is too small
+(131072 kbytes). To increase this value under csh, please type
+<pre>
+limit datasize unlimited
+</pre>
+</p>
+
+<hr>
+<p>
+<a name="decsmpopt"></a>
+<font color="purple">How to fix the segfault in single node runs on
+  HP AlphaServer SC 2.5?</font>
+<p>
+To fix NWChem crashes with a segfault early on with a segfault in single
+node runs, please add the following environmental variable to your settings:
+<pre>
+</pre>
+<pre>
+setenv SHMEM_SMP_ENABLE 0
+</pre>
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="sgi"></a>
+<h3>SGI</h3>
+</p>
+
+
+<hr>
+<p>
+<a name="sgimpi"></a>
+<font color="purple">How can I improve parallel performances under SGI?</font>
+<p>Use the MPI vendor library, after defining the usual environmental
+variable to replace TCGMSG with MPI
+<pre>
+USE_MPI=y
+</pre>
+<p>
+<hr>
+<a name="sgitfpscs"></a>
+<font color="purple">How can I improve performances under SGITFP?</font>
+<p>Install the SCSL scientific library, freely available from the   <a href="http://www.sgi.com/software/scsl.html" target="_blank"> SGI web site </a>, then link the
+code with the following environmental variable
+<pre>
+BLASOPT=-lscs_blas_i8
+</pre>
+</p>
+
+
+<hr>
+<p>
+<a name="sgitfpmpich"></a>
+<font color="purple">How do I install the MPI version of SGITFP?</font>
+<p> You need to have installed a 64-bit version of MPICH. In order to
+do that, you need to run configure with the following arguments
+<pre>
+./configure --with-arch=IRIX64 --with-device=ch_p4 ---prefix=/usr/local\
+--disable-f90 --disable-f90modules
+</pre>
+</p>
+
+<hr>
+<br><br>
+<p>
+<a name="itanium"></a>
+<h3>Itanium</h3>
+</p>
+
+<hr>
+<p>
+<a name="itaniumcompiler"></a>
+<font color="purple">Which version of the Intel compiler should I use?</font>
+<p>When compiling NWChem with the Intel compilers, we recommend using the Intel 7.0 compiler over the
+6.0 compiler because of performance and stability issues.
+</p>
+
+<p><hr>
+<i>Updated: Friday May 21 17:01:35 PDT 2004 <br>
+Created by: Theresa Windus<br></i>
+</p>
+
+</td></td></table>
+</body>
+</html>

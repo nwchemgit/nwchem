@@ -1,0 +1,625 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Known Bugs in version 4.0</TITLE>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+
+<table width="650">
+<tr>
+<td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Known Bugs in versions 4.0 and 4.0.1</h1>
+
+It is recommended that users use the defaults in NWChem. 
+They have been set to provide maximum efficiency for most users.
+If you feel you must change one of the defaults, be aware that
+you are responsible for ensuring that the results are correct.
+<p>
+Below is a list of the known bugs in NWChem 4.0 and 4.0.1.  If you believe
+that you have found bugs that are not listed here, please
+send your bug report using the correct channel listed in the
+<a href="support.html">Reporting Problems with NWChem page</a>.
+<ol>
+  <li> <a href="#0">Compile problem on Sun 4 processors with workshop 4.2</a></li>
+  <li> <a href="#01">Possible compile problems with True64 Compaq Fortran</a></li>
+  <li> <a href="#02">Cross-compiling problems on the IBM SP</a></li>
+  <li> <a href="#1">Direct MP2 optimizations</a></li>
+  <li> <a href="#2">PSPW does not work on HP</a></li>
+  <li> <a href="#3">PSPW simulations of charged systems in parallel</a></li>
+  <li> <a href="#4">Level shift is included in DFT unoccupied orbital energies</a></li>
+  <li> <a href="#5">QM MD restarts fail under MPI</a></li>
+  <li> <a href="#6">Failure reading in cartesian hessian from a previous frequency calculation</a></li>
+  <li> <a href="#7">MD restart files are overwritten</a></li>
+  <li> <a href="#8">Order of variables for the LINK card in the PDB file is incorrect</a></li>
+  <li> <a href="#81">Ring closure problems with DNA and RNA</a></li>
+  <li> <a href="#82">Distance restraint problem in the PREPARE module</a></li>
+  <li> <a href="#9">Sometimes COSMO gradients are only for the gas phase part of the calculation</a></li>
+  <li> <a href="#10">The COSMO code is getting a SEGV</a></li>
+  <li> <a href="#101">The COSMO code is getting a wrong answers when run with ECPs</a></li>
+  <li> <a href="#11">UDFT calculations with COSMO are having convergence problems</a></li>
+  <li> <a href="#12">DPLOT is not picking up the vectors from the first file name in the VECTORS directive</a></li>
+  <li> <a href="#13">I am getting a error related to bgj_get_scf_method when running MCSCF</a></li>
+  <li> <a href="#14">DFT Open-shell calculation with the Exchange functionals
+<tt>xpbe96</tt> and <tt>xperdew91</tt> produce wrong gradients</a></li>
+  <li> <a href="#15">Cannot restart DFT calculations running under NQE</a></li>
+  <li> <a href="#16">Direct MP2 numerical gradient fails</a></li>
+  <li> <a href="#17">Medium and large size calculation under Linux produce NaNs</a></li>
+  <li> <a href="#18">GM versions before 1.3 cause compilation errors</a></li>
+  <li> <a href="#19">DFT calculations on molecules containg ghost atoms fail</a></li>
+  <li> <a href="#20">I am getting an "There are insufficient internal
+  variables" error</a></li>  
+<li> <a href="#21">DPLOT fails to compute negative spin densities from DFT wave-functions  </a></li>
+<li> <a href="#22">Non-sense numbers in very large SCF/DFT calculations
+with NWChem 4.01  </a>
+<li> <a href="#23">ESPs give wrong results for spherical basis sets or UHF</a></li>
+<li> <a href="#24">Spin-orbit gradient calculation  crashes</a></li>
+<li> <a href="#25">Cannot use MPICH on RedHat 7.1 boxes</a></li>
+<li> <a href="#26">Parallel runs are hanging</a></li>
+<li> <a href="#27">Property calculation fails with a Segmentation Violation</a></li>
+<li> <a href="#28">NWChem fails with a Segmentation Violation while reading input</a></li>
+</li></ol>
+<p>
+<hr><br><hr>
+<p>
+
+<a name="0"></a>
+<p>
+<font color="purple">Compile problem on Sun processors with workshop 4.2</font>
+<p>
+The user will get a fatal error when compiling
+nwchem/src/util/errquit.F that can be resolved by removing 
+the -DJOBTIMEPATH definition in the GNUmakefile in the util directory.  
+A better solution is to upgrade to at least workshop 5.0.
+<p>
+
+<hr>
+<a name="01"></a>
+<p>
+<font color="purple"> Possible compile problems with True64 Compaq Fortran</font>
+<p>
+Some versions of True64 Compaq Fortran default f77 to point to f90 and
+the compile will break because of problems with cpp and f90.  This has
+been reported for V5.3-915.  There are three known solutions:
+<ol>
+<li>Change the f77 link to point to f77 instead of f90,</li>
+<li>Add the flag -old_f77 as the first flag in the FC definition of the
+DECOSF section of the $NWCHEM_TOP/src/config/makefile.h file, or</li>
+<li>Upgrade to version X5.3-1155 plus the patches at
+<a href="http://www6.compaq.com/fortran/dfau.html#updates">
+http://www6.compaq.com/fortran/dfau.html#updates</a>.</li>
+</ol>
+<p>
+
+<hr>
+<a name="02"></a>
+<p>
+<font color="purple">
+Cross-compiling problems on the IBM SP</font>
+<p>
+The PeIGS code is automatically picking up the architecture it is being
+compiled on for LAPI (SP) builds, thus causing problems with cross-compiling.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="1"></a>
+<p>
+<font color="purple">Direct MP2 optimizations:</font>
+<p>
+MP2 optimizations that are performed with the direct option can
+have problems with CPHF convergence.  In this case, the user is
+advised to use the default options which is a semi-direct calculation.
+<p>
+
+<hr>
+<a name="2">
+<p>
+<font color="purple">
+PSPW does not work on HP</font>
+<p>
+Currently, the PSPW code is giving wrong results on HP platforms.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="3">
+<p>
+<font color="purple">
+PSPW simulations of charged systems in parallel</font>
+<p>
+PSPW simulations of charged systems (i.e. aperiodic simulation cell) give
+incorrect results when run in parallel.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="4">
+<p>
+<font color="purple">
+Level shift is included in DFT unoccupied orbital energies</font>
+<p>
+DFT unoccupied orbital energies
+include the level shift value used to converge the wavefunction (if active).
+If you 
+use these energies for any reason, you need to subtract out the level-shifting 
+value. Check out the 
+<a href="http://www.emsl.pnl.gov:2080/docs/nwchem/doc/user/node13.html#SECTION001350000000000000000">
+DFT Convergence</a> section of the User Manual for more 
+information about level-shifting. 
+<font color="red">This is now changed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="5">
+<p>
+<font color="purple">
+QM MD restarts fail under MPI</font>
+<p>
+An error will occur when trying to restart quantum mechanics (QM) molecular
+dynamics (MD) runs when the executable is compiled for MPI.  The error looks
+like an an unexisting file error.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="6">
+<p>
+<font color="purple">
+Failure reading in cartesian hessian from a previous frequency calculation</font>
+<p>
+When run in parallel, reading in of a cartesian hessian from a previous 
+frequency calculation causes a segmentation fault.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="7">
+<p>
+<font color="purple">
+MD restart files are overwritten</font>
+<p>
+Every time the prepare module was run, the restart file was written at the end.
+This also was done if this is not strictly needed.  As a result the history
+of the restart file was lost.  This does not cause anything to break, but
+during a set of simulations, the history is lost if, for example, the restart
+file was converted into a PDB formatted file.  
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="8">
+<p>
+<font color="purple">
+Order of variables for the LINK card in the PDB file is incorrect</font>
+<p>
+The order of variables written for the LINK card in the PDB file is
+incorrect.  Normally this card is written to the PDB file only when
+distances between a pair of link atoms of different segments is larger
+than the prepare module would be able to recognize as a bond.  In that
+case, a LINK card is written so that subsequent use of the prepare module
+would force a bond between these atoms.  With the incorrect LINK card the 
+prepare module breaks.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="81">
+<p>
+<font color="purple">
+Ring closure problems with DNA and RNA</font>
+<p>
+Some ring closure bonds were missing in the DNA and RNA fragments.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="82">
+<p>
+<font color="purple">
+Distance restraint problem in the PREPARE module</font>
+<p>
+Distance restraint definitions were incorrect in the PREPARE module.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="9">
+<p>
+<font color="purple">
+Sometimes COSMO gradients are only for the gas phase part of the calculation</font>
+<p>
+If the COSMO module is used and "numeric" is not added to the task line, 
+the results are for the gas phase system.  This effects gradient,
+optimization and hessian runs.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="10">
+<p>
+<font color="purple">
+The COSMO code is getting a SEGV</font>
+<p>
+In all likelihood, you are using spherical basis sets in the calculation.
+This will fail since the code only works in cartesians.  
+<font color="red">A fix is available in version 4.0.1 which causes the calculation to
+fail in a much more graceful manner.</font>
+<p>
+
+<hr>
+<a name="101">
+<p>
+<font color="purple">
+The COSMO code is getting a wrong answers when run with ECPs</font>
+<p>
+ECPs are currently not working with COSMO.
+<font color="red">A fix is available in version 4.0.1 which causes the calculati
+on to
+fail in a much more graceful manner.</font>
+<p>
+
+<hr>
+<a name="11">
+<p>
+<font color="purple">
+UDFT calculations with COSMO are having convergence problems</font>
+<p>
+This is associated with a bug in which memory was not being allocated
+properly.
+<font color="red">This is now fixed in version 4.0.1.</font>
+<p>
+
+<hr>
+<a name="12">
+<p>
+<font color="purple">
+DPLOT is not picking up the vectors from the first file name in the VECTORS directive</font>
+<p>
+The first file name is overwritten by the output vector name for SCF or DFT.  
+This means that the MP2 orbitals could not be used. <font color="red">
+A fix for this problem is now available.</font>
+<! Give the user dplot.F from the development branch>
+<p>
+
+<hr>
+<a name="13">
+<p>
+<font color="purple">
+I am getting a error related to bgj_get_scf_method when running MCSCF</font>
+<p>
+There is a problem with the code when only running MCSCF and not an SCF in the 
+same calculation.  The quick fix is to run the SCF before running the MCSCF.
+<font color="red"> A fix for this problem is now available.</font>
+<! Give the user mcscf/mcscf.F from the development branch>
+<p>
+
+<hr>
+<a name="14">
+<p>
+<font color="purple">
+DFT Open-shell calculation with the Exchange functionals
+<tt>xpbe96</tt> and <tt>xperdew91</tt> produce wrong gradients</font>
+<p>
+There is a problem with the code only when running open-shell calculations
+with these two functionals.
+A way to avoid this problem is to introduce the
+following line in the input file:
+<p><tt>set "dft:weight derivatives" f</tt>
+<p>However, gradients are going to be less accurate since the XC grid derivatives
+will not be included.  The user is encouraged to use the <tt>GRID</tt> keyword
+in the <tt>DFT</tt> block to increase the accuracy of the grid.
+<font color="red"> A fix for this problem will be available for the next release.</font>
+<p>
+
+<hr>
+<a name="15">
+<p>
+<font color="purple">
+Cannot restart DFT calculations running under NQE</font>
+<p>
+This problem occurs when running under NQE (or NQS) and using as <tt>scratch_dir</tt>
+the NQE <tt>$TMPDIR</tt>. A way to avoid this problems is to introduce
+the folllowing line in the input file:
+<p><tt>unset grid:filename</tt>
+<p>
+<font color="red"> A fix for this problem will be available for the next release.</font>
+<p>
+
+<hr>
+<a name="16">
+<p>
+<font color="purple">
+Direct MP2 numerical gradient fails</font>
+<p>
+Direct MP2 numerical gradient calculations fail
+in NWChem 4.0 and 4.01. We suggest you to use semi-direct MP2 (<tt>task
+mp2</tt>) that has analytical gradients.
+<font color="red"> A fix for this problem will be available for the next release.</font>
+<p>
+
+<hr>
+<a name="17">
+<p>
+<font color="purple">
+Medium and large size calculation under Linux produce NaNs</font>
+<p>
+2.2 Linux kernels are known to produce random wrong
+floating point arithmetic (eventually causing NaNs), see for example:
+<p><a href="http://www.ccl.net/cgi-bin/ccl/message.cgi?2000+06+06+002">http://www.ccl.net/cgi-bin/ccl/message.cgi?2000+06+06+002</a>
+<br><a href="http://www.ccl.net/cgi-bin/ccl/message.cgi?2001+02+23+012"> http://www.ccl.net/cgi-bin/ccl/message.cgi?2001+02+23+012</a>
+<br><a href="http://www.uwsg.indiana.edu/hypermail/linux/kernel/0104.2/0814.html"> BUG: Global FPU corruption in 2.2</a>
+<br><a href="http://www.cs.helsinki.fi/linux/linux-kernel/2001-16/0641.html">
+Re: BUG: Global FPU corruption in 2.2</a>
+<p>We have experienced the same problems running NWChem with a 2.2.x kernel. 
+This is likely due to FPU problems that has been fixed in kernel
+2.2.20 and in the 2.4 series.
+<br>To fix the problem, we strongly suggest you to install 2.4.x
+kernels available at
+<p>
+<a href="http://www.kernel.org/pub/linux/kernel/v2.4/">http://www.kernel.org/pub/linux/kernel/v2.4/</a> 
+<br>
+<p>
+or to upgrade your 2.2 kernel to version 2.2.20, whose source is
+available at
+<p>
+<a href="http://www.kernel.org/pub/linux/kernel/v2.2/linux-2.2.20.tar.gz">http://www.kernel.org/pub/linux/kernel/v2.2/linux-2.2.20.tar.gz</a> 
+<br>
+<p>
+
+<hr>
+<a name="18">
+<p>
+<font color="purple">
+GM versions before 1.3 cause compilation errors</font>
+<p>
+If you are using a version of GM more recent than 1.3, you are going to experience a
+compilation error, to avoid this you need to edit
+<tt>$NWCHEM_TOP/src/tools/armci/src/myrinet.c</tt> adding this line 
+<p>
+<tt>#define GM_STRONG_TYPES 0</tt>
+<p>
+just before 
+<p>
+<tt>#include "gm.h"</tt>
+<p>
+
+<hr>
+<a name="19">
+<p>
+<font color="purple">
+DFT calculations on molecules containg ghost atoms fail</font>
+<p>
+Because of bugs in the new XC grid schem available in NWChem 4.0, DFT 
+calculations on molecules containg ghost atoms fail.
+<br>To revert back to the old XC grid scheme and avoid the problem, insert the 
+following line in the <tt>dft</tt> field
+<p>
+<tt>grid old</tt>
+<p>
+If you have the NWChem source code, you can apply the following 
+<a
+href="http://www.emsl.pnl.gov/pub/docs/nwchem/support/gridbq.patch">patch</a>
+(that you can save by clicking on it with the right mouse button) by following these steps 
+<p>
+<tt>
+1) cd  $NWCHEM_TOP/src/nwdft/grid
+<p>2) patch -p0 < gridbq.patch
+<p>3) make
+<p>4) cd ../..
+<p>5) make link
+</tt>
+<p>
+<font color="red"> A fix for this problem will be available for the next release.</font>
+<p>
+
+<hr>
+<a name="20">
+<p>
+<font color="purple">
+I am getting an "There are insufficient internal variables"
+error</font>
+<p>
+If you have a chemical system that has "sensitive" internal
+coordinates, the B and B inverse code can have problems.  By
+sensitive, we mean that a small change in one internal coordinate
+has a large effect on the cartesian or internal coordinates of other
+atoms.
+<p>
+<font color="red"> A modification will be available for the next
+release which makes the code a bit less sensitive to this problem.
+<p>
+NOTE: Even with the modification, there still may be problems when
+using internal coordinates in a system that has sensitive internals
+when performing an optimization.  The optimization may proceed slowly
+or there may be problems in calculating B inverse.</font>
+<p>
+
+<hr>
+<a name="21">
+<p>
+<font color="purple">
+DPLOT fails to compute negative spin densities from DFT wave-functions</font>
+<p>
+In molecules where the DFT wave-function has regions with negative spin 
+density (eg antiferromagnetic systems), DPLOT produces zero spin density
+instead of the correct negative values.
+<p>
+<font color="red"> A fix for this problem will be available for the
+next release.</font>
+<p>
+
+<hr>
+<a name="22">
+<p>
+<font color="purple">
+Non-sense numbers in very large SCF/DFT calculations
+with NWChem 4.01</font>
+<p>
+A bug introduced in NWChem 4.01 (but not in NWChem 4.0) can produced
+nonsense results in very large SCF/DFT calculations.
+<p>
+<font color="red"> A fix for this problem will be available for the next release.</font>
+<p>
+
+<hr>
+<a name="23">
+<p>
+<font color="purple">
+ESPs give incorrect results for spherical basis sets or UHF</font>
+<p>
+The ESP module is restricted to use of cartesian basis sets, and for
+open shell systems to the use of restricted open shell Hartree-Fock
+(ROHF).  This will either be fixed in the next release or error
+messages will be printed out and the job will stop.
+<p>
+
+<hr>
+<a name="24">
+<p>
+<font color="purple">
+Spin-orbit gradient calculation  crashes</font>
+<p>
+Spin-orbit gradient calculations can crash with the following error message:
+<tt>
+<p> Read molecular orbitals from ./tlh.movecs
+
+<p>MA_verify_allocator_stuff: starting scan ...
+<p>stack block 'deriv buffer', handle 8, address 0x6580b44:
+<p>       current right signature 3891216469 != proper right signature 1431655765
+<p>MA_verify_allocator_stuff: scan completed
+<p> ------------------------------------------------------------------------
+<p> movecs_read_so: pop failed       18
+<p> ------------------------------------------------------------------------
+<p> ------------------------------------------------------------------------
+<p>  current input line :
+<p>   166: task sodft gradient
+</tt>
+<p><font color="red">A fix for this problem is now available.</font>
+<! Give the user nwdft/sodft/grad_force_so.F from the 4.01 patches>
+<p>
+
+<hr>
+<a name="25">
+<p>
+<font color="purple">
+Cannot use MPICH on RedHat 7.1 boxes</font>
+<p>
+If you compile NWChem 4.01 on a Linux RedHat 7.1 box with MPICH as
+your message-passing library, you are likely to get this error message:
+<tt>
+<p>0:Segmentation Violation error, status=: 11
+<p>p0_2065:  p4_error: : 11
+<p>bm_list_2066:  p4_error: interrupt SIGINT: 2
+<p>p0_2065: (1.280453) net_send: could not write to fd=4, errno = 32
+<p>-10001(s):armci_rcv_req: failed to receive header : 0
+</tt>
+<br>
+<p><font color="red"> A fix for this problem will be available for the next release.</font>
+However, if you replace MPICH with LAM, the problem vanishes. LAM is available at
+<a href="http://www.lam-mpi.org">
+http://www.lam-mpi.org</a>.
+<p>
+
+<hr>
+<a name="26">
+<p>
+<font color="purple">
+Parallel runs are hanging</font>
+<p>
+
+We have recently found a bug that can cause NWChem parallel runs to
+hang shortly after the following warning message is written
+<tt>
+<p>-10002(s):armci_rcv_req: failed to receive header : 0
+</tt>
+<br>
+<p>  A fix for this problem is available in version 3.1.8 of the
+ Global Arrays library (released August 30th 2001) available at the following url
+<p> <a href="http://www.emsl.pnl.gov:2080/docs/global/distribution.html"> http://www.emsl.pnl.gov:2080/docs/global/distribution.html</a>
+<! check  timestamp of /msrc/www/pub/docs/global/.download/global3-1-8.tgz>
+<p>
+
+<hr>
+<a name="27">
+<p>
+<font color="purple">
+Property calculation fails with a Segmentation Violation</font>
+<p>
+If you run a property calculation on a large molecule your run might
+fail with the error message:
+<tt>
+<p>0:Segmentation Violation error, status=: 11
+<p>  0:ARMCI aborting 11(b)
+</tt>
+<br>
+<p>Some shells and basis function parameters in the property module are set to be smaller than the NWChem parameters. No explicit checks are performed to check for appropriate array dimensions, causing the code to overwrite array boundaries (and to crash).
+<p><font color="red"> A fix for this problem will be available for the next release.</font>
+<p>For a temporary fix (when needed) contact the nwchem-support queue.
+<! The parameters MXNBF, MXSHEL and MXPRIM are not conform the NWChem parameters, and there is no checking. They should be set to NW_MAX_SHELLS and MW_MAX_NBF>
+<p>
+
+<hr>
+<a name="28">
+<p>
+<font color="purple">
+NWChem fails with a Segmentation Violation while reading long title input</font>
+<p>
+NWChem fails on some platforms when it tries to process a title longer than 80 characters. For example, on the IBM SP it will fail with the error message:
+<tt>
+<p>0:Segmentation Violation error, status=: 11
+<p>  0:ARMCI aborting 11(b)
+</tt>
+<br>
+<p>
+<p><font color="red"> A fix for this problem will be available in the next release.</font>
+<p>To avoid the problem in the current release, use a title string that is 80 characters or less.
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="known_bugs.html">Known Bugs</a> |
+<a href="support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+
+</td></tr></table>
+</body>
+</html>

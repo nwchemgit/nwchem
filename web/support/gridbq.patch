@@ -1,0 +1,232 @@
+Index: grid_bucket.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/nwdft/grid/grid_bucket.F,v
+retrieving revision 1.17
+retrieving revision 1.17.2.1
+diff -c -r1.17 -r1.17.2.1
+*** grid_bucket.F	2000/07/21 01:46:58	1.17
+--- grid_bucket.F	2001/11/08 18:23:24	1.17.2.1
+***************
+*** 1,6 ****
+        subroutine grid_buckinit(rtdb)
+  c
+! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  c     
+--- 1,6 ----
+        subroutine grid_buckinit(rtdb)
+  c
+! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  c     
+***************
+*** 23,29 ****
+        external grid_nsub4
+        external grid_ncubes,grid_lcube,grid_nxyz
+        integer max_xyz
+!       parameter (max_xyz=80000)
+        logical oprint
+  c
+        oprint = util_print('quadrature', print_high)
+--- 23,30 ----
+        external grid_nsub4
+        external grid_ncubes,grid_lcube,grid_nxyz
+        integer max_xyz
+!       double precision eps
+!       parameter (max_xyz=80000,eps=1d-9)
+        logical oprint
+  c
+        oprint = util_print('quadrature', print_high)
+***************
+*** 67,82 ****
+        endif 
+  c
+        do i=1,ntypes
+!          lcube(i)=grid_lcube(dble(rad_cutoff(1,i)))
+!          nxyz=grid_nxyz(dble(rad_cutoff(1,i)),lcube(i))
+!          shft=0
+!          if(sub4) then
+!             nsub4=grid_nsub4(nxyz)
+!             shft=nsub4**3
+           endif
+-          ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
+-      ,        .false.,dum,lcube(i))
+-          ncubesmx=max(ncubesmx,ncubes_type(i))
+        enddo
+        if(ntypes*ncubesmx.gt.max_xyz) then
+           l_cube=l_cube*2d0
+--- 68,87 ----
+        endif 
+  c
+        do i=1,ntypes
+!          if(abs(rad_cutoff(1,i)).gt.eps) then
+!             lcube(i)=grid_lcube(dble(rad_cutoff(1,i)))
+!             nxyz=grid_nxyz(dble(rad_cutoff(1,i)),lcube(i))
+!             shft=0
+!             if(sub4) then
+!                nsub4=grid_nsub4(nxyz)
+!                shft=nsub4**3
+!             endif
+!             ncubes_type(i)=grid_ncubes(dble(rad_cutoff(1,i)),
+!      ,           .false.,dum,lcube(i))
+!             ncubesmx=max(ncubesmx,ncubes_type(i))
+!          else
+!             ncubes_type(i)=0
+           endif
+        enddo
+        if(ntypes*ncubesmx.gt.max_xyz) then
+           l_cube=l_cube*2d0
+Index: grid_nbfm.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/nwdft/grid/grid_nbfm.F,v
+retrieving revision 1.7
+retrieving revision 1.7.2.1
+diff -c -r1.7 -r1.7.2.1
+*** grid_nbfm.F	2000/09/21 15:23:53	1.7
+--- grid_nbfm.F	2001/11/08 18:23:24	1.7.2.1
+***************
+*** 1,9 ****
+        integer function grid_nbfm(basis_hand,   mcenters, 
+       &     ctr_quad,  rad_quad, xyz, qxyz,nq,
+       &                  ibf, docset, iniz, ifin, zprim,
+!      .     minexp,ldiff,acc_gauss)
+  c
+! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  c      
+--- 1,9 ----
+        integer function grid_nbfm(basis_hand,   mcenters, 
+       &     ctr_quad,  rad_quad, xyz, qxyz,nq,
+       &                  ibf, docset, iniz, ifin, zprim,
+!      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
+  c
+! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  c      
+***************
+*** 19,24 ****
+--- 19,25 ----
+        logical docset(*) ! [output]
+        integer ldiff(*) ! [in]
+        double precision minexp(*) ! [in]
++       logical iatype_pt_chg(*) ! [in]
+  c
+  #include "bas.fh"
+  c
+***************
+*** 45,50 ****
+--- 46,52 ----
+        n1 = 0
+        npt=0
+        do 400 ictr=1,mcenters
++         if(iatype_pt_chg(ictr)) goto 400
+          if (.not.bas_ce2cnr(basis_hand,ictr,ic1,ic2))
+       &       call errquit('Exiting in xc_signf.',11)
+  
+***************
+*** 139,145 ****
+        Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
+       &     bas_cset_info, mcenters)
+  c
+! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  c      
+--- 141,147 ----
+        Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
+       &     bas_cset_info, mcenters)
+  c
+! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  c      
+Index: grid_quadv0b.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/nwdft/grid/grid_quadv0b.F,v
+retrieving revision 1.17
+retrieving revision 1.17.2.1
+diff -c -r1.17 -r1.17.2.1
+*** grid_quadv0b.F	2000/10/17 21:21:04	1.17
+--- grid_quadv0b.F	2001/11/08 18:23:24	1.17.2.1
+***************
+*** 17,23 ****
+       ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+       ,     donewbf)
+  c
+! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  #include "cgridfile.fh"
+--- 17,23 ----
+       ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
+       ,     donewbf)
+  c
+! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+  #include "cgridfile.fh"
+***************
+*** 72,78 ****
+           mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
+       &        ictr_buf,rad,xyz,qxyz,nqpts,
+       &        ibf_ao, docset, iniz, ifin, expo, 
+!      &        minexp,ldiff,acc_ao_gauss)
+           if (mbf_ao.eq.0) return
+        else
+        if (.not.bas_numcont(AO_bas_han, ncontrset))
+--- 72,78 ----
+           mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
+       &        ictr_buf,rad,xyz,qxyz,nqpts,
+       &        ibf_ao, docset, iniz, ifin, expo, 
+!      &        minexp,ldiff,acc_ao_gauss,iatype_pt_chg)
+           if (mbf_ao.eq.0) return
+        else
+        if (.not.bas_numcont(AO_bas_han, ncontrset))
+Index: grid_sphere.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/nwdft/grid/grid_sphere.F,v
+retrieving revision 1.14
+retrieving revision 1.14.2.1
+diff -c -r1.14 -r1.14.2.1
+*** grid_sphere.F	2000/04/26 23:29:09	1.14
+--- grid_sphere.F	2001/11/07 20:55:27	1.14.2.1
+***************
+*** 1,6 ****
+        logical function grid_insidesp(fnxyz,l_rect,rad)
+  c
+! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+        integer fnxyz ! [in]
+--- 1,6 ----
+        logical function grid_insidesp(fnxyz,l_rect,rad)
+  c
+! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+  c
+        implicit none
+        integer fnxyz ! [in]
+***************
+*** 311,317 ****
+        integer function grid_nxyz(rad,l_rect)
+        implicit none
+        double precision rad,l_rect
+!       grid_nxyz=nint((rad+rad)/l_rect)
+        return
+        end
+        integer function grid_nsub4(nxyz)
+--- 311,321 ----
+        integer function grid_nxyz(rad,l_rect)
+        implicit none
+        double precision rad,l_rect
+!       if(rad.gt.1d-9) then
+!          grid_nxyz=nint((rad+rad)/l_rect)
+!       else
+!          grid_nxyz=0d0
+!       endif
+        return
+        end
+        integer function grid_nsub4(nxyz)

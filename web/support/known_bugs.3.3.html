@@ -1,0 +1,329 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Known Bugs in version 3.3 and version 3.3.1</TITLE>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+
+<table width="650">
+<tr>
+<td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Known Bugs in version 3.3</h1>
+
+It is recommended that users use the defaults in NWChem. 
+They have been set to provide maximum efficiency for most users.
+If you feel you must change one of the defaults, be aware that
+you are responsible for ensuring that the results are correct.
+<p>
+Below is a list of the known bugs in NWChem 3.3 and 3.3.1.  If you believe
+that you have found bugs that are not listed here, please
+send your bug report using the correct channel listed in the
+<a href="support.html">Reporting Problems with NWChem page</a>.
+<ol>
+  <li> <a href="#1">Direct MP2 optimizations</a></li>
+  <li> <a href="#4">start, restart, and continue in the title</a></li>
+  <li> <a href="#5">CCSD(T) energies are unstable on the IBMSP</a></li>
+  <li> <a href="#6">Occasional restart file corruption in PREPARE module</a></li>
+  <li> <a href="#7">Possible problems with pgf77 Version 1.7 compiled binaries:
+      especially using AUTOZ</a></li>
+  <li> <a href="#8">Slow parallel performance between Linux boxes</a></li>
+  <li> <a href="#9">Different number of iterations to find the total energy when
+      using different number of processors on the Cray-T3E.</a></li>
+  <li> <a href="#10">Tabs are not working for input decks under Linux.</a></li>
+  <li> <a href="#11">Task shell is not working under Linux.</a></li>
+  <li> <a href="#12">QMD restarts are not working properly.</a></li>
+  <li> <a href="#13">CCSD(T) does not treat non-Abelian systems correctly.</a></li>
+  <li> <a href="#14">DFT BSSE calculations.</a></li>
+  <li> <a href="#15">Compile problem on Sun processors with workshop 4.2</a></li>
+</ol>
+<p>
+<hr><br><hr>
+<p>
+<pre>
+
+
+
+
+</pre>
+<a name="1"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Direct MP2 optimizations:</font>
+<p>
+MP2 optimizations that are performed with the direct option can
+have problems with CPHF convergence.  In this case, the user is
+advised to use the default options which is a semi-direct calculation.
+<pre>
+
+                                                      
+
+</pre>
+<hr>
+<a name="4"></a>
+<pre>
+
+
+</pre>
+<font color="purple">start, restart, and continue in the title:</font>
+<p>
+When the words start, restart, and continue appear at the beginning of the
+title, NWChem erroneously picks them up when scanning for start, restart, 
+and continue directives.  The work around is to not use these words in the title.
+This will be fixed in the next major release.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="5"></a>
+<pre>
+
+
+</pre>
+<font color="purple">CCSD(T) energies are unstable on the IBMSP:</font>
+<p>
+CCSD(T) energies are unstable on the IBMSP using the LAPI
+version.  The error that the user will see are 
+jobs that just hang.  We are working to solve this problem.
+<font color="red">This is improved in version 3.3.1, but may still occur.</font>
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="6"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Occasional restart file corruption in PREPARE module</font>
+<p>
+In some systems, when converting a restart file to a PDB
+file, the restart file gets corrupted.  We are working to solve this
+problem. <font color="red">This is now fixed in version 3.3.1</font>
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="7"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Possible problems with pgf77 Version 1.7 compiled binaries:
+   especially using AUTOZ</font>
+<p>
+We have tested with pgf77 Version 1.7 and have found that our
+automatic z-matrix code (AUTOZ in the GEOMETRY group) hangs but other 
+functionality works.  Since AUTOZ is the default, you will need to change
+the GEOMETRY group to contain NOAUTOZ.
+The pgf77 version has not been robustly tested and therefore, other problems
+may be encountered.<p>
+Although we have not tested this, we have been told that pgf77 version 3.1
+fixes this problem.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="8"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Slow parallel performance between Linux boxes</font>
+<p>
+With Linux kernels earlier than 2.2.x, there is a significant slow down when
+sending messages between Linux boxes.  We have added some fixes to help alleviate
+this problem, but the best solution is to upgrade your kernel.
+<p>
+There is also a kernel <a href="http://www.icase.edu/coral/LinuxTCP.html">
+patch</a> which helps to cut down  latency in the TCP/IP socket based 
+communication on the Linux clusters
+connected with Ethernet networks. We  strongly recommend people to apply 
+the patch to avoid communication performance problems.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="9"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Different number of iterations to find the total energy when
+      using different number of processors on the Cray-T3E.</font>
+<p>
+This behavior can be seen when there are large numbers of degeneracies in
+the eigenvalues.  So far we have not had a case that gives the wrong answer,
+but it may take a bit longer to get to the correct answer.  This behavior
+in PEigS should be fixed for the next major release.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="10"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Tabs are not working for input decks under Linux.</font>
+<p>
+g77 effectively translates tabs into spaces.  This is also true for
+character and Hollerith constants which we use to help us parse the
+tabs in an input deck.  This results in problems with input decks that
+have tabs in them.  Generally the error message shows up as:
+<p>
+<pre>
+geom_input:center is neither atom nor bq       0
+</pre>
+<p>
+We hope to have this fixed in the next major
+release, but, in the meantime, get rid of the tabs in your input decks
+and everything should work fine.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="11"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Task shell is not working under Linux.</font>
+<p>
+This turns out to be a function of ARMCI catching a signal from the
+system call that "task shell" uses.  This has been fixed for the next
+major release.  If this functionality is needed before then, please
+contact <a href="mailto:nwchem-support@emsl.pnl.gov">
+nwchem-support@emsl.pnl.gov</a> and request the fix.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="12"></a>
+<pre>
+
+
+</pre>
+<font color="purple">QMD restarts are not working properly.</font>
+<p>
+Velocities are not saved for restarts so restarts of Quantum Molecular
+Dynamics (QMD) runs will not start with the correct velocities.  This
+is fixed for the next major release.  If this functionality is needed before then, please
+contact <a href="mailto:nwchem-support@emsl.pnl.gov">
+nwchem-support@emsl.pnl.gov</a> and request the fix.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="13"></a>
+<pre>
+
+
+</pre>
+<font color="purple">CCSD(T) does not treat non-Abelian systems correctly.</font>
+<p>
+There is a bug in the CCSD(T) code which may cause the code to give the
+error<br><p> moints_trp: symmetry contamination: 2(2) <br><p>
+when performing calculations
+on non-Abelian systems.  The user should run this calculation with symmetry
+either turned off or in a proper Abelian subgroup.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="14"></a>
+<pre>
+
+
+</pre>
+<font color="purple">DFT BSSE Calculation</font> 
+<p> 
+There is a bug in the DFT code which gives wrong results when ghost atoms 
+are present. This has been fixed for the next release. 
+<pre> 
+
+
+
+</pre> 
+<hr>
+<a name="15"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Compile problem on Sun processors with workshop 4.2</font>
+<p>
+The user will get a fatal error when compiling
+nwchem/src/util/errquit.F that can be resolved by removing 
+the -DJOBTIMEPATH definition in the makefile in the util directory. 
+ A better solution is to upgrade to at least workshop 5.0.
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="known_bugs.html">Known Bugs</a> |
+<a href="support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+
+</td></tr></table>
+</body>
+</html>

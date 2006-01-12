@@ -1,0 +1,32 @@
+title "Basis set projection from cc-pvdz to aug-cc-pvdz"
+
+start proj
+
+geometry autosym
+  O    0.0    0.0    -0.02
+  H   -0.74   0.0    -0.76
+  H    0.74   0.0    -0.76
+end
+
+basis "small basis"
+  H library cc-pvdz
+  O library cc-pvdz
+end
+basis "large basis"
+  H library aug-cc-pvdz
+  O library aug-cc-pvdz
+end
+
+set "ao basis" "small basis"
+scf
+vectors input atomic output small.movecs
+end
+task scf
+
+set "ao basis" "large basis"
+scf
+vectors input project "small basis" small.movecs output large.movecs
+end
+task scf
+
+

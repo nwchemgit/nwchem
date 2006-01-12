@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Known Bugs in version 3.3 and version 3.3.1</TITLE>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+
+<table width="650">
+<tr>
+<td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+<h1>NWChem Known Bugs in version 3.2</h1>
+
+It is recommended that users use the defaults in NWChem. 
+They have been set to provide maximum efficiency for most users.
+If you feel you must change one of the defaults, be aware that
+you are responsible for ensuring that the results are correct.
+<p>
+Below is a list of the known bugs in NWChem 3.2.  If you believe
+that you have found bugs that are not listed here, please
+send your bug report using the correct channel listed in the
+<a href="support.html">Reporting Problems with NWChem page</a>.
+<ol>
+  <li> <a href="#0">MP2 gradients </a></li>
+  <li> <a href="#1">Direct MP2 optimizations</a></li>
+  <li> <a href="#2">Texas integrals with high angular momentum and large
+                    exponents</a></li>
+  <li> <a href="#3">Message mismatch or job hanging</a></li>
+  <li> <a href="#4">start, restart, and continue in the title</a></li>
+  <li> <a href="#5">CCSD(T) energies are unstable on the IBMSP</a></li>
+  <li> <a href="#6">Open shell DFT gradients with some component of exact exchange</a></li>
+</ol>
+<p>
+<hr><br><hr>
+<p>
+<pre>
+
+
+
+
+</pre>
+<a name="0"></a>
+<pre>
+
+
+</pre>
+<font color="purple">MP2 gradients:</font>
+<p>
+MP2 gradients are known to give wrong
+results.  The fix is in version 3.2.1.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="1"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Direct MP2 optimizations:</font>
+<p>
+MP2 optimizations that are performed with the direct option can
+have problems with CPHF convergence.  In this case, the user is
+advised to use the default options which is a semi-direct calculation.
+<pre>
+
+                                                      
+
+</pre>
+<hr>
+<a name="2"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Texas integrals with high angular momentum 
+       and large exponents:</font>
+<p>
+Integrals that are calculated using the Texas integral package
+can have errors when calculating integrals with high angular
+momentum and large exponents.  This has shown up, for example,
+when the cc-pVTZ basis set has been used.  The bug fix is due
+out in version 3.2.1, but in the meantime, the user
+is advised to add the following line into the input deck:<br>
+<p>
+set "int:cando_txs" logical false
+<p>
+<pre>
+
+                                                      
+
+</pre>
+<hr>
+<a name="3"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Message mismatch or job hanging:</font>
+<p>
+These messages will occasionally be observed on NWMPP1 especially
+when running CCSD calculations.  These are errors that happen
+sporadically and are being worked on.  If you experience either
+of these problems, please
+send your bug report using the correct channel listed in the
+<a href="support.html">Reporting Problems with NWChem page</a>.
+This will help us in the determination of the problem.
+<p>
+Note that the message mismatch is generally found in the MPL
+version of NWChem on NWMPP1 and the job hanging is generally found
+in the LAPI version.  If you experience a problem with one version,
+you might want to try the other version.  On NWMPP1, the binaries
+are:<br>
+<p>
+/u/nwchem/bin/nwchem -> LAPI version<br>
+/u/nwchem/bin/nwchem.mpl -> MPL version
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="4"></a>
+<pre>
+
+
+</pre>
+<font color="purple">start, restart, and continue in the title:</font>
+<p>
+When the words start, restart, and continue appear at the beginning of the
+title, NWChem erroneously picks them up when scanning for start, restart, 
+and continue directives.  The work around is to not use these words in the title.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="5"></a>
+<pre>
+
+
+</pre>
+<font color="purple">CCSD(T) energies are unstable on the IBMSP:</font>
+<p>
+CCSD(T) energies are unstable on the IBMSP using either the LAPI
+or the MPL version.  Error that the user will see are ga_mismatch
+or jobs that just hang.  We are working with IBM to solve this problem.
+<pre>
+
+
+
+</pre>
+<hr>
+<a name="6"></a>
+<pre>
+
+
+</pre>
+<font color="purple">Open shell DFT gradients with some component of exact exchange:</font>
+<p>
+Distributions of NWChem 3.2 and 3.2.1 prior to November 15 gave wrong DFT
+gradients for open shell systems if the functional contained some component 
+of exact exchange.  This has now been fixed in versions of NWChem 3.2.1
+distributed after November 15.
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="known_bugs.html">Known Bugs</a> |
+<a href="support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+
+</td></tr></table>
+</body>
+</html>

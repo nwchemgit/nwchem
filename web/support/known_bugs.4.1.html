@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Known Bugs in version 4.1</TITLE>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+
+<table width="650">
+<tr>
+<td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Known Bugs in version 4.1</h1>
+
+It is recommended that users use the defaults in NWChem. 
+They have been set to provide maximum efficiency for most users.
+If you feel you must change one of the defaults, be aware that
+you are responsible for ensuring that the results are correct.
+<p>
+Below is a list of the known bugs in NWChem 4.1.  If you believe
+that you have found bugs that are not listed here, please
+send your bug report using the correct channel listed in the
+<a href="support.html">Reporting Problems with NWChem page</a>.
+<ol>
+<li> <a href="#0">Compile problem on Sun  processors with workshop 4.2</a></li>
+<li> <a href="#1">Possible compile problems with True64 Compaq Fortran</a></li>
+<li> <a href="#2">Direct MP2 optimizations</a></li>
+<li> <a href="#3">Medium and large size calculation under Linux produce NaNs</a></li>
+<li> <a href="#4">GM versions before 1.3 cause compilation errors</a></li>
+<li> <a href="#5">ESPs give wrong results for spherical basis sets or UHF</a></li>
+<li> <a href="#6">Computations requesting more than 4 GB of RAM per
+processor fail</a></li>
+<li> <a href="#7">Build problem on Alpha Linux using Compaq compilers</a></li>
+<li> <a href="#8">NWChem fails when nosegment is defined in combination with ECPs</a></li>
+<li> <a href="#9">Geometry gets shifted when bqbq option is defined in geometry</a></li>
+<li> <a href="#10">DFT fails with PGI compiler</a></li>
+<li> <a href="#11">Wrong last DFT energy with decomp keyword</a></li>
+<li> <a href="#12">Energy conservation in Car-Parrinello is not correct</a></li>
+<li> <a href="#13">Unable to locate basis set libraries with Compaq Fortran compiler</a></li>
+<li> <a href="#14">COSMO gives incorrect results</a></li>
+<li> <a href="#15">Problem in PSPW with compiler optimization on SGI</a></li>
+</ol>
+<p>
+<hr><br><hr>
+<p>
+<a name="0"></a>
+<font color="purple">Compile problem on Sun processors with workshop 4.2</font>
+<p>
+The user will get a fatal error when compiling
+nwchem/src/util/errquit.F that can be resolved by removing 
+the -DJOBTIMEPATH definition in the GNUmakefile in the util directory.  
+A better solution is to upgrade to at least workshop 5.0.
+<p>
+
+<hr>
+<p>
+<a name="1"></a>
+<font color="purple"> Possible compile problems with True64 Compaq Fortran</font>
+<p>
+Some versions of True64 Compaq Fortran default f77 to point to f90 and
+the compile will break because of problems with cpp and f90.  This has
+been reported for V5.3-915.  There are three known solutions:
+<ol>
+<li>Change the f77 link to point to f77 instead of f90,</li>
+<li>Add the flag -old_f77 as the first flag in the FC definition of the
+DECOSF section of the $NWCHEM_TOP/src/config/makefile.h file, or</li>
+<li>Upgrade to version X5.3-1155 plus the patches at
+<a href="http://www6.compaq.com/fortran/dfau.html#updates">
+http://www6.compaq.com/fortran/dfau.html#updates</a>.</li>
+</ol>
+<p>
+<hr>
+
+<a name="2"></a>
+<p>
+<font color="purple">Direct MP2 optimizations:</font>
+<p>
+MP2 optimizations that are performed with the direct option can
+have problems with CPHF convergence.  In this case, the user is
+advised to use the default options which is a semi-direct calculation.
+<p>
+
+<hr>
+<a name="3">
+<p>
+<font color="purple">
+Medium and large size calculation under Linux produce NaNs</font>
+<p>
+2.2 Linux kernels are known to produce random wrong
+floating point arithmetic (eventually causing NaNs), see for example:
+<p><a href="http://www.ccl.net/cgi-bin/ccl/message.cgi?2000+06+06+002">http://www.ccl.net/cgi-bin/ccl/message.cgi?2000+06+06+002</a>
+<br><a href="http://www.ccl.net/cgi-bin/ccl/message.cgi?2001+02+23+012"> http://www.ccl.net/cgi-bin/ccl/message.cgi?2001+02+23+012</a>
+<br><a href="http://www.uwsg.indiana.edu/hypermail/linux/kernel/0104.2/0814.html"> BUG: Global FPU corruption in 2.2</a>
+<br><a href="http://www.cs.helsinki.fi/linux/linux-kernel/2001-16/0641.html">
+Re: BUG: Global FPU corruption in 2.2</a>
+<p>We have experienced the same problems running NWChem with a 2.2.x kernel. 
+This is likely due to FPU problems that has been fixed in kernel
+2.2.20 and in the 2.4 series.
+<br>To fix the problem, we strongly suggest you to install 2.4.x
+kernels available at
+<p>
+<a href="http://www.kernel.org/pub/linux/kernel/v2.4/">http://www.kernel.org/pub/linux/kernel/v2.4/</a> 
+<br>
+<p>
+or to upgrade your 2.2 kernel to version 2.2.20, whose source is
+available at
+<p>
+<a href="http://www.kernel.org/pub/linux/kernel/v2.2/linux-2.2.20.tar.gz">http://www.kernel.org/pub/linux/kernel/v2.2/linux-2.2.20.tar.gz</a> 
+<br>
+<p>
+<hr>
+
+<a name="4">
+<p>
+<font color="purple">
+GM versions before 1.3 cause compilation errors</font>
+<p>
+If you are using a version of GM more recent than 1.3, you are going to experience a
+compilation error, to avoid this you need to edit
+<tt>$NWCHEM_TOP/src/tools/armci/src/myrinet.c</tt> adding this line 
+<p>
+<tt>#define GM_STRONG_TYPES 0</tt>
+<p>
+just before 
+<p>
+<tt>#include "gm.h"</tt>
+<p>
+<hr>
+
+
+<a name="5">
+<p>
+<font color="purple">
+ESPs give incorrect results for spherical basis sets or UHF</font>
+<p>
+The ESP module is restricted to use of cartesian basis sets, and for
+open shell systems to the use of restricted open shell Hartree-Fock
+(ROHF).  This will either be fixed in the next release or error
+messages will be printed out and the job will stop.
+<p>
+
+<hr>
+<a name="6">
+<p>
+<font color="purple">
+Computations requesting more than 4 GB of RAM per processor fail</font>
+<p>
+Important: this affect ONLY runs that use more than 4GB of RAM on each
+processor, runs that use an amount of aggregate memory 
+(i.e. sum of all the RAM on
+each processor) larger than 4GB are not affected.
+This is a bug in the MA tool.  A fix is available on request and will
+be available in the next release.
+<! src/tools/ma/ma.c v1.28 and src/tools/ma/memcpy.h v1.4>
+<p>
+
+<hr>
+<a name="7">
+<p>
+<font color="purple">
+Build problem on Alpha Linux using Compaq compilers</font>
+<p>
+There is a link problem in the ARMCI software for Alpha Linux using
+Compaq compilers.  A fix is now in the download source file or a
+fix is available on request.
+<! src/tools/armci/config/makefile.h v1.65>
+<p>
+<hr>
+
+<a name="8">
+<p>
+<font color="purple">
+NWChem fails when nosegment is defined in combination with ECPs</font>
+<p>
+When the nosegment option is defined in the basis set input, and and ECP 
+is used, the code will fail with a message stating that it has an incorrect 
+number of integrals. A fix is available on request.
+<! src/NWints/ecp/int_ecp.F v1.23.2.1 or v1.24>
+<p>
+
+<hr>
+<a name="9">
+<p>
+<font color="purple">
+Geometry gets shifted when bqbq option is defined in geometry</font>
+<p>
+The molecular geometry gets shifted (this shift can be large) when the
+bqbq option has been specified in the geometry input. A fix is available 
+on request.
+<! src/geom/geom_input.F v1.152.2.1 or v1.153>
+<p>
+
+<hr>
+<a name="10">
+<p>
+<font color="purple">
+DFT fails with PGI compiler</font>
+<p>
+All DFT runs fail when the code is compiled with the Portland Group
+Fortran compiler. A fix is available 
+on request.
+<! src/nwdft/xc/xc_eval_basis.F v1.7.2.1 or v1.8>
+<hr>
+<p>
+<a name="11">
+<font color="purple">
+Wrong last DFT energy with <tt>decomp</tt> keyword</font>
+<p>
+If your DFT input file contains the <tt>decomp</tt> keyword, the last DFT Total
+Energy printed at the end of the SCF cycle is wrong, since the
+Correlation Energy is not included. A fix is available on request.
+<! src/nwdft/scf_dft/dft_scf.F 1.221.2.1>
+<p>
+
+<hr>
+<p>
+<a name="12">
+<font color="purple">
+Energy conservation in Car-Parrinello is not correct</font>
+<p>
+There is a fix available on request for this bug.
+<! src/nwpw/pspw/cpsd/inner_loop_md.F v.1.9 in development>
+<p>
+
+<hr>
+<p>
+<a name="13">
+<font color="purple">
+Unable to locate basis set libraries with Compaq Fortran compiler</font>
+<p>
+NWChem is unable to obtain the libraries from the directory set via the 
+NWCHEM_BASIS_LIBRARY environment variable or in .nwchemrc when compiled 
+using the Compaq Fortran compiler. A fix is available on request
+<! src/basis/bas_input.F v1.58.2.1 or v1.59>
+<p>
+
+<hr>
+<p>
+<a name="14">
+<font color="purple">
+COSMO gives incorrect results</font>
+<p>
+The COSMO model will give incorrect results for the solvation energy. In
+addition one of the options necessary has not been defined in the user 
+manual. In order to obtain the same results as the NWChem 4.0.1 version
+the user should define the following parameters in the cosmo input block:
+<p>
+ifscrn 2<br>
+iscren 0
+<p>
+The problem will be resolved in the next release of NWChem.
+<! Michel is going to fix this>
+<p>
+
+<hr>
+<p>
+<a name="15">
+<font color="purple">Problem in PSPW with compiler optimization on SGI</font>
+<p>
+There is a temporary solution to the problem that requires modifying a make file.  Please
+e-mail <a href="mailto:ms3distribution@emsl.pnl.gov?subject=Problem in PSPW with compiler optimization on SGI">NWChem Support</a> for instructions on solving the problem.
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="known_bugs.html">Known Bugs</a> |
+<a href="support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+
+</td></tr></table>
+
+
+</body>
+</html>

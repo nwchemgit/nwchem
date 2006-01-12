@@ -1,0 +1,52 @@
+start fe2
+
+geometry noautoz 
+  Fe  0 0 0 
+  Fe 0 0 3.35
+symmetry c2v
+end
+
+geometry Fe
+  Fe  0 0 0
+symmetry c2v
+end
+
+basis
+  Fe library sto-3g
+end
+
+set atomscf:tags_z Fe
+set atomscf:z      3.
+dft
+convergence energy 1d-5 density 1d-4 gradient 1d-3
+mulliken
+end
+
+set geometry Fe
+charge +3
+title "Fe spin up"
+dft
+mult 6
+vectors input atomic output feup.mos
+end
+task dft energy ignore
+
+title "Fe spin down"
+dft
+mult -6
+vectors input atomic output fedown.mos
+end
+task dft energy ignore
+
+charge +6
+unset geometry
+title "Fe2 anti-f"
+dft
+iterations 999
+odft
+mult 1
+vectors input fragment feup.mos fedown.mos output fe2.mos
+convergence ncyds 999 energy 1d-6 density 1d-5 gradient 1d-4
+end
+task dft 
+
