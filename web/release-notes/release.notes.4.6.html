@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Version 4.6 Release Notes</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650">
+<tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Version 4.6 Notes</h1>
+
+<p>
+<font color="red">NOTE:</font> These release notes are not a substitute for reading the
+<a href="../doc/user/userpdf.pdf">User Manual</a>! They are meant to give a
+thumbnail sketch of the new capabilities and bug fixes that are available in
+NWChem version 4.6. When there is a conflict between the release notes and the
+<a href="../doc/user/userpdf.pdf">User Manual</a>, the User Manual takes precedence.
+
+<p>
+The changes for version 4.6 are listed at the bottom of this file.
+<p>
+<b><h2>Several new major capabilities are available in NWChem, including several new modules. The new modules are:</h2></b>
+
+<ul>
+  <li>CCSD(T) and CCSD[T] for closed- and open-shell systems with Abelian symmetry
+      (contributed by Alex Auer, University of Waterloo)</li>
+  <li>EOM-CCSD, EOM-CCSDT, EOM-CCSDTQ for excitation energies, transition moments, and excited-state dipole moments of closed- and open-shell
+      systems</li>
+  <li>CCSD, CCSDT, CCSDTQ for dipole moments of closed- and open-shell
+      systems</li>
+  <li>Constraints module that is capable of freezing atom positions and restraining bond
+      lengths during optimization.</li>
+</ul>
+
+For each of these capabilities, the user is referred to the
+<a href="../doc/user/userpdf.pdf">User Manual</a> for more information.
+
+<p>
+<h3>Additional major additions to the capabilities include:</h3>
+
+<ul>
+  <li>van Leeuwen-Baerends potential for DFT and TDDFT</li>
+  <li>Casida-Salahub asympototic correction for DFT and TDDFT</li>
+  <li>A new self-contained asymptotic correction for B3LYP DFT and TDDFT</li>
+  <li>A new density functional TPSS, energy term only</li>
+  <li>Added the functional HCTH/407+</li>
+  <li>A new keyword in TCE to allow/suppress the recomputation of the Fock
+      matrix.  This is useful for one-component relativistic CI/CC/MBPT/EOM-CC</li>
+  <li>Two new I/O algorithms (DRA and GA+EAF) in TCE.</li>
+  <li>QHOP proton hopping method in MD</li>
+  <li>Charmm force field (Urey-Bradley)</li>
+</ul>
+
+
+Again, for each of these capabilities, the user is referred to the
+<a href="../doc/user/userpdf.pdf">User Manual</a> for more information.
+
+<p>
+Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the <a href="../doc/user/userpdf.pdf">User Manual.</a>
+
+<p>
+<p>
+<h3>Basis Sets:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Iodine Stuttgart Large Core ECP to conform to the one published by Bergner et. al. (Mol. Phys. 1993)</li>
+  <li>Definition of PERMANENT_DEF_DIR, SCRATCH_DEF_DIR NWCHEM_BASIS_LIBRARY_PATH at compile time is gone. These
+      environmental variables will be ignored. Compilation automatically stops if the NWCHEM_TOP name is longer than 65 chars.</li>
+</ul>
+
+<p>
+<p>
+<h3>BLAS:</h3>
+<ul>
+  <li>Introduce faster dgemm (with more aggressive blocking)</li>
+</ul>
+
+<p>
+<p>
+<h3>CCSD(T):</h3>
+<ul>
+  <li>Improved memory allocation</li>
+  <li><font color="red">BUG FIX:</font> TOL2E convergence parameter is now properly handled</li>
+</ul>
+
+<p>
+<p>
+<h3>COSMO:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Mass was used for radius in ECP calculations.</li>
+</ul>
+
+<p>
+<p>
+<h3>DFT:</h3>
+<ul>
+  <li>Better handling of exponential underflow speeds up certain platforms.</li>
+  <li>Implemented GA mirroring to address network latency issues (activated by set dft:xcreplicated t)</li>
+  <li>Speed improvement by introducing more aggressive screening for basis functions evaluations and grid partitioning weights</li>
+  <li>Added pstat profiling</li>
+  <li>In-core coulomb algorithm: improved output</li>
+  <li>XC grid restructuring for getting fault-tolerance in gradients; added "grid nodisk" keyword for skipping I/O operation for grid
+  <li>Increased limit for grid size</li>
+  <li><font color="red">BUG FIX:</font> The final vectors are now printed when requested</li>
+  <li><font color="red">BUG FIX:</font> Bq atoms with different charges are no longer considered to be different atom types</li>
+  <li><font color="red">BUG FIX:</font> Fix associated with VWN functional exception</li>
+  <li><font color="red">BUG FIX:</font> d4d group was causing loss of weights normalization</li>
+</ul>
+
+<p>
+<p>
+<h3>Geometry:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Geometries containing bqs were causing the autosym module to crash</li>
+  <li><font color="red">BUG FIX:</font> Autosym was not correctly detecting the degeneracy of the moments of inertia</li>
+</ul>
+
+<p>
+<p>
+<h3>Hessian:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Fixes associated with linear dependencies.</li>
+  <li>CPHF SCF residual error termination is now set to 1d-2 (was 1d-4)</li>
+</ul>
+
+<p>
+<p>
+<h3>Input:</h3>
+<ul>
+  <li>Default memory increased from 200 mb to 400 mb</li>
+</ul>
+
+<p>
+<p>
+<h3>Integrals:</h3>
+<ul>
+  <li>Performances improvements in the McMurchie-Davidson algorithm</li>
+  <li><font color="red">BUG FIX:</font> Increased limpair value to address "getmem memory overflow" problem</li>
+</ul>
+
+<p>
+<p>
+<h3>MD:</h3>
+<ul>
+  <li> Molecule-based periodic boundary conditions</li>
+  <li> Revised file formats for frg, sgm and top files</li>
+  <li> Radius of gyration and diffusion coefficient are optional properties</li>
+  <li> Reduced memory allocation for work arrays</li>
+  <li> Prefetching using non-blocking communication</li>
+  <li> Option to aid in membrane setup</li>
+  <li> Trajectories recorded in multiple files</li>
+  <li> Redesign cell-cell list to avoid most common 'lbbl errors'</li>
+  <li> Multiple parameter databases</li>
+  <li> Mixed parameter definitions</li>
+  <li> Improved performance in prepare module for very large systems</li>
+</ul>
+
+<p>
+<p>
+<h3>MP2:</h3>
+<ul>
+  <li>Added scratchdisk keyword to limit disk usage on a per process base</li>
+</ul>
+
+<p>
+<p>
+<h3>NBO:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Title writing turned off since requires risky character to integer conversion that breaks many compilers</li>
+  <li><font color="red">BUG FIX:</font> Intel compiler 8.0 was crashing on Hollerith characters</li>
+</ul>
+
+<p>
+<p>
+<h3>Numerical gradient:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Atoms list was corrupted when symmetry is on</li>
+</ul>
+
+<p>
+<p>
+<h3>NWPW:</h3>
+<ul>
+  <li>Pseudoptential library: NWCHEM_NWPW_LIBRARY_PATH is gone in a similar fashion to what happened to Gaussian basis
+      library. Compilation automatically stops if the NWCHEM_TOP name is longer than 65 chars.</li>
+  <li><font color="red">BUG FIX:</font> ELF generation in pspw_dplot fixed.</li>
+  <li>Mulliken projection now uses pseudoatomic orbitals</li>
+  <li>Automatic grid conversion</li>
+  <li>Preliminary version of HGH pseudopotentials</li>
+  <li>PSPW: virtual orbital calculations</li>
+  <li>Car-Parrinello: geometry constraints</li>
+  <li>BAND: Monkhorst-Pack k-point generation</li>
+  <li>BAND: LMBFGS minimizer</li>
+  <li>PAW: free space boundary conditions</li>
+  <li>Performances improvements in the non-local pseudopotential and orthogonalility calculations</li>
+</ul>
+
+<p>
+<p>
+<h3>Properties:</h3>
+<ul>
+  <li>Ecce support added for NMR properties</li>
+</ul>
+
+<p>
+<p>
+<h3>QMD:</h3>
+<ul>
+  <li>Released restriction on theory type that can be used in the computation.</li>
+</ul>
+
+<p>
+<p>
+<h3>Rtdb:</h3>
+<ul>
+  <li>Added option to store rtdb in memory (-DDB_INMEM). This option creates a dummy .db file, therefore restart will not work.</li>
+</ul>
+
+<p>
+<p>
+<h3>SELCI:</h3>
+<ul>
+  <li>Now runs on 64 bit platforms</li>
+</ul>
+
+<p>
+<p>
+<h3>SCF:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Linear dependency is accounted for in vector projections.</li>
+  <li><font color="red">BUG FIX:</font> Vectors "lock" was causing hang-ups in certain parallel runs.</li>
+  <li><font color="red">BUG FIX:</font> Got rid of hard-wired limit of 10,000 basis functions.</li>
+</ul>
+
+<p>
+<p>
+<h3>TDDFT:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Fixed S**2 expectation value when frozen core is used</li>
+</ul>
+
+<p>
+<p>
+<h3>Util:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> Made the interface to LSF to estimate wall-time remaining more fault-tolerant</li>
+  <li>I/O on system with inhomogeneous disk sizes is made more robust</li>
+</ul>
+
+<p>
+<p>
+<h3>New Platform added:</h3>
+<ul>
+  <li>Mac OSX 10.3 with GNU (gcc and g77 3.4) and IBM (xlf) compilers</li>
+  <li>Cray X1</li>
+  <li>Opteron Linux with GNU, Portland Group and PathScale compilers.</li>
+  <li>Linux ppc64 with IBM compilers</li>
+  <li>INTERIX platform using the Windows Services For Unix (http://www.microsoft.com/windows/sfu/default.asp)</li>
+</ul>
+
+<p>
+<p>
+<h3>New compiler support:</h3>
+<ul>
+  <li>Intel fortran compiler version 8.0 for IA32 and IA64</li>
+  <li>Use of g77 version 3.3 (3.3.1, 3.3.2 and 3.3.3) is supported, but not recommended. We had to put in place version fix for this
+      compiler (e.g. http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13037) g77 3.1.x 3.2.x and 3.4 are known to work</li>
+</ul>
+
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+</td></tr></table>
+</body>
+</html>
+
+

@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Version 4.5 Release Notes</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Version 4.5 Notes</h1>
+
+<p>
+<font color="red">NOTE:</font> These release notes are not a substitute for reading the
+<a href="../doc/user.4.5/userpdf.pdf">User Manual</a>! They are meant to give a
+thumbnail sketch of the new capabilities and bug fixes that are available in
+NWChem Version 4.5. When there is a conflict between the release notes and the
+<a href="../doc/user.4.5/userpdf.pdf">User Manual</a>, the User Manual takes precedence.
+
+<p>
+The changes for version 4.5 are listed at the bottom of this file.
+
+<p>
+<b><h2>Several new major capabilities are available in NWChem, including several new modules. The new modules are:</h2></b>
+
+<ul>
+	<li>TCE: Tensor Contraction Engine module, that can generate
+unrestricted CISD, CISDT, CISDTQ, LCCD, CCD, LCCSD, CCSD, QCISD,
+CCSDT, CCSDTQ, MBPT(2), MBPT(3), MBPT(4) wavefunctions</li>
+    <li>TDDFT: time-dependent DFT, Tamm-Dancoff approximation to TDDFT,
+time-dependent HF, configuration-interaction singles for excited states</li>
+  	<li>ET: Electron Transfer module that calculates the electron transfer
+matrix element between ET reactant and product states</li>
+    <li>PAW: Projector Augmented plane-Wave module</li>
+</ul>
+
+For each of these capabilities, the user is referred to the
+<a href="../doc/user.4.5/userpdf.pdf">User Manual</a> for more information.
+
+<p>
+<h3>Additional major additions to the capabilities include:</h3>
+<ul>
+
+  <li>DFT: Added the following new functional MPW91, MPW91K, FT97,
+         XPKBZ99 (meta-GGA)
+	 </li>
+  <li> SIC (Self-Interaction Correction) in the PSPW module  </li>
+  <li>Stress calculations in the PSPW module  </li>
+  <li>Wannier orbitals generations in the PSPW module  </li>
+  <li>Simulated annealing for Car-Parrinello  </li>
+  <li>Analytic hessian calculation with ECP basis sets  </li>
+ </ul>
+Again, for each of these capabilities, the user is referred to the
+<a href="../doc/user.4.5/userpdf.pdf">User Manual</a> for more information.
+<p>
+Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the
+<a href="../doc/user.4.5/userpdf.pdf">User Manual.</a>
+<p>
+<p>
+<h3>Basis Sets:</h3>
+<ul>
+    <li><font color="red">BUG FIX:</font> Re-introduced cc-pcvqz and
+    its polarization functions    </li>
+    <li> Basis set is printed if the "*" tag input is used   </li>
+   <li><font color="red">BUG FIX:</font> Improper detection of basis
+    libraries directory on HP Tru64    </li>
+    <li><font color="red">BUG FIX:</font> Wrong dimension for temporary array used when detecting    atom types    </li>
+</ul>
+<p>
+<p>
+<h3>Geometry:</h3>
+<ul>
+<li> Added option to freeze number of orbitals in the molecule</li>
+<li><font color="red">BUG FIX:</font> xyz_print is now printing
+angstroms instead of fractional    coordinates for 3-d geometries</li>
+<li><font color="red">BUG FIX:</font> z-matrix input modified to  digest
+    symbols bq"atomic symbol" x"atomic symbol" needed for DFT BSSE </li>
+<li><font color="red">BUG FIX:</font> Wrong power of complex number in autosym
+</li>
+<li><font color="red">BUG FIX:</font> When bqbq option is set  the geometry was shifted    a large amount
+</li>
+</ul>
+<p>
+<p>
+<h3>DFT:</h3>
+<ul>
+<li> New GGA density functionals: MPW91, MPW91K, FT97 </li>
+<li>Introduced framework for meta-GGA functional (requiring computation
+    of the kinetic energy density tau). Coded energy term for
+    the XPKBZ99 functional</li>
+<li><font color="red">BUG FIX:</font> In the spin-orbit initial guess</li>
+<li> Removed old XC grid integration scheme in used prior to nwchem 4.0</li>
+<li> Introduced limited replicated-data capability in XC build; it bypasses
+    the costly ga_acc. Activated by <pre>set dft:xcreplicated t</pre></li>
+<li> Performance improvements in the grid and XC build part</li>
+<li><font color="red">BUG FIX:</font> Open shell HCTH (and B97-98) series of functionals did not respect alpha-beta spin symmetry</li>
+<li><font color="red">BUG FIX:</font> HCTHP14 was using wrong indexing causing wrong results</font></li>
+<li><font color="red">BUG FIX:</font> Code for grid rotational invariance now produces the correct matrix</font></li>
+</ul>
+<p>
+<p>
+<h3>SCF:</h3>
+<ul>
+<li> Routine to rotate movecs to a new geometry (keyword "<b>rotate</b>" in
+    vectors input)
+</li>
+</ul>
+<p>
+<p>
+<h3>RIMP2:</h3>
+<ul>
+<li>Fortran Direct I/O have been converted to EAF calls: this allows to overcome the 2GB filesize limit
+</li>
+</ul>
+<p>
+<p>
+<h3>COSMO:</h3>
+<ul>
+<li> SCF and DFT interfaces made more consistent
+</li>
+<li>Set default value of ifscr parameter to 2
+</li>
+</ul>
+<p>
+<p>
+<h3>Driver:</h3>
+<ul>
+<li> NEB (Nudged Elastic Band) method added (still under development)
+</li>
+<li> ONIOM calculations can be performed with the PSPW module</li>
+<li><font color="red">BUG FIX:</font> Fractional coordinates optimizer </li>
+</ul>
+<p>
+<p>
+<h3>Properties:</h3>
+<ul>
+<li><font color="red">BUG FIX:</font> GIAO integral accuracy set to 10**-15 to make more consistent cutoff strategies</li>
+<li> Mulliken population analysis in full matrix output
+</li>
+</ul>
+<p>
+<p>
+<h3>MP2:</h3>
+<ul>
+<li>64-bit platforms: removed 2GB file limit (this will drastically reduce the number of passes)
+</li>
+</ul>
+<p>
+<p>
+<h3>Analytic Hessian:</h3>
+<ul>
+<li><font color="red">BUG FIX:</font> Improved detection of conditions
+when analytic hessian cannot be performed (e.g. opens shell DFT,
+fitted-coulomb DFT) </li>
+<li> Analytic hessian calculation with ECP basis sets can now performed
+</li>
+</ul>
+<p>
+<p>
+<h3>NBO:</h3>
+<ul>
+<li> Static memory allocation increased 6x to allow run on larger systems
+</li>
+<li><font color="red">BUG FIX:</font> Use of OPEN(STATUS="REPLACE") (on fortran compiler that  allows it)  to avoid a fatal error when a file exists because a
+    job  with the same name was carried out in the same
+    directory before</li>
+<li><font color="red">BUG FIX:</font> Normalization factors for f
+    orbitals transformation </li>
+</ul>
+<p>
+<p>
+<h3>Vib:</h3>
+<ul>
+<li> Partial canonical partition thermodynamical analysis added
+</li>
+</ul>
+<p>
+<p>
+<h3>PSPW:</h3>
+<ul>
+<li> CIF output changed
+</li>
+<li> New elements added to PS library: Au Cu Fe Ge Pb Sr Ti
+</li>
+<li> SIC (Self-Interaction Correction)
+</li>
+<li> Band by band minimizer added
+</li>
+<li> Wannier functions
+</li>
+<li> Car-Parrinello: added simulated annealing strategy
+</li>
+<li> Added Becke's ELF
+</li>
+<li> Added calculation of stress forces
+</li>
+</ul>
+
+<p>
+<p>
+<h3>MD:</h3>
+<ul>
+  <li>AMBER99: Standard parameters only as default force field</li>
+  <li>PME: Shifted grid approach to reduce cost of communication</li>
+  <li>PMF: Optional global scaling PMF force constant</li>
+  <li>PMF: Reporting of PMF energies</li>
+  <li>PMF: Specification biasing PMF for application of bias correction</li>
+  <li>PMF: Separate data files for each window</li>
+  <li>MD:  Segment size used in determining pair lists</li>
+  <li>MD:  Optional recording average properties</li>
+  <li>MD:  Import of trajectories to re-evaluate forces and potential energies</li>
+  <li>MD:  Use of lambda-scaling in regular MD run</li>
+  <li>MD:  Special anisotropic pressure scaling options for membrane simulations</li>
+  <li>MD:  Expanded timing analysis data</li>
+  <li>MD:  Optional inclusion energies between fized atoms</li>
+  <li>TI:  Separately reported mass-contributions to free energy differences</li>
+ </ul>
+
+<p>
+<p>
+<h3>QM/MM:</h3>
+<ul>
+  <li>Optional ESP fitting during QM/MM simulations</li>
+  <li>Charge of QM region specified in input</li>
+  <li>QM region with multiple basis set levels</li>
+  <li>Link atom approach using</li>
+ </ul>
+
+<p>
+<p>
+<h3>Integrals:</h3>
+<ul>
+<li> Default value for integral internal screening threshold has been
+    raised from 1E-15 to 1E-12 (set int:acc_std)</li>
+<li> ECP: Activated 2nd derivative code</li>
+<li><font color="red">BUG FIX:</font> Numerical problems in some CRENBS ecps
+<li> Performance improvements in Texas integrals (especially for 2nd
+    derivatives)
+</li>
+</ul>
+
+<p>
+<p>
+<h3>DPLOT:</h3>
+<ul>
+<li> Rewrite of the code to reduce memory requirements
+</li >
+</ul>
+
+<p>
+<p>
+<h3>ESP:</h3>
+<ul>
+<li> Factor value changed from 1.45 to 1.00
+</li >
+</ul>
+
+<p>
+<p>
+<h3>General Utilities:</h3>
+<ul>
+<li><font color="red">BUG FIX:</font> Determination of how many
+processes are simultaneously using the scratch directory
+</li>
+<li> Introduction of wall time remaining mechanism for LSF and PBS,
+    activated by typing make LSF=y and make PBS=y, respectively
+</li>
+</ul>
+
+<p>
+<p>
+<h3>Installation availability:</h3>
+<p>
+The current tested platforms and O/S versions are:
+<p>
+<p>
+<ul>
+
+  <li> IBM SP with Power 3 and Power 4 nodes, AIX 5.1
+    and PSSP 3.4; IBM RS6000 workstation, AIX 5.1. Xlf 8.1.0.0 and
+    8.1.0.1 are known to produce bad code.    </li>
+
+  <li> SGI R12000 IRIX 6.5   </li>
+
+  <li> SUN workstations with Solaris 2.6 and 2.8. Fujitsu SPARC systems
+   (thanks to Herbert Fruchtl) with Parallelnavi compilers.   </li>
+
+  <li> HP DEC alpha workstation , Tru64 V5.1,
+    Compaq Fortran V5.3, V5.4.2, V5.5.1    </li>
+
+  <li> Linux with Intel x86 cpus.
+    NWChem Release 4.5 has been tested on RedHat 6.x and 7.x,
+    Mandrake  7.x.
+    We have tested NWChem on Linux for the Power PC Macintosh with
+    Yellow Dog 2.4.
+    These all use the GCC compiler at different levels.
+    The Intel Fortran Compiler version 7 is supported.
+    The Portland Group Compiler has been tested in a less robust manner.
+    Automatic generation of SSE2 optimized code is available when the
+    Intel compiler is used (ifc vs g77 performances gain of 40% in
+    some benchmarks)
+    A somewhat Athlon optimized code can be generated under the GNU
+    or Intel compilers by typing "make _CPU=k7".
+    GCC3 specific options can be turned on by typing "make GCC31=y"
+    </li>
+
+  <li> HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
+    compilation.    </li>
+
+  <li> Intel x86 with Windows 2000 has been tested with Compaq Visual Fortran
+    6.0 and 6.1 with WMPI 1.3 or NT-Mpich.</li>
+    <li>Intel IA64 under Linux (with Intel compilers) and under HPUX
+  </li>
+
+  <li> Fujitsu VPP computers</li>
+</ul>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+</td></tr></table>
+</body>
+</html>
+
+
+
+
+
+

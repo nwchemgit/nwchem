@@ -1,0 +1,377 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Version 4.0 Release Notes</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Version 4.0 Notes</h1>
+<p>
+<font color="red">NOTE:</font> These release notes are not a
+substitute for reading the
+<a href="../doc/user/index.html">
+User Manual</a>!  They are meant to give
+a thumbnail sketch of the new capabilities and bug fixes that
+are available in NWChem Version 4.0.  When there is a conflict
+between the release notes and the
+<a href="../doc/user/index.html">
+User Manual</a>, the
+<a href="../doc/user/index.html">
+User Manual</a> takes precedence.
+<p>
+The changes for <a href="#401">version 4.0.1</a> are listed at the bottom of this file.
+<p>
+The <font color="red">TITLE</font> directive is no longer backward compatible.
+The syntax is
+<pre>
+title "string title"
+
+</pre>
+<p>
+Several new major capabilities are available in NWChem, including several
+new modules.  The new modules are:
+<ul>
+<li> ONIOM - ONIOM hybrid mthod of Morokuma and co-workers,</li>
+<li> COSMO - the continuum solvation 'Conductor-Like Screening' Model
+    of A. Klamt and G. Schuurmann to describe dielectric screening effects in
+    solvents,</li>
+<li> NBO - Natural Bond Orbital analysis is now available inside NWChem (not
+    just the interface which was in the previous versions),</li>
+<li> SODFT - Spin-orbit density functional theory, and</li>
+<li> MD - While this is not a new capability, the MD module has been rewritten
+    to allow for new force fields to be incorporated in a modular fashion.</li>
+</ul>
+For each of these capabilities, the user is referred to the
+<a href="../doc/user/index.html">
+User Manual</a> for more information.
+<p>
+Additional major additions to the capabilities include:
+<ul>
+<li> The Douglas-Kroll(-Hess) approach is implemented. It can be used at
+    all levels of theory. Gradients have been implemented allowing geometry
+    optimizations and frequency calculations using the Douglas-Kroll
+    Hamiltonian,</li>
+<li> Inclusion of code to evaluate relativistic integrals based on Dyall's
+    modified Dirac (DmD) equation.  A one-electron approximation very similar
+    to the Douglas-Kroll-Hess approach has been implemented with gradients.
+    Two-electron scalar relativistic corrections have been implemented for
+    energies only,</li>
+<li> Vibrational analysis now allows different masses to be used for a
+    previously calculated hessian - see VIB description,</li>
+<li> Input files to standard graphics packages such as RasMol or XMol can
+    be generated to animate vibrational modes - see VIB description, and</li>
+<li> Several new DFT functionals have been added:
+  <ul>
+  <li> Exchange-Correlation PBE0, HCTH402 and Becke1997GGA-1 functionals</li>
+  </ul></li>
+</ul>
+Again, for each of these capabilities, the user is referred to the
+<a href="../doc/user/index.html">
+User Manual</a> for more information.
+<p>
+A major bug in version 3.3.1 that has been fixed in version 4.0:
+<ul>
+<li>A bug was found in the distribution of multidimensional Global Array's.
+    This bug created uneven distributions of array elements (i.e. some nodes
+    got many elements and some nodes got a few elements), and this had a
+    significant impact on the parallel performance through-out the code.
+    Note: the final calculated results were correct, the performance was not
+    as good as could be expected.</li>
+</ul>
+<p>
+Listed below are the other major and many minor changes for
+each module with significant changes.  These descriptions are somewhat
+terse and more information is generally available in the
+<a href="../doc/user/index.html">
+User Manual</a>.
+<p>
+<b>Top level directives:</b>
+<ul>
+<li> The TITLE directive has different syntax.  This change is incompatible
+    with previous versions of the directive so the user will need to change
+    the TITLE directive in any current input files.</li>
+<li> The CONTINUE directive is no longer supported.</li>
+<li> Addition of RELATIVISTIC directive to control evaluation of relativistic
+    integrals.</li>
+<li> The default memory has been increased on most workstations.</li>
+<li><font color="red">BUG FIX:</font> Task shell is now working under Linux.</li>
+<li><font color="red">BUG FIX:</font> The words start and restart in the TITLE directive no longer cause
+    problems.</li>
+<li><font color="red">BUG FIX:</font> Linux versions no longer give negative time information.</li>
+</ul>
+<p>
+<b>Initial orbital Guess:</b>
+<ul>
+<li><font color="red">BUG FIX:</font> Projection from a smaller basis set to a larger basis set now
+    works for open shells.</li>
+</ul>
+<p>
+<b>Basis Sets:</b>
+<ul>
+<li>Basis set library has been updated to include all new basis sets at the
+<a href="http://www.emsl.pnl.gov/forms/basisform.html">
+EMSL Gaussian Basis Set Order Form page of David Feller</a></li>
+<li> Relativistic contractions of the cc-pvnz, n = 2--5, basis sets for the
+    Douglas-Kroll and DmD approximations.</li>
+<li> Dyall double-zeta basis sets for the 4p, 5p and 6p elements added</li>
+<li><font color="red">BUG FIX:</font> Some of the basis sets were corrected:
+  <ul>
+  <li> Basis Set "Ag_Hay-Wadt_VDZ_(n+1)_ECP", correction coefficient in first
+      s-contraction</li>
+  <li> Basis Set "Ag_LANL2DZ_ECP", correction coefficient in first s-contraction</li>
+  <li> Complete Basis Set Family "CRENBS_ECP", complete revision of all basis
+      sets</li>
+  <li> ECP "Ce_SBKJC_VDZ_ECP", correction switched integer powers for d-f
+      component</li>
+  </ul>
+</ul>
+<p>
+<b>Geometry:</b>
+<ul>
+<li>Inclusion of a finite Gaussian nuclear charge distribution.</li>
+<li>Inclusion of velocities for QMD and PSPW.</li>
+<li>More redundant internals are allowed.</li>
+<li>Allow linear angles.</li>
+<li>Mixed Cartesians in zmatrix input is more robust.</li>
+<li><font color="red">BUG FIX:</font> D<sub>5H</sub> classification is now
+ correct.</li>
+<li><font color="red">BUG FIX:</font> C<sub>5H</sub> operations are recognized.</li>
+</ul>
+<p>
+<b>DFT:</b>
+<ul>
+<li> New functionals: PBE0, HCTH402 and Becke1997GGA-1</li>
+<li> Self-interaction corrections.</li>
+<li> Lebedev + Mura grids are now the default.</li>
+<li> XC fitting can now use sphericals.</li>
+<li><font color="red">BUG FIX:</font> Code correctly executes when the number of iterations is 0.</li>
+</ul>
+<p>
+<b>SCF:</b>
+<ul>
+<li><font color="red">CHANGE:</font> New line search for optimizing the wavefunction.  Does not
+    abort when the number of steps is exhausted. </li>
+</ul>
+<p>
+<b>Driver:</b>
+<ul>
+<li><font color="red">BUG FIX:</font> Added code to avoid accidental degeneracies in the Hessian.</li>
+</ul>
+<p>
+<b>Properties:</b>
+<ul>
+<li>Note that spherical functions do not work yet with properties.</li>
+<li> The user is now allowed to choose the point of expansion for dipole,
+    quadrupole, and octupole.  See CENTER directive.</li>
+<li> The center for expansion for dipole, quadrupole and octupole has changed
+    from the center of mass to the center of charge.  This behavior can be
+    changed by using the CENTER directive.</li>
+<li> Relativistic corrections to multipole integrals in the Dyall-modified-Dirac
+    approach have been added.</li>
+<li> <font color="red">Performance fix:</font> GIAO convergence has been improved.</li>
+<li><font color="red">BUG FIX:</font> Several parallel bugs that caused calculations to fail have
+    been fixed.</li>
+<li><font color="red">BUG FIX:</font> GIAO code now recognizes when an unsupported wavefunction is
+    trying to be used with GIAO.</li>
+</ul>
+<p>
+<b>MP2:</b>
+<ul>
+<li><font color="red">BUG FIX:</font> RIMP2 now has more rigorous error handling.</li>
+</ul>
+<p>
+<b>Hessian and Frequencies:</b>
+<ul>
+<li> New VIB input group to allow for hessian reuse.</li>
+</ul>
+<p>
+<p>
+<b>Prepare:</b>
+<ul>
+<li> PREPARE module can not be used on WIN32 platforms because of problems with
+    the Global Array tools.</li>
+<li> Change in parameter file format. Do not use new files with previous
+    versions of NWChem.</li>
+<li> Z-matrix rules to assign coordinates of missing atoms.</li>
+<li> Charge separation data from parameter files.</li>
+<li> Improved performance for large systems.</li>
+<li> Optional hydrogen build.</li>
+<li> User defined default HIS protonation state defined in .nwchemrc.</li>
+<li> Enhanced options for solute alignment, centering, translation, repeat,
+    solvent removal, pmf definitions.</li>
+<li> Automatic counter ion positioning.</li>
+<li> Option to read old format restart files.</li>
+<li> Option to write xyz and pov formats.</li>
+</ul>
+<p>
+<b>MD:</b>
+<ul>
+<li> Redesigned MD module.</li>
+<li> Load balancing takes the cost of I/O into account.</li>
+<li> New, single trajectory format.</li>
+<li> Potential of mean force calculations.</li>
+<li> Improved communication by data packing.</li>
+<li> Calculation history on restart file.</li>
+<li> Single point energy calculation prints out solute non-bonded energies,
+    analytic and numerical forces.</li>
+<li> Positional atom constraints.</li>
+<li> Profiling information.</li>
+<li> Anisotropic pressure scaling implemented.</li>
+<li> Browne-Clark leap frog integration implemented (guided MD).</li>
+<li> Option to center in selected dimension only.</li>
+<li> Option to exclude pressure scaling in z-dimension.</li>
+<li> On-the-fly analysis removed.</li>
+<li><font color="red">BUG FIX:</font> Modified sub-box redistribution to prevent 'lbbl increase' errors.</li>
+<li><font color="red">BUG FIX:</font> The .nwchemrc file now allows for extraneous white spaces.</li>
+<li><font color="red">KNOWN BUG:</font> Free energy calculations can not be performed with
+    polarizable force fields.</li>
+</ul>
+<p>
+<b>Analysis:</b>
+<ul>
+<li> ANALYSIS module can not be used on WIN32 platforms because of problems with
+    the Global Array tools.</li>
+<li> Essential dynamics analysis.</li>
+<li> Structural analysis: internal degrees of freedom, RMS deviations, atom
+    and charge distributions, atomic distances.</li>
+<li> Protein structural analysis: Ramachandran and back-bone hydrogen bonds.</li>
+<li> Electrostatic potential trajectory generation, including periodic
+    boundary conditions.</li>
+<li> Output trajectories in pov format with rendering and color options.</li>
+<li> Option to read old format trajectory files.</li>
+</ul>
+<p>
+<b>Integral changes:</b>
+<ul>
+<li> Douglas-Kroll(-Hess) integral routines have been added.</li>
+<li> Relativistic one- and two-electron integral routines for the DmD approach
+    have been added.</li>
+<li> General contraction and multipassing have been implemented for the
+    Mc-Murchie-Davidson 2e integrals.</li>
+<li> Spin-orbit integrals for SODFT enabled.</li>
+<li> Effective charge potential for COSMO added.</li>
+</ul>
+<p>
+<b>Dplot:</b>
+<ul>
+<li> Gaussian cube file can now be output.</li>
+<li> Format for InsightII is compatible with version 97.0.</li>
+<li> Spherical functions can be plotted for MOs and density.</li>
+</ul>
+<p>
+<b>Tests, manuals and misc script changes:</b>
+<ul>
+<li>Updated User's Manual to reflect new and modified functionality in NWChem.</li>
+<li>QA tests have been updated to reflect the new functionality and the
+TITLE change.</li>
+<li> Updated the example directory.</li>
+<li> INSTALL instructions have been rewritten to be more user friendly.</li>
+<li> Updates in the contrib directory to reflect more recent machines and
+    capabilities, especially the Python capability.</li>
+</ul>
+<p>
+<b>Installation availability:</b>
+<p>
+The current tested platforms and O/S versions are:
+<ul>
+ <li> IBM SP with P2SC nodes, AIX 4.3.2, and PSSP 3.1</li>
+ <li> IBM SP with silver nodes (SMP nodes with two 604e processors), AIX
+    4.3.2, and PSSP 3.1</li>
+ <li> IBM SP with Power 3 nodes (SMP nodes with four processors), AIX 4.3.2
+    and PSSP 3.1</li>
+ <li> IBM RS6000 workstation, AIX 4.1 and 4.3</li>
+ <li> Cray T3E, 2.0.4.61 UNICOSMK</li>
+ <li> SGI R8000/10000/12000 IRIX 6.5</li>
+ <li> SUN workstations Solaris 5.6</li>
+ <li> Compaq DEC alpha workstion (600 MHz EV6), Tru64 V4.0 and V5.0,
+    DEC C V5.8-009, Digital Fortran V5.2</li>
+ <li> Linux with Intel x86 cpus. Since there are at least 8 popular
+    distributions of the Linux operating system and numerous others in
+    existence, including downloading everything and building your own Linux OS,
+    it is impossible to test all possible versions of Linux with NWChem.
+    NWChem Release 4.0 has been tested on, RedHat 6.0 and 6.2, Debian 2.2.1,
+    Suse 6.4, TurboLinux 6.04, Mandrake based on RedHat 6.0, FreeBSD 4.1.4,
+    and RedHat 6.0 for the Power PC Macintosh. These all use the EGCS
+    compilers at different levels. However, the Portland Group Compiler has
+    been tested in a less robust manner.</li>
+ <li> Linux with Alpha cpus has been tested with RedHat 6.1 and 6.2.
+    Usage of the Compaq Fortran and C compilers is necessary for compiling.</li>
+ <li> HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
+    compilation.</li>
+ <li> Intel x86 with Windows 98 and NT has been tested with Compaq Visual Fortran
+    6.0 and 6.1 with WMPI 1.3 or NT-Mpich.</li>
+</ul>
+<p>
+<a name="401"></a>
+<h3>Changes for NWChem 4.0 to 4.0.1</h3>
+<p>
+<ul>
+<li> Fix for PeIGS so cross-compiling works on SP systems.</li>
+<li> PSPW now works on HP</li>
+<li> Fix for PSPW simulations of charged system</li>
+<li> Level shift is now excluded from DFT unoccupied orbital energies</li>
+<li> Fix for reading cartesian hessian from a previous frequency calculation
+  when run in parallel</li>
+<li> QM MD restarts no longer fail under MPI</li>
+<li> MD restart files are no longer overwritten</li>
+<li> DNA and RNA fragments were missing some ring closure bonds.</li>
+<li> In the prepare module, the distance restraint definition is fixed.</li>
+<li> In the MD module, some printing has been removed when performing
+   distance restraints.</li>
+<li> Order of variables for the LINK card in the PDB file is now correct</li>
+<li> COSMO gradients are now always calculated numerically.</li>
+<li> UDFT calculations with COSMO behave better.</li>
+<li> NWChem now dies gracefully when COSMO is run with either spherical
+    basis functions or with ECPs.</li>
+<li> Documentation has been updated based on the above changes.</li>
+</ul>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+</td></tr></table>
+</body>
+</html>
+
+

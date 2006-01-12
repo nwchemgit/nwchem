@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Version 4.7 Release Notes</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650">
+<tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Version 4.7 Notes</h1>
+
+<p>
+<font color="red">NOTE:</font> These release notes are not a substitute for reading the
+<a href="../doc/user/userpdf.pdf">User Manual</a>! They are meant to give a
+thumbnail sketch of the new capabilities and bug fixes that are available in
+NWChem version 4.7. When there is a conflict between the release notes and the
+<a href="../doc/user/userpdf.pdf">User Manual</a>, the User Manual takes precedence.
+
+<p>
+The changes for version 4.7 are listed at the bottom of this file.
+
+<b><h2>Several new major capabilities are available in NWChem, including a new module.</h2></b>
+<p>
+A completely new QM/MM module that interfaces between classical molecular mechanics and quantum
+mechanical modules is now available in NWChem.  The user is referred to the  <a href="../doc/user/userpdf.pdf">User
+Manual</a> for more information. </p>
+
+<h3>Additional major additions to the capabilities include:</h3>
+<ul>
+<li>Properties module expanded with additional NMR properties for both SCF and DFT:
+ <ul>
+ <li>Hyperfine coupling (Fermi-Contact and Spin-Dipole expectation values)
+ <li>Indirect spin-spin coupling
+ <li>Shielding now also available for DFT wave functions
+ </ul>
+<li>Task property now requires the specification of the theory (scf or dft), making the
+  calculation of properties a single task instead of two (task scf; task property)
+<li>Ability to use driver for optimization and transition states search for quantum region
+<li>Self-consistent evaluation of metaGGA energies have been implemented in the DFT module.
+<li>Prototype PBE0 exchange-correlation functional and Hartree-Fock (xc= pbe0, hf) added to PSPW
+</ul>
+<p>Again, for each of these capabilities, the user is referred to the <a href="../doc/user/userpdf.pdf">User Manual</a>
+for more information. </p>
+
+<p>Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the <a href="../doc/user/userpdf.pdf">User Manual</a>.</p>
+
+<p>
+<p>
+<h3>CCSD(T):</h3>
+  <ul>
+  <li>Restart capability, allowing user to start triples without redoing CCSD, has been added
+  </ul>
+
+<p>
+<p>
+<h3>COSMO:</h3>
+<ul>
+<li>Limitations on number of surface charges has been removed
+<li>Spherical basis sets can be used
+</ul>
+
+<p>
+<p>
+<h3>DFT:</h3>
+  <ul>
+  <li>Self-consistent evaluation of metaGGA energies have been
+    implemented in the DFT module.
+  </ul>
+
+ <p>
+ <p>
+ <h3>Geometry:</h3>
+  <ul>
+  <li>Maximum number of QM atoms increased to 3000.
+  </ul>
+
+<p>
+<p>
+<h3>Integrals:</h3>
+  <ul>
+  <li>Memory management of integrals has been improved
+  </ul>
+
+
+<p>
+<p>
+<h3>NBO:</h3>
+<ul>
+<li>The NBO module has been removed from 4.7
+<li>However the NBO interface that produces files digestible by the standalone NBO is still there.
+</ul>
+
+<p>
+<p>
+<h3>NWPW:</h3>
+<ul>
+<li>Pseudoptential library: most of the periodic table is now
+    included in pspw_default, ??? for PAW
+<li>CPI and TETER formated pseudopotential are now readable in PSPW and BAND
+<li>Hilbert decomposed FFT added to PSPW and PAW
+<li>Numerical stresses added to PSPW, BAND and PAW
+<li>PSPW: sic exchange-correlation functionals (xc = lda-sic, lda-0.4sic, pbe96-sic, pbe96-0.4sic)
+<li>PSPW: projected density of states (DOS)
+<li>PSPW: Velocity and Temperature simulated annealing algorithms in PSPW Car-Parrinello
+<li>PSPW: prototype PBE0 exchange-correlation functional and Hartree-Fock (xc= pbe0, hf)
+<li>PSPW: prototye center of rotation contraint added to PSPW Car-Parrinello
+<li>PSPW: prototye fractional occupation
+<li>BAND: faster lmbfgs minimizer and band-by-band minimizer added
+<li>BAND: Density of states(DOS) and DOS integration
+<li>BAND: Band structure code for plotting band structures including virtual orbital
+<li>PAW: faster conjugate-gradient and lmbfgs minimizers
+<li>PAW: 1d paw basis generator added
+<li>PAW: local pseudopotential added to .jpp files for faster restarting
+<li>PAW: prototype radial grid parallization
+<li><font color="red">BUG FIX:</font> Translation constraint fixed in PSPW and PAW Car-Parrinello
+<li><font color="red">BUG FIX:</font> PBE96 semicore stress (analytitic) fixed in PSPW
+</ul>
+
+<p>
+<p>
+<h3>Properties:</h3>
+<ul>
+<li>All properties can now be calculated with spherical basis sets
+<li>All properties can be calculated with SCF and DFT wave functions
+<li>Task property has changed to Task <theory> property (theory = scf or dft)
+<li>New propeties were added (see new capabilities above)
+<li>Improved linear response for NMR shielding, quick convergence
+</ul>
+
+<p>
+<p>
+<h3>QMMM:</h3>
+<ul>
+<li>New interface between classical molecular mechanics and quantum mechanical modules
+<li>Major improvements in handling link atoms
+<li>Ability to use driver for optimization and transition states search for quantum region in QM/MM calculations.
+<li>Ability to fix atoms in the quantum region using classical molecular mechanics module
+<li>Computation of partial numerical hessian and frequencies for the quantum region
+</ul>
+
+<p>
+<p>
+<h3>TDDFT:</h3>
+<ul>
+  <li><font color="red">BUG FIX:</font> wrong use of symmetry in non abelian point groups. Now
+    NWChem bails out when TDDFT is run on non abelain point groups.
+  <li>Reduced memory requirements
+</ul>
+
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 10, 2005
+
+</td></tr></table>
+</body>
+</html>
+
+

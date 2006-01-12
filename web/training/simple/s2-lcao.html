@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+
+	<head>
+		<meta http-equiv="content-type" content="text/html;charset=iso-8859-1">
+		<meta name="generator" content="Adobe GoLive 6">
+		<title>Total energy of S2 dimer using local basis DFT method</title>
+	</head>
+
+	<body bgcolor="#ffffff">
+		<h1>Example I: Total energy of S2 dimer using local basis DFT method.</h1>
+		<p>
+		</p>
+		<p>
+		</p>
+		<table border="0" cellspacing="10" cellpadding="2">
+			<tr>
+				<td valign="top" bgcolor="#ffccff"><i><b>INPUT FILE</b></i></td>
+				<td valign="top" width="30"></td>
+				<td align="left" valign="top" bgcolor="#ffffcc" width="300"><i><b>COMMENTS</b></i></td>
+			</tr>
+			<tr>
+				<td valign="top"></td>
+				<td valign="top" width="30"></td>
+				<td align="left" valign="top" width="300"></td>
+			</tr>
+			<tr>
+				<td valign="top" bgcolor="#ffccff"><font size="+1"><b>echo</b></font></td>
+				<td valign="top" width="30"></td>
+				<td align="left" valign="top" bgcolor="#ffffcc" width="300"><b>The first directive &#x201C;echo&#x201D; is optional but highly recommended. Its purpose is to write out the contents of your input file into the output  file.<br>
+					</b>
+					<p></p>
+				</td>
+			</tr>
+			<tr>
+				<td valign="top" bgcolor="#ffccff"><font size="+1"><b>scratch_dir</b></font> <font size="+1">./scratch</font><br>
+				</td>
+				<td valign="top" width="30"></td>
+				<td align="left" valign="top" bgcolor="#ffffcc" width="300"><b>The location scratch directory. The scratch directory contains temporary files that may be discarded after the calculation is complete.</b></td>
+			</tr>
+			<tr>
+				<td valign="top" bgcolor="#ffccff"><font size="+1"><b>permanent_dir</b></font> <font size="+1">./perm</font><br>
+				</td>
+				<td valign="top" width="30"></td>
+				<td align="left" valign="top" bgcolor="#ffffcc" width="300"><b>The location of permanent directory The permanent directory contains essential files which will be required should you wish to restart your calculation.</b></td>
+			</tr>
+			<tr>
+				<td bgcolor="#ffccff"><font size="+1"><b>title</b> &quot;S2 local basis DFT&quot;</font></td>
+				<td width="30"></td>
+				<td bgcolor="#ffffcc" width="300"><b>The &#x201C;title&#x201D; directive is also optional. You might want to put a short sentence identifying the nature of your calculation </b></td>
+			</tr>
+			<tr>
+				<td bgcolor="#ffccff"><font size="+1"><b>start</b> s2</font></td>
+				<td width="30"></td>
+				<td bgcolor="#ffffcc" width="300"><b>The &quot;start&quot; directive signifies that this is a new calculation. The string ( &quot;s2&quot; in this case ) sets up a prefix for permanent files (e.g. database file ) that will be associated with this calculation. You will need those files if you want to restart your calculation.</b></td>
+			</tr>
+			<tr>
+				<td bgcolor="#ffccff">
+					<p><font size="+1"><b>geometry</b><br>
+						</font><font size="+1">   S   0.0    0.0   0.0<br>
+						</font><font size="+1">S 0.0 0.0 1.95<br>
+						</font><font size="+1"><b>end</b><br>
+						</font></p>
+				</td>
+				<td width="30"></td>
+				<td bgcolor="#ffffcc" width="300"><b>The geometry block specifies the name of the elements that comprise your system as well as their coordinates in the following format:<br>
+					</b>
+					<p><b>Name1    x1     y1      z1<br>
+							Name2    x2     y2      z2<br>
+						</b></p>
+					<p><b>&#x2026;&#x2026;<br>
+						</b></p>
+					<p><b>Unless indicated otherwise, the default units are angstroms, and the system will be centered around the origin.<br>
+						</b></p>
+					<p></p>
+				</td>
+			</tr>
+			<tr>
+				<td bgcolor="#ffccff">
+					<p><font size="+1"><b>basis &quot;ao basis&quot;</b><br>
+						</font></p>
+					<p><font size="+1">*   library    &quot;6-31++G**&quot;<br>
+						</font></p>
+					<p><font size="+1"><b>end</b><br>
+						</font></p>
+				</td>
+				<td width="30"></td>
+				<td bgcolor="#ffffcc" width="300"><b>Basis block sets up local basis assignments for the elements in the system. This can be done on element-by-element basis or all at once using &quot;star&quot; notation. Here we are using 6-31++G** basis set</b></td>
+			</tr>
+			<tr>
+				<td bgcolor="#ffccff"><font size="+1"><b>task dft energy</b></font></td>
+				<td width="30"></td>
+				<td bgcolor="#ffffcc" width="300"><b>Task directive requests the actual calculation. In this case we are using local basis DFT method  (keyword dft) and requesting total energy calculation (&nbsp;keyword energy) </b></td>
+			</tr>
+		</table>
+		<p>
+		</p>
+	</body>
+
+</html>

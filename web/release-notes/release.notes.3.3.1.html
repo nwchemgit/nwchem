@@ -1,0 +1,406 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Version 3.3.1 Release Notes</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="700"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Version 3.3 and 3.3.1 Release Notes</h1>
+<p>
+<font color="red">NOTE:</font> These release notes are not a
+substitute for reading the
+<a href="../doc/user/index.html">
+User Manual</a>!  They are meant to give
+a thumbnail sketch of the new capabilities and bug fixes that
+are available in NWChem Version 3.3.  When there is a conflict
+between the release notes and the
+<a href="../doc/user/index.html">
+User Manual</a>, the
+<a href="../doc/user/index.html">
+User Manual</a> takes precedence.
+<p>
+<font color="red">NWChem 3.3.1</font> <a href="#331">changes</a> from
+NWChem 3.3
+<p>
+Several new major capabilities are available in NWChem, including several
+new modules.  The new modules are:
+<ul>
+<li> Car-Parrinello simulations (the PSPW module),</li>
+<li> Python interface (the PYTHON module), and</li>
+<li> analysis of trajectory information during a molecular dynamics
+calculation and of ESP calculations(the ANALYSIS module).</li>
+</ul>
+For each of these capabilities, the user is referred to the
+<a href="../doc/user/index.html">
+User Manual</a> for more information.
+<p>
+Additional major additions to the capabilities include:
+<ul>
+<li> GIAO NMR chemical shift capabilities for closed shells
+   (GIAO in the PROPERTY module),</li>
+<li> The DRIVER module has been greatly improved, with many
+   new features,</li>
+<li> Several new DFT functionals have been added:
+  <ul>
+  <li> Exchange Perdew91, Gill96, and PBE96 functionals</li>
+  <li> Correlation PBE96 functional</li>
+  <li> Exchange-Correlation Becke97, Becke97-1, and HCTH functionals</li>
+  </ul></li>
+<li> The ElectroStatic Potential (ESP) module has several new features,</li>
+<li> Automatic recognition of molecular symmetry (AUTOSYM in the GEOMETRY module),</li>
+<li> Addition of Hondo 1e- energy and gradient integrals,</li>
+<li> Increased accuracy in the integral API.</li>
+</ul>
+Again, for each of these capabilities, the user is referred to the
+<a href="../doc/user/index.html">
+User Manual</a> for more information.
+<p>
+Listed below are the other major and many minor changes for
+each module with significant changes.  These descriptions are somewhat
+terse and more information is generally available in the
+<a href="../doc/user/index.html">
+User Manual</a>.
+<p>
+<b>Task level directives:</b>
+<ul>
+<li> Unrecognized directives will now cause NWChem to stop and
+print an error message </li>
+<li> Task analysis added for MD runs</li>
+<li> Task python added for python interface</li>
+<li> Task pspw added for pseudopotential plane-wave (Car-Parrinello) runs</li>
+</ul>
+<p>
+<b>Initial orbital Guess:</b>
+<ul>
+<li>New code from Paul Sherwood to generate reasonable initial atomic
+guesses for heavy elements with ECPs.  This generates guess densities
+for those atoms that previously didn't work and produces much better
+guess densities than the previous version. </li>
+<li>The atomic guess code now generates f orbital density fragments in the
+correct order for both cartesian and spherical basis sets.</li>
+<li>Higher accuracy is now used in the initial guess to accomodate large
+basis sets.  If linear dependencies are found, even higher accuracy
+is used.</li>
+<li>Users are warned if initial guess can lead to symmetry problems.</li>
+<li><font color="red">BUG FIX:</font> UHF projections of small basis sets
+to large basis sets will now work</li>
+</ul>
+<p>
+<b>Basis Sets:</b>
+<ul>
+<li>Basis set library has been updated to include all new basis sets at the
+<a href="http://www.emsl.pnl.gov/forms/basisform.html">
+EMSL Gaussian Basis Set Order Form page of David Feller</a></li>
+<li><font color="red">BUG FIX:</font> Some of the Stuttgart ECPs which had the
+coefficients and exponents switched are now correct.</li>
+</ul>
+<p>
+<b>Geometry:</b>
+<ul>
+<li>Extended redundant internals to allow user constraints.</li>
+<li>Adjustable geometries.</li>
+<li>AUTOZ is now the default.</li>
+<li>A tolerance is now available in SYMMETRY directive of GEOMETRY directive.</li>
+<li>AUTOSYM is now available (with a tolerance) on the GEOMETRY line directive.</li>
+<li>Optional velocity input for Car Parinello code.</li>
+<li>More robust z-matrix code.</li>
+<li>C<sub>7</sub> and D<sub>6</sub> symmetries are properly set up.</li>
+</ul>
+<p>
+<b>DFT:</b>
+<ul>
+<li>Introduced X Perdew91, Gill96, and PB96 functionals.</li>
+<li>Introduced C PB96 functional.</li>
+<li>Introduced XC Becke97, Becke97-1, and HCTH.</li>
+<li>DFT is now able to use spherical basis functions as well as cartesian.</li>
+<li>DFT gradients can now use the Texas integrals.</li>
+<li>Linear scaling is acheived in the exchange contribution when charge
+fitting basis sets are used with hybrid density functionals.</li>
+<li>If the vectors directive is used with SCF or DFT and a problem occurs,
+the atomic guess will be used.</li>
+<li>Lebedev grids have been significantly modified.</li>
+<li>Delley weights are no longer allowed.</li>
+<li>Modified grid input: you can now add <atom tag> nrad nang accqrad.</li>
+<li>Better screening on the exchange correlation numerical grid, which improves
+ performance by at least 20%.</li>
+<li>Default convergence parameters was modified to produce more robust results.</li>
+<li>Introduced check on integrated density: a warning message is printed if
+ the claimed accuracy criteria for the XC numerical grid are not met.</li>
+<li>Default finite difference step for nuclear hessian generation for DFT
+changed to 0.01 au and for all other methods it is 0.001 au.</li>
+<li><font color="red">BUG FIX:</font> In cases in which the spin polarization
+ is large in open shell systems, wrong wave functions and gradients were obtained
+ using Perdew86 C functionals.  This has been fixed.</li>
+<li><font color="red">BUG FIX:</font> If the user has a CD fitting basis set with
+ a shell larger than any shell in the AO basis set, the program would stop.
+ This no longer applies.</li>
+<li><font color="red">BUG FIX:</font> All hybrid functionals were giving incorrect
+ results when using open shell wavefunctions because the total density was being
+ used instead of separate alpha and beta Hartree-Fock exchange contributions.
+ This is now fixed. (It was also fixed in later releases of 3.2.1.)</li>
+</ul>
+<p>
+<b>SCF:</b>
+<ul>
+<li>Eliminated or tightened screening options to make integral selection threshold
+more consistent between file and direct routines.</li>
+<li>Improved precision in linear solve to stabilize direct SCF.</li>
+<li>If the vectors directive is used with SCF or DFT and a problem occurs,
+the atomic guess will be used.</li>
+</ul>
+<p>
+<b>Driver:</b>
+<ul>
+<li>Revamped Driver capabilities.</li>
+<li>Ensure constraints are imposed after geometry step.</li>
+<li>Extended redundant internals to allow user constraints.</li>
+<li>AUTOZ is now the default.</li>
+</ul>
+<p>
+<b>Properties:</b>
+<ul>
+<li>Note that spherical functions do not work yet with properties.</li>
+<li>Input for the NBO program are produced.</li>
+<li>Addition of GIAO NMR chemical shift calculations.</li>
+<li>Added "all" keyword.</li>
+<li><font color="red">BUG FIX:</font>Property package will correctly skip
+property evaluation for generally contracted basis sets and basis sets with
+pure sp functions (to get the properties use the "segement" keyword when
+specifying a basis set).</li>
+</ul>
+<p>
+<b>MP2:</b>
+<ul>
+<li>TIGHT directive MP2 for higher precision energy and gradients</li>
+<li><font color="red">BUG FIX:</font> Non-abelian point groups are now
+handled properly in the MP2 gradient code.</li>
+<li>Make RI-MP2 compute SCF reference if it is not already done
+ (or done with sufficient accuracy).</li>
+<li><font color="red">BUG FIX:</font> RIMP2 - Fix overflow memory problem
+for large jobs.</li>
+</ul>
+<p>
+<b>Hessian and Frequencies:</b>
+<ul>
+<li>Default finite difference step for nuclear hessian generation for DFT
+changed to 0.01 au and for all other methods it is 0.001 au.</li>
+<li><font color="red">BUG FIX:</font> Numerical hessian restarts now work properly.</li>
+</ul>
+<p>
+<b>ESP:</b>
+<ul>
+<li>Use of fast routines for ESP calculations.</li>
+<li>Write name.xyz and name.plt file (plot with gOpenMol).</li>
+<li>Write name.er file to recover previous runs.</li>
+<li>Write name.q file with partial charges.</li>
+<li>Added Schwarz screening - screen option in ESP block.</li>
+<li>Added option to read in previous esp grid, if name.grid is present, it will
+ automatically get used unless you give a command recalculate.</li>
+<li>Print atom radii.</li>
+<li>Additional constraint options.</li>
+</ul>
+<p>
+<b>Prepare module:</b>
+<ul>
+<li>Changed topology and restart format printed out.</li>
+<li>New ALTLOC, MODEL, LINK, and CHAIN commands.</li>
+<li>Allow comment lines in sequence file - begin line with #.</li>
+<li>Always recalculate grid if ESP required on a fragment.</li>
+<li>Implement 'modify segment' and 'update lists' commands.</li>
+<li>Force PDB link cards.</li>
+<li>Add modify commands for bonded interaction parameters.</li>
+<li>Recode pre_mklist to allow and identify multiple node (greater than 3)
+bonded interactions.</li>
+<li>Automatically identifies cysteine-sulphur bridges.</li>
+<li>Default HIS to HID for amber when reading PDB without hydrogens.</li>
+<li>Write out segment charges when writing topology file.</li>
+<li>Add support for DNA and RNA with AMBER force field.</li>
+<li>Add ignore keyword so that bonded parameters between quantum atoms do not
+need to be defined in the database.</li>
+<li>Make 1.0 default scaling for ESP fitted charges.</li>
+<li><font color="red">BUG FIX:</font>Multiple node bonded interaction error
+takes care of itself.</li>
+<li><font color="red">BUG FIX:</font>If last segment was a single atom,
+the atom would be lost.  This is now fixed.</li>
+<li><font color="red">KNOWN BUG:</font>In some systems, when converting a
+restart file to a PDB file, the restart file gets corrupted.  This is fixed in
+version 3.3.1.</li>
+</ul>
+<p>
+<b>MD:</b>
+<ul>
+<li>Changed topology format - cannot use old files with the new code!!
+<li>Added ability to analyze the trajectory on the fly - see the ANALYSIS module of
+  User Manual.</li>
+<li>Implement periodic boundary conditions for bonded interactions.</li>
+<li>Improved load balancing.</li>
+<li>Dynamic assignment of subset of nodes for performing the FFT calculation.</li>
+<li>Split PME calculation now default - see pme keyword in MD block.</li>
+<li>Improved periodic boundary condition scheme.</li>
+<li>Exclude constraints between atoms fixed in space - improves reliability of
+  Shake algorithm.</li>
+<li>Remove the restriction that bonded interactions can involve
+atoms on at most two segments.</li>
+<li>Improved printing SHAKE dev-too-large error message identifying the atoms that
+  are involved.</li>
+<li><font color="red">BUG FIX:</font> Fix J-Box or I-Box is Illegal problem.
+Prevent dimension problems if box index list from previous run
+exceeds current dimension.</li>
+</ul>
+<p>
+<b>Integral changes:</b>
+<ul>
+<li>Inclusion of energy and gradient one-electron integrals from HONDO.</li>
+<li>Turn off SP integral code due to accuracy problems.</li>
+<li>Several fixes to the integral code with respect to memory and bugs in TEXAS when
+high angular momentum and large exponents are present in the basis set.</li>
+<li>Fix of ECP integral bug when the ECP contained a zero r-exponent.</li>
+<li>Routines for relativistic integral code (include?)</li>
+<li>Generates relativistic one-electron integrals (include?)</li>
+</ul>
+<p>
+<b>Tests, manuals and misc script changes:</b>
+<ul>
+<li>Updated User's Manual to reflect new and modified functionality in NWChem.</li>
+<li>QA tests have been updated to reflect the new functionality in NWChem.</li>
+<li>Updated scripts to run NWChem in LoadLeveller and NQE and to test results.</li>
+<li>Addition of some scripts to create animated gifs based on using RASMOL and
+files printed out by NWChem during optimizations and frequency calculations.</li>
+<li>Updates in the Programmer's Manual (much more is still left to come!).</li>
+</ul>
+<p>
+<b>Installation availability:</b>
+<p>
+The current tested platforms and O/S versions are:
+<ul>
+ <li> IBM SP with P2SC nodes,  AIX 4.2.1, and PSSP 2.3 </li>
+ <li> IBM SP with silver nodes (SMP nodes with two 604e processors),
+ AIX 4.3.2, and PSSP 3.1. </li>
+ <li> IBM RS6000 workstation, AIX 3.2, 4.1. and 4.3 </li>
+ <li> Cray T3E, 2.0.4.61 UNICOSMK </li>
+ <li> SGI R8000/10000, IRIX 6.2, 6.5 </li>
+ <li> SGI R4000, IRIX 5.3 </li>
+ <li> SUN workstations, SunOS 4.1.3 and Solaris 5.5 </li>
+ <li> Compaq DEC alpha workstion (600 MHz EV6), Digital UNIX V4.0E
+ Rev. 1091, DEC C V5.8-009, Digital Fortran V5.2 </li>
+ <li> Linux. Since there are at least 8 popular distributions of the
+ Linux operating system and numerous others in existence, including
+ downloading everything and building your own Linux OS, it is
+ impossible to test all possible versions of Linux with NWChem. NWChem
+ Release 3.3 has been tested on Slackware 3.4, 3.5, 4.0, RedHat 5.1,
+ 5.2, and 6.0, Mandrake based on RedHat 6.0, and LinuxPPC 4.0 for the
+ Power PC Macintosh.  These all use the EGCS compilers at different
+ levels.  Those distributed from Slackware are somewhat different than
+ those distributed from RedHat but the code is configured to run on all
+ of them.  The Linux Alpha version 5.2 from Red Hat fails to compile
+ the code as well as the beta release of the Digital Fortran compiler
+ for Linux based Alpha systems.</li>
+</ul>
+<font color="red">NOTE:</font>In releases of NWChem prior to 3.3 additional processes had
+   to be created on workstation clusters to support remote access to
+   shared memory.  This is no longer the case.  The TCGMSG process
+   group file just needs to refer to processes running NWChem.
+<p>
+<hr>
+<p>
+<a name="331"></a>
+<center><h2>Changes from NWChem 3.3 to NWChem 3.3.1</h2></center>
+<p>
+<ul>
+<li>Fix for PB96 functionals.  <font color="red">Note that all previous
+calculations with this functional are incorrect.  Do NOT rely on results
+using any version previous to 3.3.1</font></li>
+<li>Slightly looser value of EPREC in DRIVER for DFT
+ calculations. (5e-6 instead of 1e-7)</li>
+<li>Improved screening on the grid for DFT which only effects large
+ calculations (usually those that have molecules that are "spread
+ out").</li>
+<li>The periodic boundary conditions for an MD run now checks
+ for images more than one cell away.</li>
+<li>Fix in the PREPARE module so that some solvents that were
+ not being written out correctly in the PDB file now are.</li>
+<li>Fix in the solvate box command.</li>
+<li>Fix for periodic boundary conditions for solvation.</li>
+<li>Fix for the passing of character strings in the PSPW code.  </li>
+<li>Dramatically improved parallel efficiency of the Lagrange
+ multipliers and the non-local pseudopotentials on high-latency
+ parallel platforms in the PSPW code.</li>
+<li>Improved persistence of tolerance changes when linear
+ dependence is found.  This had caused some convergence
+ problems.</li>
+<li>Improved eigensolver for large linear dependencies.
+<font color="red"> Please note that the current algorithm in PEigS requires
+more memory.  You may need to increase the
+amount of memory needed for a particular calcuation.  This problem
+will be rectified in the next version.</font></li>
+<li>The TIGHT option has replaced AOTOL and MOTOL in MP2 (undocumented
+    feature of version 3.3).</li>
+<li>Fix in the CCSD calculation to add some synchronization which
+ provided more stability.</li>
+<li>Fix for message passing with Linux.  This fixes a
+<a href="../support/known_bugs.3.3.html#8">known performance problem</a>.</li>
+<li>Modifications in the GA tools which were causing performance
+problems between workstations.</li>
+<li>Fix tools makefiles to allow for larger than 2 GB files on the
+ SP and to fix a diagonalization problem which was causing problems
+ with the scalability of DFT.</li>
+<li>Fix for the T3E makefile so that the make works cleanly.
+<li>Work arounds to LAPI problems that have been identified on
+ the SP.  The symptoms generally showed up as jobs that
+ would hang.</li>
+<li>Additional printing of information in the ecce.out file to
+ be compatible with Ecce 1.5.</li>
+<li>The examples directory has been updated and the tests
+ directory has been deleted because the input files were
+ obsolete.</li>
+</ul>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 8, 2005
+</td></tr></table>
+</body>
+</html>
+
+
