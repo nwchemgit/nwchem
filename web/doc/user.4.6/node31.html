@@ -1,0 +1,291 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>29. Electrostatic potentials</TITLE>
+<META NAME="description" CONTENT="29. Electrostatic potentials">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node32.html">
+<LINK REL="previous" HREF="node30.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node32.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1570"
+  HREF="node32.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1566"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1560"
+  HREF="node30.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1568"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1571"
+  HREF="node32.html">30. Prepare</A>
+<B> Up:</B> <A NAME="tex2html1567"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1561"
+  HREF="node30.html">28. Properties</A>
+ &nbsp <B>  <A NAME="tex2html1569"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1572"
+  HREF="node31.html#SECTION003110000000000000000">29.1 Grid specification</A>
+<LI><A NAME="tex2html1573"
+  HREF="node31.html#SECTION003120000000000000000">29.2 Constraints</A>
+<LI><A NAME="tex2html1574"
+  HREF="node31.html#SECTION003130000000000000000">29.3 Restraints</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION003100000000000000000">
+29. Electrostatic potentials</A>
+</H1>
+<A NAME="sec:esp"></A>
+<P>
+The NWChem Electrostatic Potential (ESP) module derives partial atomic 
+charges that fit the quantum mechanical electrostatic potential on selected
+grid points.
+
+<P>
+The ESP module is specified by the NWChem task directive
+<PRE>
+task esp
+</PRE>
+
+<P>
+The input for the module is taken from the ESP input block
+<PRE>
+ESP
+  ...
+END
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003110000000000000000">
+29.1 Grid specification</A>
+</H1>
+The grid points for which the quantum mechanical electrostatic potential is 
+evaluated and used in the fitting procedure of the partial atomic charges
+all lie outside the van der Waals radius of the atoms and within a cutoff
+distance from the atomic centers. The following input parameters determine
+the selection of grid points.
+
+<UL>
+<LI>If a grid file is found, the grid will be read from that file. If no grid
+file is found, or the keyword
+<PRE>
+  recalculate
+</PRE>
+is given, the grid and the electrostatic potential is recalculated.
+</LI>
+<LI>The extent of the grid is determined by
+<PRE>
+  range &lt;real rcut&gt;
+</PRE>
+where <code>rcut</code> is the maximum distance in <IMG
+ WIDTH="28" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img195.gif"
+ ALT="$nm$"> between a grid point and
+any of the atomic centers. When omitted, a default value for <code>rcut</code> of
+0.3 <IMG
+ WIDTH="28" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img195.gif"
+ ALT="$nm$"> is used.
+</LI>
+<LI>The grid spacing is specified by
+<PRE>
+  spacing &lt;real spac&gt;
+</PRE>
+where <code>spac</code> is the grid spacing in <IMG
+ WIDTH="28" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img195.gif"
+ ALT="$nm$"> for the regularly spaced
+grid points. If not specified, a default spacing of 0.05 <IMG
+ WIDTH="28" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img195.gif"
+ ALT="$nm$"> is used.
+</LI>
+<LI>The van der Waals radius of an element can be specified by
+<PRE>
+  radius &lt;integer iatnum&gt; &lt;real atrad&gt;
+</PRE>
+where <code>iatnum</code> is the atomic number for which a van der Waals radius
+of <code>atrad</code> in <IMG
+ WIDTH="28" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img195.gif"
+ ALT="$nm$"> will be used in the grid point determination.
+Default values will be used for atoms not specified.
+</LI>
+<LI>The probe radius in nm determining the envelope around the molecule is
+specified by
+<PRE>
+  probe &lt;real probe default 0.07&gt;
+</PRE>
+</LI>
+<LI>The distance between atomic center and probe center can be multiplied
+by a constant factor specified by
+<PRE>
+  factor &lt;real factor default 1.0&gt;
+</PRE>
+All grid points are discarded that lie within a distance 
+<code>factor*(radius(i)+probe)</code> from any atom <IMG
+ WIDTH="10" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img164.gif"
+ ALT="$i$">.
+</LI>
+<LI>Schwarz screening is applied using
+<PRE>
+  screen [&lt;real scrtol default 1.0D-5&gt;]
+</PRE>
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION003120000000000000000">
+29.2 Constraints</A>
+</H1>
+Additional constraints to the partial atomic charges can be imposed during
+the fitting procedure.
+
+<UL>
+<LI>The net charge of a subset of atoms can be constrained using
+<PRE>
+  constrain &lt;real charge&gt; {&lt;integer iatom&gt;}
+</PRE>
+where <code>charge</code> is the net charge of the set of atoms <code>{iatom}</code>.
+A negative atom number <code>iatom</code> can be used to specify that the
+partial charge of that atom is substracted in the sum for the set.
+</LI>
+<LI>The net charge of a sequence of atoms can be constrained using
+<PRE>
+  constrain &lt;real charge&gt; &lt;integer iatom&gt; through &lt;integer jatom&gt;
+</PRE>
+where <code>charge</code> is the net charge of the set of atoms <code>{[iatom:jatom]}</code>.
+</LI>
+<LI>A group of atoms can be constrained to have the same charge with
+<PRE>
+  constrain equal {&lt;integer iatom&gt;}
+</PRE>
+</LI>
+<LI>The individual charge of a group of atoms can be constrained to be equal to
+those of a second group of atoms with
+<PRE>
+  constrain group &lt;integer iatom&gt; &lt;integer jatom&gt; to &lt;integer katom&gt; &lt;integer latom&gt;
+</PRE>
+resulting in the same charge for atoms <code>iatom</code> and <code>katom</code>, for
+atoms <code>iatom+1</code> and <code>katom+1</code>, ... for atoms <code>jatom</code> and <code>latom</code>.
+</LI>
+<LI>A special constraint
+<PRE>
+  constrain xhn &lt;integer iatom&gt; {&lt;integer jatom&gt;}
+</PRE>
+can be used to constrain the set <code>{iatom,{jatom}}</code> to zero charge, and
+constrain all atoms in <code>{jatom}</code> to have the same charge. This can be used,
+for example, to restrain a methyl group to zero charge, and have all hydrogen
+carrying identical charges.
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION003130000000000000000">
+29.3 Restraints</A>
+</H1>
+Restraints can be applied to each partial charge using the RESP charge
+fitting procedure.
+
+<UL>
+<LI>The directive for charge restraining is
+<PRE>
+  restrain [hfree] (harmonic [&lt;real scale&gt;] | \
+   hyperbolic [&lt;real scale&gt; [&lt;real tight&gt;]]  \
+    [maxiter &lt;integer maxit&gt;]  [tolerance &lt;real toler&gt;])
+</PRE>
+where <code>hfree</code> can be specified to exclude hydrogen atoms from the
+restaining procecure. Variable <code>scale</code> is the strength of the 
+restraint potential, with a default of <IMG
+ WIDTH="58" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img196.gif"
+ ALT="$0.005 au$"> for the harmonic
+restraint and a default value of <IMG
+ WIDTH="58" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img197.gif"
+ ALT="$0.001 au$"> for the hyperbolic restraint.
+For the hyperbolic restraints the tightness <code>tight</code> can be specified
+to change the default value of <IMG
+ WIDTH="32" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img198.gif"
+ ALT="$0.1 e$">. The iteration count that needs to
+be carried out for the hyperbolic restraint is determined by the
+maximum number of allowed iterations <code>maxiter</code>, with a default value
+of 25, and the tolerance in the convergence of the partial charges
+<code>toler</code>, with a default of <IMG
+ WIDTH="48" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img199.gif"
+ ALT="$0.001 e$">.
+</LI>
+</UL>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1570"
+  HREF="node32.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1566"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1560"
+  HREF="node30.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1568"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1571"
+  HREF="node32.html">30. Prepare</A>
+<B> Up:</B> <A NAME="tex2html1567"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1561"
+  HREF="node30.html">28. Properties</A>
+ &nbsp <B>  <A NAME="tex2html1569"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

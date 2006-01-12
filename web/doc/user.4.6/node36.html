@@ -1,0 +1,457 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>34. File formats</TITLE>
+<META NAME="description" CONTENT="34. File formats">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node37.html">
+<LINK REL="previous" HREF="node35.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node37.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1679"
+  HREF="node37.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1675"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1669"
+  HREF="node35.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1677"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1680"
+  HREF="node37.html">35. Pseudopotential plane-wave density</A>
+<B> Up:</B> <A NAME="tex2html1676"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1670"
+  HREF="node35.html">33. Combined quantum and</A>
+ &nbsp <B>  <A NAME="tex2html1678"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION003600000000000000000">
+34. File formats</A>
+</H1>
+<A NAME="sec:formats"></A>
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="9782"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.1:</STRONG>
+The format of fragment files.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>Card</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>Format</TD>
+<TD ALIGN="LEFT">Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>I-1-1</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>a1</TD>
+<TD ALIGN="LEFT">$ to identify the start of a fragment</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>I-1-2</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>a10</TD>
+<TD ALIGN="LEFT">name of the fragment, the tenth character</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">N: identifies beginning of a chain</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">C: identifies end of a chain</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">blank: identifies chain fragment</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">M: identifies an integral molecule</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>I-2-1</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>i5</TD>
+<TD ALIGN="LEFT">number of atoms in the fragment</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43><B>For each atom one deck II</B></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-1</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>i5</TD>
+<TD ALIGN="LEFT">atom sequence number</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-2</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>a6</TD>
+<TD ALIGN="LEFT">atom name</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-3</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>a5</TD>
+<TD ALIGN="LEFT">atom type</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-4</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>a1</TD>
+<TD ALIGN="LEFT">dynamics type</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT"><code> </code> : normal</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT"><code>D</code> : dummy atom</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT"><code>S</code> : solute interactions only</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT"><code>Q</code> : quantum atom</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">other : intramolecular solute interactions only</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-5</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>i5</TD>
+<TD ALIGN="LEFT">link number</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">0: no link</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">1: first atom in chain</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">2: second atom in chain</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">3 and up: other links</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-6</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>i5</TD>
+<TD ALIGN="LEFT">environment type</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">0: no special identifier</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">1: planar, using improper torsion</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">2: tetrahedral, using improper torsion</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">3: tetrahedral, using improper torsion</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">4: atom in aromatic ring</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-7</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>i5</TD>
+<TD ALIGN="LEFT">charge group</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-8</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>i5</TD>
+<TD ALIGN="LEFT">polarization group</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-9</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>f12.6</TD>
+<TD ALIGN="LEFT">atomic partial charge</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>II-1-10</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>f12.6</TD>
+<TD ALIGN="LEFT">atomic polarizability</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43><B>Any number of cards in deck III to specify complete 
+connectivity</B></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=43>III-1-1</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=34>16i5</TD>
+<TD ALIGN="LEFT">connectivity, duplication allowed</TD>
+</TR>
+</TABLE>
+
+</DIV></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdseg1"></A><A NAME="9784"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.2:</STRONG>
+Segment file format, table 1 of 6.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="235" BORDER="0"
+ SRC="img247.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...mproper dihedrals in the segment\\
+\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdseg2"></A><A NAME="9786"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.3:</STRONG>
+Segment file format, table 2 of 6.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="770" BORDER="0"
+ SRC="img248.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...\pi\epsilon_o$\ in nm$^3$, set 3\\
+\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdseg3"></A><A NAME="9788"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.4:</STRONG>
+Segment file format, table 3 of 6.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="330" BORDER="0"
+ SRC="img249.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...in kJ nm$^2$\ mol$^{-1}$, set 3 \\
+\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdseg4"></A><A NAME="9790"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.5:</STRONG>
+Segment file format, table 4 of 6.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="330" BORDER="0"
+ SRC="img250.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...onstant in kJ mol$^{-1}$, set 3 \\
+\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdseg5"></A><A NAME="9792"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.6:</STRONG>
+Segment file format, table 5 of 6.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="407" BORDER="0"
+ SRC="img251.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...onstant in kJ mol$^{-1}$, set 3 \\
+\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdseg6"></A><A NAME="9794"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.7:</STRONG>
+Segment file format, table 6 of 6.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="353" BORDER="0"
+ SRC="img252.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...t in kJ mol$^{-1}$, set 3 \\
+\hline\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdseq"></A><A NAME="9796"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.8:</STRONG>
+Sequence file format.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="397" BORDER="0"
+ SRC="img253.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...II to specify the system} \\
+\hline\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdtrj"></A><A NAME="9798"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.9:</STRONG>
+Trajectory file format.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="822" BORDER="0"
+ SRC="img254.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...e atom velocities, if lvs \\
+\hline\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdgib"></A><A NAME="9800"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.10:</STRONG>
+Free energy file format.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="240" BORDER="0"
+ SRC="img255.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...rgy at current $\lambda$\ \\
+\hline\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdrms"></A><A NAME="9802"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.11:</STRONG>
+Root mean square deviation file format.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="356" BORDER="0"
+ SRC="img256.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...ion after superimposition \\
+\hline\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="tbl:nwmdprp"></A><A NAME="9804"></A>
+<TABLE>
+<CAPTION><STRONG>Table 34.12:</STRONG>
+Property file format.</CAPTION>
+<TR><TD><IMG
+ WIDTH="680" HEIGHT="145" BORDER="0"
+ SRC="img257.gif"
+ ALT="\begin{table}\begin{center}
+\begin{tabular*}{150mm}{p{15mm}p{12mm}l}
+\hline\hlin...
+...12.5) &amp; value of property \\
+\hline\hline
+\end{tabular*}\end{center}\end{table}"></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1679"
+  HREF="node37.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1675"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1669"
+  HREF="node35.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1677"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1680"
+  HREF="node37.html">35. Pseudopotential plane-wave density</A>
+<B> Up:</B> <A NAME="tex2html1676"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1670"
+  HREF="node35.html">33. Combined quantum and</A>
+ &nbsp <B>  <A NAME="tex2html1678"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

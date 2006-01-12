@@ -1,0 +1,550 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>8. Effective Core Potentials</TITLE>
+<META NAME="description" CONTENT="8. Effective Core Potentials">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node11.html">
+<LINK REL="previous" HREF="node9.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node11.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1122"
+  HREF="node11.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1118"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1112"
+  HREF="node9.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1120"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1123"
+  HREF="node11.html">9. Relativistic All-electron Approximations</A>
+<B> Up:</B> <A NAME="tex2html1119"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1113"
+  HREF="node9.html">7. Basis sets</A>
+ &nbsp <B>  <A NAME="tex2html1121"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1124"
+  HREF="node10.html#SECTION001010000000000000000">8.1 Scalar ECPs</A>
+<LI><A NAME="tex2html1125"
+  HREF="node10.html#SECTION001020000000000000000">8.2 Spin-orbit ECPs</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001000000000000000000">
+8. Effective Core Potentials</A>
+</H1>
+<A NAME="sec:ecp"></A>
+Effective core potentials (ECPs) are a useful means of replacing the core
+electrons in a calculation with an effective potential, thereby eliminating
+the need for the core basis functions, which usually require a large set of
+Gaussians to describe them. In addition to replacing the core, they may be
+used to represent relativistic effects, which are largely confined to the
+core. In this context, both the scalar (spin-free) relativistic effects and
+spin-orbit (spin-dependent) relativistic effects may be included in
+effective potentials. NWChem has the facility to use both, and these are
+described in the next two sections.
+
+<P>
+A brief recapitulation of the development of RECPs is given here, following
+Pacios and Christiansen<A NAME="tex2html15"
+  HREF="footnode.html#foot2077"><SUP>8.1</SUP></A>. The process can be viewed as starting
+from an atomic Dirac-Hartree-Fock calculation, done in <I>jj</I> coupling,
+and producing relativistic effective potentials (REPs) for each <IMG
+ WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img65.gif"
+ ALT="$l$"> and
+<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img66.gif"
+ ALT="$j$"> value, <!-- MATH
+ $U^{\rm REP}_{lj}$
+ -->
+<IMG
+ WIDTH="44" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img67.gif"
+ ALT="$U^{\rm REP}_{lj}$">.  From these, a local potential is
+extracted, which for example contains the Coulomb potential of the core
+electrons balanced by the part of the nuclear attraction which cancels the
+core electron charge. The residue is expressed in a semi-local form,
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+U^{\rm REP} = U^{\rm REP}_{LJ}(r) + \sum_{l=0}^{L-1}
+\sum_{j=|l-1/2}^{l+1/2} \left[ U^{\rm REP}_{lj}(r) -  
+U^{\rm REP}_{LJ}(r) \right] \sum_m | lj m \rangle \langle lj m |
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="476" HEIGHT="102" BORDER="0"
+ SRC="img68.gif"
+ ALT="\begin{displaymath}
+U^{\rm REP} = U^{\rm REP}_{LJ}(r) + \sum_{l=0}^{L-1}
+\sum_{j...
+...}_{LJ}(r) \right] \sum_m \vert lj m \rangle \langle lj m \vert
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(8.1)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+where <IMG
+ WIDTH="15" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img63.gif"
+ ALT="$L$"> is one larger than the maximum angular momentum in the atom.
+The scalar potential is obtained by averaging the REPs for each <IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img66.gif"
+ ALT="$j$"> for a
+given <IMG
+ WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img65.gif"
+ ALT="$l$"> to give an averaged relativistic effective potential, or AREP,
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+U^{\rm AREP}_l(r) = \frac{1}{2l+1} \left[ lU^{\rm REP}_{l-1/2}(r)
++ (l+1) U^{\rm REP}_{l+1/2}(r) \right].
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="357" HEIGHT="80" BORDER="0"
+ SRC="img69.gif"
+ ALT="\begin{displaymath}
+U^{\rm AREP}_l(r) = \frac{1}{2l+1} \left[ lU^{\rm REP}_{l-1/2}(r)
++ (l+1) U^{\rm REP}_{l+1/2}(r) \right].
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(8.2)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+These are summed into the full potential.
+
+<P>
+The spin-orbit potential is obtained from the difference between the REPs
+for the two <IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img66.gif"
+ ALT="$j$"> values for a given l, and may be 
+represented in terms of an effective spin-orbit operator,
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+H^{\rm SO} = {\bf s} \cdot \sum_{l=1}^{L-1} \frac{2}{2l+1} 
+\Delta U^{\rm REP}_{l} \sum_{mm'} 
+| lm \rangle \langle lm | \hat l| lm' \rangle \langle lm' |.
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="366" HEIGHT="96" BORDER="0"
+ SRC="img70.gif"
+ ALT="\begin{displaymath}
+H^{\rm SO} = {\bf s} \cdot \sum_{l=1}^{L-1} \frac{2}{2l+1}
+...
+...le \langle lm \vert \hat l\vert lm' \rangle \langle lm' \vert.
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(8.3)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+where
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+\Delta U^{\rm REP}_{l} = U^{\rm REP}_{l+1/2}(r)
+ - U^{\rm REP}_{l-1/2}(r).
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="227" HEIGHT="68" BORDER="0"
+ SRC="img71.gif"
+ ALT="\begin{displaymath}
+\Delta U^{\rm REP}_{l} = U^{\rm REP}_{l+1/2}(r)
+- U^{\rm REP}_{l-1/2}(r).
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(8.4)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+The spin-orbit integrals generated by NWChem are the integrals over the sum,
+including the factor of <IMG
+ WIDTH="73" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img72.gif"
+ ALT="$2/(2l+1)$">, so that they may be treated as an
+effective spin-orbit operator without further factors introduced.
+
+<P>
+The effective potentials, both scalar and spin-orbit, are fitted to
+Gaussians with the form
+<BR><P></P>
+<DIV>
+<!-- MATH
+ \begin{displaymath}
+r^2U_l(r) = \sum_{k} A_{lk} r^{n_{lk}} e^{-B_{lk}r^{2}}
+\end{displaymath}
+ -->
+
+<IMG
+ WIDTH="198" HEIGHT="84" BORDER="0"
+ SRC="img73.gif"
+ ALT="\begin{displaymath}
+r^2U_l(r) = \sum_{k} A_{lk} r^{n_{lk}} e^{-B_{lk}r^{2}}
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+where <IMG
+ WIDTH="28" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img74.gif"
+ ALT="$A_{lk}$"> is the contraction coefficient, <IMG
+ WIDTH="26" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img75.gif"
+ ALT="$n_{lk}$"> is the
+exponent of the ``r'' term (r-exponent), and <IMG
+ WIDTH="28" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img76.gif"
+ ALT="$B_{lk}$"> is the Gaussian
+exponent.  The <IMG
+ WIDTH="26" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img75.gif"
+ ALT="$n_{lk}$"> is shifted by 2, in accordance with most of the ECP
+literature and implementations, i.e., an <IMG
+ WIDTH="55" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img77.gif"
+ ALT="$n_{lk} = 0$"> implies
+<IMG
+ WIDTH="29" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img78.gif"
+ ALT="$r^{-2}$">.  The current implementation allows <IMG
+ WIDTH="26" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img75.gif"
+ ALT="$n_{lk}$"> values
+of only 0, 1, or 2. 
+
+<P>
+
+<H1><A NAME="SECTION001010000000000000000"></A>
+<A NAME="sec:scalar_ecp"></A>
+<BR>
+8.1 Scalar ECPs
+</H1>
+
+<P>
+The optional directive <code>ECP</code> allows the user to describe an effective core
+potential (ECP) in terms of contracted Gaussian functions as given above.
+Potentials using these functions must be specified explicitly by user input
+in the <code>ECP</code> directive.  This directive has essentially the same form
+and properties as the standard <code>BASIS</code> directive, except for essential
+differences required for ECPs.  Because of this, the ECP is treated
+internally as a basis set. The form of the input for the
+<code>ECP</code> directive is as follows:
+
+<P>
+<PRE>
+  ECP [&lt;string name default "ecp basis"&gt;] \
+        [print || noprint default print]
+
+     &lt;string tag&gt; library [&lt;string tag_in_lib&gt;] \
+                  &lt;string standard_set&gt; [file &lt;filename&gt;] \
+                  [except &lt;string tag list&gt;]
+
+     &lt;string tag&gt; [nelec] &lt;integer number_of_electrons_replaced&gt;
+ 
+        ...
+
+     &lt;string tag&gt; &lt;string shell_type&gt;
+     &lt;real r-exponent&gt; &lt;real Gaussian-exponent&gt; &lt;real list_of_coefficients&gt;
+        ...
+     
+  END
+</PRE>    
+
+<P>
+ECPs are automatically segmented, even if general contractions are input.
+The projection operators defined in an ECP are spherical by default, so
+there is no need to include the <code>CARTESIAN</code> or <code>SPHERICAL</code> keyword
+as there is for a standard basis set.  ECPs are associated with centers in
+geometries through tags or names of centers.  These tags must match in the
+same manner as for basis sets the tags in a <code>GEOMETRY</code> and
+<code>ECP</code> directives, and are limited to sixteen (16) characters.
+Each center with the same tag will have the same ECP.  By default, the
+input module prints each ECP that it encounters.  The <code>NOPRINT</code>
+option can be used to disable printing.  There can be only one active
+ECP, even though several may exist in the input deck.  The ECP modules
+load ``ecp basis'' inputs along with any ``ao basis'' inputs present.
+ECPs may be used in both energy and gradient calculations.
+
+<P>
+ECPs are named in the same fashion as geometries or regular basis
+sets, with the default name being <code>"ecp basis"</code>.  It should be
+clear from the above discussion on geometries and database entries how
+indirection is supported.  All directives that are in common with the
+standard Gaussian basis set input have the same function and syntax.
+
+<P>
+As for regular basis sets, ECPs may be obtained from the standard library.
+The names of the sets of ECPs available in the standard
+library (their coverage is described in Appendix <A HREF="node41.html#sec:knownbasis">A</A>) are
+
+<UL>
+<LI><code>"Hay-Wadt MB (n+1) ECP"</code>
+</LI>
+<LI><code>"Hay-Wadt VDZ (n+1) ECP"</code>
+</LI>
+<LI><code>"LANL2DZ ECP"</code>
+</LI>
+<LI><code>"SBKJC VDZ ECP"</code>
+</LI>
+<LI><code>"Stuttgart RLC ECP"</code>
+</LI>
+<LI><code>"Stuttgart RSC ECP"</code>
+</LI>
+<LI><code>"CRENBL ECP"</code>
+</LI>
+<LI><code>"CRENBS ECP"</code>
+</LI>
+</UL>
+
+<P>
+The keyword <code>nelec</code> allows the user to specify the number of core
+electrons replaced by the ECP.  Additional input lines define the
+specific coefficients and exponents.  The variable <code>&lt;shell_type&gt;</code>
+is used to specify the components of the ECP.  The keyword <code>ul</code>
+entered for <code>&lt;shell_type&gt;</code> denotes the local part of the ECP.
+This is equivalent to the highest angular momentum functions specified
+in the literature for most ECPs.  The standard entries (<code>s, p, d</code>,
+etc.) for <code>shell_type</code> specify the angular momentum projector
+onto the local function.  The shell type label of <code>s</code> indicates
+the <code>ul-s</code> projector input, <code>p</code> indicates the <code>ul-p</code>,
+etc.
+
+<P>
+For example, the Christiansen, Ross and Ermler ARECPs are available in
+the standard basis set libary named <code>{crenbl_ecp}</code>.  To perform a
+calculation on uranyl (UO<IMG
+ WIDTH="21" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img79.gif"
+ ALT="$_2^{2+}$">) with all-electron oxygen
+(aug-cc-pvdz basis), and uranium with an ARECP and using the
+corresponding basis the following input can be used
+<PRE>
+  geometry
+    U 0 0  0
+    O 0 0  1.65
+    O 0 0 -1.65
+  end
+  basis 
+    U library crenbl_ecp
+    O library aug-cc-pvdz
+  end
+  ecp
+    U library crenbl_ecp
+  end
+</PRE>
+
+<P>
+The following is an example of explicit input of an ECP for H<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$">CO.
+It defines an ECP for the carbon and oxygen atoms in the molecule.
+
+<P>
+<PRE>
+  ecp
+    C nelec 2 # ecp replaces 2 electrons on C
+    C ul      # d
+            1       80.0000000       -1.60000000
+            1       30.0000000       -0.40000000
+            2        0.5498205       -0.03990210
+   C s        # s - d 
+            0        0.7374760        0.63810832
+            0      135.2354832       11.00916230
+            2        8.5605569       20.13797020
+    C p       # p - d
+            2       10.6863587       -3.24684280
+            2       23.4979897        0.78505765
+    O nelec 2 # ecp replaces 2 electrons on O
+    O ul      # d 
+            1       80.0000000       -1.60000000
+            1       30.0000000       -0.40000000
+            2        1.0953760       -0.06623814
+    O s       # s - d
+            0        0.9212952        0.39552179
+            0       28.6481971        2.51654843
+            2        9.3033500       17.04478500
+    O p       # p - s 
+            2       52.3427019       27.97790770
+            2       30.7220233      -16.49630500
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001020000000000000000"></A>
+<A NAME="sec:spinorb_ecp"></A>
+<BR>
+8.2 Spin-orbit ECPs
+</H1>
+
+<P>
+The Spin-orbit ECPs can be used with the Density Functional Approach, but 
+one has to run the calculations without symmetry. Note: when a Hartree-Fock
+method is specified the spin-orbit input will be ignored.
+
+<P>
+Spin-orbit ECPs are fitted in precisely the same functional form as the
+scalar RECPs and have the same properties, with the exception that there is
+no local potential ul, no <IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$"> potential and no effective charge has to be
+defined. Spin-orbit potentials are
+specified in the same way as ECPs except that the directive <code>SO</code> is
+used instead of <code>ECP</code>. Note that there currently are no spin-orbit
+ECPs defined in the standard NWChem library.  The <code>SO</code> 
+directive is as follows:
+
+<P>
+<PRE>
+  SO [&lt;string name default "so basis"&gt;] \
+        [print || noprint default print]
+
+     &lt;string tag&gt; library [&lt;string tag_in_lib&gt;] \
+                  &lt;string standard_set&gt; [file &lt;filename&gt;]
+                  [except &lt;string tag list&gt;]
+        ...
+
+     &lt;string tag&gt; &lt;string shell_type&gt;
+     &lt;real r-exponent&gt; &lt;real Gaussian-exponent&gt; &lt;real list_of_coefficients&gt;
+        ...
+     
+  END
+</PRE>    
+
+<P>
+Note: in the literature the coefficients of the spin-orbit potentials are NOT 
+always defined in the same manner. The NWChem code assumes that the spin-orbit
+potential defined in the input is of the form:
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+\Delta U^{\rm NWChem}_{l} = \frac{2}{2l+1} \Delta U_{l}
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="175" HEIGHT="80" BORDER="0"
+ SRC="img80.gif"
+ ALT="\begin{displaymath}
+\Delta U^{\rm NWChem}_{l} = \frac{2}{2l+1} \Delta U_{l}
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(8.5)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+For example, in the literature the Stuttgart potentials are defined as 
+<IMG
+ WIDTH="33" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img81.gif"
+ ALT="$\Delta U_{l}$"> and, hence, have to be multiplied by <IMG
+ WIDTH="73" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img82.gif"
+ ALT="$2/(2{l}+1)$">. On the 
+other hand, the CRENBL potentials in the published papers are defined as 
+<!-- MATH
+ $\frac{l}{2l+1} \Delta U_{l}$
+ -->
+<IMG
+ WIDTH="63" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img83.gif"
+ ALT="$\frac{l}{2l+1} \Delta U_{l}$"> and, hence, have to be multiplied by 
+<IMG
+ WIDTH="25" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img84.gif"
+ ALT="$2/{l}$"> (Warning: on the CRENBL website the spin-orbit potentials already
+have been corrected with the <IMG
+ WIDTH="25" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img84.gif"
+ ALT="$2/{l}$"> factor).
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1122"
+  HREF="node11.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1118"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1112"
+  HREF="node9.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1120"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1123"
+  HREF="node11.html">9. Relativistic All-electron Approximations</A>
+<B> Up:</B> <A NAME="tex2html1119"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1113"
+  HREF="node9.html">7. Basis sets</A>
+ &nbsp <B>  <A NAME="tex2html1121"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

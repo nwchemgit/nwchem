@@ -1,0 +1,223 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>24. Hessians</TITLE>
+<META NAME="description" CONTENT="24. Hessians">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node27.html">
+<LINK REL="previous" HREF="node25.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node27.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1483"
+  HREF="node27.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1479"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1473"
+  HREF="node25.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1481"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1484"
+  HREF="node27.html">25. Vibrational frequencies</A>
+<B> Up:</B> <A NAME="tex2html1480"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1474"
+  HREF="node25.html">23. Hybrid Calculations with</A>
+ &nbsp <B>  <A NAME="tex2html1482"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1485"
+  HREF="node26.html#SECTION002610000000000000000">24.1 Hessian Module Input</A>
+<UL>
+<LI><A NAME="tex2html1486"
+  HREF="node26.html#SECTION002611000000000000000">24.1.1 Defining the wavefunction threshold</A>
+<LI><A NAME="tex2html1487"
+  HREF="node26.html#SECTION002612000000000000000">24.1.2 Profile</A>
+<LI><A NAME="tex2html1488"
+  HREF="node26.html#SECTION002613000000000000000">24.1.3 Print Control</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION002600000000000000000">
+24. Hessians</A>
+</H1>
+<A NAME="sec:hess"></A>
+<P>
+This section relates to the computation of analytic hessians which
+are available for open and closed shell SCF, except ROHF and for closed shell
+DFT.  Analytic hessians are not currently available for SCF or DFT
+calculations relativistic all-electron methodologies or for charge fitting with DFT.  The current
+algorithm is fully in-core and does not use symmetry.  This will be
+changed in the next release.
+
+<P>
+There is no required input for the Hessian module.  This module only
+impacts the hessian calculation.  For options for calculating the
+frequencies, please see Section <A HREF="node27.html#sec:vib">25</A>, the Vibrational module.
+
+<P>
+
+<H1><A NAME="SECTION002610000000000000000">
+24.1 Hessian Module Input</A>
+</H1>
+
+<P>
+All input for the Hessian Module is optional since the default
+definitions are usually correct for most purposes.  
+The generic module input begins with <code>hessian</code>
+and has the form:
+<PRE>
+  hessian
+    thresh &lt;real tol default 1d-6&gt;
+    print ...
+    profile
+  end
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION002611000000000000000">
+24.1.1 Defining the wavefunction threshold</A>
+</H2>
+You may modify the default threshold for the wavefunction.  This keyword
+is identical to THRESH in the SCF, Section <A HREF="node12.html#sec:thresh">10.7</A>, and the
+CONVERGENCE gradient in the DFT, Section <A HREF="node13.html#sec:dftconv">11.7</A>.  The usual
+defaults for the convergence of the wavefunction for single point and
+gradient calculations is generally not tight enough for analytic hessians.
+Therefore, the hessian, by default, tightens these up to 1d-6 and runs
+an additional energy point if needed.  If,
+during an analytic hessian calculation, you encounter an error:
+<PRE>
+cphf_solve:the available MOs do not satisfy the SCF equations
+</PRE>
+the convergence criteria of the wavefunction generally needs to be
+tightened.
+
+<P>
+
+<H2><A NAME="SECTION002612000000000000000">
+24.1.2 Profile</A>
+</H2>
+The PROFILE keyword provides additional information concerning the 
+computation times of
+different sections of the hessian code.  Summary information is
+given about the maximum, minimum and average times that a particular
+section of the code took to complete.  This is normally only useful
+for developers.
+
+<P>
+
+<H2><A NAME="SECTION002613000000000000000">
+24.1.3 Print Control</A>
+</H2> 
+Known controllable print options are:
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="6673"></A>
+<TABLE>
+<CAPTION><STRONG>Table 24.1:</STRONG>
+Hessian Print Control Specifications</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT"><B>Name</B></TD>
+<TD ALIGN="CENTER"><B>Print Level</B></TD>
+<TD ALIGN="CENTER"><B>Description</B></TD>
+</TR>
+<TR><TD ALIGN="LEFT">``hess_follow''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">more information about where the calculation is</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``cphf_cont''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">detailed CPHF information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``nucdd_cont''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">detailed nuclear contribution information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``onedd_cont''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">detailed one electron contribution information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``twodd_cont''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">detailed two electron contribution information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``fock_xc''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">detailed XC information during the fock builds</TD>
+</TR>
+</TABLE>
+</DIV>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1483"
+  HREF="node27.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1479"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1473"
+  HREF="node25.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1481"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1484"
+  HREF="node27.html">25. Vibrational frequencies</A>
+<B> Up:</B> <A NAME="tex2html1480"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1474"
+  HREF="node25.html">23. Hybrid Calculations with</A>
+ &nbsp <B>  <A NAME="tex2html1482"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

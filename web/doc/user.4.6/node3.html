@@ -1,0 +1,271 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>1. Introduction</TITLE>
+<META NAME="description" CONTENT="1. Introduction">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node4.html">
+<LINK REL="previous" HREF="node2.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node4.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html996"
+  HREF="node4.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html992"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html986"
+  HREF="node2.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html994"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html997"
+  HREF="node4.html">2. Getting Started</A>
+<B> Up:</B> <A NAME="tex2html993"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html987"
+  HREF="node2.html">Contents</A>
+ &nbsp <B>  <A NAME="tex2html995"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html998"
+  HREF="node3.html#SECTION00310000000000000000">1.1 Citation</A>
+<LI><A NAME="tex2html999"
+  HREF="node3.html#SECTION00320000000000000000">1.2 User Feedback</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00300000000000000000">
+1. Introduction</A>
+</H1>
+<A NAME="sec:intro"></A>
+<P>
+NWChem is a computational chemistry package designed to run on
+high-performance parallel supercomputers.
+Code capabilities include the calculation of molecular electronic
+energies and analytic gradients using Hartree-Fock self-consistent field (SCF) theory, Gaussian
+density function theory (DFT), and second-order perturbation theory.
+For all methods, geometry optimization is available to determine energy minima and transition states.
+Classical molecular dynamics capabilities
+provide for the simulation of macromolecules and solutions, including
+the computation of free energies using a variety of force fields.
+
+<P>
+NWChem is scalable, both in its ability to treat large problems
+efficiently, and in its utilization of available parallel computing
+resources.  The code uses the parallel programming tools TCGMSG and
+the Global Array (GA) library developed at PNNL for the High Performance
+Computing and Communication (HPCC) grand-challenge
+software program and the Environmental Molecular Sciences Laboratory
+(EMSL) Project.  NWChem has been optimized to perform calculations on
+large molecules using large parallel computers, and it is unique in
+this regard.  
+
+<P>
+This document is intended as an aid to chemists using the code for
+their own applications.  Users are not expected to have a detailed
+understanding of the code internals, but some familiarity with the
+overall structure of the code, how it handles information, and the
+nature of the algorithms it contains will generally be helpful.  The
+following sections describe the structure of the input file, and give
+a brief overview of the code architecture.  All input directives
+recognized by the code are described in detail, with options,
+defaults, and recommended usages, where applicable.  The appendices
+present additional information on the molecular geometry and basis
+function libraries included in the code.
+
+<P>
+
+<H1><A NAME="SECTION00310000000000000000">
+1.1 Citation</A>
+</H1>
+
+<P>
+The EMSL Software Agreement stipulates that the use of NWChem will be
+acknowledged in any publications which use results obtained with
+NWChem.  The acknowledgment should be of the form:
+<P>
+<BLOCKQUOTE>NWChem Version 4.6, as developed and distributed by
+  Pacific Northwest National Laboratory, P.&nbsp;O.&nbsp;Box 999, Richland,
+  Washington 99352 USA, and funded by the U.&nbsp;S.&nbsp;Department of Energy,
+  was used to obtain some of these results.
+
+</BLOCKQUOTE>
+
+<P>
+The words ``A modified version of'' should be added at the beginning,
+if appropriate.  <EM>Note: Your EMSL Software Agreement contains the
+complete specification of the required acknowledgment.</EM>
+
+<P>
+Please use the following citation when publishing results obtained
+with NWChem:
+<BLOCKQUOTE>
+Straatsma, T.P.; Apr&#224;, E.; Windus, T.L.; Bylaska, E.J.; de Jong, W.;
+Hirata, S.; Valiev, M.; Hackler, M.; Pollack, L.; Harrison, R.;
+Dupuis, M.; Smith, D.M.A; Nieplocha, J.; Tipparaju V.; Krishnan, M.;
+Auer, A.A.; Brown, E.; Cisneros, G.; Fann, G.; Fr&#252;chtl, H.; Garza, J.;
+Hirao, K.; Kendall, R.; Nichols, J.; Tsemekhman, K.; Wolinski, K.;
+Anchell, J.; Bernholdt, D.; Borowski, P.; Clark, T.; Clerc, D.;
+Dachsel, H.; Deegan, M.; Dyall, K.; Elwood, D.; Glendening, E.;
+Gutowski, M.; Hess, A.; Jaffe, J.; Johnson, B.; Ju, J.; Kobayashi, R.;
+Kutteh, R.; Lin, Z.; Littlefield, R.; Long, X.; Meng, B.; Nakajima,
+T.; Niu, S.; Rosing, M.; Sandrone, G.; Stave, M.; Taylor, H.; Thomas,
+G.; van Lenthe, J.; Wong, A.; Zhang, Z.; <EM>NWChem, A Computational
+Chemistry Package for Parallel Computers, Version 4.6</EM> (2004),
+Pacific Northwest National Laboratory, Richland, Washington
+99352-0999, USA. 
+<BR><EM>High Performance Computational Chemistry: an Overview of NWChem a
+Distributed Parallel Application</EM>, Kendall, R.A.; Apr&#224;, E.;
+Bernholdt, D.E.; Bylaska, E.J.; Dupuis, M.; Fann, G.I.; Harrison,
+R.J.;  Ju, J.; Nichols, J.A.; Nieplocha, J.; Straatsma, T.P.; Windus,
+T.L.; Wong, A.T. Computer Phys. Comm., 2000, <B>128</B>, 260-283 .
+
+</BLOCKQUOTE>
+
+<P>
+If you use the DIRDYVTST portion of NWChem, please also use the additional
+citation:
+<BLOCKQUOTE>
+DIRDYVTST, Yao-Yuan Chuang and Donald G. Truhlar,
+  Department of Chemistry and Super Computer Institute,
+  University of Minnesota; Ricky A. Kendall,Scalable Computing Laboratory,
+  Ames Laboratory and Iowa State University; Bruce C. Garrett and Theresa L. 
+  Windus, Environmental Molecular Sciences Laboratory, Pacific Northwest 
+  Laboratory.
+
+</BLOCKQUOTE>
+
+<P>
+
+<H1><A NAME="SECTION00320000000000000000">
+1.2 User Feedback</A>
+</H1>
+
+<P>
+This software comes without warranty or guarantee of support,
+but we do try to meet the needs of our user community.  Please send bug
+reports, requests for enhancement, or other comments to
+
+<P>
+<PRE>
+ nwchem-users@emsl.pnl.gov
+</PRE>
+
+<P>
+When reporting problems, please provide as much information as possible, 
+including:
+
+<P>
+
+<UL>
+<LI>detailed description of problem
+</LI>
+<LI>site name </LI>
+<LI>platform you are running on, including
+
+<UL>
+<LI>vendor name
+</LI>
+<LI>computer model
+</LI>
+<LI>operating system
+</LI>
+<LI>compiler
+</LI>
+</UL>
+</LI>
+<LI>input file
+</LI>
+<LI>output file
+</LI>
+</UL>
+
+<P>
+Users can also subscribe to the <TT>nwchem-users@emsl.pnl.gov</TT>
+electronic mailing list itself.  
+This is intended as a general forum through which code
+users can contact one another and the developers, to share experience
+with the code and discuss problems.  Announcements of new releases and
+bug fixes will also be made to this list. 
+
+<P>
+To subscribe to the user list, send a message to 
+<PRE>
+  majordomo@emsl.pnl.gov
+</PRE>
+The body of the message must contain the line 
+<PRE>
+  subscribe nwchem-users
+</PRE>
+
+<P>
+The automated list manager is capable of recognizing a number of
+commands, including ; ``subscribe'', ``unsubscribe'', ``get'', ``index'',
+``which'', ``who'', ``info'' and ``lists''.  The command ``end'' halts
+processing of commands.  It will provide some help if the message
+includes the line <TT>help</TT> in the body.  
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html996"
+  HREF="node4.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html992"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html986"
+  HREF="node2.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html994"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html997"
+  HREF="node4.html">2. Getting Started</A>
+<B> Up:</B> <A NAME="tex2html993"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html987"
+  HREF="node2.html">Contents</A>
+ &nbsp <B>  <A NAME="tex2html995"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

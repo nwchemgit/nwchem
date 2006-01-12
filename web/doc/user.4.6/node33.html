@@ -1,0 +1,2126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>31. Molecular dynamics</TITLE>
+<META NAME="description" CONTENT="31. Molecular dynamics">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node34.html">
+<LINK REL="previous" HREF="node32.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node34.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1603"
+  HREF="node34.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1599"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1593"
+  HREF="node32.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1601"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1604"
+  HREF="node34.html">32. Analysis</A>
+<B> Up:</B> <A NAME="tex2html1600"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1594"
+  HREF="node32.html">30. Prepare</A>
+ &nbsp <B>  <A NAME="tex2html1602"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1605"
+  HREF="node33.html#SECTION003310000000000000000">31.1 Introduction</A>
+<UL>
+<LI><A NAME="tex2html1606"
+  HREF="node33.html#SECTION003311000000000000000">31.1.1 Spacial decomposition</A>
+<LI><A NAME="tex2html1607"
+  HREF="node33.html#SECTION003312000000000000000">31.1.2 Topology</A>
+<LI><A NAME="tex2html1608"
+  HREF="node33.html#SECTION003313000000000000000">31.1.3 Files</A>
+<LI><A NAME="tex2html1609"
+  HREF="node33.html#SECTION003314000000000000000">31.1.4 Databases</A>
+<LI><A NAME="tex2html1610"
+  HREF="node33.html#SECTION003315000000000000000">31.1.5 Force fields</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1611"
+  HREF="node33.html#SECTION003320000000000000000">31.2 Format of fragment files</A>
+<LI><A NAME="tex2html1612"
+  HREF="node33.html#SECTION003330000000000000000">31.3 Creating segment files</A>
+<LI><A NAME="tex2html1613"
+  HREF="node33.html#SECTION003340000000000000000">31.4 Creating sequence files</A>
+<LI><A NAME="tex2html1614"
+  HREF="node33.html#SECTION003350000000000000000">31.5 Creating topology files</A>
+<LI><A NAME="tex2html1615"
+  HREF="node33.html#SECTION003360000000000000000">31.6 Creating restart files</A>
+<LI><A NAME="tex2html1616"
+  HREF="node33.html#SECTION003370000000000000000">31.7 Molecular simulations</A>
+<LI><A NAME="tex2html1617"
+  HREF="node33.html#SECTION003380000000000000000">31.8 System specification</A>
+<LI><A NAME="tex2html1618"
+  HREF="node33.html#SECTION003390000000000000000">31.9 Restarting and continuing simulations</A>
+<LI><A NAME="tex2html1619"
+  HREF="node33.html#SECTION0033100000000000000000">31.10 Parameter set</A>
+<LI><A NAME="tex2html1620"
+  HREF="node33.html#SECTION0033110000000000000000">31.11 Energy minimization algorithms</A>
+<LI><A NAME="tex2html1621"
+  HREF="node33.html#SECTION0033120000000000000000">31.12 Multi-configuration thermodynamic integration</A>
+<LI><A NAME="tex2html1622"
+  HREF="node33.html#SECTION0033130000000000000000">31.13 Time and integration algorithm directives</A>
+<LI><A NAME="tex2html1623"
+  HREF="node33.html#SECTION0033140000000000000000">31.14 Ensemble selection</A>
+<LI><A NAME="tex2html1624"
+  HREF="node33.html#SECTION0033150000000000000000">31.15 Velocity reassignments</A>
+<LI><A NAME="tex2html1625"
+  HREF="node33.html#SECTION0033160000000000000000">31.16 Cutoff radii</A>
+<LI><A NAME="tex2html1626"
+  HREF="node33.html#SECTION0033170000000000000000">31.17 Polarization</A>
+<LI><A NAME="tex2html1627"
+  HREF="node33.html#SECTION0033180000000000000000">31.18 External electrostatic field</A>
+<LI><A NAME="tex2html1628"
+  HREF="node33.html#SECTION0033190000000000000000">31.19 Constraints</A>
+<LI><A NAME="tex2html1629"
+  HREF="node33.html#SECTION0033200000000000000000">31.20 Long range interaction corrections</A>
+<LI><A NAME="tex2html1630"
+  HREF="node33.html#SECTION0033210000000000000000">31.21 Fixing coordinates</A>
+<LI><A NAME="tex2html1631"
+  HREF="node33.html#SECTION0033220000000000000000">31.22 Special options</A>
+<LI><A NAME="tex2html1632"
+  HREF="node33.html#SECTION0033230000000000000000">31.23 Autocorrelation function</A>
+<LI><A NAME="tex2html1633"
+  HREF="node33.html#SECTION0033240000000000000000">31.24 Print options</A>
+<LI><A NAME="tex2html1634"
+  HREF="node33.html#SECTION0033250000000000000000">31.25 Periodic updates</A>
+<LI><A NAME="tex2html1635"
+  HREF="node33.html#SECTION0033260000000000000000">31.26 Recording</A>
+<LI><A NAME="tex2html1636"
+  HREF="node33.html#SECTION0033270000000000000000">31.27 Program control options</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION003300000000000000000">
+31. Molecular dynamics</A>
+</H1>
+<A NAME="sec:nwmd"></A>
+
+<P>
+
+<H1><A NAME="SECTION003310000000000000000">
+31.1 Introduction</A>
+</H1>
+
+<P>
+
+<H2><A NAME="SECTION003311000000000000000">
+31.1.1 Spacial decomposition</A>
+</H2>
+The molecular dynamics module of <B>NWChem</B> uses a distribution of data
+based on a spacial decomposition of the molecular system, offering
+an efficient parallel implementation in terms of both memory 
+requirements and communication costs, especially for simulations of 
+large molecular systems.
+
+<P>
+Inter-processor communication using the global array tools and the
+design of a data structure allowing distribution based on spacial
+decomposition are the key elements in taking advantage of
+the distribution of memory requirements and computational work with
+minimal communication.
+
+<P>
+In the spacial decomposition approach, the physical simulation
+volume is divided into rectangular cells, each of which is
+assigned to a processor. Depending on the conditions of the 
+calculation and the number of available processors, each processor 
+contains one or more of these spacially grouped cells.
+The most important aspects of this decomposition are the dependence 
+of the cell sizes and communication cost on the number of processors 
+and the shape of the cells, the frequent reassignment of atoms to 
+cells leading to a fluctuating number of atoms per cell, and the 
+locality of communication which is the main reason for the efficiency 
+of this approach for very large molecular systems.
+
+<P>
+To improve efficiency, molecular systems are broken up into separately
+treated solvent and solute parts. Solvent molecules are assigned to
+the domains according to their center of geometry and are always owned
+by a one node. This avoids solvent-solvent bonded interactions
+crossing node boundaries.  Solute molecules are broken up into
+segments, with each segment assigned to a processor based on its
+center of geometry.  This limits the number of solute bonded
+interactions that cross node boundaries.  The processor to which a
+particular cell is assigned is responsible for the calculation of all
+interactions between atoms within that cell.  For the calculation of
+forces and energies in which atoms in cells assigned to different
+processors are involved, data are exchanged between processors. The
+number of neighboring cells is determined by the size and shape of the
+cells and the range of interaction. The data exchange that takes place
+every simulation time step represents the main communication
+requirements.  Consequently, one of the main efforts is to design
+algorithms and data structures to minimize the cost of this
+communication. However, for very large molecular systems, memory
+requirements also need to be taken into account.
+
+<P>
+To compromise between these requirements exchange of data is performed
+in successive point to point communications rather than using the
+shift algorithm which reduces the number of communication calls
+for the same amount of communicated data.
+
+<P>
+For inhomogeneous systems, the computational load of evaluating 
+atomic interactions will generally differ between cell pairs. 
+This will lead to load imbalance between processors.
+Two algorithms have been implemented that allow for dynamically 
+balancing the workload of each processor.
+One method is the dynamic resizing of cells such that cells gradually
+become smaller on the busiest node, thereby reducing the computational
+load of that node. Disadvantages of this method are that the 
+efficiency depends on the solute distribution in the simulation volume
+and the redistribution of work depends on the number of nodes which
+could lead to results that depend on the number of nodes used.
+The second method is based on the dynamic redistribution of intra-node
+cell-cell interactions. This method represents a more coarse load
+balancing scheme, but does not have the disadvantages of the cell
+resizing algorithm. For most molecular systems the cell pair
+redistribution is the more efficient and preferred  method.
+
+<P>
+The description of a molecular system consists of static and dynamic
+information. The static information does not change during a
+simulation and includes items such as connectivity, excluded and third
+neighbor lists, equilibrium values and force constants for all
+bonded and non-bonded interactions. The static information is called
+the topology of the molecular system, and is kept on a separate
+topology file. The dynamic information includes coordinates and
+velocities for all atoms in the molecular system, and is kept in a
+so-called restart file.
+
+<P>
+
+<H2><A NAME="SECTION003312000000000000000"></A>
+<A NAME="sec:nwatopology"></A>
+<BR>
+31.1.2 Topology
+</H2>
+The static information about a molecular system that is needed for
+a molecular simulation is provided to the simulation module in a
+topology file. 
+Items in this file include, among many other things, 
+a list of atoms, their non-bonded parameters for van der Waals and
+electrostatic interactions, and the complete connectivity in terms
+of bonds, angles and dihedrals.
+
+<P>
+In molecular systems, a distinction is made between 
+<I>solvent</I> and <I>solute</I>, which are treated separately.
+A solvent molecule is defined only once in the topology file,
+even though many solvent molecules usually are included in the
+actual molecular system. In the current implementation only one 
+solvent can be defined. Everything that is not solvent in the 
+molecular system is solute. Each solute atom in the system must 
+be explicitly defined in the topology. 
+
+<P>
+Molecules are defined in terms of one or more <I>segment</I>s. 
+Typically, repetitive parts of a molecule are each defined as a single
+segment, such as the amino acid residues in a protein. 
+Segments  can be quite complicated to define and are, therefore, 
+collected in a set of database files. 
+The definition of a molecular system in terms of segments is a
+<I>sequence</I>.
+
+<P>
+Topology files are created using the <B>prepare</B> module.
+
+<P>
+
+<H2><A NAME="SECTION003313000000000000000"></A>
+<A NAME="sec:nwafilenames"></A>
+<BR>
+31.1.3 Files
+</H2>
+
+<P>
+File names used have the form <code>$system$_$calc$.$ext$</code>, with
+exception of the topology file (Section <A HREF="node33.html#sec:nwatopology">31.1.2</A>), which is named 
+<code>$system$.top</code>.
+Anything that refers to the definition of the chemical system can be used
+for <code>$system$</code>, as long as no periods or underlines are used.
+The identifier <code>$calc$</code> can be anything that refers to the type of 
+calculation to be performed for the system with the topology defined.
+This file naming convention allows for the creation of a single
+topology file <code>$system$.top</code> that can be used for a number of 
+different calculations, each identified with a different <code>$calc$</code>.
+For example, if <TT>crown.top</TT> is the name of the topology file for
+a crown ether, <TT>crown_em</TT>, <TT>crown_md</TT>, <TT>crown_ti</TT> could
+be used with appropriate extensions for the filenames for energy
+minimization, molecular dynamics simulation and multi-configuration
+thermodynamic integration, respectively. All of these calculations
+would use the same topology file <TT>crown.top</TT>.
+
+<P>
+<A NAME="sec:nwaextensions"></A>
+<P>
+The extensions <code>&lt;ext&gt;</code> identify the kind of information on a file,
+and are pre-determined. 
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="7943"></A>
+<TABLE>
+<CAPTION><STRONG>Table 31.1:</STRONG>
+List of file extensions for nwchem chemical system files.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT"><B>dbg</B></TD>
+<TD ALIGN="LEFT">debug file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>frg</B></TD>
+<TD ALIGN="LEFT">fragment file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>gib</B></TD>
+<TD ALIGN="LEFT">free energy data file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>mri</B></TD>
+<TD ALIGN="LEFT">free energy multiple run input file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>mro</B></TD>
+<TD ALIGN="LEFT">free energy multiple run output file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>nw</B></TD>
+<TD ALIGN="LEFT"><B>NWChem</B> input file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>nwout</B></TD>
+<TD ALIGN="LEFT"><B>NWChem</B> output file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>out</B></TD>
+<TD ALIGN="LEFT">molecular dynamics output file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>pdb</B></TD>
+<TD ALIGN="LEFT">PDB formatted coordinate file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>prp</B></TD>
+<TD ALIGN="LEFT">property file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>qrs</B></TD>
+<TD ALIGN="LEFT">quenched restart file, resulting from an energy minimization</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>rst</B></TD>
+<TD ALIGN="LEFT">restart file, used to start or restart a simulation</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>seq</B></TD>
+<TD ALIGN="LEFT">sequence file, describing the system in segments</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>sgm</B></TD>
+<TD ALIGN="LEFT">segment file, describing segments</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>syn</B></TD>
+<TD ALIGN="LEFT">synchronization time file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>tst</B></TD>
+<TD ALIGN="LEFT">test file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>tim</B></TD>
+<TD ALIGN="LEFT">timing analysis file</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>top</B></TD>
+<TD ALIGN="LEFT">topology file, contains the static description of a system</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>trj</B></TD>
+<TD ALIGN="LEFT">trajectory file</TD>
+</TR>
+</TABLE>
+</DIV>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<H2><A NAME="SECTION003314000000000000000">
+31.1.4 Databases</A>
+</H2>
+Database file used by the <B>prepare</B> module are found in directories 
+with name <code>$ffield$_$level$</code>, 
+<BR>
+where <code>$ffield$</code> is any of the
+supported force fields (Section <A HREF="node33.html#sec:nwaforcefields">31.1.5</A>). 
+The source of the data is identified by <code>$level$</code>, and can be 
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT">level</TD>
+<TD ALIGN="LEFT">Description</TD>
+<TD ALIGN="LEFT">Availability</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>s</B></TD>
+<TD ALIGN="LEFT">original published data</TD>
+<TD ALIGN="LEFT">public</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>x</B></TD>
+<TD ALIGN="LEFT">additional published data</TD>
+<TD ALIGN="LEFT">public</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>q</B></TD>
+<TD ALIGN="LEFT">contributed data</TD>
+<TD ALIGN="LEFT">public</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>u</B></TD>
+<TD ALIGN="LEFT">user preferred data</TD>
+<TD ALIGN="LEFT">private</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>t</B></TD>
+<TD ALIGN="LEFT">user defined temporary data</TD>
+<TD ALIGN="LEFT">private</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>c</B></TD>
+<TD ALIGN="LEFT">current working data</TD>
+<TD ALIGN="LEFT">private</TD>
+</TR>
+</TABLE>
+</DIV>
+
+<P>
+Typically, only the level <B>s</B>, <B>x</B> and <B>q</B> databases are publicly 
+available. 
+The user is responsible for the private level <B>u</B>, <B>t</B> and <B>c</B>
+database files. When the <B>prepare</B> module scans the databases, the priority
+is <B>c</B><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"><B>t</B><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"><B>u</B><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"><B>q</B><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"><B>x</B><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"><B>s</B>.
+
+<P>
+The extension <code>&lt;ext&gt;</code> defines the type of database file within each
+database directory. 
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="7980"></A>
+<TABLE>
+<CAPTION><STRONG>Table 31.2:</STRONG>
+List of database file extensions.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT"><B>frg</B></TD>
+<TD ALIGN="LEFT">fragments</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>par</B></TD>
+<TD ALIGN="LEFT">parameters</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>seq</B></TD>
+<TD ALIGN="LEFT">sequences</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>sgm</B></TD>
+<TD ALIGN="LEFT">segments</TD>
+</TR>
+</TABLE>
+</DIV>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+The paths of the different database directories should be defined in a file 
+<TT>.nwchemrc</TT> in a user's home directory, and provides the user the
+option to select which database files are scanned.
+
+<P>
+
+<H2><A NAME="SECTION003315000000000000000"></A>
+<A NAME="sec:nwaforcefields"></A>
+<BR>
+31.1.5 Force fields
+</H2>
+Force fields recognized are
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT">Keyword</TD>
+<TD ALIGN="LEFT">Force field</TD>
+<TD ALIGN="LEFT">Status</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>amber</TT></TD>
+<TD ALIGN="LEFT">AMBER99</TD>
+<TD ALIGN="LEFT">AMBER95,GLYCAM also available</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><TT>charmm</TT></TD>
+<TD ALIGN="LEFT">CHARMM</TD>
+<TD ALIGN="LEFT">incomplete</TD>
+</TR>
+</TABLE>
+</DIV>  
+
+<P>
+
+<H1><A NAME="SECTION003320000000000000000">
+31.2 Format of fragment files</A>
+</H1>
+Fragment files contain the basic information needed to specify all
+interactions that need to be considered in a molecular simulation.
+The format of the fragment files is described in Table <A HREF="#tbl:nwmdfrg">34.1</A>.
+Normally these files are created by the <B>prepare</B> module. Manual
+editing is needed when, for example, the <B>prepare</B> module could not
+complete atom typing, or when modified charges are required.
+
+<P>
+
+<H1><A NAME="SECTION003330000000000000000"></A>
+<A NAME="sec:nwanwsgm"></A>
+<BR>
+31.3 Creating segment files
+</H1>
+The <B>prepare</B> module is used to generate segment files 
+from corresponding fragment files. A segment file contains all
+information for the calculation of bonded and non-bonded interactions
+for a given chemical system using a specific force field.
+
+<P>
+Which atoms form a fragment is specified in the coordinate file,
+currently only in PDB format.
+the restriction is that bonded interactions may only involve atoms on at
+most two segments does no longer exist as of <B>NWChem</B> release 3.2.1. 
+The segment entries define three sets of parameters
+for each interaction. 
+
+<P>
+Free energy perturbations can be performed using set 1 for the 
+generation of the ensemble while using sets 2 and/or 3
+as perturbations. Free energy multiconfiguration thermodynamic
+integration and multistep thermodynamic perturbation calculations are
+performed by gradually changing the interactions in the system from
+parameter set 2 to parameter set 3. These modifications can be 
+edited into the segment files manually, or introduced directly into
+the topology file using the <code>modify</code> commands in the input for
+the <B>prepare</B> module.
+
+<P>
+The format of a segment is
+described in Tables <A HREF="node36.html#tbl:nwmdseg1">34.2</A>-<A HREF="node36.html#tbl:nwmdseg6">34.7</A>.
+
+<P>
+
+<H1><A NAME="SECTION003340000000000000000">
+31.4 Creating sequence files</A>
+</H1>
+A sequence file describes a molecular system in terms of segments. This
+file is generated by the <B>prepare</B> module for the molecular system
+provided on a PDB-formatted coordinate file.
+The file format is given in Table <A HREF="node36.html#tbl:nwmdseq">34.8</A>
+
+<P>
+
+<H1><A NAME="SECTION003350000000000000000"></A>
+<A NAME="sec:nwanwtop"></A>
+<BR>
+31.5 Creating topology files
+</H1>
+
+<P>
+The topology (Section <A HREF="node33.html#sec:nwatopology">31.1.2</A>) describes all static information
+that describes a molecular system. This includes the connectivity in
+terms of bond-stretching, angle-bending and torsional interactions, as well as
+the non-bonded van der Waals and Coulombic interactions.
+
+<P>
+The topology of a molecular system is generated by the <B>prepare</B> module
+from the sequence in terms of segments as specified on the PDB file.
+For each unique segment specified in this file the 
+segment database directories are searched for the segment definition. 
+For segments not found in one of the database directories a segment definition
+is generated in the temporary directory if a fragment file was found.
+If a fragment file could not be found, it is generated by the <B>prepare</B> module
+base on what is found on the PDB file.
+
+<P>
+When all segments are found or created, the parameter substitutions are 
+performed, using force field parameters taken from the parameter 
+databases. After all lists have been generated the
+topology is written to a local topology file <code>$system$.top</code>.
+
+<P>
+
+<H1><A NAME="SECTION003360000000000000000"></A>
+<A NAME="sec:nwanwrst"></A>
+<BR>
+31.6 Creating restart files
+</H1>
+
+<P>
+Restart files contain all dynamical information about a molecular
+system and are created by the <B>prepare</B> module if a topology file
+is available. The <B>prepare</B> module will automatically generate
+coordinates for hydrogen atoms and monatomic counter ions
+not found on the PDB formatted coordinate file, if no fragment or
+segment files were generated using that PDB file.
+
+<P>
+The <B>prepare</B> module has a number of other optional input command,
+including solvation.
+
+<P>
+
+<H1><A NAME="SECTION003370000000000000000">
+31.7 Molecular simulations</A>
+</H1>
+The type of molecular dynamics simulation is specified by the
+<B>NWChem</B> task directive.
+<PRE>
+task md [ energy | optimize | dynamics | thermodynamics ]
+</PRE>
+where the theory keyword <TT>md</TT> specifies use of the molecular
+dynamics module, and the operation keyword is one of
+<DL>
+<DT></DT>
+<DD><TT>energy</TT> for single configuration energy evaluation
+</DD>
+<DT></DT>
+<DD><TT>optimize</TT> for energy minimization
+</DD>
+<DT></DT>
+<DD><TT>dynamics</TT> for molecular dynamics simulations and single step
+thermodynamic perturbation free energy molecular dynamics simulations
+</DD>
+<DT></DT>
+<DD><TT>thermodynamics</TT> for combined multi-configuration thermodynamic
+integration and multiple step thermodynamic perturbation free
+energy molecular dynamics simulations.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION003380000000000000000">
+31.8 System specification</A>
+</H1>
+
+<P>
+The chemical system for a calculation is specified in the topology
+and restart files. These files should be created using the utilities
+<B>nwtop</B> and <B>nwrst</B> before a simulation can be performed.
+The names of these files are determined from the required <code>system</code> 
+directive.
+
+<P>
+<PRE>
+system &lt;string systemid&gt;_&lt;string calcid&gt;
+</PRE>
+
+<P>
+where the strings <code>systemid</code> and <code>calcid</code> are user defined names
+for the chemical system and the type of calculation to ber performed, 
+respectively. These names are used to derive the filenames used for the
+calculation. The topoly file used will be <code>systemid.top</code>, while all
+other files are named <code>systemid_calcid.ext</code>.
+
+<P>
+
+<H1><A NAME="SECTION003390000000000000000">
+31.9 Restarting and continuing simulations</A>
+</H1>
+<DL>
+<DT></DT>
+<DD><PRE>
+finish
+</PRE>
+specifies that the current job will finish a previous, incomplete
+simulation, using the input data that have been recorded by that
+previous run in the restart file. Most of the input in the current
+md input block will be ignored.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+resume
+</PRE>
+specifies that the current job will be an extension of a previous
+simulation, using most of the  input data that have been recorded by that
+previous run in the restart file. Typically the input in the current
+md input block defines a larger number of steps than the previous job.
+
+<P>
+</DD>
+</DL>
+<H1><A NAME="SECTION0033100000000000000000">
+31.10 Parameter set</A>
+</H1>
+
+<P>
+
+<PRE>
+set &lt;integer iset&gt;
+</PRE>
+specifies the use of parameter set <code>&lt;iset&gt;</code> for the 
+molecular dynamics simulation. 
+The topology file contains three separate parameters sets that can 
+be used. The default for <code>&lt;iset&gt;</code> is 1.
+
+<P>
+
+<PRE>
+lambda &lt;integer ilambda&gt; &lt;integer ilambda&gt;
+</PRE>
+specifies the use of parameter set for the <code>ilambda</code>-th
+of <code>mlambda</code> steps.
+
+<P>
+
+<PRE>
+pset &lt;integer isetp1&gt; [&lt;integer isetp2&gt;]
+</PRE>
+specifies the parameter sets to be used as perturbation potentials
+in single step thermodynamic perturbation free energy evaluations,
+where <code>&lt;isetp1&gt;</code> specifies the first perturbation parameter set and
+<code>&lt;isetp2&gt;</code> specifies the second perturbation parameter set. Legal
+values for <code>&lt;isetp1&gt;</code> are 2 and 3. Legal value for <code>&lt;isetp2&gt;</code> is
+3, in which case <code>&lt;isetp1&gt;</code> can only be 2. If specified, <code>&lt;iset&gt;</code>
+is automatically set to 1.
+
+<P>
+
+<PRE>
+pmf [ equilharm &lt;integer npmfc&gt; | scale &lt;real facpmf&gt;]
+</PRE>
+specifies that any potential of mean force functions defined in the
+topology files are to be used. If <code>equilharm</code> is specified, the
+first <code>npmfc</code> dynamics steps will use a harmonic potential
+in stead of any pmf constraint. If <code>scale</code> is specified, all
+pmf force constants are scaled by a factor <code>facpmf</code>.
+
+<P>
+
+<PRE>
+distar [draver [&lt;integer ndaver default 1&gt;]] 
+       [scale &lt;real drsscl&gt;]
+       [after &lt;integer nfdrss&gt;]
+</PRE>
+specifies that any distance restraint functions defined in the
+topology files are to be used. 
+
+<P>
+
+<P>
+
+<H1><A NAME="SECTION0033110000000000000000">
+31.11 Energy minimization algorithms</A>
+</H1>
+The energy minimization of the system as found in the restart file 
+is performed with the following directives. If both are specified,
+steepest descent energy minimization precedes conjugate gradient 
+minimization.
+
+<P>
+<DL>
+<DT></DT>
+<DD><PRE>
+sd &lt;integer msdit&gt; [init &lt;real dx0sd&gt;] [min &lt;real dxsdmx&gt;] \
+                   [max &lt;real dxmsd&gt;]
+</PRE>
+specifies the variables for steepest descent energy minimizations,
+where <code>&lt;msdit&gt;</code> is the maximum number of steepest descent steps taken,
+for which the default is 100, <code>&lt;dx0sd&gt;</code> is the initial step size in nm
+for which the default is 0.001, <code>&lt;dxsdmx&gt;</code> is the threshold for the
+step size in nm for which the default is 0.0001, and <code>&lt;dxmsd&gt;</code> is the
+maximum allowed step size in nm for which the default is 0.05.
+</DD>
+<DT></DT>
+<DD><PRE>
+cg &lt;integer mcgit&gt; [init &lt;real dx0cg&gt;] [min &lt;real dxcgmx&gt;] \
+                   [cy &lt;integer ncgcy&gt;]
+</PRE>
+specifies the variables for conjugate gradient energy minimizations,
+where <code>&lt;mcgit&gt;</code> is the maximum number of conjugate gradient steps 
+taken, for which the default is 100, <code>&lt;dx0cg&gt;</code> is the initial search
+interval size in nm for which the default is 0.001, <code>&lt;dxcgmx&gt;</code> is the 
+threshold for the step size in nm for which the default is 0.0001, and 
+<code>&lt;ncgcy&gt;</code> is the number of conjugate gradient steps after which the 
+gradient history is discarded for which the default is 10. If conjugate
+gradient energy minimization is preceded by steepest descent energy 
+minimization, the search interval is set to twice the final step of the
+steepest descent energy minimization.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033120000000000000000">
+31.12 Multi-configuration thermodynamic integration</A>
+</H1>
+The following keywords control free energy difference simulations.
+Multi-configuration thermodynamic integrations are always combined
+with multiple step thermodynamic perturbations.
+<DL>
+<DT></DT>
+<DD><PRE>
+(forward | reverse) [[&lt;integer mrun&gt; of] &lt;integer maxlam&gt;]
+</PRE>
+specifies the direction and number of integration steps in free
+energy evaluations, with <TT>forward</TT> being the default direction.
+<code>&lt;mrun&gt;</code> is the number of ensembles that will be generated in
+this calculation, and <code>&lt;maxlam&gt;</code> is the total number of ensembles
+to complete the thermodynamic integration. The default value for 
+<code>&lt;maxlam&gt;</code> is 21. The default value of <code>&lt;mrun&gt;</code> is the 
+value of <code>&lt;maxlam&gt;</code>.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+error &lt;real edacq&gt;
+</PRE>
+specifies the maximum allowed statistical error in each generated
+ensemble, where <code>&lt;edacq&gt;</code> is the maximum error allowed in the 
+ensemble average derivative of the Hamiltonian with respect to 
+<IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$"> with a default of 5.0 kJ&nbsp;mol<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$">.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+drift &lt;real ddacq&gt;
+</PRE>
+specifies the maximum allowed drift in the free energy result,
+where <code>&lt;ddacq&gt;</code> is the maximum drift allowed in the
+ensemble average derivative of the Hamiltonian with respect to 
+<IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$">with a default of 5.0 kJ&nbsp;mol<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$">ps<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$">.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+factor &lt;real fdacq&gt;
+</PRE>
+specifies the maximum allowed change in ensemble size
+where <code>&lt;fdacq&gt;</code> is the minimum size of an ensemble relative to the
+previous ensemble in the calculation with a default value of 0.75.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+decomp
+</PRE>
+specifies that a free energy decomposition is to be carried out.
+Since free energy contributions are path dependent, results from a
+decomposition analysis can no be unambiguously interpreted, and
+the default is not to perform this decomposition.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+sss [delta &lt;real delta&gt;]
+</PRE>
+specifies that atomic non-bonded interactions describe a dummy atom
+in either the initial or final state of the thermodynamic calculation
+will be calculated using separation-shifted scaling, where <code>&lt;delta&gt;</code> 
+is the separation-shifted scaling factor with a default of 0.075 nm<IMG
+ WIDTH="11" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img211.gif"
+ ALT="$^2$">.
+This scaling method prevents problems associated with singularities in
+the interaction potentials.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+new | renew | extend
+</PRE>
+specifies the initial conditions for thermodynamic calculations.
+<TT>new</TT> indicates that this is an initial mcti calculation, which
+is the default. <TT>renew</TT> instructs to obtain the initial
+conditions for each <IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$"> from the <B>mro</B>-file from a previous 
+mcti calculation, which has to be renamed to an <B>mri</B>-file. The
+keyword <TT>extend</TT> will extend a previous mcti calculation from the
+data read from an <B>mri</B>-file.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033130000000000000000">
+31.13 Time and integration algorithm directives</A>
+</H1>
+Following directives control the integration of the equations of motion.
+<DL>
+<DT></DT>
+<DD><PRE>
+leapfrog | leapfrog_bc
+</PRE>
+specifies the integration algorithm,
+where <TT>leapfrog</TT> specifies the default leap frog integration, and
+<TT>leapfrog_bc</TT> specifies the Brown-Clarke leap frog integrator.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+guided [&lt;real fguide default 0.2&gt; [&lt;real tguide default 0.2&gt;]]
+</PRE>
+specifies the use of the guided molecular dynamics simulation
+technique. Variable <IMG
+ WIDTH="52" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img212.gif"
+ ALT="$fguide$"> defines the fraction of the averaged
+forces <IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img170.gif"
+ ALT="$g$"> to be added to the forces <IMG
+ WIDTH="22" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img213.gif"
+ ALT="$f^{f}$"> evaluated using the force
+field functions to obtain the forces <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img134.gif"
+ ALT="$f$"> used to advance the coordinates.
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+f_i=f^{f}_i+fguide * g_{i-1}
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="162" HEIGHT="66" BORDER="0"
+ SRC="img214.gif"
+ ALT="\begin{displaymath}
+f_i=f^{f}_i+fguide * g_{i-1}
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(31.1)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+Variable <IMG
+ WIDTH="48" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img215.gif"
+ ALT="$tguide$"> defines the length of the averaging relative to the
+timestep <IMG
+ WIDTH="23" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img216.gif"
+ ALT="$\Delta t$">.
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+g_i = {\Delta t\over tguide} f_i + \left(1- {\Delta t\over tguide}\right)
+g_{i-1}
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="244" HEIGHT="85" BORDER="0"
+ SRC="img217.gif"
+ ALT="\begin{displaymath}
+g_i = {\Delta t\over tguide} f_i + \left(1- {\Delta t\over tguide}\right)
+g_{i-1}
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(31.2)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+The current implementation is still under 
+development.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+equil &lt;integer mequi&gt;
+</PRE>
+specifies the number of equilibration steps <code>&lt;mequi&gt;</code>, with a default
+of 100.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+data &lt;integer mdacq&gt; [over &lt;integer ldacq&gt;]]
+</PRE>
+specifies the number of data gathering steps <code>&lt;mdacq&gt;</code> with a
+default of 500. In multi-configuration thermodynamic integrations
+<code>&lt;mequi&gt;</code> and <code>&lt;mdacq&gt;</code> are for each of the ensembles, and
+variable <code>&lt;ldacq&gt;</code> specifies the minimum number of data gathering steps 
+in each ensemble. In regular molecular dynamics simulations <code>&lt;ldacq&gt;</code>
+is not used. The default value for <code>&lt;ldacq&gt;</code> is the value of <code>&lt;mdacq&gt;</code>.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+time &lt;real stime&gt;
+</PRE>
+specifies the initial time <code>&lt;stime&gt;</code> of a molecular simulation in ps,
+with a default of 0.0.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+step &lt;real tstep&gt;
+</PRE>
+specifies the time step <code>&lt;tstep&gt;</code> in ps, with 0.001 as the default value.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033140000000000000000">
+31.14 Ensemble selection</A>
+</H1>
+Following directives control the ensemble type.
+
+<P>
+<DL>
+<DT></DT>
+<DD><PRE>
+isotherm [&lt;real tmpext&gt; [&lt;real tmpext2&gt;]] [trelax &lt;real tmprlx&gt; [&lt;real tmsrlx&gt;]] \
+         [anneal [&lt;real tann1&gt;] &lt;real tann2&gt;]
+</PRE>
+specifies a constant temperature ensemble using Berendsen's thermostat,
+where <code>&lt;tmpext&gt;</code> is the external temperature with a default of 298.15&nbsp;K,
+and <code>&lt;tmprlx&gt;</code> and <code>&lt;tmsrlx&gt;</code> are temperature relaxation times in ps 
+with a default of 0.1. If only <code>&lt;tmprlx&gt;</code> is given the complete system
+is coupled to the heat bath with relaxation time <code>&lt;tmprlx&gt;</code>. If both
+relaxation times are supplied, solvent and solute are independently coupled
+to the heat bath with relaxation times <code>&lt;tmprlx&gt;</code> and <code>&lt;tmsrlx&gt;</code>,
+respectively. If keyword <code>anneal</code> is specified, the external temperature 
+will change from <code>tmpext</code> to <code>tempext2</code> between simulation time
+<code>tann1</code> and <code>tann2</code> 
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+isobar [&lt;real prsext&gt;] [trelax &lt;real prsrlx&gt; ] \
+       [compress &lt;real compr&gt;] [anisotropic] [xy | z | xy-z]
+</PRE>
+specifies a constant pressure ensemble using Berendsen's piston,
+where <code>&lt;prsext&gt;</code> is the external pressure with a default of 1.025&nbsp;10<IMG
+ WIDTH="11" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img218.gif"
+ ALT="$^5$"> Pa,
+<code>&lt;prsrlx&gt;</code> is the pressure relaxation time in ps with a default of 0.5, and
+<code>&lt;compr&gt;</code> is the system compressibility in m<IMG
+ WIDTH="11" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img211.gif"
+ ALT="$^2$">N<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$"> with a
+default of 4.53E-10. Optional keywords <code>xy</code>, <code>z</code> and <code>xy-z</code> 
+may be used to specify that pressure scaling is to be applied in 
+the <code>x</code> and <code>y</code> dimension only, the <code>z</code> dimension only, or, 
+in all three dimensions with identical scaling in the <code>x</code> and <code>y</code> 
+dimension. The last option requires that <code>anisotropic</code> is also specified.
+
+<P>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033150000000000000000">
+31.15 Velocity reassignments</A>
+</H1>
+Velocities can be periodically reassigned to reflect a certain temperature.
+<DL>
+<DT></DT>
+<DD><PRE>
+vreass &lt;integer nfgaus&gt; &lt;real tgauss&gt;
+       [fraction [&lt;real frgaus default 0.5]]
+       [once]
+       [(first | initial)] [(last | final)]
+</PRE>
+specifies that velocities will be reassigned every <code>&lt;nfgaus&gt;</code> molecular
+dynamics steps, reflecting a temperature of <code>&lt;tgauss&gt;</code>&nbsp;K. The default
+is not to reassign velocities, i.e. <code>&lt;nfgaus&gt;</code> is 0. Keyword 
+<code>fraction</code> allows the specification of the fraction of the new
+velocities are random. Keyword <code>once</code> specifies that velocity
+reassignment only should be done in the first step. Keywords <code>first</code>
+or <code>initial</code> and <code>last</code> or <code>final</code> specify that
+velocity reassigment should only be applied in the first and last
+window of multiple run simulations.
+
+<P>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033160000000000000000">
+31.16 Cutoff radii</A>
+</H1>
+Cutoff radii can be specified for short range and long range interactions.
+<DL>
+<DT></DT>
+<DD><PRE>
+cutoff [short] &lt;real rshort&gt; [long &lt;real rlong&gt;] \
+       [qmmm &lt;real rqmmm&gt;]
+</PRE>
+specifies the short range cutoff radius <code>&lt;rshort&gt;</code>, and the long range
+cutoff radius <code>&lt;rlong&gt;</code> in nm. If the long range cutoff radius
+is larger than the short range cutoff radius the twin range method will
+be used, in which short range forces and energies are evaluated every
+molecular dynamics step, and long range forces and energies with a
+frequency of <code>&lt;nflong&gt;</code> molecular dynamics steps. Keyword
+<code>qmmm</code> specifies the radius of the zone around quantum atoms
+defining the QM/MM bare charges.
+The default value for <code>&lt;rshort&gt;</code>, <code>&lt;rlong&gt;</code> and <code>&lt;rqmmm&gt;</code> 
+is 0.9&nbsp;nm.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033170000000000000000">
+31.17 Polarization</A>
+</H1>
+First order and self consistent electronic polarization models have
+been implemented.
+<DL>
+<DT></DT>
+<DD><PRE>
+polar (first | scf [[&lt;integer mpolit&gt;] &lt;real ptol&gt;])
+</PRE>
+specifies the use of polarization potentials,
+where the keyword <TT>first</TT> specifies the first order polarization
+model, and <TT>scf</TT> specifies the self consistent polarization field
+model, iteratively determined with a maximum of <code>&lt;mpolit&gt;</code>
+iterations to within a tolerance of <code>&lt;ptol&gt;</code> D in the generated
+induced dipoles. The default is not to use polarization models.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033180000000000000000">
+31.18 External electrostatic field</A>
+</H1>
+<DL>
+<DT></DT>
+<DD><PRE>
+field &lt;real xfield&gt; [freq &lt;real xffreq&gt;] [vector &lt;real xfvect(1:3)&gt;]
+</PRE>
+specifies an external electrostatic field,
+where <code>&lt;xfield&gt;</code> is the field strength, <code>&lt;xffreq&gt;</code> is the
+frequency in MHz and <code>&lt;xfvect&gt;</code> is the external field vector.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033190000000000000000">
+31.19 Constraints</A>
+</H1>
+Constraints are satisfied using the SHAKE 
+coordinate resetting procedure.
+<DL>
+<DT></DT>
+<DD><PRE>
+shake [&lt;integer mshitw&gt; [&lt;integer mshits&gt;]]  \
+      [&lt;real tlwsha&gt; [&lt;real tlssha&gt;]]
+</PRE>
+specifies the use of SHAKE constraints,
+where <code>&lt;mshitw&gt;</code> is the maximum number of solvent SHAKE iterations,
+and <code>&lt;mshits&gt;</code> is the maximum number of solute SHAKE iterations. If
+only <code>&lt;mshitw&gt;</code> is specified, the value will also be used for <code>&lt;mshits&gt;</code>.
+The default maximum number of iterations is 100 for both.
+<code>&lt;tlwsha&gt;</code> is the solvent SHAKE tolerance in nm, and <code>&lt;tlssha&gt;</code> is
+the solute SHAKE tolerance in nm. If only <code>&lt;tlwsha&gt;</code> is specified, the
+value given will also be used for <code>&lt;tlssha&gt;</code>. The default tolerance
+is 0.001&nbsp;nm for both.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+noshake (solvent | solute)
+</PRE>
+disables SHAKE and treats the bonded interaction according to the force 
+field.
+
+<P>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033200000000000000000">
+31.20 Long range interaction corrections</A>
+</H1>
+Long range electrostatic interactions are implemented using the
+smooth particle mesh Ewald technique, for neutral periodic cubic systems in
+the constant volume ensemble, using pair interaction potentials. Particle-mesh
+Ewald long range interactions can only be used in molecular dynamics simulations
+using effective pair potentials, and not in free energy simulations, QMD or
+QM/MM simulations.
+
+<P>
+<DL>
+<DT></DT>
+<DD><PRE>
+pme [grid &lt;integer ng&gt;] [alpha &lt;real ealpha&gt;] \
+    [order &lt;integer morder&gt;] [fft &lt;integer imfft&gt;]\
+    [procs &lt;integer nprocs&gt;] [solvent]
+</PRE>
+specifies the use of smooth particle-mesh Ewald long range
+interaction treatment,
+where <code>ng</code> is the number of grid points per dimension, 
+<code>ealpha</code> is the Ewald coefficient in nm<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$">, with a default
+that leads to a tolerance of <IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img97.gif"
+ ALT="$10^{-4}$"> at the short range cutoff radius, 
+and <code>morder</code> is order of the Cardinal B-spline
+interpolation which must be an even number and at least 4 (default
+value). A platform specific 3D fast Fourier transform is used, if
+available, when <code>imfft</code> is set to 2. <code>nprocs</code> can be used to
+define a subset of processors to be used to do the FFT calculations.
+If <code>solvent</code> is specified, the charge grid will be calculated from
+the solvent charges only.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+react [&lt;real dielec default 80.0&gt;]
+</PRE>
+specifies that a simple reaction field correction is used with a
+dielectric constant <code>dielec</code>. This is an
+experimental option that has not been well tested.
+
+<P>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033210000000000000000">
+31.21 Fixing coordinates</A>
+</H1>
+Solvent or solute may be fixed using the following keywords. 
+<DL>
+<DT></DT>
+<DD><PRE>
+( fix | free ) 
+ solvent ( [&lt;integer idfirst&gt; [&lt;integer idlast&gt;]] | 
+            ( within | beyond) &lt;real rfix&gt; &lt;string atomname&gt; ) | \
+ solute  ( [&lt;integer idfirst&gt; [&lt;integer idlast&gt;]] [ heavy | {&lt;string atomname&gt;}] |
+            ( within | beyond) &lt;real rfix&gt; &lt;string atomname&gt; )
+ [permanent]
+</PRE>
+For solvent the molecule numbers <code>idfirst</code> and <code>idlast</code>may be 
+specified to be the first and last molecule to which the directive
+applies. If omitted, the directive applies to all molecules. For solute,
+the segment numbers <code>idfirst</code> and <code>idlast</code>may be 
+specified to be the first and last segment to which the directive
+applies. If omitted, the directive applies to all segments. In addition,
+the keyword <code>heavy</code> may be specified to apply to all non hydrogen
+atoms in the solute, or a set of atom names may be specified in which
+a wildcard character <code>?</code> may be used. Keyword <code>permanent</code>
+is used to keep the specification on the restart file for subsequent
+simulations.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033220000000000000000">
+31.22 Special options</A>
+</H1>
+<DL>
+<DT></DT>
+<DD><PRE>
+import [&lt;integer impfr default 1&gt; [&lt;integer impto default impfr&gt; \
+       [&lt;integer nftri default 1&gt;]]]
+</PRE>
+specifies the import of frames <code>impfr</code> to <code>impto</code> with 
+frequency <code>nftri</code> from a trajectory file with extension
+<code>tri</code> for which energies and forces are to be recalculated.
+This option only applied to <code>task md energy</code>.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+detail
+</PRE>
+specifies that moments of inertia and radii of gyration will be part of the
+recorded properties.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+profile
+</PRE>
+specifies that execution time profiling data will be part of the
+recorded properties.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+scale &lt;real scaleq&gt;
+</PRE>
+specifies that all charges will be scaled by the factro <code>scaleq</code>.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+collapse [&lt;real fcoll default 10.0&gt; [ z | xy ]
+</PRE>
+specifies that additional forces directed to the origin of the
+simulation cell with strength <code>fcoll</code> will be 
+applied to all solute molecules. If <code>z</code> or <code>xy</code> is
+specified, these forces will only apply in the specified dimension(s).
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+include fixed
+</PRE>
+specifies that energies will be evaluated between fixed atoms.
+Normally these interactions are excluded from the pairlists.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+eqm &lt;real eqm&gt;
+</PRE>
+specifies the zero point of energy in QMD simulations.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+atomlist
+</PRE>
+specifies that pairlists will be atom based. Normally pairlist
+are charge group based.
+
+<P>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033230000000000000000">
+31.23 Autocorrelation function</A>
+</H1>
+For the evaluation of the statistical error of multi-configuration
+thermodynamic integration free energy results a correlated data 
+analysis is carried out, involving the calculation of the
+autocorrelation function of the derivative of the Hamiltonian with
+respect to the control variable <IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$">.
+<DL>
+<DT></DT>
+<DD><PRE>
+auto &lt;integer lacf&gt; [fit &lt;integer nfit&gt;] [weight &lt;real weight&gt;]
+</PRE>
+controls the calculation of the autocorrelation,
+where <code>&lt;lacf&gt;</code> is the length of the autocorrelation function, with
+a default of 1000, <code>&lt;nfit&gt;</code> is the number of functions used in the
+fit of the autocorrelation function, with a default of 15, and
+<code>&lt;weight&gt;</code> is the weight factor for the autocorrelation function,
+with a default value of 0.0.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033240000000000000000">
+31.24 Print options</A>
+</H1>
+Keywords that control print to the output file, with extension <B>out</B>.
+Print directives may be combined to a single directive.
+
+<P>
+<DL>
+<DT></DT>
+<DD><PRE>
+print [topol [nonbond] [solvent] [solute]]     \
+      [step &lt;integer nfoutp&gt; [extra] [energy]] \
+      [stat &lt;integer nfstat&gt;]                  \
+      [energies [&lt;integer nfener&gt;]]            \
+      [forces [&lt;integer nfforce&gt;]]             \
+      [matrix]                                 \
+      [expect &lt;integer npxpct&gt;]                \
+      [timing]                                 \
+      [pmf [&lt;integer iprpmf&gt;]]                 \
+      [out6]                                   \
+      [dayout]
+</PRE>
+
+<P>
+Keyword <code>topol</code> specifies printing the topology information,
+where <TT>nonbond</TT> refers to the non-bonded interaction parameters,
+<TT>solvent</TT> to the solvent bonded parameters, and <TT>solute</TT> to the
+solute bonded parameters. If only <TT>topol</TT> is specified, all
+topology information will be printed to the output file.
+
+<P>
+Keyword <code>step</code> 
+specifies the frequency <code>nfoutp</code> of printing molecular dynamics step
+information to the output file. If the keyword <TT>extra</TT> is specified
+additional energetic data are printed for solvent and solute separately.
+If the keyword <TT>energy</TT> is specified, information is printed for
+all bonded solute interactions.
+The default for <code>nfoutp</code> is 0. For molecular dynamics simulations
+this frequency is in time steps, and for multi-configuration thermodynamic
+integration in <IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$">-steps.
+
+<P>
+Keyword <code>stat</code>
+specifies the frequency <code>&lt;nfstat&gt;</code> of printing statistical information
+of properties that are calculated during the simulation. 
+For molecular dynamics simulation
+this frequency is in time steps, for multi-configuration thermodynamic
+integration in <IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$">-steps.
+
+<P>
+Keyword <code>energies</code>
+specifies the frequency <code>nfener</code> of printing solute bonded energies
+the output file for energy/import calculations. 
+The default for <code>nfener</code> is 0. 
+
+<P>
+Keyword <code>forces</code>
+specifies the frequency <code>nfforc</code> of printing solute forces
+the output file for energy/import calculations. 
+The default for <code>nfforc</code> is 0. 
+
+<P>
+Keyword <code>matrix</code> specifies that a solute distance matrix is to
+be printed.
+
+<P>
+Keyword <code>expect</code> is obsolete.
+
+<P>
+Keyword <code>timing</code> specifies that timing data is printed.
+
+<P>
+Keyword <code>pmf</code> specifies that pmf data is printed every <code>iprpmf</code> 
+steps.
+Keyword <code>out6</code> specifies that output is written to standard out in stead
+of the output file with extension <code>out</code>.
+
+<P>
+Keyword <code>dayout</code> is obsolete.
+
+<P>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033250000000000000000">
+31.25 Periodic updates</A>
+</H1>
+Following keywords control periodic events during a molecular
+dynamics or thermodynamic integration simulation.
+Update directives may be combined to a single directive.
+
+<P>
+<DL>
+<DT></DT>
+<DD><PRE>
+update [pairs &lt;integer nfpair default 1&gt;]                  \
+       [long &lt;integer nflong default 1&gt;]                   \
+       [center &lt;integer nfcntr default 0&gt; [zonly | xyonly] \
+               [fraction &lt;integer idscb(1:5)&gt;]             \
+       [motion &lt;integer nfslow default 0&gt;]                 \
+       [analysis &lt;integer nfanal default 0&gt;]               \
+       [rdf &lt;integer nfrdf default 0&gt;                      \
+               [range &lt;real rrdf&gt;] [bins &lt;integer ngl&gt;]    \
+</PRE>
+
+<P>
+Keyword <code>pairs</code>
+specifies the frequency <code>&lt;nfpair&gt;</code> in molecular dynamics steps of 
+updating the pair lists. The default for the frequency is 1.
+In addition, pair lists are also updated after each step in which
+recording of the restart or trajectory files is performed. Updating
+the pair lists includes the redistribution of atoms that changed
+domain and load balancing, if specified.
+
+<P>
+Keyword <code>long</code>
+specifies the frequency <code>&lt;nflong&gt;</code> in molecular dynamics steps 
+of updating the long range forces. The default frequency is 1.
+The distinction of short range and long range forces is only
+made if the long range cutoff radius was specified to be larger
+than the short range cutoff radius. Updating the long range forces
+is also done in every molecular dynamics step in which the
+pair lists are regenerated.
+
+<P>
+Keywrod <code>center</code>
+specifies the frequency <code>&lt;nfcntr&gt;</code> in molecular dynamics steps in 
+which the center of geometry of the solute(s) is translated to the
+center of the simulation volume. Optional keyword <code>zonly</code> or
+<code>xyonly</code> can be used to specify that centering will take place in 
+the z-direction or in the xy-plane only.
+The solute fractions determining the
+solutes that will be centered are specified by the keyword 
+<TT>fraction</TT> and the vector <code>&lt;idscb&gt;</code>, with a maximum of 5 entries.
+This translation is implemented such that it has no effect on any 
+aspect of the simulation. The default is not to center, i.e. nfcntr is
+0. The default fraction used to center solute is 1.
+
+<P>
+Keyword <code>motion</code>
+specifies the frequency <code>&lt;nfslow&gt;</code> in molecular dynamics steps of
+removing the center of mass motion.
+
+<P>
+Keyword <code>analysis</code>
+specifies the frequency <code>&lt;nfanal&gt;</code> in molecular dynamics steps of
+invoking the analysis module. This option is obsolete.
+
+<P>
+Keyword <code>rdf</code>
+specifies the frequency <code>&lt;nfrdf&gt;</code> in molecular dynamics steps of
+calculating contributions to the radial distribution functions.
+The default is 0. The range of the radial distribution
+functions is given by <code>&lt;rrdf&gt;</code> in nm, with a default of the short
+range cutoff radius. Note that radial distribution functions are not
+evaluated beyond the short range cutoff radius. The number of
+bins in each radial distribution function is given by <code>&lt;ngl&gt;</code>, with
+a default of 1000. This option is no longer supported.
+If radial distribution function are to be
+calculated, a <B>rdi</B> files needs to be available in which the
+contributions are specified as follows.
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT">Card</TD>
+<TD ALIGN="LEFT">Format</TD>
+<TD ALIGN="LEFT">Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT">I-1</TD>
+<TD ALIGN="LEFT">i</TD>
+<TD ALIGN="LEFT">Type, 1=solvent-solvent, 2=solvent-solute,
+3-solute-solute</TD>
+</TR>
+<TR><TD ALIGN="LEFT">I-2</TD>
+<TD ALIGN="LEFT">i</TD>
+<TD ALIGN="LEFT">Number of the rdf for this contribution</TD>
+</TR>
+<TR><TD ALIGN="LEFT">I-3</TD>
+<TD ALIGN="LEFT">i</TD>
+<TD ALIGN="LEFT">First atom number</TD>
+</TR>
+<TR><TD ALIGN="LEFT">I-4</TD>
+<TD ALIGN="LEFT">i</TD>
+<TD ALIGN="LEFT">Second atom number</TD>
+</TR>
+</TABLE>
+</DIV>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033260000000000000000">
+31.26 Recording</A>
+</H1>
+The following keywords control recording data to file.
+Record directives may be combined to a single directive.
+
+<P>
+<DL>
+<DT></DT>
+<DD><PRE>
+record [rest &lt;integer nfrest&gt; [keep]]     \
+       [coord &lt;integer nfcoor default 0&gt;] \
+       [wcoor &lt;integer nfwcoo default 0&gt;] \
+       [scoor &lt;integer nfscoo default 0&gt;] \
+       [veloc &lt;integer nfvelo default 0&gt;] \
+       [wvelo &lt;integer nfwvel default 0&gt;] \
+       [svelo &lt;integer nfsvel default 0&gt;] \
+       [force &lt;integer nfvelo default 0&gt;] \
+       [wforc &lt;integer nfwvel default 0&gt;] \
+       [sforc &lt;integer nfsvel default 0&gt;] \
+       [(prop | prop_average) &lt;integer nfprop default 0&gt;]  \
+       [free &lt;integer nffree default 1&gt;]  \
+       [sync &lt;integer nfsync default 0&gt;]  \
+       [times &lt;integer nftime default 0&gt;] \
+       [acf] [cnv] [fet]
+       [binary] [ascii] [ecce] [argos]
+</PRE>
+
+<P>
+Keyword <code>rest</code>
+specifies the frequency <code>&lt;nfrest&gt;</code> in molecular dynamics steps
+of rewriting the restart file, with extension <code>rst</code>. 
+For multi-configuration
+thermodynamic integration simulations the frequency is in
+steps in <IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$">. The default is not to record. The restart
+file is used to start or restart simulations. The keyword <TT>keep</TT>
+causes all restart files written to be kept on disk, rather than
+to be overwritten.
+
+<P>
+Keyword <code>coord</code>
+specifies the frequency <code>&lt;nfcoor&gt;</code> in molecular dynamics steps
+of writing coordinates to the trajectory file. This directive redefines
+previous <code>coord</code>, <code>wcoor</code> and <code>scoor</code>
+directives. The default is not to record.
+
+<P>
+Keyword <code>wcoor</code>
+specifies the frequency <code>&lt;nfcoor&gt;</code> in molecular dynamics steps
+of writing solvent coordinates to the trajectory file. This keyword
+takes precedent over <code>coord</code>. This directive redefines
+previous <code>coord</code>, <code>wcoor</code> and <code>scoor</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>scoor</code>
+specifies the frequency <code>&lt;nfscoo&gt;</code> in molecular dynamics steps
+of writing solute coordinates to the trajectory file. This keyword
+takes precedent over <code>coord</code>. This directive redefines
+previous <code>coord</code>, <code>wcoor</code> and <code>scoor</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>veloc</code>
+specifies the frequency <code>&lt;nfvelo&gt;</code> in molecular dynamics steps
+of writing velocities to the trajectory file. This directive redefines
+previous <code>veloc</code>, <code>wvelo</code> and <code>svelo</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>wvelo</code>
+specifies the frequency <code>&lt;nfvelo&gt;</code> in molecular dynamics steps
+of writing solvent velocitiesto the trajectory file. This keyword
+takes precedent over <code>veloc</code>. This directive redefines
+previous <code>veloc</code>, <code>wvelo</code> and <code>svelo</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>svelo</code>
+specifies the frequency <code>&lt;nfsvel&gt;</code> in molecular dynamics steps
+of writing solute velocities to the trajectory file. This keyword
+takes precedent over <code>veloc</code>. This directive redefines
+previous <code>veloc</code>, <code>wvelo</code> and <code>svelo</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>force</code>
+specifies the frequency <code>&lt;nfvelo&gt;</code> in molecular dynamics steps
+of writing forces to the trajectory file. This directive redefines
+previous <code>vforce</code>, <code>wforc</code> and <code>sforc</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>wforc</code>
+specifies the frequency <code>&lt;nfvelo&gt;</code> in molecular dynamics steps
+of writing solvent forcesto the trajectory file. This keyword
+takes precedent over <code>force</code>. This directive redefines
+previous <code>vforce</code>, <code>wforc</code> and <code>sforc</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>sforc</code>
+specifies the frequency <code>&lt;nfsvel&gt;</code> in molecular dynamics steps
+of writing solute forces to the trajectory file. This keyword
+takes precedent over <code>force</code>. This directive redefines
+previous <code>vforce</code>, <code>wforc</code> and <code>sforc</code>
+directives. 
+The default is not to record.
+
+<P>
+Keyword <code>prop</code>
+specifies the frequency <code>&lt;nfprop&gt;</code> in molecular dynamics steps
+of writing information to the property file, with extension
+<code>prp</code>. The default is not to record.
+
+<P>
+Keyword <code>prop_average</code>
+specifies the frequency <code>&lt;nfprop&gt;</code> in molecular dynamics steps
+of writing average information to the property file, with extension
+<code>prp</code>. 
+The default is not to record.
+
+<P>
+Keyword <code>free</code>
+specifies the frequency <code>&lt;nffree&gt;</code> in multi-configuration
+thermodynamic integration steps to record data to the
+free energy data file, with extension <code>gib</code>.
+The default is 1, i.e. to record at every <IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img185.gif"
+ ALT="$\lambda$">.
+This option is obsolete. All data are required to do the
+final analysis.
+
+<P>
+Keyword <code>sync</code>
+specifies the frequency  <code>&lt;nfsync&gt;</code> in molecular dynamics steps
+of writing information to the synchronization file, with extension
+<code>syn</code>. 
+The default is not to record.
+The information written is the simulation time, the wall clock time
+of the previous MD step, the wall clock time of the previous force
+evaluation, the total synchronization time, the largest
+synchronization time and the node on which the largest synchronization
+time was found. The recording of synchronization times is part of the
+load balancing algorithm. Since load balancing is only performed when
+pair-lists are updated, the frequency <code>&lt;nfsync&gt;</code> is correlated
+with the frequency of pair-list updates <code>&lt;nfpair&gt;</code>. This directive
+is only needed for analysis of the load balancing performance. For 
+normal use this directive is not used.
+
+<P>
+Keyword <code>times</code>
+specifies the frequency  <code>&lt;nfsync&gt;</code> in molecular dynamics steps
+of writing information to the timings file, with extension
+<code>tim</code>. 
+The default is not to record.
+The information written is wall clock time used by each of the
+processors for the different components in the force evaluation.
+This directive is only needed for analysis of the wall clock time
+distribution. For normal use this directive is not used.
+
+<P>
+Keywords <code>acf</code>, <code>cnv</code> and <code>fet</code> are obsolete.
+
+<P>
+Keywords <code>binary</code>, <code>ascii</code>, <code>ecce</code> and <code>argos</code> are obsolete.
+
+<P>
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION0033270000000000000000">
+31.27 Program control options</A>
+</H1>
+<DL>
+<DT></DT>
+<DD><PRE>
+load [reset] 
+     ( none | 
+       size [&lt;real factld&gt;] |
+       sizez [&lt;real factld&gt;] | pairs | 
+      (pairs [&lt;integer ldpair&gt;] size [&lt;real factld&gt;]) )
+     [last]
+     [minimum]
+     [average]
+     [combination]
+     [iotime]
+     [experimental]
+</PRE>
+determines the type of dynamic load balancing performed,
+where the default is <TT>none</TT>. Load balancing option <TT>size</TT>
+is resizing cells on a node, and <TT>pairs</TT> redistributes the
+cell-cell interactions over nodes. Keyword <code>reset</code> will reset the
+load balancing read from the restart file. The level of cell resizing
+can be influenced with <IMG
+ WIDTH="48" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img219.gif"
+ ALT="$factld$">. The cells on the busiest node are
+resized with a factor
+<BR>
+<DIV ALIGN="RIGHT">
+
+<!-- MATH
+ \begin{equation}
+\left( 1 - factld * { {T_{sync} \over n_p} - t^{min}_{sync} \over t_{wall}}
+\right)^{1\over 3}
+\end{equation}
+ -->
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD NOWRAP><IMG
+ WIDTH="210" HEIGHT="109" BORDER="0"
+ SRC="img220.gif"
+ ALT="\begin{displaymath}
+\left( 1 - factld * { {T_{sync} \over n_p} - t^{min}_{sync} \over t_{wall}}
+\right)^{1\over 3}
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(31.3)</TD></TR>
+</TABLE>
+<BR CLEAR="ALL"></DIV><P></P>
+where <IMG
+ WIDTH="41" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img221.gif"
+ ALT="$T_{sync}$"> is the accumulated synchronization time of all nodes,
+<IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img222.gif"
+ ALT="$n_p$"> is the total number of nodes, <!-- MATH
+ $t^{min}_{sync}$
+ -->
+<IMG
+ WIDTH="37" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img223.gif"
+ ALT="$t^{min}_{sync}$"> is the synchronization
+time of the busiest node, and <IMG
+ WIDTH="35" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img224.gif"
+ ALT="$t_{wall}$"> is the wall clock time of the
+molecular dynamics step.
+For the combined load balancing, <code>ldpair</code> is the number of successive pair 
+redistribution load balancing steps in which the accumulated synchronization
+time increases, before a resizing load balancing step will be attempted.
+Load balancing is only performed in molecular dynamics steps in which the
+pair-list is updated. The default load balancing is equivalent to specifying
+<BR><PRE>
+load pairs 10 size 0.75
+</PRE>
+Keyword <code>last</code> specifies that the load balancing is based on the
+synchronization times of the last step. This is the default.
+Keyword <code>average</code> specifies that the load balancing is based on the
+average synchronization times since the last load balancing step.
+Keyword <code>minimum</code> specifies that the load balancing is based on the
+minimum synchronization times since the last load balancing step.
+Keywords <code>combination</code>, <code>iotime</code> and <code>experimental</code> are
+experimental load balancing options that should not be used in
+production runs.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+(pack | nopack)
+</PRE>
+specifies if data are communicated in packed or unpacked form. The
+default is <code>pack</code>.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+procs &lt;integer npx&gt; &lt;integer npy&gt; &lt;integer npz&gt;
+</PRE>
+specifies the distribution of the available processors over the three 
+Cartesian dimensions. The default distribution is chosen such that, 
+<code>&lt;npx&gt;</code><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img225.gif"
+ ALT="$*$"><code>&lt;npy&gt;</code><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img225.gif"
+ ALT="$*$"><code>&lt;npz&gt;</code>=<code>&lt;np&gt;</code>
+and <code>&lt;npx&gt;</code> <IMG
+ WIDTH="29" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img226.gif"
+ ALT="$&lt;=$"> <code>&lt;npy&gt;</code> <IMG
+ WIDTH="29" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img226.gif"
+ ALT="$&lt;=$"> <code>&lt;npz&gt;</code>, 
+where <code>&lt;npx&gt;</code>, <code>&lt;npy&gt;</code> and <code>&lt;npz&gt;</code> are the processors in the
+<code>x</code>, <code>y</code> and <code>z</code> dimension respectively, and <code>&lt;np&gt;</code> is the number of processors
+allocated for the calculation. Where more than one combination
+of <code>&lt;npx&gt;</code>, <code>&lt;npy&gt;</code> and <code>&lt;npz&gt;</code> are possible, the 
+combination is chosen with the minimum value of 
+<code>&lt;npx&gt;</code><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img227.gif"
+ ALT="$+$"><code>&lt;npy&gt;</code><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img227.gif"
+ ALT="$+$"><code>&lt;npz&gt;</code>. To change the default setting
+the following optional input option is provided.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+cells &lt;integer nbx&gt; &lt;integer nby&gt; &lt;integer nbz&gt;
+</PRE>
+specifies the distribution of cells,
+where <code>&lt;nbx&gt;</code>, <code>&lt;nby&gt;</code> and <code>&lt;nbz&gt;</code> are the number of
+cells in <code>x</code>, <code>y</code> and <code>z</code> direction, respectively.
+The molecular system is decomposed into cells that form the smallest
+unit for communication of atomic data between nodes. The size of the
+cells is per default set to the short-range cutoff radius. If
+long-range cutoff radii  are used the cell size is set to half the
+long-range cutoff radius if it is larger than the short-range cutoff.
+If the number of cells in a dimension is less than the number of
+processors in that dimension, the number of cells is set to the number
+of processors.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+extra &lt;integer madbox&gt;
+</PRE>
+sets the number of additional cells for which memory is allocated.
+In rare events the amount of memory set aside per node is insufficient
+to hold all atomic coordinates assigned to that node. This leads to 
+execution which aborts with the message that <TT>mwm</TT> or <TT>msa</TT> is too
+small. Jobs may be restarted with additional space allocated by
+where <code>&lt;madbox&gt;</code> is the number of additional cells that are allocated
+on each node. The default for <code>&lt;madbox&gt;</code> is 6. 
+In some cases <code>&lt;madbox&gt;</code> can be reduced to 4 if memory usage is a
+concern. Values of 2 or less will almost certainly result in memory 
+shortage.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+mwm &lt;integer mwmreq&gt;
+</PRE>
+sets the maximum number of solvent molecules <code>&lt;mwmreq&gt;</code> per node,
+allowing increased memory to be allocated for solvent molecules. This
+option can be used if execution aborted because <code>mwm</code> was too
+small.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+msa &lt;integer msareq&gt;
+</PRE>
+sets the maximum number of solute atoms <code>&lt;msareq&gt;</code> per node,
+allowing increased memory to be allocated for solute atoms. This
+option can be used if execution aborted because <code>msa</code> was too
+small.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+mcells &lt;integer mbbreq&gt;
+</PRE>
+sets the maximum number of cell pairs <code>&lt;mbbreq&gt;</code> per node,
+allowing increased memory to be allocated for the cell pair lists. 
+This option can be used if execution aborted because <code>mbbl</code> was too
+small.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+boxmin &lt;real rbox&gt;
+</PRE>
+sets the minimum size of a cell. This directive is obsolete. The
+use of mcells is preferred.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+segmentsize &lt;real rsgm&gt;
+</PRE>
+sets the maximum size of a segment. This value is used to determine
+which segments at the boundary of the cutoff radius should be considered
+in the generation of the pairlists. This value is also determined by the
+prepare module and written to the restart file. Use of this directive
+is not needed for simulations that use the current prepare module to
+generate the restart file.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+memory &lt;integer memlim&gt;
+</PRE>
+sets a limit <code>&lt;memlim&gt;</code> in kB on the allocated amount of memory used by 
+the molecular dynamics module.
+Per default all available memory is allocated. Use of this command
+is required for QM/MM simulations only.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+expert
+</PRE>
+enables the use of certain combinations of features that are considered
+unsafe. This directive should not be used for production runs.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+develop &lt;integer idevel&gt;
+</PRE>
+enables the use of certain development options specified by the
+integer <code>idevel</code>. This option is for development purposes only,
+and should not be used for production runs.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+control &lt;integer icntrl&gt;
+</PRE>
+enables the use of certain development options specified by the
+integer <code>icntrl</code>. This option is for development purposes only,
+and should not be used for production runs.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+numerical
+</PRE>
+writes out analytical and finite difference forces for test purposes.
+
+<P>
+</DD>
+<DT></DT>
+<DD><PRE>
+server &lt;string servername&gt; &lt;integer serverport&gt;
+</PRE>
+allows monitoring over a socket connection to the specified port on the
+named server of basic data as a simulation is running.
+
+<P>
+</DD>
+<DT></DT>
+<DD>For development purposes debug information can be written to the debug
+file with extension <B>dbg</B> with
+<PRE>
+debug &lt;integer idebug&gt;
+</PRE>
+where <IMG
+ WIDTH="49" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img228.gif"
+ ALT="$idebug$"> specifies the type of debug information being written.
+
+<P>
+</DD>
+<DT></DT>
+<DD>For testing purposes test information can be written to the test
+file with extension <B>tst</B> with
+<PRE>
+test &lt;integer itest&gt;
+</PRE>
+where <IMG
+ WIDTH="36" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img229.gif"
+ ALT="$itest$"> specifies the number of steps test information is written.
+
+<P>
+</DD>
+</DL>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1603"
+  HREF="node34.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1599"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1593"
+  HREF="node32.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1601"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1604"
+  HREF="node34.html">32. Analysis</A>
+<B> Up:</B> <A NAME="tex2html1600"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1594"
+  HREF="node32.html">30. Prepare</A>
+ &nbsp <B>  <A NAME="tex2html1602"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

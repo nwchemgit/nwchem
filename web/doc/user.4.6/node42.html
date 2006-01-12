@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>B. Sample input files</TITLE>
+<META NAME="description" CONTENT="B. Sample input files">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node43.html">
+<LINK REL="previous" HREF="node41.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node43.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1827"
+  HREF="node43.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1823"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1817"
+  HREF="node41.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1825"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1828"
+  HREF="node43.html">C. Examples of geometries</A>
+<B> Up:</B> <A NAME="tex2html1824"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1818"
+  HREF="node41.html">A. Standard Basis Sets</A>
+ &nbsp <B>  <A NAME="tex2html1826"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1829"
+  HREF="node42.html#SECTION004210000000000000000">B.1 Water SCF calculation and geometry optimization in a 6-31g basis</A>
+<UL>
+<LI><A NAME="tex2html1830"
+  HREF="node42.html#SECTION004211000000000000000">B.1.1 Job 1.  Single point SCF energy</A>
+<LI><A NAME="tex2html1831"
+  HREF="node42.html#SECTION004212000000000000000">B.1.2 Job 2. Restarting and perform a geometry optimization</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1832"
+  HREF="node42.html#SECTION004220000000000000000">B.2 Compute the polarizability of Ne using finite field</A>
+<UL>
+<LI><A NAME="tex2html1833"
+  HREF="node42.html#SECTION004221000000000000000">B.2.1 Job 1. Compute the atomic energy</A>
+<LI><A NAME="tex2html1834"
+  HREF="node42.html#SECTION004222000000000000000">B.2.2 Job 2. Compute the energy with applied field</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1835"
+  HREF="node42.html#SECTION004230000000000000000">B.3 SCF energy of H<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$">CO using ECPs for C and O</A>
+<LI><A NAME="tex2html1836"
+  HREF="node42.html#SECTION004240000000000000000">B.4 MP2 optimization and CCSD(T) on nitrogen</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION004200000000000000000">
+B. Sample input files</A>
+</H1>
+<A NAME="sec:sample"></A>
+<H1><A NAME="SECTION004210000000000000000"></A>
+<A NAME="sec:sample1"></A>
+<BR>
+B.1 Water SCF calculation and geometry optimization in a 6-31g basis
+</H1>
+
+<P>
+The input file in section <A HREF="node4.html#sec:getstart">2</A> performs a geometry optimization
+in a single task. A single point SCF energy calculation is performed and then
+restarted to perform the optimization (both could of course be
+performed in a single task).
+
+<P>
+
+<H2><A NAME="SECTION004211000000000000000">
+B.1.1 Job 1.  Single point SCF energy</A>
+</H2>
+
+<P>
+<PRE>
+  start h2o
+  title "Water in 6-31g basis set"
+
+  geometry units au
+    O      0.00000000    0.00000000    0.00000000
+    H      0.00000000    1.43042809   -1.10715266
+    H      0.00000000   -1.43042809   -1.10715266
+  end
+  basis
+    H library 6-31g
+    O library 6-31g
+  end
+  task scf
+</PRE>
+
+<P>
+The final energy should be -75.983998.
+
+<P>
+
+<H2><A NAME="SECTION004212000000000000000">
+B.1.2 Job 2. Restarting and perform a geometry optimization</A>
+</H2>
+
+<P>
+<PRE>
+  restart h2o
+  title "Water geometry optimization"
+
+  task scf optimize
+</PRE>
+
+<P>
+There is no need to specify anything that has not changed from the
+previous input deck, though it will do no harm to repeat it.
+
+<P>
+
+<H1><A NAME="SECTION004220000000000000000"></A>
+<A NAME="sec:sample2"></A>
+<BR>
+B.2 Compute the polarizability of Ne using finite field
+</H1>
+
+<P>
+
+<H2><A NAME="SECTION004221000000000000000">
+B.2.1 Job 1. Compute the atomic energy</A>
+</H2>
+
+<P>
+<PRE>
+  start ne
+  title "Neon"
+  geometry; ne 0 0 0; end
+  basis spherical 
+    ne library aug-cc-pvdz
+  end
+  scf; thresh 1e-10; end
+  task scf
+</PRE>
+
+<P>
+The final energy should be -128.496350.
+
+<P>
+
+<H2><A NAME="SECTION004222000000000000000">
+B.2.2 Job 2. Compute the energy with applied field</A>
+</H2>
+
+<P>
+An external field may be simulated with point charges.  The charges
+here apply a field of magnitude 0.01 atomic units to the atom at the
+origin.  Since the basis functions have not been reordered by the
+additional centers we can also restart from the previous vectors,
+which is the default for a restart job.
+
+<P>
+<PRE>
+  restart ne
+  title "Neon in electric field"
+  geometry units atomic
+    bq1 0 0 100 charge 50
+    ne  0 0 0
+    bq2 0 0 -100 charge -50
+  end
+  task scf
+</PRE>
+
+<P>
+The final energy should be -128.496441, which together with the
+previous field-free result yields an estimate for the polarizability
+of 1.83 atomic units.  Note that by default NWChem does not include
+the interaction between the two point charges in the total energy
+(section <A HREF="node8.html#sec:geom">6</A>).
+
+<P>
+
+<H1><A NAME="SECTION004230000000000000000"></A>
+<A NAME="sec:sample3"></A>
+<BR>
+B.3 SCF energy of H<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$">CO using ECPs for C and O
+</H1>
+
+<P>
+The following will compute the SCF energy for formaldehyde with ECPs
+on the Carbon and Oxygen centers.
+
+<P>
+<PRE>
+title "formaldehyde ECP deck"
+
+start ecpchho
+
+geometry units au
+  C         0.000000  0.000000 -1.025176
+  O         0.000000  0.000000  1.280289
+  H         0.000000  1.767475 -2.045628
+  H         0.000000 -1.767475 -2.045628
+end
+
+basis 
+  C  SP
+   0.1675097360D+02 -0.7812840500D-01  0.3088908800D-01
+   0.2888377460D+01 -0.3741108860D+00  0.2645728130D+00
+   0.6904575040D+00  0.1229059640D+01  0.8225024920D+00
+  C  SP
+   0.1813976910D+00  0.1000000000D+01  0.1000000000D+01
+  C  D
+   0.8000000000D+00  0.1000000000D+01
+  C  F
+   0.1000000000D+01  0.1000000000D+01
+  O  SP
+   0.1842936330D+02 -0.1218775590D+00  0.5975796600D-01
+   0.4047420810D+01 -0.1962142380D+00  0.3267825930D+00
+   0.1093836980D+01  0.1156987900D+01  0.7484058930D+00
+  O  SP
+   0.2906290230D+00  0.1000000000D+01  0.1000000000D+01
+  O  D
+   0.8000000000D+00  0.1000000000D+01
+  O  F
+   0.1100000000D+01  0.1000000000D+01
+  H  S
+   0.1873113696D+02  0.3349460434D-01
+   0.2825394365D+01  0.2347269535D+00
+   0.6401216923D+00  0.8137573262D+00
+  H  S    1 1.00
+   0.1612777588D+00  0.1000000000D+01
+end
+
+ecp
+  C nelec 2
+  C ul
+        1       80.0000000       -1.60000000
+        1       30.0000000       -0.40000000
+        2        0.5498205       -0.03990210
+  C s
+        0        0.7374760        0.63810832
+        0      135.2354832       11.00916230
+        2        8.5605569       20.13797020
+  C p
+        2       10.6863587       -3.24684280
+        2       23.4979897        0.78505765
+  O nelec 2
+  O ul
+        1       80.0000000       -1.60000000
+        1       30.0000000       -0.40000000
+        2        1.0953760       -0.06623814
+  O s
+        0        0.9212952        0.39552179
+        0       28.6481971        2.51654843
+        2        9.3033500       17.04478500
+  O p
+        2       52.3427019       27.97790770
+        2       30.7220233      -16.49630500
+end
+
+scf
+  vectors input hcore
+  maxiter 20
+end
+
+task scf
+</PRE>
+
+<P>
+This should produce the following output:
+
+<P>
+<PRE>
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -22.507927218024
+      One electron energy =    -71.508730162974
+      Two electron energy =     31.201960019808
+ Nuclear repulsion energy =     17.798842925142
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004240000000000000000">
+B.4 MP2 optimization and CCSD(T) on nitrogen</A>
+</H1>
+
+<P>
+The following performs an MP2 geometry optimization followed by a
+CCSD(T) energy evaluation at the converged geometry.  A Dunning
+correlation-consistent triple-zeta basis is used.  The default of
+Cartesian basis functions must be overridden using the keyword
+<code>spherical</code> on the <code>BASIS</code> directive. The 1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$"> core
+orbitals are frozen in both the MP2 and coupled-cluster calculations
+(note that these must separately specified).  The final MP2 energy is
+-109.383276, and the CCSD(T) energy is -109.399662.
+
+<P>
+<PRE>
+start n2
+
+geometry
+  symmetry d2h
+  n 0 0 0.542
+end
+
+basis spherical
+  n library cc-pvtz
+end
+
+mp2
+  freeze core
+end
+
+task mp2 optimize
+
+ccsd
+  freeze core
+end
+
+task ccsd(t)
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1827"
+  HREF="node43.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1823"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1817"
+  HREF="node41.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1825"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1828"
+  HREF="node43.html">C. Examples of geometries</A>
+<B> Up:</B> <A NAME="tex2html1824"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1818"
+  HREF="node41.html">A. Standard Basis Sets</A>
+ &nbsp <B>  <A NAME="tex2html1826"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

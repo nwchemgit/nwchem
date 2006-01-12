@@ -1,0 +1,4189 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>35. Pseudopotential plane-wave density functional theory (NWPW)</TITLE>
+<META NAME="description" CONTENT="35. Pseudopotential plane-wave density functional theory (NWPW)">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node38.html">
+<LINK REL="previous" HREF="node36.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node38.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1691"
+  HREF="node38.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1687"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1681"
+  HREF="node36.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1689"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1692"
+  HREF="node38.html">36. Controlling NWChem with</A>
+<B> Up:</B> <A NAME="tex2html1688"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1682"
+  HREF="node36.html">34. File formats</A>
+ &nbsp <B>  <A NAME="tex2html1690"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1693"
+  HREF="node37.html#SECTION003710000000000000000">35.1 PSPW Tasks</A>
+<UL>
+<LI><A NAME="tex2html1694"
+  HREF="node37.html#SECTION003711000000000000000">35.1.1 Simulation Cell</A>
+<LI><A NAME="tex2html1695"
+  HREF="node37.html#SECTION003712000000000000000">35.1.2 <TT>Unit Cell Optimization</TT></A>
+<LI><A NAME="tex2html1696"
+  HREF="node37.html#SECTION003713000000000000000">35.1.3 <TT>DPLOT</TT></A>
+<LI><A NAME="tex2html1697"
+  HREF="node37.html#SECTION003714000000000000000">35.1.4 <TT>Wannier</TT></A>
+<LI><A NAME="tex2html1698"
+  HREF="node37.html#SECTION003715000000000000000">35.1.5 <TT>Self-Interaction Corrections</TT></A>
+<LI><A NAME="tex2html1699"
+  HREF="node37.html#SECTION003716000000000000000">35.1.6 <TT>Point Charge Analysis</TT></A>
+<LI><A NAME="tex2html1700"
+  HREF="node37.html#SECTION003717000000000000000">35.1.7 <TT>Car-Parrinello</TT></A>
+<LI><A NAME="tex2html1701"
+  HREF="node37.html#SECTION003718000000000000000">35.1.8 <TT>Adding Geometry Constraints To A Car-Parrinello Simulation</TT></A>
+<LI><A NAME="tex2html1702"
+  HREF="node37.html#SECTION003719000000000000000">35.1.9 <TT>PSP_GENERATOR</TT></A>
+<UL>
+<LI><A NAME="tex2html1703"
+  HREF="node37.html#SECTION003719100000000000000">35.1.9.1 <TT>ATOMIC_FILLING Block</TT></A>
+<LI><A NAME="tex2html1704"
+  HREF="node37.html#SECTION003719200000000000000">35.1.9.2 <TT>CUTOFF</TT> Block</A>
+<LI><A NAME="tex2html1705"
+  HREF="node37.html#SECTION003719300000000000000">35.1.9.3 <TT>SEMICORE_RADIUS</TT> Option</A>
+</UL>
+<LI><A NAME="tex2html1706"
+  HREF="node37.html#SECTION0037110000000000000000">35.1.10 <TT>WAVEFUNCTION_INITIALIZER</TT></A>
+<UL>
+<LI><A NAME="tex2html1707"
+  HREF="node37.html#SECTION0037110100000000000000">35.1.10.1 Old Style Input (version 3.3) to <TT>WAVEFUNCTION_INITIALIZER</TT></A>
+</UL>
+<LI><A NAME="tex2html1708"
+  HREF="node37.html#SECTION0037111000000000000000">35.1.11 <TT>V_WAVEFUNCTION_INITIALIZER</TT></A>
+<LI><A NAME="tex2html1709"
+  HREF="node37.html#SECTION0037112000000000000000">35.1.12 <TT>WAVEFUNCTION_EXPANDER</TT></A>
+<LI><A NAME="tex2html1710"
+  HREF="node37.html#SECTION0037113000000000000000">35.1.13 <TT>STEEPEST_DESCENT</TT></A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1711"
+  HREF="node37.html#SECTION003720000000000000000">35.2 Band Tasks</A>
+<UL>
+<LI><A NAME="tex2html1712"
+  HREF="node37.html#SECTION003721000000000000000">35.2.1 Brillouin Zone</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1713"
+  HREF="node37.html#SECTION003730000000000000000">35.3 PAW Tasks</A>
+<LI><A NAME="tex2html1714"
+  HREF="node37.html#SECTION003740000000000000000">35.4 Pseudopotential and PAW basis Libraries</A>
+<LI><A NAME="tex2html1715"
+  HREF="node37.html#SECTION003750000000000000000">35.5 NWPW RTDB Entries and DataFiles</A>
+<UL>
+<LI><A NAME="tex2html1716"
+  HREF="node37.html#SECTION003751000000000000000">35.5.1 Ion Positions</A>
+<LI><A NAME="tex2html1717"
+  HREF="node37.html#SECTION003752000000000000000">35.5.2 Ion Velocities</A>
+<LI><A NAME="tex2html1718"
+  HREF="node37.html#SECTION003753000000000000000">35.5.3 Wavefunction Datafile</A>
+<LI><A NAME="tex2html1719"
+  HREF="node37.html#SECTION003754000000000000000">35.5.4 Velocity Wavefunction Datafile</A>
+<LI><A NAME="tex2html1720"
+  HREF="node37.html#SECTION003755000000000000000">35.5.5 Formatted Pseudopotential Datafile</A>
+<LI><A NAME="tex2html1721"
+  HREF="node37.html#SECTION003756000000000000000">35.5.6 One-Dimensional Pseudopotential Datafile</A>
+<LI><A NAME="tex2html1722"
+  HREF="node37.html#SECTION003757000000000000000">35.5.7 PSPW Car-Parrinello Output Datafiles</A>
+<UL>
+<LI><A NAME="tex2html1723"
+  HREF="node37.html#SECTION003757100000000000000">35.5.7.1 XYZ motion file</A>
+<LI><A NAME="tex2html1724"
+  HREF="node37.html#SECTION003757200000000000000">35.5.7.2 ION_MOTION motion file</A>
+<LI><A NAME="tex2html1725"
+  HREF="node37.html#SECTION003757300000000000000">35.5.7.3 EMOTION motion file</A>
+<LI><A NAME="tex2html1726"
+  HREF="node37.html#SECTION003757400000000000000">35.5.7.4 HMOTION motion file</A>
+<LI><A NAME="tex2html1727"
+  HREF="node37.html#SECTION003757500000000000000">35.5.7.5 EIGMOTION motion file</A>
+<LI><A NAME="tex2html1728"
+  HREF="node37.html#SECTION003757600000000000000">35.5.7.6 OMOTION motion file</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html1729"
+  HREF="node37.html#SECTION003760000000000000000">35.6 Car-Parrinello Scheme for Ab Initio Molecular Dynamics</A>
+<UL>
+<LI><A NAME="tex2html1730"
+  HREF="node37.html#SECTION003761000000000000000">35.6.1 Verlet Algorithm for Integration</A>
+<LI><A NAME="tex2html1731"
+  HREF="node37.html#SECTION003762000000000000000">35.6.2 Constant Temperature Simulations: Nose-Hoover Thermostats</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1732"
+  HREF="node37.html#SECTION003770000000000000000">35.7 PSPW Tutorial 1: Minimizing the geometry for a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule</A>
+<LI><A NAME="tex2html1733"
+  HREF="node37.html#SECTION003780000000000000000">35.8 PSPW Tutorial 2: Running a Car-Parrinello Simulation</A>
+<LI><A NAME="tex2html1734"
+  HREF="node37.html#SECTION003790000000000000000">35.9 PSPW Tutorial 3: optimizing a unit cell and geometry for Silicon-Carbide</A>
+<LI><A NAME="tex2html1735"
+  HREF="node37.html#SECTION0037100000000000000000">35.10 Band Tutorial 1: Minimizing the energy of a silicon-carbide crystal by running a PSPW and Band simulation in tandem</A>
+<LI><A NAME="tex2html1736"
+  HREF="node37.html#SECTION0037110000000000000000">35.11 PAW Tutorial</A>
+<LI><A NAME="tex2html1737"
+  HREF="node37.html#SECTION0037120000000000000000">35.12 NWPW Capabilities and Limitations</A>
+<LI><A NAME="tex2html1738"
+  HREF="node37.html#SECTION0037130000000000000000">35.13 Questions and Difficulties</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION003700000000000000000">
+35. Pseudopotential plane-wave density functional theory (NWPW)</A>
+</H1>
+<A NAME="sec:pspw"></A>
+<P>
+
+<P>
+The NWChem plane-wave (NWPW) module uses pseudopotentials and
+plane-wave basis sets to perform Density Functional Theory
+calculations.  This module complements the capabilities of the more
+traditional Gaussian function based approaches by having an accuracy at least as good 
+for many applications, yet is still fast enough to treat systems containing hundreds of
+atoms.  Another significant advantage is its ability to simulate
+dynamics on a ground state potential surface directly at run-time
+using the Car-Parrinello algorithm.  This method's efficiency and
+accuracy make it a desirable first principles method of simulation in
+the study of complex molecular, liquid, and solid state systems.
+Applications for this first principles method include the calculation
+of free energies, search for global minima, explicit simulation of
+solvated molecules, and simulations of complex vibrational modes that
+cannot be described within the harmonic  approximation.
+
+<P>
+The NWPW module is a collection of three modules.
+
+<UL>
+<LI>PSPW - (PSeudopotential Plane-Wave) A gamma point code for
+     calculating molecules, liquids, crystals, and  surfaces.  
+</LI>
+<LI>Band - A band structure code for calculating
+     crystals and surfaces with small band gaps (e.g. semi-conductors
+     and metals).
+</LI>
+<LI>PAW - a prototype (gamma point) projector augmented plane-wave code
+     for calculating molecules, crystals, and surfaces 
+</LI>
+</UL>
+The PSPW, Band, and PAW modules can be used to compute the energy and  optimize the
+geometry.  Both the PSPW and Band modules can also be used to find saddle points, and 
+compute numerical second derivatives.  In addition the PSPW module can also be used 
+to perform Car-Parrinello molecular  dynamics.
+
+<P>
+Section <A HREF="node37.html#sec:pspw_tasks">35.1</A> describes the tasks contained within the
+PSPW module, section <A HREF="node37.html#sec:band_tasks">35.2</A> describes the tasks
+contained within the Band module, section <A HREF="node37.html#sec:paw_tasks">35.3</A> describes
+the tasks contained within the PAW module, and section <A HREF="node37.html#sec:psp_library">35.4</A>
+describes the pseudopotential library included with NWChem.  The
+datafiles used by the PSPW module are described in section
+<A HREF="node37.html#sec:pspw_data">35.5</A>.  Car-Parrinello output data files are described
+in section <A HREF="node37.html#sec:pspw_cp_data">35.5.7</A>, and the minimization and
+Car-Parrinello algorithms are described in 
+section <A HREF="node37.html#sec:pspw_Car-Parrinello">35.6</A>. 
+Examples of how
+to setup and run a PSPW geometry optimization, a Car-Parrinello
+simulation, a band structure minimization, and a PAW geometry
+optimization are presented in sections <A HREF="node37.html#sec:pspw_sd">35.7</A>, <A HREF="node37.html#sec:pspw_cp">35.8</A>, and
+<A HREF="node37.html#sec:band_tutorial1">35.10</A>, and <A HREF="node37.html#sec:paw_tutorial">35.11</A>.  
+Finally in section <A HREF="node37.html#sec:pspw_limits">35.12</A> the capabilities and limitations of the NWPW module are  discussed.
+
+<P>
+If you are a first time user of this module it is recommended that you skip the next five sections and proceed directly to the tutorials in sections 
+<A HREF="node37.html#sec:pspw_sd">35.7</A>-<A HREF="node37.html#sec:paw_tutorial">35.11</A>.
+
+<P>
+
+<H1><A NAME="SECTION003710000000000000000"></A>
+<A NAME="sec:pspw_tasks"></A>
+<BR>
+35.1 PSPW Tasks
+</H1>
+
+<P>
+All input to the PSPW Tasks is contained within the compound PSPW block,
+<PRE>
+PSPW
+   ...
+END
+</PRE>
+
+<P>
+To perform an actual calculation a TASK PSPW directive is used
+(Section <A HREF="node7.html#sec:task">5.10</A>).  
+<PRE>
+  TASK PSPW
+</PRE> 
+In addition to the directives listed in Section <A HREF="node7.html#sec:task">5.10</A>, i.e.
+<PRE>
+TASK pspw energy          
+TASK pspw gradient         
+TASK pspw optimize         
+TASK pspw saddle           
+TASK pspw freqencies       
+TASK pspw vib
+</PRE>
+there are additional directives that are specific to the PSPW module, which are:
+<PRE>
+TASK PSPW [Car-Parrinello             ||
+           pspw_dplot                 ||
+           wannier                    ||
+           psp_generator              ||
+           steepest_descent           ||
+           psp_formatter              ||
+           wavefunction_initializer   ||
+           v_wavefunction_initializer ||
+           wavefunction_expander       ]
+</PRE>
+
+<P>
+Once a user has specified a geometry, the PSPW module can be invoked
+with no input  directives (defaults invoked throughout).  However, the
+user will probably always specify the  simulation cell used in the
+computation, since the default simulation cell is not well suited for
+most systems.  There are sub-directives which allow for customized
+application; those currently provided as options for the PSPW module are:
+<PRE>
+PSPW
+  CELL_NAME &lt;string cell_name default 'cell_default'&gt;
+  INPUT_WAVEFUNCTION_FILENAME  &lt;string input_wavefunctions  default input_movecs&gt;
+  OUTPUT_WAVEFUNCTION_FILENAME &lt;string output_wavefunctions default input_movecs&gt;
+  FAKE_MASS &lt;real fake_mass default 400000.0&gt;
+  TIME_STEP &lt;real time_step default 5.8&gt;
+  LOOP &lt;integer inner_iteration outer_iteration default 10 100&gt;
+  TOLERANCES &lt;real tole tolc default 1.0e-7 1.0e-7&gt;
+  ENERGY_CUTOFF       &lt;real ecut default (see input description)&gt;
+  WAVEFUNCTION_CUTOFF &lt;real wcut default (see input description)&gt;
+  EWALD_NCUT &lt;integer ncut default 1&gt;]
+  EWALD_RCUT &lt;real rcut default (see input description)&gt;
+  XC (Vosko || PBE96  default Vosko)
+  DFT||ODFT||RESTRICTED||UNRESTRICTED
+  MULT &lt;integer mult default 1&gt;
+  MULLIKEN
+  ALLOW_TRANSLATION
+
+  SIMULATION_CELL            ... (see input description) END
+  DPLOT                      ... (see input description) END
+  WANNIER                    ... (see input description) END
+  CAR-PARRINELLO             ... (see input description) END
+  PSP_GENERATOR              ... (see input description) END
+  WAVEFUNCTION_INITIALIZER   ... (see input description) END
+  V_WAVEFUNCTION_INITIATIZER ... (see input description) END
+  WAVEFUNCTION_EXPANDER      ... (see input description) END
+  STEEPEST_DESCENT           ... (see input description) END
+END
+</PRE>
+
+<P>
+The following list describes the keywords contained in the PSPW input block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of
+              the simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.  See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">input_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file containing one-electron orbitals
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">output_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file that will contain the one-electron orbitals at the
+              end of the run. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">fake_mass<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the electronic
+              fake mass (<IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$">). This parameter is not presently used in a 
+              conjugate gradient simulation
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">time_step<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the time step (<IMG
+ WIDTH="23" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img216.gif"
+ ALT="$\Delta t$">).  This
+              parameter is not presently used in a conjugate gradient simulation.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">inner_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of iterations between the 
+              printing out of energies and tolerances
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">outer_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of outer iterations
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tole<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the energy tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tolc<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the one-electron orbital tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">edit<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the density. Default is set
+                           to be the maximum value that will fit
+                           within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the one-electron orbitals.
+                           Default is set to be the maximum value that 
+                           will fit within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ncut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the Ewald summation. Note Ewald summation
+                          is only used if the simulation_cell is periodic.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">rcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff radius used
+                          in the Ewald summation. Note Ewald summation
+                          is only used if the simulation_cell is periodic. 
+<BR>
+Default set to be
+                          <!-- MATH
+ $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$
+ -->
+<IMG
+ WIDTH="140" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img260.gif"
+ ALT="$\frac{MIN(\left\vert \vec{a_i} \right\vert)}{\pi}, i=1,2,3$">.
+</LI>
+<LI>(Vosko <IMG
+ WIDTH="13" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img261.gif"
+ ALT="$\vert\vert$"> PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+                               and Ernzerhof GGA functional.
+</LI>
+<LI>MULT - optional keyword which if specified allows the user to define the spin multiplicity
+                     of the system
+</LI>
+<LI>MULLIKEN - optional keyword which if specified
+                         causes a Mulliken analysis to be performed at
+                         the end of the simulation.  
+</LI>
+<LI>ALLOW_TRANSLATION - By default the the center of mass forces are projected out of the 
+                                  computed forces. This optional keyword if specified allows the 
+                                  center of mass forces to not be zero.
+
+<P>
+</LI>
+<LI>SIMULATION_CELL (see section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>)
+</LI>
+<LI>DPLOT (see section <A HREF="node37.html#sec:pspw_dplot">35.1.3</A>)
+</LI>
+<LI>WANNIER (see section <A HREF="node37.html#sec:pspw_wannier">35.1.4</A>)
+</LI>
+<LI>CAR-PARRINELLO(see section <A HREF="node37.html#sec:pspw_CP">35.1.7</A>)
+</LI>
+<LI>PSP_GENERATOR (see section <A HREF="node37.html#sec:pspw_psp_generator">35.1.9</A>)
+</LI>
+<LI>WAVEFUNCTION_INITIALIZER (see section <A HREF="node37.html#sec:pspw_wavefunction_initializer">35.1.10</A>)
+</LI>
+<LI>V_WAVEFUNCTION_INITIALIZER (see section <A HREF="node37.html#sec:pspw_v_wavefunction_initializer">35.1.11</A>)
+</LI>
+<LI>WAVEFUNCTION_EXPANDER (see section <A HREF="node37.html#sec:pspw_wavefunction_expander">35.1.12</A>).
+</LI>
+<LI>STEEPEST_DESCENT (see section <A HREF="node37.html#sec:pspw_steepest_descent">35.1.13</A>)
+</LI>
+</UL>
+
+<P>
+A prototype limited memory BFGS (LMBFGS) minimizer can be used to minimize the energy.  To
+use this new optimizer the following SET directive needs to be specified:
+<PRE>
+set nwpw:mimimizer 1  # Default - Grassman conjugate gradient minimizer is used to minimize the energy.
+set nwpw:mimimizer 2  # Grassman LMBFGS minimimzer is used to minimize the energy.
+set nwpw:minimizer 4  # Stiefel conjugate gradient minimizer is used to minimize the energy. 
+set nwpw:minimizer 5  # Band-by-band minimizer is used to minimize the energy.
+</PRE>
+Limited testing suggests that the Grassman LMBFGS minimizer is about twice as fast as
+the conjugate gradient minimizer.  However, there are several known cases
+where this optimizer fails, so it is currently not a default option, and
+should be used with caution.
+
+<P>
+In addition the following SET directives can be specified:
+<PRE>
+set nwpw:lcao_skip .false. # Default - initial wavefunctions generated using an LCAO guess. 
+set nwpw:lcao_skip .true.  # Initial wavefunctions generated using a random plane-wave guess.
+
+set nwpw:lcao_print .false. # Default - Ouput not produced during the generation of the LCAO guess. 
+set nwpw:lcao_print .true.  # Output produced during the generation of the LCAO guess.
+
+set nwpw:lcao_iterations 2  #specifies the number of LCAO iterations
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003711000000000000000"></A>
+<A NAME="sec:pspw_cell"></A>
+<BR>
+35.1.1 Simulation Cell
+</H2>
+The  simulation cell parameters
+are entered by  defining a simulation_cell sub-block within the PSPW 
+block.  Listed below is the format of a simulation_cell sub-block.
+<PRE>
+PSPW
+...
+   SIMULATION_CELL
+      CELL_NAME &lt;string name default 'cell_default'&gt;
+      BOUNDARY_CONDITIONS (periodic || aperiodic default periodic)
+      LATTICE_VECTORS
+        &lt;real a1.x a1.y a1.z default 20.0  0.0  0.0&gt;
+        &lt;real a2.x a2.y a2.z default  0.0 20.0  0.0&gt;
+        &lt;real a3.x a3.y a3.z default  0.0  0.0 20.0&gt;
+      NGRID &lt;integer na1 na2 na3 default 32 32 32&gt;
+   END
+...
+END
+</PRE>
+Basically, the user needs to enter the dimensions, gridding and boundary
+conditions of the simulation cell.  The following list describes the 
+input in detail.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied name for the simulation block.
+</LI>
+<LI>periodic - keyword specifying that the simulation cell 
+                         has periodic boundary conditions.      
+</LI>
+<LI>aperiodic - keyword specifying that the simulation cell
+                          has free-space boundary conditions. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">a1.x a1.y a1.z<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied values for the first 
+                                   lattice vector 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">a2.x a2.y a2.z<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied values for the second 
+                                   lattice vector
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">a3.x a3.y a3.z<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied values for the third 
+                                   lattice vector
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">na1 na2 na3<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied values for discretization 
+                                along lattice vector directions.
+</LI>
+</UL>
+
+<P>
+Alternatively, instead of explicitly entering lattice vectors, users can
+enter the unit cell using the standard cell parameters, a, b, c, <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img42.gif"
+ ALT="$\alpha$">, 
+<IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img49.gif"
+ ALT="$\beta$">, and <IMG
+ WIDTH="13" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img262.gif"
+ ALT="$\gamma$">, by using the LATTICE block.  The format for input
+is as follows:
+<PRE>
+PSPW
+...
+   SIMULATION_CELL
+      ...
+      LATTICE
+        [lat_a &lt;real a default 20.0&gt;]
+        [lat_b &lt;real b default 20.0&gt;]
+        [lat_c &lt;real c default 20.0&gt;]
+        [alpha &lt;real alpha default 90.0&gt;]
+        [beta  &lt;real beta  default 90.0&gt;]
+        [gamma &lt;real gamma default 90.0&gt;]
+      END
+      ...
+   END
+...
+END
+</PRE>
+
+<P>
+The user can also enter the lattice vectors of standard unit cells using the
+keywords SC, FCC, BCC, for simple cubic, face-centered cubic, and body-centered cubic
+respectively.  Listed below is an example of the format of this type of input.
+<PRE>
+PSPW
+...
+   SIMULATION_CELL
+      SC 20.0
+      ....
+   END
+...
+END
+</PRE>
+
+<P>
+Finally, the lattice vectors from the unit cell can also be defined using
+the fractional coordinate input in the GEOMETRY input (see section <A HREF="node8.html#sec:latticeparam">6.7</A>).   
+Listed below is an example of the format of this type of input for an 8 atom silicon carbide unit cell.
+<PRE>
+geometry units au 
+  system crystal
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003712000000000000000"></A>
+<A NAME="sec:pspw_cell_optimization"></A>
+<BR>
+35.1.2 <TT>Unit Cell Optimization</TT>
+</H2>
+
+<P>
+The PSPW module using the DRIVER geometry optimizer can optimize a crystal unit cell.
+Currently this type of optimization works only if the geometry is specified in fractional
+coordinates.  The following SET directive is used to tell the DRIVER geometry optimizer to
+optimize the crystal unit cell in addition to the geometry.
+<PRE>
+set includestress .true.
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003713000000000000000"></A>
+<A NAME="sec:pspw_dplot"></A>
+<BR>
+35.1.3 <TT>DPLOT</TT>
+</H2>
+The pspw dplot task is used to generate plots of various types of electron
+densities (or orbitals) of a molecule.  The electron density is calculated on the 
+specified set of grid points from a PSPW calculation.  The output file
+generated is in the Gaussian Cube format.
+Input to the DPLOT task is contained
+within the DPLOT sub-block.
+<PRE>
+PSPW
+  ...
+  DPLOT
+     ...
+  END
+  ...
+END
+</PRE>
+To run a DPLOT calculation the following directive 
+is used:
+<PRE>
+TASK PSPW PSPW_DPLOT
+</PRE>
+Listed below is the format of a DPLOT sub-block.
+<PRE>
+PSPW
+... 
+   DPLOT
+     VECTORS &lt;string input_wavefunctions  default input_movecs&gt;
+     DENSITY [total||difference||alpha||beta||laplacian||potential default total] &lt;string density_name no default&gt;
+     ELF [restricted|alpha|beta] &lt;string elf_name no default&gt;
+     ORBITAL &lt;integer orbital_number no default&gt; &lt;string orbital_name no default&gt;
+
+
+     [LIMITXYZ [units &lt;string Units default angstroms&gt;]
+     &lt;real X_From&gt; &lt;real X_To&gt; &lt;integer No_Of_Spacings_X&gt;
+     &lt;real Y_From&gt; &lt;real Y_To&gt; &lt;integer No_Of_Spacings_Y&gt;
+     &lt;real Z_From&gt; &lt;real Z_To&gt; &lt;integer No_Of_Spacings_Z&gt;]
+
+   END
+
+...
+END
+</PRE>
+
+<P>
+The following list describes the input for the DPLOT
+sub-block.
+
+<P>
+<PRE>
+     VECTORS &lt;string input_wavefunctions  default input_movecs&gt;
+</PRE>
+ This sub-directive specifies the name of the molecular orbital file. If the second file is optionally given the density is computed as the difference between the corresponding electron densities. The vector files have to match. 
+
+<P>
+<PRE>
+     DENSITY [total||difference||alpha||beta||laplacian||potential default total] &lt;string density_name no default&gt;
+</PRE>
+This sub-directive specifies, what kind of density is to be plotted. The known names for total, difference, alpha, beta, laplacian, and potential. 
+
+<P>
+<PRE>
+     ELF [restricted|alpha|beta] &lt;string elf_name no default&gt;
+</PRE>
+This sub-directive specifies that an electron localization function (ELF) is to be plotted.
+
+<P>
+<PRE>
+     ORBITAL &lt;integer orbital_number no default&gt; &lt;string orbital_name no default&gt;
+</PRE>
+This sub-directive specifies the molecular orbital number that is to be plotted.
+
+<P>
+<PRE>
+     LIMITXYZ [units &lt;string Units default angstroms&gt;]
+     &lt;real X_From&gt; &lt;real X_To&gt; &lt;integer No_Of_Spacings_X&gt;
+     &lt;real Y_From&gt; &lt;real Y_To&gt; &lt;integer No_Of_Spacings_Y&gt;
+     &lt;real Z_From&gt; &lt;real Z_To&gt; &lt;integer No_Of_Spacings_Z&gt;
+</PRE>
+By default the grid spacing and the limits of the cell to be plotted are defined by the input wavefunctions.  Alternatively the user can use the LIMITXYZ sub-directive to specify other limits.   The grid is generated using No_Of_Spacings + 1 points along each direction. The known names for Units are angstroms, au and bohr. 
+
+<P>
+
+<H2><A NAME="SECTION003714000000000000000"></A>
+<A NAME="sec:pspw_wannier"></A>
+<BR>
+35.1.4 <TT>Wannier</TT>
+</H2>
+The pspw wannier task is generate maximally localized (Wannier) molecular orbitals.  The
+algorithm proposed by Silvestrelli et al is use to generate the Wannier orbitals.  The
+current version of this code works only for cubic cells. 
+
+<P>
+Input to the Wannier task is contained within the Wannier sub-block.
+<PRE>
+PSPW
+  ...
+  Wannier
+     ...
+  END
+  ...
+END
+</PRE>
+To run a Wannier calculation the following directive 
+is used:
+<PRE>
+TASK PSPW Wannier
+</PRE>
+Listed below is the format of a Wannier sub-block.
+<PRE>
+PSPW
+... 
+   Wannier
+     OLD_WAVEFUNCTION_FILENAME &lt;string input_wavefunctions  default input_movecs&gt;  
+     NEW_WAVEFUNCTION_FILENAME &lt;string output_wavefunctions default input_movecs&gt;
+   END
+...
+END
+</PRE>
+The following list describes the input for the Wannier
+sub-block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">input_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of pspw wavefunction file.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">output_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of pspw wavefunction file that
+              will contain the Wannier orbitals. 
+</LI>
+</UL>
+
+<P>
+
+<H2><A NAME="SECTION003715000000000000000"></A>
+<A NAME="sec:pspw_SIC"></A>
+<BR>
+35.1.5 <TT>Self-Interaction Corrections</TT>
+</H2>
+
+<P>
+The SET directive is used to specify the molecular orbitals 
+contribute to the self-interaction-correction (SIC) term.
+<PRE>
+set pspw:SIC_orbitals  &lt;integer list_of_molecular_orbital_numbers&gt;
+</PRE>
+This defines only the molecular orbitals in the list as SIC active.  All
+other molecular orbitals will not contribute to the SIC term.
+
+<P>
+For example the following directive specifies that the molecular orbitals numbered
+1,5,6,7,8, and 15 are SIC active.
+<PRE>
+set pspw:SIC_orbitals  1 5:8 15
+</PRE>
+or equivalently
+<PRE>
+set pspw:SIC_orbitals  1 5 6 7 8 15
+</PRE>
+
+<P>
+The following directive turns on self-consistent SIC.
+<PRE>
+set pspw:SIC_relax      .false.  # Default - Perturbative SIC calculation
+set pspw:SIC_relax      .true.   # Self-consistent SIC calculation
+</PRE>
+
+<P>
+Two types of solvers can be used and they are specified using the following
+SET directive
+<PRE>
+set pspw:SIC_solver_type 1  # Default - cutoff coulomb kernel
+set pspw:SIC_solver_type 2  # Free-space boundary condition kernel
+</PRE>
+The parameters for the cutoff coulomb kernel are defined by the following
+SET directives:
+<PRE>
+set pspw:SIC_screening_radius &lt;real rcut&gt;
+set pspw:SIC_screening_power  &lt;real rpower&gt;
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003716000000000000000"></A>
+<A NAME="sec:pspw_point_charge_analysis"></A>
+<BR>
+35.1.6 <TT>Point Charge Analysis</TT>
+</H2>
+
+<P>
+The MULLIKEN option can be used to generate derived atomic point charges
+from a plane-wave density.  This analysis is based on a strategy suggested in the work of
+P.E. Blochl, J. Chem. Phys. vol. 103, page 7422 (1995).  In this strategy
+the low-frequency components a plane-wave density are fit to a linear
+combination of atom centered Gaussian functions.
+
+<P>
+The following SET directives are used to define the fitting.
+<PRE>
+set pspw_APC:Gc &lt;real Gc_cutoff&gt;  # specifies the maximum frequency component of the density to be used in the fitting in units of au.
+
+set pspw_APC:nga &lt;integer number_gauss&gt; # specifies the the number of Gaussian functions per
+atom.
+
+set pspw_APC:gamma &lt;real gamma_list&gt; # specifies the decay lengths of each atom centered Gaussian.
+</PRE>
+
+<P>
+We suggest using the following parameters.
+<PRE>
+set pspw_APC:Gc 2.5
+set pspw_APC:nga 3
+set pspw_APC:gamma 0.6 0.9 1.35
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003717000000000000000"></A>
+<A NAME="sec:pspw_CP"></A>
+<BR>
+35.1.7 <TT>Car-Parrinello</TT>
+</H2>
+The Car-Parrinello task is used to perform ab initio molecular dynamics
+using the scheme developed by Car and Parrinello.  In this unified ab
+initio molecular dynamics scheme the motion of the ion cores is coupled to
+a fictitious motion for the Kohn-Sham orbitals of density functional
+theory.  Constant energy or constant temperature simulations can be
+performed.  A detailed description of this method
+is described in section <A HREF="node37.html#sec:pspw_Car-Parrinello">35.6</A>.
+
+<P>
+Input to the Car-Parrinello simulation is contained within the
+Car-Parrinello sub-block.
+<PRE>
+PSPW
+  ...
+  Car-Parrinello
+     ...
+  END
+  ...
+END
+</PRE>
+To run a Car-Parrinello calculation the following directive is used:
+<PRE>
+TASK PSPW Car-Parrinello
+</PRE>
+The Car-Parrinello sub-block contains a great deal
+of input, including pointers to data, as well as
+parameter input.  Listed below is the format of a Car-Parrinello sub-block.
+<PRE>
+PSPW
+...
+   Car-Parrinello
+      CELL_NAME &lt;string cell_name default 'cell_default'&gt;
+      INPUT_WAVEFUNCTION_FILENAME    &lt;string input_wavefunctions    default input_movecs&gt;
+      OUTPUT_WAVEFUNCTION_FILENAME   &lt;string output_wavefunctions   default input_movecs&gt;
+      INPUT_V_WAVEFUNCTION_FILENAME  &lt;string input_v_wavefunctions  default input_vmovecs&gt;
+      OUTPUT_V_WAVEFUNCTION_FILENAME &lt;string output_v_wavefunctions default input_vmovecs&gt;
+      FAKE_MASS &lt;real fake_mass default default 1000.0&gt;
+      TIME_STEP &lt;real time_step default 5.0&gt;
+      LOOP &lt;integer inner_iteration outer_iteration default 10 1&gt;
+      SCALING &lt;real scale_c scale_r default 1.0 1.0&gt;
+      ENERGY_CUTOFF       &lt;real ecut default (see input description)&gt;
+      WAVEFUNCTION_CUTOFF &lt;real wcut default (see input description)&gt;
+      EWALD_NCUT &lt;integer ncut default 1&gt;
+      EWALD_RCUT &lt;real rcut    default (see input description)&gt;
+      XC (Vosko || PBE96  default Vosko)
+      [Nose-Hoover &lt;real Period_electron Temperature_electrion Period_ion Temperature_ion 
+                          default 100.0 298.15 100.0 298.15&gt;]
+      [SA_decay &lt;real sa_scale_c sa_scale_r default 1.0 1.0&gt;]
+      XYZ_FILENAME &lt;string xyz_filename default XYZ&gt;
+      EMOTION_FILENAME &lt;string emotion_filename default EMOTION&gt;
+      HMOTION_FILENAME &lt;string hmotion_filename default HMOTION&gt;
+      OMOTION_FILENAME &lt;string omotion_filename default OMOTION&gt;
+      EIGMOTION_FILENAME &lt;string eigmotion_filename default EIGMOTION&gt;
+      ION_MOTION_FILENAME &lt;string ion_motion_filename default MOTION&gt;
+
+   END
+...
+
+END
+</PRE>
+The following list describes the input for the Car-Parrinello
+sub-block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              the simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.  See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">input_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the 
+              file containing one-electron orbitals
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">output_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file that will contain the one-electron orbitals at the
+              end of the run. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">input_v_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the file
+              containing one-electron orbital velocities.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">output_v_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file that will contain the one-electron orbital velocities
+              at the end of the run. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">fake_mass<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the electronic
+              fake mass (<IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$">).
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">time_step<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the Verlet integration 
+               time step (<IMG
+ WIDTH="23" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img216.gif"
+ ALT="$\Delta t$">).
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">inner_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of iterations between the
+              printing out of energies.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">outer_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of outer iterations
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">scale_c<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the initial velocity
+                              scaling of the one-electron orbital velocities.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">scale_r<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the initial velocity
+                              scaling of the ion velocities.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ecut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the density.  Default is set
+                           to be the maximum value that will fit
+                           within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the one-electron orbitals.  Default is set
+                           to be the maximum value that will fit
+                           within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ncut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the Ewald summation. Note Ewald summation
+                          is only used if the simulation_cell is periodic.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">rcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff radius used
+                          in the Ewald summation.  Note Ewald summation
+                          is only used if the simulation_cell is periodic. 
+<BR>
+Default set to be
+                          <!-- MATH
+ $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$
+ -->
+<IMG
+ WIDTH="140" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img260.gif"
+ ALT="$\frac{MIN(\left\vert \vec{a_i} \right\vert)}{\pi}, i=1,2,3$">.
+</LI>
+<LI>(Vosko <IMG
+ WIDTH="13" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img261.gif"
+ ALT="$\vert\vert$"> PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+                               and Erzherhoff GGA functional.
+</LI>
+<LI>Nose-Hoover - optional subblock which if specified
+                         causes the simulation to perform Nose-Hoover dynamics.
+                         If this subblock is not specified the 
+                         simulation performs constant energy dynamics.
+                         See section <A HREF="node37.html#sec:pspw_nose">35.6.2</A> for a description of the parameters.
+                         
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">Period_electron<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> <IMG
+ WIDTH="16" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img263.gif"
+ ALT="$\equiv$"> <IMG
+ WIDTH="62" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img264.gif"
+ ALT="$P_{electron}$"> 
+                                    - estimated period for fictitious electron thermostat.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">Temperature_electron<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> <IMG
+ WIDTH="16" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img263.gif"
+ ALT="$\equiv$"> <IMG
+ WIDTH="61" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img265.gif"
+ ALT="$T_{electron}$"> 
+                                    - temperature for fictitious electron motion
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">Period_ion<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> <IMG
+ WIDTH="16" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img263.gif"
+ ALT="$\equiv$"> <IMG
+ WIDTH="34" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img266.gif"
+ ALT="$P_{ion}$"> 
+                                    - estimated period for ionic thermostat
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">Temperature_ion<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> <IMG
+ WIDTH="16" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img263.gif"
+ ALT="$\equiv$"> <IMG
+ WIDTH="33" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img267.gif"
+ ALT="$T_{ion}$"> 
+                                    - temperature for ion motion
+                         
+</LI>
+</UL>
+</LI>
+<LI>SA_decay - optional subblock which if specified
+                         causes the simulation to run a simulated annealing simulation.
+                         For simulated annealing to work the Nose-Hoover subblock needs 
+                         to be specified.  The initial temperature are taken from the
+                         Nose-Hoover subblock.
+                         See section <A HREF="node37.html#sec:pspw_nose">35.6.2</A> for a description of the parameters.
+                         
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">sa_scale_c<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> <IMG
+ WIDTH="16" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img263.gif"
+ ALT="$\equiv$"> <!-- MATH
+ $\tau_{electron}$
+ -->
+<IMG
+ WIDTH="59" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img268.gif"
+ ALT="$\tau_{electron}$"> 
+                                    - decay rate in atomic units for electronic temperature.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">sa_scale_r<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> <IMG
+ WIDTH="16" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img263.gif"
+ ALT="$\equiv$"> <IMG
+ WIDTH="41" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img269.gif"
+ ALT="$\tau_{ionic}$"> 
+                                    - decay rate in atomic units for the ionic temperature.
+                         
+</LI>
+</UL>
+
+<P>
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">xyz_filename<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the XYZ motion file
+                                generated
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">emotion_filename<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the emotion motion file.
+                                See section <A HREF="node37.html#sec:pspw_cp_data">35.5.7</A> for a 
+                                description of the datafile.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">hmotion_filename<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the hmotion motion file.
+                                See section <A HREF="node37.html#sec:pspw_cp_data">35.5.7</A> for a 
+                                description of the datafile.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">eigmotion_filename<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the eigmotion motion file.
+                                See section <A HREF="node37.html#sec:pspw_cp_data">35.5.7</A> for a 
+                                description of the datafile.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ion_motion_filename<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the ion_motion motion file.
+                                See section <A HREF="node37.html#sec:pspw_cp_data">35.5.7</A> for a 
+                                description of the datafile.
+</LI>
+<LI>MULLIKEN - optional keyword which if specified causes an omotion motion file to be created. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">omotion_filename<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the omotion motion file.
+                                See section <A HREF="node37.html#sec:pspw_cp_data">35.5.7</A> for a 
+                                description of the datafile.
+</LI>
+</UL>
+
+<P>
+When a DPLOT sub-block is specified the following SET directive can be used 
+to output dplot data during a Car-Parrinello simulation:
+<PRE>
+set pspw_dplot:iteration_list &lt;integer list_of_iteration_numbers&gt;
+</PRE>
+The Gaussian cube files specified in the DPLOT sub-block are appended
+with the specified iteration number. 
+
+<P>
+For example, the following directive specifies that at the 
+3,10,11,12,13,14,15, and 50 iterations Gaussian cube files are to be produced.
+
+<P>
+<PRE>
+set pspw_dplot:iteration_list 3,10:15,50
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003718000000000000000"></A>
+<A NAME="sec:pspw_CP_constraint"></A>
+<BR>
+35.1.8 <TT>Adding Geometry Constraints To A Car-Parrinello Simulation</TT>
+</H2>
+The Car-Parrinello module allows users to freeze the cartesian coordinates 
+in a simulation (Note - the Car-Parrinello code recognizes Cartesian
+constraints, but it does not recognize internal coordinate constraints).  
+The <code>SET</code> directive (Section <A HREF="node8.html#sec:activeatoms">6.6</A>) is used to freeze
+atoms, by specifying a directive of the form:
+<PRE>
+  set geometry:actlist &lt;integer list_of_center_numbers&gt;
+</PRE>
+This defines only the centers in the list as active.  All other
+centers will have zero force assigned to them, and will remain frozen
+at their starting coordinates during a Car-Parrinello simulation.
+
+<P>
+For example, the following directive specifies that atoms numbered 1,
+5, 6, 7, 8, and 15 are active and all other atoms are frozen:
+<PRE>
+  set geometry:actlist 1 5:8 15
+</PRE>
+or equivalently,
+<PRE>
+  set geometry:actlist 1 5 6 7 8 15
+</PRE>
+
+<P>
+If this option is not specified by entering a <code>SET</code> directive,
+the default behavior in the code is to treat all atoms as active.  To
+revert to this default behavior after the option to define frozen
+atoms has been invoked, the <code>UNSET</code> directive must be used (since
+the database is persistent, see Section <A HREF="node5.html#sec:persist">3.2</A>).  The form
+of the <code>UNSET</code> directive is as follows:
+<PRE>
+  unset geometry:actlist
+</PRE>
+
+<P>
+In addition, the Car-Parrinello module allows users to freeze bond
+lengths via a Shake algorithm.  The following <code>SET</code> directive 
+shows how to do this.
+<PRE>
+  set nwpw:shake_constraint "2 6 L 6.9334"
+</PRE>
+This input fixes the bond length between atoms 2 and 6 to be
+6.9334 bohrs.  Note that this input only recognizes bohrs.  
+
+<P>
+When using constraints it is usually necessary to turn off
+center of mass shifting. This can be done by the following <code>SET</code> directive.
+<PRE>
+  set nwpw:com_shift .false.
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003719000000000000000"></A>
+<A NAME="sec:pspw_psp_generator"></A>
+<BR>
+35.1.9 <TT>PSP_GENERATOR</TT>
+</H2>
+A one-dimensional pseudopotential code has been integrated into NWChem.
+This code allows the user to modify and develop pseudopotentials.  Currently, 
+only the Hamann and Troullier-Martins norm-conserving pseudopotentials can be
+generated.  In future releases, the pseudopotential library (section <A HREF="node37.html#sec:psp_library">35.4</A>)
+will be more complete, so that the user will not have explicitly generate
+pseudopotentials using this module.
+
+<P>
+Input to the PSP_GENERATOR task is contained within the
+PSP_GENERATOR  sub-block.
+<PRE>
+PSPW
+  ...
+  PSP_GENERATOR
+     ...
+  END
+  ...
+END
+</PRE>
+To run a PSP_GENERATOR calculation the following directive 
+is used:
+<PRE>
+TASK PSPW PSP_GENERATOR
+</PRE>
+Listed below is the format of a PSP_GENERATOR sub-block.
+<PRE>
+PSPW
+... 
+   PSP_GENERATOR
+      PSEUDOPOTENTIAL_FILENAME: &lt;string psp_name&gt;
+      ELEMENT: &lt;string element&gt;
+      CHARGE: &lt;real charge&gt;
+      MASS_NUMBER: &lt;real mass_number&gt;
+      ATOMIC_FILLING: &lt;integer ncore nvalence&gt;
+      ( (1||2||...) (s||p||d||f||...) &lt;real filling&gt; \
+         ...)
+      
+      [CUTOFF: &lt;integer lmax&gt; 
+         ( (s||p||d||f||g) &lt;real rcut&gt;\
+         ...)
+      ]
+      PSEUDOPOTENTIAL_TYPE: (TROULLIER-MARTINS || HAMANN default HAMANN)
+      SOLVER_TYPE: (PAULI || SCRHODINGER default PAULI)
+      EXCHANGE_TYPE: (dirac || PBE96 default DIRAC)
+      CORRELATION_TYPE: (VOSKO || PBE96 default VOSKO)
+      [SEMICORE_RADIUS: &lt;real rcore&gt;]
+      
+   end
+... 
+END
+</PRE>
+The following list describes the input for the PSP_GENERATOR
+sub-block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">psp_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name that points to a.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">element<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - Atomic symbol.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">charge<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - charge of the atom
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">mass<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - mass number for the atom
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ncore<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of core states
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">nvalence<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of valence states.
+</LI>
+<LI>ATOMIC_FILLING:.....(see below)
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">filling<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - occupation of atomic state
+</LI>
+<LI>CUTOFF:....(see below) 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">rcore<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the semicore radius (see below) 
+</LI>
+</UL>
+
+<P>
+
+<H3><A NAME="SECTION003719100000000000000">
+35.1.9.1 <TT>ATOMIC_FILLING Block</TT></A>
+</H3>
+This required block is used to define the reference atom which is used
+to define the pseudopotential. After the ATOMIC_FILLING: <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ncore<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">
+<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">nvalence<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> line, the core states are listed (one per line), and
+then the valence states are listed (one per line). 
+Each state contains two integer and a value.  The first integer
+specifies the radial quantum number, <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img120.gif"
+ ALT="$n$">,
+The second integer specifies the angular momentum quantum number, <IMG
+ WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img65.gif"
+ ALT="$l$">,
+and the third value specifies the occupation of the state.
+
+<P>
+For example to define a pseudopotential
+for the Neon atom in the <!-- MATH
+ $1s^2 2s^2 2p^6$
+ -->
+<IMG
+ WIDTH="72" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img270.gif"
+ ALT="$1s^2 2s^2 2p^6$"> state
+could have the block
+<PRE>
+ATOMIC_FILLING: 1 2
+        1  s  2.0   #core state    - 1s^2 
+        2  s  2.0   #valence state - 2s^2
+        2  p  6.0   #valence state - 2p^6
+</PRE>
+for a pseudopotential with a <IMG
+ WIDTH="20" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img271.gif"
+ ALT="$2s$"> and <IMG
+ WIDTH="20" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img272.gif"
+ ALT="$2p$"> valence electrons
+or the block
+<PRE>
+ATOMIC_FILLING: 3 0
+        1  s  2.0    #core state
+        2  s  2.0    #core state
+        2  p  6.0    #core state
+</PRE>
+could be used for a pseudopotential with no valence electrons.
+
+<P>
+
+<H3><A NAME="SECTION003719200000000000000">
+35.1.9.2 <TT>CUTOFF</TT> Block</A>
+</H3>
+This optional block specifies the cutoff distances used
+to match the all-electron atom to the pseudopotential atom.  For
+Hamann pseudopotentials <IMG
+ WIDTH="48" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img273.gif"
+ ALT="$r_{cut}(l)$"> defines the distance
+where the all-electron potential is matched to the pseudopotential, and
+for Troullier-Martins pseudopotentials <IMG
+ WIDTH="48" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img273.gif"
+ ALT="$r_{cut}(l)$"> defines the distance
+where the all-electron orbital is matched to the pseudowavefunctions. 
+Thus the definition of the radii depends on the type of pseudopotential.  
+The cutoff radii used in Hamann pseudopotentials will be smaller than
+the cutoff radii used in Troullier-Martins pseudopotentials.  
+
+<P>
+For example to define a softened Hamann pseudopotential for
+Carbon would be
+<PRE>
+ATOMIC_FILLING: 1 2
+  1  s  2.0
+  2  s  2.0
+  2  p  2.0
+CUTOFF: 2
+  s  0.8
+  p  0.85
+  d  0.85
+</PRE>
+while a similarly softened Troullier-Marting pseudopotential
+for Carbon would be
+<PRE>
+ATOMIC_FILLING: 1 2
+  1  s  2.0
+  2  s  2.0
+  2  p  2.0
+CUTOFF: 2
+  s  1.200
+  p  1.275
+  d  1.275
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION003719300000000000000">
+35.1.9.3 <TT>SEMICORE_RADIUS</TT> Option</A>
+</H3>
+Specifying the SEMICORE_RADIUS option turns on the semicore correction approximation proposed
+by Louie et al (S.G. Louie, S. Froyen, and M.L. Cohen, Phys. Rev. B, <B>26</B>, 1738, (1982)).  
+This approximation is known to dramatically improve results for systems containing 
+alkali and transition metal atoms.  
+
+<P>
+The implementation in the PSPW module defines the semi-core density, <!-- MATH
+ $\rho_{semicore}$
+ -->
+<IMG
+ WIDTH="65" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img274.gif"
+ ALT="$\rho_{semicore}$"> in terms of 
+the core density, <IMG
+ WIDTH="37" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img275.gif"
+ ALT="$\rho_{core}$">, by using the sixth-order polynomial
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+\rho_{semicore}(r) = \left\{ \begin{array}{ll}
+                              \rho_{core} & \mbox{if $r \geq r_{semicore}$} \\
+                              c_0 + c_3 r^3 + c_4 r^4 + c_5 r^5 + c_6 r^6 &  \mbox{if $r < r_{semicore}$}
+                            \end{array}
+                     \right.
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="463" HEIGHT="54" ALIGN="MIDDLE" BORDER="0"
+ SRC="img276.gif"
+ ALT="$\displaystyle \rho_{semicore}(r) = \left\{ \begin{array}{ll}
+\rho_{core} &amp; \mbo...
+...+ c_4 r^4 + c_5 r^5 + c_6 r^6 &amp; \mbox{if $r &lt; r_{semicore}$}
+\end{array}\right.$"></TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.1)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+This expansion was suggested by Fuchs and Scheffler 
+(M. Fuchs, and M. Scheffler, Comp. Phys. Comm.,<B>119</B>,67 (1999)), 
+and is better behaved for taking derivatives (i.e. calculating ionic forces) than the expansion suggested 
+by Louie et al.
+
+<P>
+
+<H2><A NAME="SECTION0037110000000000000000"></A>
+<A NAME="sec:pspw_wavefunction_initializer"></A>
+<BR>
+35.1.10 <TT>WAVEFUNCTION_INITIALIZER</TT>
+</H2>
+The functionality of this task is now performed automatically. For backward 
+compatibility, we provide a description of the input to this task.
+
+<P>
+The wavefunction_initializer task is used to generate an initial wavefunction
+datafile.
+Input to the WAVEFUNCTION_INITIALIZER task is contained
+within the WAVEFUNCTION_INITIALIZER sub-block.
+<PRE>
+PSPW
+  ...
+  WAVEFUNCTION_INITIALIZER
+     ...
+  END
+  ...
+END
+</PRE>
+To run a WAVEFUNCTION_INITIALIZER calculation the following directive 
+is used:
+<PRE>
+TASK PSPW WAVEFUNCTION_INITIALIZER
+</PRE>
+Listed below is the format of a WAVEFUNCTION_INITIALIZER sub-block.
+<PRE>
+PSPW
+... 
+   WAVEFUNCTION_INITIALIZER
+     CELL_NAME: &lt;string cell_name&gt;
+     WAVEFUNCTION_FILENAME: &lt;string wavefunction_name default input_movecs&gt;
+     (RESTRICTED||UNRESTRICTED)
+     if (RESTRICTED)   
+        RESTRICTED_ELECTRONS: &lt;integer restricted electrons&gt;
+     if (UNRESTRICTED) 
+        UP_ELECTRONS: &lt;integer up_electrons&gt;
+        DOWN_ELECTRONS: &lt;integer down_electrons&gt;
+   END
+...
+END
+</PRE>
+The following list describes the input for the WAVEFUNCTION_INITIALIZER
+sub-block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of
+                the simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.  See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wavefunction_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name that will point
+              to a wavefunction file.
+</LI>
+<LI>RESTRICTED - keyword specifying that the calculation is restricted.
+</LI>
+<LI>UNRESTRICTED - keyword specifying that the calculation is unrestricted.
+
+<P>
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">restricted_electrons<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of restricted electrons.
+               Not used if an UNRESTRICTED calculation. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">up_electrons<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of spin-up electrons.
+               Not used if a RESTRICTED calculation.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">down_electrons<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of spin-down electrons.
+              Not used if a RESTRICTED calculation.
+</LI>
+</UL>
+
+<P>
+
+<H3><A NAME="SECTION0037110100000000000000">
+35.1.10.1 Old Style Input (version 3.3) to <TT>WAVEFUNCTION_INITIALIZER</TT></A>
+</H3>
+
+<P>
+For backward compatibility, the input to the WAVEFUNCTION_INITIALIZER 
+sub-block can also be of the form
+<PRE>
+PSPW
+... 
+   WAVEFUNCTION_INITIALIZER
+     CELL_NAME: &lt;string cell_name&gt;
+     WAVEFUNCTION_FILENAME: &lt;string wavefunction_name default input_movecs&gt;
+     (RESTRICTED||UNRESTRICTED)
+     
+     [UP_FILLING: &lt;integer up_filling&gt;
+        [0 0 0   0]
+        {&lt;integer kx ky kz&gt; (-2||-1||1||2)}]
+     [DOWN_FILLING: &lt;integer down_filling&gt;
+        [0 0 0   0]
+        {&lt;integer kx ky kz&gt; (-2||-1||1||2)}]
+   END
+...
+END
+</PRE>
+where
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+                simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.  See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wavefunction_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name that will point
+              to a wavefunction file.
+</LI>
+<LI>RESTRICTED - keyword specifying that the calculation is restricted.
+</LI>
+<LI>UNRESTRICTED - keyword specifying that the calculation is unrestricted.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">up_filling<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of restricted molecular orbitals if
+              RESTRICTED and number of spin-up molecular orbitals if 
+              UNRESTRICTED.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">down_filling<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of spin-down molecular orbitals if
+              UNRESTRICTED.  Not used if a RESTRICTED calculation.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">kx ky kz<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - specifies which planewave is to be filled. 
+</LI>
+</UL>
+
+<P>
+The values for the planewave <!-- MATH
+ $(-2||-1||1||2)$
+ -->
+<IMG
+ WIDTH="107" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img277.gif"
+ ALT="$(-2\vert\vert-1\vert\vert 1\vert\vert 2)$"> are used to represent whether
+the specified planewave is a cosine or a sine function, in addition
+random noise can be added to these base functions. That is <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1.gif"
+ ALT="$+1$"> 
+represents a cosine function, and <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2.gif"
+ ALT="$-1$"> represents a sine function.
+The <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img95.gif"
+ ALT="$+2$"> and <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img278.gif"
+ ALT="$-2$"> values are used to represent a cosine function with
+random components added and a sine function with random components
+added respectively.  
+
+<P>
+
+<H2><A NAME="SECTION0037111000000000000000"></A>
+<A NAME="sec:pspw_v_wavefunction_initializer"></A>
+<BR>
+35.1.11 <TT>V_WAVEFUNCTION_INITIALIZER</TT>
+</H2>
+The functionality of this task is now performed automatically. For backward 
+compatibility, we provide a description of the input to this task.
+
+<P>
+The v_wavefunction_initializer task is used to generate an initial velocity 
+wavefunction datafile.
+Input to the V_WAVEFUNCTION_INITIALIZER task is contained
+within the V_WAVEFUNCTION_INITIALIZER sub-block.
+<PRE>
+PSPW
+  ...
+  V_WAVEFUNCTION_INITIALIZER
+     ...
+  END
+  ...
+END
+</PRE>
+To run a V_WAVEFUNCTION_INITIALIZER calculation the following directive 
+is used:
+<PRE>
+TASK PSPW WAVEFUNCTION_INITIALIZER
+</PRE>
+Listed below is the format of a V_WAVEFUNCTION_INITIALIZER sub-block.
+<PRE>
+PSPW
+... 
+   V_WAVEFUNCTION_INITIALIZER
+     V_WAVEFUNCTION_FILENAME: &lt;string v_wavefunction_name default input_vmovecs&gt;
+     CELL_NAME: &lt;string cell_name&gt;
+     (RESTRICTED||UNRESTRICTED)
+     UP_FILLING: &lt;integer up_filling&gt;
+     DOWN_FILLING: &lt;integer down_filling&gt;
+   END
+...
+END
+</PRE>
+The following list describes the input for the V_WAVEFUNCTION_INITIALIZER
+sub-block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+                simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.  See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wavefunction_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name that will point
+              to a velocity wavefunction file.
+</LI>
+<LI>RESTRICTED - keyword specifying that the calculation is restricted.
+</LI>
+<LI>UNRESTRICTED - keyword specifying that the calculation is unrestricted.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">up_filling<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of restricted velocity molecular 
+              orbitals if RESTRICTED and number of spin-up velocity molecular 
+              orbitals if UNRESTRICTED.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">down_filling<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of spin-down velocity molecular 
+              orbitals if UNRESTRICTED.  Not used if a RESTRICTED calculation.
+</LI>
+</UL>
+
+<P>
+
+<H2><A NAME="SECTION0037112000000000000000"></A>
+<A NAME="sec:pspw_wavefunction_expander"></A>
+<BR>
+35.1.12 <TT>WAVEFUNCTION_EXPANDER</TT>
+</H2>
+The functionality of this task is now performed automatically. For backward
+compatibility, we provide a description of the input to this task.
+
+<P>
+The wavefunction_expander task is used to convert a new wavefunction
+file that spans a larger grid space from an old wavefunction file.
+Input to the WAVEFUNCTION_EXPANDER task is contained
+within the WAVEFUNCTION_EXPANDER sub-block.
+<PRE>
+PSPW
+  ...
+  WAVEFUNCTION_EXPANDER
+     ...
+  END
+  ...
+END
+</PRE>
+To run a WAVEFUNCTION_EXPANDER calculation the following directive 
+is used:
+<PRE>
+TASK PSPW WAVEFUNCTION_EXPANDER
+</PRE>
+Listed below is the format of a WAVEFUNCTION_EXPANDER sub-block.
+<PRE>
+PSPW
+... 
+   WAVEFUNCTION_EXPANDER   
+     OLD_WAVEFUNCTION_FILENAME: &lt;string old_wavefunction_name default input_movecs&gt;
+     NEW_WAVEFUNCTION_FILENAME: &lt;string new_wavefunction_name default input_movecs&gt;
+     NEW_NGRID: &lt;integer na1 na2 na3&gt;
+    
+   END
+...
+END
+</PRE>
+The following list describes the input for the WAVEFUNCTION_EXPANDER
+sub-block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">old_wavefunction_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              wavefunction file.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">new_wavefunction_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name that will 
+              point to a wavefunction file.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">na1 na2 na3<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of grid points in each dimension
+              for the new wavefunction file. 
+</LI>
+</UL>
+
+<P>
+
+<H2><A NAME="SECTION0037113000000000000000"></A> 
+<A NAME="sec:pspw_steepest_descent"></A>
+<BR>
+35.1.13 <TT>STEEPEST_DESCENT</TT>
+</H2>
+The functionality of this task is now performed automatically by the PSPW minimizer. 
+For backward compatibility, we provide a description of the input to this task.
+
+<P>
+The steepest_descent task is used to optimize the one-electron orbitals
+with respect to the total energy.  In addition it can also be used to optimize
+geometries.   This method is meant to be used for coarse optimization of
+the one-electron orbitals.
+
+<P>
+Input to the steepest_descent simulation is contained
+within the steepest_descent sub-block.
+<PRE>
+PSPW
+  ...
+  STEEPEST_DESCENT
+     ...
+  END
+  ...
+END
+</PRE>
+To run a steepest_descent calculation the following directive is used:
+<PRE>
+TASK PSPW steepest_descent
+</PRE>
+The steepest_descent sub-block contains a great deal
+of input, including pointers to data, as well as
+parameter input.  Listed below is the format of a STEEPEST_DESCENT sub-block.
+<PRE>
+PSPW
+...
+   STEEPEST_DESCENT
+      CELL_NAME &lt;string cell_name&gt;
+      [GEOMETRY_OPTIMIZE]
+      INPUT_WAVEFUNCTION_FILENAME  &lt;string input_wavefunctions  default input_movecs&gt;
+      OUTPUT_WAVEFUNCTION_FILENAME &lt;string output_wavefunctions default input_movecs&gt;
+      FAKE_MASS &lt;real fake_mass default 400000.0&gt;
+      TIME_STEP &lt;real time_step default 5.8&gt;
+      LOOP &lt;integer inner_iteration outer_iteration default 10 1&gt;
+      TOLERANCES &lt;real tole tolc tolr default 1.0d-9 1.0d-9 1.0d-4&gt;
+      ENERGY_CUTOFF       &lt;real ecut default (see input desciption)&gt;
+      WAVEFUNCTION_CUTOFF &lt;real wcut default (see input description)&gt;
+      EWALD_NCUT &lt;integer ncut default 1&gt;
+      EWALD_RCUT &lt;real rcut default (see input description)&gt;
+      XC (Vosko || PBE96  default Vosko)
+      [MULLIKEN]
+
+   END
+...
+
+END
+</PRE>
+The following list describes the input for the STEEPEST_DESCENT
+sub-block.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of
+              the simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">. See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI>GEOMETRY_OPTIMIZE - optional keyword which if specified
+              turns on geometry optimization.   
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">input_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file containing one-electron orbitals
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">output_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file tha will contain the one-electron orbitals at the
+              end of the run. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">fake_mass<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the electronic
+              fake mass (<IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$">).
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">time_step<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the time step (<IMG
+ WIDTH="23" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img216.gif"
+ ALT="$\Delta t$">).
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">inner_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of iterations between the 
+              printing out of energies and tolerances
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">outer_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of outer iterations
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tole<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the energy tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tolc<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the one-electron orbital tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tolr<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the ion position tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ecut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the density.  Default is set
+                           to be the maximum value that will fit
+                           within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the one-electron orbitals. Default is set
+                           to be the maximum value that will fit
+                           within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ncut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the Ewald summation.  Note Ewald summation
+                          is only used if the simulation_cell is periodic.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">rcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff radius used
+                          in the Ewald summation.  Note Ewald summation
+                          is only used if the simulation_cell is periodic. 
+<BR>
+Default set to be
+                          <!-- MATH
+ $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$
+ -->
+<IMG
+ WIDTH="140" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img260.gif"
+ ALT="$\frac{MIN(\left\vert \vec{a_i} \right\vert)}{\pi}, i=1,2,3$">.
+</LI>
+<LI>(Vosko <IMG
+ WIDTH="13" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img261.gif"
+ ALT="$\vert\vert$"> PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+                               and Erzherhoff GGA functional.
+</LI>
+<LI>MULLIKEN - optional keyword which if specified
+                         causes a Mulliken analysis to be performed at
+                         the end of the simulation.  
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION003720000000000000000"></A>
+<A NAME="sec:band_tasks"></A>
+<BR>
+35.2 Band Tasks
+</H1>
+
+<P>
+All input to the Band Tasks is contained within the compound NWPW block,
+<PRE>
+NWPW
+   ...
+END
+</PRE>
+
+<P>
+To perform an actual calculation a TASK Band directive is used (Section <A HREF="node7.html#sec:task">5.10</A>).  
+<PRE>
+  TASK Band
+</PRE> 
+
+<P>
+Once a user has specified a geometry, the Band module can be invoked with no input directives (defaults invoked throughout).  There are sub-directives which allow for customized application; those currently provided as options for the Band module are:
+<PRE>
+NWPW
+  CELL_NAME &lt;string cell_name default 'cell_default'&gt;
+  ZONE_NAME &lt;string zone_name default 'zone_default'&gt;
+  INPUT_WAVEFUNCTION_FILENAME  &lt;string input_wavefunctions  default input_movecs&gt;
+  OUTPUT_WAVEFUNCTION_FILENAME &lt;string output_wavefunctions default input_movecs&gt;
+  FAKE_MASS &lt;real fake_mass default 400000.0&gt;
+  TIME_STEP &lt;real time_step default 5.8&gt;
+  LOOP &lt;integer inner_iteration outer_iteration default 10 100&gt;
+  TOLERANCES &lt;real tole tolc default 1.0e-7 1.0e-7&gt;
+  ENERGY_CUTOFF       &lt;real ecut default (see input description)&gt;
+  WAVEFUNCTION_CUTOFF &lt;real wcut default (see input description)&gt;
+  EWALD_NCUT &lt;integer ncut default 1&gt;]
+  EWALD_RCUT &lt;real rcut default (see input description)&gt;
+  EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
+  DFT||ODFT||RESTRICTED||UNRESTRICTED
+  MULT &lt;integer mult default 1&gt;
+  
+  SIMULATION_CELL ... (see input description) END
+  BRILLOUIN_ZONE  ... (see input description) END
+  MONKHORST-PACK &lt;real n1 n2 n3 default 1 1 1&gt;
+
+END
+</PRE>
+The following list describes these keywords.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of
+              the simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.  See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">input_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file containing one-electron orbitals
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">output_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name that will
+              point to file containing the one-electron orbitals at the
+              end of the run. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">fake_mass<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the electronic
+              fake mass (<IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$">). This parameter is not presently used in a 
+              conjugate gradient simulation
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">time_step<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the time step (<IMG
+ WIDTH="23" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img216.gif"
+ ALT="$\Delta t$">).  This
+              parameter is not presently used in a conjugate gradient simulation.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">inner_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of iterations between the 
+              printing out of energies and tolerances
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">outer_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of outer iterations
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tole<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the energy tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tolc<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the one-electron orbital tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ecut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the density. Default is set
+                           to be the maximum value that will fit
+                            within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the one-electron orbitals.
+                           Default is set to be the maximum value that 
+                           will fix within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ncut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the Ewald summation. Note Ewald summation
+                          is only used if the simulation_cell is periodic.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">rcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff radius used
+                          in the Ewald summation. Note Ewald summation
+                          is only used if the simulation_cell is periodic. 
+<BR>
+Default set to be
+                          <!-- MATH
+ $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$
+ -->
+<IMG
+ WIDTH="140" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img260.gif"
+ ALT="$\frac{MIN(\left\vert \vec{a_i} \right\vert)}{\pi}, i=1,2,3$">.
+</LI>
+<LI>(Vosko <IMG
+ WIDTH="13" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img261.gif"
+ ALT="$\vert\vert$"> PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+</LI>
+<LI>SIMULATION_CELL (see section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>)
+</LI>
+<LI>BRILLOUIN_ZONE  (see section <A HREF="node37.html#sec:band_brillouin_zone">35.2.1</A>)
+</LI>
+<LI>MONKHORST-PACK - Alternatively, the MONKHORST-PACK keyword can be used 
+                               to enter a MONKHORST-PACK sampling of the Brillouin zone.
+
+<P>
+</LI>
+</UL>
+
+<P>
+
+<H2><A NAME="SECTION003721000000000000000"></A>
+<A NAME="sec:band_brillouin_zone"></A>
+<BR>
+35.2.1 Brillouin Zone
+</H2>
+To supply the special points of the Brillouin zone,
+the user defines a brillouin_zone sub-block within the NWPW 
+block.  Listed below is the format of a brillouin_zone sub-block.
+<PRE>
+NWPW
+...
+   BRILLOUIN_ZONE
+      ZONE_NAME &lt;string name default 'zone_default'&gt;
+      (KVECTOR &lt;real k1 k2 k3 no default&gt; &lt;real weight default (see input description)&gt;
+       ...)
+   END
+...
+END
+</PRE>
+The user enters the special points and weights of the
+Brillouin zone.  The following list describes the input in detail.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied name for the simulation block. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">k1 k2 k3<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied values for a special point in the
+                               Brillouin zone.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">weight<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - user-supplied weight.  Default is to set the weight
+                         so that the sum of all the weights for the entered  
+                         special points adds up to unity.
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION003730000000000000000"></A>
+<A NAME="sec:paw_tasks"></A>
+<BR>
+35.3 PAW Tasks
+</H1>
+
+<P>
+All input to the PAW Tasks is contained within the compound NWPW block,
+<PRE>
+NWPW
+   ...
+END
+</PRE>
+
+<P>
+To perform an actual calculation the following is used (Section <A HREF="node7.html#sec:task">5.10</A>).  
+<PRE>
+  TASK PAW steepest\_descent
+</PRE> 
+
+<P>
+Once a user has specified a geometry, the PAW module can be invoked with no input directives (defaults invoked throughout).  There are sub-directives which allow for customized application; those currently provided as options for the PAW module are:
+<PRE>
+NWPW
+  CELL_NAME &lt;string cell_name default 'cell_default'&gt;  
+  [GEOMETRY_OPTIMIZE]
+  INPUT_WAVEFUNCTION_FILENAME  &lt;string input_wavefunctions  default input_movecs&gt;
+  OUTPUT_WAVEFUNCTION_FILENAME &lt;string output_wavefunctions default input_movecs&gt;
+  FAKE_MASS &lt;real fake_mass default 400000.0&gt;
+  TIME_STEP &lt;real time_step default 5.8&gt;
+  LOOP &lt;integer inner_iteration outer_iteration default 10 100&gt;
+  TOLERANCES &lt;real tole tolc default 1.0e-7 1.0e-7&gt;
+  ENERGY_CUTOFF       &lt;real ecut default (see input description)&gt;
+  WAVEFUNCTION_CUTOFF &lt;real wcut default (see input description)&gt;
+  EWALD_NCUT &lt;integer ncut default 1&gt;]
+  EWALD_RCUT &lt;real rcut default (see input description)&gt;
+  EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
+  DFT||ODFT||RESTRICTED||UNRESTRICTED
+  MULT &lt;integer mult default 1&gt;
+  
+  SIMULATION_CELL ... (see input description) END
+
+END
+</PRE>
+The following list describes these keywords.
+
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              the simulation_cell named <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">. The
+              current version of PAW only accepts periodic unit cells.  
+              See section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>.
+</LI>
+<LI>GEOMETRY_OPTIMIZE - optional keyword which if specified
+              turns on geometry optimization.   
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">input_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file containing one-electron orbitals
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">output_wavefunctions<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - name of the
+              file that will contain the one-electron orbitals at the
+              end of the run. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">fake_mass<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the electronic
+              fake mass (<IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$">). This parameter is not presently used in a 
+              conjugate gradient simulation
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">time_step<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the time step (<IMG
+ WIDTH="23" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img216.gif"
+ ALT="$\Delta t$">).  This
+              parameter is not presently used in a conjugate gradient simulation.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">inner_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of iterations between the 
+              printing out of energies and tolerances
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">outer_iteration<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - number of outer iterations
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tole<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the energy tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">tolc<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the one-electron orbital tolerance.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ecut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the density. Default is set
+                           to be the maximum value that will fit
+                            within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">wcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff energy used
+                           to define the one-electron orbitals.
+                           Default is set to be the maximum value that 
+                           will fix within the simulation_cell <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">cell_name<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$">.
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">ncut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the number of unit cells
+                          to sum over (in each direction) for the real space
+                          part of the smooth compensation summation. 
+</LI>
+<LI><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img258.gif"
+ ALT="$&lt;$">rcut<IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> - value for the cutoff radius used
+                          in the smooth compensation summation. 
+<BR>
+Default set to be
+                          <!-- MATH
+ $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$
+ -->
+<IMG
+ WIDTH="140" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img260.gif"
+ ALT="$\frac{MIN(\left\vert \vec{a_i} \right\vert)}{\pi}, i=1,2,3$">.
+</LI>
+<LI>(Vosko <IMG
+ WIDTH="13" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img261.gif"
+ ALT="$\vert\vert$"> PBE96) - Choose between Vosko et al's LDA 
+                               parameterization or the Perdew, Burke, 
+</LI>
+<LI>SIMULATION_CELL (see section <A HREF="node37.html#sec:pspw_cell">35.1.1</A>)
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION003740000000000000000"></A>
+<A NAME="sec:psp_library"></A>
+<BR>
+35.4 Pseudopotential and PAW basis Libraries
+</H1>
+
+<P>
+A library of pseudopotentials used by PSPW and BAND is currently available  in the
+directory 
+<BR><code> $NWCHEM_TOP/src/nwpw/libraryps/pspw_default</code>
+
+<P>
+The elements listed in the following table are present:
+
+<P>
+<PRE>
+  H
+ -------
+  Li Be                               B  C  N  O
+ -------                             ------------------
+  Na Mg                               Al Si P  S Cl   
+ ------------------------------------------------------
+  K          Ti          Fe     Cu Zn Ga Ge As            
+ ------------------------------------------------------
+    Sr
+ ------------------------------------------------------
+                             Pt Au       Pb
+ ------------------------------------------------------
+</PRE>
+The pseudopotential libraries are continually being tested
+and added.   Also,  a stand-alone code is available that allows users 
+to convert certain pseudopotentials generated with the OPIUM package of Rappe et al.
+The user can request additional pseudopotentials as well as the conversion
+code from Eric J. Bylaska at (Eric.Bylaska@pnl.gov).  
+
+<P>
+Similarly, a library of PAW basis used by PAW is currently available in the
+directory 
+<BR><code> $NWCHEM_TOP/src/nwpw/libraryps/paw_default</code>
+
+<P>
+Currently there are not very many elements available for PAW.  However,
+the user can request additional basis sets from Eric J. Bylaska at (Eric.Bylaska@pnl.gov).
+The elements available are: H, O Al, Sc, V, and Fe.  
+
+<P>
+A preliminary implementation of the HGH pseudopotentials (Hartwigsen, Goedecker, and Hutter)
+has been implemented into the PSPW module.  To access
+the pseudopotentials the pseudopotentials input block is used.  For
+example, to redirect the code to use HGH pseudopotentials for carbon
+and hydrogen, the following input would be used.
+<PRE>
+nwpw
+   ...
+   pseudopotentials
+    C  library  HGH_LDA
+    H  library  HGH_LDA
+   end
+   ...
+end
+</PRE>
+The implementation of HGH pseudopotentials is rather limited in this release.
+HGH pseudopotentials cannot be used to optimize unit cells, and they
+do not work with the MULLIKEN option.  They also have not yet been implemented 
+into the BAND structure code.
+
+<P>
+If you wish to redirect the code to a different directory other than
+the default one, 
+you need to set the environmental variable
+<TT>NWCHEM_NWPW_LIBRARY</TT>
+to the new location of the <code>libraryps</code> directory.
+
+<P>
+
+<H1><A NAME="SECTION003750000000000000000"></A>
+<A NAME="sec:pspw_data"></A>
+<BR>
+35.5 NWPW RTDB Entries and DataFiles
+</H1>
+Input to the PSPW and Band modules are contained in both the RTDB and datafiles.
+The RTDB is used to store input that the user will need to directly specify.
+Input of this kind includes ion positions, ion velocities, and simulation cell
+parameters.  The datafiles are used to store input, such the one-electron 
+orbitals, one-electron orbital velocities, formatted pseudopotentials, 
+and one-dimensional pseudopotentials, that the user will in most cases
+run a program to generate.
+
+<P>
+
+<H2><A NAME="SECTION003751000000000000000">
+35.5.1 Ion Positions</A>
+</H2>
+The positions of the ions are stored in the default geometry structure
+in the RTDB and must be specified  using the GEOMETRY directive.
+
+<P>
+
+<H2><A NAME="SECTION003752000000000000000">
+35.5.2 Ion Velocities</A>
+</H2>
+The velocities of the ions are stored in the default geometry structure
+in the RTDB, and must be specified using the GEOMETRY directive.
+
+<P>
+
+<H2><A NAME="SECTION003753000000000000000">
+35.5.3 Wavefunction Datafile</A>
+</H2>
+The one-electron orbitals are stored in a wavefunction datafile.  This
+is a binary file and cannot be directly edited.  This datafile is used
+by steepest_descent and Car-Parrinello tasks and can be generated
+using the wavefunction_initializer or wavefunction_expander tasks.
+
+<P>
+
+<H2><A NAME="SECTION003754000000000000000">
+35.5.4 Velocity Wavefunction Datafile</A>
+</H2>
+The one-electron orbital velocities are stored in a velocity wavefunction 
+datafile.  This is a binary file and cannot be directly edited.  This datafile 
+is used by the Car-Parrinello task and can be generated
+using the v_wavefunction_initializer task.
+
+<P>
+
+<H2><A NAME="SECTION003755000000000000000">
+35.5.5 Formatted Pseudopotential Datafile</A>
+</H2>
+The pseudopotentials in Kleinman-Bylander form expanded on a simulation
+cell (3d grid) are stored in a formatted pseudopotential datafile.
+This is a binary file and cannot be directly edited.
+This datafile 
+is used by steepest_descent and Car-Parrinello tasks and can be generated
+using the pseudopotential_formatter task.
+
+<P>
+
+<H2><A NAME="SECTION003756000000000000000">
+35.5.6 One-Dimensional Pseudopotential Datafile</A>
+</H2>
+The one-dimensional pseudopotentials are stored in a one-dimensional 
+pseudopotential file.  This is an ASCII file and can be directly edited with
+a text editor.  However, the user will usually use the psp_generator
+task to generate this datafile.
+
+<P>
+The data stored in the one-dimensional pseudopotential file is
+<PRE>
+   character*2 element       :: element name
+   integer     charge        :: valence charge of ion
+   real        mass          :: mass of ion
+   integer     lmax          :: maximum angular component
+   real        rcut(lmax)    :: cutoff radii used to define pseudopotentials
+   integer     nr            :: number of points in the radial grid
+   real        dr            :: linear spacing of the radial grid
+   real        r(nr)         :: one-dimensional radial grid
+   real        Vpsp(nr,lmax) :: one-dimensional pseudopotentials
+   real        psi(nr,lmax)  :: one-dimensional pseudowavefunctions
+   real        r_semicore        :: semicore radius
+   real        rho_semicore(nr)  :: semicore density
+</PRE>
+and the format of it is:
+<PRE>
+[line 1:     ] element  
+[line 2:     ] charge mass lmax
+[line 3:     ] (rcut(l), l=1,lmax)
+[line 4:     ] nr dr
+[line 5:     ]    r(1)  (Vpsp(1,l),  l=1,lmax)
+[line 6:     ] ....
+[line nr+4:  ] r(nr) (Vpsp(nr,l), l=1,lmax)
+[line nr+5:  ] r(1)  (psi(1,l), l=1,lmax) 
+[line nr+6:  ] ....
+[line 2*nr+4:] r(nr) (psi(nr,l), l=1,lmax)
+[line 2*nr+5:] r_semicore
+if (r_semicore read) then
+[line 2*nr+6:] r(1)  rho_semicore(1)
+[line 2*nr+7:] ....
+[line 3*nr+5:] r(nr) rho_semicore(nr)
+end if
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION003757000000000000000"></A>
+<A NAME="sec:pspw_cp_data"></A>
+<BR>
+35.5.7 PSPW Car-Parrinello Output Datafiles
+</H2>
+
+<P>
+
+<H3><A NAME="SECTION003757100000000000000">
+35.5.7.1 XYZ motion file</A>
+</H3>
+Data file that stores ion positions and velocities as
+a function of time in XYZ format.
+
+<P>
+<PRE>
+[line 1:          ]  n_ion
+[line 2:          ]  
+do ii=1,n_ion
+[line 2+ii:       ] atom_name(ii), x(ii),y(ii),z(ii),vx(ii),vy(ii),vz(ii)
+end do
+[line n_ion+3     ] n_nion
+
+do ii=1,n_ion
+[line n_ion+3+ii: ] atom_name(ii), x(ii),y(ii),z(ii), vx(ii),vy(ii),vz(ii)
+end do
+[line 2*n_ion+4:  ]  ....
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION003757200000000000000">
+35.5.7.2 ION_MOTION motion file</A>
+</H3>
+Datafile that stores ion positions and velocities
+as a function of time
+
+<P>
+<PRE>
+[line 1:          ]  it_out, n_ion, omega
+[line 2:          ]  time
+do ii=1,n_ion
+[line 2+ii:       ] x(ii),y(ii),z(ii), vx(ii),vy(ii),vz(ii)
+end do
+[line n_ion+3     ] time
+do 
+do ii=1,n_ion
+[line n_ion+3+ii: ] x(ii),y(ii),z(ii), vx(ii),vy(ii),vz(ii)
+end do
+[line 2*n_ion+4:  ]  ....
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION003757300000000000000">
+35.5.7.3 EMOTION motion file</A>
+</H3>
+Datafile that store energies as a function of time
+<PRE>
+[line 1:          ]  time, E1,E2,E3,E4,E5,E6,E7,E8, (E9,E10, if Nose-Hoover)
+[line 2:          ] ...
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION003757400000000000000">
+35.5.7.4 HMOTION motion file</A>
+</H3>
+Datafile that stores the rotation matrix
+as a function of time.
+
+<P>
+<PRE>
+[line 1:          ] time
+[line 2:          ] ms,ne(ms),ne(ms)
+do i=1,ne(ms)
+[line 2+i:        ] (hml(i,j), j=1,ne(ms)
+end do
+[line 3+ne(ms):   ] time
+[line 4+ne(ms):   ] ....
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION003757500000000000000">
+35.5.7.5 EIGMOTION motion file</A>
+</H3>
+Datafile that stores the eigenvalues for the one-electron
+orbitals as a function of time.
+
+<P>
+<PRE>
+[line 1:          ]  time, (eig(i), i=1,number_orbitals)
+[line 2:          ] ...
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION003757600000000000000">
+35.5.7.6 OMOTION motion file</A>
+</H3>
+Datafile that stores a reduced representation of the
+one-electron orbitals.  To be used with a molecular
+orbital viewer that will be ported to NWChem
+in the near future. 
+
+<P>
+
+<H1><A NAME="SECTION003760000000000000000"></A>
+<A NAME="sec:pspw_Car-Parrinello"></A>
+<BR>
+35.6 Car-Parrinello Scheme for Ab Initio Molecular Dynamics
+</H1>
+
+<P>
+Car and Parrinello developed a unified scheme for doing <I>ab initio</I>
+molecular dynamics by combining the motion of the ion cores and a fictitious
+motion for the Kohn-Sham orbitals of density-functional theory 
+(R. Car and M. Parrinello, Phys. Rev. Lett. <B>55</B>, 2471, (1985)).  
+At the heart of this method they introduced a fictitious kinetic energy 
+functional for the Kohn-Sham orbitals.
+
+<P>
+<BR>
+<DIV ALIGN="CENTER"><A NAME="appendix:b1"></A>
+<!-- MATH
+ \begin{eqnarray}
+KE(\{\psi_{i,\sigma}(\vec{r})\}) &=& \sum_{i,\sigma}^{occ} 
+                                      \int d\vec{r}\ \mu \left| 
+                                      \dot{\psi}_{i,\sigma}(\vec{r}) \right|^2
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="107" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img279.gif"
+ ALT="$\displaystyle KE(\{\psi_{i,\sigma}(\vec{r})\})$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="147" HEIGHT="60" ALIGN="MIDDLE" BORDER="0"
+ SRC="img281.gif"
+ ALT="$\displaystyle \sum_{i,\sigma}^{occ}
+\int d\vec{r}\ \mu \left\vert
+\dot{\psi}_{i,\sigma}(\vec{r}) \right\vert^2$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.2)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+Given this kinetic energy the constrained equations of motion are found 
+by taking the first variation of the auxiliary Lagrangian.
+<BR>
+<DIV ALIGN="CENTER"><A NAME="appendix:b2"></A>
+<!-- MATH
+ \begin{eqnarray}
+L &=& \sum_{i,\sigma}^{occ} \int d\vec{r}\ \mu \left| 
+     \dot{\psi}_{i,\sigma}(\vec{r}) \right|^2 
+     + \frac 12 \sum_I M_I \left| \dot{\vec{R}}_I \right|^2 
+- E\left[ \left\{ \psi_{i,\sigma}(\vec{r})\right\},\left\{\vec{R}_I \right\} \right]  
+\nonumber \\
+&&+\sum_{ij,\sigma} \Lambda_{ij,\sigma} \left( \int d\vec{r}\ 
+\psi_{i,\sigma}^{*}(\vec{r}) \psi_{j,\sigma}(\vec{r}) - \delta_{ij,\sigma} 
+\right)
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img282.gif"
+ ALT="$\displaystyle L$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="432" HEIGHT="60" ALIGN="MIDDLE" BORDER="0"
+ SRC="img283.gif"
+ ALT="$\displaystyle \sum_{i,\sigma}^{occ} \int d\vec{r}\ \mu \left\vert
+\dot{\psi}_{i...
+...eft[ \left\{ \psi_{i,\sigma}(\vec{r})\right\},\left\{\vec{R}_I \right\} \right]$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT">&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="288" HEIGHT="54" ALIGN="MIDDLE" BORDER="0"
+ SRC="img284.gif"
+ ALT="$\displaystyle +\sum_{ij,\sigma} \Lambda_{ij,\sigma} \left( \int d\vec{r}\
+\psi_{i,\sigma}^{*}(\vec{r}) \psi_{j,\sigma}(\vec{r}) - \delta_{ij,\sigma}
+\right)$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.3)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+Which generates a dynamics for the wavefunctions <!-- MATH
+ $\psi_{i,\sigma}(\vec{r})$
+ -->
+<IMG
+ WIDTH="51" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img285.gif"
+ ALT="$\psi_{i,\sigma}(\vec{r})$"> and 
+atoms positions <IMG
+ WIDTH="24" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img286.gif"
+ ALT="$\vec{R}_I$"> through the constrained equations of motion:
+
+<P>
+<BR>
+<DIV ALIGN="CENTER"><A NAME="eq:b3"></A>
+<!-- MATH
+ \begin{eqnarray}
+\mu \ddot{\psi}_{i,\sigma}(\vec{r},t) &=& -\frac{\delta E}{\delta \psi_{i,\sigma }^{*}
+\left( \vec{r},t \right) } + \sum\limits_j \Lambda_{ij,\sigma} 
+\psi_{j,\sigma} \left( \vec{r},t \right)
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="74" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img287.gif"
+ ALT="$\displaystyle \mu \ddot{\psi}_{i,\sigma}(\vec{r},t)$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="232" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
+ SRC="img288.gif"
+ ALT="$\displaystyle -\frac{\delta E}{\delta \psi_{i,\sigma }^{*}
+\left( \vec{r},t \ri...
+... } + \sum\limits_j \Lambda_{ij,\sigma}
+\psi_{j,\sigma} \left( \vec{r},t \right)$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.4)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+<BR>
+<DIV ALIGN="CENTER"><A NAME="eq:b4"></A>
+<!-- MATH
+ \begin{eqnarray}
+M_I \ddot{\vec{R}}_I &=& -\frac{\partial E}{\partial \vec{R}_I}
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="46" HEIGHT="46" ALIGN="MIDDLE" BORDER="0"
+ SRC="img289.gif"
+ ALT="$\displaystyle M_I \ddot{\vec{R}}_I$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="49" HEIGHT="51" ALIGN="MIDDLE" BORDER="0"
+ SRC="img290.gif"
+ ALT="$\displaystyle -\frac{\partial E}{\partial \vec{R}_I}$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.5)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+where <IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$"> is the fictitious mass for the electronic degrees of freedom and 
+<IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img291.gif"
+ ALT="$M_I$"> are the ionic masses.  
+The adjustable parameter <IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$"> is used to 
+describe the relative rate at which the wavefunctions change with time.  
+<!-- MATH
+ $\Lambda_{ij,\sigma}$
+ -->
+<IMG
+ WIDTH="37" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img292.gif"
+ ALT="$\Lambda_{ij,\sigma}$"> are the 
+Lagrangian multipliers for the orthonormalization of the single-particle 
+orbitals <!-- MATH
+ $\psi_{i,\sigma}(\vec{r})$
+ -->
+<IMG
+ WIDTH="51" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img285.gif"
+ ALT="$\psi_{i,\sigma}(\vec{r})$">. 
+They are defined by the orthonormalization constraint conditions
+and can be rigorously found. 
+However, the equations of motion for the Lagrange multipliers
+depend on the specific algorithm used to integrate
+Eqs.&nbsp;<A HREF="node37.html#eq:b3">35.4</A>-<A HREF="node37.html#eq:b4">35.5</A>.
+
+<P>
+For this method to give ionic motions that are physically meaningful
+the kinetic energy of the Kohn-Sham orbitals must be relatively
+small when compared to the kinetic energy of the ions.
+There are two ways where this criterion can fail.
+First, the numerical integrations for the Car-Parrinello equations of motion 
+can often lead to large relative values of the kinetic energy of 
+the Kohn-Sham orbitals relative to the kinetic energy of the ions.
+This kind of failure is easily fixed by requiring a more accurate
+numerical integration, i.e. use a smaller time step for the numerical
+integration.
+Second, during the motion of the system a the ions can be in locations where
+there is an Kohn-Sham orbital level crossing, i.e. the density-functional
+energy can have two states that are nearly degenerate.  This kind
+of failure often occurs in the study of chemical reactions.
+This kind of failure is not easily fixed and requires the use
+of a more sophisticated density-functional energy that accounts
+for low-lying excited electronic states.
+
+<P>
+
+<H2><A NAME="SECTION003761000000000000000">
+35.6.1 Verlet Algorithm for Integration</A>
+</H2>
+
+<P>
+Eqs.&nbsp;<A HREF="node37.html#eq:b3">35.4</A>-<A HREF="node37.html#eq:b4">35.5</A> integrated using the Verlet algorithm
+results in
+
+<P>
+<BR>
+<DIV ALIGN="CENTER"><A NAME="eq:b6"></A>
+<!-- MATH
+ \begin{eqnarray}
+\psi_{i,\sigma}^{t+ \Delta t} 
+                   &\leftarrow& 
+                    2 \psi_{i,\sigma}^{t} - \psi_{i,\sigma}^{t-\Delta t}
+                      + \frac{(\Delta t)^2}{\mu}
+                        \left[ 
+                           \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}
+                            + \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma} 
+                        \right]_{t}
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="46" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img293.gif"
+ ALT="$\displaystyle \psi_{i,\sigma}^{t+ \Delta t}$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="20" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img294.gif"
+ ALT="$\textstyle \leftarrow$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="337" HEIGHT="73" ALIGN="MIDDLE" BORDER="0"
+ SRC="img295.gif"
+ ALT="$\displaystyle 2 \psi_{i,\sigma}^{t} - \psi_{i,\sigma}^{t-\Delta t}
++ \frac{(\De...
+...\psi_{i,\sigma}^{*}}
++ \sum_{j} \psi_{j,\sigma} \Lambda_{ji,\sigma}
+\right]_{t}$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.6)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+<BR>
+<DIV ALIGN="CENTER"><A NAME="eq:b7"></A>
+<!-- MATH
+ \begin{eqnarray}
+\vec{R}_I^{t+\Delta t} &\leftarrow& 
+                    2 \vec{R}_I^{t} - \vec{R}_I^{t-\Delta t}
+                    + \frac{(\Delta t)^2}{M_I} 
+                       \frac{\partial E}{\partial \vec{R}_I}
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="47" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img296.gif"
+ ALT="$\displaystyle \vec{R}_I^{t+\Delta t}$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="20" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img294.gif"
+ ALT="$\textstyle \leftarrow$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="188" HEIGHT="55" ALIGN="MIDDLE" BORDER="0"
+ SRC="img297.gif"
+ ALT="$\displaystyle 2 \vec{R}_I^{t} - \vec{R}_I^{t-\Delta t}
++ \frac{(\Delta t)^2}{M_I}
+\frac{\partial E}{\partial \vec{R}_I}$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.7)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+In this molecular dynamic procedure we have to know variational derivative
+<!-- MATH
+ $\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$
+ -->
+<IMG
+ WIDTH="38" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img298.gif"
+ ALT="$\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$"> and the matrix 
+<!-- MATH
+ $\Lambda_{ij,\sigma}$
+ -->
+<IMG
+ WIDTH="37" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img292.gif"
+ ALT="$\Lambda_{ij,\sigma}$">. 
+The variational derivative <!-- MATH
+ $\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$
+ -->
+<IMG
+ WIDTH="38" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img298.gif"
+ ALT="$\frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$"> 
+can be analytically found and is
+<BR>
+<DIV ALIGN="CENTER"><A NAME="eq:b8"></A>
+<!-- MATH
+ \begin{eqnarray}
+\frac{\delta E}{\delta \psi_{i,\sigma}^{*}} 
+      &=&  -\frac{1}{2} \nabla^2 
+            \psi_{i,\sigma}(\vec{r}) \nonumber \\
+      &+& \int d\vec{r^{\prime}} 
+           W_{ext}(\vec{r},\vec{r^{\prime}}) 
+          \psi_{i,\sigma}(\vec{r^{\prime}}) \nonumber \\
+      &+& \int d\vec{r^{\prime}} 
+                    \frac{n(\vec{r^{\prime}})}{|\vec{r}-\vec{r^{\prime}}|}
+          \psi_{i,\sigma}(\vec{r}) \nonumber \\
+      &+& \mu_{xc}^{\sigma}(\vec{r}) 
+          \psi_{i,\sigma}(\vec{r}) \nonumber \\
+& \equiv & \hat{H} \psi_{i,\sigma}
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="43" HEIGHT="51" ALIGN="MIDDLE" BORDER="0"
+ SRC="img299.gif"
+ ALT="$\displaystyle \frac{\delta E}{\delta \psi_{i,\sigma}^{*}}$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="96" HEIGHT="49" ALIGN="MIDDLE" BORDER="0"
+ SRC="img300.gif"
+ ALT="$\displaystyle -\frac{1}{2} \nabla^2
+\psi_{i,\sigma}(\vec{r})$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT">&nbsp;</TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img301.gif"
+ ALT="$\textstyle +$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="168" HEIGHT="51" ALIGN="MIDDLE" BORDER="0"
+ SRC="img302.gif"
+ ALT="$\displaystyle \int d\vec{r^{\prime}}
+W_{ext}(\vec{r},\vec{r^{\prime}})
+\psi_{i,\sigma}(\vec{r^{\prime}})$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT">&nbsp;</TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img301.gif"
+ ALT="$\textstyle +$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="142" HEIGHT="60" ALIGN="MIDDLE" BORDER="0"
+ SRC="img303.gif"
+ ALT="$\displaystyle \int d\vec{r^{\prime}}
+\frac{n(\vec{r^{\prime}})}{\vert\vec{r}-\vec{r^{\prime}}\vert}
+\psi_{i,\sigma}(\vec{r})$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT">&nbsp;</TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img301.gif"
+ ALT="$\textstyle +$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="95" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img304.gif"
+ ALT="$\displaystyle \mu_{xc}^{\sigma}(\vec{r})
+\psi_{i,\sigma}(\vec{r})$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT">&nbsp;</TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img305.gif"
+ ALT="$\textstyle \equiv$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="46" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img306.gif"
+ ALT="$\displaystyle \hat{H} \psi_{i,\sigma}$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.8)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+To find the matrix <!-- MATH
+ $\Lambda_{ij,\sigma}$
+ -->
+<IMG
+ WIDTH="37" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img292.gif"
+ ALT="$\Lambda_{ij,\sigma}$"> we impose the orthonormality
+constraint on <!-- MATH
+ $\psi_{i,\sigma}^{t+\Delta t}$
+ -->
+<IMG
+ WIDTH="46" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img307.gif"
+ ALT="$\psi_{i,\sigma}^{t+\Delta t}$"> to obtain a
+matrix Riccatti equation, and then Riccatti equation is solved by an iterative
+solution 
+
+<P>
+
+<H2><A NAME="SECTION003762000000000000000"></A>
+<A NAME="sec:pspw_nose"></A>
+<BR>
+35.6.2 Constant Temperature Simulations: Nose-Hoover Thermostats
+</H2>
+
+<P>
+Nose-Hoover Thermostats for the electrons and ions can also be added to the 
+Car-Parrinello simulation.  In this type of simulation thermostats variables <IMG
+ WIDTH="20" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img308.gif"
+ ALT="$x_e$"> and <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img309.gif"
+ ALT="$x_R$"> 
+are added to the simulation by adding the auxiliary energy functionals to the total energy.
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+ION\_THERMOSTAT(x_R)      &=&  \frac{1}{2} Q_R \dot{x_R} + E_{R0}x_R \\
+ELECTRON\_THERMOSTAT(x_e) &=&  \frac{1}{2} Q_e \dot{x_e} + E_{e0}x_e
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="203" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img310.gif"
+ ALT="$\displaystyle ION\_THERMOSTAT(x_R)$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="126" HEIGHT="49" ALIGN="MIDDLE" BORDER="0"
+ SRC="img311.gif"
+ ALT="$\displaystyle \frac{1}{2} Q_R \dot{x_R} + E_{R0}x_R$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.9)</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="264" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img312.gif"
+ ALT="$\displaystyle ELECTRON\_THERMOSTAT(x_e)$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="112" HEIGHT="49" ALIGN="MIDDLE" BORDER="0"
+ SRC="img313.gif"
+ ALT="$\displaystyle \frac{1}{2} Q_e \dot{x_e} + E_{e0}x_e$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.10)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+In these equations, the average kinetic energy for the ions is
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+E_{R0} = \frac{1}{2} f k_B T
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="106" HEIGHT="49" ALIGN="MIDDLE" BORDER="0"
+ SRC="img314.gif"
+ ALT="$\displaystyle E_{R0} = \frac{1}{2} f k_B T$"></TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.11)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+where <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img134.gif"
+ ALT="$f$"> is the number of atomic degrees of freedom, <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img315.gif"
+ ALT="$k_B$"> is 
+Boltzmann's constant, and T is the desired temperature.  Defining
+the average fictitious kinetic energy of the electrons is not as straightforward.
+Bl&#246;chl and Parrinello 
+(P.E. Bl&#246;chl and M. Parrinello, Phys. Rev. B, <B>45</B>, 9413, (1992)) 
+have suggested the following formula for determining
+the average fictitious kinetic energy
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+E_{e0} = 4 k_B T \frac{\mu}{M} \sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="265" HEIGHT="49" ALIGN="MIDDLE" BORDER="0"
+ SRC="img316.gif"
+ ALT="$\displaystyle E_{e0} = 4 k_B T \frac{\mu}{M} \sum_i &lt;\psi_i\vert-\frac{1}{2} \nabla^2 \vert\psi_i&gt;$"></TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.12)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+where <IMG
+ WIDTH="14" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img259.gif"
+ ALT="$\mu$"> is the fictitious electronic mass, <IMG
+ WIDTH="21" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img317.gif"
+ ALT="$M$"> is average mass of one atom,
+and <!-- MATH
+ $\sum_i <\psi_i|-\frac{1}{2} \nabla^2 |\psi_i>$
+ -->
+<IMG
+ WIDTH="154" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img318.gif"
+ ALT="$\sum_i &lt;\psi_i\vert-\frac{1}{2} \nabla^2 \vert\psi_i&gt;$"> is the kinetic energy of the
+electrons.
+
+<P>
+Bl&#246;chl and Parrinello suggested that the choice of mass parameters, 
+<IMG
+ WIDTH="24" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img319.gif"
+ ALT="$Q_e$">, and <IMG
+ WIDTH="27" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img320.gif"
+ ALT="$Q_R$"> should be made such that the period of oscillating thermostats 
+should be chosen larger than the typical time scale for the dynamical events of 
+interest but shorter than the simulation time.  
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+P_{ion} &=& 2\pi \sqrt{\frac{Q_R}{4E_{R0}}}\\
+P_{electron} &=& 2\pi \sqrt{\frac{Q_e}{4E_{e0}}}
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="34" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img321.gif"
+ ALT="$\displaystyle P_{ion}$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="78" HEIGHT="58" ALIGN="MIDDLE" BORDER="0"
+ SRC="img322.gif"
+ ALT="$\displaystyle 2\pi \sqrt{\frac{Q_R}{4E_{R0}}}$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.13)</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="62" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img323.gif"
+ ALT="$\displaystyle P_{electron}$"></TD>
+<TD ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img280.gif"
+ ALT="$\textstyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP><IMG
+ WIDTH="74" HEIGHT="58" ALIGN="MIDDLE" BORDER="0"
+ SRC="img324.gif"
+ ALT="$\displaystyle 2\pi \sqrt{\frac{Q_e}{4E_{e0}}}$"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.14)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+where <IMG
+ WIDTH="34" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img266.gif"
+ ALT="$P_{ion}$"> and <IMG
+ WIDTH="62" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img264.gif"
+ ALT="$P_{electron}$"> are the periods of oscillation for the ionic and fictitious
+electronic thermostats.  
+
+<P>
+In simulated annealing simulations the electronic and ionic Temperatures are scaled 
+according to an exponential cooling schedule,
+<BR>
+<DIV ALIGN="CENTER">
+
+<!-- MATH
+ \begin{eqnarray}
+T_e(t) = T_e^0 \exp^{-\frac{t}{\tau_e}}\\
+T_{ionic}(t) = T_{ionic}^0 \exp^{-\frac{t}{\tau_{ionic}}}
+\end{eqnarray}
+ -->
+<TABLE ALIGN="CENTER" CELLPADDING="0" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="131" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img325.gif"
+ ALT="$\displaystyle T_e(t) = T_e^0 \exp^{-\frac{t}{\tau_e}}$"></TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.15)</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP ALIGN="RIGHT"><IMG
+ WIDTH="195" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
+ SRC="img326.gif"
+ ALT="$\displaystyle T_{ionic}(t) = T_{ionic}^0 \exp^{-\frac{t}{\tau_{ionic}}}$"></TD>
+<TD>&nbsp;</TD>
+<TD>&nbsp;</TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(35.16)</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL"><P></P>
+where <IMG
+ WIDTH="23" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img327.gif"
+ ALT="$T_e^0$"> and <IMG
+ WIDTH="43" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img328.gif"
+ ALT="$T_{ionic}^0$"> are the initial temperatures, and <IMG
+ WIDTH="18" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img329.gif"
+ ALT="$\tau_e$"> and <IMG
+ WIDTH="41" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img269.gif"
+ ALT="$\tau_{ionic}$">
+are the cooling rates in atomic units.  
+
+<P>
+
+<H1><A NAME="SECTION003770000000000000000"></A>
+<A NAME="sec:pspw_sd"></A>
+<BR>
+35.7 PSPW Tutorial 1: Minimizing the geometry for a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule
+</H1>
+
+<P>
+In this section we show how use the PSPW module to optimize the geometry 
+for a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule at the PBE96 levels. 
+
+<P>
+In the following example we show the input needed to optimize the geometry
+for a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule at the LDA level.  In this example, default pseudopotentials
+from the pseudopotential library are used for C, the boundary condition is free-space, 
+the exchange correlation functional is PBE96, The boundary condition is free-space, and 
+the simulation cell cell is aperiodic and cubic with a side length of 10.0 Angstroms and has
+40 grid points in each direction (cutoff energy is 44 Ry).  
+<PRE>
+         
+start c2_pspw_pbe96
+title "C2 restricted singlet dimer optimization - PBE96/44Ry"
+
+geometry  
+C    -0.62 0.0 0.0
+C     0.62 0.0 0.0
+end
+       
+pspw
+   simulation_cell units angstroms
+      boundary_conditions aperiodic
+      SC 10.0
+      ngrid 40 40 40
+   end
+   xc pbe96
+end
+set nwpw:minimizer 2
+task pspw optimize
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003780000000000000000"></A>
+<A NAME="sec:pspw_cp"></A>
+<BR>
+35.8 PSPW Tutorial 2: Running a Car-Parrinello Simulation
+</H1>
+
+<P>
+In this section we show how use the PSPW module to perform a Car-Parrinello
+molecular dynamic simulation for a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule at the LDA level.  
+Before running a PSPW Car-Parrinello  simulation the system should be
+on the Born-Oppenheimer surface, i.e. the one-electron orbitals should be minimized 
+with respect to the total energy (i.e. task pspw energy).  The input needed
+is basically the same as for optimizing the geometry of a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule at the LDA level,
+except that and additional Car-Parrinello sub-block is added.  
+
+<P>
+In the following example we show the input needed to run a Car-Parrinello simulation
+for a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule at the LDA level.  In this example, default pseudopotentials
+from the pseudopotential library are used for C, the boundary condition is free-space, 
+the exchange correlation functional is LDA, The boundary condition is free-space, and 
+the simulation cell cell is aperiodic and cubic with a side length of 10.0 Angstroms and has
+40 grid points in each direction (cutoff energy is 44 Ry).  The time step and fake mass
+for the Car-Parrinello run are specified to be 5.0 au and 600.0 au, respectively.  
+
+<P>
+<PRE>
+         
+start c2_pspw_lda_md
+title "C2 restricted singlet dimer, LDA/44Ry - constant energy Car-Parrinello simulation"
+
+geometry  
+C    -0.62 0.0 0.0
+C     0.62 0.0 0.0
+end
+       
+pspw
+   simulation_cell units angstroms
+      boundary_conditions aperiodic
+      lattice
+        lat_a 10.00d0
+        lat_b 10.00d0
+        lat_c 10.00d0
+      end
+      ngrid 40 40 40
+   end
+   Car-Parrinello
+     fake_mass 600.0
+     time_step 5.0
+     loop 10 10
+   end
+end
+set nwpw:minimizer 2
+task pspw energy
+task pspw Car-Parrinello
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003790000000000000000"></A>
+<A NAME="sec:pspw_unitcell_optimization"></A>
+<BR>
+35.9 PSPW Tutorial 3: optimizing a unit cell and geometry for Silicon-Carbide
+</H1>
+
+<P>
+The following example demonstrates how to uses the PSPW module to optimize the unit cell
+and geometry for a silicon-carbide crystal.
+
+<P>
+<PRE>
+title "SiC 8 atom cubic cell - geometry and unit cell optimization"
+
+start SiC
+
+#**** Enter the geometry using fractional coordinates ****
+geometry units au center noautosym noautoz print
+  system crystal
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   simulation_cell
+     ngrid 16 16 16
+   end
+   ewald_ncut 8
+end
+set nwpw:minimizer 2
+set nwpw:psi_nolattice .true.  # turns of unit cell checking for wavefunctions
+
+driver
+  clear
+  maxiter 40
+end
+set includestress .true.    # this option tells driver to optimize the unit cell
+
+task pspw optimize
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0037100000000000000000"></A>
+<A NAME="sec:band_tutorial1"></A>
+<BR>
+35.10 Band Tutorial 1: Minimizing the energy of a silicon-carbide crystal by running a PSPW and Band simulation in tandem
+</H1>
+
+<P>
+The following input deck performs a PSPW energy calculation followed
+by a Band energy calculation at the <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img330.gif"
+ ALT="$\Gamma$">-point  for a cubic (8-atom) 
+silicon-carbide crystal.  Since the geometry is entered using fractional coordinates
+the unit cell parameters do not have to be re-specified in the simulation_cell
+nwpw sub-block.  In this example, default pseudopotential from the pseudopotential
+library are used for C and Si.  The advantage of running these calculations in tandem is that
+the Band code uses the wavefunctions generated from the faster PSPW calculation for
+its initial guess.  The PSPW energy is -38.353570, and the Band energy is -38.353570.
+
+<P>
+<PRE>
+start SiC_band
+title "SiC 8 atom cubic cell"
+
+#**** geometry entered using fractional coordinates ****
+geometry units au center noautosym noautoz print 
+  system crystal 
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   simulation_cell
+     ngrid 16 16 16
+   end
+   brillouin_zone
+     kvector  0.0 0.0 0.0
+   end
+   ewald_ncut 8
+end
+set nwpw:minimizer 2
+set nwpw:psi_brillioun_check .false.
+task pspw energy
+task band energy
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0037110000000000000000"></A>
+<A NAME="sec:paw_tutorial"></A>
+<BR>
+35.11 PAW Tutorial
+</H1>
+
+<P>
+The following input deck performs for a water molecule a PSPW energy calculation followed
+by a PAW energy calculation and a PAW geometry optimization calculation.  
+The default unit cell parameters are used (SC=20.0, ngrid 32 32 32).  In this simulation, the
+first PAW run optimizes the wavefunction and the second PAW run optimizes the wavefunction
+and geometry in tandem.
+
+<P>
+<PRE>
+title "paw steepest descent test"
+
+start paw_test
+
+charge 0
+
+geometry units au nocenter noautoz noautosym
+O      0.00000    0.00000    0.01390
+H     -1.49490    0.00000   -1.18710
+H      1.49490    0.00000   -1.18710
+end
+
+nwpw
+   time_step 15.8
+   ewald_rcut 1.50
+   tolerances 1.0d-8 1.0d-8
+end
+set nwpw:lcao_iterations 1
+set nwpw:minimizer 2
+task pspw energy
+
+task paw steepest_descent
+
+nwpw
+   time_step 5.8
+   geometry_optimize
+   ewald_rcut 1.50
+   tolerances 1.0d-7 1.0d-7 1.0d-4
+end
+task paw steepest_descent
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0037120000000000000000"></A>
+<A NAME="sec:pspw_limits"></A>
+<BR>
+35.12 NWPW Capabilities and Limitations
+</H1>
+
+<P>
+
+<UL>
+<LI>You cannot use more processors than the size of the third dimension 
+  (e.g. a 64x64x64 FFT grid can use at most 64 processors).
+</LI>
+<LI>The second and third dimensions of the FFT grid must be the same 
+  (i.e. the parameters na2 and na3 must be the same for each simulation cell).
+</LI>
+<LI>Wannier orbital generation only works with cubic unit cells (<!-- MATH
+ $\alpha=\beta=\gamma=90^o$
+ -->
+<IMG
+ WIDTH="120" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img331.gif"
+ ALT="$\alpha=\beta=\gamma=90^o$">)
+</LI>
+<LI>PAW is not interfaced to driver, stepper, and vib modules.
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION0037130000000000000000">
+35.13 Questions and Difficulties</A>
+</H1>
+
+<P>
+Questions and encountered problems should be reported to 
+nwchem-users@emsl.pnl.gov 
+or to Eric J. Bylaska, Eric.Bylaska@pnl.gov
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1691"
+  HREF="node38.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1687"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1681"
+  HREF="node36.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1689"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1692"
+  HREF="node38.html">36. Controlling NWChem with</A>
+<B> Up:</B> <A NAME="tex2html1688"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1682"
+  HREF="node36.html">34. File formats</A>
+ &nbsp <B>  <A NAME="tex2html1690"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,2779 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>11. DFT for Molecules (DFT)</TITLE>
+<META NAME="description" CONTENT="11. DFT for Molecules (DFT)">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node14.html">
+<LINK REL="previous" HREF="node12.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node14.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1182"
+  HREF="node14.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1178"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1172"
+  HREF="node12.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1180"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1183"
+  HREF="node14.html">12. Spin-Orbit DFT (SODFT)</A>
+<B> Up:</B> <A NAME="tex2html1179"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1173"
+  HREF="node12.html">10. Hartree-Fock or Self-consistent</A>
+ &nbsp <B>  <A NAME="tex2html1181"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1184"
+  HREF="node13.html#SECTION001310000000000000000">11.1 Specification of Basis Sets for the DFT Module</A>
+<LI><A NAME="tex2html1185"
+  HREF="node13.html#SECTION001320000000000000000">11.2 <TT>VECTORS</TT> and <TT>MAX_OVL</TT> -- KS-MO Vectors</A>
+<LI><A NAME="tex2html1186"
+  HREF="node13.html#SECTION001330000000000000000">11.3 <TT>XC</TT> and <TT>DECOMP</TT> -- Exchange-Correlation Potentials</A>
+<UL>
+<LI><A NAME="tex2html1187"
+  HREF="node13.html#SECTION001331000000000000000">11.3.1 Exchange-Correlation Functionals</A>
+<LI><A NAME="tex2html1188"
+  HREF="node13.html#SECTION001332000000000000000">11.3.2 Combined Exchange and Correlation Functionals</A>
+<LI><A NAME="tex2html1189"
+  HREF="node13.html#SECTION001333000000000000000">11.3.3 Meta-GGA Functionals</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1190"
+  HREF="node13.html#SECTION001340000000000000000">11.4 <TT>LB94</TT> and <TT>CS00</TT> -- Asymptotic correction</A>
+<LI><A NAME="tex2html1191"
+  HREF="node13.html#SECTION001350000000000000000">11.5 Sample input file</A>
+<LI><A NAME="tex2html1192"
+  HREF="node13.html#SECTION001360000000000000000">11.6 <TT>ITERATIONS</TT> -- Number of SCF iterations</A>
+<LI><A NAME="tex2html1193"
+  HREF="node13.html#SECTION001370000000000000000">11.7 <TT>CONVERGENCE</TT> -- SCF Convergence Control</A>
+<LI><A NAME="tex2html1194"
+  HREF="node13.html#SECTION001380000000000000000">11.8 <TT>SMEAR</TT> -- Fractional Occupation of the Molecular Orbitals</A>
+<LI><A NAME="tex2html1195"
+  HREF="node13.html#SECTION001390000000000000000">11.9 <TT>GRID</TT> -- Numerical Integration of the XC Potential</A>
+<UL>
+<LI><A NAME="tex2html1196"
+  HREF="node13.html#SECTION001391000000000000000">11.9.1 Angular grids</A>
+<UL>
+<LI><A NAME="tex2html1197"
+  HREF="node13.html#SECTION001391010000000000000">11.9.1.0.1 Gauss-Legendre angular grid</A>
+<LI><A NAME="tex2html1198"
+  HREF="node13.html#SECTION001391020000000000000">11.9.1.0.2 Lebedev angular grid</A>
+</UL>
+<LI><A NAME="tex2html1199"
+  HREF="node13.html#SECTION001392000000000000000">11.9.2 Partitioning functions</A>
+<LI><A NAME="tex2html1200"
+  HREF="node13.html#SECTION001393000000000000000">11.9.3 Radial grids</A>
+<LI><A NAME="tex2html1201"
+  HREF="node13.html#SECTION001394000000000000000">11.9.4 Disk usage for Grid</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1202"
+  HREF="node13.html#SECTION0013100000000000000000">11.10 <TT>TOLERANCES</TT> -- Screening tolerances</A>
+<LI><A NAME="tex2html1203"
+  HREF="node13.html#SECTION0013110000000000000000">11.11 <TT>DIRECT</TT> and <TT>NOIO</TT> -- Hardware Resource Control</A>
+<LI><A NAME="tex2html1204"
+  HREF="node13.html#SECTION0013120000000000000000">11.12 <TT>ODFT</TT> and <TT>MULT</TT> -- Open shell systems</A>
+<LI><A NAME="tex2html1205"
+  HREF="node13.html#SECTION0013130000000000000000">11.13 <TT>SIC</TT> -- Self-Interaction Correction</A>
+<LI><A NAME="tex2html1206"
+  HREF="node13.html#SECTION0013140000000000000000">11.14 <TT>MULLIKEN</TT> -- Mulliken analysis</A>
+<LI><A NAME="tex2html1207"
+  HREF="node13.html#SECTION0013150000000000000000">11.15 <TT>BSSE</TT> -- Basis Set Superposition Error</A>
+<LI><A NAME="tex2html1208"
+  HREF="node13.html#SECTION0013160000000000000000">11.16 Print Control</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001300000000000000000">
+11. DFT for Molecules (DFT)</A>
+</H1>
+<A NAME="sec:dft"></A>
+<P>
+The NWChem density functional theory (DFT) module uses the
+Gaussian basis set approach to compute
+closed shell and open shell densities and Kohn-Sham orbitals
+in the: 
+
+<UL>
+<LI>local density approximation (LDA), 
+</LI>
+<LI>non-local density approximation (NLDA), 
+</LI>
+<LI>local spin-density approximation (LSD), 
+</LI>
+<LI>non-local spin-density approximation (NLSD),
+</LI>
+<LI>any empirical mixture of local and non-local approximations
+(including exact exchange), and
+</LI>
+<LI>asymptotically corrected exchange-correlation potentials.
+</LI>
+</UL>
+
+<P>
+The formal scaling of the DFT computation can be reduced by choosing
+to use auxiliary Gaussian basis sets to fit the charge density (CD) and/or 
+fit the exchange-correlation (XC) potential.
+
+<P>
+DFT input is provided using the compound <code>DFT</code> directive
+<PRE>
+  DFT
+    ...
+  END
+</PRE>
+The actual DFT calculation will be performed when the input module
+encounters the <code>TASK</code> directive (Section <A HREF="node7.html#sec:task">5.10</A>).  
+<PRE>
+  TASK DFT
+</PRE>
+
+<P>
+Once a user has specified a geometry and a Kohn-Sham orbital basis set
+the DFT module can be invoked with no input directives (defaults 
+invoked throughout).  There are sub-directives which allow for 
+customized application; those currently provided as options for 
+the DFT module are:
+<PRE>
+  VECTORS [[input] (&lt;string input_movecs default atomic&gt;) || \
+                   (project &lt;string basisname&gt; &lt;string filename&gt;)] \
+           [swap [alpha||beta] &lt;integer vec1 vec2&gt; ...] \
+           [output &lt;string output_filename default input_movecs&gt;] \
+
+
+  XC [[acm] [b3lyp] [beckehandh] [pbe0]\
+     [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147]\
+      [hcth407] [becke97gga1]  [hcth407p]\
+      [mpw91] [mpw1k] [xft97] [cft97] [ft97] [xpkzb99] [cpkzb99]\
+      [HFexch &lt;real prefactor default 1.0&gt;] \
+      [becke88 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [xperdew91 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [xpbe96 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [gill96 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [lyp &lt;real prefactor default 1.0&gt;] \
+      [perdew81 &lt;real prefactor default 1.0&gt;] \
+      [perdew86 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [perdew91 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [cpbe96 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [pw91lda &lt;real prefactor default 1.0&gt;] \
+      [slater &lt;real prefactor default 1.0&gt;] \
+      [vwn_1 &lt;real prefactor default 1.0&gt;] \
+      [vwn_2 &lt;real prefactor default 1.0&gt;] \
+      [vwn_3 &lt;real prefactor default 1.0&gt;] \
+      [vwn_4 &lt;real prefactor default 1.0&gt;] \
+      [vwn_5 &lt;real prefactor default 1.0&gt;] \
+      [vwn_1_rpa &lt;real prefactor default 1.0&gt;]]
+
+
+  CONVERGENCE [[energy &lt;real energy default 1e-7&gt;] \
+               [density &lt;real density default 1e-5&gt;] \
+               [gradient &lt;real gradient default 5e-4&gt;] \
+               [dampon &lt;real dampon default 0.0&gt;] \
+               [dampoff &lt;real dampoff default 0.0&gt;] \
+               [diison &lt;real diison default 0.0&gt;] \
+               [diisoff &lt;real diisoff default 0.0&gt;] \
+               [levlon &lt;real levlon default 0.0&gt;] \
+               [levloff &lt;real levloff default 0.0&gt;] \
+               [ncydp &lt;integer ncydp default 2&gt;] \
+               [ncyds &lt;integer ncyds default 30&gt;] \
+               [ncysh &lt;integer ncysh default 30&gt;] \
+               [damp &lt;integer ndamp default 0&gt;] [nodamping] \
+               [diis [nfock &lt;integer nfock default 10&gt;]] \
+               [nodiis] [lshift &lt;real lshift default 0.5&gt;] \
+               [nolevelshifting] \
+               [hl_tol &lt;real hl_tol default 0.1&gt;] \
+               [rabuck [n_rabuck &lt;integer n_rabuck default 25&gt;]]
+
+
+  GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
+       [(gausleg||lebedev ) default lebedev ] \
+       [(becke||erf1||erf2||ssf) default erf1] \
+       [(euler||mura||treutler) default mura] \
+       [rm &lt;real rm default 2.0&gt;] \
+       [nodisk]
+        
+
+  TOLERANCES [[tight] [tol_rho &lt;real tol_rho default 1e-10&gt;] \
+              [accCoul &lt;integer accCoul default 8&gt;] \
+              [radius &lt;real radius default 25.0&gt;]]
+
+
+  [(LB94||CS00 &lt;real shift default none&gt;)]
+
+  DECOMP
+  ODFT
+  DIRECT
+  INCORE
+  ITERATIONS &lt;integer iterations default 30&gt;
+  MAX_OVL
+  MULLIKEN
+  MULT &lt;integer mult default 1&gt;
+  NOIO
+  PRINT||NOPRINT
+</PRE>
+
+<P>
+The following 
+sections describe these keywords and
+optional sub-directives that can be specified for a <code>DFT</code> calculation
+in NWChem.
+
+<P>
+
+<H1><A NAME="SECTION001310000000000000000">
+11.1 Specification of Basis Sets for the DFT Module</A>
+</H1>
+
+<P>
+The DFT module requires at a minimum the basis set for the Kohn-Sham 
+molecular orbitals.  This basis set must be in the default basis set named
+<TT>"ao basis"</TT>, or it must be assigned to this default name using the
+<code>SET</code> directive (see Section <A HREF="node7.html#sec:set">5.7</A>).
+
+<P>
+In addition to the basis set for the Kohn-Sham orbitals, 
+the charge density fitting basis set can also be specified in the 
+input directives for the DFT module.  This basis set is used for the 
+evaluation of the Coulomb potential in the Dunlap scheme<A NAME="tex2html28"
+  HREF="footnode.html#foot3421"><SUP>11.1</SUP></A>.
+The charge density fitting basis set must have the name <TT>"cd basis"</TT>.
+This can be the actual name of a basis set, or a basis set can be 
+assigned this name using the <code>SET</code> directive, as described in
+Section <A HREF="node7.html#sec:set">5.7</A>.  If this basis set is not defined by input,
+the <IMG
+ WIDTH="51" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img106.gif"
+ ALT="$O(N^4)$"> exact Coulomb contribution is computed.
+
+<P>
+The user also has the option of specifying a third basis set for the 
+evaluation of the exchange-correlation potential.  This basis set must
+have the name <TT>"xc basis"</TT>.  If this basis set is not specified
+by input, the exchange contribution (XC) is evaluated by numerical
+quadrature.  In most applications, this approach is efficient enough,
+so the <TT>"xc basis"</TT> basis set is not generally required.
+
+<P>
+For the DFT module, the input options for defining the basis sets in a given
+calculation can be summarized as follows;
+
+<UL>
+<LI><TT>"ao basis"</TT> - Kohn-Sham molecular orbitals; required for all 
+calculations
+</LI>
+<LI><TT>"cd basis"</TT> - charge density fitting basis set; optional, but
+recommended for evaluation of the Coulomb potential
+</LI>
+<LI><TT>"xc basis"</TT> - exchange-correlation (XC) fitting basis set; 
+optional, and usually not recommended
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION001320000000000000000">
+11.2 <TT>VECTORS</TT> and <TT>MAX_OVL</TT> -- KS-MO Vectors</A>
+</H1>
+
+<P>
+The <code>VECTORS</code> directive is the same as that in the SCF module
+(Section <A HREF="node12.html#sec:vectors">10.5</A>).  Currently, the <code>LOCK</code> keyword
+is not supported by the DFT module, however the directive
+<PRE>
+  MAX_OVL
+</PRE>
+has the same effect.
+
+<P>
+
+<H1><A NAME="SECTION001330000000000000000"></A>
+<A NAME="sec:xc"></A>
+<BR>
+11.3 <TT>XC</TT> and <TT>DECOMP</TT> -- Exchange-Correlation Potentials
+</H1>
+<PRE>
+  XC [[acm] [b3lyp] [beckehandh] [pbe0]\
+     [becke97]  [becke97-1] [becke97-2] [becke98] [hcth] [hcth120] [hcth147] \
+      [hcth407] [becke97gga1] [hcth407p] \
+      [optx] [hcthp14] [mpw91] [mpw1k] [xft97] [cft97] [ft97]\
+      [HFexch &lt;real prefactor default 1.0&gt;] \
+      [becke88 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [xperdew91 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [xpbe96 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [gill96 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [lyp &lt;real prefactor default 1.0&gt;] \
+      [perdew81 &lt;real prefactor default 1.0&gt;] \
+      [perdew86 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [perdew91 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [cpbe96 [nonlocal] &lt;real prefactor default 1.0&gt;] \
+      [pw91lda &lt;real prefactor default 1.0&gt;] \
+      [slater &lt;real prefactor default 1.0&gt;] \
+      [vwn_1 &lt;real prefactor default 1.0&gt;] \
+      [vwn_2 &lt;real prefactor default 1.0&gt;] \
+      [vwn_3 &lt;real prefactor default 1.0&gt;] \
+      [vwn_4 &lt;real prefactor default 1.0&gt;] \
+      [vwn_5 &lt;real prefactor default 1.0&gt;] \
+      [vwn_1_rpa &lt;real prefactor default 1.0&gt;]]
+</PRE>
+
+<P>
+The user has the option of specifying the exchange-correlation
+treatment in the DFT Module (see table <A HREF="node13.html#tablexc">11.1</A>).
+  The default exchange-correlation
+functional is defined as the local density approximation (LDA) for
+closed shell systems and its counterpart the local spin-density (LSD)
+approximation for open shell systems.  Within this approximation the
+exchange functional is the Slater <IMG
+ WIDTH="32" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img107.gif"
+ ALT="$\rho^{1/3}$"> functional (from
+J.C.&nbsp;Slater, <I>Quantum Theory of Molecules and Solids, Vol.&nbsp;4: The
+  Self-Consistent Field for Molecules and Solids</I> (McGraw-Hill, New
+York, 1974)), and the correlation functional is the Vosko-Wilk-Nusair
+(VWN) functional (functional V) (S.J.&nbsp;Vosko, L.&nbsp;Wilk and M.&nbsp;Nusair,
+Can.&nbsp;J.&nbsp;Phys.&nbsp;<B>58</B>, 1200 (1980)).  The parameters used in this
+formula are obtained by fitting to the Ceperley and
+Alder<A NAME="tex2html29"
+  HREF="footnode.html#foot3424"><SUP>11.2</SUP></A>Quantum Monte-Carlo solution of the <EM>  homogeneous electron gas</EM>.
+
+<P>
+These defaults can be invoked explicitly by specifying the following
+keywords within the DFT module input directive, <code>XC slater vwn_5</code>.
+
+<P>
+That is, this statement in the input file
+<PRE>
+dft
+  XC slater vwn_5
+end
+task dft
+</PRE>
+
+<P>
+is equivalent to the simple line
+<PRE>
+task dft
+</PRE>
+
+<P>
+The <code>DECOMP</code> directive causes the components of the energy
+corresponding to each functional to be printed, rather than just the
+total exchange-correlation energy which is the default.  You can see
+an example of this directive in the sample input in 
+Section <A HREF="node13.html#sec:DFTsample">11.5</A>.
+
+<P>
+Many alternative exchange and correlation functionals are available to
+the user as listed in table <A HREF="node13.html#tablexc">11.1</A>.  The following sections describe 
+how to use these options.
+
+<P>
+
+<H2><A NAME="SECTION001331000000000000000">
+11.3.1 Exchange-Correlation Functionals</A>
+</H2>
+
+<P>
+There are several Exchange and Correlation functionals in addition to the 
+default <TT>slater</TT> and <TT>vwn_5</TT>
+functionals.  These are either local or gradient-corrected functionals (GCA);
+a full list can be found in table <A HREF="node13.html#tablexc">11.1</A>. 
+
+<P>
+The Hartree-Fock exact exchange functional, (which has <IMG
+ WIDTH="51" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img106.gif"
+ ALT="$O(N^4)$">
+computation expense), is invoked by specifying
+<PRE>
+   XC HFexch
+</PRE>
+
+<P>
+Note that the user also has the ability to include only the local or
+nonlocal contributions of a given functional.  In addition the user
+can specify a multiplicative prefactor (the variable
+<code>&lt;prefactor&gt;</code> in the input) for the local/nonlocal component or
+total.  An example of this might be,
+<PRE>
+   XC becke88 nonlocal 0.72
+</PRE>
+The user should be aware that the Becke88 local component is simply
+the Slater exchange and should be input as such.
+
+<P>
+Any combination of the supported exchange functional options can be
+used.  For example the popular Gaussian B3 exchange could be specified
+as:
+<PRE>
+   XC slater 0.8 becke88 nonlocal 0.72 HFexch 0.2
+</PRE>
+
+<P>
+
+<P>
+
+<P>
+Any combination of the supported correlation functional options can be
+used.  For example  B3LYP could be specified as:
+<PRE>
+XC vwn_1_rpa 0.19 lyp 0.81 HFexch 0.20  slater 0.80 becke88 nonlocal 0.72
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION001332000000000000000">
+11.3.2 Combined Exchange and Correlation Functionals</A>
+</H2>
+
+<P>
+In addition to the options listed above for the exchange and correlation
+functionals, the user has the alternative of specifying combined exchange and 
+correlation functionals. A complete list of the available functionals
+appears in table <A HREF="node13.html#tablexc">11.1</A>.
+
+<P>
+The available hybrid functionals 
+(where a Hartree-Fock Exchange component is present) consist of the Becke
+``<I>half and half</I>'' (see A.D.&nbsp;Becke, J.&nbsp;Chem.&nbsp;Phys.&nbsp;98, 1372 (1992)), the
+adiabatic connection method (see A.D.&nbsp;Becke, J.&nbsp;Chem.&nbsp;Phys.&nbsp;98, 5648
+(1993)),  B3LYP (popularized by Gaussian9X), Becke 1997 
+(``Becke V'' paper: A.D.Becke, J. Chem. Phys., <B>107</B>, 8554 (1997)).
+
+<P>
+The keyword <code>beckehandh</code> specifies that the exchange-correlation energy will be
+computed as 
+<P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH
+ \begin{eqnarray*}
+E_{XC} \ \approx \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm   Slater}_{X} + \frac{1}{2} E^{\rm PW91LDA}_{C}
+\end{eqnarray*}
+ -->
+<IMG
+ WIDTH="290" HEIGHT="89" BORDER="0"
+ SRC="img108.gif"
+ ALT="\begin{eqnarray*}
+E_{XC} \ \approx \ \frac{1}{2} E^{\rm HF}_X + \frac{1}{2} E^{\rm Slater}_{X} + \frac{1}{2} E^{\rm PW91LDA}_{C}
+\end{eqnarray*}">
+<BR CLEAR="ALL"></DIV><P></P>
+<BR CLEAR="ALL"><P></P>
+<BR CLEAR="ALL"><P></P>
+We know this is NOT the correct Becke prescribed implementation which
+requires the XC potential in the energy expression.  But this is what
+is currently implemented as an approximation to it.
+
+<P>
+The keyword <code>acm</code> specifies that the exchange-correlation energy
+is computed as
+<P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH
+ \begin{eqnarray*}
+E_{XC} \ &=& \ a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +
+a_X \Delta E^{\rm Becke88}_{X} + E^{\rm VWN}_C + a_C \Delta E^{Perdew91}_C \\
+& &{\rm where } \\
+a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
+\end{eqnarray*}
+ -->
+<IMG
+ WIDTH="552" HEIGHT="126" BORDER="0"
+ SRC="img109.gif"
+ ALT="\begin{eqnarray*}
+E_{XC} \ &amp;=&amp; \ a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +...
+...\\
+&amp; &amp;{\rm where } \\
+a_0 &amp;=&amp; 0.20, \ a_X = 0.72, \ a_C = 0.81
+\end{eqnarray*}">
+<BR CLEAR="ALL"></DIV><P></P>
+<BR CLEAR="ALL"><P></P>
+<BR CLEAR="ALL"><P></P>
+and <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img104.gif"
+ ALT="$\Delta$"> stands for a non-local component.
+
+<P>
+The keyword <code>b3lyp</code> specifies that the exchange-correlation energy
+is computed as
+<P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH
+ \begin{eqnarray*}
+E_{XC} \ &=& \ a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +
+a_X \Delta E^{\rm Becke88}_{X} + (1-a_C)E^{\rm VWN\_1\_RPA}_C + a_C E^{LYP}_C \\
+& &{\rm where } \\
+a_0 &=& 0.20, \ a_X = 0.72, \ a_C = 0.81
+\end{eqnarray*}
+ -->
+<IMG
+ WIDTH="615" HEIGHT="126" BORDER="0"
+ SRC="img110.gif"
+ ALT="\begin{eqnarray*}
+E_{XC} \ &amp;=&amp; \ a_0 E^{\rm HF}_X + (1-a_0) E^{\rm Slater}_{X} +...
+...\\
+&amp; &amp;{\rm where } \\
+a_0 &amp;=&amp; 0.20, \ a_X = 0.72, \ a_C = 0.81
+\end{eqnarray*}">
+<BR CLEAR="ALL"></DIV><P></P>
+<BR CLEAR="ALL"><P></P>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+
+<H2><A NAME="SECTION001333000000000000000">
+11.3.3 Meta-GGA Functionals</A>
+</H2>
+
+<P>
+One way to calculate meta-GGA energies is to use
+ orbitals and densities 
+from fully self-consistent GGA or LDA calculations
+and run them in one iteration in the meta-GGA functional.
+It is expected that meta-GGA energies obtained
+this way will be close to fully self consistent
+meta-GGA calculations. 
+This can be easily accomplished in NWChem,
+and is illustrated in
+the example below.
+This kind of calculation
+will obviously not converge the energy.
+To avoid an error  in
+the standard Unix output of NWChem,
+you must tell NWChem
+ to ignore 
+the returned result of the task, 
+which may be accomplished in the input file
+ with <code> task dft ignore</code>
+You may still get a warning in the output to the effect,
+<code>!! warning: dft energy failed</code>.
+This simply means the energy failed to converge
+since you  ran  only one iteration of
+the  functional.
+
+<P>
+(For more information,  see
+S. Kurth, J. Perdew, P. Blaha, Int. J. Quant. Chem 75, 889 (1999)
+for a brief description of meta-GGAs, and  citations 14-27
+therein for thorough background )
+
+<P>
+Note:  both TPSS and PKZB correlation
+require the PBE GGA CORRELATION (which is itself dependent on an LDA).  
+The decision has been made to
+use these functionals with the accompanying local
+PW91LDA.  The user does not have the ability to set
+the local part of these metaGGA functionals.
+
+<P>
+
+<H1><A NAME="SECTION001340000000000000000">
+11.4 <TT>LB94</TT> and <TT>CS00</TT> -- Asymptotic correction</A>
+</H1>
+
+<P>
+The keyword <code>LB94</code> will correct the asymptotic region of 
+the <code>XC</code> definition of exchange-correlation <I>potential</I> by 
+the van-Leeuwen-Baerends exchange-correlation <I>potential</I> that
+has the correct <IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img111.gif"
+ ALT="$-1/r$"> asymptotic behavior.  The total energy will be computed by the 
+<code>XC</code> definition of exchange-correlation functional.  This scheme is known to
+tend to overcorrect the deficiency of most uncorrected exchange-correlation potentials.
+
+<P>
+The keyword <code>CS00</code>, when supplied with a real value of shift (in atomic units),
+will perform Casida-Salahub '00 asymptotic correction.  This is primarily intended
+for use in conjunction with TDDFT and the background of this method is given in more
+detail in Chapter 14.  The shift is normally positive (which means that the original
+uncorrected exchange-correlation potential must be shifted down).
+
+<P>
+When the keyword <code>CS00</code> is specified without the value of shift, the program will
+automatically supply it according to the semi-empirical formula of Zhan, Nichols, and
+Dixon (again, see Chapter 14 for more details and references).  As the Zhan's formula 
+is calibrated against B3LYP results, it is most meaningful to use this in conjunction
+with the B3LYP functional, although the program does not prohibit (or even warn) the use
+of any other functional.
+
+<P>
+Sample input files of asymptotically corrected TDDFT calculations can be found in 
+Chapter 14.
+
+<P>
+
+<H1><A NAME="SECTION001350000000000000000"></A>
+<A NAME="sec:DFTsample"></A>
+<BR>
+11.5 Sample input file
+</H1>
+A simple example  calculates the meta-GGA 
+exchange
+energy of water, using converged GGA orbitals and
+densities to evaluate the meta-GGA energy functional,
+and also highlights some of
+the print features in the DFT module:
+<PRE>
+title "WATER 6-311G* meta-GGA X with PBE orbitals"
+echo
+geometry units angstroms
+  O       0.0  0.0  0.0
+  H       0.0  0.0  1.0
+  H       0.0  1.0  0.0
+end
+
+basis
+  H library 6-311G*
+  O library 6-311G*
+end
+ 
+dft
+ print  kinetic_energy
+ xc xpbe96 cpbe96
+ decomp
+end
+task dft optimize
+
+
+dft
+ iterations 1
+ xc xpkzb99
+ decomp
+ print  quadrature kinetic_energy
+end
+task dft ignore
+</PRE>
+
+<P>
+Below are
+the results of the exchange-only
+meta-GGA calculation part, and as expected
+we are reminded the calculation was not allowed
+to converge:
+
+<P>
+<PRE>
+      Calculation failed to converge
+      ------------------------------
+
+         Total DFT energy =    -75.948526603774
+      One electron energy =   -122.899234375708
+           Coulomb energy =     46.745269703266
+          Exchange energy =     -8.857824284365
+       Correlation energy =      0.000000000000
+ Nuclear repulsion energy =      9.063262353032
+
+ Numeric. integr. density =     10.000001055407
+</PRE>
+
+<P>
+
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="3426"></A>
+<TABLE>
+<CAPTION><STRONG>Table 11.1:</STRONG>
+Table of available Exchange (X) and Correlation (C) functionals.
+GGA is the Generalized Gradient Approximation, and meta refers to
+Meta-GGAs. The column <EM>2nds</EM> refers to second derivatives of the
+energy with respect to nuclear position. </CAPTION>
+<TR><TD>
+<P>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="RIGHT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">Keyword</TD>
+<TD ALIGN="CENTER">X</TD>
+<TD ALIGN="CENTER">C</TD>
+<TD ALIGN="CENTER">GGA</TD>
+<TD ALIGN="CENTER">meta</TD>
+<TD ALIGN="CENTER">Hybrid</TD>
+<TD ALIGN="CENTER">2nds</TD>
+<TD ALIGN="RIGHT">Ref.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="RIGHT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">slater</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[1]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">vwn_1</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[2]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">vwn_2</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[2]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">vwn_3</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[2]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">vwn_4</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[2]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">vwn_5</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[2]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">vwn_1_rpa</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[2]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">perdew81</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[3]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">pw91lda</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[4]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">becke88</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[5]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">xperdew91</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[6]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">xpbe96</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[7]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">gill96</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[8]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">optx</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[20]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">mpw91</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[23]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">xft97</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[24]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">perdew86</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[9]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">lyp</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[10]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">perdew91</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[6]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">cpbe96</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[7]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">cft97</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[25]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">hcth</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[11]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">hcth120</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[12]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">hcth147</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[12]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">hcth407</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[19]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">becke97gga1</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[18]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">hcthp14</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[21]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">ft97</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[24,25]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">htch407p</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[28]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">xpkzb99</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[27]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">cpkzb99</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[27]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">xtpss03</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[29]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">ctpss03</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[29]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">beckehandh</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[13]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">b3lyp</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[14]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">acm</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[14]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">becke97</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[15]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">becke97-1</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[15]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">becke97-2</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[22]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">becke98</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">N</TD>
+<TD ALIGN="RIGHT">[16]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">pbe0</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[17]</TD>
+</TR>
+<TR><TD ALIGN="LEFT">mpw1k</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
+ SRC="img112.gif"
+ ALT="$\star$"></TD>
+<TD ALIGN="CENTER">Y</TD>
+<TD ALIGN="RIGHT">[26]</TD>
+</TR>
+</TABLE>
+
+<A NAME="tablexc"></A></TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<FONT SIZE="-1">
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+</FONT>
+
+<OL>
+<LI>C.&nbsp;Slater, <I>Quantum Theory of Molecules and Solids, 
+Vol.&nbsp;4</I> (McGraw-Hill, New York, 1974) 
+<BR></LI>
+<LI>S.J.&nbsp;Vosko, L.&nbsp;Wilk and M.&nbsp;Nusair,
+Can.&nbsp;J.&nbsp;Phys.&nbsp;<B>58</B>, 1200 (1980). 
+<BR></LI>
+<LI>J.&nbsp;P.&nbsp;Perdew and A.&nbsp;Zunger,  Phys.&nbsp;Rev.&nbsp;B <B>23</B>, 5048
+(1981). 
+<BR></LI>
+<LI>J.P.&nbsp;Perdew and Y.&nbsp;Wang, Phys. Rev. B <B>45</B>,
+13244 (1992). 
+<BR></LI>
+<LI>A.D.&nbsp;Becke,  Phys. Rev. A <B>88</B>, 3098 (1988). 
+<BR></LI>
+<LI>J.P. Perdew,  J.A.&nbsp;Chevary, S.H.&nbsp;Vosko, K.A.&nbsp;Jackson, 
+M.R.&nbsp;Pederson, D.J.&nbsp;Singh and C.&nbsp;Fiolhais, Phys. Rev. B <B>46</B>, 6671
+(1992). 
+<BR></LI>
+<LI>J.P.&nbsp;Perdew, K.&nbsp;Burke and M.&nbsp;Ernzerhof, 
+Phys. Rev. Lett. <B>77</B>, 3865 (1996); <B>78 </B>, 1396 (1997).
+<BR></LI>
+<LI>P.W.Gill , Mol. Phys. <B>89</B>, 433 (1996). 
+<BR></LI>
+<LI>J.&nbsp;P.&nbsp;Perdew, Phys.&nbsp;Rev.&nbsp;B   <B>33</B>, 8822 (1986). 
+<BR></LI>
+<LI>C.&nbsp;Lee, W.&nbsp;Yang and R.&nbsp;G.&nbsp;Parr, Phys.&nbsp;Rev.&nbsp;B <B>37</B>, 785
+(1988). 
+<BR></LI>
+<LI>F.A.Hamprecht, A.J.Cohen, D.J.Tozer and N.C.
+<BR>
+Handy, 
+    J. Chem. Phys. <B>109</B>, 6264 (1998). 
+<BR></LI>
+<LI>A.D.Boese, N.L.Doltsinis, N.C.Handy and
+M.Sprik. J. Chem. Phys. <B>112</B>, 1670 (2000). 
+<BR></LI>
+<LI>A.D.&nbsp;Becke, J.&nbsp;Chem.&nbsp;Phys. <B>98</B>, 1372 (1992). 
+<BR></LI>
+<LI>A.D.&nbsp;Becke, J.&nbsp;Chem.&nbsp;Phys.&nbsp;<B>98</B>, 5648 (1993). 
+<BR></LI>
+<LI>A.D.Becke, J. Chem. Phys. <B>107</B>, 8554 (1997). 
+<BR></LI>
+<LI>H.L.Schmider and A.D.&nbsp;Becke, J.&nbsp;Chem.&nbsp;Phys.&nbsp;<B>108</B>,
+9624 (1998). 
+<BR></LI>
+<LI>C.Adamo and V.Barone, J.&nbsp;Chem.&nbsp;Phys. <B>110</B>, 6158 (1998).
+<BR></LI>
+<LI>A.J.Cohen and N.C. Handy, Chem. Phys. Lett. <B>316</B>, 160 (2000).
+<BR></LI>
+<LI>A.D.Boese,  N.C.Handy, J. Chem. Phys. <B>114</B>, 5497
+(2001). 
+<BR></LI>
+<LI>N.C.Handy, A.J. Cohen, Mol. Phys. <B>99</B>, 403 (2001).
+<BR></LI>
+<LI>G. Menconi, P.J. Wilson, D.J. Tozer, 
+J. Chem. Phys <B>114</B>, 3958 (2001).
+<BR></LI>
+<LI>P.J. Wilson, T.J. Bradley, D.J. Tozer, J. Chem. Phys <B>115</B>, 
+9233 (2001).
+<BR></LI>
+<LI>C. Adamo and V. Barone, J.&nbsp;Chem.&nbsp;Phys. <B>108</B>, 664 (1998).
+<BR></LI>
+<LI>M.Filatov and W.Thiel, Mol.Phys. <B>91</B>, 847 (1997).
+<BR></LI>
+<LI>M.Filatov and W.Thiel, Int.J.Quantum Chem. <B>62</B>, 603 (1997).
+<BR></LI>
+<LI>B.J.Lynch, P.L.Fast, M.Harris and D.G.Truhlar, J. Phys. Chem. A
+<B>104</B>, 4811(2000).
+<BR></LI>
+<LI>J.P.&nbsp;Perdew, S.&nbsp;Kurth, A.&nbsp;Zupan and P.&nbsp;Blaha, 
+Phys. Rev. Lett. <B>82</B>, 2544 (1999) 
+<BR></LI>
+<LI>A.&nbsp;D.&nbsp;Boese, A.&nbsp;Chandra, J.&nbsp;M.&nbsp;L.&nbsp;Martin and D.&nbsp;Marx,
+  J. Chem. Phys. <B>119</B>, 5965 (2003) 
+<BR></LI>
+<LI>J. Tao,J.Perdew,V. Staroverov and G. Scuseria,
+Phys. Rev. Let. <B>91</B>, 146401-1 (2003)
+</LI>
+</OL>
+
+<P>
+
+<H1><A NAME="SECTION001360000000000000000">
+11.6 <TT>ITERATIONS</TT> -- Number of SCF iterations</A>
+</H1>
+
+<P>
+<PRE>
+  ITERATIONS &lt;integer iterations default 30&gt;
+</PRE>
+
+<P>
+The default optimization in the DFT module is to iterate on the 
+Kohn-Sham (SCF) equations for a specified number of iterations
+(default 30).  The keyword that controls this optimization 
+is <code>ITERATIONS</code>, and has the following general form,
+
+<P>
+<PRE>
+   iterations &lt;integer iterations default 30&gt;
+</PRE>
+
+<P>
+The optimization procedure will stop when the specified number of
+iterations is reached or convergence is met.  See an example
+that uses this directive in section <A HREF="node13.html#sec:DFTsample">11.5</A>.
+
+<P>
+
+<H1><A NAME="SECTION001370000000000000000"></A>
+<A NAME="sec:dftconv"></A>
+<BR>
+11.7 <TT>CONVERGENCE</TT> -- SCF Convergence Control
+</H1>
+
+<P>
+<PRE>
+  CONVERGENCE [energy &lt;real energy default 1e-6&gt;] \
+              [density &lt;real density default 1e-5&gt;] \
+              [gradient &lt;real gradient default 5e-4&gt;] \
+              [hl_tol &lt;real hl_tol default 0.1&gt;]
+              [dampon &lt;real dampon default 0.0&gt;] \
+              [dampoff &lt;real dampoff default 0.0&gt;] \
+              [ncydp &lt;integer ncydp default 2&gt;] \
+              [ncyds &lt;integer ncyds default 30&gt;] \
+              [ncysh &lt;integer ncysh default 30&gt;] \
+              [damp &lt;integer ndamp default 0&gt;] [nodamping] \
+              [diison &lt;real diison default 0.0&gt;] \
+              [diisoff &lt;real diisoff default 0.0&gt;] \
+              [(diis [nfock &lt;integer nfock default 10&gt;]) || nodiis] \
+              [levlon &lt;real levlon default 0.0&gt;] \
+              [levloff &lt;real levloff default 0.0&gt;] \
+              [(lshift &lt;real lshift default 0.5&gt;) || nolevelshifting] \
+              [rabuck [n_rabuck &lt;integer n_rabuck default 25&gt;]]
+</PRE>
+
+<P>
+Convergence is satisfied by meeting any or all of three criteria;
+
+<UL>
+<LI>convergence of the total energy; this is defined to be when the
+  total DFT energy at iteration N and at iteration N-1 differ by a value less
+  than some value (the default is 1e-6).  This value can be modified
+  using the key word,
+<PRE>
+  CONVERGENCE energy &lt;real energy default 1e-6&gt;
+</PRE>
+
+<P>
+</LI>
+<LI>convergence of the total density; this is defined to be when the
+  total DFT density matrix at iteration N and at iteration N-1 have a
+  RMS difference less than some value (the default is 1e-5).  This value can be modified
+  using the key word,
+<PRE>
+  CONVERGENCE density &lt;real density default 1e-5&gt;
+</PRE>
+
+<P>
+</LI>
+<LI>convergence of the orbital gradient; this is defined to be when the
+  DIIS error vector becomes less than some value (the default is
+  5e-4).  This value can be modified using the key word,
+<PRE>
+  CONVERGENCE gradient &lt;real gradient default 5e-4&gt;
+</PRE>
+</LI>
+</UL>
+
+<P>
+The default optimization strategy is to immediately begin direct
+inversion of the iterative subspace<A NAME="tex2html31"
+  HREF="footnode.html#foot3430"><SUP>11.3</SUP></A>.  Damping is also initiated (using 70% of the previous
+density) for the first 2 iteration.  In addition, if the HOMO - LUMO
+gap is small and the Fock matrix somewhat diagonally dominant, then
+level-shifting is automatically initiated.  There are a variety of ways
+to customize this procedure to whatever is desired.
+
+<P>
+An alternative optimization strategy is to specify, by using the change 
+in total energy (from iterations when N and N-1), when to turn
+damping, level-shifting, and/or DIIS on/off.  Start and stop keywords for
+each of these is available as,
+<PRE>
+  CONVERGENCE  [dampon &lt;real dampon default 0.0&gt;] \
+               [dampoff &lt;real dampoff default 0.0&gt;] \
+               [diison &lt;real diison default 0.0&gt;] \
+               [diisoff &lt;real diisoff default 0.0&gt;] \
+               [levlon &lt;real levlon default 0.0&gt;] \
+               [levloff &lt;real levloff default 0.0&gt;]
+</PRE>
+
+<P>
+So, for example, damping, DIIS, and/or level-shifting can be turned
+on/off as desired.
+
+<P>
+Another strategy can be to simply specify how many iterations (cycles) you wish
+each type of procedure to be used.  The necessary keywords to control
+the number of damping cycles (ncydp), the number of DIIS cycles
+(ncyds), and the number of level-shifting cycles (ncysh) are input as,
+<PRE>
+  CONVERGENCE  [ncydp &lt;integer ncydp default 2&gt;] \
+               [ncyds &lt;integer ncyds default 30&gt;] \
+               [ncysh &lt;integer ncysh default 0&gt;]
+</PRE>
+
+<P>
+The amount of damping, level-shifting, time at which level-shifting is
+automatically imposed, and Fock matrices used in the DIIS
+extrapolation can be modified by the following keywords
+<PRE>
+  CONVERGENCE  [damp &lt;integer ndamp default 0&gt;] \
+               [diis [nfock &lt;integer nfock default 10&gt;]] \
+               [lshift &lt;real lshift default 0.5&gt;] \
+               [hl_tol &lt;real hl_tol default 0.1&gt;]]
+</PRE>
+
+<P>
+Damping is defined to be the percentage of the previous iterations
+density mixed with the current iterations density.  So, for example 
+<PRE>
+  CONVERGENCE damp 70
+</PRE>
+would mix 30% of the current iteration density with 70% of the
+previous iteration density.
+
+<P>
+Level-Shifting<A NAME="tex2html32"
+  HREF="footnode.html#foot3431"><SUP>11.4</SUP></A> is defined as the
+amount of shift applied to the diagonal elements of the unoccupied
+block of the Fock matrix.  The shift is specified by the
+keyword <code>lshift</code>.  For example the directive,
+<PRE>
+  CONVERGENCE lshift 0.5
+</PRE>
+causes the diagonal elements of the Fock matrix
+corresponding to the virtual orbitals to be shifted by 0.5 a.u.
+By default, this level-shifting procedure is switched on whenever the
+HOMO-LUMO gap is small.  Small is defined by default to be 0.05 au but
+can be modified by the directive <code>hl_tol</code>.  An example of
+changing the HOMO-LUMO gap tolerance to 0.01 would be,
+<PRE>
+  CONVERGENCE hl_tol 0.01
+</PRE>
+
+<P>
+Direct inversion of the iterative subspace with extrapolation of up to
+10 Fock matrices is a default optimization procedure.  For large
+molecular systems the amount of available memory may preclude the ability to
+store this number of N**2 arrays in global memory.  The user may then
+specify the number of Fock matrices to be used in the extrapolation
+(must be greater than three (3) to be effective).  To set the number of
+Fock matrices stored and used in the extrapolation procedure to 3
+would take the form,
+<PRE>
+  CONVERGENCE diis 3
+</PRE>
+
+<P>
+The user has the ability to simply turn off any optimization
+procedures deemed undesirable with the obvious keywords,
+<PRE>
+  CONVERGENCE [nodamping] [nodiis] [nolevelshifting]
+</PRE>
+
+<P>
+For systems where the initial guess is very poor, the user can try the
+method described in
+<A NAME="tex2html33"
+  HREF="footnode.html#foot3432"><SUP>11.5</SUP></A>that makes use of <B>fractional occupation</B> of the orbital levels during
+the initial cycles of the SCF convergence. The input has the following form
+
+<P>
+<PRE>
+  CONVERGENCE rabuck [n_rabuck &lt;integer n_rabuck default 25&gt;]]
+</PRE>
+
+<P>
+where the optional value <TT>n_rabuck</TT> determines the number of SCF
+cycles during which the method will be active. For example, to
+set equal to 30 the number of cycles where the Rabuck method is
+active, you need to use the following line
+<PRE>
+  CONVERGENCE rabuck 30
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001380000000000000000"></A>
+<A NAME="smear"></A>
+<BR>
+11.8 <TT>SMEAR</TT> -- Fractional Occupation of the Molecular Orbitals
+</H1>
+
+<P>
+The <TT><B>SMEAR</B></TT> keyword is useful in cases with many degenerate states
+near the HOMO (eg metallic clusters)
+
+<P>
+<PRE>
+  SMEAR &lt;real smear default 0.001&gt;
+</PRE>
+
+<P>
+This  option allows fractional occupation of the molecular orbitals.
+A Gaussian broadening function of exponent <TT>smear</TT> is used as described in 
+the paper:
+R.W. Warren RW and B.I. Dunlap, Chem. Phys. Letters <B>262</B>, 384 (1996).
+<BR>
+The user must be aware that an additional energy term is added to the total
+energy in order to have
+energies and gradients consistent.
+
+<P>
+
+<H1><A NAME="SECTION001390000000000000000"></A>
+<A NAME="grgrid"></A>
+<BR>
+11.9 <TT>GRID</TT> -- Numerical Integration of the XC Potential
+</H1>
+<PRE>
+  GRID [(xcoarse||coarse||medium||fine||xfine) default medium] \
+       [(gausleg||lebedev ) default lebedev ] \
+       [(becke||erf1||erf2||ssf) default erf1] \
+       [(euler||mura||treutler) default mura] \
+       [rm &lt;real rm default 2.0&gt;] \
+       [nodisk]
+</PRE>
+
+<P>
+A numerical integration is necessary for the evaluation of the
+exchange-correlation contribution to the density functional.  The
+default quadrature used for the numerical integration is an
+Euler-MacLaurin scheme for the radial components (with a modified
+Mura-Knowles transformation)
+and a Lebedev
+scheme for the angular components.  Within this numerical
+integration procedure various levels of accuracy have been defined and
+are available to the user.  The user can specify the level of accuracy
+with the keywords; xcoarse, coarse, medium, fine, and xfine.  The
+default is medium.
+
+<P>
+<PRE>
+  GRID [xcoarse||coarse||medium||fine||xfine]
+</PRE>
+
+<P>
+Our intent is to have a numerical integration scheme which would give
+us approximately the accuracy defined below regardless of molecular
+composition.  
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="CENTER">Keyword</TD>
+<TD ALIGN="CENTER"><TT>Total Energy Target Accuracy</TT></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xcoarse</TT></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="54" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img113.gif"
+ ALT="$1x10^{-4}$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>coarse</TT></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="54" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img114.gif"
+ ALT="$1x10^{-5}$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>medium</TT></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="54" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img115.gif"
+ ALT="$1x10^{-6}$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>fine</TT></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="54" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img116.gif"
+ ALT="$1x10^{-7}$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xfine</TT></TD>
+<TD ALIGN="CENTER"><IMG
+ WIDTH="54" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img117.gif"
+ ALT="$1x10^{-8}$"></TD>
+</TR>
+</TABLE> 
+<BR>
+</DIV>
+
+<P>
+In order to determine the level of radial and angular quadrature needed
+to give us the target accuracy we computed total DFT energies 
+at the LDA level of theory for many
+homonuclear atomic, diatomic and triatomic systems in rows 1-4 of the
+periodic table.  In each case all bond lengths were set to twice the
+Bragg-Slater radius.  The total DFT energy of the system was computed
+using the converged SCF density with atoms having radial shells
+ranging from 35-235 (at fixed 48/96 angular quadratures) and angular
+quadratures of 12/24-48/96 (at fixed 235 radial shells).  The error of
+the numerical integration was determined by comparison to a ``best''
+or most accurate calculation in which a grid of 235 radial points 48
+theta and 96 phi angular points on each atom was used.  This
+corresponds to approximately 1 million points per atom.  The following
+tables were empirically determined to give the desired target accuracy
+for DFT total energies.  These tables below show the number of radial and
+angular shells which the DFT module will use for for a given atom
+depending on the row it is in (in the periodic table) and the desired
+accuracy.  Note, differing atom types in a given molecular system will
+most likely have differing associated numerical grids.  The intent is
+to generate the desired energy accuracy (with utter disregard for speed).
+
+<P>
+<BR>
+<DIV ALIGN="CENTER">
+</DIV>
+<P>
+<DIV ALIGN="CENTER">
+<BR>
+<BR>
+</DIV>
+<P>
+<DIV ALIGN="CENTER"><A NAME="3231"></A>
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<CAPTION><STRONG>Table 11.2:</STRONG>
+Program default number of radial and angular shells empirically determined for Row 1 atoms
+  (Li <IMG
+ WIDTH="20" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3.gif"
+ ALT="$\rightarrow $"> F) to reach the desired accuracies.</CAPTION>
+<TR><TD ALIGN="CENTER">Keyword</TD>
+<TD ALIGN="CENTER"><TT>Radial</TT></TD>
+<TD ALIGN="CENTER"><TT>Angular</TT></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xcoarse</TT></TD>
+<TD ALIGN="CENTER">21</TD>
+<TD ALIGN="CENTER">194</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>coarse</TT></TD>
+<TD ALIGN="CENTER">35</TD>
+<TD ALIGN="CENTER">302</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>medium</TT></TD>
+<TD ALIGN="CENTER">49</TD>
+<TD ALIGN="CENTER">434</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>fine</TT></TD>
+<TD ALIGN="CENTER">70</TD>
+<TD ALIGN="CENTER">590</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xfine</TT></TD>
+<TD ALIGN="CENTER">100</TD>
+<TD ALIGN="CENTER">1202</TD>
+</TR>
+</TABLE> 
+<BR>
+</DIV>
+<BR>
+
+<P>
+<BR>
+<DIV ALIGN="CENTER">
+</DIV>
+<P>
+<DIV ALIGN="CENTER">
+<BR>
+<BR>
+</DIV>
+<P>
+<DIV ALIGN="CENTER"><A NAME="3247"></A>
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<CAPTION><STRONG>Table 11.3:</STRONG>
+Program default number of radial and angular shells empirically determined for Row 2 atoms
+  (Na <IMG
+ WIDTH="20" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3.gif"
+ ALT="$\rightarrow $"> Cl) to reach the desired accuracies.</CAPTION>
+<TR><TD ALIGN="CENTER">Keyword</TD>
+<TD ALIGN="CENTER"><TT>Radial</TT></TD>
+<TD ALIGN="CENTER"><TT>Angular</TT></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xcoarse</TT></TD>
+<TD ALIGN="CENTER">42</TD>
+<TD ALIGN="CENTER">194</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>coarse</TT></TD>
+<TD ALIGN="CENTER">70</TD>
+<TD ALIGN="CENTER">302</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>medium</TT></TD>
+<TD ALIGN="CENTER">88</TD>
+<TD ALIGN="CENTER">434</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>fine</TT></TD>
+<TD ALIGN="CENTER">123</TD>
+<TD ALIGN="CENTER">770</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xfine</TT></TD>
+<TD ALIGN="CENTER">125</TD>
+<TD ALIGN="CENTER">1454</TD>
+</TR>
+</TABLE> 
+<BR>
+</DIV>
+<BR>
+
+<P>
+<BR>
+<DIV ALIGN="CENTER">
+</DIV>
+<P>
+<DIV ALIGN="CENTER">
+<BR>
+<BR>
+</DIV>
+<P>
+<DIV ALIGN="CENTER"><A NAME="3263"></A>
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<CAPTION><STRONG>Table 11.4:</STRONG>
+Program default number of radial and angular shells empirically determined for Row 3 atoms
+  (K <IMG
+ WIDTH="20" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3.gif"
+ ALT="$\rightarrow $"> Br) to reach the desired accuracies.</CAPTION>
+<TR><TD ALIGN="CENTER">Keyword</TD>
+<TD ALIGN="CENTER"><TT>Radial</TT></TD>
+<TD ALIGN="CENTER"><TT>Angular</TT></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xcoarse</TT></TD>
+<TD ALIGN="CENTER">75</TD>
+<TD ALIGN="CENTER">194</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>coarse</TT></TD>
+<TD ALIGN="CENTER">95</TD>
+<TD ALIGN="CENTER">302</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>medium</TT></TD>
+<TD ALIGN="CENTER">112</TD>
+<TD ALIGN="CENTER">590</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>fine</TT></TD>
+<TD ALIGN="CENTER">130</TD>
+<TD ALIGN="CENTER">974</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xfine</TT></TD>
+<TD ALIGN="CENTER">160</TD>
+<TD ALIGN="CENTER">1454</TD>
+</TR>
+</TABLE> 
+<BR>
+</DIV>
+<BR>
+
+<P>
+<BR>
+<DIV ALIGN="CENTER">
+</DIV>
+<P>
+<DIV ALIGN="CENTER">
+<BR>
+<BR>
+</DIV>
+<P>
+<DIV ALIGN="CENTER"><A NAME="3279"></A>
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<CAPTION><STRONG>Table 11.5:</STRONG>
+Program default number of radial and angular shells empirically determined for Row 4 atoms
+  (Rb <IMG
+ WIDTH="20" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img3.gif"
+ ALT="$\rightarrow $"> I) to reach the desired accuracies.</CAPTION>
+<TR><TD ALIGN="CENTER">Keyword</TD>
+<TD ALIGN="CENTER"><TT>Radial</TT></TD>
+<TD ALIGN="CENTER"><TT>Angular</TT></TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xcoarse</TT></TD>
+<TD ALIGN="CENTER">84</TD>
+<TD ALIGN="CENTER">194</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>coarse</TT></TD>
+<TD ALIGN="CENTER">104</TD>
+<TD ALIGN="CENTER">302</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>medium</TT></TD>
+<TD ALIGN="CENTER">123</TD>
+<TD ALIGN="CENTER">590</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>fine</TT></TD>
+<TD ALIGN="CENTER">141</TD>
+<TD ALIGN="CENTER">974</TD>
+</TR>
+<TR><TD ALIGN="CENTER"><TT>xfine</TT></TD>
+<TD ALIGN="CENTER">205</TD>
+<TD ALIGN="CENTER">1454</TD>
+</TR>
+</TABLE> 
+<BR>
+</DIV>
+<BR>
+
+<P>
+
+<P>
+
+<H2><A NAME="SECTION001391000000000000000">
+11.9.1 Angular grids</A>
+</H2>
+
+<P>
+In addition to the simple keyword specifying the desired accuracy as
+described above, the user has the option of specifying a custom
+quadrature of this type in which ALL atoms have the same grid
+specification.  This is accomplished by using the <code>gausleg</code> keyword.
+
+<P>
+
+<H4><A NAME="SECTION001391010000000000000">
+11.9.1.0.1 Gauss-Legendre angular grid</A>
+</H4>
+
+<P>
+<PRE>
+  GRID gausleg &lt;integer nradpts default 50&gt; &lt;integer nagrid default 10&gt;
+</PRE>
+
+<P>
+In this type of grid, the number of phi points is twice the number of
+theta points. So, for example, a specification of,
+<PRE>
+  GRID gausleg 80 20
+</PRE>
+would be interpreted as 80 radial points, 20 theta points, and 40
+phi points per center (or 64000 points per center before pruning).
+
+<P>
+
+<H4><A NAME="SECTION001391020000000000000">
+11.9.1.0.2 Lebedev angular grid</A>
+</H4>
+
+<P>
+A second quadrature is the Lebedev
+scheme for the angular components<A NAME="tex2html38"
+  HREF="footnode.html#foot3300"><SUP>11.6</SUP></A>.  
+Within this numerical integration procedure various levels 
+of accuracy have also been defined and are available to the user.  
+The input for this type of grid takes the form,
+<PRE>
+  GRID lebedev &lt;integer radpts &gt; &lt;integer iangquad &gt;
+</PRE>
+In this context the variable iangquad specifies a certain number of
+angular points as indicated by the table below.<A NAME="tex2html39"
+  HREF="footnode.html#foot3435"><SUP>11.7</SUP></A>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="3311"></A>
+<TABLE>
+<CAPTION><STRONG>Table 11.6:</STRONG>
+List of Lebedev quadratures</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<TR><TD ALIGN="CENTER"><IMG
+ WIDTH="102" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img118.gif"
+ ALT="$IANGQUAD$"></TD>
+<TD ALIGN="RIGHT"><IMG
+ WIDTH="64" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img119.gif"
+ ALT="$N_{angular}$"></TD>
+<TD ALIGN="RIGHT"><IMG
+ WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img65.gif"
+ ALT="$l$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">1</TD>
+<TD ALIGN="RIGHT">38</TD>
+<TD ALIGN="RIGHT">9</TD>
+</TR>
+<TR><TD ALIGN="CENTER">2</TD>
+<TD ALIGN="RIGHT">50</TD>
+<TD ALIGN="RIGHT">11</TD>
+</TR>
+<TR><TD ALIGN="CENTER">3</TD>
+<TD ALIGN="RIGHT">74</TD>
+<TD ALIGN="RIGHT">13</TD>
+</TR>
+<TR><TD ALIGN="CENTER">4</TD>
+<TD ALIGN="RIGHT">86</TD>
+<TD ALIGN="RIGHT">15</TD>
+</TR>
+<TR><TD ALIGN="CENTER">5</TD>
+<TD ALIGN="RIGHT">110</TD>
+<TD ALIGN="RIGHT">17</TD>
+</TR>
+<TR><TD ALIGN="CENTER">6</TD>
+<TD ALIGN="RIGHT">146</TD>
+<TD ALIGN="RIGHT">19</TD>
+</TR>
+<TR><TD ALIGN="CENTER">7</TD>
+<TD ALIGN="RIGHT">170</TD>
+<TD ALIGN="RIGHT">21</TD>
+</TR>
+<TR><TD ALIGN="CENTER">8</TD>
+<TD ALIGN="RIGHT">194</TD>
+<TD ALIGN="RIGHT">23</TD>
+</TR>
+<TR><TD ALIGN="CENTER">9</TD>
+<TD ALIGN="RIGHT">230</TD>
+<TD ALIGN="RIGHT">25</TD>
+</TR>
+<TR><TD ALIGN="CENTER">10</TD>
+<TD ALIGN="RIGHT">266</TD>
+<TD ALIGN="RIGHT">27</TD>
+</TR>
+<TR><TD ALIGN="CENTER">11</TD>
+<TD ALIGN="RIGHT">302</TD>
+<TD ALIGN="RIGHT">29</TD>
+</TR>
+<TR><TD ALIGN="CENTER">12</TD>
+<TD ALIGN="RIGHT">350</TD>
+<TD ALIGN="RIGHT">31</TD>
+</TR>
+<TR><TD ALIGN="CENTER">13</TD>
+<TD ALIGN="RIGHT">434</TD>
+<TD ALIGN="RIGHT">35</TD>
+</TR>
+<TR><TD ALIGN="CENTER">14</TD>
+<TD ALIGN="RIGHT">590</TD>
+<TD ALIGN="RIGHT">41</TD>
+</TR>
+<TR><TD ALIGN="CENTER">15</TD>
+<TD ALIGN="RIGHT">770</TD>
+<TD ALIGN="RIGHT">47</TD>
+</TR>
+<TR><TD ALIGN="CENTER">16</TD>
+<TD ALIGN="RIGHT">974</TD>
+<TD ALIGN="RIGHT">53</TD>
+</TR>
+<TR><TD ALIGN="CENTER">17</TD>
+<TD ALIGN="RIGHT">1202</TD>
+<TD ALIGN="RIGHT">59</TD>
+</TR>
+<TR><TD ALIGN="CENTER">18</TD>
+<TD ALIGN="RIGHT">1454</TD>
+<TD ALIGN="RIGHT">65</TD>
+</TR>
+<TR><TD ALIGN="CENTER">19</TD>
+<TD ALIGN="RIGHT">1730</TD>
+<TD ALIGN="RIGHT">71</TD>
+</TR>
+<TR><TD ALIGN="CENTER">20</TD>
+<TD ALIGN="RIGHT">2030</TD>
+<TD ALIGN="RIGHT">77</TD>
+</TR>
+<TR><TD ALIGN="CENTER">21</TD>
+<TD ALIGN="RIGHT">2354</TD>
+<TD ALIGN="RIGHT">83</TD>
+</TR>
+<TR><TD ALIGN="CENTER">22</TD>
+<TD ALIGN="RIGHT">2702</TD>
+<TD ALIGN="RIGHT">89</TD>
+</TR>
+<TR><TD ALIGN="CENTER">23</TD>
+<TD ALIGN="RIGHT">3074</TD>
+<TD ALIGN="RIGHT">95</TD>
+</TR>
+<TR><TD ALIGN="CENTER">24</TD>
+<TD ALIGN="RIGHT">3470</TD>
+<TD ALIGN="RIGHT">101</TD>
+</TR>
+<TR><TD ALIGN="CENTER">25</TD>
+<TD ALIGN="RIGHT">3890</TD>
+<TD ALIGN="RIGHT">107</TD>
+</TR>
+<TR><TD ALIGN="CENTER">26</TD>
+<TD ALIGN="RIGHT">4334</TD>
+<TD ALIGN="RIGHT">113</TD>
+</TR>
+<TR><TD ALIGN="CENTER">27</TD>
+<TD ALIGN="RIGHT">4802</TD>
+<TD ALIGN="RIGHT">119</TD>
+</TR>
+<TR><TD ALIGN="CENTER">28</TD>
+<TD ALIGN="RIGHT">5294</TD>
+<TD ALIGN="RIGHT">125</TD>
+</TR>
+<TR><TD ALIGN="CENTER">29</TD>
+<TD ALIGN="RIGHT">5810</TD>
+<TD ALIGN="RIGHT">131</TD>
+</TR>
+</TABLE>
+</DIV>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+Therefore the user can specify any number of radial points along with
+the level of angular quadrature (1-29).
+
+<P>
+The user can also specify grid parameters specific for a given atom type: 
+parameters that must be supplied are: atom tag and number of radial points.
+As an example, here is a grid input line for the water molecule
+<PRE>
+grid lebedev 80 11 H 70 8  O 90 11
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION001392000000000000000">
+11.9.2 Partitioning functions</A>
+</H2>
+
+<P>
+<PRE>
+  GRID [(becke||erf1||erf2||ssf) default erf1]
+</PRE>
+
+<P>
+<DL>
+<DT><STRONG><TT>becke</TT></STRONG></DT>
+<DD>A. D. Becke, J. Chem. Phys. <B>88</B>, 1053 (1988).
+</DD>
+<DT><STRONG><TT>ssf</TT></STRONG></DT>
+<DD>R.E.Stratmann, G.Scuseria and  M.J.Frisch,
+Chem. Phys. Lett. <B>257</B>, 213 (1996).
+</DD>
+<DT><STRONG><TT>erf1</TT></STRONG></DT>
+<DD>modified ssf
+</DD>
+<DT><STRONG><TT>erf2</TT></STRONG></DT>
+<DD>modified ssf
+</DD>
+</DL>
+
+<P>
+Erf<IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img120.gif"
+ ALT="$n$"> partioning functions
+
+<P>
+<P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH
+ \begin{eqnarray*}
+w_A(r) & = & \prod_{B\neq A}\frac{1}{2} \left[1 \ - \
+erf(\mu^\prime_{AB})\right] \\
+ \mu^\prime_{AB} & = & \frac{1}{\alpha} \ \frac{\mu_{AB}}{(1-\mu_{AB}^2)^n}\\
+ \mu_{AB} & = & \frac{{\mathbf r}_A - {\mathbf r}_B}
+{\left|{\mathbf r}_A - {\mathbf r}_B \right|}
+\end{eqnarray*}
+ -->
+<IMG
+ WIDTH="245" HEIGHT="186" BORDER="0"
+ SRC="img121.gif"
+ ALT="\begin{eqnarray*}
+w_A(r) &amp; = &amp; \prod_{B\neq A}\frac{1}{2} \left[1 \ - \
+erf(\mu...
+...thbf r}_B}
+{\left\vert{\mathbf r}_A - {\mathbf r}_B \right\vert}
+\end{eqnarray*}">
+<BR CLEAR="ALL"></DIV><P></P>
+<BR CLEAR="ALL"><P></P>
+<BR CLEAR="ALL"><P></P>
+
+<P>
+
+<H2><A NAME="SECTION001393000000000000000">
+11.9.3 Radial grids</A>
+</H2>
+
+<P>
+<PRE>
+  GRID [[euler||mura||treutler]  default mura]
+</PRE>
+
+<P>
+<DL>
+<DT><STRONG><TT>euler</TT></STRONG></DT>
+<DD>Euler-McLaurin quadrature wih the transformation
+  devised by
+C.W. Murray, N.C. Handy, and G.L. Laming,
+Mol. Phys.<B>78</B>, 997 (1993).
+ 
+<BR></DD>
+<DT><STRONG><TT>mura</TT></STRONG></DT>
+<DD>Modification of the Murray-Handy-Laming scheme by 
+M.E.Mura and P.J.Knowles, J Chem Phys <B>104</B>, 9848
+(1996) (we are not using the scaling factors proposed
+in this paper).
+<BR></DD>
+<DT><STRONG><TT>treutler</TT></STRONG></DT>
+<DD>Gauss-Chebyshev using the transformation suggested
+  by O.Treutler and R.Alrhichs, J.Chem.Phys <B>102</B>, 346 (1995).
+<BR></DD>
+</DL>
+
+<P>
+
+<H2><A NAME="SECTION001394000000000000000">
+11.9.4 Disk usage for Grid</A>
+</H2>
+
+<P>
+<PRE>
+  NODISK
+</PRE>
+
+<P>
+This keyword turns off storage of grid points and weights on disk.
+
+<P>
+
+<H1><A NAME="SECTION0013100000000000000000">
+11.10 <TT>TOLERANCES</TT> -- Screening tolerances</A>
+</H1>
+
+<P>
+<PRE>
+  TOLERANCES [[tight] [tol_rho &lt;real tol_rho default 1e-10&gt;] \
+              [accCoul &lt;integer accCoul default 8&gt;] \
+              [radius &lt;real radius default 25.0&gt;]]
+</PRE>
+The user has the option of controlling screening for the tolerances in
+the integral evaluations for the DFT module.  In most applications,
+the default values will be adequate for the calculation, but different
+values can be specified in the input for the DFT module using the
+keywords described below.
+
+<P>
+The input
+parameter <TT>accCoul</TT> is used to define the tolerance in Schwarz 
+screening for the Coulomb integrals.  Only integrals with estimated
+values greater than <!-- MATH
+ $10^{(-{\tt accCoul})}$
+ -->
+<IMG
+ WIDTH="82" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
+ SRC="img122.gif"
+ ALT="$10^{(-{\tt accCoul})}$"> are evaluated.
+
+<P>
+<PRE>
+  TOLERANCES accCoul &lt;integer accCoul default 8&gt;
+</PRE>
+
+<P>
+Screening away needless computation of the XC functional (on the grid)
+due to negligible density is also possible with the use of,
+<PRE>
+  TOLERANCES tol_rho &lt;real tol_rho default 1e-10&gt;
+</PRE>
+XC functional computation is bypassed if the corresponding density
+elements are less than <code>tol_rho</code>.
+
+<P>
+A screening parameter, <code>radius</code>, used in the screening of the
+Becke or Delley spatial weights is also available as,
+<PRE>
+  TOLERANCES radius &lt;real radius default 25.0&gt;
+</PRE>
+where radius is the cutoff value in bohr.
+
+<P>
+The tolerances as discussed previously are insured at convergence.
+More sleazy tolerances are invoked early in the iterative process
+which can speed things up a bit.  This can also be problematic at
+times because it introduces a discontinuity in the convergence
+process.  To avoid use of initial sleazy tolerances the user can
+invoke the <code>tight</code> option:
+
+<P>
+<PRE>
+  TOLERANCES tight
+</PRE>
+
+<P>
+This option sets all tolerances to their
+default/user specified values at the very first iteration.
+
+<P>
+
+<H1><A NAME="SECTION0013110000000000000000">
+11.11 <TT>DIRECT</TT> and <TT>NOIO</TT> -- Hardware Resource Control</A>
+</H1>
+<PRE>
+  DIRECT||INCORE
+  NOIO
+</PRE>
+
+<P>
+
+<P>
+The inverted charge-density and exchange-correlation matrices
+for a DFT calculation are normally written to disk storage.  The user
+can prevent this by specifying the keyword <code>noio</code> within the
+input for the DFT directive.  The input to exercise this option is
+as follows,
+<PRE>
+   noio
+</PRE>
+If this keyword is encountered, then the two matrices (inverted
+charge-density and exchange-correlation) are computed ``on-the-fly''
+whenever needed.  
+
+<P>
+The <code>INCORE</code> option is always assumed to be true but can be
+overridden with the option <code>DIRECT</code> in which case all integrals
+are computed ``on-the-fly''.
+
+<P>
+
+<P>
+
+<H1><A NAME="SECTION0013120000000000000000">
+11.12 <TT>ODFT</TT> and <TT>MULT</TT> -- Open shell systems</A>
+</H1>
+<PRE>
+  ODFT
+  MULT &lt;integer mult default 1&gt;
+</PRE>
+
+<P>
+Both <I>closed-shell</I> and <I>open-shell</I> systems can be studied using
+the DFT module.  Specifying the keyword <code>MULT</code> within the <code>DFT</code>
+directive allows the user to define the spin multiplicity of the system.
+The form of the input line is as follows;
+<PRE>
+   MULT &lt;integer mult default 1&gt;
+</PRE>
+When the keyword <code>MULT</code> is specified, the user can define the integer
+variable <code>mult</code>, where <code>mult</code> is equal to the number of alpha 
+electrons minus beta electrons, plus 1.
+
+<P>
+The keyword <code>ODFT</code> is unnecessary except in the context
+of forcing a singlet system to be computed as an open shell
+system (i.e., using a spin-unrestricted wavefunction).
+
+<P>
+
+<H1><A NAME="SECTION0013130000000000000000">
+11.13 <TT>SIC</TT> -- Self-Interaction Correction</A>
+</H1>
+
+<P>
+<PRE>
+sic [perturbative || oep || oep-loc &lt;default perturbative&gt;]
+</PRE>
+
+<P>
+The Perdew and Zunger (see J. P. Perdew and A. Zunger, Phys. Rev. B 23,
+5048 (1981)) method to remove the self-interaction contained in many
+exchange-correlation functionals has been implemented with the
+Optimized Effective Potential method 
+(see R. T. Sharp and G. K. Horton, Phys. Rev. <B>90</B>, 317 (1953),
+J. D. Talman and W. F. Shadwick, Phys. Rev. A <B>14</B>, 36 (1976))
+within the Krieger-Li-Iafrate approximation (J. B. Krieger, Y.  Li, 
+and G. J. Iafrate, Phys. Rev. A <B>45</B>, 101 (1992); <B>46</B>, 5453 (1992); 
+47, 165 (1993))
+Three variants of these methods are included in NWChem:
+
+<UL>
+<LI><TT>sic perturbative</TT> This is the default option for the sic
+directive. After a self-consistent calculation, the Kohn-Sham
+orbitals are localized with the Foster-Boys algorithm (see section
+<A HREF="node12.html#orbloc">10.15</A>) and the self-interaction energy is added to the total energy. 
+All exchange-correlation functionals implemented in the NWChem can be
+used with this option.
+</LI>
+<LI><TT>sic oep</TT> With this option the optimized effective potential is
+built in each step of the self-consistent process. Because the electrostatic
+potential generated for each orbital involves a numerical
+integration, this method can be expensive.
+</LI>
+<LI><TT>sic oep-loc</TT> 
+This option is similar to the oep option with the
+addition of localization of the Kohn-Sham orbitals in each step of the 
+self-consistent process.
+</LI>
+</UL>
+With oep and oep-loc options a <B>xfine grid</B> (see section <A HREF="node13.html#grgrid">11.9</A>)
+must be used in order to avoid numerical noise, furthermore the hybrid 
+functionals can not be used with these options.  More details of the
+implementation of this method can be found in 
+J. Garza, J. A. Nichols and D. A. Dixon, J. Chem. Phys. 112, 7880 (2000). 
+The components of the sic energy can be printed out using:
+
+<P>
+<PRE>
+print "SIC information"
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0013140000000000000000">
+11.14 <TT>MULLIKEN</TT> -- Mulliken analysis</A>
+</H1>
+Mulliken analysis of the charge distribution is invoked by the keyword:
+<PRE>
+  MULLIKEN
+</PRE>
+When this keyword is encountered, Mulliken analysis of both the input 
+density as well as the output density will occur.
+For example, to perform a mulliken analysis and print the
+explicit population analysis of the basis functions, use
+the following
+<PRE>
+dft
+ mulliken
+ print "mulliken ao"
+end
+task dft
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0013150000000000000000">
+11.15 <TT>BSSE</TT> -- Basis Set Superposition Error</A>
+</H1>
+
+<P>
+Particular care is required to compute BSSE by the counter-poise
+method for the DFT module. In order to include terms deriving from
+the numerical grid used in the XC integration, the user must label
+the ghost atoms not just <TT>bq</TT>, but <TT>bq</TT> followed by the given
+atomic symbol. For example, the first component needed to compute the
+BSSE for the water dimer, should be written as follows
+
+<P>
+<PRE>
+geometry h2o autosym units au
+ O        0.00000000     0.00000000     0.22143139
+ H        1.43042868     0.00000000    -0.88572555
+ H       -1.43042868     0.00000000    -0.88572555
+ bqH      0.71521434     0.00000000    -0.33214708
+ bqH     -0.71521434     0.00000000    -0.33214708
+ bqO      0.00000000     0.00000000    -0.88572555
+end
+
+basis
+ H library aug-cc-pvdz
+ O library aug-cc-pvdz
+ bqH library H aug-cc-pvdz
+ bqO library O aug-cc-pvdz
+end
+</PRE>
+
+<P>
+Please note that the ``ghost'' oxygen atom has been labeled <TT>bqO</TT>,
+and not just <TT>bq</TT>.
+
+<H1><A NAME="SECTION0013160000000000000000">
+11.16 Print Control</A>
+</H1>
+<PRE>
+  PRINT||NOPRINT
+</PRE>
+
+<P>
+The <code>PRINT||NOPRINT</code> options control the level of output in the
+DFT.  Please see some examples using this directive in
+section  <A HREF="node13.html#sec:DFTsample">11.5</A>, a sample input file.
+  Known controllable print options are:
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="3418"></A>
+<TABLE>
+<CAPTION><STRONG>Table 11.7:</STRONG>
+DFT Print Control Specifications</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT"><B>Name</B></TD>
+<TD ALIGN="CENTER"><B>Print Level</B></TD>
+<TD ALIGN="CENTER"><B>Description</B></TD>
+</TR>
+<TR><TD ALIGN="LEFT">``all vector symmetries''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">symmetries of all molecular orbitals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``alpha partner info''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">unpaired alpha orbital analysis</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``common''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">dump of common blocks</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``convergence''</TD>
+<TD ALIGN="CENTER">default</TD>
+<TD ALIGN="CENTER">convergence of SCF procedure</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``coulomb fit''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">fitting electronic charge density</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``dft timings''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``final vectors''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``final vector symmetries''</TD>
+<TD ALIGN="CENTER">default</TD>
+<TD ALIGN="CENTER">symmetries of final molecular orbitals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``information''</TD>
+<TD ALIGN="CENTER">low</TD>
+<TD ALIGN="CENTER">general information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``initial vectors''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``intermediate energy info''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``intermediate evals''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">intermediate orbital energies</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``intermediate fock matrix''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``intermediate overlap''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">overlaps between the alpha and beta sets</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``intermediate S2''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">values of S2</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``intermediate vectors''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">intermediate molecular orbitals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``interm vector symm''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">symmetries of intermediate orbitals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``io info''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">reading from and writing to disk</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``kinetic_energy''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">kinetic energy</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``mulliken ao''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">mulliken atomic orbital population</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``multipole''</TD>
+<TD ALIGN="CENTER">default</TD>
+<TD ALIGN="CENTER">moments of alpha, beta, and nuclear charge densities</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``parameters''</TD>
+<TD ALIGN="CENTER">default</TD>
+<TD ALIGN="CENTER">input parameters</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``quadrature''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">numerical quadrature</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``schwarz''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">integral screening info &amp; stats at completion</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``screening parameters''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">integral accuracies</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``semi-direct info''</TD>
+<TD ALIGN="CENTER">default</TD>
+<TD ALIGN="CENTER">semi direct algorithm</TD>
+</TR>
+</TABLE>
+</DIV>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1182"
+  HREF="node14.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1178"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1172"
+  HREF="node12.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1180"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1183"
+  HREF="node14.html">12. Spin-Orbit DFT (SODFT)</A>
+<B> Up:</B> <A NAME="tex2html1179"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1173"
+  HREF="node12.html">10. Hartree-Fock or Self-consistent</A>
+ &nbsp <B>  <A NAME="tex2html1181"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

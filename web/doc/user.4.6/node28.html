@@ -1,0 +1,379 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>26. DPLOT</TITLE>
+<META NAME="description" CONTENT="26. DPLOT">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node29.html">
+<LINK REL="previous" HREF="node27.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node29.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1517"
+  HREF="node29.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1513"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1507"
+  HREF="node27.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1515"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1518"
+  HREF="node29.html">27. Electron Transfer Calculations</A>
+<B> Up:</B> <A NAME="tex2html1514"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1508"
+  HREF="node27.html">25. Vibrational frequencies</A>
+ &nbsp <B>  <A NAME="tex2html1516"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1519"
+  HREF="node28.html#SECTION002810000000000000000">26.1 <TT>GAUSSIAN</TT> -- Gaussian Cube format</A>
+<LI><A NAME="tex2html1520"
+  HREF="node28.html#SECTION002820000000000000000">26.2 <TT>TITLE</TT> -- Title directive</A>
+<LI><A NAME="tex2html1521"
+  HREF="node28.html#SECTION002830000000000000000">26.3 <TT>LIMITXYZ</TT> -- Plot limits</A>
+<LI><A NAME="tex2html1522"
+  HREF="node28.html#SECTION002840000000000000000">26.4 <TT>SPIN</TT> -- Density to be plotted</A>
+<LI><A NAME="tex2html1523"
+  HREF="node28.html#SECTION002850000000000000000">26.5 <TT>OUTPUT</TT> -- Filename</A>
+<LI><A NAME="tex2html1524"
+  HREF="node28.html#SECTION002860000000000000000">26.6 <TT>VECTORS</TT> -- MO vector file name</A>
+<LI><A NAME="tex2html1525"
+  HREF="node28.html#SECTION002870000000000000000">26.7 <TT>WHERE</TT> -- Density evaluation</A>
+<LI><A NAME="tex2html1526"
+  HREF="node28.html#SECTION002880000000000000000">26.8 <TT>ORBITAL</TT> -- Orbital sub-space</A>
+<LI><A NAME="tex2html1527"
+  HREF="node28.html#SECTION002890000000000000000">26.9 Examples</A>
+<UL>
+<LI><A NAME="tex2html1528"
+  HREF="node28.html#SECTION002891000000000000000">Charge Density</A>
+<LI><A NAME="tex2html1529"
+  HREF="node28.html#SECTION002892000000000000000">Molecular Orbital</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION002800000000000000000">
+26. DPLOT</A>
+</H1>
+<A NAME="sec:dplot"></A><PRE>
+  DPLOT
+    ...
+  END
+</PRE>
+
+<P>
+This directive is used to obtain the plots of various types of electron
+densities (or orbitals) of the molecule. The electron density is calculated
+on a specified set of grid points using the molecular orbitals
+from SCF or DFT calculation. The output file is either in 
+<A NAME="tex2html67"
+  HREF="http://www.msi.com/materials/insight/Insight2.html">MSI Insight II</A>
+contour format
+(default)
+ or in the 
+<A NAME="tex2html68"
+  HREF="http://www.gaussian.com/g_ur/u_cubegen.htm">Gaussian Cube</A>
+format.  DPLOT is not executed until the ``<code>task dplot</code>'' directive is given.  
+Different sub-directives are described below.
+
+<P>
+
+<H1><A NAME="SECTION002810000000000000000">
+26.1 <TT>GAUSSIAN</TT> -- Gaussian Cube format</A>
+</H1>
+
+<P>
+<PRE>
+  GAUSSIAN
+</PRE>
+
+<P>
+A outputfile is generate in Gaussian Cube format.
+You can visualize this file using  <A NAME="tex2html69"
+  HREF="http://www.csc.fi/gopenmol/tutorials/quick_start.phtml#view">gOpenMol</A>
+(after converting the Gaussian Cube file with 
+<A NAME="tex2html70"
+  HREF="http://www.csc.fi/lul/chem/scarecrow/gcube2plt.c">gcube2plt</A>),
+
+<A NAME="tex2html71"
+  HREF="http://www.cmbi.kun.nl/~schaft/molden/molden.html">Molden</A>
+or 
+<A NAME="tex2html72"
+  HREF="http://www.cscs.ch/molekel/">Molekel</A>.
+
+<P>
+
+<H1><A NAME="SECTION002820000000000000000">
+26.2 <TT>TITLE</TT> -- Title directive</A>
+</H1>
+
+<P>
+<PRE>
+  TITLE &lt;string Title default Unknown Title&gt;
+</PRE>
+
+<P>
+This sub-directive specifies a title line for the generated
+input to the <EM>Insight</EM> program or for the Gaussian cube
+file. Only one line is allowed.
+
+<P>
+
+<H1><A NAME="SECTION002830000000000000000">
+26.3 <TT>LIMITXYZ</TT> -- Plot limits</A>
+</H1>
+
+<P>
+<PRE>
+  LIMITXYZ [units &lt;string Units default angstroms&gt;]
+  &lt;real X_From&gt; &lt;real X_To&gt; &lt;integer No_Of_Spacings_X&gt;
+  &lt;real Y_From&gt; &lt;real Y_To&gt; &lt;integer No_Of_Spacings_Y&gt;
+  &lt;real Z_From&gt; &lt;real Z_To&gt; &lt;integer No_Of_Spacings_Z&gt;
+</PRE>
+
+<P>
+This sub-directive specifies the limits of the cell to be plotted.
+The grid is generated using <code>No_Of_Spacings</code>&nbsp;+&nbsp;<code>1</code> points
+along each direction. The known names for <code>Units</code> are
+<code>angstroms</code>, <code>au</code> and <code>bohr</code>.
+
+<P>
+
+<H1><A NAME="SECTION002840000000000000000">
+26.4 <TT>SPIN</TT> -- Density to be plotted</A>
+</H1>
+
+<P>
+<PRE>
+  SPIN &lt;string Spin default total&gt;
+</PRE>
+
+<P>
+This sub-directive specifies, what kind of density is to be computed. The 
+known names for <code>Spin</code> are <code>total</code>, <code>alpha</code>, <code>beta</code>
+and <code>spindens</code>, the last being computed as the difference between
+<IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img42.gif"
+ ALT="$\alpha$"> and <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img49.gif"
+ ALT="$\beta$"> electron densities.
+
+<P>
+
+<H1><A NAME="SECTION002850000000000000000">
+26.5 <TT>OUTPUT</TT> -- Filename</A>
+</H1>
+
+<P>
+<PRE>
+  OUTPUT &lt;string File_Name default dplot&gt;
+</PRE>
+
+<P>
+This sub-directive specifies the name of the generated input to the
+<EM>Insight</EM> program or the generated Gaussian cube file. 
+The name <code>OUTPUT</code> is reserved for the
+standard NWChem output.
+
+<P>
+
+<H1><A NAME="SECTION002860000000000000000">
+26.6 <TT>VECTORS</TT> -- MO vector file name</A>
+</H1>
+
+<P>
+<PRE>
+  VECTORS &lt;string File_Name default movecs&gt; [&lt;string File_Name2&gt;]
+</PRE>
+
+<P>
+This sub-directive specifies the name of the molecular orbital file.
+If the second file is optionally given the density is computed as the
+difference between the corresponding electron densities. The vector 
+files have to match.
+
+<P>
+
+<H1><A NAME="SECTION002870000000000000000">
+26.7 <TT>WHERE</TT> -- Density evaluation</A>
+</H1>
+
+<P>
+<PRE>
+  WHERE &lt;string Where default grid&gt;
+</PRE>
+
+<P>
+This sub-directive specifies where the density is to be computed.
+The known names for <code>Where</code> are <code>grid</code> (the calculation of
+the density is performed on the set of a grid points specified by the
+sub-directive <code>LimitXYZ</code> and the file specified by the sub-directive
+<code>Output</code> is generated), <code>nuclei</code> (the density is computed at
+the position of the nuclei and written to the NWChem output) and
+<code>g</code>+<code>n</code> (both).
+
+<P>
+
+<H1><A NAME="SECTION002880000000000000000">
+26.8 <TT>ORBITAL</TT> -- Orbital sub-space</A>
+</H1>
+
+<P>
+<PRE>
+  ORBITALS [&lt;string Option default density&gt;]
+  &lt;integer No_Of_Orbitals&gt;
+  &lt;integer Orb_No_1 Orb_No_2 ...&gt;
+</PRE>
+
+<P>
+This sub-directive specifies the subset of the orbital space for the
+calculation of the electron density. The density is computed using the
+occupation numbers from the orbital file modified according to the
+<code>Spin</code> directive. If the contours of the orbitals are to be plotted
+<code>Option</code> should be set to <code>view</code>. Note, that in this case
+<code>No_Of_Orbitals</code> should be set to <code>1</code> and sub-directive
+<code>Where</code> is automatically set to <code>grid</code>. Also specification
+of two orbital files conflicts with the <code>view</code> option.
+<IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img42.gif"
+ ALT="$\alpha$"> orbitals are always plotted unless <code>Spin</code> is set to
+<code>beta</code>.
+
+<P>
+
+<H1><A NAME="SECTION002890000000000000000">
+26.9 Examples</A>
+</H1>
+
+<P>
+
+<H2><A NAME="SECTION002891000000000000000">
+Charge Density</A>
+</H2>
+
+<P>
+Example of charge density plot (with Gaussian Cube output):
+<PRE>
+start n2
+geometry
+  n  0 0   0.53879155
+  n  0 0  -0.53879155
+end
+basis;  n library cc-pvdz;end
+scf
+vectors  output n2.movecs
+end
+dplot
+  TITLE HOMO
+  vectors n2.movecs
+   LimitXYZ
+ -3.0 3.0 10  
+-3.0 3.0 10 
+-3.0  3.0  10
+  spin total
+  gaussian
+  output lumo.cube
+end
+task scf     
+task dplot
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION002892000000000000000">
+Molecular Orbital</A>
+</H2>
+
+<P>
+Example of orbital plot (with Insight II contour output):
+<PRE>
+start n2
+geometry
+  n  0 0   0.53879155
+  n  0 0  -0.53879155
+end
+basis;  n library cc-pvdz;end
+scf
+vectors  output n2.movecs
+end
+dplot
+  TITLE HOMO
+  vectors n2.movecs
+   LimitXYZ
+ -3.0 3.0 10  
+-3.0 3.0 10 
+-3.0  3.0  10
+  spin total
+  orbitals view; 1; 7
+  output homo.grd
+end
+task scf     
+task dplot
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1517"
+  HREF="node29.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1513"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1507"
+  HREF="node27.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1515"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1518"
+  HREF="node29.html">27. Electron Transfer Calculations</A>
+<B> Up:</B> <A NAME="tex2html1514"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1508"
+  HREF="node27.html">25. Vibrational frequencies</A>
+ &nbsp <B>  <A NAME="tex2html1516"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

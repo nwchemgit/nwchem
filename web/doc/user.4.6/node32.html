@@ -1,0 +1,1094 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>30. Prepare</TITLE>
+<META NAME="description" CONTENT="30. Prepare">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node33.html">
+<LINK REL="previous" HREF="node31.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node33.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1585"
+  HREF="node33.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1581"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1575"
+  HREF="node31.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1583"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1586"
+  HREF="node33.html">31. Molecular dynamics</A>
+<B> Up:</B> <A NAME="tex2html1582"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1576"
+  HREF="node31.html">29. Electrostatic potentials</A>
+ &nbsp <B>  <A NAME="tex2html1584"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1587"
+  HREF="node32.html#SECTION003210000000000000000">30.1 Default database directories</A>
+<LI><A NAME="tex2html1588"
+  HREF="node32.html#SECTION003220000000000000000">30.2 System name and coordinate source</A>
+<LI><A NAME="tex2html1589"
+  HREF="node32.html#SECTION003230000000000000000">30.3 Sequence file generation</A>
+<LI><A NAME="tex2html1590"
+  HREF="node32.html#SECTION003240000000000000000">30.4 Topology file generation</A>
+<LI><A NAME="tex2html1591"
+  HREF="node32.html#SECTION003250000000000000000">30.5 Appending to an existing topology file</A>
+<LI><A NAME="tex2html1592"
+  HREF="node32.html#SECTION003260000000000000000">30.6 Generating a restart file</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION003200000000000000000">
+30. Prepare</A>
+</H1>
+<A NAME="sec:prepare"></A>
+
+<P>
+The <B>prepare</B> module is used to set up the necessary files for a molecular
+dynamics simulation with <B>NWChem</B>. User supplied coordinates can be used to
+generate topology and restart files. The topology file contains all static
+information about a molecular system, such as lists of atoms, bonded
+interactions and force field parameters. The restart file contains all
+dynamic information about a molecular system, such as coordinates, velocities
+and properties.
+
+<P>
+Without any input, the prepare module checks the existence of a topology
+and restart file for the molecular systems. If these files exist, the module
+returns to the main task level without action. The module will generate these 
+files when they do not exist. Without any input to the module, the generated 
+system will be for a non-solvated isolated solute system.
+
+<P>
+To update existing files, including solvation, the module requires input
+directives read from an input deck,
+
+<P>
+<PRE>
+prepare
+ ...
+end
+</PRE>
+
+<P>
+The prepare module performs three sub-tasks:
+<DL COMPACT>
+<DT><B>*</B></DT>
+<DD><B>sequence generation</B>
+<BR>
+This sub-task analyzes the supplied coordinates from a PDB-formatted file
+or from the input geometry, and generates a sequence file, containing the
+description of the system in terms of basic building blocks found as
+fragment or segment files in the database directories for the force field 
+used. If these files do not exist, they are generated based on the supplied
+coordinates. This process constists of generating a fragment file with the
+list of atoms with their force field dependent atom types, partial atomic
+charges calculated from a Hartree Fock calculation for the fragment, followed
+by a restrained electrostatic potential fit, and a connectivity list. From
+the information on this fragment file the lists of all bonded interactions
+are generated, and the complete lists are written to a segment file.
+</DD>
+<DT><B>*</B></DT>
+<DD><B>topology generation</B>
+<BR>
+Based on the generated or user-supplied sequence file and the force field
+specific segment database files, this sub-task compiles the lists of atoms,
+bonded interactions, excluded pairs, and substitutes the force field
+parameters. Special commands may be given to specify interaction parameters
+that will be changing in a free energy evaluation.
+</DD>
+<DT><B>*</B></DT>
+<DD><B>restart generation</B>
+<BR>
+Using the user supplied coordinates and the topology file for the chemical
+system, this sub-task generates a restart file for the system with coordinates,
+velocities and other dynamic information. This step may include solvation
+of the chemical system and specifying periodic boundary conditions.
+</DD>
+</DL>
+
+<P>
+Files involved in the preparation phase exist in the following hierarchy:
+<DL COMPACT>
+<DT><B>*</B></DT>
+<DD><B>standards</B>
+<BR>
+The standard database files contain the original force field information.
+These files are to reside in a directory that is specified in the file 
+$HOME/.nwchemrc. There will be such a directory for each supported force 
+field. These directories contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+</DD>
+<DT><B>*</B></DT>
+<DD><B>extensions</B>
+<BR>
+These database files contain generally accepted extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file $HOME/.nwchemrc. There will be such a directory for each supported 
+force field. These directories contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+</DD>
+<DT><B>*</B></DT>
+<DD><B>contributed</B>
+<BR>
+These database files contain contributed definitions, also required for 
+the quality assurance tests and are to reside in a separate directory 
+that is specified in the file $HOME/.nwchemrc. 
+There will be such a directory for each supported 
+force field. These directories contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+</DD>
+<DT><B>*</B></DT>
+<DD><B>user preferences</B>
+<BR>
+These database files contain user preferred extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file $HOME/.nwchemrc. Separate directories of this type  should be 
+defined for each supported force field. 
+This directory may contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+</DD>
+<DT><B>*</B></DT>
+<DD><B>temporary files</B>
+<BR>
+Temporary database files contain user preferred extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file $HOME/.nwchemrc. There may  be such a directory for each supported 
+force field. This directory may contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par).
+</DD>
+<DT><B>*</B></DT>
+<DD><B>current files</B>
+<BR>
+Database files that contain user preferred extensions to the original
+force field and are to reside in a separate directory that is specified in 
+the file $HOME/.nwchemrc. Typically this will be the current working
+directory, although it may be defined as a specific directory.
+This directory may contain fragment files (with extension frg),
+segment files (with extension sgm) and a parameter file (with the name
+of the force field and with extension par). If not specified, 
+files will be taken from the current directory.
+</DD>
+</DL>
+
+<P>
+Data is taken from the database files searched in the above order. If data
+is specified more than once, the last found values are used. For example,
+if some standard segment is redefined in a temporary file, the latter one
+will be used. This allows the user to redefine standards or extensions 
+without having to modify those database files, which may reside in a
+generally available, non-modifyable directory. If a filename is specified
+rather than a directory, the filename indicates the parameter file
+definition. All other files (frg and sgm files) will be take from the
+specified directory.
+
+<P>
+The most common problems with the <B>prepare</B> module are
+<DL COMPACT>
+<DT><B>&nbsp;</B></DT>
+<DD>The format of the pdb file does not conform to the pdb standard. In
+particular, atom names need to correspond with definitions in the
+fragment and segment database files, and should adhere to IUPAC
+recommendations as adopted by the pdb standard. If this problem
+occurs, the pdb file will need to be corrected.
+</DD>
+<DT><B>&nbsp;</B></DT>
+<DD>Non-standard segments may contain atoms that could not be atom typed
+with the existing typing rules in the force field parameter files.
+When this happens, additional typing rules can be included in the
+parameter file, or the fragment file may be manually typed.
+</DD>
+<DT><B>&nbsp;</B></DT>
+<DD>Parameters for atom types or bonded interactions do not exist in
+the force field. When this happens, additional parameters may be
+defined in the parameter files, or the segment file may be edited
+to include explicit parameters.
+</DD>
+</DL>
+
+<P>
+
+<H1><A NAME="SECTION003210000000000000000">
+30.1 Default database directories</A>
+</H1>
+
+<P>
+The file $HOME/.nwchemrc may contain the following entries that determine
+which files are used by the prepare module.
+
+<P>
+<PRE>
+ffield &lt;string ffname&gt;
+</PRE>
+
+<P>
+This entry specifies the default force field. Database files supplied with
+<B>NWChem</B> currently support values for <code>ffname</code> of <B>amber</B>, referring 
+to AMBER95, and <B>charmm</B>, referring to the academic CHARMM22 force field.
+
+<P>
+<PRE>
+&lt;string ffname&gt;_(s | x | q | u | t | c) &lt;string ffdir&gt;[&lt;string parfile&gt;]
+</PRE>
+
+<P>
+Entries of this type specify the directory <code>ffdir</code> in which force field 
+database files can be found. Optionally the parameterfile in this directory
+may be specified as <code>parfile</code>. 
+The prepare module will only use files in directories
+specified here. One exception is that files in the current work directory
+will be used if no directory with current files is specified.
+
+<P>
+<PRE>
+&lt;string solvnam&gt; &lt;string solvfil&gt;
+</PRE>
+
+<P>
+This entry may be used to identify a pure solvent restart file <code>solvfil</code>
+by a name <code>solvnam</code>
+
+<P>
+An example file $HOME/.nwchemrc is:
+
+<P>
+<PRE>
+ffield amber
+amber_s /msrc/proj/nwchem/share/amber/amber_s/amber99.par
+amber_x /msrc/proj/nwchem/share/amber/amber_x/
+amber_u /usr/people/username/data/amber/amber_u/
+spce /msrc/proj/nwchem/share/solvents/spce.rst
+charmm_s /msrc/proj/nwchem/share/charmm/charmm_s/
+charmm_x /msrc/proj/nwchem/share/charmm/charmm_x/
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003220000000000000000">
+30.2 System name and coordinate source</A>
+</H1>
+
+<P>
+<PRE>
+system &lt;string sys_calc&gt;
+</PRE>
+
+<P>
+The system name can be explicitly specified for the <B>prepare</B> module.
+If not specified, the system name will be taken from a specification
+in a previous <B>md</B> input block, or derived from the run time database
+name.
+
+<P>
+<PRE>
+source ( pdb | rtdb )
+</PRE>
+
+<P>
+The source of the coordinates can be explicitly specified to be from
+a PDB formatted file <code>sys</code>.pdb, or from a geometry object in the run
+time database. If not specified, a pdb file will be used when it exists
+in the current directory or the rtdb geometry otherwise.
+
+<P>
+<PRE>
+model &lt;integer modpdb default 0&gt;
+</PRE>
+
+<P>
+If a PDB formatted source file contains different MODELs, the <code>model</code>
+keyword can be used to specify which MODEL will be used to generate the
+topology and restart file. If not specified, the first MODEL found on the
+PDB file will be read.
+
+<P>
+<PRE>
+altloc &lt;character locpdb default ' '&gt;
+</PRE>
+
+<P>
+The <code>altloc</code> keyword may be used to specify the use of alternate
+location coordinates on a PDB file.
+
+<P>
+<PRE>
+chain &lt;character chnpdb default ' '&gt;
+</PRE>
+
+<P>
+The <code>chain</code> keyword may be used to specify the chain identifier
+for coordinates on a PDB file.
+
+<P>
+<PRE>
+histidine ( hid | hie | hip )
+</PRE>
+specifies the default protonation state of histidine.
+
+<P>
+<PRE>
+sscyx
+</PRE>
+
+<P>
+Keyword <code>sscyx</code> may be used to rename cysteine residues that form
+sulphur bridges to CYX.
+
+<P>
+<PRE>
+hbuild
+</PRE>
+
+<P>
+Keyword <code>hbuild</code> may be used to add hydrogen atoms to the
+unknown segments of the structure found on the pdb file.
+
+<P>
+
+<H1><A NAME="SECTION003230000000000000000">
+30.3 Sequence file generation</A>
+</H1>
+
+<P>
+If no existing sequence file is present in the current directory,
+or if the <code>new_seq</code> keyword was specified in the <B>prepare</B> 
+input deck, a new sequence file is generated from information
+from the pdb file, and the following input directives.
+
+<P>
+<PRE>
+maxscf &lt;integer maxscf default 20&gt;
+</PRE>
+
+<P>
+Variable maxscf specifies the maximum number of atoms in a segment for
+which partial atomic charges will be determined from an SCF calculation
+followed by RESP charge fitting. For larger segments a crude partial
+charge guestimation will be done.
+
+<P>
+<PRE>
+qscale &lt;real qscale default 1.0&gt;
+</PRE>
+
+<P>
+Variable qscale specifies the factor with which SCF/RESP determined
+charges will be multiplied.
+
+<P>
+<PRE>
+modify sequence { &lt;integer sgmnum&gt;:&lt;string sgmnam&gt; }
+</PRE>
+
+<P>
+This command specifies that segment <B>sgmnam</B> should be used
+for segment with number <I>sgmnum</I>. This command can be used
+to specify a particular protonation state. For example, the
+following command specifies that residue 114 is a hystidine
+protonated at the N<IMG
+ WIDTH="10" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img200.gif"
+ ALT="$_\epsilon$"> site and residue 202 is a hystidine
+protonated at the N<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img201.gif"
+ ALT="$_\delta$"> site:
+
+<P>
+<PRE>
+modify sequence 114:HIE 202:HID
+</PRE>
+
+<P>
+Links between atoms can be enforced with
+
+<P>
+<PRE>
+link &lt;string atomname&gt; &lt;string atomname&gt;
+</PRE>
+
+<P>
+For example, to link atom SG in segment 20 with atom FE
+in segment 55, use:
+
+<P>
+<PRE>
+link 20:_SG 55:FE
+</PRE>
+
+<P>
+The format of the sequence file is given in Table&nbsp;<A HREF="node36.html#tbl:nwmdseq">34.8</A>.
+In addition to the list of segments this file also includes links
+between non-standard segments or other non-standard links. 
+These links are generated based on distances found between
+atoms on the pdb file. When atoms are involved in such non-standard 
+links that have not been identified in the fragment of segment
+files as a non-chain link atom, the prepare module will ignore
+these links and report them as skipped. If one or more of these links
+are required, the user has to include them with explicit link
+directives in the sequence file, making them forced links.
+Alternatively, these links can be made forced-links by changing 
+<code>link</code> into <code>LINK</code> in the sequence file. 
+
+<P>
+<PRE>
+fraction { &lt;integer imol&gt; }
+</PRE>
+
+<P>
+Directive <code>fraction</code> can be used to separate solute molecules
+into fractions for which energies will be separately reported 
+during molecular dynamics simulations. The listed molecules will be
+the last molecule in a fraction. Up to 10 molecules may be
+specified in this directive.
+
+<P>
+<PRE>
+counter &lt;integer num&gt; &lt;string ion&gt;
+</PRE>
+
+<P>
+Directive <code>counter</code> adds <code>num</code> counter ions of type
+<code>ion</code> to the sequence file. Up to 10 <code>counter</code>
+directives may appear in the input block.
+
+<P>
+<PRE>
+counter &lt;real factor&gt;
+</PRE>
+
+<P>
+This directive scales the counter ion charge by the specified factor
+in the determination of counter ions positions.
+
+<P>
+
+<H1><A NAME="SECTION003240000000000000000">
+30.4 Topology file generation</A>
+</H1>
+
+<P>
+<PRE>
+new_top [ new_seq ]
+</PRE>
+
+<P>
+Keyword <code>new_top</code> is used to force the generation of a new topology 
+file. An existing topology file for the system in the current directory
+will be overwritten. If keyword <code>new_seq</code> is also specified, an
+existing sequence file will also be overwritten with a newly generated
+file.
+
+<P>
+<PRE>
+amber | charmm
+</PRE>
+
+<P>
+The prepare module generates force field specific fragment, segment and 
+topology files. The force field may be explicitly specified in the prepare 
+input block by specifying its name.
+Currently <B>AMBER</B> and <B>CHARMM</B> are the supported force fields.
+A default force field may be specified in the file $HOME/.nwchemrc. 
+
+<P>
+<PRE>
+standard &lt;string dir_s&gt;[&lt;string par_s&gt;]
+extensions &lt;string dir_x&gt;[&lt;string par_x&gt;]
+contributed &lt;string dir_q&gt;[&lt;string par_q&gt;]
+user &lt;string dir_u&gt;[&lt;string par_u&gt;]
+temporary &lt;string dir_t&gt;[&lt;string par_t&gt;]
+current &lt;string dir_c&gt;[&lt;string par_c&gt;]
+</PRE>
+
+<P>
+The user can explicitly specify the directories where force field
+specific databases can be found. These include force field standards,
+extensions, quality assurance tests, user preferences, temporary , and
+current database files.
+<BR>
+Defaults for the directories where database files reside may be specified 
+in the file $HOME/.nwchemrc for each of the supported force fields. 
+Fragment, segment and sequence files generated by the <B>prepare</B> module are 
+written in the temporary directory. When not specified, the current 
+directory will be used. 
+Topology and restart files are always created in the current directory.
+
+<P>
+The following directives control the modifications of a
+topology file. These directives are executed in the order in which 
+they appear in the <B>prepare</B> input deck. The topology modifying
+commands are not stored on the run-time database and are, therefor,
+not persistent.
+
+<P>
+<PRE>
+modify atom &lt;string atomname&gt; [set &lt;integer mset&gt; | initial | final] \
+	( type &lt;string atomtyp&gt; |  charge &lt;real atomcharge&gt; |  \
+	  polar &lt;real atompolar&gt; | dummy | self | quantum | quantum_high )
+</PRE>
+
+<P>
+These <code>modify</code> commands change the atom type, partial atomic charge,
+atomic polarizability, specify a dummy, self-interaction and quantum atom,
+respectively. If <code>mset</code> is specified, the modification will only
+apply to the specified set, which has to be 1, 2 or 3. If not specified,
+the modification will be applied to all three sets. The quantum region in
+QM/MM simulations is defined by specifying atoms with the <code>quantum</code>
+or <code>quantum_high</code> label. For atoms defined <code>quantum_high</code>
+basis sets labeled <code>X_H</code> will be used.
+The <code>atomnam</code>
+should be specified as <code>&lt;integer isgm&gt;:&lt;string name&gt;</code>, where
+<code>isgm</code> is the segment number, and <code>name</code> is the atom name. A
+leading blank in an atom name should be substituted with an underscore.
+The modify commands may be combined. For example, the following directive
+changes for the specified atom the charge and atom type in set 2 and 
+specifies the atom to be a dummy in set 3.
+
+<P>
+<PRE>
+modify atom 12:_C1 set 2 charge 0.12 type CA set 3 dummy
+</PRE>
+
+<P>
+With the following directives modifications can be made for entire
+segments.
+
+<P>
+<PRE>
+modify segment &lt;integer isgm&gt; [set &lt;integer mset&gt; | initial | final] \
+	( dummy | self | uncharged | quantum | quantum_high )
+</PRE>
+
+<P>
+Modifications to bonded interaction parameters can be made with the
+following modify commands.
+
+<P>
+<PRE>
+modify ( bond &lt;string atomtyp&gt; &lt;string atomtyp&gt; |  \
+	 angle &lt;string atomtyp&gt; &lt;string atomtyp&gt; &lt;string atomtyp&gt; |        \ 
+ 	 torsion &lt;string atomtyp&gt; &lt;string atomtyp&gt; &lt;string atomtyp&gt;        \
+		 &lt;string atomtyp&gt; [ multiplicity &lt;integer multip&gt; ] |      \
+	 plane &lt;string atomtyp&gt; &lt;string atomtyp&gt; &lt;string atomtyp&gt;          \
+		 &lt;string atomtyp&gt; ) [set &lt;integer mset&gt; | initial | final] \
+	 &lt;real value&gt; &lt;real forcon&gt;
+</PRE>
+
+<P>
+where <code>atomtyp</code> and <code>mset</code> are defined as above, <code>multip</code>
+is the torsion ultiplicity for which the modification is to be applied,
+<code>value</code> is the reference bond, angle, torsion angle of out-of-plane
+angle value respectively, and <code>forcon</code> is the force constant for
+bond, angle, torsion angle of out-of-plane angle. When <code>multip</code>
+or <code>mset</code> are not defined the modification will be applied to
+all multiplicities and sets, respectively, for the identified bonded
+interaction.
+
+<P>
+After modifying atoms to quantum atoms the bonded interactions in which
+only quantum atoms are involved are removed from the bonded lists using
+
+<P>
+<PRE>
+update lists
+</PRE>
+
+<P>
+Error messages resulting from parameters not being defined for bonded
+interaction in which only quantum atoms are involved are ignored using
+
+<P>
+<PRE>
+ignore
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003250000000000000000">
+30.5 Appending to an existing topology file</A>
+</H1>
+
+<P>
+<PRE>
+noe &lt;string atom1&gt; &lt;string atom3&gt; \
+  &lt;real dist1&gt; &lt;real dist2&gt;  &lt;real dist3&gt; &lt;real forc1&gt; &lt;real forc2&gt;
+</PRE>
+
+<P>
+This directive specifies a distance restraint potential between atoms
+<IMG
+ WIDTH="48" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img202.gif"
+ ALT="$atom1$"> and <IMG
+ WIDTH="48" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img203.gif"
+ ALT="$atom2$">, with a harmonic function with force constant
+<IMG
+ WIDTH="44" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img204.gif"
+ ALT="$forc1$"> between <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img205.gif"
+ ALT="$dist1$"> and <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img206.gif"
+ ALT="$dist2$">, and a harmonic function with 
+force constant <IMG
+ WIDTH="44" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img207.gif"
+ ALT="$forc2$"> between <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img206.gif"
+ ALT="$dist2$"> and <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img208.gif"
+ ALT="$dist3$">. For distances
+shorter than <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img205.gif"
+ ALT="$dist1$"> or larger than <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img208.gif"
+ ALT="$dist3$">, a constant force is 
+applied such that force and energy are continuous at <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img205.gif"
+ ALT="$dist1$">
+and <IMG
+ WIDTH="39" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img208.gif"
+ ALT="$dist3$">, respectively. Distances are given in nm, force constants
+in kJ mol<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$"> nm<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img210.gif"
+ ALT="$^{-2}$">.
+
+<P>
+<PRE>
+select &lt;integer isel&gt; { &lt;string atoms&gt; }
+</PRE>
+
+<P>
+Directive <code>select</code> specifies a group of atoms used in the
+definition of potential of mean force potentials.
+
+<P>
+The selected atoms are specified by the string <code>atoms</code> which
+takes the form
+
+<P>
+<PRE>
+[{isgm [ - jsgm ] [,]} [:] [{aname[,]}]
+</PRE>
+
+<P>
+For example, all carbon and oxygen atoms in segments 3
+and 6 through 12 are selected for group 1 by
+
+<P>
+<PRE>
+3,6-12:_C????,_O????
+</PRE>
+
+<P>
+<PRE>
+pmf [all] [bias] zalign &lt;integer isel&gt; &lt;real forcon1&gt; &lt;real forcon2&gt; 
+pmf [combine] [bias] xyplane &lt;integer isel&gt; &lt;real forcon1&gt; &lt;real forcon2&gt;
+pmf [constraint] [bias] (distance | zdistance) &lt;integer isel&gt; &lt;integer jsel&gt; \
+             &lt;real dist1&gt; &lt;real dist2&gt; &lt;real forcon1&gt; &lt;real forcon2&gt;
+pmf [bias] angle &lt;integer isel&gt; &lt;integer jsel&gt; &lt;integer ksel&gt; \
+             &lt;real angle1&gt; &lt;real angle2&gt; &lt;real forcon1&gt; &lt;real forcon2&gt;
+pmf [bias] torsion &lt;integer isel&gt; &lt;integer jsel&gt; &lt;integer ksel&gt; &lt;integer lsel&gt; \
+             &lt;real angle1&gt; &lt;real angle2&gt; &lt;real forcon1&gt; &lt;real forcon2&gt;
+pmf [bias] basepair &lt;integer isel&gt; &lt;integer jsel&gt; \
+             &lt;real dist1&gt; &lt;real dist2&gt; &lt;real forcon1&gt; &lt;real forcon2&gt;
+pmf [bias] (zaxis | zaxis-cog) &lt;integer isel&gt; &lt;integer jsel&gt; &lt;integer ksel&gt; \
+             &lt;real dist1&gt; &lt;real dist2&gt; &lt;real forcon1&gt; &lt;real forcon2&gt;
+</PRE>
+
+<P>
+Directive <code>pmf</code> specifies a potential of mean force potential
+in terms of the specified atom selection. Option <code>zalign</code> specifies
+the atoms in the selection to be restrained to a line parallel to the
+z-axis. Option <code>xyplane</code> specifies the atoms in the selection to 
+be restrained to a plane perpendicular to the z-axis. Options
+<code>distance</code>, <code>angle</code> and <code>torsion</code>, are defined in terms
+of the center of geometry of the specified atom selections.
+Keyword <code>basepair</code> is used to specify a harmonic potential between
+residues <code>isel</code> and <code>jsel</code>. Keywords <code>zaxis</code> and <code>zaxis-cog</code>
+can be used to pull atoms toward the z-axis.
+Option <code>all</code> may be specified to apply an equivalent pmf to each 
+of the equivalent solute molecules in the system.
+Option <code>combine</code> may be specified to apply the specified pmf to 
+the atoms in all of the equivalent solute molecules.
+Option <code>constraint</code> may be specified to a distance pmf to treat
+the distance as a contraint.
+Option <code>bias</code> may be specified to indicate that this function
+should be treated as a biasing potential. Appropriate corrections
+to free energy results will be evaluated.
+
+<P>
+
+<H1><A NAME="SECTION003260000000000000000">
+30.6 Generating a restart file</A>
+</H1>
+
+<P>
+<PRE>
+new_rst
+</PRE>
+
+<P>
+Keyword <code>new_rst</code> will cause an existing restart file to be
+overwritten with a new file.
+
+<P>
+The follwing directives control the manipulation of restart
+files, and are executed in the order in which they
+appear in the <B>prepare</B> input deck.
+
+<P>
+<PRE>
+solvent name &lt;string*3 slvnam default ``HOH''> \
+        model &lt;string slvmdl default ``spce''>
+</PRE>
+
+<P>
+The solvent keyword can be used to specify the three letter solvent name 
+as expected on the PDB formatted file, and the name of the solvent model
+for which solvent coordinates will be used.
+
+<P>
+<PRE>
+solvate   [ &lt; real rshell default 1.2 &gt; ] \
+        ( [ cube [ &lt;real edge&gt; ]] |  \
+          [ box [ &lt;real xedge&gt; [ &lt;real xedge&gt; [ &lt;real xedge&gt; ]]]] | \
+          [ sphere &lt;real radius&gt; ] |
+          [ troct &lt;real edge&gt; ])
+</PRE>
+
+<P>
+Solvation can be specified to be in a cubic box with specified edge,
+rectangular box with specified edges, or in a sphere with specified
+radius. Solvation in a cube or rectangular box will automatically also
+set periodic boundary conditions. Solvation in a sphere will only allow
+simulations without periodic boundary conditions. The size of the cubic
+and rectangular boxes will be expanded by a length specified by the
+expand variable. If no shape is specified, solvation will be done for
+a cubic box with an edge that leaves rshell nm between any solute atom and
+a periodic image of any solute atom after the solute has been centered. 
+An explicit <code>write</code> is not needed to write the restart file. 
+The <code>solvate</code> will write out a file <code>sys_calc</code>.rst.
+If not specified, the dimension of the solvation cell will be as large
+as to have at least a distance of <code>rshell</code> nm between any solute atom
+and the edge of the cell. The experimental <code>troct</code> directive generates 
+a truncated octrahedral box.
+
+<P>
+<PRE>
+touch &lt;real touch default 0.23&gt;
+</PRE>
+
+<P>
+The variable <code>touch</code> specifies the minimum distance between a solvent 
+and solute atom for which a solvent molecule will be accepted for solvation.
+
+<P>
+<PRE>
+envelope &lt;real xpndw default 0.0&gt;
+</PRE>
+sets the expand vealues to be used in <code>solvate</code> operations.
+
+<P>
+<PRE>
+expand &lt;real xpndw default 0.1&gt;
+</PRE>
+
+<P>
+The variable <code>xpndw</code> specifies the size in nm with which the simulation
+volume will be increased after solvation.
+
+<P>
+<PRE>
+read [rst | rst_old | pdb] &lt;string filename&gt;
+write [rst | [solute [&lt;integer nsolvent&gt;]] ( [large] pdb | xyz)] &lt;string filename&gt;
+</PRE>
+
+<P>
+These directives read and write the file <code>filename</code> in the specified
+format. The <code>solute</code> option instructs to write out the coordinates
+for solute and all, or if specified the first <code>nsolvent</code>, crystal solvent 
+molecules only.
+If no format is specified, it will be derived from the extension of the
+filename. Recognized extensions are rst, rst_old (read only), pdb, xyz
+(write only) and pov (write only).
+Reading and then writing the same restart file will cause the
+sub-block size information to be lost. If this information needs to be
+retained a shell copy command needs to be used.
+The <code>large</code> keyword allows PDB files to be written with more than 9999
+residues. Since the PDB file will not conform to the PDB convention, this
+option should only be used if required. NWChem will be able to read the
+resulting PDB file, but other codes may not.
+
+<P>
+<PRE>
+scale &lt;real scale default -1.0&gt;
+</PRE>
+
+<P>
+This directive scales the volume and coordinates written to povray files.
+A negative value of scale (default) scales the coordinates to lie
+in [-1:1].
+
+<P>
+<PRE>
+cpk [&lt;real cpk default 1.0&gt;]
+</PRE>
+
+<P>
+This directive causes povray files to contain cpk model output. The
+optional value is used to scale the atomic radii. A neagtive value
+of cpk resets the rendering to stick.
+
+<P>
+<PRE>
+center | centerx | centery | centerz
+</PRE>
+
+<P>
+These directives center the solute center of geometry at the origin,
+in the y-z plane, in the x-z plane or in the x-y plane, respectively.
+
+<P>
+<PRE>
+orient
+</PRE>
+
+<P>
+This directive orients the solute principal axes.
+
+<P>
+<PRE>
+translate [atom | segment | molecule] \
+	 &lt;integer itran&gt; &lt;integer itran&gt; &lt;real xtran(3)&gt;
+</PRE>
+
+<P>
+This directive translates solute atoms in the indicated range by xtran,
+without checking for bad contacts in the resulting structure.
+
+<P>
+<PRE>
+rotate [atom | segment | molecule] \
+	 &lt;integer itran&gt; &lt;integer itran&gt; &lt;real angle&gt; &lt;real xrot(3)&gt;
+</PRE>
+
+<P>
+This directive rotates solute atoms in the indicated range by angle
+around the vector given by xrot,,
+without checking for bad contacts in the resulting structure.
+
+<P>
+<PRE>
+remove solvent [inside | outside] [x &lt;real xmin&gt; &lt;real xmax&gt;] \
+[y &lt;real ymin&gt; &lt;real ymax&gt;] [z &lt;real zmin&gt; &lt;real zmax&gt;]
+</PRE>
+
+<P>
+This directive removes solvent molecules inside or outside the
+specified coordinate range.
+
+<P>
+<PRE>
+periodic
+</PRE>
+
+<P>
+This directive enables periodic boundary conditions.
+
+<P>
+<PRE>
+vacuo
+</PRE>
+
+<P>
+This directive disables periodic boundary conditions.
+
+<P>
+<PRE>
+grid &lt;integer mgrid default 24&gt; &lt;real rgrid default 0.2&gt;
+</PRE>
+
+<P>
+This directive specifies the grid size of trial counter-ion positions and 
+minimum distance between an atom in the system and a counter-ion. 
+
+<P>
+<PRE>
+crop
+</PRE>
+prints minimum and maximum solute coordinates.
+
+<P>
+<PRE>
+boxsize
+</PRE>
+specifies to redetermine the box size.
+
+<P>
+<PRE>
+cube
+</PRE>
+specifies to redetermine the smallest cubic box size.
+
+<P>
+<PRE>
+box &lt;real xsize&gt; &lt;real ysize&gt;  &lt;real zsize&gt;
+</PRE>
+
+<P>
+The <code>box</code> directive resets the box size.
+
+<P>
+<PRE>
+align &lt;string atomi&gt; &lt;string atomj&gt; &lt;string atomk&gt;
+</PRE>
+
+<P>
+The <code>align</code> directive orients the system such that
+<code>atomi</code> and <code>atomj</code> are on the z-axis, and <code>atomk</code>
+in the x=y plane.
+
+<P>
+<PRE>
+repeat [randomx | randomy | randomz] [chains | molecules | fractions ] \
+ &lt;integer nx&gt; &lt;integer ny&gt; &lt;integer nz&gt; [&lt;real dist&gt;] [&lt;real zdist&gt;]
+</PRE>
+
+<P>
+The <code>repeat</code> directive causes a subsequent <code>write pdb</code>
+directive to write out multiple copies of the system, with <code>nx</code>
+copies in the x, <code>ny</code> copies in the y, and <code>nz</code> copies in 
+the z-direction, with a minimum distance of <code>dist</code> between any
+pair of atoms from different copies. If <code>nz</code> is -2, an inverted
+copy is placed in the z direction, with a separation of <code>zdist</code> nm. 
+If <code>dist</code> is negative, the box dimensions will be used. 
+For systems with solvent, this directive should be used with a negative 
+<code>dist</code>.
+Optional keywords <code>chains</code>, <code>molecules</code> and <code>fractions</code>
+specify to write each repeating solute unit as a chain, to repeat
+each solute molecule, or each solute fraction separately. Optional
+keywords <code>randomx</code>, <code>randomy</code>, and <code>randomz</code> can be used 
+to apply random rotations for each repeat unit around a vector through
+the center of geometry of the solute in the x, y or z direction.
+
+<P>
+<PRE>
+skip &lt;integer ix&gt; &lt;integer iy&gt; &lt;integer iz&gt;
+</PRE>
+
+<P>
+The <code>skip</code> directive can be used to skip single repeat unit
+from the <code>repeat</code> directive. Up to 100 <code>skip</code> directives 
+may be specified, and will only apply to the previously specified
+<code>repeat</code> directive. 
+
+<P>
+<PRE>
+(collapsexy | collapsez) [ &lt;integer nmoves&gt;]
+</PRE>
+specifies to move all solute molecules toward the <code>z</code>-axis or 
+<code>x=y</code>-plane, respectively, to within a distance of <code>touch</code>
+nm between any pair of atoms from different solute molecules. Parameter
+<code>nmoves</code> specifies the number of collapse moves that will be made.
+Monatomic ions will move with the nearest multi-atom molecule.
+
+<P>
+<PRE>
+collapse_group &lt;integer imol&gt; &lt;integer jmol&gt;
+</PRE>
+specifies that molecule jmol will move together with molecule imol in
+collapse operations.
+
+<P>
+<PRE>
+merge &lt;real xtran(3)&gt; &lt;string pdbfile&gt;
+</PRE>
+specifies to merge the coordinates found on the specified pdb file
+into the current structure after translation by xtran(3).
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1585"
+  HREF="node33.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1581"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1575"
+  HREF="node31.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1583"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1586"
+  HREF="node33.html">31. Molecular dynamics</A>
+<B> Up:</B> <A NAME="tex2html1582"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1576"
+  HREF="node31.html">29. Electrostatic potentials</A>
+ &nbsp <B>  <A NAME="tex2html1584"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

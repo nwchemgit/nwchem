@@ -1,0 +1,863 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>C. Examples of geometries using symmetry</TITLE>
+<META NAME="description" CONTENT="C. Examples of geometries using symmetry">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node44.html">
+<LINK REL="previous" HREF="node42.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node44.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1847"
+  HREF="node44.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1843"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1837"
+  HREF="node42.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1845"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1848"
+  HREF="node44.html">D. Running NWChem</A>
+<B> Up:</B> <A NAME="tex2html1844"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1838"
+  HREF="node42.html">B. Sample input files</A>
+ &nbsp <B>  <A NAME="tex2html1846"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1849"
+  HREF="node43.html#SECTION004310000000000000000">C.1 <IMG
+ WIDTH="22" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.gif"
+ ALT="$C_{s}$"> methanol</A>
+<LI><A NAME="tex2html1850"
+  HREF="node43.html#SECTION004320000000000000000">C.2 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.gif"
+ ALT="$C_{2v}$"> water</A>
+<LI><A NAME="tex2html1851"
+  HREF="node43.html#SECTION004330000000000000000">C.3 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$"> acetylene</A>
+<LI><A NAME="tex2html1852"
+  HREF="node43.html#SECTION004340000000000000000">C.4 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$"> ethylene</A>
+<LI><A NAME="tex2html1853"
+  HREF="node43.html#SECTION004350000000000000000">C.5 <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.gif"
+ ALT="$T_d$"> methane</A>
+<LI><A NAME="tex2html1854"
+  HREF="node43.html#SECTION004360000000000000000">C.6 <IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img10.gif"
+ ALT="$I_h$"> buckminsterfullerene</A>
+<LI><A NAME="tex2html1855"
+  HREF="node43.html#SECTION004370000000000000000">C.7 <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$S_4$"> porphyrin</A>
+<LI><A NAME="tex2html1856"
+  HREF="node43.html#SECTION004380000000000000000">C.8 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.gif"
+ ALT="$D_{3h}$"> iron penta-carbonyl</A>
+<LI><A NAME="tex2html1857"
+  HREF="node43.html#SECTION004390000000000000000">C.9 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img13.gif"
+ ALT="$D_{3d}$"> sodium crown ether</A>
+<LI><A NAME="tex2html1858"
+  HREF="node43.html#SECTION0043100000000000000000">C.10 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img14.gif"
+ ALT="$C_{3v}$"> ammonia</A>
+<LI><A NAME="tex2html1859"
+  HREF="node43.html#SECTION0043110000000000000000">C.11 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$D_{6h}$"> benzene</A>
+<LI><A NAME="tex2html1860"
+  HREF="node43.html#SECTION0043120000000000000000">C.12 <IMG
+ WIDTH="30" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img16.gif"
+ ALT="$C_{3h}$"> <IMG
+ WIDTH="57" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img17.gif"
+ ALT="$BO_3H_3$"></A>
+<LI><A NAME="tex2html1861"
+  HREF="node43.html#SECTION0043130000000000000000">C.13 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img18.gif"
+ ALT="$D_{5d}$"> ferrocene</A>
+<LI><A NAME="tex2html1862"
+  HREF="node43.html#SECTION0043140000000000000000">C.14 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img19.gif"
+ ALT="$C_{4v}$"> <IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$SF_5Cl$"></A>
+<LI><A NAME="tex2html1863"
+  HREF="node43.html#SECTION0043150000000000000000">C.15 <IMG
+ WIDTH="30" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img21.gif"
+ ALT="$C_{2h}$"> trans-dichloroethylene</A>
+<LI><A NAME="tex2html1864"
+  HREF="node43.html#SECTION0043160000000000000000">C.16 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img22.gif"
+ ALT="$D_{2d}$"> <IMG
+ WIDTH="82" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img23.gif"
+ ALT="$CH_2CCH_2$"></A>
+<LI><A NAME="tex2html1865"
+  HREF="node43.html#SECTION0043170000000000000000">C.17 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img24.gif"
+ ALT="$D_{5h}$"> cyclopentadiene anion</A>
+<LI><A NAME="tex2html1866"
+  HREF="node43.html#SECTION0043180000000000000000">C.18 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img25.gif"
+ ALT="$D_{4h}$"> gold tetrachloride</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION004300000000000000000">
+C. Examples of geometries using symmetry</A>
+</H1>
+<A NAME="symexamples"></A>
+<P>
+Below are examples of the use of the <code>SYMMETRY</code> directive in
+the compound <code>GEOMETRY</code> directive (Section <A HREF="node8.html#sec:geom">6</A>).
+The z axis is always the primary rotation axis.
+When in doubt about which axes and planes are used for the group
+elements, the keyword <code>print</code> may be added to the <code>SYMMETRY</code> 
+directive to obtain this information.
+
+<P>
+
+<H1><A NAME="SECTION004310000000000000000">
+C.1 <IMG
+ WIDTH="22" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.gif"
+ ALT="$C_{s}$"> methanol</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img338.gif"
+ ALT="$\sigma_h$"> plane is the xy plane.
+
+<P>
+<PRE>
+  geometry units angstroms
+    C    0.11931097    -0.66334875     0.00000000
+    H    1.20599017    -0.87824237     0.00000000
+    H   -0.32267592    -1.15740001     0.89812652
+    O   -0.01716588     0.78143468     0.00000000
+    H   -1.04379735     0.88169812     0.00000000
+    symmetry cs
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004320000000000000000">
+C.2 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.gif"
+ ALT="$C_{2v}$"> water</A>
+</H1>
+
+<P>
+The z axis is the <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axis and the <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img340.gif"
+ ALT="$\sigma_v$"> may be either the xz or the
+yz planes.
+
+<P>
+<PRE>
+  geometry units au
+    O     0.00000000    0.00000000    0.00000000
+    H     0.00000000    1.43042809   -1.10715266
+    symmetry group c2v
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004330000000000000000">
+C.3 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$"> acetylene</A>
+</H1>
+
+<P>
+Although acetylene has symmetry <IMG
+ WIDTH="38" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img341.gif"
+ ALT="$D_{\infty h}$"> the subgroup
+<IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$"> includes all operations that interchange equivalent atoms
+which is what determines how much speedup you gain from using symmetry
+in building a Fock matrix.
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axes are the x, y, and z axes.  The <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img342.gif"
+ ALT="$\sigma$"> planes are the xy,
+xz and yz planes.  Generally, the unique atoms are placed to use the z
+as the primary rotational axis and use the xz or yz planes as the <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img342.gif"
+ ALT="$\sigma$"> 
+plane.
+
+<P>
+<PRE>
+  geometry units au
+    symmetry group d2h
+    C      0.000000000    0.000000000   -1.115108538
+    H      0.000000000    0.000000000   -3.106737425
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004340000000000000000">
+C.4 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$"> ethylene</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axes are the x, y, and z axes.  The <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img342.gif"
+ ALT="$\sigma$"> planes are the xy,
+xz and yz planes.  Generally, the unique atoms are placed to use the z
+as the primary rotational axis and use the xz or yz planes as the <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img342.gif"
+ ALT="$\sigma$"> 
+plane.
+
+<P>
+<PRE>
+  geometry units angstroms
+    C 0 0 0.659250 
+    H 0 0.916366 1.224352 
+    symmetry d2h
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004350000000000000000">
+C.5 <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.gif"
+ ALT="$T_d$"> methane</A>
+</H1>
+
+<P>
+For ease of use, the primary <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img343.gif"
+ ALT="$C_3$"> axis should be the x=y=z axis.
+The 3 <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axes are the x, y, and z.
+
+<P>
+<PRE>
+  geometry units au
+    c   0.0000000      0.0000000      0.0000000
+    h   1.1828637      1.1828637      1.1828637
+    symmetry group Td
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004360000000000000000">
+C.6 <IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img10.gif"
+ ALT="$I_h$"> buckminsterfullerene</A>
+</H1>
+
+<P>
+One of the <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img344.gif"
+ ALT="$C_5$"> axes is the z axis and the point of inversion is the origin.
+
+<P>
+<PRE>
+  geometry units angstroms # Bonds = 1.4445, 1.3945
+    symmetry group Ih
+    c   -1.2287651   0.0   3.3143121
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004370000000000000000">
+C.7 <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$S_4$"> porphyrin</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$S_4$"> and <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> rotation axis is the z axis.  The reflection plane 
+for the <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$S_4$"> operation is the xy plane.
+
+<P>
+<PRE>
+  geometry units angstroms
+     symmetry group s4
+  
+     fe                0.000  0.000  0.000         
+     h                 2.242  6.496 -3.320   
+     h                 1.542  4.304 -2.811
+     c                 1.947  6.284 -2.433
+     c                 1.568  4.987 -2.084
+     h                 2.252  8.213 -1.695
+     c                 1.993  7.278 -1.458
+     h                 5.474 -1.041 -1.143
+     c                 1.234  4.676 -0.765
+     h                 7.738 -1.714 -0.606
+     c                 0.857  3.276 -0.417
+     h                 1.380 -4.889 -0.413
+     c                 1.875  2.341 -0.234
+     h                 3.629  3.659 -0.234
+     c                 0.493 -2.964 -0.229
+     c                 1.551 -3.933 -0.221
+     c                 5.678 -1.273 -0.198
+     c                 1.656  6.974 -0.144
+     c                 3.261  2.696 -0.100
+     n                 1.702  0.990 -0.035
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004380000000000000000">
+C.8 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.gif"
+ ALT="$D_{3h}$"> iron penta-carbonyl</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img343.gif"
+ ALT="$C_3$"> axis is the z axis.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img338.gif"
+ ALT="$\sigma_h$"> plane is the xy plane.  One of
+the perpendicular <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axes is the x=y axis.  One of the <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img340.gif"
+ ALT="$\sigma_v$"> 
+planes is the plane containing the x=y axis and the z axis.  (The 
+other axes and planes are generated by the <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img343.gif"
+ ALT="$C_3$"> operation.)
+
+<P>
+<PRE>
+  geometry units au
+    symmetry group d3h
+
+    fe        0.0         0.0         0.0
+
+    c         0.0         0.0         3.414358
+    o         0.0         0.0         5.591323
+
+    c         2.4417087   2.4417087   0.0
+    o         3.9810552   3.9810552   0.0
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004390000000000000000">
+C.9 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img13.gif"
+ ALT="$D_{3d}$"> sodium crown ether</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img343.gif"
+ ALT="$C_3$"> axis is the z axis. The point of inversion is the origin. One of
+the perpendicular <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axes is the x=y axis. One of the <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img345.gif"
+ ALT="$\sigma_d$"> planes
+is the plane containing the -x=y axis and the z axis.
+
+<P>
+Note that the oxygen atom is rotated in the x-y plane 15
+  degrees away from the y-axis so that it lies in a mirror
+  plane.  There is a total of six atoms generated from the
+  unique oxygen, in contrast to twelve from each of the carbon
+  and hydrogen atoms.
+
+<P>
+<PRE>
+  geometry units au
+    symmetry D3d
+
+   NA     .0000000000    .0000000000   .0000000000
+   O     1.3384771885   4.9952647969   .1544089284
+   H     6.7342048019  -0.6723850379  2.6581562148
+   C     6.7599180056  -0.4844977035   .6136583870
+   H     8.6497577017   0.0709194071   .0345361934
+
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043100000000000000000">
+C.10 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img14.gif"
+ ALT="$C_{3v}$"> ammonia</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img343.gif"
+ ALT="$C_3$"> axis is the z axis. One of the <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img340.gif"
+ ALT="$\sigma_v$"> planes is the 
+plane containing the x=y axis and the z axis.
+
+<P>
+<PRE>
+  geometry units angstroms
+    N 0     0     -0.055 
+    H 0.665 0.665 -0.481 
+    symmetry c3v
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043110000000000000000">
+C.11 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$D_{6h}$"> benzene</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img346.gif"
+ ALT="$C_6$"> axis is the z axis.  The point of inversion is the origin.  One
+of the 6 perpendicular <IMG
+ WIDTH="23" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img347.gif"
+ ALT="$C_2'$"> axes is the x=y axis. (-x=y works as a 
+<IMG
+ WIDTH="25" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img348.gif"
+ ALT="$C_2''$"> axis.)  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img338.gif"
+ ALT="$\sigma_h$"> plane is the xy plane.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img345.gif"
+ ALT="$\sigma_d$"> 
+planes contain the <IMG
+ WIDTH="25" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img348.gif"
+ ALT="$C_2''$"> axis and the z axis.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img340.gif"
+ ALT="$\sigma_v$"> planes 
+contain the <IMG
+ WIDTH="23" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img347.gif"
+ ALT="$C_2'$"> axis and the z axis.
+
+<P>
+<PRE>
+  geometry units au
+    C 1.855 1.855 0 
+    H 3.289 3.289 0 
+    symmetry D6h
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043120000000000000000">
+C.12 <IMG
+ WIDTH="30" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img16.gif"
+ ALT="$C_{3h}$"> <IMG
+ WIDTH="57" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img17.gif"
+ ALT="$BO_3H_3$"></A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img343.gif"
+ ALT="$C_3$"> axis is the z axis.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img338.gif"
+ ALT="$\sigma_h$"> plane is the xy plane.
+
+<P>
+<PRE>
+  geometry units au
+    b 0 0 0 
+    o 2.27238285 1.19464491 0.00000000 
+    h 2.10895420 2.97347707 0.00000000 
+   symmetry C3h
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043130000000000000000">
+C.13 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img18.gif"
+ ALT="$D_{5d}$"> ferrocene</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img344.gif"
+ ALT="$C_5$"> axis is the z axis.  The center of inversion is the origin.
+One of the perpendicular <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axes is the x axis.  One of the <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img345.gif"
+ ALT="$\sigma_d$">
+planes is the yz plane.
+
+<P>
+<PRE>
+  geometry units angstroms
+    symmetry d5d
+
+    fe 0 0     0 
+    c  0 1.194 1.789 
+    h  0 2.256 1.789 
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043140000000000000000">
+C.14 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img19.gif"
+ ALT="$C_{4v}$"> <IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$SF_5Cl$"></A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img349.gif"
+ ALT="$C_4$"> axis is the z axis.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img340.gif"
+ ALT="$\sigma_v$"> planes are the yz and the xz
+planes.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img345.gif"
+ ALT="$\sigma_d$"> planes are: 1) the plane containing the x=y axis and
+the z axis and 2) the plane containing the -x=y axis and the z axis.
+
+<P>
+<PRE>
+  geometry units au
+    S  0.00000000 0.00000000 -0.14917600 
+    Cl 0.00000000 0.00000000  4.03279700 
+    F  3.13694200 0.00000000 -0.15321800 
+    F  0.00000000 0.00000000 -3.27074500 
+
+    symmetry C4v
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043150000000000000000">
+C.15 <IMG
+ WIDTH="30" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img21.gif"
+ ALT="$C_{2h}$"> trans-dichloroethylene</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axis is the z axis.  The origin is the inversion center.
+The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img338.gif"
+ ALT="$\sigma_h$"> plane is the xy plane.
+
+<P>
+<PRE>
+  geometry units angstroms
+    C  0.65051239 -0.08305064 0 
+    Cl 1.75249381  1.30491767 0 
+    H  1.14820954 -1.04789741 0 
+    symmetry C2h
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043160000000000000000">
+C.16 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img22.gif"
+ ALT="$D_{2d}$"> <IMG
+ WIDTH="82" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img23.gif"
+ ALT="$CH_2CCH_2$"></A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axis is the z axis (z is also the <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$S_4$"> axis).  The x and y axes
+are the perpendicular <IMG
+ WIDTH="23" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img347.gif"
+ ALT="$C_2'$">s. The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img345.gif"
+ ALT="$\sigma_d$"> planes are: 
+1) the plane containing the x=y axis and the z axis and 2) the plane 
+containing the -x=y axis and the z axis.
+
+<P>
+<PRE>
+  geometry units angstroms
+    symmetry d2d
+    c 0     0     0 
+    c 0     0     1.300 
+    h 0.656 0.656 1.857 
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043170000000000000000">
+C.17 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img24.gif"
+ ALT="$D_{5h}$"> cyclopentadiene anion</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img344.gif"
+ ALT="$C_5$"> axis is the z axis (z is also the <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img350.gif"
+ ALT="$S_5$"> axis).  The y axis is one
+of the perpendicular <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img339.gif"
+ ALT="$C_2$"> axes.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img338.gif"
+ ALT="$\sigma_h$"> plane is the xy plane and
+one of the <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img345.gif"
+ ALT="$\sigma_d$"> planes is the yz plane.
+
+<P>
+<PRE>
+  charge -1
+  geometry units angstroms
+    symmetry d5h
+    c 0 1.1853 0 
+    h 0 2.2654 0 
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0043180000000000000000">
+C.18 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img25.gif"
+ ALT="$D_{4h}$"> gold tetrachloride</A>
+</H1>
+
+<P>
+The <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img349.gif"
+ ALT="$C_4$"> axis is the z axis (z is also the <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$S_4$"> axis).  
+The <IMG
+ WIDTH="23" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img347.gif"
+ ALT="$C_2'$"> axes are the x and y axes and the <IMG
+ WIDTH="25" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img348.gif"
+ ALT="$C_2''$"> axes are the x=y axis
+and the x=-y axis.  The inversion center is the origin.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img338.gif"
+ ALT="$\sigma_h$">
+plane is the xy plane.  The <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img340.gif"
+ ALT="$\sigma_v$"> planes are the xz and yz planes and
+the <IMG
+ WIDTH="21" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img345.gif"
+ ALT="$\sigma_d$"> planes are 1) the plane containing the x=-y axis and the z axis
+and 2) the plane containing the x=y axis and the z axis.
+
+<P>
+<PRE>
+  geometry units au
+    Au 0 0     0 
+    Cl 0 4.033 0
+    symmetry D4h
+  end
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1847"
+  HREF="node44.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1843"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1837"
+  HREF="node42.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1845"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1848"
+  HREF="node44.html">D. Running NWChem</A>
+<B> Up:</B> <A NAME="tex2html1844"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1838"
+  HREF="node42.html">B. Sample input files</A>
+ &nbsp <B>  <A NAME="tex2html1846"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

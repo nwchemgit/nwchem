@@ -1,0 +1,2615 @@
+This is TeX, Version 3.14159 (Web2C 7.3.1) (format=latex 2003.2.18)  25 MAY 2004 09:15
+**./images.tex
+(./images.tex
+LaTeX2e <2001/06/01>
+Babel <v3.7h> and hyphenation patterns for american, french, german, ngerman, i
+talian, nohyphenation, loaded.
+
+(/usr/share/texmf/tex/latex/base/book.cls
+Document Class: book 2001/04/21 v1.4e Standard LaTeX document class
+(/usr/share/texmf/tex/latex/base/fleqn.clo
+File: fleqn.clo 1998/08/17 v1.1c Standard LaTeX option (flush left equations)
+\mathindent=\dimen102
+) (/usr/share/texmf/tex/latex/base/bk10.clo
+File: bk10.clo 2001/04/21 v1.4e Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@chapter=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen103
+) (/usr/share/texmf/tex/latex/base/ifthen.sty
+Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
+) (/home/edo/park/nwchem-4.6/doc/user/html.sty
+Package: html 1996/12/22 v1.1 hypertext commands for latex2html (nd, hws, rrm)
+\c@lpart=\count88
+\c@lchapter=\count89
+\c@lsection=\count90
+\c@lsubsection=\count91
+\c@lsubsubsection=\count92
+\c@lparagraph=\count93
+\c@lsubparagraph=\count94
+\c@lequation=\count95
+\c@lsubsubparagraph=\count96
+\ptrfile=\write3
+) (/home/edo/park/nwchem-4.6/doc/user/fullpage.sty) (/usr/share/texmf/tex/latex
+/base/latexsym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup4
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 42.
+) (/usr/share/texmf/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+(/usr/share/texmf/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+) (/usr/share/texmf/tex/latex/graphics/graphics.sty
+Package: graphics 2001/07/07 v1.0n Standard LaTeX Graphics (DPC,SPQR)
+(/usr/share/texmf/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+) (/usr/share/texmf/tex/latex/config/graphics.cfg)
+Package graphics Info: Driver file: dvips.def on input line 80.
+(/usr/share/texmf/tex/latex/graphics/dvips.def
+File: dvips.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+))
+\Gin@req@height=\dimen104
+\Gin@req@width=\dimen105
+) (/usr/share/texmf/tex/generic/misc/psfig.sty
+\@unused=\write4
+\ps@stream=\read1
+\p@intvaluex=\dimen106
+\p@intvaluey=\dimen107
+psfig/tex 1.10-dvips
+) (/usr/share/texmf/tex/latex/graphics/color.sty
+Package: color 1999/02/16 v1.0i Standard LaTeX Color (DPC)
+(/usr/share/texmf/tex/latex/config/color.cfg)
+Package color Info: Driver file: dvips.def on input line 125.
+(/usr/share/texmf/tex/latex/graphics/dvipsnam.def
+File: dvipsnam.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
+)) (/usr/share/texmf/tex/latex/base/inputenc.sty
+Package: inputenc 2001/07/10 v0.99a Input encoding file 
+(/usr/share/texmf/tex/latex/base/latin1.def
+File: latin1.def 2001/07/10 v0.99a Input encoding file 
+))
+\sizebox=\box26
+\lthtmlwrite=\write5
+(images.aux)
+\openout1 = `images.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 127.
+LaTeX Font Info:    ... okay on input line 127.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 127.
+LaTeX Font Info:    ... okay on input line 127.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 127.
+LaTeX Font Info:    ... okay on input line 127.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 127.
+LaTeX Font Info:    ... okay on input line 127.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 127.
+LaTeX Font Info:    ... okay on input line 127.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 127.
+LaTeX Font Info:    ... okay on input line 127.
+(/home/edo/park/nwchem-4.6/doc/user/user.aux
+
+LaTeX Warning: Label `sec:intro' multiply defined.
+
+
+LaTeX Warning: Label `sec:getstart' multiply defined.
+
+
+LaTeX Warning: Label `sec:inputstructure' multiply defined.
+
+
+LaTeX Warning: Label `sec:simplesample' multiply defined.
+
+
+LaTeX Warning: Label `sec:realsample' multiply defined.
+
+
+LaTeX Warning: Label `sec:syntax' multiply defined.
+
+
+LaTeX Warning: Label `sec:arch' multiply defined.
+
+
+LaTeX Warning: Label `sec:database' multiply defined.
+
+
+LaTeX Warning: Label `sec:persist' multiply defined.
+
+
+LaTeX Warning: Label `sec:functionality' multiply defined.
+
+
+LaTeX Warning: Label `sec:toplevel' multiply defined.
+
+
+LaTeX Warning: Label `sec:start' multiply defined.
+
+
+LaTeX Warning: Label `sec:dirs' multiply defined.
+
+
+LaTeX Warning: Label `sec:echo' multiply defined.
+
+
+LaTeX Warning: Label `sec:printcontrol' multiply defined.
+
+
+LaTeX Warning: Label `sec:set' multiply defined.
+
+
+LaTeX Warning: Label `sec:unset' multiply defined.
+
+
+LaTeX Warning: Label `sec:task' multiply defined.
+
+
+LaTeX Warning: Label `sec:first_task' multiply defined.
+
+
+LaTeX Warning: Label `sec:charge' multiply defined.
+
+
+LaTeX Warning: Label `sec:ecce' multiply defined.
+
+
+LaTeX Warning: Label `sec:geom' multiply defined.
+
+
+LaTeX Warning: Label `sec:geomkeys' multiply defined.
+
+
+LaTeX Warning: Label `sec:symgrp' multiply defined.
+
+
+LaTeX Warning: Label `sec:cart' multiply defined.
+
+
+LaTeX Warning: Label `sec:Z-matrix' multiply defined.
+
+
+LaTeX Warning: Label `fig:zmat1' multiply defined.
+
+
+LaTeX Warning: Label `fig:zmat2' multiply defined.
+
+
+LaTeX Warning: Label `fig:zmat3' multiply defined.
+
+
+LaTeX Warning: Label `sec:zcoord' multiply defined.
+
+
+LaTeX Warning: Label `sec:activeatoms' multiply defined.
+
+
+LaTeX Warning: Label `sec:constraints' multiply defined.
+
+
+LaTeX Warning: Label `sec:latticeparam' multiply defined.
+
+
+LaTeX Warning: Label `sec:basis' multiply defined.
+
+
+LaTeX Warning: Label `sec:ecp' multiply defined.
+
+
+LaTeX Warning: Label `sec:scalar_ecp' multiply defined.
+
+
+LaTeX Warning: Label `sec:spinorb_ecp' multiply defined.
+
+
+LaTeX Warning: Label `sec:rel' multiply defined.
+
+
+LaTeX Warning: Label `sec:douglas-kroll' multiply defined.
+
+
+LaTeX Warning: Label `sec:dyall-mod-dir' multiply defined.
+
+
+LaTeX Warning: Label `sec:scf' multiply defined.
+
+
+LaTeX Warning: Label `sec:sym' multiply defined.
+
+
+LaTeX Warning: Label `sec:adapt' multiply defined.
+
+
+LaTeX Warning: Label `sec:tol2e' multiply defined.
+
+
+LaTeX Warning: Label `sec:vectors' multiply defined.
+
+
+LaTeX Warning: Label `sec:fragguess' multiply defined.
+
+
+LaTeX Warning: Label `sec:atomscf' multiply defined.
+
+
+LaTeX Warning: Label `sec:tolguess' multiply defined.
+
+
+LaTeX Warning: Label `sec:thresh' multiply defined.
+
+
+LaTeX Warning: Label `sec:max' multiply defined.
+
+
+LaTeX Warning: Label `sec:semidirect' multiply defined.
+
+
+LaTeX Warning: Label `sec:scfconv' multiply defined.
+
+
+LaTeX Warning: Label `sec:nrswitch' multiply defined.
+
+
+LaTeX Warning: Label `sec:level' multiply defined.
+
+
+LaTeX Warning: Label `orbloc' multiply defined.
+
+
+LaTeX Warning: Label `sec:scfprint' multiply defined.
+
+
+LaTeX Warning: Label `sec:scfgrad' multiply defined.
+
+
+LaTeX Warning: Label `sec:dft' multiply defined.
+
+
+LaTeX Warning: Label `sec:xc' multiply defined.
+
+
+LaTeX Warning: Label `sec:DFTsample' multiply defined.
+
+
+LaTeX Warning: Label `tablexc' multiply defined.
+
+
+LaTeX Warning: Label `sec:dftconv' multiply defined.
+
+
+LaTeX Warning: Label `smear' multiply defined.
+
+
+LaTeX Warning: Label `grgrid' multiply defined.
+
+
+LaTeX Warning: Label `sec:sodft' multiply defined.
+
+
+LaTeX Warning: Label `sec:cosmo' multiply defined.
+
+
+LaTeX Warning: Label `sec:tddft' multiply defined.
+
+
+LaTeX Warning: Label `tbl:tddft-printable' multiply defined.
+
+
+LaTeX Warning: Label `sec:tce' multiply defined.
+
+
+LaTeX Warning: Label `sec:inputsyntax' multiply defined.
+
+
+LaTeX Warning: Label `tbl:tce-printable' multiply defined.
+
+
+LaTeX Warning: Label `sec:mp2' multiply defined.
+
+
+LaTeX Warning: Label `sec:rimp2' multiply defined.
+
+
+LaTeX Warning: Label `mp2:core' multiply defined.
+
+
+LaTeX Warning: Label `tbl:freeze-by-atoms' multiply defined.
+
+
+LaTeX Warning: Label `sec:mp2vectors' multiply defined.
+
+
+LaTeX Warning: Label `tbl:mp2-printable' multiply defined.
+
+
+LaTeX Warning: Label `sec:mcscf' multiply defined.
+
+
+LaTeX Warning: Label `sec:mcscfvectors' multiply defined.
+
+
+LaTeX Warning: Label `sec:mcscfhessian' multiply defined.
+
+
+LaTeX Warning: Label `MCSCF_print_options' multiply defined.
+
+
+LaTeX Warning: Label `sec:selci' multiply defined.
+
+
+LaTeX Warning: Label `selcitab' multiply defined.
+
+
+LaTeX Warning: Label `sec:ccsd' multiply defined.
+
+
+LaTeX Warning: Label `sec:driver' multiply defined.
+
+
+LaTeX Warning: Label `sec:stepper' multiply defined.
+
+
+LaTeX Warning: Label `sec:stepper:backstep' multiply defined.
+
+
+LaTeX Warning: Label `sec:constraintsnew' multiply defined.
+
+
+LaTeX Warning: Label `sec:oniom' multiply defined.
+
+
+LaTeX Warning: Label `sec:oniomeg1' multiply defined.
+
+
+LaTeX Warning: Label `tab:oniom1' multiply defined.
+
+
+LaTeX Warning: Label `sec:oniomeg2' multiply defined.
+
+
+LaTeX Warning: Label `sec:oniomeg3' multiply defined.
+
+
+LaTeX Warning: Label `sec:oniomeg4' multiply defined.
+
+
+LaTeX Warning: Label `sec:hess' multiply defined.
+
+
+LaTeX Warning: Label `sec:vib' multiply defined.
+
+
+LaTeX Warning: Label `sec:dplot' multiply defined.
+
+
+LaTeX Warning: Label `sec:etrans' multiply defined.
+
+
+LaTeX Warning: Label `sec:etransvectors' multiply defined.
+
+
+LaTeX Warning: Label `sec:etransfock' multiply defined.
+
+
+LaTeX Warning: Label `sec:etranstol2e' multiply defined.
+
+
+LaTeX Warning: Label `sec:property' multiply defined.
+
+
+LaTeX Warning: Label `sec:Nbofile' multiply defined.
+
+
+LaTeX Warning: Label `sec:esp' multiply defined.
+
+
+LaTeX Warning: Label `sec:prepare' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwmd' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwatopology' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwafilenames' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwaextensions' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwaforcefields' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwanwsgm' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwanwtop' multiply defined.
+
+
+LaTeX Warning: Label `sec:nwanwrst' multiply defined.
+
+
+LaTeX Warning: Label `sec:analysis' multiply defined.
+
+
+LaTeX Warning: Label `sec:qmmm' multiply defined.
+
+
+LaTeX Warning: Label `sec:formats' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdfrg' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdseg1' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdseg2' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdseg3' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdseg4' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdseg5' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdseg6' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdseq' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdtrj' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdgib' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdrms' multiply defined.
+
+
+LaTeX Warning: Label `tbl:nwmdprp' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_tasks' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_cell' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_cell_optimization' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_dplot' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_wannier' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_SIC' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_point_charge_analysis' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_CP' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_CP_constraint' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_psp_generator' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_wavefunction_initializer' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_v_wavefunction_initializer' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_wavefunction_expander' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_steepest_descent' multiply defined.
+
+
+LaTeX Warning: Label `sec:band_tasks' multiply defined.
+
+
+LaTeX Warning: Label `sec:band_brillouin_zone' multiply defined.
+
+
+LaTeX Warning: Label `sec:paw_tasks' multiply defined.
+
+
+LaTeX Warning: Label `sec:psp_library' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_data' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_cp_data' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_Car-Parrinello' multiply defined.
+
+
+LaTeX Warning: Label `appendix:b1' multiply defined.
+
+
+LaTeX Warning: Label `appendix:b2' multiply defined.
+
+
+LaTeX Warning: Label `eq:b3' multiply defined.
+
+
+LaTeX Warning: Label `eq:b4' multiply defined.
+
+
+LaTeX Warning: Label `eq:b6' multiply defined.
+
+
+LaTeX Warning: Label `eq:b7' multiply defined.
+
+
+LaTeX Warning: Label `eq:b8' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_nose' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_sd' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_cp' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_unitcell_optimization' multiply defined.
+
+
+LaTeX Warning: Label `sec:band_tutorial1' multiply defined.
+
+
+LaTeX Warning: Label `sec:paw_tutorial' multiply defined.
+
+
+LaTeX Warning: Label `sec:pspw_limits' multiply defined.
+
+
+LaTeX Warning: Label `sec:python' multiply defined.
+
+
+LaTeX Warning: Label `sec:scan2' multiply defined.
+
+
+LaTeX Warning: Label `sec:pyerr' multiply defined.
+
+
+LaTeX Warning: Label `sec:pygeom' multiply defined.
+
+
+LaTeX Warning: Label `sec:sigchld' multiply defined.
+
+
+LaTeX Warning: Label `sec:interface' multiply defined.
+
+
+LaTeX Warning: Label `sec:nbo' multiply defined.
+
+
+LaTeX Warning: Label `sec:dirdyvtst' multiply defined.
+
+
+LaTeX Warning: Label `sec:knownbasis' multiply defined.
+
+
+LaTeX Warning: Label `sec:sample' multiply defined.
+
+
+LaTeX Warning: Label `sec:sample1' multiply defined.
+
+
+LaTeX Warning: Label `sec:sample2' multiply defined.
+
+
+LaTeX Warning: Label `sec:sample3' multiply defined.
+
+
+LaTeX Warning: Label `symexamples' multiply defined.
+
+
+LaTeX Warning: Label `sec:procgrp' multiply defined.
+
+)
+
+latex2htmlLength hsize=349.0pt
+
+latex2htmlLength vsize=669.65742pt
+
+latex2htmlLength hoffset=0.0pt
+
+latex2htmlLength voffset=0.0pt
+
+latex2htmlLength topmargin=0.0pt
+
+latex2htmlLength topskip=0.00003pt
+
+latex2htmlLength headheight=0.0pt
+
+latex2htmlLength headsep=0.0pt
+
+latex2htmlLength parskip=6.0pt
+
+latex2htmlLength oddsidemargin=0.0pt
+
+latex2htmlLength evensidemargin=0.0pt
+
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 151.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 151.
+LaTeX Font Info:    Try loading font information for U+lasy on input line 151.
+(/usr/share/texmf/tex/latex/base/ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
+)
+l2hSize :tex2html_wrap_inline17355:6.95831pt::6.95831pt::13.27785pt.
+[1
+
+
+
+]
+l2hSize :tex2html_wrap_inline17358:6.95831pt::6.95831pt::13.27785pt.
+[2
+
+
+]
+l2hSize :tex2html_wrap_inline17411:6.45831pt::0.0pt::10.50005pt.
+[3
+
+
+]
+l2hSize :tex2html_wrap_inline17605:7.33331pt::7.33331pt::19.06116pt.
+[4
+
+
+]
+l2hSize :tex2html_wrap_inline17646:6.95831pt::6.95831pt::4.98616pt.
+[5
+
+
+]
+l2hSize :tex2html_wrap_inline17656:7.33331pt::7.33331pt::11.92157pt.
+[6
+
+
+]
+l2hSize :tex2html_wrap_inline17659:7.33331pt::7.33331pt::16.38457pt.
+[7
+
+
+]
+l2hSize :tex2html_wrap_inline17662:7.33331pt::7.33331pt::17.94707pt.
+[8
+
+
+]
+l2hSize :tex2html_wrap_inline17668:7.33331pt::7.33331pt::11.00665pt.
+[9
+
+
+]
+l2hSize :tex2html_wrap_inline17671:7.33331pt::7.33331pt::10.07762pt.
+[10
+
+
+]
+l2hSize :tex2html_wrap_inline17674:7.33331pt::7.33331pt::11.1181pt.
+[11
+
+
+]
+l2hSize :tex2html_wrap_inline17677:7.33331pt::7.33331pt::17.94707pt.
+[12
+
+
+]
+l2hSize :tex2html_wrap_inline17680:7.33331pt::7.33331pt::17.42819pt.
+[13
+
+
+]
+l2hSize :tex2html_wrap_inline17683:7.33331pt::7.33331pt::16.38457pt.
+[14
+
+
+]
+l2hSize :tex2html_wrap_inline17686:7.33331pt::7.33331pt::17.94707pt.
+[15
+
+
+]
+l2hSize :tex2html_wrap_inline17689:7.33331pt::7.33331pt::16.81512pt.
+[16
+
+
+]
+l2hSize :tex2html_wrap_inline17691:7.33331pt::7.33331pt::33.49936pt.
+[17
+
+
+]
+l2hSize :tex2html_wrap_inline17695:7.33331pt::7.33331pt::17.42819pt.
+[18
+
+
+]
+l2hSize :tex2html_wrap_inline17698:7.33331pt::7.33331pt::16.38457pt.
+[19
+
+
+]
+l2hSize :tex2html_wrap_inline17700:7.44444pt::7.44444pt::29.16809pt.
+[20
+
+
+]
+l2hSize :tex2html_wrap_inline17704:7.33331pt::7.33331pt::16.81512pt.
+[21
+
+
+]
+l2hSize :tex2html_wrap_inline17707:7.33331pt::7.33331pt::17.42819pt.
+[22
+
+
+]
+l2hSize :tex2html_wrap_inline17709:7.33331pt::7.33331pt::49.68475pt.
+[23
+
+
+]
+l2hSize :tex2html_wrap_inline17713:7.33331pt::7.33331pt::17.94707pt.
+[24
+
+
+]
+l2hSize :tex2html_wrap_inline17716:7.33331pt::7.33331pt::17.94707pt.
+[25
+
+
+] (/home/edo/park/nwchem-4.6/doc/user/titlepage.tex)
+l2hSize :center17719:440.1232pt::0.0pt::349.0pt.
+[1
+
+
+
+]
+l2hSize :tex2html_wrap_inline536:8.14003pt::0.0pt::14.11113pt.
+[2
+
+
+]
+l2hSize :tex2html_wrap_inline538:8.14003pt::0.0pt::14.11113pt.
+[3
+
+
+]
+l2hSize :tex2html_wrap_inline856:6.83331pt::0.0pt::19.8757pt.
+[4
+
+
+]
+l2hSize :tex2html_wrap_inline860:7.96227pt::0.0pt::26.51462pt.
+[5
+
+
+]
+l2hSize :tex2html_wrap_inline862:8.14003pt::0.0pt::30.50075pt.
+[6
+
+
+]
+l2hSize :tex2html_wrap_inline1442:6.45831pt::0.0pt::43.27794pt.
+[7
+
+
+]
+l2hSize :tex2html_wrap_inline1444:6.45831pt::0.0pt::18.27786pt.
+[8
+
+
+]
+l2hSize :tex2html_wrap_inline1446:6.45831pt::0.0pt::18.27786pt.
+[9
+
+
+]
+l2hSize :tex2html_wrap_inline1450:7.33331pt::7.33331pt::13.30954pt.
+[10
+
+
+]
+l2hSize :tex2html_wrap_inline1452:6.83331pt::0.0pt::8.00005pt.
+[11
+
+
+]
+l2hSize :tex2html_wrap_inline1454:9.37892pt::9.37892pt::118.55325pt.
+[12
+
+
+]
+l2hSize :tex2html_wrap_inline1456:7.33331pt::7.33331pt::13.29866pt.
+[13
+
+
+]
+l2hSize :tex2html_wrap_inline1458:7.33331pt::7.33331pt::16.698pt.
+[14
+
+
+]
+l2hSize :tex2html_wrap_inline1466:7.33331pt::7.33331pt::12.13338pt.
+[15
+
+
+]
+l2hSize :tex2html_wrap_inline1468:8.14003pt::0.0pt::21.2362pt.
+[16
+
+
+]
+l2hSize :tex2html_wrap_inline1474:6.45831pt::0.0pt::6.93407pt.
+[17
+
+
+]
+l2hSize :tex2html_wrap_inline1476:6.95831pt::6.95831pt::53.60057pt.
+[18
+
+
+]
+psfig: searching zmat1.eps for bounding box
+(clip)
+psfig: including zmat1.eps 
+l2hSize :figure1341:169.11177pt::0.0pt::433.62pt.
+[19
+
+
+]
+psfig: searching zmat2.eps for bounding box
+(clip)
+psfig: including zmat2.eps 
+l2hSize :figure1345:234.15479pt::0.0pt::433.62pt.
+[20
+
+
+]
+psfig: searching zmat3.eps for bounding box
+(clip)
+psfig: including zmat3.eps 
+l2hSize :figure1349:238.49098pt::0.0pt::433.62pt.
+[21
+
+
+]
+l2hSize :tex2html_wrap_inline1482:7.33331pt::7.33331pt::17.6482pt.
+[22
+
+
+]
+l2hSize :tex2html_wrap_inline1486:10.52777pt::10.52777pt::36.2654pt.
+[23
+
+
+]
+l2hSize :tex2html_wrap_inline1492:7.44444pt::7.44444pt::6.68405pt.
+[24
+
+
+]
+l2hSize :tex2html_wrap_inline1494:10.6389pt::10.6389pt::36.84573pt.
+[25
+
+
+]
+l2hSize :tex2html_wrap_inline1498:6.95831pt::6.95831pt::13.27785pt.
+[26
+
+
+]
+l2hSize :tex2html_wrap_inline1502:10.1389pt::0.0pt::17.32849pt.
+[27
+
+
+]
+l2hSize :tex2html_wrap_inline1508:7.33331pt::7.33331pt::39.94032pt.
+[28
+
+
+]
+l2hSize :tex2html_wrap_inline1510:10.6389pt::10.6389pt::14.1565pt.
+[29
+
+
+]
+l2hSize :tex2html_wrap_inline1512:6.45831pt::0.0pt::6.2153pt.
+[30
+
+
+]
+l2hSize :tex2html_wrap_inline1514:6.95831pt::6.95831pt::5.76163pt.
+[31
+
+
+]
+l2hSize :tex2html_wrap_inline1516:6.45831pt::0.0pt::5.59033pt.
+[32
+
+
+]
+l2hSize :tex2html_wrap_inline1532:6.83331pt::0.0pt::13.30908pt.
+[33
+
+
+]
+l2hSize :tex2html_wrap_inline1855:6.94444pt::0.0pt::6.26161pt.
+[34
+
+
+]
+l2hSize :tex2html_wrap_inline1857:6.95831pt::6.95831pt::10.21878pt.
+[35
+
+
+]
+l2hSize :tex2html_wrap_inline1861:6.45831pt::0.0pt::5.18753pt.
+[36
+
+
+]
+l2hSize :tex2html_wrap_inline1863:6.95831pt::6.95831pt::5.53128pt.
+[37
+
+
+]
+l2hSize :tex2html_wrap_inline1865:6.83331pt::0.0pt::7.3056pt.
+[38
+
+
+]
+l2hSize :tex2html_wrap_inline1871:6.94444pt::0.0pt::5.7049pt.
+[39
+
+
+]
+l2hSize :tex2html_wrap_inline2082:6.94444pt::0.0pt::3.6806pt.
+[40
+
+
+]
+l2hSize :tex2html_wrap_inline2084:7.09525pt::7.09525pt::5.19052pt.
+[41
+
+
+]
+l2hSize :tex2html_wrap_inline2086:8.91226pt::8.91226pt::25.47366pt.
+[42
+
+
+]
+l2hSize :displaymath1993:60.7779pt::0.0pt::349.0pt.
+[43
+
+
+]
+l2hSize :displaymath2006:46.90236pt::0.0pt::349.0pt.
+[44
+
+
+]
+l2hSize :displaymath2015:57.3112pt::0.0pt::349.0pt.
+[45
+
+
+]
+l2hSize :displaymath2026:39.38326pt::0.0pt::349.0pt.
+[46
+
+
+]
+l2hSize :tex2html_wrap_inline2096:8.0pt::8.0pt::43.6806pt.
+[47
+
+
+]
+l2hSize :displaymath2080:49.52788pt::0.0pt::349.0pt.
+[48
+
+
+]
+l2hSize :tex2html_wrap_inline2098:7.33331pt::7.33331pt::15.48967pt.
+[49
+
+
+]
+l2hSize :tex2html_wrap_inline2100:6.95831pt::6.95831pt::13.992pt.
+[50
+
+
+]
+l2hSize :tex2html_wrap_inline2102:7.33331pt::7.33331pt::15.57474pt.
+[51
+
+
+]
+l2hSize :tex2html_wrap_inline2106:6.95831pt::6.95831pt::32.32524pt.
+[52
+
+
+]
+l2hSize :tex2html_wrap_inline2108:8.14003pt::0.0pt::16.02554pt.
+[53
+
+
+]
+l2hSize :tex2html_wrap_inline2112:9.28888pt::9.28888pt::11.12508pt.
+[54
+
+
+]
+l2hSize :displaymath2062:46.90236pt::0.0pt::349.0pt.
+[55
+
+
+]
+l2hSize :tex2html_wrap_inline2118:7.33331pt::7.33331pt::18.73062pt.
+[56
+
+
+]
+l2hSize :tex2html_wrap_inline2120:8.0pt::8.0pt::43.6806pt.
+[57
+
+
+]
+l2hSize :tex2html_wrap_inline2122:9.29842pt::9.29842pt::37.81125pt.
+[58
+
+
+]
+l2hSize :tex2html_wrap_inline2124:8.0pt::8.0pt::13.68063pt.
+[59
+
+
+]
+l2hSize :tex2html_wrap_inline2255:8.0pt::8.0pt::43.29164pt.
+[60
+
+
+]
+l2hSize :tex2html_wrap_inline2257:8.14003pt::0.0pt::11.4202pt.
+[61
+
+
+]
+l2hSize :tex2html_wrap_inline2259:8.0pt::8.0pt::38.08339pt.
+[62
+
+
+]
+l2hSize :tex2html_wrap_inline2261:8.0pt::8.0pt::37.88887pt.
+[63
+
+
+]
+l2hSize :tex2html_wrap_inline2265:8.14003pt::0.0pt::11.4202pt.
+[64
+
+
+]
+l2hSize :tex2html_wrap_inline2593:8.14003pt::0.0pt::21.2362pt.
+[65
+
+
+]
+l2hSize :tex2html_wrap_inline2595:8.14003pt::0.0pt::25.22234pt.
+[66
+
+
+]
+l2hSize :tex2html_wrap_inline2597:8.0pt::8.0pt::28.2779pt.
+[67
+
+
+]
+l2hSize :tex2html_wrap_inline2601:8.0pt::8.0pt::53.83353pt.
+[68
+
+
+]
+l2hSize :tex2html_wrap_inline2603:8.14003pt::0.0pt::10.19102pt.
+[69
+
+
+]
+l2hSize :tex2html_wrap_inline2605:6.95831pt::6.95831pt::13.27785pt.
+[70
+
+
+]
+l2hSize :tex2html_wrap_inline2609:7.33331pt::7.33331pt::11.92157pt.
+[71
+
+
+]
+l2hSize :tex2html_wrap_inline2611:8.14003pt::0.0pt::21.2362pt.
+[72
+
+
+]
+l2hSize :tex2html_wrap_inline2613:8.14003pt::0.0pt::21.2362pt.
+[73
+
+
+]
+l2hSize :tex2html_wrap_inline2615:8.14003pt::0.0pt::21.2362pt.
+[74
+
+
+]
+l2hSize :tex2html_wrap_inline2617:8.14003pt::0.0pt::25.22234pt.
+[75
+
+
+]
+l2hSize :tex2html_wrap_inline2623:6.83331pt::0.0pt::11.33337pt.
+[76
+
+
+]
+l2hSize :tex2html_wrap_inline2625:6.83331pt::0.0pt::9.625pt.
+[77
+
+
+]
+l2hSize :displaymath2503:74.09692pt::0.0pt::349.0pt.
+[78
+
+
+]
+l2hSize :tex2html_wrap_inline2627:6.83331pt::0.0pt::8.83339pt.
+[79
+
+
+]
+l2hSize :tex2html_wrap_inline2631:8.0pt::8.0pt::104.17642pt.
+[80
+
+
+]
+l2hSize :tex2html_wrap_inline3447:8.64003pt::8.64003pt::29.79448pt.
+[81
+
+
+]
+l2hSize :tex2html_wrap_inline3449:9.37892pt::9.37892pt::18.23967pt.
+[82
+
+
+]
+l2hSize :eqnarraystar3065:53.06903pt::0.0pt::349.0pt.
+[83
+
+
+]
+Overfull \hbox (24.13419pt too wide) in alignment at lines 912--917
+ [][][] []
+ []
+
+l2hSize :eqnarraystar3079:75.94444pt::0.0pt::349.0pt.
+[84
+
+
+]
+Overfull \hbox (62.72044pt too wide) in alignment at lines 923--928
+ [][][] []
+ []
+
+l2hSize :eqnarraystar3090:75.94444pt::0.0pt::349.0pt.
+[85
+
+
+]
+l2hSize :tex2html_wrap_inline3455:8.0pt::8.0pt::23.06723pt.
+[86
+
+
+]
+l2hSize :tex2html_wrap_inline3457:6.45831pt::0.0pt::5.50005pt.
+[87
+
+
+]
+l2hSize :tex2html_wrap_inline3657:8.14003pt::0.0pt::31.95149pt.
+[88
+
+
+]
+l2hSize :tex2html_wrap_inline3659:8.14003pt::0.0pt::31.95149pt.
+[89
+
+
+]
+l2hSize :tex2html_wrap_inline3661:8.14003pt::0.0pt::31.95149pt.
+[90
+
+
+]
+l2hSize :tex2html_wrap_inline3663:8.14003pt::0.0pt::31.95149pt.
+[91
+
+
+]
+l2hSize :tex2html_wrap_inline3665:8.14003pt::0.0pt::31.95149pt.
+[92
+
+
+]
+l2hSize :tex2html_wrap_inline3675:7.33331pt::7.33331pt::62.04858pt.
+[93
+
+
+]
+l2hSize :tex2html_wrap_inline3677:7.33331pt::7.33331pt::38.03159pt.
+[94
+
+
+]
+l2hSize :tex2html_wrap_inline3681:6.45831pt::0.0pt::6.50238pt.
+[95
+
+
+]
+l2hSize :eqnarraystar3322:113.56421pt::0.0pt::349.0pt.
+[96
+
+
+]
+l2hSize :tex2html_wrap_inline3683:8.87892pt::0.0pt::49.53168pt.
+[97
+
+
+]
+l2hSize :tex2html_wrap_inline4312:7.33331pt::7.33331pt::20.26398pt.
+[98
+
+
+]
+l2hSize :tex2html_wrap_inline4364:8.0pt::8.0pt::73.61806pt.
+[99
+
+
+]
+l2hSize :tex2html_wrap_inline4366:6.45831pt::0.0pt::4.55907pt.
+[100
+
+
+]
+l2hSize :tex2html_wrap_inline4368:8.0pt::8.0pt::38.61807pt.
+[101
+
+
+]
+l2hSize :tex2html_wrap_inline4837:6.83331pt::0.0pt::7.73268pt.
+[102
+
+
+]
+l2hSize :tex2html_wrap_inline4839:6.83331pt::0.0pt::7.44447pt.
+[103
+
+
+]
+l2hSize :tex2html_wrap_inline4841:7.33331pt::7.33331pt::10.82991pt.
+[104
+
+
+]
+l2hSize :tex2html_wrap_inline4843:7.33331pt::7.33331pt::10.82991pt.
+[105
+
+
+]
+l2hSize :tex2html_wrap_inline4845:7.33331pt::7.33331pt::10.82991pt.
+[106
+
+
+]
+l2hSize :tex2html_wrap_inline4847:7.33331pt::7.33331pt::10.82991pt.
+[107
+
+
+]
+l2hSize :tex2html_wrap_inline5149:8.0pt::8.0pt::39.94792pt.
+[108
+
+
+]
+l2hSize :tex2html_wrap_inline5239:7.44444pt::7.44444pt::6.47229pt.
+[109
+
+
+]
+l2hSize :tex2html_wrap_inline5255:8.14003pt::0.0pt::21.2362pt.
+[110
+
+
+]
+l2hSize :tex2html_wrap_inline5257:8.14003pt::0.0pt::25.22234pt.
+[111
+
+
+]
+l2hSize :tex2html_wrap_inline5263:8.0pt::8.0pt::54.3603pt.
+[112
+
+
+]
+l2hSize :tex2html_wrap_inline5265:7.44444pt::7.44444pt::113.68134pt.
+[113
+
+
+]
+l2hSize :tex2html_wrap_inline5267:8.0pt::8.0pt::99.65363pt.
+[114
+
+
+]
+l2hSize :tex2html_wrap_inline5269:8.0pt::8.0pt::100.89899pt.
+[115
+
+
+]
+l2hSize :tex2html_wrap_inline5271:9.13416pt::9.13416pt::153.87604pt.
+[116
+
+
+]
+l2hSize :tex2html_wrap_inline5521:7.33331pt::7.33331pt::12.57124pt.
+[117
+
+
+]
+l2hSize :tex2html_wrap_inline5525:8.64003pt::8.64003pt::17.05737pt.
+[118
+
+
+]
+l2hSize :tex2html_wrap_inline5527:7.33331pt::7.33331pt::12.57124pt.
+[119
+
+
+]
+l2hSize :tex2html_wrap_inline5529:6.45831pt::0.0pt::13.27785pt.
+[120
+
+
+]
+l2hSize :tex2html_wrap_inline5724:7.33331pt::7.33331pt::82.5851pt.
+[121
+
+
+]
+l2hSize :tex2html_wrap_inline5726:7.33331pt::7.33331pt::100.69138pt.
+[122
+
+
+]
+l2hSize :tex2html_wrap_inline5728:7.33331pt::7.33331pt::82.5851pt.
+[123
+
+
+]
+l2hSize :tex2html_wrap_inline5730:7.33331pt::7.33331pt::100.69138pt.
+[124
+
+
+]
+l2hSize :tex2html_wrap_inline5732:8.0pt::8.0pt::133.70662pt.
+[125
+
+
+]
+l2hSize :tex2html_wrap_inline5734:8.0pt::8.0pt::151.8129pt.
+[126
+
+
+]
+l2hSize :tex2html_wrap_inline5736:7.33331pt::7.33331pt::82.5851pt.
+[127
+
+
+]
+l2hSize :tex2html_wrap_inline5738:7.33331pt::7.33331pt::100.69138pt.
+[128
+
+
+]
+l2hSize :tex2html_wrap_inline5740:8.0pt::8.0pt::143.70665pt.
+[129
+
+
+]
+l2hSize :tex2html_wrap_inline5742:8.0pt::8.0pt::156.81291pt.
+[130
+
+
+]
+l2hSize :tex2html_wrap_inline5744:7.33331pt::7.33331pt::82.5851pt.
+[131
+
+
+]
+l2hSize :tex2html_wrap_inline5746:7.33331pt::7.33331pt::100.69138pt.
+[132
+
+
+]
+l2hSize :tex2html_wrap_inline5748:8.0pt::8.0pt::143.70665pt.
+[133
+
+
+]
+l2hSize :tex2html_wrap_inline5750:8.0pt::8.0pt::161.81293pt.
+[134
+
+
+]
+l2hSize :tex2html_wrap_inline5917:6.95831pt::6.95831pt::8.27783pt.
+[135
+
+
+]
+l2hSize :tex2html_wrap_inline6351:7.44444pt::7.44444pt::23.1542pt.
+[136
+
+
+]
+l2hSize :tex2html_wrap_inline6353:6.94444pt::0.0pt::6.02087pt.
+[137
+
+
+]
+l2hSize :tex2html_wrap_inline6355:6.95831pt::6.95831pt::9.49774pt.
+[138
+
+
+]
+l2hSize :tex2html_wrap_inline6357:6.59525pt::0.0pt::3.94516pt.
+[139
+
+
+]
+l2hSize :displaymath6349:46.06903pt::0.0pt::349.0pt.
+[140
+
+
+]
+l2hSize :tex2html_wrap_inline6494:7.33331pt::7.33331pt::30.60452pt.
+[141
+
+
+]
+l2hSize :tex2html_wrap_inline6496:7.33331pt::7.33331pt::27.55057pt.
+[142
+
+
+]
+l2hSize :tex2html_wrap_inline6498:8.46227pt::8.46227pt::44.82925pt.
+[143
+
+
+]
+l2hSize :displaymath6424:36.0pt::0.0pt::349.0pt.
+[144
+
+
+]
+l2hSize :tex2html_wrap_inline6500:6.95831pt::6.95831pt::5.6285pt.
+[145
+
+
+]
+l2hSize :tex2html_wrap_inline6502:8.0pt::8.0pt::87.16681pt.
+[146
+
+
+]
+l2hSize :tex2html_wrap_inline6504:7.33331pt::7.33331pt::58.27629pt.
+[147
+
+
+]
+l2hSize :tex2html_wrap_inline6506:7.33331pt::7.33331pt::46.74014pt.
+[148
+
+
+]
+l2hSize :tex2html_wrap_inline6508:6.83331pt::0.0pt::25.39304pt.
+[149
+
+
+]
+l2hSize :tex2html_wrap_inline6516:7.33331pt::7.33331pt::116.28717pt.
+[150
+
+
+]
+l2hSize :tex2html_wrap_inline6518:7.33331pt::7.33331pt::42.16452pt.
+[151
+
+
+]
+l2hSize :tex2html_wrap_inline6520:7.33331pt::7.33331pt::21.16115pt.
+[152
+
+
+]
+l2hSize :tex2html_wrap_inline6522:7.33331pt::7.33331pt::41.05344pt.
+[153
+
+
+]
+l2hSize :tex2html_wrap_inline6524:7.33331pt::7.33331pt::41.05344pt.
+[154
+
+
+]
+l2hSize :tex2html_wrap_inline6526:7.33331pt::7.33331pt::54.0444pt.
+[155
+
+
+]
+l2hSize :tex2html_wrap_inline6528:7.33331pt::7.33331pt::54.0444pt.
+[156
+
+
+]
+l2hSize :tex2html_wrap_inline6532:8.0pt::8.0pt::54.85747pt.
+[157
+
+
+]
+l2hSize :tex2html_wrap_inline6534:9.11111pt::9.11111pt::44.11652pt.
+[158
+
+
+]
+l2hSize :tex2html_wrap_inline6989:6.88586pt::0.0pt::21.2931pt.
+[159
+
+
+]
+l2hSize :tex2html_wrap_inline6991:6.94444pt::0.0pt::6.33339pt.
+[160
+
+
+]
+l2hSize :displaymath6928:50.00023pt::0.0pt::349.0pt.
+[161
+
+
+]
+l2hSize :tex2html_wrap_inline6995:6.83331pt::0.0pt::8.17018pt.
+[162
+
+
+]
+l2hSize :tex2html_wrap_inline6997:6.83331pt::0.0pt::8.30907pt.
+[163
+
+
+]
+l2hSize :tex2html_wrap_inline7017:7.96227pt::0.0pt::14.75006pt.
+[164
+
+
+]
+l2hSize :tex2html_wrap_inline7019:6.83331pt::0.0pt::8.58684pt.
+[165
+
+
+]
+l2hSize :tex2html_wrap_inline7025:7.96227pt::0.0pt::15.33685pt.
+[166
+
+
+]
+l2hSize :tex2html_wrap_inline7029:7.33331pt::7.33331pt::19.35977pt.
+[167
+
+
+]
+l2hSize :tex2html_wrap_inline7031:7.33331pt::7.33331pt::14.78127pt.
+[168
+
+
+]
+l2hSize :tex2html_wrap_inline7035:7.96227pt::0.0pt::20.92018pt.
+[169
+
+
+]
+l2hSize :tex2html_wrap_inline7239:6.45831pt::0.0pt::15.28252pt.
+[170
+
+
+]
+l2hSize :tex2html_wrap_inline7251:6.45831pt::0.0pt::34.28835pt.
+[171
+
+
+]
+l2hSize :tex2html_wrap_inline7253:6.45831pt::0.0pt::34.28835pt.
+[172
+
+
+]
+l2hSize :tex2html_wrap_inline7255:6.45831pt::0.0pt::17.93411pt.
+[173
+
+
+]
+l2hSize :tex2html_wrap_inline7257:6.45831pt::0.0pt::27.93414pt.
+[174
+
+
+]
+l2hSize :tex2html_wrap_inline7493:6.95831pt::6.95831pt::4.33302pt.
+[175
+
+
+]
+l2hSize :tex2html_wrap_inline7495:6.95831pt::6.95831pt::4.88858pt.
+[176
+
+
+]
+l2hSize :tex2html_wrap_inline7497:6.45831pt::0.0pt::28.02441pt.
+[177
+
+
+]
+l2hSize :tex2html_wrap_inline7499:6.45831pt::0.0pt::28.02441pt.
+[178
+
+
+]
+l2hSize :tex2html_wrap_inline7501:7.44444pt::7.44444pt::25.43646pt.
+[179
+
+
+]
+l2hSize :tex2html_wrap_inline7503:6.94444pt::0.0pt::22.44865pt.
+[180
+
+
+]
+l2hSize :tex2html_wrap_inline7505:6.94444pt::0.0pt::22.44865pt.
+[181
+
+
+]
+l2hSize :tex2html_wrap_inline7507:7.44444pt::7.44444pt::25.43646pt.
+[182
+
+
+]
+l2hSize :tex2html_wrap_inline7511:6.94444pt::0.0pt::22.44865pt.
+[183
+
+
+]
+l2hSize :tex2html_wrap_inline7521:8.14003pt::0.0pt::11.23618pt.
+[184
+
+
+]
+l2hSize :tex2html_wrap_inline7523:8.14003pt::0.0pt::11.23618pt.
+[185
+
+
+]
+l2hSize :tex2html_wrap_inline8319:8.14003pt::0.0pt::4.98616pt.
+[186
+
+
+]
+l2hSize :tex2html_wrap_inline8323:7.44444pt::7.44444pt::30.63159pt.
+[187
+
+
+]
+l2hSize :tex2html_wrap_inline8327:8.99002pt::8.99002pt::11.65637pt.
+[188
+
+
+]
+l2hSize :displaymath8079:38.45404pt::0.0pt::349.0pt.
+[189
+
+
+]
+l2hSize :tex2html_wrap_inline8331:7.44444pt::7.44444pt::28.27045pt.
+[190
+
+
+]
+l2hSize :tex2html_wrap_inline8333:6.83331pt::0.0pt::12.4445pt.
+[191
+
+
+]
+l2hSize :displaymath8083:50.00023pt::0.0pt::349.0pt.
+[192
+
+
+]
+l2hSize :tex2html_wrap_inline8335:8.14003pt::0.0pt::4.98616pt.
+[193
+
+
+]
+l2hSize :tex2html_wrap_inline8355:7.44444pt::7.44444pt::28.08229pt.
+[194
+
+
+]
+l2hSize :displaymath8209:65.43767pt::0.0pt::349.0pt.
+[195
+
+
+]
+l2hSize :tex2html_wrap_inline8357:7.33331pt::7.33331pt::23.44193pt.
+[196
+
+
+]
+l2hSize :tex2html_wrap_inline8359:6.95831pt::6.95831pt::11.12473pt.
+[197
+
+
+]
+l2hSize :tex2html_wrap_inline8361:8.76085pt::8.76085pt::21.20929pt.
+[198
+
+
+]
+l2hSize :tex2html_wrap_inline8363:6.95831pt::6.95831pt::20.06111pt.
+[199
+
+
+]
+l2hSize :tex2html_wrap_inline8365:6.45831pt::0.0pt::5.50005pt.
+[200
+
+
+]
+l2hSize :tex2html_wrap_inline8369:6.95831pt::6.95831pt::16.05563pt.
+[201
+
+
+]
+l2hSize :tex2html_wrap_inline8373:6.95831pt::6.95831pt::8.27783pt.
+[202
+
+
+]
+l2hSize :tex2html_wrap_inline8377:7.44444pt::7.44444pt::28.95099pt.
+[203
+
+
+]
+l2hSize :tex2html_wrap_inline8379:6.59525pt::0.0pt::20.51115pt.
+[204
+
+
+]
+l2hSize :tex2html_wrap_inline9123:7.44444pt::7.44444pt::6.45837pt.
+[205
+
+
+]
+l2hSize :tex2html_wrap_inline9125:7.44444pt::7.44444pt::7.37273pt.
+[206
+
+
+]
+l2hSize :tex2html_wrap_inline9127:7.09525pt::7.09525pt::29.46605pt.
+[207
+
+
+]
+l2hSize :tex2html_wrap_inline9129:7.09525pt::7.09525pt::30.71141pt.
+[208
+
+
+]
+l2hSize :tex2html_wrap_inline9131:7.44444pt::7.44444pt::17.59563pt.
+[209
+
+
+]
+l2hSize :tex2html_wrap_inline9133:7.44444pt::7.44444pt::40.4326pt.
+[210
+
+
+]
+l2hSize :tex2html_wrap_inline9135:6.94444pt::0.0pt::29.55336pt.
+[211
+
+
+]
+l2hSize :tex2html_wrap_inline9137:6.94444pt::0.0pt::29.55336pt.
+[212
+
+
+]
+l2hSize :tex2html_wrap_inline9139:7.44444pt::7.44444pt::42.4789pt.
+[213
+
+
+]
+l2hSize :tex2html_wrap_inline9145:7.44444pt::7.44444pt::19.77855pt.
+[214
+
+
+]
+l2hSize :tex2html_wrap_inline9147:7.44444pt::7.44444pt::28.84038pt.
+[215
+
+
+]
+l2hSize :tex2html_wrap_inline9151:7.09525pt::7.09525pt::17.97063pt.
+[216
+
+
+]
+l2hSize :tex2html_wrap_inline9153:6.95831pt::6.95831pt::14.5255pt.
+[217
+
+
+]
+l2hSize :tex2html_wrap_inline9155:6.95831pt::6.95831pt::19.31487pt.
+[218
+
+
+]
+l2hSize :tex2html_wrap_inline9157:7.09525pt::7.09525pt::23.25652pt.
+[219
+
+
+]
+l2hSize :tex2html_wrap_inline9159:7.09525pt::7.09525pt::24.50188pt.
+[220
+
+
+]
+l2hSize :tex2html_wrap_inline9167:6.94444pt::0.0pt::18.96187pt.
+[221
+
+
+]
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2039--2055
+ [] 
+ []
+
+l2hSize :table9598:158.19998pt::0.0pt::349.0pt.
+[222
+
+
+]
+Overfull \hbox (89.66043pt too wide) in paragraph at lines 2066--2067
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2063--2107
+ [] 
+ []
+
+l2hSize :table9608:494.19998pt::0.0pt::349.0pt.
+[223
+
+
+]
+Overfull \hbox (82.36185pt too wide) in paragraph at lines 2118--2119
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2115--2136
+ [] 
+ []
+
+l2hSize :table9621:218.19998pt::0.0pt::349.0pt.
+[224
+
+
+]
+Overfull \hbox (82.6535pt too wide) in paragraph at lines 2147--2148
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2144--2165
+ [] 
+ []
+
+l2hSize :table9637:218.19998pt::0.0pt::349.0pt.
+[225
+
+
+]
+Overfull \hbox (130.67413pt too wide) in paragraph at lines 2176--2177
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2173--2198
+ [] 
+ []
+
+l2hSize :table9653:266.19998pt::0.0pt::349.0pt.
+[226
+
+
+]
+Overfull \hbox (147.81293pt too wide) in paragraph at lines 2209--2210
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2206--2228
+ [] 
+ []
+
+l2hSize :table9669:232.19998pt::0.0pt::349.0pt.
+[227
+
+
+]
+Overfull \hbox (268.29001pt too wide) in paragraph at lines 2242--2243
+[][]| 
+ []
+
+
+Overfull \hbox (226.9222pt too wide) in paragraph at lines 2266--2267
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2236--2269
+ [] 
+ []
+
+l2hSize :table9685:259.79993pt::0.0pt::349.0pt.
+[228
+
+
+]
+Overfull \hbox (205.42648pt too wide) in paragraph at lines 2287--2288
+[][]| 
+ []
+
+
+Overfull \hbox (127.31438pt too wide) in paragraph at lines 2293--2294
+[][]| 
+ []
+
+
+Overfull \hbox (132.5852pt too wide) in paragraph at lines 2300--2301
+[][]| 
+ []
+
+
+Overfull \hbox (127.15468pt too wide) in paragraph at lines 2305--2306
+[][]| 
+ []
+
+
+Overfull \hbox (92.95905pt too wide) in paragraph at lines 2310--2311
+[][]| 
+ []
+
+
+Overfull \hbox (4.74573pt too wide) in paragraph at lines 2318--2318
+[]\OT1/cmr/m/n/10 12x,f12.6| 
+ []
+
+
+Overfull \hbox (4.74573pt too wide) in paragraph at lines 2319--2319
+[]\OT1/cmr/m/n/10 24x,f12.6| 
+ []
+
+
+Overfull \hbox (228.73051pt too wide) in paragraph at lines 2329--2330
+[][]| 
+ []
+
+
+Overfull \hbox (204.93199pt too wide) in paragraph at lines 2334--2335
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2277--2340
+ [] 
+ []
+
+l2hSize :table9701:526.99988pt::0.0pt::349.0pt.
+[229
+
+
+]
+Overfull \hbox (103.33543pt too wide) in paragraph at lines 2351--2352
+[][]| 
+ []
+
+
+Overfull \hbox (1.63725pt too wide) in alignment at lines 2348--2366
+[][][]
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2348--2367
+ [] 
+ []
+
+l2hSize :table9732:161.39996pt::0.0pt::349.0pt.
+[230
+
+
+]
+Overfull \hbox (162.93224pt too wide) in paragraph at lines 2378--2379
+[][]| 
+ []
+
+
+Overfull \hbox (131.9949pt too wide) in paragraph at lines 2385--2386
+[][]| 
+ []
+
+
+Overfull \hbox (152.23232pt too wide) in paragraph at lines 2396--2397
+[][]| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2375--2402
+ [] 
+ []
+
+l2hSize :table9745:234.19995pt::0.0pt::349.0pt.
+[231
+
+
+]
+Overfull \hbox (182.13379pt too wide) in paragraph at lines 2416--2417
+[][]| 
+ []
+
+
+Overfull \hbox (132.4186pt too wide) in paragraph at lines 2420--2421
+[][]| 
+ []
+
+
+Overfull \hbox (11.69017pt too wide) in paragraph at lines 2422--2422
+[]\OT1/cmr/m/n/10 4(1pe12.5)| 
+ []
+
+
+Overfull \hbox (77.79134pt too wide) in paragraph at lines 2410--2425
+ [] 
+ []
+
+l2hSize :table9764:101.79996pt::0.0pt::349.0pt.
+[232
+
+
+]
+\c@algcounter=\count97
+l2hSize :tex2html_wrap_inline10596:6.95831pt::6.95831pt::8.27783pt.
+[233
+
+
+]
+l2hSize :tex2html_wrap_inline10616:6.95831pt::6.95831pt::6.52551pt.
+[234
+
+
+]
+l2hSize :tex2html_wrap_inline10664:10.59998pt::10.59998pt::86.06653pt.
+[235
+
+
+]
+l2hSize :tex2html_wrap_inline10666:8.0pt::8.0pt::6.0556pt.
+[236
+
+
+]
+l2hSize :tex2html_wrap_inline10692:6.95831pt::6.95831pt::6.23288pt.
+[237
+
+
+]
+l2hSize :tex2html_wrap_inline10786:6.45831pt::0.0pt::8.27783pt.
+[238
+
+
+]
+l2hSize :tex2html_wrap_inline10788:7.33331pt::7.33331pt::36.99124pt.
+[239
+
+
+]
+l2hSize :tex2html_wrap_inline10796:7.33331pt::7.33331pt::36.41486pt.
+[240
+
+
+]
+l2hSize :tex2html_wrap_inline10804:7.33331pt::7.33331pt::19.14pt.
+[241
+
+
+]
+l2hSize :tex2html_wrap_inline10812:7.33331pt::7.33331pt::18.56361pt.
+[242
+
+
+]
+l2hSize :tex2html_wrap_inline10820:6.95831pt::6.95831pt::34.94264pt.
+[243
+
+
+]
+l2hSize :tex2html_wrap_inline10828:6.95831pt::6.95831pt::23.49443pt.
+[244
+
+
+]
+l2hSize :tex2html_wrap_inline10898:8.64003pt::8.64003pt::43.36472pt.
+[245
+
+
+]
+l2hSize :tex2html_wrap_inline10900:6.45831pt::0.0pt::10.18755pt.
+[246
+
+
+]
+l2hSize :tex2html_wrap_inline10902:6.95831pt::6.95831pt::10.5313pt.
+[247
+
+
+]
+l2hSize :tex2html_wrap_inline10904:8.0pt::8.0pt::27.79263pt.
+[248
+
+
+]
+l2hSize :tex2html_wrap_inline10908:6.95831pt::6.95831pt::38.90735pt.
+[249
+
+
+]
+l2hSize :tex2html_wrap_inline10910:6.95831pt::6.95831pt::21.41351pt.
+[250
+
+
+]
+l2hSize :tex2html_wrap_indisplay20290:15.0001pt::15.0001pt::288.60477pt.
+[251
+
+
+]
+l2hSize :tex2html_wrap_inline10964:8.0pt::8.0pt::64.94455pt.
+[252
+
+
+]
+l2hSize :tex2html_wrap_inline10972:6.95831pt::6.95831pt::13.27785pt.
+[253
+
+
+]
+l2hSize :tex2html_wrap_indisplay20477:8.0pt::8.0pt::65.11497pt.
+[254
+
+
+]
+l2hSize :tex2html_wrap_indisplay20478:6.95831pt::6.95831pt::8.27783pt.
+[255
+
+
+]
+l2hSize :tex2html_wrap_indisplay20479:17.01393pt::17.01393pt::90.1207pt.
+[256
+
+
+]
+l2hSize :tex2html_wrap_indisplay20481:7.33331pt::7.33331pt::7.3056pt.
+[257
+
+
+]
+l2hSize :tex2html_wrap_indisplay20483:17.01393pt::17.01393pt::269.47551pt.
+[258
+
+
+]
+l2hSize :tex2html_wrap_indisplay20484:15.0001pt::15.0001pt::178.58914pt.
+[259
+
+
+]
+l2hSize :tex2html_wrap_inline11238:8.0pt::8.0pt::30.1705pt.
+[260
+
+
+]
+l2hSize :tex2html_wrap_inline11240:10.17221pt::10.17221pt::12.68114pt.
+[261
+
+
+]
+l2hSize :tex2html_wrap_indisplay20488:9.81749pt::9.81749pt::44.25151pt.
+[262
+
+
+]
+l2hSize :tex2html_wrap_indisplay20490:14.65974pt::14.65974pt::143.88977pt.
+[263
+
+
+]
+l2hSize :tex2html_wrap_indisplay20492:12.54526pt::12.54526pt::27.048pt.
+[264
+
+
+]
+l2hSize :tex2html_wrap_indisplay20494:14.20952pt::14.20952pt::28.72351pt.
+[265
+
+
+]
+l2hSize :tex2html_wrap_inline11244:7.33331pt::7.33331pt::14.78964pt.
+[266
+
+
+]
+l2hSize :tex2html_wrap_inline11248:7.33331pt::7.33331pt::21.31686pt.
+[267
+
+
+]
+l2hSize :tex2html_wrap_indisplay20502:9.56111pt::9.56111pt::26.6228pt.
+[268
+
+
+]
+l2hSize :tex2html_wrap_indisplay20503:6.95831pt::6.95831pt::10.50005pt.
+[269
+
+
+]
+l2hSize :tex2html_wrap_indisplay20504:21.00017pt::21.00017pt::209.87459pt.
+[270
+
+
+]
+l2hSize :tex2html_wrap_indisplay20506:10.17221pt::10.17221pt::27.42026pt.
+[271
+
+
+]
+l2hSize :tex2html_wrap_indisplay20508:15.4051pt::15.4051pt::116.21083pt.
+[272
+
+
+]
+l2hSize :tex2html_wrap_inline11252:9.29842pt::9.29842pt::21.79504pt.
+[273
+
+
+]
+l2hSize :tex2html_wrap_indisplay20513:14.20952pt::14.20952pt::24.82623pt.
+[274
+
+
+]
+l2hSize :tex2html_wrap_indisplay20515:13.70952pt::13.70952pt::58.1678pt.
+[275
+
+
+]
+l2hSize :tex2html_wrap_indisplay20516:6.95831pt::6.95831pt::8.27783pt.
+[276
+
+
+]
+l2hSize :tex2html_wrap_indisplay20517:14.11122pt::14.11122pt::103.34312pt.
+[277
+
+
+]
+l2hSize :tex2html_wrap_indisplay20519:16.88176pt::16.88176pt::87.19893pt.
+[278
+
+
+]
+l2hSize :tex2html_wrap_indisplay20521:8.0pt::8.0pt::57.37163pt.
+[279
+
+
+]
+l2hSize :tex2html_wrap_indisplay20522:6.95831pt::6.95831pt::8.27783pt.
+[280
+
+
+]
+l2hSize :tex2html_wrap_indisplay20523:9.97221pt::9.97221pt::26.7283pt.
+[281
+
+
+]
+l2hSize :tex2html_wrap_inline11260:9.56111pt::9.56111pt::26.6228pt.
+[282
+
+
+]
+l2hSize :tex2html_wrap_inline11262:6.95831pt::6.95831pt::10.50941pt.
+[283
+
+
+]
+l2hSize :tex2html_wrap_inline11264:6.95831pt::6.95831pt::12.77539pt.
+[284
+
+
+]
+l2hSize :tex2html_wrap_indisplay20530:8.0pt::8.0pt::125.72118pt.
+[285
+
+
+]
+l2hSize :tex2html_wrap_indisplay20532:13.70952pt::13.70952pt::77.0667pt.
+[286
+
+
+]
+l2hSize :tex2html_wrap_indisplay20533:8.0pt::8.0pt::163.76215pt.
+[287
+
+
+]
+l2hSize :tex2html_wrap_indisplay20535:13.70952pt::13.70952pt::68.00279pt.
+[288
+
+
+]
+l2hSize :tex2html_wrap_indisplay20537:13.70952pt::13.70952pt::64.45537pt.
+[289
+
+
+]
+l2hSize :tex2html_wrap_inline11268:7.44444pt::7.44444pt::12.58907pt.
+[290
+
+
+]
+l2hSize :tex2html_wrap_indisplay20541:13.70952pt::13.70952pt::164.69223pt.
+[291
+
+
+]
+l2hSize :tex2html_wrap_inline11272:6.83331pt::0.0pt::11.29169pt.
+[292
+
+
+]
+l2hSize :tex2html_wrap_inline11274:8.94843pt::8.94843pt::94.94336pt.
+[293
+
+
+]
+l2hSize :tex2html_wrap_inline11276:7.33331pt::7.33331pt::12.69969pt.
+[294
+
+
+]
+l2hSize :tex2html_wrap_inline11278:7.33331pt::7.33331pt::14.96567pt.
+[295
+
+
+]
+l2hSize :tex2html_wrap_indisplay20548:7.33331pt::7.33331pt::19.14pt.
+[296
+
+
+]
+l2hSize :tex2html_wrap_indisplay20550:16.45772pt::16.45772pt::46.88728pt.
+[297
+
+
+]
+l2hSize :tex2html_wrap_indisplay20551:7.33331pt::7.33331pt::36.99124pt.
+[298
+
+
+]
+l2hSize :tex2html_wrap_indisplay20553:16.45772pt::16.45772pt::44.6213pt.
+[299
+
+
+]
+l2hSize :tex2html_wrap_indisplay20557:10.74858pt::10.74858pt::80.46638pt.
+[300
+
+
+]
+l2hSize :tex2html_wrap_indisplay20558:11.35872pt::11.35872pt::120.65862pt.
+[301
+
+
+]
+l2hSize :tex2html_wrap_inline11284:8.64003pt::8.64003pt::12.21881pt.
+[302
+
+
+]
+l2hSize :tex2html_wrap_inline11286:8.64003pt::8.64003pt::24.96664pt.
+[303
+
+
+]
+l2hSize :tex2html_wrap_inline11288:6.95831pt::6.95831pt::9.16568pt.
+[304
+
+
+]
+l2hSize :tex2html_wrap_inline11304:6.83331pt::0.0pt::6.75005pt.
+[305
+
+
+]
+l2hSize :tex2html_wrap_inline11306:7.44444pt::7.44444pt::73.29785pt.
+[306
+
+
+]
+l2hSize :tex2html_wrap_inline11741:7.33331pt::7.33331pt::96.16936pt.
+[307
+
+
+]
+l2hSize :tex2html_wrap_inline11743:7.33331pt::7.33331pt::18.7674pt.
+[308
+
+
+]
+l2hSize :tex2html_wrap_inline11967:7.33331pt::7.33331pt::34.64577pt.
+[309
+
+
+]
+l2hSize :tex2html_wrap_inline11969:7.33331pt::7.33331pt::42.55132pt.
+[310
+
+
+]
+l2hSize :tex2html_wrap_inline11975:6.95831pt::6.95831pt::23.52077pt.
+[311
+
+
+]
+l2hSize :tex2html_wrap_inline11977:6.95831pt::6.95831pt::23.52077pt.
+[312
+
+
+]
+l2hSize :tex2html_wrap_inline12882:6.95831pt::6.95831pt::11.3959pt.
+[313
+
+
+]
+l2hSize :tex2html_wrap_inline12886:7.33331pt::7.33331pt::12.13338pt.
+[314
+
+
+]
+l2hSize :tex2html_wrap_inline12888:6.95831pt::6.95831pt::10.96535pt.
+[315
+
+
+]
+l2hSize :tex2html_wrap_inline12892:7.33331pt::7.33331pt::21.93318pt.
+[316
+
+
+]
+l2hSize :tex2html_wrap_inline12898:6.45831pt::0.0pt::6.57294pt.
+[317
+
+
+]
+l2hSize :tex2html_wrap_inline12912:7.33331pt::7.33331pt::12.13338pt.
+[318
+
+
+]
+l2hSize :tex2html_wrap_inline12918:7.33331pt::7.33331pt::12.13338pt.
+[319
+
+
+]
+l2hSize :tex2html_wrap_inline12946:6.95831pt::6.95831pt::10.87703pt.
+[320
+
+
+]
+l2hSize :tex2html_wrap_inline12956:7.33331pt::7.33331pt::12.13338pt.
+[321
+
+
+]
+l2hSize :tex2html_wrap_inline12958:8.01782pt::8.01782pt::12.13338pt.
+[322
+
+
+]
+l2hSize :tex2html_wrap_inline12960:8.01782pt::8.01782pt::13.47363pt.
+[323
+
+
+]
+l2hSize :tex2html_wrap_inline12992:7.33331pt::7.33331pt::12.13338pt.
+[324
+
+
+]
+l2hSize :tex2html_wrap_inline13020:7.33331pt::7.33331pt::11.1181pt.
+[325
+
+
+] (images.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 1502 strings out of 20880
+ 18321 string characters out of 196184
+ 76107 words of memory out of 350001
+ 4469 multiletter control sequences out of 10000+15000
+ 7047 words of font info for 28 fonts, out of 400000 for 1000
+ 14 hyphenation exceptions out of 10000
+ 25i,13n,24p,361b,434s stack positions out of 3000i,100n,1500p,50000b,4000s
+
+Output written on images.dvi (350 pages, 99720 bytes).

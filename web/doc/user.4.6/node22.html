@@ -1,0 +1,501 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>20. Geometry Optimization with DRIVER</TITLE>
+<META NAME="description" CONTENT="20. Geometry Optimization with DRIVER">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node23.html">
+<LINK REL="previous" HREF="node21.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node23.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1403"
+  HREF="node23.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1399"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1393"
+  HREF="node21.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1401"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1404"
+  HREF="node23.html">21. Geometry Optimization with</A>
+<B> Up:</B> <A NAME="tex2html1400"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1394"
+  HREF="node21.html">19. Coupled Cluster Calculations</A>
+ &nbsp <B>  <A NAME="tex2html1402"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1405"
+  HREF="node22.html#SECTION002210000000000000000">20.1 Convergence criteria</A>
+<LI><A NAME="tex2html1406"
+  HREF="node22.html#SECTION002220000000000000000">20.2 Available precision</A>
+<LI><A NAME="tex2html1407"
+  HREF="node22.html#SECTION002230000000000000000">20.3 Controlling the step length</A>
+<LI><A NAME="tex2html1408"
+  HREF="node22.html#SECTION002240000000000000000">20.4 Maximum number of steps</A>
+<LI><A NAME="tex2html1409"
+  HREF="node22.html#SECTION002250000000000000000">20.5 Discard restart information</A>
+<LI><A NAME="tex2html1410"
+  HREF="node22.html#SECTION002260000000000000000">20.6 Regenerate internal coordinates</A>
+<LI><A NAME="tex2html1411"
+  HREF="node22.html#SECTION002270000000000000000">20.7 Initial Hessian</A>
+<LI><A NAME="tex2html1412"
+  HREF="node22.html#SECTION002280000000000000000">20.8 Mode or variable to follow to saddle point</A>
+<LI><A NAME="tex2html1413"
+  HREF="node22.html#SECTION002290000000000000000">20.9 Optimization history as XYZ files</A>
+<LI><A NAME="tex2html1414"
+  HREF="node22.html#SECTION0022100000000000000000">20.10 Print options</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION002200000000000000000">
+20. Geometry Optimization with DRIVER</A>
+</H1>
+<A NAME="sec:driver"></A>
+<P>
+The DRIVER module is one of two drivers (see Section <A HREF="node23.html#sec:stepper">21</A>
+for documentation on STEPPER) to perform a geometry optimization
+function on the molecule defined by input using the <code>GEOMETRY</code>
+directive (see Section <A HREF="node8.html#sec:geom">6</A>).  Geometry optimization is
+either an energy minimization or a transition state optimization.
+The algorithm programmed in DRIVER is a quasi-newton optimization
+with line searches and approximate energy Hessian updates.
+
+<P>
+DRIVER is selected by default out of the two available modules to
+perform geometry optimization.  In order to force use of DRIVER (e.g.,
+because a previous optimization used STEPPER) provide a DRIVER input
+block (below) -- even an empty block will force use of DRIVER.
+
+<P>
+Optional input for this module is specified within the compound
+directive,
+<PRE>
+  DRIVER 
+    (LOOSE || DEFAULT || TIGHT)
+    GMAX &lt;real value&gt;
+    GRMS &lt;real value&gt;
+    XMAX &lt;real value&gt;
+    XRMS &lt;real value&gt;
+
+    EPREC &lt;real eprec default 1e-7&gt;
+
+    TRUST &lt;real trust default 0.3&gt;
+    SADSTP &lt;real sadstp default 0.1&gt;
+
+    CLEAR
+    REDOAUTOZ
+
+    INHESS &lt;integer inhess default 0&gt;
+
+    (MODDIR || VARDIR) &lt;integer dir default 0&gt;
+    (FIRSTNEG || NOFIRSTNEG)
+
+    MAXITER &lt;integer maxiter default 20&gt;
+
+    BSCALE &lt;real BSCALE default 1.0&gt;
+    ASCALE &lt;real ASCALE default 0.25&gt;
+    TSCALE &lt;real TSCALE default 0.1&gt;
+    HSCALE &lt;real HSCALE default 1.0&gt;
+   
+    PRINT ...
+
+    XYZ [&lt;string xyz default $file_prefix$&gt;]
+    NOXYZ
+
+  END
+</PRE>
+
+<P>
+On each optimization step a line search is performed.
+To speed up calculations (up to two times), it may be beneficial
+to turn off the line search using following directive:
+<PRE>
+set driver:linopt 0
+</PRE>
+
+<P>
+
+<P>
+
+<H1><A NAME="SECTION002210000000000000000">
+20.1 Convergence criteria</A>
+</H1>
+
+<P>
+<PRE>
+    (LOOSE || DEFAULT || TIGHT)
+    GMAX &lt;real value&gt;
+    GRMS &lt;real value&gt;
+    XMAX &lt;real value&gt;
+    XRMS &lt;real value&gt;
+</PRE>
+
+<P>
+In version 3.3 Gaussian-style convergence criteria have been adopted.
+The defaults may be used, or the directives <code>LOOSE</code>,
+<code>DEFAULT</code>, or <code>TIGHT</code> specified to use standard sets of
+values, or the individual criteria adjusted.  All criteria are in
+atomic units.
+<code>GMAX</code> and <code>GRMS</code> control the maximum and root mean square
+gradient in the coordinates being used (Z-matrix, redundant internals,
+or Cartesian).  <code>XMAX</code> and <code>XRMS</code> control the maximum and
+root mean square of the Cartesian step.
+
+<P>
+<PRE>
+                  LOOSE    DEFAULT    TIGHT
+         GMAX   0.0045d0   0.00045   0.000015   
+         GRMS   0.0030d0   0.00030   0.00001
+         XMAX   0.0054d0   0.00180   0.00006
+         XRMS   0.0036d0   0.00120   0.00004
+</PRE>
+
+<P>
+Note that GMAX and GRMS used for convergence of geometry may significantly vary in 
+different coordinate systems such as Z-matrix, redundant internals, or Cartesian. 
+The coordinate system is defined in the input file (default is Z-matrix). 
+Therefore the choice of coordinate system may slightly affect converged energy. 
+Although in most cases XMAX and XRMS are last to converge which are always done 
+in Cartesian coordinates, which insures convergence to the same geometry in 
+different coordinate systems.
+
+<P>
+The old criterion may be recovered with the input
+<PRE>
+   gmax 0.0008; grms 1; xrms 1; xmax 1
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION002220000000000000000">
+20.2 Available precision</A>
+</H1>
+
+<P>
+<PRE>
+    EPREC &lt;real eprec default 1e-7&gt;
+</PRE>
+
+<P>
+In performing a line search the optimizer must know the
+precision of the energy (this has nothing to
+do with convergence criteria).  The default value
+of 1e-7 should be adjusted if less, or more, precision
+is available.  Note that the default EPREC for DFT
+calculations is 5e-6 instead of 1e-7.
+
+<P>
+
+<H1><A NAME="SECTION002230000000000000000">
+20.3 Controlling the step length</A>
+</H1>
+
+<P>
+<PRE>
+    TRUST &lt;real trust default 0.3&gt;
+    SADSTP &lt;real sadstp default 0.1&gt;
+</PRE>
+
+<P>
+A fixed trust radius (<code>trust</code>) is used to control the step during
+minimizations, and is also used for modes being minimized during
+saddle-point searches.  It defaults to 0.3 for minimizations and 0.1
+for saddle-point searches.  The parameter <code>sadstp</code> is the trust
+radius used for the mode being maximized during a saddle-point search
+and defaults to 0.1.
+
+<P>
+
+<H1><A NAME="SECTION002240000000000000000">
+20.4 Maximum number of steps</A>
+</H1>
+
+<P>
+<PRE>
+    MAXITER &lt;integer maxiter default 20&gt;
+</PRE>
+
+<P>
+By default at most 20 geometry optimization steps will be taken,
+but this may be modified with this directive.
+
+<P>
+
+<H1><A NAME="SECTION002250000000000000000">
+20.5 Discard restart information</A>
+</H1>
+<PRE>
+    CLEAR
+</PRE>
+
+<P>
+By default Driver reuses Hessian information from a previous
+optimization, and, to facilitate a restart also stores which mode is
+being followed for a saddle-point search.  This option deletes all
+restart data.
+
+<P>
+
+<H1><A NAME="SECTION002260000000000000000">
+20.6 Regenerate internal coordinates</A>
+</H1>
+
+<P>
+<PRE>
+    REDOAUTOZ
+</PRE>
+
+<P>
+Deletes Hessian data and regenerates internal coordinates at the
+current geometry.  Useful if there has been a large change in the
+geometry that has rendered the current set of coordinates invalid or
+non-optimal.
+
+<P>
+
+<H1><A NAME="SECTION002270000000000000000">
+20.7 Initial Hessian</A>
+</H1>
+<PRE>
+    INHESS &lt;integer inhess default 0&gt;
+</PRE>
+
+<P>
+
+<UL>
+<LI>0 = Default ... use restart data if available, otherwise use diagonal guess.
+</LI>
+<LI>1 = Use diagonal initial guess.
+</LI>
+<LI>2 = Use restart data if available, otherwise transform
+Cartesian Hessian from previous frequency calculation.
+</LI>
+</UL>
+
+<P>
+In addition, the diagonal elements of the initial Hessian for
+internal coordinates may be scaled using separate factors for
+bonds, angles and torsions with the following
+<PRE>
+    BSCALE &lt;real bscale default 1.0&gt;
+    ASCALE &lt;real ascale default 0.25&gt;
+    TSCALE &lt;real tscale default 0.1&gt;
+</PRE>
+These values typically give a two-fold speedup over unit values, based
+on about 100 test cases up to 15 atoms using 3-21g and 6-31g* SCF.
+However, if doing many optimizations on physically similar systems it
+may be worth fine tuning these parameters.
+
+<P>
+Finally, the entire Hessian from any source may be scaled
+by a factor using the directive
+<PRE>
+    HSCALE &lt;real hscale default 1.0&gt;
+</PRE>
+It might be of utility, for instance, when computing an initial
+Hessian using SCF to start a large MP2 optimization.  The SCF
+vibrational modes are expected to be stiffer than the MP2, so scaling
+the initial Hessian by a number less than one might be beneficial.
+
+<P>
+
+<H1><A NAME="SECTION002280000000000000000">
+20.8 Mode or variable to follow to saddle point</A>
+</H1>
+
+<P>
+<PRE>
+    (MODDIR || VARDIR) &lt;integer dir default 0&gt;
+    (FIRSTNEG || NOFIRSTNEG)
+</PRE>
+
+<P>
+When searching for a transition state the program, by default,
+will take an initial step uphill and then do mode following
+using a fuzzy maximum overlap (the lowest eigen-mode with an
+overlap with the previous search direction of 0.7 times the
+maximum overlap is selected).  Once a negative eigen-value
+is found, that mode is followed regardless of overlap.
+
+<P>
+The initial uphill step is appropriate if the gradient points roughly
+in the direction of the saddle point, such as might be the case if a
+constrained optimization was performed at the starting geometry.
+Alternatively, the initial search direction may be chosen to be along
+a specific internal variable (using the directive
+<code>VARDIR</code>) or along a specific eigen-mode (using <code>MODDIR</code>).
+Following a variable might be valuable if the initial gradient is
+either very small or very large.  Note that the eigen-modes in the
+optimizer have next-to-nothing to do with the output from a frequency
+calculation.  You can examine the eigen-modes used by the optimizer
+with
+
+<P>
+<PRE>
+         driver; print hvecs; end
+</PRE>
+
+<P>
+The selection of the first negative mode is usually a good choice if
+the search is started in the vicinity of the transition state and the
+initial search direction is satisfactory.  However, sometimes the
+first negative mode might not be the one of interest (e.g., transverse
+to the reaction direction).  If <code>NOFIRSTNEG</code> is specified, the
+code will not take the first negative direction and will continue doing
+mode-following until that mode goes negative.
+
+<P>
+
+<H1><A NAME="SECTION002290000000000000000">
+20.9 Optimization history as XYZ files</A>
+</H1>
+
+<P>
+<PRE>
+    XYZ [&lt;string xyz default $fileprefix&gt;]
+    NOXYZ
+</PRE>
+
+<P>
+The <code>XYZ</code> directive causes the geometry at each step (but not
+intermediate points of a line search) to be output into separate files
+in the permanent directory in XYZ format.  The optional string will
+prefix the filename.  The <code>NOXYZ</code> directive turns this off.
+
+<P>
+For example, the input
+<PRE>
+    driver; xyz test; end
+</PRE>
+will cause files test-000.xyz, test-001.xyz, ... to be created
+in the permanent directory.  
+
+<P>
+The script <code>rasmolmovie</code> in the NWChem <code>contrib</code> directory
+can be used to turn these into an animated GIF movie.
+
+<P>
+
+<H1><A NAME="SECTION0022100000000000000000">
+20.10 Print options</A>
+</H1>
+
+<P>
+The UNIX command <code>"egrep '^@' &lt; output"</code> will extract a pretty
+table summarizing the optimization.
+
+<P>
+If you specify the NWChem input
+<PRE>
+      scf; print none; end
+      driver; print low; end
+      task scf optimize
+</PRE>
+you'll obtain a pleasantly terse output.
+
+<P>
+For more control, these options for the standard print directive are
+recognized
+
+<UL>
+<LI><code>debug</code>   - prints a large amount of data.  Don't use in parallel.
+</LI>
+<LI><code>high</code>    - print the search direction in internals
+</LI>
+<LI><code>default</code> - prints geometry for each major step (not during
+                the line search), gradient in internals (before
+                and after application of constraints)
+</LI>
+<LI><code>low</code>     - prints convergence and energy information.  At 
+                convergence prints final geometry, change in internals
+                from initial geometry
+</LI>
+</UL>
+and these specific print options
+
+<UL>
+<LI><TT>finish</TT> (low)      - print geometry data at end of calculation
+</LI>
+<LI><TT>bonds</TT>  (default)  - print bonds at end of calculation
+</LI>
+<LI><TT>angles</TT> (default)  - print angles at end of calculation
+</LI>
+<LI><TT>hvecs</TT>  (never)    - print eigen-values/vectors of the Hessian
+</LI>
+<LI><TT>searchdir</TT> (high)  - print the search direction in internals
+</LI>
+<LI>`<TT>internal gradient</TT>' (default) - print the gradient in internals
+</LI>
+<LI><TT>sadmode</TT> (default) - print the mode being followed to the saddle point
+</LI>
+</UL>
+
+<P>
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1403"
+  HREF="node23.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1399"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1393"
+  HREF="node21.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1401"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1404"
+  HREF="node23.html">21. Geometry Optimization with</A>
+<B> Up:</B> <A NAME="tex2html1400"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1394"
+  HREF="node21.html">19. Coupled Cluster Calculations</A>
+ &nbsp <B>  <A NAME="tex2html1402"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

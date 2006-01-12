@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>28. Properties</TITLE>
+<META NAME="description" CONTENT="28. Properties">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node31.html">
+<LINK REL="previous" HREF="node29.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node31.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1556"
+  HREF="node31.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1552"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1546"
+  HREF="node29.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1554"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1557"
+  HREF="node31.html">29. Electrostatic potentials</A>
+<B> Up:</B> <A NAME="tex2html1553"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1547"
+  HREF="node29.html">27. Electron Transfer Calculations</A>
+ &nbsp <B>  <A NAME="tex2html1555"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1558"
+  HREF="node30.html#SECTION003010000000000000000">28.1 Subdirectives</A>
+<UL>
+<LI><A NAME="tex2html1559"
+  HREF="node30.html#SECTION003011000000000000000">28.1.1 Nbofile</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION003000000000000000000">
+28. Properties</A>
+</H1>
+<A NAME="sec:property"></A><PRE>
+  PROPERTY
+    [property name]
+    [CENTER ((com || coc || origin || arb &lt;real x y z&gt;) default coc)]
+    [VECTORS ...]
+  END
+</PRE>
+
+<P>
+Calculation of properties is accomplished with <code>TASK PROPERTY</code>
+after the completion of an energy (or MP2 gradient) calculation.  The
+following properties can be computed for all wavefunctions that produce
+orbitals, including Hartree-Fock (closed-shell RHF, open-shell ROHF, and
+open-shell UHF), DFT (closed-shell and open-shell spin unrestricted),
+MCSCF (complete active space), and MP2 (closed-shell RHF and open-shell
+UHF).
+
+<P>
+
+<UL>
+<LI>natural bond analysis
+</LI>
+<LI>dipole moment
+</LI>
+<LI>quadrupole moment
+</LI>
+<LI>octupole moment
+</LI>
+<LI>Mulliken population analysis and bond order analysis
+</LI>
+<LI>electrostatic potential (diamagnetic shielding) at nuclei 
+</LI>
+<LI>electric field at nuclei 
+</LI>
+<LI>electric field gradient at nuclei 
+</LI>
+<LI>electron and spin density at nuclei 
+</LI>
+<LI>NMR chemical shifts (GIAO method) only for closed-shell RHF
+</LI>
+</UL>
+
+<P>
+The default molecular orbital file <code>$file_prefix$.movecs</code> is used
+unless a vectors directive (Section <A HREF="node12.html#sec:vectors">10.5</A>) is provided.  It is
+therefore only necessary to include a vectors directive if the MO vectors
+to be analyzed are not coming from the default file, e.g., if they have
+been previously redirected, or if MP2 natural orbitals (file extension
+<code>".mp2nos"</code>) are being anaylzed.  The MP2 natural orbitals MUST be
+used if the user wants MP2 properties.
+
+<P>
+
+<H1><A NAME="SECTION003010000000000000000">
+28.1 Subdirectives</A>
+</H1>
+
+<P>
+Note that presenting any property input causes all previous property input
+to be ``forgotten'', unlike other NWChem modules.
+
+<P>
+Each property can be requested by means of a subdirective among the
+subdirectives provided :
+
+<P>
+
+<UL>
+<LI><TT>NBOFILE</TT>
+</LI>
+<LI><TT>DIPOLE</TT>
+</LI>
+<LI><TT>QUADRUPOLE</TT>
+</LI>
+<LI><TT>OCTUPOLE</TT>
+</LI>
+<LI><TT>MULLIKEN</TT>
+</LI>
+<LI><TT>ESP</TT>
+</LI>
+<LI><TT>EFIELD</TT>
+</LI>
+<LI><TT>EFIELDGRAD</TT>
+</LI>
+<LI><TT>ELECTRONDENSITY</TT>
+</LI>
+<LI><TT>GIAO</TT>
+</LI>
+<LI><TT>ALL</TT>
+</LI>
+</UL>
+
+<P>
+The ``<TT>ALL</TT>'' keyword generates all currently available properties. 
+
+<P>
+The request <TT>NBOFILE</TT> does not execute the Natural Bond Analysis
+code, but simply creates an input file to be used as input to the
+stand-alone NBO code. To execute the NBO analysis directly, see Section
+<A HREF="node39.html#sec:nbo">37.1</A>. All other properties are calculated upon
+request.
+
+<P>
+An additional subdirective is provided to specify the origin of the
+molecular orbitals used in the calculation of the molecular
+properties. This is the `<TT>VECTORS</TT>' subdirective, also used in the
+SCF and DFT tasks. For a full description of this subdirective
+the user is refered to the description found in the SCF description.
+By default, the input file used for the calculation of the properties
+has the <code>.movecs</code> name extension. 
+
+<P>
+The user also has the option to choose the center of expansion for
+the dipole, quadrupole, and octupole calculations.
+
+<P>
+<PRE>
+    [CENTER ((com || coc || origin || arb &lt;real x y z&gt;) default coc)]
+</PRE>
+
+<P>
+<code>com</code> is the center of mass, <code>coc</code> is the center of charge, <code>origin</code> is 
+(0.0, 0.0, 0.0) and <code>arb</code> is any arbitrary point which must be accompanied
+by the coordinated to be used.  Currently the x, y, and z coordinates
+must be given in the same units as <code>UNITS</code> in <code>GEOMETRY</code> (See Section
+<A HREF="node8.html#sec:geomkeys">6.1</A>).
+
+<P>
+
+<H2><A NAME="SECTION003011000000000000000"></A>
+<A NAME="sec:Nbofile"></A>
+<BR>
+28.1.1 Nbofile
+</H2>
+
+<P>
+Following the successful completion of an electronic structure
+calculation, a Natural Bond Orbital (NBO) analysis may be carried out
+in the following way.  On restart specify the <code>TASK</code> as <code>PROPERTY</code> and
+supply the sub-directive <code>NBOFILE</code> to the <code>PROPERTY</code> directive.  NWChem
+will query the rtdb and construct an ASCII file,
+<code>&lt;file_prefix&gt;.gen</code>, that may be used as input to the stand alone
+version of the NBO program, gennbo.  <code>&lt;file_prefix&gt;</code> is equal to
+string following the <code>RESTART</code> directive.  The input deck may be edited
+to provide additional options to the NBO calculation, (see the NBO
+user's manual for details.)  The other option in to directly run the NBO 
+analysis (See Section <A HREF="node39.html#sec:nbo">37.1</A> for more information).
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1556"
+  HREF="node31.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1552"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1546"
+  HREF="node29.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1554"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1557"
+  HREF="node31.html">29. Electrostatic potentials</A>
+<B> Up:</B> <A NAME="tex2html1553"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1547"
+  HREF="node29.html">27. Electron Transfer Calculations</A>
+ &nbsp <B>  <A NAME="tex2html1555"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

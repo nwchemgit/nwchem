@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>12. Spin-Orbit DFT (SODFT)</TITLE>
+<META NAME="description" CONTENT="12. Spin-Orbit DFT (SODFT)">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node15.html">
+<LINK REL="previous" HREF="node13.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node15.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1219"
+  HREF="node15.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1215"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1209"
+  HREF="node13.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1217"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1220"
+  HREF="node15.html">13. COSMO</A>
+<B> Up:</B> <A NAME="tex2html1216"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1210"
+  HREF="node13.html">11. DFT for Molecules</A>
+ &nbsp <B>  <A NAME="tex2html1218"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001400000000000000000">
+12. Spin-Orbit DFT (SODFT)</A>
+</H1>
+<A NAME="sec:sodft"></A>
+<P>
+The spin-orbit DFT module (SODFT) in the NWChem code allows for the variational treatment
+of the one-electron spin-orbit operator within the DFT framework. The implementation 
+requires the definition of an effective core potential (ECP) and a matching spin-orbit
+potential (SO). The current implementation does NOT use symmetry. 
+
+<P>
+The actual SODFT calculation will be performed when the input module
+encounters the <code>TASK</code> directive (Section <A HREF="node7.html#sec:task">5.10</A>).  
+
+<P>
+<PRE>
+  TASK SODFT
+</PRE>
+
+<P>
+Input parameters are the same as for the DFT, see section <A HREF="node13.html#sec:dft">11</A> for specifications. 
+Some of the DFT options are not available in the SODFT. These are <code>max_ovl</code> and 
+<code>sic</code>.
+
+<P>
+Besides using the standard ECP and basis sets, see Section <A HREF="node10.html#sec:ecp">8</A> for details, one 
+also has to specify a spin-orbit (SO) potential. The input specification for the SO potential
+can be found in section <A HREF="node10.html#sec:spinorb_ecp">8.2</A>. At this time we have not included any spin-orbit
+potentials in the basis set library.
+
+<P>
+Note: One should use a combination of ECP and SO potentials that were designed for the same 
+size core, i.e. don't use a small core ECP potential with a large core SO potential (it will
+produce erroneous results).
+
+<P>
+The following is an example of a calculation of <IMG
+ WIDTH="35" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img123.gif"
+ ALT="$\mathrm{UO_2}$">:
+
+<P>
+<PRE>
+start uo2_sodft
+echo
+
+Memory 32 mw
+
+charge 2
+
+geometry noautoz noautosym units angstrom
+ U     0.00000      0.00000     0.00000
+ O     0.00000      0.00000     1.68000
+ O     0.00000      0.00000    -1.68000
+end
+
+basis "ao basis" cartesian print
+U    S
+        12.12525300         0.02192100
+         7.16154500        -0.22516000
+         4.77483600         0.56029900
+         2.01169300        -1.07120900
+U    S
+         0.58685200         1.00000000
+U    S
+         0.27911500         1.00000000
+U    S
+         0.06337200         1.00000000
+U    S
+         0.02561100         1.00000000
+U    P
+        17.25477000         0.00139800
+         7.73535600        -0.03334600
+         5.15587800         0.11057800
+         2.24167000        -0.31726800
+U    P
+         0.58185800         1.00000000
+U    P
+         0.26790800         1.00000000
+U    P
+         0.08344200         1.00000000
+U    P
+         0.03213000         1.00000000
+U    D
+         4.84107000         0.00573100
+         2.16016200        -0.05723600
+         0.57563000         0.23882800
+U    D
+         0.27813600         1.00000000
+U    D
+         0.12487900         1.00000000
+U    D
+         0.05154800         1.00000000
+U    F
+         2.43644100         0.35501100
+         1.14468200         0.40084600
+         0.52969300         0.30467900
+U    F
+         0.24059600         1.00000000
+U    F
+         0.10186700         1.00000000
+O    S
+        47.10551800        -0.01440800
+         5.91134600         0.12956800
+         0.97648300        -0.56311800
+O    S
+         0.29607000         1.00000000
+O    P
+        16.69221900         0.04485600
+         3.90070200         0.22261300
+         1.07825300         0.50018800
+O    P
+         0.28418900         1.00000000
+O    P
+         0.07020000         1.00000000
+END
+
+ECP
+U nelec 78
+  U s
+    2          4.06365300        112.92010300
+    2          1.88399500         15.64750000
+    2          0.88656700         -3.68997100
+  U p
+    2          3.98618100        118.75801600
+    2          2.00016000         15.07722800
+    2          0.96084100          0.55672000
+  U d
+    2          4.14797200         60.85589200
+    2          2.23456300         29.28004700
+    2          0.91369500          4.99802900
+  U f
+    2          3.99893800         49.92403500
+    2          1.99884000        -24.67404200
+    2          0.99564100          1.38948000
+O nelec 2
+  O s
+    2         10.44567000         50.77106900
+  O p
+    2         18.04517400         -4.90355100
+  O d
+    2          8.16479800         -3.31212400
+END
+
+SO
+  U p
+  2    3.986181      1.816350
+  2    2.000160     11.543940
+  2    0.960841      0.794644
+  U d
+  2    4.147972      0.353683
+  2    2.234563      3.499282
+  2    0.913695      0.514635
+  U f
+  2    3.998938      4.744214
+  2    1.998840     -5.211731
+  2    0.995641      1.867860
+END
+
+dft
+  mult 1
+  xc hfexch
+  odft
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100
+  mulliken
+end
+
+task sodft
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1219"
+  HREF="node15.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1215"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1209"
+  HREF="node13.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1217"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1220"
+  HREF="node15.html">13. COSMO</A>
+<B> Up:</B> <A NAME="tex2html1216"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1210"
+  HREF="node13.html">11. DFT for Molecules</A>
+ &nbsp <B>  <A NAME="tex2html1218"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,489 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>7. Basis sets</TITLE>
+<META NAME="description" CONTENT="7. Basis sets">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node10.html">
+<LINK REL="previous" HREF="node8.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node10.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1107"
+  HREF="node10.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1103"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1097"
+  HREF="node8.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1105"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1108"
+  HREF="node10.html">8. Effective Core Potentials</A>
+<B> Up:</B> <A NAME="tex2html1104"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1098"
+  HREF="node8.html">6. Geometries</A>
+ &nbsp <B>  <A NAME="tex2html1106"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1109"
+  HREF="node9.html#SECTION00910000000000000000">7.1 Basis set library</A>
+<LI><A NAME="tex2html1110"
+  HREF="node9.html#SECTION00920000000000000000">7.2 Explicit basis set definition</A>
+<LI><A NAME="tex2html1111"
+  HREF="node9.html#SECTION00930000000000000000">7.3 Combinations of library and explicit basis set input</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00900000000000000000">
+7. Basis sets</A>
+</H1>
+<A NAME="sec:basis"></A> 
+
+<P>
+NWChem currently supports basis sets consisting of generally
+contracted<A NAME="tex2html13"
+  HREF="footnode.html#foot1793"><SUP>7.1</SUP></A> Cartesian Gaussian functions up to a maximum angular
+ momentum of six (<IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img59.gif"
+ ALT="$h$"> functions), and also <IMG
+ WIDTH="20" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img60.gif"
+ ALT="$sp$"> (or L)
+functions<A NAME="tex2html14"
+  HREF="footnode.html#foot1794"><SUP>7.2</SUP></A> .  The <TT>BASIS</TT> directive is used to
+define these, and also to specify use of an effective core potential
+(ECP) that is associated with a basis set; see Section <A HREF="node10.html#sec:ecp">8</A>.
+
+<P>
+The basis functions to be used for a given calculation can be drawn
+from a standard set in the EMSL basis set library that is included in
+the release of NWChem  (See Appendix <A HREF="node41.html#sec:knownbasis">A</A> for a list
+of the standard basis sets currently supplied with the release of the
+code).  Alternatively, the user can specify particular functions
+explicitly in the input, to define a particular basis set.
+
+<P>
+The general form of the <code>BASIS</code> directive is as follows:
+
+<P>
+<PRE>
+  BASIS [&lt;string name default "ao basis"&gt;] \
+        [(spherical || cartesian) default cartesian] \
+        [(segment || nosegment) default segment] \
+        [(print || noprint) default print]
+        [rel]
+
+     &lt;string tag&gt; library [&lt;string tag_in_lib&gt;] \
+                  &lt;string standard_set&gt; [file &lt;filename&gt;] \
+                  [except &lt;string tag list&gt;] [rel]
+
+        ...
+
+     &lt;string tag&gt; &lt;string shell_type&gt; [rel]
+        &lt;real exponent&gt; &lt;real list_of_coefficients&gt;
+        ...
+     
+  END
+</PRE>    
+
+<P>
+Examining the keywords on the first line of the <code>BASIS</code> directive:
+
+<P>
+
+<UL>
+<LI><TT>name</TT>
+
+<P>
+By default, the basis set is stored in the database with the name
+  <code>"ao basis"</code>.  Another name may be specified in the <code>BASIS</code>
+  directive, thus, multiple basis sets may be stored simultaneously in the
+  database.  Also, the DFT (Section <A HREF="node13.html#sec:dft">11</A>) 
+  and RI-MP2 (Section <A HREF="node18.html#sec:rimp2">16</A>) modules and the
+  Dyall-modified-Dirac relativistic method (Section <A HREF="node11.html#sec:dyall-mod-dir">9.2</A>)
+  require multiple basis sets with specific names.
+
+<P>
+The user can associate the <code>"ao basis"</code> with another named basis
+using the <code>SET</code> directive (see Section <A HREF="node7.html#sec:set">5.7</A>).  
+
+<P>
+</LI>
+<LI><TT>SPHERICAL</TT> or <TT>CARTESIAN</TT>
+
+<P>
+The keywords <code>spherical</code> and <code>cartesian</code> offer the option of
+using either spherical-harmonic (5 d, 7 f, 9 g, ...) or Cartesian
+(6 d, 10 f, 15 g, ...) angular functions.  The default is
+Cartesian.  
+
+<P>
+Note that the correlation-consistent basis sets were designed using
+spherical harmonics and to use these, the <code>spherical</code> keyword
+should be present in the <code>BASIS</code> directive.  The use of spherical
+functions also helps eliminate problems with linear dependence.
+
+<P>
+</LI>
+<LI><TT>SEGMENT</TT> or <TT>NOSEGMENT</TT>
+
+<P>
+By default, NWChem forces all basis sets to be segmented, 
+even if they are input with general contractions or <IMG
+ WIDTH="15" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img63.gif"
+ ALT="$L$"> or sp
+shells. This is because the current derivative integral program cannot
+handle general contractions.  If a calculation is  
+computing energies only, a 
+performance gain can result from exploiting generally contracted basis
+sets, in which case <TT>NOSEGMENT</TT> should be specified.
+
+<P>
+</LI>
+<LI><TT>PRINT</TT> or <TT>NOPRINT</TT>
+
+<P>
+The default is for the input module to print all basis sets encountered.
+Specifying the keyword <code>noprint</code> allows the user to suppress this output.
+
+<P>
+</LI>
+<LI><TT>REL</TT>
+
+<P>
+This keyword marks the entire basis as a relativistic basis for the purposes
+of the Dyall-modified-Dirac relativistic integral code. The marking of the
+basis set is necessary for the code to make the proper association between
+the relativistic shells in the ao basis and the shells in the large and/or
+small component basis. This is only necessary for basis sets which are to be
+used as the ao basis. The user is referred to Section <A HREF="node11.html#sec:dyall-mod-dir">9.2</A>  
+for more details.
+
+<P>
+</LI>
+</UL>
+
+<P>
+Basis sets are associated with centers by using the tag of a center in
+a geometry that has either been input by the user (Section
+<A HREF="node8.html#sec:geom">6</A>) or is available elsewhere.  Each atom or center with
+the same <code>tag</code> will have the same basis set.  All atoms must have
+basis functions assigned to them -- only dummy centers (X or Bq) may have no
+basis functions.  To facilitate the specification of the geometry and
+the basis set for any chemical system, the matching process of a basis
+set tag to a geometry tag first looks for an exact match.  If no match
+is found, NWChem will attempt to match, ignoring case, the name or
+symbol of the element.  E.g., all hydrogen atoms in a system could be
+labeled ``H1'', ``H2'', ..., in the geometry but only
+one basis set specification for ``H'' or ``hydrogen'' is necessary.
+If desired, a special basis may be added to one or more centers (e.g.,
+``H1'') by providing a basis for that tag.
+If the matching mechanism fails then NWChem stops with an appropriate
+error message.
+
+<P>
+A special set of tags, ``*'' and tags ending with a ``*'' (E.g. ``H*'')
+can be used in combination with the keyword <code>library</code> (see section
+below). These tags facilitate the definition of a certain type of basis 
+set of all atoms, or a group of atoms, in a geometry using only a single 
+or very few basis set entries. The ``*'' tag will not place basis sets 
+on dummy atoms, Bq* can be used for that if necessary.
+
+<P>
+Examined next is how to reference standard basis sets in the basis set
+library, and finally, how to define a basis set using exponents and
+coefficients.
+
+<P>
+
+<H1><A NAME="SECTION00910000000000000000">
+7.1 Basis set library</A>
+</H1>
+
+<P>
+The keyword <code>library</code> associated with each specific <code>tag</code>
+entry specifies that the calculation will use the standard basis set
+in NWChem for that center.  The variable <code>&lt;standard_set&gt;</code> is the
+name that identifies the functions in the library.  The names of
+standard basis sets are not case sensitive.  See Appendix
+<A HREF="node41.html#sec:knownbasis">A</A> for a complete list of the basis sets in the
+NWChem library and their specifications.  
+
+<P>
+The general form of the input line requesting basis sets from the NWChem
+basis set library is:
+<PRE>
+     &lt;string tag&gt; library [&lt;string tag_in_lib&gt;] \
+                  &lt;string standard set&gt; [file &lt; filename&gt; \
+                  [except &lt;string tag list&gt;] [rel]
+        ...
+</PRE>
+
+<P>
+For example, the NWChem basis set library contains the Dunning cc-pvdz
+basis set.  These may be used as follows
+<PRE>
+  basis
+    oxygen library cc-pvdz
+    hydrogen library cc-pvdz
+  end
+</PRE>
+
+<P>
+A default path of the NWChem basis set libraries is provided on installation 
+of the code, but a different path can be defined by specifying the keyword 
+<code>file</code>, and one can explicitly name the file to be accessed
+for the basis functions. For example,
+<PRE>
+  basis
+    o  library 3-21g file /usr/d3g681/nwchem/library
+    si library 6-31g file /usr/d3g681/nwchem/libraries/
+  end
+</PRE>
+This directive tells the code to use the basis set <code>3-21g</code> in
+the file <TT>/usr/d3g681/nwchem/library</TT> for atom <code>o</code> and
+to use the basis set <code>6-31g</code> in the directory 
+<TT>/usr/d3g681/nwchem/libraries/</TT> for atom <code>si</code>, rather 
+than look for them in the default libraries. When a directory is defined 
+the code will search for the basis set in a file with the name <TT>6-31g</TT>.
+
+<P>
+The ``*'' tag can be used to efficiently define basis set input directives 
+for large numbers of atoms. An example is:
+<PRE>
+  basis
+    *  library 3-21g
+  end
+</PRE>
+This directive tells the code to assign the basis sets <code>3-21g</code> to
+all the atom tags defined in the geometry. If one wants to place a
+different basis set on one of the atoms defined in the geometry, the 
+following directive can be used:
+<PRE>
+  basis
+    *  library 3-21g except H
+  end
+</PRE>
+This directive tells the code to assign the basis sets <code>3-21g</code> to
+all the atoms in the geometry, except the hydrogen atoms. Remember that 
+the user will have to explicitly define the hydrogen basis set in this
+directive! One may also define tags that end with a ``*'': 
+<PRE>
+  basis
+    oxy*  library 3-21g 
+  end
+</PRE>
+This directive tells the code to assign the basis sets <code>3-21g</code> to 
+all atom tags in the geometry that start with ``oxy''.
+
+<P>
+If standard basis sets are to be placed upon a dummy center, the
+variable <code>&lt;tag_in_lib&gt;</code> must also be entered on this line, to
+identify the correct atom type to use from the basis function library
+(see the ghost atom example in Section <A HREF="node7.html#sec:set">5.7</A> and below).  For
+example: To specify the cc-pvdz basis for a calculation on the water
+monomer in the dimer basis, where the dummy oxygen and dummy hydrogen
+centers have been identified as <code>bqo</code> and <code>bqh</code>
+respectively, the <code>BASIS</code> directive is as follows:
+
+<P>
+<PRE>
+  basis
+    o   library cc-pvdz
+    h   library cc-pvdz
+    bqo library o cc-pvdz
+    bqh library h cc-pvdz
+  end
+</PRE>
+A special dummy center tag is <code>bq*</code>, which will assign the same basis 
+set to all bq centers in the geometry. Just as with the ``*'' tag, the 
+<code>except</code> list can be used to assign basis sets to unique dummy centers.
+
+<P>
+The library basis sets can also be marked as relativistic by adding the
+<code>rel</code> keyword to the tag line. See Section <A HREF="node11.html#sec:dyall-mod-dir">9.2</A> for
+more details. The correlation consistent basis sets have been contracted for
+relativistic effects and are included in the standard library.
+
+<P>
+There are also contractions in the standard library for both a point nucleus
+and a finite nucleus of Gaussian shape. These are usually distinguished by
+the suffixex <TT>_pt</TT> and <TT>_fi</TT>. It is the user's responsibility to
+ensure that the contraction matches the nuclear type specified in the
+geometry object. The specification of a finite nucleus basis set does NOT
+automatically set the nuclear type for that atom to be finite.  See 
+Section <A HREF="node8.html#sec:geom">6</A> for information.
+
+<P>
+
+<H1><A NAME="SECTION00920000000000000000">
+7.2 Explicit basis set definition</A>
+</H1>
+
+<P>
+If the basis sets in the library or available in other external files
+are not suitable for a given calculation, 
+the basis set may be explicitly defined.
+A generally contracted Gaussian basis function is associated with a
+center using an input line of the following form:
+<PRE>
+     &lt;string tag&gt; &lt;string shell_type&gt; [rel]
+        &lt;real exponent&gt; &lt;real list_of_coefficients&gt;
+        ...
+</PRE>
+
+<P>
+The variable <code>&lt;shell_type&gt;</code> identifies the angular momentum of the
+shell, <IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">, <IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">, <IMG
+ WIDTH="12" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img64.gif"
+ ALT="$d$">, ....  NWChem is configured to handle up to <IMG
+ WIDTH="13" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img59.gif"
+ ALT="$h$">
+shells.  The keyword <code>rel</code> marks the shell as relativistic -- see
+Section <A HREF="node11.html#sec:dyall-mod-dir">9.2</A> for more details.  Subsequent lines define
+the primitive function exponents and contraction coefficients.  General
+contractions are specified by including multiple columns of coefficients.
+
+<P>
+The following example defines basis sets for the water molecule:
+<PRE>
+  basis spherical nosegment
+    oxygen s
+      11720.0000    0.000710  -0.000160
+       1759.0000    0.005470  -0.001263
+        400.8000    0.027837  -0.006267
+        113.7000    0.104800  -0.025716
+         37.0300    0.283062  -0.070924
+         13.2700    0.448719  -0.165411
+          5.0250    0.270952  -0.116955
+          1.0130    0.015458   0.557368
+          0.3023   -0.002585   0.572759
+    oxygen s                
+          0.3023    1.000000
+    oxygen p                
+         17.7000    0.043018
+          3.8540    0.228913
+          1.0460    0.508728
+          0.2753    0.460531
+    oxygen p                
+          0.2753    1.000000
+    oxygen d
+          1.1850    1.000000
+    hydrogen s
+         13.0100    0.019685
+          1.9620    0.137977
+          0.4446    0.478148
+          0.1220    0.501240
+    hydrogen s  
+          0.1220    1.000000
+    hydrogen p  
+          0.7270    1.000000
+    oxygen s
+          0.01      1.0
+    hydrogen s
+          0.02974   1.0
+    hydrogen p
+          0.141      1.0
+  end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION00930000000000000000">
+7.3 Combinations of library and explicit basis set input</A>
+</H1>
+The user can use a mixture of library basis and explicit basis set
+input to define the basis sets used on the various atoms.
+
+<P>
+For example, the following <code>BASIS</code> directive augments the Dunning
+cc-pvdz basis set for the water molecule with a diffuse s-shell on
+oxygen and adds the aug-cc-pVDZ diffuse functions onto the hydrogen.
+<PRE>
+  basis spherical nosegment
+    oxygen library cc-pvdz
+    hydrogen library cc-pvdz
+    oxygen s
+      0.01 1.0
+    hydrogen library "aug-cc-pVDZ Diffuse"
+  end
+</PRE>
+
+<P>
+The resulting basis set defined is identical to the one defined above 
+in the explicit basis set input.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1107"
+  HREF="node10.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1103"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1097"
+  HREF="node8.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1105"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1108"
+  HREF="node10.html">8. Effective Core Potentials</A>
+<B> Up:</B> <A NAME="tex2html1104"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1098"
+  HREF="node8.html">6. Geometries</A>
+ &nbsp <B>  <A NAME="tex2html1106"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

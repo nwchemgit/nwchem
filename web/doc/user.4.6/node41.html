@@ -1,0 +1,1503 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>A. Standard Basis Sets</TITLE>
+<META NAME="description" CONTENT="A. Standard Basis Sets">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node42.html">
+<LINK REL="previous" HREF="node40.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node42.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1815"
+  HREF="node42.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1811"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1805"
+  HREF="node40.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1813"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1816"
+  HREF="node42.html">B. Sample input files</A>
+<B> Up:</B> <A NAME="tex2html1812"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1806"
+  HREF="node40.html">38. Acknowledgments</A>
+ &nbsp <B>  <A NAME="tex2html1814"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION004100000000000000000">
+A. Standard Basis Sets</A>
+</H1>
+<A NAME="sec:knownbasis"></A>
+<P>
+Basis sets and effective core potentials were obtained (1/1/2002) from
+the Extensible Computational Chemistry Environment (ECCE) Basis Set
+Database, as developed and distributed by the Molecular Science
+Computing Facility, Environmental and Molecular Sciences Laboratory
+which is part of the Pacific Northwest National Laboratory, P.O. Box
+999, Richland, Washington 99352, USA, and is funded by the
+U.S. Department of Energy.  The Pacific Northwest National Laboratory
+is a multi-program laboratory operated by Battelle Memorial Institute
+for the U.S. Department of Energy under contract DE-AC06-76RLO.
+Contact David Feller (<code>df_feller@pnl.gov</code>) or Deborah Gracio
+(<code>gracio@pnl.gov</code>) for further information.
+
+<P>
+The names in the NWChem library are consistent with those in the ECCE
+database and thus may include spaces.  The standard NWChem input
+routines require that strings including spaces are enclosed in
+quotation marks (<code>"..."</code>) or that blanks are escaped with a
+backslash.  As a convenience, basis set names may also have the blanks
+replaced with underscores.  Thus, the following all yield the same
+basis set for oxygen
+<PRE>
+  oxygen library "DZP + Diffuse (Dunning)"
+  oxygen library DZP\ +\ Diffuse\ (Dunning)
+  oxygen library DZP_+_Diffuse_(Dunning)
+</PRE>
+
+<P>
+Case may be ignored when specifying basis set names, but otherwise
+names should be specified exactly as provided below.  A good method is
+just to cut/paste from the WWW pages since they were generated
+electronically from the library source.
+
+<P>
+Errors found in the basis set library of NWChem version 4.4 have been corrected in
+the current library of NWChem version 4.6. The changes are listed below:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"Stuttgart RLC ECP"</code> <BR>
+Element: I <BR>
+Effective core potential has been changed and now conforms to the published from by Bergner et al. (Mol. Phys. 1993).
+
+<P>
+</LI>
+</OL>
+
+<P>
+Errors found in the basis set library of NWChem version 4.0 have been corrected in 
+the current library of NWChem version 4.1. The changes are listed below:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"aug-cc-pVTZ"</code> <BR>
+Element: Br <BR>
+Correction of the diffuse s-exponent from 0.041601 to 0.045593.
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV5Z"</code> <BR>
+Element: Ar <BR>
+Questionable contraction coefficients were replaced with HF AO's.
+
+<P>
+</LI>
+<LI>Basis Set <code>"Stuttgart RSC 1997 ECP"</code> <BR>
+Element: Ba <BR>
+This basis was called Stuttgart RSC ECP in version 4.0.
+ The 4th s- and p-primitive are now uncontracted.
+
+<P>
+</LI>
+<LI>ECP <code>"LANL2DZ ECP"</code> <BR>
+Element: K and Ca <BR>
+The ECP was defined with a core of 18 electrons, inconsistent with the other
+ elements in this series (3d has 10 electron core). The ECP has been replaced 
+ with the Hay-Wadt ECP used in Hay-Wadt VDZ.
+
+<P>
+</LI>
+</OL>
+
+<P>
+IMPORTANT NOTE:
+The Stuttgart basis set and ECP developers have recently developed a new set of 
+Stuttgart RSC ECP's for the Lanthanide series of elements. This new set is 
+now called "Stuttgart RSC ECP", while the previous, and most widely used, 
+set has been renamed to "Stuttgart RSC 1997 ECP" in both the EMSL Basis Set 
+library and in the NWChem basis set library. 
+
+<P>
+Relativistic contractions of standard basis sets for use in the Douglas-Kroll 
+and Dyall-modified-Dirac method have also been included in the library. These
+are identified by tags following the standard basis set name.  <BR>
+
+<P>
+For the Douglas-Kroll method the tag <code>dk</code> should be specified: 
+
+<P>
+<PRE>
+  oxygen library cc-pVDZ_DK
+</PRE>
+
+<P>
+For the Dyall-modified-Dirac (DMD) method three tags should be specified. The 
+first is a tag for the nuclear model, which can be <code>pt</code> or <code>fi</code> for 
+a point or a finite Gaussian model (see Section<A HREF="node8.html#sec:geom">6</A>).  The second 
+is a tag for the relativistic Hamiltonian: <code>sf</code> is for the spin-free 
+modified Dirac Hamiltonian. The third tags the component type, <code>fw</code> for 
+the atomic FW transformed large component, <code>lc</code> for the large component 
+and <code>sc</code> for the small component: 
+<PRE>
+    oxygen library cc-pvdz_pt_sf_fw
+    oxygen library cc-pvdz_pt_sf_lc
+</PRE> 
+Basis sets which are available with either the DmD or DK contractions are
+indicated in the list below. Additional DmD basis sets are available in the
+directory <code>nwchem/contrib/basissets/Dyall_DMD</code>.
+
+<P>
+Here is a list of known all-electron non-relativistic, DK and DmD basis sets, 
+effective core potentials with their respective basis sets, fitting basis sets, 
+and Polarization, Diffuse and Core-valence sets of functions,
+along with the elements included for each. Additional information about each 
+basis set in the NWChem library can be obtained from the online 
+<A NAME="tex2html99"
+  HREF="/forms/basisform.html">EMSL Gaussian Basis Set library</A>.
+
+<P>
+Standard all-electron basis sets:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"STO-2G"</code> (number of atoms 21)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sr
+
+<P>
+</LI>
+<LI>Basis Set <code>"STO-3G"</code> (number of atoms 53)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I
+
+<P>
+</LI>
+<LI>Basis Set <code>"STO-6G"</code> (number of atoms 36)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"STO-3G*"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"3-21G"</code> (number of atoms 55)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe Cs
+
+<P>
+</LI>
+<LI>Basis Set <code>"3-21++G"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"3-21G*"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"3-21++G*"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"3-21GSP"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"4-22GSP"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"4-31G"</code> (number of atoms 13)  <BR>
+H He Li Be B C N O F Ne P S Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G"</code> (number of atoms 30)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G*"</code> (number of atoms 30)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G**"</code> (number of atoms 30)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31++G"</code> (number of atoms 20)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31++G*"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31++G**"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31+G*"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G(3df,3pd)"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G-Blaudeau"</code> (number of atoms 2)  <BR>
+K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G*-Blaudeau"</code> (number of atoms 2)  <BR>
+K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311G"</code> (number of atoms 25)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311G*"</code> (number of atoms 25)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311G**"</code> (number of atoms 25)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311++G**"</code> (number of atoms 10)  <BR>
+H He Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311++G(2d,2p)"</code> (number of atoms 20)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311G(2df,2pd)"</code> (number of atoms 12)  <BR>
+H He Li Be B C N O F Ne K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311+G*"</code> (number of atoms 10)  <BR>
+H He Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311++G(3df,3pd)"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"MINI (Huzinaga)"</code> (number of atoms 20)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"MINI (Scaled)"</code> (number of atoms 20)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"MIDI (Huzinaga)"</code> (number of atoms 19)  <BR>
+H He Li Be B C N O F Ne Na Al Si P S Cl Ar K Cs
+
+<P>
+</LI>
+<LI>Basis Set <code>"MIDI!"</code> (number of atoms 11)  <BR>
+H C N O F Si P S Cl Br I
+
+<P>
+</LI>
+<LI>Basis Set <code>"SV (Dunning-Hay)"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"SVP (Dunning-Hay)"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"SVP + Diffuse (Dunning-Hay)"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"TZ (Dunning)"</code> (number of atoms 8)  <BR>
+H Li B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"Chipman DZP + Diffuse"</code> (number of atoms 6)  <BR>
+H B C N O F
+
+<P>
+</LI>
+<LI>Basis Set <code>"DZ (Dunning)"</code> (number of atoms 13)  <BR>
+H Li B C N O F Ne Al Si P S Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"DZP (Dunning)"</code> (number of atoms 13)  <BR>
+H Li B C N O F Ne Al Si P S Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"DZP + Diffuse (Dunning)"</code> (number of atoms 7)  <BR>
+H B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVDZ"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVTZ"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVQZ"</code> (number of atoms 22)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV5Z"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV6Z"</code> (number of atoms 14)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"pV6Z"</code> (number of atoms 4)  <BR>
+H C N O
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVDZ(seg-opt)"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVTZ(seg-opt)"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVQZ(seg-opt)"</code> (number of atoms 4)  <BR>
+H He C O
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pCVDZ"</code> (number of atoms 12)  <BR>
+Li Be B C N O F Ne Na Mg Si Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pCVTZ"</code> (number of atoms 13)  <BR>
+Li Be B C N O F Ne Na Mg Si P Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pCVQZ"</code> (number of atoms 13)  <BR>
+Li Be B C N O F Ne Na Mg Si P Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pCV5Z"</code> (number of atoms 8)  <BR>
+B C N O F Ne Na Mg
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pCV6Z"</code> (number of atoms 1)  <BR>
+O
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pVDZ"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pVTZ"</code> (number of atoms 23)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pVQZ"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV5Z"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV6Z"</code> (number of atoms 14)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pCVDZ"</code> (number of atoms 7)  <BR>
+B C N O F Na Mg
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pCVTZ"</code> (number of atoms 8)  <BR>
+B C N O F Ne Na Mg
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pCVQZ"</code> (number of atoms 6)  <BR>
+B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pCV5Z"</code> (number of atoms 5)  <BR>
+B C N O F
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pVDZ"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pVTZ"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pVQZ"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pV5Z"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pV6Z"</code> (number of atoms 5)  <BR>
+H B C N O
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV(D+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV(T+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV(Q+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV(5+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV(6+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(D+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(T+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(Q+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(5+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(6+d)Z"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"Feller Misc. CVDZ"</code> (number of atoms 1)  <BR>
+K
+
+<P>
+</LI>
+<LI>Basis Set <code>"Feller Misc. CVTZ"</code> (number of atoms 1)  <BR>
+K
+
+<P>
+</LI>
+<LI>Basis Set <code>"Feller Misc. CVQZ"</code> (number of atoms 1)  <BR>
+K
+
+<P>
+</LI>
+<LI>Basis Set <code>"GAMESS VTZ"</code> (number of atoms 16)  <BR>
+H Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"GAMESS PVTZ"</code> (number of atoms 8)  <BR>
+H Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"Partridge Uncontr. 1"</code> (number of atoms 36)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Partridge Uncontr. 2"</code> (number of atoms 34)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Partridge Uncontr. 3"</code> (number of atoms 28)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"Ahlrichs VDZ"</code> (number of atoms 36)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Ahlrichs pVDZ"</code> (number of atoms 36)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Ahlrichs VTZ"</code> (number of atoms 36)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Ahlrichs TZV"</code> (number of atoms 34)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Binning/Curtiss SV"</code> (number of atoms 6)  <BR>
+Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Binning/Curtiss VTZ"</code> (number of atoms 6)  <BR>
+Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Binning/Curtiss SVP"</code> (number of atoms 6)  <BR>
+Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Binning/Curtiss VTZP"</code> (number of atoms 6)  <BR>
+Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"McLean/Chandler VTZ"</code> (number of atoms 8)  <BR>
+Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"SV + Rydberg (Dunning-Hay)"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"SVP + Rydberg (Dunning-Hay)"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"SVP + Diffuse + Rydberg"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"DZ + Rydberg (Dunning)"</code> (number of atoms 12)  <BR>
+H B C N O F Ne Al Si P S Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"DZP + Rydberg (Dunning)"</code> (number of atoms 12)  <BR>
+H B C N O F Ne Al Si P S Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"DZ + Double Rydberg (Dunning-Hay)"</code> (number of atoms 12)  <BR>
+H B C N O F Ne Al Si P S Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"SV + Double Rydberg (Dunning-Hay)"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"Wachters+f"</code> (number of atoms 9)  <BR>
+Sc Ti V Cr Mn Fe Co Ni Cu
+
+<P>
+</LI>
+<LI>Basis Set <code>"Bauschlicher ANO"</code> (number of atoms 9)  <BR>
+Sc Ti V Cr Mn Fe Co Ni Cu
+
+<P>
+</LI>
+<LI>Basis Set <code>"NASA Ames ANO"</code> (number of atoms 12)  <BR>
+H B C N O F Ne Al P Ti Fe Ni
+
+<P>
+</LI>
+<LI>Basis Set <code>"NASA Ames cc-pVTZ"</code> (number of atoms 1)  <BR>
+Ti
+
+<P>
+</LI>
+<LI>Basis Set <code>"NASA Ames cc-pVQZ"</code> (number of atoms 1)  <BR>
+Ti
+
+<P>
+</LI>
+<LI>Basis Set <code>"NASA Ames cc-pV5Z"</code> (number of atoms 1)  <BR>
+Ti
+
+<P>
+</LI>
+<LI>Basis Set <code>"NASA Ames cc-pCVTZ"</code> (number of atoms 1)  <BR>
+Ti
+
+<P>
+</LI>
+<LI>Basis Set <code>"NASA Ames cc-pCVQZ"</code> (number of atoms 1)  <BR>
+Ti
+
+<P>
+</LI>
+<LI>Basis Set <code>"NASA Ames cc-pCV5Z"</code> (number of atoms 1)  <BR>
+Ti
+
+<P>
+</LI>
+<LI>Basis Set <code>"Sadlej pVTZ"</code> (number of atoms 19)  <BR>
+H Li Be C N O F Na Mg Si P S Cl K Ca Br Rb Sr I
+
+<P>
+</LI>
+<LI>Basis Set <code>"WTBS"</code> (number of atoms 84)  <BR>
+He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
+ Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe Cs Ba La Ce Pr Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir
+ Pt Au Hg Tl Pb Bi Po At Rn
+
+<P>
+</LI>
+</OL>
+
+<P>
+Resolution of Identity (RI) fitting basis sets:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"cc-pVDZ-fit2-1"</code> (number of atoms 10)  <BR>
+H He Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVTZ-fit2-1"</code> (number of atoms 10)  <BR>
+H He Li Be B C N O F Ne
+
+<P>
+</LI>
+</OL>
+
+<P>
+Density functional specific basis sets:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"DZVP (DFT Orbital)"</code> (number of atoms 54)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+<P>
+</LI>
+<LI>Basis Set <code>"DZVP2 (DFT Orbital)"</code> (number of atoms 25)  <BR>
+H He Li Be B C N O F Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"TZVP (DFT Orbital)"</code> (number of atoms 11)  <BR>
+H C N O F Al Si P S Cl Ar
+
+<P>
+</LI>
+</OL>
+
+<P>
+Density functional Coulomb and Exchange fitting basis sets:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"DGauss A1 DFT Coulomb Fitting"</code> (number of atoms 54)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+<P>
+</LI>
+<LI>Basis Set <code>"DGauss A1 DFT Exchange Fitting"</code> (number of atoms 54)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+<P>
+</LI>
+<LI>Basis Set <code>"DGauss A2 DFT Coulomb Fitting"</code> (number of atoms 28)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"DGauss A2 DFT Exchange Fitting"</code> (number of atoms 64)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"Ahlrichs Coulomb Fitting"</code> (number of atoms 70)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe Cs Ba Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At
+
+<P>
+</LI>
+<LI>Basis Set <code>"DeMon Coulomb Fitting"</code> (number of atoms 54)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe
+
+<P>
+</LI>
+</OL>
+
+<P>
+Effective core potentials and their respective basis sets:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"Hay-Wadt MB (n+1) ECP"</code> (number of atoms 32)  <BR>
+K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
+
+<P>
+</LI>
+<LI>ECP <code>"Hay-Wadt MB (n+1) ECP"</code> (number of atoms 32)  <BR>
+K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
+
+<P>
+</LI>
+<LI>Basis Set <code>"Hay-Wadt VDZ (n+1) ECP"</code> (number of atoms 32)  <BR>
+K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
+
+<P>
+</LI>
+<LI>ECP <code>"Hay-Wadt VDZ (n+1) ECP"</code> (number of atoms 32)  <BR>
+K Ca Sc Ti V Cr Mn Fe Co Ni Cu Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cs Ba La
+ Ta W Re Os Ir Pt Au
+
+<P>
+</LI>
+<LI>Basis Set <code>"LANL2DZ ECP"</code> (number of atoms 67)  <BR>
+H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
+ Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe Cs Ba La Hf Ta W Re Os Ir Pt Au U Np Pu
+
+<P>
+</LI>
+<LI>ECP <code>"LANL2DZ ECP"</code> (number of atoms 58)  <BR>
+Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br
+ Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Hf Ta W
+ Re Os Ir Pt Au U Np Pu
+
+<P>
+</LI>
+<LI>Basis Set <code>"LANL2DZdp ECP"</code> (number of atoms 19)  <BR>
+H C N O F Si P S Cl Ge As Se Br Sn Sb Te I Pb Bi
+
+<P>
+</LI>
+<LI>ECP <code>"LANL2DZdp ECP"</code> (number of atoms 13)  <BR>
+Si P S Cl Ge As Se Sn Sb Te I Pb Bi
+
+<P>
+</LI>
+<LI>Basis Set <code>"SBKJC VDZ ECP"</code> (number of atoms 73)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn
+ Sb Te I Xe Cs Ba La Ce Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
+
+<P>
+</LI>
+<LI>ECP <code>"SBKJC VDZ ECP"</code> (number of atoms 71)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te
+ I Xe Cs Ba La Ce Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
+
+<P>
+</LI>
+<LI>Basis Set <code>"CRENBL ECP"</code> (number of atoms 116)  <BR>
+H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe
+ Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb
+ Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os
+ Ir Pt Au Hg Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No
+ Lr Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
+
+<P>
+</LI>
+<LI>ECP <code>"CRENBL ECP"</code> (number of atoms 115)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co
+ Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te
+ I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir
+ Pt Au Hg Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr
+ Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
+
+<P>
+</LI>
+<LI>Basis Set <code>"CRENBS ECP"</code> (number of atoms 50)  <BR>
+Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
+ Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
+</LI>
+<LI>ECP <code>"CRENBS ECP"</code> (number of atoms 50)  <BR>
+Sc Ti V Cr Mn Fe Co Ni Cu Zn Y Zr Nb Mo Tc Ru Rh Pd Ag Cd La Hf Ta W Re
+ Os Ir Pt Au Hg Pb Bi Po At Rn Rf Db Sg Bh Hs Mt Un Uu Ub Ut Uq Up Uh Us Uo
+
+<P>
+</LI>
+<LI>Basis Set <code>"Stuttgart RLC ECP"</code> (number of atoms 57)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Zn Ga Ge As Se Br Kr
+ Rb Sr In Sn Sb Te I Xe Cs Ba Hg Tl Pb Bi Po At Rn Ac Th Pa U Np Pu Am Cm
+ Bk Cf Es Fm Md No Lr
+
+<P>
+</LI>
+<LI>ECP <code>"Stuttgart RLC ECP"</code> (number of atoms 57)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Zn Ga Ge As Se Br Kr
+ Rb Sr In Sn Sb Te I Xe Cs Ba Hg Tl Pb Bi Po At Rn Ac Th Pa U Np Pu Am Cm
+ Bk Cf Es Fm Md No Lr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Stuttgart RSC 1997 ECP"</code> (number of atoms 64)  <BR>
+K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
+ Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
+ Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Db
+
+<P>
+</LI>
+<LI>ECP <code>"Stuttgart RSC 1997 ECP"</code> (number of atoms 64)  <BR>
+K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd Cs
+ Ba Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Hf Ta W Re Os Ir Pt Au Hg Ac Th
+ Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr Db
+
+<P>
+</LI>
+<LI>Basis Set <code>"Stuttgart RSC Segmented/ECP"</code> (number of atoms 15)  <BR>
+La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+<P>
+</LI>
+<LI>ECP <code>"Stuttgart RSC Segmented/ECP"</code> (number of atoms 15)  <BR>
+La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+<P>
+</LI>
+<LI>Basis Set <code>"Stuttgart RSC ANO/ECP"</code> (number of atoms 15)  <BR>
+La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+<P>
+</LI>
+<LI>ECP <code>"Stuttgart RSC ANO/ECP"</code> (number of atoms 15)  <BR>
+La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu
+
+<P>
+</LI>
+<LI>Basis Set <code>"SDB-cc-pVTZ"</code> (number of atoms 12)  <BR>
+Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+<P>
+</LI>
+<LI>ECP <code>"SDB-cc-pVTZ"</code> (number of atoms 12)  <BR>
+Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+<P>
+</LI>
+<LI>Basis Set <code>"SDB-cc-pVQZ"</code> (number of atoms 12)  <BR>
+Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+<P>
+</LI>
+<LI>ECP <code>"SDB-cc-pVQZ"</code> (number of atoms 12)  <BR>
+Ga Ge As Se Br Kr In Sn Sb Te I Xe
+
+<P>
+</LI>
+<LI>Basis Set <code>"SDB-aug-cc-pVTZ"</code> (number of atoms 10)  <BR>
+Ga Ge As Se Br In Sn Sb Te I
+
+<P>
+</LI>
+<LI>ECP <code>"SDB-aug-cc-pVTZ"</code> (number of atoms 30)  <BR>
+Ga Ge As Se Br In Sn Sb Te I           Ga Ge As Se Br
+ In Sn Sb Te I
+
+<P>
+</LI>
+<LI>Basis Set <code>"SDB-aug-cc-pVQZ"</code> (number of atoms 10)  <BR>
+Ga Ge As Se Br In Sn Sb Te I
+
+<P>
+</LI>
+<LI>ECP <code>"SDB-aug-cc-pVQZ"</code> (number of atoms 10)  <BR>
+Ga Ge As Se Br In Sn Sb Te I
+
+<P>
+</LI>
+</OL>
+
+<P>
+Douglas-Kroll (DK) all-electron basis sets:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"cc-pVDZ DK"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVTZ DK"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pVQZ DK"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pV5Z DK"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+</OL>
+
+<P>
+Dyall's Modified Dirac (DmD) all-electron basis sets:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"cc-pvdz fi sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvdz fi sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvdz fi sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvdz pt sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvdz pt sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvdz pt sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvtz fi sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvtz fi sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvtz fi sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvtz pt sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvtz pt sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvtz pt sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvqz fi sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvqz fi sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvqz fi sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvqz pt sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvqz pt sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pvqz pt sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pv5z fi sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pv5z fi sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pv5z fi sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pv5z pt sf fw"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pv5z pt sf lc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"cc-pv5z pt sf sc"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+</OL>
+
+<P>
+Polarization functions:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"STO-3G* Polarization"</code> (number of atoms 8)  <BR>
+Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"3-21G* Polarization"</code> (number of atoms 8)  <BR>
+Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G* Polarization"</code> (number of atoms 27)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Co Ni
+ Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-31G** Polarization"</code> (number of atoms 29)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Co Ni Cu Zn
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311G* Polarization"</code> (number of atoms 23)  <BR>
+Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+<P>
+</LI>
+<LI>Basis Set <code>"6-311G** Polarization"</code> (number of atoms 25)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr I
+
+<P>
+</LI>
+<LI>Basis Set <code>"Pople (2d,2p) Polarization"</code> (number of atoms 26)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Ga Ge As Se Br
+ Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Pople (2df,2pd) Polarization"</code> (number of atoms 12)  <BR>
+H He Li Be B C N O F Ne K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"Pople (3df,3pd) Polarization"</code> (number of atoms 18)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"HONDO7 Polarization"</code> (number of atoms 17)  <BR>
+H He Be B C N O F Ne Na Mg Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"Huzinaga Polarization"</code> (number of atoms 22)  <BR>
+K Ca Ga Ge As Se Br Kr Rb Sr In Sn Sb Te I Xe Tl Pb Bi Po At Rn
+
+<P>
+</LI>
+<LI>Basis Set <code>"DHMS Polarization"</code> (number of atoms 15)  <BR>
+H He Li Be B C N O F Ne Al Si P S Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"Binning-Curtiss (1d) Polarization"</code> (number of atoms 6)  <BR>
+Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Binning-Curtiss (df) Polarization"</code> (number of atoms 6)  <BR>
+Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Ahlrichs Polarization"</code> (number of atoms 36)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn
+ Fe Co Ni Cu Zn Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"Glendening Polarization"</code> (number of atoms 3)  <BR>
+K Rb Cs
+
+<P>
+</LI>
+<LI>Basis Set <code>"Blaudeau Polarization"</code> (number of atoms 2)  <BR>
+K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"LANL2DZdp ECP Polarization"</code> (number of atoms 19)  <BR>
+H C N O F Si P S Cl Ge As Se Br Sn Sb Te I Pb Bi
+
+<P>
+</LI>
+<LI>Basis Set <code>"Dunning-Hay Rydberg"</code> (number of atoms 12)  <BR>
+B C N O F Ne Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"Dunning-Hay Double Rydberg"</code> (number of atoms 12)  <BR>
+B C N O F Ne Al Si P S Cl Ar
+
+<P>
+</LI>
+</OL>
+
+<P>
+Diffuse functions:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"Pople-style Diffuse"</code> (number of atoms 19)  <BR>
+H Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca
+
+<P>
+</LI>
+<LI>Basis Set <code>"Dunning-Hay Diffuse"</code> (number of atoms 9)  <BR>
+H Li Be B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pVDZ Diffuse"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pVTZ Diffuse"</code> (number of atoms 23)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pVQZ Diffuse"</code> (number of atoms 24)  <BR>
+H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV5Z Diffuse"</code> (number of atoms 20)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar Ga Ge As Se Br Kr
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV6Z Diffuse"</code> (number of atoms 14)  <BR>
+H He B C N O F Ne Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pVDZ Diffuse"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pVTZ Diffuse"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pVQZ Diffuse"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pV5Z Diffuse"</code> (number of atoms 8)  <BR>
+H He B C N O F Ne
+
+<P>
+</LI>
+<LI>Basis Set <code>"d-aug-cc-pV6Z Diffuse"</code> (number of atoms 5)  <BR>
+H B C N O
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(D+d)Z Diffuse"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(T+d)Z Diffuse"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(Q+d)Z Diffuse"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(5+d)Z Diffuse"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"aug-cc-pV(6+d)Z Diffuse"</code> (number of atoms 6)  <BR>
+Al Si P S Cl Ar
+
+<P>
+</LI>
+<LI>Basis Set <code>"SDB-aug-cc-pVTZ Diffuse"</code> (number of atoms 10)  <BR>
+Ga Ge As Se Br In Sn Sb Te I
+
+<P>
+</LI>
+<LI>Basis Set <code>"SDB-aug-cc-pVQZ Diffuse"</code> (number of atoms 10)  <BR>
+Ga Ge As Se Br In Sn Sb Te I
+
+<P>
+</LI>
+</OL>
+
+<P>
+Core-valence functions:
+
+<P>
+
+<OL>
+<LI>Basis Set <code>"Core/val. Functions (cc-pCVDZ)"</code> (number of atoms 12)  <BR>
+Li Be B C N O F Ne Na Mg Si Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"Core/val. Functions (cc-pCVTZ)"</code> (number of atoms 13)  <BR>
+Li Be B C N O F Ne Na Mg Si P Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"Core/val. Functions (cc-pCVQZ)"</code> (number of atoms 13)  <BR>
+Li Be B C N O F Ne Na Mg Si P Cl
+
+<P>
+</LI>
+<LI>Basis Set <code>"Core/val. Functions (cc-pCV5Z)"</code> (number of atoms 8)  <BR>
+B C N O F Ne Na Mg
+
+<P>
+</LI>
+<LI>Basis Set <code>"Core/val. Functions (cc-pCV6Z)"</code> (number of atoms 1)  <BR>
+O
+
+<P>
+</LI>
+</OL>
+
+<P>
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1815"
+  HREF="node42.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1811"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1805"
+  HREF="node40.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1813"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1816"
+  HREF="node42.html">B. Sample input files</A>
+<B> Up:</B> <A NAME="tex2html1812"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1806"
+  HREF="node40.html">38. Acknowledgments</A>
+ &nbsp <B>  <A NAME="tex2html1814"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,497 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>D. Running NWChem</TITLE>
+<META NAME="description" CONTENT="D. Running NWChem">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node45.html">
+<LINK REL="previous" HREF="node43.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node45.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1877"
+  HREF="node45.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1873"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1867"
+  HREF="node43.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1875"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1878"
+  HREF="node45.html">About this document ...</A>
+<B> Up:</B> <A NAME="tex2html1874"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1868"
+  HREF="node43.html">C. Examples of geometries</A>
+ &nbsp <B>  <A NAME="tex2html1876"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1879"
+  HREF="node44.html#SECTION004410000000000000000">D.1 Sequential execution</A>
+<LI><A NAME="tex2html1880"
+  HREF="node44.html#SECTION004420000000000000000">D.2 Parallel execution on UNIX-based parallel machines
+including workstation clusters using TCGMSG</A>
+<LI><A NAME="tex2html1881"
+  HREF="node44.html#SECTION004430000000000000000">D.3 Parallel execution on UNIX-based parallel machines
+including workstation clusters using MPI</A>
+<LI><A NAME="tex2html1882"
+  HREF="node44.html#SECTION004440000000000000000">D.4 Parallel execution on MPPs</A>
+<LI><A NAME="tex2html1883"
+  HREF="node44.html#SECTION004450000000000000000">D.5 IBM SP</A>
+<LI><A NAME="tex2html1884"
+  HREF="node44.html#SECTION004460000000000000000">D.6 Cray T3E</A>
+<LI><A NAME="tex2html1885"
+  HREF="node44.html#SECTION004470000000000000000">D.7 Alpha systems with Quadrics switch</A>
+<LI><A NAME="tex2html1886"
+  HREF="node44.html#SECTION004480000000000000000">D.8 Windows 98 and NT</A>
+<LI><A NAME="tex2html1887"
+  HREF="node44.html#SECTION004490000000000000000">D.9 Tested Platforms and O/S versions</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION004400000000000000000">
+D. Running NWChem</A>
+</H1>
+
+<P>
+The command required to invoke NWChem is machine dependent, whereas
+most of the NWChem input is machine independent<A NAME="tex2html100"
+  HREF="footnode.html#foot13160"><SUP>D.1</SUP></A> .
+
+<P>
+
+<H1><A NAME="SECTION004410000000000000000">
+D.1 Sequential execution</A>
+</H1>
+
+<P>
+To run NWChem sequentially on nearly all UNIX-based platforms simply
+use the command <code>nwchem</code> and provide the name of the input file
+as an argument (See section <A HREF="node4.html#sec:inputstructure">2.1</A> for more information).
+This does assume that either <code>nwchem</code> is in your path or you have
+set an alias of <code>nwchem</code> to point to the appropriate executable.
+
+<P>
+Output is to standard output, standard error and Fortran unit 6
+(usually the same as standard output).  Files are created by default
+in the current directory, though this may be overridden in the input
+(section <A HREF="node7.html#sec:dirs">5.2</A>).
+
+<P>
+Generally, one will run a job with the following command:
+
+<P>
+<code>nwchem input.nw &gt;&amp; input.out &amp;</code>
+
+<P>
+
+<H1><A NAME="SECTION004420000000000000000"></A>
+<A NAME="sec:procgrp"></A>
+<BR>
+D.2 Parallel execution on UNIX-based parallel machines
+including workstation clusters using TCGMSG
+</H1>
+
+<P>
+These platforms require the use of the TCGMSG<A NAME="tex2html101"
+  HREF="footnode.html#foot13166"><SUP>D.2</SUP></A> <code>parallel</code> command
+and thus also require the definition of a process-group (or procgroup)
+file.  The process-group file describes how many processes to start,
+what program to run, which machines to use, which directories to work
+in, and under which userid to run the processes.  By convention the
+process-group file has a <code>.p</code> suffix.
+
+<P>
+The process-group file is read to end-of-file.  The character <code>#</code>
+(hash or pound sign) is used to indicate a comment which continues to
+the next new-line character.  Each line describes a cluster of
+processes and consists of the following whitespace separated fields:
+
+<P>
+<PRE>
+  userid hostname nslave executable workdir
+</PRE>
+
+<P>
+
+<UL>
+<LI><code>userid</code> - The user-name on the machine that will be executing the
+      process. 
+
+<P>
+</LI>
+<LI><code>hostname</code> -  The hostname of the machine to execute this process.
+             If it is the same machine on which parallel was invoked
+             the name must match the value returned by the command 
+             hostname. If a remote machine it must allow remote execution
+             from this machine (see man pages for rlogin, rsh).
+
+<P>
+</LI>
+<LI><code>nslave</code> -  The total number of copies of this process to be executing
+             on the specified machine. Only ``clusters'' of identical processes
+             specified in this fashion can use shared memory to communicate.
+             If no shared memory is supported on machine <code>&lt;hostname&gt;</code> then
+             only the value one (1) is valid.
+
+<P>
+</LI>
+<LI><code>executable</code> -  Full path name on the host <code>&lt;hostname&gt;</code> of the image to execute.
+             If <code>&lt;hostname&gt;</code> is the local machine then a local path will
+             suffice.
+
+<P>
+</LI>
+<LI><code>workdir</code> -  Full path name on the host <code>&lt;hostname&gt;</code> of the directory to
+             work in. Processes execute a chdir() to this directory before
+             returning from pbegin(). If specified as a ``.'' then remote
+             processes will use the login directory on that machine and local
+             processes (relative to where parallel was invoked) will use
+             the current directory of parallel.
+</LI>
+</UL>
+
+<P>
+For example, if your file <code>"nwchem.p"</code> contained the following
+<PRE>
+ d3g681 pc 4 /msrc/apps/bin/nwchem /scr22/rjh
+</PRE>
+then 4 processes running NWChem would be started on the machine 
+<code>pc</code> running as user <code>d3g681</code> in directory <code>"/scr22/rjh"</code>.
+To actually run this simply type:
+<PRE>
+  parallel nwchem big_molecule.nw
+</PRE>
+
+<P>
+<EM>N.B.</EM> : The first process specified (process zero) is the only
+process that
+
+<UL>
+<LI>opens and reads the input file, and
+</LI>
+<LI>opens and reads/updates the database.
+</LI>
+</UL>
+Thus, if your file systems are physically distributed (e.g., most
+workstation clusters) you must ensure that process zero can correctly
+resolve the paths for the input and database files.
+
+<P>
+<EM>N.B.</EM>  In releases of NWChem prior to 3.3 additional processes
+had to be created on workstation clusters to support remote access to
+shared memory.  This is no longer the case.  The TCGMSG process group
+file now just needs to refer to processes running NWChem.
+
+<P>
+
+<H1><A NAME="SECTION004430000000000000000">
+D.3 Parallel execution on UNIX-based parallel machines
+including workstation clusters using MPI</A>
+</H1>
+
+<P>
+To run with MPI, <code>parallel</code> should not be used.  The way
+we usually run nwchem under MPI are the following
+
+<P>
+
+<UL>
+<LI>using mpirun:
+<PRE>
+     mpirun -np 8 $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem input.nw
+</PRE>
+</LI>
+<LI>If you have all nodes connected via shared memory
+     and you have installed the ch_shmem version of MPICH,
+     you can do
+<PRE>
+     $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem -np 8 h2o.nw
+</PRE>
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION004440000000000000000">
+D.4 Parallel execution on MPPs</A>
+</H1>
+
+<P>
+All of these machines require use of different commands in order to
+gain exclusive access to computational resources.
+
+<P>
+
+<H1><A NAME="SECTION004450000000000000000">
+D.5 IBM SP</A>
+</H1>
+
+<P>
+If using POE (IBM's Parallel Operating Environment) interactively,
+simply create the list of nodes to use in the file <code>"host.list"</code> in
+the current directory and invoke NWChem with
+<PRE>
+  nwchem &lt;input_file&gt; -procs &lt;n&gt;
+</PRE>
+where <code>n</code> is the number of processes to use.  Process 0 will run
+on the first node in <code>"host.list"</code> and must have access to the
+input and other necessary files.  Very significant performance gains
+may be had by setting the following environment variables before
+running NWChem (or setting them using POE command line options).
+
+<UL>
+<LI><code>setenv MP_EUILIB us</code> -- dedicated user space
+  communication over the switch (the default is IP over the switch
+  which is much slower).
+</LI>
+<LI><code>setenv MP_CSS_INTERRUPT yes</code> -- enable interrupts when a 
+  message arrives (the default is to poll which significantly slows
+  down global array accesses).
+</LI>
+</UL>
+In addition, if the IBM is running PSSP version 3.1, or later
+
+<UL>
+<LI><code>setenv MP_MSG_API lapi</code>, or 
+</LI>
+<LI><code>setenv MP_MSG_API mpi,lapi</code> (if using both GA and MPI) 
+</LI>
+</UL>
+
+<P>
+For batch execution, we recommend use of the <code>llnw</code> command which
+is installed in <code>/usr/local/bin</code> on the EMSL/PNNL IBM SP.  If you 
+are not running on that system, the <code>llnw</code> script may be found in
+the NWChem distribution directory contrib/loadleveler.
+Interactive help may be obtained with the command <code>llnw -help</code>.
+Otherwise, the very simplest job to run NWChem in batch using Load
+Leveller is something like this
+<PRE>
+#!/bin/csh -x
+# @ job_type         =    parallel
+# @ class            =    small
+# @ network.lapi     = css0,not_shared,US
+# @ input            =    /dev/null
+# @ output           =    &lt;OUTPUT_FILE_NAME&gt;
+# @ error            =    &lt;ERROUT_FILE_NAME&gt;
+# @ environment      =    COPY_ALL; MP_PULSE=0; MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield; restart=no
+# @ min_processors   =    7
+# @ max_processors   =    7
+# @ cpu_limit        =    1:00:00
+# @ wall_clock_limit =    1:00:00
+# @ queue
+#
+
+cd /scratch
+
+nwchem &lt;INPUT_FILE_NAME&gt;
+</PRE>
+
+<P>
+Substitute <code>&lt;OUTPUT_FILE_NAME&gt;</code>, <code>&lt;ERROUT_FILE_NAME&gt;</code> and
+<code>&lt;INPUT_FILE_NAME&gt;</code> with the <EM>full</EM> path of the appropriate
+files.  Also, if you are using an SP with more than one processor per node,
+you will need to substitute
+
+<P>
+<PRE>
+# @ network.lapi     = css0,shared,US
+# @ node             = NNODE
+# @ tasks_per_node   = NTASK
+</PRE>
+for the lines
+<PRE>
+# @ network.lapi     = css0,not_shared,US
+# @ min_processors   =    7
+# @ max_processors   =    7
+</PRE>
+where <code>NNODE</code> is the number of physical nodes to be used and 
+<code>NTASK</code> is the
+number of tasks per node.
+
+<P>
+These files and the NWChem executable must be in a file system
+accessible to all processes.  Put the above into a file (e.g.,
+<code>"test.job"</code>) and submit it with the command
+<PRE>
+  llsubmit test.job
+</PRE>
+It will run a 7 processor, 1 hour job in the queue <code>small</code>.  It
+should be apparent how to change these values.
+
+<P>
+Note that on many IBM SPs, including that at EMSL, the local scratch
+disks are wiped clean at the beginning of each job and therefore
+persistent files should be stored elsewhere.  PIOFS is recommended for
+files larger than a few MB.
+
+<P>
+
+<H1><A NAME="SECTION004460000000000000000">
+D.6 Cray T3E</A>
+</H1>
+
+<P>
+<PRE>
+  mpprun -n &lt;npes&gt; $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem &lt;input_file&gt;
+</PRE>
+
+<P>
+where <code>npes</code> is the number of processors and <code>input_file</code> is the
+name of your input file.
+
+<P>
+
+<H1><A NAME="SECTION004470000000000000000">
+D.7 Alpha systems with Quadrics switch</A>
+</H1>
+
+<P>
+<PRE>
+  prun -n &lt;npes&gt; $NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem &lt;input_file&gt;
+</PRE>
+
+<P>
+where <code>npes</code> is the number of processors and <code>input_file</code> is the
+name of your input file.
+
+<P>
+
+<H1><A NAME="SECTION004480000000000000000">
+D.8 Windows 98 and NT</A>
+</H1>
+
+<P>
+<PRE>
+   $NWCHEM_TOP/bin/win32/nw32 &lt;input_file&gt;
+</PRE>
+
+<P>
+where  and <code>input_file</code> is the
+name of your input file. 
+If you use WMPI, you must have a file named <B><TT>nw32.pg</TT></B> in the
+<code> $NWCHEM_TOP/bin/win32</code> directory; the file must only contains the 
+following single line
+<PRE>
+   local 0
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION004490000000000000000">
+D.9 Tested Platforms and O/S versions</A>
+</H1>
+
+<P>
+
+<UL>
+<LI>IBM SP with Power 3 and Power 4 nodes, AIX 5.1
+    and PSSP 3.4; IBM RS6000 workstation, AIX 5.1. Xlf 8.1.0.0 and
+    8.1.0.1 are known to produce bad code.
+</LI>
+<LI>SGI R12000 IRIX 6.5 
+</LI>
+<LI>SUN workstations with Solaris 2.6 and 2.8. Fujitsu SPARC systems 
+   (thanks to Herbert Fr&#252;chtl) with Parallelnavi compilers.
+</LI>
+<LI>HP DEC alpha workstation , Tru64 V5.1,
+    Compaq Fortran V5.3, V5.4.2, V5.5.1
+</LI>
+<LI>Linux with Intel x86 cpus. 
+    NWChem Release 4.5 has been tested on RedHat 6.x and 7.x,
+    Mandrake  7.x.
+    We have tested NWChem on Linux for the Power PC Macintosh with
+    Yellow Dog 2.4.
+    These all use the GCC compiler at different levels. 
+    The Intel Fortran Compiler version 7 is supported.
+    The Portland Group Compiler has been tested in a less robust manner.
+    Automatic generation of SSE2 optimized code is available when the 
+    Intel compiler is used (ifc vs g77 performances gain of 40% in
+    some benchmarks)
+    A somewhat Athlon optimized code can be generated under the GNU
+    or Intel compilers by typing <TT>make _CPU=k7</TT>.
+    GCC3 specific options can be turned on by typing <TT>make GCC31=y</TT>
+</LI>
+<LI>HP 9000/800 workstations with  HPUX B.11.00. f90 must be used for
+    compilation.
+</LI>
+<LI>Intel x86 with Windows 2000 has been tested with Compaq Visual Fortran
+    6.0 and 6.1 with WMPI 1.3 or NT-Mpich.
+    NT-MPICH is available from
+<A NAME="tex2html102"
+  HREF="http://www-unix.mcs.anl.gov/~ashton/mpich.nt/">http://www-unix.mcs.anl.gov/~ ashton/mpich.nt/</A>
+<P>
+</LI>
+<LI>Intel IA64 under Linux (with Intel compilers version 7 and later)
+    and under HPUX.
+</LI>
+<LI>Fujitsu VPP computers.
+
+<P>
+</LI>
+</UL>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1877"
+  HREF="node45.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1873"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1867"
+  HREF="node43.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1875"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1878"
+  HREF="node45.html">About this document ...</A>
+<B> Up:</B> <A NAME="tex2html1874"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1868"
+  HREF="node43.html">C. Examples of geometries</A>
+ &nbsp <B>  <A NAME="tex2html1876"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

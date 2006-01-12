@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>21. Geometry Optimization with STEPPER</TITLE>
+<META NAME="description" CONTENT="21. Geometry Optimization with STEPPER">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node24.html">
+<LINK REL="previous" HREF="node22.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node24.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1425"
+  HREF="node24.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1421"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1415"
+  HREF="node22.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1423"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1426"
+  HREF="node24.html">22. Constraints for Geometry</A>
+<B> Up:</B> <A NAME="tex2html1422"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1416"
+  HREF="node22.html">20. Geometry Optimization with</A>
+ &nbsp <B>  <A NAME="tex2html1424"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1427"
+  HREF="node23.html#SECTION002310000000000000000">21.1 <TT>MIN</TT> and <TT>TS</TT> -- Minimum or transition state search</A>
+<LI><A NAME="tex2html1428"
+  HREF="node23.html#SECTION002320000000000000000">21.2 <TT>TRACK</TT> -- Mode selection</A>
+<LI><A NAME="tex2html1429"
+  HREF="node23.html#SECTION002330000000000000000">21.3 <TT>MAXITER</TT> -- Maximum number of steps</A>
+<LI><A NAME="tex2html1430"
+  HREF="node23.html#SECTION002340000000000000000">21.4 <TT>TRUST</TT> -- Trust radius</A>
+<LI><A NAME="tex2html1431"
+  HREF="node23.html#SECTION002350000000000000000">21.5 <TT>CONVGGM</TT>, <TT>CONVGG</TT> and <TT>CONVGE</TT> -- Convergence criteria</A>
+<LI><A NAME="tex2html1432"
+  HREF="node23.html#SECTION002360000000000000000">21.6 Backstepping in STEPPER</A>
+<LI><A NAME="tex2html1433"
+  HREF="node23.html#SECTION002370000000000000000">21.7 Initial Nuclear Hessian Options</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION002300000000000000000">
+21. Geometry Optimization with STEPPER</A>
+</H1>
+
+<P>
+<A NAME="sec:stepper"></A>
+<P>
+The STEPPER module performs a search for critical points on the
+potential energy surface of the molecule defined by input using the
+<code>GEOMETRY</code> directive (see Section <A HREF="node8.html#sec:geom">6</A>).  Since STEPPER
+is <B>not</B> the primary geometry optimization module in NWChem the
+compound directive is required; the DRIVER module is the default (see
+Section <A HREF="node22.html#sec:driver">20</A>).  Input for this module is
+specified within the compound directive,
+
+<P>
+<PRE>
+  STEPPER
+    ...
+  END
+</PRE>
+
+<P>
+The presence of the STEPPER compound directive automatically turns off
+the default geometry optimization tool DRIVER. Input specified for the
+STEPPER module must appear in the input file <EM>after</EM> the
+<code>GEOMETRY</code> directive, since it must know the number of atoms that
+are to be used in the geometry optimization.  In the current version
+of NWChem, STEPPER can be used only with geometries that are defined
+in Cartesian coordinates.  STEPPER removes translational and
+rotational components before determining the step direction (5
+components for linear systems and 6 for others) using a standard
+Eckart algorithm.  The default initial guess nuclear Hessian is the
+identity matrix.
+
+<P>
+The default in STEPPER is to minimize the energy as a function of the
+geometry with a maximum of 20 geometry optimization iterations.  When
+this is the desired calculation, no input is required other than the
+STEPPER compound directive.  However, the user also has the option of
+defining different tasks for the STEPPER module, and can vary the
+number of iterations and the convergence criteria from the default
+values.  The input for these options is described in the following
+sections.
+
+<P>
+
+<H1><A NAME="SECTION002310000000000000000">
+21.1 <TT>MIN</TT> and <TT>TS</TT> -- Minimum or transition state search</A>
+</H1>
+
+<P>
+The default is for STEPPER to minimize the energy with respect to the
+geometry of the system.  This default behavior may be forced with the
+directive
+<PRE>
+  MIN
+</PRE>
+
+<P>
+STEPPER can also be used to find the transition state by following the
+lowest eigenvector of the nuclear Hessian.  This is usually invoked 
+by using the <code>saddle</code> keyword on the <code>TASK</code> directive
+(Section <A HREF="node7.html#sec:task">5.10</A>), but it may also be selected by specifying
+the directive
+<PRE>
+  TS
+</PRE>
+in the STEPPER input. 
+
+<P>
+
+<H1><A NAME="SECTION002320000000000000000">
+21.2 <TT>TRACK</TT> -- Mode selection</A>
+</H1>
+
+<P>
+STEPPER has the ability to ``track'' a specific mode during an
+optimization for a transition state search, the user can also have the
+module track the eigenvector corresponding to a specific mode.  This
+is done by specifying the directive 
+<PRE>
+  TRACK [nmode &lt;integer nmode default 1&gt;]
+</PRE>
+The keyword <code>TRACK</code> tells STEPPER to track the eigenvector
+corresponding to the integer value of <code>&lt;nmode&gt;</code> during a transition
+state walk.  (Note: this input is invalid for a minimization walk
+since following a specific eigenvector will not necessarily give the
+desired local minimum.)  The step is constructed to go up in energy
+along the <code>nmode</code> eigenvector and down in all other degrees of
+freedom.
+
+<P>
+
+<H1><A NAME="SECTION002330000000000000000">
+21.3 <TT>MAXITER</TT> -- Maximum number of steps</A>
+</H1>
+
+<P>
+In most applications, 20 stepper iterations will be sufficient to
+obtain the energy minimization.  However, the user has the option of
+specifying the maximum number of iterations allowed, using the input
+line,
+<PRE>
+  MAXITER &lt;integer maxiter default 20&gt;
+</PRE>
+The value specified for the integer <code>&lt;maxiter&gt;</code> defines the maximum
+number of geometry optimization steps.  The geometry optimization will
+restart automatically.
+
+<P>
+
+<H1><A NAME="SECTION002340000000000000000">
+21.4 <TT>TRUST</TT> -- Trust radius</A>
+</H1>
+
+<P>
+The size of steps that can be taken in STEPPER is controlled by the
+trust radius which has a default value of 0.1.  Steps are constrained
+to be no larger than the trust radius.  The user has the option of
+overriding this default using the keyword <code>TRUST</code>, with the
+following input line,
+<PRE>
+  TRUST &lt;real radius default 0.1&gt;
+</PRE>
+
+<P>
+The larger the value specified for the variable <code>radius</code>, the
+larger the steps that can be taken by STEPPER.  Experience has shown
+that for larger systems (i.e., those with 20 or more atoms), a value
+of 0.5, or greater, usually should be entered for <code>&lt;radius&gt;</code>.
+
+<P>
+
+<H1><A NAME="SECTION002350000000000000000">
+21.5 <TT>CONVGGM</TT>, <TT>CONVGG</TT> and <TT>CONVGE</TT> -- Convergence criteria</A>
+</H1>
+
+<P>
+Three convergence criteria can be specified explicitly for the 
+STEPPER calculations.  The keyword <code>CONVGGM</code> allows the user to
+specify the convergence tolerance for the largest component of the
+gradient. This is the primary convergence criterion, as per the default
+settings, although all three criteria are in effect. this default setting
+is consistent with the other optimizer module DRIVER. 
+The input line for <code>CONVGGM</code> has the following form,
+<PRE>
+   CONVGGM &lt;real convggm default 8.0d-04&gt;
+</PRE>
+The keyword <code>CONVGG</code> allows the user to
+specify the convergence tolerance for the gradient norm for
+all degrees of freedom.  The input line is of the following form,
+<PRE>
+   CONVGG &lt;real convgg default 1.0d-02&gt;
+</PRE>
+The entry for the real variable <code>&lt;convgg&gt;</code> should be approximately 
+equal to the square root of the energy convergence tolerance.
+
+<P>
+The energy convergence tolerance is the convergence criterion for the 
+energy difference in the geometry optimization in STEPPER.  It can be
+specified by input using a line of the following form,
+<PRE>
+   CONVGE &lt;real convge default 1.0d-04&gt;
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION002360000000000000000"></A>
+<A NAME="sec:stepper:backstep"></A>
+<BR>
+21.6 Backstepping in STEPPER
+</H1>
+If a step taken during the optimization is too large (e.g., the step
+causes the energy to go up for a minimization or down for a transition
+state search), the STEPPER optimizer will automatically ``backstep''
+and correct the step based on information prior to the faulty step.
+If you have an optimization that ``backsteps'' frequently then the
+initial trust radius should most likely be decreased.
+
+<P>
+
+<H1><A NAME="SECTION002370000000000000000">
+21.7 Initial Nuclear Hessian Options</A>
+</H1>
+Stepper uses a modified Fletcher-Powell algorithm to find the
+transition state or energy minimum on the potential energy
+hypersurface.  There are two files left in the user's permanent
+directory that are used to provide an initial hessian to the critical
+point search algorithm.  If these files do not exist then the default
+is to use a unit matrix as the initial hessian.  Once Stepper executes
+it generates a binary dump file by the name of <code>name.stpr41</code>
+which will be used on all subsequent stepper runs and modified with
+the current updated hessian.  The default file prefix is the ``name''
+that is used (c.f., <A HREF="node7.html#sec:start">5.1</A>). It also stores the information
+for the last valid step in case the algorithm must take a ``backstep''
+(c.f., <A HREF="node23.html#sec:stepper:backstep">21.6</A>).  This file is the working data
+store for all stepper-based optimizations.  This file is never deleted
+by default and is the <B><I>first</I></B> source of an initial hessian.
+The second source of an inital hessian is an ascii file that contains
+the lower triangular values of the initial hessian.  This is stored in
+file <code>name.hess</code>, where ``name'' is again the default file
+prefix.  This is the <B><I>second</I></B> source of an initial hessian and
+is the method used to incorporate an initial hessian from any other
+source (e.g., another <I>ab initio</I> code, a molecular mechanics
+code, etc.,).  To get a decent starting hessian at a given point you
+can use the task specification <TT>task scf hessian</TT>, with a smaller
+basis set, which will by default generate the <TT>name.hess</TT> file.
+Then you may define your basis set of choice and proceed with the
+optimization you desire.<A NAME="tex2html61"
+  HREF="footnode.html#foot6243"><SUP>21.1</SUP></A>
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1425"
+  HREF="node24.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1421"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1415"
+  HREF="node22.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1423"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1426"
+  HREF="node24.html">22. Constraints for Geometry</A>
+<B> Up:</B> <A NAME="tex2html1422"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1416"
+  HREF="node22.html">20. Geometry Optimization with</A>
+ &nbsp <B>  <A NAME="tex2html1424"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

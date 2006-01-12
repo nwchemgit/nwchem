@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>25. Vibrational frequencies</TITLE>
+<META NAME="description" CONTENT="25. Vibrational frequencies">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node28.html">
+<LINK REL="previous" HREF="node26.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node28.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1499"
+  HREF="node28.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1495"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1489"
+  HREF="node26.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1497"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1500"
+  HREF="node28.html">26. DPLOT</A>
+<B> Up:</B> <A NAME="tex2html1496"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1490"
+  HREF="node26.html">24. Hessians</A>
+ &nbsp <B>  <A NAME="tex2html1498"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1501"
+  HREF="node27.html#SECTION002710000000000000000">25.1 Vibrational Module Input</A>
+<UL>
+<LI><A NAME="tex2html1502"
+  HREF="node27.html#SECTION002711000000000000000">25.1.1 Hessian File Reuse</A>
+<LI><A NAME="tex2html1503"
+  HREF="node27.html#SECTION002712000000000000000">25.1.2 Redefining Masses of Elements</A>
+<LI><A NAME="tex2html1504"
+  HREF="node27.html#SECTION002713000000000000000">25.1.3 Animation</A>
+<UL>
+<LI><A NAME="tex2html1505"
+  HREF="node27.html#SECTION002713100000000000000">25.1.3.1 Controlling the Step Size Along the Mode Vector</A>
+</UL>
+<LI><A NAME="tex2html1506"
+  HREF="node27.html#SECTION002714000000000000000">25.1.4 An Example Input Deck</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION002700000000000000000">
+25. Vibrational frequencies</A>
+</H1>
+<A NAME="sec:vib"></A>
+<P>
+The nuclear hessian which is used to compute the vibrational
+frequencies can be computed by finite difference for any ab initio
+wave-function that has analytic gradients or by analytic methods
+for SCF and DFT (see Section <A HREF="node26.html#sec:hess">24</A> for details).  The appropriate
+nuclear hessian generation algorithm is chosen based on the user input
+when <code>TASK &lt;theory&gt; frequencies</code> is the task directive.
+
+<P>
+The vibrational package was integrated from the Utah Messkit and can
+use any nuclear hessian generated from the driver routines, finite
+difference routines or any analytic hessian modules.  There is no required
+input for the ``VIB'' package.  VIB computes the Infra Red frequencies
+and intensities<A NAME="tex2html64"
+  HREF="footnode.html#foot6706"><SUP>25.1</SUP></A> for the
+computed nuclear hessian and the ``projected'' nuclear hessian.  The
+VIB module projects out the translations and rotations of the nuclear
+hessian using the standard Eckart projection algorithm.  
+It also computes the zero point energy for the molecular system
+based on the frequencies obtained from the projected hessian.
+
+<P>
+The default mass of each atom is used unless an alternative mass is
+provided via the geometry input, (c.f., <A HREF="node8.html#sec:geom">6</A>) or redefined
+using the vibrational module input.  The default mass is the mass of
+the most abundant isotope of each element.<A NAME="tex2html65"
+  HREF="footnode.html#foot6708"><SUP>25.2</SUP></A> If the abundance was roughly equal, the mass of the
+isotope with the longest half life was used.
+
+<P>
+
+<H1><A NAME="SECTION002710000000000000000">
+25.1 Vibrational Module Input</A>
+</H1>
+
+<P>
+All input for the Vibrational Module is optional since the default
+definitions will compute the frequencies and IR
+intensities<A NAME="tex2html66"
+  HREF="footnode.html#foot6710"><SUP>25.3</SUP></A>.  The generic
+module input can begin with <code>vib</code>, <code>freq</code>, <code>frequency</code>
+and has the form:
+<PRE>
+  {freq || vib || frequency}
+    reuse [&lt;string&gt; hessian_filename]
+    mass &lt;integer&gt; lexical_index &lt;real&gt; new_mass
+    mass &lt;string&gt; tag_identifier &lt;real&gt; new_mass
+    animate [&lt;real&gt; step_size_for_animation]     
+  end
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION002711000000000000000">
+25.1.1 Hessian File Reuse</A>
+</H2>
+By default the <code>task &lt;theory&gt; frequencies</code> directive will
+recompute the hessian.  To reuse the previously computed hessian you
+need only specify <code>reuse</code> in the module input block.  If you
+have stored the hessian in an alternate place you may redirect the 
+reuse directive to that file by specifying the path to that file.
+<PRE>
+  reuse /path_to_hessian_file
+</PRE>
+This will reuse your saved Hessian data but one caveat is that the
+geometry specification at the point where the hessian is computed must
+be the default ``geometry'' on the current run-time-data-base for the
+projection to work properly.
+
+<P>
+
+<H2><A NAME="SECTION002712000000000000000">
+25.1.2 Redefining Masses of Elements</A>
+</H2>
+You may also modify the mass of a specific center or a group of
+centers via the input.  
+
+<P>
+To modify the mass of a specific center you can simply use:
+<PRE>
+  mass 3 4.00260324
+</PRE>
+which will set the mass of center 3 to 4.00260324 AMUs.  The lexical
+index of centers is determined by the geometry object. 
+
+<P>
+To modify all Hydrogen atoms in a molecule you may use the tag based
+mechanism:
+<PRE>
+  mass hydrogen 2.014101779
+</PRE>
+
+<P>
+The mass redefinitions always start with the default masses and
+change the masses in the order given in the input.  Care must be taken to change
+the masses properly.  For example, if you want all hydrogens to have
+the mass of Deuterium and the third hydrogen (which is the 6th atomic
+center) to have the mass of Tritium you must set the Deuterium masses
+first with the tag based mechanism and then set the 6th center's mass
+to that of Tritium using the lexical center index mechanism.  
+
+<P>
+The mass redefinitions are not fully persistent on the
+run-time-data-base.  Each input block that redefines masses will
+invalidate the mass definitions of the previous input block.
+For example, 
+<PRE>
+freq
+  reuse
+  mass hydrogen 2.014101779
+end
+task scf frequencies
+freq
+  reuse
+  mass oxygen 17.9991603
+end
+task scf frequencies
+</PRE>
+will use the new mass for all hydrogens in the first frequency
+analysis.  The mass of the oxygen atoms will be redefined in the second
+frequency analysis but the hydrogen atoms will use the default mass.
+To get a modified oxygen and hydrogen analysis you would have to use:
+<PRE>
+freq
+  reuse
+  mass hydrogen 2.014101779
+end
+task scf frequencies
+freq
+  reuse
+  mass hydrogen 2.014101779
+  mass oxygen 17.9991603
+end
+task scf frequencies
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION002713000000000000000">
+25.1.3 Animation</A>
+</H2> 
+The ``VIB'' module also can generate mode animation input files in the
+standard xyz file format for graphics packages like
+RasMol or XMol There are scripts to automate this for RasMol in
+<code>$NWCHEM_TOP/contrib/rasmolmovie</code>.  Each mode will have 20 xyz
+files generated that cycle from the equilibrium geometry to 5 steps in
+the positive direction of the mode vector, back to 5 steps in the
+negative direction of the mode vector, and finally back to the
+equilibrium geometry.  By default these files are <B>not</B> generated.
+To activate this mechanism simply use the following input directive 
+<PRE>
+  animate
+</PRE>
+anywhere in the frequency/vib input block.
+
+<H3><A NAME="SECTION002713100000000000000">
+25.1.3.1 Controlling the Step Size Along the Mode Vector</A>
+</H3>
+By default, the step size used is 0.15 a.u. which will give reliable
+animations for most systems.  This can be changed via the input directive
+<PRE>
+  animate real &lt;step_size&gt;
+</PRE>
+where <code>&lt;step_size&gt;</code> is the real number that is the magnitude of
+each step along the eigenvector of each nuclear hessian mode in atomic
+units.
+
+<P>
+
+<P>
+
+<H2><A NAME="SECTION002714000000000000000">
+25.1.4 An Example Input Deck</A>
+</H2>
+This example input deck will optimize the geometry for the given basis
+set, compute the frequencies for H<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$">O, D<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$">O, HDO, and TDO.
+<PRE>
+start  h2o
+title Water 
+geometry units au autosym
+  O      0.00000000    0.00000000    0.00000000
+  H      0.00000000    1.93042809   -1.10715266
+  H      0.00000000   -1.93042809   -1.10715266
+end
+basis noprint
+  H library sto-3g 
+  O library sto-3g
+end
+scf; thresh 1e-6; end
+driver; tight; end
+task scf optimize
+
+scf; thresh 1e-8; print none; end
+task scf freq 
+
+freq 
+ reuse; mass H 2.014101779
+end
+task scf freq
+
+freq
+ reuse; mass 2 2.014101779
+end
+task scf freq
+
+freq
+ reuse; mass 2 2.014101779 ; mass 3 3.01604927
+end
+task scf freq
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1499"
+  HREF="node28.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1495"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1489"
+  HREF="node26.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1497"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1500"
+  HREF="node28.html">26. DPLOT</A>
+<B> Up:</B> <A NAME="tex2html1496"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1490"
+  HREF="node26.html">24. Hessians</A>
+ &nbsp <B>  <A NAME="tex2html1498"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

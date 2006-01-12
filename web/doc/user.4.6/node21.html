@@ -1,0 +1,391 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>19. Coupled Cluster Calculations</TITLE>
+<META NAME="description" CONTENT="19. Coupled Cluster Calculations">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node22.html">
+<LINK REL="previous" HREF="node20.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node22.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1381"
+  HREF="node22.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1377"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1371"
+  HREF="node20.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1379"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1382"
+  HREF="node22.html">20. Geometry Optimization with</A>
+<B> Up:</B> <A NAME="tex2html1378"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1372"
+  HREF="node20.html">18. Selected CI</A>
+ &nbsp <B>  <A NAME="tex2html1380"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1383"
+  HREF="node21.html#SECTION002110000000000000000">19.1 <TT>MAXITER</TT> -- Maximum number of iterations</A>
+<LI><A NAME="tex2html1384"
+  HREF="node21.html#SECTION002120000000000000000">19.2 <TT>THRESH</TT> -- Convergence threshold</A>
+<LI><A NAME="tex2html1385"
+  HREF="node21.html#SECTION002130000000000000000">19.3 <TT>TOL2E</TT> -- integral screening threshold</A>
+<LI><A NAME="tex2html1386"
+  HREF="node21.html#SECTION002140000000000000000">19.4 <TT>DIISBAS</TT> -- DIIS subspace dimension</A>
+<LI><A NAME="tex2html1387"
+  HREF="node21.html#SECTION002150000000000000000">19.5 <TT>FREEZE</TT> -- Freezing orbitals</A>
+<LI><A NAME="tex2html1388"
+  HREF="node21.html#SECTION002160000000000000000">19.6 <TT>IPRT</TT> -- Debug printing</A>
+<LI><A NAME="tex2html1389"
+  HREF="node21.html#SECTION002170000000000000000">19.7 PRINT and NOPRINT</A>
+<LI><A NAME="tex2html1390"
+  HREF="node21.html#SECTION002180000000000000000">19.8 Methods (Tasks) Recognized</A>
+<LI><A NAME="tex2html1391"
+  HREF="node21.html#SECTION002190000000000000000">19.9 Debugging and Development Aids</A>
+<UL>
+<LI><A NAME="tex2html1392"
+  HREF="node21.html#SECTION002191000000000000000">19.9.1 Switching On and Off Terms</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION002100000000000000000">
+19. Coupled Cluster Calculations</A>
+</H1>
+<A NAME="sec:ccsd"></A>
+<P>
+The NWChem coupled cluster energy module is primarily the work of
+Alistair Rendell and Rika Kobayashi, with contributions from David
+Bernholdt.
+
+<P>
+The coupled cluster code can perform calculations with full iterative
+treatment of single and double excitations and non-iterative inclusion
+of triple excitation effects.  It is presently limited to closed-shell
+(RHF) references.
+
+<P>
+<EM>Note that symmetry is not used within most of the CCSD(T) code.</EM>
+This can have a profound impact on performance since the speed-up from
+symmetry is roughly the square of the number of irreducible
+representations.  In the absence of symmetry, the performance of this
+code is competitive with other programs.
+
+<P>
+The operation of the coupled cluster code is controlled by the input
+block
+<PRE>
+  CCSD
+    [MAXITER &lt;integer maxiter default 20&gt;]
+    [THRESH  &lt;real thresh default 10e-6&gt;]
+    [TOL2E &lt;real tol2e default min(10e-12 , 0.01*$thresh$)&gt;]
+    [DIISBAS  &lt;integer diisbas default 5&gt;]
+    [FREEZE [[core] (atomic || &lt;integer nfzc default 0&gt;)] \
+            [virtual &lt;integer nfzv default 0&gt;]]
+    [IPRT  &lt;integer IPRT default 0&gt;]
+    [PRINT ...]
+    [NOPRINT ...]
+  END
+</PRE>
+Note that the keyword <code>CCSD</code> is used for the input block
+regardless of the actual level of theory desired (specified with the
+<code>TASK</code> directive).  The following directives are recognized
+within the <code>CCSD</code> group.
+
+<P>
+
+<H1><A NAME="SECTION002110000000000000000">
+19.1 <TT>MAXITER</TT> -- Maximum number of iterations</A>
+</H1>
+
+<P>
+The maximum number of iterations is set to 20 by default.  This should
+be quite enough for most calculations, although particularly
+troublesome cases may require more.
+
+<P>
+<PRE>
+  MAXITER  &lt;integer maxiter default 20&gt;
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION002120000000000000000">
+19.2 <TT>THRESH</TT> -- Convergence threshold</A>
+</H1>
+
+<P>
+Controls the convergence threshold for the iterative part of the
+calculation.  Both the RMS error in the amplitudes <EM>and</EM> the
+change in energy must be less than <TT>thresh</TT>.
+
+<P>
+<PRE>
+  THRESH  &lt;real thresh default 10e-6&gt;
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION002130000000000000000">
+19.3 <TT>TOL2E</TT> -- integral screening threshold</A>
+</H1>
+
+<P>
+<PRE>
+  TOL2E &lt;real tol2e default min(10e-12 , 0.01*$thresh$)&gt;
+</PRE>
+
+<P>
+The variable <code>tol2e</code> is used in determining the integral
+screening threshold for the evaluation of the energy and related
+quantities.
+
+<P>
+<EM>CAUTION!</EM>  At the present time, the <code>tol2e</code> parameter only
+affects the three- and four-virtual contributions, and the triples,
+all of which are done ``on the fly''. The transformations
+used for the other parts of the code currently have a hard-wired
+threshold of <IMG
+ WIDTH="44" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img91.gif"
+ ALT="$10^{-12}$">.  The default for <code>tol2e</code> is set to match
+this, and since user input can only make the threshold smaller,
+setting this parameter can only make calculations take longer.
+
+<P>
+
+<H1><A NAME="SECTION002140000000000000000">
+19.4 <TT>DIISBAS</TT> -- DIIS subspace dimension</A>
+</H1>
+
+<P>
+Specifies the maximum size of the subspace used in DIIS convergence
+acceleration.  Note that DIIS requires the amplitudes and errors be
+stored for each iteration in the subspace.  Obviously this can
+significantly increase memory requirements, and could force the user
+to reduce <code>DIISBAS</code> for large calculations.
+
+<P>
+<EM>Measures to alleviate this problem, including more compact
+storage of the quantities involved, and the possibility of disk
+storage are being considered, but have not yet been implemented.</EM>
+
+<P>
+<PRE>
+  DIISBAS  &lt;integer diisbas default 5&gt;
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION002150000000000000000">
+19.5 <TT>FREEZE</TT> -- Freezing orbitals</A>
+</H1>
+
+<P>
+<PRE>
+    [FREEZE [[core] (atomic || &lt;integer nfzc default 0&gt;)] \
+            [virtual &lt;integer nfzv default 0&gt;]]
+</PRE>
+
+<P>
+This directive is idential to that used in the MP2 module, Section
+<A HREF="node18.html#mp2:core">16.1</A>.
+
+<P>
+
+<H1><A NAME="SECTION002160000000000000000">
+19.6 <TT>IPRT</TT> -- Debug printing</A>
+</H1>
+
+<P>
+This directive controls the level of output from the code, mostly to
+facilitate debugging and the like.  The larger the value, the more
+output printed.  From looking at the source code, the interesting
+values seem to be <code>IPRT</code> <IMG
+ WIDTH="16" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img160.gif"
+ ALT="$&gt;$"> 5, 10, and 50.
+
+<P>
+<PRE>
+  IPRT  &lt;integer IPRT default 0&gt;
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION002170000000000000000">
+19.7 PRINT and NOPRINT</A>
+</H1>
+
+<P>
+The coupled cluster module supports the standard NWChem print control
+keywords, although very little in the code is actually hooked into
+this mechanism yet.
+
+<P>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT">Item</TD>
+<TD ALIGN="LEFT">Print Level</TD>
+<TD ALIGN="LEFT">Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``reference''</TD>
+<TD ALIGN="LEFT">high</TD>
+<TD ALIGN="LEFT">Wavefunction information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``guess pair energies''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">MP2 pair energies</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``byproduct energies''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">Intermediate energies</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``term debugging switches''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Switches for individual terms</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<H1><A NAME="SECTION002180000000000000000">
+19.8 Methods (Tasks) Recognized</A>
+</H1>
+
+<P>
+Currently available methods are
+
+<UL>
+<LI><code>CCSD</code> - Full iterative inclusion of single and double
+excitations
+</LI>
+<LI><code>CCSD+T(CCSD)</code> - The fourth order triples contribution computed with
+converged singles and doubles amplitudes
+</LI>
+<LI><code>CCSD(T)</code> - The linearized triples approximation due to
+  Raghavachari.
+</LI>
+</UL>
+
+<P>
+The calculation is invoked using the the <code>TASK</code> directive, so to
+perform a CCSD+T(CCSD) calculation, for example, the input file should
+include the directive
+<PRE>
+  TASK CCSD+T(CCSD)
+</PRE>
+
+<P>
+Lower-level results which come as by-products (such as MP3/MP4) of the
+requested calculation are generally also printed in the output file
+and stored on the run-time database, but the method specified in the
+<code>TASK</code> directive is considered the primary result.
+
+<P>
+
+<H1><A NAME="SECTION002190000000000000000">
+19.9 Debugging and Development Aids</A>
+</H1>
+
+<P>
+The information in this section is intended for use by experts (both
+with the methodology and with the code), primarily for debugging and
+development work.  Messing with stuff in listed in this section will
+probably make your calculation quantitatively <EM><B>wrong</B></EM>!
+Consider yourself warned!
+
+<P>
+
+<H2><A NAME="SECTION002191000000000000000">
+19.9.1 Switching On and Off Terms</A>
+</H2>
+
+<P>
+The <code>/DEBUG/</code> common block contains a number of arrays which
+control the calculation of particular terms in the program.  These are
+15-element integer arrays (although from the code only a few elements
+actually effect anything) which can be set from the input deck.  See
+the code for details of how the arrays are interpreted.  
+
+<P>
+Printing of this data at run-time is controlled by the
+<code>"term debugging switches"</code> print option.  The values are checked against
+the defaults at run-time and a warning is printed to draw attention to
+the fact that the calculation does not correspond precisely to the
+requested method.
+
+<P>
+<PRE>
+  DOA  &lt;integer array default 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2&gt;
+  DOB  &lt;integer array default 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2&gt;
+  DOG  &lt;integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1&gt;
+  DOH  &lt;integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1&gt;
+  DOJK &lt;integer array default 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2&gt;
+  DOS  &lt;integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1&gt;
+  DOD  &lt;integer array default 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1&gt;
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1381"
+  HREF="node22.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1377"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1371"
+  HREF="node20.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1379"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1382"
+  HREF="node22.html">20. Geometry Optimization with</A>
+<B> Up:</B> <A NAME="tex2html1378"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1372"
+  HREF="node20.html">18. Selected CI</A>
+ &nbsp <B>  <A NAME="tex2html1380"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,769 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>18. Selected CI</TITLE>
+<META NAME="description" CONTENT="18. Selected CI">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node21.html">
+<LINK REL="previous" HREF="node19.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node21.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1355"
+  HREF="node21.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1351"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1345"
+  HREF="node19.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1353"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1356"
+  HREF="node21.html">19. Coupled Cluster Calculations</A>
+<B> Up:</B> <A NAME="tex2html1352"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1346"
+  HREF="node19.html">17. Multiconfiguration SCF</A>
+ &nbsp <B>  <A NAME="tex2html1354"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1357"
+  HREF="node20.html#SECTION002010000000000000000">18.1 Background</A>
+<LI><A NAME="tex2html1358"
+  HREF="node20.html#SECTION002020000000000000000">18.2 Files</A>
+<LI><A NAME="tex2html1359"
+  HREF="node20.html#SECTION002030000000000000000">18.3 Configuration Generation</A>
+<UL>
+<LI><A NAME="tex2html1360"
+  HREF="node20.html#SECTION002031000000000000000">18.3.1 Specifying the reference occupation</A>
+<LI><A NAME="tex2html1361"
+  HREF="node20.html#SECTION002032000000000000000">18.3.2 Applying creation-annihilation operators</A>
+<LI><A NAME="tex2html1362"
+  HREF="node20.html#SECTION002033000000000000000">18.3.3 Uniform excitation level</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1363"
+  HREF="node20.html#SECTION002040000000000000000">18.4 Number of roots</A>
+<LI><A NAME="tex2html1364"
+  HREF="node20.html#SECTION002050000000000000000">18.5 Accuracy of diagonalization</A>
+<LI><A NAME="tex2html1365"
+  HREF="node20.html#SECTION002060000000000000000">18.6 Selection thresholds</A>
+<LI><A NAME="tex2html1366"
+  HREF="node20.html#SECTION002070000000000000000">18.7 Mode</A>
+<LI><A NAME="tex2html1367"
+  HREF="node20.html#SECTION002080000000000000000">18.8 Memory requirements</A>
+<LI><A NAME="tex2html1368"
+  HREF="node20.html#SECTION002090000000000000000">18.9 Forcing regeneration of the MO integrals</A>
+<LI><A NAME="tex2html1369"
+  HREF="node20.html#SECTION0020100000000000000000">18.10 Disabling update of the configuration list</A>
+<LI><A NAME="tex2html1370"
+  HREF="node20.html#SECTION0020110000000000000000">18.11 Orbital locking in CI geometry optimization</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION002000000000000000000">
+18. Selected CI</A>
+</H1>
+<A NAME="sec:selci"></A>
+<P>
+The selected CI module is integrated into NWChem but as yet no
+input module has been written.  The input thus consists of setting the
+appropriate variables in the database.
+
+<P>
+It is assumed that an initial SCF/MCSCF calculation has completed, and
+that MO vectors are available.  These will be used to perform a
+four-index transformation, if this has not already been performed.
+
+<P>
+
+<H1><A NAME="SECTION002010000000000000000">
+18.1 Background</A>
+</H1>
+
+<P>
+This is a general spin-adapted, configuration-driven CI program
+which can perform arbitrary CI calculations, the only restriction
+being that all spin functions are present for each orbital occupation.
+CI wavefunctions may be specified using a simple configuration
+generation program, but the prime usage is intended to be in
+combination with perturbation correction and selection of new
+configurations.  The second-order correction (Epstein-Nesbet) to the
+CI energy may be computed, and at the same time configurations that
+interact greater than a certain threshold with the current CI
+wavefunction may be chosen for inclusion in subsequent calculations.
+By repeating this process (typically twice is adequate) with the same
+threshold until no new configurations are added, the CI expansion may
+be made consistent with the selection threshold, enabling tentative 
+extrapolation to the full-CI limit.
+
+<P>
+A typical sequence of calculations is as follows:
+
+<OL>
+<LI>Pick as an initial CI reference the previously executed
+  SCF/MCSCF.
+</LI>
+<LI>Define an initial selection threshold.
+</LI>
+<LI>Determine the roots of interest in the current reference space.
+</LI>
+<LI>Compute the perturbation correction and select additional
+  configurations that interact greater than the current threshold.
+</LI>
+<LI>Repeat steps 3 and 4.
+</LI>
+<LI>Lower the threshold (a factor of 10 is common) and repeat steps
+  3, 4, and 5.  The <EM>first</EM> pass through step 4 will yield the
+  approximately self-consistent CI and CI+PT energies from the <EM>    previous</EM> selection threshold.
+</LI>
+</OL>
+
+<P>
+To illustrate this, below is some abbreviated output from a
+calculation on water in an augmented cc-PVDZ basis set with one frozen
+core orbital.  The SCF was converged to high precision in <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.gif"
+ ALT="$C_{2v}$">
+symmetry with the following input
+<PRE>
+  start h2o
+  geometry; symmetry c2v
+    O 0 0 0; H 0 1.43042809 -1.10715266
+  end
+  basis
+    H library aug-cc-pvdz; O library aug-cc-pvdz
+  end
+  task scf
+  scf; thresh 1d-8; end
+</PRE>
+
+<P>
+The following input restarts from the SCF to perform a sequence of
+selected CI calculations with the specified tolerances, starting with
+the SCF reference.
+<PRE>
+  restart h2o
+  set fourindex:occ_frozen 1
+  set selci:mode select
+  set "selci:selection thresholds" \
+      0.001 0.001 0.0001 0.0001 0.00001 0.00001 0.000001
+  task selci
+</PRE>
+Table <A HREF="#selcitab">18.1</A> summarizes the output from each of the major
+computational steps that were performed.
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="5721"></A>
+<TABLE>
+<CAPTION><STRONG>Table 18.1:</STRONG>
+ Summary of steps performed in a selected CI
+  calculation on water.</CAPTION>
+<TR><TD>  <TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="RIGHT">CI</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">Step</TD>
+<TD ALIGN="LEFT">Description</TD>
+<TD ALIGN="RIGHT">dimension</TD>
+<TD ALIGN="LEFT">Energy</TD>
+</TR>
+<TR><TD ALIGN="CENTER">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="RIGHT">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">1</TD>
+<TD ALIGN="LEFT">Four-index, one frozen-core</TD>
+<TD ALIGN="RIGHT">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">2</TD>
+<TD ALIGN="LEFT">Config. generator, SCF default</TD>
+<TD ALIGN="RIGHT">1</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="CENTER">3+4</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">1</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI} = -76.041983$
+ -->
+<IMG
+ WIDTH="135" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img146.gif"
+ ALT="$E_{CI} = -76.041983$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">5</TD>
+<TD ALIGN="LEFT">PT selection T=0.001</TD>
+<TD ALIGN="RIGHT">1</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI+PT} = -76.304797$
+ -->
+<IMG
+ WIDTH="164" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img147.gif"
+ ALT="$E_{CI+PT} = -76.304797$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">6+7</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">75</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI} = -76.110894$
+ -->
+<IMG
+ WIDTH="135" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img148.gif"
+ ALT="$E_{CI} = -76.110894$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">8</TD>
+<TD ALIGN="LEFT">PT selection T=0.001</TD>
+<TD ALIGN="RIGHT">75</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI+PT} = -76.277912$
+ -->
+<IMG
+ WIDTH="164" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img149.gif"
+ ALT="$E_{CI+PT} = -76.277912$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">9+10</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">75</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI}(T=0.001) = -76.110894$
+ -->
+<IMG
+ WIDTH="216" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img150.gif"
+ ALT="$E_{CI}(T=0.001) = -76.110894$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">11</TD>
+<TD ALIGN="LEFT">PT selection T=0.0001</TD>
+<TD ALIGN="RIGHT">75</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI+PT}(T=0.001) = -76.277912$
+ -->
+<IMG
+ WIDTH="245" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img151.gif"
+ ALT="$E_{CI+PT}(T=0.001) = -76.277912$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">12+13</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">823</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI} = -76.228419$
+ -->
+<IMG
+ WIDTH="135" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img152.gif"
+ ALT="$E_{CI} = -76.228419$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">14</TD>
+<TD ALIGN="LEFT">PT selection T=0.0001</TD>
+<TD ALIGN="RIGHT">823</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI+PT} = -76.273751$
+ -->
+<IMG
+ WIDTH="164" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img153.gif"
+ ALT="$E_{CI+PT} = -76.273751$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">15+16</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">841</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI}(T=0.0001) = -76.2300544$
+ -->
+<IMG
+ WIDTH="232" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img154.gif"
+ ALT="$E_{CI}(T=0.0001) = -76.2300544$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">17</TD>
+<TD ALIGN="LEFT">PT selection T=0.00001</TD>
+<TD ALIGN="RIGHT">841</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI+PT}(T=0.0001) = -76.274073$
+ -->
+<IMG
+ WIDTH="253" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img155.gif"
+ ALT="$E_{CI+PT}(T=0.0001) = -76.274073$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">18+19</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">2180</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI} = -76.259285$
+ -->
+<IMG
+ WIDTH="135" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img156.gif"
+ ALT="$E_{CI} = -76.259285$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">20</TD>
+<TD ALIGN="LEFT">PT selection T=0.00001</TD>
+<TD ALIGN="RIGHT">2180</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI+PT} = -76.276418$
+ -->
+<IMG
+ WIDTH="164" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img157.gif"
+ ALT="$E_{CI+PT} = -76.276418$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">21+22</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">2235</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI}(T=0.00001) = -76.259818$
+ -->
+<IMG
+ WIDTH="232" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img158.gif"
+ ALT="$E_{CI}(T=0.00001) = -76.259818$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">23</TD>
+<TD ALIGN="LEFT">PT selection T=0.000001</TD>
+<TD ALIGN="RIGHT">2235</TD>
+<TD ALIGN="LEFT"><!-- MATH
+ $E_{CI+PT}(T=0.00001) = -76.276478$
+ -->
+<IMG
+ WIDTH="261" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img159.gif"
+ ALT="$E_{CI+PT}(T=0.00001) = -76.276478$"></TD>
+</TR>
+<TR><TD ALIGN="CENTER">24</TD>
+<TD ALIGN="LEFT">CI diagonalization</TD>
+<TD ALIGN="RIGHT">11489</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+</TABLE>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<H1><A NAME="SECTION002020000000000000000">
+18.2 Files</A>
+</H1>
+
+<P>
+Currently, no direct control is provided over filenames.  All files
+are prefixed with the standard file-prefix, and any files generated by
+all nodes are also postfixed with the processor number.  Thus, for
+example the molecular integrals file, used only by process zero, might
+be called <TT>h2o.moints</TT> whereas the off-diagonal Hamiltonian matrix
+element file used by process number eight would be called <TT>  h2o.hamil.8</TT>.
+
+<P>
+
+<P>
+<DL>
+<DT></DT>
+<DD><TT>ciconf</TT> -- the CI configuration file, which holds
+  information about the current CI expansion, indexing vectors, etc.
+  This is the most important file and is required for all restarts.
+  Note that the CI configuration generator is only run if this file
+  does not exist. Referenced only by process zero.
+</DD>
+<DT></DT>
+<DD><TT>moints</TT> -- the molecular integrals, generated by the four-index
+  transformation.  As noted above these must currently be manually
+  deleted, or the database entry <code>selci:moints:force</code> set, to
+  force regeneration.  Referenced only by process zero.
+</DD>
+<DT></DT>
+<DD><TT>civecs</TT> -- the CI vectors.    Referenced only by process zero.
+</DD>
+<DT></DT>
+<DD><TT>wmatrx</TT> -- temporary file used to hold coupling coefficients.
+  Deleted at calculation end.  Referenced only by process zero.
+</DD>
+<DT></DT>
+<DD><TT>rtname, roname</TT> -- restart information for the PT
+  selection.  Should be automatically deleted if no restart is
+  necessary.  Referenced only by process zero.
+</DD>
+<DT></DT>
+<DD><TT>hamdg</TT> -- diagonal elements of the Hamiltonian.
+  Deleted at calculation end.  Referenced only by process zero.
+</DD>
+<DT></DT>
+<DD><TT>hamil</TT> -- off-diagonal Hamiltonian matrix elements.  All
+  processes generate a file containing a subset of these elements.
+  These files can become very large.  Deleted at calculation end.
+</DD>
+</DL>
+
+<P>
+
+<P>
+
+<H1><A NAME="SECTION002030000000000000000">
+18.3 Configuration Generation</A>
+</H1>
+
+<P>
+If no configuration is explicitly specified then the previous
+SCF/MCSCF wavefunction is used, adjusting for any orbitals frozen in
+the four-index transformation.  The four-index transformation must
+have completed successfully before this can execute.  Orbital
+configurations for use as reference functions may also be explicitly
+specified.
+
+<P>
+Once the default/user-input reference configurations have been
+determined additional reference functions may be generated by applying
+multiple sets of creation-annihilation operators, permitting for
+instance, the ready specification of complete or restricted active
+spaces.
+
+<P>
+Finally, a uniform level of excitation from the current set of
+configurations into all orbitals may be applied, enabling, for
+instance, the simple creation of single or single+double excitation 
+spaces from an MCSCF reference.
+
+<P>
+
+<H2><A NAME="SECTION002031000000000000000">
+18.3.1 Specifying the reference occupation</A>
+</H2>
+
+<P>
+A single orbital configuration or occupation is specified by
+<PRE>
+  ns  (socc(i),i=1,ns)  (docc(i),i=1,nd)
+</PRE>
+where <code>ns</code> specifies the number of singly occupied orbitals,
+<code>socc()</code> is the list of singly occupied orbitals, and
+<code>docc()</code> is the list of doubly occupied orbitals (the
+number of doubly occupied orbitals, <code>nd</code>, is inferred from
+<code>ns</code> and the total number of electrons).  All occupations may be
+strung together and inserted into the database as a single integer
+array with name <code>"selci:conf"</code>.  For example, the input
+<PRE>
+  set "selci:conf" \
+    0                1  2  3  4 \
+    0                1  2  3 27 \
+    0                1  3  4 19 \
+    2   11 19        1  3  4 \
+    2    8 27        1  2  3 \
+    0                1  2  4 25 \
+    4   3  4 25 27   1  2 \
+    4   2  3 19 20   1 4 \
+    4   2  4 20 23   1 3
+</PRE>
+specifies the following nine orbital configurations
+<PRE>
+   1(2)  2(2)  3(2)  4(2)
+   1(2)  2(2)  3(2) 27(2)
+   1(2)  3(2)  4(2) 19(2)
+   1(2)  3(2)  4(2) 11(1) 19(1)
+   1(2)  2(2)  3(2)  8(1) 27(1)
+   1(2)  2(2)  4(2) 25(2)
+   1(2)  2(2)  3(1)  4(1) 25(1) 27(1)
+   1(2)  2(1)  3(1)  4(2) 19(1) 20(1)
+   1(2)  2(1)  3(2)  4(1) 20(1) 23(1)
+</PRE>
+The optional formatting of the input is just to make this arcane
+notation easier to read.  Relatively few configurations can be
+currently specified in this fashion because of the input line limit of
+1024 characters.
+
+<P>
+
+<H2><A NAME="SECTION002032000000000000000">
+18.3.2 Applying creation-annihilation operators</A>
+</H2>
+
+<P>
+Up to 10 sets of creation-annihilation operator pairs may be
+specified, each set containing up to 255 pairs.  This suffices to
+specify complete active spaces with up to ten electrons.
+
+<P>
+The number of sets is specified as follows,
+<PRE>
+  set selci:ngen 4
+</PRE>
+which indicates that there will be four sets.  Each set is then
+specified as a separate integer array
+<PRE>
+  set "selci:refgen  1" 5 4    6 4   5 3   6 3  
+  set "selci:refgen  2" 5 4    6 4   5 3   6 3  
+  set "selci:refgen  3" 5 4    6 4   5 3   6 3  
+  set "selci:refgen  4" 5 4    6 4   5 3   6 3
+</PRE>
+In the absence of friendly, input note that the names
+<code>"selci:refgen n"</code> must be formatted with n in <code>I2</code>
+format. Each set specifies a list of creation-annihilation operator
+pairs (in that order).  So for instance, in the above example each set
+is the same and causes the excitations
+<PRE>
+  4-&gt;5   4-&gt;6   3-&gt;5   3-&gt;6
+</PRE>
+If orbitals 3 and 4 were initially doubly occupied, and orbitals 5 and
+6 initially unoccupied, then the application of this set of operators
+four times in succession is sufficient to generate the four electron
+in four orbital complete active space.
+
+<P>
+The precise sequence in which operators are applied is
+
+<OL>
+<LI>loop through sets of operators
+</LI>
+<LI>loop through reference configurations
+</LI>
+<LI>loop through operators in the set
+</LI>
+<LI>apply the operator to the configuration, if the result is new add it
+  to the new list
+</LI>
+<LI>end the loop over operators
+</LI>
+<LI>end the loop over reference configurations
+</LI>
+<LI>augment the configuration list with the new list
+</LI>
+<LI>end the loop over sets of operators
+</LI>
+</OL>
+
+<P>
+
+<H2><A NAME="SECTION002033000000000000000">
+18.3.3 Uniform excitation level</A>
+</H2>
+
+<P>
+By default no excitation is applied to the reference configurations.
+If, for instance, you wanted to generate a single excitation CI space
+from the current configuration list, specify
+<PRE>
+set selci:exci 1
+</PRE>
+Any excitation level may be applied, but since the list of
+configurations is explicitly generated, as is the CI Hamiltonian
+matrix, you will run out of disk space if you attempt to use more than
+a few tens of thousands of configurations.
+
+<P>
+
+<H1><A NAME="SECTION002040000000000000000">
+18.4 Number of roots</A>
+</H1>
+
+<P>
+By default, only one root is generated in the CI diagonalization or
+perturbation selection.  The following requests that 2 roots be
+generated
+<PRE>
+  set selci:nroot 2
+</PRE>
+There is no imposed upper limit.  If many roots are required, then, to
+minimize root skipping problems, it helps to perform an initial
+approximate diagonalization with several more roots than required, and
+then resetting this parameter once satisfied that the desired
+states are obtained.
+
+<P>
+
+<H1><A NAME="SECTION002050000000000000000">
+18.5 Accuracy of diagonalization</A>
+</H1>
+
+<P>
+By default, the CI wavefunctions are converged to a residual norm of
+<IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img98.gif"
+ ALT="$10^{-6}$"> which provides similar accuracy in the perturbation
+corrections to the energy, and much higher accuracy in the CI
+eigenvalues.  This may be adjusted with
+<PRE>
+ set "selci:diag tol" 1d-3
+</PRE>
+the example setting much lower precision, appropriate for the
+approximate diagonalization discussed in the preceding section.
+
+<P>
+
+<H1><A NAME="SECTION002060000000000000000">
+18.6 Selection thresholds</A>
+</H1>
+
+<P>
+When running in the selected-CI mode the program will loop
+through a list of selection thresholds (<IMG
+ WIDTH="16" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img127.gif"
+ ALT="$T$">), performing the CI
+diagonalization, computing the perturbation correction, and augmenting
+the CI expansion with configurations that make an energy lowering to
+any root greater than <IMG
+ WIDTH="16" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img127.gif"
+ ALT="$T$">.  The list of selection thresholds is
+specified as follows
+<PRE>
+  set "selci:selection thresholds" \
+      0.001 0.001 0.0001 0.0001 0.00001 0.00001 0.000001
+</PRE>
+
+<P>
+There is no default for this parameter.
+
+<P>
+
+<H1><A NAME="SECTION002070000000000000000">
+18.7 Mode</A>
+</H1>
+
+<P>
+By default the program runs in <code>"ci+davids"</code> mode and just
+determines the CI eigenvectors/values in the current configuration
+space.  To perform a selected-CI with perturbation correction use the
+following
+<PRE>
+  set selci:mode select
+</PRE>
+and remember to define the selection thresholds.
+
+<P>
+
+<H1><A NAME="SECTION002080000000000000000">
+18.8 Memory requirements</A>
+</H1>
+
+<P>
+No global arrays are used inside the selected-CI, though the
+four-index transformation can be automatically invoked and it does use
+GAs.  The selected CI replicates inside each process
+
+<UL>
+<LI>all unique two-electron integrals in the MO basis that are
+  non-zero by symmetry, and
+</LI>
+<LI>all CI information, including the CI vectors.
+</LI>
+</UL>
+These large data structures are allocated on the local stack.  A fatal
+error will result if insufficient memory is available.
+
+<P>
+
+<H1><A NAME="SECTION002090000000000000000">
+18.9 Forcing regeneration of the MO integrals</A>
+</H1>
+
+<P>
+When scanning a potential energy surface or optimizing a geometry the
+MO integrals need to be regenerated each time.  Specify
+<PRE>
+  set selci:moints:force logical .true.
+</PRE>
+to accomplish this.
+
+<P>
+
+<H1><A NAME="SECTION0020100000000000000000">
+18.10 Disabling update of the configuration list</A>
+</H1>
+
+<P>
+When computing CI+PT energy the reference configuration list is
+normally updated to reflect all configurations that interact more than
+the specified threshold.  This is usually desirable.  But when
+scanning a potential energy surface or optimizing a geometry the
+reference list must be kept fixed to keep the potential energy surface
+continuous and well defined.  To do this specify
+<PRE>
+  set selci:update logical .false.
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION0020110000000000000000">
+18.11 Orbital locking in CI geometry optimization</A>
+</H1>
+
+<P>
+The selected CI wavefunction is not invariant to orbital rotations or 
+to swapping two or more orbitals. Orbitals could be swapped or rotated
+when the geometry is changed in a geometry optimization step. The keyword 
+<code>lock</code> has to be set in the SCF/MCSCF (vectors) input block to keep the
+orbitals in the same order throughout the geometry optimization.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1355"
+  HREF="node21.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1351"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1345"
+  HREF="node19.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1353"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1356"
+  HREF="node21.html">19. Coupled Cluster Calculations</A>
+<B> Up:</B> <A NAME="tex2html1352"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1346"
+  HREF="node19.html">17. Multiconfiguration SCF</A>
+ &nbsp <B>  <A NAME="tex2html1354"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,871 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>32. Analysis</TITLE>
+<META NAME="description" CONTENT="32. Analysis">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node35.html">
+<LINK REL="previous" HREF="node33.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node35.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1647"
+  HREF="node35.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1643"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1637"
+  HREF="node33.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1645"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1648"
+  HREF="node35.html">33. Combined quantum and</A>
+<B> Up:</B> <A NAME="tex2html1644"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1638"
+  HREF="node33.html">31. Molecular dynamics</A>
+ &nbsp <B>  <A NAME="tex2html1646"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1649"
+  HREF="node34.html#SECTION003410000000000000000">32.1 System specification</A>
+<LI><A NAME="tex2html1650"
+  HREF="node34.html#SECTION003420000000000000000">32.2 Reference coordinates</A>
+<LI><A NAME="tex2html1651"
+  HREF="node34.html#SECTION003430000000000000000">32.3 File specification</A>
+<LI><A NAME="tex2html1652"
+  HREF="node34.html#SECTION003440000000000000000">32.4 Selection</A>
+<LI><A NAME="tex2html1653"
+  HREF="node34.html#SECTION003450000000000000000">32.5 Coordinate analysis</A>
+<LI><A NAME="tex2html1654"
+  HREF="node34.html#SECTION003460000000000000000">32.6 Essential dynamics analysis</A>
+<LI><A NAME="tex2html1655"
+  HREF="node34.html#SECTION003470000000000000000">32.7 Trajectory format conversion</A>
+<LI><A NAME="tex2html1656"
+  HREF="node34.html#SECTION003480000000000000000">32.8 Electrostatic potentials</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION003400000000000000000">
+32. Analysis</A>
+</H1>
+<A NAME="sec:analysis"></A>
+
+<P>
+The <B>analysis</B> module is used to analyze molecular trajectories generated
+by the <B>NWChem</B> molecular dynamics module, or partial charges generated
+by the <B>NWChem</B> electrostatic potential fit module. This module should
+not de run in parallel mode.
+
+<P>
+Directives for the <B>analysis</B> module are read from an input deck,
+
+<P>
+<PRE>
+analysis
+ ...
+end
+</PRE>
+
+<P>
+The analysis is performed  as post-analysis of trajectory files through 
+using the task directive
+
+<P>
+<PRE>
+task analysis
+</PRE>
+or
+<PRE>
+task analyze
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003410000000000000000">
+32.1 System specification</A>
+</H1>
+
+<P>
+<PRE>
+system &lt;string systemid&gt;_&lt;string calcid&gt;
+</PRE>
+
+<P>
+where the strings <code>systemid</code> and <code>calcid</code> are user defined names
+for the chemical system and the type of calculation to ber performed, 
+respectively. These names are used to derive the filenames used for the
+calculation. The topoly file used will be <code>systemid.top</code>, while all
+other files are named <code>systemid_calcid.ext</code>.
+
+<P>
+
+<H1><A NAME="SECTION003420000000000000000">
+32.2 Reference coordinates</A>
+</H1>
+
+<P>
+Most analyses require a set of reference coordinates. These
+coordinates are read from a <B>NWChem</B> restart file by the directive,
+
+<P>
+<PRE>
+reference &lt;string filename&gt;
+</PRE>
+
+<P>
+where filename is the name of an existing restart file. 
+This input directive is required.
+
+<P>
+
+<H1><A NAME="SECTION003430000000000000000">
+32.3 File specification</A>
+</H1>
+
+<P>
+The trajectory file(s) to be analyzed are specified with
+
+<P>
+<PRE>
+file &lt;string filename&gt; [&lt;integer firstfile&gt; &lt;integer lastfile&gt;]
+</PRE>
+
+<P>
+where filename is an existing trj trajectory file.
+If firstfile and lastfile are specified, the specified
+filename needs to have a ? wild card character that will 
+be substituted by the 3-character integer number from firstfile 
+to lastfile, and the analysis will be performed on the series 
+of files.
+For example,
+
+<P>
+<PRE>
+file tr_md?.trj 3 6
+</PRE>
+
+<P>
+will instruct the analysis to be performed on files <I>tr_md003.trj</I>,
+<I>tr_md004.trj</I>, <I>tr_md005.trj</I> and <I>tr_md006.trj</I>.
+
+<P>
+From the specified files the subset of frames to be analyzed is 
+specified by
+
+<P>
+<PRE>
+frames [&lt;integer firstframe default 1&gt;] &lt;integer lastframe&gt; \
+       [&lt;integer frequency default 1&gt;]
+</PRE>
+
+<P>
+For example, to analyze the first 100 frames from the specified
+trajectory files, use
+
+<P>
+<PRE>
+frames 100
+</PRE>
+
+<P>
+To analyze every 10-th frame between frames 200 and 400 recorded on
+the specified trajectory files, use
+
+<P>
+<PRE>
+frames 200 400 10
+</PRE>
+
+<P>
+Solute coordinates of the reference set and ech subsequent frame
+read from a trajectory file are translated to have the center of
+geometry of the specified solute molecule at the center of the
+simulation box. After this translation all molecules are folded
+back into the box according to the periodic boundary conditions.
+The directive for this operation is
+
+<P>
+<PRE>
+center &lt;integer imol&gt; [&lt;integer jmol default imol&gt;]
+</PRE>
+
+<P>
+Coordinates of each frame read from a trajectory file can be 
+rotated using
+
+<P>
+<PRE>
+rotate ( off | x | y | z ) &lt;real angle units degrees&gt;
+</PRE>
+
+<P>
+If <code>center</code> was defined, rotation takes place after
+the system has been centered. The <code>rotate</code> directives
+only apply to frames read from the trajectory files, and not
+to the reference coordinates. Upto 100 <code>rotate</code> directives
+can be specified, which will be carried out in the order in which
+they appear in the input deck. <code>rotate off</code> cancels all
+previously defined <code>rotate</code> directives.
+
+<P>
+To perform a hydrogen bond analysis:
+
+<P>
+<PRE>
+hbond [distance [[&lt;real rhbmin default 0.0&gt;] &lt;real rhbmin&gt;]] \
+      [angle [&lt;real hbdmin&gt; [ &lt;real hbdmax default pi&gt;]]] \
+      [solvent [&lt;integer numwhb&gt;]]
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003440000000000000000">
+32.4 Selection</A>
+</H1>
+
+<P>
+Analyses can be applied to a selection of solute atoms and solvent molecules. 
+The selection is determined by
+
+<P>
+<PRE>
+select ( [ super ] [ { &lt;string atomlist&gt; } ] |
+	solvent &lt;real range&gt; | save &lt;string filename&gt; | read &lt;string filename&gt; )
+</PRE>
+
+<P>
+where {atomlist} is the set of atom names selected from the specified residues. 
+By default all solute atoms are selected. When keyword <code>super</code> is specified the selecion
+applies to the superimposition option.
+
+<P>
+The selected atoms are specified by the string <code>atomlist</code> which
+takes the form
+
+<P>
+<PRE>
+[{isgm [ - jsgm ] [,]} [:] [{aname[,]}]
+</PRE>
+where <code>isgm</code> and <code>jsgm</code> are the first and last residue numbers,
+and <code>aname</code> is an atom name. In the atomname a question mark may be 
+used as a wildcard character. 
+
+<P>
+For example, all protein backbone atoms are selected by
+
+<P>
+<PRE>
+select _N,_CA,_C
+</PRE>
+
+<P>
+To select the backbone atoms in residues 20 to 80 and 90 to 100 only, use
+
+<P>
+<PRE>
+select 20-80,90-100:_N,_CA,_C
+</PRE>
+
+<P>
+This selection is reset to apply to all atoms after each file
+directive.
+
+<P>
+Solvent molecules within <code>range</code> nm from any selected solute atom
+are selected by
+
+<P>
+<PRE>
+select solvent &lt;real range&gt;
+</PRE>
+
+<P>
+After solvent selection, the solute atom selection is reset to being all
+selected.
+
+<P>
+The current selection can be saved to, or read from a file using the 
+<code>save</code> and <code>read</code> keywords, respectively.
+
+<P>
+Some analysis are performed on groups of atoms. These groups of atoms
+are defined by
+
+<P>
+<PRE>
+define &lt;integer igroup&gt; [&lt;real rsel&gt;] [solvent] { &lt;string atomlist&gt; }
+</PRE>
+
+<P>
+The string atom in this definitions again takes the form
+
+<P>
+<PRE>
+[{isgm [ - jsgm ] [,]} [:] [{aname[,]}]
+</PRE>
+where <code>isgm</code> and <code>jsgm</code> are the first and last residue numbers,
+and <code>aname</code> is an atom name. In the atomname a question mark may be 
+used as a wildcard character. 
+
+<P>
+Multiple define directive can be used to define a single set of atoms.
+
+<P>
+
+<H1><A NAME="SECTION003450000000000000000">
+32.5 Coordinate analysis</A>
+</H1>
+
+<P>
+To analyze the root mean square deviation from the specified reference
+coordinates:
+
+<P>
+<PRE>
+rmsd
+</PRE>
+
+<P>
+To analyze protein <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img230.gif"
+ ALT="$\phi$">-<IMG
+ WIDTH="15" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img231.gif"
+ ALT="$\psi$"> and backbone hydrogen bonding:
+
+<P>
+<PRE>
+ramachandran
+</PRE>
+
+<P>
+To define a distance:
+
+<P>
+<PRE>
+distance &lt;integer ibond&gt; &lt;string atomi&gt; &lt;string atomj&gt;
+</PRE>
+
+<P>
+To define an angle:
+
+<P>
+<PRE>
+angle &lt;integer iangle&gt; &lt;string atomi&gt; &lt;string atomj&gt; &lt;string atomk&gt;
+</PRE>
+
+<P>
+To define a torsion:
+
+<P>
+<PRE>
+torsion &lt;integer itorsion&gt; &lt;string atomi&gt; &lt;string atomj&gt; \
+                       &lt;string atomk&gt; &lt;string atoml&gt;
+</PRE>
+
+<P>
+To define a vector:
+
+<P>
+<PRE>
+vector &lt;integer ivector&gt; &lt;string atomi&gt; &lt;string atomj&gt;
+</PRE>
+
+<P>
+The atom string in these definitions takes the form
+
+<P>
+<PRE>
+&lt;integer segment&gt;:&lt;string atomname&gt; | w&lt;integer molecule&gt;:&lt;string atomname&gt;
+</PRE>
+
+<P>
+for solute and solvent atom specification, respectively.
+
+<P>
+To define charge distribution in z-direction:
+
+<P>
+<PRE>
+charge_distribution &lt;integer bins&gt;
+</PRE>
+
+<P>
+Analyses on atoms in a predefined group are specified by
+
+<P>
+<PRE>
+group [&lt;integer igroup&gt; [periodic &lt;integer ipbc&gt;] \
+      ( local [&lt;real rsel default 0.0&gt;] [&lt;real rval default rsel&gt;]
+        &lt;string function&gt; )
+</PRE>
+where <code>igroup</code> specifies the group of atoms defined with a
+<code>define</code> directive. Keyword <code>periodic</code> can be used to
+specify the periodicity, <code>ipbc=1</code> for periodicity in <code>z</code>, 
+<code>ipbc=2</code> for periodicity in <code>x</code> and <code>y</code>, and
+<code>ipbc=3</code> for periodicity in <code>x</code>, <code>y</code> and <code>z</code>.
+Currently the only option is <code>local</code> which prints all selected 
+solute atom with a distance between <code>rsel</code> and <code>rval</code> from
+the atoms defined in <code>igroup</code>. The actual analysis is done by the
+<code>scan</code> deirective. A formatted report is printed from 
+<code>group</code> analyses using
+
+<P>
+<PRE>
+report &lt;string filename&gt; local
+</PRE>
+
+<P>
+Analyses on pairs of atoms in predefined groups are specified by
+
+<P>
+<PRE>
+groups [&lt;integer igroup&gt; [&lt;integer jgroup&gt;]] [periodic [&lt;integer ipbc default 3&gt;]] \ 
+       &lt;string function&gt; [&lt;real value1&gt; [&lt;real value2&gt;]] [&lt;string filename&gt;]
+</PRE>
+
+<P>
+where <IMG
+ WIDTH="50" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img232.gif"
+ ALT="$igroup$"> and <IMG
+ WIDTH="52" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img233.gif"
+ ALT="$jgroup$"> are groups of atoms defined with a
+<code>define</code> directive. Keyword <code>periodic</code> specifies that
+periodic boundary conditions need to be applied in <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img234.gif"
+ ALT="$ipbc$"> dimensions.
+The type of analysis is define by <IMG
+ WIDTH="68" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img235.gif"
+ ALT="$function$">, <IMG
+ WIDTH="50" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img236.gif"
+ ALT="$value1$"> and <IMG
+ WIDTH="50" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img237.gif"
+ ALT="$value2$">.
+If <IMG
+ WIDTH="71" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img238.gif"
+ ALT="$filename$"> is specified, the analysis is applied to the reference
+coordinates and written to the specified file. If no filename is
+given, the analysis is applied to the specified trajectory and 
+performed as part of the <code>scan</code> directive.
+Implemented analyses defined by 
+<code>&lt;string function&gt; [&lt;real value1&gt; [&lt;real value2&gt;]]</code> include
+<BR>
+<BR><code>distance</code> to calculate the distance between the centers of geometry of the 
+two specified groups of atoms, and
+<BR><code>distances</code> to calculate all atomic distances between atoms
+in the specified groups that lie between <IMG
+ WIDTH="50" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img236.gif"
+ ALT="$value1$"> and <IMG
+ WIDTH="50" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img237.gif"
+ ALT="$value2$">.
+
+<P>
+Coordinate histograms are specified by
+
+<P>
+<PRE>
+histogram &lt;integer idef&gt; [&lt;integer length&gt;] zcoordinate &lt;string filename&gt;
+</PRE>
+
+<P>
+where <IMG
+ WIDTH="35" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img239.gif"
+ ALT="$idef$"> is the atom group definition number, <IMG
+ WIDTH="49" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img240.gif"
+ ALT="$length$"> is the size
+of the histogram, <code>zcoordinate</code> is the currently only histogram option,
+and <IMG
+ WIDTH="71" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img238.gif"
+ ALT="$filename$"> is the filname to which the histogram is written.
+
+<P>
+Order parameters are evalated using
+
+<P>
+<PRE>
+order &lt;integer isel&gt; &lt;integer jsel&gt; &lt;string atomi&gt; &lt;string atomj&gt;
+</PRE>
+This is an experimental feature.
+
+<P>
+To write the average coordinates of a trajectory
+
+<P>
+<PRE>
+average [super] &lt;string filename&gt;
+</PRE>
+
+<P>
+To perform the coordinate analysis:
+
+<P>
+<PRE>
+scan [ super ] &lt;string filename&gt;
+</PRE>
+
+<P>
+which will create, depending on the specified analysis options
+files filename.rms and filename.ana. After the scan directive
+previously defined coordinate analysis options are all reset.
+Optional keyword <code>super</code> specifies that frames read from
+the trajectory file(s) are superimposed to the reference structure
+before the analysis is performed.
+
+<P>
+
+<H1><A NAME="SECTION003460000000000000000">
+32.6 Essential dynamics analysis</A>
+</H1>
+
+<P>
+Essential dynamics analysis is performed by
+
+<P>
+<PRE>
+essential
+</PRE>
+
+<P>
+This can be followed by one or more
+
+<P>
+<PRE>
+project &lt;integer vector&gt; &lt;string filename&gt;
+</PRE>
+
+<P>
+to project the trajectory onto the specified vector. This will
+create files filename with extensions frm or trj, val, vec, _min.pdb
+and _max.pdb, with the projected trajectory, the projection
+value, the eigenvector, and the minimum and maximum projection
+structure.
+
+<P>
+For example, an essential dynamics analysis with projection onto
+the first vector generating files firstvec.{trj, val, vec, _min.pdb, _max.pdb}
+is generated by
+
+<P>
+<PRE>
+essential
+project 1 firstvec
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003470000000000000000">
+32.7 Trajectory format conversion</A>
+</H1>
+
+<P>
+To write a single frame in PDB or XYZ format, use
+
+<P>
+<PRE>
+write [&lt;integer number default 1&gt;] [super] [solute] &lt;string filename&gt;
+</PRE>
+
+<P>
+To copy the selected frames from the specified trejctory file(s),
+onto a new file, use
+
+<P>
+<PRE>
+copy  [solute] [rotate &lt;real tangle&gt;] &lt;string filename&gt;
+</PRE>
+
+<P>
+To superimpose the selected atoms for each specified frame to the 
+reference coordinates before copying onto a new file, use
+
+<P>
+<PRE>
+super [solute] [rotate &lt;real tangle&gt;] &lt;string filename&gt;
+</PRE>
+
+<P>
+The <code>rotate</code> directive specifies that the structure will make
+a full ratation every tangle ps. This directive only has effect when
+writing povray files.
+
+<P>
+The format of the new file is determined from the extension, which
+can be one of
+
+<P>
+<TABLE CELLPADDING=3>
+<TR><TD ALIGN="RIGHT">amb</TD>
+<TD ALIGN="LEFT"><B>AMBER</B> formatted trajectory file (obsolete)</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">arc</TD>
+<TD ALIGN="LEFT"><B>DISCOVER</B> archive file</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">bam</TD>
+<TD ALIGN="LEFT"><B>AMBER</B> unformatted trajectory file</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">crd</TD>
+<TD ALIGN="LEFT"><B>AMBER</B> formatted trajectory file</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">dcd</TD>
+<TD ALIGN="LEFT"><B>CHARMM</B> formatted trajectory file</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">esp</TD>
+<TD ALIGN="LEFT"><B>gOpenMol</B> formatted electrostatic potential files</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">frm</TD>
+<TD ALIGN="LEFT"><B>ecce</B> frames file (obsolete)</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">pov</TD>
+<TD ALIGN="LEFT"><B>povray</B> input files</TD>
+</TR>
+<TR><TD ALIGN="RIGHT">trj</TD>
+<TD ALIGN="LEFT"><B>NWChem</B> trajectory file</TD>
+</TR>
+</TABLE>
+
+<P>
+If no extension is specified, a trj formatted file will be written.
+
+<P>
+A special tag can be added to frm and pov formatted files  using
+
+<P>
+<PRE>
+label &lt;integer itag&gt; &lt;string tag&gt;  [ &lt;real rval default 1.0&gt; ] \\
+    [ &lt;integer iatag&gt; [ &lt;integer jatag default iatag&gt; ] [ &lt;real rtag default 0.0&gt; ] ]
+    [ &lt;string anam&gt; ]
+</PRE>
+
+<P>
+where tag number <IMG
+ WIDTH="32" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img241.gif"
+ ALT="$itag$"> is set to the string <IMG
+ WIDTH="26" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img242.gif"
+ ALT="$tag$"> for all atoms
+anam within a distance <IMG
+ WIDTH="34" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img243.gif"
+ ALT="$rtag$"> from segments <IMG
+ WIDTH="40" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img244.gif"
+ ALT="$iatag$"> through <IMG
+ WIDTH="42" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img245.gif"
+ ALT="$jatag$">.
+A question mark can be used in anam as a wild card character.
+
+<P>
+Atom rendering is specified using
+
+<P>
+<PRE>
+render ( cpk | stick )  [ &lt;real rval default 1.0&gt; ] \\
+    [ &lt;integer iatag&gt; [ &lt;integer jatag default iatag&gt; ] [ &lt;real rtag default 0.0&gt; ] ]
+    [ &lt;string anam&gt; ]
+</PRE>
+
+<P>
+for all atoms anam within a distance <IMG
+ WIDTH="34" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img243.gif"
+ ALT="$rtag$"> from segments <IMG
+ WIDTH="40" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img244.gif"
+ ALT="$iatag$"> through <IMG
+ WIDTH="42" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img245.gif"
+ ALT="$jatag$">,
+and a scaling factor of <IMG
+ WIDTH="34" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img246.gif"
+ ALT="$rval$">. A question mark can be used in anam as a wild card 
+character.
+
+<P>
+Atom color is specified using
+
+<P>
+<PRE>
+color ( &lt;string color&gt; | atom ) \\
+    [ &lt;integer iatag&gt; [ &lt;integer jatag default iatag&gt; ] [ &lt;real rtag default 0.0&gt; ] ]
+    [ &lt;string anam&gt; ]
+</PRE>
+
+<P>
+for all atoms anam within a distance <IMG
+ WIDTH="34" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img243.gif"
+ ALT="$rtag$"> from segments <IMG
+ WIDTH="40" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img244.gif"
+ ALT="$iatag$"> through <IMG
+ WIDTH="42" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img245.gif"
+ ALT="$jatag$">.
+A question mark can be used in anam as a wild card character.
+
+<P>
+For example, to display all carbon atoms in segments 34 through 45 
+in green and rendered cpk in povray files can be specified with
+
+<P>
+<PRE>
+render cpk 34 45 _C??
+color green 34 45 _C??
+</PRE>
+
+<P>
+Coordinates written to a pov file can be scaled using
+
+<P>
+<PRE>
+scale &lt;real factor&gt;
+</PRE>
+
+<P>
+A zero or negative scaling factor will scale the coordinates to
+lie within [-1,1] in all dimensions.
+
+<P>
+The cpk rendering in povray files can be scaled by
+
+<P>
+<PRE>
+cpk &lt;real factor default 1.0&gt;
+</PRE>
+
+<P>
+The stick rendering in povray files can be scaled by
+
+<P>
+<PRE>
+stick &lt;real factor default 1.0&gt;
+</PRE>
+
+<P>
+The initial sequence number of esp related files is defined by
+
+<P>
+<PRE>
+index &lt;integer index default 1&gt;
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003480000000000000000">
+32.8 Electrostatic potentials</A>
+</H1>
+
+<P>
+A file in plt format of the electrostatic potential resulting
+from partial charges generated by the ESP module is generated
+by the command
+
+<P>
+<PRE>
+esp  [ &lt;integer spacing default 10&gt; ] \
+     [ &lt;real rcut default 1.0&gt; ] [periodic [&lt;integer iper default 3&gt;]] \
+     [ &lt;string xfile&gt; [ &lt;string pltfile&gt; ] ]
+</PRE>
+
+<P>
+The input coordinates are taken from the xyzq file that can
+be generated from a rst by the prepare module. Parameter 
+spacing specifies the number of gridpoints per nm, rcut specifies 
+extent of the charge grid beyond the molecule.
+Periodic boundaries will be used if <code>periodic</code>
+is specified. If <code>iper</code> is set to 2, periodic boundary
+conditions are applied in x and y dimensions only. If <code>periodic</code>
+is specified, a negative value of <code>rcut</code> will extend the grid
+in the periodic dimensions by abs(<code>rcut</code>), otherwise this value
+will be ignored in the periodic dimensions.
+The resulting plt formatted file pltfile can be
+viewed with the gOpenMol program. The resulting electrostatic 
+potential grid is in units of kJ mol<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$">e<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img209.gif"
+ ALT="$^{-1}$">.
+If no files are specified, only the parameters are set. This
+analysis applies to solute(s) only.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1647"
+  HREF="node35.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1643"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1637"
+  HREF="node33.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1645"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1648"
+  HREF="node35.html">33. Combined quantum and</A>
+<B> Up:</B> <A NAME="tex2html1644"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1638"
+  HREF="node33.html">31. Molecular dynamics</A>
+ &nbsp <B>  <A NAME="tex2html1646"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,1019 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>16. MP2</TITLE>
+<META NAME="description" CONTENT="16. MP2">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node19.html">
+<LINK REL="previous" HREF="node17.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node19.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1307"
+  HREF="node19.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1303"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1297"
+  HREF="node17.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1305"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1308"
+  HREF="node19.html">17. Multiconfiguration SCF</A>
+<B> Up:</B> <A NAME="tex2html1304"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1298"
+  HREF="node17.html">15. Tensor Contraction Engine</A>
+ &nbsp <B>  <A NAME="tex2html1306"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1309"
+  HREF="node18.html#SECTION001810000000000000000">16.1 <TT>FREEZE</TT> -- Freezing orbitals</A>
+<LI><A NAME="tex2html1310"
+  HREF="node18.html#SECTION001820000000000000000">16.2 <TT>TIGHT</TT> -- Increased precision</A>
+<LI><A NAME="tex2html1311"
+  HREF="node18.html#SECTION001830000000000000000">16.3 <TT>SCRATCHDISK</TT> -- Limiting I/O usage</A>
+<LI><A NAME="tex2html1312"
+  HREF="node18.html#SECTION001840000000000000000">16.4 <TT>PRINT</TT> and <TT>NOPRINT</TT></A>
+<LI><A NAME="tex2html1313"
+  HREF="node18.html#SECTION001850000000000000000">16.5 <TT>VECTORS</TT> -- MO vectors</A>
+<LI><A NAME="tex2html1314"
+  HREF="node18.html#SECTION001860000000000000000">16.6 RI-MP2 fitting basis</A>
+<LI><A NAME="tex2html1315"
+  HREF="node18.html#SECTION001870000000000000000">16.7 <TT>FILE3C</TT> -- RI-MP2 3-center integral filename</A>
+<LI><A NAME="tex2html1316"
+  HREF="node18.html#SECTION001880000000000000000">16.8 <TT>RIAPPROX</TT> -- RI-MP2 Approximation</A>
+<LI><A NAME="tex2html1317"
+  HREF="node18.html#SECTION001890000000000000000">16.9 Advanced options for RI-MP2</A>
+<UL>
+<LI><A NAME="tex2html1318"
+  HREF="node18.html#SECTION001891000000000000000">16.9.1 Control of linear dependence</A>
+<LI><A NAME="tex2html1319"
+  HREF="node18.html#SECTION001892000000000000000">16.9.2 Reference Spin Mapping for RI-MP2 Calculations</A>
+<LI><A NAME="tex2html1320"
+  HREF="node18.html#SECTION001893000000000000000">16.9.3 Batch Sizes for the RI-MP2 Calculation</A>
+<LI><A NAME="tex2html1321"
+  HREF="node18.html#SECTION001894000000000000000">16.9.4 Energy Memory Allocation Mode: RI-MP2 Calculation</A>
+<LI><A NAME="tex2html1322"
+  HREF="node18.html#SECTION001895000000000000000">16.9.5 Local Memory Usage in Three-Center Transformation</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1323"
+  HREF="node18.html#SECTION0018100000000000000000">16.10 One-electron properties and natural orbitals</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001800000000000000000">
+16. MP2</A>
+</H1>
+<A NAME="sec:mp2"></A><A NAME="sec:rimp2"></A>
+<P>
+There are (at least) three algorithms within NWChem that compute the
+M&#248;ller-Plesset (or many-body) perturbation theory second-order
+correction to the Hartree-Fock energy (MP2).  They vary in capability,
+the size of system that can be treated and use of other approximations
+
+<UL>
+<LI>Semi-direct -- this is recommended for most large applications
+  (up to about 2800 basis functions), especially on the IBM SP and
+  other machines with significant disk I/O capability.  Partially
+  transformed integrals are stored on disk, multi-passing as necessary.
+  RHF and UHF references may be treated including computation of
+  analytic derivatives.  This is selected by specifying <code>mp2</code> on
+  the task directive, e.g.
+<PRE>
+      TASK MP2
+</PRE>
+</LI>
+<LI>Fully-direct -- this is of utility if only limited I/O
+  resources are available (up to about 2800 functions).  Only RHF
+  references and energies are available. This is selected by
+  specifying <code>direct_mp2</code> on the task directive, e.g.
+<PRE>
+      TASK DIRECT_MP2
+</PRE>
+</LI>
+<LI>Resolution of the identity (RI) approximation MP2 (RI-MP2) --
+  this uses the RI approximation and is therefore only exact in the
+  limit of a complete fitting basis.  However, with some care, high
+  accuracy may be obtained with relatively modest fitting basis sets.
+  An RI-MP2 calculation can cost over 40 times less than the
+  corresponding exact MP2 calculation.  RHF and UHF references with
+  only energies are available.  This is selected by specifying
+  <code>rimp2</code> on the task directive, e.g.,
+<PRE>
+      TASK RIMP2
+</PRE>
+</LI>
+</UL>
+
+<P>
+All three MP2 tasks share the same input block.
+
+<P>
+<PRE>
+  MP2
+    [FREEZE [[core] (atomic || &lt;integer nfzc default 0&gt;)] \
+            [virtual &lt;integer nfzv default 0&gt;]]
+    [TIGHT]
+    [PRINT]
+    [NOPRINT]
+    [VECTORS &lt;string filename default scf-output-vectors&gt; \
+      [swap [(alpha||beta)] &lt;integer pair-list&gt;] ]
+    [RIAPPROX &lt;string riapprox default V&gt;]
+    [FILE3C &lt;string filename default $file_prefix$.mo3cint"&gt;]
+    [SCRATCHDISK &lt;integer&gt;]
+  END
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001810000000000000000"></A>
+<A NAME="mp2:core"></A>
+<BR>
+16.1 <TT>FREEZE</TT> -- Freezing orbitals
+</H1>
+
+<P>
+All MP2 modules support frozen core orbitals, however, only the direct
+MP2 and RI-MP2 modules support frozen virtual orbitals. 
+
+<P>
+By default, no orbitals are frozen.  The <code>atomic</code> keyword causes
+orbitals to be frozen according to the rules in Table
+<A HREF="node18.html#tbl:freeze-by-atoms">16.1</A>.  Note that <EM>no</EM> orbitals are frozen on
+atoms on which the nuclear charge has been modified either by the user
+or due to the presence of an ECP.  The actual input would be
+<PRE>
+  freeze atomic
+</PRE>
+For example, in a calculation on <IMG
+ WIDTH="67" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img133.gif"
+ ALT="$Si(OH)_2$">, by default the lowest
+seven orbitals would be frozen (the oxygen 1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">, and the silicon 1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">,
+2<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$"> and 2<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">).
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="5043"></A>
+<TABLE>
+<CAPTION><STRONG>Table 16.1:</STRONG>
+Number of orbitals considered ``core'' in the ``freeze by
+atoms'' algorithm.</CAPTION>
+<TR><TD><A NAME="tbl:freeze-by-atoms"></A>
+<P>
+
+<P>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="CENTER">Period</TD>
+<TD ALIGN="CENTER">Elements</TD>
+<TD ALIGN="LEFT">Core Orbitals</TD>
+<TD ALIGN="RIGHT">Number of Core</TD>
+</TR>
+<TR><TD ALIGN="CENTER">0</TD>
+<TD ALIGN="CENTER">H - He</TD>
+<TD ALIGN="LEFT">--</TD>
+<TD ALIGN="RIGHT">0</TD>
+</TR>
+<TR><TD ALIGN="CENTER">1</TD>
+<TD ALIGN="CENTER">Li - Ne</TD>
+<TD ALIGN="LEFT">1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$"></TD>
+<TD ALIGN="RIGHT">1</TD>
+</TR>
+<TR><TD ALIGN="CENTER">2</TD>
+<TD ALIGN="CENTER">Na - Ar</TD>
+<TD ALIGN="LEFT">1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$"></TD>
+<TD ALIGN="RIGHT">5</TD>
+</TR>
+<TR><TD ALIGN="CENTER">3</TD>
+<TD ALIGN="CENTER">K - Kr</TD>
+<TD ALIGN="LEFT">1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">3<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">3<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$"></TD>
+<TD ALIGN="RIGHT">9</TD>
+</TR>
+<TR><TD ALIGN="CENTER">4</TD>
+<TD ALIGN="CENTER">Rb - Xe</TD>
+<TD ALIGN="LEFT">1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">3<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">3<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">4<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">3<IMG
+ WIDTH="12" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img64.gif"
+ ALT="$d$">4<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$"></TD>
+<TD ALIGN="RIGHT">18</TD>
+</TR>
+<TR><TD ALIGN="CENTER">5</TD>
+<TD ALIGN="CENTER">Cs - Rn</TD>
+<TD ALIGN="LEFT">1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">3<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">3<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">4<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">3<IMG
+ WIDTH="12" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img64.gif"
+ ALT="$d$">4<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">5<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">4<IMG
+ WIDTH="12" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img64.gif"
+ ALT="$d$">5<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$"></TD>
+<TD ALIGN="RIGHT">27</TD>
+</TR>
+<TR><TD ALIGN="CENTER">6</TD>
+<TD ALIGN="CENTER">Fr - Lr</TD>
+<TD ALIGN="LEFT">1<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">2<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">3<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">3<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">4<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">3<IMG
+ WIDTH="12" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img64.gif"
+ ALT="$d$">4<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">5<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">4<IMG
+ WIDTH="12" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img64.gif"
+ ALT="$d$">5<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$">6<IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img61.gif"
+ ALT="$s$">4<IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img134.gif"
+ ALT="$f$">5<IMG
+ WIDTH="12" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img64.gif"
+ ALT="$d$">6<IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img62.gif"
+ ALT="$p$"></TD>
+<TD ALIGN="RIGHT">43</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<P>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+<EM>Caution:</EM> The rule for freezing orbitals ``by atoms'' are
+rather unsophisticated: the number of orbitals to be frozen is
+computed from the Table <A HREF="node18.html#tbl:freeze-by-atoms">16.1</A> by summing the number
+of core orbitals in each atom present.  The corresponding number of
+lowest-energy orbitals are frozen -- if for some reason the actual
+core orbitals are not the lowest lying, then correct results will not
+be obtained.  From limited experience, it seems that special attention
+should be paid to systems including third- and higher- period atoms.
+
+<P>
+The user may also specify the number of orbitals to be frozen by atom.
+Following the <IMG
+ WIDTH="67" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img133.gif"
+ ALT="$Si(OH)_2$"> example, the user could specify
+<PRE>
+freeze atomic O 1 Si 3
+</PRE>
+In this case only the lowest four orbitals would be frozen.  If the user does
+not specify the orbitals by atom, the rules default to Table <A HREF="node18.html#tbl:freeze-by-atoms">16.1</A>.
+
+<P>
+<EM>Caution:</EM> The system does not check for a valid number of orbitals per
+atom.  If the user specifies to freeze more orbitals then are available for 
+the atom, the system will not catch the error.  The user must specify a logical
+number of orbitals to be frozen for the atom. 
+
+<P>
+The <code>FREEZE</code> directive may also be used to specify the number of 
+core orbitals to freeze.  For instance, to freeze the first 10 orbitals
+<PRE>
+  freeze 10
+</PRE>
+or equivalently, using the optional keyword <code>core</code>
+<PRE>
+  freeze core 10
+</PRE>
+Again, note that if the 10 orbitals to be frozen do not correspond to
+the first 10 orbitals, then the <code>swap</code> keyword of the
+<code>VECTORS</code> directive must be used to order the input orbitals
+correctly (Section <A HREF="node18.html#sec:mp2vectors">16.5</A>).
+
+<P>
+To freeze the highest virtual orbitals, use the <code>virtual</code>
+keyword.  For instance, to freeze the top 5 virtuals
+<PRE>
+  freeze virtual 5
+</PRE>
+Again, note that this only works for the direct-MP2 and RI-MP2 energy
+codes.
+
+<P>
+
+<H1><A NAME="SECTION001820000000000000000">
+16.2 <TT>TIGHT</TT> -- Increased precision</A>
+</H1>
+
+<P>
+The <code>TIGHT</code> directive can be used to increase the precision
+in the MP2 energy and gradients.
+
+<P>
+By default the MP2 gradient package should compute energies accurate
+to better than a micro-Hartree, and gradients accurate to about five
+decimal places (atomic units).  However, if there is significant
+linear dependence in the basis set the precision might not be this
+good.  Also, for computing very accurate geometries or numerical
+frequencies, greater precision may be desirable.
+
+<P>
+This option increases the precision to which both the SCF (from
+<IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img98.gif"
+ ALT="$10^{-6}$"> to <IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img99.gif"
+ ALT="$10^{-8}$">) and CPHF (from <IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img97.gif"
+ ALT="$10^{-4}$"> to <IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img98.gif"
+ ALT="$10^{-6}$">) are
+solved, and also tightens thresholds for computation of the AO and MO
+integrals (from <IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img135.gif"
+ ALT="$10^{-9}$"> to <IMG
+ WIDTH="44" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img136.gif"
+ ALT="$10^{-11}$">) within the MP2 code.
+
+<P>
+
+<H1><A NAME="SECTION001830000000000000000">
+16.3 <TT>SCRATCHDISK</TT> -- Limiting I/O usage</A>
+</H1>
+
+<P>
+This directive - used only in the semi-direct algorithm - allows to
+limit the per process disk usage. Mandatory argument for this keyword
+is the maximum number of MBytes.
+For example, the following input line
+<PRE>
+  scratchdisk 512
+</PRE>
+puts an upper limit of 512 MBytes to the semi-direct MP2 usage of disk
+(again, on a per process base).
+
+<P>
+
+<H1><A NAME="SECTION001840000000000000000">
+16.4 <TT>PRINT</TT> and <TT>NOPRINT</TT></A>
+</H1>
+
+<P>
+The standard print control options are recognized.  The list of
+recognized names are given in Table <A HREF="node18.html#tbl:mp2-printable">16.2</A>.
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<A NAME="tbl:mp2-printable"></A><A NAME="5072"></A>
+<TABLE CELLPADDING=3 BORDER="1">
+<CAPTION><STRONG>Table 16.2:</STRONG>
+Printable items in the MP2 modules and their default print levels.</CAPTION>
+<TR><TD ALIGN="LEFT">Item</TD>
+<TD ALIGN="LEFT">Print Level</TD>
+<TD ALIGN="LEFT">Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><B>RI-MP2</B></TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``2/3 ints''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Partial 3-center integrals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``3c ints''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">MO 3-center integrals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``4c ints b''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">``B'' matrix with approx. 4c integrals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``4c ints''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Approximate 4-center integrals</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``amplitudes''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">``B'' matrix with denominators</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``basis''</TD>
+<TD ALIGN="LEFT">high</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``fit xf''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Transformation for fitting basis</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``geombas''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Detailed basis map info</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``geometry''</TD>
+<TD ALIGN="LEFT">high</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``information''</TD>
+<TD ALIGN="LEFT">low</TD>
+<TD ALIGN="LEFT">General information about calc.</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``integral i/o''</TD>
+<TD ALIGN="LEFT">high</TD>
+<TD ALIGN="LEFT">File size information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``mo ints''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``pair energies''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">(working only in direct_mp2)</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``partial pair energies''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Pair energy matrix each time it is updated</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``progress reports''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">Report completion of time-consuming steps</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``reference''</TD>
+<TD ALIGN="LEFT">high</TD>
+<TD ALIGN="LEFT">Details about reference wavefunction</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``warnings''</TD>
+<TD ALIGN="LEFT">low</TD>
+<TD ALIGN="LEFT">Non-fatal warnings</TD>
+</TR>
+</TABLE>
+</DIV>
+<BR>
+
+<P>
+
+<H1><A NAME="SECTION001850000000000000000"></A>
+<A NAME="sec:mp2vectors"></A>
+<BR>
+16.5 <TT>VECTORS</TT> -- MO vectors
+</H1>
+
+<P>
+All of the (supported) MP2 modules require use of converged canonical
+SCF (RHF or UHF) orbitals for correct results.  The vectors are by
+default obtained from the preceding SCF calculation, but it is
+possible to specify a different source using the <code>VECTORS</code>
+directive.  For instance, to obtain vectors from the file
+<code>/tmp/h2o.movecs</code>, use the directive
+<PRE>
+  vectors /tmp/h2o.movecs
+</PRE>
+
+<P>
+As noted above (Section <A HREF="node18.html#mp2:core">16.1</A>) if the SCF orbitals are not in
+the correct order, it is necessary to permute the input orbitals using
+the <code>swap</code> keyword of the <code>VECTORS</code> directive.  For
+instance, if it is desired to freeze a total six orbitals
+corresponding to the SCF orbitals 1-5, and 7, it is necessary to swap
+orbital 7 into the 6th position.  This is accomplished by
+<PRE>
+  vectors swap 6 7
+</PRE>
+The swap capability is examined in more detail in Section
+<A HREF="node12.html#sec:vectors">10.5</A>.
+
+<P>
+
+<H1><A NAME="SECTION001860000000000000000">
+16.6 RI-MP2 fitting basis</A>
+</H1>
+
+<P>
+
+<P>
+The RI-MP2 method requires a fitting basis, which must be specified
+with the name <code>"ri-mp2 basis"</code> (see Section <A HREF="node9.html#sec:basis">7</A>).
+For instance,
+<PRE>
+  basis "ri-mp2 basis"
+    O s; 10000.0 1
+    O s;  1000.0 1
+    O s;   100.0 1
+    ...
+  end
+</PRE>
+
+<P>
+Alternatively, using a standard capability of basis sets (Section
+<A HREF="node9.html#sec:basis">7</A>) another named basis may be associated with the
+fitting basis.  For instance, the following input specifies a basis
+with the name <code>"small fitting basis"</code> and then defines this to be
+the <code>"ri-mp2 basis"</code>.
+<PRE>
+  basis "small fitting basis"
+    H s; 10    1
+    H s;  3    1
+    H s;  1    1
+    H s;  0.1  1
+    H s;  0.01 1
+  end
+
+  set "ri-mp2 basis" "small fitting basis"
+</PRE>
+
+<P>
+
+<P>
+
+<H1><A NAME="SECTION001870000000000000000">
+16.7 <TT>FILE3C</TT> -- RI-MP2 3-center integral filename</A>
+</H1>
+
+<P>
+
+<P>
+The default name for the file used to store the transformed 3-center
+integrals is <code>"$file_prefix$.mo3cint"</code> in the scratch directory.
+This may be overridden using the FILE3C directive.  For instance, to
+specify the file <code>/scratch/h2o.3c</code>, use this directive
+<PRE>
+  file3c /scratch/h2o.3c
+</PRE>
+
+<P>
+
+<P>
+
+<H1><A NAME="SECTION001880000000000000000">
+16.8 <TT>RIAPPROX</TT> -- RI-MP2 Approximation</A>
+</H1>
+
+<P>
+The type of RI approximation used in the RI-MP2 calculation is controlled
+by means of the RIAPPROX directive.  The two possible values are
+<code>V</code> and <code>SVS</code> (case sensitive), which correspond to the
+approximations with the same names described in O.&nbsp;Vahtras, J&nbsp;Alml&#246;f,
+and M.&nbsp;W.&nbsp;Feyereisen, <EM>Chem. Phys. Lett.</EM> <B>213</B>, 514-518
+(1993).  The default is <code>V</code>.
+
+<P>
+
+<H1><A NAME="SECTION001890000000000000000">
+16.9 Advanced options for RI-MP2</A>
+</H1>
+
+<P>
+These options, which functioned at the time of writing, are not
+currently supported.
+
+<P>
+
+<H2><A NAME="SECTION001891000000000000000">
+16.9.1 Control of linear dependence</A>
+</H2>
+
+<P>
+Construction of the RI fit requires the inversion of a matrix of
+fitting basis integrals which is carried out via diagonalization.  If
+the fitting basis includes near linear dependencies, there will be
+small eigenvalues which can ultimately lead to non-physical RI-MP2
+correlation energies.  Eigenvectors of the fitting matrix 
+are discarded if the corresponding eigenvalue is less than
+<code>$mineval$</code> which defaults to <IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img99.gif"
+ ALT="$10^{-8}$">.  This 
+parameter may be changed by setting the a parameter in the database.
+For instance, to set it to <IMG
+ WIDTH="44" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img100.gif"
+ ALT="$10^{-10}$">
+
+<P>
+<PRE>
+  set "mp2:fit min eval" 1e-10
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION001892000000000000000">
+16.9.2 Reference Spin Mapping for RI-MP2 Calculations</A>
+</H2>
+
+<P>
+The user has the option of specifying that the RI-MP2 calculations are
+to be done with variations of the SCF reference wavefunction.  This is
+accomplished with a <code>SET</code> directive of the form,
+
+<P>
+<PRE>
+  set "mp2:reference spin mapping" &lt;integer array default 0&gt;
+</PRE>
+
+<P>
+Each element specified for <code>array</code> is the SCF spin case to be
+used for the corresponding spin case of the correlated calculation.
+The number of elements set determines the overall type of correlated
+calculation to be performed.  The default is to use the unadulterated
+SCF reference wavefunction.
+
+<P>
+For example, to perform a spin-unrestricted calculation (two elements)
+using the alpha spin orbitals (spin case 1) from the reference for
+both of the correlated reference spin cases, the <code>SET</code> directive
+would be as follows,
+<PRE>
+  set "mp2:reference spin mapping" 1 1
+</PRE>
+The SCF calculation to produce the reference wavefunction could be either
+RHF or UHF in this case.
+
+<P>
+The <code>SET</code> directive for a similar case, but this time using the
+beta-spin SCF orbitals for both correlated spin cases, is as follows,
+<PRE>
+  set "mp2:reference spin mapping" 2 2
+</PRE>
+The SCF reference calculation must be UHF in this case.
+
+<P>
+The <code>SET</code> directive for a spin-restricted calculation (one
+element) from the beta-spin SCF orbitals using this option is as
+follows,
+<PRE>
+  set "mp2:reference spin mapping" 2
+</PRE>
+
+<P>
+The <code>SET</code> directive for a spin-unrestricted calculation with the
+spins flipped from the original SCF reference wavefunction is as
+follows,
+<PRE>
+  set "mp2:reference spin mapping" 2 1
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION001893000000000000000">
+16.9.3 Batch Sizes for the RI-MP2 Calculation</A>
+</H2>
+
+<P>
+The user can control the size of each batch in the transformation and
+energy evaluation in the MP2 calculation, and consequently the memory
+requirements and number of passes required.  This is done using two
+<code>SET</code> directives of the following form,
+
+<P>
+<PRE>
+  set "mp2:transformation batch size" &lt;integer size default -1&gt;
+  set "mp2:energy batch size" &lt;integer isize jsize default -1 -1&gt;
+</PRE>
+
+<P>
+The default is for the code to determine the batch size based on the
+available memory.  Should there be problems with the
+program-determined batch sizes, these variables allow the user to
+override them.  The program will always use the smaller of the user's
+value of these entries and the internally computed batch size.
+
+<P>
+The transformation batch size computed in the code is the number of
+occupied orbitals in the <!-- MATH
+ $({occ}\ {vir} | {fit})$
+ -->
+<IMG
+ WIDTH="90" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img137.gif"
+ ALT="$({occ}\ {vir} \vert {fit})$"> three-center
+integrals to be produced at a time.  If this entry is less than the
+number of occupied orbitals in the system, the transformation will
+require multiple passes through the two-electron integrals.  The
+memory requirements of this stage are <EM>two</EM> global arrays of
+dimension <!-- MATH
+ ${<batch size>}\times {vir} \times {fit}$
+ -->
+<IMG
+ WIDTH="184" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img138.gif"
+ ALT="${&lt;batch size&gt;}\times {vir} \times {fit}$"> with the ``fit''
+dimension distributed across all processors (on shell-block
+boundaries).  The compromise here is memory space versus multiple
+integral evaluations.
+
+<P>
+The energy evaluation batch sizes are computed in the code from the
+number of occupied orbitals in the two sets of three-center
+integrals to be multiplied together to produce a matrix of approximate
+four-center integrals.  Two blocks of integrals of dimension <!-- MATH
+ $({<batch
+  isize>}\times {vir})$
+ -->
+<IMG
+ WIDTH="162" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img139.gif"
+ ALT="$({&lt;batch
+isize&gt;}\times {vir})$"> and <!-- MATH
+ $({<batch jsize>}\times {vir})$
+ -->
+<IMG
+ WIDTH="164" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img140.gif"
+ ALT="$({&lt;batch jsize&gt;}\times {vir})$"> by fit are
+read in from disk and multiplied together to produce <!-- MATH
+ $<batch isize>
+<batch jsize> {vir}^2$
+ -->
+<IMG
+ WIDTH="248" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img141.gif"
+ ALT="$&lt;batch isize&gt;
+&lt;batch jsize&gt; {vir}^2$"> approximate integrals.  The compromise here is
+performance of the distributed matrix multiplication (which requires
+large matrices) versus memory space.
+
+<P>
+
+<H2><A NAME="SECTION001894000000000000000">
+16.9.4 Energy Memory Allocation Mode: RI-MP2 Calculation</A>
+</H2>
+
+<P>
+The user must choose a  strategy for the memory allocation in the energy
+evaluation phase of the RI-MP2 calculation, either by minimizing the amount
+of I/O, or minimizing the amount of computation.  This can be accomplished 
+using a <code>SET</code> directive of the form,
+
+<P>
+<PRE>
+  set "mp2:energy mem minimize" &lt;string mem_opt default I&gt;
+</PRE>
+
+<P>
+A value of <code>I</code> entered for the string <code>mem_opt</code> means that a
+strategy to minimize I/O will be employed.  A value of <code>C</code> tells
+the code to use a strategy that minimizes computation.
+
+<P>
+When the option to minimize I/O is selected, the block sizes are made
+as large as possible so that the total number of passes through the
+integral files is as small as possible.  When the option to minimize
+computation is selected, the blocks are chosen as close to square as
+possible so that permutational symmetry in the energy evaluation can
+be used most effectively.
+
+<P>
+
+<H2><A NAME="SECTION001895000000000000000">
+16.9.5 Local Memory Usage in Three-Center Transformation</A>
+</H2>
+
+<P>
+For most applications, the code will be able to size the blocks
+without help from the user.  Therefore, it is unlikely that users will
+have any reason to specify values for these entries except when doing
+very particular performance measurements.
+
+<P>
+The size of <code>xf3ci:AO 1 batch size</code> is the most important of the
+three, in terms of the effect on performance.
+
+<P>
+Local memory usage in the first two steps of the transformation is
+controlled in the RI-MP2 calculation using the following <code>SET</code>
+directives,
+
+<P>
+<PRE>
+  set "xf3ci:AO 1 batch size" &lt;integer max&gt;
+  set "xf3ci:AO 2 batch size" &lt;integer max&gt;
+  set "xf3ci:fit batch size" &lt;integer max&gt;
+</PRE>
+
+<P>
+The size of the local arrays determines the sizes of the two matrix
+multiplications.  These entries set limits on the size of blocks to be
+used in each index.  The listing above is in order of importance of
+the parameters to performance, with <code>xf3ci:AO 1 batch size</code> being
+most important.
+
+<P>
+Note that these entries are only upper bounds and that the program
+will size the blocks according to what it determines as the best usage of
+the available local memory.  The absolute maximum for a block size is
+the number of functions in the AO basis, or the number of fitting basis
+functions on a node.  The absolute minimum value for block size is the 
+size of the largest shell in the appropriate basis.  Batch size entries 
+specified for <code>max</code>  that are larger than these limits are 
+automatically reset to an appropriate value.
+
+<P>
+
+<H1><A NAME="SECTION0018100000000000000000">
+16.10 One-electron properties and natural orbitals</A>
+</H1>
+
+<P>
+If an MP2 energy gradient is computed, all contributions are available
+to form the MP2 linear-response density.  This is the density that
+when contracted with any spin-free, one-electron operator yields the
+associated property defined as the derivative of the energy.  Thus,
+the reported MP2 dipole moment is the derivative of the energy
+w.r.t. an external magnetic field and is <EM>not</EM> the expectation
+value of the operator over the wavefunction.  Only dipole moments are
+printed by the MP2 gradient code, but natural orbitals are produced
+and stored in the permanent directory with a file extension of
+<code>".mp2nos"</code>.  These may be fed into the property package (see
+Section <A HREF="node30.html#sec:property">28</A>) to compute more general properties.  Note
+that the MP2 linear response density matrix is not necessarily
+positive definite so it is not unusual to see a few small negative
+natural orbital occupation numbers.
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1307"
+  HREF="node19.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1303"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1297"
+  HREF="node17.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1305"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1308"
+  HREF="node19.html">17. Multiconfiguration SCF</A>
+<B> Up:</B> <A NAME="tex2html1304"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1298"
+  HREF="node17.html">15. Tensor Contraction Engine</A>
+ &nbsp <B>  <A NAME="tex2html1306"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

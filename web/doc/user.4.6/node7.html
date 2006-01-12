@@ -1,0 +1,1395 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>5. Top-level directives</TITLE>
+<META NAME="description" CONTENT="5. Top-level directives">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node8.html">
+<LINK REL="previous" HREF="node6.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node8.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1060"
+  HREF="node8.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1056"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1050"
+  HREF="node6.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1058"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1061"
+  HREF="node8.html">6. Geometries</A>
+<B> Up:</B> <A NAME="tex2html1057"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1051"
+  HREF="node6.html">4. Functionality</A>
+ &nbsp <B>  <A NAME="tex2html1059"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1062"
+  HREF="node7.html#SECTION00710000000000000000">5.1 <TT>START</TT> and <TT>RESTART</TT> -- Start-up mode</A>
+<LI><A NAME="tex2html1063"
+  HREF="node7.html#SECTION00720000000000000000">5.2 <TT>SCRATCH_DIR</TT> and <TT>PERMANENT_DIR</TT> -- File directories</A>
+<LI><A NAME="tex2html1064"
+  HREF="node7.html#SECTION00730000000000000000">5.3 <TT>MEMORY</TT> -- Control of memory limits</A>
+<LI><A NAME="tex2html1065"
+  HREF="node7.html#SECTION00740000000000000000">5.4 <TT>ECHO</TT> -- Print input file</A>
+<LI><A NAME="tex2html1066"
+  HREF="node7.html#SECTION00750000000000000000">5.5 <TT>TITLE</TT> -- Specify job title</A>
+<LI><A NAME="tex2html1067"
+  HREF="node7.html#SECTION00760000000000000000">5.6 <TT>PRINT</TT> and <TT>NOPRINT</TT> -- Print control</A>
+<LI><A NAME="tex2html1068"
+  HREF="node7.html#SECTION00770000000000000000">5.7 <TT>SET</TT> -- Enter data in the RTDB</A>
+<LI><A NAME="tex2html1069"
+  HREF="node7.html#SECTION00780000000000000000">5.8 <TT>UNSET</TT> -- Delete data in the RTDB</A>
+<LI><A NAME="tex2html1070"
+  HREF="node7.html#SECTION00790000000000000000">5.9 <TT>STOP</TT> -- Terminate processing</A>
+<LI><A NAME="tex2html1071"
+  HREF="node7.html#SECTION007100000000000000000">5.10 <TT>TASK</TT> -- Perform a task</A>
+<UL>
+<LI><A NAME="tex2html1072"
+  HREF="node7.html#SECTION007101000000000000000">5.10.1 <TT>TASK</TT> Directive for Electronic Structure Calculations</A>
+<LI><A NAME="tex2html1073"
+  HREF="node7.html#SECTION007102000000000000000">5.10.2 <TT>TASK</TT> Directive for Special Operations</A>
+<LI><A NAME="tex2html1074"
+  HREF="node7.html#SECTION007103000000000000000">5.10.3 <TT>TASK</TT> Directive for the Bourne Shell</A>
+<LI><A NAME="tex2html1075"
+  HREF="node7.html#SECTION007104000000000000000">5.10.4 <TT>TASK</TT> Directive for QM/MM simulations</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1076"
+  HREF="node7.html#SECTION007110000000000000000">5.11 <TT>CHARGE</TT> -- Total system charge</A>
+<LI><A NAME="tex2html1077"
+  HREF="node7.html#SECTION007120000000000000000">5.12 <TT>ECCE_PRINT</TT> -- Print information for Ecce</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00700000000000000000">
+5. Top-level directives</A>
+</H1>
+<A NAME="sec:toplevel"></A>
+<P>
+Top-level directives are directives that can affect all modules in the
+code.  Some specify molecular properties (e.g., total charge) or other
+data that should apply to all subsequent calculations with the current
+database.  However, most top-level directives provide the user with
+the means to manage the resources for a calculation and to start
+computations.  As the first step in the execution of a job, NWChem
+scans the entire input file looking for start-up directives, which
+NWChem must process before all other input.  The input file is then
+rewound and processed sequentially, and each directive is processed in
+the order in which it is encountered.  In this second pass, start-up
+directives are ignored.
+
+<P>
+The following sections describe each of the top-level directives in
+detail, noting all keywords, options, required input, and defaults.
+
+<P>
+
+<H1><A NAME="SECTION00710000000000000000"></A>
+<A NAME="sec:start"></A>
+<BR>
+5.1 <TT>START</TT> and <TT>RESTART</TT> -- Start-up mode
+</H1>
+
+<P>
+A <TT>START</TT> or <TT>RESTART</TT> directive is
+optional.  If one of these two directives is not specified
+explicitly, the code will infer one, based upon the name of the
+input file and the availability of the database.  When allowing NWChem
+to infer the start-up directive, the user must be quite certain that
+the contents of the database will result in the desired action.  It
+is usually more prudent to specify the directive explicitly, using the
+following format:
+
+<P>
+<PRE>
+(RESTART || START)   \
+            [&lt;string file_prefix default $input_file_prefix$&gt;] \
+            [rtdb &lt;string rtdb_file_name default $file_prefix$.db&gt;]
+</PRE>
+
+<P>
+The <code>START</code> directive indicates that the calculation is one in
+which a new database is to be created.  Any relevant information that
+already exists in a previous database of the same name is destroyed.
+The string variable <TT>&lt;file_prefix&gt;</TT> will be used as the prefix to
+name any files created in the course of the calculation.  
+
+<P>
+E.g., to start a new calculation on water, one might specify
+<PRE>
+  start water
+</PRE>
+which will make all files begin with <TT>"water."</TT>.
+
+<P>
+If the user does not specify an entry for <TT>&lt;file_prefix&gt;</TT> on the
+<code>START</code> directive (or omits the <code>START</code> directive
+altogether), the code uses the base-name of the input file as the file
+prefix.  That is, the variable <TT>&lt;file_prefix&gt;</TT> is assigned the
+name of the input file (not its full pathname), but without the last
+``dot-suffix''.  For example, the input file name
+<code>/home/dave/job.2.nw</code> yields <code>job.2</code> as the file prefix, if
+a name is not assigned explicitly using the <code>START</code> directive.
+
+<P>
+The user also has the option of
+specifying a unique name for the database, using the keyword <TT>  rtdb</TT>.  When this keyword is entered, the string entered for <TT>  rtdb_file_name</TT> is used as the database name.  If the keyword <TT>  rtbd</TT> is omitted, the name of the database defaults to
+<code>$&lt;file_prefix&gt;$.db</code> in the directory for permanent files.
+
+<P>
+If a calculation is to start from a previous calculation and go on
+using the existing database, the <code>RESTART</code> directive 
+must be used.  In such a case, the previous
+database must already exist.  The name specified for <TT>&lt;file_prefix&gt;</TT> 
+usually should
+not be changed when restarting a calculation.  If it is changed, NWChem 
+will not
+be able to find needed files when going on with the
+calculation.
+
+<P>
+In the most common
+situation, the previous calculation was completed (with or without an error
+condition), and it is desired to perform a new task or restart the
+previous one, perhaps with some input changes.  In these instances,
+the <code>RESTART</code> directive should be used.  This reuses the previous
+database and associated files, and reads the input file for new input
+and task information.
+
+<P>
+The <code>RESTART</code> directive looks immediately for new input and task
+information, deleting information about previous incomplete tasks.
+For example, when doing a <code>RESTART</code> there is no need
+to specify geometry or basis set declaration because the 
+program will detect this information since it is stored in the
+run-time database.
+
+<P>
+If a calculation runs out of time, for example because it is
+on a queuing system, this is another instance where doing a
+<code>RESTART</code> is advisable.  Simply include nothing after the
+<code>RESTART</code> directive except those tasks that are unfinished.
+
+<P>
+NOTE: Due to changes in the runtime database structure, <code>RESTART</code> 
+will not work on database files generated by NWChem versions 4.0.1 and 
+older.
+
+<P>
+To summarize the default options for this start-up directive, if the 
+input file does <EM>not</EM> contain a <code>START</code> or a
+<code>RESTART</code> directive, then
+
+<UL>
+<LI>the variable <TT>&lt;file_prefix&gt;</TT> is assigned the name of the 
+input file for the job, without the suffix (which is usually <code>.nw</code>)
+</LI>
+<LI>the variable <TT>&lt;rtdb_file_name&gt;</TT> is assigned the default name,
+<code>$file_prefix$.db</code>
+</LI>
+</UL>
+If the database with name <code>$file_prefix$.db</code> does <EM>not</EM> 
+already exist,
+the calculation is carried out as if a <code>START</code> directive had
+been encountered.  If the database with name <code>$file_prefix$.db</code>
+<EM>does</EM> exist, then the calculation is performed as if a
+<code>RESTART</code> directive had been encountered.  
+
+<P>
+For example, NWChem can be run using an input file with the name 
+<code>water.nw</code> 
+by typing the UNIX command line,
+
+<P>
+<PRE>
+   nwchem water.nw
+</PRE>
+
+<P>
+If the NWChem input file <code>water.nw</code> does not contain
+a <code>START</code>  or <code>RESTART</code> directive, the code
+sets the variable <TT>&lt;file_prefix&gt;</TT> to <TT>water</TT>.  Files created
+by the job will have this prefix, and the database will be named
+<TT>water.db</TT>.  If the database <code>water.db</code> does <EM>not</EM> exist already,
+the code behaves as if the input file contains the directive,
+
+<P>
+<PRE>
+  start water
+</PRE>
+
+<P>
+If the database <code>water.db</code> <EM>does</EM> exist,
+the code behaves as if the input file contained the directive,
+
+<P>
+<PRE>
+  restart water
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION00720000000000000000"></A>
+<A NAME="sec:dirs"></A>
+<BR>
+5.2 <TT>SCRATCH_DIR</TT> and <TT>PERMANENT_DIR</TT> -- File directories
+</H1>
+
+<P>
+These are start-up directives that allow the user to specify the
+directory location of scratch and permanent files created by NWChem.
+NWChem distinguishes between permanent (or persistent) files and
+scratch (or temporary) files, and allows the user the option of
+putting them in different locations.  In most installations, however,
+permanent and scratch files are all written to the current directory
+by default.  What constitutes ``local'' disk space may also differ from 
+machine to machine.
+
+<P>
+The conventions for file storage are at the discretion of the specific 
+installation, and are quite likely to be different on different machines.  
+When assigning locations for permanent and
+scratch files,
+the user must be cognizant of the characteristics of the installation
+on a particular platform.
+To consider just a few examples, on
+clusters, machine-specific or process-specific
+names must be supplied for both local and shared file
+systems, while on SMPs it is useful to specify scratch file directories
+with automated striping across processors with round-robin allocation.
+On SMP clusters (a.k.a. constellations), both of these specifications
+are required.   
+
+<P>
+The <code>SCRATCH_DIR</code> and <code>PERMANENT_DIR</code> directives are
+identical in format and capability, and enable the user to specify a
+single directory for all processes, or different directories for
+different processes.  The general form of the directive is as follows:
+
+<P>
+<PRE>
+   (PERMANENT_DIR || SCRATCH_DIR) [(&lt;string host&gt;||&lt;integer process&gt;):] \
+                                       &lt;string directory&gt; \ 
+                                  [...]
+</PRE>
+
+<P>
+Directories are extracted from the user input by executing the
+following steps, in sequence:
+
+<OL>
+<LI>Look for a directory qualified by the process ID number of the
+  invoking process.  Processes are numbered from zero.  Else,
+</LI>
+<LI>If there is a list of directories qualified by the name of the
+  host machine<A NAME="tex2html1"
+  HREF="footnode.html#foot838"><SUP>5.1</SUP></A>, then use round-robin allocation from the list for
+  processes executing on the given host.  Else, 
+</LI>
+<LI>If there is a list of directories unqualified by any hostname
+  or process ID, then use round-robin allocation from this list.
+</LI>
+</OL>
+If directory allocation directive(s) are not specified in the input
+file, or if no match is found to the directory names specified by
+input using these directives, then the  steps above are executed using
+the installation-specific defaults.  If the code cannot find a valid
+directory name based on the input specified in either the directive(s)
+or the system defaults, files are automatically written to the current
+working directory (<code>"."</code>).
+
+<P>
+The following is a list of examples of specific allocations of scratch
+directory locations:
+
+<UL>
+<LI>Put scratch files from all processes in the local scratch directory 
+(Warning: the definition of ``local scratch directory'' may change from 
+machine to machine):
+<PRE>
+      scratch_dir /localscratch
+</PRE>
+</LI>
+<LI>Put scratch files from Process 0 in <code>/piofs/rjh</code>, but put all 
+other scratch files in <code>/scratch</code>:
+<PRE>
+      scratch_dir /scratch 0:/piofs/rjh
+</PRE>
+</LI>
+<LI>Put scratch files from Process 0 in directory <code>scr1</code>, those from
+Process 1 in <code>scr2</code>, and so forth, in a round-robin fashion, using the
+given list of directories:
+<PRE>
+      scratch_dir /scr1 /scr2 /scr3 /scr4 /scr5
+</PRE>
+</LI>
+<LI>Allocate files in a round-robin fashion from
+  host-specific lists for processes distributed across two
+ SGI multi-processor machines (node names <EM>coho</EM> and <EM>bohr</EM>):
+<PRE>
+      scratch_dir coho:/xfs1/rjh coho:/xfs2/rjh coho:/xfs3/rjh \
+          bohr:/disk01/rjh bohr:/disk02/rjh bohr:/disk13/rjh
+</PRE>
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION00730000000000000000">
+5.3 <TT>MEMORY</TT> -- Control of memory limits</A>
+</H1>
+
+<P>
+This is a start-up directive that allows the user to specify the
+amount of memory that NWChem can use for the job.  If this directive
+is not specified, memory is allocated according to
+installation-dependent defaults.  <EM>The defaults should generally
+  suffice for most calculations, since the defaults usually correspond
+  to the total amount of memory available on the machine.  It should
+usually be unnecessary to provide a memory directive!!!</EM> 
+
+<P>
+The general form of the directive is as follows:
+
+<P>
+<PRE>
+  MEMORY [[total] &lt;integer total_size&gt;] \
+         [stack &lt;integer stack_size&gt;] \
+         [heap &lt;integer heap_size&gt;] \
+         [global &lt;integer global_size&gt;] \
+         [units &lt;string units default real&gt;] \
+         [(verify||noverify)] \
+         [(nohardfail||hardfail)] \
+</PRE>
+
+<P>
+NWChem recognizes the following memory units:
+
+<UL>
+<LI><code>real</code> and <code>double</code> (synonyms)
+</LI>
+<LI><code>integer</code>
+</LI>
+<LI><code>byte</code>
+</LI>
+<LI><code>kb</code> (kilobytes)
+</LI>
+<LI><code>mb</code> (megabytes)
+</LI>
+<LI><code>mw</code> (megawords, 64-bit word)
+</LI>
+</UL>
+
+<P>
+In most cases, the user need specify only the total memory limit to 
+adjust the amount of memory used by NWChem. The following specifications 
+all provide for eight megabytes of total
+memory (assuming 64-bit floating point numbers), which will be
+distributed according to the default partitioning:
+<PRE>
+  memory 1048576
+  memory 1048576 real
+  memory 1 mw
+  memory 8 mb
+  memory total 8 mb
+  memory total 1048576
+</PRE>
+
+<P>
+In NWChem there are three distinct regions of memory: stack, heap, 
+and global. Stack and heap are node-private, while the union of the 
+global region on all processors is used to provide globally-shared memory.  
+The allowed limits on each category are determined from a default 
+partitioning (currently 25% heap, 25% stack, and 50% global).
+Alternatively, the keywords <code>stack</code>, <code>heap</code>, and
+<code>global</code> can be used to define specific allocations for each of
+these categories.  If the user sets only one of the stack, heap, or
+global limits by input, the limits for the other two categories are
+obtained by partitioning the remainder of the total memory available
+in proportion to the weight of those two categories in the default
+memory partitioning.  If two of the category limits are given, the
+third is obtained by subtracting the two given limits from the total
+limit (which may have been specified or may be a default value).  If
+all three category limits are specified, they determine the total
+memory allocated.  However, if the total memory is also specified, it
+must be larger than the sum of all three categories.  The code will
+abort if it detects an inconsistent memory specification.
+
+<P>
+The following memory directives also allocate 8 megabytes, but specify
+a complete partitioning as well:
+
+<P>
+<PRE>
+  memory total 8 stack 2 heap 2 global 4 mb
+  memory stack 2 heap 2 global 4 mb
+</PRE>
+
+<P>
+The optional keywords <code>verify</code> and <code>noverify</code> in the
+directive give the user the option of enabling or disabling automatic
+detection of corruption of allocated memory.  The default is
+<code>verify</code>, which enables the feature. This incurs some
+overhead (which can be around 10% increase in walltime on some platforms),
+which can be eliminated by specifying <code>noverify</code>.
+
+<P>
+The keywords <code>hardfail</code> and <code>nohardfail</code> give the user the
+option of forcing (or not forcing) the local memory management
+routines to generate an internal fatal error if any memory operation
+fails.  The default is <code>nohardfail</code>, which allows the code to
+continue past any memory operation failure, and perhaps generate a
+more meaningful error message before terminating the calculation.
+Forcing a hard-fail can be useful when poorly coded applications do
+not check the return status of memory management routines.
+
+<P>
+When assigning the specific memory allocations using the keywords
+<code>stack</code>, <code>heap</code>, and <code>global</code> in the <code>MEMORY</code>
+directive, the user should be aware that some of the distinctions
+among these categories of memory have been blurred in their actual
+implementation in the code.  The memory allocator (MA) allocates both
+the heap and the stack from a single memory region of size <TT>  heap+stack</TT>, without enforcing the partition.  The heap vs. stack
+partition is meaningful only to applications developers, and can be
+ignored by most users.  Further complicating matters, the global array
+(GA) toolkit is allocated from within the MA space on distributed
+memory machines, while on shared-memory machines it is
+separate<A NAME="tex2html2"
+  HREF="footnode.html#foot670"><SUP>5.2</SUP></A>.
+
+<P>
+On distributed memory platforms, the MA region is actually the total
+size of 
+<PRE>
+   stack+heap+global
+</PRE>
+All three types of memory allocation
+compete for the same pool of memory, with no limits except on the
+total available memory.  This relaxation of the memory category
+definitions usually benefits the user, since it can allow allocation
+requests to succeed where a stricter memory model would cause the
+directive to fail.  These implementation characteristics must be kept
+in mind when reading program output that relates to memory usage.
+
+<P>
+Standard default for memory is currently 400 MB.
+
+<P>
+
+<H1><A NAME="SECTION00740000000000000000"></A>
+<A NAME="sec:echo"></A>
+<BR>
+5.4 <TT>ECHO</TT> -- Print input file
+</H1>
+
+<P>
+This start-up directive is provided as a convenient way to include a
+listing of the input file in the output of a calculation.  It causes
+the entire input file to be printed to Fortran unit six (standard
+output).  It has no keywords, arguments, or options, and consists of
+the single line:
+
+<P>
+<PRE>
+  ECHO
+</PRE>
+
+<P>
+The <code>ECHO</code> directive is processed only
+once, by Process 0 when the input file is read.
+
+<P>
+
+<H1><A NAME="SECTION00750000000000000000">
+5.5 <TT>TITLE</TT> -- Specify job title</A>
+</H1>
+
+<P>
+This top-level directive allows the user to identify a job or series
+of jobs that use a particular database.  It is an optional directive,
+and if omitted, the character string containing the input title will
+be empty.  Multiple <TT>TITLE</TT> directives may appear in the input
+file (e.g., the example file in Section <A HREF="node4.html#sec:realsample">2.3</A>) in which
+case a task will use the one most recently specified.  The format for
+the directive is as follows:
+
+<P>
+<PRE>
+  TITLE &lt;string title&gt;
+</PRE>
+
+<P>
+The character string <code>&lt;title&gt;</code> is assigned to the contents of the
+string following the <code>TITLE</code> directive.  If the string contains
+white space, it must be surrounded by double quotes.  For example,
+
+<P>
+<PRE>
+  title "This is the title of my NWChem job"
+</PRE>
+
+<P>
+The title is stored in the database and will be used in all subsequent
+tasks/jobs until redefined in the input.
+
+<P>
+
+<H1><A NAME="SECTION00760000000000000000"></A>
+<A NAME="sec:printcontrol"></A>
+<BR>
+5.6 <TT>PRINT</TT> and <TT>NOPRINT</TT> -- Print control
+</H1>
+
+<P>
+The <code>PRINT</code> and <code>NOPRINT</code> directives allow the user to
+control how much output NWChem generates.  These two directives are
+special in that the compound directives for <EM>all</EM> modules are
+supposed to recognize them. Each module can control both the overall
+print level (general verbosity) and the printing of individual items
+which are identified by name (see below).  The standard form of the
+<code>PRINT</code> directive is as follows:
+
+<P>
+<PRE>
+  PRINT [(none || low || medium || high || debug) default medium] \
+        [&lt;string list_of_names ... &gt;]
+
+  NOPRINT &lt;string list_of_names ... &gt;
+</PRE>
+The default print level is medium.
+
+<P>
+Every output that is printed by NWChem has a print threshold
+associated with it. If this threshold is equal to or lower than the
+print level requested by the user, then the output is generated.  For
+example, the threshold for printing the SCF energy at convergence is
+<code>low</code> (Section <A HREF="node12.html#sec:scfprint">10.16</A>).  This means that if the
+user-specified print level on the <code>PRINT</code> directive is
+<code>low</code>, <code>medium</code>, <code>high</code>, or <code>debug</code>, then the SCF
+energy will be printed at convergence.
+
+<P>
+The overall print level specified
+using the <code>PRINT</code> directive is a convenient tool for controlling 
+the verbosity
+of NWChem. Setting the print level to <code>high</code> might be helpful in
+diagnosing convergence problems.  The print level of <code>debug</code> might
+also be of use in evaluating problem cases, but the user should be aware
+that this can generate a huge amount of output.  Setting the print level
+to <code>low</code> might be the preferable choice for geometry
+optimizations that will perform many steps which are in themselves of
+little interest to the user.
+
+<P>
+In addition, it is possible to enable the printing of specific
+items by naming them in the <code>PRINT</code> directive in the 
+<code>&lt;list_of_names&gt;</code>.  Items identified in this way will be printed, 
+regardless of the overall print level specified.  Similarly, the 
+<code>NOPRINT</code> directive can be used to suppress the printing of specific
+items by naming them in its <code>&lt;list_of_names&gt;</code>.  These items will
+<EM>not</EM> be printed, regardless of the overall print level, or the 
+specific print level of the individual items.
+
+<P>
+The list of items that can be printed for each module is documented 
+as part of the input instructions for that module.
+The items recognized by the top level of the code, and their thresholds, 
+are:
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="701"></A>
+<TABLE>
+<CAPTION><STRONG>Table 5.1:</STRONG>
+Top Level Print Control Specifications</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+<TABLE CELLPADDING=3 ALIGN="CENTER">
+<TR><TD ALIGN="LEFT"><B>Name</B></TD>
+<TD ALIGN="CENTER"><B>Print Level</B></TD>
+<TD ALIGN="CENTER"><B>Description</B></TD>
+</TR>
+<TR><TD ALIGN="LEFT">``total time''</TD>
+<TD ALIGN="CENTER">medium</TD>
+<TD ALIGN="CENTER">Print cpu and wall time at job end</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``task time''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">Print cpu and wall time for each task</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``rtdb''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">Print names of RTDB entries</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``rtdbvalues''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">Print name and values of RTDB entries</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``ga summary''</TD>
+<TD ALIGN="CENTER">medium</TD>
+<TD ALIGN="CENTER">Summarize GA allocations at job end</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``ga stats''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">Print GA usage statistics at job end</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``ma summary''</TD>
+<TD ALIGN="CENTER">medium</TD>
+<TD ALIGN="CENTER">Summarize MA allocations at job end</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``ma stats''</TD>
+<TD ALIGN="CENTER">high</TD>
+<TD ALIGN="CENTER">Print MA usage statistics at job end</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``version''</TD>
+<TD ALIGN="CENTER">debug</TD>
+<TD ALIGN="CENTER">Print version number of all compiled routines</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``tcgmsg''</TD>
+<TD ALIGN="CENTER">never</TD>
+<TD ALIGN="CENTER">Print TCGMSG debug information</TD>
+</TR>
+</TABLE>
+</DIV>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+The following example shows how a <code>PRINT</code> directive for the top level
+process can be used to limit printout to only essential information.
+The directive is
+
+<P>
+<PRE>
+  print none "ma stats" rtdb
+</PRE>
+
+<P>
+This directive instructs the NWChem main program to print nothing,
+except for the memory usage statistics (<code>ma stats</code>) and
+the names of all items stored in the database at the end of the job.
+
+<P>
+The print level within a module is inherited from the 
+calling layer.  For instance, by specifying the print to be low
+within the MP2 module will cause the SCF, CPHF and gradient modules
+when invoked from the MP2 to default to low print.  Explicit user
+input of print thresholds overrides the inherited value.
+
+<P>
+
+<H1><A NAME="SECTION00770000000000000000"></A>
+<A NAME="sec:set"></A>
+<BR>
+5.7 <TT>SET</TT> -- Enter data in the RTDB
+</H1>
+
+<P>
+This top-level directive allows the user to enter data directly into the
+run-time
+database (see Section <A HREF="node5.html#sec:database">3.1</A> for a description of the database).
+The format of the directive is as follows:
+
+<P>
+<PRE>
+  SET &lt;string name&gt; [&lt;string type default automatic&gt;] &lt;$type$ data&gt;
+</PRE>
+
+<P>
+The entry for variable <code>&lt;name&gt;</code> is the name of 
+data to be entered into the database.  This must be specified; there is no default.  The variable <code>&lt;type&gt;</code>, which is
+optional, allows the user to define a string specifying the type of
+data in the array <code>&lt;name&gt;</code>.  The data type can be explicitly
+specified as <code>integer</code>, <code>real</code>, <code>double</code>,
+<code>logical</code>, or <code>string</code>.  If no entry for <code>&lt;type&gt;</code> is
+specified on the directive, its value is inferred from the data type
+of the <EM>first</EM> datum.  In such a case, floating-point data
+entered using this directive must include either an exponent or a
+decimal point, to ensure that the correct default type will be
+inferred.  The correct default type will be inferred for logical
+values if logical-true values are specified as <code>.true.</code>,
+<code>true</code>, or <code>t</code>, and logical-false values are specified as
+<code>.false.</code>, <code>false</code>, or <code>f</code>.  One exception to the
+automatic detection of the data type is that the data type <B>must</B>
+be explicitly stated to input integer ranges, unless the first
+element in the list is an integer that is not a range (c.f.,
+<A HREF="node4.html#sec:syntax">2.4</A>).  For example,
+<PRE>
+  set atomid 1 3:7 21
+</PRE>
+will be interpreted as a list of integers.  However, 
+<PRE>
+  set atomid 3:7 21
+</PRE>
+will not work since the first element will be interpreted as a
+string and not an integer.  To work around this feature, use instead
+<PRE>
+  set atomid integer 3:7 21
+</PRE>
+which says to write  three through seven, as well as twenty-one.
+
+<P>
+The <code>SET</code> directive is useful for providing indirection by
+associating the name of a basis set or geometry with the standard
+object names (such as <code>"ao basis"</code> or <code>geometry</code>) used by
+NWChem.  The following input file shows an example using the
+<code>SET</code> directive to direct different tasks to different
+geometries.  The required input lines are as follows:
+
+<P>
+<PRE>
+  title "Ar dimer BSSE corrected MP2 interaction energy"
+  geometry "Ar+Ar"
+    Ar1 0 0 0
+    Ar2 0 0 2
+  end
+
+  geometry "Ar+ghost"
+    Ar1 0 0 0
+    Bq2 0 0 2
+  end
+
+  basis
+    Ar1 library aug-cc-pvdz
+    Ar2 library aug-cc-pvdz
+    Bq2 library Ar aug-cc-pvdz
+  end
+
+  set geometry "Ar+Ar"
+  task mp2 
+
+  scf; vectors atomic; end
+
+  set geometry "Ar+ghost"
+  task mp2
+</PRE>
+
+<P>
+This input tells the code to perform MP2 energy calculations 
+on an argon dimer in the first task, and then
+on the argon atom in the presence of the ``ghost'' basis of the other
+atom.
+
+<P>
+The <code>SET</code> directive can also be used as an indirect means of
+supplying input to a part of the code that does not have a separate
+input module (e.g., the atomic SCF, Section <A HREF="node12.html#sec:atomscf">10.5.2</A>).
+Additional examples of applications of this directive can be found in
+the sample input files (see Section <A HREF="node4.html#sec:realsample">2.3</A>), and
+its usage with basis sets (Section <A HREF="node9.html#sec:basis">7</A>) and geometries
+(Section <A HREF="node8.html#sec:geom">6</A>). Also see Section <A HREF="node5.html#sec:database">3.1</A> for
+an example of how to store an array in the database.
+
+<P>
+
+<H1><A NAME="SECTION00780000000000000000"></A>
+<A NAME="sec:unset"></A>
+<BR>
+5.8 <TT>UNSET</TT> -- Delete data in the RTDB
+</H1>
+
+<P>
+This directive gives the user a way to delete simple entries from the
+database.  The general form of the directive is as follows:
+
+<P>
+<PRE>
+  UNSET &lt;string name&gt;[*]
+</PRE>
+
+<P>
+This directive cannot be used with complex objects such as geometries
+and basis sets<A NAME="tex2html4"
+  HREF="footnode.html#foot730"><SUP>5.3</SUP></A>.  A
+wild-card (*) specified at the end of the string <code>&lt;name&gt;</code> will
+cause <EM>all</EM> entries whose name begins with that string to be
+deleted.  This is very useful as a way to reset modules to their
+default behavior, since modules typically store information in the
+database with names that begin with <code>module:</code>.  For example, the
+SCF program can be restored to its default behavior by deleting all
+database entries beginning with <code>scf:</code>, using the directive
+
+<P>
+<PRE>
+  unset scf:*
+</PRE>
+
+<P>
+Section <A HREF="node12.html#sec:fragguess">10.5.1</A> has an example  using
+<code> unset</code> on a water dimer calculation.
+
+<P>
+The following example makes an entry in the database using the
+<code>SET</code> directive, and then immediately deletes it using the
+<code>UNSET</code> directive:
+
+<P>
+<PRE>
+  set mylist 1 2 3 4
+  unset mylist
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION00790000000000000000">
+5.9 <TT>STOP</TT> -- Terminate processing</A>
+</H1>
+
+<P>
+This top-level directive provides a convenient way of verifying 
+an input file without actually running the calculation.  It consists 
+of the single line,
+
+<P>
+<PRE>
+  STOP
+</PRE>
+
+<P>
+As soon as this directive is encountered, all processing ceases and
+the calculation terminates with an error condition.
+
+<P>
+
+<H1><A NAME="SECTION007100000000000000000"></A>
+<A NAME="sec:task"></A>
+<BR>
+5.10 <TT>TASK</TT> -- Perform a task
+</H1>
+
+<P>
+The <code>TASK</code> directive is used to tell the code what to do.  The
+input directives are parsed sequentially until a <code>TASK</code> directive
+is encountered, as described in Section <A HREF="node4.html#sec:inputstructure">2.1</A>.  At
+that point, the calculation or operation specified in the <code>TASK</code>
+directive is performed.  When that task is completed, the code looks
+for additional input to process until the next <code>TASK</code> directive
+is encountered, which is then executed.  This process continues to the
+end of the input file.  NWChem expects the last directive before the
+end-of-file to be a <code>TASK</code> directive.  If it is not, a warning
+message is printed.  Since the database is persistent, multiple tasks
+within one job behave <EM>exactly</EM> the same as multiple restart jobs
+with the same sequence of input.
+
+<P>
+There are four main forms of the the <code>TASK</code> directive.  The most
+common form is used to tell the code at what level of theory to
+perform an electronic structure calculation, and which specific
+calculations to perform.  The second form is used to specify tasks
+that do not involve electronic structure calculations or tasks that
+have not been fully implemented at all theory levels in NWChem, such
+as simple property evaluations.  The third form is used to execute
+UNIX commands on machines having a Bourne shell.  The fourth form is
+specific to combined quantum-mechanics and molecular-mechanics (QM/MM)
+calculations.
+
+<P>
+By default, the program terminates when a task does not complete
+successfully.  The keyword <code>ignore</code> can be used to prevent this
+termination, and is recognized by all forms of the <code>TASK</code>
+directive.  When a <code>TASK</code> directive includes the keyword
+<code>ignore</code>, a warning message is printed if the task fails, and
+code execution continues with the next task. An example of this feature
+is given in the sample input file 
+in Section <A HREF="node13.html#sec:DFTsample">11.5</A>.
+
+<P>
+The input options, keywords, and defaults for each of these four forms
+for the <code>TASK</code> directive are discussed in the following sections.
+
+<P>
+
+<H2><A NAME="SECTION007101000000000000000"></A>
+<A NAME="sec:first_task"></A>
+<BR>
+5.10.1 <TT>TASK</TT> Directive for Electronic Structure Calculations
+</H2>
+
+<P>
+This is the most commonly used version of the <code>TASK</code> directive, and
+it has the following form:
+
+<P>
+<PRE>
+  TASK &lt;string theory&gt; [&lt;string operation default energy&gt;] [ignore]
+</PRE>
+
+<P>
+The string <code>&lt;theory&gt;</code> specifies the level of theory to be used in the
+calculations for this task.  NWChem currently supports ten different
+options.  These are listed below, with the corresponding entry for 
+the variable <TT>&lt;theory&gt;</TT>:
+
+<UL>
+<LI><code>scf</code> -- Hartree-Fock
+</LI>
+<LI><code>dft</code> -- Density functional theory for molecules
+</LI>
+<LI><code>sodft</code> -- Spin-Orbit Density functional theory
+</LI>
+<LI><code>mp2</code> -- MP2 using a semi-direct algorithm
+</LI>
+<LI><code>direct_mp2</code> -- MP2 using a full-direct algorithm
+</LI>
+<LI><code>rimp2</code> -- MP2 using the RI approximation
+</LI>
+<LI><code>ccsd</code> -- Coupled-cluster single and double excitations
+</LI>
+<LI><code>ccsd(t)</code> -- Coupled-cluster linearized triples approximation
+</LI>
+<LI><code>ccsd+t(ccsd)</code> -- Fourth order triples contribution
+</LI>
+<LI><code>mcscf</code> -- Multiconfiguration SCF
+</LI>
+<LI><code>selci</code> -- Selected configuration interaction with perturbation
+   correction 
+</LI>
+<LI><code>md</code> -- Classical molecular dynamics simulation 
+</LI>
+<LI><code>pspw</code> -- Pseudopotential plane-wave density functional theory for molecules and insulating solids using NWPW
+</LI>
+<LI><code>band</code> -- Pseudopotential plane-wave 
+density functional theory for solids using NWPW
+</LI>
+<LI><code>tce</code> -- Tensor Contraction Engine (please see
+Section <A HREF="node17.html#sec:inputsyntax">15.4</A> for a complete description of this task directive
+
+<P>
+</LI>
+</UL>
+
+<P>
+The string <code>&lt;operation&gt;</code> specifies the calculation that will
+be performed in the task.  The default operation is a single point energy
+evaluation.  The following list gives the selection of operations currently
+available in NWChem:
+
+<UL>
+<LI><code>energy</code> -- Evaluate the single point energy.
+</LI>
+<LI><code>gradient</code> -- Evaluate the derivative of the energy with respect to    nuclear coordinates.
+</LI>
+<LI><code>optimize</code> -- Minimize the energy by varying the molecular
+   structure.  By default, this geometry optimization is presently driven by the Driver
+   module (see Section <A HREF="node22.html#sec:driver">20</A>), but the Stepper module
+   (see Section <A HREF="node23.html#sec:stepper">21</A>) may also be used.
+</LI>
+<LI><code>saddle</code> -- Conduct a search for a transition state (or saddle point) 
+  using either Driver (Section <A HREF="node22.html#sec:driver">20</A>, the default) or
+  Stepper (Section <A HREF="node23.html#sec:stepper">21</A>).
+</LI>
+<LI><code>hessian</code> -- Compute second derivatives.  See Section <A HREF="node26.html#sec:hess">24</A>
+  for analytic hessians.
+</LI>
+<LI><code>frequencies</code> or <code>freq</code> -- Compute second derivatives 
+  and print out an analysis of molecular vibrations.  See Section <A HREF="node27.html#sec:vib">25</A>
+  for controls for vibration calculations.
+</LI>
+<LI><code>dynamics</code> -- Perform classical molecular dynamics.
+</LI>
+<LI><code>thermodynamics</code> -- Perform multi-configuration
+  thermodynamic integration using classical MD
+</LI>
+</UL>
+
+<P>
+NOTE: See Section <A HREF="node37.html#sec:pspw_tasks">35.1</A>  for the complete list of operations
+that accompany the NWPW module.
+
+<P>
+The user should be aware that some of these operations (gradient,
+optimize, dynamics, thermodynamics) require computation of
+derivatives of the energy with respect to the molecular coordinates.
+If analytical derivatives are not available (Section
+<A HREF="node6.html#sec:functionality">4</A>), they must be computed numerically, which can
+be very computationally intensive.
+
+<P>
+Here are some examples of the <code>TASK</code> directive, to illustrate the
+input needed to specify particular calculations with the code.  To
+perform a single point energy evaluation using any level of theory, the
+directive is very simple, since the energy evaluation is the default
+for the string <code>operation</code>.  For an SCF energy calculation, the
+input line is simply
+<PRE>
+  task scf
+</PRE>
+Equivalently, the operation can be specified explicitly, using the
+directive
+<PRE>
+  task scf energy
+</PRE>
+
+<P>
+Similarly, to perform a geometry optimization using density functional
+theory, the <code>TASK</code> directive is
+<PRE>
+  task dft optimize
+</PRE>
+
+<P>
+The optional keyword <code>ignore</code> can be used to allow execution to
+continue even if the task fails, as discussed above.
+An example with the keyword <code>ignore</code>
+can be found in Section <A HREF="node13.html#sec:DFTsample">11.5</A>.
+
+<P>
+
+<H2><A NAME="SECTION007102000000000000000">
+5.10.2 <TT>TASK</TT> Directive for Special Operations</A>
+</H2>
+
+<P>
+This form of the <code>TASK</code> directive is used in instances where the
+task to be performed does not fit the model of the previous version
+(such as execution of a Python program, Section <A HREF="node38.html#sec:python">36</A>), or
+if the operation has not yet been implemented in a fashion that
+applies to a wide range of theories (e.g., property evaluation).
+Instead of requiring <code>theory</code> and <code>operation</code> as input, the
+directive needs only a string identifying the task.  The form of the
+directive in such cases is as follows:
+
+<P>
+<PRE>
+  TASK &lt;string task&gt; [ignore]
+</PRE>
+
+<P>
+The supported tasks that can be accessed with this form of the <code>TASK</code>
+directive are listed
+below, with the corresponding entries for string variable <code>&lt;task&gt;</code>.
+
+<P>
+
+<UL>
+<LI><code>python</code> -- Execute a Python program (Section <A HREF="node38.html#sec:python">36</A>).
+</LI>
+<LI><code>rtdbprint</code> -- Print the contents of the database.
+</LI>
+<LI><code>cphf</code> -- Invoke the CPHF module.
+</LI>
+<LI><code>property</code> -- Perform miscellaneous property calculations.
+</LI>
+<LI><code>dplot</code> -- Execute a DPLOT run (Section <A HREF="node28.html#sec:dplot">26</A>)
+</LI>
+<LI><code>nbo</code> -- Execute a NBO run (Section <A HREF="node39.html#sec:nbo">37.1</A>)
+</LI>
+</UL>
+
+<P>
+This directive also recognizes the keyword <code>ignore</code>, which allows
+execution to continue after a task has failed.
+
+<P>
+
+<H2><A NAME="SECTION007103000000000000000">
+5.10.3 <TT>TASK</TT> Directive for the Bourne Shell</A>
+</H2>
+
+<P>
+This form of the <code>TASK</code> directive is supported only on machines
+with a fully UNIX-style operating system.  This directive causes
+specified processes to be executed using the Bourne shell.  This form
+of the task directive is:
+
+<P>
+<PRE>
+  TASK shell [(&lt;integer-range process = 0&gt;||all)] \
+             &lt;string command&gt;
+</PRE>
+
+<P>
+The keyword <code>shell</code> is required for this directive.  It specifies
+that the given command will be executed in the Bourne shell.  The user
+can also specify which process(es) will execute this command by
+entering values for <code>process</code> on the directive.  The default is
+for only process zero to execute the command.  A range of processes
+may be specified, using Fortran triplet notation<A NAME="tex2html5"
+  HREF="footnode.html#foot850"><SUP>5.4</SUP></A>.  Alternatively, all
+processes can be specified simply by entering the keyword <code>all</code>.
+The input entered for <code>command</code> must form a single string, and
+must consist of valid UNIX command(s).  If the string includes white space,
+it must be enclosed in double quotes.
+
+<P>
+For example, the <code>TASK</code> directive to tell process zero to copy the 
+molecular orbitals file to a backup location <code>/piofs/save</code> can be input as follows:
+
+<P>
+<PRE>
+  task shell "cp *.movecs /piofs/save"
+</PRE>
+
+<P>
+The <code>TASK</code> directive to tell all processes to list the contents of 
+their <code>/scratch</code> directories is as follows:
+
+<P>
+<PRE>
+  task shell all "ls -l /scratch"
+</PRE>
+
+<P>
+The <code>TASK</code> directive to tell processes 0 to 10 to remove the 
+contents of the current directory is as follows:
+
+<P>
+<PRE>
+  task shell 0:10:1 "/bin/rm -f *"
+</PRE>
+
+<P>
+Note that NWChem's ability to quote special input characters is <EM>  very</EM> limited when compared with that of the Bourne shell.  To
+execute all but the simplest UNIX commands, it is usually much easier
+to put the shell script in a file and execute the file from within
+NWChem.
+
+<P>
+
+<H2><A NAME="SECTION007104000000000000000">
+5.10.4 <TT>TASK</TT> Directive for QM/MM simulations</A>
+</H2>
+
+<P>
+This is very similar to the most commonly used version of the
+<code>TASK</code> directive described in Section <A HREF="node7.html#sec:first_task">5.10.1</A>, and
+it has the following form;
+
+<P>
+<PRE>
+  TASK QMMM &lt;string theory&gt; [&lt;string operation default energy&gt;] [ignore]
+</PRE>
+
+<P>
+The string <code>&lt;theory&gt;</code> specifies the QM theory to be used in the
+QM/MM simulation<A NAME="tex2html6"
+  HREF="footnode.html#foot852"><SUP>5.5</SUP></A>.  The level of
+theory may be any QM method that can compute gradients but those
+algorithms in NWChem that do not support analytic gradients should be
+avoided (c.f., Section <A HREF="node6.html#sec:functionality">4</A>).  
+
+<P>
+The string <code>&lt;operation&gt;</code> is used to specify the calculation that will
+be performed in the QM/MM task.  The default operation is a single point energy
+evaluation.  The following list gives the selection of operations currently
+available in the NWChem QM/MM module;
+
+<UL>
+<LI><code>energy</code> -- single point energy evaluation
+</LI>
+<LI><code>optimize</code> -- minimize the energy by variation of the molecular
+   structure.  
+</LI>
+<LI><code>dynamics</code> -- molecular dynamics using nwARGOS
+</LI>
+</UL>
+
+<P>
+Here are some examples of the <code>TASK</code> directive for QM/MM
+simulations.  To perform a single point energy of a QM/MM system using
+any QM level of theory, the directive is very simple. As with the
+general task directive, the QM/MM energy evaluation is the
+default. For a DFT energy calculation the task directive input is,
+<PRE>
+  task qmmm dft
+</PRE>
+or completely as
+<PRE>
+  task qmmm dft energy
+</PRE>
+
+<P>
+To do a molecular dynamics simulation of a QM/MM system using the SCF
+level of theory the task directive input would be
+<PRE>
+  task qmmm scf dynamics
+</PRE>
+
+<P>
+The optional keyword <code>ignore</code> can be used to allow execution to
+continue even if the task fails, as discussed above.
+
+<P>
+
+<H1><A NAME="SECTION007110000000000000000"></A>
+<A NAME="sec:charge"></A>
+<BR>
+5.11 <TT>CHARGE</TT> -- Total system charge
+</H1>
+
+<P>
+This is an optional top-level directive that allows the user to specify
+the total charge of the system.  The form of the directive is as follows:
+<PRE>
+  CHARGE &lt;real charge default 0&gt;
+</PRE>
+
+<P>
+The default charge<A NAME="tex2html7"
+  HREF="footnode.html#foot854"><SUP>5.6</SUP></A> is zero
+if this directive is omitted.  An example of a case where the
+directive would be needed is for a calculation on a doubly charged
+cation.  In such a case, the directive is simply,
+<PRE>
+  charge 2
+</PRE>
+
+<P>
+If centers with fractional charge have been specified (Section
+<A HREF="node8.html#sec:geom">6</A>) the net charge of the system should be adjusted to
+ensure that there are an integral number of electrons.
+
+<P>
+The charge may be changed between tasks, and is used by all
+wavefunction types.  For instance, in order to compute the first two
+vertical ionization energies of <IMG
+ WIDTH="35" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img29.gif"
+ ALT="$LiH$">, one might optimize the geometry
+of <IMG
+ WIDTH="35" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
+ SRC="img29.gif"
+ ALT="$LiH$"> using a UHF SCF wavefunction, and then perform energy
+calculations at the optimized geometry on <IMG
+ WIDTH="45" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img30.gif"
+ ALT="$LiH^+$"> and
+<IMG
+ WIDTH="52" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img31.gif"
+ ALT="$LiH^{2+}$"> in turn.  This is accomplished with the following input:
+<PRE>
+  geometry; Li 0 0 0; H  0 0 1.64; end
+  basis; Li library 3-21g; H library 3-21g; end
+
+  scf; uhf; singlet; end
+  task scf optimize
+
+  charge 1
+  scf; uhf; doublet; end
+  task scf
+
+  charge 2
+  scf; uhf; singlet; end
+  task scf
+</PRE>
+The <code>GEOMETRY</code>, <code>BASIS</code>, and <code>SCF</code> directives are
+described below (Sections <A HREF="node8.html#sec:geom">6</A>, <A HREF="node9.html#sec:basis">7</A> and
+<A HREF="node12.html#sec:scf">10</A> respectively) but their intent should be clear.  The
+<code>TASK</code> directive is described above (Section <A HREF="node7.html#sec:task">5.10</A>).  
+
+<P>
+
+<H1><A NAME="SECTION007120000000000000000"></A>
+<A NAME="sec:ecce"></A>
+<BR>
+5.12 <TT>ECCE_PRINT</TT> -- Print information for Ecce
+</H1>
+
+<P>
+The <code>ECCE_PRINT</code> directive allows the user to print out a file,
+usually called ecce.out, that will allow the calculation and its
+results to be imported into <A NAME="tex2html8"
+  HREF="/pub/docs/ecce">Ecce</A>.
+
+<P>
+<PRE>
+  ECCE_PRINT &lt;string name&gt;
+</PRE>
+
+<P>
+The entry for variable <code>&lt;name&gt;</code> is the name of the file
+that will contain the Ecce import information and should include
+the full path to the directory where you want that file.  For example
+
+<P>
+<PRE>
+  ecce_print /home/user/job/ecce.out
+</PRE>
+
+<P>
+If the full path is not given and only the file name is given, the file
+will be located in whatever directory the job is started in.  For example,
+if the line
+
+<P>
+<PRE>
+  ecce_print ecce.out
+</PRE>
+
+<P>
+is in the input file, the file could end up in the scratch directory if
+the user is using a batch script that copies the input file to a local
+scratch directory and then launches NWChem from there.  If the system
+then automatically removes files in the scratch space at the end of the
+job, the ecce.out file will be lost.  So, the best
+practice is to include the full path name for the file.
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1060"
+  HREF="node8.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1056"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1050"
+  HREF="node6.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1058"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1061"
+  HREF="node8.html">6. Geometries</A>
+<B> Up:</B> <A NAME="tex2html1057"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1051"
+  HREF="node6.html">4. Functionality</A>
+ &nbsp <B>  <A NAME="tex2html1059"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

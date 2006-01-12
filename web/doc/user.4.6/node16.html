@@ -1,0 +1,800 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>14. CIS, TDHF, and TDDFT</TITLE>
+<META NAME="description" CONTENT="14. CIS, TDHF, and TDDFT">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node17.html">
+<LINK REL="previous" HREF="node15.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node17.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1243"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1239"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1233"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1241"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1244"
+  HREF="node17.html">15. Tensor Contraction Engine</A>
+<B> Up:</B> <A NAME="tex2html1240"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1234"
+  HREF="node15.html">13. COSMO</A>
+ &nbsp <B>  <A NAME="tex2html1242"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1245"
+  HREF="node16.html#SECTION001610000000000000000">14.1 Overview</A>
+<LI><A NAME="tex2html1246"
+  HREF="node16.html#SECTION001620000000000000000">14.2 Performance of CIS, TDHF, and TDDFT methods</A>
+<LI><A NAME="tex2html1247"
+  HREF="node16.html#SECTION001630000000000000000">14.3 Input syntax</A>
+<LI><A NAME="tex2html1248"
+  HREF="node16.html#SECTION001640000000000000000">14.4 Keywords of <TT>TDDFT</TT> input block</A>
+<UL>
+<LI><A NAME="tex2html1249"
+  HREF="node16.html#SECTION001641000000000000000">14.4.1 <TT>CIS</TT> and <TT>RPA</TT> -- the Tamm-Dancoff approximation</A>
+<LI><A NAME="tex2html1250"
+  HREF="node16.html#SECTION001642000000000000000">14.4.2 <TT>NROOTS</TT> -- the number of excited states</A>
+<LI><A NAME="tex2html1251"
+  HREF="node16.html#SECTION001643000000000000000">14.4.3 <TT>MAXVECS</TT> -- the subspace size</A>
+<LI><A NAME="tex2html1252"
+  HREF="node16.html#SECTION001644000000000000000">14.4.4 <TT>SINGLET</TT> and <TT>NOSINGLET</TT> -- singlet excited states</A>
+<LI><A NAME="tex2html1253"
+  HREF="node16.html#SECTION001645000000000000000">14.4.5 <TT>TRIPLET</TT> and <TT>NOTRIPLET</TT> -- triplet excited states</A>
+<LI><A NAME="tex2html1254"
+  HREF="node16.html#SECTION001646000000000000000">14.4.6 <TT>THRESH</TT> -- the convergence threshold of Davidson iteration</A>
+<LI><A NAME="tex2html1255"
+  HREF="node16.html#SECTION001647000000000000000">14.4.7 <TT>MAXITER</TT> -- the maximum number of Davidson iteration</A>
+<LI><A NAME="tex2html1256"
+  HREF="node16.html#SECTION001648000000000000000">14.4.8 <TT>TARGET</TT> and <TT>TARGETSYM</TT>-- the target root and its symmetry</A>
+<LI><A NAME="tex2html1257"
+  HREF="node16.html#SECTION001649000000000000000">14.4.9 <TT>SYMMETRY</TT> -- restricting the excited state symmetry</A>
+<LI><A NAME="tex2html1258"
+  HREF="node16.html#SECTION0016410000000000000000">14.4.10 <TT>ALGORITHM</TT> -- algorithms for tensor contractions</A>
+<LI><A NAME="tex2html1259"
+  HREF="node16.html#SECTION0016411000000000000000">14.4.11 <TT>FREEZE</TT> -- the frozen core/virtual approximation</A>
+<LI><A NAME="tex2html1260"
+  HREF="node16.html#SECTION0016412000000000000000">14.4.12 <TT>PRINT</TT> -- the verbosity</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1261"
+  HREF="node16.html#SECTION001650000000000000000">14.5 Sample input</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001600000000000000000">
+14. CIS, TDHF, and TDDFT</A>
+</H1>
+<A NAME="sec:tddft"></A>
+<P>
+
+<H1><A NAME="SECTION001610000000000000000">
+14.1 Overview</A>
+</H1>
+
+<P>
+NWChem supports a spectrum of single excitation theories for
+vertical excitation energy calculations, namely, configuration interaction
+singles (CIS),<A NAME="tex2html42"
+  HREF="footnode.html#foot4507"><SUP>14.1</SUP></A> 
+time-dependent Hartree-Fock (TDHF or also known as 
+random-phase approximation RPA), time-dependent density functional
+theory (TDDFT),<A NAME="tex2html43"
+  HREF="footnode.html#foot4508"><SUP>14.2</SUP></A> 
+and Tamm-Dancoff approximation to TDDFT.<A NAME="tex2html44"
+  HREF="footnode.html#foot4509"><SUP>14.3</SUP></A>These methods
+are implemented in a single framework that invokes Davidson's trial vector
+algorithm (or its modification for a non-Hermitian eigenvalue problem).<A NAME="tex2html45"
+  HREF="footnode.html#foot4510"><SUP>14.4</SUP></A>The capabilities of the module are summarized as follows:
+
+<UL>
+<LI>Vertical excitation energies,
+</LI>
+<LI>Spin-restricted singlet and triplet excited states for closed-shell systems,
+</LI>
+<LI>Spin-unrestricted doublet, etc., excited states for open-shell systems,
+</LI>
+<LI>Tamm-Dancoff and full time-dependent linear response theories,
+</LI>
+<LI>Davidson's trial vector algorithm,
+</LI>
+<LI>Symmetry (irreducible representation) characterization and specification,
+</LI>
+<LI>Spin multiplicity characterization and specification,
+</LI>
+<LI>Transition moments and oscillator strengths,
+</LI>
+<LI>Geometrical first and second derivatives of vertical excitation energies 
+by numerical differentiation,
+</LI>
+<LI>Disk-based and fully incore algorithms,
+</LI>
+<LI>Multiple and single trial-vector processing algorithms,
+</LI>
+<LI>Frozen core and virtual approximation.
+</LI>
+</UL>
+
+<P>
+New capability added in the latest version (4.6) is:
+
+<UL>
+<LI>Asymptotically correct exchange-correlation potential by van Leeuwen and Baerends,<A NAME="tex2html46"
+  HREF="footnode.html#foot4511"><SUP>14.5</SUP></A>
+</LI>
+<LI>Asymptotic correction by Casida and Salahub,<A NAME="tex2html47"
+  HREF="footnode.html#foot4512"><SUP>14.6</SUP></A>
+</LI>
+<LI>Asymptotic correction by Hirata, Zhan, Apr&#224;, Windus, and Dixon.<A NAME="tex2html48"
+  HREF="footnode.html#foot4513"><SUP>14.7</SUP></A>
+</LI>
+</UL>
+These are very effective way to rectify the shortcomings of TDDFT when applied to Rydberg excited states (see below).
+
+<P>
+
+<H1><A NAME="SECTION001620000000000000000">
+14.2 Performance of CIS, TDHF, and TDDFT methods</A>
+</H1>
+
+<P>
+The accuracy of CIS and TDHF for excitation energies of closed-shell systems
+are comparable to each other, and are normally considered a zeroth-order
+description of the excitation process.  These methods are particularly well balanced
+in describing Rydberg excited states, in contrast to TDDFT.
+However, for open-shell systems,
+the errors in the CIS and TDHF excitation energies are often excessive, primarily
+due to the multi-determinantal character of the ground and excited state wave functions
+of open-shell systems in a HF reference.<A NAME="tex2html49"
+  HREF="footnode.html#foot4514"><SUP>14.8</SUP></A> 
+The scaling of the computational cost of a CIS
+or TDHF calculation per state with respect to the system size is the same as that for 
+a HF calculation for the ground state, since the critical step of the both methods are
+the Fock build, namely, the contraction of two-electron integrals with density matrices.
+It is usually necessary to include two sets of diffuse exponents in the basis set
+to properly account for the diffuse Rydberg excited states of neutral species.
+
+<P>
+The accuracy of TDDFT may vary depending on the exchange-correlation functional.
+In general, the exchange-correlation functionals that are widely used today and are implemented
+in NWChem work well for low-lying valence excited states.  However, for high-lying diffuse
+excited states and Rydberg excited states in particular, TDDFT employing these 
+conventional functionals breaks down and the excitation energies are substantially 
+underestimated.  This is because of the fact that the exchange-correlation potentials
+generated from these functionals decay too rapidly (exponentially) as opposed to the 
+slow <IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img111.gif"
+ ALT="$-1/r$"> asymptotic decay of the true potential.  A rough but useful index is the 
+negative of the highest occupied KS orbital energy; when the calculated excitation energies
+become close to this threshold, these numbers are most likely underestimated relative
+to experimental results.<A NAME="tex2html50"
+  HREF="footnode.html#foot4515"><SUP>14.9</SUP></A>  It appears that TDDFT provides a better-balanced description
+of radical excited states.<A NAME="tex2html51"
+  HREF="footnode.html#foot4516"><SUP>14.10</SUP></A> 
+This may be traced to the fact that, in DFT, the ground state
+wave function is represented well as a single KS determinant, with less multi-determinantal
+character and less spin contamination, and hence the excitation thereof is described well
+as a simple one electron transition.  The computational cost per state of TDDFT calculations 
+scales as the same as the ground state DFT calculations, although the prefactor of the scaling
+may be much greater in the former.
+
+<P>
+A very simple and effecive way to rectify the TDDFT's failure for Rydberg excited states
+has been proposed by Tozer and Handy<A NAME="tex2html52"
+  HREF="footnode.html#foot4517"><SUP>14.11</SUP></A> and by Casida and Salahub (see previous reference).  They proposed to splice a <IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img111.gif"
+ ALT="$-1/r$"> asymptotic
+tail to an exchange-correlation potential that does not have the correct asymptotic behavior.
+Because the approximate exchange-correlation potentials are too shallow everywhere, a negative constant
+must be added to them before they can be spliced to the <IMG
+ WIDTH="40" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img111.gif"
+ ALT="$-1/r$"> tail seamlessly in a region that is not
+sensitive to chemical effects or to the long-range behavior.  The negative constant or the shift is usually
+taken to be the difference of the HOMO energy from the true ionization potential, which can be obtained
+either from experiment or from a <IMG
+ WIDTH="17" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img104.gif"
+ ALT="$\Delta$">SCF calculation.  Recently, we proposed a new, expedient, and
+self-contained asymptotic correction that does not require an ionization potential (or shift) as an external parameter from a separate calculation.<A NAME="tex2html53"
+  HREF="footnode.html#foot4518"><SUP>14.12</SUP></A>  In this scheme, the shift is computed by a semi-empirical
+formula proposed by Zhan, Nichols, and Dixon.<A NAME="tex2html54"
+  HREF="footnode.html#foot4519"><SUP>14.13</SUP></A>  Both Casida-Salahub scheme and this new asymptotic correction scheme give considerably improved (Koopmans type) ionization potentials and Rydberg excitation energies.
+The latter, however, supply the shift by itself unlike to former.
+
+<P>
+
+<H1><A NAME="SECTION001630000000000000000">
+14.3 Input syntax</A>
+</H1>
+
+<P>
+The module is called TDDFT as TDDFT employing a hybrid HF-DFT functional 
+encompasses all of the above-mentioned methods implemented.  To use this
+module, one needs to specify <code>TDDFT</code> on the task directive, e.g.,
+<PRE>
+      TASK TDDFT ENERGY
+</PRE>
+for a single-point excitation energy calculation, and
+<PRE>
+      TASK TDDFT OPTIMIZE
+</PRE>
+for an excited-state geometry optimization (and perhaps an adiabatic
+excitation energy calculation), and
+<PRE>
+      TASK TDDFT FREQUENCIES
+</PRE>
+for an excited-state vibrational frequency calculation.  The TDDFT module
+first invokes DFT module for a ground-state calculation (regardless of 
+whether the calculations uses a HF reference as in CIS or TDHF or a DFT
+functional), and hence there is no need to perform a separate ground-state
+DFT calculation prior to calling a TDDFT task.  When no second argument
+of the task directive is given, a single-point excitation energy calculation
+will be assumed.  For geometry optimizations, it is usually necessary to
+specify the target excited state and its irreducible representation it
+belongs to.  See the subsections <code>TARGET</code> and <code>TARGETSYM</code> for
+more detail.
+
+<P>
+Individual parameters and keywords may be supplied in the TDDFT input
+block.  The syntax is:
+<PRE>
+  TDDFT
+    [(CIS||RPA) default RPA]
+    [NROOTS &lt;integer nroots default 1&gt;]
+    [MAXVECS &lt;integer maxvecs default 1000&gt;]
+    [(SINGLET||NOSINGLET) default SINGLET]
+    [(TRIPLET||NOTRIPLET) default TRIPLET]
+    [THRESH &lt;double thresh default 1e-4&gt;]
+    [MAXITER &lt;integer maxiter default 100&gt;]
+    [TARGET &lt;integer target default 1&gt;]
+    [TARGETSYM &lt;character targetsym default 'none'&gt;]
+    [SYMMETRY]
+    [ALGORITHM &lt;integer algorithm default 0&gt;]
+    [FREEZE [[core] (atomic || &lt;integer nfzc default 0&gt;)] \
+             [virtual &lt;integer nfzv default 0&gt;]]
+    [PRINT (none||low||medium||high||debug)
+      &lt;string list_of_names ...&gt;]
+  END
+</PRE>
+
+<P>
+The user can also specify the reference wave function in the DFT input block
+(even when CIS and TDHF calculations are requested).  See the section of Sample
+input and output for more details.
+
+<P>
+Since each keyword has a default value, a minimal input file will be
+<PRE>
+  GEOMETRY
+  Be 0.0 0.0 0.0
+  END
+
+  BASIS
+  Be library 6-31G**
+  END
+
+  TASK TDDFT ENERGY
+</PRE>
+
+<P>
+Note that the keyword for the asymptotic correction must be given in the 
+DFT input block, since all the effects of the correction (and also changes in the 
+computer program) occur in the SCF calculation stage.  See Chapter 11 (keyword <code>CS00</code> and
+<code>LB94</code>) for details.
+
+<P>
+
+<H1><A NAME="SECTION001640000000000000000">
+14.4 Keywords of <TT>TDDFT</TT> input block</A>
+</H1>
+
+<P>
+
+<H2><A NAME="SECTION001641000000000000000">
+14.4.1 <TT>CIS</TT> and <TT>RPA</TT> -- the Tamm-Dancoff approximation</A>
+</H2>
+
+<P>
+These keywords toggle the Tamm-Dancoff approximation.  <code>CIS</code> means
+that the Tamm-Dancoff approximation is used and the CIS or Tamm-Dancoff TDDFT
+calculation is requested.  <code>RPA</code>, which is the default, requests 
+TDHF (RPA) or TDDFT calculation.
+
+<P>
+The performance of CIS (Tamm-Dancoff TDDFT) and RPA (TDDFT) are comparable in
+accuracy.  However, the computational cost is slightly greater in the latter due to
+the fact that the latter involves a non-Hermitian eigenvalue problem and requires
+left and right eigenvectors while the former needs just one set of eigenvectors of 
+a Hermitian eigenvalue problem.  The latter has much greater chance of
+aborting the calculation due to triplet near instability or other instability 
+problems.
+
+<P>
+
+<H2><A NAME="SECTION001642000000000000000">
+14.4.2 <TT>NROOTS</TT> -- the number of excited states</A>
+</H2>
+
+<P>
+One can specify the number of excited state roots to be determined.  The default 
+value is <code>1</code>.  It is advised that the users request several more roots than actually
+needed, since owing to the nature of the trial vector algorithm, some low-lying
+roots can be missed when they do not have sufficient overlap with the initial guess
+vectors.
+
+<P>
+
+<H2><A NAME="SECTION001643000000000000000">
+14.4.3 <TT>MAXVECS</TT> -- the subspace size</A>
+</H2>
+
+<P>
+This keyword limits the subspace size of Davidson's algorithm; in other words, it
+is the maximum number of trial vectors that the calculation is allowed to hold.
+Typically, 10 to 20 trial vectors are needed for each excited state root to be
+converged.  However, it need not exceed the product of the number of occupied 
+orbitals and the number of virtual orbitals.  The default value is <code>1000</code>.
+
+<P>
+
+<H2><A NAME="SECTION001644000000000000000">
+14.4.4 <TT>SINGLET</TT> and <TT>NOSINGLET</TT> -- singlet excited states</A>
+</H2>
+
+<P>
+<code>SINGLET</code> (<code>NOSINGLET</code>) requests (suppresses) the calculation of singlet 
+excited states when the reference wave function is closed shell.  The default 
+is <code>SINGLET</code>.
+
+<P>
+
+<H2><A NAME="SECTION001645000000000000000">
+14.4.5 <TT>TRIPLET</TT> and <TT>NOTRIPLET</TT> -- triplet excited states</A>
+</H2>
+
+<P>
+<code>TRIPLET</code> (<code>NOTRIPLET</code>) requests (suppresses) the calculation of triplet 
+excited states when the reference wave function is closed shell.  The default 
+is <code>TRIPLET</code>.
+
+<P>
+
+<H2><A NAME="SECTION001646000000000000000">
+14.4.6 <TT>THRESH</TT> -- the convergence threshold of Davidson iteration</A>
+</H2>
+
+<P>
+This keyword specifies the convergence threshold of Davidson's iterative algorithm
+to solve a matrix eigenvalue problem.  The threshold refers to the norm of residual,
+namely, the difference between the left-hand side and right-hand side of the matrix
+eigenvalue equation with the current solution vector.  With the default value of 
+<code>1e-4</code>, the excitation energies are usually converged to <code>1e-5</code> hartree.
+
+<P>
+
+<H2><A NAME="SECTION001647000000000000000">
+14.4.7 <TT>MAXITER</TT> -- the maximum number of Davidson iteration</A>
+</H2>
+
+<P>
+It typically takes 10-30 iterations for the Davidson algorithm to get converged results.
+The default value is <code>100</code>.
+
+<P>
+
+<H2><A NAME="SECTION001648000000000000000">
+14.4.8 <TT>TARGET</TT> and <TT>TARGETSYM</TT>-- the target root and its symmetry</A>
+</H2>
+
+<P>
+At the moment, the first and second geometrical derivatives of excitation 
+energies that are needed in force, geometry, and frequency calculations are
+obtained by numerical differentiation.  These keywords may be used to specify
+which excited state root is being used for the geometrical derivative calculation.
+For instance, when <code>TARGET 3</code> and <code>TARGETSYM a1g</code> are included in the
+input block, the total energy (ground state energy plus excitation energy) 
+of the third lowest excited state root (excluding the ground state) transforming as
+the irreducible representation <code>a1g</code> will be passed to the module which performs
+the derivative calculations.  The default values of these keywords are <code>1</code> and <code>none</code>,
+respectively.
+
+<P>
+The keyword <code>TARGETSYM</code> is essential in excited state geometry 
+optimization, since it is very common that the order of excited states changes due to 
+the geometry changes in the course of optimization.  Without specifying the <code>TARGETSYM</code>,
+the optimizer could (and would likely) be optimizing the geometry of an excited state that
+is different from the one the user had intended to optimize at the starting geometry.
+On the other hand, in the frequency calculations, <code>TARGETSYM</code> must be <code>none</code>,
+since the finite displacements given in the course of frequency calculations will lift
+the spatial symmetry of the equilibrium geometry.  When these finite displacements can
+alter the order of excited states including the target state, the frequency calculation
+is not be feasible.
+
+<P>
+
+<H2><A NAME="SECTION001649000000000000000">
+14.4.9 <TT>SYMMETRY</TT> -- restricting the excited state symmetry</A>
+</H2>
+
+<P>
+By adding this keyword to the input block, the user can request the module to
+generate the initial guess vectors transforming as the 
+same irreducible representation as <code>TARGETSYM</code>.  This causes the final
+excited state roots be (exclusively) dominated by those with the specified 
+irreducible representation.  This may be useful, when the user is interested in
+just the optically allowed transitions, or in the geometry optimization of
+an excited state root with a particular irreducible representation.  By default,
+this option is not set.  <code>TARGETSYM</code> must be specified when <code>SYMMETRY</code> 
+is invoked.
+
+<P>
+
+<H2><A NAME="SECTION0016410000000000000000">
+14.4.10 <TT>ALGORITHM</TT> -- algorithms for tensor contractions</A>
+</H2>
+
+<P>
+There are four distinct algorithms to choose from, and the default value
+of <code>0</code> (optimal) means that the program makes an optimal choice from the four
+algorithms on the basis of available memory.  In the order of decreasing memory requirement,
+the four algorithms are:
+
+<UL>
+<LI><code>ALGORITHM 1</code> : Incore, multiple tensor contraction,
+</LI>
+<LI><code>ALGORITHM 2</code> : Incore, single tensor contraction,
+</LI>
+<LI><code>ALGORITHM 3</code> : Disk-based, multiple tensor contraction,
+</LI>
+<LI><code>ALGORITHM 4</code> : Disk-based, single tensor contraction.
+</LI>
+</UL>
+The incore algorithm stores all the trial and product vectors in memory across
+different nodes with the GA,
+and often decreases the <code>MAXITER</code> value to accommodate them.  The disk-based
+algorithm stores the vectors on disks across different nodes with the DRA, and
+retrieves each vector one at a time when it is needed.  The multiple and single
+tensor contraction refers to whether just one or more than one trial vectors
+are contracted with integrals.  The multiple tensor contraction algorithm is 
+particularly effective (in terms of speed) for CIS and TDHF, since the number of 
+the direct evaluations of two-electron integrals is diminished substantially.
+
+<P>
+
+<H2><A NAME="SECTION0016411000000000000000">
+14.4.11 <TT>FREEZE</TT> -- the frozen core/virtual approximation</A>
+</H2>
+
+<P>
+Some of the lowest-lying core orbitals and/or some of the highest-lying
+virtual orbitals may be excluded in the CIS, TDHF, and TDDFT calculations
+by this keyword (this does not affect the ground state HF or DFT calculation).
+No orbitals are frozen by default.  To exclude the atom-like
+core regions altogether, one may request
+<PRE>
+  FREEZE atomic
+</PRE>
+To specify the number of lowest-lying occupied orbitals be excluded, one may use
+<PRE>
+  FREEZE 10
+</PRE>
+which causes 10 lowest-lying occupied orbitals excluded.
+This is equivalent to writing
+<PRE>
+  FREEZE core 10
+</PRE>
+To freeze the highest virtual orbitals, use the <code>virtual</code>
+keyword.  For instance, to freeze the top 5 virtuals
+<PRE>
+  FREEZE virtual 5
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION0016412000000000000000">
+14.4.12 <TT>PRINT</TT> -- the verbosity</A>
+</H2>
+
+<P>
+This keyword changes the level of output verbosity.  One may also
+request some particular items in Table <A HREF="node16.html#tbl:tddft-printable">14.1</A> printed.
+
+<P>
+<BR>
+<DIV ALIGN="CENTER">
+<A NAME="tbl:tddft-printable"></A><A NAME="4488"></A>
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<CAPTION><STRONG>Table 14.1:</STRONG>
+Printable items in the TDDFT modules and their default print levels.</CAPTION>
+<TR><TD ALIGN="LEFT">Item</TD>
+<TD ALIGN="LEFT">Print Level</TD>
+<TD ALIGN="LEFT">Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``timings''</TD>
+<TD ALIGN="LEFT">high</TD>
+<TD ALIGN="LEFT">CPU and wall times spent in each step</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``trial vectors''</TD>
+<TD ALIGN="LEFT">high</TD>
+<TD ALIGN="LEFT">Trial CI vectors</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``initial guess''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Initial guess CI vectors</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``general information''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">General information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``xc information''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">HF/DFT information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``memory information''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">Memory information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``convergence''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Convergence</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``subspace''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Subspace representation of CI matrices</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``transform''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">MO to AO and AO to MO transformation of CI vectors</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``diagonalization''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Diagonalization of CI matrices</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``iteration''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">Davidson iteration update</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``contract''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Integral transition density contraction</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``ground state''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">Final result for ground state</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``excited state''</TD>
+<TD ALIGN="LEFT">low</TD>
+<TD ALIGN="LEFT">Final result for target excited state</TD>
+</TR>
+</TABLE>
+</DIV>
+<BR>
+
+<P>
+
+<H1><A NAME="SECTION001650000000000000000">
+14.5 Sample input</A>
+</H1>
+
+<P>
+The following is a sample input for a spin-restricted TDDFT calculation of 
+singlet excitation energies for the water molecule at the B3LYP/6-31G*.
+<PRE>
+START h2o
+
+TITLE "B3LYP/6-31G* H2O"
+
+GEOMETRY
+O     0.00000000     0.00000000     0.12982363
+H     0.75933475     0.00000000    -0.46621158
+H    -0.75933475     0.00000000    -0.46621158
+END
+
+BASIS
+* library 6-31G*
+END
+
+DFT
+XC B3LYP
+END
+
+TDDFT
+RPA
+NROOTS 20
+END
+
+TASK TDDFT ENERGY
+</PRE>
+
+<P>
+To perform a spin-unrestricted TDHF/aug-cc-pVDZ calculation for the CO+ radical,
+<PRE>
+START co
+
+TITLE "TDHF/aug-cc-pVDZ CO+"
+
+CHARGE 1
+
+GEOMETRY
+C  0.0  0.0  0.0
+O  1.5  0.0  0.0
+END
+
+BASIS
+* library aug-cc-pVDZ
+END
+
+DFT
+XC HFexch
+MULT 2
+END
+
+TDDFT
+RPA
+NROOTS 5
+END
+
+TASK TDDFT ENERGY
+</PRE>
+
+<P>
+A geometry optimization followed by a frequency calculation for an excited state
+is carried out for BF at the CIS/6-31G* level in the following sample input.
+<PRE>
+START bf
+
+TITLE "CIS/6-31G* BF optimization frequencies"
+
+GEOMETRY
+B 0.0 0.0 0.0
+F 0.0 0.0 1.2
+END
+
+BASIS
+* library 6-31G*
+END
+
+DFT
+XC HFexch
+END
+
+TDDFT
+CIS
+NROOTS 3
+NOTRIPLET
+TARGET 1
+END
+
+TASK TDDFT OPTIMIZE
+
+TASK TDDFT FREQUENCIES
+</PRE>
+
+<P>
+TDDFT with an asymptotically corrected SVWN exchange-correlation potential.
+Casida-Salahub scheme has been used with the shift value of 0.1837 a.u. supplied 
+as an input parameter.
+<PRE>
+START tddft_ac_co
+ 
+GEOMETRY
+O 0.0 0.0  0.0000
+C 0.0 0.0  1.1283
+END
+ 
+BASIS SPHERICAL
+C library aug-cc-pVDZ
+O library aug-cc-pVDZ
+END
+ 
+DFT
+XC Slater VWN_5
+CS00 0.1837
+END
+ 
+TDDFT
+NROOTS 12
+END
+ 
+TASK TDDFT ENERGY
+</PRE>
+
+<P>
+TDDFT with an asymptotically corrected B3LYP exchange-correlation potential.
+Hirata-Zhan-Apra-Windus-Dixon scheme has been used (this is only meaningful
+with B3LYP functional).
+<PRE>
+START tddft_ac_co
+ 
+GEOMETRY
+O 0.0 0.0  0.0000
+C 0.0 0.0  1.1283
+END
+ 
+BASIS SPHERICAL
+C library aug-cc-pVDZ
+O library aug-cc-pVDZ
+END
+ 
+DFT
+XC B3LYP
+CS00
+END
+ 
+TDDFT
+NROOTS 12
+END
+ 
+TASK TDDFT ENERGY
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1243"
+  HREF="node17.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1239"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1233"
+  HREF="node15.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1241"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1244"
+  HREF="node17.html">15. Tensor Contraction Engine</A>
+<B> Up:</B> <A NAME="tex2html1240"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1234"
+  HREF="node15.html">13. COSMO</A>
+ &nbsp <B>  <A NAME="tex2html1242"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>17. Multiconfiguration SCF</TITLE>
+<META NAME="description" CONTENT="17. Multiconfiguration SCF">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node20.html">
+<LINK REL="previous" HREF="node18.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node20.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1334"
+  HREF="node20.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1330"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1324"
+  HREF="node18.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1332"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1335"
+  HREF="node20.html">18. Selected CI</A>
+<B> Up:</B> <A NAME="tex2html1331"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1325"
+  HREF="node18.html">16. MP2</A>
+ &nbsp <B>  <A NAME="tex2html1333"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1336"
+  HREF="node19.html#SECTION001910000000000000000">17.1 <TT>ACTIVE</TT> -- Number of active orbitals</A>
+<LI><A NAME="tex2html1337"
+  HREF="node19.html#SECTION001920000000000000000">17.2 <TT>ACTELEC</TT> -- Number of active electrons</A>
+<LI><A NAME="tex2html1338"
+  HREF="node19.html#SECTION001930000000000000000">17.3 <TT>MULTIPLICITY</TT></A>
+<LI><A NAME="tex2html1339"
+  HREF="node19.html#SECTION001940000000000000000">17.4 <TT>SYMMETRY</TT> -- Spatial symmetry of the wavefunction</A>
+<LI><A NAME="tex2html1340"
+  HREF="node19.html#SECTION001950000000000000000">17.5 <TT>STATE</TT> -- Symmetry and multiplicity</A>
+<LI><A NAME="tex2html1341"
+  HREF="node19.html#SECTION001960000000000000000">17.6 <TT>VECTORS</TT> -- Input/output of MO vectors</A>
+<LI><A NAME="tex2html1342"
+  HREF="node19.html#SECTION001970000000000000000">17.7 <TT>HESSIAN</TT> -- Select preconditioner</A>
+<LI><A NAME="tex2html1343"
+  HREF="node19.html#SECTION001980000000000000000">17.8 <TT>LEVEL</TT> -- Level shift for convergence</A>
+<LI><A NAME="tex2html1344"
+  HREF="node19.html#SECTION001990000000000000000">17.9 <TT>PRINT</TT> and <TT>NOPRINT</TT></A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001900000000000000000">
+17. Multiconfiguration SCF</A>
+</H1>
+<A NAME="sec:mcscf"></A>
+<P>
+The NWChem multiconfiguration SCF (MCSCF) module can currently perform
+complete active space SCF (CASSCF) calculations with at most 20 active
+orbitals and about 500 basis functions.  It is planned to extend it to 
+handle 1000+ basis functions.
+
+<P>
+<PRE>
+  MCSCF
+    STATE &lt;string state&gt;
+    ACTIVE &lt;integer nactive&gt;
+    ACTELEC &lt;integer nactelec&gt;
+    MULTIPLICITY &lt;integer multiplicity&gt;
+    [SYMMETRY &lt;integer symmetry default 1&gt;]
+    [VECTORS [[input] &lt;string input_file default $file_prefix$.movecs&gt;] 
+           [swap &lt;integer vec1 vec2&gt; ...] \
+           [output &lt;string output_file default input_file&gt;] \
+           [lock]
+    [HESSIAN (exact||onel)]
+    [MAXITER &lt;integer maxiter default 20&gt;]
+    [THRESH  &lt;real thresh default 1.0e-4&gt;]
+    [TOL2E &lt;real tol2e default 1.0e-9&gt;]
+    [LEVEL &lt;real shift default 0.1d0&gt;]
+  END
+</PRE>
+Note that the <code>ACTIVE</code>, <code>ACTELEC</code>, and <code>MULTIPLICITY</code>
+directives are <EM>required</EM>.  The symmetry and multiplicity may
+alternatively be entered using the <code>STATE</code> directive.
+
+<P>
+
+<H1><A NAME="SECTION001910000000000000000">
+17.1 <TT>ACTIVE</TT> -- Number of active orbitals</A>
+</H1>
+
+<P>
+The number of orbitals in the CASSCF active space must be specified
+using the <TT>ACTIVE</TT> directive.
+
+<P>
+E.g.,
+<PRE>
+  active 10
+</PRE>
+
+<P>
+The input molecular orbitals (see the vectors directive, Sections
+<A HREF="node19.html#sec:mcscfvectors">17.6</A> and <A HREF="node12.html#sec:vectors">10.5</A>) must be arranged in
+order
+
+<OL>
+<LI>doubly occupied orbitals,
+</LI>
+<LI>active orbitals, and
+</LI>
+<LI>unoccupied orbitals.
+</LI>
+</OL>
+
+<P>
+
+<H1><A NAME="SECTION001920000000000000000">
+17.2 <TT>ACTELEC</TT> -- Number of active electrons</A>
+</H1>
+
+<P>
+The number of electrons in the CASSCF active space must be specified
+using the the <TT>ACTELEC</TT> directive.  An error is reported if the
+number of active electrons and the multiplicity are inconsistent.
+
+<P>
+The number of closed shells is determined by subtracting the number
+of active electrons from the total number of electrons (which in turn
+is derived from the sum of the nuclear charges minus the total system
+charge).
+
+<P>
+
+<H1><A NAME="SECTION001930000000000000000">
+17.3 <TT>MULTIPLICITY</TT></A>
+</H1>
+
+<P>
+The spin multiplicity must be specified and is enforced by projection
+of the determinant wavefunction.
+
+<P>
+E.g., to obtain a triplet state
+<PRE>
+  multiplicity 3
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001940000000000000000">
+17.4 <TT>SYMMETRY</TT> -- Spatial symmetry of the wavefunction</A>
+</H1>
+
+<P>
+This species the irreducible representation of the wavefunction as an
+integer in the range 1--8 using the same numbering of representations
+as output by the SCF program.  Note that only Abelian point groups are
+supported.
+
+<P>
+E.g., to specify a <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img142.gif"
+ ALT="$B_1$"> state when using the <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.gif"
+ ALT="$C_{2v}$"> group
+<PRE>
+  symmetry 3
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001950000000000000000">
+17.5 <TT>STATE</TT> -- Symmetry and multiplicity</A>
+</H1>
+
+<P>
+The electronic state (spatial symmetry and multiplicity) may
+alternatively be specified using the conventional notation for an
+electronic state, such as <IMG
+ WIDTH="30" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img143.gif"
+ ALT="$^3B_2$"> for a triplet state of <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img144.gif"
+ ALT="$B_2$">
+symmetry.  This would be accomplished with the input
+<PRE>
+  state 3b2
+</PRE>
+which is equivalent to 
+<PRE>
+  symmetry 4
+  multiplicity 3
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001960000000000000000"></A>
+<A NAME="sec:mcscfvectors"></A>
+<BR>
+17.6 <TT>VECTORS</TT> -- Input/output of MO vectors
+</H1>
+
+<P>
+Calculations are best started from RHF/ROHF molecular orbitals (see
+Section <A HREF="node12.html#sec:scf">10</A>), and by default vectors are taken from the
+previous MCSCF or SCF calculation.  To specify another input file use
+the <code>VECTORS</code> directive.  Vectors are by default output to the
+input file, and may be redirected using the <code>output</code> keyword.
+The <code>swap</code> keyword of the <code>VECTORS</code> directive may be
+used to reorder orbitals to obtain the correct active space.
+See Section <A HREF="node12.html#sec:vectors">10.5</A> for an example.
+
+<P>
+The <code>LOCK</code> keyword allows the user to specify that the ordering
+of orbitals will be locked to that of the initial vectors, insofar as
+possible. The default is to order by ascending orbital energies within
+each orbital space. One application where locking might be desirable
+is a calculation where it is necessary to preserve the ordering of a
+previous geometry, despite flipping of the orbital energies.  For such
+a case, the <code>LOCK</code> directive can be used to prevent the SCF
+calculation from changing the ordering, even if the orbital energies
+change.
+
+<P>
+Output orbitals of a converged MCSCF calculation are canonicalized as
+follows:
+
+<UL>
+<LI>Doubly occupied and unoccupied orbitals diagonalize the
+  corresponding blocks of an effective Fock operator.  Note that in
+  the case of degenerate orbital energies this does not fully
+  determine the orbtials.
+</LI>
+<LI>Active-space orbitals are chosen as natural orbitals by
+  diagonalization of the active space 1-particle density matrix.
+  Note that in the case of degenerate occupations that this
+  does not fully determine the orbitals.
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION001970000000000000000"></A>
+<A NAME="sec:mcscfhessian"></A>
+<BR>
+17.7 <TT>HESSIAN</TT> -- Select preconditioner
+</H1>
+
+<P>
+The MCSCF will use a one-electron approximation to the orbital-orbital
+Hessian until some degree of convergence is obtained, whereupon it
+will attempt to use the exact orbital-orbital Hessian which makes the
+micro iterations more expensive but potentially reduces the total
+number of macro iterations.  Either choice may be forced throughout
+the calculation by specifying the appropriate keyword on the
+<code>HESSIAN</code> directive.
+
+<P>
+E.g., to specify the one-electron approximation throughout
+<PRE>
+  hessian onel
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001980000000000000000">
+17.8 <TT>LEVEL</TT> -- Level shift for convergence</A>
+</H1>
+
+<P>
+The Hessian (Section <A HREF="node19.html#sec:mcscfhessian">17.7</A>) used in the MCSCF
+optimization is by default level shifted by 0.1 until the orbital
+gradient norm falls below 0.01, at which point the level shift is
+reduced to zero.  The initial value of <IMG
+ WIDTH="24" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img145.gif"
+ ALT="$0.1$"> may be changed using
+the <code>LEVEL</code> directive.  Increasing the level shift may make
+convergence more stable in some instances.
+
+<P>
+E.g., to set the initial level shift to 0.5
+<PRE>
+  level 0.5
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION001990000000000000000">
+17.9 <TT>PRINT</TT> and <TT>NOPRINT</TT></A>
+</H1>
+
+<P>
+Specific output items can be selectively enabled or disabled using the
+<code>print</code> control mechanism&nbsp;(<A HREF="node7.html#sec:printcontrol">5.6</A>) with the
+available print options listed in table(<A HREF="node19.html#MCSCF_print_options">17.9</A>).
+
+<P>
+<BR><P></P>
+<DIV ALIGN="CENTER"><A NAME="5509"></A>
+<TABLE>
+<CAPTION><STRONG>Table 17.1:</STRONG>
+MCSCF Print Options</CAPTION>
+<TR><TD>
+<P>
+<A NAME="MCSCF_print_options"></A>
+<P>
+
+<P>
+<BR>
+<BR>
+<TABLE CELLPADDING=3 BORDER="1">
+<TR><TD ALIGN="LEFT">Option</TD>
+<TD ALIGN="RIGHT">Class</TD>
+<TD ALIGN="LEFT">Synopsis</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>ci energy</code></TD>
+<TD ALIGN="RIGHT">default</TD>
+<TD ALIGN="LEFT">CI energy eigenvalue</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>fock energy</code></TD>
+<TD ALIGN="RIGHT">default</TD>
+<TD ALIGN="LEFT">Energy derived from Fock matrices</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>gradient norm</code></TD>
+<TD ALIGN="RIGHT">default</TD>
+<TD ALIGN="LEFT">Gradient norm</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>movecs</code></TD>
+<TD ALIGN="RIGHT">default</TD>
+<TD ALIGN="LEFT">Converged occupied MO vectors</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>trace energy</code></TD>
+<TD ALIGN="RIGHT">high</TD>
+<TD ALIGN="LEFT">Trace Energy</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>converge info</code></TD>
+<TD ALIGN="RIGHT">high</TD>
+<TD ALIGN="LEFT">Convergence data and monitoring</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>precondition</code></TD>
+<TD ALIGN="RIGHT">high</TD>
+<TD ALIGN="LEFT">Orbital preconditioner iterations</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>microci</code></TD>
+<TD ALIGN="RIGHT">high</TD>
+<TD ALIGN="LEFT">CI iterations in line search</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>canonical</code></TD>
+<TD ALIGN="RIGHT">high</TD>
+<TD ALIGN="LEFT">Canonicalization information</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>new movecs</code></TD>
+<TD ALIGN="RIGHT">debug</TD>
+<TD ALIGN="LEFT">MO vectors at each macro-iteration</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>ci guess</code></TD>
+<TD ALIGN="RIGHT">debug</TD>
+<TD ALIGN="LEFT">Initial guess CI vector</TD>
+</TR>
+<TR><TD ALIGN="LEFT"><code>density matrix</code></TD>
+<TD ALIGN="RIGHT">debug</TD>
+<TD ALIGN="LEFT">One- and Two-particle density matrices</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<P>
+</TD></TR>
+</TABLE>
+</DIV><P></P>
+<BR>
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1334"
+  HREF="node20.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1330"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1324"
+  HREF="node18.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1332"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1335"
+  HREF="node20.html">18. Selected CI</A>
+<B> Up:</B> <A NAME="tex2html1331"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1325"
+  HREF="node18.html">16. MP2</A>
+ &nbsp <B>  <A NAME="tex2html1333"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

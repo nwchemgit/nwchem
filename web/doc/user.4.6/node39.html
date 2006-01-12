@@ -1,0 +1,780 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>37. Interfaces to Other Programs</TITLE>
+<META NAME="description" CONTENT="37. Interfaces to Other Programs">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node40.html">
+<LINK REL="previous" HREF="node38.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node40.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1776"
+  HREF="node40.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1772"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1766"
+  HREF="node38.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1774"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1777"
+  HREF="node40.html">38. Acknowledgments</A>
+<B> Up:</B> <A NAME="tex2html1773"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1767"
+  HREF="node38.html">36. Controlling NWChem with</A>
+ &nbsp <B>  <A NAME="tex2html1775"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1778"
+  HREF="node39.html#SECTION003910000000000000000">37.1 <TT>NBO</TT> -- Natural Bond Orbital Analysis</A>
+<LI><A NAME="tex2html1779"
+  HREF="node39.html#SECTION003920000000000000000">37.2 <TT>DIRDYVTST</TT> -- DIRect Dynamics for Variational Transition State Theory</A>
+<UL>
+<LI><A NAME="tex2html1780"
+  HREF="node39.html#SECTION003921000000000000000">37.2.1 Introduction</A>
+<LI><A NAME="tex2html1781"
+  HREF="node39.html#SECTION003922000000000000000">37.2.2 Files</A>
+<LI><A NAME="tex2html1782"
+  HREF="node39.html#SECTION003923000000000000000">37.2.3 Detailed description of the input</A>
+<UL>
+<LI><A NAME="tex2html1783"
+  HREF="node39.html#SECTION003923100000000000000">37.2.3.1 Use of symmetry</A>
+<LI><A NAME="tex2html1784"
+  HREF="node39.html#SECTION003923200000000000000">37.2.3.2 Basis specification</A>
+<LI><A NAME="tex2html1785"
+  HREF="node39.html#SECTION003923300000000000000">37.2.3.3 Effective core potentials</A>
+<LI><A NAME="tex2html1786"
+  HREF="node39.html#SECTION003923400000000000000">37.2.3.4 General input strings</A>
+<LI><A NAME="tex2html1787"
+  HREF="node39.html#SECTION003923500000000000000">37.2.3.5 POLYRATE related options</A>
+<UL>
+<LI><A NAME="tex2html1788"
+  HREF="node39.html#SECTION003923510000000000000">37.2.3.5.1 GENERAL section</A>
+<LI><A NAME="tex2html1789"
+  HREF="node39.html#SECTION003923520000000000000">37.2.3.5.2 REACT1, REACT2, PROD1, PROD2, and START sections</A>
+<LI><A NAME="tex2html1790"
+  HREF="node39.html#SECTION003923530000000000000">37.2.3.5.3 PATH section</A>
+</UL>
+<LI><A NAME="tex2html1791"
+  HREF="node39.html#SECTION003923600000000000000">37.2.3.6 Restart</A>
+<LI><A NAME="tex2html1792"
+  HREF="node39.html#SECTION003923700000000000000">37.2.3.7 Example</A>
+</UL></UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION003900000000000000000">
+37. Interfaces to Other Programs</A>
+</H1>
+<A NAME="sec:interface"></A>
+<P>
+NWChem has interfaces to several different packages which are listed below.
+In general, the NWChem authors work with the authors of the other packages
+to make sure that the interface works.  However, any problems with the 
+interface should be reported to the
+<TT>nwchem-users@emsl.pnl.gov</TT> e-mail list.
+
+<P>
+
+<H1><A NAME="SECTION003910000000000000000"></A>
+<A NAME="sec:nbo"></A>
+<BR>
+37.1 <TT>NBO</TT> -- Natural Bond Orbital Analysis
+</H1>
+<PRE>
+  NBO
+    ...
+  END
+</PRE>
+
+<P>
+This directive is used to run the NBO package within NWChem.  (To only print
+out an input file for NBO, see Section <A HREF="node30.html#sec:Nbofile">28.1.1</A>.)  The current
+version of NBO in NWChem is version 5.0.
+
+<P>
+Inside the NBO block are the typical commands that would be needed for NBO
+(Please see an NBO user's manual for more information.).  The following
+directive is needed to execute NBO.
+<PRE>
+task nbo
+</PRE>
+As an example:
+
+<P>
+<PRE>
+title "Methylamine...rhf/3-21g//Pople-Gordon standard geometry"
+
+start methylamine
+
+echo
+
+memory 8 mw
+
+basis
+ C library 3-21g
+ N library 3-21g
+ H library 3-21g
+end
+
+geometry
+ C            .052902     .711852     .000000
+ N            .052902    -.758148     .000000
+ H           -.974760    1.075185     .000000
+ H            .566733    1.075185     .889981
+ H            .566733    1.075185    -.889981
+ H           -.423217   -1.094815     .824662
+ H           -.423217   -1.094815    -.824662
+ symmetry c1
+end
+
+task SCF energy
+
+nbo
+ $nbo cmo $end
+end
+
+task nbo
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION003920000000000000000"></A>
+<A NAME="sec:dirdyvtst"></A>
+<BR>
+37.2 <TT>DIRDYVTST</TT> -- DIRect Dynamics for Variational Transition State Theory
+</H1>
+
+<P>
+by Bruce C. Garrett,
+<BR>
+Environmental Molecular Sciences Laboratory,
+<BR>
+Pacific Northwest Laboratory, Richland, Washington
+<BR>
+<BR>
+Yao-Yuan Chuang and Donald G. Truhlar,
+<BR>
+Department of Chemistry and Super Computer Institute,
+<BR>
+University of Minnesota, MN 55455-0431
+<BR>
+<BR>
+and interfaced to NWChem by
+<BR>
+<BR>
+Ricky A. Kendall,
+<BR>
+Scalable Computing Laboratory,
+<BR>
+Ames Laboratory and Iowa State University, Ames, IA 50011
+<BR>
+<BR>
+Theresa L. Windus,
+<BR>
+Environmental Molecular Sciences Laboratory,
+<BR>
+Pacific Northwest Laboratory, Richland, Washington
+
+<P>
+If you use the DIRDYVTST portion of NWChem, please use following citation
+in addition to the usual NWChem citation from Section <A HREF="node3.html#sec:intro">1</A>:
+<BLOCKQUOTE>
+DIRDYVTST, Yao-Yuan Chuang and Donald G. Truhlar,
+  Department of Chemistry and Super Computer Institute,
+  University of Minnesota; Ricky A. Kendall,Scalable Computing Laboratory,
+  Ames Laboratory and Iowa State University; Bruce C. Garrett and Theresa L.
+  Windus, Environmental Molecular Sciences Laboratory, Pacific Northwest
+  Laboratory.
+
+</BLOCKQUOTE>
+
+<P>
+
+<H2><A NAME="SECTION003921000000000000000">
+37.2.1 Introduction</A>
+</H2>
+
+<P>
+By using DIRDYVTST, a user can carry out electronic structure calculations
+with NWChem and use the resulting energies, gradients, and Hessians for
+direct dynamics calculations with <A NAME="tex2html92"
+  HREF="http://comp.chem.umn.edu/polyrate/">POLYRATE</A>.
+This program prepares the file30 input for <A NAME="tex2html93"
+  HREF="http://comp.chem.umn.edu/polyrate/">POLYRATE</A>
+from NWChem
+electronic structure calculations of energies, gradients and Hessians at the 
+reactant, product, and saddle point geometries and along the minimum
+energy path.  Cartesian geometries for the reactants, products, and 
+saddle points need to be input to this program; optimization of 
+geometries is not performed in this program.  Note that <code>DIRDYVTST</code> is
+based on the <A NAME="tex2html94"
+  HREF="http://comp.chem.umn.edu/dirdyg/">DIRDYGAUSS program</A>
+and is similar to two other programs: <A NAME="tex2html95"
+  HREF="http://comp.chem.umn.edu/ddutil/">DDUTILITIES</A>
+and <A NAME="tex2html96"
+  HREF="http://comp.chem.umn.edu/gaussrate/">GAUSSRATE</A>.  Users of this module are
+encouraged to read the 
+<A NAME="tex2html97"
+  HREF="http://comp.chem.umn.edu/polyrate/">POLYRATE</A>
+manual since they will need to
+create the file fu5 input to run calculations with <A NAME="tex2html98"
+  HREF="http://comp.chem.umn.edu/polyrate/">POLYRATE</A>.
+
+<P>
+Notes about the code:
+
+<P>
+Input.  The code has been written to parallel, as much as possible,
+the <code>POLYRATE</code> code.  
+
+<P>
+Output.  There is one default output file for each <code>DIRDYVTST</code> run - .file30.
+
+<P>
+Integrators for following the reaction path.  
+Currently the Euler and three Page-McIver (PM) methods 
+are implemented.  The PM methods are the local quadratic approximation 
+(LQA), the corrected LQA (CLQA), and the cubic (CUBE) algorithm.
+The PM methods are implemented so that the Hessian can be reused at
+intermediate steps at which only the gradient is updated.  
+
+<P>
+
+<H2><A NAME="SECTION003922000000000000000">
+37.2.2 Files</A>
+</H2>
+
+<P>
+Test runs are located in directories in <code>$NWCHEM_TOP/QA/tests</code>.  Test 
+runs are available for two systems: <IMG
+ WIDTH="58" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img334.gif"
+ ALT="$H + H_2$"> and <IMG
+ WIDTH="71" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img335.gif"
+ ALT="$OH + H_2$">.
+
+<P>
+The <IMG
+ WIDTH="58" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img334.gif"
+ ALT="$H + H_2$"> test uses the Euler integration method at the SCF/3-21G level
+of theory to calculate points along the reaction path.
+This test is located in the <code>$NWCHEM_TOP/QA/tests/h3tr1</code> directory.
+
+<P>
+The <IMG
+ WIDTH="71" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img335.gif"
+ ALT="$OH + H_2$"> test uses the Page-McIver CUBE algorithm to calculate points
+on the SCF/3-21G surface and does additional single point calculations at
+the SCF/6-31G* level of theory.  This test is located in the
+<code>$NWCHEM_TOP/QA/tests/oh3tr3</code> directory.
+
+<P>
+Note: These tests are set up with SCF, however, other levels of
+theory can be used.  The initial hessian calculations at the reactants,
+products and saddle point can cause some problems when numerical hessians
+are required (especially when there is symmetry breaking in the wavefunction).
+
+<P>
+
+<H2><A NAME="SECTION003923000000000000000">
+37.2.3 Detailed description of the input</A>
+</H2>
+
+<P>
+The input consists of keywords for NWChem and keywords related to <code>POLYRATE</code>
+input.  The first set of inputs are for NWChem with the general input block
+of the form:
+
+<P>
+<PRE>
+  DIRDYVTST [autosym [real tol default 1d-2] | noautosym]
+    [THEORY &lt;string theory&gt; [basis &lt;string basis default "ao basis"&gt;] \
+                         [ecp &lt;string ecp&gt;] [input &lt;string input&gt;]]
+    [SPTHEORY &lt;string theory&gt; [basis &lt;string basis default "ao basis"&gt;] \
+                         [ecp &lt;string ecp&gt;] [input &lt;string input&gt;]]
+    ...
+  END
+</PRE>
+
+<P>
+
+<H3><A NAME="SECTION003923100000000000000">
+37.2.3.1 Use of symmetry</A>
+</H3>
+The use of symmetry in the calculation is controlled by the keyword
+<code>autosym | noautosym</code> which is used as described in the geometry
+directive (see Section <A HREF="node8.html#sec:geom">6</A>).  
+<code>Autosym</code> is on by default.  A couple words of warning here.
+The tolerance related to <code>autosym</code> can cause problems when taking the
+initial step off of the transition state.  If the tolerance is too large and
+the initial step relatively small,
+the resulting geometry will be close to a higher symmetry than is really 
+wanted and the molecule will be symmetrized into the higher symmetry.
+To check this, the code prints out the symmetry at each geometry along the 
+path.  It is up to the user to check the symmetry and make sure that
+it is the required one.  In preverse cases, the user may need to turn
+<code>autosym</code> off (<code>noautosym</code>) if changing the tolerance doesn't
+produce the desired results.  In the case that autosym is used, the
+user does not need to worry about the different alignment of the molecule
+between NWChem and POLYRATE, this is taken care of internally in the
+DIRDYVTST module.
+
+<P>
+
+<H3><A NAME="SECTION003923200000000000000">
+37.2.3.2 Basis specification</A>
+</H3>
+The basis name on the theory or sptheory directive is that
+specified on a basis set directive (see Section <A HREF="node9.html#sec:basis">7</A>) and
+<EM>not</EM> the name of a standard basis in the library.  If not
+specified, the basis set for the sptheory defaults to the
+theory basis which defaults to <code>"ao basis"</code>.  
+
+<P>
+
+<H3><A NAME="SECTION003923300000000000000">
+37.2.3.3 Effective core potentials</A>
+</H3>
+If an effective core potential is specified in the usual fashion (see
+Section <A HREF="node10.html#sec:ecp">8</A>) outside of the <code>DIRDYVTST</code> input then this will be
+used in all calculations.  If an alternative ECP name (the name
+specified on the ECP directive in the same manner as done for basis
+sets) is specified on one of the theory directives, then this ECP will
+be used in preference for that level of theory.
+
+<P>
+
+<H3><A NAME="SECTION003923400000000000000">
+37.2.3.4 General input strings</A>
+</H3>
+
+<P>
+For many purposes, the ability to specify the theory, basis and
+effective core potential is adequate.  All of the options for each
+theory are determined from their independent input blocks.  However,
+if the same theory (e.g., DFT) is to be used with different options
+for theory and sptheory, then the general input strings must
+be used.  These strings are processed as NWChem input each time the
+theoretical calculation is invoked.  The strings may contain any NWChem
+input, except for options pertaining to <code>DIRDYVTST</code> and the task directive.
+The intent is that the strings be used just to control the options
+pertaining to the theory being used.
+
+<P>
+A word of caution.  Be sure to check that the options are producing
+the desired results.  Since the NWChem database is persistent,
+the input strings should fully define the calculation you wish to have happen.
+
+<P>
+For instance, if the theory model is DFT/LDA/3-21g and the
+sptheory model is DFT/B3LYP/6-311g**, the <code>DIRDYVTST</code> input might look like this
+<PRE>
+    dirdyvtst
+      theory  dft basis 3-21g    input "dft\; xc\; end"
+      sptheory dft basis 6-311g** input "dft\; xc b3lyp\; end"
+      ....
+    end
+</PRE>
+The empty <code>XC</code> directive restores the default LDA
+exchange-correlation option (see Section <A HREF="node13.html#sec:xc">11.3</A>).  Note that
+semi-colons and other quotation marks inside the input string must be
+preceded by a backslash to avoid special interpretation.
+
+<P>
+
+<H3><A NAME="SECTION003923500000000000000">
+37.2.3.5 POLYRATE related options</A>
+</H3>
+
+<P>
+These keyword options are simlar to the <code>POLYRATE</code> input format, except there
+are no ENERGETICS, OPTIMIZATION, SECOND, TUNNELING, and RATE sections.
+
+<P>
+
+<H4><A NAME="SECTION003923510000000000000">
+37.2.3.5.1 GENERAL section</A>
+</H4>
+
+<P>
+The GENERAL section has the following format:
+
+<P>
+<PRE>
+*GENERAL
+  [TITLE &lt;string title&gt;]
+  ATOMS
+    &lt;integer num&gt; &lt;string tag&gt; [&lt;real mass&gt;]
+    ...
+  END
+  [SINGLEPOINT]
+  [SAVEFILE (vecs || hess || spc)
+</PRE>
+
+<P>
+Descriptions
+
+<P>
+TITLE is a keyword that allows the user to input a description of
+              the calculation.  In this version, the user can only have a 
+              single-line description.
+
+<P>
+For example: 
+                          TITLE Calculation of D + HCl reaction
+
+<P>
+ATOMS is a list keyword that is used to input a list of 
+              the atoms.  It is similar to <code>POLYRATE</code> in that the order of the 
+              atom and the atomic symbol are required in a single line.  If
+              isotope of the element is considered then the atomic mass is 
+              required in units of amu.
+
+<P>
+For example:
+<PRE>
+                          ATOMS
+                            1     H     2.014
+                            2     H 
+                            3     Cl
+                          END
+</PRE>
+
+<P>
+SINGLEPOINT is a keyword that specifies that a single
+	      point calculation is to be performed at the reactants,
+              products and saddle point geometries.  The type of 
+              single point calculation is specified in the <code>sptheory</code> 
+              line.
+
+<P>
+SAVEFILE is a keyword that specifies that NWChem files
+	      are to be saved. Allowed values of variable input to
+	      SAVEFILE are vecs, hess, and spc for saving the files 
+	      base theory movecs, base theory hessian and singlepoint
+          calculation movecs.
+
+<P>
+
+<H4><A NAME="SECTION003923520000000000000">
+37.2.3.5.2 REACT1, REACT2, PROD1, PROD2, and START sections</A>
+</H4>
+
+<P>
+These sections have the following format:
+<PRE>
+*(REACT1 || REACT2 || PROD1 || PROD2 || START)
+  GEOM
+    &lt;integer num&gt; &lt;real x y z&gt;
+    ...
+  END
+  SPECIES (ATOMIC || LINRP || NONLINRP || LINTS || NONLINTS default NONLINRP)
+</PRE>
+
+<P>
+REACT1 and REACT2 are input for each of the reactants and PROD1 and PROD2
+  are input for each of the products.  REACT1 and PROD1 are required.  START
+  is the input for the transition state if one exists, or starting point to
+  follow downhill the MEP.
+
+<P>
+Descriptions
+
+<P>
+GEOM is a list keyword that indicates the geometry of the molecule
+              in Cartesian coordinates with atomic unit.
+
+<P>
+For example:
+<PRE>
+                          GEOM
+                             1      0.0     0.0     0.0
+                             2      0.0     0.0     1.5
+                          END
+</PRE>
+
+<P>
+SPECIES is a variable keyword that indicates the type of the 
+              molecule.  Options are: ATOMIC (atomic reactant or product), 
+              LINRP (linear reactant or product), NONLINRP
+              (nonlinear reactant or product), LINTS (linear transition 
+              state), and NONLINTS (nonlinear transition state).
+
+<P>
+For example:
+                          SPECIES  atomic
+
+<P>
+
+<H4><A NAME="SECTION003923530000000000000">
+37.2.3.5.3 PATH section</A>
+</H4>
+
+<P>
+The Path section has the format:
+
+<P>
+<PRE>
+*PATH
+  [SCALEMASS &lt;real scalemass default 1.0&gt;]
+  [SSTEP &lt;real sstep default 0.01&gt;]
+  [SSAVE &lt;real ssave default 0.1&gt;]
+  [SHESS &lt;real shess default SSAVE&gt;]
+  [SLP &lt;real slp default 1.0&gt;]
+  [SLM &lt;real slm default -1.0&gt;]
+  [SIGN (REACTANT || PRODUCT default REACTANT)]
+  [INTEGRA (EULER || LQA || CLQA || CUBE default EULER)]
+  [PRINTFREQ (on || off default off)]
+</PRE>
+
+<P>
+Descriptions
+
+<P>
+SCALEMASS is a variable keyword that indicates the arbitrary
+              mass (in amu) used for mass-scaled Cartesian coordinates. 
+              This is the variable called mu in published papers.  Normally,
+              this is taken as either 1.0 amu or, for bimolecular reactions,
+              as the reduced mass of relative translation of the reactants.
+
+<P>
+SSTEP is a variable keyword that indicates the numerical step
+              size (in bohrs) for the gradient grid.  This is the step
+              size for following the minimum energy path.
+
+<P>
+SSAVE is a variable keyword that indicates the numerical step
+              size (in bohrs) for saving the Hessian grid. At each
+              save point the potential and its first and second
+              derivatives are recalculated and written to the .file30
+              file. For example, if SSTEP=0.01 and SSAVE=0.1, then the
+              potential information is written to .file30 every 10
+              steps along the gradient grid.
+
+<P>
+SHESS is a variable keyword that indicates the numerical step
+              size (in bohrs) for recomputing the Hessian when using a
+              Page-McIver integrator (e.g., LQA, CLQA, or CUBE).  For
+              Euler integration SHESS = SSAVE. For intermediate points
+              along the gradient grid, the Hessian matrix from the
+              last Hessian calculation is reused.  For example, if
+              SSTEP=0.01 and SHESS=0.05, then the Hessian matrix is
+              recomputed every 5 steps along the gradient grid.
+
+<P>
+SLP is a variable keyword that indicates the positive limit of 
+              the reaction coordinate (in bohrs).
+
+<P>
+SLM is a variable keyword that indicates the negative limit of 
+              the reaction coordinate (in bohrs).
+
+<P>
+SIGN is a variable keyword used to ensure the conventional definition
+              of the sign of s, <IMG
+ WIDTH="41" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img336.gif"
+ ALT="$s &lt; 0$"> for the reactant side and
+              <IMG
+ WIDTH="41" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img337.gif"
+ ALT="$s &gt; 0$"> for the product side, is followed.  <code>PRODUCT</code>
+              should be used if the eigenvector at the saddle point points
+              toward the product side and <code>REACTANT</code> if the
+              eigenvector points toward the reactant side.
+
+<P>
+INTEGRA is a variable keyword that indicates the integration
+              method used to follow the reaction path.  Options are: EULER,
+              LQA, CLQA, and CUBE.
+
+<P>
+PRINTFREQ is a variable keyword that indicates that projected
+              frequencies and eigenvectors will be printed along the MEP.
+
+<P>
+
+<H3><A NAME="SECTION003923600000000000000">
+37.2.3.6 Restart</A>
+</H3>
+
+<P>
+<code>DIRDYVTST</code> calculations should be restarted through the normal NWChem
+mechanism (See Section <A HREF="node7.html#sec:start">5.1</A>).  The user needs to change the
+<code>start</code> directive to a <code>restart</code> directive and get rid of any
+information that will overwrite important information in the RTDB.  The
+<code>file.db</code> and <code>file.file30</code> need to be available for the
+calculation to restart properly.
+
+<P>
+
+<H3><A NAME="SECTION003923700000000000000">
+37.2.3.7 Example</A>
+</H3>
+
+<P>
+This is an example that creates the file30 file for POLYRATE for <IMG
+ WIDTH="58" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img334.gif"
+ ALT="$H + H_2$">.
+Note that the multiplicity is that of the entire supermolecule, a doublet.
+In this example, the initial energies, gradients, and Hessians are calculated
+at the UHF/3-21G level of theory and the singlepoint calculations are 
+calculated at the MP2/cc-pVDZ level of theory with a tighter convergence
+threshold than the first SCF.
+
+<P>
+<PRE>
+start h3test
+
+basis
+ h library 3-21G
+end
+
+basis singlepoint
+ h library cc-pVDZ
+end
+
+scf
+   uhf
+   doublet
+   thresh 1.0e-6
+end
+
+dirdyvtst autosym 0.001
+  theory scf input "scf; uhf; doublet; thresh 1.0e-06; end"
+  sptheory mp2 basis singlepoint input \
+    "scf; uhf; doublet; thresh 1.0e-07; end"
+*GENERAL
+  TITLE
+    Test run: H+H2 reaction, Page-McIver CLQA algorithm, no restart
+
+  ATOMS
+     1    H
+     2    H
+     3    H
+  END
+
+  SINGLEPOINT
+
+*REACT1
+   GEOM
+     1  0.0   0.0   0.0
+     2  0.0   0.0   1.3886144
+   END
+
+   SPECIES LINRP
+
+*REACT2
+  GEOM
+    3    0.0   0.0 190.3612132
+  END
+
+  SPECIES  ATOMIC
+
+*PROD2
+  GEOM
+    1   0.0   0.0 190.3612132
+  END
+
+  SPECIES   ATOMIC
+
+*PROD1
+
+  GEOM
+    2  0.0   0.0   1.3886144
+    3   0.0   0.0   0.0
+  END
+
+  SPECIES  LINRP
+
+*START
+
+  GEOM
+    1  0.0   0.0  -1.76531973
+    2  0.0   0.0   0.0
+    3  0.0   0.0   1.76531973
+  END
+
+  SPECIES  LINTS
+
+*PATH
+  SSTEP  0.05
+  SSAVE  0.05
+  SLP    0.50
+  SLM   -0.50
+  SCALEMASS 0.6718993
+  INTEGRA   CLQA
+end
+
+task dirdyvtst
+</PRE>
+
+<P>
+
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1776"
+  HREF="node40.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1772"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1766"
+  HREF="node38.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1774"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1777"
+  HREF="node40.html">38. Acknowledgments</A>
+<B> Up:</B> <A NAME="tex2html1773"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1767"
+  HREF="node38.html">36. Controlling NWChem with</A>
+ &nbsp <B>  <A NAME="tex2html1775"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

@@ -1,0 +1,474 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>9. Relativistic All-electron Approximations</TITLE>
+<META NAME="description" CONTENT="9. Relativistic All-electron Approximations">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node12.html">
+<LINK REL="previous" HREF="node10.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node12.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1136"
+  HREF="node12.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1132"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1126"
+  HREF="node10.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1134"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1137"
+  HREF="node12.html">10. Hartree-Fock or Self-consistent</A>
+<B> Up:</B> <A NAME="tex2html1133"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1127"
+  HREF="node10.html">8. Effective Core Potentials</A>
+ &nbsp <B>  <A NAME="tex2html1135"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1138"
+  HREF="node11.html#SECTION001110000000000000000">9.1 Douglas-Kroll approximation</A>
+<LI><A NAME="tex2html1139"
+  HREF="node11.html#SECTION001120000000000000000">9.2 Dyall's Modified Dirac Hamitonian approximation</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001100000000000000000">
+9. Relativistic All-electron Approximations</A>
+</H1>
+<A NAME="sec:rel"></A>All methods which include treatment of relativistic effects are ultimately
+based on the Dirac equation, which has a four component wave function. The
+solutions to the Dirac equation describe both positrons (the ``negative
+energy'' states) and electrons (the ``positive energy'' states), as well as
+both spin orientations, hence the four components. The wave function may be
+broken down into two-component functions traditionally known as the large
+and small components; these may further be broken down into the spin
+components. 
+
+<P>
+The implementation of approximate all-electron relativistic methods in
+quantum chemical codes requires the removal of the negative energy states
+and the factoring out of the spin-free terms. Both of these may be achieved
+using a transformation of the Dirac Hamiltonian known in general as a
+Foldy-Wouthuysen transformation. Unfortunately this transformation cannot be
+represented in closed form for a general potential, and must be
+approximated.  One popular approach is that originally formulated by Douglas
+and Kroll<A NAME="tex2html16"
+  HREF="footnode.html#foot2244"><SUP>9.1</SUP></A> and developed by Hess<A NAME="tex2html17"
+  HREF="footnode.html#foot2245"><SUP>9.2</SUP></A>. This approach decouples the positive and
+negative energy parts to second order in the external potential (and also
+fourth order in the fine structure constant, <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img42.gif"
+ ALT="$\alpha$">). Another approach is
+based on a modification of the Dirac equation by Dyall<A NAME="tex2html18"
+  HREF="footnode.html#foot2246"><SUP>9.3</SUP></A>, and involves an exact FW
+transformation on the atomic basis set level<A NAME="tex2html19"
+  HREF="footnode.html#foot2247"><SUP>9.4</SUP></A>.
+
+<P>
+Since these approximations only modify the integrals, they can in principle
+be used at all levels of theory. At present the Douglas-Kroll implementation
+can be used at all levels of theory whereas Dyall's approach is currently
+available at the Hartree-Fock level. 
+The derivatives have been implemented, allowing both methods to be used in 
+geometry optimizations and frequency calculations.
+
+<P>
+The <code>RELATIVISTIC</code> directive provides input for the implemented relativistic 
+approximations and is a compound directive that encloses additional directives 
+specific to the approximations:
+<PRE>
+  RELATIVISTIC
+   [DOUGLAS-KROLL [&lt;string (ON||OFF) default ON&gt; \
+                 &lt;string (FPP||DKH||DKFULL||DK3||DK3FULL) default DKH&gt;]  ||
+    DYALL-MOD-DIRAC [ (ON || OFF) default ON ] 
+                  [ (NESC1E || NESC2E) default NESC1E ] ]
+   [CLIGHT &lt;real clight default 137.0359895&gt;]
+  END
+</PRE>
+
+<P>
+Only one of the methods may be chosen at a time.  If both methods are found
+to be on in the input block, NWChem will stop and print an error message.
+There is one general option for both methods, the definition of the speed 
+of light in atomic units:
+
+<P>
+<PRE>
+  CLIGHT &lt;real clight default 137.0359895&gt;
+</PRE>
+
+<P>
+The following sections describe the optional sub-directives that
+can be specified within the <code>RELATIVISTIC</code> block.
+
+<P>
+
+<H1><A NAME="SECTION001110000000000000000"></A>
+<A NAME="sec:douglas-kroll"></A>
+<BR>
+9.1 Douglas-Kroll approximation
+</H1>
+
+<P>
+The (spin-free) one-electron Douglas-Kroll approximation has been
+implemented. The use of relativistic effects from this Douglas-Kroll
+approximation can be invoked by specifying:
+
+<P>
+<PRE>
+  DOUGLAS-KROLL [&lt;string (ON||OFF) default ON&gt; \
+                 &lt;string (FPP||DKH||DKFULL|DK3|DK3FULL) default DKH&gt;]
+</PRE>
+
+<P>
+The <code>ON|OFF</code> string is used to turn on or off the
+Douglas-Kroll approximation.  By default, if the <code>DOUGLAS-KROLL</code>
+keyword is found, the approximation will be used in the calculation.
+If the user wishes to calculate a non-relativistic quantity after turning
+on Douglas-Kroll, the user will need to define a new <code>RELATIVISTIC</code>
+block and turn the approximation <code>OFF</code>.  The user could also simply
+put a blank <code>RELATIVISTIC</code> block in the input file and all options 
+will be turned off.
+
+<P>
+The <code>FPP</code> is the approximation based on free-particle projection 
+operators<A NAME="tex2html20"
+  HREF="footnode.html#foot2248"><SUP>9.5</SUP></A> whereas the 
+<code>DKH</code> and <code>DKFULL</code> approximations are based on external-field 
+projection operators<A NAME="tex2html21"
+  HREF="footnode.html#foot2249"><SUP>9.6</SUP></A>.
+The latter two are considerably better approximations than the former. <code>DKH</code> 
+is the Douglas-Kroll-Hess approach and is the approach that is generally 
+implemented in quantum chemistry codes. <code>DKFULL</code> includes certain 
+cross-product integral terms ignored in the <code>DKH</code> approach (see for example 
+H&#228;berlen and R&#246;sch<A NAME="tex2html22"
+  HREF="footnode.html#foot2250"><SUP>9.7</SUP></A>). The third-order Douglas-Kroll 
+approximation has been implemented by T. Nakajima and K. Hirao<A NAME="tex2html23"
+  HREF="footnode.html#foot2251"><SUP>9.8</SUP></A>. This approximation can be called using
+<code>DK3</code> (DK3 without cross-product integral terms) or <code>DK3FULL</code> (DK3 with
+cross-product integral terms).
+
+<P>
+The contracted basis sets used in the calculations should reflect the relativistic
+effects, i.e. one should use contracted basis sets which were generated using the 
+Douglas-Kroll Hamiltonian. Basis sets that were contracted using the 
+non-relativistic (Sch&#246;dinger) Hamiltonian WILL PRODUCE ERRONEOUS RESULTS for
+elements beyond the first row. See appendix <A HREF="node41.html#sec:knownbasis">A</A> for available
+basis sets and their naming convention.
+
+<P>
+NOTE: we suggest that spherical basis sets are used in the calculation. The use of 
+high quality cartesian basis sets can lead to numerical inaccuracies.
+
+<P>
+In order to compute the integrals needed for the Douglas-Kroll approximation
+the implementation makes use of a fitting basis set (see literature given
+above for details). The current code will create this fitting basis set
+based on the given <TT>"ao basis"</TT> by simply uncontracting that basis. This
+again is what is commonly implemented in quantum chemistry codes that
+include the Douglas-Kroll method.  Additional flexibility is available to
+the user by explicitly specifying a Douglas-Kroll fitting basis
+set. This basis set must be named <TT>"D-K basis"</TT> (see Chapter
+<A HREF="node9.html#sec:basis">7</A>).
+
+<P>
+
+<H1><A NAME="SECTION001120000000000000000"></A>
+<A NAME="sec:dyall-mod-dir"></A>
+<BR>
+9.2 Dyall's Modified Dirac Hamitonian approximation
+</H1>
+
+<P>
+The approximate methods described in this section are all based on Dyall's
+modified Dirac Hamiltonian. This Hamiltonian is entirely equivalent to the
+original Dirac Hamiltonian, and its solutions have the same properties.
+The modification is achieved by a transformation on the small component,
+extracting out <!-- MATH
+ $\sigma\cdot{\bf p}/2mc$
+ -->
+<IMG
+ WIDTH="72" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img85.gif"
+ ALT="$\sigma\cdot{\bf p}/2mc$">. This gives the modified small
+component the same symmetry as the large component, and in fact it differs
+from the large component only at order <IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img86.gif"
+ ALT="$\alpha^2$">.  The advantage of the
+modification is that the operators now resemble the operators of the
+Breit-Pauli Hamiltonian, and can be classified in a similar fashion into
+spin-free, spin-orbit and spin-spin terms. It is the spin-free terms which
+have been implemented in NWChem, with a number of further approximations.
+
+<P>
+The first is that the negative energy states are removed by a normalized
+elimination of the small component (NESC), which is equivalent to an exact
+Foldy-Wouthuysen (EFW) transformation. The number of components in the wave
+function is thereby effectively reduced from 4 to 2. NESC on its own does
+not provide any advantages, and in fact complicates things because the
+transformation is energy-dependent. The second approximation therefore
+performs the elimination on an atom-by-atom basis, which is equivalent to
+neglecting blocks which couple different atoms in the EFW transformation.
+The advantage of this approximation is that all the energy dependence can be
+included in the contraction coefficients of the basis set.  The tests which
+have been done show that this approximation gives results well within
+chemical accuracy. The third approximation neglects the commutator of the
+EFW transformation with the two-electron Coulomb interaction, so that the
+only corrections that need to be made are in the one-electron integrals.
+This is the equivalent of the Douglas-Kroll(-Hess) approximation as it is
+usually applied.
+
+<P>
+The use of these approximations can be invoked with the use of the
+<code>DYALL-MOD-DIRAC</code> directive in the <code>RELATIVISTIC</code> directive block.
+The syntax is as follows.
+
+<P>
+<PRE>
+  DYALL-MOD-DIRAC [ (ON || OFF) default ON ] 
+                  [ (NESC1E || NESC2E) default NESC1E ]
+</PRE>
+
+<P>
+The <code>ON|OFF</code> string is used to turn on or off the
+Dyall's modified Dirac approximation.  By default, if the <code>DYALL-MOD-DIRAC</code>
+keyword is found, the approximation will be used in the calculation.
+If the user wishes to calculate a non-relativistic quantity after turning
+on Dyall's modified Dirac, the user will need to define a new 
+<code>RELATIVISTIC</code>
+block and turn the approximation <code>OFF</code>.  The user could also simply
+put a blank <code>RELATIVISTIC</code> block in the input file and all options 
+will be turned off.
+
+<P>
+Both one- and two-electron approximations are available
+<code>NESC1E || NESC2E</code>, and both have
+analytic gradients. The one-electron approximation is the default.
+The two-electron approximation specified by <code>NESC2E</code> has some sub
+options which are placed on the same logical line as the
+<code>DYALL-MOD-DIRAC</code> directive, with the following syntax:
+
+<P>
+<PRE>
+  NESC2E [ (SS1CENT [ (ON || OFF) default ON ] || SSALL) default SSALL ]
+         [ (SSSS [ (ON || OFF) default ON ] || NOSSSS) default SSSS ]
+</PRE>
+
+<P>
+The first sub-option gives the capability to limit the two-electron
+corrections to those in which the small components in any density must be on
+the same center.  This reduces the <IMG
+ WIDTH="64" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img87.gif"
+ ALT="$(LL\vert SS)$"> contributions to at most
+three-center integrals and the <IMG
+ WIDTH="64" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img88.gif"
+ ALT="$(SS\vert SS)$"> contributions to two centers. For a
+case with only one relativistic atom this option is redundant. The second
+controls the inclusion of the <IMG
+ WIDTH="64" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img88.gif"
+ ALT="$(SS\vert SS)$"> integrals which are of order
+<IMG
+ WIDTH="21" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img89.gif"
+ ALT="$\alpha^4$">. For light atoms they may safely be neglected, but for heavy
+atoms they should be included. 
+
+<P>
+In addition to the selection of this keyword in the <code>RELATIVISTIC</code>
+directive block, it is necessary to supply basis sets in addition to the
+<code>ao basis</code>. For the one-electron approximation, three basis sets are
+needed: the atomic FW basis set, the large component basis set and the small
+component basis set. The atomic FW basis set should be included in the
+<code>ao basis</code>.
+The large and small components should similarly be incorporated
+in basis sets named <code>large component</code> and <code>small component</code>,
+respectively. For the two-electron approximation, only two basis sets are
+needed. These are the large component and the small component. The large component
+should be included in the <code>ao basis</code> and the small component
+is specified separately as <code>small component</code>, as for the one-electron
+approximation. This means that the two approximations can <I>not</I> be run
+correctly without changing the <code>ao basis</code>, and it is up to the user to
+ensure that the basis sets are correctly specified.
+
+<P>
+There is one further requirement in the specification of the basis sets. In
+the <code>ao basis</code>, it is necessary to add the <code>rel</code> keyword either to the
+<code>basis</code> directive or the library tag line (See below for examples). 
+The former marks the basis
+functions specified by the tag as relativistic, the latter marks the whole
+basis as relativistic. The marking is actually done at the unique shell
+level, so that it is possible not only to have relativistic and
+nonrelativistic atoms, it is also possible to have relativistic and
+nonrelativistic shells on a given atom. This would be useful, for example,
+for diffuse functions or for high angular momentum correlating functions,
+where the influence of relativity was small. The marking of shells as
+relativistic is necessary to set up a mapping between the ao basis and the
+large and/or small component basis sets. For the one-electron approximation
+the large and small component basis sets MUST be of the same size and
+construction, i.e. differing only in the contraction coefficients.
+
+<P>
+It should also be noted that the relativistic code will NOT work with basis
+sets that contain sp shells, nor will it work with ECPs. Both of these are
+tested and flagged as an error.
+
+<P>
+Some examples follow. The first example sets up the data for relativistic
+calculations on water with the one-electron approximation and the
+two-electron approximation, using the library basis sets.
+
+<P>
+<PRE>
+  start h2o-dmd
+
+  geometry units bohr
+  symmetry c2v
+    O       0.000000000    0.000000000   -0.009000000
+    H       1.515260000    0.000000000   -1.058900000
+    H      -1.515260000    0.000000000   -1.058900000
+  end
+
+  basis "fw" rel
+    oxygen library cc-pvdz_pt_sf_fw
+    hydrogen library cc-pvdz_pt_sf_fw
+  end
+
+  basis "large"
+    oxygen library cc-pvdz_pt_sf_lc
+    hydrogen library cc-pvdz_pt_sf_lc
+  end
+
+  basis "large2" rel
+    oxygen library cc-pvdz_pt_sf_lc
+    hydrogen library cc-pvdz_pt_sf_lc
+  end
+
+  basis "small"
+    oxygen library cc-pvdz_pt_sf_sc
+    hydrogen library cc-pvdz_pt_sf_sc
+  end
+
+  set "ao basis" fw
+  set "large component" large
+  set "small component" small
+
+  relativistic
+    dyall-mod-dirac
+  end
+
+  task scf
+
+  set "ao basis" large2
+  unset "large component"
+  set "small component" small
+
+  relativistic
+    dyall-mod-dirac nesc2e
+  end
+
+  task scf
+</PRE>
+
+<P>
+The second example has oxygen as a relativistic atom and hydrogen nonrelativistic.
+
+<P>
+<PRE>
+  start h2o-dmd2
+
+  geometry units bohr
+  symmetry c2v
+    O       0.000000000    0.000000000   -0.009000000
+    H       1.515260000    0.000000000   -1.058900000
+    H      -1.515260000    0.000000000   -1.058900000
+  end
+
+  basis "ao basis"
+    oxygen library cc-pvdz_pt_sf_fw rel
+    hydrogen library cc-pvdz
+  end
+
+  basis "large component"
+    oxygen library cc-pvdz_pt_sf_lc
+  end
+
+  basis "small component"
+    oxygen library cc-pvdz_pt_sf_sc
+  end
+
+  relativistic
+    dyall-mod-dirac
+  end
+
+  task scf
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1136"
+  HREF="node12.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1132"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1126"
+  HREF="node10.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1134"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1137"
+  HREF="node12.html">10. Hartree-Fock or Self-consistent</A>
+<B> Up:</B> <A NAME="tex2html1133"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1127"
+  HREF="node10.html">8. Effective Core Potentials</A>
+ &nbsp <B>  <A NAME="tex2html1135"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

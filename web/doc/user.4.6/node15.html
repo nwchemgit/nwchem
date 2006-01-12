@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>13. COSMO</TITLE>
+<META NAME="description" CONTENT="13. COSMO">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node16.html">
+<LINK REL="previous" HREF="node14.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node16.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1231"
+  HREF="node16.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1227"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1221"
+  HREF="node14.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1229"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1232"
+  HREF="node16.html">14. CIS, TDHF, and</A>
+<B> Up:</B> <A NAME="tex2html1228"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1222"
+  HREF="node14.html">12. Spin-Orbit DFT (SODFT)</A>
+ &nbsp <B>  <A NAME="tex2html1230"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION001500000000000000000">
+13. COSMO</A>
+</H1>
+<A NAME="sec:cosmo"></A>
+<P>
+COSMO is the continuum solvation `COnductor-like Screening MOdel'
+of A. Klamt and G. Sch&#252;&#252;rmann to describe dielectric screening
+effects in solvents.
+
+<P>
+
+<OL>
+<LI>A. Klamt and G. Sch&#252;&#252;rmann, J.&nbsp;Chem.&nbsp;Soc.&nbsp;Perkin Trans.&nbsp;2, 1993
+799 (1993).
+</LI>
+</OL>
+
+<P>
+The NWChem COSMO module implements algorithm for calculation of the
+energy for the following methods:
+
+<OL>
+<LI>Restricted Hartree-Fock (RHF),
+</LI>
+<LI>Restricted open-shell Hartree-Fock (ROHF),
+</LI>
+<LI>Restricted Kohn-Sham DFT (DFT),
+</LI>
+<LI>Unrestricted Kohn-Sham DFT (ODFT),
+</LI>
+</OL>
+by determining the solvent reaction field self-consistently
+with the solute charge distribution from the respective methods.
+Note that COSMO for unrestricted Hartree-Fock (UHF) method
+can also be performed by invoking the DFT module with appropriate
+keywords.
+
+<P>
+Correlation energy of solvent molecules may also be evaluated at 
+
+<OL>
+<LI>MP2,
+</LI>
+<LI>CCSD,
+</LI>
+<LI>CCSD+T(CCSD),
+</LI>
+<LI>CCSD(T),
+</LI>
+</OL>
+levels of theory.  It is cautioned,
+however, that these correlated COSMO calculations determine
+the solvent reaction field using the HF charge distribution of
+the solute rather than the charge distribution of the correlation
+theory and are not entirely self consistent in that respect.  
+In other words, these calculations assume that the correlation
+effect and solvation effect are largely additive, and the combination
+effect thereof is neglected. 
+COSMO for MCSCF has not been implemented yet. 
+
+<P>
+In the current implementation the code
+calculates the gas-phase energy of the system followed by the
+solution-phase energy, and returns the electrostatic contribution
+to the solvation free energy. 
+At the present gradients are calculated by finite
+difference of the energy.  Known problems include that the code does not 
+work with spherical basis functions.
+The code does not calculate the
+non-electrostatic contributions to the free energy, except for
+the cavitation/dispersion contribution to the solvation free energy,
+which is computed and printed.
+It should be noted that one must in general take into account 
+the standard state correction besides the electrostatic
+and cavitation/dispersion contribution to the solvation free energy,
+when a comparison to experimental data is made.
+
+<P>
+Invoking the COSMO solvation model is done by specifying the input
+COSMO input block with the input options as:
+<PRE>
+cosmo
+   [off]
+   [dielec  &lt;real dielec default 78.4&gt;]
+   [radius  &lt;real atom1&gt;
+            &lt;real atom2&gt;
+       . . .
+            &lt;real atomN&gt;]
+   [rsolv   &lt;real rsolv default 0.00&gt;]
+   [iscren  &lt;integer iscren default 0&gt;]
+   [minbem  &lt;integer minbem default 2&gt;]
+   [maxbem  &lt;integer maxbem default 3&gt;]
+   [ificos  &lt;integer ificos default 0&gt;]
+   [lineq   &lt;integer lineq default 1&gt;]
+end
+</PRE>
+followed by the task directive specifying the wavefunction and
+type of calculation, e.g., <code>task scf energy</code>, <code>task mp2 energy</code>,
+<code>task dft optimize</code>, etc.
+
+<P>
+<code>off</code> can be used to turn off COSMO in a compound (multiple task)
+run. By default, once the COSMO solvation model has been defined it will
+be used in subsequent calculations. Add the keyword <code>off</code> if COSMO
+is not needed in subsequent calculations.
+
+<P>
+<code>Dielec</code> is the value of the dielectric constant of the medium, 
+with a default value of 78.4 (the dielectric constant for water).
+
+<P>
+<code>Radius</code> is an array that specifies the radius of the spheres
+associated with each atom and that make up the molecule-shaped cavity.
+Default values are Van der Waals radii. Values are in units of angstroms.
+The codes uses the following Van der Waals radii by default:
+<PRE>
+      data vdwr(103) /
+     1   0.80,0.49,0.00,0.00,0.00,1.65,1.55,1.50,1.50,0.00,
+     2   2.30,1.70,2.05,2.10,1.85,1.80,1.80,0.00,2.80,2.75,
+     3   0.00,0.00,1.20,0.00,0.00,0.00,2.70,0.00,0.00,0.00,
+     4   0.00,0.00,0.00,1.90,1.90,0.00,0.00,0.00,0.00,1.55,
+     5   0.00,1.64,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     6   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     7   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     8   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     9   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,
+     1   0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,0.00,1.65,
+     2   0.00,0.00,0.00/
+</PRE>
+with 0.0 values replaced by 1.80. Other radii can be used as well.
+See for examples:
+
+<P>
+
+<OL>
+<LI>E. V. Stefanovich and T. N. Truong, Chem.&nbsp;Phys.&nbsp;Lett. 244, 65 (1995).
+</LI>
+<LI>V. Barone, M. Cossi, and J. Tomasi, J.&nbsp;Chem.&nbsp;Phys. 107, 3210 (1997).
+</LI>
+</OL>
+
+<P>
+<code>Rsolv</code> is a parameter used to define the solvent accessible
+surface. See the original reference of Klamt and Schuurmann for a
+description. The default value is 0.00 (in angstroms).
+
+<P>
+<code>Iscren</code> is a flag to define the dielectric charge scaling option.
+``<TT>iscren 1</TT>'' implies the original scaling from Klamt and Sch&#252;&#252;rmann,
+mainly ``<!-- MATH
+ $(\epsilon-1)/(\epsilon+1/2)$
+ -->
+<IMG
+ WIDTH="120" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img124.gif"
+ ALT="$(\epsilon-1)/(\epsilon+1/2)$">'', where <IMG
+ WIDTH="11" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img125.gif"
+ ALT="$\epsilon$"> is the dielectric constant.
+``<TT>iscren 0</TT>'' implies the modified scaling suggested by Stefanovich and
+Truong, mainly ``<!-- MATH
+ $(\epsilon-1)/\epsilon$
+ -->
+<IMG
+ WIDTH="65" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img126.gif"
+ ALT="$(\epsilon-1)/\epsilon$">''. Default is to use the modified scaling.
+For high dielectric the difference between the scaling is not 
+significant.
+
+<P>
+The next three parameters define the tesselation of the unit sphere.
+The approach follows the original proposal by Klamt and Sch&#252;&#252;rmann.
+A very fine tesselation is generated from <code>maxbem</code> refining 
+passes starting from either an octahedron or an icosahedron. The
+boundary elements created with the fine tesselation are condensed
+down to a coarser tesselation based on <code>minbem</code>. The induced
+point charges from the polarization of the medium are assigned to
+the centers of the coarser tesselation. Default values are
+``<TT>minbem 2</TT>'' and ``<TT>maxbem 3</TT>''. The flag <code>ificos</code> serves to
+select the original tesselation, ``<TT>ificos 0</TT>'' for an octahedron
+(default) and ``<TT>ificos 1</TT>'' for an icoshedron. Starting from an icosahedron
+yields a somewhat finer tesselation that converges somewhat faster.
+Solvation energies are not really sensitive to this choice for
+sufficiently fine tesselations.
+
+<P>
+The <code>lineq</code> parameter serves to select the numerical algorithm to solve
+the linear equations yielding the effective charges that represent
+the polarization of the medium. ``<TT>lineq 0</TT>'' selects an iterative method 
+(default), ``<TT>lineq 1</TT>'' selects a dense matrix linear equation solver.
+For large molecules where the number of effective charges is large,
+the codes selects the iterative method.
+
+<P>
+The following example is for a water molecule in `water', using
+the HF/6-31G** level of theory:
+
+<P>
+<PRE>
+start
+echo
+ title "h2o"
+geometry
+o                  .0000000000         .0000000000        -.0486020332
+h                  .7545655371         .0000000000         .5243010666
+h                 -.7545655371         .0000000000         .5243010666
+end
+basis segment cartesian
+  o library 6-31g**
+  h library 6-31g**
+end
+cosmo
+  dielec 78.0
+  radius 1.40
+         1.16
+         1.16
+  rsolv  0.50
+  lineq  0
+end
+task scf energy
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1231"
+  HREF="node16.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1227"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1221"
+  HREF="node14.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1229"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1232"
+  HREF="node16.html">14. CIS, TDHF, and</A>
+<B> Up:</B> <A NAME="tex2html1228"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1222"
+  HREF="node14.html">12. Spin-Orbit DFT (SODFT)</A>
+ &nbsp <B>  <A NAME="tex2html1230"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

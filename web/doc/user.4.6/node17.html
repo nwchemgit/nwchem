@@ -1,0 +1,1084 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>15. Tensor Contraction Engine Module: CI, MBPT, and CC</TITLE>
+<META NAME="description" CONTENT="15. Tensor Contraction Engine Module: CI, MBPT, and CC">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node18.html">
+<LINK REL="previous" HREF="node16.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node18.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1272"
+  HREF="node18.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1268"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1262"
+  HREF="node16.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1270"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1273"
+  HREF="node18.html">16. MP2</A>
+<B> Up:</B> <A NAME="tex2html1269"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1263"
+  HREF="node16.html">14. CIS, TDHF, and</A>
+ &nbsp <B>  <A NAME="tex2html1271"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1274"
+  HREF="node17.html#SECTION001710000000000000000">15.1 Overview</A>
+<LI><A NAME="tex2html1275"
+  HREF="node17.html#SECTION001720000000000000000">15.2 Performance of CI, MBPT, and CC methods</A>
+<LI><A NAME="tex2html1276"
+  HREF="node17.html#SECTION001730000000000000000">15.3 Algorithms of CI, MBPT, and CC methods</A>
+<UL>
+<LI><A NAME="tex2html1277"
+  HREF="node17.html#SECTION001731000000000000000">15.3.1 Spin, spatial, and index permutation symmetry</A>
+<LI><A NAME="tex2html1278"
+  HREF="node17.html#SECTION001732000000000000000">15.3.2 Runtime orbital range tiling</A>
+<LI><A NAME="tex2html1279"
+  HREF="node17.html#SECTION001733000000000000000">15.3.3 Dynamic load balancing parallelism</A>
+<LI><A NAME="tex2html1280"
+  HREF="node17.html#SECTION001734000000000000000">15.3.4 Parallel I/O schemes</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1281"
+  HREF="node17.html#SECTION001740000000000000000">15.4 Input syntax</A>
+<LI><A NAME="tex2html1282"
+  HREF="node17.html#SECTION001750000000000000000">15.5 Keywords of <TT>TCE</TT> input block</A>
+<UL>
+<LI><A NAME="tex2html1283"
+  HREF="node17.html#SECTION001751000000000000000">15.5.1 <TT>HF</TT>, <TT>SCF</TT>, or <TT>DFT</TT> -- the reference wave function</A>
+<LI><A NAME="tex2html1284"
+  HREF="node17.html#SECTION001752000000000000000">15.5.2 <TT>CCSD</TT>,<TT>CCSDT</TT>,<TT>CCSDTQ</TT>,<TT>CISD</TT>,<TT>CISDT</TT>,<TT>CISDTQ</TT>,
+<TT>MBPT2</TT>,<TT>MBPT3</TT>,<TT>MBPT4</TT>, etc.
+ -- the correlation model</A>
+<LI><A NAME="tex2html1285"
+  HREF="node17.html#SECTION001753000000000000000">15.5.3 <TT>THRESH</TT> -- the convergence threshold of iterative solutions of amplitude equations</A>
+<LI><A NAME="tex2html1286"
+  HREF="node17.html#SECTION001754000000000000000">15.5.4 <TT>MAXITER</TT> -- the maximum number of iterations</A>
+<LI><A NAME="tex2html1287"
+  HREF="node17.html#SECTION001755000000000000000">15.5.5 <TT>IO</TT> -- parallel I/O scheme</A>
+<LI><A NAME="tex2html1288"
+  HREF="node17.html#SECTION001756000000000000000">15.5.6 <TT>DIIS</TT> -- the convergence acceleration</A>
+<LI><A NAME="tex2html1289"
+  HREF="node17.html#SECTION001757000000000000000">15.5.7 <TT>FREEZE</TT> -- the frozen core/virtual approximation</A>
+<LI><A NAME="tex2html1290"
+  HREF="node17.html#SECTION001758000000000000000">15.5.8 <TT>NROOTS</TT> -- the number of excited states</A>
+<LI><A NAME="tex2html1291"
+  HREF="node17.html#SECTION001759000000000000000">15.5.9 <TT>TARGET</TT> and <TT>TARGETSYM</TT> -- the target root and its symmetry</A>
+<LI><A NAME="tex2html1292"
+  HREF="node17.html#SECTION0017510000000000000000">15.5.10 <TT>SYMMETRY</TT> -- restricting the excited state symmetry</A>
+<LI><A NAME="tex2html1293"
+  HREF="node17.html#SECTION0017511000000000000000">15.5.11 <TT>DIPOLE</TT> -- the ground- and excited-state dipole moments</A>
+<LI><A NAME="tex2html1294"
+  HREF="node17.html#SECTION0017512000000000000000">15.5.12 <TT>(NO)FOCK</TT> -- (not) recompute Fock matrix</A>
+<LI><A NAME="tex2html1295"
+  HREF="node17.html#SECTION0017513000000000000000">15.5.13 <TT>PRINT</TT> -- the verbosity</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html1296"
+  HREF="node17.html#SECTION001760000000000000000">15.6 Sample input</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION001700000000000000000">
+15. Tensor Contraction Engine Module: CI, MBPT, and CC</A>
+</H1>
+<A NAME="sec:tce"></A>
+<P>
+
+<H1><A NAME="SECTION001710000000000000000">
+15.1 Overview</A>
+</H1>
+
+<P>
+The Tensor Contraction Engine (TCE) Module of NWChem implements 
+a variety of approximations that converge at the exact solutions
+of Schr&#246;dinger equation.  They include configuration interaction theory
+through singles, doubles, triples, and quadruples substitutions,
+coupled-cluster theory through connected singles, doubles, triples, and quadruples substitutions,
+and many-body perturbation theory through fourth order in its 
+tensor formulation.  Not only optimized parallel programs of some
+of these high-end correlation theories are new, but also the way in
+which they have been developed is unique.  The working equations
+of all of these methods have been derived completely automatically by
+a symbolic manipulation program called a Tensor Contraction Engine (TCE),
+and the optimized parallel programs have also been computer-generated by the same program,
+which were interfaced to NWChem.  The development of the TCE
+program and this portion of the NWChem program has been financially 
+supported by the United States Department of Energy, Office of Science,
+Office of Basic Energy Science, through the SciDAC program.
+
+<P>
+The capabilities of the module include:
+
+<UL>
+<LI>Restricted Hartree-Fock, unrestricted Hartree-Fock, and restricted open-shell
+Hartree-Fock references,
+</LI>
+<LI>Restricted KS DFT and unrestricted KS DFT references,
+</LI>
+<LI>Unrestricted configuration interaction theory (CISD, CISDT, and CISDTQ),
+</LI>
+<LI>Unrestricted coupled-cluster theory (LCCD, CCD, LCCSD, CCSD, QCISD, CCSDT, CCSDTQ),
+</LI>
+<LI>Unrestricted iterative many-body perturbation theory [MBPT(2), MBPT(3), MBPT(4)] in its tensor formulation,
+</LI>
+</UL>
+New capabilities added in the version 4.6 are:
+
+<UL>
+<LI>Unrestricted coupled-cluster singles and doubles with perturbative connected triples {CCSD(T), CCSD[T]},
+</LI>
+<LI>Unrestricted equation-of-motion coupled-cluster theory (EOM-CCSD, EOM-CCSDT, EOM-CCSDTQ) for excitation energies, transition moments and oscillator strengths, and excited-state dipole moments,
+</LI>
+<LI>Unrestricted coupled-cluster theory (CCSD, CCSDT, CCSDTQ) for dipole moments.
+</LI>
+</UL>
+Version 4.6 and onwards the distributed binary executables do not contain CCSDTQ and its
+derivative methods, owing to their large volume.  The source code includes them, so a user
+can reinstate them by <code>setenv CCSDTQ yes</code> and recompile TCE module.
+The following optimizations have been used in the module:
+
+<UL>
+<LI>Spin symmetry (spin integration is performed wherever possible within the
+unrestricted framework, making the present unrestricted program 
+optimal for an open-shell system.  The spin adaption was not performed, 
+although in a restricted calculation for a closed-shell system, certain spin blocks of 
+integrals and amplitudes are further omitted by symmetry, and
+consequently, the present unrestricted CCSD requires only twice
+as many operations as a spin-adapted restricted CCSD for a closed-shell system),
+</LI>
+<LI>Point-group symmetry,
+</LI>
+<LI>Index permutation symmetry,
+</LI>
+<LI>Runtime orbital range tiling for memory management,
+</LI>
+<LI>Dynamic load balancing (local index sort and matrix multiplications) parallelism,
+</LI>
+<LI>Multiple parallel I/O schemes including fully incore algorithm using Global Arrays,
+</LI>
+<LI>Frozen core and virtual approximation.
+</LI>
+<LI>DIIS extrapolation and Jacobi update of excitation amplitudes
+</LI>
+</UL>
+
+<P>
+This extensible module is designed such that an existing or new model of many-electron
+theory can be added and further optimization can be incorporated with ease 
+by virtue of the TCE.
+This module is still being
+actively enhanced by the TCE and we hope to include more models and optimizations
+in future releases!
+
+<P>
+
+<H1><A NAME="SECTION001720000000000000000">
+15.2 Performance of CI, MBPT, and CC methods</A>
+</H1>
+
+<P>
+For reviews or tutorials of these highly-accurate correlation methods, the user is 
+referred to:
+
+<UL>
+<LI>A. Szabo and N. S. Ostlund, Modern Quantum Chemistry: Introduction to Advanced Electronic Structure Theory,
+</LI>
+<LI>R. J. Bartlett and J. F. Stanton, Applications of Post-Hartree-Fock Methods: A Tutorial, in Reviews in Computational Chemistry, Volume V,
+</LI>
+<LI>R. J. Bartlett, Coupled-Cluster Theory: An Overview of Recent Developments, in Modern Electronic Structure Theory, Part II,
+</LI>
+<LI>B. O. Roos (editor), Lecture Notes in Quantum Chemistry I and II.
+</LI>
+</UL>
+
+<P>
+For algorithms and applications of TCE, see:
+
+<UL>
+<LI>S. Hirata, J. Phys. Chem. A <B>107,</B> 9887 (2003).
+</LI>
+<LI>S. Hirata, T. Yanai, W. A. de Jong, T. Nakajima, and K. Hirao, J. Chem. Phys. <B>120,</B> 3297 (2004).
+</LI>
+<LI>S. Hirata, J. Chem. Phys. (in press) (2004).
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION001730000000000000000">
+15.3 Algorithms of CI, MBPT, and CC methods</A>
+</H1>
+
+<P>
+
+<H2><A NAME="SECTION001731000000000000000">
+15.3.1 Spin, spatial, and index permutation symmetry</A>
+</H2>
+
+<P>
+The TCE thoroughly analyzes the working equation of many-electron theory models and 
+automatically generates a program that takes full advantage of these symmetries at the same time.
+To do so, the TCE first recognizes the index permutation symmetries among the working equations,
+and perform strength reduction and factorization by carefully monitoring the index permutation
+symmetries of intermediate tensors.  Accordingly, every input and output tensor (such as 
+integrals, excitation amplitudes, residuals) has just two independent but strictly ordered index strings,
+and each intermediate tensor has just four independent but strictly ordered index strings.
+The operation cost and storage size of tensor contraction is minimized by using the index range 
+restriction arising from these
+index permutation symmetries and also spin and spatial symmetry integration.
+
+<P>
+
+<H2><A NAME="SECTION001732000000000000000">
+15.3.2 Runtime orbital range tiling</A>
+</H2>
+
+<P>
+To maintain the peak local memory usage at a manageable level, in the beginning of the calculation,
+the orbitals are rearranged into tiles (blocks) that contains orbitals with the same spin and spatial
+symmetries.  So the tensor contractions in these methods are carried out at the tile level; the spin,
+spatial, and index permutation symmetry is employed to reduce the operation and storage cost at the tile 
+level also.
+
+<P>
+
+<H2><A NAME="SECTION001733000000000000000">
+15.3.3 Dynamic load balancing parallelism</A>
+</H2>
+
+<P>
+In a parallel execution, dynamic load balancing of tile-level local tensor index sorting and local 
+tensor contraction (matrix multiplication) will be invoked.
+
+<P>
+
+<H2><A NAME="SECTION001734000000000000000">
+15.3.4 Parallel I/O schemes</A>
+</H2>
+
+<P>
+Each process is assigned a local tensor index sorting and tensor contraction dynamically.  It must first
+retrieve the tiles of input tensors, and perform these local operations, and accumulate the output
+tensors to the storage.  We have developed a uniform interface for these I/O operations to either
+(1) a global file on a global file system, (2) a global memory on a global or distributed memory system,
+and (3) semi-replicated files on a distributed file systems.  Some of these operations depend on 
+the ParSoft library.
+
+<P>
+
+<H1><A NAME="SECTION001740000000000000000"></A>
+<A NAME="sec:inputsyntax"></A>
+<BR>
+15.4 Input syntax
+</H1>
+
+<P>
+The keyword to invoke the many-electron theories in the module is
+<code>TCE</code>.  To perform a single-point energy calculation, include
+<PRE>
+      TASK TCE ENERGY
+</PRE>
+in the input file, which may be preceeded by the TCE input block
+that details the calculations:
+<PRE>
+  TCE
+    [(DFT||HF||SCF) default HF=SCF]
+    [FREEZE [[core] (atomic || &lt;integer nfzc default 0&gt;)] \
+             [virtual &lt;integer nfzv default 0&gt;]]
+    [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ|| \
+      CCSD(T)||CCSD[T]||QCISD||CISD||CISDT||CISDTQ|| \
+      MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
+    [THRESH &lt;double thresh default 1e-6&gt;]
+    [MAXITER &lt;integer maxiter default 100&gt;]
+    [PRINT (none||low||medium||high||debug)
+      &lt;string list_of_names ...&gt;]
+    [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
+    [DIIS &lt;integer diis default 5&gt;]
+    [NROOTS &lt;integer nroots default 0&gt;]
+    [TARGET &lt;integer target default 1&gt;]
+    [TARGETSYM &lt;character targetsym default 'none'&gt;]
+    [SYMMETRY]
+    [DIPOLE]
+    [TILESIZE &lt;no default (automatically adjusted)&gt;]
+    [(NO)FOCK &lt;logical recompf default .true.&gt;]
+    [FRAGMENT &lt;default -1 (off)&gt;]
+  END
+</PRE>
+Also supported are energy gradient calculation, geometry optimization,
+and vibrational frequency (or hessian) calculation, on the basis of
+numerical differentiation.  To perform these calculations, use
+<PRE>
+      TASK TCE GRADIENT
+</PRE>
+or
+<PRE>
+      TASK TCE OPTIMIZE
+</PRE>
+or
+<PRE>
+      TASK TCE FREQUENCIES
+</PRE>
+
+<P>
+Alternatively, more descriptive keywords for each individual method can be used.
+For instance, to perform a CCSDT energy, gradient, etc. calculation, use
+<PRE>
+      TASK UCCSDT ENERGY
+</PRE>
+or
+<PRE>
+      TASK UCCSDT GRADIENT
+</PRE>
+or
+<PRE>
+      TASK UCCSDT OPTIMIZE
+</PRE>
+or
+<PRE>
+      TASK UCCSDT FREQUENCIES
+</PRE>
+with an (optional) input block enclosed either by <code>UCCSDT</code> and <code>END</code> or
+by <code>UCC</code> and <code>END</code>.  The keywords for individual methods of TCE module
+always start with letter <code>U</code> which stands for ``unrestricted'' to avoid 
+confusion with other related methods (such as spin-restricted CCSD and various 
+canonical MP2 implementation) already in place in NWChem.
+<PRE>
+  (UCCSDT||UCC)
+    [(DFT||HF||SCF) default HF=SCF]
+    [FREEZE [[core] (atomic || &lt;integer nfzc default 0&gt;)] \
+             [virtual &lt;integer nfzv default 0&gt;]]
+    [THRESH &lt;double thresh default 1e-6&gt;]
+    [MAXITER &lt;integer maxiter default 100&gt;]
+    [PRINT (none||low||medium||high||debug)]
+      &lt;string list_of_names ...&gt;]
+    [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
+    [DIIS &lt;integer diis default 5&gt;]
+    [NROOTS &lt;integer nroots default 0&gt;]
+    [TARGET &lt;integer target default 1&gt;]
+    [TARGETSYM &lt;character targetsym default 'none'&gt;]
+    [SYMMETRY]
+    [DIPOLE]
+    [TILESIZE &lt;no default (automatically adjusted)&gt;]
+    [(NO)FOCK &lt;logical recompf default .true.&gt;]
+    [FRAGMENT &lt;default -1 (off)&gt;]
+  END
+</PRE>
+When a method (CCSDT in this example) is specified in the task directive, 
+a duplicate method specification
+is not necessary (indeed not allowed) in the corresponding (<code>UCCSDT</code> or <code>UCC</code> in this case) 
+input block.  The keywords of the other methods for task directive are:
+<PRE>
+      TASK (UCCD||ULCCD||UCCSD||ULCCSD||UQCISD||UCCSDT||UCCSDTQ) ENERGY
+</PRE>
+or
+<PRE>
+      TASK (UCISD||UCISDT||UCISDTQ) ENERGY
+</PRE>
+or
+<PRE>
+      TASK (UMP2||UMP3||UMP4||UMBPT2||UMBPT3||UMBPT4) ENERGY
+</PRE>
+etc.  The input block can be specified by the same name (<code>UCISDT</code> and <code>END</code>
+block for <code>TASK UCISDT ENERGY</code>) or <code>UCC</code> for the CC family, <code>UCI</code> for 
+the CI family, and <code>UMP</code> or <code>UMBPT</code> for the MP family of methods.
+
+<P>
+The user may also specify the parameters of reference wave function calculation
+in a separate block for either HF (SCF) or DFT, depending on the first keyword
+in the above syntax.
+
+<P>
+Since each keyword has a default value, a minimal input file will be
+<PRE>
+  GEOMETRY
+  Be 0.0 0.0 0.0
+  END
+
+  BASIS
+  Be library cc-pVDZ
+  END
+
+  TASK TCE ENERGY
+</PRE>
+which performs a CCSD/cc-pVDZ calculation of the Be atom in its
+singlet ground state with a spin-restricted HF reference.
+
+<P>
+
+<H1><A NAME="SECTION001750000000000000000">
+15.5 Keywords of <TT>TCE</TT> input block</A>
+</H1>
+
+<P>
+
+<H2><A NAME="SECTION001751000000000000000">
+15.5.1 <TT>HF</TT>, <TT>SCF</TT>, or <TT>DFT</TT> -- the reference wave function</A>
+</H2>
+
+<P>
+This keyword tells the module
+which of the HF (SCF) or DFT module is going to be used for the calculation
+of a reference wave function.  The keyword <code>HF</code> and <code>SCF</code> are
+one and the same keyword internally, and are default.  When these are used,
+the details of the HF (SCF) calculation can be specified in the SCF input
+block, whereas if <code>DFT</code> is chosen, DFT input block may be provided.
+
+<P>
+For instance, RHF-RCCSDT calculation (R standing for spin-restricted) 
+can be performed with the following input blocks:
+<PRE>
+  SCF
+  SINGLET
+  RHF
+  END
+
+  TCE
+  SCF
+  CCSDT
+  END
+
+  TASK TCE ENERGY
+</PRE>
+or
+<PRE>
+  SCF
+  SINGLET
+  RHF
+  END
+
+  UCCSDT
+  SCF
+  END
+
+  TASK UCCSDT ENERGY
+</PRE>
+or
+<PRE>
+  SCF
+  SINGLET
+  RHF
+  END
+
+  UCC
+  SCF
+  END
+
+  TASK UCCSDT ENERGY
+</PRE>
+This calculation (and any correlation calculation in the TCE module using a RHF or RDFT
+reference for a closed-shell system) skips the storage and computation of all <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img49.gif"
+ ALT="$\beta$"> spin
+blocks of integrals and excitation amplitudes.  ROHF-UCCSDT (U standing for spin-unrestricted)
+for an open-shell doublet system can be requested by
+<PRE>
+  SCF
+  DOUBLET
+  ROHF
+  END
+
+  TCE
+  SCF
+  CCSDT
+  END
+
+  TASK TCE ENERGY
+</PRE>
+and likewise, UHF-UCCSDT for an open-shell doublet system can be specified with
+<PRE>
+  SCF
+  DOUBLET
+  UHF
+  END
+
+  TCE
+  SCF
+  CCSDT
+  END
+
+  TASK TCE ENERGY
+</PRE>
+The operation and storage costs of the last two calculations are identical.  To use the
+KS DFT reference wave function for a UCCSD calculation of an open-shell doublet system,
+<PRE>
+  DFT
+  ODFT
+  MULT 2
+  END
+
+  TCE
+  DFT
+  CCSD
+  END
+
+  TASK TCE ENERGY
+</PRE>
+Note that the default model of the DFT module is LDA.
+
+<P>
+
+<H2><A NAME="SECTION001752000000000000000">
+15.5.2 <TT>CCSD</TT>,<TT>CCSDT</TT>,<TT>CCSDTQ</TT>,<TT>CISD</TT>,<TT>CISDT</TT>,<TT>CISDTQ</TT>,
+<TT>MBPT2</TT>,<TT>MBPT3</TT>,<TT>MBPT4</TT>, etc.
+ -- the correlation model</A>
+</H2>
+
+<P>
+These keywords stand for the following models:
+
+<UL>
+<LI>LCCD: linearized coupled-cluster doubles,
+</LI>
+<LI>CCD: coupled-cluster doubles,
+</LI>
+<LI>LCCSD: linearized coupled-cluster singles &amp; doubles,
+</LI>
+<LI>CCSD: coupled-cluster singles &amp; doubles (also EOM-CCSD),
+</LI>
+<LI>CCSDT: coupled-cluster singles, doubles, &amp; triples (also EOM-CCSDT),
+</LI>
+<LI>CCSDTQ: coupled-cluster singles, doubles, triples, &amp; quadruples (also EOM-CCSDTQ),
+</LI>
+<LI>CCSD(T): CCSD and perturbative connected triples,
+</LI>
+<LI>CCSD[T]: CCSD and perturbative connected triples,
+</LI>
+<LI>QCISD: quadratic configuration interaction singles &amp; doubles,
+</LI>
+<LI>CISD: configuration interaction singles &amp; doubles,
+</LI>
+<LI>CISDT: configuration interaction singles, doubles, &amp; triples,
+</LI>
+<LI>CISDTQ: configuration interaction singles, doubles, triples, &amp; quadruples,
+</LI>
+<LI>MBPT2=MP2: iterative tensor second-order many-body or M&#248;ller-Plesset perturbation theory,
+</LI>
+<LI>MBPT3=MP3: iterative tensor third-order many-body or M&#248;ller-Plesset perturbation theory,
+</LI>
+<LI>MBPT4=MP4: iterative tensor fourth-order many-body or M&#248;ller-Plesset perturbation theory,
+</LI>
+</UL>
+
+<P>
+All of these models are based on spin-orbital expressions of the amplitude and energy equations, 
+and designed primarily for spin-unrestricted reference wave functions.  However, for a restricted 
+reference wave function of a closed-shell system, some further reduction of operation and storage
+cost will be made.  Within the unrestricted framework, all these methods take full advantage
+of spin, spatial, and index permutation symmetries to save operation and storage costs at every
+stage of the calculation.  Consequently, these computer-generated programs will perform significantly
+faster than, for instance, a hand-written spin-adapted CCSD program in NWChem, although the nominal 
+operation cost for a spin-adapted CCSD is just one half of that for spin-unrestricted CCSD (in spin-unrestricted
+CCSD there are three independent sets of excitation amplitudes, whereas in spin-adapted CCSD there
+is only one set, so the nominal operation cost for the latter is one third of that of the former.  For 
+a restricted reference wave function of a closed-shell system, all <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img49.gif"
+ ALT="$\beta$"> spin block of the excitation
+amplitudes and integrals can be trivially mapped to the all <IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img42.gif"
+ ALT="$\alpha$"> spin block, reducing the ratio
+to one half).
+
+<P>
+While the MBPT (MP) models implemented in the TCE module give identical correlation energies as 
+conventional implementation for a canonical HF reference of a closed-shell system, the former are intrinsically
+more general and theoretically robust for other less standard reference wave functions and open-shell systems.
+This is because the zeroth order of Hamiltonian is chosen to be the full Fock operatior (not just the diagonal
+part), and no further approximation was invoked.  So unlike the conventional implementation where the Fock
+matrix is assumed to be diagonal and a correlation energy is evaluated in a single analytical formula that involves
+orbital energies (or diagonal Fock matrix elements), the present tensor MBPT requires the iterative solution
+of amplitude equations and subsequent energy evaluation and is generally more expensive than the former.
+For example, the operation cost of many conventional implementation of MBPT(2) scales as the fourth power 
+of the system size, but the cost of the present tensor MBPT(2) scales as the fifth power of the system size,
+as the latter permits non-canonical HF reference and the former does not (to reinstate the non-canonical HF 
+reference in the former makes it also scale as the fifth power of the system size).
+
+<H2><A NAME="SECTION001753000000000000000">
+15.5.3 <TT>THRESH</TT> -- the convergence threshold of iterative solutions of amplitude equations</A>
+</H2>
+
+<P>
+This keyword specifies the convergence threshold of iterative solutions of amplitude equations,
+and applies to all of the CI, CC, and MBPT models.
+The threshold refers to the norm of residual,
+namely, the deviation from the amplitude equations.
+The default value is <code>1e-6</code>.
+
+<P>
+
+<H2><A NAME="SECTION001754000000000000000">
+15.5.4 <TT>MAXITER</TT> -- the maximum number of iterations</A>
+</H2>
+
+<P>
+It sets the maximum allowed number iterations for the iterative solutions of amplitude equations.
+The default value is <code>100</code>.
+
+<P>
+
+<H2><A NAME="SECTION001755000000000000000">
+15.5.5 <TT>IO</TT> -- parallel I/O scheme</A>
+</H2>
+
+<P>
+There are five parallel I/O schemes implemented for all the models, which need to be
+wisely chosen for a particular problem and computer architecture. 
+
+<UL>
+<LI><code>fortran</code> : Fortran77 direct access,
+</LI>
+<LI><code>eaf</code> : Exclusive Access File library,
+</LI>
+<LI><code>ga</code> : Fully incore, Global Array virtual file,
+</LI>
+<LI><code>sf</code> : Shared File library,
+</LI>
+<LI><code>replicated</code> : Semi-replicated file on distributed file system with EAF library.
+</LI>
+<LI><code>dra</code> : Distributed file on distributed file system with DRA library.
+</LI>
+<LI><code>ga_eaf</code> : Semi-replicated file on distributed file system with EAF library. GA is used 
+to speedup the file reconciliation.
+</LI>
+</UL>
+The GA algorithm, which is default, stores all input (integrals and
+excitation amplitudes), output (residuals), and intermediate tensors in the shared memory area
+across all nodes by virtue of GA library.  This fully incore algorithm replaces disk I/O by
+inter-process communications.  This is a recommended algorithm whenever feasible.  Note that 
+the memory management through runtime orbital range tiling described above applies to local
+(unshared) memory of each node, which may be separately allocated from the shared memory space
+for GA.  So when there is not enough shared memory space (either physically or due to software
+limitations, in particular, shmmax setting), the GA algorithm can crash due to an out-of-memory error.
+The replicated scheme is the currently the only disk-based algorithm for a genuinely distributed
+file system.  This means that each node keeps an identical copy of input tensors and
+it holds non-identical overlapping segments of intermediate and output tensors in its local disk.
+Whenever data coherency is required, a file reconcilation process will take place to make the intermediate
+and output data identical throughout the nodes.  This algorithm, while requiring redundant data space on
+local disk, performs reasonably efficiently in parallel.  For sequential execution, this reduces 
+to the EAF scheme.  For a global file system, the SF scheme is recommended.  This together with
+the Fortran77 direct access scheme does not usually exhibit scalability unless shared files on
+the global file system also share the same I/O buffer.  For sequential executions, the 
+SF, EAF, and replicated schemes are interchangeable, while the Fortran77 scheme is appreciably
+slower.
+
+<P>
+Two new I/O algorithms <code>dra</code> and <code>ga_eaf</code> combines GA and DRA or EAF based replicated 
+algorithm.  In the former, arrays that are not active (e.g., prior <IMG
+ WIDTH="16" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img127.gif"
+ ALT="$T$"> amplitudes used in DIIS
+or EOM-CC trial vectors) in GA algorithm will be moved to DRA.  In the latter, the intermediates
+that are formed by tensor contractions are initially stored in GA, thereby avoiding the need to
+accumulate the fragments of the intermediate scattered in EAFs in the original EAF algorithm.
+Once the intermediate is formed completely, then it will be replicated as EAFs.
+
+<P>
+
+<H2><A NAME="SECTION001756000000000000000">
+15.5.6 <TT>DIIS</TT> -- the convergence acceleration</A>
+</H2>
+
+<P>
+It sets the number iterations in which a DIIS extrapolation is performed to accelerate
+the convergence of excitation amplitudes.  The default value is 5, which means in every
+five iteration, one DIIS extrapolation is performed (and in the rest of the iterations,
+Jacobi rotation is used).  When zero or negative value is specified, the DIIS is turned
+off.  It is not recommended to perform DIIS every iteration, whereas setting a large 
+value for this parameter necessitates a large memory (disk) space to keep the excitation
+amplitudes of previous iterations.
+
+<P>
+
+<H2><A NAME="SECTION001757000000000000000">
+15.5.7 <TT>FREEZE</TT> -- the frozen core/virtual approximation</A>
+</H2>
+
+<P>
+Some of the lowest-lying core orbitals and/or some of the highest-lying
+virtual orbitals may be excluded in the calculations
+by this keyword (this does not affect the ground state HF or DFT calculation).
+No orbitals are frozen by default.  To exclude the atom-like
+core regions altogether, one may request
+<PRE>
+  FREEZE atomic
+</PRE>
+To specify the number of lowest-lying occupied orbitals be excluded, one may use
+<PRE>
+  FREEZE 10
+</PRE>
+which causes 10 lowest-lying occupied orbitals excluded.
+This is equivalent to writing
+<PRE>
+  FREEZE core 10
+</PRE>
+To freeze the highest virtual orbitals, use the <code>virtual</code>
+keyword.  For instance, to freeze the top 5 virtuals
+<PRE>
+  FREEZE virtual 5
+</PRE>
+
+<P>
+
+<H2><A NAME="SECTION001758000000000000000">
+15.5.8 <TT>NROOTS</TT> -- the number of excited states</A>
+</H2>
+
+<P>
+One can specify the number of excited state roots to be determined.  The default
+value is <code>1</code>.  It is advised that the users request several more roots than actually
+needed, since owing to the nature of the trial vector algorithm, some low-lying
+roots can be missed when they do not have sufficient overlap with the initial guess
+vectors.
+
+<P>
+
+<H2><A NAME="SECTION001759000000000000000">
+15.5.9 <TT>TARGET</TT> and <TT>TARGETSYM</TT> -- the target root and its symmetry</A>
+</H2>
+
+<P>
+At the moment, the first and second geometrical derivatives of excitation
+energies that are needed in force, geometry, and frequency calculations are
+obtained by numerical differentiation.  These keywords may be used to specify
+which excited state root is being used for the geometrical derivative calculation.
+For instance, when <code>TARGET 3</code> and <code>TARGETSYM a1g</code> are included in the
+input block, the total energy (ground state energy plus excitation energy)
+of the third lowest excited state root (excluding the ground state) transforming as
+the irreducible representation <code>a1g</code> will be passed to the module which performs
+the derivative calculations.  The default values of these keywords are <code>1</code> and <code>none</code>,
+respectively.
+
+<P>
+The keyword <code>TARGETSYM</code> is essential in excited state geometry
+optimization, since it is very common that the order of excited states changes due to
+the geometry changes in the course of optimization.  Without specifying the <code>TARGETSYM</code>,
+the optimizer could (and would likely) be optimizing the geometry of an excited state that
+is different from the one the user had intended to optimize at the starting geometry.
+On the other hand, in the frequency calculations, <code>TARGETSYM</code> must be <code>none</code>,
+since the finite displacements given in the course of frequency calculations will lift
+the spatial symmetry of the equilibrium geometry.  When these finite displacements can
+alter the order of excited states including the target state, the frequency calculation
+is not be feasible.
+
+<P>
+
+<H2><A NAME="SECTION0017510000000000000000">
+15.5.10 <TT>SYMMETRY</TT> -- restricting the excited state symmetry</A>
+</H2>
+
+<P>
+By adding this keyword to the input block, the user can request the module to
+seek just the roots of the specified irreducible representation as 
+<code>TARGETSYM</code>.  By default, this option is not set.
+<code>TARGETSYM</code> must be specified when <code>SYMMETRY</code> is invoked.
+
+<P>
+
+<H2><A NAME="SECTION0017511000000000000000">
+15.5.11 <TT>DIPOLE</TT> -- the ground- and excited-state dipole moments</A>
+</H2>
+
+<P>
+When this is set, the ground-state CC calculation will enter another round 
+of iterative step for the so-called <IMG
+ WIDTH="15" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img128.gif"
+ ALT="$\Lambda$"> equation to obtain the one-particle
+density matrix and dipole moments.  Likewise, for excited-states (EOM-CC), the 
+transition moments and dipole moments will be computed when (and only when) this
+option is set.  In the latter case, EOM-CC left hand side solutions will be sought
+incurring approximately three times the computational cost of excitation energies 
+alone (note that the EOM-CC effective Hamiltonian is not Hermitian and has distinct
+left and right eigenvectors).
+
+<P>
+
+<H2><A NAME="SECTION0017512000000000000000">
+15.5.12 <TT>(NO)FOCK</TT> -- (not) recompute Fock matrix</A>
+</H2>
+
+<P>
+The default is <code>FOCK</code> meaning that the Fock matrix will
+be reconstructed (as opposed to using the orbital energies as the diagonal part of
+Fock).  This is essential in getting correct correlation energies with ROHF or DFT
+reference wave functions.  However, currently, this module cannot reconstruct the
+Fock matrix when one-component relativistic effects are operative.  So when a user
+wishes to run TCE's correlation methods with DK or other relativistic reference,
+<code>NOFOCK</code> must be set and orbital energies must be used for the Fock matrix.
+
+<P>
+
+<H2><A NAME="SECTION0017513000000000000000">
+15.5.13 <TT>PRINT</TT> -- the verbosity</A>
+</H2>
+
+<P>
+This keyword changes the level of output verbosity.  One may also
+request some particular items in Table <A HREF="node17.html#tbl:tce-printable">15.1</A> printed.
+
+<P>
+<BR>
+<DIV ALIGN="CENTER">
+<A NAME="tbl:tce-printable"></A><A NAME="4802"></A>
+<TABLE CELLPADDING=3 BORDER="1" ALIGN="CENTER">
+<CAPTION><STRONG>Table 15.1:</STRONG>
+Printable items in the TCE modules and their default print levels.</CAPTION>
+<TR><TD ALIGN="LEFT">Item</TD>
+<TD ALIGN="LEFT">Print Level</TD>
+<TD ALIGN="LEFT">Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``time''</TD>
+<TD ALIGN="LEFT">vary</TD>
+<TD ALIGN="LEFT">CPU and wall times</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``tile''</TD>
+<TD ALIGN="LEFT">vary</TD>
+<TD ALIGN="LEFT">Orbital range tiling information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``t1''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img129.gif"
+ ALT="$T_1$"> excitation amplitude dumping</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``t2''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img130.gif"
+ ALT="$T_2$"> excitation amplitude dumping</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``t3''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img131.gif"
+ ALT="$T_3$"> excitation amplitude dumping</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``t4''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT"><IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img132.gif"
+ ALT="$T_4$"> excitation amplitude dumping</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``general information''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">General information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``correlation information''</TD>
+<TD ALIGN="LEFT">default</TD>
+<TD ALIGN="LEFT">TCE information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``mbpt2''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Caonical HF MBPT2 test</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``get_block''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">I/O information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``put_block''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">I/O information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``add_block''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">I/O information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``files''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">File information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``offset''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">File offset information</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``ao1e''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">AO one-electron integral evaluation</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``ao2e''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">AO two-electron integral evaluation</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``mo1e''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">One-electron integral transformation</TD>
+</TR>
+<TR><TD ALIGN="LEFT">``mo2e''</TD>
+<TD ALIGN="LEFT">debug</TD>
+<TD ALIGN="LEFT">Two-electron integral transformation</TD>
+</TR>
+</TABLE>
+</DIV>
+<BR>
+
+<P>
+
+<H1><A NAME="SECTION001760000000000000000">
+15.6 Sample input</A>
+</H1>
+
+<P>
+The following is a sample input for a ROHF-UCCSD energy calculation of a water radical cation.
+<PRE>
+START h2o
+
+TITLE "ROHF-UCCSD/cc-pVTZ H2O"
+
+CHARGE 1
+
+GEOMETRY
+O     0.00000000     0.00000000     0.12982363
+H     0.75933475     0.00000000    -0.46621158
+H    -0.75933475     0.00000000    -0.46621158
+END
+
+BASIS
+* library cc-pVTZ
+END
+
+SCF
+ROHF
+DOUBLET
+THRESH 1.0e-10
+TOL2E  1.0e-10
+END
+
+TCE
+CCSD
+END
+
+TASK TCE ENERGY
+</PRE>
+The same result can be obtained by the following input:
+<PRE>
+START h2o
+
+TITLE "ROHF-UCCSD/cc-pVTZ H2O"
+
+CHARGE 1
+
+GEOMETRY
+O     0.00000000     0.00000000     0.12982363
+H     0.75933475     0.00000000    -0.46621158
+H    -0.75933475     0.00000000    -0.46621158
+END
+
+BASIS
+* library cc-pVTZ
+END
+
+SCF
+ROHF
+DOUBLET
+THRESH 1.0e-10
+TOL2E  1.0e-10
+END
+
+TASK UCCSD ENERGY
+</PRE>
+
+<P>
+EOM-CCSDT calculation for excitation energies, excited-state
+dipole, and transition moments.
+<PRE>
+START tce_h2o_eomcc
+ 
+GEOMETRY UNITS BOHR
+H    1.474611052297904   0.000000000000000   0.863401706825835
+O    0.000000000000000   0.000000000000000  -0.215850436155089
+H   -1.474611052297904   0.000000000000000   0.863401706825835
+END
+ 
+BASIS
+* library sto-3g
+END
+ 
+SCF
+SINGLET
+RHF
+END
+ 
+TCE
+CCSDT
+DIPOLE
+FREEZE CORE ATOMIC
+NROOTS 1
+END
+ 
+TASK TCE ENERGY
+</PRE>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1272"
+  HREF="node18.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1268"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1262"
+  HREF="node16.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1270"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1273"
+  HREF="node18.html">16. MP2</A>
+<B> Up:</B> <A NAME="tex2html1269"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1263"
+  HREF="node16.html">14. CIS, TDHF, and</A>
+ &nbsp <B>  <A NAME="tex2html1271"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

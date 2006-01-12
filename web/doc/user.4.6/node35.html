@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>33. Combined quantum and molecular mechanics</TITLE>
+<META NAME="description" CONTENT="33. Combined quantum and molecular mechanics">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node36.html">
+<LINK REL="previous" HREF="node34.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node36.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1667"
+  HREF="node36.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1663"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1657"
+  HREF="node34.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1665"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1668"
+  HREF="node36.html">34. File formats</A>
+<B> Up:</B> <A NAME="tex2html1664"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1658"
+  HREF="node34.html">32. Analysis</A>
+ &nbsp <B>  <A NAME="tex2html1666"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+
+<H1><A NAME="SECTION003500000000000000000">
+33. Combined quantum and molecular mechanics</A>
+</H1>
+
+<P>
+<A NAME="sec:qmmm"></A>
+<P>
+Combined or hybrid Quantum Mechanics and Molecular Mechanics (QM/MM)
+is a simulation methodology that is about 15 years old but in all the
+literature there are cautions that calibration computations must be
+done to validate the model for each particular chemical system
+studied.  This is not a black box style computation and the NWChem
+users are advised that without calibration QM/MM may not give the
+appropriate results<A NAME="tex2html75"
+  HREF="footnode.html#foot9533"><SUP>33.1</SUP></A>.
+
+<P>
+The QM/MM module in NWChem is driven by the molecular dynamics module.
+This module currently works for any QM method that has
+analytic gradients<A NAME="tex2html76"
+  HREF="footnode.html#foot9512"><SUP>33.2</SUP></A>.  The input
+for this requires the definition of chemical system via the same
+interface that is used by the MD module (c.f. Section
+<A HREF="node33.html#sec:nwmd">31</A>).  The extensions to this interface include the
+definition of ``Quantum'' atoms and ``Link'' where appropriate.  The
+QM information must be present in the traditional NWChem input deck
+except for the geometry<A NAME="tex2html77"
+  HREF="footnode.html#foot9514"><SUP>33.3</SUP></A>.  The geometrical information will
+be constructed automatically by nwmd.  For dynamics and free energy
+simulations the input is again identical to that for nwmd with
+limitations on the kinds of simulations that can be done.
+Link atoms are defined by the molecular dynamics module, based on
+the specification of the quantum atoms in the prepare module. For
+the link atoms, basis sets <code>X_L</code> need to be defined in the
+basis set input block.
+
+<P>
+The QM/MM module is invoked with the task directive where the
+``theory'' is QMMM.  The recognized operations on the QM/MM theory
+directive are energy, optimize, and dynamics.
+
+<P>
+<PRE>
+  task qmmm (energy | optimize | dynamics)
+</PRE>
+
+<P>
+Tasks <code>gradient</code>, <code>saddle</code>, <code>frequencies</code> and
+<code>thermodynamics</code> are currently not available in the QM/MM mode.  
+
+<P>
+The QM/MM input consists of the standard NWChem input block:
+<PRE>
+  qmmm
+    ...
+  end
+</PRE>
+
+<P>
+The <code>qmmm</code> has the following the additional sub-directive that the user
+may specify for the particular simulation.  These options currently are:
+
+<P>
+
+<UL>
+<LI><PRE>
+eatoms &lt; real eatoms&gt;
+</PRE>
+
+<P>
+There is one compound input directive that must exist for the QM/MM
+simulation to proceed.  This sets the relative zero of energy for the
+QM component of the system.  It is not incorrect to leave this value as
+zero but the energetics of the QM system will likely over shadow the
+MM component of the system.  Properties based on energy fluctuations
+of the system will be overly sensitive to the energy of the QM
+component of the system.  The zero of energy for the MM system is by
+definition of most parameterized force fields the separated atom
+energy.  The zero of energy for QM systems by definition of most QM
+methods is the vacuum.  The <I>a priori</I> determination of the
+separated atom energy for a particular QM method is not well defined
+and thus leads to a number of assumptions or guess work depending upon
+the particular QM method being utilized.  Therefor, the determination
+of the QM separated atom energy (``eatoms'') is left to the user.
+There is no default for this and the input <B>must</B> be present for a
+QM/MM simulation.  
+
+<P>
+</LI>
+<LI><PRE>
+qatoms &lt; real qatoms&gt;
+</PRE>
+
+<P>
+This input directive is used to specify the total charge on the set
+of quantum atoms.
+
+<P>
+</LI>
+<LI><PRE>
+link hydrogen
+</PRE>
+
+<P>
+This directive specified to use hydrogens as link atoms. The default
+is to use the next group VII atom.  
+
+<P>
+</LI>
+<LI><PRE>
+nobq ( hydrogen | all | none )
+</PRE>
+
+<P>
+This directive specifies that hydrogen atoms, all atoms, or no atoms,
+respectively, bonded to link atoms will carry a zero charge in the
+QM part of the calculation.
+
+<P>
+</LI>
+</UL>
+All other parameters that control the QM/MM simulation are set via the
+input to nwmd (see chapter <A HREF="node33.html#sec:nwmd">31</A>).
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1667"
+  HREF="node36.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1663"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1657"
+  HREF="node34.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1665"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1668"
+  HREF="node36.html">34. File formats</A>
+<B> Up:</B> <A NAME="tex2html1664"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1658"
+  HREF="node34.html">32. Analysis</A>
+ &nbsp <B>  <A NAME="tex2html1666"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

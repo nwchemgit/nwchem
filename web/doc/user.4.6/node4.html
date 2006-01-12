@@ -1,0 +1,689 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>2. Getting Started</TITLE>
+<META NAME="description" CONTENT="2. Getting Started">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node5.html">
+<LINK REL="previous" HREF="node3.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node5.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1010"
+  HREF="node5.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1006"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1000"
+  HREF="node3.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1008"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1011"
+  HREF="node5.html">3. NWChem Architecture</A>
+<B> Up:</B> <A NAME="tex2html1007"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1001"
+  HREF="node3.html">1. Introduction</A>
+ &nbsp <B>  <A NAME="tex2html1009"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1012"
+  HREF="node4.html#SECTION00410000000000000000">2.1 Input File Structure</A>
+<LI><A NAME="tex2html1013"
+  HREF="node4.html#SECTION00420000000000000000">2.2 Simple Input File -- SCF geometry optimization</A>
+<LI><A NAME="tex2html1014"
+  HREF="node4.html#SECTION00430000000000000000">2.3 Water Molecule Sample Input File</A>
+<LI><A NAME="tex2html1015"
+  HREF="node4.html#SECTION00440000000000000000">2.4 Input Format and Syntax for Directives</A>
+<UL>
+<LI><A NAME="tex2html1016"
+  HREF="node4.html#SECTION00441000000000000000">2.4.1 Input Format</A>
+<LI><A NAME="tex2html1017"
+  HREF="node4.html#SECTION00442000000000000000">2.4.2 Format and syntax of directives</A>
+</UL></UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00400000000000000000">
+2. Getting Started</A>
+</H1>
+<A NAME="sec:getstart"></A>
+<P>
+This section provides an overview of NWChem input and program
+architecture, and the syntax used to describe the input.  See Sections
+<A HREF="node4.html#sec:simplesample">2.2</A> and <A HREF="node4.html#sec:realsample">2.3</A> for examples of NWChem
+input files with detailed explanation.
+
+<P>
+NWChem consists of independent modules that perform the various
+functions of the code.  Examples of modules include the input parser,
+SCF energy, SCF analytic gradient, DFT energy, etc..  Data is passed
+between modules and saved for restart using a disk-resident database
+or dumpfile (see Section <A HREF="node5.html#sec:arch">3</A>).
+
+<P>
+The input to NWChem is composed of commands, called directives, which
+define data (such as basis sets, geometries, and filenames) and the
+actions to be performed on that data.  Directives are processed in the order
+presented in the input file, with the exception of certain start-up
+directives (see Section <A HREF="node4.html#sec:inputstructure">2.1</A>) which provide
+critical job control information, and are processed before all other
+input.  Most directives are specific to a particular module and define
+data that is used by that module only.  A few directives (see Section
+<A HREF="node7.html#sec:toplevel">5</A>) potentially affect all modules, for instance by
+specifying the total electric charge on the system.    
+
+<P>
+There are two types of directives.  Simple directives consist of one
+line of input, which may contain multiple fields.  Compound directives
+group together multiple simple directives that are in some way
+related and are terminated with an <code>END</code> directive.  See the
+sample inputs (Sections <A HREF="node4.html#sec:simplesample">2.2</A>, <A HREF="node4.html#sec:realsample">2.3</A>)
+and the input syntax specification (Section <A HREF="node4.html#sec:syntax">2.4</A>).
+
+<P>
+All input is free format and case is ignored except for actual data
+(e.g., names/tags of centers, titles). Directives or blocks of
+module-specific directives (i.e., compound directives) can appear in
+any order, with the exception of the <code>TASK</code> directive (see
+sections <A HREF="node4.html#sec:inputstructure">2.1</A> and <A HREF="node7.html#sec:task">5.10</A>) which is used to
+invoke an NWChem module.  All input for a given task must
+precede the <code>TASK</code> directive.  This input specification rule
+allows the concatenation of multiple tasks in a single NWChem input
+file. 
+
+<P>
+To make the input as short and simple as possible, most options have
+default values.  The user needs to supply input only for those items that
+have no defaults, or for items that must be different from the defaults
+for the particular application.  In the discussion of each directive, the
+defaults are noted, where applicable.
+
+<P>
+The input file structure is described in the following sections, and
+illustrated with two examples.  The input format and syntax for directives
+is also described in detail.
+
+<P>
+
+<H1><A NAME="SECTION00410000000000000000"></A>
+<A NAME="sec:inputstructure"></A>
+<BR>
+2.1 Input File Structure
+</H1>
+
+<P>
+The structure of an input file reflects the internal structure of
+NWChem.  At the beginning of a calculation, NWChem needs to determine
+how much memory to use, the name of the database, whether it is a new or
+restarted job, where to put scratch/permanent files,
+etc..  It is not necessary to put this information at the top of the
+input file, however.  NWChem will read through the <EM>entire</EM> input
+file looking for the start-up directives.  In this first pass, all other
+directives are ignored.
+
+<P>
+The start-up directives are
+
+<UL>
+<LI><code>START</code>
+</LI>
+<LI><code>RESTART</code>
+</LI>
+<LI><code>SCRATCH_DIR</code>
+</LI>
+<LI><code>PERMANENT_DIR</code>
+</LI>
+<LI><code>MEMORY</code>
+</LI>
+<LI><code>ECHO</code>
+</LI>
+</UL>
+
+<P>
+After the input file has been scanned for the start-up directives, it
+is rewound and read sequentially.  Input is processed either by the
+top-level parser (for the directives listed in Section
+<A HREF="node7.html#sec:toplevel">5</A>, such as <code>TITLE</code>, <code>SET</code>, ...) or by
+the parsers for specific computational modules (e.g., SCF, DFT,
+...).  Any directives that have already been processed (e.g.,
+<code>MEMORY</code>) are ignored.  Input is read until a <code>TASK</code>
+directive (see Section <A HREF="node7.html#sec:task">5.10</A>) is encountered.  A <code>TASK</code>
+directive requests that a calculation be performed and specifies the level
+of theory and the operation to be performed.  Input processing then
+stops and the specified task is executed.  The position of the
+<code>TASK</code> directive in effect marks the end of the input for that
+task.  Processing of the input resumes upon the successful completion
+of the task, and the results of that task are available to subsequent
+tasks in the same input file.
+
+<P>
+The name of the input file is usually provided as an argument to the
+execute command for NWChem.  That is, the execute command looks
+something like the following;
+
+<P>
+<PRE>
+  nwchem input_file
+</PRE>
+
+<P>
+The default name for the input file is <code>nwchem.nw</code>.  If an input
+file name <code>input_file</code> is specified without an extension, the
+code assumes <code>.nw</code> as a default extension, and the input filename
+becomes <code>input_file.nw</code>.  If the code cannot locate a file named
+either <code>input_file</code> or <code>input_file.nw</code> (or <code>nwchem.nw</code>
+if no file name is provided), an error is reported and execution
+terminates.  The following section presents two input files to
+illustrate the directive syntax and input file format for NWChem
+applications.
+
+<P>
+
+<H1><A NAME="SECTION00420000000000000000"></A>
+<A NAME="sec:simplesample"></A>
+<BR>
+2.2 Simple Input File -- SCF geometry optimization
+</H1>
+
+<P>
+A simple example of an NWChem input file is an SCF geometry optimization of
+the nitrogen molecule, using a Dunning cc-pvdz basis set.  This input
+file contains the bare minimum of information the user must specify
+to run this type of problem -- fewer than ten lines of input,
+as follows:
+<PRE>
+  title "Nitrogen cc-pvdz SCF geometry optimization"
+  geometry  
+    n 0 0 0
+    n 0 0 1.08
+  end
+  basis
+    n library cc-pvdz
+  end
+  task scf optimize
+</PRE>
+
+<P>
+Examining the input line by line, it can be seen that it contains
+only four directives; <code>TITLE</code>, <code>GEOMETRY</code>, <code>BASIS</code>, and
+<code>TASK</code>.  The <code>TITLE</code> directive is optional, and is provided
+as a means for the user to more easily identify outputs from different
+jobs.  An initial geometry is specified in Cartesian coordinates and
+Angstr&#248;ms by means of the <code>GEOMETRY</code> directive.  The Dunning 
+cc-pvdz basis is obtained from the NWChem basis library, as specified
+by the <code>BASIS</code> directive input.  The <code>TASK</code> directive requests 
+an SCF geometry optimization.
+
+<P>
+The <code>GEOMETRY</code> directive (Section <A HREF="node8.html#sec:geom">6</A>) defaults to Cartesian
+coordinates and Angstr&#248;ms (options include atomic units and
+Z-matrix format; see Section <A HREF="node8.html#sec:Z-matrix">6.4</A>).  The input blocks for the  <code>BASIS</code> 
+and <code>GEOMETRY</code> directives are structured in similar fashion, 
+i.e., name, keyword, ..., end (In this simple example, there are no keywords).  The <code>BASIS</code> input block <EM>must</EM> contain basis set information for
+every atom type in the geometry with which it will be used.
+Refer to Sections <A HREF="node9.html#sec:basis">7</A> and <A HREF="node10.html#sec:ecp">8</A>, and Appendix
+<A HREF="node41.html#sec:knownbasis">A</A> for a description of available basis sets and a
+discussion of how to define new ones.
+
+<P>
+The last line of this sample input file (<TT>task scf optimize</TT>)
+tells the program to optimize the molecular geometry by minimizing
+the SCF energy.  (For a description of possible tasks and the format
+of the <code>TASK</code> directive, refer to Section <A HREF="node7.html#sec:task">5.10</A>.)
+
+<P>
+If the input is stored in the file <code>n2.nw</code>, the command to run
+this job on a typical UNIX workstation is as follows:
+
+<P>
+<PRE>
+  nwchem n2
+</PRE>
+
+<P>
+NWChem output is to UNIX standard output, and error messages are sent to
+both standard output and standard error.
+
+<P>
+
+<H1><A NAME="SECTION00430000000000000000"></A>
+<A NAME="sec:realsample"></A>
+<BR>
+2.3 Water Molecule Sample Input File
+</H1>
+
+<P>
+A more complex sample problem is the optimization of a positively
+charged water molecule using second-order M&#248;ller-Plesset
+perturbation theory (MP2), followed by a computation of frequencies at
+the optimized geometry.  A preliminary SCF geometry optimization is
+performed using a computationally inexpensive basis set (STO-3G).
+This yields a good starting guess for the optimal geometry, and any
+Hessian information generated will be used in the next optimization
+step.  Then the optimization is finished using MP2 and a basis set
+with polarization functions.  The final task is to calculate the
+MP2 vibrational frequencies.  The input file to accomplish these three
+tasks is as follows:
+
+<P>
+<PRE>
+start h2o_freq
+
+charge 1
+
+geometry units angstroms
+  O       0.0  0.0  0.0
+  H       0.0  0.0  1.0
+  H       0.0  1.0  0.0
+end
+
+basis
+  H library sto-3g
+  O library sto-3g
+end
+
+scf
+  uhf; doublet
+  print low
+end
+
+title "H2O+ : STO-3G UHF geometry optimization"
+
+task scf optimize
+
+basis
+  H library 6-31g**
+  O library 6-31g**
+end
+
+title "H2O+ : 6-31g** UMP2 geometry optimization"
+
+task mp2 optimize
+
+mp2; print none; end
+scf; print none; end
+
+title "H2O+ : 6-31g** UMP2 frequencies"
+
+task mp2 freq
+</PRE>
+
+<P>
+The <code>START</code> directive (Section <A HREF="node7.html#sec:start">5.1</A>) tells NWChem that
+this run is to be started from the beginning.  This directive need not
+be at the beginning of the input file, but it is commonly placed there.
+Existing database or vector files are to be ignored or overwritten.
+The entry <code>h2o_freq</code> on the <code>START</code> line is the prefix to be used
+for all files created by the calculation.  This convention allows
+different jobs to run in the same directory or to share the same
+scratch directory (see Section <A HREF="node7.html#sec:dirs">5.2</A>), as long as they use
+different prefix names in this field.
+
+<P>
+As in the first sample problem, the geometry is given in Cartesian
+coordinates.  In this case, the units are specified as Angstr&#248;ms.
+(Since this is the default, explicit specification of the units is not
+actually necessary, however.)  The <TT>CHARGE</TT> directive defines the
+total charge of the system.  This calculation is to be done on an ion
+with charge +1.
+
+<P>
+A small basis set (STO-3G) is specified for the intial geometry
+optimization.  Next, the multiple lines of the first <TT>SCF</TT>
+directive in the <TT>scf ...end</TT> block specify details about the
+SCF calculation to be performed.  Unrestricted Hartree-Fock is chosen
+here (by specifying the keyword <TT>uhf</TT>), rather than the default,
+restricted open-shell high-spin Hartree-Fock (ROHF).  This is
+necessary for the subsequent MP2 calculation, because only UMP2 is
+currently available for open-shell systems (see Section
+<A HREF="node6.html#sec:functionality">4</A>).  For open-shell systems, the spin
+multiplicity has to be specified (using <TT>doublet</TT> in this case),
+or it defaults to <TT>singlet</TT>.  The print level is set to <TT>low</TT>
+to avoid verbose output for the starting basis calculations.
+
+<P>
+All input up to this point affects only the settings in the runtime
+database.  The program takes its information from this database, so
+the sequence of directives up to the first <code>TASK</code> directive is
+irrelevant.  An exchange of order of the different blocks or
+directives would not affect the result.  The <TT>TASK</TT> directive,
+however, must be specified after all relevant input for a given
+problem.  The <TT>TASK</TT> directive causes the code to perform the
+specified calculation using the parameters set in the preceding
+directives. In this case, the first task is an SCF calculation with
+geometry optimization, specified with the input <TT>scf</TT> and <TT>  optimize</TT>.  (See Section <A HREF="node7.html#sec:task">5.10</A> for a list of available
+tasks and operations.)
+
+<P>
+After the completion of any task, settings in the database are used in
+subsequent tasks without change, unless they are overridden by new
+input directives.  In this example, before the second task
+(<code>task mp2 optimize</code>),
+ a better basis set (6-31G**) is defined and the title
+is changed.  The second <TT>TASK</TT> directive invokes an MP2 geometry
+optimization.
+
+<P>
+Once the MP2 optimization is completed, the geometry obtained in the
+calculation is used to perform a frequency calculation.  This task is
+invoked by the keyword <code>freq</code> in the final <code>TASK</code> directive,
+<code>task mp2 freq</code>.  The second derivatives of the energy are
+calculated as numerical derivatives of analytical gradients. The
+intermediate energies and gradients are not of interest in
+this case, so output from the SCF and MP2 modules is disabled with the
+<code>PRINT</code> directives.
+
+<P>
+
+<H1><A NAME="SECTION00440000000000000000"></A>
+<A NAME="sec:syntax"></A>
+<BR>
+2.4 Input Format and Syntax for Directives
+</H1>
+
+<P>
+This section describes the input format and the syntax used in the
+rest of this documentation to describe the format of directives.  The
+input format for the directives used in NWChem is similar to that of
+UNIX shells, which is also used in other chemistry packages, most
+notably GAMESS-UK.  An input line is parsed into whitespace (blanks or
+tabs) separating tokens or fields.  Any token that contains whitespace
+must be enclosed in double quotes in order to be processed correctly.
+For example, the basis set with the descriptive name
+<code>modified Dunning DZ</code> must appear in a directive as
+<code>"modified Dunning DZ"</code>, since the name consists of three separate words.
+
+<P>
+
+<H2><A NAME="SECTION00441000000000000000">
+2.4.1 Input Format</A>
+</H2>
+
+<P>
+A (physical) line in the input file is terminated with a newline
+character (also known as a `return' or `enter' character).  A
+semicolon (<code>;</code>) can be also used to indicate the end of an input
+line, allowing a single physical line of input to contain multiple
+logical lines of input.  For example, five lines of input for the
+<code>GEOMETRY</code> directive can be entered as follows;
+<PRE>
+  geometry
+   O 0  0     0
+   H 0  1.430 1.107
+   H 0 -1.430 1.107
+  end
+</PRE>
+These same five lines could be entered on a single line, as
+<PRE>
+  geometry; O 0 0 0; H 0 1.430 1.107; H 0 -1.430 1.107; end
+</PRE>
+This one physical input line comprises five logical
+input lines.  Each logical or physical input line must be no longer
+than 1023 characters.  
+
+<P>
+In the input file:
+
+<UL>
+<LI>a string, token, or field is a sequence of ASCII characters
+  (NOTE: if the string includes blanks or tabs (i.e., white space),
+  the entire string must be enclosed in double quotes).
+</LI>
+<LI><code>\</code> (backslash) at the end of a line concatenates it with
+  the next line.  Note that a space character is automatically
+  inserted at this point so that it is <EM>not</EM> possible to split
+  tokens across lines.  A backslash is also used to quote special
+  characters such as whitespace, semi-colons, and hash symbols so as
+  to avoid their special meaning (NOTE: these special symbols must be
+  quoted with the backslash even when enclosed within double quotes).
+</LI>
+<LI><code>;</code> (semicolon) is used to mark the end of a logical input
+  line within a physical line of input.
+</LI>
+<LI><code>#</code> (the hash or pound symbol) is the comment character.
+  All characters following <code>#</code> (up to the end of the physical
+  line) are ignored.
+</LI>
+<LI>If <EM>any</EM> input line (excluding Python programs, Section
+<A HREF="node38.html#sec:python">36</A>) begins with the string <code>INCLUDE</code> (ignoring
+case) and is followed by a valid file name, then the data in that file
+are read as if they were included into the current input file at the
+current line.  Up to three levels of nested include files are
+supported.  The user should note that inputting a basis set from the
+standard basis library (Section <A HREF="node9.html#sec:basis">7</A>) uses one level of
+include.
+</LI>
+<LI>Data is read from the input file until an end-of-file is detected, or
+until the string <code>EOF</code> (ignoring case) is encountered at the
+beginning of an input line.
+</LI>
+</UL>
+
+<P>
+
+<H2><A NAME="SECTION00442000000000000000">
+2.4.2 Format and syntax of directives</A>
+</H2>
+
+<P>
+Directives consist of a directive name, keywords, and optional input,
+and may contain one line or many.  Simple directives consist of a
+single line of input with one or more fields.  Compound directives can
+have multiple input lines, and can also include other optional simple
+and compound directives.  A compound directive is terminated with an
+END directive.  The directives START (see Section <A HREF="node7.html#sec:start">5.1</A>) and
+ECHO (see Section <A HREF="node7.html#sec:echo">5.4</A>) are examples of simple directives.
+The directive GEOMETRY (see Section <A HREF="node8.html#sec:geom">6</A>) is an example of a
+compound directive.
+
+<P>
+Some limited checking of the input for self-consistency is performed
+by the input module, but most defaults are imposed by the application
+modules at runtime.  It is therefore usually impossible to determine
+beforehand whether or not all selected options are consistent with
+each other.
+
+<P>
+
+<P>
+In the rest of this document, the following notation and syntax
+conventions are used in the generic descriptions of the NWChem input.
+
+<UL>
+<LI>a directive name always appears in all-capitals, and in computer
+  typeface (e.g., <code>GEOMETRY</code>, <code>BASIS</code>, <code>SCF</code>).  Note
+  that the case of directives and keywords is ignored in the actual
+  input.
+</LI>
+<LI>a keyword always appears in lower case, in computer typeface
+  (e.g., <TT>swap</TT>, <TT>print</TT>, <TT>units</TT>, <TT>bqbq</TT>).
+</LI>
+<LI>variable names always appear in lower case, in computer
+  typeface, and enclosed in angle brackets to distinguish them from
+  keywords (e.g., <TT>&lt;input_filename&gt;</TT>, <TT>&lt;basisname&gt;</TT>, <TT>    &lt;tag&gt;</TT>).
+</LI>
+<LI><code>$variable$</code> is used to indicate the substitution of the
+  value of a variable.
+</LI>
+<LI><code>()</code> is used to group items (the parentheses and other
+  special symbols should not appear in the input).
+</LI>
+<LI><code>||</code> separate exclusive options, parameters, or formats.
+</LI>
+<LI><code>[ ]</code> enclose optional entries that have a default value.
+</LI>
+<LI><code>&lt; &gt;</code> enclose a type, a name of a value to be specified, or
+  a default value, if any.
+</LI>
+<LI><code>\</code> is used to concatenate lines in a description.
+</LI>
+<LI><code>...</code> is used to indicate indefinite continuation of a
+  list.
+</LI>
+</UL>
+
+<P>
+
+<P>
+An input parameter is identified in the description of the directive
+by prefacing the name of the item with the type of data expected,
+i.e.,
+
+<UL>
+<LI><code>string </code>  - an ASCII character string
+</LI>
+<LI><code>integer</code> -  integer value(s) for a variable or an array
+</LI>
+<LI><code>logical</code> -  true/false logical variable
+</LI>
+<LI><code>real   </code>  - real floating point value(s) for a variable or an array
+</LI>
+<LI><code>double </code> - synonymous with real
+</LI>
+</UL>
+
+<P>
+If an input item is not prefaced by one of these type names,
+it is assumed to be of type ``string''.
+
+<P>
+In addition, integer lists may be specified using Fortran triplet
+notation, which interprets <code>lo:hi:inc</code> as <code>lo</code>, <code>lo+inc</code>,
+<code>lo+2*inc</code>, ..., <code>hi</code>.  For example, where a list of
+integers is expected in the input, the following two lines are
+equivalent
+<PRE>
+   7 10 21:27:2 1:3 99
+   7 10 21 23 25 27 1 2 3 99
+</PRE>
+(In Fortran triplet notation,  the increment, if unstated, is 1; e.g., 1:3 = 1:3:1.)
+
+<P>
+The directive <code>VECTORS</code> (Section <A HREF="node12.html#sec:vectors">10.5</A>) is presented here
+as an example of an NWChem input directive.  The general form of the
+directive is as follows:
+<PRE>
+  VECTORS [input (&lt;string input_movecs default atomic&gt;) || \
+                   (project &lt;string basisname&gt; &lt;string filename&gt;)] \
+          [swap [(alpha||beta)] &lt;integer vec1 vec2&gt; ...] \
+          [output &lt;string output_movecs default $file_prefix$.movecs&gt;]
+</PRE>
+
+<P>
+This directive contains three optional keywords, as indicated by the 
+three main sets of square brackets enclosing the keywords <code>input</code>,
+<code>swap</code>, and <code>output</code>.  The keyword <code>input</code> allows the
+user to specify the source of the molecular orbital vectors.  
+There are two mutually exclusive options for
+specifying the vectors, as indicated by the <code>||</code> symbol
+separating the option descriptions;
+<PRE>
+  (&lt;string input_movecs default atomic&gt;) || \
+                  (project &lt;string basisname&gt; &lt;string filename&gt;) \
+</PRE>
+
+<P>
+The first option, <code>(&lt;string input_movecs default atomic&gt;)</code>,
+allows the user to specify an ASCII character string for the parameter
+<TT>input_movecs</TT>.  If no entry is specified, the code uses the
+default <code>atomic</code> (i.e., atomic guess).  The second option,
+<TT>(project &lt;string basisname&gt; &lt;string filename&gt;)</TT>, contains the
+keyword <code>project</code>, which takes two string arguments.  When this
+keyword is used, the vectors in file <code>&lt;filename&gt;</code> will be
+projected from the (smaller) basis <code>&lt;basisname&gt;</code> into the current
+atomic orbital (AO) basis.
+
+<P>
+The second keyword, <code>swap</code>, allows the user to re-order the
+starting vectors, specifying the pairs of vectors to be swapped.  As
+many pairs as the user wishes to have swapped can be listed for <TT>  &lt;integer vec1 vec2 ... &gt;</TT>.  The optional keywords <code>alpha</code> and
+<code>beta</code> allow the user to swap the alpha or beta spin orbitals.
+
+<P>
+The third keyword, <code>output</code>, allows the user to tell the code
+where to store the vectors, by specifying an ASCII string for the
+parameter <TT>output_movecs</TT>.  If no entry is specified for this
+parameter, the default is to write the vectors back into either the
+user- specified MO vectors input file or, if this is not available,
+the file <code>$file_prefix$.movecs</code>.
+
+<P>
+A particular example of the <code>VECTORS</code> directive is shown below.
+It specifies both the <code>input</code> and <code>output</code> keywords, but
+does not use the <code>swap</code> option.
+<PRE>
+  vectors input project "small basis" small_basis.movecs \
+          output large_basis.movecs
+</PRE>
+This directive tells the code to generate input vectors by projecting
+from vectors in a smaller basis named <code>"small basis"</code>, which is
+stored in the file <code>small_basis.movecs</code>.  The output vectors will
+be stored in the file <code>large_basis.movecs</code>.
+
+<P>
+The order of keyed optional entries within a directive should not
+matter, unless noted otherwise in the specific instructions for a
+particular directive.
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1010"
+  HREF="node5.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1006"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1000"
+  HREF="node3.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1008"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1011"
+  HREF="node5.html">3. NWChem Architecture</A>
+<B> Up:</B> <A NAME="tex2html1007"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1001"
+  HREF="node3.html">1. Introduction</A>
+ &nbsp <B>  <A NAME="tex2html1009"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

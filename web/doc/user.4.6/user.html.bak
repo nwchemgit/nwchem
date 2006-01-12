@@ -1,0 +1,1230 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>user</TITLE>
+<META NAME="description" CONTENT="user">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node1.html">
+</HEAD>
+
+<BODY >
+<!--Navigation Panel-->
+<A NAME="tex2html105"
+  HREF="node1.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up_g.png"> 
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev_g.png"> 
+<A NAME="tex2html103"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html106"
+  HREF="node1.html">DISCLAIMER</A>
+ &nbsp <B>  <A NAME="tex2html104"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<IMG
+ WIDTH="531" HEIGHT="515" ALIGN="BOTTOM" BORDER="0"
+ SRC="img26.gif"
+ ALT="\begin{center}\vbox{\input{titlepage}
+}\end{center}">
+
+<P>
+<BR><HR>
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"></A>
+
+<P><A TARGET="_top" HREF="../../nwchem.html">Return to NWchem home page.</A>
+<form method="post" action="/cgi-bin/htsearch">
+<font size=-1>
+Match: <select name=method>
+<option value=and>All
+<option value=or>Any
+</select>
+Format: <select name=format>
+<option value=builtin-long>Long
+<option value=builtin-short>Short
+</select>
+</font>
+<input type=hidden name=config value=nwchem_user_pub>
+<input type=hidden name=restrict value="">
+<input type=hidden name=exclude value="">
+<br>
+Search:
+<input type="text" size="30" name="words" value="">
+<input type="submit" value="Search">
+</form>
+<P><A HREF="userpdf.pdf">PDF</A> 
+<P><A HREF="user.001.ps.Z">Compressed postscript</A> Part 1
+<P><A HREF="user.002.ps.Z">Compressed postscript</A> Part 2
+<P><A HREF="user.001.ps">Postscript</A> Part 1
+<P><A HREF="user.002.ps">Postscript</A> Part 2
+<HR>
+<UL>
+<LI><A NAME="tex2html107"
+  HREF="node1.html">DISCLAIMER</A>
+<LI><A NAME="tex2html108"
+  HREF="node2.html">Contents</A>
+<LI><A NAME="tex2html109"
+  HREF="node3.html">1. Introduction</A>
+<UL>
+<LI><A NAME="tex2html110"
+  HREF="node3.html#SECTION00310000000000000000">1.1 Citation</A>
+<LI><A NAME="tex2html111"
+  HREF="node3.html#SECTION00320000000000000000">1.2 User Feedback</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html112"
+  HREF="node4.html">2. Getting Started</A>
+<UL>
+<LI><A NAME="tex2html113"
+  HREF="node4.html#SECTION00410000000000000000">2.1 Input File Structure</A>
+<LI><A NAME="tex2html114"
+  HREF="node4.html#SECTION00420000000000000000">2.2 Simple Input File -- SCF geometry optimization</A>
+<LI><A NAME="tex2html115"
+  HREF="node4.html#SECTION00430000000000000000">2.3 Water Molecule Sample Input File</A>
+<LI><A NAME="tex2html116"
+  HREF="node4.html#SECTION00440000000000000000">2.4 Input Format and Syntax for Directives</A>
+<UL>
+<LI><A NAME="tex2html117"
+  HREF="node4.html#SECTION00441000000000000000">2.4.1 Input Format</A>
+<LI><A NAME="tex2html118"
+  HREF="node4.html#SECTION00442000000000000000">2.4.2 Format and syntax of directives</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html119"
+  HREF="node5.html">3. NWChem Architecture</A>
+<UL>
+<LI><A NAME="tex2html120"
+  HREF="node5.html#SECTION00510000000000000000">3.1 Database Structure</A>
+<LI><A NAME="tex2html121"
+  HREF="node5.html#SECTION00520000000000000000">3.2 Persistence of data and restart</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html122"
+  HREF="node6.html">4. Functionality</A>
+<UL>
+<LI><A NAME="tex2html123"
+  HREF="node6.html#SECTION00610000000000000000">4.1 Molecular electronic structure</A>
+<LI><A NAME="tex2html124"
+  HREF="node6.html#SECTION00620000000000000000">4.2 Relativistic effects</A>
+<LI><A NAME="tex2html125"
+  HREF="node6.html#SECTION00630000000000000000">4.3 Pseudopotential plane-wave electronic structure</A>
+<LI><A NAME="tex2html126"
+  HREF="node6.html#SECTION00640000000000000000">4.4 Molecular dynamics</A>
+<LI><A NAME="tex2html127"
+  HREF="node6.html#SECTION00650000000000000000">4.5 Python</A>
+<LI><A NAME="tex2html128"
+  HREF="node6.html#SECTION00660000000000000000">4.6 Parallel tools and libraries (ParSoft)</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html129"
+  HREF="node7.html">5. Top-level directives</A>
+<UL>
+<LI><A NAME="tex2html130"
+  HREF="node7.html#SECTION00710000000000000000">5.1 <TT>START</TT> and <TT>RESTART</TT> -- Start-up mode</A>
+<LI><A NAME="tex2html131"
+  HREF="node7.html#SECTION00720000000000000000">5.2 <TT>SCRATCH_DIR</TT> and <TT>PERMANENT_DIR</TT> -- File directories</A>
+<LI><A NAME="tex2html132"
+  HREF="node7.html#SECTION00730000000000000000">5.3 <TT>MEMORY</TT> -- Control of memory limits</A>
+<LI><A NAME="tex2html133"
+  HREF="node7.html#SECTION00740000000000000000">5.4 <TT>ECHO</TT> -- Print input file</A>
+<LI><A NAME="tex2html134"
+  HREF="node7.html#SECTION00750000000000000000">5.5 <TT>TITLE</TT> -- Specify job title</A>
+<LI><A NAME="tex2html135"
+  HREF="node7.html#SECTION00760000000000000000">5.6 <TT>PRINT</TT> and <TT>NOPRINT</TT> -- Print control</A>
+<LI><A NAME="tex2html136"
+  HREF="node7.html#SECTION00770000000000000000">5.7 <TT>SET</TT> -- Enter data in the RTDB</A>
+<LI><A NAME="tex2html137"
+  HREF="node7.html#SECTION00780000000000000000">5.8 <TT>UNSET</TT> -- Delete data in the RTDB</A>
+<LI><A NAME="tex2html138"
+  HREF="node7.html#SECTION00790000000000000000">5.9 <TT>STOP</TT> -- Terminate processing</A>
+<LI><A NAME="tex2html139"
+  HREF="node7.html#SECTION007100000000000000000">5.10 <TT>TASK</TT> -- Perform a task</A>
+<UL>
+<LI><A NAME="tex2html140"
+  HREF="node7.html#SECTION007101000000000000000">5.10.1 <TT>TASK</TT> Directive for Electronic Structure Calculations</A>
+<LI><A NAME="tex2html141"
+  HREF="node7.html#SECTION007102000000000000000">5.10.2 <TT>TASK</TT> Directive for Special Operations</A>
+<LI><A NAME="tex2html142"
+  HREF="node7.html#SECTION007103000000000000000">5.10.3 <TT>TASK</TT> Directive for the Bourne Shell</A>
+<LI><A NAME="tex2html143"
+  HREF="node7.html#SECTION007104000000000000000">5.10.4 <TT>TASK</TT> Directive for QM/MM simulations</A>
+</UL>
+<LI><A NAME="tex2html144"
+  HREF="node7.html#SECTION007110000000000000000">5.11 <TT>CHARGE</TT> -- Total system charge</A>
+<LI><A NAME="tex2html145"
+  HREF="node7.html#SECTION007120000000000000000">5.12 <TT>ECCE_PRINT</TT> -- Print information for Ecce</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html146"
+  HREF="node8.html">6. Geometries</A>
+<UL>
+<LI><A NAME="tex2html147"
+  HREF="node8.html#SECTION00810000000000000000">6.1 Keywords on the <TT>GEOMETRY</TT> directive</A>
+<LI><A NAME="tex2html148"
+  HREF="node8.html#SECTION00820000000000000000">6.2 <TT>SYMMETRY</TT> -- Symmetry Group Input</A>
+<LI><A NAME="tex2html149"
+  HREF="node8.html#SECTION00830000000000000000">6.3 Cartesian coordinate input</A>
+<LI><A NAME="tex2html150"
+  HREF="node8.html#SECTION00840000000000000000">6.4 <TT>ZMATRIX</TT> -- Z-matrix input</A>
+<LI><A NAME="tex2html151"
+  HREF="node8.html#SECTION00850000000000000000">6.5 <TT>ZCOORD</TT> -- Forcing internal coordinates</A>
+<LI><A NAME="tex2html152"
+  HREF="node8.html#SECTION00860000000000000000">6.6 Applying constraints in geometry optimizations</A>
+<LI><A NAME="tex2html153"
+  HREF="node8.html#SECTION00870000000000000000">6.7 <TT>SYSTEM</TT> -- Lattice parameters for periodic systems</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html154"
+  HREF="node9.html">7. Basis sets</A>
+<UL>
+<LI><A NAME="tex2html155"
+  HREF="node9.html#SECTION00910000000000000000">7.1 Basis set library</A>
+<LI><A NAME="tex2html156"
+  HREF="node9.html#SECTION00920000000000000000">7.2 Explicit basis set definition</A>
+<LI><A NAME="tex2html157"
+  HREF="node9.html#SECTION00930000000000000000">7.3 Combinations of library and explicit basis set input</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html158"
+  HREF="node10.html">8. Effective Core Potentials</A>
+<UL>
+<LI><A NAME="tex2html159"
+  HREF="node10.html#SECTION001010000000000000000">8.1 Scalar ECPs</A>
+<LI><A NAME="tex2html160"
+  HREF="node10.html#SECTION001020000000000000000">8.2 Spin-orbit ECPs</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html161"
+  HREF="node11.html">9. Relativistic All-electron Approximations</A>
+<UL>
+<LI><A NAME="tex2html162"
+  HREF="node11.html#SECTION001110000000000000000">9.1 Douglas-Kroll approximation</A>
+<LI><A NAME="tex2html163"
+  HREF="node11.html#SECTION001120000000000000000">9.2 Dyall's Modified Dirac Hamitonian approximation</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html164"
+  HREF="node12.html">10. Hartree-Fock or Self-consistent Field</A>
+<UL>
+<LI><A NAME="tex2html165"
+  HREF="node12.html#SECTION001210000000000000000">10.1 Wavefunction type</A>
+<LI><A NAME="tex2html166"
+  HREF="node12.html#SECTION001220000000000000000">10.2 <TT>SYM</TT> -- use of symmetry</A>
+<LI><A NAME="tex2html167"
+  HREF="node12.html#SECTION001230000000000000000">10.3 <TT>ADAPT</TT> - symmetry adaptation of MOs</A>
+<LI><A NAME="tex2html168"
+  HREF="node12.html#SECTION001240000000000000000">10.4 <TT>TOL2E</TT> -- integral screening threshold</A>
+<LI><A NAME="tex2html169"
+  HREF="node12.html#SECTION001250000000000000000">10.5 <TT>VECTORS</TT> -- input/output of MO vectors</A>
+<UL>
+<LI><A NAME="tex2html170"
+  HREF="node12.html#SECTION001251000000000000000">10.5.1 Superposition of fragment molecular orbitals</A>
+<LI><A NAME="tex2html171"
+  HREF="node12.html#SECTION001252000000000000000">10.5.2 Atomic guess orbitals with charged atoms</A>
+</UL>
+<LI><A NAME="tex2html172"
+  HREF="node12.html#SECTION001260000000000000000">10.6 Accuracy of initial guess</A>
+<LI><A NAME="tex2html173"
+  HREF="node12.html#SECTION001270000000000000000">10.7 <TT>THRESH</TT> -- convergence threshold</A>
+<LI><A NAME="tex2html174"
+  HREF="node12.html#SECTION001280000000000000000">10.8 <TT>MAXITER</TT> -- iteration limit</A>
+<LI><A NAME="tex2html175"
+  HREF="node12.html#SECTION001290000000000000000">10.9 <TT>PROFILE</TT> -- performance profile</A>
+<LI><A NAME="tex2html176"
+  HREF="node12.html#SECTION0012100000000000000000">10.10 <TT>DIIS</TT> -- DIIS convergence</A>
+<LI><A NAME="tex2html177"
+  HREF="node12.html#SECTION0012110000000000000000">10.11 <TT>DIRECT</TT> and <TT>SEMIDIRECT</TT> -- recomputation of integrals</A>
+<UL>
+<LI><A NAME="tex2html178"
+  HREF="node12.html#SECTION0012111000000000000000">10.11.1 Integral File Size and Format for the SCF Module</A>
+</UL>
+<LI><A NAME="tex2html179"
+  HREF="node12.html#SECTION0012120000000000000000">10.12 SCF Convergence Control Options</A>
+<LI><A NAME="tex2html180"
+  HREF="node12.html#SECTION0012130000000000000000">10.13 <TT>NR</TT> -- controlling the Newton-Raphson</A>
+<LI><A NAME="tex2html181"
+  HREF="node12.html#SECTION0012140000000000000000">10.14 <TT>LEVEL</TT> -- level-shifting the orbital Hessian</A>
+<LI><A NAME="tex2html182"
+  HREF="node12.html#SECTION0012150000000000000000">10.15 Orbital Localization</A>
+<LI><A NAME="tex2html183"
+  HREF="node12.html#SECTION0012160000000000000000">10.16 Printing Information from the SCF Module</A>
+<LI><A NAME="tex2html184"
+  HREF="node12.html#SECTION0012170000000000000000">10.17 Hartree-Fock or SCF, MCSCF and MP2 Gradients</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html185"
+  HREF="node13.html">11. DFT for Molecules (DFT)</A>
+<UL>
+<LI><A NAME="tex2html186"
+  HREF="node13.html#SECTION001310000000000000000">11.1 Specification of Basis Sets for the DFT Module</A>
+<LI><A NAME="tex2html187"
+  HREF="node13.html#SECTION001320000000000000000">11.2 <TT>VECTORS</TT> and <TT>MAX_OVL</TT> -- KS-MO Vectors</A>
+<LI><A NAME="tex2html188"
+  HREF="node13.html#SECTION001330000000000000000">11.3 <TT>XC</TT> and <TT>DECOMP</TT> -- Exchange-Correlation Potentials</A>
+<UL>
+<LI><A NAME="tex2html189"
+  HREF="node13.html#SECTION001331000000000000000">11.3.1 Exchange-Correlation Functionals</A>
+<LI><A NAME="tex2html190"
+  HREF="node13.html#SECTION001332000000000000000">11.3.2 Combined Exchange and Correlation Functionals</A>
+<LI><A NAME="tex2html191"
+  HREF="node13.html#SECTION001333000000000000000">11.3.3 Meta-GGA Functionals</A>
+</UL>
+<LI><A NAME="tex2html192"
+  HREF="node13.html#SECTION001340000000000000000">11.4 <TT>LB94</TT> and <TT>CS00</TT> -- Asymptotic correction</A>
+<LI><A NAME="tex2html193"
+  HREF="node13.html#SECTION001350000000000000000">11.5 Sample input file</A>
+<LI><A NAME="tex2html194"
+  HREF="node13.html#SECTION001360000000000000000">11.6 <TT>ITERATIONS</TT> -- Number of SCF iterations</A>
+<LI><A NAME="tex2html195"
+  HREF="node13.html#SECTION001370000000000000000">11.7 <TT>CONVERGENCE</TT> -- SCF Convergence Control</A>
+<LI><A NAME="tex2html196"
+  HREF="node13.html#SECTION001380000000000000000">11.8 <TT>SMEAR</TT> -- Fractional Occupation of the Molecular Orbitals</A>
+<LI><A NAME="tex2html197"
+  HREF="node13.html#SECTION001390000000000000000">11.9 <TT>GRID</TT> -- Numerical Integration of the XC Potential</A>
+<UL>
+<LI><A NAME="tex2html198"
+  HREF="node13.html#SECTION001391000000000000000">11.9.1 Angular grids</A>
+<LI><A NAME="tex2html199"
+  HREF="node13.html#SECTION001392000000000000000">11.9.2 Partitioning functions</A>
+<LI><A NAME="tex2html200"
+  HREF="node13.html#SECTION001393000000000000000">11.9.3 Radial grids</A>
+<LI><A NAME="tex2html201"
+  HREF="node13.html#SECTION001394000000000000000">11.9.4 Disk usage for Grid</A>
+</UL>
+<LI><A NAME="tex2html202"
+  HREF="node13.html#SECTION0013100000000000000000">11.10 <TT>TOLERANCES</TT> -- Screening tolerances</A>
+<LI><A NAME="tex2html203"
+  HREF="node13.html#SECTION0013110000000000000000">11.11 <TT>DIRECT</TT> and <TT>NOIO</TT> -- Hardware Resource Control</A>
+<LI><A NAME="tex2html204"
+  HREF="node13.html#SECTION0013120000000000000000">11.12 <TT>ODFT</TT> and <TT>MULT</TT> -- Open shell systems</A>
+<LI><A NAME="tex2html205"
+  HREF="node13.html#SECTION0013130000000000000000">11.13 <TT>SIC</TT> -- Self-Interaction Correction</A>
+<LI><A NAME="tex2html206"
+  HREF="node13.html#SECTION0013140000000000000000">11.14 <TT>MULLIKEN</TT> -- Mulliken analysis</A>
+<LI><A NAME="tex2html207"
+  HREF="node13.html#SECTION0013150000000000000000">11.15 <TT>BSSE</TT> -- Basis Set Superposition Error</A>
+<LI><A NAME="tex2html208"
+  HREF="node13.html#SECTION0013160000000000000000">11.16 Print Control</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html209"
+  HREF="node14.html">12. Spin-Orbit DFT (SODFT)</A>
+<LI><A NAME="tex2html210"
+  HREF="node15.html">13. COSMO</A>
+<LI><A NAME="tex2html211"
+  HREF="node16.html">14. CIS, TDHF, and TDDFT</A>
+<UL>
+<LI><A NAME="tex2html212"
+  HREF="node16.html#SECTION001610000000000000000">14.1 Overview</A>
+<LI><A NAME="tex2html213"
+  HREF="node16.html#SECTION001620000000000000000">14.2 Performance of CIS, TDHF, and TDDFT methods</A>
+<LI><A NAME="tex2html214"
+  HREF="node16.html#SECTION001630000000000000000">14.3 Input syntax</A>
+<LI><A NAME="tex2html215"
+  HREF="node16.html#SECTION001640000000000000000">14.4 Keywords of <TT>TDDFT</TT> input block</A>
+<UL>
+<LI><A NAME="tex2html216"
+  HREF="node16.html#SECTION001641000000000000000">14.4.1 <TT>CIS</TT> and <TT>RPA</TT> -- the Tamm-Dancoff approximation</A>
+<LI><A NAME="tex2html217"
+  HREF="node16.html#SECTION001642000000000000000">14.4.2 <TT>NROOTS</TT> -- the number of excited states</A>
+<LI><A NAME="tex2html218"
+  HREF="node16.html#SECTION001643000000000000000">14.4.3 <TT>MAXVECS</TT> -- the subspace size</A>
+<LI><A NAME="tex2html219"
+  HREF="node16.html#SECTION001644000000000000000">14.4.4 <TT>SINGLET</TT> and <TT>NOSINGLET</TT> -- singlet excited states</A>
+<LI><A NAME="tex2html220"
+  HREF="node16.html#SECTION001645000000000000000">14.4.5 <TT>TRIPLET</TT> and <TT>NOTRIPLET</TT> -- triplet excited states</A>
+<LI><A NAME="tex2html221"
+  HREF="node16.html#SECTION001646000000000000000">14.4.6 <TT>THRESH</TT> -- the convergence threshold of Davidson iteration</A>
+<LI><A NAME="tex2html222"
+  HREF="node16.html#SECTION001647000000000000000">14.4.7 <TT>MAXITER</TT> -- the maximum number of Davidson iteration</A>
+<LI><A NAME="tex2html223"
+  HREF="node16.html#SECTION001648000000000000000">14.4.8 <TT>TARGET</TT> and <TT>TARGETSYM</TT>-- the target root and its symmetry</A>
+<LI><A NAME="tex2html224"
+  HREF="node16.html#SECTION001649000000000000000">14.4.9 <TT>SYMMETRY</TT> -- restricting the excited state symmetry</A>
+<LI><A NAME="tex2html225"
+  HREF="node16.html#SECTION0016410000000000000000">14.4.10 <TT>ALGORITHM</TT> -- algorithms for tensor contractions</A>
+<LI><A NAME="tex2html226"
+  HREF="node16.html#SECTION0016411000000000000000">14.4.11 <TT>FREEZE</TT> -- the frozen core/virtual approximation</A>
+<LI><A NAME="tex2html227"
+  HREF="node16.html#SECTION0016412000000000000000">14.4.12 <TT>PRINT</TT> -- the verbosity</A>
+</UL>
+<LI><A NAME="tex2html228"
+  HREF="node16.html#SECTION001650000000000000000">14.5 Sample input</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html229"
+  HREF="node17.html">15. Tensor Contraction Engine Module: CI, MBPT, and CC</A>
+<UL>
+<LI><A NAME="tex2html230"
+  HREF="node17.html#SECTION001710000000000000000">15.1 Overview</A>
+<LI><A NAME="tex2html231"
+  HREF="node17.html#SECTION001720000000000000000">15.2 Performance of CI, MBPT, and CC methods</A>
+<LI><A NAME="tex2html232"
+  HREF="node17.html#SECTION001730000000000000000">15.3 Algorithms of CI, MBPT, and CC methods</A>
+<UL>
+<LI><A NAME="tex2html233"
+  HREF="node17.html#SECTION001731000000000000000">15.3.1 Spin, spatial, and index permutation symmetry</A>
+<LI><A NAME="tex2html234"
+  HREF="node17.html#SECTION001732000000000000000">15.3.2 Runtime orbital range tiling</A>
+<LI><A NAME="tex2html235"
+  HREF="node17.html#SECTION001733000000000000000">15.3.3 Dynamic load balancing parallelism</A>
+<LI><A NAME="tex2html236"
+  HREF="node17.html#SECTION001734000000000000000">15.3.4 Parallel I/O schemes</A>
+</UL>
+<LI><A NAME="tex2html237"
+  HREF="node17.html#SECTION001740000000000000000">15.4 Input syntax</A>
+<LI><A NAME="tex2html238"
+  HREF="node17.html#SECTION001750000000000000000">15.5 Keywords of <TT>TCE</TT> input block</A>
+<UL>
+<LI><A NAME="tex2html239"
+  HREF="node17.html#SECTION001751000000000000000">15.5.1 <TT>HF</TT>, <TT>SCF</TT>, or <TT>DFT</TT> -- the reference wave function</A>
+<LI><A NAME="tex2html240"
+  HREF="node17.html#SECTION001752000000000000000">15.5.2 <TT>CCSD</TT>,<TT>CCSDT</TT>,<TT>CCSDTQ</TT>,<TT>CISD</TT>,<TT>CISDT</TT>,<TT>CISDTQ</TT>,
+<TT>MBPT2</TT>,<TT>MBPT3</TT>,<TT>MBPT4</TT>, etc.
+ -- the correlation model</A>
+<LI><A NAME="tex2html241"
+  HREF="node17.html#SECTION001753000000000000000">15.5.3 <TT>THRESH</TT> -- the convergence threshold of iterative solutions of amplitude equations</A>
+<LI><A NAME="tex2html242"
+  HREF="node17.html#SECTION001754000000000000000">15.5.4 <TT>MAXITER</TT> -- the maximum number of iterations</A>
+<LI><A NAME="tex2html243"
+  HREF="node17.html#SECTION001755000000000000000">15.5.5 <TT>IO</TT> -- parallel I/O scheme</A>
+<LI><A NAME="tex2html244"
+  HREF="node17.html#SECTION001756000000000000000">15.5.6 <TT>DIIS</TT> -- the convergence acceleration</A>
+<LI><A NAME="tex2html245"
+  HREF="node17.html#SECTION001757000000000000000">15.5.7 <TT>FREEZE</TT> -- the frozen core/virtual approximation</A>
+<LI><A NAME="tex2html246"
+  HREF="node17.html#SECTION001758000000000000000">15.5.8 <TT>NROOTS</TT> -- the number of excited states</A>
+<LI><A NAME="tex2html247"
+  HREF="node17.html#SECTION001759000000000000000">15.5.9 <TT>TARGET</TT> and <TT>TARGETSYM</TT> -- the target root and its symmetry</A>
+<LI><A NAME="tex2html248"
+  HREF="node17.html#SECTION0017510000000000000000">15.5.10 <TT>SYMMETRY</TT> -- restricting the excited state symmetry</A>
+<LI><A NAME="tex2html249"
+  HREF="node17.html#SECTION0017511000000000000000">15.5.11 <TT>DIPOLE</TT> -- the ground- and excited-state dipole moments</A>
+<LI><A NAME="tex2html250"
+  HREF="node17.html#SECTION0017512000000000000000">15.5.12 <TT>(NO)FOCK</TT> -- (not) recompute Fock matrix</A>
+<LI><A NAME="tex2html251"
+  HREF="node17.html#SECTION0017513000000000000000">15.5.13 <TT>PRINT</TT> -- the verbosity</A>
+</UL>
+<LI><A NAME="tex2html252"
+  HREF="node17.html#SECTION001760000000000000000">15.6 Sample input</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html253"
+  HREF="node18.html">16. MP2</A>
+<UL>
+<LI><A NAME="tex2html254"
+  HREF="node18.html#SECTION001810000000000000000">16.1 <TT>FREEZE</TT> -- Freezing orbitals</A>
+<LI><A NAME="tex2html255"
+  HREF="node18.html#SECTION001820000000000000000">16.2 <TT>TIGHT</TT> -- Increased precision</A>
+<LI><A NAME="tex2html256"
+  HREF="node18.html#SECTION001830000000000000000">16.3 <TT>SCRATCHDISK</TT> -- Limiting I/O usage</A>
+<LI><A NAME="tex2html257"
+  HREF="node18.html#SECTION001840000000000000000">16.4 <TT>PRINT</TT> and <TT>NOPRINT</TT></A>
+<LI><A NAME="tex2html258"
+  HREF="node18.html#SECTION001850000000000000000">16.5 <TT>VECTORS</TT> -- MO vectors</A>
+<LI><A NAME="tex2html259"
+  HREF="node18.html#SECTION001860000000000000000">16.6 RI-MP2 fitting basis</A>
+<LI><A NAME="tex2html260"
+  HREF="node18.html#SECTION001870000000000000000">16.7 <TT>FILE3C</TT> -- RI-MP2 3-center integral filename</A>
+<LI><A NAME="tex2html261"
+  HREF="node18.html#SECTION001880000000000000000">16.8 <TT>RIAPPROX</TT> -- RI-MP2 Approximation</A>
+<LI><A NAME="tex2html262"
+  HREF="node18.html#SECTION001890000000000000000">16.9 Advanced options for RI-MP2</A>
+<UL>
+<LI><A NAME="tex2html263"
+  HREF="node18.html#SECTION001891000000000000000">16.9.1 Control of linear dependence</A>
+<LI><A NAME="tex2html264"
+  HREF="node18.html#SECTION001892000000000000000">16.9.2 Reference Spin Mapping for RI-MP2 Calculations</A>
+<LI><A NAME="tex2html265"
+  HREF="node18.html#SECTION001893000000000000000">16.9.3 Batch Sizes for the RI-MP2 Calculation</A>
+<LI><A NAME="tex2html266"
+  HREF="node18.html#SECTION001894000000000000000">16.9.4 Energy Memory Allocation Mode: RI-MP2 Calculation</A>
+<LI><A NAME="tex2html267"
+  HREF="node18.html#SECTION001895000000000000000">16.9.5 Local Memory Usage in Three-Center Transformation</A>
+</UL>
+<LI><A NAME="tex2html268"
+  HREF="node18.html#SECTION0018100000000000000000">16.10 One-electron properties and natural orbitals</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html269"
+  HREF="node19.html">17. Multiconfiguration SCF</A>
+<UL>
+<LI><A NAME="tex2html270"
+  HREF="node19.html#SECTION001910000000000000000">17.1 <TT>ACTIVE</TT> -- Number of active orbitals</A>
+<LI><A NAME="tex2html271"
+  HREF="node19.html#SECTION001920000000000000000">17.2 <TT>ACTELEC</TT> -- Number of active electrons</A>
+<LI><A NAME="tex2html272"
+  HREF="node19.html#SECTION001930000000000000000">17.3 <TT>MULTIPLICITY</TT></A>
+<LI><A NAME="tex2html273"
+  HREF="node19.html#SECTION001940000000000000000">17.4 <TT>SYMMETRY</TT> -- Spatial symmetry of the wavefunction</A>
+<LI><A NAME="tex2html274"
+  HREF="node19.html#SECTION001950000000000000000">17.5 <TT>STATE</TT> -- Symmetry and multiplicity</A>
+<LI><A NAME="tex2html275"
+  HREF="node19.html#SECTION001960000000000000000">17.6 <TT>VECTORS</TT> -- Input/output of MO vectors</A>
+<LI><A NAME="tex2html276"
+  HREF="node19.html#SECTION001970000000000000000">17.7 <TT>HESSIAN</TT> -- Select preconditioner</A>
+<LI><A NAME="tex2html277"
+  HREF="node19.html#SECTION001980000000000000000">17.8 <TT>LEVEL</TT> -- Level shift for convergence</A>
+<LI><A NAME="tex2html278"
+  HREF="node19.html#SECTION001990000000000000000">17.9 <TT>PRINT</TT> and <TT>NOPRINT</TT></A>
+</UL>
+<BR>
+<LI><A NAME="tex2html279"
+  HREF="node20.html">18. Selected CI</A>
+<UL>
+<LI><A NAME="tex2html280"
+  HREF="node20.html#SECTION002010000000000000000">18.1 Background</A>
+<LI><A NAME="tex2html281"
+  HREF="node20.html#SECTION002020000000000000000">18.2 Files</A>
+<LI><A NAME="tex2html282"
+  HREF="node20.html#SECTION002030000000000000000">18.3 Configuration Generation</A>
+<UL>
+<LI><A NAME="tex2html283"
+  HREF="node20.html#SECTION002031000000000000000">18.3.1 Specifying the reference occupation</A>
+<LI><A NAME="tex2html284"
+  HREF="node20.html#SECTION002032000000000000000">18.3.2 Applying creation-annihilation operators</A>
+<LI><A NAME="tex2html285"
+  HREF="node20.html#SECTION002033000000000000000">18.3.3 Uniform excitation level</A>
+</UL>
+<LI><A NAME="tex2html286"
+  HREF="node20.html#SECTION002040000000000000000">18.4 Number of roots</A>
+<LI><A NAME="tex2html287"
+  HREF="node20.html#SECTION002050000000000000000">18.5 Accuracy of diagonalization</A>
+<LI><A NAME="tex2html288"
+  HREF="node20.html#SECTION002060000000000000000">18.6 Selection thresholds</A>
+<LI><A NAME="tex2html289"
+  HREF="node20.html#SECTION002070000000000000000">18.7 Mode</A>
+<LI><A NAME="tex2html290"
+  HREF="node20.html#SECTION002080000000000000000">18.8 Memory requirements</A>
+<LI><A NAME="tex2html291"
+  HREF="node20.html#SECTION002090000000000000000">18.9 Forcing regeneration of the MO integrals</A>
+<LI><A NAME="tex2html292"
+  HREF="node20.html#SECTION0020100000000000000000">18.10 Disabling update of the configuration list</A>
+<LI><A NAME="tex2html293"
+  HREF="node20.html#SECTION0020110000000000000000">18.11 Orbital locking in CI geometry optimization</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html294"
+  HREF="node21.html">19. Coupled Cluster Calculations</A>
+<UL>
+<LI><A NAME="tex2html295"
+  HREF="node21.html#SECTION002110000000000000000">19.1 <TT>MAXITER</TT> -- Maximum number of iterations</A>
+<LI><A NAME="tex2html296"
+  HREF="node21.html#SECTION002120000000000000000">19.2 <TT>THRESH</TT> -- Convergence threshold</A>
+<LI><A NAME="tex2html297"
+  HREF="node21.html#SECTION002130000000000000000">19.3 <TT>TOL2E</TT> -- integral screening threshold</A>
+<LI><A NAME="tex2html298"
+  HREF="node21.html#SECTION002140000000000000000">19.4 <TT>DIISBAS</TT> -- DIIS subspace dimension</A>
+<LI><A NAME="tex2html299"
+  HREF="node21.html#SECTION002150000000000000000">19.5 <TT>FREEZE</TT> -- Freezing orbitals</A>
+<LI><A NAME="tex2html300"
+  HREF="node21.html#SECTION002160000000000000000">19.6 <TT>IPRT</TT> -- Debug printing</A>
+<LI><A NAME="tex2html301"
+  HREF="node21.html#SECTION002170000000000000000">19.7 PRINT and NOPRINT</A>
+<LI><A NAME="tex2html302"
+  HREF="node21.html#SECTION002180000000000000000">19.8 Methods (Tasks) Recognized</A>
+<LI><A NAME="tex2html303"
+  HREF="node21.html#SECTION002190000000000000000">19.9 Debugging and Development Aids</A>
+<UL>
+<LI><A NAME="tex2html304"
+  HREF="node21.html#SECTION002191000000000000000">19.9.1 Switching On and Off Terms</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html305"
+  HREF="node22.html">20. Geometry Optimization with DRIVER</A>
+<UL>
+<LI><A NAME="tex2html306"
+  HREF="node22.html#SECTION002210000000000000000">20.1 Convergence criteria</A>
+<LI><A NAME="tex2html307"
+  HREF="node22.html#SECTION002220000000000000000">20.2 Available precision</A>
+<LI><A NAME="tex2html308"
+  HREF="node22.html#SECTION002230000000000000000">20.3 Controlling the step length</A>
+<LI><A NAME="tex2html309"
+  HREF="node22.html#SECTION002240000000000000000">20.4 Maximum number of steps</A>
+<LI><A NAME="tex2html310"
+  HREF="node22.html#SECTION002250000000000000000">20.5 Discard restart information</A>
+<LI><A NAME="tex2html311"
+  HREF="node22.html#SECTION002260000000000000000">20.6 Regenerate internal coordinates</A>
+<LI><A NAME="tex2html312"
+  HREF="node22.html#SECTION002270000000000000000">20.7 Initial Hessian</A>
+<LI><A NAME="tex2html313"
+  HREF="node22.html#SECTION002280000000000000000">20.8 Mode or variable to follow to saddle point</A>
+<LI><A NAME="tex2html314"
+  HREF="node22.html#SECTION002290000000000000000">20.9 Optimization history as XYZ files</A>
+<LI><A NAME="tex2html315"
+  HREF="node22.html#SECTION0022100000000000000000">20.10 Print options</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html316"
+  HREF="node23.html">21. Geometry Optimization with STEPPER</A>
+<UL>
+<LI><A NAME="tex2html317"
+  HREF="node23.html#SECTION002310000000000000000">21.1 <TT>MIN</TT> and <TT>TS</TT> -- Minimum or transition state search</A>
+<LI><A NAME="tex2html318"
+  HREF="node23.html#SECTION002320000000000000000">21.2 <TT>TRACK</TT> -- Mode selection</A>
+<LI><A NAME="tex2html319"
+  HREF="node23.html#SECTION002330000000000000000">21.3 <TT>MAXITER</TT> -- Maximum number of steps</A>
+<LI><A NAME="tex2html320"
+  HREF="node23.html#SECTION002340000000000000000">21.4 <TT>TRUST</TT> -- Trust radius</A>
+<LI><A NAME="tex2html321"
+  HREF="node23.html#SECTION002350000000000000000">21.5 <TT>CONVGGM</TT>, <TT>CONVGG</TT> and <TT>CONVGE</TT> -- Convergence criteria</A>
+<LI><A NAME="tex2html322"
+  HREF="node23.html#SECTION002360000000000000000">21.6 Backstepping in STEPPER</A>
+<LI><A NAME="tex2html323"
+  HREF="node23.html#SECTION002370000000000000000">21.7 Initial Nuclear Hessian Options</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html324"
+  HREF="node24.html">22. Constraints for Geometry Optimization</A>
+<LI><A NAME="tex2html325"
+  HREF="node25.html">23. Hybrid Calculations with ONIOM</A>
+<UL>
+<LI><A NAME="tex2html326"
+  HREF="node25.html#SECTION002510000000000000000">23.1 Real, model and intermediate geometries</A>
+<UL>
+<LI><A NAME="tex2html327"
+  HREF="node25.html#SECTION002511000000000000000">23.1.1 Link atoms</A>
+<LI><A NAME="tex2html328"
+  HREF="node25.html#SECTION002512000000000000000">23.1.2 Numbering of the link atoms</A>
+</UL>
+<LI><A NAME="tex2html329"
+  HREF="node25.html#SECTION002520000000000000000">23.2 High, medium and low theories</A>
+<UL>
+<LI><A NAME="tex2html330"
+  HREF="node25.html#SECTION002521000000000000000">23.2.1 Basis specification</A>
+<LI><A NAME="tex2html331"
+  HREF="node25.html#SECTION002522000000000000000">23.2.2 Effective core potentials</A>
+<LI><A NAME="tex2html332"
+  HREF="node25.html#SECTION002523000000000000000">23.2.3 General input strings</A>
+</UL>
+<LI><A NAME="tex2html333"
+  HREF="node25.html#SECTION002530000000000000000">23.3 Use of symmetry</A>
+<LI><A NAME="tex2html334"
+  HREF="node25.html#SECTION002540000000000000000">23.4 Molecular orbital files</A>
+<LI><A NAME="tex2html335"
+  HREF="node25.html#SECTION002550000000000000000">23.5 Restarting</A>
+<LI><A NAME="tex2html336"
+  HREF="node25.html#SECTION002560000000000000000">23.6 Examples</A>
+<UL>
+<LI><A NAME="tex2html337"
+  HREF="node25.html#SECTION002561000000000000000">23.6.1 Hydrocarbon bond energy</A>
+<LI><A NAME="tex2html338"
+  HREF="node25.html#SECTION002562000000000000000">23.6.2 Optimization and frequencies</A>
+<LI><A NAME="tex2html339"
+  HREF="node25.html#SECTION002563000000000000000">23.6.3 A three-layer example</A>
+<LI><A NAME="tex2html340"
+  HREF="node25.html#SECTION002564000000000000000">23.6.4 DFT with and without charge fitting</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html341"
+  HREF="node26.html">24. Hessians</A>
+<UL>
+<LI><A NAME="tex2html342"
+  HREF="node26.html#SECTION002610000000000000000">24.1 Hessian Module Input</A>
+<UL>
+<LI><A NAME="tex2html343"
+  HREF="node26.html#SECTION002611000000000000000">24.1.1 Defining the wavefunction threshold</A>
+<LI><A NAME="tex2html344"
+  HREF="node26.html#SECTION002612000000000000000">24.1.2 Profile</A>
+<LI><A NAME="tex2html345"
+  HREF="node26.html#SECTION002613000000000000000">24.1.3 Print Control</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html346"
+  HREF="node27.html">25. Vibrational frequencies</A>
+<UL>
+<LI><A NAME="tex2html347"
+  HREF="node27.html#SECTION002710000000000000000">25.1 Vibrational Module Input</A>
+<UL>
+<LI><A NAME="tex2html348"
+  HREF="node27.html#SECTION002711000000000000000">25.1.1 Hessian File Reuse</A>
+<LI><A NAME="tex2html349"
+  HREF="node27.html#SECTION002712000000000000000">25.1.2 Redefining Masses of Elements</A>
+<LI><A NAME="tex2html350"
+  HREF="node27.html#SECTION002713000000000000000">25.1.3 Animation</A>
+<UL>
+<LI><A NAME="tex2html351"
+  HREF="node27.html#SECTION002713100000000000000">25.1.3.1 Controlling the Step Size Along the Mode Vector</A>
+</UL>
+<LI><A NAME="tex2html352"
+  HREF="node27.html#SECTION002714000000000000000">25.1.4 An Example Input Deck</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html353"
+  HREF="node28.html">26. DPLOT</A>
+<UL>
+<LI><A NAME="tex2html354"
+  HREF="node28.html#SECTION002810000000000000000">26.1 <TT>GAUSSIAN</TT> -- Gaussian Cube format</A>
+<LI><A NAME="tex2html355"
+  HREF="node28.html#SECTION002820000000000000000">26.2 <TT>TITLE</TT> -- Title directive</A>
+<LI><A NAME="tex2html356"
+  HREF="node28.html#SECTION002830000000000000000">26.3 <TT>LIMITXYZ</TT> -- Plot limits</A>
+<LI><A NAME="tex2html357"
+  HREF="node28.html#SECTION002840000000000000000">26.4 <TT>SPIN</TT> -- Density to be plotted</A>
+<LI><A NAME="tex2html358"
+  HREF="node28.html#SECTION002850000000000000000">26.5 <TT>OUTPUT</TT> -- Filename</A>
+<LI><A NAME="tex2html359"
+  HREF="node28.html#SECTION002860000000000000000">26.6 <TT>VECTORS</TT> -- MO vector file name</A>
+<LI><A NAME="tex2html360"
+  HREF="node28.html#SECTION002870000000000000000">26.7 <TT>WHERE</TT> -- Density evaluation</A>
+<LI><A NAME="tex2html361"
+  HREF="node28.html#SECTION002880000000000000000">26.8 <TT>ORBITAL</TT> -- Orbital sub-space</A>
+<LI><A NAME="tex2html362"
+  HREF="node28.html#SECTION002890000000000000000">26.9 Examples</A>
+<UL>
+<LI><A NAME="tex2html363"
+  HREF="node28.html#SECTION002891000000000000000">Charge Density</A>
+<LI><A NAME="tex2html364"
+  HREF="node28.html#SECTION002892000000000000000">Molecular Orbital</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html365"
+  HREF="node29.html">27. Electron Transfer Calculations with ET</A>
+<UL>
+<LI><A NAME="tex2html366"
+  HREF="node29.html#SECTION002910000000000000000">27.1 <TT>VECTORS</TT> -- input of MO vectors for ET reactant and product states</A>
+<LI><A NAME="tex2html367"
+  HREF="node29.html#SECTION002920000000000000000">27.2 <TT>FOCK/NOFOCK</TT> -- method for calculating the two-electron contribution to <IMG
+ WIDTH="34" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4.gif"
+ ALT="$V_{RP}$"> </A>
+<LI><A NAME="tex2html368"
+  HREF="node29.html#SECTION002930000000000000000">27.3 <TT>TOL2E</TT> -- integral screening threshold</A>
+<LI><A NAME="tex2html369"
+  HREF="node29.html#SECTION002940000000000000000">27.4 <TT>Example</TT></A>
+</UL>
+<BR>
+<LI><A NAME="tex2html370"
+  HREF="node30.html">28. Properties</A>
+<UL>
+<LI><A NAME="tex2html371"
+  HREF="node30.html#SECTION003010000000000000000">28.1 Subdirectives</A>
+<UL>
+<LI><A NAME="tex2html372"
+  HREF="node30.html#SECTION003011000000000000000">28.1.1 Nbofile</A>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html373"
+  HREF="node31.html">29. Electrostatic potentials</A>
+<UL>
+<LI><A NAME="tex2html374"
+  HREF="node31.html#SECTION003110000000000000000">29.1 Grid specification</A>
+<LI><A NAME="tex2html375"
+  HREF="node31.html#SECTION003120000000000000000">29.2 Constraints</A>
+<LI><A NAME="tex2html376"
+  HREF="node31.html#SECTION003130000000000000000">29.3 Restraints</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html377"
+  HREF="node32.html">30. Prepare</A>
+<UL>
+<LI><A NAME="tex2html378"
+  HREF="node32.html#SECTION003210000000000000000">30.1 Default database directories</A>
+<LI><A NAME="tex2html379"
+  HREF="node32.html#SECTION003220000000000000000">30.2 System name and coordinate source</A>
+<LI><A NAME="tex2html380"
+  HREF="node32.html#SECTION003230000000000000000">30.3 Sequence file generation</A>
+<LI><A NAME="tex2html381"
+  HREF="node32.html#SECTION003240000000000000000">30.4 Topology file generation</A>
+<LI><A NAME="tex2html382"
+  HREF="node32.html#SECTION003250000000000000000">30.5 Appending to an existing topology file</A>
+<LI><A NAME="tex2html383"
+  HREF="node32.html#SECTION003260000000000000000">30.6 Generating a restart file</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html384"
+  HREF="node33.html">31. Molecular dynamics</A>
+<UL>
+<LI><A NAME="tex2html385"
+  HREF="node33.html#SECTION003310000000000000000">31.1 Introduction</A>
+<UL>
+<LI><A NAME="tex2html386"
+  HREF="node33.html#SECTION003311000000000000000">31.1.1 Spacial decomposition</A>
+<LI><A NAME="tex2html387"
+  HREF="node33.html#SECTION003312000000000000000">31.1.2 Topology</A>
+<LI><A NAME="tex2html388"
+  HREF="node33.html#SECTION003313000000000000000">31.1.3 Files</A>
+<LI><A NAME="tex2html389"
+  HREF="node33.html#SECTION003314000000000000000">31.1.4 Databases</A>
+<LI><A NAME="tex2html390"
+  HREF="node33.html#SECTION003315000000000000000">31.1.5 Force fields</A>
+</UL>
+<LI><A NAME="tex2html391"
+  HREF="node33.html#SECTION003320000000000000000">31.2 Format of fragment files</A>
+<LI><A NAME="tex2html392"
+  HREF="node33.html#SECTION003330000000000000000">31.3 Creating segment files</A>
+<LI><A NAME="tex2html393"
+  HREF="node33.html#SECTION003340000000000000000">31.4 Creating sequence files</A>
+<LI><A NAME="tex2html394"
+  HREF="node33.html#SECTION003350000000000000000">31.5 Creating topology files</A>
+<LI><A NAME="tex2html395"
+  HREF="node33.html#SECTION003360000000000000000">31.6 Creating restart files</A>
+<LI><A NAME="tex2html396"
+  HREF="node33.html#SECTION003370000000000000000">31.7 Molecular simulations</A>
+<LI><A NAME="tex2html397"
+  HREF="node33.html#SECTION003380000000000000000">31.8 System specification</A>
+<LI><A NAME="tex2html398"
+  HREF="node33.html#SECTION003390000000000000000">31.9 Restarting and continuing simulations</A>
+<LI><A NAME="tex2html399"
+  HREF="node33.html#SECTION0033100000000000000000">31.10 Parameter set</A>
+<LI><A NAME="tex2html400"
+  HREF="node33.html#SECTION0033110000000000000000">31.11 Energy minimization algorithms</A>
+<LI><A NAME="tex2html401"
+  HREF="node33.html#SECTION0033120000000000000000">31.12 Multi-configuration thermodynamic integration</A>
+<LI><A NAME="tex2html402"
+  HREF="node33.html#SECTION0033130000000000000000">31.13 Time and integration algorithm directives</A>
+<LI><A NAME="tex2html403"
+  HREF="node33.html#SECTION0033140000000000000000">31.14 Ensemble selection</A>
+<LI><A NAME="tex2html404"
+  HREF="node33.html#SECTION0033150000000000000000">31.15 Velocity reassignments</A>
+<LI><A NAME="tex2html405"
+  HREF="node33.html#SECTION0033160000000000000000">31.16 Cutoff radii</A>
+<LI><A NAME="tex2html406"
+  HREF="node33.html#SECTION0033170000000000000000">31.17 Polarization</A>
+<LI><A NAME="tex2html407"
+  HREF="node33.html#SECTION0033180000000000000000">31.18 External electrostatic field</A>
+<LI><A NAME="tex2html408"
+  HREF="node33.html#SECTION0033190000000000000000">31.19 Constraints</A>
+<LI><A NAME="tex2html409"
+  HREF="node33.html#SECTION0033200000000000000000">31.20 Long range interaction corrections</A>
+<LI><A NAME="tex2html410"
+  HREF="node33.html#SECTION0033210000000000000000">31.21 Fixing coordinates</A>
+<LI><A NAME="tex2html411"
+  HREF="node33.html#SECTION0033220000000000000000">31.22 Special options</A>
+<LI><A NAME="tex2html412"
+  HREF="node33.html#SECTION0033230000000000000000">31.23 Autocorrelation function</A>
+<LI><A NAME="tex2html413"
+  HREF="node33.html#SECTION0033240000000000000000">31.24 Print options</A>
+<LI><A NAME="tex2html414"
+  HREF="node33.html#SECTION0033250000000000000000">31.25 Periodic updates</A>
+<LI><A NAME="tex2html415"
+  HREF="node33.html#SECTION0033260000000000000000">31.26 Recording</A>
+<LI><A NAME="tex2html416"
+  HREF="node33.html#SECTION0033270000000000000000">31.27 Program control options</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html417"
+  HREF="node34.html">32. Analysis</A>
+<UL>
+<LI><A NAME="tex2html418"
+  HREF="node34.html#SECTION003410000000000000000">32.1 System specification</A>
+<LI><A NAME="tex2html419"
+  HREF="node34.html#SECTION003420000000000000000">32.2 Reference coordinates</A>
+<LI><A NAME="tex2html420"
+  HREF="node34.html#SECTION003430000000000000000">32.3 File specification</A>
+<LI><A NAME="tex2html421"
+  HREF="node34.html#SECTION003440000000000000000">32.4 Selection</A>
+<LI><A NAME="tex2html422"
+  HREF="node34.html#SECTION003450000000000000000">32.5 Coordinate analysis</A>
+<LI><A NAME="tex2html423"
+  HREF="node34.html#SECTION003460000000000000000">32.6 Essential dynamics analysis</A>
+<LI><A NAME="tex2html424"
+  HREF="node34.html#SECTION003470000000000000000">32.7 Trajectory format conversion</A>
+<LI><A NAME="tex2html425"
+  HREF="node34.html#SECTION003480000000000000000">32.8 Electrostatic potentials</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html426"
+  HREF="node35.html">33. Combined quantum and molecular mechanics</A>
+<LI><A NAME="tex2html427"
+  HREF="node36.html">34. File formats</A>
+<LI><A NAME="tex2html428"
+  HREF="node37.html">35. Pseudopotential plane-wave density functional theory (NWPW)</A>
+<UL>
+<LI><A NAME="tex2html429"
+  HREF="node37.html#SECTION003710000000000000000">35.1 PSPW Tasks</A>
+<UL>
+<LI><A NAME="tex2html430"
+  HREF="node37.html#SECTION003711000000000000000">35.1.1 Simulation Cell</A>
+<LI><A NAME="tex2html431"
+  HREF="node37.html#SECTION003712000000000000000">35.1.2 <TT>Unit Cell Optimization</TT></A>
+<LI><A NAME="tex2html432"
+  HREF="node37.html#SECTION003713000000000000000">35.1.3 <TT>DPLOT</TT></A>
+<LI><A NAME="tex2html433"
+  HREF="node37.html#SECTION003714000000000000000">35.1.4 <TT>Wannier</TT></A>
+<LI><A NAME="tex2html434"
+  HREF="node37.html#SECTION003715000000000000000">35.1.5 <TT>Self-Interaction Corrections</TT></A>
+<LI><A NAME="tex2html435"
+  HREF="node37.html#SECTION003716000000000000000">35.1.6 <TT>Point Charge Analysis</TT></A>
+<LI><A NAME="tex2html436"
+  HREF="node37.html#SECTION003717000000000000000">35.1.7 <TT>Car-Parrinello</TT></A>
+<LI><A NAME="tex2html437"
+  HREF="node37.html#SECTION003718000000000000000">35.1.8 <TT>Adding Geometry Constraints To A Car-Parrinello Simulation</TT></A>
+<LI><A NAME="tex2html438"
+  HREF="node37.html#SECTION003719000000000000000">35.1.9 <TT>PSP_GENERATOR</TT></A>
+<UL>
+<LI><A NAME="tex2html439"
+  HREF="node37.html#SECTION003719100000000000000">35.1.9.1 <TT>ATOMIC_FILLING Block</TT></A>
+<LI><A NAME="tex2html440"
+  HREF="node37.html#SECTION003719200000000000000">35.1.9.2 <TT>CUTOFF</TT> Block</A>
+<LI><A NAME="tex2html441"
+  HREF="node37.html#SECTION003719300000000000000">35.1.9.3 <TT>SEMICORE_RADIUS</TT> Option</A>
+</UL>
+<LI><A NAME="tex2html442"
+  HREF="node37.html#SECTION0037110000000000000000">35.1.10 <TT>WAVEFUNCTION_INITIALIZER</TT></A>
+<UL>
+<LI><A NAME="tex2html443"
+  HREF="node37.html#SECTION0037110100000000000000">35.1.10.1 Old Style Input (version 3.3) to <TT>WAVEFUNCTION_INITIALIZER</TT></A>
+</UL>
+<LI><A NAME="tex2html444"
+  HREF="node37.html#SECTION0037111000000000000000">35.1.11 <TT>V_WAVEFUNCTION_INITIALIZER</TT></A>
+<LI><A NAME="tex2html445"
+  HREF="node37.html#SECTION0037112000000000000000">35.1.12 <TT>WAVEFUNCTION_EXPANDER</TT></A>
+<LI><A NAME="tex2html446"
+  HREF="node37.html#SECTION0037113000000000000000">35.1.13 <TT>STEEPEST_DESCENT</TT></A>
+</UL>
+<LI><A NAME="tex2html447"
+  HREF="node37.html#SECTION003720000000000000000">35.2 Band Tasks</A>
+<UL>
+<LI><A NAME="tex2html448"
+  HREF="node37.html#SECTION003721000000000000000">35.2.1 Brillouin Zone</A>
+</UL>
+<LI><A NAME="tex2html449"
+  HREF="node37.html#SECTION003730000000000000000">35.3 PAW Tasks</A>
+<LI><A NAME="tex2html450"
+  HREF="node37.html#SECTION003740000000000000000">35.4 Pseudopotential and PAW basis Libraries</A>
+<LI><A NAME="tex2html451"
+  HREF="node37.html#SECTION003750000000000000000">35.5 NWPW RTDB Entries and DataFiles</A>
+<UL>
+<LI><A NAME="tex2html452"
+  HREF="node37.html#SECTION003751000000000000000">35.5.1 Ion Positions</A>
+<LI><A NAME="tex2html453"
+  HREF="node37.html#SECTION003752000000000000000">35.5.2 Ion Velocities</A>
+<LI><A NAME="tex2html454"
+  HREF="node37.html#SECTION003753000000000000000">35.5.3 Wavefunction Datafile</A>
+<LI><A NAME="tex2html455"
+  HREF="node37.html#SECTION003754000000000000000">35.5.4 Velocity Wavefunction Datafile</A>
+<LI><A NAME="tex2html456"
+  HREF="node37.html#SECTION003755000000000000000">35.5.5 Formatted Pseudopotential Datafile</A>
+<LI><A NAME="tex2html457"
+  HREF="node37.html#SECTION003756000000000000000">35.5.6 One-Dimensional Pseudopotential Datafile</A>
+<LI><A NAME="tex2html458"
+  HREF="node37.html#SECTION003757000000000000000">35.5.7 PSPW Car-Parrinello Output Datafiles</A>
+<UL>
+<LI><A NAME="tex2html459"
+  HREF="node37.html#SECTION003757100000000000000">35.5.7.1 XYZ motion file</A>
+<LI><A NAME="tex2html460"
+  HREF="node37.html#SECTION003757200000000000000">35.5.7.2 ION_MOTION motion file</A>
+<LI><A NAME="tex2html461"
+  HREF="node37.html#SECTION003757300000000000000">35.5.7.3 EMOTION motion file</A>
+<LI><A NAME="tex2html462"
+  HREF="node37.html#SECTION003757400000000000000">35.5.7.4 HMOTION motion file</A>
+<LI><A NAME="tex2html463"
+  HREF="node37.html#SECTION003757500000000000000">35.5.7.5 EIGMOTION motion file</A>
+<LI><A NAME="tex2html464"
+  HREF="node37.html#SECTION003757600000000000000">35.5.7.6 OMOTION motion file</A>
+</UL>
+</UL>
+<LI><A NAME="tex2html465"
+  HREF="node37.html#SECTION003760000000000000000">35.6 Car-Parrinello Scheme for Ab Initio Molecular Dynamics</A>
+<UL>
+<LI><A NAME="tex2html466"
+  HREF="node37.html#SECTION003761000000000000000">35.6.1 Verlet Algorithm for Integration</A>
+<LI><A NAME="tex2html467"
+  HREF="node37.html#SECTION003762000000000000000">35.6.2 Constant Temperature Simulations: Nose-Hoover Thermostats</A>
+</UL>
+<LI><A NAME="tex2html468"
+  HREF="node37.html#SECTION003770000000000000000">35.7 PSPW Tutorial 1: Minimizing the geometry for a C<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$"> molecule</A>
+<LI><A NAME="tex2html469"
+  HREF="node37.html#SECTION003780000000000000000">35.8 PSPW Tutorial 2: Running a Car-Parrinello Simulation</A>
+<LI><A NAME="tex2html470"
+  HREF="node37.html#SECTION003790000000000000000">35.9 PSPW Tutorial 3: optimizing a unit cell and geometry for Silicon-Carbide</A>
+<LI><A NAME="tex2html471"
+  HREF="node37.html#SECTION0037100000000000000000">35.10 Band Tutorial 1: Minimizing the energy of a silicon-carbide crystal by running a PSPW and Band simulation in tandem</A>
+<LI><A NAME="tex2html472"
+  HREF="node37.html#SECTION0037110000000000000000">35.11 PAW Tutorial</A>
+<LI><A NAME="tex2html473"
+  HREF="node37.html#SECTION0037120000000000000000">35.12 NWPW Capabilities and Limitations</A>
+<LI><A NAME="tex2html474"
+  HREF="node37.html#SECTION0037130000000000000000">35.13 Questions and Difficulties</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html475"
+  HREF="node38.html">36. Controlling NWChem with Python</A>
+<UL>
+<LI><A NAME="tex2html476"
+  HREF="node38.html#SECTION003810000000000000000">36.1 How to input and run a Python program inside NWChem</A>
+<LI><A NAME="tex2html477"
+  HREF="node38.html#SECTION003820000000000000000">36.2 NWChem extensions</A>
+<LI><A NAME="tex2html478"
+  HREF="node38.html#SECTION003830000000000000000">36.3 Examples</A>
+<UL>
+<LI><A NAME="tex2html479"
+  HREF="node38.html#SECTION003831000000000000000">36.3.1 Hello world</A>
+<LI><A NAME="tex2html480"
+  HREF="node38.html#SECTION003832000000000000000">36.3.2 Scanning a basis exponent</A>
+<LI><A NAME="tex2html481"
+  HREF="node38.html#SECTION003833000000000000000">36.3.3 Scanning a basis exponent revisited.</A>
+<LI><A NAME="tex2html482"
+  HREF="node38.html#SECTION003834000000000000000">36.3.4 Scanning a geometric variable</A>
+<LI><A NAME="tex2html483"
+  HREF="node38.html#SECTION003835000000000000000">36.3.5 Scan using the BSSE counterpoise corrected energy</A>
+<LI><A NAME="tex2html484"
+  HREF="node38.html#SECTION003836000000000000000">36.3.6 Scan the geometry and compute the energy and gradient</A>
+<LI><A NAME="tex2html485"
+  HREF="node38.html#SECTION003837000000000000000">36.3.7 Reaction energies varying the basis set</A>
+<LI><A NAME="tex2html486"
+  HREF="node38.html#SECTION003838000000000000000">36.3.8 Using the database</A>
+<LI><A NAME="tex2html487"
+  HREF="node38.html#SECTION003839000000000000000">36.3.9 Handling exceptions from NWChem</A>
+<LI><A NAME="tex2html488"
+  HREF="node38.html#SECTION0038310000000000000000">36.3.10 Accessing geometry information -- a temporary hack</A>
+<LI><A NAME="tex2html489"
+  HREF="node38.html#SECTION0038311000000000000000">36.3.11 Scaning a basis exponent yet again -- plotting and 
+handling child processes</A>
+</UL>
+<LI><A NAME="tex2html490"
+  HREF="node38.html#SECTION003840000000000000000">36.4 Troubleshooting</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html491"
+  HREF="node39.html">37. Interfaces to Other Programs</A>
+<UL>
+<LI><A NAME="tex2html492"
+  HREF="node39.html#SECTION003910000000000000000">37.1 <TT>NBO</TT> -- Natural Bond Orbital Analysis</A>
+<LI><A NAME="tex2html493"
+  HREF="node39.html#SECTION003920000000000000000">37.2 <TT>DIRDYVTST</TT> -- DIRect Dynamics for Variational Transition State Theory</A>
+<UL>
+<LI><A NAME="tex2html494"
+  HREF="node39.html#SECTION003921000000000000000">37.2.1 Introduction</A>
+<LI><A NAME="tex2html495"
+  HREF="node39.html#SECTION003922000000000000000">37.2.2 Files</A>
+<LI><A NAME="tex2html496"
+  HREF="node39.html#SECTION003923000000000000000">37.2.3 Detailed description of the input</A>
+<UL>
+<LI><A NAME="tex2html497"
+  HREF="node39.html#SECTION003923100000000000000">37.2.3.1 Use of symmetry</A>
+<LI><A NAME="tex2html498"
+  HREF="node39.html#SECTION003923200000000000000">37.2.3.2 Basis specification</A>
+<LI><A NAME="tex2html499"
+  HREF="node39.html#SECTION003923300000000000000">37.2.3.3 Effective core potentials</A>
+<LI><A NAME="tex2html500"
+  HREF="node39.html#SECTION003923400000000000000">37.2.3.4 General input strings</A>
+<LI><A NAME="tex2html501"
+  HREF="node39.html#SECTION003923500000000000000">37.2.3.5 POLYRATE related options</A>
+<LI><A NAME="tex2html502"
+  HREF="node39.html#SECTION003923600000000000000">37.2.3.6 Restart</A>
+<LI><A NAME="tex2html503"
+  HREF="node39.html#SECTION003923700000000000000">37.2.3.7 Example</A>
+</UL>
+</UL>
+</UL>
+<BR>
+<LI><A NAME="tex2html504"
+  HREF="node40.html">38. Acknowledgments</A>
+<LI><A NAME="tex2html505"
+  HREF="node41.html">A. Standard Basis Sets</A>
+<LI><A NAME="tex2html506"
+  HREF="node42.html">B. Sample input files</A>
+<UL>
+<LI><A NAME="tex2html507"
+  HREF="node42.html#SECTION004210000000000000000">B.1 Water SCF calculation and geometry optimization in a 6-31g basis</A>
+<UL>
+<LI><A NAME="tex2html508"
+  HREF="node42.html#SECTION004211000000000000000">B.1.1 Job 1.  Single point SCF energy</A>
+<LI><A NAME="tex2html509"
+  HREF="node42.html#SECTION004212000000000000000">B.1.2 Job 2. Restarting and perform a geometry optimization</A>
+</UL>
+<LI><A NAME="tex2html510"
+  HREF="node42.html#SECTION004220000000000000000">B.2 Compute the polarizability of Ne using finite field</A>
+<UL>
+<LI><A NAME="tex2html511"
+  HREF="node42.html#SECTION004221000000000000000">B.2.1 Job 1. Compute the atomic energy</A>
+<LI><A NAME="tex2html512"
+  HREF="node42.html#SECTION004222000000000000000">B.2.2 Job 2. Compute the energy with applied field</A>
+</UL>
+<LI><A NAME="tex2html513"
+  HREF="node42.html#SECTION004230000000000000000">B.3 SCF energy of H<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$">CO using ECPs for C and O</A>
+<LI><A NAME="tex2html514"
+  HREF="node42.html#SECTION004240000000000000000">B.4 MP2 optimization and CCSD(T) on nitrogen</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html515"
+  HREF="node43.html">C. Examples of geometries using symmetry</A>
+<UL>
+<LI><A NAME="tex2html516"
+  HREF="node43.html#SECTION004310000000000000000">C.1 <IMG
+ WIDTH="22" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.gif"
+ ALT="$C_{s}$"> methanol</A>
+<LI><A NAME="tex2html517"
+  HREF="node43.html#SECTION004320000000000000000">C.2 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.gif"
+ ALT="$C_{2v}$"> water</A>
+<LI><A NAME="tex2html518"
+  HREF="node43.html#SECTION004330000000000000000">C.3 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$"> acetylene</A>
+<LI><A NAME="tex2html519"
+  HREF="node43.html#SECTION004340000000000000000">C.4 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$"> ethylene</A>
+<LI><A NAME="tex2html520"
+  HREF="node43.html#SECTION004350000000000000000">C.5 <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.gif"
+ ALT="$T_d$"> methane</A>
+<LI><A NAME="tex2html521"
+  HREF="node43.html#SECTION004360000000000000000">C.6 <IMG
+ WIDTH="19" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img10.gif"
+ ALT="$I_h$"> buckminsterfullerene</A>
+<LI><A NAME="tex2html522"
+  HREF="node43.html#SECTION004370000000000000000">C.7 <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$S_4$"> porphyrin</A>
+<LI><A NAME="tex2html523"
+  HREF="node43.html#SECTION004380000000000000000">C.8 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.gif"
+ ALT="$D_{3h}$"> iron penta-carbonyl</A>
+<LI><A NAME="tex2html524"
+  HREF="node43.html#SECTION004390000000000000000">C.9 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img13.gif"
+ ALT="$D_{3d}$"> sodium crown ether</A>
+<LI><A NAME="tex2html525"
+  HREF="node43.html#SECTION0043100000000000000000">C.10 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img14.gif"
+ ALT="$C_{3v}$"> ammonia</A>
+<LI><A NAME="tex2html526"
+  HREF="node43.html#SECTION0043110000000000000000">C.11 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$D_{6h}$"> benzene</A>
+<LI><A NAME="tex2html527"
+  HREF="node43.html#SECTION0043120000000000000000">C.12 <IMG
+ WIDTH="30" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img16.gif"
+ ALT="$C_{3h}$"> <IMG
+ WIDTH="57" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img17.gif"
+ ALT="$BO_3H_3$"></A>
+<LI><A NAME="tex2html528"
+  HREF="node43.html#SECTION0043130000000000000000">C.13 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img18.gif"
+ ALT="$D_{5d}$"> ferrocene</A>
+<LI><A NAME="tex2html529"
+  HREF="node43.html#SECTION0043140000000000000000">C.14 <IMG
+ WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img19.gif"
+ ALT="$C_{4v}$"> <IMG
+ WIDTH="50" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$SF_5Cl$"></A>
+<LI><A NAME="tex2html530"
+  HREF="node43.html#SECTION0043150000000000000000">C.15 <IMG
+ WIDTH="30" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img21.gif"
+ ALT="$C_{2h}$"> trans-dichloroethylene</A>
+<LI><A NAME="tex2html531"
+  HREF="node43.html#SECTION0043160000000000000000">C.16 <IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img22.gif"
+ ALT="$D_{2d}$"> <IMG
+ WIDTH="82" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img23.gif"
+ ALT="$CH_2CCH_2$"></A>
+<LI><A NAME="tex2html532"
+  HREF="node43.html#SECTION0043170000000000000000">C.17 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img24.gif"
+ ALT="$D_{5h}$"> cyclopentadiene anion</A>
+<LI><A NAME="tex2html533"
+  HREF="node43.html#SECTION0043180000000000000000">C.18 <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img25.gif"
+ ALT="$D_{4h}$"> gold tetrachloride</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html534"
+  HREF="node44.html">D. Running NWChem</A>
+<UL>
+<LI><A NAME="tex2html535"
+  HREF="node44.html#SECTION004410000000000000000">D.1 Sequential execution</A>
+<LI><A NAME="tex2html536"
+  HREF="node44.html#SECTION004420000000000000000">D.2 Parallel execution on UNIX-based parallel machines
+including workstation clusters using TCGMSG</A>
+<LI><A NAME="tex2html537"
+  HREF="node44.html#SECTION004430000000000000000">D.3 Parallel execution on UNIX-based parallel machines
+including workstation clusters using MPI</A>
+<LI><A NAME="tex2html538"
+  HREF="node44.html#SECTION004440000000000000000">D.4 Parallel execution on MPPs</A>
+<LI><A NAME="tex2html539"
+  HREF="node44.html#SECTION004450000000000000000">D.5 IBM SP</A>
+<LI><A NAME="tex2html540"
+  HREF="node44.html#SECTION004460000000000000000">D.6 Cray T3E</A>
+<LI><A NAME="tex2html541"
+  HREF="node44.html#SECTION004470000000000000000">D.7 Alpha systems with Quadrics switch</A>
+<LI><A NAME="tex2html542"
+  HREF="node44.html#SECTION004480000000000000000">D.8 Windows 98 and NT</A>
+<LI><A NAME="tex2html543"
+  HREF="node44.html#SECTION004490000000000000000">D.9 Tested Platforms and O/S versions</A>
+</UL>
+<BR>
+<LI><A NAME="tex2html544"
+  HREF="node45.html">About this document ...</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html105"
+  HREF="node1.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up_g.png"> 
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev_g.png"> 
+<A NAME="tex2html103"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html106"
+  HREF="node1.html">DISCLAIMER</A>
+ &nbsp <B>  <A NAME="tex2html104"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>

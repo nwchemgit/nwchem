@@ -1,0 +1,1234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with jLaTeX2HTML 2002 (1.62) JA patch-1.4
+patched version by:  Kenshi Muto, Debian Project.
+LaTeX2HTML 2002 (1.62),
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>6. Geometries</TITLE>
+<META NAME="description" CONTENT="6. Geometries">
+<META NAME="keywords" CONTENT="user">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<META NAME="Generator" CONTENT="jLaTeX2HTML v2002 JA patch-1.4">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="user.css">
+
+<LINK REL="next" HREF="node9.html">
+<LINK REL="previous" HREF="node7.html">
+<LINK REL="up" HREF="user.html">
+<LINK REL="next" HREF="node9.html">
+</HEAD>
+
+<BODY BGCOLOR="#FFFFFF">
+<!--Navigation Panel-->
+<A NAME="tex2html1088"
+  HREF="node9.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1084"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1078"
+  HREF="node7.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1086"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1089"
+  HREF="node9.html">7. Basis sets</A>
+<B> Up:</B> <A NAME="tex2html1085"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1079"
+  HREF="node7.html">5. Top-level directives</A>
+ &nbsp <B>  <A NAME="tex2html1087"
+  HREF="node2.html">Contents</A></B> 
+<BR>
+<BR>
+<!--End of Navigation Panel-->
+<!--Table of Child-Links-->
+<A NAME="CHILD_LINKS"><STRONG>Subsections</STRONG></A>
+
+<UL>
+<LI><A NAME="tex2html1090"
+  HREF="node8.html#SECTION00810000000000000000">6.1 Keywords on the <TT>GEOMETRY</TT> directive</A>
+<LI><A NAME="tex2html1091"
+  HREF="node8.html#SECTION00820000000000000000">6.2 <TT>SYMMETRY</TT> -- Symmetry Group Input</A>
+<LI><A NAME="tex2html1092"
+  HREF="node8.html#SECTION00830000000000000000">6.3 Cartesian coordinate input</A>
+<LI><A NAME="tex2html1093"
+  HREF="node8.html#SECTION00840000000000000000">6.4 <TT>ZMATRIX</TT> -- Z-matrix input</A>
+<LI><A NAME="tex2html1094"
+  HREF="node8.html#SECTION00850000000000000000">6.5 <TT>ZCOORD</TT> -- Forcing internal coordinates</A>
+<LI><A NAME="tex2html1095"
+  HREF="node8.html#SECTION00860000000000000000">6.6 Applying constraints in geometry optimizations</A>
+<LI><A NAME="tex2html1096"
+  HREF="node8.html#SECTION00870000000000000000">6.7 <TT>SYSTEM</TT> -- Lattice parameters for periodic systems</A>
+</UL>
+<!--End of Table of Child-Links-->
+<HR>
+
+<H1><A NAME="SECTION00800000000000000000">
+6. Geometries</A>
+</H1>
+<A NAME="sec:geom"></A>
+<P>
+The <code>GEOMETRY</code> directive is a compound directive that allows the
+user to define the geometry to be used for a given calculation.  The
+directive allows the user to specify the geometry with a relatively
+small amount of input, but there are a large number of optional
+keywords and additional subordinate directives that the user can
+specify, if needed.  The directive therefore appears to be rather long
+and complicated when presented in its general form, as follows:
+<PRE>
+  GEOMETRY [&lt;string name default geometry&gt;] \
+           [units &lt;string units default angstroms&gt;] \
+           [(angstrom_to_au || ang2au) \
+                  &lt;real angstrom_to_au default 1.8897265&gt;] \
+           [print [xyz] || noprint] \
+           [center || nocenter] \
+           [bqbq] \
+           [autosym [real tol default 1d-2]] \
+           [autoz || noautoz] \
+           [adjust] \
+           [(nuc || nucl || nucleus) &lt;string nucmodel&gt;]
+           
+    
+    [SYMMETRY [group] &lt;string group_name&gt; [print] \
+           [tol &lt;real tol default 1d-2&gt;]]
+
+
+
+    &lt;string tag&gt; &lt;real x y z&gt; [vx vy vz] [charge &lt;real charge&gt;] \
+           [mass &lt;real mass&gt;] \
+           [(nuc || nucl || nucleus) &lt;string nucmodel&gt;]
+    ... ]
+
+    [ZMATRIX || ZMT || ZMAT
+         &lt;string tagn&gt; &lt;list_of_zmatrix_variables&gt;
+         ... 
+
+         [VARIABLES
+              &lt;string symbol&gt; &lt;real value&gt;
+              ... ]
+ 
+         [CONSTANTS
+              &lt;string symbol&gt; &lt;real value&gt;
+              ... ]
+
+     (END || ZEND)]
+
+         [ZCOORD
+              CVR_SCALING &lt;real value&gt;
+              BOND    &lt;integer i&gt; &lt;integer j&gt; \
+                      [&lt;real value&gt;] [&lt;string name&gt;] [constant]
+              ANGLE   &lt;integer i&gt; &lt;integer j&gt; \
+                      [&lt;real value&gt;] [&lt;string name&gt;] [constant]
+              TORSION &lt;integer i&gt; &lt;integer j&gt; &lt;integer k&gt; &lt;integer l&gt; \
+                      [&lt;real value&gt;] [&lt;string name&gt;] [constant]
+          END]
+          
+          [SYSTEM surface  &lt;molecule polymer surface crystal default molecule&gt;
+               lat_a &lt;real lat_a&gt; lat_b &lt;real lat_b&gt; lat_c &lt;real lat_c&gt;
+               alpha &lt;real alpha&gt; beta &lt;real beta&gt; gamma &lt;real gamma&gt;
+          END]
+ 
+   END
+</PRE>
+
+<P>
+The three main parts of the <code>GEOMETRY</code> directive
+are:
+
+<P>
+
+<UL>
+<LI>keywords on the first line of the directive (to specify such optional
+input as the geometry name, input units, and print level for the output)
+</LI>
+<LI>symmetry information
+</LI>
+<LI>Cartesian coordinates or Z-matrix input to specify the locations 
+of the atoms and centers
+</LI>
+<LI>lattice parameters (needed only for periodic systems)
+</LI>
+</UL>
+
+<P>
+The following sections present the input for this compound directive in
+detail, describing the options available and the usages of the various
+keywords in each of the three main parts.
+
+<P>
+
+<H1><A NAME="SECTION00810000000000000000"></A>
+<A NAME="sec:geomkeys"></A>
+<BR>
+6.1 Keywords on the <TT>GEOMETRY</TT> directive
+</H1>
+
+<P>
+This section presents the options that can be specified using the keywords 
+and optional input on the main line of the <TT>GEOMETRY</TT> directive.
+As described above, the first line of the directive has the general form,
+<PRE>
+  GEOMETRY [&lt;string name default geometry&gt;] \
+           [units &lt;string units default angstroms&gt;] \
+           [bqbq] \
+           [print [xyz] || noprint] \
+           [center || nocenter] \
+           [autosym [real tol default 1d-2]] \
+           [autoz || noautoz] \
+           [adjust] \
+           [(nuc || nucl || nucleus) &lt;string nucmodel&gt;]
+</PRE>
+
+<P>
+All of the keywords and input on this line are optional.  The following
+list describes  all options and their defaults.
+
+<P>
+
+<UL>
+<LI><code>&lt;name&gt;</code> - user-supplied name for the geometry; the
+  default name is <code>geometry</code>, and all NWChem modules look for a
+  geometry with this name.  However, multiple geometries may
+  be specified by using a different name for each.  Subsequently,
+  the user can direct a module to a named geometry by
+  using the <code>SET</code> directive (see
+  the example in Section <A HREF="node7.html#sec:set">5.7</A>) to associate the default
+  name of <code>geometry</code> with the alternate name.
+
+<P>
+</LI>
+<LI><code>units</code> - keyword specifying that a value will be entered
+  by the user for the string variable <code>&lt;units&gt;</code>.  The default
+  units for the geometry input are Angstr&#248;ms (Note: atomic units or
+  Bohr are used within the code, regardless of the option specified
+  for the input units.  The default conversion factor used in the code
+  to convert from Angstr&#248;ms to Bohr is <IMG
+ WIDTH="72" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img32.gif"
+ ALT="$1.8897265$"> which may be
+  overidden with the <code>angstrom_to_au</code> keyword described below.).  The code
+  recognizes the following possible values for the string variable
+  <code>&lt;units&gt;</code>:
+
+<UL>
+<LI><code>angstroms</code> or <code>an</code> -- Angstroms (&#197;), the default
+  (converts to A.U. using the &#197;to A.U. conversion factor)
+</LI>
+<LI><code>au</code> or <code>atomic</code> or <code>bohr</code> -- Atomic units (A.U.)
+</LI>
+<LI><code>nm</code> or <code>nanometers</code> -- nanometers (converts to
+  A.U. using a conversion factor computed as <IMG
+ WIDTH="32" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img33.gif"
+ ALT="$10.0$"> times the
+  &#197; to A.U. conversion factor) 
+</LI>
+<LI><code>pm</code> or <code>picometers</code> -- picometers (converts to 
+  A.U. using a conversion factor computed as <IMG
+ WIDTH="32" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img34.gif"
+ ALT="$0.01$"> times the 
+  &#197; to A.U. conversion factor)
+</LI>
+</UL>
+
+<P>
+</LI>
+<LI><code>angstrom_to_au</code> - may also be specified as
+  <code>ang2au</code>.  This enables the user to modify the conversion
+  factors used to convert between &#197; and A.U..  The default value is
+  <IMG
+ WIDTH="72" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img32.gif"
+ ALT="$1.8897265$">. 
+
+<P>
+</LI>
+<LI><code>bqbq</code> - keyword to specify the treatment of interactions
+  between dummy centers.  The default in NWChem is to ignore such
+  interactions when computing energies or energy derivatives.  These
+  interactions will be included if the keyword <code>bqbq</code> is
+  specified.
+
+<P>
+</LI>
+<LI><code>print</code> and <code>noprint</code> - complementary keyword pair to
+  enable or disable printing of the geometry.  The default is to print
+  the output associated with the geometry.  In addition, the keyword
+  <code>print</code> may be qualified by the additional keyword <code>xyz</code>,
+  which specifies that the coordinates should be printed in the XYZ
+  format of molecular graphics program XMol.
+
+<P>
+</LI>
+<LI><code>center</code> and <code>nocenter</code> - complementary keyword pair
+  to enable or disable translation of the center of nuclear charge to
+  the origin.  With the origin at this position, all three components
+  of the nuclear dipole are zero.  The default is to move the center
+  of nuclear charge to the origin.
+
+<P>
+</LI>
+<LI><code>autosym</code> - keyword to specify that the symmetry of the
+  geometric system should be automatically determined.  This option is on
+  by default.  Only groups up to and including <IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img35.gif"
+ ALT="$O_{h}$"> are recognized.
+  Occasionally NWChem will be unable to determine the full symmetry
+  of a molecular system, but will find a proper subgroup of the full 
+  symmetry.  The default tolerance is set to work for most cases, but may
+  need to be decreased to find the full symmetry of a geometry.  Note that
+  autosym will be turned off if the <code>SYMMETRY</code> group input is given
+  (See section <A HREF="node8.html#sec:symgrp">6.2</A>).
+
+<P>
+</LI>
+<LI><code>noautoz</code> - by default NWChem (release 3.3 and later) 
+  will generate redundant internal coordinates from user input
+  Cartesian coordinates.  The internal coordinates will be used in
+  geometry optimizations.  The <code>noautoz</code> keyword disables use of
+  internal coordinates.  The <code>autoz</code> keyword is provided only for
+  backward compatibility.  See Section <A HREF="node8.html#sec:zcoord">6.5</A> for a more
+  detailed description of redundant internal coordinates, including
+  how to force the definition of specific internal variables in
+  combination with automatically generated variables.
+
+<P>
+</LI>
+<LI><code>adjust</code> - This indicates that an existing geometry is
+  to be adjusted.  Only new input for the redundant internal
+  coordinates may be provided (Section <A HREF="node8.html#sec:zcoord">6.5</A>).  It is 
+  not possible to define new centers or to modify the point
+  group using this keyword.  See Section <A HREF="node8.html#sec:zcoord">6.5</A> for 
+  an example of its usage.
+
+<P>
+</LI>
+<LI><code>nucleus</code> - keyword to specify the default model for the nuclear
+  charge distribution. The following values are recognized:
+
+<UL>
+<LI><code>point</code> or <code>pt</code> -- point nuclear charge distribution. This
+  is the default.
+</LI>
+<LI><code>finite</code> or <code>fi</code> -- finite nuclear charge distribution
+  with a Gaussian shape. The RMS radius of the Gaussian is determined from
+  the nuclear mass number <IMG
+ WIDTH="16" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img36.gif"
+ ALT="$A$"> by the expression 
+  <!-- MATH
+ $r_{\rm RMS} = 0.836*A^{1/3}+0.57$
+ -->
+<IMG
+ WIDTH="192" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img37.gif"
+ ALT="$r_{\rm RMS} = 0.836*A^{1/3}+0.57$"> fm.
+</LI>
+</UL>
+NOTE: If you specify a finite nuclear size, you should ensure that the basis
+set you use is contracted for a finite nuclear size.  See the Section
+<A HREF="node9.html#sec:basis">7</A> for more information.
+
+<P>
+</LI>
+</UL>
+
+<P>
+The following examples illustrate some of the various options that the
+user can specify on the first input line of the <code>GEOMETRY</code>
+directive, using the keywords and input options described above.
+
+<P>
+The following directives all specify the same geometry for <IMG
+ WIDTH="25" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img38.gif"
+ ALT="$H_2$"> (a
+bond length of 0.732556 &#197;):
+<PRE>
+  geometry                           geometry units nm    
+    h 0 0 0                            h 0 0 0            
+    h 0 0 0.732556                     h 0 0 0.0732556    
+  end                                end                  
+
+  geometry units pm                  geometry units atomic 
+    h 0 0 0                            h 0 0 0             
+    h 0 0 73.2556                      h 0 0 1.3843305     
+  end                                end
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION00820000000000000000"></A>
+<A NAME="sec:symgrp"></A>
+<BR>
+6.2 <TT>SYMMETRY</TT> -- Symmetry Group Input
+</H1>
+
+<P>
+The <code>SYMMETRY</code> directive is used (optionally) within the compound
+<code>GEOMETRY</code> directive to specify the point group for the molecular
+geometry. 
+The general form of the directive, as described above within the general
+form of the <code>GEOMETRY</code> directive, is as follows:
+<PRE>
+    [SYMMETRY [group] &lt;string group_name&gt; [print] \
+           [tol &lt;real tol default 1d-2&gt;]]
+</PRE>
+The keyword <code>group</code> is optional, and can be omitted without
+affecting how the input for this directive is processed<A NAME="tex2html9"
+  HREF="footnode.html#foot1298"><SUP>6.1</SUP></A>.  However, if the <code>SYMMETRY</code> directive is
+used, a group name must be specified by supplying an entry for the
+string variable <code>&lt;group_name&gt;</code>.  The group name should be
+specified as the standard Sch&#246;flies symbol.  Examples of expected
+input for the variable <code>group_name</code> include such entries as:
+
+<P>
+
+<UL>
+<LI><code>c2v</code> - for molecular symmetry <IMG
+ WIDTH="30" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img39.gif"
+ ALT="$C_{2{\it v}}$">
+</LI>
+<LI><code>d2h</code> - for molecular symmetry <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.gif"
+ ALT="$D_{2h}$">
+</LI>
+<LI><code>Td</code> - for molecular symmetry <IMG
+ WIDTH="21" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.gif"
+ ALT="$T_d$">
+</LI>
+<LI><code>d6h</code> - for molecular symmetry <IMG
+ WIDTH="32" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$D_{6h}$">
+</LI>
+</UL>
+
+<P>
+The <code>SYMMETRY</code> directive is optional.  The default is no symmetry 
+(i.e., <IMG
+ WIDTH="23" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img40.gif"
+ ALT="$C_1$"> point group). Automatic detection of point
+group symmetry is available through the use of <code>autosym</code> in the
+<code>GEOMETRY</code> directive main line (discussed in Section <A HREF="node8.html#sec:geomkeys">6.1</A>).
+Note: if the <code>SYMMETRY</code> directive is present the <code>autosym</code>
+keyword is ignored.
+
+<P>
+If only symmetry-unique atoms are specified, the others will be
+generated through the action of the point group operators, but the
+user if free to specify all atoms.  The user must know the symmetry of
+the molecule being modeled, and be able to specify the coordinates of
+the atoms in a suitable orientation relative to the rotation axes and
+planes of symmetry.  Appendix <A HREF="node43.html#symexamples">C</A> lists a number of
+examples of the
+<code>GEOMETRY</code> directive input for specific molecules having symmetry
+patterns recognized by NWChem.  The exact point group symmetry will be
+forced upon the molecule, and atoms within <IMG
+ WIDTH="37" HEIGHT="17" ALIGN="BOTTOM" BORDER="0"
+ SRC="img41.gif"
+ ALT="$10^{-3}$"> A.U. of a
+symmetry element (e.g., a mirror plane or rotation axis) will be
+forced onto that element.  Thus, it is not necessary to specify to a
+high precision those coordinates that are determined solely by
+symmetry.
+
+<P>
+The keyword <code>print</code> gives information concerning the point group
+generation, including the group generators, a character table, the
+mapping of centers, and the group operations.
+
+<P>
+The keyword <code>tol</code> relates to the accuracy with which the symmetry-unique
+atoms should be specified.  When the atoms are generated, those that are
+within the tolerance, <code>tol</code>, are considered the same.
+
+<P>
+
+<H1><A NAME="SECTION00830000000000000000"></A>
+<A NAME="sec:cart"></A>
+<BR>
+6.3 Cartesian coordinate input
+</H1>
+
+<P>
+The default in NWChem is to specify the geometry information entirely
+in Cartesian coordinates, and examples of this format have 
+appeared above (e.g, Section <A HREF="node4.html#sec:realsample">2.3</A>). Each center
+(usually an atom) is identified on a line of the following form:
+<PRE>
+    &lt;string tag&gt; &lt;real x y z&gt; [vx vy vz] \
+        [charge &lt;real charge&gt;] [mass &lt;real mass&gt;] \
+        [(nuc || nucl || nucleus) &lt;string nucmodel&gt;]
+</PRE>
+
+<P>
+The string <code>&lt;tag&gt;</code> is the name of the atom or center, and its case
+(upper or lower) is important.  The tag is limited to 16 characters
+and is interpreted as follows:
+
+<UL>
+<LI>If the entry for <code>&lt;tag&gt;</code> begins with either the symbol or
+  name of an element (regardless of case), then the center is treated
+  as an atom of that type.  The default charge is the atomic number
+  (adjusted for the presence of ECPs by the ECP <code>NELEC</code> directive
+  ; see Section <A HREF="node10.html#sec:ecp">8</A>).  Additional characters can be added to
+  the string, to distinguish between atoms of the same element (For
+  example, the tags <code>oxygen</code>, <code>O</code>, <code>o34</code>,
+  <code>olonepair</code>, and <code>Oxygen-ether</code>, will all be interpreted
+  as oxygen atoms.).
+</LI>
+<LI>If the entry for <code>&lt;tag&gt;</code> begins with the characters
+  <code>bq</code> or <code>x</code> (regardless of case), then the center is
+  treated as a dummy center with a default zero charge (Note: a tag
+  beginning with the characters <code>xe</code> will be interpreted as a
+  xenon atom rather than as a dummy center.).  Dummy centers may
+  optionally have basis functions or non-zero charge.  See Section
+  <A HREF="node42.html#sec:sample2">B.2</A> for a sample input using dummy centers with
+  charges.
+</LI>
+</UL>
+
+<P>
+It is <EM>important</EM> to be aware of the following points regarding
+the definitions and usage of the values specified for the variable
+<code>&lt;tag&gt;</code> to describe the centers in a system:
+
+<UL>
+<LI>If the tag begins with characters that cannot be matched against
+  an atom, and those characters are not <code>BQ</code> or <code>X</code>, then a
+  fatal error is generated.
+</LI>
+<LI>The tag of a center is used in the <code>BASIS</code> (Section
+  <A HREF="node9.html#sec:basis">7</A>) and <code>ECP</code> (Section <A HREF="node10.html#sec:ecp">8</A>) directives
+  to associate functions with centers.
+</LI>
+<LI>All centers with the same tag will have the same basis
+  functions.
+</LI>
+<LI>When using automatic symmetry detection,
+  only centers with the same tag will be candidates for testing for
+  symmetry equivalence.
+</LI>
+<LI>The user-specified charges (of all centers, atomic and dummy)
+  and any net total charge of the system (Section <A HREF="node7.html#sec:charge">5.11</A>)
+  are used to determine the number of electrons in the system.
+</LI>
+</UL>
+
+<P>
+The Cartesian coordinates of the atom in the molecule are specified as
+real numbers supplied for the variables <code>x</code>, <code>y</code>, and
+<code>z</code> following the characters entered for the tag.  The values
+supplied for the coordinates must be in the units specified by the
+value of the variable <code>&lt;units&gt;</code> on the first line of the
+<code>GEOMETRY</code> directive input.
+
+<P>
+After the Cartesian coordinate input, optional velocities may be 
+entered as real numbers for the variables <code>vx</code>, <code>vy</code>, and 
+<code>vz</code>.  The velocities should be given in atomic units and are 
+used in QMD and PSPW calculations.
+
+<P>
+The Cartesian coordinate input line also contains the optional keywords
+<code>charge</code>, <code>mass</code> and <code>nucleus</code>, which allow the user to
+specify the charge of the atom (or center) and its mass (in atomic mass
+units), and the nuclear model.  The default charge for an atom is
+its atomic number, adjusted for the presence of ECPs (see Section
+<A HREF="node10.html#sec:ecp">8</A>).  In order to specify a different value for the charge on a
+particular atom, the user must enter the keyword <code>charge</code>, followed by
+the desired value for the variable <code>&lt;charge&gt;</code>.
+
+<P>
+The default mass for an atom is taken to be the mass of its most abundant
+naturally occurring isotope or of the isotope with the longest half-life.
+To model some other isotope of the element, its mass must be defined
+explicitly by specifying the keyword <code>mass</code>, followed by the value (in
+atomic mass units) for the variable <code>&lt;mass&gt;</code>.
+
+<P>
+The default nuclear model is a point nucleus. The keyword <code>nucleus</code> (or
+<code>nucl</code> or <code>nuc</code>) followed by the model name <code>&lt;nucmodel&gt;</code> 
+overrides this default. Allowed values of <code>&lt;nucmodel&gt;</code> are <code>point</code> or
+<code>pt</code> and <code>finite</code> or <code>fi</code>. The <code>finite</code> option is
+a nuclear model with a Gaussian shape. The RMS radius of the Gaussian is
+determined by the atomic mass number via the formula <!-- MATH
+ $r_{\rm RMS} = 0.836*
+A^{1/3} + 0.57$
+ -->
+<IMG
+ WIDTH="192" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img37.gif"
+ ALT="$r_{\rm RMS} = 0.836*A^{1/3}+0.57$"> fm.  The mass number <IMG
+ WIDTH="16" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img36.gif"
+ ALT="$A$"> is derived from the variable
+<code>&lt;mass&gt;</code>.
+
+<P>
+The geometry of the system can be specified entirely in Cartesian
+coordinates by supplying a <code>&lt;tag&gt;</code> line of the type described
+above for each atom or center.  The user has the option, however, of
+supplying the geometry of some or all of the atoms or centers using a
+Z-matrix description.  In such a case, the user supplies the input tag
+line described above for any centers to be described by Cartesian
+coordinates, and then specifies the remainder of the system using the
+optional <code>ZMATRIX</code> directive described below in Section
+<A HREF="node8.html#sec:Z-matrix">6.4</A>.
+
+<P>
+
+<H1><A NAME="SECTION00840000000000000000"></A>
+<A NAME="sec:Z-matrix"></A>
+<BR>
+6.4 <TT>ZMATRIX</TT> -- Z-matrix input
+</H1>
+
+<P>
+The <code>ZMATRIX</code> directive is an optional directive that can be used
+within the compound <code>GEOMETRY</code> directive to specify the structure
+of the system with a Z-matrix, which can include both internal and
+Cartesian coordinates.  The <code>ZMATRIX</code> directive is itself a
+compound directive that can include the <code>VARIABLES</code> and
+<code>CONSTANTS</code> directives, depending on the options selected.  The
+general form of the compound <code>ZMATRIX</code> directive is as follows:
+<PRE>
+    [ZMATRIX || ZMT || ZMAT
+         &lt;string tagn&gt; &lt;list_of_zmatrix_variables&gt; 
+         ... 
+
+         [VARIABLES
+              &lt;string symbol&gt; &lt;real value&gt;
+              ... ]
+ 
+         [CONSTANTS
+              &lt;string symbol&gt; &lt;real value&gt;
+              ... ]
+
+    (END || ZEND)]
+</PRE>
+
+<P>
+The input module recognizes three possible spellings of this directive
+name.  It can be invoked with <code>ZMATRIX</code>, <code>ZMT</code>, or
+<code>ZMAT</code>.  The user can specify the molecular structure using
+either Cartesian coordinates or
+internal coordinates (bond lengths, bond angles and dihedral angles.
+The Z-matrix input for a center defines connectivity, bond length, and
+bond or torsion angles.  Cartesian coordinate input for a center
+consists of three real numbers defining the x,y,z coordinates of the
+atom.
+
+<P>
+Within the Z-matrix input, bond lengths and Cartesian coordinates must
+be input in the user-specified units, as defined by the value specified
+for the variable <code>&lt;units&gt;</code> on the first line of the <code>GEOMETRY</code>
+directive.  All angles are specified in
+degrees.
+
+<P>
+The individual centers (denoted as <code>i</code>, <code>j</code>, and <code>k</code>
+below) used to specify Z-matrix connectivity may be designated either
+as integers (identifying each center by number) or as tags (<EM>If
+  tags are used, the tag must be unique for each center.</EM>) The use of
+``dummy'' atoms is possible, by using <code>X</code> or <code>BQ</code> at the
+start of the tag.
+
+<P>
+Bond lengths, bond angles and dihedral angles (denoted below as <TT>  R</TT>, <TT>alpha</TT>, and <TT>beta</TT>, respectively) may be specified
+either as numerical values or as symbolic strings that must be
+subsequently defined using the <code>VARIABLES</code> or <code>CONSTANTS</code>
+directives. The numerical values of the symbolic strings labeled
+<code>VARIABLES</code> may be subject to changes during a geometry
+optimization say, while the numerical values of the symbolic strings
+labeled <code>CONSTANTS</code> will stay frozen to the value given in the
+input.  The same symbolic string can be used more than once, and
+any mixture of numeric data and symbols is acceptable. Bond angles
+(<IMG
+ WIDTH="14" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img42.gif"
+ ALT="$\alpha$">) must be in the range <!-- MATH
+ $0 < \alpha < 180$
+ -->
+<IMG
+ WIDTH="89" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img43.gif"
+ ALT="$0 &lt; \alpha &lt; 180$">.
+
+<P>
+The Z-matrix input is specified sequentially as follows:
+<PRE>
+   tag1
+   tag2 i R
+   tag3 i R j alpha
+   tag4 i R j alpha k beta [orient]
+   ...
+</PRE>
+
+<P>
+The structure of this input is described in more detail below.  In the
+following discussion, the tag or number of the center being currently
+defined is labeled as <code>C</code> (``C'' for current).  The values
+entered for these tags for centers defined in the Z-matrix input are
+interpreted in the same way as the <code>&lt;tag&gt;</code> entries for Cartesian
+coordinates described above (see Section <A HREF="node8.html#sec:cart">6.3</A>).  Figures
+<A HREF="node8.html#fig:zmat1">6.1</A>, <A HREF="node8.html#fig:zmat2">6.2</A> and <A HREF="node8.html#fig:zmat3">6.3</A> display the
+relationships between the input data and the definitions of centers
+and angles.
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:zmat1"></A><A NAME="1435"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 6.1:</STRONG>
+Relationships between the centers, bond angle
+and dihedral angle in Z-matrix input.</CAPTION>
+<TR><TD><IMG
+ WIDTH="699" HEIGHT="273" BORDER="0"
+ SRC="img44.gif"
+ ALT="\begin{figure}\centering\psfig{figure=zmat1.eps,angle=270,width=6in}\end{figure}"></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:zmat2"></A><A NAME="1436"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 6.2:</STRONG>
+Relationships between the centers and two
+  bond angles in Z-matrix input with optional parameter specified as <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1.gif"
+ ALT="$+1$">.</CAPTION>
+<TR><TD><IMG
+ WIDTH="687" HEIGHT="376" BORDER="0"
+ SRC="img45.gif"
+ ALT="\begin{figure}\centering\psfig{figure=zmat2.eps,angle=270,width=6in}\end{figure}"></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+
+<DIV ALIGN="CENTER"><A NAME="fig:zmat3"></A><A NAME="1437"></A>
+<TABLE>
+<CAPTION ALIGN="BOTTOM"><STRONG>Figure 6.3:</STRONG>
+Relationships between the centers and two
+  bond angles in Z-matrix input with optional parameter specified as <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2.gif"
+ ALT="$-1$">.</CAPTION>
+<TR><TD><IMG
+ WIDTH="686" HEIGHT="383" BORDER="0"
+ SRC="img46.gif"
+ ALT="\begin{figure}\centering\psfig{figure=zmat3.eps,angle=270,width=6in}\end{figure}"></TD></TR>
+</TABLE>
+</DIV>
+
+<P>
+The Z-matrix input shown above is interpreted as follows:
+
+<OL>
+<LI><code>tag1</code>
+
+<P>
+Only  a  tag  is required for the first center.
+
+<P>
+</LI>
+<LI><code>tag2 i R</code>
+
+<P>
+The second center requires specification of its tag and the
+     bond length (<IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img47.gif"
+ ALT="$R_{Ci}$">) distance to a previous atom, which is identified by
+     <code>i</code>.
+
+<P>
+</LI>
+<LI><code>tag3 i R j alpha</code>
+
+<P>
+The third center requires specification of its tag, its bond length distance
+     (<IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img47.gif"
+ ALT="$R_{Ci}$">) to one of the two previous centers (identified by the
+     value of <code>i</code>), and the bond angle <!-- MATH
+ $\alpha = \widehat{Cij}$
+ -->
+<IMG
+ WIDTH="61" HEIGHT="39" ALIGN="MIDDLE" BORDER="0"
+ SRC="img48.gif"
+ ALT="$\alpha = \widehat{Cij}$">.
+
+<P>
+</LI>
+<LI><code>tag i R j alpha k beta [&lt;integer orient default 0&gt;]</code>
+
+<P>
+The fourth, and all subsequent centers, require the tag, a bond
+     length (<IMG
+ WIDTH="31" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img47.gif"
+ ALT="$R_{Ci}$">) relative to center <code>i</code>, the bond angle with
+     centers <code>i</code> and <code>j</code> (<!-- MATH
+ $\alpha = \widehat{Cij}$
+ -->
+<IMG
+ WIDTH="61" HEIGHT="39" ALIGN="MIDDLE" BORDER="0"
+ SRC="img48.gif"
+ ALT="$\alpha = \widehat{Cij}$">), and <EM>either</EM> 
+    
+<OL>
+<LI>the dihedral angle (<IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img49.gif"
+ ALT="$\beta$">) between the current center and centers
+      <code>i</code>, <code>j</code>, and <code>k</code> (Figure <A HREF="node8.html#fig:zmat1">6.1</A>), or
+</LI>
+<LI>a second bond angle <!-- MATH
+ $\beta = \widehat{Cik}$
+ -->
+<IMG
+ WIDTH="62" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img50.gif"
+ ALT="$\beta = \widehat{Cik}$"> and an orientation to 
+      the plane containing the other three centers (Figure
+      <A HREF="node8.html#fig:zmat2">6.2</A> and <A HREF="node8.html#fig:zmat3">6.3</A>).
+    
+</LI>
+</OL>
+
+<P>
+By default, <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img49.gif"
+ ALT="$\beta$"> is interpreted as a dihedral angle (see Figure
+    <A HREF="node8.html#fig:zmat1">6.1</A>), but if the optional final parameter (<code>&lt;orient&gt;</code>) is
+    specified with the value <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img51.gif"
+ ALT="$\pm 1$">, then <IMG
+ WIDTH="14" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img49.gif"
+ ALT="$\beta$"> is interpreted as
+    the angle <IMG
+ WIDTH="31" HEIGHT="20" ALIGN="BOTTOM" BORDER="0"
+ SRC="img52.gif"
+ ALT="$\widehat{Cik}$">.  The sign of <code>&lt;orient&gt;</code> specifies the
+    direction of the bond angle relative to the plane containing the
+    three reference atoms.  If <code>&lt;orient&gt;</code> is <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1.gif"
+ ALT="$+1$">, then the new center
+    (<code>C</code>) is above the plane (Figure <A HREF="node8.html#fig:zmat2">6.2</A>); and if
+    <code>&lt;orient&gt;</code> is <IMG
+ WIDTH="24" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2.gif"
+ ALT="$-1$">, then <code>C</code> is below the plane (Figure
+    <A HREF="node8.html#fig:zmat3">6.3</A>).
+</LI>
+</OL>
+
+<P>
+Following the Z-matrix center definitions described above, the user can
+ specify initial values for any symbolic variables used to define the
+Z-matrix tags.  This is done using the optional  <code>VARIABLES</code> directive,
+which has the general form:
+
+<P>
+<PRE>
+  VARIABLES
+    &lt;string symbol&gt;  &lt;real value&gt;
+    ...
+</PRE>
+Each line contains the name of a variable followed by its value.
+Optionally, an equals sign (<code>=</code>) can be included between the
+symbol and its value, for clarity in reading the input file.
+
+<P>
+Following the <code>VARIABLES</code> directive, the <code>CONSTANTS</code>
+directive may be used to define any Z-matrix symbolic variables that remain
+unchanged during geometry optimizations. 
+To freeze the Cartesian coordinates of an atom, refer
+to Section <A HREF="node8.html#sec:activeatoms">6.6</A>.  The general form of this directive
+is as follows:
+<PRE>
+  CONSTANTS
+    &lt;string symbol&gt;  &lt;real value&gt;
+    ...
+</PRE>
+Each line contains the name of a variable followed by its value.  As
+with the <code>VARIABLES</code> directive, an equals sign (<code>=</code>) can be
+included between the symbol and its value.
+
+<P>
+The end of the Z-matrix input using the compound <code>ZMATRIX</code>
+directive is signaled by a line containing either <code>END</code> or
+<code>ZEND</code>, following all input for the directive itself and its
+associated optional directives.  
+
+<P>
+A simple example is presented for water.  All Z-matrix parameters are
+specified numerically, and symbolic tags are used to specify
+connectivity information.  This requires that all tags be unique, and
+therefore different tags are used for the two hydrogen atoms, which may 
+or may not be identical.  
+<PRE>
+  geometry
+    zmatrix 
+      O
+      H1 O 0.95
+      H2 O 0.95 H1 108.0
+    end
+  end
+</PRE>
+
+<P>
+The following example illustrates the Z-matrix input for the molecule
+<IMG
+ WIDTH="67" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img53.gif"
+ ALT="$CH_3CF_3$">.  This input uses the numbers of centers to specify
+the connectivity information (<code>i</code>, <code>j</code>, and <code>k</code>), and
+uses symbolic variables for the Z-matrix parameters <TT>R</TT>, <TT>  alpha</TT>, and <TT>beta</TT>, which are defined in the inputs for the
+<code>VARIABLES</code> and
+<code>CONSTANTS</code> directives.
+
+<P>
+<PRE>
+geometry 
+ zmatrix
+   C 
+   C 1 CC 
+   H 1 CH1 2 HCH1 
+   H 1 CH2 2 HCH2 3  TOR1  0 
+   H 1 CH3 2 HCH3 3 -TOR2  0 
+   F 2 CF1 1 CCF1 3  TOR3  0 
+   F 2 CF2 1 CCF2 6  FCH1  1 
+   F 2 CF3 1 CCF3 6  FCH2 -1
+   variables
+     CC    1.4888 
+     CH1   1.0790 
+     CH2   1.0789  
+     CH3   1.0789  
+     CF1   1.3667 
+     CF2   1.3669 
+     CF3   1.3669
+   constants
+     HCH1  104.28 
+     HCH2  104.74 
+     HCH3  104.7 
+     CCF1  112.0713 
+     CCF2  112.0341 
+     CCF3  112.0340 
+     TOR1  109.3996 
+     TOR2  109.3997 
+     TOR3  180.0000 
+     FCH1  106.7846 
+     FCH2  106.7842
+ end   
+end
+</PRE>
+
+<P>
+The input for any centers specified with Cartesian coordinates must
+be specified using the format of the <code>&lt;tag&gt;</code> lines described
+in Section <A HREF="node8.html#sec:cart">6.3</A> above.  However, in
+order to correctly specify these Cartesian coordinates 
+within the Z-matrix, the user must
+understand the orientation of centers specified using
+internal coordinates.  These are arranged as follows:
+
+<UL>
+<LI>The first center is placed at the origin.
+</LI>
+<LI>The second center is placed along the positive z-axis.
+</LI>
+<LI>The third center is placed in the z-x plane.
+</LI>
+</UL>
+
+<P>
+
+<H1><A NAME="SECTION00850000000000000000"></A>
+<A NAME="sec:zcoord"></A>
+<BR>
+6.5 <TT>ZCOORD</TT> -- Forcing internal coordinates
+</H1>
+
+<P>
+By default redundant internal coordinates are generated for use in
+geometry optimizations.  Connectivity is inferred by comparing
+inter-atomic distances with the sum of the van der Waals radii of the
+two atoms involved in a possible bond, times a scaling factor. The
+scaling factor is an input parameter of <code>ZCOORD</code> which maybe
+changed from its default value of 1.3.  Under some circumstances 
+(unusual bonding, bond dissociation, ...) it will be necessary to
+augment the automatically generated list of internal coordinates to
+force some specific internal coordinates to be included in among the
+internal coordinates.  This is accomplished by including the optional
+directive <TT>ZCOORD</TT> within the geometry directive.  The general
+form of the <code>ZCOORD</code> directive is as follows:
+<PRE>
+  ZCOORD
+     CVR_SCALING &lt;real value&gt;
+     BOND    &lt;integer i&gt; &lt;integer j&gt; \
+             [&lt;real value&gt;] [&lt;string name&gt;] [constant]
+     ANGLE   &lt;integer i&gt; &lt;integer j&gt; &lt;integer k&gt; \
+             [&lt;real value&gt;] [&lt;string name&gt;] [constant]
+     TORSION &lt;integer i&gt; &lt;integer j&gt; &lt;integer k&gt; &lt;integer l&gt; \
+             [&lt;real value&gt;] [&lt;string name&gt;] [constant]
+  END
+</PRE>
+
+<P>
+The centers <code>i</code>, <code>j</code>, <code>k</code> and <code>l</code> <EM>must</EM> be
+specified using the numbers of the centers, as supplied in the input
+for the Cartesian coordinates.  The <code>ZCOORD</code> input parameters are
+defined as follows:
+
+<P>
+
+<UL>
+<LI><TT>cvr_scaling</TT> -- scaling factor applied to van der Waals radii.
+</LI>
+<LI><TT>bond</TT> -- a bond between the two centers.
+</LI>
+<LI><TT>angle</TT> -- a bond angle <IMG
+ WIDTH="26" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
+ SRC="img54.gif"
+ ALT="$\widehat{ijk}$">.
+</LI>
+<LI><TT>torsion</TT> -- a torsion (or dihedral) angle.  The
+  angle between the planes <code>i-j-k</code> and <code>j-k-l</code>.
+</LI>
+</UL>   
+
+<P>
+A value may be specified for a user-defined internal coordinate, in
+which case it is forced upon the input Cartesian coordinates while
+attempting to make only small changes in the other internal
+coordinates.  If no value is provided the value implicit in the input
+coordinates is kept.  If the keyword <code>constant</code> is specified, then
+that internal variable is not modified during a geometry optimization 
+with DRIVER (Section <A HREF="node22.html#sec:driver">20</A>).  Each internal coordinate may
+also be named either for easy identification in the output, or
+for the application of constraints (Section <A HREF="node8.html#sec:constraints">6.6</A>).
+
+<P>
+If the keyword <code>adjust</code> is specified on the main <code>GEOMETRY</code>
+directive, only <code>ZCOORD</code> data may be specified and it can
+be used to change the user-defined internal coordinates, including
+adding/removing constraints and changing their values.
+
+<P>
+
+<H1><A NAME="SECTION00860000000000000000"></A>
+<A NAME="sec:activeatoms"></A><A NAME="sec:constraints"></A>
+<BR>
+6.6 Applying constraints in geometry optimizations
+</H1>
+
+<P>
+Internal coordinates specified as constant in a <code>ZCOORD</code> directive
+or in the constants section of a <code>ZMATRIX</code> directive, will be
+frozen at their initial values if a geometry optimization is
+performed with DRIVER (Section <A HREF="node22.html#sec:driver">20</A>).
+
+<P>
+If internal coordinates have the same name (give or take 
+an optional sign for torsions) then they are forced to have 
+the same value.  This may be used to force bonds or angles to
+be equal even if they are not related by symmetry.
+
+<P>
+When atoms have been specified by their Cartesian coordinates, <EM>and</EM> internal coordinates are not being used, it is possible to freeze
+the cartesian position of selected atoms.  This is useful for such
+purposes as optimizing a molecule absorbed on the surface of a cluster
+with fixed geometry.  Only the gradients associated with the active
+atoms are computed.  This can result in a big computational saving,
+since gradients associated with frozen atoms are forced to zero (Note,
+however, that this destroys the translational and rotational
+invariance of the gradient.  This is not yet fully accommodated by the
+STEPPER geometry optimization software, and can sometimes result in
+slower convergence of the optimization.  The DRIVER optimization
+package does not suffer from this problem).
+
+<P>
+The <code>SET</code> directive (Section <A HREF="node7.html#sec:set">5.7</A>) is used to freeze
+atoms, by specifying a directive of the form:
+<PRE>
+  set geometry:actlist &lt;integer list_of_center_numbers&gt;
+</PRE>
+This defines only the centers in the list as active.  All other
+centers will have zero force assigned to them, and will remain frozen
+at their starting coordinates during a geometry optimization.
+
+<P>
+For example, the following directive specifies that atoms numbered 1,
+5, 6, 7, 8, and 15 are active and all other atoms are frozen:
+<PRE>
+  set geometry:actlist 1 5:8 15
+</PRE>
+or equivalently,
+<PRE>
+  set geometry:actlist 1 5 6 7 8 15
+</PRE>
+
+<P>
+If this option is not specified by entering a <code>SET</code> directive,
+the default behavior in the code is to treat all atoms as active.  To
+revert to this default behavior after the option to define frozen
+atoms has been invoked, the <code>UNSET</code> directive must be used (since
+the database is persistent, see Section <A HREF="node5.html#sec:persist">3.2</A>).  The form
+of the <code>UNSET</code> directive is as follows:
+<PRE>
+  unset geometry:actlist
+</PRE>
+
+<P>
+
+<H1><A NAME="SECTION00870000000000000000"></A>
+<A NAME="sec:latticeparam"></A>
+<BR>
+6.7 <TT>SYSTEM</TT> -- Lattice parameters for periodic systems
+</H1>
+
+<P>
+This keyword is needed only for for 1-, 2-, and 3-dimensional
+periodic systems.
+
+<P>
+The <TT>system</TT> keyword can assume the following values
+
+<P>
+
+<UL>
+<LI><TT>polymer</TT> -- system with 1-d translational symmetry.
+</LI>
+<LI><TT>surface</TT> -- system with 2-d translational symmetry.
+</LI>
+<LI><TT>crystal</TT> -- system with 3-d translational symmetry. 
+</LI>
+<LI><TT>molecule</TT> -- no translational symmetry (this is the default)
+</LI>
+</UL>   
+
+<P>
+When the system possess translational symmetry, <B>fractional</B> coordinates
+are used in the directions where translational symmetry exists. 
+This means that for crystals <IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img55.gif"
+ ALT="$x$">, <IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img56.gif"
+ ALT="$y$"> and <IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img57.gif"
+ ALT="$z$"> are fractional, for
+surfaces <IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img55.gif"
+ ALT="$x$"> and <IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img56.gif"
+ ALT="$y$"> are fractional, whereas for polymers only <IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img57.gif"
+ ALT="$z$"> is
+fractional.
+For example, in the following H<IMG
+ WIDTH="11" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$_2$">O layer input (a 2-d  periodic
+system), <IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img55.gif"
+ ALT="$x$"> and <IMG
+ WIDTH="12" HEIGHT="28" ALIGN="MIDDLE" BORDER="0"
+ SRC="img56.gif"
+ ALT="$y$"> coordinates are fractional, whereas <IMG
+ WIDTH="12" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img57.gif"
+ ALT="$z$">
+is expressed in &#197;.
+<PRE>
+geometry units angstrom
+  O     0.353553    0.353553         2.100000000
+  H     0.263094    0.353553         2.663590000
+  H     0.444007    0.353553         2.663590000
+</PRE>
+
+<P>
+Since no space group symmetry is available yet other than <IMG
+ WIDTH="25" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img58.gif"
+ ALT="$P1$">, input
+of cell parameters is relative to the primitive cell. For example,
+this is the input  required for the cubic face-centered type structure
+of bulk MgO.
+
+<P>
+<PRE>
+  system crystal
+   lat_a 2.97692 lat_b 2.97692 lat_c 2.97692 
+   alpha 60.00 beta 60.00 gamma 60.00
+  end
+</PRE>
+
+<P>
+
+<P>
+<HR>
+<!--Navigation Panel-->
+<A NAME="tex2html1088"
+  HREF="node9.html">
+<IMG WIDTH="37" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="next" SRC="next.png"></A> 
+<A NAME="tex2html1084"
+  HREF="user.html">
+<IMG WIDTH="26" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="up" SRC="up.png"></A> 
+<A NAME="tex2html1078"
+  HREF="node7.html">
+<IMG WIDTH="63" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="previous" SRC="prev.png"></A> 
+<A NAME="tex2html1086"
+  HREF="node2.html">
+<IMG WIDTH="65" HEIGHT="24" ALIGN="BOTTOM" BORDER="0" ALT="contents" SRC="contents.png"></A>  
+<BR>
+<B> Next:</B> <A NAME="tex2html1089"
+  HREF="node9.html">7. Basis sets</A>
+<B> Up:</B> <A NAME="tex2html1085"
+  HREF="user.html">user</A>
+<B> Previous:</B> <A NAME="tex2html1079"
+  HREF="node7.html">5. Top-level directives</A>
+ &nbsp <B>  <A NAME="tex2html1087"
+  HREF="node2.html">Contents</A></B> 
+<!--End of Navigation Panel-->
+<ADDRESS>
+Edoardo Apra
+2004-05-25
+</ADDRESS>
+</BODY>
+</HTML>
