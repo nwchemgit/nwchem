@@ -1,0 +1,31 @@
+Index: intd_2e4c.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/NWints/api/intd_2e4c.F,v
+retrieving revision 1.20
+retrieving revision 1.20.2.1
+diff -u -r1.20 -r1.20.2.1
+--- intd_2e4c.F	3 Dec 2004 22:34:31 -0000	1.20
++++ intd_2e4c.F	1 Jul 2005 00:02:11 -0000	1.20.2.1
+@@ -1,6 +1,6 @@
+       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
+      &       lscr, scr, leri, eri, idatom)
+-c $Id: intd_2e4c.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
++c $Id: intd_2e4c.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
+       implicit none
+ c
+ c basic api routine to generate 4 center two electron integral derivatives 
+@@ -519,12 +519,14 @@
+       integer z
+       integer offset_x, offset_s
+ *
++#if defined(VECTOR_MODE)
+       if (nint_x*nblocks.gt.lscr) then
+         write(luout,*)' calling routine: ',ctine
+         call errquit
+      &      ('int_c2s_mv: lscr to small by ',((nint_x*nblocks)-lscr),
+      &         INT_ERR)
+       endif
++#endif
+       if (nint_s.gt.nint_x) then
+         call errquit
+      &      ('int_c2s_mv: nint_s >.nint_x diff=',(nint_s-nint_x),

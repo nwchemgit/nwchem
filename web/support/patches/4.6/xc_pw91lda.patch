@@ -1,0 +1,32 @@
+Index: nwchem-4.6/src/nwdft/xc/xc_pw91lda.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/nwdft/xc/xc_pw91lda.F,v
+retrieving revision 1.13
+diff -u -r1.13 xc_pw91lda.F
+--- nwchem-4.6/src/nwdft/xc/xc_pw91lda.F	17 Feb 2003 22:58:32 -0000	1.13
++++ nwchem-4.6/src/nwdft/xc/xc_pw91lda.F	23 Nov 2004 20:54:37 -0000
+@@ -4,7 +4,7 @@
+ c     form for the parameterized functionals of rs.  The VWN V code is
+ c     reused.
+ *
+-* $Id: xc_pw91lda.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
++* $Id: xc_pw91lda.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
+ *
+ #ifndef SECOND_DERIV
+       Subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
+@@ -161,8 +161,14 @@
+          d1zeta(1) = (1.d0-zeta)/rhoval
+          d1zeta(2) =-(1.d0+zeta)/rhoval
+ #ifdef SECOND_DERIV
+-         d2fz = ((1.d0+zeta)**(-twothirds) +
++         if((zeta-1d0).lt.tol_rho) then
++            d2fz = ((1.d0+zeta)**(-twothirds))*p3
++         elseif((zeta+1d0).lt.tol_rho) then
++            d2fz = ((1.d0-zeta)**(-twothirds))*p3
++         else
++            d2fz = ((1.d0+zeta)**(-twothirds) +
+      &           (1.d0-zeta)**(-twothirds))*p3
++         endif
+          rrho2 = 2.d0/(rhoval*rhoval)
+ c        1 = aa, 2 = ab, 3 = bb
+          d2zeta(1) =-rrho2*(1.d0-zeta)

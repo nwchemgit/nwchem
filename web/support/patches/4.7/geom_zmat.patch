@@ -1,0 +1,57 @@
+Index: geom_input.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/geom/geom_input.F,v
+retrieving revision 1.174.2.5
+retrieving revision 1.174.2.6
+diff -u -r1.174.2.5 -r1.174.2.6
+--- geom_input.F	8 Apr 2005 18:56:28 -0000	1.174.2.5
++++ geom_input.F	27 Sep 2005 18:44:41 -0000	1.174.2.6
+@@ -1,5 +1,5 @@
+       subroutine geom_input(rtdb)
+-C     $Id: geom_zmat.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
++C     $Id: geom_zmat.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
+       implicit none
+ #include "errquit.fh"
+ #include "stdio.fh"
+@@ -1838,7 +1838,7 @@
+ #include "nwc_const.fh"
+       PARAMETER     (MXATOM=nw_max_atom)
+       PARAMETER     (MXCOOR=nw_max_coor)
+-      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
++      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=nw_max_zmat)
+       PARAMETER     (MAXPRM=100)
+       PARAMETER     (MXIZMT=nw_max_izmat)
+       PARAMETER     (MAXLST=10+1)
+Index: geom_hnd.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/geom/geom_hnd.F,v
+retrieving revision 1.46
+retrieving revision 1.46.2.1
+diff -u -r1.46 -r1.46.2.1
+--- geom_hnd.F	24 Sep 2004 17:46:15 -0000	1.46
++++ geom_hnd.F	27 Sep 2005 18:44:41 -0000	1.46.2.1
+@@ -1,5 +1,5 @@
+ *
+-* $Id: geom_zmat.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
++* $Id: geom_zmat.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
+ *
+       subroutine geom_bandbi(geom)
+       implicit none
+@@ -3329,7 +3329,7 @@
+ #include "stdio.fh"
+ #include "nwc_const.fh"
+       PARAMETER     (MXATOM=nw_max_atom)
+-      PARAMETER     (MAXGEO=MXATOM+1,MAXZMT=40,MAXVAR=256)
++      PARAMETER     (MAXGEO=MXATOM+1,MAXZMT=40,MAXVAR=nw_max_zmat)
+       LOGICAL       DBUG
+       LOGICAL       LST
+       LOGICAL       READY
+@@ -3874,7 +3874,7 @@
+ #include "stdio.fh"
+ #include "nwc_const.fh"
+       PARAMETER     (MXATOM=nw_max_atom)
+-      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=256)
++      PARAMETER     (MAXGEO=MXATOM+1,MAXWRD=40,MAXVAR=nw_max_zmat)
+       LOGICAL       DBUG
+       LOGICAL       CART
+       CHARACTER*8   ATNAME

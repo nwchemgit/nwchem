@@ -1,0 +1,68 @@
+--- cosmo.F	Thu Sep  8 13:53:01 2005
++++ cosmo.F.latest	Thu Jun 30 17:15:24 2005
+@@ -1,6 +1,6 @@
+       subroutine cosmo_input(rtdb)
+ *
+-* $Id: cosmo.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
++* $Id: cosmo.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
+ *
+       implicit none
+ #include "errquit.fh"
+@@ -1721,20 +1721,48 @@
+      &            dbl_mb(k_efcc+(ief-1)*3+1),dbl_mb(k_efcc+(ief-1)*3+2)
+          enddo
+       endif
++cc
++cc     ----- get density matrix -----
++cc
++c      scfruntyp='RHF'
++c      nocc=nclosed(1)+nopen(1)
++c      if (itype_wfn.eq.2) then
++c         scfruntyp='UHF'
++c         nocc=max(nocc,nclosed(2)+nopen(2))
++c      endif
++c      if(.not.ma_push_get(mt_dbl,nocc*2,'cosmo occ',l_occ,k_occ))
++c     &   call errquit('cosmo_charges malloc k_occ failed',911,MA_ERR)
++c      do i=1,nocc*2
++c         dbl_mb(k_occ+i-1)=1.0d0
++c      enddo
++
++c
++c     changes to make cosmo work for open shell DFT (MV)
++c
++      if(.not.ma_push_get(mt_dbl,nbf*2,'cosmo occ',l_occ,k_occ))
++     &   call errquit('cosmo_charges malloc k_occ failed',911,MA_ERR)
++         call dfill(2*nbf, 0.0d0, dbl_mb(k_occ), 1)
+ c
+-c     ----- get density matrix -----
++c     Only need to set occupation numbers for UHF
++c     occupation numbers for RHF are done inside hnd_prop_dens_make
+ c
+-      scfruntyp='RHF'
+-      nocc=nclosed(1)+nopen(1)
+       if (itype_wfn.eq.2) then
+          scfruntyp='UHF'
+-         nocc=max(nocc,nclosed(2)+nopen(2))
++         do i = 1, nopen(1)
++            dbl_mb(i-1+k_occ) = 1.0d0
++         enddo
++         do i = nbf+1, nbf+nopen(2)
++            dbl_mb(i-1+k_occ) = 1.0d0
++         enddo
++      else if (itype_wfn.eq.1) then
++         scfruntyp='RHF'
++      else
++         call errquit("unknown function type",0,0)
+       endif
+-      if(.not.ma_push_get(mt_dbl,nocc*2,'cosmo occ',l_occ,k_occ))
+-     &   call errquit('cosmo_charges malloc k_occ failed',911,MA_ERR)
+-      do i=1,nocc*2
+-         dbl_mb(k_occ+i-1)=1.0d0
+-      enddo
++c
++c     end of changes (MV)
++c
++
+       call hnd_prop_dens_make(rtdb,geom,basis,nbf,nmo,nclosed,nopen,
+      &                       nvirt,scfruntyp,vectors,dbl_mb(k_occ),
+      &                       g_dens,ndens)

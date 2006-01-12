@@ -1,0 +1,325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+
+<!--Converted with LaTeX2HTML 99.2beta8 (1.43)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<!--
+<P><IMG SRC="nwchem_logo.gif" ALT="NWChem - computational chemistry on parallel
+computers">
+ </P>
+<HR>
+-->
+<TITLE>Capabilities</TITLE>
+</HEAD>
+
+<BR>
+<BR>
+<BODY BGCOLOR="FFFFFF">
+<P>
+<H1><CENTER>NWChem 4.0.1 Functionality and Capabilities</CENTER></H1>
+<P>
+NWChem provides many methods to compute the properties of molecular and
+periodic systems using standard quantum mechanical descriptions of the
+electronic wavefunction or density.  In addition, NWChem has the
+capability to perform classical molecular dynamics and free energy
+simulations.  These approaches may be combined to perform mixed
+quantum-mechanics and molecular-mechanics simulations. 
+
+<P>
+NWChem is available on almost all high performance computing platforms,
+workstations, PCs running LINUX, as well as clusters of desktop platforms or
+workgroup servers. NWChem development has been devoted to providing
+maximum efficiency on massively parallel processors. It achieves this performance
+on the 512 node IBM SP system in the EMSL's MSCF and on the 512 node CRAY
+T3E-900 system in the National Energy Research Scientific Computing Center. It
+has not been optimized for high performance on single processor desktop systems.
+
+<P>
+
+<H1>
+1. Molecular electronic structure
+</H1>
+
+<P>
+The following quantum mechanical methods are available to calculate
+energies and analytic first derivatives with respect to atomic
+coordinates.  Second derivatives are computed by finite difference of
+the first derivatives.
+
+<P>
+
+<UL>
+<LI>Self Consistent Field (SCF) or Hartree Fock (RHF, UHF, high-spin
+  ROHF).  
+</LI>
+<LI>Gaussian Density Functional Theory (DFT), using many local and
+  non-local exchange-correlation potentials (RHF or UHF)
+with formal <IMG
+ WIDTH="26" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img26.gif"
+ ALT="$N^3$"> and <IMG
+ WIDTH="26" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img27.gif"
+ ALT="$N^4$"> scaling.
+</LI>
+<LI>Spin-orbit DFT (SODFT), using many local and non-local
+  exchange-correlation potentials (UHF).
+</LI>
+<LI>MP2 including semi-direct using frozen core and RHF and UHF reference.
+</LI>
+<LI>Complete active space SCF (CASSCF).
+
+<P>
+</LI>
+</UL>
+
+<P>
+The following methods are available to compute energies only.  First
+and second derivatives are computed by finite difference of the
+energies.
+
+<UL>
+<LI>CCSD, CCSD(T), CCSD+T(CCSD), with RHF reference.
+</LI>
+<LI>Selected-CI with second-order perturbation correction.
+</LI>
+<LI>MP2 fully-direct with RHF reference.
+</LI>
+<LI>Resolution of the identity integral approximation MP2 (RI-MP2), with
+  RHF and UHF reference.
+</LI>
+</UL>
+
+<P>
+For all methods, the following operations may be performed:
+
+<UL>
+<LI>Single point energy
+</LI>
+<LI>Geometry optimization (minimization and transition state)
+</LI>
+<LI>Molecular dynamics on the fully <EM>ab initio</EM> potential energy
+  surface
+</LI>
+<LI>Numerical first and second derivatives automatically computed if
+  analytic derivatives are not available
+</LI>
+<LI>Normal mode vibrational analysis in cartesian coordinates
+</LI>
+<LI>ONIOM hybrid method of Morokuma and co-workers
+</LI>
+<LI>Generation of the electron density file for graphical display
+</LI>
+<LI>Evaluation of static, one-electron properties.
+</LI>
+<LI>Electrostatic potential fit of atomic partial charges (CHELPG method with
+    optional RESP restraints or charge constraints)
+</LI>
+</UL>
+
+<P>
+For closed and open shell SCF and DFT:
+
+<UL>
+<LI>COSMO energies - the continuum solvation 'Conductor-Like Screening' Model
+    of A. Klamt and G. Schuurmann to describe dielectric screening effects in
+    solvents.
+</LI>
+</UL>
+
+<P>
+In addition, automatic interfaces are provided to
+
+<UL>
+<LI>The COLUMBUS multi-reference CI package
+</LI>
+<LI>The natural bond orbital (NBO) package
+</LI>
+<LI>Python
+</LI>
+</UL>
+
+<P>
+
+<H1>
+2. Relativistic effects
+</H1>
+
+<P>
+The following methods for including relativity in quantum chemistry 
+calculations are available:
+
+<UL>
+<LI>The spin-free one-electron Douglas-Kroll approximation is available for all 
+ quantum mechanical methods and their gradients.
+</LI>
+<LI>Dyall's spin-free Modified Dirac Hamiltonian approximation is available 
+ for the Hartree-Fock method and its gradients.
+</LI>
+<LI>One-electron spin-orbit effects can be included via spin-orbit potentials.
+ This option is available for DFT and its gradients, but has to be run without 
+ symmetry.
+</LI>
+</UL>
+
+<P>
+
+<H1>
+3. Pseudopotential plane-wave electronic structure
+</H1>
+
+<P>
+The following modules are available to compute the energy, minimize the
+geometry and perform ab initio molecular dynamics using pseudopotential
+plane-wave DFT.
+
+<P>
+
+<UL>
+<LI>Fixed step length steepest descent 
+</LI>
+<LI>Conuugate Gradient
+</LI>
+<LI>Car-Parrinello (extended Lagrangian dynamics)
+</LI>
+</UL>
+
+<P>
+With
+
+<P>
+
+<UL>
+<LI>Vosko and PBE96 exchange-correlation potentials (restricted 
+and unrestricted)
+</LI>
+<LI>(Gamma point) Periodic orthorhombic simulation cells for calculating
+molecules, liquids, crystals, and surfaces
+</LI>
+<LI>Aperiodic orthorhombic simulations cells for calculating molecules that 
+are charged or highly polar
+</LI>
+<LI>Constant energy and constant temperature Car-Parrinello simulations
+</LI>
+<LI>Hamann and Troullier-Martins norm-conserving pseudopotentials with opt
+ional semicore corrections
+</LI>
+<LI>Modules to convert between small and large plane-wave expansions
+</LI>
+<LI>Interface to DRIVER, STEPPER, and VIB modules
+</LI>
+<LI>Mulliken analysis
+</LI>
+</UL>
+
+<P>
+
+<H1>
+4. Periodic system electronic structure
+</H1>
+
+<P>
+A module  (Gaussian Approach to Polymers, Surfaces and Solids (GAPSS))
+is available to compute energies by Gaussian Density
+Functional Theory (DFT) with many local and non-local
+exchange-correlation potentials.
+
+<P>
+
+<H1>
+5. Molecular dynamics
+</H1>
+
+<P>
+The following functionality is available for classical molecular
+simulations:
+
+<UL>
+<LI>Single configuration energy evaluation
+</LI>
+<LI>Energy minimization
+</LI>
+<LI>Molecular dynamics simulation
+</LI>
+<LI>Free energy simulation  (multistep thermodynamic perturbation (MSTP) or
+    multiconfiguration thermodynamic integration (MCTI) methods with
+    options of single and/or dual topologies, double wide sampling, and
+    separation-shifted scaling)
+</LI>
+</UL>
+
+<P>
+The classical force field includes:
+
+<UL>
+<LI>Effective pair potentials (functional form used in AMBER, GROMOS,
+    CHARMM, etc.) 
+</LI>
+<LI>First order polarization
+</LI>
+<LI>Self consistent polarization
+</LI>
+<LI>Smooth particle mesh Ewald (SPME) 
+</LI>
+<LI>Twin range energy and force evaluation 
+</LI>
+<LI>Periodic boundary conditions
+</LI>
+<LI>SHAKE constraints 
+</LI>
+<LI>Consistent temperature and/or pressure ensembles
+</LI>
+</UL>
+
+<P>
+NWChem also has the capability to combine classical and quantum
+descriptions in order to perform:
+
+<UL>
+<LI>Mixed quantum-mechanics and molecular-mechanics (QM/MM)
+  minimizations and molecular dynamics simulation , and
+</LI>
+<LI>Quantum molecular dynamics simulation by using any of the quantum
+    mechanical methods capable of returning gradients.
+</LI>
+</UL>
+
+<P>
+
+<H1>
+6. Python
+</H1>
+
+<P>
+The Python programming language has been embedded within NWChem and
+many of the high level capabilities of NWChem can be easily combined
+and controlled by the user to perform complex operations.
+
+<P>
+
+<H1>
+7. Parallel tools and libraries (ParSoft)
+</H1>
+
+<P>
+
+<UL>
+<LI>Global arrays (GA)
+</LI>
+<LI>Agregate Remote Memory Copy Interface (ARMCI)
+</LI>
+<LI>Linear Algebra (PeIGS) and FFT
+</LI>
+<LI>ParIO
+</LI>
+<LI>Memory allocation (MA)
+</LI>
+</UL>
+
+<P>
+</BODY>
+</HTML>
