@@ -1,0 +1,27 @@
+<HTML>
+<!-- DO NOT EDIT:  this is a cleared public file -->
+
+<HEAD>
+<TITLE>Dependence On Other Software</TITLE>
+</HEAD> 
+
+<BODY>
+
+<H1>Dependence on other software</H1>
+
+<P>
+The current implementation of PeIGS communicates among processes using the 
+<A href="/docs/global/tcgmsg.html"> TCGMSG </A>
+portable message
+passing library, except on Intel machines where it uses the native NX
+message passing library.  PeIGS can use MPI, when available, in place
+ of TCGMSG and Intel NX.
+
+<P>
+PeIGS also uses a number of BLAS and LAPACK
+routines which are available via anonymous ftp from <EM>netlib.att.com</EM>.
+All of the required BLAS and LAPACK routines are also supplied in  
+the PeIGS distribution. 
+   
+</BODY>
+</HTML>

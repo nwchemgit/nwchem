@@ -1,0 +1,51 @@
+<HTML>
+<!-- DO NOT EDIT:  this is a cleared public file -->
+
+<HEAD><TITLE>Supported Platforms </TITLE></HEAD>
+<BODY>
+
+<H1>Platforms on which PeIGS runs</H1>
+
+<P>
+PeIGS is designed for parallel and distributed memory computers with a
+relatively high startup time for communication.  PeIGS can also be run on
+networks of workstations and shared memory computers using 
+Robert Harrison's 
+<A HREF="/docs/global/tcgmsg.html"> TCGMSG </A>
+message passing software or using MPI.
+
+<P>
+PeIGS uses only blocking send & receive which are implemented in a portable
+way.  Switching to different communications libraries, e.g., PVM, 
+requires modifying only a few routines.
+
+<HR>
+
+PeIGS runs using the native message passing library on:
+<UL>
+<LI>Intel Delta, Paragon
+</UL>
+
+PeIGS currently runs using 
+<A HREF="/docs/global/tcgmsg.html"> TCGMSG </A> on:
+
+<UL>
+<LI>IBM SP series
+<LI>Cray T3D, T3E
+<LI>KSR-2
+<LI>SGI Power Challenge, Origins, Octanes
+<LI>Network and cluster of workstations(Unix-like, linux)
+</UL>
+
+PeIGS runs using MPI on:
+<UL>
+<LI>Intel Delta, Paragon
+<LI>IBM SP series
+<LI>SGI Power Challenge, Origins, Octanes
+<LI>Network of workstations(Unix-like)
+</UL>
+
+PeIGS can be run using MPI on other machines by making a simple change
+to the machine specific parts of a single Makefile.
+</BODY>
+</HTML>

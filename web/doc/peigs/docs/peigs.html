@@ -1,0 +1,62 @@
+<HTML>
+<!-- DO NOT EDIT -- this is a cleared public file -->
+
+<HEAD><TITLE>PeIGS -- Parallel Eigensystem Solver</TITLE></HEAD>
+
+<BODY>
+
+<H1>PeIGS -- Parallel Eigensystem Solver </H1>
+
+PeIGS is a scalable, fully parallel, implementation of a
+generalized and standard real, symmetric, dense eigensystem
+solver callable from both Fortran 77 and C.
+
+Only double precision is currently supported.
+
+<P>
+PeIGS runs on a variety of parallel computer systems, including
+networks of workstations, and can easily be ported to any machine
+that supports the message passing programming model.
+
+The current version of PeIGS utilizes the
+<A href="/docs/global/tcgmsg.html"> TCGMSG </A>
+portable
+communication package, MPI, or Intel NX intrinsics.
+
+<P>
+PeIGS is being used at the
+<A HREF="/docs/pnl.overview.html">
+Pacific Northwest Laboratory (PNL) </A>
+as a production-grade library package for the construction of scalable
+<A HREF="/"> quantum
+chemistry application programs</A>,
+including parallel SCF, MCSCF, DFT, and MP2 methods.  Due to the
+speed and scalability of PeIGS, the time for the eigensystem solution
+has been reduced to an insignificant fraction of the total
+time-to-solution for these applications.
+<HR>
+
+<! <A href="performance.html">Performance</A> of PeIGS.
+<A href="peigs3.html">Performance</A> of PeIGS.
+
+<P><A HREF="platforms.html"> Supported Platforms </A> include many
+distributed and shared memory machines.
+
+<P><A href="/docs/global/ga.html"> The Global Array (GA) Toolkit </A>
+has an interface to PeIGS.
+
+<P><A href="dependence.html">Dependence on other software</A>.
+
+<P><A href="distribution.html">Distribution of PeIGS</A> is free of charge.
+
+<P><A HREF="ftp://ftp.pnl.gov/pub/peigs/hpc95_rev01.ps.Z">Minor revision of HPC'95 paper (160kB)</A>
+ gives more information about PeIGS.
+
+<HR>
+<ADDRESS>
+George Fann &lt;gi_fann@pnl.gov&gt;
+</ADDRESS>
+<BR>
+<EM>Last revised Tue Jul 25 11:00:00 PDT 1995</EM>
+</BODY>
+</HTML>

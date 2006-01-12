@@ -1,0 +1,39 @@
+<HTML>
+<!-- DO NOT EDIT:  this is a cleared public file -->
+
+<HEAD>
+<TITLE>Performance of PeIGS</TITLE>
+</HEAD> 
+
+<BODY>
+
+<H1>Performance of PeIGS</H1>
+
+<P>
+The numerical method used by PeIGS is bisection for eigenvalues 
+and repeated inverse iteration and orthogonalization for eigenvectors.
+Accuracy and orthogonality are similar to 
+LAPACK's DSPGV and DSPEV.  
+Orthogonality of eigenvectors is enforced even for arbitrarily large
+clusters that span multiple processors.
+
+<P>
+PeIGS is both fast and scalable -- on a single processor of a KSR-2 it takes
+only 45% longer than LAPACK for a 1000-by-1000 generalized
+eigenproblem, and parallel efficiency is good even for large 
+processor counts.  For example, in one of our computational chemistry 
+applications, the standard eigenproblem Ax = kx was solved for all
+eigenpairs of a 2053-by-2053 matrix.  This computation required only 117
+seconds on 150 processors of an Intel Paragon computer, a time-to-solution
+estimated as 77 times faster than the 1 processor time.
+
+<P>
+PeIGS performance depends to some extent on how eigenvalues cluster
+within the spectrum.  Generally speaking, systems with many eigenvalues 
+close together take longer to solve due to increased computation and 
+communication costs for reorthogonalization.  This is an important 
+issue because actual applications with large matrices often have 
+highly clustered spectra.
+   
+</BODY>
+</HTML>
