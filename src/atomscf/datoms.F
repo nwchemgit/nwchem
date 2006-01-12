@@ -2,7 +2,7 @@
      +     pcap, qcap, fc, fo, s, u, t, h, dc, dos, dt, dold, ss,
      +     cvec, copn, smin, qmin, transf, cc, nbb, oprint_ener,
      $     odens, eatom)
-C     $Id: datoms.F,v 1.25 2004-12-01 01:13:46 edo Exp $
+C     $Id: datoms.F,v 1.26 2006-01-12 00:29:48 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -365,6 +365,8 @@ c..   ic = # number of primitives /contracted /symmetry
             ic(ispdf,j) = nprim
             nbas(ispdf) = nbas(ispdf) + nprim
 c..   gather the primitives
+            if(kkzc+nprim.gt.nb) call errquit(
+     C           ' cguess.fh: increase nb to',kkzc+nprim,0)
             do k = 1, nprim
                kkzc = kkzc + 1
                zeta(kkzc) = expnt(k)
