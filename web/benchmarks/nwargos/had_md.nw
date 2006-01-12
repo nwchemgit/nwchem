@@ -1,0 +1,21 @@
+memory noverify heap 1 mb stack 128 mb global 20 mb
+
+start had
+
+md
+ system had_md
+ cutoff 1.0
+ step 0.002 equil 0 data 5000
+ print step 100 stat 1000 expect 0  timing
+ isotherm 298.15 trelax 0.1 0.1
+ isobar 1.025e5 trelax 0.4
+ pme grid 64 order 4 nodes 16
+ load pairs 10 size 0.75 average
+ record coord 0 rest 0 prop 0 scoor 0 
+ update pairs 10
+ profile
+ mwm 3000
+ msa 3000
+end
+
+task md dynamics

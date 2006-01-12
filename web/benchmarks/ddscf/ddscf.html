@@ -1,0 +1,196 @@
+<!DOCTYPE HTML SYSTEM "legacy.dtd">
+<HTML>
+  
+<!-- DO NOT EDIT:  this is a cleared public file -->
+<HEAD><TITLE>distributed data scf</TITLE></HEAD>
+  
+<BODY BACKGROUND="../../backgrounds/zsm.gif" BGCOLOR="FAEBD7">
+
+<UL>
+<LI><A HREF="../../nwchem.html">Return to NWchem home page</A>
+</LI></UL><HR>
+
+<H1>Distributed-Data Massively-Parallel Self-Consistent Field</H1>
+
+<H2>Adrian T. Wong and Robert J. Harrison</H2>
+
+ <P> <I>Recent significant optimizations to our distributed data SCF
+algorithm are described.  These result in superior scaling for smaller
+molecules and an up to 7 fold increase in performance in very large
+sparse systems.</I>
+
+<H2>Background</H2>
+
+ <P>The simplest N-electron wavefunction in common use is a single
+antisymmetric product (or ``Slater-determinant'') of one-electron
+functions (or molecular orbitals, MOs) which are orthonormal linear
+combinations of the atomic orbital (AO) basis functions. The expansion
+coefficients are determined by minimization of the energy in the Self
+Consistent Field (SCF) approach. This simplest of wavefunctions
+determines many properties with surprising accuracy and recovers over
+99% of the total energy.
+
+ <P>The computational kernel of the SCF algorithm is construction of the
+Fock matrix <I>F</I> by contracting the integrals <I>(ij|kl)</I>
+against the density matrix <I>D</I> 
+<PRE>
+        F   = h   + (1/2) SUM [ 2 (ij|kl) - (ik|jl) ] D
+         ij    ij         kl                           kl
+</PRE>
+
+ <P> Symmetry and sparsity in the matrix of integrals <I>(ij|kl)</I>
+must be exploited to avoid redundant computation.  The major
+computation is evaluation of the non-zero integrals and the largest
+data requirements are due to the Fock and density matrices, both
+<I>O(N*N)</I> with <I>N = O(1000)</I>. There are two major problems: 
+<UL>
+  <LI> distributing and accessing the matrices so as to minimize
+       communication costs
+  <LI> maintaining load balance in the presence of sparsity and
+       large variation in the cost of integral evaluation.
+</UL>
+
+<H2>Improved distributed data algorithm</H2>
+
+ <P> Our distributed data algorithm is modeled after that of a blocked
+matrix-multiply algorithm for a high-performance workstation with a
+small fast memory cache.  This is because non-uniform memory access
+(NUMA) is the fundamental performance issue for both workstations and
+MPPs.  The cost of accessing an element of the distributed density or Fock
+matrices must be offset by using this element multiple times.  To
+achieve this re-use of data we simply stripmined the fourfold loop over
+the basis function indices.  Since the computation is a quartic
+function of the block size while the communication is only a quadratic
+function, the block size may be adjusted to ensure the computation time
+dominates the communication time.
+
+ <P> We <I>previously</I> stripmined by grouping basis functions
+according to their (usually atomic) centers.  This had the advantage
+that the geometrical sparsity may be exploited in the outer
+stripmining loops.  However, the granularity was fixed and was
+inadequate for calculations on large molecules in small basis sets,
+or when using machines with very high latencies. The <I>revised
+algorithm</I> groups atoms into blocks, looping over quartets of
+blocks of atoms, and then evaluating all integrals within a quartet of
+blocks of atoms.  Sparsity may still be exploited in the outer loops
+and the performance gains include
+
+<UL>
+<LI> many fewer, larger messages,
+<LI> elimination of sensitivity to message-passing latency,
+<LI> reduction of communication costs to less than one percent, and
+<LI> the ability to vectorize integral computation over many thousands
+     of atomic quartets.
+</UL>
+
+ <P> All calculations will benefit from the vectorization of integral
+evaluation, but most calculations benefit by only 10% from the
+reduction in communication.  However, the time to solution for our
+ZSM-5 zeolite fragment test-case (389 atoms, 2053 function, STO-3G
+basis, no symmetry) on 64 nodes of the IBM SP2 was reduced from over
+40 hours to less than six.  This is because the minimal basis set and
+high latency of the IBM violated all the criteria for good performance
+with the old algorithm. With the new code the Fock-build is completely
+dominated by integral computation.
+
+ <P> The global array tools make it very easy to express
+blocked algorithms since the library provides routines that enable
+each process to access patches of arrays independently of all other
+processes.  This asynchrony makes the program easier to write and also
+more efficient since there are no unnecessary synchronizations between
+processes.  In addition, since the data is readily accessed by any
+process we can use full dynamic load balancing, implemented by using
+an element of a global array as a shared counter.
+
+<H2>Conventional SCF with memory caching</H2>
+
+ <P> Previous versions of NWChem have been fully-direct.  The latest
+version includes the ability to perform conventional SCF calculations,
+caching integrals in memory where possible and storing additional
+integrals on disk.  The blocking described in the above section is
+constrained to keep blocks less than 256 functions, and we can thus
+pack integral labels one per byte <I>independent</I> of the actual
+basis dimension.  Data compression is also used to compress the
+integral values to 32 bits, maintaining a fixed overall precision
+which defaults to 10^-9.  Thus, an integral and its labels
+are packed into 64 bits, a 33-100 percent saving over most other codes.
+
+ <P>The frugal memory usage of the distributed data algorithm also
+permits much more memory to be used to cache integrals in memory. For
+instance, in the 324 function in-core calculation described in the <A
+HREF="bench.html">benchmarking section</A>, a replicated-data approach
+would have <I>wasted</I> over 200 Mbytes of memory that NWChem uses to
+cache integrals.
+
+ <P>This functionality will be extended to include semi-direct algorithms.
+
+
+<H2>Reducing linear algebra overhead</H2>
+
+ <P>Linear algebra components in a conventional SCF algorithm include
+<UL>
+<LI> matrix diagonalization, 
+<LI> matrix multiplication and
+<LI> orthogonalization.
+</UL>
+To this list our quadratically convergent algorithm adds
+<UL>
+<LI> matrix exponentiation.
+</UL>
+With <A HREF="../peigs/peigs.html">PeIGS</A> and <A
+HREF="http://www.netlib.org/scalapack/">ScaLAPACK</A> we now have
+quite efficient matrix diagonalization and orthogonalization
+routines, but these operations still take much longer than a matrix
+multiplication.  This is because the latter both parallelizes more
+readily and also drives a single processor at peak speed.
+
+ <P> We have restructured the SCF code to rephrase as much linear
+algebra as possible as matrix multiplication operations.  Most novel
+is the new matrix exponentiation routine that provides an accurate
+unitary approximation, which eliminates the necessity of
+orthogonalization and stabilizes the initial search step when large
+rotations are applied.  The new matrix exponentiation algorithm (a
+modification of one due to Moler) is
+<OL>
+  <LI> scale the matrix by a power of two so the largest element is less
+       than 0.01,
+  <LI> use a 3rd order taylor series approximation to the exponential,
+  <LI> repeatedly square the result to undo the scaling, and 
+  <LI> if the largest element of the original was greater than 0.001
+       apply one iteration of a quadratically convergent symmetric
+       orthogonalization (two matrix multiplications).
+</OL>
+This is tailored to the antisymmetric matrices typical of our
+applications and may not be stable for more general matrices.
+
+ <P>The net result is that in a typical calculation
+<UL>
+  <LI> one general real symmetric diagonalization is performed (to
+       generate orthonormal, energy weighted starting guess orbitals),
+  <LI> one or two real symmetric diagonalizations (to make the
+       orbital-Hessian more diagonally dominant, and to
+       canonicalize the final orbitals), 
+  <LI> one or more matrix exponentials are performed each
+       macro-iteration, and
+  <LI> no orthogonalizations are performed.
+</UL>
+As a result, small and in-core calculations are up to 30% improved on
+large numbers of processors.
+
+<H2>Acknowledgments</H2>
+
+ <P>This work was performed under the auspices of the High Performance
+Computing and Communications Program of the Office of Scientific
+Computing, U.S.  Department of Energy under contract DE-AC6-76RLO 1830
+with Battelle Memorial Institute which operates the Pacific Northwest
+National Laboratory, a multiprogram national laboratory.  This work
+has made extensive use of software developed by the Molecular Science
+Software Group of the Environmental Molecular Sciences Laboratory
+project managed by the Office Health and Energy Research.
+
+ <P>
+<HR>
+<ADDRESS>Prepared by RJ Harrison: Email: nwchem-support@emsl.pnl.gov.</ADDRESS>
+
+  </BODY>
+</HTML>

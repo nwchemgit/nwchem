@@ -1,0 +1,44 @@
+start cluster8e
+
+memory 1200 Mb noverify
+
+#scratch_dir /scratch
+#permanent_dir /scratch
+
+print high
+
+geometry
+  O   1.215 0.624 2.639
+  H   1.229 1.615 2.508
+  H   0.364 0.360 3.094
+  O   2.382 -1.764 1.436
+  H   2.086 -1.833 0.483
+  H   1.953 -0.967 1.861
+  O   -2.809 -1.320 -1.524
+  H   -2.687 -1.139 -2.500
+  H   -2.625 -0.486 -1.004
+  O   0.846 1.015 -1.428
+  H   1.740 0.624 -1.208
+  H   0.391 0.444 -2.112
+  O   -1.399 0.623 3.523
+  H   -2.161 0.094 3.147
+  H   -1.634 1.595 3.518
+  O   1.469 -2.254 -1.184
+  H   0.605 -2.509 -0.749
+  H   1.556 -2.733 -2.058
+  O   -1.137 3.033 0.493
+  H   -1.894 2.475 0.151
+  H   -0.268 2.601 0.249
+end
+
+basis spherical
+  O library aug-cc-pvdz
+  H library aug-cc-pvdz
+end
+
+mp2
+  freeze core atomic
+end
+set int:acc_std double 1d-11
+
+task mp2 gradient

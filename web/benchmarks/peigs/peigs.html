@@ -1,0 +1,67 @@
+
+<HTML>
+  
+<!-- DO NOT EDIT:  this is a cleared public file -->
+<HEAD><TITLE>PeIGS</TITLE></HEAD>
+  
+<BODY BACKGROUND="pinkpig3.jpg" BGCOLOR="FAEBD7">
+
+<UL>
+<LI><A HREF="../../nwchem.html">Return to NWchem home page</A>
+</LI></UL><HR>
+
+<H1>PeIGS - Parallel Eigensolver</H1>
+
+<H2>George I. Fann and Richard J. Littlefield</H2>
+
+ <P> Our parallel eigensolver package is called PeIGS, and solves the
+standard and generalized, real, symmetric eigenproblems.  It is based
+on bisection for eigenvalues and repeated inverse iteration and
+reorthogonalization for eigenvectors.  The parallel performance is
+competitive with alternative methods for typical "chemical" problem sizes, and is
+illustrated with three applications from quantum chemistry
+<UL>
+<LI> SCF-Hartree-Fock (Fock matrix for 389 atom zeolite fragment, 2053 functions)
+
+<LI> density functional theory (charge-fitting matrix for <I>(SiOSi)6</I>, 1687)
+
+<LI> resolution-of-the-identity Moller-Plesset theory (biphenyl
+charge-fitting matrix, 966)
+</UL>
+The distinguishing feature of the repeated inverse iteration and
+orthonormalization method used by PeIGS is that orthogonalization is
+performed across multiple processors as dictated by the spectrum.
+The correct, orthonormal result is <I>always</I> generated.
+
+ <P>For a spectrum that is well spaced, there is essentially no
+orthogonalization time.  Most of the time is consumed in the
+Householder reduction to tridiagonal form.  For large numerically
+degenerate clusters, almost all of the time is consumed in the
+Householder reduction and in orthonormalization.
+
+ <P><IMG SRC="qc_speedup.gif">
+
+ <P><IMG SRC="qc_times.gif">
+
+<H2>Acknowledgments</H2>
+
+ <P>This work was performed under the auspices of the High Performance
+Computing and Communications Program of the Office of Scientific
+Computing, U.S.  Department of Energy under contract DE-AC6-76RLO 1830
+with Battelle Memorial Institute which operates the Pacific Northwest
+National Laboratory, a multiprogram national laboratory.  This work
+has made extensive use of software developed by the Molecular Science
+Software Group of the Environmental Molecular Sciences Laboratory
+project managed by the Office Health and Energy Research.
+
+ <P>This research was performed in part using the Caltech Concurrent
+Supercomputing Facilities (CCSF) operated by Caltech on behalf of the
+Concurrent Supercomputing Consortium. Access to this facility was
+provided by Pacific Northwest National Laboratory.
+
+ <P>
+<HR>
+<ADDRESS>Prepared by RJ Harrison: Email: nwchem-support@emsl.pnl.gov.</ADDRESS>
+
+  </BODY>
+</HTML>

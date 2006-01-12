@@ -1,0 +1,163 @@
+<!DOCTYPE HTML SYSTEM "legacy.dtd">
+<HTML>
+  
+<!-- DO NOT EDIT:  this is a cleared public file -->
+<HEAD><TITLE>scf benchmarks</TITLE></HEAD>
+  
+<BODY BACKGROUND="../../backgrounds/zsm.gif" BGCOLOR="FAEBD7">
+
+<UL>
+<LI><A HREF="../index.html">Return to NWChem benchmarks</A>
+<LI><A HREF="../../nwchem.html">Return to NWChem home page</A>
+</LI></UL><HR>
+
+<H1>Massively-Parallel Self-Consistent Field Benchmarks</H1>
+
+ <P><I>The scaling of the distributed-data SCF is illustrated,
+including some very fast in-core calculations on the CRAY-T3D (e.g.,
+the total time for a 324 function, DZP basis, SCF on <I>C14F6H8</I> is
+just 5.5 minutes).  The excellent scaling of large in-core
+calculations also proves that the direct algorithm will benefit fully
+from the introduction of faster integral technology into NWChem.</I>
+
+<H2>Background</H2>
+
+ <P>As part of our <A HREF="../../hpcci/hpcci.html">High-Performance
+Computing and Communications Collaboration</A> we have collected a set
+of benchmark calculations to use to help in establishing design goals
+and in tracking performance.  A paper is in preparation which compares
+the performance of NWChem with other computational chemistry packages
+on a variety of parallel computers.  The current document picks out
+certain interesting highlights.
+
+<H2><I>Si108O194H81C5N</I> - zeolite fragment</H2>
+
+<UL>
+<LI> 2053 functions, minimal basis
+<LI> 389 atoms, no symmetry
+</UL>
+
+ <P>This system was of interest to PNNL researchers as an early
+cluster model for reactions inside minerals.  It is a fragment of the
+zeolite ZSM-5, terminated with hydrogen atoms and with an embedded
+pyridine molecule.  The high sparsity and small basis caused
+the previous version of NWChem to spend most of its time accessing 
+global arrays, but the current version spends less than 1.6% of the
+time in global array accesses (CRAY-T3D, 256 nodes).
+
+ <P>This calculation would not be possible with a replicated-data
+algorithm on many massively parallel computers since the Fock and
+density matrices require at least 34 Mbytes (storing lower triangular
+matrices).  The distributed-data algorithm requires just 0.26
+Mbytes/node (on 256 processors, storing full square matrices) leaving
+much more memory to optimize the speed of integral evaluation.
+
+ <P>The following table presents wall times in hours for complete
+SCF calculations on this system on several parallel computers.  The
+SP1 at Argonne National Laboratory is unusual since it has
+SP1 compute nodes but uses an SP2 switch.
+
+<PRE>
+       No. of      
+       proc.s       T3D      KSR2       SP1
+       ------       ---      ----       ---
+          64         -        -          5
+          72         -       4.4         -
+         128        2.9       -          -
+</PRE>
+
+
+<H2><I>C14F6H8</I></H2>
+
+<UL>
+<LI> 324 functions, C(3s2p1d), F(3s2p1d), H(3s)
+<LI> 28 atoms, no symmetry
+</UL> 
+
+ <P>This medium-sized molecule is representative of many routine
+calculations and is also about the largest molecule without symmetry
+for which it is practical to cache all integrals in memory.  The
+combination of massive parallelism and in-core algorithm makes for
+very high performance.  The distributed data method makes over 200
+Mbytes more memory available for caching integrals than would be
+available using a replicated-data approach.
+
+ <P>The following table presents total wall times in <I>seconds</I>
+for a complete SCF calculation on this system using a fully in-core
+algorithm on the NERSC CRAY-T3D which has 64 Mbytes of memory per
+node.
+
+<PRE>
+                               T3D
+             Processors    New (in-core)
+             ----------    -------------
+
+                128            605
+                256            334
+</PRE>
+
+
+<H2><I>(Cp)Co(NO)(CH3)</I></H2>
+
+<UL>
+<LI> 114 function, minimal basis
+<LI> 17 atoms, <I>Cs</I> symmetry
+</UL>
+
+ <P>This cluster was provided by our industrial collaborators as being
+representative of systems being considered as catalysts.  Due to bugs,
+previous versions of NWChem obtained only first-order convergence for
+this system. This problem has been addressed and full, stable
+second-order convergence is now obtained.  In addition, <A
+HREF="ddscf.html">optimizations in the use of linear algebra</A> has
+significantly improved the scalability of this calculation.
+
+ <P> The following table presents total wall time in minutes for this
+problem for the old and new versions of the code running on the KSR-2
+and CRAY T3D.  The drop-off in performance is typical for small
+molecules and is due to poor load-balancing - the cobalt atom has
+many more functions on it than the other atoms.  The performance could be
+enhanced by splitting large atoms, but this is only necessary for small
+molecules.
+
+<PRE>
+                   KSR                         T3D
+         -------------------------   -------------------------
+No. of    Old      New      New       Old      New      New
+proc.s   Direct   Direct   In-core   Direct   Direct   In-core
+------   ------   ------   -------   ------   ------   -------
+                                                
+  1         -      406.0      -        -         -         -
+  8         -       53.2     7.5       -         -         -
+  16      38.0      29.6     4.5       -       31.0        -
+  32      31.8*     18.8     2.9       23      17.7       2.3
+  64      21.3**    12.3     2.8       15      10.9        -
+ 128        -        -        -        11       7.9        -
+
+ *  = 36 processor time
+ ** = 72 processor time
+</PRE>
+
+
+<H2>Acknowledgments</H2>
+
+This work was performed under the auspices of the High Performance
+Computing and Communications Program of the Office of Scientific
+Computing, U.S.  Department of Energy under contract DE-AC6-76RLO 1830
+with Battelle Memorial Institute which operates the Pacific Northwest
+National Laboratory, a multiprogram national laboratory.  This work
+has made extensive use of software developed by the Molecular Science
+Software Group of the Environmental Molecular Sciences Laboratory
+project managed by the Office Health and Energy Research.
+
+This research was performed in part using the Caltech Concurrent
+Supercomputing Facilities (CCSF) operated by Caltech on behalf of the
+Concurrent Supercomputing Consortium. Access to this facility was
+provided by Pacific Northwest National Laboratory.
+
+ <P>
+<HR>
+<ADDRESS>Prepared by RJ Harrison: Email: nwchem-support@emsl.pnl.gov.</ADDRESS>
+
+  </BODY>
+</HTML>

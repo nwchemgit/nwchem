@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Benchmarks</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body bgcolor="#FFFFFF">
+<table width="650">
+<tr>
+<td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Benchmarks</h1>
+<h2>Molecular Dynamics Benchmarks</h2>
+
+<h3>Liquid water</h3>
+<p>
+The following wall clock times and scaling characteristics have been
+obtained for molecular dynamics simulations of liquid water of four
+different system sizes, 5184, 17496, 41472 and 82000 atoms respectively. 
+The simulations used the SPC/E water model and a simple cutoff radius 
+of 1.8 nm, and were run on the IBM SP2.
+Timings and scaling illustrate the need for sufficient computational
+load to obtain scalability. From these benchmark results, good scaling
+with the number of processors is obtained when each processor has at
+least in the order of 100 atoms.</p>
+<BR>
+<BR>
+<IMG SRC="./nwargos/water.gif" WIDTH=800 alt="NWChem: Molecular Dynamics Water Benchmark">
+<br>
+
+<h3>Relative free energy of Na and K complex with 18-Crown-6</h3>
+<p>
+<IMG SRC="./nwargos/crown.gif" HEIGHT=400 alt="NWChem: Sodium and Potassium Complex"
+</p>>
+<p>
+Free energy data and wall clock times to obtain them on the IBM SP2
+and CRAY T3E-900
+are given for the free energy difference calculation of Na and K in
+aqueous solution and in the complex with the 18-crown-6 crownether
+molecule in aqueous solution. The system has 6382 atoms.
+The calculated free energy difference
+of complexation is 6&plusmn;4 kJ/mol from the multiconfiguration
+thermodynamic integration (MCTI) approach and 5&plusmn;5 kJ/mol. The
+experimental result is 7 kJ/mol.
+</p>
+<BR>
+<BR>
+<IMG SRC="./nwargos/crown_free.gif" HEIGHT=350 alt="NWChem: Relative free energy of Na and K Complex">
+<IMG SRC="./nwargos/crown_time.gif" HEIGHT=350 alt="NWChem: Wall Clock Time of Na and K Complex">
+
+<h3>Haloalkanedehalogenase</h3>
+<p>
+Wall clock time and speedup as a function of the number of processors
+used on the IBM SP are given for a simulation of haloalkane dehalogenase
+in aqueous solution. The system has 41,259 atoms and was simulated using
+the AMBER force field and SPC/E water model, a cutoff of 1.0 nm and 
+included long range electrostatic energy and force corrections using the 
+particle-mesh Ewald method on 64&sup3; grid. To run this job, download
+the files <A HREF="./nwargos/had_md.nw"> had_md.nw</A>,
+<A HREF="./nwargos/had.top.gz"> had.top.gz</A>, and
+<A HREF="./nwargos/had_md.rst.gz"> had_md.rst.gz</A>.
+</p>
+<BR>
+<BR>
+<IMG SRC="./nwargos/had.gif" HEIGHT=575 alt="NWChem: Haloalkane dehalogenase">
+<IMG SRC="./nwargos/had_time.gif" HEIGHT=600 alt="NWChem: Wall Clock Time of haloalkane dehalogenase">
+
+<h3>1,2-Dichloroethane</h3>
+<p>
+Wall clock time and speedup as a function of the number of processors
+used on the IBM SP and Cray T3E-900 are given for a simulation of a 
+droplet of 1,2-dichloroethane in aqueous solution. 
+The system has 100,369 atoms and was simulated using the force field
+parameters for chlorinated alkanes as developed by Paulsen and the
+SPC/E water model, and a simple cutoff of 2.4 nm. 
+1,2-Dichloroethane is one of the main pollutants on DOE and
+other sites.
+</p>
+<BR>
+<BR>
+<IMG SRC="./nwargos/dce.gif" HEIGHT=500 alt="NWChem: 1,2-Dichloroethane">
+<IMG SRC="./nwargos/dce_time.gif" HEIGHT=600 alt="NWChem: Wall Clock Time of 1,2-Dichloroethane">
+
+<h3>Liquid octanol</h3>
+<p>
+Wall clock time and speedup as a function of the number of processors
+used on the Cray T3E-900 are given for a simulation of liquid octanol. 
+The system has 216,000 atoms and was simulated using AMBER force field
+parameters and the SPC/E water model, and a simple cutoff of 2.4 nm.
+</p>
+<BR>
+<BR>
+<IMG SRC="./nwargos/oct.gif" HEIGHT=600 alt="NWChem: Liquid Octanol">
+<IMG SRC="./nwargos/oct_time.gif" HEIGHT=600 alt="NWChem: Wall Clock Time of Octanol">
+
+<br>
+<br>
+
+<h2>SCF Benchmark</h2>
+<p>
+Wall clock and CPU speedup as a function of the number of processors
+used on an IBM SP with 150 MHz nodes.  The total disk space used is
+also plotted.  This is a semi-direct <A HREF="./ddscf/ddscf.html">
+distributed data </A> calculation and so more disk
+space is used as it becomes available.
+</p>
+<BR>
+<BR>
+<IMG SRC="./ddscf/bench.jpg" WIDTH=600 HEIGHT=450 BORDER=0 alt="NWChem: Parallel Performance">
+<BR>
+<br>
+
+<a name="dft"></a><h2>DFT Benchmarks</h2>
+<p>
+Wall clock speedups as a function of the number of processors
+used on various platforms for LDA calculations of three zeolite fragments
+(347, 1687 and 3554 basis functions). If you would like to run the benchmark
+yourself, please download the files <A HREF="./dft/siosi3.nw"> siosi3.nw</A>,  
+<A HREF="./dft/siosi6.nw"> siosi6.nw</A> and <A HREF="./dft/siosi7.nw"> siosi7.nw</A>.
+</p>
+<p>
+<font color="purple">Please note:</font>
+The calculations must be completly in-core; to check this, you need
+to search for the  string <tt>in-core</tt> and get this kind of output
+<p><tt>
+grep in-core siosi3.out<p>
+          The percent of 3c 2e- integrals held in-core is: 100.00   </tt>  
+
+<A HREF="./dft/back.html"> Acknowledgments</A> 
+<BR>
+<h3>SIOSI3 (Si<sub>8</sub>O<sub>7</sub>H<sub>18</sub>)</h3>
+<IMG SRC="./dft/last.jpg" WIDTH=1024 HEIGHT=768 BORDER=0 alt="NWChem: SIOSI3 DFT Benchmark">
+<BR>
+
+<BR>
+<BR>
+<h3>SIOSI6 (Si<sub>28</sub>O<sub>67</sub>H<sub>30</sub>)</H3>
+<IMG SRC="./dft/last6.jpg" WIDTH=1024 HEIGHT=768 BORDER=0 alt="NWChem: SIOSI6 DFT Benchmark">
+<BR>
+
+<BR>
+<BR>
+<H3>SIOSI7 (Si<sub>75</sub>O<sub>148</sub>H<sub>66</sub>)</H3>
+<IMG SRC="./dft/last7.jpg" WIDTH=943 HEIGHT=707 BORDER=0 alt="NWChem: SIOSI7 DFT Benchmark">
+<BR>
+<br>
+
+
+<H2>MP2 Gradient Benchmark</H2>
+<p>
+CPU times for an MP2 gradient calculation as a function of 
+the number of processors used  for the 
+(H2O)<sub>7</sub> molecule.
+If you would like to run the benchmark
+yourself, please download the file <A HREF="./mp2/h2o7.nw"> h2o7.nw</A>
+</p>
+<BR>
+<BR>
+<IMG SRC="./mp2/h2o7.jpg" WIDTH=800 HEIGHT=600 BORDER=0 alt="NWChem: MP2 h2o7 Benchmark">
+<p>CPU times for different portions of an MP2 gradient as a function of 
+the number of processors used on an IBM SP with 120 MHz nodes for 
+a potassium crown ether.</p>
+<BR>
+<BR>
+<IMG SRC="./mp2/bench.jpg" WIDTH=600 HEIGHT=450 BORDER=0 alt="NWChem MP2 Potassium Crown Ether Benchmark">
+<BR>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact:  <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td>
+</tr>
+</table>
+</BODY>
+</HTML>
