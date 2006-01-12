@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../../nwchem_main.html">NWChem Home</a> |
+<a href="../../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+<table width="650">
+<tbody>
+ 	<tr>
+ 	    <td width="350" align="left"></td>
+ 	    <td width="300" align="right"><a href="sgi.html">Next FAQ Catagory</a> | <a href="NWChem_FAQ.html">Return to Main FAQ</a></td>
+ 	 </tr>
+ </tbody>
+ </table>
+<br><br>
+
+<h1>NWChem FAQ</h1>
+<p><h2>DECOSF</h2></p>
+
+<!--DO NOT REMOVE Begin Question and End Question Comments.-->
+<ul>
+<!--Begin Question-->
+  <li><a href="#0">What is causing a segmentation violation in DECOSF 4.0? </a></li>
+  <li><a href="#1">What is causing the <tt>ma_init failed</tt> error message? </a></li>
+  <li><a href="#2">How to fix the segfault in single node runs on HP AlphaServer SC 2.5? </a></li>
+<!--End Question-->
+</ul>
+
+<hr>
+<p>
+<a name="0"></a>
+<font color="purple">What is causing a segmentation violation in DECOSF 4.0?</font>
+<p>
+The <tt>-automatic</tt> Fortran compiler option is causing this problem under DECOSF 4.0 using version 5.2 of the f77 compiler. To get a working executable,
+you need to edit <tt>$NWCHEM_TOP/src/config/makefile.h</tt> at line <tt>1051</tt>. The modified line 1051 must therefore be
+<p><tt>FOPTIONS = -i8 -align dcommons -math_library fast -fpe2 -check
+nounderflow \</tt>
+<br><tt>-check nopower -check nooverflow -warn argument_checking
+-warn unused #-automatic</tt>
+</p>
+
+<hr>
+<p>
+<a name="1"></a>
+<font color="purple">What is causing the <tt>ma_init failed</tt> error message?</font>
+<p>
+If NWChem crashes with the error message
+<pre>
+MA error: MA_init: could not allocate XXXXXXXXX bytes
+ ------------------------------------------------------------------------
+ nwchem.F: ma_init failed (ga_uses_ma=T)      911
+</pre>
+this is most likely due to the act the default <tt>datasize</tt> on DECOSF is too small
+(131072 kbytes). To increase this value under csh, please type
+<pre>
+limit datasize unlimited
+</pre>
+</p>
+
+<hr>
+<p>
+<a name="2"></a>
+<font color="purple">How to fix the segfault in single node runs on
+  HP AlphaServer SC 2.5?</font>
+<p>
+To fix NWChem crashes with a segfault early on with a segfault in single
+node runs, please add the following environmental variable to your settings:
+<pre>
+</pre>
+<pre>
+setenv SHMEM_SMP_ENABLE 0
+</pre>
+</p>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../../nwchem_main.html">NWChem</a> |
+<a href="../../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../../platforms/platforms.html">Platforms</a> |
+<a href="../../download.html">Download</a> |
+<a href="../../doc/user/index.html">User's Manual</a> |
+<a href="../../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../../release-notes/index.html">Release Notes</a> |
+<a href="NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../known_bugs.html">Known Bugs</a> |
+<a href="../support.html">Support</a> |
+<a href="../../training/training.html">Tutorial</a> |
+<a href="../../contributors.html">Contributors</a> |
+<a href="../../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../../citation.html">Citation</a>
+</center>
+</font>
+<hr>Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td></tr>
+</table>
+</body>
+</html>

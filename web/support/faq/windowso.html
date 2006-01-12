@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../../nwchem_main.html">NWChem Home</a> |
+<a href="../../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<table width="650">
+<tbody>
+ 	<tr>
+ 	    <td width="350" align="left"></td>
+ 	    <td width="300" align="right"><a href="decosf.html">Next FAQ Catagory</a> | <a href="NWChem_FAQ.html">Return to Main FAQ</a></td>
+ 	 </tr>
+ </tbody>
+ </table>
+
+<br><br>
+<h1>NWChem FAQ</h1>
+
+ <p><h2>Windows 32</h2></p>
+
+<!--DO NOT REMOVE Begin Question and End Question Comments.-->
+<ul>
+<!--Begin Question-->
+<li><a href="#win32compile">How do I compile NWChem on Windows NT and Windows 98? </a></li>
+<!--End Question-->
+</ul>
+
+<hr>
+<p>
+<a name="win32compile"></a>
+<font color="purple">How do I compile NWChem on Windows NT and
+Windows 98?</font>
+<p>
+The right target is <tt>WIN32.</tt> Before starting the compilation,
+you must have installed the
+Compaq Visual Fortran compiler (version 6.0 and 6.1 have been successfully
+tested) and the NT.MPICH library
+(<a href="http://www-unix.mcs.anl.gov/~ashton/mpich.nt/">http://www-unix.mcs.anl.gov/~ashton/mpich.nt/</a> ).
+Then, you need to have defined this series of variables  (that you can
+set in <tt> autoexec.bat</tt>)
+<pre>
+set NWCHEM_TOP=c:\nwchem
+set NWCHEM_TARGET=WIN32
+set MPI_INCLUDE=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\INCLUDE
+set MPI_LIB=c:\PROGRA~1\ARGONN~1\MPICHN~1.4\SDK\lib
+set NWCHEM_EXTRA_LIBS=%MPI_LIB%\mpich.lib
+</pre>
+To start the compilation, start the Microsoft makefile utility from
+the top level source directory by typing
+<pre>
+nmake
+</pre>
+The name of the executable is <tt> nw32.exe </tt>
+</p>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../../nwchem_main.html">NWChem</a> |
+<a href="../../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../../platforms/platforms.html">Platforms</a> |
+<a href="../../download.html">Download</a> |
+<a href="../../doc/user/index.html">User's Manual</a> |
+<a href="../../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../../release-notes/index.html">Release Notes</a> |
+<a href="NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../known_bugs.html">Known Bugs</a> |
+<a href="../support.html">Support</a> |
+<a href="../../training/training.html">Tutorial</a> |
+<a href="../../contributors.html">Contributors</a> |
+<a href="../../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../../citation.html">Citation</a>
+</center>
+</font>
+<hr>Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td></tr>
+</table>
+</body>
+</html>

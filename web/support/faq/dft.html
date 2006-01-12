@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../../nwchem_main.html">NWChem Home</a> |
+<a href="../../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<table width="650">
+<tbody>
+ 	<tr>
+ 	    <td width="350" align="left"></td>
+ 	    <td width="300" align="right"><a href="gapss.html">Next FAQ Catagory</a> | <a href="NWChem_FAQ.html">Return to Main FAQ</a></td>
+ 	 </tr>
+ </tbody>
+ </table>
+
+<br><br>
+<h1>NWChem FAQ</h1>
+ <p><h2>SCF/DFT</h2>
+
+<!--DO NOT REMOVE Begin Question and End Question Comments.-->
+<ul>
+<!--Begin Question-->
+ 	<li><a href="#0">How do I reproduce the XC numerical grid used in G9X? </a></li>
+ 	<li><a href="#1">Which Columb fitting basis set should I use?</a></li>
+ 	<li><a href="#2">Are the DFT  unoccupied orbital  energies shifted?</a></li>
+ 	<li><a href="#3">I got the error message: "<tt>ao_replicated: insufficient memory XXXXXXXX</tt>"; what can I do?</a></li>
+ 	<li><a href="#4">How can I do a X3LYP calculation in NWChem?</a></li>
+ 	<li><a href="#5">How do you address Bq's to get an integration grid?</a></li>
+ <!--End Question-->
+ </ul>
+
+<hr>
+<p>
+<a name="0"></a>
+<font color="purple">How do I reproduce the XC numerical grid used in G9X?
+</font>
+<p>
+G9X and NWChem default grids are different. To get a grid close to the default
+G9X grid you need the following input lines.
+<pre>
+dft
+ grid ssf euler lebedev 75 11
+end
+</pre>
+</p>
+
+
+<hr>
+<p>
+<a name="1"></a>
+<font color="purple">Which Coulomb fitting basis set should I use?
+</font>
+<p>
+We strongly recommend use of the Ahlrichs Auxilliary basis sets for fitting
+the Coulomb potentatial in DFT calculations. The following is an example
+of an in input file using this basis set.
+<pre>
+basis "cd basis"
+ C library "Ahlrichs Coulomb Fitting"
+end
+</pre>
+
+For analysis of the accuracy of this basis set, see <br>
+Skylaris, C.-K.; Gagliardi, L.; Handy, N.C.; Ioannou, A.G.; Spencer, S.; Willetts, A.,
+Journal of Molecular Structure: THEOCHEM <b>501-502</b>,  229 (2000).
+</p>
+
+
+<hr>
+<p>
+<a name="2"></a>
+<font color="purple"> Are the DFT unoccupied orbital energies shifted?</font>
+<p>
+Yes, in all versions of NWChem including 4.0 and below, the DFT unoccupied
+orbital energies are shifted by the amount of level-shifting used to
+converge the wavefunction.  If you use these energies for any reason, you
+need to subtract out the level-shifting value.  Check out the
+<a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node13.html#SECTION001350000000000000000">DFT Convergence</a> section of the User Manual for more
+information about level-shifting.
+</p>
+
+<hr>
+<p>
+<a name="3"></a>
+<font color="purple">I got the error message: "<tt>ao_replicated: insufficient memory XXXXXXXX</tt>"; what can I do?</font>
+<p>
+<!There are two possible ways to fix this problem>
+You can fix this problem by having the code adopting the distributed data Fock build (that is less memory demanding compared to the default replicated
+data build). This is accomplished by adding the following line
+anywhere in you input file
+<pre>
+ set fock:replicated logical .false.
+</pre>
+
+<! 2) try to increase the memory allocation to make the replicated data
+  algorithm go. This can be done by introducing the memory line
+  as described in the Users Manual>
+
+
+<! Option 1) is safer, but the  replicated data algorithm (option 2) is
+faster.>
+</p>
+
+<hr>
+<p>
+<a name="4"></a>
+<font color="purple">How can I do an X3LYP calculation in NWChem?</font>
+<p>The X3LYP functional is not available as a keyword. However, using section 11.3 (specifically 11.3.1 and 11.3.2)
+of the NWChem user manual, and applying the parameters of the X3LYP paper on
+<a href="http://www.pnas.org/cgi/content/full/101/9/2673" target="_blank">
+http://www.pnas.org/cgi/content/full/101/9/2673</a> by Xu and Goddard you can define this exchange-correlation
+functional using the following line in the DFT input block:</p>
+
+<pre>XC vwn_1_rpa 0.129 lyp 0.871 Hfexch 0.218 slater 0.782 becke88 nonlocal 0.542 xperdew91 nonlocal 0.167</pre>
+
+<hr>
+<p>
+<a name="5"></a>
+<font color="purple">How do you address Bq's to get an integration grid?</font>
+<p>Particular care is required to compute BSSE by the counter-poise method for the DFT module.
+In order to include terms deriving from the numerical grid used in the XC integration, the user must label the
+ghost atoms not just bq, but bq followed by the given atomic symbol. For example, the first component
+needed to compute the BSSE for the water dimer, should be written as follows:</p>
+
+<pre>
+geometry h2o autosym units au
+ O        0.00000000     0.00000000     0.22143139
+ H        1.43042868     0.00000000    -0.88572555
+ H       -1.43042868     0.00000000    -0.88572555
+ bqH      0.71521434     0.00000000    -0.33214708
+ bqH     -0.71521434     0.00000000    -0.33214708
+ bqO      0.00000000     0.00000000    -0.88572555
+end
+
+basis
+ H library aug-cc-pvdz
+ O library aug-cc-pvdz
+ bqH library H aug-cc-pvdz
+ bqO library O aug-cc-pvdz
+end
+</pre>
+
+<p>Please note that the ``ghost'' oxygen atom has been labeled bqO, and not just bq.</p>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../../nwchem_main.html">NWChem</a> |
+<a href="../../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../../platforms/platforms.html">Platforms</a> |
+<a href="../../download.html">Download</a> |
+<a href="../../doc/user/index.html">User's Manual</a> |
+<a href="../../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../../release-notes/index.html">Release Notes</a> |
+<a href="NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../known_bugs.html">Known Bugs</a> |
+<a href="../support.html">Support</a> |
+<a href="../../training/training.html">Tutorial</a> |
+<a href="../../contributors.html">Contributors</a> |
+<a href="../../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../../citation.html">Citation</a>
+</center>
+</font>
+<hr>Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td></tr>
+</table>
+</body>
+</html>
+

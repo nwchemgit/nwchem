@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../../nwchem_main.html">NWChem Home</a> |
+<a href="../../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<table width="650">
+<tbody>
+ 	<tr>
+ 	    <td width="350" align="left"></td>
+ 	    <td width="300" align="right"><a href="ibm.html">Next FAQ Catagory</a> | <a href="NWChem_FAQ.html">Return to Main FAQ</a></td>
+ 	 </tr>
+ </tbody>
+ </table>
+
+<br><br>
+<h1>NWChem FAQ</h1>
+
+ <p><h2>IBM SP</h2>
+
+<!--DO NOT REMOVE Begin Question and End Question Comments.-->
+<ul>
+<!--Begin Question-->
+ 	<li><a href="#0">What is the target for running NWChem on IBM SPs? </a></li>
+ 	<li><a href="#1">I have a lapi_init error.  How do I fix this problem?</a></li>
+ 	<li><a href="#2">I have a load error when trying to run NWChem.  How do I fix this problem?</a></li>
+ 	<li><a href="#3">Thread scheduling policy change from AIX 4.3 to 4.3.3 which effects performance.</a></li>
+ 	<li><a href="#4">How do I use more than 2 GB of disk space?</a></li>
+ <!--End Question-->
+ </ul>
+
+
+ <hr>
+ <p>
+ <a name="0"></a>
+ <font color="purple">What is the target for running NWChem on IBM SPs?
+ </font>
+ <p>
+ The right target is <pre>LAPI</pre>
+ IBM binaries are not going to work on IBM SP systems.
+ For further details, have a look at the Users's manual <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node40.html#SECTION004050000000000000000">Running on an IBM SP</a>.
+ </p>
+
+ <hr>
+ <p>
+ <a name="1"></a>
+ <font color="purple"> I have a lapi_init error.  How do I fix this problem?</font>
+ <p>
+ If you get a message similar to:
+ <pre>
+   0: lapi_init failed 419(1a3)
+ system message: Operation not permitted.
+ ERRIR:  0031-250  task 0: terminated
+ </pre>
+ you need to set the environment variable MP_MSG_API.  You can either do this in your environment:
+ <pre>
+ setenv MP_MSG_API lapi
+ </pre>
+ or you can set it in your LoadLeveller script:
+ <pre>
+ # @ network.lapi = css0, not_shared, US
+ </pre>
+ The LoadLeveller method is preferred since it sets several other useful
+ variables.
+ NOTE: If you are using SMP nodes (i.e. more than one processor per node),
+ change the "not_shared" to "shared".
+ </p>
+
+ <hr>
+ <p>
+ <a name="2"></a>
+ <font color="purple"> I have a load error when trying to run NWChem.  How do
+ I fix this problem?
+ </font>
+ <p>
+ If you get a message similar to:
+ <pre>
+ exec(): 0509-036 Cannot load program /usr/local/NWChem/bin/nwchem because of the
+  following errors:
+         0509-023 Symbol kaio_rdwr in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+         0509-023 Symbol listio in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+         0509-023 Symbol acancel in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+         0509-023 Symbol iosuspend in /usr/lpp/ppe.poe/lib/libc.a is not defined.
+         0509-022 Cannot load library libc.a[aio.o].
+         0509-026 System error: Cannot run a file that does not have a valid format.
+ </pre>
+ The problem is that Asynchronous I/O is not turned on for your system.  There
+ are two possible solutions.  The first and best solution is to have the
+ system administrator turn on Asynchronous I/O on all of the nodes.  This can
+ be done by:
+ <ol>
+ <li> Enter smit </li>
+ <li> Go to "Devices" </li>
+ <li> Go to "Asynchronous I/O" </li>
+ <li> Go to "Change / Show Characteristics of Asynchronous I/O" </li>
+ <li> Change "State of fast path" to "enable" </li>
+ <li> Make sure "STATE to be configured at system restart" is set to "available" </li>
+ <li> Exit smit</li>
+ </ol>
+ The nodes will need to be rebooted for the change to take effect.
+ <p>
+ The second solution is to compile GA without Asynchronous I/O turned on.
+ This WILL slow down the performance of NWChem.
+ <ol>
+ <li>cd $NWCHEM_TOP/src/tools/pario</li>
+ <li>make TARGET=LAPI clean</li>
+ <li>make TARGET=LAPI CC="cc -DNOAIO" LARGE_FILES=y</li>
+ <li>cd $NWCHEM_TOP/src</li>
+ <li>make link</li>
+ </ol>
+ </p>
+
+ <hr>
+ <p>
+ <a name="3"></a>
+ <font color="purple">Thread scheduling policy change from AIX 4.3 to 4.3.3 which
+  effects performance.
+ </font>
+ <p>
+ The default thread scheduling policy changed from AIX version 4.3 to 4.3.3
+ which effects MPI and LAPI programs that rely on switch packet arrival
+ interrupts (such as NWChem).  This directly effects the performance of
+ NWChem.  To change the default, you need to set the environment variable
+ RT_GRQ.  You can either do this in your environment:
+ <pre>
+ setenv RT_GRQ ON
+ </pre>
+ or you can set it in your LoadLeveller script:
+ <pre>
+ # @ environment      =    RT_GRQ=ON
+ </pre>
+ Note that you may have other variables to set with the environment line.  Just
+ add the variable onto the existing line using a semi-colon as a separator.  For
+ example:
+ <pre>
+ # @ environment      =    COPY_ALL; MP_INFOLEVEL=3; MP_PULSE=0;
+ MP_SINGLE_THREAD=yes; MP_WAIT_MODE=yield; RT_GRQ=ON; restart=no
+ </pre>
+ </p>
+
+ <hr>
+ <p>
+ <a name="4"></a>
+ <font color="purple">How do I use more than 2 GB of disk space?</font>
+ <p>
+ During the compilation, the environment variable LARGE_FILES needs to be
+ set (i.e. setenv LARGE_FILES TRUE).  Also, you should make sure that the
+ file sizes on your system are not limited to 2 GB (type "limit" and check
+ the output).  If the sizes are limited, ask your system adminitrator to
+ change the limit for you.
+</p>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../../nwchem_main.html">NWChem</a> |
+<a href="../../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../../platforms/platforms.html">Platforms</a> |
+<a href="../../download.html">Download</a> |
+<a href="../../doc/user/index.html">User's Manual</a> |
+<a href="../../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../../release-notes/index.html">Release Notes</a> |
+<a href="NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../known_bugs.html">Known Bugs</a> |
+<a href="../support.html">Support</a> |
+<a href="../../training/training.html">Tutorial</a> |
+<a href="../../contributors.html">Contributors</a> |
+<a href="../../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../../citation.html">Citation</a>
+</center>
+</font>
+<hr>Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td></tr>
+</table>
+</body>
+</html>

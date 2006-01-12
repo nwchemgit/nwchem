@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../../nwchem_main.html">NWChem Home</a> |
+<a href="../../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<table width="650">
+<tbody>
+ 	<tr>
+ 	    <td width="350" align="left"></td>
+ 	    <td width="300" align="right"><a href="optimization.html">Next FAQ Catagory</a> | <a href="NWChem_FAQ.html">Return to Main FAQ</a></td>
+ 	 </tr>
+ </tbody>
+ </table>
+
+<br><br>
+<h1>NWChem FAQ</h1>
+<h2>Basis Set</h2>
+
+<!--DO NOT REMOVE Begin Question and End Question Comments.-->
+<ul>
+<!--Begin Question-->
+	<li><a href="#0">How do the basis sets get assigned to the atoms in my input deck?</a></li>
+<!--End Question-->
+</ul>
+
+<hr>
+<p>
+<a name="0"></a>
+<font color="purple"> How do the basis sets get assigned to the atoms in my input deck?</font>
+<p>
+The tags associated with atoms (e.g. H, H1, Hydrogen) are mapped to the tags
+used in the basis set definitions by:
+<ol>
+<li> If there is an exact match, then use it<p>
+  E.g., if H1 appears in both the geometry and the basis, then the H1
+  basis set is used.</li><p>
+<li> If there is not an exact match, then if there is a basis set defined for
+  that element, then use it<p>
+  E.g., if H1 appears in the geometry but not in the basis, then try to
+  use a basis set for H or for Hydrogen.  It will not try to match another
+  tag such as H2 in the basis set.</li><p>
+<li> If two definitions are given for an element in the basis set, then use
+  the definition such that the basis set tag is completely matched (or
+  is a substring) of the geometry tag.<p>
+  E.g., if H1, Hydrogen1, and Hydro1 appear in the geometry and H and
+  Hydrogen appear in the basis, H1 will map to H, Hydrogen1 will map to
+  Hydrogen, and Hydro1 will map to H.  You are STRONGLY advised not to
+  do perverse inputs such as Hydro1 which can only cause confusion.</li>
+</ol>
+</p>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../../nwchem_main.html">NWChem</a> |
+<a href="../../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../../platforms/platforms.html">Platforms</a> |
+<a href="../../download.html">Download</a> |
+<a href="../../doc/user/index.html">User's Manual</a> |
+<a href="../../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../../release-notes/index.html">Release Notes</a> |
+<a href="NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../known_bugs.html">Known Bugs</a> |
+<a href="../support.html">Support</a> |
+<a href="../../training/training.html">Tutorial</a> |
+<a href="../../contributors.html">Contributors</a> |
+<a href="../../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../../citation.html">Citation</a>
+</center>
+</font>
+<hr>Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td></tr>
+</table>
+</body>
+</html>
+

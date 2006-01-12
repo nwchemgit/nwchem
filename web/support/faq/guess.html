@@ -1,0 +1,286 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../../shared/nwchem_basic.css">
+</HEAD>
+
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../../nwchem_main.html">NWChem Home</a> |
+<a href="../../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<table width="650">
+<tbody>
+ 	<tr>
+ 	    <td width="350" align="left"></td>
+ 	    <td width="300" align="right"><a href="basis.html">Next FAQ Catagory</a> | <a href="NWChem_FAQ.html">Return to Main FAQ</a></td>
+ 	 </tr>
+ </tbody>
+ </table>
+
+<br><br>
+<h1>NWChem FAQ</h1>
+
+<p><h2>Initial Guess and Convergence Problems</h2></p>
+
+<!--DO NOT REMOVE Begin Question and End Question Comments.-->
+<ul>
+<!--Begin Question-->
+	<li> <a href="#0">I am having problems getting my initial guess in the correct order.  How I do use the swap directive?</a></li>
+	<li> <a href="#1">I am having problems getting an open shell sytem to converge.  What strategies will help me?</a></li>
+	<li> <a href="#2">I am having problems converging an ionic, extended system.  What can I do?</a></li>
+	<li> <a href="#3">I am having convergence problems with the final iterations of a calculation using a large basis set.  What can I do?</a></li>
+	<li> <a href="#4">Do you have an example of a complex fragment guess?</a></li>
+<!--End Question-->
+</ul>
+
+<hr>
+ <p>
+ <a name="0"></a>
+ <font color="purple">I am having problems getting my initial guess in the correct order. How I do use the swap directive?</font>
+ <p>
+ Remember that you can <b>(and should!)</b> look at your initial orbitals
+ by putting the line<br>
+ <pre>
+ print "initial vectors"
+ </pre>
+ <p>
+ into the SCF block of your input deck.  If the order isn't correct, you can use
+ the "swap" directive to change the order of the orbitals.
+ <p>
+ For example:
+ <pre>
+ vectors atomic swap 173 175 174 176 output end.movecs
+ </pre>
+ will cause the orbitals 173 - 175 to be swapped to 175, 176, 173 and 174.
+ Note that the swaps are pairwise: first 173 and 175 are swapped, then the
+ the current orbitals 174 and 176 are swapped.  More information on initial orbitals
+ can be obtained in <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001250000000000000000" target="_blank">
+ Section 10.5</a> of the <a href="../doc/user/index.html" target="_blank">User's Manual</a>.
+ </p>
+
+ <hr>
+ <p>
+ <a name="1"></a>
+ <font color="purple"> I am having problems getting an open shell system to converge.  What strategies will help me?</font>
+ <p>
+ Open shell systems, especially those containing transition metals or heavy
+ elements with many unoccupied d and f orbitals, can be especially hard
+ to converge.  Running a spin unrestricted calculation can exacerbate the
+ problem since all other possible spin states can mix into the wavefunction.
+ It may also be true that your particular calculation has multireference
+ character and, by using SCF or DFT, you are forcing it into a single
+ determinate wavefunction.
+ <p>
+ That being said, to converge your system, you need to guide the code
+ to the particular state that you want.  This may be a very difficult
+ task and different starting guesses can converge to different solutions,
+ especially if there is symmetry breaking.  Here are four different
+ suggestions to help you with your problem:
+ <ol>
+ <li> Use Auf bau construction.  Start by removing most or all of the
+ open-shell electrons and converge the resulting closed-shell wavefunction.
+ Incrementally add the missing electrons, maintaining a closed-shell form for
+ the wavefunction until the last calculation.  Once you have an ROHF
+ wavefunction converged, then do the UHF calculation if desired (note that
+ UHF is the only option with the DFT code).  When adding electrons, pay
+ attention to how well separated the virtual orbitals are in energy.</li>
+ <li> Converge a very high multiplicity state and then incrementally
+ pair electrons until you get the state you want.</li>
+ <li> Converge in a minimal basis set where there is very little variational
+ freedom and it is not as expensive to run many iterations.  Then
+ <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001250000000000000000">project</a>
+ to a larger basis set (you can use this
+ <a href="http://www.emsl.pnl.gov/docs/nwchem/support/proj.nw">example</a>
+ as a model).
+ It is also useful to use spherical functions since this
+ tends to decrease the amount of linear dependence.  This method isn't
+ as reliable as the previous methods.</li>
+ <li> Use the <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001251000000000000000">fragment</a>
+ guess.  This is especially useful if you know the configuration of the atoms.
+ Prepare the atoms in the appropriate state and assemble the molecule from the fragments.
+ If you want an antiferromagnetic state, this is the only way to do it.</li>
+ </ol>
+ </p>
+
+ <hr>
+ <p>
+ <a name="2"></a>
+ <font color="purple"> I am having problems converging an ionic, extended system.  What can I do?</font>
+ <p>
+ This problem usually shows up when a minimum basis set is used and where a
+ lot of charge has to be moved a long way but the minimal basis does not
+ providea lot of coupling between the orbitals.  The initial guess may be
+ modified by
+ <ol>
+ <li><a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001252000000000000000">putting the charge on the atoms</a>
+ where it is believed to be,</li>
+ <li> look at the orbitals and
+ <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001250000000000000000">swap the orbitals</a>
+ to obtain the correct occupation, or</li>
+ <li> ue the <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.h
+ tml#SECTION001251000000000000000">fragment</a> guess.</li>
+ </ol>
+ Better yet, use a better basis set which will allow for better coupling of
+ the orbitals!
+ </p>
+
+ <hr>
+ <p>
+ <a name="3"></a>
+
+ <font color="purple"> I am having convergence problems with the final iterations of a calculation using a large basis set.  What can I do?</font>
+ <p>
+ This problem generally occurs when high precision is necessary because of
+ near linear dependencies in the basis set and there is insufficient precision
+ in the computed gradient or hessian vector product to converge to the
+ requested threshold.  The first item to check is to make sure that the convergence
+ <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node12.html#SECTION001270000000000000000">threshold</a> is realistic (not below 1e<sup>-7</sup> or
+ perhaps 1e<sup>-8</sup>).  If doing an MP2 gradient with the
+ <a href="http://www.emsl.pnl.gov/docs/nwchem/doc/user/node17.html#SECTION001712000000000000000">TIGHT</a> directive, make sure the SCF input block is
+ after the MP2 block and then in the SCF block put
+ <pre>
+ SCF
+   thresh 1e-7
+   tol2e 1e-10
+ END
+ </pre>
+ This may still not fix the problem if the calculation is using the semi-direct
+ algorithm.  In this case:
+ <ol>
+ <li>Run the calculation on enough nodes to run fully disk resident,</li>
+ <li>Run as before, but switch off the density screening with<p>
+     set fock:densityscreen f<p></li>
+ <li>Run the calculation fully direct.</li>
+ </ol>
+
+ <hr>
+ <p>
+ <a name="4"></a>
+
+ <font color="purple"> Do you have an example of a complex fragment guess?</font>
+ <p>
+ The following is an advanced fragment guess (NOT for beginners!).  It consists
+ of two Fe<sup>3+</sup> ions in a simulated lattice and the objective is
+ to compute the energy difference between the ferro and anti-ferromagnetic
+ states.  This is accomplished by first using the atomic guess to do an ROHF
+ calculation on an Fe<sup>3+</sup> ion with d<sup>5</sup> occupation.  The
+ next calculation is on the high spin system and it merely has to start from
+ the two ions ... the open shell orbitals will automatically be contiguous and
+ so nothing else is needed.
+ <p>
+ The final calculation is a UHF for which the 5 open shell electrons on one
+ atom must be spin up and on the other spin down.  The initial guess orbitals
+ start off from the previous high spin solution.
+ However, the d orbitals
+ on the second atom must have the beta orbitals in the right place, hence
+ the swap directive.  The net result is a completely localized guess with the
+ desired spin coupling.
+
+ <pre>
+ start fe2
+
+ geometry noautoz autosym
+   Fe  1.45 0.071  0.84
+   Fe -1.45 0.071 -0.84
+
+   Bq   3.02  0.84  0.03 charge -1.
+   Bq  -0.00  1.04  0.03 charge -1.
+   Bq   1.33 -1.67  0.03 charge -1.
+   Bq   2.78 -0.69  2.33 charge -1.
+   Bq   1.45  1.61  2.33 charge -1.
+   Bq   0.11 -0.69  2.33 charge -1.
+   Bq  -1.33 -1.67  0.03 charge -1.
+   Bq  -3.02  0.84  0.03 charge -1.
+   Bq  -0.12 -0.69 -2.25 charge -1.
+   Bq  -1.45  1.61 -2.25 charge -1.
+   Bq  -2.78 -0.69 -2.25 charge -1.
+ end
+
+ geometry Fe
+   Fe  0 0 0
+ symmetry c2v
+ end
+
+ basis
+   Fe library sto-3g
+ end
+
+ set atomscf:tags_z Fe
+ set atomscf:z      3.
+
+ title "Initial calculation on Fe3+"
+
+ set geometry Fe
+ charge 3
+ scf; rohf ; nopen 5; vectors atomic output fe.mos; end
+ task scf
+
+ title "Ferro-magnetic state"
+
+ unset geometry
+ charge -5
+
+ scf; print "initial vector analysis"; rohf; nopen 10
+ vectors fragment fe.mos fe.mos output feferr.mos;
+ maxiter 0
+ print mulliken
+ end
+ task scf ignore
+
+ title "Anti-ferro-magnetic state"
+ scf; uhf; nopen 0;
+   vectors input feferr.mos output feantif.mos\
+      swap beta 19 24  20 25  21 26  22 27  23 28
+ maxiter 99
+ end
+ task scf
+ </pre>
+ For DFT calculation you can either the same method just shown or a
+ different approach that is illustrated in this
+ <a href="http://www.emsl.pnl.gov/docs/nwchem/support/fe2dft.nw">example</a>.
+ </p>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../../nwchem_main.html">NWChem</a> |
+<a href="../../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../../platforms/platforms.html">Platforms</a> |
+<a href="../../download.html">Download</a> |
+<a href="../../doc/user/index.html">User's Manual</a> |
+<a href="../../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../../release-notes/index.html">Release Notes</a> |
+<a href="NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../known_bugs.html">Known Bugs</a> |
+<a href="../support.html">Support</a> |
+<a href="../../training/training.html">Tutorial</a> |
+<a href="../../contributors.html">Contributors</a> |
+<a href="../../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../../citation.html">Citation</a>
+</center>
+</font>
+<hr>Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td></tr>
+</table>
+</body>
+</html>

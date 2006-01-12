@@ -1,0 +1,844 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<HTML>
+<HEAD>
+<TITLE>NWChem Frequently Asked Questions</TITLE>
+<link rel="stylesheet" type="text/css" href="../../shared/nwchem_basic.css">
+</HEAD>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650"><tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../../nwchem_main.html">NWChem Home</a> |
+<a href="../../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<table width="650">
+<tbody>
+ 	<tr>
+ 	    <td width="350" align="left"></td>
+ 	    <td width="300" align="right"><a href="mp2.html">Next FAQ Catagory</a> | <a href="NWChem_FAQ.html">Return to Main FAQ</a></td>
+ 	 </tr>
+ </tbody>
+ </table>
+
+<br><br>
+<h1>NWChem FAQ</h1>
+
+ <p><h2>Optimization Issues</h2></p>
+
+<!--DO NOT REMOVE Begin Question and End Question Comments.-->
+<ul>
+<!--Begin Question-->
+ 	<li><a href="#0">I want to optimize the structure of my molecule. What should I try first?</a></li>
+    <li><a href="#1">How do I accelerate a geometry optimization using information from a lower (cheaper) level of theory, and does this really help?</a></li>
+    <li><a href="#2">When should I use STEPPER rather than DRIVER?</a></li>
+    <li><a href="#3">AUTOZ fails to generate valid internal coordinates.  Now what?</a></li>
+    <li><a href="#4">What initial guess is Driver using for the Hessian?</a></li>
+    <li><a href="#5">My geometry optimization initially converged rapidly but now seems to be stuck.</a></li>
+    <li><a href="#6">How do I keep some internal variables constant while optimizing the others?</a></li>
+    <li><a href="#7">How do I constrain some internal variables to be the same value within a sign?</a></li>
+    <li><a href="#8">How do I restart a geometry optimization?</a></li>
+    <li><a href="#9">Can I use symmetry while optimizing the geometry?</a></li>
+    <li><a href="#10">How do I adjust the value of (or change in any way) some internal coordinates in an existing geometry?</a></li>
+    <li><a href="#11">How do I scan a potential energy surface?</a></li>
+    <li><a href="#12">How do I find a transition state?</a></li>
+<!--End Question-->
+</ul>
+
+   <hr>
+   <p>
+   <a name="0"></a>
+   <font color="purple">I want to optimize the structure of my molecule.  What should I
+       try first?
+   </font>
+   <p>
+   The optimizer of first choice should be the default option of
+       user-specified Cartesian coordinates and DRIVER using redundant
+       internal coordinates (AUTOZ - automatic Z-matrix).  The example
+       input optimizes the structure of H3C-COOH using 3-21g SCF.
+
+   <pre>
+
+            geometry
+              c   -0.017    -0.030    -0.077
+              c   -0.017    -0.030     1.422
+              h    0.922    -0.030     1.764
+              h   -0.487     0.783     1.764
+              h   -0.487    -0.844     1.764
+              o   -0.580    -1.005    -0.727
+              o    0.545     0.944    -0.727
+              h    0.545     0.944    -1.727
+            end
+
+            basis
+              c library 3-21g; h library 3-21g; o library 3-21g
+            end
+
+            task scf optimize
+
+   </pre>
+   AUTOZ will generate a set of redundant internal coordinates
+       for the optimization.  Under some circumstances AUTOZ will fail
+       to generate a good set of coordinates, in which case Cartesians
+       will be used.  If you specify the geometry with a Z-matrix then
+       your coordinates will be used for the optimization.
+   <p>
+       Needless to say a good guess for the geometry is very important.
+       If you don't have a good guess, then first optimize with an
+       inexpensive level of theory to get a good guess.
+   </p>
+
+   <hr>
+   <p>
+   <a name="1"></a>
+   <font color="purple">How do I accelerate a geometry optimization using information from
+       a lower (cheaper) level of theory, and does this really help?
+   </font>
+   <p>
+   It can help a lot and is especially worth doing for most large
+       basis set calculations with correlated wavefunctions.
+   <p>
+       The geometry and Hessian information from a previous optimization
+       are used by default --- if you saved them.  You should keep all
+       of the files that NWChem puts into its permanent directory.
+   <p>
+   <ol>
+   <li>Set the permanent directory to be somewhere permanent (sic).
+          The default is the current directory, which for a batch job on the
+          EMSL HP is /scratch.  If you plan on running both optimizations
+          in the same input then you don't really need to do this, but if
+          anything goes wrong you can only restart if you have saved the
+          files.</li>
+   <li>Run the first optimization with a low-level theory.
+   <li>In the same job, or a subsequent one, specify the new
+          wavefunction parameters and run the second optimization.  By
+          default the calculation will restart from the previously
+          converged geometry, but if you can estimate better values you
+          can specify a new geometry (e.g., MP2 often predicts longer bond
+          lengths than Hartree-Fock).
+   </ol>
+   <p>
+       In the first example below, the geometry of H3C-COOH is first
+       optimized using 3-21g SCF, and then, starting from the 3-21g SCF
+       geometry and Hessian information, re-optimized with cc-pvdz MP2.
+       The first optimization required 8 steps, taking 105s on a 360 MHz
+       SUN Ultra-60.  The second optimization required 4 steps and 3882s.
+       If the MP2 optimization is repeated starting again from the 3-21g
+       SCF geometry, but not using the Hessian information then it takes 6
+       steps and 4,900s.
+   <p>
+   <pre>
+
+            permanent_dir /u/mydir
+
+            geometry
+              zmatrix
+                c
+                c 1 cc
+                h 2 ch1 1 hcc1
+                h 2 ch2 1 hcc2 3 t1
+                h 2 ch3 1 hcc3 3 t2
+                o 1 co1 2 occ1 3 t3
+                o 1 co2 2 occ2 3 t4
+                h 7 oh  1 hoc  6 t5
+              variables
+                cc     1.5;    ch1    1.0;    ch2     1.0
+                ch3    1.0;    co1    1.3;    co2     1.3
+                oh     1.0;    hcc1 110.0;    hcc2  110.0
+                hcc3 110.0;    occ1 120.0;    occ2  120.0
+                hoc  120.0;    t1   120.0;    t2   -120.0
+                t3   120.0;    t4   -60.0;    t5      0.0
+              end
+            end
+
+            basis
+              c library 3-21g; h library 3-21g; o library 3-21g
+            end
+
+            scf; print low; end
+
+            task scf optimize
+
+            basis spherical
+              c library cc-pvdz; h library cc-pvdz; o library cc-pvdz
+            end
+
+            mp2; freeze atomic; end
+
+            task mp2 optimize
+
+   </pre>
+       This next example performs SCF geometry optimizations of the water
+       dimer in a sequence of increasing basis sets.  Each calculation
+       starts from the geometry and updated-Hessian from the previous one.
+       The steps taken for each successive optimization are, 11, 6, 7, 9,
+       4, 4, 4 and the total calculation took 966s.  If the Hessian
+       information is not reused (but still using the previous geometry)
+       the steps taken are 11, 11, 13, 13, 6, 11, 10, taking 2100s.
+   <pre>
+
+            driver; print low; end
+            scf; print none; thresh 1e-6; end
+
+            geometry autosym
+               o     0.00000000     0.97541911     1.02217553
+               h     0.75298271     0.97541911     1.58779814
+               h    -0.75298271     0.97541911     1.58779814
+               h     0.00000000    -0.44494805    -0.43332878
+               o     0.00000000    -1.08950470    -1.12453116
+               h     0.00000000    -0.59320543    -1.92342244
+            end
+
+            python
+              basis = 'basis print spherical; o library %s; h library %s; end'
+              for b in ('sto-3g','3-21g','6-31g','6-31g*','6-31g**',
+                        '6-311g**','6-311G(2df,2pd)'):
+                input_parse(basis % (b,b))
+                task_optimize('scf')
+            end
+
+            task python
+
+   </pre>
+   </p>
+
+
+   <hr>
+   <p>
+   <a name="2"></a>
+   <font color="purple">When should I use STEPPER rather than DRIVER?
+   </font>
+   <p>
+       In releases prior to 3.3, STEPPER was much more robust than DRIVER,
+       especially for transition state searches, though when DRIVER did
+       converge it was usually faster.  However, in release 3.3 DRIVER has
+       been completely rewritten, AUTOZ has been extensively modified, and
+       the diagonal guess for internal coordinates has also been
+       substantially improved.  The net result is that if internal
+       coordinates are available (AUTOZ or Z-matrix) then DRIVER is always
+       preferable since STEPPER can only use Cartesians.  There is less
+       data for the performance difference in Cartesians, but again DRIVER
+       seems to have the edge, perhaps because it is less conservative and
+       the use of a line search also enables it to take larger steps.
+   <p>
+       However, STEPPER was designed for stream-bed walking and has robust
+       algorithms for following normal modes from a minimum up to
+       transition states.  DRIVER can do this, but is not as robust.  So if
+       you want to walk a long way along a mode, and are prepared to
+       compute a full Hessian at the minimum geometry, then STEPPER is for
+       you.
+   </p>
+
+   <hr>
+   <p>
+   <a name="3"></a>
+   <font color="purple">AUTOZ fails to generate valid internal coordinates.  Now what?
+   </font>
+   <p>
+       If AUTOZ fails, NWChem will default to using Cartesian coordinates
+       (and ignore any zcoord data) so you don't have to do anything
+       unless you really need to use internal coordinates. An exception are
+       certain cases where we have a molecule that contains a linear chain
+       of 4 or more atoms, in which case the code will fail (see item 2.
+       for work arounds). For small
+       systems you can easily construct a Z-matrix, but for larger systems
+       this can be quite hard.
+   <p>
+       First check your input.  Are you using the correct units?  The
+       default is Angstroms.  If you input atomic units but did not tell
+       NWChem, then it's no wonder things are breaking.  Also, is the
+       geometry physically sensible?  If atoms are too close to each other
+       you'll get many unphysical bonds, whereas if they are too far
+       apart AUTOZ will not be able to figure out how to connect things.
+   <p>
+       Once the obvious has been checked, there are several possible modes
+       of failure, some of which may be worked around in the input.
+   <ol>
+   <li>Strictly linear molecules with 3 or more atoms.  AUTOZ does not
+          generate linear bend coordinates, but, just as in a real
+          Z-matrix, you can specify a dummy center that is not co-linear.
+          There are two relevant tips:
+     <ul>
+     <li>constrain the dummy center to be not co-linear otherwise the
+            center could become co-linear. Also, the inevitable small
+            forces on the dummy center can confuse the optimizer.</li>
+     <li>put the dummy center far enough away so that only one
+            connection is generated.
+     </ul>
+   <pre>
+
+          E.g., this input for acetylene will not use internals
+
+          geometry
+            h  0  0  0
+            c  0  0  1
+            c  0  0  2.2
+            h  0  0  3.2
+          end
+
+          but this one will
+
+          geometry
+            zcoord
+              bond    2 3  3.0  cx constant
+              angle 1 2 3 90.0 hcx constant
+            end
+            h  0  0  0
+            c  0  0  1
+            x  3  0  1
+            c  0  0  2.2
+            h  0  0  3.2
+          end
+
+   </pre></li>
+   <li>Larger molecules that contain a strictly linear chain of four or
+          more atoms (that ends in a free atom). For these molecules the
+          autoz will fail and the code can currently not recover by using
+          cartesians. One has to explicitly define noautoz in the geometry
+          input to make it work. If internal coordinates are required one
+          can fix it in the same manner as described above. However, you can
+          also force a connection to a real nearby atom.</li>
+   <li>Very highly connected systems generate too many internal
+          coordinates which can make optimization in redundant internals
+          less efficient than in Cartesians.  For systems such as clusters
+          of atoms or small molecules, try using a smaller value of the
+          scaling factor for covalent radii
+   <p>
+          zcoord; cvr_scaling 0.9; end
+   <p>
+          In addition to this you can also try specifying a minimal set of
+          bonds to connect the fragments.</li>
+   </ol>
+   <p>
+          If these together don't work, then you're out of luck.  Use
+          Cartesians or construct a Z-matrix.
+   </p>
+
+   <hr>
+   <p>
+   <a name="4"></a>
+   <font color="purple">What initial guess is Driver using for the Hessian?
+   </font>
+   <p>
+   <pre>
+
+       If (restart file exists) then
+         Attempt to use that data
+       Endif
+
+       If ((no restart file) or (could not use the file)) then
+         If (requested use of Cartesian Hessian with INHESS=2) then
+             Use the Hessian from a previous NWChem frequency calculation
+         Else
+           If ((you input a Z-matrix) or (input Cartesians with AUTOZ)) then
+           .   Modified Fisher-Almlof rules are used to form a guess that is
+           .   diagonal in the internal coordinate space.
+           Else if (you input Cartesian coordinates) then
+           .   0.5 * a unit matrix is used
+           Endif
+         Endif
+       Endif
+
+   </pre>
+       Driver's restart information may be discarded by putting the CLEAR
+       directive into the DRIVER input block, or by deleting the
+       *.drv.hess file in the permanent directory.  Note that the CLEAR
+       directive is not remembered, so that subsequent geometry
+       optimizations will use restart info unless also preceded by a
+       DRIVER input block with a CLEAR directive.
+   <p>
+       The restart filename expected by Driver is *.drv.hess, while the
+       the filename when INHESS=2 is *.hess.
+   </p>
+
+   <hr>
+   <p>
+   <a name="5"></a>
+   <font color="purple">My geometry optimization initially converged rapidly but now seems to
+       be stuck.
+   </font>
+   <p>
+   <ol>
+   <li>One cause could be insufficient precision in the gradient.
+          Sometimes higher precision than the default is necessary,
+          especially if you have asked for tight convergence.  Also, if
+          you are using DFT, or MP2 in a large diffuse basis, then the
+          gradient itself may be not be sufficiently accurate by default.
+          The precision in the gradient can be improved by
+     <ol>
+     <li> SCF ... simply decrease THRESH.  The default is 1d-4.  A value
+            of 1d-6 should suffice. If you are asking for tight
+            convergence, or in pathological cases such as strong linear
+            dependence, then use 1d-8.</li>
+     <li> DFT ... improve the resolution of the grid (try FINE or one of
+            the Lebedev grids) and the convergence threshold for the
+            density.  You can check if the grid resolution is adequate by
+            looking at the value of the numerically integrated density.
+            The error in this number is roughly the same magnitude as that
+            in the gradients.  If this error is too large and you are
+            already using a FINE or XFINE grid, try increasing the
+            screening radius (e.g., TOLERANCES ACCQRAD 20).</li>
+     <li> MP2 ... use the TIGHT keyword.  This tightens up thresholds in
+            the SCF, CPHF and MP2.</li>
+     </ol></li>
+   <li>If the geometry has changed a lot and you are using AUTOZ the
+          redundant internals generated at the initial geometry may no
+          longer be appropriate.  Try restarting the optimization from the
+          last good geometry generating new redundant variables using the
+          directive REDOAUTOZ.</li>
+   <li>Did you input your own Z-matrix or specify additional
+          coordinates for AUTOZ?  If the variables don't correspond to
+          standard molecular internal coordinates then the initial guess
+          for the Hessian is not necessarily very good, and the actual
+          Hessian may not be well conditioned.  You can switch from your
+          own Z-matrix to redundant internals with this trick
+   <pre>
+          geometry
+            zmatrix
+              your z-matrix data
+            end
+          end
+
+          geometry adjust    # Discards z-matrix and uses autoz
+          end
+
+   </pre></li>
+   <li>Flat potential energy surfaces such as internal coordinates
+          (e.g., some torsions) dominated by weak interactions, or floppy
+          molecules/clusters are tough problems.  Try getting a better
+          starting geometry and some more Hessian information by
+          optimizing at the lowest acceptable level of theory before using
+          more expensive models.</li>
+   </ol>
+   </p>
+
+   <hr>
+   <p>
+   <a name="6"></a>
+   <font color="purple">How do I keep some internal variables constant while optimizing
+       the others?
+   </font>
+   <p>
+   <ol>
+   <li>
+   If you are defining your own Z-matrix, then parameters specified
+          in the constants section are frozen in any geometry optimization.
+   <pre>
+
+          E.g., water with the bond angle frozen
+
+          geometry
+            zmatrix
+              o
+              h 1 0.98
+              h 1 0.98 2 hoh
+            constants
+              hoh 105.0
+            end
+          end
+
+   </pre></li>
+   <li>If you are using redundant internal coordinates then user
+          defined internal coordinates flagged with the keyword constant
+          are frozen during the optimization.  If no value is given for a
+          user defined variable, then the value implicit in the Cartesian
+          coordinates is used.  If a value is given, then it is imposed
+          upon the Cartesian coordinates while attempting to make only
+          minor changes in the other internal coordinates.
+   <p>
+          E.g., water with the bond angle frozen at the value defined
+          by the Cartesian coordinates.
+   <pre>
+
+          geometry autosym
+            zcoord; angle 3 1 2 constant; end
+            O   0.000     0.0     0.119
+            H   0.777     0.0    -0.477
+            H  -0.777     0.0    -0.477
+          end
+
+   </pre>
+          E.g., water with the bond angle held at 103 degrees.
+   <pre>
+
+          geometry autosym
+            zcoord; angle 3 1 2 103.0 constant; end
+            O   0.000     0.0     0.119
+            H   0.777     0.0    -0.477
+            H  -0.777     0.0    -0.477
+          end
+
+   </pre></li>
+   </ol>
+   </p>
+
+
+   <hr>
+   <p>
+   <a name="7"></a>
+
+   <font color="purple">How do I constrain some internal variables to be the same
+       value within a sign?
+   </font>
+   <p>
+       With either user-defined redundant internal coordinates, or a
+       user-defined Z-matrix, variables with the same non-blank name are
+       forced to have the same value even if they are not related by
+       symmetry.  A sign may be optionally employed to orient torsion
+       angles.
+   <p>
+       E.g. CH3-CF3 - related bonds, angles and torsions are forced to be
+       equivalent.  Note the use of a sign on TOR1.
+   <pre>
+
+          geometry
+            zmatrix
+              C
+              C 1 CC
+              H 1 CH1 2 HCH1
+              H 1 CH2 2 HCH2 3  TOR1
+              H 1 CH2 2 HCH2 3 -TOR1
+              F 2 CF1 1 CCF1 3  TOR3
+              F 2 CF2 1 CCF2 6  FCH1  1
+              F 2 CF2 1 CCF2 6  FCH2 -1
+              variables
+                CH1   1.08
+                CH2   1.08
+                CF1   1.37
+                CF2   1.37
+                HCH1  104.2
+                HCH2  104.7
+                CCF1  112.0
+                CCF2  112.0
+                TOR1  109.4
+                FCH1  106.8
+                FCH2  106.8
+                CC    1.49
+                TOR3  180.0
+            end
+          end
+
+   </pre>
+   </p>
+
+
+   <hr>
+   <p>
+   <a name="8"></a>
+   <font color="purple">How do I restart a geometry optimization?
+   </font>
+   <p>
+       If you have saved the restart information that is kept in the
+       permanent directory, then you can restart a calculation, as long as
+       it did not crash while writing to the data base.
+   <p>
+       Following are two input files.  The first starts a geometry
+       optimization for ammonia.  If this stops for nearly any reason such
+       as it was interrupted, ran out of time or disk space, or exceeded
+       the maximum number of iterations, then it may be restarted with the
+       second job.
+   <p>
+       The key points are
+   <ol>
+   <li>The first job contains a START directive with a name for the
+          calculation.</li>
+
+   <li>All subsequent jobs should contain a RESTART directive with the
+          same name for the calculation.</li>
+
+   <li>All jobs must specify the same permanent directory.  The default
+          permanent directory is the current directory.</li>
+
+   <li>If you want to change anything in the restart job, just put the
+          data before the task directive.  Otherwise, all options will be
+          the same as in the original job.</li>
+   </ol>
+   <p>
+       Job 1.
+   <pre>
+
+            start ammonia
+            permanent_dir /u/myfiles
+
+            geometry
+              zmatrix
+                n
+                h 1 nh
+                h 1 nh 2 hnh
+                h 1 nh 2 hnh 3 hnh -1
+              variables
+                nh 1.
+                hnh 115.
+              end
+            end
+
+            basis
+              n library 3-21g; h library 3-21g
+            end
+
+            task scf optimize
+
+   </pre>
+       Job 2.
+   <pre>
+
+            restart ammonia
+            permanent_dir /u/myfiles
+
+            task scf optimize
+
+   </pre>
+   </p>
+
+
+   <hr>
+   <p>
+   <a name="9"></a>
+   <font color="purple">Can I use symmetry while optimizing the geometry?
+   </font>
+   <p>
+       Yes.
+   <p>
+       With Cartesian coordinates either
+   <ul>
+   <li>list all atoms in any orientation and use the AUTOSYM keyword for
+       automatic detection of the point group, or </li>
+
+   <li>list all, or just the unique, atoms in the standard NWChem
+       orientation for the point group and specify the point group with
+       the SYMMETRY directive. </li>
+   </ul>
+       If you are using a Z-matrix you can only use the AUTOSYM keyword.
+   </p>
+
+   <hr>
+   <p>
+   <a name="10"></a>
+   <font color="purple">How do I adjust the value of (or change in any way) some internal
+        coordinates in an existing geometry?
+   </font>
+   <p>
+        NWChem provides the <tt>adjust</tt> keyword on the GEOMETRY directive
+   <p>
+        E.g., force the bond angle in an existing geometry for water to
+        be 103.0 degrees.  Here, the initial geometry is input, but it could
+        have come from any source, including a previous optimization.
+   <pre>
+
+        geometry
+            O   0.000     0.0     0.119
+            H   0.777     0.0    -0.477
+            H  -0.777     0.0    -0.477
+        end
+
+        geometry adjust
+            zcoord; angle 3 1 2 103.0 constant; end
+        end
+
+   </pre>
+   </p>
+
+
+   <hr>
+   <p>
+   <a name="11"></a>
+   <font color="purple">How do I scan a potential energy surface?
+   </font>
+   <p>
+        E.g., scanning the OH bond and HON bond angle in hydroxylamine in
+        order to find a starting geometry for a transition state search.
+
+   <ol>
+   <li>You can do it manually:
+   <pre>
+
+           basis; n library 3-21g; h library 3-21g; o library 3-21g; end
+
+           geometry # Hydroxylamine
+             n  -0.239    -0.678   0.0
+             o   0.237     0.710   0.0
+             h  -0.579     1.226   0.0
+             h   0.179    -1.084   0.822
+             h   0.179    -1.084  -0.822
+           end
+
+           geometry adjust
+             zcoord
+               bond  3 2    1.2525 oh
+               angle 3 2 1 84.3   hon constant
+             end
+           end
+           task scf optimize
+
+           geometry adjust
+             zcoord
+               bond  3 2    1.538 oh
+               angle 3 2 1 65.3   hon constant
+             end
+           end
+           task scf optimize
+
+           geometry adjust
+             zcoord
+               bond  3 2    1.8235 oh
+               angle 3 2 1 46.3   hon constant
+             end
+           end
+           task scf optimize
+
+   </pre></li>
+   <li>Or, you can use a Python program.  The scan_input() procedure
+           is defined in nwgeom.py and is documented there.
+   <pre>
+
+           basis; n library 3-21g; h library 3-21g; o library 3-21g; end
+
+           geometry # Hydroxylamine
+             n  -0.239    -0.678   0.0
+             o   0.237     0.710   0.0
+             h  -0.579     1.226   0.0
+             h   0.179    -1.084   0.822
+             h   0.179    -1.084  -0.822
+           end
+
+           python
+             from nwgeom import *
+
+             geom = '''
+               geometry adjust
+                 zcoord
+                   bond  3 2 %f oh
+                   angle 3 2 1 %f hon constant
+                 end
+               end
+             '''
+
+             results = scan_input(geom,
+                                  [0.967, 103.3],
+                                  [2.109,  26.96],
+                                  3, 'scf', task_optimize)
+           end
+
+           task python
+
+   </pre></li>
+   </ol>
+   </p>
+
+
+   <hr>
+   <p>
+   <a name="12"></a>
+   <font color="purple">How do I find a transition state?
+   </font>
+   <p>
+        A fairly reliable approach is to
+   <p>
+   <ol>
+   <li>Optimize the reactants and products</li>
+
+   <li>Identify the key internal variables involved in the reaction</li>
+
+   <li>Generate an initial guess for the saddle geometry by either
+           guessing or scanning the coordinates.  Do a constrained
+           minimization at this point to relax the geometry.</li>
+
+   <li>From the relaxed initial guess, search for the saddle point
+           using the default options (releasing unnecessary constraints).
+           The default option is to take the first step uphill.  If this
+           does not manage to locate the negative mode, then try taking
+           the first step along one of the bonds being made/broken
+           (using the DRIVER directive VARDIR).</li>
+   </ol>
+   <p>
+        Steps 1) & 3) are covered elsewhere in the FAQ.  Step
+        2) is your problem.  Step 4) is done as follows
+   <p>
+        E.g., find the transition state for CH3+HF <-> CH4 + F
+        given a starting guess for the transition state.
+   <pre>
+
+          geometry autosym
+             c    0.000   0.000  -1.220
+             h    0.000   0.000   0.029
+             h    1.063   0.000  -1.407
+             h   -0.531  -0.921  -1.407
+             h   -0.531   0.921  -1.407
+             f    0.000   0.000   1.279
+          end
+
+          basis
+            c library 3-21g; h library 3-21g; f library 3-21g
+          end
+
+          scf; doublet; uhf; thresh 1e-6; print none; end
+
+          task scf saddle
+
+   </pre>
+          Note that it is often necessary to specify manually internal
+          coordinates for the bonds being broken/made since the algorithms
+          inside AUTOZ are optimized for geometries near minima.
+   <p>
+   Another useful tip is to tighten up the precision in the gradient, which
+   can decrease the number of steps needed to reach the transition state.
+          The precision in the gradient can be improved by
+   <ul>
+   <li>SCF ... simply decrease THRESH.  The default is 1d-4.  A value
+            of 1d-6 should suffice. If you are asking for tight
+            convergence, or in pathological cases such as strong linear
+            dependence, then use 1d-8.</li>
+
+   <li>DFT ... improve the resolution of the grid (try FINE or one of
+            the Lebedev grids) and the convergence threshold for the
+            density.  You can check if the grid resolution is adequate by
+            looking at the value of the numerically integrated density.
+            The error in this number is roughly the same magnitude as that
+            in the gradients.  If this error is too large and you are
+            already using a FINE or XFINE grid, try increasing the
+            screening radius (e.g., TOLERANCES ACCQRAD 20).</li>
+
+   <li>MP2 ... use the TIGHT keyword.  This tightens up thresholds in
+            the SCF, CPHF and MP2.</li>
+   </ul>
+</p>
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../../nwchem_main.html">NWChem</a> |
+<a href="../../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../../platforms/platforms.html">Platforms</a> |
+<a href="../../download.html">Download</a> |
+<a href="../../doc/user/index.html">User's Manual</a> |
+<a href="../../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../../release-notes/index.html">Release Notes</a> |
+<a href="NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../known_bugs.html">Known Bugs</a> |
+<a href="../support.html">Support</a> |
+<a href="../../training/training.html">Tutorial</a> |
+<a href="../../contributors.html">Contributors</a> |
+<a href="../../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html" target="_blank">Mol Sci. Soft. Group</a> |
+<a href="../../citation.html">Citation</a>
+</center>
+</font>
+<hr>Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: February 22, 2005
+</td></tr>
+</table>
+</body>
+</html>
