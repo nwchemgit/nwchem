@@ -1,7 +1,11 @@
 *
-* $Id: paw_sd.F,v 1.77 2006-01-07 00:55:33 marat Exp $
+* $Id: paw_sd.F,v 1.78 2006-01-12 00:54:01 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.77  2006/01/07 00:55:33  marat
+* removing ma_auto_verify
+* added some comments to paw
+*
 * Revision 1.76  2005/12/22 01:35:05  bylaska
 * revPBE added and gga logic restructured....EJB
 *
@@ -191,7 +195,7 @@
       logical first_iteration,psi_nogrid
       integer ispin
       integer ne(2),n1(2),n2(2),nemax
-      real*8  r_charge
+      real*8  r_charge,r_charge1,r_charge2
       real*8  dipole(3)
       real*8  icharge
 
@@ -769,24 +773,25 @@ c      call paw_vloc_init()
 *     **** check total number of electrons ****
 
       !*** psi charge ****
-      r_charge = 0.0d0
+      r_charge1 = 0.0d0
       do ms =1,ispin
          call D3dB_r_dsum(1,dbl_mb(dn(1)+(ms-1)*n2ft3d),sumall)
-         r_charge = r_charge
+         r_charge1 = r_charge1
      >          + sumall*lattice_omega()
      >             /dble(ngrid(1)*ngrid(2)*ngrid(3))
       end do
-      if (ispin.eq.1) r_charge = 2.0d0*r_charge
+      if (ispin.eq.1) r_charge1 = 2.0d0*r_charge1
 
       !*** add comp charge ****
+      r_charge2 = 0.0d0
       call D3dB_r_dsum(1,dbl_mb(dn_cmp_smooth(1)),sum1)
       sum1 = sum1*lattice_omega()
      >      /dble(ngrid(1)*ngrid(2)*ngrid(3))
-      r_charge = r_charge + sum1
-
+      r_charge2 = r_charge2 + sum1
+      r_charge  = r_charge1 + r_charge2
 
       if (taskid.eq.MASTER) then
-         write(17,1321) r_charge
+         write(17,1321) r_charge,r_charge1,r_charge2
       end if
 
 *     **** comparison between hamiltonian an lambda matrix ****
@@ -901,7 +906,7 @@ c    >              dbl_mb(lmd(1)),ierr)
 
 
          write(6,*)
-         write(6,1321) r_charge,' (real space)'
+         write(6,1321) r_charge,r_charge1,r_charge2,' (real space)'
 
          call paw_energy_output(6,ion_nion(),n2(ispin),E)
 c         write(6,1430) E(1),E(1)/ion_nion()
@@ -1144,7 +1149,8 @@ c    .   ' (',F6.3,' smooth)')
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
- 1321 FORMAT(' total charge of system:',F11.5,A)
+ 1321 FORMAT(' total charge of system:',F11.5,
+     >       ' (pw=',F11.5,' cmp=',F11.5,') ',A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)

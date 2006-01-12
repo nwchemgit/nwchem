@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.5 2006-01-07 00:55:29 marat Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.6 2006-01-12 00:54:01 bylaska Exp $                       
 
 
 *     ***************************
@@ -31,7 +31,7 @@ c#include "rtdb.fh"
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
       real*8  gx,gy,gz
-      real*8  en(2),r_charge
+      real*8  en(2),en1(2),en2(2),r_charge
       real*8  E(30)
       integer rtdb
 
@@ -186,7 +186,10 @@ c#include "rtdb.fh"
 *     **** diagonalize hamiltonian and rotate psi  ****
 *     **** but skip if doing an SIC calculations   ****
 c     BUG!!!!!!
-      call psi_spin_density(en)
+      call paw_psi_spin_density(en1,en2)
+      en(1) = en1(1)+en2(1)
+      en(2) = en1(2)+en2(2)
+
       call paw_psi_1gen_hml()
 
       call paw_psi_diagonalize_hml()
@@ -207,7 +210,10 @@ c     BUG!!!!!!
          write(6,1304)
          write(6,1410)
          write(6,*)
-         write(6,1321) r_charge,' (real space)'
+c         write(6,1321) r_charge,' (real space)'
+         write(6,1320) en(1), en(paw_psi_ispin()),' (real space)'
+         write(6,1322) en1(1),en1(paw_psi_ispin()),' (real space)'
+         write(6,1323) en2(1),en2(paw_psi_ispin()),' (real space)'
          call paw_energy_output(6,ion_nion(),neall,E)
 
 *        **** write out KS eigenvalues ****
@@ -250,6 +256,8 @@ c     BUG!!!!!!
  1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1321 FORMAT(' total charge of system:',F11.5,A)
+ 1322 FORMAT('     plane-wave part:         ',F11.5,'       ',F11.5,A)
+ 1323 FORMAT('      augmented part:         ',F11.5,'       ',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Diagonal Elements of Hamiltonian matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)

@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.23 2003-10-21 02:05:15 marat Exp $
+* $Id: paw_comp_charge.F,v 1.24 2006-01-12 00:54:01 bylaska Exp $
 *
 
 
@@ -53,7 +53,11 @@
       end do
 
       !*** allocate comp. charge arrays ***
-      ok =          my_alloc(MT_DCPL,qlm_size,"paw_qlm",paw_qlm)
+      ok =        my_alloc(MT_DCPL,qlm_size,"paw_qlm",paw_qlm)
+      ok = ok.and.my_alloc(MT_DCPL,qlm_size,"paw_qlm1",
+     >                     paw_qlm_spin(1,1))
+      ok = ok.and.my_alloc(MT_DCPL,qlm_size,"paw_qlm2",
+     >                     paw_qlm_spin(1,2))
       ok = ok.and.my_alloc(MT_INT,qlm_size,"paw_qlm_l",paw_qlm_l)
       ok = ok.and.my_alloc(MT_INT,qlm_size,"paw_qlm_m",paw_qlm_m)
       ok = ok.and.my_alloc(MT_DBL,nkatm,"paw_q00",paw_q00)
@@ -203,6 +207,8 @@ c        end do
 
       ok =        my_dealloc(i_paw_qlm)
       ok = ok.and.my_dealloc(paw_qlm)
+      ok = ok.and.my_dealloc(paw_qlm_spin(1,1))
+      ok = ok.and.my_dealloc(paw_qlm_spin(1,2))
       ok = ok.and.my_dealloc(paw_qlm_l)
       ok = ok.and.my_dealloc(paw_qlm_m)
       ok = ok.and.my_dealloc(paw_q00)
@@ -212,6 +218,105 @@ c        end do
       return
       end !subroutine
 
+
+
+
+      subroutine paw_comp_charge_spin_update()
+      implicit none
+
+#include "mafdecls.fh"
+#include "paw_comp_charge_data.fh"
+#include "paw_proj.fh"
+#include "paw_basis.fh"
+#include "paw_geom.fh"
+#include "paw_comp_charge_matrix.fh"
+#include "paw_ovlp_data.fh"
+
+
+        integer na
+        integer ia
+        integer nlmi
+        integer tot_natom
+        integer i_matr,i_matr0
+        integer i_w,i_w0
+        integer nb2,nb
+        integer mult_l
+        complex*16 qlm_tmp
+        
+        integer i,j,li,lj,mi,mj,ms
+        integer l,m
+        integer i_qlm,i_qlm0
+        integer nilm,njlm
+        integer ptr_qlm,ptr_w
+        double precision gen_gaunt_coeff
+        external gen_gaunt_coeff
+
+        tot_natom = ion_nion()
+
+        do ms=1,ispin
+           ptr_qlm = paw_qlm_spin(1,ms)
+           if (ms.eq.1) then
+              ptr_w = paw_ovlp_w_u(1)
+           else
+              ptr_w = paw_ovlp_w_d(1)
+           end if
+
+*       *** zero the comp charges ***
+        do i=1,paw_qlm_spin(3,ms)
+          dcpl_mb(ptr_qlm+i-1) = dcmplx(0.0d0,0.0d0)
+        end do
+    
+ 
+        do na=1,tot_natom
+          ia = ion_katm(na)
+          mult_l = paw_basis_mult_l(ia)
+          nb =paw_basis_nbasis(ia)
+          nb2 = nb*nb
+          i_matr0 = int_mb(i_comp_charge_matrix(1) + ia - 1)
+          i_w0 = int_mb(i_paw_ovlp_w(1) + na - 1)
+          i_qlm0 = int_mb(i_paw_qlm(1) + na - 1)
+          nilm = 0
+          do i=1,nb
+          li = paw_basis_orb_l(i,ia)
+          njlm = 0
+          do j=1,nb
+          lj = paw_basis_orb_l(j,ia)
+          nlmi = 0
+          do l=0,mult_l
+              qlm_tmp = dcmplx(0.0d0,0.0d0)
+              if(l.le.(li+lj) .and. l.ge.abs(li-lj)) then
+                do m=-l,l
+                do mi=-li,li
+                 do mj=-lj,lj
+                   if(m.eq.(mj-mi)) then
+                   i_w   = i_w0-1+(njlm+lj+mj+1)+
+     >                   (nilm+li+mi)*paw_proj_nbasis(ia)
+                      
+                   i_qlm = i_qlm0-1+nlmi+l+m+1
+                   i_matr = i_matr0-1+j+(i-1)*nb+l*nb2
+                   dcpl_mb(ptr_qlm+i_qlm) 
+     >               =  dcpl_mb(ptr_qlm+i_qlm)
+     >               +     dbl_mb(comp_charge_matrix(1) + i_matr) 
+     >                    *gen_gaunt_coeff(l,m,lj,mj,li,mi)
+     >                    *dcpl_mb(ptr_w + i_w) 
+                  end if
+                 end do
+                end do
+                end do !m
+              end if
+             nlmi = nlmi + 2*l+1
+          end do !l
+          njlm = njlm + 2*lj+1
+          end do !j
+          nilm = nilm + 2*li+1
+          end do !i
+        end do !na
+        
+ 
+      end do !*ms*
+
+      return
+      end !subroutine
 
 
 

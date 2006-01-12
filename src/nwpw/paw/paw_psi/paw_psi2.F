@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.9 2005-02-02 06:59:40 bylaska Exp $
+* $Id: paw_psi2.F,v 1.10 2006-01-12 00:54:02 bylaska Exp $
 *
 
 
@@ -2297,15 +2297,17 @@ c     real*8 sum1,sum2
 *     *		paw_psi_spin_density  	*
 *     *					*
 *     ***********************************
-      subroutine paw_psi_spin_density(en)
+      subroutine paw_psi_spin_density(en1,en2)
       implicit none
-      real*8 en(2)
+      real*8 en1(2),en2(2)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "paw_psi.fh"
 
+
 *     **** local variables ****
-      integer ms,nx,ny,nz,n2ft3d
+      integer ms,nx,ny,nz,n2ft3d,tmp1(2)
       real*8  scale,sumall
 
 *     **** external functions ****
@@ -2322,8 +2324,29 @@ c     real*8 sum1,sum2
 *     **** check total number of electrons ****
       do ms =1,ispin
          call D3dB_r_dsum(1,dbl_mb(rho1(1)+(ms-1)*n2ft3d),sumall)
-         en(ms) = sumall*scale
+         en1(ms) = sumall*scale
       end do
+
+      if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+     >   call errquit(
+     >        'paw_psi_spin_density: out of stack memory',0,MA_ERR)
+
+      call paw_comp_charge_spin_update()
+
+      do ms =1,ispin
+         call paw_mult_dn_cmp_smooth_spin_get(ms,dbl_mb(tmp1(1)))
+         call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+         call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+         call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+         call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
+         en2(ms) = sumall*scale
+
+      end do
+      if (.not.MA_pop_stack(tmp1(2)))
+     >   call errquit(
+     >        'paw_psi_spin_density: popping stack memory',0,MA_ERR)
+
+
       
       return
       end

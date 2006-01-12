@@ -1,8 +1,11 @@
 *
-* $Id: paw_mult.F,v 1.26 2005-02-23 21:40:18 edo Exp $
+* $Id: paw_mult.F,v 1.27 2006-01-12 00:54:01 bylaska Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.26  2005/02/23 21:40:18  edo
+* fixed x1 fpe caused by 0**0
+*
 * Revision 1.25.4.1  2005/02/23 21:39:50  edo
 * fixed x1 fpe caused by 0**0
 *
@@ -1193,6 +1196,101 @@
 #include "paw_mult_data.fh"
 
       ptr = paw_pot_mult(1)
+      return
+      end
+
+
+
+
+
+!**************************************************
+!
+!       Name: paw_mult_dn_cmp_smooth_spin_get
+!
+!       Purpose: returns  dn_cmp_smooth for each spin w/o core charge
+!
+!       Created:        1/11/2006
+!**************************************************
+      subroutine paw_mult_dn_cmp_smooth_spin_get(ms,dn_cmp_smooth)
+      implicit none
+      integer    ms
+      complex*16 dn_cmp_smooth(*)
+
+#include "mafdecls.fh"
+#include "paw_mult_data.fh"
+#include "paw_comp_charge_data.fh"
+#include "paw_geom.fh"
+#include "paw_basis.fh"
+
+      !**** local variables ***
+      logical ok
+      integer ia,ii,jj,kk,l,m,nion,npack0,mult_l
+      integer exi(2),tmp(2),QYlm(2)
+
+      !**** allocate stack memory ****
+      call Pack_npack(0,npack0)
+      ok = MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      ok = ok.and.
+     >     MA_push_get(mt_dcpl,npack0,'QYlm',QYlm(2),QYlm(1))
+      tmp(1) = exi(1)
+      tmp(2) = exi(2)
+      if (.not.ok)
+     > call errquit(
+     >  'paw_mult_dn_cmp_smooth_get2: out of stack memory',0,0)
+
+
+      call dcopy(2*npack0,0.0d0,0,dn_cmp_smooth,1)
+      nion = ion_nion()
+      do ii=1,nion
+         ia = ion_katm(ii)
+
+         !**** Define QYlm ****
+         mult_l = paw_basis_mult_l(ia)
+         jj     = int_mb(i_paw_qlm(1)+ii-1)
+         
+         kk     = 0
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
+         do l=0,mult_l
+         do m=-l,l
+           call Pack_cc_zaxpy(0,
+     >               dcpl_mb(paw_qlm_spin(1,ms)+jj),
+     >               dcpl_mb(g_lm(1)+(kk)*npack0),
+     >               dcpl_mb(QYlm(1)))
+
+           jj = jj + 1
+           kk = kk + 1
+         end do
+         end do
+
+         !**** Multiply by Structure Factor ****
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         call Pack_cc_Mul(0,
+     >                    dcpl_mb(exi(1)),
+     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(QYlm(1)))
+
+
+         !**** add up ncmp_smooth^ii  ****
+         call Pack_tc_Mul(0,
+     >                    dbl_mb(gk_smooth(1)),
+     >                    dcpl_mb(QYlm(1)),
+     >                    dcpl_mb(tmp(1)))
+         call Pack_cc_Sum(0,
+     >                    dcpl_mb(tmp(1)),
+     >                    dn_cmp_smooth,
+     >                    dn_cmp_smooth)
+
+
+      end do !*ii*
+
+
+      !**** deallocate stack memory ****
+      ok =        MA_pop_stack(QYlm(2))
+      ok = ok.and.MA_pop_stack(exi(2))
+      if (.not.ok)
+     >  call errquit(
+     >  'paw_mult_dn_cmp_smooth_get2:error popping stack',0,1)
+
       return
       end
 
