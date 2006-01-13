@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.26 2005-12-22 18:32:20 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.27 2006-01-13 19:43:16 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -474,11 +474,14 @@ c     local variables
       logical master
       integer i_e1,h_e1
       integer i_e2,h_e2
+      integer i_t,h_t
+      double precision taver
       character*30 region(3)
       integer nregion
       character*84 tag
       integer offset 
       double precision de
+      double precision a
 c
       logical  mm_read_frame
       external mm_read_frame
@@ -581,6 +584,12 @@ c
      &      nfr, MA_ERR)
       call dfill(nfr,0,dbl_mb(i_e2),1)
 c
+      if(.not.ma_alloc_get(MT_DBL, nfr, 'qmmm ti t',
+     &      h_t, i_t) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nfr, MA_ERR)
+      call dfill(nfr,0,dbl_mb(i_t),1)
+c
       nfra = 0
 
 
@@ -590,7 +599,7 @@ c
      >      call errquit(pname//'failed to get skip frames',
      >                   0,0)
         nfra = nfra + 1
-        call mm_get_temp(temp)
+        call mm_get_temp(dbl_mb(i_t+i-1))
         call mm_get_stime(stime)
         call md_sp()
         task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
@@ -617,7 +626,7 @@ c
      >      "ti:",
      >      nfra,
      >      stime,
-     >      temp,
+     >      dbl_mb(i_t+i-1),
      >      dbl_mb(i_e1+i-1),
      >      dbl_mb(i_e2+i-1)
 
@@ -628,19 +637,32 @@ c
       end do
  23   continue
 c
+      taver = 0.0d0
       de = 0.0d0
       do i=1,nfra
          
-        de = de + dbl_mb(i_e2+i-1)-
-     >       dbl_mb(i_e1+i-1)
+        a = 627.51*(
+     >       dbl_mb(i_e1+i-1)-
+     >       dbl_mb(i_e2+i-1)
+     >       )
+     >       /(kb*dbl_mb(i_t+i-1))
 
+        de = de + exp(a)
+        taver = taver + dbl_mb(i_t+i-1)
       end do
+      taver = taver/nfra
       de = de/nfra
+      de = -kb*taver*log(de)
 
       if(master) then
         write(*,*) "free energy difference",de
       end if
 c
+      if(.not.ma_free_heap(h_t))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nfr, MA_ERR)
+
       if(.not.ma_free_heap(h_e2))
      &      call errquit(
      &      pname//'unable to deallocate heap space',
@@ -1147,7 +1169,7 @@ c
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.26 2005-12-22 18:32:20 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.27 2006-01-13 19:43:16 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1191,7 +1213,10 @@ c
       integer istart
       integer iend
       logical pes_spring
-
+      character*30 region(3)
+      integer nregion
+      character*84 tag
+ 
       pname = "task_qmmm_energy_pes"
 
 c
@@ -1282,6 +1307,30 @@ c     -------------------------------------------
         i3=1
       end if
 c
+c     region definitions
+c     ------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     no region so exiting out
+c     -----------------------
+      if(nregion.eq.0) return
+
+      if(nregion.gt.3) 
+     >      call errquit(pname//"too many regions",0,0)
+      if (.not.rtdb_cget(irtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     define set of active atoms
+c     --------------------------
+      call qmmm_cons_reset()
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region(1))
+c
+c
 c     actually do the scan
 c     --------------------
       do ip=i1,i2,i3
@@ -1337,6 +1386,7 @@ c       start load movecs if it exists and requested
           call ga_sync()
         end if
 c       end load restart 
+        call qmmm_esp_reset(irtdb)
         status = task_qmmm_energy_sp(irtdb)
         if(ga_nodeid().eq.0) then 
            write(*,*) "pes: saving restart file",
