@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.24 2006-01-12 00:54:01 bylaska Exp $
+* $Id: paw_comp_charge.F,v 1.25 2006-01-13 00:42:22 bylaska Exp $
 *
 
 
@@ -248,10 +248,15 @@ c        end do
         integer i_qlm,i_qlm0
         integer nilm,njlm
         integer ptr_qlm,ptr_w
+        double precision occ
         double precision gen_gaunt_coeff
         external gen_gaunt_coeff
 
         tot_natom = ion_nion()
+
+        occ = 1.0d0
+        if (ispin.eq.1) occ = 0.5d0  ! rescal ovlp_weight if a restricted calculation
+                                     ! since paw_ovlp_w_u is multiplied by 2 if restricted
 
         do ms=1,ispin
            ptr_qlm = paw_qlm_spin(1,ms)
@@ -299,6 +304,7 @@ c        end do
      >               +     dbl_mb(comp_charge_matrix(1) + i_matr) 
      >                    *gen_gaunt_coeff(l,m,lj,mj,li,mi)
      >                    *dcpl_mb(ptr_w + i_w) 
+     >                    *occ
                   end if
                  end do
                 end do
