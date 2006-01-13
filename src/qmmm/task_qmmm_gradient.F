@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.49 2005-12-29 03:07:29 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.50 2006-01-13 19:40:46 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -387,7 +387,7 @@ c
      >   call errquit(
      &      pname//'pspw_bq_gradient',0,0)
 
-
+         call dscal(3*na,-1.0d0,dbl_mb(i_g),1)
  
       else 
 
