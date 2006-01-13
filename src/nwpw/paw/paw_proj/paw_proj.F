@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.31 2004-10-14 21:53:29 bylaska Exp $
+* $Id: paw_proj.F,v 1.32 2006-01-13 02:05:26 marat Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.31  2004/10/14 21:53:29  bylaska
+* io fixes...EJB
+*
 * Revision 1.30  2004/09/04 17:56:21  bylaska
 * Added local potential to the projector file (.jpp).
 * More updates to constraint force.
@@ -619,6 +622,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       integer i_rgrid,i_prj,ps_ptr
       real*8  unita(3,3),gg,log_amesh
       integer tmp(2),prj(2),rayleigh(2),Gx(2),Gy(2),Gz(2),f(2)
+      integer g(2),gm(2),ng,ray(2)
 
       character*20 jppname,atomname
       character*255 full_filename
@@ -690,6 +694,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
      >                    'tmp',tmp(2),tmp(1))
       value  = value.and.
      >         MA_push_get(mt_dbl,nr,'f',f(2),f(1))
+      value  = value.and.
+     >         MA_push_get(mt_int,nfft3d,'gm',gm(2),gm(1))
+      value  = value.and.
+     >         MA_push_get(mt_dbl,nfft3d,'ray small',ray(2),ray(1))
+      value  = value.and.
+     >         MA_push_get(mt_dbl,nfft3d,'g',g(2),g(1))
       if (.not.value) 
      > call errquit('paw_proj_formatter_auto, push stack',0,0)
 
@@ -697,30 +707,53 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       Gy(1) = G_indx(2)
       Gz(1) = G_indx(3)
 
-
+      call dfill(nfft3d,0.0,dbl_mb(ray(1)),1)
+      call dfill(nfft3d,-1.0,dbl_mb(g(1)),1)
+      call ifill(nfft3d,0,int_mb(gm(1)),1)
+c
+      ng = 0
+      do i=1,nfft3d
+          gg      = dsqrt( 
+     >              dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
+     >            + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
+     >            + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) )            
+       do ii=1,ng
+         if(abs(gg-dbl_mb(g(1)+ii-1)).lt.1.0d-8) then
+           int_mb(gm(1)+i-1) = ii
+           goto 1
+         end if
+       end do
+       ng = ng + 1
+       dbl_mb(g(1)+ng-1) = gg
+       int_mb(gm(1)+i-1) = ng
+1      continue
+      end do
 
 *     ***** format projectors *****
       do ii=1,basis_nbasis
         l =  int_mb(paw_basis_i_orb_l(ia)+ii-1)
 
-        do i=1,nfft3d
-          gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
-     >               + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
-     >               + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) )             
-  
+
+        do i=1,ng
+
+          gg=dbl_mb(g(1)+i-1)
           if (gg.gt.small) then
-            dbl_mb(rayleigh(1)+i-1) 
+            dbl_mb(ray(1)+i-1) 
      >      = spher_bessel_transform(l,nr,log_amesh,
      >                               dbl_mb(i_rgrid),
      >                               dbl_mb(i_prj+(ii-1)*nr),
      >                               gg)
           else
-            dbl_mb(rayleigh(1)+i-1) 
+            dbl_mb(ray(1)+i-1) 
      >      = spher_bessel0_transform(l,nr,log_amesh,
      >                                dbl_mb(i_rgrid),
      >                                dbl_mb(i_prj+(ii-1)*nr))
           end if
+        end do
 
+        do i=1,nfft3d
+          dbl_mb(rayleigh(1)+i-1) = 
+     >       dbl_mb(ray(1)+int_mb(gm(1)+i-1)-1)
         end do
 
         do m=-l,l
@@ -756,20 +789,18 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
      >                    *dbl_mb(ps_ptr+i-1)
       end do
 
-      do i=1,nfft3d
-        gg  = dsqrt( dbl_mb(Gx(1)+i-1)*dbl_mb(Gx(1)+i-1)
-     >             + dbl_mb(Gy(1)+i-1)*dbl_mb(Gy(1)+i-1)
-     >             + dbl_mb(Gz(1)+i-1)*dbl_mb(Gz(1)+i-1) )
+      do i=1,ng
+          gg=dbl_mb(g(1)+i-1)
 
           if (gg.gt.small) then
-          dbl_mb(rayleigh(1)+i-1) 
+          dbl_mb(ray(1)+i-1) 
      >       = fourpi
      >        *spher_bessel_transform(0,nr,log_amesh,
      >                                dbl_mb(i_rgrid),
      >                                dbl_mb(f(1)),
      >                                gg)
           else
-          dbl_mb(rayleigh(1)+i-1) 
+          dbl_mb(ray(1)+i-1) 
      >       = fourpi
      >        *spher_bessel0_transform(0,nr,log_amesh,
      >                                dbl_mb(i_rgrid),
@@ -777,8 +808,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
           end if
 
       end do
-      call D3dB_t_write(1,6,dbl_mb(rayleigh(1)),dcpl_mb(tmp(1)))
+      do i=1,nfft3d
+          dbl_mb(rayleigh(1)+i-1) = 
+     >       dbl_mb(ray(1)+int_mb(gm(1)+i-1)-1)
+      end do
 
+      call D3dB_t_write(1,6,dbl_mb(rayleigh(1)),dcpl_mb(tmp(1)))
 
 
       if (taskid.eq.MASTER) then 
@@ -788,7 +823,10 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
          write(6,*) " Generated formatted filename:",full_filename(1:l)
       end if
 
-      value =           MA_pop_stack(f(2))
+      value =           MA_pop_stack(g(2))
+      value = value.and.MA_pop_stack(ray(2))
+      value = value.and.MA_pop_stack(gm(2))
+      value = value.and.MA_pop_stack(f(2))
       value = value.and.MA_pop_stack(tmp(2))
       value = value.and.MA_pop_stack(prj(2))
       value = value.and.MA_pop_stack(rayleigh(2))
