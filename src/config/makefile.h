@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.513 2005-12-29 00:34:24 edo Exp $
+# $Id: makefile.h,v 1.514 2006-01-18 18:58:57 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1066,19 +1066,19 @@ ifeq ($(TARGET),MACX)
 # MacOSX 
 #
 # 
-  ifndef USE_MPI
-  mpimacx:
-	@echo You must define USE_MPI=y to compile
-	@echo nwchem on MAC OS X.
-	@echo Please type
-	@echo 
-	@echo " make  USE_MPI=y"
-	@echo "  or "
-	@echo " make  FC=xlf USE_MPI=y"
-	@echo 
-	@exit 1
-  endif
-
+#  ifndef USE_MPI
+#  mpimacx:
+#	@echo You must define USE_MPI=y to compile
+#	@echo nwchem on MAC OS X.
+#	@echo Please type
+#	@echo 
+#	@echo " make  USE_MPI=y"
+#	@echo "  or "
+#	@echo " make  FC=xlf USE_MPI=y"
+#	@echo 
+#	@exit 1
+#  endif
+#
 ifdef USE_VECLIB
     CORE_SUBDIRS_EXTRA =  blas
 else
@@ -1095,12 +1095,12 @@ endif
     XLFMAC=y
     FOPTIONS = -qextname -qfixed -qnosave  -qalign=4k
     FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
-    FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qcache=auto
+    FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qcache=auto -qcompact
     ifdef RSQRT
       FOPTIMIZE  += -qfloat=rsqrt:fltint
     endif
-    FOPTIMIZE+=  -qunroll=yes 
-#    FDEBUG= -O2 
+    FVECTORIZE += $(FOPTIMIZE) -qunroll=yes 
+    FDEBUG= -O2 -qcompact 
     DEFINES  +=-DXLFLINUX -DCHKUNDFLW
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
   else
