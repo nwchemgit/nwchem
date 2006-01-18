@@ -1,23 +1,35 @@
-      subroutine util_mirrmat(nmat,g_a,g_amirr,
+      logical function util_mirrmat(nmat,g_a,g_amirr,
      D     docopy, dozero)
-c $Id: util_mirror.F,v 1.3 2005-12-17 01:23:01 edo Exp $
+c $Id: util_mirror.F,v 1.4 2006-01-18 20:11:40 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
       integer nmat,g_a(*),g_amirr(*)
       logical docopy, dozero
+      logical util_mirrclone
+      external util_mirrclone
 c
-      integer i
+      integer i,ii
+      util_mirrmat=.false.
 c     need to add sanity check on docopy vs dozero
       do i=1,nmat
-         call util_mirrclone(g_a(i),g_amirr(i))
-         call ga_mask_sync(.true.,.false.)
-         if(docopy) call ga_copy(g_a(i),g_amirr(i))
-         if(dozero) call ga_zero(g_amirr(i))
-      enddo
+         if(util_mirrclone(g_a(i),g_amirr(i))) then
+            call ga_mask_sync(.true.,.false.)
+            if(docopy) call ga_copy(g_a(i),g_amirr(i))
+            if(dozero) call ga_zero(g_amirr(i))
+         else
+            if(i.gt.1) then
+               do ii=1,i-1
+                  call util_mirrstop(ii,g_amirr(ii))
+               enddo
+            endif
+            return
+         endif
+         enddo
+         util_mirrmat=.true.
       return
       end
-      subroutine util_mirrclone(g_a,g_amirr)
+      logical function util_mirrclone(g_a,g_amirr)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -48,7 +60,9 @@ c
          write(0,*) ga_nodeid(), ' rep  failed on ',
      A        array_name,' ndim ',ndim,' dims ',
      D     dims(1),dims(2),dims(3)
-         call errquit(' mirrclone failed ',0,0)
+         util_mirrclone=.false.
+      else
+         util_mirrclone=.true.
       endif
 
       return
