@@ -1,5 +1,5 @@
       subroutine ga_orthog(g_vecs, g_over, ometric)
-C$Id: ga_orthog.F,v 1.12 2003-10-17 22:58:34 carlfahl Exp $
+C$Id: ga_orthog.F,v 1.13 2006-01-19 19:44:54 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -63,14 +63,8 @@ c
 c
 c     Do the deed
 c
-#ifdef SP1
-      call ga_sync()
-#endif
       call ga_orthog_vecs(dbl_mb(k_tmp), ld, ni, ulo, uhi, dbl_mb(k_s),
      $     dbl_mb(k_over), nu, dbl_mb(k_w), ometric)
-#ifdef SP1
-      call ga_sync()
-#endif
 c
 c     Put results back
 c
@@ -171,9 +165,9 @@ c
          end if
 c
          if (si .eq. 0.0d0) call errquit('ga_orthog: hard zero', i,
-     &       GA_ERR)
+     &       0)
          if (si .lt. 0.0d0) call errquit('ga_orthog: negative', i,
-     &       GA_ERR)
+     &       0)
          scale = 1.0d0/sqrt(si)
          do u = ulo, uhi
             vecs(u,i) = vecs(u,i) * scale
