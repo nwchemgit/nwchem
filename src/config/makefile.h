@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.514 2006-01-18 18:58:57 edo Exp $
+# $Id: makefile.h,v 1.515 2006-01-19 01:51:34 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1062,6 +1062,7 @@ ifeq ($(BUILDING_PYTHON),python)
 endif
 endif
 ifeq ($(TARGET),MACX)
+  FC = g77
 #
 # MacOSX 
 #
@@ -1103,7 +1104,8 @@ endif
     FDEBUG= -O2 -qcompact 
     DEFINES  +=-DXLFLINUX -DCHKUNDFLW
      FOPTIONS += $(INCLUDES) -WF,"$(DEFINES)" $(shell echo $(LIB_DEFINES) | sed -e "s/-D/-WF,-D/g"   | sed -e 's/\"/\\\"/g'  | sed -e "s/\'/\\\'/g")
-  else
+  endif
+  ifeq ($(FC),g77)
 #g77, only decent one form Fink http://fink.sf.net
 #gcc version 3.4 20031015 (experimental)
     _G77V33= $(shell g77 -v  2>&1|egrep spec|head -1|awk ' /3.3/  {print "Y"}')
@@ -1126,6 +1128,31 @@ endif
       FOPTIMIZE += -mtune=7450 -mcpu=7450
     endif
     endif
+      ifeq ($(FC),gfortran)
+#gcc version 4.2.0 200512 (experimental)
+        LINK.f = gfortran  $(LDFLAGS) 
+        FOPTIONS   = -Wextra -Wunused -ffast-math
+        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
+        FVECTORIZE = -ffast-math  -O3 -ftree-vectorize 
+        FVECTORIZE += -ftree-vectorizer-verbose=1
+        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+        ifeq ($(_CPU),ppc970)
+#G5
+          FOPTIMIZE += -mtune=970 -mcpu=970 -mpowerpc64
+          FVECTORIZE += -mtune=970 -mcpu=970 -mpowerpc64
+        endif
+       ifeq ($(_CPU),ppc7450)
+#G4
+        FOPTIMIZE += -mtune=7450 -mcpu=7450
+       endif
+        ifdef USE_F2C
+#possible segv with use of zdotc (e.g. with GOTO BLAS)
+#http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
+          FOPTIONS +=  -ff2c -fno-second-underscore
+        endif
+        FDEBUG = -g -O0
+        DEFINES  += -DCHKUNDFLW -DGCC4
+      endif
     ifeq ($(CC),xlc)
       COPTIONS  +=  -qlanglvl=extended
     else
