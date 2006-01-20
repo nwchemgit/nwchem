@@ -6,14 +6,6 @@ retrieving revision 1.20.2.1
 diff -u -r1.20 -r1.20.2.1
 --- intd_2e4c.F	3 Dec 2004 22:34:31 -0000	1.20
 +++ intd_2e4c.F	1 Jul 2005 00:02:11 -0000	1.20.2.1
-@@ -1,6 +1,6 @@
-       subroutine intd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
-      &       lscr, scr, leri, eri, idatom)
--c $Id: intd_2e4c.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
-+c $Id: intd_2e4c.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
-       implicit none
- c
- c basic api routine to generate 4 center two electron integral derivatives 
 @@ -519,12 +519,14 @@
        integer z
        integer offset_x, offset_s

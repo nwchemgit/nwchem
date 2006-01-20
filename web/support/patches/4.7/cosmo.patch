@@ -1,13 +1,5 @@
 --- cosmo.F	Thu Sep  8 13:53:01 2005
 +++ cosmo.F.latest	Thu Jun 30 17:15:24 2005
-@@ -1,6 +1,6 @@
-       subroutine cosmo_input(rtdb)
- *
--* $Id: cosmo.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
-+* $Id: cosmo.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
- *
-       implicit none
- #include "errquit.fh"
 @@ -1721,20 +1721,48 @@
       &            dbl_mb(k_efcc+(ief-1)*3+1),dbl_mb(k_efcc+(ief-1)*3+2)
           enddo

@@ -6,12 +6,6 @@ retrieving revision 1.1.2.1
 diff -u -r1.1 -r1.1.2.1
 --- int_giaotv10.F	21 Jul 2004 16:13:46 -0000	1.1
 +++ int_giaotv10.F	19 Jul 2005 17:46:52 -0000	1.1.2.1
-@@ -1,4 +1,4 @@
--c $Id: int_giaotv10.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
-+c $Id: int_giaotv10.patch,v 1.1 2006-01-12 18:52:11 edo Exp $
- *
- c:tex-% this is part of the API Standard Integral routines.
- c:tex-\subsection{int\_giaotv10}
 @@ -142,8 +142,8 @@
        if (itype.eq.-1) igen = 1
        if (jtype.eq.-1) jgen = 1
