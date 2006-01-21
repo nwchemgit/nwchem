@@ -1,6 +1,6 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.13 2003-10-19 06:07:31 d3j191 Exp $
+c $Id: esp_denmat.F,v 1.14 2006-01-21 02:22:52 marat Exp $
 c
       implicit none
 c
@@ -40,7 +40,11 @@ c
 c
 c     open movecs file and read header info
 c
-      call util_file_name('movecs',.false.,.false.,movfil)
+      if(movfil.eq.' ') then
+       call util_file_name('movecs',.false.,.false.,movfil)
+      else
+       call util_file_name_resolve(movfil,.false.)
+      end if
       if(.not.movecs_read_header(movfil,title,basnam,scftyp,nbf,nset,
      + nmo,2)) call md_abort('esp: movecs_read_header failed',me)
 c

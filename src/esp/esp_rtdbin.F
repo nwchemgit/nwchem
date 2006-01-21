@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.17 2005-10-08 05:25:26 edo Exp $
+c $Id: esp_rtdbin.F,v 1.18 2006-01-21 02:22:52 marat Exp $
 c
       implicit none
 c
@@ -47,6 +47,8 @@ c
 c
 c     get cutoff radius and gridspacing
 c
+      if(.not.rtdb_cget(irtdb,"esp:input vectors",1,movfil)) 
+     +    movfil = ' '
       if(.not.rtdb_get(irtdb,'esp:probe',mt_dbl,1,probe)) probe=0.07d0
       if(.not.rtdb_get(irtdb,'esp:factor',mt_dbl,1,factor))
      +  factor=1.00d0
