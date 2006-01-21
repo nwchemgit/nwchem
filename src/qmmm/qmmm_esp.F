@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.18 2005-12-13 22:57:03 marat Exp $
+c $Id: qmmm_esp.F,v 1.19 2006-01-21 02:26:26 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -76,18 +76,18 @@ c
       if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
      +   call errquit('esp: rtdb_put newgrd failed',0,0)
 c
-      call util_file_name('movecs',.false.,.false.,movfil)
-      if(ga_nodeid().eq.0) then
-           inquire(file=movfil,exist=omovecs)
-           if(omovecs) then
-            write(*,*) "qmmm esp using movecs file ",
-     >                movfil(1:inp_strlen(movfil))
-           else
-            call errquit(pname//"default movecs file"
-     >                   //movfil(1:inp_strlen(movfil))
-     >                   //" not found",0,0)
-           end if
-       end if
+c      call util_file_name('movecs',.false.,.false.,movfil)
+c      if(ga_nodeid().eq.0) then
+c           inquire(file=movfil,exist=omovecs)
+c           if(omovecs) then
+c            write(*,*) "qmmm esp using movecs file ",
+c     >                movfil(1:inp_strlen(movfil))
+c           else
+c            call errquit(pname//"default movecs file"
+c     >                   //movfil(1:inp_strlen(movfil))
+c     >                   //" not found",0,0)
+c           end if
+c       end if
 
 c
       if(.not.esp(rtdb)) 
@@ -777,7 +777,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.18 2005-12-13 22:57:03 marat Exp $
+* $Id: qmmm_esp.F,v 1.19 2006-01-21 02:26:26 marat Exp $
 *
       implicit none
 #include "errquit.fh"
