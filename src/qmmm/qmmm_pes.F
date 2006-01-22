@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.1 2006-01-21 02:25:43 marat Exp $
+c $Id: qmmm_pes.F,v 1.2 2006-01-22 07:04:32 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.1 2006-01-21 02:25:43 marat Exp $
+c     $Id: qmmm_pes.F,v 1.2 2006-01-22 07:04:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -34,13 +34,20 @@ c
       logical   task_qmmm_gradient
       external  task_qmmm_gradient
 
+      logical   task_qmmm_property
+      external  task_qmmm_property
+
       logical   task_qmmm_esp
       external  task_qmmm_esp
+
+      logical   qmmm_mixed_optimization
+      external  qmmm_mixed_optimization
 
       logical ignore
       character*255 filename, prefix
       character*255 rst_in, movecs_in
       character*255 rst_perm,rst_tmp,movecs_perm
+      character*255 rst_old
       double precision rb(2)
       integer np
       integer ip
@@ -56,9 +63,6 @@ c
       integer istart
       integer iend
       logical pes_spring
-      character*30 region(3)
-      integer nregion
-      character*84 tag
       character*84 inmovecs_tag
       character*84 outmovecs_tag
  
@@ -77,6 +81,8 @@ c     default file prefix from mm module
 c     ----------------------------------
       call mm_system_prefix(prefix)
       prefix = prefix(1:inp_strlen(prefix))//"_pes"
+c
+      call mm_restart_filename(rst_old)
 c
 c     get number of cycles 
 c     --------------------
@@ -136,8 +142,6 @@ c
        loadmovecs = .true.
       end if
 c
-      write(*,*) "loadrst,loadmovecs",loadrst,loadmovecs
-c
       if(theory.eq."dft") then
         inmovecs_tag = 'dft:input vectors'
         outmovecs_tag = 'dft:output vectors'
@@ -149,6 +153,14 @@ c
         outmovecs_tag = "esp:input vectors"
       else
         call errquit(pname//'theory not supported'//theory,0,0)
+      end if
+c
+c     this will force property module
+c     not to recalculate movecs
+c     -------------------------------
+      if(operation.eq."property") then
+        inmovecs_tag = "prop:vectors"
+        outmovecs_tag = "prop:vectors"
       end if
 
 c 
@@ -169,30 +181,7 @@ c     -------------------------------------------
         i2=iend
         i3=1
       end if
-c
-c     region definitions
-c     ------------------
-      tag ="qmmm:region"
-      if (.not.rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
-     >                 mt_int,1,nregion)) 
-     >      call errquit(pname//tag,0,RTDB_ERR)
-c
-c     no region so exiting out
-c     -----------------------
-      if(nregion.eq.0) return
 
-      if(nregion.gt.3) 
-     >      call errquit(pname//"too many regions",0,0)
-      if (.not.rtdb_cget(irtdb,tag,nregion,region)) 
-     >      call errquit(pname//tag,0,RTDB_ERR)
-c
-c     define set of active atoms
-c     --------------------------
-      call qmmm_cons_reset()
-      call qmmm_cons_set("fix","solute")
-      call qmmm_cons_set("fix","solvent")
-      call qmmm_cons_set("free",region(1))
-c
 c
 c     actually do the scan
 c     --------------------
@@ -257,17 +246,23 @@ c       ----------------------
           status = task_qmmm_gradient(irtdb)
         else if (operation.eq."dynamics") then
           status = qmmm_dynamics(irtdb)
+        else if (operation.eq."optimization") then
+          status = qmmm_mixed_optimization(irtdb)
+        else if (operation.eq."property") then
+          status = task_qmmm_property(irtdb)
         else if (operation.eq."esp") then
           status = task_qmmm_esp(irtdb)
         end if 
  
         if(ga_nodeid().eq.0) then 
            write(*,*) "pes: saving restart file",
-     >                 filename
+     >                 rst_perm
         end if
         call mm_write_restart_named(rst_perm,.true.)
-        if(ga_nodeid().eq.0)  
-     >  call util_file_unlink(rst_tmp)
+        if(ga_nodeid().eq.0) then 
+          if(rst_tmp.ne.rst_old)   
+     >    call util_file_unlink(rst_tmp)
+        end if
         call ga_sync()
 
       end do
@@ -275,6 +270,12 @@ c       ----------------------
       loadrst = .true.
       loadmovecs = .true.
       end do
+c
+c     restore old restart filename
+c     in case of more tasks
+c     -----------------------------
+      call mm_set_restart_file(irtdb,rst_old)
+
       task_qmmm_pes = status
 
  13      format(a,'/',a,'_neb',i3.3,'.rst')

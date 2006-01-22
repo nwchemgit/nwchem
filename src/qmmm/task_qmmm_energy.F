@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.27 2006-01-13 19:43:16 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.28 2006-01-22 07:04:32 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -990,6 +990,28 @@ c     >     30,.true.)
 c        call qmmm_cons_print_region(6,"xyzi")
 c        call qmmm_cons_reset()
 c      end if
+c
+c     region definitions
+c     ------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     no region so exiting out
+c     -----------------------
+      if(nregion.eq.0) then
+        if(ga_nodeid().eq.0)
+     >    write(*,*) "WARNING no region found"
+        return
+      end if
+
+      if(nregion.gt.3) 
+     >      call errquit(pname//"too many regions",0,0)
+      if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+      call qmmm_cons_free_exclusive(region(1))
+c
  
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
@@ -1169,7 +1191,7 @@ c
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.27 2006-01-13 19:43:16 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.28 2006-01-22 07:04:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

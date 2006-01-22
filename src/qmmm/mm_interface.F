@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.84 2005-12-09 00:09:38 marat Exp $
+c $Id: mm_interface.F,v 1.85 2006-01-22 07:04:32 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -40,6 +40,35 @@ c     to stabilize bqzone flag for waters (MV)
 c
       return
       end
+
+      subroutine mm_set_restart_file(irtdb0,filename)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "qmmm.fh"
+#include "mafdecls.fh"
+c
+      integer irtdb0
+      character*(*) filename
+c
+      character*32 pname
+      integer j
+c
+      pname = "mm_set_restart_file"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+c     set the name of the new restart file
+c     ------------------------------------
+      j = index(filename,'.rst')-1
+      if(.not.rtdb_cput(irtdb0,'md:project',1,filename(1:j)))
+     + call errquit(pname//'Failed to set md:project',0,
+     +       RTDB_ERR)
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+c
+      return
+      end
+
 
       subroutine mm_reload_rst(irtdb0,filename)
 c     convenience routine to load

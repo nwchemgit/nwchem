@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2005-12-22 18:32:20 marat Exp $
+# $Id: GNUmakefile,v 1.26 2006-01-22 07:04:32 marat Exp $
 #
 
 
@@ -9,7 +9,7 @@ OBJ =  qmmm.o task_qmmm_gradient.o mm_interface.o qmmm_link.o \
        qmmm_check_forces.o qmmm_bq.o qmmm_esp.o qmmm_cons.o \
        qmmm_geom.o qmmm_bq_data.o \
        task_qmmm_optimize.o task_qmmm_dynamics.o qmmm_output.o \
-       mm_utils.o qmmm_input.o
+       mm_utils.o qmmm_input.o qmmm_pes.o qmmm_pmf.o qmmm_property.o
 
 LIBRARY=libqmmm.a
 
