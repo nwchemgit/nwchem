@@ -76,6 +76,12 @@ c     >     allbqw = .false.
      + call errquit(pname//'Failed bq_create',0,CALC_ERR) 
 
       call qmmm_bq_data_load()
+c
+c    force separate calculation of bq energy
+c    ---------------------------------------
+      if (.not. rtdb_put(irtdb,'dft:bq_energy',mt_dbl,1,0.0d0))
+     + call errquit(pname//'setting dft:bq_energy',0,CALC_ERR)
+c
 
       end
 
@@ -91,6 +97,7 @@ c
 #include "global.fh"
 #include "bq.fh"
 #include "util.fh"
+#include "rtdb.fh"
       integer i,k
       integer i_lb
       integer i_mbq,h_mbq
@@ -191,7 +198,6 @@ c     ---------------------------------------------
      + call errquit(pname//'Failed bq_pset',0,CALC_ERR)
       if(.not.bq_activate(bq_handle)) 
      + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
-c
       charge = 0.0d0
       do i=1,nbq
        charge = charge + dbl_mb(i_qbq+i-1)
