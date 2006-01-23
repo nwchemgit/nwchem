@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.73 2005-09-10 01:20:35 marat Exp $
+* $Id: task.F,v 1.74 2006-01-23 23:52:08 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -41,7 +41,7 @@ c
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
-      logical oqmmm, task_python, task_thermo,task_bq
+      logical oqmmm,opes, task_python, task_thermo,task_bq
       logical task_version, task_vscf
       logical task_paw 
       logical task_pspw,task_band
@@ -76,6 +76,9 @@ c
       logical  task_qmmm_esp
       external task_qmmm_esp
 c
+      logical task_qmmm_pes
+      external task_qmmm_pes
+c
       logical task_qmmm_optimize
       external task_qmmm_optimize
 c
@@ -99,6 +102,9 @@ c
 *
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
      &    oqmmm = .false.
+c
+      if (.not.rtdb_get(rtdb,'task:pes',mt_log,1,opes))
+     &    opes = .false.
 c
       if (rtdb_cget(rtdb,'bq',1,bqname)) then
          task_bq = .true.
@@ -133,6 +139,15 @@ c
               call errquit("failed to initialize bq", 0, CALC_ERR)
         end if
       end if
+c
+c 
+c
+      if(oqmmm.and.opes) then
+         status = task_qmmm_pes(rtdb)
+         call ga_sync()
+         goto 99999
+      endif
+
 c
 c Look for speciallized routine tasks here 
 c
@@ -178,11 +193,11 @@ c
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
-           if(oqmmm) then
-             status = task_qmmm_esp(rtdb)
-           else
-             status = esp(rtdb)
-           endif
+            if(oqmmm) then
+              status = task_qmmm_esp(rtdb)
+            else
+              status = esp(rtdb)
+            end if
          elseif(inp_compare(.false.,'prepare',theory)) then
           status=prepar(rtdb)
          elseif(inp_compare(.false.,'analysis',theory)) then

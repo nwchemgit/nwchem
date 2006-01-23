@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.43 2005-08-23 14:13:13 bylaska Exp $
+* $Id: task_input.F,v 1.44 2006-01-23 23:52:08 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -21,6 +21,7 @@ c     task [qmmm] <string theory> [<string operation = energy>] [numerical || an
 c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
+      logical opes
       character*30 test, operation
       character*32 theory
       character*128 err_string
@@ -79,6 +80,8 @@ c
             ignore = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
             oqmmm = .true.
+         else if (inp_compare(.false.,test,'pes')) then
+            opes = .true.
          else if (inp_compare(.false.,test,
      >                        'steepest_descent')) then
             operation='steepest_descent'
@@ -165,6 +168,11 @@ c
      $        analytic)) call errquit('task_input: rtdb is corrupt',0,
      &       RTDB_ERR)
       endif
+      if (opes) then
+        if (.not.rtdb_put(rtdb, 'task:pes', mt_log, 1, .true.))
+     &       call errquit('task_input:task:pes rtdb is corrupt',911,
+     &       RTDB_ERR)
+      end if
       if (oqmmm) then
         if (.not.rtdb_put(rtdb, 'task:QMMM', mt_log, 1, .true.))
      &       call errquit('task_input:task:QMMM rtdb is corrupt',911,
