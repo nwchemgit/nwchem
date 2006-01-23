@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.20 2005-11-09 22:42:48 marat Exp $
+c $Id: qmmm_output.F,v 1.21 2006-01-23 23:57:57 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -196,11 +196,16 @@ c
       integer irtdb
 c
       character*32 pname
-      double precision e,deds
+      double precision e,deds,s
 
       if (.not. rtdb_get(irtdb,'qmmm:spring_e',mt_dbl,
      +                    1,e))
      + return 
+
+      if (.not. rtdb_get(irtdb,'qmmm:spring_s',mt_dbl,
+     +                    1,s))
+     + call errquit(pname//'Failed to get spring_s',
+     + 1, RTDB_ERR)
 
       if (.not. rtdb_get(irtdb,'qmmm:spring_deds',mt_dbl,
      +                    1,deds))
@@ -209,7 +214,7 @@ c
 
       if(.not.qmmm_master()) return
 
-      write(*,21) "spring energy (derivative)", e,deds
+      write(*,21) "spring energy, derivative,length", e,deds,s
 
 21    FORMAT(1X,A,T34,F18.9," (",E12.6,2X, ")")
 

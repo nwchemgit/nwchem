@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.19 2005-12-30 22:34:38 marat Exp $
+c $Id: qmmm_cons.F,v 1.20 2006-01-23 23:57:17 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -566,7 +566,7 @@ c
       integer i_as,h_as
       integer i_rs,h_rs
       double precision k0,r0
-      double precision econs,deds
+      double precision econs,deds,s
 c
       if (.not. rtdb_get(irtdb,'qmmm:n_spring',mt_int,1,ns))
      $     ns = 0
@@ -650,6 +650,7 @@ c    --------------------------------------
      >                       dbl_mb(i_rs),
      >                       dbl_mb(i_c),
      >                       deds,
+     >                       s,
      >                       g)
       etot  = etot + econs
 c
@@ -658,13 +659,19 @@ c
      + call errquit(pname//'Failed to set spring_e',
      + 1, RTDB_ERR)
 
+      if (.not. rtdb_put(irtdb,'qmmm:spring_s',mt_dbl,
+     +                    1,s))
+     + call errquit(pname//'Failed to set spring_s',
+     + 1, RTDB_ERR)
+
+
       if (.not. rtdb_put(irtdb,'qmmm:spring_deds',mt_dbl,
      +                    1,deds))
      + call errquit(pname//'Failed to set spring_deds',
      + 1, RTDB_ERR)
 
       if(qmmm_master()) then
-        write(*,*) "spring_e",econs,deds
+        write(*,*) "spring e,deds,s",econs,deds,s
       end if
  
       if(.not.ma_free_heap(h_c))
@@ -697,6 +704,7 @@ c
      >                       r,
      >                       c,
      >                       deds,
+     >                       s,
      >                       g)
       implicit none
 
@@ -713,6 +721,7 @@ c
       integer ind(2,ns)
       double precision econs
       double precision deds
+      double precision s
       double precision  a(ns)
       double precision  r(ns)
       double precision g(3,nat)
@@ -738,10 +747,12 @@ c
         r(is) = sqrt(rr)
       end do
       
-      ehalf = -r0
+      s = 0.0d0
       do is=1,ns
-        ehalf = ehalf+a(is)*r(is)
+        s = s+a(is)*r(is)
       end do
+
+      ehalf = s-r0
       econs = ehalf*ehalf*k0
       deds = -2.0*k0*ehalf
 
