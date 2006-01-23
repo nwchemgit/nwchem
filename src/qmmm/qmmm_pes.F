@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.2 2006-01-22 07:04:32 marat Exp $
+c $Id: qmmm_pes.F,v 1.3 2006-01-23 23:50:32 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.2 2006-01-22 07:04:32 marat Exp $
+c     $Id: qmmm_pes.F,v 1.3 2006-01-23 23:50:32 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -65,6 +65,7 @@ c
       logical pes_spring
       character*84 inmovecs_tag
       character*84 outmovecs_tag
+      double precision energy
  
       pname = "task_qmmm_pes"
 c
@@ -195,6 +196,10 @@ c     --------------------
      +                       1,r))
      +    call errquit(pname//'Failed to set r_spring',
      +    1, RTDB_ERR)
+        else
+          if(ga_nodeid().eq.0) then
+            write(*,23) ip
+          end if
         end if
 
 c
@@ -263,6 +268,21 @@ c       ----------------------
           if(rst_tmp.ne.rst_old)   
      >    call util_file_unlink(rst_tmp)
         end if
+
+        if(operation.eq."energy".or.
+     >     operation.eq."gradient".or.
+     >     operation.eq."optimization") then
+        if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
+     $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+          if(ga_nodeid().eq.0) then
+            if(pes_spring) then
+              write(*,24) ip ,energy, r
+            else
+              write(*,25) ip ,energy
+            end if
+          end if
+        end if
+
         call ga_sync()
 
       end do
@@ -283,6 +303,12 @@ c     -----------------------------
  15      format("@pes: point ", I2,3X,"spring length = ",F12.6)
  16      format("@pes: energy =  ", F18.12,3X,"length = ",F12.6)
  17      format(a,'/',a,'_pes',i3.3,'.movecs')
+ 23      format("@pes: processing point ", I2)
+ 24      format("@pes: point = ",I2,
+     >          " energy =  ", F18.12,3X,
+     >          " spring length = ",F12.6)
+ 25      format("@pes: point = ",I2,
+     >          " energy =  ", F18.12,3X)
 
       return
       end
