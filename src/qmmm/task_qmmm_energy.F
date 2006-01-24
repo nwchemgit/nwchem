@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.28 2006-01-22 07:04:32 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.29 2006-01-24 00:01:41 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -590,6 +590,9 @@ c
      &      nfr, MA_ERR)
       call dfill(nfr,0,dbl_mb(i_t),1)
 c
+        if(.not.rtdb_put(rtdb,'qmmm:readesp',mt_log,1,.true.))
+     $     call errquit('qmmm ti: failed ', 0, RTDB_ERR)
+c
       nfra = 0
 
 
@@ -599,14 +602,14 @@ c
      >      call errquit(pname//'failed to get skip frames',
      >                   0,0)
         nfra = nfra + 1
-        call mm_get_temp(dbl_mb(i_t+i-1))
+        call mm_get_temp(dbl_mb(i_t+nfra-1))
         call mm_get_stime(stime)
         call md_sp()
         task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
         call qmmm_energy_rtdb_push(rtdb)
         call qmmm_print_energy(rtdb)
         if (.not. rtdb_get(rtdb,'qmmm:energy',
-     >      mt_dbl,1,dbl_mb(i_e1+i-1)))
+     >      mt_dbl,1,dbl_mb(i_e1+nfra-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
         call mm_set_solute_coord_file(geom_file)
@@ -619,19 +622,20 @@ c
         call qmmm_energy_rtdb_push(rtdb)
         call qmmm_print_energy(rtdb)
         if (.not. rtdb_get(rtdb,'qmmm:energy',
-     >      mt_dbl,1,dbl_mb(i_e2+i-1)))
+     >      mt_dbl,1,dbl_mb(i_e2+nfra-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
         call ga_sync()
         if(master) write(*,'(A,I4,4F12.6)') 
      >      "ti:",
      >      nfra,
      >      stime,
-     >      dbl_mb(i_t+i-1),
-     >      dbl_mb(i_e1+i-1),
-     >      dbl_mb(i_e2+i-1)
+     >      dbl_mb(i_t+nfra-1),
+     >      dbl_mb(i_e1+nfra-1),
+     >      dbl_mb(i_e2+nfra-1)
 
         if(master) call util_flush(6)
         ignore = rtdb_delete(rtdb,"qmmm:espfilename")
+        call qmmm_esp_reset(rtdb)
         offset = trn(3)
 
       end do
@@ -843,6 +847,11 @@ c
      >      call errquit(pname//'failed to get skip frames',
      >                   0,0)
         nfra = nfra + 1
+        if(master) then
+        write(*,*) "frame ",nfra
+        call util_flush(6)
+        end if
+       
         call mm_get_temp(temp)
         call mm_get_stime(stime)
         call md_sp()
@@ -850,7 +859,7 @@ c
         call qmmm_energy_rtdb_push(rtdb)
         call qmmm_print_energy(rtdb)
         if (.not. rtdb_get(rtdb,'qmmm:energy',
-     >      mt_dbl,1,dbl_mb(i_e1+i-1)))
+     >      mt_dbl,1,dbl_mb(i_e1+nfra-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
         call mm_set_solute_coord_file(geom_file)
@@ -863,7 +872,7 @@ c
         call qmmm_energy_rtdb_push(rtdb)
         call qmmm_print_energy(rtdb)
         if (.not. rtdb_get(rtdb,'qmmm:energy',
-     >      mt_dbl,1,dbl_mb(i_e2+i-1)))
+     >      mt_dbl,1,dbl_mb(i_e2+nfra-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
         call ga_sync()
         if(master) write(*,'(A,I4,4F12.6)') 
@@ -871,8 +880,8 @@ c
      >      nfra,
      >      stime,
      >      temp,
-     >      dbl_mb(i_e1+i-1),
-     >      dbl_mb(i_e2+i-1)
+     >      dbl_mb(i_e1+nfra-1),
+     >      dbl_mb(i_e2+nfra-1)
 
         if(master) call util_flush(6)
         ignore = rtdb_delete(rtdb,"qmmm:espfilename")
@@ -990,28 +999,6 @@ c     >     30,.true.)
 c        call qmmm_cons_print_region(6,"xyzi")
 c        call qmmm_cons_reset()
 c      end if
-c
-c     region definitions
-c     ------------------
-      tag ="qmmm:region"
-      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
-     >                 mt_int,1,nregion)) 
-     >      call errquit(pname//tag,0,RTDB_ERR)
-c
-c     no region so exiting out
-c     -----------------------
-      if(nregion.eq.0) then
-        if(ga_nodeid().eq.0)
-     >    write(*,*) "WARNING no region found"
-        return
-      end if
-
-      if(nregion.gt.3) 
-     >      call errquit(pname//"too many regions",0,0)
-      if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
-     >      call errquit(pname//tag,0,RTDB_ERR)
-      call qmmm_cons_free_exclusive(region(1))
-c
  
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
@@ -1190,8 +1177,257 @@ c
 
       end
 
+      function task_qmmm_energy_pes0(irtdb)
+c     $Id: task_qmmm_energy.F,v 1.29 2006-01-24 00:01:41 marat Exp $
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "qmmm.fh"
+#include "inp.fh"
+#include "msgids.fh"
+#include "tcgmsg.fh"
+      integer irtdb
+      logical task_qmmm_energy_pes0
+      double precision cpu, wall
+c     
+      logical  status
+c     
+      character*32 pname
+c     
+      logical   task_qmmm_energy_sp
+      external  task_qmmm_energy_sp
+      logical ignore
+      character*255 filename, dir,xyz,prefix
+      character*255 filename0
+      character*255 movecs
+      character*255 movecs0
+      double precision energy
+      double precision rb(2)
+      integer np
+      integer ip
+      integer in
+      double precision dr
+      double precision r
+      integer i1,i2,i3
+      logical ofile
+      logical backward
+      logical loadrst
+      logical loadmovecs
+      integer ncycles
+      integer istart
+      integer iend
+      logical pes_spring
+      character*30 region(3)
+      integer nregion
+      character*84 tag
+ 
+      pname = "task_qmmm_energy_pes0"
+
+c
+c     get lower/upper  limits for pes scan
+c     ------------------------------------
+      pes_spring = .true.
+      if (.not. rtdb_get(irtdb,'qmmm:pes_bounds',mt_dbl,
+     +                    2,rb))
+     + pes_spring = .false.
+
+c
+c     get number of points for pes scan
+c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_ncycles',mt_int,
+     +                    1,ncycles))
+     + ncycles = 1
+c
+c     get number of points for pes scan
+c     ------------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_npoints',mt_int,
+     +                    1,np))
+     + call errquit(pname//'Failed to get pes points',
+     + 1, RTDB_ERR)
+c
+c     get starting point
+c     ------------------
+      if (.not. rtdb_get(irtdb,'qmmm:pes_istart',mt_int,
+     +                    1,istart))
+     +    istart = 1
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_iend',mt_int,
+     +                    1,iend))
+     +    iend = np
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_backward',mt_log,
+     +                    1,backward))
+     +  backward = .false.
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_loadrst',mt_log,
+     +                    1,loadrst))
+     +  loadrst = .false.
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_loadmovecs',mt_log,
+     +                    1,loadmovecs))
+     +  loadmovecs = .false.
+c
+c     directory name to dump restart files
+c     ------------------------------------
+      dir      = ' '
+      call util_directory_name(dir, .false., 0)
+c
+c     file prefix from mm module
+c     --------------------------
+      call mm_system_prefix(prefix)
+c
+c     construct movecs file name  
+      ignore = rtdb_delete(irtdb,'dft:input vectors')
+      ignore = rtdb_delete(irtdb,'scf:input vectors')
+      movecs0 = ' '
+      call util_file_name("tmp.movecs",.false.,.false.,movecs0)        
+      if (.not. rtdb_cput(irtdb,'scf:input vectors',
+     +                    1,movecs0))
+     + call errquit(pname//'Failed to set scf:input vectors',
+     + 1, RTDB_ERR)
+      if (.not. rtdb_cput(irtdb,'dft:input vectors',
+     +                    1,movecs0))
+     + call errquit(pname//'Failed to set dft:input vectors',
+     + 1, RTDB_ERR)
+
+c 
+c     set increments and initial value for spring
+c     -------------------------------------------
+      if(pes_spring) then
+        dr = (rb(2)-rb(1))/(np-1)
+        r  = rb(1)
+      end if
+
+      ncycles = 1
+      do in=1,ncycles
+      if(backward) then
+        i1=iend
+        i2=istart
+        i3=-1
+      else
+        i1=istart
+        i2=iend
+        i3=1
+      end if
+c
+c     region definitions
+c     ------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     no region so exiting out
+c     -----------------------
+      if(nregion.eq.0) return
+
+      if(nregion.gt.3) 
+     >      call errquit(pname//"too many regions",0,0)
+      if (.not.rtdb_cget(irtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+c
+c     define set of active atoms
+c     --------------------------
+      call qmmm_cons_reset()
+      call qmmm_cons_set("fix","solute")
+      call qmmm_cons_set("fix","solvent")
+      call qmmm_cons_set("free",region(1))
+c
+c
+c     actually do the scan
+c     --------------------
+      do ip=i1,i2,i3
+        if(pes_spring) then
+          r  = rb(1)+dr*(ip-1) 
+          if(ga_nodeid().eq.0) then
+            write(*,15) ip,r
+          end if
+          if (.not. rtdb_put(irtdb,'qmmm:r_spring',mt_dbl,
+     +                       1,r))
+     +    call errquit(pname//'Failed to set r_spring',
+     +    1, RTDB_ERR)
+        end if
+
+        filename0 = ' '
+        write(filename0,14) 
+     $     prefix(1:inp_strlen(prefix)),ip
+        filename = ' '
+        write(filename,13) dir(1:inp_strlen(dir)), 
+     $     prefix(1:inp_strlen(prefix)),ip
+
+c       start load restart file if it exists and requested     
+        if(loadrst) then
+          if(ga_nodeid().eq.0) then 
+            inquire(file=filename,exist=ofile)
+            if(ofile) then 
+             write(*,*) "pes: found restart file",
+     >                 filename(1:inp_strlen(filename))
+            call util_file_copy(filename(1:inp_strlen(filename)),
+     >                          filename0(1:inp_strlen(filename0)))
+            end if
+          end if
+          call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+          call ga_sync()
+          if(ofile) 
+     >      call mm_reload_rst(irtdb,filename0)
+        end if
+c       end load restart 
+c       start load movecs if it exists and requested     
+        movecs = ' '
+        write(movecs,17) dir(1:inp_strlen(dir)), 
+     $   prefix(1:inp_strlen(prefix)),ip
+        if(loadmovecs) then
+          if(ga_nodeid().eq.0) then 
+            inquire(file=movecs,exist=ofile)
+            if(ofile) then 
+             write(*,*) "pes: found movecs file",
+     >                 movecs(1:inp_strlen(movecs))
+            call util_file_copy(movecs(1:inp_strlen(movecs)),
+     >                          movecs0(1:inp_strlen(movecs0)))
+            end if
+          end if
+          call ga_sync()
+        end if
+c       end load restart 
+        call qmmm_esp_reset(irtdb)
+        status = task_qmmm_energy_sp(irtdb)
+        if(ga_nodeid().eq.0) then 
+           write(*,*) "pes: saving restart file",
+     >                 filename
+        end if
+        call mm_write_restart_named(filename,.true.)
+        if(ga_nodeid().eq.0) then 
+           write(*,*) "pes: saving movecs file",
+     >                 movecs0(1:inp_strlen(movecs0)),
+     >                 movecs(1:inp_strlen(movecs))
+          call util_file_copy(movecs0(1:inp_strlen(movecs0)),
+     >                        movecs(1:inp_strlen(movecs)))
+        end if
+        call ga_sync()
+
+      end do
+      backward = .not.backward
+      loadrst = .true.
+      loadmovecs = .true.
+      end do
+      task_qmmm_energy_pes0 = status
+
+ 13      format(a,'/',a,'_pes',i3.3,'.rst')
+ 14      format(a,'_pes',i3.3,'.rst')
+ 15      format("@pes: point ", I2,3X,"spring length = ",F12.6)
+ 16      format("@pes: energy =  ", F18.12,3X,"length = ",F12.6)
+ 17      format(a,'/',a,'_pes',i3.3,'.movecs')
+
+      return
+      end
+
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.28 2006-01-22 07:04:32 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.29 2006-01-24 00:01:41 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1238,9 +1474,10 @@ c
       character*30 region(3)
       integer nregion
       character*84 tag
+      character*3 suffix
  
       pname = "task_qmmm_energy_pes"
-
+      suffix = "neb"
 c
 c     get lower/upper  limits for pes scan
 c     ------------------------------------
@@ -1248,7 +1485,6 @@ c     ------------------------------------
       if (.not. rtdb_get(irtdb,'qmmm:pes_bounds',mt_dbl,
      +                    2,rb))
      + pes_spring = .false.
-      write(*,*) "pes_spring",pes_spring
 
 c
 c     get number of points for pes scan
@@ -1431,8 +1667,8 @@ c       end load restart
       end do
       task_qmmm_energy_pes = status
 
- 13      format(a,'/',a,'_pes',i3.3,'.rst')
- 14      format(a,'_pes',i3.3,'.rst')
+ 13      format(a,'/',a,'_neb',i3.3,'.rst')
+ 14      format(a,'_neb',i3.3,'.rst')
  15      format("@pes: point ", I2,3X,"spring length = ",F12.6)
  16      format("@pes: energy =  ", F18.12,3X,"length = ",F12.6)
  17      format(a,'/',a,'_pes',i3.3,'.movecs')
