@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.4 2006-01-25 06:34:18 marat Exp $
+c $Id: qmmm_pes.F,v 1.5 2006-01-25 17:57:59 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.4 2006-01-25 06:34:18 marat Exp $
+c     $Id: qmmm_pes.F,v 1.5 2006-01-25 17:57:59 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -290,7 +290,7 @@ c       ----------------------
 
         if(.not.loadmovecs) then
           ignore = rtdb_delete(irtdb,inmovecs_tag)
-          if (.not. rtdb_cput(irtdb,outmovecs_tag,
+          if (.not. rtdb_cput(irtdb,inmovecs_tag,
      +                      1,movecs_perm))
      +    call errquit(pname//'Failed to set movecs',0,0)
         end if
