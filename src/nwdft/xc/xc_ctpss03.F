@@ -15,7 +15,7 @@ c                              tauU - uniform-gas KE density
      
 
 c
-c$Id: xc_ctpss03.F,v 1.5 2004-10-15 17:31:19 pollack Exp $
+c$Id: xc_ctpss03.F,v 1.6 2006-01-25 01:03:33 edo Exp $
 c
 
 c     References:
@@ -120,7 +120,7 @@ c     TPSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
       double precision yyz, pbe, en
       double precision aa,bb,cc,dd,dnu
       double precision up,dn,grup, grdn, gr, grupdn
-      double precision dens, revsic
+      double precision dens
       double precision pbeup, pbedn, delc, revsic1, revsic2
 
 c     derivsssssssssssssssssssssssss
@@ -188,12 +188,7 @@ c     TPSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
 
 
       if (ipol.eq.1 )then
-c              NO SPIN POLARIZATION	
 c        ======> SPIN-RESTRICTED <======
-c                     or
-c                SPIN-UNPOLARIZED
-c
-c
 
          do 22  n = 1, nq
             if (rho(n,1).lt.tol_rho) goto 22
@@ -251,13 +246,8 @@ c        epGGA= ec^LDA +H  = pbe
 
         dens = rhoval
 
-        
-
-
-c         zeta = (up - dn)/dens =0 for ipol=1
         zeta=0.d0
 
-c         CCC = 0.53d0 + aa*zeta**2.d0 + bb*zeta**4.d0 + cc*zeta**6.d0
          CCC = 0.53d0 !since zeta=0
          fer = FACE*dens**THRD
 
@@ -268,26 +258,6 @@ c         tau = tauup + taudn = tauN
 
          xx2 = (tauw/tauN)**2.d0
          xx3 = (tauw/tauN)**3.d0
-
-
-c----------------------------
-c         ter1 = (1.d0 - zeta)**2.d0*grup**2.d0
-c         ter2 = (1.d0 + zeta)**2.d0*grdn**2.d0
-c         ter3 = 2.d0*(1.d0 - zeta**2.d0)*grupdn
-c         sumz = ter1 + ter2 - ter3
-c         sumz = dabs(sumz)
-c         grz = dsqrt(sumz)/dens
-c         grz=0.d0 !zeta =0 so necessarily follows
-c         szeta2 = (grz/(2.d0*fer))**2.d0
-
-c         if (dabs(zeta).lt.0.9999d0) then
-c            term1 = 1.d0/(1.d0 + zeta)**(4.d0/3.d0)
-c            term2 = 1.d0/(1.d0 - zeta)**(4.d0/3.d0) 
-c            yyz = szeta2*(term1 + term2)/2.d0
-c         else
-c            yyz = 0.d0
-c         end if
-c         CCC = CCC/(1.d0 + dnu*yyz)**4.d0
 
           en = pbe*(1.d0 + CCC*xx2)
 
@@ -351,11 +321,6 @@ c        functional deriv info below fffffffffffff
 
           dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
           decggadg= dneGGAdg(1)/dens
-
-
- 
-c do we need to initialize delc? NO
-c         delc=0.d0
 
        if (pbeup.lt.pbe) then
               delc= xx2*pbe
@@ -952,7 +917,7 @@ c iffffffffffffffffffffffffffffffffffffffffffffffff
 
          delc = -(1.d0 + CCC)*delc/dens
          revsic1 = en + delc
-         revsic2 = revsic1*(1.d0 + dd*revsic*xx3)
+         revsic2 = revsic1*(1.d0 + dd*revsic1*xx3)
 
            Ec = Ec + revsic2*rhoval*qwght(n)*fac
 
