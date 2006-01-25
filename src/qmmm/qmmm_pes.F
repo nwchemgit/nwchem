@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.3 2006-01-23 23:50:32 marat Exp $
+c $Id: qmmm_pes.F,v 1.4 2006-01-25 06:34:18 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.3 2006-01-23 23:50:32 marat Exp $
+c     $Id: qmmm_pes.F,v 1.4 2006-01-25 06:34:18 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -183,6 +183,9 @@ c     -------------------------------------------
         i3=1
       end if
 
+
+      ignore = rtdb_delete(irtdb,outmovecs_tag)
+      ignore = rtdb_delete(irtdb,inmovecs_tag)
 c
 c     actually do the scan
 c     --------------------
@@ -236,11 +239,13 @@ c       ----------------------
         movecs_perm = ' '
         write(movecs_perm,22) movecs_in(1:inp_strlen(movecs_in)), ip
  22     format(a,i3.3,'.movecs')
-        ignore = rtdb_delete(irtdb,inmovecs_tag)
+        if(loadmovecs) then
+          ignore = rtdb_delete(irtdb,inmovecs_tag)
+          if (.not. rtdb_cput(irtdb,inmovecs_tag,
+     +                      1,movecs_perm))
+     +    call errquit(pname//'Failed to set movecs',0,0)
+        end if
         ignore = rtdb_delete(irtdb,outmovecs_tag)
-        if (.not. rtdb_cput(irtdb,inmovecs_tag,
-     +                    1,movecs_perm))
-     +  call errquit(pname//'Failed to set movecs',0,0)
         if (.not. rtdb_cput(irtdb,outmovecs_tag,
      +                    1,movecs_perm))
      +  call errquit(pname//'Failed to set movecs',0,0)
@@ -251,7 +256,7 @@ c       ----------------------
           status = task_qmmm_gradient(irtdb)
         else if (operation.eq."dynamics") then
           status = qmmm_dynamics(irtdb)
-        else if (operation.eq."optimization") then
+        else if (operation.eq."optimize") then
           status = qmmm_mixed_optimization(irtdb)
         else if (operation.eq."property") then
           status = task_qmmm_property(irtdb)
@@ -271,7 +276,7 @@ c       ----------------------
 
         if(operation.eq."energy".or.
      >     operation.eq."gradient".or.
-     >     operation.eq."optimization") then
+     >     operation.eq."optimize") then
         if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
           if(ga_nodeid().eq.0) then
@@ -283,6 +288,13 @@ c       ----------------------
           end if
         end if
 
+        if(.not.loadmovecs) then
+          ignore = rtdb_delete(irtdb,inmovecs_tag)
+          if (.not. rtdb_cput(irtdb,outmovecs_tag,
+     +                      1,movecs_perm))
+     +    call errquit(pname//'Failed to set movecs',0,0)
+        end if
+ 
         call ga_sync()
 
       end do
@@ -295,6 +307,8 @@ c     restore old restart filename
 c     in case of more tasks
 c     -----------------------------
       call mm_set_restart_file(irtdb,rst_old)
+      ignore = rtdb_delete(irtdb,outmovecs_tag)
+      ignore = rtdb_delete(irtdb,inmovecs_tag)
 
       task_qmmm_pes = status
 
