@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.47 2005-06-22 22:37:36 bert Exp $
+* $Id: task_gradient.F,v 1.48 2006-01-26 18:30:11 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -53,6 +53,8 @@ c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c
+      print*,'task:numerical',numerical
+      print*,'task:theory',theory
       if(task_qmmm) then
           status = task_qmmm_gradient(rtdb)
             if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
@@ -142,7 +144,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.47 2005-06-22 22:37:36 bert Exp $
+* $Id: task_gradient.F,v 1.48 2006-01-26 18:30:11 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -407,6 +409,8 @@ c
      &         '= energy>] [numerical] [ignore]'
          endif
          status = .false.
+      else if (theory .eq. 'oniom') then
+         status = task_num_grad(rtdb) ! Doing Oniom in a numerical fashion
       else
          call errquit('task_gradient: unknown theory',0, INPUT_ERR)
       endif
