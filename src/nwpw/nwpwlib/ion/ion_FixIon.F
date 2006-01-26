@@ -115,6 +115,61 @@
         if (.not. MA_free_heap(h_actlist)) 
      >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
 
+*     ********************************************************
+*     ****   nwpw:actlist constraints have been imposed   ****
+*     ********************************************************
+      else if (rtdb_ma_get(rtdb, 'nwpw:actlist', ma_type,
+     >        nactive_atoms, h_actlist)) then
+
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'ion_init_FixIon: ma_get_index failed for actlist',911,
+     &       MA_ERR)
+
+
+*       ***** count the number of constraints *****
+        nconstraints = 0
+        do i=1,nion
+           found = .false.
+           do j=1,nactive_atoms
+              if (i .eq. int_mb(l_actlist+j-1)) found = .true.
+           end do
+
+*          **** constraint added ****
+           if (.not. found) then
+              nconstraints = nconstraints + 1
+           end if
+        end do
+
+        if (nconstraints.gt.0) then
+
+*          ***** allocate constraint list, ion_number, from heap ****
+           if (.not. MA_alloc_get(mt_int,nconstraints,
+     >       'ion_number',ion_number(2),ion_number(1)))
+     >         call errquit('out of heap memory',0, MA_ERR)
+
+
+
+*          ***** set the constraints ****
+           do i=1,nion
+              found = .false.
+              do j=1,nactive_atoms
+                 if (i .eq. int_mb(l_actlist+j-1)) found = .true.
+              end do
+
+*             **** constraint added ****
+              if (.not. found) then
+                 count = count+1
+                 int_mb(ion_number(1)+count-1) = i
+              end if
+           end do
+        end if
+
+*       *** free heap ***
+        if (.not. MA_free_heap(h_actlist))
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
+
+
       end if
 
 
@@ -130,7 +185,9 @@
 
 
 
-
+*     ******************************************************************
+*     **** geometry:inversionlistlist constraints have been imposed ****
+*     ******************************************************************
       if (rtdb_ma_get(rtdb, 'geometry:inversionlist', ma_type,
      >        nconstraints, h_actlist)) then
 
