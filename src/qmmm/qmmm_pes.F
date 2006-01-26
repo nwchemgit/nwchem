@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.5 2006-01-25 17:57:59 marat Exp $
+c $Id: qmmm_pes.F,v 1.6 2006-01-26 22:54:29 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.5 2006-01-25 17:57:59 marat Exp $
+c     $Id: qmmm_pes.F,v 1.6 2006-01-26 22:54:29 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -65,6 +65,7 @@ c
       logical pes_spring
       character*84 inmovecs_tag
       character*84 outmovecs_tag
+      character*84 espmovecs_tag
       double precision energy
  
       pname = "task_qmmm_pes"
@@ -156,6 +157,8 @@ c
         call errquit(pname//'theory not supported'//theory,0,0)
       end if
 c
+      espmovecs_tag = "esp:input vectors"
+c
 c     this will force property module
 c     not to recalculate movecs
 c     -------------------------------
@@ -246,6 +249,9 @@ c       ----------------------
      +    call errquit(pname//'Failed to set movecs',0,0)
         end if
         ignore = rtdb_delete(irtdb,outmovecs_tag)
+        if (.not. rtdb_cput(irtdb,espmovecs_tag,
+     +                    1,movecs_perm))
+     +  call errquit(pname//'Failed to set movecs',0,0)
         if (.not. rtdb_cput(irtdb,outmovecs_tag,
      +                    1,movecs_perm))
      +  call errquit(pname//'Failed to set movecs',0,0)
@@ -270,8 +276,10 @@ c       ----------------------
         end if
         call mm_write_restart_named(rst_perm,.true.)
         if(ga_nodeid().eq.0) then 
-          if(rst_tmp.ne.rst_old)   
-     >    call util_file_unlink(rst_tmp)
+          if(rst_tmp.ne.rst_old) then
+            write(*,*) "pes: removing file",rst_tmp
+            call util_file_unlink(rst_tmp)
+          end if
         end if
 
         if(operation.eq."energy".or.
