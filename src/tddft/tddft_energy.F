@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.8 2003-10-17 22:58:29 carlfahl Exp $
+c $Id: tddft_energy.F,v 1.9 2006-01-26 20:13:05 edo Exp $
 c 
 c Main routine for TDDFT excitation energy calculations.
 c
@@ -20,7 +20,7 @@ c Hirata & Head-Gordon, CPL 302, 375 (1999), for formalisms.
 c
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.
 c
-c CAUTION: numfunc=30 hardwired from "cdft.fh".  It is nicer if it
+c CAUTION: numfunc=40 hardwired from "cdft.fh".  It is nicer if it
 c is read from runtime database.
 c
       implicit none
@@ -47,7 +47,7 @@ c
       integer nmo(2)           ! Number of alpha, beta orbitals
       integer nfc(2),nfv(2)    ! Number of frozen cores/virtuals
       integer numfunc          ! Number of functionals implemented
-      parameter (numfunc=30)   ! Must be consistent with "cdft.fh"
+      parameter (numfunc=40)   ! Must be consistent with "cdft.fh"
       character*255 movecs_out ! MO vector file name
       character*255 civecs_tmp ! CI vector file name
       character*40 xname(numfunc)       ! Names of X functionals
