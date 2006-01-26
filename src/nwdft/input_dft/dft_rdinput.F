@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.126 2006-01-11 02:04:57 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.127 2006-01-26 02:13:18 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -841,6 +841,13 @@ c
          nbf_xc_mxnbf_ce = 0
          nshells_xc = 0
       endif
+c
+c     texas breaks when AO_spherical and CD_cartesian
+c
+      if(bas_is_spherical(AO_bas_han).and.
+     N     (.not.bas_is_spherical(CD_bas_han))) 
+     T    call int_app_set_no_texas(rtdb)
+
 c
 c     Set the switch to rotate the quadrature points.
 c     This switch controls whether the grid is
