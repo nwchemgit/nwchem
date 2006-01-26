@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.44 2006-01-23 23:52:08 marat Exp $
+* $Id: task_input.F,v 1.45 2006-01-26 22:41:56 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -32,6 +32,7 @@ c
       numerical = .false.
       ignore    = .false.
       oqmmm     = .false.
+      opes      = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
       
