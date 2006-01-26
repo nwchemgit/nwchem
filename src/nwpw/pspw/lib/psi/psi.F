@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.66 2006-01-06 22:52:28 bylaska Exp $
+* $Id: psi.F,v 1.67 2006-01-26 18:29:36 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.66  2006/01/06 22:52:28  bylaska
+* parallel io bug fix...EJB
+*
 * Revision 1.65  2006/01/06 21:48:43  bylaska
 * io changes for inversion symmetry....EJB
 *
@@ -3970,7 +3973,7 @@ c    >                            dcpl_mb(dng1(1)))
 *     **** PBE96 GGA part ****
 *     **** finished? 11/24/04 - still need to test ***
       gga = control_gga()
-      if ((gga.ge.10).or.(gga.lt.100)) then
+      if ((gga.ge.10).and.(gga.lt.100)) then
        call v_bwexc_euv(gga,2*nfft3d,ispin,dbl_mb(rho1_all(1)),
      >                  1.0d0,1.0d0,tstress)
        do v=1,3
