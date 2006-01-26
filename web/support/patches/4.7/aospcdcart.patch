@@ -1,0 +1,21 @@
+Index: dft_rdinput.F
+===================================================================
+RCS file: /msrc/proj/mss/nwchem/src/nwdft/input_dft/dft_rdinput.F,v
+retrieving revision 1.119.2.2
+diff -u -r1.119.2.2 dft_rdinput.F
+--- dft_rdinput.F	31 Aug 2005 01:54:51 -0000	1.119.2.2
++++ dft_rdinput.F	26 Jan 2006 02:16:03 -0000
+@@ -834,6 +834,13 @@
+          nshells_xc = 0
+       endif
+ c
++c     texas breaks when AO_spherical and CD_cartesian
++c
++      if(bas_is_spherical(AO_bas_han).and.
++     N     (.not.bas_is_spherical(CD_bas_han)))
++     T    call int_app_set_no_texas(rtdb)
++
++c
+ c     Set the switch to rotate the quadrature points.
+ c     This switch controls whether the grid is
+ c     rotationally invariant. For now, it is hard-wired to 
