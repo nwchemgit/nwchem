@@ -1,9 +1,9 @@
 # Makefile for movecs <--> ASCII translators
-# $Id: Makefile,v 1.6 2004-08-02 11:25:04 edo Exp $
+# $Id: Makefile,v 1.7 2006-01-26 17:26:02 bert Exp $
 
 # Tested on KSR, Cray-T3D
 # Requires NWCHEM_TARGET to be set.
-# Requires NWChem includes and library for MA (in libutil.a)
+# Requires NWChem includes and library for MA (in libnwcutil.a)
 
 ifeq ($(NWCHEM_TARGET),CRAY-T3D) # (must run on MPP not host)
    FFLAGS = -Wf"-dp" -Wp"-F" -Ccray-t3d 
