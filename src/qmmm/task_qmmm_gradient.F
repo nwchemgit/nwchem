@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.50 2006-01-13 19:40:46 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.51 2006-01-26 18:32:53 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -673,6 +673,8 @@ c            store corresponding index of the link atom
            end do 
          end if
         end do
+       else
+        nal = 0
        end if
 
       if(qmmm_print_debug())
