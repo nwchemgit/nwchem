@@ -1,3 +1,4 @@
+#include "dft2drv.fh"
 c    Tao,Perdew, Staroverov, Scuseria exchange functional 
 c           META GGA
 C         utilizes ingredients:
@@ -19,7 +20,7 @@ c         JCP 120, 6898 (2004).
 
 
 c   
-c$Id: xc_xtpss03.F,v 1.4 2006-01-27 02:11:32 edo Exp $
+c$Id: xc_xtpss03.F,v 1.5 2006-01-27 21:28:39 edo Exp $
 c
       implicit none
 #include "dft2drv.fh"
@@ -99,7 +100,7 @@ c      functional derivatives below FFFFFFFFFFFF
        double precision dx4dg, dx5dg, dx6dg, dx7dg
        double precision dxmanydg, dxdg, dmtdg, derivg
 
-       double precision dzdt, dpdt, daldt, dqtdt
+       double precision dzdt, daldt, dqtdt
        double precision dtildt, dax1dt, dax3dt
        double precision dx1dt, dx2dt, dx3dt
        double precision dx5dt
@@ -138,7 +139,7 @@ c       = n* Ax*n^(1/3)   or n*C*n^(1/3)
 
             rho43 = Ax*rho(n,1)**F43  ! Ax*n^4/3
             rrho = 1d0/rho(n,1)       ! reciprocal of rho
-            rho13 = F43*rho43*rrho   !functional deriv of rho43
+            rho13 = rho43*rrho 
 
             rho53 = rho(n,1)**F53
             rho83 = rho(n,1)**F83
@@ -146,8 +147,7 @@ c       = n* Ax*n^(1/3)   or n*C*n^(1/3)
 C  Below we just sum up the LDA contribution to the functional
             Ex = Ex + rho43*qwght(n)*fac
             if (ldew)  func(n)= func(n) + rho43*fac
-            Amat(n,1) = Amat(n,1) + rho13*fac
-#if 1
+            Amat(n,1) = Amat(n,1) + F43*rho13*fac
 c
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
@@ -158,7 +158,6 @@ c
      &             tau(n,3,1)
 
             tauW=0.125d0*gamma*rrho
-
             tauU=0.3d0*P32*rho53 
 c
 c     Evaluate the Fx, i.e. mt(x) = Fx - 1 (LDA bit already there)
@@ -168,18 +167,8 @@ c
             z=tauW/tauN
             al=(tauN-tauW)/tauU
 c            al=dabs(al)
-            if(al.le.0d0) then
-               write(0,*) ' alpha ',al,' z ',tauW/tauU,tauN/tauW-1d0
-               al=0d0
-!              call errquit(' xtpss03: alpha negative ',0,0)
-               else
-#if 0
-                  crap=al+((5d0/3d0)*(p/z)*(z-1d0))
-                  if(abs(crap).gt.1d-14)
-     C                 write(0,*) ' al pz check ',crap,taun,
-     2                 al+((5d0/3d0)*p*(1d0-z))
-#endif
-            endif
+            if(al.lt.0d0)  al=0d0
+
             qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0)) +
      +           F23*p
 
@@ -263,18 +252,16 @@ C Derivatives wrt gamma,    below
             
 C Derivatives wrt tau,    below
 c ttttttttttttttttttttttttttttttttttttttttttttttttt
-           dpdt=0.d0
            dzdt= -z/tauN
            daldt=1.d0/tauU
            
-           dtildt=-.5d0*((til2)**3)*b*daldt*(2d0*al-1d0)
-           dqtdt=G920*((al-1.d0)*dtildt+ daldt*til2 )
+           dqtdt=g920*daldt*til2*(1d0-
+     -          0.5d0*b*til1*til2*til2*(2d0*al-1d0))
            
            dx1dt=c*p*dzdt*2d0*z*(1d0-z*z)/((1.d0+z*z)**3)
            dx2dt=2*c2*qtil*dqtdt
            dx3dt=x3*(dqtdt/qtil +
      &          0.5d0*(3d0/5d0)**2*z*dzdt/(xd*xd))
-
            dx5dt=2d0*(x5/z)*dzdt
            
            dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
@@ -287,17 +274,19 @@ c ttttttttttttttttttttttttttttttttttttttttttttttttttt
            if (ldew)  func(n)= func(n) + mt*rho43*fac
            
            dmtdn=dxdn/(1.d0+x/kap)**2
-           derivn=mt*rho13+rho43*dmtdn
+           derivn=mt*F43*rho13+rho43*dmtdn
            
            dmtdg=dxdg/(1.d0+x/kap)**2
            derivg = rho43*dmtdg
 
-           dmtdt=dxdt*kap/(1.d0+x/kap)**2
+           dmtdt=dxdt/(1.d0+x/kap)**2
            derivt = rho43*dmtdt
            Amat(n,1) = Amat(n,1) + derivn*fac
-           Cmat(n,1)=  Cmat(n,1) + derivg*fac
-           Mmat(n,1)=  Mmat(n,1) + 0.5d0*derivt*fac
-#endif
+c
+c     4x factor comes from gamma_aa = gamma_total/4
+c
+           Cmat(n,D1_GAA)=  Cmat(n,D1_GAA) + 2d0*derivg*fac
+           Mmat(n,1)=  Mmat(n,1) +0.5d0*derivt*fac
 10      continue
 
 c UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUnrestricted
@@ -452,7 +441,6 @@ C Derivatives wrt gamma,    below
 
 C Derivatives wrt tau,    below
 c ttttttttttttttttttttttttttttttttttttttttttttttttt
-          dpdt=0.d0
           dzdt= -tauW*2.d0/(tauN*tauN)
           daldt=2.d0/tauU
             dtildt=-.5d0*( (2.d0*al-1.d0)*b*daldt )*
@@ -656,7 +644,6 @@ c    recall    xmany=x1+x2+x3 +x4 +x5+x6
 
 C Derivatives wrt tau,    below
 c ttttttttttttttttttttttttttttttttttttttttttttttttt
-          dpdt=0.d0
           dzdt= -tauW*2.d0/(tauN*tauN)
           daldt=2.d0/tauU
             dtildt=-.5d0*( (2.d0*al-1.d0)*b*daldt )*

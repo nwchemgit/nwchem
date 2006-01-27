@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.25 2005-11-12 00:32:49 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.26 2006-01-27 21:28:37 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.25 2005-11-12 00:32:49 edo Exp $
+c $Id: dftg_gridv0.F,v 1.26 2006-01-27 21:28:37 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -144,7 +144,7 @@ c
       if (.not. rtdb_get(rtdb, 'dft:weight derivatives', mt_log, 1, 
      &   ldew))ldew=.true.
 c     weight deriv bit missing for metaggas
-      if(kske) ldew=.false.
+cedo      if(kske) ldew=.false.
       if(ldew.and.(me.eq.0).and.oprint) 
      .     write(LuOut,*) '  weight derivatives on'
 c

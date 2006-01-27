@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.53 2006-01-11 02:05:01 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.54 2006-01-27 21:28:39 edo Exp $
 c
       implicit none
 c
@@ -482,7 +482,7 @@ c
          if (.not. do_2nd) then
             call xc_ctpss03(tol_rho, cfac(27), lcfac(27), nlcfac(27),  
      &           rho, delrho,  nq, ipol, 
-     &           Ec, qwght,  tau,Amat,Cmat,Mmat)
+     &           Ec, qwght, ldew, func, tau,Amat,Cmat,Mmat)
 
          else
             call xc_ctpss03_d2()

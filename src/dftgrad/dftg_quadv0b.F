@@ -4,7 +4,7 @@
      &                         ifin, PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.8 2005-10-12 00:28:23 edo Exp $
+* $Id: dftg_quadv0b.F,v 1.9 2006-01-27 21:28:37 edo Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -23,6 +23,8 @@ c
       double precision PPP(nbf_ao), F(mbf_ao)
       integer ibf(mbf_ao), iniz(nat), ifin(nat)
       integer g_dens(2)
+      double precision fudgef
+      parameter(fudgef=1d0)
 c     
 c     scratch array for hessian product
 c     
@@ -135,9 +137,9 @@ c
      &                                   delchi(n,3,nu)*heschi(n,6,mu))
      &                                  *Mmat(n,ispin)
                            enddo
-                           zzz(1,nu) = zzz(1,nu) + z1*0.25d0
-                           zzz(2,nu) = zzz(2,nu) + z2*0.25d0
-                           zzz(3,nu) = zzz(3,nu) + z3*0.25d0
+                           zzz(1,nu) = zzz(1,nu) + z1*fudgef
+                           zzz(2,nu) = zzz(2,nu) + z2*fudgef
+                           zzz(3,nu) = zzz(3,nu) + z3*fudgef
                         enddo
                      endif
                      call dgemv('n',3,mbf_ao,-two,zzz,3,F,1,0d0,
