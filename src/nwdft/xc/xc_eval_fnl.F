@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.54 2006-01-27 21:28:39 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.55 2006-01-27 22:31:45 edo Exp $
 c
       implicit none
 c
@@ -460,7 +460,7 @@ c
 c   TPSS  meta GGA
       if (abs(xfac(21)).gt.eps)then
          if (.not. do_2nd) then
-            call xc_xtpss03(tol_rho, xfac(21), lxfac(21), nlxfac(21), 
+            call xc_xtpss03(tol_rho, xfac(21),  
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func,tau,Mmat)
          else
