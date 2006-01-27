@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.21 2005-09-27 00:35:03 edo Exp $
+c     $Id: dft_fockbld.F,v 1.22 2006-01-27 19:52:56 marat Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -52,6 +52,8 @@ c     double precision evals (*)
 c
       integer me,nscr,lscr,iscr,lcd_coef,icd_coef
 c
+      double precision Ebq
+c
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
 c
@@ -87,7 +89,23 @@ c
      &     '           Kinetic energy =', f20.12/)
          endif
       endif
-      call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 'potential', oskel)
+c
+c     if requested separate calculation of bq-electron energy (MV)
+c     ----------------------------------------------------------- 
+      if (rtdb_get(rtdb, 'dft:bq_energy', mt_dbl, 1,Ebq)) then
+        Ecore = ga_ddot(g_dens(1), g_fock)
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 
+     &                 'bq_pot', oskel)
+        Ebq = ga_ddot(g_dens(1), g_fock)-Ecore
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock,
+     &                 'potential0', oskel)
+        if (.not. rtdb_put(rtdb,'dft:bq_energy',mt_dbl,1,Ebq)) 
+     $     call errquit('dft: writing bq_energy failed', 
+     $     0, RTDB_ERR)
+      else
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock, 
+     &                 'potential', oskel)
+      end if
 c
 c     ----- Add cosmo potential when needed -----
 c
