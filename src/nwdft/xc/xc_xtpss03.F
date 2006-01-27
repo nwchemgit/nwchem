@@ -9,6 +9,8 @@ c                              tauU - uniform-gas KE density
 c     References:
 c     [a] J. Tao, J.P. Perdew, V.N.Staroverov, G. Scuseria
 c         PRL 91, 146401 (2003).
+c     [b] J. Tao, J.P. Perdew, V.N.Staroverov, G. Scuseria
+c         JCP 120, 6898 (2004).
 
 
       Subroutine xc_xtpss03(tol_rho, fac, lfac, nlfac, rho, delrho, 
@@ -17,9 +19,10 @@ c         PRL 91, 146401 (2003).
 
 
 c   
-c$Id: xc_xtpss03.F,v 1.3 2004-10-12 15:19:26 edo Exp $
+c$Id: xc_xtpss03.F,v 1.4 2006-01-27 02:11:32 edo Exp $
 c
       implicit none
+#include "dft2drv.fh"
 c
 c      
       double precision fac, Ex
@@ -98,43 +101,35 @@ c      functional derivatives below FFFFFFFFFFFF
 
        double precision dzdt, dpdt, daldt, dqtdt
        double precision dtildt, dax1dt, dax3dt
-       double precision dx1dt, dx2dt, dx3dt, dx4dt
-       double precision dx5dt, dx6dt, dx7dt
+       double precision dx1dt, dx2dt, dx3dt
+       double precision dx5dt
        double precision dxmanydt, dxdt, dmtdt, derivt
 
 c      functional derivatives above FFFFFFFFFFFF
 
 
        parameter( pi = 3.1415926535897932384626433832795d0 )
-
+       double precision crap
         parameter(kap=0.8040d0, mu=0.21951d0)
         parameter (F43=4.d0/3.d0, F13=1.d0/3.d0)
         parameter (F83=8.d0/3.d0, F23=2.d0/3.d0, F53=5.d0/3.d0)
         parameter (G920  =9.d0/20.d0 )
 
-       parameter(b=0.40d0, c=1.59096d0, e=1.537d0)
+        parameter(b=0.40d0, c=1.59096d0, e=1.537d0)
         parameter (C1  =  10.d0/81.d0, 
      &             C2  = 146.d0/2025.d0,
      &             C3  = -73.d0/405.d0 )
-
- 
-
          
 c
       Ax = (-0.75d0)*(3d0/pi)**F13
       P32 = (3.d0*pi**2)**F23
       es=dsqrt(e)
 
-
 c
       if (ipol.eq.1 )then
 c
 c        ======> SPIN-RESTRICTED <======
-c                     or
-c                SPIN-UNPOLARIZED
 c
-c
-
          do 10 n = 1, nq
             if (rho(n,1).lt.tol_rho) goto 10
 
@@ -148,18 +143,15 @@ c       = n* Ax*n^(1/3)   or n*C*n^(1/3)
             rho53 = rho(n,1)**F53
             rho83 = rho(n,1)**F83
 
-
 C  Below we just sum up the LDA contribution to the functional
-c            if (lfac) then
-               Ex = Ex + rho43*qwght(n)*fac
-               Amat(n,1) = Amat(n,1) + rho13*fac
-c            endif
+            Ex = Ex + rho43*qwght(n)*fac
+            if (ldew)  func(n)= func(n) + rho43*fac
+            Amat(n,1) = Amat(n,1) + rho13*fac
+#if 1
 c
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
-c            gam12 = dsqrt(gamma)
-
 
             tauN = tau(n,1,1) + 
      &             tau(n,2,1) + 
@@ -169,16 +161,29 @@ c            gam12 = dsqrt(gamma)
 
             tauU=0.3d0*P32*rho53 
 c
-c     Evaluate the Fx, i.e. mt(x) = Fx - 1
+c     Evaluate the Fx, i.e. mt(x) = Fx - 1 (LDA bit already there)
 c           
-            p=gamma/(rho83*P32*4.d0)
-            al=(tauN-tauW)/tauU
-            al=dabs(al)
-            qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0))
-     &      + F23*p
-            z=tauW/tauN
             
-c          xa= (C1)
+            p=gamma/(rho83*P32*4.d0)
+            z=tauW/tauN
+            al=(tauN-tauW)/tauU
+c            al=dabs(al)
+            if(al.le.0d0) then
+               write(0,*) ' alpha ',al,' z ',tauW/tauU,tauN/tauW-1d0
+               al=0d0
+!              call errquit(' xtpss03: alpha negative ',0,0)
+               else
+#if 0
+                  crap=al+((5d0/3d0)*(p/z)*(z-1d0))
+                  if(abs(crap).gt.1d-14)
+     C                 write(0,*) ' al pz check ',crap,taun,
+     2                 al+((5d0/3d0)*p*(1d0-z))
+#endif
+            endif
+            qtil=(G920*(al-1.d0)/((1.d0+b*al*(al-1.d0))**.5d0)) +
+     +           F23*p
+
+            
            xb=(c*z**2)/( (1+z**2)**2 )
            x1=(C1 + xb)*p
            x2=C2*qtil*qtil
@@ -188,149 +193,112 @@ c          xa= (C1)
            x4=C1*C1*p*p/kap
            x5=2.d0*es*C1*(.6d0*z)**2
            x6= e*mu*p*p*p
-c           x7 = (1.d0+es*p)**2
-            x7 = (1.d0+es*p)**(-2.d0)
+           x7 = (1.d0+es*p)**(-2.d0)
 
-c           x=(x1+x2+x3 +x4 +x5+x6)/x7
-            x=(x1+x2+x3 +x4 +x5+x6)*x7
+           x=(x1+x2+x3 +x4 +x5+x6)*x7
 
-c            if (x.lt.tol_rho) goto 10
+           if (abs(x).lt.tol_rho) write(0,*) ' x for fx ',x
 
 c      functional derivatives FFFFFFFFFFFFFFFFFFFFFFFFFFFF
 
 C Derivatives wrt n, density   below
-c         dzdn=-tauW*rrho/tauN
-         dzdn=-z*rrho
-         dpdn = -p*rrho*F83
-
-c             phaA= F53*dpdn
-c             phaB= -1.d0*dzdn/z**2
-c         daldn=F53*p*phaB+phaA*(-1.d0+1.d0/z)
-      daldn=F53*( -p*dzdn/z**2 +dpdn*(-1.d0+1.d0/z) )
-
+           dzdn=-z*rrho
+           dpdn = -p*rrho*F83
+           daldn=F53*( -p*dzdn/z**2 +dpdn*(-1.d0+1.d0/z) )
+           
            til1=al-1.d0
            til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
-c          til3 not explicitly needed
-c            dtil3dn=F23*dpdn
-            dtil1dn=daldn
-            dtil2dn=(2.d0*b*al*daldn-b*daldn)*
-     &            (-.5d0)*til2**3.d0
-
-c         dqtdn =G920*(til2*dtil1dn+til1*dtil2dn)+dtil3dn
-         dqtdn =G920*(til2*dtil1dn+til1*dtil2dn)+F23*dpdn
-             
-               ax1=c*p*z*z
-               bx1=(1+z*z)**(-2.d0)
-              dax1dn=2.d0*c*p*z*dzdn+c*z*z*dpdn
-              dbx1dn=-4.d0*z*dzdn/(1.d0+z*z)**3
-           dx1dn=C1*dpdn+ax1*dbx1dn+bx1*dax1dn
+           dtil1dn=daldn
+           dtil2dn=b*daldn*(2.d0*al-1d0)*
+     &          (-.5d0)*(til2**3)
+           dqtdn = G920*(til2*dtil1dn+til1*dtil2dn)+F23*dpdn
+           
+           ax1=c*p*z*z
+           bx1=(1+z*z)**(-2.d0)
+           dx1dn=(x1/p)*dpdn + 2d0*c*p*z*dzdn/((1d0+z*z)**3)*(1d0-z*z)
            dx2dn=2.d0*C2*qtil*dqtdn
-
-             axd=0.18d0*2.d0*dzdn*z
-             bxd=p*dpdn
-             dxddn=.5d0*((0.18d0*z*z+.5d0*p*p)**(-.5d0))*(axd+bxd)           
-             dxcdn=C3*dqtdn
-            dx3dn=xc*dxddn+xd*dxcdn
-
-            dx4dn=(2.d0*p*dpdn*C1**2)/kap
-            dx5dn=4.d0*es*C1*0.36d0*z*dzdn
-            dx6dn=3.d0*e*mu*p*p*dpdn
-            dx7dn=-2.d0*es*dpdn/(1.d0+es*p)**3
-
-            xmany=x1+x2+x3 +x4 +x5+x6
-            dxmanydn= dx1dn+dx2dn+dx3dn+dx4dn+dx5dn+dx6dn
-            dxdn=x7*dxmanydn+xmany*dx7dn
+           
+           dxddn=.5d0/xd*( (3d0/5d0)**2*z*dzdn +
+     +          p*dpdn)
+           dxcdn=C3*dqtdn
+           dx3dn=xc*dxddn+xd*dxcdn
+           
+           dx4dn=(2.d0*x4/p)*dpdn
+           dx5dn=(2.d0*x5/z)*dzdn
+           dx6dn=(3.d0*x6/p)*dpdn
+           dx7dn=-2.d0*es*dpdn/(1.d0+es*p)**3
+           
+           xmany=x1+x2+x3 +x4 +x5+x6
+           dxmanydn= dx1dn+dx2dn+dx3dn+dx4dn+dx5dn+dx6dn
+           dxdn=x7*dxmanydn+xmany*dx7dn
 C Derivatives wrt n, density   above
 
 C Derivatives wrt gamma,    below
 
-            dpdg=1.d0/(4.d0*P32*rho83)
-            dzdg=rrho*0.125d0/tauN
-            daldg=F53*( -p*dzdg/(z*z)+dpdg*(-1.d0+1.d0/z) )
-c   recall     til1=al-1.d0
-c     "        til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
-c     "        til3 not explicitly needed
-c     "        dtil1dg=daldg
-               dtil2dg=0.5d0*(2.d0*b*al*daldg-b*daldg)*til2**3.d0               
-            dqtdg=G920*(til1*dtil2dg+til2*daldg)+F23*dpdg
-          
+           dpdg=p/gamma
+           dzdg=z/gamma
+           daldg=(al/p)*dpdg-F53*(p/(z*z))*dzdg
+           
+           dtil2dg=-0.5d0*daldg*b*(2.d0*al-1d0)*til2**3.d0               
+           dqtdg=G920*(til1*dtil2dg+til2*daldg)+F23*dpdg
+           dx1dg=(x1/p)*dpdg + 2d0*c*p*z*dzdg/((1d0+z*z)**3)*(1d0-z*z)
 
-c   recall    ax1=c*p*z*z
-c             bx1=(1.d0+z*z)**(-2.d0)
-              dax1dg=c*z*z*dpdg+2.d0*c*p*z*dzdg
-              dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**(-3.d0)
-            dx1dg=C1*dpdg+ax1*dbx1dg+bx1*dax1dg
-            dx2dg=C2*2.d0*qtil*dqtdg
+           dx2dg=C2*2.d0*qtil*dqtdg
 
-c   recall    xc=C3*qtil
-c             xd=(0.5d0*(.6d0*z)**2  + .5d0*p*p)**.5d0
-              dxcdg=C3*dqtdg
-               dag= 0.36d0*z*dzdg
-               dbg=p*dpdg
-              dxddg=.5d0*(dag+dbg)*(0.18d0*z*z+.5d0*p*p)**(-.5d0)
-             dx3dg=xc*dxddg+xd*dxcdg
-             dx4dg=2.d0*C1*C1*p*dpdg/kap
-             dx5dg=1.44d0*es*C1*z*dzdg
-             dx6dg=3.d0*e*mu*p*p*dpdg
-             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
+           dxcdg=C3*dqtdg
+           dxddg=.5d0/xd*( (3d0/5d0)**2*z*dzdg +
+     +          p*dpdg)
+           dx3dg=xc*dxddg+xd*dxcdg
 
-c    recall    xmany=x1+x2+x3 +x4 +x5+x6
-            dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
-            dxdg=x7*dxmanydg+xmany*dx7dg
+           dx4dg=(2.d0*x4/p)*dpdg
+           dx5dg=(2.d0*x5/z)*dzdg
+           dx6dg=(3.d0*x6/p)*dpdg
+           
+           dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
+
+           dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
+           dxdg=x7*dxmanydg+xmany*dx7dg
 
 
             
 C Derivatives wrt tau,    below
 c ttttttttttttttttttttttttttttttttttttttttttttttttt
-          dpdt=0.d0
-          dzdt= -tauW/(tauN*tauN)
-          daldt=1.d0/tauU
-            dtildt=-.5d0*( (2.d0*al-1.d0)*b*daldt )*
-     &             (1.d0+b*al*al-b*al)**(-1.5d0)
-          dqtdt=G920*( (al-1.d0)*dtildt+ 
-     &               daldt*(1.d0+b*al*al-b*al)**(-.5d0) )
+           dpdt=0.d0
+           dzdt= -z/tauN
+           daldt=1.d0/tauU
+           
+           dtildt=-.5d0*((til2)**3)*b*daldt*(2d0*al-1d0)
+           dqtdt=G920*((al-1.d0)*dtildt+ daldt*til2 )
+           
+           dx1dt=c*p*dzdt*2d0*z*(1d0-z*z)/((1.d0+z*z)**3)
+           dx2dt=2*c2*qtil*dqtdt
+           dx3dt=x3*(dqtdt/qtil +
+     &          0.5d0*(3d0/5d0)**2*z*dzdt/(xd*xd))
 
-
-            dax1dt=-4.d0*z*dzdt*(1.d0+z**2)**(-3)
-        dx1dt=c*p*dax1dt*z*z+2*c*p*z*dzdt/(1.d0+z*z)**2
-        dx2dt=2*c2*qtil*dqtdt
-            dax3dt=0.18d0*z*dzdt/(0.18d0*z*z+p*p*.5d0)**(.5d0)
-        dx3dt=C3*qtil*dax3dt +
-     &   C3*dqtdt*(.18d0*z*z+.5d0*p*p)**(.5d0)
-        dx4dt=0.d0
-        dx5dt=1.44d0*es*C1*z*dzdt
-        dx6dt=0.d0
-        dx7dt=0.d0
-        
-c    recall    xmany=x1+x2+x3 +x4 +x5+x6
-            dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
-            dxdt=x7*dxmanydt
+           dx5dt=2d0*(x5/z)*dzdt
+           
+           dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
+           dxdt=x7*dxmanydt
 c ttttttttttttttttttttttttttttttttttttttttttttttttttt
 
-            mt = kap - kap/(1.d0 + x/kap)
+           mt = kap - kap/(1.d0 + x/kap)
             
-            Ex = Ex + mt*rho43*qwght(n)*fac
+           Ex = Ex + mt*rho43*qwght(n)*fac
+           if (ldew)  func(n)= func(n) + mt*rho43*fac
+           
+           dmtdn=dxdn/(1.d0+x/kap)**2
+           derivn=mt*rho13+rho43*dmtdn
+           
+           dmtdg=dxdg/(1.d0+x/kap)**2
+           derivg = rho43*dmtdg
 
-            dmtdn=dxdn/(1.d0+x/kap)**2
-            derivn=mt*rho13+rho43*dmtdn
-
-            dmtdg=dxdg/(1.d0+x/kap)**2
-            derivg = rho43*dmtdg
-
-            dmtdt=dxdt/(1.d0+x/kap)**2
-            derivt = rho43*dmtdt
-
-            Amat(n,1) = Amat(n,1) + 1.0d0*derivn*fac
-            Cmat(n,1)=  Cmat(n,1) + 1.0d0*derivg*fac
-            Mmat(n,1)=  Mmat(n,1) + 0.5d0*derivt*fac
-
+           dmtdt=dxdt*kap/(1.d0+x/kap)**2
+           derivt = rho43*dmtdt
+           Amat(n,1) = Amat(n,1) + derivn*fac
+           Cmat(n,1)=  Cmat(n,1) + derivg*fac
+           Mmat(n,1)=  Mmat(n,1) + 0.5d0*derivt*fac
+#endif
 10      continue
-
-
-
-
-
-
 
 c UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUnrestricted
       else  ! ipol=2
@@ -360,6 +328,7 @@ c   so that is why we comment out the if statement, and
 c   always calculate the local part, the LDA
 c            if (lfac) then
                Ex = Ex + rho43*qwght(n)*fac*0.5d0
+               if (ldew)  func(n)= func(n) + rho43*fac*0.5d0
                 Amat(n,1) = Amat(n,1) + rho13*fac
 c            endif
 
@@ -458,34 +427,25 @@ C Derivatives wrt gamma,    below
             dpdg=4.d0/(4.d0*P32*rho83)
             dzdg=4.d0*rrho*0.125d0/tauN
             daldg=F53*( -p*dzdg/(z*z)+dpdg*(-1.d0+1.d0/z) )
-c   recall     til1=al-1.d0
-c     "        til2=(1.d0+b*al*(al-1.d0))**(-0.5d0)
-c     "        til3 not explicitly needed
-c     "        dtil1dg=daldg
                dtil2dg=0.5d0*(2.d0*b*al*daldg-b*daldg)*til2**3.d0               
             dqtdg=G920*(til1*dtil2dg+til2*daldg)+F23*dpdg
           
 
-c   recall    ax1=c*p*z*z
-c             bx1=(1.d0+z*z)**(-2.d0)
               dax1dg=c*z*z*dpdg+2.d0*c*p*z*dzdg
               dbx1dg=-4.d0*z*dzdg*(1.d0+z*z)**(-3.d0)
             dx1dg=C1*dpdg+ax1*dbx1dg+bx1*dax1dg
             dx2dg=C2*2.d0*qtil*dqtdg
 
-c   recall    xc=C3*qtil
-c             xd=(0.5d0*(.6d0*z)**2  + .5d0*p*p)**.5d0
-              dxcdg=C3*dqtdg
-               dag= 0.36d0*z*dzdg
-               dbg=p*dpdg
-              dxddg=.5d0*(dag+dbg)*(0.18d0*z*z+.5d0*p*p)**(-.5d0)
-             dx3dg=xc*dxddg+xd*dxcdg
-             dx4dg=2.d0*C1*C1*p*dpdg/kap
-             dx5dg=1.44d0*es*C1*z*dzdg
-             dx6dg=3.d0*e*mu*p*p*dpdg
-             dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
+            dxcdg=C3*dqtdg
+            dag= 0.36d0*z*dzdg
+            dbg=p*dpdg
+            dxddg=.5d0*(dag+dbg)*(0.18d0*z*z+.5d0*p*p)**(-.5d0)
+            dx3dg=xc*dxddg+xd*dxcdg
+            dx4dg=2.d0*C1*C1*p*dpdg/kap
+            dx5dg=1.44d0*es*C1*z*dzdg
+            dx6dg=3.d0*e*mu*p*p*dpdg
+            dx7dg=-2.d0*es*dpdg*(1.d0+p*es)**(-3.d0)
 
-c    recall    xmany=x1+x2+x3 +x4 +x5+x6
             dxmanydg= dx1dg+dx2dg+dx3dg+dx4dg+dx5dg+dx6dg
             dxdg=x7*dxmanydg+xmany*dx7dg
 
@@ -507,38 +467,32 @@ c ttttttttttttttttttttttttttttttttttttttttttttttttt
             dax3dt=0.18d0*z*dzdt/(0.18d0*z*z+p*p*.5d0)**(.5d0)
         dx3dt=C3*qtil*dax3dt +
      &   C3*dqtdt*(.18d0*z*z+.5d0*p*p)**(.5d0)
-        dx4dt=0.d0
         dx5dt=1.44d0*es*C1*z*dzdt
-        dx6dt=0.d0
-        dx7dt=0.d0
         
-c    recall    xmany=x1+x2+x3 +x4 +x5+x6
             dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
             dxdt=x7*dxmanydt
 c ttttttttttttttttttttttttttttttttttttttttttttttttttt
-
-
-
-
             mt = kap - kap/(1.d0 + x/kap)
-            
+
             Ex = Ex + mt*rho43*qwght(n)*0.5d0*fac
+            if (ldew)  func(n)= func(n) + mt*rho43*fac*0.5d0
+
 
             dmtdn=dxdn/(1+x/kap)**2
-c            derivn=mt*rho13+ 0.5d0*rho43*dmtdn
 
             dmtdg=dxdg/(1.d0 + x/kap)**2
-c            derivg=rho43*dmtdg
 
             dmtdt=dxdt/(1.d0+x/kap)**2
             derivt = rho43*dmtdt
 
 
 c   rho13 has (1/2) built in.  see .5 in second term for sp.sc
-            Amat(n,1) = Amat(n,1)+fac*(mt*rho13+ 0.5d0*rho43*dmtdn)
-            Cmat(n,1) = Cmat(n,1) + 0.5d0*rho43*dmtdg*fac
 
-            Mmat(n,1) = Mmat(n,1) + 0.5d0*.5d0*derivt*fac
+            Amat(n,1) = Amat(n,1)+fac*(mt*rho13+ 0.5d0*rho43*dmtdn)
+            Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + 0.5d0*rho43*dmtdg*fac
+
+            Mmat(n,1) = Mmat(n,1) + 0.5d0*0.5d0*derivt*fac
+
 
 
 
@@ -563,6 +517,7 @@ c  note all the "rho"  quantities ARE spin scaled, for later use
 
 c            if (lfac) then
                Ex = Ex + rho43*qwght(n)*fac*0.5d0
+               if (ldew)  func(n)= func(n) +rho43*fac*0.5d0
                 Amat(n,2) = Amat(n,2) + rho13*fac
 c            endif
 
@@ -663,7 +618,7 @@ c          til3 not explicitly needed
 C Derivatives wrt n, density   above
 
 
-C Derivatives wrt gamma,    below
+C Derivatives wrt gmama,    below
 
             dpdg=4.d0/(4.d0*P32*rho83)
             dzdg=4.d0*rrho*0.125d0/tauN
@@ -716,10 +671,7 @@ c ttttttttttttttttttttttttttttttttttttttttttttttttt
             dax3dt=0.18d0*z*dzdt/(0.18d0*z*z+p*p*.5d0)**(.5d0)
         dx3dt=C3*qtil*dax3dt +
      &   C3*dqtdt*(.18d0*z*z+.5d0*p*p)**(.5d0)
-        dx4dt=0.d0
         dx5dt=1.44d0*es*C1*z*dzdt
-        dx6dt=0.d0
-        dx7dt=0.d0
         
 c    recall    xmany=x1+x2+x3 +x4 +x5+x6
             dxmanydt= dx1dt+dx2dt+dx3dt+dx5dt
@@ -731,22 +683,23 @@ c ttttttttttttttttttttttttttttttttttttttttttttttttttt
             mt = kap - kap/(1.d0 + x/kap)
             
             Ex = Ex + mt*rho43*qwght(n)*0.5d0*fac
+            if (ldew)  func(n)= func(n) + mt*rho43*fac*0.5d0
 
-            dmtdn=dxdn/(1+x/kap)**2
+            dmtdn=dxdn*kap/(1+x/kap)**2
             derivn=mt*rho13+ 0.5d0*rho43*dmtdn
 c above  rho13 has (1/2) built in.  see .5 in second term for sp.sc
 
-            dmtdg=dxdg/(1.d0 + x/kap)**2
+            dmtdg=dxdg*kap/(1.d0 + x/kap)**2
 c            derivg=rho43*dmtdg
 
-            dmtdt=dxdt/(1.d0+x/kap)**2
+            dmtdt=dxdt*kap/(1.d0+x/kap)**2
             derivt = rho43*dmtdt
 
 
             Amat(n,2) = Amat(n,2) + derivn*fac
-           Cmat(n,3) = Cmat(n,3) + 0.5d0*rho43*dmtdg*fac
+            Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + 0.5d0*rho43*dmtdg*fac
 
-            Mmat(n,2) = Mmat(n,2) + 0.5d0*.5d0*derivt*fac
+            Mmat(n,2) = Mmat(n,2) + 0.5d0*0.5d0*derivt*fac
 
 
 
