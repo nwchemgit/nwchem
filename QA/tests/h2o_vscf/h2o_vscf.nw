@@ -1,0 +1,20 @@
+echo
+start vscf_h2o
+
+permanent_dir /scratch
+scratch_dir /scratch
+
+memory 1000 mb  
+
+geometry units au
+  O     0.00000000     0.00000000     0.20578928
+  H    -1.42497864     0.00000000    -0.87779464
+  H     1.42497864     0.00000000    -0.87779464
+end
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+task scf vscf
