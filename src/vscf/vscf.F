@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.6 2006-02-03 15:53:01 bert Exp $
+c $Id: vscf.F,v 1.7 2006-02-03 17:44:47 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -872,7 +872,7 @@ c
       if (ga_nodeid().eq.0) write(LuOut,9090) 
 c
   300 CONTINUE
-      if (.not. rtdb_delete(rtdb,'prop: vectors'))
+      if (.not. rtdb_delete(rtdb,'prop:vectors'))
      &    call errquit('vgrid: rtdb_delete failed',100,RTDB_ERR)
 c
       RETURN
