@@ -6,7 +6,7 @@ c in the original cpbe96 file, they are arrays
 
 
 c
-c$Id: xc_cMpbe96.F,v 1.2 2006-01-28 02:28:05 edo Exp $
+c$Id: xc_cMpbe96.F,v 1.3 2006-02-03 01:45:22 edo Exp $
 c
       Implicit none
 #include "dft2drv.fh"
@@ -304,17 +304,6 @@ c        Now we update Ec, Amat, and Amat2
 c
 
 c          NOTE:  this PBE does the LDA part of Ec in house
-#if 0
-            Ec = Ec+nepsc*fac
-            Ec = Ec+(H0*rhoval)*fac
-            Amat(n,1) = Amat(n,1) + dnepscdn(1)*fac
-            if (ipol.eq.2) Amat(n,2) = Amat(n,2) + dnepscdn(2)*fac
-
-            Amat(n,1) = Amat(n,1) +  (H0 +
-     &                  rhoval*dH0dna)*fac
-            if (ipol.eq.2) Amat(n,2) = Amat(n,2) +  (H0 +
-     &                  rhoval*dH0dnb)*fac
-#else
             Ec = Ec+epsc*fac
             Ec = Ec+H0*fac
             Amat(n,1) = Amat(n,1) + depscdna*fac
@@ -322,7 +311,6 @@ c          NOTE:  this PBE does the LDA part of Ec in house
 
             Amat(n,1) = Amat(n,1) +  dH0dna*fac
             if (ipol.eq.2) Amat(n,2) = Amat(n,2) + dH0dnb*fac
-#endif
 
 
 
