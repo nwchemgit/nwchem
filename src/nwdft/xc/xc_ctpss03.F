@@ -1,9 +1,9 @@
 c   
-c$Id: xc_ctpss03.F,v 1.9 2006-02-03 05:45:52 edo Exp $
+c$Id: xc_ctpss03.F,v 1.10 2006-02-03 23:56:43 edo Exp $
 c
 #include "dft2drv.fh"
 c   
-c$Id: xc_ctpss03.F,v 1.9 2006-02-03 05:45:52 edo Exp $
+c$Id: xc_ctpss03.F,v 1.10 2006-02-03 23:56:43 edo Exp $
 c
 #include "dft2drv.fh"
 
@@ -106,7 +106,7 @@ c     derivsssssssssssssssssssssssss
       double precision drevdta,drevdtb
 
       double precision dzetadna, dzetadnb
-      double precision dCCCdna, dCCCdnb
+      double precision dcccdna, dcccdnb,dcccdga,dcccdgb
       double precision drevdna, drevdnb
 
       double precision drevdgaa
@@ -118,7 +118,10 @@ c     derivsssssssssssssssssssssssss
       double precision pi,fabup,fabdown
       double precision czeta0,czeta1
       double precision gaa,gbb,gab
-      double precision xi2,delzeta2,dencxi2zeta
+      double precision xi2,delzeta2,dencxi2zeta,
+     D     ddez2dna,ddez2dnb,dxi2dna,dxi2dnb,dxi2dga,dxi2dgb,
+     D     ddencxi2dna,ddencxi2dnb,
+     D     ddencxi2dxi2,ddencxi2dzeta
       parameter (dd = 2.8d0)
       parameter ( THRD = 1d0/3d0)
       parameter ( F73 = 7d0/3d0)
@@ -131,6 +134,11 @@ c
       dencxi2zeta(zeta,xi2)=(1d0+
      +     0.5d0*xi2*(1d0/(1d0+zeta)**F43+
      +     1d0/(1d0-zeta)**F43))**4
+      ddencxi2dxi2(zeta,xi2)=4d0*dencxi2zeta(zeta,xi2)**3 *
+     *     0.5d0*((1d0+zeta)**(-F43)-(1d0-zeta)**(-F43))
+      ddencxi2dzeta(zeta,xi2)=4d0*dencxi2zeta(zeta,xi2)**3 *
+     *     0.5d0*xi2*(-4d0/3d0)*(
+     *     (1d0+zeta)**(-F43)-(1d0-zeta)**(-F43))
 c
       pi=acos(-1d0)
 
@@ -358,6 +366,8 @@ c        epGGA= ec^LDA +H  = pbe
          dzetadnb=-2d0*rhoa/(rhoval*rhoval)
          dcccdna=czeta1(zeta)*dzetadna
          dcccdnb=czeta1(zeta)*dzetadnb
+         dcccdga=0d0
+         dcccdgb=0d0
 c
          if((abs(zeta)-1d0).gt.tol_rho) then
             gaa= delrho(n,1,1)*delrho(n,1,1) +
@@ -371,9 +381,34 @@ c
      &           delrho(n,3,1)*delrho(n,3,2)
             delzeta2=(gaa*(1d0-zeta)**2+gbb*(1d0+zeta)**2-
      -           2d0*(1d0-zeta*zeta)*gab)/(rhoval*rhoval)
-!     ddez2dna=
+            ddez2dna=-2d0*delzeta2/rhoval+
+     +           2d0*dzetadna/(rhoval*rhoval)*(
+     (           -gaa*(1d0-zeta)+(1d0+zeta)*gbb+2d0*zeta*gab)
+            ddez2dnb=-2d0*delzeta2/rhoval+
+     +           2d0*dzetadnb/(rhoval*rhoval)*(
+     (           -gaa*(1d0-zeta)+(1d0+zeta)*gbb+2d0*zeta*gab)
             xi2=delzeta2/(4d0*(3*pi*pi*rhoval)**(2d0/3d0))
+            dxi2dna=1d0/(4d0*(3d0*pi*pi*rhoval)**(2d0/3d0))*(
+     (           ddez2dna -(2d0/3d0)*delzeta2/rhoval)
+            dxi2dnb=1d0/(4d0*(3d0*pi*pi*rhoval)**(2d0/3d0))*(
+     (           ddez2dnb -(2d0/3d0)*delzeta2/rhoval)
+            dxi2dga=(1d0-zeta*zeta)/(rhoval*rhoval)
+            dxi2dgb=(1d0+zeta*zeta)/(rhoval*rhoval)
             CCC=CCC/dencxi2zeta(zeta,xi2)
+            ddencxi2dna=ddencxi2dxi2(zeta,xi2)*dxi2dna + 
+     +           ddencxi2dzeta(zeta,xi2)*dzetadna
+            ddencxi2dnb=ddencxi2dxi2(zeta,xi2)*dxi2dnb + 
+     +           ddencxi2dzeta(zeta,xi2)*dzetadnb
+            dcccdna=dcccdna/dencxi2zeta(zeta,xi2) - 
+     -           czeta0(zeta)*ddencxi2dna/
+     /           (dencxi2zeta(zeta,xi2)**2)
+            dcccdnb=dcccdnb/dencxi2zeta(zeta,xi2) - 
+     -           czeta0(zeta)*ddencxi2dnb/
+     /           (dencxi2zeta(zeta,xi2)**2)
+            dcccdga=-czeta0(zeta)/(dencxi2zeta(zeta,xi2)**2)*
+     *           ddencxi2dxi2(zeta,xi2)*dxi2dga
+            dcccdgb=-czeta0(zeta)/(dencxi2zeta(zeta,xi2)**2)*
+     *           ddencxi2dxi2(zeta,xi2)*dxi2dgb
          endif
          tauw = 0.125d0*gammaval/rhoval
 
@@ -516,17 +551,21 @@ cderivs
        drevdnb=atermn - btermn
 
 c gaa
-       atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*dneggadg(D1_GAA)
+       atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*dneggadg(D1_GAA)+
+     C      pbe*xx2*dcccdga
        btermg=(1.d0+CCC)*
      *      (xx2*(fabup*detiladga+fabdown*detiladgb)+
-     +      (etildea*fabup+etildeb*fabdown)*dtwt2dg)
+     +      (etildea*fabup+etildeb*fabdown)*dtwt2dg)+
+     C      xx2*(etildea*fabup+etildeb*fabdown)*dcccdga
        drevdgaa=atermg-btermg
 
 c gbb
-       atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*dneggadg(D1_GBB)
+       atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*dneggadg(D1_GBB)+
+     C      pbe*xx2*dcccdgb
        btermg=(1.d0+CCC)*
      *      (xx2*(fabup*detilbdga+fabdown*detilbdgb)+
-     +      (etildea*fabup+etildeb*fabdown)*dtwt2dg)
+     +      (etildea*fabup+etildeb*fabdown)*dtwt2dg)+
+     C      xx2*(etildea*fabup+etildeb*fabdown)*dcccdgb
        drevdgbb=atermg-btermg
 
        drevdta=-2.d0*xx2/tauN*
