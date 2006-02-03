@@ -1,9 +1,9 @@
 c   
-c$Id: xc_ctpss03.F,v 1.8 2006-02-03 01:45:25 edo Exp $
+c$Id: xc_ctpss03.F,v 1.9 2006-02-03 05:45:52 edo Exp $
 c
 #include "dft2drv.fh"
 c   
-c$Id: xc_ctpss03.F,v 1.8 2006-02-03 01:45:25 edo Exp $
+c$Id: xc_ctpss03.F,v 1.9 2006-02-03 05:45:52 edo Exp $
 c
 #include "dft2drv.fh"
 
@@ -81,7 +81,7 @@ c    call to the cPBE subroutine
 
 c     TPSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
 
-      double precision THRD, FACE, F73, F43
+      double precision THRD,  F73, F43
       double precision zeta, ccc
       double precision tauw
       double precision xx2,xx3
@@ -117,6 +117,8 @@ c     derivsssssssssssssssssssssssss
      D     detiladga,detiladgb,detilbdga,detilbdgb
       double precision pi,fabup,fabdown
       double precision czeta0,czeta1
+      double precision gaa,gbb,gab
+      double precision xi2,delzeta2,dencxi2zeta
       parameter (dd = 2.8d0)
       parameter ( THRD = 1d0/3d0)
       parameter ( F73 = 7d0/3d0)
@@ -126,12 +128,13 @@ c
      +     0.50d0*zeta**4 + 2.26d0*zeta**6
       czeta1(zeta)= 2d0*0.87d0*zeta*+
      +     4d0*0.50d0*zeta**3 + 6d0*2.26d0*zeta**5
+      dencxi2zeta(zeta,xi2)=(1d0+
+     +     0.5d0*xi2*(1d0/(1d0+zeta)**F43+
+     +     1d0/(1d0-zeta)**F43))**4
 c
-       
-      face=(3d0*pi*pi)**THRD
+      pi=acos(-1d0)
 
       fac = cfac
-
 
       if (ipol.eq.1 )then
 c        ======> SPIN-RESTRICTED <======
@@ -170,7 +173,6 @@ c        epGGA = n*(epsilon_c^GGA) / n =cor. energy per electron
 c        epGGA= ec^LDA +H  = pbe
 
          tauN = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
-!         taun=5d0
 
          CCC = 0.53d0           !since zeta=0
 
@@ -349,12 +351,30 @@ c        epGGA= ec^LDA +H  = pbe
          rhoa=rho(n,2)   
          rhob=rho(n,3)   
          zeta=(rhoa-rhob)/rhoval
+         if(zeta.gt.1d0) zeta=1d0
+         if(zeta.lt.-1d0) zeta=-1d0
          CCC=czeta0(zeta)
          dzetadna=2d0*rhob/(rhoval*rhoval)
          dzetadnb=-2d0*rhoa/(rhoval*rhoval)
          dcccdna=czeta1(zeta)*dzetadna
          dcccdnb=czeta1(zeta)*dzetadnb
-
+c
+         if((abs(zeta)-1d0).gt.tol_rho) then
+            gaa= delrho(n,1,1)*delrho(n,1,1) +
+     &           delrho(n,1,2)*delrho(n,1,2) +
+     &           delrho(n,2,1)*delrho(n,2,1) 
+            gbb= delrho(n,2,2)*delrho(n,2,2) +
+     &           delrho(n,3,1)*delrho(n,3,1) +
+     &           delrho(n,3,2)*delrho(n,3,2) 
+            gab= delrho(n,1,1)*delrho(n,1,2) +
+     &           delrho(n,2,1)*delrho(n,2,2) +
+     &           delrho(n,3,1)*delrho(n,3,2)
+            delzeta2=(gaa*(1d0-zeta)**2+gbb*(1d0+zeta)**2-
+     -           2d0*(1d0-zeta*zeta)*gab)/(rhoval*rhoval)
+!     ddez2dna=
+            xi2=delzeta2/(4d0*(3*pi*pi*rhoval)**(2d0/3d0))
+            CCC=CCC/dencxi2zeta(zeta,xi2)
+         endif
          tauw = 0.125d0*gammaval/rhoval
 
          xx2 = (tauw/tauN)**2.d0
