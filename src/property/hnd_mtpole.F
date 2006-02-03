@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.8 2004-12-29 22:56:42 edo Exp $
+c $Id: hnd_mtpole.F,v 1.9 2006-02-03 02:47:48 bert Exp $
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -29,9 +29,10 @@ c
       integer max_pole, maxcomp
       parameter (max_pole = 3, maxcomp = (max_pole+1)*(max_pole+2)/2)
 c
-      double precision cm(3), mptval(maxcomp,2)
+      double precision cm(3), mptval(maxcomp,3)
       double precision octo, debye, buck, cx, cy, cz
       double precision dipol, dipefc, diptot, rsquar, dum1, dum2
+      logical status
       integer Nxyz(3)
       integer ncomp, nat, iat, icomp, i
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt
@@ -69,6 +70,10 @@ c
 c     Electronic contribution
 c
       call hnd_mtpcon(basis,geom,g_dens(ndens),mptval,mpole,cm)
+c
+c     Only node 0 writing to rtdb
+c
+      status = rtdb_parallel(.false.)
 c
       if (ga_nodeid().gt.0) goto 1000     
 c
@@ -172,6 +177,7 @@ c
       do icomp = 1, ncomp
          mptval(icomp,1) = mptval(icomp,1) * debye
          mptval(icomp,2) = mptval(icomp,2) * debye
+         mptval(icomp,3) = mptval(icomp,1) + mptval(icomp,2)
       enddo
       dipol  =  dipol*debye
       dipefc = dipefc*debye
@@ -180,6 +186,9 @@ c
      &                  mptval(2,2),mptval(3,1),mptval(3,2),dipefc,
      &                  diptot
       write(luout,2994)
+      if (.not.rtdb_put(rtdb,'prop:dipval',mt_dbl,3,mptval(1,3)))
+     &     call errquit('prop: rtdb_put of dipval failed',555,
+     &       RTDB_ERR)
 c
 c     Done, goto cleanup and sync with other nodes
 c
@@ -345,8 +354,10 @@ c
      &   ('hnd_mtpole, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
 c
 c     Synchronize all nodes (as only node 0 was writing)
+c     Reset rtdb access to parallel
 c
  1000 call ga_sync()
+      status = rtdb_parallel(.true.)
 c
       do i = 1, ndens
          if (.not.ga_destroy(g_dens(i))) call

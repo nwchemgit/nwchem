@@ -1,5 +1,5 @@
 *
-* $Id: task_vscf.F,v 1.3 2003-10-17 22:58:26 carlfahl Exp $
+* $Id: task_vscf.F,v 1.4 2006-02-03 02:48:03 bert Exp $
 *
       logical function task_vscf(rtdb)
 c     
@@ -16,6 +16,8 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "eaf.fh"
+#include "msgids.fh"
+#include "inp.fh"
 #include "util.fh"
 c
       logical task_freq
@@ -23,25 +25,33 @@ c
 c     
       integer rtdb
 c     
-      integer nat, geom
-      integer ngrid, ncoup, nresmode(4), iexc, nread
+      integer nat, geom, i
+      integer ngrid, ncoup, iexc
       integer l_freq, k_freq, l_nmode, k_nmode, nc
-      integer offset, fd
+      integer fd
+      double precision offset
       character*255 filename
+      character*32 theory
       double precision vcfct
-      logical status, dmdr, readv
+      logical status, dmdr, freq_done
 c     
       double precision cpu, wall
 c 
-c     logical      ignore
-c
 c  set up a couple of variables that I will eventually let be user controlled
 c
       dmdr = .false.
-      readv = .false. ! temporarily don't let anyone read in previous results
-      nread = 0
 c    
-C      call ecce_print_module_entry('task frequencies')
+      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     +   call errquit('task_vscf: no input for theory?',0, RTDB_ERR)
+      if (.not.(inp_compare(.false.,theory,'scf').or.
+     &          inp_compare(.false.,theory,'dft'))) then
+         if (ga_nodeid().eq.0) write(LuOut,*) 
+     &         'Vibrational SCF is only implemented for SCF and DFT !'
+         task_vscf=.false.
+         return
+      endif
+c
+      call ecce_print_module_entry('task vscf')
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -50,20 +60,27 @@ c
      &       RTDB_ERR)
       if (ga_nodeid().eq.0 .and.
      $    util_print('task_vscf', print_low)) then
-        write(LUOut,*)
-        write(LUOut,*)
-        call util_print_centered(LUOut,
-     $      'VSCF Analysis',
-     $      40,.true.)
-        write(LUOut,*)
+        write(LuOut,*)
+        write(LuOut,*)
+        call util_print_centered(LuOut,'VSCF Analysis',40,.true.)
+        write(LuOut,*)
       endif
-
-      status = task_freq(rtdb)
-      if (.not.status) call errquit
-     &    ('task_vscf: task_freq failed',911, CALC_ERR)
-c     ignore = rtdb_parallel(.false.)
 c
-c     create/load reference geometry to get the number of atoms
+c     First do a frequency analysis. Check if restart and frequencies
+c     were already done
+c
+      if (.not. rtdb_get(rtdb,'vscf:freq_done',mt_log,1,freq_done))
+     $      freq_done=.false.
+      status = .true.
+      if (.not.freq_done) status = task_freq(rtdb)
+      if (.not.status) then
+         call errquit('task_vscf: task_freq failed',911, CALC_ERR)
+      else
+         if (.not. rtdb_put(rtdb,'vscf:freq_done',mt_log,1,freq_done))
+     $   call errquit('task_vscf: rtdb_put freq_done',911, RTDB_ERR)
+      endif
+c
+c     Create/load reference geometry to get the number of atoms
 c
       if (.not.geom_create(geom,'geometry')) call errquit
      $      ('task_vscf:geom_create failed?',1, GEOM_ERR)
@@ -76,7 +93,7 @@ c
       if (.not. geom_destroy(geom)) call errquit
      $      ('task_vscf:geom_destroy failed?',911, GEOM_ERR)
 c
-c     load parameters from rtdb or assign defaults
+c     Load parameters from rtdb or assign defaults
 c
       if (.not. rtdb_get(rtdb,'vscf:ngrid',mt_int,1,ngrid))
      $      ngrid = 16
@@ -86,12 +103,15 @@ c
      $      ncoup = 2
       if (.not. rtdb_get(rtdb,'vscf:vcfct',mt_dbl,1,vcfct))
      $      vcfct = 1.0d+0
-      if(.not.rtdb_put(rtdb,'vscf:nresmode',mt_int,4,nresmode))then
-         nresmode(1) = 1
-         nresmode(2) = 1
-         nresmode(3) = 1
-         nresmode(4) = 1
-      endif
+c
+c  allocate space for freq and normal modes
+c
+      if (.not. ma_push_get(mt_dbl, nc,'frequencies', l_freq, k_freq))
+     &    call errquit('task_vscf: could not allocate l_freq',nc,MA_ERR)
+      if (.not. 
+     &  ma_push_get(mt_dbl, nc*nc,'normal modes', l_nmode, k_nmode))
+     &   call errquit('task_vscf: could not allocate l_nmode',nc*nc,
+     &       MA_ERR)
 c
 c  read in frequencies and normal modes
 c
@@ -99,31 +119,28 @@ c
         call util_file_name('nmode',.false.,.false.,filename)
         if (eaf_open(filename,eaf_rw,fd).ne.0)
      &    call errquit('task_vscf:eaf_open failed',555, DISK_ERR)
-      if (.not. ma_push_get(mt_dbl, nc,'frequencies', l_freq, k_freq))
-     &  call errquit('task_vscf: could not allocate l_freq',nc, MA_ERR)
-      if (.not. 
-     &  ma_push_get(mt_dbl, nc*nc,'normal modes', l_nmode, k_nmode))
-     &   call errquit('task_vscf: could not allocate l_nmode',nc*nc,
-     &       MA_ERR)
-        offset = 0
-        if (eaf_read(fd,offset,dbl_mb(k_freq),nc).ne.0)
-     &    call errquit('task_vscf:error reading frequencies',555,
+        offset = 16 
+        if (eaf_read(fd,offset,dbl_mb(k_freq),nc*8).ne.0)
+     &     call errquit('task_vscf:error reading frequencies',555,
      &       DISK_ERR)
-        offset = offset + nc
-        if (eaf_read(fd,offset,dbl_mb(k_nmode),nc*nc).ne.0)
+        offset = offset + nc*8
+        if (eaf_read(fd,offset,dbl_mb(k_nmode),nc*nc*8).ne.0)
      &    call errquit('task_vscf:error reading modes',555, DISK_ERR)
         if (eaf_close(fd).ne.0)
      &    call errquit('task_vscf:file close problem',555, DISK_ERR)
-      endif                                                                        
+      endif                                                       
 c
 c need to allocate freq and nmode for other nodes and broadcast from
 c node 0
 c
-
+      call ga_brdcst(msg_frq,dbl_mb(k_freq),
+     &               nc*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(msg_eigv,dbl_mb(k_nmode),
+     &               nc*nc*ma_sizeof(mt_dbl,1,mt_byte),0)
 c
 c     Actually do the deed
 c
-      call vscfm(ngrid,readv,nresmode,dmdr,ncoup,nread,vcfct,iexc,
+      call vscfm(ngrid,dmdr,ncoup,vcfct,iexc,
      &     rtdb,nat,dbl_mb(k_nmode),dbl_mb(k_freq))
 c
 c     get rid of extra memory
@@ -132,7 +149,6 @@ c
      $  call errquit('task_vscf:ma_pop of l_nmode failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_freq))
      $  call errquit('task_vscf:ma_pop of l_freq failed',555, MA_ERR)
-c     ignore = rtdb_parallel(.true.)
 c
       cpu  = util_cpusec() - cpu
       wall = util_wallsec() - cpu
@@ -145,15 +161,14 @@ c
       if (.not. rtdb_put(rtdb, 'task:status', mt_log, 1, .true.))
      $     call errquit('task_vscf: failed to set status',0, RTDB_ERR)
 c
-c
-c      call ecce_print1('cpu time', mt_dbl, cpu, 1)
-c      call ecce_print1('wall time', mt_dbl, wall, 1)
+      call ecce_print1('cpu time', mt_dbl, cpu, 1)
+      call ecce_print1('wall time', mt_dbl, wall, 1)
       task_vscf = status
-C      if (task_vscf) then
-C        call ecce_print_module_exit('task frequencies', 'ok')
-C      else
-C        call ecce_print_module_exit('task frequencies', 'failed')
-C      endif
+      if (task_vscf) then
+        call ecce_print_module_exit('task vscf', 'ok')
+      else
+        call ecce_print_module_exit('task vscf', 'failed')
+      endif
 c
 c
       end

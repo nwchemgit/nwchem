@@ -1,6 +1,6 @@
       subroutine vscf_input(rtdb)
 *
-* $Id: vscf_input.F,v 1.2 2003-10-17 22:58:40 carlfahl Exp $
+* $Id: vscf_input.F,v 1.3 2006-02-03 02:48:11 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -11,7 +11,7 @@ c#include "coptopt.fh"
 #include "mafdecls.fh"
 c
       integer rtdb, ngrid, ncoup 
-      integer nresmode(4), iexc, ilen
+      integer iexc, ilen
       character*255 field
       double precision vcfct
       logical dmdr
@@ -21,10 +21,6 @@ c
       ngrid = 16      ! number of grid points per dimension
       ncoup = 2       ! 1 for diagonal terms, 2 for pair couplings
       vcfct = 1.0d+0  ! possible scale factor for pair-coupling potential
-      nresmode(1) = 1 ! first mode to restart with
-      nresmode(2) = 1 ! grid point number for first mode
-      nresmode(3) = 1 ! second mode to restart with
-      nresmode(4) = 1 ! grid point number for second mode
       iexc = 1        ! level of excitation; 1 - fundamentals
       dmdr = .false.  ! don't just use the dipole derivative to get intensities
  
@@ -60,7 +56,7 @@ c
      &       INPUT_ERR)
          if(inp_compare(.false.,'diagonal',field).or.
      $      inp_compare(.false.,'diag',field)) then
-              ncoup =1
+              ncoup = 1
          else if(inp_compare(.false.,'pair',field)) then
               ncoup = 2
          else
@@ -77,15 +73,6 @@ c
          if (.not. rtdb_put(rtdb,'vscf:vcfct',mt_dbl,1,vcfct))
      $        call errquit('vscf_input: rtdb put failed',0, RTDB_ERR)
 c
-      else if(inp_compare(.false.,'nrestart',field))then
-         if(.not.inp_ilist(4,nresmode,ilen))
-     $        call errquit('vscf_input: missing restart information',
-     $           555, INPUT_ERR)
-         if (ilen.ne.4)
-     $        call errquit('vscf_input: wrong number of restart data',
-     $           ilen, INPUT_ERR)
-         if(.not.rtdb_put(rtdb,'vscf:nresmode',mt_int,ilen,nresmode))
-     $        call errquit('vscf_input: rtdb put failed',0, RTDB_ERR)
       else
          call errquit('vscf_input: unknown directive',0, INPUT_ERR)
       endif

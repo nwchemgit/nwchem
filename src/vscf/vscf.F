@@ -1,6 +1,5 @@
-c $Id: vscf.F,v 1.4 2003-10-17 22:58:40 carlfahl Exp $
-c*module vscf    *deck vscfm
-      subroutine vscfm(NGRID,READV,NSTART,DMDR,NCOUP,NREAD,VCFCT,IEXC,
+c $Id: vscf.F,v 1.5 2006-02-03 02:48:11 bert Exp $
+      subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
 #include "errquit.fh"
@@ -13,24 +12,20 @@ c
 #include "stdio.fh"
 #include "rtdb.fh"
 c
-      logical vscf_restart_info
-      external vscf_restart_info
-c
-      character*255 namediag, namecoup
-      logical readv,dmdr
+      character*255 dipole_file
+      logical dmdr, dipole_file_exists
       logical linear, restart
-      integer geom, rtdb, nat, geom_ref
+      integer geom, rtdb, nat, geom_ref, nnm
       dimension vec(3*nat,3*nat), eigen(3*nat)
+      integer NSTART(7)
 c
-      parameter (mxatm=500)
-c
-c        ----- allocate memory and carry out vscf -----
+c     ----- allocate memory and carry out vscf -----
 c
       nc1 = 3*nat
       nc2 = (nc1*nc1+nc1)/2
       nc3 = nc1*nc1
 c
-c        nnm2 is number of pairs of modes (not triangular storage)
+c     nnm2 is number of pairs of modes (not triangular storage)
 c
       if (.not.rtdb_get(rtdb,'vib:linear',mt_log,1,linear))
      $     linear = .false.
@@ -39,44 +34,37 @@ c
       nnm2 = (nnm*nnm-nnm)/2
       nnm3 = nnm*nnm
 c
+c     when we have only one frequency we can only do ncoup=1
+c
+      IF (NNM.eq.1) NCOUP=1
+c
       ngrid2 = (ngrid*ngrid+ngrid)/2
       ngrid3 = ngrid*ngrid
 c
-c        number of vibr. states for which wavefunctions are stored
+c     number of vibr. states for which wavefunctions are stored
 c
       NST=NGRID/2
       IF(NST.LT.4) NST=4
 c
-c        maximum excitation level used in vibrational MP2
+c     maximum excitation level used in vibrational MP2
 c
       NMAX=NST-1
 c
-c        number of virtual states in MP2
+c     number of virtual states in MP2
 c
       NVIRST=NMAX*NMAX*NNM2 + NMAX*NNM + 1
 C
-C              number of triples of normal modes
-C              no. of virtual states in MP2 includes triple excitations
+C     number of triples of normal modes
+C     no. of virtual states in MP2 includes triple excitations
 c
       if (ncoup.gt.2) then
          NTR=NNM*(NNM-1)*(NNM-2)/6
          NVIRST=NVIRST+NMAX*NMAX*NMAX*NTR
       end if
 c
-c         memory for vscf
+c     memory for vscf
 c     the first two of these hold harmonic normal modes and frequencies
 c
-c     lvec   = vec
-c     le     = eigen
-      if (.not. 
-     &  ma_push_get(mt_dbl,nnm*ngrid,'diag dipole x',l_dmx,k_dmx))
-     &  call errquit('vscfm: could not allocate l_dmx',555, MA_ERR)
-      if (.not. 
-     &  ma_push_get(mt_dbl,nnm*ngrid,'diag dipole y',l_dmy,k_dmy))
-     &  call errquit('vscfm: could not allocate l_dmy',555, MA_ERR)
-      if (.not. 
-     &  ma_push_get(mt_dbl,nnm*ngrid,'diag dipole z',l_dmz,k_dmz))
-     &  call errquit('vscfm: could not allocate l_dmz',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm,'vscf freqs',l_fvscf,k_fvscf))
      &  call errquit('vscfm: could not allocate l_fvscf',555, MA_ERR)
@@ -92,6 +80,45 @@ c     le     = eigen
       if (.not.
      &  ma_push_get(mt_dbl,nnm*(nnm+1)*ngrid,'awave',l_awave,k_awave))
      &  call errquit('vscfm: could not allocate l_awave',555, MA_ERR)
+c
+c     Get dipole information from previous frequency calculation
+c
+      call util_file_name('fd_ddipole',.false., .false.,dipole_file)
+      dipole_file_exists = .false.
+      inquire(file=dipole_file,exist=dipole_file_exists)
+      if (DMDR.and.iexc.eq.1.and.dipole_file_exists) then
+         ndipmo=0
+         if (.not. 
+     &     ma_push_get(mt_dbl,3*nc1,'dipole deriv',l_ddm,k_ddm))
+     &     call errquit('vscfm: could not allocate l_ddm',555, MA_ERR)
+         open(unit=70,file=dipole_file,form='formatted',status='old',
+     &       err=89900,access='sequential')
+         do iii = 0,((3*nc1)-1)
+           read(70,*,err=89901,end=89902) dbl_tmp
+           dbl_mb(k_ddm) = dbl_tmp
+         enddo
+         close(unit=70,status='keep')
+      else 
+         ndipmo=1
+         if (.not. 
+     &     ma_push_get(mt_dbl,nnm*ngrid,'diag dipole x',l_dmx,k_dmx))
+     &     call errquit('vscfm: could not allocate l_dmx',555, MA_ERR)
+         if (.not. 
+     &     ma_push_get(mt_dbl,nnm*ngrid,'diag dipole y',l_dmy,k_dmy))
+     &     call errquit('vscfm: could not allocate l_dmy',555, MA_ERR)
+         if (.not. 
+     &     ma_push_get(mt_dbl,nnm*ngrid,'diag dipole z',l_dmz,k_dmz))
+     &     call errquit('vscfm: could not allocate l_dmz',555, MA_ERR)
+c
+c     Calculation of dipole should be at center of mass
+c
+         if (.not.rtdb_put(rtdb,'prop:center',mt_int,1,2))
+     &       call errquit('vscfm: rtdb_put of dipole:center failed',555,
+     &       RTDB_ERR)
+      endif 
+c
+c     Allocate additional memory 
+c
       if (.not. 
      &  ma_push_get(mt_dbl,nnm,'scaled freqs',l_sfreq,k_sfreq))
      &  call errquit('vscfm: could not allocate l_sfreq',555, MA_ERR)
@@ -114,110 +141,67 @@ c     le     = eigen
      &  ma_push_get(mt_dbl,nc1,'delta Xs',l_dx,k_dx))
      &  call errquit('vscfm: could not allocate l_dx',555, MA_ERR)
 c
-      IF (DMDR.and.iexc.eq.1) THEN
-         ndipmo=0
-      ELSE
-         ndipmo=1
-      END IF
+c     Check if we can restart:
+c     - check where where we are on diag  when ncoup = 1, 2, 3
+c     - check where where we are on coupl when ncoup = 1, 2
+c     - check where where we are on tripl when ncoup = 3
+c     - get reference geometry from rtdb
+c     - if any of the diag, coupl, or tripl is incomplete, deterimine
+c       where we were and start from that point, minimizing the overhead
 c
-c because I can't find the dipole derivative code, we will just set ndipmo
-c to calculate the dipole moments at each of the points
+c     nstart will be used to house restart data:
+c     nstart(1)   = level that was completed, i.e. none=0, diag=1, coupl=2, tripl=3
+c     nstart(2-7) = restart point in level, needed are mode and grid point
+c                   i.e., two values for diag, four for coupl and six for tripl
 c
-      ndipmo = 1
+c     if restart, get reference geometry
+c     if not a restart, get the geometry and make a copy to save
+c     while we do potential scans
 c
-c if not a restart, get the geometry and make a copy to save
-c while we do potential scans
-c
-      restart = .false.
-c     restart = vscf_restart_info(rtdb,nstart)
+      call vscf_restart(rtdb,restart,ncoup,nstart,ldiag,lcoup,ltrip,
+     &                     nnm,ngrid,dbl_mb(k_rq),dbl_mb(k_dq),
+     &                     dbl_mb(k_diagv),dbl_mb(k_dmx),dbl_mb(k_dmy),
+     &                     dbl_mb(k_dmz),dbl_mb(k_dm2x),dbl_mb(k_dm2y),
+     &                     dbl_mb(k_dm2z),dbl_mb(k_coupv),XTRIPV,ndipmo)
       if (restart) then
         if (.not.geom_create(geom_ref,'vscf_reference')) call errquit
-     *    ('vscfm: vscf_reference geom_create failed',555, GEOM_ERR)
-        if (.not.geom_rtdb_load(rtdb,geom_ref,'vscf_reference'))
-     *    call errquit('vscfm: reference geom_rtdb_load failed',555,
-     &       RTDB_ERR)
+     *    ('vscfm: vscf_reference geom_create failed',551, GEOM_ERR)
+        if (.not.geom_rtdb_load(rtdb,geom_ref,'vscf_reference')) 
+     *     call errquit('vscfm: geom_rtdb_load failed',551, RTDB_ERR)
+        if (.not.geom_rtdb_store(rtdb,geom_ref,'geometry'))
+     *     call errquit('vscfm: geom_rtdb_store failed',551, RTDB_ERR)
       else
         if (.not.geom_create(geom_ref,'geometry')) call errquit
-     *    ('vscfm: geometry geom_create failed',555, GEOM_ERR)
+     *    ('vscfm: geometry geom_create failed',552, GEOM_ERR)
         if (.not.geom_rtdb_load(rtdb,geom_ref,'geometry')) 
-     *    call errquit('vscfm: geometry geom_rtdb_load failed',555,
+     *    call errquit('vscfm: geometry geom_rtdb_load failed',552,
      &       RTDB_ERR)
         if (.not.geom_rtdb_store(rtdb,geom_ref,'vscf_reference'))
-     *    call errquit('vscfm: geom_rtdb_store failed',555, RTDB_ERR)
+     *    call errquit('vscfm: geom_rtdb_store failed',552, RTDB_ERR)
+        if (.not. rtdb_put(rtdb,'vscf:restart',mt_log,1,restart))
+     $    call errquit('vscfm: rtdb_put restart',552, RTDB_ERR)
       end if
 c
-c pick up a new geometry that is used for the potential scan
+c     pick up a new geometry that is used for the potential scan
 c
       if (.not.geom_create(geom_new,'geometry'))
      *  call errquit('vscfm: geom_new geom_create failed',555, GEOM_ERR)
       if (.not.geom_rtdb_load(rtdb,geom_new,'geometry'))
      *  call errquit('vscfm: geom_rtdb_load failed',555, RTDB_ERR)
-      if (.not.geom_strip_sym(geom)) call errquit
+      if (.not.geom_strip_sym(geom_new)) call errquit
      *  ('vscfm: geom_strip_sym failed',555, GEOM_ERR)
 C
-      IF (NNM.eq.1) NCOUP=1
-      IF (READV .and. NREAD.eq.0) NREAD=NCOUP
-      IF (.NOT.READV .and. NREAD.ne.0) NREAD=0
-      IF (NREAD.eq.0) THEN
-         NSTART1 = 1
-         NSTART2 = 1
-         NSTART3 = 1
-      ELSEIF (NREAD.eq.1) THEN
-         NSTART1 = NSTART
-         NSTART2 = 1
-         NSTART3 = 1
-      ELSEIF (NREAD.eq.2) THEN
-         NSTART1 = 1
-         NSTART2 = NSTART
-         NSTART3 = 1
-      ELSEIF (NREAD.eq.3) THEN
-         NSTART1 = 1
-         NSTART2 = 1
-         NSTART3 = NSTART
-      END IF
-C
-C        Read diagonal and coupling potentials from input
-c        also opening files that will be needed for the calculation
-C
-      if (ga_nodeid().eq.0) then
-        ldiag = 81
-        lcoup = 82
-        call util_file_name('diag',.false.,.false.,namediag)
-        OPEN (UNIT=ldiag, FORM='UNFORMATTED', FILE=namediag,
-     *        ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
-        REWIND (UNIT=ldiag)
-        call util_file_name('coup',.false.,.false.,namecoup)
-        OPEN (UNIT=lcoup, FORM='UNFORMATTED', FILE=namecoup,
-     *        ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
-        REWIND (UNIT=lcoup)
-      end if
-c
-      IF (READV) THEN
-         if(ga_nodeid().eq.0) write(LuOut,9030)
-         CALL RDDIAG(dbl_mb(k_rq),dbl_mb(k_dq),dbl_mb(k_diagv),
-     *               dbl_mb(k_dmx),dbl_mb(k_dmy),
-     *               dbl_mb(k_dmz),NNM,NGRID,NDIPMO,NSTART1,ldiag)
-         IF (NCOUP.GT.1 .and. NREAD.GT.1) 
-     *         CALL RDCOUP(dbl_mb(k_coupv),NNM,NGRID,NSTART2,
-     *               dbl_mb(k_dm2x),dbl_mb(k_dm2y),dbl_mb(k_dm2z),
-     *               lcoup)
-c        IF (NCOUP.GT.2 .AND. NREAD.GT.2) 
-c    *         CALL RDTRIP(XTRIPV,NNM,NGRID,NSTART3)
-      END IF
-C
-C        Calculate diagonal and coupling potentials on grids
+C     Calculate diagonal and coupling potentials on grids
 C
       CALL VGRID(vec,eigen,dbl_mb(k_sfreq),dbl_mb(k_rq),dbl_mb(k_dq),
      *           dbl_mb(k_dx),coords(1,1,geom_ref),dbl_mb(k_diagv),
      *           dbl_mb(k_coupv),XTRIPV,dbl_mb(k_dmx),dbl_mb(k_dmy),
      *           dbl_mb(k_dmz),dbl_mb(k_dm2x),dbl_mb(k_dm2y),
      *           dbl_mb(k_dm2z),NC1,NAT,NNM,NGRID,NDIPMO,NSTART,
-     *           NSTART1,NSTART2,NSTART3,NCOUP,NREAD,rtdb,geom,
-     *           ldiag, lcoup)
+     *           NCOUP,rtdb,geom_new,ldiag,lcoup,ltrip)
       IF (ga_nodeid().eq.0) WRITE(LuOut,9060)
-c     CALL TIMIT(1)
 c
-c get rid of some memory that we no longer need
+c     get rid of some memory that we no longer need
 c
       if (.not. ma_pop_stack(l_dx))
      &  call errquit('vscfm:ma_pop of l_dx failed',555, MA_ERR)
@@ -228,7 +212,7 @@ c
       if (.not. ma_pop_stack(l_dm2x))
      &  call errquit('vscfm:ma_pop of l_dm2x failed',555, MA_ERR)
 c
-c get memory for the next section
+c     get memory for the next section
 c
       if (.not.
      &  ma_push_get(mt_int,nnm,'state indices',l_state,k_state))
@@ -297,7 +281,7 @@ c
      &  ma_push_get(mt_dbl,ngrid,'ec',l_ec,k_ec))
      &  call errquit('vscfm: could not allocate l_ec',555, MA_ERR)
       if (.not.
-     &  ma_push_get(mt_dbl,ngrid,'vecc',l_vecc,k_vecc))
+     &  ma_push_get(mt_dbl,ngrid*ngrid,'vecc',l_vecc,k_vecc))
      &  call errquit('vscfm: could not allocate l_vecc',555, MA_ERR)
       if (.not.
      &  ma_push_get(mt_dbl,ngrid*8,'scr1',l_scr1,k_scr1))
@@ -330,7 +314,7 @@ c
      &  ma_push_get(mt_int,nnm,'ref',l_ref,k_ref))
      &  call errquit('vscfm: could not allocate l_ref',555, MA_ERR)
 C
-C        Perform VSCF and MP2-VSCF
+C     Perform VSCF and MP2-VSCF
 C
       IF (ga_nodeid().eq.0) THEN
          CALL VSCFMP(dbl_mb(k_sfreq),dbl_mb(k_rq),dbl_mb(k_dq),
@@ -349,10 +333,9 @@ C
      *               dbl_mb(k_fvscf),dbl_mb(k_fmp2),xtripv,vcfct,NNM,
      *               NGRID,NGRID2,NST,NVIRST,ncoup,nmax,iexc)
          WRITE(LuOut,9070)
-c        CALL TIMIT(1)
       END IF
 c
-c get rid of some more memory that isn't needed
+c     get rid of some more memory that isn't needed
 c
       if (.not. ma_pop_stack(l_ref))
      &  call errquit('vscfm:ma_pop of l_ref failed',555, MA_ERR)
@@ -427,42 +410,46 @@ c
       if (.not. ma_pop_stack(l_sfreq))
      &  call errquit('vscfm:ma_pop of l_sfreq failed',555, MA_ERR)
 c
-c get memory for the next section
+c     get memory for the next section
 c
       if (.not.
      &  ma_push_get(mt_dbl,nnm,'intensity',l_int,k_int))
      &  call errquit('vscfm: could not allocate l_int',555, MA_ERR)
-      if (.not.
-     &  ma_push_get(mt_dbl,3*nc1,'ddm',l_ddm,k_ddm))
-     &  call errquit('vscfm: could not allocate l_ddm',555, MA_ERR)
-      if (.not.
-     &  ma_push_get(mt_dbl,nnm,'dder',l_dder,k_dder))
-     &  call errquit('vscfm: could not allocate l_dder',555, MA_ERR)
 C
-C        Calculate IR intensities
-c for now, I can't find the dipole derivative code, so we just
-c calculate the intensities from the dipole moments at the
-c grid points
+C     Calculate IR intensities
 C
-c     IF (ndipmo.eq.0) THEN    ! really only done by master for now
-c        CALL DAREAD(IDAF,IODA,dbl_mb(k_ddm),3*NC1,34,0)
-c        CALL DINTENS(dbl_mb(k_int),dbl_mb(k_ddm),dbl_mb(k_dder),
-c    *                dbl_mb(k_fvscf),dbl_mb(k_fmp2),vec,dbl_mb(k_rq),
-c    *                dbl_mb(k_dq),dbl_mb(k_awave),NNM,NGRID,NC1)
-c     ELSE
+      if (ga_nodeid().eq.0) then
+      IF (ndipmo.eq.0) THEN    
+         if (.not.
+     &     ma_push_get(mt_dbl,nnm,'dder',l_dder,k_dder))
+     &     call errquit('vscfm: could not allocate l_dder',555, MA_ERR)
+         CALL DINTENS(dbl_mb(k_int),dbl_mb(k_ddm),dbl_mb(k_dder),
+     *                dbl_mb(k_fvscf),dbl_mb(k_fmp2),vec,dbl_mb(k_rq),
+     *                dbl_mb(k_dq),dbl_mb(k_awave),NNM,NGRID,NC1)
+         if (.not. ma_pop_stack(l_dder))
+     &     call errquit('vscfm:ma_pop of l_dder failed',555, MA_ERR)
+      ELSE
          CALL INTENS(dbl_mb(k_int),dbl_mb(k_dmx),dbl_mb(k_dmy),
      *               dbl_mb(k_dmz),dbl_mb(k_fvscf),dbl_mb(k_fmp2),
      *               dbl_mb(k_dq),dbl_mb(k_awave),NNM,NGRID)
-c     END IF
+      END IF
+      endif
 c
 c clean up memory
 c
-      if (.not. ma_pop_stack(l_dder))
-     &  call errquit('vscfm:ma_pop of l_dder failed',555, MA_ERR)
-      if (.not. ma_pop_stack(l_ddm))
-     &  call errquit('vscfm:ma_pop of l_ddm failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_int))
      &  call errquit('vscfm:ma_pop of l_int failed',555, MA_ERR)
+      if (ndipmo.eq.0) then
+         if (.not. ma_pop_stack(l_ddm))
+     &     call errquit('vscfm:ma_pop of l_dmz failed',555, MA_ERR)
+      else
+         if (.not. ma_pop_stack(l_dmz))
+     &     call errquit('vscfm:ma_pop of l_dmz failed',555, MA_ERR)
+         if (.not. ma_pop_stack(l_dmy))
+     &     call errquit('vscfm:ma_pop of l_dmy failed',555, MA_ERR)
+         if (.not. ma_pop_stack(l_dmx))
+     &     call errquit('vscfm:ma_pop of l_dmx failed',555, MA_ERR)
+      endif
       if (.not. ma_pop_stack(l_awave))
      &  call errquit('vscfm:ma_pop of l_awave failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_rq))
@@ -473,31 +460,36 @@ c
      &  call errquit('vscfm:ma_pop of l_fmp2 failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_fvscf))
      &  call errquit('vscfm:ma_pop of l_fvscf failed',555, MA_ERR)
-      if (.not. ma_pop_stack(l_dmz))
-     &  call errquit('vscfm:ma_pop of l_dmz failed',555, MA_ERR)
-      if (.not. ma_pop_stack(l_dmy))
-     &  call errquit('vscfm:ma_pop of l_dmy failed',555, MA_ERR)
-      if (.not. ma_pop_stack(l_dmx))
-     &  call errquit('vscfm:ma_pop of l_dmx failed',555, MA_ERR)
+c
+c     Reset geometry to default (reference) geometry
+c
+      if (.not.geom_rtdb_load(rtdb,geom_ref,'vscf_reference')) 
+     *   call errquit('vscfm: geom_rtdb_load failed',221, RTDB_ERR)
+      if (.not.geom_rtdb_store(rtdb,geom_ref,'geometry'))
+     *   call errquit('vscfm: geom_rtdb_store failed',221, RTDB_ERR)
+      if (.not.geom_rtdb_delete(rtdb,'vscf_reference'))
+     *   call errquit('vscfm: geom_rtdb_store failed',221, RTDB_ERR)
+      if (.not.geom_destroy(geom_new))
+     *   call errquit('vscfm: geom_destroy',221, RTDB_ERR)
+      if (.not.geom_destroy(geom_ref))
+     *   call errquit('vscfm: geom_destroy',221, RTDB_ERR)
 c
       IF (ga_nodeid().eq.0) WRITE(LuOut,9080)
-c     CALL TIMIT(1)
       return
 c
- 9000 format(1x,i12,' words of memory are needed for vscf storage')
- 9010 format(/1x,'harmonic vibrational analysis for the input hessian')
- 9020 format(1x,'......done with harmonic normal modes.....')
- 9030 format(/1x,'reading energy data from input...')
- 9060 FORMAT(1X,'......DONE WITH POTENTIALS ON GRIDS......')
- 9070 FORMAT(1X,'......FINISHED VIBRATIONAL SCF......')
- 9080 FORMAT(1X,'......FINISHED CALCULATING IR INTENSITIES......')
+89900 call errquit('vscfm: cannot open fd_ddipole file',221, DISK_ERR)
+89901 call errquit('vscfm: error reading fd_ddipole file',221, DISK_ERR)
+89902 call errquit('vscfm: incomplete fd_ddipole file',221, DISK_ERR)
+ 9060 FORMAT(1X,'......Done with potentials on grids......')
+ 9070 FORMAT(1X,'......Finished vibrational SCF......')
+ 9080 FORMAT(1X,'......Finished calculating IR intensities......')
       end
 c*module vscf    *deck vgrid
       SUBROUTINE VGRID(VEC,EIG,FREQ,RQ,DQ,DX,C0,DIAGV,COUPV,TRIPV,
      *                 DM1X,DM1Y,DM1Z,DM2X,DM2Y,DM2Z,
      *                 NC1,NAT1,NNM,NGRID,NDIPMO,
-     *                 NFIN,NFIN1,NFIN2,NFIN3,NCOUP,NREAD,rtdb,geom,
-     *                 ldiag,lcoup)
+     *                 NFIN,NCOUP,rtdb,geom,
+     *                 ldiag,lcoup,ltrip)
 C
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
 #include "errquit.fh"
@@ -506,42 +498,34 @@ c
 #include "geomP.fh"
 #include "geom.fh"
 #include "global.fh"
+#include "mafdecls.fh"
 #include "rtdb.fh"
+#include "util.fh"
 #include "stdio.fh"
 C
       LOGICAL psi0,do1,do2,do3,status
+      character*32 theory
+      character*255 vectors_in
 c
       logical task_energy, property
       external task_energy, property
 C
       integer rtdb, geom
 c
-      PARAMETER (MXATM=500)
-C
       DIMENSION EIG(NC1),VEC(NC1,NC1),DX(NC1),DIAGV(NNM,NGRID)
-      DIMENSION FREQ(NNM),C0(3,MXATM),COUPV(NNM,NNM,NGRID,NGRID)
+      DIMENSION FREQ(NNM),C0(3,NAT1),COUPV(NNM,NNM,NGRID,NGRID)
       DIMENSION DQ(NNM),RQ(NNM,NGRID),TRIPV(NNM,NNM,NNM,
      *                                        NGRID,NGRID,NGRID)
       DIMENSION DM1X(NNM,NGRID),DM1Y(NNM,NGRID),DM1Z(NNM,NGRID) 
       DIMENSION DM2X(NNM,NNM,NGRID,NGRID),DM2Y(NNM,NNM,NGRID,NGRID),
      *          DM2Z(NNM,NNM,NGRID,NGRID)
-      dimension dmtemp(3)
+      dimension dmtemp(3),NFIN(7)
 C
       PARAMETER (ZERO=0.0D+00, ONE=1.0D+00, FOUR=4.0D+00)
       PARAMETER (TWO=2.0D+00, AMU=1.8229D+03)
 C
       FACT = one/sqrt(AMU)
       NSTART=NC1-NNM+1
-      NFIN=NC1-NFIN+1
-      IF (NREAD.EQ.0) THEN
-         NFIN1=NFIN
-         NFIN2=NFIN
-         NFIN3=NFIN
-      ELSE
-         NFIN1=NC1-NFIN1+1
-         NFIN2=NC1-NFIN2+1
-         NFIN3=NC1-NFIN3+1
-      END IF
 c
 c        mp2 runs must execute gradient code to get density matrix
 c        unfortunately, parallel runs don't have fast cutout yet.
@@ -555,7 +539,7 @@ c           call errquit('vgrid: need mp2 nos for mp2 properties',555)
 c        end if
 c     end if
 C      
-c        do we need to get starting orbitals at the input geometry?
+c     do we need to get starting orbitals at the input geometry?
 c
       do1 = .not.(                (nread.ge.1 .and. NFIN1.eq.NC1))
       do2 = .not.(ncoup.le.1 .or. (nread.ge.2 .and. NFIN2.eq.NC1))
@@ -567,9 +551,28 @@ c
          if (.not.task_energy(rtdb))  ! equilibrium geometry energy
      &     call errquit('vgrid: first energy did not converge!',555,
      &       CALC_ERR)
-         if (.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,e))
-     &     call errquit('vgrid: failed to get energy from rtdb',555,
+         if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
+     &     call errquit('vgrid: failed to get energy from rtdb 1',555,
      &       RTDB_ERR)
+c
+c     Point prop:input vectors to the scf or dft vectors so it does
+c     not have to redo the scf/dft everytime
+c
+         if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     +      call errquit('vgrid: no input for theory?',0, RTDB_ERR)
+         if (theory.eq.'dft') then
+            if (.not. rtdb_cget(rtdb,'dft:output vectors',1,vectors_in))
+     &         call errquit('vgrid: rtdb_cget dft:output failed', 100,
+     &                       RTDB_ERR)
+         elseif (theory.eq.'scf') then
+            if (.not. rtdb_cget(rtdb,'scf:output vectors',1,vectors_in))
+     &          call errquit('vgrid: rtdb_cget scf:output failed', 100,
+     &                        RTDB_ERR)
+         end if
+         if (.not. rtdb_cput(rtdb,'prop:vectors',1,vectors_in))
+     &       call errquit('vgrid: rtdb_cput prop:input failed', 100,
+     &                     RTDB_ERR)
+c
          if (.not.rtdb_put(rtdb,'prop:dipole',mt_int,1,0))
      &     call errquit('vgrid: rtdb_put of dipole failed',555,
      &       RTDB_ERR)
@@ -578,7 +581,7 @@ c
      &       RTDB_ERR)
          if (.not.rtdb_get(rtdb,'prop:dipval',mt_dbl,3,dmtemp))
      &     call errquit('vgrid: rtdb_get of dipval failed',555,
-     &       RTDB_ERR)
+     &                  RTDB_ERR)
          dmx = dmtemp(1)
          dmy = dmtemp(2)
          dmz = dmtemp(3)
@@ -598,39 +601,29 @@ C
 C
 C     Frequencies in atomic units
 C
-      do i=NC1,NSTART,-1       !if I bring in frequencies, convert to atomic units from cm-1
+      WAVE = 1.6021892D00*1.6021892D00*1.0D2
+      WAVE = WAVE/(8.0d0*ACOS(0.0D00)*8.85418782D00*0.5291771D00)
+      WAVE = WAVE*6.022045D00/(0.5291771D00*0.5291771D00)
+      WAVE = SQRT(WAVE)
+      WAVE = WAVE/(4.0d0*ACOS(0.0D00)*2.9979245D00)
+      WAVE = WAVE*1.0D4
+c
+c     Bring in frequencies and convert back from cm-1, and then convert to atomic units
+c
+      do i=NC1,NSTART,-1   
          ii=NC1+1-i
-         freq(ii)=sqrt(eig(i)/AMU)
+         freq(ii)=(eig(i)/WAVE)/sqrt(AMU)
       end do
-C
-      if (ga_nodeid().eq.0) then
-         write(LuOut,*) ' FREQUENCIES' 
-         do i=1,nnm
-            write(LuOut,9030) freq(i) 
-         end do
-         write(LuOut,*) ' EIGENVECTORS'
-         do i=NC1,1,-1
-            do j=1,NC1
-               write(LuOut,9030) Vec(j,i)
-            enddo
-         enddo
-         write(LuOut,*) ' EIGENVECTORS FOR CSP'  ! probably comment out
-         do j=1, 3
-            do k=j,nc1,3
-               do i=NC1,1,-1
-                  write(LuOut,9030) Vec(k,i)
-               enddo
-            enddo
-         enddo
-      end if
-C
-      if (nread.ge.1 .and. NFIN1.eq.NC1) goto 100
+c
+c     If all diag values were done, goto coupl
+c
+      if (nfin(1).gt.0) goto 100
 C
 C     Calculate diagonal V on a grid
 C
-      if (ga_nodeid().eq.0) write(LuOut,9040) ngrid, nfin1-nstart+1 
+      if (ga_nodeid().eq.0) write(LuOut,9040) ngrid, nc1-nstart+1 
 C
-      do i=NFIN1,NSTART,-1
+      do i=NC1,NSTART,-1
          im=nc1-i+1
          Qrange=FOUR
          Qrange=Qrange/sqrt(freq(im))
@@ -647,13 +640,27 @@ C
                end do
             end do
 c
+c     Skip pieces on restart until restart point is reached
+c     At that point restart point reset to zero to indicate we
+c     just want to continue to calculate points
+c
+c     If nfin(2).gt.zero, then we have not reached the restart
+c     point and we need to skip one more
+c
+                  if (im.eq.nfin(2).and.il.eq.nfin(3)) then
+                     nfin(2)=0
+                     goto 199
+                  else if (nfin(2).gt.0) then
+                     goto 199
+                  endif
+c
             if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
      *        call errquit('vgrid: geom_rtdb_store failed',555,
      &       RTDB_ERR)
             if(ga_nodeid().eq.0) write(LuOut,9045) il,i
             status = task_energy(rtdb)
-            if (.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,e))
-     &      call errquit('vgrid: failed to get energy from rtdb',555,
+            if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
+     &      call errquit('vgrid: failed to get energy from rtdb 2',555,
      &       RTDB_ERR)
             IF(.not.status .AND. ga_nodeid().eq.0) WRITE(LuOut,9000)
 c
@@ -685,6 +692,7 @@ c
      &           write(ldiag,9010) im, RQ(im,il), diagV(im,il)
               if(ga_nodeid().eq.0) call util_flush(ldiag)
             end if
+  99        continue
          end do
       end do
       if (ga_nodeid().eq.0) write(LuOut,9050)
@@ -692,12 +700,12 @@ C
 C     Off-diagonal pair coupling potential
 C
   100 CONTINUE
-      if (ncoup.le.1 .or. (nread.ge.2 .and. NFIN2.eq.NC1) ) goto 200
+      if ((ncoup.le.1) .or. (nfin(1).gt.1)) goto 200
 C
       if (ga_nodeid().eq.0) write(LuOut,9060) ngrid,ngrid,
-     *                           (nfin2-nstart+1)*(nfin2-nstart)/2
+     *                           (nc1-nstart+1)*(nc1-nstart)/2
 C
-      do i=NFIN2, NSTART+1,-1
+      do i=NC1, NSTART+1,-1
          im=nc1-i+1
          do j=i-1, NSTART,-1
             jm=nc1-j+1
@@ -713,14 +721,29 @@ C
                      end do
                   end do
 c
+c     Skip pieces on restart until restart point is reached
+c     At that point restart point reset to zero to indicate we
+c     just want to continue to calculate points
+c
+c     If nfin(2).gt.zero, then we have not reached the restart
+c     point and we need to skip one more
+c
+                  if (im.eq.nfin(2).and.jm.eq.nfin(4).and.
+     &                il.eq.nfin(3).and.jl.eq.nfin(5)) then
+                     nfin(2)=0
+                     goto 199
+                  else if (nfin(2).gt.0) then
+                     goto 199
+                  endif
+c
                   if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
      *              call errquit('vgrid: geom_rtdb_store failed',555,
      &       RTDB_ERR)
                   if(ga_nodeid().eq.0) write(LuOut,9065) il,jl,i,j
                   status = task_energy(rtdb)
-                  if (.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,e))
+                  if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
      *              call errquit
-     *                ('vgrid: failed to get energy from rtdb',555,
+     *                ('vgrid: failed to get energy from rtdb 3',555,
      &       RTDB_ERR)
                   IF(.not.status .AND. ga_nodeid().eq.0) 
      *               WRITE(LuOut,9000)
@@ -760,6 +783,7 @@ c
      *                             coupV(im,jm,il,jl)
                    if(ga_nodeid().eq.0) call util_flush(lcoup)
                   end if
+  199             continue
                end do
             end do
          end do
@@ -771,66 +795,86 @@ C
 C     3-body coupling potential
 C
   200 CONTINUE
-c     if (ncoup.le.2 .or. (nread.ge.3 .and. NFIN3.eq.NC1) ) goto 300
+      if ((ncoup.le.2) .or. (nfin(1).eq.3)) goto 300
 C
-c     if (ga_nodeid().eq.0) then
-c        write(IP,*)
-c        write(IP,*) ' 3-BODY COUPLING POTENTIAL'
-c        write(IP,*)
-c     end if
+      if (ga_nodeid().eq.0) then
+         write(IP,*)
+         write(IP,*) ' 3-body coupling potential'
+         write(IP,*)
+      end if
 C
-c     if (ga_nodeid().eq.0) write(LuOut,9080) 
-C
-c     do i=NFIN3, NSTART+2,-1
-c       im=nc1-i+1
-c       do j=i-1, NSTART+1,-1
-c         jm=nc1-j+1
-c         do k=j-1, NSTART,-1
-c           km=nc1-k+1
-c           do il=1, ngrid
-c             do jl=1, ngrid
-c               do kl=1, ngrid
-c                 mn=0
-c                 do m=1, nat1
-c                   do n=1, 3
-c                     mn=mn+1
-c                     dx(mn)= FACT*VEC(mn,i)*RQ(im,il) +
-c    *                        FACT*VEC(mn,j)*RQ(jm,jl) +
-c    *                        FACT*VEC(mn,k)*RQ(km,kl)
-c                     coords(n,m,geom) = C0(n,m) + dx(mn)
-c                   end do
-c                 end do
+      if (ga_nodeid().eq.0) write(LuOut,9080) 
+ 
+      do i=NC1, NSTART+2,-1
+        im=nc1-i+1
+        do j=i-1, NSTART+1,-1
+          jm=nc1-j+1
+          do k=j-1, NSTART,-1
+            km=nc1-k+1
+            do il=1, ngrid
+              do jl=1, ngrid
+                do kl=1, ngrid
+                  mn=0
+                  do m=1, nat1
+                    do n=1, 3
+                      mn=mn+1
+                      dx(mn)= FACT*VEC(mn,i)*RQ(im,il) +
+     *                        FACT*VEC(mn,j)*RQ(jm,jl) +
+     *                        FACT*VEC(mn,k)*RQ(km,kl)
+                      coords(n,m,geom) = C0(n,m) + dx(mn)
+                    end do
+                  end do
 c
-c                 if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
-c    *              call errquit('vgrid: geom_rtdb_store failed',555)
-c                 if(ga_nodeid().eq.0) 
-c    *              write(LuOut,9085) il,jl,kl,i,j,k
-c                 status = task_energy(rtdb)
-c                 if (.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,e))
-c    *              call errquit
-c    *                ('vgrid: failed to get energy from rtdb',555)
-c                 IF(.not.status .AND. ga_nodeid().eq.0) 
-c    *              WRITE(LuOut,9000)
+c     Skip pieces on restart until restart point is reached
+c     At that point restart point reset to zero to indicate we
+c     just want to continue to calculate points
 c
-c                 tripV(im,jm,km,il,jl,kl)=e-e0-
-c    *                  diagV(im,il)-diagV(jm,jl)-diagV(km,kl)-
-c    *                  coupV(im,jm,il,jl)-coupV(im,km,il,kl)-
-c    *                  coupV(jm,km,jl,kl)
-c                 if(ga_nodeid().eq.0) write(IP,9025) im,jm,km,
-c    *                            RQ(im,il),RQ(jm,jl),RQ(km,kl),
-c    *                            tripV(im,jm,km,il,jl,kl)
-c                 if(ga_nodeid().eq.0) call util_flush(ip)
-c               end do
-c             end do
-c           end do
-c         end do
-c       end do
-c     end do
+c     If nfin(2).gt.zero, then we have not reached the restart
+c     point and we need to skip one more
 c
-c     e=e0
-c     if (ga_nodeid().eq.0) write(LuOut,9090) 
-C
-c 300 CONTINUE
+                  if (im.eq.nfin(2).and.jm.eq.nfin(4).and.
+     &                il.eq.nfin(3).and.jl.eq.nfin(5).and.
+     &                km.eq.nfin(6).and.kl.eq.nfin(7)) then
+                     nfin(2)=0
+                     goto 199
+                  else if (nfin(2).gt.0) then
+                     goto 199
+                  endif
+c
+                  if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
+     *              call errquit('vgrid: geom_rtdb_store failed',555)
+                  if(ga_nodeid().eq.0) 
+     *              write(LuOut,9085) il,jl,kl,i,j,k
+                  status = task_energy(rtdb)
+                  if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
+     *              call errquit
+     *                ('vgrid: failed to get energy from rtdb',555)
+                  IF(.not.status .AND. ga_nodeid().eq.0) 
+     *              WRITE(LuOut,9000)
+ 
+                  tripV(im,jm,km,il,jl,kl)=e-e0-
+     *                  diagV(im,il)-diagV(jm,jl)-diagV(km,kl)-
+     *                  coupV(im,jm,il,jl)-coupV(im,km,il,kl)-
+     *                  coupV(jm,km,jl,kl)
+                  if(ga_nodeid().eq.0) write(IP,9025) im,jm,km,
+     *                            RQ(im,il),RQ(jm,jl),RQ(km,kl),
+     *                            tripV(im,jm,km,il,jl,kl)
+                  if(ga_nodeid().eq.0) call util_flush(ip)
+  299             continue
+                end do
+              end do
+            end do
+          end do
+        end do
+      end do
+ 
+      e=e0
+      if (ga_nodeid().eq.0) write(LuOut,9090) 
+c
+  300 CONTINUE
+      if (.not. rtdb_delete(rtdb,'prop:output vectors'))
+     &    call errquit('vgrid: rtdb_delete failed',100,RTDB_ERR)
+c
       RETURN
 C
  9000 FORMAT(1x,4(2h*-),'*'/1X,'warning !'/1x,4(2h*-),'*'/
@@ -842,23 +886,22 @@ C
  9022 format(1x,2(I2,2x),2(f14.8,2x),e14.7,3(e14.7,2x))
  9025 format(1x,3(I2,2x),3(f14.8,2x),e14.7) 
  9030 format(1x,f14.9)
- 9040 FORMAT(//1X,'starting DIAGONAL POTENTIAL ON A GRID OF ',I3,
-     *       ' POINTS FOR ',I3,' NORMAL MODES') 
- 9045 format(//1x,'vscf: energy and dipole for grid point',i3,
+ 9040 FORMAT(//1X,'Starting diagonal potential on a grid of ',I3,
+     *       ' points for ',I3,' normal modes') 
+ 9045 format(//1x,'VSCF: Energy and dipole for grid point',i3,
      *          ' along mode',i3)
- 9050 FORMAT(/1X,'DONE WITH DIAGONAL POTENTIAL')
- 9060 FORMAT(//1X,'STARTing PAIR COUPLING POTENTIAL ON A SQUARE GRID'/
-     *  ' OF',I3,' BY',I3,' POINTS FOR',I6,' PAIRS OF NORMAL MODES') 
- 9065 format(//1x,'vscf: energy and dipole for pair grid points',2i3,
+ 9050 FORMAT(/1X,'Done with diagonal potential')
+ 9060 FORMAT(//1X,'Starting pair coupling potential on a square grid'/
+     *  ' of',I3,' by',I3,' points for',I6,' pairs of normal modes') 
+ 9065 format(//1x,'VSCF: Energy and dipole for pair grid points',2i3,
      *          ' for mode pair',2i3)
- 9070 FORMAT(/1X,'DONE WITH PAIR COUPLING POTENTIAL')
- 9080 FORMAT(//1X,'STARTing 3-BODY COUPLING POTENTIAL')
- 9085 format(//1x,'vscf: energy and dipole for 3-body grid points',3i3,
+ 9070 FORMAT(/1X,'Done with pair coupling potential')
+ 9080 FORMAT(//1X,'Starting 3-body coupling potential')
+ 9085 format(//1x,'VSCF: Energy and dipole for 3-body grid points',3i3,
      *          ' for mode triplet',3i3)
- 9090 FORMAT(/1X,'DONE WITH 3-BODY COUPLING POTENTIAL')
+ 9090 FORMAT(/1X,'Done with 3-body coupling potential')
       END
 C
-c*module vscf    *deck vscfmp
       SUBROUTINE VSCFMP(FREQ,RQ,DQ,DIAGV,COUPV,ISTATE,TV,VSCF,VHF,
      *            E,EDIAG,ESCF,EMPPT,WAVE,ALLWAVE,VIRTWAVE,VIRTE,
      *            IVST,IPVT,XX,A,PHI,R,RR,G,V,H,EC,VEC,SCR,IA,GR,
@@ -890,12 +933,14 @@ C
       dimension jvirt(NVST,NNM),jref(NNM),ovrlp(NNM)
       dimension frscf(nnm),frmp2(nnm) 
 C
-      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(400)
-      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
-C
       PARAMETER (ZERO=0.0D+00, ONE=1.0D+00)
       PARAMETER (EPS=1.0D-06, cm=2.19474D+05)
       PARAMETER (mxiter=100)
+      logical print_wv
+c
+c     Print vibrational wave functions
+c
+      print_wv=.false.
 C
 C     SCALE PAIR COUPLING POTENTIAL IF NEEDED 
 C
@@ -951,6 +996,13 @@ C
 C     Start loop over states
 C
       do index=0, NNM
+c
+         if (index.eq.0) then
+            write(LuOut,9019)
+         else
+            write(LuOut,9029)
+         endif
+         write(LuOut,*) ''
 C      
 C        array of state indices
 C
@@ -966,8 +1018,8 @@ C
 C
 c        INITIALIZE THE WAVEFUNCTIONS
 C
-         CALL dfill(wave,zero,NNM*NGRID,1)
-         CALL dfill(vscf,zero,NNM*NGRID,1)
+         CALL dfill(nnm*ngrid,zero,wave,1)
+         CALL dfill(nnm*ngrid,zero,vscf,1)
 C
 c        CALCULATE THE EIGENVALUES AND EIGENFUNCTIONS OF
 c        DIAGONAL POTENTIAL 
@@ -984,18 +1036,16 @@ C
 C
             E(mode)=tE
             sumE=sumE+tE
-            if (ga_nodeid().eq.0) 
-     *        write(LuOut,*) mode,istate(mode),tE*cm
          end do
          ediag(index+1)=sumE
-         if (ga_nodeid().eq.0) 
-     *      write(LuOut,*) "DIAGONAL ENERGY :", sumE*cm
          Etot=sumE
          emp1=zero
          if (ncoup.le.1) goto 50
 C
 C        START SCF ITERATIONS
 C
+         write(LuOut,9050)
+c
          iter=0
  1000    continue 
          iter=iter+1
@@ -1018,9 +1068,6 @@ C
      *           ipvt,rq,dq,xx,a,phi,r,rr,g,v,h,ec,vec,scr,ia,gr,
      *           temp,twave,nnm,ngrid,ngrid2,nst,istate,index)
 C
-            if (ga_nodeid().eq.0) 
-     *         write(LuOut,*) mode,istate(mode),tE*cm
-C 
             if (tE.lt.zero) then 
                vcfct1=fct
                vcfct=vcfct-1.0D-02
@@ -1036,24 +1083,22 @@ C
             E(mode)=tE
             sumE=sumE + tE
          end do
-         if (ga_nodeid().eq.0) 
-     *     write(LuOut,*) "SCF ENERGY    :", sumE*cm
 C
 C        calculate the SCF correction
 C
          call scfcorr (wave,emp1,dq,coupV,TRIPV,NNM,NGRID,ncoup)
 C
          Etot=sumE-emp1
-         if (ga_nodeid().eq.0) write(LuOut,*) 
-     *      "MP1 CORRECTION:",emp1*cm,"TOTAL ENERGY:",Etot*cm
 C
+         write(LuOut,9051) iter,sumE*cm,emp1*cm,Etot*cm
+c
          if (ABS(Etot-Eprev).gt.eps .and. iter.le.mxiter) goto 1000 
 C
 C        exit SCF iterations
 C  
          if (ga_nodeid().eq.0) then
             if (iter.le.mxiter) then 
-               write(LuOut,*) "VSCF CONVERGED"
+               write(LuOut,*) "VSCF converged in",iter,"iterations"
             else
                write(LuOut,*) "*** VSCF DID NOT CONVERGE ***"
             end if
@@ -1062,37 +1107,31 @@ C
 c
 c        punch VSCF wavefunctions 
 c
-         if (ga_nodeid().eq.0) then 
+         if (ga_nodeid().eq.0.and.print_wv) then 
             if (index.eq.0) then
-               write(IP,9020)
-               write(IP,9040) vcfct
+               write(LuOut,9020)
+               write(LuOut,9040) vcfct
             else
-               write(IP,9030) index
-               write(IP,9040) vcfct
+               write(LuOut,9030) index
+               write(LuOut,9040) vcfct
             end if
-            write(IP,*)
+            write(LuOut,*)
          end if
          sumE=ZERO
          do mode=1, NNM
-            if (ga_nodeid().eq.0) 
-     &         write(IP,*) mode,istate(mode),E(mode)*cm
+            if (ga_nodeid().eq.0.and.print_wv) 
+     &         write(LuOut,*) mode,istate(mode),E(mode)*cm
             do l=1, NGRID
-               if (ga_nodeid().eq.0) 
-     &           write(IP,*) mode,rq(mode,l),wave(mode,l)
+               if (ga_nodeid().eq.0.and.print_wv) 
+     &           write(LuOut,*) mode,rq(mode,l),wave(mode,l)
             end do
             sumE=sumE+E(mode)
-            if (ga_nodeid().eq.0) write(IP,*) 
+            if (ga_nodeid().eq.0.and.print_wv) write(LuOut,*) 
          end do
 c
          Etot=sumE-emp1
          escf(index+1)=Etot
          if (ncoup.le.1) goto 100
-         if (ga_nodeid().eq.0) then
-            write(LuOut,*) "no of iterations:", iter
-            write(LuOut,*) "SCF             :", sumE*cm
-            write(LuOut,*) "EMP1            :", emp1*cm
-            write(LuOut,*) "SUB ENERGY      :", Etot*cm
-         endif
 C
 C        MP2 correction 
 C
@@ -1104,8 +1143,12 @@ C
          Etot=Etot+emp2
          emppt(index+1)=Etot
          if (ga_nodeid().eq.0) then
-            write(LuOut,*) "EMP2           :", emp2*cm
-            write(LuOut,*) "TOT ENERGY     :", Etot*cm
+            write(LuOut,*) ""
+            write(LuOut,*) "E(DIAG) :",ediag(index+1)*cm,
+     &                     " (without mode coupling)"
+            write(LuOut,*) "E(VSCF) :", (Etot-emp2)*cm
+            if (ncoup.gt.1) write(LuOut,*) "E(VMP2) :", Etot*cm
+            write(LuOut,*) ""
          endif
   100    continue
 C
@@ -1120,9 +1163,13 @@ C
       RETURN
 C
  9010 FORMAT(/1X,'Scaling coupling potential by ',f4.2) 
- 9020 FORMAT(/1X,'WAVEFUNCTIONS FOR THE GROUND VIBRATIONAL STATE') 
- 9030 FORMAT(/1X,'WAVEFUNCTIONS FOR THE EXCITED STATE OF MODE',I3) 
+ 9019 FORMAT(/1X,'Solving VSCF for the ground vibrational state') 
+ 9020 FORMAT(/1X,'Wavefunctions for the ground vibrational state') 
+ 9029 FORMAT(/1X,'Solving VSCF for the excited state of mode',I3) 
+ 9030 FORMAT(/1X,'Wavefunctions for the excited state of mode',I3) 
  9040 FORMAT(1X,'(Scaling factor for coupling potential ',f4.2,')') 
+ 9050 FORMAT(/1X,'Iteration    E(SCF)      E(MP1)    E(TOTAL)')
+ 9051 FORMAT(4x,i3,5x,f8.2,4x,f8.2,4x,f8.2)
       end
 C
 c*module vscf    *deck collocat
@@ -1150,8 +1197,6 @@ C
       dimension GR(N,N),temp(N),det(2)
       dimension twave(N)
 C
-      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(400)
-      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
 C
       PARAMETER (ZERO=0.0D+00, ONE=1.0D+00, FOUR=4.0D+00)
       PARAMETER (TWO=2.0D+00, HALF=0.5D+00, QTR=0.25D+00)
@@ -1241,19 +1286,18 @@ c
            ij=ij+1
            if(i.eq.j) then
               H(ij)=GR(i,j)+V(i,j)
+              VEC(i,j)=H(ij)
            else
               H(ij)=(GR(i,j)+GR(j,i))/two
+              VEC(i,j)=H(ij)
+              VEC(j,i)=H(ij)
            endif
         end do
       end do
 c
 c     DIAGONALIZE THE PSEDOSPECTRAL MATRIX FOR EIGENVALUES AND EIGENVECTORS
 c
-      IERR = 0
-      CALL GLDIAG(N,N,N,H,SCR,E,VEC,IERR,IA)
-      IF (IERR .NE. 0) 
-     &  CALL errquit('collocat:problem in diagonalization',555,
-     &       CALC_ERR)
+      call util_jacobi(N,VEC,N,E)
 c
 c     rearrange into descending order
 c
@@ -1593,10 +1637,7 @@ C
       dimension v(NVST)
       dimension ovrlp(NM)
 c
-      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(400)
-      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
-c
-      PARAMETER (ZERO=0.0D+00, small=5.0D-03, cm=2.19474D+05)
+      PARAMETER (ZERO=0.0D+00, small=1.0D-05, cm=2.19474D+05)
 c
 c     reference state
 c
@@ -1653,7 +1694,6 @@ c
 c      1st order energy correction:
 c
        emp1=v(istate)
-       if (ga_nodeid().eq.0) write(LuOut,9010) istate,emp1*cm
 c
 c      2nd order energy correction:
 c
@@ -1677,17 +1717,14 @@ c
          end if
        end do
        if (ga_nodeid().eq.0) then
-          write(LuOut,9020) istate,emp2*cm
           write(LuOut,9030) NVST
           write(LuOut,9040) nkeep
        endif
 c
        return
 c
- 9010 format(1x,'MP1 (',I4,') :',e14.7)
- 9020 format(1x,'MP2 (',I4,') :',e14.7)
- 9030 format(1x,'no of virtual states',I6)
- 9040 format(1x,'no of selected states',I6)
+ 9030 format(1x,'Number of virtual states',I6)
+ 9040 format(1x,'Number of selected states',I6)
        end
 c
 c*module vscf    *deck avg
@@ -1862,11 +1899,6 @@ c
 #include "global.fh"
 #include "stdio.fh"
 C
-      LOGICAL GOPARR,DSKWRK,MASWRK
-C
-      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(400)
-      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
-C
       dimension freq(nm), emp1(Nstate), emp2(Nstate), diag(Nstate)
       dimension frscf(nm), frmp2(nm) 
 C
@@ -1875,10 +1907,10 @@ C
       if (ga_nodeid().eq.0) write(LuOut,*) 
       if (ga_nodeid().eq.0) 
      *    write(LuOut,*) " RESULTS OF VIBRATIONAL SCF CALCULATION:" 
-     *                       ," frequencies, cm-1" 
+     *                       ," Frequencies, cm-1" 
       if (ncoup.le.1) then
          if (ga_nodeid().eq.0) 
-     *     write(LuOut,*)  " mode      harmonic     diagonal" 
+     *     write(LuOut,*)  " Mode      Harmonic     Diagonal" 
          do imode = 1, NM
             hfr = freq(imode)*cm
             if (iexc.gt.1) hfr=hfr*iexc
@@ -1889,8 +1921,8 @@ C
          end do
       else
          if (ga_nodeid().eq.0) write(LuOut,*) 
-     *             " mode      harmonic     diagonal      vscf",
-     *             "        cc-vscf"
+     *             " Mode      Harmonic     Diagonal      VSCF",
+     *             "       PT2-VSCF"
          do imode = 1, NM
             hfr = freq(imode)*cm
             if (iexc.gt.1) hfr=hfr*iexc
@@ -1910,43 +1942,50 @@ C
  9020 format (2x,i2,5x,4(f10.2,3x))
       end
 c*module vscf    *deck rddiag
-      SUBROUTINE RDDIAG(RQ,DQ,diagV,DMX,DMY,DMZ,NM,N,ndip,
+      SUBROUTINE VSCF_RDDIAG(RQ,DQ,diagV,DMX,DMY,DMZ,NM,N,ndip,
      *                  nstart,ldiag)
 C
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+#include "errquit.fh"
 c
+#include "nwc_const.fh"
 #include "global.fh"
 #include "mafdecls.fh"
-#include "msgids.fh"
+#include "stdio.fh"
 C
       DIMENSION DQ(NM),RQ(NM,N),DIAGV(NM,N)
       DIMENSION DMX(NM,N),DMY(NM,N),DMZ(NM,N)
+      dimension nstart(7)
 C
-      IF (NSTART.eq.1) THEN
-         NFIN=NM+1
-      ELSE
-         NFIN=NSTART
-      ENDIF
       IF (ga_nodeid().eq.0) THEN
         if (ndip.eq.1) then
-          do i=1, NFIN-1
+          do i=1, NM
             do l=1, N
-              READ (ldiag,9012) RQ(i,l), diagV(i,l),
+              READ (ldiag,9012,end=9001,err=9001) RQ(i,l), diagV(i,l),
      *           dmx(i,l),dmy(i,l),dmz(i,l)
+              nstart(2)=i
+              nstart(3)=l
             enddo
-            dq(i)=rq(i,2)-rq(i,1) ! moved this from the inner loop
+            dq(i)=rq(i,2)-rq(i,1)
           enddo
         else
-         do i=1, NFIN-1
+         do i=1, NM
             do l=1, N
-              READ (ldiag,9010) RQ(i,l), diagV(i,l)
+              READ (ldiag,9010,end=9001,err=9001) RQ(i,l), diagV(i,l)
+              nstart(2)=i
+              nstart(3)=l
             enddo
             dq(i)=rq(i,2)-rq(i,1)
           enddo
         endif
+ 9001 if ((nstart(2).eq.nm).and.(nstart(3).eq.n)) nstart(1)=1
       ENDIF
-C
+c
+c     Now broadcast information to all processors
+c
       master = 0
+      CALL ga_brdcst(msg_ns1,nstart,7*ma_sizeof(mt_int,1,mt_byte),
+     *                  MASTER)
       CALL ga_brdcst(msg_rq,RQ,NM*N*ma_sizeof(mt_dbl,1,mt_byte),
      *                  MASTER)
       CALL ga_brdcst(msg_dq,DQ,NM*ma_sizeof(mt_dbl,1,mt_byte),
@@ -1965,11 +2004,9 @@ C
       RETURN
  9010 format(5x,f14.8,2x,e14.7)
  9012 format(5x,f14.8,2x,e14.7,3(2x,e14.7))
- 9015 format(19x,3(2x,e14.7))
- 9030 format(1x,f14.9)
       END
 c*module vscf    *deck rdcoup
-      SUBROUTINE RDCOUP(coupV,NM,N,NSTART,dm2x,dm2y,dm2z,lcoup)
+      SUBROUTINE RDCOUP(coupV,NM,N,NSTART,dm2x,dm2y,dm2z,lcoup,ndip)
 C
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
 c
@@ -1981,38 +2018,48 @@ C
       DIMENSION dm2x(NM,NM,N,N)
       DIMENSION dm2y(NM,NM,N,N)
       DIMENSION dm2z(NM,NM,N,N)
+      dimension nstart(7)
 C
-      IF (NSTART.eq.1) THEN
-         NFIN=NM
-      ELSE
-         NFIN=NSTART
-      ENDIF
       IF (ga_nodeid().eq.0) THEN
         if (ndip.eq.1) then
-         do i=1, NFIN-1
+         do i=1, NM
             do j=i+1, NM
                do l=1, N
                   do m=1, N
-                     read(lcoup,9022) coupV(i,j,l,m),dm2x(i,j,l,m),
-     *                 dm2y(i,j,l,m),dm2z(i,j,l,m)
+                     read(lcoup,9022,end=9019,err=9019) coupV(i,j,l,m),
+     *                       dm2x(i,j,l,m),dm2y(i,j,l,m),dm2z(i,j,l,m)
+                     nstart(2)=i
+                     nstart(3)=l
+                     nstart(4)=j
+                     nstart(5)=m
                   enddo
                enddo
             enddo
          enddo
         else
-         do i=1, NFIN-1
+         do i=1, NM
             do j=i+1, NM
                do l=1, N
                   do m=1, N
-                     read(lcoup,9020) coupV(i,j,l,m)
+                     read(lcoup,9020,end=9019,err=9019) coupV(i,j,l,m)
+                     nstart(2)=i
+                     nstart(3)=l
+                     nstart(4)=j
+                     nstart(5)=m
                   enddo
                enddo
             enddo
          enddo
         end if
+ 9019 if ((nstart(2).eq.nm).and.(nstart(3).eq.n).and.(nstart(4).eq.nm)
+     &    .and.(nstart(5).eq.n)) nstart(1)=2
       END IF
-C
+c
+c     Now broadcast information to all processors
+c
       master = 0
+      CALL ga_brdcst(msg_ns2,nstart,7*ma_sizeof(mt_int,1,mt_byte),
+     &               MASTER)
       CALL ga_brdcst(msg_coupv,COUPV,
      *      NM*NM*N*N*ma_sizeof(mt_dbl,1,mt_byte),MASTER)
       if (ndip.eq.1) then
@@ -2030,44 +2077,51 @@ C
  9022 format(41x,e14.7,3(e14.7,2x))
       END
 c*module vscf    *deck rdtrip
-c     SUBROUTINE RDTRIP(tripV,NM,N,NSTART)
-C
-c     IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      SUBROUTINE RDTRIP(tripV,NM,N,NSTART)
+ 
+      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+ 
+#include "global.fh"
+ 
+      DIMENSION TRIPV(NM,NM,NM,N,N,N)
+      dimension nstart(7)
+ 
+      IF (ga_nodeid().eq.0) THEN
+         do i=1, NM 
+            do j=i+1, NM
+               do k=j+1, NM
+                  do l1=1, N
+                     do l2=1, N
+                        do l3=1, N
+                           read(IR,9025,end=9024,err=9024) 
+     &                           tripV(i,j,k,l1,l2,l3)
+                           nstart(2)=i
+                           nstart(3)=l1
+                           nstart(4)=j
+                           nstart(5)=l2
+                           nstart(6)=k
+                           nstart(7)=l3
+                        enddo
+                     enddo
+                  enddo
+               enddo
+            enddo
+         enddo
+ 9024 if ((nstart(2).eq.nm).and.(nstart(3).eq.n).and.(nstart(4).eq.nm)
+     &    .and.(nstart(5).eq.n).and.(nstart(6).eq.nm)
+     &    .and.(nstart(7).eq.n)) nstart(1)=3
+      END IF
 c
-cinclude "global.fh"
-C
-c     LOGICAL GOPARR
-C
-c     DIMENSION TRIPV(NM,NM,NM,N,N,N)
-C
-c     IF (NSTART.eq.1) THEN
-c        NFIN=NM-1
-c     ELSE
-c        NFIN=NSTART
-c     ENDIF
-c     CALL SEQREW(IR)
-c     CALL FNDGRP(IR,' $TRIPV ',IEOF)
-c     IF (ga_nodeid().eq.0) THEN
-c        do i=1, NFIN-1 
-c           do j=i+1, NM-1
-c              do k=j+1, NM
-c                 do l1=1, N
-c                    do l2=1, N
-c                       do l3=1, N
-c                          read(IR,9025) tripV(i,j,k,l1,l2,l3)
-c                       enddo
-c                    enddo
-c                 enddo
-c              enddo
-c           enddo
-c        enddo
-c     END IF
-C
-c     IF (GOPARR) CALL DDI_BCAST(890,'F',TRIPV,NM*NM*NM*N*N*N,MASTER)
-C
-c     RETURN
-c9025 format(61x,e14.7)
-c     END
+c     Now broadcast information to all processors
+c
+      master = 0
+      CALL ga_brdcst(msg_ns3,nstart,7*ma_sizeof(mt_int,1,mt_byte),
+     &               MASTER)
+      CALL ga_brdcst(msg_tripv,TRIPV,
+     *      NM*NM*NM*N*N*N*ma_sizeof(mt_dbl,1,mt_byte),MASTER)
+      RETURN
+ 9025 format(61x,e14.7)
+      END
 c*module vscf    *deck intens
       SUBROUTINE INTENS(SINTSCF,UX,UY,UZ,FRSCF,FRMP2,DQ,WAVE,NM,N)
 C
@@ -2076,11 +2130,6 @@ c
 #include "global.fh"
 #include "stdio.fh"
 C
-      LOGICAL GOPARR,DSKWRK,MASWRK
-C
-      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(400)
-      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
-c
 c     THIS ROUTINE CALCULATES IR intensity for i-th MODE
 c     USING THE following equation:
 c
@@ -2107,6 +2156,8 @@ c
 c
       if (ga_nodeid().eq.0) write(LuOut,*) 
      *   " mode   frequency, cm-1  intensity, km/mol" 
+c
+c     Note: dipole assumed to be in debeye
 c
       do j=1, NM
          sIntx = zero 
@@ -2139,11 +2190,6 @@ c
 #include "global.fh"
 #include "stdio.fh"
 C
-      LOGICAL GOPARR,DSKWRK,MASWRK
-C
-      COMMON /IOFILE/ IR,IW,IP,IS,IPK,IDAF,NAV,IODA(400)
-      COMMON /PAR   / ME,MASTER,NPROC,IBTYP,IPTIM,GOPARR,DSKWRK,MASWRK
-c
 c     THIS ROUTINE CALCULATES IR intensity for i-th MODE
 c     USING THE following equation:
 c
@@ -2481,13 +2527,100 @@ C
   900 FORMAT(/1X,'ERROR IN CALL TO -MRARBR-'/
      *        1X,'LDA,NA,MA,LDB,MB,LDC=',6I10)
       END
-C*MODULE EIGEN   *DECK GLDIAG
-      SUBROUTINE GLDIAG(LDVECT,NVECT,N,H,WRK,EIG,VECTOR,IERR,IWRK)
-C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-C
-      write(6,*) 'gldiag is not implemented yet'
+c
+      subroutine vscf_restart(rtdb,restart,ncoup,nstart,ldiag,lcoup,
+     &                            ltrip,nnm,ngrid,rq,dq,diagv,dm1x,dm1y,
+     &                            dm1z,dm2x,dm2y,dm2z,coupv,tripv,ndip)
+      implicit double precision(a-h,o-z)
+#include "errquit.fh"
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+c
+      dimension rq(nnm,ngrid),dq(nnm),diagv(nnm,ngrid)
+      dimension dm1x(nnm,ngrid),dm1y(nnm,ngrid),dm1z(nnm,ngrid)
+      dimension dm2x(nnm,nnm,ngrid,ngrid),dm2y(nnm,nnm,ngrid,ngrid)
+      dimension dm2z(nnm,nnm,ngrid,ngrid),coupv(nnm,nnm,ngrid,ngrid)
+      dimension tripv(nnm,nnm,nnm,ngrid,ngrid,ngrid)
+c
+      character*255 namediag, namecoup, nametrip
+      dimension nstart(7)
+      logical restart,diag_exists,coup_exists,trip_exists
+      integer rtdb
+c
+      do ii=1,7
+        nstart(ii) = 0
+      enddo
+c
+c     Open files for diagonal, coupling, and triple potentials 
+c
+      ldiag = 81
+      lcoup = 82
+      ltrip = 83
+c
+      if (ga_nodeid().eq.0) then
+        diag_exists=.false.
+        coup_exists=.false.
+        trip_exists=.false.
+        if (ncoup.ge.1) then
+          call util_file_name('diag',.false.,.false.,namediag)
+          inquire(file=namediag,exist=diag_exists)
+          OPEN (UNIT=ldiag, FORM='FORMATTED', FILE=namediag,
+     *          ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
+          REWIND (UNIT=ldiag)
+        endif
+        if (ncoup.ge.2) then
+          call util_file_name('coup',.false.,.false.,namecoup)
+          inquire(file=namecoup,exist=coup_exists)
+          OPEN (UNIT=lcoup, FORM='FORMATTED', FILE=namecoup,
+     *          ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
+          REWIND (UNIT=lcoup)
+        endif
+        if (ncoup.ge.3) then
+          call util_file_name('trip',.false.,.false.,nametrip)
+          inquire(file=nametrip,exist=trip_exists)
+          OPEN (UNIT=ltrip, FORM='FORMATTED', FILE=nametrip,
+     *          ACCESS='SEQUENTIAL', STATUS='UNKNOWN')
+          REWIND (UNIT=ltrip)
+        endif
+      end if
+c
+c     If there is restart data, make sure all the processors
+c     are aware of it and get it from the files.
+c
+      master=0
+      CALL ga_brdcst(msg_diagv,diag_exists,
+     *        ma_sizeof(mt_log,1,mt_byte),MASTER)
+      CALL ga_brdcst(msg_diagv,coup_exists,
+     *        ma_sizeof(mt_log,1,mt_byte),MASTER)
+      CALL ga_brdcst(msg_diagv,trip_exists,
+     *        ma_sizeof(mt_log,1,mt_byte),MASTER)
+      if (diag_exists) then
+         if(ga_nodeid().eq.0) write(LuOut,9030)
+         CALL VSCF_RDDIAG(rq,dq,diagv,dm1x,dm1y,dm1z,nnm,ngrid,ndip, 
+     *               nstart,ldiag)
+      endif
+      if (coup_exists.and.ncoup.ge.2) then
+         if(ga_nodeid().eq.0) write(LuOut,9040)
+         CALL RDCOUP(coupv,nnm,ngrid,nstart,dm2x,dm2y,dm2z,lcoup,ndip)
+      endif
+      if (trip_exists.and.ncoup.eq.3) then
+         if(ga_nodeid().eq.0) write(LuOut,9050)
+         CALL RDTRIP(XTRIPV,NNM,NGRID,nstart)
+      endif
+c
+c     Restart if user specified restart keyword and we are reusing 
+c     the old rtdb
+c
+      if (.not. rtdb_get(rtdb,'vscf:restart',mt_log,1,restart))
+     &   restart=.false.
 c
       return
-c
+ 9030 format(/1x,'Reading diagonal energy data for restart...')
+ 9040 format(/1x,'Reading coupling energy data for restart...')
+ 9050 format(/1x,'Reading 3-body energy data for restart...')
       end

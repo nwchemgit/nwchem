@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.18 2005-04-26 23:36:15 marat Exp $
+* $Id: hnd_property.F,v 1.19 2006-02-03 02:47:48 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -232,11 +232,11 @@ c
 c       Depending on calculation write prop:input vectors to rtdb
 c
         if (theory.eq.'dft') then
-           if (.not. rtdb_cget(rtdb,'dft:input vectors',1,vectors_in))
+           if (.not. rtdb_cget(rtdb,'dft:output vectors',1,vectors_in))
      &         call errquit('hnd_property: rtdb_cget failed', 100,
      &                      RTDB_ERR)
         elseif (theory.eq.'scf') then
-           if (.not. rtdb_cget(rtdb,'scf:input vectors',1,vectors_in))
+           if (.not. rtdb_cget(rtdb,'scf:output vectors',1,vectors_in))
      &         call errquit('hnd_property: rtdb_cget failed', 100,
      &                      RTDB_ERR)
         endif

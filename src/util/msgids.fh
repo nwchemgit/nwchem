@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.149 2005-12-24 10:19:11 marat Exp $
+c     $Id: msgids.fh,v 1.150 2006-02-03 02:48:08 bert Exp $
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_utscr2
@@ -514,6 +514,7 @@ c
       integer msg_efgs_col
       integer msg_perfm_sum,msg_perfm_max,msg_perfm_min
       integer msg_cosmo0,msg_cosmo1,msg_cosmo2
+      integer msg_frq,msg_eigv,msg_ns1,msg_ns2,msg_ns3
 c-----------------------------------------------------------------------
       parameter (msg_prsum = msg_ftn_base -  1) ! sum_pairs
 c     
@@ -1085,6 +1086,11 @@ c
       parameter(msg_dm2x = msg_ftn_base-757)
       parameter(msg_dm2y = msg_ftn_base-758)
       parameter(msg_dm2z = msg_ftn_base-759)
+      parameter(msg_frq=msg_ftn_base-760)
+      parameter(msg_eigv=msg_ftn_base-761)
+      parameter(msg_ns1=msg_ftn_base-762)
+      parameter(msg_ns2=msg_ftn_base-763)
+      parameter(msg_ns3=msg_ftn_base-764)
 c
       parameter(msg_j21 = msg_ftn_base-780)
       parameter(msg_j20 = msg_ftn_base-781)
@@ -1181,3 +1187,4 @@ c
       parameter(msg_cosmo1=msg_ftn_base-900)
       parameter(msg_cosmo2=msg_ftn_base-901)
       parameter(msg_cosmo0=msg_ftn_base-902)
+c
