@@ -26,4 +26,5 @@ runtest.unix procs 2 \
   $NWCHEM_TEST/intchk \
   $NWCHEM_TEST/sadbig \
   $NWCHEM_TEST/br2_dk \
+  $NWCHEM_TEST/h2o_vscf \
   $NWCHEM_TEST/startag

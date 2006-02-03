@@ -33,6 +33,7 @@ tcsh runtests.unix tddft_h2o
 tcsh runtests.unix tddft_n2+
 tcsh runtests.unix tce_h2o
 tcsh runtests.unix oniom1
+tcsh runtests.unix h2o_vscf
 REM ---   long  may not run on workstations
 tcsh runtests.unix aump2 
 tcsh runtests.unix uoverlap

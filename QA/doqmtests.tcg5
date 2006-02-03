@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.tcg5,v 1.4 2005-01-24 23:42:46 edo Exp $
+# $Id: doqmtests.tcg5,v 1.5 2006-02-03 19:50:22 bert Exp $
 #
 #---   small tests
 set np = 1
@@ -56,6 +56,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.tcg5.unix procs $np tce_uhf_uccsd
 ./runtests.tcg5.unix procs $np oniom1
 ./runtests.tcg5.unix procs $np c60_ecp
+./runtests.tcg5.unix procs $np h2o_vscf
 
 # qmmm tests
 ./runtests.tcg5.unix procs $np asa_qmmm

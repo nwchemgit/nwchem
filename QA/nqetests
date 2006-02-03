@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: nqetests,v 1.5 2002-02-08 23:47:35 windus Exp $
+# $Id: nqetests,v 1.6 2006-02-03 19:50:22 bert Exp $
 #
 #---   small tests
 cd ~/nwchem/QA/tests/auh2o
@@ -65,6 +65,8 @@ cd ~/nwchem/QA/tests/sadbig
 nwdebug sadbig.nw -accnt mp15 -procs 6 -time 3600
 cd ~/nwchem/QA/tests/br2_dk
 nwdebug br2_dk.nw -accnt mp15 -procs 6 -time 3600
+cd ~/nwchem/QA/tests/h2o_vscf
+nwdebug h2o_vscf.nw -accnt mp15 -procs 2 -time 3600
 #---   long  may not run on workstations
 cd ~/nwchem/QA/tests/aump2 
 nwdebug aump2 .nw -accnt mp15 -procs 64 -time 3600
