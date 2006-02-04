@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.55 2006-01-27 22:31:45 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.56 2006-02-04 19:57:15 edo Exp $
 c
       implicit none
 c
@@ -450,8 +450,7 @@ c
          if (.not. do_2nd) then
             call xc_cpkzb99(tol_rho, cfac(25), lcfac(25), nlcfac(25),  
      &           rho, delrho,  nq, ipol, 
-     &           Ec, qwght,  tau,Amat,Cmat,Mmat)
-
+     &           Ec, qwght, ldew, func, tau,Amat,Cmat,Mmat)
          else
             call xc_cpkzb99_d2()
          endif
