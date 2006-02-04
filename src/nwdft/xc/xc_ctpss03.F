@@ -1,5 +1,5 @@
 c   
-c$Id: xc_ctpss03.F,v 1.12 2006-02-04 19:32:10 edo Exp $
+c$Id: xc_ctpss03.F,v 1.13 2006-02-04 20:11:46 edo Exp $
 c
 #include "dft2drv.fh"
 c
@@ -124,8 +124,8 @@ c     derivsssssssssssssssssssssssss
 c
       czeta0(zeta)=0.53d0 + 0.87d0*zeta**2+
      +     0.50d0*zeta**4 + 2.26d0*zeta**6
-      czeta1(zeta)= 2d0*0.87d0*zeta*+
-     +     4d0*0.50d0*zeta**3 + 6d0*2.26d0*zeta**5
+      czeta1(zeta)= 2d0*0.87d0*zeta+
+     +     4d0*0.5d0*zeta**3 + 6d0*2.26d0*zeta**5
       dencxi2zeta(zeta,xi2)=(1d0+
      +     0.5d0*xi2*(1d0/(1d0+zeta)**F43+
      +     1d0/(1d0-zeta)**F43))**4
