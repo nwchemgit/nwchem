@@ -1,12 +1,8 @@
 c   
-c$Id: xc_ctpss03.F,v 1.10 2006-02-03 23:56:43 edo Exp $
+c$Id: xc_ctpss03.F,v 1.11 2006-02-04 19:10:57 edo Exp $
 c
 #include "dft2drv.fh"
-c   
-c$Id: xc_ctpss03.F,v 1.10 2006-02-03 23:56:43 edo Exp $
 c
-#include "dft2drv.fh"
-
 c    Tao,Perdew, Staroverov, Scuseria exchange functional 
 c           META GGA
 C         utilizes ingredients:
@@ -81,7 +77,7 @@ c    call to the cPBE subroutine
 
 c     TPSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSs
 
-      double precision THRD,  F73, F43
+      double precision THRD, F43
       double precision zeta, ccc
       double precision tauw
       double precision xx2,xx3
@@ -124,7 +120,6 @@ c     derivsssssssssssssssssssssssss
      D     ddencxi2dxi2,ddencxi2dzeta
       parameter (dd = 2.8d0)
       parameter ( THRD = 1d0/3d0)
-      parameter ( F73 = 7d0/3d0)
       parameter ( F43 = 4d0/3d0)
 c
       czeta0(zeta)=0.53d0 + 0.87d0*zeta**2+
@@ -371,10 +366,10 @@ c        epGGA= ec^LDA +H  = pbe
 c
          if((abs(zeta)-1d0).gt.tol_rho) then
             gaa= delrho(n,1,1)*delrho(n,1,1) +
-     &           delrho(n,1,2)*delrho(n,1,2) +
-     &           delrho(n,2,1)*delrho(n,2,1) 
-            gbb= delrho(n,2,2)*delrho(n,2,2) +
-     &           delrho(n,3,1)*delrho(n,3,1) +
+     &           delrho(n,2,1)*delrho(n,23,1) +
+     &           delrho(n,3,1)*delrho(n,3,1) 
+            gbb= delrho(n,1,2)*delrho(n,1,2) +
+     &           delrho(n,2,2)*delrho(n,3,2) +
      &           delrho(n,3,2)*delrho(n,3,2) 
             gab= delrho(n,1,1)*delrho(n,1,2) +
      &           delrho(n,2,1)*delrho(n,2,2) +

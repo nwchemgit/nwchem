@@ -1,11 +1,12 @@
 #include "dft2drv.fh"
+!#define PRINTA 1
       Subroutine xc_cpkzb99(tol_rho, cfac, lcfac, nlcfac, rho, delrho, 
      &                     nq, ipol, Ec, qwght, ldew, func,
      &                     tau, Amat, Cmat, Mmat)     
      
 
 c
-c$Id: xc_cpkzb99.F,v 1.7 2006-02-04 05:17:24 edo Exp $
+c$Id: xc_cpkzb99.F,v 1.8 2006-02-04 19:10:57 edo Exp $
 c
 
 c     References:
@@ -29,14 +30,6 @@ c
       logical lfac, nlfac
       double precision fac
       double precision tol_rho
-
-c
-c     Threshold parameters
-c
-      double precision TOLL, EXPTOL
-      double precision EPS
-      parameter (TOLL = 1.0D-40, EXPTOL = 40.0d0)
-      parameter (EPS = 1.0e-8)
 c
 c     Correlation energy
 c
@@ -93,34 +86,29 @@ c     spectral representation terms
       double precision cterm1, cterm2, cterm3
       double precision mterm
       double precision ctermb1, ctermb2, ctermb3
-      double precision gam12,pbe,tauw,xx2,xx3,en
-      double precision pbeup,dtwt2dn,dtwt3dn,decggadn,dtwt2dg,
-     ,     delc,dtwt3dg,decggadg,drevdn,drevdg,drevdt,
+      double precision gam12,pbe,tauw,xx2,en,
+     ,     tauwa,tauwb,xx2a,xx2b,dtwat2dg,dtwat2dn,
+     ,     dtwbt2dg,dtwbt2dn
+      double precision pbeup,dtwt2dn,decggadn,dtwt2dg,
+     ,     delc,decggadg,drevdn,drevdg,drevdt,
      ,     dpbeupdn,dpbeupdg,atermn,btermn,atermg,btermg,
-     ,     erevc,erevsic,finaln,apartg,finalg,apartt,finalt
+     ,     erevc,finaln,apartg,finalg,apartt,finalt
  
 
 c  FULLY SPIN POLARIZED SECTION	
       double precision   rhovalF, epFSP
       double precision  neFSP, dneFSPdn(2), dneFSPdg(3)
 
-      double precision  facF, Fqwght
-      logical  lfacF, nlfacF
       double precision drevdna,drevdnb,drevdgaa,drevdgbb,
      A     drevdta,drevdtb,finalgbb
       double precision delca,delcb,
      A     detiladga,detiladgb,detilbdga,detilbdgb,
      A     detiladna,detiladnb,detilbdna,detilbdnb
-      double precision dtwt3dt,etildea,etildeb
+      double precision etildea,etildeb,gaa,gbb
       double precision fabup,fabdown
       double precision delrho_A(3,2), rho_A(3)
-
-
+c
       fac = cfac
-      lfac = lcfac
-      nlfac = nlcfac
-
-
       if (ipol.eq.1 )then
 c        ======> SPIN-RESTRICTED <======
 
@@ -158,7 +146,6 @@ c
          tauw = 0.125d0*gammaval/rhoval
 
          xx2 = (tauw/tauN)**2.d0
-         xx3 = (tauw/tauN)**3.d0
 
          en = pbe*(1.d0 + CCC*xx2)
 c
@@ -197,12 +184,10 @@ c
 c        functional deriv info below fffffffffffff
 
          dtwt2dn = -2.d0*xx2/rhoval
-         dtwt3dn = -3.d0*xx3/rhoval
          decggadn= dneGGAdn(1)
 
          dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
 
-         dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
          decggadg= dneGGAdg(1)
 
          delc= xx2*pbeup
@@ -224,6 +209,11 @@ c  note .25 above is because you want gamma=deln_tot*deln_tot
 
         atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*decggadg
         btermg=(1.d0+CCC)*(xx2*dpbeupdg+pbeup*dtwt2dg)
+#ifdef PRINTA
+        write(0,'(A,4F18.6)') ' x d p dt',
+     A       xx2,dpbeupdg,pbeup,dtwt2dg
+        write(0,*) ' ag bg ',atermg,btermg
+#endif
         drevdg=atermg-btermg
         
         drevdt=(CCC*pbe-(1.d0+CCC)*pbeup)*xx2*(-2.d0/tauN)
@@ -231,10 +221,9 @@ c  note .25 above is because you want gamma=deln_tot*deln_tot
         
        delc = -(1.d0 + CCC)*delc
        erevc = en + delc
-       erevsic = erevc
          
-       if(ldew) func(n) = func(n) + rhoval*erevsic*fac
-       Ec = Ec + rhoval*erevsic*qwght(n)*fac
+       if(ldew) func(n) = func(n) + rhoval*erevc*fac
+       Ec = Ec + rhoval*erevc*qwght(n)*fac
 
 c     derivs wrt n
        finaln= rhoval*drevdn + erevc 
@@ -255,6 +244,11 @@ c     derivs wrt t
          Mmat(n,1)=Mmat(n,1)+0.5d0*finalt*fac
 
 12     continue
+#ifdef PRINTA
+            write(0,*) ' Amat ',Amat(1,1),Amat(2,1)
+            write(0,*) ' Cmat ',Cmat(1,1),Cmat(2,1)
+            write(0,*) ' Mmat ',Mmat(1,1),Mmat(2,1)
+#endif
 
 c
 c     open-shell
@@ -306,20 +300,16 @@ c        epGGA= ec^LDA +H  = pbe
      &        delrho(n,2,1)*delrho(n,2,2) +
      &        delrho(n,3,1)*delrho(n,3,2))
          gam12=dsqrt(gammaval)
-         tauNa = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
-         tauNb = tau(n,1,2) + tau(n,2,2) + tau(n,3,2)
+         tauna = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
+         taunb = tau(n,1,2) + tau(n,2,2) + tau(n,3,2)
          taun = tauna+taunb
          rhoa=rho(n,2)   
          rhob=rho(n,3)   
          tauw = 0.125d0*gammaval/rhoval
 
          xx2 = (tauw/tauN)**2.d0
-         xx3 = (tauw/tauN)**3.d0
          dtwt2dn = -2.d0*xx2/rhoval
-         dtwt3dn = -3.d0*xx3/rhoval
-         dtwt3dt = -3.d0*xx3/taun
          dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
-         dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
 
          en = pbe*(1.d0 + CCC*xx2)
 
@@ -362,8 +352,15 @@ c        functional deriv info below fffffffffffff
 
 c     n_sigma/n_total factor
        fabup=rhoa/rhoval
+       gaa = delrho(n,1,1)*delrho(n,1,1) +
+     &      delrho(n,2,1)*delrho(n,2,1) +
+     &      delrho(n,3,1)*delrho(n,3,1)
+       tauwa = gaa/(8d0*rhoa) 
+       xx2a = (tauwa/tauna)**2.d0
+       dtwat2dn = -2.d0*xx2a/rhoa
+       dtwat2dg = 2.d0*xx2a/gaa
 
-       delc= xx2*etildea
+       delc= xx2a*etildea
        delca = -(1.d0 + CCC)*fabup*delc 
        erevc = en + delca
 
@@ -373,23 +370,22 @@ c    set up values to call PBE subroutine as
 c     Fully SpinPolarized system for beta spin
 c     to get E_GGA[rho_beta,0,gamma_beta,0]
 c
-         rho_A(1) = rhob
-         rho_A(2) = rhob
-         rho_A(3) = 0.d0               ! beta  equals zero
-         delrho_A(1,1) = delrho_t(1,2) ! nabla n_up x  
-         delrho_A(2,1) = delrho_t(2,2) ! nabla n_up y
-         delrho_A(3,1) = delrho_t(3,2) ! nabla n_up z
-         delrho_A(1,2) = 0.d0   ! set beta gradient to zero
-         delrho_A(2,2) = 0.d0   ! set beta gradient to zero
-         delrho_A(3,2) = 0.d0   ! set beta gradient to zero
-
-         neFSP = 0.0d0  !Ec in PBE
-         dneFSPdn(1) = 0.0d0   !Amat in PBE
-         dneFSPdn(2) = 0.0d0   !Amat in PBE
-
-         dneFSPdg(1) = 0.0d0  !Cmat in PBE
-         dneFSPdg(2) = 0.0d0  !Cmat in PBE
-         dneFSPdg(3) = 0.0d0  !Cmat in PBE
+       rho_A(1) = rhob
+       rho_A(2) = rhob
+       rho_A(3) = 0.d0          ! beta  equals zero
+       delrho_A(1,1) = delrho_t(1,2) ! nabla n_up x  
+       delrho_A(2,1) = delrho_t(2,2) ! nabla n_up y
+       delrho_A(3,1) = delrho_t(3,2) ! nabla n_up z
+       delrho_A(1,2) = 0.d0     ! set beta gradient to zero
+       delrho_A(2,2) = 0.d0     ! set beta gradient to zero
+       delrho_A(3,2) = 0.d0     ! set beta gradient to zero
+       
+       neFSP = 0.0d0            !Ec in PBE
+       dneFSPdn(1) = 0.0d0      !Amat in PBE
+       dneFSPdn(2) = 0.0d0      !Amat in PBE
+       dneFSPdg(1) = 0.0d0      !Cmat in PBE
+       dneFSPdg(2) = 0.0d0      !Cmat in PBE
+       dneFSPdg(3) = 0.0d0      !Cmat in PBE
 c
          call xc_cMpbe96(tol_rho, rho_A, delrho_A,
      &        dneFSPdn,dneFSPdg, 
@@ -399,64 +395,64 @@ c
 
 c        functional deriv info below fffffffffffff
 
-          etildeb= pbeup
-          detilbdna=0d0
-          detilbdnb = dneFSPdn(1)
-          detilbdga=0d0
-          detilbdgb = dneFSPdg(D1_GAA)*0.5d0
+         etildeb= pbeup
+         detilbdna=0d0
+         detilbdnb = dneFSPdn(1)
+         detilbdga=0d0
+         detilbdgb = dneFSPdg(D1_GAA)*0.5d0
 
 c     n_sigma/n_total factor
        fabdown=rhob/rhoval
-
-       delc= xx2*etildeb
-       delcb = -(1.d0 + CCC)*fabdown*delc
+       tauwb = (delrho(n,1,2)*delrho(n,1,2) +
+     &      delrho(n,2,2)*delrho(n,2,2) +
+     &      delrho(n,3,2)*delrho(n,3,2))/(8d0*rhob)
+       xx2b = (tauwb/taunb)**2.d0
+       dtwbt2dn = -2.d0*xx2b/rhob
+       dtwbt2dg = 2.d0*xx2b/(delrho(n,1,2)*delrho(n,1,2) +
+     &      delrho(n,2,2)*delrho(n,2,2) +
+     &      delrho(n,3,2)*delrho(n,3,2))
+       delcb = -(1.d0 + CCC)*fabdown*xx2b*etildeb
        erevc = erevc + delcb
 
-       erevsic = erevc
-         
-       if(ldew) func(n) = func(n) + rhoval*erevsic*fac
-       Ec = Ec + rhoval*erevsic*qwght(n)*fac
+       if(ldew) func(n) = func(n) + rhoval*erevc*fac
+       Ec = Ec + rhoval*erevc*qwght(n)*fac
 cderivs
        atermn=pbe*CCC*dtwt2dn+(1.d0+CCC*xx2)*dneggadn(1)
-
        btermn=(1.d0+CCC)*(
-     &      dtwt2dn*(fabup*etildea+fabdown*etildeb) +
-     +      xx2*( (etildea - etildeb)*rhob/(rhoval*rhoval) +
-     +      fabup*detiladna + fabdown*detilbdna) )
-
+     &      dtwat2dn*fabup*etildea +
+     +      ( (xx2a*etildea - xx2b*etildeb)*rhob/(rhoval*rhoval) +
+     +      xx2a*fabup*detiladna  ))
        drevdna=atermn - btermn
        
        atermn=pbe*CCC*dtwt2dn+(1.d0+CCC*xx2)*dneggadn(2)
-
        btermn=(1.d0+CCC)*(
-     &      dtwt2dn*(fabup*etildea+fabdown*etildeb) +
-     +      xx2*( (etildeb-etildea)*rhoa/(rhoval*rhoval) +
-     +      fabup*detilbdna+fabdown*detilbdnb) )
-
+     &      dtwbt2dn*fabdown*etildeb +
+     +      ( (xx2b*etildeb-xx2a*etildea)*rhoa/(rhoval*rhoval) +
+     +      xx2b*fabdown*detilbdnb) )
        drevdnb=atermn - btermn
 
 c gaa
        atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*dneggadg(D1_GAA)
-
-       btermg=(1.d0+CCC)*
-     *      (xx2*(fabup*detiladga+fabdown*detiladgb)+
-     +      (etildea*fabup+etildeb*fabdown)*dtwt2dg)
-
+       btermg=(1.d0+CCC)*fabup*(
+     *      xx2a*detiladga + fabup*etildea*dtwat2dg)
+#ifdef PRINTA
+        write(0,'(A,5F18.6)') ' x d p dt',
+     A       xx2a,detiladga,etildea,dtwat2dg,fabup
+        write(0,*) ' ag bg ',atermg,btermg
+#endif
        drevdgaa=atermg-btermg
 
 c gbb
        atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*dneggadg(D1_GBB)
-
-       btermg=(1.d0+CCC)*
-     *      (xx2*(fabup*detilbdga+fabdown*detilbdgb)+
-     +      (etildea*fabup+etildeb*fabdown)*dtwt2dg)
+       btermg=(1.d0+CCC)*fabdown*
+     *      (xx2b*detilbdgb + fabdown*etildeb*dtwbt2dg)
 
        drevdgbb=atermg-btermg
 
-       drevdta=-2.d0*xx2/tauN*
-     *(CCC*pbe-(1.d0+CCC)*(fabup*etildea+fabdown*etildeb))
-       drevdtb=-2d0*xx2/tauN*
-     *(CCC*pbe-(1.d0+CCC)*(fabup*etildea+fabdown*etildeb))
+       drevdta=-2.d0*xx2/tauN*CCC*pbe+
+     +      2d0*xx2a/tauna*(1.d0+CCC)*(fabup*etildea)
+       drevdtb=-2d0*xx2/tauN*CCC*pbe+
+     +      2d0*xx2b/taunb*(1.d0+CCC)*(fabdown*etildeb)
 
 c     derivs wrt n
 
@@ -467,14 +463,11 @@ c     derivs wrt n
        Amat(n,2)=Amat(n,2)+(finaln)*fac
 
 c     derivs wrt gaa
-         apartg=rhoval*drevdgaa
-         finalg=apartg
-
+         finalg=rhoval*drevdgaa
          Cmat(n,D1_GAA)=Cmat(n,D1_GAA)+ finalg*fac
 
 c     derivs wrt gbb
-         apartg=rhoval*drevdgbb
-         finalgbb=apartg
+         finalgbb=rhoval*drevdgbb
 
          Cmat(n,D1_GBB)=Cmat(n,D1_GBB)+finalgbb*fac
 
@@ -493,6 +486,16 @@ c     derivs wrt t
 
 20     continue
 
+#ifdef PRINTA
+            write(0,*) ' Amat ',Amat(1,1),Amat(2,1)
+            write(0,*) ' CmatA ',Cmat(1,1),
+     2           0.5d0*(2d0*Cmat(1,1)+Cmat(1,2)),
+     C           0.5d0*(2d0*Cmat(2,1)+Cmat(2,2))
+            write(0,*) ' CmatB ',Cmat(1,3),
+     2           0.5d0*(2d0*Cmat(1,3)+Cmat(1,2)),
+     C           0.5d0*(2d0*Cmat(2,3)+Cmat(2,2))
+            write(0,*) ' Mmat ',Mmat(1,1),Mmat(2,1)
+#endif
 
           endif
 
