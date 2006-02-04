@@ -1,12 +1,11 @@
-
-
+#include "dft2drv.fh"
       Subroutine xc_cpkzb99(tol_rho, cfac, lcfac, nlcfac, rho, delrho, 
-     &                     nq, ipol, Ec, qwght,
+     &                     nq, ipol, Ec, qwght, ldew, func,
      &                     tau, Amat, Cmat, Mmat)     
      
 
 c
-c$Id: xc_cpkzb99.F,v 1.5 2004-12-07 17:47:21 pollack Exp $
+c$Id: xc_cpkzb99.F,v 1.6 2006-02-04 04:56:08 edo Exp $
 c
 
 c     References:
@@ -24,8 +23,8 @@ c
 
       double precision cfac
       logical lcfac, nlcfac
-c      logical  ldew
-c      double precision ffunc(*)
+      logical  ldew
+      double precision func(*)
 
       logical lfac, nlfac
       double precision fac
@@ -72,9 +71,9 @@ c
 
 c    first sigma term
       double precision  tauN,  Weiz
-      double precision OE, bigC, mt
+      double precision OE, CCC, mt
       parameter (OE = 0.125d0) !one eighth
-      parameter (bigC = 0.53d0) !cpkzb empirical parameter
+      parameter (CCC = 0.53d0) !cpkzb empirical parameter
 
 c   Second call to the cPBE subroutine
 
@@ -94,13 +93,17 @@ c     spectral representation terms
       double precision cterm1, cterm2, cterm3
       double precision mterm
       double precision ctermb1, ctermb2, ctermb3
+      double precision gam12,pbe,tauw,xx2,xx3,en
+      double precision pbeup,dtwt2dn,dtwt3dn,decggadn,dtwt2dg,
+     ,     delc,dtwt3dg,decggadg,drevdn,drevdg,drevdt,
+     ,     dpbeupdn,dpbeupdg,atermn,btermn,atermg,btermg,
+     ,     erevc,erevsic,finaln,apartg,finalg,apartt,finalt
  
 
 c  FULLY SPIN POLARIZED SECTION	
       double precision   rhovalF, epFSP
       double precision  neFSP, dneFSPdn(2), dneFSPdg(3)
 
-      integer  ipolF
       double precision  facF, Fqwght
       logical  lfacF, nlfacF
       integer Fnq
@@ -113,94 +116,141 @@ c  FULLY SPIN POLARIZED SECTION
 
 
       if (ipol.eq.1 )then
-c              NO SPIN POLARIZATION	
 c        ======> SPIN-RESTRICTED <======
-c                     or
-c                SPIN-UNPOLARIZED
-c
-c
 
-         do 10 n = 1, nq
-            if (rho(n,1).lt.tol_rho) goto 10
+         do 12  n = 1, nq
+            if (rho(n,1).lt.tol_rho) goto 12
 
          rhoval = rho(n,1)
 
 C   set up values to call PBE subroutine
          rho_t(1) = rho(n,1)
 c do delrho
-            delrho_t(1,1) = delrho(n,1,1)
-            delrho_t(2,1) = delrho(n,2,1)
-            delrho_t(3,1) = delrho(n,3,1)
-     
+         delrho_t(1,1) = delrho(n,1,1)
+         delrho_t(2,1) = delrho(n,2,1)
+         delrho_t(3,1) = delrho(n,3,1)
+         gammaval = delrho(n,1,1)*delrho(n,1,1) +
+     &        delrho(n,2,1)*delrho(n,2,1) +
+     &        delrho(n,3,1)*delrho(n,3,1)
+         gam12=dsqrt(gammaval)
+c
+c     get E_GGA[rho,gamma]
+c
          neGGA = 0.0d0  !Ec in PBE
          dneGGAdn(1) = 0.0d0   !Amat in PBE
-
          dneGGAdg(1) = 0.0d0  !Cmat in PBE
          dneGGAdg(2) = 0.0d0  !Cmat in PBE
 
-         Gnq = 1
-         Gqwght = 1.0d0
+         call xc_cMpbe96(tol_rho,
+     &        rho_t, delrho_t,
+     &        dneGGAdn,dneGGAdg, 
+     &        1, ipol, neGGA)
+         pbe = neGGA
+
+         tauN = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
+
+         tauw = 0.125d0*gammaval/rhoval
+
+         xx2 = (tauw/tauN)**2.d0
+         xx3 = (tauw/tauN)**3.d0
+
+         en = pbe*(1.d0 + CCC*xx2)
 c
-            facG = 1.0d0 !MUST BE ONE
-            lfacG = .false.  !MUST BE F
-            nlfacG = .true. !MUST BE a T/F 
-
-            call xc_cMpbe96(tol_rho, facG, lfacG, nlfacG,
-     &         rho_t, delrho_t,
-     &         dneGGAdn,dneGGAdg, 
-     &          Gnq, ipol, neGGA,Gqwght,
-     &         .false.,dummy)
-
-
-         if(abs(neGGA).lt.tol_rho) goto 10
+c    set up values to call PBE subroutine as 
+c     Fully SpinPolarized system
 c
-c        epGGA = n*(epsilon_c^GGA) / n =cor. energy per electron
+
+         rho_A(1) = (0.5d0)*rho(n,1)   ! total   equals (1/2)n_tot
+         rho_A(2) = (0.5d0)*rho(n,1)   ! alpha   equals (1/2)n_tot
+         rho_A(3) = 0.d0               ! beta  equals zero
+         delrho_A(1,1) = (0.5d0)*delrho_t(1,1) ! nabla n_up x  
+         delrho_A(2,1) = (0.5d0)*delrho_t(2,1) ! nabla n_up y
+         delrho_A(3,1) = (0.5d0)*delrho_t(3,1) ! nabla n_up z
+     
+         delrho_A(1,2) = 0.d0   ! set beta gradient to zero
+         delrho_A(2,2) = 0.d0   ! set beta gradient to zero
+         delrho_A(3,2) = 0.d0   ! set beta gradient to zero
+
+         neFSP = 0.0d0  !Ec in PBE
+         dneFSPdn(1) = 0.0d0   !Amat in PBE
+         dneFSPdn(2) = 0.0d0   !Amat in PBE
+
+         dneFSPdg(1) = 0.0d0  !Cmat in PBE
+         dneFSPdg(2) = 0.0d0  !Cmat in PBE
+         dneFSPdg(3) = 0.0d0  !Cmat in PBE
+
 c
-         epGGA = neGGA/rhoval
+c     get E_GGA[rho_alpha,0,gamma_alpha,0]
+c
+         call xc_cMpbe96(tol_rho, rho_A, delrho_A,
+     &        dneFSPdn,dneFSPdg, 
+     &        1, 2, neFSP)
 
-c         build GGA part
-             Ec = Ec + neGGA*qwght(n)*fac
+         pbeup = neFSP
 
+c        functional deriv info below fffffffffffff
 
-            gammaval = delrho(n,1,1)*delrho(n,1,1) +
-     &                 delrho(n,2,1)*delrho(n,2,1) +
-     &                 delrho(n,3,1)*delrho(n,3,1)
+         dtwt2dn = -2.d0*xx2/rhoval
+         dtwt3dn = -3.d0*xx3/rhoval
+         decggadn= dneGGAdn(1)
 
-           Weiz = OE*gammaval/rho(n,1)
+         dtwt2dg = 2.d0*0.125d0*tauw/(rhoval*tauN**2)
 
+         dtwt3dg = 3.d0*xx2*0.125d0/(rhoval*tauN)
+         decggadg= dneGGAdg(1)
 
+         delc= xx2*pbeup
 
-            tauN = tau(n,1,1) + 
-     &             tau(n,2,1) + 
-     &             tau(n,3,1)
+C  eps-tilda is eps^FSP
+C  functional deriv info below fffffffffffffffff
 
-
-             aterm1=dneGGAdn(1)
-             aterm2=bigC*dneGGAdn(1)*( Weiz/tauN )**2
-          aterm3=-neGGA*2.d0*bigC*(( Weiz/tauN )**2)/rhoval
-
-             cterm1=dneGGAdg(1)
-             cterm2=dneGGAdg(1)*bigC*( Weiz/tauN )**2
-          cterm3=2.d0*bigC*neGGA*(Weiz/tauN)/(8.d0*rhoval*tauN)
-
-
-
-             mt=rhoval*epGGA*bigC*( Weiz/tauN )**2
-
-             Ec = Ec + mt*qwght(n)*fac
-          Amat(n,1)=Amat(n,1)+(aterm1+aterm2+aterm3)*fac
-
-          Cmat(n,1)=Cmat(n,1)+(cterm1+cterm2+cterm3)*fac
-          Cmat(n,2)=Cmat(n,2) + (dneGGAdg(2) +
-     &        (( Weiz/tauN )**2)*bigC*dneGGAdg(2))*fac
+        dpbeupdn = 0.5d0*dneFSPdn(1)
+c  above note the .5's.  you are taking deriv wrt total density n
+c                        not deriv wrt n_up
+        dpbeupdg = 0.25d0*dneFSPdg(1)
+c  note .25 above is because you want gamma=deln_tot*deln_tot
 
 
-         Mmat(n,1)=Mmat(n,1)-(2.d0*bigC*neGGA*(Weiz**2)/
-     &             (tauN**3))*fac
+        atermn=pbe*CCC*dtwt2dn+(1.d0+CCC*xx2)*decggadn
+        btermn=(1.d0+CCC)*(xx2*dpbeupdn +
+     &             pbeup*dtwt2dn)
+        drevdn=atermn - btermn
 
+        atermg=pbe*ccc*dtwt2dg+(1.d0+CCC*xx2)*decggadg
+        btermg=(1.d0+CCC)*(xx2*dpbeupdg+pbeup*dtwt2dg)
+        drevdg=atermg-btermg
+        
+        drevdt=(CCC*pbe-(1.d0+CCC)*pbeup)*xx2*(-2.d0/tauN)
 
+        
+       delc = -(1.d0 + CCC)*delc
+       erevc = en + delc
+       erevsic = erevc
+         
+       if(ldew) func(n) = func(n) + rhoval*erevsic*fac
+       Ec = Ec + rhoval*erevsic*qwght(n)*fac
 
-10      continue
+c     derivs wrt n
+       finaln= rhoval*drevdn + erevc 
+
+       Amat(n,1)=Amat(n,1)+(finaln)*fac
+
+c     derivs wrt g
+         apartg=rhoval*drevdg
+         finalg=apartg
+
+         Cmat(n,D1_GAA)=Cmat(n,D1_GAA)+ 2d0*finalg*fac
+
+c     derivs wrt t
+         apartt=rhoval*drevdt
+
+         finalt=apartt
+
+         Mmat(n,1)=Mmat(n,1)+0.5d0*finalt*fac
+
+12     continue
+
+c
 c                                        HERE
 c         ***** SPIN POLARIZATION  *****
        else   !ipol=2 and do alpha beta cases
@@ -242,21 +292,20 @@ c do delrho
             lfacG = .false.  
             nlfacG = .true. 
 
-            call xc_cMpbe96(tol_rho, facG, lfacG, nlfacG,
+            call xc_cMpbe96(tol_rho,
      &         rho_t, delrho_t,
      &         dneGGAdn,dneGGAdg, 
-     &          Gnq, ipol, neGGA,Gqwght,
-     &         .false.,dummy)
+     &          Gnq, ipol, neGGA)
 
           if(abs(neGGA).lt.tol_rho) goto 20
 c
 c        epsilon_c = n*(epsilon_c^GGA) / n
 c
-         epGGA = neGGA/rhoval
+         epGGA = neGGA
 
 c         build GGA part
-            Ec = Ec + neGGA*qwght(n)*fac
-
+            Ec = Ec + neGGA*rhoval*qwght(n)*fac
+            if(ldew) func(n)=func(n)+ negga*rhoval*fac
 
 c
 c     Alpha            ALPHA               ALPHA
@@ -311,44 +360,45 @@ c        tolC
 
 30      continue
 
-             mt=rhoval*epGGA*bigC*( sumWeiz/sumTau )**2
+             mt=rhoval*epGGA*CCC*( sumWeiz/sumTau )**2
 
             Ec = Ec + mt*qwght(n)*fac
+            if(ldew) func(n)=func(n)+ mt*fac
 
 c           if(rho(n,2).lt.tol_rho) goto199
 
         aterma1=dneGGAdn(1)
-        aterma2=dneGGAdn(1)*bigC*( sumWeiz/sumTau )**2 
-      aterma3=-neGGA*2.d0*bigC*(sumWeiz/sumTau)*(WeizA/sumTau)/rho(n,2)  
+        aterma2=dneGGAdn(1)*CCC*( sumWeiz/sumTau )**2 
+      aterma3=-neGGA*2.d0*CCC*(sumWeiz/sumTau)*(WeizA/sumTau)/rho(n,2)  
 
         cterm1=dneGGAdg(1)
-        cterm2=dneGGAdg(1)*bigC*( sumWeiz/sumTau )**2
-      cterm3=neGGA*2.d0*bigC*(sumWeiz/sumTau)/(sumTau*8.d0*rho(n,2))
-         mterm=-2.d0*bigC*neGGA*(sumWeiz**2)/sumTau**3
+        cterm2=dneGGAdg(1)*CCC*( sumWeiz/sumTau )**2
+      cterm3=neGGA*2.d0*CCC*(sumWeiz/sumTau)/(sumTau*8.d0*rho(n,2))
+         mterm=-2.d0*CCC*neGGA*(sumWeiz**2)/sumTau**3
       
            Amat(n,1)= Amat(n,1)+(aterma1+aterma2+aterma3)*fac  
            Cmat(n,1)= Cmat(n,1)+(cterm1+cterm2+cterm3)*fac
            Mmat(n,1)=Mmat(n,1)+mterm*fac
 
           Cmat(n,2)=Cmat(n,2) + (dneGGAdg(2) +
-     &       bigC*dneGGAdg(2)*( sumWeiz/sumTau )**2)*fac
+     &       CCC*dneGGAdg(2)*( sumWeiz/sumTau )**2)*fac
 
 
 
           if(rho(n,3).gt.tol_rho) then
 
         atermb1=dneGGAdn(2)
-        atermb2=dneGGAdn(2)*bigC*( sumWeiz/sumTau )**2 
-      atermb3=-neGGA*2.d0*bigC*(sumWeiz/sumTau)*(WeizB/sumTau)/rho(n,3)    
+        atermb2=dneGGAdn(2)*CCC*( sumWeiz/sumTau )**2 
+      atermb3=-neGGA*2.d0*CCC*(sumWeiz/sumTau)*(WeizB/sumTau)/rho(n,3)    
       
            Amat(n,2)= Amat(n,2)+(atermb1+atermb2+atermb3)*fac  
 
          ctermb1=dneGGAdg(3)
-        ctermb2=dneGGAdg(3)*bigC*( sumWeiz/sumTau )**2
-      ctermb3=neGGA*2.d0*bigC*(sumWeiz/sumTau)/(sumTau*8.d0*rho(n,3))
+        ctermb2=dneGGAdg(3)*CCC*( sumWeiz/sumTau )**2
+      ctermb3=neGGA*2.d0*CCC*(sumWeiz/sumTau)/(sumTau*8.d0*rho(n,3))
            Cmat(n,3)= Cmat(n,3)+(ctermb1+ctermb2+ctermb3)*fac
 
-        mterm=-2.d0*bigC*neGGA*(sumWeiz**2)/sumTau**3
+        mterm=-2.d0*CCC*neGGA*(sumWeiz**2)/sumTau**3
            Mmat(n,2)=Mmat(n,2)+mterm*fac
 
 
@@ -368,135 +418,15 @@ C                      Fully Spin Polarized (FSP) calc below
 C                      on both unpolarized and polarized systems
 
 
-C  FFFFFFFFFFFFFFF  FULLY SPIN POLARIZED PART BELOW FFFFFFFFFFFFFFFFFFFFFF
-
-
-
-         if (ipol.eq.1) then
-
-c UNNNNNNNNNNNNNNNNNN UNPOLARIZED UUUNNNNNNNNNNNNNNNNN
-c  just run for alpha case
-c  since beta case is exactly equal,  double final answer
-
-C   ipol=1  ex Helium etc...
-
-
-c  tho ipol=1, ipolF=2 for these cases, so 
-c   we want to explicitly  set things here
-
-            ipolF = 2
-
-
-         do 22 n = 1, nq
-             if (rho(n,1).lt.tol_rho) goto 22  
-
-c     Alpha            ALPHA               ALPHA
-         rhovalF  = (0.5d0)*rho(n,1)  ! set total density as half
-         rho_A(1) = (0.5d0)*rho(n,1)   ! total   equals (1/2)n_tot
-         rho_A(2) = (0.5d0)*rho(n,1)   ! alpha   equals (1/2)n_tot
-         rho_A(3) = 0.d0               ! beta  equals zero
-
-         
-c do delrho
-            delrho_A(1,1) = (0.5d0)*delrho(n,1,1)  ! nabla n_up x  
-            delrho_A(2,1) = (0.5d0)*delrho(n,2,1)  ! nabla n_up y
-            delrho_A(3,1) = (0.5d0)*delrho(n,3,1)  ! nabla n_up z
-     
-        
-            delrho_A(1,2) = 0.d0    ! set beta gradient to zero
-            delrho_A(2,2) = 0.d0    ! set beta gradient to zero
-            delrho_A(3,2) = 0.d0    ! set beta gradient to zero
-
-
-         neFSP = 0.0d0  !Ec in PBE
-         dneFSPdn(1) = 0.0d0   !Amat in PBE
-         dneFSPdn(2) = 0.0d0   !Amat in PBE
-
-         dneFSPdg(1) = 0.0d0  !Cmat in PBE
-         dneFSPdg(2) = 0.0d0  !Cmat in PBE
-         dneFSPdg(3) = 0.0d0  !Cmat in PBE
-
-         Fnq = 1
-         Fqwght = 1.0d0
-
-            facF = 1.0d0 
-            lfacF = .false.  
-            nlfacF = .true. 
-
-            call xc_cMpbe96(tol_rho, facF, lfacF, nlfacF,
-     &         rho_A, delrho_A,
-     &         dneFSPdn,dneFSPdg, 
-     &          Fnq, ipolF, neFSP, Fqwght,
-     &         .false.,dummy)
-
-
-         if(abs(neFSP).lt.tol_rho) goto 22
-c
-c        epsilon_c = n*(epsilon_c^GGA) / n
-c
-         epFSP = neFSP/rhovalF
-
-
-            gammavalA = 0.25d0*(delrho(n,1,1)*delrho(n,1,1) +
-     &                         delrho(n,2,1)*delrho(n,2,1) +
-     &                         delrho(n,3,1)*delrho(n,3,1)   )
-
-
-           WeizA = OE*gammavalA/rhovalF
-
-
-c   
-            tauNA =0.5d0*(tau(n,1,1) + 
-     &                   tau(n,2,1) + 
-     &                   tau(n,3,1)   )
-
-C FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF sprep
-
-             mt=(bigC + 1.d0)*rhovalF*epFSP*( WeizA/TauNA )**2
-
-            aterm1=dneFSPdn(1)*( WeizA/TauNA )**2
-            aterm2=-neFSP*2.d0*((WeizA/TauNA )**2)/rhovalF
-
-            cterm1= dneFSPdg(1)*( WeizA/TauNA )**2
-            cterm2=2.d0*neFSP*( WeizA/TauNA )/(8.d0*rhovalF*TauNA)
-            mterm= -2.d0*neFSP*(WeizA **2)/TauNA**3
-
-            Ec = Ec - (2.d0)*mt*qwght(n)*fac
-         Amat(n,1)=Amat(n,1)-2.d0*(1.d0+bigC)*(aterm1+aterm2)*fac
-        Cmat(n,1)=Cmat(n,1)-2.d0*(1.d0+bigC)*(cterm1+cterm2)*fac
-
-        Mmat(n,1)=Mmat(n,1)-2.d0*(1.d0+bigC)*mterm*fac
-
-c      the 2 is because we know n_up = n_dn = n/2
-c      so we can just double the results     
-
-
-c  because these systems are spin unpolarized, n_up = n_down
-c  and we only have to calculate e_cGGA once but multiply by 2
-
-
-22      continue
-
-c                                           /\   
-c  fully spin data for unpolarized systems  ||
-c                                           ||
-
-          endif
-
 c PPPPPPPPPPPPPPPPPPPP POLARIZED PPPPPPPPPPPPPPPPPPPPPP
          if (ipol.eq.2) then
 
-
-C   ipol=2  ex hydrogen, li, nitrogen etc...
 C  FFFFFFFFFFFFFFF  FULLY SPIN POLARIZED PART FFFFFFFFFFFFFFFFFFFFFF
-
 
 c  ipol still equals 2 for these cases, 
 c  but explicitly  set things here
 
-            ipolF = 2
-
-         do 50 n = 1, nq
+        do 50 n = 1, nq
 c           tolD
 
              if (rho(n,2).lt.tol_rho) goto 50  
@@ -535,42 +465,31 @@ c do delrho
             lfacF = .false.  !MUST BE a T/F now  always false
             nlfacF = .true. !MUST BE a T/F now
 
-            call xc_cMpbe96(tol_rho, facF, lfacF, nlfacF,
+            call xc_cMpbe96(tol_rho, 
      &         rho_A, delrho_A,
      &         dneFSPdn,dneFSPdg, 
-     &          Fnq, ipolF, neFSP, Fqwght,
-     &         .false.,dummy)
+     &          1, 2, neFSP)
 
 
           if(abs(neFSP).lt.tol_rho) goto 50
 c
 c        epsilon_c = n*(epsilon_c^GGA) / n
 c
-         epFSP = neFSP/rhovalF
-
-
-
+         epFSP = neFSP
 c
-
             gammavalA = delrho(n,1,1)*delrho(n,1,1) +
      &                  delrho(n,2,1)*delrho(n,2,1) +
      &                  delrho(n,3,1)*delrho(n,3,1)
 
-
            WeizA = OE*gammavalA/rho(n,2)
 
-
 c   
-            tauNA =  tau(n,1,1) + 
-     &               tau(n,2,1) + 
-     &               tau(n,3,1)   
-
-
-
-
-             mt=(bigC + 1.d0)*rhovalF*epFSP*( WeizA/TauNA )**2
+           tauNA =  tau(n,1,1) + tau(n,2,1) + tau(n,3,1)   
+            
+            mt=(CCC + 1.d0)*rhovalF*epFSP*( WeizA/TauNA )**2
 
             Ec = Ec - mt*qwght(n)*fac
+            if(ldew) func(n)=func(n) - mt*fac
 
             aterma1=dneFSPdn(1)*( WeizA/TauNA )**2
             aterma2= -2.d0*neFSP*((WeizA/TauNA )**2)/rhovalF
@@ -580,26 +499,15 @@ c
 
             mterm= -2.d0*neFSP*((WeizA/TauNA )**2)/TauNA
 
-           Amat(n,1)=Amat(n,1)-(1.d0+bigC)*(aterma1+aterma2)*fac
-          Cmat(n,1)=Cmat(n,1)-(1.d0+bigC)*(cterm1+cterm2)*fac
-          Mmat(n,1)=Mmat(n,1)-(1.d0+bigC)*mterm*fac
+           Amat(n,1)=Amat(n,1)-(1.d0+CCC)*(aterma1+aterma2)*fac
+          Cmat(n,1)=Cmat(n,1)-(1.d0+CCC)*(cterm1+cterm2)*fac
+          Mmat(n,1)=Mmat(n,1)-(1.d0+CCC)*mterm*fac
 
 50      continue
-
-C                                                /\
-c                                                ||
-c     Alpha            ALPHA               ALPHA ||
-
-
-
 
 c
 c     Beta               BETA           BETA
 c
-
-
-c take care of case with no BETA electron, ie hydrogen
-
 
          do 75 n = 1, nq
 
@@ -631,25 +539,17 @@ c do delrho
          dneFSPdg(2) = 0.0d0  !Cmat in PBE
          dneFSPdg(3) = 0.0d0
 
-         Fnq = 1
-         Fqwght = 1.0d0
-
-            facF = 1.0d0 
-            lfacF = .false.  
-            nlfacF = .true. 
-
-            call xc_cMpbe96(tol_rho, facF, lfacF, nlfacF,
-     &         rho_A, delrho_A,
-     &         dneFSPdn,dneFSPdg, 
-     &          Fnq, ipolF, neFSP, Fqwght,
-     &         .false.,dummy)
+         call xc_cMpbe96(tol_rho, 
+     &        rho_A, delrho_A,
+     &        dneFSPdn,dneFSPdg, 
+     &        1, 2, neFSP)
 
 
          if(abs(neFSP).lt.tol_rho) goto 75  ! check me
 c
 c        epFSP = n*(epsilon_c^GGA) / n
 c
-         epFSP = neFSP/rhovalF
+         epFSP = neFSP
 
 
             gammavalB = delrho(n,1,2)*delrho(n,1,2) +
@@ -662,35 +562,28 @@ c
 c   do we have to take care of cases where tauN blows up in denom??
 c    must this be protected against
 
-            tauNB = tau(n,1,2) + 
-     &              tau(n,2,2) + 
-     &              tau(n,3,2)   
+            tauNB = tau(n,1,2) + tau(n,2,2) + tau(n,3,2)   
 
 
-             mt=(bigC + 1.d0)*rhovalF*epFSP*( WeizB/TauNB )**2
+             mt=(CCC + 1.d0)*rhovalF*epFSP*( WeizB/TauNB )**2
 
             Ec = Ec - mt*qwght(n)*fac
+            if(ldew) func(n)=func(n) - mt*fac
 
             atermb1=dneFSPdn(1)*( WeizB/TauNB )**2
             atermb2= -2.d0*neFSP*((WeizB/TauNB )**2)/rhovalF
 
-           Amat(n,2)=Amat(n,2)-(1.d0+bigC)*(atermb1+atermb2)*fac
+           Amat(n,2)=Amat(n,2)-(1.d0+CCC)*(atermb1+atermb2)*fac
 
             cterm1=dneFSPdg(1)*( WeizB/TauNB )**2
             cterm2=neFSP*2.d0*((WeizB/TauNB )**2)/gammavalB
 
-          Cmat(n,3)=Cmat(n,3)-(1.d0+bigC)*(cterm1+cterm2)*fac
+          Cmat(n,3)=Cmat(n,3)-(1.d0+CCC)*(cterm1+cterm2)*fac
 
             mterm= -2.d0*neFSP*((WeizB/TauNB )**2)/TauNB
-          Mmat(n,2)=Mmat(n,2)-(1.d0+bigC)*mterm*fac
+          Mmat(n,2)=Mmat(n,2)-(1.d0+CCC)*mterm*fac
 
 75      continue
-
-C                                                /\
-c                                                ||
-c     BETA            BETA               BETA    ||
-c          fully spin polarized above
-
 
           endif
 
