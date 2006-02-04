@@ -1,5 +1,5 @@
 c   
-c$Id: xc_ctpss03.F,v 1.11 2006-02-04 19:10:57 edo Exp $
+c$Id: xc_ctpss03.F,v 1.12 2006-02-04 19:32:10 edo Exp $
 c
 #include "dft2drv.fh"
 c
@@ -366,7 +366,7 @@ c        epGGA= ec^LDA +H  = pbe
 c
          if((abs(zeta)-1d0).gt.tol_rho) then
             gaa= delrho(n,1,1)*delrho(n,1,1) +
-     &           delrho(n,2,1)*delrho(n,23,1) +
+     &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1) 
             gbb= delrho(n,1,2)*delrho(n,1,2) +
      &           delrho(n,2,2)*delrho(n,3,2) +
