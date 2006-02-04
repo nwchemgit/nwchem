@@ -6,7 +6,7 @@
      
 
 c
-c$Id: xc_cpkzb99.F,v 1.8 2006-02-04 19:10:57 edo Exp $
+c$Id: xc_cpkzb99.F,v 1.9 2006-02-04 19:31:45 edo Exp $
 c
 
 c     References:
@@ -20,14 +20,12 @@ c     Input and other parameters
 c
       
       integer ipol, nq
-      double precision dummy(1)
 
       double precision cfac
       logical lcfac, nlcfac
       logical  ldew
       double precision func(*)
 
-      logical lfac, nlfac
       double precision fac
       double precision tol_rho
 c
@@ -63,29 +61,16 @@ c
       double precision rhoval,rhoa,rhob
 
 c    first sigma term
-      double precision  tauN,  Weiz
-      double precision OE, CCC, mt
-      parameter (OE = 0.125d0) !one eighth
+      double precision  taun
+      double precision  CCC
       parameter (CCC = 0.53d0) !cpkzb empirical parameter
 
 c   Second call to the cPBE subroutine
 
       double precision  neGGA, dneGGAdn(2), dneGGAdg(3)
-      double precision  facG, Gqwght, epGGA
-      logical  lfacG, nlfacG
-      integer Gnq
       double precision rho_t(3), delrho_t(3,2)
-      double precision  gammavalA, gammavalB
-      double precision  tauNA,tauNB,  WeizA, WeizB
-      double precision  sumTau, sumWeiz
-
-c     spectral representation terms
-      double precision aterma1, aterma2, aterma3
-      double precision atermb1, atermb2, atermb3
-      double precision aterm1, aterm2, aterm3
-      double precision cterm1, cterm2, cterm3
-      double precision mterm
-      double precision ctermb1, ctermb2, ctermb3
+      double precision  tauNA,tauNB
+c    
       double precision gam12,pbe,tauw,xx2,en,
      ,     tauwa,tauwb,xx2a,xx2b,dtwat2dg,dtwat2dn,
      ,     dtwbt2dg,dtwbt2dn
@@ -93,12 +78,9 @@ c     spectral representation terms
      ,     delc,decggadg,drevdn,drevdg,drevdt,
      ,     dpbeupdn,dpbeupdg,atermn,btermn,atermg,btermg,
      ,     erevc,finaln,apartg,finalg,apartt,finalt
- 
-
-c  FULLY SPIN POLARIZED SECTION	
-      double precision   rhovalF, epFSP
+c
       double precision  neFSP, dneFSPdn(2), dneFSPdg(3)
-
+c
       double precision drevdna,drevdnb,drevdgaa,drevdgbb,
      A     drevdta,drevdtb,finalgbb
       double precision delca,delcb,
@@ -403,14 +385,13 @@ c        functional deriv info below fffffffffffff
 
 c     n_sigma/n_total factor
        fabdown=rhob/rhoval
-       tauwb = (delrho(n,1,2)*delrho(n,1,2) +
+       gbb = delrho(n,1,2)*delrho(n,1,2) +
      &      delrho(n,2,2)*delrho(n,2,2) +
-     &      delrho(n,3,2)*delrho(n,3,2))/(8d0*rhob)
+     &      delrho(n,3,2)*delrho(n,3,2)
+       tauwb = gbb/(8d0*rhob)
        xx2b = (tauwb/taunb)**2.d0
        dtwbt2dn = -2.d0*xx2b/rhob
-       dtwbt2dg = 2.d0*xx2b/(delrho(n,1,2)*delrho(n,1,2) +
-     &      delrho(n,2,2)*delrho(n,2,2) +
-     &      delrho(n,3,2)*delrho(n,3,2))
+       dtwbt2dg = 2.d0*xx2b/gbb
        delcb = -(1.d0 + CCC)*fabdown*xx2b*etildeb
        erevc = erevc + delcb
 
