@@ -1,4 +1,3 @@
-ARMCI configured for 2 cluster nodes. Network protocol is 'Mellanox VAPI'.
  argument  1 = dft_meta.nw
  
 
@@ -26,7 +25,7 @@ dft
  decomp
  print low
 end
-task dft optimize #numerical
+task dft optimize
 
 
 ================================================================================
@@ -105,18 +104,18 @@ task dft optimize #numerical
            Job information
            ---------------
 
-    hostname      = compute-0-6.local
+    hostname      = grissino
     program       = /home/edo/nwchem/bin/LINUX64/nwchem
-    date          = Tue Oct 11 17:30:00 2005
+    date          = Sat Feb  4 11:11:12 2006
 
-    compiled      = Tue Oct 11 17:29:24 PDT 2005
+    compiled      = Sat Feb  4 11:06:58 PST 2006
     source        = /home/edo/nwchem
     nwchem branch = Development
     input         = dft_meta.nw
     prefix        = dft_meta.
     data base     = ./dft_meta.db
     status        = startup
-    nproc         =    4
+    nproc         =    2
     time left     =     -1s
 
 
@@ -136,7 +135,7 @@ task dft optimize #numerical
            ---------------------
  
   0 permanent = .
-  0 scratch   = /state/partition2
+  0 scratch   = .
  
  
  
@@ -150,6 +149,7 @@ task dft optimize #numerical
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
  
+ sym_nwc nata                      2
 
           ------
           auto-z
@@ -375,6 +375,7 @@ task dft optimize #numerical
  
  Variables with the same non-blank name are constrained to be equal
  
+  check hess iostat                     29
  
  Using diagonal initial Hessian 
  Scaling for Hessian diagonals: bonds = 1.00  angles = 0.25  torsions = 0.10
@@ -432,20 +433,20 @@ task dft optimize #numerical
  
  
   Caching 1-el integrals 
-   Time after variat. SCF:      1.4
-   Time prior to 1st pass:      1.4
+   Time after variat. SCF:      0.5
+   Time prior to 1st pass:      0.5
 
 
-         Total DFT energy =    -40.534986146952
-      One electron energy =    -79.974614693857
-           Coulomb energy =     32.743676690422
-          Exchange energy =     -6.574728321147
-       Correlation energy =     -0.301675126897
- Nuclear repulsion energy =     13.572355304526
+         Total DFT energy =      -40.539856397010
+      One electron energy =      -80.101615565361
+           Coulomb energy =       32.927815600088
+          Exchange energy =       -6.637826307757
+       Correlation energy =       -0.300585428507
+ Nuclear repulsion energy =       13.572355304526
 
- Numeric. integr. density =     10.000009413546
+ Numeric. integr. density =       10.000008776895
 
-     Total iterative time =      5.0s
+     Total iterative time =      2.8s
 
 
 
@@ -455,15 +456,15 @@ task dft optimize #numerical
     atom               coordinates                        gradient
                  x          y          z           x          y          z
    1 c       0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
-   2 h       1.177226   1.177226   1.177226   -0.005740  -0.005740  -0.005740
-   3 h      -1.177226  -1.177226   1.177226    0.005740   0.005740  -0.005740
-   4 h      -1.177226   1.177226  -1.177226    0.005740  -0.005740   0.005740
-   5 h       1.177226  -1.177226  -1.177226   -0.005740   0.005740   0.005740
+   2 h       1.177226   1.177226   1.177226   -0.004948  -0.004948  -0.004948
+   3 h      -1.177226  -1.177226   1.177226    0.004948   0.004948  -0.004948
+   4 h      -1.177226   1.177226  -1.177226    0.004948  -0.004948   0.004948
+   5 h       1.177226  -1.177226  -1.177226   -0.004948   0.004948   0.004948
  
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0     -40.53498615  0.0D+00  0.00994  0.00629  0.00000  0.00000      9.6
+@    0     -40.53985640  0.0D+00  0.00857  0.00542  0.00000  0.00000      6.1
                                                        ok       ok  
 
 
@@ -475,10 +476,10 @@ task dft optimize #numerical
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.07900   -0.00994
-    2 Stretch                  1     3                       1.07900   -0.00994
-    3 Stretch                  1     4                       1.07900   -0.00994
-    4 Stretch                  1     5                       1.07900   -0.00994
+    1 Stretch                  1     2                       1.07900   -0.00857
+    2 Stretch                  1     3                       1.07900   -0.00857
+    3 Stretch                  1     4                       1.07900   -0.00857
+    4 Stretch                  1     5                       1.07900   -0.00857
     5 Bend                     2     1     3               109.47122    0.00000
     6 Bend                     2     1     4               109.47122    0.00000
     7 Bend                     2     1     5               109.47122    0.00000
@@ -494,25 +495,25 @@ task dft optimize #numerical
  
  
   Caching 1-el integrals 
-   Time after variat. SCF:      9.5
-   Time prior to 1st pass:      9.5
+   Time after variat. SCF:      5.8
+   Time prior to 1st pass:      5.8
 
 
-         Total DFT energy =    -40.535395523332
-      One electron energy =    -79.630164032185
-           Coulomb energy =     32.561710029605
-          Exchange energy =     -6.554021564154
-       Correlation energy =     -0.300802645259
- Nuclear repulsion energy =     13.387882688661
+         Total DFT energy =      -40.540267358185
+      One electron energy =      -79.802538468703
+           Coulomb energy =       32.768917019246
+          Exchange energy =       -6.619840928812
+       Correlation energy =       -0.299829772893
+ Nuclear repulsion energy =       13.413024792977
 
- Numeric. integr. density =     10.000008407737
+ Numeric. integr. density =       10.000009066855
 
-     Total iterative time =      3.4s
+     Total iterative time =      2.7s
 
 
  Line search: 
-     step= 1.00 grad=-1.1D-03 hess= 7.1D-04 energy=    -40.535396 mode=downhill
- new step= 0.79                   predicted energy=    -40.535427
+     step= 1.00 grad=-8.3D-04 hess= 4.2D-04 energy=    -40.540267 mode=accept  
+ new step= 1.00                   predicted energy=    -40.540267
 
           --------
           Step   1
@@ -527,10 +528,10 @@ task dft optimize #numerical
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 c                    6.0000     0.00000000     0.00000000     0.00000000
-    2 h                    1.0000     1.19002656     1.19002656     1.19002656
-    3 h                    1.0000    -1.19002656    -1.19002656     1.19002656
-    4 h                    1.0000    -1.19002656     1.19002656    -1.19002656
-    5 h                    1.0000     1.19002656    -1.19002656    -1.19002656
+    2 h                    1.0000     1.19120982     1.19120982     1.19120982
+    3 h                    1.0000    -1.19120982    -1.19120982     1.19120982
+    4 h                    1.0000    -1.19120982     1.19120982    -1.19120982
+    5 h                    1.0000     1.19120982    -1.19120982    -1.19120982
  
       Atomic Mass 
       ----------- 
@@ -539,7 +540,7 @@ task dft optimize #numerical
       h                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      13.4263615550
+ Effective nuclear repulsion energy (a.u.)      13.4130247930
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -566,22 +567,10 @@ task dft optimize #numerical
                            Methane Molecule META GGA XC
  
  
-  Caching 1-el integrals 
-   Time after variat. SCF:     13.4
-   Time prior to 1st pass:     13.4
 
+  The DFT is already converged 
 
-         Total DFT energy =    -40.535401502396
-      One electron energy =    -79.702196573892
-           Coulomb energy =     32.599770847096
-          Exchange energy =     -6.558350864383
-       Correlation energy =     -0.300986466255
- Nuclear repulsion energy =     13.426361555037
-
- Numeric. integr. density =     10.000009697646
-
-     Total iterative time =      3.9s
-
+         Total DFT energy =    -40.540267358185
 
 
 
@@ -590,16 +579,16 @@ task dft optimize #numerical
     atom               coordinates                        gradient
                  x          y          z           x          y          z
    1 c       0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
-   2 h       1.190027   1.190027   1.190027   -0.001082  -0.001082  -0.001082
-   3 h      -1.190027  -1.190027   1.190027    0.001082   0.001082  -0.001082
-   4 h      -1.190027   1.190027  -1.190027    0.001082  -0.001082   0.001082
-   5 h       1.190027  -1.190027  -1.190027   -0.001082   0.001082   0.001082
+   2 h       1.191210   1.191210   1.191210   -0.000006  -0.000006  -0.000006
+   3 h      -1.191210  -1.191210   1.191210    0.000006   0.000006  -0.000006
+   4 h      -1.191210   1.191210  -1.191210    0.000006  -0.000006   0.000006
+   5 h       1.191210  -1.191210  -1.191210   -0.000006   0.000006   0.000006
  
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1     -40.53540150 -4.2D-04  0.00187  0.00119  0.01145  0.01280     21.6
-                                                                    
+@    1     -40.54026736 -4.1D-04  0.00001  0.00001  0.01251  0.01398     11.8
+                                     ok       ok                    
 
 
 
@@ -610,17 +599,16 @@ task dft optimize #numerical
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.09073   -0.00187
-    2 Stretch                  1     3                       1.09073   -0.00187
-    3 Stretch                  1     4                       1.09073   -0.00187
-    4 Stretch                  1     5                       1.09073   -0.00187
+    1 Stretch                  1     2                       1.09182   -0.00001
+    2 Stretch                  1     3                       1.09182   -0.00001
+    3 Stretch                  1     4                       1.09182   -0.00001
+    4 Stretch                  1     5                       1.09182   -0.00001
     5 Bend                     2     1     3               109.47122    0.00000
     6 Bend                     2     1     4               109.47122    0.00000
     7 Bend                     2     1     5               109.47122    0.00000
     8 Bend                     3     1     4               109.47122    0.00000
     9 Bend                     3     1     5               109.47122    0.00000
    10 Bend                     4     1     5               109.47122    0.00000
- 
                                  NWChem DFT Module
                                  -----------------
  
@@ -629,25 +617,25 @@ task dft optimize #numerical
  
  
   Caching 1-el integrals 
-   Time after variat. SCF:     20.4
-   Time prior to 1st pass:     20.4
+   Time after variat. SCF:     11.0
+   Time prior to 1st pass:     11.0
 
 
-         Total DFT energy =    -40.535398926393
-      One electron energy =    -79.639528985966
-           Coulomb energy =     32.566654080085
-          Exchange energy =     -6.554583803195
-       Correlation energy =     -0.300826580188
- Nuclear repulsion energy =     13.392886362871
+         Total DFT energy =      -40.540267358941
+      One electron energy =      -79.802168763274
+           Coulomb energy =       32.768726678552
+          Exchange energy =       -6.619818876766
+       Correlation energy =       -0.299828936238
+ Nuclear repulsion energy =       13.412822538786
 
- Numeric. integr. density =     10.000008395139
+ Numeric. integr. density =       10.000009066741
 
-     Total iterative time =      4.3s
+     Total iterative time =      1.4s
 
 
  Line search: 
-     step= 1.00 grad=-3.9D-05 hess= 4.1D-05 energy=    -40.535399 mode=accept  
- new step= 1.00                   predicted energy=    -40.535399
+     step= 1.00 grad=-1.4D-09 hess= 6.1D-10 energy=    -40.540267 mode=accept  
+ new step= 1.00                   predicted energy=    -40.540267
 
           --------
           Step   2
@@ -662,10 +650,10 @@ task dft optimize #numerical
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 c                    6.0000     0.00000000     0.00000000     0.00000000
-    2 h                    1.0000     1.19300100     1.19300100     1.19300100
-    3 h                    1.0000    -1.19300100    -1.19300100     1.19300100
-    4 h                    1.0000    -1.19300100     1.19300100    -1.19300100
-    5 h                    1.0000     1.19300100    -1.19300100    -1.19300100
+    2 h                    1.0000     1.19122778     1.19122778     1.19122778
+    3 h                    1.0000    -1.19122778    -1.19122778     1.19122778
+    4 h                    1.0000    -1.19122778     1.19122778    -1.19122778
+    5 h                    1.0000     1.19122778    -1.19122778    -1.19122778
  
       Atomic Mass 
       ----------- 
@@ -674,7 +662,7 @@ task dft optimize #numerical
       h                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      13.3928863629
+ Effective nuclear repulsion energy (a.u.)      13.4128225388
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -704,7 +692,7 @@ task dft optimize #numerical
 
   The DFT is already converged 
 
-         Total DFT energy =    -40.535398926393
+         Total DFT energy =    -40.540267358941
 
 
 
@@ -713,138 +701,15 @@ task dft optimize #numerical
     atom               coordinates                        gradient
                  x          y          z           x          y          z
    1 c       0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
-   2 h       1.193001   1.193001   1.193001   -0.000043  -0.000043  -0.000043
-   3 h      -1.193001  -1.193001   1.193001    0.000043   0.000043  -0.000043
-   4 h      -1.193001   1.193001  -1.193001    0.000043  -0.000043   0.000043
-   5 h       1.193001  -1.193001  -1.193001   -0.000043   0.000043   0.000043
+   2 h       1.191228   1.191228   1.191228    0.000000   0.000000   0.000000
+   3 h      -1.191228  -1.191228   1.191228    0.000000   0.000000   0.000000
+   4 h      -1.191228   1.191228  -1.191228    0.000000   0.000000   0.000000
+   5 h       1.191228  -1.191228  -1.191228    0.000000   0.000000   0.000000
  
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2     -40.53539893  2.6D-06  0.00007  0.00005  0.00266  0.00297     29.6
-                                     ok       ok                    
-
-
-
-                                Z-matrix (autoz)
-                                -------- 
-
- Units are Angstrom for bonds and degrees for angles
- 
-      Type          Name      I     J     K     L     M      Value     Gradient
-      ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.09346   -0.00007
-    2 Stretch                  1     3                       1.09346   -0.00007
-    3 Stretch                  1     4                       1.09346   -0.00007
-    4 Stretch                  1     5                       1.09346   -0.00007
-    5 Bend                     2     1     3               109.47122    0.00000
-    6 Bend                     2     1     4               109.47122    0.00000
-    7 Bend                     2     1     5               109.47122    0.00000
-    8 Bend                     3     1     4               109.47122    0.00000
-    9 Bend                     3     1     5               109.47122    0.00000
-   10 Bend                     4     1     5               109.47122    0.00000
- 
-                                 NWChem DFT Module
-                                 -----------------
- 
- 
-                           Methane Molecule META GGA XC
- 
- 
-  Caching 1-el integrals 
-   Time after variat. SCF:     27.8
-   Time prior to 1st pass:     27.8
-
-
-         Total DFT energy =    -40.535398120422
-      One electron energy =    -79.636946357268
-           Coulomb energy =     32.565290760107
-          Exchange energy =     -6.554428980542
-       Correlation energy =     -0.300819973561
- Nuclear repulsion energy =     13.391506430842
-
- Numeric. integr. density =     10.000008398629
-
-     Total iterative time =      2.8s
-
-
- Line search: 
-     step= 1.00 grad=-6.3D-08 hess= 8.7D-07 energy=    -40.535398 mode=accept  
- new step= 1.00                   predicted energy=    -40.535398
-
-          --------
-          Step   3
-          --------
- 
- 
-                         Geometry "geometry" -> "geometry"
-                         ---------------------------------
- 
- Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.00000000     0.00000000     0.00000000
-    2 h                    1.0000     1.19312393     1.19312393     1.19312393
-    3 h                    1.0000    -1.19312393    -1.19312393     1.19312393
-    4 h                    1.0000    -1.19312393     1.19312393    -1.19312393
-    5 h                    1.0000     1.19312393    -1.19312393    -1.19312393
- 
-      Atomic Mass 
-      ----------- 
- 
-      c                 12.000000
-      h                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      13.3915064308
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     0.0000000000     0.0000000000     0.0000000000
- 
-      Symmetry information
-      --------------------
- 
- Group name              Td       
- Group number             42
- Group order              24
- No. of unique centers     2
- 
-      Symmetry unique atoms
- 
-     1    2
- 
-                                 NWChem DFT Module
-                                 -----------------
- 
- 
-                           Methane Molecule META GGA XC
- 
- 
-
-  The DFT is already converged 
-
-         Total DFT energy =    -40.535398120422
-
-
-
-                         DFT ENERGY GRADIENTS
-
-    atom               coordinates                        gradient
-                 x          y          z           x          y          z
-   1 c       0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
-   2 h       1.193124   1.193124   1.193124    0.000000   0.000000   0.000000
-   3 h      -1.193124  -1.193124   1.193124    0.000000   0.000000   0.000000
-   4 h      -1.193124   1.193124  -1.193124    0.000000   0.000000   0.000000
-   5 h       1.193124  -1.193124  -1.193124    0.000000   0.000000   0.000000
- 
-
-  Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
-  ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3     -40.53539812  8.1D-07  0.00000  0.00000  0.00011  0.00012     35.7
+@    2     -40.54026736 -7.6D-10  0.00000  0.00000  0.00002  0.00002     16.2
                                      ok       ok       ok       ok  
 
 
@@ -856,10 +721,10 @@ task dft optimize #numerical
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.09357    0.00000
-    2 Stretch                  1     3                       1.09357    0.00000
-    3 Stretch                  1     4                       1.09357    0.00000
-    4 Stretch                  1     5                       1.09357    0.00000
+    1 Stretch                  1     2                       1.09183    0.00000
+    2 Stretch                  1     3                       1.09183    0.00000
+    3 Stretch                  1     4                       1.09183    0.00000
+    4 Stretch                  1     5                       1.09183    0.00000
     5 Bend                     2     1     3               109.47122    0.00000
     6 Bend                     2     1     4               109.47122    0.00000
     7 Bend                     2     1     5               109.47122    0.00000
@@ -875,7 +740,7 @@ task dft optimize #numerical
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3     -40.53539812  8.1D-07  0.00000  0.00000  0.00011  0.00012     35.7
+@    2     -40.54026736 -7.6D-10  0.00000  0.00000  0.00002  0.00002     16.2
                                      ok       ok       ok       ok  
 
 
@@ -887,10 +752,10 @@ task dft optimize #numerical
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.09357    0.00000
-    2 Stretch                  1     3                       1.09357    0.00000
-    3 Stretch                  1     4                       1.09357    0.00000
-    4 Stretch                  1     5                       1.09357    0.00000
+    1 Stretch                  1     2                       1.09183    0.00000
+    2 Stretch                  1     3                       1.09183    0.00000
+    3 Stretch                  1     4                       1.09183    0.00000
+    4 Stretch                  1     5                       1.09183    0.00000
     5 Bend                     2     1     3               109.47122    0.00000
     6 Bend                     2     1     4               109.47122    0.00000
     7 Bend                     2     1     5               109.47122    0.00000
@@ -908,10 +773,10 @@ task dft optimize #numerical
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 c                    6.0000     0.00000000     0.00000000     0.00000000
-    2 h                    1.0000     1.19312393     1.19312393     1.19312393
-    3 h                    1.0000    -1.19312393    -1.19312393     1.19312393
-    4 h                    1.0000    -1.19312393     1.19312393    -1.19312393
-    5 h                    1.0000     1.19312393    -1.19312393    -1.19312393
+    2 h                    1.0000     1.19122778     1.19122778     1.19122778
+    3 h                    1.0000    -1.19122778    -1.19122778     1.19122778
+    4 h                    1.0000    -1.19122778     1.19122778    -1.19122778
+    5 h                    1.0000     1.19122778    -1.19122778    -1.19122778
  
       Atomic Mass 
       ----------- 
@@ -920,7 +785,7 @@ task dft optimize #numerical
       h                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      13.3915064308
+ Effective nuclear repulsion energy (a.u.)      13.4128225388
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -953,10 +818,10 @@ task dft optimize #numerical
  
       Type          Name      I     J     K     L     M      Value       Change
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.09357    0.01457
-    2 Stretch                  1     3                       1.09357    0.01457
-    3 Stretch                  1     4                       1.09357    0.01457
-    4 Stretch                  1     5                       1.09357    0.01457
+    1 Stretch                  1     2                       1.09183    0.01283
+    2 Stretch                  1     3                       1.09183    0.01283
+    3 Stretch                  1     4                       1.09183    0.01283
+    4 Stretch                  1     5                       1.09183    0.01283
     5 Bend                     2     1     3               109.47122    0.00000
     6 Bend                     2     1     4               109.47122    0.00000
     7 Bend                     2     1     5               109.47122    0.00000
@@ -969,10 +834,10 @@ task dft optimize #numerical
  ------------------------------------------------------------------------------
        center one      |      center two      | atomic units |       a.u.
  ------------------------------------------------------------------------------
-    2 h                |   1 c                |     2.06655  |     2.06655
-    3 h                |   1 c                |     2.06655  |     2.06655
-    4 h                |   1 c                |     2.06655  |     2.06655
-    5 h                |   1 c                |     2.06655  |     2.06655
+    2 h                |   1 c                |     2.06327  |     2.06327
+    3 h                |   1 c                |     2.06327  |     2.06327
+    4 h                |   1 c                |     2.06327  |     2.06327
+    5 h                |   1 c                |     2.06327  |     2.06327
  ------------------------------------------------------------------------------
                          number of included internuclear distances:          4
  ==============================================================================
@@ -997,7 +862,7 @@ task dft optimize #numerical
 
 
 
- Task  times  cpu:       32.4s     wall:       35.6s
+ Task  times  cpu:       14.7s     wall:       16.1s
  
  
                                 NWChem Input Module
@@ -1014,25 +879,12 @@ task dft optimize #numerical
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  724      724     1.19e+05 1.18e+04 7973        4        0        0     
-number of processes/call 1.16e+00 1.21e+00 1.17e+00 4.00e+00 0.00e+00
-bytes total:             1.63e+08 2.92e+07 8.67e+07 1.60e+02 0.00e+00 0.00e+00
-bytes remote:            1.11e+08 1.17e+07 6.40e+07 9.60e+01 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 1135840 bytes
+calls:  368      368     1.46e+05 1.15e+04 8257        3        0        0     
+number of processes/call 1.00e+00 1.01e+00 1.01e+00 2.00e+00 0.00e+00
+bytes total:             1.19e+08 3.09e+07 6.16e+07 1.20e+02 0.00e+00 0.00e+00
+bytes remote:            1.13e+07 3.27e+06 5.80e+06 4.80e+01 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 3867160 bytes
  
-MA_summarize_allocated_blocks: starting scan ...
-MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
-MA usage statistics:
-
-	allocation statistics:
-					      heap	     stack
-					      ----	     -----
-	current number of blocks	         0	         0
-	maximum number of blocks	        25	        51
-	current total bytes		         0	         0
-	maximum total bytes		   7336760	 169394312
-	maximum total K-bytes		      7337	    169395
-	maximum total M-bytes		         8	       170
 
 
 
@@ -1071,5 +923,24 @@ MA usage statistics:
                       Richland, Washington 99352-0999, USA.
 
 
+       Aggregate GFloating-point ops:      17.55
+        Aggregate GFLOPS (Real_time):       1.09
+        Aggregate GFLOPS (Proc_time):       1.19
+                    Average   GFLOPS:       0.54
+                    Max       GFLOPS:       0.56
+                    Min       GFLOPS:       0.53
 
- Total times  cpu:       32.4s     wall:       35.8s
+ Total times  cpu:       14.8s     wall:       16.2s
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        25	        51
+	current total bytes		         0	         0
+	maximum total bytes		  13497176	 169394312
+	maximum total K-bytes		     13498	    169395
+	maximum total M-bytes		        14	       170

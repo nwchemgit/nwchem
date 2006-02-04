@@ -13,7 +13,7 @@ basis
   C  library  6-311++G(3df,3pd)
   H  library  6-311++G(3df,3pd)
 end
- 
+driver;clear ;end 
  
 dft
  xc xtpss03 ctpss03
@@ -23,3 +23,9 @@ end
 task dft optimize 
 
 
+driver;clear ;end 
+dft
+ xc xpkzb99 cpkzb99
+end
+
+task dft optimize
