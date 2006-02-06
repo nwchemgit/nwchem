@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.48 2006-01-11 02:04:58 edo Exp $
+C$Id: xc_inp.F,v 1.49 2006-02-06 22:43:12 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -1210,27 +1210,19 @@ c
          if (inp_compare(.false.,'local', test)) then
             write(LuOut,*)' cpkzb99 is a nonlocal functional;',
      &                ' "local" descriptor is ignored. '                   
-c
-c
-c
-            lcfac(25) = .false.
+           call inp_prev_field()
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            nlcfac(25) = .true.
-         else
+           write(LuOut,*)' cpkzb99 cannot be conveniently',
+     &           ' split into local and nonlocal pieces; '
+            write(LuOut,*)' total cpkzb99 is used. '
+            call inp_prev_field()
+         endif
+      endif
 c
 c           assume total wanted (but total here = nonlocal)
 c
-            lcfac(25) = .false.
-            nlcfac(25) = .true.
-            call inp_prev_field()
-         endif
-      else
-c
-c        assume total wanted
-c
-         lcfac(25) = .false.
-         nlcfac(25) = .true.
-      endif
+      lcfac(25) = .true.
+      nlcfac(25) = .true.
       if (.not. inp_f(cfac(25))) then
          cfac(25) = 1.0d0
       endif            
@@ -1287,43 +1279,18 @@ c     and PBE96  is set in tpss03.F code
 c     LOCAL part is always false
  4150 if (inp_a(test)) then
          if (inp_compare(.false.,'local', test)) then
-c            write(LuOut,*)' ctpss03 is a nonlocal functional;',
-c     &                ' "local" descriptor is ignored. '     
-
-
-
-            write(LuOut,*)' ctpss "local" is not defined',
-     &                ' for the metaGGA '
-            write(LuOut,*)' Resubmit without local descriptor. '
-            call errquit(' xc_inp - functional description ',0,0)
-
-              
-c
-c
-c
-            lcfac(27) = .false.
+            write(LuOut,*)' ctpss03 is a nonlocal functional;',
+     &                ' "local" descriptor is ignored. '                   
+           call inp_prev_field()
          elseif (inp_compare(.false.,'nonlocal', test)) then
-            write(LuOut,*)'ctpss03 is already a nonlocal functional;',
-     &                ' "nonlocal" descriptor is ignored. '     
-            nlcfac(27) = .true.
-         else
-c
-c           assume total wanted (but total here = nonlocal)
-c
-            lcfac(27) = .false.
-            nlcfac(27) = .true.
+           write(LuOut,*)' ctpss03 cannot be conveniently',
+     &           ' split into local and nonlocal pieces; '
+            write(LuOut,*)' total ctpss03 is used. '
             call inp_prev_field()
          endif
-      else
-c
-c        assume total wanted
-c
-         lcfac(27) = .false.
-         nlcfac(27) = .true.
       endif
-            write(LuOut,*)'ctpss03 uses PBE COR and PW91LDA as',
-     &                ' defaults.These defaults cannot be changed '     
-
+      lcfac(27) = .true.
+      nlcfac(27) = .true.
       if (.not. inp_f(cfac(27))) then
          cfac(27) = 1.0d0
       endif            
