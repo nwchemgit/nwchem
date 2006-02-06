@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.4 2006-01-25 00:38:59 edo Exp $
+#$Id: GNUmakefile,v 1.5 2006-02-06 19:18:45 edo Exp $
 
 ifndef CCSDTQ
 OBJ_OPTIMIZE = \
@@ -2082,11 +2082,7 @@ OFFSET_eomccsdtq_y4_15_1.o\
 eomccsdtq_y4_15_2.o\
 eomccsdtq_y4_15_2_1.o\
 OFFSET_eomccsdtq_y4_15_2_1.o
- 
-LIB_INCLUDES = -I../include
- 
-LIBRARY = libtce.a
- 
+
 USES_BLAS = eomccsdtq_denominator.F eomccsdtq_density1_1_1.F eomccsdtq_density1_1_2.F \
 eomccsdtq_density1_1_3.F eomccsdtq_density1_1_4.F eomccsdtq_density1_1.F \
 eomccsdtq_density1_2_1.F eomccsdtq_density1_2_2_1.F eomccsdtq_density1_2_2.F \
@@ -2507,6 +2503,11 @@ eomccsdtq_y4_8_3.F eomccsdtq_y4_8_4_1.F eomccsdtq_y4_8_4.F \
 eomccsdtq_y4_8.F eomccsdtq_y4_9.F
 endif
 
+ 
+LIB_INCLUDES = -I../include
+ 
+LIBRARY = libtce.a
+ 
  
 LIB_DEFINES = -DDEBUG_PRINT
 #
