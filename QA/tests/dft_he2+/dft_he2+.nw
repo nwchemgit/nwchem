@@ -26,7 +26,9 @@ charge +1.0
 
 dft
 mult 2
-grid lebedev 100 8
+#grid lebedev 100 8
+grid medium
+convergence energy 1d-10
 XC hcth
 end
 
@@ -64,6 +66,27 @@ task dft gradient
 title "XC ft97 "
 dft
 XC ft97
+end
+
+task dft gradient
+
+title "XC BOP "
+dft
+XC bop
+end
+
+task dft gradient
+
+title "XC TPSS03 "
+dft
+XC xtpss03 ctpss03
+end
+
+task dft gradient
+
+title "XC PKZB "
+dft
+XC xpkzb99 cpkzb99
 end
 
 task dft gradient
