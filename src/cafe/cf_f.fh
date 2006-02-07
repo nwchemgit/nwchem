@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
       implicit none
 c
@@ -334,10 +334,10 @@ c
       rwc(nax+iwmn,2)=xwm(iwfr+iwm,2)-xwm(lwwptr,2)
       rwc(nax+iwmn,3)=xwm(iwfr+iwm,3)-xwm(lwwptr,3)
       facu(nax+iwmn)=one
-      if( (iand(idt(iwm),mdynam).eq.ldynam.and.
-     + iand(idt(lwwptr),mdynam).ne.ldynam).or.
-     + (iand(idt(iwm),mdynam).ne.ldynam.and.
-     + iand(idt(lwwptr),mdynam).eq.ldynam) ) facu(nax+iwmn)=half
+c      if( (iand(idt(iwm),mdynam).eq.ldynam.and.
+c     + iand(idt(lwwptr),mdynam).ne.ldynam).or.
+c     + (iand(idt(iwm),mdynam).ne.ldynam.and.
+c     + iand(idt(lwwptr),mdynam).eq.ldynam) ) facu(nax+iwmn)=half
       if(iand(idt(iwm),mdynam).ne.ldynam.and.
      + iand(idt(lwwptr),mdynam).ne.ldynam) facu(nax+iwmn)=zero
       if(includ.eq.1) facu(nax+iwmn)=one
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
       implicit none
 c
@@ -1194,12 +1194,12 @@ c
       pl(nax+ismn,3)=ps(isfr+isa,3,1)
 #endif
       isal(nax+ismn)=isfr+isa
-      if(iand(iwdt(lswptr),mdynam).ne.ldynam) then
-      facu(nax+ismn)=half
-      else
+c      if(iand(iwdt(lswptr),mdynam).ne.ldynam) then
+c      facu(nax+ismn)=half
+c      else
       facu(nax+ismn)=one
-      endif
-      if(includ.eq.1) facu(nax+ismn)=one
+c      endif
+c      if(includ.eq.1) facu(nax+ismn)=one
    11 continue
       else
       do 12 ismn=1,lswin(isa,ipsw)
@@ -1214,7 +1214,7 @@ c
 #endif
       isal(nax+ismn)=isfr+isa
       if(iand(iwdt(lswptr),mdynam).eq.ldynam) then
-      facu(nax+ismn)=half
+      facu(nax+ismn)=one
       else
       facu(nax+ismn)=zero
       endif
@@ -1889,7 +1889,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
       implicit none
 c
@@ -2103,12 +2103,12 @@ c
       do 17 jnum=1,lssin(isa,ipss)
       lssptr=lssj(jsaptr+jnum)
       facu(nax+jnum)=zero
-      if(iand(isdt(isfr+isa),mdynam).eq.ldynam.and.
+      if(iand(isdt(isfr+isa),mdynam).eq.ldynam.or.
      + iand(isdt(lssptr),mdynam).eq.ldynam) facu(nax+jnum)=one
-      if((iand(isdt(isfr+isa),mdynam).eq.ldynam.and.
-     + iand(isdt(lssptr),mdynam).ne.ldynam) .or.
-     + (iand(isdt(isfr+isa),mdynam).ne.ldynam.and.
-     + iand(isdt(lssptr),mdynam).eq.ldynam)) facu(nax+jnum)=half
+c      if((iand(isdt(isfr+isa),mdynam).eq.ldynam.and.
+c     + iand(isdt(lssptr),mdynam).ne.ldynam) .or.
+c     + (iand(isdt(isfr+isa),mdynam).ne.ldynam.and.
+c     + iand(isdt(lssptr),mdynam).eq.ldynam)) facu(nax+jnum)=half
       if(includ.eq.1) facu(nax+jnum)=one
    17 continue
 c
@@ -3222,7 +3222,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3370,12 +3370,12 @@ c     determine fraction of energy to be counted
 c     this depends on the atoms being dynamic or fixed
 c
       factu=zero
-      if(iand(idyn(isa),mdynam).eq.ldynam.and.
+      if(iand(idyn(isa),mdynam).eq.ldynam.or.
      + iand(idyn(jsa),mdynam).eq.ldynam) factu=one
-      if((iand(idyn(isa),mdynam).eq.ldynam.and.
-     + iand(idyn(jsa),mdynam).ne.ldynam) .or.
-     + (iand(idyn(isa),mdynam).ne.ldynam.and.
-     + iand(idyn(jsa),mdynam).eq.ldynam)) factu=half
+c      if((iand(idyn(isa),mdynam).eq.ldynam.and.
+c     + iand(idyn(jsa),mdynam).ne.ldynam) .or.
+c     + (iand(idyn(isa),mdynam).ne.ldynam.and.
+c     + iand(idyn(jsa),mdynam).eq.ldynam)) factu=half
       if(includ.eq.1) factu=one
 c
 c     find reference bond length and force constant
@@ -3532,7 +3532,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3645,7 +3645,9 @@ c
       if(iand(idyn(isa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(jsa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(ksa),mdynam).eq.ldynam) ifacu=ifacu+1
-      factu=dble(ifacu)/three
+c      factu=dble(ifacu)/three
+      factu=one
+      if(ifacu.eq.0) factu=zero
       if(includ.eq.1) factu=one
 c
 c     get reference angle and force constant
@@ -3885,12 +3887,12 @@ c     determine fraction of energy to be counted
 c     this depends on the atoms being dynamic or fixed
 c
       factu=zero
-      if(iand(idyn(isa),mdynam).eq.ldynam.and.
+      if(iand(idyn(isa),mdynam).eq.ldynam.or.
      + iand(idyn(ksa),mdynam).eq.ldynam) factu=one
-      if((iand(idyn(isa),mdynam).eq.ldynam.and.
-     + iand(idyn(ksa),mdynam).ne.ldynam) .or.
-     + (iand(idyn(isa),mdynam).ne.ldynam.and.
-     + iand(idyn(ksa),mdynam).eq.ldynam)) factu=half
+c      if((iand(idyn(isa),mdynam).eq.ldynam.and.
+c     + iand(idyn(ksa),mdynam).ne.ldynam) .or.
+c     + (iand(idyn(isa),mdynam).ne.ldynam.and.
+c     + iand(idyn(ksa),mdynam).eq.ldynam)) factu=half
       if(includ.eq.1) factu=one
 c
       dbond=rss-bond
@@ -3953,7 +3955,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4068,7 +4070,9 @@ c
       if(iand(idyn(jsa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(ksa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(lsa),mdynam).eq.ldynam) ifacu=ifacu+1
-      factu=dble(ifacu)/four
+c      factu=dble(ifacu)/four
+      factu=one
+      if(ifacu.eq.0) factu=zero
       if(includ.eq.1) factu=one
 c
 c     find reference angle and force constants
@@ -4297,7 +4301,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4407,7 +4411,9 @@ c
       if(iand(idyn(jsa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(ksa),mdynam).eq.ldynam) ifacu=ifacu+1
       if(iand(idyn(lsa),mdynam).eq.ldynam) ifacu=ifacu+1
-      factu=dble(ifacu)/four
+c      factu=dble(ifacu)/four
+      factu=one
+      if(ifacu.eq.0) factu=zero
       if(includ.eq.1) factu=one
 c
 c     get reference angle and force constant
@@ -4624,7 +4630,7 @@ c
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
      + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4745,12 +4751,12 @@ c     determine energy factor depending on atoms being dynamic
 c     or fixed
 c
       factu=zero
-      if(iand(idyn(isa),mdynam).eq.ldynam.and.
+      if(iand(idyn(isa),mdynam).eq.ldynam.or.
      + iand(idyn(jsa),mdynam).eq.ldynam) factu=one
-      if((iand(idyn(isa),mdynam).eq.ldynam.and.
-     + iand(idyn(jsa),mdynam).ne.ldynam) .or.
-     + (iand(idyn(isa),mdynam).ne.ldynam.and.
-     + iand(idyn(jsa),mdynam).eq.ldynam) ) factu=half
+c      if((iand(idyn(isa),mdynam).eq.ldynam.and.
+c     + iand(idyn(jsa),mdynam).ne.ldynam) .or.
+c     + (iand(idyn(isa),mdynam).ne.ldynam.and.
+c     + iand(idyn(jsa),mdynam).eq.ldynam) ) factu=half
       if(includ.eq.1) factu=one
 c
 c     evaluate the distance
@@ -4987,7 +4993,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.62 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
 c
       implicit none
 c
