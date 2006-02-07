@@ -44,6 +44,7 @@ send your bug report using the correct channel listed in the
 <li> <a href="#3">NMR shielding gives unphysical results when using spherical basis.</a></li>
 <li> <a href="#4">NMR shielding gives memory error when using spherical basis in large systems.</a></li>
 <li> <a href="#5">NWChem fails with PROGRAM STOP IN - ZDAT - when more than 256 variables are used in the Z-matrix definition.</a></li>
+<li> <a href="#6">Meta-GGA functionals.</a></li>
 
 </ol>
 
@@ -138,6 +139,17 @@ This bug has been fixed and will be available in the next release. A patch is av
 <li>cd ..</li>
 <li>make link</li>
 </ol>
+</p>
+
+<hr>
+<p>
+<a name="6"></a><font color="purple">Meta-GGA functionals.</font></p>
+<p>
+The energy term of the TPSS03 Correlation functional for open-shel systems is not correct.
+Several bugs were present in the potential evaluation of the Meta-GGA functionals;
+therefore resulting in incorrect self-consistent evaluation of the Meta-GGAs.
+<br>
+These bugs have been fixed and will be available in the next release.
 </p>
 
 <br>
