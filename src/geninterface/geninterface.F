@@ -1,10 +1,11 @@
 C
-C $Id: geninterface.F,v 1.11 2005-01-31 19:41:22 yuri Exp $
+C $Id: geninterface.F,v 1.12 2006-02-08 16:43:16 windus Exp $
 C
-C Interface code for Venus written in F77.
+C This is a first attempt at an interface code for Venus written in F77.
 C
       Subroutine initialize_qm(theory, basis, natom, 
-     $    coordinates, labels, charge, printName, stack, heap, global)
+     $    coordinates, labels, charge, printName, stack, heap,
+     $    global,venusnw_file)
 
       implicit none
 
@@ -15,6 +16,7 @@ C
 #include "stdio.fh"
 #include "util.fh"
 #include "geninterface.fh"
+#include "inp.fh"
 
       character*256 theory
       character*256 basis
@@ -23,6 +25,7 @@ C
       double precision coordinates (3*natom)
       character*16 labels(natom)
       character*256 printName
+      character*256 venusnw_file
       character*(nw_max_path_len) input_filename, rtdb_name
 
       integer stack, heap, global, i 
@@ -30,11 +33,24 @@ C
 
       logical setTheory, setBasisSet, setInitCoordinates, setCharge
       external setTheory, setBasisSet, setInitCoordinates, setCharge
+
+      logical nw_inp_from_file
+      external nw_inp_from_file
  
       logical setPrint
       external setPrint
 
+c      write (6,*) 'theory=',theory,' basis=',basis,' natom=',natom,
+c     $       ' charge=',charge,' printName=',printName,' stack=',stack,
+c     $       ' heap=',heap,' global=',global,' venusnw_file=',
+c     $       venusnw_file
+
 C  Create parallel processes
+c - raj
+      stack = 29582399
+      heap = 29582386
+      global = 29582386
+c----
 
       call ga_brdcst(MT_INT, natom, mitob(1), 0)
       call ga_brdcst(MT_DBL, coordinates, mdtob(3*natom), 0)
@@ -49,10 +65,12 @@ C YA: Broadcast charge
       call ga_brdcst(MT_DBL, charge, mdtob(1), 0)
       call ga_brdcst(MT_BYTE, printName, 256, 0)
 C PA Broadcast Memory parameters
-      call ga_brdcst(MT_INT, stack, mitob(1), 0) 
+      call ga_brdcst(MT_INT, stack, mitob(1), 0)
       call ga_brdcst(MT_INT, heap, mitob(1), 0)
       call ga_brdcst(MT_INT, global, mitob(1), 0)
-
+c--raj
+       write (6,*) 'stack=',stack,' heap=',heap,' global=',global
+c--
       numatoms = natom
 C  Worry about input file.  For now use a dummy one.  Do I need to open it?
 
@@ -110,6 +128,12 @@ C  Need to get the input file name and the rtdb_name taken care of
       call util_file_info_rtdb(rtdb)
       call geom_hnd_parallel(.true.)
 
+c      write (6,*) 'In geninterface.F: venusnw_file=',venusnw_file
+!  Test for .nw file from VENUS
+      if (venusnw_file.eq.' ') then
+       write (6,*) 'No NWChem file name is detected in VENUS input'
+       write (6,*) 'Using only VENUS input data for NWChem init'
+
 C  Process number of scf iterations
 
       if (.not. rtdb_put(rtdb, 'scf:maxiter', mt_int, 1, 200))
@@ -155,6 +179,20 @@ C  Process molecule input and put into rtdb
 
 c      initialize_qm = .true.
 c       write(6,*)'Initalize called'
+
+      else
+       write (6,*) 'Reading .nw file'
+       if (.not.nw_inp_from_file(rtdb,venusnw_file))
+     $ call errquit ('nw_inp_from_file: Error opening file',555)
+
+C  Process molecule input and put into rtdb
+
+      if (.not. setInitCoordinates(coordinates,labels,natom))
+     $     call errquit
+     $     ('initialize_qm:setInitCoordinates failed',555)
+
+      end if
+
       return
       end
 C
@@ -397,11 +435,14 @@ C
 #include "util.fh"
 #include "tcgmsg.fh"
 
+      common/threads/myid
+      integer myid 
       double precision coords(*), energy
       integer i
       external setCoordinates, task_energy
       logical setCoordinates, task_energy
-   
+      character*256 movecs_in
+
       evaluateObjective = .false.
 
       call ga_brdcst(MT_DBL, coords, mdtob(3*numatoms), 0)
@@ -411,8 +452,14 @@ C
      $     call errquit('evaluateObjective: setCoordinates failed',
      $    555,0)
 
-      if (.not.task_energy(rtdb))
-     $     call errquit('evaluateObjective:task_energy failed',555,0)
+      if (.not.task_energy(rtdb)) then
+         write (6,*) 'SCF failed running rest.scf script'
+         movecs_in = 'atomic'
+        if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_in))
+     $  call errquit('name_rout: failed setting movecs_in',0,0)
+        if (.not.task_energy(rtdb))
+     &      call errquit('task_energy failed',555,0)
+      endif
 
       if (.not.rtdb_get(rtdb, "task:energy", mt_dbl, 1, energy))
      $     call errquit('evaluateObjective:rtdb_get failed',555,0)
@@ -434,6 +481,8 @@ C
 #include "util.fh"
 #include "tcgmsg.fh"
 
+      common/threads/myid
+      integer myid
       double precision coords(3*numatoms), gradient(3*numatoms)
       integer i
 
@@ -441,6 +490,7 @@ C
       logical setCoordinates, task_gradient
       external task_energy
       logical task_energy
+      character*256 movecs_in 
 
       evaluateGradient = .false.
 
@@ -449,8 +499,15 @@ C
       if (.not.setCoordinates(coords))
      $     call errquit('evaluateGradient: setCoordinates failed',555,0)
 
-      if (.not.task_energy(rtdb))
-     $     call errquit('evaluateGradient:task_gradient failed',555,0)
+cc
+      if (.not.task_energy(rtdb)) then
+        write (6,*) 'SCF failed running rest.scf script'
+        movecs_in = 'atomic'
+        if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_in))
+     $      call errquit('name_rout: failed setting movecs_in',0,0)
+        if (.not.task_energy(rtdb))
+     &      call errquit('task_energy failed',555,0)
+      endif
       if (.not.task_gradient(rtdb))
      $     call errquit('evaluateGradient:task_gradient failed',555,0)
 
@@ -461,6 +518,9 @@ C
      $     gradient))
      $     call errquit('evaluateGradient:rtdb_get failed',555,0)
 
+c
+c       call ga_sync()
+
       evaluateGradient = .true.
 
       return
@@ -470,10 +530,12 @@ C
      $       energy, gradient)
 
       implicit none
+      integer i
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geninterface.fh"
+c
 
       double precision coords(*), energy, gradient(*)
 
@@ -481,7 +543,7 @@ C
       logical evaluateGradient
 
       evaluateObjectiveAndGradient = .false.
-
+c
       if (.not.evaluateGradient(coords, gradient))
      $     call errquit
      $     ('evaluateObjectiveAndGradient:evaluateGradient failed',555)
@@ -489,7 +551,7 @@ C
       if (.not.rtdb_get(rtdb, "task:energy", mt_dbl, 1, energy))
      $     call errquit
      $     ('evaluateObjectiveAndGradient:rtdb_get failed',555)
-
+c
       evaluateObjectiveAndGradient = .true.
 
       return
@@ -499,10 +561,17 @@ C
      $       hessian)
 
       implicit none
-
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "geninterface.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "tcgmsg.fh"
+c--- added 11/15/05
+#include "msgids.fh"
+#include "msgtypesf.h"
+c---
 
       double precision coords(*), hessian(*)
 
@@ -511,7 +580,9 @@ C
       external setCoordinates
       logical task_hessian
       logical setCoordinates
-
+c
+      call ga_brdcst(MT_DBL, coords, mdtob(3*numatoms), 0)
+c
       evaluateHessian = .false.
 
       if (.not.setCoordinates(coords))
@@ -521,8 +592,16 @@ C
       if (.not.task_hessian(rtdb))
      $     call errquit('NWChem_TaskHessian:task_hessian failed',555,0)
 
-      call hess_read(numatoms,hessian)
-
+c--- changed 11/15/05 
+       if (ga_nodeid().eq.0) then
+         call hess_read(numatoms, hessian)
+       endif
+c
+c  Broadcast results to all of the processors 
+c
+       call ga_brdcst(msg_hess_exy+MSGDBL, hessian,
+     &               mdtob(3*numatoms*3*numatoms), 0)
+c---
       evaluateHessian = .true.
 
       return
@@ -570,7 +649,8 @@ C  Close the parallel environment
       return
       end
 
-      subroutine net_broadcast(myid,idop)
+CBERT subroutine net_broadcast(myid,idop)
+      subroutine net_broadcast(idop)
       implicit none
 
 #include "mafdecls.fh"
@@ -642,6 +722,31 @@ C
       call util_print_set_level(level)
 
       setPrint = .true.
+
+      return
+      end
+
+
+      subroutine clearOld()
+
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "geninterface.fh"
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
+#include "tcgmsg.fh"
+
+      common/threads/myid
+      integer myid
+      character*256 movecs_in
+
+
+      movecs_in = 'atomic'
+      if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_in))
+     $  call errquit('name_rout: failed setting movecs_in',0,0)
 
       return
       end
