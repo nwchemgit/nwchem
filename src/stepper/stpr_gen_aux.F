@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.13 2003-10-17 22:58:22 carlfahl Exp $
+* $Id: stpr_gen_aux.F,v 1.14 2006-02-08 16:30:51 windus Exp $
 * 
 * this file contains auxilary routines to stpr_gen functions
 *
@@ -94,18 +94,21 @@ c
       implicit none
 #include "stdio.fh"
 #include "inp.fh"
+#include "util.fh"
       integer nat
       double precision ddipole(3,3,nat)
       character*(*) filename
 c
       integer lu
+      integer print_level
       integer atom, xyz, moment
       logical does_it_exist
 c
+      call util_print_get_level(print_level)
       lu = 67 
       does_it_exist = .false.
       inquire(file=filename,exist=does_it_exist)
-      if (does_it_exist)
+      if ((does_it_exist).and.(print_level.gt.print_none))
      &    write(luout,*)
      &    'stpr_wrt_fd_dipole: overwrite of existing file',
      &    filename(1:inp_strlen(filename))
@@ -132,6 +135,7 @@ c
 c
 #include "stdio.fh"
 #include "inp.fh"
+#include "util.fh"
 c
       integer rank_hess
       double precision hess(rank_hess,rank_hess)
@@ -140,11 +144,13 @@ c
       logical does_it_exist
 c
       integer i, j, lu
+      integer print_level
 c
+      call util_print_get_level(print_level)
       lu = 66
       does_it_exist = .false.
       inquire(file=filename,exist=does_it_exist)
-      if (does_it_exist)
+      if ((does_it_exist).and.(print_level.gt.print_none))
      &    write(luout,*)
      &    ' stpr_wrt_fd_from_sq: overwrite of existing file:',
      &    filename(1:inp_strlen(filename))
