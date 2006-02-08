@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.18 2004-12-16 23:02:58 edo Exp $
+C     $Id: ccsd_t2pm.F,v 2.19 2006-02-08 21:06:00 bert Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
@@ -159,10 +159,10 @@ c
       return
       end
       subroutine ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
-     &                     t1,scra,scrb)
+     &                     t1,scra,scrb,nbfdim)
       implicit none
 #include "errquit.fh"
-      integer basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2
+      integer basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,nbfdim
       double precision cmo(nbf,nbf),scra(nbf*nbf),scrb(nbf*nbf),
      &                 t1(nocc,nvir)
 #include "mafdecls.fh"
@@ -175,7 +175,7 @@ c
       integer g_st2t,lnoo,iam
       integer i,j,k,l,a,b,ad1,ad2,ad3,g_jlo,g_jhi,g_ilo,g_ihi,
      &        ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,
-     &        xy,x,y,ipp,imm,ii,jj,iijj,jjii
+     &        xy,x,y,ipp,imm,ii,jj,iijj,jjii,ad4,nodes
 c
       if (occsdps) then
          call pstat_on(ps_t2pm)
@@ -184,18 +184,13 @@ c
       endif
 c
       iam=ga_nodeid()
+      nodes=ga_nnodes()
       lnoo=nocc*nocc
 c
 *ga:1:0
-      if (.not.ga_create(MT_DBL,nbf*nbf,lnoo,'st2t',
-     &                   nbf*nbf,0,g_st2t))
-     &     call errquit('ga_create g_st2t failed',0, GA_ERR)
-c
-      call ga_distribution(g_st2t,iam,g_jlo,g_jhi,g_ilo,g_ihi)
-      do i=1,nocc
-          do j=1,nocc
-            ad3=(i-1)*nocc+j
-            if (ad3.ge.g_ilo.and.ad3.le.g_ihi)then
+      do ad4=iam+1,lnoo,nodes
+         i=(ad4-1)/nocc+1
+         j=ad4-(i-1)*nocc
               ad1=(i-1)*nvir
               ad2=(j-1)*nvir
               call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
@@ -215,7 +210,7 @@ c
               do ksh=1,nsh
                 if (.not. bas_cn2bfr(basis,ksh,klo,khi))
      &              call errquit('vvvv: bas_cn2bfr',ksh, BASIS_ERR)
-                do lsh=1,nsh
+                do lsh=1,ksh
                   if (.not. bas_cn2bfr(basis,lsh,llo,lhi))
      &                call errquit('vvvv: bas_cn2bfr',lsh, BASIS_ERR)
                   do k=klo,khi
@@ -227,15 +222,10 @@ c
                 enddo
               enddo
               ad3=(i-1)*nocc+j
-              call ga_put(g_st2t,1,nbf*nbf,ad3,ad3,
-     &                    scrb,nbf*nbf)
-            endif
-          enddo
+              call ga_put(g_st2,ad3,ad3,1,nbfdim,
+     &                    scrb,1)
       enddo
-c
-      call ga_transpose(g_st2t,g_st2)
-      if (.not.ga_destroy(g_st2t))
-     &    call errquit('ga_dest g_st2t fail',0, GA_ERR)
+      call ga_sync()
 c
 c ------------------------------------------------------------
 c - form t2+/- (see gustavos paper)
@@ -248,7 +238,7 @@ c ------------------------------------------------------------
       do ish=1,nsh
         if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
      $      call errquit('vvvv: bas_cn2bfr',ish, BASIS_ERR)
-        do jsh=1,nsh
+        do jsh=1,ish
           if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
      $        call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
           do x=ilo,ihi
@@ -282,6 +272,7 @@ c ------------------------------------------------------------
           enddo
         enddo
       enddo
+      call ga_sync()
 c
       if (occsdps) then
          call pstat_off(ps_t2pm)
@@ -294,17 +285,20 @@ c
       subroutine ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,
      &                    g_sht2,g_c,g_x,offsh,snsi,sisn,lssni,scre,
      &                    mem2,max2e,eri1,eri2,t1,cmo,t1ao,scra,
-     &                    scrb,lscr,tol2e,iprt,tklst)
+     &                    scrb,lscr,kscr,tol2e,iprt,tklst,maxints,
+     &                    ish_idx,shinf,max_sht2_blk)
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &        g_c,g_x,lssni,
-     &        mem2,max2e,lscr,iprt
-      integer offsh(nsh,nsh),tklst(nsh*(nsh+1)/2,2)
-      double precision tol2e,eri1(max2e),eri2(max2e),scre(mem2),
-     &                 t1(nocc*nvir),cmo(nbf,nbf),scra(lscr),
+     &        mem2,max2e,lscr,kscr,iprt,max_sht2_blk
+      integer offsh(nsh,nsh,2),tklst(nsh*(nsh+1)/2,2),maxints
+      integer ish_idx(nsh*nsh+2),shinf(nsh,3)
+      double precision tol2e,eri1(maxints),eri2(maxints),scre(mem2),
+     &                 t1(nocc*nvir),cmo(nbf,nbf),scra(kscr),
      &                 scrb(lscr),snsi(lssni),sisn(lssni),
      &                 t1ao(nocc*nbf),tx(2)
+      logical schwarz1,schwarz2
 
 #include "mafdecls.fh"
 #include "global.fh"
@@ -313,15 +307,21 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "schwarz.fh"
+#include "eaf.fh"
 *rak-s
 #include "ccsd_time.fh"
 *rak-e
 #include "ccsdps.fh"
+#include "ccsd_data.fh"
       integer ad1,ish,ilo,ihi,jsh,jlo,jhi,ksh,klo,khi,lsh,llo,lhi,next,
      &        icnt,nfi,nfk,lnijkl,offjl,offlj,lnoo,nfj,nfl,nodes,iam
-      double precision schwarz1,schwarz2
-      integer nxtask
-      external nxtask
+      logical flush, store, use_storage
+      integer nxtask,blocksize,logsize,intsize,ijk(2),cnijkl
+      integer icount(2),jcnt,btki,kcount,jcount,ishb,iblk,bnijkl,ival
+      integer cart_2e4c,ad2,store_need,store_used
+      double precision faddr,kaddr
+      external nxtask, cart_2e4c
+      integer trishel,iamoff,iii,jjj,istart
 c
       if (occsdps) then
          call pstat_on(ps_sxy)
@@ -338,19 +338,26 @@ c - work out an index array for shell offset
 c ------------------------------------------------------------
       call ga_sync()
       ad1=0
+      ad2=0
       do ish=1,nsh
         if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
      $      call errquit('vvvv: bas_cn2bfr',ish, BASIS_ERR)
         nfi=ihi-ilo+1
+        shinf(ish,1)=nfi
+        shinf(ish,2)=ilo
+        shinf(ish,3)=ihi
         do jsh=1,nsh
           if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
      $        call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
           nfj=jhi-jlo+1
-          offsh(ish,jsh)=ad1
+          offsh(ish,jsh,1)=ad1
           ad1=ad1+nfi*nfj
+          if (jsh.le.ish) then
+             offsh(ish,jsh,2)=ad2
+             ad2=ad2+nfi*nfj
+          endif
         enddo
       enddo
-      call ga_sync()
 c ------------------------------------------------------------
 c create t1ao
 c ------------------------------------------------------------
@@ -369,77 +376,289 @@ c
       tx(1)=tcgtime()
       if (iam.eq.0.and.iprt.gt.5)
      &    print *,' begin parallel integral generation'
-      call ga_zero(g_sht2)
       call ga_zero(g_c)
-      call ga_sync
-      next=nxtask(nodes, 1)
-      do icnt=0,nsh*(nsh+1)/2-1
-c // parallel task here
-          if (icnt.eq.next)then
+      call ga_sync()
+      faddr=0.d0
+      kaddr=0.d0
+      logsize=ma_sizeof(MT_LOG,2,MT_BYTE)
+      intsize=ma_sizeof(MT_INT,1,MT_BYTE)
+c
+c If this is the second call to ccsd_sxy we may have the integrals and other
+c info on disk. We should read from there....
+c
+      if (repeat.and.use_disk) then
+c
+c Get the number of lsh,lsh blocks this node is doing
+c
+      if (eaf_read(sxy_hl,faddr,icount,intsize*2).ne.0)
+     &   call errquit('ccsd_sxy: read failed',1,DISK_ERR)
+      faddr=faddr+intsize*2
+c
+c Start the main loop, using the integrals that are stored on disk
+c
+      do jcnt=1,icount(1)
+c
+c Get the jsh and lsh shell info
+c
+         if (eaf_read(sxy_hl,faddr,ijk,intsize*2).ne.0)
+     &      call errquit('ccsd_sxy: read failed',2,DISK_ERR)
+         faddr=faddr+intsize*2
+c
+         jsh=(tklst(ijk(1)+1,2)-1)/nsh+1
+         lsh=tklst(ijk(1)+1,2)-(jsh-1)*nsh
+c
+         nfj=shinf(jsh,1)
+         jlo=shinf(jsh,2)
+         jhi=shinf(jsh,3)
+         nfl=shinf(lsh,1)
+         llo=shinf(lsh,2)
+         lhi=shinf(lsh,3)
+c
+         call dcopy(lnoo*nfj*nfl,0.0d00,0,scrb,1)
+         call dcopy(nfj*nfl*nbf*nocc,0.0d00,0,snsi,1)
+         call dcopy(nfj*nfl*nbf*nocc,0.0d00,0,sisn,1)
+c
+c ijk(2) contains number of ksh*(ish-block) blocks stored
+c
+         do iblk=1,ijk(2)
+c
+c Get data for ksh and ish-block. First get number of blocks
+c for the ksh to be calculated, then get whole block of appropriate
+c length
+c
+            call qenter('r_read',0)
+            if (eaf_read(sxy_hl,faddr,ival,intsize).ne.0)
+     &         call errquit('ccsd_sxy: read failed',
+     &         3,DISK_ERR)
+            blocksize=intsize*ival
+            if (eaf_read(sxy_hl,faddr,ish_idx,blocksize).ne.0)
+     &         call errquit('ccsd_sxy: read failed',
+     &         4,DISK_ERR)
+            faddr=faddr+blocksize
+c
+c Get integrals, number of integrals in ish_idx(1,2)
+c
+            blocksize=ma_sizeof(MT_DBL,ish_idx(2),MT_BYTE)
+            if (eaf_read(sxy_hl,faddr,eri1,blocksize).ne.0)
+     &         call errquit('ccsd_sxy: read failed',
+     &         5,DISK_ERR)
+            faddr=faddr+blocksize
+            if (eaf_read(sxy_hl,faddr,eri2,blocksize).ne.0)
+     &         call errquit('ccsd_sxy: read failed',
+     &         6,DISK_ERR)
+            faddr=faddr+blocksize
+            call qexit('r_read',0)
+            call t2eri(ish_idx(1),ish_idx,jlo,jhi,nfj,llo,lhi,nfl,nsh,
+     &                 eri1,eri2,scra,scrb,lnoo,nocc,offsh,nbf,g_st2,
+     &                 shinf,max_sht2_blk,snsi,sisn,t1ao)
+         enddo
+         ad1=offsh(jsh,lsh,1)
+         call ga_put(g_sht2,1,lnoo,ad1+1,ad1+nfj*nfl,scrb,lnoo)
+         offjl=offsh(jsh,lsh,1)
+         offlj=offsh(lsh,jsh,1)
+         call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
+     &                  nfj,nfl,ncor,nocc,nact,nbf,jlo,jhi,llo,lhi,
+     &                  offjl,offlj,g_x,g_c)
+      enddo
+c
+c     End reading integrals from disk in repeat iteration
+c     
+      endif
+c
+      if (.not.repeat.or..not.use_disk.or.icount(2).gt.0) then
+c
+c We got here in one of two cases:
+c
+c 1. First time through, use dynamical (nxtask) distribution to 
+c    calculate and store the integrals....
+c    - Start from iam
+c    - use_storage = true
+c    - reset icount array
+c 2. Repeat time through, needing to recalculate some integrals
+c    as they could not be stored to disk...
+c    If no disk was used, case is like 1, but with use_storage = false
+c    - Start from icount(2)
+c    - use_storage = false
+c
+      if (repeat.and.use_disk) then
+         istart = icount(2)
+         use_storage=.false.
+      else
+         istart = iam
+         icount(1)=0
+         icount(2)=0
+         if (use_disk) then
+            if (eaf_write(sxy_hl,faddr,icount,intsize*2).ne.0)
+     &         call errquit('ccsd_sxy: write failed',1,DISK_ERR)
+            faddr=faddr+intsize*2
+         endif
+         use_storage=use_disk
+         store_used=0
+      endif
+      do icnt=istart,nsh*(nsh+1)/2-1,nodes
+c
+c ijk contains jsh and lsh info plus number of ksh and ish blocks
+c
+            ijk(1)=icnt
             jsh=(tklst(icnt+1,2)-1)/nsh+1
             lsh=tklst(icnt+1,2)-(jsh-1)*nsh
 c
-            if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
-     $          call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
-            nfj=jhi-jlo+1
-            if (.not. bas_cn2bfr(basis,lsh,llo,lhi))
-     $         call errquit('directbf: bas_cn2bfr',lsh, BASIS_ERR)
-            nfl=lhi-llo+1
+            nfj=shinf(jsh,1)
+            jlo=shinf(jsh,2)
+            jhi=shinf(jsh,3)
+            nfl=shinf(lsh,1)
+            llo=shinf(lsh,2)
+            lhi=shinf(lsh,3)
 c
-            call dfill(lnoo*nfj*nfl,0.0d00,scrb,1)
-            call dfill(nfj*nfl*nbf*nocc,0.0d00,snsi,1)
-            call dfill(nfj*nfl*nbf*nocc,0.0d00,sisn,1)
-            do ish=1,nsh
-              if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
-     $            call errquit('vvvv: bas_cn2bfr',ish, BASIS_ERR)
-              nfi=ihi-ilo+1
-              do ksh=1,ish
-                if (.not. bas_cn2bfr(basis,ksh,klo,khi))
-     $              call errquit('vvvv: bas_cn2bfr',ksh, BASIS_ERR)
-                nfk=khi-klo+1
-                ad1=offsh(ish,ksh)
-                call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,scra,lnoo)
-                schwarz1=schwarz_shell(ish,jsh)*schwarz_shell(ksh,lsh)
-                schwarz2=schwarz_shell(ish,lsh)*schwarz_shell(ksh,jsh)
-                if (schwarz1.ge.tol2e.or.schwarz2.ge.tol2e)then
-                  lnijkl=nfi*nfj*nfk*nfl
-                  if (schwarz1.ge.tol2e)then
-                    call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
-     $                            mem2, scre, max2e, eri1 )
-                  else
-                    call dfill(lnijkl,0.0d00,eri1,1)
-                  endif
-                  if (schwarz2.ge.tol2e)then
-                    call int_2e4c(basis, ish, lsh, basis, ksh, jsh,
-     $                            mem2, scre, max2e, eri2 )
-                  else
-                    call dfill(lnijkl,0.0d00,eri2,1)
-                  endif
-                  call t2eri(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,eri1,
-     &                       eri2,scra,scrb,lnoo,nocc)
-                  if (ish.eq.ksh)then
-                    call dscal(lnijkl,0.5d00,eri1,1)
-                    call dscal(lnijkl,0.5d00,eri2,1)
-                  endif
-                  call ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
-     &                           nbf,ilo,ihi,klo,khi,jlo,llo)
+            call dcopy(lnoo*nfj*nfl,0.0d00,0,scrb,1)
+            call dcopy(nfj*nfl*nbf*nocc,0.0d00,0,snsi,1)
+            call dcopy(nfj*nfl*nbf*nocc,0.0d00,0,sisn,1)
+c
+            bnijkl=1
+            kcount=2
+            flush=.false.
+            jcount=0
+            trishel=nsh*(nsh+1)/2
+            iamoff=iam*(trishel/nodes)
+c
+c Determine if we can still store the integrals to disk
+c If not, calculate and set integral recalculation point icnt
+c
+            if (use_storage) then
+              store_need=ma_sizeof(MT_DBL,2*nfj*nfl*nbf*(nbf+1),MT_BYTE)
+              store_need=store_need+ma_sizeof(MT_INT,nsh*nsh+2,MT_BYTE)
+              if ((store_need+store_used).gt.store_avail) then
+                use_storage=.false.
+                icount(2)=icnt 
+              else
+                icount(1)=icount(1)+1
+                kaddr=faddr
+                if (eaf_write(sxy_hl,faddr,ijk,intsize*2).ne.0) call
+     &                 errquit('ccsd_sxy: write failed',2,DISK_ERR)
+                faddr=faddr+intsize*2
+              endif
+            endif
+c
+            do iii=iamoff,trishel+iamoff-1
+               jjj=iii
+               if(iii.gt.trishel-1) jjj=iii-trishel
+               ish=(tklst(jjj+1,2)-1)/nsh+1
+               ksh=tklst(jjj+1,2)-(ish-1)*nsh
+               nfk=shinf(ksh,1)
+                schwarz1=schwarz_shell(ish,jsh)*
+     &                   schwarz_shell(ksh,lsh).ge.tol2e
+                schwarz2=schwarz_shell(ish,lsh)*
+     &                   schwarz_shell(ksh,jsh).ge.tol2e
+                nfi=shinf(ish,1)
+                lnijkl=nfi*nfj*nfk*nfl
+                cnijkl=cart_2e4c(basis,ish,jsh,ksh,lsh)
+c
+c Check if the integral buffers are full or we have done all ish and ksh
+c If so store and process integrals, else add another block
+c               
+                store=(bnijkl+cnijkl.gt.maxints)
+  111           continue
+                if ((store.and.(schwarz1.or.schwarz2)).or.flush) then
+c
+c Store the integrals and process them in t2eri and ccsd_idx1
+c
+c First four spots in ish_idx are used to store additional data:
+c  (1)=kcount  -> number of ish+ksh blocks plus 2 for this data (2*2)
+c  (2)=bnijkl  -> number of integrals
+c    
+                   ish_idx(1)=kcount
+                   ish_idx(2)=bnijkl
+                   if (use_storage) then
+                     jcount=jcount+1
+                     blocksize=intsize*kcount
+                     call qenter('f_write',0)
+                     if (eaf_write(sxy_hl,faddr,ish_idx,blocksize).ne.0)
+     &                  call errquit('ccsd_sxy: write failed',
+     &                  3,DISK_ERR)
+                     faddr=faddr+blocksize
+                     store_used=store_used+blocksize
+                     blocksize=ma_sizeof(MT_DBL,bnijkl,MT_BYTE)
+                     if (eaf_write(sxy_hl,faddr,eri1,blocksize).ne.0) 
+     &                  call errquit('ccsd_sxy: write failed',
+     &                  4,DISK_ERR)
+                     faddr=faddr+blocksize
+                     if (eaf_write(sxy_hl,faddr,eri2,blocksize).ne.0) 
+     &                  call errquit('ccsd_sxy: write failed',
+     &                  5,DISK_ERR)
+                     faddr=faddr+blocksize
+                     call qexit('f_write',0)
+                     store_used=store_used+2*blocksize
+                   endif
+c
+c Process the integral block
+c
+                   call t2eri(kcount,ish_idx,jlo,jhi,nfj,llo,lhi,nfl,
+     &                        nsh,eri1,
+     &                        eri2,scra,scrb,lnoo,nocc,offsh,nbf,g_st2,
+     &                        shinf,max_sht2_blk,snsi,sisn,t1ao)
+c
+c Reset some indices
+c
+                   bnijkl=1
+                   kcount=2
                 endif
-              enddo
+c
+c Add next block of integrals
+c               
+                if (.not.flush.and.(schwarz1.or.schwarz2)) then
+                   call qenter('ints',0)
+                   kcount=kcount+1
+                   ish_idx(kcount)=(ksh-1)*nsh+ish
+                   if (schwarz1) then
+                     call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
+     $                             mem2, scre, max2e, eri1(bnijkl) )
+                   else
+                     call dcopy(lnijkl,0.0d00,0,eri1(bnijkl),1)
+                   endif
+                   if (schwarz2) then
+                     if (jsh.eq.lsh) then
+                        call dcopy(lnijkl,eri1(bnijkl),1,eri2(bnijkl),1)
+                     else
+                        call int_2e4c(basis,ish,lsh,basis,ksh,jsh,
+     $                                mem2,scre,max2e,eri2(bnijkl))
+                     endif
+                   else
+                     call dcopy(lnijkl,0.0d00,0,eri2(bnijkl),1)
+                   endif
+                   bnijkl=bnijkl+lnijkl
+                   call qexit('ints',0)
+                endif
+                if (iii.eq.(trishel+iamoff-1).and..not.flush) then
+                   flush=.true.
+                   goto 111
+                endif
+                flush=.false.
             enddo
-            ad1=offsh(jsh,lsh)
-            call ga_acc(g_sht2,1,lnoo,ad1+1,ad1+nfj*nfl,
-     &                  scrb,lnoo,0.5d00)
-            offjl=offsh(jsh,lsh)
-            offlj=offsh(lsh,jsh)
+c
+            if (use_storage) then
+              ijk(2)=jcount
+              call qenter('f_write',0)
+              if (eaf_write(sxy_hl,kaddr,ijk,intsize*2).ne.0)
+     &           call errquit('ccsd_sxy: write failed',6,DISK_ERR)
+              call qexit('f_write',0)
+            endif
+c
+            ad1=offsh(jsh,lsh,1)
+            call ga_put(g_sht2,1,lnoo,ad1+1,ad1+nfj*nfl,scrb,lnoo)
+            offjl=offsh(jsh,lsh,1)
+            offlj=offsh(lsh,jsh,1)
             call ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
      &                     nfj,nfl,ncor,nocc,nact,nbf,jlo,jhi,llo,lhi,
      &                     offjl,offlj,g_x,g_c)
-            next=nxtask(nodes, 1)
-          endif
-c // end parallel task
-c
       enddo
-      next=nxtask(-nodes, 1)
+      faddr=0.d0
+      if (.not.repeat.and.use_disk) then
+         if (eaf_write(sxy_hl,faddr,icount,intsize*2).ne.0) call
+     &       errquit('ccsd_sxy: write failed',7,DISK_ERR)
+      endif
+      repeat=.true.
+      endif
+      call ga_sync()
 c sync before 3 and 4 index transformation
       call ccsd_idx34(basis,cmo,scra,scrb,nsh,ncor,nocc,nact,nbf,
      &                g_x,g_c)

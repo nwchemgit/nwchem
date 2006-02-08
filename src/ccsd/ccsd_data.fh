@@ -1,0 +1,4 @@
+C     $Id: ccsd_data.fh,v 2.1 2006-02-08 21:06:00 bert Exp $
+      logical repeat, use_disk
+      integer sxy_hl, store_avail
+      common/ccsd_data/ repeat,use_disk,sxy_hl,store_avail

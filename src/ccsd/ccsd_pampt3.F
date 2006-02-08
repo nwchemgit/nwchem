@@ -2,7 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.13 2004-12-16 02:40:47 edo Exp $
+C     $Id: ccsd_pampt3.F,v 2.14 2006-02-08 21:06:00 bert Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -26,10 +26,13 @@ C
       integer l_snsi,k_snsi,l_sisn,k_sisn,l_eri1,k_eri1,
      &        l_eri2,k_eri2,l_scre,k_scre,l_t1ao,k_t1ao,
      &        l_offsh,k_offsh,l_sc1,k_sc1,l_sc2,k_sc2,
-     &        l_sc3,k_sc3,l_sc4,k_sc4,
+     &        l_sc3,k_sc3,l_sc4,k_sc4,intblk,kscr,
      &        maxbfsh,max1e,mem1,max2e,mem2,lscr,lssni,
-     &        g_x,g_c,g_st2,g_sht2
+     &        g_x,g_c,g_st2,g_sht2,l_sch,k_sch,l_ish,k_ish,nrints,
+     &        l_shinf,k_shinf
       logical stat
+      integer max_sht2_blk
+      integer ilo,ihi,jlo,jhi,nbfdim,ish,jsh,nfi,nfj
 c
       Nodes = GA_NNodes()
       IAm = GA_NodeID()
@@ -61,7 +64,19 @@ c -- global array for ht2 with 2 ao indices
 c
 c -- global array for t2 with 2 ao indices
 *ga:1:0
-      if (.not.ga_create(MT_DBL,nocc*nocc,nbf*nbf,'st2',
+      nbfdim=0
+      do ish=1,nsh
+        if (.not. bas_cn2bfr(basis,ish,ilo,ihi))
+     $      call errquit('vvvv: bas_cn2bfr',ish, BASIS_ERR)
+        nfi=ihi-ilo+1
+        do jsh=1,ish
+          if (.not. bas_cn2bfr(basis,jsh,jlo,jhi))
+     $        call errquit('vvvv: bas_cn2bfr',jsh, BASIS_ERR)
+          nfj=jhi-jlo+1
+          nbfdim=nbfdim+nfi*nfj
+        enddo
+      enddo
+      if (.not.ga_create(MT_DBL,nocc*nocc,nbfdim,'st2',
      &                   nocc*nocc,0,g_st2))
      &     call errquit('ccsd_pampt3: ga_create g_st2 failed',0, GA_ERR)
 c
@@ -74,7 +89,7 @@ c ------------------------------------------------------------
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
       if (.not.stat)call errquit('ma_get ccsd_t2pm ',0, MA_ERR)
       call ccsd_t2pm(basis,nsh,ncor,nocc,nvir,nbf,g_st2,g_nt2,cmo,
-     &               t1,dbl_mb(k_sc1),dbl_mb(k_sc2))
+     &               t1,dbl_mb(k_sc1),dbl_mb(k_sc2),nbfdim)
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
       if (.not.stat)call errquit('ma_pop ccsd_t2pm ',0, MA_ERR)
@@ -86,32 +101,48 @@ c ------------------------------------------------------------
       mem2=max(mem2,nbf*nbf)
       mem2=max(mem2,mem1)
       lssni=nocc*nbf*maxbfsh*maxbfsh
-      lscr=max(nbf*nbf,nocc*nocc*maxbfsh*maxbfsh)
+      max_sht2_blk=nocc*nocc*maxbfsh*maxbfsh
+      lscr=max(nbf*nbf,max_sht2_blk)
       lscr=max(lscr,maxbfsh*nocc*nbf)
       lscr=max(lscr,maxbfsh*maxbfsh*nbf)
+      kscr=max(lscr,2*max_sht2_blk)
       stat=.true.
-      stat=stat.and.ma_push_get(MT_INT,nsh*nsh,'offsh',l_offsh,k_offsh)
+      stat=stat.and.ma_push_get(MT_INT,nsh*nsh*2,'off',l_offsh,k_offsh)
+      stat=stat.and.ma_push_get(MT_INT,nsh*3,'shinf',l_shinf,k_shinf)
       stat=stat.and.ma_push_get(MT_DBL,lssni,'snsi',l_snsi, k_snsi)
       stat=stat.and.ma_push_get(MT_DBL,lssni,'sisn',l_sisn, k_sisn)
-      stat=stat.and.ma_push_get(MT_DBL,max2e,'eri1',l_eri1, k_eri1)
-      stat=stat.and.ma_push_get(MT_DBL,max2e,'eri2',l_eri2, k_eri2)
       stat=stat.and.ma_push_get(MT_DBL,mem2,'scre',l_scre,k_scre)
       stat=stat.and.ma_push_get(MT_DBL,nocc*nbf,'t1ao',l_t1ao, k_t1ao)
-      stat=stat.and.ma_push_get(MT_DBL,lscr,'scra2',l_sc1, k_sc1)
       stat=stat.and.ma_push_get(MT_DBL,lscr,'scrb',l_sc2, k_sc2)
-      if (.not.stat)call errquit('ma_get ccsd_sxy ',0, MA_ERR)
+      stat=stat.and.ma_push_get(MT_DBL,kscr,'scra2',l_sc1, k_sc1)
+      stat=stat.and.ma_push_get(MT_INT,nsh*nsh+2,'ish',l_ish,k_ish)
+c 
+c Get memory availability and allocate multiple blocks if possible
+c Also need an index array for blocks of ish of length max2e*intblk
+c (in case we have a whole series of <ss|ss> integrals
+c
+c Maximum memory needed for <ij|kl> block is max2e * 2
+c Use intblk variable to define multiple blocks
+c
+      intblk=ma_inquire_avail(MT_DBL)/(2*max2e)
+      intblk=max(1,intblk)
+      nrints=max2e*intblk
+      stat=stat.and.ma_push_get(MT_DBL,nrints,'eri1',l_eri1,k_eri1)
+      stat=stat.and.ma_push_get(MT_DBL,nrints,'eri2',l_eri2,k_eri2)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &              g_c,g_x,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
      &              mem2,max2e,dbl_mb(k_eri1),
      &              dbl_mb(k_eri2),t1,cmo,dbl_mb(k_t1ao),dbl_mb(k_sc1),
-     &              dbl_mb(k_sc2),lscr,tol2e,iprt,tklst)
-      stat=stat.and.ma_pop_stack(l_sc2)
-      stat=stat.and.ma_pop_stack(l_sc1)
-      stat=stat.and.ma_pop_stack(l_t1ao)
-      stat=stat.and.ma_pop_stack(l_scre)
+     &              dbl_mb(k_sc2),lscr,kscr,tol2e,iprt,tklst,nrints,
+     &              int_mb(k_ish),int_mb(k_shinf),max_sht2_blk)
       stat=stat.and.ma_pop_stack(l_eri2)
       stat=stat.and.ma_pop_stack(l_eri1)
+      stat=stat.and.ma_pop_stack(l_ish)
+      stat=stat.and.ma_pop_stack(l_sc1)
+      stat=stat.and.ma_pop_stack(l_sc2)
+      stat=stat.and.ma_pop_stack(l_t1ao)
+      stat=stat.and.ma_pop_stack(l_scre)
       stat=stat.and.ma_pop_stack(l_sisn)
       stat=stat.and.ma_pop_stack(l_snsi)
       if (.not.stat)call errquit('ma_pop ccsd_sxy ',0, MA_ERR)
@@ -131,6 +162,7 @@ c ------------------------------------------------------------
      &                int_mb(k_offsh))
       stat=stat.and.ma_pop_stack(l_sc2)
       stat=stat.and.ma_pop_stack(l_sc1)
+      stat=stat.and.ma_pop_stack(l_shinf)
       stat=stat.and.ma_pop_stack(l_offsh)
 c ------------------------------------------------------------
 c other terms using B intermediate
@@ -166,43 +198,130 @@ c
       return
       end
       subroutine ccsd_idx1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
-     &                     nbf,ilo,ihi,klo,khi,jlo,llo)
+     &                     nbf,idx,idim,nsh,shinf)
       implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "schwarz.fh"
+#include "eaf.fh"
 #include "ccsdps.fh"
-      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi,jlo,llo
-      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
-     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
+      integer nfj,nfl,nocc,nbf,idx(idim),idim,nsh,shinf(nsh,3)
+      double precision eri1(*),
+     &                 eri2(*),
      &                 snsi(nbf,nfj,nfl,nocc),
      &                 sisn(nbf,nfl,nfj,nocc),
      &                 t1ao(nbf,nocc)
 c
-      integer i,j,k,l,ii
+      integer i,j,k,l,ii,ncnt,ia,ka
+      integer nfi,nfk,ilo,ihi,klo,khi,ish,ksh
+      integer ict,off1,off2
+      integer mlkj,mkl,mkj
+     
+      double precision int1, int2, scale
 c
       if (occsdps) then
          call pstat_on(ps_idx1)
       else
          call qenter('idx1',0)
       endif
-      do j=1,nfj
-        do i=ilo,ihi
-          do l=1,nfl
-            do k=klo,khi
-              do ii=1,nocc
-                snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*eri1(l,k,j,i)
-                snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*eri2(j,k,l,i)
 c
-                sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*eri1(l,k,j,i)
-                sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*eri2(j,k,l,i)
-              enddo
-            enddo
-          enddo
-        enddo
+      ict=1
+      do ncnt=3,idim
+        ksh=(idx(ncnt)-1)/nsh+1
+        ish=idx(ncnt)-(ksh-1)*nsh
+        nfk=shinf(ksh,1)
+        klo=shinf(ksh,2)
+        khi=shinf(ksh,3)
+        nfi=shinf(ish,1)
+        ilo=shinf(ish,2)
+        ihi=shinf(ish,3)
+        if (ish.eq.ksh) then
+          call ccsd_idx1_wrk2(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+        else
+          call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+        endif
+        ict=ict+nfk*nfl*nfi*nfj
       enddo
       if (occsdps) then
          call pstat_off(ps_idx1)
       else
          call qexit('idx1',0)
       endif
+      return
+      end
+      subroutine ccsd_idx1_wrk1(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
+     &                     nbf,ilo,ihi,klo,khi)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "ccsdps.fh"
+      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
+     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
+     &                 snsi(nbf,nfj,nfl,nocc),
+     &                 sisn(nbf,nfl,nfj,nocc),
+     &                 t1ao(nbf,nocc)
+      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
+      integer i,j,k,l,ii
+      double precision int1,int2
+      do l=1,nfl
+        do j=1,nfj
+          do i=ilo,ihi
+            do k=klo,khi
+              int1=eri1(l,k,j,i)
+              int2=eri2(j,k,l,i)
+              do ii=1,nocc
+               snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
+               snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
+               sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
+               sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+      call pstat_off(ps_idx11)
+      return
+      end
+      subroutine ccsd_idx1_wrk2(snsi,sisn,eri1,eri2,t1ao,nfj,nfl,nocc,
+     &                     nbf,ilo,ihi,klo,khi)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "ccsdps.fh"
+      double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
+     &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
+     &                 snsi(nbf,nfj,nfl,nocc),
+     &                 sisn(nbf,nfl,nfj,nocc),
+     &                 t1ao(nbf,nocc)
+      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
+      integer i,j,k,l,ii
+      double precision int1,int2
+      do l=1,nfl
+        do j=1,nfj
+          do i=ilo,ihi
+            do k=klo,khi
+              int1=eri1(l,k,j,i)*0.5d0
+              int2=eri2(j,k,l,i)*0.5d0
+              do ii=1,nocc
+               snsi(i,j,l,ii)=snsi(i,j,l,ii)+t1ao(k,ii)*int1
+               snsi(k,j,l,ii)=snsi(k,j,l,ii)+t1ao(i,ii)*int2
+               sisn(k,l,j,ii)=sisn(k,l,j,ii)+t1ao(i,ii)*int1
+               sisn(i,l,j,ii)=sisn(i,l,j,ii)+t1ao(k,ii)*int2
+              enddo
+            enddo
+          enddo
+        enddo
+      enddo
+      call pstat_off(ps_idx12)
       return
       end
       subroutine ccsd_idx2(snsi,sisn,cmo,scra,scrb,lscr,
@@ -340,19 +459,40 @@ c
 c
       return
       end     
-      subroutine t2eri(ilo,ihi,jlo,jhi,klo,khi,llo,lhi,eri1,eri2,
-     &                 t2,ht2,lnoo,nocc)
+      subroutine t2eri(idim,idx,jlo,jhi,nfj,llo,lhi,nfl,nsh,eri1,eri2,
+     &                 t2,ht2,lnoo,nocc,offsh,nbf,g_st2,
+     &                 shinf,max_st2_blk,snsi,sisn,t1ao)
       implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+#include "schwarz.fh"
+#include "eaf.fh"
 #include "ccsdps.fh"
-      integer ilo,ihi,jlo,jhi,klo,khi,llo,lhi,lnoo,nocc
-      double precision eri1(llo:lhi,klo:khi,jlo:jhi,ilo:ihi),
-     &                 eri2(jlo:jhi,klo:khi,llo:lhi,ilo:ihi),
-     &                 t2(lnoo,klo:khi,ilo:ihi),
-     &                 ht2(lnoo,llo:lhi,jlo:jhi)
+      integer idim,idx(idim),jlo,jhi,nsh,llo,lhi,lnoo,nocc
+      integer offsh(nsh,nsh,2),nbf,g_st2,max_st2_blk,shinf(nsh,3)
+      double precision eri1(*),
+     &                 eri2(*),
+     &                 t2(0:(2*max_st2_blk-1)),
+     &                 ht2(lnoo,(lhi-llo+1),(jhi-jlo+1)),
+     &                 snsi(nbf,nfj,nfl,nocc),
+     &                 sisn(nbf,nfl,nfj,nocc),
+     &                 t1ao(nbf,nocc)
 c
-      integer i,j,k,l,kmax,lmax
-      integer ipp,imm
+      integer i,j,k,l,kmax,lmax,ik,ad1
+      integer ipp,imm,ippp,ict,off1,off2,off3
+      integer nfj,nfl,ksh,ish,ilo,ihi,klo,khi,nfk,nfi
+      integer mlkj,mkl,mkj,ii,jj
+      integer kmsh,imsh,nmfi,nmfk,nbhandle,blk1,blk2
+      integer kmlo,kmhi,imlo,imhi
       double precision gp,gm
+      logical keqi,jeql
+c
+      nbhandle=4321+ga_nodeid()
 c
       if (occsdps) then
          call pstat_on(ps_t2eri)
@@ -360,32 +500,118 @@ c
          call qenter('t2eri',0)
       endif
 c
-c - we could block the ints together and do an mxm if
-c - this performs poorly
+      jeql=jlo.eq.llo
+      ipp=nocc*(nocc+1)/2
+      ippp=ipp+1
+      imm=nocc*(nocc-1)/2
+      ict=1
 c
-      do i=ilo,ihi
-        do j=jlo,jhi
-          kmax=khi
-          if (ilo.eq.klo)kmax=i
-          do k=klo,kmax
-            lmax=lhi
-            if (jlo.eq.llo)lmax=j
-            do l=llo,lmax
-              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))
-              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))
-              ipp=nocc*(nocc+1)/2
-              imm=nocc*(nocc-1)/2
+c Get first block ik
 c
-c - here is the n**6, note inside a 4 fold loop over nbf which is
-c - restricted twice, giving a factor of 1/4
-c - the two daxpy give nocc*nocc ops
+      ksh=(idx(3)-1)/nsh+1
+      ish=idx(3)-(ksh-1)*nsh
+      nfk=shinf(ksh,1)
+      klo=shinf(ksh,2)
+      khi=shinf(ksh,3)
+      nfi=shinf(ish,1)
+      ilo=shinf(ish,2)
+      ihi=shinf(ish,3)
+      ad1=offsh(ish,ksh,2)
+      call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
+      blk1=0
+      blk2=max_st2_blk
 c
-              call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
-              call daxpy(imm,gm,t2(ipp+1,k,i),1,ht2(ipp+1,l,j),1)
-            enddo
-          enddo
-        enddo
+c Now loop over remaining blocks
+c
+      do ik=4,idim
+c
+c Prefetch block ik, start using previous block
+c
+        kmsh=(idx(ik)-1)/nsh+1
+        imsh=idx(ik)-(kmsh-1)*nsh
+        nmfk=shinf(kmsh,1)
+        kmlo=shinf(kmsh,2)
+        kmhi=shinf(kmsh,3)
+        nmfi=shinf(imsh,1)
+        imlo=shinf(imsh,2)
+        imhi=shinf(imsh,3)
+        ad1=offsh(imsh,kmsh,2)
+c       call pstat_on(ps_t2erin)
+        call ga_nbget(g_st2,1,lnoo,ad1+1,ad1+nmfi*nmfk,t2(blk2),lnoo,
+     &                nbhandle)
+c       call pstat_off(ps_t2erin)
+c
+c  Do the actual work
+c
+        keqi=ish.eq.ksh
+        if (keqi) then
+          call ccsd_idx1_wrk2(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+        else
+          call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                        nfl,nocc,nbf,ilo,ihi,klo,khi)
+        endif
+        if (keqi.and.jeql) then
+           call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+        elseif (keqi) then
+           call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+        elseif (jeql) then
+           call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+        else
+           call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                         nfi,nfj,nfk,nfl,nocc,lnoo)
+        endif
+c
+c Increase offset of integral block to next ik block
+c
+        ict=ict+nfi*nfj*nfk*nfl
+c
+c Replace ish and ksh data with new ones from imsh and kmsh
+c
+        ish=imsh
+        ksh=kmsh
+        nfi=nmfi
+        nfk=nmfk
+        ilo=imlo
+        klo=kmlo
+        ihi=imhi
+        khi=kmhi
+c
+c Wait for non-blocking get to finish and replace blk with correct pointer
+c
+c       call pstat_on(ps_t2erih)
+        call ga_nbwait(nbhandle)
+c       call pstat_off(ps_t2erih)
+        blk1=-blk1+max_st2_blk
+        blk2=-blk2+max_st2_blk
       enddo
+c
+c  Do the actual work on final block
+c
+      keqi=ish.eq.ksh
+      if (keqi) then
+         call ccsd_idx1_wrk2(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                       nfl,nocc,nbf,ilo,ihi,klo,khi)
+      else
+         call ccsd_idx1_wrk1(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
+     &                       nfl,nocc,nbf,ilo,ihi,klo,khi)
+      endif
+      if (keqi.and.jeql) then
+         call t2eri_wrk_aleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+      elseif (keqi) then
+         call t2eri_wrk_ikeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+      elseif (jeql) then
+         call t2eri_wrk_jleq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+      else
+         call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
+     &                       nfi,nfj,nfk,nfl,nocc,lnoo)
+      endif
 c
       if (occsdps) then
          call pstat_off(ps_t2eri)
@@ -395,4 +621,111 @@ c
 c
       return
       end
-
+      subroutine t2eri_wrk_noeq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
+      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
+      integer ni,nj,nk,nl,nocc,lnoo
+      integer ipp,ippp,imm,i,j,k,l
+      double precision gp, gm
+      ipp=nocc*(nocc+1)/2
+      ippp=ipp+1
+      imm=nocc*(nocc-1)/2
+      do i=1,ni
+        do j=1,nj
+          do k=1,nk
+            do l=1,nl
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
+              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+            enddo
+          enddo
+        enddo
+      enddo
+      return
+      end
+      subroutine t2eri_wrk_jleq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
+      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
+      integer ni,nj,nk,nl,nocc,lnoo
+      integer ipp,ippp,imm,i,j,k,l
+      double precision gp, gm
+      ipp=nocc*(nocc+1)/2
+      ippp=ipp+1
+      imm=nocc*(nocc-1)/2
+      do i=1,ni
+        do j=1,nj
+          do k=1,nk
+            do l=1,j
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
+              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+            enddo
+          enddo
+        enddo
+      enddo
+      return
+      end
+      subroutine t2eri_wrk_ikeq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
+      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
+      integer ni,nj,nk,nl,nocc,lnoo
+      integer ipp,ippp,imm,i,j,k,l
+      double precision gp, gm
+      ipp=nocc*(nocc+1)/2
+      ippp=ipp+1
+      imm=nocc*(nocc-1)/2
+      do i=1,ni
+        do j=1,nj
+          do k=1,i
+            do l=1,nl
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
+              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+            enddo
+          enddo
+        enddo
+      enddo
+      return
+      end
+      subroutine t2eri_wrk_aleq(eri1,eri2,t2,ht2,ni,nj,nk,nl,nocc,lnoo)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+      double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
+      double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
+      integer ni,nj,nk,nl,nocc,lnoo
+      integer ipp,ippp,imm,i,j,k,l
+      double precision gp, gm
+      ipp=nocc*(nocc+1)/2
+      ippp=ipp+1
+      imm=nocc*(nocc-1)/2
+      do i=1,ni
+        do j=1,nj
+          do k=1,i
+            do l=1,j
+              gp=(eri1(l,k,j,i)+eri2(j,k,l,i))*0.5d0
+              gm=(eri1(l,k,j,i)-eri2(j,k,l,i))*0.5d0
+              call daxpy(ipp,gp,t2(1,k,i),1,ht2(1,l,j),1)
+              call daxpy(imm,gm,t2(ippp,k,i),1,ht2(ippp,l,j),1)
+            enddo
+          enddo
+        enddo
+      enddo
+      return
+      end

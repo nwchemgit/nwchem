@@ -4,7 +4,7 @@
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
 #include "errquit.fh"
-C     $Id: aoccsd2.F,v 2.32 2004-12-16 23:02:58 edo Exp $
+C     $Id: aoccsd2.F,v 2.33 2006-02-08 21:06:00 bert Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -275,7 +275,7 @@ c
 c
       lnobj=2*lnoov+max(lnoov,lnooo)
 *ga:1:0
-      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',0,0,
+      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',lnobj,1,
      &                   g_objv))
      &     call errquit('ga_create g_objv failed',0, GA_ERR)
       call ga_zero(g_objv)
@@ -512,7 +512,7 @@ c
 *      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,0,g_objo))
 *     &     call errquit('ga_create failed for g_objo',0)
 *ga:1:0
-      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',0,0,g_objo))
+      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,1,g_objo))
      &     call errquit('ga_create failed for g_objo',0, GA_ERR)
 c
       call ga_zero(g_objo)
@@ -544,8 +544,8 @@ c
 c
       if (iam .eq. 0) then
          write(6,1101) nkpass, nvpass,memdrv,memtrn,mem_avail
- 1101    format('nkpass=',i2,'; nvpass=',i3,'; memdrv=',i8,
-     $        '; memtrn=',i8,'; memavail=',i15)
+ 1101    format('nkpass=',i2,'; nvpass=',i3,'; memdrv=',i15,
+     $        '; memtrn=',i15,'; memavail=',i15)
          call util_flush(6)
       endif
 c
@@ -689,6 +689,8 @@ c
          call ga_sync
          tx(2)=tcgtime()
 c
+         if (iam.eq.0)write(6,1846)nvpass
+ 1846    format(' commencing triples evaluation ',i8)
          call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_f1n),
      $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
      $        dbl_mb(k_f3n),dbl_mb(k_f3t),dbl_mb(k_f4n),

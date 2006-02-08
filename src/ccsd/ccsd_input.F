@@ -1,5 +1,5 @@
       subroutine ccsd_input(rtdb)
-C     $Id: ccsd_input.F,v 2.10 2004-09-08 23:56:42 edo Exp $
+C     $Id: ccsd_input.F,v 2.11 2006-02-08 21:06:00 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 16)
+      parameter (num_dirs = 17)
       character*8 dirs(num_dirs)
       character*255 test
       character*80 key
@@ -28,7 +28,7 @@ C
       data dirs /'maxiter','thresh','tol2e','iprt',
      $   'print','noprint',
      $   'doa', 'dob', 'dog', 'doh', 'dojk', 'dos', 'dod',
-     $   'diisbas', 'freeze', 'end'/
+     $   'diisbas', 'freeze', 'nodisk', 'end'/
 c
 c     Remove previous entries so empty directive forces freeze nothing.
 c     To be consistent with the rest of the code, a new ccsd block
@@ -50,8 +50,8 @@ c
      $     call errquit('ccsd_input: unknown directive', 0,
      &       INPUT_ERR)
 c     
-      goto (100, 200, 300, 400, 500, 600,
-     $   700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 9999) ind
+      goto (100, 200, 300, 400, 500, 600, 700,
+     $   800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 9999) ind
       call errquit('ccsd_input: unimplemented directive', ind,
      &       INPUT_ERR)
 c     
@@ -164,6 +164,13 @@ c
 c     Freeze
 c
  1500 call freeze_input(rtdb,'ccsd')
+      goto 10
+C
+C     nodisk means do not use scratch disk to store integrals
+C
+ 1600 print*,'usedisk called input'
+      if (.not. rtdb_put(rtdb, 'ccsd:usedisk', mt_log, 1, .false.))
+     $     call errquit('ccsd-input: rtdb_put failed', 0, RTDB_ERR)
       goto 10
 c
 c     end

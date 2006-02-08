@@ -1,5 +1,5 @@
       subroutine ccsd_pstat_init(rtdb)
-c  $Id: ccsd_pstat.F,v 2.3 2005-08-19 04:50:57 edo Exp $
+c  $Id: ccsd_pstat.F,v 2.4 2006-02-08 21:06:00 bert Exp $
       implicit none
 #include "pstat.fh"
 #include "ccsdps.fh"
@@ -57,8 +57,16 @@ c
      $     ps_itrdrv)) call errquit('ccsd: ccsd_pstat_init', 0,0)
       if (.not. pstat_allocate('ccsd:tengy', pstat_qstat, 0, junk,
      $     ps_tengy)) call errquit('ccsd: ccsd_pstat_init', 0,0)
-      if (.not. pstat_allocate('ccsd:total', pstat_qstat, 0, junk,
-     $     ps_ccsd)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('idx12', pstat_qstat, 0, junk,
+     $     ps_idx12)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('idx11', pstat_qstat, 0, junk,
+     $     ps_idx11)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('t2eriw', pstat_qstat, 0, junk,
+     $     ps_t2eriw)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('t2erin', pstat_qstat, 0, junk,
+     $     ps_t2erin)) call errquit('ccsd: ccsd_pstat_init', 0,0)
+      if (.not. pstat_allocate('t2erih', pstat_qstat, 0, junk,
+     $     ps_t2erih)) call errquit('ccsd: ccsd_pstat_init', 0,0)
 c       
       call pstat_on(ps_ccsd)
       occsdps = .true.
@@ -98,7 +106,11 @@ c
          if(.not.pstat_free(ps_sxy))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_itrdrv))call errquit('ccsd_pstat',0,0)
          if(.not.pstat_free(ps_tengy))call errquit('ccsd_pstat',0,0)
-         if(.not.pstat_free(ps_ccsd))call errquit('ccsd_pstat?', 0,0)
+         if(.not.pstat_free(ps_idx12))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_idx11))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_t2eriw))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_t2erin))call errquit('ccsd_pstat',0,0)
+         if(.not.pstat_free(ps_t2erih))call errquit('ccsd_pstat',0,0)
 c
       endif
 c

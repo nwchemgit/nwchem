@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.24 2005-09-30 19:18:12 yuri Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.25 2006-02-08 21:06:00 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "util.fh"
@@ -40,7 +40,7 @@ c
 
       Integer IAm
       logical orestart
-      character*255 t2file
+      character*255 t2file, filename
 
       logical ccsd_read_restart, ccsd_write_restart
       external ccsd_read_restart, ccsd_write_restart
@@ -53,9 +53,15 @@ C
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "ccsdps.fh"
+#include "ccsd_data.fh"
+#include "chemio.h"
+#include "eaf.fh"
 c
       double precision zip
       data zip/0.0d00/
+c
+      double precision util_scratch_dir_avail_for_me
+      external util_scratch_dir_avail_for_me
 c
       IAm = GA_NodeID()
 C
@@ -70,12 +76,26 @@ c
       lhoov=nvir*nocc*(nocc+1)/2
 c
       nvp1=nvir+1
+
+c - integrals for ccsd_sxy (calculate as much as possible once and read after that)
+c - input switch to avoid using disk
+      if (.not. rtdb_get(rtdb, 'ccsd:usedisk', mt_log, 1, use_disk))
+     $   use_disk=.true.
+      if (use_disk) then
+         store_avail=util_scratch_dir_avail_for_me()
+c - convert back to bytes
+         store_avail=store_avail*1024
+         call util_file_name('ccsdints',.true.,.true.,filename)
+         if (eaf_open(filename,EAF_RW,sxy_hl).ne.0) call
+     $      errquit('ccsd_iterdrv2: failed to open file',0,DISK_ERR)
+      endif
+      repeat=.false.
+
 c - starting vectors
 
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
 
-c Changes by YA: second param from false to true
-      call util_file_name('t2', .true.,.true.,t2file)
+      call util_file_name('t2', .false.,.false.,t2file)
 
 c - if converged, read vectors and return
 c - else check if one can restart
@@ -294,6 +314,11 @@ c
      &    call errquit('ga_dest g_nht2 fail',0, GA_ERR)
       if (.not.ga_destroy(g_nt2))
      &    call errquit('ga_dest g_nt2 fail',0, GA_ERR)
+c
+      if (use_disk) then
+         if (eaf_close(sxy_hl).ne.0) call
+     $   errquit('ccsd_iterdrv2: failed to close file',0,DISK_ERR)
+      endif
 c
       call ga_sync()
       if (occsdps) then

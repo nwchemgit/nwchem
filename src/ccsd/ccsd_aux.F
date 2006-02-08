@@ -1,5 +1,5 @@
         subroutine mxtrn(mxin,mxout,idim,jdim)
-C     $Id: ccsd_aux.F,v 2.2 1997-04-14 06:34:53 gg502 Exp $
+C     $Id: ccsd_aux.F,v 2.3 2006-02-08 21:06:00 bert Exp $
         implicit none
         integer idim,jdim
         double precision mxin(idim,jdim),mxout(jdim,idim)
@@ -36,3 +36,50 @@ c
 c
       return
       end      
+
+
+
+      integer function cart_2e4c(basis,ish,jsh,ksh,lsh)
+      implicit none
+c
+#include "bas.fh"
+#include "nwc_const.fh"
+#include "apiP.fh"
+#include "basP.fh"
+#include "basdeclsP.fh"
+#include "geomP.fh"
+#include "geobasmapP.fh"
+#include "mafdecls.fh"
+#include "bas_exndcf_dec.fh"
+#include "bas_ibs_dec.fh"
+#include "int_nbf.fh"
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
+c
+      integer basis ! [input] basis set handle
+      integer ish   ! [input] shell/contraction index
+      integer jsh   ! [input] shell/contraction index
+      integer ksh   ! [input] shell/contraction index
+      integer lsh   ! [input] shell/contraction index
+c
+      integer La, a_nbf, Lb, b_nbf, Lc, c_nbf, Ld, d_nbf
+      integer usebas, ucont
+c
+      usebas  = basis + BASIS_HANDLE_OFFSET
+      ucont   = (sf_ibs_cn2ucn(ish,usebas))
+      La      = infbs_cont(CONT_TYPE ,ucont,usebas)
+      ucont   = (sf_ibs_cn2ucn(jsh,usebas))
+      Lb      = infbs_cont(CONT_TYPE ,ucont,usebas)
+      ucont   = (sf_ibs_cn2ucn(ksh,usebas))
+      Lc      = infbs_cont(CONT_TYPE ,ucont,usebas)
+      ucont   = (sf_ibs_cn2ucn(lsh,usebas))
+      Ld      = infbs_cont(CONT_TYPE ,ucont,usebas)
+c
+      a_nbf = int_nbf_x(La)
+      b_nbf = int_nbf_x(Lb)
+      c_nbf = int_nbf_x(Lc)
+      d_nbf = int_nbf_x(Ld)
+c
+      cart_2e4c=a_nbf*b_nbf*c_nbf*d_nbf
+c
+      end
