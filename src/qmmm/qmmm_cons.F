@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.20 2006-01-23 23:57:17 marat Exp $
+c $Id: qmmm_cons.F,v 1.21 2006-02-09 07:53:25 marat Exp $
 c
 c
       subroutine qmmm_cons_init(irtdb)
@@ -863,7 +863,7 @@ c
 
       call qmmm_cons_get_i_acts(int_mb(i_id))
 
-      call qmmm_region_print(un,n,int_mb(i_id),aform)
+      call qmmm_region_print(un,ns,nw,int_mb(i_id),aform)
        
       if(.not.ma_pop_stack(h_id))
      + call errquit( pname//'Failed to pop stack for id',
