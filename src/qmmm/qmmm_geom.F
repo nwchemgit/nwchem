@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.84 2005-12-16 02:18:07 marat Exp $
+c $Id: qmmm_geom.F,v 1.85 2006-02-09 18:33:37 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -233,8 +233,8 @@ c     ---------------------------------------------
        if (.not.rtdb_get(irtdb,'neb:nbeads',mt_int,1,nbeads)) then
           nbeads = 5
        end if
-      if (.not.rtdb_cget(irtdb,"qmmm:neb_path",1,prefix))
-     >  call mm_system_prefix(prefix)
+       if (.not.rtdb_cget(irtdb,"qmmm:neb_path",1,prefix))
+     >   call mm_system_prefix(prefix)
        do i=1,nbeads
          filename = ' '
          write(filename,13) 
