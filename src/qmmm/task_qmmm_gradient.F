@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.51 2006-01-26 18:32:53 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.52 2006-02-09 08:23:27 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -270,6 +270,9 @@ c
 c     load restart file from perm dir if any
 c     --------------------------------------
       if(qmmm_file_exist(rstfile,.true.)) then
+        if(ga_nodeid().eq.0) then
+          write(*,*) "reloading restart file",rstfile
+        end if
         call mm_reload_rst_default(irtdb,rstfile)
       end if
       call ga_sync()
@@ -298,6 +301,9 @@ c
 c     finally save restart file to perm
 c     ---------------------------------
       call util_file_name_resolve(rstfile,.false.)
+      if(ga_nodeid().eq.0) then
+          write(*,*) "saving restart file",rstfile
+      end if
       call mm_write_restart_named(rstfile,.false.)
 
       qmmm_neb_gradient = status
@@ -338,8 +344,6 @@ c
      &       INPUT_ERR)
 
       pname = "qmmm_bq_gradient"
-
-      write(*,*) "theory debug",theory
 
       na  = qmmm_get_nbqa() 
      
