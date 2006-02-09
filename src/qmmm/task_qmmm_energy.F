@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.29 2006-01-24 00:01:41 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.30 2006-02-09 18:36:18 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -482,6 +482,9 @@ c     local variables
       integer offset 
       double precision de
       double precision a
+      double precision tsum, fsum
+c
+      logical ti_geom, ti_esp
 c
       logical  mm_read_frame
       external mm_read_frame
@@ -557,13 +560,17 @@ c
      >      call errquit(pname//'failed to get trn',0,
      >       RTDB_ERR)
 
+      
+      ti_geom = .true.
       if (.not.rtdb_cget(rtdb,"qmmm:ti_geom_file",1,geom_file)) 
-     >       call errquit(pname//'failed to get ti_geom_file ',
-     >                 0,0)
+     >       ti_geom=.false.
 
+      ti_esp  = .true.
       if (.not.rtdb_cget(rtdb,"qmmm:ti_esp_file",1,esp_file)) 
-     >    call errquit(pname//'failed to get qmmm:ti_esp_file',
-     >                 0,0)
+     >    ti_esp = .false.
+
+      if( (.not.ti_geom).and.(.not.ti_esp))  
+     > call errquit(pname//'neither esp or geom file was specified',0,0)
 
 c
 c     total number of frames to process
@@ -596,6 +603,8 @@ c
       nfra = 0
 
 
+      tsum = 0.0d0
+      fsum = 0.0d0
       offset = trn(1)
       do i=trn(1),trn(2),trn(3)
         if(.not.mm_read_frame(fn,offset))
@@ -612,10 +621,13 @@ c
      >      mt_dbl,1,dbl_mb(i_e1+nfra-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
-        call mm_set_solute_coord_file(geom_file)
+        if(ti_geom)  
+     >    call mm_set_solute_coord_file(geom_file)
+        if(ti_esp) then
         if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file))
      >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
         call qmmm_esp_reset(rtdb)
+        end if
 
         call md_sp()
         task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
@@ -637,11 +649,28 @@ c
         ignore = rtdb_delete(rtdb,"qmmm:espfilename")
         call qmmm_esp_reset(rtdb)
         offset = trn(3)
+        tsum = tsum + dbl_mb(i_t+i-1)
+        fsum = fsum + exp
+     >                (
+     >       627.51*(
+     >       dbl_mb(i_e1+i-1)-
+     >       dbl_mb(i_e2+i-1)
+     >       )
+     >       /(kb*dbl_mb(i_t+i-1))
+     >                )
+        de = -kb*(tsum/nfra)*log(fsum/nfra)
+        if(master) then
+          write(*,*) "current free energy difference",de
+        end if
 
       end do
  23   continue
 c
       taver = 0.0d0
+      do i=1,nfra
+        taver = taver + dbl_mb(i_t+i-1)
+      end do
+      taver = taver/nfra
       de = 0.0d0
       do i=1,nfra
          
@@ -649,17 +678,16 @@ c
      >       dbl_mb(i_e1+i-1)-
      >       dbl_mb(i_e2+i-1)
      >       )
-     >       /(kb*dbl_mb(i_t+i-1))
+c     >       /(kb*dbl_mb(i_t+i-1))
+     >       /(kb*taver)
 
         de = de + exp(a)
-        taver = taver + dbl_mb(i_t+i-1)
       end do
-      taver = taver/nfra
       de = de/nfra
       de = -kb*taver*log(de)
 
       if(master) then
-        write(*,*) "free energy difference",de
+        write(*,*) "total free energy difference",de
       end if
 c
       if(.not.ma_free_heap(h_t))
@@ -948,7 +976,10 @@ c     external functions
       external qmmm_energy_gradient 
 
 c     local variables
+      integer i
+      integer un
       logical ignore
+      logical oregion
       character*32 interface
       logical save_rst
       logical do_print
@@ -958,12 +989,17 @@ c     local variables
       integer nregion
       character*84 tag
       character*30 pname
+      character*255 prefix
+      character*255 xyzfile
 
       pname = "task_qmmm_energy_sp"
 
 c
       if(qmmm_print_debug()) 
      $  write(*,*) "in task_qmmm_energy_sp"
+c
+      if (.not. rtdb_get(rtdb, 'qmmm:active_region', mt_log,1,oregion))
+     $     oregion = .false.
 c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
@@ -984,22 +1020,35 @@ c
 c
 c     process region definitions
 c     --------------------------
-c      tag ="qmmm:region"
-c      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
-c     >                 mt_int,1,nregion)) 
-c     >      call errquit(pname//tag,0,RTDB_ERR)
-c      if(nregion.gt.0) then
-c        if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
-c     >        call errquit(pname//tag,0,RTDB_ERR)
-c        call qmmm_cons_free_exclusive(region(1))
-c        if(ga_nodeid().eq.0) 
-c     >   call util_print_centered(luout,
-c     >     "Coordinates of the active region",
-c     >     30,.true.)
-c        call qmmm_cons_print_region(6,"xyzi")
-c        call qmmm_cons_reset()
-c      end if
- 
+      tag ="qmmm:region"
+      if (.not.rtdb_get(rtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >   nregion = 0
+
+      if(nregion.gt.0) then
+        if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
+     >        call errquit(pname//tag,0,RTDB_ERR)
+        call qmmm_cons_free_exclusive(region(1))
+        call mm_restart_filename(prefix)
+        i = index(prefix,".rst")-1
+        xyzfile = prefix(1:i)//".xyzi"
+        call util_file_name_resolve(xyzfile,.false.)
+        if(ga_nodeid().eq.0) then
+          if(.not.qmmm_get_io_unit(un))
+     >     call errquit('no free unit', 0, RTDB_ERR) 
+          open(unit=un,file=xyzfile,
+     >       form='formatted',status='unknown')
+        end if
+        call qmmm_cons_print_region(un,"xyzi")
+        if(ga_nodeid().eq.0) then
+          close(unit=un)
+        end if
+        if(.not.oregion)   
+     >  call qmmm_cons_reset()
+      end if
+
+      call ga_sync()
+   
       if (interface.eq.'mm') then
          call qmmm_geom_push_active(rtdb)
          call md_sp()
@@ -1178,7 +1227,7 @@ c
       end
 
       function task_qmmm_energy_pes0(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.29 2006-01-24 00:01:41 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.30 2006-02-09 18:36:18 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1427,7 +1476,7 @@ c       end load restart
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.29 2006-01-24 00:01:41 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.30 2006-02-09 18:36:18 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
