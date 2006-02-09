@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.19 2006-01-21 02:26:26 marat Exp $
+c $Id: qmmm_esp.F,v 1.20 2006-02-09 18:55:33 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -22,6 +22,8 @@ c
       character*255 prefix
       character*255 movfil
       character*80 tag
+c      character*80 movecs_tag
+c      character*30 theory
       integer lespfile
 c
       integer i,k
@@ -54,6 +56,9 @@ c
       if(qmmm_print_debug()) write(luout,*) "in "//pname
 c
       task_qmmm_esp = .true.
+c
+c      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+c     + call errquit('task: no task input for theory?',0, RTDB_ERR)
 
 c
 c      call qmmm_esp_input_file(rtdb)
@@ -75,6 +80,21 @@ c
 c
       if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
      +   call errquit('esp: rtdb_put newgrd failed',0,0)
+c
+c      if(theory.eq."dft") then
+c        movecs_tag = 'dft:input vectors'
+c      else if(theory.eq."scf") then
+c        movecs_tag = "scf:input vectors"
+c      else
+c        movecs_tag = " "
+c      end if
+c      if(movecs_tag.ne." ") then
+c        if(.not.rtdb_cget(rtdb,movecs_tag,1,movfil))
+c     + call errquit(pname//'no movecs?',0, RTDB_ERR)
+c        if(.not.rtdb_cput(rtdb,"esp:input vectors",1,movfil))
+c     + call errquit(pname//'put movecs?',0, RTDB_ERR)
+c      end if
+cc
 c
 c      call util_file_name('movecs',.false.,.false.,movfil)
 c      if(ga_nodeid().eq.0) then
@@ -777,7 +797,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.19 2006-01-21 02:26:26 marat Exp $
+* $Id: qmmm_esp.F,v 1.20 2006-02-09 18:55:33 marat Exp $
 *
       implicit none
 #include "errquit.fh"
