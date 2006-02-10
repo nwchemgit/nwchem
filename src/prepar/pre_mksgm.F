@@ -1,6 +1,6 @@
       logical function pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.17 2003-10-19 03:30:58 d3j191 Exp $
+c $Id: pre_mksgm.F,v 1.18 2006-02-10 17:26:42 d3j191 Exp $
 c
 c     function to make segment file
 c
@@ -47,10 +47,10 @@ c     allocate memory for bonds, angles, torsions and impropers
 c     ---------------------------------------------------------
 c
       matm=natm
-      mbnd=2*matm
+      mbnd=4*matm
       if(mbnd.lt.nbnd) mbnd=nbnd
-      mang=2*matm
-      mdih=3*matm
+      mang=6*matm
+      mdih=12*matm
       mimp=matm
       nang=0
       ndih=0
