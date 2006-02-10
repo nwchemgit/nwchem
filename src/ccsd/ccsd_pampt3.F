@@ -2,7 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.14 2006-02-08 21:06:00 bert Exp $
+C     $Id: ccsd_pampt3.F,v 2.15 2006-02-10 22:23:32 edo Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -210,7 +210,8 @@ c
 #include "schwarz.fh"
 #include "eaf.fh"
 #include "ccsdps.fh"
-      integer nfj,nfl,nocc,nbf,idx(idim),idim,nsh,shinf(nsh,3)
+      integer nfj,nfl,nocc,nbf,idim,nsh
+      integer idx(idim),shinf(nsh,3)
       double precision eri1(*),
      &                 eri2(*),
      &                 snsi(nbf,nfj,nfl,nocc),
@@ -263,13 +264,13 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "ccsdps.fh"
+      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
+      integer i,j,k,l,ii
       double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
      &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
      &                 snsi(nbf,nfj,nfl,nocc),
      &                 sisn(nbf,nfl,nfj,nocc),
      &                 t1ao(nbf,nocc)
-      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      integer i,j,k,l,ii
       double precision int1,int2
       do l=1,nfl
         do j=1,nfj
@@ -297,13 +298,13 @@ c
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "ccsdps.fh"
+      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
+      integer i,j,k,l,ii
       double precision eri1(nfl,klo:khi,nfj,ilo:ihi),
      &                 eri2(nfj,klo:khi,nfl,ilo:ihi),
      &                 snsi(nbf,nfj,nfl,nocc),
      &                 sisn(nbf,nfl,nfj,nocc),
      &                 t1ao(nbf,nocc)
-      integer nfj,nfl,nocc,nbf,ilo,ihi,klo,khi
-      integer i,j,k,l,ii
       double precision int1,int2
       do l=1,nfl
         do j=1,nfj
@@ -473,8 +474,11 @@ c
 #include "schwarz.fh"
 #include "eaf.fh"
 #include "ccsdps.fh"
-      integer idim,idx(idim),jlo,jhi,nsh,llo,lhi,lnoo,nocc
-      integer offsh(nsh,nsh,2),nbf,g_st2,max_st2_blk,shinf(nsh,3)
+      integer idim,jlo,jhi,nsh,llo,lhi,lnoo,nocc
+      integer idx(idim)
+      integer nbf,g_st2,max_st2_blk
+      integer offsh(nsh,nsh,2),shinf(nsh,3)
+      integer nfj,nfl,ksh,ish,ilo,ihi,klo,khi,nfk,nfi
       double precision eri1(*),
      &                 eri2(*),
      &                 t2(0:(2*max_st2_blk-1)),
@@ -485,7 +489,6 @@ c
 c
       integer i,j,k,l,kmax,lmax,ik,ad1
       integer ipp,imm,ippp,ict,off1,off2,off3
-      integer nfj,nfl,ksh,ish,ilo,ihi,klo,khi,nfk,nfi
       integer mlkj,mkl,mkj,ii,jj
       integer kmsh,imsh,nmfi,nmfk,nbhandle,blk1,blk2
       integer kmlo,kmhi,imlo,imhi
@@ -626,9 +629,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+      integer ni,nj,nk,nl,nocc,lnoo
       double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
       double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ni,nj,nk,nl,nocc,lnoo
       integer ipp,ippp,imm,i,j,k,l
       double precision gp, gm
       ipp=nocc*(nocc+1)/2
@@ -653,9 +656,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+      integer ni,nj,nk,nl,nocc,lnoo
       double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
       double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ni,nj,nk,nl,nocc,lnoo
       integer ipp,ippp,imm,i,j,k,l
       double precision gp, gm
       ipp=nocc*(nocc+1)/2
@@ -680,9 +683,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+      integer ni,nj,nk,nl,nocc,lnoo
       double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
       double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ni,nj,nk,nl,nocc,lnoo
       integer ipp,ippp,imm,i,j,k,l
       double precision gp, gm
       ipp=nocc*(nocc+1)/2
@@ -707,9 +710,9 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
+      integer ni,nj,nk,nl,nocc,lnoo
       double precision eri1(nl,nk,nj,ni), eri2(nj,nk,nl,ni)
       double precision t2(lnoo,nk,ni), ht2(lnoo,nl,nj)
-      integer ni,nj,nk,nl,nocc,lnoo
       integer ipp,ippp,imm,i,j,k,l
       double precision gp, gm
       ipp=nocc*(nocc+1)/2
