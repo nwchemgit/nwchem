@@ -36,7 +36,7 @@
 # the trailing .nw with .out.  In this directory is also put the
 # output of nwparse for the verified and the test outputs.
 
-set NWCHEM_PROJ_PATH = /msrc/proj/nwchem/bind
+set NWCHEM_PROJ_PATH = $NWCHEM_TOP/bin/$NWCHEM_TARGET
 
 if ($#argv == 0) then
    goto USAGE
