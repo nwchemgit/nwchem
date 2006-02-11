@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.6 2005-02-09 02:39:00 bylaska Exp $
+* $Id: paw_electron.F,v 1.7 2006-02-11 02:50:48 bylaska Exp $
 *
 
 
@@ -1626,7 +1626,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 *     *************************************************
 
 *     **** local portion ****
-      call paw_density_solve()
+c      call paw_density_solve()
       call paw_xc_solve()
       
 

@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop_md.F,v 1.10 2005-02-09 02:38:57 bylaska Exp $
+* $Id: paw_inner_loop_md.F,v 1.11 2006-02-11 02:50:46 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.10  2005/02/09 02:38:57  bylaska
+* ..............EJB
+*
 * Revision 1.9  2005/01/31 16:38:45  bylaska
 * ...EJB
 *
@@ -456,7 +459,7 @@ c      allow_translation = control_allow_translation()
 *       *************************************************
 
 *       *** local portion ***
-        call paw_density_solve()
+c        call paw_density_solve()
         call paw_xc_solve()
         !call paw_xc_print()
         

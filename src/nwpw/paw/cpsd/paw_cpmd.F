@@ -1,6 +1,10 @@
 *
-* $Id: paw_cpmd.F,v 1.19 2006-01-07 00:55:33 marat Exp $
+* $Id: paw_cpmd.F,v 1.20 2006-02-11 02:50:46 bylaska Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.19  2006/01/07 00:55:33  marat
+* removing ma_auto_verify
+* added some comments to paw
+*
 * Revision 1.18  2005/12/22 01:35:05  bylaska
 * revPBE added and gga logic restructured....EJB
 *
@@ -454,7 +458,7 @@ c      call paw_vloc_init()
       call paw_nonlocal_init(ispin,ne)
       lmax = control_lmax_multipole()
       if (lmax.lt.0) lmax =  paw_basis_max_mult_l()
-      call init_paw_density(lmax)
+c      call init_paw_density(ispin,lmax)
       call init_paw_xc(ispin,lmax)
 
 *     *** intialize paw force ***      
@@ -1230,7 +1234,7 @@ c      call paw_vloc_end()
       call end_paw_comp_charge_matrix()
       call end_paw_pot_comp()
       call end_paw_pot_hartree()
-      call paw_density_end()
+c      call paw_density_end()
       call paw_xc_end()
       if (control_move()) call paw_force_end()
       call paw_gaunt_end()

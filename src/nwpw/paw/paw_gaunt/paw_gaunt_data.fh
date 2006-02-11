@@ -1,7 +1,17 @@
 c
-c $Id: paw_gaunt_data.fh,v 1.3 2004-08-12 18:39:41 bylaska Exp $
+c $Id: paw_gaunt_data.fh,v 1.4 2006-02-11 02:50:47 bylaska Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.3  2004/08/12 18:39:41  bylaska
+c A prototype of a Grassmann CG paw minimizer (i.e. nwpw:minimizer 1) has been added.
+c The code is similar to the CG minimizer in pspw, but differences exist
+c because the residual |R> = (1 - S|psi><psi|)|Hpsi> is not the same as the
+c tangent vector |T> = (1 - |psi><psi|S)|R>.
+c
+c Forces still need to be implemented.
+c
+c ...EJB
+c
 c Revision 1.2  2004/07/29 15:55:37  bylaska
 c Temporary array for Gaunt coefficients added.  Speeds up the program considerably, but it is extrememely memory intensive.  Also added timing routines to multipole calculations and fixed the initial total charge calculation.
 c
@@ -16,3 +26,12 @@ c
       integer    paw_gaunt_coeff(4)    
       common / paw_gaunt / paw_gaunt_lmax, paw_gaunt_coeff
 
+c!     **** paw_gaunt common blocks ****
+c      integer    paw_gaunt2_lmax
+c      integer    paw_gaunt2_coeff(4)    
+c      common / paw_gaunt2 / paw_gaunt2_lmax, paw_gaunt2_coeff
+c
+c!     **** paw_gaunt common blocks ****
+c      integer    paw_gaunt3_lmax
+c      integer    paw_gaunt3_coeff(4)    
+c      common / paw_gaunt3 / paw_gaunt3_lmax, paw_gaunt3_coeff

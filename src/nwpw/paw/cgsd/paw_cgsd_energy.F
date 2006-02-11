@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_energy.F,v 1.6 2006-01-12 00:54:01 bylaska Exp $                       
+c     $Id: paw_cgsd_energy.F,v 1.7 2006-02-11 02:50:46 bylaska Exp $                       
 
 
 *     ***************************
@@ -100,14 +100,14 @@ c#include "rtdb.fh"
       if (oprint) call util_flush(luout)
       if (minimizer.gt.1) call paw_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
-      !if (newpsi) then
-      !  call sdminimize(15)
-      !  !call bybminimize(E,deltae,deltac,1,.true.,2)
-      !end if
+      if (newpsi) then
+        call paw_sdminimize(15)
+        !call bybminimize(E,deltae,deltac,1,.true.,2)
+      end if
    2  continue
          icount = icount + 1
          if (stalled) then
-           call sdminimize(0)
+           call paw_sdminimize(0)
            bfgscount = 0 
          end if
 
@@ -142,7 +142,6 @@ c#include "rtdb.fh"
          else
             stalled = .false.
          end if
-         stalled = .false. !debug
         
          if (psitmp) then
             call psi_tmp_write()

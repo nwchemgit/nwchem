@@ -1,7 +1,23 @@
 c
-c $Id: paw_spher_func.F,v 1.7 2003-10-21 02:05:17 marat Exp $
+c $Id: paw_spher_func.F,v 1.8 2006-02-11 02:50:48 bylaska Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.7  2003/10/21 02:05:17  marat
+c switched to new errquit by running global replace operation
+c see the script below (note it will not work on multiline errquit calls)
+c *********************************************************
+c #!/bin/sh
+c
+c e=`find . -name "*F" -print`
+c
+c for f in $e
+c do
+c cp $f $f.bak
+c sed  's|\(^[ ].*call[ ]*errquit([^,]*\)\(,[^,]*\)\()\)|\1,0\2\3|' $f.bak > $f
+c #rm $f.bak
+c done
+c **********************************************************
+c
 c Revision 1.6  2003/03/25 22:22:20  edo
 c bug fix in paw_spher_func.F (uninitialized variable)
 c
@@ -34,33 +50,33 @@ c Revision 1.1  2003/02/06 06:07:12  marat
 c initial version
 c
 
-!**************************************************
-!
-!	Name: spher_harmonics_generate
-!
-!	Purpose: 
-!
-!	Created:	8/05/2002
-!**************************************************
+c!**************************************************
+c!
+c!	Name: spher_harmonics_generate
+c!
+c!	Purpose: 
+c!
+c!	Created:	8/05/2002
+c!**************************************************
       subroutine spher_harmonics_generate(l,m,nfft3d,
      >                                    Gx,Gy,Gz,
      >                                    Ylm)
       implicit none
-      integer    l,m,nfft3d
-      real*8     Gx(*),Gy(*),Gz(*)
-      complex*16 Ylm(*)
+      integer          l,m,nfft3d
+      double precision Gx(*),Gy(*),Gz(*)
+      double complex   Ylm(*)
 
 *     **** local variables ****
-      real*8 small
+      double precision small
       parameter (small=1.0d-9)
 
-      integer i,k,mabs
-      real*8     g,gxy,cs_theta,sgn,coeff,fourpi
-      complex*16 exp_phi
+      integer          i,k,mabs
+      double precision g,gxy,cs_theta,sgn,coeff,fourpi
+      double complex   exp_phi
 
 *     **** external functions ****
-      real*8   legendre_lm
-      external legendre_lm
+      double precision legendre_lm
+      external         legendre_lm
 
 
       fourpi = 16.0d0*datan(1.0d0)
@@ -212,7 +228,7 @@ c
  
       ENDIF
  
-!    *** negative m ***
+c!    *** negative m - this routine is only call with negative m from dtheta_lm and ddtheta_lm ***
       IF (M .LT. 0) THEN
  
          COEFF = 1.0D0
@@ -232,78 +248,78 @@ c
  
       END 
  
-!**************************************************
-!
-!	Name: legendre_lm
-!
-!	Purpose: 
-!
-!	Created:	8/05/2002
-!**************************************************
-    
-      function legendre_lm1(l,m,x)
-      implicit none
-      integer l,m
-      real*8 x
-      double precision legendre_lm1
+cc!**************************************************
+cc!
+cc!	Name: legendre_lm
+cc!
+cc!	Purpose: 
+cc!
+cc!	Created:	8/05/2002
+cc!**************************************************
+c    
+c      function legendre_lm1(l,m,x)
+c      implicit none
+c      integer l,m
+c      real*8 x
+c      double precision legendre_lm1
+c
+c*     *** local variables ****
+c      integer i,ll
+c      real*8  fact,pll,pmm,pmmp1,somx2,Plm
+c
+c      if ((m.lt.0).or.(m.gt.l).or.(dabs(x).gt.1.0d0))
+c     >  call errquit('legendre_lm: bad argments',0,0)
+c
+c      pmm = 1.0d0
+c      if (m.gt.0) then
+c        somx2 = dsqrt((1.0d0-x)*(1.0d0+x))
+c        fact  = 1.0d0
+c        do i=1,m
+c          pmm  = -pmm*fact*somx2
+c          fact = fact + 2.0d0
+c        end do
+c      end if
+c
+c      if (l.eq.m) then
+c        Plm = pmm
+c      else
+c         pmmp1 = x*(2*m+1.0d0)*pmm
+c         if (l.eq.(m+1)) then
+c           Plm = pmmp1
+c         else
+c            do ll=m+2,l
+c              pll   = (x*(2*ll-1.0d0)*pmmp1-(ll+m-1.0d0)*pmm)/dble(ll-m)
+c              pmm   = pmmp1
+c              pmmp1 = pll
+c            end do
+c            Plm = pll
+c         end if
+c      end if
+c
+c      legendre_lm1 = Plm
+c      return
+c      end
 
-*     *** local variables ****
-      integer i,ll
-      real*8  fact,pll,pmm,pmmp1,somx2,Plm
 
-      if ((m.lt.0).or.(m.gt.l).or.(dabs(x).gt.1.0d0))
-     >  call errquit('legendre_lm: bad argments',0,0)
-
-      pmm = 1.0d0
-      if (m.gt.0) then
-        somx2 = dsqrt((1.0d0-x)*(1.0d0+x))
-        fact  = 1.0d0
-        do i=1,m
-          pmm  = -pmm*fact*somx2
-          fact = fact + 2.0d0
-        end do
-      end if
-
-      if (l.eq.m) then
-        Plm = pmm
-      else
-         pmmp1 = x*(2*m+1.0d0)*pmm
-         if (l.eq.(m+1)) then
-           Plm = pmmp1
-         else
-            do ll=m+2,l
-              pll   = (x*(2*ll-1.0d0)*pmmp1-(ll+m-1.0d0)*pmm)/dble(ll-m)
-              pmm   = pmmp1
-              pmmp1 = pll
-            end do
-            Plm = pll
-         end if
-      end if
-
-      legendre_lm1 = Plm
-      return
-      end
-
-
-!  *************************************************
-!  
-!     Name    : theta_lm
-!  
-!  
-!     Purpose : calculates theta_lm for a scalar cos_theta
-!               such that
-!  
-!         Y_lm(cos_theta,phi)=theta_lm(cos_theta)*exp(i*m*phi)
-!  
-!  
-!     Created : 1/99
-!  
-!  *************************************************
-      function theta_lm(l,m,cos_theta)
+c!  *************************************************
+c!  
+c!     Name    : theta_lm
+c!  
+c!  
+c!     Purpose : calculates theta_lm for a scalar cos_theta
+c!               such that
+c!  
+c!         Y_lm(cos_theta,phi)=theta_lm(cos_theta)*exp(i*m*phi)
+c!  
+c!  
+c!     Created : 1/99
+c!  
+c!  *************************************************
+      double precision function theta_lm(l,m,cos_theta)
       implicit none
       integer l,m
       double precision cos_theta
-      double precision theta_lm !*RESULT*
+c      double precision theta_lm !*RESULT*
 
       !*** local variables ***
       integer i,mod_m
@@ -349,15 +365,15 @@ c
 !
 !	Created:	8/05/2002
 !**************************************************
-      function find_Y_lm(l,m,cos_theta,phi)
+      double complex function find_Y_lm(l,m,cos_theta,phi)
       implicit none
       integer l,m
-      real*8 cos_theta,phi
-      complex*16 find_Y_lm !* RESULT*
+      double precision cos_theta,phi
+c      complex*16 find_Y_lm !* RESULT*
 
       !*** external function ****
-      real*8   theta_lm
-      external theta_lm
+      double precision theta_lm
+      external         theta_lm
 
       find_Y_lm = theta_lm(l,m,cos_theta)
      >            *dcmplx(dcos(m*phi),dsin(m*phi))
@@ -366,25 +382,25 @@ c
 
 
 
-  !*************************************************
-  !
-  !   Name    : find_Y_lm_deriv
-  !
-  !
-  !   Purpose : to calculate derivative of the spherical harmonic
-  !             for scalar argument,
-  !             namely g_r*d(Ylm)/dx
-  !                    g_r*d(Ylm)/dy
-  !                    g_r*d(Ylm)/dz
-  !
-  !
-  !
-  !   Created : 1999
-  !
-  !   Notes:
-  !
-  !
-  !*************************************************
+c !*************************************************
+c !
+c !   Name    : find_Y_lm_deriv
+c !
+c !
+c !   Purpose : to calculate derivative of the spherical harmonic
+c !             for scalar argument,
+c !             namely g_r*d(Ylm)/dx
+c !                    g_r*d(Ylm)/dy
+c !                    g_r*d(Ylm)/dz
+c !
+c !
+c !
+c !   Created : 1999
+c !
+c !   Notes:
+c !
+c !
+c !*************************************************
       subroutine find_Y_lm_deriv(l,m,cos_theta,angle_phi,
      >                           Y_lm_x,Y_lm_y,Y_lm_z)
       implicit none
@@ -416,7 +432,7 @@ c
      >       *m*dcmplx(0.0d0,1.0d0)
       end if
 
-      !*** cartesian derivatives (see Ashcroft p.108, 3rd. ed)
+      !*** cartesian derivatives (see Arfken p.108, 3rd. ed) ***
       Y_lm_x =  f1*cos_theta*COS(angle_phi)-sin(angle_phi)*f2
       Y_lm_y =  f1*cos_theta*SIN(angle_phi)+cos(angle_phi)*f2
       Y_lm_z = -f1*dsqrt(1.0d0-cos_theta**2)
@@ -433,25 +449,24 @@ c
 !
 !	Created:	8/05/2002
 !**************************************************
-      function dtheta_lm(l,m,cos_theta)
+      double precision function dtheta_lm(l,m,cos_theta)
       implicit none
       integer l,m
-      real*8  cos_theta
-      real*8  dtheta_lm !*RESULT*
+      double precision  cos_theta
 
       !*** local variables ***
       integer i
       integer mod_m
-      real*8  coeff,tmp,fourpi
+      double precision  coeff,tmp,fourpi
 
       !*** external functions ***
-      real*8   dlegendre_lm
-      external dlegendre_lm
+      double precision   dlegendre_lm
+      external           dlegendre_lm
 
       fourpi = 16.0d0*datan(1.0d0)
 
       IF( m .gt.l ) THEN
-      CALL errquit("parameter out of order in function theta_lm",0,1)
+      CALL errquit("parameter out of order in function dtheta_lm",0,1)
       END IF
 
       mod_m = ABS(m)
@@ -483,35 +498,96 @@ c
       return
       end
 
- !*************************************************
-  !
-  !   Name    : dlegendre_lm
-  !
-  !
-  !   Purpose : calculates the derivative of the
-  !             associated Legendre with respect to angle theta
-  !             (x=cos(theta))
-  !
-  !
-  !   Created : 10/99
-  !
-  !
-  !   Notes: Ashkroft definition of P(l,m,x) is different from mine by a
-  !          factor (-1)**m. Thus all recursive relationships should be modified
-  !          accordingly
-  !*************************************************
-      function dlegendre_lm(l,m,x) 
+
+
+!**************************************************
+!
+!       Name: ddtheta_lm
+!
+!       Purpose:
+!
+!       Created:        8/05/2002
+!**************************************************
+      double precision function ddtheta_lm(l,m,cos_theta)
       implicit none
       integer l,m
-      real*8  x
-      real*8  dlegendre_lm
+      double precision  cos_theta
 
       !*** local variables ***
-      real*8  f1,f2
+      integer i
+      integer mod_m
+      double precision coeff,tmp,fourpi
+
+      !*** external functions ***
+      double precision ddlegendre_lm
+      external         ddlegendre_lm
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      IF( m .gt.l ) THEN
+      CALL errquit("parameter out of order in function ddtheta_lm",0,1)
+      END IF
+
+      mod_m = ABS(m)
+
+      !*** find coefficient ***
+      if (mod_m.eq.0) then
+        coeff = 1.0d0
+      else if(mod_m.gt.0) then
+        coeff = 1.0d0
+        do i=1,2*mod_m
+          coeff = coeff/dble(l-mod_m+i)
+        end do
+      end if
+
+      coeff = coeff*(2*l+1)/(fourpi)
+      coeff = dsqrt(coeff)
+
+
+      tmp = coeff*ddlegendre_lm(l,mod_m,cos_theta)
+
+      if (m.lt.0) then
+        if( MOD(mod_m,2).eq.1) then
+           tmp = -tmp
+        end if
+      end if
+
+      ddtheta_lm = tmp
+      return
+      end
+
+
+
+
+c !*************************************************
+c !
+c !   Name    : dlegendre_lm
+c !
+c !
+c !   Purpose : calculates the derivative of the
+c !             associated Legendre with respect to angle theta
+c !             (x=cos(theta))
+c !
+c !
+c !   Created : 10/99
+c !
+c !
+c !   Notes: Arfken definition of P(l,m,x) is different from mine by a
+c !          factor (-1)**m. Thus all recursive relationships should be modified
+c !          accordingly
+c !*************************************************
+      double precision function dlegendre_lm(l,m,x) 
+      implicit none
+      integer l,m
+      double precision  x
+c      real*8  dlegendre_lm
+
+      !*** local variables ***
+      double precision f1,f2
 
       !*** external functions ****
-      real*8   legendre_lm
-      external legendre_lm
+      double precision legendre_lm
+      external         legendre_lm
 
       !*** check the arguments ***
       if ((m.gt.l) .or. (dabs(x).gt.1.0d0)) then
@@ -526,38 +602,96 @@ c
 
       f2 = legendre_lm(l,m-1,x)
 
-      !*** see Ashkroft p.669 3rd ed ***
+      !*** see Arfken p.669 3rd ed, p. 725 4th ed.                             ***
+      !*** sqrt(1-x*x)*dP_l^m/dx = 0.5*P_l^(m+1) - 0.5*(l+m)*(l-m+1)*P_l^(m-1) ***
+      !*** Note this recursion relationship doesn't have the problems at       ***
+      !*** theta=0,pi that the more traditional recursion relationship in term ***
+      !*** of l (i.e. p. 115 of Jahnke and Emde) have                          ***
+      !*** (1-x*x)*dP_l^m/dx = (l+1)*x*P_l^m - (l-m+1)*P_(l+1)^m               ***
+
       dlegendre_lm = 0.5d0*f1 - 0.5d0*(l+m)*(l-m+1)*f2
 
       return
       end 
 
 
-
-  !*************************************************
-  !
-  !   Name    : theta_lm_div
-  !
-  !
-  !   Purpose : calculates theta_lm/sin(theta)
-  !
-  !
-  !   Created : 10/99
-  !
-  !*************************************************
-      function theta_lm_div(l,m,cos_theta)
+c !*************************************************
+c !
+c !   Name    : ddlegendre_lm
+c !
+c !
+c !   Purpose : calculates the derivative of the
+c !             associated Legendre with respect to angle theta
+c !             (x=cos(theta))
+c !
+c !
+c !   Created : 10/99
+c !
+c !
+c !   Notes: Arfken definition of P(l,m,x) is different from mine by a
+c !          factor (-1)**m. Thus all recursive relationships should be modified
+c !          accordingly
+c !*************************************************
+      double precision function ddlegendre_lm(l,m,x)
       implicit none
       integer l,m
-      real*8 cos_theta
-      real*8 theta_lm_div !*RESULT*
+      double precision x
+
+      !*** local variables ***
+      double precision f1,f2
+
+      !*** external functions ****
+      double precision dlegendre_lm
+      external         dlegendre_lm
+
+      !*** check the arguments ***
+      if ((m.gt.l) .or. (dabs(x).gt.1.0d0)) then
+        write(*,*) "parameter ot of range in ddlegendre_lm"
+        stop
+      end if
+
+      if (m.eq.l) then
+        f1 = 0.0d0
+      else
+        f1 = dlegendre_lm(l,m+1,x)
+      END IF
+
+      f2 = dlegendre_lm(l,m-1,x)
+
+      !*** derived from by differentiation of recursion formula used for dlegendre_lm ***
+      !*** see Arfken p.669 3rd ed, p. 725 4th ed                                     ***
+      ddlegendre_lm = 0.5d0*f1 - 0.5d0*(l+m)*(l-m+1)*f2
+
+      return
+      end
+
+
+
+
+c  !*************************************************
+c  !
+c  !   Name    : theta_lm_div
+c  !
+c  !
+c  !   Purpose : calculates theta_lm/sin(theta)
+c  !
+c  !
+c  !   Created : 10/99
+c  !
+c  !*************************************************
+      double precision function theta_lm_div(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision cos_theta
+c      real*8 theta_lm_div !*RESULT*
 
       !*** local variables ***
       integer i,mod_m
-      real*8  coeff,fourpi,f
+      double precision coeff,fourpi,f
 
       !*** external functions ***
-      real*8   legendre_lm_div
-      external legendre_lm_div
+      double precision legendre_lm_div
+      external         legendre_lm_div
 
       fourpi = 16.0d0*datan(1.0d0)
 
@@ -594,26 +728,26 @@ c
       end 
 
 
-  !*************************************************
-  !
-  !   Name    : legendre_lm_div
-  !
-  !   Purpose : calculates associated Legendre
-  !             polynomial divided by sin(theta)
-  !             for a scalar argument
-  !
-  !   Created : 10/99
-  !
-  !*************************************************
-      function legendre_lm_div(l,m,x) 
+c  !*************************************************
+c  !
+c  !   Name    : legendre_lm_div
+c  !
+c  !   Purpose : calculates associated Legendre
+c  !             polynomial divided by sin(theta)
+c  !             for a scalar argument
+c  !
+c  !   Created : 10/99
+c  !
+c  !*************************************************
+      double precision function legendre_lm_div(l,m,x) 
       implicit none
       integer l,m
-      real*8  x
-      real*8 legendre_lm_div !*RESULT*
+      double precision x
+c      real*8 legendre_lm_div !*RESULT*
 
       !*** local variables ***
       integer i
-      real*8  p_mm,p_mp1m,tmp,fact,f
+      double precision p_mm,p_mp1m,tmp,fact,f
 
 
       !*** check the arguments ***

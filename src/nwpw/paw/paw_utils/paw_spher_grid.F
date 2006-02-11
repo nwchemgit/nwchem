@@ -1,4 +1,4 @@
-!$Id: paw_spher_grid.F,v 1.1 2003-02-17 05:01:44 marat Exp $
+!$Id: paw_spher_grid.F,v 1.2 2006-02-11 02:50:48 bylaska Exp $
 !
 !$Log:
 
@@ -21,12 +21,17 @@
 *     *** gaussian quadrature angular grid for cos_theta ***
       call gauss_weights(-1.0d0,1.0d0,cos_theta,w_theta,ntheta)
 
-*     *** linear angular grid for angle_phi***
-      do i=1,nphi
+      if (nphi.gt.1) then
+*       *** linear angular grid for angle_phi***
+        do i=1,nphi
          angle_phi(i) = 2.0d0*pi*(i-1)/(nphi-1)
          w_phi(i) = 2.0d0*pi/(nphi-1)
-      end do
-      w_phi(1)    = 0.5d0*w_phi(1)
-      w_phi(nphi) = w_phi(1)
+        end do
+        w_phi(1)    = 0.5d0*w_phi(1)
+        w_phi(nphi) = w_phi(1)
+      else
+        angle_phi(1) = 0.0d0
+        w_phi(1)     = 2.0d0*pi
+      end if
 
       end

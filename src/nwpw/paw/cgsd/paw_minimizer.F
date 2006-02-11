@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.10 2006-01-07 00:55:29 marat Exp $
+* $Id: paw_minimizer.F,v 1.11 2006-02-11 02:50:46 bylaska Exp $
 *
 
 ***********************************************************************
@@ -307,7 +307,7 @@ c     call current_second(t1)
       call paw_nonlocal_init(ispin,ne)
       lmax = control_lmax_multipole()
       if (lmax.lt.0) lmax =  paw_basis_max_mult_l()
-      call init_paw_density(lmax)
+c      call init_paw_density(ispin,lmax)
       call init_paw_xc(ispin,lmax)
 
       !call paw_ovlp_coeff_set(dcpl_mb(psi2(1)))
@@ -571,7 +571,7 @@ c      call paw_vloc_end()
       call end_paw_comp_charge_matrix()
       call end_paw_pot_comp()
       call end_paw_pot_hartree()
-      call paw_density_end()
+c      call paw_density_end()
       call paw_xc_end()
       call paw_gaunt_end()
 
@@ -627,6 +627,12 @@ c      call paw_vloc_end()
          write(6,1808) '  masking and packing        : ',
      >                 nwpw_timing(9),
      >                 nwpw_timing(9)/dble(paw_electron_count())           
+         write(6,1808) '  atomic density generation  : ',
+     >                 nwpw_timing(21),
+     >                 nwpw_timing(21)/dble(paw_electron_count())           
+         write(6,1808) '  atomic xc matrix elements  : ',
+     >                 nwpw_timing(22),
+     >                 nwpw_timing(22)/dble(paw_electron_count())           
          end if
          write(6,*)
          CALL nwpw_message(4)

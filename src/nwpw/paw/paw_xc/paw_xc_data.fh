@@ -1,6 +1,12 @@
-!$Id: paw_xc_data.fh,v 1.5 2003-02-19 01:02:04 marat Exp $
+!$Id: paw_xc_data.fh,v 1.6 2006-02-11 02:50:49 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.5  2003/02/19 01:02:04  marat
+!finished generation of exch-corr
+!tested only with l=0 with exchange only
+!
+!MV
+!
 !Revision 1.4  2003/02/18 01:57:31  marat
 !generated atomic exc energies.
 !there is a difference between paw and nwchem
@@ -21,48 +27,59 @@
 !MV
 !
 
+      integer paw_xc_gga
       integer paw_xc_ispin
       integer paw_xc_lmax
       integer paw_xc_nphi
       integer paw_xc_ntheta
+
       integer paw_xc_ylm(4)
+
+      integer paw_xc_dylm_theta(4)
+      integer paw_xc_dylm_phi(4)
+
       integer paw_xc_angle_phi(4)
       integer paw_xc_cos_theta(4)
       integer paw_xc_w_phi(4)
       integer paw_xc_w_theta(4)
       integer paw_xc_e(4)
-      integer i_paw_vxc(4)
-      integer i_paw_xc_matr(4)
+c      integer i_paw_vxc(4)
+c      integer i_paw_xc_matr(4)
       integer i_paw_xc_pot(4)
-      integer paw_vxc_u_ae(4)
-      integer paw_vxc_d_ae(4)
-      integer paw_vxc_u_ps(4)
-      integer paw_vxc_d_ps(4)
 
-      integer paw_xc_pot_u(4)
-      integer paw_xc_pot_d(4)
-      integer paw_xc_matr_u(4)
-      integer paw_xc_matr_d(4)
+      integer paw_vxc_ae(4)
+      integer paw_vxc_ps(4)
 
-      common /paw_exc_data/   paw_xc_ispin,
+      integer paw_dvxc_ae(4)
+      integer paw_dvxc_ps(4)
+
+
+      integer paw_xc_pot_size
+      integer paw_xc_pot(4)
+      integer paw_xc_matr(4)
+      integer paw_xc_dmatr(4)
+
+      common /paw_exc_data/   paw_xc_gga,
+     >                        paw_xc_ispin,
      >                        paw_xc_lmax,
      >                        paw_xc_nphi,
      >                        paw_xc_ntheta,
      >                        paw_xc_e,
-     >                        i_paw_vxc,
-     >                        i_paw_xc_matr,
      >                        i_paw_xc_pot,
      >                        paw_xc_angle_phi,
      >                        paw_xc_cos_theta,
      >                        paw_xc_ylm,
+     >                        paw_xc_dylm_theta,
+     >                        paw_xc_dylm_phi,
      >                        paw_xc_w_phi,
      >                        paw_xc_w_theta,
-     >                        paw_vxc_u_ae,
-     >                        paw_vxc_d_ae,
-     >                        paw_vxc_u_ps,
-     >                        paw_vxc_d_ps,
-     >                        paw_xc_pot_u,
-     >                        paw_xc_pot_d,
-     >                        paw_xc_matr_u,
-     >                        paw_xc_matr_d
+     >                        paw_vxc_ae,
+     >                        paw_vxc_ps,
+     >                        paw_dvxc_ae,
+     >                        paw_dvxc_ps,
+     >                        paw_xc_pot,
+     >                        paw_xc_pot_size,
+     >                        paw_xc_matr,
+     >                        paw_xc_dmatr
+
 

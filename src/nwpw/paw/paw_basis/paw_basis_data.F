@@ -1,4 +1,4 @@
-! $Id: paw_basis_data.F,v 1.22 2006-01-07 00:55:36 marat Exp $
+! $Id: paw_basis_data.F,v 1.23 2006-02-11 02:50:47 bylaska Exp $
 
 !**************************************************
 !
@@ -68,6 +68,14 @@ c      ok = MA_set_auto_verify(.TRUE.)
      >     my_alloc(MT_DBL,tot_ngrid,"core_density",core_density)
       ok = ok .AND. 
      >     my_alloc(MT_DBL,tot_ngrid,"ps_core_density",ps_core_density)
+
+      ok = ok .AND.
+     >     my_alloc(MT_DBL,tot_ngrid,"core_density_prime",
+     >              core_density_prime)
+      ok = ok .AND. 
+     >     my_alloc(MT_DBL,tot_ngrid,"ps_core_density_prime",
+     >              ps_core_density_prime)
+
       ok = ok .AND. my_alloc(MT_DBL,tot_ngrid,"v_ps",v_ps)
       ok = ok .AND. my_alloc(MT_DBL,tot_ngridbasis,"prj_ps0",prj_ps0)
       ok = ok .AND. my_alloc(MT_DBL,tot_ngrid,"rgrid",rgrid)
@@ -128,6 +136,8 @@ c      ok = MA_set_auto_verify(.TRUE.)
         ok = ok .and. my_dealloc(v_ps)
         ok = ok .and. my_dealloc(ps_core_density)
         ok = ok .and. my_dealloc(core_density)
+        ok = ok .and. my_dealloc(ps_core_density_prime)
+        ok = ok .and. my_dealloc(core_density_prime)
         ok = ok .and. my_dealloc(prj_ps)
         ok = ok .and. my_dealloc(phi_ps_prime)
         ok = ok .and. my_dealloc(phi_ps)
@@ -1100,6 +1110,49 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       return
       END 
 
+
+
+!**************************************************
+!
+!       Name: paw_basis_i_core_density_prime
+!
+!       Purpose - needed for gga's
+!
+!       Created:        1/28/2006
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_core_density_prime(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_i_core_density_prime = core_density_prime(1)
+     >                               + int_mb(i_ng(1)+it-1)
+      return
+      END
+
+!**************************************************
+!
+!       Name: paw_basis_i_ps_core_density_prime
+!
+!       Purpose - needed for gga's
+!
+!       Created:        1/28/2006
+!**************************************************
+      INTEGER FUNCTION  paw_basis_i_ps_core_density_prime(it)
+      implicit none
+      integer it
+
+#include "paw_basis_data.fh"
+#include "mafdecls.fh"
+
+      paw_basis_i_ps_core_density_prime = ps_core_density_prime(1)
+     >                                  + int_mb(i_ng(1)+ it-1)
+      return
+      END
+
+
 !**************************************************
 !
 !	Name: paw_basis_i_v_ps
@@ -1293,4 +1346,118 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
         paw_basis_max_mult_l= max_mult_l
 
       end
+
+
+
+
+c     *************************************************
+c     *                                               *
+c     *        paw_basis_derivative_ngrid             *
+c     *                                               *
+c     *************************************************
+c
+c  This routine computes the seven point derivative of f.
+c  where f and df are stored on a logarithmic grid. The
+c  dimensions of f and df are, f(1:ng), and df(1:ng)
+
+      subroutine paw_basis_derivative_ngrid(ng,log_amesh,r,f,df)
+      implicit none
+      integer           ng
+      double precision  log_amesh
+      double precision  r(ng)
+      double precision  f(ng)
+      double precision df(ng)
+
+      double precision one_over_60
+      parameter (one_over_60 = 1.0d0/60.0d0)
+
+      integer i,n1,n2,m1,m2
+      double precision aa
+
+      aa = one_over_60/log_amesh
+      n1 = 1
+      n2 = ng
+      m1 = n1
+      m2 = n2
+     
+
+      if (n1.le.3) then
+        if ((n1.eq.1).and.(n1.ge.m1).and.(n1.le.m2)) then
+          df(1) = aa*(-147.0d0*f(1)
+     >               + 360.0d0*f(2)
+     >               - 450.0d0*f(3)
+     >               + 400.0d0*f(4)
+     >               - 225.0d0*f(5)
+     >               +  72.0d0*f(6)
+     >               -  10.0d0*f(7))/r(1)
+          n1 = n1+1
+        end if 
+        if ((n1.eq.2).and.(n1.ge.m1).and.(n1.le.m2)) then
+          df(2) = aa*( -10.0d0*f(1)
+     >               -  77.0d0*f(2)
+     >               + 150.0d0*f(3)
+     >               - 100.0d0*f(4)
+     >               +  50.0d0*f(5)
+     >               -  15.0d0*f(6)
+     >               +   2.0d0*f(7))/r(2)
+          n1 = n1+1
+        end if 
+        if ((n1.eq.3.and.(n1.ge.m1).and.(n1.le.m2))) then
+          df(3) = aa*(  +2.0d0*f(1)
+     >               -  24.0d0*f(2)
+     >               -  35.0d0*f(3)
+     >               +  80.0d0*f(4)
+     >               -  30.0d0*f(5)
+     >               +   8.0d0*f(6)
+     >               -   1.0d0*f(7))/r(3)
+          n1 = n1+1
+        end if 
+      end if
+
+      if (n2.ge.(ng-2)) then
+        if ((n2.eq.ng).and.(n2.ge.m1).and.(n2.le.m2)) then
+          df(ng) = aa*( +147.0d0*f(ng)
+     >                - 360.0d0*f(ng-1)
+     >                + 450.0d0*f(ng-2)
+     >                - 400.0d0*f(ng-3)
+     >                + 225.0d0*f(ng-4)
+     >                -  72.0d0*f(ng-5)
+     >                +  10.0d0*f(ng-6))/r(ng)
+          n2 = n2-1
+        end if
+        if ((n2.eq.(ng-1).and.(n2.ge.m1).and.(n2.le.m2))) then
+          df(ng-1) = aa*( +10.0d0*f(ng)
+     >                  +  77.0d0*f(ng-1)
+     >                  - 150.0d0*f(ng-2)
+     >                  + 100.0d0*f(ng-3)
+     >                  -  50.0d0*f(ng-4)
+     >                  +  15.0d0*f(ng-5)
+     >                  -   2.0d0*f(ng-6))/r(ng-1)
+          n2 = n2-1
+        end if
+        if ((n2.eq.(ng-2).and.(n2.ge.m1).and.(n2.le.m2))) then
+          df(ng-2) = aa*(  -2.0d0*f(ng)
+     >                  +  24.0d0*f(ng-1)
+     >                  +  35.0d0*f(ng-2)
+     >                  -  80.0d0*f(ng-3)
+     >                  +  30.0d0*f(ng-4)
+     >                  -   8.0d0*f(ng-5)
+     >                  +   1.0d0*f(ng-6))/r(ng-2)
+          n2 = n2-1
+        end if
+      end if
+
+      do i=n1,n2
+        df(i) = aa*(  -1.0d0*f(i-3)
+     >             +   9.0d0*f(i-2)
+     >             -  45.0d0*f(i-1)
+     >             +  45.0d0*f(i+1)
+     >             -   9.0d0*f(i+2)
+     >             +   1.0d0*f(i+3))/r(i)
+      end do
+
+      return
+      end
+      
+
 

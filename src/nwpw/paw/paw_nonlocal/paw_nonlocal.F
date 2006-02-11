@@ -1,8 +1,12 @@
 *
-* $Id: paw_nonlocal.F,v 1.15 2005-01-31 02:09:38 bylaska Exp $
+* $Id: paw_nonlocal.F,v 1.16 2006-02-11 02:50:48 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.15  2005/01/31 02:09:38  bylaska
+* Large nested loops in PAW  parallelized using an openMP-like strategy.
+* ...EJB
+*
 * Revision 1.14  2004/08/12 18:39:41  bylaska
 * A prototype of a Grassmann CG paw minimizer (i.e. nwpw:minimizer 1) has been added.
 * The code is similar to the CG minimizer in pspw, but differences exist
@@ -113,9 +117,10 @@
       value = value.and.my_alloc(mt_dcpl,(total_nbasis*neall),
      >                          "paw_nl_coeff",paw_nl_coeff)
       value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
-     >                           "paw_Gop_u",paw_Gop_u)
-      value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
-     >                           "paw_Gop_d",paw_Gop_d)
+     >                           "paw_Gop_u",paw_Gop_spin(1,1))
+      if (ispin.eq.2)
+     > value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
+     >                           "paw_Gop_d",paw_Gop_spin(1,2))
       value = value.and.my_alloc(mt_dcpl,paw_Gop_size,
      >                           "paw_Gop_static",paw_Gop_static)
       if (.not.value) call errquit('paw_nonlocal_init: alloc heap',0,1)
@@ -185,8 +190,10 @@
       logical value
       value=.true.
       value = value.and.my_dealloc(i_paw_Gop)
-      value = value.and.my_dealloc(paw_Gop_u)
-      value = value.and.my_dealloc(paw_Gop_d)
+
+      value = value.and.my_dealloc(paw_Gop_spin(1,1))
+      if (ispin.eq.2) value = value.and.my_dealloc(paw_Gop_spin(1,2))
+
       value = value.and.my_dealloc(paw_Gop_static)
       value = value.and.my_dealloc(paw_nl_coeff)
       if (.not.value) call errquit('paw_nonlocal_end: dealloc heap',0,0)
@@ -218,6 +225,7 @@
       integer i_nbasis,indx,indx1,indx_m
       integer coeff_ptr
       integer hartree_ptr,mult_ptr,comp_ptr,xc_ptr
+      integer n1(2),n2(2),ms
       real*8  scal1
 
       call Parallel_np(np)
@@ -231,38 +239,43 @@
 
       call dcopy(2*paw_Gop_size,
      >           dcpl_mb(paw_Gop_static(1)),1,
-     >           dcpl_mb(paw_Gop_u(1)),1)
+     >           dcpl_mb(paw_Gop_spin(1,1)),1)
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(hartree_ptr),1,
-     >           dcpl_mb(paw_Gop_u(1)),1)
+     >           dcpl_mb(paw_Gop_spin(1,1)),1)
 
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(mult_ptr),1,
-     >           dcpl_mb(paw_Gop_u(1)),1)
+     >           dcpl_mb(paw_Gop_spin(1,1)),1)
 
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(comp_ptr),1,
-     >           dcpl_mb(paw_Gop_u(1)),1)
+     >           dcpl_mb(paw_Gop_spin(1,1)),1)
 
       if (ispin.eq.2) then
       call dcopy(2*paw_Gop_size,
-     >           dcpl_mb(paw_Gop_u(1)),1,
-     >           dcpl_mb(paw_Gop_d(1)),1)
+     >           dcpl_mb(paw_Gop_spin(1,1)),1,
+     >           dcpl_mb(paw_Gop_spin(1,2)),1)
       call paw_xc_pot_down_ptr(xc_ptr)
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(xc_ptr),1,
-     >           dcpl_mb(paw_Gop_d(1)),1)
+     >           dcpl_mb(paw_Gop_spin(1,2)),1)
       end if
 
       call paw_xc_pot_up_ptr(xc_ptr)
       call daxpy(2*paw_Gop_size,1.0d0,
      >           dcpl_mb(xc_ptr),1,
-     >           dcpl_mb(paw_Gop_u(1)),1)
+     >           dcpl_mb(paw_Gop_spin(1,1)),1)
 
 
 
 
       !**** paw_nl_coeff(alpha,ii) = Sum(ii,beta) Gop(alpha,beta,ii)*coeff(beta,ii) ****
+      n1(1) = 1
+      n2(1) = ne_u
+      n1(2) = ne_u+1
+      n2(2) = ne_u+ne_d
+
       nion = ion_nion()
       call paw_ovlp_coeff_ptr(coeff_ptr)
       call dcopy(2*paw_nl_coeff(3),0.0d0,0,
@@ -279,26 +292,17 @@
          do nlm1=1,nbasis
          if (tcount.eq.taskid) then
 
-           !*** up spin ***
-           do n=1,ne_u
+           !*** up and down spin ***
+           do ms=1,ispin
+           do n=n1(ms),n2(ms)
              indx  = (i_nbasis+nlm-1) *neall + (n-1)
              indx1 = (i_nbasis+nlm1-1)*neall + (n-1)
 
              dcpl_mb(paw_nl_coeff(1)+indx) 
      >           = dcpl_mb(paw_nl_coeff(1)+indx) 
-     >           + dcpl_mb(paw_Gop_u(1)+indx_m)
+     >           + dcpl_mb(paw_Gop_spin(1,ms)+indx_m)
      >            *dcpl_mb(coeff_ptr+indx1)
            end do
-
-           !*** up spin ***
-           do n=ne_u+1,ne_u+ne_d
-             indx  = (i_nbasis+nlm-1) *neall + (n-1)
-             indx1 = (i_nbasis+nlm1-1)*neall + (n-1)
-
-             dcpl_mb(paw_nl_coeff(1)+indx) 
-     >           = dcpl_mb(paw_nl_coeff(1)+indx) 
-     >           + dcpl_mb(paw_Gop_d(1)+indx_m)
-     >            *dcpl_mb(coeff_ptr+indx1)
            end do
 
 
@@ -500,7 +504,7 @@
       integer i
 
       do i=1,4
-      ptr(i) = paw_Gop_u(i)
+      ptr(i) = paw_Gop_spin(i,1)
       end do
       return
       end 
@@ -522,7 +526,7 @@
       integer i
 
       do i=1,4
-      ptr(i) = paw_Gop_d(i)
+      ptr(i) = paw_Gop_spin(i,2)
       end do
       return
       end 

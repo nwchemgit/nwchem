@@ -1,7 +1,16 @@
 *
-* $Id: paw_sd.F,v 1.78 2006-01-12 00:54:01 bylaska Exp $
+* $Id: paw_sd.F,v 1.79 2006-02-11 02:50:46 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.78  2006/01/12 00:54:01  bylaska
+* Added charge component analysis wavefunctions, i.e. the following is now outputed in the results section:
+*
+*  number of electrons: spin up=    8.00000  down=    6.00000 (real space)
+*      plane-wave part:             7.96734           6.02652 (real space)
+*       augmented part:             0.03266          -0.02652 (real space)
+*
+* ...EJB
+*
 * Revision 1.77  2006/01/07 00:55:33  marat
 * removing ma_auto_verify
 * added some comments to paw
@@ -547,7 +556,7 @@ c      call paw_vloc_init()
       call paw_nonlocal_init(ispin,ne)
       lmax = control_lmax_multipole()
       if (lmax.lt.0) lmax =  paw_basis_max_mult_l()
-      call init_paw_density(lmax)
+c      call init_paw_density(ispin,lmax)
       call init_paw_xc(ispin,lmax)
 
 
@@ -988,7 +997,7 @@ c      call paw_vloc_end()
       call end_paw_comp_charge_matrix()
       call end_paw_pot_comp()
       call end_paw_pot_hartree()
-      call paw_density_end()
+c      call paw_density_end()
       call paw_xc_end()
       if (control_move()) call paw_force_end()
       call paw_gaunt_end()

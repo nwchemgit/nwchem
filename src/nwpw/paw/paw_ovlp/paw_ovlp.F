@@ -1,5 +1,5 @@
 *
-* $Id: paw_ovlp.F,v 1.49 2004-07-29 15:55:37 bylaska Exp $
+* $Id: paw_ovlp.F,v 1.50 2006-02-11 02:50:48 bylaska Exp $
 *
 
 !**************************************************
@@ -75,10 +75,11 @@ c     !-- total number of electron states
      >                           "paw_ovlp_w",paw_ovlp_w)
 
       value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
-     >                           "paw_ovlp_w_u",paw_ovlp_w_u)
+     >                           "paw_ovlp_w_u",paw_ovlp_w_spin(1,1))
 
-      value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
-     >                           "paw_ovlp_w_d",paw_ovlp_w_d)
+      if (ispin.eq.2)
+     > value = value.and.my_alloc(mt_dcpl,paw_ovlp_w_size,
+     >                           "paw_ovlp_w_d",paw_ovlp_w_spin(1,2))
 
       if (.not.value) call errquit('paw_ovlp_init: alloc heap',0,1)
 
@@ -143,8 +144,9 @@ c           !-- set sign coeff as (-1)**m --
       value = value.and.MA_free_heap(indx2(2))
       value = value.and.MA_free_heap(sgn(2))
       value = value.and.MA_free_heap(paw_ovlp_w(2))
-      value = value.and.MA_free_heap(paw_ovlp_w_u(2))
-      value = value.and.MA_free_heap(paw_ovlp_w_d(2))
+      value = value.and.MA_free_heap(paw_ovlp_w_spin(2,1))
+      if (ispin.eq.2)
+     > value = value.and.MA_free_heap(paw_ovlp_w_spin(2,2))
       value = value.and.my_dealloc(i_paw_ovlp_w)
 
       if (.not.value) call errquit('paw_ovlp_end: dealloc heap',0,0)
@@ -266,16 +268,18 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
       integer i,j,mi,mj,li,lj
       integer i_w0,i_w
       integer nilm,njlm,niplm,njplm
+      integer n1(2),n2(2),ms
       real*8  occup
       double complex w_tmp
       
       
       call nwpw_timing_start(6)
       !*** check for restricted calculation ****
-      occup = 1.0d0
-      if (ispin.eq.1) then
-        occup = 2.0d0
-      end if
+c      occup = 1.0d0
+      n1(1) = 1
+      n2(1) = ne_u
+      n1(2) = ne_u+1
+      n2(2) = ne_u+ne_d
 
       ii = 0
       i_nbasis = 0
@@ -285,28 +289,20 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
         do nlm =1,nbasis
         do nlm1=1,nbasis
 
-           w_tmp = dcmplx(0.0d0,0.0d0)
-           do n=1,ne_u
-             indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
-             indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
-             w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(coeff(1)+indx_coeff1)
+           do ms=1,ispin
+             w_tmp = dcmplx(0.0d0,0.0d0)
+             do n=n1(ms),n2(ms)
+               indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
+               indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
+               w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))
+     >                         *dcpl_mb(coeff(1)+indx_coeff1)
+             end do
+             dcpl_mb(paw_ovlp_w_spin(1,ms)+ii) = w_tmp
            end do
-           dcpl_mb(paw_ovlp_w_u(1)+ii) = w_tmp*occup
 
-
-           !*** this loop is not computed when ispin=1 ***
-           w_tmp = dcmplx(0.0d0,0.0d0)
-           do n=ne_u+1,ne_d+ne_u
-             indx_coeff  = (i_nbasis+nlm-1)*neall + (n-1)
-             indx_coeff1 = (i_nbasis+nlm1-1)*neall + (n-1)
-             w_tmp = w_tmp + conjg(dcpl_mb(coeff(1)+indx_coeff))*
-     >        dcpl_mb(coeff(1)+indx_coeff1)
-           end do
-           dcpl_mb(paw_ovlp_w_d(1)+ii) = w_tmp
-
-           dcpl_mb(paw_ovlp_w(1)+ii) = dcpl_mb(paw_ovlp_w_u(1)+ii)+
-     >                                 dcpl_mb(paw_ovlp_w_d(1)+ii)      
+           dcpl_mb(paw_ovlp_w(1)+ii) 
+     >            = dcpl_mb(paw_ovlp_w_spin(1,1)+ii)
+     >            + dcpl_mb(paw_ovlp_w_spin(1,ispin)+ii)      
            
            ii =ii +1
         end do

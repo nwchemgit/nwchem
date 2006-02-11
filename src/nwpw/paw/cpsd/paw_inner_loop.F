@@ -1,8 +1,11 @@
 *
-* $Id: paw_inner_loop.F,v 1.41 2005-02-09 02:38:57 bylaska Exp $
+* $Id: paw_inner_loop.F,v 1.42 2006-02-11 02:50:46 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.41  2005/02/09 02:38:57  bylaska
+* ..............EJB
+*
 * Revision 1.40  2004/11/08 23:37:41  bylaska
 * Bug fix in pspw_hfx found by M. Hackler.
 * PBE0 has been implemented.
@@ -425,7 +428,7 @@
 *       *************************************************
 
 *       *** local portion ***
-        call paw_density_solve()
+c        call paw_density_solve()
         call paw_xc_solve()
         !call paw_xc_print()
         

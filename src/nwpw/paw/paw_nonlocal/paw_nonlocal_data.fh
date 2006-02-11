@@ -1,5 +1,5 @@
 c 
-c $Id: paw_nonlocal_data.fh,v 1.2 2003-02-26 23:50:39 bylaska Exp $
+c $Id: paw_nonlocal_data.fh,v 1.3 2006-02-11 02:50:48 bylaska Exp $
 c 
 
       !**** paw_nonlocal_data.fh common blocks ****
@@ -8,15 +8,14 @@ c
       integer    ne_d,ne_u,neall,ispin
 
       integer    i_paw_Gop(4)
-      integer    paw_Gop_u(4)  ! one-center atomic matrices
-      integer    paw_Gop_d(4)
+      integer    paw_Gop_spin(4,2)  ! one-center atomic matrices
       integer    paw_Gop_static(4)
       integer    paw_Gop_size
 
 
       common / paw_nl_data / paw_nl_coeff,
      >                      i_paw_Gop, 
-     >                      paw_Gop_u,paw_Gop_d,
+     >                      paw_Gop_spin,
      >                      paw_Gop_static,
      >                      total_nbasis,
      >                      paw_Gop_size,

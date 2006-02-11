@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis.F,v 1.30 2005-01-30 07:16:11 bylaska Exp $
+* $Id: paw_basis.F,v 1.31 2006-02-11 02:50:46 bylaska Exp $
 *
 
 !**************************************************
@@ -82,6 +82,7 @@ c      !*** external functions ***
      >                         dbl_mb(paw_basis_i_v_ps(it)),
      >                         fname)
 
+c        **** compute radial derivative of core densities ****
   
          log_amesh = LOG(dbl_mb(paw_basis_i_rmax(it))
      >                  /dbl_mb(paw_basis_i_r1(it)))
@@ -106,6 +107,19 @@ c       !***** determine max orbital moment for this kind of atom ****
          end do
          int_mb(paw_basis_i_mult_l(it)) = 2*mult_l
            
+c        **** compute radial derivative of core densities - needed for gga's****
+         call paw_basis_derivative_ngrid(
+     >            int_mb(paw_basis_i_ngrid(it)),
+     >            log_amesh,
+     >            dbl_mb(paw_basis_i_rgrid(it)),  
+     >            dbl_mb(paw_basis_i_core_density(it)),  
+     >            dbl_mb(paw_basis_i_core_density_prime(it)))
+         call paw_basis_derivative_ngrid(
+     >            int_mb(paw_basis_i_ngrid(it)),
+     >            log_amesh,
+     >            dbl_mb(paw_basis_i_rgrid(it)),  
+     >            dbl_mb(paw_basis_i_ps_core_density(it)),  
+     >            dbl_mb(paw_basis_i_ps_core_density_prime(it)))
       end do
 
 

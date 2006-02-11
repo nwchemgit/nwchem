@@ -1,29 +1,53 @@
-!$Id: paw_xc_work_data.fh,v 1.2 2003-02-19 01:02:04 marat Exp $
+!$Id: paw_xc_work_data.fh,v 1.3 2006-02-11 02:50:49 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.2  2003/02/19 01:02:04  marat
+!finished generation of exch-corr
+!tested only with l=0 with exchange only
+!
+!MV
+!
 !Revision 1.1  2003/02/17 22:03:36  marat
 !almost done
 !MV
 !
 
       integer paw_xc_work_size
+      integer paw_rho2_ae(4)
+      integer paw_rho2_ps(4)
+      integer paw_rho2_ae_prime(4)
+      integer paw_rho2_ps_prime(4)
       integer rho_ae(4)
       integer rho_ps(4)
+      integer rho_ae_prime(4)
+      integer rho_ps_prime(4)
+      integer agr_ae(4)
+      integer agr_ps(4)
       integer vxc_ae(4)
       integer vxc_ps(4)
+      integer fdn_ae(4)
+      integer fdn_ps(4)
       integer exc_ae(4)
       integer exc_ps(4)
       integer xc_temp(4)
       integer xc_c_temp(4)
-      integer xc_c_temp1(4)
 
       common /paw_xc_work_data/ paw_xc_work_size,
+     >                          paw_rho2_ae,  
+     >                          paw_rho2_ps,  
+     >                          paw_rho2_ae_prime,  
+     >                          paw_rho2_ps_prime,  
      >                          rho_ae,  
      >                          rho_ps,
+     >                          rho_ae_prime,  
+     >                          rho_ps_prime,
+     >                          agr_ae,
+     >                          agr_ps,
      >                          vxc_ae,
      >                          vxc_ps,
+     >                          fdn_ae,
+     >                          fdn_ps,
      >                          exc_ae,
      >                          exc_ps,
      >                          xc_c_temp,
-     >                          xc_c_temp1,
      >                          xc_temp

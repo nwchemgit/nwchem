@@ -1,17 +1,17 @@
 *
-* $Id: paw_vosko.F,v 1.4 2003-03-04 00:04:04 marat Exp $
+* $Id: paw_vosko.F,v 1.5 2006-02-11 02:50:49 bylaska Exp $
 *
 
-      subroutine paw_vosko(n2ft3d,ng,ispin,dn,xcp,xce,x)
+      subroutine paw_vosko(n2ft3d,ng,ispin,dn,xce,xcp,x)
       implicit double precision(a-h, o-z)
       implicit integer (i-n)
 
-      integer ng
       integer n2ft3d
+      integer ng
       integer ispin
       real*8 dn(n2ft3d,2)
-      real*8 xcp(n2ft3d,2)
       real*8 xce(n2ft3d,2)
+      real*8 xcp(n2ft3d,2)
       real*8 x(n2ft3d)
 
       parameter (one3rd=1.0d0/3.0d0,for3rd=4.0d0/3.0d0)
@@ -51,7 +51,7 @@
 *     square root of wigner radius
       do 100 k=1,ng
 c        rho=dn(k,1)+dn(k,ispin)+dncut
-        rho=dn(k,1)+dn(k,2)+dncut
+        rho=dn(k,1)+dn(k,ispin)+dncut
         x(k)=crs/rho**one6th
   100 continue
 

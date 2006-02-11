@@ -1,9 +1,11 @@
 c
-c $Id: paw_gaunt.fh,v 1.1 2003-02-20 00:48:48 marat Exp $
+c $Id: paw_gaunt.fh,v 1.2 2006-02-11 02:50:47 bylaska Exp $
 c
 c $Log: not supported by cvs2svn $
+c Revision 1.1  2003/02/20 00:48:48  marat
+c ...
 c
-
-      double precision gen_gaunt_coeff
-      external gen_gaunt_coeff
+c
+      double precision gen_gaunt_coeff,gen_gaunt2_coeff,gen_gaunt3_coeff
+      external         gen_gaunt_coeff,gen_gaunt2_coeff,gen_gaunt3_coeff
 

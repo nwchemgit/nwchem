@@ -1,5 +1,5 @@
 *
-* $Id: paw_basis_data.fh,v 1.9 2005-01-30 07:16:16 bylaska Exp $
+* $Id: paw_basis_data.fh,v 1.10 2006-02-11 02:50:47 bylaska Exp $
 *
 
       integer tot_ntype
@@ -33,6 +33,8 @@
       integer prj_ps(4)
       integer core_density(4)
       integer ps_core_density(4)
+      integer core_density_prime(4)
+      integer ps_core_density_prime(4)
       integer v_ps(4)
       integer prj_ps0(4)
       integer rgrid(4)
@@ -75,6 +77,8 @@
      >                      prj_ps,
      >                      core_density,
      >                      ps_core_density,
+     >                      core_density_prime,
+     >                      ps_core_density_prime,
      >                      v_ps,
      >                      prj_ps0,
      >                      rgrid
