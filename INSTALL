@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.76 2005-08-17 15:18:31 edo Exp $
+$Id: INSTALL,v 1.77 2006-02-11 00:37:56 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -574,7 +574,15 @@ OPTIMIZATION TIPS:
    nwchem uses 64-bit integers (i.e. integer*8) on 64-bit platforms,
    most of the vendors optimized BLAS libraries used 32-bit integers.
    BLAS libraries not supporting 64-bit integers: 
-   CXML (DECOSF), ESSL (LAPI64), MKL (LINUX64/ia64), ACML(LINUX64/x86_64).
+   CXML (DECOSF), ESSL (LAPI64), MKL (LINUX64/ia64), ACML(LINUX64/x86_64),
+   Goto/Flame(LINUX64).
+   A methods is now available to link against the libraries mentioned above;
+   please do the following:
+   1) cd $NWCHEM_TOP/src
+   2) make clean
+   3) make 64_to_32                     
+   4) make USE_64TO32=y BLASOPT=" optimized BLAS"
+     e.g. for IBM64: make  USE_64TO32=y BLASOPT="-lessl -lmass"
 
    If you are interested in "tweaking" compile options, the 
    appropriate place to do this is the $NWCHEM_TOP/config/makefile.h
@@ -745,7 +753,8 @@ IB_INCLUDE=$IB_HOME/include
 IB_LIB=$IB_HOME/lib
 ARMCI_NETWORK=MELLANOX
 MPI_LOC="location of MVAPICH software"
-MPI_LIB=$MPI_LOC/lib
+MPI_LIB=$MPI_LOC/lib (x86 HW)
+MPI_LIB=$MPI_LOC/lib64 (x86_64 HW)
 MPI_INCLUDE=$MPI_LOC/include
 LIBMPI=-lmpich             
 
