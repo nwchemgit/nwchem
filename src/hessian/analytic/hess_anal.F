@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.23 2003-10-17 22:55:13 carlfahl Exp $
+C $Id: hess_anal.F,v 1.24 2006-02-13 23:27:38 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -98,9 +98,20 @@ c
       if (.not. rtdb_get(rtdb,'hessian:restart',mt_int,1,restr))
      *  restr = 0
 c
+c  Get theory type
+c
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('hess_init: theory not specified',555, RTDB_ERR)
+      if (theory.eq.'hyb') theory = 'dft'
+      if (theory.eq.'scf') theory = 'hf'
+c
 c  Check to make sure that the energy and wavefunction are calculated
 c
-      if (restr.lt.1) then
+      if (restr.lt.1.or.theory.eq.'dft') then
+c
+c     disabled restart when using DFT
+c
+         if(theory.eq.'dft') restr=0
         if(.not.task_energy(rtdb)) call errquit 
      *    ('hess_anal: energy failure', 555, CALC_ERR)
         if (oprint) write(LuOut,*) 'HESS: after the task_energy call'
