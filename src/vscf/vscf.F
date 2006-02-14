@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.7 2006-02-03 17:44:47 bert Exp $
+c $Id: vscf.F,v 1.8 2006-02-14 00:14:14 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -564,7 +564,8 @@ c
             if (.not. rtdb_cget(rtdb,'dft:output vectors',1,vectors_in))
      &         call errquit('vgrid: rtdb_cget dft:output failed', 100,
      &                       RTDB_ERR)
-         elseif (theory.eq.'scf') then
+         else
+            print*,'scf vectors'
             if (.not. rtdb_cget(rtdb,'scf:output vectors',1,vectors_in))
      &          call errquit('vgrid: rtdb_cget scf:output failed', 100,
      &                        RTDB_ERR)
@@ -2150,12 +2151,11 @@ c
 c
 c     const = 8*pi^3*Navogadro*(E-18)^2*E-5/(3*h*c) in CGS
 c
-      if (ga_nodeid().eq.0) write(LuOut,*) 
-      if (ga_nodeid().eq.0) write(LuOut,*) 
-     * " IR INTENSITIES CALCULATED USING DIPOLE MOMENT:" 
-c
-      if (ga_nodeid().eq.0) write(LuOut,*) 
-     *   " mode   frequency, cm-1  intensity, km/mol" 
+      if (ga_nodeid().eq.0) then
+        write(LuOut,*)
+        write(LuOut,*) " IR INTENSITIES CALCULATED USING DIPOLE MOMENT:"
+        write(LuOut,*) " mode   frequency, cm-1  intensity, km/mol" 
+      endif
 c
 c     Note: dipole assumed to be in debeye
 c
@@ -2177,6 +2177,11 @@ c
      *     write(LuOut,9000) j, frmp2(j)*cm, sIntscf(j)
       end do
 c
+      if (ga_nodeid().eq.0) then
+         write(LuOut,*) 
+         write(LuOut,*) 
+     *   " (Note: SCF dipole moments used to calculate intensities)"
+      endif
       return
 c
  9000 format (2x,i2,5x,f10.2,4x,f10.2)
