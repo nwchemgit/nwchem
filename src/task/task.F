@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.76 2006-02-14 19:07:13 marat Exp $
+* $Id: task.F,v 1.77 2006-02-14 19:14:48 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -258,7 +258,7 @@ c
          else
            status = task_dynamics(rtdb)
          endif
-      else if(inp_compare(.false.,'thermodynamics',operation)) then
+      else if(inp_compare(.false.,'fep',operation)) then
          if(oqmmm) then
            status = task_qmmm_fep(rtdb)
          else

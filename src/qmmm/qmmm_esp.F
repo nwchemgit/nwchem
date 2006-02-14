@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.21 2006-02-14 19:02:03 marat Exp $
+c $Id: qmmm_esp.F,v 1.22 2006-02-14 19:11:30 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -432,7 +432,7 @@ c     ------------------------
         if (.not. rtdb_put(rtdb,'qmmm:esp',
      >                     mt_dbl,nfg,dbl_mb(i_q_qm)))
      &      call errquit(pname//'qmmm:esp',911,RTDB_ERR)
-        call util_flash(luout)
+        call util_flush(luout)
       end if
       ignore = rtdb_parallel(.true.)
       call ga_sync()
@@ -930,7 +930,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.21 2006-02-14 19:02:03 marat Exp $
+* $Id: qmmm_esp.F,v 1.22 2006-02-14 19:11:30 marat Exp $
 *
       implicit none
 #include "errquit.fh"
