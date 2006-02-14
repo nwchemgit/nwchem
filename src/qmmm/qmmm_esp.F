@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.20 2006-02-09 18:55:33 marat Exp $
+c $Id: qmmm_esp.F,v 1.21 2006-02-14 19:02:03 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -312,6 +312,139 @@ c
       if(qmmm_print_debug()) write(luout,*) "out "//pname
 
       qmmm_esp_load = .true.
+
+      return
+
+ 134  call errquit(pname//'error reading espfile',0, 0)
+      
+
+      end
+
+      function qmmm_esp_load_mix(rtdb,lambda)
+c     reads esp charges from external file located
+c     in perm directory
+c     generates fatal error if file not found
+c     or if there are read errors
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "inp.fh"
+c
+      integer rtdb
+      double precision lambda
+      logical qmmm_esp_load_mix
+c
+      character*32 pname
+      character*255 espfile
+      character*255 prefix
+      integer lespfile
+      integer i
+      logical ignore
+      integer i_q_qm,h_q_qm
+      integer i_q_qm0,h_q_qm0
+      integer nfg
+      integer i_ifg
+      integer itmp
+      logical status
+      logical ofile
+      logical oprint
+c
+      pname = "qmmm_esp_load"
+c
+      if(qmmm_print_debug()) write(luout,*) "in "//pname
+c
+      oprint = ga_nodeid().eq.0
+      qmmm_esp_load_mix = .false.
+c
+      if(.not.qmmm_get_io_unit(lespfile))
+     >    call errquit(pname//"no free file unit",0,0)
+
+c     
+c     construct espfilename
+c     ----------------------
+      if(.not.rtdb_cget(rtdb,"qmmm:espfilename",1,espfile)) then
+        call mm_restart_filename(prefix)
+        i = index(prefix,".rst")-1
+        espfile = prefix(1:i)//".esp"
+        call util_file_name_resolve(espfile,.false.)
+      end if
+      call util_file_name_resolve(espfile,.false.)
+c     
+c     aborting if no espfile
+c     ----------------------
+      if(ga_nodeid().eq.0) then
+        inquire(file=espfile,exist=ofile)
+        if(.not.ofile) 
+     >   call errquit(pname//'espfile not found'//espfile,0,0)
+      end if
+c
+c     number of esp charges = full geometry
+c     -------------------------------------
+      nfg = qmmm_geom_get_nfg()
+      i_ifg = qmmm_geom_get_i_ifg()
+c
+      if(.not.ma_push_get(mt_dbl,nfg,'q_qm',h_q_qm,i_q_qm))
+     + call errquit(pname//'Failed to qmocate memory for q_qm',
+     + nfg, MA_ERR)
+c
+      if(.not.ma_push_get(mt_dbl,nfg,'q_qm0',h_q_qm0,i_q_qm0))
+     + call errquit(pname//'Failed to qmocate memory for q_qm0',
+     + nfg, MA_ERR)
+ 
+c
+      if(oprint) 
+     >  write(luout,*) "loading esp charges from external file"
+      if(ofile.and.ga_nodeid().eq.0) then
+        open(unit=lespfile,file=espfile,
+     >       form='formatted',status='unknown')
+        do  i=1,nfg
+          read(lespfile,*,err=134,end=134) itmp,
+     >                           dbl_mb(i_q_qm+i-1)
+          if(itmp.ne.int_mb(i_ifg+i-1))
+     >      call errquit(pname//'global index mismatch',0,0)
+          if(oprint)
+     >      write(luout,*) itmp,dbl_mb(i_q_qm+i-1)
+        end do
+        close(unit=lespfile)
+      end if
+c
+c     push esp charges to rtdb
+c     ------------------------
+      ignore = rtdb_parallel(.false.)
+      if(ga_nodeid().eq.0) then
+        if(oprint) 
+     >    write(luout,*) "scaling esp charges"
+        if (.not. rtdb_get(rtdb,'qmmm:esp',
+     >                     mt_dbl,nfg,dbl_mb(i_q_qm0)))
+     &      call errquit(pname//'qmmm:esp',911,RTDB_ERR)
+        do i=1,nfg
+          dbl_mb(i_q_qm+i-1)=dbl_mb(i_q_qm0+i-1)+lambda*
+     >                       (dbl_mb(i_q_qm+i-1)-dbl_mb(i_q_qm0+i-1))
+          if(oprint)
+     >      write(luout,*) dbl_mb(i_q_qm+i-1)
+        end do
+        if (.not. rtdb_put(rtdb,'qmmm:esp',
+     >                     mt_dbl,nfg,dbl_mb(i_q_qm)))
+     &      call errquit(pname//'qmmm:esp',911,RTDB_ERR)
+        call util_flash(luout)
+      end if
+      ignore = rtdb_parallel(.true.)
+      call ga_sync()
+c
+      if (.not.ma_pop_stack(h_q_qm0)) call errquit
+     &   (pname//'ma_pop_stack failed',911,MA_ERR)
+      if (.not.ma_pop_stack(h_q_qm)) call errquit
+     &   (pname//'ma_pop_stack failed',911,MA_ERR)
+
+      if(qmmm_print_debug()) write(luout,*) "out "//pname
+
+      qmmm_esp_load_mix = .true.
 
       return
 
@@ -797,7 +930,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.20 2006-02-09 18:55:33 marat Exp $
+* $Id: qmmm_esp.F,v 1.21 2006-02-14 19:02:03 marat Exp $
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.86 2006-02-14 01:08:56 marat Exp $
+c $Id: mm_interface.F,v 1.87 2006-02-14 19:02:03 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -3417,6 +3417,188 @@ c     mm local variables
       end do
 
       if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_mix_solute_coord(nt,
+     >                       lambda,
+     >                       ai,
+     >                       c)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer nt
+      double precision lambda
+      integer ai(nt)
+      double precision c(3,nt)
+
+      double precision x0,x1,x2
+      integer i,j,k
+
+c     mm local variables
+      integer msa
+      integer nsa
+      integer psl
+      integer pxs
+      character*32 pname
+      pname = "mm_set_solute_coord"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_msa(msa)
+      call mm_get_nsaloc(nsa)
+      call mm_get_psl(psl)
+      call mm_get_pxs(pxs)
+
+      do i=1,nsa
+         do j=1,nt
+           if(int_mb(psl+i-1).eq.ai(j)) then
+              do k=1,3
+                x0 = dbl_mb(pxs+(i-1)+(k-1)*msa)
+                x1 = c(k,j)/cnm2au
+                x2=(x1-x0)*lambda+x0
+                dbl_mb(pxs+(i-1)+(k-1)*msa)=x2
+              end do
+           end if
+         end do
+      end do
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_mix_solute_coord_file(aname,lambda)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "msgids.fh"
+#include "qmmm.fh"
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      character*(*) aname    
+      double precision lambda
+c     local variables
+      integer ns
+      integer i
+      integer k
+      logical title
+
+
+      integer i_itmp,h_itmp
+      integer i_ctmp,h_ctmp
+      character*32 pname
+      character*30 buf
+      character*255 filename, dir
+
+      integer fn
+      logical master
+
+      pname = "mm_set_solute_coord_file"
+      master = qmmm_master()
+
+      filename = aname(1:inp_strlen(aname))
+      call util_print_centered(luout,
+     + "Loading external geometry from "//
+     +   filename,40,.true.)
+      dir      = ' '
+      call util_directory_name(dir, .false., 0)
+      filename = ' '
+      write(filename,13) dir(1:inp_strlen(dir)), 
+     $     aname(1:inp_strlen(aname))
+ 13      format(a,'/',a)
+      if(master) then  
+        if(.not.qmmm_get_io_unit(fn)) 
+     >       call errquit("cannot get file number",0,0)
+c
+        open(fn,file=filename,form='formatted',status='old',
+     $          err=133)
+      end if
+      
+c     get number of atoms
+      if(master) then
+         read(fn,*) ns
+      else
+         ns = 0
+      end if
+
+
+      call ga_igop(msg_qmmm_nqm,ns,1,'+')
+      call ga_sync()
+
+      if(.not.ma_push_get(mt_int,ns,'itmp',h_itmp,i_itmp))
+     + call errquit( pname//'Failed to allocate memory for itmp',
+     + ns, MA_ERR)
+      call ifill(ns,0,int_mb(i_itmp),1)
+
+      if(.not.ma_push_get(mt_dbl,3*ns,'ctmp',h_ctmp,i_ctmp))
+     + call errquit( pname//'Failed to allocate memory for ctmp',
+     + 3*ns, MA_ERR)
+      call dfill(3*ns,0.0d0,dbl_mb(i_ctmp),1)
+
+c
+c     read the coords and global index
+c     --------------------------------
+      if(master) then
+c     testing for the presence of the title
+        rewind(fn)
+        title =.false.
+        do i=1,ns+2
+          read(fn,*,end=1) buf
+        end do
+        title = .true.
+1       continue
+c       title or not read coordinates now
+        rewind(fn) 
+        read(fn,*) buf
+        if(title) 
+     +     read(fn,*) buf
+
+        do i=1,ns
+         read(fn,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+     +               int_mb(i_itmp+i-1)
+         write(luout,*) buf, (dbl_mb(i_ctmp+3*(i-1)+k-1),k=1,3),
+     +               int_mb(i_itmp+i-1)
+
+        end do
+        close(fn)
+        do i=1,3*ns
+          dbl_mb(i_ctmp+i-1) = dbl_mb(i_ctmp+i-1)/cau2ang
+        end do
+      end if
+c
+      call ga_igop(msg_qmmm_ind,int_mb(i_itmp),ns,'+')
+      call ga_dgop(msg_qmmm_c1,dbl_mb(i_ctmp),3*ns,'+')
+c
+      call ga_sync
+c
+      call mm_mix_solute_coord(ns,
+     >                         lambda,
+     >                         int_mb(i_itmp),
+     >                         dbl_mb(i_ctmp))
+
+c
+      if(.not.ma_pop_stack(h_ctmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack c_tmp',ns,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_itmp))
+     & call errquit('qmmm: 
+     >              Failed to deallocate stack i_itmp',ns,
+     &       MA_ERR)
+
+      return
+
+ 133  call errquit(pname//'error opening/closing xyz file',0, GEOM_ERR)
+
       end
 
       subroutine mm_set_solute_coord_file(aname)
