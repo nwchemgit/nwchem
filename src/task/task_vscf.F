@@ -1,5 +1,5 @@
 *
-* $Id: task_vscf.F,v 1.4 2006-02-03 02:48:03 bert Exp $
+* $Id: task_vscf.F,v 1.5 2006-02-14 00:14:49 bert Exp $
 *
       logical function task_vscf(rtdb)
 c     
@@ -41,16 +41,6 @@ c  set up a couple of variables that I will eventually let be user controlled
 c
       dmdr = .false.
 c    
-      if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-     +   call errquit('task_vscf: no input for theory?',0, RTDB_ERR)
-      if (.not.(inp_compare(.false.,theory,'scf').or.
-     &          inp_compare(.false.,theory,'dft'))) then
-         if (ga_nodeid().eq.0) write(LuOut,*) 
-     &         'Vibrational SCF is only implemented for SCF and DFT !'
-         task_vscf=.false.
-         return
-      endif
-c
       call ecce_print_module_entry('task vscf')
       cpu  = util_cpusec()
       wall = util_wallsec()
