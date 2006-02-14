@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.30 2006-02-09 18:36:18 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.31 2006-02-14 19:09:49 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -601,8 +601,6 @@ c
      $     call errquit('qmmm ti: failed ', 0, RTDB_ERR)
 c
       nfra = 0
-
-
       tsum = 0.0d0
       fsum = 0.0d0
       offset = trn(1)
@@ -611,8 +609,14 @@ c
      >      call errquit(pname//'failed to get skip frames',
      >                   0,0)
         nfra = nfra + 1
+c
+c       get current simulation temperature and time
+c       -------------------------------------------
         call mm_get_temp(dbl_mb(i_t+nfra-1))
         call mm_get_stime(stime)
+c
+c       ENERGY AT THE REFERENCE CONFIGURATION
+c       -------------------------------------
         call md_sp()
         task_qmmm_energy_ti = qmmm_energy_gradient(rtdb,.false.)
         call qmmm_energy_rtdb_push(rtdb)
@@ -621,12 +625,15 @@ c
      >      mt_dbl,1,dbl_mb(i_e1+nfra-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
+c
+c       ENERGY AT THE TARGET CONFIGURATION
+c       ----------------------------------
         if(ti_geom)  
      >    call mm_set_solute_coord_file(geom_file)
         if(ti_esp) then
-        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file))
-     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
-        call qmmm_esp_reset(rtdb)
+          if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file))
+     >        call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+          call qmmm_esp_reset(rtdb)
         end if
 
         call md_sp()
@@ -637,6 +644,11 @@ c
      >      mt_dbl,1,dbl_mb(i_e2+nfra-1)))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
         call ga_sync()
+c
+        ignore = rtdb_delete(rtdb,"qmmm:espfilename")
+        call qmmm_esp_reset(rtdb)
+        offset = trn(3)
+c
         if(master) write(*,'(A,I4,4F12.6)') 
      >      "ti:",
      >      nfra,
@@ -646,25 +658,21 @@ c
      >      dbl_mb(i_e2+nfra-1)
 
         if(master) call util_flush(6)
-        ignore = rtdb_delete(rtdb,"qmmm:espfilename")
-        call qmmm_esp_reset(rtdb)
-        offset = trn(3)
-        tsum = tsum + dbl_mb(i_t+i-1)
+        tsum = tsum + dbl_mb(i_t+nfra-1)
         fsum = fsum + exp
      >                (
      >       627.51*(
-     >       dbl_mb(i_e1+i-1)-
-     >       dbl_mb(i_e2+i-1)
+     >       dbl_mb(i_e1+nfra-1)-
+     >       dbl_mb(i_e2+nfra-1)
      >       )
-     >       /(kb*dbl_mb(i_t+i-1))
+     >       /(kb*dbl_mb(i_t+nfra-1))
      >                )
         de = -kb*(tsum/nfra)*log(fsum/nfra)
         if(master) then
-          write(*,*) "current free energy difference",de
+          write(*,*) "current free energy difference",de,nfra,tsum,fsum
         end if
 
       end do
- 23   continue
 c
       taver = 0.0d0
       do i=1,nfra
@@ -1227,7 +1235,7 @@ c
       end
 
       function task_qmmm_energy_pes0(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.30 2006-02-09 18:36:18 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.31 2006-02-14 19:09:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1476,7 +1484,7 @@ c       end load restart
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.30 2006-02-09 18:36:18 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.31 2006-02-14 19:09:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
