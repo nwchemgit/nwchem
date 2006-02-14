@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.45 2006-01-26 22:41:56 marat Exp $
+* $Id: task_input.F,v 1.46 2006-02-14 01:09:43 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -185,6 +185,7 @@ c
      >      theory.ne.'dplot' .and.
      >      theory.ne.'esp' .and.
      >      operation.ne.'optimize' .and.
+     >      operation.ne.'thermodynamics' .and.
      >      operation.ne.'neb' .and.
      >      operation.ne.'saddle' .and.
      >      operation.ne.'frequencies' .and.
