@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.85 2006-01-22 07:04:32 marat Exp $
+c $Id: mm_interface.F,v 1.86 2006-02-14 01:08:56 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -68,7 +68,6 @@ c
 c
       return
       end
-
 
       subroutine mm_reload_rst(irtdb0,filename)
 c     convenience routine to load
@@ -190,6 +189,18 @@ c
       filename = filrst
       end
 
+      subroutine mm_trajectory_filename(filename)
+      implicit none
+c
+#include "util.fh"
+#include "md_common.fh"
+#include "inp.fh"
+c
+      character*(*) filename
+
+      filename = filtrj
+      end
+
       subroutine mm_system_prefix(prefix)
       implicit none
 c
@@ -255,6 +266,14 @@ c
       call md_wrtrst(lfnqrs,filqrs,.false.)
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      subroutine mm_rewind_trajectory()
+      implicit none
+#include "md_common.fh"
+#include "qmmm.fh"
+      rewind(lfntrj)
       return
       end
 

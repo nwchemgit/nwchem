@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.66 2005-12-19 21:16:47 marat Exp $
+c $Id: qmmm.F,v 1.67 2006-02-14 01:08:56 marat Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -60,6 +60,7 @@ c
       character*32 pname
       character*32 theory
       character*30 operation
+      character*30 operation0
       logical aux_geom
       logical oprint
 c
@@ -79,6 +80,18 @@ c
     
       qmmm_init = .true.
 
+      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
+     $     operation = 'energy'
+
+      if(operation.eq."thermodynamics") then
+        operation0 = "dynamics" 
+      else
+        operation0=operation
+      end if
+
+      if (.not. rtdb_cput(irtdb, 'task:operation', 1, operation0))
+     $    call errquit(pname,0, RTDB_ERR)
+
       call qmmm_data_rdinp(irtdb)
 c     initialize mm part
 c     (note it will also want operation)
@@ -92,8 +105,6 @@ c     --------------------------------------------
 
       call qmmm_bq_data_init(irtdb)
 
-      if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
-     $     operation = 'energy'
 
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('task: no task input for theory?',0, RTDB_ERR)
@@ -129,6 +140,8 @@ c     --------------------------------------------
       if (.not. rtdb_put(irtdb,'qmmm:init',mt_log,1,.true.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
+      if (.not. rtdb_cput(irtdb, 'task:operation', 1, operation))
+     $    call errquit(pname,0, RTDB_ERR)
 
       if(oprint) 
      >  write(*,*) "out "//pname

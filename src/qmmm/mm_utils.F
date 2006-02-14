@@ -52,6 +52,26 @@
 
        end
 
+       subroutine mm_get_nfc(nf,nfs)
+         implicit none
+#include "md_common.fh"
+         integer nf,nfs
+         
+         nf  = nfcoor
+         nfs = nfscoo
+
+       end
+
+       subroutine mm_set_nfc(nf,nfs)
+         implicit none
+#include "md_common.fh"
+         integer nf,nfs
+         
+         nfcoor = nf
+         nfscoo = nfs
+
+       end
+
        subroutine mm_get_msa(msa0)
          implicit none
 #include "md_common.fh"
