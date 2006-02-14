@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.77 2006-02-11 00:37:56 edo Exp $
+$Id: INSTALL,v 1.78 2006-02-14 18:59:22 edo Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -581,7 +581,7 @@ OPTIMIZATION TIPS:
    1) cd $NWCHEM_TOP/src
    2) make clean
    3) make 64_to_32                     
-   4) make USE_64TO32=y BLASOPT=" optimized BLAS"
+   4) make USE_64TO32=y HAS_BLAS=yes BLASOPT=" optimized BLAS"
      e.g. for IBM64: make  USE_64TO32=y BLASOPT="-lessl -lmass"
 
    If you are interested in "tweaking" compile options, the 
