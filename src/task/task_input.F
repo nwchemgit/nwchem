@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.46 2006-02-14 01:09:43 marat Exp $
+* $Id: task_input.F,v 1.47 2006-02-14 19:07:13 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -41,6 +41,8 @@ c
  10   if (inp_a(test)) then
          if (inp_compare(.false.,test,'energy')) then
             operation = 'energy'
+         else if (inp_compare(.false.,test,'fep')) then
+            operation = 'fep'
          else if (inp_compare(.false.,test,'property')) then
             operation = 'property'
          else if (inp_compare(.false.,test,'optimize')) then
@@ -185,7 +187,7 @@ c
      >      theory.ne.'dplot' .and.
      >      theory.ne.'esp' .and.
      >      operation.ne.'optimize' .and.
-     >      operation.ne.'thermodynamics' .and.
+     >      operation.ne.'fep' .and.
      >      operation.ne.'neb' .and.
      >      operation.ne.'saddle' .and.
      >      operation.ne.'frequencies' .and.
