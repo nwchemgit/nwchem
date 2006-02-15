@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.1 2006-02-14 19:02:03 marat Exp $
+c $Id: task_qmmm_fep.F,v 1.2 2006-02-15 01:25:02 marat Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -28,23 +28,76 @@ c     external functions
       integer in,ncycles
       integer nf,nfs
       logical master
+      character*255 filegeom(2)
+      character*255 fileesp(2)
+      character*255 esp_in(2)
+      character*255 geom_in(2)
+      double precision lambda(2)
+      logical oesp,ogeom
 
       pname = "task_qmmm_fep"
+      master = ga_nodeid().eq.0
       if(qmmm_print_debug()) 
      $  write(*,*) "in "//pname
 c
+      oesp  = .true.
+      ogeom = .true.
+      esp_in(1) =" "
+      esp_in(2) =" "
+      geom_in(1)=" "
+      geom_in(2)=" "
+cc
       if (.not. rtdb_cput(rtdb, 'task:operation', 1, "dynamics"))
      $    call errquit(pname,0, RTDB_ERR)
+c
+      if (.not. rtdb_cget(rtdb, 'qmmm:fep_esp', 2, fileesp))
+     $    oesp = .false.
+c
+      if (.not. rtdb_cget(rtdb, 'qmmm:fep_geom', 2, filegeom))
+     $    ogeom=.false.
+c
+      if((.not.oesp).and.(.not.ogeom))
+     > call errquit(pname//"need esp or geometry files ",0, RTDB_ERR)
+c
+      call mm_system_prefix(prefix)
+c
+      if (.not.rtdb_get(rtdb,'qmmm:fep_lambda',mt_dbl,2,lambda)) then
+         lambda(1) = 0.0d0
+         lambda(2) = 1.0d0
+      end if
+c
+      if(oesp) then
+       esp_in(1)=prefix(1:inp_strlen(prefix))//"-a.esp"
+       esp_in(2)=prefix(1:inp_strlen(prefix))//"-b.esp"
+       if(master) then
+         call qmmm_interp_esp_file(fileesp(1),fileesp(2),
+     >                              esp_in(1),lambda(1))
+         call qmmm_interp_esp_file(fileesp(1),fileesp(2),
+     >                              esp_in(2),lambda(2))
+       end if
+      end if
+
+      if(ogeom) then
+       geom_in(1)=prefix(1:inp_strlen(prefix))//"-a.xyzi"
+       geom_in(2)=prefix(1:inp_strlen(prefix))//"-b.xyzi"
+       if(master) then
+         call qmmm_interp_xyzi_file(filegeom(1),filegeom(2),
+     >                              geom_in(1),lambda(1))
+
+         call qmmm_interp_xyzi_file(filegeom(1),filegeom(2),
+     >                              geom_in(2),lambda(2))
+       end if
+      end if
+c
+      call ga_sync()
 c
       if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
      +  ncycles = 1
 c
-      master = ga_nodeid().eq.0
 c
 c     trajectory filename
 c     -------------------
       call mm_trajectory_filename(filetrj)
-c      filetrj=prefix(1:inp_strlen(prefix))//".trj"
       
       call mm_get_nfc(nf,nfs)
       do in=1,ncycles
@@ -52,32 +105,28 @@ c
 c
 c       First we do dynamics to generate trajectory
 c       -------------------------------------------
+        if(ogeom)  
+     >    call mm_set_solute_coord_file(geom_in(1))
         ostatus = qmmm_dynamics(rtdb)
 c
         if (.not.rtdb_cput(rtdb,"qmmm:trajectory_file",1,filetrj)) 
      >        call errquit(pname//'failed to put trajectory filename',0,
      >         RTDB_ERR)
 c
-        if(master)
-     >  call util_file_copy(filetrj,"tmp.trj")
-        call ga_sync()
-
         call mm_set_nfc(0,0)
-        ostatus = qmmm_fep(rtdb)     
+        ostatus = qmmm_fep(rtdb,geom_in(2),esp_in(2),filetrj)     
         call mm_set_nfc(nf,nfs)
         if (.not.rtdb_put(rtdb,"qmmm:extend",mt_log,1,.true.)) 
      >      call errquit(pname,0, RTDB_ERR)
         call mm_end()
         call mm_init(rtdb)
-c        if(master) 
-c     >   call mm_rewind_trajectory()
       end do
 c
       return
 
       end
 c
-      function qmmm_fep(rtdb)
+      function qmmm_fep(rtdb,geom_file,esp_file,filetrj)
       implicit none
 c
 #include "rtdb.fh"
@@ -90,6 +139,9 @@ c
 #include "global.fh"
 c
       integer rtdb
+      character*(*) geom_file
+      character*(*) esp_file
+      character*(*) filetrj
       logical qmmm_fep
 c     external functions
       logical qmmm_energy_gradient
@@ -99,15 +151,12 @@ c     local variables
       double precision stime
       integer i
       logical ignore
-      character*255 filetrj
       character*255 filename
       character*255 buf
       integer fn_trj,fn
       integer trn(3)
       integer in,nf,nf0
       character*30 pname
-      character*255 geom_file
-      character*255 esp_file
       character*255 buffer
       character*3  ftype
       logical master
@@ -142,30 +191,6 @@ c     ---------------
       call mm_system_prefix(buffer)
       filename=buffer(1:inp_strlen(buffer))//".thm"
 c
-      if (.not.rtdb_cget(rtdb,"qmmm:trajectory_file",1,filetrj)) 
-     >      call errquit(pname//'failed to get trajectory filetrj',0,
-     >       RTDB_ERR)
-c
-      if(index(filetrj,".xyzi").ne.0) then
-        ftype = "xyz"
-      else if(index(filetrj,".trj").ne.0) then
-        ftype = "trj"
-      else if(index(filetrj,".tri").ne.0) then
-        ftype = "trj"
-      else
-        call errquit(pname//" unknown trajectory format "//
-     >               filetrj,0,0)
-      end if
-c
-c     convert xyz trajectory into mm trajectory
-c     -----------------------------------------
-      if(ftype.eq."xyz") then
-        i = index(filetrj,".xyzi")
-        buf = filetrj
-        filetrj = buf(1:i)//"tri"
-        call mm_create_trj_from_xyz(buf,filetrj)
-      end if
-c
       if(master) then
         if(.not.qmmm_get_io_unit(fn_trj)) 
      >   call errquit("cannot get file number",0,0)
@@ -187,13 +212,9 @@ c
       if (.not.rtdb_get(rtdb,"qmmm:extend",mt_log,1,oextend)) 
      >      oextend = .false.
 c
-      ti_geom = .true.
-      if (.not.rtdb_cget(rtdb,"qmmm:ti_geom_file",1,geom_file)) 
-     >       ti_geom=.false.
+      ti_geom = geom_file.ne." "
 
-      ti_esp  = .true.
-      if (.not.rtdb_cget(rtdb,"qmmm:ti_esp_file",1,esp_file)) 
-     >    ti_esp = .false.
+      ti_esp  = esp_file.ne." "
 
       if( (.not.ti_geom).and.(.not.ti_esp))  
      > call errquit(pname//'neither esp or geom file was specified',0,0)
@@ -262,11 +283,11 @@ c
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
         if(ti_geom)  
-     >    call mm_mix_solute_coord_file(geom_file,lambda)
+     >    call mm_set_solute_coord_file(geom_file)
         if(ti_esp) then
         if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file))
      >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
-        call qmmm_esp_load_mix(rtdb,lambda)
+        call qmmm_esp_reset(rtdb)
         end if
 
         call md_sp()
@@ -340,7 +361,7 @@ c
       if(master) call util_flush(6)
       return
  998  continue
-      call errquit('Failed to open trajectory file '//filetrj,0,0)
+      call errquit('Failed to open trajectory file ',0,0)
 
  999  continue
       call errquit('Failed to open fep file '//filename,0,0)

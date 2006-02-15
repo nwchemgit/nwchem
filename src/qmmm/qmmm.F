@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.67 2006-02-14 01:08:56 marat Exp $
+c $Id: qmmm.F,v 1.68 2006-02-15 01:25:02 marat Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -83,7 +83,7 @@ c
       if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
 
-      if(operation.eq."thermodynamics") then
+      if(operation.eq."fep") then
         operation0 = "dynamics" 
       else
         operation0=operation
