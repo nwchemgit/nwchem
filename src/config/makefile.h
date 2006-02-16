@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.515 2006-01-19 01:51:34 edo Exp $
+# $Id: makefile.h,v 1.516 2006-02-16 00:18:44 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -2020,6 +2020,10 @@ endif
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
 endif 
+
+ifdef USE_LINUXAIO
+ CORE_LIBS += -lrt
+endif
 
 EXTRA_LIBS += $(CONFIG_LIBS)
 CORE_LIBS += $(EXTRA_LIBS)
