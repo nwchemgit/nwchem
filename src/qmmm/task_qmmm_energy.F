@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.31 2006-02-14 19:09:49 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.32 2006-02-17 20:18:43 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -659,17 +659,27 @@ c
 
         if(master) call util_flush(6)
         tsum = tsum + dbl_mb(i_t+nfra-1)
+c        fsum = fsum + exp
+c     >                (
+c     >       627.51*(
+c     >       dbl_mb(i_e1+nfra-1)-
+c     >       dbl_mb(i_e2+nfra-1)
+c     >       )
+c     >       /(kb*dbl_mb(i_t+nfra-1))
+c     >                )
+c        de = -kb*(tsum/nfra)*log(fsum/nfra)
         fsum = fsum + exp
      >                (
-     >       627.51*(
+     >       (
      >       dbl_mb(i_e1+nfra-1)-
      >       dbl_mb(i_e2+nfra-1)
      >       )
-     >       /(kb*dbl_mb(i_t+nfra-1))
+     >       /(kb_au*dbl_mb(i_t+nfra-1))
      >                )
-        de = -kb*(tsum/nfra)*log(fsum/nfra)
+        de = -kb_au*(tsum/nfra)*log(fsum/nfra)
         if(master) then
-          write(*,*) "current free energy difference",de,nfra,tsum,fsum
+          write(*,*) "current free energy difference",de*627.51,
+     >               nfra,tsum,fsum
         end if
 
       end do
@@ -1235,7 +1245,7 @@ c
       end
 
       function task_qmmm_energy_pes0(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.31 2006-02-14 19:09:49 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.32 2006-02-17 20:18:43 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1484,7 +1494,7 @@ c       end load restart
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.31 2006-02-14 19:09:49 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.32 2006-02-17 20:18:43 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

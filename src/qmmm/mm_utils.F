@@ -52,23 +52,48 @@
 
        end
 
+       subroutine mm_get_mequi(mequi0)
+         implicit none
+#include "md_common.fh"
+         integer mequi0
+         
+         mequi0 = mequi
+
+       end
+
+       subroutine mm_set_mequi(mequi0)
+         implicit none
+#include "md_common.fh"
+         integer mequi0
+         
+         mequi = mequi0
+
+       end
+
+       subroutine mm_set_nfc(nf,nfs)
+         implicit none
+#include "rtdb.fh"
+#include "md_common.fh"
+#include "mafdecls.fh"
+         integer nf,nfs
+
+         if(.not.rtdb_put(irtdb,'md:nfcoor',mt_int,1,nf))
+     +    call md_abort('md_rtdbin: rtdb_get failed',50)
+         if(.not.rtdb_put(irtdb,'md:nfscoo',mt_int,1,nfs))
+     +    call md_abort('md_rtdbin: rtdb_get failed',51)
+         
+         nfcoor = nf
+         nfscoo = nfs
+
+       end
+
        subroutine mm_get_nfc(nf,nfs)
          implicit none
 #include "md_common.fh"
          integer nf,nfs
          
          nf  = nfcoor
-         nfs = nfscoo
-
-       end
-
-       subroutine mm_set_nfc(nf,nfs)
-         implicit none
-#include "md_common.fh"
-         integer nf,nfs
-         
-         nfcoor = nf
-         nfscoo = nfs
+         nfs =nfscoo
 
        end
 

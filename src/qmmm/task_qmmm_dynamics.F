@@ -1,6 +1,6 @@
        function task_qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.9 2005-12-16 02:18:07 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.10 2006-02-17 20:18:43 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -16,9 +16,7 @@ c
       double precision cpu,wall
 c
       character*84 tag
-      character*30 region(3)
       character*30 pname
-      integer nregion
 c
       logical opes
 c
@@ -71,7 +69,7 @@ c
 
        function qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.9 2005-12-16 02:18:07 marat Exp $
+* $Id: task_qmmm_dynamics.F,v 1.10 2006-02-17 20:18:43 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -131,7 +129,7 @@ c
       end
 
       function qmmm_pes_dynamics(irtdb)
-c     $Id: task_qmmm_dynamics.F,v 1.9 2005-12-16 02:18:07 marat Exp $
+c     $Id: task_qmmm_dynamics.F,v 1.10 2006-02-17 20:18:43 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

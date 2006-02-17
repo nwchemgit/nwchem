@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.85 2006-02-09 18:33:37 marat Exp $
+c $Id: qmmm_geom.F,v 1.86 2006-02-17 20:18:43 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -604,6 +604,7 @@ c     ------------------------
       integer irtdb
 c     local variables
       character*32 pname
+      logical update
 
       pname = "qmmm_geom_create_full"
 
@@ -613,7 +614,12 @@ c     local variables
       if(qmmm_print_debug())
      > write(*,*) "nfg=",nfg
 
-      call qmmm_geom_create(irtdb,
+      if (.not.rtdb_get(irtdb,"qmmm:update_geom",
+     >                   mt_log,1,update)) 
+     >   update = .true.
+      
+      if(update)  
+     >  call qmmm_geom_create(irtdb,
      >                      nfg,
      >                      int_mb(i_ifg),
      >                      0,

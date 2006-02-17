@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.2 2006-02-15 01:25:02 marat Exp $
+c $Id: task_qmmm_fep.F,v 1.3 2006-02-17 20:18:43 marat Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -34,6 +34,7 @@ c     external functions
       character*255 geom_in(2)
       double precision lambda(2)
       logical oesp,ogeom
+      integer mequi 
 
       pname = "task_qmmm_fep"
       master = ga_nodeid().eq.0
@@ -46,13 +47,17 @@ c
       esp_in(2) =" "
       geom_in(1)=" "
       geom_in(2)=" "
-cc
+c
       if (.not. rtdb_cput(rtdb, 'task:operation', 1, "dynamics"))
      $    call errquit(pname,0, RTDB_ERR)
 c
+c     reference and target esp files
+c     ------------------------------
       if (.not. rtdb_cget(rtdb, 'qmmm:fep_esp', 2, fileesp))
      $    oesp = .false.
 c
+c     reference and target geometries
+c     -------------------------------
       if (.not. rtdb_cget(rtdb, 'qmmm:fep_geom', 2, filegeom))
      $    ogeom=.false.
 c
@@ -61,11 +66,15 @@ c
 c
       call mm_system_prefix(prefix)
 c
+c     coupling parameter for reference and target states
+c     --------------------------------------------------
       if (.not.rtdb_get(rtdb,'qmmm:fep_lambda',mt_dbl,2,lambda)) then
          lambda(1) = 0.0d0
          lambda(2) = 1.0d0
       end if
 c
+c     construct reference and target states using lambda
+c     --------------------------------------------------
       if(oesp) then
        esp_in(1)=prefix(1:inp_strlen(prefix))//"-a.esp"
        esp_in(2)=prefix(1:inp_strlen(prefix))//"-b.esp"
@@ -98,35 +107,79 @@ c
 c     trajectory filename
 c     -------------------
       call mm_trajectory_filename(filetrj)
-      
-      call mm_get_nfc(nf,nfs)
-      do in=1,ncycles
-c        
 c
-c       First we do dynamics to generate trajectory
-c       -------------------------------------------
+c     frequency of solvent(nf) and solute(nfs) coord dumps
+c     ----------------------------------------------------
+      call mm_get_nfc(nf,nfs)
+c
+c     number of equilibration steps
+c     -----------------------------
+      call mm_get_mequi(mequi)
+c
+c     commence the actual run
+c     -----------------------
+      do in=1,ncycles
+c       dynamics task to generate trajectory
+c       push reference geometry if any
         if(ogeom)  
      >    call mm_set_solute_coord_file(geom_in(1))
+        if(oesp) then
+          if(.not.rtdb_put(rtdb,'qmmm:readesp',mt_log,1,.true.))
+     $      call errquit('qmmm ti: failed ', 0, RTDB_ERR)
+          if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_in(1)))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+          call qmmm_esp_reset(rtdb)
+        end if
+
+
+c
+c        if (.not.rtdb_get(irtdb,"qmmm:update_geom",
+c     >                   mt_log,1,.true.)) 
+c     >   call errquit(pname,0, RTDB_ERR)
+c        call qmmm_geom_create_full(irtdb)
+c        if (.not.rtdb_get(irtdb,"qmmm:update_geom",
+c     >                   mt_log,1,.false.)) 
+c     >   call errquit(pname,0, RTDB_ERR)
+c 
+
+c       note that region will be set in dynamics
         ostatus = qmmm_dynamics(rtdb)
 c
-        if (.not.rtdb_cput(rtdb,"qmmm:trajectory_file",1,filetrj)) 
-     >        call errquit(pname//'failed to put trajectory filename',0,
-     >         RTDB_ERR)
-c
+        call mm_end()
         call mm_set_nfc(0,0)
-        ostatus = qmmm_fep(rtdb,geom_in(2),esp_in(2),filetrj)     
+        if (.not. rtdb_cput(rtdb,'task:operation', 1,"energy"))
+     $      call errquit(pname,0, RTDB_ERR)
+        call mm_init(rtdb)
+        call qmmm_bq_data_load()
+c       disable coord dumps
+        call mm_set_nfc(0,0)
+c       do the perturbation resampling
+        ostatus = qmmm_fep(rtdb,geom_in(2),esp_in(1),
+     >                     esp_in(2),filetrj)     
+c       restore coord dumps
         call mm_set_nfc(nf,nfs)
+c       request to reuse collected fep data for ncycle.gt.1
         if (.not.rtdb_put(rtdb,"qmmm:extend",mt_log,1,.true.)) 
      >      call errquit(pname,0, RTDB_ERR)
-        call mm_end()
-        call mm_init(rtdb)
+c       reinitialize md module
+        if(in.ne.ncycles) then
+          call mm_end()
+        if (.not. rtdb_cput(rtdb,'task:operation', 1,"dynamics"))
+     $      call errquit(pname,0, RTDB_ERR)
+          call mm_init(rtdb)
+        end if
+c       disable equlibration for future cycles
+        call mm_set_mequi(0)
       end do
 c
+c     reset any region constraints
+      call qmmm_cons_reset()
+      task_qmmm_fep = ostatus
       return
 
       end
 c
-      function qmmm_fep(rtdb,geom_file,esp_file,filetrj)
+      function qmmm_fep(rtdb,geom_file,esp_ref,esp_pert,filetrj)
       implicit none
 c
 #include "rtdb.fh"
@@ -140,7 +193,8 @@ c
 c
       integer rtdb
       character*(*) geom_file
-      character*(*) esp_file
+      character*(*) esp_ref
+      character*(*) esp_pert
       character*(*) filetrj
       logical qmmm_fep
 c     external functions
@@ -214,7 +268,7 @@ c
 c
       ti_geom = geom_file.ne." "
 
-      ti_esp  = esp_file.ne." "
+      ti_esp  = esp_pert.ne." "
 
       if( (.not.ti_geom).and.(.not.ti_esp))  
      > call errquit(pname//'neither esp or geom file was specified',0,0)
@@ -264,6 +318,12 @@ c
       end if
 
       call ga_sync()
+      if(ti_esp) then
+        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_ref))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+        call qmmm_esp_reset(rtdb)
+      end if
+
 
       offset = trn(1)
       in = 0
@@ -285,7 +345,7 @@ c
         if(ti_geom)  
      >    call mm_set_solute_coord_file(geom_file)
         if(ti_esp) then
-        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file))
+        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_pert))
      >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
         call qmmm_esp_reset(rtdb)
         end if
@@ -307,6 +367,12 @@ c
      >      dbl_mb(i_e2+in-1)
 
         if(master) call util_flush(6)
+        if(ti_esp) then
+          if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_ref))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+          call qmmm_esp_reset(rtdb)
+        end if
+
         ignore = rtdb_delete(rtdb,"qmmm:espfilename")
         call qmmm_esp_reset(rtdb)
         offset = trn(3)
