@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.516 2006-02-16 00:18:44 edo Exp $
+# $Id: makefile.h,v 1.517 2006-02-18 05:08:40 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -872,7 +872,7 @@ RSQRT=y
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
   endif
-    XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+    XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -n 1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
   ifdef XLF8
     FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
     FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
@@ -1108,7 +1108,7 @@ endif
   ifeq ($(FC),g77)
 #g77, only decent one form Fink http://fink.sf.net
 #gcc version 3.4 20031015 (experimental)
-    _G77V33= $(shell g77 -v  2>&1|egrep spec|head -1|awk ' /3.3/  {print "Y"}')
+    _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
     FDEBUG= -O1 -g
     FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
     FOPTIMIZE  = -O3 -fno-inline-functions -funroll-loops
@@ -1183,7 +1183,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))
 #
 # Linux or Cygwin under Windows running on an x86 using g77
 #
-       NICE = nice -2
+       NICE = nice -n 2
       SHELL := $(NICE) /bin/sh
     CORE_SUBDIRS_EXTRA = blas lapack
          CC = gcc
@@ -1216,13 +1216,13 @@ ifeq ($(LINUXCPU),x86)
   endif
   
   _CPU = $(shell uname -m  )
-  _G77V33= $(shell g77 -v  2>&1|egrep spec|head -1|awk ' /3.3/  {print "Y"}')
+  _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
 
 # FC  = g77
 
     ifeq ($(_CPU),i686)
-     _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -1 | awk ' /sse2/  {print "Y"}')
-     _PENTIUM_M= $(shell cat /proc/cpuinfo | egrep " M processor" | tail -1 | awk ' /M/  {print "Y"}')
+     _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
+     _PENTIUM_M= $(shell cat /proc/cpuinfo | egrep " M processor" | tail -n 1 | awk ' /M/  {print "Y"}')
       ifeq ($(_GOTSSE2),Y) 
         _CPU=i786
       endif
@@ -1305,7 +1305,7 @@ ifeq ($(LINUXCPU),x86)
   ifdef  USE_GPROF
     FOPTIONS += -qp
   endif
-    _IFCV8= $(shell ifc -v  2>&1|egrep "Version "|head -1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
+    _IFCV8= $(shell ifc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
     ifeq ($(_IFCV8),Y)
       DEFINES+= -DIFCV8
       ifeq ($(FC),ifc)
@@ -1512,9 +1512,9 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       COPTIMIZE = -O1
 
       ifeq ($(FC),efc)
-       _IFCV9= $(shell efc -v  2>&1|egrep "Version "|head -1|awk '/9./ {print "Y"}')
-       _IFCV81= $(shell efc -v  2>&1|egrep "Version "|head -1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
-       _IFCV8= $(shell efc -v  2>&1|egrep "Version "|head -1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
+       _IFCV9= $(shell efc -v  2>&1|egrep "Version "|head -n 1|awk '/9./ {print "Y"}')
+       _IFCV81= $(shell efc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
+       _IFCV8= $(shell efc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
          FOPTIONS += -quiet
@@ -1522,7 +1522,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
        ifeq ($(_IFCV81),Y)
          DEFINES+= -DIFCV81
        endif	
-        ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
+        ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -n 1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
         FOPTIONS   += -auto -w -ftz $(ITANIUMNO)
         ifdef  USE_GPROF
           FOPTIONS += -qp
@@ -1608,8 +1608,8 @@ endif # end of ia32 bit
        _FC=gfortran
       endif
       ifeq ($(_FC),ifc)
-     _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -1 | awk ' /sse3/  {print "Y"}')
-       _IFCV81= $(shell ifc -v  2>&1|egrep "Version "|head -1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
+     _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
+       _IFCV81= $(shell ifc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
        ifeq ($(_IFCV81),Y)
 # to get EM64T
 # Intel 8.1 is required
@@ -1691,7 +1691,7 @@ endif # end of ia32 bit
      endif
 
       ifeq ($(_FC),gfortran)
-     _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -1 | awk ' /3dnowext/  {print "Y"}')
+     _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -n 1 | awk ' /3dnowext/  {print "Y"}')
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
         FOPTIONS   += -Wextra -Wunused -Wuninitialized
