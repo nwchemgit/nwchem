@@ -45,6 +45,7 @@ send your bug report using the correct channel listed in the
 <li> <a href="#4">NMR shielding gives memory error when using spherical basis in large systems.</a></li>
 <li> <a href="#5">NWChem fails with PROGRAM STOP IN - ZDAT - when more than 256 variables are used in the Z-matrix definition.</a></li>
 <li> <a href="#6">Meta-GGA functionals.</a></li>
+<li> <a href="#7">task shell failures.</a></li>
 
 </ol>
 
@@ -151,6 +152,22 @@ therefore resulting in incorrect self-consistent evaluation of the Meta-GGAs.
 <br>
 These bugs have been fixed and will be available in the next release.
 </p>
+<a name="7"></a><font color="purple">task shell failures.</font></p>
+<p>
+Users can encounter errors in the "task shell" execution (errors message: "shell failed"). This bug has been fixed and will be available in the next release. A patch is available. For installation of the patch:
+<ol>
+<li>cd $NWCHEM_TOP</li>
+<li>cd src/util</li>
+<li>wget http://www.emsl.pnl.gov/docs/nwchem/support/patches/4.7/util_system.patch</li>
+<li>patch -p0 < util_system.patch</li>
+<li>make</li>
+<li>cd ..</li>
+<li>make link</li>
+</ol>
+</p>
+
+<hr>
+<p>
 
 <br>
 <hr>
