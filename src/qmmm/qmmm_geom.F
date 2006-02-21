@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.86 2006-02-17 20:18:43 marat Exp $
+c $Id: qmmm_geom.F,v 1.87 2006-02-21 01:02:30 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -632,6 +632,11 @@ c     local variables
 
       if(.not.rtdb_cput(irtdb,'geometry',1,'full_geometry'))
      + call errquit(pname//' storing geom name to rtdb',0, RTDB_ERR)
+
+c      update = .false.
+c      if (.not.rtdb_put(irtdb,"qmmm:update_geom",
+c     >                   mt_log,1,update)) 
+c     >   call errquit(pname//'qmmm:update_geom',0, RTDB_ERR)
      
       if(qmmm_print_debug())
      >    write(*,*) "out",pname

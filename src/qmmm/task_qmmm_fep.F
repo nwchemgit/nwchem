@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.3 2006-02-17 20:18:43 marat Exp $
+c $Id: task_qmmm_fep.F,v 1.4 2006-02-21 01:02:30 marat Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -33,10 +33,20 @@ c     external functions
       character*255 esp_in(2)
       character*255 geom_in(2)
       double precision lambda(2)
-      logical oesp,ogeom
+      logical oesp,ogeom,oderiv
       integer mequi 
 
       pname = "task_qmmm_fep"
+
+      if (.not. rtdb_get(rtdb,'qmmm:fep_deriv',mt_log,1,oderiv))
+     +  oderiv = .false.
+
+      if(oderiv) then
+        call task_qmmm_fep_deriv(rtdb)
+        ostatus = .true.
+        goto  40
+      end if
+      
       master = ga_nodeid().eq.0
       if(qmmm_print_debug()) 
      $  write(*,*) "in "//pname
@@ -120,7 +130,7 @@ c     commence the actual run
 c     -----------------------
       do in=1,ncycles
 c       dynamics task to generate trajectory
-c       push reference geometry if any
+c       push reference geometry charges if any
         if(ogeom)  
      >    call mm_set_solute_coord_file(geom_in(1))
         if(oesp) then
@@ -174,11 +184,488 @@ c       disable equlibration for future cycles
 c
 c     reset any region constraints
       call qmmm_cons_reset()
-      task_qmmm_fep = ostatus
+40    task_qmmm_fep = ostatus
       return
 
       end
+
+      function task_qmmm_fep_deriv(rtdb)
+      implicit none
 c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer rtdb
+      logical task_qmmm_fep_deriv
+      logical ostatus
+c     external functions
+      logical  qmmm_fep_deriv
+      external qmmm_fep_deriv
+      logical  qmmm_dynamics
+      external qmmm_dynamics
+      character*30 pname
+      character*255 prefix
+      character*255 filetrj
+      integer in,ncycles
+      integer nf,nfs
+      logical master
+      character*255 filegeom(2)
+      character*255 fileesp(2)
+      character*255 esp_in(3)
+      character*255 geom_in(3)
+      double precision lambda(3)
+      logical oesp,ogeom
+      integer mequi 
+
+      pname = "task_qmmm_fep_deriv"
+      master = ga_nodeid().eq.0
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in "//pname
+c
+      oesp  = .true.
+      ogeom = .true.
+      esp_in(1) =" "
+      esp_in(2) =" "
+      esp_in(3) =" "
+      geom_in(1)=" "
+      geom_in(2)=" "
+      geom_in(3)=" "
+c
+      if (.not. rtdb_cput(rtdb, 'task:operation', 1, "dynamics"))
+     $    call errquit(pname,0, RTDB_ERR)
+c
+c     reference and target esp files
+c     ------------------------------
+      if (.not. rtdb_cget(rtdb, 'qmmm:fep_esp', 2, fileesp))
+     $    oesp = .false.
+c
+c     reference and target geometries
+c     -------------------------------
+      if (.not. rtdb_cget(rtdb, 'qmmm:fep_geom', 2, filegeom))
+     $    ogeom=.false.
+c
+      if((.not.oesp).and.(.not.ogeom))
+     > call errquit(pname//"need esp or geometry files ",0, RTDB_ERR)
+c
+      call mm_system_prefix(prefix)
+c
+c     coupling parameter for reference and target states
+c     --------------------------------------------------
+      if (.not.rtdb_get(rtdb,'qmmm:fep_lambda',mt_dbl,2,lambda)) then
+         lambda(1) = 0.0d0
+         lambda(2) = 0.5d0
+      end if
+      lambda(3) = lambda(1)-(lambda(2)-lambda(1))
+c
+c     construct reference and target states using lambda
+c     --------------------------------------------------
+      if(oesp) then
+       esp_in(1)=prefix(1:inp_strlen(prefix))//"-a.esp"
+       esp_in(2)=prefix(1:inp_strlen(prefix))//"-b.esp"
+       esp_in(3)=prefix(1:inp_strlen(prefix))//"-c.esp"
+       if(master) then
+         call qmmm_interp_esp_file(fileesp(1),fileesp(2),
+     >                              esp_in(1),lambda(1))
+         call qmmm_interp_esp_file(fileesp(1),fileesp(2),
+     >                              esp_in(2),lambda(2))
+         call qmmm_interp_esp_file(fileesp(1),fileesp(2),
+     >                              esp_in(3),lambda(3))
+       end if
+      end if
+
+      if(ogeom) then
+       geom_in(1)=prefix(1:inp_strlen(prefix))//"-a.xyzi"
+       geom_in(2)=prefix(1:inp_strlen(prefix))//"-b.xyzi"
+       geom_in(3)=prefix(1:inp_strlen(prefix))//"-c.xyzi"
+       if(master) then
+         call qmmm_interp_xyzi_file(filegeom(1),filegeom(2),
+     >                              geom_in(1),lambda(1))
+         call qmmm_interp_xyzi_file(filegeom(1),filegeom(2),
+     >                              geom_in(2),lambda(2))
+         call qmmm_interp_xyzi_file(filegeom(1),filegeom(2),
+     >                              geom_in(3),lambda(3))
+       end if
+      end if
+c
+      call ga_sync()
+c
+      if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
+     +  ncycles = 1
+c
+c
+c     trajectory filename
+c     -------------------
+      call mm_trajectory_filename(filetrj)
+c
+c     frequency of solvent(nf) and solute(nfs) coord dumps
+c     ----------------------------------------------------
+      call mm_get_nfc(nf,nfs)
+c
+c     number of equilibration steps
+c     -----------------------------
+      call mm_get_mequi(mequi)
+c
+c     commence the actual run
+c     -----------------------
+      do in=1,ncycles
+c       dynamics task to generate trajectory
+c       push reference geometry if any
+        if(ogeom)  
+     >    call mm_set_solute_coord_file(geom_in(1))
+        if(oesp) then
+          if(.not.rtdb_put(rtdb,'qmmm:readesp',mt_log,1,.true.))
+     $      call errquit('qmmm ti: failed ', 0, RTDB_ERR)
+          if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_in(1)))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+          call qmmm_esp_reset(rtdb)
+        end if
+
+
+c
+c        if (.not.rtdb_get(irtdb,"qmmm:update_geom",
+c     >                   mt_log,1,.true.)) 
+c     >   call errquit(pname,0, RTDB_ERR)
+c        call qmmm_geom_create_full(irtdb)
+c        if (.not.rtdb_get(irtdb,"qmmm:update_geom",
+c     >                   mt_log,1,.false.)) 
+c     >   call errquit(pname,0, RTDB_ERR)
+c 
+
+c       note that region will be set in dynamics
+        ostatus = qmmm_dynamics(rtdb)
+c
+        call mm_end()
+        call mm_set_nfc(0,0)
+        if (.not. rtdb_cput(rtdb,'task:operation', 1,"energy"))
+     $      call errquit(pname,0, RTDB_ERR)
+        call mm_init(rtdb)
+        call qmmm_bq_data_load()
+c       disable coord dumps
+        call mm_set_nfc(0,0)
+c       do the perturbation resampling
+        ostatus = qmmm_fep_deriv(rtdb,geom_in,esp_in,
+     >                     filetrj)     
+c       restore coord dumps
+        call mm_set_nfc(nf,nfs)
+c       request to reuse collected fep data for ncycle.gt.1
+        if (.not.rtdb_put(rtdb,"qmmm:extend",mt_log,1,.true.)) 
+     >      call errquit(pname,0, RTDB_ERR)
+c       reinitialize md module
+        if(in.ne.ncycles) then
+          call mm_end()
+        if (.not. rtdb_cput(rtdb,'task:operation', 1,"dynamics"))
+     $      call errquit(pname,0, RTDB_ERR)
+          call mm_init(rtdb)
+        end if
+c       disable equlibration for future cycles
+        call mm_set_mequi(0)
+      end do
+c
+c     reset any region constraints
+      call qmmm_cons_reset()
+      task_qmmm_fep_deriv = ostatus
+      return
+
+      end
+cc
+      function qmmm_fep_deriv(rtdb,geom_file,esp_file,filetrj)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer rtdb
+      character*(*) geom_file(3)
+      character*(*) esp_file(3)
+      character*(*) filetrj
+      logical qmmm_fep_deriv
+c     external functions
+      logical qmmm_energy_gradient
+      external qmmm_energy_gradient 
+
+c     local variables
+      double precision stime
+      integer i
+      logical ignore
+      character*255 filename
+      character*255 buf
+      integer fn_trj,fn
+      integer trn(3)
+      integer in,nf,nf0
+      character*30 pname
+      character*255 buffer
+      character*3  ftype
+      logical master
+      integer i_e1,h_e1
+      integer i_e2,h_e2
+      integer i_e3,h_e3
+      integer i_t,h_t
+      integer offset 
+      double precision de1,de2
+      double precision tsum, fsum1,fsum2
+      double precision taver,faver1,faver2
+      logical oextend
+c
+      logical ti_geom, ti_esp
+c
+      logical  mm_read_frame
+      external mm_read_frame
+      logical  mm_skip_frame
+      external mm_skip_frame
+c
+      pname = "qmmm_fep_deriv"
+c
+      qmmm_fep_deriv = .true.
+c
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+c
+      master = qmmm_master()
+c
+c     fep filename
+c     ---------------
+      call mm_system_prefix(buffer)
+      filename=buffer(1:inp_strlen(buffer))//".thm"
+c
+      if(master) then
+        if(.not.qmmm_get_io_unit(fn_trj)) 
+     >   call errquit("cannot get file number",0,0)
+        open(unit=fn_trj,file=filetrj,
+     +   form='formatted',status='old',err=998)
+        if(.not.qmmm_get_io_unit(fn)) 
+     >   call errquit("cannot get file number",0,0)
+        open(unit=fn,file=filename,
+     +   form='formatted',status='unknown',err=999)
+      end if
+c
+      if (.not.rtdb_get(rtdb,"qmmm:trajectory_n",mt_int,3,trn)) 
+     >      call errquit(pname//'failed to get trn',0,
+     >       RTDB_ERR)
+c
+      if (.not.rtdb_get(rtdb,"qmmm:extend",mt_log,1,oextend)) 
+     >      oextend = .false.
+c
+      ti_geom = geom_file(1).ne." "
+
+      ti_esp  = esp_file(1).ne." "
+
+      if( (.not.ti_geom).and.(.not.ti_esp))  
+     > call errquit(pname//'neither esp or geom file was specified',0,0)
+
+c
+c     total number of frames to process
+c     ---------------------------------
+      nf = MAX((trn(2)-trn(1)+trn(3))/trn(3),0)
+      if(master) 
+     >   write(*,*) "ti: total number of frames",nf
+c
+      if(.not.ma_alloc_get(MT_DBL, nf, 'qmmm ti e1',
+     &      h_e1, i_e1) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nf, MA_ERR)
+      call dfill(nf,0,dbl_mb(i_e1),1)
+c
+      if(.not.ma_alloc_get(MT_DBL, nf, 'qmmm ti e2',
+     &      h_e2, i_e2) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nf, MA_ERR)
+      call dfill(nf,0,dbl_mb(i_e2),1)
+c
+      if(.not.ma_alloc_get(MT_DBL, nf, 'qmmm ti e3',
+     &      h_e3, i_e3) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nf, MA_ERR)
+      call dfill(nf,0,dbl_mb(i_e3),1)
+c
+      if(.not.ma_alloc_get(MT_DBL, nf, 'qmmm ti t',
+     &      h_t, i_t) ) call errquit(
+     &      pname//'unable to allocate heap space',
+     &      nf, MA_ERR)
+      call dfill(nf,0,dbl_mb(i_t),1)
+c
+        if(.not.rtdb_put(rtdb,'qmmm:readesp',mt_log,1,.true.))
+     $     call errquit('qmmm ti: failed ', 0, RTDB_ERR)
+c
+      nf0  = 0
+      tsum = 0.0d0
+      fsum1 = 0.0d0
+      fsum2 = 0.0d0
+c
+     
+      if(master) then
+       if(oextend) then
+       do i=1,10000
+         read(fn,*,END=10)  nf0,taver,faver1,de1,faver2,de2
+       end do
+10     continue
+       tsum = taver*nf0
+       fsum1 = faver1*nf0
+       fsum2 = faver2*nf0
+       end if
+      end if
+
+      call ga_sync()
+      if(ti_esp) then
+        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file(1)))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+        call qmmm_esp_reset(rtdb)
+      end if
+
+
+      offset = trn(1)
+      in = 0
+      do i=trn(1),trn(2),trn(3)
+        if(.not.mm_read_frame(fn_trj,offset))
+     >      call errquit(pname//'failed to get skip frames',
+     >                   0,0)
+        in = in + 1
+        call mm_get_temp(dbl_mb(i_t+in-1))
+        call mm_get_stime(stime)
+        call md_sp()
+        qmmm_fep_deriv = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,dbl_mb(i_e1+in-1)))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+        if(ti_geom)  
+     >    call mm_set_solute_coord_file(geom_file(2))
+        if(ti_esp) then
+        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file(2)))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+        call qmmm_esp_reset(rtdb)
+        end if
+
+        call md_sp()
+        qmmm_fep_deriv = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,dbl_mb(i_e2+in-1)))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+        if(ti_geom)  
+     >    call mm_set_solute_coord_file(geom_file(3))
+        if(ti_esp) then
+        if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file(3)))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+        call qmmm_esp_reset(rtdb)
+        end if
+
+        call md_sp()
+        qmmm_fep_deriv = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,dbl_mb(i_e3+in-1)))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+
+
+        call ga_sync()
+        if(master) write(*,'(A,I6,5F12.6)') 
+     >      "ti:",
+     >      in,
+     >      stime,
+     >      dbl_mb(i_t+in-1),
+     >      dbl_mb(i_e1+in-1),
+     >      dbl_mb(i_e2+in-1),
+     >      dbl_mb(i_e3+in-1)
+
+        if(master) call util_flush(6)
+        if(ti_esp) then
+          if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file(1)))
+     >      call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+          call qmmm_esp_reset(rtdb)
+        end if
+
+        offset = trn(3)
+        if(master) then
+          tsum = tsum + dbl_mb(i_t+in-1)
+          fsum1 = fsum1 + exp
+     >                  (
+     >         (
+     >         dbl_mb(i_e1+in-1)-
+     >         dbl_mb(i_e2+in-1)
+     >         )
+     >         /(kb_au*dbl_mb(i_t+in-1))
+     >                  )
+           fsum2 = fsum2 + exp
+     >                  (
+     >         (
+     >         dbl_mb(i_e1+in-1)-
+     >         dbl_mb(i_e3+in-1)
+     >         )
+     >         /(kb_au*dbl_mb(i_t+in-1))
+     >                  )
+          taver = tsum/(in+nf0)
+          faver1 = fsum1/(in+nf0)
+          faver2 = fsum2/(in+nf0)
+          de1 = -kb_au*taver*log(faver1)
+          de2 = -kb_au*taver*log(faver2)
+          write(*,'("current free energy difference ",2F12.6)')
+     >                ,de1*627.51,de2*627.51
+        end if
+        call ga_sync()
+
+      end do
+ 23   continue
+c
+      if(master) then
+        write(fn,*) nf0+nf,taver,faver1,de1,faver2,de2
+      end if
+c
+      if(.not.ma_free_heap(h_t))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nf, MA_ERR)
+
+      if(.not.ma_free_heap(h_e3))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nf, MA_ERR)
+
+      if(.not.ma_free_heap(h_e2))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nf, MA_ERR)
+
+      if(.not.ma_free_heap(h_e1))
+     &      call errquit(
+     &      pname//'unable to deallocate heap space',
+     &      nf, MA_ERR)
+
+c
+      if(master) then
+        close(fn_trj)
+        close(fn)
+      end if
+
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+      if(master) call util_flush(6)
+      return
+ 998  continue
+      call errquit('Failed to open trajectory file ',0,0)
+
+ 999  continue
+      call errquit('Failed to open fep file '//filename,0,0)
+
+      end
+
       function qmmm_fep(rtdb,geom_file,esp_ref,esp_pert,filetrj)
       implicit none
 c
@@ -373,8 +860,6 @@ c
           call qmmm_esp_reset(rtdb)
         end if
 
-        ignore = rtdb_delete(rtdb,"qmmm:espfilename")
-        call qmmm_esp_reset(rtdb)
         offset = trn(3)
         if(master) then
           tsum = tsum + dbl_mb(i_t+in-1)
