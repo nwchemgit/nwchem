@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.22 2006-02-14 19:11:30 marat Exp $
+c $Id: qmmm_esp.F,v 1.23 2006-02-22 17:52:49 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -172,10 +172,11 @@ c      end if
      >                   mt_dbl,nqm,dbl_mb(i_q_qm)))
      &    call errquit(pname//'qmmm:esp',911,RTDB_ERR)
 
-
-      call mm_restart_filename(prefix)
-      i = index(prefix,".rst")-1
-      espfile = prefix(1:i)//".esp"
+      if (.not.rtdb_cget(rtdb,'qmmm:esp:save:file',1,espfile)) then
+        call mm_restart_filename(prefix)
+        i = index(prefix,".rst")-1
+        espfile = prefix(1:i)//".esp"
+      end if
       call util_file_name_resolve(espfile,.false.)
       if(ga_nodeid().eq.0) then
         open(unit=lespfile,file=espfile,
@@ -930,7 +931,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.22 2006-02-14 19:11:30 marat Exp $
+* $Id: qmmm_esp.F,v 1.23 2006-02-22 17:52:49 marat Exp $
 *
       implicit none
 #include "errquit.fh"

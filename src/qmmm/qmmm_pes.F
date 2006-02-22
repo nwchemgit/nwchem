@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.7 2006-01-27 01:53:24 marat Exp $
+c $Id: qmmm_pes.F,v 1.8 2006-02-22 17:52:49 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.7 2006-01-27 01:53:24 marat Exp $
+c     $Id: qmmm_pes.F,v 1.8 2006-02-22 17:52:49 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -45,10 +45,11 @@ c
 
       logical ignore
       character*255 filename, prefix
-      character*255 rst_in, movecs_in
+      character*255 rst_in, movecs_in, espfile
       character*255 rst_perm,rst_tmp,movecs_perm
       character*255 rst_old
       double precision rb(2)
+      integer ii
       integer np
       integer ip
       integer in
@@ -217,6 +218,10 @@ c       -----------------------
         write(rst_tmp,21) rst_in(1:inp_strlen(rst_in)), ip
  21     format(a,i3.3,'.rst')
         rst_perm = rst_tmp
+        ii = index(rst_perm,".rst")-1
+        espfile = rst_perm(1:ii)//".esp"
+        if (.not.rtdb_cput(irtdb,'qmmm:esp:save:file',1,espfile)) 
+     >   call errquit(pname,0,RTDB_ERR)
         call util_file_name_resolve(rst_perm, .false.)
         if(loadrst) then
           if(ga_nodeid().eq.0) then 
