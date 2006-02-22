@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.3 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.4 2006-02-22 17:17:39 edo Exp $
 
 ifndef CCSDTQ
 OBJ_OPTIMIZE = \
@@ -1148,11 +1148,6 @@ ccsdtq_lambda3_27_2_1.o\
 OFFSET_ccsdtq_lambda3_27_2_1.o\
 ccsdtq_lambda3_27_2_1_1.o\
 OFFSET_ccsdtq_lambda3_27_2_1_1.o
-endif
-
-LIB_INCLUDES = -I../include
-
-LIBRARY = libtce.a
 
 USES_BLAS = ccsdtq_density1.F \
 ccsdtq_lambda1_10_1.F \
@@ -1819,6 +1814,12 @@ ccsdtq_lambda3_8_4.F \
 ccsdtq_lambda3_8.F \
 ccsdtq_lambda3_9.F \
 ccsdtq_lambda4.F
+endif
+
+LIB_INCLUDES = -I../include
+
+LIBRARY = libtce.a
+
 
 
 ifndef CCSDTQ
