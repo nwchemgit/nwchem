@@ -70,6 +70,9 @@ c
       oprint_debug = util_print("debug_info", print_debug)
       oprint_debug = oprint_debug .and. (ga_nodeid().eq.0)
 c
+      oprint_low = util_print("low", print_low)
+      oprint_low = oprint_low .and. (ga_nodeid().eq.0)
+c
       eatoms = 0.0d0
       linkatm=qmmm_hydrogen
       bq_exclude=qmmm_no_atoms
@@ -348,6 +351,18 @@ c      oprint = util_print("debug_info", print_debug)
 c      qmmm_print_debug = oprint .and. (ga_nodeid().eq.0)
 
        qmmm_print_debug = oprint_debug
+      end 
+
+      function qmmm_print_low()
+      implicit none
+#include "qmmm_data.fh"
+#include "util.fh"
+#include "global.fh"
+
+      logical qmmm_print_low
+c 
+
+       qmmm_print_low = oprint_low
       end 
 
       function qmmm_get_bqzone()

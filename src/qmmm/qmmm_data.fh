@@ -1,8 +1,9 @@
 c
-c $Id: qmmm_data.fh,v 1.23 2005-08-16 22:09:42 marat Exp $
+c $Id: qmmm_data.fh,v 1.24 2006-02-22 01:12:07 marat Exp $
 c
       logical master
       logical oprint_debug
+      logical oprint_low
       logical fixlinks
       logical bq_dynamical
       double precision bqzone
@@ -25,6 +26,7 @@ c
      &                 qmmm_interface,
      &                 qmmm_optimization,
      &                 oprint_debug,
+     &                 oprint_low,
      &                 master
 
 

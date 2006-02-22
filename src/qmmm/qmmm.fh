@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.fh,v 1.29 2005-12-05 19:34:32 marat Exp $
+c $Id: qmmm.fh,v 1.30 2006-02-22 01:12:07 marat Exp $
 c
       integer qmmm_get_nlink
       integer qmmm_get_nbq
@@ -61,6 +61,9 @@ c
 
       logical  qmmm_print_default
       external qmmm_print_default
+
+      logical  qmmm_print_low
+      external qmmm_print_low
 
       logical  qmmm_print_debug
       external qmmm_print_debug

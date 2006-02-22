@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.32 2006-02-17 20:18:43 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.33 2006-02-22 01:12:07 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -1061,6 +1061,20 @@ c     --------------------------
         if(ga_nodeid().eq.0) then
           close(unit=un)
         end if
+        xyzfile = prefix(1:i)//".pdb"
+        call util_file_name_resolve(xyzfile,.false.)
+        if(ga_nodeid().eq.0) then
+          if(.not.qmmm_get_io_unit(un))
+     >     call errquit('no free unit', 0, RTDB_ERR) 
+          open(unit=un,file=xyzfile,
+     >       form='formatted',status='unknown')
+        end if
+        call qmmm_cons_print_region(un,"pdbi")
+        if(ga_nodeid().eq.0) then
+          close(unit=un)
+        end if
+
+
         if(.not.oregion)   
      >  call qmmm_cons_reset()
       end if
@@ -1245,7 +1259,7 @@ c
       end
 
       function task_qmmm_energy_pes0(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.32 2006-02-17 20:18:43 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.33 2006-02-22 01:12:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1494,7 +1508,7 @@ c       end load restart
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.32 2006-02-17 20:18:43 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.33 2006-02-22 01:12:07 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.18 2006-02-15 01:25:02 marat Exp $
+c $Id: qmmm_utils.F,v 1.19 2006-02-22 01:12:07 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -580,8 +580,6 @@ c     -----------------------
        int_mb(i_itmp+i-1) = ai1
        do k=1,3
         dbl_mb(i_ctmp+3*(i-1)+k-1) = r1(k)+lambda*(r2(k)-r1(k))
-        write(*,*) "debug", lambda,
-     >             r1(k),r2(k),dbl_mb(i_ctmp+3*(i-1)+k-1)
        end do
       end do
 c
