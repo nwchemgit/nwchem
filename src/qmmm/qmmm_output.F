@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.21 2006-01-23 23:57:57 marat Exp $
+c $Id: qmmm_output.F,v 1.22 2006-02-22 17:51:12 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -216,7 +216,7 @@ c
 
       write(*,21) "spring energy, derivative,length", e,deds,s
 
-21    FORMAT(1X,A,T34,F18.9," (",E12.6,2X, ")")
+21    FORMAT(1X,A,T34,3E12.6)
 
 
       end
