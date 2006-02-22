@@ -1,6 +1,6 @@
       subroutine errquit(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.19 2003-12-03 22:21:13 d3g681 Exp $
+C$Id: errquit.F,v 1.20 2006-02-22 00:39:56 edo Exp $
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
@@ -46,6 +46,7 @@ c
          man_sec = 'No section for this category'
       endif
 c     
+#if 0
       if (errcode .eq. MEM_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode, 
      &        'bytes more memory'
@@ -78,6 +79,7 @@ c
          write(LuOut,*) 'memory heap <default + ', icode, '>'
          man_sec = 'NWChem -> Top Level Directives -> Memory'
       endif
+#endif
 c     
       if (errcode .eq. RTDB_ERR) then
          write(LuOut,*) 'An error occured in the Runtime Database'
@@ -102,6 +104,7 @@ c
          write(LuOut,*) 
       endif
 c     
+#if 0
       if (errcode .eq. GA_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode,
      &        ' bytes more global memory'
@@ -113,6 +116,7 @@ c
      &        ' bytes more local memory'
          man_sec = 'NWChem -> Top Level Directives -> Memory'
       endif
+#endif
 c
       if (errcode .eq. INT_ERR) then
          write(LuOut,*) 'An error occured while computing integrals'
