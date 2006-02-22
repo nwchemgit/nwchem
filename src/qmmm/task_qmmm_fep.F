@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.4 2006-02-21 01:02:30 marat Exp $
+c $Id: task_qmmm_fep.F,v 1.5 2006-02-22 18:28:56 edo Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -616,8 +616,8 @@ c
           faver2 = fsum2/(in+nf0)
           de1 = -kb_au*taver*log(faver1)
           de2 = -kb_au*taver*log(faver2)
-          write(*,'("current free energy difference ",2F12.6)')
-     >                ,de1*627.51,de2*627.51
+          write(*,66) de1*627.51,de2*627.51
+ 66       format('current free energy difference ',2F12.6)
         end if
         call ga_sync()
 
