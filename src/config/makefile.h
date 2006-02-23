@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.517 2006-02-18 05:08:40 edo Exp $
+# $Id: makefile.h,v 1.518 2006-02-23 18:17:35 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -977,7 +977,7 @@ ifeq ($(TARGET),LAPI64)
          CC = mpcc_r
     ARFLAGS = urs
      RANLIB = echo
-  MAKEFLAGS = -j 1 --no-print-directory
+  MAKEFLAGS = -j 3 --no-print-directory
     INSTALL = @echo $@ is built
         CPP = /usr/lib/cpp -P
      MPILIB = 
@@ -995,6 +995,15 @@ LARGE_FILES = YES
     FOPTIMIZE  += -qfloat=rsqrt:fltint
   endif
   COPTIMIZE = -O
+    XLF8= $(shell /usr/bin/lslpp -l xlfcmp  2>&1|grep COMM|head -1| awk ' / [8-9]./  {print "Y"};/[ ][1][0-9]./  {print "Y"}')
+  ifdef XLF8
+    FVECTORIZE= -O3 -qstrict -qtune=auto -qarch=auto -qcache=auto -qalign=natural -qnozerosize -qlargepage -qnozerosize -qipa=level=2
+    FOPTIMIZE = -O4  -NQ40000 -NT80000  -qarch=auto -qtune=auto
+    FOPTIMIZE  += -qipa -qhot -qlargepage -qessl 
+    FOPTIONS += -blpdata  
+    FOPTIMIZE  += -qfloat=rsqrt:fltint
+    FVECTORIZE  += -qfloat=rsqrt:fltint
+  endif
 
     DEFINES = -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX
     DEFINES += -DCHKUNDFLW
@@ -1008,6 +1017,7 @@ else
 endif
   LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
+#  LDOPTIONS += -bmaxstack:0xe0000000 -bmaxdata:0xe0000000 # this for large memory
   XLFBREN = y
 
  EXPLICITF = TRUE
