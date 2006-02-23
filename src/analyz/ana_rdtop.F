@@ -233,7 +233,7 @@ c
       read(lfntop,1005) sname,aname,num,j
  2004 format(2a5,i6)
     7 continue
-      nat=4*(nbw+nhw+ndw+now)
+      nat=(nparm+1)*(nbw+nhw+ndw+now)
       do 8 i=1,nat
       read(lfntop,1000) cdummy
     8 continue
