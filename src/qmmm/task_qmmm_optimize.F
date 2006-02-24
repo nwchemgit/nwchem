@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.56 2006-02-09 18:56:37 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.57 2006-02-24 20:52:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -20,6 +20,7 @@ c
       logical  status
 c     
       character*32 pname
+      character*30 operation
 c     
       logical   qmmm_mixed_optimization
       external  qmmm_mixed_optimization
@@ -48,6 +49,14 @@ c     --------------------------------
       if (.not. rtdb_get(rtdb, 'qmmm:pes', mt_log, 
      $                   1, opes))
      $     opes = .false.
+
+      if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
+     $     operation = ' '
+
+      if (inp_compare(.false., 'saddle', operation)) then
+        if (.not. rtdb_put(rtdb,'driver:modsad',mt_int,1,1))
+     $        call errquit('task_saddle: rtdb corrupt?', 0, RTDB_ERR)
+      end if
 
       if(qmmm_print_debug())
      >  write(*,*) "opes",opes
@@ -91,7 +100,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.56 2006-02-09 18:56:37 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.57 2006-02-24 20:52:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -335,7 +344,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.56 2006-02-09 18:56:37 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.57 2006-02-24 20:52:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -416,7 +425,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.56 2006-02-09 18:56:37 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.57 2006-02-24 20:52:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -446,7 +455,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.56 2006-02-09 18:56:37 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.57 2006-02-24 20:52:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -479,7 +488,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.56 2006-02-09 18:56:37 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.57 2006-02-24 20:52:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -602,7 +611,7 @@ c     ------------------------------------
       end
 c
       function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.56 2006-02-09 18:56:37 marat Exp $
+c     $Id: task_qmmm_optimize.F,v 1.57 2006-02-24 20:52:24 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
