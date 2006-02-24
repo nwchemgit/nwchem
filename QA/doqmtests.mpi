@@ -1,13 +1,13 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.mpi,v 1.13 2006-02-03 19:50:22 bert Exp $
+# $Id: doqmtests.mpi,v 1.14 2006-02-24 20:58:05 edo Exp $
 #
 #---   small tests
 ./runtests.mpi.unix procs $1 auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
 ./runtests.mpi.unix procs $1 geom_zmatrix rimp2_ne  scf_feco5 small_intchk tagcheck testtab
 ./runtests.mpi.unix procs $1 h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.mpi.unix procs $1 cosmo_trichloroethene esp esp_uhf dft_bsse
-./runtests.mpi.unix procs $1 dplot dft_meta prop_uhf_h2o
+./runtests.mpi.unix procs $1 dplot dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
 ./runtests.mpi.unix procs $1 et_zn_dimer vectors_rotate sad_ch3hf
 
 #---   small tests that should fail!
