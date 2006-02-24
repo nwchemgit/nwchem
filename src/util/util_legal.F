@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.42 2005-08-05 20:48:53 bylaska Exp $
+* $Id: util_legal.F,v 1.43 2006-02-24 20:46:45 edo Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003, 2004, 2005                    *
@@ -173,9 +173,9 @@ c
      &    'obtained with NWChem:'
      &    /,/,
      + 12x,'E. Apra, T. L. Windus, T. P. Straatsma,',
-     + ' E. J. Bylaska, W. de Jong,',/,
+     + ' E. J. Bylaska, W. de Jong, K. Kowalski',/,
      + 12x,'S. Hirata, M. Valiev, M. T. Hackler,',
-     + ' L. Pollack, K. Kowalski,',/,
+     + '  Y. Zhao,',/,
      + 12x,'R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,',/,
      + 12x,'V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown,',
      + ' G. Cisneros,',/,
@@ -188,9 +188,9 @@ c
      + ' B. Johnson,',/,
      + 12x,'J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,',
      + ' X. Long,',/,
-     + 12x,'B. Meng, T. Nakajima, S. Niu, M. Rosing, G. Sandrone,',
-     + ' M. Stave,',/,
-     + 12x,'H. Taylor, G. Thomas, J. van Lenthe, A. Wong,',
+     + 12x,'B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,',
+     + ' G. Sandrone,',
+     + 12x,' M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,',
      + ' and Z. Zhang,',/,
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',

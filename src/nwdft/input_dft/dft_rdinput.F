@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.128 2006-01-26 17:00:13 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.129 2006-02-24 20:46:41 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -629,6 +629,11 @@ c
       cname(26)='         HCTH407+ Correlation Functional'
       cname(27)='   TPSS03 metaGGA Correlation Functional'
       cname(28)='      Becke 1997-3 Correlation Potential'
+      cname(31)='               B95 Correlation Potential'
+      cname(32)='            PW6B95 Correlation Potential'
+      cname(33)='             PWB6K Correlation Potential'
+      cname(34)='               M05 Correlation Potential'
+      cname(35)='            M05-2X Correlation Potential'
       cname(36)='        OP_Becke88 Correlation Potential'
       cname(37)='          OP_PBE96 Correlation Potential'
 
@@ -658,6 +663,10 @@ c
       xname(21)='        TPSS metaGGA Exchange Functional'
       xname(22)='       Becke 1997-3  Exchange Functional'
       xname(25)='  Filatov Thiel 1997 Method X Functional'
+      xname(26)='          PW6B95 GGA Exchange Functional'
+      xname(27)='           PWB6K GGA Exchange Functional'
+      xname(28)='         M05 metaGGA Exchange Functional'
+      xname(29)='      M05-2X metaGGA Exchange Functional'
       xname(30)='                RPBE Exchange Functional'
       xname(31)='              RevPBE Exchange Functional'
 c
@@ -682,8 +691,16 @@ c
       xcname(17)='           HCTH407+ Method XC Functional'
       xcname(18)='        TPSS hybrid Method XC Functional'
       xcname(19)='         Becke 97-3 Method XC Functional'
+      xcname(21)='            MPW1B95 Method XC Functional'
+      xcname(22)='             MPWB1K Method XC Functional'
+      xcname(23)='              B1B95 Method XC Functional'
+      xcname(24)='               BB1K Method XC Functional'
+      xcname(25)='             PW6B95 Method XC Functional'
+      xcname(26)='              PWB6K Method XC Functional'
       xcname(27)='                BOP Method XC Functional'
       xcname(28)='              PBEOP Method XC Functional'
+      xcname(29)='                M05 Method XC Functional'
+      xcname(30)='             M05-2X Method XC Functional'
 
 c     
 c     place character XC parameters in rtdb

@@ -1,6 +1,6 @@
       logical function xc_chktau()
 C
-C $Id: xc_chktau.F,v 1.3 2003-12-18 21:55:46 pollack Exp $ 
+C $Id: xc_chktau.F,v 1.4 2006-02-24 20:46:44 edo Exp $ 
 C
       implicit none
  
@@ -15,7 +15,9 @@ C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
  
       double precision tot,eps
       parameter(eps=1.d-10)
-      tot = xfac(18) + cfac(25)+xfac(21)+cfac(27)
+      tot = xfac(18) + cfac(25)+xfac(21)+cfac(27) +
+     +     xfac(28) + xfac(29) +
+     +     cfac(31) + cfac(32) + cfac(33) + cfac(34) + cfac(35)
       if (abs(tot).gt.eps)then
          xc_chktau = .true.
       else

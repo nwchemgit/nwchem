@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.88 2006-01-11 23:12:03 edo Exp $ 
+% $Id: dft.tex,v 1.89 2006-02-24 20:46:45 edo Exp $ 
 %
 \label{sec:dft}
 
@@ -51,6 +51,7 @@ the DFT module are:
       [hcth407] [becke97gga1]  [hcth407p]\
       [mpw91] [mpw1k] [xft97] [cft97] [ft97] [op] [bop] [pbeop]\
       [xpkzb99] [cpkzb99] [xtpss03] [ctpss03] [xctpssh]\
+      [b1b95] [bb1k] [mpw1b95] [mpwb1k] [pw6b95] [pwb6k] [m05] [m05-2x]\
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -68,7 +69,18 @@ the DFT module are:
       [vwn_3 <real prefactor default 1.0>] \
       [vwn_4 <real prefactor default 1.0>] \
       [vwn_5 <real prefactor default 1.0>] \
-      [vwn_1_rpa <real prefactor default 1.0>]]
+      [vwn_1_rpa <real prefactor default 1.0>] \
+      [xtpss03 [nonlocal] <real prefactor default 1.0>] \
+      [ctpss03 [nonlocal] <real prefactor default 1.0>] \
+      [bc95 [nonlocal] <real prefactor default 1.0>] \
+      [xpw6b95 [nonlocal] <real prefactor default 1.0>] \
+      [xpwb6k [nonlocal] <real prefactor default 1.0>] \
+      [xm05 [nonlocal] <real prefactor default 1.0>] \
+      [xm05-2x [nonlocal] <real prefactor default 1.0>] \
+      [cpw6b95 [nonlocal] <real prefactor default 1.0>] \
+      [cpwb6k [nonlocal] <real prefactor default 1.0>] \
+      [cm05 [nonlocal] <real prefactor default 1.0>] \
+      [cm05-2x [nonlocal] <real prefactor default 1.0>]]
 
 
   CONVERGENCE [[energy <real energy default 1e-7>] \
@@ -625,6 +637,8 @@ Keyword    & X        & C           & GGA    & Meta & Hybr. & 2nd  & Ref.\\
 {\tt  xft97    }& $\star$  &             &  $\star$  &   &        &  N   &[24]\\
 {\tt  rpbe     }& $\star$  &             &  $\star$  &   &        &  Y   &[33]\\
 {\tt  revpbe   }& $\star$  &             &  $\star$  &   &        &  Y   &[34]\\
+{\tt  xpw6b95  }& $\star$  &             &  $\star$  &   &        &  N   &[36]\\
+{\tt  xpwb6k   }& $\star$  &             &  $\star$  &   &        &  N   &[36]\\
 \hline                                                  
 {\tt  perdew86 }&          &   $\star$   &  $\star$  &   &       &  Y   &[9]\\
 {\tt  lyp      }&          &   $\star$   &  $\star$  &   &       &  Y   &[10]\\
@@ -648,7 +662,21 @@ Keyword    & X        & C           & GGA    & Meta & Hybr. & 2nd  & Ref.\\
 {\tt  cpkzb99  }&          &  $\star$    &           &$\star$&   &  N   &[26]\\
 {\tt  xtpss03  }& $\star$  &             &           &$\star$&   &  N   &[28]\\
 {\tt  ctpss03  }&          &  $\star$    &           &$\star$&   &  N   &[28]\\
+{\tt  bc95     }&          &  $\star$    &           &$\star$&   &  N   &[33]\\
+{\tt  cpw6b95  }&          &  $\star$    &           &$\star$&   &  N   &[36]\\
+{\tt  cpwb6k   }&          &  $\star$    &           &$\star$&   &  N   &[36]\\
+{\tt  xm05     }& $\star$  &             &           &$\star$&   &  N   &[37]\\
+{\tt  cm05     }&          &  $\star$    &           &$\star$&   &  N   &[37]\\
+{\tt  xm05-2x  }& $\star$  &             &           &$\star$&   &  N   &[38]\\
+{\tt  cm05-2x  }&          &  $\star$    &           &$\star$&   &  N   &[38]\\
 {\tt  xctpssh  }&          &             &       &$\star$&$\star$&  N   &[28]\\
+{\tt  bb1k     }&          &             &       &$\star$&$\star$&  N   &[34]\\
+{\tt  mpw1b95  }&          &             &       &$\star$&$\star$&  N   &[35]\\
+{\tt  mpwb1k   }&          &             &       &$\star$&$\star$&  N   &[35]\\
+{\tt  pw6b95   }&          &             &       &$\star$&$\star$&  N   &[36]\\
+{\tt  pwb6k    }&          &             &       &$\star$&$\star$&  N   &[36]\\
+{\tt  m05      }&          &             &       &$\star$&$\star$&  N   &[37]\\
+{\tt  m05-2x   }&          &             &       &$\star$&$\star$&  N   &[38]\\
 \hline
 {\tt  beckehandh}& $\star$  &   $\star$   &           &   & $\star$  &  Y   &[13]\\
 {\tt  b3lyp    }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
@@ -731,7 +759,13 @@ J. Chem Phys. {\bf 110}, 10664 (1999)\\
 \item T. Tsuneda, T. Suzumura and K. Hirao,
 J. Chem Phys. {\bf 111}, 5656  (1999) \\
 \item B. Hammer, L. B. Hansen and J. N{\o}rskov , Phys. Rev. B {\bf 58}, 7413 (1999)\\
-\item Y. Zhang and W. Yang, Phys. Rev. Letters {\bf 80}, 890 (1998)
+\item Y. Zhang and W. Yang, Phys. Rev. Letters {\bf 80}, 890 (1998)\\
+\item A. D. Becke, J. Chem. Phys. {\bf 104}, 1040 (1996)\\
+\item Y. Zhao and D. G. Truhlar, J. Phys. Chem. A {\bf 108}, 2715 (2004)\\
+\item Y. Zhao and D. G. Truhlar, J. Phys. Chem. A {\bf 108}, 6908 (2004)\\
+\item Y. Zhao and D. G. Truhlar, J. Phys. Chem. A {\bf 109}, 5656 (2005)\\
+\item Y. Zhao, N. E. Schultz and D. G. Truhlar, J. Chem. Phys. {\bf 123}, 161103 (2005)\\
+\item Y. Zhao, N. E. Schultz and D. G. Truhlar, J. Chem. Theory Comput. in press (2006)
 \end{enumerate}
 }
 %\end{table}
