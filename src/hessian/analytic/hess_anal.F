@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.24 2006-02-13 23:27:38 edo Exp $
+C $Id: hess_anal.F,v 1.25 2006-02-24 21:50:50 edo Exp $
 C
       logical function hess_anal(rtdb)
 C
@@ -50,7 +50,8 @@ c
       if (.not. hess_check(rtdb)) then
         write(LuOut,*) 'The Analytic Hessian code cannot run ',
      *    'calculations open shell DFT, or charge fitted DFT ',
-     *    'or relativistic all-electron methods.'
+     *    'or relativistic all-electron methods,',
+     *    'or metaGGA functionals '
         write(LuOut,*) 'Please use the numerical option'
         return
       endif
@@ -123,7 +124,8 @@ c
       if (.not. hess_check(rtdb)) then
         write(LuOut,*) 'The Analytic Hessian code cannot run ',
      *    'calculations open shell DFT, or charge fitted DFT ',
-     *    'or relativistic all-electron methods.'
+     *    'or relativistic all-electron methods,',
+     *    'or metaGGA functionals '
         write(LuOut,*) 'Please use the numerical option'
         return
       endif

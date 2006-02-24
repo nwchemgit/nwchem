@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.54 2006-01-10 21:01:49 edo Exp $
+C $Id: hess_init.F,v 1.55 2006-02-24 21:50:50 edo Exp $
 C
       subroutine hess_init(rtdb)
 c
@@ -570,6 +570,8 @@ c
       integer geom1, basis1
       integer ipol, mult
       logical cdfit, dmd_rel, dk_rel
+      logical xc_chktau
+      external xc_chktau
 c
       hess_check = .false.
       cdfit = .false.
@@ -649,6 +651,18 @@ c
      $                   basis1, BASIS_ERR)
       endif
 c
+c     check for metaGGAs
+c
+      if(theory.eq.'dft') then
+         call xc_getxcfac(rtdb)
+         if(xc_chktau()) then
+            if (ga_nodeid().eq.0)
+     $           write(LuOut,*) 'MetaGGAs detected'
+            return
+         endif
+      endif
+c
+      
       if (cdfit) then
         if (ga_nodeid().eq.0)
      $    write(LuOut,*) 'CD fit detected'

@@ -1,6 +1,6 @@
       logical function xc_chktau()
 C
-C $Id: xc_chktau.F,v 1.4 2006-02-24 20:46:44 edo Exp $ 
+C $Id: xc_chktau.F,v 1.5 2006-02-24 21:50:53 edo Exp $ 
 C
       implicit none
  
@@ -23,6 +23,19 @@ C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
       else
          xc_chktau = .false.
       endif
+      return
+      end
+      subroutine xc_getxcfac(rtdb)
+      implicit none
+      integer rtdb
+c     load cfac and xfac into cdft.fh
+#include "cdft.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc,
+     &   xfac))call errquit(' xcgetxcfac ',0,0)
+      if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, numfunc,
+     &   cfac))call errquit(' xcgetxcfac ',0,0)
       return
       end
 
