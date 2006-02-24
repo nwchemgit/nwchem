@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.88 2006-02-22 01:12:07 marat Exp $
+c $Id: qmmm_geom.F,v 1.89 2006-02-24 20:53:35 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -379,10 +379,13 @@ c
       logical ignore
       integer geomlen
       logical oprint_low
+      logical master
  
       pname = "qmmm_geom_create"
       if(qmmm_print_debug())
      > write(*,*) "in "//pname
+
+      master = ga_nodeid().eq.0
 
       oprint_low = qmmm_print_low()
       geomlen = inp_strlen(aname)
@@ -442,7 +445,7 @@ c
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 
-      if(.not.oprint_low) then
+      if(.not.oprint_low.and.master) then
         buf = " "
         write(buf,*) "globally indexed xyz file for ",
      +    aname(1:geomlen)
