@@ -71,7 +71,6 @@ c
       oprint_debug = oprint_debug .and. (ga_nodeid().eq.0)
 c
       oprint_low = util_print("low", print_low)
-      oprint_low = oprint_low .and. (ga_nodeid().eq.0)
 c
       eatoms = 0.0d0
       linkatm=qmmm_hydrogen
