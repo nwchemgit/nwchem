@@ -337,33 +337,37 @@ c
         goto 600
       end if
 c
-      if(inp_compare(.false.,'load',token)) then
-        if (.not.inp_a(token))
-     +    call errquit("please provide an option for load",
-     +                0, INPUT_ERR)
-        if(inp_compare(.false.,'bq',token)) then
-          tag = "qmmm:readbq"
-          if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
-     >     goto 999
-          if(inp_a(token)) then
-            tag = "qmmm:bqfilename"
-            if(.not.rtdb_cput(rtdb,tag,1,token)) 
-     >       goto 999
-          end if
-        else if(inp_compare(.false.,'esp',token)) then
-          tag = "qmmm:readesp"
-          if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
-     >     goto 999
-          if(inp_a(token)) then
-            tag = "qmmm:espfilename"
-            if(.not.rtdb_cput(rtdb,tag,1,token)) 
-     >       goto 999
-          end if
-        else
-          call errquit('unknown option for load',0,INPUT_ERR)
-        end if
-        goto 2
+      if(inp_compare(.false.,'esp',token)) then
+        call qmmm_input_esp(rtdb)     
+        go to 1
       end if
+c      if(inp_compare(.false.,'load',token)) then
+c        if (.not.inp_a(token))
+c     +    call errquit("please provide an option for load",
+c     +                0, INPUT_ERR)
+c        if(inp_compare(.false.,'bq',token)) then
+c          tag = "qmmm:readbq"
+c          if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
+c     >     goto 999
+c          if(inp_a(token)) then
+c            tag = "qmmm:bqfilename"
+c            if(.not.rtdb_cput(rtdb,tag,1,token)) 
+c     >       goto 999
+c          end if
+c        else if(inp_compare(.false.,'esp',token)) then
+c          tag = "qmmm:readesp"
+c          if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
+c     >     goto 999
+c          if(inp_a(token)) then
+c            tag = "qmmm:espfilename"
+c            if(.not.rtdb_cput(rtdb,tag,1,token)) 
+c     >       goto 999
+c          end if
+c        else
+c          call errquit('unknown option for load',0,INPUT_ERR)
+c        end if
+c        goto 2
+c      end if
 c
       if(inp_compare(.false.,'bq_zone',token) .or.
      >   inp_compare(.false.,'bqzone',token)) then
@@ -393,6 +397,54 @@ c
      + token(1:inp_strlen(token))
        call errquit(pname//'failed ',0,
      >        RTDB_ERR)
+      return
+998   call errquit(pname//'no token found '//token,0,
+     >        RTDB_ERR)
+999   call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+
+      end
+
+
+      subroutine qmmm_input_esp(rtdb)
+c
+      implicit none
+#include "errquit.fh"
+c
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "qmmm_params.fh"
+c
+      integer rtdb
+c
+      character*32 tag
+      character*32 pname
+      character*255 token
+c
+      pname = "qmmm_input_esp"
+c
+600   continue
+      if(.not.inp_a(token)) goto 20
+      if (inp_compare(.false.,'save',token)) then
+       if(.not.inp_a(token)) goto 998
+       tag="qmmm:esp:save:file"
+       if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >     goto 999
+       write(*,*) "found qmmm:esp:save:file",token
+      else if (inp_compare(.false.,'load',token)) then
+       if(.not.inp_a(token)) goto 998
+       tag="qmmm:espfilename"
+c       tag="qmmm:esp:load:file"
+       if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >     goto 999
+       tag="qmmm:readesp"
+       if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >     goto 999
+       end if
+       goto 600
+20    continue
       return
 998   call errquit(pname//'no token found '//token,0,
      >        RTDB_ERR)
