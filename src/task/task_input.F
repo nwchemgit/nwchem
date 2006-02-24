@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.47 2006-02-14 19:07:13 marat Exp $
+* $Id: task_input.F,v 1.48 2006-02-24 20:50:50 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -200,14 +200,14 @@ c
      &      ("task_input:"//operation//"not supported with QMMM",911,
      &       RTDB_ERR)
 
-        if (operation.eq.'freq' .or.
-     >      operation.eq.'hessian' .or.
-     >      operation.eq.'frequencies' ) then
-           if(.not.numerical) call errquit
-     &      ("task_input:only numerical "//operation//
-     >        "is supported with QMMM",911,
-     &       RTDB_ERR)
-        end if
+c        if (operation.eq.'freq' .or.
+c     >      operation.eq.'hessian' .or.
+c     >      operation.eq.'frequencies' ) then
+c           if(.not.numerical) call errquit
+c     &      ("task_input:only numerical "//operation//
+c     >        "is supported with QMMM",911,
+c     &       RTDB_ERR)
+c        end if
 
       endif
       if (ignore) then

@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.77 2006-02-14 19:14:48 marat Exp $
+* $Id: task.F,v 1.78 2006-02-24 20:50:50 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -243,7 +243,11 @@ c
            status = task_optimize(rtdb)
          endif
       else if (inp_compare(.false., 'saddle', operation)) then
-         status = task_saddle(rtdb)
+         if(oqmmm) then
+           status = task_qmmm_optimize(rtdb)
+         else
+           status = task_saddle(rtdb)
+         endif
       else if(inp_compare(.false.,'neb',operation)) then
          status=task_neb(rtdb)
       else if (inp_compare(.false., 'lst', operation)) then
