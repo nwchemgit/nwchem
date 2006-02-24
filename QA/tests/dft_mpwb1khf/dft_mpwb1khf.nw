@@ -1,0 +1,22 @@
+echo
+title "test4 MPWB1K/6-31+G* HF optimization "
+start  dft_mpwb1khf
+
+geometry
+F        0.000000    0.000000    0.108786
+H        0.000000    0.000000   -0.870284
+end
+
+basis
+* library 6-31+G*
+end
+
+dft
+xc  MPWB1K 	
+mult 1 
+grid fine
+end
+
+task dft  optimize
+
+
