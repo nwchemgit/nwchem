@@ -1,0 +1,26 @@
+echo
+title "test5 M05-2X/6-31+G*  NH2 + CH3 TS single point"
+start dft_m05nh2ch3
+
+geometry
+C       -1.199577    -.011126    -.000030
+N        1.400715     .129862     .000015
+H       -1.426660    -.512932     .933057
+H       -1.419907    -.591382    -.888143
+H       -1.520237    1.022806    -.045783
+H         .188926     .126896     .001001
+H        1.570338    -.887667    -.000053
+end
+
+basis
+* library 6-31++G**
+end
+
+dft
+xc  m05-2x 	
+mult 3 
+grid fine
+end
+
+task dft 
+
