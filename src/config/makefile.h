@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.518 2006-02-23 18:17:35 edo Exp $
+# $Id: makefile.h,v 1.519 2006-02-27 22:42:50 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1619,7 +1619,17 @@ endif # end of ia32 bit
       endif
       ifeq ($(_FC),ifc)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
+       _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /EM64T/ {print "Y";exit};')
        _IFCV81= $(shell ifc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
+# Intel EM64T is required
+      ifneq ($(_IFCE),Y)
+        defineFCE: 
+	@echo
+	@echo "   " ifort for EM64T applications is required for x86_64 CPUs
+	@echo "   " ifort for 32-bit applications is not suitable for x86_64 CPUs
+	@echo
+	@exit 1
+      endif
        ifeq ($(_IFCV81),Y)
 # to get EM64T
 # Intel 8.1 is required
