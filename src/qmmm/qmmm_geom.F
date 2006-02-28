@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.89 2006-02-24 20:53:35 marat Exp $
+c $Id: qmmm_geom.F,v 1.90 2006-02-28 01:25:42 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -229,6 +229,7 @@ c     ---------------------------------------------
       if (rtdb_cget(irtdb,"qmmm:neb_path_limits",2,rstfile)) then 
         call qmmm_geom_create_rst(irtdb,"neb_start",rstfile(1))
         call qmmm_geom_create_rst(irtdb,"neb_end",rstfile(2))
+        call mm_reload_rst(irtdb,filename0)
       else
        if (.not.rtdb_get(irtdb,'neb:nbeads',mt_int,1,nbeads)) then
           nbeads = 5
