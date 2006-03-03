@@ -1,7 +1,7 @@
       subroutine sp_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: sp_main.F,v 1.94 2005-10-03 21:08:11 edo Exp $
+c $Id: sp_main.F,v 1.95 2006-03-03 23:37:19 bert Exp $
 c
       implicit none
 c
@@ -3552,7 +3552,7 @@ c
 c
 c     get the size of an integer on this machine in bits
 c
-      intsiz=8*ma_sizeof(mt_int,1,mt_byte)
+      intsiz=ma_sizeof(mt_int,1,mt_byte)
 c
 c      if(intsiz.le.32) then
       call ga_igop(msp_14,nlst,2*npp,'+')
