@@ -46,6 +46,7 @@ send your bug report using the correct channel listed in the
 <li> <a href="#5">NWChem fails with PROGRAM STOP IN - ZDAT - when more than 256 variables are used in the Z-matrix definition.</a></li>
 <li> <a href="#6">Meta-GGA functionals.</a></li>
 <li> <a href="#7">task shell failures.</a></li>
+<li> <a href="#8">Stack block 'lst' error in Molecular Dynamics runs on few processors.</a></li>
 
 </ol>
 
@@ -152,6 +153,8 @@ therefore resulting in incorrect self-consistent evaluation of the Meta-GGAs.
 <br>
 These bugs have been fixed and will be available in the next release.
 </p>
+<hr>
+<p>
 <a name="7"></a><font color="purple">task shell failures.</font></p>
 <p>
 Users can encounter errors in the "task shell" execution (errors message: "shell failed"). This bug has been fixed and will be available in the next release. A patch is available. For installation of the patch:
@@ -168,6 +171,13 @@ Users can encounter errors in the "task shell" execution (errors message: "shell
 
 <hr>
 <p>
+<a name="7"></a><font color="purple">Stack block 'lst' error in Molecular Dynamics runs on few processors.</font></li>
+<p>
+Users can encounter errors when running molecular dynamics calculations on small nnumbers of processors, typically less than 8. The error message is as follows:<p>
+MA_verify_allocator stuff: starting scan<br>
+stack block 'lst', handle 109 .....<p>
+This bug has been fixed and will be available in the next release.
+</p>
 
 <br>
 <hr>
