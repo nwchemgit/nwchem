@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.5 2006-02-22 18:28:56 edo Exp $
+c $Id: task_qmmm_fep.F,v 1.6 2006-03-06 02:00:53 marat Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -398,15 +398,12 @@ c     external functions
 c     local variables
       double precision stime
       integer i
-      logical ignore
       character*255 filename
-      character*255 buf
       integer fn_trj,fn
       integer trn(3)
       integer in,nf,nf0
       character*30 pname
       character*255 buffer
-      character*3  ftype
       logical master
       integer i_e1,h_e1
       integer i_e2,h_e2
@@ -666,6 +663,179 @@ c
 
       end
 
+      function qmmm_fep_gen(rtdb,
+     >                      ngeom,geom_file,
+     >                      nesp,esp_file,
+     >                      ntr,filetrj,
+     >                      ns,tav,de)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer rtdb
+      integer ngeom
+      character*(*) geom_file(ngeom)
+      integer nesp
+      character*(*) esp_file(nesp)
+      integer ntr(3)
+      character*(*) filetrj
+      integer ns
+      double precision tav
+      double precision de(*)
+      logical qmmm_fep_gen
+c     external functions
+      logical qmmm_energy_gradient
+      external qmmm_energy_gradient 
+
+c     local variables
+      integer n,np
+      double precision stime
+      integer i
+      integer fn_trj
+      integer in,nf,nf0
+      character*30 pname
+      logical master
+      integer offset 
+      double precision eref
+      double precision taver
+      double precision tsum
+      double precision e(100)
+      double precision t
+      double precision fsum(100)
+c
+      logical ti_geom, ti_esp, oextend
+c
+      logical  mm_read_frame
+      external mm_read_frame
+      logical  mm_skip_frame
+      external mm_skip_frame
+c
+      pname = "qmmm_fep_gen"
+c
+      qmmm_fep_gen = .true.
+c
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+c
+      master = qmmm_master()
+c
+      if(master) then
+        if(.not.qmmm_get_io_unit(fn_trj)) 
+     >   call errquit("cannot get file number",0,0)
+        open(unit=fn_trj,file=filetrj,
+     +   form='formatted',status='old',err=998)
+      end if
+c
+      ti_geom = ngeom.gt.1
+      ti_esp  = nesp.gt.1
+      if( (.not.ti_geom).and.(.not.ti_esp))  
+     > call errquit(pname//'neither esp or geom file was specified',0,0)
+      np = max(ngeom,nesp)-1
+c
+      oextend = ns.gt.0
+      if(oextend) then
+        tsum = taver*ns
+        do n=1,np
+          fsum(n) = exp(-de(n)/(kb_au*tav))*ns
+        end do
+      else
+        tsum = 0.0d0
+        do n=1,np
+          fsum(n) = 0.0d0
+        end do
+      end if
+c
+c     total number of frames to process
+c     ---------------------------------
+      nf = MAX((ntr(2)-ntr(1)+ntr(3))/ntr(3),0)
+      if(master) 
+     >   write(*,*) "ti: total number of frames",nf
+c
+      offset = ntr(1)
+      in = 0
+      do i=ntr(1),ntr(2),ntr(3)
+        in = in + 1
+        if(.not.mm_read_frame(fn_trj,offset))
+     >      call errquit(pname//'failed to get skip frames',
+     >                   0,0)
+        call mm_get_temp(t)
+        call mm_get_stime(stime)
+c
+        if(ti_esp) then
+          if(.not.rtdb_put(rtdb,'qmmm:readesp',mt_log,1,.true.))
+     $       call errquit('qmmm ti: failed ', 0, RTDB_ERR)
+          if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file(n)))
+     >        call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+          call qmmm_esp_reset(rtdb)
+        end if
+c
+        call md_sp()
+        qmmm_fep_gen = qmmm_energy_gradient(rtdb,.false.)
+        call qmmm_energy_rtdb_push(rtdb)
+        call qmmm_print_energy(rtdb)
+        if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >      mt_dbl,1,eref))
+     $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+
+        do n=1,np
+          if(ti_geom)  
+     >      call mm_set_solute_coord_file(geom_file(n))
+          if(ti_esp) then
+            if(.not.rtdb_put(rtdb,'qmmm:readesp',mt_log,1,.true.))
+     $         call errquit('qmmm ti: failed ', 0, RTDB_ERR)
+            if(.not.rtdb_cput(rtdb,"qmmm:espfilename",1,esp_file(n)))
+     >          call errquit('qmmm: failed set espfile', 0, RTDB_ERR)
+            call qmmm_esp_reset(rtdb)
+          end if
+          call md_sp()
+          qmmm_fep_gen = qmmm_energy_gradient(rtdb,.false.)
+          call qmmm_energy_rtdb_push(rtdb)
+          call qmmm_print_energy(rtdb)
+          if (.not. rtdb_get(rtdb,'qmmm:energy',
+     >        mt_dbl,1,e(n)))
+     $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+        end do
+        offset = ntr(3)
+
+        if(master) write(*,*) 
+     >      "ti:",
+     >      in,
+     >      stime,
+     >      t,
+     >      (e(n),n=1,np)
+
+         tsum = tsum + t
+         tav = tsum/(in+ns)
+         do n=1,np
+           fsum(n) = fsum(n) + 
+     +             exp((eref-e(n))/(t*kb_au))
+           de(n) = -kb_au*tav*log(fsum(n)/(in+nf0))
+         end do
+         write(*,*) 'current free energy difference ',
+     +        (de(n)*627.51,n=1,np)
+
+      end do
+ 23   continue
+
+      if(master) then
+        close(fn_trj)
+      end if
+
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in ",pname
+      if(master) call util_flush(6)
+      return
+ 998  continue
+      call errquit('Failed to open trajectory file ',0,0)
+      end
+
       function qmmm_fep(rtdb,geom_file,esp_ref,esp_pert,filetrj)
       implicit none
 c
@@ -691,15 +861,12 @@ c     external functions
 c     local variables
       double precision stime
       integer i
-      logical ignore
       character*255 filename
-      character*255 buf
       integer fn_trj,fn
       integer trn(3)
       integer in,nf,nf0
       character*30 pname
       character*255 buffer
-      character*3  ftype
       logical master
       integer i_e1,h_e1
       integer i_e2,h_e2
