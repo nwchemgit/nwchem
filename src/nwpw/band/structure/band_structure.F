@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.13 2005-09-08 01:30:23 bylaska Exp $
+* $Id: band_structure.F,v 1.14 2006-03-07 00:01:34 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -714,7 +714,8 @@
 ******************       DOS plotting        **********************
 *                |***************************|
 
-      if (flag.eq.1) then
+      value = rtdb_parallel(.false.)
+      if ((flag.eq.1).and.(taskid.eq.MASTER)) then
 
 
         if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
@@ -743,14 +744,12 @@
      >                    .false.,
      >                    .false.,
      >                    full_filename)
-        if (taskid.eq.MASTER) then
-          open(unit=58,file=full_filename,form='formatted')
-          call band_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
+        open(unit=58,file=full_filename,form='formatted')
+        call band_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
      >                           dbl_mb(eigs_dos(1)),ne(1),
      >                           (1.0d0),
      >                           npoints,emin,emax)
-          close(58)
-        end if
+        close(58)
 
         !**** put eigs_dos on rtdb for use by task band dos_dplot ***
         if (.not.rtdb_put(rtdb,'dos:eigs_dos',mt_dbl,
@@ -759,6 +758,7 @@
      >                0,RTDB_ERR)
         end if
       end if
+      value = rtdb_parallel(.true.)
 
 
 *                |***************************|
