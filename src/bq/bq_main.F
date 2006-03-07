@@ -1,4 +1,4 @@
-c $Id: bq_main.F,v 1.4 2005-12-30 01:26:28 edo Exp $
+c $Id: bq_main.F,v 1.5 2006-03-07 23:13:41 marat Exp $
 
       function bq_init(rtdb)
       implicit none
@@ -52,6 +52,122 @@ c
       bq_end = bq_destroy_all()
 
       end
+
+      function bq_nuc_energy(rtdb,ebq)
+      implicit none
+#include "rtdb.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "global.fh"
+
+      integer rtdb
+      double precision ebq
+      logical bq_nuc_energy
+c
+      character*32 pname
+      integer bq_handle
+      integer bq_ncent
+      integer ncent
+
+      integer i,j
+      integer i_cbq,i_qbq
+      integer h_c,h_t,h_q
+      integer i_c,i_t,i_q
+      integer ioff,joff
+      double precision rx,ry,rz,r
+      integer geom
+c
+       logical  bq_ncenter
+       external bq_ncenter
+
+       logical  bq_index_coord
+       external bq_index_coord
+
+       logical  bq_index_charge
+       external bq_index_charge
+
+       logical  bq_destroy
+       external bq_destroy
+
+       logical  bq_get_active
+       external bq_get_active
+
+c   
+      pname = "bq_nuc_rep_energy"
+c
+      bq_nuc_energy = .true.
+c
+c     get bq information
+c     ------------------
+      if(.not.bq_get_active(bq_handle)) then
+         ebq = 0.0d0
+         return
+      end if
+      if(.not.bq_ncenter(bq_handle,bq_ncent))
+     >   call errquit(pname//':no bq centers',0,0)
+      if(.not.bq_index_coord(bq_handle,i_cbq))
+     >   call errquit(pname//':no bq coords',0,0)
+      if(.not.bq_index_charge(bq_handle,i_qbq))
+     >   call errquit(pname//':no bq coords',0,0)
+c
+      if(.not.geom_create(geom,'geometry'))
+     + call errquit(pname//'Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_rtdb_load(rtdb,geom,'geometry'))
+     + call errquit(pname//'Failed to create geometry',0, GEOM_ERR)
+c
+      if(.not. geom_ncent(geom, ncent) ) 
+     >    call errquit("qmmm:geom_ncent",0,0)
+
+      if(.not.ma_push_get(mt_dbl,3*ncent,'bq c',h_c,i_c))
+     + call errquit(pname//': Failed to allocate memory for c',
+     + 3*ncent, MA_ERR)
+      if(.not.ma_push_get(mt_dbl,ncent,'bq q',h_q,i_q))
+     + call errquit(pname//': Failed to allocate memory for q',ncent,
+     &       MA_ERR)
+      if(.not.ma_push_get(mt_byte,16*ncent,'t',h_t,i_t))
+     + call errquit(pname//': Failed to allocate memory for q',ncent,
+     &       MA_ERR)
+
+      if(.not.geom_cart_get(geom,ncent,byte_mb(i_t),
+     + dbl_mb(i_c),dbl_mb(i_q)))
+     + call errquit(pname//':Failed to get geometry',0, GEOM_ERR)
+
+      ebq = 0.0d0
+      do i = 1,ncent
+         ioff = i_c+(i-1)*3
+         do j = 1, bq_ncent
+           joff = i_cbq+(j-1)*3
+           rx = dbl_mb(ioff)-dbl_mb(joff)
+           rx = rx*rx
+           ry = dbl_mb(ioff+1)-dbl_mb(joff+1)
+           ry = ry*ry
+           rz = dbl_mb(ioff+2)-dbl_mb(joff+2)
+           rz = rz*rz
+           r  = sqrt(rx+ry+rz)
+           ebq = ebq + dbl_mb(i_q+i-1)*dbl_mb(i_qbq+j-1)/r
+         end do
+      end do
+c
+      if(ga_nodeid().eq.0) then
+        write(*,*) "Bq nuclear interaction energy is", ebq 
+      end if
+c 
+      if(.not.ma_pop_stack(h_t))
+     & call errquit(pname//': Failed to deallocate stack t_all',0,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_q))
+     & call errquit(pname//': Failed to deallocate stack q_all',0,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_c))
+     & call errquit(pname//': Failed to deallocate stack c_all',0,
+     &       MA_ERR)
+
+       if(.not.geom_destroy(geom))
+     + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
+
+      end 
 
       function bq_add_nuc_rep_energy(geom,e)
       implicit none
