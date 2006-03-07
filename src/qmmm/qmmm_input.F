@@ -422,33 +422,43 @@ c
       character*32 tag
       character*32 pname
       character*255 token
+      character*255 token0
 c
       pname = "qmmm_input_esp"
 c
 600   continue
       if(.not.inp_a(token)) goto 20
       if (inp_compare(.false.,'save',token)) then
-       if(.not.inp_a(token)) goto 998
-       tag="qmmm:esp:save:file"
-       if(.not.rtdb_cput(rtdb,tag,1,token)) 
+       token0 = token
+       tag="qmmm:esp:save"
+       if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
      >     goto 999
-       write(*,*) "found qmmm:esp:save:file",token
       else if (inp_compare(.false.,'load',token)) then
-       if(.not.inp_a(token)) goto 998
-       tag="qmmm:espfilename"
-c       tag="qmmm:esp:load:file"
-       if(.not.rtdb_cput(rtdb,tag,1,token)) 
-     >     goto 999
+       token0 = token
        tag="qmmm:readesp"
        if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
      >     goto 999
+      else
+       if(inp_compare(.false.,'load',token0)) then
+         tag="qmmm:espfilename"
+         if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >     goto 999
+       else if (inp_compare(.false.,'save',token0)) then
+         tag="qmmm:esp:save:file"
+         if(.not.rtdb_cput(rtdb,tag,1,token)) 
+     >     goto 999
+       else
+        goto 997
        end if
-       goto 600
+      end if
+      goto 600
 20    continue
       return
 998   call errquit(pname//'no token found '//token,0,
      >        RTDB_ERR)
 999   call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+997   call errquit(pname//'invalid token '//token,0,
      >        RTDB_ERR)
 
       end
