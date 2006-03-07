@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.33 2006-02-22 01:12:07 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.34 2006-03-07 00:44:15 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -197,6 +197,8 @@ c     ---------------------------------
       offset = trn(1)
       ifr = 0
       do i=trn(1),trn(2),trn(3)
+        ignore = rtdb_delete(rtdb,"dft:converged")
+        ignore = rtdb_delete(rtdb,"scf:converged")
         ifr = ifr + 1
 c       read frame
         if(.not.mm_read_frame(fn,offset))
@@ -1259,7 +1261,7 @@ c
       end
 
       function task_qmmm_energy_pes0(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.33 2006-02-22 01:12:07 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.34 2006-03-07 00:44:15 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1508,7 +1510,7 @@ c       end load restart
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.33 2006-02-22 01:12:07 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.34 2006-03-07 00:44:15 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
