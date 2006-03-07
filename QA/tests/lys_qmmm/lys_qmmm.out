@@ -1,3 +1,4 @@
+ARMCI configured for 4 cluster nodes. Network protocol is 'Quadrics ELAN-4'.
  argument  1 = lys_qmmm.nw
  
 
@@ -12,7 +13,13 @@ start lys
 
 echo
 
-task shell "cp lys0.rst lys_em.rst"
+#task shell "cp lys0.rst lys_em.rst"
+prepare
+read lys0.rst
+write lys_em.rst
+end
+
+task prepare
 
 # A basis set must be defined for the QM part
 
@@ -119,21 +126,20 @@ task qmmm dft optimize ignore
            Job information
            ---------------
 
-    hostname      = seattle-1
-    program       = /home/marat/codes/nwchem/bin/LINUX/nwchem
-    date          = Tue Dec  6 14:51:11 2005
+    hostname      = m861
+    program       = /home/marat/codes/nwchem-dev/bin/LINUX64/nwchem
+    date          = Tue Mar  7 15:21:52 2006
 
-    compiled      = Tue Dec  6 11:52:54 PST 2005
-    source        = /home/marat/codes/nwchem
+    compiled      = Tue Mar  7 15:18:43 PST 2006
+    source        = /home/marat/codes/nwchem-dev
     nwchem branch = Development
     input         = lys_qmmm.nw
     prefix        = lys.
     data base     = ./lys.db
     status        = startup
-    nproc         =    2
-    time left     =     -1s
-
-
+    nproc         =    8
+    time left     =  34140s
+    batch job id  = 294204
 
            Memory information
            ------------------
@@ -150,7 +156,7 @@ task qmmm dft optimize ignore
            ---------------------
  
   0 permanent = .
-  0 scratch   = .
+  0 scratch   = /scratch
  
  
  
@@ -161,6 +167,37 @@ task qmmm dft optimize ignore
  
                                QM/MM of Lys monomer
                                --------------------
+                                  Prepare Module
+                                  --------------
+
+ Force field                           amber
+
+
+ Directories used for fragment and segment files
+
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_s/
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_q/
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_x/
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_u/
+                                       ./
+
+ Parameter files used to resolve force field parameters
+
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_s/amber.par
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_q/amber.par
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_x/amber.par
+                                       /home/marat/codes/nwchem-4.7/src/data/amber_u/amber.par
+                                       ./amber.par
+ Using existing topology               lys.top
+ Topology                              lys.top
+
+ Restart generation using command file directives
+
+ Read restart                          lys0.rst
+
+
+ Created restart                       lys_em.rst
+
 
  Task  times  cpu:        0.0s     wall:        0.0s
  
@@ -178,6 +215,8 @@ task qmmm dft optimize ignore
  *                           6-31G*                   on all atoms 
 
 
+ in qmmm_input:                     
+ out of qmmm_input:                     
  ****************************************************
  *      NWChem QM/MM Interface Module               *
  *                                                  *
@@ -219,52 +258,11 @@ task qmmm dft optimize ignore
  
   3 U-p      2.00        3.568050       0.402150
  
- number of quantum atoms           5
- Total number of Bq charges          19
- Number of solute Bq charges          19
- Number of solvent Bq charges           0
+ number of quantum atoms                     5
+ Total number of Bq charges                    19
+ Number of solute Bq charges                    19
+ Number of solvent Bq charges                     0
  Total Bq charge:    1.37990000000000     
- number of active bqs           19
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.341500        2.321500        0.656000        16
-  N            -0.154500        3.179500        1.747000        19
-  H            -0.098500        2.605500        2.742000        20
-  H             0.493500        4.127500        1.814000        21
-  H            -1.245500        3.475500        1.536000        22
- 
- 
-                          Geometry "full_geometry" -> ""
-                          ------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.34150000     2.32150000     0.65600000
-    2 N                    7.0000    -0.15450000     3.17950000     1.74700000
-    3 H                    1.0000    -0.09850000     2.60550000     2.74200000
-    4 H                    1.0000     0.49350000     4.12750000     1.81400000
-    5 H                    1.0000    -1.24550000     3.47550000     1.53600000
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      39.7697729375
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     2.1571222151   100.8329441232    45.7786120559
- 
 @------------------------------------------------
 @
 @ QM/MM Multiple Region Optimization
@@ -274,50 +272,9 @@ task qmmm dft optimize ignore
 @------------------------------------------------
 @ ncycle =  1
 @
- number of active bqs            0
 @
 @ Optimizing qm         region with bfgs  
 @
-                       globally indexed xyz file for geometry
-                      ---------------------------------------
-         5
-   
-  C             0.341500        2.321500        0.656000        16
-  N            -0.154500        3.179500        1.747000        19
-  H            -0.098500        2.605500        2.742000        20
-  H             0.493500        4.127500        1.814000        21
-  H            -1.245500        3.475500        1.536000        22
- 
- 
-                      Geometry "geometry" -> "             "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.34150000     2.32150000     0.65600000
-    2 N                    7.0000    -0.15450000     3.17950000     1.74700000
-    3 H                    1.0000    -0.09850000     2.60550000     2.74200000
-    4 H                    1.0000     0.49350000     4.12750000     1.81400000
-    5 H                    1.0000    -1.24550000     3.47550000     1.53600000
- 
-      Atomic Mass 
-      ----------- 
- 
-      C                 12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      30.0157608770
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     0.2210979406    87.6719474808    42.0596313118
- 
  
  
                            NWChem Geometry Optimization
@@ -389,46 +346,7 @@ task qmmm dft optimize ignore
  ---------------- ---------------- ----------------
      0.2210979406    87.6719474808    42.0596313118
  
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.341500        2.321500        0.656000        16
-  N            -0.154500        3.179500        1.747000        19
-  H            -0.098500        2.605500        2.742000        20
-  H             0.493500        4.127500        1.814000        21
-  H            -1.245500        3.475500        1.536000        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.34150000     2.32150000     0.65600000
-    2 N                    7.0000    -0.15450000     3.17950000     1.74700000
-    3 H                    1.0000    -0.09850000     2.60550000     2.74200000
-    4 H                    1.0000     0.49350000     4.12750000     1.81400000
-    5 H                    1.0000    -1.24550000     3.47550000     1.53600000
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      39.7697729375
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     2.1571222151   100.8329441232    45.7786120559
- 
+ Total number of active Bq charges                      0
                                  NWChem DFT Module
                                  -----------------
  
@@ -570,7 +488,7 @@ task qmmm dft optimize ignore
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
-          Spatial weight screening/radius(au): 1.58D+01
+          Spatial weight screening/radius(au): 1.59D+01
 
  Bq nuclear interaction energy is   3.10912973986775     
  
@@ -592,62 +510,62 @@ task qmmm dft optimize ignore
  LUMO         =      -0.477564
  
  Bq nuclear interaction energy is   3.10912973986775     
-   Time after variat. SCF:      0.3
-   Time prior to 1st pass:      0.3
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9073
- No. of bits per label  =      8        No. of bits per value  =     64
-
+   Time after variat. SCF:      1.2
+   Time prior to 1st pass:      1.2
 
  #quartets = 1.453D+04 #integrals = 2.356D+05 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10899
+ No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
  Bq nuclear interaction energy is   3.10912973986775     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48393
+ Max. records in memory =      6        Max. recs in file   =     58130
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -84.6130281174 -1.21D+02  6.42D-02  5.58D+00     1.4
+ d= 0,ls=0.0,diis     1    -84.6130281463 -1.21D+02  6.42D-02  5.58D+00     1.8
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     2    -83.6100231280  1.00D+00  5.85D-02  1.37D+01     1.7
+ d= 0,ls=0.0,diis     2    -83.6100231437  1.00D+00  5.85D-02  1.37D+01     1.9
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     3    -84.8925723922 -1.28D+00  1.29D-02  8.14D-01     2.0
+ d= 0,ls=0.0,diis     3    -84.8925723948 -1.28D+00  1.29D-02  8.14D-01     1.9
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     4    -84.9775401918 -8.50D-02  5.84D-03  3.63D-02     2.4
+ d= 0,ls=0.0,diis     4    -84.9775401912 -8.50D-02  5.84D-03  3.63D-02     2.0
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     5    -84.9801183707 -2.58D-03  2.38D-03  1.06D-02     2.7
+ d= 0,ls=0.0,diis     5    -84.9801183703 -2.58D-03  2.38D-03  1.06D-02     2.1
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     6    -84.9814181487 -1.30D-03  2.20D-04  3.97D-05     3.0
+ d= 0,ls=0.0,diis     6    -84.9814181483 -1.30D-03  2.20D-04  3.97D-05     2.2
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     7    -84.9814220353 -3.89D-06  1.11D-04  4.07D-06     3.3
+ d= 0,ls=0.0,diis     7    -84.9814220348 -3.89D-06  1.11D-04  4.07D-06     2.4
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     8    -84.9814225183 -4.83D-07  3.42D-05  7.94D-07     3.6
+ d= 0,ls=0.0,diis     8    -84.9814225179 -4.83D-07  3.42D-05  7.94D-07     2.4
  Bq nuclear interaction energy is   3.10912973986775     
- d= 0,ls=0.0,diis     9    -84.9814226349 -1.17D-07  7.49D-07  1.84D-09     4.0
+ d= 0,ls=0.0,diis     9    -84.9814226344 -1.17D-07  7.49D-07  1.84D-09     2.5
  Bq nuclear interaction energy is   3.10912973986775     
 
 
-         Total DFT energy =    -84.981422634884
-      One electron energy =   -185.372603822456
-           Coulomb energy =     75.630090470430
-    Exchange-Corr. energy =    -11.615137253257
- Nuclear repulsion energy =     36.376227970398
+         Total DFT energy =      -84.981422634430
+      One electron energy =     -185.372603821565
+           Coulomb energy =       75.630090469195
+    Exchange-Corr. energy =      -11.615137252457
+ Nuclear repulsion energy =       36.376227970398
 
- Numeric. integr. density =     16.000002924042
+ Numeric. integr. density =       16.000002923661
 
-     Total iterative time =      3.6s
+     Total iterative time =      1.3s
 
 
  
@@ -684,7 +602,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -2.3D-01,  3.0D+00,  1.7D+00, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.313349  2 N  px                20      0.310350  2 N  pz         
+    18      0.313349  2 N  px                20      0.310349  2 N  pz         
     19     -0.214016  2 N  py                22      0.194542  2 N  px         
     24      0.192564  2 N  pz                35     -0.191307  5 H  s          
     31      0.182838  3 H  s          
@@ -777,10 +695,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     22      0.932023  2 N  px                33     -0.667801  4 H  s          
-    35      0.564622  5 H  s                 23      0.543323  2 N  py         
+    35      0.564622  5 H  s                 23      0.543322  2 N  py         
     18     -0.431300  2 N  px                26     -0.307356  2 N  dxy        
     19     -0.253688  2 N  py                36     -0.209307  5 H  s          
-    34      0.206023  4 H  s                 31      0.160136  3 H  s          
+    34      0.206023  4 H  s                 31      0.160135  3 H  s          
  
  Vector   16  Occ=0.000000D+00  E= 2.520871D-01
               MO Center= -1.4D-01,  3.2D+00,  1.7D+00, r^2= 1.9D+00
@@ -863,7 +781,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   0 0 2      5.075738    -64.499705    -64.499705    134.075149
  
 
- Parallel integral file used       7 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
  
  
@@ -893,15 +811,19 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.04   |       0.74   |
+                 |  CPU   |       0.02   |       0.26   |
                  ----------------------------------------
-                 |  WALL  |       0.05   |       0.75   |
+                 |  WALL  |       0.02   |       0.26   |
                  ----------------------------------------
+ Bq nuclear interaction energy is   3.56530332594311     
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -84.981422635 (-.223119E+06  kjoule/mol)
- quantum energy adjusted               -0.981422635 (-.257673E+04  kjoule/mol)
+ quantum energy                       -84.981422634 (-.223119E+06  kjoule/mol)
+ quantum energy adjusted               -0.981422634 (-.257673E+04  kjoule/mol)
+ quantum energy internal              -85.599571039 (-.224742E+06  kjoule/mol)
+ Bq-nuclear energy                      3.565303326 (0.936070E+04  kjoule/mol)
+ Bq-electron energy                    -2.947154921 (-.773776E+04  kjoule/mol)
  classical energy                       0.053893347 (0.141497E+03  kjoule/mol)
  total qmmm energy                     -0.927529288 (-.243523E+04  kjoule/mol)
 ------------------------------------------------------------------------
@@ -909,58 +831,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0      -0.92752929  0.0D+00  0.12896  0.05414  0.00000  0.00000      7.5
+@    0      -0.92752929  0.0D+00  0.12896  0.05414  0.00000  0.00000      4.7
                                                        ok       ok  
 
-               Coordinates of the active region
-               --------------------------------
-         5
-   
-  C             0.341500        2.321500        0.656000        16
-  N            -0.154500        3.179500        1.747000        19
-  H            -0.098500        2.605500        2.742000        20
-  H             0.493500        4.127500        1.814000        21
-  H            -1.245500        3.475500        1.536000        22
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.259706        2.394955        0.792482        16
-  N            -0.115717        3.136758        1.678405        19
-  H            -0.098757        2.633769        2.689618        20
-  H             0.460603        4.079241        1.809598        21
-  H            -1.188893        3.459572        1.544415        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.25970606     2.39495459     0.79248196
-    2 N                    7.0000    -0.11571654     3.13675793     1.67840550
-    3 H                    1.0000    -0.09875724     2.63376868     2.68961810
-    4 H                    1.0000     0.46060290     4.07924118     1.80959846
-    5 H                    1.0000    -1.18889288     3.45957237     1.54441466
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      45.5220575689
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     1.3233591592   101.4489551015    47.1010561070
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -968,7 +842,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.06590380103980     
+ Bq nuclear interaction energy is   3.06590380288537     
   Caching 1-el integrals 
  
             General Information
@@ -1032,67 +906,67 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Schwarz screening/accCoul: 1.00D-08
           Spatial weight screening/radius(au): 1.55D+01
 
- Bq nuclear interaction energy is   3.06590380103980     
+ Bq nuclear interaction energy is   3.06590380288537     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.06590380103980     
-   Time after variat. SCF:      5.6
-   Time prior to 1st pass:      5.6
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.06590380288537     
+   Time after variat. SCF:      3.3
+   Time prior to 1st pass:      3.3
 
  #quartets = 1.470D+04 #integrals = 2.363D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.06590380103980     
+ Bq nuclear interaction energy is   3.06590380288537     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -84.9014160098 -1.26D+02  1.47D-01  2.42D+00     6.8
- Bq nuclear interaction energy is   3.06590380103980     
- d= 0,ls=0.0,diis     2    -85.0031513546 -1.02D-01  1.34D-02  1.26D-01     7.1
- Bq nuclear interaction energy is   3.06590380103980     
- d= 0,ls=0.0,diis     3    -84.9914432329  1.17D-02  9.00D-03  2.36D-01     7.4
- Bq nuclear interaction energy is   3.06590380103980     
- d= 0,ls=0.0,diis     4    -85.0122045268 -2.08D-02  1.16D-03  2.80D-03     7.7
- Bq nuclear interaction energy is   3.06590380103980     
- d= 0,ls=0.0,diis     5    -85.0124506179 -2.46D-04  5.71D-04  3.14D-04     8.0
- Bq nuclear interaction energy is   3.06590380103980     
- d= 0,ls=0.0,diis     6    -85.0124824134 -3.18D-05  1.46D-04  3.46D-06     8.3
- Bq nuclear interaction energy is   3.06590380103980     
- d= 0,ls=0.0,diis     7    -85.0124827309 -3.17D-07  6.54D-05  8.50D-07     8.7
- Bq nuclear interaction energy is   3.06590380103980     
- d= 0,ls=0.0,diis     8    -85.0124828711 -1.40D-07  1.66D-06  2.82D-09     9.0
- Bq nuclear interaction energy is   3.06590380103980     
+ d= 0,ls=0.0,diis     1    -84.9014160142 -1.26D+02  1.47D-01  2.42D+00     3.6
+ Bq nuclear interaction energy is   3.06590380288537     
+ d= 0,ls=0.0,diis     2    -85.0031513552 -1.02D-01  1.34D-02  1.26D-01     3.7
+ Bq nuclear interaction energy is   3.06590380288537     
+ d= 0,ls=0.0,diis     3    -84.9914432340  1.17D-02  9.00D-03  2.36D-01     3.7
+ Bq nuclear interaction energy is   3.06590380288537     
+ d= 0,ls=0.0,diis     4    -85.0122045269 -2.08D-02  1.16D-03  2.80D-03     3.8
+ Bq nuclear interaction energy is   3.06590380288537     
+ d= 0,ls=0.0,diis     5    -85.0124506181 -2.46D-04  5.71D-04  3.14D-04     3.8
+ Bq nuclear interaction energy is   3.06590380288537     
+ d= 0,ls=0.0,diis     6    -85.0124824136 -3.18D-05  1.46D-04  3.46D-06     3.9
+ Bq nuclear interaction energy is   3.06590380288537     
+ d= 0,ls=0.0,diis     7    -85.0124827311 -3.17D-07  6.54D-05  8.50D-07     3.9
+ Bq nuclear interaction energy is   3.06590380288537     
+ d= 0,ls=0.0,diis     8    -85.0124828712 -1.40D-07  1.66D-06  2.82D-09     4.0
+ Bq nuclear interaction energy is   3.06590380288537     
 
 
-         Total DFT energy =    -85.012482871053
-      One electron energy =   -193.724683973452
-           Coulomb energy =     79.662675558184
-    Exchange-Corr. energy =    -11.818349168580
- Nuclear repulsion energy =     40.867874712796
+         Total DFT energy =      -85.012482871191
+      One electron energy =     -193.724683710325
+           Coulomb energy =       79.662675427690
+    Exchange-Corr. energy =      -11.818349158909
+ Nuclear repulsion energy =       40.867874570353
 
- Numeric. integr. density =     16.000003677617
+ Numeric. integr. density =       16.000003675293
 
-     Total iterative time =      3.3s
+     Total iterative time =      0.7s
 
 
  
@@ -1159,7 +1033,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      8      0.436836  1 F  py                 7      0.365459  1 F  px         
      9     -0.297958  1 F  pz                 4      0.285961  1 F  py         
-     3      0.220572  1 F  px                19     -0.197185  2 N  py         
+     3      0.220573  1 F  px                19     -0.197185  2 N  py         
     33     -0.189900  4 H  s                  5     -0.167554  1 F  pz         
     23     -0.164998  2 N  py         
  
@@ -1208,7 +1082,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     24      1.050478  2 N  pz                21     -0.886094  2 N  s          
     23      0.884824  2 N  py                 6      0.845549  1 F  s          
-    20     -0.547447  2 N  pz                19     -0.442854  2 N  py         
+    20     -0.547448  2 N  pz                19     -0.442854  2 N  py         
     22     -0.441892  2 N  px                17      0.368840  2 N  s          
     14      0.337869  1 F  dyz               18      0.241714  2 N  px         
  
@@ -1260,7 +1134,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     36     -0.944769  5 H  s                 23     -0.885056  2 N  py         
     32     -0.820030  3 H  s                 18      0.583575  2 N  px         
     33     -0.535692  4 H  s                 19      0.494479  2 N  py         
-    24      0.335260  2 N  pz                35      0.322350  5 H  s          
+    24      0.335261  2 N  pz                35      0.322350  5 H  s          
  
  Vector   19  Occ=0.000000D+00  E= 3.848574D-01
               MO Center= -1.4D-01,  3.4D+00,  1.9D+00, r^2= 2.5D+00
@@ -1282,7 +1156,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     36      0.469015  5 H  s                 32      0.462568  3 H  s          
     33      0.446153  4 H  s                 23     -0.434213  2 N  py         
  
- Bq nuclear interaction energy is   3.06590380103980     
+ Bq nuclear interaction energy is   3.06590380288537     
 
  center of mass
  --------------
@@ -1290,9 +1164,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  moments of inertia (a.u.)
  ------------------
-          45.991741310148           7.232764537319           8.644422889147
-           7.232764537319          35.458639619731         -16.999988695301
-           8.644422889147         -16.999988695301          29.316325754809
+          45.991741655960           7.232764670808           8.644423030964
+           7.232764670808          35.458639913491         -16.999988868093
+           8.644423030964         -16.999988868093          29.316326031820
  
      Multipole analysis of the density
      ---------------------------------
@@ -1309,19 +1183,23 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   1 1 0     -1.814631      0.308968      0.308968     -2.432567
      2   1 0 1     -1.137243      1.550992      1.550992     -4.239228
      2   0 2 0     26.931245   -244.670531   -244.670531    516.272307
-     2   0 1 1     18.798235   -115.494581   -115.494581    249.787396
+     2   0 1 1     18.798235   -115.494580   -115.494580    249.787396
      2   0 0 2      3.645787    -64.258611    -64.258611    132.163010
  
 
- Parallel integral file used       7 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
+ Bq nuclear interaction energy is   3.50233125475809     
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
  quantum energy                       -85.012482871 (-.223200E+06  kjoule/mol)
  quantum energy adjusted               -1.012482871 (-.265827E+04  kjoule/mol)
- classical energy                       0.063769052 (0.167426E+03  kjoule/mol)
- total qmmm energy                     -0.948713819 (-.249085E+04  kjoule/mol)
+ quantum energy internal              -85.614828270 (-.224782E+06  kjoule/mol)
+ Bq-nuclear energy                      3.502331255 (0.919537E+04  kjoule/mol)
+ Bq-electron energy                    -2.899985856 (-.761391E+04  kjoule/mol)
+ classical energy                       0.063769051 (0.167426E+03  kjoule/mol)
+ total qmmm energy                     -0.948713820 (-.249085E+04  kjoule/mol)
 ------------------------------------------------------------------------
  
  Line search: 
@@ -1341,7 +1219,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000     0.28762472     2.36988239     0.74589668
-    2 N                    7.0000    -0.12895447     3.15134704     1.70181880
+    2 N                    7.0000    -0.12895446     3.15134704     1.70181880
     3 H                    1.0000    -0.09866944     2.62411976     2.70749757
     4 H                    1.0000     0.47183164     4.09571332     1.81110083
     5 H                    1.0000    -1.20821454     3.46500893     1.54154249
@@ -1354,54 +1232,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       H                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      32.4567830738
+ Effective nuclear repulsion energy (a.u.)      32.4567830985
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.0226489006    87.8034075437    42.4210463317
+    -0.0226488846    87.8034075322    42.4210463305
  
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.287625        2.369882        0.745897        16
-  N            -0.128954        3.151347        1.701819        19
-  H            -0.098669        2.624120        2.707498        20
-  H             0.471832        4.095713        1.811101        21
-  H            -1.208215        3.465009        1.541542        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.28762472     2.36988239     0.74589668
-    2 N                    7.0000    -0.12895447     3.15134704     1.70181880
-    3 H                    1.0000    -0.09866944     2.62411976     2.70749757
-    4 H                    1.0000     0.47183164     4.09571332     1.81110083
-    5 H                    1.0000    -1.20821454     3.46500893     1.54154249
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      43.3390327623
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     1.6079468167   101.2386925814    46.6496673677
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -1409,7 +1248,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.08091530277140     
+ Bq nuclear interaction energy is   3.08091530292633     
   Caching 1-el integrals 
  
             General Information
@@ -1473,65 +1312,65 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Schwarz screening/accCoul: 1.00D-08
           Spatial weight screening/radius(au): 1.56D+01
 
- Bq nuclear interaction energy is   3.08091530277140     
+ Bq nuclear interaction energy is   3.08091530292633     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.08091530277140     
-   Time after variat. SCF:      9.1
-   Time prior to 1st pass:      9.1
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.08091530292633     
+   Time after variat. SCF:      4.1
+   Time prior to 1st pass:      4.1
 
  #quartets = 1.470D+04 #integrals = 2.362D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.08091530277140     
+ Bq nuclear interaction energy is   3.08091530292633     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -84.9940143491 -1.24D+02  5.10D-02  5.69D-01    10.2
- Bq nuclear interaction energy is   3.08091530277140     
- d= 0,ls=0.0,diis     2    -85.0145991895 -2.06D-02  8.08D-03  6.31D-02    10.5
- Bq nuclear interaction energy is   3.08091530277140     
- d= 0,ls=0.0,diis     3    -85.0112529010  3.35D-03  5.11D-03  8.76D-02    10.9
- Bq nuclear interaction energy is   3.08091530277140     
- d= 0,ls=0.0,diis     4    -85.0190511550 -7.80D-03  6.95D-04  1.94D-03    11.2
- Bq nuclear interaction energy is   3.08091530277140     
- d= 0,ls=0.0,diis     5    -85.0192303908 -1.79D-04  2.71D-04  1.07D-04    11.6
- Bq nuclear interaction energy is   3.08091530277140     
- d= 0,ls=0.0,diis     6    -85.0192418975 -1.15D-05  1.83D-05  4.02D-07    11.9
- Bq nuclear interaction energy is   3.08091530277140     
- d= 0,ls=0.0,diis     7    -85.0192419547 -5.72D-08  6.24D-06  3.00D-09    12.2
- Bq nuclear interaction energy is   3.08091530277140     
+ d= 0,ls=0.0,diis     1    -84.9940143579 -1.24D+02  5.10D-02  5.69D-01     4.6
+ Bq nuclear interaction energy is   3.08091530292633     
+ d= 0,ls=0.0,diis     2    -85.0145991928 -2.06D-02  8.08D-03  6.31D-02     4.7
+ Bq nuclear interaction energy is   3.08091530292633     
+ d= 0,ls=0.0,diis     3    -85.0112529049  3.35D-03  5.11D-03  8.76D-02     4.7
+ Bq nuclear interaction energy is   3.08091530292633     
+ d= 0,ls=0.0,diis     4    -85.0190511574 -7.80D-03  6.95D-04  1.94D-03     4.9
+ Bq nuclear interaction energy is   3.08091530292633     
+ d= 0,ls=0.0,diis     5    -85.0192303932 -1.79D-04  2.71D-04  1.07D-04     5.0
+ Bq nuclear interaction energy is   3.08091530292633     
+ d= 0,ls=0.0,diis     6    -85.0192418999 -1.15D-05  1.83D-05  4.02D-07     5.0
+ Bq nuclear interaction energy is   3.08091530292633     
+ d= 0,ls=0.0,diis     7    -85.0192419570 -5.72D-08  6.24D-06  3.00D-09     5.1
+ Bq nuclear interaction energy is   3.08091530292633     
 
 
-         Total DFT energy =    -85.019241954655
-      One electron energy =   -190.609548807805
-           Coulomb energy =     78.162712620169
-    Exchange-Corr. energy =    -11.737520706383
- Nuclear repulsion energy =     39.165114939364
+         Total DFT energy =      -85.019241957033
+      One electron energy =     -190.609548854407
+           Coulomb energy =       78.162712637926
+    Exchange-Corr. energy =      -11.737520708988
+ Nuclear repulsion energy =       39.165114968437
 
- Numeric. integr. density =     16.000004004014
+ Numeric. integr. density =       16.000004009010
 
-     Total iterative time =      3.1s
+     Total iterative time =      1.0s
 
 
  
@@ -1607,7 +1446,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      6     -0.893313  1 F  s                 21      0.692773  2 N  s          
      9     -0.628917  1 F  pz                24     -0.564531  2 N  pz         
-     8     -0.546980  1 F  py                23     -0.458594  2 N  py         
+     8     -0.546980  1 F  py                23     -0.458595  2 N  py         
     10      0.325612  1 F  dxx               13      0.313750  1 F  dyy        
     15      0.311580  1 F  dzz                7      0.256888  1 F  px         
  
@@ -1644,9 +1483,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -2.5D-06,  2.9D+00,  1.4D+00, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.772747  2 N  pz                21     -0.738660  2 N  s          
+    24      0.772748  2 N  pz                21     -0.738660  2 N  s          
     23      0.639994  2 N  py                20     -0.618108  2 N  pz         
-    19     -0.500596  2 N  py                 6      0.448299  1 F  s          
+    19     -0.500596  2 N  py                 6      0.448300  1 F  s          
     17      0.425295  2 N  s                 14      0.335180  1 F  dyz        
     22     -0.331886  2 N  px                18      0.272687  2 N  px         
  
@@ -1654,7 +1493,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -1.1D-01,  3.1D+00,  1.6D+00, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6     -1.127775  1 F  s                 24     -0.912821  2 N  pz         
+     6     -1.127775  1 F  s                 24     -0.912820  2 N  pz         
     23     -0.732892  2 N  py                21      0.471395  2 N  s          
      2      0.450526  1 F  s                 22      0.404075  2 N  px         
     31      0.316309  3 H  s                 35      0.310163  5 H  s          
@@ -1664,7 +1503,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -9.9D-02,  3.2D+00,  1.7D+00, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.718481  2 N  px                24     -0.700514  2 N  pz         
+    22     -0.718480  2 N  px                24     -0.700514  2 N  pz         
     35     -0.662226  5 H  s                 31      0.628926  3 H  s          
     23      0.479699  2 N  py                18      0.304613  2 N  px         
     20      0.298830  2 N  pz                36      0.221500  5 H  s          
@@ -1720,17 +1559,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     31     -0.480006  3 H  s                 35     -0.476895  5 H  s          
     24      0.454843  2 N  pz                33     -0.443014  4 H  s          
  
- Bq nuclear interaction energy is   3.08091530277140     
+ Bq nuclear interaction energy is   3.08091530292633     
 
  center of mass
  --------------
- x =   0.05235298 y =   5.39262049 z =   2.53180569
+ x =   0.05235298 y =   5.39262048 z =   2.53180569
 
  moments of inertia (a.u.)
  ------------------
-          50.894545884584           8.350113138788          10.217170690887
-           8.350113138788          39.734090484086         -19.122177840024
-          10.217170690887         -19.122177840024          31.934781295834
+          50.894545772126           8.350113150985          10.217170676391
+           8.350113150985          39.734090381328         -19.122177807665
+          10.217170676391         -19.122177807665          31.934781299834
  
      Multipole analysis of the density
      ---------------------------------
@@ -1751,7 +1590,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   0 0 2      4.212625    -64.234824    -64.234824    132.682274
  
 
- Parallel integral file used       7 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
  
  
@@ -1781,74 +1620,57 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.05   |       0.78   |
+                 |  CPU   |       0.02   |       0.27   |
                  ----------------------------------------
-                 |  WALL  |       0.05   |       0.78   |
+                 |  WALL  |       0.02   |       0.27   |
                  ----------------------------------------
+ Bq nuclear interaction energy is   3.52419031338660     
+ debug 1 
+              Calculating forces on classical charges
+              ---------------------------------------
+ Total number of charges                    19
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                               QM/MM of Lys monomer
+ 
+
+          --------------
+          Electric field
+          --------------
+
+ 1 a.u. = 0.171524 10**(-8) dyn/esu 
+
+   Atom       X         Y         Z                        Electric field (a.u.)
+                                              X              Y              Z           Field
+  ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -85.019241955 (-.223218E+06  kjoule/mol)
- quantum energy adjusted               -1.019241955 (-.267602E+04  kjoule/mol)
+ quantum energy                       -85.019241957 (-.223218E+06  kjoule/mol)
+ quantum energy adjusted               -1.019241957 (-.267602E+04  kjoule/mol)
+ quantum energy internal              -85.626832081 (-.224813E+06  kjoule/mol)
+ Bq-nuclear energy                      3.524190313 (0.925276E+04  kjoule/mol)
+ Bq-electron energy                    -2.916600190 (-.765753E+04  kjoule/mol)
  classical energy                       0.057930346 (0.152096E+03  kjoule/mol)
- total qmmm energy                     -0.961311609 (-.252392E+04  kjoule/mol)
+ total qmmm energy                     -0.961311611 (-.252392E+04  kjoule/mol)
 ------------------------------------------------------------------------
  
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1      -0.96131161 -3.4D-02  0.04314  0.02558  0.07132  0.16988     19.8
+@    1      -0.96131161 -3.4D-02  0.04314  0.02558  0.07132  0.16988     15.9
                                                                     
 
-               Coordinates of the active region
-               --------------------------------
-         5
-   
-  C             0.287625        2.369882        0.745897        16
-  N            -0.128954        3.151347        1.701819        19
-  H            -0.098669        2.624120        2.707498        20
-  H             0.471832        4.095713        1.811101        21
-  H            -1.208215        3.465009        1.541542        22
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.253040        2.347946        0.770707        16
-  N            -0.137014        3.174980        1.726474        19
-  H            -0.096778        2.651753        2.651461        20
-  H             0.441898        4.047102        1.803297        21
-  H            -1.148621        3.447570        1.547314        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.25304035     2.34794596     0.77070733
-    2 N                    7.0000    -0.13701433     3.17498042     1.72647432
-    3 H                    1.0000    -0.09677765     2.65175335     2.65146066
-    4 H                    1.0000     0.44189759     4.04710232     1.80329714
-    5 H                    1.0000    -1.14862062     3.44757048     1.54731399
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      43.9186252186
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     0.9727594075   101.1056368214    47.2880459047
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -1856,7 +1678,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.05843551363009     
+ Bq nuclear interaction energy is   3.05843551382797     
   Caching 1-el integrals 
  
             General Information
@@ -1918,69 +1740,69 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
-          Spatial weight screening/radius(au): 1.53D+01
+          Spatial weight screening/radius(au): 1.54D+01
 
- Bq nuclear interaction energy is   3.05843551363009     
+ Bq nuclear interaction energy is   3.05843551382797     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.05843551363009     
-   Time after variat. SCF:     13.9
-   Time prior to 1st pass:     13.9
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.05843551382797     
+   Time after variat. SCF:      5.9
+   Time prior to 1st pass:      5.9
 
  #quartets = 1.468D+04 #integrals = 2.361D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.05843551363009     
+ Bq nuclear interaction energy is   3.05843551382797     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -85.0256346395 -1.25D+02  9.68D-03  7.41D-02    15.0
- Bq nuclear interaction energy is   3.05843551363009     
- d= 0,ls=0.0,diis     2    -85.0281320742 -2.50D-03  4.45D-03  4.35D-02    15.4
- Bq nuclear interaction energy is   3.05843551363009     
- d= 0,ls=0.0,diis     3    -85.0302537413 -2.12D-03  2.22D-03  2.24D-02    15.7
- Bq nuclear interaction energy is   3.05843551363009     
- d= 0,ls=0.0,diis     4    -85.0323246256 -2.07D-03  5.81D-04  5.49D-04    16.0
- Bq nuclear interaction energy is   3.05843551363009     
- d= 0,ls=0.0,diis     5    -85.0323725973 -4.80D-05  7.66D-05  7.50D-06    16.4
- Bq nuclear interaction energy is   3.05843551363009     
- d= 0,ls=0.0,diis     6    -85.0323732829 -6.86D-07  4.40D-05  3.21D-07    16.7
- Bq nuclear interaction energy is   3.05843551363009     
- d= 0,ls=0.0,diis     7    -85.0323733117 -2.87D-08  1.72D-05  1.20D-07    17.0
- Bq nuclear interaction energy is   3.05843551363009     
- d= 0,ls=0.0,diis     8    -85.0323733302 -1.85D-08  1.02D-06  2.52D-10    17.3
- Bq nuclear interaction energy is   3.05843551363009     
+ d= 0,ls=0.0,diis     1    -85.0256346387 -1.25D+02  9.68D-03  7.41D-02     6.4
+ Bq nuclear interaction energy is   3.05843551382797     
+ d= 0,ls=0.0,diis     2    -85.0281320745 -2.50D-03  4.45D-03  4.35D-02     6.5
+ Bq nuclear interaction energy is   3.05843551382797     
+ d= 0,ls=0.0,diis     3    -85.0302537404 -2.12D-03  2.22D-03  2.24D-02     6.6
+ Bq nuclear interaction energy is   3.05843551382797     
+ d= 0,ls=0.0,diis     4    -85.0323246256 -2.07D-03  5.81D-04  5.49D-04     6.7
+ Bq nuclear interaction energy is   3.05843551382797     
+ d= 0,ls=0.0,diis     5    -85.0323725973 -4.80D-05  7.66D-05  7.50D-06     6.8
+ Bq nuclear interaction energy is   3.05843551382797     
+ d= 0,ls=0.0,diis     6    -85.0323732829 -6.86D-07  4.40D-05  3.21D-07     6.8
+ Bq nuclear interaction energy is   3.05843551382797     
+ d= 0,ls=0.0,diis     7    -85.0323733116 -2.87D-08  1.72D-05  1.20D-07     6.9
+ Bq nuclear interaction energy is   3.05843551382797     
+ d= 0,ls=0.0,diis     8    -85.0323733302 -1.85D-08  1.02D-06  2.52D-10     7.0
+ Bq nuclear interaction energy is   3.05843551382797     
 
 
-         Total DFT energy =    -85.032373330173
-      One electron energy =   -191.634110746637
-           Coulomb energy =     78.647573331276
-    Exchange-Corr. energy =    -11.801125921892
- Nuclear repulsion energy =     39.755290007079
+         Total DFT energy =      -85.032373330153
+      One electron energy =     -191.634110634091
+           Coulomb energy =       78.647573274112
+    Exchange-Corr. energy =      -11.801125918054
+ Nuclear repulsion energy =       39.755289947880
 
- Numeric. integr. density =     16.000001962001
+ Numeric. integr. density =       16.000001961587
 
-     Total iterative time =      3.4s
+     Total iterative time =      1.0s
 
 
  
@@ -2038,14 +1860,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      7      0.530081  1 F  px                 9      0.361046  1 F  pz         
      3      0.333100  1 F  px                 5      0.228650  1 F  pz         
-     8     -0.182049  1 F  py                18     -0.174175  2 N  px         
+     8     -0.182050  1 F  py                18     -0.174175  2 N  px         
     35      0.157858  5 H  s          
  
  Vector    8  Occ=2.000000D+00  E=-7.000110D-01
               MO Center=  2.3D-01,  2.6D+00,  9.7D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      0.450235  1 F  py                 7      0.371983  1 F  px         
+     8      0.450235  1 F  py                 7      0.371984  1 F  px         
      9     -0.320294  1 F  pz                 4      0.298014  1 F  py         
      3      0.231824  1 F  px                 5     -0.189592  1 F  pz         
     19     -0.166344  2 N  py                33     -0.155223  4 H  s          
@@ -2163,23 +1985,23 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -1.6D-01,  3.2D+00,  1.8D+00, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -3.758715  2 N  s                 17      1.298439  2 N  s          
+    21     -3.758715  2 N  s                 17      1.298440  2 N  s          
     34      0.670463  4 H  s                 36      0.600852  5 H  s          
     32      0.591284  3 H  s                 31      0.525692  3 H  s          
     35      0.516031  5 H  s                  6     -0.498798  1 F  s          
     15      0.482265  1 F  dzz               33      0.432352  4 H  s          
  
- Bq nuclear interaction energy is   3.05843551363009     
+ Bq nuclear interaction energy is   3.05843551382797     
 
  center of mass
  --------------
- x =   0.02005671 y =   5.39450759 z =   2.56985584
+ x =   0.02005671 y =   5.39450759 z =   2.56985583
 
  moments of inertia (a.u.)
  ------------------
-          51.098045487745           8.173119707430           9.419929550584
-           8.173119707430          37.589161253230         -20.025169364268
-           9.419929550584         -20.025169364268          31.820270682845
+          51.098045713322           8.173119750373           9.419929533383
+           8.173119750373          37.589161240632         -20.025169498224
+           9.419929533383         -20.025169498224          31.820270913851
  
      Multipole analysis of the density
      ---------------------------------
@@ -2196,17 +2018,21 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   1 1 0     -2.061126      1.316386      1.316386     -4.693898
      2   1 0 1     -1.210208      2.122703      2.122703     -5.455615
      2   0 2 0     27.546983   -244.146685   -244.146685    515.840353
-     2   0 1 1     19.400399   -116.539301   -116.539301    252.479001
+     2   0 1 1     19.400399   -116.539301   -116.539301    252.479000
      2   0 0 2      4.084748    -65.270811    -65.270811    134.626369
  
 
- Parallel integral file used       6 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
+ Bq nuclear interaction energy is   3.49696279809858     
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
  quantum energy                       -85.032373330 (-.223252E+06  kjoule/mol)
  quantum energy adjusted               -1.032373330 (-.271050E+04  kjoule/mol)
+ quantum energy internal              -85.632279644 (-.224828E+06  kjoule/mol)
+ Bq-nuclear energy                      3.496962798 (0.918128E+04  kjoule/mol)
+ Bq-electron energy                    -2.897056484 (-.760622E+04  kjoule/mol)
  classical energy                       0.060193788 (0.158039E+03  kjoule/mol)
  total qmmm energy                     -0.972179542 (-.255246E+04  kjoule/mol)
 ------------------------------------------------------------------------
@@ -2228,9 +2054,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000     0.25304035     2.34794596     0.77070733
-    2 N                    7.0000    -0.13701433     3.17498042     1.72647432
+    2 N                    7.0000    -0.13701433     3.17498043     1.72647432
     3 H                    1.0000    -0.09677765     2.65175335     2.65146066
-    4 H                    1.0000     0.44189759     4.04710232     1.80329714
+    4 H                    1.0000     0.44189758     4.04710233     1.80329714
     5 H                    1.0000    -1.14862062     3.44757048     1.54731399
  
       Atomic Mass 
@@ -2241,54 +2067,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       H                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      33.0859691309
+ Effective nuclear repulsion energy (a.u.)      33.0859690786
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.4617713491    87.7947133265    42.9187688771
+    -0.4617713423    87.7947133109    42.9187688581
  
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.253040        2.347946        0.770707        16
-  N            -0.137014        3.174980        1.726474        19
-  H            -0.096778        2.651753        2.651461        20
-  H             0.441898        4.047102        1.803297        21
-  H            -1.148621        3.447570        1.547314        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.25304035     2.34794596     0.77070733
-    2 N                    7.0000    -0.13701433     3.17498042     1.72647432
-    3 H                    1.0000    -0.09677765     2.65175335     2.65146066
-    4 H                    1.0000     0.44189759     4.04710232     1.80329714
-    5 H                    1.0000    -1.14862062     3.44757048     1.54731399
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      43.9186252186
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     0.9727594075   101.1056368214    47.2880459047
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -2296,11 +2083,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.05843551363009     
+ Bq nuclear interaction energy is   3.05843551382797     
 
   The DFT is already converged 
 
-         Total DFT energy =    -85.032373330173
+         Total DFT energy =    -85.032373330153
 
  
  
@@ -2330,15 +2117,46 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.05   |       0.78   |
+                 |  CPU   |       0.02   |       0.27   |
                  ----------------------------------------
-                 |  WALL  |       0.05   |       0.78   |
+                 |  WALL  |       0.02   |       0.27   |
                  ----------------------------------------
+ Bq nuclear interaction energy is   3.49696279809858     
+ debug 1 
+              Calculating forces on classical charges
+              ---------------------------------------
+ debug 1 
+ Total number of charges                    19
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                               QM/MM of Lys monomer
+ 
+
+          --------------
+          Electric field
+          --------------
+
+ 1 a.u. = 0.171524 10**(-8) dyn/esu 
+
+   Atom       X         Y         Z                        Electric field (a.u.)
+                                              X              Y              Z           Field
+  ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
  quantum energy                       -85.032373330 (-.223252E+06  kjoule/mol)
  quantum energy adjusted               -1.032373330 (-.271050E+04  kjoule/mol)
+ quantum energy internal              -85.632279644 (-.224828E+06  kjoule/mol)
+ Bq-nuclear energy                      3.496962798 (0.918128E+04  kjoule/mol)
+ Bq-electron energy                    -2.897056484 (-.760622E+04  kjoule/mol)
  classical energy                       0.060193788 (0.158039E+03  kjoule/mol)
  total qmmm energy                     -0.972179542 (-.255246E+04  kjoule/mol)
 ------------------------------------------------------------------------
@@ -2346,58 +2164,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2      -0.97217954 -1.1D-02  0.02201  0.00736  0.05904  0.11262     26.5
+@    2      -0.97217954 -1.1D-02  0.02201  0.00736  0.05904  0.11262     25.9
                                                                     
 
-               Coordinates of the active region
-               --------------------------------
-         5
-   
-  C             0.253040        2.347946        0.770707        16
-  N            -0.137014        3.174980        1.726474        19
-  H            -0.096778        2.651753        2.651461        20
-  H             0.441898        4.047102        1.803297        21
-  H            -1.148621        3.447570        1.547314        22
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.256517        2.344714        0.764015        16
-  N            -0.143631        3.154582        1.721200        19
-  H            -0.096105        2.662132        2.642097        20
-  H             0.440659        4.043167        1.800525        21
-  H            -1.135736        3.447012        1.551173        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.25651748     2.34471398     0.76401482
-    2 N                    7.0000    -0.14363054     3.15458238     1.72120024
-    3 H                    1.0000    -0.09610525     2.66213152     2.64209715
-    4 H                    1.0000     0.44065928     4.04316712     1.80052482
-    5 H                    1.0000    -1.13573630     3.44701175     1.55117308
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      44.1077542343
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     0.9676554577   100.7919614696    47.0888158993
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -2405,7 +2175,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.06576038185033     
+ Bq nuclear interaction energy is   3.06576038417527     
   Caching 1-el integrals 
  
             General Information
@@ -2467,67 +2237,67 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
-          Spatial weight screening/radius(au): 1.53D+01
+          Spatial weight screening/radius(au): 1.55D+01
 
- Bq nuclear interaction energy is   3.06576038185033     
+ Bq nuclear interaction energy is   3.06576038417527     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.06576038185033     
-   Time after variat. SCF:     19.1
-   Time prior to 1st pass:     19.1
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.06576038417527     
+   Time after variat. SCF:      7.8
+   Time prior to 1st pass:      7.8
 
  #quartets = 1.468D+04 #integrals = 2.361D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.06576038185033     
+ Bq nuclear interaction energy is   3.06576038417527     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -85.0315721950 -1.25D+02  3.57D-03  9.42D-03    20.2
- Bq nuclear interaction energy is   3.06576038185033     
- d= 0,ls=0.0,diis     2    -85.0321731358 -6.01D-04  1.48D-03  8.93D-04    20.5
- Bq nuclear interaction energy is   3.06576038185033     
- d= 0,ls=0.0,diis     3    -85.0320771271  9.60D-05  7.57D-04  1.96D-03    20.9
- Bq nuclear interaction energy is   3.06576038185033     
- d= 0,ls=0.0,diis     4    -85.0322636717 -1.87D-04  1.10D-04  4.84D-06    21.2
- Bq nuclear interaction energy is   3.06576038185033     
- d= 0,ls=0.0,diis     5    -85.0322641198 -4.48D-07  4.47D-05  1.50D-06    21.5
- Bq nuclear interaction energy is   3.06576038185033     
- d= 0,ls=0.0,diis     6    -85.0322642797 -1.60D-07  1.32D-05  3.63D-08    21.8
- Bq nuclear interaction energy is   3.06576038185033     
- d= 0,ls=0.0,diis     7    -85.0322642837 -4.05D-09  4.39D-06  8.23D-09    22.2
- Bq nuclear interaction energy is   3.06576038185033     
+ d= 0,ls=0.0,diis     1    -85.0315721945 -1.25D+02  3.57D-03  9.42D-03     8.3
+ Bq nuclear interaction energy is   3.06576038417527     
+ d= 0,ls=0.0,diis     2    -85.0321731355 -6.01D-04  1.48D-03  8.93D-04     8.4
+ Bq nuclear interaction energy is   3.06576038417527     
+ d= 0,ls=0.0,diis     3    -85.0320771267  9.60D-05  7.57D-04  1.96D-03     8.5
+ Bq nuclear interaction energy is   3.06576038417527     
+ d= 0,ls=0.0,diis     4    -85.0322636713 -1.87D-04  1.10D-04  4.84D-06     8.6
+ Bq nuclear interaction energy is   3.06576038417527     
+ d= 0,ls=0.0,diis     5    -85.0322641194 -4.48D-07  4.47D-05  1.50D-06     8.6
+ Bq nuclear interaction energy is   3.06576038417527     
+ d= 0,ls=0.0,diis     6    -85.0322642793 -1.60D-07  1.32D-05  3.63D-08     8.7
+ Bq nuclear interaction energy is   3.06576038417527     
+ d= 0,ls=0.0,diis     7    -85.0322642833 -4.06D-09  4.39D-06  8.23D-09     8.8
+ Bq nuclear interaction energy is   3.06576038417527     
 
 
-         Total DFT energy =    -85.032264283706
-      One electron energy =   -191.930665500166
-           Coulomb energy =     78.785724758245
-    Exchange-Corr. energy =    -11.811001179535
- Nuclear repulsion energy =     39.923677637751
+         Total DFT energy =      -85.032264283336
+      One electron energy =     -191.930665219483
+           Coulomb energy =       78.785724620351
+    Exchange-Corr. energy =      -11.811001169996
+ Nuclear repulsion energy =       39.923677485792
 
- Numeric. integr. density =     16.000000922272
+ Numeric. integr. density =       16.000000921673
 
-     Total iterative time =      3.1s
+     Total iterative time =      1.0s
 
 
  
@@ -2557,7 +2327,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     20      0.363583  2 N  pz                19      0.317030  2 N  py         
      6      0.297797  1 F  s                  9     -0.202620  1 F  pz         
-     5     -0.200986  1 F  pz                24      0.196222  2 N  pz         
+     5     -0.200985  1 F  pz                24      0.196222  2 N  pz         
     23      0.172497  2 N  py                 4     -0.165923  1 F  py         
      8     -0.163409  1 F  py         
  
@@ -2570,7 +2340,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     24      0.181717  2 N  pz                35     -0.179439  5 H  s          
     22      0.160551  2 N  px         
  
- Vector    6  Occ=2.000000D+00  E=-9.376457D-01
+ Vector    6  Occ=2.000000D+00  E=-9.376456D-01
               MO Center= -2.7D-02,  3.1D+00,  1.6D+00, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -2619,21 +2389,21 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -4.9D-01,  3.7D+00,  1.7D+00, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      1.269126  5 H  s                 34     -1.006853  4 H  s          
+    36      1.269127  5 H  s                 34     -1.006851  4 H  s          
     22      0.769026  2 N  px                18      0.466529  2 N  px         
-    32     -0.266471  3 H  s                 24      0.225348  2 N  pz         
-    35      0.209445  5 H  s                 33     -0.179499  4 H  s          
-    23      0.162917  2 N  py                 7     -0.150888  1 F  px         
+    32     -0.266473  3 H  s                 24      0.225348  2 N  pz         
+    35      0.209445  5 H  s                 33     -0.179498  4 H  s          
+    23      0.162916  2 N  py                 7     -0.150888  1 F  px         
  
  Vector   12  Occ=0.000000D+00  E=-2.971332D-01
               MO Center= -1.4D-02,  3.1D+00,  2.3D+00, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32      1.334418  3 H  s                 34     -0.861579  4 H  s          
+    32      1.334418  3 H  s                 34     -0.861581  4 H  s          
     23      0.645676  2 N  py                24     -0.512897  2 N  pz         
-    36     -0.471830  5 H  s                 19      0.388127  2 N  py         
+    36     -0.471828  5 H  s                 19      0.388127  2 N  py         
     20     -0.306310  2 N  pz                31      0.216198  3 H  s          
-    33     -0.152568  4 H  s          
+    33     -0.152569  4 H  s          
  
  Vector   13  Occ=0.000000D+00  E= 3.749373D-02
               MO Center= -1.8D-02,  2.9D+00,  1.4D+00, r^2= 1.3D+00
@@ -2659,10 +2429,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -5.5D-03,  3.2D+00,  1.7D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.977030  2 N  px                24     -0.806280  2 N  pz         
-    35     -0.660119  5 H  s                 31      0.537314  3 H  s          
+    22     -0.977029  2 N  px                24     -0.806280  2 N  pz         
+    35     -0.660119  5 H  s                 31      0.537315  3 H  s          
     23      0.442014  2 N  py                18      0.352392  2 N  px         
-    20      0.278991  2 N  pz                 7      0.193895  1 F  px         
+    20      0.278992  2 N  pz                 7      0.193895  1 F  px         
     25     -0.176031  2 N  dxx               19     -0.156567  2 N  py         
  
  Vector   16  Occ=0.000000D+00  E= 2.290615D-01
@@ -2679,9 +2449,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  6.0D-02,  3.7D+00,  1.8D+00, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34     -1.706947  4 H  s                 22      1.163289  2 N  px         
-    23      0.991480  2 N  py                36      0.881563  5 H  s          
-    32      0.711967  3 H  s                 18     -0.637734  2 N  px         
+    34     -1.706946  4 H  s                 22      1.163290  2 N  px         
+    23      0.991480  2 N  py                36      0.881564  5 H  s          
+    32      0.711967  3 H  s                 18     -0.637735  2 N  px         
     33      0.587249  4 H  s                 19     -0.541263  2 N  py         
     24     -0.254467  2 N  pz                35     -0.253577  5 H  s          
  
@@ -2692,7 +2462,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     32     -1.488762  3 H  s                 36      1.409140  5 H  s          
     24      1.007471  2 N  pz                22      0.880065  2 N  px         
     23     -0.774566  2 N  py                20     -0.560786  2 N  pz         
-    18     -0.489608  2 N  px                31      0.484934  3 H  s          
+    18     -0.489607  2 N  px                31      0.484934  3 H  s          
     35     -0.470250  5 H  s                 19      0.430092  2 N  py         
  
  Vector   19  Occ=0.000000D+00  E= 4.208895D-01
@@ -2715,17 +2485,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     35     -0.517116  5 H  s                  6      0.475859  1 F  s          
     33     -0.470909  4 H  s                 15     -0.461951  1 F  dzz        
  
- Bq nuclear interaction energy is   3.06576038185033     
+ Bq nuclear interaction energy is   3.06576038417527     
 
  center of mass
  --------------
- x =   0.01754978 y =   5.37377290 z =   2.55927621
+ x =   0.01754979 y =   5.37377290 z =   2.55927620
 
  moments of inertia (a.u.)
  ------------------
-          50.597188811243           8.218918875042           9.666391619156
-           8.218918875042          37.704721016017         -19.838086093980
-           9.666391619156         -19.838086093980          31.326228140479
+          50.597189142605           8.218919065023           9.666391822302
+           8.218919065023          37.704721367963         -19.838086254184
+           9.666391822302         -19.838086254184          31.326228511594
  
      Multipole analysis of the density
      ---------------------------------
@@ -2743,17 +2513,21 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   1 0 1     -1.187874      2.228742      2.228742     -5.645358
      2   0 2 0     27.555436   -242.373922   -242.373922    512.303280
      2   0 1 1     19.331929   -115.692309   -115.692309    250.716547
-     2   0 0 2      3.999623    -64.872737    -64.872737    133.745098
+     2   0 0 2      3.999623    -64.872737    -64.872737    133.745097
  
 
- Parallel integral file used       7 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
+ Bq nuclear interaction energy is   3.50519449181568     
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -85.032264284 (-.223252E+06  kjoule/mol)
- quantum energy adjusted               -1.032264284 (-.271021E+04  kjoule/mol)
- classical energy                       0.059353764 (0.155833E+03  kjoule/mol)
+ quantum energy                       -85.032264283 (-.223252E+06  kjoule/mol)
+ quantum energy adjusted               -1.032264283 (-.271021E+04  kjoule/mol)
+ quantum energy internal              -85.634066841 (-.224832E+06  kjoule/mol)
+ Bq-nuclear energy                      3.505194492 (0.920289E+04  kjoule/mol)
+ Bq-electron energy                    -2.903391934 (-.762286E+04  kjoule/mol)
+ classical energy                       0.059353763 (0.155833E+03  kjoule/mol)
  total qmmm energy                     -0.972910520 (-.255438E+04  kjoule/mol)
 ------------------------------------------------------------------------
  
@@ -2773,11 +2547,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.25651748     2.34471398     0.76401482
+    1 C                    6.0000     0.25651749     2.34471398     0.76401481
     2 N                    7.0000    -0.14363054     3.15458238     1.72120024
     3 H                    1.0000    -0.09610525     2.66213152     2.64209715
     4 H                    1.0000     0.44065928     4.04316712     1.80052482
-    5 H                    1.0000    -1.13573630     3.44701175     1.55117308
+    5 H                    1.0000    -1.13573631     3.44701176     1.55117309
  
       Atomic Mass 
       ----------- 
@@ -2787,54 +2561,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       H                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      33.2329987667
+ Effective nuclear repulsion energy (a.u.)      33.2329986288
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.4865877912    87.4993606227    42.7574799437
+    -0.4865877340    87.4993606234    42.7574799102
  
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.256517        2.344714        0.764015        16
-  N            -0.143631        3.154582        1.721200        19
-  H            -0.096105        2.662132        2.642097        20
-  H             0.440659        4.043167        1.800525        21
-  H            -1.135736        3.447012        1.551173        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.25651748     2.34471398     0.76401482
-    2 N                    7.0000    -0.14363054     3.15458238     1.72120024
-    3 H                    1.0000    -0.09610525     2.66213152     2.64209715
-    4 H                    1.0000     0.44065928     4.04316712     1.80052482
-    5 H                    1.0000    -1.13573630     3.44701175     1.55117308
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      44.1077542343
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     0.9676554577   100.7919614696    47.0888158993
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -2842,11 +2577,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.06576038185033     
+ Bq nuclear interaction energy is   3.06576038417527     
 
   The DFT is already converged 
 
-         Total DFT energy =    -85.032264283706
+         Total DFT energy =    -85.032264283336
 
  
  
@@ -2876,74 +2611,57 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.05   |       0.78   |
+                 |  CPU   |       0.02   |       0.27   |
                  ----------------------------------------
-                 |  WALL  |       0.05   |       0.78   |
+                 |  WALL  |       0.02   |       0.27   |
                  ----------------------------------------
+ Bq nuclear interaction energy is   3.50519449181568     
+ debug 1 
+              Calculating forces on classical charges
+              ---------------------------------------
+ Total number of charges                    19
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                               QM/MM of Lys monomer
+ 
+
+          --------------
+          Electric field
+          --------------
+
+ 1 a.u. = 0.171524 10**(-8) dyn/esu 
+
+   Atom       X         Y         Z                        Electric field (a.u.)
+                                              X              Y              Z           Field
+  ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -85.032264284 (-.223252E+06  kjoule/mol)
- quantum energy adjusted               -1.032264284 (-.271021E+04  kjoule/mol)
- classical energy                       0.059353764 (0.155833E+03  kjoule/mol)
+ quantum energy                       -85.032264283 (-.223252E+06  kjoule/mol)
+ quantum energy adjusted               -1.032264283 (-.271021E+04  kjoule/mol)
+ quantum energy internal              -85.634066841 (-.224832E+06  kjoule/mol)
+ Bq-nuclear energy                      3.505194492 (0.920289E+04  kjoule/mol)
+ Bq-electron energy                    -2.903391934 (-.762286E+04  kjoule/mol)
+ classical energy                       0.059353763 (0.155833E+03  kjoule/mol)
  total qmmm energy                     -0.972910520 (-.255438E+04  kjoule/mol)
 ------------------------------------------------------------------------
  
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3      -0.97291052 -7.3D-04  0.01064  0.00553  0.01509  0.03855     32.9
+@    3      -0.97291052 -7.3D-04  0.01064  0.00553  0.01509  0.03855     35.7
                                                                     
 
-               Coordinates of the active region
-               --------------------------------
-         5
-   
-  C             0.256517        2.344714        0.764015        16
-  N            -0.143631        3.154582        1.721200        19
-  H            -0.096105        2.662132        2.642097        20
-  H             0.440659        4.043167        1.800525        21
-  H            -1.135736        3.447012        1.551173        22
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.261814        2.337597        0.753188        16
-  N            -0.136037        3.147791        1.708674        19
-  H            -0.094952        2.665492        2.642788        20
-  H             0.436622        4.033034        1.795952        21
-  H            -1.132734        3.447669        1.553023        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.26181424     2.33759699     0.75318836
-    2 N                    7.0000    -0.13603721     3.14779051     1.70867379
-    3 H                    1.0000    -0.09495210     2.66549238     2.64278757
-    4 H                    1.0000     0.43662237     4.03303355     1.79595229
-    5 H                    1.0000    -1.13273392     3.44766903     1.55302293
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      44.1056591484
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     1.1584096733   100.5695190406    46.7351432552
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -2951,7 +2669,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.07514969299061     
+ Bq nuclear interaction energy is   3.07514969673699     
   Caching 1-el integrals 
  
             General Information
@@ -3013,65 +2731,65 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
-          Spatial weight screening/radius(au): 1.53D+01
+          Spatial weight screening/radius(au): 1.54D+01
 
- Bq nuclear interaction energy is   3.07514969299061     
+ Bq nuclear interaction energy is   3.07514969673699     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.07514969299061     
-   Time after variat. SCF:     23.9
-   Time prior to 1st pass:     23.9
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.07514969673699     
+   Time after variat. SCF:      9.7
+   Time prior to 1st pass:      9.7
 
  #quartets = 1.468D+04 #integrals = 2.361D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.07514969299061     
+ Bq nuclear interaction energy is   3.07514969673699     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -85.0318400080 -1.25D+02  1.46D-03  8.88D-04    25.0
- Bq nuclear interaction energy is   3.07514969299061     
- d= 0,ls=0.0,diis     2    -85.0319192099 -7.92D-05  5.08D-04  8.43D-05    25.4
- Bq nuclear interaction energy is   3.07514969299061     
- d= 0,ls=0.0,diis     3    -85.0319223425 -3.13D-06  2.94D-04  6.30D-05    25.6
- Bq nuclear interaction energy is   3.07514969299061     
- d= 0,ls=0.0,diis     4    -85.0319290875 -6.74D-06  7.62D-05  1.29D-06    26.0
- Bq nuclear interaction energy is   3.07514969299061     
- d= 0,ls=0.0,diis     5    -85.0319292381 -1.51D-07  2.22D-05  2.45D-07    26.3
- Bq nuclear interaction energy is   3.07514969299061     
- d= 0,ls=0.0,diis     6    -85.0319292711 -3.30D-08  1.34D-06  1.35D-09    26.6
- Bq nuclear interaction energy is   3.07514969299061     
+ d= 0,ls=0.0,diis     1    -85.0318400073 -1.25D+02  1.46D-03  8.88D-04    10.2
+ Bq nuclear interaction energy is   3.07514969673699     
+ d= 0,ls=0.0,diis     2    -85.0319192091 -7.92D-05  5.08D-04  8.43D-05    10.3
+ Bq nuclear interaction energy is   3.07514969673699     
+ d= 0,ls=0.0,diis     3    -85.0319223417 -3.13D-06  2.94D-04  6.30D-05    10.4
+ Bq nuclear interaction energy is   3.07514969673699     
+ d= 0,ls=0.0,diis     4    -85.0319290867 -6.74D-06  7.62D-05  1.29D-06    10.5
+ Bq nuclear interaction energy is   3.07514969673699     
+ d= 0,ls=0.0,diis     5    -85.0319292373 -1.51D-07  2.22D-05  2.45D-07    10.5
+ Bq nuclear interaction energy is   3.07514969673699     
+ d= 0,ls=0.0,diis     6    -85.0319292703 -3.30D-08  1.34D-06  1.35D-09    10.6
+ Bq nuclear interaction energy is   3.07514969673699     
 
 
-         Total DFT energy =    -85.031929271118
-      One electron energy =   -191.932618305479
-           Coulomb energy =     78.780416893401
-    Exchange-Corr. energy =    -11.810195121266
- Nuclear repulsion energy =     39.930467262226
+         Total DFT energy =      -85.031929270344
+      One electron energy =     -191.932618060732
+           Coulomb energy =       78.780416772240
+    Exchange-Corr. energy =      -11.810195112731
+ Nuclear repulsion energy =       39.930467130881
 
- Numeric. integr. density =     16.000002726096
+ Numeric. integr. density =       16.000002725870
 
-     Total iterative time =      2.7s
+     Total iterative time =      0.9s
 
 
  
@@ -3166,7 +2884,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     32      1.185370  3 H  s                 36     -1.154932  5 H  s          
     24     -0.531839  2 N  pz                22     -0.485163  2 N  px         
     23      0.398564  2 N  py                20     -0.320339  2 N  pz         
-    18     -0.291033  2 N  px                19      0.238942  2 N  py         
+    18     -0.291034  2 N  px                19      0.238942  2 N  py         
     31      0.196235  3 H  s                 35     -0.191191  5 H  s          
  
  Vector   12  Occ=0.000000D+00  E=-2.951864D-01
@@ -3202,9 +2920,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -1.7D-03,  3.1D+00,  1.7D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      1.078991  2 N  px                24      0.705356  2 N  pz         
+    22      1.078990  2 N  px                24      0.705357  2 N  pz         
     35      0.688484  5 H  s                 31     -0.451387  3 H  s          
-    18     -0.398486  2 N  px                33     -0.271043  4 H  s          
+    18     -0.398486  2 N  px                33     -0.271042  4 H  s          
     20     -0.237919  2 N  pz                 7     -0.221513  1 F  px         
     23     -0.220730  2 N  py                25      0.166461  2 N  dxx        
  
@@ -3212,7 +2930,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -2.3D-01,  3.1D+00,  1.6D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      1.089732  2 N  py                33     -0.684577  4 H  s          
+    23      1.089731  2 N  py                33     -0.684578  4 H  s          
     22      0.537018  2 N  px                31      0.519765  3 H  s          
     24     -0.485966  2 N  pz                19     -0.359177  2 N  py         
     26     -0.253820  2 N  dxy               20      0.223201  2 N  pz         
@@ -3223,7 +2941,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     32     -1.520999  3 H  s                 36      1.365450  5 H  s          
-    24      1.027976  2 N  pz                22      0.847849  2 N  px         
+    24      1.027976  2 N  pz                22      0.847850  2 N  px         
     23     -0.800430  2 N  py                20     -0.568446  2 N  pz         
     31      0.493879  3 H  s                 18     -0.469326  2 N  px         
     35     -0.445431  5 H  s                 19      0.442512  2 N  py         
@@ -3234,7 +2952,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     34     -1.657258  4 H  s                 22      1.207826  2 N  px         
     36      0.983276  5 H  s                 23      0.948010  2 N  py         
-    32      0.728937  3 H  s                 18     -0.660964  2 N  px         
+    32      0.728938  3 H  s                 18     -0.660964  2 N  px         
     33      0.545070  4 H  s                 19     -0.519565  2 N  py         
     35     -0.305693  5 H  s                 24     -0.259885  2 N  pz         
  
@@ -3244,7 +2962,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     21     -1.847608  2 N  s                 17      0.947870  2 N  s          
     34      0.844992  4 H  s                 36      0.809525  5 H  s          
-    32      0.800263  3 H  s                 35     -0.567058  5 H  s          
+    32      0.800264  3 H  s                 35     -0.567058  5 H  s          
     31     -0.564386  3 H  s                 33     -0.557680  4 H  s          
     24     -0.366505  2 N  pz                23     -0.337197  2 N  py         
  
@@ -3255,20 +2973,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     21     -3.749463  2 N  s                 17      1.286652  2 N  s          
     34      0.654069  4 H  s                 36      0.615682  5 H  s          
     32      0.609357  3 H  s                 31      0.532534  3 H  s          
-    35      0.527909  5 H  s                  6     -0.488618  1 F  s          
+    35      0.527909  5 H  s                  6     -0.488619  1 F  s          
     33      0.478695  4 H  s                 24     -0.453873  2 N  pz         
  
- Bq nuclear interaction energy is   3.07514969299061     
+ Bq nuclear interaction energy is   3.07514969673699     
 
  center of mass
  --------------
- x =   0.02861805 y =   5.36161978 z =   2.53926510
+ x =   0.02861805 y =   5.36161978 z =   2.53926509
 
  moments of inertia (a.u.)
  ------------------
-          50.685686986210           8.269084522910           9.694670186481
-           8.269084522910          37.747057730273         -19.914522148970
-           9.694670186481         -19.914522148970          31.289539305246
+          50.685687135595           8.269084816554           9.694670518758
+           8.269084816554          37.747058111686         -19.914522233594
+           9.694670518758         -19.914522233594          31.289539700265
  
      Multipole analysis of the density
      ---------------------------------
@@ -3281,22 +2999,26 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      1   0 1 0      5.748509    -42.993087    -42.993087     91.734683
      1   0 0 1      3.126054    -20.381225    -20.381225     43.888504
  
-     2   2 0 0     -6.844720     -7.157891     -7.157891      7.471062
-     2   1 1 0     -1.991606      0.987702      0.987702     -3.967011
+     2   2 0 0     -6.844720     -7.157891     -7.157891      7.471063
+     2   1 1 0     -1.991606      0.987702      0.987702     -3.967010
      2   1 0 1     -1.210110      2.024465      2.024465     -5.259040
      2   0 2 0     27.402164   -241.392977   -241.392977    510.188118
-     2   0 1 1     19.285435   -114.659176   -114.659176    248.603788
-     2   0 0 2      3.983212    -64.126048    -64.126048    132.235307
+     2   0 1 1     19.285435   -114.659176   -114.659176    248.603787
+     2   0 0 2      3.983212    -64.126047    -64.126047    132.235307
  
 
- Parallel integral file used       7 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
+ Bq nuclear interaction energy is   3.51603344698495     
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -85.031929271 (-.223251E+06  kjoule/mol)
- quantum energy adjusted               -1.031929271 (-.270933E+04  kjoule/mol)
- classical energy                       0.058467671 (0.153507E+03  kjoule/mol)
+ quantum energy                       -85.031929270 (-.223251E+06  kjoule/mol)
+ quantum energy adjusted               -1.031929270 (-.270933E+04  kjoule/mol)
+ quantum energy internal              -85.635610427 (-.224836E+06  kjoule/mol)
+ Bq-nuclear energy                      3.516033447 (0.923135E+04  kjoule/mol)
+ Bq-electron energy                    -2.912352290 (-.764638E+04  kjoule/mol)
+ classical energy                       0.058467670 (0.153507E+03  kjoule/mol)
  total qmmm energy                     -0.973461600 (-.255582E+04  kjoule/mol)
 ------------------------------------------------------------------------
  
@@ -3316,11 +3038,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.26473448     2.33367321     0.74721945
-    2 N                    7.0000    -0.13185081     3.14404597     1.70176763
-    3 H                    1.0000    -0.09431634     2.66734531     2.64316821
-    4 H                    1.0000     0.43439672     4.02744665     1.79343134
-    5 H                    1.0000    -1.13107862     3.44803141     1.55404279
+    1 C                    6.0000     0.26473448     2.33367322     0.74721947
+    2 N                    7.0000    -0.13185083     3.14404599     1.70176765
+    3 H                    1.0000    -0.09431634     2.66734530     2.64316821
+    4 H                    1.0000     0.43439672     4.02744667     1.79343135
+    5 H                    1.0000    -1.13107864     3.44803142     1.55404280
  
       Atomic Mass 
       ----------- 
@@ -3330,54 +3052,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       H                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      33.2280983783
+ Effective nuclear repulsion energy (a.u.)      33.2280982731
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.2372494848    87.2168720635    42.3040343238
+    -0.2372496940    87.2168723938    42.3040347566
  
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.264734        2.333673        0.747219        16
-  N            -0.131851        3.144046        1.701768        19
-  H            -0.094316        2.667345        2.643168        20
-  H             0.434397        4.027447        1.793431        21
-  H            -1.131079        3.448031        1.554043        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.26473448     2.33367321     0.74721945
-    2 N                    7.0000    -0.13185081     3.14404597     1.70176763
-    3 H                    1.0000    -0.09431634     2.66734531     2.64316821
-    4 H                    1.0000     0.43439672     4.02744665     1.79343134
-    5 H                    1.0000    -1.13107862     3.44803141     1.55404279
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      44.1040595648
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     1.2635774011   100.4468807820    46.5401543883
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -3385,7 +3068,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.08032709831581     
+ Bq nuclear interaction energy is   3.08032708627820     
   Caching 1-el integrals 
  
             General Information
@@ -3447,65 +3130,65 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
-          Spatial weight screening/radius(au): 1.53D+01
+          Spatial weight screening/radius(au): 1.54D+01
 
- Bq nuclear interaction energy is   3.08032709831581     
+ Bq nuclear interaction energy is   3.08032708627820     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.08032709831581     
-   Time after variat. SCF:     26.7
-   Time prior to 1st pass:     26.7
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.08032708627820     
+   Time after variat. SCF:     10.8
+   Time prior to 1st pass:     10.8
 
  #quartets = 1.468D+04 #integrals = 2.361D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.08032709831581     
+ Bq nuclear interaction energy is   3.08032708627820     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -85.0315547738 -1.25D+02  8.26D-04  2.75D-04    27.9
- Bq nuclear interaction energy is   3.08032709831581     
- d= 0,ls=0.0,diis     2    -85.0315790328 -2.43D-05  2.77D-04  2.62D-05    28.2
- Bq nuclear interaction energy is   3.08032709831581     
- d= 0,ls=0.0,diis     3    -85.0315799442 -9.11D-07  1.59D-04  2.00D-05    28.5
- Bq nuclear interaction energy is   3.08032709831581     
- d= 0,ls=0.0,diis     4    -85.0315820761 -2.13D-06  4.06D-05  4.33D-07    28.8
- Bq nuclear interaction energy is   3.08032709831581     
- d= 0,ls=0.0,diis     5    -85.0315821246 -4.85D-08  1.06D-05  1.12D-07    29.2
- Bq nuclear interaction energy is   3.08032709831581     
- d= 0,ls=0.0,diis     6    -85.0315821369 -1.24D-08  2.05D-06  1.20D-09    29.5
- Bq nuclear interaction energy is   3.08032709831581     
+ d= 0,ls=0.0,diis     1    -85.0315547751 -1.25D+02  8.26D-04  2.75D-04    11.1
+ Bq nuclear interaction energy is   3.08032708627820     
+ d= 0,ls=0.0,diis     2    -85.0315790339 -2.43D-05  2.77D-04  2.62D-05    11.1
+ Bq nuclear interaction energy is   3.08032708627820     
+ d= 0,ls=0.0,diis     3    -85.0315799452 -9.11D-07  1.59D-04  2.00D-05    11.2
+ Bq nuclear interaction energy is   3.08032708627820     
+ d= 0,ls=0.0,diis     4    -85.0315820772 -2.13D-06  4.06D-05  4.33D-07    11.2
+ Bq nuclear interaction energy is   3.08032708627820     
+ d= 0,ls=0.0,diis     5    -85.0315821256 -4.85D-08  1.06D-05  1.12D-07    11.3
+ Bq nuclear interaction energy is   3.08032708627820     
+ d= 0,ls=0.0,diis     6    -85.0315821380 -1.24D-08  2.05D-06  1.20D-09    11.3
+ Bq nuclear interaction energy is   3.08032708627820     
 
 
-         Total DFT energy =    -85.031582136930
-      One electron energy =   -191.932685557909
-           Coulomb energy =     78.777052363131
-    Exchange-Corr. energy =    -11.809694814232
- Nuclear repulsion energy =     39.933745872080
+         Total DFT energy =      -85.031582137992
+      One electron energy =     -191.932685334470
+           Coulomb energy =       78.777052262452
+    Exchange-Corr. energy =      -11.809694807986
+ Nuclear repulsion energy =       39.933745742011
 
- Numeric. integr. density =     16.000002087159
+ Numeric. integr. density =       16.000002087142
 
-     Total iterative time =      2.7s
+     Total iterative time =      0.6s
 
 
  
@@ -3529,7 +3212,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     21     -0.490363  2 N  s                 17     -0.423776  2 N  s          
      6      0.295075  1 F  s                 16      0.208948  2 N  s          
  
- Vector    4  Occ=2.000000D+00  E=-9.789832D-01
+ Vector    4  Occ=2.000000D+00  E=-9.789831D-01
               MO Center= -5.3D-02,  3.0D+00,  1.5D+00, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -3539,7 +3222,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     23      0.177735  2 N  py                 4     -0.163818  1 F  py         
      8     -0.158959  1 F  py         
  
- Vector    5  Occ=2.000000D+00  E=-9.417959D-01
+ Vector    5  Occ=2.000000D+00  E=-9.417960D-01
               MO Center= -1.7D-01,  3.0D+00,  1.6D+00, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -3589,7 +3272,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     21     -1.422746  2 N  s                 32      0.855036  3 H  s          
-    36      0.828739  5 H  s                 34      0.681702  4 H  s          
+    36      0.828739  5 H  s                 34      0.681703  4 H  s          
     17     -0.330852  2 N  s                 24     -0.292129  2 N  pz         
     23     -0.175863  2 N  py                22      0.159583  2 N  px         
  
@@ -3638,8 +3321,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     22      1.162449  2 N  px                35      0.687951  5 H  s          
     24      0.569243  2 N  pz                18     -0.435882  2 N  px         
-    33     -0.417013  4 H  s                 31     -0.324902  3 H  s          
-     7     -0.244558  1 F  px                26     -0.207220  2 N  dxy        
+    33     -0.417012  4 H  s                 31     -0.324902  3 H  s          
+     7     -0.244558  1 F  px                26     -0.207219  2 N  dxy        
     20     -0.180154  2 N  pz                 3     -0.152865  1 F  px         
  
  Vector   16  Occ=0.000000D+00  E= 2.265831D-01
@@ -3647,8 +3330,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     23      1.103769  2 N  py                24     -0.624184  2 N  pz         
-    31      0.610938  3 H  s                 33     -0.605963  4 H  s          
-    19     -0.366469  2 N  py                22      0.287886  2 N  px         
+    31      0.610937  3 H  s                 33     -0.605963  4 H  s          
+    19     -0.366469  2 N  py                22      0.287887  2 N  px         
     20      0.270892  2 N  pz                26     -0.209765  2 N  dxy        
      8     -0.176227  1 F  py                 9      0.175559  1 F  pz         
  
@@ -3667,8 +3350,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     34     -1.624628  4 H  s                 22      1.217415  2 N  px         
-    36      1.019989  5 H  s                 23      0.932886  2 N  py         
-    32      0.760809  3 H  s                 18     -0.665628  2 N  px         
+    36      1.019989  5 H  s                 23      0.932887  2 N  py         
+    32      0.760810  3 H  s                 18     -0.665628  2 N  px         
     33      0.518521  4 H  s                 19     -0.511579  2 N  py         
     35     -0.329395  5 H  s                 24     -0.277089  2 N  pz         
  
@@ -3677,7 +3360,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     21      1.847976  2 N  s                 17     -0.945493  2 N  s          
-    34     -0.917409  4 H  s                 36     -0.778284  5 H  s          
+    34     -0.917408  4 H  s                 36     -0.778284  5 H  s          
     32     -0.752252  3 H  s                 33      0.585677  4 H  s          
     35      0.558993  5 H  s                 31      0.550228  3 H  s          
     23      0.376548  2 N  py                24      0.338164  2 N  pz         
@@ -3692,17 +3375,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     35      0.534001  5 H  s                  6     -0.494872  1 F  s          
     33      0.483136  4 H  s                 24     -0.478411  2 N  pz         
  
- Bq nuclear interaction energy is   3.08032709831581     
+ Bq nuclear interaction energy is   3.08032708627820     
 
  center of mass
  --------------
- x =   0.03472027 y =   5.35491945 z =   2.52823245
+ x =   0.03472026 y =   5.35491947 z =   2.52823248
 
  moments of inertia (a.u.)
  ------------------
-          50.736135057252           8.296846155137           9.710855745559
-           8.296846155137          37.772075942489         -19.957242000750
-           9.710855745559         -19.957242000750          31.270361575697
+          50.736134943581           8.296846417029           9.710856096641
+           8.296846417029          37.772076258390         -19.957241906434
+           9.710856096641         -19.957241906434          31.270362043882
  
      Multipole analysis of the density
      ---------------------------------
@@ -3713,17 +3396,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
      1   1 0 0     -0.272810     -0.267918     -0.267918      0.263026
      1   0 1 0      5.741345    -42.942765    -42.942765     91.626875
-     1   0 0 1      3.120798    -20.297638    -20.297638     43.716074
+     1   0 0 1      3.120798    -20.297638    -20.297638     43.716075
  
      2   2 0 0     -6.856985     -7.158858     -7.158858      7.460731
-     2   1 1 0     -2.002131      0.747413      0.747413     -3.496957
-     2   1 0 1     -1.222337      1.913450      1.913450     -5.049237
-     2   0 2 0     27.318330   -240.853031   -240.853031    509.024393
-     2   0 1 1     19.259995   -114.091296   -114.091296    247.442587
-     2   0 0 2      3.973895    -63.717481    -63.717481    131.408857
+     2   1 1 0     -2.002131      0.747414      0.747414     -3.496959
+     2   1 0 1     -1.222337      1.913450      1.913450     -5.049238
+     2   0 2 0     27.318330   -240.853033   -240.853033    509.024397
+     2   0 1 1     19.259995   -114.091298   -114.091298    247.442591
+     2   0 0 2      3.973895    -63.717482    -63.717482    131.408859
  
 
- Parallel integral file used       6 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
  
  
@@ -3753,74 +3436,57 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.05   |       0.76   |
+                 |  CPU   |       0.02   |       0.27   |
                  ----------------------------------------
-                 |  WALL  |       0.05   |       0.78   |
+                 |  WALL  |       0.02   |       0.27   |
                  ----------------------------------------
+ Bq nuclear interaction energy is   3.52200592784000     
+ debug 1 
+              Calculating forces on classical charges
+              ---------------------------------------
+ Total number of charges                    19
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                               QM/MM of Lys monomer
+ 
+
+          --------------
+          Electric field
+          --------------
+
+ 1 a.u. = 0.171524 10**(-8) dyn/esu 
+
+   Atom       X         Y         Z                        Electric field (a.u.)
+                                              X              Y              Z           Field
+  ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -85.031582137 (-.223250E+06  kjoule/mol)
- quantum energy adjusted               -1.031582137 (-.270842E+04  kjoule/mol)
+ quantum energy                       -85.031582138 (-.223250E+06  kjoule/mol)
+ quantum energy adjusted               -1.031582138 (-.270842E+04  kjoule/mol)
+ quantum energy internal              -85.636298370 (-.224838E+06  kjoule/mol)
+ Bq-nuclear energy                      3.522005928 (0.924703E+04  kjoule/mol)
+ Bq-electron energy                    -2.917289696 (-.765934E+04  kjoule/mol)
  classical energy                       0.058042382 (0.152390E+03  kjoule/mol)
- total qmmm energy                     -0.973539755 (-.255603E+04  kjoule/mol)
+ total qmmm energy                     -0.973539756 (-.255603E+04  kjoule/mol)
 ------------------------------------------------------------------------
  
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    4      -0.97353976 -6.3D-04  0.00499  0.00245  0.01889  0.03672     43.8
+@    4      -0.97353976 -6.3D-04  0.00499  0.00245  0.01889  0.03672     47.0
                                                                     
 
-               Coordinates of the active region
-               --------------------------------
-         5
-   
-  C             0.264734        2.333673        0.747219        16
-  N            -0.131851        3.144046        1.701768        19
-  H            -0.094316        2.667345        2.643168        20
-  H             0.434397        4.027447        1.793431        21
-  H            -1.131079        3.448031        1.554043        22
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.267509        2.333692        0.744256        16
-  N            -0.130667        3.142402        1.700690        19
-  H            -0.091512        2.666855        2.639305        20
-  H             0.435990        4.022059        1.786966        21
-  H            -1.128250        3.445626        1.551538        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.26750906     2.33369240     0.74425554
-    2 N                    7.0000    -0.13066748     3.14240151     1.70069032
-    3 H                    1.0000    -0.09151157     2.66685546     2.63930513
-    4 H                    1.0000     0.43599048     4.02205852     1.78696563
-    5 H                    1.0000    -1.12825013     3.44562550     1.55153817
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      44.1263480889
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     1.3400765522   100.4097998255    46.4512431038
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -3828,7 +3494,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.08309464311888     
+ Bq nuclear interaction energy is   3.08309464032017     
   Caching 1-el integrals 
  
             General Information
@@ -3890,63 +3556,63 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
-          Spatial weight screening/radius(au): 1.53D+01
+          Spatial weight screening/radius(au): 1.54D+01
 
- Bq nuclear interaction energy is   3.08309464311888     
+ Bq nuclear interaction energy is   3.08309464032017     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.08309464311888     
-   Time after variat. SCF:     31.1
-   Time prior to 1st pass:     31.1
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.08309464032017     
+   Time after variat. SCF:     12.1
+   Time prior to 1st pass:     12.1
 
  #quartets = 1.468D+04 #integrals = 2.361D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.08309464311888     
+ Bq nuclear interaction energy is   3.08309464032017     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -85.0314082961 -1.25D+02  6.11D-04  2.50D-04    32.3
- Bq nuclear interaction energy is   3.08309464311888     
- d= 0,ls=0.0,diis     2    -85.0314208960 -1.26D-05  2.27D-04  7.01D-05    32.6
- Bq nuclear interaction energy is   3.08309464311888     
- d= 0,ls=0.0,diis     3    -85.0314206976  1.98D-07  1.19D-04  7.49D-05    32.9
- Bq nuclear interaction energy is   3.08309464311888     
- d= 0,ls=0.0,diis     4    -85.0314277363 -7.04D-06  2.64D-05  1.18D-06    33.2
- Bq nuclear interaction energy is   3.08309464311888     
- d= 0,ls=0.0,diis     5    -85.0314278406 -1.04D-07  3.17D-06  2.20D-08    33.5
- Bq nuclear interaction energy is   3.08309464311888     
+ d= 0,ls=0.0,diis     1    -85.0314082960 -1.25D+02  6.11D-04  2.50D-04    12.6
+ Bq nuclear interaction energy is   3.08309464032017     
+ d= 0,ls=0.0,diis     2    -85.0314208958 -1.26D-05  2.27D-04  7.01D-05    12.7
+ Bq nuclear interaction energy is   3.08309464032017     
+ d= 0,ls=0.0,diis     3    -85.0314206974  1.98D-07  1.19D-04  7.49D-05    12.7
+ Bq nuclear interaction energy is   3.08309464032017     
+ d= 0,ls=0.0,diis     4    -85.0314277361 -7.04D-06  2.64D-05  1.18D-06    12.8
+ Bq nuclear interaction energy is   3.08309464032017     
+ d= 0,ls=0.0,diis     5    -85.0314278404 -1.04D-07  3.17D-06  2.20D-08    12.9
+ Bq nuclear interaction energy is   3.08309464032017     
 
 
-         Total DFT energy =    -85.031427840605
-      One electron energy =   -191.975903362642
-           Coulomb energy =     78.796739036623
-    Exchange-Corr. energy =    -11.812282268249
- Nuclear repulsion energy =     39.960018753663
+         Total DFT energy =      -85.031427840408
+      One electron energy =     -191.975903243520
+           Coulomb energy =       78.796738978084
+    Exchange-Corr. energy =      -11.812282264913
+ Nuclear repulsion energy =       39.960018689941
 
- Numeric. integr. density =     16.000001695018
+ Numeric. integr. density =       16.000001693898
 
-     Total iterative time =      2.4s
+     Total iterative time =      0.8s
 
 
  
@@ -4133,17 +3799,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     35     -0.534970  5 H  s                  6      0.497331  1 F  s          
     33     -0.486749  4 H  s                 24      0.470263  2 N  pz         
  
- Bq nuclear interaction energy is   3.08309464311888     
+ Bq nuclear interaction energy is   3.08309464032017     
 
  center of mass
  --------------
- x =   0.03844085 y =   5.35289174 z =   2.52409276
+ x =   0.03844085 y =   5.35289175 z =   2.52409276
 
  moments of inertia (a.u.)
  ------------------
-          50.677669614652           8.311809141516           9.762584341104
-           8.311809141516          37.841647187525         -19.929609750436
-           9.762584341104         -19.929609750436          31.182254939135
+          50.677669756220           8.311809307170           9.762584449308
+           8.311809307170          37.841647177262         -19.929609884053
+           9.762584449308         -19.929609884053          31.182255333015
  
      Multipole analysis of the density
      ---------------------------------
@@ -4153,24 +3819,28 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      0   0 0 0      1.000000     -8.000000     -8.000000     17.000000
  
      1   1 0 0     -0.267986     -0.298513     -0.298513      0.329039
-     1   0 1 0      5.739355    -42.925183    -42.925183     91.589721
+     1   0 1 0      5.739355    -42.925183    -42.925183     91.589722
      1   0 0 1      3.113543    -20.262411    -20.262411     43.638365
  
-     2   2 0 0     -6.853012     -7.161582     -7.161582      7.470152
-     2   1 1 0     -1.975593      0.587537      0.587537     -3.150668
+     2   2 0 0     -6.853012     -7.161582     -7.161582      7.470153
+     2   1 1 0     -1.975593      0.587538      0.587538     -3.150668
      2   1 0 1     -1.210178      1.849766      1.849766     -4.909709
-     2   0 2 0     27.277479   -240.633646   -240.633646    508.544770
-     2   0 1 1     19.200624   -113.850939   -113.850939    246.902502
-     2   0 0 2      3.932111    -63.545647    -63.545647    131.023405
+     2   0 2 0     27.277479   -240.633646   -240.633646    508.544771
+     2   0 1 1     19.200625   -113.850939   -113.850939    246.902503
+     2   0 0 2      3.932112    -63.545647    -63.545647    131.023405
  
 
- Parallel integral file used       6 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
+ Bq nuclear interaction energy is   3.52525904202333     
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -85.031427841 (-.223250E+06  kjoule/mol)
- quantum energy adjusted               -1.031427841 (-.270801E+04  kjoule/mol)
+ quantum energy                       -85.031427840 (-.223250E+06  kjoule/mol)
+ quantum energy adjusted               -1.031427840 (-.270801E+04  kjoule/mol)
+ quantum energy internal              -85.636875517 (-.224840E+06  kjoule/mol)
+ Bq-nuclear energy                      3.525259042 (0.925557E+04  kjoule/mol)
+ Bq-electron energy                    -2.919811365 (-.766596E+04  kjoule/mol)
  classical energy                       0.057741119 (0.151599E+03  kjoule/mol)
  total qmmm energy                     -0.973686722 (-.255641E+04  kjoule/mol)
 ------------------------------------------------------------------------
@@ -4191,11 +3861,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.27406472     2.33373774     0.73725254
-    2 N                    7.0000    -0.12787155     3.13851605     1.69814489
-    3 H                    1.0000    -0.08488457     2.66569806     2.63017763
-    4 H                    1.0000     0.43975616     4.00932768     1.77168871
-    5 H                    1.0000    -1.12156710     3.43994093     1.54562037
+    1 C                    6.0000     0.27406440     2.33373771     0.73725286
+    2 N                    7.0000    -0.12787166     3.13851623     1.69814497
+    3 H                    1.0000    -0.08488489     2.66569813     2.63017807
+    4 H                    1.0000     0.43975596     4.00932827     1.77168945
+    5 H                    1.0000    -1.12156741     3.43994121     1.54562067
  
       Atomic Mass 
       ----------- 
@@ -4205,54 +3875,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       H                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      33.3091408016
+ Effective nuclear repulsion energy (a.u.)      33.3091381034
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.0328963605    87.0918120003    42.0615516294
+    -0.0329031908    87.0918157976    42.0615591258
  
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.274065        2.333738        0.737253        16
-  N            -0.127872        3.138516        1.698145        19
-  H            -0.084885        2.665698        2.630178        20
-  H             0.439756        4.009328        1.771689        21
-  H            -1.121567        3.439941        1.545620        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.27406472     2.33373774     0.73725254
-    2 N                    7.0000    -0.12787155     3.13851605     1.69814489
-    3 H                    1.0000    -0.08488457     2.66569806     2.63017763
-    4 H                    1.0000     0.43975616     4.00932768     1.77168871
-    5 H                    1.0000    -1.12156710     3.43994093     1.54562037
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      44.1789005523
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     1.5208253289   100.3221865980    46.2411674931
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -4260,7 +3891,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.08965190823570     
+ Bq nuclear interaction energy is   3.08965160578958     
   Caching 1-el integrals 
  
             General Information
@@ -4322,63 +3953,63 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
-          Spatial weight screening/radius(au): 1.52D+01
+          Spatial weight screening/radius(au): 1.54D+01
 
- Bq nuclear interaction energy is   3.08965190823570     
+ Bq nuclear interaction energy is   3.08965160578958     
 
  Loading old vectors from job with title :
 
 QM/MM of Lys monomer
 
- Bq nuclear interaction energy is   3.08965190823570     
-   Time after variat. SCF:     33.7
-   Time prior to 1st pass:     33.7
-
- Integral file          = ./lys.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      5        Max. records in file   =   9071
- No. of bits per label  =      8        No. of bits per value  =     64
-
+ Bq nuclear interaction energy is   3.08965160578958     
+   Time after variat. SCF:     13.0
+   Time prior to 1st pass:     13.0
 
  #quartets = 1.468D+04 #integrals = 2.361D+05 #direct =  0.0% #cached =100.0%
 
 
+ Integral file          = /scratch/lys.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  10897
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- Bq nuclear interaction energy is   3.08965190823570     
+ Bq nuclear interaction energy is   3.08965160578958     
 
- Grid_pts file          = ./lys.gridpts.0
+ Grid_pts file          = /scratch/lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     20        Max. recs in file   =     48383
+ Max. records in memory =      6        Max. recs in file   =     58120
 
 
            Memory utilization after 1st SCF pass: 
            Heap Space remaining (MW):        0.00                   0
-          Stack Space remaining (MW):       32.76            32762868
+          Stack Space remaining (MW):       32.76            32761069
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -85.0307949938 -1.25D+02  1.43D-03  1.39D-03    34.8
- Bq nuclear interaction energy is   3.08965190823570     
- d= 0,ls=0.0,diis     2    -85.0308656065 -7.06D-05  5.28D-04  3.87D-04    35.1
- Bq nuclear interaction energy is   3.08965190823570     
- d= 0,ls=0.0,diis     3    -85.0308650834  5.23D-07  2.79D-04  4.07D-04    35.5
- Bq nuclear interaction energy is   3.08965190823570     
- d= 0,ls=0.0,diis     4    -85.0309032556 -3.82D-05  6.26D-05  6.74D-06    35.8
- Bq nuclear interaction energy is   3.08965190823570     
- d= 0,ls=0.0,diis     5    -85.0309038498 -5.94D-07  7.20D-06  1.19D-07    36.1
- Bq nuclear interaction energy is   3.08965190823570     
+ d= 0,ls=0.0,diis     1    -85.0307950341 -1.25D+02  1.43D-03  1.39D-03    13.3
+ Bq nuclear interaction energy is   3.08965160578958     
+ d= 0,ls=0.0,diis     2    -85.0308656393 -7.06D-05  5.28D-04  3.87D-04    13.4
+ Bq nuclear interaction energy is   3.08965160578958     
+ d= 0,ls=0.0,diis     3    -85.0308651165  5.23D-07  2.79D-04  4.07D-04    13.4
+ Bq nuclear interaction energy is   3.08965160578958     
+ d= 0,ls=0.0,diis     4    -85.0309032849 -3.82D-05  6.26D-05  6.74D-06    13.5
+ Bq nuclear interaction energy is   3.08965160578958     
+ d= 0,ls=0.0,diis     5    -85.0309038790 -5.94D-07  7.20D-06  1.19D-07    13.5
+ Bq nuclear interaction energy is   3.08965160578958     
 
 
-         Total DFT energy =    -85.030903849780
-      One electron energy =   -192.077283322013
-           Coulomb energy =     78.842686524411
-    Exchange-Corr. energy =    -11.818353012250
- Nuclear repulsion energy =     40.022045960071
+         Total DFT energy =      -85.030903878985
+      One electron energy =     -192.077278514656
+           Coulomb energy =       78.842684327488
+    Exchange-Corr. energy =      -11.818352720078
+ Nuclear repulsion energy =       40.022043028261
 
- Numeric. integr. density =     16.000000804329
+ Numeric. integr. density =       16.000000802251
 
-     Total iterative time =      2.4s
+     Total iterative time =      0.5s
 
 
  
@@ -4407,34 +4038,34 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     20     -0.364485  2 N  pz                19     -0.321035  2 N  py         
-     6     -0.302624  1 F  s                  5      0.201887  1 F  pz         
+     6     -0.302624  1 F  s                  5      0.201886  1 F  pz         
      9      0.201825  1 F  pz                24     -0.197931  2 N  pz         
     23     -0.174326  2 N  py                 4      0.163522  1 F  py         
      8      0.159288  1 F  py         
  
- Vector    5  Occ=2.000000D+00  E=-9.451735D-01
+ Vector    5  Occ=2.000000D+00  E=-9.451733D-01
               MO Center= -1.5D-01,  3.0D+00,  1.6D+00, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.330935  2 N  pz                19     -0.267494  2 N  py         
-    18      0.251154  2 N  px                31      0.196042  3 H  s          
-    24      0.186676  2 N  pz                35     -0.166715  5 H  s          
-    23     -0.151533  2 N  py         
+    20      0.330935  2 N  pz                19     -0.267492  2 N  py         
+    18      0.251156  2 N  px                31      0.196041  3 H  s          
+    24      0.186676  2 N  pz                35     -0.166716  5 H  s          
+    23     -0.151532  2 N  py         
  
- Vector    6  Occ=2.000000D+00  E=-9.420049D-01
+ Vector    6  Occ=2.000000D+00  E=-9.420048D-01
               MO Center= -4.0D-02,  3.1D+00,  1.6D+00, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      0.405714  2 N  px                19      0.273342  2 N  py         
+    18      0.405713  2 N  px                19      0.273343  2 N  py         
     22      0.232442  2 N  px                33      0.202012  4 H  s          
-     7      0.165585  1 F  px                23      0.159767  2 N  py         
+     7      0.165585  1 F  px                23      0.159768  2 N  py         
  
  Vector    7  Occ=2.000000D+00  E=-7.086468D-01
               MO Center=  1.4D-01,  2.5D+00,  9.5D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      0.454190  1 F  px                 9      0.409685  1 F  pz         
-     3      0.286089  1 F  px                 8     -0.261369  1 F  py         
+     3      0.286090  1 F  px                 8     -0.261368  1 F  py         
      5      0.257690  1 F  pz                 4     -0.165167  1 F  py         
     18     -0.152448  2 N  px                35      0.150110  5 H  s          
  
@@ -4442,7 +4073,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  2.4D-01,  2.6D+00,  9.3D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.454074  1 F  px                 8     -0.424195  1 F  py         
+     7     -0.454073  1 F  px                 8     -0.424195  1 F  py         
      3     -0.283785  1 F  px                 4     -0.281901  1 F  py         
      9      0.233479  1 F  pz                33      0.164040  4 H  s          
     19      0.158171  2 N  py         
@@ -4454,129 +4085,129 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      6     -0.855328  1 F  s                 21      0.651336  2 N  s          
      9     -0.621319  1 F  pz                 8     -0.552649  1 F  py         
     24     -0.551577  2 N  pz                23     -0.460673  2 N  py         
-    10      0.318074  1 F  dxx               13      0.306139  1 F  dyy        
+    10      0.318074  1 F  dxx               13      0.306140  1 F  dyy        
     15      0.305026  1 F  dzz                7      0.242202  1 F  px         
  
- Vector   10  Occ=0.000000D+00  E=-3.540940D-01
+ Vector   10  Occ=0.000000D+00  E=-3.540941D-01
               MO Center= -3.6D-01,  3.3D+00,  2.0D+00, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -1.445499  2 N  s                 36      0.854010  5 H  s          
-    32      0.851123  3 H  s                 34      0.681002  4 H  s          
-    17     -0.331470  2 N  s                 24     -0.279531  2 N  pz         
-    23     -0.175896  2 N  py                22      0.166439  2 N  px         
+    21     -1.445498  2 N  s                 36      0.854009  5 H  s          
+    32      0.851124  3 H  s                 34      0.681002  4 H  s          
+    17     -0.331470  2 N  s                 24     -0.279532  2 N  pz         
+    23     -0.175896  2 N  py                22      0.166438  2 N  px         
  
- Vector   11  Occ=0.000000D+00  E=-2.987762D-01
+ Vector   11  Occ=0.000000D+00  E=-2.987763D-01
               MO Center= -6.3D-01,  3.1D+00,  2.1D+00, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36     -1.205714  5 H  s                 32      1.150680  3 H  s          
-    22     -0.537126  2 N  px                24     -0.525010  2 N  pz         
-    23      0.345179  2 N  py                18     -0.322209  2 N  px         
-    20     -0.311264  2 N  pz                19      0.207229  2 N  py         
-    35     -0.199432  5 H  s                 31      0.186485  3 H  s          
+    36     -1.205712  5 H  s                 32      1.150682  3 H  s          
+    22     -0.537124  2 N  px                24     -0.525011  2 N  pz         
+    23      0.345181  2 N  py                18     -0.322207  2 N  px         
+    20     -0.311265  2 N  pz                19      0.207230  2 N  py         
+    35     -0.199432  5 H  s                 31      0.186486  3 H  s          
  
- Vector   12  Occ=0.000000D+00  E=-2.906897D-01
+ Vector   12  Occ=0.000000D+00  E=-2.906898D-01
               MO Center=  2.4D-01,  3.8D+00,  1.9D+00, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34     -1.428164  4 H  s                 32      0.678810  3 H  s          
-    23      0.581776  2 N  py                22      0.548030  2 N  px         
-    36      0.539443  5 H  s                 19      0.341208  2 N  py         
-    18      0.334010  2 N  px                33     -0.233081  4 H  s          
-    24     -0.185173  2 N  pz         
+    34     -1.428164  4 H  s                 32      0.678805  3 H  s          
+    23      0.581775  2 N  py                22      0.548032  2 N  px         
+    36      0.539448  5 H  s                 19      0.341208  2 N  py         
+    18      0.334011  2 N  px                33     -0.233081  4 H  s          
+    24     -0.185170  2 N  pz         
  
- Vector   13  Occ=0.000000D+00  E= 3.531028D-02
+ Vector   13  Occ=0.000000D+00  E= 3.531032D-02
               MO Center= -3.5D-03,  2.9D+00,  1.4D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -0.743288  2 N  s                 24      0.714343  2 N  pz         
-    20     -0.619159  2 N  pz                23      0.612985  2 N  py         
+    21     -0.743288  2 N  s                 24      0.714344  2 N  pz         
+    20     -0.619159  2 N  pz                23      0.612986  2 N  py         
     19     -0.516869  2 N  py                17      0.411754  2 N  s          
-     6      0.388084  1 F  s                 14      0.333066  1 F  dyz        
+     6      0.388085  1 F  s                 14      0.333066  1 F  dyz        
     22     -0.289647  2 N  px                18      0.262159  2 N  px         
  
- Vector   14  Occ=0.000000D+00  E= 1.380823D-01
+ Vector   14  Occ=0.000000D+00  E= 1.380824D-01
               MO Center= -9.7D-02,  3.1D+00,  1.6D+00, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.082960  1 F  s                 24      0.964839  2 N  pz         
-    23      0.758365  2 N  py                 2     -0.436583  1 F  s          
-    22     -0.432549  2 N  px                31     -0.294227  3 H  s          
+     6      1.082961  1 F  s                 24      0.964839  2 N  pz         
+    23      0.758364  2 N  py                 2     -0.436583  1 F  s          
+    22     -0.432550  2 N  px                31     -0.294227  3 H  s          
     35     -0.291952  5 H  s                 21     -0.289001  2 N  s          
     15      0.259206  1 F  dzz               10      0.256157  1 F  dxx        
  
- Vector   15  Occ=0.000000D+00  E= 2.215330D-01
+ Vector   15  Occ=0.000000D+00  E= 2.215332D-01
               MO Center= -1.5D-01,  3.0D+00,  1.7D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -1.105966  2 N  px                23     -0.738776  2 N  py         
-    33      0.691917  4 H  s                 35     -0.475374  5 H  s          
+    22     -1.105968  2 N  px                23     -0.738773  2 N  py         
+    33      0.691916  4 H  s                 35     -0.475376  5 H  s          
     18      0.413322  2 N  px                26      0.289184  2 N  dxy        
-    19      0.239207  2 N  py                 7      0.232722  1 F  px         
-    31     -0.168224  3 H  s          
+    19      0.239206  2 N  py                 7      0.232723  1 F  px         
+    31     -0.168220  3 H  s          
  
  Vector   16  Occ=0.000000D+00  E= 2.243721D-01
               MO Center= -7.5D-02,  3.2D+00,  1.6D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.874804  2 N  pz                23     -0.816630  2 N  py         
-    31     -0.679708  3 H  s                 22      0.542415  2 N  px         
-    35      0.508899  5 H  s                 20     -0.318843  2 N  pz         
-    19      0.282808  2 N  py                18     -0.190614  2 N  px         
+    24      0.874803  2 N  pz                23     -0.816634  2 N  py         
+    31     -0.679709  3 H  s                 22      0.542410  2 N  px         
+    35      0.508897  5 H  s                 20     -0.318843  2 N  pz         
+    19      0.282809  2 N  py                18     -0.190612  2 N  px         
     29      0.185088  2 N  dyz                9     -0.182664  1 F  pz         
  
- Vector   17  Occ=0.000000D+00  E= 3.619028D-01
+ Vector   17  Occ=0.000000D+00  E= 3.619027D-01
               MO Center= -5.5D-01,  3.1D+00,  2.0D+00, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36     -1.534995  5 H  s                 32      1.365188  3 H  s          
-    22     -1.051128  2 N  px                24     -0.964243  2 N  pz         
-    23      0.634654  2 N  py                18      0.580425  2 N  px         
-    20      0.533348  2 N  pz                35      0.499640  5 H  s          
-    31     -0.436198  3 H  s                 19     -0.350018  2 N  py         
+    36     -1.534989  5 H  s                 32      1.365194  3 H  s          
+    22     -1.051121  2 N  px                24     -0.964246  2 N  pz         
+    23      0.634660  2 N  py                18      0.580421  2 N  px         
+    20      0.533349  2 N  pz                35      0.499638  5 H  s          
+    31     -0.436200  3 H  s                 19     -0.350021  2 N  py         
  
- Vector   18  Occ=0.000000D+00  E= 3.672930D-01
+ Vector   18  Occ=0.000000D+00  E= 3.672929D-01
               MO Center=  1.1D-02,  3.5D+00,  1.9D+00, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34      1.622004  4 H  s                 23     -1.046854  2 N  py         
-    22     -1.045016  2 N  px                32     -1.031760  3 H  s          
-    36     -0.781165  5 H  s                 19      0.577597  2 N  py         
-    18      0.574766  2 N  px                33     -0.512982  4 H  s          
-    24      0.464802  2 N  pz                31      0.343506  3 H  s          
+    34      1.622005  4 H  s                 23     -1.046850  2 N  py         
+    22     -1.045023  2 N  px                32     -1.031752  3 H  s          
+    36     -0.781174  5 H  s                 19      0.577594  2 N  py         
+    18      0.574770  2 N  px                33     -0.512982  4 H  s          
+    24      0.464796  2 N  pz                31      0.343503  3 H  s          
  
- Vector   19  Occ=0.000000D+00  E= 4.265087D-01
+ Vector   19  Occ=0.000000D+00  E= 4.265084D-01
               MO Center= -1.6D-01,  3.4D+00,  1.9D+00, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     21     -1.869452  2 N  s                 17      0.958319  2 N  s          
-    34      0.947325  4 H  s                 32      0.770781  3 H  s          
-    36      0.737510  5 H  s                 33     -0.601387  4 H  s          
-    31     -0.547290  3 H  s                 35     -0.539448  5 H  s          
-    23     -0.375216  2 N  py                24     -0.361852  2 N  pz         
+    34      0.947324  4 H  s                 32      0.770780  3 H  s          
+    36      0.737511  5 H  s                 33     -0.601386  4 H  s          
+    31     -0.547290  3 H  s                 35     -0.539449  5 H  s          
+    23     -0.375217  2 N  py                24     -0.361851  2 N  pz         
  
- Vector   20  Occ=0.000000D+00  E= 7.904343D-01
+ Vector   20  Occ=0.000000D+00  E= 7.904342D-01
               MO Center= -1.5D-01,  3.2D+00,  1.7D+00, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      3.797182  2 N  s                 17     -1.287600  2 N  s          
-    34     -0.676741  4 H  s                 32     -0.618253  3 H  s          
+    21      3.797180  2 N  s                 17     -1.287600  2 N  s          
+    34     -0.676741  4 H  s                 32     -0.618252  3 H  s          
     36     -0.617085  5 H  s                 35     -0.537308  5 H  s          
     31     -0.535693  3 H  s                  6      0.503618  1 F  s          
-    33     -0.496174  4 H  s                 24      0.450669  2 N  pz         
+    33     -0.496173  4 H  s                 24      0.450670  2 N  pz         
  
- Bq nuclear interaction energy is   3.08965190823570     
+ Bq nuclear interaction energy is   3.08965160578958     
 
  center of mass
  --------------
- x =   0.04723169 y =   5.34810077 z =   2.51431167
+ x =   0.04723127 y =   5.34810097 z =   2.51431209
 
  moments of inertia (a.u.)
  ------------------
-          50.541960451084           8.346657580216           9.885367801330
-           8.346657580216          38.007839834155         -19.864292759572
-           9.885367801330         -19.864292759572          30.975720741407
+          50.541967742829           8.346655834960           9.885361299550
+           8.346655834960          38.007830843476         -19.864296631286
+           9.885361299550         -19.864296631286          30.975730999515
  
      Multipole analysis of the density
      ---------------------------------
@@ -4585,19 +4216,19 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      -   - - -        -----         -----         ----         -------
      0   0 0 0      1.000000     -8.000000     -8.000000     17.000000
  
-     1   1 0 0     -0.256604     -0.370808     -0.370808      0.485011
-     1   0 1 0      5.734658    -42.883640    -42.883640     91.501937
-     1   0 0 1      3.096396    -20.179181    -20.179181     43.454757
+     1   1 0 0     -0.256605     -0.370804     -0.370804      0.485003
+     1   0 1 0      5.734658    -42.883641    -42.883641     91.501941
+     1   0 0 1      3.096396    -20.179184    -20.179184     43.454765
  
-     2   2 0 0     -6.843504     -7.169123     -7.169123      7.494742
-     2   1 1 0     -1.912937      0.210192      0.210192     -2.333322
-     2   1 0 1     -1.181722      1.700502      1.700502     -4.582725
-     2   0 2 0     27.181313   -240.115879   -240.115879    507.413071
-     2   0 1 1     19.060610   -113.283679   -113.283679    245.627968
-     2   0 0 2      3.833724    -63.141358    -63.141358    130.116439
+     2   2 0 0     -6.843505     -7.169123     -7.169123      7.494741
+     2   1 1 0     -1.912940      0.210210      0.210210     -2.333361
+     2   1 0 1     -1.181723      1.700509      1.700509     -4.582740
+     2   0 2 0     27.181317   -240.115902   -240.115902    507.413121
+     2   0 1 1     19.060617   -113.283704   -113.283704    245.628024
+     2   0 0 2      3.833728    -63.141375    -63.141375    130.116479
  
 
- Parallel integral file used       7 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
  
  
@@ -4618,32 +4249,63 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 F_L     0.517907   4.410125   1.393205    0.026645   0.004623  -0.029642
-   2 N      -0.241642   5.930935   3.209029   -0.003057   0.001508   0.010376
-   3 H      -0.160409   5.037439   4.970315   -0.002085   0.004373  -0.002548
-   4 H       0.831019   7.576531   3.348006   -0.006247  -0.004683   0.002318
-   5 H      -2.119455   6.500546   2.920799    0.001716   0.000639   0.002889
+   1 F_L     0.517907   4.410125   1.393206    0.026644   0.004623  -0.029642
+   2 N      -0.241642   5.930936   3.209029   -0.003057   0.001507   0.010376
+   3 H      -0.160409   5.037439   4.970316   -0.002085   0.004373  -0.002548
+   4 H       0.831018   7.576532   3.348008   -0.006247  -0.004682   0.002318
+   5 H      -2.119455   6.500546   2.920800    0.001716   0.000639   0.002889
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.05   |       0.77   |
+                 |  CPU   |       0.02   |       0.27   |
                  ----------------------------------------
-                 |  WALL  |       0.05   |       0.78   |
+                 |  WALL  |       0.02   |       0.27   |
                  ----------------------------------------
+ Bq nuclear interaction energy is   3.53296601417722     
+ debug 1 
+              Calculating forces on classical charges
+              ---------------------------------------
+ Total number of charges                    19
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+ debug 1 
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                               QM/MM of Lys monomer
+ 
+
+          --------------
+          Electric field
+          --------------
+
+ 1 a.u. = 0.171524 10**(-8) dyn/esu 
+
+   Atom       X         Y         Z                        Electric field (a.u.)
+                                              X              Y              Z           Field
+  ------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
- quantum energy                       -85.030903850 (-.223249E+06  kjoule/mol)
- quantum energy adjusted               -1.030903850 (-.270664E+04  kjoule/mol)
- classical energy                       0.057075474 (0.149852E+03  kjoule/mol)
- total qmmm energy                     -0.973828376 (-.255679E+04  kjoule/mol)
+ quantum energy                       -85.030903879 (-.223249E+06  kjoule/mol)
+ quantum energy adjusted               -1.030903879 (-.270664E+04  kjoule/mol)
+ quantum energy internal              -85.638091401 (-.224843E+06  kjoule/mol)
+ Bq-nuclear energy                      3.532966014 (0.927580E+04  kjoule/mol)
+ Bq-electron energy                    -2.925778492 (-.768163E+04  kjoule/mol)
+ classical energy                       0.057075504 (0.149852E+03  kjoule/mol)
+ total qmmm energy                     -0.973828375 (-.255679E+04  kjoule/mol)
 ------------------------------------------------------------------------
  
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    5      -0.97382838 -2.9D-04  0.00804  0.00379  0.01929  0.04109     54.2
+@    5      -0.97382837 -2.9D-04  0.00804  0.00379  0.01929  0.04109     58.0
                                                                     
 
 
@@ -4654,7 +4316,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    5      -0.97382838 -2.9D-04  0.00804  0.00379  0.01929  0.04109     54.2
+@    5      -0.97382837 -2.9D-04  0.00804  0.00379  0.01929  0.04109     58.0
                                                                     
 
  
@@ -4666,11 +4328,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.27406472     2.33373774     0.73725254
-    2 N                    7.0000    -0.12787155     3.13851605     1.69814489
-    3 H                    1.0000    -0.08488457     2.66569806     2.63017763
-    4 H                    1.0000     0.43975616     4.00932768     1.77168871
-    5 H                    1.0000    -1.12156710     3.43994093     1.54562037
+    1 C                    6.0000     0.27406440     2.33373771     0.73725286
+    2 N                    7.0000    -0.12787166     3.13851623     1.69814497
+    3 H                    1.0000    -0.08488489     2.66569813     2.63017807
+    4 H                    1.0000     0.43975596     4.00932827     1.77168945
+    5 H                    1.0000    -1.12156741     3.43994121     1.54562067
  
       Atomic Mass 
       ----------- 
@@ -4680,13 +4342,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       H                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)      33.3091408016
+ Effective nuclear repulsion energy (a.u.)      33.3091381034
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.0328963605    87.0918120003    42.0615516294
+    -0.0329031908    87.0918157976    42.0615591258
  
  ==============================================================================
                                 internuclear distances
@@ -4720,47 +4382,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
 
- number of active bqs           19
-                    globally indexed xyz file for full_geometry
-                   --------------------------------------------
-         5
-   
-  F_L           0.274065        2.333738        0.737253        16
-  N            -0.127872        3.138516        1.698145        19
-  H            -0.084885        2.665698        2.630178        20
-  H             0.439756        4.009328        1.771689        21
-  H            -1.121567        3.439941        1.545620        22
- 
- 
-                      Geometry "full_geometry" -> "        "
-                      --------------------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 F_L                  9.0000     0.27406472     2.33373774     0.73725254
-    2 N                    7.0000    -0.12787155     3.13851605     1.69814489
-    3 H                    1.0000    -0.08488457     2.66569806     2.63017763
-    4 H                    1.0000     0.43975616     4.00932768     1.77168871
-    5 H                    1.0000    -1.12156710     3.43994093     1.54562037
- 
-      Atomic Mass 
-      ----------- 
- 
-      F_L               12.000000
-      N                 14.003070
-      H                  1.007825
- 
-
- Effective nuclear repulsion energy (a.u.)      44.1789005523
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     1.5208253289   100.3221865980    46.2411674931
- 
+ Total number of active Bq charges                     19
                                  NWChem DFT Module
                                  -----------------
  
@@ -4768,19 +4390,23 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                QM/MM of Lys monomer
  
  
- Bq nuclear interaction energy is   3.08965190823570     
+ Bq nuclear interaction energy is   3.08965160578958     
 
   The DFT is already converged 
 
-         Total DFT energy =    -85.030903849780
+         Total DFT energy =    -85.030903878985
 
+ Bq nuclear interaction energy is   3.53296601417722     
 @------------------------------------------------------------------------
 @ QM/MM Energy
 @------------------------------------------------------------------------
-@ quantum energy                      -85.030903850 (-.223249E+06  kjoule/mol)
-@ quantum energy adjusted              -1.030903850 (-.270664E+04  kjoule/mol)
-@ classical energy                      0.057075474 (0.149852E+03  kjoule/mol)
-@ total qmmm energy                    -0.973828376 (-.255679E+04  kjoule/mol)
+@ quantum energy                      -85.030903879 (-.223249E+06  kjoule/mol)
+@ quantum energy adjusted              -1.030903879 (-.270664E+04  kjoule/mol)
+@ quantum energy internal             -85.638091401 (-.224843E+06  kjoule/mol)
+@ Bq-nuclear energy                     3.532966014 (0.927580E+04  kjoule/mol)
+@ Bq-electron energy                   -2.925778492 (-.768163E+04  kjoule/mol)
+@ classical energy                      0.057075504 (0.149852E+03  kjoule/mol)
+@ total qmmm energy                    -0.973828375 (-.255679E+04  kjoule/mol)
 @------------------------------------------------------------------------
  
 @------------------------------------------------
@@ -4788,7 +4414,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 @  OPTIMIZATION FINISHED 
 @
 
- Task  times  cpu:       37.7s     wall:       54.2s
+ Task  times  cpu:       13.5s     wall:       58.6s
  
  
                                 NWChem Input Module
@@ -4805,12 +4431,25 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1049     1049     1.20e+05 2.07e+04 6.18e+04    6        0        0     
-number of processes/call 1.01e+00 1.05e+00 1.00e+00 2.00e+00 0.00e+00
-bytes total:             4.95e+07 9.41e+06 3.14e+07 3.84e+02 0.00e+00 0.00e+00
-bytes remote:            8.51e+05 4.13e+05 7.54e+05 1.92e+02 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 394048 bytes
+calls: 1059     1059     2.57e+04 6729     4271        6        0        0     
+number of processes/call 1.36e+00 1.37e+00 1.61e+00 8.00e+00 0.00e+00
+bytes total:             2.34e+07 6.61e+06 8.85e+06 3.84e+02 0.00e+00 0.00e+00
+bytes remote:            6.57e+06 1.25e+06 3.20e+06 3.36e+02 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 256440 bytes
  
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        77	       130
+	current total bytes		         0	         0
+	maximum total bytes		 263820128	 492189888
+	maximum total K-bytes		    263821	    492190
+	maximum total M-bytes		       264	       493
 
 
 
@@ -4832,8 +4471,8 @@ Max memory consumed for GA by this process: 394048 bytes
             Please use the following citation when publishing results
             obtained with NWChem:
 
-            E. Apra, T. L. Windus, T. P. Straatsma, E. J. Bylaska, W. de Jong,
-            S. Hirata, M. Valiev, M. T. Hackler, L. Pollack, K. Kowalski,
+            E. Apra, T. L. Windus, T. P. Straatsma, E. J. Bylaska, W. de Jong, K. Kowalski
+            S. Hirata, M. Valiev, M. T. Hackler,  Y. Zhao,
             R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,
             V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown, G. Cisneros,
             G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,
@@ -4841,8 +4480,7 @@ Max memory consumed for GA by this process: 394048 bytes
             P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,
             D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson,
             J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
-            B. Meng, T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave,
-            H. Taylor, G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+            B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,             M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
             "NWChem, A Computational Chemistry Package for Parallel Computers, 
             Version 4.7" (2005),
                       Pacific Northwest National Laboratory,
@@ -4850,17 +4488,4 @@ Max memory consumed for GA by this process: 394048 bytes
 
 
 
- Total times  cpu:       37.7s     wall:       54.6s
-MA_summarize_allocated_blocks: starting scan ...
-MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
-MA usage statistics:
-
-	allocation statistics:
-					      heap	     stack
-					      ----	     -----
-	current number of blocks	         0	         0
-	maximum number of blocks	        77	       130
-	current total bytes		         0	         0
-	maximum total bytes		 266775764	 504378884
-	maximum total K-bytes		    266776	    504379
-	maximum total M-bytes		       267	       505
+ Total times  cpu:       14.2s     wall:       59.5s
