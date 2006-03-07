@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.52 2006-02-09 08:23:27 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.53 2006-03-07 23:15:51 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -86,6 +86,7 @@ c
 #include "geom.fh"
 #include "qmmm_params.fh"
 #include "qmmm.fh"
+#include "bq.fh"
 c
       integer rtdb
       logical do_grad
@@ -101,7 +102,9 @@ c
       integer nfg
       integer i_ifg
       integer nact
+      logical ignore
       logical frozen_density,esp
+      double precision ebq
       character*30 pname
 
       pname = "qmmm_energy_gradient"
@@ -165,6 +168,8 @@ c
         write(*,*) "number of active qm atoms",nact
       end if
 c
+      ignore = rtdb_delete(rtdb,'qmmm:bq_nuc_energy')
+c
 c
 c     qm atoms gradients if any
 c     -------------------------
@@ -172,6 +177,10 @@ c     -------------------------
       call dfill(3*nfg,0,dbl_mb(i_g),1)
       if(nact.ne.0) then
         status = task_gradient_doit(rtdb,theory,qm_energy,dbl_mb(i_g))
+        if(.not.bq_nuc_energy(rtdb,ebq))
+     >    call errquit('failed bq energy',0, RTDB_ERR)
+        if (.not. rtdb_put(rtdb,'qmmm:bq_nuc_energy',mt_dbl,1,ebq))
+     $     call errquit('qmmm: failed put bq energy', 0, RTDB_ERR)
         call qmmm_links_adjust_forces(nfg,
      &                       int_mb(i_ifg),
      &                       dbl_mb(i_g))
@@ -192,6 +201,10 @@ c     -------------------------
          else
          status = task_energy_doit(rtdb,theory,qm_energy)
          call qmmm_cons_reaction(rtdb,.false.,qm_energy,dbl_mb(i_g))
+         if(.not.bq_nuc_energy(rtdb,ebq))
+     >     call errquit('failed bq energy',0, RTDB_ERR)
+         if (.not. rtdb_put(rtdb,'qmmm:bq_nuc_energy',mt_dbl,1,ebq))
+     $     call errquit('qmmm: failed put bq energy', 0, RTDB_ERR)
          end if
          end if
       end if

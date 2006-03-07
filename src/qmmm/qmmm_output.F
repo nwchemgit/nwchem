@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F,v 1.22 2006-02-22 17:51:12 marat Exp $
+c $Id: qmmm_output.F,v 1.23 2006-03-07 23:15:51 marat Exp $
 c
 c
       subroutine qmmm_print_header()
@@ -138,7 +138,7 @@ c
 c
       character*32 pname
       double precision energy, mm_energy, qm_energy,eatoms
-      double precision bq_energy
+      double precision bq_el_energy,bq_energy,bq_nuc_energy,eqm0
 
       
       pname = "qmmm_print_energy:"
@@ -156,9 +156,15 @@ c
       if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
-      if (.not. rtdb_get(irtdb,'dft:bq_energy',mt_dbl,1,bq_energy))
-     $     bq_energy = 0.0d0
+      if (.not. rtdb_get(irtdb,'dft:bq_energy',mt_dbl,1,bq_el_energy))
+     $     bq_el_energy = 0.0d0
 
+      if (.not. rtdb_get(irtdb,'qmmm:bq_nuc_energy',mt_dbl,1,
+     >                   bq_nuc_energy))
+     $     bq_nuc_energy = 0.0d0
+
+      bq_energy = bq_el_energy + bq_nuc_energy
+      eqm0 = qm_energy-bq_energy
 
       if(.not.qmmm_master()) return
 
@@ -166,10 +172,16 @@ c
       write(*,21) "QM/MM Energy"
       write(*,19) 
       write(*,21) "quantum energy", qm_energy, qm_energy*cau2kj
-      if(bq_energy.ne.0.0d0) 
-     >  write(*,21) "Bq-electron energy", bq_energy, bq_energy*cau2kj
       write(*,21) "quantum energy adjusted", qm_energy-eatoms,
      >            (qm_energy-eatoms)*cau2kj
+      if(bq_energy.ne.0.0d0) then
+        write(*,21) "quantum energy internal", eqm0,
+     >               eqm0*cau2kj
+        write(*,21) "Bq-nuclear energy", bq_nuc_energy, 
+     >               bq_nuc_energy*cau2kj
+        write(*,21) "Bq-electron energy", bq_el_energy, 
+     >               bq_el_energy*cau2kj
+      end if
       write(*,21) "classical energy", mm_energy,
      >            mm_energy*cau2kj
       write(*,21) "total qmmm energy", energy, energy*cau2kj
@@ -236,6 +248,7 @@ c
       character*32 pname
       double precision energy, mm_energy, qm_energy,eatoms
       double precision bq_energy
+      double precision bq_el_energy,bq_nuc_energy,eqm0
 
       
       pname = "qmmm_print_energy:"
@@ -253,8 +266,16 @@ c
       if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
      $     call errquit('qmmm: failed get energy', 0, RTDB_ERR)
 
-      if (.not. rtdb_get(irtdb,'dft:bq_energy',mt_dbl,1,bq_energy))
-     $     bq_energy = 0.0d0
+      if (.not. rtdb_get(irtdb,'dft:bq_energy',mt_dbl,1,bq_el_energy))
+     $     bq_el_energy = 0.0d0
+
+      if (.not. rtdb_get(irtdb,'qmmm:bq_nuc_energy',mt_dbl,1,
+     >                   bq_nuc_energy))
+     $     bq_nuc_energy = 0.0d0
+
+      bq_energy = bq_el_energy + bq_nuc_energy
+      eqm0 = qm_energy-bq_energy
+
 
       if(.not.qmmm_master()) return
 
@@ -262,10 +283,16 @@ c
       write(*,21) "QM/MM Energy"
       write(*,19) 
       write(*,21) "quantum energy", qm_energy, qm_energy*cau2kj
-      if(bq_energy.ne.0.0d0) 
-     >  write(*,21) "Bq-electron energy", bq_energy, bq_energy*cau2kj
       write(*,21) "quantum energy adjusted", qm_energy-eatoms,
      >            (qm_energy-eatoms)*cau2kj
+      if(bq_energy.ne.0.0d0) then
+        write(*,21) "quantum energy internal", eqm0,
+     >               eqm0*cau2kj
+        write(*,21) "Bq-nuclear energy", bq_nuc_energy, 
+     >               bq_nuc_energy*cau2kj
+        write(*,21) "Bq-electron energy", bq_el_energy, 
+     >               bq_el_energy*cau2kj
+      end if
       write(*,21) "classical energy", mm_energy,
      >            mm_energy*cau2kj
       write(*,21) "total qmmm energy", energy, energy*cau2kj
