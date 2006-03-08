@@ -1,6 +1,6 @@
       subroutine esp_fit(g,v,x,q,a,b,bkeep,akeep,qkeep,n,qf,l,tag)
 c
-c $Id: esp_fit.F,v 1.10 2006-03-08 05:12:59 d3j191 Exp $
+c $Id: esp_fit.F,v 1.11 2006-03-08 16:28:00 d3j191 Exp $
 c
       implicit none
 c
@@ -332,7 +332,7 @@ c
 c
 c     second and third stage RESP
 c
-      if(istage.eq.2.or.istage.eq.3) then
+      if(istage.eq.2.or.(istage.eq.3.and.qh.gt.0.0d0)) then
       nf=nf+1
       luncon=.false.
       if(istage.eq.2) then
