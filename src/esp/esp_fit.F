@@ -1,6 +1,6 @@
       subroutine esp_fit(g,v,x,q,a,b,bkeep,akeep,qkeep,n,qf,l,tag)
 c
-c $Id: esp_fit.F,v 1.11 2006-03-08 16:28:00 d3j191 Exp $
+c $Id: esp_fit.F,v 1.12 2006-03-08 17:21:29 d3j191 Exp $
 c
       implicit none
 c
@@ -234,15 +234,17 @@ c
       if(irest.eq.1) then
       do 26 i=1,natoms
       if(ihfree.eq.0.or.n(i).ne.1) a(i,i)=akeep(i,i)+resa
+   26 continue
       if(q0.gt.0.0d0) then
+      do 126 i=1,natoms
       do 27 j=i+1,natoms
-      if(.not.(tag(i)(1:2).eq.'C '.and.tag(j)(1:2).eq.'H ')) goto 26
+      if(.not.(tag(i)(1:2).eq.'C '.and.tag(j)(1:2).eq.'H ')) goto 126
       a(j,j)=akeep(j,j)+resa*(q(j)-q0)/q(j)
       b(j)=bkeep(j)+q0*resa*(q(j)-q0)/q(j)
 c      write(*,'(a,i5,2f12.6)') 'q',j,q(j),q0
    27 continue
+  126 continue
       endif
-   26 continue
       endif
 c
 c     hyperbolic restraints
@@ -252,15 +254,17 @@ c
       do 28 i=1,natoms
       if(ihfree.eq.0.or.n(i).ne.1)
      + a(i,i)=akeep(i,i)+resa/dsqrt(q(i)*q(i)+resb*resb)
+   28 continue
       if(q0.gt.0.0d0) then
+      do 128 i=1,natoms
       do 29 j=i+1,natoms
-      if(.not.(tag(i)(1:2).eq.'C '.and.tag(j)(1:2).eq.'H ')) goto 28
+      if(.not.(tag(i)(1:2).eq.'C '.and.tag(j)(1:2).eq.'H ')) goto 128
       a(j,j)=akeep(j,j)+resa/dsqrt((q(j)-q0)**2+resb*resb)
-      b(j)=bkeep(j)+q0*q(j)*resa/dsqrt((q(j)-q0)**2+resb*resb)
+      b(j)=bkeep(j)+q0*resa/dsqrt((q(j)-q0)**2+resb*resb)
 c      write(*,'(a,i5,4f12.6)') 'q',j,q(j),q0
    29 continue
+  128 continue
       endif
-   28 continue
       endif
 c
 c     invert matrix a and perform matrix multiplication b = A_inv * c
