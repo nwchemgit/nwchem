@@ -1,6 +1,6 @@
       subroutine esp_out(tag,x,qf,g,v)
 c
-c $Id: esp_out.F,v 1.17 2005-10-21 19:22:39 d3j191 Exp $
+c $Id: esp_out.F,v 1.18 2006-03-08 05:13:00 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,7 @@ c
 #include "util.fh"
 c
       character*16 tag(natoms)
-      real*8 x(3,natoms),qf(ndim,5),qsum(5)
+      real*8 x(3,natoms),qf(ndim,6),qsum(6)
       real*8 g(3,mxgrid),v(mxgrid)
 c
       integer i,j,k
@@ -30,10 +30,10 @@ c
 c
       if(util_print('output',print_medium)) then
       write(lfnout,600)
-  600 format('    Atom',t17,'Coordinates',t55,'Charge',/)
+  600 format(//,'    Atom',t17,'Coordinates',t55,'Charge',/)
       write(lfnout,601) (labelf(i),i=1,nf)
       write(lfnout,601) (labelc(i),i=1,nf)
-  601 format(t33,5a12)
+  601 format(t33,6a12)
       write(lfnout,602)
   602 format(' ')
       endif
@@ -41,15 +41,17 @@ c
       qsum(2)=zero
       qsum(3)=zero
       qsum(4)=zero
+      qsum(5)=zero
+      qsum(6)=zero
       do 1 i=1,natoms
       if(util_print('output',print_medium)) then
       write(lfnout,603)
      + i,tag(i)(1:2),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf)
-  603 format(i5,1x,a2,3f8.3,5f12.6)
+  603 format(i5,1x,a2,3f8.3,6f12.6)
       endif
       write(lfnchg,703)
      + tag(i)(1:2),(cau2nm*x(j,i),j=1,3),(qf(i,j),j=1,nf) 
-  703 format(a2,3f12.6,5f12.6)
+  703 format(a2,3f12.6,6f12.6)
       do 2 j=1,nf
       qsum(j)=qsum(j)+qf(i,j)
     2 continue
@@ -57,30 +59,30 @@ c
       close(unit=lfnchg)
       if(util_print('output',print_medium)) then
       write(lfnout,604) ('------------',i=1,nf)
-  604 format(32x,5a12)
+  604 format(32x,6a12)
       write(lfnout,605) (qsum(i),i=1,nf)
-  605 format(32x,5f12.6)
+  605 format(32x,6f12.6)
 c
       write(lfnout,606) (dipmom(i),i=1,nf)
-  606 format(/,' Dipole moment',t33,5f12.6)
+  606 format(/,' Dipole moment',t33,6f12.6)
 c
       write(lfnout,607) (quamom(1,1,i),i=1,nf)
-  607 format(/,' Quadrupole moment Qxx',t33,5f12.6)
+  607 format(/,' Quadrupole moment Qxx',t33,6f12.6)
 c      write(lfnout,608) (quamom(1,2,i),i=1,nf)
 c  608 format('                   Qxy',t49,4f12.6)
 c      write(lfnout,609) (quamom(1,3,i),i=1,nf)
 c  609 format('                   Qxz',t49,4f12.6)
       write(lfnout,610) (quamom(2,2,i),i=1,nf)
-  610 format('                   Qyy',t33,5f12.6)
+  610 format('                   Qyy',t33,6f12.6)
 c      write(lfnout,611) (quamom(2,3,i),i=1,nf)
 c  611 format('                   Qyz',t49,4f12.6)
       write(lfnout,612) (quamom(3,3,i),i=1,nf)
-  612 format('                   Qzz',t33,5f12.6)
+  612 format('                   Qzz',t33,6f12.6)
 c
       write(lfnout,613) (rms(1,i),i=1,nf)
-  613 format(/,' RMS deviation kJ/mol',t33,5f12.6)
+  613 format(/,' RMS deviation kJ/mol',t33,6f12.6)
       write(lfnout,614) (rms(2,i),i=1,nf)
-  614 format(/,' RMS deviation %',t33,5f12.6)
+  614 format(/,' RMS deviation %',t33,6f12.6)
       endif
 c
       endif

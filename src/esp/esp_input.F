@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.19 2006-03-08 02:22:26 d3j191 Exp $
+c $Id: esp_input.F,v 1.20 2006-03-08 05:12:59 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       character*255 item
       integer i,me,np,icon(maxcon),ncon,nconst,jcon,irest,maxit,ihfree
       integer idump,ifrom,j,lscrn,newgrd,k,l,m
-      real*8 rcut,spac,radius(107),rcon(500),resa,resb,qh
+      real*8 rcut,spac,radius(107),rcon(500),resa,resb,resc,resd,qh
       real*8 toler,factor,probe,scrtol
       logical lstage2
 c
@@ -46,6 +46,8 @@ c
       maxit=25
       resa=0.0d0
       resb=0.0d0
+      resc=0.0d0
+      resd=0.0d0
       rcut=0.3d0
       spac=0.05d0
       qh=0.0d0
@@ -372,12 +374,24 @@ c
       irest=1
       resb=0.0d0
       if(.not.inp_f(resa)) resa=0.005d0
+      if(.not.inp_f(resc)) resc=0.010d0
+      if(.not.inp_a(item)) goto 1
+      if(inp_compare(.false.,'maxiter',item)) then
+      if(.not.inp_i(maxit)) call md_abort('esp_input: maxit error',0)
+      if(.not.inp_a(item)) goto 1
+      endif
+      if(inp_compare(.false.,'tolerance',item)) then
+      if(.not.inp_f(toler)) call md_abort('esp_input: toler error',0)
+      if(.not.inp_a(item)) goto 1
+      endif
       goto 2
       endif
       if(inp_compare(.false.,'hyperbolic',item)) then
       irest=2
       if(.not.inp_f(resa)) resa=0.001d0
       if(.not.inp_f(resb)) resb=0.1d0
+      if(.not.inp_f(resc)) resc=0.002d0
+      if(.not.inp_f(resd)) resd=0.1d0
       if(.not.inp_a(item)) goto 1
       if(inp_compare(.false.,'maxiter',item)) then
       if(.not.inp_i(maxit)) call md_abort('esp_input: maxit error',0)
@@ -438,6 +452,10 @@ c
      + call md_abort('esp: rtdb_put resa failed',0)
       if(.not.rtdb_put(irtdb,'esp:resb',mt_dbl,1,resb))
      + call md_abort('esp: rtdb_put resb failed',0)
+      if(.not.rtdb_put(irtdb,'esp:resc',mt_dbl,1,resc))
+     + call md_abort('esp: rtdb_put resc failed',0)
+      if(.not.rtdb_put(irtdb,'esp:resd',mt_dbl,1,resd))
+     + call md_abort('esp: rtdb_put resd failed',0)
       if(.not.rtdb_put(irtdb,'esp:hfree',mt_int,1,ihfree))
      + call md_abort('esp: rtdb_put hfree failed',0)
       if(.not.rtdb_put(irtdb,'esp:maxit',mt_int,1,maxit))

@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.19 2006-03-08 02:22:26 d3j191 Exp $
+c $Id: esp_rtdbin.F,v 1.20 2006-03-08 05:13:00 d3j191 Exp $
 c
       implicit none
 c
@@ -175,13 +175,16 @@ c
       if(.not.rtdb_get(irtdb,'esp:irest',mt_int,1,irest)) irest=0
       if(irest.gt.0) then
       if(.not.rtdb_get(irtdb,'esp:resa',mt_dbl,1,resa)) resa=0.005d0
+      if(.not.rtdb_get(irtdb,'esp:resc',mt_dbl,1,resc)) resc=0.010d0
       if(.not.rtdb_get(irtdb,'esp:hfree',mt_int,1,ihfree)) ihfree=0
       if(irest.gt.1) then
       if(.not.rtdb_get(irtdb,'esp:resa',mt_dbl,1,resa)) resa=0.001d0
       if(.not.rtdb_get(irtdb,'esp:resb',mt_dbl,1,resb)) resb=0.1d0
+      if(.not.rtdb_get(irtdb,'esp:resc',mt_dbl,1,resc)) resc=0.002d0
+      if(.not.rtdb_get(irtdb,'esp:resd',mt_dbl,1,resd)) resd=0.1d0
+      endif
       if(.not.rtdb_get(irtdb,'esp:maxit',mt_int,1,maxit)) maxit=25
       if(.not.rtdb_get(irtdb,'esp:toler',mt_dbl,1,toler)) toler=1.0d-4
-      endif
       endif
       if(.not.rtdb_get(irtdb,'esp:dump',mt_int,1,idump)) idump=0
       if(.not.rtdb_get(irtdb,'esp:screen',mt_int,1,lscrn)) lscrn=0

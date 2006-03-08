@@ -1,6 +1,6 @@
       subroutine esp_malloc
 c
-c $Id: esp_malloc.F,v 1.15 2005-10-21 19:22:39 d3j191 Exp $
+c $Id: esp_malloc.F,v 1.16 2006-03-08 05:12:59 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
      + call md_abort('esp: ma_push_get q failed',me)
       if(.not.ma_push_get(mt_dbl,ndim,'qk',l_qk,iqkptr))
      + call md_abort('esp: ma_push_get qk failed',me)
-      if(.not.ma_push_get(mt_dbl,5*ndim,'qf',l_qf,iqfptr))
+      if(.not.ma_push_get(mt_dbl,6*ndim,'qf',l_qf,iqfptr))
      + call md_abort('esp: ma_push_get qf failed',me)
       if(.not.ma_push_get(mt_int,natoms,'n',l_n,inptr))
      + call md_abort('esp: ma_push_get n failed',me)

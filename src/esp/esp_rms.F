@@ -1,6 +1,6 @@
       subroutine esp_rms(x,qf,g,v)
 c
-c $Id: esp_rms.F,v 1.3 2005-10-21 19:22:39 d3j191 Exp $
+c $Id: esp_rms.F,v 1.4 2006-03-08 05:13:00 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,7 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      real*8 x(3,natoms),qf(ndim,5)
+      real*8 x(3,natoms),qf(ndim,6)
       real*8 g(3,mxgrid),v(mxgrid)
 c
       integer i,j,k

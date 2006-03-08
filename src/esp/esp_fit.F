@@ -1,6 +1,6 @@
-      subroutine esp_fit(g,v,x,q,a,b,c,akeep,qkeep,n,qf,l,tag)
+      subroutine esp_fit(g,v,x,q,a,b,bkeep,akeep,qkeep,n,qf,l,tag)
 c
-c $Id: esp_fit.F,v 1.9 2005-10-21 19:22:39 d3j191 Exp $
+c $Id: esp_fit.F,v 1.10 2006-03-08 05:12:59 d3j191 Exp $
 c
       implicit none
 c
@@ -16,21 +16,24 @@ c
       external esp_matinv
 c
       real*8 g(3,mxgrid),v(mxgrid)
-      real*8 x(3,natoms),q(natoms),qf(ndim,5)
-      real*8 a(ndim,ndim),b(ndim),c(ndim)
+      real*8 x(3,natoms),q(natoms),qf(ndim,6)
+      real*8 a(ndim,ndim),b(ndim),bkeep(ndim)
       real*8 akeep(ndim,ndim),qkeep(natoms)
       integer n(natoms),l(natoms)
       character*16 tag(natoms)
-      logical keep,luncon
+      logical luncon
 c
-      integer i,j,k,jcon,lcon,ndima
+      integer i,j,k,jcon,lcon,ndima,istage
       integer l_it0,l_it1,l_it2,l_dt,ii0ptr,ii1ptr,ii2ptr,idtptr
-      real*8 sum,dif,difm,d
+      real*8 sum,dif,difm,d,q0
 c
       nf=1
       luncon=.true.
+      istage=0
+      q0=0.0d0
 c
 c     set up matrix of linear coefficients
+c     ------------------------------------
 c
       do 1 i=1,ndim
       do 2 j=1,ndim
@@ -58,43 +61,34 @@ c
     6 continue
     3 continue
 c
-      if(np.gt.1) then
-      call ga_dgop(mre_007,a,ndim*ndim,'+')
-      endif
+      if(np.gt.1) call ga_dgop(mre_007,a,ndim*ndim,'+')
 c
       do 7 j=1,natoms
       a(natoms+1,j)=one
-c      do 8 i=2,nconst
-c      a(natoms+i,j)=zero
-c    8 continue
     7 continue
-c      do 9 i=1,nconst
-c      do 10 j=1,nconst
-c      a(natoms+i,natoms+j)=zero
-c   10 continue
-c    9 continue
 c
-c     construct column vector c
+c     construct column vector b
+c     -------------------------
 c
-      do 11 i=1,natoms
+      do 8 i=1,natoms
       sum=zero
-      do 12 k=1,ngrid
+      do 9 k=1,ngrid
       sum=sum+v(k)/dsqrt((x(1,i)-g(1,k))*(x(1,i)-g(1,k))+
      +                   (x(2,i)-g(2,k))*(x(2,i)-g(2,k))+
      +                   (x(3,i)-g(3,k))*(x(3,i)-g(3,k)))
-   12 continue
-      c(i)=sum
-   11 continue
-      c(natoms+1)=charge
+    9 continue
+      b(i)=sum
+    8 continue
+      b(natoms+1)=charge
 c
       ndima=natoms+1
       jcon=0
-      do 13 i=2,nconst
-      c(natoms+i)=rcon(i-1)
+      do 10 i=2,nconst
+      b(natoms+i)=rcon(i-1)
       jcon=jcon+1
       lcon=icon(jcon)
 c      if(lcon.lt.0) goto 13
-      do 14 j=1,lcon
+      do 11 j=1,lcon
       jcon=jcon+1
       k=icon(jcon)
       if(k.gt.0) then
@@ -104,16 +98,22 @@ c      if(lcon.lt.0) goto 13
       a(natoms+i,-k)=-one
       a(-k,natoms+i)=-one
       endif
-   14 continue
+   11 continue
       ndima=ndima+1
-   13 continue
-      do 15 i=1,ndim
-      do 16 j=1,ndim
+   10 continue
+c
+c     save a copy in akeep and bkeep
+c     ------------------------------
+c
+      do 12 i=1,ndim
+      do 13 j=1,ndim
       akeep(i,j)=a(i,j)
-   16 continue
-   15 continue
+   13 continue
+      bkeep(i)=b(i)
+   12 continue
 c
 c     allocate work arrays for the matrix inversion
+c     ---------------------------------------------
 c
       if(.not.ma_push_get(mt_int,2*ndim,'it0',l_it0,ii0ptr))
      + call md_abort('esp: ma_push_get it0 failed',me)
@@ -124,36 +124,46 @@ c
       if(.not.ma_push_get(mt_dbl,ndim,'dt',l_dt,idtptr))
      + call md_abort('esp: ma_push_get dt failed',me)
 c
-c     unconstrained esp fitting
+c     zeroth stage
+c     ------------
+c
+c================================
+c     unconstrained esp fitting =
+c================================
 c
       labelf(nf)='      ESP   '
       labelc(nf)='            '
 c
 c     invert the matrix a
+c     -------------------
 c
       if(.not.esp_matinv(a,natoms+1,int_mb(ii0ptr),int_mb(ii1ptr),
      + int_mb(ii2ptr),dbl_mb(idtptr),ndim))
      + call md_abort('Singular matrix in esp_fit',1)
 c
 c     matrix multiplication b = A_inv * c
+c     -----------------------------------
 c
-      do 17 i=1,natoms+1
+      do 14 i=1,natoms+1
       sum=zero
-      do 18 j=1,natoms+1
-      sum=sum+a(i,j)*c(j)
-   18 continue
+      do 15 j=1,natoms+1
+      sum=sum+a(i,j)*b(j)
+   15 continue
       qf(i,nf)=sum
-   17 continue
+   14 continue
+c
+c==============================
+c     constrained esp fitting =
+c==============================
 c
 c     set matrix a back
+c     -----------------
 c
-      do 19 i=1,ndim
-      do 20 j=1,ndim
+      do 16 i=1,ndim
+      do 17 j=1,ndim
       a(i,j)=akeep(i,j)
-   20 continue
-   19 continue
-c
-c     constrained esp fitting
+   17 continue
+   16 continue
 c
       if(ndima.gt.natoms+1) then
       nf=nf+1
@@ -161,139 +171,181 @@ c
       labelc(nf)='     constr '
 c
 c     invert the matrix a
+c     -------------------
 c
       if(.not.esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
      + int_mb(ii2ptr),dbl_mb(idtptr),ndim))
      + call md_abort('Singular matrix in esp_fit',2)
 c
 c     matrix multiplication b = A_inv * c
+c     -----------------------------------
 c
-      do 21 i=1,ndim
+      do 18 i=1,ndim
       sum=zero
-      do 22 j=1,ndim
-      sum=sum+a(i,j)*c(j)
+      do 19 j=1,ndim
+      sum=sum+a(i,j)*b(j)
       a(i,j)=akeep(i,j)
-   22 continue
+   19 continue
       qf(i,nf)=sum
-   21 continue
+   18 continue
       endif
 c
-c     restraint fitting
+c========================
+c     restraint fitting =
+c========================
+c
+c     first stage
+c     -----------
+      istage=1
 c
       if(irest.gt.0) then
       nf=nf+1
       luncon=.true.
-      labelf(nf)='     RESP   '
+      labelf(nf)='      RESP  '
       labelc(nf)='            '
 c
-   23 continue
+c     initialize charges with zero
+c     ----------------------------
 c
-      if(irest.eq.1) then
-      do 127 i=1,ndim
-      do 128 j=1,ndim
-      a(i,j)=akeep(i,j)
-  128 continue
-  127 continue
-      do 24 i=1,natoms
-      if(ihfree.eq.0.or.n(i).ne.1) a(i,i)=akeep(i,i)+resa
-   24 continue
-      endif
+   20 continue
 c
-      if(irest.eq.2) then
-      do 25 i=1,natoms
-      q(i)=zero
-   25 continue
-      endif
+      do 21 i=1,natoms
+      qkeep(i)=zero
+   21 continue
 c
       niter=0
-   26 continue
+c
+   22 continue
+c
       niter=niter+1
 c
-      if(irest.eq.2) then
-      do 27 i=1,ndim
-      do 28 j=1,ndim
+c     copy stored matrix a
+c     --------------------
+c
+      do 23 i=1,ndim
+      do 24 j=1,ndim
       a(i,j)=akeep(i,j)
-   28 continue
+   24 continue
+   23 continue
+c
+c     harmonic restraints
+c     -------------------
+c
+      if(irest.eq.1) then
+      do 26 i=1,natoms
+      if(ihfree.eq.0.or.n(i).ne.1) a(i,i)=akeep(i,i)+resa
+      if(q0.gt.0.0d0) then
+      do 27 j=i+1,natoms
+      if(.not.(tag(i)(1:2).eq.'C '.and.tag(j)(1:2).eq.'H ')) goto 26
+      a(j,j)=akeep(j,j)+resa*(q(j)-q0)/q(j)
+      b(j)=bkeep(j)+q0*resa*(q(j)-q0)/q(j)
+c      write(*,'(a,i5,2f12.6)') 'q',j,q(j),q0
    27 continue
-      do 29 i=1,natoms
+      endif
+   26 continue
+      endif
+c
+c     hyperbolic restraints
+c     ---------------------
+c
+      if(irest.eq.2) then
+      do 28 i=1,natoms
       if(ihfree.eq.0.or.n(i).ne.1)
-     + a(i,i)=a(i,i)+resa/dsqrt(q(i)*q(i)+resb*resb)
-      qkeep(i)=q(i)
+     + a(i,i)=akeep(i,i)+resa/dsqrt(q(i)*q(i)+resb*resb)
+      if(q0.gt.0.0d0) then
+      do 29 j=i+1,natoms
+      if(.not.(tag(i)(1:2).eq.'C '.and.tag(j)(1:2).eq.'H ')) goto 28
+      a(j,j)=akeep(j,j)+resa/dsqrt((q(j)-q0)**2+resb*resb)
+      b(j)=bkeep(j)+q0*q(j)*resa/dsqrt((q(j)-q0)**2+resb*resb)
+c      write(*,'(a,i5,4f12.6)') 'q',j,q(j),q0
    29 continue
       endif
+   28 continue
+      endif
+c
+c     invert matrix a and perform matrix multiplication b = A_inv * c
+c     ---------------------------------------------------------------
+c
       if(luncon) then
 c
-c     invert the matrix a
-c
       if(.not.esp_matinv(a,natoms+1,int_mb(ii0ptr),int_mb(ii1ptr),
-     + int_mb(ii2ptr),dbl_mb(idtptr),ndim))
-     + call md_abort('Singular matrix in esp_fit',3)
-c
-c     matrix multiplication b = A_inv * c
+     + int_mb(ii2ptr),dbl_mb(idtptr),ndim)) then
+      if(me.eq.0) write(lfnout,1999)
+ 1999 format(/,' Fit not completed: singular constraint matrix',/)
+      goto 9999
+      endif
 c
       do 30 i=1,natoms+1
       sum=zero
       do 31 j=1,natoms+1
-      sum=sum+a(i,j)*c(j)
+      sum=sum+a(i,j)*b(j)
    31 continue
       q(i)=sum
       qf(i,nf)=sum
    30 continue
-c      goto 9999
-      else
 c
-c     invert the matrix a
+      else
 c
       if(.not.esp_matinv(a,ndima,int_mb(ii0ptr),int_mb(ii1ptr),
      + int_mb(ii2ptr),dbl_mb(idtptr),ndim)) then
       if(me.eq.0) write(lfnout,1999)
- 1999 format(/,' Second stage RESP could not be completed because',
-     + ' of a singular constraint matrix',/)
       goto 9999
       endif
-c
-c     matrix multiplication b = A_inv * c
 c
       do 32 i=1,ndim
       sum=zero
       do 33 j=1,ndim
-      sum=sum+a(i,j)*c(j)
+      sum=sum+a(i,j)*b(j)
    33 continue
       q(i)=sum
       qf(i,nf)=sum
    32 continue
       endif
 c
-      if(irest.eq.2) then
+c     check convergence
+c     -----------------
+c
+      if(irest.eq.2.or.q0.gt.0.0d0) then
       difm=zero
       do 34 i=1,natoms
       dif=(q(i)-qkeep(i))*(q(i)-qkeep(i))
       if(difm.lt.dif) difm=dif
    34 continue
-      dif=dsqrt(dif)
-      if(dif.gt.toler.and.niter.lt.maxit) goto 26
+      difm=dsqrt(difm)
+c      write(*,'(3i4,5f12.6)') nf,niter,maxit,difm,toler,q(1),resa,resb
+      do 25 i=1,natoms
+      qkeep(i)=q(i)
+   25 continue
+      if(difm.gt.toler.and.niter.lt.maxit) goto 22
       endif
 c
-      if(nf.eq.3.and.luncon) then
+      if(istage.eq.1) then
+      istage=2
+      if(ndima.gt.natoms+1.and.luncon) then
       nf=nf+1
       luncon=.false.
       labelf(nf)='      RESP  '
       labelc(nf)='     constr '
-      do 35 i=1,ndim
-      do 36 j=1,ndim
-      a(i,j)=akeep(i,j)
-   36 continue
-   35 continue
-      goto 23
+      goto 20
+      endif
       endif
 c
-c     second stage RESP
+c     second and third stage RESP
 c
-      if(nf.eq.4.or.luncon) then
+      if(istage.eq.2.or.istage.eq.3) then
       nf=nf+1
       luncon=.false.
+      if(istage.eq.2) then
       labelf(nf)='      RESP2 '
+      else
+      labelf(nf)='      RESP3 '
+      q0=qh
+      endif
       labelc(nf)='     constr '
+      istage=istage+1
+      resa=resc
+      resb=resd
+c
       do 37 i=1,natoms
       l(i)=1
    37 continue
@@ -344,7 +396,7 @@ c
  1043 format(' Stage 2 constraint charge ',f12.6,' on atoms',
      + 8(i5,a2),/,(47x,8(i5,a2)))
       jcon=jcon+lcon
-      c(ndima)=rcon(i-1)
+      b(ndima)=rcon(i-1)
    42 continue
       do 45 i=1,natoms
       if(tag(i)(1:2).eq.'C ') then
@@ -359,7 +411,7 @@ c
       akeep(k,ndima)=one
       akeep(ndima,j)=-one
       akeep(j,ndima)=-one
-      c(ndima)=zero
+      b(ndima)=zero
       endif
       k=j
       endif
@@ -372,10 +424,10 @@ c
       ndima=ndima+1
       akeep(ndima,i)=one
       akeep(i,ndima)=one
-      c(ndima)=q(i)
+      b(ndima)=q(i)
       endif
    44 continue
-      goto 23
+      goto 20
       endif
 c
       endif

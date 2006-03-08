@@ -1,5 +1,5 @@
 c
-c $Id: esp_common.fh,v 1.14 2006-03-08 02:22:26 d3j191 Exp $
+c $Id: esp_common.fh,v 1.15 2006-03-08 05:12:59 d3j191 Exp $
 c
 c     esp_mpp : node and global array related variables
 c     -------------------------------------------------
@@ -23,20 +23,22 @@ c     esp_atm : atom information
 c     --------------------------
 c
       real*8 rcut,spac,xmin(3),xmax(3),charge,chgnuc,chgele,radius(107)
-      real*8 rcon(500),resa,resb,toler,dipmom(5),rms(2,5),quamom(3,3,5)
+      real*8 rcon(500),resa,resb,resc,resd,toler
+      real*8 dipmom(6),rms(2,6),quamom(3,3,6)
       integer natoms,nbf,mgrid(3),mxgrid,ngrid,nset,nmo,nocc,nconst,ndim
       integer ncon,icon(2500),irest,niter,maxit,ihfree,ngto,ngfr,idump
       integer lfngrd,nf,mbf,lscrn,newgrd,lfner,lfnplt,lfnxyz,lfnchg
       real*8 factor,probe,scrtol,qh
       common/esp_atm/rcut,spac,xmin,xmax,charge,chgnuc,chgele,radius,
-     + rcon,resa,resb,toler,dipmom,rms,quamom,factor,probe,scrtol,qh,
+     + rcon,resa,resb,resc,resd,toler,dipmom,rms,quamom,factor,probe,
+     + scrtol,qh,
      + natoms,nbf,mgrid,mxgrid,ngrid,nset,nmo,nocc,nconst,ndim,
      + ncon,icon,irest,niter,maxit,ihfree,ngto,ngfr,idump,lfngrd,nf,mbf,
      + lscrn,newgrd,lfner,lfnplt,lfnxyz,lfnchg
 c
 c     esp_chr : character variables
 c
-      character*12 labelf(5),labelc(5)
+      character*12 labelf(6),labelc(6)
       character*255 movfil,grdfil,erfil,pltfil,xyzfil,chgfil
       character*255 title,basnam
       common/esp_chr/title,basnam,movfil,grdfil,labelf,labelc,erfil,
