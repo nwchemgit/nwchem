@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.18 2006-01-21 02:22:52 marat Exp $
+c $Id: esp_rtdbin.F,v 1.19 2006-03-08 02:22:26 d3j191 Exp $
 c
       implicit none
 c
@@ -187,6 +187,7 @@ c
       if(.not.rtdb_get(irtdb,'esp:screen',mt_int,1,lscrn)) lscrn=0
       if(.not.rtdb_get(irtdb,'esp:scrtol',mt_dbl,1,scrtol))
      + scrtol=1.0d-9
+      if(.not.rtdb_get(irtdb,'esp:qh',mt_dbl,1,qh)) qh=0.0d0
       if(.not.rtdb_get(irtdb,'esp:newgrd',mt_int,1,newgrd)) newgrd=0
 c
 c     convert rcut and spac from nm to au

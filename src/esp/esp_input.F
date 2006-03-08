@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.18 2005-10-21 19:22:39 d3j191 Exp $
+c $Id: esp_input.F,v 1.19 2006-03-08 02:22:26 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       character*255 item
       integer i,me,np,icon(maxcon),ncon,nconst,jcon,irest,maxit,ihfree
       integer idump,ifrom,j,lscrn,newgrd,k,l,m
-      real*8 rcut,spac,radius(107),rcon(500),resa,resb
+      real*8 rcut,spac,radius(107),rcon(500),resa,resb,qh
       real*8 toler,factor,probe,scrtol
       logical lstage2
 c
@@ -48,6 +48,7 @@ c
       resb=0.0d0
       rcut=0.3d0
       spac=0.05d0
+      qh=0.0d0
       radius(  1)=0.030d0
       radius(  2)=0.122d0
       radius(  3)=0.123d0
@@ -210,6 +211,11 @@ c
       if(inp_compare(.false.,'screen',item)) then
       lscrn=1
       if(.not.inp_f(scrtol)) scrtol=1.0d-5
+      goto 2
+      endif
+c
+      if(inp_compare(.false.,'qh',item)) then
+      if(.not.inp_f(qh)) qh=0.0d0
       goto 2
       endif
 c
@@ -446,6 +452,8 @@ c
      + call md_abort('esp: rtdb_put screen failed',0)
       if(.not.rtdb_put(irtdb,'esp:scrtol',mt_dbl,1,scrtol))
      + call md_abort('esp: rtdb_put scrtol failed',0)
+      if(.not.rtdb_put(irtdb,'esp:qh',mt_dbl,1,qh))
+     + call md_abort('esp: rtdb_put qh failed',0)
 c
       if(.not.rtdb_put(irtdb,'esp:newgrd',mt_int,1,newgrd))
      + call md_abort('esp: rtdb_put newgrd failed',0)
