@@ -2,7 +2,7 @@
 *      end
       double precision function anl_fit(n, l, x)
 *
-* $Id: anlfit.F,v 1.10 2003-10-17 22:54:37 carlfahl Exp $
+* $Id: anlfit.F,v 1.11 2006-03-08 05:02:03 d3j191 Exp $
 *
       implicit none
 #include "canlfit.fh"
@@ -333,8 +333,8 @@ c$$$               enddo
          enddo
          anl_nlsum(n) = nlcnt
       enddo
-      write(6,*) ' MAXERR ', maxerr
-      write(6,*) ' MAXRELERR ', maxrelerr
+c      write(6,*) ' MAXERR ', maxerr
+c      write(6,*) ' MAXRELERR ', maxrelerr
 **      write(6,*) ' used ', nlcnt, ' tables out of ', anl_maxnl
 c      
 c     Initialize prefactors for asymptotic form used beyond xhi
