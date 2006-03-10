@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.40 2005-08-08 22:32:29 edo Exp $
+# $Id: GNUmakefile,v 1.41 2006-03-10 20:06:11 edo Exp $
 
     OBJ          = 
     OBJ_OPTIMIZE = hf3PEabc.o hf3mkr.o hf3pot.o \
@@ -13,6 +13,8 @@
 
   LIB_TARGETS = showxyz showxyz.o int_order.o int_order
   LIBRARY = libnwints.a
+
+  HEADERS= sh_order.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h
