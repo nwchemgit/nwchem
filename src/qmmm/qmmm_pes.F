@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.8 2006-02-22 17:52:49 marat Exp $
+c $Id: qmmm_pes.F,v 1.9 2006-03-10 18:10:41 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.8 2006-02-22 17:52:49 marat Exp $
+c     $Id: qmmm_pes.F,v 1.9 2006-03-10 18:10:41 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -149,6 +149,9 @@ c
       if(theory.eq."dft") then
         inmovecs_tag = 'dft:input vectors'
         outmovecs_tag = 'dft:output vectors'
+      else if(theory.eq."tce") then
+        inmovecs_tag = "scf:input vectors"
+        outmovecs_tag = "scf:output vectors"
       else if(theory.eq."scf") then
         inmovecs_tag = "scf:input vectors"
         outmovecs_tag = "scf:output vectors"
