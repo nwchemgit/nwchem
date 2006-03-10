@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.78 2006-02-24 20:50:50 marat Exp $
+* $Id: task.F,v 1.79 2006-03-10 01:24:48 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -88,6 +88,10 @@ c
 c
       logical task_qmmm_dynamics
       external task_qmmm_dynamics
+c
+      logical task_dntmc
+      external task_dntmc
+c
 #ifdef USE_SUBGROUPS
       logical util_sgstart
       external util_sgstart
@@ -272,6 +276,8 @@ c
           status=task_thermo(rtdb)
       else if(inp_compare(.false.,'vscf',operation)) then
          status=task_vscf(rtdb)
+      else if(inp_compare(.false.,'dntmc',operation)) then
+         status=task_dntmc(rtdb)
 c
 c     **** check for theories that have specific operations ****
 c
