@@ -1,0 +1,9 @@
+C$Id: gibbsP.fh,v 1.1 2006-03-10 01:23:36 windus Exp $
+c
+c First attemp to put some of this information into an include file
+c
+      INTEGER MXATOM,MXMOLS,MXSP
+c
+      PARAMETER (MXATOM = 5)
+      PARAMETER (MXMOLS = 40)
+      PARAMETER (MXSP   = 6)

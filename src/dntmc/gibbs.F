@@ -1,5 +1,5 @@
 C        1         2         3         4         5         6         7
-C$Id: gibbs.F,v 1.2 2006-03-09 01:35:04 windus Exp $
+C$Id: gibbs.F,v 1.3 2006-03-10 01:23:36 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -8,28 +8,74 @@ C     modified on april 15, 2005 for ran3
 
       logical function dntmc_GIBBS(rtdb)
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
 C      implicit none
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "errquit.fh"
-      integer rtdb
-      INTEGER MXATOM,MXMOLS,MXSP,NATOM,NSPC,NMIN,NCURR,NMAX
+#include "gibbsP.fh"
+      integer rtdb  ! integer
 
-      INTEGER NDIM,g_pr,DIMS,CHUNK,IICOUNT 
-
+      REAL*8 M,MTOT
+      double precision r, rcm, rs
+      double precision ri
+      double precision rmin, rsim, rmax
+      double precision e, esqrd, pi
+      REAL*8 k,kb
+      double precision qse
+      double precision qsqrd, sgmsq, epsln
+      integer lndx, lndxx
+      REAL*8 LAMBDA
+      INTEGER NATOM
+      double precision disp, alpha
+      INTEGER ROTF
+      INTEGER SPC
+      INTEGER USPC
+      integer l
+      double precision abndx
+      INTEGER AB
+      double precision usum, usqrdsum
+      double precision rmsdsum, rmsdavr 
+      double precision rmsdsumsp, rmsdavrsp
+      integer number
+      REAL*8 NUMBERSUM, NUMBERAVR
+      double precision PHI, PHISUM, PHIAVR
+      double precision rclcm
+      INTEGER NMIN,NCURR,NMAX
+      integer idum
+      double precision seed
+      double precision rnnum
+      double precision rb, testme
       REAL*8 NDA,NDSIG
 
+      double precision temp, uu, uavr, usqrd, rsimsum, rsimavr
+      double precision rsh, rsimsq, rmaxsq, rx, ry, rz, dist
+      double precision sgm, aratiott, aratiotr, aratiotv
+      double precision aratiotpr, aratiotpi, cv, rinc
+      double precision percent, rest
+      INTEGER NSPC, NDIM,g_pr,DIMS,CHUNK,IICOUNT 
+      INTEGER CONT1,CONT2
+      integer myid
+      integer mxnode, ld, natot, nob, iam
+      integer iacceptt, iacceptr, iacceptv, iacceptpr, iacceptpi
+      integer nmols, mcstps, lmin, lmax, mprnt, i, j, node
+      integer ir, ii, jj, iname, ilo, ihi, jlo, jhi
+      character*4 prcfil
+      CHARACTER*4 occtag
       CHARACTER*8 PREFIX
       CHARACTER*11 PREFIXX
       CHARACTER*11 PREFIX1
       CHARACTER*4 SUFFIX
       CHARACTER*4 SUFFIXX
       CHARACTER*4 SUFFIX1
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      LOGICAL ACCEPTT
+      LOGICAL ACCEPTR
+      LOGICAL ACCEPTV
+      LOGICAL ACCEPTPR
+      LOGICAL ACCEPTPI
+      LOGICAL STATUS
+
       PARAMETER (MXNODE = 20)
       PARAMETER (PREFIX = "h2so4h2o")
       PARAMETER (SUFFIX = ".mol")
@@ -37,9 +83,7 @@ C      implicit none
       PARAMETER (SUFFIXX = ".inp")
       PARAMETER (PREFIX1 = "h2so4h2ocnt")
       PARAMETER (SUFFIX1 = ".out")
-      REAL*8 k,kb,M,MTOT,NUMBERAVR,NUMBERSUM
-      REAL*8 LAMBDA
-      INTEGER SPC,ROTF,CONT1,CONT2,USPC,AB
+
       COMMON/MASSES/M(MXSP,MXATOM),MTOT(MXSP)
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
@@ -70,29 +114,14 @@ C      implicit none
       COMMON/SEEDS/SEED(1)
       COMMON/RNNUMS/RNNUM(1)   
  
-      LOGICAL ACCEPTT
-      LOGICAL ACCEPTR
-      LOGICAL ACCEPTV
-      LOGICAL ACCEPTPR
-      LOGICAL ACCEPTPI
-      LOGICAL STATUS
-
-      DIMENSION DIMS(2),CHUNK(2)
-      DIMENSION ld(2)  
-
 C      DIMENSION TESTME(100,MXNODE)
       COMMON/DIST1/RB(100),TESTME(100,20)
       COMMON/DIST2/NDA(100),NDSIG(100)
 
-
+      DIMENSION DIMS(2),CHUNK(2)
+      DIMENSION ld(2)  
 
       SAVE NATOT
-
-      integer myid
-
-      character*4 prcfil
-
-      CHARACTER*4 occtag
 
       dntmc_gibbs = .false.
 
@@ -1159,13 +1188,44 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INTEGER MXATOM,MXMOLS,MXSP,NATOM,SPC,ROTF
-      INTEGER ANDX,NMIN,NCURR,NMAX
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
-      REAL*8 k,kb,MUCHEM
+      IMPLICIT none
+#include "gibbsP.fh"
+
+      double precision temp  ! input
+      LOGICAL ACCEPTT        ! output
+      LOGICAL ACCEPTR        ! output
+      LOGICAL ACCEPTV        ! output
+      LOGICAL ACCEPTPR       ! output
+      LOGICAL ACCEPTPI       ! output
+      double precision uold  ! input/output
+
+      double precision r, rcm, rs
+      double precision rmin, rsim, rmax
+      double precision rclcm
+      double precision e, esqrd, pi
+      REAL*8 k,kb
+      INTEGER NATOM
+      double precision disp, alpha
+      INTEGER ROTF
+      INTEGER SPC
+      INTEGER ANDX
+      INTEGER NMIN,NCURR,NMAX
+      integer l
+      double precision seed
+      double precision rnnum
+      integer idum
+
+      REAL*8 MUCHEM
+      double precision delta, rres
+      double precision comp2, comp3, comp2r, comp3r, rstep, press
+      double precision gamma3, rsimsq, radiuss, deltar, rnew
+      double precision voli, volf, deltavol, rnewsq
+      double precision rx, ry, rz, dist, arg, tmp, rann
+      double precision unew, deltau, beta, sdbeta, cdbeta
+      integer i, j, ia1, ia2, ia3
+
+      double precision dntmc_ran3
+
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
       COMMON/RADIUS/RMIN,RSIM,RMAX
@@ -1181,11 +1241,6 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       COMMON/RNNUMS/RNNUM(1)
       COMMON/SEED/IDUM
 
-      LOGICAL ACCEPTT
-      LOGICAL ACCEPTR
-      LOGICAL ACCEPTV
-      LOGICAL ACCEPTPR
-      LOGICAL ACCEPTPI
       DIMENSION DELTA(3),RRES(MXATOM,3)
 
 C     these are the coordinates for a reservoir water molecule
@@ -1634,18 +1689,46 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
 #include "errquit.fh"
-      REAL*8 LAMBDA,LAM
+#include "gibbsP.fh"
+
+      integer nmols        ! input
+      double precision uu  ! output
+
+      double precision r, rcm, rs
+      integer natom
+      integer spc
+      integer andx
+      integer lndx,  lndxx
+      REAL*8 LAMBDA
+      integer ab
+      integer l
+      REAL*8 k,kb
+      double precision e, esqrd, pi
+      integer jindex
+      double precision r3
+
+      REAL*8 LAM
       REAL*8 MU
 c      real*8 MNUX,MNUY,MNUZ,MTX,MTY,MTZ,MTMAG
-      REAL*8 k,kb,NUX,NUY,NUZ,MUX,MUY,MUZ,MX,MY,MZ,MUTOL
-      INTEGER MXATOM,MXMOLS,MXSP,NATOM,NMOLS,SPC,ANDX,AB
+      REAL*8 NUX,NUY,NUZ,MUX,MUY,MUZ,MX,MY,MZ,MUTOL
       INTEGER NSCF,SCF,PLRZ,PLRZA
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      double precision v, ef, efwx, efwy, efwz
+      double precision efix, efiy, efiz
+      double precision efx, efy, efz
+      double precision pol, count, vh2o, elam
+      double precision upol1, rxiijj, ryiijj, rziijj, riijjsq, riijj
+      double precision efux, efuy, efuz, efldmag
+      double precision sum, dotx, doty, dotz, dot, dmu, x, udot1
+      integer i, j, ii, jj
+
+      double precision dntmc_efmag
+      double precision dntmc_VLjones
+      double precision dntmc_Vcoul
+
       PARAMETER (NSCF   = 200)            
+
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
       COMMON/NNATOMS/NATOM(MXSP)
@@ -2167,8 +2250,14 @@ C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 c     N.R. FUNCTION ran2(idum) eventhough it is called RAN1
 c
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT none
+
+      integer idum   ! input
+
+      integer im1, im2, imm1, ia1, ia2, iq1, iq2, ir1, ir2, ntab, ndiv
+      double precision rnmx
       REAL*8 AM,EPS
+
       PARAMETER (IM1 = 2147483563)
       PARAMETER (IM2 = 2147483399)
       PARAMETER (AM = 1.D+00/IM1)
@@ -2183,7 +2272,9 @@ c
       PARAMETER (NDIV = 1 + IMM1/NTAB)
       PARAMETER (EPS = 1.2D-07)
       PARAMETER (RNMX = 1.D+00 - EPS)
+
       INTEGER IV(NTAB)
+      integer iy, idum2, j, k
 
       SAVE IV,IY,IDUM2
 
@@ -2205,7 +2296,6 @@ c
         IY = IV(1)
 
       ENDIF
-
 
       K = IDUM/IQ1
 
@@ -2230,9 +2320,7 @@ c
       dntmc_RAN1 = MIN(AM*IY,RNMX)
 
       RETURN
-
       END
-
 
 C***********************************************************************
       real*8 FUNCTION dntmc_RAN3(IDUM)
@@ -2287,10 +2375,17 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT none
+
+      integer kk ! input
+
+      double precision seed
+      double precision rnnum
+
+      DOUBLE PRECISION A,B
+
       COMMON/SEEDS/SEED(1)
       COMMON/RNNUMS/RNNUM(1)
-      DOUBLE PRECISION A,B
 
       A = (7.0D+00**5)*SEED(KK)
       B = 2.0D+00**31 - 1.D+00
@@ -2306,12 +2401,18 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT none
+#include "gibbsP.fh"
+
+      integer i, j, ii, jj ! input
+      double precision riijj ! input
+
+      double precision qsqrd, sgmsq, epsln
+      INTEGER SPC
       REAL*8 k,kb
-      INTEGER MXATOM,MXMOLS,MXSP,SPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      double precision e, esqrd, pi
+      integer l
+
       COMMON/INDEXX/QSQRD(MXSP,MXSP,MXATOM,MXATOM),
      +SGMSQ(MXSP,MXSP,MXATOM,MXATOM),
      +EPSLN(MXSP,MXSP,MXATOM,MXATOM)
@@ -2330,11 +2431,18 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      INTEGER MXATOM,MXMOLS,MXSP,SPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      IMPLICIT none
+#include "gibbsP.fh"
+
+      integer i, j, ii, jj  ! input
+      double precision riijjsq ! input
+
+      double precision qsqrd, sgmsq, epsln
+      INTEGER SPC
+      integer l
+
+      double precision sr2, sr6, sr12
+
       COMMON/INDEXX/QSQRD(MXSP,MXSP,MXATOM,MXATOM),
      +SGMSQ(MXSP,MXSP,MXATOM,MXATOM),
      +EPSLN(MXSP,MXSP,MXATOM,MXATOM)
@@ -2362,8 +2470,19 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+
+      integer l     ! input
+      double precision temp, uu ! input
+      double precision uavr, cv, rsimavr ! output
+
+      double precision e, esqrd, pi
       REAL*8 kb,k
+      double precision usum, usqrdsum
+      double precision rmin, rsim, rmax
+
+      double precision rsimsum, usqrd, tsqrd
+
       COMMON/CONSTANTS/e,k,esqrd,kb,PI
       COMMON/AVR/USUM,USQRDSUM      
       COMMON/RADIUS/RMIN,RSIM,RMAX      
@@ -2402,11 +2521,19 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      INTEGER MXATOM,MXMOLS,MXSP,SPC,USPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      IMPLICIT none
+#include "gibbsP.fh"
+      integer l, nmols, nspc ! input - nspc is not used
+
+      double precision rmsdsum, rmsdavr
+      double precision r, rcm, rs
+      double precision ri
+      double precision rmsdsumsp, rmsdavrsp
+      INTEGER SPC,USPC
+
+      double precision rmsd, rmsdx, rmsdy, rmsdz
+      integer i
+
       COMMON/RMSDCOORD/RMSDSUM(MXMOLS),RMSDAVR(MXMOLS)
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
@@ -2448,12 +2575,19 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      INTEGER MXATOM,MXMOLS,MXSP,SPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
-      REAL*8 M,MTOT,MCLTOT
+      IMPLICIT none
+#include "gibbsP.fh"
+
+      integer nmols
+
+      REAL*8 M,MTOT
+      double precision r, rcm, rs
+      double precision rclcm
+      INTEGER SPC
+
+      real*8 MCLTOT
+      integer i
+
       COMMON/MASSES/M(MXSP,MXATOM),MTOT(MXSP)
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
@@ -2494,12 +2628,20 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+#include "gibbsP.fh"
+
+      integer i  ! input
+
+      REAL*8 M,MTOT
+      double precision r, rcm, rs
+      double precision e, esqrd, pi
+      REAL*8 k,kb
+      integer natom
       INTEGER SPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
-      REAL*8 k,kb,M,MTOT
+
+      integer j
+
       COMMON/MASSES/M(MXSP,MXATOM),MTOT(MXSP)
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
@@ -2539,8 +2681,16 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT none
+
+      integer l  ! input
+
+      double precision rmin, rsim, rmax
+      integer number
+
+      integer nob, i
       REAL*8 INCR
+
       COMMON/RADIUS/RMIN,RSIM,RMAX
       COMMON/NUMBER1/NUMBER(100)    
 
@@ -2573,8 +2723,15 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT none
+
+      integer l   ! input
+
+      integer number
       REAL*8 NUMBERAVR,NUMBERSUM
+
+      integer nob, i
+
       COMMON/NUMBER1/NUMBER(100)
       COMMON/NUMBER2/NUMBERSUM(100),NUMBERAVR(100)
 
@@ -2596,68 +2753,18 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       END
 
 C***********************************************************************
-      SUBROUTINE dntmc_DIPOLEANGLE(I,J)
-C***********************************************************************
-C        1         2         3         4         5         6         7
-C23456789012345678901234567890123456789012345678901234567890123456789012
-
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
-      INTEGER MXATOM,MXMOLS,SPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
-     +RS(MXMOLS,MXATOM,3)
-      COMMON/COORD2/RCLCM(3)
-      COMMON/ANGLES/PHI(100),PHISUM(100),PHIAVR(100)
-      COMMON/SPECIES/SPC(MXMOLS)
-      DIMENSION DPLU(3),RBARU(3)
-
-      double precision dacosd
-      external dacosd
-
-      IF(SPC(I).NE.5)THEN
-
-      DPLX = RCM(I,1) - R(I,1,1)
-      DPLY = RCM(I,2) - R(I,1,2)
-      DPLZ = RCM(I,3) - R(I,1,3)
-
-      DPLM = DPLX*DPLX + DPLY*DPLY + DPLZ*DPLZ
-
-      DPLS = DSQRT(DPLM)
-
-      RBARX = RCLCM(1) - R(I,1,1)
-      RBARY = RCLCM(2) - R(I,1,2)
-      RBARZ = RCLCM(3) - R(I,1,3)
-
-      RBARM = RBARX**2 + RBARY**2 + RBARZ**2
-
-      RBARMS = DSQRT(RBARM)
-
-      RBARU(1) = RBARX/RBARMS
-      RBARU(2) = RBARY/RBARMS
-      RBARU(3) = RBARZ/RBARMS
-
-      DPLU(1) = DPLX/DPLS
-      DPLU(2) = DPLY/DPLS
-      DPLU(3) = DPLZ/DPLS
-
-
-      ARGU = DPLU(1)*RBARU(1) + DPLU(2)*RBARU(2) + DPLU(3)*RBARU(3)
-
-      PHI(J) = DACOSD(ARGU)
-
-      ENDIF
-
-      RETURN
-      END
-
-C***********************************************************************
       SUBROUTINE dntmc_ANGLEAVR(L)
 C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT none
+
+      integer L   ! input
+
+      double precision phi, phisum, phiavr
+
+      integer i
 
       COMMON/ANGLES/PHI(100),PHISUM(100),PHIAVR(100)
 
@@ -2684,12 +2791,20 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION(A-H,O-Z)
+      IMPLICIT none
+#include "gibbsP.fh"
+
+      integer plrz, plrza       ! input
+      double precision riijjsq  ! input
+
+      double precision qse
+      INTEGER SPC
+      double precision e, esqrd, pi
       REAL*8 k,kb
-      INTEGER MXATOM,MXMOLS,MXSP,SPC,PLRZ,PLRZA
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      integer l
+
+      integer i, ii
+
       COMMON/INDEX/QSE(MXSP,MXATOM,3)
       COMMON/SPECIES/SPC(MXMOLS)     
       COMMON/CONSTANTS/e,k,esqrd,kb,PI
@@ -2712,200 +2827,6 @@ c      WRITE(12,*)'dntmc_EFMAG(',I,',',II,') =',dntmc_EFMAG,' E-FIELD'
       END         
 
 C***********************************************************************
-      SUBROUTINE dntmc_MOVECON(N,ACCEPT)
-C***********************************************************************
-C        1         2         3         4         5         6         7
-C23456789012345678901234567890123456789012345678901234567890123456789012
-
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INTEGER MXATOM,MXMOLS,MXSP,SPC,NATOM,NMIN,NCURR,NMAX
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
-      COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
-     +RS(MXMOLS,MXATOM,3)
-      COMMON/COORD1/RR(MXMOLS,MXATOM,3)
-      COMMON/RADIUS/RMIN,RSIM,RMAX
-      COMMON/GRAND/NMIN,NCURR,NMAX
-      COMMON/NNATOMS/NATOM(MXSP)
-      COMMON/SPECIES/SPC(MXMOLS)      
-      LOGICAL ACCEPT
-
-      DIMENSION DELT(3),RES(MXATOM,3)
-
-C     these are the coordinates for a reservoir water molecule
-C     with all atoms lying in the y-z plane with the C2v axis
-C     along the (+)z axis.
-
-      RES(1,1) = 0.D+00
-      RES(1,2) = 0.D+00
-      RES(1,3) = 0.D+00
-      RES(2,1) = 0.D+00
-      RES(2,2) = 0.7569D+00
-      RES(2,3) = 0.586D+00
-      RES(3,1) = 0.D+00
-      RES(3,2) = -0.7569D+00
-      RES(3,3) = 0.586D+00
-      RES(4,1) = 0.D+00
-      RES(4,2) = 0.D+00
-      RES(4,3) = 0.215D+00
-
-      COMP2 = 0.D+00
-      COMP3 = 0.D+00
-      COMP2R = 0.D+00
-      COMP3R = 0.D+00
-
-      PCT = 95.D+00
-
-      DIS = (DBLE(PCT)/100.D+00)*RSIM
-
-      ALPH = 2.0D+00
-
-      RSIMSQ = RSIM*RSIM 
-
-C     PUT THE COORDINATES RES INTO MOLECULE N
-  
-      DO I = 1, NATOM(SPC(N)) 
-           DO J = 1, 3
-               RR(N,I,J) = RES(I,J)
-           END DO
-      END DO
-
-C     PICK DISPLACEMENTS ALONG X,Y,Z
-      
-      DELT(1) = DIS*(2.D+00*dntmc_RAN1(IDUM) - 1.D+00)
-      DELT(2) = DIS*(2.D+00*dntmc_RAN1(IDUM) - 1.D+00)
-      DELT(3) = DIS*(2.D+00*dntmc_RAN1(IDUM) - 1.D+00)
-
-C     TRANSLATE COORDINATES OF CHOSEN MOLECULE
-
-      DO I = 1, NATOM(SPC(N))
-         DO J = 1, 3
-            RR(N,I,J) = RR(N,I,J) + DELT(J)
-c	    WRITE(6,*)'RR(',N,',',I,',',J,') = ',RR(N,I,J)
-         END DO
-      END DO
-
-c      GOTO 10
-
-C     PICK AN ANGLE
-
-      BETA = ALPH*(2.D+00*dntmc_RAN1(IDUM) - 1.D+00)
-
-c      WRITE(12,*)'ALPH =',ALPH
-c      WRITE(12,*)'ROTATION ANGLE =',BETA,' radians'
-
-      SDBETA = DSIN(BETA)
-      CDBETA = DCOS(BETA)
-
-C     PICK AN AXIS ABOUT WHICH TO ROTATE MOLECULE I
-
-      IA1 = INT(3.D+00*dntmc_RAN1(IDUM)) + 1
-      IA2 = IA1 + 1
-      IA3 = IA1 + 2
-      IF(IA2.GT.3) IA2 = IA2 - 3
-      IF(IA3.GT.3) IA3 = IA3 - 3
-
-c     PRINT*,'ROT.AXIS(xyz->123) =',IA1,IA2,IA3
-
-C     ROTATE THE MOLECULE
-      
-      CALL dntmc_CMASS(N)
-
-      DO J = 1, NATOM(SPC(N))
-         COMP2 = (R(N,J,IA2) - RCM(N,IA2))
-         COMP3 = (R(N,J,IA3) - RCM(N,IA3))
-
-         COMP2R=CDBETA*COMP2+SDBETA*COMP3
-         COMP3R=-SDBETA*COMP2+CDBETA*COMP3
-
-         R(N,J,IA2)= RCM(N,IA2) + COMP2R
-         R(N,J,IA3)= RCM(N,IA3) + COMP3R
-      END DO
-
- 10   CONTINUE
-
-      CALL dntmc_STRUCTURE(N,ACCEPT)            
-
-      IF(ACCEPT) goto 12
-
-  11  CONTINUE
-  
-      ACCEPT = .FALSE.
-
-  12  CONTINUE
-
-      RETURN
-      END
-
-C***********************************************************************
-      SUBROUTINE dntmc_STRUCTURE(N,ACCEPT)
-C***********************************************************************
-C        1         2         3         4         5         6         7
-C23456789012345678901234567890123456789012345678901234567890123456789012
-
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
-      INTEGER MXATOM,MXMOLS,MXSP,SPC,NATOM,NMIN,NCURR,NMAX
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
-      COMMON/COORD1/RR(MXMOLS,MXATOM,3)
-      COMMON/NNATOMS/NATOM(MXSP)
-      COMMON/SPECIES/SPC(MXMOLS)
-      COMMON/GRAND/NMIN,NCURR,NMAX
-
-      LOGICAL ACCEPT
-
-      D = 3.0D+00
-
-      DO I = 1, N - 1
-         DO II = 1, NATOM(SPC(N))
-            DO JJ = 1, NATOM(SPC(I))
-               RXIIJJ = RR(N,II,1) - RR(I,JJ,1)
-               RYIIJJ = RR(N,II,2) - RR(I,JJ,2)
-               RZIIJJ = RR(N,II,3) - RR(I,JJ,3)
-      
-               RIIJJSQ = RXIIJJ**2 + RYIIJJ**2 + RZIIJJ**2
-  
-               RIIJJ = DSQRT(RIIJJSQ)
-    
-               IF(RIIJJ.LE.D) goto 44
-            END DO
-         END DO
-      END DO
-      
-      DO I = N + 1, NCURR
-         DO II = 1, NATOM(SPC(N))
-            DO JJ = 1, NATOM(SPC(I))
-               RXIIJJ = RR(N,II,1) - RR(I,JJ,1)
-               RYIIJJ = RR(N,II,2) - RR(I,JJ,2)
-               RZIIJJ = RR(N,II,3) - RR(I,JJ,3)
- 
-               RIIJJSQ = RXIIJJ**2 + RYIIJJ**2 + RZIIJJ**2
-    
-               RIIJJ = DSQRT(RIIJJSQ)
-   
-               IF(RIIJJ.LE.D) goto 44
-    
-            END DO
-         END DO
-      END DO
-      
-      GOTO 55
-      
-   44 CONTINUE
-   
-      ACCEPT = .FALSE.
-      RETURN
-      
-   55 CONTINUE
-   
-      ACCEPT = .TRUE.   
-
-      RETURN
-      END
-
-C***********************************************************************
       SUBROUTINE dntmc_CONFIG(IMLW,NODE,RMX)
 C
 C Make sure molecules don't overlap
@@ -2913,12 +2834,23 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+#include "gibbsP.fh"
+      integer imlw, node    ! input
+      double precision rmx  ! input
+
       REAL*8 M,MTOT
-      INTEGER SPC,USPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      double precision r, rcm, rs
+      double precision rc
+      double precision pi, d
+      integer natom
+      double precision displ, angle, rmxsq
+      INTEGER SPC
+
+      integer USPC, mcsteps, i, j, k, ll
+      double precision rinit, rnode, pct, pctt
+      LOGICAL ACCP
+
       COMMON/MASSES/M(MXSP,MXATOM),MTOT(MXSP)
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
@@ -2927,7 +2859,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       COMMON/NNATOMS/NATOM(MXSP)
       COMMON/TRANSROT/DISPL,ANGLE,RMXSQ
       COMMON/SPECIES/SPC(MXMOLS)
-      LOGICAL ACCP
+
       DIMENSION USPC(1),RINIT(MXMOLS,MXATOM,3)
 
 
@@ -3037,11 +2969,24 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+#include "gibbsP.fh"
+      integer k, imlw   ! input
+      LOGICAL ACCP      ! output
+
+      double precision r, rcm, rs
+      double precision rc
+      integer natom
+      double precision displ, angle, rmxsq
       INTEGER SPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+      double precision seed
+      double precision rnnum
+      double precision dlta, rsave
+
+      double precision comp2, comp3, comp2r, comp3r
+      double precision beta, sdbeta, cdbeta, rx, ry, rz, dist
+      integer i, j, ia1, ia2, ia3
+
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
       COMMON/CORD/RC(MXMOLS,MXATOM,3)
@@ -3052,7 +2997,6 @@ c      COMMON/SEED/IDUM
       COMMON/SEEDS/SEED(1)
       COMMON/RNNUMS/RNNUM(1)
 
-      LOGICAL ACCP
       DIMENSION DLTA(3),RSAVE(MXATOM,3)
 
       COMP2 = 0.D+00
@@ -3191,18 +3135,27 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+#include "gibbsP.fh"
+      integer k, imlw    ! input
+      LOGICAL ACCP       ! output
+
+      double precision r, rcm, rs
+      double precision rc
+      double precision pi, d
+      integer natom
       INTEGER SPC
-      PARAMETER (MXATOM = 5)
-      PARAMETER (MXMOLS = 40)
-      PARAMETER (MXSP   = 6)
+
+      integer i, ii, jj
+      double precision rxiijj, ryiijj, rziijj, riijjsq
+      double precision riijj
+
       COMMON/COORD/R(MXMOLS,MXATOM,3),RCM(MXMOLS,3),
      +RS(MXMOLS,MXATOM,3)
       COMMON/CORD/RC(MXMOLS,MXATOM,3)
       COMMON/CNSTNTS/PI,D
       COMMON/NNATOMS/NATOM(MXSP)
       COMMON/SPECIES/SPC(MXMOLS)
-      LOGICAL ACCP
 
 
       DO I = 1, K - 1
@@ -3261,11 +3214,16 @@ C***********************************************************************
 C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
-C    THIS SUBROUTINE WAS ORIGINALLY 
 C
-C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+      integer nob           ! input
+      double precision rest ! output
       REAL*8 NDA,NDSIG
+      double precision pv, s, si
+      double precision rb, testme
+      double precision pi, smax, simax
+      integer npts, i, iupper, jstar
+
       DIMENSION Pv(100),S(100),SI(100)
 
       COMMON/DIST1/RB(100),TESTME(100,20)
@@ -3361,7 +3319,11 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+      double precision y  ! input/output
+      integer npts        ! input
+      integer imax, i
+      double precision y1, ynew
       DIMENSION Y(100)
 
       IMAX = NPTS - 1
@@ -3385,7 +3347,11 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
+      double precision y, npts          ! input
+      double precision ymax             ! output
+      integer jstar                     ! output
+      integer jmax, j
       DIMENSION Y(100)
 
       YMAX = 0.D+00
@@ -3407,8 +3373,12 @@ C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      IMPLICIT none
       REAL*8 NDSUM,NDA,NDSIGSUM,NDSIG,NDSGMX
+      double precision rb, testme
+      integer nob, nnodes ! input parameters
+      integer percent     ! output
+      integer i, j, jstar
       
       COMMON/DIST1/RB(100),TESTME(100,20)
       COMMON/DIST2/NDA(100),NDSIG(100)
