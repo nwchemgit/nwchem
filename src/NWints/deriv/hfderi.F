@@ -2,7 +2,7 @@
      &                  NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
      &                  MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
      &                  canAB,canCD,canPQ)
-c $Id: hfderi.F,v 1.1 2006-03-10 20:06:14 edo Exp $
+c $Id: hfderi.F,v 1.2 2006-03-11 01:50:03 edo Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -83,7 +83,7 @@ c
 
 c Initialize the block of ERIs.
 
-      call dcopy(nder12*Nder3*Nint*NPQ*NPP,0d0,0,ERI,1)
+      call ycopy(nder12*Nder3*Nint*NPQ*NPP,0d0,0,ERI,1)
 
 c General case:  [ab|cd]
 
@@ -133,7 +133,7 @@ c Loop over the components of the "a" and "b" shells.
 
 c Sum across (Ip,Jp,Kp) for each value of (Iq,Jq,Kq).
 
-         call dcopy((NPQ*NPP)*nder12*Lqmax3,0d0,0,sum,1)
+         call ycopy((NPQ*NPP)*nder12*Lqmax3,0d0,0,sum,1)
 
          do 425 Ip = 0,Ia+Ib
          do 425 Jp = 0,Ja+Jb
@@ -341,6 +341,7 @@ c charge distribution "Q".
                    enddo
                 endif
              else
+                mr = 0
                 if(nder12.eq.1) then
               id5 = id5 + 1
                    do mp = 1,NPP
