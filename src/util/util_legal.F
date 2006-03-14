@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.43 2006-02-24 20:46:45 edo Exp $
+* $Id: util_legal.F,v 1.44 2006-03-14 23:38:41 edo Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003, 2004, 2005                    *
@@ -189,7 +189,7 @@ c
      + 12x,'J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,',
      + ' X. Long,',/,
      + 12x,'B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,',
-     + ' G. Sandrone,',
+     + ' G. Sandrone,',/
      + 12x,' M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,',
      + ' and Z. Zhang,',/,
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
