@@ -1,6 +1,6 @@
 #define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.36 2005-12-20 23:29:19 edo Exp $
+c $Id: shell_fock_build.F,v 1.37 2006-03-15 22:52:18 d3p307 Exp $
 c
       subroutine shell_fock_build(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)
@@ -355,7 +355,7 @@ c
             g_fock0=g_fock
             g_fock=g_fockrep
          else
-            if(dorepd) call util_mirrstop(1,g_dens)
+            if(dorepd) call util_mirrstop(1,g_densrep)
          endif
       endif
 c     write(6,*) 'nshblocks and task_size ',nshblocks,task_size
