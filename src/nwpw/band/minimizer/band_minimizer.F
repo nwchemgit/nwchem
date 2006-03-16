@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.38 2005-12-22 01:35:04 bylaska Exp $
+* $Id: band_minimizer.F,v 1.39 2006-03-16 18:39:04 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -179,16 +179,6 @@ c      external      cpsp_comment
 
 
       ierr = 0 
-      if ((np.gt.(control_ngrid(3)))) then
-        if (taskid.eq.MASTER)
-     >     write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...',
-     >                   control_ngrid(3),')'
-        ierr=100
-        value = .false.
-        go to 9000
-      end if
-
 
 *     **** initialize C3dB data structure ****
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)

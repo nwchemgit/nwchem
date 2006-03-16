@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_scf_mixing.F,v 1.2 2004-12-06 20:03:24 bylaska Exp $                       
+*     $Id: nwpw_scf_mixing.F,v 1.3 2006-03-16 18:38:28 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -314,6 +314,8 @@
      >                ipiv,
      >                Binv,max_list,
      >                info)
+
+
            !**** Define d ****
            do i=1,m-1
               d(i) = 0.0d0

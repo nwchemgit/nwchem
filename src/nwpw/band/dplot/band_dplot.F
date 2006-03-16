@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.4 2005-08-23 14:12:00 bylaska Exp $
+* $Id: band_dplot.F,v 1.5 2006-03-16 18:39:04 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -95,39 +95,6 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       mapping   = control_mapping()
-
-
-
-
-      !**** Make sure ngrid is consistent with mapping ***
-      if (mapping.eq.1) then
-        if ((np.gt.ngrid(3)).or.(ngrid(2).ne.ngrid(3))) then
-          if (taskid.eq.MASTER) then
-            write(6,*) 'Error: the number of processors must ',
-     >                 ' be in the range ( 1 ...ngrid(3)=',
-     >                   ngrid(3),')'
-           write(6,*) ' and ngrid(2) == ngrid(3), ',
-     >                ' ngrid(2)=',ngrid(2),
-     >                ' ngrid(3)=',ngrid(3)
-          end if
-          call errquit('PSPW:Bad number of processors:',np, INPUT_ERR)
-        end if
-        if (mod(ngrid(1),2).ne.0) then
-          if (taskid.eq.MASTER) then
-           write(6,*)
-     >      'Error: ngrid(1) must be even (ngrid(1) mod 2 == 0)'
-           write(6,*) 'Error: ngrid(1)=',ngrid(1)
-          end if
-          call errquit('PSPW:Bad grid',ngrid(1), INPUT_ERR)
-        end if
-
-
-      end if
-      if (mapping.eq.2) then
-        write(*,*) "should not be here - mapping 2 band_dplot"
-
-      end if
-
 
 
 *     **** initialize D3dB data structure ****

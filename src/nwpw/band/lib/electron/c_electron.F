@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.18 2005-09-08 01:30:23 bylaska Exp $
+* $Id: c_electron.F,v 1.19 2006-03-16 18:39:04 bylaska Exp $
 *
 
 
@@ -1041,11 +1041,12 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
       !*** this code needs to be optimized!!! ****
       !*** GGA calculation ****
       else
-         call D3dB_nx(1,nx)
-         call D3dB_ny(1,ny)
-         call D3dB_nz(1,nz)
-         call D3dB_nq(1,nq)
-         n2ft3d = (nx+2)*ny*nq
+         !call D3dB_nx(1,nx)
+         !call D3dB_ny(1,ny)
+         !call D3dB_nz(1,nz)
+         !call D3dB_nq(1,nq)
+         !n2ft3d = (nx+2)*ny*nq
+         call D3dB_n2ft3d(1,n2ft3d)
          value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
      >           MA_push_get(mt_dbl,(2*n2ft3d),'txcp',txcp(2),txcp(1))
@@ -1054,25 +1055,30 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
          if (.not. value) call errquit(
      >     'electron_gen_scf_potentials: out of stack memory',1, MA_ERR)
 
-         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(trho(1)),1)
+         !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(trho(1)),1)
+
+c         do ms=1,ispin
+c         do q=1,nq
+c         do j=1,ny
+c         do i=1,nx
+c            indx1 = (i-1) 
+c     >            + (j-1)*nx     
+c     >            + (q-1)*nx*ny     
+c     >            + (ms-1)*nfft3d
+c            indx2 = (i-1) 
+c     >            + (j-1)*(nx+2) 
+c     >            + (q-1)*(nx+2)*ny 
+c     >            + (ms-1)*n2ft3d
+c            dbl_mb(trho(1)+indx2) = dnall(indx1+1)
+c         end do
+c         end do
+c         end do
+c         end do
+
          do ms=1,ispin
-         do q=1,nq
-         do j=1,ny
-         do i=1,nx
-            indx1 = (i-1) 
-     >            + (j-1)*nx     
-     >            + (q-1)*nx*ny     
-     >            + (ms-1)*nfft3d
-            indx2 = (i-1) 
-     >            + (j-1)*(nx+2) 
-     >            + (q-1)*(nx+2)*ny 
-     >            + (ms-1)*n2ft3d
-            dbl_mb(trho(1)+indx2) = dnall(indx1+1)
+           call C3dB_D3dB_r_Copy(1,dnall(1+(ms-1)*nfft3d),
+     >                             dbl_mb(trho(1)+(ms-1)*n2ft3d))
          end do
-         end do
-         end do
-         end do
-         
 
          call v_bwexc(gga,n2ft3d,ispin,
      >                    dbl_mb(trho(1)),
@@ -1080,38 +1086,44 @@ c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
      >                    dbl_mb(txcp(1)),
      >                    dbl_mb(txce(1)))
 
-
          do ms=1,ispin
-         do q=1,nq
-         do j=1,ny
-         do i=1,nx
-            indx1 = (i-1) 
-     >            + (j-1)*nx     
-     >            + (q-1)*nx*ny     
-     >            + (ms-1)*nfft3d
-            indx2 = (i-1) 
-     >            + (j-1)*(nx+2) 
-     >            + (q-1)*(nx+2)*ny 
-     >            + (ms-1)*n2ft3d
-            dbl_mb(xcp(1)+indx1) = dbl_mb(txcp(1)+indx2)
+           call D3dB_C3dB_r_Copy(1,dbl_mb(txcp(1)+(ms-1)*n2ft3d),
+     >                             dbl_mb(xcp(1) +(ms-1)*nfft3d))
          end do
-         end do
-         end do
-         end do
+         call D3dB_C3dB_r_Copy(1,dbl_mb(txce(1)),
+     >                           dbl_mb(xce(1)))
 
-         do q=1,nq
-         do j=1,ny
-         do i=1,nx
-            indx1 = (i-1) 
-     >            + (j-1)*nx     
-     >            + (q-1)*nx*ny     
-            indx2 = (i-1) 
-     >            + (j-1)*(nx+2) 
-     >            + (q-1)*(nx+2)*ny 
-            dbl_mb(xce(1)+indx1) = dbl_mb(txce(1)+indx2)
-         end do
-         end do
-         end do
+c         do ms=1,ispin
+c         do q=1,nq
+c         do j=1,ny
+c         do i=1,nx
+c            indx1 = (i-1) 
+c     >            + (j-1)*nx     
+c     >            + (q-1)*nx*ny     
+c     >            + (ms-1)*nfft3d
+c            indx2 = (i-1) 
+c     >            + (j-1)*(nx+2) 
+c     >            + (q-1)*(nx+2)*ny 
+c     >            + (ms-1)*n2ft3d
+c            dbl_mb(xcp(1)+indx1) = dbl_mb(txcp(1)+indx2)
+c         end do
+c         end do
+c         end do
+c         end do
+c
+c         do q=1,nq
+c         do j=1,ny
+c         do i=1,nx
+c            indx1 = (i-1) 
+c     >            + (j-1)*nx     
+c     >            + (q-1)*nx*ny     
+c            indx2 = (i-1) 
+c     >            + (j-1)*(nx+2) 
+c     >            + (q-1)*(nx+2)*ny 
+c            dbl_mb(xce(1)+indx1) = dbl_mb(txce(1)+indx2)
+c         end do
+c         end do
+c         end do
 
          value =           MA_pop_stack(txce(2))
          value = value.and.MA_pop_stack(txcp(2))

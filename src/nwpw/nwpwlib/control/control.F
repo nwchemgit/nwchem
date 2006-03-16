@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.82 2006-01-06 00:57:46 bylaska Exp $
+* $Id: control.F,v 1.83 2006-03-16 18:38:28 bylaska Exp $
 *
 
 *     ***********************************
@@ -366,8 +366,8 @@ c     end do
 *     **** band: stuff ****
 
       else if (code.eq.5) then
-      !**** mapping 2 not implemented in band ****
-      mapping = 1  
+     
+    
 
       if (.not.rtdb_cget(rtdb,'band:cell_name',1,cell_name)) then
         cell_name = 'cell_default'

@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.44 2005-10-14 01:31:57 bylaska Exp $
+* $Id: D3dB-new.F,v 1.45 2006-03-16 18:38:28 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -714,7 +714,7 @@ c     p = p_map(k)
         end if
       end if
 
-      if (mapping.eq.2) then
+      if (map_in.eq.2) then
         if (np.gt.(ny_in*nz_in)) then
           if (taskid.eq.MASTER) then
            write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
