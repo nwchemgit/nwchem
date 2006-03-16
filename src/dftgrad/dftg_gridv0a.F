@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.29 2005-10-12 00:28:23 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.30 2006-03-16 00:58:36 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -63,7 +63,7 @@ c      double precision tau(n_per_rec,3,ipol)
       integer iandex(natoms)
       integer iniz(natoms), ifin(natoms)
       integer ibf_ao(nbf_ao),curatoms(natoms)
-      double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
+      double precision rchi_atom(natoms),rdelchi_atom(natoms)
       double precision ppp(*),ff(*),zzz(*)
       double precision expo(*)
       double precision rq(n_per_rec,natoms)

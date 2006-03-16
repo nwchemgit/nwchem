@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim, iandex,iatype_pt_chg)
 c
-C$Id: dftg_signf.F,v 1.1 2004-03-26 01:39:51 edo Exp $
+C$Id: dftg_signf.F,v 1.2 2006-03-16 00:58:37 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -63,7 +63,6 @@ c
         z = xyz(3,ctr_quad) - xyz(3,ictr)
         r2 = sqrt(x*x + y*y + z*z)
         r_arg=0d0
-c        if (rad_quad.lt.r2) r_arg = (r2-rad_quad)**2
         if (rad_quad.lt.r2) r_arg = (r2-rad_quad)
         do icset = ic1,ic2
 c         
@@ -97,7 +96,6 @@ c        if (zmin*r_arg.lt.acc_sigf) then
           mcenters_scr=mcenters_scr+1
           iandex(mcenters_scr)=ictr
           goto 2001
-        else
         endif
 
       enddo

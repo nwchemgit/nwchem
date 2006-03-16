@@ -1,10 +1,11 @@
       Subroutine dftg_quadv0_b(ictr, ldew, AO_bas_han, ipol, GRAD, kske,
      &                         nbf_ao, mbf_ao, nat, nq, chi, delchi, 
-     &                         heschi, Amat, Cmat, Mmat, ibf, iniz, 
+     &                         heschi, Amat, Cmat, Mmat, ccrap, 
+     I     ibf, iniz, 
      &                         ifin, PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.9 2006-01-27 21:28:37 edo Exp $
+* $Id: dftg_quadv0b.F,v 1.10 2006-03-16 00:58:37 edo Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -12,7 +13,6 @@ c
 #include "mafdecls.fh"
 #include "bas.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 c     
       logical ldew   ! true if weight derivatives are included [input]
       integer ictr
@@ -23,8 +23,6 @@ c
       double precision PPP(nbf_ao), F(mbf_ao)
       integer ibf(mbf_ao), iniz(nat), ifin(nat)
       integer g_dens(2)
-      double precision fudgef
-      parameter(fudgef=1d0)
 c     
 c     scratch array for hessian product
 c     
@@ -47,21 +45,29 @@ c
 c     local
 c
       logical ldo
-      integer iat, n, ispin, mu, mmu, nu, ilast, ifirst
+      integer iat, n, ispin, mu, mmu, nu
       double precision C1, C2, C3, z1, z2, z3, DC, fatto
       double precision out(3)
+      double precision ccrap(nq,mbf_ao,*)
       double precision two
       parameter(two=2.d0)
 c
+      if (GRAD)then
+         do ispin=1,ipol
+            do nu = 1,mbf_ao
+               do n = 1, nq
+                  ccrap(n,nu,ispin) = Cmat(n,1,ispin)*delchi(n,1,nu) +
+     &                 Cmat(n,2,ispin)*delchi(n,2,nu) +
+     &                 Cmat(n,3,ispin)*delchi(n,3,nu)
+               enddo
+            enddo
+         enddo
+      endif
       do iat = 1, nat
          ldo = .true.
          if (ldew)ldo = ldo.and.(iat.ne.ictr)
          if (ldo)then
             if (iniz(iat).ne.0)then
-               if (.not.bas_ce2bfr(AO_bas_han,iat,ifirst,ilast))
-     &            call errquit
-     &            (' dftg_quadv0_b: number of basis with atom ?',1,
-     &       BASIS_ERR)
                do mu = iniz(iat),ifin(iat)
                   mmu = ibf(mu)
                   do ispin = 1, ipol
@@ -94,21 +100,18 @@ c
                      endif
                      call dgemm('n','n',3,mbf_ao,nq,1.d0,hh,3,chi,
      &                          nq,0.d0,zzz,3)
+c                  
+c                             GCA part
+c                  
                      if (GRAD)then
                         do nu = 1, mbf_ao
                            z1 = 0.d0
                            z2 = 0.d0
                            z3 = 0.d0
-                           do n = 1, nq
-c                  
-c                             GCA part
-c                  
-                              DC = Cmat(n,1,ispin)*delchi(n,1,nu) +
-     &                             Cmat(n,2,ispin)*delchi(n,2,nu) +
-     &                             Cmat(n,3,ispin)*delchi(n,3,nu)
-                              z1 = z1 + delchi(n,1,mu)*DC
-                              z2 = z2 + delchi(n,2,mu)*DC
-                              z3 = z3 + delchi(n,3,mu)*DC
+                           do n=1,nq
+                              z1 = z1 + delchi(n,1,mu)*ccrap(n,nu,ispin)
+                              z2 = z2 + delchi(n,2,mu)*ccrap(n,nu,ispin)
+                              z3 = z3 + delchi(n,3,mu)*ccrap(n,nu,ispin)
                            enddo
                            zzz(1,nu) = zzz(1,nu) + z1
                            zzz(2,nu) = zzz(2,nu) + z2
@@ -137,9 +140,9 @@ c
      &                                   delchi(n,3,nu)*heschi(n,6,mu))
      &                                  *Mmat(n,ispin)
                            enddo
-                           zzz(1,nu) = zzz(1,nu) + z1*fudgef
-                           zzz(2,nu) = zzz(2,nu) + z2*fudgef
-                           zzz(3,nu) = zzz(3,nu) + z3*fudgef
+                           zzz(1,nu) = zzz(1,nu) + z1
+                           zzz(2,nu) = zzz(2,nu) + z2
+                           zzz(3,nu) = zzz(3,nu) + z3
                         enddo
                      endif
                      call dgemv('n',3,mbf_ao,-two,zzz,3,F,1,0d0,

@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.32 2005-11-12 00:32:49 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.33 2006-03-16 00:58:37 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -71,7 +71,7 @@ c
       integer ibf_ao(nbf_ao),curatoms(natoms)
       integer bas_cent_info(3,natoms),bas_cset_info(6,*)
       logical docset(*)
-      double precision rchi_atom(natoms),rdelchi_atom(3,natoms)
+      double precision rchi_atom(natoms),rdelchi_atom(natoms)
       double precision ppp(*),ff(*),zzz(*)
       double precision expo(*)
       double precision rq(n_per_rec,natoms)
@@ -107,6 +107,7 @@ c
 c
       integer ncuratoms
       integer l_Acof2, k_Acof2, l_Ccof2, k_Ccof2
+      integer i_ccdel,l_ccdel
 
 c     
 c           Evaluate the AO basis set at each of the quad. points.
@@ -181,9 +182,22 @@ c                 reduce delchi(nq,3,mbf_ao) to delchi(natoms)
          call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,           dbl_mb(ichi_ao),rchi_atom)
          if(grad.or.kske) 
-     .        call util_rmsatbf(nqpts, natoms,iniz,ifin,
+     .        call util_rmsatbf(nqpts*3, natoms,iniz,ifin,
      ,           dbl_mb(idelchi_ao),rdelchi_atom)
 c         
+#if 0
+      if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
+     &     l_iscratch, i_iscratch))
+     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,
+     &       MA_ERR)
+      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
+     ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
+     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
+     ,     ipol,int_mb(i_iscratch))
+      if (.not.ma_pop_stack(l_iscratch))
+     &     call errquit('dftggv0b: pop stack failed.',1, MA_ERR)
+      if(nqpts.eq.0) goto 2010
+#endif
          
 c
                wmax= dabsmax(nqpts,qwght)
@@ -237,15 +251,26 @@ c              terms
 c     
                if (do_force) then
 c 
+                  if(grad) then
+                     if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao*ipol, 
+     &                    'gradchi_ao2', l_ccdel,i_ccdel))call errquit
+     &                    (' exit dftggridv0b: insuff stack',9, 0)
+                  endif
+
                  call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
      &                            grad, kske, nbf_ao, mbf_ao, natoms, 
      &                            nqpts,
-     &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
+     &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao ),
      &                            dbl_mb(iheschi_ao), Amat, Cmat, Mmat,
+     &                            dbl_mb(i_ccdel),
      &                            ibf_ao, iniz, ifin,
      &                            ppp, ff, 
      &                            zzz, hh, iga_dens, force,
      &                            oactive)
+                 if(grad) then
+                    if (.not.ma_pop_stack(l_ccdel))
+     &                   call errquit('dftggv0b: pop stack ',1,0)
+                    endif
 c
                else if (do_hess) then
 c
