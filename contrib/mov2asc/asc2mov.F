@@ -8,7 +8,7 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
-C     $Id: asc2mov.F,v 1.7 2005-09-12 23:42:39 edo Exp $
+C     $Id: asc2mov.F,v 1.8 2006-03-17 23:02:59 edo Exp $
 C
 #include "mafdecls.fh"
 c
@@ -36,7 +36,9 @@ C
       integer*4 length,ierror,iarg
 #else
       Integer IArgc
+#if (__GNUC__ < 4)
       External IArgc
+#endif
 #endif
 C
       double precision energy, enrep

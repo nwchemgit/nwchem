@@ -1,5 +1,5 @@
 # Makefile for movecs <--> ASCII translators
-# $Id: Makefile,v 1.7 2006-01-26 17:26:02 bert Exp $
+# $Id: Makefile,v 1.8 2006-03-17 23:02:59 edo Exp $
 
 # Tested on KSR, Cray-T3D
 # Requires NWCHEM_TARGET to be set.
@@ -16,6 +16,13 @@ endif
 
 ifeq ($(NWCHEM_TARGET),LINUX)
    FFLAGS = -fno-second-underscore
+endif
+ifeq ($(NWCHEM_TARGET),LINUX64)
+  ifeq ($(FC),gfortran)
+   FFLAGS = -fdefault-integer-8
+  else
+   FFLAGS = -i8
+  endif	
 endif
 
 ifeq ($(NWCHEM_TARGET),KSR)
