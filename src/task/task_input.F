@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.48 2006-02-24 20:50:50 marat Exp $
+* $Id: task_input.F,v 1.49 2006-03-17 16:53:53 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -72,6 +72,8 @@ c
             analytic  = .true.
          else if (inp_compare(.false.,test,'vscf')) then
             operation  = 'vscf'
+         else if (inp_compare(.false.,test,'dntmc')) then
+            operation  = 'dntmc'
          else if (inp_compare(.false.,test,'shell')) then
             theory = 'shell'
             call task_shell_input(rtdb)
