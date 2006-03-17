@@ -1,5 +1,5 @@
 C        1         2         3         4         5         6         7
-C$Id: gibbs.F,v 1.4 2006-03-17 16:53:25 windus Exp $
+C$Id: gibbs.F,v 1.5 2006-03-17 17:20:24 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -17,16 +17,15 @@ C      implicit none
 #include "gibbsP.fh"
       integer rtdb  ! integer
 
-      REAL*8 M,MTOT
+      double precision M,MTOT
       double precision r, rcm, rs
       double precision ri
       double precision rmin, rsim, rmax
-      double precision e, esqrd, pi
-      REAL*8 k,kb
+      double precision e, k, esqrd, kb, pi
       double precision qse
       double precision qsqrd, sgmsq, epsln
       integer lndx, lndxx
-      REAL*8 LAMBDA
+      double precision lambda
       INTEGER NATOM
       double precision disp, alpha
       INTEGER ROTF
@@ -39,7 +38,7 @@ C      implicit none
       double precision rmsdsum, rmsdavr 
       double precision rmsdsumsp, rmsdavrsp
       integer number
-      REAL*8 NUMBERSUM, NUMBERAVR
+      double precision NUMBERSUM, NUMBERAVR
       double precision PHI, PHISUM, PHIAVR
       double precision rclcm
       INTEGER NMIN,NCURR,NMAX
@@ -47,7 +46,7 @@ C      implicit none
       double precision seed
       double precision rnnum
       double precision rb, testme
-      REAL*8 NDA,NDSIG
+      double precision NDA,NDSIG
 
       double precision temp, uu, uavr, usqrd, rsimsum, rsimavr
       double precision rsh, rsimsq, rmaxsq, rx, ry, rz, dist
@@ -1202,8 +1201,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       double precision r, rcm, rs
       double precision rmin, rsim, rmax
       double precision rclcm
-      double precision e, esqrd, pi
-      REAL*8 k,kb
+      double precision e, k, esqrd, kb, pi
       INTEGER NATOM
       double precision disp, alpha
       INTEGER ROTF
@@ -1215,8 +1213,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       double precision rnnum
       integer idum
 
-      REAL*8 MUCHEM
-      double precision delta, rres
+      double precision muchem, delta, rres
       double precision comp2, comp3, comp2r, comp3r, rstep, press
       double precision gamma3, rsimsq, radiuss, deltar, rnew
       double precision voli, volf, deltavol, rnewsq
@@ -1701,18 +1698,17 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       integer spc
       integer andx
       integer lndx,  lndxx
-      REAL*8 LAMBDA
+      double precision LAMBDA
       integer ab
       integer l
-      REAL*8 k,kb
-      double precision e, esqrd, pi
+      double precision e, k, esqrd, kb, pi
       integer jindex
       double precision r3
 
-      REAL*8 LAM
-      REAL*8 MU
+      double precision LAM
+      double precision MU
 c      real*8 MNUX,MNUY,MNUZ,MTX,MTY,MTZ,MTMAG
-      REAL*8 NUX,NUY,NUZ,MUX,MUY,MUZ,MX,MY,MZ,MUTOL
+      double precision NUX,NUY,NUZ,MUX,MUY,MUZ,MX,MY,MZ,MUTOL
       INTEGER NSCF,SCF,PLRZ,PLRZA
       double precision v, ef, efwx, efwy, efwz
       double precision efix, efiy, efiz
@@ -2256,7 +2252,7 @@ c
 
       integer im1, im2, imm1, ia1, ia2, iq1, iq2, ir1, ir2, ntab, ndiv
       double precision rnmx
-      REAL*8 AM,EPS
+      double precision AM,EPS
 
       PARAMETER (IM1 = 2147483563)
       PARAMETER (IM2 = 2147483399)
@@ -2323,13 +2319,20 @@ c
       END
 
 C***********************************************************************
-      real*8 FUNCTION dntmc_RAN3(IDUM)
+      double precision FUNCTION dntmc_RAN3(IDUM)
 C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 c     N.R. FUNCTION ran3(idum)
 c
-      implicit real*8 (a-h,o-z)
+      implicit none
+
+      integer idum  ! input
+
+      integer mbig, mseed, ma
+      integer iff, mj, mk, mz, inext, inextp
+      integer i, ii, k
+      double precision fac
       parameter (mbig=1000000000,mseed=161803398,mz=0,fac=1.e-9)
       dimension ma(55)
       data iff /0/
@@ -2367,7 +2370,6 @@ c
       dntmc_ran3=mj*fac
       return
       end
-
 
 C***********************************************************************
       SUBROUTINE dntmc_RAN(KK)
@@ -2409,8 +2411,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 
       double precision qsqrd, sgmsq, epsln
       INTEGER SPC
-      REAL*8 k,kb
-      double precision e, esqrd, pi
+      double precision e, k, esqrd, kb, pi
       integer l
 
       COMMON/INDEXX/QSQRD(MXSP,MXSP,MXATOM,MXATOM),
@@ -2476,8 +2477,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       double precision temp, uu ! input
       double precision uavr, cv, rsimavr ! output
 
-      double precision e, esqrd, pi
-      REAL*8 kb,k
+      double precision e, k, esqrd, kb, pi
       double precision usum, usqrdsum
       double precision rmin, rsim, rmax
 
@@ -2580,12 +2580,12 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 
       integer nmols
 
-      REAL*8 M,MTOT
+      double precision M,MTOT
       double precision r, rcm, rs
       double precision rclcm
       INTEGER SPC
 
-      real*8 MCLTOT
+      double precision MCLTOT
       integer i
 
       COMMON/MASSES/M(MXSP,MXATOM),MTOT(MXSP)
@@ -2633,10 +2633,9 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 
       integer i  ! input
 
-      REAL*8 M,MTOT
+      double precision M,MTOT
       double precision r, rcm, rs
-      double precision e, esqrd, pi
-      REAL*8 k,kb
+      double precision e, k, esqrd, kb, pi
       integer natom
       INTEGER SPC
 
@@ -2689,7 +2688,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       integer number
 
       integer nob, i
-      REAL*8 INCR
+      double precision INCR
 
       COMMON/RADIUS/RMIN,RSIM,RMAX
       COMMON/NUMBER1/NUMBER(100)    
@@ -2728,7 +2727,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       integer l   ! input
 
       integer number
-      REAL*8 NUMBERAVR,NUMBERSUM
+      double precision NUMBERAVR,NUMBERSUM
 
       integer nob, i
 
@@ -2799,8 +2798,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 
       double precision qse
       INTEGER SPC
-      double precision e, esqrd, pi
-      REAL*8 k,kb
+      double precision e, k, esqrd, kb, pi
       integer l
 
       integer i, ii
@@ -2839,7 +2837,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       integer imlw, node    ! input
       double precision rmx  ! input
 
-      REAL*8 M,MTOT
+      double precision M,MTOT
       double precision r, rcm, rs
       double precision rc
       double precision pi, d
@@ -3214,9 +3212,11 @@ C
       IMPLICIT none
       integer nob           ! input
       double precision rest ! output
-      REAL*8 NDA,NDSIG
-      double precision pv, s, si
+
       double precision rb, testme
+      double precision NDA,NDSIG
+
+      double precision pv, s, si
       double precision pi, smax, simax
       integer npts, i, iupper, jstar
 
@@ -3370,7 +3370,7 @@ C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
       IMPLICIT none
-      REAL*8 NDSUM,NDA,NDSIGSUM,NDSIG,NDSGMX
+      double precision NDSUM,NDA,NDSIGSUM,NDSIG,NDSGMX
       double precision rb, testme
       integer nob, nnodes ! input parameters
       integer percent     ! output
