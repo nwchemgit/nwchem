@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.30 2006-03-17 01:45:06 edo Exp $
+* $Id: xc_rhogen.F,v 1.31 2006-03-17 02:00:10 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -277,7 +277,7 @@ c
      O              (what.ne.2.and.grad)) then
                   if(what.eq.0.or.what.eq.1) then
                      call xc_dchiff(nq,inizja,ifinja,
-     P                    delrho(1,1,ii,ipert),delchi(1,1,1),
+     P                    delrho(1,1,ii,ipert),delchi,
      F                    ff)
                   elseif(what.eq.2) then
                      call xc_dchiffp(nq,ipol2,inizja,ifinja,
@@ -307,7 +307,7 @@ c
      A                    delchi(1,1,inizja),nq*3,F,nnia,0d0,ffd,nq*3)
                   if(what.lt.2) then
                      call xc_dchiff(nq,inizia,ifinia,
-     P                    delrho(1,1,ii,ipert),delchi(1,1,1),
+     P                    delrho(1,1,ii,ipert),delchi,
      F                    ff)
                   elseif(what.eq.2) then
                      call xc_dchiffp(nq,ipol2,inizia,ifinia,
@@ -348,7 +348,7 @@ c
 c
       subroutine get_atom_block_nb(g_array, basis, iat, jat, buf,
      $     idim, jdim,nbhandle)
-C$Id: xc_rhogen.F,v 1.30 2006-03-17 01:45:06 edo Exp $
+C$Id: xc_rhogen.F,v 1.31 2006-03-17 02:00:10 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -385,42 +385,43 @@ c
       implicit none
       integer nq,ipol,ii,n0,n1
       double precision delrho(nq,3,ipol,*)
-      double precision heschi(nq,6)
+      double precision heschi(nq,6,*)
       double precision delchi(nq,3,*)
       double precision ff(nq,*)
       double precision ffd(nq,3,*)
 c
-      integer n,mu
+      integer n,mu,mu1
 c
       do mu=n0,n1
+         mu1=mu-n0+1
          do n = 1, nq
             delrho(n,1,ii,1) = delrho(n,1,ii,1) -
-     &           heschi(n,1)*ff(n,mu-n0+1) - 
-     -           delchi(n,1,mu)*ffd(n,1,mu-n0+1)
+     &           heschi(n,1,mu)*ff(n,mu1) - 
+     -           delchi(n,1,mu)*ffd(n,1,mu1)
             delrho(n,2,ii,1) = delrho(n,2,ii,1) -
-     &           heschi(n,2)*ff(n,mu-n0+1) - 
-     -           delchi(n,1,mu)*ffd(n,2,mu-n0+1)
+     &           heschi(n,2,mu)*ff(n,mu1) - 
+     -           delchi(n,1,mu)*ffd(n,2,mu1)
             delrho(n,3,ii,1) = delrho(n,3,ii,1) -
-     &           heschi(n,3)*ff(n,mu-n0+1) - 
-     -           delchi(n,1,mu)*ffd(n,3,mu-n0+1)
+     &           heschi(n,3,mu)*ff(n,mu1) - 
+     -           delchi(n,1,mu)*ffd(n,3,mu1)
             delrho(n,1,ii,2) = delrho(n,1,ii,2) -
-     &           heschi(n,2)*ff(n,mu-n0+1) - 
-     -           delchi(n,2,mu)*ffd(n,1,mu-n0+1)
+     &           heschi(n,2,mu)*ff(n,mu1) - 
+     -           delchi(n,2,mu)*ffd(n,1,mu1)
             delrho(n,2,ii,2) = delrho(n,2,ii,2) -
-     &           heschi(n,4)*ff(n,mu-n0+1) - 
-     -           delchi(n,2,mu)*ffd(n,2,mu-n0+1)
+     &           heschi(n,4,mu)*ff(n,mu1) - 
+     -           delchi(n,2,mu)*ffd(n,2,mu1)
             delrho(n,3,ii,2) = delrho(n,3,ii,2) -
-     &           heschi(n,5)*ff(n,mu-n0+1) - 
-     -           delchi(n,2,mu)*ffd(n,3,mu-n0+1)
+     &           heschi(n,5,mu)*ff(n,mu1) - 
+     -           delchi(n,2,mu)*ffd(n,3,mu1)
             delrho(n,1,ii,3) = delrho(n,1,ii,3) -
-     &           heschi(n,3)*ff(n,mu-n0+1) - 
-     -           delchi(n,3,mu)*ffd(n,1,mu-n0+1)
+     &           heschi(n,3,mu)*ff(n,mu1) - 
+     -           delchi(n,3,mu)*ffd(n,1,mu1)
             delrho(n,2,ii,3) = delrho(n,2,ii,3) -
-     &           heschi(n,5)*ff(n,mu-n0+1) - 
-     -           delchi(n,3,mu)*ffd(n,2,mu-n0+1)
+     &           heschi(n,5,mu)*ff(n,mu1) - 
+     -           delchi(n,3,mu)*ffd(n,2,mu1)
             delrho(n,3,ii,3) = delrho(n,3,ii,3) -
-     &           heschi(n,6)*ff(n,mu-n0+1) - 
-     -           delchi(n,3,mu)*ffd(n,3,mu-n0+1)
+     &           heschi(n,6,mu)*ff(n,mu1) - 
+     -           delchi(n,3,mu)*ffd(n,3,mu1)
          enddo
       enddo
       return
@@ -455,13 +456,14 @@ c
       double precision ff(nq,*)
       integer ii
 c
-      integer n,mu
+      integer n,mu,mu1
 c
       do mu=n0,n1
+         mu1=mu-n0+1
          do n = 1, nq
-            rho(n,ii,1) = rho(n,ii,1) - delchi(n,1,mu)*ff(n,mu-n0+1)
-            rho(n,ii,2) = rho(n,ii,2) - delchi(n,2,mu)*ff(n,mu-n0+1)
-            rho(n,ii,3) = rho(n,ii,3) - delchi(n,3,mu)*ff(n,mu-n0+1)
+            rho(n,ii,1) = rho(n,ii,1) - delchi(n,1,mu)*ff(n,mu1)
+            rho(n,ii,2) = rho(n,ii,2) - delchi(n,2,mu)*ff(n,mu1)
+            rho(n,ii,3) = rho(n,ii,3) - delchi(n,3,mu)*ff(n,mu1)
          enddo
       enddo
       return
