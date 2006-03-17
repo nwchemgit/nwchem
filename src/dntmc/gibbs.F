@@ -1,5 +1,5 @@
 C        1         2         3         4         5         6         7
-C$Id: gibbs.F,v 1.3 2006-03-10 01:23:36 windus Exp $
+C$Id: gibbs.F,v 1.4 2006-03-17 16:53:25 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -3101,9 +3101,7 @@ c      END DO
 
       CALL dntmc_STRUCT2(K,IMLW,ACCP)            
   
-      IF(ACCP)THEN  ! this is really wierd--endif is in 11
-
-      GOTO 12
+      IF (ACCP) GOTO 12
       
   11  CONTINUE
   
@@ -3115,8 +3113,6 @@ c      END DO
            END DO
       END DO
       
-      ENDIF
-
   12  CONTINUE
 
 c      WRITE(12,*)'after structure routine'
