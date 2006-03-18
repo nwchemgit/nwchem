@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.519 2006-02-27 22:42:50 edo Exp $
+# $Id: makefile.h,v 1.520 2006-03-18 02:09:10 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -233,6 +233,16 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
               AR = ar
 
        CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+
+    ifdef USE_INTEGER4
+      integer4:
+	@echo 
+	@echo USE_INTEGER4 option longer supported
+	@echo please do not set it
+	@echo 
+	@exit 1
+    endif
+
 #
 # Machine specific stuff
 #
@@ -326,10 +336,7 @@ ifeq ($(TARGET),SOLARIS64)
          CC = cc
          FC = f77
    DEFINES = -DSOLARIS  -DNOAIO -DSOLARIS64
-ifdef USE_INTEGER4
-else
    DEFINES  +=  -DEXT_INT
-endif
 
   COPTIMIZE = -O
      RANLIB = echo
@@ -353,7 +360,7 @@ endif
 #  -Kfast
      DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
      FOPTIONS = -Kdalign -w -fw -X9  -KV9FMADD
-     ifdef USE_INTEGER4
+     ifdef USE_I4FLAGS
        FOPTIONS += -CcdLL8
      else
        FOPTIONS += -CcdLL8 -CcdII8
@@ -363,7 +370,7 @@ endif
    else
 #  SUN/Solaris f77 options 
      FOPTIONS = -stackvar -fast -nodepend -xvector=no -xarch=v9a
-     ifdef USE_INTEGER4
+     ifdef USE_I4FLAGS
        FOPTIONS +=  -xtypemap=real:64,double:64,integer:32
      else
        FOPTIONS +=  -xtypemap=real:64,double:64,integer:64
@@ -734,11 +741,11 @@ ifeq ($(TARGET),HPUX64)
   RANLIB = echo
 
  DEFINES = -DHPUX -DEXTNAME -DHPUX64 
- ifdef USE_INTEGER4
+ ifdef USE_I4FLAGS
  else
- DEFINES +=  -DEXT_INT
- FOPTIONS +=  +i8 
+   FOPTIONS +=  +i8 
  endif
+ DEFINES +=  -DEXT_INT
 
 endif
 
@@ -886,16 +893,12 @@ RSQRT=y
     DEFINES = -DIBM -DAIX -DEXTNAME
     DEFINES += -DCHKUNDFLW
        LIBPATH += -L/usr/lib -L/lib 
-ifdef USE_INTEGER4
+ifdef USE_I4FLAGS
    FOPTIONS += -qintsize=4
-   ifdef USE_ESSL
-      DEFINES += -DESSL
-      CORE_LIBS += -lessl 
-   endif
 else
    FOPTIONS += -qintsize=8 
-   DEFINES  += -DEXT_INT 
 endif
+   DEFINES  += -DEXT_INT 
   ifdef  USE_GPROF
     FOPTIONS += -pg
     LDOPTIONS += -pg
@@ -1007,14 +1010,13 @@ LARGE_FILES = YES
 
     DEFINES = -DLAPI64 -DEXTNAME -DLAPI -DSP1 -DAIX
     DEFINES += -DCHKUNDFLW
-ifdef USE_INTEGER4
+ifdef USE_I4FLAGS
    FOPTIONS += -qintsize=4
- CORE_LIBS += -lessl_r -llapack -lblas # need 64-bit essl
 else
    FOPTIONS += -qintsize=8
-        DEFINES += -DEXT_INT
-  CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif
+  DEFINES += -DEXT_INT
+  CORE_LIBS +=  $(BLASOPT) -llapack -lblas
   LDOPTIONS += -bloadmap:nwchem.lapi64map -bbigtoc
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
 #  LDOPTIONS += -bmaxstack:0xe0000000 -bmaxdata:0xe0000000 # this for large memory
@@ -1058,14 +1060,13 @@ ifeq ($(TARGET),DECOSF)
              COPTIMIZE = -O
 
                DEFINES = -DDECOSF
-ifdef USE_INTEGER4
+ifdef USE_I4FLAGS
               FOPTIONS +=  -i4
-             CORE_LIBS +=   -lcxml_ev6
 else
-               DEFINES +=  -DEXT_INT 
               FOPTIONS +=  -i8
-             CORE_LIBS +=  -llapack $(BLASOPT) -lblas 
 endif
+               DEFINES +=  -DEXT_INT 
+             CORE_LIBS +=  -llapack $(BLASOPT) -lblas 
             EXTRA_LIBS = -laio 
 ifeq ($(BUILDING_PYTHON),python)
       EXTRA_LIBS += -lX11
@@ -1450,39 +1451,26 @@ endif
 
 ifeq ($(NWCHEM_TARGET),LINUX64)
    ifeq ($(FC),g77)
-      ifndef USE_INTEGER4
-      integer4:
-	@echo You must define USE_INTEGER4 to compile with g77 
-	@echo on 64-bit architectures.
-	@echo Please type
+      g7764:
 	@echo 
-	@echo " make FC=g77 USE_INTEGER4=y"
+	@echo g77 not supported on 64-bit Linux
+	@echo please use supported gompilers
 	@echo 
 	@exit 1
-      endif
    endif
       _FC=noifc
-      ifeq ($(FC),g77)
-       _FC=g77
-      endif
-      ifeq ($(FC),g77-ssa)
-       _FC=g77
-      endif
-       ifdef USE_INTEGER4
-         ifneq ($(_FC),g77)
+       ifdef USE_I4FLAGS
            ifneq ($(FC),gfortran)
              FOPTIONS += -i4 
            endif
-           DEFINES  += -DBAD_GACCESS
-         endif
        else
-        ifeq ($(FC),gfortran)
-         FOPTIONS += -fdefault-integer-8
-        else
-         FOPTIONS += -i8
+         ifeq ($(FC),gfortran)
+           FOPTIONS += -fdefault-integer-8
+         else
+           FOPTIONS += -i8
+         endif
        endif
-         DEFINES  += -DEXT_INT
-       endif
+       DEFINES  += -DEXT_INT
   MAKEFLAGS = -j 1 --no-print-directory
      _CPU = $(shell uname -m  )
      CORE_SUBDIRS_EXTRA = blas lapack
@@ -1497,18 +1485,16 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
        FOPTIMIZE =  -O4  -tune host -arch host  -math_library fast
        FVECTORIZE = -fast -O5 -tune host -arch host
 
-       ifdef USE_INTEGER4
+       ifdef USE_I4FLAGS
          FOPTIONS +=  -fpe0
 # needed: binutils 2.11 for -taso option with some more hacking on bfd/elf.c
-         LINK.f = fort -Wl,-taso $(LDFLAGS)  
-         CORE_LIBS += -lcxml
        else
          FOPTIONS += -fpe3
+       endif
          LINK.f = fort $(LDFLAGS)  
 # this creates a static executable
 #  LINK.f = fort $(LDFLAGS)   -Wl,-Bstatic
          CORE_LIBS += -llapack $(BLASOPT) -lblas
-       endif
      endif
 
     ifeq ($(_CPU),ia64)
@@ -1587,8 +1573,6 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
 endif # end of ia32 bit
     ifeq ($(_CPU),x86_64)
-# USE_INTEGER4=y need for g77
-# make FC=g77 CC=gcc USE_INTEGER4=y USE_GCC34=y
 #
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
@@ -1675,29 +1659,6 @@ endif # end of ia32 bit
         DEFINES  += -DCHKUNDFLW -DPSCALE
         FDEBUG = -g -O2
         LDOPTIONS = -Wl,--warn-once   -Wl,--relax
-        ifdef  USE_GPROF
-          FOPTIONS += -pg
-          LDOPTIONS += -pg
-        endif
-      endif
-      ifeq ($(_FC),g77)
-        FOPTIONS  +=  -fno-globals -Wno-globals 
-        DEFINES  +=   -DBAD_GACCESS
-        FOPTIONS  += -Wunused  -fno-silent
-        FOPTIONS  += -fno-second-underscore  -fno-f90 
-        FOPTIMIZE  += -O3 -ffast-math 
-        FOPTIMIZE  += -fstrength-reduce -fno-move-all-movables -fno-reduce-all-givs
-        FOPTIMIZE  += -finline-functions -fschedule-insns2 
-        FOPTIMIZE  += -mfpmath=sse -fstrict-aliasing  #-fprefetch-loop-arrays
-        FOPTIMIZE  +=  -fexpensive-optimizations  
-        ifdef USE_GCC34
-          FOPTIMIZE  += -march=k8 -mtune=k8
-          FOPTIMIZE  +=  -fold-unroll-all-loops
-        else
-          FOPTIONS  +=  -Wno-globals  
-          FOPTIMIZE  +=  -funroll-all-loops
-        endif
-        FDEBUG = -O0 -g
       endif
       COPTIONS   =   -O3 -funroll-loops -ffast-math  
       ifdef USE_GCC34
@@ -1766,9 +1727,8 @@ endif
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
         CPP=/usr/bin/cpp  -P -C -traditional
-        ifdef USE_INTEGER4
+        ifdef USE_I4FLAGS
           FOPTIONS += -qintsize=4
-          DEFINES  +=   -DBAD_GACCESS
         else
           FOPTIONS += -qintsize=8
         endif

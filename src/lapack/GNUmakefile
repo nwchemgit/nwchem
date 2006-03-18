@@ -1,6 +1,6 @@
-#$Id: GNUmakefile,v 1.51 2005-10-20 21:10:40 edo Exp $
+#$Id: GNUmakefile,v 1.52 2006-03-18 02:09:10 edo Exp $
 ifdef USE_64TO32
-USE_INTEGER4=y
+USE_I4FLAGS=y
 endif
 include ../config/makefile.h
 
