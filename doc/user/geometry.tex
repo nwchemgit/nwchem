@@ -1,5 +1,5 @@
 %
-% $Id: geometry.tex,v 1.47 2004-04-22 04:50:28 edo Exp $
+% $Id: geometry.tex,v 1.48 2006-03-20 22:25:15 edo Exp $
 %
 \label{sec:geom}
 
@@ -634,11 +634,11 @@ geometry
    C 
    C 1 CC 
    H 1 CH1 2 HCH1 
-   H 1 CH2 2 HCH2 3  TOR1  0 
-   H 1 CH3 2 HCH3 3 -TOR2  0 
-   F 2 CF1 1 CCF1 3  TOR3  0 
-   F 2 CF2 1 CCF2 6  FCH1  1 
-   F 2 CF3 1 CCF3 6  FCH2 -1
+   H 1 CH2 2 HCH2 3  TOR1 
+   H 1 CH3 2 HCH3 3 -TOR2 
+   F 2 CF1 1 CCF1 3  TOR3 
+   F 2 CF2 1 CCF2 6  FCH1 
+   F 2 CF3 1 CCF3 6  -FCH1
    variables
      CC    1.4888 
      CH1   1.0790 
@@ -658,7 +658,6 @@ geometry
      TOR2  109.3997 
      TOR3  180.0000 
      FCH1  106.7846 
-     FCH2  106.7842
  end   
 end
 \end{verbatim}
