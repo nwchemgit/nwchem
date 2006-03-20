@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_utils.F,v 1.19 2006-02-22 01:12:07 marat Exp $
+c $Id: qmmm_utils.F,v 1.20 2006-03-20 20:12:01 marat Exp $
 c
 
       function qmmm_geom_distance(r1,r2)
@@ -530,7 +530,7 @@ c     get number of atoms
      >  call errquit( pname//'different number of atoms',0,0)
       ns = ns1
       if(ns.gt.1000)
-     > call errquit(pname//"increase memory for atom tag",0,0)
+     > call errquit(pname//"increase memory for atom tag",ns,0)
 
       if(.not.ma_push_get(mt_int,ns,'itmp',h_itmp,i_itmp))
      + call errquit( pname//'Failed to allocate memory for itmp1',
@@ -674,12 +674,6 @@ c
       open(fn2,file=filename2,form='formatted',status='old',
      $          err=133)
        
-      if(ns1.ne.ns2) 
-     >  call errquit( pname//'different number of atoms',0,0)
-      ns = ns1
-      if(ns.gt.1000)
-     > call errquit(pname//"increase memory for atom tag",0,0)
-
 
       ns = 0
       do i=1,1000
@@ -689,6 +683,8 @@ c
        ns = ns + 1
        if(ai2.ne.ai1)
      >   call errquit( pname//'different global index',0,0) 
+       if(ns.gt.1000)
+     > call errquit(pname//"increase memory for atom tag",ns,0)
        ai3(i) = ai1
        q3(i) = q1+lambda*(q2-q1)
       end do
