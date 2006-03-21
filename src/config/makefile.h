@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.520 2006-03-18 02:09:10 edo Exp $
+# $Id: makefile.h,v 1.521 2006-03-21 00:06:01 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -237,7 +237,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
     ifdef USE_INTEGER4
       integer4:
 	@echo 
-	@echo USE_INTEGER4 option longer supported
+	@echo USE_INTEGER4 option no longer supported
 	@echo please do not set it
 	@echo 
 	@exit 1
