@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.10 2002-01-23 18:50:03 bert Exp $
+# $Id: GNUmakefile,v 1.11 2006-03-22 18:52:24 windus Exp $
 #
 
 include makefile.h
@@ -9,6 +9,13 @@ include makefile.h
 ifeq ($(TARGET),CRAY-T3D)
 # Assume here that are cross compiling on a YMP
   DEPENDCFLAGS = -Tcray-ymp 
+endif
+
+ifeq ($(TARGET),cray-sv2)
+# Needed to avoid having depend.x compiled as an application.
+# With this flag depend.x will run on the OS node.
+# From Ted Packwood
+  DEPENDCFLAGS = -hcommand
 endif
 
 ifeq ($(TARGET),SP)
