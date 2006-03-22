@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.69 2005-01-11 15:34:36 d3j191 Exp $
+c $Id: ana_input.F,v 1.70 2006-03-22 23:57:30 d3j191 Exp $
 c
       implicit none
 c
@@ -13,6 +13,7 @@ c
 c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
+      character*255 filpin,filpou
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
       integer iopt,ivctr,iorder
@@ -459,6 +460,19 @@ c
       write(lfncmd,1021) isel,jsel,ksel,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
  1021 format('histo  ',2i7,i5,i3,2f12.6,a)
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     electrostatic potentials at specific positions
+c     ----------------------------------------------
+c
+      if(inp_compare(.false.,'esp_points',item)) then
+      if(.not.inp_a(filpin)) filpin='espp.inp '
+      if(.not.inp_a(filpou)) filpou='espp.out '
+      write(lfncmd, 1055) filpin(1:index(filpin,' ')),
+     + filpou(1:index(filpou,' '))
+ 1055 format('esppnt ',a,a)
       numcmd=numcmd+1
       goto 2
       endif

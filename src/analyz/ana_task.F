@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.100 2005-12-16 20:44:29 d3j191 Exp $
+c $Id: ana_task.F,v 1.101 2006-03-22 23:57:30 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       character*255 filcmd,fil,string
 c
       character*80 card
-      integer nsai,msai,nwmi,mwmi,nwai,mwai,it
+      integer nsai,msai,nwmi,mwmi,nwai,mwai,it,ndx
       integer nframe,nread,num,i,j,k,ivec,ia,ja
       real*8 rms0,rms1,val,range
       character*3 fmt
@@ -37,6 +37,8 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
+      lfnpin=67
+      lfnpou=68
       lfncmd=69
       lfnloc=70
       lfnhba=71
@@ -108,6 +110,7 @@ c
       lloc=.false.
       lhbond=.false.
       lrdf=.false.
+      lesppt=.false.
 c
       nave=0
       ndata=0
@@ -491,6 +494,20 @@ c
       read(card,'(7x,i7,f12.6)') nrdf,rrdf
       lrdf=.true.
       goto 1
+      endif
+c
+c     electrostatic potentials at selected points
+c     -------------------------------------------
+c
+      if(card(1:6).eq.'esppnt') then
+      string=card(8:80)
+      ndx=index(string,' ')-1
+      filpin=string(1:ndx)
+      string=string(ndx+2:80)
+      filpou=string(1:index(string,' ')-1)
+      lesppt=.true.
+      write(*,'(a,a,a)') ' esppnt ',
+     + filpin(1:index(filpin,' ')), filpou(1:index(filpou,' ')-1)
       endif
 c
 c     order parameters
@@ -1054,6 +1071,11 @@ c
       if(lrdf) then
       call ana_rdf(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
      + int_mb(i_rdf))
+      endif
+c
+      if(lesppt) then
+      call ana_esppt(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
+     + dbl_mb(i_qdat),dbl_mb(i_qwdat))
       endif
 c
       if(ngroups.gt.0) then
