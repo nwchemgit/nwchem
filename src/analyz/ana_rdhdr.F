@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.16 2004-03-06 03:41:15 d3j191 Exp $
+c $Id: ana_rdhdr.F,v 1.17 2006-03-23 01:12:26 d3j191 Exp $
 c
       implicit none
 c
@@ -29,10 +29,10 @@ c
       endif
 c
       if(fmttrj.eq.'trj') then
-      open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
-     + status='old',err=9999)
       write(*,3333) fname(1:index(fname,' ')-1)
  3333 format(/,' Opening trj file ',a)
+      open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
+     + status='old',err=9999)
       rewind(lfntrj)
       if(lrdf) call ana_rdfhdr(int_mb(i_rdf))
     1 continue

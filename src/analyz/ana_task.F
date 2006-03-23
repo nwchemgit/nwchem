@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.101 2006-03-22 23:57:30 d3j191 Exp $
+c $Id: ana_task.F,v 1.102 2006-03-23 01:12:26 d3j191 Exp $
 c
       implicit none
 c
@@ -505,9 +505,11 @@ c
       filpin=string(1:ndx)
       string=string(ndx+2:80)
       filpou=string(1:index(string,' ')-1)
-      lesppt=.true.
-      write(*,'(a,a,a)') ' esppnt ',
-     + filpin(1:index(filpin,' ')), filpou(1:index(filpou,' ')-1)
+      write(*,'(a,a,a,a)') ' esppnt ',
+     + filpin(1:index(filpin,' ')),filhol(1:index(filhol,' ')-1),
+     + filpou(1:index(filpou,' ')-1)
+      call ana_esppt(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
+     + dbl_mb(i_qdat),dbl_mb(i_qwdat))
       endif
 c
 c     order parameters
@@ -1071,11 +1073,6 @@ c
       if(lrdf) then
       call ana_rdf(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
      + int_mb(i_rdf))
-      endif
-c
-      if(lesppt) then
-      call ana_esppt(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
-     + dbl_mb(i_qdat),dbl_mb(i_qwdat))
       endif
 c
       if(ngroups.gt.0) then
