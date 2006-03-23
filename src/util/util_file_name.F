@@ -286,7 +286,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.34 2004-03-15 21:48:04 edo Exp $
+C$Id: util_file_name.F,v 1.35 2006-03-23 21:40:24 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -517,6 +517,7 @@ c
       implicit none
 #include "cfileprefix.fh"
 #include "inp.fh"
+#include "global.fh"
       character*(*) dir         ! [output]
       logical oscratch          ! [input]
       integer node              ! [input]
@@ -531,11 +532,8 @@ c     specified process
 c
       if (oscratch) then
          call util_getenv('SCRATCH_DIR',envscr) 
-         istart=util_getblnk(envscr,1024)
-         if(istart.ne.0) then
-            lencrd=index(envscr(istart:1024),' ')-1
-            dir=envscr(istart:istart+lencrd)
-         else
+         if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
+     I    then
          if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
             dir = '. ' ! Final default is blank
          endif
