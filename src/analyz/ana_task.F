@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.102 2006-03-23 01:12:26 d3j191 Exp $
+c $Id: ana_task.F,v 1.103 2006-03-24 23:44:30 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,7 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
+      lfnhol=66
       lfnpin=67
       lfnpou=68
       lfncmd=69
@@ -194,6 +195,8 @@ c
 c
       call ana_all(int_mb(i_ssel),1,dbl_mb(i_swt),nsel)
       lsel=.false.
+      call ana_all(int_mb(i_isel),1,dbl_mb(i_wt),nsel)
+      call ana_wall(int_mb(i_wsel),1,int_mb(i_ndxw))
 c
       if(me.eq.0) then
       write(*,'(a,a)') ' Reference coordinates read from ',
@@ -504,9 +507,11 @@ c
       ndx=index(string,' ')-1
       filpin=string(1:ndx)
       string=string(ndx+2:80)
+      filhol=string(1:index(string,' ')-1)
+      string=string(ndx+2:80)
       filpou=string(1:index(string,' ')-1)
       write(*,'(a,a,a,a)') ' esppnt ',
-     + filpin(1:index(filpin,' ')),filhol(1:index(filhol,' ')-1),
+     + filpin(1:index(filpin,' ')),filhol(1:index(filhol,' ')),
      + filpou(1:index(filpou,' ')-1)
       call ana_esppt(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
      + dbl_mb(i_qdat),dbl_mb(i_qwdat))

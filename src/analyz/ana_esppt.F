@@ -14,16 +14,24 @@ c
       character*255 filpdb,string
       real*8 espval,point(3)
 c
+      write(*,'(a,a)') 'filpin=',filpin(1:index(filpin,' ')-1)
       open(unit=lfnpin,file=filpin(1:index(filpin,' ')-1),
      + form='formatted',status='old')
 c
+      write(*,'(a,a)') 'filhol=',filhol(1:index(filhol,' ')-1)
       open(unit=lfnhol,file=filhol(1:index(filhol,' ')-1),
      + form='formatted',status='old')
 c
-      open(unit=lfnpin,file=filpou(1:index(filpou,' ')-1),
+      write(*,'(a,a)') 'filpou=',filpou(1:index(filpou,' ')-1)
+      open(unit=lfnpou,file=filpou(1:index(filpou,' ')-1),
      + form='formatted',status='unknown')
 c
+      print*,'lfnpin=',lfnpin
+      print*,'lfnhol=',lfnhol
+      print*,'lfnpou=',lfnpou
+c
       rewind(lfnpin)
+      rewind(lfnhol)
       rewind(lfnpou)
 c
     1 continue
@@ -31,6 +39,7 @@ c
  1000 format(a)
       if(string(1:12).ne.' From file: ') goto 1
       string=string(13:255)
+      if(index(string,'pdb').le.0) goto 1
       filpdb=string(1:index(string,' ')-1)
 c
       write(*,'(a,a)') 'PDB FILE TO READ IS ',filpdb
@@ -67,15 +76,15 @@ c
       point(3)=1.0d-01*point(3)
 c
       espval=0.0d0
-      do 10 j=1,nsa
-      if(isel(j).gt.0) then
+      do 10 i=1,nsa
+      if(isel(i).gt.0) then
       espval=espval+138.9354*qs(i)/sqrt((point(1)-xs(i,1))**2+
      + (point(2)-xs(i,2))**2+(point(3)-xs(i,3))**2)
       endif
    10 continue
       write(*,'(3f12.6,e12.5)') point,espval
 c
-      goto 1
+      goto 4
 c
     9 continue
 c
