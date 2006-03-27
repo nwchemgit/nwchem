@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.212 2006-03-10 01:30:18 windus Exp $
+# $Id: make_nwchem_config,v 1.213 2006-03-27 19:41:16 d3j191 Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -88,6 +88,7 @@ EXP_qmmm = $(filter-out hessian tce uccsdt python develop oimp2 scfaux plane_wav
 MODULES := $(patsubst all,$(EXP_all),$(MODULES) )
 MODULES := $(patsubst pnnl,$(EXP_pnnl),$(MODULES) )
 MODULES := $(patsubst qm,$(EXP_qm),$(MODULES) )
+MODULES := $(patsubst classical,$(EXP_classical),$(MODULES))
 MODULES := $(patsubst md,$(EXP_md),$(MODULES))
 MODULES := $(patsubst qmmm,$(EXP_qmmm),$(MODULES))
 #MODULES := $(patsubst qmmm,$(EXP_qmmm),$(MODULES))
