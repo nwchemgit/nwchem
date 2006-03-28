@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.110 2005-02-19 05:32:48 edo Exp $
+# $Id: DEFS,v 1.111 2006-03-28 17:35:00 edo Exp $
 #
 #======================================================================
 #
@@ -603,7 +603,7 @@ ifeq ($(CC),gcc)
 	peigs_CC  +=  -O2  -g
 endif
 ifeq ($(CC),icc)
-	peigs_CC  +=  -O3  -xW -ftz -hlo -unroll
+	peigs_CC  +=  -O3  -xW -hlo -unroll
 endif
 peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
 peigs_CPP += -DSTD_INT -DSTD_DBL -P
