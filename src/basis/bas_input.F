@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.64 2004-03-15 19:50:22 edo Exp $
+c $Id: bas_input.F,v 1.65 2006-03-29 00:57:58 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -958,7 +958,9 @@ c
       endif
  35   call inp_restore_state    ! Failure ... restore unit 5 and abort
       call inp_clear_err
-      write(LuOut,*) ' bas_tag_lib: failed to locate ', string
+      write(LuOut,*) ' bas_tag_lib: failed to locate ', 
+     C     string(1:inp_strlen(string)), 
+     C     ' in file ',filename(1:inp_strlen(filename))
       call errquit('bas_tag_lib: no such basis available', 0,
      &       INPUT_ERR)
 c
@@ -1093,6 +1095,7 @@ c
       logical foundit
       logical nwrcopen
       logical util_find_dir
+      logical noslash
       external util_find_dir
       integer calls
       data calls/0/
@@ -1103,6 +1106,7 @@ c
       from_nwchemrc    = .false.
       from_compile     = .false.
       debug = .false.
+      noslash=.false.
       calls = calls + 1
       if (debug) write(luout,*)' calls:calls: ',calls
       compiled_name = 
@@ -1132,6 +1136,7 @@ c
            does_it_exist=util_find_dir(libname)
         else
            inquire(file=libname,exist=does_it_exist)
+           noslash=does_it_exist
         endif
         if (does_it_exist)then
           from_environment = .true.
@@ -1206,6 +1211,7 @@ c
                does_it_exist=util_find_dir(libname)
             else
                inquire(file=libname,exist=does_it_exist)
+               noslash=does_it_exist
             endif
             if (does_it_exist)then
               from_nwchemrc = .true.
@@ -1257,6 +1263,13 @@ c
         write(luout,*)' library file name is: <',
      &      libname(1:inp_strlen(libname)),'>'
         write(luout,*) ' '
+      endif
+      if(noslash) then
+         write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+         write(luout,*) "! DANGEROUS: nwchem_basis_library set equal !"
+         write(luout,*) "! to a filename and not to a directory since!"
+         write(luout,*) "! since you did not use the ending slash.   !"
+         write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       endif
       if (nwrcopen)
      .     close(unit=unitrc,status='keep') ! close file after library name found
