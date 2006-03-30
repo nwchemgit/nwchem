@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.103 2006-03-24 23:44:30 d3j191 Exp $
+c $Id: ana_task.F,v 1.104 2006-03-30 17:55:57 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,7 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
+      lfnavg=65
       lfnhol=66
       lfnpin=67
       lfnpou=68
@@ -507,12 +508,16 @@ c
       ndx=index(string,' ')-1
       filpin=string(1:ndx)
       string=string(ndx+2:80)
+      ndx=index(string,' ')-1
       filhol=string(1:index(string,' ')-1)
       string=string(ndx+2:80)
+      ndx=index(string,' ')-1
       filpou=string(1:index(string,' ')-1)
+      string=string(ndx+2:80)
+      filavg=string(1:index(string,' ')-1)
       write(*,'(a,a,a,a)') ' esppnt ',
      + filpin(1:index(filpin,' ')),filhol(1:index(filhol,' ')),
-     + filpou(1:index(filpou,' ')-1)
+     + filpou(1:index(filpou,' ')-1),filavg(1:index(filavg,' ')-1)
       call ana_esppt(int_mb(i_isel),dbl_mb(i_xdat),dbl_mb(i_wdat),
      + dbl_mb(i_qdat),dbl_mb(i_qwdat))
       endif

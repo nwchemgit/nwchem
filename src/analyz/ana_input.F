@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.71 2006-03-23 01:12:26 d3j191 Exp $
+c $Id: ana_input.F,v 1.72 2006-03-30 17:55:57 d3j191 Exp $
 c
       implicit none
 c
@@ -13,7 +13,7 @@ c
 c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
-      character*255 filpin,filhol,filpou
+      character*255 filpin,filhol,filpou,filavg
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
       integer iopt,ivctr,iorder
@@ -470,10 +470,12 @@ c
       if(inp_compare(.false.,'esp_points',item)) then
       if(.not.inp_a(filpin)) filpin='espp.inp '
       if(.not.inp_a(filhol)) filpin='espp.hol '
-      if(.not.inp_a(filpou)) filpou='espp.out '
+      if(.not.inp_a(filpou)) filpou='espp.dat '
+      if(.not.inp_a(filavg)) filpou='espp.avg '
       write(lfncmd, 1055) filpin(1:index(filpin,' ')),
-     + filhol(1:index(filhol,' ')),filpou(1:index(filpou,' '))
- 1055 format('esppnt ',a,a,a)
+     + filhol(1:index(filhol,' ')),filpou(1:index(filpou,' ')),
+     + filavg(1:index(filavg,' '))
+ 1055 format('esppnt ',a,a,a,a)
       numcmd=numcmd+1
       goto 2
       endif
