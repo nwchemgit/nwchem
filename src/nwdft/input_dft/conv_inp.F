@@ -249,6 +249,10 @@ c
      &             ' to 10.'
          nfock = 10
       endif            
+c
+c     nfock=0 same as nodiis
+c
+      if(nfock.eq.0) goto 1600
       if (.not. rtdb_put(rtdb, 'dft:nfock', mt_int, 1, nfock))
      &   call errquit('conv_inp: rtdb_put failed', 1500, RTDB_ERR)
 c
