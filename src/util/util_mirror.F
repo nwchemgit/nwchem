@@ -1,6 +1,6 @@
       logical function util_mirrmat(nmat,g_a,g_amirr,
      D     docopy, dozero)
-c $Id: util_mirror.F,v 1.4 2006-01-18 20:11:40 edo Exp $
+c $Id: util_mirror.F,v 1.5 2006-04-04 23:26:47 d3p307 Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -20,7 +20,7 @@ c     need to add sanity check on docopy vs dozero
          else
             if(i.gt.1) then
                do ii=1,i-1
-                  call util_mirrstop(ii,g_amirr(ii))
+                  call util_mirrstop(1,g_amirr(ii))
                enddo
             endif
             return
