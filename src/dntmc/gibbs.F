@@ -1,5 +1,5 @@
 C        1         2         3         4         5         6         7
-C$Id: gibbs.F,v 1.5 2006-03-17 17:20:24 windus Exp $
+C$Id: gibbs.F,v 1.6 2006-04-07 22:10:45 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -254,7 +254,7 @@ C     THIS IS THE INITIAL INPUT
 
       NSPC = 1
       NMOLS = 10            !total number of water molecules
-      MCSTPS = 120000000     !total number of Monte Carlo Steps
+      MCSTPS = 100     !total number of Monte Carlo Steps
 
       IF(CONT2.EQ.0)THEN
 
@@ -269,7 +269,7 @@ C     THIS IS THE INITIAL INPUT
       ENDIF
         
       MPRNT = MCSTPS/10
-      TEMP = 223.D+00
+      TEMP = 243.D+00
       DISP = 0.03D+00
       ALPHA = 0.08D+00
       ROTF = 0
@@ -2878,7 +2878,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
 
       WRITE(12,*)'NATOM(',USPC(1),') =',NATOM(USPC(1))
             
-      MCSTEPS = 10000000    !MCSTEPS
+      MCSTEPS = 100   !MCSTEPS
 
       RNODE = DBLE(NODE*NODE)/938.D+00 
 
@@ -3007,7 +3007,7 @@ C     SAVE THE COORDINATES OF THE MOLECULE K
       DO I = 1, NATOM(SPC(K)) 
            DO J = 1, 3
               RSAVE(I,J) = RC(K,I,J)
-c  	       WRITE(12,*)'RSAVE(',I,',',J,') =',RSAVE(I,J)
+              WRITE(12,*)'RSAVE(',I,',',J,') =',RSAVE(I,J)
            END DO
       END DO
 
@@ -3021,9 +3021,9 @@ C     PICK DISPLACEMENTS ALONG X,Y,Z
       DLTA(3) = DISPL*(2.D+00*RNNUM(1) - 1.D+00)
 
 
-c      DO I = 1, 3
-c         WRITE(12,*)'DLTA(',I,') =',DLTA(I)
-c      ENDDO
+      DO I = 1, 3
+         WRITE(12,*)'DLTA(',I,') =',DLTA(I)
+      ENDDO
       
 C     TRANSLATE COORDINATES OF CHOSEN MOLECULE
 c      WRITE(12,*)'coords after translation'
@@ -3031,7 +3031,7 @@ c      WRITE(12,*)'coords after translation'
       DO I = 1, NATOM(SPC(K))
          DO J = 1, 3
             RC(K,I,J) = RC(K,I,J) + DLTA(J)
-c            WRITE(12,*)'RC(',K,',',I,',',J,') =',RC(K,I,J)
+            WRITE(12,*)'RC(',K,',',I,',',J,') =',RC(K,I,J)
          END DO
       END DO
 
@@ -3040,7 +3040,7 @@ C     PICK AN ANGLE
       CALL dntmc_RAN(1)
       BETA = 2.D+00*ANGLE*(RNNUM(1) - 0.5D+00)
 
-c     WRITE(12,*)'ROTATION ANGLE =',BETA,' radians'
+      WRITE(12,*)'ROTATION ANGLE =',BETA,' radians'
 
       SDBETA = DSIN(BETA)
       CDBETA = DCOS(BETA)
@@ -3054,7 +3054,7 @@ C     PICK AN AXIS ABOUT WHICH TO ROTATE
       IF(IA2.GT.3) IA2 = IA2 - 3
       IF(IA3.GT.3) IA3 = IA3 - 3
 
-c      WRITE(12,*)'ROT.AXIS(xyz->123) =',IA1,IA2,IA3
+      WRITE(12,*)'ROT.AXIS(xyz->123) =',IA1,IA2,IA3
 
 C     ROTATE THE CHOSEN MOLECULE ABOUT CENTER OF MASS
       
@@ -3091,34 +3091,40 @@ C     ROTATE THE CHOSEN MOLECULE ABOUT CENTER OF MASS
          IF(DIST.GT.RMXSQ) GOTO 11
       END DO
 
-c      DO J = 1, NATOM(SPC(K))
-c         WRITE(12,*)'RC(',K,',',J,',',1,') =',RC(K,J,1)
-c         WRITE(12,*)'RC(',K,',',J,',',2,') =',RC(K,J,2)
-c         WRITE(12,*)'RC(',K,',',J,',',3,') =',RC(K,J,3)
-c      END DO
+      DO J = 1, NATOM(SPC(K))
+         WRITE(12,*)'RC(',K,',',J,',',1,') =',RC(K,J,1)
+         WRITE(12,*)'RC(',K,',',J,',',2,') =',RC(K,J,2)
+         WRITE(12,*)'RC(',K,',',J,',',3,') =',RC(K,J,3)
+      END DO
 
       CALL dntmc_STRUCT2(K,IMLW,ACCP)            
   
-      IF (ACCP) GOTO 12
+c      IF (ACCP) GOTO 12
+      IF (ACCP) then
+      GOTO 12
       
   11  CONTINUE
   
       ACCP = .FALSE.
+
+      write(12,*) 'inside of 11 continue'
       
       DO I = 1, NATOM(SPC(K))
            DO J = 1, 3
                RC(K,I,J) = RSAVE(I,J)
            END DO
       END DO
+
+      endif
       
   12  CONTINUE
 
-c      WRITE(12,*)'after structure routine'
-c      DO J = 1, NATOM(SPC(K))
-c         WRITE(12,*)'RC(',K,',',J,',',1,') =',RC(K,J,1)
-c         WRITE(12,*)'RC(',K,',',J,',',2,') =',RC(K,J,2)
-c         WRITE(12,*)'RC(',K,',',J,',',3,') =',RC(K,J,3)
-c      END DO
+      WRITE(12,*)'after structure routine'
+      DO J = 1, NATOM(SPC(K))
+         WRITE(12,*)'RC(',K,',',J,',',1,') =',RC(K,J,1)
+         WRITE(12,*)'RC(',K,',',J,',',2,') =',RC(K,J,2)
+         WRITE(12,*)'RC(',K,',',J,',',3,') =',RC(K,J,3)
+      END DO
 
       RETURN
       END
@@ -3151,6 +3157,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       COMMON/NNATOMS/NATOM(MXSP)
       COMMON/SPECIES/SPC(MXMOLS)
 
+      WRITE(12,*)'d is ', d
 
       DO I = 1, K - 1
          DO II = 1, NATOM(SPC(K))
@@ -3190,7 +3197,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
    
       ACCP = .FALSE.
 
-c      WRITE(12,*)'structure ok!'
+      WRITE(12,*)'structure bad!'
       
       RETURN
       
@@ -3198,7 +3205,7 @@ c      WRITE(12,*)'structure ok!'
    
       ACCP = .TRUE.   
 
-c      WRITE(12,*)'bad structure!'
+      WRITE(12,*)'structure ok!'
 
       RETURN
       END
@@ -3373,7 +3380,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       double precision NDSUM,NDA,NDSIGSUM,NDSIG,NDSGMX
       double precision rb, testme
       integer nob, nnodes ! input parameters
-      integer percent     ! output
+      double precision percent     ! output
       integer i, j, jstar
       
       COMMON/DIST1/RB(100),TESTME(100,20)
@@ -3404,8 +3411,9 @@ C    find variance for each bin across all nodes
          DO I = 1, NNODES
             NDSIGSUM = NDSIGSUM + (TESTME(J,I) - NDA(J))**2
          ENDDO
-         NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES - 1))
-c         WRITE(6,*)RB(J),NDA(J),NDSIG(J)
+         NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES))
+c        NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES - 1))
+c        WRITE(6,*)RB(J),NDA(J),NDSIG(J)
       ENDDO
 
 C     FIND MAXIMUM ERROR ALONG AVERAGE DISTRIBUTION
@@ -3420,12 +3428,12 @@ C     FIND MAXIMUM ERROR ALONG AVERAGE DISTRIBUTION
          ENDIF
       END DO
 
-c      WRITE(6,*)'Maximum Error =',NDSGMX,' at J =',JSTAR
+c     WRITE(6,*)'Maximum Error =',NDSGMX,' at J =',JSTAR
 
       PERCENT = (NDSGMX/NDA(JSTAR))*100.D+00
 
-c      WRITE(6,*)'R =',RB(JSTAR),'NDA =',NDA(JSTAR),' Jstar =',JSTAR
-c      WRITE(6,*)'Percent of max error at value =',PERCENT,' %'
+c     WRITE(6,*)'R =',RB(JSTAR),'NDA =',NDA(JSTAR),' Jstar =',JSTAR
+c     WRITE(6,*)'Percent of max error at value =',PERCENT,' %'
 
       RETURN
       END
