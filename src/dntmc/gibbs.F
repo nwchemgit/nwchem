@@ -1,5 +1,5 @@
 C        1         2         3         4         5         6         7
-C$Id: gibbs.F,v 1.6 2006-04-07 22:10:45 windus Exp $
+C$Id: gibbs.F,v 1.7 2006-04-08 00:22:30 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -9,12 +9,14 @@ C     modified on april 15, 2005 for ran3
       logical function dntmc_GIBBS(rtdb)
 
       IMPLICIT none
-C      implicit none
+c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
 #include "errquit.fh"
 #include "gibbsP.fh"
+#include "rtdb.fh"
+c
       integer rtdb  ! integer
 
       double precision M,MTOT
@@ -252,9 +254,23 @@ C     THIS IS THE INITIAL INPUT
       CONT1 = 0  !restart: 0 = no restart files, 1 = write restart files
       CONT2 = 0  !is this a restart run?: 0 = no, 1 = yes
 
-      NSPC = 1
-      NMOLS = 10            !total number of water molecules
-      MCSTPS = 100     !total number of Monte Carlo Steps
+c
+c Try to read these from the rtdb
+c
+c      NSPC = 1
+c      NMOLS = 10            !total number of water molecules
+c      MCSTPS = 100     !total number of Monte Carlo Steps
+      if (.not.rtdb_get(rtdb, 'dntmc:nspecies', MT_INT, 1, nspc))
+     &    call errquit('dntmc_gibbs: rtdb error for nspc', 0, RTDB_ERR)
+c
+c Note that nmol should be an array when everything is working well
+c
+      if (.not.rtdb_get(rtdb, 'dntmc:nmol', MT_INT, 1, NMOLS))
+     &    call errquit('dntmc_gibbs: rtdb error for nmols', 0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb, 'dntmc:mcsteps', MT_INT, 1, MCSTPS))
+     &    call errquit('dntmc_gibbs: rtdb error for mcsteps', 0, 
+     &    RTDB_ERR)
+
 
       IF(CONT2.EQ.0)THEN
 
@@ -269,20 +285,31 @@ C     THIS IS THE INITIAL INPUT
       ENDIF
         
       MPRNT = MCSTPS/10
-      TEMP = 243.D+00
       DISP = 0.03D+00
       ALPHA = 0.08D+00
       ROTF = 0
       AB = 1
       IDUM = -1
       USPC(1) = 2
+C
+C Get from rtdb
+c
+c      TEMP = 243.D+00
+      if (.not.rtdb_get(rtdb, 'dntmc:temp', MT_DBL, 1, TEMP))
+     &    call errquit('dntmc_gibbs: rtdb error for temp', 0, RTDB_ERR)
 
 
 C    INITIALIZE RMIN and RMAX
 
-      RMIN = 1.0D+00
-
-      RMAX = 10.0D+00
+c
+C Get from rtdb
+c
+c      RMIN = 1.0D+00
+c      RMAX = 10.0D+00
+      if (.not.rtdb_get(rtdb, 'dntmc:rmin', MT_DBL, 1, RMIN))
+     &    call errquit('dntmc_gibbs: rtdb error for rmin', 0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb, 'dntmc:rmax', MT_DBL, 1, RMAX))
+     &    call errquit('dntmc_gibbs: rtdb error for rmax', 0, RTDB_ERR)
     
       RSIM = RMAX
 
