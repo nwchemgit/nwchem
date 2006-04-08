@@ -1,6 +1,9 @@
-!$Id: paw_xc.F,v 1.20 2006-02-11 02:50:49 bylaska Exp $
+!$Id: paw_xc.F,v 1.21 2006-04-08 00:25:48 bylaska Exp $
 !
 !$Log: not supported by cvs2svn $
+!Revision 1.20  2006/02/11 02:50:49  bylaska
+!GGA's using 1st derivative formulas have been added in core part of PAW....EJB
+!
 !Revision 1.19  2005/01/30 07:16:18  bylaska
 !Parallelized radial integrations...EJB
 !
@@ -833,7 +836,7 @@ c           **** theta derivatives ****
 
 c           **** phi derivatives ****
             do ms=1,paw_xc_ispin
-             call paw_addto_potential_gntxc2(ia,
+             call paw_addto_potential_gntxc3(ia,
      >         dcpl_mb(paw_xc_dmatr(1)+nb2*lmax2*2+(ms-1)*nb2*lmax2*3),
      >         dcpl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
             end do

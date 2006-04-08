@@ -1,5 +1,5 @@
 *
-* $Id: paw_minimizer.F,v 1.11 2006-02-11 02:50:46 bylaska Exp $
+* $Id: paw_minimizer.F,v 1.12 2006-04-08 00:25:48 bylaska Exp $
 *
 
 ***********************************************************************
@@ -367,9 +367,15 @@ c     write(*,*) "time10:",t2-t1
             write(6,1141) ia,ion_atom(ia),
      >                    paw_basis_ion_charge(ia),
      >                    paw_basis_core_charge(ia)
-            write(6,1143) paw_basis_sphere_radius(ia)
-            !write(6,1144) paw_basis_sigma(ia),paw_basis_sigma(ia)
-            write(6,1144) paw_basis_sigma(ia)
+            
+            write(6,1142) dbl_mb(paw_basis_i_r1(ia))
+            write(6,1143) dbl_mb(paw_basis_i_rmax(ia))
+            write(6,1144) paw_basis_ngrid(ia)
+            write(6,1145) paw_basis_sphere_radius(ia), 
+     >                    paw_basis_i_cut(ia),
+     >                    paw_basis_npoints(ia)
+            write(6,1146) paw_basis_sigma(ia)
+
             write(6,1150) paw_proj_nbasis(ia)
             write(6,1151)
             do i=1,paw_basis_nbasis(ia)
@@ -669,12 +675,15 @@ c      call paw_density_end()
  1132 FORMAT(5X,' using fractional occupation')
  1140 FORMAT(/' elements involved in the cluster:')
  1141 FORMAT(5X,I2,': ',A2,'  ion charge:',F4.1,'  core charge:',F4.1)
-
- 1143 FORMAT(12x,' augmentation sphere radius  :',F6.3)
- 1144 FORMAT(12x,' compensation sigma          :',F6.3)
- 1150 FORMAT(12x,' total number of projectors  :',I3)
- 1151 FORMAT(12x,' n_ps (n) l          eig    #projector')
- 1152 FORMAT(14X,I3,' (',I1,') ',A,F13.6,I14)
+ 1142 FORMAT(12x,' loggrid parameter r0        :',E10.3)
+ 1143 FORMAT(12x,' loggrid parameter rmax      :',E10.3)
+ 1144 FORMAT(12x,' loggrid parameter npoints   :',I10)
+ 1145 FORMAT(12x,' augmentation sphere radius  :',F10.3,
+     >           ' (',I5,' npoints',I5,' per task)')
+ 1146 FORMAT(12x,' compensation sigma          :',F10.3)
+ 1150 FORMAT(12x,' total number of projectors  :',I10)
+ 1151 FORMAT(12x,' n_ps (n) l          eig      #projector')
+ 1152 FORMAT(14X,I3,' (',I1,') ',A,F13.6,I16)
  1153 FORMAT(12X,' local potential used           : ',i2)
  1154 FORMAT(12X,' number of non-local projections: ',i2)
  1155 FORMAT(12X,' semicore corrections included  : ',

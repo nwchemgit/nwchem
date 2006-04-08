@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.51 2005-12-22 01:35:06 bylaska Exp $
+* $Id: cpmdv5.F,v 1.52 2006-04-08 00:25:48 bylaska Exp $
 *
 
 ***********************************************************************
@@ -29,6 +29,9 @@
 
       real*8 kb
       parameter (kb=3.16679d-6)
+c      real*8 autoatm
+c      parameter (autoatm =290.360032539d6)
+
 
       
 *     **** parallel variables ****
@@ -76,7 +79,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical verlet,mulliken,SA,found
+      logical verlet,mulliken,SA,found,calc_pressure
       integer ms
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
@@ -87,7 +90,7 @@
       integer i,j,k,ia,n,nn
       integer ii,jj,index,indx
       integer icount,it_in,it_out,icount_shift
-      real*8 w,sumall
+      real*8 w,sumall,pressure,stress(3,3),p1,p2
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
       integer nfft3,mapping
       parameter (nfft3=32)
@@ -159,9 +162,9 @@
       logical  control_out_of_time,control_new_vpsi
       external control_out_of_time,control_new_vpsi
 
-      logical  control_SA,control_Fei,pspw_SIC,pspw_HFX
+      logical  control_SA,control_Fei,pspw_SIC,pspw_HFX,control_pressure
       real*8   control_SA_decay
-      external control_SA,control_Fei,pspw_SIC,pspw_HFX
+      external control_SA,control_Fei,pspw_SIC,pspw_HFX,control_pressure
       external control_SA_decay
       integer  control_mapping
       external control_mapping
@@ -379,6 +382,17 @@
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,ispin,ne)
 
+*     **** initialize pressure ****
+      calc_pressure = control_pressure().and.(control_version().eq.3)
+      pressure      = 0.0d0
+      p1            = 0.0d0
+      p2            = 0.0d0
+      if (calc_pressure) then
+         call psp_stress_init()
+         call psp_stress_readall()
+      end if
+
+
 
 
 
@@ -547,6 +561,7 @@
          else
            write(6,1294)
          end if
+        if (calc_pressure) write(6,1293)
         if (control_SA()) then
            write(6,1296) sa_decay(1),sa_decay(2)
          end if
@@ -650,11 +665,16 @@
      >             dbl_mb(dn(1)),
      >             1,0,E,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
-     >             dcpl_mb(Hpsi(1)),dcpl_mb(psir(1)))
+     >             dcpl_mb(Hpsi(1)),dcpl_mb(psir(1)),
+     >             calc_pressure,pressure,p1,p2)
 
 
       if (taskid.eq.MASTER) call current_second(cpu2)
-      if (taskid.eq.MASTER) CALL nwpw_message(6)
+      if ((taskid.eq.MASTER).and.(.not.calc_pressure)) 
+     >   CALL nwpw_message(6)
+      if ((taskid.eq.MASTER).and.(calc_pressure)) 
+     >   CALL nwpw_message(9)
+      
       it_in  = control_it_in()
       it_out = control_it_out()
       icount = 0
@@ -679,18 +699,31 @@
      >             it_in,((icount-1)*it_in),
      >             E,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
-     >             dcpl_mb(Hpsi(1)), dcpl_mb(psir(1)))
+     >             dcpl_mb(Hpsi(1)), dcpl_mb(psir(1)),
+     >             calc_pressure,pressure,p1,p2)
 
          eke = eke + E(3)
 
+         !**** calculate pressure ****
+
          if (taskid.eq.MASTER) then 
 
-           if (SA) then
+           if (calc_pressure) then
+             if (SA) then
+             write(6,1309) icount*it_in,E(1),E(2),E(3),E(4),
+     >                     Te_new,Tr_new,pressure
+             else
+             write(6,1310) icount*it_in,E(1),E(2),E(3),E(4),
+     >                     ion_Temperature(),pressure
+             end if
+           else
+             if (SA) then
              write(6,1309) icount*it_in,E(1),E(2),E(3),E(4),
      >                     Te_new,Tr_new
-           else
+             else
              write(6,1310) icount*it_in,E(1),E(2),E(3),E(4),
      >                     ion_Temperature()
+             end if
            end if
            call util_flush(6)
 
@@ -702,12 +735,12 @@
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),e(9),e(10),
-     >                    eave,evar,ion_Temperature()
+     >                    eave,evar,ion_Temperature(),pressure
            else
              write(31,1311) icount*it_in*dt + emotion_time_shift,
      >                    e(1),e(2),e(3),e(4),e(5),e(6),
      >                    e(7),e(8),
-     >                    eave,evar,ion_Temperature()
+     >                    eave,evar,ion_Temperature(),pressure
            end if
            call util_flush(31)
 
@@ -767,7 +800,6 @@
 
   102 continue
 
-
 *     **** close xyz and MOTION files ****
       call xyz_end()
       call MOTION_end()
@@ -786,6 +818,12 @@
 *     **** ecce print ****
       call ecce_print_module_exit('driver', 'ok')
       call ecce_print_module_exit('task optimize', 'ok')
+
+
+*     **** finalize pressure ****
+      if (calc_pressure) then
+         call psp_stress_end()
+      end if
 
 
       if (taskid.eq.MASTER) CALL nwpw_message(3)
@@ -1271,18 +1309,19 @@ c    >              dbl_mb(lmd(1)),ierr)
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
      >                                       e12.5,' (ion)')
  
+ 1293 format(/' Pressure Output Generated         ')
  1294 format(/' Constant Energy Simulation                     ')
- 1295 format(/' Nose-Hoover Simulation - thermostat parameters:')
+ 1295 format(/' Nose-Hoover Simulation - Thermostat Parameters:')
  1296 format(5x, 'SA decay rates  =',e10.3,' (elc)',e10.3,' (ion)')
  1297 format(5x, 
      > 'Te =',f8.2,' Qe =',e10.3,' 2*pi/we=',e10.3,' Ee0=',e10.3)
  1298 format(5x, 
      > 'Tr =',f8.2,' Qr =',e10.3,' 2*pi/wr=',e10.3,' Er0=',e10.3)
- 1299 format(//' Mulliken analysis output generated            ')
+ 1299 format(//' Mulliken Analysis Output Generated            ')
  1300 FORMAT(//)
  1305 FORMAT(10X,'============ Car-Parrinello iteration ==============')
- 1309 FORMAT(I8,2E19.10,2E14.5,2F9.1)
- 1310 FORMAT(I8,2E19.10,2E14.5,F14.2)
+ 1309 FORMAT(I8,2E19.10,2E14.5,2F9.1,3E11.3)
+ 1310 FORMAT(I8,2E19.10,2E14.5,F14.2,3E11.3)
  1311 format(100e19.10)
  1312 format(e14.6,i3)
  1313 format(3i4)

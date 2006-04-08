@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 
-#ifdef TCGMSG
+
 *     ***********************************
 *     *					*
 *     *	   C3dB_c_transpose_jk		*
@@ -237,13 +237,13 @@ c     integer i2_start(NFFT3+1)
       
       return
       end
-#endif
 
 
 
 
 
-#ifdef TCGMSG
+
+
 *     ***********************************
 *     *					*
 *     *	   C3dB_c_transpose_ijk		*
@@ -517,5 +517,5 @@ c     integer i2_start(NFFT3+1)
       end
 
 
-#endif
+
 

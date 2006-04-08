@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.13 2005-10-06 01:04:35 bylaska Exp $
+c $Id: cpmd_input.F,v 1.14 2006-04-08 00:25:48 bylaska Exp $
 c
 
 
@@ -15,7 +15,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 53)
+      parameter (num_dirs = 54)
  
       character*32 dirs(num_dirs)
       character*255 test, id
@@ -72,6 +72,7 @@ c
      >            'SA_decay',
      >            'Fei',
      >            'Fei_quench',
+     >            'pressure',
      >            'end'/
 
        character*30 cell_name
@@ -116,7 +117,7 @@ c
      >       1200,1200, 1300,1300, 1400,1400, 1500,1500, 1600,1600,
      >       1700,1700,1700, 1800, 1900,1900, 2000,2000, 2100,2100,
      >       2200,2200, 2300,2300, 2400,2400,
-     >       2500,2600,2700,2800,2900,
+     >       2500,2600,2700,2800,2900,3000,
      >      9999) ind
       call errquit(
      >      'psp_formatter_input: unimplemented directive', ind,
@@ -470,6 +471,19 @@ c
  2900 value = .true.
       if (.not.rtdb_put(rtdb,'cpmd:fei_quench',mt_log,1,value))
      > call errquit('cpmd_input: writing fei quench ', 2900, RTDB_ERR)
+      goto 10
+
+c
+c pressure
+c
+ 3000 if (.not.inp_a(zone_name)) zone_name = 'on'
+      value = .true.
+      if (inp_compare(.false.,zone_name,'on'))      value=.true.
+      if (inp_compare(.false.,zone_name,'.true.'))  value=.true.
+      if (inp_compare(.false.,zone_name,'off'))     value=.false.
+      if (inp_compare(.false.,zone_name,'.false.')) value=.false.
+      if (.not.rtdb_put(rtdb,'cpmd:pressure',mt_log,1,value))
+     > call errquit('cpmd_input: writing pressure ', 3000, RTDB_ERR)
       goto 10
 
 

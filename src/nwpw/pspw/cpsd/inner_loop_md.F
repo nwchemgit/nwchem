@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.23 2005-12-22 01:35:06 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.24 2006-04-08 00:25:48 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -21,7 +21,8 @@
      >                      psi0,psi1,psi2,dn,
      >                      it_in,it_sum,E,
      >                      hml,lmd,
-     >                      Hpsi,psi_r)
+     >                      Hpsi,psi_r,
+     >                      calc_pressure,pressure,p1,p2)
       implicit none
       logical    verlet
       real*8     sa_alpha(2)
@@ -39,6 +40,9 @@
       complex*16 Hpsi(npack1,nemax)
       real*8     psi_r(2*nfft3d,nemax)
 
+      logical calc_pressure
+      real*8  pressure,p1,p2,stress(3,3)
+
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -53,7 +57,7 @@
       integer index,indext
       real*8  sum,Eold,eorbit,eion,ehartr,eke,eki,sse,ssr,sa1,sa2
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
-      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring
+      real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring,enlocal
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
 
 
@@ -730,6 +734,31 @@ c        end if
         E(1) = E(2)+E(3)+E(4)
       end if
 
+*     ******** pressure ******
+      if (calc_pressure) then
+
+*        ***** average Kohn-Sham v_nonlocal energy ****
+        call dcopy(2*npack1*nemax,0.0d0,0,Hpsi,1)
+        call v_nonlocal(ispin,ne,psi1,Hpsi,
+     >                move,dbl_mb(ftest(1)))
+        enlocal = 0.0d0
+        do ms=1,ispin
+        do n=n1(ms),n2(ms)
+         call Pack_cc_idot(1,psi1(1,n),Hpsi(1,n),sum)
+         if (fractional) sum=sum*dbl_mb(fweight(1)+n-1)
+         enlocal = enlocal - sum
+        end do
+        end do
+        if (np.gt.1) call D3dB_SumAll(enlocal)
+        if (ispin.eq.1) enlocal = 2.0d0*enlocal
+
+
+        call cgsd_pressure_stress(ispin,ne,psi1,
+     >                            dbl_mb(dnall(1)),
+     >                            dcpl_mb(dng(1)),
+     >                            enlocal,exc,pxc,
+     >                            pressure,p1,p2,stress)
+      end if
 
 
 *      **** write ecce data ****

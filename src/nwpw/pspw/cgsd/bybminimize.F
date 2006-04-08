@@ -1,5 +1,5 @@
 c
-c     $Id: bybminimize.F,v 1.17 2004-12-06 20:03:25 bylaska Exp $                       
+c     $Id: bybminimize.F,v 1.18 2006-04-08 00:25:48 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -232,8 +232,8 @@ c
 
 *     **** update vall using density mixing ****
       if ((it.le.0) .or.
-     >    ((dabs(deltae).lt.1.0d5) .and.
-     >    (deltav       .lt.1.0d5) .and.
+     >    ((dabs(deltae).lt.1.0d1) .and.
+     >    (deltav       .lt.1.0d1) .and.
      >    (.not.stalled          ))) then
 
          call nwpw_scf_mixing(dbl_mb(vall_in(1)),dbl_mb(vall_out(1)),

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.63 2006-01-06 22:52:28 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.64 2006-04-08 00:25:48 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -873,6 +873,197 @@ c     *** call dscal(9,-1.0d0,stress,1)
      >      /10X,'         = ',E9.3,' GPa',
      >      /10X,'         = ',E9.3,' atm'/)
       end if
+
+      return
+      end
+
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *            cgsd_pressure_stress             *
+*     *                                             *
+*     ***********************************************
+
+      subroutine cgsd_pressure_stress(ispin,ne,psi,rhoall,dng,
+     >                                evnl,exc,pxc,
+     >                                pressure,p1,p2,stress)
+      implicit none
+      integer    ispin,ne(2)
+      complex*16 psi(*),rhoall(*),dng(*)
+      real*8     evnl,exc,pxc
+      real*8     pressure,p1,p2 
+      real*8     stress(3,3)
+
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+*     **** local variables ****
+      integer u,v,s,ii,gga,nfft3d
+      real*8  tstress(3,3),ht(3,3),scal,scal2
+      real*8  sigma(3,3),xcstress(3,3),hm(3,3),pi
+
+*     **** external functions ****
+      logical  psp_semicore,pspw_SIC,pspw_HFX
+      integer  ion_nion,control_gga
+      real*8   lattice_omega,lattice_unita,ion_vion,ion_amass
+      real*8   lattice_unitg
+      external psp_semicore,pspw_SIC,pspw_HFX
+      external ion_nion,control_gga
+      external lattice_omega,lattice_unita,ion_vion,ion_amass
+      external lattice_unitg
+
+
+      call dcopy(9,0.0d0,0,stress,1)
+
+*     **** Kinetic energy component : dE_kin/dhuv ****
+      call ke_euv(ispin,ne,psi,tstress)
+      call daxpy(9,1.0d0,tstress,1,stress,1)
+c      p1 = (tstress(1,1)+tstress(2,2)+tstress(3,3))/3.0d0
+c      write(*,*) "ke p=",p1
+
+*     **** Coulomb energy component : dE_Coul/dhuv ****
+      call coulomb_euv(dng,tstress)
+      call daxpy(9,1.0d0,tstress,1,stress,1)
+c      p1 = (tstress(1,1)+tstress(2,2)+tstress(3,3))/3.0d0
+c      write(*,*) "coulomb p=",p1
+
+*     **** Local pseudo energy component : dE_local/dhuv ****
+      call v_local_euv(dng,tstress)
+      call daxpy(9,1.0d0,tstress,1,stress,1)
+c      p1 = (tstress(1,1)+tstress(2,2)+tstress(3,3))/3.0d0
+c      write(*,*) "local p=",p1
+
+*     **** Nonlocal pseudo energy component : dE_nolocal/dhuv ****
+      call dcopy(9,0.0d0,0,tstress,1)
+      call v_nonlocal_euv_2(ispin,ne,psi,tstress) 
+
+*     *** define hm ****
+      pi   = 4.0d0*datan(1.0d0)
+      scal = 1.0d0/(2.0d0*pi)
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+      end do
+      end do
+      do v=1,3
+      do u=1,3
+         tstress(u,v) = tstress(u,v) - evnl*hm(u,v)
+      end do
+      end do
+      call daxpy(9,1.0d0,tstress,1,stress,1)
+c      p1 = (tstress(1,1)+tstress(2,2)+tstress(3,3))/3.0d0
+c      write(*,*) "nolocal p=",p1
+
+
+*     **** xc energy component : dE_xc/dhuv ****
+      call dcopy(9,0.0d0,0,tstress,1)
+
+*     **** LDA part ****
+      do v=1,3
+      do u=1,3
+         tstress(u,v) = (exc-pxc)*hm(u,v)
+      end do
+      end do
+
+*     **** PBE96 GGA part ****
+      gga = control_gga()
+      call D3dB_nfft3d(1,nfft3d)
+      if ((gga.ge.10).and.(gga.lt.100)) then
+       call v_bwexc_euv(gga,2*nfft3d,ispin,rhoall,
+     >                  1.0d0,1.0d0,xcstress)
+       do v=1,3
+       do u=1,3
+          tstress(u,v) = tstress(u,v) + xcstress(u,v)
+       end do
+       end do
+      end if
+
+      if (gga.eq.110) then
+       call v_bwexc_euv(10,2*nfft3d,ispin,rhoall,
+     >                  0.75d0,1.0d0,xcstress)
+       do v=1,3
+       do u=1,3
+          tstress(u,v) = tstress(u,v) + xcstress(u,v)
+       end do
+       end do
+      end if
+
+      if (gga.eq.112) then
+       call v_bwexc_euv(12,2*nfft3d,ispin,rhoall,
+     >                  0.75d0,1.0d0,xcstress)
+       do v=1,3
+       do u=1,3
+          tstress(u,v) = tstress(u,v) + xcstress(u,v)
+       end do
+       end do
+      end if
+
+
+      call dcopy(9,tstress,1,xcstress,1)
+c      p1 = (tstress(1,1)+tstress(2,2)+tstress(3,3))/3.0d0
+c      write(*,*) "not finished, xc p=",p1
+
+*     **** Core-correction Coulomb energy component : dE_core/dhuv ****
+      if (psp_semicore(0)) then
+        call semicore_euv(tstress)
+        call daxpy(9,1.0d0,tstress,1,xcstress,1)
+      end if
+
+      call daxpy(9,1.0d0,xcstress,1,stress,1)
+
+*     **** Ewald energy component : dE_ewald/dhuv ****
+      call ewald_stress(tstress)
+      call daxpy(9,1.0d0,tstress,1,stress,1)
+c      p1 = (tstress(1,1)+tstress(2,2)+tstress(3,3))/3.0d0
+c      write(*,*) "ewald p=",p1
+
+*     **** SIC energy component : dE_SIC/dhuv ****
+      if (pspw_SIC())  then
+cc        call electron_SIC_stress(tstress)
+        call daxpy(9,1.0d0,tstress,1,stress,1)
+      end if
+
+*     **** HFX energy component : dE_HFX/dhuv ****
+      if (pspw_hfx())  then
+ccc        call electron_HFX_stress(tstress)
+        call daxpy(9,1.0d0,tstress,1,stress,1)
+      end if
+
+
+**     **** define ht ****
+       do v=1,3
+       do u=1,3
+          ht(u,v)=lattice_unita(v,u)
+       end do
+       end do
+
+ 
+**     **** define stress tensor ****
+       call dcopy(9,0.0d0,0,sigma,1)
+       scal = -1.0d0/lattice_omega()
+       do v=1,3
+       do u=1,3
+          do s=1,3
+             sigma(u,v) = sigma(u,v) + scal*stress(u,s)*ht(s,v)
+          end do
+       end do
+       end do
+       p1 = (sigma(1,1)+sigma(2,2)+sigma(3,3))/3.0d0
+
+       scal = 1.0d0/lattice_omega()
+       do ii=1,ion_nion()
+         scal2 = ion_amass(ii)*scal
+         do v=1,3
+         do u=1,3
+           sigma(u,v) = sigma(u,v) 
+     >                + scal2*(ion_vion(u,ii)*ion_vion(v,ii))
+         end do
+         end do
+       end do
+       pressure = (sigma(1,1)+sigma(2,2)+sigma(3,3))/3.0d0
+       p2 = pressure - p1
 
       return
       end

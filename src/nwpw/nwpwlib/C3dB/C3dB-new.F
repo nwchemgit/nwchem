@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.20 2006-03-16 18:38:22 bylaska Exp $
+* $Id: C3dB-new.F,v 1.21 2006-04-08 00:25:47 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -737,7 +737,6 @@ c     p = p_map(k)
       return
       end
 
-#ifdef TCGMSG
 *     ***********************************
 *     *					*
 *     *	        C3dB_SumAll		*	
@@ -794,7 +793,7 @@ c     implicit none
       sum = sumall
       return
       end
-#endif
+
 
 
 *     ***********************************
@@ -1423,11 +1422,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
 #include "C3dB.fh"
 
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       logical value
@@ -1458,9 +1457,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
             else
                msglen = nx(nb)*ny(nb)
 
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
-#endif
+
             end if
          end do
 
@@ -1473,10 +1472,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
                msglen = nx(nb)*ny(nb)
                source  = MASTER
 
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                  source,rcv_proc,1)
-#endif
+
                index = 1 + (q-1)*nx(nb)*ny(nb) 
                call zcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
                
@@ -1573,11 +1572,11 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 #include "C3dB.fh"
 
 
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -1610,9 +1609,9 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
             else
                msglen = nx(nb)*ny(nb)
 
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-#endif
+
             end if
          end do
 
@@ -1625,10 +1624,10 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
                msglen = nx(nb)*ny(nb)
                source  = MASTER
 
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
                index = 1 + (q-1)*nx(nb)*ny(nb)
                call dcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
                
@@ -1984,7 +1983,7 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
 
 
-#ifdef TCGMSG
+
 *     ***********************************
 *     *					*
 *     *	   C3dB_c_transpose_jk_init	*
@@ -2263,11 +2262,11 @@ c     integer i2_start(NFFT3+1)
 #include "errquit.fh"
 #include "C3dB.fh"
 
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -2303,13 +2302,13 @@ c     integer i2_start(NFFT3+1)
                status  = msglen
                source  = p_from
 
-#ifdef TCGMSG
+
                dum = 99
                dum_msglen = 1
                call SND(9+MSGINT,dum,mitob(dum_msglen),source,1)
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
             end if
 
             call dwrite(iunit,tmp,2*nx(nb)*ny(nb)) 
@@ -2328,12 +2327,12 @@ c     integer i2_start(NFFT3+1)
                msglen  = nx(nb)*ny(nb)
                dest    = MASTER
 
-#ifdef TCGMSG
+
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
      >                       dest,rcv_proc,1)
                call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
-#endif
+
             end if
 
          end do
@@ -2442,11 +2441,11 @@ c     integer i2_start(NFFT3+1)
 #include "mafdecls.fh"
 #include "C3dB.fh"
 
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
       integer rcv_len,rcv_proc
-#endif
+
       
 *     *** local variables ***
       integer MASTER,taskid
@@ -2475,10 +2474,10 @@ c     integer i2_start(NFFT3+1)
                msglen  = (nx(nb))*ny(nb)
                status  = msglen
                source  = p_from
-#ifdef TCGMSG
+
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-#endif
+
             end if
 
             call dwrite(iunit,tmp,(nx(nb))*ny(nb)) 
@@ -2497,9 +2496,9 @@ c     integer i2_start(NFFT3+1)
                msglen  = (nx(nb))*ny(nb)
                dest    = MASTER
 
-#ifdef TCGMSG
+
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-#endif
+
             end if
 
          end do
@@ -3320,10 +3319,10 @@ c     implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#endif
+
 
       integer MASTER
       parameter (MASTER=0)
@@ -3342,11 +3341,11 @@ c     implicit none
       msglen = n
 
 
-#ifdef TCGMSG
+
       call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
       call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
-#endif
+
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
@@ -3371,10 +3370,10 @@ c     implicit none
 #include "mafdecls.fh"
 
 
-#ifdef TCGMSG
+
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
-#endif
+
 
       integer MASTER
       parameter (MASTER=0)
@@ -3394,10 +3393,10 @@ c     implicit none
       msglen = n
 
 
-#ifdef TCGMSG
+
       call icopy(n,sum,1,int_mb(sumall(1)),1)
       call GA_IGOP(9+MSGINT,int_mb(sumall(1)),n,'+')
-#endif
+
 
       call icopy(n,int_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))

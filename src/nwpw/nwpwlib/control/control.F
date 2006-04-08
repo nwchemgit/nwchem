@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.83 2006-03-16 18:38:28 bylaska Exp $
+* $Id: control.F,v 1.84 2006-04-08 00:25:47 bylaska Exp $
 *
 
 *     ***********************************
@@ -3253,3 +3253,34 @@ c      end
       control_symmetry = symm_number
       return
       end
+
+
+
+
+*     *****************************
+*     *                           *
+*     *      control_pressure     *
+*     *                           *
+*     *****************************
+      logical function control_pressure()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .false.
+      if (.not.rtdb_get(rtdb,'cpmd:pressure',mt_log,1,value))
+     >   value = .false.
+
+      control_pressure = value
+      return
+      end
+
+
+

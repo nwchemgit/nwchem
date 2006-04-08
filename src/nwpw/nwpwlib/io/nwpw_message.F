@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_message.F,v 1.7 2005-10-11 22:37:03 bylaska Exp $
+* $Id: nwpw_message.F,v 1.8 2006-04-08 00:25:48 bylaska Exp $
 *
 
       SUBROUTINE nwpw_MESSAGE(N)
@@ -22,13 +22,14 @@
       DATA MSG(7) /'ITERATION STARTED'/
       DATA MSG(8) /'ITERATION STARTED'/
  
-      IF(N.GT.8.OR.N.LE.0) RETURN
+      IF(N.GT.9.OR.N.LE.0) RETURN
       call util_date(dd)
       WRITE(luout,1000) MSG(N), dd
       IF(N.EQ.2)  WRITE(luout,1001)
       IF(N.EQ.6)  WRITE(luout,1002)
       IF(N.EQ.7)  WRITE(luout,1003)
       IF(N.EQ.8)  WRITE(luout,1004)
+      IF(N.EQ.9)  WRITE(luout,1005)
       RETURN
 
  1000 FORMAT(5X,'>>>  ',A,' AT ',A24,'  <<<')
@@ -47,5 +48,11 @@
      >                                             7x,'alpha   '/
      >     4x,'------------------------------------------------------',
      > '---------------')
+ 1005 FORMAT(4x,'iter.',9x,'KE+Energy',13x,'Energy',8x,'KE_psi',
+     >     8x,'KE_ion', 3x,'Temperature',3x,'Pressure'/
+     >     4x, 
+     > '-------------------------------------------------------------',
+     > '----------------------------------')
+
 
       END
