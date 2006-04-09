@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.25 2006-04-09 07:09:57 marat Exp $
+c $Id: qmmm_esp.F,v 1.26 2006-04-09 07:18:57 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -472,12 +472,13 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "bq.fh"
 c
       integer rtdb
 c
       character*30 pname
       integer n
-      integer i_cbq
+      integer i_cbq, bq_handle
 
       pname = "qmmm_esp_creat_bq_grid"
       if(.not.geom_extbq_on())
@@ -485,7 +486,17 @@ c
       n = geom_extbq_ncenter()
       i_cbq = geom_extbq_coord()
 c
+        if(.not.bq_get_active(bq_handle)) 
+     &    call errquit(pname//'bq_handle',911,RTDB_ERR)
+        if(.not.bq_deactivate(bq_handle)) call errquit(
+     &        pname//'unable to deactivate bqs',0,0)
+
+c
       call qmmm_esp_creat_grid(rtdb,n,dbl_mb(i_cbq))
+
+      if(.not.bq_activate(bq_handle)) call errquit(
+     &        pname//'unable to activate bqs',0,0)
+
       end
 
       subroutine qmmm_esp_creat_grid(rtdb,n,c)
@@ -557,10 +568,12 @@ c
      >                   mt_log,1,.true.))
      &    call errquit(pname//'prop:nocheck failed',911,RTDB_ERR)
 c
+c
       if(.not.property(rtdb)) 
      &    call errquit(pname//'failed property call', 100,
      &                 RTDB_ERR)
 
+c
 c
 c     get back electric field at bq positions
 c     ---------------------------------------
@@ -958,7 +971,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.25 2006-04-09 07:09:57 marat Exp $
+* $Id: qmmm_esp.F,v 1.26 2006-04-09 07:18:57 marat Exp $
 *
       implicit none
 #include "errquit.fh"
