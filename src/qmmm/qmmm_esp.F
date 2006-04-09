@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.23 2006-02-22 17:52:49 marat Exp $
+c $Id: qmmm_esp.F,v 1.24 2006-04-09 06:43:42 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -41,6 +41,7 @@ c
       logical status
       logical readesp
       logical ofile
+      logical bqgrid
 c
       logical  geom_rtdb_ncent
       external geom_rtdb_ncent
@@ -65,6 +66,9 @@ c      call qmmm_esp_input_file(rtdb)
 c
       if(.not.rtdb_get(rtdb,'qmmm:readesp',mt_log,1,readesp))
      +   readesp = .false.
+c
+      if(.not.rtdb_get(rtdb,'qmmm:bqgrid',mt_log,1,bqgrid))
+     +   bqgrid = .false.
 c      
 c     read esp charges from external file if any
 c     ------------------------------------------
@@ -78,8 +82,12 @@ c
 c
       i_ifg = qmmm_geom_get_i_ifg()
 c
-      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
-     +   call errquit('esp: rtdb_put newgrd failed',0,0)
+      if(bqgrid) then
+        call qmmm_esp_creat_bq_grid(rtdb)
+      else
+        if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
+     +     call errquit('esp: rtdb_put newgrd failed',0,0)
+      end if
 c
 c      if(theory.eq."dft") then
 c        movecs_tag = 'dft:input vectors'
@@ -452,6 +460,32 @@ c
  134  call errquit(pname//'error reading espfile',0, 0)
       
 
+      end
+
+      subroutine qmmm_esp_creat_bq_grid(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "stdio.fh"
+c
+      integer rtdb
+c
+      character*30 pname
+      integer n
+      integer i_cbq
+
+      pname = "qmmm_esp_creat_bq_grid"
+      if(.not.geom_extbq_on())
+     >   call errquit(pname//'no active bqs',0,0) 
+      n = geom_extbq_ncenter()
+      i_cbq = geom_extbq_coord()
+c
+      call qmmm_esp_creat_grid(rtdb,n,dbl_mb(i_cbq))
       end
 
       subroutine qmmm_esp_creat_grid(rtdb,n,c)
@@ -931,7 +965,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.23 2006-02-22 17:52:49 marat Exp $
+* $Id: qmmm_esp.F,v 1.24 2006-04-09 06:43:42 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -962,3 +996,4 @@ c
       return
 c
       end
+
