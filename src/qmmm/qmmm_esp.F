@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.24 2006-04-09 06:43:42 marat Exp $
+c $Id: qmmm_esp.F,v 1.25 2006-04-09 07:09:57 marat Exp $
 c
 c
       function task_qmmm_esp(rtdb)
@@ -542,20 +542,13 @@ c     ----------------------------------------------------------
      $     call errquit(pname//'theory not specified',555,
      &       INPUT_ERR)
 
-       if (theory.eq.'dft') then
-          if (.not. rtdb_cget(rtdb,'dft:input vectors',1,vectors_in))
-     &        call errquit(pname//'rtdb_cget failed', 100,
-     &                     RTDB_ERR)
-       elseif (theory.eq.'scf') then
-          if (.not. rtdb_cget(rtdb,'scf:input vectors',1,vectors_in))
-     &        call errquit(pname//'rtdb_cget failed', 100,
-     &                     RTDB_ERR)
-       endif
 
-      if (.not. rtdb_cput(rtdb,'prop:vectors',1,vectors_in))
-     &    call errquit(pname//'rtdb_cput failed', 100,
-     &                 RTDB_ERR)
-c
+       if (rtdb_cget(rtdb,'esp:input vectors',1,vectors_in)) then
+        if (.not. rtdb_cput(rtdb,'prop:vectors',1,vectors_in))
+     &      call errquit(pname//'rtdb_cput failed', 100,
+     &                   RTDB_ERR)
+       end if
+
       if (.not. rtdb_put(rtdb,'prop:esp',
      >                   mt_int,1,0))
      &    call errquit(pname//'prop: efield failed',911,RTDB_ERR)
@@ -965,7 +958,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.24 2006-04-09 06:43:42 marat Exp $
+* $Id: qmmm_esp.F,v 1.25 2006-04-09 07:09:57 marat Exp $
 *
       implicit none
 #include "errquit.fh"
