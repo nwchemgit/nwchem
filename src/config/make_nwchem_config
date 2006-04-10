@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.213 2006-03-27 19:41:16 d3j191 Exp $
+# $Id: make_nwchem_config,v 1.214 2006-04-10 19:02:24 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -270,7 +270,7 @@ STUBROUTINES := $(patsubst qmmm, qmmm_input task_qmmm_fep qmmm_print_energy1 qmm
 STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran cosmo_tidy xc_tabcd_giao_nmr_rhs,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dntmc,task_dntmc,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwpw,nwpw nwpw_input paw_energy paw_gradient task_paw task_pspw pspw_input pspw_energy pspw_gradient band_energy band_gradient task_band,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
