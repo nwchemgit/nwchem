@@ -3,10 +3,11 @@ C undefined the first define line if you get undefined symbols
 C
 C#define OLD_GAAPI 1
 #define GAIRREG_ 1
+c#define DEBUG 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.24 2005-12-20 23:29:21 edo Exp $
+C$Id: xc_replicated.F,v 1.25 2006-04-14 00:11:25 d3p307 Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -26,17 +27,15 @@ c
       integer g_dens(*)
 c
       integer xcrep_glob,ii
-      logical xcreplicated_l,oprint,xcrepirrg
+      logical xcreplicated_l,oprint,xcrepirrg,xcrep_ga
       logical util_mirrmat
       external util_mirrmat
       integer plist,dims(2),nblock(2)
       integer l_map,k_map,procsmp
-      integer gnblock(2)
+      integer gnblock(2), membyte
 c
       oprint = util_print('xcreplicated', print_high)
-c
-c     go replicated for xc ?
-c
+
 #ifdef GA_TRACE
       if(ga_nodeid().eq.0)write(0,*)'  g_dens ',g_dens(1)
 #endif
@@ -47,11 +46,14 @@ c     non blocking
      N  dftnbacc)) dftnbacc=.false.
       if (.not. rtdb_get(rtdb, 'dft:nbget', mt_log, 1,
      N  dftnbget)) dftnbget=.false.
-      if(.not.goforit) then
+
+c  Check number of nodes to decide to use Mirror Array
+        if(ga_cluster_nnodes().le.1) then
          xcreplicated=.false.
          return
-      endif
-      xcreplicated_l=.true.
+        endif
+        
+
       if (.not. rtdb_get(rtdb, 'dft:dorepdm', mt_log, 1, 
      .     dorepdm))
      &     dorepdm=.true.
@@ -63,11 +65,10 @@ c     non blocking
      &     xcreplicated_l=.false.
       if (.not. rtdb_get(rtdb, 'dft:xcrepirrg', mt_log, 1, 
      .     xcrepirrg)) xcrepirrg=.false.
-      if(.not.xcreplicated_l) then
-         xcreplicated=.false.
-         return
-      endif
+
          xcreplicated_l=.false.
+	 xcrep_ga=.false.
+
 c     
 c     use of ga_mirror
 c
@@ -85,6 +86,7 @@ c
                call errquit('xcrepl: not enough local mem',
      .              procsmp*2, MA_ERR)
             endif
+
             call util_atom_blocked(procsmp,
      .        geom, basis, int_mb(k_map), nblock)
             
@@ -96,9 +98,11 @@ c
      =              int_mb(k_map+procsmp+ii)
             enddo
          endif
+
          do ii=1,ipol
             gnblock(1)=0
             gnblock(2)=0
+
             if(dorepxc) then
                if(.not.dograd) then
                   if(xcrepirrg) then
@@ -106,13 +110,28 @@ c
      .                    'replicatedxcGA',int_mb(k_map),nblock,plist,
      .                 k_repxc(ii))) goto 1984
                   else
-                  if(.not.nga_create_config(MT_DBL, 2, dims,
-     .                 'replicated xc GA',
-     .                 gnblock,plist, k_repxc(ii))) goto 1984
+c check available memory before creat mirrored arroy for Fock matrix
+#ifdef DEBUG
+        membyte=ga_memory_avail()
+        call ga_igop(1,membyte,1,'+')
+	if(ga_nodeid()==0)print*,membyte/1000000, 'MB ENTER K_REP'
+#endif
+                 xcrep_ga=util_mirrmat(1,g_dens(ii),k_repxc(ii),
+     .                                  .false.,.true.)
+
+c check available memory after array being created(or not created)
+#ifdef DEBUG
+        if(ga_nodeid()==0) print*,'xcrep_ga',xcrep_ga
+        membyte=ga_memory_avail()
+        call ga_igop(1,membyte,1,'+')
+        if(ga_nodeid()==0)print*,membyte/1000000, 'MB LEFT K_REP'
+#endif
+                  if(.not.xcrep_ga) goto 1984
                   endif
-                  call ga_zero(k_repxc(ii))
                endif
             endif
+
+
             if(dorepdm) then
                if(xcrepirrg) then
                   if(.not.nga_create_irreg_config(MT_DBL, 2, dims,
@@ -121,12 +140,32 @@ c
                   call ga_mask_sync(.true.,.false.)
                   call ga_copy(g_dens(ii),g_repdm(ii))
                else
+c check memory availability before creat mirrored array(density M)
+#ifdef DEBUG
+	call ga_sync()
+        membyte=ga_memory_avail()
+        call ga_igop(1,membyte,1,'+')
+        if(ga_nodeid()==0)print*,membyte/1000000, 'MB ENTER grep'
+#endif
                   xcreplicated_l=
      X                 util_mirrmat(1,g_dens(ii),g_repdm(ii),
      T                 .true.,.false.)
-               endif
+
+c check memory after
+#ifdef DEBUG
+	call ga_sync()
+        if(ga_nodeid()==0) print*, 'xcid', xcreplicated_l
+        membyte=ga_memory_avail()
+        call ga_igop(1,membyte,1,'+')
+        if(ga_nodeid()==0)print*,membyte/1000000, 'MB LEFT grep'
+#endif  
+
+                 if(.not.xcreplicated_l) goto 1984
             endif
+          end if
+
          enddo
+
          if(xcrepirrg) then
             if (.not.ma_pop_stack(l_map))
      &           call errquit('xc_rep_init: cannot pop stack',11,
@@ -138,27 +177,44 @@ c
 c     check if everyone is ok
 c
  1984 continue
+
       xcrep_glob=0
       if(xcreplicated_l) xcrep_glob=1
       call ga_igop(375,xcrep_glob,1, '+')
       xcreplicated=xcrep_glob.eq.ga_nnodes()
-      if(oprint.and.ga_nodeid().eq.0) then
-         if(xcreplicated) then
+
+      if(xcreplicated) then
+
+	 if(oprint.and.ga_nodeid().eq.0) then
             write(luout,*) ' going xcreplicated '
-         else
-            write(luout,*) ' not enough memory for xcreplicated '
-         endif
+	end if
+
+      else
+        if(ga_nodeid()==0)
+     $   write(luout,*) ' Not enough memory for xcreplicated, back
+     $ to computing without mirrored array '
+c Destroy the ones that are allocated
+	do ii=1,ipol
+	  if(xcreplicated_l) then
+	   if(.not.ga_destroy(g_repdm(ii))) 
+     $     call errquit('grep quit', 2, 0)
+	  end if
+	 if(xcrep_ga) then
+	   if(.not.ga_destroy(k_repxc(ii)))
+     $     call errquit('grep quit', 3,0)
+	 end if
+	end do
       endif
 #ifdef DEBUG
-      call ga_summarize(1)
-      call ma_summarize_allocated_blocks()
+	if(ga_nodeid()==0) call ga_summarize(0)
+        call ma_summarize_allocated_blocks()
 #endif
       return
       end
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.24 2005-12-20 23:29:21 edo Exp $
+C$Id: xc_replicated.F,v 1.25 2006-04-14 00:11:25 d3p307 Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -201,6 +257,8 @@ c
      &       GA_ERR)
             endif
          enddo
+c	if(ga_nodeid()==0) print*,'**',dorepxc,dorepdm
+	call ga_sync()
 c     
 c     avoid getting things out of control
 c
