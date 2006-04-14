@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.58 2004-01-20 19:08:43 edo Exp $
+# $Id: GNUmakefile,v 1.59 2006-04-14 22:39:41 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -39,6 +39,8 @@
 LIB_INCLUDES = -I../include -I../grid
 
    USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F dft_canorg.F
+
+HEADERS = dftps.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h

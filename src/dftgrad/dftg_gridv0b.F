@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.33 2006-03-16 00:58:37 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.34 2006-04-14 22:39:45 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -33,6 +33,7 @@ c !!! BGJ test !!!
 c !!! BGJ test !!!
 c !!! temporary !!!
 #include "rtdb.fh"
+#include "dftps.fh"
       integer nqpts, ictr_buf ! [in]
       double precision rad ! [in]
       integer natoms
@@ -169,11 +170,13 @@ c
      &            ld3chi_ao, id3chi_ao))call errquit
      &            (' exiting in dftg_gridv0b: insuff stack',19, MA_ERR)
 c
+               if (odftps) call pstat_on(ps_excf)
                call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
                call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
      &              dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
      &              dbl_mb(id3chi_ao), rq, qxyz, xyz, nqpts, natoms,
      &              iniz, docset, bas_cent_info, bas_cset_info)
+               if (odftps) call pstat_off(ps_excf)
 c         
 c
 c              Pre-compute reduced Xi(r) and dXi(r) over atoms
@@ -201,6 +204,7 @@ c
          
 c
                wmax= dabsmax(nqpts,qwght)
+               if (odftps) call pstat_on(ps_xcrho)
                call xc_rhogen(0,
      T              tol_rho, AO_bas_han, iga_dens, max_at_bf,
      &              natoms, 1,1,1,
@@ -232,6 +236,7 @@ c
      &                 rdelchi_atom, rdens_atom, cetobfr,1d0,
      D                 0d0,.false.)
                endif
+               if (odftps) call pstat_off(ps_xcrho)
 c
 c         
 c              Evaluate the integrated charge density.
@@ -241,10 +246,11 @@ c
      &                   ddot(nqpts, qwght, 1, rho, 1)
 
 
+               if (odftps) call pstat_on(ps_ebf)
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &              nqpts, Ex, Ec, qwght, GRAD, ldew, func,
      &              do_hess .or. do_cpks_r, tau, kske,Mmat)
-c for moment    kske should be false
+               if (odftps) call pstat_off(ps_ebf)
 c     
 c              exchange-correlation contribution, with or without gradient
 c              terms
@@ -257,7 +263,8 @@ c
      &                    (' exit dftggridv0b: insuff stack',9, 0)
                   endif
 
-                 call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
+               if (odftps) call pstat_on(ps_qv0b)
+               call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
      &                            grad, kske, nbf_ao, mbf_ao, natoms, 
      &                            nqpts,
      &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao ),
@@ -267,6 +274,7 @@ c
      &                            ppp, ff, 
      &                            zzz, hh, iga_dens, force,
      &                            oactive)
+               if (odftps) call pstat_off(ps_qv0b)
                  if(grad) then
                     if (.not.ma_pop_stack(l_ccdel))
      &                   call errquit('dftggv0b: pop stack ',1,0)
@@ -330,6 +338,7 @@ c
                   call xc_cpks_coeff(drhonuc,
      &                 ddelrhonuc, Amat2, Cmat2, Cmat, delrho,
      &                 3*ncuratoms, ipol, nqpts, GRAD, .false.)
+                  if (odftps) call pstat_on(ps_tabcd)
                   call xc_tabcd(1,.true.,
      T                 tol_rho, Fmat, Pmat, drhonuc, Bmat, ddelrhonuc,
      &                 Dmat, 
@@ -363,6 +372,7 @@ c
      G                 g_rhs, ibf_ao, rchi_atom, rdelchi_atom, 
      R                 rdens_atom, cetobfr,.false.,0d0,0d0)
 c
+                  if (odftps) call pstat_off(ps_tabcd)
                endif
  2010          continue
 c
@@ -373,6 +383,7 @@ c
 c
                if (do_force.and.ldew)then
                   natoms_l=natoms
+                  if (odftps) call pstat_on(ps_ssw)                  
                   call dftg_gridpart(d_qwght,qwght, qxyz, xyz,xyzm, 
      .                 rq, ictr_buf, natoms_l, iandex,
      .                 nqpts,whichssw,
@@ -381,6 +392,7 @@ c
      .                 iandex, 
      &                 natoms_l, func, d_qwght,
      &                 force, oactive)
+                  if (odftps) call pstat_off(ps_ssw)
                endif
 c         
 c

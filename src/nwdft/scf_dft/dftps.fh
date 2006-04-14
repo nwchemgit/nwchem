@@ -1,0 +1,19 @@
+C$Id: dftps.fh,v 1.4 2006-04-14 22:39:41 edo Exp $
+c
+c     pstat handles for the DFT code
+c
+      integer ps_dft,ps_xc,ps_diag,ps_dgemm,ps_fitcd,ps_vcoul,
+     ,     ps_scfdft,ps_onel,ps_diis,ps_fockb,ps_guess,
+     ,     ps_scfend,ps_incore,ps_bld12,ps_ssw,ps_xcrho,
+     ,     ps_tabcd,ps_ebf,ps_excf,ps_bdgemm,ps_xmrge,
+     ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b
+
+      logical odftps            ! True if gathering stats
+      common /cdftps/ odftps,
+     $     ps_dft,ps_xc,ps_diag,ps_dgemm,ps_fitcd,ps_vcoul,
+     $     ps_scfdft,ps_onel,ps_diis,ps_fockb,ps_guess,
+     ,     ps_scfend,ps_incore,ps_bld12,ps_ssw,ps_xcrho,
+     ,     ps_tabcd,ps_ebf,ps_excf,ps_bdgemm,ps_xmrge,
+     ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b
+
+c

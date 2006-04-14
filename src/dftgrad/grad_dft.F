@@ -9,10 +9,6 @@ c
 c
       status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
       status = nwdft(rtdb)
-chvd  if(xc_chktau()) then
-chvd     dft_energy_gradient=.false.
-chvd     return
-chvd  endif
       if (status) status = grad_dft(rtdb)
       dft_energy_gradient = status
       call grid_cleanup(.true.)
@@ -36,7 +32,7 @@ c
       end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.35 2005-10-12 00:28:23 edo Exp $
+* $Id: grad_dft.F,v 1.36 2006-04-14 22:39:45 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -98,6 +94,8 @@ c
 c     Extract high level info from the data-base setting defaults
 c
 c     load DFT parameters into common; turn off DFT printing
+c
+      call dft_pstat_init(rtdb)
 c
       call util_print_get_level(plevel)
       call util_print_set_level(print_none)
@@ -199,6 +197,7 @@ c
      &   call errquit
      &   ('grad_dft:error destroying geom and ao_bas_han handles',911,
      &       BASIS_ERR)
+      call dft_pstat_print
 c
 c     terminate integral scope
 c

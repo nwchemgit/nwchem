@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.19 2005-10-11 22:07:22 edo Exp $
+* $Id: dft_gradients.F,v 1.20 2006-04-14 22:39:44 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -46,6 +46,7 @@ c
 #include "sym.fh"
 #include "cdft.fh"
 #include "util.fh"
+#include "dftps.fh"
 c
 c!!! BGJ test !!!
 #include "bgj.fh"
@@ -443,10 +444,12 @@ c$$$      call output(dbl_mb(irdens_atom), 1, nat, 1, nat, nat, nat, 1)
 c$$$      write(LuOut,*) (int_mb(icntoce+i),i=0,nshells_ao-1)
 c$$$      write(LuOut,*) (int_mb(icntobfr+i),i=0,2*nshells_ao-1)
 c$$$      write(LuOut,*) (int_mb(icetobfr+i),i=0,2*nat-1)
+      if (odftps) call pstat_on(ps_xc)
       call dftg_getxc(rtdb, nat, iga_dens, dbl_mb(k_frc_xc), 
      $     log_mb(k_act), nactive, 
      $     dbl_mb(irdens_atom),  int_mb(icetobfr))
       call ga_dgop(msg_grad_xc,  dbl_mb(k_frc_xc),  lforce, '+')
+      if (odftps) call pstat_off(ps_xc)
 c     
 c     vdW bit
 c
