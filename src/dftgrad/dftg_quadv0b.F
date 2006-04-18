@@ -1,11 +1,11 @@
       Subroutine dftg_quadv0_b(ictr, ldew, AO_bas_han, ipol, GRAD, kske,
      &                         nbf_ao, mbf_ao, nat, nq, chi, delchi, 
      &                         heschi, Amat, Cmat, Mmat, ccrap, 
-     I     ibf, iniz, 
-     &                         ifin, PPP, F, zzz, hh, g_dens, force, 
+     I     ibf, iniz, ifin, cetobfr,
+     P     PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.10 2006-03-16 00:58:37 edo Exp $
+* $Id: dftg_quadv0b.F,v 1.11 2006-04-18 19:09:04 edo Exp $
 *
       Implicit none
 #include "errquit.fh"
@@ -19,14 +19,15 @@ c
       integer ipol, nbf_ao, mbf_ao, nat, nq
       Integer AO_bas_han
       logical GRAD, oactive(nat), kske
-      double precision zzz(3,mbf_ao)
-      double precision PPP(nbf_ao), F(mbf_ao)
+      double precision zzz(*)
+      double precision PPP(*), F(*)
       integer ibf(mbf_ao), iniz(nat), ifin(nat)
+      integer cetobfr(2,*)
       integer g_dens(2)
 c     
 c     scratch array for hessian product
 c     
-      double precision hh(3,nq)
+      double precision hh(nq,3,*)
 c     
 c     functions and grad
 c     
@@ -45,7 +46,8 @@ c
 c     local
 c
       logical ldo
-      integer iat, n, ispin, mu, mmu, nu
+      integer iat, n, ispin, mu,  nu, mu1, zzzptr
+      integer ifinia,inizia,nnia,nbfia,ifirst,ilast
       double precision C1, C2, C3, z1, z2, z3, DC, fatto
       double precision out(3)
       double precision ccrap(nq,mbf_ao,*)
@@ -68,85 +70,98 @@ c
          if (ldew)ldo = ldo.and.(iat.ne.ictr)
          if (ldo)then
             if (iniz(iat).ne.0)then
-               do mu = iniz(iat),ifin(iat)
-                  mmu = ibf(mu)
-                  do ispin = 1, ipol
-                     call ga_get(g_dens(ispin),1,nbf_ao,mmu,mmu,PPP,1)
-                     call dft_gather(mbf_ao,F,PPP,ibf,0)
+
+         inizia = iniz(iat)
+         ifinia = ifin(iat)
+         ifirst = cetobfr(1,iat)
+         ilast  = cetobfr(2,iat)
+         nbfia = ilast-ifirst+1
+         nnia = ifinia-inizia+1
+c
+         out(1)=0d0
+         out(2)=0d0
+         out(3)=0d0
+         do ispin = 1, ipol
+               call ga_get(g_dens(ispin), 
+     %              ifirst, ilast, 1, nbf_ao, PPP,nbfia)
+               call gat_mat(F, PPP,  nbfia, nbf_ao,  nnia,mbf_ao,
+     1              ifirst, 1, ibf(inizia), ibf)
+               do mu = inizia,ifinia
+                  mu1=mu-inizia+1
 c               
 c                    LDA part
 c               
                      do n = 1, nq
                         fatto = Amat(n,ispin)
-                        hh(1,n) = fatto*delchi(n,1,mu)
-                        hh(2,n) = fatto*delchi(n,2,mu)
-                        hh(3,n) = fatto*delchi(n,3,mu)
+                        hh(n,1,mu1) =  fatto*delchi(n,1,mu)
+                        hh(n,2,mu1) =  fatto*delchi(n,2,mu)
+                        hh(n,3,mu1) =  fatto*delchi(n,3,mu)
                      enddo
                      if (GRAD)then
                         do n = 1, nq
                            C1 = Cmat(n,1,ispin)
                            C2 = Cmat(n,2,ispin)
                            C3 = Cmat(n,3,ispin)
-                           hh(1,n) = hh(1,n) + C1*heschi(n,1,mu) +
+                           hh(n,1,mu1)=hh(n,1,mu1)+C1*heschi(n,1,mu) +
      &                                         C2*heschi(n,2,mu) +
      &                                         C3*heschi(n,3,mu)
-                           hh(2,n) = hh(2,n) + C1*heschi(n,2,mu) +
+                           hh(n,2,mu1)=hh(n,2,mu1)+C1*heschi(n,2,mu) +
      &                                         C2*heschi(n,4,mu) +
      &                                         C3*heschi(n,5,mu)
-                           hh(3,n) = hh(3,n) + C1*heschi(n,3,mu) +
+                           hh(n,3,mu1)=hh(n,3,mu1)+C1*heschi(n,3,mu) +
      &                                         C2*heschi(n,5,mu) +
      &                                         C3*heschi(n,6,mu)
                         enddo
                      endif
-                     call dgemm('n','n',3,mbf_ao,nq,1.d0,hh,3,chi,
-     &                          nq,0.d0,zzz,3)
-c                  
-c                             GCA part
-c                  
+                     enddo ! mu
+cold zzz(3,mbf)   =hh(3,q)   * chi(q,mbf)
+c    zzz(3,nnia,mbf)=hh(q,3,nnia)* chi(q,mbf)
+                     call dgemm('t','n',3*nnia,mbf_ao,nq,1.d0,hh,nq,
+     C                    chi, nq, 0d0,zzz,3*nnia)
                      if (GRAD)then
-                        do nu = 1, mbf_ao
-                           z1 = 0.d0
-                           z2 = 0.d0
-                           z3 = 0.d0
-                           do n=1,nq
-                              z1 = z1 + delchi(n,1,mu)*ccrap(n,nu,ispin)
-                              z2 = z2 + delchi(n,2,mu)*ccrap(n,nu,ispin)
-                              z3 = z3 + delchi(n,3,mu)*ccrap(n,nu,ispin)
-                           enddo
-                           zzz(1,nu) = zzz(1,nu) + z1
-                           zzz(2,nu) = zzz(2,nu) + z2
-                           zzz(3,nu) = zzz(3,nu) + z3
-                        enddo
+c     zzz(3,nnia,mbf)=dchi(q,3,nnia)* cc(q,mbf)
+                        call dgemm('t','n',3*nnia,mbf_ao,nq,1.d0,
+     D                       delchi(1,1,inizia),nq,
+     C                       ccrap(1,1,ispin), nq, 1.d0,zzz,3*nnia)
                      endif
-                     if (kske)then
-                        do nu = 1, mbf_ao
-                           z1 = 0.d0
-                           z2 = 0.d0
-                           z3 = 0.d0
-                           do n = 1, nq
-c                  
-c                             Kinetic energy density part
-c                  
-                              z1 = z1 + (delchi(n,1,nu)*heschi(n,1,mu) +
-     &                                   delchi(n,2,nu)*heschi(n,2,mu) +
-     &                                   delchi(n,3,nu)*heschi(n,3,mu))
-     &                                  *Mmat(n,ispin)
-                              z2 = z2 + (delchi(n,1,nu)*heschi(n,2,mu) +
-     &                                   delchi(n,2,nu)*heschi(n,4,mu) +
-     &                                   delchi(n,3,nu)*heschi(n,5,mu))
-     &                                  *Mmat(n,ispin)
-                              z3 = z3 + (delchi(n,1,nu)*heschi(n,3,mu) +
-     &                                   delchi(n,2,nu)*heschi(n,5,mu) +
-     &                                   delchi(n,3,nu)*heschi(n,6,mu))
-     &                                  *Mmat(n,ispin)
-                           enddo
-                           zzz(1,nu) = zzz(1,nu) + z1
-                           zzz(2,nu) = zzz(2,nu) + z2
-                           zzz(3,nu) = zzz(3,nu) + z3
-                        enddo
-                     endif
-                     call dgemv('n',3,mbf_ao,-two,zzz,3,F,1,0d0,
-     &                             out,1)
+                      if (kske)then
+                         do mu = inizia,ifinia
+                            mu1=mu-inizia+1
+                            do nu = 1, mbf_ao
+                               z1 = 0.d0
+                               z2 = 0.d0
+                               z3 = 0.d0
+                               do n = 1, nq
+                                  z1 = z1 + 
+     A                                 (delchi(n,1,nu)*heschi(n,1,mu) +
+     &                                 delchi(n,2,nu)*heschi(n,2,mu) +
+     &                                 delchi(n,3,nu)*heschi(n,3,mu))
+     &                                 *Mmat(n,ispin)
+                                  z2 = z2 + 
+     A                                 (delchi(n,1,nu)*heschi(n,2,mu) +
+     &                                 delchi(n,2,nu)*heschi(n,4,mu) +
+     &                                 delchi(n,3,nu)*heschi(n,5,mu))
+     &                                 *Mmat(n,ispin)
+                                  z3 = z3 + 
+     A                                 (delchi(n,1,nu)*heschi(n,3,mu) +
+     &                                 delchi(n,2,nu)*heschi(n,5,mu) +
+     &                                 delchi(n,3,nu)*heschi(n,6,mu))
+     &                                 *Mmat(n,ispin)
+                               enddo
+c     zzz(3,nnia,mbf)
+c     zzz(1,mu,nu)
+                               zzzptr=1+(mu1-1)*3+(nu-1)*3*nnia
+                               zzz(zzzptr)   = zzz(zzzptr)   + z1
+                               zzz(zzzptr+1) = zzz(zzzptr+1) + z2
+                               zzz(zzzptr+2) = zzz(zzzptr+2) + z3
+                            enddo
+                         enddo
+                      endif
+cold      zzz(3,mbf)*F(mbf)
+c     zzz(3,nnia,mbf)*F(nnia,mbf)
+                     call dgemv('n',3,nnia*mbf_ao,-two,zzz,3,
+     F                    F,1,1d0,out,1)
+                  enddo         !ispin
                      if (oactive(iat))then
                         force(1,iat)=force(1,iat)+out(1)
                         force(2,iat)=force(2,iat)+out(2)
@@ -157,8 +172,6 @@ c
                         force(2,ictr)=force(2,ictr)-out(2)
                         force(3,ictr)=force(3,ictr)-out(3)
                      endif
-                  enddo
-               enddo
             endif
          endif
       enddo

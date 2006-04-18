@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.26 2006-01-27 21:28:37 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.27 2006-04-18 19:09:04 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.26 2006-01-27 21:28:37 edo Exp $
+c $Id: dftg_gridv0.F,v 1.27 2006-04-18 19:09:04 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -313,7 +313,8 @@ c
          len_Dmat = 0
       endif
 c
-      if (.not.MA_Push_Get(mt_dbl,3*n_per_rec,'hess scratch',lhh,ihh))
+      if (.not.MA_Push_Get(mt_dbl,3*n_per_rec*max_at_bf,
+     H     'hess scratch',lhh,ihh))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',32,
      &       MA_ERR)
 c
@@ -335,15 +336,15 @@ c
       if (.not.MA_Push_Get(MT_Dbl,natoms,'rdelchi_atom',
      &     lrdelchi_atom,irdelchi_atom))call errquit
      &     ('dftg_gridv0: cannot allocate rdelchi_atom',0, MA_ERR)
-      if (.not. MA_Push_Get(mt_dbl, nbf_ao, 'PPPP', lppp, 
+      if (.not. MA_Push_Get(mt_dbl, nbf_ao*max_at_bf, 'PPPP', lppp, 
      &     ippp))call errquit
      &     (' dftg_gridv0: not enough stack',13, MA_ERR)
 c         
 c !!! BGJ - probably don't need to allocate some of this if .not.do_force
-      if (.not. MA_Push_Get(mt_dbl, nbf_ao, 'F', lff, iff))
+      if (.not. MA_Push_Get(mt_dbl, nbf_ao*max_at_bf, 'F', lff, iff))
      &     call errquit(' dftg_gridv0: not enough stack',13, MA_ERR)
-      if (.not. MA_Push_Get(mt_dbl, 3*nbf_ao, 'zzz', lzzz, 
-     &     izzz))call errquit
+      if (.not. MA_Push_Get(mt_dbl, 3*nbf_ao*max_at_bf, 
+     Z     'zzz', lzzz, izzz))call errquit
      &     (' dftg_gridv0: not enough stack',13, MA_ERR)
       if (.not.MA_push_get(MT_INT, natoms, 'curatoms',
      &     l_curatoms, k_curatoms)) call

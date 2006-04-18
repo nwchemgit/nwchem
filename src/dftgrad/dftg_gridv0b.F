@@ -15,7 +15,7 @@
      &                         nactive, rdens_atom, 
      &                         cetobfr, tau, kske, Mmat)
 c      
-c     $Id: dftg_gridv0b.F,v 1.34 2006-04-14 22:39:45 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.35 2006-04-18 19:09:04 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -49,7 +49,7 @@ c
       double precision rdens_atom(ipol*natoms*natoms)
       double precision Force(3*natoms), hess(3*natoms,3*natoms)
       integer g_rhs(*)
-      double precision hh(3,n_per_rec)
+      double precision hh(*)
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 
@@ -270,7 +270,7 @@ c
      &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao ),
      &                            dbl_mb(iheschi_ao), Amat, Cmat, Mmat,
      &                            dbl_mb(i_ccdel),
-     &                            ibf_ao, iniz, ifin,
+     &                            ibf_ao, iniz, ifin, cetobfr,
      &                            ppp, ff, 
      &                            zzz, hh, iga_dens, force,
      &                            oactive)
