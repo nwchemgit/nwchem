@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.27 2006-04-18 19:09:04 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.28 2006-04-18 22:37:03 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.27 2006-04-18 19:09:04 edo Exp $
+c $Id: dftg_gridv0.F,v 1.28 2006-04-18 22:37:03 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -445,7 +445,7 @@ c                 Allocate scratch space.
 c     
       endif 
 c     
-      call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,
+      call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,iga_dens,
      &     nbf_ao,ipol,do_force,.true.)
       
 c

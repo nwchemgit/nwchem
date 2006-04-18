@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.47 2005-10-08 04:58:22 edo Exp $
+C$Id: grid_quadv0.F,v 1.48 2006-04-18 22:37:06 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -330,7 +330,7 @@ c
       Ex=0d0
       Ec=0d0
       call ga_sync()
-      call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,
+      call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
      &     nbf_ao,ipol,do_scf.and.(.not.l3d),.false.)
       
       if(grid_written) then

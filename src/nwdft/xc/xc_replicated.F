@@ -2,10 +2,10 @@ C
 C undefined the first define line if you get undefined symbols
 C
 C#define OLD_GAAPI 1
-      subroutine xc_rep_init(rtdb, geom, basis, g_dens,
+      subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.26 2006-04-15 17:56:52 edo Exp $
+C$Id: xc_replicated.F,v 1.27 2006-04-18 22:37:06 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -22,7 +22,7 @@ c
       logical goforit
       logical dograd ! true if just gradient (not energy)
       integer geom,basis
-      integer g_dens(*)
+      integer g_dens(*),g_vxc(*)
 c
       integer xcrep_glob,ii
       logical xcreplicated_l,oprint,xcrepirrg,xcrep_ga
@@ -31,6 +31,7 @@ c
       integer plist,dims(2),nblock(2)
       integer l_map,k_map,procsmp
       integer gnblock(2), membyte
+      integer idum,g_ndim,idumm(10),dm_ndim,xc_ndim
 c
       oprint = util_print('xcreplicated', print_high)
 
@@ -42,8 +43,13 @@ c     non blocking
       if (.not. rtdb_get(rtdb, 'dft:nbget', mt_log, 1,
      N  dftnbget)) dftnbget=.false.
 
+c     we do not mirror 3D GAs for now
+
+      call nga_inquire(g_dens(1), idum, dm_ndim, idumm)
+      call nga_inquire(g_vxc(1), idum, xc_ndim, idumm)
+
 c  Check number of nodes to decide to use Mirror Array
-        if(ga_cluster_nnodes().le.1) then
+        if(ga_cluster_nnodes()) then
          xcreplicated=.false.
          return
         endif
@@ -55,6 +61,7 @@ c  Check number of nodes to decide to use Mirror Array
       if (.not. rtdb_get(rtdb, 'dft:dorepxc', mt_log, 1, 
      .     dorepxc))
      &     dorepxc=.true.
+      if(dorepxc) dorepxc=xc_ndim.eq.2
       if (.not. rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
      .     xcreplicated_l))
      &     xcreplicated_l=.false.
@@ -204,13 +211,15 @@ c Destroy the ones that are allocated
 #ifdef DEBUG1
 	if(ga_nodeid()==0) call ga_summarize(0)
         call ma_summarize_allocated_blocks()
+      write(0,*) ga_nodeid(),' XC DM tot', 
+     A       dorepxc,dorepdm,xcreplicated
 #endif
       return
       end
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.26 2006-04-15 17:56:52 edo Exp $
+C$Id: xc_replicated.F,v 1.27 2006-04-18 22:37:06 edo Exp $
 c
       implicit none
 #include "errquit.fh"
