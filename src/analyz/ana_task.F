@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.104 2006-03-30 17:55:57 d3j191 Exp $
+c $Id: ana_task.F,v 1.105 2006-04-20 17:20:20 d3j191 Exp $
 c
       implicit none
 c
@@ -1618,7 +1618,7 @@ c
      + form='formatted',status='unknown',err=9999)
       open(unit=lfnecc,file=filecc(1:index(filecc,' ')-1),
      + form='formatted',status='unknown',err=9999)
-      open(unit=lfnamp,file=filvec(1:index(filamp,' ')-1),
+      open(unit=lfnamp,file=filamp(1:index(filamp,' ')-1),
      + form='formatted',status='unknown',err=9999)
       k=0
       l=0
