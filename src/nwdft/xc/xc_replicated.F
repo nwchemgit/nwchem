@@ -5,7 +5,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.27 2006-04-18 22:37:06 edo Exp $
+C$Id: xc_replicated.F,v 1.28 2006-04-20 15:32:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -49,7 +49,7 @@ c     we do not mirror 3D GAs for now
       call nga_inquire(g_vxc(1), idum, xc_ndim, idumm)
 
 c  Check number of nodes to decide to use Mirror Array
-        if(ga_cluster_nnodes()) then
+        if(ga_cluster_nnodes().gt.1) then
          xcreplicated=.false.
          return
         endif
@@ -219,7 +219,7 @@ c Destroy the ones that are allocated
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.27 2006-04-18 22:37:06 edo Exp $
+C$Id: xc_replicated.F,v 1.28 2006-04-20 15:32:43 edo Exp $
 c
       implicit none
 #include "errquit.fh"
