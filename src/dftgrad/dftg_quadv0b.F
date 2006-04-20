@@ -5,14 +5,14 @@
      P     PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.11 2006-04-18 19:09:04 edo Exp $
+* $Id: dftg_quadv0b.F,v 1.12 2006-04-20 00:13:23 edo Exp $
 *
       Implicit none
 #include "errquit.fh"
 c
 #include "mafdecls.fh"
-#include "bas.fh"
 #include "global.fh"
+#include "dftpara.fh"
 c     
       logical ldew   ! true if weight derivatives are included [input]
       integer ictr
@@ -48,7 +48,8 @@ c
       logical ldo
       integer iat, n, ispin, mu,  nu, mu1, zzzptr
       integer ifinia,inizia,nnia,nbfia,ifirst,ilast
-      double precision C1, C2, C3, z1, z2, z3, DC, fatto
+      integer nbhand
+      double precision C1, C2, C3, z1, z2, z3, fatto
       double precision out(3)
       double precision ccrap(nq,mbf_ao,*)
       double precision two
@@ -82,10 +83,13 @@ c
          out(2)=0d0
          out(3)=0d0
          do ispin = 1, ipol
+            if(dftnbget) then
+               call ga_nbget(g_dens(ispin), 
+     %              ifirst, ilast, 1, nbf_ao, PPP,nbfia, nbhand)
+            else
                call ga_get(g_dens(ispin), 
      %              ifirst, ilast, 1, nbf_ao, PPP,nbfia)
-               call gat_mat(F, PPP,  nbfia, nbf_ao,  nnia,mbf_ao,
-     1              ifirst, 1, ibf(inizia), ibf)
+            endif
                do mu = inizia,ifinia
                   mu1=mu-inizia+1
 c               
@@ -157,6 +161,11 @@ c     zzz(1,mu,nu)
                             enddo
                          enddo
                       endif
+                      if (dftnbget) then
+                         call ga_nbwait(nbhand)
+                      endif
+                      call gat_mat(F, PPP,  nbfia, nbf_ao,  nnia,mbf_ao,
+     1                     ifirst, 1, ibf(inizia), ibf)
 cold      zzz(3,mbf)*F(mbf)
 c     zzz(3,nnia,mbf)*F(nnia,mbf)
                      call dgemv('n',3,nnia*mbf_ao,-two,zzz,3,
