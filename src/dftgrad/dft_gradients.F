@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.20 2006-04-14 22:39:44 edo Exp $
+* $Id: dft_gradients.F,v 1.21 2006-04-20 23:12:35 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -290,8 +290,10 @@ c
 c     
 c     dens = vecs*vecs
 c     
+      if (odftps) call pstat_on(ps_dgemm)
          call ga_dgemm('n', 't', nbf_ao, nbf_ao, noc(ispin), rhffact, 
      $        g_tmp(ispin), g_vecs(ispin), 0.0d0, iga_dens(ispin))
+      if (odftps) call pstat_off(ps_dgemm)
          call ga_symmetrize(iga_dens(ispin))
 c     
 c     free temporary arrays
@@ -413,6 +415,7 @@ c
      $        call errquit('dftg_force: could not alloc svec',0, MA_ERR)
          ippp=k_wdens
 c     
+      if (odftps) call pstat_on(ps_vcoul)
          call  dftg_cdfit(ao_bas_han, cd_bas_han,
      $        nbf_cd, nat, tol2e, dbl_mb(k_scr), 
      $        lscratch, dbl_mb(k_buf), lbuf,
@@ -421,6 +424,7 @@ c
      $        DBL_MB(i_cdcoef), oskel)
 c     
          call ga_dgop(msg_grad_2el, dbl_mb(k_frc_2el), lforce, '+')
+      if (odftps) call pstat_off(ps_vcoul)
 c     
       if (.not.ma_chop_stack(l_buf))
      $     call errquit('dft_gradient: cannot chop stack',0, MA_ERR)
