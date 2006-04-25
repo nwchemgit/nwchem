@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_start.F,v 1.4 2005-11-01 21:19:33 edo Exp $
+c     $Id: perfm_start.F,v 1.5 2006-04-25 23:56:55 edo Exp $
 c
       subroutine perfm_start()
       implicit none
@@ -7,11 +7,15 @@ c
 #ifdef USE_PAPI
       integer ii
       integer*4 arg1
+      double precision util_wallsec,util_cpusec
+      external util_wallsec,util_cpusec
       lfailed=.false.
       retval = PAPI_VER_CURRENT
       call PAPIf_library_init(retval)
       if ( retval.NE.PAPI_VER_CURRENT) then
-        write(luout,*) ga_nodeid(),' failed papi_init '
+        write(luout,*) ga_nodeid(),' *** FAILED papi_init '
+       call perfm_error(retval,.false.,
+     $ ' FAILED PAPI_INIT ')
         lfailed=.true.
         return
       endif
@@ -19,18 +23,18 @@ c
       arg1=PAPI_FP_INS
       call PAPIf_query_event(arg1, retval)
       if (retval .NE. PAPI_OK) call 
-     $ perfm_error(retval,
+     $ perfm_error(retval,.true.,
      $ ' perfm_start: could not query papi FP_INS event ')
 
       call PAPIf_set_debug(PAPI_VERB_ECONT, retval)
       if (retval .NE. PAPI_OK) call 
-     $ perfm_error(retval,
+     $ perfm_error(retval,.true.,
      $ ' perfm_start: could not query papi setdebug ')
-
-      call PAPIf_get_real_usec(uso)
+      uso=util_wallsec()
+      proc0=util_cpusec()
       call PAPIf_flips( real_time, proc_time, flpins, mflops, retval )
       if (retval .NE. PAPI_OK) call 
-     $ perfm_error(retval,
+     $ perfm_error(retval,.true.,
      $ ' perfm_start: could not init papi flpins ')
 #else
       call PAPIf_create_eventset(es, retval)
@@ -45,16 +49,17 @@ c
       call PAPIf_event_name_to_code(eventname(ii),
      $     nativees, retval )
       if (retval .NE. PAPI_OK) call
-     $ perfm_error(retval,
+     $ perfm_error(retval,.true.,
      $     'perfm_start: could not papi event2name ')
       call PAPIf_add_event( es, nativees, retval )
       if (retval .NE. PAPI_OK) call 
-     $ perfm_error(retval,
+     $ perfm_error(retval,.true.,
      $     'perfm_start: could not papi addevent ')
       enddo
 c
-      call PAPIf_get_real_usec(uso)
       call PAPIf_start(es, retval)
+      uso=util_wallsec()
+      proc0=util_cpusec()
       if (retval .NE. PAPI_OK) call errquit
      $ (' perfm_start: could not papi start ',retval,0)
 #endif
@@ -65,15 +70,16 @@ c
 c
 c
 c
-      subroutine perfm_error(retval,where)
+      subroutine perfm_error(retval,lstop,where)
       implicit none
 #include "perfm.fh"
       character*(*) where
+      logical lstop
          call PAPIF_perror(retval,papi_errstr,iret)
          write(*,*) 'PAPI error: ',
      ,        papi_errstr(1:inp_strlen(papi_errstr))
-         call errquit
-     $ (where,retval,0)
+         if(lstop)
+     A        call errquit(where,retval,0)
          return
          end
 #endif

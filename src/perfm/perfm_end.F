@@ -1,24 +1,22 @@
 c
-c     $Id: perfm_end.F,v 1.5 2005-11-01 21:19:33 edo Exp $
+c     $Id: perfm_end.F,v 1.6 2006-04-25 23:56:55 edo Exp $
 c
       subroutine perfm_end()
       implicit none
 #include "perfm.fh"
 #ifdef USE_PAPI
       double precision flpsum,flpmax,flpmin
+      double precision util_wallsec,util_cpusec
+      external util_wallsec,util_cpusec
       integer retvals
 #ifdef PAPI_FPINS
-      if(lfailed) then
-        flpins=0d0
-        mflops=0d0
-        real_time=10d0
-        proc_time=10d0
-      else
-        call  PAPIf_flips( real_time, proc_time, flpins, mflops, retval)
-        retvals=retval
-        if (retval .NE. PAPI_OK) call perfm_error(retval,
+      if(lfailed) return
+      call  PAPIf_flips( real_time, proc_time, flpins, mflops, retval)
+      usn=util_wallsec()
+      proc1=util_cpusec()
+      retvals=retval
+      if (retval .NE. PAPI_OK) call perfm_error(retval,
      $     ' perfm_end: could not get papi flpins ')
-      endif
       call ga_sync()
 c
 c     sum,max and min dgops
@@ -30,10 +28,11 @@ c
       call ga_dgop(msg_perfm_min,flpmin,1, 'min')
       call ga_dgop(msg_perfm_sum,flpsum,1, '+')
 c
-      if(ga_nodeid().eq.0) then
-      call PAPIf_get_real_usec(usn)
-      usn = usn - uso
-      real_time= usn*1d-6
+      real_time = usn - uso
+      proc_time=proc1-proc0
+      if(ga_nodeid().eq.0.and.
+     A     (real_time.gt.0.1d0).and.
+     A     (abs(proc_time).gt.0.1d0)) then
          write(luout,12) ' Aggregate GFloating-point ops: ', 
      ,        flpsum*conv2m
          write(luout,12) ' Aggregate GFLOPS (Real_time): ', 
@@ -53,7 +52,7 @@ c
       if (retval .NE. PAPI_OK) call
      $ perfm_error(retval,
      $     'perfm_start: could not stop papi')
-      call PAPIf_get_real_usec(usn)
+      usn=util_wallsec()
       usn = usn - uso
       write(luout,*) 'Real_time: ', usn, 'secs'
       ll=inp_strlen(eventname(1))
