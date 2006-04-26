@@ -1,5 +1,5 @@
 c
-c     $Id: perfm.fh,v 1.3 2004-10-18 20:32:06 edo Exp $
+c     $Id: perfm.fh,v 1.4 2006-04-26 00:04:52 edo Exp $
 c
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -19,7 +19,8 @@ c
       real*4 mflops
       integer*8 flpins
       integer*8 fpcompopsexe
-      integer*8 uso, usn,values(10)
+      integer*8 values(10)
+      double precision uso,usn, proc0,proc1
       integer nativees,es,ll,nevents
       logical lfailed
       character*32 eventname(10)
