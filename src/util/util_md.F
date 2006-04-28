@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.43 2004-05-07 21:40:02 d3j191 Exp $
+c $Id: util_md.F,v 1.44 2006-04-28 23:05:29 bert Exp $
 c
       implicit none
 c
@@ -1513,7 +1513,8 @@ c
  1000 format(/,1x,10('*'),/,' * ',i3,': ',a,i5,/,1x,10('*'))
       card=' '
       else
-      write(card,1000) ga_nodeid(),string,icode
+      write(card,1001) ga_nodeid(),string,icode
+ 1001 format(' * ',i3,': ',a,i5,' * ')
       endif
       call ga_error(card,icode)
       return
