@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.32 2006-04-25 20:20:41 edo Exp $
+* $Id: xc_rhogen.F,v 1.33 2006-04-28 23:58:29 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -61,15 +61,15 @@ c     local declarations
 c
       integer i0, ii, mu, n, npol
       integer ipert        ! perturbation loop index
-      integer iat, inizia, ifirst, ilast, nbfia, nnia, idim
+      integer iat, inizia, ifirst, ilast, nbfia, nnia
       integer ifinia, ifinja
-      integer jat, inizja, jfirst, jlast, nbfja, nnja, jdim
+      integer jat, inizja, jfirst, jlast, nbfja, nnja
       integer iatcur, jatcur
       double precision FUNC_MAX, DELFUNC_MAX, FUNC_MAXI, FUNC_MAXJ
       double precision P_MAXJ, P_MAXJ_A, P_MAXJ_B, P_MAXIJ
       double precision tol_rho_tmp
       double precision dabsmax
-      integer g_update(2)
+      integer g_keepd(2)
       integer nbhandl
       logical nbfirst
       integer jj
@@ -86,11 +86,10 @@ c     points
       nbfirst=.true.
       
       npol = (ipol*(ipol+1))/2
-      g_update(1)=g_dens(1)	
-      g_update(2)=g_dens(2)	
 c     to keep compilers quiet
       iatcur=1
       jatcur=1
+
 
       if(what.eq.0) then
          call dcopy(nq*npol,0.D0,0,rho,1)
@@ -99,9 +98,11 @@ c     to keep compilers quiet
 c
 c     repl stuff
 c
+         g_keepd(1)=g_dens(1)
+         if(ipol.eq.2) g_keepd(2)=g_dens(2)
          if(xcreplicated.and.dorepdm) then
-            g_update(1)=g_repdm(1)
-            g_update(2)=g_repdm(2)
+            g_dens(1)=g_repdm(1)
+            if(ipol.eq.2) g_dens(2)=g_repdm(2)
          endif
       elseif(what.eq.1) then
          call dfill(nq*ipol*npert,0.D0,rho,1)
@@ -142,23 +143,19 @@ c
          if(grad)
      .   FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
          FUNC_MAXJ = max(FUNC_MAX,DELFUNC_MAX)
-         if(what.eq.0.or.what.eq.1) then
+         if(what.lt.2) then
          if (ipol.gt.1)then
             P_MAXJ_A = dabsmax(natoms,rdens_atom(1,iat,1))
             P_MAXJ_B = dabsmax(natoms,rdens_atom(1,iat,2))
             P_MAXJ = MAX(P_MAXJ_A, P_MAXJ_B)
          else
             P_MAXJ=0d0
-            do jat=1,natoms
+            do jat=1,iat
             if(iniz(jat).ne.0) 
      .              P_MAXJ=max(P_MAXJ,rdens_atom(jat,iat,1))
             enddo
          endif
          if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXJ.lt.tol_rho) goto 225
-      else
-c
-c     !!! Cutoff temporarily commented out for other cases !!!
-c
       endif
          do 220 jat = 1, iat
             inizja = iniz(jat)
@@ -178,19 +175,12 @@ c
             FUNC_MAXJ=rchi_atom(jat)
             if(grad)
      .      FUNC_MAXJ = max(FUNC_MAXJ,rdelchi_atom(jat))
-            if(what.eq.0.or.what.eq.1) then
-               if (ipol.eq.1)then
-                  P_MAXIJ = rdens_atom(iat,jat,1)
-               else
-                  P_MAXIJ = max(rdens_atom(iat,jat,1),
-     &                 rdens_atom(iat,jat,2))
-               endif
-            if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.lt.tol_rho) goto 216
-         else
-c
-c     !!! Cutoff temporarily commented out for other cases !!!
-c
-         endif
+            if(what.lt.2) then
+               P_MAXIJ = rdens_atom(iat,jat,1)
+               if(ipol.eq.2) P_MAXIJ = max(P_MAXIJ,
+     &              rdens_atom(iat,jat,2))
+               if(wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.lt.tol_rho)goto 216
+            endif
             tol_rho_tmp = tol_rho/(FUNC_MAXI*FUNC_MAXJ)
 c
 c
@@ -201,26 +191,17 @@ c
 c
 c              screening parameters
 c
-               if(what.eq.0.or.what.eq.1) then
+               if(what.lt.2) then
                   P_MAXIJ = rdens_atom(iat,jat,ii)
                   if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.lt.tol_rho)
      G                 goto 210
-               else
-c
-c     !!! Cutoff temporarily commented out for other cases !!!
-c
                endif
 
 c
-               if(what.ne.1) then
-                  if(dftnbget) then
-                     call get_atom_block_nb(g_update(ii), basis,
-     &                    iat, jat, Pmat, idim, jdim, nbhandl)
-                     call ga_nbwait(nbhandl)
-                  else
-                     call get_atom_block(g_update(ii), basis,
-     &                    iat, jat, Pmat, idim, jdim)
-                  endif
+               if(dftnbget) then
+                  call ga_nbget(g_dens(ipert+(ii-1)*npert), 
+     %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
+                  call ga_nbwait(nbhandl)
                else
                   call ga_get(g_dens(ipert+(ii-1)*npert), 
      %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
@@ -331,44 +312,16 @@ c
             call daxpy(nq, 1.d0, rho(1,3,1), 1, rho(1,1,1), 1)
          endif
       endif
-c
+      if(what.eq.0) then
+         if(xcreplicated.and.dorepdm) then
+            g_dens(1)=g_keepd(1)
+            if(ipol.eq.2)  g_dens(2)=g_keepd(2)
+         endif
+      endif
+c     
       return
       end
 c
-      subroutine get_atom_block_nb(g_array, basis, iat, jat, buf,
-     $     idim, jdim,nbhandle)
-C$Id: xc_rhogen.F,v 1.32 2006-04-25 20:20:41 edo Exp $
-      implicit none
-#include "errquit.fh"
-#include "global.fh"
-#include "bas.fh"
-c
-      integer g_array, basis, iat, jat, idim, jdim
-      integer nbhandle
-      double precision buf(*)
-c
-      integer ilo, ihi, jlo, jhi
-c
-c     get the block of the matrix g_array (over basis functions)
-c     corresponding to the atoms iat and jat, putting the
-c     result into buf(1:idim, 1:jdim) as a dense array. 
-c     idim, jdim are returned
-c
-      if (.not. bas_ce2bfr(basis, iat, ilo, ihi))
-     $     call errquit('get_atom_block: ce2bfr failed', 0, BASIS_ERR)
-      if (.not. bas_ce2bfr(basis, jat, jlo, jhi))
-     $     call errquit('get_atom_block: ce2bfr failed', 0, BASIS_ERR)
-      idim = ihi - ilo + 1
-      jdim = jhi - jlo + 1
-c
-      if (idim.gt.0 .and. jdim.gt.0) then
-         call ga_nbget(g_array, ilo, ihi, jlo, jhi, buf, idim,
-     E        nbhandle)
-      endif
-*      write(6,*) ' gab: ', iat, jat
-*      call output(buf, 1, idim, 1, jdim, idim, jdim, 1)
-c
-      end
       subroutine xc_drhonuc(nq,ipol,n0,n1,
      D     delrho,heschi,delchi,ff,ffd,
      I     ii,iat)
