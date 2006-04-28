@@ -5,7 +5,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.29 2006-04-25 01:41:21 edo Exp $
+C$Id: xc_replicated.F,v 1.30 2006-04-28 21:51:24 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -48,11 +48,9 @@ c     we do not mirror 3D GAs for now
       call nga_inquire(g_dens(1), idum, dm_ndim, idumm)
       call nga_inquire(g_vxc(1), idum, xc_ndim, idumm)
 
+      xcreplicated=.false.
 c  Check number of nodes to decide to use Mirror Array
-        if(ga_cluster_nnodes().eq.1) then
-         xcreplicated=.false.
-         return
-        endif
+      if(ga_cluster_nnodes().eq.1) return
         
 
       if (.not. rtdb_get(rtdb, 'dft:dorepdm', mt_log, 1, 
@@ -62,9 +60,12 @@ c  Check number of nodes to decide to use Mirror Array
      .     dorepxc))
      &     dorepxc=.true.
       if(dorepxc) dorepxc=xc_ndim.eq.2
-      if (.not. rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
-     .     xcreplicated_l))
-     &     xcreplicated_l=.false.
+      if (rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
+     .     xcreplicated_l)) then
+         if(.not.xcreplicated_l) return
+      else
+         xcreplicated_l=.false.
+      endif
       if (.not. rtdb_get(rtdb, 'dft:xcrepirrg', mt_log, 1, 
      .     xcrepirrg)) xcrepirrg=.false.
 
@@ -118,7 +119,7 @@ c check available memory before creat mirrored arroy for Fock matrix
 #ifdef DEBUG
             membyte=ga_memory_avail()
             call ga_igop(1,membyte,1,'+')
-	    if(ga_nodeid()==0)print*,membyte/1000000, 'MB ENTER K_REP'
+	    if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB ENTER K_REP'
 #endif
                  xcrep_ga=util_mirrmat(1,g_dens(ii),k_repxc(ii),
      .                                  .false.,.true.)
@@ -126,10 +127,10 @@ c check available memory before creat mirrored arroy for Fock matrix
                if(.not.xcrep_ga) goto 1984
 c check available memory after array being created(or not created)
 #ifdef DEBUG
-            if(ga_nodeid()==0) print*,'xcrep_ga',xcrep_ga
+            if(ga_nodeid().eq.0) print*,'xcrep_ga',xcrep_ga
             membyte=ga_memory_avail()
             call ga_igop(1,membyte,1,'+')
-            if(ga_nodeid()==0)print*,membyte/1000000, 'MB LEFT K_REP'
+            if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB LEFT K_REP'
 #endif
                   endif
                endif
@@ -151,7 +152,7 @@ c check memory availability before creat mirrored array(density M)
 	       call ga_sync()
                membyte=ga_memory_avail()
                call ga_igop(1,membyte,1,'+')
-               if(ga_nodeid()==0)print*,membyte/1000000, 'MB ENTER grep'
+               if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB ENTER grep'
 #endif
                   xcreplicated_l=
      X                 util_mirrmat(1,g_dens(ii),g_repdm(ii),
@@ -161,10 +162,10 @@ c check memory availability before creat mirrored array(density M)
 c check memory after
 #ifdef DEBUG
 	      call ga_sync()
-              if(ga_nodeid()==0) print*, 'xcid', xcreplicated_l
+              if(ga_nodeid().eq.0) print*, 'xcid', xcreplicated_l
               membyte=ga_memory_avail()
               call ga_igop(1,membyte,1,'+')
-              if(ga_nodeid()==0)print*,membyte/1000000, 'MB LEFT grep'
+              if(ga_nodeid().eq.0)print*,membyte/1000000, 'MB LEFT grep'
 #endif  
 
             endif
@@ -209,7 +210,7 @@ c Destroy the ones that are allocated
 	end do
       endif
 #ifdef DEBUG1
-	if(ga_nodeid()==0) call ga_summarize(0)
+	if(ga_nodeid().eq.0) call ga_summarize(0)
         call ma_summarize_allocated_blocks()
       write(0,*) ga_nodeid(),' XC DM tot', 
      A       dorepxc,dorepdm,xcreplicated
@@ -219,7 +220,7 @@ c Destroy the ones that are allocated
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.29 2006-04-25 01:41:21 edo Exp $
+C$Id: xc_replicated.F,v 1.30 2006-04-28 21:51:24 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -259,7 +260,7 @@ c
      &       GA_ERR)
             endif
          enddo
-c	if(ga_nodeid()==0) print*,'**',dorepxc,dorepdm
+c	if(ga_nodeid().eq.0) print*,'**',dorepxc,dorepdm
 	call ga_sync()
 c     
 c     avoid getting things out of control
