@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.55 2005-12-21 22:18:16 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.56 2006-05-01 16:33:56 d3j191 Exp $
 c
       implicit none
 c
@@ -36,6 +36,11 @@ c
       external ana_atrad,pre_atnum,atom_color
 c
       real*8 rv(3),rw(3),rotang,rx(3),ry(3),rxi(3),rxj(3),twopi
+c
+      logical logw,logs
+c
+      logs=.true.
+      logw=.not.lsonly
 c
       twopi=8.0d0*tan(1.0d0)
 c
@@ -261,7 +266,7 @@ c
       write(fname,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.pdb '
       write(*,'(a,a)') 'Writing ',fname
       call ana_wrtpdb(lfnchg,fname,sgmnam,isel,x,iwsel,w,
-     + .true.,.false.,ndxw)
+     + logs,logw,ndxw)
       endif
 c
       if(fmt.eq.'pov') then
