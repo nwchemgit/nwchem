@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.38 2006-03-18 02:09:07 edo Exp $
+#$Id: GNUmakefile,v 1.39 2006-05-03 23:56:42 edo Exp $
 ifdef USE_64TO32
 USE_I4FLAGS=y
 endif
@@ -109,7 +109,15 @@ OBJ_OPTIMIZE = lsame.o xerbla.o dcabs1.o izamax.o
 endif
 endif
 
-
+#caching for dgemm
+ifeq ($(TARGET),LINUX64)
+     ifeq ($(_CPU),x86_64)
+           LIB_DEFINES += -DCACHE1M
+     endif
+     ifeq ($(_CPU),ia64)
+           LIB_DEFINES += -DCACHE6M
+     endif
+endif
 
 include ../config/makelib.h
 
