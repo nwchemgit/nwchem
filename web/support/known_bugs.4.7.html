@@ -47,6 +47,9 @@ send your bug report using the correct channel listed in the
 <li> <a href="#6">Meta-GGA functionals.</a></li>
 <li> <a href="#7">task shell failures.</a></li>
 <li> <a href="#8">Stack block 'lst' error in Molecular Dynamics runs on few processors.</a></li>
+<li> <a href="#9">nga_put error messages when running Molecular Dynamics.</a></li>
+<li> <a href="#10">too many records in I/O statement error in Molecular Dynamics and QM/MM.</a></li>
+<li> <a href="#11">QM/MM nga_put error when printing Mulliken population analysis.<a></li>
 
 </ol>
 
@@ -171,14 +174,52 @@ Users can encounter errors in the "task shell" execution (errors message: "shell
 
 <hr>
 <p>
-<a name="7"></a><font color="purple">Stack block 'lst' error in Molecular Dynamics runs on few processors.</font></li>
+<a name="8"></a><font color="purple">Stack block 'lst' error in Molecular Dynamics runs on few processors.</font></li>
 <p>
 Users can encounter errors when running molecular dynamics calculations on small nnumbers of processors, typically less than 8. The error message is as follows:<p>
 MA_verify_allocator stuff: starting scan<br>
 stack block 'lst', handle 109 .....<p>
 This bug has been fixed and will be available in the next release.
 </p>
-
+<hr>
+<p>
+<a name="9"></a><font color="purple">nga_put error messages when running Molecular Dynamics.</font></p>
+<p>
+Users have observed nga_put error messages when running the Molecular Dynamics module in NWChem. This appears to be a bug w.r.t. correct dimensioning of an array in the module. This bug has been fixed and will be available in the next release. For those users that need the fix and have the source code, the following changes will resolve the problem.<br>
+<br>
+In src/space/sp_init.F, line 457:<br>
+<br>
+<pre>
+Replace:
+   msag=max(1,(mbox-30,madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
+With:
+   msag=max(1,msa,(mbox-30,madbox)*((nwm*nwa+nsa)/nbtot+1)+1)
+</pre>
+<p>
+Recompile the routine, and your input should work properly after that.
+</p>
+<hr>
+<p>
+<a name="10"></a><font color="purple">too many records in I/O statement error in Molecular Dynamics and QM/MM.</font></p>
+<p>
+Users have run into error messages of the type "too many records in I/O statement" in Molecular Dynamics and QM/MM runs. This appears to be a bug in the error message handling in the module. This bug has been fixed and will be available in the next release. For those users that need the fix and have the source code, the following changes will resolve the problem.<br>
+<br>
+<pre>
+In src/util/util_md.F replace line 1516:
+      write(card,1000) ga_nodeid(),string,icode
+With:
+      write(card,1001) ga_nodeid(),string,icode
+ 1001 format(' * ',i3,': ',a,i5,' * ')
+</pre>
+<p>
+Recompile the routine, and your input should work properly after that.
+</p>
+<hr>
+<p>
+<a name="11"></a><font color="purple">QM/MM nga_put error when printing Mulliken population analysis.</font></p>
+<p>
+Users running QM/MM can get nga_put errors when then Mulliken population analysis is printed at the end of an SCF or DFT. One can resolve this by adding the keyword "print low" to the SCF or DFT input block.
+</p>
 <br>
 <hr>
 <font size="0">
