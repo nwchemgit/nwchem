@@ -50,6 +50,7 @@ send your bug report using the correct channel listed in the
 <li> <a href="#9">nga_put error messages when running Molecular Dynamics.</a></li>
 <li> <a href="#10">too many records in I/O statement error in Molecular Dynamics and QM/MM.</a></li>
 <li> <a href="#11">QM/MM nga_put error when printing Mulliken population analysis.<a></li>
+<li> <a href="#12">fd_make_vec: hard lim error in geometry optimization with numerical gradients.<a></li>
 
 </ol>
 
@@ -219,6 +220,12 @@ Recompile the routine, and your input should work properly after that.
 <a name="11"></a><font color="purple">QM/MM nga_put error when printing Mulliken population analysis.</font></p>
 <p>
 Users running QM/MM can get nga_put errors when then Mulliken population analysis is printed at the end of an SCF or DFT. One can resolve this by adding the keyword "print low" to the SCF or DFT input block.
+</p>
+<hr>
+<p>
+<a name="12"></a><font color="purple">fd_make_vec: hard lim error in geometry optimization with numerical gradients.</font></p>
+<p>
+Geometry optimizations of molecular systems with over 100 atoms that need numerical gradients (for example for TDDFT, Cosmo, TCE) will run into an error message "fd_make_vec: hard lim". The numerical gradient code in NWChem has currently a hardwired limit of 100 atoms. This limit has been removed and this change will be available in the next release.
 </p>
 <br>
 <hr>
