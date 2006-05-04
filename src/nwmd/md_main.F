@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.208 2005-10-18 19:16:39 d3j191 Exp $
+c $Id: md_main.F,v 1.209 2006-05-04 03:15:25 d3j191 Exp $
 c
       implicit none
 c
@@ -1971,8 +1971,8 @@ c
 c     remove overall translational motion
 c
       if(frequency(mdstep,nfslow)) then
-      call cf_slow(dbl_mb(i_vw),nwmloc,dbl_mb(i_vs),
-     + int_mb(i_is+(lsatt-1)*msa),nsaloc)
+      call cf_slow(dbl_mb(i_xw),dbl_mb(i_vw),nwmloc,dbl_mb(i_xs),
+     + dbl_mb(i_vs),int_mb(i_is+(lsatt-1)*msa),nsaloc)
       endif
 c
       endif
@@ -2898,7 +2898,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.208 2005-10-18 19:16:39 d3j191 Exp $
+c $Id: md_main.F,v 1.209 2006-05-04 03:15:25 d3j191 Exp $
 c
       implicit none
 c
