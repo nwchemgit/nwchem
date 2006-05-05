@@ -5,7 +5,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.30 2006-04-28 21:51:24 edo Exp $
+C$Id: xc_replicated.F,v 1.31 2006-05-05 23:05:48 d3p307 Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -194,9 +194,11 @@ c
 	end if
 
       else
-        if(ga_nodeid().eq.0)
+
+        if(oprint.and.ga_nodeid().eq.0)
      $   write(luout,*) ' Not enough memory for xcreplicated, back
      $ to computing without mirrored array '
+
 c Destroy the ones that are allocated
 	do ii=1,ipol
 	  if(xcreplicated_l) then
@@ -220,7 +222,7 @@ c Destroy the ones that are allocated
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.30 2006-04-28 21:51:24 edo Exp $
+C$Id: xc_replicated.F,v 1.31 2006-05-05 23:05:48 d3p307 Exp $
 c
       implicit none
 #include "errquit.fh"
