@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_end.F,v 1.6 2006-04-25 23:56:55 edo Exp $
+c     $Id: perfm_end.F,v 1.7 2006-05-12 00:10:58 edo Exp $
 c
       subroutine perfm_end()
       implicit none
@@ -9,6 +9,11 @@ c
       double precision util_wallsec,util_cpusec
       external util_wallsec,util_cpusec
       integer retvals
+#endif
+#ifdef FDIST
+      call finalize_dist( ga_nodeid() )
+#endif
+#ifdef USE_PAPI
 #ifdef PAPI_FPINS
       if(lfailed) return
       call  PAPIf_flips( real_time, proc_time, flpins, mflops, retval)
