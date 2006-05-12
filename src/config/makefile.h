@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.521 2006-03-21 00:06:01 d3p307 Exp $
+# $Id: makefile.h,v 1.522 2006-05-12 00:10:22 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1930,6 +1930,12 @@ ifndef LIBPAPI
 endif 
   CORE_LIBS += -L$(PAPI_LIB) $(LIBPAPI) 
   INCPATH += -I$(PAPI_INCLUDE)
+endif
+
+#
+ifdef USE_FDIST
+  DEFINES += -DFDIST
+  CORE_LIBS += -lfdist 
 endif
 
 ifdef USE_SCALAPACK
