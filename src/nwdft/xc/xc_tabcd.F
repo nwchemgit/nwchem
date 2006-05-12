@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.21 2005-11-12 00:32:47 edo Exp $
+C$Id: xc_tabcd.F,v 1.22 2006-05-12 00:12:01 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -21,12 +21,8 @@ c
 #include "mafdecls.fh"
 #include "dftpara.fh"
 #include "dft2drv.fh"
-cedo#define FDIST 1
 #ifdef FDIST
 #include "dist.fh"
-#else
-      integer monitor_comm_ga_acc
-      integer monitor_comp_ga_acc
 #endif
 c
       Logical GRAD
@@ -159,7 +155,9 @@ c     Compute the matrix product for the XC potential and energy:
 c
 c              T = transpose(A*B) + transpose(C*D)
 c
+#ifdef FDIST
          call starttimer(monitor_comp_ga_acc)
+#endif
          A_MAX = dabsmax(nq*ipol,Amat(1,1,imat))
          if (GRAD) then
             C_MAX = dabsmax(nq*3*ipol,Cmat(1,1,1,imat))
@@ -167,7 +165,9 @@ c
             C_MAX = 0d0
          endif
          AC_MAX = max(A_MAX,C_MAX)
+#ifdef FDIST
          call endtimer(monitor_comp_ga_acc)
+#endif
 c
 c     repl stuff
 c
@@ -197,7 +197,9 @@ c
          nbfia = ilast - ifirst + 1
          do 405 ii = 1, ipol
             do mu = 1, nnia
+#ifdef FDIST
                call starttimer(monitor_comp_ga_acc)
+#endif
                mu1 = mu+inizia-1
                if (GRAD) then
                   do n = 1, nq
@@ -229,7 +231,9 @@ c
                endif
             enddo
 c     Monitoring 
+#ifdef FDIST
             call endtimer(monitor_comp_ga_acc)
+#endif
 c
 c            write(6,*) ' xc_tabcd: BMAT '
 c            call output(bmat, 1, nq, 1, nnia, nq, max_at_bf, 1)
@@ -271,7 +275,9 @@ c
                endif
  
 c     Monitoring 
+#ifdef FDIST
             call starttimer(monitor_comp_ga_acc)
+#endif
                if(what.eq.3) then
                      Rij(1) = 0.5d0*(xyz(1,jat)-xyz(1,iat))
                      Rij(2) = 0.5d0*(xyz(2,jat)-xyz(2,iat))
@@ -325,25 +331,25 @@ c
                   endif
 c
                   if(w01) then
-                     call dgemm('t', 'n', nnia, nnja, nq, 1.d0, Bmat,
+                     call dgemm('T', 'N', nnia, nnja, nq, 1.d0, Bmat,
      &                    nq, chi(1,inizja), nq, 0.d0, Tmat, nnia)
                   elseif(what.eq.3) then
-                     call dgemm('t', 'n', nnia, nnja, nq, 1.0d0, Emat,
+                     call dgemm('T', 'N', nnia, nnja, nq, 1.0d0, Emat,
      &                    nq, chi(1,inizja), nq, 0.0d0, Tmat, nnia)
                   else
 c     Note the sign change for a nuclear derivative, and also that the
 c     leading dimension of delchi must be set correctly
-                     call dgemm('t', 'n', nnia, nnja, nq, -1.d0, Bmat,
+                     call dgemm('T', 'N', nnia, nnja, nq, -1.d0, Bmat,
      &                    nq, delchi(1,jdir,inizja), nq*3, 0.d0, Tmat,
      &                    nnia)
                   endif
                   if (GRAD) then
                      if(w01) then
-                        call dgemm('t', 'n', nnia, nnja, 3*nq,
+                        call dgemm('T', 'N', nnia, nnja, 3*nq,
      &                       1.d0, Dmat, 3*nq, delchi(1,1,inizja), 
      &                       3*nq, 1.d0, Tmat, nnia)
                      elseif(what.eq.3) then
-                        call dgemm('t', 'n', nnia, nnja, 3*nq,
+                        call dgemm('T', 'N', nnia, nnja, 3*nq,
      &                       1.0d0, Fmat, 3*nq, delchi(1,1,inizja), 
      &                       3*nq, 1.0d0, Tmat, nnia)
                      else
@@ -380,7 +386,9 @@ c     leading dimension of delchi must be set correctly
                      
   150          continue! jdir (loop over x, y, z directions for nmr)
 c     Monitoring 
+#ifdef FDIST
             call endtimer(monitor_comp_ga_acc)
+#endif
                if(what.eq.0) then
                   if (dabsmax(nbfia*nbfja,ttmat).lt.tolrho15) goto 168
                   jrsh=ii	
@@ -397,7 +405,9 @@ c     Monitoring
 
 
 c     Monitoring
+#ifdef FDIST
                call starttimer( monitor_comm_ga_acc )
+#endif
 
                   if(l3d) then
                      call dft_3dacc(g_vxc, ttmat,
@@ -417,7 +427,9 @@ c     Monitoring
                      endif
                   endif
 c     Monitoring
+#ifdef FDIST
                call endtimer( monitor_comm_ga_acc)
+#endif
                if(what.ne.0.or.l3d) then
 c
 c                 check to see if can skip and use ga_symmetrize
@@ -427,7 +439,9 @@ c     For CPKS RHS, we update with transpose even for iat = jat,
 c     since that is necessary to get both contributions
 c     mu * del(nu) and del(mu) * nu
                      
+#ifdef FDIST
                      call starttimer(monitor_comp_ga_acc)
+#endif
                      if(n3d.eq.1) then
                         call transp_mat(TTmat, Tmat,
      ,                       nbfia, nbfja)
@@ -438,10 +452,14 @@ c     mu * del(nu) and del(mu) * nu
                         call transp_mat3(n3d,TTmat, Tmat,
      ,                       nbfia, nbfja)
                      endif
+#ifdef FDIST
                      call endtimer(monitor_comp_ga_acc)
+#endif
                      
 c     Monitoring 
+#ifdef FDIST
                      call starttimer(monitor_comm_ga_acc)
+#endif
                      
                      if(l3d) then
                         call dft_3dacc(g_vxc, tmat,
@@ -461,7 +479,9 @@ c     Monitoring
                         endif
                      endif
 c     Monitoring 
+#ifdef FDIST
                      call endtimer(monitor_comm_ga_acc)
+#endif
                      
                   endif
                endif
@@ -504,21 +524,3 @@ c
      $        1.0d0,nbhandle)
 c
       end
-#ifndef FDIST
-      subroutine starttimer(in)
-      integer in
-      return
-      end
-      subroutine endtimer(in)
-      integer in
-      return
-      end
-      subroutine newdist(in)
-      integer in
-      return
-      end
-      subroutine printdist(in)
-      integer in
-      return
-      end
-#endif
