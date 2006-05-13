@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.18 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_sphere.F,v 1.19 2006-05-13 00:25:09 edo Exp $
 c
       implicit none
       integer fnxyz ! [in]
@@ -78,7 +78,7 @@ c
       odd=mod(nxyz,2).ne.0
       nxyz2=nxyz/2
       ninside=0
-      if(sub4) then
+      if(.not.sub4) call errquit(' sub4 not true ',0,0)
       ncount=-1
 c     inside part of side L/2
       do nz=1,nsub4
@@ -103,11 +103,9 @@ c     inside part of side L/2
             enddo
          enddo
       enddo
-      endif
       do nx=1,nxyz
          do ny=1,nxyz
             do nz=1,nxyz
-               if(sub4) then
                   if(odd) then
                   if((nx.eq.nxyz2+1).and.
      .                 (ny.eq.nxyz2+1).and.
@@ -117,7 +115,6 @@ c     inside part of side L/2
      .                 (ny.eq.nxyz2.or.ny.eq.nxyz2+1).and.
      .                 (nz.eq.nxyz2.or.nz.eq.nxyz2+1)) goto 413
 c     do nothing --- see above
-               endif
                endif
                ffnxyz=nxyz2n(nx,ny,nz,nxyz,shft)
                if(grid_insidesp(ffnxyz,l_rect,rad)) then

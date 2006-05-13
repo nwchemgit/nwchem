@@ -1,6 +1,6 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.19 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_bucket.F,v 1.20 2006-05-13 00:25:01 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -36,8 +36,9 @@ c     get cubes definition
 c
       if (.not. rtdb_get(rtdb, 'dft:l_cube',
      $     mt_dbl, 1, l_cube)) l_cube = 11d0
-      if (.not. rtdb_get(rtdb, 'dft:sub4',
-     $     mt_log, 1, sub4)) sub4=.true.
+cedo      if (.not. rtdb_get(rtdb, 'dft:sub4',
+cedo     $     mt_log, 1, sub4)) sub4=.true.
+      sub4=.true.
       if(ga_nodeid().eq.0.and.oprint) write(LuOut,'(A,F8.2)') 
      .     ' l_cube input',l_cube
 c
@@ -60,9 +61,13 @@ c
          ncubesmx=max(ncubesmx,nxyz**3)
          max_rad=max(max_rad,dble(rad_cutoff(1,i))) 
       enddo
+      if(ga_nodeid().eq.0.and.oprint) 
+     w     write(LuOut,*) ' ncubesmx ',ncubesmx, 
+     w     ' l_cube ',l_cube
 
       if(ntypes*ncubesmx.gt.max_xyz) then 
-         l_cube=1.5d0*max_rad/max_xyz**(1d0/3d0)
+!     l_cube=1.5d0*max_rad/max_xyz**(1d0/3d0)
+         l_cube=l_cube*1.3d0
          if (.not. rtdb_put(rtdb, 'dft:l_cube', 
      $     mt_dbl, 1, l_cube))  
      .        call errquit('gridbucki: rtdbput failed',0, RTDB_ERR)
@@ -85,7 +90,7 @@ c
          endif
       enddo
       if(ntypes*ncubesmx.gt.max_xyz) then
-         l_cube=l_cube*2d0
+         l_cube=l_cube*1.3d0
          if (.not. rtdb_put(rtdb, 'dft:l_cube',
      $     mt_dbl, 1, l_cube)) 
      .        call errquit('gridbucki: rtdbput failed',0, RTDB_ERR)
