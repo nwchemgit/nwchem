@@ -1,6 +1,6 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.20 2006-05-13 00:25:01 edo Exp $
+c$Id: grid_bucket.F,v 1.21 2006-05-13 00:26:20 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -61,9 +61,6 @@ c
          ncubesmx=max(ncubesmx,nxyz**3)
          max_rad=max(max_rad,dble(rad_cutoff(1,i))) 
       enddo
-      if(ga_nodeid().eq.0.and.oprint) 
-     w     write(LuOut,*) ' ncubesmx ',ncubesmx, 
-     w     ' l_cube ',l_cube
 
       if(ntypes*ncubesmx.gt.max_xyz) then 
 !     l_cube=1.5d0*max_rad/max_xyz**(1d0/3d0)
