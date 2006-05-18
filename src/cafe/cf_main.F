@@ -1,9 +1,10 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.177 2006-05-04 03:15:27 d3j191 Exp $
+c $Id: cf_main.F,v 1.178 2006-05-18 16:03:46 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
+c
 c
       integer numw,nums,isat(msa),isml(msa),ishop(msa)
       real*8 wbx
