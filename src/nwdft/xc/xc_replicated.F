@@ -5,7 +5,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.31 2006-05-05 23:05:48 d3p307 Exp $
+C$Id: xc_replicated.F,v 1.32 2006-05-19 23:42:56 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -193,6 +193,10 @@ c
             write(luout,*) ' going xcreplicated '
 	end if
 
+c     disable non-blocking stuff
+        dftnbacc=.false.
+        dftnbget=.false.
+
       else
 
         if(oprint.and.ga_nodeid().eq.0)
@@ -222,7 +226,7 @@ c Destroy the ones that are allocated
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.31 2006-05-05 23:05:48 d3p307 Exp $
+C$Id: xc_replicated.F,v 1.32 2006-05-19 23:42:56 edo Exp $
 c
       implicit none
 #include "errquit.fh"
