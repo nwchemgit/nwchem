@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.59 2006-04-14 22:39:41 edo Exp $
+# $Id: GNUmakefile,v 1.60 2006-05-19 01:04:46 edo Exp $
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \
@@ -21,7 +21,7 @@
 	diis_bsolve.o \
 	diis_core.o \
 	diis_driver.o \
-	diis_hamwgt.o 
+	diis_hamwgt.o  dft_fdist_init.o
 	OBJ=\
 	dft_swapab.o \
 	dft_main0d.o \
@@ -29,7 +29,7 @@
 	dft_fockbld.o \
 	dft_scfutil.o \
 	dft_symbr.o dft_pstat.o\
-        fukui.o dft_canorg.o dft_diagn.o
+        fukui.o dft_canorg.o dft_diagn.o 
 
 
      LIBRARY = libnwdft.a
@@ -40,7 +40,7 @@ LIB_INCLUDES = -I../include -I../grid
 
    USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F dft_canorg.F
 
-HEADERS = dftps.fh
+HEADERS = dftps.fh dft_fdist.fh
 
 include ../../config/makefile.h
 include ../../config/makelib.h

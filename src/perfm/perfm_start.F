@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_start.F,v 1.6 2006-05-12 00:10:58 edo Exp $
+c     $Id: perfm_start.F,v 1.7 2006-05-19 01:04:49 edo Exp $
 c
       subroutine perfm_start()
       implicit none
@@ -13,8 +13,6 @@ c
 #ifdef FDIST
 #include "dist.fh"
       call initialize_dist()
-      monitor_comp_ga_acc = getdist( 'comp ga_acc')
-      monitor_comm_ga_acc = getdist( 'comm ga_acc')
 #endif
 #ifdef USE_PAPI
       lfailed=.false.

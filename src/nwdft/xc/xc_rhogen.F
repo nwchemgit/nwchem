@@ -1,4 +1,5 @@
-* $Id: xc_rhogen.F,v 1.33 2006-04-28 23:58:29 edo Exp $
+#define NEWSC
+* $Id: xc_rhogen.F,v 1.34 2006-05-19 01:04:49 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -15,7 +16,10 @@ c     BGJ - 8/98
      &                     tau, kske)
       implicit none
 #include "errquit.fh"
+#include "mafdecls.fh"
 #include "dftpara.fh"
+#include "dist.fh"
+#include "dft_fdist.fh"
 
       Logical GRAD         ! true when use grad corrected funct.[input]
       Logical kske         ! true if tau(kohn-sham KE) used in functional [in]
@@ -67,23 +71,27 @@ c
       integer iatcur, jatcur
       double precision FUNC_MAX, DELFUNC_MAX, FUNC_MAXI, FUNC_MAXJ
       double precision P_MAXJ, P_MAXJ_A, P_MAXJ_B, P_MAXIJ
-      double precision tol_rho_tmp
       double precision dabsmax
       integer g_keepd(2)
       integer nbhandl
-      logical nbfirst
       integer jj
-      logical doffd,w2grad
+      logical doffd,doitt
       external dabsmax
-
-
+      external xc_rhoscreen
+      integer xc_rhoscreen
+      integer nonzero,nonz0
+      integer i_nz,l_nz
+      integer sizeblk
+#ifdef DEBUG
+      integer ga_nodeid
+      external ga_nodeid
+#endif
+      call starttimer(monitor_xcrho)
 c
 c     Evaluate the charge density and its gradient at each of the sampling 
 c     points 
-      w2grad=what.eq.2.and.grad
-      doffd=w2grad.or.
+      doffd=(what.eq.2.and.grad).or.
      W     (what.eq.0.and.kske)
-      nbfirst=.true.
       
       npol = (ipol*(ipol+1))/2
 c     to keep compilers quiet
@@ -124,6 +132,25 @@ c
       DELFUNC_MAX=0d0
       if(grad) DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
 c
+      if(dftnbget) then
+         if(npert.gt.1.or.ipol.gt.1) call errquit(' crash ',0,0)
+         if (.not.ma_push_get
+     &        (mt_int,(natoms*(natoms+1))/2,'nzmap map',l_nz,i_nz))
+     &        call errquit('xcrho:push_get failed', 13, MA_ERR)
+         nonzero=xc_rhoscreen(grad,ipol,natoms,npert,
+     I        iniz,
+     W        tol_rho,wmax,
+     O        int_mb(i_nz),
+     R        rchi_atom,rdelchi_atom,rdens_atom)
+         if(nonzero.eq.0) goto 1688
+c
+c     prefetch first DM block
+c
+         nonz0=1
+         call xc_getdmblock(int_mb(i_nz),nonz0,natoms,cetobfr,
+     G        g_dens(1),
+     A        Pmat,nbhandl)
+         endif
 
       do 230 iat = 1, natoms
          inizia = iniz(iat)
@@ -144,14 +171,14 @@ c
      .   FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
          FUNC_MAXJ = max(FUNC_MAX,DELFUNC_MAX)
          if(what.lt.2) then
-         if (ipol.gt.1)then
+            if (ipol.gt.1)then
             P_MAXJ_A = dabsmax(natoms,rdens_atom(1,iat,1))
             P_MAXJ_B = dabsmax(natoms,rdens_atom(1,iat,2))
             P_MAXJ = MAX(P_MAXJ_A, P_MAXJ_B)
          else
             P_MAXJ=0d0
             do jat=1,iat
-            if(iniz(jat).ne.0) 
+               if(iniz(jat).ne.0) 
      .              P_MAXJ=max(P_MAXJ,rdens_atom(jat,iat,1))
             enddo
          endif
@@ -164,6 +191,7 @@ c
                jatcur = curatoms(jat)
                if (jatcur.eq.0.and.iatcur.eq.0) goto 220
             endif
+            call starttimer(monitor_rscreen0)
             ifinja = ifin(jat)
             jfirst = cetobfr(1,jat)
             jlast = cetobfr(2,jat)
@@ -175,14 +203,15 @@ c
             FUNC_MAXJ=rchi_atom(jat)
             if(grad)
      .      FUNC_MAXJ = max(FUNC_MAXJ,rdelchi_atom(jat))
+            doitt=.true.
             if(what.lt.2) then
                P_MAXIJ = rdens_atom(iat,jat,1)
                if(ipol.eq.2) P_MAXIJ = max(P_MAXIJ,
      &              rdens_atom(iat,jat,2))
-               if(wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.lt.tol_rho)goto 216
+               doitt=(wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.ge.tol_rho)
             endif
-            tol_rho_tmp = tol_rho/(FUNC_MAXI*FUNC_MAXJ)
-c
+            call endtimer(monitor_rscreen0)
+            if (doitt) then
 c
 c           Loop over perturbations
 c
@@ -196,21 +225,35 @@ c
                   if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.lt.tol_rho)
      G                 goto 210
                endif
-
+               sizeblk=nbfia*nbfja
+               call updist(monitor_size_ga_get, sizeblk)
 c
                if(dftnbget) then
-                  call ga_nbget(g_dens(ipert+(ii-1)*npert), 
-     %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
+                  call starttimer(monitor_wait3)
                   call ga_nbwait(nbhandl)
+                  call endtimer(monitor_wait3)
+                  call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, 
+     I                 ifirst, jfirst, ibf(inizia), ibf(inizja))
+                  nonz0=nonz0+1
+                  if(nonz0.le.nonzero)
+     C                 call xc_getdmblock(int_mb(i_nz),nonz0,natoms,
+     C                 cetobfr,g_dens(ipert+(ii-1)*npert),
+     A                    Pmat,nbhandl)
+               if (wmax*FUNC_MAXI*FUNC_MAXJ*
+     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 210
                else
+                  call starttimer(monitor_gaget)
                   call ga_get(g_dens(ipert+(ii-1)*npert), 
      %                 ifirst, ilast, jfirst, jlast, Pmat,nbfia)
-               endif
-c
+                  call endtimer(monitor_gaget)
                if (wmax*FUNC_MAXI*FUNC_MAXJ*
-     .              dabsmax(nbfia*nbfja,Pmat).lt.tol_rho)goto 210
+     .              dabsmax(sizeblk,Pmat).lt.tol_rho)goto 210
                call gat_mat(F, Pmat, nbfia, nbfja, nnia, nnja, ifirst, 
      &                      jfirst, ibf(inizia), ibf(inizja))
+               endif
+
+c
+               call starttimer(monitor_rhocomp)
                if(iat.ne.jat) call dscal(nnia*nnja,2d0,F,1)
 c
 c              Compute Xiat(r)*Xjat(r)*Diat,jat
@@ -296,13 +339,15 @@ c
                      endif
                   endif
             endif
+               call endtimer(monitor_rhocomp)
   210       continue
   215       continue
- 216        continue
+         endif
   220    continue
   225    continue
   230 continue
 
+      call starttimer(monitor_rhocomp2)
       if(what.eq.0) then
 c
 c     Only construct total densities for regular case
@@ -318,7 +363,13 @@ c
             if(ipol.eq.2)  g_dens(2)=g_keepd(2)
          endif
       endif
+      call endtimer(monitor_rhocomp2)
 c     
+ 1688 continue
+      if (.not.ma_pop_stack(l_nz))
+     &        call errquit('xcrho:pop_stack failed', 13, MA_ERR)
+
+      call endtimer(monitor_xcrho)
       return
       end
 c
@@ -409,5 +460,135 @@ c
             rho(n,ii,3,iat) = rho(n,ii,3,iat)-delchi(n,3,mu)*ff(n,mu1)
          enddo
       enddo
+      return
+      end
+
+c@@@@@@@@@@@@@@@@@
+      integer function xc_rhoscreen(grad,ipol,natoms,npert,
+     I     iniz,
+     W     tol_rho,wmax,
+     O     nz,
+     R     rchi_atom,rdelchi_atom,rdens_atom)
+      logical grad
+      integer ipol,natoms,npert
+      integer iniz(natoms) ! mapping of nbf_ao -> mbf
+      double precision tol_rho,wmax
+      double precision rchi_atom(*)
+      double precision rdelchi_atom(*)
+      double precision rdens_atom(natoms,natoms,ipol)
+c
+c      output
+c
+      integer nz(*)
+c
+      integer iat,jat,inizia,inizja
+      integer ipert
+      double precision FUNC_MAXI,FUNC_MAXJ,DELFUNC_MAX,FUNC_MAX,
+     ,     P_MAXJ,P_MAXJ_A,P_MAXJ_B
+      integer nonzero
+      double precision dabsmax
+      external dabsmax
+c
+      FUNC_MAX = dabsmax(natoms,rchi_atom)
+      DELFUNC_MAX=0d0
+      if(grad) DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
+      
+      nonzero=0
+
+      do iat = 1, natoms
+         inizia = iniz(iat)
+         if (inizia.ne.0) then
+c     
+c     screening parameters
+c     
+            FUNC_MAXI = rchi_atom(iat)
+            if(grad)
+     .           FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
+            FUNC_MAXJ = max(FUNC_MAX,DELFUNC_MAX)
+            if (ipol.gt.1)then
+               P_MAXJ_A = dabsmax(natoms,rdens_atom(1,iat,1))
+               P_MAXJ_B = dabsmax(natoms,rdens_atom(1,iat,2))
+               P_MAXJ = MAX(P_MAXJ_A, P_MAXJ_B)
+            else
+               P_MAXJ=0d0
+               do jat=1,iat
+                  if(iniz(jat).ne.0) 
+     .                 P_MAXJ=max(P_MAXJ,rdens_atom(jat,iat,1))
+               enddo
+            endif
+            if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXJ.ge.tol_rho) then
+               do jat = 1, iat
+                  inizja = iniz(jat)
+                  if (inizja.ne.0) then
+c     
+c     screening parameters
+c     
+                     FUNC_MAXJ=rchi_atom(jat)
+                     if(grad)
+     .                    FUNC_MAXJ = max(FUNC_MAXJ,rdelchi_atom(jat))
+                     P_MAXIJ = rdens_atom(iat,jat,1)
+                     if(ipol.eq.2) P_MAXIJ = max(P_MAXIJ,
+     &                    rdens_atom(iat,jat,2))
+                     if(wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.ge.tol_rho)then
+c     
+                        do ipert = 1,npert
+                           do ii = 1, ipol
+c     
+c     screening parameters
+c     
+                              P_MAXIJ = rdens_atom(iat,jat,ii)
+                              if (wmax*FUNC_MAXI*FUNC_MAXJ*P_MAXIJ.
+     P                             ge.tol_rho) then
+                                 nonzero=nonzero+1
+                                 nz(nonzero)=(iat-1)*natoms+jat
+                              endif
+                           enddo
+                        enddo
+                     endif
+                  endif
+               enddo            ! loop jat
+            endif
+         endif
+      enddo                     ! loop iat
+      xc_rhoscreen=nonzero
+      return
+      end
+      subroutine xc_getdmblock(nz,nonz0,natoms,cetobfr,g_dens,
+     A     Pmat,nbhandl)
+      implicit none
+#include "dist.fh"
+#include "dft_fdist.fh"
+      integer nz(*)
+      integer natoms
+      integer nbhandl
+      integer g_dens
+      integer cetobfr(2,*)
+      integer nonz0
+      double precision pmat(*)
+c
+      integer ij0
+      integer iat0,jat0,ifirst,ilast,jfirst,jlast,nbfia
+c
+      ij0=nz(nonz0)
+      iat0=(ij0-1)/natoms+1
+      jat0=ij0-(iat0-1)*natoms
+      ifirst = cetobfr(1,iat0)
+      ilast = cetobfr(2,iat0)
+      jfirst = cetobfr(1,jat0)
+      jlast = cetobfr(2,jat0)
+      nbfia= ilast-ifirst+1
+#ifdef DEBUG
+      if(ifirst.gt.nbf.or.jfirst.gt.nbf.or.
+     O     ifirst.le.0.or.jfirst.le.0.or.
+     O     iniz(iat0).eq.0.or.iniz(jat0).eq.0) then
+         write(0,*) ' nonzero ',nonzero
+         write(0,*) '# ij i j',ij0,iat0,jat0
+         write(0,*) '# hilos',ifirst,ilast,jfirst,jlast
+      endif
+#endif
+      call starttimer(monitor_ganbget)
+      call ga_nbget(g_dens, 
+     %     ifirst, ilast, jfirst, jlast, Pmat,nbfia,nbhandl)
+      call endtimer(monitor_ganbget)
       return
       end

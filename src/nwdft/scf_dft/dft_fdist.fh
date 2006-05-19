@@ -1,0 +1,37 @@
+C$Id: dft_fdist.fh,v 1.1 2006-05-19 01:04:46 edo Exp $
+c
+c     pstat handles for the DFT code
+c
+      integer monitor_tabcd
+      integer monitor_comm
+      integer monitor_comp_ga_acc
+      integer monitor_comm_ga_acc1
+      integer monitor_comm_ga_acc2
+      integer monitor_size_ga_acc1
+      integer monitor_screen0
+      integer monitor_screen1,monitor_screen2,
+     I     monitor_screen3,monitor_screen4,
+     I     monitor_screen5
+      integer monitor_comp_transp
+      integer monitor_mult1,monitor_mult2
+      integer monitor_wait1,monitor_wait2
+c
+      integer monitor_xcrho,monitor_gaget,
+     M     monitor_wait3,monitor_size_ga_get,
+     M     monitor_ganbget,monitor_rscreen0,
+     M     monitor_rhocomp,monitor_rhocomp2
+
+      common /dftfdist/monitor_tabcd, monitor_comm,
+     A     monitor_comp_ga_acc,
+     B	monitor_comm_ga_acc1,monitor_comm_ga_acc2,
+     C     monitor_size_ga_acc1,
+     S     monitor_screen0,monitor_screen1,
+     M     monitor_screen2,monitor_screen3,
+     M     monitor_screen4,monitor_screen5,
+     P     monitor_comp_transp,
+     M     monitor_mult1,monitor_mult2,
+     W     monitor_wait1,monitor_wait2,
+     C     monitor_xcrho, monitor_gaget,
+     W     monitor_wait3,monitor_size_ga_get,
+     G     monitor_ganbget,monitor_rscreen0,
+     H     monitor_rhocomp,monitor_rhocomp2

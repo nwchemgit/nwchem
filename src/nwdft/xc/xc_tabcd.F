@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.22 2006-05-12 00:12:01 edo Exp $
+C$Id: xc_tabcd.F,v 1.23 2006-05-19 01:04:49 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -21,9 +21,8 @@ c
 #include "mafdecls.fh"
 #include "dftpara.fh"
 #include "dft2drv.fh"
-#ifdef FDIST
 #include "dist.fh"
-#endif
+#include "dft_fdist.fh"
 c
       Logical GRAD
       integer what ! [in]
@@ -117,7 +116,11 @@ c
       double precision ddot
       double precision raa,rbb
       integer nbhandl1,nbhandl2
-      logical nbfirst1,nbfirst2
+      logical nbfirst1,nbfirst2,doitt
+      integer sizeblk
+#include "nwc_const.fh"
+      integer nonzero(nw_max_atom),natleft,
+     A     iat0,jat0
       external ddot
       data indh / 1, 2, 3,
      &            2, 4, 5,
@@ -127,6 +130,15 @@ c         0: l3d=.f.    & n3d=1
 ccc	rhs: l3d=.true. & n3d=3
 ccc	lhs: l3d=.true. & n3d=1
 c
+      call starttimer(monitor_tabcd)
+      call starttimer(monitor_screen0)
+      natleft=0
+      do  iat = 1, natoms
+         if(iniz(iat).ne.0) then
+            natleft=natleft+1
+            nonzero(natleft)=iat
+         endif
+      enddo
       tolrho15=tol_rho**1.25d0
       if(what.eq.0) then
         n3d=1
@@ -145,6 +157,7 @@ c
       dofull=what.ne.0.or.l3d
       nbfirst1=.true.
       nbfirst2=.true.
+      call endtimer(monitor_screen0)
 c
 c
 c     Beginning of loop over multiple XC matrices
@@ -155,9 +168,9 @@ c     Compute the matrix product for the XC potential and energy:
 c
 c              T = transpose(A*B) + transpose(C*D)
 c
-#ifdef FDIST
-         call starttimer(monitor_comp_ga_acc)
-#endif
+
+         call starttimer(monitor_screen1)
+
          A_MAX = dabsmax(nq*ipol,Amat(1,1,imat))
          if (GRAD) then
             C_MAX = dabsmax(nq*3*ipol,Cmat(1,1,1,imat))
@@ -165,9 +178,9 @@ c
             C_MAX = 0d0
          endif
          AC_MAX = max(A_MAX,C_MAX)
-#ifdef FDIST
-         call endtimer(monitor_comp_ga_acc)
-#endif
+
+         call endtimer(monitor_screen1)
+
 c
 c     repl stuff
 c
@@ -178,28 +191,25 @@ c
          g_update(1)=g_vxc(1)
          g_update(2)=g_vxc(2)
       endif
-      do 430 iat = 1, natoms
+      do 430 iat0=1,natleft
+         call starttimer(monitor_screen2)
+         iat=nonzero(iat0)
          inizia = iniz(iat)
-         if (inizia.eq.0)goto 430
          FUNC_MAXI = rchi_atom(iat)
          if(GRAD) FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
-         if(what.eq.0.or.what.eq.1.or.what.eq.3) then
-            if (((AC_MAX*FUNC_MAXI).lt.tol_rho)) goto 430
-         else
-c
-c     !!! Should something be done with cutoffs for other cases? !!!
-c               
-         endif
+         doitt=(AC_MAX*FUNC_MAXI).ge.tol_rho
+         call endtimer(monitor_screen2)
+         if(what.eq.2.or.doitt) then
          ifinia = ifin(iat)
          ifirst = cetobfr(1,iat)
          ilast = cetobfr(2,iat)
          nnia = ifinia - inizia + 1
          nbfia = ilast - ifirst + 1
-         do 405 ii = 1, ipol
+         do ii = 1, ipol
             do mu = 1, nnia
-#ifdef FDIST
-               call starttimer(monitor_comp_ga_acc)
-#endif
+
+               call starttimer(monitor_mult1)
+
                mu1 = mu+inizia-1
                if (GRAD) then
                   do n = 1, nq
@@ -231,15 +241,11 @@ c
                endif
             enddo
 c     Monitoring 
-#ifdef FDIST
-            call endtimer(monitor_comp_ga_acc)
-#endif
+
+            call endtimer(monitor_mult1)
+
 c
-c            write(6,*) ' xc_tabcd: BMAT '
-c            call output(bmat, 1, nq, 1, nnia, nq, max_at_bf, 1)
-c            write(6,*) ' xc_tabcd: DMAT '
-c            call output(dmat, 1, 3*nq, 1, nnia, 3*nq, max_at_bf, 1)
-c
+            call starttimer(monitor_screen3)
             B_MAX = dabsmax(nnia*nq,Bmat)
             if (GRAD) then
                D_MAX = dabsmax(nnia*nq*3,Dmat)
@@ -248,10 +254,11 @@ c
             endif
             BD_MAX = max(B_MAX,D_MAX)
 c
-            lastjat=iat
-            if(what.eq.2) lastjat=natoms
-            if(what.eq.3) lastjat=iat-1
-            do 168 jat = 1, lastjat
+            lastjat=iat0
+            if(what.eq.2) lastjat=natleft
+            if(what.eq.3) lastjat=iat0-1
+            call endtimer(monitor_screen3)
+            do 168 jat0=1,lastjat
                if(what.eq.2) then
 c
 c     To fit better into existing structure, loop over full square
@@ -259,25 +266,22 @@ c     of atom pairs and only compute nuclear derivative contribution
 c     from jat.  Also, this way we only need check jatcur once and
 c     for all, and don't have to check iatcur at all.
 c
-               jatcur = curatoms(jat)
-               if (jatcur.eq.0) goto 168
-            endif
+                  jatcur = curatoms(jat)
+                  if (jatcur.eq.0) goto 168
+               endif
+               call starttimer(monitor_screen4)
+               jat=nonzero(jat0)
                inizja = iniz(jat)
-               if (inizja.eq.0) goto 168
                FUNC_MAXJ = rchi_atom(jat)
                if(grad) FUNC_MAXJ = max(rchi_atom(jat),FUNC_MAXJ)
-               if(w013) then
-                  if (BD_MAX*FUNC_MAXJ.lt.tol_rho) goto 168
-               else
-c
-c     !!! Should something be done with cutoffs for other cases? !!!
-c               
-               endif
+               doitt=(BD_MAX*FUNC_MAXJ).ge.tol_rho
+               call endtimer(monitor_screen4)
+               if(what.eq.2.or.doitt) then
  
 c     Monitoring 
-#ifdef FDIST
-            call starttimer(monitor_comp_ga_acc)
-#endif
+
+            call starttimer(monitor_mult2)
+
                if(what.eq.3) then
                      Rij(1) = 0.5d0*(xyz(1,jat)-xyz(1,iat))
                      Rij(2) = 0.5d0*(xyz(2,jat)-xyz(2,iat))
@@ -288,13 +292,13 @@ c     Monitoring
                jlast = cetobfr(2,jat)
                nbfja = jlast - jfirst + 1
                nnja = ifinja - inizja + 1
-               if(what.eq.2.or.what.eq.3) then
+               sizeblk=n3d*nbfia*nbfja
+               if(what.eq.2.or.what.eq.3) 
+     Y              call dcopy(sizeblk, 0d0,0, TTmat,1) 
 c
 c              Loop over x, y, z directions for derivative XC mats
 c
-                  call dcopy(n3d*nbfia*nbfja, 0d0,0, TTmat,1) 
-               endif
-               do 150 jdir = 1,n3d
+               do jdir = 1,n3d
 c
                   if(what.eq.3) then
                      ix1 = mod(jdir,3)+1
@@ -384,30 +388,34 @@ c     leading dimension of delchi must be set correctly
      &                    nnja,ifirst,jfirst,ibf(inizia),ibf(inizja))
                   endif
                      
-  150          continue! jdir (loop over x, y, z directions for nmr)
+               enddo            ! jdir (loop over x, y, z directions for nmr)
 c     Monitoring 
-#ifdef FDIST
-            call endtimer(monitor_comp_ga_acc)
-#endif
+
+            call endtimer(monitor_mult2)
+            
+                  doitt=.true.
+            call starttimer(monitor_screen5)
                if(what.eq.0) then
-                  if (dabsmax(nbfia*nbfja,ttmat).lt.tolrho15) goto 168
+                  doitt=dabsmax(sizeblk,ttmat).ge.tolrho15
                   jrsh=ii	
                elseif(what.eq.1) then
+                  doitt=.true.
                   jrsh=imat+(ii-1)*nmat
                elseif(what.eq.3) then
                   jrsh=(ii-1)*n3d+1
                else
-                  if (dabsmax(nbfia*nbfja*3,ttmat).lt.tol_rho)goto 168
-
+                  doitt=dabsmax(sizeblk,ttmat).ge.tol_rho
                   jrsh=1+(jat-1)*3+(ii-1)*3*natoms
                endif
+               call endtimer(monitor_screen5)
+               if(doitt) then
+
                   jrsh2=jrsh+n3d-1
 
-
 c     Monitoring
-#ifdef FDIST
-               call starttimer( monitor_comm_ga_acc )
-#endif
+
+               call updist(monitor_size_ga_acc1, sizeblk)
+               call starttimer( monitor_comm_ga_acc1)
 
                   if(l3d) then
                      call dft_3dacc(g_vxc, ttmat,
@@ -416,7 +424,9 @@ c     Monitoring
                   else
                      if(dftnbacc) then
                         if(.not.nbfirst1) then	
+                           call starttimer( monitor_wait1)
                            call ga_nbwait(nbhandl1)
+                           call endtimer( monitor_wait1)
                         endif			
                         nbfirst1=.false.
                         call upd_atombl_nb(g_update(ii),
@@ -427,9 +437,9 @@ c     Monitoring
                      endif
                   endif
 c     Monitoring
-#ifdef FDIST
-               call endtimer( monitor_comm_ga_acc)
-#endif
+
+               call endtimer( monitor_comm_ga_acc1)
+
                if(what.ne.0.or.l3d) then
 c
 c                 check to see if can skip and use ga_symmetrize
@@ -439,9 +449,9 @@ c     For CPKS RHS, we update with transpose even for iat = jat,
 c     since that is necessary to get both contributions
 c     mu * del(nu) and del(mu) * nu
                      
-#ifdef FDIST
-                     call starttimer(monitor_comp_ga_acc)
-#endif
+
+                     call starttimer(monitor_comp_transp)
+
                      if(n3d.eq.1) then
                         call transp_mat(TTmat, Tmat,
      ,                       nbfia, nbfja)
@@ -452,14 +462,14 @@ c     mu * del(nu) and del(mu) * nu
                         call transp_mat3(n3d,TTmat, Tmat,
      ,                       nbfia, nbfja)
                      endif
-#ifdef FDIST
-                     call endtimer(monitor_comp_ga_acc)
-#endif
+
+                     call endtimer(monitor_comp_transp)
+
                      
 c     Monitoring 
-#ifdef FDIST
-                     call starttimer(monitor_comm_ga_acc)
-#endif
+
+                     call starttimer(monitor_comm_ga_acc2)
+
                      
                      if(l3d) then
                         call dft_3dacc(g_vxc, tmat,
@@ -479,20 +489,24 @@ c     Monitoring
                         endif
                      endif
 c     Monitoring 
-#ifdef FDIST
-                     call endtimer(monitor_comm_ga_acc)
-#endif
+
+                     call endtimer(monitor_comm_ga_acc2)
+
                      
                   endif
                endif
+            endif
+            endif
   168       continue
-  405    continue
+         enddo ! ipol loop
+      endif
   430 continue
   500 continue
 c      write(6,*)' g_vxc(1) from xc_tabcd '
 c      call ga_print(g_vxc(1))
 c      write(6,*)' g_vxc(2) from xc_tabcd '
 c      call ga_print(g_vxc(2))
+      call endtimer(monitor_tabcd)
       return
       end
       subroutine upd_atombl_nb(g_array, basis, iat, jat, buf,
