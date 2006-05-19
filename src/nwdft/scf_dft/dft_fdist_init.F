@@ -3,7 +3,6 @@
 #include "dist.fh"
 #include "dft_fdist.fh"
 c
-#ifdef FDIST
 c     xc_tabcd
       monitor_tabcd = getdist( 'xc_tabcd')
       monitor_comm_ga_acc1 = getdist( 'comm tabcd ga_acc1')
@@ -29,6 +28,5 @@ c     xcrhogen
       monitor_rscreen0 = getdist( 'comp rhogen screen0')
       monitor_rhocomp = getdist( 'comp rhogen mult1')
       monitor_rhocomp2 = getdist( 'comp rhogen mult2')
-#endif
 c
       end

@@ -30,7 +30,7 @@ c
 c     
 c>>>  driver 
 c     
-C$Id: nwdft.F,v 1.74 2005-12-27 23:06:38 marat Exp $
+C$Id: nwdft.F,v 1.75 2006-05-19 18:57:19 edo Exp $
       implicit none
 #include "errquit.fh"
 c****
@@ -84,6 +84,10 @@ c
 c     init pstat
 c	
       call dft_pstat_init(rtdb)
+c
+c     init fdist
+c	
+      call dft_fdist_init(rtdb)
 c
 c     If Dyall-mod-dir is set, exit with error
 c
