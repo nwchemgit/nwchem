@@ -1,5 +1,5 @@
 #define NEWSC
-* $Id: xc_rhogen.F,v 1.34 2006-05-19 01:04:49 edo Exp $
+* $Id: xc_rhogen.F,v 1.35 2006-05-19 01:11:00 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -366,8 +366,10 @@ c
       call endtimer(monitor_rhocomp2)
 c     
  1688 continue
-      if (.not.ma_pop_stack(l_nz))
+      if(dftnbget) then
+         if (.not.ma_pop_stack(l_nz))
      &        call errquit('xcrho:pop_stack failed', 13, MA_ERR)
+      endif
 
       call endtimer(monitor_xcrho)
       return
