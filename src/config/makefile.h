@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.522 2006-05-12 00:10:22 edo Exp $
+# $Id: makefile.h,v 1.523 2006-05-19 01:10:52 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -127,7 +127,7 @@ endif
 # other NWChem modules
 
 NW_CORE_SUBDIRS = tools include basis geom inp input  \
-	pstat rtdb task symmetry util peigs perfm bq cons $(CORE_SUBDIRS_EXTRA)
+	pstat rtdb task symmetry util peigs perfm bq cons fdist $(CORE_SUBDIRS_EXTRA)
 
 # Include the modules to build defined by 'make nwchem_config' at top level
 
@@ -232,7 +232,7 @@ BUILDING_PYTHON = $(filter $(NWSUBDIRS),python)
           CDEBUG = -g
               AR = ar
 
-       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lbq -lnwcutil
+       CORE_LIBS =  -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lfdist -lcons -lbq -lnwcutil
 
     ifdef USE_INTEGER4
       integer4:
@@ -1935,7 +1935,7 @@ endif
 #
 ifdef USE_FDIST
   DEFINES += -DFDIST
-  CORE_LIBS += -lfdist 
+#  CORE_LIBS += -lfdist 
 endif
 
 ifdef USE_SCALAPACK
