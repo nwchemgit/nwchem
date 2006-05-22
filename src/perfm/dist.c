@@ -2,7 +2,7 @@
 *******************************************************************************
 *
 * File:         dist.c
-* RCS:          $Header: /tmp/mss/nwchem/src/perfm/dist.c,v 1.1 2006-05-19 18:59:26 edo Exp $
+* RCS:          $Header: /tmp/mss/nwchem/src/perfm/dist.c,v 1.2 2006-05-22 16:01:16 edo Exp $
 * Description:  Distribution table implemented with an array 
 * Author:       Fabrizio Petrini
 * Created:
@@ -32,7 +32,7 @@
 
 
 /* define to control several invariants */
-//#define CHECKING
+/*#define CHECKING*/
 #undef CHECKING
 
 #ifdef CHECKING
