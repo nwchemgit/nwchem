@@ -2,7 +2,7 @@
 *******************************************************************************
 *
 * File:         dist.c
-* RCS:          $Header: /tmp/mss/nwchem/src/perfm/dist.c,v 1.2 2006-05-22 16:01:16 edo Exp $
+* RCS:          $Header: /tmp/mss/nwchem/src/perfm/dist.c,v 1.3 2006-05-23 18:33:05 edo Exp $
 * Description:  Distribution table implemented with an array 
 * Author:       Fabrizio Petrini
 * Created:
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#define MPI_TIME 1
+/*#define MPI_TIME 1*/
 
 
 /*
@@ -74,7 +74,7 @@ void dist_error( char* func, char* msg )
 
 
 /* define to use MPI_Wtime, undefine to use gettimeofday */
-#define MPI_TIME 1
+/*#define MPI_TIME 1*/
 
 #define timersub(a, b, result)                                                \
   do {                                                                        \
