@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.524 2006-05-19 18:59:48 edo Exp $
+# $Id: makefile.h,v 1.525 2006-05-23 17:36:45 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1502,6 +1502,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 # g77 not working 
 # i4 not working 
 #
+       
       FC=efc
       CC=gcc
       DEFINES   +=   -DLINUXIA64 
@@ -1555,12 +1556,13 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         endif
         LDOPTIONS += $(FDEBUG)
         LINK.f = efc     $(LDFLAGS)  
-      endif
-      ifeq ($(FC),g77)
-        FOPTIONS  += -Wno-globals
-        FOPTIONS  += -fno-globals -Wunused -fno-silent  
-        FOPTIONS  += -fno-second-underscore  -g
-        LDOPTIONS =   -Wl,--relax  -Wl,-Bstatic  
+      else
+  noefc:
+	@echo 
+	@echo Please do not set FC on linux/ia64
+	@echo the makefile will use the Intel compiler
+	@echo 
+	@exit 1
       endif
       ifeq ($(CC),ecc)
         COPTIONS   =   -ftz
