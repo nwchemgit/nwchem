@@ -1,5 +1,5 @@
 #define NEWSC
-* $Id: xc_rhogen.F,v 1.35 2006-05-19 01:11:00 edo Exp $
+* $Id: xc_rhogen.F,v 1.36 2006-05-23 17:03:18 edo Exp $
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c
@@ -471,6 +471,7 @@ c@@@@@@@@@@@@@@@@@
      W     tol_rho,wmax,
      O     nz,
      R     rchi_atom,rdelchi_atom,rdens_atom)
+      implicit none
       logical grad
       integer ipol,natoms,npert
       integer iniz(natoms) ! mapping of nbf_ao -> mbf
@@ -486,8 +487,8 @@ c
       integer iat,jat,inizia,inizja
       integer ipert
       double precision FUNC_MAXI,FUNC_MAXJ,DELFUNC_MAX,FUNC_MAX,
-     ,     P_MAXJ,P_MAXJ_A,P_MAXJ_B
-      integer nonzero
+     ,     P_MAXJ,P_MAXJ_A,P_MAXJ_B,P_MAXIJ
+      integer nonzero,ii
       double precision dabsmax
       external dabsmax
 c
