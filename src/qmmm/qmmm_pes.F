@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.9 2006-03-10 18:10:41 marat Exp $
+c $Id: qmmm_pes.F,v 1.10 2006-05-26 18:21:50 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.9 2006-03-10 18:10:41 marat Exp $
+c     $Id: qmmm_pes.F,v 1.10 2006-05-26 18:21:50 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -48,6 +48,7 @@ c
       character*255 rst_in, movecs_in, espfile
       character*255 rst_perm,rst_tmp,movecs_perm
       character*255 rst_old
+      character*255 logfile
       double precision rb(2)
       integer ii
       integer np
@@ -56,7 +57,8 @@ c
       double precision dr
       double precision r
       integer i1,i2,i3
-      logical ofile
+      integer ilog
+      logical ofile,ofile1
       logical backward
       logical loadrst
       logical loadmovecs
@@ -68,6 +70,10 @@ c
       character*84 outmovecs_tag
       character*84 espmovecs_tag
       double precision energy
+      double precision bq_el_energy
+      double precision bq_nuc_energy
+      double precision mm_energy
+      double precision temp
       logical lvel
  
       pname = "task_qmmm_pes"
@@ -131,7 +137,13 @@ c
       if (.not. rtdb_cget(irtdb,'qmmm:pes_vectors_input',
      +                    1,movecs_in))
      +  movecs_in = " "
-      
+c
+c     was logfile unit number provided
+c     (created for abc calculations)
+c     -------------------------------- 
+      if (.not. rtdb_get(irtdb,'qmmm:pes_logfile',mt_int,1,ilog))
+     +  ilog = -1
+c      
       if(rst_in .eq. " ") then
        loadrst = .false.
        rst_in = prefix
@@ -229,11 +241,19 @@ c       -----------------------
         if(loadrst) then
           if(ga_nodeid().eq.0) then 
             inquire(file=rst_perm,exist=ofile)
+            inquire(file=rst_tmp,exist=ofile1)
             if(ofile) then 
-             write(*,*) "pes: found restart file",
+             write(*,*) "pes: found restart file in perm",
      >                 rst_perm(1:inp_strlen(rst_perm))
             call util_file_copy(rst_perm(1:inp_strlen(rst_perm)),
      >                          rst_tmp(1:inp_strlen(rst_tmp)))
+            else if(ofile1) then
+             write(*,*) "pes: found restart file in run directory",
+     >                 rst_tmp(1:inp_strlen(rst_tmp))
+
+             ofile = .true.
+            else
+             write(*,*) "pes: cannot find restart file "
             end if
           end if
           call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
@@ -245,6 +265,7 @@ c       -----------------------
      >                   0,0) 
           end if
         end if
+        call mm_get_temp(temp)
 c
 c       initiating movecs files
 c       ----------------------
@@ -296,9 +317,23 @@ c       ----------------------
         if(operation.eq."energy".or.
      >     operation.eq."gradient".or.
      >     operation.eq."optimize") then
-        if (.not. rtdb_get(irtdb,'qmmm:energy',mt_dbl,1,energy))
-     $       call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+           if (.not. rtdb_get(irtdb,'qmmm:mm_energy',
+     $                        mt_dbl,1,mm_energy))
+     $          call errquit(pname//" mm energy", 0, RTDB_ERR)
+           if (.not. rtdb_get(irtdb,'qmmm:energy',
+     $                        mt_dbl,1,energy))
+     $         call errquit('qmmm: failed get energy', 0, RTDB_ERR)
+           if (.not. rtdb_get(irtdb,'dft:bq_energy',
+     $                        mt_dbl,1,bq_el_energy))
+     $         bq_el_energy = 0.0d0
+           if (.not. rtdb_get(irtdb,'qmmm:bq_nuc_energy',mt_dbl,1,
+     >                   bq_nuc_energy))
+     $     bq_nuc_energy = 0.0d0
+
           if(ga_nodeid().eq.0) then
+            if(ilog.ne.-1)
+     >       write(ilog,*) temp,energy,mm_energy,
+     >                     bq_el_energy,bq_nuc_energy
             if(pes_spring) then
               write(*,24) ip ,energy, r
             else
@@ -328,6 +363,7 @@ c     -----------------------------
       call mm_set_restart_file(irtdb,rst_old)
       ignore = rtdb_delete(irtdb,outmovecs_tag)
       ignore = rtdb_delete(irtdb,inmovecs_tag)
+      
 
       task_qmmm_pes = status
 

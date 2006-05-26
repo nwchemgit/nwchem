@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.88 2006-02-22 01:12:07 marat Exp $
+c $Id: mm_interface.F,v 1.89 2006-05-26 18:21:49 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -63,6 +63,41 @@ c     ------------------------------------
       if(.not.rtdb_cput(irtdb0,'md:project',1,filename(1:j)))
      + call errquit(pname//'Failed to set md:project',0,
      +       RTDB_ERR)
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+c
+      return
+      end
+
+      subroutine mm_set_top_file(filename)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "inp.fh"
+#include "global.fh"
+#include "qmmm.fh"
+#include "mafdecls.fh"
+c
+      character*(*) filename
+c
+      character*32 pname
+      character*255 oldfile
+      integer j
+c
+      pname = "mm_set_restart_file"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+c      
+      call mm_top_file(oldfile)     
+c
+c     copy new file over an old one
+c     -----------------------------
+      call util_file_name_resolve(filename,.false.)
+      if(ga_nodeid().eq.0) then 
+        write(*,*) "copying filename", filename
+        call util_file_copy(filename(1:inp_strlen(filename)),
+     >                      oldfile(1:inp_strlen(oldfile)))
+      end if
+      call ga_sync()
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
 c
@@ -213,6 +248,30 @@ c
 
       i=index(filtop,'.top')-1
       prefix = filtop(1:i)
+      end
+
+      subroutine mm_top_file(filename)
+      implicit none
+c
+#include "util.fh"
+#include "md_common.fh"
+#include "inp.fh"
+c
+      character*(*) filename
+
+      filename = filtop
+      end
+
+      subroutine mm_set_qmmm(oqmmm)
+      implicit none
+c
+#include "util.fh"
+#include "md_common.fh"
+#include "inp.fh"
+c
+      logical oqmmm
+      lqmmm = oqmmm
+
       end
 
       subroutine mm_write_restart_named(rfile,lv)
@@ -2714,7 +2773,6 @@ c     mm local variables
               do m=1,mwa
                 j1=(j-1)*mwa+m
                 if(.not.map(j1)) then
-                write(*,*) "zeroing solvent force"
                 do k=1,3
                   ioff=pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm
                   dbl_mb(ioff)=0.0d0

@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.79 2006-03-10 01:24:48 windus Exp $
+* $Id: task.F,v 1.80 2006-05-26 18:20:24 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -78,7 +78,9 @@ c
 c
       logical task_qmmm_fep
       external task_qmmm_fep
-
+c
+      logical task_qmmm_abc
+      external task_qmmm_abc
 c
       logical task_qmmm_pes
       external task_qmmm_pes
@@ -271,6 +273,12 @@ c
            status = task_qmmm_fep(rtdb)
          else
            call errquit('task: fep needs QMMM',0, INPUT_ERR)
+         end if
+      else if(inp_compare(.false.,'abc',operation)) then
+         if(oqmmm) then
+           status = task_qmmm_abc(rtdb)
+         else
+           call errquit('task: abc needs QMMM',0, INPUT_ERR)
          end if
        else if(inp_compare(.false.,'thermodynamics',operation)) then
           status=task_thermo(rtdb)

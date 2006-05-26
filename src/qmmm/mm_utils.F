@@ -97,6 +97,40 @@
 
        end
 
+       subroutine mm_get_nfrest(nf)
+         implicit none
+#include "md_common.fh"
+         integer nf
+         
+         nf  = nfrest
+
+       end
+
+       subroutine mm_set_keep_restart()
+         implicit none
+#include "md_common.fh"
+         
+         keepr = 1
+
+       end
+
+       subroutine mm_unset_keep_restart()
+         implicit none
+#include "md_common.fh"
+         
+         keepr = 0
+
+       end
+
+       subroutine mm_get_keep_restart_index(i)
+         implicit none
+#include "md_common.fh"
+         integer i
+         
+         i = keepr-1
+
+       end
+
        subroutine mm_get_msa(msa0)
          implicit none
 #include "md_common.fh"

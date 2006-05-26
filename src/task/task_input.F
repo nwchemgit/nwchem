@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.49 2006-03-17 16:53:53 windus Exp $
+* $Id: task_input.F,v 1.50 2006-05-26 18:20:24 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -41,6 +41,8 @@ c
  10   if (inp_a(test)) then
          if (inp_compare(.false.,test,'energy')) then
             operation = 'energy'
+         else if (inp_compare(.false.,test,'abc')) then
+            operation = 'abc'
          else if (inp_compare(.false.,test,'fep')) then
             operation = 'fep'
          else if (inp_compare(.false.,test,'property')) then
@@ -72,8 +74,6 @@ c
             analytic  = .true.
          else if (inp_compare(.false.,test,'vscf')) then
             operation  = 'vscf'
-         else if (inp_compare(.false.,test,'dntmc')) then
-            operation  = 'dntmc'
          else if (inp_compare(.false.,test,'shell')) then
             theory = 'shell'
             call task_shell_input(rtdb)
@@ -198,6 +198,7 @@ c
      >      operation.ne.'gradient' .and.
      >      operation.ne.'property' .and.
      >      operation.ne.'dynamics' .and.
+     >      operation.ne.'abc' .and.
      >      operation.ne.'et' ) call errquit
      &      ("task_input:"//operation//"not supported with QMMM",911,
      &       RTDB_ERR)
