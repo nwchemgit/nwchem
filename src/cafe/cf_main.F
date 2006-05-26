@@ -1,5 +1,5 @@
       subroutine cf_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: cf_main.F,v 1.178 2006-05-18 16:03:46 d3j191 Exp $
+c $Id: cf_main.F,v 1.179 2006-05-26 17:02:48 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -3591,7 +3591,7 @@ c
 c
       do 1 j=1,nums
       if(iand(isdt(j),ltype).ne.0) then
-      do 2 i=1,msb
+      do 2 i=1,numb(2)
       if(ibnd(i,1).eq.isgan(j)) lst(ibnd(i,2))=lst(ibnd(i,2))+1
       if(ibnd(i,2).eq.isgan(j)) lst(ibnd(i,1))=lst(ibnd(i,1))+1
     2 continue
