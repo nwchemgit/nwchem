@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.1 2006-05-26 18:55:58 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.2 2006-05-28 00:18:03 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -12,6 +12,7 @@ c
 #include "qmmm_params.fh"
 #include "qmmm.fh"
 #include "global.fh"
+#include "msgids.fh"
 c
       integer rtdb
       logical task_qmmm_abc
@@ -39,12 +40,12 @@ c     external functions
       character*255 esp_in(3)
       character*255 geom_in(3)
       character*255 oldtop
-      character*255 logfile
+      character*255 logfile(2)
       double precision lambda(3)
-      logical oesp,ogeom
+      logical oesp,ogeom,otop
       integer mequi 
       logical rtdb_mode
-      integer fn
+      integer fn(2)
       integer pes_npoints
       integer nfr
 
@@ -56,20 +57,32 @@ c     external functions
 
       logical qmmm_abc_generate_frames
       external qmmm_abc_generate_frames
+      
+      logical qmmm_abc_resample
+      external qmmm_abc_resample
 
       pname = "task_qmmm_abc"
       master = ga_nodeid().eq.0
       if(qmmm_print_debug()) 
      $  write(*,*) "in "//pname
 c
+c     get reference and target theories
+c     ---------------------------------
+      if (.not. rtdb_cget(rtdb, 'qmmm:abc_theory', 2, atheory)) then
+        atheory(1) = "espmm"
+        atheory(2) = "qmmm"
+      end if
+c
 c     get reference and target topology files
 c     ---------------------------------------
-      if (.not. rtdb_cget(rtdb, 'qmmm:abc_theory', 2, atheory))
-     $    call errquit(pname//" no theory found",0,0)
-      if (.not. rtdb_cget(rtdb, 'qmmm:abc_top', 2, filetop))
-     $    call errquit(pname//" no topology file found",0,0)
-      call util_file_name_resolve(filetop(1),.false.)
-      call util_file_name_resolve(filetop(2),.false.)
+      if (.not. rtdb_cget(rtdb, 'qmmm:abc_top', 2, filetop)) then
+        filetop(1)=" "
+        filetop(2)=" "     
+        otop = .false.
+      else
+        call util_file_name_resolve(filetop(1),.false.)
+        call util_file_name_resolve(filetop(2),.false.)
+      end if
 c
 c     get default topology filename
 c     -----------------------------
@@ -84,43 +97,246 @@ c
       if (.not. rtdb_cput(rtdb,'task:operation', 1,'energy'))
      $      call errquit(pname,0, RTDB_ERR)
 c
-c     open file to dump energy information
-c     ------------------------------------
-      rtdb_mode = rtdb_parallel(.false.)
+c     open files to dump energy information
+c     -------------------------------------
       if(qmmm_master()) then
-      if(.not.qmmm_get_io_unit(fn))
-     $  call errquit(pname//" no free unit number",0,0)
-        call util_file_name('abc', .false., .false.,logfile)
-        open(unit=fn,status="unknown",form="formatted",file=logfile)
-        if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn))
-     $    call errquit(pname,0,0)
+        if(.not.qmmm_get_io_unit(fn(1)))
+     $    call errquit(pname//" no free unit number",0,0)
+        call util_file_name('low.abc', .false., .false.,logfile(1))
+        open(unit=fn(1),status="unknown",
+     >          form="formatted",file=logfile(1))
+        if(.not.qmmm_get_io_unit(fn(2)))
+     $    call errquit(pname//" no free unit number",0,0)
+        call util_file_name('high.abc', .false., .false.,logfile(2))
+        open(unit=fn(2),status="unknown",
+     >          form="formatted",file=logfile(2))
       end if
+      call ga_brdcst(msg_qmmm_misc,
+     >     fn,
+     >     2*ma_sizeof(mt_int,1,mt_byte),
+     >     0)
+      write(*,*) "fn=",fn(1),fn(2)
       call ga_sync()
-      rtdb_mode = rtdb_parallel(rtdb_mode)
 c
+c     generate frames for resampling
+c     ------------------------------
       ostatus = qmmm_abc_generate_frames(nfr,filetop(1),atheory(1),rtdb)
-      write(*,*) "nfr=",nfr
-      if(master) then 
-          write(*,*) "copying filename", filetop(2)
-          call util_file_copy(filetop(2),oldtop)
+c
+c     resample with low level theory
+c     ------------------------------
+      if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(1)))
+     $    call errquit(pname,0,0)
+      ostatus = qmmm_abc_resample(nfr,filetop(1),rst_in,atheory(1),rtdb)
+c
+c     resample with low level theory
+c     ------------------------------
+      if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(2)))
+     $    call errquit(pname,0,0)
+      ostatus = qmmm_abc_resample(nfr,filetop(2),rst_in,atheory(2),rtdb)
+
+      task_qmmm_abc = .true.
+      
+      close(fn(1))
+      close(fn(2))
+      return
+      end
+c
+      function qmmm_abc_resample(nfr,topfile,rstfile,atheory,rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer nfr
+      character*(*) topfile
+      character*(*) rstfile
+      character*(*) atheory
+      integer rtdb
+      logical qmmm_abc_resample
+c
+      logical ostatus
+      logical ignore
+      logical master
+      logical otop
+      logical oesp
+      character*255 oldtop
+      character*255 oldoperation
+      character*30 pname
+      character*30 tmp_name
+c     
+      logical qmmm_end
+      external qmmm_end
+      logical qmmm_init
+      external qmmm_init
+c
+      logical task_qmmm_pes
+      external task_qmmm_pes
+c
+      pname = "qmmm_abc_resample"
+      master = ga_nodeid().eq.0
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in "//pname
+c
+      call mm_top_file(oldtop)
+      otop = topfile.ne." "
+c
+      if (.not. rtdb_get(rtdb,'qmmm:esp_density',
+     $                   mt_log,1,oesp))
+     $     oesp=.false.
+c
+      if(atheory.eq."mm") then
+         if(.not.otop) 
+     >     call errquit(pname//" need mm topology file",0,0)
+      else if (atheory.eq."espmm") then
+         if (.not. rtdb_put(rtdb,'qmmm:esp_density',
+     $                      mt_log,1,.true.))
+     $         call errquit(pname,0, RTDB_ERR)
       end if
-      call ga_sync()
+
+      if(otop) then
+        ignore = qmmm_end(rtdb)
+        if(master) then 
+            write(*,*) "copying filename", topfile
+            call util_file_copy(topfile,oldtop)
+        end if
+        call ga_sync()
+      end if
+c
+      if (.not. rtdb_cget(rtdb,'task:operation', 1,oldoperation))
+     $      call errquit(pname,0, RTDB_ERR)
+      if (.not. rtdb_cput(rtdb,'task:operation', 1,'energy'))
+     $      call errquit(pname,0, RTDB_ERR)
+c
       ignore = qmmm_init(rtdb)
       call qmmm_bq_data_load()
-
-c     do the perturbation resampling
+c
       if (.not. rtdb_cput(rtdb,'qmmm:pes_rst_input',
-     +                    1,rst_in))
+     +                    1,rstfile))
      +      call errquit(pname,0, RTDB_ERR)
       if (.not. rtdb_put(rtdb,'qmmm:pes_npoints',mt_int,
      +                    1,nfr))
      +     call errquit(pname//'Failed to set pes points',
      +     1, RTDB_ERR)
+c
       ostatus = task_qmmm_pes(rtdb)
-      task_qmmm_abc = .true.
+c
+c     restore old settings
+c     --------------------
+      if(.not. rtdb_cput(rtdb,'task:operation',1,oldoperation))
+     $      call errquit(pname,0, RTDB_ERR)
+c
+      if (.not. rtdb_put(rtdb,'qmmm:esp_density',
+     $                   mt_log,1,oesp))
+     $      call errquit(pname,0, RTDB_ERR)
+c
+      qmmm_abc_resample = ostatus
+
 
       return
+
       end
+cc
+c      function qmmm_abc_resample(nfr,topfile,atheory,rtdb)
+c      implicit none
+cc
+c#include "rtdb.fh"
+c#include "util.fh"
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "qmmm_params.fh"
+c#include "qmmm.fh"
+c#include "global.fh"
+cc
+c      integer nfr
+c      character*(*) topfile
+c      character*(*) atheory
+c      integer rtdb
+c      logical qmmm_abc_resample
+cc
+c      logical ostatus
+c      logical ignore
+c      logical master
+c      character*30 pname
+c      character*30 tmp_name
+cc     external functions
+c      logical  qmmm_abc_generate_frames_mm
+c      external qmmm_abc_generate_frames_mm
+c      logical qmmm_abc_generate_frames_esp
+c      external qmmm_abc_generate_frames_esp
+cc     
+c      pname = "qmmm_abc_generate_frames"
+c      master = ga_nodeid().eq.0
+c      if(qmmm_print_debug()) 
+c     $  write(*,*) "in "//pname
+cc
+c      if(atheory.eq."mm") then
+cc        ostatus = qmmm_abc_resample_mm(nfr,topfile,rtdb)
+c      else if (atheory.eq."espmm") then
+cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
+c      else if (atheory.eq."qmmm") then
+cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
+c      else 
+c        tmp_name = atheory
+c        call errquit(pname//"unknown theory "//tmp_name,0,0)  
+c      end if
+c      return
+c
+c      end
+c
+c
+c      function qmmm_abc_resample_mm(nfr,topfile,rtdb)
+c      implicit none
+cc
+c#include "rtdb.fh"
+c#include "util.fh"
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "errquit.fh"
+c#include "qmmm_params.fh"
+c#include "qmmm.fh"
+c#include "global.fh"
+cc
+c      integer nfr
+c      character*(*) topfile
+c      integer rtdb
+c      logical qmmm_abc_resample_mm
+cc
+c      logical ostatus
+c      logical ignore
+c      logical master
+c      character*30 pname
+c      character*30 tmp_name
+cc     external functions
+cc     
+c      pname = "qmmm_abc_resample_mm"
+c      master = ga_nodeid().eq.0
+c      if(qmmm_print_debug()) 
+c     $  write(*,*) "in "//pname
+cc
+cc     initialize qmmm
+cc     ---------------
+c      ignore = qmmm_init(rtdb)
+c
+c      if(atheory.eq."mm") then
+cc        ostatus = qmmm_abc_resample_mm(nfr,topfile,rtdb)
+c      else if (atheory.eq."espmm") then
+cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
+c      else if (atheory.eq."qmmm") then
+cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
+c      else 
+c        tmp_name = atheory
+c        call errquit(pname//"unknown theory "//tmp_name,0,0)  
+c      end if
+c      return
+c
+c      end
 c
       function qmmm_abc_generate_frames(nfr,topfile,atheory,rtdb)
       implicit none
@@ -139,6 +355,51 @@ c
       character*(*) atheory
       integer rtdb
       logical qmmm_abc_generate_frames
+c
+      logical ostatus
+      logical ignore
+      logical master
+      character*30 pname
+      character*30 tmp_name
+c     external functions
+      logical  qmmm_abc_generate_frames_mm
+      external qmmm_abc_generate_frames_mm
+      logical qmmm_abc_generate_frames_esp
+      external qmmm_abc_generate_frames_esp
+c     
+      pname = "qmmm_abc_generate_frames"
+      master = ga_nodeid().eq.0
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in "//pname
+c
+      if(atheory.eq."mm") then
+        ostatus = qmmm_abc_generate_frames_mm(nfr,topfile,rtdb)
+      else if (atheory.eq."espmm") then
+        ostatus = qmmm_abc_generate_frames_esp(nfr,rtdb)
+      else
+        tmp_name = atheory
+        call errquit(pname//"unknown theory "//tmp_name,0,0)  
+      end if
+      return
+
+      end
+c
+      function qmmm_abc_generate_frames_mm(nfr,topfile,rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer nfr
+      character*(*) topfile
+      integer rtdb
+      logical qmmm_abc_generate_frames_mm
       logical ostatus
       logical ignore
 c     external functions
@@ -152,6 +413,7 @@ c     external functions
       logical master
       character*255 oldtop
       character*255 savetop
+      logical otop
 
       logical qmmm_init
       external qmmm_init
@@ -164,7 +426,8 @@ c     external functions
       master = ga_nodeid().eq.0
       if(qmmm_print_debug()) 
      $  write(*,*) "in "//pname
-
+c 
+      otop = topfile.ne." "
 c
 c     destroy qmmm structures (if any)
 c     --------------------------------
@@ -190,20 +453,19 @@ c     ------------------------------
       call mm_set_irtdb(rtdb)
       call md_rdinp()
 c
-c     save old topology file
-c     ---------------------
-      call mm_top_file(oldtop)
-      savetop = "tmp.abc.top"
-      if(master) then 
-        call util_file_copy(oldtop,savetop)
-      end if
-c
-c     copy new topology file from perm
-c     --------------------------------
-      call util_file_name_resolve(topfile,.false.)
-      if(master) then 
-        write(*,*) "copying filename", topfile
-        call util_file_copy(topfile,oldtop)
+c     tinker with topology file
+c     -------------------------
+      if(otop) then
+        call mm_top_file(oldtop)
+        savetop = "tmp.abc.top"
+        if(master) then 
+          call util_file_copy(oldtop,savetop)
+        end if
+        call util_file_name_resolve(topfile,.false.)
+        if(master) then 
+          write(*,*) "copying filename", topfile
+          call util_file_copy(topfile,oldtop)
+        end if
       end if
 c
 c     enforce numbered restart files
@@ -233,11 +495,108 @@ c     --------------------------------
 c
 c     restore old topology file
 c     ---------------------
-      if(master) then 
-        call util_file_copy(savetop,oldtop)
-        call util_file_unlink(savetop)
+      if(otop) then
+        if(master) then 
+          call util_file_copy(savetop,oldtop)
+          call util_file_unlink(savetop)
+        end if
+        call ga_sync()
       end if
 c
+      qmmm_abc_generate_frames_mm = .true.
+c
+      return
+
+      end
+
+      function qmmm_abc_generate_frames_esp(nfr,rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer nfr
+      integer rtdb
+      logical qmmm_abc_generate_frames_esp
+      logical ostatus
+      logical ignore
+c     external functions
+      logical  qmmm_dynamics
+      external qmmm_dynamics
+      character*30 pname
+      character*255 oldtheory
+      character*255 oldoperation
+      integer in,ncycles
+      integer nf,nfs
+      logical master
+      character*255 oldtop
+      character*255 savetop
+      logical oesp
+
+      logical qmmm_init
+      external qmmm_init
+
+      logical qmmm_end
+      external qmmm_end
+
+
+      pname = "qmmm_abc_generate_frames"
+      master = ga_nodeid().eq.0
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in "//pname
+
+c
+c     destroy qmmm structures (if any)
+c     --------------------------------
+c      ignore = qmmm_end(rtdb)
+c      call ga_sync()
+c
+c     enforce esp density and save old setting
+c     ----------------------------------------
+      if (.not. rtdb_get(rtdb,'qmmm:esp_density',
+     $                   mt_log,1,oesp))
+     $     oesp=.false.
+c
+      if (.not. rtdb_put(rtdb,'qmmm:esp_density',
+     $                   mt_log,1,.true.))
+     $      call errquit(pname,0, RTDB_ERR)
+c
+c     enforce dynamics run
+c     --------------------
+      if (.not. rtdb_cget(rtdb,'task:operation', 1,oldoperation))
+     $      call errquit(pname,0, RTDB_ERR)
+      if (.not. rtdb_cput(rtdb,'task:operation', 1,'dynamics'))
+     $      call errquit(pname,0, RTDB_ERR)
+c
+c     enforce numbered restart files
+c     ------------------------------
+      call mm_set_keep_restart()
+c
+c     commence dynamics
+c     -----------------
+      ostatus = qmmm_dynamics(rtdb)
+c
+c     how many frames were generated
+c     ------------------------------
+      call mm_get_keep_restart_index(nfr)
+c
+c     restore old settings
+c     --------------------
+      if(.not. rtdb_cput(rtdb,'task:operation',1,oldoperation))
+     $      call errquit(pname,0, RTDB_ERR)
+c
+      if (.not. rtdb_put(rtdb,'qmmm:esp_density',
+     $                   mt_log,1,oesp))
+     $      call errquit(pname,0, RTDB_ERR)
+c
+      qmmm_abc_generate_frames_esp = ostatus
+
       return
 
       end

@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.68 2006-02-15 01:25:02 marat Exp $
+c $Id: qmmm.F,v 1.69 2006-05-28 00:18:00 marat Exp $
 c
 c
       function task_qmmm_generic(rtdb,operation)
@@ -63,6 +63,13 @@ c
       character*30 operation0
       logical aux_geom
       logical oprint
+      logical oinit
+c
+c     do nothing if already initialized
+c     ---------------------------------
+      if (.not. rtdb_get(irtdb,'qmmm:init',mt_log,1,qmmm_init))
+     $     qmmm_init = .false.
+      if(qmmm_init) return
 c
       call qmmm_print_header()
 c
@@ -76,8 +83,8 @@ c
 c
       if(oprint) 
      >  write(*,*)"in "//pname
-
-    
+c
+   
       qmmm_init = .true.
 
       if (.not. rtdb_cget(irtdb, 'task:operation', 1, operation))
@@ -166,22 +173,44 @@ c
 #include "util.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "global.fh"
 
       integer rtdb
       logical qmmm_end
+c
+      character*32 pname
+      logical oinit
+      logical oprint
+c
+      logical qmmm_print_debug
+      external qmmm_print_debug
+c
+      pname = "qmmm_end"
+      if(qmmm_print_debug())
+     >  write(*,*)"in "//pname
       qmmm_end = .true.
 c
-      call mm_end()
-      call qmmm_geom_end()
-      call qmmm_bq_data_dealloc()
-      call qmmm_data_release()
-      call qmmm_link_data_release()
-      call qmmm_cons_end()
+      if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,oinit))
+     $     oinit = .false.
+      write(*,*) "oinit",oinit
+c
+      if(oinit) then
+        call mm_end()
+        call qmmm_geom_end()
+        call qmmm_bq_data_dealloc()
+        call qmmm_data_release()
+        call qmmm_link_data_release()
+        call qmmm_cons_end()
+      end if
 
+      
       if (.not. rtdb_put(rtdb,'qmmm:init',mt_log,1,.false.))
      $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
 
       qmmm_end = .true.
+      if(qmmm_print_debug())
+     >  write(*,*)"out "//pname
+      call ga_sync()
       return
       end
 c

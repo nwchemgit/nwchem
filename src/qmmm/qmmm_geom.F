@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom.F,v 1.90 2006-02-28 01:25:42 marat Exp $
+c $Id: qmmm_geom.F,v 1.91 2006-05-28 00:18:03 marat Exp $
 c
       subroutine qmmm_geom_init(irtdb,ageom)
       implicit none
@@ -88,6 +88,7 @@ c       --------------------------
         end if
 c
         call qmmm_geom_init_aux(irtdb,"geometry")
+        call qmmm_geom_print(irtdb,"geometry","-active.pdb")
 c        call qmmm_bq_data_update_active()
 
       else
@@ -95,10 +96,12 @@ c        call qmmm_bq_data_update_active()
         ngw = 0
         ng =  nfg
         i_ig = i_ifg
-        call qmmm_geom_create_full(irtdb)
+        if(nfg.ne.0) then
+          call qmmm_geom_create_full(irtdb)
+          call qmmm_geom_print(irtdb,"geometry","-active.pdb")
+        end if
       end if
 
-      call qmmm_geom_print(irtdb,"geometry","-active.pdb")
 
       if(qmmm_print_debug())
      >    write(*,*) "out",pname
@@ -619,6 +622,8 @@ c     local variables
 
       if(qmmm_print_debug())
      > write(*,*) "nfg=",nfg
+
+      if(nfg.eq.0) return
 
       if (.not.rtdb_get(irtdb,"qmmm:update_geom",
      >                   mt_log,1,update)) 
