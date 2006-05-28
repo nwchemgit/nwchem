@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.2 2006-05-28 00:18:03 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.3 2006-05-28 01:18:41 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -16,48 +16,30 @@ c
 c
       integer rtdb
       logical task_qmmm_abc
+c     local variables
       logical ostatus
-      logical ignore
-c     external functions
-      logical  task_qmmm_pes 
-      external task_qmmm_pes 
-      logical  qmmm_fep_deriv
-      external qmmm_fep_deriv
-      logical  qmmm_dynamics
-      external qmmm_dynamics
       character*30 pname
-      character*255 prefix
-      character*255 filetrj
-      integer in,ncycles
-      integer nf,nfs
       logical master
       character*255 rst_in
+      character*255 rst_out
       character*255 filerest
       character*255 filetop(2)
       character*255 atheory(2)
-      character*255 filegeom(2)
-      character*255 fileesp(2)
-      character*255 esp_in(3)
-      character*255 geom_in(3)
       character*255 oldtop
       character*255 logfile(2)
-      double precision lambda(3)
-      logical oesp,ogeom,otop
-      integer mequi 
-      logical rtdb_mode
+      logical otop
       integer fn(2)
-      integer pes_npoints
       integer nfr
+      integer in
+      integer ncycles
 
+c     external functions
       logical qmmm_end
       external qmmm_end
-
       logical qmmm_init
       external qmmm_init
-
       logical qmmm_abc_generate_frames
       external qmmm_abc_generate_frames
-      
       logical qmmm_abc_resample
       external qmmm_abc_resample
 
@@ -84,6 +66,9 @@ c     ---------------------------------------
         call util_file_name_resolve(filetop(2),.false.)
       end if
 c
+        if (.not.rtdb_get(rtdb,"qmmm:abc_ncycles",mt_int,1,ncycles)) 
+     >      ncycles = 1
+c
 c     get default topology filename
 c     -----------------------------
       call mm_top_file(oldtop)
@@ -93,9 +78,6 @@ c     --------------------------------
       call mm_restart_filename(filerest)
       rst_in = filerest(1:index(filerest,'.rst')-1)//
      +         "-"//"00"
-c
-      if (.not. rtdb_cput(rtdb,'task:operation', 1,'energy'))
-     $      call errquit(pname,0, RTDB_ERR)
 c
 c     open files to dump energy information
 c     -------------------------------------
@@ -118,21 +100,39 @@ c     -------------------------------------
       write(*,*) "fn=",fn(1),fn(2)
       call ga_sync()
 c
-c     generate frames for resampling
-c     ------------------------------
-      ostatus = qmmm_abc_generate_frames(nfr,filetop(1),atheory(1),rtdb)
+      if (.not. rtdb_put(rtdb,'qmmm:pes_rst_perm',mt_log,
+     +                    1,.false.))
+     +    call errquit(pname,0,0)
+
+      do in=1,ncycles
 c
-c     resample with low level theory
-c     ------------------------------
-      if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(1)))
-     $    call errquit(pname,0,0)
-      ostatus = qmmm_abc_resample(nfr,filetop(1),rst_in,atheory(1),rtdb)
+c       generate frames for resampling
+c       ------------------------------
+        ostatus = qmmm_abc_generate_frames(nfr,filetop(1),
+     >                                     atheory(1),rtdb)
 c
-c     resample with low level theory
-c     ------------------------------
-      if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(2)))
-     $    call errquit(pname,0,0)
-      ostatus = qmmm_abc_resample(nfr,filetop(2),rst_in,atheory(2),rtdb)
+c       resample with low level theory
+c       ------------------------------
+        if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(1)))
+     $      call errquit(pname,0,0)
+        ostatus = qmmm_abc_resample(nfr,filetop(1),
+     >                              rst_in,atheory(1),rtdb)
+c
+c       resample with low level theory
+c       ------------------------------
+        if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(2)))
+     $      call errquit(pname,0,0)
+        ostatus = qmmm_abc_resample(nfr,filetop(2),
+     >                              rst_in,atheory(2),rtdb)
+      
+        write(rst_out,21) rst_in(1:inp_strlen(rst_in)),nfr 
+ 21     format(a,i3.3,'.rst')
+        if(master) then
+           call util_file_copy(rst_out(1:inp_strlen(rst_out)),
+     >          filerest(1:inp_strlen(filerest)))
+
+        end if
+      end do
 
       task_qmmm_abc = .true.
       
@@ -241,102 +241,6 @@ c
       return
 
       end
-cc
-c      function qmmm_abc_resample(nfr,topfile,atheory,rtdb)
-c      implicit none
-cc
-c#include "rtdb.fh"
-c#include "util.fh"
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "qmmm_params.fh"
-c#include "qmmm.fh"
-c#include "global.fh"
-cc
-c      integer nfr
-c      character*(*) topfile
-c      character*(*) atheory
-c      integer rtdb
-c      logical qmmm_abc_resample
-cc
-c      logical ostatus
-c      logical ignore
-c      logical master
-c      character*30 pname
-c      character*30 tmp_name
-cc     external functions
-c      logical  qmmm_abc_generate_frames_mm
-c      external qmmm_abc_generate_frames_mm
-c      logical qmmm_abc_generate_frames_esp
-c      external qmmm_abc_generate_frames_esp
-cc     
-c      pname = "qmmm_abc_generate_frames"
-c      master = ga_nodeid().eq.0
-c      if(qmmm_print_debug()) 
-c     $  write(*,*) "in "//pname
-cc
-c      if(atheory.eq."mm") then
-cc        ostatus = qmmm_abc_resample_mm(nfr,topfile,rtdb)
-c      else if (atheory.eq."espmm") then
-cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
-c      else if (atheory.eq."qmmm") then
-cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
-c      else 
-c        tmp_name = atheory
-c        call errquit(pname//"unknown theory "//tmp_name,0,0)  
-c      end if
-c      return
-c
-c      end
-c
-c
-c      function qmmm_abc_resample_mm(nfr,topfile,rtdb)
-c      implicit none
-cc
-c#include "rtdb.fh"
-c#include "util.fh"
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "qmmm_params.fh"
-c#include "qmmm.fh"
-c#include "global.fh"
-cc
-c      integer nfr
-c      character*(*) topfile
-c      integer rtdb
-c      logical qmmm_abc_resample_mm
-cc
-c      logical ostatus
-c      logical ignore
-c      logical master
-c      character*30 pname
-c      character*30 tmp_name
-cc     external functions
-cc     
-c      pname = "qmmm_abc_resample_mm"
-c      master = ga_nodeid().eq.0
-c      if(qmmm_print_debug()) 
-c     $  write(*,*) "in "//pname
-cc
-cc     initialize qmmm
-cc     ---------------
-c      ignore = qmmm_init(rtdb)
-c
-c      if(atheory.eq."mm") then
-cc        ostatus = qmmm_abc_resample_mm(nfr,topfile,rtdb)
-c      else if (atheory.eq."espmm") then
-cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
-c      else if (atheory.eq."qmmm") then
-cc        ostatus = qmmm_abc_resample_qmmm(nfr,rtdb)
-c      else 
-c        tmp_name = atheory
-c        call errquit(pname//"unknown theory "//tmp_name,0,0)  
-c      end if
-c      return
-c
-c      end
 c
       function qmmm_abc_generate_frames(nfr,topfile,atheory,rtdb)
       implicit none
@@ -600,151 +504,4 @@ c
       return
 
       end
-cc
-c      function task_qmmm_abc(rtdb)
-c      implicit none
-cc
-c#include "rtdb.fh"
-c#include "util.fh"
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "qmmm_params.fh"
-c#include "qmmm.fh"
-c#include "global.fh"
-cc
-c      integer rtdb
-c      logical task_qmmm_abc
-c      logical ostatus
-c      logical ignore
-cc     external functions
-c      logical  task_qmmm_pes 
-c      external task_qmmm_pes 
-c      logical  qmmm_fep_deriv
-c      external qmmm_fep_deriv
-c      logical  qmmm_dynamics
-c      external qmmm_dynamics
-c      character*30 pname
-c      character*255 prefix
-c      character*255 filetrj
-c      integer in,ncycles
-c      integer nf,nfs
-c      logical master
-c      character*255 rst_in
-c      character*255 filerest
-c      character*255 filetop(2)
-c      character*255 filegeom(2)
-c      character*255 fileesp(2)
-c      character*255 esp_in(3)
-c      character*255 geom_in(3)
-c      character*255 oldtop
-c      character*255 logfile
-c      double precision lambda(3)
-c      logical oesp,ogeom
-c      integer mequi 
-c      logical rtdb_mode
-c      integer fn
-c      integer pes_npoints
-c
-c      logical qmmm_end
-c      external qmmm_end
-c
-c      logical qmmm_init
-c      external qmmm_init
-c
-c      pname = "task_qmmm_abc"
-c      master = ga_nodeid().eq.0
-c      if(qmmm_print_debug()) 
-c     $  write(*,*) "in "//pname
-cc
-cc     get reference and target topology files
-cc     ---------------------------------------
-c      if (.not. rtdb_cget(rtdb, 'qmmm:abc_theory', 2, atheory))
-c     $    call errquit(pname//" no theory found",0,0)
-c      if (.not. rtdb_cget(rtdb, 'qmmm:abc_top', 2, filetop))
-c     $    call errquit(pname//" no topology file found",0,0)
-c      call util_file_name_resolve(filetop(1),.false.)
-c      call util_file_name_resolve(filetop(2),.false.)
-cc
-cc     open file to dump energy information
-cc     ------------------------------------
-c      rtdb_mode = rtdb_parallel(.false.)
-c      if(qmmm_master()) then
-c      if(.not.qmmm_get_io_unit(fn))
-c     $  call errquit(pname//" no free unit number",0,0)
-c        call util_file_name('abc', .false., .false.,logfile)
-c        open(unit=fn,status="unknown",form="formatted",file=logfile)
-c        if (.not. rtdb_put(rtdb,'qmmm:pes_log',mt_int,1,fn))
-c     $    call errquit(pname,0,0)
-c      end if
-c      call ga_sync()
-c      rtdb_mode = rtdb_parallel(rtdb_mode)
-cc
-c      call mm_system_prefix(prefix)
-c
-c      if (.not. rtdb_get(rtdb,'qmmm:ncycles',mt_int,1,ncycles))
-c     +  ncycles = 1
-cc
-cc     get default topology filename
-cc     -----------------------------
-c      call mm_top_file(oldtop)
-cc
-cc     prefix for numbered restart file
-cc     --------------------------------
-c      call mm_restart_filename(filerest)
-c      rst_in = filerest(1:index(filerest,'.rst')-1)//
-c     +         "-"//"00"
-cc
-cc     commence the actual run
-cc     -----------------------
-c      do in=1,ncycles
-c        ignore =  qmmm_end(rtdb)
-c        if (.not. rtdb_cput(rtdb,'task:operation', 1,"dynamics"))
-c     $      call errquit(pname,0, RTDB_ERR)
-c        if(master) then 
-c          write(*,*) "copying filename", filetop(1)
-c          call util_file_copy(filetop(1),oldtop)
-c        end if
-c        call ga_sync()
-c        ignore =  qmmm_init(rtdb)
-cc       enforce numbered restart files
-c        call mm_set_keep_restart()
-cc       dynamics task to generate restart files
-c        ostatus = qmmm_dynamics(rtdb)
-c        call mm_get_keep_restart_index(pes_npoints)
-c        write(*,*) "pes_npoints",pes_npoints
-c        ignore =  qmmm_end(rtdb)
-cc       start processing restart file sequence
-c        if(master) then 
-c          write(*,*) "copying filename", filetop(2)
-c          call util_file_copy(filetop(2),oldtop)
-c        end if
-c        call ga_sync()
-c
-c        if (.not. rtdb_cput(rtdb,'task:operation', 1,"energy"))
-c     $      call errquit(pname,0, RTDB_ERR)
-c        ignore = qmmm_init(rtdb)
-c        call qmmm_bq_data_load()
-c
-cc       do the perturbation resampling
-c        if (.not. rtdb_cput(rtdb,'qmmm:pes_rst_input',
-c     +                    1,rst_in))
-c     +      call errquit(pname,0, RTDB_ERR)
-c        if (.not. rtdb_put(rtdb,'qmmm:pes_npoints',mt_int,
-c     +                    1,pes_npoints))
-c     +     call errquit(pname//'Failed to set pes points',
-c     +     1, RTDB_ERR)
-c        ostatus = task_qmmm_pes(rtdb)
-cc       request to reuse collected abc data for ncycle.gt.1
-c        if (.not.rtdb_put(rtdb,"qmmm:extend",mt_log,1,.true.)) 
-c     >      call errquit(pname,0, RTDB_ERR)
-c      end do
-cc
-cc     reset any region constraints
-c      call qmmm_cons_reset()
-c      task_qmmm_abc = ostatus
-c      return
-c
-c      end
-c
 

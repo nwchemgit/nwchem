@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.10 2006-05-26 18:21:50 marat Exp $
+c $Id: qmmm_pes.F,v 1.11 2006-05-28 01:18:41 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.10 2006-05-26 18:21:50 marat Exp $
+c     $Id: qmmm_pes.F,v 1.11 2006-05-28 01:18:41 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -75,6 +75,7 @@ c
       double precision mm_energy
       double precision temp
       logical lvel
+      logical operm
  
       pname = "task_qmmm_pes"
 c
@@ -133,6 +134,10 @@ c
       if (.not. rtdb_cget(irtdb,'qmmm:pes_rst_input',
      +                    1,rst_in))
      +  rst_in = " "
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_rst_perm',mt_log,
+     +                    1,operm))
+     +  operm = .true.
 c
       if (.not. rtdb_cget(irtdb,'qmmm:pes_vectors_input',
      +                    1,movecs_in))
@@ -237,21 +242,17 @@ c       -----------------------
         espfile = rst_perm(1:ii)//".esp"
         if (.not.rtdb_cput(irtdb,'qmmm:esp:save:file',1,espfile)) 
      >   call errquit(pname,0,RTDB_ERR)
-        call util_file_name_resolve(rst_perm, .false.)
+        if(operm)  
+     >    call util_file_name_resolve(rst_perm, .false.)
         if(loadrst) then
           if(ga_nodeid().eq.0) then 
             inquire(file=rst_perm,exist=ofile)
-            inquire(file=rst_tmp,exist=ofile1)
             if(ofile) then 
-             write(*,*) "pes: found restart file in perm",
+             write(*,*) "pes: found restart file ",
      >                 rst_perm(1:inp_strlen(rst_perm))
-            call util_file_copy(rst_perm(1:inp_strlen(rst_perm)),
+             if(operm)  
+     >          call util_file_copy(rst_perm(1:inp_strlen(rst_perm)),
      >                          rst_tmp(1:inp_strlen(rst_tmp)))
-            else if(ofile1) then
-             write(*,*) "pes: found restart file in run directory",
-     >                 rst_tmp(1:inp_strlen(rst_tmp))
-
-             ofile = .true.
             else
              write(*,*) "pes: cannot find restart file "
             end if
@@ -307,11 +308,13 @@ c       ----------------------
      >                 rst_perm
         end if
         call mm_write_restart_named(rst_perm,lvel)
+        if(operm) then
         if(ga_nodeid().eq.0) then 
           if(rst_tmp.ne.rst_old) then
             write(*,*) "pes: removing file",rst_tmp
             call util_file_unlink(rst_tmp)
           end if
+        end if
         end if
 
         if(operation.eq."energy".or.
