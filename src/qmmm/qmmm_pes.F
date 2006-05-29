@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.11 2006-05-28 01:18:41 marat Exp $
+c $Id: qmmm_pes.F,v 1.12 2006-05-29 06:51:29 marat Exp $
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.11 2006-05-28 01:18:41 marat Exp $
+c     $Id: qmmm_pes.F,v 1.12 2006-05-29 06:51:29 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -73,6 +73,7 @@ c
       double precision bq_el_energy
       double precision bq_nuc_energy
       double precision mm_energy
+      double precision qm_energy
       double precision temp
       logical lvel
       logical operm
@@ -138,6 +139,10 @@ c
       if (.not. rtdb_get(irtdb,'qmmm:pes_rst_perm',mt_log,
      +                    1,operm))
      +  operm = .true.
+c
+      if (.not. rtdb_get(irtdb,'qmmm:pes_vel',mt_log,
+     +                    1,lvel))
+     +  lvel = .false.
 c
       if (.not. rtdb_cget(irtdb,'qmmm:pes_vectors_input',
      +                    1,movecs_in))
@@ -287,7 +292,6 @@ c       ----------------------
      +                    1,movecs_perm))
      +  call errquit(pname//'Failed to set movecs',0,0)
 
-        lvel = .false.
         if(operation.eq."energy") then
           status = task_qmmm_energy_sp(irtdb) 
         else if (operation.eq."gradient") then
@@ -320,6 +324,9 @@ c       ----------------------
         if(operation.eq."energy".or.
      >     operation.eq."gradient".or.
      >     operation.eq."optimize") then
+           if (.not. rtdb_get(irtdb,'qmmm:qm_energy',
+     $                        mt_dbl,1,qm_energy))
+     $          call errquit(pname//" qm energy", 0, RTDB_ERR)
            if (.not. rtdb_get(irtdb,'qmmm:mm_energy',
      $                        mt_dbl,1,mm_energy))
      $          call errquit(pname//" mm energy", 0, RTDB_ERR)
@@ -335,7 +342,7 @@ c       ----------------------
 
           if(ga_nodeid().eq.0) then
             if(ilog.ne.-1)
-     >       write(ilog,*) temp,energy,mm_energy,
+     >       write(ilog,*) temp,energy,mm_energy,qm_energy,
      >                     bq_el_energy,bq_nuc_energy
             if(pes_spring) then
               write(*,24) ip ,energy, r

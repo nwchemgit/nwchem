@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.3 2006-05-28 01:18:41 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.4 2006-05-29 06:51:29 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -27,11 +27,15 @@ c     local variables
       character*255 atheory(2)
       character*255 oldtop
       character*255 logfile(2)
+      character*30 cstatus
       logical otop
       integer fn(2)
       integer nfr
       integer in
       integer ncycles
+      logical oextend
+      double precision w,eref,tav
+      integer ns
 
 c     external functions
       logical qmmm_end
@@ -42,6 +46,8 @@ c     external functions
       external qmmm_abc_generate_frames
       logical qmmm_abc_resample
       external qmmm_abc_resample
+      logical qmmm_abc_compute
+      external qmmm_abc_compute
 
       pname = "task_qmmm_abc"
       master = ga_nodeid().eq.0
@@ -69,6 +75,10 @@ c
         if (.not.rtdb_get(rtdb,"qmmm:abc_ncycles",mt_int,1,ncycles)) 
      >      ncycles = 1
 c
+        if (.not.rtdb_get(rtdb,"qmmm:abc_extend",mt_log,1,oextend)) 
+     >      oextend = .false.
+c
+c
 c     get default topology filename
 c     -----------------------------
       call mm_top_file(oldtop)
@@ -81,16 +91,21 @@ c     --------------------------------
 c
 c     open files to dump energy information
 c     -------------------------------------
+      if(oextend) then
+        cstatus = "old"
+      else
+        cstatus = "unknown"
+      end if
       if(qmmm_master()) then
         if(.not.qmmm_get_io_unit(fn(1)))
      $    call errquit(pname//" no free unit number",0,0)
         call util_file_name('low.abc', .false., .false.,logfile(1))
-        open(unit=fn(1),status="unknown",
+        open(unit=fn(1),status=cstatus,
      >          form="formatted",file=logfile(1))
         if(.not.qmmm_get_io_unit(fn(2)))
      $    call errquit(pname//" no free unit number",0,0)
         call util_file_name('high.abc', .false., .false.,logfile(2))
-        open(unit=fn(2),status="unknown",
+        open(unit=fn(2),status=cstatus,
      >          form="formatted",file=logfile(2))
       end if
       call ga_brdcst(msg_qmmm_misc,
@@ -103,6 +118,16 @@ c
       if (.not. rtdb_put(rtdb,'qmmm:pes_rst_perm',mt_log,
      +                    1,.false.))
      +    call errquit(pname,0,0)
+c
+      if (.not. rtdb_put(rtdb,'qmmm:pes_vel',mt_log,
+     +                    1,.true.))
+     +    call errquit(pname,0,0)
+      call qmmm_abc_print_header()
+
+      if(oextend) then
+        if(.not. qmmm_abc_compute(ns,tav,eref,w,fn(1),fn(2),rtdb))
+     >     call errquit(pname//" failed qmmm_abc_compute",0,0)
+      end if
 
       do in=1,ncycles
 c
@@ -118,8 +143,8 @@ c       ------------------------------
         ostatus = qmmm_abc_resample(nfr,filetop(1),
      >                              rst_in,atheory(1),rtdb)
 c
-c       resample with low level theory
-c       ------------------------------
+c       resample with high level theory
+c       -------------------------------
         if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(2)))
      $      call errquit(pname,0,0)
         ostatus = qmmm_abc_resample(nfr,filetop(2),
@@ -132,6 +157,9 @@ c       ------------------------------
      >          filerest(1:inp_strlen(filerest)))
 
         end if
+        if(.not. qmmm_abc_compute(ns,tav,eref,w,fn(1),fn(2),rtdb))
+     >     call errquit(pname//" failed qmmm_abc_compute",0,0)
+        call qmmm_abc_print_info(in,ns,tav,eref,w)
       end do
 
       task_qmmm_abc = .true.
@@ -140,6 +168,218 @@ c       ------------------------------
       close(fn(2))
       return
       end
+c
+      function qmmm_abc_compute(nf,tav,eref,w,fnl,fnh,rtdb)
+      implicit none
+c
+#include "rtdb.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "errquit.fh"
+#include "qmmm_params.fh"
+#include "qmmm.fh"
+#include "global.fh"
+c
+      integer nf
+      double precision w
+      double precision eref
+      double precision tav
+      integer fnl,fnh
+      integer rtdb
+      logical qmmm_abc_compute
+c
+      integer i
+      integer nfrmax
+      double precision etot(2)
+      double precision emm(2)
+      double precision eqm(2)
+      double precision temp(2)
+      double precision ebq_el(2)
+      double precision ebq_nuc(2)
+      double precision z   
+      double precision dekb
+      character*30 pname
+      logical ostatus
+      logical master
+      logical rtdb_mode
+
+      pname = "qmmm_abc_compute"
+
+      master = ga_nodeid().eq.0
+      rtdb_mode = rtdb_parallel(.false.)
+
+      if(.not.master) goto 20
+
+      ostatus = .false.
+
+      if(qmmm_print_debug()) 
+     $  write(*,*) "in "//pname
+ 
+      nfrmax = 1000000
+
+      rewind(fnl)
+      rewind(fnh)
+c
+      if (.not.rtdb_get(rtdb,"qmmm:abc_eref",
+     >              mt_dbl,1,eref)) then
+        nf = 0
+        do i=1,1
+          read(fnl,*,err=20,end=5) temp(1),etot(1),emm(1),emm(1),
+     >                  ebq_el(1),ebq_nuc(1)
+          read(fnh,*,err=20,end=5) temp(2),etot(2),emm(2),emm(2),
+     >                  ebq_el(2),ebq_nuc(2)
+          if(temp(1).ne.temp(2)) 
+     >      goto 20
+          nf = nf+1
+          eref = etot(2)-etot(1)
+        end do
+5       continue
+        eref = eref/nf
+        rewind(fnl)
+        rewind(fnh)
+        if (.not.rtdb_put(rtdb,"qmmm:abc_eref",
+     >              mt_dbl,1,eref)) 
+     >    call errquit(pname//" eref",0,0) 
+      end if
+
+      z = 0.0d0
+      tav = 0.0d0
+      nf = 0
+      do i=1,nfrmax
+        read(fnl,*,err=20,end=10) temp(1),etot(1),emm(1),emm(1),
+     >                ebq_el(1),ebq_nuc(1)
+        read(fnh,*,err=20,end=10) temp(2),etot(2),emm(2),emm(2),
+     >                ebq_el(2),ebq_nuc(2)
+        if(temp(1).ne.temp(2)) 
+     >    call errquit('temperature mismatch', 0, 0)
+        dekb = -(etot(2)-eref-etot(1))/(kb_au*temp(1))
+        nf = nf+1
+        tav = tav + temp(1)
+        z = z + exp(dekb)
+      end do
+10    continue
+      tav = tav/nf
+      w = -kb_au*tav*log(z/nf)
+      write(*,*) "free energy",w,z
+      w = -kb_au*tav*log(z/nf)
+      write(*,*) "free energy 1",w,z
+      ostatus = .true.
+20    continue
+      call ga_brdcst(msg_qmmm_misc,ostatus,
+     >               ma_sizeof(mt_log,1,mt_byte),0)
+
+      rtdb_mode = rtdb_parallel(.true.)
+      qmmm_abc_compute = ostatus
+
+
+      return
+
+      end
+c
+c      function qmmm_abc_compute(nf,tav,eref,w,fnl,fnh,rtdb)
+c      implicit none
+cc
+c#include "rtdb.fh"
+c#include "util.fh"
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "msgids.fh"
+c#include "errquit.fh"
+c#include "qmmm_params.fh"
+c#include "qmmm.fh"
+c#include "global.fh"
+cc
+c      integer nf
+c      double precision w
+c      double precision eref
+c      double precision tav
+c      integer fnl,fnh
+c      integer rtdb
+c      logical qmmm_abc_compute
+cc
+c      integer i
+c      integer nfrmax
+c      double precision etot(2)
+c      double precision emm(2)
+c      double precision eqm(2)
+c      double precision temp(2)
+c      double precision ebq_el(2)
+c      double precision ebq_nuc(2)
+c      double precision z   
+c      double precision dekb
+c      character*30 pname
+c      logical ostatus
+c      logical master
+c      logical rtdb_mode
+c
+c      pname = "qmmm_abc_compute"
+c
+c      master = ga_nodeid().eq.0
+c      rtdb_mode = rtdb_parallel(.false.)
+c
+c      if(.not.master) goto 20
+c
+c      ostatus = .false.
+c
+c      if(qmmm_print_debug()) 
+c     $  write(*,*) "in "//pname
+c 
+c      nfrmax = 1000000
+c
+c      rewind(fnl)
+c      rewind(fnh)
+cc
+c      if (.not.rtdb_get(rtdb,"qmmm:abc_eref",
+c     >              mt_dbl,1,eref)) then
+c        do i=1,1
+c          read(fnl,*,err=20,end=20) temp(1),etot(1),emm(1),emm(1),
+c     >                  ebq_el(1),ebq_nuc(1)
+c          read(fnh,*,err=20,end=20) temp(2),etot(2),emm(2),emm(2),
+c     >                  ebq_el(2),ebq_nuc(2)
+c          if(temp(1).ne.temp(2)) 
+c     >      goto 20
+c        end do
+c        eref = etot(2)-etot(1)
+c        rewind(fnl)
+c        rewind(fnh)
+c        if (.not.rtdb_put(rtdb,"qmmm:abc_eref",
+c     >              mt_dbl,1,eref)) 
+c     >    call errquit(pname//" eref",0,0) 
+c      end if
+c
+c      z = 0.0d0
+c      tav = 0.0d0
+c      nf = 0
+c      do i=1,nfrmax
+c        read(fnl,*,err=20,end=10) temp(1),etot(1),emm(1),emm(1),
+c     >                ebq_el(1),ebq_nuc(1)
+c        read(fnh,*,err=20,end=10) temp(2),etot(2),emm(2),emm(2),
+c     >                ebq_el(2),ebq_nuc(2)
+c        if(temp(1).ne.temp(2)) 
+c     >    call errquit('temperature mismatch', 0, 0)
+c        dekb = -(etot(2)-eref-etot(1))/(kb_au*temp(1))
+c        nf = nf+1
+c        tav = tav + temp(1)
+c        z = z + exp(dekb)
+c      end do
+c10    continue
+c      tav = tav/nf
+c      w = -kb_au*tav*log(z/nf)
+c      write(*,*) "free energy",w,z
+c      ostatus = .true.
+c20    continue
+c      call ga_brdcst(msg_qmmm_misc,ostatus,
+c     >               ma_sizeof(mt_log,1,mt_byte),0)
+c
+c      rtdb_mode = rtdb_parallel(.true.)
+c      qmmm_abc_compute = ostatus
+c
+c
+c      return
+c
+c      end
 c
       function qmmm_abc_resample(nfr,topfile,rstfile,atheory,rtdb)
       implicit none
@@ -505,3 +745,83 @@ c
 
       end
 
+      subroutine qmmm_abc_print_header()
+      implicit none
+#include "util.fh"
+#include "geom.fh"
+#include "inp.fh"
+#include "errquit.fh"
+#include "global.fh"
+
+c
+      character*4 mark
+      character*30 pname
+      character*12 ceref
+c
+      pname = "qmmm_abc_print_header"
+c
+      if(ga_nodeid().ne.0) goto 30
+c
+      mark = '@abc'
+c
+      write(6,2) 
+      write(6,1) "                                       "
+      write(6,1) "AB-initio Classical Perturbation Theory"
+      write(6,1) "                                       "
+      write(6,1) "Implemented by Marat Valiev, May 2006  "
+      write(6,1) "                                       "
+      write(6,2)
+ 1    format("@abc   ",a)
+ 2    format("@abc   ",60('-'))
+
+      call util_flush(6)
+30    call ga_sync()
+
+      return
+
+
+      end
+
+      subroutine qmmm_abc_print_info(istep,ns,t,eref,w)
+      implicit none
+#include "util.fh"
+#include "geom.fh"
+#include "inp.fh"
+#include "errquit.fh"
+#include "global.fh"
+
+      integer istep
+      integer ns
+      double precision eref
+      double precision t
+      double precision w
+c
+      character*4 mark
+      character*30 pname
+      character*12 ceref
+c
+      pname = "qmmm_abc_print_info"
+c
+      if(ga_nodeid().ne.0) goto 30
+c
+      write(ceref,'(F12.6)') eref
+ 1    format('W - (',F12.6,')')
+      mark = '@abc'
+      if (istep .gt. 1) mark = ' '
+      write(6,2) mark, mark,mark
+      mark = '@abc'
+      write(6,3) mark, istep-1, ns,t,w*627.51,w+eref,eref
+ 2    format(
+     $ /,a4,' Step    Samples    Temp     W-Eref     W           Eref',
+     $ /,a4,'                     (K)   (kcal/mol)  (au)         (au)',
+     $ /,a4,65('-'))
+ 3    format(
+     $     a4,i5,2x,i8,4x,F6.2,2x,F6.2,2x,F12.6,2x,F12.6)
+
+      call util_flush(6)
+30    call ga_sync()
+
+      return
+
+
+      end

@@ -1,5 +1,5 @@
 c
-c $Id: mm_interface.F,v 1.89 2006-05-26 18:21:49 marat Exp $
+c $Id: mm_interface.F,v 1.90 2006-05-29 06:51:20 marat Exp $
 c
       subroutine mm_init(irtdb0)
       implicit none
@@ -114,17 +114,28 @@ c     filename - name of the restart file [in]
 #include "rtdb.fh"
 #include "qmmm.fh"
 #include "mafdecls.fh"
+#include "global.fh"
+#include "inp.fh"
 c
       integer irtdb0
       character*(*) filename
 c
       character*32 pname
       integer j
+      character*255 filename0
+      character*255 filcmd,filcmd0
 c
       pname = "mm_reload_rst"
       if(qmmm_print_debug()) write(*,*) "in "//pname
+c
+c     get old restart filename
+c     ------------------------
+      filename0 = ' '
+      call mm_restart_filename(filename0)
+      j = index(filename0,'.rst')-1
+      filcmd0 = filename0(1:j)//".cmd"
 c 
-c     first clean up all prior md stuff
+c     now clean up all prior md stuff
 c     ---------------------------------
       call md_finish()
 c
@@ -134,6 +145,15 @@ c     ------------------------------------
       if(.not.rtdb_cput(irtdb0,'md:project',1,filename(1:j)))
      + call errquit(pname//'Failed to set md:project',0,
      +       RTDB_ERR)
+      filcmd = filename(1:j)//".cmd"
+c
+c     make copy of cmd file
+c     ---------------------
+      if(ga_nodeid().eq.0) then
+        call util_file_copy(filcmd0(1:inp_strlen(filcmd0)),
+     >                      filcmd(1:inp_strlen(filcmd)))
+      end if
+      call ga_sync()
 c
 c     now initialize md structures again
 c     ----------------------------------
