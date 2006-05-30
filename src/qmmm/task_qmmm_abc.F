@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.5 2006-05-30 02:18:02 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.6 2006-05-30 06:43:39 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -712,8 +712,18 @@ c     external functions
 c
 c     destroy qmmm structures (if any)
 c     --------------------------------
-c      ignore = qmmm_end(rtdb)
-c      call ga_sync()
+      ignore = qmmm_end(rtdb)
+      call ga_sync()
+c
+c     enforce dynamics run
+c     --------------------
+      if (.not. rtdb_cget(rtdb,'task:operation', 1,oldoperation))
+     $      call errquit(pname,0, RTDB_ERR)
+      if (.not. rtdb_cput(rtdb,'task:operation', 1,'dynamics'))
+     $      call errquit(pname,0, RTDB_ERR)
+c
+      ignore = qmmm_init(rtdb)
+      call ga_sync()
 c
 c     enforce esp density and save old setting
 c     ----------------------------------------
@@ -724,14 +734,7 @@ c
       if (.not. rtdb_put(rtdb,'qmmm:esp_density',
      $                   mt_log,1,.true.))
      $      call errquit(pname,0, RTDB_ERR)
-c
-c     enforce dynamics run
-c     --------------------
-      if (.not. rtdb_cget(rtdb,'task:operation', 1,oldoperation))
-     $      call errquit(pname,0, RTDB_ERR)
-      if (.not. rtdb_cput(rtdb,'task:operation', 1,'dynamics'))
-     $      call errquit(pname,0, RTDB_ERR)
-c
+
 c     enforce numbered restart files
 c     ------------------------------
       call mm_set_keep_restart()
