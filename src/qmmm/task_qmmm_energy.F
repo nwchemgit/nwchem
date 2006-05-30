@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.34 2006-03-07 00:44:15 marat Exp $
+c $Id: task_qmmm_energy.F,v 1.35 2006-05-30 22:20:40 marat Exp $
 c
 c
       function task_qmmm_energy(rtdb)
@@ -1000,6 +1000,7 @@ c     local variables
       integer un
       logical ignore
       logical oregion
+      logical oprint
       character*32 interface
       logical save_rst
       logical do_print
@@ -1020,6 +1021,9 @@ c
 c
       if (.not. rtdb_get(rtdb, 'qmmm:active_region', mt_log,1,oregion))
      $     oregion = .false.
+c
+      if (.not. rtdb_get(rtdb, 'qmmm:region_print', mt_log,1,oprint))
+     $     oprint = .false.
 c
       if (.not. rtdb_cget(rtdb, 'task:operation', 1, operation))
      $     operation = 'energy'
@@ -1049,33 +1053,34 @@ c     --------------------------
         if (.not.rtdb_cget(rtdb,tag,nregion,region)) 
      >        call errquit(pname//tag,0,RTDB_ERR)
         call qmmm_cons_free_exclusive(region(1))
-        call mm_restart_filename(prefix)
-        i = index(prefix,".rst")-1
-        xyzfile = prefix(1:i)//".xyzi"
-        call util_file_name_resolve(xyzfile,.false.)
-        if(ga_nodeid().eq.0) then
-          if(.not.qmmm_get_io_unit(un))
-     >     call errquit('no free unit', 0, RTDB_ERR) 
-          open(unit=un,file=xyzfile,
-     >       form='formatted',status='unknown')
+        if(oprint) then
+          call mm_restart_filename(prefix)
+          i = index(prefix,".rst")-1
+          xyzfile = prefix(1:i)//".xyzi"
+          call util_file_name_resolve(xyzfile,.false.)
+          if(ga_nodeid().eq.0) then
+            if(.not.qmmm_get_io_unit(un))
+     >       call errquit('no free unit', 0, RTDB_ERR) 
+            open(unit=un,file=xyzfile,
+     >         form='formatted',status='unknown')
+          end if
+          call qmmm_cons_print_region(un,"xyzi")
+          if(ga_nodeid().eq.0) then
+            close(unit=un)
+          end if
+          xyzfile = prefix(1:i)//".pdb"
+          call util_file_name_resolve(xyzfile,.false.)
+          if(ga_nodeid().eq.0) then
+            if(.not.qmmm_get_io_unit(un))
+     >       call errquit('no free unit', 0, RTDB_ERR) 
+            open(unit=un,file=xyzfile,
+     >         form='formatted',status='unknown')
+          end if
+          call qmmm_cons_print_region(un,"pdbi")
+          if(ga_nodeid().eq.0) then
+            close(unit=un)
+          end if
         end if
-        call qmmm_cons_print_region(un,"xyzi")
-        if(ga_nodeid().eq.0) then
-          close(unit=un)
-        end if
-        xyzfile = prefix(1:i)//".pdb"
-        call util_file_name_resolve(xyzfile,.false.)
-        if(ga_nodeid().eq.0) then
-          if(.not.qmmm_get_io_unit(un))
-     >     call errquit('no free unit', 0, RTDB_ERR) 
-          open(unit=un,file=xyzfile,
-     >       form='formatted',status='unknown')
-        end if
-        call qmmm_cons_print_region(un,"pdbi")
-        if(ga_nodeid().eq.0) then
-          close(unit=un)
-        end if
-
 
         if(.not.oregion)   
      >  call qmmm_cons_reset()
@@ -1261,7 +1266,7 @@ c
       end
 
       function task_qmmm_energy_pes0(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.34 2006-03-07 00:44:15 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.35 2006-05-30 22:20:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1510,7 +1515,7 @@ c       end load restart
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.34 2006-03-07 00:44:15 marat Exp $
+c     $Id: task_qmmm_energy.F,v 1.35 2006-05-30 22:20:40 marat Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

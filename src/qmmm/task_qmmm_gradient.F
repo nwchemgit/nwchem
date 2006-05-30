@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.53 2006-03-07 23:15:51 marat Exp $
+c $Id: task_qmmm_gradient.F,v 1.54 2006-05-30 22:20:40 marat Exp $
 c
 c
       function task_qmmm_gradient(rtdb)
@@ -136,9 +136,14 @@ c
 c
 c     disable frozen density/esp if any of qm atoms are active
 c     ----------------------------------------------------
+      if(qmmm_master()) 
+     >   write(*,*) "frozen_density,esp",frozen_density,esp
       if(frozen_density.or.esp) then
         call qmmm_cons_get_nacts_qm(nact)
         if(nact.gt.0) then
+          if(qmmm_master()) 
+     >       write(*,*) "disabling frozen_density,esp "//
+     >                  "due to active qm atoms"
            frozen_density = .false.
            esp = .false.
         end if

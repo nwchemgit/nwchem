@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.6 2006-05-30 06:43:39 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.7 2006-05-30 22:20:40 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -112,7 +112,6 @@ c     -------------------------------------
      >     fn,
      >     2*ma_sizeof(mt_int,1,mt_byte),
      >     0)
-      write(*,*) "fn=",fn(1),fn(2)
       call ga_sync()
 c
       if (.not. rtdb_put(rtdb,'qmmm:pes_rst_perm',mt_log,
@@ -133,22 +132,34 @@ c
 c
 c       generate frames for resampling
 c       ------------------------------
+        if(master)  
+     >    write(*,*) "ABC: start generation of frames"
         ostatus = qmmm_abc_generate_frames(nfr,filetop(1),
      >                                     atheory(1),rtdb)
+        if(master)  
+     >    write(*,*) "ABC: end generation of frames"
 c
 c       resample with low level theory
 c       ------------------------------
         if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(1)))
      $      call errquit(pname,0,0)
+        if(master)  
+     >    write(*,*) "ABC: start low level resampling"
         ostatus = qmmm_abc_resample(nfr,filetop(1),
      >                              rst_in,atheory(1),rtdb)
+        if(master)  
+     >    write(*,*) "ABC: end low level resampling"
 c
 c       resample with high level theory
 c       -------------------------------
         if (.not. rtdb_put(rtdb,'qmmm:pes_logfile',mt_int,1,fn(2)))
      $      call errquit(pname,0,0)
+        if(master)  
+     >    write(*,*) "ABC: start high level resampling"
         ostatus = qmmm_abc_resample(nfr,filetop(2),
      >                              rst_in,atheory(2),rtdb)
+        if(master)  
+     >    write(*,*) "ABC: end high level resampling"
       
         write(rst_out,21) rst_in(1:inp_strlen(rst_in)),nfr 
  21     format(a,i3.3,'.rst')
@@ -277,110 +288,7 @@ c
       return
 
       end
-c
-c      function qmmm_abc_compute(nf,tav,eref,w,fnl,fnh,rtdb)
-c      implicit none
-cc
-c#include "rtdb.fh"
-c#include "util.fh"
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "msgids.fh"
-c#include "errquit.fh"
-c#include "qmmm_params.fh"
-c#include "qmmm.fh"
-c#include "global.fh"
-cc
-c      integer nf
-c      double precision w
-c      double precision eref
-c      double precision tav
-c      integer fnl,fnh
-c      integer rtdb
-c      logical qmmm_abc_compute
-cc
-c      integer i
-c      integer nfrmax
-c      double precision etot(2)
-c      double precision emm(2)
-c      double precision eqm(2)
-c      double precision temp(2)
-c      double precision ebq_el(2)
-c      double precision ebq_nuc(2)
-c      double precision z   
-c      double precision dekb
-c      character*30 pname
-c      logical ostatus
-c      logical master
-c      logical rtdb_mode
-c
-c      pname = "qmmm_abc_compute"
-c
-c      master = ga_nodeid().eq.0
-c      rtdb_mode = rtdb_parallel(.false.)
-c
-c      if(.not.master) goto 20
-c
-c      ostatus = .false.
-c
-c      if(qmmm_print_debug()) 
-c     $  write(*,*) "in "//pname
-c 
-c      nfrmax = 1000000
-c
-c      rewind(fnl)
-c      rewind(fnh)
-cc
-c      if (.not.rtdb_get(rtdb,"qmmm:abc_eref",
-c     >              mt_dbl,1,eref)) then
-c        do i=1,1
-c          read(fnl,*,err=20,end=20) temp(1),etot(1),emm(1),emm(1),
-c     >                  ebq_el(1),ebq_nuc(1)
-c          read(fnh,*,err=20,end=20) temp(2),etot(2),emm(2),emm(2),
-c     >                  ebq_el(2),ebq_nuc(2)
-c          if(temp(1).ne.temp(2)) 
-c     >      goto 20
-c        end do
-c        eref = etot(2)-etot(1)
-c        rewind(fnl)
-c        rewind(fnh)
-c        if (.not.rtdb_put(rtdb,"qmmm:abc_eref",
-c     >              mt_dbl,1,eref)) 
-c     >    call errquit(pname//" eref",0,0) 
-c      end if
-c
-c      z = 0.0d0
-c      tav = 0.0d0
-c      nf = 0
-c      do i=1,nfrmax
-c        read(fnl,*,err=20,end=10) temp(1),etot(1),emm(1),emm(1),
-c     >                ebq_el(1),ebq_nuc(1)
-c        read(fnh,*,err=20,end=10) temp(2),etot(2),emm(2),emm(2),
-c     >                ebq_el(2),ebq_nuc(2)
-c        if(temp(1).ne.temp(2)) 
-c     >    call errquit('temperature mismatch', 0, 0)
-c        dekb = -(etot(2)-eref-etot(1))/(kb_au*temp(1))
-c        nf = nf+1
-c        tav = tav + temp(1)
-c        z = z + exp(dekb)
-c      end do
-c10    continue
-c      tav = tav/nf
-c      w = -kb_au*tav*log(z/nf)
-c      write(*,*) "free energy",w,z
-c      ostatus = .true.
-c20    continue
-c      call ga_brdcst(msg_qmmm_misc,ostatus,
-c     >               ma_sizeof(mt_log,1,mt_byte),0)
-c
-c      rtdb_mode = rtdb_parallel(.true.)
-c      qmmm_abc_compute = ostatus
-c
-c
-c      return
-c
-c      end
-c
+
       function qmmm_abc_resample(nfr,topfile,rstfile,atheory,rtdb)
       implicit none
 c
@@ -409,6 +317,8 @@ c
       character*255 oldoperation
       character*30 pname
       character*30 tmp_name
+      logical oprint
+      logical oregion
       integer nregion
 c     
       logical qmmm_end
@@ -432,9 +342,21 @@ c
      $     oesp=.false.
 c
 c
-      if (.not. rtdb_get(rtdb,'qmmm:nregion',
-     $                   mt_int,1,nregion))
-     $     nregion = 0
+c      if (.not. rtdb_get(rtdb,'qmmm:nregion',
+c     $                   mt_int,1,nregion))
+c     $     nregion = 0
+c
+      if (.not. rtdb_get(rtdb, 'qmmm:region_print', mt_log,1,oprint))
+     $     oprint = .false.
+c
+      if (.not. rtdb_get(rtdb, 'qmmm:active_region', mt_log,1,oregion))
+     $     oregion = .false.
+c
+      if (.not. rtdb_put(rtdb, 'qmmm:active_region', mt_log,1,.true.))
+     $     call errquit(pname,0,0)
+c
+      if (.not. rtdb_put(rtdb, 'qmmm:region_print', mt_log,1,.false.))
+     $     call errquit(pname,0,0)
 c
       if(atheory.eq."mm") then
          if(.not.otop) 
@@ -443,10 +365,10 @@ c
          if (.not. rtdb_put(rtdb,'qmmm:esp_density',
      $                      mt_log,1,.true.))
      $         call errquit(pname,0, RTDB_ERR)
-      else if (atheory.eq."qm") then
-         if (.not. rtdb_put(rtdb,'qmmm:nregion',
-     $                      mt_int,1,0))
-     $         call errquit(pname,0, RTDB_ERR)
+c      else if (atheory.eq."qm") then
+c         if (.not. rtdb_put(rtdb,'qmmm:nregion',
+c     $                      mt_int,1,0))
+c     $         call errquit(pname,0, RTDB_ERR)
       end if
 
       if(otop) then
@@ -485,9 +407,12 @@ c
      $                   mt_log,1,oesp))
      $      call errquit(pname,0, RTDB_ERR)
 c
-      if (.not. rtdb_put(rtdb,'qmmm:nregion',
-     $                      mt_int,1,nregion))
-     $         call errquit(pname,0, RTDB_ERR)
+c      if (.not. rtdb_put(rtdb,'qmmm:nregion',
+c     $                      mt_int,1,nregion))
+c     $         call errquit(pname,0, RTDB_ERR)
+c
+      if (.not. rtdb_put(rtdb, 'qmmm:region_print', mt_log,1,oprint))
+     $     call errquit(pname,0,0)
 c
       qmmm_abc_resample = ostatus
 
