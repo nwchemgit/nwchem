@@ -337,6 +337,16 @@ c
         goto 600
       end if
 c
+      if(inp_compare(.false.,'abc',token)) then
+        call qmmm_input_abc(rtdb)     
+        go to 1
+      end if
+c
+      if(inp_compare(.false.,'pes',token)) then
+        call qmmm_input_pes(rtdb)     
+        go to 1
+      end if
+c
       if(inp_compare(.false.,'esp',token)) then
         call qmmm_input_esp(rtdb)     
         go to 1
@@ -405,6 +415,293 @@ c
 
       end
 
+      subroutine qmmm_input_pes(rtdb)
+c
+      implicit none
+#include "errquit.fh"
+c
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "qmmm_params.fh"
+c
+      integer rtdb
+c
+      character*32 tag
+      character*32 pname
+      character*255 token
+      character*32 mtoken(10)
+      integer  itok
+      integer  itoken(10)
+      double precision   ftoken(10)
+      double precision  eatoms
+      double precision bqzone
+      logical bq_dynamical
+      integer linkatm,bq_exclude
+      logical status
+      integer ip,np
+      logical ltoken
+      logical ignore
+      double precision f
+c
+      pname = "qmmm_input_pes "
+c
+      write(luout,*) "in ",pname
+c
+      call inp_set_field(0)
+c
+c     start parsing input
+c     ------------------
+      if (.not.inp_a(token))
+     + call errquit(pname,0, INPUT_ERR)
+      if (.not.inp_compare(.false.,token,'pes'))
+     + call errquit(pname,0, INPUT_ERR)
+      goto 2
+    1 continue
+      if (.not.inp_read()) call errquit('qmmm_input: premature EOF',0,
+     &       INPUT_ERR)
+    2 continue
+      if(.not.inp_a(token)) goto 1
+c
+c     number of points
+c     -----------------
+      if (inp_compare(.false.,"npoints",token)) then
+        if (.not.inp_i(itok))
+     >    call errquit(pname//'failed to read npoints',0, INPUT_ERR)
+        tag = "qmmm:pes_npoints"
+        if (.not.rtdb_put(rtdb,tag,mt_int,1,itok)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     starting point
+c     --------------
+      if (inp_compare(.false.,"istart",token)) then
+        if (.not.inp_i(itok))
+     >    call errquit(pname//'failed to read istart',0, INPUT_ERR)
+        tag = "qmmm:pes_istart"
+        if (.not.rtdb_put(rtdb,tag,mt_int,1,itok)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     end point
+c     --------------
+      if (inp_compare(.false.,"iend",token)) then
+        if (.not.inp_i(itok))
+     >    call errquit(pname//'failed to read iend',0, INPUT_ERR)
+        tag = "qmmm:pes_iend"
+        if (.not.rtdb_put(rtdb,tag,mt_int,1,itok)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     direction
+c     ---------
+      if (inp_compare(.false.,"reverse",token)) then
+        tag = "qmmm:pes_backward"
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+      if (inp_compare(.false.,"forward",token) ) then
+        tag = "qmmm:pes_backward"
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,.false.)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     rst files
+c     --------
+      if(inp_compare(.false.,'rst',token) ) then
+        if(.not.inp_a(token)) 
+     >   call errquit(pname//' rst ',0,INPUT_ERR)
+        tag="qmmm:pes_rst_input"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >        call errquit(pname//'failed to store'//tag,0,
+     >         RTDB_ERR)
+
+        goto 2
+      endif
+c
+c     orbital files
+c     ------------
+      if(inp_compare(.false.,'vectors',token) ) then
+        if(.not.inp_a(token)) 
+     >   call errquit(pname//' vectors ',0,INPUT_ERR)
+        tag="qmmm:pes_vectors_input"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >        call errquit(pname//'failed to store'//tag,0,
+     >         RTDB_ERR)
+
+        goto 2
+      endif
+c
+c
+      if(inp_compare(.false.,'spring',token)) then
+        np = inp_n_field()
+        if(np.ne.3)
+     >   call errquit(pname," spring",0,INPUT_ERR)
+        do ip = 1,np-1
+        ftoken(ip) = 0.0d0
+        if(.not.inp_f(ftoken(ip))) then
+         call errquit(pname//'spring',0,INPUT_ERR)
+        end if
+        end do
+        tag="qmmm:pes_bounds"
+        if (.not.rtdb_put(rtdb,tag,mt_dbl,2,ftoken)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+          goto 2
+      endif
+c
+      if (token.eq.'end') then
+        write(luout,*) "out of ",pname
+        return
+      endif
+c
+      write(luout,*)' unrecognized token in qmmm input:',
+     + token(1:inp_strlen(token))
+       call errquit(pname//'failed ',0,
+     >        RTDB_ERR)
+      return
+998   call errquit(pname//'no token found '//token,0,
+     >        RTDB_ERR)
+999   call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+
+      end
+
+      subroutine qmmm_input_abc(rtdb)
+c
+      implicit none
+#include "errquit.fh"
+c
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "qmmm_params.fh"
+c
+      integer rtdb
+c
+      character*32 tag
+      character*32 pname
+      character*255 token
+      character*32 mtoken(10)
+      integer  itok
+      integer  itoken(10)
+      double precision   ftoken(10)
+      double precision  eatoms
+      double precision bqzone
+      logical bq_dynamical
+      integer linkatm,bq_exclude
+      logical status
+      integer ip,np
+      logical ltoken
+      logical ignore
+      double precision f
+c
+      pname = "qmmm_input_abc "
+c
+      write(luout,*) "in ",pname
+c
+      call inp_set_field(0)
+c
+c     start parsing input
+c     ------------------
+      if (.not.inp_a(token))
+     + call errquit(pname,0, INPUT_ERR)
+      if (.not.inp_compare(.false.,token,'abc'))
+     + call errquit(pname,0, INPUT_ERR)
+      goto 2
+    1 continue
+      if (.not.inp_read()) call errquit('qmmm_input: premature EOF',0,
+     &       INPUT_ERR)
+    2 continue
+      if(.not.inp_a(token)) goto 1
+c
+c     number of cycles
+c     ----------------
+      if (inp_compare(.false.,"ncycles",token)) then
+        if (.not.inp_i(itok))
+     >    call errquit(pname//'failed to read npoints',0, INPUT_ERR)
+        tag = "qmmm:abc_ncycles"
+        if (.not.rtdb_put(rtdb,tag,mt_int,1,itok)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     new or extend
+c     -------------
+      if (inp_compare(.false.,"new",token)) then
+        tag = "qmmm:abc_extend"
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,.false.)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+      if (inp_compare(.false.,"extend",token)) then
+        tag = "qmmm:abc_extend"
+        if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
+c     theory
+c     ------
+      if(inp_compare(.false.,'theory',token) ) then
+        do ip=1,2
+          if(.not.inp_a(mtoken(ip))) 
+     >     call errquit(pname//' rst ',0,INPUT_ERR)
+        end do
+        tag="qmmm:abc_theory"
+        if (.not.rtdb_cput(rtdb,tag,2,mtoken)) 
+     >        call errquit(pname//'failed to store'//tag,0,
+     >         RTDB_ERR)
+
+        goto 2
+      endif
+c
+c     topology
+c     --------
+      if(inp_compare(.false.,'topology',token) ) then
+        do ip=1,2
+          if(.not.inp_a(mtoken(ip))) 
+     >     call errquit(pname//' rst ',0,INPUT_ERR)
+        end do
+        tag="qmmm:abc_top"
+        if (.not.rtdb_cput(rtdb,tag,2,mtoken)) 
+     >        call errquit(pname//'failed to store'//tag,0,
+     >         RTDB_ERR)
+
+        goto 2
+      endif
+c
+      if (token.eq.'end') then
+        write(luout,*) "out of ",pname
+        return
+      endif
+c
+      write(luout,*)' unrecognized token in qmmm input:',
+     + token(1:inp_strlen(token))
+       call errquit(pname//'failed ',0,
+     >        RTDB_ERR)
+      return
+998   call errquit(pname//'no token found '//token,0,
+     >        RTDB_ERR)
+999   call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+
+      end
 
       subroutine qmmm_input_esp(rtdb)
 c
