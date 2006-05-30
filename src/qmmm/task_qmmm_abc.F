@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.7 2006-05-30 22:20:40 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.8 2006-05-30 22:29:02 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -365,10 +365,10 @@ c
          if (.not. rtdb_put(rtdb,'qmmm:esp_density',
      $                      mt_log,1,.true.))
      $         call errquit(pname,0, RTDB_ERR)
-c      else if (atheory.eq."qm") then
-c         if (.not. rtdb_put(rtdb,'qmmm:nregion',
-c     $                      mt_int,1,0))
-c     $         call errquit(pname,0, RTDB_ERR)
+      else if (atheory.eq."qm") then
+         if (.not. rtdb_put(rtdb,'qmmm:esp_density',
+     $                      mt_log,1,.false.))
+     $         call errquit(pname,0, RTDB_ERR)
       end if
 
       if(otop) then
