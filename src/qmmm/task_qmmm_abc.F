@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.4 2006-05-29 06:51:29 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.5 2006-05-30 02:18:02 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -409,6 +409,7 @@ c
       character*255 oldoperation
       character*30 pname
       character*30 tmp_name
+      integer nregion
 c     
       logical qmmm_end
       external qmmm_end
@@ -430,12 +431,21 @@ c
      $                   mt_log,1,oesp))
      $     oesp=.false.
 c
+c
+      if (.not. rtdb_get(rtdb,'qmmm:nregion',
+     $                   mt_int,1,nregion))
+     $     nregion = 0
+c
       if(atheory.eq."mm") then
          if(.not.otop) 
      >     call errquit(pname//" need mm topology file",0,0)
       else if (atheory.eq."espmm") then
          if (.not. rtdb_put(rtdb,'qmmm:esp_density',
      $                      mt_log,1,.true.))
+     $         call errquit(pname,0, RTDB_ERR)
+      else if (atheory.eq."qm") then
+         if (.not. rtdb_put(rtdb,'qmmm:nregion',
+     $                      mt_int,1,0))
      $         call errquit(pname,0, RTDB_ERR)
       end if
 
@@ -474,6 +484,10 @@ c
       if (.not. rtdb_put(rtdb,'qmmm:esp_density',
      $                   mt_log,1,oesp))
      $      call errquit(pname,0, RTDB_ERR)
+c
+      if (.not. rtdb_put(rtdb,'qmmm:nregion',
+     $                      mt_int,1,nregion))
+     $         call errquit(pname,0, RTDB_ERR)
 c
       qmmm_abc_resample = ostatus
 
