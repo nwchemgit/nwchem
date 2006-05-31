@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.31 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_init.F,v 1.32 2006-05-31 23:23:00 kowalski Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -182,6 +182,8 @@ c
       if (.not.rtdb_cget(rtdb,'tce:module',1,module)) then
         module='tce'
       endif
+      if (.not.rtdb_cget(rtdb,'tce:model2e',1,model2e))
+     1  call errquit('tce_init: model2e not  specified',0,RTDB_ERR)
       if (.not.rtdb_cget(rtdb,'tce:model',1,model))
      1  call errquit('tce_init: no theory specified',0,RTDB_ERR)
       if (.not.rtdb_cget(rtdb,'tce:perturbative',1,perturbative)) then
@@ -194,6 +196,11 @@ c
         thresh = 1.0d-6
         if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
      1  call errquit('tce_init: failed to write thresh',0,RTDB_ERR)
+      endif
+      if (.not.rtdb_get(rtdb,'tce:zlshift',mt_dbl,1,zlshift)) then
+        zlshift = 0.0d0
+        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
+     1  call errquit('tce_init: failed to write zlshift',0,RTDB_ERR)
       endif
       if (.not.rtdb_get(rtdb,'tce:maxiter',mt_int,1,maxiter)) then
         maxiter = 100
@@ -257,6 +264,18 @@ c
       else if (reference.eq.1) then
         if (.not.rtdb_get(rtdb,'scf:tol2e',mt_dbl,1,tol2e))
      1    tol2e = 1.0d-10
+      endif
+c
+c     ----------------------
+c     2-e storage
+c     ----------------------
+c
+      intorb=.false.
+      if (model2e.eq.'2eorb') intorb=.true.
+      if(intorb) then 
+      if(.not.(intorb.and.(hftype.eq.'RHF'.or.hftype.eq.'ROHF'))) then
+       call errquit('tce_init: 2eorb needs RHF or ROHF ref.',0,RTDB_ERR)
+      endif
       endif
 c
 c     --------------------------
@@ -355,6 +374,9 @@ c
           ctype='Coupled-cluster through triples w/ perturbation'
           cperturbative = '(2) quadruples (nonfactorized)'
         endif
+         if(intorb) then
+          call errquit('tce_init: 2eorb with active calc.',0,RTDB_ERR)
+         endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
      2      (module.ne.'uccsdt'))
@@ -694,6 +716,7 @@ c
         write(LuOut,9230) cperturbative
         write(LuOut,9130) maxiter
         write(LuOut,9110) thresh
+        write(LuOut,9115) zlshift
         if (diis .gt. 0) then
           write(LuOut,9150) diis,'-th order DIIS'
         else
@@ -754,6 +777,7 @@ c
  9060 format(3x,'    Number of AO shells :',2x,i4)
  9100 format(3x,'      Schwarz screening : ',d8.2)
  9110 format(3x,'     Residual threshold : ',d8.2)
+ 9115 format(3x,'       DIIS level shift : ',d8.2)
  9130 format(3x,'         Max iterations :',2x,i7)
  9140 format(3x,'             I/O scheme : ',a)
  9150 format(3x,'       Amplitude update : ',i2,a)

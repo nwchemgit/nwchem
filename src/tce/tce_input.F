@@ -1,6 +1,6 @@
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.19 2005-12-16 22:14:02 kowalski Exp $
+c $Id: tce_input.F,v 1.20 2006-05-31 23:23:17 kowalski Exp $
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.
@@ -76,12 +76,16 @@ c
       character*20 test
       integer maxiter
       character*10 model
+      character*10 model2e
       character*10 module
       double precision thresh
       character*10 ioalgchar
       integer ioalg
       integer reference
       integer diis
+c --- level shift --
+      double precision zlshift
+c ------------------
       integer nroots
       integer target
       integer tilesize
@@ -129,6 +133,13 @@ c
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
+c     LEVEL SHIFT (for singles and doubles)
+c
+      zlshift=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
 c     MAXITER (the maximum number of Davidson iterations)
 c
       maxiter=100
@@ -158,6 +169,13 @@ c     NROOTS (the number of excited state roots)
 c
       nroots=0
       if (.not.rtdb_put(rtdb,'tce:nroots',mt_int,1,nroots))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+c     2e STORAGE
+c
+        model2e='2espin'
+      if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
@@ -265,6 +283,19 @@ c     FREEZE (frozen cores/virtuals)
 c
       else if (inp_compare(.false.,test,'freeze')) then
         call freeze_input(rtdb,'tce')
+c
+c     STORAGE OF 2-e INTEGRALS
+c
+      else if (inp_compare(.false.,test,'2eorb')) then
+        if (module.eq.'tce') then
+        model2e='2eorb'
+        if (.not.rtdb_cput(rtdb,'tce:model2e',1,model2e))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
 c
 c     MODEL (the name of theory requested)
 c
@@ -614,6 +645,18 @@ c
           thresh=1.0d-6
         endif
         if (.not.rtdb_put(rtdb,'tce:thresh',mt_dbl,1,thresh))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c     LEVEL SHIFT
+c
+      else if (inp_compare(.false.,test,'lshift')) then
+        if (.not.inp_f(zlshift)) then
+          write(LuOut,*) 'tce_input: lshift value not found; ',
+     1      'default value of 0.0d0 will be used'
+          zlshift=0.0d0
+        endif
+        if (.not.rtdb_put(rtdb,'tce:zlshift',mt_dbl,1,zlshift))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c

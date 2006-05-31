@@ -1,4 +1,4 @@
-c $Id: tce.fh,v 1.3 2005-12-16 22:06:57 kowalski Exp $
+c $Id: tce.fh,v 1.4 2006-05-31 23:26:05 kowalski Exp $
 c
 c Include file for TCE module
 c
@@ -32,6 +32,7 @@ c
       integer mult             ! Ground state spin multiplicity
       integer nirreps          ! Number of irreducible representations
       double precision thresh  ! Convergence threshold for amplitude equation
+      double precision zlshift ! Level Shift
       integer l_irs(2),k_irs(2)! Irreps of MO's
       integer nmix(2)          ! Number of symmetry contaminations
       double precision tol2e   ! 2-e integral tolerance
@@ -64,6 +65,25 @@ c
       integer diis             ! DIIS vector space size
       integer maxdiis          ! Maximum allowed value for diis
       parameter (maxdiis = 20)
+c --- relevant if intorb = .true. ----
+      character*10 model2e
+      logical intorb 
+      integer l_b2am,k_b2am
+      integer l_spin_alpha,k_spin_alpha
+      integer l_sym_alpha,k_sym_alpha
+      integer l_range_alpha,k_range_alpha
+      integer l_offset_alpha,k_offset_alpha
+      integer d_v2orb
+      integer l_o2o_offset       ! Offset for offset to offset table
+      integer k_o2o_offset       ! Offset for offset to offset table
+      integer l_o2ot_offset      ! orbitals for offset to offset tables
+      integer k_o2ot_offset      ! orbitals for offset to offset tables
+      integer l_v2_alpha_offset  ! Offset for 2e integrals if intorb=.true.
+      integer k_v2_alpha_offset  ! Offset for 2e integrals if intorb=.true. 
+      integer l_v2spin_offset
+      integer k_v2spin_offset
+c
+c ------------------------------------
       integer t1_diis(maxdiis) ! T1 files for DIIS
       integer r1_diis(maxdiis) ! R1 files for DIIS
       integer t2_diis(maxdiis) ! T2 files for DIIS
@@ -189,17 +209,22 @@ c
      2  x3,y3,x4,y4,xp1,yp1,xp2,yp2,xp3,yp3,xp4,yp4,
      3  irrep_x,irrep_y,irrep_d,target,filesizes,xc1,xc2,xc3,xc4,
      4  yc1,yc2,yc3,yc4,oactive,vactive,oatiles,vatiles,
-     5  l_active,k_active,numact,irrep_c
+     5  l_active,k_active,numact,irrep_c,l_b2am,k_b2am,d_v2orb,
+     6  l_spin_alpha,k_spin_alpha,l_sym_alpha,k_sym_alpha,
+     7  l_range_alpha,k_range_alpha,l_offset_alpha,k_offset_alpha,
+     8  l_o2o_offset,k_o2o_offset,l_o2ot_offset,k_o2ot_offset,
+     9  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
+     1  k_v2spin_offset
 c
 c     Doubles
 c
       common /tcedouble/
-     1  thresh,tol2e,cpusecs
+     1  thresh,tol2e,cpusecs,zlshift
 c
 c     Characters
 c
       common /tcechar/
-     1  model,perturbative,filenames,targetsym
+     1  model,perturbative,filenames,targetsym,model2e
 c
 c     Logicals
 c
@@ -210,4 +235,4 @@ c
      4  x3_exist,y3_exist,x4_exist,y4_exist,xp1_exist,yp1_exist,
      5  xp2_exist,yp2_exist,xp3_exist,yp3_exist,xp4_exist,yp4_exist,
      6  symmetry,fileisga,xc1_exist,xc2_exist,xc3_exist,xc4_exist,
-     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist,activecalc
+     7  yc1_exist,yc2_exist,yc3_exist,yc4_exist,activecalc,intorb
