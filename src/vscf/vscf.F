@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.10 2006-06-01 19:27:36 bert Exp $
+c $Id: vscf.F,v 1.11 2006-06-01 19:58:33 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -1145,9 +1145,9 @@ C
          if (ga_nodeid().eq.0) then
             write(LuOut,*) ""
             write(LuOut,*) "E(DIAG) :",ediag(index+1)*cm,
-     &                     " (without mode coupling)"
-            write(LuOut,*) "E(VSCF) :", (Etot-emp2)*cm
-            if (ncoup.gt.1) write(LuOut,*) "E(VMP2) :", Etot*cm
+     &                     " cm-1 (without mode coupling)"
+            write(LuOut,*) "E(VSCF) :", (Etot-emp2)*cm, 'cm-1'
+            if (ncoup.gt.1) write(LuOut,*) "E(VMP2) :", Etot*cm, 'cm-1'
             write(LuOut,*) ""
          endif
   100    continue
