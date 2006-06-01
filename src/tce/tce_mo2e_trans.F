@@ -184,8 +184,8 @@ c
       do mu = nu,nshells   !--------------
         if (next.eq.count) then      
 c test
-        write(6,900)mu,nu,ga_nodeid()
-        call util_flush(6)
+c        write(6,900)mu,nu,ga_nodeid()
+c        call util_flush(6)
 c getting ranges for mu-th shell 
         if (.not.bas_cn2bfr(ao_bas_han,mu,mu_lo,mu_hi))
      1    call errquit('tce_ao2e: basis fn range problem 1',0,
@@ -434,8 +434,8 @@ c
         do g4b = g3b,noa+nva !k
        if (next.eq.count) then
 c test
-        write(6,901)g3b,g4b,ga_nodeid()
-        call util_flush(6)
+c        write(6,901)g3b,g4b,ga_nodeid()
+c        call util_flush(6)
 c
          size_k  = int_mb(k_range_alpha+g4b-1)
          size_l  = int_mb(k_range_alpha+g3b-1)
@@ -645,8 +645,8 @@ c
          call dfill(size_g3g4, 0.0d0, dbl_mb(k_p34), 1)
 c
 c test
-        write(6,902)g3b,g4b,ga_nodeid()
-        call util_flush(6)
+c        write(6,902)g3b,g4b,ga_nodeid()
+c        call util_flush(6)
 c
 c
 c DISTRIBUTION CONSISTENT WITH THE  OFFSET FOR 2E-INT IN ORBITAL FORM
@@ -723,8 +723,8 @@ c
          enddo !g2b i
          enddo !g1b j
 c test
-        write(6,903)g3b,g4b,ga_nodeid()
-        call util_flush(6)
+c        write(6,903)g3b,g4b,ga_nodeid()
+c        call util_flush(6)
 c
          xoffset_p34 = int_mb(k_gpair+len_pair+point_pair)
 c
