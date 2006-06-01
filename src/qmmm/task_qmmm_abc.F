@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.9 2006-05-31 23:21:26 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.10 2006-06-01 01:36:31 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -236,6 +236,7 @@ c
       if (.not.rtdb_get(rtdb,"qmmm:abc_eref",
      >              mt_dbl,1,eref)) then
         nf = 0
+        eref = 0.0d0
         do i=1,nfrmax
           read(fnl,*,err=20,end=5) temp(1),etot(1),emm(1),emm(1),
      >                  ebq_el(1),ebq_nuc(1)
@@ -244,7 +245,7 @@ c
           if(temp(1).ne.temp(2)) 
      >      goto 20
           nf = nf+1
-          eref = etot(2)-etot(1)
+          eref = eref+(etot(2)-etot(1))
         end do
 5       continue
         eref = eref/nf
