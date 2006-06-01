@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.8 2006-02-14 00:14:14 bert Exp $
+c $Id: vscf.F,v 1.9 2006-06-01 19:05:34 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -565,7 +565,6 @@ c
      &         call errquit('vgrid: rtdb_cget dft:output failed', 100,
      &                       RTDB_ERR)
          else
-            print*,'scf vectors'
             if (.not. rtdb_cget(rtdb,'scf:output vectors',1,vectors_in))
      &          call errquit('vgrid: rtdb_cget scf:output failed', 100,
      &                        RTDB_ERR)
