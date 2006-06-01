@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.9 2006-06-01 19:05:34 bert Exp $
+c $Id: vscf.F,v 1.10 2006-06-01 19:27:36 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -1000,7 +1000,7 @@ c
          if (index.eq.0) then
             write(LuOut,9019)
          else
-            write(LuOut,9029)
+            write(LuOut,9029) nnm
          endif
          write(LuOut,*) ''
 C      
