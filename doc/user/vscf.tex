@@ -1,0 +1,68 @@
+%
+% $Id: vscf.tex,v 1.1 2006-06-01 20:22:38 bert Exp $
+%
+\label{sec:vscf}
+
+The VSCF module can be used to calculate the anharmonic contributions to the 
+vibrational modes of the molecule of interest. Energies are calculated on a 
+one-dimensional grid along each normal mode, on a two-dimensional grid along
+each pair of normal modes, and optionally on a three-dimensional grid along
+each triplet of normal modes. These energies are then used to calculate the
+vibrational nuclear wavefunction at an SCF- (VSCF) and MP2-like (cc-VSCF) level
+of theory. 
+
+VSCF can be used at all levels of theory, SCF and correlated methods, and DFT.  
+For correlated methods, only the SCF level dipole is evaluated and used to 
+calculate the IR intensity values. 
+
+The VSCF module is started when the task directive
+\verb+TASK <theory> vscf+ is defined in the user input file. The input 
+format has the form:
+
+\begin{verbatim}
+  VSCF
+    [coupling <integer default 2  >]
+    [ngrid    <integer default 16 >]
+    [iexcite  <integer default 1  >]
+    [vcfct    <real    default 1.0>]
+  END
+\end{verbatim}
+
+The order of coupling of the harmonic normal modes included in the calculation
+is controlled by the specifying:
+
+\begin{verbatim}
+    coupling <integer default 2>
+\end{verbatim}
+
+For \verb+coupling=1+ a one-dimensional grid along each normal mode is computed.
+For \verb+coupling=2+ a two-dimensional grid along each pair of normal modes is computed.
+For \verb+coupling=3+ a three-dimensional grid along each triplet of normal modes is computed.
+
+The number of grid points along each normal mode, or pair of modes can be defined 
+by specifying:
+
+\begin{verbatim}
+    ngrid <integer default 16>
+\end{verbatim}
+
+This VSCF module by default calculates the ground state (v=0), but can also calculate excited
+states (such as v=1). The number of excited states calculated is defined by specifying:
+
+\begin{verbatim}
+    iexcite <integer default 1>
+\end{verbatim}
+
+With \verb+iexcite=1+ the fundamental frequencies are calculated.
+With \verb+iexcite=2+ the first overtones are calculated.
+With \verb+iexcite=3+ the second overtones are calculated.
+
+In certain cases the pair coupling potentials can become larger than those for a single 
+normal mode. In this case the pair potentials need to be scaled down. The scaling factor 
+used can be defined by specifying:
+
+\begin{verbatim}
+    vcfct <real default 1.0>
+\end{verbatim}
+
+
