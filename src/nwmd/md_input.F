@@ -1,6 +1,6 @@
       subroutine md_input(irtdb)
 c
-c $Id: md_input.F,v 1.90 2005-09-14 22:15:54 d3j191 Exp $
+c $Id: md_input.F,v 1.91 2006-06-02 00:42:23 marat Exp $
 c
       implicit none
 c
@@ -1022,9 +1022,12 @@ c
 c     noshake [solvent] [solute]
 c
       if(inp_compare(.false.,'noshake',item)) then
-      noshak=3
+c      noshak=3
   263 continue
-      if(.not.inp_a(item)) goto 1
+      if(.not.inp_a(item)) then
+        if(noshak.eq.0) noshak=3
+        goto 1
+      end if
       if(inp_compare(.false.,'solvent',item)) then
       if(noshak.eq.0) noshak=1
       if(noshak.eq.2) noshak=3
