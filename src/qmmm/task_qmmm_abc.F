@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.10 2006-06-01 01:36:31 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.11 2006-06-02 00:57:27 marat Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -34,6 +34,7 @@ c     local variables
       integer in
       integer ncycles
       logical oextend
+      logical skip_frames
       double precision w,eref,tav
       integer ns
 
@@ -77,6 +78,10 @@ c
 c
         if (.not.rtdb_get(rtdb,"qmmm:abc_extend",mt_log,1,oextend)) 
      >      oextend = .false.
+c
+        if (.not.rtdb_get(rtdb,"qmmm:abc_skip_frames",
+     >                    mt_log,1,skip_frames)) 
+     >      skip_frames = .false.
 c
 c
 c     get default topology filename
@@ -134,8 +139,13 @@ c       generate frames for resampling
 c       ------------------------------
         if(master)  
      >    write(*,*) "ABC: start generation of frames"
-        ostatus = qmmm_abc_generate_frames(nfr,filetop(1),
+        if(.not.skip_frames) then
+          ostatus = qmmm_abc_generate_frames(nfr,filetop(1),
      >                                     atheory(1),rtdb)
+        else
+         if(master)  
+     >    write(*,*) "ABC: skipped generation of frames"
+        end if
         if(master)  
      >    write(*,*) "ABC: end generation of frames"
 c
@@ -372,8 +382,9 @@ c
      $         call errquit(pname,0, RTDB_ERR)
       end if
 
+      ignore = qmmm_end(rtdb)
       if(otop) then
-        ignore = qmmm_end(rtdb)
+c        ignore = qmmm_end(rtdb)
         if(master) then 
             write(*,*) "copying filename", topfile
             call util_file_copy(topfile,oldtop)
