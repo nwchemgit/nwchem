@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.7 2005-01-12 01:50:28 edo Exp $
+C$Id: xc_xmpw91.F,v 1.8 2006-06-02 18:39:05 edo Exp $
 c
       implicit none
 c
@@ -44,7 +44,8 @@ c
 
 !      Parameter (BETA = 0.0042D0, CPW91=1.6455D0,DPOW=4) ! pw91 paper
 !      Parameter (BETA = 0.0046D0, CPW91=1.6455D0,DPOW=3.73D0)!mpw91 paper
-      Parameter (BETA = 0.00426D0, CPW91=1.6455D0,DPOW=3.73D0)!errata 
+c     from Zhao Truhlar, J. Phys. Chem. A 109, 5656, 2005
+      Parameter (BETA = 0.00426D0, CPW91=1.6455D0,DPOW=3.72D0)!errata 
 C
 C     C. Adamo confirmed that there is a typo in the JCP paper
 c     BETA is 0.00426 instead of 0.0046
@@ -158,7 +159,7 @@ c
      &     ldew)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.7 2005-01-12 01:50:28 edo Exp $
+C$Id: xc_xmpw91.F,v 1.8 2006-06-02 18:39:05 edo Exp $
 c
       implicit none
 c
