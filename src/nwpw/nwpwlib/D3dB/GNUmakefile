@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.10 2005-06-24 19:24:16 bylaska Exp $
+# $Id: GNUmakefile,v 1.11 2006-06-05 18:06:28 edo Exp $
 #
 
  OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o olist.o trans.o D3dB_pfft.o
@@ -13,7 +13,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = D3dB-new.F 
+    USES_BLAS = D3dB-new.F D3dB_pfft.F D3dB-tcgmsg.F
 
   LIB_DEFINES = 
 

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2004-11-29 16:05:16 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2006-06-05 18:03:46 edo Exp $
 #
  OBJ_OPTIMIZE = \
 				band_stress_numerical.o \
@@ -13,7 +13,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = 
+    USES_BLAS = band_stress_fd.F band_update_unitcell.F
                 
 
   LIB_DEFINES =

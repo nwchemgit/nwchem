@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2002-02-11 19:34:40 edo Exp $
+# $Id: GNUmakefile,v 1.7 2006-06-05 18:00:54 edo Exp $
 #
  OBJ_OPTIMIZE = \
                 lcao_wvfnc.o \
@@ -19,7 +19,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = lcao_diis_dn.F lcao_init_dn.F lcao_new_dn.F lcao_new_mix_dn.F
+    USES_BLAS = lcao_diis_dn.F lcao_init_dn.F lcao_new_dn.F lcao_new_mix_dn.F lcao_generate_vhxcmatrix.F
 
   LIB_DEFINES = 
 
