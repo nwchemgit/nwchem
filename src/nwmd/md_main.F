@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.210 2006-06-02 00:53:23 marat Exp $
+c $Id: md_main.F,v 1.211 2006-06-05 00:12:29 marat Exp $
 c
       implicit none
 c
@@ -594,6 +594,9 @@ c
 c
       if(isdit.lt.msdit.and.dxmax.gt.dxsdmx) then
         dx=half*dx
+        if(ga_nodeid().eq.0) then
+           write(*,*) "reducing step",dx,dxmax,dxsdmx
+        end if 
         da=half*da
         call timer_stop(201)
         goto 1
@@ -1331,6 +1334,7 @@ c
       call md_server
       call prp_step(mdstep,stime,eww,dbl_mb(i_esw),
      + dbl_mb(i_ess),dbl_mb(i_fss),dbl_mb(i_esk),epme,uqmd,uqmmm)
+      if(ga_nodeid().eq.0) write(79,*) epot,etot
 c
       call timer_stop(201)
 c
@@ -1340,7 +1344,7 @@ c
 c
       stime=stime+tstep
 c
-      if(lstop) then
+      if(lstop.and.(.not.lqmmm)) then
       if(me.eq.0) write(*,1000) tleft,tneed
  1000 format(///,' Time left (',f12.3,' s) is less than twice the ',
      + ' time needed to reach writing the next restart file (',
@@ -2898,7 +2902,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.210 2006-06-02 00:53:23 marat Exp $
+c $Id: md_main.F,v 1.211 2006-06-05 00:12:29 marat Exp $
 c
       implicit none
 c
