@@ -1,6 +1,9 @@
 *
-* $Id: paw_cpmd.F,v 1.20 2006-02-11 02:50:46 bylaska Exp $
+* $Id: paw_cpmd.F,v 1.21 2006-06-05 17:34:26 edo Exp $
 * $Log: not supported by cvs2svn $
+* Revision 1.20  2006/02/11 02:50:46  bylaska
+* GGA's using 1st derivative formulas have been added in core part of PAW....EJB
+*
 * Revision 1.19  2006/01/07 00:55:33  marat
 * removing ma_auto_verify
 * added some comments to paw
@@ -1025,7 +1028,7 @@ c        call eigen(n,ne(ms),
 c    >              dbl_mb(hml(1)+(ms-1)*nn),
 c    >              dbl_mb(eig(1)+(ms-1)*n),
 c    >              dbl_mb(lmd(1)),ierr)
-         call DSYEV('V','U',ne(ms),
+         call dsyev('V','U',ne(ms),
      >              dbl_mb(hml(1)+(ms-1)*nn),n,
      >              dbl_mb(eig(1)+(ms-1)*n),
      >              dbl_mb(lmd(1)),(2*nemax*nemax),

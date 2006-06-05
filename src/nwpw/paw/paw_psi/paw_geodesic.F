@@ -1,5 +1,5 @@
 *
-* $Id: paw_geodesic.F,v 1.2 2004-11-29 16:05:20 bylaska Exp $
+* $Id: paw_geodesic.F,v 1.3 2006-06-05 17:34:26 edo Exp $
 *
 
 *     ***********************************
@@ -311,7 +311,7 @@ c      integer ierr
      >                    dbl_mb(tmpC(1)),
      >                    dbl_mb(tmpS(1)))
 
-        call DGEMM('T','N',n,n,n,one,
+        call dgemm('T','N',n,n,n,one,
      >              dbl_mb(  Vt(1)+shift2),n,
      >              dbl_mb(tmp1(1)+shift2),n,
      >              zero,
@@ -319,14 +319,14 @@ c      integer ierr
 
 
 
-        call DGEMM('N','N',2*npack1,n,n,
+        call dgemm('N','N',2*npack1,n,n,
      >              one,
      >              Yold(1+shift1*npack1),2*npack1,
      >              dbl_mb(tmp2(1)+shift2),n,
      >              zero,
      >              Ynew(1+shift1*npack1),2*npack1)
 
-        call DGEMM('N','N',2*npack1,n,n,
+        call dgemm('N','N',2*npack1,n,n,
      >              one,
      >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
      >              dbl_mb(tmp3(1)+shift2),n,
@@ -446,7 +446,7 @@ c         end if
 
 
 
-        call DGEMM('T','N',n,n,n,one,
+        call dgemm('T','N',n,n,n,one,
      >              dbl_mb(  Vt(1)+shift2), n,
      >              dbl_mb(tmp1(1)+shift2), n,
      >              zero,
@@ -455,14 +455,14 @@ c         end if
 
 
 
-        call DGEMM('N','N',2*npack1,n,n,
+        call dgemm('N','N',2*npack1,n,n,
      >              (-1.0d0),
      >              Yold(1+shift1*npack1),2*npack1,
      >              dbl_mb(tmp2(1)+shift2),n,
      >              zero,
      >              Ynew(1+shift1*npack1),2*npack1)
 
-        call DGEMM('N','N',2*npack1,n,n,
+        call dgemm('N','N',2*npack1,n,n,
      >              one,
      >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
      >              dbl_mb(tmp3(1)+shift2),n,
@@ -574,7 +574,7 @@ c         end if
      >                    dbl_mb(tmpS(1)))
 
 
-        call DGEMM('T','N',n,n,n,one,
+        call dgemm('T','N',n,n,n,one,
      >              dbl_mb(  Vt(1)+shift2), n,
      >              dbl_mb(tmp1(1)+shift2), n,
      >              zero,
@@ -582,14 +582,14 @@ c         end if
 
 
 
-        call DGEMM('N','N',2*npack1,n,n,
+        call dgemm('N','N',2*npack1,n,n,
      >              (-1.0d0),
      >              Yold(1+shift1*npack1),2*npack1,
      >              dbl_mb(tmp2(1)+shift2),n,
      >              one,
      >              tG(1+shift1*npack1),2*npack1)
 
-        call DGEMM('N','N',2*npack1,n,n,
+        call dgemm('N','N',2*npack1,n,n,
      >              (-1.0d0),
      >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
      >              dbl_mb(tmp3(1)+shift2),n,
@@ -658,7 +658,7 @@ c     real*8 sum1,sumv
 
 
       !call eigen(ne,ne,V,S,dbl_mb(tmp1(1)),ierr)
-      call DSYEV('V','U',ne,
+      call dsyev('V','U',ne,
      >           V,ne,
      >           S,
      >           dbl_mb(tmp1(1)),(4*ne*ne),
@@ -666,7 +666,7 @@ c     real*8 sum1,sumv
 
 
 *     **** generate U*Sigma ****
-      call DGEMM('N','N',2*npack,ne,ne,
+      call dgemm('N','N',2*npack,ne,ne,
      >              (1.0d0),
      >              A,2*npack,
      >              V,ne,

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2004-11-29 16:05:18 bylaska Exp $
+# $Id: GNUmakefile,v 1.2 2006-06-05 17:34:23 edo Exp $
 #
  OBJ_OPTIMIZE = \
 				paw_stress_numerical.o \
@@ -12,7 +12,7 @@
 
       LIBRARY = libpaw.a
 
-    USES_BLAS = 
+    USES_BLAS = paw_stress_fd.F
                 
 
   LIB_DEFINES =

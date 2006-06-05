@@ -1,5 +1,5 @@
 *
-* $Id: paw_electron.F,v 1.7 2006-02-11 02:50:48 bylaska Exp $
+* $Id: paw_electron.F,v 1.8 2006-06-05 17:34:26 edo Exp $
 *
 
 
@@ -679,7 +679,7 @@ c      write(*,*) "total_energy:",total_energy
             shift1 = 1 + (ms-1)*ne(1)*npack1
             shift2 = 1 + (ms-1)*ne(1)*ne(1)
 
-            call DGEMM('N','N',2*npack1,n,n,
+            call dgemm('N','N',2*npack1,n,n,
      >                (1.0d0),
      >                psi_k(shift1),  2*npack1,
      >                hml(shift2),    n,
@@ -718,7 +718,7 @@ c      write(*,*) "total_energy:",total_energy
          if (n.le.0) go to 30
          shift1 = 1 + (ms-1)*ne(1)*npack1
          shift2 = 1 + (ms-1)*ne(1)*ne(1)
-         call DGEMM('N','N',2*npack1,n,n,
+         call dgemm('N','N',2*npack1,n,n,
      >             (-1.0d0),
      >             psi_k(shift1),  2*npack1,
      >             hml(shift2),    n,

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2006-02-11 02:50:47 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2006-06-05 17:34:26 edo Exp $
 #
 
           OBJ_OPTIMIZE =  paw_density.o
@@ -7,7 +7,7 @@
 
       LIBRARY =	libpaw.a
 
-   USES_BLAS = 
+   USES_BLAS =  paw_density.F
 
   LIB_INCLUDES =
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi.F,v 1.11 2005-02-02 06:59:40 bylaska Exp $
+* $Id: paw_psi.F,v 1.12 2006-06-05 17:34:26 edo Exp $
 *
 
 
@@ -217,7 +217,7 @@
 
 
 *         ****  correction due to the constraint ****
-          call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+          call dgemm('N','N',2*npack1,ne(ms),ne(ms),
      >              (1.0d0),
      >              psi1(1,n1(ms)),2*npack1,
      >              tmp(st1),n,
@@ -288,7 +288,7 @@ c          end do
       integer ierr
 
       !call eigen(n_max,n,Bs,D,D(1,2))
-      call DSYEV('V','U',n,Bs,n_max, D,Work,2*n_max*n_max,ierr)
+      call dsyev('V','U',n,Bs,n_max, D,Work,2*n_max*n_max,ierr)
       return
       end
 
@@ -404,12 +404,12 @@ c          end do
 
 
       !**** fnm = Ut*fnm*U ***
-      call DGEMM('N','N',n,n,n,1.0d0,
+      call dgemm('N','N',n,n,n,1.0d0,
      >           fnm,n_max,
      >           U,n_max,
      >           0.0d0,
      >           tmp,n_max)
-      call DGEMM('T','N',n,n,n,1.0d0,
+      call dgemm('T','N',n,n,n,1.0d0,
      >           U,n_max,
      >           tmp,n_max,
      >           0.0d0,
@@ -425,12 +425,12 @@ c          end do
       end do
 
       !**** fnm = X = U*{(Ut*fnm*U)_nm/(d_n+d_m)}*Ut ***
-      call DGEMM('N','N',n,n,n,1.0d0,
+      call dgemm('N','N',n,n,n,1.0d0,
      >           U,n_max,
      >           fnm,n_max,
      >           0.0d0,
      >           tmp,n_max)
-      call DGEMM('N','T',n,n,n,1.0d0,
+      call dgemm('N','T',n,n,n,1.0d0,
      >           tmp,n_max,
      >           U,n_max,
      >           0.0d0,

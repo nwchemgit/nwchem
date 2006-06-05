@@ -1,7 +1,10 @@
 *
-* $Id: paw_sd.F,v 1.79 2006-02-11 02:50:46 bylaska Exp $
+* $Id: paw_sd.F,v 1.80 2006-06-05 17:34:26 edo Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.79  2006/02/11 02:50:46  bylaska
+* GGA's using 1st derivative formulas have been added in core part of PAW....EJB
+*
 * Revision 1.78  2006/01/12 00:54:01  bylaska
 * Added charge component analysis wavefunctions, i.e. the following is now outputed in the results section:
 *
@@ -862,7 +865,7 @@ c        call eigen(n,ne(ms),
 c    >              dbl_mb(hml(1)+(ms-1)*nn),
 c    >              dbl_mb(eig(1)+(ms-1)*n),
 c    >              dbl_mb(lmd(1)),ierr)
-         call DSYEV('V','U',ne(ms),
+         call dsyev('V','U',ne(ms),
      >              dbl_mb(hml(1)+(ms-1)*nn),n,
      >              dbl_mb(eig(1)+(ms-1)*n),
      >              dbl_mb(lmd(1)),(2*nemax*nemax),

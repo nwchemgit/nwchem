@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 2006-02-11 02:50:45 bylaska Exp $
+# $Id: GNUmakefile,v 1.7 2006-06-05 17:34:26 edo Exp $
 #
  OBJ_OPTIMIZE = \
 		paw_energy.o \
@@ -20,7 +20,7 @@
 
       LIBRARY = libpaw.a
 
-    USES_BLAS =  paw_bfgsminimize.F
+    USES_BLAS =  paw_bfgsminimize.F paw_minimizer.F paw_cgsd_energy.F paw_cgminimize.F
                 
 
   LIB_DEFINES =

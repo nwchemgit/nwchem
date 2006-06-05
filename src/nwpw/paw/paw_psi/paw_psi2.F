@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.10 2006-01-12 00:54:02 bylaska Exp $
+* $Id: paw_psi2.F,v 1.11 2006-06-05 17:34:26 edo Exp $
 *
 
 
@@ -2163,7 +2163,7 @@ c     real*8 sum1,sum2
             if (n.le.0) go to 30
             shift1 = 1 + (ms-1)*ne(1)*npack1
             shift2 =     (ms-1)*ne(1)*ne(1)
-            call DGEMM('N','N',2*npack1,n,n,
+            call dgemm('N','N',2*npack1,n,n,
      >                (1.0d0),
      >                S0(shift1),            2*npack1,
      >                dbl_mb(hml(1)+shift2), n,
@@ -2392,7 +2392,7 @@ c     real*8 sum1,sum2
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
 
-         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+         call dgemm('N','N',2*npack1,ne(ms),ne(ms),
      >              (1.0d0),
      >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1,
      >              dbl_mb(hml(1)+shift2),ne(ms),
@@ -2424,7 +2424,7 @@ c     real*8 sum1,sum2
          shift1 = (ms-1)*ne(1)
          shift2 = (ms-1)*ne(1)*ne(1)
 
-         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+         call dgemm('N','N',2*npack1,ne(ms),ne(ms),
      >              (1.0d0),
      >              dcpl_mb(psi2(1)+shift1*npack1),2*npack1,
      >              dbl_mb(hml(1)+shift2),ne(ms),
@@ -2470,7 +2470,7 @@ c     real*8 sum1,sum2
          shift2 = (ms-1)*ne(1)*ne(1)
          if (ne(ms).le.0) go to 30
 
-         call DSYEV('V','U',ne(ms),
+         call dsyev('V','U',ne(ms),
      >              dbl_mb(hml(1)+shift2),ne(ms), 
      >              dbl_mb(eig(1)+shift1),
      >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
@@ -2525,7 +2525,7 @@ c     real*8 sum1,sum2
          shift2 = (ms-1)*ne(1)*ne(1)
          if (ne(ms).le.0) go to 30
 
-         call DSYEV('V','U',ne(ms),
+         call dsyev('V','U',ne(ms),
      >              dbl_mb(hml(1)+shift2),ne(ms), 
      >              dbl_mb(eig(1)+shift1),
      >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
