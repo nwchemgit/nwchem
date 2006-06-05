@@ -1,7 +1,7 @@
-      subroutine get_block_ind(d_file,array,size,indexc)
+      subroutine get_block_ind(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.1 2006-05-31 23:15:11 kowalski Exp $
+c $Id: get_block_ind.F,v 1.2 2006-06-05 18:24:28 kowalski Exp $
 c
       implicit none
 #include "global.fh"
@@ -12,6 +12,7 @@ c
 #include "stdio.fh"
 #include "errquit.fh"
 #include "tce.fh"
+#include "sym.fh"
       integer d_file
 cccx      integer d_f
       integer size
@@ -28,7 +29,7 @@ cccx      integer offset
       integer length
       integer offset_alpha,key_alpha
       logical used
-      logical parallel
+c--      logical parallel
       character*255 filename
 c --- controls the logic of orbital integrals --
       logical l31s,l42s,lp31p42
@@ -39,16 +40,122 @@ c --- controls the logic of orbital integrals --
       integer check_key
       logical uaadaa, ubbdbb
       logical uabdab,ubadba,ubadab,uabdba 
-c ----------------------------------------------
+c --- keys to orbital part
+      integer key_ix,nkey,first_h,second_h
+      integer i1,j1,k1,l1
+      integer inx1,inx2,inx3,inx4
 c
       cpusecs(5) = cpusecs(5) - util_cpusec()
       cpusecs(55) = cpusecs(55) - util_wallsec()
-      parallel = (ga_nnodes().gt.1)
+c--      parallel = (ga_nnodes().gt.1)
 cccx      if (util_print('get_block',print_debug)) then
 cccx         write(LuOut,9000) ga_nodeid(),d_file,size,offset
 cccx      endif
 ccccx      if (offset .eq. -1)
 ccccx     1  call errquit('get_block: illegal offset',0,UNKNOWN_ERR)
+c
+c
+c
+c
+c keys to orbital integrals!
+c
+c
+      DO g3b = 1,noab+nvab
+      DO g4b = g3b,noab+nvab
+      DO g1b = 1,noab+nvab
+      DO g2b = g1b,noab+nvab
+      IF (int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1) .eq. int_mb(k_spin+g
+     &1b-1)+int_mb(k_spin+g2b-1)) THEN
+      IF (ieor(int_mb(k_sym+g3b-1),ieor(int_mb(k_sym+g4b-1),ieor(int_mb(
+     &k_sym+g1b-1),int_mb(k_sym+g2b-1)))) .eq. irrep_v) THEN
+      IF ((.not.restricted).or.(int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1
+     &)+int_mb(k_spin+g1b-1)+int_mb(k_spin+g2b-1).ne.8)) THEN
+c
+      nkey=g2b-1+(noab+nvab)*(g1b-1+
+     &(noab+nvab)*(g4b-1+(noab+nvab)*(g3b-1)))
+c
+      if(key_ix.eq.nkey) then !----
+       inx3=g3b
+       inx4=g4b
+       inx1=g1b
+       inx2=g2b
+c first half
+        j1 = int_mb(k_b2am+g3b-1)
+        i1 = int_mb(k_b2am+g1b-1)
+        l1 = int_mb(k_b2am+g4b-1)
+        k1 = int_mb(k_b2am+g2b-1)
+        if(i1.ge.j1) then
+         i = i1
+         j = j1
+        else
+         i = j1
+         j = i1
+        end if
+        if(k1.ge.l1) then
+         k = k1
+         l = l1
+        else
+         k = l1
+         l = k1
+        end if
+         irow = INDEX_PAIR(i,j)
+         icol = INDEX_PAIR(k,l)
+         if(irow.ge.icol) then
+          ires = INDEX_PAIR(irow,icol)
+         else
+          ires = INDEX_PAIR(icol,irow)
+         end if
+         first_h = IRES
+        j1 = int_mb(k_b2am+g3b-1)
+        i1 = int_mb(k_b2am+g2b-1)
+        l1 = int_mb(k_b2am+g4b-1)
+        k1 = int_mb(k_b2am+g1b-1)
+        if(i1.ge.j1) then
+         i = i1
+         j = j1
+        else
+         i = j1
+         j = i1
+        end if
+        if(k1.ge.l1) then
+         k = k1
+         l = l1
+        else
+         k = l1
+         l = k1
+        end if
+         irow = INDEX_PAIR(i,j)
+         icol = INDEX_PAIR(k,l)
+         if(irow.ge.icol) then
+          ires = INDEX_PAIR(irow,icol)
+         else
+          ires = INDEX_PAIR(icol,irow)
+         end if
+         second_h = ires
+c ---------
+         go to 1000
+      end if ! -----
+c
+      END IF
+      END IF
+      END IF
+      END DO
+      END DO
+      END DO
+      END DO
+c
+ 1000 CONTINUE
+c
+c
+         irow = 0
+         icol = 0
+         ires = 0
+         g1b  = 0
+         g2b  = 0
+         g3b  = 0
+         g4b  = 0
+c
+c
 c
       if (ioalg.eq.2) then
 c v^{ g3b < g4b}_{ g1b < g2b } => ( g3b g1b | g4b g2b ) - ( g3b g2b | g4b g1b )
@@ -58,11 +165,21 @@ c v^{ g3b < g4b}_{ g1b < g2b } => ( g3b g1b | g4b g2b ) - ( g3b g2b | g4b g1b )
         ubadba=.false.
         ubadab=.false.
         uabdba=.false. 
-        length = int_mb(k_o2ot_offset)
-        g3b = int_mb(k_o2ot_offset+indexc)
-        g4b = int_mb(k_o2ot_offset+length+indexc)
-        g1b = int_mb(k_o2ot_offset+2*length+indexc)
-        g2b = int_mb(k_o2ot_offset+3*length+indexc)
+c--        length = int_mb(k_o2ot_offset)
+c--        g3b = int_mb(k_o2ot_offset+indexc)
+c--        g4b = int_mb(k_o2ot_offset+length+indexc)
+c--        g1b = int_mb(k_o2ot_offset+2*length+indexc)
+c--        g2b = int_mb(k_o2ot_offset+3*length+indexc)
+        g3b=inx3
+        g4b=inx4
+        g1b=inx1
+        g2b=inx2 
+c CHECK POINT
+        if((g3b.ne.inx3).or.(g4b.ne.inx4).or.(g1b.ne.inx1).or.
+     &     (g2b.ne.inx2)) then
+           call errquit('get_block_ind:g-ind failed',0,UNKNOWN_ERR)
+        end if 
+c
         ispin=int_mb(k_spin+g3b-1)+int_mb(k_spin+g4b-1)+
      1        int_mb(k_spin+g1b-1)+int_mb(k_spin+g2b-1)
         if(ispin.eq.4) uaadaa=.true.
@@ -82,7 +199,14 @@ c v^{ g3b < g4b}_{ g1b < g2b } => ( g3b g1b | g4b g2b ) - ( g3b g2b | g4b g1b )
 c        if ((ispin.eq.6).or.(ispin.eq.4).or.(ispin.eq.8)) then 
         if (uaadaa.or.ubbdbb.or.uabdab.or.ubadba) then
 c first half
-         key_alpha = int_mb(k_o2o_offset+indexc) 
+c--         key_alpha = int_mb(k_o2o_offset+indexc) 
+        key_alpha = first_h
+c CHECK POINT
+         if(key_alpha.ne.first_h) then
+          write(6,*)'key_alpha first_h',key_alpha,first_h
+          call util_flush(6)
+          call errquit('get_block_ind:first_h',0,UNKNOWN_ERR)
+         end if
 c defining the order
          ig2b=int_mb(k_b2am+g2b-1)
          ig1b=int_mb(k_b2am+g1b-1)
@@ -274,7 +398,14 @@ c
 c
         if (uaadaa.or.ubbdbb.or.uabdba.or.ubadab) then
 c second half
-         key_alpha = int_mb(k_o2o_offset+indexc+length) 
+c--         key_alpha = int_mb(k_o2o_offset+indexc+length) 
+        key_alpha = second_h
+c CHECK POINT
+         if(key_alpha.ne.second_h) then
+          write(6,*)'key_alpha second_h',key_alpha,second_h
+          call util_flush(6)
+          call errquit('get_block_ind:second_h',0,UNKNOWN_ERR)
+         end if
 c defining the order
          ig2b=int_mb(k_b2am+g2b-1)
          ig1b=int_mb(k_b2am+g1b-1)
