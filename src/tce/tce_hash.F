@@ -1,6 +1,6 @@
       subroutine tce_hash(hash,key,offset)
 c
-c $Id: tce_hash.F,v 1.1 2005-12-16 22:16:05 kowalski Exp $
+c $Id: tce_hash.F,v 1.2 2006-06-06 17:10:59 kowalski Exp $
 c
       implicit none
 #include "util.fh"
@@ -42,5 +42,41 @@ c
         goto 10
    20 continue
       offset = hash(length+middle+1)
+      return
+      end
+c
+c
+c
+c
+c
+c
+c
+      subroutine tce_hash_n(hash,key,offset)
+c
+c $Id: tce_hash.F,v 1.2 2006-06-06 17:10:59 kowalski Exp $
+c
+      implicit none
+#include "util.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+      integer hash(*)
+      integer key
+      integer offset
+      integer length
+      integer i
+c
+      length = hash(1)
+       offset = -1
+       do i = 1,length
+        if(key.eq.hash(i+1)) then
+         offset=hash(length+i+1)
+         goto 10
+        end if
+       end do
+ 10    continue
+       if(offset.eq.-1) then
+         call errquit('tce_hash_n: key not found',0,UNKNOWN_ERR)
+       end if
+c
       return
       end
