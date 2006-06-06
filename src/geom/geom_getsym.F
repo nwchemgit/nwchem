@@ -1,8 +1,8 @@
-      subroutine geom_getsym0(rtdb,geom,oautosym,usesymmol,
+      subroutine geom_getsym0(rtdb,geom,oautosym,
      ,     ncenter,isys,
      ,     name,tags,
      ,     threquiv,scale,coords,charge,velocities)
-C     $Id: geom_getsym.F,v 1.1 2004-04-29 03:13:31 edo Exp $
+C     $Id: geom_getsym.F,v 1.2 2006-06-06 01:30:37 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -14,7 +14,7 @@ C     $Id: geom_getsym.F,v 1.1 2004-04-29 03:13:31 edo Exp $
 #include "util.fh"
 c
       character*(*) name,tags(*)
-      logical oautosym,usesymmol
+      logical oautosym
       integer rtdb,geom
       integer isys
       integer ncenter
@@ -25,8 +25,6 @@ c
       integer ncenter_before_auto
       integer nata              ! num. of unique atoms 
       integer k_coordsym,l_coordsym,nops
-      logical geom_symmol
-      external geom_symmol
       character*16 groupname
 c
       oprint=ga_nodeid().eq.0
@@ -43,20 +41,8 @@ c
      $        call errquit('geom_input: geom_vel_get failed', 0,
      &       GEOM_ERR)
             ncenter_before_auto = ncenter
-            if(usesymmol) then
-               if (.not. ma_push_get(mt_dbl,3*ncenter,'coords',
-     $              l_coordsym,k_coordsym))
-     $              call errquit('geominput: ma',0, MA_ERR)
-               usesymmol=geom_symmol(geom,tags,dbl_mb(k_coordsym),
-     $              groupname,nops,threquiv)
-               call dcopy(3*ncenter,dbl_mb(k_coordsym),1,coords,1)
-               if(.not.ma_pop_stack(l_coordsym)) call 
-     $           errquit(' o',0,GEOM_ERR)
-            endif
-            if(.not.usesymmol) then
-               call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
+            call geom_auto_sym(rtdb,geom,coords,charge,tags,ncenter,
      $              threquiv,groupname,velocities)
-            endif
             if (geom_group_set(geom,groupname)) then
                if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
      $              call errquit('geom_input: geom_cart_set failed', 0,
@@ -79,8 +65,7 @@ c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
 c     
          nata=ncenter
-         call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv,nops,
-     &        usesymmol)
+         call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv,nops)
 c     
 c     Check that if we used autosym that we ended up with the 
 c     same no. of atoms ... if we don't then autosym and nwchemsym
@@ -110,7 +95,6 @@ c
       integer rtdb,geom
 c
       double precision threquiv,scale
-      logical usesymmol
       character*(*) name        ! for name of geometry
       logical geom_get_user_scale,oautosym,s
       external geom_get_user_scale
@@ -118,14 +102,12 @@ c
       integer k
 c
       threquiv=1d-2 ! hardwired for now
-      if(.not.rtdb_get(rtdb,'geom:symmol',mt_log,1,
-     $     usesymmol)) usesymmol=.false.
       if (.not. geom_get_user_scale(geom,scale))
      $     call errquit('geom_input: failed getting user scale',0,
      &       GEOM_ERR)
       oautosym=.true.
 c
-      call geom_getsym0(rtdb,geom,oautosym,usesymmol,
+      call geom_getsym0(rtdb,geom,oautosym,
      ,     ncenter(geom),isystype(geom),
      ,     name,tags(1,geom),
      ,     threquiv,scale,coords(1,1,geom),

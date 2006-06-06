@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.184 2005-09-27 23:07:21 edo Exp $
+C     $Id: geom_input.F,v 1.185 2006-06-06 01:30:37 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"
@@ -47,7 +47,6 @@ c     .                           and for forcing symmetry
       logical found_au2ang_conv
       double precision ang2au, au2ang
       integer atn, isys, fcent
-      logical usesymmol
       character*16 format, nucmodel
       logical geom_zmtmak
       external geom_zmtmak
@@ -436,18 +435,15 @@ c     set autosym off.  Note the the threquiv variable is set first by the
 c     autosym directive and thenreset by the symmetry directive input if 
 c     either of them is given.
 c     
-         if(.not.rtdb_get(rtdb,'geom:symmol',mt_log,1,
-     $        usesymmol)) usesymmol=.false.
          if(ncenter.eq.1) oautosym=.false.
          if (oautosym.and.osymmetry) then
             oautosym=.false.
-            usesymmol=.false.
             write(luout,*) 'Turning off AUTOSYM since'
             write(luout,*) 'SYMMETRY directive was detected!'
             write(luout,*)
          endif
 c     
-         call geom_getsym0(rtdb,geom,oautosym,usesymmol,
+         call geom_getsym0(rtdb,geom,oautosym,
      ,     ncenter,isys,
      ,     name,tags,
      ,     threquiv,scale,coords,charge,velocities)

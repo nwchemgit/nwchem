@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.57 2005-07-26 05:28:31 edo Exp $
+#$Id: GNUmakefile,v 1.58 2006-06-06 01:30:37 edo Exp $
 
  LIBRARY = libnwcutil.a
 
@@ -6,7 +6,7 @@
   OBJ_OPTIMIZE = geom_hnd.o
 
      OBJ = geom.o geom_input.o geom_input2.o geom_3d.o geom_2d.o geom_1d.o geom_numcore.o \
-           geom_checksum.o geom_print_ecce.o  geom_freeze.o geom_symmol.o geom_fragment.o geom_getsym.o
+           geom_checksum.o geom_print_ecce.o  geom_freeze.o geom_fragment.o geom_getsym.o
 
  HEADERS = geom.fh geomP.fh
 

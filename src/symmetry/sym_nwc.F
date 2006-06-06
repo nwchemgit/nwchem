@@ -21,9 +21,8 @@ c                                          A.C.H. 5/12/94
 c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
-      subroutine sym_nwc(geom,rtdb,nata,oprint,scale,threquiv,nops,
-     $     usesymmol)
-C$Id: sym_nwc.F,v 1.20 2003-10-17 22:58:25 carlfahl Exp $
+      subroutine sym_nwc(geom,rtdb,nata,oprint,scale,threquiv,nops)
+C$Id: sym_nwc.F,v 1.21 2006-06-06 01:30:41 edo Exp $
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
       parameter(maxops=192)
@@ -40,7 +39,6 @@ C$Id: sym_nwc.F,v 1.20 2003-10-17 22:58:25 carlfahl Exp $
       dimension cdist(3),cang(3)
       double precision mass_new(max_cent), charge_new(max_cent)
       double precision invnucexp_new(max_cent)
-      logical usesymmol
 C      external pertbl
 c
 c--> parameters needed by sym chain
@@ -61,10 +59,8 @@ c
 c    generate symmetry operators for whatever group (crystals, surfaces
 c    polymers or molecules) have been requested.
 c
-      if(.not.usesymmol) then
-         call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
-     $        nops,oprint, group_name(geom))
-      endif
+      call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
+     $     nops,oprint, group_name(geom))
 c
 c     scratch space needed by dosymops: tags, coordinates
 c     space on stack: pointer list, points to the assymetric (distinct) atoms
