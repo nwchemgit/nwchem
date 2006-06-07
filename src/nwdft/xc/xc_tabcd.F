@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.23 2006-05-19 01:04:49 edo Exp $
+C$Id: xc_tabcd.F,v 1.24 2006-06-07 15:53:49 edo Exp $
 c
 c     Modified to handle CPKS while reusing existing code
 c
@@ -259,6 +259,7 @@ c
             if(what.eq.3) lastjat=iat0-1
             call endtimer(monitor_screen3)
             do 168 jat0=1,lastjat
+               jat=nonzero(jat0)
                if(what.eq.2) then
 c
 c     To fit better into existing structure, loop over full square
@@ -270,7 +271,6 @@ c
                   if (jatcur.eq.0) goto 168
                endif
                call starttimer(monitor_screen4)
-               jat=nonzero(jat0)
                inizja = iniz(jat)
                FUNC_MAXJ = rchi_atom(jat)
                if(grad) FUNC_MAXJ = max(rchi_atom(jat),FUNC_MAXJ)
