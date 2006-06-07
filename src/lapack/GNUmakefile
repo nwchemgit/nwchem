@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.52 2006-03-18 02:09:10 edo Exp $
+#$Id: GNUmakefile,v 1.53 2006-06-07 20:51:32 edo Exp $
 ifdef USE_64TO32
 USE_I4FLAGS=y
 endif
@@ -136,9 +136,10 @@ ifeq ($(TARGET),MACX)
     FOPTIMIZE +=-fno-fast-math
   endif
 endif
-ifeq ($(_FC),gfortran)
-#  ifeq ($(_CPU),i786)
+ifeq ($(FC),f77)
     FOPTIMIZE +=-ffloat-store -fno-fast-math
-# endif
+endif
+ifeq ($(_FC),gfortran)
+    FOPTIMIZE +=-ffloat-store -fno-fast-math
 endif
 
