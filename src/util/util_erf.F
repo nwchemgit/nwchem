@@ -120,6 +120,8 @@ c !************************************************************************
       real*8  a,gammcf,gln,x,EPS,FPMIN
       PARAMETER (ITMAX=100,EPS=3.0d-12,FPMIN=1.0d-30)
       real*8       an,b,c,d,del,h
+      double precision undovl
+      parameter(undovl=-20d0*2.3025d0)
       integer i
       real*8   ln_gamma
       external ln_gamma
@@ -142,8 +144,11 @@ c !************************************************************************
         IF(DABS(del-1.0d0).lt.EPS) GOTO 1
 11    CONTINUE
       call errquit('a too large, ITMAX too small in gcf',0, INPUT_ERR)
-1     gammcf=DEXP(-x+a*LOG(x)-gln)*h
-      
+1     if((-x+a*LOG(x)-gln).gt.undovl) then
+         gammcf=DEXP(-x+a*LOG(x)-gln)*h
+      else
+         gammcf=0d0
+      endif
       return
       END 
 
