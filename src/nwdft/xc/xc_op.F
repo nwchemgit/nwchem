@@ -9,7 +9,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_op.F,v 1.3 2006-01-06 23:39:30 edo Exp $
+C$Id: xc_op.F,v 1.4 2006-06-07 23:54:47 edo Exp $
 c
       implicit none
 c      
@@ -151,7 +151,7 @@ c
                gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
-               if (dsqrt(gamma).gt.tol_rho)then
+               if (sqrt(gamma).gt.tol_rho)then
                   x = sqrt(gamma) / rho43
                   call xc_kop(tol_rho,whichf,x,
      &                 kalpha, dkadxa)
@@ -164,6 +164,7 @@ c
             else
                rhoa=0d0
                rho13a=0d0
+               x = 0d0
             endif
             if(x.eq.0d0) then
                call xc_kop(tol_rho,whichf,x,
@@ -182,7 +183,7 @@ c
                gamma = delrho(n,1,2)*delrho(n,1,2) +
      &              delrho(n,2,2)*delrho(n,2,2) +
      &              delrho(n,3,2)*delrho(n,3,2)
-               if (dsqrt(gamma).gt.tol_rho)then
+               if (sqrt(gamma).gt.tol_rho)then
                   x = sqrt(gamma) / rho43
                   call xc_kop(tol_rho,whichf,x,
      &                 kbeta, dkbdxb)
