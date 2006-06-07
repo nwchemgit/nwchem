@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.44 2006-06-07 15:57:36 edo Exp $
+C$Id: dft_densm.F,v 1.45 2006-06-07 22:27:47 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -46,6 +46,8 @@ c
       integer nocsave(2)
       logical dft_checkdg
       external dft_checkdg
+      double precision undovl
+      parameter(undovl=-20d0*2.3025d0)
       parameter (zero=0.d0,toll=1.d-9,one=1.d0,
      ,   kbau=1.d0,eps=1.d-4)
 c
@@ -164,10 +166,12 @@ c
          cksum=0.d0
          do i=1,nmo(1)
             x=(evals(i)-efermi(1))/ssmear
-            cksum=cksum+exp(-x*x)/sqrtpi
+            if((-x*x).gt.undovl)
+     a           cksum=cksum+exp(-x*x)/sqrtpi
             if(ipol.eq.2) then
                xb=(evals(i+nbf)-efermi(2))/ssmear
-               cksum=cksum+exp(-xb*xb)/sqrtpi
+            if((-xb*xb).gt.undovl)
+     b              cksum=cksum+exp(-xb*xb)/sqrtpi
             endif
          enddo
          tdots=tdots-cksum*ssmear*0.5d0*rhfuhf
