@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.251 2006-06-07 15:57:36 edo Exp $
+c     $Id: dft_scf.F,v 1.252 2006-06-07 16:08:02 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -352,7 +352,7 @@ c
 c     
 c     SCF energy convergence criterion. 
 c     
-      if (.not. ga_duplicate(g_fock, g_tmp, 'ga_temp'))
+      if (.not. ga_duplicate(g_fock, g_tmp, 'ga_tempoz'))
      &     call errquit('dft_scf: error creating ga',0,GA_ERR)
       g_focks(1)=g_fock
 c     
@@ -1365,7 +1365,8 @@ c !!! BGJ
      &       CALC_ERR)
       endif
 c !!! BGJ
-
+      if (.not. ga_destroy(g_tmp)) call errquit
+     &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
       if (odftps) call pstat_off(ps_scfend)
       return
 c     
