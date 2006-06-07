@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.14 2005-12-06 05:50:34 edo Exp $
+c     $Id: xc_eval_basis.F,v 1.15 2006-06-07 22:28:37 edo Exp $
 c
 c     Evaluate basis functions and their derivatives on a grid
 c
@@ -327,6 +327,15 @@ c
 c
       integer n, iprimo
       double precision zeta, t(0:3), tmp
+#ifdef CHKUNDFLW
+      double precision rmax,undovl,zz
+c 20 digits ln(10)=2.3025
+      parameter(undovl=-20d0*2.3025d0)
+      rmax=r2(1)
+      do n=2,nq
+         rmax=max(rmax,r2(n))
+      enddo
+#endif
 c
 c
 c     Store results for first primitive directly and then sum the rest
@@ -339,12 +348,30 @@ c
       do n = 1, maxd
          t(n) = zeta*t(n-1)*2d0
       enddo
+#ifdef CHKUNDFLW
+      if(rmax*zeta.lt.undovl) then
+         zz=undovl/zeta
+         do n = 1,nq
+            if(r2(n).lt.zz) then
+               tmp = exp(zeta*r2(n))
+            else
+               tmp =0d0
+            endif
+            do nd = 0,maxd
+               crad(nd,n) = t(nd)*tmp
+            enddo
+         enddo
+      else
+#endif
       do n = 1,nq
          tmp = exp(zeta*r2(n))
          do nd = 0,maxd
             crad(nd,n) = t(nd)*tmp
          enddo
       enddo
+#ifdef CHKUNDFLW
+      endif
+#endif
 c
       do iprimo = 2, nprimo
          zeta = -zprim(iprimo)
