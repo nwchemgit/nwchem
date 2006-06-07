@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.43 2003-10-17 22:55:37 carlfahl Exp $
+c$Id: grid_rtrunc.F,v 1.44 2006-06-07 15:57:34 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -389,6 +389,7 @@ c
             write(0,*) ' tag    ',tag
             write(0,'(A,3F12.6)') ' coord  ',ictr_coord
             write(0,*) ' charge ',ictr_chg
+            write(0,*) ' ic1 ic2 ',ic1,ic2
             call errquit(
      .        'gridrtunc: no basis on ghost atom?',iat, BASIS_ERR)
          endif

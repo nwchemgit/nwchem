@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.18 2003-10-28 21:20:43 edo Exp $
+c     $Id: fukui.F,v 1.19 2006-06-07 15:57:36 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -86,12 +86,12 @@ C        do ik = noc(isp), (noc(isp)+1)
             if (ik.eq.noc(isp)) then
                eig_homo(isp) = dbl_mb(k_eval(isp) + 
      &                         noc(isp) - 1)
-               call ga_dgemm('n', 't', nbf_ao, nbf_ao, nbf_ao,
+               call ga_dgemm('N', 'T', nbf_ao, nbf_ao, nbf_ao,
      &                       1.0d00, g_orb, g_orb, 0.d00, 
      &                       g_dens_HOMO(isp))
             else
                eig_lumo(isp) = dbl_mb(k_eval(isp) + noc(isp))
-               call ga_dgemm('n', 't', nbf_ao, nbf_ao, nbf_ao,
+               call ga_dgemm('N', 'T', nbf_ao, nbf_ao, nbf_ao,
      &                       1.0d00, g_orb, g_orb, 0.d00,
      &                       g_dens_LUMO(isp))
             end if
@@ -234,7 +234,7 @@ c
         call ga_zero(g_vxc(2))
       endif
       do isp=1,ipol
-        call ga_dgemm('n', 't', nbf_ao, nbf_ao, 
+        call ga_dgemm('N', 'T', nbf_ao, nbf_ao, 
      &                noc(isp), 2d0/dble(ipol), g_movecs(isp),
      &                g_movecs(isp), 0.0d00, g_dens(isp))
       enddo
@@ -276,7 +276,7 @@ c
      &   call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
       do isp=1,ipol
         call ga_zero(g_dens(isp))
-        call ga_dgemm('n', 't', nbf_ao, nbf_ao,
+        call ga_dgemm('N', 'T', nbf_ao, nbf_ao,
      &                noc(isp), 2d0/dble(ipol), g_movecs(isp),
      &                g_movecs(isp), 0.0d00, g_dens(isp))
       enddo
@@ -328,7 +328,7 @@ c
      &   call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
       do isp=1,ipol
         call ga_zero(g_dens(isp))
-        call ga_dgemm('n', 't', nbf_ao, nbf_ao,
+        call ga_dgemm('N', 'T', nbf_ao, nbf_ao,
      &                noc(isp), 2d0/dble(ipol), g_movecs(isp),
      &                g_movecs(isp), 0.0d00, g_dens(isp))
       enddo
@@ -381,7 +381,7 @@ c
      &     call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
         do isp=1,ipol
           call ga_zero(g_dens(isp))
-          call ga_dgemm('n', 't', nbf_ao, nbf_ao,
+          call ga_dgemm('N', 'T', nbf_ao, nbf_ao,
      &                  noc(isp), 2d0/dble(ipol), g_movecs(isp),
      &                  g_movecs(isp), 0.0d00, g_dens(isp))
         enddo
@@ -430,7 +430,7 @@ c
      &     call errquit('fukui: rtdb_put of noc failed', 0, RTDB_ERR)
         do isp=1,ipol
           call ga_zero(g_dens(isp))
-          call ga_dgemm('n', 't', nbf_ao, nbf_ao,
+          call ga_dgemm('N', 'T', nbf_ao, nbf_ao,
      &                  noc(isp), 2d0/dble(ipol), g_movecs(isp),
      &                  g_movecs(isp), 0.0d00, g_dens(isp))
         enddo
@@ -500,7 +500,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.18 2003-10-28 21:20:43 edo Exp $
+C$Id: fukui.F,v 1.19 2006-06-07 15:57:36 edo Exp $
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -661,7 +661,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, 
      &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.18 2003-10-28 21:20:43 edo Exp $
+C$Id: fukui.F,v 1.19 2006-06-07 15:57:36 edo Exp $
 c
       implicit none
 #include "errquit.fh"

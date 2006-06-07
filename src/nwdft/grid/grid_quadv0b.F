@@ -13,7 +13,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.47 2005-11-12 00:32:49 edo Exp $
+c$Id: grid_quadv0b.F,v 1.48 2006-06-07 15:57:34 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -94,9 +94,12 @@ c
      &       MA_ERR)
       if(GRAD) then
          if (.not.MA_Push_Get(mt_dbl, 3*nqpts*mbf_ao,
-     .        'delchi_ao', ldelchi_ao, idelchi_ao))
-     &        call errquit('grid_quadv0b: cant alloc delchi_ao',0,
-     &       MA_ERR)
+     .        'delchi_ao', ldelchi_ao, idelchi_ao)) then
+
+             call errquit('gridquadv0b: cant alloc delchi_ao',0,
+     &       0)
+
+        endif
       endif
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicinit(nqpts,
@@ -119,7 +122,7 @@ c
       call util_rmsatbf(nqpts, natoms,iniz,ifin,
      ,     dbl_mb(ichi_ao),rchi_atom)
       if(grad) 
-     .     call util_rmsatbf(nqpts, natoms,iniz,ifin,
+     .     call util_rmsatbf(3*nqpts, natoms,iniz,ifin,
      ,     dbl_mb(idelchi_ao),rdelchi_atom)
       call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
@@ -303,7 +306,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.47 2005-11-12 00:32:49 edo Exp $
+C$Id: grid_quadv0b.F,v 1.48 2006-06-07 15:57:34 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -443,7 +446,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.47 2005-11-12 00:32:49 edo Exp $
+C$Id: grid_quadv0b.F,v 1.48 2006-06-07 15:57:34 edo Exp $
 c
       implicit none
 #include "errquit.fh"

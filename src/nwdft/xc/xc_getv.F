@@ -1,9 +1,9 @@
       Subroutine xc_getv(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
      &                   wght_GA, rho_n, rdens_atom,
-     &                   cetobfr, natoms, g_oep)   ! Qin
+     &                   cetobfr, natoms)
 c
-C$Id: xc_getv.F,v 1.55 2005-03-28 22:06:58 edo Exp $
+C$Id: xc_getv.F,v 1.56 2006-06-07 15:57:37 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -34,10 +34,6 @@ c
       logical havehfxc
 c     
       integer  ga_create_atom_blocked
-      integer  noc(2)                         ! Qin
-      integer g_oep(*)       ! Qin
-      double precision nel              ! Qin
-      integer l_fixvc,k_fixvc ! Qin
       logical xc_gotxc
       external ga_create_atom_blocked,xc_gotxc
 c
@@ -86,30 +82,6 @@ c
       Exc(2)=0.d0
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
-c
-cQin
-c
-      if (.not.rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep))
-     &   call errquit('xc_getv: failed to get loep', 0, RTDB_ERR)
-      IF (LOEP) THEN
-c
-      if (.not.rtdb_get(rtdb, 'dft:oep', mt_int, 1, ioep))
-     &   call errquit('xc_getv: failed to get ioep', 0, RTDB_ERR)
-      if (ioep .eq. 2) xcfit = .false.
-cc
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('xc_getvc: rtdb_get of noc failed', 0, RTDB_ERR)
-      nel = 2.0d0*noc(1)
-      if (ipol .eq. 2) nel = noc(1) + noc(2)
-c
-      END IF
-c
-      if(oprint_oep) then
-      write(luout,*) 'in xc_getv ioep = ', ioep
-      write(luout,*) 'havehfxc = ', havehfxc, '  xfac(1) = ', xfac(1)
-      write(luout,*) 'xcfit = ', xcfit
-      endif
-c end Qin
 c      nproc=ga_nnodes()
 c
       if (oprint_intermediate_xc)then
@@ -140,39 +112,11 @@ c
               g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
               call ga_zero(g_vxc(2))
               g_dens(2)=g_dens(1)
-c
-cQin
-              if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
-                 if (.not.ma_alloc_get(MT_Dbl,nbf_ao*nbf_ao,
-     &                'fixvc',l_fixvc,k_fixvc)) call
-     &                errquit('xcgetv: cannot allocate fixvc',0,MA_ERR)
-                 if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
-     $               nbf_ao*nbf_ao, dbl_mb(k_fixvc))) call errquit(
-     $                'fixvc : rtdb_get failed', 911, RTDB_ERR)
-                 call ga_put(g_vxc(2),1,nbf_ao,1,nbf_ao,
-     $                dbl_mb(k_fixvc),nbf_ao)
-              else
-c
-cc !! The following call is in original code.
-c
               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens, g_vxc, .false.)
-              endif
-c end Qin
-c
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
               ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 
               call ga_dadd(1d0,g_vxc(1),1d0,g_vxc(2),g_vxc(1))
-cQin
-              if (ioep .eq. 3 .and. .not.xcfit) then
-                 call ga_dscal(g_vxc(2), (nel-1d0)/nel)
-                 call ga_get(g_vxc(2),1,nbf_ao,1,nbf_ao,
-     $                dbl_mb(k_fixvc),nbf_ao)
-                 if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
-     $                nbf_ao*nbf_ao,dbl_mb(k_fixvc))) call errquit(
-     $                'fixvc : rtdb_put failed', 911, RTDB_ERR)
-              end if
-c end Qin
               if (.not. ga_destroy(g_vxc(2))) call errquit
      $             ('xc_getv: ga corrupt?',0, GA_ERR)
             else
@@ -221,31 +165,6 @@ c end Qin
      $              ga_ddot(g_dens(1),g_jk(2)) +
      $              ga_ddot(g_dens(2),g_jk(4)))
                call ga_dadd(1.0d0, g_jk(1), 1.0d0, g_jk(3), g_jk(1))
-c
-c Qin / for oep
-c
-               if (ioep.eq.3 .and. .not.xcfit) then
-                  call ga_dscal(g_jk(1), (nel-1d0)/nel)
-                  call ga_get(g_jk(1),1,nbf_ao,1,nbf_ao,
-     $                 dbl_mb(k_fixvc),nbf_ao)
-                  if (.not. rtdb_put(rtdb, 'dft:fixvc',mt_dbl,
-     $                 nbf_ao*nbf_ao,dbl_mb(k_fixvc))) call errquit(
-     $                 'fixvc : rtdb_put failed', 912, RTDB_ERR)
-c                  call ga_print(g_jk(1))
-               end if
-               if (ioep.eq.1 .or. (ioep.eq.3.and.xcfit)) then
-                  if (.not. rtdb_get(rtdb, 'dft:fixvc', mt_dbl,
-     $               nbf_ao*nbf_ao, dbl_mb(k_fixvc))) call errquit(
-     $                'fixvc : rtdb_get failed', 912, RTDB_ERR)
-                  call ga_put(g_jk(1),1,nbf_ao,1,nbf_ao,
-     $                 dbl_mb(k_fixvc),nbf_ao)
-c                  call ga_print(g_jk(1))
-                  if (.not.ma_free_heap(l_fixvc))
-     &           call errquit('xc_getv: cannot free heap',1, MA_ERR)
-               end if
-c
-c Qin /end
-c
                call ga_copy(g_jk(1), g_jk(3))
                call ga_dadd(1.0d0, g_jk(1), -xfac(1), g_jk(2),
      $              g_jk(1))
@@ -261,7 +180,7 @@ c
          call ga_sync
       endif
 c
-      if (xc_gotxc() .or. xcfit) then  ! Qin add xcfit for pure OEP or ZMP
+      if (xc_gotxc()) then  
          if(xcfit) then       
             nTrows = nbf_xc
             nTcols = ipol
@@ -313,7 +232,7 @@ c
                endif
             endif
             call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
-     &           g_vxc, g_xcinv,g_oep, IOLGC)   ! Qin
+     &           g_vxc, g_xcinv, IOLGC)  
             if (.not.ma_pop_stack(lTmat))
      &           call errquit('xc_getv: cannot pop stack',0, MA_ERR)
 c     

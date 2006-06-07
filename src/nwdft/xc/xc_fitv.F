@@ -1,7 +1,7 @@
       Subroutine xc_fitv(rtdb,Tmat,nTrows,nTcols,g_vxc,g_xcinv,
-     $                    g_oep,IOLGC)                          ! Qin
+     $                    IOLGC)
 c
-C$Id: xc_fitv.F,v 1.20 2004-09-07 06:11:49 windus Exp $
+C$Id: xc_fitv.F,v 1.21 2006-06-07 15:57:37 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -19,7 +19,6 @@ c
 #include "tcgmsg.fh"
 #include "msgids.fh"
 #include "cdft.fh"
-#include "oep.fh"
 #include "sym.fh"
 c
       Logical LResult
@@ -62,10 +61,8 @@ c           nTcols = ipol + nExc
 c
 c
 c Qin
-      integer  ga_create_atom_blocked, nxtask
-      external ga_create_atom_blocked, nxtask
-      integer  g_oep(nbf_xc)             ! Qin
-      integer ngoep       ! Qin
+      integer  nxtask
+      external nxtask
       integer me, nproc, MXnshbf_ao, MXnshbf_XC
       integer ndbl
       integer lxc_coef, ixc_coef, lscr, iscr, lmiss
@@ -95,11 +92,6 @@ c
         call errquit('Exit from xc_fitv',1, UNKNOWN_ERR)
       endif 
 c
-c Qin
-      if (.not.rtdb_get(rtdb,'dft:oep',mt_int,1,ioep))
-     $    call errquit('xc_fitv : failed to get ioep',911, RTDB_ERR)
-c end/ Qin
-c
 c     Compute the XC fitting coefficients.
 c
       ndbl = nbf_xc*nTcols
@@ -127,7 +119,6 @@ c
 c
       next=nxtask(nproc, 1)+1
 c
-      if(ioep.eq.1) goto 111  ! Qin
 c
       do k=1,nbf_xc
          if (k.eq.next) then
@@ -143,8 +134,6 @@ c            call ga_get(g_xcinv, 1, nbf_xc, k, k, Dbl_MB(iscr), 1)
          endif
       enddo
 c
- 111   continue   ! Qin
-c
       if (.not.ma_pop_stack(lscr))
      &   call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
 c
@@ -158,22 +147,6 @@ c      if (IOLGC)call gadest(g_xcinv)
      &      ('xc_fitv: could not destroy g_xcinv', 0, GA_ERR)
       endif
 c
-cQin
-c      if (ioep.eq.3) then
-c         if (.not. rtdb_put(rtdb, 'dft:xccoef',mt_dbl, nbf_xc*ipol,
-c     $     DBL_MB(ixc_coef)))
-c     $      call errquit( 'xccoef : rtdb_put failed', 911)
-c      endif
-      if (ioep.eq.1 .or. ioep.eq.3) then
-         if (.not. rtdb_get(rtdb, 'dft:xccoef',mt_dbl, nbf_xc*ipol,
-     $     DBL_MB(ixc_coef)))
-     $      call errquit( 'xccoef : rtdb_get failed', 911, RTDB_ERR)
-      endif
-c         write(*,*) 'xc coef'
-c         do ii = 1, nbf_xc*ipol
-c            write(*,*) DBL_MB(ixc_coef-1+ii)
-c         enddo
-c end Qin
 c
 c     Compute the fitted Vxc.
 c
@@ -243,16 +216,9 @@ c                       expansion coefficients.
 c
                         do ii = 0, nTcols-1
                            nxc=ixc_coef+ii*nbf_xc+iixc
-                           ngoep=1+ii*nbf_xc+iixc    ! Qin
                            npint=i3OI
                            istart=ivvxc+ii*Nao2
                            do ia = 0, nshbfa-1
-cc Qin
-                            if(ioep.eq.3.and.ii.eq.0) 
-     &                        call sca_lab_mat(AO_bas_han,ishb,ishc,
-     &                          nshbfb, nshbfc, g_oep(ngoep+ia), 
-     &                          DBL_MB(npint), dbl_mb(ivec2),'acc') 
-cc Qin /end
                               fact=DBL_MB(nxc+ia)
                               if(abs(fact).gt.toll)
      /                         call daxpy(Nao2, fact, DBL_MB(npint), 1, 
@@ -272,17 +238,10 @@ c                    Multiply the matrix of 3-ctr OIs by the XC
 c                    expansion coefficients.
 c
                      do ii = 0, nTcols-1
-                        ngoep=1+ii*nbf_xc+iixc    ! Qin
                         nxc=ixc_coef+ii*nbf_xc+iixc
                         npint=i3OI
                         istart=ivvxc+ii*Nao2
                         do ia = 0, nshbfa-1
-cc Qin
-                          if(ioep.eq.3.and.ii.eq.0) 
-     &                      call sca_lab_mat(AO_bas_han,ishb,ishc,
-     &                        nshbfb, nshbfc, g_oep(ngoep+ia), 
-     &                        DBL_MB(npint), dbl_mb(ivec2),'acc') 
-cc Qin /end
                            fact=DBL_MB(nxc+ia)
                            if(abs(fact).gt.toll)
      .                          call daxpy(Nao2, fact, DBL_MB(npint), 1, 

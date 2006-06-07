@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.250 2005-11-23 07:55:15 edo Exp $
+c     $Id: dft_scf.F,v 1.251 2006-06-07 15:57:36 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -39,9 +39,6 @@ c
       external dft_lindep
       integer dft_lindep
 c
-c Qin
-      integer k_goep,l_goep
-c Qin / end
 c
       integer g_s ! [in]
       logical oprint
@@ -620,30 +617,6 @@ c
 c
       iter = 0
 c
-c Qin  -- build g_oep
-c
-        if (.not.rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep))
-     &     call errquit('dft_scf: failed to get loep', 0, RTDB_ERR)
-      IF(LOEP) THEN
-c
-        if (.not.rtdb_get(rtdb, 'dft:oep', mt_int, 1, ioep))
-     &     call errquit('dft_scf: failed to get ioep', 0, RTDB_ERR)
-        if(ioep.eq.0) then
-           iVxc_opt = 0
-           XCFIT = .false.
-        endif
-        if (.not.MA_alloc_Get(MT_int,nbf_xc,
-     ,       'ga handle for goep',l_goep,k_goep))
-     ,       call errquit('dft_scf: cannot allocate g_oep',0, MA_ERR)
-        do i = 1, nbf_xc
-           if (.not. ga_duplicate(g_fock, int_mb(k_goep+i-1), 'oep'))
-     &          call errquit('dft_scf: error creating ga',0,GA_ERR)
-            call ga_zero(int_mb(k_goep+i-1))
-        enddo
-      ENDIF
-c
-c end Qin
-c
       if (ipol.gt.1)then
          if (.not. ga_duplicate(g_fock, g_fockt, 'fock tr'))
      &        call errquit('dft_scf: error creating ga',0,GA_ERR)
@@ -711,7 +684,6 @@ c     build DFT Fock matrix
 c
       call dft_fockbld(rtdb,natoms,ntotel,
      ,     g_fock,g_dens,g_vxc,g_movecs,g_xcinv, 
-     ,     int_mb(k_goep),                    !! Qin /add g_oep
      ,     g_tmp,g_nq,g_wght,g_xyz,
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
@@ -1052,22 +1024,6 @@ c
          endif
          goto 2000
       endif
-c
-c Qin  ------ for oep, use first iteration result as rho_0, stop SCF
-c
-         IF (LOEP) THEN
-           if(ioep.eq.0) ioep = 3
-           write(*,*) ' get out of SCF '
-           if (.not. rtdb_put(rtdb,'dft:oep',mt_int,1,ioep))
-     $      call errquit('dft_scf : failed to put ioep', 911, RTDB_ERR)
-           idone = 1
-           last_time_energy = .true.
-           converged = .true.
-           go to 1000
-         END IF
-c
-c Qin / end
-c
       if (idone.eq.0.or.(iswitc.lt.2.and.iter.lt.iterations).or.
      .     (iterations.eq.0))
      &   go to 1000 ! begin new iteration
@@ -1374,12 +1330,6 @@ c
          if (.not. ga_destroy(g_fockt)) call errquit
      &      ('dft_scf: could not destroy g_fockt', 0, GA_ERR)
       endif
-c
-c Qin /g_tmp is used in oep, so will be destroyed after that
-c
-c      if (.not. ga_destroy(g_tmp)) call errquit
-c     &   ('dft_scf: could not destroy g_tmp', 0)
-c
       if(lkeeps) then
       if (.not. ga_destroy(g_s12p)) call errquit
      &   ('dft_scf: could not destroy g_s12p', 0, GA_ERR)
@@ -1416,30 +1366,6 @@ c !!! BGJ
       endif
 c !!! BGJ
 
-c
-c  Qin ----- for oep ----
-      if (.not.rtdb_get(rtdb, 'dft:loep', mt_log, 1, loep))
-     &   call errquit('xc_getv: failed to get loep', 0, RTDB_ERR)
-      IF (LOEP) THEN
-         call oep_driver(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
-     &                         iter, g_dens, g_movecs, g_vxc, g_fock,
-     &                         g_svecs, svals, g_xcinv, g_s,
-     &                         int_mb(k_goep), g_tmp)
-c
-c  Deallocate g_oep
-      do i = 1, nbf_xc
-         if (.not. ga_destroy(int_mb(k_goep+i-1))) call errquit
-     &   ('dft_scf: could not destroy g_oep', 0, GA_ERR)
-      enddo
-         if (.not. MA_free_heap(l_goep))
-     .        call errquit(' dft_scf:cannot freeheap',11, MA_ERR)
-
-      ENDIF
-c
-      if (.not. ga_destroy(g_tmp)) call errquit
-     &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
-c  Qin / end
-c
       if (odftps) call pstat_off(ps_scfend)
       return
 c     

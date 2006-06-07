@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.43 2006-01-04 00:54:55 edo Exp $
+C$Id: dft_densm.F,v 1.44 2006-06-07 15:57:36 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -71,7 +71,7 @@ c
           endif  
           if (odftps) call pstat_on(ps_dgemm)
          do isp=1,ipol
-            call ga_dgemm('n', 't', nbf, nbf, 
+            call ga_dgemm('N', 'T', nbf, nbf, 
      $           noc(isp), 2d0/dble(ipol), g_vecs(isp),
      $           g_vecs(isp), zero, g_dens(isp))
          enddo
@@ -152,7 +152,7 @@ c
                ntot(isp)=ntot(isp)+focc(i+ipoint)
             enddo
             call ga_sync()
-            call ga_dgemm('n', 't', nbf, nbf, noc(isp),1.d0,g_tmp,
+            call ga_dgemm('N', 'T', nbf, nbf, noc(isp),1.d0,g_tmp,
      $           g_vecs(isp), zero, g_dens(isp))
          enddo                  ! end of loop over spins
            if (.not. ga_destroy(g_tmp)) call errquit
@@ -385,7 +385,7 @@ c
                endif
             enddo
             call ga_sync()
-            call ga_dgemm('n', 't', nbf, nbf, noc,1.d0,g_tmp,
+            call ga_dgemm('N', 'T', nbf, nbf, noc,1.d0,g_tmp,
      $           g_vecs, zero, g_dens)
          if (.not.ma_pop_stack(ltmpm))
      &        call errquit('dft_densm: cannot pop stack',0, MA_ERR)

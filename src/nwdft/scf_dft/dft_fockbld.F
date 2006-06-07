@@ -1,5 +1,5 @@
       subroutine dft_fockbld(rtdb,natoms,ntotel,
-     ,     g_fock,g_dens,g_vxc,g_movecs,g_xcinv, g_oep, !! Qin /add g_oep
+     ,     g_fock,g_dens,g_vxc,g_movecs,g_xcinv,
      ,     g_tmp,g_nq,g_wght,g_xyz,
      ,     iwhat_max,ivcoul_Opt,nexc,ivxc_opt,wght_GA,
      ,     n_batch,n3c_int,n3c_dbl,n_semi_bufs,fd,IOLGC,
@@ -9,7 +9,7 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time)
 c     
-c     $Id: dft_fockbld.F,v 1.22 2006-01-27 19:52:56 marat Exp $
+c     $Id: dft_fockbld.F,v 1.23 2006-06-07 15:57:36 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -22,7 +22,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
       integer g_fock,g_dens(2),g_vxc(4),g_movecs(2) ! [handle in/values out]
-      integer g_xcinv, g_oep(*)  !! Qin /add g_oep
+      integer g_xcinv
       integer g_tmp,g_nq,g_wght,g_xyz
       integer g_rho_exact,g_tmp_exact, g_addit_exact
       integer rtdb ! [in]
@@ -209,7 +209,7 @@ c
 c
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &             rdens_atom, cetobfr, natoms, g_oep)  !! Qin /add g_oep
+     &             rdens_atom, cetobfr, natoms) 
       if (odftps) call pstat_off(ps_xc)
 c
       if (exact_pot.eq.1) then
