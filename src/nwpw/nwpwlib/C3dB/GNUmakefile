@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2006-03-16 18:38:27 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2006-06-08 22:32:20 edo Exp $
 #
 
  OBJ_OPTIMIZE = C3dB-new.o c_trans.o
@@ -21,10 +21,10 @@
 
 
 include ../../../config/makefile.h
-ifeq ($(FC),pgf90)
- OBJ = $(OBJ_OPTIMIZE)
- OBJ_OPTIMIZE = 
-endif
+#ifeq ($(FC),pgf90)
+ #OBJ = C3dB-new.o
+ #OBJ_OPTIMIZE = c_trans.o
+#endif
 include ../../../config/makelib.h
 
 
