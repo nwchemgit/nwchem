@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.53 2006-06-07 20:51:32 edo Exp $
+#$Id: GNUmakefile,v 1.54 2006-06-08 23:36:03 edo Exp $
 ifdef USE_64TO32
 USE_I4FLAGS=y
 endif
@@ -130,13 +130,9 @@ ifeq ($(_FC),ifc)
     FOPTIMIZE +=-ip_no_inlining
   endif
 endif
-ifeq ($(TARGET),MACX)
 #this fixes FPE in lapack/dlagts for dft_feco5
-  ifeq ($(FC),g77)
-    FOPTIMIZE +=-fno-fast-math
-  endif
-endif
-ifeq ($(FC),f77)
+#this fixes hangs in dlamch
+ifeq ($(_FC),g77)
     FOPTIMIZE +=-ffloat-store -fno-fast-math
 endif
 ifeq ($(_FC),gfortran)

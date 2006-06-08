@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.526 2006-06-08 18:02:53 d3p307 Exp $
+# $Id: makefile.h,v 1.527 2006-06-08 23:36:06 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1074,6 +1074,7 @@ endif
 endif
 ifeq ($(TARGET),MACX)
   FC = g77
+  _FC = g77
 #
 # MacOSX 
 #
@@ -1104,6 +1105,7 @@ endif
              DEFINES =-DMACX
 
   ifeq ($(FC),xlf)
+    _FC=xlf
     XLFMAC=y
     FOPTIONS = -qextname -qfixed -qnosave  -qalign=4k
     FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
@@ -1140,6 +1142,7 @@ endif
     endif
     endif
       ifeq ($(FC),gfortran)
+    _FC=gfortran
 #gcc version 4.2.0 200512 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
         FOPTIONS   = -Wextra -Wunused -ffast-math
@@ -1301,7 +1304,7 @@ ifeq ($(LINUXCPU),x86)
     endif
     FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
   endif
- _FC=noifc
+ _FC=g77
  ifeq ($(FC),ifc)
      _FC=ifc
  endif
