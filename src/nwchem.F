@@ -23,10 +23,10 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.155 2005-01-12 01:38:26 edo Exp $
+c     $Id: nwchem.F,v 1.156 2006-06-08 20:42:18 d3p307 Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
-*                   2000, 2001, 2002, 2003, 2004, 2005                *
+*                  2000, 2001, 2002, 2003, 2004, 2005, 2006           *
 *              Pacific Northwest National Laboratory,                 * 
 *                  Battelle Memorial Institute.                       *
 *---------------------------------------------------------------------*
@@ -385,7 +385,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 4.7',
+     $     'Northwest Computational Chemistry Package (NWChem) 5.0',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
