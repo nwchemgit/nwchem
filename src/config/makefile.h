@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.525 2006-05-23 17:36:45 edo Exp $
+# $Id: makefile.h,v 1.526 2006-06-08 18:02:53 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -19,7 +19,7 @@
 # For development tree 
 RELEASE := 
 # For current release tree
-#RELEASE := 4.7
+#RELEASE := 5.0
 
 #
 
