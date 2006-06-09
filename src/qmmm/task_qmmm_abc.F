@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.11 2006-06-02 00:57:27 marat Exp $
+c $Id: task_qmmm_abc.F,v 1.12 2006-06-09 20:58:55 edo Exp $
 c
       function task_qmmm_abc(rtdb)
       implicit none
@@ -475,6 +475,7 @@ c
         tmp_name = atheory
         call errquit(pname//"unknown theory "//tmp_name,0,0)  
       end if
+      qmmm_abc_generate_frames=ostatus
       return
 
       end
