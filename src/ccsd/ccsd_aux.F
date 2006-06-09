@@ -1,5 +1,5 @@
         subroutine mxtrn(mxin,mxout,idim,jdim)
-C     $Id: ccsd_aux.F,v 2.3 2006-02-08 21:06:00 bert Exp $
+C     $Id: ccsd_aux.F,v 2.4 2006-06-09 00:04:14 edo Exp $
         implicit none
         integer idim,jdim
         double precision mxin(idim,jdim),mxout(jdim,idim)
@@ -53,8 +53,6 @@ c
 #include "bas_exndcf_dec.fh"
 #include "bas_ibs_dec.fh"
 #include "int_nbf.fh"
-#include "bas_exndcf_sfn.fh"
-#include "bas_ibs_sfn.fh"
 c
       integer basis ! [input] basis set handle
       integer ish   ! [input] shell/contraction index
@@ -64,6 +62,8 @@ c
 c
       integer La, a_nbf, Lb, b_nbf, Lc, c_nbf, Ld, d_nbf
       integer usebas, ucont
+#include "bas_exndcf_sfn.fh"
+#include "bas_ibs_sfn.fh"
 c
       usebas  = basis + BASIS_HANDLE_OFFSET
       ucont   = (sf_ibs_cn2ucn(ish,usebas))
