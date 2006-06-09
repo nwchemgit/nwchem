@@ -1,13 +1,13 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
+#$Id: GNUmakefile,v 1.3 2006-06-09 00:17:51 kowalski Exp $
 
-OBJ_OPTIMIZE = ccsd_lambda1.o ccsd_lambda2.o ccsd_density1.o
+OBJ_OPTIMIZE = ccsd_lambda1_1.o ccsd_lambda1_2.o ccsd_lambda2.o ccsd_density1.o
 
 LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
 USES_BLAS = ccsd_density1.F \
-ccsd_lambda1.F \
+ccsd_lambda1_1.F ccsd_lambda1_2.F \
 ccsd_lambda2.F
 
 
