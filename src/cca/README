@@ -1,27 +1,34 @@
-1. change config.txt if necessary and source it
-   set the environment variable LIBMPI if your mpi library is not '-lmpi'
+1. change the environment variables in env_nwchem.source
+   and source the file
 
-2. compile NWChem with NWCHEM_MODULES "nwdft gradients"
+2. make sure that the cca tools are compiled
+
+3. compile the cca-chem-generic code
+
+4. compile NWChem with NWCHEM_MODULES "nwdft gradients"
+   This should generally just be two commands:
+   "make nwchem_config"
+   "make >& make.log &"
    make and include -ldftgrad if standalone NWChem doesn't link
    Note that hessian modules is not included for target nwdft
    "make stubs.o" in the $(NWCHEM_TOP)/src directory
    make in the geninterface directory
    
-3. copy all object files to nwchem-4.7/obj and link them
-  cd nwchem-4.7/src/cca
-  make -f Makefile.sumo
+5. copy all object files to nwchem-4.7/obj and link them by:
+   cd $(NWCHEM_TOP)/cca
+   make -f Makefile.sumo
 
-4. build nwchem-cca component
-   create a build directory
-   configure (there is a sample configure script config.txt under cca directory)
+6. build nwchem-cca component
+   change config.txt if necessary and source it or do your own configure
+   set the environment variable LIBMPI if your mpi library is not '-lmpi'
    make
    make install
 
-5. test nwchem-cca component
+7. test nwchem-cca component
    cd nwchem-4.7/src/cca/test
    ccafe-single --ccafe-rc CCAFERC
 
-6. changes made in nwchem-4.7 package
+8. changes made in nwchem-4.7 package
    * two files under nwchem-4.7/src/config has been modified
    * "hess_read" has been removed from NWChemWrapper.F
    * compile dftgrad module
