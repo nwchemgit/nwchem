@@ -1,9 +1,14 @@
+
+
+
 1. change the environment variables in env_nwchem.source
    and source the file
 
 2. make sure that the cca tools are compiled
 
 3. compile the cca-chem-generic code
+ setenv CVSROOT :ext:vidhya@cca-forum.org:/cvs/cca-chem
+ setenv CVS_RSH ssh
 
 4. compile NWChem with NWCHEM_MODULES "nwdft gradients"
    This should generally just be two commands:
@@ -26,6 +31,7 @@
 
 7. test nwchem-cca component
    cd $(NWCHEM_TOP)/src/cca/tests
+   modify CCAFERC file
    ccafe-single --ccafe-rc CCAFERC
 
 8. changes made in nwchem-4.7 package
