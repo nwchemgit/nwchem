@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.82 2005-10-20 16:08:15 edo Exp $
+# $Id: GNUmakefile,v 1.83 2006-06-13 20:12:40 windus Exp $
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  
@@ -60,6 +60,9 @@ endif
 	$(PURIFY) $(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -lnwctask $(LIBS)
 #	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
+
+ccalink:
+	@echo "NWCHEM_CORE_LIBS = $(LIBS)" > ./cca/makefile.h
 
         
 #
