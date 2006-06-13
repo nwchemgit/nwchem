@@ -8,12 +8,25 @@
       <class name="NWChem.Physics_Units" desc="ior/impl" />
       <class name="NWChem.Chemistry_QC_GaussianShell" desc="ior/impl" />
       <class name="NWChem.Chemistry_QC_GaussianBasisSet" desc="ior/impl" />
+      <class name="NWChem.Chemistry_QC_IntEvalFactory" desc="ior/impl" />
+      <class name="NWChem.IntegralEvaluator1" desc="ior/impl" />
+      <class name="NWChem.IntegralEvaluator2" desc="ior/impl" />
+      <class name="NWChem.IntegralEvaluator3" desc="ior/impl" />
+      <class name="NWChem.IntegralEvaluator4" desc="ior/impl" />
    </library>
 </scl>
+
 <componentDeployment name="NWChem.Chemistry_QC_ModelFactory"
  paletteClassAlias="NWChem.Chemistry_QC_ModelFactory" >
   <environment>
-     <ccaSpec binding="babel" /> <library loading="dynamic" />
+     <ccaSpec binding="babel" /> 
+    <library loading="dynamic"
+             name="@prefix@/lib/libccachem_cxx_server.so"
+             libtool-archive="@prefix@/lib/libccachem_cxx_server.la"
+             shared-archive="@prefix@/lib/libccachem_cxx_server.so" />
+    <headers path="@prefix@/include"
+             files="NWChem_Chemistry_QC_ModelFactory" />
+
   </environment>
 </componentDeployment>
 </libInfo>	 
