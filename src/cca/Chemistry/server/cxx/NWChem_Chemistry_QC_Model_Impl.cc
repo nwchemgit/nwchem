@@ -58,7 +58,7 @@ throw ()
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.initialize} (initialize method)
   int len;
   len=scratch_directory.length();
-  //nwchem_nwchemstart_(scratch_directory.c_str(),len);
+  nwchem_nwchemstart_(scratch_directory.c_str(),len);
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.initialize)
 }
 
@@ -72,7 +72,7 @@ throw ()
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.change_theory)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.change_theory} (change_theory method)
-  //nwchem_settheory_(theory.c_str());  
+  nwchem_settheory_(theory.c_str());  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.change_theory)
 }
 
@@ -88,7 +88,7 @@ throw ()
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.change_basis} (change_basis method)
   int len;
   len=basis.length();
-  //nwchem_setbasisset_(basis.c_str(),len);  
+  nwchem_setbasisset_(basis.c_str(),len);  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.change_basis)
 }
 
@@ -103,7 +103,7 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.setCoordinatesFromFile)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.setCoordinatesFromFile} (setCoordinatesFromFile method)
   std::cout << "\n\nNWCHEM COORDS FROM FILE: " << molecule_filename;
-  //nwchem_setcoordinatesfromfile_(molecule_filename.c_str()); 
+  nwchem_setcoordinatesfromfile_(molecule_filename.c_str()); 
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.setCoordinatesFromFile)
 }
 
@@ -118,7 +118,7 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.getNumCoordinates)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.getNumCoordinates} (getNumCoordinates method)
   int num;
-  //nwchem_getnumcoordinates_(&num);
+  nwchem_getnumcoordinates_(&num);
   return num;
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.getNumCoordinates)
 }
@@ -134,11 +134,11 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_coor)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_coor} (get_coor method)
   int num;
-  //nwchem_getnumcoordinates_(&num);
+  nwchem_getnumcoordinates_(&num);
 
   sidl::array<double> x = sidl::array<double>::create1d(num);
   double* dataPtr = x.first();
-  //nwchem_getcoordinates_(dataPtr);
+  nwchem_getcoordinates_(dataPtr);
   return x;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_coor)
 }
@@ -154,7 +154,7 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.set_coor)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.set_coor} (set_coor method)
   double* dataPtr = x.first();
-  //nwchem_setcoordinates_(dataPtr); 
+  nwchem_setcoordinates_(dataPtr); 
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.set_coor)
 }
 
@@ -182,7 +182,7 @@ throw ()
     *(dataPtr+i)=(*(dataPtr+i))*conv;
   }
 
-  //nwchem_setcoordinates_(dataPtr);
+  nwchem_setcoordinates_(dataPtr);
 
   return;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.set_molecule)
@@ -214,7 +214,7 @@ throw (
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_energy)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_energy} (get_energy method)
   double f;
-  //nwchem_taskenergy_(&f);
+  nwchem_taskenergy_(&f);
   return f;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_energy)
 }
@@ -280,10 +280,10 @@ throw (
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_gradient)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_gradient} (get_gradient method)
   int num;
-  //nwchem_getnumcoordinates_(&num);
+  nwchem_getnumcoordinates_(&num);
   sidl::array<double> g = sidl::array<double>::create1d(num);
   double* gradPtr = g.first();
-  //nwchem_taskgradient_(gradPtr);
+  nwchem_taskgradient_(gradPtr);
   return g;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_gradient)
 }
@@ -330,11 +330,11 @@ throw (
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_hessian)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_hessian} (get_hessian method)
   int num;
-  //nwchem_getnumcoordinates_(&num);
+  nwchem_getnumcoordinates_(&num);
   int lower[2]={1,1}, upper[2]={num,num};
   sidl::array<double> h = sidl::array<double>::createCol(2,lower,upper);
   double* hessPtr = h.first();
-  //nwchem_taskhessian_(hessPtr);
+  nwchem_taskhessian_(hessPtr);
   return h;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_hessian)
 }
@@ -423,7 +423,7 @@ throw ()
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.finalize)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.finalize} (finalize method)
-  //nwchem_nwchemend_();
+  nwchem_nwchemend_();
   return 0;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.finalize)
 }
