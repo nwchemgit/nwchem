@@ -25,7 +25,7 @@
    make install
 
 7. test nwchem-cca component
-   cd nwchem-4.7/src/cca/test
+   cd $(NWCHEM_TOP)/src/cca/tests
    ccafe-single --ccafe-rc CCAFERC
 
 8. changes made in nwchem-4.7 package
