@@ -2,12 +2,13 @@
 // File:          NWChem_Chemistry_QC_GaussianShell_Impl.cc
 // Symbol:        NWChem.Chemistry_QC_GaussianShell-v0.4
 // Symbol Type:   class
-// Babel Version: 0.10.2
+// Babel Version: 0.10.12
 // Description:   Server-side implementation for NWChem.Chemistry_QC_GaussianShell
 // 
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
-// babel-version = 0.10.2
+// babel-version = 0.10.12
+// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_GaussianShell-v0.4.xml
 // 
 #include "NWChem_Chemistry_QC_GaussianShell_Impl.hh"
 
@@ -41,12 +42,13 @@ void NWChem::Chemistry_QC_GaussianShell_impl::_load() {
 // user-defined non-static methods:
 /**
  * Get the number of contractions in the shell. 
- * @return Number of contractions. 
+ * @return number of contractions 
  */
-int64_t
+int32_t
 NWChem::Chemistry_QC_GaussianShell_impl::get_n_contraction ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_n_contraction)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_n_contraction} (get_n_contraction method)
@@ -55,12 +57,13 @@ throw ()
 
 /**
  * Get the number of primitives in the shell.
- * @return Number of primitives. 
+ * @return number of primitives 
  */
-int64_t
+int32_t
 NWChem::Chemistry_QC_GaussianShell_impl::get_n_primitive ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_n_primitive)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_n_primitive} (get_n_primitive method)
@@ -68,17 +71,19 @@ throw ()
 }
 
 /**
- * Get the coefficient for an unnormalized primitive in a contraction.
- * @param connum Contraction number.
- * @param expnum Primitive number.
- * @return The contraction coefficient. 
+ * Get the coefficient for an unnormalized primitive 
+ * in a contraction.
+ * @param connum contraction number
+ * @param expnum primitive number
+ * @return contraction coefficient 
  */
 double
 NWChem::Chemistry_QC_GaussianShell_impl::get_contraction_coef (
-  /* in */ int64_t connum,
-  /* in */ int64_t expnum ) 
-throw () 
-{
+  /* in */ int32_t connum,
+  /* in */ int32_t expnum ) 
+throw ( 
+  ::sidl::BaseException
+){
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_contraction_coef)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_contraction_coef} (get_contraction_coef method)
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_GaussianShell.get_contraction_coef)
@@ -86,14 +91,15 @@ throw ()
 
 /**
  * Get the exponent for a primitive.
- * @param expnum The primitive number.
- * @return The exponent. 
+ * @param expnum primitive id number
+ * @return exponent 
  */
 double
 NWChem::Chemistry_QC_GaussianShell_impl::get_exponent (
-  /* in */ int64_t expnum ) 
-throw () 
-{
+  /* in */ int32_t expnum ) 
+throw ( 
+  ::sidl::BaseException
+){
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_exponent)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_exponent} (get_exponent method)
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_GaussianShell.get_exponent)
@@ -101,27 +107,30 @@ throw ()
 
 /**
  * Get the angular momentum for a single contraction.
- * @param connum Contraction number.
- * @return Angular momentum value. 
+ * @param connum contraction id number
+ * @return angular momentum value 
  */
-int64_t
+int32_t
 NWChem::Chemistry_QC_GaussianShell_impl::get_angular_momentum (
-  /* in */ int64_t connum ) 
-throw () 
-{
+  /* in */ int32_t connum ) 
+throw ( 
+  ::sidl::BaseException
+){
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_angular_momentum)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_angular_momentum} (get_angular_momentum method)
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_GaussianShell.get_angular_momentum)
 }
 
 /**
- * Get the max angular momentum of any contraction in the shell.
- * @return Maximum angular momentum value. 
+ * Get the max angular momentum, considering all contractions 
+ * in the shell.
+ * @return maximum angular momentum value 
  */
-int64_t
+int32_t
 NWChem::Chemistry_QC_GaussianShell_impl::get_max_angular_momentum ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_max_angular_momentum)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_max_angular_momentum} (get_max_angular_momentum method)
@@ -130,27 +139,29 @@ throw ()
 
 /**
  * Get the angular type for a single contraction.
- * @param connum Contraction number.
- * @return enum AngularType {CARTESIAN,SPHERICAL,MIXED} 
+ * @param connum contraction number
+ * @return enum AngularType 
  */
 ::Chemistry::QC::GaussianBasis::AngularType
 NWChem::Chemistry_QC_GaussianShell_impl::get_contraction_angular_type (
-  /* in */ int64_t connum ) 
-throw () 
-{
+  /* in */ int32_t connum ) 
+throw ( 
+  ::sidl::BaseException
+){
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_contraction_angular_type)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_contraction_angular_type} (get_contraction_angular_type method)
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_GaussianShell.get_contraction_angular_type)
 }
 
 /**
- * Get the angular type for the shell.
- * @return enum AngularType {CARTESIAN,SPHERICAL,MIXED} 
+ * Get the angular type.
+ * @return enum AngularType 
  */
 ::Chemistry::QC::GaussianBasis::AngularType
 NWChem::Chemistry_QC_GaussianShell_impl::get_angular_type ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.get_angular_type)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.get_angular_type} (get_angular_type method)
@@ -162,8 +173,9 @@ throw ()
  */
 void
 NWChem::Chemistry_QC_GaussianShell_impl::print_shell ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianShell.print_shell)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianShell.print_shell} (print_shell method)

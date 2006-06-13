@@ -2,12 +2,13 @@
 // File:          NWChem_Physics_Units_Impl.cc
 // Symbol:        NWChem.Physics_Units-v0.4
 // Symbol Type:   class
-// Babel Version: 0.10.2
+// Babel Version: 0.10.12
 // Description:   Server-side implementation for NWChem.Physics_Units
 // 
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
-// babel-version = 0.10.2
+// babel-version = 0.10.12
+// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Physics_Units-v0.4.xml
 // 
 #include "NWChem_Physics_Units_Impl.hh"
 

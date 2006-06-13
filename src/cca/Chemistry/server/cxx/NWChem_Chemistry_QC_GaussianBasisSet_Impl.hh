@@ -2,12 +2,13 @@
 // File:          NWChem_Chemistry_QC_GaussianBasisSet_Impl.hh
 // Symbol:        NWChem.Chemistry_QC_GaussianBasisSet-v0.4
 // Symbol Type:   class
-// Babel Version: 0.10.2
+// Babel Version: 0.10.12
 // Description:   Server-side implementation for NWChem.Chemistry_QC_GaussianBasisSet
 // 
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
-// babel-version = 0.10.2
+// babel-version = 0.10.12
+// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_GaussianBasisSet-v0.4.xml
 // 
 
 #ifndef included_NWChem_Chemistry_QC_GaussianBasisSet_Impl_hh
@@ -33,6 +34,9 @@
 #endif
 #ifndef included_NWChem_Chemistry_QC_GaussianBasisSet_hh
 #include "NWChem_Chemistry_QC_GaussianBasisSet.hh"
+#endif
+#ifndef included_sidl_BaseException_hh
+#include "sidl_BaseException.hh"
 #endif
 #ifndef included_sidl_BaseInterface_hh
 #include "sidl_BaseInterface.hh"
@@ -96,71 +100,80 @@ namespace NWChem {
 
     /**
      * Get the user specified name.
-     * @return User specified name. 
+     * @return name 
      */
     ::std::string
-    get_label() throw () 
-    ;
+    get_label() throw ( 
+      ::sidl::BaseException
+    );
 
     /**
      * Get the number of basis functions.
-     * @return Number of basis functions. 
+     * @return number of functions 
      */
     int64_t
-    get_n_basis() throw () 
-    ;
+    get_n_basis() throw ( 
+      ::sidl::BaseException
+    );
 
     /**
      * Get the number of shells.
-     * @return Number of shells. 
+     * @return number of shells 
      */
     int64_t
-    get_n_shell() throw () 
-    ;
+    get_n_shell() throw ( 
+      ::sidl::BaseException
+    );
 
     /**
-     * Get the max angular momentum for any contraction in the basis set.
-     * @return Max angular momentum value. 
+     * Get the max angular momentum for any contraction in the 
+     * basis set.
+     * @return max angular momentum 
      */
-    int64_t
-    get_max_angular_momentum() throw () 
-    ;
+    int32_t
+    get_max_angular_momentum() throw ( 
+      ::sidl::BaseException
+    );
 
     /**
      * Get the angular type.
-     * @return enum AngularType {CARTESIAN,SPHERICAL,MIXED} 
+     * @return enum AngularType 
      */
     ::Chemistry::QC::GaussianBasis::AngularType
-    get_angular_type() throw () 
-    ;
+    get_angular_type() throw ( 
+      ::sidl::BaseException
+    );
 
     /**
      * Get an atomic basis set.
-     * @param atomnum Atom number. 
-     * @return Atomic basis set. 
+     * @param atomnum atom number 
+     * @return Atomic 
      */
     ::Chemistry::QC::GaussianBasis::Atomic
     get_atomic (
       /* in */ int64_t atomnum
     )
-    throw () 
-    ;
+    throw ( 
+      ::sidl::BaseException
+    );
 
 
     /**
      * Get the molecule.
-     * @return The molecule. 
+     * @return Molecule 
      */
     ::Chemistry::Molecule
-    get_molecule() throw () 
-    ;
+    get_molecule() throw ( 
+      ::sidl::BaseException
+    );
 
     /**
      * Print the molecular basis data. 
      */
     void
-    print_molecular() throw () 
-    ;
+    print_molecular() throw ( 
+      ::sidl::BaseException
+    );
   };  // end class Chemistry_QC_GaussianBasisSet_impl
 
 } // end namespace NWChem

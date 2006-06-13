@@ -1,10 +1,11 @@
 1. change config.txt if necessary and source it
    set the environment variable LIBMPI if your mpi library is not '-lmpi'
 
-2. compile NWChem with target nwdft 
+2. compile NWChem with NWCHEM_MODULES "nwdft gradients"
    make and include -ldftgrad if standalone NWChem doesn't link
    Note that hessian modules is not included for target nwdft
-   make geninterface module
+   "make stubs.o" in the $(NWCHEM_TOP)/src directory
+   make in the geninterface directory
    
 3. copy all object files to nwchem-4.7/obj and link them
   cd nwchem-4.7/src/cca

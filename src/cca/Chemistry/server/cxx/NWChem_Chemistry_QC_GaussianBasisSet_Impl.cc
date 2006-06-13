@@ -2,12 +2,13 @@
 // File:          NWChem_Chemistry_QC_GaussianBasisSet_Impl.cc
 // Symbol:        NWChem.Chemistry_QC_GaussianBasisSet-v0.4
 // Symbol Type:   class
-// Babel Version: 0.10.2
+// Babel Version: 0.10.12
 // Description:   Server-side implementation for NWChem.Chemistry_QC_GaussianBasisSet
 // 
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
-// babel-version = 0.10.2
+// babel-version = 0.10.12
+// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_GaussianBasisSet-v0.4.xml
 // 
 #include "NWChem_Chemistry_QC_GaussianBasisSet_Impl.hh"
 
@@ -41,12 +42,13 @@ void NWChem::Chemistry_QC_GaussianBasisSet_impl::_load() {
 // user-defined non-static methods:
 /**
  * Get the user specified name.
- * @return User specified name. 
+ * @return name 
  */
 ::std::string
 NWChem::Chemistry_QC_GaussianBasisSet_impl::get_label ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.get_label)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.get_label} (get_label method)
@@ -55,12 +57,13 @@ throw ()
 
 /**
  * Get the number of basis functions.
- * @return Number of basis functions. 
+ * @return number of functions 
  */
 int64_t
 NWChem::Chemistry_QC_GaussianBasisSet_impl::get_n_basis ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.get_n_basis)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.get_n_basis} (get_n_basis method)
@@ -69,12 +72,13 @@ throw ()
 
 /**
  * Get the number of shells.
- * @return Number of shells. 
+ * @return number of shells 
  */
 int64_t
 NWChem::Chemistry_QC_GaussianBasisSet_impl::get_n_shell ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.get_n_shell)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.get_n_shell} (get_n_shell method)
@@ -82,13 +86,15 @@ throw ()
 }
 
 /**
- * Get the max angular momentum for any contraction in the basis set.
- * @return Max angular momentum value. 
+ * Get the max angular momentum for any contraction in the 
+ * basis set.
+ * @return max angular momentum 
  */
-int64_t
+int32_t
 NWChem::Chemistry_QC_GaussianBasisSet_impl::get_max_angular_momentum ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.get_max_angular_momentum)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.get_max_angular_momentum} (get_max_angular_momentum method)
@@ -97,12 +103,13 @@ throw ()
 
 /**
  * Get the angular type.
- * @return enum AngularType {CARTESIAN,SPHERICAL,MIXED} 
+ * @return enum AngularType 
  */
 ::Chemistry::QC::GaussianBasis::AngularType
 NWChem::Chemistry_QC_GaussianBasisSet_impl::get_angular_type ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.get_angular_type)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.get_angular_type} (get_angular_type method)
@@ -111,14 +118,15 @@ throw ()
 
 /**
  * Get an atomic basis set.
- * @param atomnum Atom number. 
- * @return Atomic basis set. 
+ * @param atomnum atom number 
+ * @return Atomic 
  */
 ::Chemistry::QC::GaussianBasis::Atomic
 NWChem::Chemistry_QC_GaussianBasisSet_impl::get_atomic (
   /* in */ int64_t atomnum ) 
-throw () 
-{
+throw ( 
+  ::sidl::BaseException
+){
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.get_atomic)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.get_atomic} (get_atomic method)
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_GaussianBasisSet.get_atomic)
@@ -126,12 +134,13 @@ throw ()
 
 /**
  * Get the molecule.
- * @return The molecule. 
+ * @return Molecule 
  */
 ::Chemistry::Molecule
 NWChem::Chemistry_QC_GaussianBasisSet_impl::get_molecule ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.get_molecule)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.get_molecule} (get_molecule method)
@@ -143,8 +152,9 @@ throw ()
  */
 void
 NWChem::Chemistry_QC_GaussianBasisSet_impl::print_molecular ()
-throw () 
-
+throw ( 
+  ::sidl::BaseException
+)
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_GaussianBasisSet.print_molecular)
   // Insert-Code-Here {NWChem.Chemistry_QC_GaussianBasisSet.print_molecular} (print_molecular method)

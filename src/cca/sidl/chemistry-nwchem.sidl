@@ -25,4 +25,20 @@ package NWChem version 0.4
 
   class Chemistry_QC_GaussianBasisSet
     implements-all Chemistry.QC.GaussianBasis.Molecular {};
+
+  class Chemistry_QC_IntEvalFactory
+    implements-all Chemistry.QC.GaussianBasis.IntegralEvaluatorFactory,
+    gov.cca.Component, gov.cca.Port {};
+
+  class IntegralEvaluator1 
+    implements-all Chemistry.QC.GaussianBasis.IntegralEvaluator1 {};
+
+  class IntegralEvaluator2
+    implements-all Chemistry.QC.GaussianBasis.IntegralEvaluator2 {};
+
+  class IntegralEvaluator3
+    implements-all Chemistry.QC.GaussianBasis.IntegralEvaluator3 {};
+
+  class IntegralEvaluator4
+    implements-all Chemistry.QC.GaussianBasis.IntegralEvaluator4 {};
 };

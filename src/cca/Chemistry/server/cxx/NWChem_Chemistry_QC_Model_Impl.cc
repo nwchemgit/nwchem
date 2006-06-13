@@ -2,12 +2,13 @@
 // File:          NWChem_Chemistry_QC_Model_Impl.cc
 // Symbol:        NWChem.Chemistry_QC_Model-v0.4
 // Symbol Type:   class
-// Babel Version: 0.10.2
+// Babel Version: 0.10.12
 // Description:   Server-side implementation for NWChem.Chemistry_QC_Model
 // 
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
-// babel-version = 0.10.2
+// babel-version = 0.10.12
+// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_Model-v0.4.xml
 // 
 #include "NWChem_Chemistry_QC_Model_Impl.hh"
 
@@ -57,7 +58,7 @@ throw ()
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.initialize} (initialize method)
   int len;
   len=scratch_directory.length();
-  nwchem_nwchemstart_(scratch_directory.c_str(),len);
+  //nwchem_nwchemstart_(scratch_directory.c_str(),len);
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.initialize)
 }
 
@@ -71,7 +72,7 @@ throw ()
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.change_theory)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.change_theory} (change_theory method)
-  nwchem_settheory_(theory.c_str());  
+  //nwchem_settheory_(theory.c_str());  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.change_theory)
 }
 
@@ -87,7 +88,7 @@ throw ()
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.change_basis} (change_basis method)
   int len;
   len=basis.length();
-  nwchem_setbasisset_(basis.c_str(),len);  
+  //nwchem_setbasisset_(basis.c_str(),len);  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.change_basis)
 }
 
@@ -102,7 +103,7 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.setCoordinatesFromFile)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.setCoordinatesFromFile} (setCoordinatesFromFile method)
   std::cout << "\n\nNWCHEM COORDS FROM FILE: " << molecule_filename;
-  nwchem_setcoordinatesfromfile_(molecule_filename.c_str()); 
+  //nwchem_setcoordinatesfromfile_(molecule_filename.c_str()); 
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.setCoordinatesFromFile)
 }
 
@@ -117,7 +118,7 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.getNumCoordinates)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.getNumCoordinates} (getNumCoordinates method)
   int num;
-  nwchem_getnumcoordinates_(&num);
+  //nwchem_getnumcoordinates_(&num);
   return num;
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.getNumCoordinates)
 }
@@ -133,11 +134,11 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_coor)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_coor} (get_coor method)
   int num;
-  nwchem_getnumcoordinates_(&num);
+  //nwchem_getnumcoordinates_(&num);
 
   sidl::array<double> x = sidl::array<double>::create1d(num);
   double* dataPtr = x.first();
-  nwchem_getcoordinates_(dataPtr);
+  //nwchem_getcoordinates_(dataPtr);
   return x;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_coor)
 }
@@ -153,7 +154,7 @@ throw ()
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.set_coor)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.set_coor} (set_coor method)
   double* dataPtr = x.first();
-  nwchem_setcoordinates_(dataPtr); 
+  //nwchem_setcoordinates_(dataPtr); 
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.set_coor)
 }
 
@@ -181,7 +182,7 @@ throw ()
     *(dataPtr+i)=(*(dataPtr+i))*conv;
   }
 
-  nwchem_setcoordinates_(dataPtr);
+  //nwchem_setcoordinates_(dataPtr);
 
   return;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.set_molecule)
@@ -213,7 +214,7 @@ throw (
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_energy)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_energy} (get_energy method)
   double f;
-  nwchem_taskenergy_(&f);
+  //nwchem_taskenergy_(&f);
   return f;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_energy)
 }
@@ -234,7 +235,8 @@ throw ()
 
 /**
  * Returns the accuracy to which the energy is already computed.
- * The result is undefined if the energy has not already been computed.
+ * The result is undefined if the energy has not already 
+ * been computed.
  * @return The energy accuracy. 
  */
 double
@@ -248,10 +250,12 @@ throw ()
 }
 
 /**
- * This allows a programmer to request that if any result is computed,
+ * This allows a programmer to request that if any result 
+ * is computed,
  * then the energy is computed too.  This allows, say, for a request
  * for a gradient to cause the energy to be computed.  This computed
- * energy is cached and returned when the get_energy() member is called.
+ * energy is cached and returned when the get_energy() member 
+ * is called.
  * @param doit Whether or not to compute the energy.
  */
 void
@@ -276,10 +280,10 @@ throw (
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_gradient)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_gradient} (get_gradient method)
   int num;
-  nwchem_getnumcoordinates_(&num);
+  //nwchem_getnumcoordinates_(&num);
   sidl::array<double> g = sidl::array<double>::create1d(num);
   double* gradPtr = g.first();
-  nwchem_taskgradient_(gradPtr);
+  //nwchem_taskgradient_(gradPtr);
   return g;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_gradient)
 }
@@ -300,7 +304,8 @@ throw ()
 
 /**
  * Returns the accuracy to which the gradient is already computed.
- * The result is undefined if the gradient has not already been computed.
+ * The result is undefined if the gradient has not already 
+ * been computed.
  * @return The current gradient accuracy. 
  */
 double
@@ -325,11 +330,11 @@ throw (
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.get_hessian)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.get_hessian} (get_hessian method)
   int num;
-  nwchem_getnumcoordinates_(&num);
+  //nwchem_getnumcoordinates_(&num);
   int lower[2]={1,1}, upper[2]={num,num};
   sidl::array<double> h = sidl::array<double>::createCol(2,lower,upper);
   double* hessPtr = h.first();
-  nwchem_taskhessian_(hessPtr);
+  //nwchem_taskhessian_(hessPtr);
   return h;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.get_hessian)
 }
@@ -350,7 +355,8 @@ throw ()
 
 /**
  * Returns the accuracy to which the Hessian is already computed.
- * The result is undefined if the Hessian has not already been computed. 
+ * The result is undefined if the Hessian has not already 
+ * been computed. 
  */
 double
 NWChem::Chemistry_QC_Model_impl::get_hessian_accuracy ()
@@ -391,8 +397,9 @@ throw ()
 }
 
 /**
- * Returns the accuracy to which the guess Hessian is already computed.
- * The result is undefined if the guess Hessian has not already been computed.
+ * Returns the accuracy to which the guess Hessian is 
+ * already computed.  The result is undefined if the guess Hessian 
+ * has not already been computed.
  * @return The guess hessian accuracy.  
  */
 double
@@ -406,8 +413,8 @@ throw ()
 }
 
 /**
- * This can be called when this Model object is no longer needed.  No other
- * members may be called after finalize. 
+ * This can be called when this Model object is no longer needed.  
+ * No other members may be called after finalize. 
  */
 int32_t
 NWChem::Chemistry_QC_Model_impl::finalize ()
@@ -416,7 +423,7 @@ throw ()
 {
   // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_Model.finalize)
   // Insert-Code-Here {NWChem.Chemistry_QC_Model.finalize} (finalize method)
-  nwchem_nwchemend_();
+  //nwchem_nwchemend_();
   return 0;  
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_Model.finalize)
 }

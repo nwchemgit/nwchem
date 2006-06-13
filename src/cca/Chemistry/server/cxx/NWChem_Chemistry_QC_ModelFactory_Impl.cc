@@ -2,12 +2,13 @@
 // File:          NWChem_Chemistry_QC_ModelFactory_Impl.cc
 // Symbol:        NWChem.Chemistry_QC_ModelFactory-v0.4
 // Symbol Type:   class
-// Babel Version: 0.10.2
+// Babel Version: 0.10.12
 // Description:   Server-side implementation for NWChem.Chemistry_QC_ModelFactory
 // 
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
-// babel-version = 0.10.2
+// babel-version = 0.10.12
+// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_ModelFactory-v0.4.xml
 // 
 #include "NWChem_Chemistry_QC_ModelFactory_Impl.hh"
 
@@ -64,7 +65,8 @@ void NWChem::Chemistry_QC_ModelFactory_impl::_load() {
 // user-defined non-static methods:
 /**
  * Set the theory name for Model's created with get_model.
- * @param theory A string giving the name of the theory, for example, B3LYP.
+ * @param theory A string giving the name of the theory, 
+ * for example, B3LYP.
  */
 void
 NWChem::Chemistry_QC_ModelFactory_impl::set_theory (
@@ -108,9 +110,10 @@ throw ()
 }
 
 /**
- * Set the object to use to compute integrals for Model's created with get_model.
- * 
- * @param intfact An object of type GaussianBasis.IntegralEvaluatorFactory.
+ * Set the object to use to compute integrals for Model's 
+ * created with get_model.
+ * @param intfact An object of type 
+ * GaussianBasis.IntegralEvaluatorFactory.
  */
 void
 NWChem::Chemistry_QC_ModelFactory_impl::set_integral_factory (
@@ -123,8 +126,8 @@ throw ()
 }
 
 /**
- * Returns a newly created Model.  Before get_model can be called, set_theory,
- * set_basis, and set_molecule must be called.
+ * Returns a newly created Model.  Before get_model can be called, 
+ * set_theory, set_basis, and set_molecule must be called.
  * @return The new Model instance.
  */
 ::Chemistry::QC::Model
@@ -214,8 +217,8 @@ throw (
 }
 
 /**
- * This can be called when this Model object is no longer needed.  No other
- * members may be called after finalize. 
+ * This can be called when this Model object is no longer needed.  
+ * No other members may be called after finalize. 
  */
 int32_t
 NWChem::Chemistry_QC_ModelFactory_impl::finalize ()
@@ -231,7 +234,7 @@ throw ()
 
 /**
  * Starts up a component presence in the calling framework.
- * @param Svc the component instance's handle on the framework world.
+ * @param services the component instance's handle on the framework world.
  * Contracts concerning Svc and setServices:
  * 
  * The component interaction with the CCA framework

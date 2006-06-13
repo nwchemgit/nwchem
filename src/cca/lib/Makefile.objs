@@ -22,8 +22,7 @@ $(EXTRA_CXX_SRCS): .babel-stamp
               ln -s $(srcdir)/$${i}; \
             fi; \
           done
-	$(BABEL) $(BABEL_FLAGS) $(BABEL_ARGS) $(BABEL_TARGETS) \
-	  $(BABEL_ENUMS) $(BABEL_PACKAGES)
+	$(BABEL) $(BABEL_FLAGS) $(BABEL_ARGS) $(BABEL_TARGETS) $(BABEL_ENUMS) $(BABEL_PACKAGES)
 	@mv -f .babel-temp $@
 	@$(INSTALL) $(INSTALLDIROPT) $(objdir)/include
 	for i in $(INCLUDES); \

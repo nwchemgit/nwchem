@@ -1,1 +1,1 @@
-../configure --prefix=/afs/scl/user/fangp/nwchem-4.7/src/cca/obj --with-nwchem-dir=/afs/scl/user/fangp/nwchem-4.7 --with-cca-chem-config=/usr/local/cca-chem-generic/bin/cca-chem-config --with-nwchem-target=LINUX
+./configure --prefix=/home/windus/CCA/mcmd-paper/nwchem/src/cca/obj --with-nwchem-dir=/home/windus/CCA/mcmd-paper/nwchem --with-cca-chem-config=/home/windus/cca-chem/cca-chem-generic/install/bin/cca-chem-config --with-nwchem-target=LINUX

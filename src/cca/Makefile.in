@@ -20,8 +20,10 @@ default: .chemistry-stamp
 	-R$(CCA_SPEC_BABEL_SHARE)/xml -R$(CCAFE_SHARE)/xml \
 	-R$(CCA_CHEM_REPO) -o$(REPO) $(SIDL_FILES)
 	mv .babel-temp .babel-stamp
+ifneq ($(top_srcdir),$(objdir))
 	$(INSTALL) $(INSTALLDIROPT) $(objdir)/sidl
 	$(INSTALL) $(INSTALLFILEOPT) $(top_srcdir)/sidl/*.sidl $(objdir)/sidl
+endif
 
 
 SUBDIRS = \
@@ -33,9 +35,9 @@ clean:
 	for i in $(SUBDIRS); do \
 	  cd $${i}; $(MAKE) clean; \
 	done
-	rm -f repo/*; rm -f include/*
+	rm -f repo/*; rm -f include/*.h; rm -f include/*.hh
 	rm -f .chemistry-stamp .babel-stamp
-					  
+
 INST = $(shell echo `find lib/*.cca`; echo `find sidl`; echo `find repo`; \
        echo `find include`)
 BINLIST = $(shell echo `find bin/*`)
