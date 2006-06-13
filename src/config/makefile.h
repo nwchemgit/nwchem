@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.527 2006-06-08 23:36:06 edo Exp $
+# $Id: makefile.h,v 1.528 2006-06-13 06:26:45 windus Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1510,6 +1510,9 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       CC=gcc
       DEFINES   +=   -DLINUXIA64 
       COPTIMIZE = -O1
+      ifdef USE_SHARED
+        FOPTIONS+= -fPIC
+      endif
 
       ifeq ($(FC),efc)
        _IFCV9= $(shell efc -v  2>&1|egrep "Version "|head -n 1|awk '/9./ {print "Y"}')
@@ -1573,6 +1576,9 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
       endif
       ifeq ($(CC),gcc)
         COPTIONS   =   -O3 -funroll-loops -ffast-math
+      endif
+      ifdef USE_SHARED
+        COPTIONS += -fPIC
       endif
 
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas

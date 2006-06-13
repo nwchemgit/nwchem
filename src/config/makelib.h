@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.48 2005-10-20 01:04:24 edo Exp $
+# $Id: makelib.h,v 1.49 2006-06-13 06:26:45 windus Exp $
 
 #
 # A makefile for a library should
@@ -92,6 +92,9 @@
 ####################################################################
 
 LIBRARY_PATH := $(LIBDIR)/$(LIBRARY)
+ifdef USE_SHARED
+LIBRARY_SO = $(LIBRARY).so
+endif
 
 .PRECIOUS:	$(LIBRARY_PATH) 
 
@@ -170,6 +173,8 @@ update_archive:
 		echo $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list ; \
 		     $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>&1 | \
 				grep -v truncated ; \
+                echo $(CC) -shared -o $(LIBDIR)/$(LIBRARY_SO) $$list ;\
+                $(CC) -shared -o $(LIBDIR)/$(LIBRARY_SO) $$list ;\
 		/bin/rm -f $$list ; \
 		echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
 		/bin/rm -f $(LOCKFILE) ; \

@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.215 2006-05-26 18:19:19 marat Exp $
+# $Id: make_nwchem_config,v 1.216 2006-06-13 06:26:44 windus Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -80,7 +80,8 @@ EXP_argos = prepar analyz
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
-          ccsd vib property dftgrad mp2_grad geninterface
+          ccsd vib property dftgrad mp2_grad geninterface bq cons
+# Need bq in front of cons?
 EXP_qmmm = $(filter-out hessian tce uccsdt python develop oimp2 scfaux plane_wave rimp2_grad vscf geninterface dntmc,$(KNOWN_MODULE_SUBDIRS) )
 
 # Check each expansion
