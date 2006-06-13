@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.80 2006-05-26 18:20:24 marat Exp $
+* $Id: task.F,v 1.81 2006-06-13 06:33:52 windus Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -94,18 +94,18 @@ c
       logical task_dntmc
       external task_dntmc
 c
-#ifdef USE_SUBGROUPS
-      logical util_sgstart
-      external util_sgstart
-#endif
+C#ifdef USE_SUBGROUPS
+C      logical util_sgstart
+C      external util_sgstart
+C#endif
 c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
       task_cpu  = -util_cpusec()
 *
-#ifdef USE_SUBGROUPS
-      if(util_sgstart(rtdb)) then
-#endif
+C#ifdef USE_SUBGROUPS
+C      if(util_sgstart(rtdb)) then
+C#endif
 
       if (rtdb_get(rtdb, 'task:debug', mt_log, 1, odebug))
      $     call util_debug(rtdb)
@@ -351,10 +351,10 @@ c
           call util_flush(6)
         endif
       endif
-#ifdef USE_SUBGROUPS
-      endif
-      call util_sgend(rtdb)
-#endif
+C#ifdef USE_SUBGROUPS
+C      endif
+C      call util_sgend(rtdb)
+C#endif
       call ecce_print1('single task cpu time',mt_dbl,task_cpu,1)
       call ecce_print1('single task wall time',mt_dbl,task_wall,1)
       call ga_sync()
