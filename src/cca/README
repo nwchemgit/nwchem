@@ -1,41 +1,33 @@
-
-
-
 1. change the environment variables in env_nwchem.source
    and source the file
+   # set the environment variable LIBMPI if your mpi library is not '-lmpi'
 
 2. make sure that the cca tools are compiled
 
 3. compile the cca-chem-generic code
- setenv CVSROOT :ext:vidhya@cca-forum.org:/cvs/cca-chem
- setenv CVS_RSH ssh
+   If you have access to the cca-forum repository you can get the code by:
+    setenv CVSROOT :ext:vidhya@cca-forum.org:/cvs/cca-chem
+    setenv CVS_RSH ssh
+    cvs co cca-chem-generic
 
-4. compile NWChem with NWCHEM_MODULES "nwdft gradients"
-   This should generally just be two commands:
+4. compile NWChem: 
+   This should generally just be two commands if you did step 1:
+   In the $(NWCHEM_TOP)/src directory
    "make nwchem_config"
    "make >& make.log &"
-   make and include -ldftgrad if standalone NWChem doesn't link
-   Note that hessian modules is not included for target nwdft
-   "make stubs.o" in the $(NWCHEM_TOP)/src directory
-   make in the geninterface directory
-   
-5. copy all object files to nwchem-4.7/obj and link them by:
-   cd $(NWCHEM_TOP)/cca
-   make -f Makefile.sumo
 
-6. build nwchem-cca component
+5. get a few other files that the CCA code will need:
+   In the $(NWCHEM_TOP)/src directory
+   "make stubs.o"
+   "make ccalink"
+   
+6. build cca component in the $(NWCHEM_TOP)/src/cca directory:
    change config.txt if necessary and source it or do your own configure
-   set the environment variable LIBMPI if your mpi library is not '-lmpi'
    make
    make install
 
-7. test nwchem-cca component
+7. test cca component
    cd $(NWCHEM_TOP)/src/cca/tests
    modify CCAFERC file
    ccafe-single --ccafe-rc CCAFERC
 
-8. changes made in nwchem-4.7 package
-   * two files under nwchem-4.7/src/config has been modified
-   * "hess_read" has been removed from NWChemWrapper.F
-   * compile dftgrad module
-   * compile geninterface module
