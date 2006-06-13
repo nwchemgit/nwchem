@@ -91,6 +91,8 @@ else
   BABEL_ARGS = --server=C++
 endif
 
+
+
 # used in Makefile.libs
 CLIENT_OBJDIRS = $(CLIENT_PACKAGES:%=../%/client/cxx)
 SERVER_OBJDIRS = $(SERVER_PACKAGES:%=../%/server/cxx)
@@ -100,19 +102,15 @@ LIBS = -L$(BABEL_LIB) -Wl,-rpath,$(BABEL_LIB) -lsidl \
        -L$(CCA_SPEC_BABEL_LIB) -Wl,-rpath,$(CCA_SPEC_BABEL_LIB) -lcca \
        -L$(CCA_CHEM_LIB) -WL, -rpath,$(CCA_CHEM_LIB) -lccachem_cxx_server -lccachem_cxx_client
 
-NWCHEM_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET)  $(NWCHEM_TOP)/src/stubs.o -lnwchem-sumo -lpario -lglobal -lpeigs -lma -larmci -L$(MPI_LIB) -ltcgmsg-mpi -lmpich -llapack -lblas -lm
+#NWCHEM_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET)
+# -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET)
+# $(NWCHEM_TOP)/src/stubs.o -lnwchem-sumo -lpario -lglobal -lpeigs -lma
+# -larmci -L$(MPI_LIB) -ltcgmsg-mpi -lmpich -llapack -lblas -lm
+
+include $(NWCHEM_TOP)/src/cca/makefile.h
+NWCHEM_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET) $(NWCHEM_TOP)/src/stubs.o -lnwctask $(NWCHEM_CORE_LIBS)  
 
 
 #NWCHEM_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET) $(NWCHEM_TOP)/src/stubs.o -lgeninterface -lnwctask -lccsd -lmcscf -lselci -lmp2 -lmoints -lstepper -ldriver -ldftgrad -lnwdft -lgradients -lcphf -lesp -lddscf -lguess -lhessian -lvib -lnwcutil -lrimp2 -lproperty -lnwints -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -lqhop -lpfft -ldplot -ldrdy -lqmmm -lqmd -lesp -letrans -ltddft -ltce -lcons -lperfm -lnwcutil -lpario -lglobal -lma -lpeigs -lperfm -lcons -lnwcutil -lnwctask -lperfm -llapack  -lblas -larmci -L/usr/local/mpich/lib  -ltcgmsg-mpi -lmpich  -lm
 
-EXTRA_LIBS = -L$(NWCHEM_TOP)/lib/$(NWCHEM_TARGET) -lgeninterface -lnwcutil \
-             -lnwctask -lccsd -lmp2 -lmoints -lstepper\
-             -ldriver -ldftgrad -lnwdft -lgradients -lcphf -lddscf -lguess -lhessian \
-             -lvib -lrimp2 -lproperty -lnwints -lnwcutil \
-             -L$(NWCHEM_TOP)/src/tools/lib/$(NWCHEM_TARGET) -lpario -lglobal \
-             -lma -lpeigs  -llapack  -lblas -L$(MPI_LIB)  -ltcgmsg-mpi -lmpich \
-             -larmci -lm
-
-EXTRA_LIBS = $(NWCHEM_LIBS)
-#LIBS += $(EXTRA_LIBS)
 												  
