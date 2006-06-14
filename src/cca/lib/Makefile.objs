@@ -16,12 +16,12 @@ $(EXTRA_CXX_SRCS): .babel-stamp
 
 .babel-stamp: ../../../.babel-stamp
 	@rm -f .babel-stamp .babel-temp; touch .babel-temp
-	for i in $(IMPLHDRS) $(IMPLSRCS) $(EXTRA_CXX_SRCS) $(EXTRA_INCLUDES); \
-          do \
-            if test ! -e $${i}; then \
-              ln -s $(srcdir)/$${i}; \
-            fi; \
-          done
+#	for i in $(IMPLHDRS) $(IMPLSRCS) $(EXTRA_CXX_SRCS) $(EXTRA_INCLUDES); \
+#          do \
+#            if test ! -e $${i}; then \
+#              ln -s $(srcdir)/$${i}; \
+#            fi; \
+#          done
 	$(BABEL) $(BABEL_FLAGS) $(BABEL_ARGS) $(BABEL_TARGETS) $(BABEL_ENUMS) $(BABEL_PACKAGES)
 	@mv -f .babel-temp $@
 	@$(INSTALL) $(INSTALLDIROPT) $(objdir)/include
