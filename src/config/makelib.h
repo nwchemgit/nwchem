@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.49 2006-06-13 06:26:45 windus Exp $
+# $Id: makelib.h,v 1.50 2006-06-14 19:21:10 windus Exp $
 
 #
 # A makefile for a library should
@@ -93,7 +93,7 @@
 
 LIBRARY_PATH := $(LIBDIR)/$(LIBRARY)
 ifdef USE_SHARED
-LIBRARY_SO = $(LIBRARY).so
+LIBRARY_SO := $(shell echo $(LIBRARY) | sed s/\\.a/\\.so/g )
 endif
 
 .PRECIOUS:	$(LIBRARY_PATH) 
@@ -165,20 +165,37 @@ endif
 
     LOCKFILE := $(LIBRARY_PATH:.a=.lock)
 
-.phony:	update_archive
-update_archive:	
+.phony: update_archive
+update_archive: 
+ifdef USE_SHARED
 	@( list=`for file in $(OBJECTS) .notthere; do if [ -f $$file ] ; then echo $$file; fi ; done`; \
 	  if [ "$$list" ] ; then \
-		$(CNFDIR)/lockfile -steal $(LOCKFILE) || exit 1 ; \
-		echo $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list ; \
-		     $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>&1 | \
-				grep -v truncated ; \
-                echo $(CC) -shared -o $(LIBDIR)/$(LIBRARY_SO) $$list ;\
+	        $(CNFDIR)/lockfile -steal $(LOCKFILE) || exit 1 ; \
+	        echo $(CC) -shared -o $(LIBDIR)/$(LIBRARY_SO) $$list ;\
                 $(CC) -shared -o $(LIBDIR)/$(LIBRARY_SO) $$list ;\
-		/bin/rm -f $$list ; \
-		echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
-		/bin/rm -f $(LOCKFILE) ; \
+	        /bin/rm -f $(LOCKFILE) ; \
 	  fi; )
+endif
+ifdef SUMO
+	@( list=`for file in $(OBJECTS) .notthere; do if [ -f $$file ] ; then echo $$file; fi ; done`; \
+	  if [ "$$list" ] ; then \
+	        $(CNFDIR)/lockfile -steal $(LOCKFILE) || exit 1 ; \
+	        if test ! -e $(LIBDIR)/objs; then mkdir $(LIBDIR)/objs; fi;\
+	        cp $$list $(LIBDIR)/objs/;\
+	        /bin/rm -f $(LOCKFILE) ; \
+	  fi; )
+endif
+	@( list=`for file in $(OBJECTS) .notthere; do if [ -f $$file ] ; then echo $$file; fi ; done`; \
+	  if [ "$$list" ] ; then \
+	        $(CNFDIR)/lockfile -steal $(LOCKFILE) || exit 1 ; \
+                echo $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list ; \
+	             $(AR) $(ARFLAGS) $(LIBRARY_PATH) $$list 2>&1 | \
+	                   grep -v truncated ; \
+	        /bin/rm -f $$list ; \
+	        echo ranlib $(LIBRARY_PATH) ; $(RANLIB) $(LIBRARY_PATH) ; \
+	        /bin/rm -f $(LOCKFILE) ; \
+	   fi; )
+
 
 #
 # The explict rules for (%.o), .o, .f and .F have been moved
@@ -317,6 +334,9 @@ endif
 	-$(RM) -f *~ \#*\#  makefile.bak $(LIBRARY_PATH)
 	$(MAKE) clean
 	-$(RM) dependencies
+ifdef SUMO
+	-$(RM) -rf $(LIBDIR)/objs
+endif
 
 
 .PHONY:	source
