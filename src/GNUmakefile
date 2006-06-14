@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.83 2006-06-13 20:12:40 windus Exp $
+# $Id: GNUmakefile,v 1.84 2006-06-14 19:19:22 windus Exp $
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  
@@ -41,6 +41,10 @@ ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/$(NWBINNAME)
 endif
 	$(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -lnwctask $(LIBS)
+ifdef SUMO
+	$(AR) rcv $(LIBDIR)/libnwchem-sumo.a $(LIBDIR)/objs/*.o
+	$(RANLIB) $(LIBDIR)/libnwchem-sumo.a
+endif
 	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 #
@@ -58,6 +62,10 @@ ifeq ($(TARGET),SOLARIS)
 	/bin/rm -f $(BINDIR)/$(NWBINNAME)
 endif
 	$(PURIFY) $(LINK.f) -o $(BINDIR)/$(NWBINNAME) nwchem.o stubs.o -lnwctask $(LIBS)
+ifdef SUMO
+	$(AR) rcv $(LIBDIR)/libnwchem-sumo.a $(LIBDIR)/objs/*.o
+	$(RANLIB) $(LIBDIR)/libnwchem-sumo.a
+endif
 #	/bin/rm -f nwchem.o stubs.o
 	$(INSTALL)
 
