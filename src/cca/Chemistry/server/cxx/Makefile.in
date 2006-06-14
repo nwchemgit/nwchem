@@ -6,7 +6,12 @@ BABEL_TARGETS = \
   NWChem.Chemistry_QC_ModelFactory \
   NWChem.Chemistry_QC_GaussianBasisSet \
   NWChem.Chemistry_QC_GaussianShell \
-  NWChem.Physics_Units 
+  NWChem.Physics_Units \
+  NWChem.Chemistry_QC_IntEvalFactory \
+  NWChem.IntegralEvaluator1 \
+  NWChem.IntegralEvaluator2 \
+  NWChem.IntegralEvaluator3 \
+  NWChem.IntegralEvaluator4 
 
 CLIENT_OR_SERVER = server
 
