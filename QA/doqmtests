@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests,v 1.56 2006-02-24 20:58:05 edo Exp $
+# $Id: doqmtests,v 1.57 2006-06-14 17:49:25 d3p307 Exp $
 #
 #---   small tests
 set np = 1
@@ -61,7 +61,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np c60_ecp
 ./runtests.unix procs $np h2o_vscf
 # qmmm tests
-./runtests.unix procs $np asa_qmmm
+#./runtests.unix procs $np asa_qmmm
 ./runtests.unix procs $np ethane_qmmm
 # newproperty tests
 ./runtests.unix procs $np prop_ch3f prop_uhf_ch3f
