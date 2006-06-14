@@ -16,10 +16,9 @@
    "make nwchem_config"
    "make >& make.log &"
 
-5. get a few other files that the CCA code will need:
+5. make sure that the stubs file is available
    In the $(NWCHEM_TOP)/src directory
    "make stubs.o"
-   "make ccalink"
    
 6. build cca component in the $(NWCHEM_TOP)/src/cca directory:
    change config.txt if necessary and source it or do your own configure
