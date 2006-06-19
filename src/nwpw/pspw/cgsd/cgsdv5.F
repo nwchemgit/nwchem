@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.67 2006-01-06 21:48:43 bylaska Exp $
+* $Id: cgsdv5.F,v 1.68 2006-06-19 17:33:36 bylaska Exp $
 *
 
 ***********************************************************************
@@ -43,7 +43,7 @@
 
 *     ***** energy variables ****
       integer ne(2),ms
-      real*8  E(10),en(2)
+      real*8  E(30),en(2)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
 
@@ -149,7 +149,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(10,0.0d0,0,E,1)
+      call dcopy(30,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****

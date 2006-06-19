@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.64 2006-04-08 00:25:48 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.65 2006-06-19 17:33:36 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -65,7 +65,9 @@ c#include "rtdb.fh"
 
       psitmp = control_psi_tmp()
 
+
 *     **** set the minimizer ****
+      call dcopy(30,0.0d0,0,E,1)
       minimizer = control_minimizer()
 
 *     **** generate phaze factors and local psp and core density ****

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.41 2005-12-22 01:35:06 bylaska Exp $
+* $Id: cpsdv5.F,v 1.42 2006-06-19 17:33:36 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -158,7 +158,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(20,0.0d0,0,E,1)
+      call dcopy(30,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
