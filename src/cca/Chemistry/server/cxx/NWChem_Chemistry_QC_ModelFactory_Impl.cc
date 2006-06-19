@@ -8,7 +8,7 @@
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
 // babel-version = 0.10.12
-// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_ModelFactory-v0.4.xml
+// xml-url       = /home/vidhya/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_ModelFactory-v0.4.xml
 // 
 #include "NWChem_Chemistry_QC_ModelFactory_Impl.hh"
 
@@ -25,10 +25,12 @@
 #include "cca.h"
 #include <stdPorts.h>
 #include "util/IO.h"
-
+#include "parameters/parametersStar.h"
 #include <unistd.h>
 #include <fstream.h>
 #include <iostream>
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_ModelFactory._includes)
 
@@ -153,7 +155,22 @@ throw (
 	  
    NWChem::Chemistry_QC_Model model = NWChem::Chemistry_QC_Model::_create();
 
+   scratch_directory_="/scratch";
+   scratch_directory_="./";
+   theory_="scf";
+   basis_="sto-3g";
+   molecule_filename_="/home/vidhya/CCA/mcmd-paper/nwchem/src/cca/tests/water.cmp";
+
    // Getting values from the parameter ports
+   gov::cca::TypeMap tm = pp_.readConfigurationMap();    
+   theory_ = std::string( tm.getString("theory",
+                                       "failed theory fetch") );
+   basis_  = std::string( tm.getString("basis",
+                                       "failed basis fetch") );
+   molecule_filename_ =
+      std::string( tm.getString("molecule_filename",
+                                "failed molecule_filename fetch") ); 
+#if 0
    if(theory_.size()==0)
       theory_ = std::string(theoryParameter->value);
    if(basis_.size()==0)
@@ -164,8 +181,10 @@ throw (
       config_filename_ = std::string(configParameter->value);
    if(scratch_directory_.size()==0)
      scratch_directory_ = std::string(scratchParameter->value);
+#endif
 
-#ifdef DEBUG
+   
+#ifndef DEBUG
    cout << "Got from parameter port theory=" << theory_ << endl;
    cout << "Got from parameter port basis=" << basis_ << endl;
    cout << "Got from parameter port molecule_filename=" << molecule_filename_ << endl;
@@ -177,6 +196,7 @@ throw (
    model.initialize(scratch_directory_);
    model.change_theory(theory_);
    model.change_basis(basis_);
+   model.setCoordinatesFromFile(molecule_filename_); 
 
   /*
    Currently two options at this point:
@@ -291,7 +311,59 @@ throw (
    //
    //  Parameter stuff
    //
-   gov::cca::TypeMap tm = services_.createTypeMap(); // empty typemap
+#if 1
+   try {
+      services_.registerUsesPort("ppf",
+                                 "gov.cca.ports.ParameterPortFactory", 0);
+      services_.registerUsesPort("BasisName",
+                                 "Util.StringProvider", 0);
+      services_.registerUsesPort("TheoryName",
+                                 "Util.StringProvider", 0);
+      services_.registerUsesPort("MoleculeFile",
+                                 "Util.StringProvider", 0); 
+   }
+   catch (gov::cca::CCAException e) {
+      std::cout << "Error using ParameterPort: " << e.getNote() << std::endl;
+   }
+   // setup parameters
+   try {
+
+      gov::cca::TypeMap tm_ = services_.createTypeMap(); // empty typemap
+      if(tm_._is_nil()) {
+         std::cerr << "TypeMap is nill\n";
+         abort();
+      }
+      ppf_ = services_.getPort("ppf");
+      ppf_.initParameterData(tm_, "CONFIG");
+      ppf_.setBatchTitle(tm_,"NWChem ModelFactory Options");
+      ppf_.setGroupName(tm_,"Job Specification");
+      ppf_.addRequestString(tm_, "theory", "Theory name",
+                            "Theory", "HF");
+      ppf_.addRequestString(tm_, "basis", "AO basis name",
+                            "Basis", "STO-3G");
+      ppf_.addRequestString(tm_, "molecule_filename",
+                            "Full path to molecule file",
+                            "Molecule filename", "");
+      ppf_.addRequestString(tm_, "keyval_filename",
+                            "Full path to keyval input file",
+                            "Keyval filename", "");
+      ppf_.addRequestString(tm_, "integral_buffer", "Integral buffer approach",
+                            "Integral buffer", "opaque");
+
+      ppf_.addParameterPort(tm_, services_);
+      services_.releasePort("ppf");
+
+      pp_ = services_.getPort("CONFIG");
+      if (pp_._is_nil()) {
+         std::cerr << "getport failed\n";
+         abort();
+      }
+
+   }
+   catch(std::exception& e) {
+      std::cerr << "Error in parameter port setup: " << e.what() << std::endl;
+   } 
+#else
    try {
       this->services_.registerUsesPort("classicParam",
             "gov.cca.ParameterPortFactoryService", tm);
@@ -311,9 +383,9 @@ throw (
       ConfigurableParameterFactory *cpf =
          dynamic_cast<ConfigurableParameterFactory *>(cp);
 
-      ConfigurableParameterPort *cpp = setupParameters(cpf);
+      pp = setupParameters(cpf);
 
-      classic::gov::cca::Port *clscp = dynamic_cast<classic::gov::cca::Port*>(cpp);
+      classic::gov::cca::Port *clscp = dynamic_cast<classic::gov::cca::Port*>(pp);
       if (clscp == NULL)
          cout << "Cannot cast ConfigurableParameterPort* to classic::gov::cca::Port*" << endl;
 
@@ -333,110 +405,12 @@ throw (
       services_.releasePort("classicParam");
       services_.unregisterUsesPort("classicParam");
    }  
+#endif
   // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_ModelFactory.setServices)
 }
 
 
 // DO-NOT-DELETE splicer.begin(NWChem.Chemistry_QC_ModelFactory._misc)
 // Insert-Code-Here {NWChem.Chemistry_QC_ModelFactory._misc} (miscellaneous code)
-boolean
-NWChem::Chemistry_QC_ModelFactory_impl::updateParameterPort
-                                           (ConfigurableParameterPort *opp)
-{
-  if (!(pp == opp)) {
-    return false;
-  }
-  if (!dynTestDone) {
-    pp->addRequest(utest);
-    dynTestDone = true;
-    return true;
-  }
-  return FALSE;
-}
-
-/** Setup the parameters for the Parameter Port, only a little of this
-    is for the dynamic parameters */
-ConfigurableParameterPort *
-NWChem::Chemistry_QC_ModelFactory_impl::setupParameters
-                                         (ConfigurableParameterFactory *cpf)
-{
-   cout << "hello from NWChemFactory::...::setupParameters" << endl ;
-  ConfigurableParameterPort * pp =
-     cpf->createConfigurableParameterPort();
-
-  utest = new BoolParameter("utest","this tests the updateParameterPort",
-                             "update called successfully",TRUE);
-  //
-  // Setup parameter for Scratch
-  //
-  scratchParameter = new StringParameter("scratchParam",
-    "directory containing scratch files", "scratch directory",
-    "/tmp");
-
-  //
-  // Setup parameter for Coordinates
-  //
-  coordParameter = new StringParameter("coordParam",
-    "filename containing coordinates", "coordinate filename",
-    "your-filename-goes-here");
-
-  //
-  // Setup parameter for Configure file
-  //
-  /* this hack provides a default cmp file when running PyView -- JPK */
-  char *top_dir = getenv("CCACHEM_DIR"); 
-  if ( top_dir ) {
-    char default_config[128];
-    strcpy(default_config,top_dir);
-    strcat(default_config,"/nwchem/Tests/config.cmp");
-    configParameter = new StringParameter("configParam",
-      "filename containing NWChem configuration", "config filename",
-      default_config);
-  }
-  else configParameter = new StringParameter("configParam",
-    "filename containing NWChem configuration", "config filename",
-    "your-filename-goes-here");
-
-  //
-  // Setup parameter for Basis Set
-  //
-  basisSetParameter = new StringParameter("basisSetParam",
-    "basis set for nwchem to use in compuation",
-    "basis set","6-31g");
-  basisSetParameter->addChoice("sto-3g");
-  basisSetParameter->addChoice("6-31g");
-  basisSetParameter->addChoice("6-31g*");
-  basisSetParameter->addChoice("6-31g**");
-  basisSetParameter->addChoice("6-311g");
-  basisSetParameter->addChoice("6-311g*");
-  basisSetParameter->addChoice("cc-pvdz");
-  basisSetParameter->addChoice("aug-cc-pvdz");
-  basisSetParameter->addChoice("dzvp");
-
-  //
-  // Setup parameter for Theory
-  //
-  theoryParameter = new StringParameter("theoryParam",
-    "theory for nwchem to use in compuation",
-    "theory","scf");
-  theoryParameter->addChoice("scf");
-  theoryParameter->addChoice("dft");
-  theoryParameter->addChoice("mp2");
-  theoryParameter->addChoice("ccsd");
-  theoryParameter->addChoice("sodft");
-  theoryParameter->addChoice("mcscf");
-  theoryParameter->addChoice("gapss");
-
-  pp->setBatchTitle("NWChemFact Configuration");
-  pp->setGroupName("NWChem rules!");
-  pp->addRequest(scratchParameter);
-  pp->addRequest(coordParameter);
-  pp->addRequest(configParameter);
-  pp->addRequest(basisSetParameter);
-  pp->addRequest(theoryParameter);
-  pp->setGroupName("Chemistry is the answer to the Universe");
-  return pp;
-}
-
 // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_ModelFactory._misc)
 
