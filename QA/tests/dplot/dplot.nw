@@ -36,6 +36,7 @@ pspw
    simulation_cell
       ngrid 16 16 16
       boundary_conditions aperiodic
+      SC 20.0
    end
 end
 set nwpw:minimizer 2
