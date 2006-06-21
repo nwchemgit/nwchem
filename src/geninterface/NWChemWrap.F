@@ -1,4 +1,4 @@
-C $Id: NWChemWrap.F,v 1.5 2006-06-13 16:50:03 windus Exp $
+C $Id: NWChemWrap.F,v 1.6 2006-06-21 16:37:58 d3m782 Exp $
       subroutine NWChem_nwchemStart(directory)
       implicit none
 #include "mafdecls.fh"
@@ -40,19 +40,20 @@ c
 
 C  Write scratch directory path into dummy input file
 
-      write(temp_directory1, '(''scratch_dir '',a,'''')')
-     $      directory(1:inp_strlen(directory))
-
-      if (nodeid().eq.0) then
-         write (LuIn,*) temp_directory1
-      end if
-
-      write(temp_directory2, '(''permanent_dir '',a,'''')')
-     $      directory(1:inp_strlen(directory))
-
-      if (nodeid().eq.0) then
-         write (LuIn,*) temp_directory2
-      end if
+C      write(temp_directory1, '(''scratch_dir '',a,'' ; '')')
+C     $      directory(1:inp_strlen(directory))
+C
+C      if (nodeid().eq.0) then
+C         write (LuIn,*) temp_directory1
+C      end if
+C
+C      write(temp_directory2, '(''permanent_dir '',a,'''')')
+C     $      directory(1:inp_strlen(directory))
+C
+C      if (nodeid().eq.0) then
+C         write (LuIn,*) temp_directory2
+C         write (LuIn,*)
+C      end if
 
 C  Set up memory environment
       call input_mem_size(stack, heap, global, overify, ohardfail)
