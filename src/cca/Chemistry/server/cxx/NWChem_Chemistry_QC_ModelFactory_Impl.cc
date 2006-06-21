@@ -156,7 +156,7 @@ throw (
    NWChem::Chemistry_QC_Model model = NWChem::Chemistry_QC_Model::_create();
 
    scratch_directory_="/scratch";
-   scratch_directory_="./";
+   scratch_directory_="/home/vidhya/tmp";
    theory_="scf";
    basis_="sto-3g";
    molecule_filename_="/home/vidhya/CCA/mcmd-paper/nwchem/src/cca/tests/water.cmp";
@@ -170,6 +170,11 @@ throw (
    molecule_filename_ =
       std::string( tm.getString("molecule_filename",
                                 "failed molecule_filename fetch") ); 
+   nwchem_filename_ =
+      std::string( tm.getString("nwchem_filename",
+                                "failed nwchem_filename fetch") ); 
+
+// This is the old way of doing parameter ports     
 #if 0
    if(theory_.size()==0)
       theory_ = std::string(theoryParameter->value);
@@ -196,7 +201,10 @@ throw (
    model.initialize(scratch_directory_);
    model.change_theory(theory_);
    model.change_basis(basis_);
-   model.setCoordinatesFromFile(molecule_filename_); 
+
+// Currently we need to read in the coordinates from an NWChem file so
+// that the labels, masses, etc. get set up correctly
+   model.setCoordinatesFromFile(nwchem_filename_); 
 
   /*
    Currently two options at this point:
@@ -206,30 +214,17 @@ throw (
         a molecule from the molecule factory
   */
 
-// read NWChem configuration from nw file
-      model.setCoordinatesFromFile(config_filename_);
-
+// Setting up the molecule object in CCA
   if( !molecule_ ) {
   // pass coordinate file and get molecule from MoleculeFactory
       molecule_factory_ = services_.getPort("MoleculeFactory");
       molecule_factory_.set_molecule_filename(molecule_filename_);
       molecule_ = molecule_factory_.get_molecule();
   }
-  model.set_molecule(molecule_);
-  double conv = molecule_.get_units().convert_to("bohr");
 
-// init NWChem with labels and coordinates got from MoleculeFactory
-  std::string dirname=scratch_directory_+"/init_nw.nw";
-  ofstream init_nw (dirname.c_str(), ios::out | ios::trunc);
-  init_nw << "geometry units angstrom noautosym noautoz nocenter;" << endl;
-  for(int i=0;i<molecule_.get_n_atom();++i) 
-  {
-     init_nw << " " << symbols[molecule_.get_atomic_number(i)-1] << " " << molecule_.get_cart_coor(i,0)*conv << " " << \
-     molecule_.get_cart_coor(i,1)*conv << " " << molecule_.get_cart_coor(i,2)*conv << ";" << endl;
-  }
-  init_nw << "end" << endl;
-  model.setCoordinatesFromFile(dirname.c_str());
-  init_nw.close();
+// Make sure that the model has the molecule object
+  model.set_molecule(molecule_);
+//  double conv = molecule_.get_units().convert_to("bohr");
 
   return model;
   
@@ -344,6 +339,9 @@ throw (
       ppf_.addRequestString(tm_, "molecule_filename",
                             "Full path to molecule file",
                             "Molecule filename", "");
+      ppf_.addRequestString(tm_, "nwchem_filename",
+                            "Full path to nwchem file",
+                            "NWChem filename", "");
       ppf_.addRequestString(tm_, "keyval_filename",
                             "Full path to keyval input file",
                             "Keyval filename", "");

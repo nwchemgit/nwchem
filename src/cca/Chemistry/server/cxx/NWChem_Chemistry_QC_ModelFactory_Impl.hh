@@ -8,7 +8,7 @@
 // WARNING: Automatically generated; only changes within splicers preserved
 // 
 // babel-version = 0.10.12
-// xml-url       = /home/windus/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_ModelFactory-v0.4.xml
+// xml-url       = /home/vidhya/CCA/mcmd-paper/nwchem/src/cca/repo/NWChem.Chemistry_QC_ModelFactory-v0.4.xml
 // 
 
 #ifndef included_NWChem_Chemistry_QC_ModelFactory_Impl_hh
@@ -56,10 +56,12 @@
 // Insert-Code-Here {NWChem.Chemistry_QC_ModelFactory._includes} (includes or arbitrary code)
 #include <string>
 #include "cca.h"
+#include <gov_cca_ports_ParameterPortFactory.hh>
+#include <gov_cca_ports_ParameterPort.hh>
 #include "dc/babel/babel-cca/server/ccaffeine_TypeMap.hh"
 #include "util/IO.h"
-#include "jc++/jc++.h"
-#include "jc++/util/jc++util.h"
+//#include "jc++/jc++.h"
+//#include "jc++/util/jc++util.h"
 #include "parameters/parametersStar.h"
 #include "port/portInterfaces.h"
 #include "port/supportInterfaces.h"
@@ -89,6 +91,7 @@ namespace NWChem {
     std::string theory_;
     std::string basis_;
     std::string molecule_filename_;
+    std::string nwchem_filename_;
     std::string config_filename_;
     std::string scratch_directory_;
     Chemistry::Molecule molecule_;
@@ -100,7 +103,9 @@ namespace NWChem {
     // parameter stuff
     //
     gov::cca::Services myServices;
-    ConfigurableParameterPort *pp;
+    gov::cca::ports::ParameterPortFactory ppf_;
+    gov::cca::ports::ParameterPort pp_;
+    
     StringParameter *scratchParameter;
     StringParameter *coordParameter;
     StringParameter *configParameter;
@@ -109,12 +114,12 @@ namespace NWChem {
     BoolParameter *utest;
     bool dynTestDone;  // dynamic parameter test
 
-    ConfigurableParameterPort*
-       setupParameters(ConfigurableParameterFactory *cfp);
+        //ConfigurableParameterPort*
+        //setupParameters(ConfigurableParameterFactory *cfp);
         //extra public method
   public:
 
-    boolean updateParameterPort(ConfigurableParameterPort *opp);
+        //bool updateParameterPort(ConfigurableParameterPort *opp);
 
     // DO-NOT-DELETE splicer.end(NWChem.Chemistry_QC_ModelFactory._implementation)
 
