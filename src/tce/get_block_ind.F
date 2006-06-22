@@ -1,7 +1,7 @@
       subroutine get_block_ind(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind.F,v 1.2 2006-06-05 18:24:28 kowalski Exp $
+c $Id: get_block_ind.F,v 1.3 2006-06-22 20:09:41 kowalski Exp $
 c
       implicit none
 #include "global.fh"
@@ -435,7 +435,7 @@ c defining the order
 c
          if(uabdba.or.ubadab) then
           do i = 1, size
-            dbl_mb(k_a+i-1) = 0.0d0
+c--- not opened yet            dbl_mb(k_a+i-1) = 0.0d0
             array(i) = 0.0d0
           enddo
          end if
