@@ -1,15 +1,15 @@
 Comment: 
-Comment: PAW basis set generation file
+Comment: PAW basis set generation file for Boron
 Comment: 
 
 [psp_type] 4
 
-<atom_charge> 6.0
+<atom_charge> 5.0
 <orbitals>
 3   0   3
 1  0   2.0
 2  0   2.0
-2  1   2.0
+2  1   1.0
 3  0   0.0  0.0
 3  1   0.0  0.0
 3  2   0.0  0.1
