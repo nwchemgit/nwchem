@@ -1,24 +1,33 @@
-[lmax] -1
-[locp] -1
-[rlocal] 1.0
- <atom>
- Zn
-  0.300000E+02  0.650000E+02   5   3
-   1   0  0.200000E+01
-   2   0  0.200000E+01
-   2   1  0.600000E+01
-   3   0  0.200000E+01
-   3   1  0.600000E+01
-   3   2  0.100000E+02
-   4   0  0.173000E+01
-   4   1  0.270000E+00
- <end>
- <solver> pauli                     <end>
- <pseudopotential> troullier-martins         <end>
- <rcut>
-   0  0.200000E+01
-   1  0.200000E+01
-   2  0.200000E+01
-   3  0.200000E+01
- <end>
+#
+# $Id: Zn,v 1.2 2006-07-05 23:48:04 bylaska Exp $
+#
+Comment: Zn pseudopotential parameters
+Comment: Fitted 12-28-04
+Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
+Comment: relativistic TM, quadratic semicore
 
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+<atom>
+Zn
+30.0 65.0 5 2
+1  0      2.00
+2  0      2.00
+2  1      6.00
+3  0      2.00
+3  1      6.00
+4  0      2.00
+3  2     10.00
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut> 
+   0    2.5825328
+   1    2.5825328
+   2    2.3959220
+<end>
+
+<semicore> 0.64   <end>
+<semicore_type> quadratic <end>

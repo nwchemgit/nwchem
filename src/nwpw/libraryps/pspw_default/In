@@ -1,19 +1,19 @@
 #
-# $Id: Sr,v 1.2 2006-07-05 23:48:04 bylaska Exp $
+# $Id: In,v 1.2 2006-07-05 23:48:03 bylaska Exp $
 #
-Comment: Sr pseudopotential parameters
+Comment: In pseudopotential parameters
 Comment: Fitted 12-28-04
-Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
+Comment: by E.J. Bylaska, 
 Comment: relativistic TM, quadratic semicore
 Comment: This potential NEEDS TESTING!!!
 
 
 [lmax] 2
-[locp] 0
+[locp] 2
 [rlocal] 1.0
 <atom>
-Sr
-38.0 88.0 7 2
+In
+49.0 115.0 9 3
 1  0      2.00
 2  0      2.00
 2  1      6.00
@@ -22,15 +22,18 @@ Sr
 3  2     10.00
 4  0      2.00
 4  1      6.00
+4  2     10.00
 5  0      2.00
+5  1      0.60
+5  2      0.40
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0   3.4899770
-   1   2.2816189
-   2   2.5854217
+   0    2.5
+   1    2.5
+   2    8.0
 <end>
 
-<semicore> 1.02   <end>
+<semicore> 1.52   <end>
 <semicore_type> quadratic <end>

@@ -1,9 +1,9 @@
 #
-# $Id: Cu,v 1.2 2006-07-05 23:48:03 bylaska Exp $
+# $Id: Ba,v 1.2 2006-07-05 23:48:02 bylaska Exp $
 #
-Comment: Cu pseudopotential parameters
+Comment: Ba pseudopotential parameters
 Comment: Fitted 12-28-04
-Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
+Comment: by E.J. Bylaska, 
 Comment: relativistic TM, quadratic semicore
 
 
@@ -11,23 +11,29 @@ Comment: relativistic TM, quadratic semicore
 [locp] 0
 [rlocal] 1.0
 <atom>
-Cu
-29.0 64.0 5 2
+Ba
+56.0 137.0 10 3
 1  0      2.00
 2  0      2.00
 2  1      6.00
 3  0      2.00
 3  1      6.00
-4  0      1.00
 3  2     10.00
+4  0      2.00
+4  1      6.00
+4  2     10.00
+5  0      2.00
+5  1      5.98
+5  2      0.01
+6  0      0.01
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0   2.0547672
-   1   2.2994432
-   2   2.0547672
+   0     3.3606525
+   1     2.4896211
+   2     2.7860712
 <end>
 
-<semicore> 0.48   <end>
+<semicore> 1.50   <end>
 <semicore_type> quadratic <end>

@@ -1,7 +1,7 @@
 #
-# $Id: Au,v 1.2 2006-07-05 23:48:02 bylaska Exp $
+# $Id: Hg,v 1.2 2006-07-05 23:48:03 bylaska Exp $
 #
-Comment: Au pseudopotential parameters
+Comment: Hg pseudopotential parameters
 Comment: Fitted 12-27-04 by E.J. Bylaska
 Comment: Parameters somewhat based on Khein and Allens' TM database
 Comment: Relativistic TM, quadratic semicore
@@ -10,8 +10,8 @@ Comment: Relativistic TM, quadratic semicore
 [locp] 0
 [rlocal] 1.0
 <atom>
-Au
-79.0 197.0 12 3
+Hg
+80.0 200.59 12 3
 1 0   2.0
 2 0   2.0
 2 1   6.0
@@ -25,17 +25,17 @@ Au
 5 0   2.0
 5 1   6.0
 5 2   9.95
-6 0   1.00
+6 0   2.00
 6 1   0.05
 <end>
 <solver> pauli                     <end>
 <pseudopotential>    troullier-martins <end>
 <rcut>
-   0    2.0761953
-   1    3.0973349
-   2    1.9261744
+   0    2.2377245
+   1    2.9460428
+   2    1.8784686
 <end>
-<semicore> 1.2 <end>
+<semicore> 1.14 <end>
 <semicore_type> quadratic <end>
 
 

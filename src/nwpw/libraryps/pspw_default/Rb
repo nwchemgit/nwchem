@@ -1,33 +1,37 @@
 #
-# $Id: Cu,v 1.2 2006-07-05 23:48:03 bylaska Exp $
+# $Id: Rb,v 1.2 2006-07-05 23:48:04 bylaska Exp $
 #
-Comment: Cu pseudopotential parameters
+Comment: Rb pseudopotential parameters
 Comment: Fitted 12-28-04
 Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
 Comment: relativistic TM, quadratic semicore
+Comment: This potential NEEDS TESTING!!!
 
 
 [lmax] 2
 [locp] 0
 [rlocal] 1.0
 <atom>
-Cu
-29.0 64.0 5 2
+Rb
+37.0 85.0 7 3
 1  0      2.00
 2  0      2.00
 2  1      6.00
 3  0      2.00
 3  1      6.00
-4  0      1.00
 3  2     10.00
+4  0      2.00
+4  1      5.85
+5  0      0.10
+4  2      0.05
 <end>
 <solver>          pauli         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut> 
-   0   2.0547672
-   1   2.2994432
-   2   2.0547672
+   0   3.5397750
+   1   2.4944175
+   2   2.5897367
 <end>
 
-<semicore> 0.48   <end>
+<semicore> 1.12   <end>
 <semicore_type> quadratic <end>
