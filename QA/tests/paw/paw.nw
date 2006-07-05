@@ -14,16 +14,23 @@ end
 
 
 
-################ periodic testing ##################
+################ set old defaults ##################
+
 nwpw
 
    #### old unit cell default ####
    simulation_cell   
-      SC 20
+      SC 20.0
       ngrid 32 32 32
    end
 
    integrate_mult_l 0  #old default for core integration
+   translation on      #old default
+end
+
+
+################ periodic testing ##################
+nwpw
 
    time_step 15.8   
    ewald_rcut 1.50
@@ -47,6 +54,7 @@ nwpw
       loop 10 10
       ewald_rcut 1.50
    end
+
 end
 task paw Car-Parrinello
 
