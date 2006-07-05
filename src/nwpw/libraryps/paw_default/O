@@ -6,28 +6,28 @@ Comment:
 
 <atom_charge> 8.0
 <orbitals>
-3   0 3
+3   1 2
 1         0       2.0
 2         0       2.0
 2         1       4.0
-3         0       0.0  -0.1
-3         2       0.0  -0.1
-3         1       0.0  -0.1
+3         0       0.0
+3         2       0.0   0.1
+3         1       0.0   0.1
 <atomic_sphere_radius>
 1.3
 <paw_basis>
-3
+5
 2 0 1.6
 2 1 1.6
 3 2 1.6
-3 0 1.6
-3 1 1.6
+3 0 1.8
+3 1 1.8
 
-<ref_potential_matching_radius> 2.5
+<ref_potential_matching_radius> 1.2
 <ref_potential_at_zero> 0
-<compensation_charge_radius> 1.5
+<compensation_charge_radius> 0.8
 <nodal_constraint> on
-<projector_method> vanderbilt
+<projector_method> blochl
 
 <scattering_test>
 3
