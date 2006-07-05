@@ -16,6 +16,15 @@ end
 
 ################ periodic testing ##################
 nwpw
+
+   #### old unit cell default ####
+   simulation_cell   
+      SC 20
+      ngrid 32 32 32
+   end
+
+   integrate_mult_l 0  #old default for core integration
+
    time_step 15.8   
    ewald_rcut 1.50
    tolerances 1.0d-11 1.0d-11 
