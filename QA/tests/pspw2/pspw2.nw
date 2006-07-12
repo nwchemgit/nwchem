@@ -1,0 +1,46 @@
+title "GGA testing - fails on Bassi"
+
+
+#memory 950 mb
+
+start ch3cl.pspw
+
+charge 0
+
+geometry
+C             1.141270   -0.000034    0.000004
+Cl           -0.664540    0.000021   -0.000006
+H             1.483169   -0.877342   -0.547984
+H             1.483210    0.913220   -0.485690
+H             1.483190   -0.036019    1.033759
+end
+
+set nwpw:minimizer 2
+############################################
+############## PBE96 testing ###############
+############################################
+
+nwpw 
+   simulation_cell
+     ngrid 32 32 32
+   end
+   xc pbe96
+end
+task pspw energy
+
+
+
+############################################
+####### steepest descent testing ###########
+############################################
+nwpw
+  steepest_descent
+    fake_mass 400000.0d0
+    time_step 15.8d0
+    loop 10 10
+    xc pbe96
+   end
+end
+task pspw steepest_descent
+
+
