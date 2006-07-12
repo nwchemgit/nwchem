@@ -6,7 +6,7 @@
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.13 2004-07-21 16:35:24 bert Exp $
+c     $Id: rohf_hessv2.F,v 1.14 2006-07-12 00:01:35 bert Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -54,7 +54,7 @@ c
      $     pflg,
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.13 2004-07-21 16:35:24 bert Exp $
+C     $Id: rohf_hessv2.F,v 1.14 2006-07-12 00:01:35 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -93,7 +93,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.13 2004-07-21 16:35:24 bert Exp $
+C     $Id: rohf_hessv2.F,v 1.14 2006-07-12 00:01:35 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -364,8 +364,11 @@ c
 c
       g_tmp1 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp1')
       g_tmp2 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp2')
+      g_dcv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcv')
       if (nopen .gt. 0) then
          g_tmp3 = ga_create_atom_blocked(geom, basis, 'rohf_h2e: tmp3')
+         g_dcp = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dcp')
+         g_dpv = ga_create_atom_blocked(geom, basis, 'rohf_h2e: dpv')
       endif
 c
       ifock = 0
@@ -484,8 +487,14 @@ c
      &       GA_ERR)
       if (.not. ga_destroy(g_tmp2)) call errquit('rohf:destroy?',0,
      &       GA_ERR)
+      if (.not. ga_destroy(g_dcv)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
       if (nopen .gt. 0) then
          if (.not. ga_destroy(g_tmp3)) call errquit('rohf:destroy?',0,
+     &       GA_ERR)
+         if (.not. ga_destroy(g_dcp)) call errquit('rohf_h2e: GA?',0,
+     &       GA_ERR)
+         if (.not. ga_destroy(g_dpv)) call errquit('rohf_h2e: GA?',0,
      &       GA_ERR)
       endif
 c     
