@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.54 2006-06-08 23:36:03 edo Exp $
+#$Id: GNUmakefile,v 1.55 2006-07-12 19:39:19 edo Exp $
 ifdef USE_64TO32
 USE_I4FLAGS=y
 endif
@@ -68,12 +68,8 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dhseqr.o dorghr.o dtrevc.o dlaln2.o dlahqr.o dgehd2.o \
                dlanhs.o dlarfx.o dlahrd.o dlanv2.o
 
-ifeq ($(FC),pgf77)
-#pgf77 on Linux (and possibly others) puts dlamch routines into infinite loop
+#pgf77 on Linux, hpux (and possibly others) puts dlamch routines into infinite loop
         OBJ = $(OBJ_DLAMCH)
-else
-	OBJ_OPTIMIZE += $(OBJ_DLAMCH)
-endif
 else
 ########################################################################
 OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
