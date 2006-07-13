@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.19 2006-02-08 21:06:00 bert Exp $
+C     $Id: ccsd_t2pm.F,v 2.20 2006-07-13 23:33:21 bert Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
@@ -318,7 +318,8 @@ c
       logical flush, store, use_storage
       integer nxtask,blocksize,logsize,intsize,ijk(2),cnijkl
       integer icount(2),jcnt,btki,kcount,jcount,ishb,iblk,bnijkl,ival
-      integer cart_2e4c,ad2,store_need,store_used
+      integer cart_2e4c,ad2
+      double precision store_need,store_used
       double precision faddr,kaddr
       external nxtask, cart_2e4c
       integer trishel,iamoff,iii,jjj,istart
@@ -493,7 +494,7 @@ c
             faddr=faddr+intsize*2
          endif
          use_storage=use_disk
-         store_used=0
+         store_used=0.d0
       endif
       do icnt=istart,nsh*(nsh+1)/2-1,nodes
 c
@@ -525,8 +526,10 @@ c Determine if we can still store the integrals to disk
 c If not, calculate and set integral recalculation point icnt
 c
             if (use_storage) then
-              store_need=ma_sizeof(MT_DBL,2*nfj*nfl*nbf*(nbf+1),MT_BYTE)
-              store_need=store_need+ma_sizeof(MT_INT,nsh*nsh+2,MT_BYTE)
+              store_need=dfloat(ma_sizeof(MT_DBL,2*nfj*nfl*nbf*(nbf+1),
+     $                                    MT_BYTE))
+              store_need=store_need+dfloat(ma_sizeof(MT_INT,nsh*nsh+2,
+     $                                               MT_BYTE))
               if ((store_need+store_used).gt.store_avail) then
                 use_storage=.false.
                 icount(2)=icnt 
