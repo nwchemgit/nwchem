@@ -88,6 +88,7 @@ c --------------
 c 
       nodezero=(ga_nodeid().eq.0)
 c 
+        irshift = 0
 c
 c this module is called only if intorb = .true.
 c N is the number of correlated orbitals
