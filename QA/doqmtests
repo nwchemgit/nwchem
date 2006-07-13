@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests,v 1.58 2006-06-15 20:29:05 kowalski Exp $
+# $Id: doqmtests,v 1.59 2006-07-13 19:26:59 d3p307 Exp $
 #
 #---   small tests
 set np = 1
@@ -68,7 +68,13 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np h2o_vscf
 # qmmm tests
 #./runtests.unix procs $np asa_qmmm
+./runtests.unix procs $np qmmm_grad0
+./runtests.unix procs $np lys_qmmm
 ./runtests.unix procs $np ethane_qmmm
+./runtests.unix procs $np qmmm_opt0
+echo "qmmm frequency  test  may  fail"
+./runtests.unix procs $np qmmm_freq
+
 # newproperty tests
 ./runtests.unix procs $np prop_ch3f prop_uhf_ch3f
 #---   long  may not run on workstations
