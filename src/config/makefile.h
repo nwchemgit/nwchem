@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.529 2006-07-12 19:35:59 edo Exp $
+# $Id: makefile.h,v 1.530 2006-07-14 21:57:57 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -727,7 +727,7 @@ ifeq ($(TARGET),HPUX64)
   ifeq ($(_CPU),ia64)
     FOPTIONS += +DD64 +DSitanium2 +Ofltacc=relaxed +Olibcalls +Onolimit +FPD
     COPTIONS += +DD64
-    FOPTIMIZE = +O3 +Oloopblock +Oinline_budget=200 
+    FOPTIMIZE = +O2
     FVECTORIZE = +Ofast  +O3 +Onoptrs_to_globals +Oloopblock 
     FDEBUG = +Ofast 
   else
