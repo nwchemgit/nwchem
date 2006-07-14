@@ -1,7 +1,7 @@
       subroutine ga_pcg_minim(n, iter, e, g_grad, g_work, g_s, step,
      $     ls_tol, ls_max, eacc, conjugacy, oprint, oprint_ls,
      $     iwork, dwork, mode)
-C$Id: ga_pcg_min.F,v 1.3 1997-12-04 22:55:08 d3g681 Exp $
+C$Id: ga_pcg_min.F,v 1.4 2006-07-14 19:26:00 edo Exp $
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -65,6 +65,7 @@ c
       nstep  = iwork(iwork_ls_nstep)
       ls_g = ls_e + ls_max
       ls_s = ls_g + ls_max
+      ls_print = .false.
 c     
       if (action .eq. act_startup) then
 c     
