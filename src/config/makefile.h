@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.531 2006-07-15 02:27:27 edo Exp $
+# $Id: makefile.h,v 1.532 2006-07-15 05:28:35 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1423,7 +1423,7 @@ endif
       LINK.f = $(FC) $(FOPTIONS) $(LDFLAGS) 
 ifeq ($(LINUXCPU),x86)
   ifeq ($(FC),pgf77)
-   LDOPTIONS=-g
+   LDOPTIONS = -g -Wl,--export-dynamic
    EXTRA_LIBS += -lm
   else
     ifeq ($(_FC),ifc)
@@ -1436,6 +1436,7 @@ ifeq ($(LINUXCPU),x86)
         EXTRA_LIBS +=  -lsvml
       endif
       EXTRA_LIBS += #-static
+   LDOPTIONS = -g -Wl,--export-dynamic
     else
   LDOPTIONS = -Xlinker --export-dynamic 
 #  LDOPTIONS = --Xlinker -O -Xlinker -static
