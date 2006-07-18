@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_scf_mixing.F,v 1.3 2006-03-16 18:38:28 bylaska Exp $                       
+*     $Id: nwpw_scf_mixing.F,v 1.4 2006-07-18 00:42:38 bylaska Exp $                       
 *
 
 *     *****************************************
@@ -146,7 +146,7 @@
          call nwpw_list_ptr(1,5,F0)
          call nwpw_list_ptr(1,6,F1)
          call nwpw_list_ptr(1,7,Vbar0)
-         call nwpw_list_ptr(1,8,Vbar0)
+         call nwpw_list_ptr(1,8,Vbar1)
 
          if (m.eq.1) then
            !**** vout0 = vout ****
@@ -178,6 +178,7 @@
            call D3dB_SumAll(scf_error)
            scf_error = dsqrt(scf_error)          
 
+       
            !**** Beta = <F1|F1-F0>/<F1-F0/F1-F0> ****
            call dcopy(nsize,dbl_mb(F1),1,dbl_mb(Vbar1),1)
            call daxpy(nsize,(-1.0d0),dbl_mb(F0),1,dbl_mb(Vbar1),1)
@@ -187,6 +188,7 @@
            call D3dB_SumAll(sum1)
            beta = sum0/sum1
            
+ 
 
            !**** Vbar1 = (1-Beta)*Vout1 + Beta*Vout0 ****
            call dcopy(nsize,dbl_mb(Vout0),1,dbl_mb(Vbar1),1)

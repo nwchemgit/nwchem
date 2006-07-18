@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.84 2006-04-08 00:25:47 bylaska Exp $
+* $Id: control.F,v 1.85 2006-07-18 00:41:55 bylaska Exp $
 *
 
 *     ***********************************
@@ -282,7 +282,7 @@ c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
 
       if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
-     >   scf_algorithm = 0
+     >   ks_algorithm = 0
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.rtdb_get(rtdb,
