@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.6 2006-03-06 02:00:53 marat Exp $
+c $Id: task_qmmm_fep.F,v 1.7 2006-07-18 16:43:23 d3p307 Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -42,8 +42,10 @@ c     external functions
      +  oderiv = .false.
 
       if(oderiv) then
-        call task_qmmm_fep_deriv(rtdb)
-        ostatus = .true.
+c change task_qmmm_fep_deriv from a subroutine call to a function call
+        ostatus=task_qmmm_fep_deriv(rtdb)
+c        call task_qmmm_fep_deriv(rtdb)
+c        ostatus = .true.
         goto  40
       end if
       
