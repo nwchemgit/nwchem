@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.7 2006-07-18 16:43:23 d3p307 Exp $
+c $Id: task_qmmm_fep.F,v 1.8 2006-07-18 16:50:48 d3p307 Exp $
 c
 c
       function task_qmmm_fep(rtdb)
@@ -33,7 +33,7 @@ c     external functions
       character*255 esp_in(2)
       character*255 geom_in(2)
       double precision lambda(2)
-      logical oesp,ogeom,oderiv
+      logical oesp,ogeom,oderiv,task_qmmm_fep_deriv
       integer mequi 
 
       pname = "task_qmmm_fep"
