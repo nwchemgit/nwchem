@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.532 2006-07-15 05:28:35 edo Exp $
+# $Id: makefile.h,v 1.533 2006-07-19 00:10:46 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1186,8 +1186,19 @@ endif
   ifeq ($(FC),xlf) 
      LDOPTIONS = -Wl,-multiply_defined -Wl,warning
   else
-    EXTRA_LIBS += -lm -lcc_dynamic
+  _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
+    ifeq ($(_GCC4),Y) 
+#      EXTRA_LIBS += 
+    else
+      EXTRA_LIBS += -lm -lcc_dynamic
+    endif
   endif
+  endif
+#
+   _V104=$(shell uname -v 2>&1|awk ' /Version 7./ {print "N";exit}; /Version 8./ {print "Y";exit}')
+  ifeq ($(_V104),Y)
+    EXTRA_LIBS +=-lSystemStubs
+
 
 endif
 
