@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.33 2005-10-05 21:24:22 bylaska Exp $
+c $Id: nwpw_input.F,v 1.34 2006-07-19 00:38:54 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 73)
+      parameter (num_dirs = 78)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -87,6 +87,11 @@ c
      >            'integrate_mult_l',
      >            'balance',
      >            'nobalance',
+     >            'bo_steps',
+     >            'bo_time_step',
+     >            'bo_algorithm',
+     >            'scaling',
+     >            'xyz_filename',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -96,7 +101,7 @@ c
        character*30 exchange_correlation
        double precision fake_mass,time_step,rcut
        integer loop(2),ncut,cell_expand(3)
-       double precision tolerances(3),ecut,wcut,fe,ff
+       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
        double precision alpha,emin,emax
        integer npoints
        logical mulliken,allow_translation
@@ -137,7 +142,7 @@ c
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
-     >       5200,5300,
+     >       5200,5300, 5400,5500,5600,5700,5800,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -889,6 +894,58 @@ c
 
       goto 10
 
+c
+c  bo_steps
+c
+ 5400 if (.not. inp_i(nx)) nx = 10
+      if (.not.rtdb_put(rtdb,'nwpw:bo_steps',mt_int,1,nx))
+     >  call errquit('nwpw_input: error writing to rtdb',5400,RTDB_ERR)
+
+      goto 10
+
+c
+c  bo_time_step
+c
+ 5500 if (.not. inp_f(wcut)) wcut = 15.0d0
+      if (.not.rtdb_put(rtdb,'nwpw:bo_time_step',mt_dbl,1,wcut))
+     >  call errquit('nwpw_input: error writing to rtdb',5500,RTDB_ERR)
+
+      goto 10
+
+c
+c  bo_algorithm
+c
+ 5600 if (.not.inp_a(zone_name)) nx = 0
+      if (inp_compare(.false.,zone_name,'verlet'))          nx = 0
+      if (inp_compare(.false.,zone_name,'velocity-verlet')) nx = 1
+      if (inp_compare(.false.,zone_name,'leap-frog'))       nx = 2
+      if (.not.rtdb_put(rtdb,'nwpw:bo_algorithm',mt_int,1,nx))
+     >  call errquit('nwpw_input: error writing to rtdb',5600,RTDB_ERR)
+
+      goto 10
+
+c
+c  scaling
+c
+ 5700 if (.not. inp_f(scaling(1))) scaling(1) = 1.0d0
+      if (.not. inp_f(scaling(2))) scaling(2) = scaling(1)
+      if (.not.(rtdb_put(rtdb,'nwpw:scaling',mt_dbl,2,scaling).and.
+     >          rtdb_put(rtdb,'cpmd:scaling',mt_dbl,2,scaling)))
+     >  call errquit('nwpw_input: error writing to rtdb',5700,RTDB_ERR)
+
+      goto 10
+
+c
+c  xyz_filename
+c
+ 5800 if (.not. inp_a(cell_name)) goto 10
+      ind = index(cell_name,' ') - 1
+      value = rtdb_cput(rtdb,'cpmd:xyz_filename',1,cell_name(1:ind))
+     >   .and.rtdb_cput(rtdb,'nwpw:xyz_filename',1,cell_name(1:ind))
+      if (.not.value)
+     > call errquit('nwpw_input: writing ', 5800, RTDB_ERR)
+
+      goto 10
 
 
 

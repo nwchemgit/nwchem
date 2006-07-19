@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.11 2004-11-29 16:05:20 bylaska Exp $
+* $Id: task_pspw.F,v 1.12 2006-07-19 00:38:54 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -17,7 +17,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 17)
+      parameter (num_dirs = 18)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'psp_generator',
@@ -36,15 +36,16 @@ c
      > 		  'wannier',
      >            'expand_cell',
      >            'ionize',
-     >            'convert_restricted'/
+     >            'convert_restricted',
+     >            'Born-Oppenheimer'/
 
 c     *** define external functions ****
-      logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
+      logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize
       logical  pspw_dplot,pspw_stress,pspw_noit_energy
       logical  pspw_wannier,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted
-      external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5
+      external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize
       external pspw_dplot,pspw_stress,pspw_noit_energy
       external pspw_wannier,expand_cell,wvfnc_ionize
@@ -61,7 +62,7 @@ c
 c
 c
       goto ( 100,  200, 300, 400, 500, 600, 700, 800, 900,
-     >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700 ) ind
+     >       1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800 ) ind
       call errquit('task pspw: unimplemented directive', ind, INPUT_ERR)
 
 
@@ -285,6 +286,18 @@ c
         write(*,*) "not finished"
         value = wvfnc_convert_restricted(rtdb)
       endif
+      call ga_sync()
+      goto 9999
+
+c
+c  Born-Oppenheimer
+c
+ 1800 if (ga_nodeid().eq.MASTER) then
+        write(*,*)  ">>>> PSPW Parallel Module - Born-Oppenheimer <<<<"
+      end if
+      value = .true.
+      value = rtdb_parallel(.true.)
+      value = cgmdv5(rtdb,0)
       call ga_sync()
       goto 9999
 

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.68 2006-06-19 17:33:36 bylaska Exp $
+* $Id: cgsdv5.F,v 1.69 2006-07-19 00:38:54 bylaska Exp $
 *
 
 ***********************************************************************
@@ -428,6 +428,8 @@ c     value = psi_initialize()
          write(6,1270)
          write(6,1280) control_time_step(),control_fake_mass()
          write(6,1290) control_tole(),control_tolc()
+         write(6,1281) control_it_in()*control_it_out(),
+     >                 control_it_in(),control_it_out()
          if (minimizer.eq.5) then
            write(6,1291)
            if (control_ks_algorithm().eq.0) 
@@ -735,6 +737,8 @@ c     end if
  1261 FORMAT(5X,'                   madelung=',f11.8)
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1281 FORMAT(5X, ' maximum iterations =',I8,
+     >           ' ( ',I4,' inner ',I4,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')

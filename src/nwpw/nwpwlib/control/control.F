@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.85 2006-07-18 00:41:55 bylaska Exp $
+* $Id: control.F,v 1.86 2006-07-19 00:38:54 bylaska Exp $
 *
 
 *     ***********************************
@@ -226,7 +226,7 @@ c     end do
 
 
 *     **** cgsd: stuff or  paw: stuff ****
-      else if ((code.eq.3).or.(code.eq.8)) then
+      else if ((code.eq.3).or.(code.eq.8).or.(code.eq.11)) then
       if (.not.rtdb_cget(rtdb,'cgsd:cell_name',1,cell_name)) then
         cell_name = 'cell_default'
       end if
@@ -261,16 +261,13 @@ c
      >                   1,exchange_correlation))
      >  exchange_correlation = 'vosko'
 
-c      value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.false.)
-c      value = value.and.rtdb_put(rtdb,'pspw:SIC_all',mt_log,1,.false.)
-c      value = value.and.
-c     >        rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.0d0)
-c      value = value.and.
-c     >        rtdb_put(rtdb,'pspw:SIC_xc_parameter',mt_dbl,1,1.0d0)
-c      value = value.and.
-c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
 
 #include "control_gga.fh"
+
+*     ***** motion filenames ****
+      if(.not.rtdb_cget(rtdb,'nwpw:xyz_filename',
+     >                  1,xyz_filename))
+     >  call util_file_prefix('xyz',xyz_filename)
 
 
 *     **** set Kohn-Sham scf parameters ***
@@ -308,8 +305,11 @@ c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
          tolerances(2) = 1.0d-7
          tolerances(3) = 1.0d-4
       end if
-      scaling(1) = 0.0d0
-      scaling(2) = 0.0d0
+
+      if(.not. rtdb_get(rtdb,'nwpw:scaling',mt_dbl,2,scaling)) then
+        scaling(1) = 1.0d0
+        scaling(2) = 1.0d0
+      end if
 
       if (.not.rtdb_get(rtdb,'cgsd:fractional_coordinates',
      >                 mt_log,1,frac_coord))
@@ -328,11 +328,15 @@ c     >        rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,1.0d0)
       if (.not.rtdb_get(rtdb,'cgsd:ispin',mt_int,1,ispin))
      >   ispin = 1
 
-c     do i=1,npsp
-c       id = 'cgsd:psp'//CHAR(i)
-c       value = value.and.
-c    >          rtdb_cget(rtdb,id,1,pspnames(i))
-c     end do
+
+*     **** BO parameterss ***
+      if (.not.rtdb_get(rtdb,'nwpw:bo_steps',mt_int,1,bo_steps))
+     >   bo_steps = 100
+      if (.not.rtdb_get(rtdb,'nwpw:bo_time_step',mt_dbl,1,bo_time_step))
+     >   bo_time_step = time_step
+      if (.not.rtdb_get(rtdb,'nwpw:bo_algorithm',mt_int,1,bo_algorithm))
+     >   bo_algorithm = 0
+
 
 *     **** pspw_dplot: stuff ****
       else if (code.eq.4) then
@@ -547,9 +551,11 @@ c
      >        rtdb_cget(rtdb,'cpmd:output_v_wavefunction_filename',
      >                  1,output_v_wavefunction_filename)
 
-      value = value.and.
-     >        rtdb_cget(rtdb,'cpmd:xyz_filename',
-     >                  1,xyz_filename)
+*     ***** motion filenames ****
+      if(.not.rtdb_cget(rtdb,'cpmd:xyz_filename',
+     >                  1,xyz_filename))
+     >  call util_file_prefix('xyz',xyz_filename)
+
 
       if (.not.rtdb_cget(rtdb,'cpmd:exchange_correlation',
      >                   1,exchange_correlation))
@@ -1397,6 +1403,35 @@ c         mtensor(3,3) = z
       return
       end
 
+*     ***********************************
+*     *					*
+*     *		control_bo_steps        *
+*     *					*
+*     ***********************************
+      integer function control_bo_steps()
+      implicit none 
+
+#include "control.fh"
+
+      control_bo_steps = bo_steps
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	     control_bo_algorithm       *
+*     *					*
+*     ***********************************
+      integer function control_bo_algorithm()
+      implicit none 
+
+#include "control.fh"
+
+      control_bo_algorithm = bo_algorithm
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -1411,6 +1446,49 @@ c         mtensor(3,3) = z
       control_time_step = time_step
       return
       end
+
+*     ***********************************
+*     *					*
+*     *		control_bo_time_step	*
+*     *					*
+*     ***********************************
+      real*8 function control_bo_time_step()
+      implicit none 
+
+#include "control.fh"
+
+      control_bo_time_step = bo_time_step
+
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	    control_ion_time_step	*
+*     *					*
+*     ***********************************
+*     Used by ion.F,  the ion_time_step is
+*     set to time_step if Car-Parrinello
+*     and it  is set to bo_time_step if 
+*     Born-Oppenheimer.
+      real*8 function control_ion_time_step()
+      implicit none 
+
+#include "control.fh"
+
+      !*** BO dynamics ****
+      if (code.eq.11) then
+         control_ion_time_step = bo_time_step
+
+      !*** CP dynamics ****
+      else
+         control_ion_time_step = time_step
+      end if
+
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -2075,6 +2153,7 @@ c      end
 *     ***** local variables ****
       logical value
 
+      value = .false.
       if (code.eq.1) then
         if (.not.rtdb_get(rtdb,'cpsd:mulliken',mt_log,1,value))
      >      value = .false.
@@ -2085,7 +2164,7 @@ c      end
       end if
 
 
-      if (code.eq.3) then
+      if ((code.eq.3).and.(code.eq.11)) then
         if (.not.rtdb_get(rtdb,'cgsd:mulliken',mt_log,1,value))
      >     value = .false.
       end if

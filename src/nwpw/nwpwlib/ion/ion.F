@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.41 2005-08-12 23:10:23 bylaska Exp $
+* $Id: ion.F,v 1.42 2006-07-19 00:38:54 bylaska Exp $
 *
 
 *     ***************************
@@ -76,7 +76,8 @@
 
 *     **** if md code then write velocities ****
       if ((control_code().eq.2).or.
-     >    (control_code().eq.7)) then
+     >    (control_code().eq.7).or.
+     >    (control_code().eq.11)) then
          value = geom_vel_set(geom,dbl_mb(r0(1)))
       end if
 
@@ -87,7 +88,8 @@
       if ((control_code().eq.1).or.
      >    (control_code().eq.2).or.
      >    (control_code().eq.6).or.
-     >    (control_code().eq.7)) then
+     >    (control_code().eq.7).or.
+     >    (control_code().eq.11)) then
         value = geom_rtdb_store(rtdb,geom,'pspwgeometry')
       end if
       value = geom_destroy(geom)
@@ -100,7 +102,8 @@
       if ((control_code().eq.1).or.
      >    (control_code().eq.2).or.
      >    (control_code().eq.6).or.
-     >    (control_code().eq.7)) then
+     >    (control_code().eq.7).or.
+     >    (control_code().eq.11)) then
 
 
 *       *****************************************
@@ -194,9 +197,9 @@
       external    control_code
       
       logical          control_frac_coord
-      double precision control_time_step,ion_amass
+      double precision control_ion_time_step,ion_amass
       external         control_frac_coord
-      external         control_time_step,ion_amass
+      external         control_ion_time_step,ion_amass
 
       call Parallel_taskid(taskid)
 
@@ -257,7 +260,7 @@
 
 
 *     **** define dti ****
-      dt = control_time_step()
+      dt = control_ion_time_step()
       do i=1,nion
          dbl_mb(dti(1)+i-1) = dt*dt/(ion_amass(i))
       end do
@@ -267,7 +270,8 @@ c     call ion_shift()
 
 *     **** get velocities if md code ****
       if ((control_code().eq.2).or. 
-     >    (control_code().eq.7)) then
+     >    (control_code().eq.7).or.
+     >    (control_code().eq.11)) then
 *         **** get velocities ****
          value = geom_vel_get(geom,dbl_mb(r0(1)))
 
@@ -313,9 +317,9 @@ c         eki1=0.5d0*eki1
 
 
 *     ***************************
-*     *							*
-*     *	     ion_aname			*
-*     *							*
+*     *				*
+*     *	     ion_aname		*
+*     *				*
 *     ***************************
       character*2 function ion_aname(i)
       implicit none
@@ -1169,11 +1173,11 @@ c         eki1=0.5d0*eki1
 
 *     *** external functions ****
       logical          control_rotation,control_translation
-      double precision control_time_step,ion_amass
+      double precision control_ion_time_step,ion_amass
       external         control_rotation,control_translation
-      external         control_time_step,ion_amass
+      external         control_ion_time_step,ion_amass
 
-      dt = control_time_step()
+      dt = control_ion_time_step()
       h = 1.0d0/(2.0d0*dt)
       sa1 = 1.0d0/(2.0d0-alpha)
       sa2 = alpha/(2.0d0-alpha)
@@ -1403,11 +1407,11 @@ c         eki1=0.5d0*eki1
 
 *     *** external functions ****
       logical          control_translation
-      double precision control_time_step,ion_amass
+      double precision control_ion_time_step,ion_amass
       external         control_translation
-      external         control_time_step,ion_amass
+      external         control_ion_time_step,ion_amass
 
-      dt = control_time_step()
+      dt = control_ion_time_step()
       do i=1,nion
          scale = 0.5d0*(dbl_mb(dti(1)+i-1))
 
@@ -1482,11 +1486,11 @@ c         eki1=0.5d0*eki1
 
 *     *** external functions ****
       logical          control_rotation,control_translation
-      double precision control_time_step,ion_amass
+      double precision control_ion_time_step,ion_amass
       external         control_rotation,control_translation
-      external         control_time_step,ion_amass
+      external         control_ion_time_step,ion_amass
 
-      dt = control_time_step()
+      dt = control_ion_time_step()
       h = 1.0d0/(2.0d0*dt)
       smr = 2.0d0*ssr - 1.0d0
 

@@ -1,5 +1,5 @@
 *
-* $Id: control.fh,v 1.21 2006-01-06 00:57:46 bylaska Exp $
+* $Id: control.fh,v 1.22 2006-07-19 00:38:54 bylaska Exp $
 *
 
 *     **** control common block ****
@@ -18,6 +18,8 @@ c     character*20 pspnames(MAXPSP)
       real*8      unita(3,3),tolerances(3),scaling(2),sa_decay(2)
       real*8      time_step,fake_mass,ks_alpha,ecut,wcut,rcut
       real*8      cpu1_time,cpu2_time
+      real*8      bo_time_step
+      integer     bo_steps,bo_algorithm
       integer     loop(2),ngrid(3),npsp,ncut,mapping
       integer     code,gga
       integer	  ispin,multiplicity
@@ -29,7 +31,9 @@ c     character*20 pspnames(MAXPSP)
       common / control_block / 
      >                         unita,tolerances,scaling,sa_decay,
      >                         time_step,fake_mass,ks_alpha,
-     >                         ecut,wcut,rcut,mapping,
+     >                         ecut,wcut,rcut,
+     >                         bo_time_step,bo_steps,bo_algorithm,
+     >                         mapping,
      >                         ncut,gga,
      >                         loop,ngrid,npsp,
      >                         code,
