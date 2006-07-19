@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.50 2006-05-26 18:20:24 marat Exp $
+* $Id: task_input.F,v 1.51 2006-07-19 00:38:05 bylaska Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -93,6 +93,9 @@ c
          else if (inp_compare(.false.,test,
      >                        'Car-Parrinello')) then
             operation='Car-Parrinello'
+         else if (inp_compare(.false.,test,
+     >                        'Born-Oppenheimer')) then
+            operation='Born-Oppenheimer'
          else if (inp_compare(.false.,test,
      >                        'conjugate_gradient')) then
             operation='conjugate_gradient'
