@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.1 2006-07-19 00:39:13 bylaska Exp $
+* $Id: cgmdv5.F,v 1.2 2006-07-20 17:27:55 bylaska Exp $
 *
 
 ***********************************************************************
@@ -23,6 +23,11 @@
 #include "frac_occ.fh"
 
 #include "nwpw_timing.fh"
+
+*     *** local variables and parameters ****
+      double precision kb
+      parameter (kb=3.16679d-6)
+
       
 *     **** parallel variables ****
       integer  taskid,np
@@ -52,12 +57,14 @@
       integer ierr
 
 *     **** local variables ****
-      logical oprint,lprint,hprint,qmmm
+      logical oprint,lprint,hprint,qmmm,found
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
-      real*8  EV,pi
+      real*8  sum,w,emotion_time_shift,wa,wr
+      real*8  EV,EV0,pi,esum1,esum2,eave,evar,dr
+      real*8  ratio,aratio
       real*8  icharge
-      integer i,k,ia,nion,minimizer,mapping,it
+      integer i,k,ia,nion,minimizer,mapping,it,icount_shift
       integer nbq
 
       character*30 filename
@@ -514,13 +521,44 @@ c      end if
 
 *     **** write initial position to xyz data ****
       call xyz_init()          ! unit=18
-      call xyz_write()
+      call MOTION_init(rtdb)   ! unit=19
+
+
 
 *     ************************************
 *     **** open up other MOTION files ****
 *     ************************************
-
 *     **** open EMOTION file ****
+      if (.not.rtdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
+     >  call util_file_prefix('emotion',filename)
+      call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                    full_filename)
+      if (taskid.eq.MASTER) then
+
+         emotion_time_shift = 0.0d0
+         icount_shift       = 0
+         inquire(file=full_filename,exist=found)
+         if (found) then
+           open(unit=31,file=full_filename,form='formatted',
+     >          status='old')
+           do while (found)
+           read(31,*,end=100) emotion_time_shift,w,sum
+           !E(25) = E(25) + sum                          !*** take care of running sums ***
+           !E(26) = E(26) + sum*sum
+           icount_shift = icount_shift + 1
+           end do
+  100      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+           backspace 31
+#endif
+         else
+           open(unit=31,file=full_filename,form='formatted',
+     >          status='new')
+         end if
+      end if
+
+
       if (.not.rtdb_cget(rtdb,'nwpw:emotion_filename',1,filename))
      >  call util_file_prefix('emotion',filename)
       call util_file_name_noprefix(filename,.false.,
@@ -531,6 +569,7 @@ c      end if
      >        status='new')
       end if
 
+      call xyz_write()
 
 
 *     ****  allocate fion ***
@@ -547,30 +586,102 @@ c      end if
       dt = control_bo_time_step()
 
 
-*     ***** do a simple md loop ***
-      EV = cgsd_energy(newpsi)
-      call cgsd_energy_gradient(dbl_mb(fion(1)))
-      call ion_newton_step(dbl_mb(fion(1)),1.0d0)
+c*     ***** do a simple md loop ***
+c      call control_reduce_print()
+c      EV = cgsd_energy(newpsi)
+c      call cgsd_energy_gradient(dbl_mb(fion(1)))
+c      call ion_newton_step(dbl_mb(fion(1)),1.0d0)
+c      call xyz_write()
+c
+c      do it=1,control_bo_steps()
+c        call ion_shift()
+c        EV = cgsd_energy(.false.)
+c        call cgsd_energy_gradient(dbl_mb(fion(1)))
+c        call ion_verlet_step(dbl_mb(fion(1)),1.0d0)
+c        eki1 = ion_ke()
+c        write(6,1350) it,EV+eki1,EV,eki1,ion_Temperature()
+c
+c        write(31,1360) it*dt+emotion_time_shift,
+c     >                 EV+eki1,EV,eki1,ion_Temperature()
+c
+c        call util_flush(6)
+c        call util_flush(31)
+c
+c        call xyz_write()
+c        call MOTION_write(it*dt)
+c
+c
+c      end do
+c*     ***** do a simple md loop ***
+c      call control_up_print()
+
+
+*     ***** do a simple mc loop ***
+      call control_reduce_print()
+      dr = 0.08d0
+      aratio = 0.5d0
+      wa = 0.0d0
+      wr = 0.0d0
+      esum1 = 0.0d0
+      esum2 = 0.0d0
+      eave = 0.0d0
+      evar = 0.0d0
+      beta = util_random(39) !**seed the random number generator
+      beta = 1.0d0/(kb*298.15)
       call xyz_write()
+      EV0 = cgsd_energy(newpsi)
+      do it=1,control_bo_steps()
 
-      do it=2,control_bo_steps()
-        call ion_shift()
+        call ion_MC_step(dr)
         EV = cgsd_energy(.false.)
-        call cgsd_energy_gradient(dbl_mb(fion(1)))
-        call ion_verlet_step(dbl_mb(fion(1)),1.0d0)
-        eki1 = ion_ke()
-        write(6,1350) it,EV+eki1,EV,eki1,ion_Temperature()
+        w = dexp(-beta*(EV-EV0))
+        alpha = util_random(0)
 
-        write(31,1360) it*dt,EV+eki1,EV,eki1,ion_Temperature()
-        call util_flush(31)
+        !*** accept the sequence ***
+        if (alpha.lt.w) then
+          EV0 = EV
+          !write(6,*) "   ----ACCEPTED----"
+          if (taskid.eq.MASTER)  then
+             write(6,1350) it,EV,EV0,w,alpha,wa,wr,eave,evar,dr
+             call util_flush(6)
+          end if
+          call xyz_write()
+          call MOTION_write(it*dt)
+          wa = wa + 1.0d0
+          esum1 = esum1 + EV
+          esum2 = esum2 + EV*EV
+          eave = esum1/wa
+          evar = esum2/wa
+          evar = evar - eave*eave
 
+        !*** reject the sequence ***
+        else
+           call ion_MC_reject_step()
+          !write(6,*) "   ----REJECTED----"
+          wr = wr + 1.0d0
+        end if
 
-        call xyz_write()
+        !*** adjust ***
+        if (mod(it,10).eq.0) then
+            ratio = wa/(wa+wr)
+            dr = dr*(ratio/aratio)
+            !if (ratio.lt.aratio) dr = dr*0.95d0
+            !if (ratio.gt.aratio) dr = dr*1.05d0
+        end if
+
       end do
+
+      call control_up_print()
+*     ***** do a simple mc loop ***
+
       call xyz_end()
+      call MOTION_end()
       if (taskid.eq.MASTER) then
         close(unit=31)
       end if
+
+      EV = cgsd_energy(.false.)
+      call cgsd_energy_gradient(dbl_mb(fion(1)))
 
 
 *                |***************************|
@@ -692,6 +803,12 @@ c      end if
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+
+
+*     **** do anaylysis on MOTION files ****
+      call cpmd_properties(rtdb)
+
+
 
 *                |***************************|
 ****************** report consumed cputime   **********************
@@ -864,7 +981,7 @@ c      end if
  1320 FORMAT(5X, ' time step=',F10.2,5X,'iterations=',I8)
  1330 FORMAT(5X, ' integration agorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
- 1350 FORMAT('@',I8,2E19.10,E14.5,F14.2,3E11.3)
+ 1350 FORMAT('@',I8,2E19.10,4F8.2,2E19.10,F8.4)
  1360 format(100e19.10)
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
  1801 FORMAT(//'== Timing ==')

@@ -1,4 +1,4 @@
-c     $Id: cgsd_energy.F,v 1.65 2006-06-19 17:33:36 bylaska Exp $                       
+c     $Id: cgsd_energy.F,v 1.66 2006-07-20 17:27:55 bylaska Exp $                       
 *     ***************************
 *     *				*
 *     *		cgsd_energy	*
@@ -582,8 +582,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       end do
 
       call Parallel_taskid(taskid)
-      mprint = ((taskid.eq.MASTER).and.control_print(print_medium))
-      lprint = ((taskid.eq.MASTER).and.control_print(print_low))
+      mprint = ((taskid.eq.MASTER).and.control_print(print_high))
+      lprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
       if (taskid.eq.MASTER) then
         if (mprint) then
