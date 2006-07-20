@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.86 2006-07-19 00:38:54 bylaska Exp $
+* $Id: control.F,v 1.87 2006-07-20 17:49:42 bylaska Exp $
 *
 
 *     ***********************************
@@ -336,6 +336,10 @@ c
      >   bo_time_step = time_step
       if (.not.rtdb_get(rtdb,'nwpw:bo_algorithm',mt_int,1,bo_algorithm))
      >   bo_algorithm = 0
+
+      if (.not.rtdb_get(rtdb,'nwpw:rotation',mt_log,1,rotation))
+     >  rotation = .true.
+
 
 
 *     **** pspw_dplot: stuff ****
@@ -3160,6 +3164,40 @@ c      end
       control_print = value
       return
       end
+
+
+*     *****************************
+*     *                           *
+*     *    control_reduce_print   *
+*     *                           *
+*     *****************************
+      subroutine control_reduce_print()
+      implicit none
+
+*     **** control_print common block ****
+      integer print_level
+      common / control_print1 / print_level
+
+      print_level = print_level -10
+      return
+      end
+
+*     *****************************
+*     *                           *
+*     *    control_up_print       *
+*     *                           *
+*     *****************************
+      subroutine control_up_print()
+      implicit none
+
+*     **** control_print common block ****
+      integer print_level
+      common / control_print1 / print_level
+
+      print_level = print_level + 10
+      return
+      end
+
 
 
 

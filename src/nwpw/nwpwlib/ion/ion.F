@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.42 2006-07-19 00:38:54 bylaska Exp $
+* $Id: ion.F,v 1.43 2006-07-20 17:49:42 bylaska Exp $
 *
 
 *     ***************************
@@ -183,7 +183,7 @@
 
 *     *** local variables ***
       integer     i
-      double precision q,dt,vgx,vgy,vgz
+      double precision q,dt  !,vgx,vgy,vgz
       character*16     t
       logical value
 
@@ -1247,6 +1247,104 @@ c         eki1=0.5d0*eki1
       return
       end
 
+
+*     ***************************
+*     *                         *
+*     *       ion_MC_step       *
+*     *                         *
+*     ***************************
+*   This routine replaces r1 with a Monte-Carlo
+* step from r1, and r0 is set to the initial r1. 
+*  On exit
+*      r0 = old r1
+*      r1 = MC step (r1)
+*
+      subroutine ion_MC_step(alpha)
+      implicit none
+      double precision alpha
+
+#include "util.fh"
+#include "mafdecls.fh"
+#include "ion.fh"
+
+*     **** local variables ****
+      integer i
+      double precision dt,h
+
+*     *** external functions ****
+      logical          control_rotation,control_translation
+      double precision control_ion_time_step,ion_amass
+      external         control_rotation,control_translation
+      external         control_ion_time_step,ion_amass
+
+
+      dt = control_ion_time_step()   !** not really needed, but used to make r2 = r1 + v*dt 
+      h = 1.0d0/(dt)                 !** for rotation removal.
+
+      call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r0(1)),1)
+
+*     **** do a MC step put MC step into r2 temporarilly ***
+      i = int(util_random(0)*nion) + 1
+
+c only update z direction for dimer test
+c      dbl_mb(r1(1)+(i-1)*3)   = dbl_mb(r0(1)+(i-1)*3) 
+c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
+c      dbl_mb(r1(1)+(i-1)*3+1) = dbl_mb(r0(1)+(i-1)*3+1) 
+c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
+      dbl_mb(r1(1)+(i-1)*3+2) = dbl_mb(r0(1)+(i-1)*3+2) 
+     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
+
+      
+
+      call ion_same_FixIon(dbl_mb(r0(1)),dbl_mb(r1(1))) !** Stupid IBM **
+
+
+*     ***** impose molecular constraints ***
+      call molecular_fix(dbl_mb(r1(1)), dbl_mb(r0(1)))
+
+
+
+*     **** make sure ions are in cell ***
+      call incell1(nion,dbl_mb(r1(1)))
+
+
+*     **** remove translation? ***
+      if (.not.control_translation())
+     > call remove_center_mass(dbl_mb(r1(1)),dbl_mb(r0(1)))
+
+*     **** remove rotation? ***
+         !r1 = r0 + v*dt = r0+rand_alpha
+         !v = rand_alpha/dt = (r1-r0)/dt = h*(r1-r0)
+         !v = h*(r1-r0)
+         !r0 = r1 - (v/h) = r1 - (h*(r1-r0)/h) = r1 - r1 + r0 = r0
+      if (.not.control_rotation()) 
+     > call ion_remove_rotation(h,nion,
+     >                          dbl_mb(r0(1)),
+     >                          dbl_mb(r0(1)),
+     >                          dbl_mb(r1(1)))
+
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *    ion_MC_reject_step   *
+*     *                         *
+*     ***************************
+
+*  If the step is rejected than copy r0 back to r1.
+*
+      subroutine ion_MC_reject_step()
+      implicit none
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+      call dcopy((3*nion),dbl_mb(r0(1)),1,dbl_mb(r1(1)),1)
+      return
+      end
+
+
 *     ***************************
 *     *				*
 *     *	   ion_remove_rotation 	*
@@ -1262,7 +1360,7 @@ c         eki1=0.5d0*eki1
       real*8 r2(3,*)
 
 *     *** local variables ***
-      integer i,j,ii,ierr
+      integer i,j,ii
       real*8 v(3),temp(3),cm(3),tmass
       real*8 Im(3,3),L(3),omega(3),L2,hinv
 
@@ -1311,18 +1409,18 @@ c         eki1=0.5d0*eki1
          end do
          end do
       end do
+
       tmass = Im(1,1) + Im(2,2) + Im(3,3)
       Im(1,1) = Im(1,1) - tmass
       Im(2,2) = Im(2,2) - tmass
       Im(3,3) = Im(3,3) - tmass
       L2 = L(1)**2 + L(2)**2 + L(3)**2
 
-
+      
       if (L2 .gt. 1.0d-12) then
 
 *     *** angular velocities - I*omega = L ==> L<-omega  ***
       call solve_3by3(Im,L,omega)
-
 
 *     *** remove rotation ***
       hinv = 1.0d0/h
@@ -1904,4 +2002,7 @@ c
       call ecce_print1_char('atomic tags', tags(1), nion)
       return
       end
+
+
+
 
