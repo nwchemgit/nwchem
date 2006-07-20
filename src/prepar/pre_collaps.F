@@ -1,7 +1,17 @@
       subroutine pre_collaps(xs,id,ndx,vec,msa,nsa,touch,mode,nmoves,
-     + ncolgr,icolgr)
+     + ncolgr,icolgr,lfnout,lfnpdb,lrgpdb,sysnam,filpdb,iopt,box,
+     + num,amass,mat,
+     + csa,isat,isgm,imol,ifra,vs,
+     + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
+     + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
+     + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
+     + irenum,invert,ihop,ips)
 c
       implicit none
+c
+#include "mafdecls.fh"
+      logical pre_wrtpdb
+      external pre_wrtpdb
 c
       integer msa,nsa,mode,nmoves
       integer id(msa),ndx(msa,3)
@@ -9,6 +19,23 @@ c
       real*8 touch
       integer ncolgr
       integer icolgr(2,ncolgr)
+c
+      integer lfnout,lfnpdb,iopt,mwm,nwm,mwa,nwa,mat,mwmc,nwmc
+      integer lfnmrg,lrgpdb
+      character*255 filpdb,filmrg(100)
+      integer num(mat),isat(msa),isgm(msa),imol(msa),ifra(msa),iwat(mwa)
+      integer ihop(msa),ips(msa)
+      character*16 cwa(mwa),csa(msa)
+      character*3 slvnam
+      real*8 amass(mat),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
+      integer iropt,irrand,nxrep,nyrep,nzrep,nskip
+      real*8 rdist,drep(3),xmerge(3,100)
+      integer msb,nsb,nmols,irenum,invert,nmerge
+      integer idsb(2,msb),iskip(3,nskip),lang(*)
+      character*80 sysnam
+c
+      character*255 filnam
 c
       logical first,found
       integer i,j,k,m
@@ -253,6 +280,16 @@ c
       endif
    11 continue
       nummov=nummov+1
+      write(filnam,'(a,i5.5,a)')
+     + sysnam(1:index(sysnam,' ')-1)//'-c',nummov,'.pdb'
+c
+      if(.not.pre_wrtpdb(lfnout,lfnpdb,lrgpdb,filnam,iopt,box,num,amass,
+     + mat,csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,cwa,iwat,xw,vw,mwm,mwa,
+     + nwm,nwa,xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,
+     + drep,msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,
+     + filmrg,irenum,invert,ihop,ips))
+     +  call md_abort('pre_wrtpdb failed',9999)
+c
       if(dtran.gt.touch.and.(nummov.lt.nmoves.or.nmoves.lt.0)) goto 2
       endif
 c

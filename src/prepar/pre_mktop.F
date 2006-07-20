@@ -3,7 +3,7 @@
      + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
      + ignore,slvnam,itopol,icomb)
 c
-c $Id: pre_mktop.F,v 1.37 2003-12-05 20:46:42 d3j191 Exp $
+c $Id: pre_mktop.F,v 1.38 2006-07-20 14:18:53 d3j191 Exp $
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]
@@ -449,9 +449,9 @@ c
 c     allocate memory for solvent non-bonded list
 c     -------------------------------------------
 c
-      mnon=(natmt-natm)*(natmt-natm)
+      mnon=max(1,(natmt-natm)*(natmt-natm))
       nnon=0
-      if(.not.ma_push_get(mt_int,mnon,'lnon',l_lnon,i_lnon))
+      if(.not.ma_push_get(mt_int,2*mnon,'lnon',l_lnon,i_lnon))
      + call md_abort('Memory allocation failed for lnon',9999)
 c
 c     construct solvent non-bonded list

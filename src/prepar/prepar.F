@@ -1,6 +1,6 @@
        logical function prepar(irtdb0)
 c
-c $Id: prepar.F,v 1.59 2005-12-09 16:56:36 d3j191 Exp $
+c $Id: prepar.F,v 1.60 2006-07-20 14:18:53 d3j191 Exp $
 c
 c ********************************************************
 c ********************************************************
@@ -349,7 +349,7 @@ c
       if(.not.pre_mkrst(irtdb,title,mdold,source,lfnout,lfntop,filtop,
      + lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,lfncmd,filcmd,
      + lfnslv,slvmdl,slvnam,mgrid,nrgrid,iogrid,rogrid,gdist,mnoe,
-     + altloc,chain,model,
+     + sysnam,altloc,chain,model,
      + lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,lfnmat,
      + lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol))
      + call md_abort('pre_mkrst failed',9999)

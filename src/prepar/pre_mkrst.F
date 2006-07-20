@@ -1,11 +1,11 @@
       logical function pre_mkrst(irtdb,title,mdold,source,lfnout,
      + lfntop,filtop,lfnpdb,filpdb,lfnrst,filrst,lfntmp,filtmp,
      + lfncmd,filcmd,lfnslv,slvmdl,slvnam,mgrid,nrgrid,iogrid,rogrid,
-     + gdist,mnoe,altloc,
+     + gdist,mnoe,sysnam,altloc,
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: pre_mkrst.F,v 1.98 2004-04-06 16:18:30 d3j191 Exp $
+c $Id: pre_mkrst.F,v 1.99 2006-07-20 14:18:53 d3j191 Exp $
 c
       implicit none
 c
@@ -33,7 +33,7 @@ c
       character*255 filxyz,filqqq,filpov,filmrg(100),filmod
       character*10 slvmdl
       character*3 slvnam
-      character*80 source,card,card2,cfix,title(2,3)
+      character*80 sysnam,source,card,card2,cfix,title(2,3)
       character*1 altloc,chain
       real*8 fcount
       real*8 scale,cpk
@@ -1067,7 +1067,17 @@ c
       if(.not.ma_push_get(mt_dbl,6*msa,'vec',l_vec,i_vec))
      + call md_abort('Memory allocation failed for ndx',9999)
       call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
-     + dbl_mb(i_vec),msa,nsa,touch,3,nmoves,ncolgr,icolgr)
+     + dbl_mb(i_vec),msa,nsa,touch,3,nmoves,ncolgr,icolgr,
+     + lfnout,lfnpdb,lrgpdb,sysnam,filnam,iopt,box,
+     + int_mb(i_num),dbl_mb(i_mas),
+     + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
+     + int_mb(i_sfr),
+     + dbl_mb(i_vs),byte_mb(i_cwa),
+     + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
+     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
+     + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),zdist,
+     + nskip,iskip,int_mb(i_lang),lfnmrg,nmerge,xmerge,filmrg,
+     + irenum,invert,int_mb(i_ihop),int_mb(i_ips))
       if(.not.ma_pop_stack(l_vec))
      + call md_abort('Memory deallocation failed for vec',9999)
       if(.not.ma_pop_stack(l_ndx))
@@ -1080,7 +1090,17 @@ c
       if(.not.ma_push_get(mt_dbl,6*msa,'vec',l_vec,i_vec))
      + call md_abort('Memory allocation failed for ndx',9999)
       call pre_collaps(dbl_mb(i_xs),int_mb(i_sml),int_mb(i_ndx),
-     + dbl_mb(i_vec),msa,nsa,touch,1,nmoves,ncolgr,icolgr)
+     + dbl_mb(i_vec),msa,nsa,touch,1,nmoves,ncolgr,icolgr,
+     + lfnout,lfnpdb,lrgpdb,sysnam,filnam,iopt,box,
+     + int_mb(i_num),dbl_mb(i_mas),
+     + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
+     + int_mb(i_sfr),
+     + dbl_mb(i_vs),byte_mb(i_cwa),
+     + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
+     + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
+     + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),zdist,
+     + nskip,iskip,int_mb(i_lang),lfnmrg,nmerge,xmerge,filmrg,
+     + irenum,invert,int_mb(i_ihop),int_mb(i_ips))
       if(.not.ma_pop_stack(l_vec))
      + call md_abort('Memory deallocation failed for vec',9999)
       if(.not.ma_pop_stack(l_ndx))
