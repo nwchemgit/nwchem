@@ -1,11 +1,6 @@
 echo
 start vscf_h2o
 
-permanent_dir /scratch
-scratch_dir /scratch
-
-memory 1000 mb  
-
 geometry units au
   O     0.00000000     0.00000000     0.20578928
   H    -1.42497864     0.00000000    -0.87779464
