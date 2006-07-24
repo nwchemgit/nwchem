@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.35 2005-02-15 01:54:47 edo Exp $
+# $Id: GNUmakefile,v 1.36 2006-07-24 18:20:25 d3p307 Exp $
 #
 
 
@@ -52,6 +52,9 @@ ifeq ($(TARGET),CRAY-T3E)
 endif
 ifeq ($(_IFCV81),Y)
    FOPTIMIZE=-O3
+   COPTIONS=-O0 -g
+endif
+ifeq ($(_CPU),ia64)
    COPTIONS=-O0 -g
 endif
 
