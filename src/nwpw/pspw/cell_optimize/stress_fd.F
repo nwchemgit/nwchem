@@ -1,5 +1,5 @@
 *
-* $Id: stress_fd.F,v 1.7 2005-05-24 20:09:17 bylaska Exp $
+* $Id: stress_fd.F,v 1.8 2006-07-24 19:04:40 edo Exp $
 *
       logical function stress_fd(rtdb)
       implicit none
@@ -50,11 +50,14 @@
       oprint = (taskid.eq.MASTER)
 
 *     **** initialize and read in geometry object ****
+      value=.true.
       value     = value.and.geom_create(geom,'geometry')
       value     = value.and.geom_rtdb_load(rtdb,geom,'geometry')
       value     = value.and.geom_ncent(geom,nion)
       value     = value.and.
      >            MA_alloc_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
+      if(.not.value) call errquit
+     E   (' stressfd: geom malloc failure ',0,0)
       call load_cellgeometry(geom,dbl_mb(r1(1)),unita)
 
 
