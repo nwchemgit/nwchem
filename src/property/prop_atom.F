@@ -14,8 +14,8 @@ c
       integer iatom, niso, i, iloc, isotope
       double precision abun, spin, gfac
 c
-      iatom = atomlocator(2,int(znuc))
-      niso = atomlocator(1,int(znuc))
+      iatom = atomlocator(2,nint(znuc))
+      niso = atomlocator(1,nint(znuc))
 c
 c     Determine isotope with spin and highest abundance
 c
@@ -27,7 +27,7 @@ c
          iloc = iatom+i-1
          if (atomprop(3,iloc).ne.0.0d0) then
             if (atomprop(2,iloc).ge.abun) then
-               isotope = int(atomprop(1,iloc))
+               isotope = nint(atomprop(1,iloc))
                abun = atomprop(2,iloc)
                spin = atomprop(3,iloc)
                gfac = atomprop(4,iloc)
