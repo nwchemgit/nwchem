@@ -1,7 +1,10 @@
 *
-* $Id: paw_proj.F,v 1.32 2006-01-13 02:05:26 marat Exp $
+* $Id: paw_proj.F,v 1.33 2006-07-26 22:00:13 d3p307 Exp $
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.32  2006/01/13 02:05:26  marat
+* accelerating projector construction
+*
 * Revision 1.31  2004/10/14 21:53:29  bylaska
 * io fixes...EJB
 *
@@ -707,8 +710,8 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       Gy(1) = G_indx(2)
       Gz(1) = G_indx(3)
 
-      call dfill(nfft3d,0.0,dbl_mb(ray(1)),1)
-      call dfill(nfft3d,-1.0,dbl_mb(g(1)),1)
+      call dfill(nfft3d,0.d0,dbl_mb(ray(1)),1)
+      call dfill(nfft3d,-1.d0,dbl_mb(g(1)),1)
       call ifill(nfft3d,0,int_mb(gm(1)),1)
 c
       ng = 0
