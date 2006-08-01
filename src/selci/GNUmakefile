@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.36 2006-07-24 18:20:25 d3p307 Exp $
+# $Id: GNUmakefile,v 1.37 2006-08-01 21:06:13 d3p307 Exp $
 #
 
 
@@ -54,8 +54,10 @@ ifeq ($(_IFCV81),Y)
    FOPTIMIZE=-O3
    COPTIONS=-O0 -g
 endif
-ifeq ($(_CPU),ia64)
+ifeq ($(TARGET),LINUX64)
+  ifeq ($(_CPU),ia64)
    COPTIONS=-O0 -g
+  endif
 endif
 
  LIBS = $(LIBRARY_PATH) $(LIBDIR)/libtcgmsg.a
