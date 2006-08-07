@@ -1,7 +1,7 @@
       subroutine movecs_fragment(rtdb, geom, basis, 
      $     module, iset, nclosed, nopen, g_vecs, evals)
 *
-* $Id: movecs_frag.F,v 1.12 2004-09-02 23:40:57 edo Exp $
+* $Id: movecs_frag.F,v 1.13 2006-08-07 16:28:47 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -27,7 +27,7 @@ c
       integer nclosed_frag, nopen_frag, nvirt_frag, ioff
       integer i
       integer maxfrag
-      parameter (maxfrag = 60)
+      parameter (maxfrag = 100)
       character*256 fragments(maxfrag), key
       integer ma_type, nfrag
 c
