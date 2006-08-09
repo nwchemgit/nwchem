@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs-b_driver.F,v 1.6 2006-08-09 19:27:34 bylaska Exp $
+* $Id: lbfgs-b_driver.F,v 1.7 2006-08-09 23:30:30 bylaska Exp $
 *
 c        Modified driver for use in NWChem (MV)
 c
@@ -63,11 +63,11 @@ c       the driver.
       integer nwa
       integer i_nbd,h_nbd
       integer i_iwa,h_iwa
-      integer i_x,h_x
+      integer i_x,h_x,i_xx
       integer i_x0,h_x0
       integer i_l,h_l
       integer i_u,h_u
-      integer i_g,h_g
+      integer i_g,h_g,i_gg
       integer i_wa,h_wa
 
       logical ostress,onlystress
@@ -87,7 +87,7 @@ c
       integer          i
 c
       integer igeom,isystype
-      integer natom,ncent,nc
+      integer natom,ncent,nc,ncx
       logical rtdb_mode
 
       double precision xrms,xmax
@@ -104,7 +104,7 @@ c
       master = ga_nodeid().eq.0
 
 
-      if (.not. rtdb_get(irtdb,'onlystress',mt_log,1,ostress)) 
+      if (.not. rtdb_get(irtdb,'onlystress',mt_log,1,onlystress)) 
      $   onlystress = .false.
 
       if (.not. rtdb_get(irtdb,'includestress',mt_log,1,ostress)) 
@@ -141,23 +141,23 @@ c
      $     call errquit(pname//'systype?',0, GEOM_ERR)
 
       natom = ncent
+      ncx   = 3*ncent
 
       if (ostress) then
          if (master) write(6,*) 'INCLUDING STRESS !!!!!!!!!!!!!!!!'
          if (master) write(6,*) 
          if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0,
      >       GEOM_ERR)
+         ncx = ncx + 9
          if (onlystress) then
-            natom = 0
             ncent = 3
          else
-            natom = ncent
             ncent = ncent + 3
          end if
       endif
+      nc    = 3*ncent
 
-
-
+      write(*,*) "nc=",nc,onlystress,ostress
 
       if (.not. rtdb_get(irtdb,'driver:mh',mt_int,1,m))
      $        m = 5
@@ -165,9 +165,8 @@ c
       if (.not. rtdb_get(irtdb,'driver:nfmax',mt_int,1,nfmax))
      $        nfmax = 20
 
-
-      nc = 3*ncent
       nwa =  2*m*nc+4*nc+12*m*m+12*m
+
 
       if(.not.ma_alloc_get(mt_int,nc,'i_nbd',h_nbd,i_nbd))
      + call errquit( pname//'Failed to allocate memory for nbd',
@@ -177,9 +176,15 @@ c
      + call errquit( pname//'Failed to allocate memory for iwa',
      + nc, MA_ERR)
 
-      if(.not.ma_alloc_get(mt_dbl,nc,'i_x',h_x,i_x))
+      if(.not.ma_alloc_get(mt_dbl,ncx,'i_x',h_x,i_x))
      + call errquit( pname//'Failed to allocate memory for x',
      + nc, MA_ERR)
+
+      if (onlystress) then
+         i_xx = i_x + 3*natom
+      else
+         i_xx = i_x
+      end if
 
       if(.not.ma_alloc_get(mt_dbl,nc,'i_x0',h_x0,i_x0))
      + call errquit( pname//'Failed to allocate memory for x0',
@@ -193,9 +198,15 @@ c
      + call errquit( pname//'Failed to allocate memory for u',
      + nc, MA_ERR)
 
-      if(.not.ma_alloc_get(mt_dbl,nc,'i_g',h_g,i_g))
+      if(.not.ma_alloc_get(mt_dbl,ncx,'i_g',h_g,i_g))
      + call errquit( pname//'Failed to allocate memory for g',
      + nc, MA_ERR)
+
+      if (onlystress) then
+         i_gg = i_g + 3*natom
+      else 
+         i_gg = i_g 
+      end if
 
       if(.not.ma_alloc_get(mt_dbl,nwa,'i_wa',h_wa,i_wa))
      + call errquit( pname//'Failed to allocate memory for wa',
@@ -205,7 +216,6 @@ c
 c     We wish to have output at every iteration.
 
       iprint = 1
-      write(*,*) "natom,ncent,nc=",natom,ncent,nc
 
 c     We specify the tolerances in the stopping criteria.
 
@@ -227,8 +237,8 @@ c                    u   specifies the upper bounds.
 c     Set bounds if any
       do i=1,nc
          int_mb(i_nbd+i-1)=0
-c         dbl_mb(i_l+i-1)=dbl_mb(i_x+i-1) - 0.005
-c         dbl_mb(i_u+i-1)=dbl_mb(i_x+i-1) + 0.005
+c         dbl_mb(i_l+i-1)=dbl_mb(i_xx+i-1) - 0.005
+c         dbl_mb(i_u+i-1)=dbl_mb(i_xx+i-1) + 0.005
       end do
 
 c     We now define the starting point.
@@ -243,7 +253,7 @@ c     We now define the starting point.
      >        call errquit(pname//'frac_to_cart?',0, GEOM_ERR)
        end if
 c 
-       call dcopy(nc,dbl_mb(i_x),1,dbl_mb(i_x0),1)
+       call dcopy(nc,dbl_mb(i_xx),1,dbl_mb(i_x0),1)
        f0 = 0.0d0
 
 c     We start the iteration by initializing task.
@@ -260,12 +270,12 @@ c     This is the call to the L-BFGS-B code.
 
       if(master) then
         call setulb(nc,m,nfmax,
-     +              dbl_mb(i_x),
+     +              dbl_mb(i_xx),
      +              dbl_mb(i_l),
      +              dbl_mb(i_u),
      +              int_mb(i_nbd),
      +              f,
-     +              dbl_mb(i_g),
+     +              dbl_mb(i_gg),
      +              factr,pgtol,
      +              dbl_mb(i_wa),
      +              int_mb(i_iwa),
@@ -286,16 +296,6 @@ c
      $         call errquit(pname//'frac_to_cart?',0,0)
          
           end if
-
-          write(*,*) "aset=",dbl_mb(i_x+3*natom),
-     >                       dbl_mb(i_x+3*natom+1),
-     >                       dbl_mb(i_x+3*natom+2) 
-          write(*,*) "     ",dbl_mb(i_x+3*natom+3),
-     >                       dbl_mb(i_x+3*natom+4),
-     >                       dbl_mb(i_x+3*natom+5) 
-          write(*,*) "     ",dbl_mb(i_x+3*natom+6),
-     >                       dbl_mb(i_x+3*natom+7),
-     >                       dbl_mb(i_x+3*natom+8) 
 
 
           if(.not.geom_cart_coords_set(igeom,dbl_mb(i_x)))
@@ -329,15 +329,14 @@ c        function f and gradient g values at the current x.
      $      call errquit(pname//'could not get energy',0, RTDB_ERR)
 
 c        **** don't need to get gradient if only stress ****
-         if (.not.onlystress) then
-            if (.not.rtdb_get(irtdb, 'task:gradient', mt_dbl, 3*natom,
-     $                         dbl_mb(i_g))) 
+         if (.not.rtdb_get(irtdb, 'task:gradient', mt_dbl, 3*natom,
+     $                     dbl_mb(i_g))) 
      $        call errquit(pname//'could not get gradient',0,0)
-         end if
+        
 
          if (ostress) then
             if (.not. geom_grad_cart_to_frac(igeom, dbl_mb(i_g)))
-     $        call errquit(pname//'frac_to_cart?',0,0)
+     $         call errquit(pname//'frac_to_cart?',0,0)
 
             if (.not. rtdb_cget(irtdb, 'task:theory', 1, theory))
      $       call errquit(pname//'stress theory not specified',0,
@@ -365,15 +364,6 @@ c        **** don't need to get gradient if only stress ****
 
          end if
 
-          write(*,*) "i_g =",dbl_mb(i_g+3*natom),
-     >                       dbl_mb(i_g+3*natom+1),
-     >                       dbl_mb(i_g+3*natom+2) 
-          write(*,*) "     ",dbl_mb(i_g+3*natom+3),
-     >                       dbl_mb(i_g+3*natom+4),
-     >                       dbl_mb(i_g+3*natom+5) 
-          write(*,*) "     ",dbl_mb(i_g+3*natom+6),
-     >                       dbl_mb(i_g+3*natom+7),
-     >                       dbl_mb(i_g+3*natom+8) 
 
 c        go back to the minimization routine.
          goto 111
@@ -385,9 +375,9 @@ c     so we have to save it into rtdb
          rtdb_mode = rtdb_parallel(.false.)
          if(master) then
             call lbfgs_compute_info(nc,
-     +                                dbl_mb(i_x),
+     +                                dbl_mb(i_xx),
      +                                dbl_mb(i_x0),
-     +                                dbl_mb(i_g),
+     +                                dbl_mb(i_gg),
      +                                xmax,xrms,gmax,grms)
 
             call lbfgs_print_info(isave(30)+1,
@@ -428,7 +418,7 @@ c     so we have to save it into rtdb
             goto 112
 
          else
-            call dcopy(nc,dbl_mb(i_x),1,dbl_mb(i_x0),1)
+            call dcopy(nc,dbl_mb(i_xx),1,dbl_mb(i_x0),1)
             f0 = f
             goto 111
          end if
