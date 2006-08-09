@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs-b_driver.F,v 1.5 2005-08-28 01:57:29 marat Exp $
+* $Id: lbfgs-b_driver.F,v 1.6 2006-08-09 19:27:34 bylaska Exp $
 *
 c        Modified driver for use in NWChem (MV)
 c
@@ -54,6 +54,7 @@ c       the driver.
       character*60     task, csave
       character*60     pname
       character*16     xyz
+      character*32 theory
       logical          lsave(4)
       integer          m, iprint
       integer isave(44)
@@ -69,17 +70,24 @@ c       the driver.
       integer i_g,h_g
       integer i_wa,h_wa
 
+      logical ostress,onlystress
       logical status
       logical task_gradient
       external task_gradient
       logical master
       external lbfgs_converged
       logical  lbfgs_converged
+      logical geom_amatrix_set
+      external geom_amatrix_set
+      logical  geom_grad_cart_to_frac
+      external geom_grad_cart_to_frac
+
+c
 
       integer          i
 c
-      integer igeom
-      integer ncent,nc
+      integer igeom,isystype
+      integer natom,ncent,nc
       logical rtdb_mode
 
       double precision xrms,xmax
@@ -94,6 +102,16 @@ c
       pname = "lbfgsb_driver"
 
       master = ga_nodeid().eq.0
+
+
+      if (.not. rtdb_get(irtdb,'onlystress',mt_log,1,ostress)) 
+     $   onlystress = .false.
+
+      if (.not. rtdb_get(irtdb,'includestress',mt_log,1,ostress)) 
+     $   ostress = .false.
+       
+      if (.not.ostress) onlystress = .false.
+
 
       if (.not. rtdb_get(irtdb,'driver:gmax_tol',mt_dbl,1,tol(1)))
      $     tol(1) = 0.00045d0
@@ -117,7 +135,29 @@ c
      + call errquit(pname//'Failed to load geometry',0, GEOM_ERR)
 
       if(.not. geom_ncent(igeom,ncent) ) 
-     >    call errquit("qmmm:geom_ncent",0,0)
+     >    call errquit(pname//'l-bfgs:geom_ncent',0,0)
+
+      if (.not. geom_systype_get(igeom, isystype))
+     $     call errquit(pname//'systype?',0, GEOM_ERR)
+
+      natom = ncent
+
+      if (ostress) then
+         if (master) write(6,*) 'INCLUDING STRESS !!!!!!!!!!!!!!!!'
+         if (master) write(6,*) 
+         if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0,
+     >       GEOM_ERR)
+         if (onlystress) then
+            natom = 0
+            ncent = 3
+         else
+            natom = ncent
+            ncent = ncent + 3
+         end if
+      endif
+
+
+
 
       if (.not. rtdb_get(irtdb,'driver:mh',mt_int,1,m))
      $        m = 5
@@ -165,6 +205,7 @@ c
 c     We wish to have output at every iteration.
 
       iprint = 1
+      write(*,*) "natom,ncent,nc=",natom,ncent,nc
 
 c     We specify the tolerances in the stopping criteria.
 
@@ -191,11 +232,19 @@ c         dbl_mb(i_u+i-1)=dbl_mb(i_x+i-1) + 0.005
       end do
 
 c     We now define the starting point.
-       if(.not.geom_cart_coords_get(igeom,dbl_mb(i_x)))
-     + call errquit('qmmm: Failed to get coord ',0, GEOM_ERR)
+      if(.not.geom_cart_coords_get(igeom,dbl_mb(i_x)))
+     >   call errquit(pname//'Failed to get coord ',0, GEOM_ERR)
+
+       if (ostress) then
+          if (.not. geom_amatrix_get(igeom, dbl_mb(i_x+3*natom)))
+     >        call errquit(pname//'failed to get amatrix',0,0)
+
+          if (.not. geom_cart_to_frac(igeom, dbl_mb(i_x)))
+     >        call errquit(pname//'frac_to_cart?',0, GEOM_ERR)
+       end if
 c 
        call dcopy(nc,dbl_mb(i_x),1,dbl_mb(i_x0),1)
-       f0 = 0d0
+       f0 = 0.0d0
 
 c     We start the iteration by initializing task.
 c 
@@ -229,10 +278,36 @@ c     This is the call to the L-BFGS-B code.
      >           RTDB_ERR)
 c
         if (task(1:2) .eq. 'FG') then
+          if (ostress) then
+             if (.not. geom_amatrix_set(igeom, dbl_mb(i_x+3*natom)))
+     $        call errquit(pname//'failed to set amatrix',0,0)
+          
+             if (.not. geom_frac_to_cart(igeom, dbl_mb(i_x)))
+     $         call errquit(pname//'frac_to_cart?',0,0)
+         
+          end if
+
+          write(*,*) "aset=",dbl_mb(i_x+3*natom),
+     >                       dbl_mb(i_x+3*natom+1),
+     >                       dbl_mb(i_x+3*natom+2) 
+          write(*,*) "     ",dbl_mb(i_x+3*natom+3),
+     >                       dbl_mb(i_x+3*natom+4),
+     >                       dbl_mb(i_x+3*natom+5) 
+          write(*,*) "     ",dbl_mb(i_x+3*natom+6),
+     >                       dbl_mb(i_x+3*natom+7),
+     >                       dbl_mb(i_x+3*natom+8) 
+
+
           if(.not.geom_cart_coords_set(igeom,dbl_mb(i_x)))
-     +     call errquit(pname//'Failed to get coord ',0, GEOM_ERR)
+     +       call errquit(pname//'Failed to set coord ',0, GEOM_ERR)
+
           if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      +     call errquit(pname//'Failed to store geometry',0, GEOM_ERR)
+
+          if (ostress) then
+             if (.not. geom_cart_to_frac(igeom, dbl_mb(i_x)))
+     $           call errquit(pname//'frac_to_cart?',0, GEOM_ERR)
+          end if
         end if
       end if
 
@@ -246,22 +321,69 @@ c
 c        the minimization routine has returned to request the
 c        function f and gradient g values at the current x.
       if (task(1:2) .eq. 'FG') then
-         if (.not. task_gradient(irtdb))
-     $      call errquit('driver: task_gradient failed',0, GEOM_ERR)
-         if (.not. rtdb_get(irtdb,'task:energy', mt_dbl, 1, f))
-     $      call errquit('driver: could not get energy',0, RTDB_ERR)
-         if (.not. rtdb_get(irtdb, 'task:gradient', mt_dbl, nc,
-     $     dbl_mb(i_g))) 
-     $        call errquit('driver: could not get gradient',0,0)
 
-c          go back to the minimization routine.
+         if (.not. task_gradient(irtdb))
+     $      call errquit(pname//'task_gradient failed',0, GEOM_ERR)
+
+         if (.not.rtdb_get(irtdb,'task:energy', mt_dbl, 1, f))
+     $      call errquit(pname//'could not get energy',0, RTDB_ERR)
+
+c        **** don't need to get gradient if only stress ****
+         if (.not.onlystress) then
+            if (.not.rtdb_get(irtdb, 'task:gradient', mt_dbl, 3*natom,
+     $                         dbl_mb(i_g))) 
+     $        call errquit(pname//'could not get gradient',0,0)
+         end if
+
+         if (ostress) then
+            if (.not. geom_grad_cart_to_frac(igeom, dbl_mb(i_g)))
+     $        call errquit(pname//'frac_to_cart?',0,0)
+
+            if (.not. rtdb_cget(irtdb, 'task:theory', 1, theory))
+     $       call errquit(pname//'stress theory not specified',0,
+     $                    RTDB_ERR)
+
+            if (theory.eq.'pspw') then
+             if (.not. rtdb_get(irtdb, 'pspw:stress', mt_dbl, 9,
+     $           dbl_mb(i_g+3*natom))) call errquit
+     $           (pname//'could not get pspw stress',0,0)
+
+            else if (theory.eq.'band') then
+             if (.not. rtdb_get(irtdb, 'band:stress', mt_dbl, 9,
+     $           dbl_mb(i_g+3*natom))) call errquit
+     $           (pname//'could not get band stress',0,0)
+
+            else if (theory.eq.'paw') then
+             if (.not. rtdb_get(irtdb, 'paw:stress', mt_dbl, 9,
+     $           dbl_mb(i_g+3*natom))) call errquit
+     $           (pname//'could not get paw stress',0,0)
+            else
+              call errquit(pname//'no stress in theory'//theory,
+     $                     0,RTDB_ERR)
+            end if
+
+
+         end if
+
+          write(*,*) "i_g =",dbl_mb(i_g+3*natom),
+     >                       dbl_mb(i_g+3*natom+1),
+     >                       dbl_mb(i_g+3*natom+2) 
+          write(*,*) "     ",dbl_mb(i_g+3*natom+3),
+     >                       dbl_mb(i_g+3*natom+4),
+     >                       dbl_mb(i_g+3*natom+5) 
+          write(*,*) "     ",dbl_mb(i_g+3*natom+6),
+     >                       dbl_mb(i_g+3*natom+7),
+     >                       dbl_mb(i_g+3*natom+8) 
+
+c        go back to the minimization routine.
          goto 111
       endif
-c       the minimization routine has returned with a new iterate,
-c       so we have to save it into rtdb
-        if (task(1:5) .eq. 'NEW_X')  then
-          rtdb_mode = rtdb_parallel(.false.)
-          if(master) then
+
+c     the minimization routine has returned with a new iterate,
+c     so we have to save it into rtdb
+      if (task(1:5) .eq. 'NEW_X')  then
+         rtdb_mode = rtdb_parallel(.false.)
+         if(master) then
             call lbfgs_compute_info(nc,
      +                                dbl_mb(i_x),
      +                                dbl_mb(i_x0),
@@ -282,29 +404,36 @@ c       so we have to save it into rtdb
                task='CONVERGED: MET CONVERGENCE CRITERIA'
                if (.not.rtdb_cput(irtdb,"lbfgsb:task",1,task)) 
      >            call errquit(pname//'failed RTDB',0,RTDB_ERR)
+
             else if(isave(30)+1.gt.maxiter) then
                task='STOP: REACHED MAXIMUM NUMBER OF ITERATIONS'
                if (.not.rtdb_cput(irtdb,"lbfgsb:task",1,task))
      >            call errquit(pname//'failed RTDB',0,RTDB_ERR)
             end if
-          end if
-          rtdb_mode = rtdb_parallel(.true.)
-          call ga_sync()
-          if (.not.rtdb_cget(irtdb,"lbfgsb:task",1,task)) 
-     >        call errquit(pname//'failed rtdb_cget',0,
-     >         RTDB_ERR)
-          if(task(1:4).eq."STOP") then
+
+         end if !*master*
+
+         rtdb_mode = rtdb_parallel(.true.)
+         call ga_sync()
+         if (.not.rtdb_cget(irtdb,"lbfgsb:task",1,task)) 
+     >    call errquit(pname//'failed rtdb_cget',0,
+     >       RTDB_ERR)
+
+         if(task(1:4).eq."STOP") then
             lbfgsb_driver = .false.
             goto 112
-          else if (task(1:4).eq."CONV") then
+
+         else if (task(1:4).eq."CONV") then
             lbfgsb_driver = .true.
             goto 112
-          else
-          call dcopy(nc,dbl_mb(i_x),1,dbl_mb(i_x0),1)
-          f0 = f
-          goto 111
-          end if
-        end if 
+
+         else
+            call dcopy(nc,dbl_mb(i_x),1,dbl_mb(i_x0),1)
+            f0 = f
+            goto 111
+         end if
+
+      end if 
 
 c           ---------- the end of the loop -------------
  
@@ -312,6 +441,7 @@ c     If task is neither FG nor NEW_X we terminate execution.
 c    
 112   continue
       status = .true.
+      status = status .and. geom_destroy(igeom)
       status = status .and. ma_free_heap(h_wa)
       status = status .and. ma_free_heap(h_g)
       status = status .and. ma_free_heap(h_u)
