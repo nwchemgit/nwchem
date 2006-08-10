@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.15 2003-10-21 23:51:25 edo Exp $
+C     $Id: vectors_inp.F,v 1.16 2006-08-10 16:11:10 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -37,7 +37,7 @@ c
       integer reorder(max_reorder), nreorder
       character*255 test, vectors_in, vectors_out
       integer maxfrag
-      parameter (maxfrag = 60)
+      parameter (maxfrag = 100)
       character*255 fragments(maxfrag)
       integer nfrag
       character*80 project(2), rotate(2)
