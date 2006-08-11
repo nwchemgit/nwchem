@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.136 2005-05-17 01:58:45 bylaska Exp $
+C$Id: geom.F,v 1.137 2006-08-11 18:51:59 bylaska Exp $
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
@@ -1861,14 +1861,18 @@ c     needs support for internal coords, different formats, ...
 c     
       integer geom              ! [input]
       integer icent, jcent
+      integer i
+      double precision scale, tmp(3),twopi
+      character*80 buf
+      logical oprint_uniq,ofinite,oprint_crystal
+c
+c     external functions
       logical geom_check_handle, geom_check_cent, geom_get_user_scale,
      $     geom_print_zmatrix, geom_any_finuc
       external geom_check_handle, geom_check_cent, geom_get_user_scale,
      $     geom_print_zmatrix, geom_any_finuc
-      integer i
-      double precision scale, tmp(3)
-      character*80 buf
-      logical oprint_uniq,ofinite
+      double precision deter3
+      external         deter3
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
          geom_print = .false.
@@ -1881,10 +1885,13 @@ c
 c     ... it would be nice to have one routine that prints all
 c     possible geometries but ...
 c
-      if (isystype(geom) .ne. 0) then 
-        geom_print = .true.
-        return
-      endif
+
+       oprint_crystal = (isystype(geom).ne.0)
+c      if (isystype(geom) .ne. 0) then 
+c        geom_print = .true.
+c        return
+c      endif
+
 c     
       if (.not. geom_get_user_scale(geom, scale))
      $     call errquit('geom_print: user units?',0, GEOM_ERR)
@@ -1933,6 +1940,55 @@ c
      $           (velocities(i,icent,geom),i=1,3)
          end do
       endif
+c
+c     print out lattice parameters 
+c
+      if (oprint_crystal) then
+        write(LuOut,*)
+        write(LuOut,*) '     Lattice Parameters '
+        write(LuOut,*) '     ------------------ '
+        write(LuOut,*)
+        write(LuOut,5) user_units(geom)(1:inp_strlen(user_units(geom))),
+     >     scale
+ 5    format('      lattice vectors in ', a,
+     $     ' (scale by ',f12.9,' to convert to a.u.)')
+        write(LuOut,*)
+        write(LuOut,1241) amatrix(1,1,geom)/scale,
+     >                    amatrix(2,1,geom)/scale,
+     >                    amatrix(3,1,geom)/scale
+        write(LuOut,1242) amatrix(1,2,geom)/scale,
+     >                    amatrix(2,2,geom)/scale,
+     >                    amatrix(3,2,geom)/scale
+        write(LuOut,1243) amatrix(1,3,geom)/scale,
+     >                    amatrix(2,3,geom)/scale,
+     >                    amatrix(3,3,geom)/scale
+
+        write(LuOut,1232) lattice_vectors(1,geom),
+     >                    lattice_vectors(2,geom),
+     >                    lattice_vectors(3,geom),
+     >                    lattice_angles(1,geom),
+     >                    lattice_angles(2,geom),
+     >                    lattice_angles(3,geom)
+        write(LuOut,1231) deter3(amatrix(1,1,geom))/(scale**3)
+
+      write(LuOut,*)
+      write(LuOut,6) 
+ 6    format('      reciprocal lattice vectors in a.u.')
+      write(LuOut,*)
+        twopi = 8.0d0*datan(1.0d0)
+        write(LuOut,1244) amatrix_inv(1,1,geom)*twopi,
+     >                    amatrix_inv(2,1,geom)*twopi,
+     >                    amatrix_inv(3,1,geom)*twopi
+        write(LuOut,1245) amatrix_inv(1,2,geom)*twopi,
+     >                    amatrix_inv(2,2,geom)*twopi,
+     >                    amatrix_inv(3,2,geom)*twopi
+        write(LuOut,1246) amatrix_inv(1,3,geom)*twopi,
+     >                    amatrix_inv(2,3,geom)*twopi,
+     >                    amatrix_inv(3,3,geom)*twopi
+
+
+      end if
+
 c     
 c     Only print out the masses for unique tags ... the structure
 c     should actually only store the data for unique tags.
@@ -1963,7 +2019,9 @@ c
         end if
 765     continue
       enddo
+
       write(LuOut,*)
+      if (.not.oprint_crystal) then
 c     
       write(LuOut,41) erep(geom)
    41 format(/' Effective nuclear repulsion energy (a.u.) ', f18.10/)
@@ -1977,12 +2035,13 @@ c
      $     ' ---------------- ---------------- ----------------')
       write(LuOut,8) (ndipole(i,geom), i=1,3)
  8    format(3(1x,f16.10))
+      end if
       write(LuOut,*)
 c     
       oprint_uniq = sym_num_ops(geom) .gt. 0
       if (oprint_uniq) then
-         call sym_print_all(geom, .true., oprint_uniq, .false., .false.,
-     $        .false.)
+         call sym_print_all(geom,.true.,oprint_uniq,.false.,
+     >                      .false.,.false.)
       endif
 c     
       if (zmt_source(geom) .ne. ' ' .and. 
@@ -1992,7 +2051,20 @@ c
          geom_print = .true.
       endif
 c     
+      return
+ 1231 FORMAT(5x,' omega=',f8.1)
+ 1232 FORMAT(5x,' a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,
+     >      /5x,' alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
+ 1241 FORMAT(5x,' a1=<',3f8.3,' >')
+ 1242 FORMAT(5x,' a2=<',3f8.3,' >')
+ 1243 FORMAT(5x,' a3=<',3f8.3,' >')
+ 1244 FORMAT(5x,' b1=<',3f8.3,' >')
+ 1245 FORMAT(5x,' b2=<',3f8.3,' >')
+ 1246 FORMAT(5x,' b3=<',3f8.3,' >')
+
       end
+
+
       logical function geom_default_charge_with_ecp(atn, q)
       implicit none
 c     
