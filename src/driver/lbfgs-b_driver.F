@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs-b_driver.F,v 1.7 2006-08-09 23:30:30 bylaska Exp $
+* $Id: lbfgs-b_driver.F,v 1.8 2006-08-11 02:00:24 bylaska Exp $
 *
 c        Modified driver for use in NWChem (MV)
 c
@@ -44,6 +44,7 @@ c     **************
 #include "rtdb.fh"
 #include "errquit.fh"
 #include "global.fh"
+#include "sym.fh" 
  
       integer          irtdb
  
@@ -59,18 +60,19 @@ c       the driver.
       integer          m, iprint
       integer isave(44)
       double precision  dsave(29)
-      double precision f, factr, pgtol
+      double precision f, factr, pgtol,trust
       integer nwa
       integer i_nbd,h_nbd
       integer i_iwa,h_iwa
       integer i_x,h_x,i_xx
+      integer i_index_unique,h_index_unique
       integer i_x0,h_x0
       integer i_l,h_l
       integer i_u,h_u
       integer i_g,h_g,i_gg
       integer i_wa,h_wa
 
-      logical ostress,onlystress
+      logical ostress,ostress2,onlystress,usesymmetry
       logical status
       logical task_gradient
       external task_gradient
@@ -84,10 +86,10 @@ c       the driver.
 
 c
 
-      integer          i
+      integer          i,j
 c
       integer igeom,isystype
-      integer natom,ncent,nc,ncx
+      integer natom,ncent,nc,ncx,ncent_unique
       logical rtdb_mode
 
       double precision xrms,xmax
@@ -98,6 +100,7 @@ c
       double precision tol(4)
       integer maxiter
       integer nfmax
+      double precision matrix(3,4)
 
       pname = "lbfgsb_driver"
 
@@ -109,8 +112,15 @@ c
 
       if (.not. rtdb_get(irtdb,'includestress',mt_log,1,ostress)) 
      $   ostress = .false.
+
+      if (.not. rtdb_get(irtdb,'includelattice',mt_log,1,ostress2)) then
+         ostress2 = .false.
+      end if
+      if ((.not.ostress).and.(ostress2)) ostress2 = .false.
+      if ((ostress)     .and.(ostress2)) ostress  = .false.
+
        
-      if (.not.ostress) onlystress = .false.
+      if ((.not.ostress).and.(.not.ostress2)) onlystress = .false.
 
 
       if (.not. rtdb_get(irtdb,'driver:gmax_tol',mt_dbl,1,tol(1)))
@@ -121,6 +131,11 @@ c
      $     tol(3) = 0.0018d0
       if (.not. rtdb_get(irtdb,'driver:xrms_tol',mt_dbl,1,tol(4)))
      $     tol(4) = 0.0012d0
+c
+      if (.not. rtdb_get(irtdb,'driver:trust',mt_dbl,1,trust)) 
+     $   trust = 0.5d0
+      trust = 1.0d3
+
 c
       if (.not. rtdb_get(irtdb,'driver:nptopt',mt_int,1,maxiter))
      $     maxiter=20
@@ -135,11 +150,16 @@ c
      + call errquit(pname//'Failed to load geometry',0, GEOM_ERR)
 
       if(.not. geom_ncent(igeom,ncent) ) 
-     >    call errquit(pname//'l-bfgs:geom_ncent',0,0)
+     >    call errquit(pname//'l-bfgs:geom_ncent',0,GEOM_ERR)
+
+
+      if(.not. geom_ncent_unique(igeom,ncent_unique) ) 
+     >    call errquit(pname//'l-bfgs:geom_ncent_unique',0,GEOM_ERR)
 
       if (.not. geom_systype_get(igeom, isystype))
      $     call errquit(pname//'systype?',0, GEOM_ERR)
 
+      usesymmetry = (sym_number_ops(igeom).gt.0)
       natom = ncent
       ncx   = 3*ncent
 
@@ -155,9 +175,22 @@ c
             ncent = ncent + 3
          end if
       endif
+
+      if (ostress2) then
+         if (master) write(6,*) 'INCLUDING LATTICE GRADIENTS !!!!!!!!'
+         if (master) write(6,*)
+         if (isystype.eq.0) call errquit('NOT A PERIODIC SYSTEM',0,
+     >       GEOM_ERR)
+         ncx = ncx + 6
+         if (onlystress) then
+            ncent = 2
+         else
+            ncent = ncent + 2
+         end if
+      endif
+
       nc    = 3*ncent
 
-      write(*,*) "nc=",nc,onlystress,ostress
 
       if (.not. rtdb_get(irtdb,'driver:mh',mt_int,1,m))
      $        m = 5
@@ -166,6 +199,17 @@ c
      $        nfmax = 20
 
       nwa =  2*m*nc+4*nc+12*m*m+12*m
+
+
+      if(.not.ma_alloc_get(mt_int,ncent_unique,'i_index_unique',
+     >                     h_index_unique,i_index_unique))
+     > call errquit(
+     >      pname//'Failed to allocate memory for i_index_unique',
+     >           ncent_unique, MA_ERR)
+
+      if (.not.geom_uniquecent_get(igeom,ncent_unique,
+     >                              int_mb(i_index_unique)))
+     > call errquit(pname//'Failed to get unique centers',0,GEOM_ERR)
 
 
       if(.not.ma_alloc_get(mt_int,nc,'i_nbd',h_nbd,i_nbd))
@@ -212,6 +256,32 @@ c
      + call errquit( pname//'Failed to allocate memory for wa',
      + nc, MA_ERR)
 
+
+c     debuging symmetry stuff 
+      if (master) then
+c         call sym_print_all(igeom,.true.,.true.,.true.,.false.,.false.)
+         if (.not.geom_print(igeom))
+     >    call errquit(pname//'Failed to print geommetry',0,GEOM_ERR)
+      end if
+
+c      write(*,*) "number of unique atoms=",ncent_unique
+
+c      call sym_group_name(igeom,task)
+c      write(*,*) "sym_number_ops=",sym_number_ops(igeom),task
+c      do i = 1,natom
+c         write(*,*) i," atom =",sym_center_map(igeom,i,1)
+c      end do
+c      call sym_ops_get(igeom,1,matrix)
+c      write(*,*)
+c      do i=1,3
+c        write(*,*) (matrix(i,j),j=1,4)
+c      end do
+c      write(*,*)
+c
+c      call sym_print_ops(igeom)
+
+c     debuging symmetry stuff 
+
  
 c     We wish to have output at every iteration.
 
@@ -248,6 +318,14 @@ c     We now define the starting point.
        if (ostress) then
           if (.not. geom_amatrix_get(igeom, dbl_mb(i_x+3*natom)))
      >        call errquit(pname//'failed to get amatrix',0,0)
+
+          if (.not. geom_cart_to_frac(igeom, dbl_mb(i_x)))
+     >        call errquit(pname//'frac_to_cart?',0, GEOM_ERR)
+       end if
+
+       if (ostress2) then
+          if (.not. geom_lattice_get(igeom, dbl_mb(i_x+3*natom)))
+     >        call errquit(pname//'failed to get lattice',0,0)
 
           if (.not. geom_cart_to_frac(igeom, dbl_mb(i_x)))
      >        call errquit(pname//'frac_to_cart?',0, GEOM_ERR)
@@ -297,14 +375,31 @@ c
          
           end if
 
+          if (ostress2) then
+             if (.not. geom_lattice_set(igeom, dbl_mb(i_x+3*natom)))
+     $        call errquit(pname//'failed to set lattice',0,0)
+          
+             if (.not. geom_frac_to_cart(igeom, dbl_mb(i_x)))
+     $         call errquit(pname//'frac_to_cart?',0,0)
+          end if
+         
+
 
           if(.not.geom_cart_coords_set(igeom,dbl_mb(i_x)))
      +       call errquit(pname//'Failed to set coord ',0, GEOM_ERR)
 
+          if (usesymmetry) then
+             call sym_geom_project(igeom,trust)
+             if(.not.geom_cart_coords_get(igeom,dbl_mb(i_x)))
+     >       call errquit(pname//'Failed to get coord ',0,GEOM_ERR)
+          end if
+
+
+
           if(.not.geom_rtdb_store(irtdb,igeom,'geometry'))
      +     call errquit(pname//'Failed to store geometry',0, GEOM_ERR)
 
-          if (ostress) then
+          if (ostress.or.ostress2) then
              if (.not. geom_cart_to_frac(igeom, dbl_mb(i_x)))
      $           call errquit(pname//'frac_to_cart?',0, GEOM_ERR)
           end if
@@ -332,7 +427,9 @@ c        **** don't need to get gradient if only stress ****
          if (.not.rtdb_get(irtdb, 'task:gradient', mt_dbl, 3*natom,
      $                     dbl_mb(i_g))) 
      $        call errquit(pname//'could not get gradient',0,0)
-        
+
+         if (usesymmetry) call sym_grad_symmetrize(igeom,dbl_mb(i_g))
+
 
          if (ostress) then
             if (.not. geom_grad_cart_to_frac(igeom, dbl_mb(i_g)))
@@ -360,8 +457,35 @@ c        **** don't need to get gradient if only stress ****
               call errquit(pname//'no stress in theory'//theory,
      $                     0,RTDB_ERR)
             end if
+         end if
 
 
+         if (ostress2) then
+            if (.not. geom_grad_cart_to_frac(igeom, dbl_mb(i_g)))
+     $         call errquit(pname//'frac_to_cart?',0,0)
+
+            if (.not. rtdb_cget(irtdb, 'task:theory', 1, theory))
+     $       call errquit(pname//'stress theory not specified',0,
+     $                    RTDB_ERR)
+
+            if (theory.eq.'pspw') then
+             if (.not. rtdb_get(irtdb, 'pspw:lstress', mt_dbl, 6,
+     $           dbl_mb(i_g+3*natom))) call errquit
+     $           (pname//'could not get pspw lstress',0,0)
+
+            else if (theory.eq.'band') then
+             if (.not. rtdb_get(irtdb, 'band:lstress', mt_dbl, 6,
+     $           dbl_mb(i_g+3*natom))) call errquit
+     $           (pname//'could not get band lstress',0,0)
+
+            else if (theory.eq.'paw') then
+             if (.not. rtdb_get(irtdb, 'paw:lstress', mt_dbl, 6,
+     $           dbl_mb(i_g+3*natom))) call errquit
+     $           (pname//'could not get paw lstress',0,0)
+            else
+              call errquit(pname//'no lstress in theory'//theory,
+     $                     0,RTDB_ERR)
+            end if
          end if
 
 
@@ -430,6 +554,14 @@ c           ---------- the end of the loop -------------
 c     If task is neither FG nor NEW_X we terminate execution.
 c    
 112   continue
+
+
+      if (master) then
+        if (.not.geom_print(igeom))
+     >  call errquit(pname//'Failed to print final geometry',0,GEOM_ERR)
+      end if
+
+
       status = .true.
       status = status .and. geom_destroy(igeom)
       status = status .and. ma_free_heap(h_wa)
@@ -440,6 +572,7 @@ c
       status = status .and. ma_free_heap(h_x)
       status = status .and. ma_free_heap(h_iwa)
       status = status .and. ma_free_heap(h_nbd)
+      status = status .and. ma_free_heap(h_index_unique)
        
       if(.not. status)   
      + call errquit( pname//'Failed to deallocate memory')
