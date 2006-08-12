@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.39 2006-03-16 18:39:04 bylaska Exp $
+* $Id: band_minimizer.F,v 1.40 2006-08-12 23:07:28 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -194,7 +194,7 @@ c      external      cpsp_comment
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      IF ((control_gga().ge.10).or.(control_gga().lt.100)) THEN
+      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call G_init()
       call mask_init()

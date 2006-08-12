@@ -1,5 +1,5 @@
 *
-* $Id: cpsi.F,v 1.23 2005-12-22 01:35:03 bylaska Exp $
+* $Id: cpsi.F,v 1.24 2006-08-12 23:07:27 bylaska Exp $
 *
 
 
@@ -852,7 +852,7 @@ c      end if
 
 *     **** PBE96 GGA part ****
       gga = control_gga()
-      if ((gga.ge.10).or.(gga.lt.100)) then
+      if ((gga.ge.10).and.(gga.lt.100)) then
          call D3dB_nx(1,nx)
          call D3dB_ny(1,ny)
          call D3dB_nz(1,nz)
