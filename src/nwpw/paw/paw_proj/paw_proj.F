@@ -1,5 +1,5 @@
 *
-* $Id: paw_proj.F,v 1.33 2006-07-26 22:00:13 d3p307 Exp $
+* $Id: paw_proj.F,v 1.34 2006-08-13 01:00:32 bylaska Exp $
 *
 * $Log: not supported by cvs2svn $
 * Revision 1.32  2006/01/13 02:05:26  marat
@@ -519,13 +519,13 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
          end if
          call BRDCST(9+MSGINT,proj_l(ii),mitob(msglen),MASTER) 
          call BRDCST(9+MSGINT,proj_m(ii),mitob(msglen),MASTER)
-         call D3dB_c_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)))
+         call D3dB_c_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)),-1)
          call Pack_c_pack(1,dcpl_mb(tmp1(1)))
          call Pack_c_Copy(1,dcpl_mb(tmp1(1)),prj(1,ii))
       end do
 
 *     **** read in local potential ****
-      call D3dB_t_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)))
+      call D3dB_t_read(1,5,dcpl_mb(tmp1(1)),dcpl_mb(tmp2(1)),-1)
       call Pack_t_pack(0,dcpl_mb(tmp1(1)))
       call Pack_t_Copy(0,dcpl_mb(tmp1(1)),vloc)
 
@@ -710,8 +710,8 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       Gy(1) = G_indx(2)
       Gz(1) = G_indx(3)
 
-      call dfill(nfft3d,0.d0,dbl_mb(ray(1)),1)
-      call dfill(nfft3d,-1.d0,dbl_mb(g(1)),1)
+      call dfill(nfft3d,0.0d0,dbl_mb(ray(1)),1)
+      call dfill(nfft3d,-1.0d0,dbl_mb(g(1)),1)
       call ifill(nfft3d,0,int_mb(gm(1)),1)
 c
       ng = 0
@@ -780,7 +780,7 @@ c
              call iwrite(6,m,1)
            end if
            !call Pack_c_unpack(1,dcpl_mb(prj(1)))
-           call D3dB_c_write(1,6,dcpl_mb(prj(1)),dcpl_mb(tmp(1)))
+           call D3dB_c_write(1,6,dcpl_mb(prj(1)),dcpl_mb(tmp(1)),0)
         end do ! m loop
       end do ! basis_nbasis loop
 
