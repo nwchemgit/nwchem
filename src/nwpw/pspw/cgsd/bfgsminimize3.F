@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize3.F,v 1.3 2004-11-08 01:32:48 bylaska Exp $                       
+c     $Id: bfgsminimize3.F,v 1.4 2006-08-13 01:03:26 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -48,7 +48,7 @@ c
 
 
 *     **** external functions ****
-      integer  control_it_in,psi_ne,control_version
+      integer  control_it_in,psi_neq,control_version
       real*8   control_tole,control_tolc
       real*8   psi_geodesic_energy
       real*8   psi_geodesic_denergy
@@ -63,7 +63,7 @@ c
       real*8   psi_1eorbit
       real*8   linesearch
    
-      external control_it_in,psi_ne,control_version
+      external control_it_in,psi_neq,control_version
       external control_tole,control_tolc
       external psi_geodesic_energy
       external psi_geodesic_denergy
@@ -119,7 +119,7 @@ c     dte = 1.0d0
 
       
       call Pack_npack(1,npack1)
-      neall = psi_ne(1)+psi_ne(2)
+      neall = psi_neq(1)+psi_neq(2)
 
 
 *     **** allocate G0, S0 ****

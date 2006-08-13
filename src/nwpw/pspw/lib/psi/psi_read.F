@@ -1,5 +1,5 @@
 *
-* $Id: psi_read.F,v 1.11 2004-03-01 05:14:33 bylaska Exp $
+* $Id: psi_read.F,v 1.12 2006-08-13 01:03:28 bylaska Exp $
 *
 
 #define TCGMSG
@@ -35,9 +35,9 @@
       character*30 filename
       character*255 full_filename
 
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j,np_j
       parameter(MASTER=0)
-      integer n
+      integer n,q,pj
       integer msglen
 
 c     complex*16 tmp(*)
@@ -54,8 +54,10 @@ c     complex*16 tmp(*)
       
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+
 
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
@@ -159,11 +161,15 @@ c     **** send header to all nodes ****
 
 *     *** read in 3d blocks ***
       do n=1,(ne(1)+ne(2))
-          
+
+         call Dneall_ntoqp(n,q,pj)
+
          call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)))
-         call Pack_c_pack(1,dcpl_mb(tmp2(1)))
-         call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(n-1)*npack1))
+     >                        dcpl_mb(tmp(1)),pj)
+         if (pj.eq.taskid_j) then
+            call Pack_c_pack(1,dcpl_mb(tmp2(1)))
+            call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
+         end if
       end do
 
 *     *** close ELCIN binary file ***
@@ -213,9 +219,9 @@ c     **** send header to all nodes ****
       character*30 filename
       character*255 full_filename
 
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j
       parameter(MASTER=0)
-      integer n
+      integer n,q,pj
       integer msglen
 
 c     complex*16 tmp(*)
@@ -232,6 +238,7 @@ c     complex*16 tmp(*)
       
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
@@ -334,11 +341,14 @@ c     **** send header to all nodes ****
 
 *     *** read in 3d blocks ***
       do n=1,(ne(1)+ne(2))
+         call Dnexall_ntoqp(n,q,pj)
           
          call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)))
-         call Pack_c_pack(1,dcpl_mb(tmp2(1)))
-         call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(n-1)*npack1))
+     >                        dcpl_mb(tmp(1)),pj)
+         if (pj.eq.taskid_j) then
+           call Pack_c_pack(1,dcpl_mb(tmp2(1)))
+           call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
+         end if
       end do
 
 *     *** close ELCIN binary file ***

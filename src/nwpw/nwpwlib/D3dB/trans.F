@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: trans.F,v 1.2 2004-05-05 18:37:59 bylaska Exp $
+* $Id: trans.F,v 1.3 2006-08-13 01:03:24 bylaska Exp $
 *
 
 *     ***********************************
@@ -38,8 +38,8 @@
       integer i,j,k,it
 
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 *     ********************************************************

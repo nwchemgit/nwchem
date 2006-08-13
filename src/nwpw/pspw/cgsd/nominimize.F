@@ -1,5 +1,5 @@
 c
-c     $Id: nominimize.F,v 1.5 2005-05-24 17:36:26 bylaska Exp $ 
+c     $Id: nominimize.F,v 1.6 2006-08-13 01:03:26 bylaska Exp $ 
 c
 
       subroutine nominimize(E)
@@ -25,7 +25,7 @@ c
       
 
 *     **** external functions ****
-      integer  psi_ne,control_version
+      integer  psi_neq,control_version
       real*8   dng_1ehartree
       real*8   psi_1ke
       real*8   psi_1vl,psi_1v_field
@@ -35,7 +35,7 @@ c
       real*8   ewald_e,ion_ion_e
       real*8   psi_1eorbit
    
-      external psi_ne,control_version
+      external psi_neq,control_version
       external dng_1ehartree
       external psi_1ke
       external psi_1vl,psi_1v_field
@@ -76,7 +76,7 @@ c
 
 
       call Pack_npack(1,npack1)
-      neall = psi_ne(1)+psi_ne(2)
+      neall = psi_neq(1)+psi_neq(2)
 
 
 *     **** allocate G1 ****

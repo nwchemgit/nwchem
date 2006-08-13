@@ -1,5 +1,5 @@
 *
-* $Id: strfac.F,v 1.15 2005-09-07 17:33:05 bylaska Exp $
+* $Id: strfac.F,v 1.16 2006-08-13 01:03:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -23,7 +23,7 @@
       integer  ion_nion
       external ion_nion
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 
 *     **** allocate phase factors ****
       nion = ion_nion()
@@ -461,7 +461,7 @@ C
 
       call nwpw_timing_start(8)
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -738,7 +738,7 @@ C
 
       call nwpw_timing_start(8)
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)

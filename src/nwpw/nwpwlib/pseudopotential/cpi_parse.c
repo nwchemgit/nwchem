@@ -1,5 +1,5 @@
 /*
- $Id: cpi_parse.c,v 1.2 2004-12-21 16:58:35 bylaska Exp $
+ $Id: cpi_parse.c,v 1.3 2006-08-13 01:03:25 bylaska Exp $
 */
 
 #include <math.h>
@@ -162,6 +162,26 @@ Integer	*n3;
    }
    fclose(fp);
 
+
+   /* define linear grid */
+   nrl  = 2001;
+   rmax = 40.0;
+   drl  = rmax/((double) (nrl-1));
+
+   fp = fopen(infile,"r+");
+   w = get_word(fp);
+   while ((w != ((char *) EOF)) && (strcmp("<linear>",w) != 0))
+      w = get_word(fp);
+   if (w!=((char *) EOF))
+   {
+      fscanf(fp,"%d %lf",&nrl,&drl);
+      rmax = ((double) (nrl-1))*drl;
+   }
+   fclose(fp);
+
+
+
+
   /* Read CPI psp */
    fp = fopen(infile,"r+");
    w = get_word(fp);
@@ -212,11 +232,14 @@ Integer	*n3;
      psp[i] = vl;
    }
 
-   /* hacky - define linear grid */
-   nrl  = 2001;
-   rmax = 40.0;
-   if (rmax > rgrid[Ngrid-5]) rmax = rgrid[Ngrid-5];
-   drl = rmax/2000.0;
+
+   /* check linear grid and redefine if necessary */
+   if (rmax > rgrid[Ngrid-5]) 
+   {  
+       rmax = rgrid[Ngrid-5];
+       drl = rmax/((double) (nrl-1));
+   }
+
 
 
    /* generate linear meshes */

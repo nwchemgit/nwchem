@@ -1,5 +1,5 @@
 *
-* $Id: coulomb_screened.F,v 1.19 2005-09-07 23:55:05 bylaska Exp $
+* $Id: coulomb_screened.F,v 1.20 2006-08-13 01:03:27 bylaska Exp $
 
 
 *
@@ -37,7 +37,7 @@
       external kiril_coulomb_transform, kiril_coulomb_transform0
 
       call nwpw_timing_start(7)
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(1,n2ft3d)
@@ -672,7 +672,7 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       external kiril_coulomb_transform, kiril_coulomb_transform0
 
       call nwpw_timing_start(7)
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 
 
       call D3dB_nfft3d(1,nfft3d)

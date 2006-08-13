@@ -1,5 +1,5 @@
 *
-* $Id: psi_write_filename.F,v 1.3 2003-10-17 22:57:36 carlfahl Exp $
+* $Id: psi_write_filename.F,v 1.4 2006-08-13 01:03:28 bylaska Exp $
 *
 
 *     ***********************************
@@ -25,9 +25,9 @@
       real*8  unita(3,3)
       character*255 full_filename
 
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j
       parameter(MASTER=0)
-      integer n
+      integer n,q,pj
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
@@ -40,6 +40,7 @@ c     complex*16 tmp(*)
       external control_ngrid,control_version
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
@@ -79,10 +80,13 @@ c     complex*16 tmp(*)
 
 *     *** read in 3d blocks ***
       do n=1,(ne(1)+ne(2))
-         call Pack_c_Copy(1,psi2(1+(n-1)*npack1),dcpl_mb(tmp2(1)))
-         call Pack_c_unpack(1,dcpl_mb(tmp2(1)))          
+         call Dneall_ntoqp(n,q,pj)
+         if (pj.eq.taskid_j) then
+           call Pack_c_Copy(1,psi2(1+(q-1)*npack1),dcpl_mb(tmp2(1)))
+           call Pack_c_unpack(1,dcpl_mb(tmp2(1)))          
+         end if
          call D3dB_c_write(1,6,dcpl_mb(tmp2(1)),
-     >                         dcpl_mb(tmp(1)))
+     >                         dcpl_mb(tmp(1)),pj)
       end do
 
 *     *** close ELCIN binary file ***

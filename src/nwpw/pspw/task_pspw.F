@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.12 2006-07-19 00:38:54 bylaska Exp $
+* $Id: task_pspw.F,v 1.13 2006-08-13 01:03:26 bylaska Exp $
 *
 
       logical function task_pspw(rtdb)
@@ -80,7 +80,7 @@ c       value = psp_generator(rtdb)
 
 
 c
-c  psp_formatter
+c  psp_formatter - This is outdated code, but kept for legacy purposes.
 c
  200  value = .true.
       
@@ -88,7 +88,9 @@ c
         write(*,*)  ">>>> PSPW parallel Module - psp_formatter <<<<"  
       end if
       value = rtdb_parallel(.true.)
+      call Parallel_Init()        !** Parallel calls need since psp_formatter is also called directly from codes
       value = psp_formatter(rtdb)
+      call Parallel_Finalize()    !** Parallel calls need since psp_formatter is also called directly from codes
       call ga_sync()
       goto 9999
 

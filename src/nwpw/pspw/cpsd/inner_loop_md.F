@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_md.F,v 1.24 2006-04-08 00:25:48 bylaska Exp $
+* $Id: inner_loop_md.F,v 1.25 2006-08-13 01:03:26 bylaska Exp $
 *
 *  ************************************************************
 *  *                MPI cpmd routine                          *
@@ -59,6 +59,7 @@
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring,enlocal
       real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      real*8  s,r
 
 
 *     **** MA local variables ****
@@ -97,7 +98,9 @@ c     real*8     fion(3,natmx)
       logical  control_Nose
       external control_Nose
       real*8   Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
+      real*8   Nose_dXe,Nose_dXr
       external Nose_e_energy,Nose_r_energy,Nose_sse,Nose_ssr
+      external Nose_dXe,Nose_dXr
 
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found,pspw_charge_found
@@ -231,7 +234,7 @@ c     real*8     fion(3,natmx)
         call dcopy(2*npack1*nemax,psi2,1,psi1,1)
 *       *** skip ion_shift if newton step ***
         if (verlet) call ion_shift()
-        if (nose)   call Nose_Shift()
+        if (nose.and.verlet) call Nose_Shift()
         if ((verlet).and.(pspw_qmmm_found())) call pspw_qmmm_shift()
 
 *       ********************************
@@ -474,9 +477,15 @@ c        end if
 *       **** do a newton step ****
 *       **************************
         else
+           r = 1.0d0
+           s = 1.0d0
+           if (nose) then
+             r =  (1.0d0-0.5d0*dt*Nose_dXr())
+             s =  (1.0d0-0.5d0*dt*Nose_dXe())
+           end if
            do n=1,n2(ispin)
               call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-              call Pack_cc_daxpy(1,dt*sa_alpha(1),psi0(1,n),psi2(1,n))
+              call Pack_cc_daxpy(1,s*dt*sa_alpha(1),psi0(1,n),psi2(1,n))
               call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            end do
 
@@ -488,7 +497,7 @@ c        end if
      >                                       dbl_mb(fion(1)),
      >                                       sum)
            end if
-           call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2))
+           call ion_newton_step(dbl_mb(fion(1)),sa_alpha(2)*r)
 
         end if
 
@@ -499,7 +508,7 @@ c        end if
 
         !**** orthoganality constraint ****
         dte0 = dte
-        if (nose) dte0 = dte*sse
+        if (nose.and.verlet) dte0 = dte*sse
         if (fractional) then
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                  dte0,dbl_mb(fweight(1)),
@@ -641,7 +650,7 @@ c        end if
 
 
         
-*     **** velocity an kinetic energy of psi ****
+*     **** velocity and kinetic energy of psi ****
       h = 1.0d0/(2.0d0*dt)
       eke = 0.0d0
       do i=1,n2(ispin)

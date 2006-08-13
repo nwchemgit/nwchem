@@ -1,4 +1,7 @@
-#define TCGMSG
+*
+* $Id: Parallel.F,v 1.2 2006-08-13 01:03:25 bylaska Exp $
+*
+
 * Parallel.f
 * Author - Eric Bylaska
 *
@@ -7,75 +10,210 @@
 * message passing routines.
 *
 
-      subroutine Parallel_Init()
-*
-* $Id: Parallel.F,v 1.1 2001-08-30 16:58:34 bylaska Exp $
-*
-      implicit none
-
-      integer taskid,np
-      common / parallel / taskid,np
-
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-#ifdef TCGMSG
-#include "tcgmsg.fh"
-#endif
-
-#ifdef MPI
-*     **** MPI initiializer *****
-c     call MPI_INIT(mpierr)
-      call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,mpierr)
-      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
-#endif
-#ifdef TCGMSG
-      np     = nnodes()
-      taskid = nodeid()
-#endif
 
 
-
-      return 
-      end
+*     *************************************
+*     *                                   *
+*     *        Parallel_Finalize          *
+*     *                                   *
+*     *************************************
 
       subroutine Parallel_Finalize()
       implicit none
 
-      integer taskid,np
-      common / parallel / taskid,np
+#include "Parallel.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
 
-#ifdef MPI
-      include 'mpif.h'
-      integer mpierr
-#endif
-
+c      include 'mpif.h'
+c      integer mpierr
 c     call MPI_FINALIZE(mpierr) 
+
+      if (.not.MA_free_heap(proc2d(2)))
+     >  call errquit('Parralel_finalalize',0,MA_ERR)
       return
       end
 
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_np                *
+*     *                                   *
+*     *************************************
 
       subroutine Parallel_np(np_out)
       implicit none
       integer np_out
 
-      integer taskid,np
-      common / parallel / taskid,np
+#include "Parallel.fh"
 
       np_out = np
       return
       end
 
 
+*     *************************************
+*     *                                   *
+*     *        Parallel_taskid            *
+*     *                                   *
+*     *************************************
 
       subroutine Parallel_taskid(task_out)
       implicit none
       integer task_out
       
-      integer taskid,np
-      common / parallel / taskid,np
+#include "Parallel.fh"
 
       task_out = taskid
       return 
       end
+
+
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel2d_np_i            *
+*     *                                   *
+*     *************************************
+      subroutine Parallel2d_np_i(np_out)
+      implicit none
+      integer np_out
+
+#include  "Parallel.fh"
+
+      np_out = np_i
+      return
+      end
+
+*     *************************************
+*     *                                   *
+*     *        Parallel2d_np_j            *
+*     *                                   *
+*     *************************************
+      subroutine Parallel2d_np_j(np_out)
+      implicit none
+      integer np_out
+
+#include  "Parallel.fh"
+
+      np_out = np_j
+      return
+      end
+
+
+*     *************************************
+*     *                                   *
+*     *        Parallel2d_taskid_i        *
+*     *                                   *
+*     *************************************
+      subroutine Parallel2d_taskid_i(taskid_out)
+      implicit none
+      integer taskid_out
+
+#include "Parallel.fh"
+
+      taskid_out = taskid_i
+      return
+      end 
+
+*     *************************************
+*     *                                   *
+*     *        Parallel2d_taskid_j        *
+*     *                                   *
+*     *************************************
+      subroutine Parallel2d_taskid_j(taskid_out)
+      implicit none
+      integer taskid_out
+
+#include "Parallel.fh"
+
+      taskid_out = taskid_j
+      return
+      end
+
+
+*     *************************************
+*     *                                   *
+*     *     Parallel2d_convert_taskid_i   *
+*     *                                   *
+*     *************************************
+      integer function Parallel2d_convert_taskid_i(i)
+      implicit none
+      integer i
+
+#include "Parallel.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      Parallel2d_convert_taskid_i = int_mb(proc2d(1)+i+taskid_j*np_i)
+      return
+      end
+
+*     *************************************
+*     *                                   *
+*     *     Parallel2d_convert_taskid_j   *
+*     *                                   *
+*     *************************************
+      integer function Parallel2d_convert_taskid_j(j)
+      implicit none
+      integer j
+
+#include "Parallel.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      Parallel2d_convert_taskid_j = int_mb(proc2d(1)+taskid_i+j*np_i)
+      return
+      end
+
+
+
+
+*     *************************************
+*     *                                   *
+*     *   Parallel2d_convert_taskid_ij    *
+*     *                                   *
+*     *************************************
+      integer function Parallel2d_convert_taskid_ij(i,j)
+      implicit none
+      integer i,j
+
+#include "Parallel.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      Parallel2d_convert_taskid_ij = int_mb(proc2d(1)+i+j*np_i)
+      return
+      end
+
+
+
+*     *************************************
+*     *                                   *
+*     *         Parallel2d_comm_i         *
+*     *                                   *
+*     *************************************
+      integer function Parallel2d_comm_i()
+      implicit none
+
+#include "Parallel.fh"
+
+      Parallel2d_comm_i = comm_i
+      return
+      end
+
+*     *************************************
+*     *                                   *
+*     *         Parallel2d_comm_j         *
+*     *                                   *
+*     *************************************
+      integer function Parallel2d_comm_j()
+      implicit none
+
+#include "Parallel.fh"
+
+      Parallel2d_comm_j = comm_j
+      return
+      end
+

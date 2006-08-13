@@ -1,10 +1,10 @@
 *
-* $Id: electron_common.fh,v 1.4 2004-11-08 01:32:49 bylaska Exp $
+* $Id: electron_common.fh,v 1.5 2006-08-13 01:03:27 bylaska Exp $
 *
 
 *     ***** electron common block *************************************
       logical field_exist
-      integer ispin,ne(2),nfft3d,npack1,npack0
+      integer ispin,ne(2),neq(2),nfft3d,npack1,npack0
       integer Hpsi_k(2)
       integer psi_r(2)
       integer vl(2)         ! short-range local psp
@@ -20,7 +20,7 @@
       common / electron_block / ehsic,exsic,phsic,pxsic,ehfx,phfx,
      >                          Hpsi_k,psi_r,
      >                          vl,vl_lr,v_field,vc,xcp,xce,vall,
-     >                          ne,ispin,nfft3d,npack1,npack0,
+     >                          ne,neq,ispin,nfft3d,npack1,npack0,
      >                          field_exist
 *     *****************************************************************
 

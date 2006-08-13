@@ -1,5 +1,5 @@
 *
-* $Id: mask_init.F,v 1.9 2005-06-24 19:24:17 bylaska Exp $
+* $Id: mask_init.F,v 1.10 2006-08-13 01:03:25 bylaska Exp $
 *
 
       subroutine mask_end()
@@ -57,7 +57,7 @@
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)

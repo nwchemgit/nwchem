@@ -1,4 +1,4 @@
-c     $Id: cgsd_excited.F,v 1.7 2006-01-06 22:52:28 bylaska Exp $                       
+c     $Id: cgsd_excited.F,v 1.8 2006-08-13 01:03:26 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -24,7 +24,7 @@ c#include "rtdb.fh"
       integer taskid
       integer minimizer
       integer i,j,ms,neall,NN
-      integer nexcited(2)
+      integer nexcited(2),ispin
       integer it_in,it_out,icount,bfgscount
       real*8  EV,virial
       real*8  tole,tolc,deltae,deltac,deltae_old
@@ -43,8 +43,8 @@ c#include "rtdb.fh"
       external    epsi_initialize,epsi_finalize,epsi_filefind
       external    psi_ne_excited,control_excited_ne,control_rtdb
       external    psi_virtual
-      integer     control_symmetry
-      external    control_symmetry
+      integer     control_symmetry,control_mapping1d
+      external    control_symmetry,control_mapping1d
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
       
@@ -64,6 +64,11 @@ c#include "rtdb.fh"
       else
         newpsi = .false.
       end if
+      call psi_get_ne_excited(ispin,nexcited)
+      call Dnex_init(ispin,nexcited,control_mapping1d())
+
+
+
       value = epsi_initialize()
 
       call psi_gen_density_potentials(1)
@@ -125,6 +130,7 @@ c#include "rtdb.fh"
 *     **** write out excited wavefunctions ***
       value = epsi_finalize(.true.)
 
+      call Dnex_end()
       end if
 
       return

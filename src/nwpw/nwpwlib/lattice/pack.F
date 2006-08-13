@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.23 2005-09-10 00:15:19 bylaska Exp $
+* $Id: pack.F,v 1.24 2006-08-13 01:03:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -57,7 +57,7 @@
      &       MA_ERR)
 
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -1913,7 +1913,7 @@ c      end do
 *     **** local variables ****
       integer indx,p,q,taskid
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       !call D3dB_ktoqp(1,1,q,p)
       call D3dB_ijktoindexp(1,1,1,1,indx,p)
       if (p.eq.taskid) A(indx) = dcmplx(vzero,0.0d0)

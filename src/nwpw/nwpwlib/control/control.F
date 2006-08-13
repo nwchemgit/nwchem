@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.87 2006-07-20 17:49:42 bylaska Exp $
+* $Id: control.F,v 1.88 2006-08-13 01:03:25 bylaska Exp $
 *
 
 *     ***********************************
@@ -49,9 +49,13 @@
       call util_print_get_level(print_level)
       !write(*,*) "Print level is ",print_level
 
-*     **** get parallel mapping ****
+*     **** get parallel mappings ****
       if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
          mapping = 1
+      end if
+
+      if (.not.rtdb_get(rtdb,'nwpw:mapping1d',mt_int,1,mapping1d)) then
+         mapping1d = 1
       end if
 
 *     **** get balance mapping ****
@@ -2743,6 +2747,23 @@ c      end
 #include "control.fh"
 
       control_mapping = mapping
+      return
+      end
+
+
+
+
+*     *****************************
+*     *                           *
+*     *    control_mapping1d      *
+*     *                           *
+*     *****************************
+      integer function control_mapping1d()
+      implicit none
+
+#include "control.fh"
+
+      control_mapping1d = mapping1d
       return
       end
 

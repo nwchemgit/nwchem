@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.12 2004-07-14 21:23:06 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.13 2006-08-13 01:03:27 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -66,7 +66,7 @@
       external         simp
 
 
-      call Parallel_init()
+c      call Parallel_Init()
       call Parallel_taskid(taskid)
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
       dprint = (taskid.eq.MASTER).and.control_print(print_debug)

@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.19 2005-10-04 18:48:04 edo Exp $
+* $Id: psp.F,v 1.20 2006-08-13 01:03:28 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1555,32 +1555,32 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
  
 *     *** read in vl 3d block ***
-      call D3dB_t_read(1,5,tmp2,tmp)
+      call D3dB_t_read(1,5,tmp2,tmp,-1)
       call Pack_t_pack(0,tmp2)
       call Pack_t_Copy(0,tmp2,vl)
 
 *     **** read in vnl 3d blocks ****
       do n=1,nprj
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(1,tmp2)
          call Pack_t_Copy(1,tmp2,vnl(1,n))
       end do
 
 *     **** read in semicore density block ****
       if (semicore) then
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,ncore(1))
 
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,ncore(1+2*npack0))
 
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,ncore(1+3*npack0))
 
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,ncore(1+4*npack0))
       end if

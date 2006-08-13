@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_psi.F,v 1.5 2004-01-28 00:08:46 bylaska Exp $
+* $Id: lcao_write_psi.F,v 1.6 2006-08-13 01:03:27 bylaska Exp $
 *
 
 *     *******************************************
@@ -88,7 +88,7 @@
 
          call Pack_c_unpack(1,dcpl_mb(psi(1)))
          call D3dB_c_write(1,6,dcpl_mb(psi(1)),
-     >                         dcpl_mb(tmp(1)))
+     >                         dcpl_mb(tmp(1)),0)
       end do
       end do
 
@@ -196,7 +196,7 @@
 
          call Pack_c_unpack(1,dcpl_mb(psi(1)))
          call D3dB_c_write(1,6,dcpl_mb(psi(1)),
-     >                         dcpl_mb(tmp(1)))
+     >                         dcpl_mb(tmp(1)),0)
       end do
       end do
 

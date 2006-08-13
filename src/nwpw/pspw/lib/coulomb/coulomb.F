@@ -1,6 +1,6 @@
 
 *
-* $Id: coulomb.F,v 1.7 2004-03-15 15:17:42 bylaska Exp $
+* $Id: coulomb.F,v 1.8 2006-08-13 01:03:27 bylaska Exp $
 *
 
       subroutine coulomb_init()
@@ -42,7 +42,7 @@ c     real*8 vc(nfft3d)
       value = MA_push_get(mt_dbl,nfft3d,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       nxh=nx/2
@@ -166,7 +166,7 @@ c     real*8  tmp1(*)
 
       subroutine coulomb_euv(dng,euv)
 *
-* $Id: coulomb.F,v 1.7 2004-03-15 15:17:42 bylaska Exp $
+* $Id: coulomb.F,v 1.8 2006-08-13 01:03:27 bylaska Exp $
 *
       implicit none 
 #include "errquit.fh"

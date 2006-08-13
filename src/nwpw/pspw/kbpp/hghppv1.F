@@ -1,5 +1,5 @@
 *
-* $Id: hghppv1.F,v 1.2 2004-12-06 20:03:25 bylaska Exp $
+* $Id: hghppv1.F,v 1.3 2006-08-13 01:03:26 bylaska Exp $
 *
 
 *     **************************************
@@ -130,12 +130,12 @@
       !**** determine nprj ****
       nprj= 0
       do l=0,lmax
-            write(*,*) "???H :",l,(H(i,l),i=1,3)
+            !write(*,*) "???H :",l,(H(i,l),i=1,3)
       do i=1,3 
         if ((H(i,l).ne.0.0d0)) nprj = nprj + (2*l+1)
       end do
       end do
-      write(*,*) "???nprj:", nprj
+      !write(*,*) "???nprj:", nprj
         
 
 

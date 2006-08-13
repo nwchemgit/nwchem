@@ -1,5 +1,5 @@
 *
-* $Id: D3dB.fh,v 1.4 2004-04-26 00:07:53 bylaska Exp $
+* $Id: D3dB.fh,v 1.5 2006-08-13 01:03:24 bylaska Exp $
 *
 
 
@@ -18,7 +18,8 @@
 
       !**** slab mapping ****
       integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
-      common /D3dB_mapping / q_map,p_map,k_map
+      integer nqarray(2,NBLOCKS)
+      common /D3dB_mapping / q_map,p_map,k_map,nqarray
 
 
       !**** hilbert mapping ****

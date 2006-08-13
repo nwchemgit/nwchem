@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.11 2005-10-03 20:45:54 edo Exp $
+* $Id: psp_stress.F,v 1.12 2006-08-13 01:03:28 bylaska Exp $
 *
 
 
@@ -563,14 +563,14 @@
 
  
 *     *** read in vl 3d block ***
-      call D3dB_t_read(1,5,tmp2,tmp)
+      call D3dB_t_read(1,5,tmp2,tmp,-1)
       call Pack_t_pack(0,tmp2)
       call Pack_t_Copy(0,tmp2,dvl)
 
 *     **** read in vnl 3d blocks ****
       do n=1,lmmax
       do i=1,3
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(1,tmp2)
          call Pack_t_Copy(1,tmp2,dvnl(1,i,n))
       end do
@@ -579,7 +579,7 @@
 *     **** read in semicore density block ****
       if (semicore) then
          !write(*,*) "reading in semicore block"   !debug
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,dncore)
       end if

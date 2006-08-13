@@ -1,6 +1,6 @@
 
 *
-* $Id: aorbs.F,v 1.3 2004-03-01 05:14:33 bylaska Exp $
+* $Id: aorbs.F,v 1.4 2006-08-13 01:03:27 bylaska Exp $
 *
 
 #define TCGMSG
@@ -443,7 +443,7 @@
 
 *     **** read in aorb 3d blocks ****
       do n=1,lmmax
-         call D3dB_t_read(1,5,tmp2,tmp)
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
          call Pack_t_pack(1,tmp2)
          call Pack_t_Copy(1,tmp2,aorbs(1,n))
       end do

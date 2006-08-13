@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.11 2005-10-06 19:57:25 bylaska Exp $
+* $Id: D3dB-tcgmsg.F,v 1.12 2006-08-13 01:03:24 bylaska Exp $
 *
 
 #ifdef TCGMSG
@@ -62,9 +62,13 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** pack A(i) array ****
 #ifndef CRAY
@@ -99,7 +103,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -114,7 +119,9 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 
@@ -333,8 +340,12 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer index1,index2
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** pack A(i) array ****
       do index1=int_mb(i1_start(1,nb)+1-1),
@@ -364,7 +375,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -379,7 +391,9 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 
@@ -452,9 +466,13 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 *     **** pack A(i) array ****
@@ -494,7 +512,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -509,7 +528,8 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -558,7 +578,6 @@ c     integer i2_start(NFFT3+1)
       real*8  tmp1(*),tmp2(*)
 
 #include "mafdecls.fh"
-
 #include "D3dB.fh"
 
 
@@ -589,9 +608,13 @@ c     integer i2_start(NFFT3+1)
       integer msglen
       integer pfrom,pto
       integer taskid,np
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 *     **** pack A(i) array ****
@@ -631,7 +654,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                  mdtob(msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -646,7 +670,9 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
-     >                  mdtob(msglen),pto,1)
+     >                  mdtob(msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 
@@ -817,9 +843,14 @@ c
       integer pfrom,pto
       integer taskid,np
       integer n1,n2
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
@@ -850,7 +881,8 @@ c
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -865,7 +897,9 @@ c
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 
@@ -937,9 +971,13 @@ c
       integer pfrom,pto
       integer taskid,np
       integer n1,n2
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
@@ -970,7 +1008,8 @@ c
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -985,7 +1024,9 @@ c
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 
@@ -1054,9 +1095,13 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer index1
 
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** pack A(i) array ****
       do index1=int_mb(i1_start(1,nb)+1-1),
@@ -1086,7 +1131,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -1101,7 +1147,8 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -1150,7 +1197,7 @@ c     integer i2_start(NFFT3+1)
       integer index2
 
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
@@ -1289,9 +1336,13 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1
 
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 
@@ -1321,7 +1372,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -1336,7 +1388,8 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),1)
             end if
          end if
 
@@ -1388,7 +1441,7 @@ c     integer i2_start(NFFT3+1)
 *     **** local variables ***
       integer np,n2
       
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
@@ -1460,9 +1513,13 @@ c     integer i2_start(NFFT3+1)
       integer taskid,np
       integer n1
 
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
@@ -1491,7 +1548,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -1506,7 +1564,9 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 
@@ -1560,7 +1620,7 @@ c     integer i2_start(NFFT3+1)
 *     **** local variables ***
       integer np,n2
       
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
@@ -1637,9 +1697,13 @@ c     integer i2_start(NFFT3+1)
       integer pfrom,pto
       integer taskid,np
 
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** pack A(i) array ****
       n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
@@ -1669,7 +1733,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -1684,7 +1749,9 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 
@@ -1743,7 +1810,7 @@ c     integer i2_start(NFFT3+1)
       integer n2,n3,np
 
       
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** unpack A(i) array ****
       n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
@@ -1819,9 +1886,13 @@ c     integer i2_start(NFFT3+1)
       integer pfrom,pto
       integer taskid,np
 
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
       n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
       n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
@@ -1854,7 +1925,8 @@ c     integer i2_start(NFFT3+1)
                call RCV(9+MSGDBL,
      >                  tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                  mdtob(2*msglen),rcv_len,
-     >                  source,rcv_proc,1)
+     >                  Parallel2d_convert_taskid_i(source),
+     >                  rcv_proc,1)
             end if
          end if
 
@@ -1869,7 +1941,9 @@ c     integer i2_start(NFFT3+1)
             if (msglen.gt.0) then
                call SND(9+MSGDBL,
      >                  tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
-     >                  mdtob(2*msglen),pto,1)
+     >                  mdtob(2*msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
             end if
          end if
 

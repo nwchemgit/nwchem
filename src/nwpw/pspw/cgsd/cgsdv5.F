@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.69 2006-07-19 00:38:54 bylaska Exp $
+* $Id: cgsdv5.F,v 1.70 2006-08-13 01:03:26 bylaska Exp $
 *
 
 ***********************************************************************
@@ -28,7 +28,7 @@
 #include "nwpw_timing.fh"
       
 *     **** parallel variables ****
-      integer  taskid,np
+      integer  taskid,np,np_i,np_j
       integer  MASTER
       parameter(MASTER=0)
 
@@ -42,8 +42,8 @@
     
 
 *     ***** energy variables ****
-      integer ne(2),ms
-      real*8  E(30),en(2)
+      integer ispin,ne(2),ms
+      real*8  E(10),en(2)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
 
@@ -59,7 +59,7 @@
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       real*8  icharge
-      integer i,k,ia,nion,minimizer,mapping
+      integer i,k,ia,nion,minimizer,mapping,mapping1d
       integer nbq
   
 
@@ -112,9 +112,9 @@
       external     psp_rcore,psp_ncore,psp_rlocal
 
       logical  psi_initialize, psi_finalize, pspw_qmmm_found
-      integer  psi_ispin,psi_ne,electron_count,linesearch_count
+      integer  psi_ispin,psi_ne,psi_neq,electron_count,linesearch_count
       external psi_initialize, psi_finalize, pspw_qmmm_found
-      external psi_ispin,psi_ne,electron_count,linesearch_count
+      external psi_ispin,psi_ne,psi_neq,electron_count,linesearch_count
       real*8   cgsd_energy,cgsd_noit_energy
       external cgsd_energy,cgsd_noit_energy
       logical  control_Mulliken,control_DOS
@@ -133,8 +133,8 @@
       external control_ks_alpha
       logical  control_print,control_qmmm,control_balance
       external control_print,control_qmmm,control_balance
-      integer  control_mapping
-      external control_mapping
+      integer  control_mapping,control_mapping1d
+      external control_mapping,control_mapping1d
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
@@ -149,13 +149,15 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(10,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
       call Parallel_Init()
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
 
       value = control_read(3,rtdb)
       if (.not. value) 
@@ -246,6 +248,13 @@ c     value = psi_initialize()
       else
         newpsi = .false.
       end if
+
+*     **** Initialize 1d mappings for ne spaces ****
+      call psi_get_ne(ispin,ne)
+      mapping1d   = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+
+
       value = psi_initialize()
 
 
@@ -288,6 +297,7 @@ c     value = psi_initialize()
 
       if (oprint) then
          write(6,1111) np
+         write(6,1117) np_i,np_j
          if (mapping.eq.1) write(6,1112) 
          if (mapping.eq.2) write(6,1113) 
          if (control_balance()) then
@@ -389,10 +399,16 @@ c     value = psi_initialize()
          !write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
          if (fractional) then
           write(6,1219) en(1),en(psi_ispin()),' (   fractional)'
-          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+          write(6,1221) psi_ne(1),psi_neq(1),
+     >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
+     >                  ' (fourier space)'
          else
-          write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
-          write(6,1221) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+          write(6,1220) psi_ne(1),psi_neq(1),
+     >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
+     >                 ' (fourier space)'
+          write(6,1221) psi_ne(1),psi_neq(1),
+     >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
+     >                  ' (fourier space)'
          end if
          write(6,1230)
          write(6,1233) control_cell_name()
@@ -591,6 +607,7 @@ c     end if
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+      call Dne_end()
 
 *                |***************************|
 ****************** report consumed cputime   **********************
@@ -677,12 +694,13 @@ c     end if
  1043 FORMAT(10X,'*    developed by the group of Prof. John H. Weare *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
- 1111 FORMAT(/' number of processors used:',I3)
- 1112 FORMAT( ' parallel mapping         : slab')
- 1113 FORMAT( ' parallel mapping         : hilbert')
- 1114 FORMAT( ' parallel mapping         : balanced')
+ 1111 FORMAT(/' number of processors used:',I10)
+ 1112 FORMAT( ' parallel mapping         :      slab')
+ 1113 FORMAT( ' parallel mapping         :   hilbert')
+ 1114 FORMAT( ' parallel mapping         :  balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
+ 1117 FORMAT( ' processor grid           :',I4,' x',I4)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')
@@ -710,12 +728,18 @@ c     end if
      >       ' ) - atomic mass= ',F7.3,' - fixed')
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
- 1219 FORMAT(/' number of active electrons: spin up=',F6.2,
+ 1219 FORMAT(/' number of electrons: spin up=',F6.2,
      >        '  down=',F6.2,A)
- 1220 FORMAT(/' number of active electrons: spin up=',I6,  
-     >        '  down=',I6,A)
- 1221 FORMAT( ' number of active orbitals : spin up=',I6,  
-     >        '  down=',I6,A)
+ 1220 FORMAT(/' number of electrons: spin up=',I6,
+     >        ' (',I4,' per task)',
+     >        '  down=',I6,
+     >        ' (',I4,' per task)',
+     >        A)
+ 1221 FORMAT( ' number of orbitals : spin up=',I6,  
+     >        ' (',I4,' per task)',
+     >        '  down=',I6,
+     >        ' (',I4,' per task)',
+     >        A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,'             omega=',F8.1)
  1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,

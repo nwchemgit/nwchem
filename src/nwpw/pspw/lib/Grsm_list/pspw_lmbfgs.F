@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.13 2004-05-24 13:47:08 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.14 2006-08-13 01:03:27 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -11,12 +11,12 @@
 
 
 *     **** external functions ****
-      integer  psi_ne
-      external psi_ne
+      integer  psi_neq
+      external psi_neq
 
       max_m = max_m0
       call Pack_npack(1,npack1)
-      neall = psi_ne(1)+psi_ne(2)
+      neall = psi_neq(1)+psi_neq(2)
       nsize = neall*npack1
       call pspw_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
 

@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.12 2005-01-27 18:43:10 bylaska Exp $
+* $Id: kbppv3.F,v 1.13 2006-08-13 01:03:27 bylaska Exp $
 *
 
 *     **************************************
@@ -69,7 +69,7 @@
       external         simp
 
 
-      call Parallel_init()
+c      call Parallel_Init()
       call Parallel_taskid(taskid)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -353,7 +353,7 @@
       kbppv3 = value
       return
 
- 9999 call errquit('Error reading psp_filename',0, DISK_ERR)
+ 9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
 
       END
 

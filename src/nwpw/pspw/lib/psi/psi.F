@@ -1,9 +1,12 @@
 *
-* $Id: psi.F,v 1.67 2006-01-26 18:29:36 bylaska Exp $
+* $Id: psi.F,v 1.68 2006-08-13 01:03:28 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.67  2006/01/26 18:29:36  bylaska
+* bug fix for gga checking...EJB
+*
 * Revision 1.66  2006/01/06 22:52:28  bylaska
 * parallel io bug fix...EJB
 *
@@ -2100,7 +2103,7 @@ c     write(*,*)
 #include "mafdecls.fh"
 #include "psi.fh"
    
-      call zcopy(npack1*(ne(1)+ne(2)),
+      call zcopy(npack1*(neq(1)+neq(2)),
      >           dcpl_mb(psi1(1)),1,
      >           dcpl_mb(psi2(1)),1)
 
@@ -2120,7 +2123,7 @@ c     write(*,*)
 #include "psi.fh"
 
  
-      call zcopy(npack1*(ne(1)+ne(2)),
+      call zcopy(npack1*(neq(1)+neq(2)),
      >           dcpl_mb(psi2(1)),1,
      >           dcpl_mb(psi1(1)),1)
 
@@ -2141,7 +2144,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 #include "mafdecls.fh"
 #include "psi.fh"
    
-      call zcopy(npack1*(ne(1)+ne(2)),
+      call zcopy(npack1*(neq(1)+neq(2)),
      >           dcpl_mb(psi1(1)),1,
      >           rpsi,1)
 
@@ -2161,7 +2164,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 #include "mafdecls.fh"
 #include "psi.fh"
    
-      call zcopy(npack1*(ne(1)+ne(2)),
+      call zcopy(npack1*(neq(1)+neq(2)),
      >           dcpl_mb(psi2(1)),1,
      >           rpsi,1)
 
@@ -2461,7 +2464,8 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       real*8   electron_eorbit
       external electron_eorbit
       
-      call ke_ave(ispin,ne,dcpl_mb(psi1(1)),ave)
+      call ke_ave(ispin,neq,dcpl_mb(psi1(1)),ave)
+      call D1dB_SumAll(ave)
       psi_1ke = ave
 
       return
@@ -3485,7 +3489,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 *     **** local variables ****
       integer neall
 
-      neall = ne(1)+ne(2)
+      neall = neq(1)+neq(2)
       call ke_Precondition(npack1,neall,
      >                      dcpl_mb(psi1(1)),
      >                      Hpsi)
@@ -4556,7 +4560,7 @@ c    >              dbl_mb(tmp1(1)),ierr)
 
       error = 0.0d0
       size =  dble(ne(1)+ne(2))
-      do n=1, (ne(1)+ne(2))
+      do n=1, (neq(1)+neq(2))
          do k=1,npack1
             dcpl_mb(tmp1(1)+k-1) = dcpl_mb(psi2(1)+k-1+(n-1)*npack1) 
      >                           - dcpl_mb(psi1(1)+k-1+(n-1)*npack1)
@@ -4566,6 +4570,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
          error = error + sum
       end do
+      call D1dB_SumAll(error)
       error = dsqrt(error)/size
       
       value = MA_pop_stack(tmp1(2))
@@ -4898,11 +4903,26 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       return
       end
 
+*     ***************************
+*     *				*
+*     *		psi_neq		*
+*     *				*
+*     ***************************
+      integer function psi_neq(ms)
+      implicit none
+      integer ms
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      psi_neq = neq(ms)
+      return
+      end
 
 
 *     ***************************
 *     *				*
-*     *		psi_initialize 	*
+*     *	    psi_initialize 	*
 *     *				*
 *     ***************************
 
@@ -4940,16 +4960,17 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne(ispin,ne)
+      call Dneall_neq(neq)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
       nemax = ne(1)+ne(2)
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,4*nfft3d,
@@ -5051,14 +5072,15 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
      >   "Projecting wavefunctions to have inversion symmetry"
          write(*,*)
          end if
-         call psi_symm_project(ispin,ne,npack1,dcpl_mb(psi1(1)))
+         call psi_symm_project(ispin,neq,npack1,dcpl_mb(psi1(1)))
       end if 
 
 *     **** Ortho Check ****
-      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
+      call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi1(1)),
      >                        dcpl_mb(psi1(1)),
      >                        sum2)
+      call D1dB_SumAll(sum2)
 
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
@@ -5068,10 +5090,11 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
            call Grsm_g_MakeOrtho(npack1,ne(2),
      >                           dcpl_mb(psi1(1) + ne(1)*npack1))
          end if
-         call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
+         call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi1(1)),
      >                        dcpl_mb(psi1(1)),
      >                        sum2)
+         call D1dB_SumAll(sum2)
          if (taskid.eq.MASTER)
      >    write(*,*) "Warning - Gram-Schmidt being performed on psi:",
      >               dabs(sum2-sum1)

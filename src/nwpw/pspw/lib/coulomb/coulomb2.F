@@ -62,7 +62,7 @@ c     **** external functions ****
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nq(2,nq)
       call D3dB_nz(2,nz)
       call D3dB_ny(2,ny)

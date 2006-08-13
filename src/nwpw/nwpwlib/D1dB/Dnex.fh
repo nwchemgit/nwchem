@@ -1,0 +1,9 @@
+*
+* $Id: Dnex.fh,v 1.1 2006-08-13 01:03:24 bylaska Exp $
+*
+
+      integer ne(2),neq(2),ispin
+      common    / Dnex / ne,neq,ispin
+
+
+

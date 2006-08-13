@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.19 2004-11-08 01:32:48 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.20 2006-08-13 01:03:26 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -51,7 +51,7 @@ c      complex*16 G1(nfft3d,nemax)
       
 
 *     **** external functions ****
-      integer  psi_ne,control_version
+      integer  psi_neq,control_version
       real*8   control_tole,control_tolc
       real*8   psi_geodesic_energy
       real*8   psi_geodesic_denergy
@@ -66,7 +66,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   psi_1eorbit
       real*8   linesearch
    
-      external psi_ne,control_version
+      external psi_neq,control_version
       external control_tole,control_tolc
       external psi_geodesic_energy
       external psi_geodesic_denergy
@@ -110,7 +110,7 @@ c      complex*16 G1(nfft3d,nemax)
        
   
       call Pack_npack(1,npack1)
-      neall = psi_ne(1)+psi_ne(2)
+      neall = psi_neq(1)+psi_neq(2)
 
 
 *     **** allocate H0, G0, and G1 ****

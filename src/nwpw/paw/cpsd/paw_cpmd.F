@@ -1,5 +1,5 @@
 *
-* $Id: paw_cpmd.F,v 1.21 2006-06-05 17:34:26 edo Exp $
+* $Id: paw_cpmd.F,v 1.22 2006-08-13 01:03:26 bylaska Exp $
 * $Log: not supported by cvs2svn $
 * Revision 1.20  2006/02/11 02:50:46  bylaska
 * GGA's using 1st derivative formulas have been added in core part of PAW....EJB
@@ -248,6 +248,9 @@
       logical  control_Nose,pspw_qmmm_found
       external control_Nose,pspw_qmmm_found
 
+      integer  Nose_Mchain,Nose_Nchain
+      external Nose_Mchain,Nose_Nchain
+ 
       real*8   control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
       external control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
 
@@ -527,7 +530,7 @@ c      call init_paw_density(ispin,lmax)
 *     **** Initialize thermostats ****
       if (control_Nose()) then
          call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w)
-         call Nose_Init(w)
+         call Nose_Init((ne(1)+ne(2)),w)
       end if
 
 
@@ -691,10 +694,14 @@ c      call init_paw_density(ispin,lmax)
          write(6,1224) (eke1-eke0),(eki1-eki0)
          if (control_Nose()) then
            write(6,1295)
-           write(6,1297) control_Nose_Te(),Nose_Qe(),
-     >                   Nose_Pe(),Nose_Ee0()
-           write(6,1298) control_Nose_Tr(),Nose_Qr(),
-     >                   Nose_Pr(),Nose_Er0()
+           do i=1,Nose_Mchain()
+             write(6,1297) i,control_Nose_Te(),Nose_Qe(i),
+     >                     Nose_Pe(i),Nose_Ee0(i)
+           end do
+           do i=1,Nose_Nchain()
+             write(6,1298) i,control_Nose_Tr(),Nose_Qr(i),
+     >                     Nose_Pr(i),Nose_Er0(i)
+           end do
          else
            write(6,1294)
          end if
@@ -1028,7 +1035,7 @@ c        call eigen(n,ne(ms),
 c    >              dbl_mb(hml(1)+(ms-1)*nn),
 c    >              dbl_mb(eig(1)+(ms-1)*n),
 c    >              dbl_mb(lmd(1)),ierr)
-         call dsyev('V','U',ne(ms),
+         call DSYEV('V','U',ne(ms),
      >              dbl_mb(hml(1)+(ms-1)*nn),n,
      >              dbl_mb(eig(1)+(ms-1)*n),
      >              dbl_mb(lmd(1)),(2*nemax*nemax),
@@ -1413,8 +1420,10 @@ c    .   ' (',F6.3,' smooth)')
  1294 format(/' Constant Energy Simulation                     ')
  1295 format(/' Nose-Hoover Simulation - thermostat parameters:')
  1296 format(5x, 'SA decay rates  =',e8.3,' (elc)',e8.3,' (ion)')
- 1297 format(5x, 'Te =',f8.2,' Qe =',e8.3,' 2*pi/we=',e8.3,' Ee0=',e8.3)
- 1298 format(5x, 'Tr =',f8.2,' Qr =',e8.3,' 2*pi/wr=',e8.3,' Er0=',e8.3)
+ 1297 format(5x, 'link = ',I3,
+     >       ' Te =',f8.2,' Qe =',e8.3,' 2*pi/we=',e8.3,' Ee0=',e8.3)
+ 1298 format(5x, 'link = ',I3,
+     >       ' Tr =',f8.2,' Qr =',e8.3,' 2*pi/wr=',e8.3,' Er0=',e8.3)
  1299 format(//' Mulliken analysis output generated            ')
  1300 FORMAT(//)
  1305 FORMAT(10X,'============ Car-Parrinello iteration ==============')

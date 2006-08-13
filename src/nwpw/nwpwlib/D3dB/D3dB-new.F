@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.45 2006-03-16 18:38:28 bylaska Exp $
+* $Id: D3dB-new.F,v 1.46 2006-08-13 01:03:24 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -79,8 +79,8 @@ ccccccccccc  #define TCGMSG
       integer taskid,np
       logical value
       
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np)
+      call Parallel2d_taskid_i(taskid)
 
 *     **************************
 *     ****** Slab mapping ******
@@ -686,7 +686,7 @@ c     p = p_map(k)
       parameter (MASTER=0)
       integer taskid,np
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
       call Parallel_taskid(taskid)
 
 
@@ -803,13 +803,20 @@ c     implicit none
       parameter (MASTER=0)
       integer msglen
       real*8 sumall,sumt
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
     
 c     msglen = 8
       msglen = 1
 
       sumt = sum
 
-      call GA_DGOP(9+MSGDBL,sumt,1,'+')
+      call GA_PGROUP_DGOP(Parallel2d_comm_i(),
+     >                    9+MSGDBL,sumt,1,'+')
+
+c      call GA_DGOP(9+MSGDBL,sumt,1,'+')
 c     call DGOP(9+MSGDBL,sumt,1,'+')
       sumall=sumt
 
@@ -838,13 +845,20 @@ c     implicit none
       parameter (MASTER=0)
       integer msglen
       integer sumall,sumt
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
     
 c     msglen = 8
       msglen = 1
 
       sumt = sum
 
-      call GA_IGOP(9+MSGINT,sumt,1,'+')
+      call GA_PGROUP_IGOP(Parallel2d_comm_i(),
+     >                    9+MSGINT,sumt,1,'+')
+c     call GA_IGOP(9+MSGINT,sumt,1,'+')
       sumall=sumt
 
 
@@ -953,13 +967,21 @@ c     msglen = 8
 
       !call D3dB_nfft3d(nb,nfft3d)
 
-      value = MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+c      value = MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+c     >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+c     >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+c     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
+      value = MA_alloc_get(mt_dcpl,(2*nx(nb)+15),
      >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+     >        MA_alloc_get(mt_dcpl,(2*ny(nb)+15),
      >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(nfft3d(nb)),
+     >        MA_alloc_get(mt_dcpl,(2*nz(nb)+15),
      >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value) 
      >   call errquit('D3dB_fft_init:out of heap memory',0, MA_ERR)
@@ -2191,16 +2213,17 @@ c      end
 
 *     ***********************************
 *     *					*
-*     *	       D3dB_(c,r,t)_Read 	*	
+*     *	       D3dB_(c,r,t)_read 	*	
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_Read(nb,iunit,A,tmp)
+      subroutine D3dB_c_read(nb,iunit,A,tmp,jcol)
       implicit none 
       integer nb
       integer iunit
       complex*16 A(*)
       complex*16 tmp(*)
+      integer    jcol
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -2213,7 +2236,7 @@ c      end
 
       
 *     *** local variables ***
-      logical value
+      logical value,fillcolumn
       integer MASTER,taskid
       parameter(MASTER=0)
       integer p_to, p_here,q
@@ -2221,7 +2244,28 @@ c      end
       integer source,msglen
       integer tmp1(2),tmp2(2)
 
+      integer taskid_j,np_j
+      integer ii,jj,jstart,jend
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
       call Parallel_taskid(taskid)
+
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      if (jcol.lt.0) then
+         jstart = 0
+         jend   = np_j-1
+         fillcolumn = .true.
+      else
+         jstart = jcol
+         jend   = jcol
+         fillcolumn = (taskid_j.eq.jcol)
+      end if
+
+
 
       !**********************
       !**** slab mapping ****
@@ -2233,22 +2277,24 @@ c      end
 
             call dread(iunit,tmp,(nx(nb)+2)*ny(nb))
 
-            call D3dB_ktoqp(nb,k,q,p_to)
-            if (p_to.eq.MASTER) then
-               index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
-               call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
-            else
-               msglen = (nx(nb)/2+1)*ny(nb)
-
-               call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
-
-            end if
+            call D3dB_ktoqp(nb,k,q,ii)
+            do jj=jstart,jend
+               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+               if (p_to.eq.MASTER) then
+                  index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
+                  call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
+               else
+                  msglen = (nx(nb)/2+1)*ny(nb)
+                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
+               end if
+            end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn) then
          do k=1,nz(nb)
-            call D3dB_ktoqp(nb,k,q,p_here)
+            call D3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb)/2+1)*ny(nb)
@@ -2278,37 +2324,37 @@ c      end
             call dread(iunit,tmp,(nx(nb)+2))
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            do jj=jstart,jend
+               p_to = Parallel2d_convert_taskid_ij(ii,jj)
 
-            if (p_to.eq.MASTER) then
-               index = (q-1)*(nx(nb)/2+1) + 1
-               call dcopy((nx(nb)+2),tmp,1,A(index),1)
-            else
-               msglen = (nx(nb)/2+1)
-               call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
-            end if
+               if (p_to.eq.MASTER) then
+                  index = (q-1)*(nx(nb)/2+1) + 1
+                  call dcopy((nx(nb)+2),tmp,1,A(index),1)
+               else
+                  msglen = (nx(nb)/2+1)
+                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
+               end if
+            end do
          end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn) then
          do k=1,nz(nb)
          do j=1,ny(nb)
             
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
-
                msglen = (nx(nb)/2+1)
                source  = MASTER
-
                call RCV(9+MSGDBL,tmp,mdtob(2*msglen),rcv_len,
      >                  source,rcv_proc,1)
 
-
                index = (q-1)*(nx(nb)/2+1) + 1
                call dcopy((nx(nb)+2),tmp,1,A(index),1)
-
             end if
          end do
          end do
@@ -2344,12 +2390,13 @@ c      end
 
 
 
-      subroutine D3dB_r_Read(nb,iunit,A,tmp)
+      subroutine D3dB_r_read(nb,iunit,A,tmp,jcol)
       implicit none 
       integer nb
       integer iunit
       real*8  A(*)
       real*8  tmp(*)
+      integer jcol
 
 #include "mafdecls.fh"
 #include "D3dB.fh"
@@ -2360,13 +2407,34 @@ c      end
 
       
 *     *** local variables ***
+      logical fillcolumn
       integer MASTER,taskid
       parameter(MASTER=0)
       integer p_to, p_here,q
       integer j,k,index,index2
       integer source,msglen
 
+      integer taskid_j,np_j
+      integer ii,jj,jstart,jend
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
       call Parallel_taskid(taskid)
+
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      if (jcol.lt.0) then
+         jstart = 0
+         jend   = np_j-1
+         fillcolumn = .true.
+      else
+         jstart = jcol
+         jend   = jcol
+         fillcolumn = (taskid_j.eq.jcol)
+      end if
+
 
       !**********************
       !**** slab mapping ****
@@ -2378,30 +2446,31 @@ c      end
 
             call dread(iunit,tmp,(nx(nb))*ny(nb))
 
-            call D3dB_ktoqp(nb,k,q,p_to)
-            if (p_to.eq.MASTER) then
-
-               do j=1,ny(nb)
-                  index = (q-1)*(nx(nb)+2)*ny(nb) 
-     >                  + (j-1)*(nx(nb)+2) + 1
-                  index2 = (j-1)*nx(nb) + 1
-                  call dcopy(nx(nb),tmp(index2),1,A(index),1)
-                  A(index+nx(nb)) = 0.0d0
-                  A(index+nx(nb)+1) = 0.0d0
-               end do
-              
-            else
-               msglen = (nx(nb))*ny(nb)
-
-               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-
-            end if
+            call D3dB_ktoqp(nb,k,q,ii)
+            do jj=jstart,jend
+               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+               if (p_to.eq.MASTER) then
+                  do j=1,ny(nb)
+                     index = (q-1)*(nx(nb)+2)*ny(nb) 
+     >                     + (j-1)*(nx(nb)+2) + 1
+                     index2 = (j-1)*nx(nb) + 1
+                     call dcopy(nx(nb),tmp(index2),1,A(index),1)
+                     A(index+nx(nb)) = 0.0d0
+                     A(index+nx(nb)+1) = 0.0d0
+                  end do
+               else
+                  msglen = (nx(nb))*ny(nb)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+               end if
+            end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn) then
          do k=1,nz(nb)
-            call D3dB_ktoqp(nb,k,q,p_here)
+
+            call D3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb))*ny(nb)
@@ -2409,7 +2478,6 @@ c      end
 
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
-
                do j=1,ny(nb)
                   index = (q-1)*(nx(nb)+2)*ny(nb) 
      >                  + (j-1)*(nx(nb)+2) + 1
@@ -2418,8 +2486,6 @@ c      end
                   A(index+nx(nb)) = 0.0d0
                   A(index+nx(nb)+1) = 0.0d0
                end do
-              
-               
             end if
          end do
       end if
@@ -2438,25 +2504,28 @@ c      end
             call dread(iunit,tmp,(nx(nb)))
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
-            if (p_to.eq.MASTER) then
-               index = (q-1)*(nx(nb)+2) + 1
-               call dcopy((nx(nb)+2),tmp,1,A(index),1)
-            else
-               msglen = (nx(nb)+2)
-               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-            end if
+            ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            do jj=jstart,jend
+               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+               if (p_to.eq.MASTER) then
+                  index = (q-1)*(nx(nb)+2) + 1
+                  call dcopy((nx(nb)+2),tmp,1,A(index),1)
+               else
+                  msglen = (nx(nb)+2)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+               end if
+            end do
          end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb)+2)
@@ -2484,12 +2553,13 @@ c      end
 
 
 
-      subroutine D3dB_t_Read(nb,iunit,A,tmp)
+      subroutine D3dB_t_read(nb,iunit,A,tmp,jcol)
       implicit none 
       integer nb
       integer iunit
       real*8  A(*)
       real*8  tmp(*)
+      integer jcol
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -2506,13 +2576,32 @@ c      end
       integer MASTER,taskid
       parameter(MASTER=0)
 
-      logical value
+      logical value,fillcolumn
       integer p_to, p_here,q
       integer j,k,index
       integer source,msglen
       integer tmp1(2),tmp2(2)
 
+      integer taskid_j,np_j
+      integer ii,jj,jstart,jend
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
       call Parallel_taskid(taskid)
+
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      if (jcol.lt.0) then
+         jstart = 0
+         jend   = np_j-1
+         fillcolumn = .true.
+      else
+         jstart = jcol
+         jend   = jcol
+         fillcolumn = (taskid_j.eq.jcol)
+      end if
 
       if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
@@ -2521,22 +2610,26 @@ c      end
 
             call dread(iunit,tmp,(nx(nb)/2+1)*ny(nb))
 
-            call D3dB_ktoqp(nb,k,q,p_to)
-            if (p_to.eq.MASTER) then
-               index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
-               call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
-            else
-               msglen = (nx(nb)/2+1)*ny(nb)
+            call D3dB_ktoqp(nb,k,q,ii)
+            do jj=jstart,jend
 
-               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-
-            end if
+              p_to = Parallel2d_convert_taskid_ij(ii,jj)
+              if (p_to.eq.MASTER) then
+                 index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
+                 call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
+              else
+                 msglen = (nx(nb)/2+1)*ny(nb)
+                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+              end if
+            end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn) then
+
          do k=1,nz(nb)
-            call D3dB_ktoqp(nb,k,q,p_here)
+            call D3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb)/2+1)*ny(nb)
@@ -2565,26 +2658,30 @@ c      end
 
             call dread(iunit,tmp,(nx(nb)/2+1))
 
-            q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_to = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            q   = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii  = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            do jj=jstart,jend
 
-            if (p_to.eq.MASTER) then
-               index = (q-1)*(nx(nb)/2+1) + 1
-               call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
-            else
-               msglen = (nx(nb)/2+1)
-               call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
-            end if
+               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+               if (p_to.eq.MASTER) then
+                  index = (q-1)*(nx(nb)/2+1) + 1
+                  call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
+               else
+                  msglen = (nx(nb)/2+1)
+                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
+               end if
+            end do
          end do
          end do
 
 *     **** not master node ****
-      else
+      else if (fillcolumn) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb)/2+1)
@@ -2863,8 +2960,8 @@ c     integer i2_start(NFFT3+1)
       if (.not. value) 
      > call errquit('D3dB_transpose_jk_init:out of heap',0,MA_ERR)
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
       index1 = 1 
       index2 = 1
@@ -2938,20 +3035,20 @@ c     i2_start(np+1) = index2
       integer channel_type(2,NBLOCKS)
       common / channel_blk / channel_proc,channel_type,Nchannels
       integer pair1(2),pair2(2)
-      integer pair_step(2)
-      integer step,Nstep,icount
+      integer pair_step(2),pair_tmp(2)
+      integer step,Nstep,icount,jcount,jcount_max
 
 *     **** local variables ****
       integer np,taskid
-      integer i,j
+      integer i,j,k
       logical value
 
 *     **** external functions ****
       logical  full_ps
       external full_ps
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 *
 *     **** Define Channels - which are used to avoid ****
 *     **** asynchronous communications               ****
@@ -2974,6 +3071,9 @@ c     i2_start(np+1) = index2
       value = value.and.
      >        MA_push_get(mt_int,(np*(np-1)/2),
      >                'pair_step',pair_step(2),pair_step(1))
+      value = value.and.
+     >        MA_push_get(mt_int,(np*(np-1)/2),
+     >                'pair_tmp',pair_tmp(2),pair_tmp(1))
       if (.not. value) 
      >  call errquit('D3dB_channel_init:out of stack memory',0, MA_ERR)
 
@@ -2991,25 +3091,35 @@ c     i2_start(np+1) = index2
       do i=1,(np*(np-1)/2)
          int_mb(pair_step(1)+i-1) = (-1)
       end do
+
       step=0
-      do while(.not. full_ps(int_mb(pair_step(1)),np))
+      jcount = 0
+      jcount_max = np*(np-1)/2
+c      do while(.not. full_ps(int_mb(pair_step(1)),np))
+      do while(jcount.lt.jcount_max)
          step=step+1
+
+         icount = 0
          do i=1, (np*(np-1)/2)
             if (int_mb(pair_step(1)+i-1).eq.(-1)) then
                value=.true.
-               do j=1,(i-1)
-                  if (int_mb(pair_step(1)+j-1).eq.step) then
-                     if (int_mb(pair1(1)+i-1)
-     >               .eq.int_mb(pair1(1)+j-1)) value=.false.
-                     if (int_mb(pair1(1)+i-1)
-     >               .eq.int_mb(pair2(1)+j-1)) value=.false.
-                     if (int_mb(pair2(1)+i-1)
-     >               .eq.int_mb(pair1(1)+j-1)) value=.false.
-                     if (int_mb(pair2(1)+i-1)
-     >               .eq.int_mb(pair2(1)+j-1)) value=.false.
-                  end if
+               do k=1,icount
+                 j = int_mb(pair_tmp(1)+k-1)
+
+                 if
+     >        ((int_mb(pair1(1)+i-1).eq.int_mb(pair1(1)+j-1)).or.
+     >         (int_mb(pair1(1)+i-1).eq.int_mb(pair2(1)+j-1)).or.
+     >         (int_mb(pair2(1)+i-1).eq.int_mb(pair1(1)+j-1)).or.
+     >         (int_mb(pair2(1)+i-1).eq.int_mb(pair2(1)+j-1)))
+     >           value=.false.
+
                end do
-               if (value) int_mb(pair_step(1)+i-1) = step
+               if (value) then
+                 int_mb(pair_step(1)+i-1) = step
+                 icount = icount + 1
+                 jcount = jcount + 1
+                 int_mb(pair_tmp(1)+icount-1) = i
+               end if
             end if
          end do
       end do
@@ -3049,7 +3159,8 @@ c     i2_start(np+1) = index2
       end do
 
 
-      value=          MA_pop_stack(pair_step(2))
+      value=          MA_pop_stack(pair_tmp(2))
+      value=value.and.MA_pop_stack(pair_step(2))
       value=value.and.MA_pop_stack(pair2(2))
       value=value.and.MA_pop_stack(pair1(2))
       if (.not. value) 
@@ -3082,16 +3193,17 @@ c     i2_start(np+1) = index2
 
 *     ***********************************
 *     *					*
-*     *	       D3dB_(c,r,t)_Write	*	
+*     *	       D3dB_(c,r,t)_write	*	
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_Write(nb,iunit,A,tmp)
+      subroutine D3dB_c_write(nb,iunit,A,tmp,jcol)
       implicit none 
       integer nb
       integer iunit
       complex*16 A(*)
       complex*16 tmp(*)
+      integer    jcol
 
 
 #include "mafdecls.fh"
@@ -3114,7 +3226,14 @@ c     i2_start(np+1) = index2
       integer dum,dum_msglen
       integer tmp1(2),tmp2(2)
 
+      integer ii,taskid_j
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_j(taskid_j)
 
       !**********************
       !**** slab mapping ****
@@ -3124,8 +3243,9 @@ c     i2_start(np+1) = index2
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
 
-            call D3dB_ktoqp(nb,k,q,p_from)
+            call D3dB_ktoqp(nb,k,q,ii)
 
+            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -3152,7 +3272,8 @@ c     i2_start(np+1) = index2
       else
          do k=1,nz(nb)
          
-            call D3dB_ktoqp(nb,k,q,p_here)
+            call D3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -3178,21 +3299,25 @@ c     i2_start(np+1) = index2
       !*************************
       else
 
-*     **** allocate temporary space  ****
-      value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-*
-      call D3dB_c_transpose_ijk(nb,6,A,
-     >                          dcpl_mb(tmp1(1)),
-     >                          dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
+      if (taskid_j.eq.jcol) then
 
-*     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+*       **** allocate temporary space  ****
+        value = MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                      tmp1(2),tmp1(1))
+        value = value.and.
+     >          MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+*
+        call D3dB_c_transpose_ijk(nb,6,A,
+     >                            dcpl_mb(tmp1(1)),
+     >                            dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
+
+*       **** deallocate temporary space  ****
+        value = MA_pop_stack(tmp2(2))
+        value = value.and.MA_pop_stack(tmp1(2))
+        if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      end if
 
       call ga_sync()
 
@@ -3202,8 +3327,8 @@ c     i2_start(np+1) = index2
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -3233,8 +3358,8 @@ c     i2_start(np+1) = index2
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-           
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel2d_convert_taskid_ij(ii,jcol) 
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -3266,12 +3391,13 @@ c     i2_start(np+1) = index2
 
 
 
-      subroutine D3dB_r_Write(nb,iunit,A,tmp)
+      subroutine D3dB_r_write(nb,iunit,A,tmp,jcol)
       implicit none 
       integer nb
       integer iunit
       real*8     A(*)
       real*8     tmp(*)
+      integer    jcol
 
 #include "mafdecls.fh"
 #include "D3dB.fh"
@@ -3290,7 +3416,14 @@ c     i2_start(np+1) = index2
       integer j,k,index,index2
       integer dest,source,status,msglen
 
+      integer taskid_j,ii
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_j(taskid_j)
 
       !**********************
       !**** slab mapping ****
@@ -3300,8 +3433,8 @@ c     i2_start(np+1) = index2
       if (taskid.eq.MASTER) then
          do k=1,nz(nb)
 
-            call D3dB_ktoqp(nb,k,q,p_from)
-
+            call D3dB_ktoqp(nb,k,q,ii)
+            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
 
                do j=1,ny(nb)
@@ -3329,7 +3462,8 @@ c     i2_start(np+1) = index2
       else
          do k=1,nz(nb)
          
-            call D3dB_ktoqp(nb,k,q,p_here)
+            call D3dB_ktoqp(nb,k,q,ii)
+            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_here.eq.taskid) then
 
                do j=1,ny(nb)
@@ -3360,8 +3494,8 @@ c     i2_start(np+1) = index2
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = Parallel2d_convert_taskid_ij(ii,jcol)      
 
             if (p_from.eq.MASTER) then
               index = (q-1)*(nx(nb)+2) + 1
@@ -3388,8 +3522,8 @@ c     i2_start(np+1) = index2
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)+2) + 1
@@ -3415,7 +3549,7 @@ c     i2_start(np+1) = index2
       end
 
 
-      subroutine D3dB_t_Write(nb,iunit,A,tmp)
+      subroutine D3dB_t_write(nb,iunit,A,tmp)
       implicit none 
       integer nb
       integer iunit
@@ -5288,6 +5422,11 @@ c     implicit none
 *     **** temporary workspace ****
       integer sumall(2),np
 
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+
 
       call Parallel_np(np)
       call nwpw_timing_start(2)
@@ -5301,7 +5440,10 @@ c     implicit none
 
 
       call dcopy(n,sum,1,dbl_mb(sumall(1)),1)
-      call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+
+      call GA_PGROUP_DGOP(Parallel2d_comm_i(),
+     >                    9+MSGDBL,dbl_mb(sumall(1)),n,'+')
+c     call GA_DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 c     call DGOP(9+MSGDBL,dbl_mb(sumall(1)),n,'+')
 
 
@@ -5343,6 +5485,10 @@ c     implicit none
 *     **** temporary workspace ****
       integer sumall(2)
 
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
 
       call nwpw_timing_start(2)
 
@@ -5354,7 +5500,9 @@ c     implicit none
 
 
       call icopy(n,sum,1,int_mb(sumall(1)),1)
-      call GA_IGOP(9+MSGINT,int_mb(sumall(1)),n,'+')
+      call GA_PGROUP_IGOP(Parallel2d_comm_i(),
+     >                    9+MSGINT,int_mb(sumall(1)),n,'+')
+c     call GA_IGOP(9+MSGINT,int_mb(sumall(1)),n,'+')
 
 
       call icopy(n,int_mb(sumall(1)),1,sum,1)
@@ -5515,8 +5663,8 @@ cpgi$r opt=1
       integer i3,j3,k3
       integer nyh,nzh
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
       nyh = ny(nb)/2
       nzh = nz(nb)/2
@@ -5634,8 +5782,8 @@ c     integer i2_start(NFFT3+1)
       integer  D3dB_timereverse_size
       external D3dB_timereverse_size
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
       nyh = ny(nb)/2
       nzh = nz(nb)/2

@@ -1,5 +1,5 @@
 /*
- $Id: teter_parse.c,v 1.2 2004-09-22 00:39:00 bylaska Exp $
+ $Id: teter_parse.c,v 1.3 2006-08-13 01:03:26 bylaska Exp $
 */
 
 #include <math.h>
@@ -141,6 +141,28 @@ Integer	*n3;
 
 
 
+   /* define linear grid */
+   nrl  = 2001;
+   rmax = 40.0;
+   drl  = rmax/((double) (nrl-1));
+
+   fp = fopen(infile,"r+");
+   w = get_word(fp);
+   while ((w != ((char *) EOF)) && (strcmp("<linear>",w) != 0))
+      w = get_word(fp);
+   if (w!=((char *) EOF))
+   {
+      fscanf(fp,"%d %lf",&nrl,&drl);
+      rmax = ((double) (nrl-1))*drl;
+   }
+   fclose(fp);
+
+
+
+
+
+
+
   /* Read TETER psp */
    fp = fopen(infile,"r+");
    w = get_word(fp);
@@ -195,11 +217,14 @@ Integer	*n3;
       rgrid[i]=100.0*xx-1.0e-8;
    }
 
-   /* hacky - define linear grid */
-   nrl  = 2001;
-   rmax = 40.0;
-   if (rmax > rgrid[Ngrid-5]) rmax = rgrid[Ngrid-5];
-   drl = rmax/2000.0;
+
+   /* check linear grid and redefine if necessary */
+   if (rmax > rgrid[Ngrid-5])
+   {
+       rmax = rgrid[Ngrid-5];
+       drl = rmax/((double) (nrl-1));
+   }
+
 
 
    /* generate linear meshes */

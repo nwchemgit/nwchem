@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.43 2006-04-08 00:25:49 bylaska Exp $
+* $Id: electron.F,v 1.44 2006-08-13 01:03:27 bylaska Exp $
 *
 
 
@@ -27,15 +27,17 @@
 
 *     **** external functions ****
       logical  ion_chargeexist,ion_mmexist
-      integer  psi_ispin,psi_ne,control_version
+      integer  psi_ispin,psi_ne,psi_neq,control_version
       external ion_chargeexist,ion_mmexist
-      external psi_ispin,psi_ne,control_version
+      external psi_ispin,psi_ne,psi_neq,control_version
 
       counter = 0
 
       ispin = psi_ispin()
       ne(1) = psi_ne(1)
       ne(2) = psi_ne(2)
+      neq(1) = psi_neq(1)
+      neq(2) = psi_neq(2)
       field_exist = ion_chargeexist().or.ion_mmexist()
 
 *     **** get nfft3d, and n2ft3d ****
@@ -45,10 +47,10 @@
       n2ft3d = 2*nfft3d
 
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'Hpsi_k',Hpsi_k(2),Hpsi_k(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dbl,n2ft3d*(neq(1)+neq(2)),
      >                     'psi_r',psi_r(2),psi_r(1))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack0,
@@ -227,8 +229,8 @@ c      call ke_Precondition(npack1,(ne(1)+ne(2)),psi1,dcpl_mb(Hpsi_k(1)))
 c     call electron_sd_subupdate(npack1,(ne(1)+ne(2)),
 c    >                           psi1,psi2,dcpl_mb(Hpsi_k(1)),
 c    >                           dte)
-      call dcopy(2*(npack1)*(ne(1)+ne(2)),psi1,1,psi2,1)
-      call daxpy(2*(npack1)*(ne(1)+ne(2)),
+      call dcopy(2*(npack1)*(neq(1)+neq(2)),psi1,1,psi2,1)
+      call daxpy(2*(npack1)*(neq(1)+neq(2)),
      >           (-dte),
      >           dcpl_mb(Hpsi_k(1)),1,
      >           psi2,1)
@@ -300,9 +302,9 @@ c      end
 
       n2ft3d = 2*nfft3d
       n1(1) = 1
-      n1(2) = ne(1) + 1
-      n2(1) = ne(1)
-      n2(2) = ne(1) + ne(2)
+      n1(2) = neq(1) + 1
+      n2(1) = neq(1)
+      n2(2) = neq(1) + neq(2)
 
 
 *     *** get orbital energies ****
@@ -318,6 +320,7 @@ c      end
          end do
       end do
       call D3dB_SumAll(eorbit)
+      call D1dB_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
            
@@ -401,9 +404,9 @@ c      end
       real*8  sum,eorbit
 
       n1(1) = 1
-      n1(2) = ne(1) + 1
-      n2(1) = ne(1)
-      n2(2) = ne(1) + ne(2)
+      n1(2) = neq(1) + 1
+      n2(1) = neq(1)
+      n2(2) = neq(1) + neq(2)
 
 
 *     *** get orbital energies ****
@@ -419,6 +422,7 @@ c      end
          end do
       end do
       call D3dB_SumAll(eorbit)
+      call D1dB_SumAll(eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
            
@@ -748,7 +752,7 @@ c      end
 #include "electron_common.fh"
 
 
-      call dcopy(2*npack1*(ne(1)+ne(2)),
+      call dcopy(2*npack1*(neq(1)+neq(2)),
      >           dcpl_mb(Hpsi_k(1)),1,
      >           Hpsi_k_new,1)
       return
@@ -783,6 +787,21 @@ c      end
 #include "electron_common.fh"
 
       electron_ne = ne(ms)
+      return
+      end
+
+*     ***************************
+*     *				*
+*     *	     electron_neq	*
+*     *				*
+*     ***************************
+      integer function electron_neq(ms)
+      implicit none
+      integer ms
+
+#include "electron_common.fh"
+
+      electron_neq = neq(ms)
       return
       end
 
@@ -834,7 +853,7 @@ c     call Grsm_gg_dScale(npack1,(ne(1)+ne(2)),
 c    >                    (-1.0d0),
 c    >                    THpsi_k,
 c    >                    THpsi_k)
-      call daxpy(2*npack1*(ne(1)+ne(2)),
+      call daxpy(2*npack1*(neq(1)+neq(2)),
      >           (-1.0d0),
      >           dcpl_mb(Hpsi_k(1)),1,
      >           THpsi_k,1)
@@ -891,7 +910,7 @@ c    >                    THpsi_k)
 #include "electron_common.fh"
 
 
-      call dcopy(2*npack1*(ne(1)+ne(2)),
+      call dcopy(2*npack1*(neq(1)+neq(2)),
      >           dcpl_mb(Hpsi_k(1)),1,
      >           THpsi_k,1)      
       return
@@ -950,10 +969,10 @@ c    >                    THpsi_k)
 
 
 *     **** generate M*H|psi> *****
-      call Grsm_gg_Copy(npack1,(ne(1)+ne(2)),
+      call Grsm_gg_Copy(npack1,(neq(1)+neq(2)),
      >                  dcpl_mb(Hpsi_k(1)),
      >                  THpsi_k)
-      call ke_precondition(npack1,(ne(1)+ne(2)),
+      call ke_precondition(npack1,(neq(1)+neq(2)),
      >                  psi_k,
      >                  THpsi_k)
 
@@ -982,7 +1001,7 @@ c    >                    THpsi_k)
      >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
       end do
 
-      call Grsm_gg_dScale(npack1,(ne(1)+ne(2)),
+      call Grsm_gg_dScale(npack1,(neq(1)+neq(2)),
      >                    (-1.0d0),
      >                    THpsi_k,
      >                    THpsi_k)
@@ -1197,7 +1216,7 @@ c    >                     hmlt(shift+1))
 *     **** get Hpsi ****
 *     ******************
       if (control_version().eq.3)
-     >  call psi_H(ispin,ne,psi_k,
+     >  call psi_H(ispin,neq,psi_k,
      >             dbl_mb(psi_r(1)),
      >             dcpl_mb(vl(1)),
      >             dbl_mb(v_field(1)),field_exist,
@@ -1208,7 +1227,7 @@ c    >                     hmlt(shift+1))
      >             fion)
 
       if (control_version().eq.4)
-     >  call psi_Hv4(ispin,ne,psi_k,
+     >  call psi_Hv4(ispin,neq,psi_k,
      >             dbl_mb(psi_r(1)),
      >             dcpl_mb(vl(1)),
      >             dbl_mb(vl_lr(1)),
@@ -1219,12 +1238,12 @@ c    >                     hmlt(shift+1))
      >             move,     
      >             fion)
 
-      call Grsm_gg_dscale(npack1,(ne(1)+ne(2)),(-1.0d0),
+      call Grsm_gg_dscale(npack1,(neq(1)+neq(2)),(-1.0d0),
      >                    dcpl_mb(Hpsi_k(1)),
      >                    dcpl_mb(Hpsi_k(1)))
 
       if (fractional) then
-        do n=1,(ne(1)+ne(2))
+        do n=1,(neq(1)+neq(2))
           call Pack_c_SMul(1,dbl_mb(fweight(1)+n-1),
      >                    dcpl_mb(Hpsi_k(1)+(n-1)*npack1),
      >                    dcpl_mb(Hpsi_k(1)+(n-1)*npack1))
@@ -1258,7 +1277,7 @@ c    >                     hmlt(shift+1))
       external control_version
 
      
-      if (n.le.ne(1)) then
+      if (n.le.neq(1)) then
         ms=1
       else
         ms=2
@@ -1382,7 +1401,7 @@ c    >                     hmlt(shift+1))
 
 
       n2ft3d = 2*nfft3d
-      nemax = ne(1) + ne(2)
+      nemax = neq(1) + neq(2)
 
 c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       do n=1,nemax
@@ -1481,7 +1500,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
             end do
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+         call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
+      
       else
       do ms=1,ispin
          do n=n1(ms),n2(ms)
@@ -1492,6 +1513,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
             end do
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+         call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if
 
@@ -1557,6 +1579,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
             end do
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+         call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       else
       do ms=1,ispin
@@ -1568,6 +1591,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
             end do
          end do
          call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+         call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if
 
@@ -2045,9 +2069,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
       n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
+      n2(1) = neq(1)
+      n1(2) = neq(1) + 1
+      n2(2) = neq(1) + neq(2)
 
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
@@ -2082,6 +2106,7 @@ c    >                         sum)
          end do
       end do
       if (np.gt.1) call D3dB_SumAll(elocal)
+      if (np.gt.1) call D1dB_SumAll(elocal)
       if (ispin.eq.1) elocal = 2.0d0*elocal
 
 *     *** add in long range part of psp ****
@@ -2152,9 +2177,9 @@ c    >                         sum)
      >            'electron_psi_vl_ave: out of stack memory',0, MA_ERR)
 
       n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1) + 1
-      n2(2) = ne(1) + ne(2)
+      n2(1) = neq(1)
+      n1(2) = neq(1) + 1
+      n2(2) = neq(1) + neq(2)
 
 
 
@@ -2176,6 +2201,7 @@ c    >                         sum)
          end do
       end do
       if (np.gt.1) call D3dB_SumAll(enlocal)
+      if (np.gt.1) call D1dB_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
  

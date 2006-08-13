@@ -1,5 +1,5 @@
 *
-* $Id: get_psp_type.F,v 1.1 2003-12-02 19:46:09 bylaska Exp $
+* $Id: get_psp_type.F,v 1.2 2006-08-13 01:03:25 bylaska Exp $
 *
 
 #define TCGMSG
@@ -25,6 +25,7 @@
 #endif
 
 *    *** local variables ***
+      logical found
       integer MASTER,taskid
       parameter(MASTER=0)
 
@@ -39,9 +40,10 @@
         call util_file_name_noprefix(psp_filename,.false.,.false.,
      >                    full_filename)
         l = index(full_filename,' ') - 1
-        open(unit=11,file=full_filename(1:l),
-     >             status='old',form='formatted')
-        read(11,'(I)',ERR=9998,END=9998) psp_type
+        open(unit=11,file=full_filename(1:l),form='formatted',
+     >             status='old')
+        read(11,9090,ERR=9998,END=9998) psp_type
+ 9090   format(I1)
         go to 9999
  9998   psp_type = 0
  9999   continue

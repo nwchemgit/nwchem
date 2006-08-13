@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.52 2006-04-08 00:25:48 bylaska Exp $
+* $Id: cpmdv5.F,v 1.53 2006-08-13 01:03:26 bylaska Exp $
 *
 
 ***********************************************************************
@@ -149,6 +149,9 @@ c      parameter (autoatm =290.360032539d6)
       logical  control_Nose,control_Mulliken,pspw_qmmm_found
       external control_Nose,control_Mulliken,pspw_qmmm_found
 
+      integer  Nose_Mchain,Nose_Nchain
+      external Nose_Mchain,Nose_Nchain
+  
       real*8   control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
       external control_Nose_Te,Nose_Qe,Nose_Pe,Nose_Ee0
 
@@ -342,7 +345,7 @@ c      parameter (autoatm =290.360032539d6)
 *     **** Initialize thermostats ****
       if (control_Nose()) then
          call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w)
-         call Nose_Init(w)
+         call Nose_Init((ne(1)+ne(2)),w)
       end if
 
 *     **** Initialize simulated annealing ****
@@ -554,10 +557,14 @@ c      parameter (autoatm =290.360032539d6)
          write(6,1224) (eke1-eke0),(eki1-eki0)
          if (control_Nose()) then
            write(6,1295)
-           write(6,1297) control_Nose_Te(),Nose_Qe(),
-     >                   Nose_Pe(),Nose_Ee0()
-           write(6,1298) control_Nose_Tr(),Nose_Qr(),
-     >                   Nose_Pr(),Nose_Er0()
+           do i=1,Nose_Mchain()
+             write(6,1297) i,control_Nose_Te(),Nose_Qe(i),
+     >                     Nose_Pe(i),Nose_Ee0(i)
+           end do
+           do i=1,Nose_Nchain()
+             write(6,1298) i,control_Nose_Tr(),Nose_Qr(i),
+     >                   Nose_Pr(i),Nose_Er0(i)
+           end do
          else
            write(6,1294)
          end if
@@ -1313,10 +1320,10 @@ c    >              dbl_mb(lmd(1)),ierr)
  1294 format(/' Constant Energy Simulation                     ')
  1295 format(/' Nose-Hoover Simulation - Thermostat Parameters:')
  1296 format(5x, 'SA decay rates  =',e10.3,' (elc)',e10.3,' (ion)')
- 1297 format(5x, 
-     > 'Te =',f8.2,' Qe =',e10.3,' 2*pi/we=',e10.3,' Ee0=',e10.3)
- 1298 format(5x, 
-     > 'Tr =',f8.2,' Qr =',e10.3,' 2*pi/wr=',e10.3,' Er0=',e10.3)
+ 1297 format(5x, 'link = ',I3,
+     > ' Te =',f8.2,' Qe =',e10.3,' 2*pi/we=',e10.3,' Ee0=',e10.3)
+ 1298 format(5x, 'link = ',I3,
+     > ' Tr =',f8.2,' Qr =',e10.3,' 2*pi/wr=',e10.3,' Er0=',e10.3)
  1299 format(//' Mulliken Analysis Output Generated            ')
  1300 FORMAT(//)
  1305 FORMAT(10X,'============ Car-Parrinello iteration ==============')

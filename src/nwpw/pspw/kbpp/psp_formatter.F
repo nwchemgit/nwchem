@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.10 2005-07-09 22:44:23 bylaska Exp $
+c $Id: psp_formatter.F,v 1.11 2006-08-13 01:03:27 bylaska Exp $
 c
 
 *     ***************************************
@@ -194,6 +194,7 @@ c
       end do
 
       call get_psp_type(psp_filename,psp_type)
+
       if (psp_type .eq.1) then
          value = value.and.
      >     hghppv1(.true.,

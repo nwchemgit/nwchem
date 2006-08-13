@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.9 2004-11-08 01:32:48 bylaska Exp $                       
+c     $Id: cgminimize2.F,v 1.10 2006-08-13 01:03:26 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -46,7 +46,7 @@ c
 
 
 *     **** external functions ****
-      integer  control_it_in,psi_ne,control_version,control_ispin
+      integer  control_it_in,psi_neq,control_version,control_ispin
       real*8   control_tole,control_tolc
       real*8   psi_geodesic2_energy
       real*8   psi_geodesic2_denergy
@@ -61,7 +61,7 @@ c
       real*8   psi_1eorbit
       real*8   linesearch
    
-      external control_it_in,psi_ne,control_version,control_ispin
+      external control_it_in,psi_neq,control_version,control_ispin
       external control_tole,control_tolc
       external psi_geodesic2_energy
       external psi_geodesic2_denergy
@@ -106,8 +106,8 @@ c
   
       call Pack_npack(1,npack1)
       ispin = control_ispin()
-      ne(1) = psi_ne(1)
-      ne(2) = psi_ne(2)
+      ne(1) = psi_neq(1)
+      ne(2) = psi_neq(2)
       neall = ne(1)+ne(2)
 
 

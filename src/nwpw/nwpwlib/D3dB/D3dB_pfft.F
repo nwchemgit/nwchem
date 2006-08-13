@@ -2,7 +2,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB_pfft.F,v 1.7 2005-10-14 01:31:57 bylaska Exp $
+* $Id: D3dB_pfft.F,v 1.8 2006-08-13 01:03:24 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -52,7 +52,7 @@
 
 
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       nxh = nx(1)/2
       nyh = ny(1)/2
       nzh = nz(1)/2
@@ -1156,8 +1156,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       if (.not. value) 
      > call errquit('D3dB_ptranspose_jk_init:out of heap',0,MA_ERR)
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
       index1 = 1 
@@ -1282,8 +1282,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer i,j,k,it
 
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 *     ********************************************************
@@ -3136,7 +3136,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       qsize = 0
       last_index = qmax
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
       size  = nfft3d(1)*qmax*2
       value = MA_alloc_get(mt_dcpl,size,'tmp',tmp(2),tmp(1))
 
@@ -3283,7 +3283,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
@@ -3355,7 +3355,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 c      do q=1,qsize
 c         indx   = int_mb(qindx(1)+q-1)
@@ -3437,7 +3437,7 @@ c      end do
 
       call nwpw_timing_start(1)
       call nwpw_timing_start(30)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       do q=1,qsize
          indx   = int_mb(qindx(1)+q-1)
@@ -3507,7 +3507,7 @@ c      end do
       integer shift1,shift2,shift3
       integer q,indx,indx1,status,np
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       call nwpw_timing_start(1)
       call nwpw_timing_start(30)
