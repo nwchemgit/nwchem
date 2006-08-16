@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.2 2006-08-16 23:42:53 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.3 2006-08-16 23:53:27 bylaska Exp $
 *
 
 * Parallel.f
@@ -27,7 +27,7 @@
 #include "tcgmsg.fh"
 #include "global.fh"
 
-#include "mpif.fh"
+#include "mpif.h"
 
 
 *     **** local variables ****
@@ -77,7 +77,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 #include "Parallel.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "mpif.fh"
+#include "mpif.h"
 
 *     *** local variables ***
       integer i,j,icount,ierr
@@ -136,7 +136,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 #include "Parallel.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "mpif.fh"
+#include "mpif.h"
 
 
 *     *** local variable ***
