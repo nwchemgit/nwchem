@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.40 2006-08-12 23:07:28 bylaska Exp $
+* $Id: band_minimizer.F,v 1.41 2006-08-18 02:24:21 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -498,7 +498,7 @@ c           write(luout,1154) cpsp_nprj(ia)
       call ion_end()
       call ion_end_FixIon()
       call C3dB_end(1)
-      IF ((control_gga().ge.10).or.(control_gga().lt.100)) THEN
+      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call mask_end()
       call G_end()
       call D3dB_end(1)
