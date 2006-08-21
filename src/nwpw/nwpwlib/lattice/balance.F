@@ -1,5 +1,5 @@
 *
-* $Id: balance.F,v 1.7 2006-08-13 01:03:25 bylaska Exp $
+* $Id: balance.F,v 1.8 2006-08-21 20:24:13 bylaska Exp $
 *
 
 *     ***********************************
@@ -220,6 +220,7 @@ c     nwave2(taskid) = nwave
       int_mb(nwave2(1)+taskid) = nwave
 c     call D3dB_Vector_ISumAll(np,nwave2)
       call D3dB_Vector_ISumAll(np,int_mb(nwave2(1)))
+     
 
 *     **** get the sorting index ****
 c     call nwave2_sort(np,nwave2,indx)

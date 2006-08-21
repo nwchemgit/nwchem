@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.15 2005-08-25 22:15:01 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.16 2006-08-21 20:24:12 bylaska Exp $
 *
 
 #ifdef MPI
@@ -632,93 +632,174 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 
-c*     ***********************************
-c*     *                                 *
-c*     *         D3dB_SumAll             *
-c*     *                                 *
-c*     ***********************************
-c
-c      subroutine D3dB_SumAll(sum)
-cc     implicit none
-c      real*8  sum
-c
-c
-c#include "mpif.h"
-c
-c      integer MASTER
-c      parameter (MASTER=0)
-c      integer msglen,mpierr
-c      real*8 sumall,sumt
-c
-cc     msglen = 8
-c      msglen = 1
-c
-cc      sumt = sum
-c
-c      call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
-c     >                       MPI_SUM,MPI_COMM_WORLD,mpierr)
-cc      call MPI_BCAST(sumall,msglen,MPI_DOUBLE_PRECISION,
-cc     >               MASTER,MPI_COMM_WORLD,mpierr)
-c
-c      sum = sumall
-c      return
-c      end
-c
-c
-c*     ***********************************
-c*     *                                 *
-c*     *         D3dB_Vector_SumAll      *
-c*     *                                 *
-c*     ***********************************
-c
-c      subroutine D3dB_Vector_SumAll(n,sum)
-cc     implicit none
-c      integer n
-c      real*8  sum(*)
-c
-c#include "mafdecls.fh"
-c#include "mpif.h"
-c#include "errquit.fh"
-c
-c
-c
-c      logical value
-c      integer MASTER
-c      parameter (MASTER=0)
-c      integer msglen
-c
-c*     **** temporary workspace ****
-c      integer sumall(2),np
-c
-c
-c      call Parallel_np(np)
-c      call nwpw_timing_start(2)
-c      if (np.gt.1) then
-c
-c*     ***** allocate temporary space ****
-c      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-c
-c      msglen = n
-c
-c
-c      call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
-c     >                MPI_DOUBLE_PRECISION,
-c     >                MPI_SUM,MPI_COMM_WORLD,mpierr)
-cc      call MPI_BCAST(dbl_mb(sumall(1)),msglen,
-cc     >               MPI_DOUBLE_PRECISION,
-cc     >               MASTER,MPI_COMM_WORLD,mpierr)
-c
-c
-c
-c      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-c      value = MA_pop_stack(sumall(2))
-c
-c      end if
-c      call nwpw_timing_end(2)
-c      return
-c      end
-c
+*     ***********************************
+*     *                                 *
+*     *         D3dB_SumAll             *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_SumAll(sum)
+c     implicit none
+      real*8  sum
+
+
+#include "mpif.h"
+
+      integer msglen,mpierr
+      real*8 sumall
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+      msglen = 1
+
+      call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
+
+      sum = sumall
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_ISumAll             *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_ISumAll(sum)
+c     implicit none
+      integer sum
+
+
+#include "mpif.h"
+
+      integer msglen,mpierr
+      integer sumall
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+      msglen = 1
+
+      call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
+     >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
+
+      sum = sumall
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_Vector_SumAll      *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_Vector_SumAll(n,sum)
+c     implicit none
+      integer n
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "mpif.h"
+#include "errquit.fh"
+
+
+
+      logical value
+      integer msglen
+
+*     **** temporary workspace ****
+      integer sumall(2),np
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+
+      call Parallel_np(np)
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      msglen = n
+
+
+      call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,Parallel2d_comm_i(),mpierr)
+
+
+      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+      value = MA_pop_stack(sumall(2))
+
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_Vector_ISumAll     *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_Vector_ISumAll(n,sum)
+c     implicit none
+      integer n
+      integer  sum(*)
+
+#include "mafdecls.fh"
+#include "mpif.h"
+#include "errquit.fh"
+
+      logical value
+      integer msglen
+
+*     **** temporary workspace ****
+      integer sumall(2)
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+
+      call nwpw_timing_start(2)
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      msglen = n
+
+
+      call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
+     >                MPI_INTEGER,
+     >                MPI_SUM,Parallel2d_comm_i(),mpierr)
+
+
+      call icopy(n,int_mb(sumall(1)),1,sum,1)
+      value = MA_pop_stack(sumall(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
 #endif
 
 

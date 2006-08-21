@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.24 2006-08-13 01:03:25 bylaska Exp $
+* $Id: pack.F,v 1.25 2006-08-21 20:24:13 bylaska Exp $
 *
 
 *     ***********************************
@@ -42,7 +42,6 @@
 *     **** external functions ****
       logical  control_balance
       external control_balance
-
 
 
 *     **** allocate pack memory ****
