@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.533 2006-07-19 00:10:46 edo Exp $
+# $Id: makefile.h,v 1.534 2006-08-22 18:30:09 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1518,7 +1518,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 # i4 not working 
 #
        
-      FC=efc
+      FC=ifort
       CC=gcc
       DEFINES   +=   -DLINUXIA64 
       COPTIMIZE = -O1
@@ -1526,10 +1526,10 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
         FOPTIONS+= -fPIC
       endif
 
-      ifeq ($(FC),efc)
-       _IFCV9= $(shell efc -v  2>&1|egrep "Version "|head -n 1|awk '/9./ {print "Y"}')
-       _IFCV81= $(shell efc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
-       _IFCV8= $(shell efc -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
+      ifeq ($(FC),ifort)
+       _IFCV9= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/9./ {print "Y"}')
+       _IFCV81= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8\.1/  {print "Y";exit}; /9./ {print "Y"; exit}')
+       _IFCV8= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
          FOPTIONS += -quiet
@@ -1573,7 +1573,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
           EXTRA_LIBS += -lutil
         endif
         LDOPTIONS += $(FDEBUG)
-        LINK.f = efc     $(LDFLAGS)  
+        LINK.f = ifort $(LDFLAGS)  
       else
   noefc:
 	@echo 
