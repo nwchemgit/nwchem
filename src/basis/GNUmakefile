@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.46 2004-03-15 19:50:22 edo Exp $
+#$Id: GNUmakefile,v 1.47 2006-08-22 18:11:38 d3p307 Exp $
 TARGET = $(NWCHEM_TARGET)
 include ../tools/armci/config/makecoms.h
 include ../tools/armci/config/makemp.h
@@ -20,7 +20,7 @@ ifeq ($(TARGET),CRAY-T3E)
 endif
 
    LIB_TARGETS = testbasis testbasis.o libcheck
-   LONGNWTOP = $(shell if [`echo $(SRCDIR) |wc -m` -gt 64 ]; then echo "Y"; fi  )
+   LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt 64 ]; then echo "Y"; fi  )
 ifeq ($(LONGNWTOP),Y)
 errorlongpwd:
 	@echo " "
