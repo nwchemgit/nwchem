@@ -272,7 +272,7 @@ foreach TEST ($args_2_use)
 #
   if($md_test_run) then
     if ($NPROC) then
-       $MPIRUN $NPOPT $NPROC $NPROC $NWCHEM $INPUTFILE >& $STUB.nwout
+       $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $STUB.nwout
        @ runstatus = $status
     else
        $NWCHEM $INPUTFILE >& $STUB.nwout
