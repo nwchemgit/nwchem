@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.534 2006-08-22 18:30:09 d3p307 Exp $
+# $Id: makefile.h,v 1.535 2006-08-25 19:40:24 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1532,7 +1532,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
        _IFCV8= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8\./  {print "Y";exit}; /9./ {print "Y"; exit}')
        ifeq ($(_IFCV8),Y)
          DEFINES+= -DIFCV8
-         FOPTIONS += -quiet
+#         FOPTIONS += -quiet
        endif	
        ifeq ($(_IFCV81),Y)
          DEFINES+= -DIFCV81
@@ -1555,7 +1555,7 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
 #         FOPTIMIZE+= -IPF_fp_relaxed # breaks nwdft/xc/xc_pw91lda
        endif
         ifeq ($(_IFCV8),Y)
-         EXTRA_LIBS += -quiet
+#         EXTRA_LIBS += -quiet
          FDEBUG = -g -O2
         else
          EXTRA_LIBS += -Vaxlib 
