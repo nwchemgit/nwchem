@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.535 2006-08-25 19:40:24 d3p307 Exp $
+# $Id: makefile.h,v 1.536 2006-08-28 22:36:17 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1145,28 +1145,50 @@ endif
     _FC=gfortran
 #gcc version 4.2.0 200512 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra -Wunused -ffast-math
-        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
-        FVECTORIZE = -ffast-math  -O3 -ftree-vectorize 
-        FVECTORIZE += -ftree-vectorizer-verbose=1
-        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
+        FOPTIONS   = -Wextra -Wunused #-ffast-math
+        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         ifeq ($(_CPU),ppc970)
 #G5
-          FOPTIMIZE += -mtune=970 -mcpu=970 -mpowerpc64
-          FVECTORIZE += -mtune=970 -mcpu=970 -mpowerpc64
+         FVECTORIZE = -ffast-math  -O2 -ftree-vectorize 
+         FVECTORIZE += -ftree-vectorizer-verbose=1
+         FOPTIMIZE += -mtune=970 -mcpu=970 -mpowerpc64
+         FVECTORIZE += -mtune=970 -mcpu=970 -mpowerpc64
         endif
        ifeq ($(_CPU),ppc7450)
 #G4
+        FVECTORIZE = -ffast-math  -O2 -ftree-vectorize 
+        FVECTORIZE += -ftree-vectorizer-verbose=1
+        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
         FOPTIMIZE += -mtune=7450 -mcpu=7450
+       endif
+       ifeq ($(_CPU),i486)
+#gcc version 4.2.0 200608 (experimental)
+         FOPTIONS= -malign-double#
+         FOPTIMIZE+= -funroll-all-loops -mtune=native 
+         FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
+#         FOPTIMIZE=-O1
+#         FVECTORIZE=-O1
        endif
         ifdef USE_F2C
 #possible segv with use of zdotc (e.g. with GOTO BLAS)
 #http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
-        FDEBUG = -g -O0
+        FDEBUG = -g -O1
         DEFINES  += -DCHKUNDFLW -DGCC4
       endif
+      ifeq ($(FC),ifort)
+    _FC=ifort
+#ifort 9.1
+#        LINK.f = ifort  $(LDFLAGS) 
+        FOPTIONS   = -align    -mp1 -w -g -vec_report3
+  ifdef  USE_GPROF
+    FOPTIONS += -qp
+  endif
+    FOPTIMIZE = -O3 -prefetch  -unroll 
+    FDEBUG=-O0 -g
+    DEFINES   += -DIFCLINUX
+    endif
     ifeq ($(CC),xlc)
       COPTIONS  +=  -qlanglvl=extended
     else

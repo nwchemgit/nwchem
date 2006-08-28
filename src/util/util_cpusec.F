@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.23 2004-12-30 23:27:15 edo Exp $
+c $Id: util_cpusec.F,v 1.24 2006-08-28 22:36:18 edo Exp $
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
@@ -24,7 +24,9 @@ c
 #define __UTIL_CPUSEC__
       real*4 tarray(2)
       real*4 etime
+#ifndef GCC4
       external etime
+#endif
 c
       util_cpusec = etime(tarray)
 c      

@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.111 2006-03-28 17:35:00 edo Exp $
+# $Id: DEFS,v 1.112 2006-08-28 22:36:18 edo Exp $
 #
 #======================================================================
 #
@@ -492,6 +492,13 @@ ifeq ($(peigs_TARGET),DECOSF)
 
 ifeq ($(peigs_TARGET),MACX)
 #MACOSX
+ifeq ($(_CPU),i486)
+	peigs_CPU  = PENTIUM
+        peigs_COMM = TCGMSG
+        peigs_CODEOBJ = DBLE
+        peigs_CC += -DSTD_DBL -DSTD_INT
+        peigs_FC += -D$(peigs_CPU) -DSTD_DBL -DSTD_INT -D$(peigs_COMM)
+else
 	peigs_CPU  = RS6000
 	peigs_COMM = TCGMSG
 	peigs_CODEOBJ = DBLE
@@ -505,6 +512,7 @@ ifeq ($(FC),xlf)
 	peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
 -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
 	endif
+endif
 	endif
 
 ifeq ($(peigs_TARGET),LINUX64)

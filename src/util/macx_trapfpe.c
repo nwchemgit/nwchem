@@ -1,6 +1,7 @@
 /*
- $Id: macx_trapfpe.c,v 1.1 2005-01-12 00:06:06 edo Exp $
+ $Id: macx_trapfpe.c,v 1.2 2006-08-28 22:36:18 edo Exp $
  */
+#if (defined(__ppc__) || defined(__ppc64__)) 
 /* from http://developer.apple.com/documentation/Performance/Conceptual/Mac_OSX_Numerics/Mac_OSX_Numerics.pdf */
 #define fegetenvd(x) asm volatile("mffs %0" : "=f" (x)); 
 #define fesetenvd(x) asm volatile("mtfsf 255,%0" : : "f" (x)); 
@@ -27,4 +28,37 @@ void macx_trapfpe_(void) {
   t.i.lo = FE_ENABLE_OVERFLOW | FE_ENABLE_DIVBYZERO|FE_ENABLE_INVALID;
   fesetenvd(t.d); 
  }
+#elif (defined (__i386__) || defined( __x86_64__ ))
+#include <fenv.h>
+#include <stdio.h>
 
+#define _FPU_MASK_IM  0x01
+#define _FPU_MASK_ZM  0x04
+#define _FPU_MASK_OM  0x08
+#define _FPU_RESERVED 0xF0C0 
+
+typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__HI__)));
+extern fpu_control_t __fpu_control;
+
+#define _FPU_GETCW(cw) asm volatile ("fnstcw %0" : "=m" (*&cw))
+#define _FPU_SETCW(cw) asm volatile ("fldcw %0" : : "m" (*&cw))
+#define _FPU_GETMXCSR(cw_sse) asm volatile ("stmxcsr %0" : "=m" (cw_sse))
+#define _FPU_SETMXCSR(cw_sse) asm volatile ("ldmxcsr %0" : : "m" (cw_sse))
+
+int macx_trapfpe_()
+{
+  fpu_control_t mode, mode_sse;
+
+  _FPU_GETCW (mode) ;
+  mode &= (_FPU_RESERVED | _FE_DIVBYZERO |  _FE_OVERFLOW |  _FE_INVALID) ;
+  _FPU_SETCW (mode) ;
+
+  _FPU_GETMXCSR (mode_sse) ;
+  mode_sse &= (0xFFFF0000 | (_FPU_RESERVED | _FE_DIVBYZERO | _FE_OVERFLOW | _FE_INVALID) <<7);
+  _FPU_SETMXCSR (mode_sse) ;
+
+  return 1 ;
+}
+#else
+#error arch not ready
+#endif
