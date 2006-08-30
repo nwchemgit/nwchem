@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.11 2006-06-01 19:58:33 bert Exp $
+c $Id: vscf.F,v 1.12 2006-08-30 01:30:05 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -551,9 +551,15 @@ c
          if (.not.task_energy(rtdb))  ! equilibrium geometry energy
      &     call errquit('vgrid: first energy did not converge!',555,
      &       CALC_ERR)
-         if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
+         if (theory.eq.'dft') then
+            if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,e))
      &     call errquit('vgrid: failed to get energy from rtdb 1',555,
      &       RTDB_ERR)
+         else
+            if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
+     &     call errquit('vgrid: failed to get energy from rtdb 1',555,
+     &       RTDB_ERR)
+         endif
 c
 c     Point prop:input vectors to the scf or dft vectors so it does
 c     not have to redo the scf/dft everytime
