@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.217 2006-06-15 19:52:45 d3p307 Exp $
+# $Id: make_nwchem_config,v 1.218 2006-08-30 15:29:07 bert Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -65,17 +65,17 @@ MODULES := $(NWCHEM_MODULES)
 
 EXPANSIONS = all qm md classical argos alldev pnnl pnnldev 
 
-EXP_all = $(filter-out uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface dntmc,$(KNOWN_MODULE_SUBDIRS) )
+EXP_all = $(filter-out uccsdt python develop oimp2 scfaux plane_wave rimp2_grad geninterface dntmc vscf,$(KNOWN_MODULE_SUBDIRS) )
 EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf
 EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf
 EXP_argos = prepar analyz
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
