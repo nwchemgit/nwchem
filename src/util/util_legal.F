@@ -1,5 +1,5 @@
       subroutine util_legal()
-* $Id: util_legal.F,v 1.45 2006-06-08 21:31:05 d3p307 Exp $
+* $Id: util_legal.F,v 1.46 2006-09-01 19:48:33 d3p307 Exp $
 *--------------------------------------------------------------------*
 * COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,                  *
 *              2000, 2001, 2002, 2003, 2004, 2005, 2006              *
@@ -103,7 +103,7 @@ c
      &     12x, 
      &     'This software and its documentation were produced with'/
      &     12x, 
-     &    'Government support under Contract Number DE-AC06-76RLO-1830'/
+     &    'Government support under Contract Number DE-AC05-76RL01830'/
      &     12x, 
      &     'awarded by the United States Department of Energy.  The'/
      &     12x, 
@@ -173,10 +173,11 @@ c
      &    'obtained with NWChem:'
      &    /,/,
      + 12x,'E. Apra, T. L. Windus, T. P. Straatsma,',
-     + ' E. J. Bylaska, W. de Jong, K. Kowalski',/,
-     + 12x,'S. Hirata, M. Valiev, M. T. Hackler,',
-     + '  Y. Zhao,',/,
-     + 12x,'R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,',/,
+     + ' E. J. Bylaska, W. de Jong,',/,
+     + 12x,'K. Kowalski, S. Hirata, M. Valiev, D. Wang,', 
+     + ' M. T. Hackler,',/,
+     + 12x,'Y. Zhao,'
+     + ' R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,',/,
      + 12x,'V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown,',
      + ' G. Cisneros,',/,
      + 12x,'G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,',/,
@@ -184,14 +185,15 @@ c
      + ' D. Bernholdt,',/,
      + 12x,'P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,',
      + ' K. Dyall,',/,
-     + 12x,'D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,',
-     + ' B. Johnson,',/,
-     + 12x,'J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,',
-     + ' X. Long,',/,
-     + 12x,'B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,',
-     + ' G. Sandrone,',/
-     + 12x,' M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,',
-     + ' and Z. Zhang,',/,
+     + 12x,'D. Elwood, E. Glendening, M. Gutowski, A. Hess,',
+     + ' J. Jaffe,',/,
+     + 12x,'B. Johnson,',
+     + ' J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,',/,
+     + 12x,'X. Long,',
+     + ' B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,',/,
+     + 12x,'G. Sandrone,',
+     + ' M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,',/,
+     + 12x,'and Z. Zhang,',/,
      + 12x,'"NWChem, A Computational Chemistry Package for Parallel ',
      &    'Computers, ',
      &    /,12x,
