@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.12 2006-08-30 01:30:05 bert Exp $
+c $Id: vscf.F,v 1.13 2006-09-05 15:16:49 bert Exp $
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)
@@ -546,6 +546,8 @@ c
       do3 = .not.(ncoup.le.2 .or. (nread.ge.3 .and. NFIN3.eq.NC1))
       psi0 = (do1 .or. do2 .or. do3)
 c
+        if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
+     +      call errquit('vgrid: no input for theory?',0, RTDB_ERR)
       if(psi0) then
          if(ga_nodeid().eq.0) write(LuOut,9005) 
          if (.not.task_energy(rtdb))  ! equilibrium geometry energy
@@ -564,8 +566,6 @@ c
 c     Point prop:input vectors to the scf or dft vectors so it does
 c     not have to redo the scf/dft everytime
 c
-         if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
-     +      call errquit('vgrid: no input for theory?',0, RTDB_ERR)
          if (theory.eq.'dft') then
             if (.not. rtdb_cget(rtdb,'dft:output vectors',1,vectors_in))
      &         call errquit('vgrid: rtdb_cget dft:output failed', 100,
@@ -665,9 +665,15 @@ c
      &       RTDB_ERR)
             if(ga_nodeid().eq.0) write(LuOut,9045) il,i
             status = task_energy(rtdb)
+            if (theory.eq.'dft') then
+            if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,e))
+     &      call errquit('vgrid: failed to get energy from rtdb 2',555,
+     &       RTDB_ERR)
+            else
             if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
      &      call errquit('vgrid: failed to get energy from rtdb 2',555,
      &       RTDB_ERR)
+            endif
             IF(.not.status .AND. ga_nodeid().eq.0) WRITE(LuOut,9000)
 c
             diagV(im,il) = e - e0
@@ -747,10 +753,17 @@ c
      &       RTDB_ERR)
                   if(ga_nodeid().eq.0) write(LuOut,9065) il,jl,i,j
                   status = task_energy(rtdb)
+                  if (theory.eq.'dft') then
+                  if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,e))
+     *              call errquit
+     *                ('vgrid: failed to get energy from rtdb 3',555,
+     &       RTDB_ERR)
+                  else
                   if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
      *              call errquit
      *                ('vgrid: failed to get energy from rtdb 3',555,
      &       RTDB_ERR)
+                  endif
                   IF(.not.status .AND. ga_nodeid().eq.0) 
      *               WRITE(LuOut,9000)
 c
@@ -852,9 +865,15 @@ c
                   if(ga_nodeid().eq.0) 
      *              write(LuOut,9085) il,jl,kl,i,j,k
                   status = task_energy(rtdb)
+                  if (theory.eq.'dft') then
+                  if (.not.rtdb_get(rtdb,'dft:energy',mt_dbl,1,e))
+     *              call errquit
+     *                ('vgrid: failed to get energy from rtdb',555)
+                  else
                   if (.not.rtdb_get(rtdb,'scf:energy',mt_dbl,1,e))
      *              call errquit
      *                ('vgrid: failed to get energy from rtdb',555)
+                  endif
                   IF(.not.status .AND. ga_nodeid().eq.0) 
      *              WRITE(LuOut,9000)
  
