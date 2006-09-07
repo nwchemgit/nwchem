@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2004-03-15 22:04:17 edo Exp $
+# $Id: GNUmakefile,v 1.7 2006-09-07 16:55:09 d3p307 Exp $
 #
  OBJ_OPTIMIZE = nwpw_library.o nwpw_libfile.o nwpw_set_library.o
 
@@ -10,7 +10,7 @@
 
     USES_BLAS = 
 
-   LONGNWTOP = $(shell if [`echo $(SRCDIR) |wc -m` -gt 64 ]; then echo "Y"; fi  )
+   LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt 64 ]; then echo "Y"; fi  )
 ifeq ($(LONGNWTOP),Y)
 errorlongpwd:
 	@echo " "
