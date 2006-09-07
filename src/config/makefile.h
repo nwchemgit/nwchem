@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.536 2006-08-28 22:36:17 edo Exp $
+# $Id: makefile.h,v 1.537 2006-09-07 16:56:28 d3p307 Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1439,10 +1439,23 @@ endif
       CPP=/usr/bin/cpp  -P -C -traditional
       FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
     else
+      ifeq ($(FC),blrts_xlf)
+       FOPTIONS  = -q32  -qextname -qfixed
+       FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
+       FOPTIMIZE= -O3 -qstrict  -qarch=440 -qtune=440 -qfloat=fltint
+       FDEBUG= -O2 -g
+       EXPLICITF = TRUE
+       DEFINES  +=   -DXLFLINUX
+       CPP=/usr/bin/cpp  -P -C -traditional
+       FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+    else
       FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
       FOPTIMIZE  = -g -O2
     endif
     ifeq ($(CC),xlc)
+      COPTIONS  +=  -q32 -qlanglvl=extended
+    else
+      ifeq ($(CC),blrts_xlc)
       COPTIONS  +=  -q32 -qlanglvl=extended
     else
       COPTIONS   = -Wall
@@ -2143,10 +2156,12 @@ endif
 # a .F.f rule is needed for any system target where the default .F.f rule does not work
 # AND the EXPLICITF is not already true.  Right now this is only LINUX with g77
       ifneq ($(FC),xlf)
+      ifneq ($(FC),blrts_xlf)
 ifeq ($(TARGET),LINUX)
 .F.f:
 	$(FC) -c $(FFLAGS) -E $(CPPFLAGS) $< -o $*.f
 endif
+      endif
       endif
 
 # else for ifndef Flint

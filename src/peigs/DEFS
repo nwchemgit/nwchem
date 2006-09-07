@@ -1,5 +1,5 @@
 #
-# $Id: DEFS,v 1.112 2006-08-28 22:36:18 edo Exp $
+# $Id: DEFS,v 1.113 2006-09-07 16:53:13 d3p307 Exp $
 #
 #======================================================================
 #
@@ -629,6 +629,11 @@ peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
       peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
       -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM) 
     endif
+     ifeq ($(FC),blrts_xlf)
+       peigs_CPU = RS6000
+       peigs_FC  = $(FC) -O3 -g -qextname -qstrict   -I$(peigs_HDIR)  \
+       -WF,-Iinclude,-DIBM,-DSTD_DBL,-DSTD_INT,-I$(peigs_HDIR),-DRS6000,-D$(peigs_COMM)
+     endif
 endif
 
 ifeq ($(peigs_TARGET),PGLINUX)
