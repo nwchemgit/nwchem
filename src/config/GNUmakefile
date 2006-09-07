@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2006-03-22 18:52:24 windus Exp $
+# $Id: GNUmakefile,v 1.12 2006-09-07 16:57:46 d3p307 Exp $
 #
 
 include makefile.h
@@ -38,6 +38,14 @@ endif
 ifeq ($(TARGET),HPUX)
   DEPENDCFLAGS = -Aa -D_HPUX_SOURCE +e
 endif
+
+ifeq ($(TARGET),LINUX)
+ ifeq ($(LINUXCPU),ppc)
+# mainly for Blue Gene/L 
+  CC = gcc
+ endif
+endif
+
 
 $(BINDIR)/depend.x:	depend.c
 	$(CC) $(DEPENDCFLAGS) -g -o $@ $^
