@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.156 2006-06-08 20:42:18 d3p307 Exp $
+c     $Id: nwchem.F,v 1.157 2006-09-08 15:28:35 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                  2000, 2001, 2002, 2003, 2004, 2005, 2006           *
@@ -370,12 +370,20 @@ c
 #endif
       integer heap, stack, global, global_b, total, nproc
       logical status
+#ifdef CATAMOUNT
+      integer istatus,setvbuf3f
+      external setvbuf3f
+#endif
       character*3 cstatus, fstatus
       character*10 cstart
       Character*40 GStatus
 c
 #ifdef USE_SUBGROUPS
       luout=6
+#endif
+#ifdef CATAMOUNT
+      istatus=setvbuf3f(luout, 0, 4096)
+      istatus=setvbuf3f(0, 0, 4096)
 #endif
       if (ga_nodeid() .ne.0) goto 10101
 c
