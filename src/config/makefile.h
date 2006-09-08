@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.537 2006-09-07 16:56:28 d3p307 Exp $
+# $Id: makefile.h,v 1.538 2006-09-08 15:14:18 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -759,6 +759,9 @@ ifeq ($(TARGET),IBM)
 
     CORE_SUBDIRS_EXTRA = lapack blas
          FC = xlf
+         ifeq ($(FC),xlf)
+           _FC=xlf
+         endif
          CC = xlc
     ARFLAGS = urs
      RANLIB = echo
@@ -864,6 +867,9 @@ ifeq ($(TARGET),IBM64)
 
     CORE_SUBDIRS_EXTRA = lapack blas
          FC = xlf
+         ifeq ($(FC),xlf)
+           _FC=xlf
+         endif
          CC = xlc
          AR = ar -X 64
      RANLIB = echo
@@ -1430,32 +1436,36 @@ endif
 # xlc v7.0 
 # gcc-3.2.3-42 
     ifeq ($(FC),xlf)
+      _FC=xlf
+    endif
+    ifeq ($(FC),blrts_xlf)
+      _FC=xlf
+    endif
+    ifeq ($(_FC),xlf)
       FOPTIONS  = -q32  -qextname -qfixed 
-      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsigtrap -qxlf77=leadzero
+      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
       FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qfloat=fltint
+      ifeq ($(FC),blrts_xlf)
+        FOPTIMIZE+= -qarch=440 -qtune=440
+      else
+        FOPTIMIZE+= -qarch=auto -qtune=auto
+      endif
       FDEBUG= -O2 -g
       EXPLICITF = TRUE
       DEFINES  +=   -DXLFLINUX
       CPP=/usr/bin/cpp  -P -C -traditional
       FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
     else
-      ifeq ($(FC),blrts_xlf)
-       FOPTIONS  = -q32  -qextname -qfixed
-       FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
-       FOPTIMIZE= -O3 -qstrict  -qarch=440 -qtune=440 -qfloat=fltint
-       FDEBUG= -O2 -g
-       EXPLICITF = TRUE
-       DEFINES  +=   -DXLFLINUX
-       CPP=/usr/bin/cpp  -P -C -traditional
-       FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-    else
       FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
       FOPTIMIZE  = -g -O2
     endif
     ifeq ($(CC),xlc)
-      COPTIONS  +=  -q32 -qlanglvl=extended
-    else
-      ifeq ($(CC),blrts_xlc)
+      _CC=xlc
+    endif
+    ifeq ($(CC),blrts_xlc)
+      _CC=xlf
+    endif
+    ifeq ($(_CC),xlc)
       COPTIONS  +=  -q32 -qlanglvl=extended
     else
       COPTIONS   = -Wall
@@ -1499,7 +1509,8 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 # end of Linux, Cygnus
 endif
 
-ifeq ($(NWCHEM_TARGET),LINUX64)
+ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
+#ifeq ($(NWCHEM_TARGET),LINUX64)
    ifeq ($(FC),g77)
       g7764:
 	@echo 
@@ -1634,6 +1645,10 @@ endif # end of ia32 bit
 #
       MAKEFLAGS = -j 2 --no-print-directory
       COPTIMIZE = -O1
+ifeq ($(NWCHEM_TARGET),CATAMOUNT)
+      FC=pgf90
+      CC=gcc
+endif
       ifeq ($(FC),f77)
         defineFC: 
 	@echo 
@@ -1704,6 +1719,10 @@ endif # end of ia32 bit
         FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
         FDEBUG = -g -O2
         DEFINES  += -DCHKUNDFLW -DPGLINUX
+       ifeq ($(NWCHEM_TARGET),CATAMOUNT)
+         LDFLAGS=-O -g
+          LINK.f = mpif90 -O $(LDFLAGS) $(FOPTIONS)
+       endif
       endif
       ifeq ($(FC),pathf90)
 #pathscale 1.3 compiler
@@ -1724,9 +1743,15 @@ endif # end of ia32 bit
       endif
      CORE_LIBS +=  $(BLASOPT) -llapack -lblas
      ifdef  USE_GPROF
-       FOPTIONS += -pg
-       COPTIONS += -pg
-       LDOPTIONS += -pg
+        ifeq ($(NWCHEM_TARGET),CATAMOUNT)
+          FOPTIONS   += -Mprof=func#,lines
+          LDOPTIONS   += -Mprof=func#,lines
+          COPTIONS   += -O2 -finstrument-functions
+        else
+          FOPTIONS += -pg
+          COPTIONS += -pg
+          LDOPTIONS += -pg
+        endif
      endif
 
       ifeq ($(_FC),gfortran)
@@ -1764,6 +1789,9 @@ endif
 # gcc-3.2.3-42 
 
       FC=xlf
+         ifeq ($(FC),xlf)
+           _FC=xlf
+         endif
       CC=gcc
       ifeq ($(CC),xlc)
         COPTIONS  +=  -q64 -qlanglvl=extended
@@ -1771,7 +1799,7 @@ endif
 #this for gcc/cc
         COPTIONS  +=  -m64  -O
       endif
-      ifeq ($(FC),xlf)
+      ifeq ($(_FC),xlf)
 #RSQRT=y breaks intchk QA
         FOPTIONS  =  -q64 -qextname -qfixed #-qnosave  #-qalign=4k
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qxlf77=leadzero
@@ -1800,6 +1828,9 @@ endif
      EXTRA_LIBS +=    -lnwcutil  -lpthread -lutil -ldl
   LDOPTIONS = -Wl,--export-dynamic 
      endif
+ifeq ($(NWCHEM_TARGET),CATAMOUNT)
+        DEFINES  += -DCATAMOUNT
+endif
 
 endif
 
@@ -2155,13 +2186,11 @@ endif
 
 # a .F.f rule is needed for any system target where the default .F.f rule does not work
 # AND the EXPLICITF is not already true.  Right now this is only LINUX with g77
-      ifneq ($(FC),xlf)
-      ifneq ($(FC),blrts_xlf)
+      ifneq ($(_FC),xlf)
 ifeq ($(TARGET),LINUX)
 .F.f:
 	$(FC) -c $(FFLAGS) -E $(CPPFLAGS) $< -o $*.f
 endif
-      endif
       endif
 
 # else for ifndef Flint
