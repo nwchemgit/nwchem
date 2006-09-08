@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.24 2006-08-28 22:36:18 edo Exp $
+c $Id: util_cpusec.F,v 1.25 2006-09-08 15:18:52 edo Exp $
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications
@@ -62,7 +62,7 @@ c
       util_cpusec = dclock() - first
 #endif
 
-#if (defined(LINUX) || defined(CYGNUS)) && !defined(LINUXIA64) 
+#if (defined(LINUX) || defined(CYGNUS)) && !defined(LINUXIA64) &&! defined(CATAMOUNT)
 #define __UTIL_CPUSEC__
       double precision linux_cputime
       external linux_cputime
@@ -95,9 +95,11 @@ c
       util_cpusec = secondr() - first ! Actually wall time
 #endif
 
-#if defined(FUJITSU_SOLARIS)
+#if defined(FUJITSU_SOLARIS) || defined(CATAMOUNT)
 #define __UTIL_CPUSEC__
+#ifdef FUJITSU_SOLARIS
       intrinsic cpu_time
+#endif
 c
       call cpu_time (util_cpusec)
 #endif

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.191 2006-03-10 01:25:23 windus Exp $
+# $Id: GNUmakefile,v 1.192 2006-09-08 15:18:52 edo Exp $
 
 include ../config/makefile.h
 
@@ -92,7 +92,7 @@ ifeq ($(TARGET),DECOSF)
   LIB_DEFINES += -DBYTE_SHORT_PACKING  -D_POSIX_PII_SOCKET
   EXTRA_OBJ = dec_fpe.o
 endif
-ifeq ($(TARGET),LINUX64)
+ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
 ifeq ($(_CPU),alpha)
 ifeq ($(FC),fort)
   EXTRA_OBJ += dec_fpe.o
