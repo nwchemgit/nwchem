@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.538 2006-09-08 15:14:18 edo Exp $
+# $Id: makefile.h,v 1.539 2006-09-11 15:38:58 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1444,7 +1444,7 @@ endif
     ifeq ($(_FC),xlf)
       FOPTIONS  = -q32  -qextname -qfixed 
       FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
-      FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qfloat=fltint
+      FOPTIMIZE= -O3 -qstrict -qfloat=fltint
       ifeq ($(FC),blrts_xlf)
         FOPTIMIZE+= -qarch=440 -qtune=440
       else
@@ -1463,7 +1463,7 @@ endif
       _CC=xlc
     endif
     ifeq ($(CC),blrts_xlc)
-      _CC=xlf
+      _CC=xlc  
     endif
     ifeq ($(_CC),xlc)
       COPTIONS  +=  -q32 -qlanglvl=extended
