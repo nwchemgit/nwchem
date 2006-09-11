@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.105 2006-04-20 17:20:20 d3j191 Exp $
+c $Id: ana_task.F,v 1.106 2006-09-11 21:22:33 d3j191 Exp $
 c
       implicit none
 c
@@ -37,6 +37,7 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
+      lfntcl=64
       lfnavg=65
       lfnhol=66
       lfnpin=67
@@ -1291,9 +1292,9 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 5
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
-      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+c      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
+c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
@@ -1360,6 +1361,7 @@ c
       filprj=fil(1:index(fil,' ')-1)//'.trj'
       filval=fil(1:index(fil,' ')-1)//'.val'
       filvec=fil(1:index(fil,' ')-1)//'.vec'
+      filtcl=fil(1:index(fil,' ')-1)//'.tcl'
       filecc=fil(1:index(fil,' ')-1)//'.ecce.out'
       filmin=fil(1:index(fil,' ')-1)//'_min.pdb'
       filmax=fil(1:index(fil,' ')-1)//'_max.pdb'
@@ -1369,6 +1371,7 @@ c
       fmt=filprj(i+1:i+3)
       filval=fil(1:i-1)//'.val'
       filvec=fil(1:i-1)//'.vec'
+      filtcl=fil(1:i-1)//'.tcl'
       filecc=fil(1:i-1)//'.ecce.out'
       filmin=fil(1:i-1)//'_min.pdb'
       filmax=fil(1:i-1)//'_max.pdb'
@@ -1404,9 +1407,9 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 6
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
-      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+c      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
+c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
 c
       if(np.gt.1) call ana_update(dbl_mb(i_xdat),msa,ifr,ifr+num-1)
@@ -1431,7 +1434,8 @@ c
       if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 6
       endif
 c
-      if(.not.ana_wrtvec(ivec,fil,dbl_mb(i_xadat))) goto 9999
+      if(.not.ana_wrtvec(ivec,fil,int_mb(i_ndx),dbl_mb(i_xadat)))
+     + goto 9999
 c
       lesd=.false.
 c
@@ -1596,7 +1600,7 @@ c
 c
       return
       end
-      logical function ana_wrtvec(ivec,fil,xa)
+      logical function ana_wrtvec(ivec,fil,ndx,xa)
 c
       implicit none
 c
@@ -1612,8 +1616,11 @@ c
       character*255 fil
       integer i,j,k,l
       real*8 value,xa(msa,3)
+      integer ndx(nsa)
 c
       if(me.eq.0) then
+      open(unit=lfntcl,file=filtcl(1:index(filtcl,' ')-1),
+     + form='formatted',status='unknown',err=9999)
       open(unit=lfnvec,file=filvec(1:index(filvec,' ')-1),
      + form='formatted',status='unknown',err=9999)
       open(unit=lfnecc,file=filecc(1:index(filecc,' ')-1),
@@ -1629,8 +1636,8 @@ c
       k=k+1
    16 continue
       l=l+1
-      write(lfnvec,5555)
-     + (10.0*xa(l,j),j=1,3),
+      write(lfntcl,5555)
+     + (10.0*xa(ndx(i),j),j=1,3),
      + (dbl_mb(i_cov+k-4+j),j=1,3)
  5555 format('draw vector2 {',3f12.6,'} {',3f12.6,'} 1.0 10')
       write(lfnamp,'(i5,f12.6)') i,sqrt(value)
@@ -1683,6 +1690,7 @@ c
       write(lfnecc,3011) nselo
  3011 format('task_gradient%end%total gradient%3 ',i7,'%double')
 c
+      close(unit=lfntcl)
       close(unit=lfnvec)
       close(unit=lfnecc)
       close(unit=lfnval)

@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.34 2005-01-11 15:34:36 d3j191 Exp $
+c $Id: ana_rdfram.F,v 1.35 2006-09-11 21:22:33 d3j191 Exp $
 c
       implicit none
 c
@@ -42,7 +42,8 @@ c
  2221 format(' skip  ',2f12.6,e12.5,2a10)
       goto 1
       endif
-      write(*,2201) timp,temp,pres,datum,tijd
+      if(util_print('frames_read',print_debug))
+     + write(*,2201) timp,temp,pres,datum,tijd
  2201 format(' frame ',2f12.6,e12.5,2a10)
       if(timp.lt.timr) timoff=time
       time=timp+timoff
