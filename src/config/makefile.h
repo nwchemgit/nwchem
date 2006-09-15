@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.539 2006-09-11 15:38:58 edo Exp $
+# $Id: makefile.h,v 1.540 2006-09-15 17:46:23 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1285,10 +1285,10 @@ ifeq ($(LINUXCPU),x86)
       COPTIONS   =  -march=i686 
       ifdef USE_GCC31
         FDEBUG=-O1 -g
-        COPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse 
-        COPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
-        FOPTIMIZE +=-march=pentium4 -mcpu=pentium4 -msse2 -mfpmath=sse 
-        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
+        COPTIMIZE +=-march=pentium4 -mcpu=pentium4 #-msse2 -mfpmath=sse 
+#        COPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
+        FOPTIMIZE +=-march=pentium4 -mcpu=pentium4# -msse2 -mfpmath=sse 
+#        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
       else
         FOPTIMIZE  +=  -march=i686
         COPTIONS   = -Wall -march=i686 -malign-double 
@@ -1397,7 +1397,7 @@ ifeq ($(LINUXCPU),x86)
         FOPTIONS   = -Wextra -Wunused -malign-double -ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
-          FOPTIONS += -march=pentium4 -msse2 
+          FOPTIONS += -march=pentium4 -mtune=pentium4
           FVECTORIZE = $(FOPTIMIZE) -O3 -ftree-vectorize 
           FVECTORIZE += -ftree-vectorizer-verbose=1
 #        FOPTIMIZE  += -fprefetch-loop-arrays -ftree-loop-linear
@@ -1509,7 +1509,8 @@ CORE_LIBS += -llapack $(BLASOPT) -lblas
 # end of Linux, Cygnus
 endif
 
-ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
+ifneq ($(TARGET),LINUX)
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 #ifeq ($(NWCHEM_TARGET),LINUX64)
    ifeq ($(FC),g77)
       g7764:
@@ -1833,7 +1834,8 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
 endif
 
 endif
-
+endif
+#endof of LINUX64
 
 ifeq ($(TARGET),FUJITSU_VPP)
 #
