@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.11 2005-05-05 22:54:17 bert Exp $
+c $Id: hnd_spinspin.F,v 1.12 2006-09-18 15:56:18 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -179,6 +179,13 @@ c
           goto 911
       endif
 c
+c     UHF or UDFT but still closed shell
+c
+      if (nopen(1).ne.nopen(2)) then
+          if (ga_nodeid().eq.0) write(luout,7001)
+          goto 911
+      endif
+c
 c     Make sure the CPHF knows that a DFT run is also UHF
 c
       if (.not. rtdb_cput(rtdb, 'scf:scftype', 1, scftyp))
@@ -312,6 +319,8 @@ c
       return
  7000 format(/,6x,'Indirect spin-spin coupling not calculated for RHF',
      1      /,6x,'wave functions: needs UHF wave function')
+ 7001 format(/,6x,'Indirect spin-spin coupling not calculated for open',
+     1      /,6x,'shell wave functions: needs closed shell UHF!')
  9000 format(6x,49(1h-),/,
      &       6x,'Atom ',i4,': ',i3,'-',a2,' and Atom ',i4,': ',
      &       i3,'-',a2,//,
