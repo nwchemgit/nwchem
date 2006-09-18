@@ -1,5 +1,5 @@
 ====================================================
-$Id: INSTALL,v 1.79 2006-03-03 21:59:55 d3p307 Exp $
+$Id: INSTALL,v 1.80 2006-09-18 22:06:10 d3p307 Exp $
 ----------------------------------------------------
 
 GUIDE TO INSTALLING NWChem
@@ -142,7 +142,7 @@ BASIC BUILD INSTRUCTIONS:
                   ppc             YD2.1,SLES  GNU,xlf             y
    LINUX64        Alpha           RedHat 6.2  Compaq              y
                   ia64            RedHat 7.2  Intel               y
-                  x86_64          SLES, RH    PGI,PathScale,Intel Y   
+                  x86_64          SLES, RH    PGI,PathScale,Intel y   
                   ppc64           SLES, RH      xlf               y
    				 		   
    HPUX           hppa            HPUX 11.0                       y
@@ -151,7 +151,7 @@ BASIC BUILD INSTRUCTIONS:
    				 		   
    WIN32          Intel x86       Windows98/NT    Compaq 
    				 		   
-   MACX           Apple MacOSX    Darwin 7.7.0    GNU,IBM xlf
+   MACX           Apple MacOSX    Darwin        GNU,xlf,Intel
 
    ----------------------------------------------------------------------
 
@@ -278,19 +278,19 @@ USE OF NON DEFAULT COMPILERS:
      make FC="fortran compiler" and/or CC="C compiler" 
 
   E.g: 
-   make FC=ifc 
+   make FC=ifort 
   (Intel Fortran compiler replacing GNU g77 on x86 platforms)
 
   Possible choices
 
    NWCHEM_TARGET   uname -m    FC     CC
    ---------------------------------------
-   LINUX           i386       ifc    icc   Intel compilers for IA32
+   LINUX           i386       ifort  icc   Intel compilers for IA32
    LINUX           i386       pgf77        Portland Group f77 compiler
    LINUX64         ppc        xlf    xlc   IBM compilers
-   LINUX64         ia64       ecc          Intel C compiler for IA64
+   LINUX64         ia64       ifort        Intel C compiler for IA64
    LINUX64         x86_64     pathf90      PathScale f90 compiler
-   LINUX64         x86_64     ifc          Intel EM64T Fortran compiler
+   LINUX64         x86_64     ifort        Intel EM64T Fortran compiler
    LINUX64         x86_64     pgf90        PGI Fortran90 compiler
    LINUX64         ppc64      xlf    xlc   IBM compilers
    MACX                       xlf    xlc   IBM compilers
@@ -403,7 +403,7 @@ G)  Please note that the .nwchemrc does not handle the pseudopotential
 when testing a new installation when an old one exists.  This will allow you to
 overwrite the value of nwchem_basis_library in your .nwchemrc file and point to 
 the new basis library.  For example:
-   setenv NWCHEM_BASIS_LIBRARY "$NWCHEM/data-4.7/libraries/"
+   setenv NWCHEM_BASIS_LIBRARY "$NWCHEM/data-5.0/libraries/"
 Do not forget the trailing "/".
 
 BUILDING WITH MPI:
@@ -444,11 +444,11 @@ BUILDING WITH MPI:
         setenv ARMCI_NETWORK QUADRICS
      HPUX
         setenv MPI_INCLUDE /opt/mpi/include
-        setenv MPI_LIB /opt/mpi/lib/pa20_64/
+        setenv MPI_LIB /opt/mpi/lib/pa1.1/
         setenv LIBMPI -lmpi
      HPUX64
         setenv MPI_INCLUDE /opt/mpi/include
-        setenv MPI_LIB /opt/mpi/lib/pa1.1/
+        setenv MPI_LIB /opt/mpi/lib/pa20_64/
         setenv LIBMPI -lmpi
      SGI_N32
         setenv LIBMPI -lmpi
@@ -698,27 +698,6 @@ MPI_LIB=$MPI_LOC/lib
 MPI_INCLUDE=$MPI_LOC/include
 LIBMPI=-lmpich             
 
-To run NWChem, you need to set the following enviromental variable:
-
-GMPI_SHMEM_FILE /tmp/$USER.gm 
-
-and you need to have a $HOME/.gmpi/conf file that allocates GM ports in
-the following order (in this example, we are using an 8 node dual system). 
-
-8
-node1 2
-node1 4
-node2 2
-node2 4
-node3 2
-node3 4
-node4 2
-node4 4
-
-To run (IMPORTANT):
-mpirun.ch_gm --gm-use-shmem $NWCHEM_TOP/bin/LINUX/nwchem
-
-
 BUILDING AND RUNNING NWCHEM ON GIGANET CLUSTERS:
 ------------------------------------------------
 Before starting the NWChem compilation, the following environmental
@@ -792,7 +771,7 @@ You'll first need to create the util_version.F file in the util directory
 cd $NWCHEM_TOP\src\util
 cp util_v_stub.F util_version.F
 
-For nwchem-4.7 you will also need to modify the matmul.c file in the tools/global/src
+For nwchem-5.0 you will also need to modify the matmul.c file in the tools/global/src
 directory
 cd $NWCHEM_TOP\src\tools\src
 edit matmul.c and change all instances of "ga_error_" to "ga_error"
