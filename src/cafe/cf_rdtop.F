@@ -1,5 +1,5 @@
       subroutine cf_rdtop(lfntop,filtop,snam)
-c $Id: cf_rdtop.F,v 1.35 2005-01-08 20:27:06 d3j191 Exp $
+c $Id: cf_rdtop.F,v 1.36 2006-09-18 15:42:14 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -15,14 +15,14 @@ c
       real*8 releps
       character*16 stemp,snam(nsatot)
       integer natyps,nqtyps
-      real*8 rdata(24),vdata(24,4),qdata(24,2),pdata(4,24)
+      real*8 rdata(24),vdata(24,4),qdata(24,3),pdata(4,24)
       integer idata(24)
       character*6 cdata(24)
       integer i,ia,iq,j,k,l,m,m2,m3,m4,itemp(24),i_i,i_j,l_i,l_j
       integer naw,nbw,nhw,ndw,now,ntw,nnw
       integer nhp
       integer nas,nbt,nhs,nds,nos,nts,nxs
-      integer numbl,numbi,numbd,iqfr,iqto,nsad
+      integer numbl,numbi,numbd,iqfr,iqto,nsad,maxpro
       character*10 string
 c
       real*8 cf_charge
@@ -89,16 +89,17 @@ c
       endif
       do 4 i=1,nqtyps
       read(lfntop,1007,end=9997,err=9998)
-     + ((qdata(k,l),l=1,2),k=1,nparms)
- 1007 format(5x,f12.6,e12.5)
+     + ((qdata(k,l),l=1,3),k=1,nparms)
+ 1007 format(5x,f12.6,e12.5,f12.6)
       call cf_parq(i,qdata)
     4 continue
       if(.not.ma_verify_allocator_stuff()) then
       call md_abort('ERROR IN MEMORY IN RDTOP CHARGE TYPES',0)
       endif
       do 4004 i=1,nseq
-      read(lfntop,4008,end=9997,err=9998) string
- 4008 format(a10)
+      read(lfntop,4008,end=9997,err=9998) string,maxpro
+ 4008 format(a10,33x,i5)
+      call cf_parseq(i,maxpro)
  4004 continue
       read(lfntop,1008,end=9997,err=9998) naw,nbw,nhw,ndw,now,ntw,nnw
  1008 format(5i7,2i10)

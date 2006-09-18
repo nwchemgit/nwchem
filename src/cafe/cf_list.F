@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.32 2005-01-08 19:17:20 d3j191 Exp $
+c $Id: cf_list.F,v 1.33 2006-09-18 15:42:14 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -351,7 +351,7 @@ c
       subroutine cf_lss(lself,lpbc,lpbcs,xs,iga,idt,igr,isgm,iss,ish,
      + isz,
      + isfr,isto,jsfr,jsto,nlocs,mpairs,npairs,lssjpt,lssin,lssj,list,
-     + rwx,rw,ndxt,nt,ndxx,nx,lda,rda,lseq,lsthop)
+     + rwx,rw,ndxt,nt,ndxx,nx,lda,rda,lseq,lsthop,mprot)
 c
       implicit none
 c
@@ -368,19 +368,19 @@ c
       integer lssj(*),lssjpt(nlocs,2),lssin(nlocs,2)
       integer list(msa,3),iga(msa),igr(msa),idt(msa),iss(msa),isz(msa)
       integer ish(msa),isgm(msa)
-      integer lseq(mseq),lsthop(2,*)
-      logical lself,lpbc,lpbcs
+      integer lseq(mseq),lsthop(2,*),mprot(mseq)
+      logical lself,lpbc,lpbcs,lsame
 c
       integer isafr,isfr,isato,isto,jsafr,jsfr,jsato,jsto
       integer mpairs,npairs,isa,jsa,nlist1,nlist2,idoff,iaoff
       integer ifrsx,itosx,ifrst,itost,jfrsx,jtosx,jfrst,jtost
       integer iskip1,iskip2,istsum,ist,jst,isxsum,isx,jsx,ilist
       integer nlist0,isa0,iisa,isglob,ipss,jsglob,nlist,leq,nssl0
-      integer lda(10,*)
-      real*8 rda(5,*)
+      integer lda(16,*)
+      real*8 rda(11,*)
 c
-      real*8 xacc(5)
-      integer idon,iacc,i
+      real*8 xacc(11)
+      integer idon,iacc,i,idown,idfr,idto,iaown,iafr,iato
 c
 c
 c     this subroutine evaluates the solute-solute pairlist
@@ -391,6 +391,8 @@ c
       jsato=jsto
       if(lself) isato=isato-1
 c
+c      write(*,'(i5,a,i5)') me,' cf_lss nseq=',nseq
+c      write(*,'(20i5)') (lseq(i),i=1,nseq)
 c
       npairs=0
 c
@@ -570,11 +572,15 @@ c
       if(nhop.gt.0) then
       idon=0
       iacc=0
+      idown=0
+      iaown=0
       if(ish(isa).gt.0) then
       if(iand(ish(isa),1).eq.0) then
       idon=isa
+      idown=me
       else
       iacc=isa
+      iaown=me
       endif
       endif
       if(idon.gt.0.or.iacc.gt.0) then
@@ -585,16 +591,16 @@ c
       if(ish(jsa).gt.0) then
       if(iacc.gt.0.and.iand(ish(jsa),1).eq.0) then
       idon=jsa
+      if(lself) idown=me
       elseif(idon.gt.0.and.iand(ish(jsa),1).eq.1) then
       iacc=jsa
+      if(lself) iaown=me
       endif
       endif
       if(idon.gt.0.and.iacc.gt.0.and.rw(jsa).lt.rhop2) then
-ctmp
-c     temporary change to exclude same to same protonation state
 c
-      if(lseq(isgm(idon)).ne.lseq(isgm(iacc))) then
-ctmp
+      if(lseq(isgm(idon))+ish(idon)/2.le.mprot(idon)
+     + .or.lseq(isgm(iacc))-ish(iacc)/2.ge.1) then
 c
       do 226 i=1,nhops
       if(lsthop(1,i).eq.isgm(iacc).and.lsthop(2,i).eq.isgm(idon)) then
@@ -602,12 +608,22 @@ c
       endif
   226 continue
 c
+c
+c
       call qhop_asite(msa,xs,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
-     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),xacc,idoff,iaoff)
+     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),xacc,idoff,iaoff,
+     + lsame)
+c
+c     do not allow hops to the same protonation state if the type of
+c     residue/molecule is identical (e.q. water dissociating into OH and H3O)
+c
+      if(.not.lsame.or.lseq(isgm(idon)).ne.lseq(isgm(iacc))) then
+c
       nlda=nlda+1
-c      write(*,2222) nlda,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
-c     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),sqrt(rw(jsa))
- 2222 format(9i5,f12.6)
+c      write(*,2222) me,nlda,idon,iga(idon),isgm(idon),lseq(isgm(idon)),
+c     + ish(idon),iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),ish(iacc),
+c     + sqrt(rw(jsa))
+c 2222 format(12i5,f12.6)
       if(nlda.gt.3*nhop) call md_abort('Increase nhop',nhop)
       lda(1,nlda)=iga(idon)
       lda(2,nlda)=idon
@@ -619,19 +635,32 @@ c     + iacc,iga(iacc),isgm(iacc),lseq(isgm(iacc)),sqrt(rw(jsa))
       lda(8,nlda)=isgm(iacc)
       lda(9,nlda)=lseq(isgm(iacc))-ish(iacc)/2
       lda(10,nlda)=iaoff
+      lda(11,nlda)=idown
+      lda(12,nlda)=0
+      lda(13,nlda)=0
+      lda(14,nlda)=iaown
+      lda(15,nlda)=0
+      lda(16,nlda)=0
       rda(1,nlda)=xacc(1)
       rda(2,nlda)=xacc(2)
       rda(3,nlda)=xacc(3)
       rda(4,nlda)=xacc(4)
       rda(5,nlda)=xacc(5)
+      rda(6,nlda)=xacc(6)
+      rda(7,nlda)=xacc(7)
+      rda(8,nlda)=xacc(8)
+      rda(9,nlda)=xacc(9)
+      rda(10,nlda)=xacc(10)
+      rda(11,nlda)=xacc(11)
+c
+      endif
 c
   227 continue
 c
       endif
       endif
-ctmp
       endif
-ctmp
+c
   225 continue
       endif
       endif

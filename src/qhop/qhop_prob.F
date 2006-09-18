@@ -1,4 +1,4 @@
-      subroutine qhop_prob(gd,rsd,prd,ga,rsa,pra,uda,dang,prob)
+      subroutine qhop_prob(gd,rsd,prd,ga,rsa,pra,uda,dang,prob,e120)
 c     
       implicit none
 c
@@ -7,7 +7,7 @@ c
 c
 c     declaration of arguments
 c
-      real*8 uda(4),dang(2),prob
+      real*8 uda(4),dang(2),prob,e120
       integer gd,rsd,prd,ga,rsa,pra
 c
       call qhop_prob2(gd,rsd,prd,ga,rsa,pra,uda,dang,prob,
@@ -15,15 +15,17 @@ c
      + dbl_mb(i_racs),dbl_mb(i_racs+mxar),int_mb(i_ptpar),
      + dbl_mb(i_par),dbl_mb(i_par+7*maxpar),dbl_mb(i_par+14*maxpar),
      + dbl_mb(i_par+17*maxpar),dbl_mb(i_par+23*maxpar),
-     + dbl_mb(i_par+28*maxpar))
+     + dbl_mb(i_par+28*maxpar),e120)
+c
+      e120=e120*4.184
 c
       return
       end
       subroutine qhop_prob2(gd,rsd,prd,ga,rsa,pra,uda,dang,prob,
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
-     + tdsgl,tstval,e12fxy)
+     + tdsgl,tstval,e12fxy,e120)
 c
-c $Id: qhop_prob.F,v 1.6 2003-09-22 15:20:10 d3j191 Exp $
+c $Id: qhop_prob.F,v 1.7 2006-09-18 15:45:00 d3j191 Exp $
 c
 c     
 c     The hopping probability prob is calculated given the difference in 
@@ -46,7 +48,7 @@ c
 c
 c     declaration of arguments
 c
-      real*8 uda(4),dang(2),prob
+      real*8 uda(4),dang(2),prob,e120
       integer gd,rsd,prd,ga,rsa,pra
 c
       real*8 tunnel(maxpar,7),defe12(maxpar,7),zpef(maxpar,3),
@@ -100,9 +102,8 @@ c 1026 format('prob ',9i5)
 c
 c     Calculating e12 
 c
-      e12=(uda(3)+uda(4)-uda(1)-uda(2))/4.184
-      e12=e12+e12fxy(ipar,1)+e12fxy(ipar,2)*dist+
-     + e12fxy(ipar,3)*(dist**2)
+      e120=e12fxy(ipar,1)+e12fxy(ipar,2)*dist+e12fxy(ipar,3)*(dist**2)
+      e12=e12+e120+(uda(3)+uda(4)-uda(1)-uda(2))/4.184
 c      
 c      lhv(1)=ld+arat(ptarat(ptseq(iseq(1),1)+gd-ptseq(iseq(1),2),1)
 c      lhv(2)=la+arat(ptarat(ptseq(iseq(2),1)+ga-ptseq(iseq(2),2),1)

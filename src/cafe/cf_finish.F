@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.22 2003-11-25 16:40:12 d3j191 Exp $
+c $Id: cf_finish.F,v 1.23 2006-09-18 15:42:14 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -142,6 +142,11 @@ c
       if(.not.ma_pop_stack(l_sti))
      + call md_abort('Failed to deallocate sti',0)
 c
+      if(lqhop) then
+      if(.not.ma_pop_stack(l_mprot))
+     + call md_abort('Failed to deallocate mprot',0)
+      endif
+c 
       if(.not.ma_pop_stack(l_snam))
      + call md_abort('Failed to deallocate snam',0)
 c

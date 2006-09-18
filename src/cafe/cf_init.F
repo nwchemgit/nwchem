@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi,nbgeti,npreci)
-c $Id: cf_init.F,v 1.108 2005-09-14 22:15:56 d3j191 Exp $
+c $Id: cf_init.F,v 1.109 2006-09-18 15:42:14 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -229,6 +229,11 @@ c
       if(.not.ma_push_get(mt_byte,16*nsatot,'snam',l_snam,i_snam))
      + call md_abort('Failed to allocate snam',me)
 c
+      if(lqhop) then
+      if(.not.ma_push_get(mt_int,mseq,'mprot',l_mprot,i_mprot))
+     + call md_abort('Failed to allocate mprot',me)
+      endif
+c
       if(npgdec.gt.1) then
       if(.not.ma_push_get(mt_dbl,6*nsatot,'sti',l_sti,i_sti))
      + call md_abort('Failed to allocate sti',me)
@@ -278,9 +283,9 @@ c     proton hopping: donor-acceptor pair list allocation
 c     ---------------------------------------------------
 c
       if(nhop.gt.0) then
-      if(.not.ma_push_get(mt_int,10*nhop*3,'lda',l_lda,i_lda))
+      if(.not.ma_push_get(mt_int,16*nhop*3,'lda',l_lda,i_lda))
      + call md_abort('Failed to allocate lda',0)
-      if(.not.ma_push_get(mt_dbl,5*nhop*3,'rda',l_rda,i_rda))
+      if(.not.ma_push_get(mt_dbl,11*nhop*3,'rda',l_rda,i_rda))
      + call md_abort('Failed to allocate rda',0)
       if(.not.ma_push_get(mt_dbl,4*nhop*3,'uda',l_uda,i_uda))
      + call md_abort('Failed to allocate uda',0)
@@ -704,7 +709,7 @@ c
 #include "mafdecls.fh"
 c
       integer ia
-      real*8 chgi(24,2)
+      real*8 chgi(24,3)
 c
       integer i
 c
@@ -730,7 +735,7 @@ c
 #include "mafdecls.fh"
 c
       integer ia
-      real*8 chgi(24,2),chg(mqt,mqp,mset)
+      real*8 chgi(24,3),chg(mqt,mqp,mset)
 c
       integer i
 c
@@ -738,11 +743,13 @@ c
       do 1 i=1,nparms
       chg(ia,1,i)=qfac*chgi(i,1)
       chg(ia,2,i)=chgi(i,2)
+      chg(ia,3,i)=qfac*chgi(i,3)
     1 continue
       else
       do 2 i=1,3
       chg(ia,1,i)=qfac*chgi(i,1)
       chg(ia,2,i)=chgi(i,2)
+      chg(ia,3,i)=qfac*chgi(i,3)
     2 continue
       do 3 i=1,2
       chg(ia,i,4)=chg(ia,i,3)-chg(ia,i,2)
@@ -1082,6 +1089,19 @@ c
       call cf_pcopy(idp,ip,p,6,mdp(id),int_mb(i_idih(id)),
      + dbl_mb(i_dih(id)),mdt(id),
      + ip2(9+(id-1)*12),ip3(9+(id-1)*12),ith(9+(id-1)*12))
+c
+      return
+      end
+      subroutine cf_parseq(id,idp)
+c
+c     cf_parseq
+c
+#include "cf_common.fh"
+#include "mafdecls.fh"
+c
+      integer id,idp
+c
+      int_mb(i_mprot+id-1)=idp
 c
       return
       end

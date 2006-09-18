@@ -30,7 +30,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to cf_initx
 c
-c $Id: cf_pairs.F,v 1.14 2003-09-22 22:49:12 d3j191 Exp $
+c $Id: cf_pairs.F,v 1.15 2006-09-18 15:42:14 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -142,7 +142,8 @@ c
      + int_mb(lptr+1+4*nsloc),
      + int_mb(i_s2i1),dbl_mb(i_s3r1),dbl_mb(i_s1r1),
      + int_mb(i_itrd(2)),mtt(2),int_mb(i_ixcl(2)),mxt(2),
-     + int_mb(i_lda),dbl_mb(i_rda),lseq,int_mb(i_lsthop))
+     + int_mb(i_lda),dbl_mb(i_rda),lseq,int_mb(i_lsthop),
+     + int_mb(i_mprot))
       endif
       int_mb(lptr)=npairs
       int_mb(lptrn+3)=lptr

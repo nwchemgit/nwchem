@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.26 2003-10-19 03:30:56 d3j191 Exp $
+c $Id: cf_shake.F,v 1.27 2006-09-18 15:42:15 d3j191 Exp $
       implicit none
 c
 #include "cf_common.fh"
@@ -514,7 +514,21 @@ c
       endif
       endif
       endif
+c
+c     place dummy hydrogens (acceptor sites) onto bound heavy atoms
+c
+      if(iand(ishp(isa),1).eq.1.and.iand(ishp(jsa),1).ne.1) then
+      xs(isa,1)=xs(jsa,1)
+      xs(isa,2)=xs(jsa,2)
+      xs(isa,3)=xs(jsa,3)
       endif
+      if(iand(ishp(isa),1).ne.1.and.iand(ishp(jsa),1).eq.1) then
+      xs(jsa,1)=xs(isa,1)
+      xs(jsa,2)=xs(isa,2)
+      xs(jsa,3)=xs(isa,3)
+      endif
+      endif
+c
     2 continue
 c
       niters=niters+1

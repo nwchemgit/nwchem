@@ -1,6 +1,6 @@
       subroutine md_main()
 c
-c $Id: md_main.F,v 1.211 2006-06-05 00:12:29 marat Exp $
+c $Id: md_main.F,v 1.212 2006-09-18 15:42:03 d3j191 Exp $
 c
       implicit none
 c
@@ -97,19 +97,17 @@ c
      + epot,epotw,epotsw,epots,volume,dwr,dbl_mb(i_dsr),ekin,etot,
      + npolit,dbl_mb(i_gsm),dbl_mb(i_esa),box,dbl_mb(i_xsm))
 c
-      if(.not.lqmmm) 
-     >       call prp_print()
+      if(.not.lqmmm) call prp_print()
 c
       call rtdb_put(irtdb,'md:energy',mt_dbl,1,epot)
 c
 c     print energies
 c
-      if(.not.lqmmm) 
-     >  call cf_print_energy(lfnout)
-c
-      if(.not.lqmmm) 
-     >       call sp_printf(filtop,lfntop,
+      if(.not.lqmmm) then
+      call cf_print_energy(lfnout)
+      call sp_printf(filtop,lfntop,
      + int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_fs),npener,dbl_mb(i_esa))
+      endif
 c
       if(ifidi.ne.0) then
       call md_fd(int_mb(i_is),dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_fs),
@@ -2481,8 +2479,8 @@ c
       endif
 c
       if(.not.ldone) then
-      if(cf_hopping(stime,isl(1,lssgm),isl(1,lsgan),isl(1,lshop),
-     + xs,nsaloc,lfnhop)) then
+      if(cf_hopping(lpbc,lpbcs,stime,isl,isl(1,lssgm),isl(1,lsgan),
+     + isl(1,lsct3),isl(1,lshop),xs,nsaloc,lfnhop)) then
       if(lpair) then
       lpair=.false.
       lforce=.true.
@@ -2902,7 +2900,7 @@ c
       end
       subroutine md_test
 c
-c $Id: md_main.F,v 1.211 2006-06-05 00:12:29 marat Exp $
+c $Id: md_main.F,v 1.212 2006-09-18 15:42:03 d3j191 Exp $
 c
       implicit none
 c

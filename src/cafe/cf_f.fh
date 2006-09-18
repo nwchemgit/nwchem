@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
       implicit none
 c
@@ -786,7 +786,7 @@ c
       integer isal(mscr),isrx(mscr)
 c
       integer lswj(*)
-      integer nums
+      integer nums,i
       integer lswndx(0:msa,2),lswjpt(nums,2),lswin(nums,2)
       integer list(0:msa)
 c
@@ -821,6 +821,7 @@ c
       integer is,inum,jnum,jwm,iptr,jwa,iss,isg
       logical lid,ljd
 #endif
+      real*8 rtmp
 c
 #include "cf_funcs_sfn.fh"
 #include "bitops_funcs.fh"
@@ -833,6 +834,7 @@ c
       boxi(1)=one/box(1)
       boxi(2)=one/box(2)
       boxi(3)=one/box(3)
+      print*,'icntrl=',icntrl
       if(npbtyp.eq.1.and.nbxtyp.eq.0.and.icntrl.eq.2) then
       do 101 ipsw=1,npsw
       do 102 is=1,nums
@@ -843,6 +845,7 @@ c
       inum=lswjpt(is,ipsw)-1
       if(iand(isss(isa),6).eq.2) iss=-1
       if(iand(isss(isa),6).eq.4) iss=-1
+c      write(*,'(a,4i5)') 'iss ',isa,isss(isa),iand(isss(isa),6),iss
       isg=isga(isa)
       lid=iand(isdt(isa),mdynam).eq.ldynam
       qi=chg(isq1(isa),1,iset)
@@ -1174,6 +1177,9 @@ c      isrx(nax+ismn)=isrst
 c   10 continue
 c      endif
 c
+c      write(*,'(4i5,2f12.6)') 
+c     + lssscl,isga(isa),isss(isfr+isa),iand(isss(isfr+isa),6),
+c     + shift0(1),shift1(1)
       if(lssscl) then
       do 10 ismn=1,lswin(isa,ipsw)
 c      isrx(nax+ismn)=isss(isfr+isa)
@@ -1285,8 +1291,11 @@ c      endif
       rwx(iax,2)=xi(iax,2)-xj(iax,2,iwa)
       rwx(iax,3)=xi(iax,3)-xj(iax,3,iwa)
       rwi2(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
+      rtmp=rwi2(iax)
       if(isrx(iax).gt.0) rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
       if(isrx(iax).lt.0) rwi2(iax)=one/(one/rwi2(iax)+shift1(1))
+c      write(*,'(3i5,2f12.6)')
+c     + isga(isal(iax)),isal(iax),isrx(iax),rtmp,rwi2(iax)
    27 continue
 c
 c     Lennard-Jones interactions
@@ -1889,13 +1898,14 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
       implicit none
 c
 #include "cf_common.fh"
 #include "mafdecls.fh"
 c
+      real*8 rtmp
       real*8 xs(msa,3),xsm(msm,3),fs(msa,3,2)
       real*8 zs(msf,3,3,2),ess(msf,msf,mpe,2)
       real*8 fss(msf,msf,3,2)
@@ -1920,8 +1930,8 @@ c
 c
 #if defined(CAFE_FORCES)
       real*8 dera(6,nsatot)
-      integer lda(10,*)
-      real*8 rda(5,*),uda(4,*)
+      integer lda(16,*)
+      real*8 rda(11,*),uda(4,*)
 #endif
 #if defined(CAFE_POLARIZATION)
       real*8 ps(msa,3,2),psp(msa,3,2,2)
@@ -1933,11 +1943,7 @@ c
       integer ipss,number,isslen,nax,jsaptr
       integer jnum,lssptr,iax
       real*8 dercon
-#if !defined(CAFE_POLARIZATION)
-      integer iss,jss,ilda,ndxqi,ndxqj
-      integer idon,iacc,idong,iaccg,idons,iaccs,idonp,iaccp
-      real*8 uhop(4),xacc(3),racci1
-#endif
+c
       real*8 c6,c12,cf6,cf12
       real*8 c64,c124
       real*8 q14,sumen1,sumen2,sumen3
@@ -2096,6 +2102,9 @@ c
       if(istt.eq.128.and.jstt.eq.256) isrx(nax+jnum)=999
       if(istt.eq.256.and.jstt.eq.128) isrx(nax+jnum)=999
 c
+c      write(*,'(5i5)')
+c     + isga(isfr+isa),isga(lssptr),istt,jstt,isrx(nax+jnum)
+c
       endif
 c
    16 continue
@@ -2236,6 +2245,7 @@ c
       rwi2(iax)=zero
       isrx(iax)=0
       endif
+      rtmp=rwi2(iax)
       if(isrx(iax).gt.0) then
       rwi2(iax)=one/(one/rwi2(iax)+shift0(1))
       elseif(isrx(iax).lt.0) then
@@ -2244,6 +2254,8 @@ c
       rwi1(iax)=sqrt(rwi2(iax))
       isa=isal(iax)
       jsa=jsal(iax)
+c      write(*,'(3i5,4f12.6)')
+c     + isga(isa),isga(jsa),isrx(iax),shift0(1),shift1(1),rtmp,rwi2(iax)
       if(jfal(iax).ne.isf) then
       q=qsa2(isa)*qsa2(jsa)
       else
@@ -2574,177 +2586,6 @@ cx      endif
       nax=nax+lssin(isa,ipss)
    36 continue
 c
-#if defined(CAFE_FORCES)
-c
-c     qhopping
-c
-c     lda(1,i)  : donor global atom number
-c     lda(2,i)  : donor local atom number
-c     lda(3,i)  : donor segment number
-c     lda(4,i)  : donor protonation state after hopping
-c     lda(5,i)  : donor charge mutation
-c     lda(6,i)  : acceptor global atom number
-c     lda(7,i)  : acceptor local atom number
-c     lda(8,i)  : acceptor segment number
-c     lda(9,i)  : acceptor protonation state after hopping
-c     lda(10,i) : acceptor charge mutation
-c
-      if(lhop) then
-      do 2001 ilda=1,nldat
-c
-      uhop(1)=0.0d0
-      uhop(2)=0.0d0
-      uhop(3)=0.0d0
-      uhop(4)=0.0d0
-c
-      idon=lda(2,ilda)
-      idong=lda(1,ilda)
-      idons=lda(3,ilda)
-      idonp=lda(4,ilda)
-      iacc=lda(7,ilda)
-      iaccg=lda(6,ilda)
-      iaccs=lda(8,ilda)
-      iaccp=lda(9,ilda)
-c
-c      write(*,'(a,8i5)') 'DA ',idon,idong,idons,idonp,
-c     + iacc,iaccg,iaccs,iaccp
-c
-c     Energy of the donor and acceptor segment before hopping
-c
-      do 2002 iax=1,nax
-      isa=isal(iax)
-      jsa=jsal(iax)
-      iss=isgm(isa)
-      jss=isgm(jsa)
-c      write(*,'(4i4)') isa,jsa,iss,jss
-c
-c     skip all intrasegment interactions
-c
-      if(iss.ne.jss.and.(iss.eq.idons.or.jss.eq.idons.or.
-     + iss.eq.iaccs.or.jss.eq.iaccs)) then
-c
-      rwi2(iax)=one/(rwx(iax,1)**2+rwx(iax,2)**2+rwx(iax,3)**2)
-      rwi1(iax)=sqrt(rwi2(iax))
-c      write(*,'(4i4,f12.6)') isa,jsa,iss,jss,rwi1(iax)
-c
-c     donor energy
-c
-      if((iss.eq.idons.and.jss.ne.iaccs).or.
-     +   (jss.eq.idons.and.iss.ne.iaccs)) then
-      if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,lseq(iss))*
-     + chg(isq2(jsa),1,lseq(jss))
-      else
-      q=chg(isq3(isa),1,lseq(iss))*
-     + chg(isq3(jsa),1,lseq(jss))
-      endif
-      uhop(1)=uhop(1)+facu(iax)*q*rwi1(iax)
-c      write(*,'(8i5,2f12.3)') 
-c     + isa,lseq(isgm(isa)),isq2(isa),isq3(isa),
-c     + jsa,lseq(isgm(jsa)),isq2(jsa),isq3(jsa),q,uhop(1)
-      endif
-c
-c     acceptor energy
-c
-      if((iss.eq.iaccs.and.jss.ne.idons).or.
-     +   (jss.eq.iaccs.and.iss.ne.idons)) then
-      if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,lseq(isgm(isa)))*
-     + chg(isq2(jsa),1,lseq(isgm(jsa)))
-      else
-      q=chg(isq3(isa),1,lseq(isgm(isa)))*
-     + chg(isq3(jsa),1,lseq(isgm(jsa)))
-      endif
-      uhop(2)=uhop(2)+facu(iax)*q*rwi1(iax)
-      endif
-c
-c     donor energy after hopping
-c
-      if(iss.eq.idons.and.jss.ne.iaccs) then
-      ndxqi=isa
-      if(isga(isa).eq.idong) ndxqi=isa+lda(5,ilda)
-      if(isga(isa).eq.idong+lda(5,ilda)) ndxqi=isa-lda(5,ilda)
-      if(jfal(iax).ne.isf) then
-      q=chg(isq2(ndxqi),1,idonp)*chg(isq2(jsa),1,lseq(isgm(jsa)))
-      else
-      q=chg(isq3(ndxqi),1,idonp)*chg(isq3(jsa),1,lseq(isgm(jsa)))
-      endif
-      uhop(3)=uhop(3)+facu(iax)*q*rwi1(iax)
-      endif
-      if(jss.eq.idons.and.iss.ne.iaccs) then
-      ndxqj=jsa
-      if(isga(jsa).eq.idong) ndxqj=jsa+lda(5,ilda)
-      if(isga(jsa).eq.idong+lda(5,ilda)) ndxqj=jsa-lda(5,ilda)
-      if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,lseq(isgm(isa)))*chg(isq2(ndxqj),1,idonp)
-      else
-      q=chg(isq3(isa),1,lseq(isgm(isa)))*chg(isq3(ndxqj),1,idonp)
-      endif
-      uhop(3)=uhop(3)+facu(iax)*q*rwi1(iax)
-      endif
-c
-c     acceptor energy after hopping
-c
-      if(iss.eq.iaccs.and.jss.ne.idons) then
-      if(isga(isa).eq.iaccg) then
-      xacc(1)=rda(1,ilda)-xj(iax,1)
-      xacc(2)=rda(2,ilda)-xj(iax,2)
-      xacc(3)=rda(3,ilda)-xj(iax,3)
-      call cf_pbc(1,xacc,1,xacc,1,0,1,1)
-      else
-      xacc(1)=xi(iax,1)-xj(iax,1)
-      xacc(2)=xi(iax,2)-xj(iax,2)
-      xacc(3)=xi(iax,3)-xj(iax,3)
-      endif
-      racci1=one/sqrt(xacc(1)**2+xacc(2)**2+xacc(3)**2)
-      ndxqi=isa
-      if(isga(isa).eq.iaccg) ndxqi=isa+lda(10,ilda)
-      if(isga(isa).eq.iaccg+lda(10,ilda)) ndxqi=isa-lda(10,ilda)
-      if(jfal(iax).ne.isf) then
-      q=chg(isq2(ndxqi),1,iaccp)*chg(isq2(jsa),1,lseq(isgm(jsa)))
-      else
-      q=chg(isq3(ndxqi),1,iaccp)*chg(isq3(jsa),1,lseq(isgm(jsa)))
-      endif
-      uhop(4)=uhop(4)+facu(iax)*q*racci1
-      endif
-      if(jss.eq.iaccs.and.iss.ne.idons) then
-      if(isga(jsa).eq.iaccg) then
-      xacc(1)=xi(iax,1)-rda(1,ilda)
-      xacc(2)=xi(iax,2)-rda(2,ilda)
-      xacc(3)=xi(iax,3)-rda(3,ilda)
-      call cf_pbc(1,xacc,1,xacc,1,0,1,1)
-      else
-      xacc(1)=xi(iax,1)-xj(iax,1)
-      xacc(2)=xi(iax,2)-xj(iax,2)
-      xacc(3)=xi(iax,3)-xj(iax,3)
-      endif
-      racci1=one/sqrt(xacc(1)**2+xacc(2)**2+xacc(3)**2)
-      ndxqj=jsa
-      if(isga(jsa).eq.iaccg) ndxqj=jsa+lda(5,ilda)
-      if(isga(jsa).eq.iaccg+lda(10,ilda)) ndxqj=jsa-lda(10,ilda)
-      if(jfal(iax).ne.isf) then
-      q=chg(isq2(isa),1,lseq(isgm(isa)))*chg(isq2(ndxqj),1,iaccp)
-      else
-      q=chg(isq3(isa),1,lseq(isgm(isa)))*chg(isq3(ndxqj),1,iaccp)
-      endif
-      uhop(4)=uhop(4)+facu(iax)*q*racci1
-      endif
-c
-      endif
- 2002 continue
-c
-      uda(1,ilda)=uda(1,ilda)+uhop(1)
-      uda(2,ilda)=uda(2,ilda)+uhop(2)
-      uda(3,ilda)=uda(3,ilda)+uhop(3)
-      uda(4,ilda)=uda(4,ilda)+uhop(4)
-c
-c      write(*,'(a,8f12.3)') 'uhop ',(uda(iax,ilda),iax=1,4),uhop
-c
- 2001 continue
-      endif
-c
-#endif
-c
 c     thermodynamic integration
 c
       if(ithint) then
@@ -2783,6 +2624,9 @@ c
      + rwi2(nax+jnum)*rwi6(nax+jnum)*(c64-c124*rwi6(nax+jnum))
       endif
       deriv(15,ipss)=deriv(15,ipss)+dercon
+c      write(*,'(a,3i5,4f12.6)') 'gv ',
+c     + isga(isfr+isa),isga(jsa),isrx(nax+jnum),shift0(4),shift1(4),
+c     + dercon,deriv(15,ipss)
 #if defined(CAFE_FORCES)
       if(npgdec.gt.1) then
       dera(3,isga(isfr+isa))=dera(3,isga(isfr+isa))+half*dercon
@@ -2816,6 +2660,9 @@ c
       if(ireact.ne.0) then
       deriv(17,ipss)=deriv(17,ipss)+dercon*rffss/rwi2(nax+jnum)
       endif
+c      write(*,'(a,3i5,4f12.6)') 'gq ',
+c     + isga(isfr+isa),isga(jsa),isrx(nax+jnum),shift0(4),shift1(4),
+c     + dercon,deriv(17,ipss)
 #if defined(CAFE_FORCES)
       if(npgdec.gt.1) then
       dera(4,isga(isfr+isa))=dera(4,isga(isfr+isa))+
@@ -3222,7 +3069,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3486,7 +3333,7 @@ c
       endif
 c
       if(ipme.ne.0) then
-      qij=chg(ichg(isa),1,1)*chg(ichg(jsa),1,1)
+      qij=chg(ichg(isa),1,ibset)*chg(ichg(jsa),1,ibset)
       ferfc=one-erfc(ealpha*rss)
       fderfc=-(ealpha*derfc(ealpha*rss))
       epmecs=epmecs-ferfc*qij*rssi
@@ -3532,7 +3379,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3955,7 +3802,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4301,7 +4148,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4628,9 +4475,10 @@ c
       return
       end
       subroutine cf_fst(nthrds,indexl,mst,idtn,vdw,chg,natoms,ndim,
-     + iatt,igan,isgm,imol,idyn,ichg,xs,fs,ess,lpbc,lpbcs,dera,esa,lseq)
+     + iatt,igan,isgm,imol,idyn,ichg,isss,xs,fs,ess,lpbc,lpbcs,dera,
+     + esa,lseq)
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4682,6 +4530,7 @@ c
       integer natoms,ndim
       real*8 vdw(mat,mat,map,mset),chg(mqt,mqp,mset)
       integer iatt(ndim),igan(ndim),imol(ndim),idyn(ndim),ichg(ndim)
+      integer isss(msa)
       real*8 xs(ndim,3),fs(ndim,3)
       real*8 ess(msf,msf,mpe,2),esa(nsa)
 c
@@ -4694,7 +4543,7 @@ c
 c     declaration of local variables
 c     ------------------------------
 c
-      integer i,j,ist,isa,jsa,isf,jsf,isad
+      integer i,j,ist,isa,jsa,isf,jsf,isad,istt,jstt,isrx
       real*8 factu,etermq,eterml
       real*8 rxx,rxy,rxz,r2,r2i,r1i,dfs,dfsu,r6i,c6,c12,cf6,cf12,q
       real*8 ferfc,fderfc,qij,dfsp,c64,c124,dercon,qi,qi4,qj,qj4,q14
@@ -4747,6 +4596,30 @@ c
       isf=imol(isa)
       jsf=imol(jsa)
 c
+      if(lssscl) then
+c
+      istt=iand(isss(isa),48)
+      jstt=iand(isss(jsa),48)
+      if(isf.ne.jsf) then
+      if(istt.eq.16.or.jstt.eq.16) isrx=-1
+      if(istt.eq.32.or.jstt.eq.32) isrx=1
+      endif
+c
+      istt=iand(isss(isa),384)
+      jstt=iand(isss(jsa),384)
+      if(istt.eq.128.or.jstt.eq.128) isrx=-2
+      if(istt.eq.256.or.jstt.eq.256) isrx=2
+c
+      istt=iand(isss(isa),384)
+      jstt=iand(isss(jsa),384)
+      if(istt.eq.128.and.jstt.eq.256) isrx=999
+      if(istt.eq.256.and.jstt.eq.128) isrx=999
+c
+c      write(*,'(5i5)')
+c     + isga(isfr+isa),isga(lssptr),istt,jstt,isrx(nax+jnum)
+c
+      endif
+c
 c     determine energy factor depending on atoms being dynamic
 c     or fixed
 c
@@ -4779,6 +4652,19 @@ c
 c
       r2=rxx*rxx+rxy*rxy+rxz*rxz
       r2i=one/r2
+c
+      if(lssscl) then
+      if(isrx.eq.999) then
+      r2i=zero
+      isrx=0
+      endif
+      if(isrx.gt.0) then
+      r2i=one/(one/r2i+shift0(1))
+      elseif(isrx.lt.0) then
+      r2i=one/(one/r2i+shift1(1))
+      endif
+      endif
+c
       r1i=sqrt(r2i)
       dfs=zero
       dfsu=zero
@@ -4894,6 +4780,15 @@ c      c124=cb12(iatt(isa),iatt(jsa),4)
       c64=vdw(iatt(isa),iatt(jsa),2,4)
       c124=vdw(iatt(isa),iatt(jsa),4,4)
       dercon=(c124*r6i-c64)*r6i
+      if(isrx.gt.0) then
+      c64=three*vdw(iatt(isa),iatt(jsa),1,iset)
+      c124=six*vdw(iatt(isa),iatt(jsa),3,iset)
+      dercon=dercon+shift0(4)*r2i*r6i*(c64-c124*r6i)
+      elseif(isrx.lt.0) then
+      c64=three*vdw(iatt(isa),iatt(jsa),1,iset)
+      c124=six*vdw(iatt(isa),iatt(jsa),3,iset)
+      dercon=dercon+shift1(4)*r2i*r6i*(c64-c124*r6i)
+      endif
       deriv(15,1)=deriv(15,1)+dercon
 #if defined(CAFE_FORCES)
       if(npgdec.gt.1) then
@@ -4915,6 +4810,13 @@ c      qj4=qs(jsa,4)
       dercon=q14fac*(qi*qj4+qj*qi4)*r1i
       else
       dercon=q14fac*(qi*qj4+qj*qi4)*r1i
+      endif
+      if(isrx.gt.1) then
+      dercon=dercon-half*shift0(4)*
+     + chg(ichg(isa),1,iset)*chg(ichg(jsa),1,iset)*r2i
+      elseif(isrx.lt.-1) then
+      dercon=dercon-half*shift1(4)*
+     + chg(ichg(isa),1,iset)*chg(ichg(jsa),1,iset)*r2i
       endif
       deriv(17,1)=deriv(17,1)+dercon
       if(ireact.ne.0) then
@@ -4993,7 +4895,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.63 2006-02-07 20:17:04 d3j191 Exp $
+c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
 c
       implicit none
 c

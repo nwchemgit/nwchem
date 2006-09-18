@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.52 2005-09-14 22:15:56 d3j191 Exp $
+c $Id: cf_common.fh,v 1.53 2006-09-18 15:42:14 d3j191 Exp $
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve
@@ -18,6 +18,9 @@ c
       real*8 avoga,rgas
       parameter(avoga=6.022045d-07)
       parameter(rgas=8.31441d-03)
+c
+      integer mis2
+      parameter(mis2=15)
 c
       integer mbs,mpe
       parameter(mbs=2)
@@ -72,7 +75,7 @@ c
      + i_s3r1,l_s3r1,i_s3r2,l_s3r2,i_smr1,l_smr1,
      + i_smr2,l_smr2,i_smr3,l_smr3,i_smr4,l_smr4,
      + i_smr5,l_smr5,i_smr6,l_smr6,
-     + i_list,l_list,i_snam,l_snam,i_sti,l_sti,
+     + i_list,l_list,i_snam,l_snam,i_sti,l_sti,i_mprot,l_mprot,
      + i_pmew,l_pmew,i_pmes,l_pmes,
      + i_theta,l_theta,i_dtheta,l_dtheta,
      + i_ipmf,l_ipmf,i_jpmf,l_jpmf,i_rpmf,l_rpmf,i_xpmf,l_xpmf,
@@ -96,7 +99,7 @@ c
      + i_s3r1,l_s3r1,i_s3r2,l_s3r2,i_smr1,l_smr1,
      + i_smr2,l_smr2,i_smr3,l_smr3,i_smr4,l_smr4,
      + i_smr5,l_smr5,i_smr6,l_smr6,
-     + i_list,l_list,i_snam,l_snam,i_sti,l_sti,
+     + i_list,l_list,i_snam,l_snam,i_sti,l_sti,i_mprot,l_mprot,
      + i_pmew,l_pmew,i_pmes,l_pmes,
      + i_theta,l_theta,i_dtheta,l_dtheta,
      + i_ipmf,l_ipmf,i_jpmf,l_jpmf,i_rpmf,l_rpmf,i_xpmf,l_xpmf,
