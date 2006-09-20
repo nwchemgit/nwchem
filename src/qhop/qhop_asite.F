@@ -1,7 +1,7 @@
       subroutine qhop_asite(msa,xs,idon,idong,resd,istatd,iacc,
      + iaccg,resa,istata,xacc,doff,aoff,flada)
 c
-c $Id: qhop_asite.F,v 1.4 2006-09-18 15:45:00 d3j191 Exp $
+c $Id: qhop_asite.F,v 1.5 2006-09-20 18:45:13 d3p307 Exp $
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_asite.F,v 1.4 2006-09-18 15:45:00 d3j191 Exp $
+c $Id: qhop_asite.F,v 1.5 2006-09-20 18:45:13 d3p307 Exp $
 c
       implicit none
 c
@@ -207,7 +207,7 @@ c      write (*,91),'xdr1 ',xdr
 c            write (*,92),'theta ',th,xdr(1),xdr(2)
  92         format(a6,3f10.6)
          else
-            th=-sign(1.,xdr(1))*(pi/2)
+            th=-sign(1.d0,xdr(1))*(pi/2)
 c            write *,'thetanotol ',xdr(1)-tol,xdr(2)-tol
          endif
       else
@@ -220,7 +220,7 @@ c            write *,'thetanotol ',xdr(1)-tol,xdr(2)-tol
             ph=atan(-xdrp(1)/xdr(3)) 
 c            write (*,92),'phi ',ph,xdrp(1),xdr(3)
          else                                                 
-            ph=-sign(1.,xdrp(1))                      
+            ph=-sign(1.d0,xdrp(1))                      
 c            write *,'phinotol ',xdrp(1)-tol,xdr(3)-tol
          endif                                                
       else                                                    
@@ -242,7 +242,7 @@ c      write (*,91),'xdr2 ',xdr
             alpha=atan(xdr(2)/xdr(1))
 c            write (*,92),'alpha ',alpha,xdr(2),xdr(1)
          else
-            alpha=sign(1.,xdr(2))
+            alpha=sign(1.d0,xdr(2))
          endif
       else
          alpha=0
