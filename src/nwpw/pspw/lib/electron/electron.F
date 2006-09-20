@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.44 2006-08-13 01:03:27 bylaska Exp $
+* $Id: electron.F,v 1.45 2006-09-20 19:18:49 bylaska Exp $
 *
 
 
@@ -877,21 +877,26 @@ c    >                    THpsi_k)
 #include "electron_common.fh"
 
 *     ***** local variables ****
-      integer ms,n,shift1,shift2
+c      integer ms,n,shift1,shift2
      
-      do ms=1,ispin
-         n     = ne(ms)
-         if (n.le.0) go to 30
-         shift1 = 1 + (ms-1)*ne(1)*npack1
-         shift2 = 1 + (ms-1)*ne(1)*ne(1)
-         call DGEMM('N','N',2*npack1,n,n,
-     >             (1.0d0),
-     >             psi_k(shift1),  2*npack1,
-     >             hml(shift2),    n,
-     >             (-1.0d0),
-     >             THpsi_k(shift1),2*npack1)
-   30    continue
-      end do
+      call DMatrix_fmf_Multiply(0,psi_k,npack1,
+     >                            hml,1.0d0,
+     >                            THpsi_k,-1.0d0)
+
+c      do ms=1,ispin
+c         n     = ne(ms)
+c         if (n.le.0) go to 30
+c         shift1 = 1 + (ms-1)*ne(1)*npack1
+c         shift2 = 1 + (ms-1)*ne(1)*ne(1)
+c         call DGEMM('N','N',2*npack1,n,n,
+c     >             (1.0d0),
+c     >             psi_k(shift1),  2*npack1,
+c     >             hml(shift2),    n,
+c     >             (-1.0d0),
+c     >             THpsi_k(shift1),2*npack1)
+c   30    continue
+c      end do
+
       return
       end
 
@@ -1030,29 +1035,30 @@ c    >                    THpsi_k)
 #include "electron_common.fh"
 
 
-*     **** local variables ****
-      integer ms,n,n1(2),shift
+c*     **** local variables ****
+c      integer ms,n,n1(2),shift
      
+      call DMatrix_ffm_sym_Multiply(0,psi_k,
+     >                                dcpl_mb(Hpsi_k(1)),npack1,
+     >                                hml)
 
-      n1(1) = 1
-      n1(2) = ne(1) + 1
+c      n1(1) = 1
+c      n1(2) = ne(1) + 1
 
-
-      do ms=1,ispin
-         shift = (ms-1)*ne(1)*ne(1)
-         n     = ne(ms)
-         if (n.le.0) go to 30
-c        call Grsm_ggm_sym_dot(npack1,n,
-c    >                     psi_k(1+(ms-1)*ne(1)*npack1),
-c    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
-c    >                     hml(shift+1))
-         call Pack_ccm_sym_dot(1,n,
-     >                     psi_k(1+(ms-1)*ne(1)*npack1),
-     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
-     >                     hml(shift+1))
-  30     continue
-      end do
-
+c      do ms=1,ispin
+c         shift = (ms-1)*ne(1)*ne(1)
+c         n     = ne(ms)
+c         if (n.le.0) go to 30
+cc        call Grsm_ggm_sym_dot(npack1,n,
+cc    >                     psi_k(1+(ms-1)*ne(1)*npack1),
+cc    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+cc    >                     hml(shift+1))
+c         call Pack_ccm_sym_dot(1,n,
+c     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+c     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+c     >                     hml(shift+1))
+c  30     continue
+c      end do
 
       return
       end
@@ -1075,26 +1081,26 @@ c    >                     hml(shift+1))
 #include "electron_common.fh"
 
 
-*     **** local variables ****
-      integer ms,n,n1(2),shift
+c*     **** local variables ****
+c      integer ms,n,n1(2),shift
+     
+      call DMatrix_ffm_Multiply(0,psi_k,
+     >                            dcpl_mb(Hpsi_k(1)),npack1,
+     >                            hml)
 
+c      n1(1) = 1
+c      n1(2) = ne(1) + 1
 
-      n1(1) = 1
-      n1(2) = ne(1) + 1
-
-
-      do ms=1,ispin
-         n     = ne(ms)
-         if (n.le.0) go to 30
-         shift = (ms-1)*ne(1)*ne(1)
-         call Pack_ccm_dot(1,n,
-     >                     psi_k(1+(ms-1)*ne(1)*npack1),
-     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
-     >                     hml(shift+1))
-   30    continue
-      end do
-
-
+c      do ms=1,ispin
+c         n     = ne(ms)
+c         if (n.le.0) go to 30
+c         shift = (ms-1)*ne(1)*ne(1)
+c         call Pack_ccm_dot(1,n,
+c     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+c     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+c     >                     hml(shift+1))
+c   30    continue
+c      end do
       return
       end
 
@@ -1114,28 +1120,30 @@ c    >                     hml(shift+1))
 #include "electron_common.fh"
 
 
-*     **** local variables ****
-      integer ms,n,n1(2),shift
+c*     **** local variables ****
+c      integer ms,n,n1(2),shift
      
+      call DMatrix_ffm_Multiply(0,dcpl_mb(Hpsi_k(1)),
+     >                            psi_k,npack1,
+     >                            hmlt)
 
-      n1(1) = 1
-      n1(2) = ne(1) + 1
+c      n1(1) = 1
+c      n1(2) = ne(1) + 1
 
-
-      do ms=1,ispin
-         n     = ne(ms)
-         if (n.le.0) go to 30
-         shift = (ms-1)*ne(1)*ne(1)
-c        call Pack_ccm_sym_dot(1,n,
-c    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
-c    >                     psi_k(1+(ms-1)*ne(1)*npack1),
-c    >                     hmlt(shift+1))
-         call Pack_ccm_dot(1,n,
-     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
-     >                     psi_k(1+(ms-1)*ne(1)*npack1),
-     >                     hmlt(shift+1))
-   30    continue
-      end do
+c      do ms=1,ispin
+c         n     = ne(ms)
+c         if (n.le.0) go to 30
+c         shift = (ms-1)*ne(1)*ne(1)
+cc        call Pack_ccm_sym_dot(1,n,
+cc    >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+cc    >                     psi_k(1+(ms-1)*ne(1)*npack1),
+cc    >                     hmlt(shift+1))
+c         call Pack_ccm_dot(1,n,
+c     >                     dcpl_mb(Hpsi_k(1)+(ms-1)*ne(1)*npack1),
+c     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+c     >                     hmlt(shift+1))
+c   30    continue
+c      end do
 
 
       return
@@ -1159,19 +1167,23 @@ c    >                     hmlt(shift+1))
 #include "electron_common.fh"
 
 
-*     **** local variables ****
-      integer ms,n,shift
+c*     **** local variables ****
+c      integer ms,n,shift
+     
+      call DMatrix_ffm_sym_Multiply(0,psi_k,
+     >                                THpsi_k,npack1,
+     >                                hml)
 
-      do ms=1,ispin
-         n     = ne(ms)
-         if (n.le.0) go to 30
-         shift = (ms-1)*ne(1)*ne(1)
-         call Pack_ccm_sym_dot(1,n,
-     >                     psi_k(1+(ms-1)*ne(1)*npack1),
-     >                     THpsi_k(1+(ms-1)*ne(1)*npack1),
-     >                     hml(shift+1))
-   30    continue
-      end do
+c      do ms=1,ispin
+c         n     = ne(ms)
+c         if (n.le.0) go to 30
+c         shift = (ms-1)*ne(1)*ne(1)
+c         call Pack_ccm_sym_dot(1,n,
+c     >                     psi_k(1+(ms-1)*ne(1)*npack1),
+c     >                     THpsi_k(1+(ms-1)*ne(1)*npack1),
+c     >                     hml(shift+1))
+c   30    continue
+c      end do
 
       return
       end
@@ -1410,7 +1422,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       end do
 
       call Grsm_gh_fftb(nfft3d,nemax,dbl_mb(psi_r(1)))
-      call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psi_r(1)))
+      call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psi_r(1)))  !*** probably not neeeded!
 
       return
       end
@@ -1578,7 +1590,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >             *dbl_mb(fweight(1)+n-1)
             end do
          end do
-         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d)) !*** probably not needed!
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       else
@@ -1590,7 +1602,7 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
      >            + scal2*(dbl_mb(psi_r(1)+i-1+(n-1)*n2ft3d)**2)
             end do
          end do
-         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))
+         call D3dB_r_Zero_Ends(1,dn(1+(ms-1)*n2ft3d))   !*** probably not needed!
          call D1dB_Vector_SumAll(n2ft3d,dn(1+(ms-1)*n2ft3d))
       end do
       end if

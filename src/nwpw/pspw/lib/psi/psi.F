@@ -1,9 +1,15 @@
 *
-* $Id: psi.F,v 1.68 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psi.F,v 1.69 2006-09-20 19:18:49 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.68  2006/08/13 01:03:28  bylaska
+* Checking in code not include in 5.0 release.
+* A chain algorithm was added to Nose-Hoover thermostats.
+* Preliminary implementation of a processor group decomposition added to pspw, i.e. parallel decomposition is over fft grid and electrons.
+* ...EJB
+*
 * Revision 1.67  2006/01/26 18:29:36  bylaska
 * bug fix for gga checking...EJB
 *
@@ -4354,36 +4360,42 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 #include "mafdecls.fh"
 #include "psi.fh"
 
-*     ***** local variables *****
-      integer ms,index,i,j,shift1,shift2
+c*     ***** local variables *****
+c      integer ms,index,i,j,shift1,shift2
 
-      !call dcopy(2*npack1*(ne(1)+ne(2)),0.0d0,0,dcpl_mb(psi2(1)),1)
-      do ms=1,ispin
-         if (ne(ms).le.0) go to 30
-         shift1 = (ms-1)*ne(1)
-         shift2 = (ms-1)*ne(1)*ne(1)
+      call DMatrix_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                          dbl_mb(hml(1)),1.0d0,
+     >                          dcpl_mb(psi2(1)),0.0d0)
 
-         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
-     >              (1.0d0),
-     >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1,
-     >              dbl_mb(hml(1)+shift2),ne(ms),
-     >              (0.0d0),
-     >              dcpl_mb(psi2(1)+shift1*npack1),2*npack1)
-c        do j=1,ne(ms)
-c          do i=1,ne(ms)
-c             index = (i-1) + (j-1)*ne(ms) + shift2
-c            
-c              call D3dB_cc_daxpy(1,dbl_mb(hml(1)+index),
-c     >                           dcpl_mb(psi1(1)+(i-1+shift1)*nfft3d),
-c     >                           dcpl_mb(psi2(1)+(j-1+shift1)*nfft3d)) 
-c             call Pack_cc_daxpy(1,dbl_mb(hml(1)+index),
-c    >                           dcpl_mb(psi1(1)+(i-1+shift1)*npack1),
-c    >                           dcpl_mb(psi2(1)+(j-1+shift1)*npack1)) 
-c          end do
-c        end do
 
-   30   continue
-      end do
+
+c      !call dcopy(2*npack1*(ne(1)+ne(2)),0.0d0,0,dcpl_mb(psi2(1)),1)
+c      do ms=1,ispin
+c         if (ne(ms).le.0) go to 30
+c         shift1 = (ms-1)*ne(1)
+c         shift2 = (ms-1)*ne(1)*ne(1)
+c
+c         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+c     >              (1.0d0),
+c     >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1,
+c     >              dbl_mb(hml(1)+shift2),ne(ms),
+c     >              (0.0d0),
+c     >              dcpl_mb(psi2(1)+shift1*npack1),2*npack1)
+cc        do j=1,ne(ms)
+cc          do i=1,ne(ms)
+cc             index = (i-1) + (j-1)*ne(ms) + shift2
+cc            
+cc              call D3dB_cc_daxpy(1,dbl_mb(hml(1)+index),
+cc     >                           dcpl_mb(psi1(1)+(i-1+shift1)*nfft3d),
+cc     >                           dcpl_mb(psi2(1)+(j-1+shift1)*nfft3d)) 
+cc             call Pack_cc_daxpy(1,dbl_mb(hml(1)+index),
+cc    >                           dcpl_mb(psi1(1)+(i-1+shift1)*npack1),
+cc    >                           dcpl_mb(psi2(1)+(j-1+shift1)*npack1)) 
+cc          end do
+cc        end do
+c
+c   30   continue
+c      end do
 
       return
       end
@@ -4399,23 +4411,27 @@ c        end do
 #include "mafdecls.fh"
 #include "psi.fh"
 
-*     ***** local variables *****
-      integer ms,index,i,j,shift1,shift2
+c*     ***** local variables *****
+c      integer ms,index,i,j,shift1,shift2
 
-      do ms=1,ispin
-         if (ne(ms).le.0) go to 30
-         shift1 = (ms-1)*ne(1)
-         shift2 = (ms-1)*ne(1)*ne(1)
+      call DMatrix_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
+     >                          dbl_mb(hml(1)),1.0d0,
+     >                          dcpl_mb(psi1(1)),0.0d0)
 
-         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
-     >              (1.0d0),
-     >              dcpl_mb(psi2(1)+shift1*npack1),2*npack1,
-     >              dbl_mb(hml(1)+shift2),ne(ms),
-     >              (0.0d0),
-     >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1)
-
-   30    continue
-      end do
+c      do ms=1,ispin
+c         if (ne(ms).le.0) go to 30
+c         shift1 = (ms-1)*ne(1)
+c         shift2 = (ms-1)*ne(1)*ne(1)
+c
+c         call DGEMM('N','N',2*npack1,ne(ms),ne(ms),
+c     >              (1.0d0),
+c     >              dcpl_mb(psi2(1)+shift1*npack1),2*npack1,
+c     >              dbl_mb(hml(1)+shift2),ne(ms),
+c     >              (0.0d0),
+c     >              dcpl_mb(psi1(1)+shift1*npack1),2*npack1)
+c
+c   30    continue
+c      end do
 
       return
       end
@@ -4428,55 +4444,56 @@ c        end do
 *     ***********************************
       subroutine psi_diagonalize_hml()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
 
 
-*     ***** local variables ****
-      logical value
-      integer ms,shift1,shift2,ierr,i,j,indx
-      integer tmp1(2)
+c*     ***** local variables ****
+c      logical value
+c      integer ms,shift1,shift2,ierr,i,j,indx
+c      integer tmp1(2)
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
-     >   call errquit('out of stack memory in psi_diagonalize_hml',0,
-     &       MA_ERR)
+      call DMatrix_m_diagonalize(0,dbl_mb(hml(1)),
+     >                             dbl_mb(eig(1)),.false.)
+
+c      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+c      if (.not. value) 
+c     >   call errquit('out of stack memory in psi_diagonalize_hml',0,
+c     &       MA_ERR)
 
 
-*     ***** diagonalize the hamiltonian matrix *****
-      call dcopy((ne(1)+ne(2)),0.0d0,0,dbl_mb(eig(1)),1)
-      do ms=1,ispin
-         shift1 = (ms-1)*ne(1)
-         shift2 = (ms-1)*ne(1)*ne(1)
-         if (ne(ms).le.0) go to 30
+c*     ***** diagonalize the hamiltonian matrix *****
+c      call dcopy((ne(1)+ne(2)),0.0d0,0,dbl_mb(eig(1)),1)
+c      do ms=1,ispin
+c         shift1 = (ms-1)*ne(1)
+c         shift2 = (ms-1)*ne(1)*ne(1)
+c         if (ne(ms).le.0) go to 30
 
-c        call eigen(ne(ms),ne(ms),
-c    >              dbl_mb(hml(1)+shift2),
-c    >              dbl_mb(eig(1)+shift1),
-c    >              dbl_mb(tmp1(1)),ierr)
-
-         call DSYEV('V','U',ne(ms),
-     >              dbl_mb(hml(1)+shift2),ne(ms), 
-     >              dbl_mb(eig(1)+shift1),
-     >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
-     >              ierr)
-
-         call eigsrt(dbl_mb(eig(1)+shift1),
-     >              dbl_mb(hml(1)+shift2),
-     >              ne(ms),ne(ms))
-
-  30    continue
-      end do
-
-      
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     > call errquit('error popping stack in psi_diagonalize_hml',0,
-     &       MA_ERR)
-
+cc        call eigen(ne(ms),ne(ms),
+cc    >              dbl_mb(hml(1)+shift2),
+cc    >              dbl_mb(eig(1)+shift1),
+cc    >              dbl_mb(tmp1(1)),ierr)
+c
+c         call DSYEV('V','U',ne(ms),
+c     >              dbl_mb(hml(1)+shift2),ne(ms), 
+c     >              dbl_mb(eig(1)+shift1),
+c     >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
+c     >              ierr)
+c
+c         call eigsrt(dbl_mb(eig(1)+shift1),
+c     >              dbl_mb(hml(1)+shift2),
+c     >              ne(ms),ne(ms))
+c
+c  30    continue
+c      end do
+c
+c      
+c      value = MA_pop_stack(tmp1(2))
+c      if (.not. value) 
+c     > call errquit('error popping stack in psi_diagonalize_hml',0,
+c     &       MA_ERR)
 
       return
       end
@@ -4488,47 +4505,47 @@ c    >              dbl_mb(tmp1(1)),ierr)
 *     ***********************************
       subroutine psi_diagonalize_hml_assending()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
 #include "psi.fh"
 
 
-*     ***** local variables ****
-      logical value
-      integer ms,shift1,shift2,ierr
-      integer tmp1(2)
+c*     ***** local variables ****
+c      logical value
+c      integer ms,shift1,shift2,ierr
+c      integer tmp1(2)
 
+      call DMatrix_m_diagonalize(0,dbl_mb(hml(1)),dbl_mb(eig(1)),.true.)
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
-     >   call errquit(
-     >    'out of stack memory in psi_diagonalize_hml_assending',0,
-     >     MA_ERR)
-
-
-*     ***** diagonalize the hamiltonian matrix *****
-      call dcopy((ne(1)+ne(2)),0.0d0,0,dbl_mb(eig(1)),1)
-      do ms=1,ispin
-         shift1 = (ms-1)*ne(1)
-         shift2 = (ms-1)*ne(1)*ne(1)
-         if (ne(ms).le.0) go to 30
-
-         call DSYEV('V','U',ne(ms),
-     >              dbl_mb(hml(1)+shift2),ne(ms), 
-     >              dbl_mb(eig(1)+shift1),
-     >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
-     >              ierr)
-
-   30    continue
-      end do
+c      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
+c      if (.not. value) 
+c     >   call errquit(
+c     >    'out of stack memory in psi_diagonalize_hml_assending',0,
+c     >     MA_ERR)
+c
+c
+c*     ***** diagonalize the hamiltonian matrix *****
+c      call dcopy((ne(1)+ne(2)),0.0d0,0,dbl_mb(eig(1)),1)
+c      do ms=1,ispin
+c         shift1 = (ms-1)*ne(1)
+c         shift2 = (ms-1)*ne(1)*ne(1)
+c         if (ne(ms).le.0) go to 30
+c
+c         call DSYEV('V','U',ne(ms),
+c     >              dbl_mb(hml(1)+shift2),ne(ms), 
+c     >              dbl_mb(eig(1)+shift1),
+c     >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
+c     >              ierr)
+c
+c   30    continue
+c      end do
 
       
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     > call errquit(
-     >   'error popping stack in psi_diagonalize_hml_assending',0,
-     >     MA_ERR)
+c      value = MA_pop_stack(tmp1(2))
+c      if (.not. value) 
+c     > call errquit(
+c     >   'error popping stack in psi_diagonalize_hml_assending',0,
+c     >     MA_ERR)
 
       return
       end
@@ -4954,8 +4971,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       character*30 filename
       character*30 control_input_psi
       external     control_input_psi
-      logical  wvfnc_expander
-      external wvfnc_expander
+      logical  wvfnc_expander,Dneall_m_allocate
+      external wvfnc_expander,Dneall_m_allocate
 
 
 *     ***** get ispin, and ne, and nfft3d ****
@@ -4984,8 +5001,10 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack0,
      >                     'dng2',dng2(2),dng2(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
+      value = value.and.Dneall_m_allocate(0,hml)
+
       value = value.and.
      >        MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
 
@@ -5148,6 +5167,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     **** local variables ****
       logical value
 
+      logical  Dneall_m_free
+      external Dneall_m_free
+
 *     ***** write psi1 wavefunctions ****
       if (wpsi) then
         call psi_write(ispin,ne,dcpl_mb(psi1(1)))
@@ -5155,7 +5177,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       end if
     
       value = MA_free_heap(eig(2))
-      value = value.and.MA_free_heap(hml(2))
+      value = value.and.Dneall_m_free(hml)
       value = value.and.MA_free_heap(dng2(2))
       value = value.and.MA_free_heap(dng1(2))
       value = value.and.MA_free_heap(rho2(2))

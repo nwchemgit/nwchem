@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.22 2004-11-29 16:05:21 bylaska Exp $
+* $Id: geodesic.F,v 1.23 2006-09-20 19:18:49 bylaska Exp $
 *
 
 *     ***********************************
@@ -13,8 +13,8 @@
 
       subroutine geodesic_init()
       implicit none
-#include "errquit.fh"
 
+#include "errquit.fh"
 #include "mafdecls.fh"
 
 *     **** geodesic common block ***
@@ -25,25 +25,30 @@
 
 *     **** local variables ****
       logical value
-      integer npack1,nemax,nelc1
+      integer npack1
       
 
 *     **** external functions **** 
-      integer  psi_ne
-      external psi_ne
+      integer  psi_ne,psi_neq
+      external psi_ne,psi_neq
 
+      logical  Dneall_m_allocate
+      external Dneall_m_allocate
 
       call Pack_npack(1,npack1)
-      nemax = psi_ne(1)+psi_ne(2)
-      nelc1 = psi_ne(1)
+c      nemax = psi_ne(1)+psi_ne(2)
+c      nelc1 = psi_ne(1)
 
-      value = MA_alloc_get(mt_dcpl,npack1*nemax,
+      value = MA_alloc_get(mt_dcpl,npack1*(psi_neq(1)+psi_neq(2)),
      >                     'U',U(2),U(1))
+
+      value = value.and.Dneall_m_allocate(0,Vt)
+c      value = value.and.
+c     >        MA_alloc_get(mt_dbl,2*nelc1*nelc1,
+c     >                     'Vt',Vt(2),Vt(1))
+
       value = value.and.
-     >        MA_alloc_get(mt_dbl,2*nelc1*nelc1,
-     >                     'Vt',Vt(2),Vt(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,nemax,
+     >        MA_alloc_get(mt_dbl,(psi_ne(1)+psi_ne(2)),
      >                     'S',S(2),S(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -73,12 +78,13 @@
 
 *     **** local variables ****
       logical value
+      logical  Dneall_m_free
+      external Dneall_m_free
 
-      value = MA_free_heap(S(2))
-      value = value.and.
-     >        MA_free_heap(Vt(2))
-      value = value.and.
-     >        MA_free_heap(U(2))
+      value =           MA_free_heap(S(2))
+      value = value.and.Dneall_m_free(Vt)
+c      value = value.and.MA_free_heap(Vt(2))
+      value = value.and.MA_free_heap(U(2))
       if (.not. value) call errquit('error freeing of heap memory',0,
      &       MA_ERR)
 
@@ -110,11 +116,11 @@
 
       subroutine geodesic_start(A,max_sigma,dE)
       implicit none
-#include "errquit.fh"
       complex*16 A(*)
       real*8     max_sigma,dE
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -123,131 +129,42 @@
       common / geodesic_block / U,Vt,S
 
 *     **** local variables ****
-      logical value
-      integer npack1,nemax
-      integer ms,i,j,n
-c      integer ierr
-      integer shift1,shift2
-      integer tmp1(2),tmp2(2),V(2)
-      integer indx1,indx2,indx3
+      integer i,npack1,V(2)
 
-*     **** external functions **** 
+*     **** external functions ****
+      logical  Dneall_m_allocate,Dneall_m_free 
       integer  psi_ispin,psi_ne
       real*8   electron_eorbit
+      external Dneall_m_allocate,Dneall_m_free
       external psi_ispin,psi_ne
       external electron_eorbit
 
       call nwpw_timing_start(10)
       call Pack_npack(1,npack1)
-      nemax = psi_ne(1) + psi_ne(2)
-
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(4*nemax*nemax),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmp2',tmp2(2),tmp2(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'V',V(2),V(1))
-
-      if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
-
-*     ***********************
-*     **** HomeGrown SVD ****
-*     ***********************
+      if (.not.Dneall_m_allocate(0,V))
+     >   call errquit('geodesic_start:out of stack memory',0,MA_ERR)
       
+*     **** HomeGrown SVD ****
+      call Dmatrix_f_SVD(0,A,dcpl_mb(U(1)),npack1,
+     >                   dbl_mb(S(1)),dbl_mb(V(1)))
+
       max_sigma = 0.0d0
-      call dcopy(nemax,0.0d0,0,dbl_mb(S(1)),1)
-      do ms=1,psi_ispin()
-         shift1 = (ms-1)*psi_ne(1)
-         shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
-         n = psi_ne(ms)
-         if (n.le.0) go to 30
-
-         call Pack_SVD(npack1,n,
-     >                  A(1+shift1*npack1),
-     >                  dcpl_mb(U(1)+shift1*npack1),
-     >                  dbl_mb(S(1)+shift1),
-     >                  dbl_mb(V(1)+shift2))
-
-
-c*        ***** generate V and Sigma^2 ****
-c         call Grsm_ggm_dot(npack1,n,
-c     >                     A(1+shift1*npack1),
-c     >                     A(1+shift1*npack1),
-c     >                     dbl_mb(V(1)+shift2))
-c      
-cc         call dscal(n*n,10.0d0,dbl_mb(V(1)+shift2),1)
-c
-c         call eigen(n,n,
-c     >              dbl_mb(V(1)+shift2),
-c     >              dbl_mb(S(1)+shift1),
-c     >              dbl_mb(tmp1(1)),ierr)
-c
-c         
-c*        **** generate U*Sigma ****
-c         call Grsm_gmg_Mul(npack1,n,
-c     >                     A(1+shift1*npack1),
-c     >                     dbl_mb(V(1)+shift2),
-c     >                     dcpl_mb(U(1)+shift1*npack1))
-c
-c
-c*        **** normalize U*sigma, and sqrt(S^2) ****
-c         do i=1,n
-c            call Pack_cc_idot(1,
-c     >                        dcpl_mb(U(1)+(i-1+shift1)*npack1),
-c     >                        dcpl_mb(U(1)+(i-1+shift1)*npack1),
-c     >                        dbl_mb(tmp2(1)+i-1))
-c
-c         end do
-c         call D3dB_Vector_SumAll(n,dbl_mb(tmp2(1)))
-c
-c         do i=1,n
-c            dbl_mb(tmp2(1)+i-1) = 1.0/dsqrt(dbl_mb(tmp2(1)+i-1))
-c            call Pack_c_SMul(1,
-c     >                         dbl_mb(tmp2(1)+i-1),
-c     >                         dcpl_mb(U(1)+(i-1+shift1)*npack1),
-c     >                         dcpl_mb(U(1)+(i-1+shift1)*npack1))
-c
-c         end do
-c
-cc         write(*,*) "S^2:",(dbl_mb(S(1)+i-1+shift1),i=1,n)
-c         do i=1,n
-c           dbl_mb(S(1)+i-1+shift1) = dsqrt(dbl_mb(S(1)+i-1+shift1))
-c         end do
-
-
-         do i=1,n
-            if (dabs(dbl_mb(S(1)+i-1+shift1)).gt.max_sigma) 
-     >        max_sigma = dabs(dbl_mb(S(1)+i-1+shift1))
-
-         end do
-
-*        *** calculate Vt ***
-c        do i=1,n
-c        do j=1,n
-c            dbl_mb(Vt(1)+j-1+(i-1)*n + shift2) 
-c    >     =  dbl_mb(V(1)+i-1+(j-1)*n + shift2) 
-c        end do
-c        end do
-         call pspw_calc_Vt(n,dbl_mb(Vt(1)+shift2),dbl_mb(V(1)+shift2))
-
-  30     continue         
+      do i=1,(psi_ne(1)+psi_ne(2))
+        if (dabs(dbl_mb(S(1)+i-1)).gt.max_sigma) 
+     >      max_sigma = dabs(dbl_mb(S(1)+i-1))
       end do
+
+*     **** calculate Vt ****
+      call Dmatrix_mm_transpose(0,dbl_mb(V(1)),dbl_mb(Vt(1)))
 
 *     **** calculate 2*<A|H|psi> ****
       dE = 2.0d0*electron_eorbit(A)
 
-*     **** deallocate tmp space ****     
-      value = value.and.
-     >        MA_pop_stack(V(2))
-      value = value.and.
-     >        MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
+*     **** deallocate tmp space ****   
+      if (.not.Dneall_m_free(V))  
+     >   call errquit('geodesic_start:error popping stack',0,MA_ERR)
 
       call nwpw_timing_end(10)
 
@@ -270,108 +187,6 @@ c        end do
       return
       end
 
-*     ***********************************
-*     *                                 *
-*     *            Pack_SVD             *
-*     *                                 *
-*     ***********************************
-
-      subroutine Pack_SVD(npack,ne,A,U,S,V)
-      implicit none
-#include "errquit.fh"
-      integer npack,ne
-      complex*16 A(npack,ne)
-      complex*16 U(npack,ne)
-      real*8     S(ne)
-      real*8     V(ne,ne)
-
-#include "mafdecls.fh"
-
-*     **** local variables ****
-      logical value
-      integer i,j,ierr
-      integer tmp1(2),tmp2(2)
-c     real*8 sum1,sumv
-
-      real*8 ddot
-      external ddot
-
-*     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(4*ne*ne),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(ne),'tmp2',tmp2(2),tmp2(1))
- 
-      if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
-
-
-*     ***** generate V and Sigma^2 ****
-      !call Grsm_ggm_sym_dot(npack,ne,A,A,V)
-      call Pack_ccm_sym_dot(1,ne,A,A,V)
-
-      !call eigen(ne,ne,V,S,dbl_mb(tmp1(1)),ierr)
-      call DSYEV('V','U',ne,
-     >           V,ne,
-     >           S,
-     >           dbl_mb(tmp1(1)),(4*ne*ne),
-     >           ierr)
-
-         
-*     **** generate U*Sigma ****
-      call DGEMM('N','N',2*npack,ne,ne,
-     >              (1.0d0),
-     >              A,2*npack,
-     >              V,ne,
-     >              (0.0d0),
-     >              U,2*npack)
-      !call Grsm_gmg_Mul(npack,ne,A,V,U)
-
-
-*     **** normalize U*sigma, and sqrt(S^2) ****
-      do i=1,ne
-         call Pack_cc_idot(1,U(1,i),U(1,i),dbl_mb(tmp2(1)+i-1))
-      end do
-      call D3dB_Vector_SumAll(ne,dbl_mb(tmp2(1)))
-      
-c     do i=1,ne
-c        dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
-c        call Pack_c_SMul(1,dbl_mb(tmp2(1)+i-1),
-c    >                    U(1,i),U(1,i))
-c
-c     end do
-      do i=1,ne
-         dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
-      end do
-
-      do i=1,ne
-         call dscal(2*npack,dbl_mb(tmp2(1)+i-1),U(1,i),1)
-      end do
-
-
-      do i=1,ne
-        if (S(i).lt.0.0d0) S(i) = dabs(S(i))
-        S(i) = dsqrt(S(i))
-      end do
-
-
-c      sumv = 0.0d0
-c      do i=1,ne
-c          sumv = sumv + ddot(ne,V(1,i),1,V(1,i),1)
-c      end do
-c
-c       call Grsm_gg_trace(npack,ne,U,U,sum1)
-c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
-
-
-
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
-       
-      return
-      end
 
 *     ***********************************
 *     *					*
@@ -384,12 +199,12 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 
       subroutine geodesic_get(t,Yold,Ynew)
       implicit none
-#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -413,6 +228,8 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
 *     **** external functions ****
       integer  psi_ispin,psi_ne
       external psi_ispin,psi_ne
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
 
       call nwpw_timing_start(10)
       zero = 0.0d0
@@ -421,87 +238,71 @@ c       write(*,*) "Tr(U), Tr(V):",sum1,sumv
       nemax = psi_ne(1) + psi_ne(2)
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
-     >                    tmp2(2),tmp2(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
-     >                    tmp3(2),tmp3(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmpC',
-     >                    tmpC(2),tmpC(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmpS',
-     >                    tmpS(2),tmpS(1))
-      if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
+      value =           Dneall_m_push_get(0,tmp1)
+      value = value.and.Dneall_m_push_get(0,tmp2)
+      value = value.and.Dneall_m_push_get(0,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not.value) call errquit('geodesic_get:out of stack',0,MA_ERR)
 
 
-      do ms = 1,psi_ispin()
-        n      = psi_ne(ms)
-        if (n.eq.0) go to 100  !*** ferromagnetic case ***
-        shift1 = (ms-1)*psi_ne(1)
-        shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
+      call DMatrix_mm_SCtimesVtrans(0,t,dbl_mb(S(1)),
+     >                                dbl_mb(Vt(1)),
+     >                                dbl_mb(tmp1(1)),
+     >                                dbl_mb(tmp3(1)),
+     >                                dbl_mb(tmpC(1)),
+     >                                dbl_mb(tmpS(1)))
 
-c        do j=1,n
-c          scal1 = dcos(dbl_mb(S(1)+j-1+shift1)*t)
-c          scal2 = dsin(dbl_mb(S(1)+j-1+shift1)*t)
+      call DMatrix_mmm_Multiply2(0,dbl_mb(Vt(1)),
+     >                           dbl_mb(tmp1(1)),
+     >                           dbl_mb(tmp2(1)))
+
+      call DMatrix_fmf_Multiply(0,Yold,npack1,
+     >                          dbl_mb(tmp2(1)),1.0d0,
+     >                          Ynew,0.0d0)
+
+      call DMatrix_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
+     >                          dbl_mb(tmp3(1)),1.0d0,
+     >                          Ynew,1.0d0)
+
+c      do ms = 1,psi_ispin()
+c        n      = psi_ne(ms)
+c        if (n.eq.0) go to 100  !*** ferromagnetic case ***
+c        shift1 = (ms-1)*psi_ne(1)
+c        shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 c
-c          do k=1,n
-c           shift = j-1 + (k-1)*n + shift2
-c           dbl_mb(tmp1(1)+shift) = scal1 * dbl_mb(Vt(1)+shift)
-c           dbl_mb(tmp3(1)+shift) = scal2 * dbl_mb(Vt(1)+shift)
-c          end do
+c        call SCtimesVtrans(t,n,dbl_mb(S(1)+shift1),
+c     >                    dbl_mb(Vt(1)+shift2),
+c     >                    dbl_mb(tmp1(1)+shift2),
+c     >                    dbl_mb(tmp3(1)+shift2),
+c     >                    dbl_mb(tmpC(1)),
+c     >                    dbl_mb(tmpS(1)))
 c
-c        end do
-        call SCtimesVtrans(t,n,dbl_mb(S(1)+shift1),
-     >                    dbl_mb(Vt(1)+shift2),
-     >                    dbl_mb(tmp1(1)+shift2),
-     >                    dbl_mb(tmp3(1)+shift2),
-     >                    dbl_mb(tmpC(1)),
-     >                    dbl_mb(tmpS(1)))
-
-        call DGEMM('T','N',n,n,n,one,
-     >              dbl_mb(  Vt(1)+shift2),n,
-     >              dbl_mb(tmp1(1)+shift2),n,
-     >              zero,
-     >              dbl_mb(tmp2(1)+shift2),n)
-
-
-
-        call DGEMM('N','N',2*npack1,n,n,
-     >              one,
-     >              Yold(1+shift1*npack1),2*npack1,
-     >              dbl_mb(tmp2(1)+shift2),n,
-     >              zero,
-     >              Ynew(1+shift1*npack1),2*npack1)
-
-        call DGEMM('N','N',2*npack1,n,n,
-     >              one,
-     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
-     >              dbl_mb(tmp3(1)+shift2),n,
-     >              one,
-     >              Ynew(1+shift1*npack1),2*npack1)
-
-c       do k=1,n
-c         call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
-c         do j=1,n
-c           call Pack_cc_daxpy(1,
-c    >                         dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2),
-c    >                         Yold(1+(j-1+shift1)*npack1),
-c    >                         Ynew(1+(k-1+shift1)*npack1))
-c           call Pack_cc_daxpy(1,
-c    >                         dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
-c    >                         dcpl_mb(U(1)+(j-1+shift1)*npack1),
-c    >                         Ynew(1+(k-1+shift1)*npack1))
-c         end do
-c       end do
-
- 100    continue
-
-      end do
+c        call DGEMM('T','N',n,n,n,one,
+c     >              dbl_mb(  Vt(1)+shift2),n,
+c     >              dbl_mb(tmp1(1)+shift2),n,
+c     >              zero,
+c     >              dbl_mb(tmp2(1)+shift2),n)
+c
+c
+c
+c        call DGEMM('N','N',2*npack1,n,n,
+c     >              one,
+c     >              Yold(1+shift1*npack1),2*npack1,
+c     >              dbl_mb(tmp2(1)+shift2),n,
+c     >              zero,
+c     >              Ynew(1+shift1*npack1),2*npack1)
+c
+c        call DGEMM('N','N',2*npack1,n,n,
+c     >              one,
+c     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
+c     >              dbl_mb(tmp3(1)+shift2),n,
+c     >              one,
+c     >              Ynew(1+shift1*npack1),2*npack1)
+c
+c 100    continue
+c
+c      end do
 
 
 *     **** Orthonormality Check ****     
@@ -521,15 +322,14 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       end if
 
 
-
 *     **** deallocate tmp space ****     
       value = MA_pop_stack(tmpS(2))
       value = value.and.MA_pop_stack(tmpC(2))
-      value = value.and.MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.Dneall_m_pop_stack(tmp3)
+      value = value.and.Dneall_m_pop_stack(tmp2)
+      value = value.and.Dneall_m_pop_stack(tmp1)
       if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
+     > call errquit('geodesic:get:error popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(10)
 
@@ -604,6 +404,8 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
 *     **** external functions ****
       integer  psi_ispin,psi_ne
       external psi_ispin,psi_ne
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
 
       call nwpw_timing_start(10)
       zero = 0.0d0
@@ -613,100 +415,107 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
       nemax = psi_ne(1) + psi_ne(2)
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
-     >                    tmp2(2),tmp2(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
-     >                    tmp3(2),tmp3(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmpC',
-     >                    tmpC(2),tmpC(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmpS',
-     >                    tmpS(2),tmpS(1))
-      if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
+      value =           Dneall_m_push_get(0,tmp1)
+      value = value.and.Dneall_m_push_get(0,tmp2)
+      value = value.and.Dneall_m_push_get(0,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not.value) 
+     >   call errquit('geodesic_transport: out of stack',0,MA_ERR)
 
 
-      do ms = 1,psi_ispin()
-        n      = psi_ne(ms)
-        if (n.eq.0) go to 200
-        shift1 = (ms-1)*psi_ne(1)
-        shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
+      call DMatrix_mm_SCtimesVtrans2(0,t,dbl_mb(S(1)),
+     >                                dbl_mb(Vt(1)),
+     >                                dbl_mb(tmp1(1)),
+     >                                dbl_mb(tmp3(1)),
+     >                                dbl_mb(tmpC(1)),
+     >                                dbl_mb(tmpS(1)))
 
-c       do j=1,n
-c         scal1 = dbl_mb(S(1)+j-1+shift1)
-c    >            *dsin(dbl_mb(S(1)+j-1+shift1)*t)
-c         scal3 = dbl_mb(S(1)+j-1+shift1)
-c    >            *dcos(dbl_mb(S(1)+j-1+shift1)*t)
+      call DMatrix_mmm_Multiply2(0,dbl_mb(Vt(1)),
+     >                           dbl_mb(tmp1(1)),
+     >                           dbl_mb(tmp2(1)))
+
+      call DMatrix_fmf_Multiply(0,Yold,npack1,
+     >                          dbl_mb(tmp2(1)),-1.0d0,
+     >                          Ynew,0.0d0)
+
+      call DMatrix_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
+     >                          dbl_mb(tmp3(1)),1.0d0,
+     >                          Ynew,1.0d0)
+
+
+
+c      do ms = 1,psi_ispin()
+c        n      = psi_ne(ms)
+c        if (n.eq.0) go to 200
+c        shift1 = (ms-1)*psi_ne(1)
+c        shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 c
-c         do k=1,n
-c          shift = j-1 + (k-1)*n + shift2
-c          dbl_mb(tmp1(1)+shift) = scal1*dbl_mb(Vt(1)+shift)
-c          dbl_mb(tmp3(1)+shift) = scal3*dbl_mb(Vt(1)+shift)
-c         end do
-c       end do
-        call SCtimesVtrans2(t,n,dbl_mb(S(1)+shift1),
-     >                    dbl_mb(Vt(1)+shift2),
-     >                    dbl_mb(tmp1(1)+shift2),
-     >                    dbl_mb(tmp3(1)+shift2),
-     >                    dbl_mb(tmpC(1)),
-     >                    dbl_mb(tmpS(1)))
-
-
-
-        call DGEMM('T','N',n,n,n,one,
-     >              dbl_mb(  Vt(1)+shift2), n,
-     >              dbl_mb(tmp1(1)+shift2), n,
-     >              zero,
-     >              dbl_mb(tmp2(1)+shift2), n)
-
-
-
-
-        call DGEMM('N','N',2*npack1,n,n,
-     >              (-1.0d0),
-     >              Yold(1+shift1*npack1),2*npack1,
-     >              dbl_mb(tmp2(1)+shift2),n,
-     >              zero,
-     >              Ynew(1+shift1*npack1),2*npack1)
-
-        call DGEMM('N','N',2*npack1,n,n,
-     >              one,
-     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
-     >              dbl_mb(tmp3(1)+shift2),n,
-     >              one,
-     >              Ynew(1+shift1*npack1),2*npack1)
-
-c       do k=1,n
-c         call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
-c         do j=1,n
-c           call Pack_cc_daxpy(1,
-c    >              (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
-c    >              Yold(1+(j-1+shift1)*npack1),
-c    >              Ynew(1+(k-1+shift1)*npack1))
-c           call Pack_cc_daxpy(1,
-c    >              dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
-c    >              dcpl_mb(U(1)+(j-1+shift1)*npack1),
-c    >              Ynew(1+(k-1+shift1)*npack1))
-c         end do
-c       end do
-
- 200    continue
-
-      end do
+cc       do j=1,n
+cc         scal1 = dbl_mb(S(1)+j-1+shift1)
+cc    >            *dsin(dbl_mb(S(1)+j-1+shift1)*t)
+cc         scal3 = dbl_mb(S(1)+j-1+shift1)
+cc    >            *dcos(dbl_mb(S(1)+j-1+shift1)*t)
+cc
+cc         do k=1,n
+cc          shift = j-1 + (k-1)*n + shift2
+cc          dbl_mb(tmp1(1)+shift) = scal1*dbl_mb(Vt(1)+shift)
+cc          dbl_mb(tmp3(1)+shift) = scal3*dbl_mb(Vt(1)+shift)
+cc         end do
+cc       end do
+c        call SCtimesVtrans2(t,n,dbl_mb(S(1)+shift1),
+c     >                    dbl_mb(Vt(1)+shift2),
+c     >                    dbl_mb(tmp1(1)+shift2),
+c     >                    dbl_mb(tmp3(1)+shift2),
+c     >                    dbl_mb(tmpC(1)),
+c     >                    dbl_mb(tmpS(1)))
+c
+c        call DGEMM('T','N',n,n,n,one,
+c     >              dbl_mb(  Vt(1)+shift2), n,
+c     >              dbl_mb(tmp1(1)+shift2), n,
+c     >              zero,
+c     >              dbl_mb(tmp2(1)+shift2), n)
+c
+c        call DGEMM('N','N',2*npack1,n,n,
+c     >              (-1.0d0),
+c     >              Yold(1+shift1*npack1),2*npack1,
+c     >              dbl_mb(tmp2(1)+shift2),n,
+c     >              zero,
+c     >              Ynew(1+shift1*npack1),2*npack1)
+c
+c        call DGEMM('N','N',2*npack1,n,n,
+c     >              one,
+c     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
+c     >              dbl_mb(tmp3(1)+shift2),n,
+c     >              one,
+c     >              Ynew(1+shift1*npack1),2*npack1)
+c
+cc       do k=1,n
+cc         call dcopy(2*npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
+cc         do j=1,n
+cc           call Pack_cc_daxpy(1,
+cc    >              (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
+cc    >              Yold(1+(j-1+shift1)*npack1),
+cc    >              Ynew(1+(k-1+shift1)*npack1))
+cc           call Pack_cc_daxpy(1,
+cc    >              dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2),
+cc    >              dcpl_mb(U(1)+(j-1+shift1)*npack1),
+cc    >              Ynew(1+(k-1+shift1)*npack1))
+cc         end do
+cc       end do
+c
+c 200    continue
+c
+c      end do
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmpS(2))
+      value =           MA_pop_stack(tmpS(2))
       value = value.and.MA_pop_stack(tmpC(2))
-      value = value.and.MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.Dneall_m_pop_stack(tmp3)
+      value = value.and.Dneall_m_pop_stack(tmp2)
+      value = value.and.Dneall_m_pop_stack(tmp1)
       if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
+     > call errquit('geodesic_transport:error popping stack',0,MA_ERR)
 
       call nwpw_timing_end(10)
 
@@ -745,9 +554,6 @@ c       end do
       end
 
 
-
-
-
 *     ***********************************
 *     *					*
 *     *		geodesic_Gtransport	*
@@ -759,12 +565,12 @@ c       end do
 
       subroutine geodesic_Gtransport(t,Yold,tG)
       implicit none
-#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 tG(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -785,6 +591,8 @@ c       end do
 *     **** external functions ****
       integer  psi_ispin,psi_ne
       external psi_ispin,psi_ne
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
 
       call nwpw_timing_start(10)
       zero = 0.0d0
@@ -794,102 +602,88 @@ c       end do
       nemax = psi_ne(1) + psi_ne(2)
 
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dbl,(2*nemax*nemax),'tmp1',
-     >                    tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp2',
-     >                    tmp2(2),tmp2(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),'tmp3',
-     >                    tmp3(2),tmp3(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmpC',
-     >                    tmpC(2),tmpC(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(nemax),'tmpS',
-     >                    tmpS(2),tmpS(1))
+      value =           Dneall_m_push_get(0,tmp1)
+      value = value.and.Dneall_m_push_get(0,tmp2)
+      value = value.and.Dneall_m_push_get(0,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
+     >   call errquit('geodesic_Gtransport:out of stack',0,MA_ERR)
 
-      do ms = 1,psi_ispin()
-        n      = psi_ne(ms)
-        if (n.eq.0) go to 300   !*** ferromagnetic case ***
-        shift1 = (ms-1)*psi_ne(1)
-        shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
+         
+      call DMatrix_ffm_Multiply(0,dcpl_mb(U(1)),tG,npack1,
+     >                          dbl_mb(tmp2(1)))
 
-        call Pack_ccm_dot(1,n,
-     >             dcpl_mb(U(1)+shift1*npack1),
-     >             tG(1+shift1*npack1),
-     >             dbl_mb(tmp2(1)+shift2))
+      call DMatrix_mm_SCtimesVtrans3(0,t,dbl_mb(S(1)),
+     >                                dbl_mb(tmp2(1)),
+     >                                dbl_mb(tmp1(1)),
+     >                                dbl_mb(tmp3(1)),
+     >                                dbl_mb(tmpC(1)),
+     >                                dbl_mb(tmpS(1)))
 
-c       call dcopy(n*n,dbl_mb(tmp1(1)+shift2),1,
-c    >                 dbl_mb(tmp3(1)+shift2),1)
+      call DMatrix_mmm_Multiply2(0,dbl_mb(Vt(1)),
+     >                           dbl_mb(tmp1(1)),
+     >                           dbl_mb(tmp2(1)))
+
+      call DMatrix_fmf_Multiply(0,Yold,npack1,
+     >                          dbl_mb(tmp2(1)),(-1.0d0),
+     >                          tG,1.0d0)
+
+      call DMatrix_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
+     >                          dbl_mb(tmp3(1)),(-1.0d0),
+     >                          tG,1.0d0)
+
+c      do ms = 1,psi_ispin()
+c        n      = psi_ne(ms)
+c        if (n.eq.0) go to 300   !*** ferromagnetic case ***
+c        shift1 = (ms-1)*psi_ne(1)
+c        shift2 = (ms-1)*psi_ne(1)*psi_ne(1)
 c
-c       do j=1,n
-c         scal1 =       dsin(dbl_mb(S(1)+j-1+shift1)*t)
-c         scal3 = 1.0d0-dcos(dbl_mb(S(1)+j-1+shift1)*t)
+c        call Pack_ccm_dot(1,n,
+c     >             dcpl_mb(U(1)+shift1*npack1),
+c     >             tG(1+shift1*npack1),
+c     >             dbl_mb(tmp2(1)+shift2))
 c
-c         do k=1,n
-c          dbl_mb(tmp1(1)+j-1+(k-1)*n+shift2) 
-c    >        = scal1 * dbl_mb(tmp1(1)+j-1+(k-1)*n + shift2)
-c          dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2) 
-c    >        = scal3 * dbl_mb(tmp3(1)+j-1+(k-1)*n + shift2)
-c         end do
-c       end do
-        call SCtimesVtrans3(t,n,dbl_mb(S(1)+shift1),
-     >                    dbl_mb(tmp2(1)+shift2),
-     >                    dbl_mb(tmp1(1)+shift2),
-     >                    dbl_mb(tmp3(1)+shift2),
-     >                    dbl_mb(tmpC(1)),
-     >                    dbl_mb(tmpS(1)))
-
-
-        call DGEMM('T','N',n,n,n,one,
-     >              dbl_mb(  Vt(1)+shift2), n,
-     >              dbl_mb(tmp1(1)+shift2), n,
-     >              zero,
-     >              dbl_mb(tmp2(1)+shift2), n)
-
-
-
-        call DGEMM('N','N',2*npack1,n,n,
-     >              (-1.0d0),
-     >              Yold(1+shift1*npack1),2*npack1,
-     >              dbl_mb(tmp2(1)+shift2),n,
-     >              one,
-     >              tG(1+shift1*npack1),2*npack1)
-
-        call DGEMM('N','N',2*npack1,n,n,
-     >              (-1.0d0),
-     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
-     >              dbl_mb(tmp3(1)+shift2),n,
-     >              one,
-     >              tG(1+shift1*npack1),2*npack1)
-c       do k=1,n
-c         do j=1,n
-c           call Pack_cc_daxpy(1,
-c    >             (-1.0d0*dbl_mb(tmp2(1)+j-1+(k-1)*n+shift2)),
-c    >             Yold(1+(j-1+shift1)*npack1),
-c    >               tG(1+(k-1+shift1)*npack1))
-c           call Pack_cc_daxpy(1,
-c    >             (-1.0d0*dbl_mb(tmp3(1)+j-1+(k-1)*n+shift2)),
-c    >             dcpl_mb(U(1)+(j-1+shift1)*npack1),
-c    >             tG(1+(k-1+shift1)*npack1))
-c         end do
-c       end do
-
- 300    continue
-
-      end do !*** ms ***
+c
+c        call SCtimesVtrans3(t,n,dbl_mb(S(1)+shift1),
+c     >                    dbl_mb(tmp2(1)+shift2),
+c     >                    dbl_mb(tmp1(1)+shift2),
+c     >                    dbl_mb(tmp3(1)+shift2),
+c     >                    dbl_mb(tmpC(1)),
+c     >                    dbl_mb(tmpS(1)))
+c
+c        call DGEMM('T','N',n,n,n,one,
+c     >              dbl_mb(  Vt(1)+shift2), n,
+c     >              dbl_mb(tmp1(1)+shift2), n,
+c     >              zero,
+c     >              dbl_mb(tmp2(1)+shift2), n)
+c
+c        call DGEMM('N','N',2*npack1,n,n,
+c     >              (-1.0d0),
+c     >              Yold(1+shift1*npack1),2*npack1,
+c     >              dbl_mb(tmp2(1)+shift2),n,
+c     >              one,
+c     >              tG(1+shift1*npack1),2*npack1)
+c
+c        call DGEMM('N','N',2*npack1,n,n,
+c     >              (-1.0d0),
+c     >              dcpl_mb(U(1)+shift1*npack1),2*npack1,
+c     >              dbl_mb(tmp3(1)+shift2),n,
+c     >              one,
+c     >              tG(1+shift1*npack1),2*npack1)
+c
+c 300    continue
+c
+c      end do !*** ms ***
 
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmpS(2))
+      value =           MA_pop_stack(tmpS(2))
       value = value.and.MA_pop_stack(tmpC(2))
-      value = value.and.MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.Dneall_m_pop_stack(tmp3)
+      value = value.and.Dneall_m_pop_stack(tmp2)
+      value = value.and.Dneall_m_pop_stack(tmp1)
       if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
+     > call errquit('geodesic_gtransport:error popping stack',0,MA_ERR)
 
       call nwpw_timing_end(10)
 

@@ -14,19 +14,19 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.42 2006-06-19 17:33:36 bylaska Exp $
+* $Id: cpsdv5.F,v 1.43 2006-09-20 19:18:49 bylaska Exp $
 *
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "global.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "frac_occ.fh"
+#include "errquit.fh"
       
 *     **** parallel variables ****
-      integer  taskid,np
+      integer  taskid,np,np_i,np_j
       integer  MASTER
       parameter(MASTER=0)
 
@@ -41,7 +41,7 @@
 *     **** electronic variables ****
       real*8 icharge
       integer ispin
-      integer ne(2),n1(2),n2(2),nemax
+      integer ne(2),n1(2),n2(2),nemax,neq(2)
       real*8  en(2)
       real*8  dipole(3)
 
@@ -70,7 +70,7 @@
       integer ierr
 
 *     **** local variables ****
-      integer ms,mapping
+      integer ms,mapping,mapping1d
       real*8  deltae,deltac,deltar
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8  EV,pi
@@ -143,8 +143,8 @@
       external     psi_filefind
       real*8       nwpw_timing
       external     nwpw_timing
-      integer      control_mapping
-      external     control_mapping
+      integer      control_mapping,control_mapping1d
+      external     control_mapping,control_mapping1d
 
       logical  control_translation,control_rotation,control_balance
       external control_translation,control_rotation,control_balance
@@ -165,6 +165,9 @@
       call Parallel_Init()
       call Parallel_np(np)
       call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+
       if (taskid.eq.MASTER) call current_second(cpu1)
 
 *     ***** print out header ****
@@ -243,10 +246,14 @@
 
 *     ***** allocate psi2,and psi1 wavefunctions ****
       call psi_get_ne(ispin,ne)
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      mapping1d = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+      call Dneall_neq(neq)
+      
+      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -319,10 +326,11 @@
       nemax = ne(1)+ne(2)
 
 *     **** Ortho Check ****
-      call Grsm_gg_trace(npack1,(ne(1)+ne(2)),
+      call Grsm_gg_trace(npack1,(neq(1)+neq(2)),
      >                        dcpl_mb(psi2(1)),
      >                        dcpl_mb(psi2(1)),
      >                        sum2)
+      call D1dB_SumAll(sum2)
 
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
@@ -346,13 +354,14 @@
      >        MA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
      >                     'psir',psir(2),psir(1))
 
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      if (.not. value) 
+     >   call errquit('cpsdv5:out of heap memory',0,MA_ERR)
 
 
 *     **** initialize FixIon constraint ****
@@ -376,6 +385,7 @@
 
       if (taskid.eq.MASTER) then
          write(6,1111) np
+         write(6,1117) np_i,np_j
          if (mapping.eq.1) write(6,1112)
          if (mapping.eq.2) write(6,1113)
          if (control_balance()) then
@@ -475,10 +485,13 @@
 
          if (fractional) then
            write(6,1219) en(1),en(ispin),' (   fractional)'
-           write(6,1221) ne(1),ne(ispin),' (fourier space)'
+           write(6,1221) ne(1),neq(1),
+     >                   ne(ispin),neq(ispin),' (fourier space)'
          else
-           write(6,1220) ne(1),ne(ispin),' (fourier space)'
-           write(6,1221) ne(1),ne(ispin),' (fourier space)'
+           write(6,1220) ne(1),neq(1),
+     >                   ne(ispin),neq(ispin),' (fourier space)'
+           write(6,1221) ne(1),neq(1),
+     >                   ne(ispin),neq(ispin),' (fourier space)'
          end if
          write(6,1230)
          write(6,1241) lattice_unita(1,1),
@@ -881,6 +894,7 @@ c    >              dbl_mb(lmd(1)),ierr)
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+      call Dne_end()
 
 *                |***************************|
 ****************** report consumed cputime   **********************
@@ -945,6 +959,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1114 FORMAT( ' parallel mapping         : balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
+ 1117 FORMAT( ' processor grid           :',I4,' x',I4)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
@@ -969,8 +984,16 @@ c    >              dbl_mb(lmd(1)),ierr)
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)
- 1220 FORMAT(/' number of electrons: spin up=',I6,  '  down=',I6,A)
- 1221 FORMAT( ' number of orbitals : spin up=',I6,  '  down=',I6,A)
+ 1220 FORMAT(/' number of electrons: spin up=',I6,
+     >        ' (',I4,' per task)',
+     >        '  down=',I6,
+     >        ' (',I4,' per task)',
+     >        A)
+ 1221 FORMAT( ' number of orbitals : spin up=',I6,  
+     >        ' (',I4,' per task)',
+     >        '  down=',I6,
+     >        ' (',I4,' per task)',
+     >        A)
  1230 FORMAT(/' supercell:')
  1231 FORMAT(5x,' volume : ',F10.1)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')

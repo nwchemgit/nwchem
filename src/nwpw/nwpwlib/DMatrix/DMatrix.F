@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix.F,v 1.1 2006-08-13 01:03:25 bylaska Exp $
+* $Id: DMatrix.F,v 1.2 2006-09-20 19:18:48 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -11,8 +11,48 @@
 *     *   date   - 5/19/06					*
 *     *								*
 *     ***********************************************************
+c
+c
+c
+c
 
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_block_mapping         *
+c     *                                      *
+c     ****************************************
 
+c     Defines a SUMMA block mapping of an n1xn2 matrix.
+c
+      subroutine DMatrix_block_mapping(n1,n2,
+     >                                 np_i,np_j,
+     >                                 block_i,block_j)
+      implicit none
+      integer n1,n2
+      integer np_i,np_j
+      integer block_i(0:np_i-1),block_j(0:np_j-1)
+
+*     **** local variables ****
+      integer i,j,k
+      
+*     *** determine block mapping ****
+      call icopy(np_i,0,1,block_i,1)
+      call icopy(np_j,0,1,block_j,1)
+
+      i = 0
+      do k=1,n1
+        block_i(i) = block_i(i) + 1
+        i = mod(i+1,np_i)
+      end do
+      j = 0
+      do k=1,n2
+        block_j(j) = block_i(j) + 1
+        j = mod(j+1,np_j)
+      end do
+
+      return
+      end
+ 
 
 
       subroutine DMatrix_dgemm1(m,n,k,nblock,
@@ -874,7 +914,7 @@ c        **** add to current rows of C ****
      >                  A,lda,ma,na,
      >                  taskid_i,taskid_j,
      >                  np_i,np_j,
-     >                  comm_i, comm_j,
+     >                  comm_i,comm_j,
      >                  work1)
       implicit none
       integer n
@@ -893,7 +933,7 @@ c        **** add to current rows of C ****
 
 *     **** local variables ****
       integer i,j,ii,jj,is,ie,js,je
-      integer icur,jcur,ierr
+      integer icur,jcur
 
 *     **************************
 *     **** gather diagonals ****
