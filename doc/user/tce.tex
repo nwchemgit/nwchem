@@ -1,5 +1,5 @@
 %
-% $Id: tce.tex,v 1.7 2004-05-17 20:29:46 pollack Exp $
+% $Id: tce.tex,v 1.8 2006-09-21 21:09:43 kowalski Exp $
 %
 \label{sec:tce}
 
@@ -65,6 +65,35 @@ This module is still being
 actively enhanced by the TCE and we hope to include more models and optimizations
 in future releases!
 
+In addition to changes made in the 4.7 version the most essential component of the 5.0 release 
+include:
+
+\begin{itemize}
+
+\item Several variants of active-space CCSDt and EOMCCSDt methods that employ limited set of triply 
+excited cluster amplitudes defined by active orbitals.
+
+\item  Ground-state non-iterative CC approaches that account for the effect of triply and/or
+quadruply excited connected clusters: the perturbative approaches based on the similarity 
+transformed Hamiltonian: CCSD(2), CCSD(2)$_T$, CCSDT(2)$_Q$, the completely and locally renormalized 
+methods: CR-CCSD(T), LR-CCSD(T), LR-CCSD(TQ)-1.
+
+\item Excited-state non-iterative corrections due to triples to the EOMCCSD excitation energies:
+the completely renormalized EOMCCSD(T) method (CR-EOMCCSD(T)).
+
+\item Improved DIIS solver.
+
+\item New form of the offset tables for files that store cluster amplitudes, recursive intermediates,
+and one- and two-electron integrals.
+
+\item More efficient storage of two-electron integrals for CC calculations based on the RHF or ROHF 
+references.
+
+\item Improved scalability of the CCSD and CCSD(T) codes.
+
+\end{itemize} 
+
+
 \section{Performance of CI, MBPT, and CC methods}
 
 For reviews or tutorials of these highly-accurate correlation methods, the user is 
@@ -80,8 +109,21 @@ For algorithms and applications of TCE, see:
 \begin{itemize}
 \item S. Hirata, J.\ Phys.\ Chem.\ A {\bf 107,} 9887 (2003).
 \item S. Hirata, T. Yanai, W. A. de Jong, T. Nakajima, and K. Hirao, J.\ Chem.\ Phys. {\bf 120,} 3297 (2004).
-\item S. Hirata, J.\ Chem. Phys. (in press) (2004).
+\item S. Hirata, J.\ Chem. Phys. {\bf 121}, 51 (2004).
 \end{itemize}
+
+For new CC algorithms implemented in 5.0 version, see:
+
+\begin{itemize}
+\item S. Hirata, P.-D. Fan, A.A. Auer, M. Nooijen, P. Piecuch, J. Chem. Phys.
+{\bf 121}, 12197 (2004).
+\item K. Kowalski, S. Hirata, M. W\l och, P. Piecuch, T.L. Windus, 
+J. Chem. Phys. {\bf 123}, 074319 (2005).
+\item K. Kowalski, P. Piecuch, J. Chem. Phys. {\bf 120},  1715 (2004).
+\item K. Kowalski, J. Chem. Phys. {\bf 123}, 014102 (2005).
+\item K. Kowalski, W. de Jong, J. Mol. Struct.: THEOCHEM, in press (2006).  
+\end{itemize}
+and references therein.
 
 \section{Algorithms of CI, MBPT, and CC methods}
 
@@ -135,8 +177,10 @@ that details the calculations:
     [(DFT||HF||SCF) default HF=SCF]
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
              [virtual <integer nfzv default 0>]]
-    [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTQ|| \
-      CCSD(T)||CCSD[T]||QCISD||CISD||CISDT||CISDTQ|| \
+    [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTA||CCSDTQ|| \
+      CCSD(T)||CCSD[T]||2_T||2_TQ||2_Q||CR_[T]||CR_(T)|| \
+      LR-CCSD(T)||LR-CCSD(TQ)-1||CREOMSD(T)|| \
+      QCISD||CISD||CISDT||CISDTQ|| \
       MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
     [THRESH <double thresh default 1e-6>]
     [MAXITER <integer maxiter default 100>]
@@ -144,10 +188,17 @@ that details the calculations:
       <string list_of_names ...>]
     [IO (fortran||eaf||ga||sf||replicated||dra||ga_eaf) default ga]
     [DIIS <integer diis default 5>]
+    [LSHIFT <double lshift default is 0.0d0>]
     [NROOTS <integer nroots default 0>]
     [TARGET <integer target default 1>]
     [TARGETSYM <character targetsym default 'none'>]
     [SYMMETRY]
+    [2EORB]
+    [T3A_LVL] 
+    [ACTIVE_OA]
+    [ACTIVE_OB]
+    [ACTIVE_VA]
+    [ACTIVE_VB]
     [DIPOLE]
     [TILESIZE <no default (automatically adjusted)>]
     [(NO)FOCK <logical recompf default .true.>]
@@ -361,9 +412,32 @@ These keywords stand for the following models:
 \item LCCSD: linearized coupled-cluster singles \& doubles,
 \item CCSD: coupled-cluster singles \& doubles (also EOM-CCSD),
 \item CCSDT: coupled-cluster singles, doubles, \& triples (also EOM-CCSDT),
+\item CCSDTA: coupled-cluster singles, doubles, \& active triples (also EOM-CCSDT).
+Three variants of the active-space CCSDt and EOMCCSDt approaches can be selected based on 
+various definitions of triply excited clusters: (1) version I (keyword {\tt T3A\_LVL  1}) uses
+the largest set of triply excited amplitudes defined by at least one occupied and one unoccupied 
+active spinorbital labels. (2) Version II (keyword {\tt T3A\_LVL  2}) uses
+triply excited amplitudes that carry at least two occupied and unoccupied
+active spinorbital labels. (3) Version III (keyword {\tt T3A\_LVL  3}) uses
+triply excited amplitudes that are defined by active indices only.
+Each version requires defining relevant set of occupied active $\alpha$ and $\beta$ spinorbitals
+({\tt ACTIVE\_OA} and {\tt ACTIVE\_OB}) as well as active unoccupied $\alpha$ and $\beta$ spinorbitals
+({\tt ACTIVE\_VA} and {\tt ACTIVE\_VB}).
 \item CCSDTQ: coupled-cluster singles, doubles, triples, \& quadruples (also EOM-CCSDTQ),
 \item CCSD(T): CCSD and perturbative connected triples,
 \item CCSD[T]: CCSD and perturbative connected triples,
+\item CR\_[T]: completely renormalized CCSD[T] method,
+\item CR\_(T): completely renormalized CCSD(T) method,
+\item 2\_T: CCSD and perturbative CCSD(T)$_T$ correction,
+\item 2\_TQ: CCSD and  perturbative CCSD(2) correction,
+\item 2\_Q: CCSDT and perturbative CCSDT(2)$_Q$ correction.
+\item LR-CCSD(T): CCSD and perturbative locally renormalized CCSD(T) correction,
+\item LR-CCSD(TQ)-1: CCSD and perturbative locally renormalized CCSD(TQ) (LR-CCSD(TQ)-1) correction,
+\item CREOMSD(T): EOMCCSD energies and completely renormalized EOMCCSD(T)(IA) correction.
+In this option NWCHEM prints two components: (1) total energy of the K-th state 
+$E_K=E_K^{\rm EOMCCSD}+\delta_K^{\rm CR-EOMCCSD(T),IA}(T)$ and (2)
+the so-called $\delta$-corrected EOMCCSD excitation energy
+$\omega_K^{\rm CR-EOMCCSD(T),IA}=\omega_K^{\rm EOMCCSD}+\delta_K^{\rm CR-EOMCCSD(T),IA}(T)$.
 \item QCISD: quadratic configuration interaction singles \& doubles,
 \item CISD: configuration interaction singles \& doubles,
 \item CISDT: configuration interaction singles, doubles, \& triples,
@@ -461,7 +535,14 @@ five iteration, one DIIS extrapolation is performed (and in the rest of the iter
 Jacobi rotation is used).  When zero or negative value is specified, the DIIS is turned
 off.  It is not recommended to perform DIIS every iteration, whereas setting a large 
 value for this parameter necessitates a large memory (disk) space to keep the excitation
-amplitudes of previous iterations.
+amplitudes of previous iterations. In 5.0 version we significantly improved the DIIS solver
+by re-organizing the itrative process and by introducing the level shift option 
+({\tt lshift}) that enable to increase small orbital energy differences used in 
+calculating the up-dates for cluster amplitudes. 
+Typical values for {\tt lshift} oscillates between 0.3 and 0.5 for CC calculations for 
+ground states of multi-configurational character.
+Otherwise, the value of {\tt lshift} is by default set equal to 0.
+
 
 \subsection{{\tt FREEZE} --- the frozen core/virtual approximation}
 
@@ -526,6 +607,22 @@ By adding this keyword to the input block, the user can request the module to
 seek just the roots of the specified irreducible representation as 
 \verb+TARGETSYM+.  By default, this option is not set.
 \verb+TARGETSYM+ must be specified when \verb+SYMMETRY+ is invoked.
+
+\subsection{{\tt 2EORB} --- alternative storage of two-electron integrals}
+
+In the 5.0 version a new option has been added in order to provide more economical 
+way of  storing two-electron integrals used in CC calculations based on the  RHF and ROHF 
+references. The {\tt 2EORB} keyword can be used in the context of all 
+(except for the active-space approaches) CC approaches. All two-electron integrals are
+transfromed and subsequently stored in a way which is compatible with assumed tiling scheme. 
+The transformation from orbital to spinorbital form of the two-electron integrals is 
+performed on-the-fly during execution of the CC module. This option, although slower, allows  
+to significantly reduce the memory requirements needed by  the first half of 4-index 
+transformation and final file with fully transformed two-electron integrals . 
+Savings  in the memory requirements
+on the order of magnitude (and more)
+have been observed for large-scale open-shell calculations.
+
 
 \subsection{{\tt DIPOLE} --- the ground- and excited-state dipole moments}
 
@@ -674,3 +771,164 @@ END
  
 TASK TCE ENERGY
 \end{verbatim}
+
+Active-space CCSDt/EOMCCSDt  calculations (version I) of several excited states of 
+the Be$_3$ molecule. Three highest-lying occupied $\alpha$ and $\beta$  orbitals 
+({\tt active\_oa} and {\tt active\_ob}) and nine lowest-lying unoccupied 
+$\alpha$ and $\beta$  orbitals ({\tt active\_va} and {\tt active\_vb})
+define the active space.
+
+\begin{verbatim}
+
+START TCE_ACTIVE_CCSDT
+
+ECHO
+
+GEOMETRY UNITS ANGSTROM
+SYMMETRY C2V
+BE  0.00  0.00   0.00
+BE  0.00  1.137090 -1.96949
+end
+
+BASIS spherical
+# --- DEFINE YOUR BASIS SET ---
+END
+
+SCF
+THRESH 1.0e-10
+TOL2E 1.0e-10
+SINGLET
+RHF
+END
+
+TCE
+FREEZE ATOMIC
+CCSDTA
+TILESIZE 15
+THRESH 1.0d-5
+ACTIVE_OA 3
+ACTIVE_OB 3
+ACTIVE_VA 9
+ACTIVE_VB 9
+T3A_LVL 1
+NROOTS  2
+END 
+
+TASK TCE ENERGY
+
+
+\end{verbatim}
+
+Completely renormalized EOMCCSD(T) (CR-EOMCCSD(T)) calculations for the ozone molecule as described by the POL1 basis 
+set. The {\tt CREOMSD(T)} directive automatically initialize three-step procedure: (1) CCSD calculations; (2)
+EOMCCSD calculations; (3) non-iterative CR-EOMCCSD(T) corrections.  
+
+\begin{verbatim}
+START TCE_CR_EOM_T_OZONE
+
+ECHO
+
+GEOMETRY UNITS BOHR
+SYMMETRY C2V
+O   0.0000000000        0.0000000000        0.0000000000
+O   0.0000000000       -2.0473224350       -1.2595211660
+O   0.0000000000        2.0473224350       -1.2595211660
+END
+
+BASIS SPHERICAL
+O    S
+     10662.285000000      0.00079900
+      1599.709700000      0.00615300
+       364.725260000      0.03115700
+       103.651790000      0.11559600
+        33.905805000      0.30155200
+O    S
+        12.287469000      0.44487000
+         4.756805000      0.24317200
+O    S
+         1.004271000      1.00000000
+O    S
+         0.300686000      1.00000000
+O    S
+         0.090030000      1.00000000
+O    P
+        34.856463000      0.01564800
+         7.843131000      0.09819700
+         2.306249000      0.30776800
+         0.723164000      0.49247000
+O    P
+         0.214882000      1.00000000
+O    P
+         0.063850000      1.00000000
+O    D
+         2.306200000      0.20270000
+         0.723200000      0.57910000
+O    D
+         0.214900000      0.78545000
+         0.063900000      0.53387000
+END
+
+SCF
+THRESH 1.0e-10
+TOL2E 1.0e-10
+SINGLET
+RHF
+END
+
+TCE
+FREEZE ATOMIC
+CREOMSD(T)
+TILESIZE 20
+THRESH 1.0d-6
+NROOTS 2
+END
+
+TASK TCE ENERGY
+
+\end{verbatim}
+
+
+The LR-CCSD(T) calculations for the glycine molecule in the aug-cc-pVTZ basis set.
+Option {\tt 2EORB} is used in order to minimize memory requirements 
+associated with the storage of two-electron integrals.
+
+\begin{verbatim}
+START TCE_LR_CCSD_T
+
+ECHO
+
+GEOMETRY UNITS BOHR
+O      -2.8770919486        1.5073755650        0.3989960497
+C      -0.9993929716        0.2223265108       -0.0939400216
+C       1.6330980507        1.1263991128       -0.7236778647
+O      -1.3167079358       -2.3304840070       -0.1955378962
+N       3.5887721300       -0.1900460352        0.6355723246
+H       1.7384347574        3.1922914768       -0.2011420479
+H       1.8051078216        0.9725472539       -2.8503867814
+H       3.3674278149       -2.0653924379        0.5211399625
+H       5.2887327108        0.3011058554       -0.0285088728
+H      -3.0501350657       -2.7557071585        0.2342441831
+END
+
+BASIS
+* library aug-cc-pVTZ
+END
+
+SCF
+THRESH 1.0e-10
+TOL2E 1.0e-10
+SINGLET
+RHF
+END
+
+TCE
+FREEZE ATOMIC
+2EORB
+TILESIZE 15
+LR-CCSD(T)
+THRESH 1.0d-7
+END
+
+TASK TCE ENERGY
+
+\end{verbatim} 
