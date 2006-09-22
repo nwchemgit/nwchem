@@ -1,4 +1,4 @@
-c $Id: bq_input.F,v 1.6 2005-11-15 22:51:06 bylaska Exp $
+c $Id: bq_input.F,v 1.7 2006-09-22 15:51:32 d3p307 Exp $
 
 
 
@@ -250,8 +250,8 @@ c     -----------------------------------
      >       ('simulation_cell_input: error reading units', 0,
      &       INPUT_ERR)
             if (.not.inp_match(nunits, .false., test, units, unit_ind))
-     >       call errquit('simulation_cell_input: error reading units', 0,
-     &       INPUT_ERR)
+     >       call errquit('simulation_cell_input: error reading units',
+     $       0,INPUT_ERR)
             goto 40
 
 *           **** angstrom_to_au ****
