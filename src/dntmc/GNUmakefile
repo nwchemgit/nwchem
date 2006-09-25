@@ -1,7 +1,7 @@
-#$Id: GNUmakefile,v 1.2 2006-04-08 00:22:29 windus Exp $
+#$Id: GNUmakefile,v 1.3 2006-09-25 21:11:53 windus Exp $
    OBJ_OPTIMIZE = gibbs.o
 
-   OBJ = dntmc_input.o
+   OBJ = dntmc_input.o dntmc_setgeom.o
 
    LIBRARY = libdntmc.a
  USES_BLAS = gibbs.F

@@ -1,5 +1,5 @@
       subroutine dntmc_input(rtdb)
-C     $Id: dntmc_input.F,v 1.1 2006-04-08 00:22:29 windus Exp $
+C     $Id: dntmc_input.F,v 1.2 2006-09-25 21:11:53 windus Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -46,7 +46,7 @@ c
          if (.not.ma_push_get(MT_BYTE, nspecies*255, 'dntmc: species', 
      &        l_spec, k_spec)) call errquit
      &        ('dntmc_input: cannot allocate species', 0, MA_ERR)
-         call dntmc_getspecies(rtdb, nspecies, byte_mb(k_spec))
+         call dntmc_inputspecies(rtdb, nspecies, byte_mb(k_spec))
          if (.not.ma_pop_stack(l_spec)) call errquit
      &       ('dntmc_input: ma pop failed for species', 1, MA_ERR)
 c
@@ -120,7 +120,7 @@ c
 c
 C Little subroutine to help with the character input
 c
-      subroutine dntmc_getspecies(rtdb, nspecies, species)
+      subroutine dntmc_inputspecies(rtdb, nspecies, species)
 c
       implicit none
 c
@@ -131,18 +131,19 @@ c
 c
       integer rtdb   ! [input]
       integer nspecies ! [input]
-      character*255 species(nspecies) ! [input/output]
+      character*255 species(nspecies) ! [input/output] list of geometry names
 c
       integer i
 c
       do i = 1, nspecies
         if (.not. inp_a(species(i))) call errquit
-     &     ('dntmc_getspecies: species line incorrect', 0, INPUT_ERR)
+     &     ('dntmc_inputspecies: species line incorrect', 0, 
+     &       INPUT_ERR)
       enddo
 
       if (.not.rtdb_cput(rtdb, 'dntmc:species', nspecies, species))
-     &   call errquit('dntmc_getspecies: rtdb failure for species', 0, 
-     &   RTDB_ERR)
+     &   call errquit('dntmc_inputspecies: rtdb failure for species', 
+     &   0, RTDB_ERR)
 
       return
       end

@@ -1,0 +1,436 @@
+C $Id: dntmc_setgeom.F,v 1.1 2006-09-25 21:11:53 windus Exp $
+c
+c  Sets up NWChem and the DNTMC geometry information from the input
+c  information.  When come out of here should have a geometry in the rtdb
+c  corresponding to the cluster, and the initial coordinates (overlapping for
+c  the same species), masses, total number of molecules, number of species,
+c  number of atoms in a species, and list of unique species numbers will be
+c  populated.
+c  
+      subroutine dntmc_getspecinfo(rtdb, nmols, natom, rinit, uspc, 
+     &            nspecies, m)
+
+      implicit none
+#include "gibbsP.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+      integer rtdb     ! [input] rtdb handle
+      integer nmols    ! [output] number of molecules
+      integer nspecies ! [output] number of species
+      integer natom(mxsp)    ! [output] number of atoms in a particular species
+      double precision rinit(mxmols, mxatom, 3)   ! [output] coordinates
+      integer uspc(mxsp) ! [output] list of unique species numbers
+      double precision m(mxsp, mxatom)   ! [output] masses
+
+      integer nmolunique(mxsp)  ! contains the number of molecules for each species
+      integer l_spec, k_spec, i
+c
+c  Get the number of species and molecules off the rtdb
+c
+      if (.not.rtdb_get(rtdb, 'dntmc:nspecies', MT_INT, 1, nspecies))
+     &    call errquit('dntmc_getspecinfo: rtdb error for nspecies', 
+     &                  0, RTDB_ERR)
+c
+c  Get the number of molecules for each species
+c
+      if (.not.rtdb_get(rtdb, 'dntmc:nmol', MT_INT, nspecies, 
+     &    nmolunique))
+     &    call errquit('dntmc_getspecinfo: rtdb error for nmolunique', 
+     &                  0, RTDB_ERR)
+c
+c Sum up each of the seperate molecule numbers to get the total, nmols
+c
+      nmols = 0
+      do i = 1, nspecies
+         nmols = nmols + nmolunique(i)
+      enddo
+c
+c  Get the geometry names out of the rtdb and load the geometries
+c
+      if (.not.ma_push_get(MT_BYTE, nspecies*255, 'dntmc: species',
+     &    l_spec, k_spec)) call errquit
+     &    ('dntmc_getspecgeom: cannot allocate species', 0, MA_ERR)
+      call dntmc_getspecgeomnames(rtdb, nspecies, byte_mb(k_spec))
+      call dntmc_getspecgeom(rtdb, nspecies, byte_mb(k_spec),
+     &      uspc, natom, rinit, m, nmolunique)
+      if (.not.ma_pop_stack(l_spec)) call errquit
+     &    ('dntmc_getspecgeom: ma pop failed for species', 1, MA_ERR)
+
+
+      return
+      end
+c
+C Little subroutine to help with the character-byte translation
+c
+      subroutine dntmc_getspecgeomnames(rtdb, nspecies, species)
+c
+      implicit none
+c
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+c
+      integer rtdb   ! [input]
+      integer nspecies ! [input]
+      character*255 species(nspecies) ! [output] list of geometry names
+c
+c
+      if (.not.rtdb_cget(rtdb, 'dntmc:species', nspecies, species))
+     &   call errquit('dntmc_getspecgeomnames: rtdb failure for species'
+     &     , 0, RTDB_ERR)
+
+      return
+      end
+C
+C Get information from the geometries that are stored on the rtdb
+C This is really the routine that does most of the heavy lifting
+C
+      subroutine dntmc_getspecgeom(rtdb, nspecies, species, uspc, natom,
+     &            rinit, m, nmolunique)
+
+      implicit none
+#include "gibbsP.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+      integer rtdb     ! [input] rtdb handle
+      integer nmolunique(mxsp)  ! [input] number of molecules in each species
+      integer nspecies ! [input] number of species
+      integer natom(mxsp)    ! [output] number of atoms in a particular species
+      character*255 species(nspecies) ! [input] list of geometry names
+      double precision rinit(mxmols, mxatom, 3)   ! [output] coordinates
+      integer uspc(nspecies) ! [output] list of unique species numbers
+      double precision m(mxsp, mxatom)   ! [output] masses
+c
+      integer i, nattotal, istart, geom
+      integer l_ct, k_ct, l_qt, k_qt, l_mt, k_mt, l_tt, k_tt ! cluster indices
+      integer l_c, k_c, l_q, k_q, l_m, k_m, l_t, k_t ! species indices
+c
+c  Find out the total number of atoms overall
+c  I do this in a seperate loop so that I can set up some temporary
+c  space for the full cluster geometry.
+c  There certainly a better way to do this
+c
+      nattotal = 0
+      do i = 1, nspecies
+         if (.not. geom_create(geom, species(i)))
+     &     call errquit('dntmc_getspecgeom: failed creating geometry?',
+     &                   0, GEOM_ERR)
+         if (.not. geom_rtdb_load(rtdb, geom, species(i)))
+     &     call errquit('dntmc_getspecgeom: no geometry ', 0,
+     &                   RTDB_ERR)
+         if (.not. geom_ncent(geom, natom(i)))
+     &     call errquit('dntmc_getspecgeom: ncent error', 0,
+     &                   GEOM_ERR)
+         nattotal = nattotal + natom(i)
+         if (.not. geom_destroy(geom))
+     &     call errquit('dntmc_getspecgeom: destroying geometry',0,
+     &       GEOM_ERR)
+      enddo
+c
+c Allocate some buffers for the full cluster geometry
+c
+      if (.not.ma_push_get(mt_dbl, 3*nattotal,'coordinate', l_ct, k_ct))
+     &   call errquit('dntmc_getspecgeom: coordinate not allocated',
+     &                 3*nattotal, MA_ERR)
+      if (.not.ma_push_get(mt_dbl, nattotal, 'charge', l_qt, k_qt))
+     &   call errquit('dntmc_getspecgeom: charge not allocated',
+     &                 nattotal, MA_ERR)
+      if (.not.ma_push_get(mt_dbl, nattotal, 'mass', l_mt, k_mt))
+     &   call errquit('dntmc_getspecgeom: mass not allocated',
+     &                 nattotal, MA_ERR)
+      if(.not.ma_push_get(mt_byte,16*nattotal,'tags',l_tt,k_tt))
+     &   call errquit('dntmc_getspecgeom: tags not allocated',
+     &                 nattotal, MA_ERR)
+c
+c  Loop over the species geometries, putting info in the appropriate arrays
+c  Put info in the global arrays
+c
+      istart = 1
+      do i = 1, nspecies
+         uspc(i) = i
+         if (.not. geom_create(geom, species(i)))
+     &     call errquit('dntmc_getspecgeom: failed creating geometry?',
+     &                   0, GEOM_ERR)
+         if (.not. geom_rtdb_load(rtdb, geom, species(i)))
+     &     call errquit('dntmc_getspecgeom: no geometry ', 0, 
+     &                   RTDB_ERR)
+C Shouldn't need the following since we did it up above
+C         if (.not. geom_ncent(geom, natom(i)))
+C     &     call errquit('dntmc_getspecgeom: ncent error', 0,
+C     &                   GEOM_ERR)
+c
+c get some local memory to handle temporary data
+c
+         if (.not.ma_push_get(mt_dbl, 3*natom(i), 'c', l_c, k_c))
+     &     call errquit('dntmc_getspecgeom: c allocation error',
+     &       3*natom(i), MA_ERR)
+         if (.not.ma_push_get(mt_dbl, natom(i), 'q', l_q, k_q))
+     &     call errquit('dntmc_getspecgeom: q allocation error',
+     &       natom(i), MA_ERR)
+         if (.not.ma_push_get(mt_dbl, natom(i), 'm', l_m, k_m))
+     &     call errquit('dntmc_getspecgeom: m allocation error',
+     &       natom(i), MA_ERR)
+         if(.not.ma_push_get(mt_byte,16*natom(i),'t',l_t,k_t))
+     &     call errquit('dntmc_getspecgeom: t not allocated',
+     &       natom(i), MA_ERR)
+c
+         if (.not. geom_cart_get(geom, natom(i), byte_mb(k_t), 
+     &     dbl_mb(k_c), dbl_mb(k_q)))
+     &     call errquit('dntmc_getspecgeom: coord error',0, GEOM_ERR) 
+         if (.not. geom_masses_get(geom, natom(i), dbl_mb(k_m)))
+     &     call errquit('dntmc_getspecgeom: mass error',0, GEOM_ERR)
+c
+c put information into dntmc variables
+c
+         call dntmc_filldntmcinit(i, natom(i), dbl_mb(k_c), 
+     &     rinit, dbl_mb(k_m), m)
+c
+c expand to the full list to be used for the generation of
+c the cluster geometry object
+c NOTE: istart get changed after the next call!!!
+c
+         call dntmc_speciestocluster(istart, nmolunique(i), natom(i),
+     &         nattotal,
+     &         dbl_mb(k_c), dbl_mb(k_ct), dbl_mb(k_q), dbl_mb(k_qt),
+     &         dbl_mb(k_m), dbl_mb(k_mt), byte_mb(k_t), byte_mb(k_tt))
+c
+c get rid of local memory for next round
+c
+         if (.not.ma_chop_stack(l_c))
+     &     call errquit('dntmc_getspecgeom: chop of l_c did not work',
+     &       0, MA_ERR)
+c
+         if (.not. geom_destroy(geom))
+     &     call errquit('dntmc_getspecgeom: destroying geometry',0, 
+     &       GEOM_ERR)
+
+      enddo
+c
+c Create a geometry on the rtdb with the correct dimensions and other
+c starting information
+c
+      call dntmc_setgeom(rtdb, nattotal, dbl_mb(k_ct), dbl_mb(k_qt),
+     &      dbl_mb(k_mt), byte_mb(k_tt))
+c
+c get rid of cluster memory
+c
+         if (.not.ma_chop_stack(l_ct))
+     &     call errquit('dntmc_getspecgeom: chop of l_ct did not work',
+     &       0, MA_ERR)
+c
+      return
+      end
+C
+C Copy the species geometry information to the cluster information
+C
+      subroutine dntmc_speciestocluster(iloc, nmols, natom, nattotal, 
+     &     clocal, ccluster, qlocal, qcluster, mlocal, mcluster,
+     &     tlocal, tcluster)
+
+      implicit none
+
+      integer iloc  ! [input/output] index in the cluster coordinates
+      integer nmols ! [input] number of molecules to be copied
+      integer natom ! [input] number of atoms in the molecule
+      integer nattotal ! [input] number of atoms in the cluster
+      double precision clocal(3, natom) ! [input] coordinates of species
+      double precision ccluster(3, nattotal) ! [input/output] coordinate of cluster
+      double precision qlocal(natom) ! [input] charges for the species
+      double precision qcluster(nattotal) ! [input/output] charges for the cluster
+      double precision mlocal(natom) ! [input] masses of the species
+      double precision mcluster(nattotal) ! [input/output] masses of the cluster
+      character*16 tlocal(natom) ! [input] tags for the species
+      character*16 tcluster(nattotal) ! [input/output] tags for the cluster
+c
+      integer i, j
+c
+      do i = 1, nmols
+         do j = 1, natom
+            ccluster(1, iloc) = clocal(1, j)
+            ccluster(2, iloc) = clocal(2, j)
+            ccluster(3, iloc) = clocal(3, j)
+            qcluster(iloc) = qlocal(j)
+            mcluster(iloc) = mlocal(j)
+            tcluster(iloc) = tlocal(j)
+            iloc = iloc + 1
+         enddo
+      enddo
+c
+      return
+      end
+C
+C  Copy the species info to the DNTMC data structures
+C
+      subroutine dntmc_filldntmcinit(iloc, natom, clocal, 
+     &     rinit, mlocal, m)
+
+      implicit none
+#include "gibbsP.fh"
+
+      integer iloc ! [input] index in the DNTMC species
+      integer natom ! [input] number of atoms in the molecule
+      double precision clocal(3, natom) ! [input] coordinates of species
+      double precision rinit(mxmols, mxatom, 3) ! [input/output] initial dntmc coordinates
+      double precision mlocal(natom) ! [input] masses of the species
+      double precision m(mxsp, mxatom) ! [input/output] masses for dntmc
+c
+      integer i
+c
+      do i = 1, natom
+         rinit(iloc, i, 1) = clocal(1, i)
+         rinit(iloc, i, 2) = clocal(2, i)
+         rinit(iloc, i, 3) = clocal(3, i)
+         m(iloc, i) = mlocal(i)
+      enddo
+c
+      return
+      end
+c
+c set up the geometry the first time, takes the coordinates, labels, charges,
+c and masses and sets up a geometry in the rtdb
+c
+      subroutine dntmc_setgeom(rtdb, natoms, coords, charges, masses,
+     &   tags)
+
+      implicit none
+#include "errquit.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+      integer rtdb     ! [input] rtdb handle
+      integer natoms   ! [input] number of atoms in the full cluster
+      double precision coords (3, natoms)   ! [input] coordinates
+      double precision charges(natoms)   ! [input] charges
+      double precision masses(natoms)   ! [input] masses
+      character*16 tags(natoms)        ! [input] atomic labels
+c
+      integer geom
+c
+      if (.not.geom_create(geom,'geometry'))
+     &      call errquit('dntmc_setgeom: geom_create failed',911,
+     &       GEOM_ERR)
+      if (.not.geom_set_user_units(geom,'angstroms'))
+     &      call errquit
+     &       ('dntmc_setgeom: geom_set_user_units failed',911,
+     &       GEOM_ERR)
+      if (.not.geom_cart_set(geom,natoms,tags,coords,charges))
+     &      call errquit('dntmc_setgeom: geom_cart_set failed',911,
+     &       GEOM_ERR)
+      if (.not.geom_masses_set(geom,natoms,masses))
+     &      call errquit('dntmc_setgeom:geom_masses_set failed',911,
+     &       GEOM_ERR)
+      call geom_compute_values(geom)
+c
+c store as default geometry
+c
+      if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
+     &      call errquit('dntmc_setgeom: geom_rtdb_store failed',911,
+     &       RTDB_ERR)
+      if (.not.geom_destroy(geom))
+     &      call errquit('dntmc_setgeom: geom_destroy failed',
+     &                    911, GEOM_ERR)
+
+      return
+      end
+c
+c set the coordinates assuming that a geometry already is set up in the rtdb
+c
+      subroutine dntmc_setcoords(rtdb, r, nmols, natom, spc)
+
+      implicit none
+
+#include "gibbsP.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+
+      integer rtdb ! input
+      double precision r(mxmols, mxatom, 3) ! input - coordinates in DNTMC ordering
+      integer nmols ! input - number of molecules
+      integer natom(mxsp) ! input - number of atoms for each species
+      integer spc(mxmols) ! input - species numbers
+c
+      integer geom, ncent
+      integer l_ct, k_ct
+c
+      if (.not.geom_create(geom,'geometry'))
+     &      call errquit('dntmc_setcoords: geom_create failed',911,
+     &       GEOM_ERR)
+      if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
+     &  call errquit('dntmc_setcoords: no geometry ', 555, RTDB_ERR)
+      if (.not. geom_ncent(geom, ncent)) 
+     &  call errquit('dntmc_setcoords: ncent failed', 555, GEOM_ERR)
+c
+c reorder the coordinates to that of internal NWChem
+c
+      if (.not.ma_push_get(mt_dbl, 3*ncent,'coordinate', l_ct, k_ct))
+     &   call errquit('dntmc_setcoords: coordinate not allocated',
+     &                 3*ncent, MA_ERR)
+      call dntmc_dntcoordtonwchem(r, nmols, natom, spc, dbl_mb(k_ct),
+     &   ncent)
+c
+c set the coordinates and store
+c
+      if (.not.geom_cart_coords_set(geom,dbl_mb(k_ct)))
+     &      call errquit('dntmc_setcoords: geom_cart_coords_set',911,
+     &       GEOM_ERR)
+      if (.not.ma_chop_stack(l_ct))
+     &     call errquit('dntmc_setcoords: chop of l_ct did not work',
+     &       0, MA_ERR)
+      if (.not.geom_rtdb_store(rtdb,geom,'geometry'))
+     &      call errquit('dntmc_setcoords: geom_rtdb_store failed',
+     &       911, RTDB_ERR)
+      if (.not.geom_destroy(geom))
+     &      call errquit('dntmc_setcoords: geom_destroy failed',
+     &                    911, GEOM_ERR) 
+     
+      return
+      end
+c
+c actually set the coordinates
+c
+      subroutine dntmc_dntcoordtonwchem(r, nmols, natom, spc, 
+     &    coords, ncent)
+c
+      implicit none
+
+#include "gibbsP.fh"
+#include "errquit.fh"
+c
+      double precision r(mxmols, mxatom, 3) ! input - coordinates in DNTMC ordering
+      integer nmols ! input - number of molecules
+      integer natom(mxsp) ! input - number of atoms for each species
+      integer spc(mxmols) ! input - species numbers
+      integer ncent ! input - total number of atoms
+      double precision coords(3, ncent) ! output - NWChem coordinates
+c
+      integer i, j, nat
+c
+      nat = 0
+      do i= 1, nmols
+         do j= 1, natom(spc(j))
+            nat = nat + 1
+            coords(1, nat) = r(i, j, 1)
+            coords(2, nat) = r(i, j, 2)
+            coords(3, nat) = r(i, j, 3)
+         enddo
+      enddo
+c
+c little internal check on the number of atoms
+c
+      if (nat.ne.ncent)
+     &   call errquit('dntmc_dntcoordtonwchem: nat check failed', 
+     &                 555, UNKNOWN_ERR)
+c
+      return
+      end

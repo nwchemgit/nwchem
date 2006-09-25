@@ -1,5 +1,4 @@
-C        1         2         3         4         5         6         7
-C$Id: gibbs.F,v 1.7 2006-04-08 00:22:30 windus Exp $
+C$Id: gibbs.F,v 1.8 2006-09-25 21:11:53 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -18,6 +17,9 @@ c
 #include "rtdb.fh"
 c
       integer rtdb  ! integer
+
+      logical task_energy
+      external task_energy
 
       double precision M,MTOT
       double precision r, rcm, rs
@@ -52,6 +54,7 @@ c
 
       double precision temp, uu, uavr, usqrd, rsimsum, rsimavr
       double precision rsh, rsimsq, rmaxsq, rx, ry, rz, dist
+      double precision rinit
       double precision sgm, aratiott, aratiotr, aratiotv
       double precision aratiotpr, aratiotpi, cv, rinc
       double precision percent, rest
@@ -121,6 +124,7 @@ C      DIMENSION TESTME(100,MXNODE)
 
       DIMENSION DIMS(2),CHUNK(2)
       DIMENSION ld(2)  
+      DIMENSION RINIT(MXMOLS,MXATOM,3)
 
       SAVE NATOT
 
@@ -218,6 +222,8 @@ C     SPC(NMOL) = PARTICULAR SPECIES ->
 C      ->  (H2SO4=1,H2O=2,H3O+=3,HSO4-=4,H+=5,SO4 -2=6)
 
 C     NATOM(SPC(NMOL)) = # OF ATOMS IN PARTICULAR SPECIES
+c needs to be replaced with number of atoms in each species
+c as determined in the geometries - generic
 
       NATOM(1) = 7    !sulfuric acid -> H2SO4
       NATOM(2) = 4    !Dang-Chang water (4sites) -> H2O
@@ -228,6 +234,7 @@ C     NATOM(SPC(NMOL)) = # OF ATOMS IN PARTICULAR SPECIES
 
 C     THESE ARE THE CHARGE, SIGMA, AND EPSILON PARAMETERS
 C     FOR THE DANG-CHANG POLARIZABLE WATER MODEL
+c this should be sent to an initialization for the potential
 
       QSE(2,1,1) = 0.0000
       QSE(2,1,2) = 3.2340
@@ -243,30 +250,32 @@ C     FOR THE DANG-CHANG POLARIZABLE WATER MODEL
       QSE(2,4,3) = 0.0000
 
 C     MASSES FOR WATER
-      M(2,1) = 15.995
-      M(2,2) = 1.008
-      M(2,3) = 1.008
-      M(2,4) = 0.000
+c need to pull this out of the geom in dntmc_getspecinfo
+c     M(2,1) = 15.995
+c     M(2,2) = 1.008
+c     M(2,3) = 1.008
+c     M(2,4) = 0.000
 
 
 C     THIS IS THE INITIAL INPUT
 
       CONT1 = 0  !restart: 0 = no restart files, 1 = write restart files
       CONT2 = 0  !is this a restart run?: 0 = no, 1 = yes
-
 c
-c Try to read these from the rtdb
+c Try to get the geometry related information from the rtdb
+c
+      call dntmc_getspecinfo(rtdb, nmols, natom, rinit, uspc, nspc,
+     &      m)
+c
+c Try to read these from the rtdb - some now in the above call
+c need to clean this when stuff is working
 c
 c      NSPC = 1
 c      NMOLS = 10            !total number of water molecules
 c      MCSTPS = 100     !total number of Monte Carlo Steps
-      if (.not.rtdb_get(rtdb, 'dntmc:nspecies', MT_INT, 1, nspc))
-     &    call errquit('dntmc_gibbs: rtdb error for nspc', 0, RTDB_ERR)
+c     if (.not.rtdb_get(rtdb, 'dntmc:nspecies', MT_INT, 1, nspc))
+c    &    call errquit('dntmc_gibbs: rtdb error for nspc', 0, RTDB_ERR)
 c
-c Note that nmol should be an array when everything is working well
-c
-      if (.not.rtdb_get(rtdb, 'dntmc:nmol', MT_INT, 1, NMOLS))
-     &    call errquit('dntmc_gibbs: rtdb error for nmols', 0, RTDB_ERR)
       if (.not.rtdb_get(rtdb, 'dntmc:mcsteps', MT_INT, 1, MCSTPS))
      &    call errquit('dntmc_gibbs: rtdb error for mcsteps', 0, 
      &    RTDB_ERR)
@@ -290,7 +299,9 @@ c
       ROTF = 0
       AB = 1
       IDUM = -1
-      USPC(1) = 2
+c need to set this based on the nwchem input in dntmc_getspecinfo
+c start at 1 for the species numbers
+c     USPC(1) = 2
 C
 C Get from rtdb
 c
@@ -347,7 +358,7 @@ C calculate total mass of the system
             WRITE(12,*)'M(',USPC(I),',',J,') =',M(USPC(I),J)
          END DO
       END DO
-
+c need to fix this write to be independent of the species number
       WRITE(12,*)'MTOT(2) =',MTOT(2)
 
 C******************************************************************
@@ -364,7 +375,7 @@ C     IS RUNNING ON
       NODE = IAM
 
 C done in parallel
-      CALL dntmc_CONFIG(NMOLS,NODE,RMAX)
+      CALL dntmc_CONFIG(NMOLS,NODE,RMAX,rinit)
 
       WRITE(6,*)'made it through the initial config setup'
       WRITE(6,*)'on node =',IAM
@@ -420,7 +431,7 @@ C input file
 
 C******************************************************
 C     THESE INDICES CONTROL WHICH MOLECULES ARE PROBES
-
+c need to figure this out with Shawn
       DO I = 1, NMOLS - 1
          LNDX(I) = 0     
       END DO
@@ -436,6 +447,8 @@ C*********************************************************
       ABNDX(2) = 1.D+00      ! A ENSEMBLE
 
 C     THESE INDICES ARE FOR THE (H+ SO4 2=)(H+ H+) PROBE INTERACTION = 1
+c guessing that this needs to be made generic instead of specific
+c need to figure out what they mean
 
       LNDXX(6,5) = 1      !SO4-2  H+
       LNDXX(5,6) = 1      !H+ SO4-2
@@ -450,6 +463,8 @@ C     THESE INDICES ARE FOR THE (H+ SO4 2=)(H+ H+) PROBE INTERACTION = 1
 
 C *******************************************************************
 
+c are these dependent on the total number of molecules or the
+c total for each species?
       NMIN = NMOLS - 4
 
       NCURR = NMOLS
@@ -495,6 +510,7 @@ C should never get here unless the algorithm is messed up
  101  CONTINUE
       
 C grid of pairs of interactions squared
+c is this for the Liam-Dang potential?
       DO I = 1, NSPC
       
       DO II = 1, NATOM(USPC(I))
@@ -601,9 +617,14 @@ C check to make sure center of mass is origin
 
 
 C calculate the energy of the configuration
-      CALL dntmc_PSUM(NCURR,UU)
+c      CALL dntmc_PSUM(NCURR,UU)
+      call dntmc_setcoords(rtdb, r, nmols, natom, spc)
+      if (.not. task_energy(rtdb)) call errquit
+     $     ('dntmc_gibbs: energy failed',0, GEOM_ERR)
+      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
      
-      WRITE(12,*)'INITIAL UU = ',UU,' kcal/mole'
+      WRITE(12,*)'INITIAL UU = ',UU,' cal/mole'
 
 
 C calculate number of atoms
@@ -630,7 +651,7 @@ C beginning of MC loop
          
 C do one move, calculate energy and return the acceptance ratios and energy
          CALL dntmc_MOVE(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
-     +             ,ACCEPTPI,UU)
+     +             ,ACCEPTPI,UU, rtdb, nmols)
 
          CALL dntmc_ROOTMEANSQUARE(L,NCURR,NSPC)
 
@@ -733,6 +754,7 @@ C     writing occasional restart files
 
          RSH = RMIN
 
+c should NOB be an input parameter?
          NOB = 100
 
          DO I = 1, NOB
@@ -912,7 +934,7 @@ C     THIS IS THE SECOND MONTE CARLO LOOP USING A BETTER Rcut*
 
       NODE = IAM
 
-      CALL dntmc_CONFIG(NMOLS,NODE,RMAX)
+      CALL dntmc_CONFIG(NMOLS,NODE,RMAX,rinit)
 
 C*********************************************************
 c     initialization information for rsim and rmax   
@@ -1005,7 +1027,12 @@ c234567
       
       CALL dntmc_CLUSTERCMASS(NCURR)
 
-      CALL dntmc_PSUM(NCURR,UU)
+c      CALL dntmc_PSUM(NCURR,UU)
+      call dntmc_setcoords(rtdb, r, nmols, natom, spc)
+      if (.not. task_energy(rtdb)) call errquit
+     $     ('dntmc_gibbs: energy failed',0, GEOM_ERR)
+      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
      
       WRITE(12,*)'2nd MC LOOP INITIAL UU = ',UU,' kcal/mole'
       WRITE(6,*)'2nd MC LOOP INITIAL UU = ',UU,' kcal/mole'
@@ -1027,7 +1054,7 @@ C    RE-INITIALIZE ACCEPTANCE RATIOS
          ACCEPTPI = .FALSE.
          
          CALL dntmc_MOVE(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
-     +             ,ACCEPTPI,UU)
+     +             ,ACCEPTPI,UU, rtdb, nmols)
 
          CALL dntmc_ROOTMEANSQUARE(L,NCURR,NSPC)
 
@@ -1209,13 +1236,16 @@ c*************************************
 
 C***********************************************************************
       SUBROUTINE dntmc_MOVE(TEMP,ACCEPTT,ACCEPTR,ACCEPTV,ACCEPTPR
-     +               ,ACCEPTPI,UOLD)
+     +               ,ACCEPTPI,UOLD, rtdb, nmols)
 C***********************************************************************
 C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
       IMPLICIT none
 #include "gibbsP.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
 
       double precision temp  ! input
       LOGICAL ACCEPTT        ! output
@@ -1224,6 +1254,11 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       LOGICAL ACCEPTPR       ! output
       LOGICAL ACCEPTPI       ! output
       double precision uold  ! input/output
+      integer rtdb           ! input
+      integer nmols          ! input
+
+      logical task_energy
+      external task_energy
 
       double precision r, rcm, rs
       double precision rmin, rsim, rmax
@@ -1240,9 +1275,9 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       double precision rnnum
       integer idum
 
-      double precision muchem, delta, rres
+      double precision delta
       double precision comp2, comp3, comp2r, comp3r, rstep, press
-      double precision gamma3, rsimsq, radiuss, deltar, rnew
+      double precision rsimsq, radiuss, deltar, rnew
       double precision voli, volf, deltavol, rnewsq
       double precision rx, ry, rz, dist, arg, tmp, rann
       double precision unew, deltau, beta, sdbeta, cdbeta
@@ -1265,23 +1300,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       COMMON/RNNUMS/RNNUM(1)
       COMMON/SEED/IDUM
 
-      DIMENSION DELTA(3),RRES(MXATOM,3)
-
-C     these are the coordinates for a reservoir water molecule
-C     with all atoms lying in the y-z plane with the C2v axis
-C     along the (+)z axis.
-      RRES(1,1) = 0.D+00
-      RRES(1,2) = 0.D+00
-      RRES(1,3) = 0.D+00
-      RRES(2,1) = 0.D+00
-      RRES(2,2) = 0.7569D+00
-      RRES(2,3) = 0.586D+00
-      RRES(3,1) = 0.D+00
-      RRES(3,2) = -0.7569D+00
-      RRES(3,3) = 0.586D+00
-      RRES(4,1) = 0.D+00
-      RRES(4,2) = 0.D+00
-      RRES(4,3) = 0.215D+00
+      DIMENSION DELTA(3)
 
       COMP2 = 0.D+00
       COMP3 = 0.D+00
@@ -1289,10 +1308,9 @@ C     along the (+)z axis.
       COMP3R = 0.D+00
       RSTEP = (RMAX - RMIN)
 
+c Do these need to more dependant on the actual temperature 
+c of the simulation?
       PRESS = 1.7D-05   !kcal/mole/A^3  P = 888 torr  taken from UMR data
-c      MUCHEM = -9.525D+00  !kcal/mole -> S=5 @ T=243K
-      MUCHEM = -2.D+00
-      GAMMA3 = 18.386D-03  !A^3 Debroglie wavelength^3 @ T=243K
 
       RSIMSQ = RSIM*RSIM
 
@@ -1484,7 +1502,12 @@ C******************************************************
 
 c      WRITE(12,*)'translation before psum' 
 
-      CALL dntmc_PSUM(NCURR,UNEW) 
+c     CALL dntmc_PSUM(NCURR,UNEW) 
+      call dntmc_setcoords(rtdb, r, nmols, natom, spc)
+      if (.not. task_energy(rtdb)) call errquit
+     $     ('dntmc_move: energy failed',0, GEOM_ERR)
+      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
 
 c      WRITE(12,*)'after translation from psum'
 c      WRITE(12,*)'UNEW =',UNEW
@@ -1644,7 +1667,11 @@ C     Do metropolis on rotational part only
 C******************************************************
 C******************************************************
       
-      CALL dntmc_PSUM(NCURR,UNEW)     
+c      CALL dntmc_PSUM(NCURR,UNEW)     
+      if (.not. task_energy(rtdb)) call errquit
+     $     ('dntmc_move: energy failed',0, GEOM_ERR)
+      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
 
 c      WRITE(12,*)'after rotation from psum'
 c      WRITE(12,*)'UNEW =',UNEW
@@ -2852,7 +2879,7 @@ c      WRITE(12,*)'dntmc_EFMAG(',I,',',II,') =',dntmc_EFMAG,' E-FIELD'
       END         
 
 C***********************************************************************
-      SUBROUTINE dntmc_CONFIG(IMLW,NODE,RMX)
+      SUBROUTINE dntmc_CONFIG(IMLW,NODE,RMX,rinit)
 C
 C Make sure molecules don't overlap
 C***********************************************************************
@@ -2922,22 +2949,25 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
      
 C*********************************************************************
 C     COORDINATES FOR DANG-CHANG WATER MODEL WITH C2v in Z-DIRECTION
-      RINIT(1,1,1) = 0.D+00
-      RINIT(1,1,2) = 0.D+00
-      RINIT(1,1,3) = 0.D+00
-      RINIT(1,2,1) = 0.D+00
-      RINIT(1,2,2) = 0.75695D+00
-      RINIT(1,2,3) = 0.58588D+00
-      RINIT(1,3,1) = 0.D+00
-      RINIT(1,3,2) = -0.75695D+00
-      RINIT(1,3,3) = 0.58588D+00
-      RINIT(1,4,1) = 0.D+00
-      RINIT(1,4,2) = 0.D+00
-      RINIT(1,4,3) = 0.2150D+00
+c this will need to go away since the initial coordinates should
+c come from the nwchem input, it should be passed in
+c     RINIT(1,1,1) = 0.D+00
+c     RINIT(1,1,2) = 0.D+00
+c     RINIT(1,1,3) = 0.D+00
+c     RINIT(1,2,1) = 0.D+00
+c     RINIT(1,2,2) = 0.75695D+00
+c     RINIT(1,2,3) = 0.58588D+00
+c     RINIT(1,3,1) = 0.D+00
+c     RINIT(1,3,2) = -0.75695D+00
+c     RINIT(1,3,3) = 0.58588D+00
+c     RINIT(1,4,1) = 0.D+00
+c     RINIT(1,4,2) = 0.D+00
+c     RINIT(1,4,3) = 0.2150D+00
 C*********************************************************************
       
 c      WRITE(12,*)'coords before moving initial molecules:'
 
+c needs to be rinit(spc(i),j,1..3)?
       DO I = 1, IMLW
          DO J = 1, NATOM(SPC(I))
             RC(I,J,1) = RINIT(1,J,1)
