@@ -1,4 +1,4 @@
-C $Id: dntmc_setgeom.F,v 1.1 2006-09-25 21:11:53 windus Exp $
+C $Id: dntmc_setgeom.F,v 1.2 2006-09-25 22:35:30 windus Exp $
 c
 c  Sets up NWChem and the DNTMC geometry information from the input
 c  information.  When come out of here should have a geometry in the rtdb
@@ -47,6 +47,7 @@ c
       do i = 1, nspecies
          nmols = nmols + nmolunique(i)
       enddo
+      write(6,*) 'in getspecinfo nmols is ', nmols
 c
 c  Get the geometry names out of the rtdb and load the geometries
 c
@@ -117,6 +118,10 @@ c  I do this in a seperate loop so that I can set up some temporary
 c  space for the full cluster geometry.
 c  There certainly a better way to do this
 c
+      write (6,*) 'the number of species is ',nspecies
+      write(6,*) 'species(1) ', species(1)
+      write(6,*) 'nmolunique1 and nmolunique2 ', nmolunique(1),
+     &   nmolunique(2)
       nattotal = 0
       do i = 1, nspecies
          if (.not. geom_create(geom, species(i)))
@@ -128,7 +133,7 @@ c
          if (.not. geom_ncent(geom, natom(i)))
      &     call errquit('dntmc_getspecgeom: ncent error', 0,
      &                   GEOM_ERR)
-         nattotal = nattotal + natom(i)
+         nattotal = nattotal + (natom(i)*nmolunique(i))
          if (.not. geom_destroy(geom))
      &     call errquit('dntmc_getspecgeom: destroying geometry',0,
      &       GEOM_ERR)
@@ -136,6 +141,7 @@ c
 c
 c Allocate some buffers for the full cluster geometry
 c
+      write(6,*) 'the number of atoms is ',nattotal
       if (.not.ma_push_get(mt_dbl, 3*nattotal,'coordinate', l_ct, k_ct))
      &   call errquit('dntmc_getspecgeom: coordinate not allocated',
      &                 3*nattotal, MA_ERR)
@@ -196,10 +202,12 @@ c expand to the full list to be used for the generation of
 c the cluster geometry object
 c NOTE: istart get changed after the next call!!!
 c
+         write(6,*) 'before the dntmc_speciestocluster call'
          call dntmc_speciestocluster(istart, nmolunique(i), natom(i),
      &         nattotal,
      &         dbl_mb(k_c), dbl_mb(k_ct), dbl_mb(k_q), dbl_mb(k_qt),
      &         dbl_mb(k_m), dbl_mb(k_mt), byte_mb(k_t), byte_mb(k_tt))
+         write(6,*) 'after the dntmc_speciestocluster call'
 c
 c get rid of local memory for next round
 c
@@ -416,18 +424,23 @@ c
 c
       integer i, j, nat
 c
+      write(6,*) 'inside dntcoordtonwchem and coords are'
       nat = 0
       do i= 1, nmols
-         do j= 1, natom(spc(j))
+         do j= 1, natom(spc(i))
+            write(6,*) 'natom, spc(j), j ', natom(spc(j)), spc(j), j
             nat = nat + 1
             coords(1, nat) = r(i, j, 1)
             coords(2, nat) = r(i, j, 2)
             coords(3, nat) = r(i, j, 3)
+            write(6,*) r(i, j, 1),r(i, j, 2),r(i, j, 3)
          enddo
       enddo
+      write(6,*) 'nmols is ', nmols
 c
 c little internal check on the number of atoms
 c
+      write(6,*) 'nat and ncent ',nat,ncent
       if (nat.ne.ncent)
      &   call errquit('dntmc_dntcoordtonwchem: nat check failed', 
      &                 555, UNKNOWN_ERR)
