@@ -1,5 +1,5 @@
       subroutine dntmc_input(rtdb)
-C     $Id: dntmc_input.F,v 1.2 2006-09-25 21:11:53 windus Exp $
+C     $Id: dntmc_input.F,v 1.3 2006-09-26 17:02:53 windus Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -54,7 +54,7 @@ c
 c
 c  Number of molecules for each species - nmol <nmol1, nmol2, ..., nmolnspecies>
 c
-         write(6,*) 'nspecies is ', nspecies
+c        write(6,*) 'nspecies is ', nspecies
          if (.not.ma_push_get(MT_INT, nspecies, 'dntmc: nmol', l_nmol, 
      &        k_nmol)) call errquit
      &        ('dntmc_input: cannot allocate nmol', 0, MA_ERR)

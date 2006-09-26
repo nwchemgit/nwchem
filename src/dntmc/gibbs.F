@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.8 2006-09-25 21:11:53 windus Exp $
+C$Id: gibbs.F,v 1.9 2006-09-26 17:02:53 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -132,7 +132,7 @@ C      DIMENSION TESTME(100,MXNODE)
 
       myid = ga_nodeid()
 
-      WRITE(6,*)'i made it into the code =',myid
+c     WRITE(6,*)'i made it into the code =',myid
 c     CALL FLUSH(6)
 
 C********************************************************
@@ -1281,7 +1281,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       double precision voli, volf, deltavol, rnewsq
       double precision rx, ry, rz, dist, arg, tmp, rann
       double precision unew, deltau, beta, sdbeta, cdbeta
-      integer i, j, ia1, ia2, ia3
+      integer i, j, ir, ia1, ia2, ia3
 
       double precision dntmc_ran3
 
@@ -1508,6 +1508,14 @@ c     CALL dntmc_PSUM(NCURR,UNEW)
      $     ('dntmc_move: energy failed',0, GEOM_ERR)
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
      $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
+
+      write(12,*) 'coordinates with an energy evaluation'
+      DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
+         DO J = 1, NATOM(SPC(I))
+            WRITE(12,*)(R(I,J,IR),IR=1,3)
+         END DO
+      END DO
+      write(12,*) 'unew = ',unew
 
 c      WRITE(12,*)'after translation from psum'
 c      WRITE(12,*)'UNEW =',UNEW
