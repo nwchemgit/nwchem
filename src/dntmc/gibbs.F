@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.9 2006-09-26 17:02:53 windus Exp $
+C$Id: gibbs.F,v 1.10 2006-09-26 17:42:02 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -623,8 +623,11 @@ c      CALL dntmc_PSUM(NCURR,UU)
      $     ('dntmc_gibbs: energy failed',0, GEOM_ERR)
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
      $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
-     
-      WRITE(12,*)'INITIAL UU = ',UU,' cal/mole'
+c
+c convert to kcal/mol
+c
+      uu = uu*627.5095D+00
+      WRITE(12,*)'INITIAL UU = ',UU,' kcal/mole'
 
 
 C calculate number of atoms
@@ -1034,6 +1037,10 @@ c      CALL dntmc_PSUM(NCURR,UU)
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
      $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
      
+c
+c convert to kcal/mol
+c
+      uu = uu*627.5095D+00
       WRITE(12,*)'2nd MC LOOP INITIAL UU = ',UU,' kcal/mole'
       WRITE(6,*)'2nd MC LOOP INITIAL UU = ',UU,' kcal/mole'
 
@@ -1515,6 +1522,10 @@ c     CALL dntmc_PSUM(NCURR,UNEW)
             WRITE(12,*)(R(I,J,IR),IR=1,3)
          END DO
       END DO
+c
+c convert to kcal/mol
+c
+      unew = unew*627.5095D+00
       write(12,*) 'unew = ',unew
 
 c      WRITE(12,*)'after translation from psum'
@@ -1676,10 +1687,23 @@ C******************************************************
 C******************************************************
       
 c      CALL dntmc_PSUM(NCURR,UNEW)     
+      call dntmc_setcoords(rtdb, r, nmols, natom, spc)
       if (.not. task_energy(rtdb)) call errquit
      $     ('dntmc_move: energy failed',0, GEOM_ERR)
       if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
      $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
+
+      write(12,*) 'coordinates with an energy evaluation'
+      DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
+         DO J = 1, NATOM(SPC(I))
+            WRITE(12,*)(R(I,J,IR),IR=1,3)
+         END DO
+      END DO
+c
+c convert to kcal/mol
+c
+      unew = unew*627.5095D+00
+      write(12,*) 'unew = ',unew
 
 c      WRITE(12,*)'after rotation from psum'
 c      WRITE(12,*)'UNEW =',UNEW
