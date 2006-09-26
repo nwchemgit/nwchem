@@ -13,7 +13,7 @@ c,rdf,ngt,iagc,jagc,igrc,u,uwmw)
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
       implicit none
 c
@@ -759,7 +759,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
       implicit none
 c
@@ -834,7 +834,6 @@ c
       boxi(1)=one/box(1)
       boxi(2)=one/box(2)
       boxi(3)=one/box(3)
-      print*,'icntrl=',icntrl
       if(npbtyp.eq.1.and.nbxtyp.eq.0.and.icntrl.eq.2) then
       do 101 ipsw=1,npsw
       do 102 is=1,nums
@@ -1898,7 +1897,7 @@ c
 c error
 #endif
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
       implicit none
 c
@@ -3069,7 +3068,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
 c     cf_fsb returns forces and energies for solute bonds
 c
@@ -3379,7 +3378,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,ichg,chg,xs,fs,ess,lpbc,lpbcs,
      + lupden,lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
 c     cf_fsh returns forces and energies for solute angles
 c
@@ -3802,7 +3801,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
 c     cf_fsd returns forces and energies for solute angles
 c
@@ -4148,7 +4147,7 @@ c
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
 c     cf_fso returns forces and energies for solute improper dihedral angles
 c
@@ -4478,7 +4477,7 @@ c
      + iatt,igan,isgm,imol,idyn,ichg,isss,xs,fs,ess,lpbc,lpbcs,dera,
      + esa,lseq)
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
 c     cf_fst returns forces and energies for solute third neighbors
 c
@@ -4895,7 +4894,7 @@ c
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: cf_f.fh,v 1.64 2006-09-18 15:42:14 d3j191 Exp $
+c $Id: cf_f.fh,v 1.65 2006-09-26 00:24:18 marat Exp $
 c
       implicit none
 c
