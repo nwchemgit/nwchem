@@ -1,5 +1,5 @@
 %
-% $Id: prepare.tex,v 1.36 2004-04-22 04:50:28 edo Exp $
+% $Id: prepare.tex,v 1.37 2006-09-28 14:36:53 d3j191 Exp $
 %
 \label{sec:prepare}
 \def\bmu{\mbox{\boldmath $\mu$}}
@@ -177,7 +177,7 @@ This entry specifies the default force field. Database files supplied with
 to AMBER95, and {\bf charmm}, referring to the academic CHARMM22 force field.
 
 \begin{verbatim}
-<string ffname>_(s | x | q | u | t | c) <string ffdir>[<string parfile>]
+<string ffname>_(1-9) <string ffdir>[\{<string parfile>\}]
 \end{verbatim}
 
 Entries of this type specify the directory \verb+ffdir+ in which force field 
@@ -185,7 +185,10 @@ database files can be found. Optionally the parameterfile in this directory
 may be specified as \verb+parfile+. 
 The prepare module will only use files in directories
 specified here. One exception is that files in the current work directory
-will be used if no directory with current files is specified.
+will be used if no directory with current files is specified. The directories
+are read in the order 1-9 with duplicate parameters taken from the last
+occurrence found. Note that multiple parameter files may be specified taht will
+be read in the order in which they are specified.
 
 \begin{verbatim}
 <string solvnam> <string solvfil>
@@ -198,12 +201,12 @@ An example file \$HOME/.nwchemrc is:
 
 \begin{verbatim}
 ffield amber
-amber_s /msrc/proj/nwchem/share/amber/amber_s/amber99.par
-amber_x /msrc/proj/nwchem/share/amber/amber_x/
-amber_u /usr/people/username/data/amber/amber_u/
-spce /msrc/proj/nwchem/share/solvents/spce.rst
-charmm_s /msrc/proj/nwchem/share/charmm/charmm_s/
-charmm_x /msrc/proj/nwchem/share/charmm/charmm_x/
+amber_1 /soft/nwchem/share/amber/amber_s/amber99.par,spce.par
+amber_2 /soft/nwchem/share/amber/amber_x/
+amber_3 /usr/people/username/data/amber/amber_u/
+spce /soft/nwchem/share/solvents/spce.rst
+charmm_1 /soft/nwchem/share/charmm/charmm_s/
+charmm_2 /soft/nwchem/share/charmm/charmm_x/
 \end{verbatim}
 
 \section{System name and coordinate source}
@@ -266,8 +269,16 @@ hbuild
 \end{verbatim}
 
 Keyword \verb+hbuild+ may be used to add hydrogen atoms to the
-unknown segments of the structure found on the pdb file.
+unknown segments of the structure found on the pdb file. Placement
+of hydrogen atoms is based on geometric criteria, and the resulting
+fragment and segment files should be carefully examined for correctness.
 
+The database directories are used as specified in the file $.nwchemrc$. Specific
+definitions for the force field used may be changed in the input file using
+
+\begin{verbatim}
+directory_(1-9) <string ffdir>[<string parfile>]
+\end{verbatim}
 
 \section{Sequence file generation}
 
@@ -438,9 +449,14 @@ With the following directives modifications can be made for entire
 segments.
 
 \begin{verbatim}
-modify segment <integer isgm> [set <integer mset> | initial | final] \
-	( dummy | self | uncharged | quantum | quantum_high )
+modify segment <integer isgm> \
+   [protonation <integer iprot> | set <integer mset> | initial | final] \
+   ( dummy | self | uncharged | quantum | quantum_high )
 \end{verbatim}
+
+where \verb+protonation+ specifies a modification of the default protonation
+state of the segment as specified in the segment file. This option only applies
+to Q-HOP simulations.
 
 Modifications to bonded interaction parameters can be made with the
 following modify commands.
@@ -478,6 +494,29 @@ interaction in which only quantum atoms are involved are ignored using
 ignore
 \end{verbatim}
 
+To specify that a free energy calculation will be carried out using the
+topology file, the following keyword needs to be specified,
+
+\begin{verbatim}
+free
+\end{verbatim}
+
+To specify that a Q-HOP simulation will be carried out using the topology
+file, the following keyword needs to be specified,
+
+\begin{verbatim}
+qhop
+\end{verbatim}
+
+To specify that only the first set of parameters should be used, even if multiple
+sets have been defined in the fragment or segment files, the following keyword needs
+to be specified,
+
+\begin{verbatim}
+first
+\end{verbatim}
+
+Note that keywords \verb+free+, \verb+qhop+ and \verb+qhop+ are mutually exclusive.
 \section{Appending to an existing topology file}
 
 \begin{verbatim}

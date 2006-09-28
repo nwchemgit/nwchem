@@ -1,5 +1,5 @@
 %
-% $Id: nwmd.tex,v 1.26 2005-09-09 21:10:38 marat Exp $
+% $Id: nwmd.tex,v 1.27 2006-09-28 14:36:53 d3j191 Exp $
 %
 \label{sec:nwmd}
 %\newcommand{\mc}[3]{\multicolumn{#1}{#2}{#3}}
@@ -191,33 +191,27 @@ and are pre-determined.
 
 
 \subsection{Databases}
-Database file used by the \prepare\ module are found in directories 
-with name \verb+$ffield$_$level$+, \\
+Database file supplied with NWChem and used by the \prepare\ module are found in 
+directories with name \verb+$ffield$_$level$+, \\
 where \verb+$ffield$+ is any of the
 supported force fields (Section \ref{sec:nwaforcefields}). 
 The source of the data is identified by \verb+$level$+, and can be 
 \begin{center}
-\begin{tabular}{lll}
+\begin{tabular}{ll}
 \hline
-level   & Description                 & Availability \\
-{\bf s} & original published data     & public       \\
-{\bf x} & additional published data   & public       \\
-{\bf q} & contributed data            & public       \\
-{\bf u} & user preferred data         & private      \\
-{\bf t} & user defined temporary data & private      \\
-{\bf c} & current working data        & private      \\
+level   & Description                \\
+{\bf s} & original published data    \\
+{\bf x} & additional published data  \\
+{\bf q} & contributed data           \\
 \hline
 \end{tabular}
 \end{center}
 
-Typically, only the level {\bf s}, {\bf x} and {\bf q} databases are publicly 
-available. 
-The user is responsible for the private level {\bf u}, {\bf t} and {\bf c}
-database files. When the \prepare\ module scans the databases, the priority
-is {\bf c}$>${\bf t}$>${\bf u}$>${\bf q}$>${\bf x}$>${\bf s}.
+The user is can replace these directories or add additional database files
+by specifying them in the $.nwchemrc$ file. or in the \verb+prepare+ input file. 
 
-The extension \verb+<ext>+ defines the type of database file within each
-database directory. 
+The extension \verb+1-9+ defines the priority of database file.
+ 
 \begin{table}[htbp]
 \begin{center}
 \begin{tabular}{ll}
@@ -243,7 +237,7 @@ Force fields recognized are
 \hline
 Keyword       & Force field   & Status \\
 {\tt amber}   & AMBER99       & AMBER95,GLYCAM also available\\
-{\tt charmm}  & CHARMM        & incomplete \\
+{\tt charmm}  & CHARMM        & \\
 %{\tt cvff}   & CVFF          & \\
 %{\tt gromos} & GROMOS87      & \\
 %{\tt oplsa}  & OPLS/AMBER3.0 & \\
@@ -433,8 +427,8 @@ pmf force constants are scaled by a factor \verb+facpmf+.
 \item
 \begin{verbatim}
 distar [draver [<integer ndaver default 1>]] 
-       [scale <real drsscl>]
-       [after <integer nfdrss>]
+   [scale <real drsscl>]
+   [after <integer nfdrss>]
 \end{verbatim}
 specifies that any distance restraint functions defined in the
 topology files are to be used. 
@@ -443,6 +437,17 @@ topology files are to be used.
 %to specify that average distances over \verb+ndaver+ steps should be
 %used, \verb+scale+ to scale the specified force constants, and
 %\verb+after+
+
+\item
+\begin{verbatim}
+qhop [<integer nfhop default 10>] 
+   [<real rhop default 0.35>]
+   [<real thop default 0.02>]
+\end{verbatim}
+specifies that a Q-HOP simulation is to be carried out with attempted
+proton hops every $nfhop$ steps, a cutoff for the donor-acceptor pair
+distance of $rhop$ nm, and a minimum time before back hopping can occur
+of $thop$ ps.
 
 
 \end{description}
@@ -860,7 +865,7 @@ specifies that all charges will be scaled by the factro \verb+scaleq+.
 
 \item 
 \begin{verbatim}
-collapse [<real fcoll default 10.0> [ z | xy ]
+collapse [<real fcoll default 10.0> [ segment | z | xy ]
 \end{verbatim}
 specifies that additional forces directed to the origin of the
 simulation cell with strength \verb+fcoll+ will be 
@@ -1032,7 +1037,7 @@ aspect of the simulation. The default is not to center, i.e. nfcntr is
 
 Keyword \verb+motion+
 specifies the frequency \verb+<nfslow>+ in molecular dynamics steps of
-removing the center of mass motion.
+removing the overall rotational and center of mass translational motion.
 
 Keyword \verb+analysis+
 specifies the frequency \verb+<nfanal>+ in molecular dynamics steps of
@@ -1439,6 +1444,7 @@ named server of basic data as a simulation is running.
 \item
 For development purposes debug information can be written to the debug
 file with extension {\bf dbg} with
+
 \begin{verbatim}
 debug <integer idebug>
 \end{verbatim}
@@ -1447,9 +1453,86 @@ where $idebug$ specifies the type of debug information being written.
 \item
 For testing purposes test information can be written to the test
 file with extension {\bf tst} with
+
 \begin{verbatim}
 test <integer itest>
 \end{verbatim}
 where $itest$ specifies the number of steps test information is written.
+
+\item
+On some platforms prefetching of data can improve the efficiency. This 
+feature can be turned on using
+
+\begin{verbatim}
+prefetch [<integer nbget>]
+\end{verbatim}
+where $nbget$ is the number of outstanding communication operations.
+
+\item
+Application of periodic boundary conditions for the evaluation of
+forces can be controlled with
+
+\begin{verbatim}
+pbc ( atom | residue | molecule )
+\end{verbatim}
+
+This option rarely needs to be used.
+
+\item
+Autocorrelation functions for error analysis are controlled using
+
+\begin{verbatim}
+auto [ fit <integer iapprx> | weight <real weight> ]
+\end{verbatim}
+
+This option is disabled in the current release.
+
+\item
+Membrane system equilibration can be made more efficient using
+ 
+\begin{verbatim}
+membrane [ rotations ]
+\end{verbatim}
+
+\item
+Constraining the center of mass of solute molecules in the xy plane is
+accomplished using
+
+\begin{verbatim}
+scmxy [<integer icmopt default 1>]
+\end{verbatim}
+
+where $icmopt$ determines if the constraint is mass weighted (2). 
+
+\item
+Radius of gyration calculations are enabled using
+
+\begin{verbatim}
+radius_gyration
+\end{verbatim}
+
+\item
+Calculations of diffucion coefficients is enabled using
+
+\begin{verbatim}
+diffusion
+\end{verbatim}
+This option is disabled in the current release.
+
+\item
+
+\begin{verbatim}
+comlim ( on | off )
+\end{verbatim}
+is disabled
+
+\item
+
+To limit the size of recoding files, new files are opened every $nfnewf$ md steps using 
+
+\begin{verbatim}
+batch <integer nfnewf>
+\end{verbatim}
+
 
 \end{description}

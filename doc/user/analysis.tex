@@ -1,5 +1,5 @@
 %
-% $Id: analysis.tex,v 1.32 2004-04-22 04:50:28 edo Exp $
+% $Id: analysis.tex,v 1.33 2006-09-28 14:36:53 d3j191 Exp $
 %
 \label{sec:analysis}
 \def\bmu{\mbox{\boldmath $\mu$}}
@@ -121,6 +121,12 @@ the specified trajectory files, use
 
 \begin{verbatim}
 frames 200 400 10
+\end{verbatim}
+
+A time offset can be specified with
+
+\begin{verbatim}
+time <real timoff>
 \end{verbatim}
 
 Solute coordinates of the reference set and ech subsequent frame
@@ -512,6 +518,13 @@ The initial sequence number of esp related files is defined by
 index <integer index default 1>
 \end{verbatim}
 
+A sequence of trajectory files with unequal lengths can be converted to files 
+with all $nclean$ frames using
+
+\begin{verbatim}
+clean <integer nclean>
+\end{verbatim}
+
 \section{Electrostatic potentials}
 
 A file in plt format of the electrostatic potential resulting
@@ -540,3 +553,8 @@ potential grid is in units of kJ\ mol$^{-1}$e$^{-1}$.
 If no files are specified, only the parameters are set. This
 analysis applies to solute(s) only.
 
+The electrostatic potential at specific point are evaluated using
+
+\begin{verbatim}
+esp_points [<string filpin> [<string filhol> [<string filpou> [<string filavg>]]]]
+\end{verbatim}
