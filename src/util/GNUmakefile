@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.192 2006-09-08 15:18:52 edo Exp $
+# $Id: GNUmakefile,v 1.193 2006-09-28 17:42:34 edo Exp $
 
 include ../config/makefile.h
 
@@ -112,7 +112,9 @@ ifeq ($(_CPU),ppc64)
   EXTRA_OBJ = linux_cpu.o linux_random.o # linux_setfpucw.o
 endif
 endif                                                                           
-
+ifeq ($(NWCHEM_TARGET),CATAMOUNT)
+  EXTRA_OBJ += util_allocga.o
+endif
 ifeq ($(TARGET),FUJITSU_VPP)
    LIB_DEFINES = \
                  -Wp,-DBINDIR=\"$(BINDIR)\" \

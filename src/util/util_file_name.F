@@ -286,7 +286,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.35 2006-03-23 21:40:24 edo Exp $
+C$Id: util_file_name.F,v 1.36 2006-09-28 17:42:34 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -599,6 +599,9 @@ c
      &       DISK_ERR)
       call ga_sync()
       ierr = eaf_stat(mine, avail0, fstype)
+#ifdef CATAMOUNT
+      nuse=ga_nnodes()
+#else
 c
 c     now write 5M of doubles
 c
@@ -634,6 +637,7 @@ c
           goto 1025
         endif
       endif
+#endif
 c
 c     get min disk space (if you have thin & fat nodes)
 c

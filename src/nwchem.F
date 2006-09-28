@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.157 2006-09-08 15:28:35 edo Exp $
+c     $Id: nwchem.F,v 1.158 2006-09-28 17:42:34 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                  2000, 2001, 2002, 2003, 2004, 2005, 2006           *
@@ -263,6 +263,9 @@ c
          else
             call setdbg(0)
          endif
+#ifdef CATAMOUNT
+         call util_allocga()
+#endif
          call task(rtdb)
          goto 10                !    end while
       endif
@@ -529,6 +532,7 @@ C
       Else
          global = 0
       EndIf
+      
 C
       Total = Heap + Stack
       If ( .NOT. GA_Uses_MA() ) Total = Total + Global
