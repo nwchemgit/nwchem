@@ -1,0 +1,354 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<!--Converted with LaTeX2HTML 99.2beta8 (1.43)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+  <title>Capabilities</title>
+  <link rel="stylesheet" type="text/css" href="shared/nwchem_basic.css">
+</head>
+<body bgcolor="FFFFFF">
+<table width="650">
+<tbody>
+<tr>
+<td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="nwchem_main.html">NWChem Home</a> |
+<a href="disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem 5.0 Functionality and Capabilities</h1>    
+      <br>
+      <p>NWChem provides many methods to compute the properties of
+molecular and
+periodic systems using standard quantum mechanical descriptions of the
+electronic wavefunction or density. In addition, NWChem has the
+capability to perform classical molecular dynamics and free energy
+simulations. These approaches may be combined to perform mixed
+quantum-mechanics and molecular-mechanics simulations. </p>
+      <p>NWChem is available on almost all high performance computing
+platforms,
+workstations, PCs running LINUX, as well as clusters of desktop
+platforms or
+workgroup servers. NWChem development has been devoted to providing
+maximum efficiency on massively parallel processors. It achieves this
+performance
+on the 1960 processors HP Itanium2 system in the EMSL's MSCF. It has
+not been optimized for high performance on single processor desktop
+systems.<span style="font-weight: bold;"><br>
+      </span><a name="SECTION00610000000000000000"></a></p>
+      <p></p>
+      <h1><small><a name="SECTION00610000000000000000">1. Molecular
+electronic structure</a>
+      </small></h1>
+      <p>
+The following quantum mechanical methods are available to calculate
+energies, analytic first derivatives and second derivatives with
+respect to atomic
+coordinates. </p>
+      <p></p>
+      <ul>
+        <li>Self Consistent Field (SCF) or Hartree Fock (RHF, UHF).
+        </li>
+        <li>Gaussian Density Functional Theory (DFT), using many local,
+non-local (gradient-corrected), and hybrid (local, non-local, and HF)
+exchange-correlation potentials (spin-restricted)
+with formal N<sup>3</sup> and N<sup>4</sup> scaling.
+        </li>
+      </ul>
+      <p>
+The following methods are available to calculate energies and analytic
+first derivatives with respect to atomic coordinates. Second
+derivatives are computed by finite difference of the first derivatives.
+      </p>
+      <p></p>
+      <ul>
+        <li>Self Consistent Field (SCF) or Hartree Fock (ROHF). </li>
+        <li>Gaussian Density Functional Theory (DFT), using many local,
+non-local (gradient-corrected), and hybrid (local, non-local, and HF)
+exchange-correlation potentials (spin-unrestricted)
+with formal N<sup>3</sup> and N<sup>4</sup> scaling.
+        </li>
+        <li>Spin-orbit DFT (SODFT), using many local and non-local
+(gradient-corrected)
+exchange-correlation potentials (spin-unrestricted).
+        </li>
+        <li>MP2 including semi-direct using frozen core and RHF and UHF
+reference.
+        </li>
+        <li>Complete active space SCF (CASSCF).
+        </li>
+      </ul>
+      <p>
+The following methods are available to compute energies only. First
+and second derivatives are computed by finite difference of the
+energies.
+      </p>
+      <ul>
+        <li>CCSD, CCSD(T), CCSD+T(CCSD), with RHF reference.
+        </li>
+        <li>Selected-CI with second-order perturbation correction.
+        </li>
+        <li>MP2 fully-direct with RHF reference.
+        </li>
+        <li>Resolution of the identity integral approximation MP2
+(RI-MP2), with RHF and UHF reference.
+        </li>
+        <li>CIS, TDHF, TDDFT, and Tamm-Dancoff TDDFT for excited states
+with RHF, UHF, RDFT, or UDFT reference.
+        </li>
+        <li>CCSD(T) and CCSD[T] for closed- and open-shell systems (TCE
+module)
+        </li>
+        <li>UCCD, ULCCD, UCCSD, ULCCSD, UQCISD, UCCSDT, and UCCSDTQ
+with RHF, UHF, or ROHF reference.
+        </li>
+        <li>UCISD, UCISDT, and UCISDTQ with RHF, UHF, or ROHF
+reference.
+        </li>
+        <li>Non-canonical UMP2, UMP3, and UMP4 with RHF or UHF
+reference.
+        </li>
+        <li>EOM-CCSD, EOM-CCSDT, EOM-CCSDTQ for excitation energies,
+transition
+moments, and excited-state dipole moments of closed- and open-shell
+systems
+        </li>
+        <li>CCSD, CCSDT, CCSDTQ for dipole moments of closed- and
+open-shell
+systems
+        </li>
+      </ul>
+      <p>
+For all methods, the following operations may be performed:
+      </p>
+      <ul>
+        <li>Single point energy
+        </li>
+        <li>Geometry optimization (minimization and transition state)
+        </li>
+        <li>Molecular dynamics on the fully <em>ab initio</em>
+potential energy surface
+        </li>
+        <li>Numerical first and second derivatives automatically
+computed if analytic derivatives are not available
+        </li>
+        <li>Normal mode vibrational analysis in cartesian coordinates
+        </li>
+        <li>ONIOM hybrid method of Morokuma and co-workers
+        </li>
+        <li>Generation of the electron density file for graphical
+display
+        </li>
+        <li>Evaluation of static, one-electron properties.
+        </li>
+        <li>Electrostatic potential fit of atomic partial charges
+(CHELPG method with optional RESP restraints or charge constraints)
+        </li>
+      </ul>
+      <p>
+For closed and open shell SCF and DFT:
+      </p>
+      <ul>
+        <li>COSMO energies - the continuum solvation `COnductor-like
+Screening MOdel' of A. Klamt and G. Sch&uuml;&uuml;rmann to describe
+dielectric screening effects in solvents.
+        </li>
+      </ul>
+      <p>
+In addition, automatic interfaces are provided to
+      </p>
+      <ul>
+        <li>The natural bond orbital (NBO) package
+        </li>
+        <li>Python
+        </li>
+      </ul>
+      <p>
+      </p>
+      <h1><small><a name="SECTION00620000000000000000">2. Relativistic
+effects</a>
+      </small></h1>
+      <p>
+The following methods for including relativity in quantum chemistry
+calculations are available:
+      </p>
+      <ul>
+        <li>The spin-free one-electron Douglas-Kroll approximation is
+available for all quantum mechanical methods and their gradients.
+        </li>
+        <li>Dyall's spin-free Modified Dirac Hamiltonian approximation
+is available for the Hartree-Fock method and its gradients.
+        </li>
+        <li>One-electron spin-orbit effects can be included via
+spin-orbit potentials. This option is available for DFT and its
+gradients, but has to be run without symmetry.
+        </li>
+      </ul>
+      <p>
+      </p>
+      <h1><small><a name="SECTION00630000000000000000">3.
+Pseudopotential plane-wave electronic structure</a>
+      </small></h1>
+      <p>
+Two modules are available to compute the energy, optimize the
+geometry, numerical second derivatives, and perform ab initio molecular
+dynamics using pseudopotential plane-wave DFT.
+      </p>
+      <p></p>
+      <ul>
+        <li>PSPW - (Pseudopotential plane-wave) A gamma point code for
+calculating
+molecules, liquids, crystals, and surfaces.
+        </li>
+        <li>Band - A prototype band structure code for calculating
+crystals and surfaces with small band gaps (e.g. semi-conductors and
+metals)
+        </li>
+      </ul>
+      <p>
+With
+      </p>
+      <p></p>
+      <ul>
+        <li>Conjugate gradient and limited memory BFGS minimization
+        </li>
+        <li>Car-Parrinello (extended Lagrangian dynamics)
+        </li>
+        <li>Constant energy and constant temperature Car-Parrinello
+simulations
+        </li>
+        <li>Fixed atoms in cartesian and SHAKE constraints in
+Car-Parrinello
+        </li>
+        <li>Pseudopotential libraries
+        </li>
+        <li>Hamann and Troullier-Martins norm-conserving
+pseudopotentials with optional semicore corrections
+        </li>
+        <li>Automated wavefunction initial guess, now with LCAO
+        </li>
+        <li>Vosko and PBE96 exchange-correlation potentials
+(spin-restricted and unrestricted)
+        </li>
+        <li>Orthorhombic simulation cells with periodic and
+free space boundary conditions.
+        </li>
+        <li>Modules to convert between small and large plane-wave
+expansions
+        </li>
+        <li>Interface to DRIVER, STEPPER, and VIB modules
+        </li>
+        <li>Polarization through the use of point charges
+        </li>
+        <li>Mulliken, point charge, DPLOT (wavefunction, density and
+electrostatic
+potential plotting) analysis
+        </li>
+      </ul>
+      <p>
+      </p>
+      <h1><small><a name="SECTION00640000000000000000">4. Molecular
+dynamics</a>
+      </small></h1>
+      <p>
+The following functionality is available for classical molecular
+simulations:
+      </p>
+      <ul>
+        <li>Single configuration energy evaluation
+        </li>
+        <li>Energy minimization
+        </li>
+        <li>Molecular dynamics simulation
+        </li>
+        <li>Free energy simulation (multistep thermodynamic
+perturbation (MSTP) or multiconfiguration thermodynamic integration
+(MCTI) methods with options of single and/or dual topologies, double
+wide sampling, and separation-shifted scaling)
+        </li>
+      </ul>
+      <p>
+The classical force field includes:
+      </p>
+      <ul>
+        <li>Effective pair potentials (functional form used in AMBER,
+GROMOS, CHARMM, etc.) </li>
+        <li>First order polarization
+        </li>
+        <li>Self consistent polarization
+        </li>
+        <li>Smooth particle mesh Ewald (SPME) </li>
+        <li>Twin range energy and force evaluation </li>
+        <li>Periodic boundary conditions
+        </li>
+        <li>SHAKE constraints </li>
+        <li>Consistent temperature and/or pressure ensembles
+        </li>
+      </ul>
+      <p>
+NWChem also has the capability to combine classical and quantum
+descriptions in order to perform:
+      </p>
+      <ul>
+        <li>Mixed quantum-mechanics and molecular-mechanics (QM/MM)
+minimizations and molecular dynamics simulation , and
+        </li>
+        <li>Quantum molecular dynamics simulation by using any of the
+quantum mechanical methods capable of returning gradients.
+        </li>
+      </ul>
+      <p>
+By using the DIRDYVTST module of NWChem, the user can write an input
+file to the POLYRATE program, which can be used to calculate rate
+constants including quantum mechanical vibrational energies and
+tunneling
+contributions.
+      </p>
+      <p></p>
+      <h1><small><a name="SECTION00650000000000000000">5. Python</a>
+      </small></h1>
+      <p>
+The Python programming language has been embedded within NWChem and
+many of the high level capabilities of NWChem can be easily combined
+and controlled by the user to perform complex operations.
+      </p>
+      <p></p>
+      <h1><small><a name="SECTION00660000000000000000">6. Parallel
+tools and libraries (ParSoft)</a>
+      </small></h1>
+      <p>
+      </p>
+      <ul>
+        <li>Global arrays (GA)
+        </li>
+        <li>Aggregate Remote Memory Copy Interface (ARMCI)
+        </li>
+        <li>Linear Algebra (PeIGS) and FFT
+        </li>
+        <li>ParIO
+        </li>
+        <li>Memory allocation (MA)
+        </li>
+      </ul>
+      <p></p>
+      <hr>
+      Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+      Updated: March 3, 2005 
+      </td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
