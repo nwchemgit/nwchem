@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>NWChem Version 5.0 Release Notes</title>
+<link rel="stylesheet" type="text/css" href="../shared/nwchem_basic.css">
+</head>
+<body text="#000000" bgcolor="#FFFFFF" link="blue" alink="blue" vlink="blue">
+<table width="650">
+<tr><td>
+<br>
+<table>
+<tbody>
+<tr>
+<td align="left" width="325"><img src="../images/nwchem_logo_dark.gif" border=0 width=200 alt="NWChem - computational chemistry on parallel computers"></td>
+<td align="right" width="325" valign="bottom">
+<a href="../nwchem_main.html">NWChem Home</a> |
+<a href="../disclaimer.html">Security & Privacy</a> |
+<a href="http://www.pnl.gov" target="_blank">PNNL</a>
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1>NWChem Version 5.0 Notes</h1>
+
+<p>
+<font color="red">NOTE:</font> These release notes are not a substitute for reading the
+<a href="../doc/user/userpdf.pdf">User Manual</a>! They are meant to give a
+thumbnail sketch of the new capabilities and bug fixes that are available in
+NWChem version 5.0. When there is a conflict between the release notes and the
+<a href="../doc/user/userpdf.pdf">User Manual</a>, the User Manual takes precedence.
+
+<p>
+
+<b><h2>Several new major capabilities are available in NWChem:</h2></b>
+
+<ul>
+<li>Q-HOP in molecular dynamics allows protons to hop from one residue to another
+<li>Exact exchange is available for plane wave calculations
+<li>Completely and locally renormalized coupled cluster approaches are available in TCE
+<li>NWChem bas been interfaced with VENUS (from Texas Tech University)
+<li>Interface with ScaLAPACK is now available for DFT module
+<li>Link up with vendors' optimized BLAS libraries on 64-bit platforms
+</ul>
+
+<p>Listed below are the other major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the <a href="../doc/user/userpdf.pdf">User Manual</a>.</p>
+
+
+<p>
+<p>
+<h3>DFT:</h3>
+  <ul>
+  <li>New XC functionals
+  <li>Interface to ScaLAPACK eigensolvers
+  <li>Improved performance in hessians
+  <li>Bugs fixed for the SCF part of the metaGGAs
+  </ul>
+
+<p>
+<p>
+<h3>NWPW:</h3>
+<ul>
+  <li>PSPW: Pipelined FFT added to PSPW
+  <li>PSPW: inversion symmetry option added to PSPW
+  <li>PSPW: PBE0 exchange-correlation functional and Hartree-Fock (xc=pbe0, hf)
+  <li>PSPW: center of rotation constraint added to PSPW Car-Parrinello
+  <li>PSPW: prototype pressure calculation added to PSPW Car-Parrinello
+  <li>BAND: DPLOT capabilities in the Band structure code
+  <li>BAND: Analytic stresses added to BAND
+  <li>BAND: Hilbert decomposed FFT added to BAND
+  <li>PAW: faster generation of .jpp files for faster restarting
+  <li>PAW: GGA exchange-correlation is now computed in the augmented region
+  <li>PAW: numerical integration option added to the exchange-correlation augmented region
+</ul>
+
+<p>
+<p>
+<h3>Properties:</h3>
+  <ul>
+  <li>Spin-spin coupling can be used for DFT
+  <li>Spherical basis set fixes for NMR shielding
+  </ul>
+
+<p>
+<p>
+<h3>QMMM:</h3>
+<ul>
+  <li>Improved treatment of classical Bq charges
+  <li>Effective (ESP) charge or frozen density representation for fixed QM region calculations
+  <li>New multi-region optimization algorithm
+  <li>Ground and excited state calculations with TCE
+</ul>
+
+<p>
+<p>
+<h3>TCE:</h3>
+<ul>
+  <li> Several variants of active-space CCSDt and EOMCCSDt methods that employ limited set of
+    triply excited cluster amplitudes defined by active orbitals.
+  <li> Ground-state non-iterative CC approaches that account for the effect of triply and/or
+    quadruply excited connected clusters: the perturbative approaches based on the similarity
+    transformed Hamiltonian: CCSD(2), CCSD(2)_T, CCSDT(2)_Q, the completely and locally
+    renormalized methods: CR-CCSD(T), LR-CCSD(T), LR-CCSD(TQ)-1.
+  <li> Excited-state non-iterative corrections due to triples to the EOMCCSD excitation energies:
+    the completely renormalized EOMCCSD(T) method (CR-EOMCCSD(T)).
+  <li> Improved DIIS solver.
+  <li> New form of offset tables used in addressing files with cluster amplitudes, intermediates,
+    and one- and two-electron integrals.
+  <li> More efficient storage of 2-electron integrals for CC calculations based on RHF or ROHF references.
+  <li> Improved scalability and performance of the CCSD and CCSD(T) codes.
+
+MD:
+  <li> Bug fixes for thermodynamic integration.
+  <li> Bug fixes related to I/O.
+</ul>
+
+
+
+<p>
+<hr>
+<font size="0">
+<center>
+<a href="../nwchem_main.html">NWChem</a> |
+<a href="../capabilities/nwchem_capab.html">Capabilities</a> |
+<a href="../platforms/platforms.html">Platforms</a> |
+<a href="../download.html">Download</a> |
+<a href="../doc/user/index.html">User's Manual</a> |
+<a href="../doc/prog/index.html">Programmer's Manual</a> |
+<a href="../release-notes/index.html">Release Notes</a> |
+<a href="../support/faq/NWChem_FAQ.html">FAQ</a>
+</center>
+<br>
+<center>
+<a href="../support/known_bugs.html">Known Bugs</a> |
+<a href="../support/support.html">Support</a> |
+<a href="../training/training.html">Tutorial</a> |
+<a href="../contributors.html">Contributors</a> |
+<a href="../benchmarks/index.html">Benchmarks</a> |
+<a href="http://www.emsl.pnl.gov/forms/search_nwchem.html">Search</a> |
+<a href="http://www.emsl.pnl.gov/docs/mssg/index.html">Mol Sci. Soft. Group</a> |
+<a href="../citation.html">Citation</a>
+</center>
+</font>
+<hr>
+Contact: <a href="mailto:ms3distribution@emsl.pnl.gov">NWChem Support</a><br>
+Updated: March 10, 2005
+
+</td></tr></table>
+</body>
+</html>
+
+
