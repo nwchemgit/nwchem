@@ -1,5 +1,5 @@
 %
-% $Id: pspw.tex,v 1.41 2004-05-21 16:23:56 edo Exp $
+% $Id: pspw.tex,v 1.42 2006-09-28 19:48:08 bylaska Exp $
 %
 \label{sec:pspw}
 
@@ -36,7 +36,7 @@ The NWPW module is a collection of three modules.
    \item Band - A band structure code for calculating
      crystals and surfaces with small band gaps (e.g. semi-conductors
      and metals).
-   \item PAW - a prototype (gamma point) projector augmented plane-wave code
+   \item PAW - a (gamma point) projector augmented plane-wave code
      for calculating molecules, crystals, and surfaces 
 \end{itemize}
 The PSPW, Band, and PAW modules can be used to compute the energy and  optimize the
@@ -122,10 +122,15 @@ PSPW
   WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
   EWALD_NCUT <integer ncut default 1>]
   EWALD_RCUT <real rcut default (see input description)>
-  XC (Vosko || PBE96  default Vosko)
+  XC (Vosko || LDA || PBE96 || revPBE || HF || PBE0 || revPBE0 || 
+     LDA-SIC    || LDA-SIC/2    ||  LDA-0.4SIC    || LDA-SIC/4    || LDA-0.2SIC ||
+     PBE96-SIC  || PBE96-SIC/2  ||  PBE96-0.4SIC  || PBE96-SIC/4  || PBE96-0.2SIC ||
+     revPBE-SIC || revPBE-SIC/2 ||  revPBE-0.4SIC || revPBE-SIC/4 || revPBE-0.2SIC ||
+     default Vosko)
   DFT||ODFT||RESTRICTED||UNRESTRICTED
   MULT <integer mult default 1>
   MULLIKEN
+  EFIELD
   ALLOW_TRANSLATION
 
   SIMULATION_CELL            ... (see input description) END
@@ -137,6 +142,12 @@ PSPW
   V_WAVEFUNCTION_INITIATIZER ... (see input description) END
   WAVEFUNCTION_EXPANDER      ... (see input description) END
   STEEPEST_DESCENT           ... (see input description) END
+
+  MAPPING <integer mapping default 1>
+
+  ROTATION (ON || OFF)
+  TRANSLATION (ON || OFF)
+
 END 
 \end{verbatim}
 
@@ -176,9 +187,9 @@ The following list describes the keywords contained in the PSPW input block.
                           is only used if the simulation\_cell is periodic. \\
                            Default set to be
                           $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
-        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
-                               parameterization or the Perdew, Burke, 
-                               and Ernzerhof GGA functional.
+        \item (Vosko $||$ PBE96 $||$ revPBE $||$ ...) - Choose between Vosko et al's LDA 
+                               parameterization or the orginal and revised Perdew, Burke, 
+                               and Ernzerhof GGA functional.  In addition, several hybrid options.
         \item MULT - optional keyword which if specified allows the user to define the spin multiplicity
                      of the system
         \item MULLIKEN - optional keyword which if specified
@@ -197,6 +208,8 @@ The following list describes the keywords contained in the PSPW input block.
         \item V\_WAVEFUNCTION\_INITIALIZER (see section \ref{sec:pspw_v_wavefunction_initializer})
         \item WAVEFUNCTION\_EXPANDER (see section \ref{sec:pspw_wavefunction_expander}).
         \item STEEPEST\_DESCENT (see section \ref{sec:pspw_steepest_descent})
+
+        \item $<$mapping$>$ - for a value of 1 slab FFT is used, for a value of 2 a 2d-hilbert FFT is used.
 \end{itemize}
 
 A prototype limited memory BFGS (LMBFGS) minimizer can be used to minimize the energy.  To
@@ -573,7 +586,11 @@ PSPW
       WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
       EWALD_NCUT <integer ncut default 1>
       EWALD_RCUT <real rcut    default (see input description)>
-      XC (Vosko || PBE96  default Vosko)
+      XC (Vosko || LDA || PBE96 || revPBE || HF || PBE0 || revPBE0 || 
+          LDA-SIC    || LDA-SIC/2    ||  LDA-0.4SIC    || LDA-SIC/4    || LDA-0.2SIC ||
+          PBE96-SIC  || PBE96-SIC/2  ||  PBE96-0.4SIC  || PBE96-SIC/4  || PBE96-0.2SIC ||
+          revPBE-SIC || revPBE-SIC/2 ||  revPBE-0.4SIC || revPBE-SIC/4 || revPBE-0.2SIC ||
+          default Vosko)
       [Nose-Hoover <real Period_electron Temperature_electrion Period_ion Temperature_ion 
                           default 100.0 298.15 100.0 298.15>]
       [SA_decay <real sa_scale_c sa_scale_r default 1.0 1.0>]
@@ -632,9 +649,9 @@ sub-block.
                           is only used if the simulation\_cell is periodic. \\
                           Default set to be
                           $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
-        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
-                               parameterization or the Perdew, Burke, 
-                               and Erzherhoff GGA functional.
+        \item (Vosko $||$ PBE96 $||$ revPBE $||$ ...) - Choose between Vosko et al's LDA 
+                               parameterization or the orginal and revised Perdew, Burke, 
+                               and Ernzerhof GGA functional.  In addition, several hybrid options.
         \item Nose-Hoover - optional subblock which if specified
                          causes the simulation to perform Nose-Hoover dynamics.
                          If this subblock is not specified the 
@@ -1163,7 +1180,11 @@ PSPW
       WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
       EWALD_NCUT <integer ncut default 1>
       EWALD_RCUT <real rcut default (see input description)>
-      XC (Vosko || PBE96  default Vosko)
+      XC (Vosko || LDA || PBE96 || revPBE || HF || PBE0 || revPBE0 || 
+          LDA-SIC    || LDA-SIC/2    ||  LDA-0.4SIC    || LDA-SIC/4    || LDA-0.2SIC ||
+          PBE96-SIC  || PBE96-SIC/2  ||  PBE96-0.4SIC  || PBE96-SIC/4  || PBE96-0.2SIC ||
+          revPBE-SIC || revPBE-SIC/2 ||  revPBE-0.4SIC || revPBE-SIC/4 || revPBE-0.2SIC ||
+          default Vosko)
       [MULLIKEN]
 
    END
@@ -1209,9 +1230,9 @@ sub-block.
                           is only used if the simulation\_cell is periodic. \\
                           Default set to be
                           $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
-        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
-                               parameterization or the Perdew, Burke, 
-                               and Erzherhoff GGA functional.
+        \item (Vosko $||$ PBE96 $||$ revPBE $||$ ...) - Choose between Vosko et al's LDA 
+                               parameterization or the orginal and revised Perdew, Burke, 
+                               and Ernzerhof GGA functional.  In addition, several hybrid options.
         \item MULLIKEN - optional keyword which if specified
                          causes a Mulliken analysis to be performed at
                          the end of the simulation.  
@@ -1251,13 +1272,17 @@ NWPW
   WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
   EWALD_NCUT <integer ncut default 1>]
   EWALD_RCUT <real rcut default (see input description)>
-  EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
+  XC (Vosko || PBE96  || revPBE default Vosko)
   DFT||ODFT||RESTRICTED||UNRESTRICTED
   MULT <integer mult default 1>
   
   SIMULATION_CELL ... (see input description) END
   BRILLOUIN_ZONE  ... (see input description) END
   MONKHORST-PACK <real n1 n2 n3 default 1 1 1>
+
+  BAND_DPLOT    ... (see input description) END
+
+  MAPPING <integer mapping default 1>
 
 END 
 \end{verbatim}
@@ -1297,8 +1322,9 @@ The following list describes these keywords.
                           is only used if the simulation\_cell is periodic. \\
                            Default set to be
                           $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
-        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
-                               parameterization or the Perdew, Burke, 
+        \item (Vosko $||$ PBE96 $||$ revPBE) - Choose between Vosko et al's LDA 
+                               parameterization or the orginal and revised Perdew, Burke, 
+                               and Ernzerhof GGA functional.
         \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
         \item BRILLOUIN\_ZONE  (see section \ref{sec:band_brillouin_zone})
         \item MONKHORST-PACK - Alternatively, the MONKHORST-PACK keyword can be used 
@@ -1335,6 +1361,84 @@ Brillouin zone.  The following list describes the input in detail.
 \end{itemize}
 
 
+\normalsize
+\subsection{\tt BAND\_DPLOT}
+\label{sec:pspw_dplot}
+The BAND BAND\_DPLOT task is used to generate plots of various types of electron
+densities (or orbitals) of a crystal.  The electron density is calculated on the
+specified set of grid points from a Band calculation.  The output file
+generated is in the Gaussian Cube format.
+Input to the BAND\_DPLOT task is contained
+within the BAND\_DPLOT sub-block.
+\begin{verbatim}
+NWPW
+  ...
+  BAND_DPLOT
+     ...
+  END
+  ...
+END
+\end{verbatim}
+To run a BAND\_DPLOT calculation the following directive
+is used:
+\begin{verbatim}
+TASK BAND BAND_DPLOT
+\end{verbatim}
+Listed below is the format of a BAND\_DPLOT sub-block.
+\begin{verbatim}
+NWPW
+...
+   BAND_DPLOT
+     VECTORS <string input_wavefunctions  default input_movecs>
+     DENSITY [total||difference||alpha||beta||laplacian||potential default total] <string density_name no default>
+     ELF [restricted|alpha|beta] <string elf_name no default>
+     ORBITAL (density || real || complex default density) <integer orbital_number no default> <integer brillion_number default 1> <string orbital_name no default>
+
+
+     [LIMITXYZ [units <string Units default angstroms>]
+     <real X_From> <real X_To> <integer No_Of_Spacings_X>
+     <real Y_From> <real Y_To> <integer No_Of_Spacings_Y>
+     <real Z_From> <real Z_To> <integer No_Of_Spacings_Z>]
+
+   END
+
+...
+END
+\end{verbatim}
+
+The following list describes the input for the BAND\_DPLOT
+sub-block.
+
+\begin{verbatim}
+     VECTORS <string input_wavefunctions  default input_movecs>
+\end{verbatim}
+ This sub-directive specifies the name of the molecular orbital file. If the second file is optionally given the density is computed as the difference between the corresponding electron densities. The vector files have to match.
+
+\begin{verbatim}
+     DENSITY [total||difference||alpha||beta||laplacian||potential default total] <string density_name no default>
+\end{verbatim}
+This sub-directive specifies, what kind of density is to be plotted. The known names for total, difference, alpha, beta, laplacian, and potential.
+
+\begin{verbatim}
+     ELF [restricted|alpha|beta] <string elf_name no default>
+\end{verbatim}
+This sub-directive specifies that an electron localization function (ELF) is to be plotted.
+
+\begin{verbatim}
+     ORBITAL (density || real || complex default density) <integer orbital_number no default> \
+             <integer brillion_number default 1> <string orbital_name no default>
+\end{verbatim}
+This sub-directive specifies the molecular orbital number that is to be plotted.
+
+\begin{verbatim}
+     LIMITXYZ [units <string Units default angstroms>]
+     <real X_From> <real X_To> <integer No_Of_Spacings_X>
+     <real Y_From> <real Y_To> <integer No_Of_Spacings_Y>
+     <real Z_From> <real Z_To> <integer No_Of_Spacings_Z>
+\end{verbatim}
+By default the grid spacing and the limits of the cell to be plotted are defined by the input wavefunctions.  Alternatively the user can use the LIMITXYZ sub-directive to specify other limits.  The grid is generated using No\_Of\_Spacings + 1 points along each direction. The known names for Units are angstroms, au and bohr.
+
+
 
 
 \section{PAW Tasks}
@@ -1348,10 +1452,27 @@ NWPW
 END
 \end{verbatim}
 
-To perform an actual calculation the following is used (Section \ref{sec:task}).  
+
+To perform an actual calculation a TASK PAW directive is used
+(Section \ref{sec:task}).  
 \begin{verbatim}
-  TASK PAW steepest\_descent
+  TASK PAW
 \end{verbatim} 
+In addition to the directives listed in Section \ref{sec:task}, i.e.
+\begin{verbatim}
+TASK paw energy          
+TASK paw gradient         
+TASK paw optimize         
+TASK paw saddle           
+TASK paw freqencies       
+TASK paw vib
+\end{verbatim}
+there are additional directives that are specific to the PSPW module, which are:
+\begin{verbatim}
+TASK PAW [Car-Parrinello             ||
+          steepest_descent            ]
+\end{verbatim}
+
 
 Once a user has specified a geometry, the PAW module can be invoked with no input directives (defaults invoked throughout).  There are sub-directives which allow for customized application; those currently provided as options for the PAW module are:
 \begin{verbatim}
@@ -1368,11 +1489,17 @@ NWPW
   WAVEFUNCTION_CUTOFF <real wcut default (see input description)>
   EWALD_NCUT <integer ncut default 1>]
   EWALD_RCUT <real rcut default (see input description)>
-  EXCHANGE_CORRELATION: (Vosko || PBE96  default Vosko)
+  XC (Vosko || PBE96 || revPBE  default Vosko)
   DFT||ODFT||RESTRICTED||UNRESTRICTED
   MULT <integer mult default 1>
+  INTEGRATE_MULT_L <integer imult default 1>
   
   SIMULATION_CELL ... (see input description) END
+  CAR-PARRINELLO  ... (see input description) END
+
+  MAPPING <integer mapping default 1>
+END 
+
 
 END 
 \end{verbatim}
@@ -1414,11 +1541,19 @@ The following list describes these keywords.
                           in the smooth compensation summation. \\
                            Default set to be
                           $\frac{MIN(\left| \vec{a_i} \right|)}{\pi}, i=1,2,3$.
-        \item (Vosko $||$ PBE96) - Choose between Vosko et al's LDA 
-                               parameterization or the Perdew, Burke, 
+        \item (Vosko $||$ PBE96 $||$ revPBE) - Choose between Vosko et al's LDA 
+                               parameterization or the orginal and revised Perdew, Burke, 
+                               and Ernzerhof GGA functional.
+        \item MULT - optional keyword which if specified allows the user to define the spin multiplicity
+                     of the system
+        \item INTEGRATE\_MULT\_L - optional keyword which if specified allows the user to define the 
+                                   angular XC integration of the augmented region
         \item SIMULATION\_CELL (see section \ref{sec:pspw_cell})
-\end{itemize}
+        \item CAR-PARRINELLO(see section \ref{sec:pspw_CP})
 
+
+        \item $<$mapping$>$ - for a value of 1 slab FFT is used, for a value of 2 a 2d-hilbert FFT is used.
+\end{itemize}
 
 
 \section{Pseudopotential and PAW basis Libraries}
@@ -1431,32 +1566,67 @@ directory \\
 The elements listed in the following table are present:
 
 \begin{verbatim}
-  H
- -------
-  Li Be                               B  C  N  O
- -------                             ------------------
-  Na Mg                               Al Si P  S Cl   
- ------------------------------------------------------
-  K          Ti          Fe     Cu Zn Ga Ge As            
- ------------------------------------------------------
-    Sr
- ------------------------------------------------------
-                             Pt Au       Pb
- ------------------------------------------------------
+  H                                                  He
+ -------                              ------------------
+  Li Be                               B  C  N  O  F  Ne
+ -------                             -------------------
+  Na Mg                               Al Si P  S  Cl Ar
+ -------------------------------------------------------
+  K  Ca Sc Ti V  Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr         
+ -------------------------------------------------------
+  Rb Sr Y  Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I  Xe
+ -------------------------------------------------------
+  Cs Ba La Hf Ta W  Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn
+ -------------------------------------------------------
+  Fr Ra . 
+ -----------------
+
+          ------------------------------------------
+           .  .  .  .  .  .  Gd .  .  .  .  .  .  .                      
+          ------------------------------------------
+           .  .  U  .  Pu .  .  .  .  .  .  .  .  .      
+          ------------------------------------------
+
 \end{verbatim}
 The pseudopotential libraries are continually being tested
-and added.   Also,  a stand-alone code is available that allows users 
-to convert certain pseudopotentials generated with the OPIUM package of Rappe et al.
-The user can request additional pseudopotentials as well as the conversion
-code from Eric J. Bylaska at (Eric.Bylaska@pnl.gov).  
+and added.   Also,  the PSPW program can read in pseudopotentials
+in CPI and TETER format generated with pseudopotential generation
+programs such as the OPIUM package of Rappe et al.
+The user can request additional pseudopotentials from 
+Eric J. Bylaska at (Eric.Bylaska@pnl.gov).  
 
 Similarly, a library of PAW basis used by PAW is currently available in the
 directory \\
 \verb+ $NWCHEM_TOP/src/nwpw/libraryps/paw_default+
 
+\begin{verbatim}
+  H                                                  He
+ -------                              -----------------
+  Li Be                               B  C  N  O  F  Ne
+ -------                             ------------------
+  Na Mg                               Al Si P  S  Cl Ar
+ ------------------------------------------------------
+  K  Ca Sc Ti V  Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr         
+ ------------------------------------------------------
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ ------------------------------------------------------
+  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .
+ ------------------------------------------------------
+  .  .  . 
+ -----------------
+                                                      
+
+          ------------------------------------------
+           .  .  .  .  .  .  .  .  .  .  .  .  .  .                      
+          ------------------------------------------
+           .  .  .  .  .  .  .  .  .  .  .  .  .  .      
+          ------------------------------------------
+
+\end{verbatim}
+
+
 Currently there are not very many elements available for PAW.  However,
 the user can request additional basis sets from Eric J. Bylaska at (Eric.Bylaska@pnl.gov).
-The elements available are: H, O Al, Sc, V, and Fe.  
 
 A preliminary implementation of the HGH pseudopotentials (Hartwigsen, Goedecker, and Hutter)
 has been implemented into the PSPW module.  To access
@@ -1477,6 +1647,35 @@ The implementation of HGH pseudopotentials is rather limited in this release.
 HGH pseudopotentials cannot be used to optimize unit cells, and they
 do not work with the MULLIKEN option.  They also have not yet been implemented 
 into the BAND structure code.
+
+To read in pseudopotentials in CPI format the following input would be used.
+\begin{verbatim}
+nwpw
+   ...
+   pseudopotentials
+    C  CPI  c.cpi
+    H  CPI  h.cpi
+   end
+   ...
+end
+\end{verbatim}
+In order for the program to recognize the CPI format the CPI files, e.g. c.cpi 
+have to be prepended with the ``$<$CPI$>$'' keyword.
+
+To read in pseudopotentials in TETER format the following input would be used.
+\begin{verbatim}
+nwpw
+   ...
+   pseudopotentials
+    C  TETER  c.teter
+    H  TETER  h.teter
+   end
+   ...
+end
+\end{verbatim}
+In order for the program to recognize the TETER format the TETER files, e.g. c.teter 
+have to be prepended with the ``$<$TETER$>$'' keyword.
+
 
 If you wish to redirect the code to a different directory other than
 the default one, 
@@ -2036,6 +2235,65 @@ task band energy
 \end{verbatim}
 
 
+
+
+\normalsize
+\section{BAND Tutorial 2: optimizing a unit cell and geometry for Silicon-Carbide}
+\label{sec:band_unitcell_optimization}
+
+The following example demonstrates how to uses the BAND module to optimize the unit cell
+and geometry for a silicon-carbide crystal.
+
+\begin{verbatim}
+title "SiC 8 atom cubic cell - geometry and unit cell optimization"
+
+start SiC
+
+#**** Enter the geometry using fractional coordinates ****
+geometry units au center noautosym noautoz print
+  system crystal
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   simulation_cell
+     ngrid 16 16 16
+   end
+   ewald_ncut 8
+   monkhorst-pack 2 2 2 
+end
+set nwpw:minimizer 2
+
+driver
+  clear
+  maxiter 40
+end
+set includestress .true.          # this option tells driver to optimize the unit cell
+set nwpw:stress_numerical .true.  #currently only numerical stresses are working with band
+
+task band optimize
+
+\end{verbatim}
+
+
+
+
+
 \section{PAW Tutorial}
 \label{sec:paw_tutorial}
 
@@ -2067,7 +2325,7 @@ set nwpw:lcao_iterations 1
 set nwpw:minimizer 2
 task pspw energy
 
-task paw steepest_descent
+task paw energy
 
 nwpw
    time_step 5.8
@@ -2076,6 +2334,118 @@ nwpw
    tolerances 1.0d-7 1.0d-7 1.0d-4
 end
 task paw steepest_descent
+
+task paw optimize
+\end{verbatim}
+
+
+
+
+\normalsize
+\section{PAW Tutorial 2: optimizing a unit cell and geometry for Silicon-Carbide}
+\label{sec:pspw_unitcell_optimization}
+
+The following example demonstrates how to uses the PAW module to optimize the unit cell
+and geometry for a silicon-carbide crystal.
+
+\begin{verbatim}
+title "SiC 8 atom cubic cell - geometry and unit cell optimization"
+
+start SiC
+
+#**** Enter the geometry using fractional coordinates ****
+geometry units au center noautosym noautoz print
+  system crystal
+    lat_a 8.277d0
+    lat_b 8.277d0
+    lat_c 8.277d0
+    alpha 90.0d0
+    beta  90.0d0
+    gamma 90.0d0
+  end
+Si    -0.50000d0  -0.50000d0  -0.50000d0
+Si     0.00000d0   0.00000d0  -0.50000d0
+Si     0.00000d0  -0.50000d0   0.00000d0
+Si    -0.50000d0   0.00000d0   0.00000d0
+C     -0.25000d0  -0.25000d0  -0.25000d0
+C      0.25000d0   0.25000d0  -0.25000d0
+C      0.25000d0  -0.25000d0   0.25000d0
+C     -0.25000d0   0.25000d0   0.25000d0
+end
+
+#***** setup the nwpw gamma point code ****
+nwpw
+   simulation_cell
+     ngrid 16 16 16
+   end
+   ewald_ncut 8
+end
+set nwpw:minimizer 2
+set nwpw:psi_nolattice .true.  # turns of unit cell checking for wavefunctions
+
+driver
+  clear
+  maxiter 40
+end
+set includestress .true.         # this option tells driver to optimize the unit cell
+set nwpw:stress_numerical .true. #currently only numerical stresses implemented in paw
+
+task paw optimize
+
+\end{verbatim}
+
+
+
+\normalsize
+\section{PAW Tutorial 2: Running a Car-Parrinello Simulation}
+\label{sec:pspw_cp}
+\normalsize
+
+In this section we show how use the PAW module to perform a Car-Parrinello
+molecular dynamic simulation for a C$_2$ molecule at the LDA level.  
+Before running a PAW Car-Parrinello  simulation the system should be
+on the Born-Oppenheimer surface, i.e. the one-electron orbitals should be minimized 
+with respect to the total energy (i.e. task pspw energy).  The input needed
+is basically the same as for optimizing the geometry of a C$_2$ molecule at the LDA level,
+except that and additional Car-Parrinello sub-block is added.  
+
+In the following example we show the input needed to run a Car-Parrinello simulation
+for a C$_2$ molecule at the LDA level.  In this example, default pseudopotentials
+from the pseudopotential library are used for C, the boundary condition is free-space, 
+the exchange correlation functional is LDA, The boundary condition is free-space, and 
+the simulation cell cell is aperiodic and cubic with a side length of 10.0 Angstroms and has
+40 grid points in each direction (cutoff energy is 44 Ry).  The time step and fake mass
+for the Car-Parrinello run are specified to be 5.0 au and 600.0 au, respectively.  
+
+\begin{verbatim}
+         
+start c2_paw_lda_md
+title "C2 restricted singlet dimer, LDA/44Ry - constant energy Car-Parrinello simulation"
+
+geometry  
+C    -0.62 0.0 0.0
+C     0.62 0.0 0.0
+end
+       
+pspw
+   simulation_cell units angstroms
+      boundary_conditions aperiodic
+      lattice
+        lat_a 10.00d0
+        lat_b 10.00d0
+        lat_c 10.00d0
+      end
+      ngrid 40 40 40
+   end
+   Car-Parrinello
+     fake_mass 600.0
+     time_step 5.0
+     loop 10 10
+   end
+end
+set nwpw:minimizer 2
+task paw energy
+task paw Car-Parrinello
 \end{verbatim}
 
 
@@ -2085,12 +2455,11 @@ task paw steepest_descent
 \normalsize
 
 \begin{itemize}
-\item You cannot use more processors than the size of the third dimension 
+\item For BAND simulations you cannot use more processors than the size of the third dimension 
   (e.g. a 64x64x64 FFT grid can use at most 64 processors).
-\item The second and third dimensions of the FFT grid must be the same 
+\item For BAND simulations the second and third dimensions of the FFT grid must be the same 
   (i.e. the parameters na2 and na3 must be the same for each simulation cell).
 \item Wannier orbital generation only works with cubic unit cells ($\alpha=\beta=\gamma=90^o$)
-\item PAW is not interfaced to driver, stepper, and vib modules.
 \end{itemize}
 
 
