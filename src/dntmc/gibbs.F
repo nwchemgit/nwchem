@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.10 2006-09-26 17:42:02 windus Exp $
+C$Id: gibbs.F,v 1.11 2006-10-02 20:09:37 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -3327,6 +3327,7 @@ C
       Rest = 0.D+00
             
       NPTS = NOB - 1
+c      write(12,*) 'in dntmc_ranger npts is ',npts
 
 c    storing distribution based on volume
 
@@ -3342,8 +3343,9 @@ C    smoothing distribution
       ENDDO
 
 c    writing distribution
+c      write(12,*) 'rb and pv'
 c      DO I = 1, NPTS
-c         WRITE(6,*)RB(I),Pv(I)
+c         WRITE(12,*)i, RB(I),Pv(I)
 c      ENDDO
 
 c    calculating slopes via centered difference
@@ -3353,19 +3355,24 @@ c    calculating slopes via centered difference
       ENDDO
 
 c     smoothing slopes
-      
+c Shawn I think this needs to be changed since s(1) is
+c never set or otherwise used
+c     
+      s(1) = 0.0d+00
       DO I = 1, 15
           CALL dntmc_SMOOTH(S,NPTS - 2)
       ENDDO
 
 c    writing slopes
 
-c      DO J = 2, NPTS - 1
-c         WRITE(6,*)RB(J),S(J)
+c      write(12,*) 'rb, s'
+c      DO i = 2, NPTS - 1
+c         WRITE(12,*)i, RB(i),S(i)
 c      ENDDO
 
 c    finding peak in slopes
 
+c      write(12,*) 'before dntmc_peak npts is ',npts
       CALL dntmc_PEAK(S,NPTS,SMAX,JSTAR)
       WRITE(6,*)'JSTAR =',JSTAR
       WRITE(6,*)'THE PEAK SLOPE IS AT =',RB(JSTAR),SMAX 
@@ -3379,15 +3386,19 @@ c    refecting the slopes through the abscissa
       WRITE(6,*)'IUPPER =',IUPPER
       WRITE(12,*)'IUPPER =',IUPPER
 
+c      write(12,*) 'si initialized'
       DO I = 2, IUPPER
          SI(I) = -S(I)
+c         write(12,*) i, si(i)
       ENDDO
 
 c    shifting the refected slopes so that they are all positive
 
+c      write(12,*) 'dabs of si iupper is ',iupper,dabs(si(iupper))
+c      write(12,*) 'i and rb and si'
       DO I = 2, IUPPER
          SI(I) = SI(I) + DABS(SI(IUPPER))
-c         WRITE(6,*)RB(I),SI(I)
+c         WRITE(12,*)i,RB(I),SI(I)
       ENDDO
 
 c     finding peak in positive reflected slopes
@@ -3440,7 +3451,8 @@ C        1         2         3         4         5         6         7
 C23456789012345678901234567890123456789012345678901234567890123456789012
 
       IMPLICIT none
-      double precision y, npts          ! input
+      double precision y                ! input
+      integer npts                      ! input
       double precision ymax             ! output
       integer jstar                     ! output
       integer jmax, j
@@ -3449,10 +3461,15 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       YMAX = 0.D+00
       JMAX = NPTS - 1
    
+c     write(12,*) 'npts in dntmc_peak is', npts
+c     write(12,*) 'JMAX in dntmc_peak is', jmax
+
       DO J = 3, JMAX
          IF((Y(J).GT.Y(J-1)).AND.(Y(J).GT.YMAX))THEN
+c           write(12,*) 'INSIDE J IF with Ys of ',j,y(j),y(j-1),ymax
             YMAX = Y(J)
             JSTAR = J
+c           write(12,*) 'INSIDE J IF with JSTAR of ',jstar
          ENDIF
       END DO
 
