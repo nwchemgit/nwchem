@@ -286,7 +286,7 @@ c
       end
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.36 2006-09-28 17:42:34 edo Exp $
+C$Id: util_file_name.F,v 1.37 2006-10-04 18:29:22 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -601,6 +601,8 @@ c
       ierr = eaf_stat(mine, avail0, fstype)
 #ifdef CATAMOUNT
       nuse=ga_nnodes()
+      avail1=-16d0*nuse+avail0
+      ierr=eaf_delete(mine)
 #else
 c
 c     now write 5M of doubles
