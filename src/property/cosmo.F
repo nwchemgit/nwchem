@@ -1,6 +1,6 @@
       subroutine cosmo_input(rtdb)
 *
-* $Id: cosmo.F,v 1.11 2005-12-24 10:21:07 marat Exp $
+* $Id: cosmo.F,v 1.12 2006-10-06 00:49:16 marat Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -1875,6 +1875,7 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 #include "prop.fh"
+#include "util.fh"
 c
       integer  rtdb
       integer  geom
@@ -1883,6 +1884,8 @@ c
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
+      character*255 cosmo_file
+      integer fn
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       common/hnd_cospar/dielec,screen,rsolv
@@ -1895,10 +1898,13 @@ c
       data two    /2.0d+00/
       integer g_dens(ndens)
 c
+      logical util_io_unit
+      external util_io_unit
+c
       more=.false.
       dbug=.false.
       dbug=dbug.or.more
-      out =.false. 
+      out =.true.
       out =out.or.dbug
 c
       dbug=dbug.and.ga_nodeid().eq.0
@@ -2475,6 +2481,30 @@ c
          call errquit('hnd_coschg: geom_efc_cart_set failed !', 0,
      &       geom_err)
       endif
+     
+c
+c     printing cosmo charges for bq module
+c     -------------------------------------
+      cosmo_file = "cosmo.xyzq"
+      call util_file_name_resolve(cosmo_file,.false.)
+      if(ga_nodeid().eq.0) then
+        if(.not.util_io_unit(80,90,fn))
+     +     call errquit('cannot get free unit', 0,
+     +       0)
+
+        open(unit=fn,form="formatted",file=cosmo_file)
+        write(*,*) "priniting cosmo charges fro bq module",
+     +     cosmo_file
+
+        do ief=1,nefc
+           write(fn,*) 
+     +      efcz(  ief),
+     +      efcc(1,ief),
+     +      efcc(2,ief),
+     +      efcc(3,ief)
+        end do
+        close(fn)
+      end if
 c
 c     ----- release memory block -----
 c
