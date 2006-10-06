@@ -1,4 +1,4 @@
-c $Id: bq_input.F,v 1.7 2006-09-22 15:51:32 d3p307 Exp $
+c $Id: bq_input.F,v 1.8 2006-10-06 06:56:59 marat Exp $
 
 
 
@@ -55,6 +55,8 @@ c
       integer i
       integer handle
       double precision  scale 
+      double precision  charge_scale
+
 c
       pname = "bq_input"
 
@@ -65,7 +67,7 @@ c
 c      write(*,*) "in "//pname
 c
 c
-      max_nbq = min( 4*1000, ma_inquire_avail(MT_INT))
+      max_nbq = min( 4*7000, ma_inquire_avail(MT_INT))
       max_nbq = max_nbq/4
 c
       if ( .not. ma_push_get( MT_DBL, 3*max_nbq, 
@@ -74,11 +76,15 @@ c
      &      'failed scratch space '//pname,
      &      max_nbq, MA_ERR)
 c
+      call dfill(3*max_nbq,0.0d0,dbl_mb(i_cbq),1)
+c
       if ( .not. ma_push_get( MT_DBL, max_nbq, 
      &      'qbq scratch',
      &      h_qbq, i_qbq) ) call errquit(
      &      'failed scratch space '//pname,
      &      max_nbq, MA_ERR)
+c
+      call dfill(max_nbq,0.0d0,dbl_mb(i_qbq),1)
 
 c      if(inp_n_field().gt.2) 
 c     >  call errquit(pname//'too many fields',0,0)
@@ -115,14 +121,27 @@ c      end do
          end if
 
          !*** read charges from file ***
-         if (inp_compare(.false., 'bq_filename', field)) then
-            if (.not.inp_a(filename)) filename =  'bqcharges'
+         if (inp_compare(.false., 'load', field)) then
+            filename = 'bq_charges'
+            charge_scale = 1.0d0
+            ncenter = 0
+ 200        continue
+            if (inp_a(field)) then
+              if (inp_compare(.false., 'filename', field)) then
+                if (.not.inp_a(filename)) goto 998
+                goto 200
+              end if
+              if (inp_compare(.false., 'scale', field)) then
+                if (.not.inp_f(charge_scale)) goto 998
+                goto 200
+              end if
+            end if
             call util_file_name_resolve(filename, .false.)
 
-            call bq_readfile(filename,ncenter_tmp,
-     &                       dbl_mb(i_qbq+ncenter),
-     &                       dbl_mb(i_cbq+3*ncenter))
-            ncenter = ncenter + ncenter_tmp
+            call bq_readfile(filename,ncenter,
+     &                       charge_scale,
+     &                       dbl_mb(i_qbq),
+     &                       dbl_mb(i_cbq))
             goto 20
          end if
 
@@ -196,6 +215,8 @@ c     -----------------------------------
      &      max_nbq, MA_ERR)
  
       return
+998   call errquit('no token found '//field,0,
+     >        RTDB_ERR)
       end
 
 *     *************************************************
@@ -281,20 +302,25 @@ c     -----------------------------------
 *     *               bq_readfile                     *
 *     *                                               *
 *     *************************************************
-      subroutine bq_readfile(filename,ncenter,charge,coord)
+      subroutine bq_readfile(filename,ncenter,s,charge,coord)
       implicit none
       character*(*) filename
       integer       ncenter
+      double precision s
       real*8        charge(*)
       real*8        coord(3,*)
+
+c
+      double precision q,c(3)
 
       ncenter = 0
       open(unit=99,file=filename,status='old')
         do while(.true.)
-           read(99,*,ERR=30,END=30) charge(ncenter+1),
-     &                              coord(1,ncenter+1),
-     &                              coord(2,ncenter+1),
-     &                              coord(3,ncenter+1)
+           read(99,*,ERR=30,END=30) q,c(1),c(2),c(3)
+           charge(ncenter+1)  = charge(ncenter+1)+s*q
+           coord(1,ncenter+1) = c(1)
+           coord(2,ncenter+1) = c(2)
+           coord(3,ncenter+1) = c(3)
            ncenter = ncenter + 1
         end do
   30  close(99)
