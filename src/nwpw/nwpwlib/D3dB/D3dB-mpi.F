@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.16 2006-08-21 20:24:12 bylaska Exp $
+* $Id: D3dB-mpi.F,v 1.17 2006-10-07 00:10:04 bylaska Exp $
 *
 
 #ifdef MPI
@@ -50,19 +50,20 @@ c     integer i2_start(NFFT3+1)
 
 *     **** local variables ***
       logical value
-      integer i,q
+      integer i
       integer proc_to,proc_from,it
-      integer size,msgtype,source
-c     integer msglen,type,nbytes
-c     integer msgid
+      integer msgtype,source
       integer msglen,type
-c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer mpierr
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
@@ -110,7 +111,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
@@ -128,7 +130,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          if (msglen.gt.0) then
             call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
          end if
 
       end do
@@ -202,20 +205,21 @@ c     integer i2_start(NFFT3+1)
 
 *     **** local variables ***
       logical value
-      integer  rcv_len,rcv_proc
-      integer i,c
       integer it
       integer source
       integer msglen,msgtype,type
       integer proc_from,proc_to
-c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer index1,index2
       integer mpierr
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
@@ -260,7 +264,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr)
          end if
 
@@ -279,7 +284,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          if (msglen.gt.0) then
             call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
          end if
 
       end do
@@ -363,9 +369,9 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 *     **** local variables ***
       logical value
-      integer i,q,nnfft3d
+      integer i,nnfft3d
       integer proc_to,proc_from,it
-      integer size,msgtype,source
+      integer msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
@@ -373,9 +379,14 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer mpierr
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
@@ -423,7 +434,8 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
@@ -441,7 +453,8 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          if (msglen.gt.0) then
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
          end if
 
       end do
@@ -520,9 +533,9 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 *     **** local variables ***
       logical value
-      integer i,q,nnfft3d
+      integer i,nnfft3d
       integer proc_to,proc_from,it
-      integer size,msgtype,source
+      integer msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
@@ -530,9 +543,13 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer mpierr
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 *     **** allocate memory ****
@@ -581,7 +598,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_PRECISION,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
@@ -599,7 +617,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          if (msglen.gt.0) then
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_PRECISION,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
          end if
 
       end do
@@ -645,19 +664,21 @@ c     implicit none
 
 #include "mpif.h"
 
-      integer msglen,mpierr
+      integer msglen,mpierr,np
       real*8 sumall
 
 *     **** external functions ****
       integer  Parallel2d_comm_i
       external Parallel2d_comm_i
 
-      msglen = 1
-
-      call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+      call Parallel2d_np_i(np)
+      if (np.gt.1) then
+         msglen = 1
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
      >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
+         sum = sumall
+      end if
 
-      sum = sumall
       return
       end
 
@@ -676,19 +697,22 @@ c     implicit none
 
 #include "mpif.h"
 
-      integer msglen,mpierr
+      integer msglen,mpierr,np
       integer sumall
 
 *     **** external functions ****
       integer  Parallel2d_comm_i
       external Parallel2d_comm_i
 
-      msglen = 1
+      call Parallel2d_np_i(np)
+      if (np.gt.1) then
+         msglen = 1
 
-      call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
+         call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
      >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
+         sum = sumall
+      end if
 
-      sum = sumall
       return
       end
 
@@ -714,7 +738,7 @@ c     implicit none
 
 
       logical value
-      integer msglen
+      integer msglen,mpierr
 
 *     **** temporary workspace ****
       integer sumall(2),np
@@ -724,7 +748,7 @@ c     implicit none
       external Parallel2d_comm_i
 
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
       call nwpw_timing_start(2)
       if (np.gt.1) then
 
@@ -767,7 +791,7 @@ c     implicit none
 #include "errquit.fh"
 
       logical value
-      integer msglen
+      integer msglen,mpierr
 
 *     **** temporary workspace ****
       integer sumall(2)
@@ -776,8 +800,10 @@ c     implicit none
       integer  Parallel2d_comm_i
       external Parallel2d_comm_i
 
-
       call nwpw_timing_start(2)
+
+      call Parallel2d_np_i(np)
+      if (np.gt.1) then
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
@@ -794,6 +820,8 @@ c     implicit none
       call icopy(n,int_mb(sumall(1)),1,sum,1)
       value = MA_pop_stack(sumall(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      end if
 
       call nwpw_timing_end(2)
       return
@@ -848,9 +876,8 @@ c     implicit none
 
 *     **** local variables ***
       logical value
-      integer i,q
       integer proc_to,proc_from,it
-      integer size,msgtype,source
+      integer msgtype,source
 c     integer msglen,type,nbytes
 c     integer msgid
       integer msglen,type
@@ -858,9 +885,13 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer mpierr,n1,n2
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
@@ -903,7 +934,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
@@ -921,7 +953,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          if (msglen.gt.0) then
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
          end if
 
       end do
@@ -990,19 +1023,19 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 *     **** local variables ***
       logical value
-      integer i,q
       integer proc_to,proc_from,it
-      integer size,msgtype,source
-c     integer msglen,type,nbytes
-c     integer msgid
+      integer msgtype,source
       integer msglen,type
-c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer mpierr,n1,n2
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
@@ -1045,7 +1078,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
@@ -1063,7 +1097,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          if (msglen.gt.0) then
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
          end if
 
       end do
@@ -1140,19 +1175,20 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 *     **** local variables ***
       logical value
-      integer i,q,nnfft3d,n1,n2,n3
+      integer n1,n2,n3
       integer proc_to,proc_from,it
-      integer size,msgtype,source
-c     integer msglen,type,nbytes
-c     integer msgid
+      integer msgtype,source
       integer msglen,type
-c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer status(2),request(2),reqcnt
       integer taskid,np
       integer mpierr
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_int,MPI_STATUS_SIZE*np,
@@ -1199,7 +1235,8 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
          end if
 
@@ -1217,7 +1254,8 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
          if (msglen.gt.0) then
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
          end if
 
       end do
@@ -1264,9 +1302,12 @@ c      integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 *     **** local variables ****
-      integer  rcv_len,rcv_proc
       integer j
       integer pto,pfrom,msglen,indx,msgtype,mpierr
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
 
       reqcnt = 0
       if (log_mb(sender_list(1)+nb)) then
@@ -1280,7 +1321,8 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_ISEND(A(indx),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     pto,msgtype,MPI_COMM_WORLD,
+     >                     Parallel2d_convert_taskid_i(pto),
+     >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
             end if
   
@@ -1299,7 +1341,8 @@ c            recieve data....
             reqcnt = reqcnt + 1
             call MPI_IRECV(A(indx),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    pfrom,msgtype,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(pfrom),
+     >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr)
             end if
 
@@ -1338,7 +1381,7 @@ c            recieve data....
       integer status(2)
       integer mpierr
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       if (np.gt.1) then
 
@@ -1386,10 +1429,12 @@ c            recieve data....
 #include "balance_common.fh"
 
 *     **** local variables ****
-      integer  rcv_len,rcv_proc
       integer j
       integer pto,pfrom,msglen,indx,msgtype,mpierr
 
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
 
       reqcnt=0
       if (log_mb(sender_list(1)+nb)) then
@@ -1403,7 +1448,8 @@ c            recieve data....
             reqcnt = reqcnt + 1
             call MPI_IRECV(A(indx),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    pfrom,msgtype,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(pfrom),
+     >                    msgtype,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr)
             end if
   
@@ -1421,7 +1467,8 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_ISEND(A(indx),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     pto,msgtype,MPI_COMM_WORLD,
+     >                     Parallel2d_convert_taskid_i(pto),
+     >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
 
             end if
@@ -1458,7 +1505,7 @@ c            send data....
       integer status(2)
       integer mpierr
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       if (np.gt.1) then
       !**** allocate memory ****
@@ -1532,13 +1579,17 @@ c            send data....
 
 *     **** local variables ***
       integer proc_to,proc_from,it
-      integer size,msgtype,source
+      integer msgtype,source
       integer msglen,type
       integer taskid,np
       integer mpierr,n1
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 
@@ -1572,7 +1623,8 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
          end if
 
@@ -1591,7 +1643,8 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
          end if
 
@@ -1651,7 +1704,7 @@ c            send data....
       integer np
       integer mpierr,n2
       
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       if (np.gt.1) then
 *     **** allocate memory ****
@@ -1731,13 +1784,17 @@ c            send data....
 
 *     **** local variables ***
       integer proc_to,proc_from,it
-      integer size,msgtype,source
+      integer msgtype,source
       integer msglen,type
       integer taskid,np
       integer mpierr,n1
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 
@@ -1771,7 +1828,8 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
          end if
 
@@ -1790,7 +1848,8 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
          end if
 
@@ -1850,7 +1909,7 @@ c            send data....
       integer np
       integer mpierr,n2
       
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       if (np.gt.1) then
 *     **** allocate memory ****
@@ -1934,13 +1993,17 @@ c            send data....
 *     **** local variables ***
       integer n1
       integer proc_to,proc_from,it
-      integer size,msgtype,source
+      integer msgtype,source
       integer msglen,type
       integer taskid,np
       integer mpierr
+
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
       
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 *     **** pack A(i) array ****
@@ -1974,7 +2037,8 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr) 
          end if
 
@@ -1993,8 +2057,9 @@ c            send data....
             reqcnt = reqcnt + 1
             call MPI_ISEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,
-     >                    request(reqcnt),mpierr)
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,
+     >                     request(reqcnt),mpierr)
          end if
 
       end do
@@ -2060,7 +2125,7 @@ c            send data....
       integer status(2)
       integer mpierr
       
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       if (np.gt.1) then
 *     **** allocate memory ****
@@ -2136,18 +2201,21 @@ c     integer i2_start(NFFT3+1)
 
 
 *     **** local variables ***
-      integer  rcv_len,rcv_proc
-      integer i,c
+      integer i
       integer it
       integer source
       integer msglen,msgtype,type
       integer proc_from,proc_to
       integer taskid,np
-      integer index1,index2
+      integer index1
       integer mpierr
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+c     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+      call Parallel2d_taskid_i(taskid)
+      call Parallel2d_np_i(np)
 
 
 *     **** pack A(i) array ****
@@ -2188,7 +2256,8 @@ c     integer i2_start(NFFT3+1)
             reqcnt = reqcnt + 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
-     >                    source,type,MPI_COMM_WORLD,
+     >                    Parallel2d_convert_taskid_i(source),
+     >                    type,MPI_COMM_WORLD,
      >                    request(reqcnt),mpierr)
          end if
 
@@ -2208,7 +2277,8 @@ c     integer i2_start(NFFT3+1)
             reqcnt = reqcnt + 1
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
-     >                     proc_to,msgtype,MPI_COMM_WORLD,
+     >                     Parallel2d_convert_taskid_i(proc_to),
+     >                     msgtype,MPI_COMM_WORLD,
      >                     request(reqcnt),mpierr)
          end if
 
@@ -2259,19 +2329,13 @@ c     integer i2_start(NFFT3+1)
 
 *     **** local variables ***
       logical value
-      integer  rcv_len,rcv_proc
-      integer i,c
-      integer it
-      integer source
-      integer msglen,msgtype,type
-      integer proc_from,proc_to
       integer status(2)
-      integer taskid,np
-      integer index1,index2
+      integer np
+      integer index2
       integer mpierr
 
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
+c      call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np)
 
       if (np.gt.1) then
 *     **** allocate memory ****

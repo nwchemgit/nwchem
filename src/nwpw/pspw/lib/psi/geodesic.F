@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.23 2006-09-20 19:18:49 bylaska Exp $
+* $Id: geodesic.F,v 1.24 2006-10-07 00:10:07 bylaska Exp $
 *
 
 *     ***********************************
@@ -147,7 +147,7 @@ c      value = value.and.MA_free_heap(Vt(2))
      >   call errquit('geodesic_start:out of stack memory',0,MA_ERR)
       
 *     **** HomeGrown SVD ****
-      call Dmatrix_f_SVD(0,A,dcpl_mb(U(1)),npack1,
+      call DMatrix_f_SVD(0,A,dcpl_mb(U(1)),npack1,
      >                   dbl_mb(S(1)),dbl_mb(V(1)))
 
       max_sigma = 0.0d0
@@ -157,7 +157,7 @@ c      value = value.and.MA_free_heap(Vt(2))
       end do
 
 *     **** calculate Vt ****
-      call Dmatrix_mm_transpose(0,dbl_mb(V(1)),dbl_mb(Vt(1)))
+      call Dneall_mm_transpose(0,dbl_mb(V(1)),dbl_mb(Vt(1)))
 
 *     **** calculate 2*<A|H|psi> ****
       dE = 2.0d0*electron_eorbit(A)
@@ -214,9 +214,7 @@ c      value = value.and.MA_free_heap(Vt(2))
 
 *     **** local variables ****
       logical    value
-      integer    npack1,nemax
-      integer    ms,j,k,n,shift1,shift2,shift
-      real*8     scal1,scal2
+      integer    npack1,nemax,nemaxq,i
       real*8     zero,one
       integer    tmp1(2),tmp2(2),tmp3(2)
       integer    tmpC(2),tmpS(2)
@@ -226,8 +224,8 @@ c      value = value.and.MA_free_heap(Vt(2))
       parameter  (MASTER=0)
 
 *     **** external functions ****
-      integer  psi_ispin,psi_ne
-      external psi_ispin,psi_ne
+      integer  psi_ispin,psi_ne,psi_neq
+      external psi_ispin,psi_ne,psi_neq
       logical  Dneall_m_push_get,Dneall_m_pop_stack
       external Dneall_m_push_get,Dneall_m_pop_stack
 
@@ -235,7 +233,8 @@ c      value = value.and.MA_free_heap(Vt(2))
       zero = 0.0d0
       one  = 1.0d0
       call Pack_npack(1,npack1)
-      nemax = psi_ne(1) + psi_ne(2)
+      nemax  = psi_ne(1) + psi_ne(2)
+      nemaxq = psi_neq(1) + psi_neq(2)
 
 *     **** allocate tmp space ****
       value =           Dneall_m_push_get(0,tmp1)
@@ -246,14 +245,14 @@ c      value = value.and.MA_free_heap(Vt(2))
       if (.not.value) call errquit('geodesic_get:out of stack',0,MA_ERR)
 
 
-      call DMatrix_mm_SCtimesVtrans(0,t,dbl_mb(S(1)),
+      call Dneall_mm_SCtimesVtrans(0,t,dbl_mb(S(1)),
      >                                dbl_mb(Vt(1)),
      >                                dbl_mb(tmp1(1)),
      >                                dbl_mb(tmp3(1)),
      >                                dbl_mb(tmpC(1)),
      >                                dbl_mb(tmpS(1)))
 
-      call DMatrix_mmm_Multiply2(0,dbl_mb(Vt(1)),
+      call Dneall_mmm_Multiply2(0,dbl_mb(Vt(1)),
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
 
@@ -306,14 +305,17 @@ c      end do
 
 
 *     **** Orthonormality Check ****     
-      call Grsm_gg_trace(npack1,nemax,Ynew,Ynew,sum2)
+      call Grsm_gg_trace(npack1,nemaxq,Ynew,Ynew,sum2)
+      call D1dB_SumAll(sum2)
   
       sum1 = dble(nemax)
       if (dabs(sum2-sum1).gt.1.0d-10) then
-c        call Parallel_taskid(taskid)
-c         if (taskid.eq.MASTER) 
-c    >      write(*,*) 
-c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
+        call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) 
+     >      write(*,'(5x,A,A,e10.3)') 
+     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
+     >      "error=",dabs(sum2-sum1)
+
          call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
          if (psi_ispin().gt.1) then
            call Grsm_g_MakeOrtho(npack1,psi_ne(2),
@@ -395,9 +397,7 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
 *     **** local variables ****
       logical    value
       integer    npack1,nemax
-      integer    ms,j,k,n,shift1,shift2,shift
       real*8     zero,one
-      real*8     scal1,scal3
       integer    tmp1(2),tmp2(2),tmp3(2)
       integer    tmpC(2),tmpS(2)
 
@@ -424,14 +424,14 @@ c    >      "Warning: Gram-Schmidt being performed in geodesic_get"
      >   call errquit('geodesic_transport: out of stack',0,MA_ERR)
 
 
-      call DMatrix_mm_SCtimesVtrans2(0,t,dbl_mb(S(1)),
+      call Dneall_mm_SCtimesVtrans2(0,t,dbl_mb(S(1)),
      >                                dbl_mb(Vt(1)),
      >                                dbl_mb(tmp1(1)),
      >                                dbl_mb(tmp3(1)),
      >                                dbl_mb(tmpC(1)),
      >                                dbl_mb(tmpS(1)))
 
-      call DMatrix_mmm_Multiply2(0,dbl_mb(Vt(1)),
+      call Dneall_mmm_Multiply2(0,dbl_mb(Vt(1)),
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
 
@@ -582,9 +582,7 @@ c      end do
 *     **** local variables ****
       logical    value
       integer    npack1,nemax
-      integer    ms,j,k,n,shift1,shift2
       real*8     zero,one
-      real*8     scal1,scal3
       integer    tmp1(2),tmp2(2),tmp3(2)
       integer    tmpC(2),tmpS(2)
 
@@ -611,17 +609,17 @@ c      end do
      >   call errquit('geodesic_Gtransport:out of stack',0,MA_ERR)
 
          
-      call DMatrix_ffm_Multiply(0,dcpl_mb(U(1)),tG,npack1,
-     >                          dbl_mb(tmp2(1)))
+      call Dneall_ffm_Multiply(0,dcpl_mb(U(1)),tG,npack1,
+     >                           dbl_mb(tmp2(1)))
 
-      call DMatrix_mm_SCtimesVtrans3(0,t,dbl_mb(S(1)),
+      call Dneall_mm_SCtimesVtrans3(0,t,dbl_mb(S(1)),
      >                                dbl_mb(tmp2(1)),
      >                                dbl_mb(tmp1(1)),
      >                                dbl_mb(tmp3(1)),
      >                                dbl_mb(tmpC(1)),
      >                                dbl_mb(tmpS(1)))
 
-      call DMatrix_mmm_Multiply2(0,dbl_mb(Vt(1)),
+      call Dneall_mmm_Multiply2(0,dbl_mb(Vt(1)),
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
 

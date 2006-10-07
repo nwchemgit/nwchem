@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.25 2006-08-21 20:24:13 bylaska Exp $
+* $Id: pack.F,v 1.26 2006-10-07 00:10:05 bylaska Exp $
 *
 
 *     ***********************************
@@ -164,6 +164,9 @@
       call D3dB_ISumAll(nwave_all(0))
       call D3dB_ISumAll(nwave_all(1)) 
 
+c      call Parallel_taskid(taskid)
+c      write(*,*) taskid," nida=",nida
+c      write(*,*) taskid," nidb=",nidb,nidb2
 c      write(*,*) " nida(0),nidb(0),nidb2(0):",taskid,nida(0),
 c     >                                      nidb(0),nidb2(0)
 c      write(*,*) " nida(1),nidb(1),nidb2(1):",taskid,nida(1),
@@ -545,6 +548,52 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
       npack = nida(nb)+nidb(nb)
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_nida              *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_nida(nb,npack)
+      implicit none
+      integer nb
+      integer npack
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+      npack = nida(nb)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_nidb              *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_nidb(nb,npack)
+      implicit none
+      integer nb
+      integer npack
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+      npack = nidb(nb)
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*

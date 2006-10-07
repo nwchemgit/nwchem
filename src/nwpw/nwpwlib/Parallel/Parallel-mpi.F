@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.3 2006-08-16 23:53:27 bylaska Exp $
+* $Id: Parallel-mpi.F,v 1.4 2006-10-07 00:10:05 bylaska Exp $
 *
 
 * Parallel.f
@@ -70,9 +70,9 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 *     Sset up the 2d processor grid = np_i x np_j, 
 *     where np_i = nrows, and np_j = np/np_i
 *
-      subroutine Parallel2d_Init(nrows)
+      subroutine Parallel2d_Init(ncolumns)
       implicit none
-      integer nrows
+      integer ncolumns
 
 #include "Parallel.fh"
 #include "mafdecls.fh"
@@ -83,8 +83,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       integer i,j,icount,ierr
       integer tmp(2),n,mpi_group
 
-      np_i = nrows
-      np_j = np/np_i
+      np_i = np/ncolumns
+      np_j = ncolumns
 
 
       icount = 0

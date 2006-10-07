@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_Grsm_list.F,v 1.8 2004-12-06 20:03:25 bylaska Exp $ 
+*     $Id: pspw_Grsm_list.F,v 1.9 2006-10-07 00:10:06 bylaska Exp $ 
 *
       subroutine pspw_Grsm_list_start()
       implicit none
@@ -14,14 +14,14 @@
 
 *     **** external functions ****
       logical  control_lmbfgs_ondisk
-      integer  control_lmbfgs_size,psi_ne
+      integer  control_lmbfgs_size,psi_neq
       external control_lmbfgs_ondisk
-      external control_lmbfgs_size,psi_ne
+      external control_lmbfgs_size,psi_neq
 
       size_list = 2*control_lmbfgs_size()
       call Pack_npack(1,nsize)
       nsize = 2*nsize
-      nsize = nsize*(psi_ne(1)+psi_ne(2))
+      nsize = nsize*(psi_neq(1)+psi_neq(2))
       ondisk = control_lmbfgs_ondisk()
 
       if (.not.ondisk) then

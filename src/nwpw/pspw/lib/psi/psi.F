@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.69 2006-09-20 19:18:49 bylaska Exp $
+* $Id: psi.F,v 1.70 2006-10-07 00:10:07 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.69  2006/09/20 19:18:49  bylaska
+* Adding Dmatrix
+* ...EJB
+*
 * Revision 1.68  2006/08/13 01:03:28  bylaska
 * Checking in code not include in 5.0 release.
 * A chain algorithm was added to Nose-Hoover thermostats.
@@ -143,7 +147,7 @@
 
       !*** local variables ***
       integer maxit_orb
-      integer i,ii,jj,ms,shift,shifte,l
+      integer ii,l
       real*8  sum,maxerror,error_out,e0
 
       !*** external functions ***
@@ -289,6 +293,7 @@
       error0 = 0.0d0 
       e0 = 0.0d0
       theta = -3.14159d0/600.0d0
+      lmbda_r0 = 1.0d0
       it = 0
  2    continue
 
@@ -476,7 +481,6 @@
 *
       subroutine psi_get_gradient_f_orb(ii,Horb)
       implicit none
-      integer psi_number
       integer ii
       complex*16 Horb(*)
 
@@ -515,7 +519,7 @@
 #include "mafdecls.fh"
 #include "psi.fh"
 
-      integer ms,i,jj,kk,shift,shifte
+      integer ms,jj,kk,shift,shifte
       real*8  sum
 
 *     **** spin up orbital ****
@@ -569,7 +573,7 @@
 #include "mafdecls.fh"
 #include "psi.fh"
 
-      integer ms,i,jj,kk,shift,shifte
+      integer ms,jj,kk,shift,shifte
       real*8  sum
 
 *     **** spin up orbital ****
@@ -621,7 +625,7 @@
 
       !*** local variables ***
       integer maxit_orb
-      integer i,ii,jj,ms,shift,shifte,l
+      integer ii,l
       real*8  sum,maxerror,error_out,e0
 
       !*** external functions ***
@@ -766,6 +770,7 @@
       error0 = 0.0d0 
       e0 = 0.0d0
       theta = -3.14159d0/600.0d0
+      lmbda_r0 = 1.0d0
       it = 0
  2    continue
 
@@ -964,7 +969,6 @@
 *
       subroutine psi_get_gradient_virtual(ii,Horb)
       implicit none
-      integer psi_number
       integer ii
       complex*16 Horb(*)
 
@@ -1233,7 +1237,7 @@ c      write(*,*) "TIME ALL=",tim
 
       logical value,done,oneloop
       integer it
-      real*8 e0,eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
+      real*8 e0,eold,error0,de0,lmbda_r0,lmbda_r1
       real*8 theta,sigma
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
@@ -1260,6 +1264,7 @@ c      write(*,*) "TIME ALL=",tim
       error0 = 0.0d0 
       e0 = 0.0d0
       theta = -3.14159d0/600.0d0
+      lmbda_r0 = 1.0d0
       it = 0
  2    continue
 
@@ -1402,7 +1407,7 @@ c     >           theta
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value,done,oneloop
+      logical value,done
       integer it
       real*8 sigma,e0,eold,error0
       real*8 lambda
@@ -1550,8 +1555,7 @@ c     >            lambda
 *     **** local variables ****
       logical value
       integer orb(2),g(2),psi_ptr
-      real*8 x,y,pi,e1,de1
-      real*8 theta2,e2,de2
+      real*8 x,y,pi,e1
 
       if (psi_number.eq.1) then
          psi_ptr=psi1(1)
@@ -1669,8 +1673,7 @@ c     write(*,*)
 *     **** local variables ****
       logical value
       integer orb(2),g(2),psi_ptr
-      real*8 x,y,pi,e1,de1
-      real*8 theta2,e2,de2
+      real*8 x,y,pi,e1
 
       if (psi_number.eq.1) then
          psi_ptr=psi1(1)
@@ -3001,19 +3004,19 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       common / rhoall_block / rho1_all,rho2_all
 
 *     **** local variables ****
-      logical value
       integer tmp1(2)
  
 *     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
       real*8   electron_energy
       external electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
+      if (.not.Dneall_m_push_get(0,tmp1))
      >   call errquit('out of stack memory in psi_1get_Tradient',0,
-     &       MA_ERR)
-
+     >       MA_ERR)
 
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
@@ -3025,16 +3028,14 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                        dcpl_mb(dng1(1)),
      >                        dbl_mb(rho1_all(1)))
 
-
       call electron_gen_hml(dcpl_mb(psi1(1)),
      >                       dbl_mb(tmp1(1)))
+
       call electron_get_Tgradient(dcpl_mb(psi1(1)),
      >                             dbl_mb(tmp1(1)),
      >                            THpsi)
       
-
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
+      if (.not.Dneall_m_pop_stack(tmp1))
      > call errquit('psi_1get_Tgradient:error popping stack',1,
      >     MA_ERR)
 
@@ -3103,12 +3104,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical value
-      integer tmp1(2),ii,jj
+      integer tmp1(2)
 
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
+      if (.not. Dneall_m_push_get(0,tmp1)) 
      >   call errquit('psi_1gen_Tangent:out of stack memory',0, MA_ERR)
 
       call electron_gen_psiTangenthml(dcpl_mb(psi1(1)),
@@ -3118,8 +3120,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                          dbl_mb(tmp1(1)),
      >                          THpsi)
 
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
+      if (.not. Dneall_m_pop_stack(tmp1)) 
      > call errquit('error popping stack memory in psi_1get_Tradient',0,
      &       MA_ERR)
 
@@ -3151,18 +3152,19 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       common / rhoall_block / rho1_all,rho2_all
 
 *     *** local variables ****
-      logical value
       integer tmp1(2)
 
+
 *     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
       real*8   electron_energy
       external electron_energy
 
-
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
-     >   call errquit('out of stack memory in psi_1get_Tradient',0,
-     &       MA_ERR)
+      if (.not.Dneall_m_push_get(0,tmp1))
+     >   call errquit('out of stack memory in psi_2get_Tradient',0,
+     >       MA_ERR)
 
       if (option.le.1) then
         call electron_run(dcpl_mb(psi2(1)),
@@ -3182,8 +3184,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                             dbl_mb(tmp1(1)),
      >                             THpsi)
       
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
+      if (.not. Dneall_m_pop_stack(tmp1)) 
      >call errquit('psi_2get_Tgradient:error popping stack',1,MA_ERR)
 
       return
@@ -3247,12 +3248,16 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 #include "errquit.fh"
 
 *     *** local variables ****
-      logical value
       integer tmp1(2)
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
+
+      if (.not. Dneall_m_push_get(0,tmp1)) 
      >   call errquit('psi_2gen_Tangent: out of stack memory',0,MA_ERR)
+
 
       call electron_gen_psiTangenthml(dcpl_mb(psi2(1)),
      >                                THpsi,
@@ -3261,8 +3266,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                          dbl_mb(tmp1(1)),
      >                          THpsi)
       
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
+      if (.not. Dneall_m_pop_stack(tmp1)) 
      > call errquit('error popping stack memory in psi_1get_Tradient',0,
      &       MA_ERR)
 
@@ -3295,16 +3299,17 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       common / rhoall_block / rho1_all,rho2_all
 
 *     **** local variables ****
-      logical value
       integer tmp1(2)
  
 *     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
       real*8   electron_energy
       external electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
+      if (.not. Dneall_m_push_get(0,tmp1)) 
      >   call errquit('psi_1get_TSradient:pushing stack',0, MA_ERR)
 
 
@@ -3326,8 +3331,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                            THpsi)
       
 
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
+      if (.not. Dneall_m_pop_stack(tmp1)) 
      > call errquit('psi_1get_TSgradient:popping stack',1, MA_ERR)
 
       return
@@ -3358,16 +3362,17 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       common / rhoall_block / rho1_all,rho2_all
 
 *     *** local variables ****
-      logical value
       integer tmp1(2)
 
 *     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
       real*8   electron_energy
       external electron_energy
 
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
+      if (.not. Dneall_m_push_get(0,tmp1)) 
      >   call errquit('psi_2get_TSgradient:pushing stack',0, MA_ERR)
 
       if (option.le.1) then
@@ -3388,8 +3393,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                             dbl_mb(tmp1(1)),
      >                             THpsi)
       
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
+      if (.not. Dneall_m_pop_stack(tmp1)) 
      > call errquit('psi_2get_TSgradient:popping stack',1, MA_ERR)
 
       return
@@ -3569,16 +3573,17 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      
       call geodesic_get(t,dcpl_mb(psi1(1)),
      >                    dcpl_mb(psi2(1)))
+    
       call electron_run(dcpl_mb(psi2(1)),
      >                   dbl_mb(rho2(1)),
      >                  dcpl_mb(dng2(1)),
      >                   dbl_mb(rho2_all(1)))
+
       e_new =  electron_energy(dcpl_mb(psi2(1)),
      >                        dbl_mb(rho2(1)),
      >                        dcpl_mb(dng2(1)),
      >                        dbl_mb(rho2_all(1)))
 
-c      write(*,*) "psi_geodesic_energy:",t,e_new
       psi_geodesic_energy = e_new
       return
       end
@@ -3786,12 +3791,14 @@ c     real*8 sum1,sum2
 
 *     **** local variables ****
       logical value
-      integer nemax,ierr
+      integer nemaxq,ierr
       integer lmd(2),tmp_L(2)
 
 *     **** external functions ****
-      logical  pspw_SIC
-      external pspw_SIC
+      logical  pspw_SIC,Dneall_m_push_get,Dneall_m_push_get_block
+      logical  Dneall_m_pop_stack
+      external pspw_SIC,Dneall_m_push_get,Dneall_m_push_get_block
+      external Dneall_m_pop_stack
 
       call electron_run(dcpl_mb(psi1(1)),
      >                  dbl_mb(rho1(1)),
@@ -3804,39 +3811,36 @@ c     real*8 sum1,sum2
      >			      dte)
 
 *     **** lagrange multiplier corrections ****
-      nemax = ne(1)+ne(2)
+      nemaxq = neq(1)+neq(2)
 
 *     **** allocate MA local variables ****
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
-     >                    'tmp_L',tmp_L(2),tmp_L(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,(2*nemax*nemax),
-     >                    'lmd',lmd(2),lmd(1))
+      value =           Dneall_m_push_get_block(1,8,tmp_L)
+      value = value.and.Dneall_m_push_get(0,lmd)
 
         if (fractional) then
-        call psi_lmbda2(ispin,ne,nemax,npack1,
+        call psi_lmbda2(ispin,neq,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),
      >                 dte,dbl_mb(fweight(1)),
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
         else if (pspw_SIC()) then
-        call psi_lmbda_sic(ispin,ne,nemax,npack1,
+        call psi_lmbda_sic(ispin,neq,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
         else
-        call psi_lmbda(ispin,ne,nemax,npack1,
+        call psi_lmbda(ispin,neq,nemaxq,npack1,
      >                 dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dte,
      >                 dbl_mb(lmd(1)),
      >                 dbl_mb(tmp_L(1)),ierr)
         end if
 
 
-      value = value.and.MA_pop_stack(lmd(2))
-      value = value.and.MA_pop_stack(tmp_L(2))
+      value = value.and.Dneall_m_pop_stack(lmd)
+      value = value.and.Dneall_m_pop_stack(tmp_L)
       if (.not. value)
      >     call errquit(
-     >          'psi1to2_sd_update: stack failure', 0, MA_ERR)
+     >          'psi1to2_sd_update:stack failure', 0, MA_ERR)
       return
       end
 
@@ -3892,7 +3896,7 @@ c    >                            dcpl_mb(dng1(1)))
       end if
 
       call f_vnonlocal(ispin,
-     >                 ne,
+     >                 neq,
      >                 dcpl_mb(psi1(1)),
      >                 fion)
       return
@@ -4771,7 +4775,6 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       integer irreps(2)
       common / ab_irrep / irreps
 
-      character*4 abvalue
       integer k,n,ptr,nn
       real*8  a,b,tmpa,tmpb
 
@@ -5229,7 +5232,6 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       parameter (MASTER=0)
       logical value,psi_nogrid
       integer nemax,ispin0
-      real*8 sum1,sum2
 
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)

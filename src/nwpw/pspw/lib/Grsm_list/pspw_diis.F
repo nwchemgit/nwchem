@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_diis.F,v 1.1 2001-12-28 23:17:54 bylaska Exp $                       
+*     $Id: pspw_diis.F,v 1.2 2006-10-07 00:10:06 bylaska Exp $                       
 *
 
       subroutine pspw_diis_init(max_m0,g)
@@ -62,12 +62,14 @@
 
 *     **** update B matrix ****
       call Grsm_gg_trace(npack1,neall,g,g,sum)
+      call D1dB_SumAll(sum)
       B(m+1,m+1) = sum
       do i=1,m-1
          call pspw_Grsm_list_load(i,dcpl_mb(gg(1)))
          call psi_1geodesic_Gtransport(tmin,dcpl_mb(gg(1)))
          call pspw_Grsm_list_store(i,dcpl_mb(gg(1)))
          call Grsm_gg_trace(npack1,neall,dcpl_mb(gg(1)),g,sum)
+         call D1dB_SumAll(sum)
          B(i+1,m+1) = sum
          B(m+1,i+1) = sum
       end do

@@ -1,5 +1,5 @@
 *
-* $Id: psp.F,v 1.20 2006-08-13 01:03:28 bylaska Exp $
+* $Id: psp.F,v 1.21 2006-10-07 00:10:07 bylaska Exp $
 *
 
 #define TCGMSG
@@ -1289,7 +1289,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
           end do
 
-          call D3dB_Vector_Sumall(3*(nn),dbl_mb(sum(1)))
+          call D3dB_Vector_SumAll(3*(nn),dbl_mb(sum(1)))
 
           !**** fractional weighting ****
           if (fractional) then
@@ -1404,7 +1404,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 
       call Parallel_taskid(taskid)
       rlocal = 0.0d0
-  
+
 *     **** open fname binary file ****
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
@@ -1551,7 +1551,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       else
          semicore = .false.
       end if
-
 
  
 *     *** read in vl 3d block ***
@@ -1708,7 +1707,6 @@ c     logocal semicore(0:nkatmx)
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
-
 
 *          **** set semicore(0) ****
            if (log_mb(semicore(1)+ia)) log_mb(semicore(1)) = .true.

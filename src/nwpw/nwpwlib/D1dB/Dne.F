@@ -1,5 +1,7 @@
-* $Id: Dne.F,v 1.2 2006-09-20 19:18:48 bylaska Exp $
+* $Id: Dne.F,v 1.3 2006-10-07 00:10:04 bylaska Exp $
 *
+
+#define NBLOCKS 4
 
 
 *     ***********************************
@@ -14,11 +16,25 @@
       integer ne_in(2)
       integer map_in
 
+      integer nb
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
 #include "Dne.fh"
+
+*     **** local variables ****
+      logical value
+      integer ms,k,i,j,npack1,nida1
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i,Parallel2d_comm_j
+      external Parallel2d_comm_i,Parallel2d_comm_j
 
       ispin   = ispin_in
       ne(1)   = ne_in(1)
       ne(2)   = ne_in(2)
+      
 
       neq(1) = 0
       neq(2) = 0
@@ -27,6 +43,79 @@
       if (ispin.eq.2) then
         call D1dB_init(2,ne(2),map_in)
         call D1dB_nq(2,neq(2))
+      end if
+
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
+      call Parallel2d_taskid_j(taskid_j)
+      comm_i = Parallel2d_comm_i()
+      comm_j = Parallel2d_comm_j()
+      parallelized = (np_j.gt.1)
+      if (parallelized) then
+         value = .true.
+         mcq(1) = 0
+         mcq(2) = 0
+         ncq(1) = 0
+         ncq(2) = 0
+         do ms=1,ispin
+             value = value.and.
+     >               MA_alloc_get(mt_int,np_i,'ma',ma(2,ms),ma(1,ms))
+             value = value.and.
+     >               MA_alloc_get(mt_int,np_i,'ma1',ma1(2,ms),ma1(1,ms))
+             value = value.and.
+     >               MA_alloc_get(mt_int,np_i,'mc',mc(2,ms),mc(1,ms))
+             value = value.and.
+     >               MA_alloc_get(mt_int,np_j,'na',na(2,ms),na(1,ms))
+             value = value.and.
+     >               MA_alloc_get(mt_int,np_j,'nc',nc(2,ms),nc(1,ms))
+             if (.not.value) then
+               call errquit('Dne_init: out of heap memory',0,MA_ERR)
+             end if
+
+             call icopy(np_i,0,0,int_mb(ma(1,ms)),1)
+             call icopy(np_i,0,0,int_mb(ma1(1,ms)),1)
+             call icopy(np_i,0,0,int_mb(mc(1,ms)),1)
+             call icopy(np_j,0,0,int_mb(na(1,ms)),1)
+             call icopy(np_j,0,0,int_mb(nc(1,ms)),1)
+
+             i = 0
+             j = 0
+             do k=1,ne(ms)
+                int_mb(mc(1,ms)+i) = int_mb(mc(1,ms)+i) + 1
+
+                int_mb(nc(1,ms)+j) = int_mb(nc(1,ms)+j) + 1
+                int_mb(na(1,ms)+j) = int_mb(na(1,ms)+j) + 1
+                i = mod(i+1,np_i)
+                j = mod(j+1,np_j)
+             end do
+
+             call Pack_npack(1,npack1)
+             call Pack_nida(1, nida1)
+             int_mb(ma(1,ms) +taskid_i) = 2*npack1
+             int_mb(ma1(1,ms)+taskid_i) = 2*nida1
+             call D3dB_Vector_iSumAll(np_i,int_mb(ma(1,ms)))
+             call D3dB_Vector_iSumAll(np_i,int_mb(ma1(1,ms)))
+
+             mcq(ms) = int_mb(mc(1,ms)+taskid_i)
+             ncq(ms) = int_mb(nc(1,ms)+taskid_j)
+
+             npack1_all = 0
+             nida1_all  = 0
+             do i=0,np_i-1
+                npack1_all = npack1_all + int_mb(ma(1,ms) +i)
+                nida1_all  = nida1_all  + int_mb(ma1(1,ms)+i)
+             end do
+
+         end do
+         value = value.and.MA_alloc_get(mt_dbl,
+     >                                  2*64*int_mb(ma(1,1)+taskid_i),
+     >                                  'work1',work1(2),work1(1))
+         value = value.and.MA_alloc_get(mt_dbl,
+     >                                  2*64*int_mb(nc(1,1)+taskid_j),
+     >                                  'work2',work2(2),work2(1))
+         if (.not.value) 
+     >      call errquit('Dne_init: out of heap memory',1,MA_ERR)
       end if
 
       return
@@ -42,10 +131,33 @@
       subroutine Dne_end()
       implicit none
 
+#include "mafdecls.fh"
+#include "errquit.fh"
+
 #include "Dne.fh"
+
+*     ***** local variables ****
+      logical value
+      integer ms
 
       call D1dB_end(1)
       if (ispin.eq.2) call D1dB_end(2)
+      if (parallelized) then
+         value = .true.
+         do ms=1,ispin
+            value = value.and.MA_free_heap(ma(2,ms))
+            value = value.and.MA_free_heap(ma1(2,ms))
+            value = value.and.MA_free_heap(na(2,ms))
+            value = value.and.MA_free_heap(mc(2,ms))
+            value = value.and.MA_free_heap(nc(2,ms))
+         end do
+         value = value.and.MA_free_heap(work1(2))
+         value = value.and.MA_free_heap(work2(2))
+        if (.not.value) then
+           call errquit('Dne_end: error deallocating heap memory',
+     >                  0,MA_ERR)
+        end if
+      end if
 
       return
       end
@@ -109,6 +221,75 @@
       return 
       end
 
+
+c
+c
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_size                 *
+c     *                                      *
+c     ****************************************
+      subroutine Dneall_m_size(mb,size)
+      implicit none
+      integer mb
+      integer size
+
+#include "Dne.fh"
+     
+      if (parallelized) then
+         if (mb.eq.0) then
+            size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         else
+            size = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then 
+            size = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            size = ne(mb)*ne(mb)
+         end if
+      end if
+     
+      return
+      end
+
+c
+c
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_allocate_block       *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_m_allocate_block(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "Dne.fh"
+#include "mafdecls.fh"
+
+      integer size
+     
+      if (parallelized) then
+         if (mb.eq.0) then
+            size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         else
+            size = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then 
+            size = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            size = ne(mb)*ne(mb)
+         end if
+      end if
+     
+      Dneall_m_allocate_block 
+     > = MA_alloc_get(mt_dbl,nb*size,'hml',hml(2),hml(1))
+      return
+      end
 c
 c
 c
@@ -127,13 +308,21 @@ c     ****************************************
 
       integer size
      
-      if (mb.eq.0) then 
-         size = ne(1)*ne(1) + ne(2)*ne(2)
+      if (parallelized) then
+         if (mb.eq.0) then
+            size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         else
+            size = mcq(mb)*ncq(mb)
+         end if
       else
-         size = ne(mb)*ne(mb)
+         if (mb.eq.0) then 
+            size = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            size = ne(mb)*ne(mb)
+         end if
       end if
      
-       Dneall_m_allocate = MA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
+      Dneall_m_allocate = MA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
       return
       end
 c
@@ -167,15 +356,61 @@ c     ****************************************
 #include "mafdecls.fh"
 
       integer size
-      if (mb.eq.0) then
-         size = ne(1)*ne(1) + ne(2)*ne(2)
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         else
+            size = mcq(mb)*ncq(mb)
+         end if
       else
-         size = ne(mb)*ne(mb)
+         if (mb.eq.0) then
+            size = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            size = ne(mb)*ne(mb)
+         end if
       end if
 
       Dneall_m_push_get = MA_push_get(mt_dbl,size,'hml',hml(2),hml(1))
       return
       end
+
+
+c
+c     ****************************************
+c     *                                      *
+c     *        Dneall_m_push_get_block       *
+c     *                                      *
+c     ****************************************
+      logical function Dneall_m_push_get_block(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "Dne.fh"
+#include "mafdecls.fh"
+
+      integer size
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            size = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+         else
+            size = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            size = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            size = ne(mb)*ne(mb)
+         end if
+      end if
+
+      Dneall_m_push_get_block 
+     >  = MA_push_get(mt_dbl,nb*size,'hml',hml(2),hml(1))
+      return
+      end
+
 
 c     ****************************************
 c     *                                      *
@@ -210,6 +445,7 @@ c     ****************************************
       complex*16 Aout(*)
       real*8     beta
            
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
@@ -217,29 +453,64 @@ c     ****************************************
 
 c      call Pack_npack(1,npack1)
 
-      if (mb.eq.0) then
-         ms1 = 1    
-         ms2 = ispin
-         ishift2 = ne(1)*ne(1)
-      else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0
-      end if
+      if (parallelized) then
+       if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
 
-      do ms=ms1,ms2
-         n     = ne(ms)
-         if (n.le.0) go to 30
-         shift  = 1 + (ms-1)*ne(1)*npack1
-         shift2 = 1 + (ms-1)*ishift2
-         call DGEMM('N','N',2*npack1,n,n,
-     >             (alpha),
-     >             Ain(shift),  2*npack1,
-     >             hml(shift2),    n,
-     >             (beta),
-     >             Aout(shift),2*npack1)
-   30    continue
-      end do
+         do ms=ms1,ms2
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm1(npack1_all,ne(ms),ne(ms),64,
+     >             alpha,
+     >             Ain(shift),int_mb(ma(1,ms)+taskid_i),
+     >                        int_mb(ma(1,ms)),
+     >                        int_mb(na(1,ms)),
+     >             hml(shift2),mcq(ms),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             beta,
+     >             Aout(shift),int_mb(ma(1,ms)+taskid_i),
+     >                         int_mb(ma(1,ms)),
+     >                         int_mb(na(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+         end do
+         
+      else
+         if (mb.eq.0) then
+            ms1 = 1    
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+            shift  = 1 + (ms-1)*ne(1)*npack1
+            shift2 = 1 + (ms-1)*ishift2
+            call DGEMM('N','N',2*npack1,n,n,
+     >                (alpha),
+     >                Ain(shift),  2*npack1,
+     >                hml(shift2),    n,
+     >                (beta),
+     >                Aout(shift),2*npack1)
+   30       continue
+         end do
+      end if
 
       return
       end
@@ -258,33 +529,89 @@ c     ****************************************
       integer    npack1
       real*8     hml(*)
            
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift,shift2,ishift2
+      integer i,j
+      real*8  sum
 
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift2 = ne(1)*ne(1)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >             2.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i), 
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i), 
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             hml(shift2),int_mb(mc(1,ms)+taskid_i), 
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_dgemm2(ne(ms),ne(ms),nida1_all,128,
+     >             -1.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i), 
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i), 
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             1.0d0,
+     >             hml(shift2),int_mb(mc(1,ms)+taskid_i), 
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  20        continue
+         end do
       else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            shift  = 1 + (ms-1)*ne(1)*npack1
+            shift2 = 1 + (ms-1)*ishift2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+
+            call Pack_ccm_sym_dot(1,n,
+     >                        A1(shift),
+     >                        A2(shift),
+     >                        hml(shift2))
+  30        continue
+         end do
       end if
-
-      do ms=ms1,ms2
-         shift  = 1 + (ms-1)*ne(1)*npack1
-         shift2 = 1 + (ms-1)*ishift2
-         n     = ne(ms)
-         if (n.le.0) go to 30
-
-         call Pack_ccm_sym_dot(1,n,
-     >                     A1(shift),
-     >                     A2(shift),
-     >                     hml(shift2))
-  30     continue
-      end do
 
       return
       end
@@ -292,44 +619,99 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_ffm_Multiply          *
+c     *        Dneall_ffm_Multiply          *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_ffm_Multiply(mb,A1,A2,npack1,hml)
+      subroutine Dneall_ffm_Multiply(mb,A1,A2,npack1,hml)
       implicit none
       integer    mb
       complex*16 A1(*),A2(*)
       integer    npack1
       real*8     hml(*)
            
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2,shift
 
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift2 = ne(1)*ne(1)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift  = 1 + (ms-1)*neq(1)*npack1
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),npack1_all,128,
+     >             2.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             0.0d0,
+     >             hml(shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            call DMatrix_dgemm2(ne(ms),ne(ms),nida1_all,128,
+     >             -1.0d0,
+     >             A1(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             A2(shift),int_mb(ma(1,ms)+taskid_i),
+     >                       int_mb(ma1(1,ms)),
+     >                       int_mb(na(1,ms)),
+     >             1.0d0,
+     >             hml(shift2),int_mb(mc(1,ms)+taskid_i),
+     >                         int_mb(mc(1,ms)),
+     >                         int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+  20        continue
+         end do
+         
       else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            shift  = 1+(ms-1)*ne(1)*npack1
+            shift2 = 1+(ms-1)*ishift2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+
+            call Pack_ccm_dot(1,n,
+     >                        A1(shift),
+     >                        A2(shift),
+     >                        hml(shift2))
+  30        continue
+         end do
       end if
-
-      do ms=ms1,ms2
-         shift  = 1+(ms-1)*ne(1)*npack1
-         shift2 = 1+(ms-1)*ishift2
-         n     = ne(ms)
-         if (n.le.0) go to 30
-
-         call Pack_ccm_dot(1,n,
-     >                     A1(shift),
-     >                     A2(shift),
-     >                     hml(shift2))
-  30     continue
-      end do
 
       return
       end
@@ -354,51 +736,137 @@ c     ****************************************
 
 *     ***** local variables ****
       logical value
-      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr,i,j,indx
-      integer tmp1(2)
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
+      integer tmp1(2),V(2),VV(2),Q(2),tu(2),ework(2)
 
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift1 = ne(1)
-         ishift2 = ne(1)*ne(1)
-         call dcopy((ne(1)+ne(2)),0.0d0,0,eig,1)
-      else
-         ms1 = mb
-         ms2 = mb
-         ishift1 = 0
-         ishift2 = 0
-         call dcopy(ne(mb),0.0d0,0,eig,1)
-      end if
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = mcq(1)*ncq(1)
+            call dcopy((ne(1)+ne(2)),0.0d0,0,eig,1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            call dcopy(ne(mb),0.0d0,0,eig,1)
+         end if
+         value = MA_push_get(mt_dbl,mcq(1)*ncq(1),'V',V(2),V(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,mcq(1)*ncq(1),'VV',VV(2),VV(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,mcq(1)*ncq(1),'Q',Q(2),Q(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,ne(1),'tu',tu(2),tu(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,ne(1),'ework',ework(2),ework(1))
+         if (.not. value) 
+     >      call errquit('DMatrix_m_diagonalize:out of stack',
+     >                    0,MA_ERR)
+         do ms=ms1,ms2
+            shift1 = 1+(ms-1)*ishift1
+            shift2 = 1+(ms-1)*ishift2
 
-      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
-     >   call errquit('DMatrix_m_diagonalize:out of stack',0,MA_ERR)
 
-*     ***** diagonalize the matrix *****
-      do ms=ms1,ms2
-         shift1 = 1+(ms-1)*ishift1
-         shift2 = 1+(ms-1)*ishift2
-         if (ne(ms).le.0) go to 30
+            call DMatrix_tredq(ne(ms),
+     >                hml(shift2),dbl_mb(Q(1)),
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i,comm_j,
+     >                dbl_mb(work1(1)),dbl_mb(work2(1)),
+     >                dbl_mb(V(1)),dbl_mb(VV(1)))
 
-         call DSYEV('V','U',ne(ms),
-     >              hml(shift2),ne(ms), 
-     >              eig(shift1),
-     >              dbl_mb(tmp1(1)),2*ne(1)*ne(1),
-     >              ierr)
-
-         if (.not.assending)
-     >    call eigsrt(eig(shift1),
+            call DMatrix_getdiags(ne(ms),
+     >                eig(shift1),dbl_mb(tu(1)),
      >                hml(shift2),
-     >                ne(ms),ne(ms))
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i,comm_j,
+     >                dbl_mb(ework(1)))
 
-  30    continue
-      end do
+            call dcopy(mcq(ms)*ncq(ms),dbl_mb(Q(1)),1,hml(shift2),1)
 
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     > call errquit('error popping stack in DMatrix_m_diagonalize',0,
-     &       MA_ERR)
+            call DMatrix_tqliq(ne(ms),
+     >                eig(shift1),dbl_mb(tu(1)),
+     >                hml(shift2),
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j,
+     >                np_i,np_j,
+     >                comm_i,comm_j,
+     >                dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+            if (.not.assending)
+     >      call DMatrix_eigsrtq(ne(ms),
+     >              eig(shift1),
+     >              hml(shift2),
+     >              mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >              taskid_i,taskid_j,
+     >              np_i,np_j,
+     >              comm_i,comm_j,
+     >              dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+         end do
+
+         value =           MA_pop_stack(ework(2))
+         value = value.and.MA_pop_stack(tu(2))
+         value = value.and.MA_pop_stack(Q(2))
+         value = value.and.MA_pop_stack(VV(2))
+         value = value.and.MA_pop_stack(V(2))
+         if (.not. value) 
+     >    call errquit('error popping stack in DMatrix_m_diagonalize',
+     >                 0,MA_ERR)
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+            call dcopy((ne(1)+ne(2)),0.0d0,0,eig,1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            call dcopy(ne(mb),0.0d0,0,eig,1)
+         end if
+
+         value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),
+     >                       'tmp1',tmp1(2),tmp1(1))
+         if (.not. value) 
+     >      call errquit('DMatrix_m_diagonalize:out of stack',
+     >                    1,MA_ERR)
+
+*        ***** diagonalize the matrix *****
+         do ms=ms1,ms2
+            shift1 = 1+(ms-1)*ishift1
+            shift2 = 1+(ms-1)*ishift2
+            if (ne(ms).le.0) go to 30
+
+            call DSYEV('V','U',ne(ms),
+     >                 hml(shift2),ne(ms), 
+     >                 eig(shift1),
+     >                 dbl_mb(tmp1(1)),2*ne(1)*ne(1),
+     >                 ierr)
+
+            if (.not.assending)
+     >       call eigsrt(eig(shift1),
+     >                   hml(shift2),
+     >                   ne(ms),ne(ms))
+
+  30       continue
+         end do
+
+         value = MA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >    call errquit('error popping stack in DMatrix_m_diagonalize',
+     >                 0,MA_ERR)
+
+      end if
 
       return
       end
@@ -480,46 +948,74 @@ c     ****************************************
          if (S(n).lt.0.0d0) S(n) = dabs(S(n))
          S(n) = dsqrt(S(n))
       end do
+
+
+
       return
       end
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_mm_transpose          *
+c     *        Dneall_mm_transpose          *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_mm_transpose(mb,Min,Mout)
+      subroutine Dneall_mm_transpose(mb,Min,Mout)
       implicit none
       integer mb
       real*8  Min(*),Mout(*)
 
+
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer ms,ms1,ms2,shift2,ishift2
 
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift2 = ne(1)*ne(1)
-      else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0
-      end if
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
 
-      do ms=ms1,ms2
-        if (ne(ms).le.0) goto 30
-        shift2 = 1 + (ms-1)*ishift2
-        call DMatrix_mm_transpose_sub(ne(ms),Min(shift2),Mout(shift2))
- 30     continue
-      end do
+         do ms=ms1,ms2
+           if (ne(ms).le.0) goto 20
+           shift2 = 1 + (ms-1)*ishift2
+           call DMatrix_mm_transpose(ne(ms),
+     >                 Min(shift2),Mout(shift2),
+     >                 mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)))
+ 20        continue
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+           if (ne(ms).le.0) goto 30
+           shift2 = 1 + (ms-1)*ishift2
+           call Dneall_mm_transpose_sub(ne(ms),
+     >                 Min(shift2),Mout(shift2))
+ 30        continue
+         end do
+      end if
 
       return
       end
 
-      subroutine DMatrix_mm_transpose_sub(n,A,B)
+      subroutine Dneall_mm_transpose_sub(n,A,B)
       implicit none
       integer n
       real*8 A(n,n)
@@ -536,11 +1032,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_mm_SCtimesVtrans       *
+c     *        Dneall_mm_SCtimesVtrans       *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_mm_SCtimesVtrans(mb,t,S,Vt,A,B,SA,SB)
+      subroutine Dneall_mm_SCtimesVtrans(mb,t,S,Vt,A,B,SA,SB)
       implicit none
       integer mb
       real*8 t
@@ -549,62 +1045,95 @@ c     ****************************************
       real*8 A(*),B(*)
       real*8 SA(*),SB(*)
 
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
       integer nj
 
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift1 = ne(1)
-         ishift2 = ne(1)*ne(1)
-         nj = ne(1)+ne(2)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = mcq(1)*ncq(1)
+            nj = ne(1)+ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            nj = ne(mb)
+         end if
+
+         do j=1,nj
+            SA(j) = dcos(S(j)*t)
+            SB(j) = dsin(S(j)*t)
+         end do
+
+         do ms=ms1,ms2
+             shift1 = 1 + (ms-1)*ishift1
+             shift2 = 1 + (ms-1)*ishift2
+             call DMatrix_SASBtimesVtrans(ne(ms),
+     >                SA(shift1),SB(shift1),
+     >                Vt(shift2),A(shift2),B(shift2),
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j)
+         end do
+      
       else
-         ms1 = mb
-         ms2 = mb
-         ishift1 = 0
-         ishift2 = 0
-         nj = ne(mb)
-      end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+            nj = ne(1)+ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            nj = ne(mb)
+         end if
 
-      do j=1,nj
-         SA(j) = dcos(S(j)*t)
-         SB(j) = dsin(S(j)*t)
-      end do
+         do j=1,nj
+            SA(j) = dcos(S(j)*t)
+            SB(j) = dsin(S(j)*t)
+         end do
 
-      do ms=ms1,ms2
-        if (ne(ms).le.0) go to 30
-        shift1 = 1 + (ms-1)*ishift1
-        shift2 = 1 + (ms-1)*ishift2
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift1 = 1 + (ms-1)*ishift1
+           shift2 = 1 + (ms-1)*ishift2
 
-        indx2 = shift2
-        do k=1,ne(ms)
-           indx1 = shift1
-           do j=1,ne(ms)
-              A(indx2) = SA(indx1)*Vt(indx2)
-              B(indx2) = SB(indx1)*Vt(indx2)
-              indx2 = indx2 + 1
-              indx1 = indx1 + 1
+           indx2 = shift2
+           do k=1,ne(ms)
+              indx1 = shift1
+              do j=1,ne(ms)
+                 A(indx2) = SA(indx1)*Vt(indx2)
+                 B(indx2) = SB(indx1)*Vt(indx2)
+                 indx2 = indx2 + 1
+                 indx1 = indx1 + 1
+              end do
            end do
-        end do
-
- 30     continue
-      end do
-
+   
+ 30        continue
+         end do
+      end if
 
       return
       end
 
 
+
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_mm_SCtimesVtrans2     *
+c     *        Dneall_mm_SCtimesVtrans2     *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_mm_SCtimesVtrans2(mb,t,S,Vt,A,B,SA,SB)
+      subroutine Dneall_mm_SCtimesVtrans2(mb,t,S,Vt,A,B,SA,SB)
       implicit none
       integer mb
       real*8 t
@@ -613,50 +1142,84 @@ c     ****************************************
       real*8 A(*),B(*)
       real*8 SA(*),SB(*)
 
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
       integer nj
  
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift1 = ne(1)
-         ishift2 = ne(1)*ne(1)
-         nj = ne(1)+ne(2)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = mcq(1)*ncq(1)
+            nj = ne(1)+ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            nj = ne(mb)
+         end if
+
+         do j=1,nj
+            SA(j) = S(j)*dsin(S(j)*t)
+            SB(j) = S(j)*dcos(S(j)*t)
+         end do
+
+         do ms=ms1,ms2
+             shift1 = 1 + (ms-1)*ishift1
+             shift2 = 1 + (ms-1)*ishift2
+             call DMatrix_SASBtimesVtrans(ne(ms),
+     >                SA(shift1),SB(shift1),
+     >                Vt(shift2),A(shift2),B(shift2),
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j)
+         end do
+
+
       else
-         ms1 = mb
-         ms2 = mb
-         ishift1 = 0
-         ishift2 = 0
-         nj = ne(mb)
-      end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+            nj = ne(1)+ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            nj = ne(mb)
+         end if
 
-      do j=1,nj
-         SA(j) = S(j)*dsin(S(j)*t)
-         SB(j) = S(j)*dcos(S(j)*t)
-      end do
+         do j=1,nj
+            SA(j) = S(j)*dsin(S(j)*t)
+            SB(j) = S(j)*dcos(S(j)*t)
+         end do
 
-      do ms=ms1,ms2
-        if (ne(ms).le.0) go to 30
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
 
-        shift1 = 1 + (ms-1)*ishift1
-        shift2 = 1 + (ms-1)*ishift2
+           shift1 = 1 + (ms-1)*ishift1
+           shift2 = 1 + (ms-1)*ishift2
 
-        indx2 = shift2
-        do k=1,ne(ms)
-           indx1 = shift1
-           do j=1,ne(ms)
-              A(indx2) = SA(indx1)*Vt(indx2)
-              B(indx2) = SB(indx1)*Vt(indx2)
-              indx2 = indx2 + 1
-              indx1 = indx1 + 1
+           indx2 = shift2
+           do k=1,ne(ms)
+              indx1 = shift1
+              do j=1,ne(ms)
+                 A(indx2) = SA(indx1)*Vt(indx2)
+                 B(indx2) = SB(indx1)*Vt(indx2)
+                 indx2 = indx2 + 1
+                 indx1 = indx1 + 1
+              end do
            end do
-        end do
 
- 30     continue
-      end do
+ 30        continue
+         end do
+      end if
 
       return
       end
@@ -665,11 +1228,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_mm_SCtimesVtrans3     *
+c     *        Dneall_mm_SCtimesVtrans3     *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_mm_SCtimesVtrans3(mb,t,S,Vt,A,B,SA,SB)
+      subroutine Dneall_mm_SCtimesVtrans3(mb,t,S,Vt,A,B,SA,SB)
       implicit none
       integer mb
       real*8 t
@@ -678,49 +1241,82 @@ c     ****************************************
       real*8 A(*),B(*)
       real*8 SA(*),SB(*)
 
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,k,j,indx1,indx2
       integer nj
 
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift1 = ne(1)
-         ishift2 = ne(1)*ne(1)
-         nj = ne(1)+ne(2)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = mcq(1)*ncq(1)
+            nj = ne(1)+ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            nj = ne(mb)
+         end if
+
+         do j=1,nj
+            SA(j) = dsin(S(j)*t)
+            SB(j) = 1.0d0-dcos(S(j)*t)
+         end do
+
+         do ms=ms1,ms2
+             shift1 = 1 + (ms-1)*ishift1
+             shift2 = 1 + (ms-1)*ishift2
+             call DMatrix_SASBtimesVtrans(ne(ms),
+     >                SA(shift1),SB(shift1),
+     >                Vt(shift2),A(shift2),B(shift2),
+     >                mcq(ms),int_mb(mc(1,ms)),int_mb(nc(1,ms)),
+     >                taskid_i,taskid_j)
+         end do
+         
       else
-         ms1 = mb
-         ms2 = mb
-         ishift1 = 0
-         ishift2 = 0
-         nj = ne(mb)
-      end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+            nj = ne(1)+ne(2)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            nj = ne(mb)
+         end if
 
-      do j=1,nj
-         SA(j) = dsin(S(j)*t)
-         SB(j) = 1.0d0-dcos(S(j)*t)
-      end do
+         do j=1,nj
+            SA(j) = dsin(S(j)*t)
+            SB(j) = 1.0d0-dcos(S(j)*t)
+         end do
 
-      do ms=ms1,ms2
-        if (ne(ms).le.0) go to 30
-        shift1 = 1 + (ms-1)*ishift1
-        shift2 = 1 + (ms-1)*ishift2
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift1 = 1 + (ms-1)*ishift1
+           shift2 = 1 + (ms-1)*ishift2
 
-        indx2 = shift2
-        do k=1,ne(ms)
-           indx1 = shift1
-           do j=1,ne(ms)
-              A(indx2) = SA(indx1)*Vt(indx2)
-              B(indx2) = SB(indx1)*Vt(indx2)
-              indx2 = indx2 + 1
-              indx1 = indx1 + 1
+           indx2 = shift2
+           do k=1,ne(ms)
+              indx1 = shift1
+              do j=1,ne(ms)
+                 A(indx2) = SA(indx1)*Vt(indx2)
+                 B(indx2) = SB(indx1)*Vt(indx2)
+                 indx2 = indx2 + 1
+                 indx1 = indx1 + 1
+              end do
            end do
-        end do
 
- 30     continue
-      end do
+ 30        continue
+         end do
+      end if
 
       return
       end
@@ -728,41 +1324,782 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_mmm_Multiply2          *
+c     *        Dneall_mmm_Multiply2         *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_mmm_Multiply2(mb,A,B,C)
+      subroutine Dneall_mmm_Multiply2(mb,A,B,C)
       implicit none
       integer mb
       real*8 A(*),B(*),C(*)
            
+#include "mafdecls.fh"
 #include "Dne.fh"
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2
   
-      if (mb.eq.0) then
-         ms1 = 1
-         ms2 = ispin
-         ishift2 = ne(1)*ne(1)
+      if (parallelized) then
+        if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm2(ne(ms),ne(ms),ne(ms),64,
+     >             1.0d0,
+     >             A(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             B(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             0.0d0,
+     >             C(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+   20       continue
+         end do
+
+
       else
-         ms1 = mb
-         ms2 = mb
-         ishift2 = 0
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2
+            call DGEMM('T','N',n,n,n,1.0d0,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                0.0d0,
+     >                C(shift2), n)
+   30       continue
+         end do
       end if
 
-      do ms=ms1,ms2
-         n     = ne(ms)
-         if (n.le.0) go to 30
-         shift2 = 1 + (ms-1)*ishift2
-         call DGEMM('T','N',n,n,n,1.0d0,
-     >             A(shift2), n,
-     >             B(shift2), n,
-     >             0.0d0,
-     >             C(shift2), n)
-   30    continue
-      end do
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_mmm_Multiply          *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_mmm_Multiply(mb,A,B,alpha,C,beta)
+      implicit none
+      integer mb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+           
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer i,j
+  
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 20
+            shift2 = 1 + (ms-1)*ishift2
+            call DMatrix_dgemm1(ne(ms),ne(ms),ne(ms),64,
+     >             alpha,
+     >             A(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             B(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             beta,
+     >             C(shift2),mcq(ms),
+     >                       int_mb(mc(1,ms)),
+     >                       int_mb(nc(1,ms)),
+     >             taskid_i,taskid_j,
+     >             np_i,np_j,
+     >             comm_i, comm_j,
+     >             dbl_mb(work1(1)),dbl_mb(work2(1)))
+
+   20       continue
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            n     = ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2
+            call DGEMM('N','N',n,n,n,
+     >                alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+      end if
+
+      return
+      end
+
+
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *           DMatrix_m_trace            *
+c     *                                      *
+c     ****************************************
+
+      double precision function DMatrix_m_trace(mb,M)
+      implicit none
+      integer mb
+      real*8  M(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,indx,i
+      real*8  sum
+
+*     ***** external functions ****
+      real*8   DMatrix_trace
+      external DMatrix_trace
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         sum = 0.0d0
+         do ms=ms1,ms2
+            shift2 = 1 + (ms-1)*ishift2
+            sum =  sum + DMatrix_trace(ne(ms),
+     >                                 M(shift2),mcq(ms),
+     >                                           int_mb(mc(1,ms)),
+     >                                           int_mb(nc(1,ms)),
+     >                                 taskid_i,taskid_j)
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         sum = 0.0d0
+         do ms=ms1,ms2
+
+           if (ne(ms).le.0) goto 30
+           shift2 = (ms-1)*ishift2
+
+           do i=1,ne(ms)
+              indx = i + (i-1)*ne(ms) + shift2
+              sum = sum + M(indx)
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      DMatrix_m_trace = sum
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *           DMatrix_m_scal             *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_m_scal(mb,alpha,M)
+      implicit none
+      integer mb
+      real*8  alpha
+      real*8  M(*)
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer nn
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            nn = mcq(1)*ncq(1)+mcq(2)*ncq(2)
+         else
+            nn = mcq(mb)*ncq(mb)
+         end if
+      else
+         if (mb.eq.0) then
+            nn = ne(1)*ne(1) + ne(2)*ne(2)
+         else
+            nn = ne(mb)*ne(mb)
+         end if
+      end if
+
+      call dscal(nn,alpha,M,1)
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *           DMatrix_m_diag_scal        *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_m_diag_scal(mb,diag,M)
+      implicit none
+      integer mb
+      real*8  diag(*)
+      real*8  M(*)
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
+
+      if (parallelized) then
+         call errquit('DMatrix_m_diag_scal not finished',0,0)
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+
+            if (ne(ms).le.0) goto 30
+            shift1 = (ms-1)*ishift1
+            shift2 = (ms-1)*ishift2
+
+            do i=1,ne(ms)
+               indx = i + (i-1)*ne(ms) + shift2
+               M(indx) = M(indx)*diag(i+shift1)
+            end do
+
+ 30        continue
+         end do
+      end if
+
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_m_diag_scal_inv       *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_m_diag_scal_inv(mb,diag,M)
+      implicit none
+      integer mb
+      real*8  diag(*)
+      real*8  M(*)
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
+
+      if (parallelized) then
+         call errquit('DMatrix_m_diag_scal_inv not finished',0,0)
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+
+            if (ne(ms).le.0) goto 30
+            shift1 = (ms-1)*ishift1
+            shift2 = (ms-1)*ishift2
+
+            do i=1,ne(ms)
+               indx = i + (i-1)*ne(ms) + shift2
+               M(indx) = M(indx)/diag(i+shift1)
+            end do
+
+ 30        continue
+         end do
+      end if
+      return
+      end
+
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_m_scale_s22           *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_m_scale_s22(mb,dte,s22)
+      implicit none
+      integer mb
+      real*8 dte
+      real*8 s22(*)
+
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         do ms=ms1,ms2
+            shift2 = 1 + (ms-1)*ishift2
+         
+            call DMatrix_s22(ne(ms),dte,
+     >                       s22(shift2),mcq(ms),
+     >                                   int_mb(mc(1,ms)),
+     >                                   int_mb(nc(1,ms)),
+     >                       taskid_i,taskid_j)
+         end do
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift2 = (ms-1)*ishift2
+
+           do k=1,ne(ms)
+              indx = k + (k-1)*ne(ms) + shift2
+              s22(indx) = (1.0d0 - s22(indx))*0.5d0/dte
+
+              do j=k+1,ne(ms)
+                 indx  = j + (k-1)*ne(ms) + shift2
+                 indxt = k + (j-1)*ne(ms) + shift2
+
+                 s22(indx)  = -s22(indx)*0.5d0/dte
+                 s22(indxt) = s22(indx)
+              end do
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_m_scale_s21           *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_m_scale_s21(mb,dte,s21)
+      implicit none
+      integer mb
+      real*8 dte
+      real*8 s21(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         do ms=ms1,ms2
+            shift2 = 1 + (ms-1)*ishift2
+
+            call DMatrix_s21(ne(ms),dte,
+     >                       s21(shift2),mcq(ms),
+     >                                   int_mb(mc(1,ms)),
+     >                                   int_mb(nc(1,ms)),
+     >                       taskid_i,taskid_j)
+         end do
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift2 = (ms-1)*ishift2
+
+           do k=1,ne(ms)
+              indx = k + (k-1)*ne(ms) + shift2
+              s21(indx) = (1.0d0 - s21(indx))*0.5d0
+
+              do j=k+1,ne(ms)
+                 indx  = j + (k-1)*ne(ms) + shift2
+                 indxt = k + (j-1)*ne(ms) + shift2
+
+                 s21(indx)  = -s21(indx)*0.5d0
+                 s21(indxt) = s21(indx)
+              end do
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_m_scale_s11           *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_m_scale_s11(mb,dte,s11)
+      implicit none
+      integer mb
+      real*8 dte
+      real*8 s11(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,k,j,indx,indxt
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         do ms=ms1,ms2
+            shift2 = 1 + (ms-1)*ishift2
+
+            call DMatrix_s11(ne(ms),dte,
+     >                       s11(shift2),mcq(ms),
+     >                                   int_mb(mc(1,ms)),
+     >                                   int_mb(nc(1,ms)),
+     >                       taskid_i,taskid_j)
+         end do
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift2 = (ms-1)*ishift2
+
+           do k=1,ne(ms)
+              indx = k + (k-1)*ne(ms) + shift2
+              s11(indx) = -s11(indx)*0.5d0*dte
+
+              do j=k+1,ne(ms)
+                 indx  = j + (k-1)*ne(ms) + shift2
+                 indxt = k + (j-1)*ne(ms) + shift2
+
+                 s11(indx)  = -s11(indx)*0.5d0*dte
+                 s11(indxt) = s11(indx)
+              end do
+           end do
+
+ 30        continue
+         end do
+      end if
+
+      return
+      end
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_m_dmax                 *
+c     *                                      *
+c     ****************************************
+
+      double precision function DMatrix_m_dmax(mb,A)
+      implicit none
+      integer mb
+      real*8 A(*)
+
+#include "mafdecls.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,i
+      double precision adiff1, adiff2
+
+      integer  idamax
+      external idamax
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         adiff1 = 0.0d0
+         adiff2 = 0.0d0
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 20
+            shift2 = 1 + (ms-1)*ishift2
+
+            adiff1 = adiff2
+            adiff2 = A(shift2-1+idamax(mcq(ms)*ncq(ms),A(shift2),1))
+            adiff2 = dabs(adiff2)
+            call DMatrix_MaxAll(adiff2)
+            if (adiff2.gt.adiff1) adiff1 = adiff2
+ 20        continue
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         adiff1 = 0.0d0
+         adiff2 = 0.0d0
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift2 = 1 + (ms-1)*ishift2
+
+           adiff1 = adiff2      
+           adiff2 = A(shift2-1+idamax(ne(ms)*ne(ms),A(shift2),1))
+           adiff2 = dabs(adiff2)
+           if (adiff2.gt.adiff1) adiff1 = adiff2
+ 30        continue
+         end do
+      end if
+
+      DMatrix_m_dmax = adiff1
+      return
+      end
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        DMatrix_mm_Expand             *
+c     *                                      *
+c     ****************************************
+
+      subroutine DMatrix_mm_Expand(mb,A,A0)
+      implicit none
+      integer mb
+      real*8 A(*),A0(*)
+           
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer shift2,nn
+      
+      if (parallelized) then
+
+         if (mb.eq.0) then
+            nn     = mcq(1)*ncq(1) + mcq(2)*ncq(2)
+            shift2 = 1
+         else if (mb.eq.1) then
+            nn     = mcq(1)*ncq(1)
+            shift2 = 1 
+         else if (mb.eq.2) then
+            nn     = mcq(2)*ncq(2)
+            shift2 = 1+mcq(1)*ncq(1)
+         end if
+
+      else
+         if (mb.eq.0) then
+            nn     = ne(1)*ne(1) + ne(2)*ne(2)
+            shift2 = 1
+         else if (mb.eq.1) then
+            nn     = ne(1)*ne(1)
+            shift2 = 1 
+         else if (mb.eq.2) then
+            nn     = ne(2)*ne(2)
+            shift2 = 1+ne(1)*ne(1)
+         end if
+
+      end if
+
+      call dcopy(nn,A,1,A0(shift2),1)
+      return
+      end
+
+
+      subroutine Dneall_m_print(mb,A)
+      implicit none
+      integer mb
+      real*8  A(*)
+
+
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,i,j
+      integer taskid
+
+      call Parallel_taskid(taskid)
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1=1 
+            ms2=ispin
+            ishift2 = mcq(1)*ncq(1)
+         else
+            ms1=mb
+            ms2=mb
+            ishift2 = 0
+         end if
+         do ms=ms1,ms2
+            shift2 = (ms-1)*ishift2
+            write(*,*)
+            write(*,*) taskid,taskid_i,taskid_j,
+     >                 "  Dneall Matrix print, spin=",ms
+            do i=1,mcq(ms)
+               write(*,'(A,2I2,A,10F10.6)') 
+     >                    "taskids=",taskid_i,taskid_j," : ",
+     >                    (A(i+(j-1)*mcq(ms)+shift2), j=1,ncq(ms))
+            end do
+         end do
+
+      else
+         if (mb.eq.0) then
+            ms1=1 
+            ms2=ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1=mb
+            ms2=mb
+            ishift2 = 0
+         end if
+
+         do ms=ms1,ms2
+            shift2 = (ms-1)*ishift2
+            write(*,*)
+            write(*,*) taskid,"  Dneall Matrix print, spin=",ms
+            do i=1,ne(ms)
+               write(*,'(A,I2,A,10F10.6)') "taskid=",taskid," : ",
+     >                    (A(i+(j-1)*ne(ms)+shift2), j=1,ne(ms))
+            end do
+         end do
+      end if
 
       return
       end

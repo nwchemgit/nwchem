@@ -1,5 +1,5 @@
-*
-* $Id: inner_loop.F,v 1.20 2005-12-22 01:35:06 bylaska Exp $
+*,eke
+* $Id: inner_loop.F,v 1.21 2006-10-07 00:10:06 bylaska Exp $
 *
 
 *  ************************************************************
@@ -31,7 +31,7 @@
       integer    it_in
       real*8     E(*)
       real*8     deltae,deltac,deltar
-      real*8     hml(2*nemax*nemax),lmd(2*nemax*nemax)
+      real*8     hml(*),lmd(*)
 
 *     **** very big workspace variables ****
       real*8     psi_r(2*nfft3d,nemax)
@@ -45,10 +45,10 @@
 
 *     **** local variables ****
       logical move,sic,hfx
-      integer n2ft3d,np
-      integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr
+      integer n2ft3d,np_i,np_j
+      integer i,n,n1(2),n2(2),it,ms,nn,ierr
       integer nx,ny,nz
-      integer index,indext,gga
+      integer gga
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
@@ -96,6 +96,11 @@ c     real*8     fion(3,natmx)
       real*8   ion_ion_e
       external ion_ion_e
 
+      double precision DMatrix_m_trace
+      external         DMatrix_m_trace
+      logical  Dneall_m_push_get_block
+      external Dneall_m_push_get_block
+
 *     ***** QM/MM external functions ****
       logical  pspw_qmmm_found,pspw_charge_found
       real*8   pspw_qmmm_Energy_QMMM_Q
@@ -126,8 +131,7 @@ c     real*8     fion(3,natmx)
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
-      value = MA_push_get(mt_dbl,(8*nemax*nemax),
-     >                     'tmp_L',tmp_L(2),tmp_L(1))
+      value = Dneall_m_push_get_block(1,8,tmp_L)
       value = value.and.
      >        MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1))
       value = value.and.
@@ -213,7 +217,6 @@ c     real*8     fion(3,natmx)
 *       ********************************
         call phafac()
 
-
         call nwpw_timing_start(11)
 *       *******************
 *       **** get psi_r ****
@@ -226,7 +229,6 @@ c           call D3dB_c_Copy(1,psi1(1,n),psi_r(1,n))
            call D3dB_cr_fft3b(1,psi_r(1,n))
            call D3dB_r_Zero_Ends(1,psi_r(1,n))
         end do
-
 
 
 *       *********************
@@ -243,6 +245,7 @@ c           call D3dB_c_Copy(1,psi1(1,n),psi_r(1,n))
                 end do
              end do
              call D3dB_r_Zero_Ends(1,dn(1,ms))
+             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         else
           do ms=1,ispin
@@ -252,6 +255,7 @@ c           call D3dB_c_Copy(1,psi1(1,n),psi_r(1,n))
                 end do
              end do
              call D3dB_r_Zero_Ends(1,dn(1,ms))
+             call D1dB_Vector_SumAll(n2ft3d,dn(1,ms))
           end do
         end if
 
@@ -307,8 +311,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                            dbl_mb(fion(1)))
           end if
         end if
-
-
 
 
 *       ************************************
@@ -370,6 +372,9 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         end if
 
         call nwpw_timing_start(13)
+
+
+
 *       ******************
 *       **** get Hpsi ****
 *       ******************
@@ -392,9 +397,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       **** do a steepest descent step ****
 *       ************************************
         do n=1,n2(ispin)
-c          call D3dB_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
-c          call D3dB_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
-c          call mask_C(1,psi2(1,n))
           call Pack_c_SMul(1,dte,Hpsi(1,n),psi2(1,n))
           call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         end do
@@ -456,43 +458,21 @@ c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
 *     ***** total energy calculation ******
 *     *************************************
       call nwpw_timing_start(10)
-      call Parallel_np(np)
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
 
 *     *** get orbital energies ****
-      n = ne(1)
-      nn = n*n
-      do ms=1,ispin
-         do ii=n1(ms),n2(ms)
-           i = ii-n1(ms)
-           index = (i+1) + i*n + (ms-1)*nn
-c           call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,ii),sum)
-           call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,ii),sum)
-
-           hml(index) =  -sum
-           do jj=ii+1,n2(ms)
-              j = jj-n1(ms)
-              index  = (i+1) + j*n + (ms-1)*nn
-              indext = (j+1) + i*n + (ms-1)*nn
-c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
-              call Pack_cc_idot(1,psi1(1,ii),Hpsi(1,jj),sum)
-
-              hml(index)  =  -sum
-              hml(indext) =  -sum
-           end do 
-         end do
-      end do
-      if (np.gt.1)  call D3dB_Vector_SumAll((ispin*nn),hml)
-      eorbit = 0.0d0
-      do ms=1,ispin
-         do ii=1,ne(ms)
-            index = (ii) + (ii-1)*n + (ms-1)*nn
-            sum = hml(index)
-            if (fractional) sum=sum*dbl_mb(fweight(1)+ii-1+(ms-1)*ne(1))
-            eorbit = eorbit + sum
-         end do
-      end do
+      call DMatrix_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
+      call DMatrix_m_scal(0,(-1.0d0),hml)
+      if (fractional) then
+         call DMatrix_m_diag_scal(0,dbl_mb(fweight(1)),hml)
+         eorbit = DMatrix_m_trace(0,hml)
+         call DMatrix_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
+      else
+         eorbit = DMatrix_m_trace(0,hml)
+      end if
       if (ispin.eq.1) eorbit = eorbit+eorbit
-        
+       
 
 *     **** get ewald energy ****
       eion = 0.0d0
@@ -500,8 +480,6 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
     
 *     **** get free-space ion-ion energy ****
       if (control_version().eq.4) eion = ion_ion_e()
-
-
 
            
 *     **** get coulomb energy ****
@@ -536,22 +514,6 @@ c              call D3dB_cc_dot(1,psi1(1,ii),Hpsi(1,jj),sum)
 *     **** average Kohn-Sham v_local energy ****
       call Pack_cc_dot(0,dcpl_mb(dng(1)),dcpl_mb(vl(1)),elocal)
 
-c     call dcopy(2*npack0,dcpl_mb(vl(1)),1,dcpl_mb(tmp1(1)),1)
-c     call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
-c     call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
-c     elocal = 0.0d0
-c     do ms=1,ispin
-c        do n=n1(ms),n2(ms)
-c           call D3dB_rr_Mul(1,dcpl_mb(tmp1(1)),psi_r(1,n),
-c    >                       dcpl_mb(tmp2(1)))
-c
-c           call D3dB_rr_idot(1,psi_r(1,n),dcpl_mb(tmp2(1)),sum)
-c           elocal = elocal + sum*scal1*scal2
-c        end do
-c     end do
-c     if (np.gt.1) call D3dB_SumAll(elocal)
-c     if (ispin.eq.1) elocal = 2.0d0*elocal
-
 
 *     *** add in long range part ****
       if (control_version().eq.4) then
@@ -578,7 +540,8 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
          enlocal = enlocal - sum
       end do
       end do
-      if (np.gt.1) call D3dB_SumAll(enlocal)
+      if (np_i.gt.1) call D3dB_SumAll(enlocal)
+      if (np_j.gt.1) call D1dB_SumAll(enlocal)
       if (ispin.eq.1) enlocal = 2.0d0*enlocal
 
 
@@ -658,13 +621,14 @@ c     if (ispin.eq.1) elocal = 2.0d0*elocal
       do n=n1(1),n2(ispin)
          call Pack_cc_idot(1,Hpsi(1,n),Hpsi(1,n),dbl_mb(sumi(1)+n-1))
       end do
-      if (np.gt.1) 
+      if (np_i.gt.1) 
      >     call D3dB_Vector_SumAll((n2(ispin)-n1(1)),
      >                             dbl_mb(sumi(1)))
       deltac = 0.0d0
       do n=n1(1),n2(ispin)
          if (dbl_mb(sumi(1)+n-1).gt.deltac) deltac=dbl_mb(sumi(1)+n-1)
       end do
+      if (np_j.gt.1) call D1dB_MaxAll(deltac)
       deltac = deltac/dte
 
 c     do i=1,ion_nion()

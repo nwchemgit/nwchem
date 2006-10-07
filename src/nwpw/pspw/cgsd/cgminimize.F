@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize.F,v 1.20 2006-08-13 01:03:26 bylaska Exp $                       
+c     $Id: cgminimize.F,v 1.21 2006-10-07 00:10:05 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -142,6 +142,7 @@ c      complex*16 G1(nfft3d,nemax)
       call Grsm_gg_trace(npack1,neall,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(G1(1)),sum1)
+      call D1dB_SumAll(sum1)
 
 c     write(*,*) "sum1a,Estart,:",sum1,Estart
       call Grsm_gg_Copy(npack1,neall,
@@ -219,10 +220,12 @@ c        call dng_2to1()
      >                        dcpl_mb(G1(1)),
      >                        dcpl_mb(G1(1)),
      >                        sum1)
+         call D1dB_SumAll(sum1)
          call Grsm_gg_trace(npack1,neall,
      >                        dcpl_mb(G0(1)),
      >                        dcpl_mb(G1(1)),
      >                        sum3)
+         call D1dB_SumAll(sum3)
 
 c        write(*,*) "sum1:",sum1,sum0,sum3,max_sigma
 c        write(*,*) "Enew:",Enew
@@ -276,6 +279,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        tole,tmin,deltae,1)
+
 c     Enew = linesearch(0.0d0,E0,dE0,deltat,
 c    >                        psi_geodesic_energy,
 c    >                        psi_geodesic_denergy,

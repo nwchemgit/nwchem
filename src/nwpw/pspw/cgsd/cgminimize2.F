@@ -1,5 +1,5 @@
 c
-c     $Id: cgminimize2.F,v 1.10 2006-08-13 01:03:26 bylaska Exp $                       
+c     $Id: cgminimize2.F,v 1.11 2006-10-07 00:10:05 bylaska Exp $                       
 c
 
 *  **************************************************************
@@ -131,6 +131,7 @@ c
      >                     dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
      >                     dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
      >                     sum1(ms))
+        call D1dB_SumAll(sum1(ms))
       end do
 
       call Grsm_gg_Copy(npack1,neall,
@@ -187,6 +188,7 @@ c
      >                        dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
      >                        dcpl_mb(G1(1)+(ms-1)*npack1*ne(1)),
      >                        sum1(ms))
+           call D1dB_SumAll(sum1(ms))
          end do
 
 *        **** the new direction using Fletcher-Reeves ****

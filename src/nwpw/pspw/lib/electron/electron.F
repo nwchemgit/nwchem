@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.45 2006-09-20 19:18:49 bylaska Exp $
+* $Id: electron.F,v 1.46 2006-10-07 00:10:06 bylaska Exp $
 *
 
 
@@ -316,7 +316,6 @@ c      end
      >                       dcpl_mb(Hpsi_k(1)+(ii-1)*npack1),
      >                       sum)
            eorbit = eorbit + sum
-
          end do
       end do
       call D3dB_SumAll(eorbit)
@@ -352,7 +351,8 @@ c      end
       end if
       exc = exc*dv
       pxc = pxc*dv
-          
+
+
       total_energy = eorbit + exc - ehartr - pxc
 
 *     **** SIC corrections ****
@@ -825,34 +825,26 @@ c      end
 *     ***** local variables ****
       integer ms,n,shift1,shift2
      
-
-
 *     **** no preconditioning ***
-      do ms=1,ispin
-            n     = ne(ms)
-            if (n.le.0) go to 30
-            shift1 = 1 + (ms-1)*ne(1)*npack1
-            shift2 = 1 + (ms-1)*ne(1)*ne(1)
-c           call Grsm_gmg_Mul(npack1,n,
-c    >                        psi_k(1+(ms-1)*ne(1)*npack1),
-c    >                        hml(shift2+1),
-c    >                        THpsi_k(1+(ms-1)*ne(1)*npack1))
-            call DGEMM('N','N',2*npack1,n,n,
-     >                (1.0d0),
-     >                psi_k(shift1),  2*npack1,
-     >                hml(shift2),    n,
-     >                (0.0d0),
-     >                THpsi_k(shift1),2*npack1)
-  30        continue
-      end do
-c     call Grsm_ggg_Sub(npack1,(ne(1)+ne(2)),
-c    >                  dcpl_mb(Hpsi_k(1)),
-c    >                  THpsi_k,
-c    >                  THpsi_k)
-c     call Grsm_gg_dScale(npack1,(ne(1)+ne(2)),
-c    >                    (-1.0d0),
-c    >                    THpsi_k,
-c    >                    THpsi_k)
+c      do ms=1,ispin
+c            n     = ne(ms)
+c            if (n.le.0) go to 30
+c            shift1 = 1 + (ms-1)*ne(1)*npack1
+c            shift2 = 1 + (ms-1)*ne(1)*ne(1)
+c            call DGEMM('N','N',2*npack1,n,n,
+c     >                (1.0d0),
+c     >                psi_k(shift1),  2*npack1,
+c     >                hml(shift2),    n,
+c     >                (0.0d0),
+c     >                THpsi_k(shift1),2*npack1)
+c  30        continue
+c      end do
+
+      call  DMatrix_fmf_Multiply(0,
+     >                           psi_k,npack1,
+     >                           hml,    1.0d0,
+     >                           THpsi_k,0.0d0)
+
       call daxpy(2*npack1*(neq(1)+neq(2)),
      >           (-1.0d0),
      >           dcpl_mb(Hpsi_k(1)),1,
@@ -1084,9 +1076,9 @@ c      end do
 c*     **** local variables ****
 c      integer ms,n,n1(2),shift
      
-      call DMatrix_ffm_Multiply(0,psi_k,
-     >                            dcpl_mb(Hpsi_k(1)),npack1,
-     >                            hml)
+      call Dneall_ffm_Multiply(0,psi_k,
+     >                           dcpl_mb(Hpsi_k(1)),npack1,
+     >                           hml)
 
 c      n1(1) = 1
 c      n1(2) = ne(1) + 1
@@ -1123,7 +1115,7 @@ c      end do
 c*     **** local variables ****
 c      integer ms,n,n1(2),shift
      
-      call DMatrix_ffm_Multiply(0,dcpl_mb(Hpsi_k(1)),
+      call Dneall_ffm_Multiply(0,dcpl_mb(Hpsi_k(1)),
      >                            psi_k,npack1,
      >                            hmlt)
 
@@ -1489,9 +1481,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 
       n1(1) = 1
-      n1(2) = ne(1) + 1
-      n2(1) = ne(1)
-      n2(2) = ne(1) + ne(2)
+      n1(2) = neq(1) + 1
+      n2(1) = neq(1)
+      n2(2) = neq(1) + neq(2)
 
       n2ft3d = 2*nfft3d
       scal2 = 1.0d0/lattice_omega()
@@ -1568,9 +1560,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 
       n1(1) = 1
-      n1(2) = ne(1) + 1
-      n2(1) = ne(1)
-      n2(2) = ne(1) + ne(2)
+      n1(2) = neq(1) + 1
+      n2(1) = neq(1)
+      n2(2) = neq(1) + neq(2)
 
       n2ft3d = 2*nfft3d
       scal2 = 1.0d0/lattice_omega()

@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.71 2006-08-21 20:24:13 bylaska Exp $
+* $Id: cgsdv5.F,v 1.72 2006-10-07 00:10:05 bylaska Exp $
 *
 
 ***********************************************************************
@@ -133,8 +133,8 @@
       external control_ks_alpha
       logical  control_print,control_qmmm,control_balance
       external control_print,control_qmmm,control_balance
-      integer  control_mapping,control_mapping1d
-      external control_mapping,control_mapping1d
+      integer  control_mapping,control_mapping1d,control_np_orbital
+      external control_mapping,control_mapping1d,control_np_orbital
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
@@ -156,12 +156,16 @@
       call Parallel_Init()
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-      call Parallel2d_np_i(np_i)
-      call Parallel2d_np_j(np_j)
 
       value = control_read(3,rtdb)
       if (.not. value) 
      > call errquit('error reading control',0, INPUT_ERR)
+
+      call Parallel2d_Init(control_np_orbital())
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+
+
 
       oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))

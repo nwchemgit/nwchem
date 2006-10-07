@@ -1,5 +1,5 @@
 *
-* $Id: ewald.F,v 1.7 2004-03-15 15:17:43 bylaska Exp $
+* $Id: ewald.F,v 1.8 2006-10-07 00:10:06 bylaska Exp $
 *
       integer function ewald_ncut()
       implicit none 
@@ -248,7 +248,7 @@ c           sum = sum + yerfc/ea
       pi     = 4.0d0*datan(1.0d0)
       fourpi = 4.0d0*pi
 
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       nxh=nx/2
@@ -407,8 +407,8 @@ c     real*8     tmp3(nfft3d*2)
       external ion_nion,ion_katm,ewald_nshl3d
       external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
 
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np)
+      call Parallel2d_taskid_i(taskid)
 
 *     **** allocate temp workspace ****
       call D3dB_nfft3d(1,nfft3d)
@@ -533,8 +533,8 @@ c     real*8     tmp3(nfft3d*2)
       real*8   lattice_omega,psp_zv,dsum,ion_rion,util_erfc
       external lattice_omega,psp_zv,dsum,ion_rion,util_erfc
 
-      call Parallel_np(np)
-      call Parallel_taskid(taskid)
+      call Parallel2d_np_i(np)
+      call Parallel2d_taskid_i(taskid)
       nion = ion_nion()
 
 *     **** allocate temp workspace ****

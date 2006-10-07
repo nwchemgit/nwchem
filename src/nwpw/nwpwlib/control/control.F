@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.88 2006-08-13 01:03:25 bylaska Exp $
+* $Id: control.F,v 1.89 2006-10-07 00:10:05 bylaska Exp $
 *
 
 *     ***********************************
@@ -56,6 +56,10 @@
 
       if (.not.rtdb_get(rtdb,'nwpw:mapping1d',mt_int,1,mapping1d)) then
          mapping1d = 1
+      end if
+
+      if(.not.rtdb_get(rtdb,'nwpw:np_orbital',mt_int,1,np_orbital)) then
+         np_orbital = 1
       end if
 
 *     **** get balance mapping ****
@@ -877,7 +881,7 @@ c      end if
       logical mult2
 
 *     **** local variables ****
-      integer n,nx,ntest
+      integer nx,ntest
       integer nf2,nf3,nf5,nf7
 
       integer  factor_count2
@@ -1040,7 +1044,6 @@ c      end if
       double precision work(lwork)
 
       integer ii,nion,ierr
-      integer rt(2),tt(2),qt(2),mt(2)
       double precision q,rxyz(3),mtensor(3,3),frac(3),L1,L2,L3
       double precision x,y,z,meig(3)
       character*16     t
@@ -2198,7 +2201,7 @@ c      end
 #include "inp.fh"
 #include "util.fh"
 
-      logical value,task_qmmm
+      logical value
       character*30 operation
 
       logical  control_qmmm
@@ -2751,6 +2754,19 @@ c      end
       end
 
 
+*     *****************************
+*     *                           *
+*     *    control_np_orbital     *
+*     *                           *
+*     *****************************
+      integer function control_np_orbital()
+      implicit none
+
+#include "control.fh"
+
+      control_np_orbital = np_orbital
+      return
+      end
 
 
 *     *****************************

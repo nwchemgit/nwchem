@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.43 2006-09-20 19:18:49 bylaska Exp $
+* $Id: cpsdv5.F,v 1.44 2006-10-07 00:10:06 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -41,7 +41,7 @@
 *     **** electronic variables ****
       real*8 icharge
       integer ispin
-      integer ne(2),n1(2),n2(2),nemax,neq(2)
+      integer ne(2),n1(2),n2(2),nemax,neq(2),nemaxq
       real*8  en(2)
       real*8  dipole(3)
 
@@ -75,7 +75,7 @@
       real*8  gx,gy,gz,cx,cy,cz,sum1,sum2
       real*8  EV,pi
       integer i,j,k,ia,n,nn
-      integer ii,jj,indx
+      integer ii,jj,indx,indx1
       integer icount,it_in,it_out
       real*8 w,sumall,virial
       integer nfft3
@@ -143,11 +143,14 @@
       external     psi_filefind
       real*8       nwpw_timing
       external     nwpw_timing
-      integer      control_mapping,control_mapping1d
-      external     control_mapping,control_mapping1d
+      integer      control_np_orbital,control_mapping,control_mapping1d
+      external     control_np_orbital,control_mapping,control_mapping1d
 
       logical  control_translation,control_rotation,control_balance
       external control_translation,control_rotation,control_balance
+
+      logical  Dneall_m_allocate,Dneall_m_free
+      external Dneall_m_allocate,Dneall_m_free
 
 
 *                            |************|
@@ -165,8 +168,7 @@
       call Parallel_Init()
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-      call Parallel2d_np_i(np_i)
-      call Parallel2d_np_j(np_j)
+      
 
       if (taskid.eq.MASTER) call current_second(cpu1)
 
@@ -192,6 +194,10 @@
       end if
       
       value = control_read(1,rtdb)
+      call Parallel2d_Init(control_np_orbital())
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
@@ -213,7 +219,7 @@
       call lattice_init()
       call G_init()
       call mask_init()
-      call Pack_init()
+      call Pack_Init()
       call Pack_npack(1,npack1)      
 
       call D3dB_pfft_init()
@@ -249,6 +255,7 @@
       mapping1d = control_mapping1d()
       call Dne_init(ispin,ne,mapping1d)
       call Dneall_neq(neq)
+      nemaxq = neq(1)+neq(2)
       
       value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
@@ -318,7 +325,6 @@
 
 *     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)))
-
       n1(1) = 1
       n2(1) = ne(1)
       n1(2) = ne(1)+1
@@ -345,10 +351,8 @@
 
 *     **** allocate other variables *****
       value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd',lmd(2),lmd(1))
+      value = value.and.Dneall_m_allocate(0,hml)
+      value = value.and.Dneall_m_allocate(0,lmd)
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,(4*nfft3d),
@@ -542,8 +546,8 @@
       icount = 0
    1  continue
          icount = icount + 1
-         call inner_loop(ispin,ne,
-     >             npack1,nfft3d,nemax,
+         call inner_loop(ispin,neq,
+     >             npack1,nfft3d,nemaxq,
      >             dcpl_mb(psi1(1)),dcpl_mb(psi2(1)),dbl_mb(dn(1)),
      >             it_in,E,deltae,deltac,deltar,
      >             dbl_mb(hml(1)),dbl_mb(lmd(1)),
@@ -609,11 +613,12 @@
                ii = i-n1(ms)
                do j=n1(ms),n2(ms)
                   jj = j-n1(ms)
-                  indx = (ii+1) + jj*n +(ms-1)*nn
+                  indx  = (ii+1)+jj*n      + (ms-1)*nn
+                  indx1 = (ii+1)+jj*ne(ms) + (ms-1)*nn
                   write(17,1340) ms,ii+1,jj+1,
-     >                           dbl_mb(hml(1)+indx-1),
+     >                           dbl_mb(hml(1)+indx1-1),
      >                           dbl_mb(lmd(1)+indx-1),
-     >             dbl_mb(hml(1)+indx-1)-dbl_mb(lmd(1)+indx-1)
+     >             dbl_mb(hml(1)+indx1-1)-dbl_mb(lmd(1)+indx-1)
                end do
             end do
          end do
@@ -646,66 +651,44 @@
 
 *     ***** do not diagonalize the hamiltonian matrix *****
       if (pspw_SIC()) then
-        call dcopy(2*npack1*nemax,
+        call dcopy(2*npack1*nemaxq,
      >             dcpl_mb(psi1(1)),1,
      >             dcpl_mb(psi2(1)),1)
 
 *     ***** diagonalize the hamiltonian matrix ****
       else
-      n = ne(1)
-      nn = n*n
-      call dcopy(2*nemax,0.0d0,0,dbl_mb(eig(1)),1)
-      do ms=1,ispin
-c        call eigen(n,ne(ms),
-c    >              dbl_mb(hml(1)+(ms-1)*nn),
-c    >              dbl_mb(eig(1)+(ms-1)*n),
-c    >              dbl_mb(lmd(1)),ierr)
-         if (fractional) then
-         do jj=1,ne(ms)
-         do ii=1,ne(ms)
-           dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
-     >     =dbl_mb(hml(1)+(ii-1)+(jj-1)*n+(ms-1)*nn)
-     >     *dbl_mb(fweight(1)+(jj-1)+(ms-1)*n)
-         end do
-         end do
-         end if
-         call DSYEV('V','U',ne(ms),
-     >              dbl_mb(hml(1)+(ms-1)*nn),n, 
-     >              dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(lmd(1)),(2*nemax*nemax),
-     >              ierr)
-        call eigsrt(dbl_mb(eig(1)+(ms-1)*n),
-     >              dbl_mb(hml(1)+(ms-1)*nn),
-     >              ne(ms),n)
+        n = ne(1)
+        nn = n*n
 
         if (fractional) then
-        do ii=1,ne(ms)
-           dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
-     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
-        end do
+          do ms=1,ispin
+          do jj=1,ne(ms)
+          do ii=1,ne(ms)
+             dbl_mb(hml(1)+(ii-1)+(jj-1)*ne(ms)+(ms-1)*nn)
+     >       =dbl_mb(hml(1)+(ii-1)+(jj-1)*ne(ms)+(ms-1)*nn)
+     >       *dbl_mb(fweight(1)+(jj-1)+(ms-1)*n)
+          end do
+          end do
+          end do
         end if
 
-      end do
+        call DMatrix_m_diagonalize(0,dbl_mb(hml(1)),
+     >                              dbl_mb(eig(1)),.false.)
 
-      call dcopy(2*npack1*nemax,0.0d0,0,dcpl_mb(psi2(1)),1)
-      do ms=1,ispin
-         do j=n1(ms),n2(ms)
-            jj = j-n1(ms)
-            do i=n1(ms),n2(ms)
-               ii = i-n1(ms)
-               indx = (ii+1) + jj*n + (ms-1)*nn
-             
-               call Pack_cc_daxpy(1,dbl_mb(hml(1)+indx-1),
-     >                            dcpl_mb(psi1(1)+(i-1)*npack1),
-     >                            dcpl_mb(psi2(1)+(j-1)*npack1))
-            end do
-         end do
-      end do
+        if (fractional) then
+          do ms=1,ispin
+          do ii=1,ne(ms)
+            dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >       =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
+     >       /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
+          end do
+          end do
+        end if
+
+        call DMatrix_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+     >                            dbl_mb(hml(1)),  1.0d0,
+     >                            dcpl_mb(psi2(1)),0.0d0)
       end if
-
-
-
 
 *                |***************************|
 ****************** report summary of results **********************
@@ -887,8 +870,8 @@ c    >              dbl_mb(lmd(1)),ierr)
       value = MA_free_heap(Hpsi(2))
       value = MA_free_heap(dn(2))
       value = MA_free_heap(eig(2))
-      value = MA_free_heap(hml(2))
-      value = MA_free_heap(lmd(2))
+      value = Dneall_m_free(hml)
+      value = Dneall_m_free(lmd)
       value = MA_free_heap(psi1(2))
       value = MA_free_heap(psi2(2))
       call D3dB_pfft_end()

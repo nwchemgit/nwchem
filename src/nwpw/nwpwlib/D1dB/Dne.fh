@@ -1,9 +1,26 @@
 *
-* $Id: Dne.fh,v 1.1 2006-08-13 01:03:24 bylaska Exp $
+* $Id: Dne.fh,v 1.2 2006-10-07 00:10:04 bylaska Exp $
 *
 
       integer ne(2),neq(2),ispin
       common    / Dne / ne,neq,ispin
 
 
+      logical parallelized
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+      integer ma(2,NBLOCKS),ma1(2,NBLOCKS),na(2,NBLOCKS)
+      integer mc(2,NBLOCKS),nc(2,NBLOCKS)
+      integer mcq(NBLOCKS),ncq(NBLOCKS)
+      integer work1(2),work2(2)
+      integer npack1_all,nida1_all
+      common    / Dne_sub / ma,ma1,na,mc,nc,
+     >                      mcq,ncq,
+     >                      work1,work2,
+     >                      taskid_i,taskid_j,
+     >                      np_i,np_j,
+     >                      comm_i,comm_j,
+     >                      npack1_all,nida1_all,
+     >                      parallelized
 

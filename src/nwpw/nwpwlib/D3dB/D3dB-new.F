@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.47 2006-08-21 20:24:13 bylaska Exp $
+* $Id: D3dB-new.F,v 1.48 2006-10-07 00:10:04 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -2603,9 +2603,10 @@ c      end
          fillcolumn = (taskid_j.eq.jcol)
       end if
 
+
       if (mapping.eq.1) then
-*     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+*        **** master node reads from file and distributes ****
+         if (taskid.eq.MASTER) then
          do k=1,nz(nb)
 
             call dread(iunit,tmp,(nx(nb)/2+1)*ny(nb))
@@ -2624,8 +2625,8 @@ c      end
             end do
          end do
 
-*     **** not master node ****
-      else if (fillcolumn) then
+*        **** not master node ****
+         else if (fillcolumn) then
 
          do k=1,nz(nb)
             call D3dB_ktoqp(nb,k,q,ii)
@@ -2644,7 +2645,7 @@ c      end
                
             end if
          end do
-      end if
+         end if
 
 
       !*************************
@@ -2711,13 +2712,14 @@ c      end
      >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
 
 *     **** deallocate temporary space  ****
-      value = MA_pop_stack(tmp2(2))
+      value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
 
 
       end if
+
 *     **** wait ****
       call ga_sync()
       return
@@ -4153,7 +4155,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -4189,7 +4191,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !**** hilbert mapping ****
       !*************************
       else
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 *     ***** kx!=0 plane, so double count *****
       do index=1,nfft3d_map(nb)
             sum = sum + dble(A(index))  * dble(B(index))
@@ -4245,7 +4247,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+c      call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -4282,7 +4284,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !**** hilbert mapping ****
       !*************************
       else
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 *     ***** kx!=0 plane, so double count *****
       do index=1,nfft3d_map(nb)
             sum = sum + dble(A(index))  * dble(B(index))
@@ -4332,7 +4334,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8  sum
 
       nxh=nx(nb)/2
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -4366,7 +4368,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !**** hilbert mapping ****
       !*************************
       else
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 *     ***** kx!=0 plane, so double count *****
       do index=1,nfft3d_map(nb)
             sum = sum + A(index)*B(index)
@@ -4420,7 +4422,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       call nwpw_timing_start(2)
 
       nxh=nx(nb)/2
-      call Parallel_np(np)
+c      call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -4455,7 +4457,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !**** hilbert mapping ****
       !*************************
       else
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 *     ***** kx!=0 plane, so double count *****
       do index=1,nfft3d_map(nb)
             sum = sum + A(index)*B(index)
@@ -4508,7 +4510,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       integer i,np
       real*8  sum
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -4543,7 +4545,6 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       integer i,np
       real*8  sum
 
-      call Parallel_np(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -5003,7 +5004,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       !**** hilbert mapping ****
       else
-        call Parallel_taskid(taskid)
+        call Parallel2d_taskid_i(taskid)
         do k=1,nz(nb)
         do j=1,ny(nb)
 
@@ -5038,7 +5039,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       integer i,np
       real*8 sum
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -5074,7 +5075,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       real*8 sum
 
       nxh = nx(nb)/2
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
 *     **** sum up dot product on this node ****
       sum = 0.0d0
@@ -5107,7 +5108,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !**** hilbert mapping ****
       !*************************
       else
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 *     ***** kx!=0 plane, so double count *****
       do index=1,nfft3d_map(nb)
             sum = sum + A(index)
@@ -5166,7 +5167,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       !**********************
       !**** slab mapping ****
@@ -5218,7 +5219,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !**** hilbert mapping ****
       !*************************
       else
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 *     **** sum up dot product on this node ****
       do n=1,ne
       do m=n,ne
@@ -5296,7 +5297,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
 
       call nwpw_timing_start(2)
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
 
       !**********************
       !**** slab mapping ****
@@ -5344,7 +5345,7 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       !**** hilbert mapping ****
       !*************************
       else
-      call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid)
 *     **** sum up dot product on this node ****
       do n=1,ne
 

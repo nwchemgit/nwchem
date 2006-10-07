@@ -1,8 +1,13 @@
 *
-* $Id: Grassman.F,v 1.16 2005-07-12 21:26:33 bylaska Exp $
+* $Id: Grassman.F,v 1.17 2006-10-07 00:10:07 bylaska Exp $
 *
 
 * $Log: not supported by cvs2svn $
+* Revision 1.16  2005/07/12 21:26:33  bylaska
+* Intitial implementation of pipelined parallel FFT implemented.
+*
+* ....EJB
+*
 * Revision 1.15  2005/06/24 19:24:18  bylaska
 * various FFT updates, and symmetry point paths added to band_structure...EJB
 *
@@ -716,7 +721,7 @@ c       call D3dB_cc_idot(1,A(1,j),B(1,k),sum)
       external ddot
 
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
       MM = 0.0d0
       do j=1,n
 c        call Pack_cc_idot(1,A(1,j),B(1,j),sum)
@@ -725,7 +730,7 @@ c        MM = MM + sum
      >     + ddot(2*nida(1),A(1,j),1,B(1,j),1)
      >     + 2*ddot(2*nidb(1),A(nida(1)+1,j),1,B(nida(1)+1,j),1)
       end do
-      if (np.gt.1) call D3dB_Sumall(MM)
+      if (np.gt.1) call D3dB_SumAll(MM)
 
       return
       end
@@ -775,7 +780,7 @@ c        MM = MM + sum
       integer i,j,np
       real*8  sum
 
-      call Parallel_np(np)
+      call Parallel2d_np_i(np)
       do j=1,n
          do i=1,n
 c            call D3dB_cc_idot(1,Y(1,i),Z(1,j),sum)

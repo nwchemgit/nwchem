@@ -1,5 +1,5 @@
 *
-* $Id: semicore.F,v 1.8 2005-09-07 23:55:05 bylaska Exp $
+* $Id: semicore.F,v 1.9 2006-10-07 00:10:07 bylaska Exp $
 *
 
 #define TCGMSG
@@ -303,6 +303,7 @@ c     logical semicore(0:nkatmx)
       external ion_nkatm
       external lattice_omega
 
+
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
       call D3dB_nz(1,nz)
@@ -312,7 +313,6 @@ c     logical semicore(0:nkatmx)
       call Pack_npack(0,npack0)
       call D3dB_nfft3d(1,nfft3d)
 
-      
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) 
      >  call errquit('semicore_check:out of stack memory',0, MA_ERR)
@@ -328,8 +328,7 @@ c     logical semicore(0:nkatmx)
      >          = dcmplx(dbl_mb(ncore(1)+(ia-1)*npack0*5+k-1),0.0d0)
            end do
            call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
-           
-
+      
 *          **** Put put tmp into real space ****
            call Pack_c_unpack(0,dcpl_mb(tmp(1)))
            call D3dB_cr_fft3b(1,dcpl_mb(tmp(1)))
