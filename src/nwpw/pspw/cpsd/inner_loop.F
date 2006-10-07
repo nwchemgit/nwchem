@@ -1,5 +1,5 @@
 *,eke
-* $Id: inner_loop.F,v 1.21 2006-10-07 00:10:06 bylaska Exp $
+* $Id: inner_loop.F,v 1.22 2006-10-07 00:34:16 bylaska Exp $
 *
 
 *  ************************************************************
@@ -621,9 +621,11 @@ c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
       do n=n1(1),n2(ispin)
          call Pack_cc_idot(1,Hpsi(1,n),Hpsi(1,n),dbl_mb(sumi(1)+n-1))
       end do
+     
       if (np_i.gt.1) 
-     >     call D3dB_Vector_SumAll((n2(ispin)-n1(1)),
+     >     call D3dB_Vector_SumAll((n2(ispin)-n1(1)+1),
      >                             dbl_mb(sumi(1)))
+
       deltac = 0.0d0
       do n=n1(1),n2(ispin)
          if (dbl_mb(sumi(1)+n-1).gt.deltac) deltac=dbl_mb(sumi(1)+n-1)
