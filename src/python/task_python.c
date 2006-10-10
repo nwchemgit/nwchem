@@ -1,5 +1,5 @@
 /*
- $Id: task_python.c,v 1.10 2002-04-19 21:04:07 windus Exp $
+ $Id: task_python.c,v 1.11 2006-10-10 23:47:45 d3p307 Exp $
 */
 #include "macdecls.h"
 #include "global.h"
@@ -65,15 +65,16 @@ int FATR task_python_(Integer *rtdb_ptr)
       a file pointer to Python which requires that it is compiled with
       a compatible compiler ... which it most likely is not */
  
-   /*
+#if defined(WIN32)
+   ret = PyRun_SimpleString("execfile('nwchem.py')"); 
+#else
    if (!(F = fopen(filename, "r"))) {
        fprintf(stderr,"task_python: cannot open file %s\n",filename); 
        return 0;
    }
-   
-   ret = PyRun_SimpleFile(F, filename); */
+   ret = PyRun_SimpleFile(F, filename); 
+#endif
 
-   ret = PyRun_SimpleString("execfile('nwchem.py')"); 
 
    /*fclose(F);*/
    /*   unlink(filename); */
