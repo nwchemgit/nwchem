@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.3 2006-10-07 00:10:04 bylaska Exp $
+* $Id: Dne.F,v 1.4 2006-10-13 01:43:57 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -431,11 +431,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_fmf_Multiply          *
+c     *        Dneall_fmf_Multiply          *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_fmf_Multiply(mb,Ain,npack1,hml,alpha,Aout,beta)
+      subroutine Dneall_fmf_Multiply(mb,Ain,npack1,hml,alpha,Aout,beta)
       implicit none
       integer    mb
       complex*16 Ain(*)
@@ -518,11 +518,11 @@ c      call Pack_npack(1,npack1)
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_ffm_sym_Multiply      *
+c     *        Dneall_ffm_sym_Multiply      *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_ffm_sym_Multiply(mb,A1,A2,npack1,hml)
+      subroutine Dneall_ffm_sym_Multiply(mb,A1,A2,npack1,hml)
       implicit none
       integer    mb
       complex*16 A1(*),A2(*)
@@ -720,11 +720,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_m_diagonalize         *
+c     *        Dneall_m_diagonalize         *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_m_diagonalize(mb,hml,eig,assending)
+      subroutine Dneall_m_diagonalize(mb,hml,eig,assending)
       implicit none
       integer    mb
       real*8     hml(*),eig(*)
@@ -763,7 +763,7 @@ c     ****************************************
          value = value.and.
      >           MA_push_get(mt_dbl,ne(1),'ework',ework(2),ework(1))
          if (.not. value) 
-     >      call errquit('DMatrix_m_diagonalize:out of stack',
+     >      call errquit('Dneall_m_diagonalize:out of stack',
      >                    0,MA_ERR)
          do ms=ms1,ms2
             shift1 = 1+(ms-1)*ishift1
@@ -817,7 +817,7 @@ c     ****************************************
          value = value.and.MA_pop_stack(VV(2))
          value = value.and.MA_pop_stack(V(2))
          if (.not. value) 
-     >    call errquit('error popping stack in DMatrix_m_diagonalize',
+     >    call errquit('error popping stack in Dneall_m_diagonalize',
      >                 0,MA_ERR)
 
       else
@@ -838,7 +838,7 @@ c     ****************************************
          value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),
      >                       'tmp1',tmp1(2),tmp1(1))
          if (.not. value) 
-     >      call errquit('DMatrix_m_diagonalize:out of stack',
+     >      call errquit('Dneall_m_diagonalize:out of stack',
      >                    1,MA_ERR)
 
 *        ***** diagonalize the matrix *****
@@ -863,7 +863,7 @@ c     ****************************************
 
          value = MA_pop_stack(tmp1(2))
          if (.not. value) 
-     >    call errquit('error popping stack in DMatrix_m_diagonalize',
+     >    call errquit('error popping stack in Dneall_m_diagonalize',
      >                 0,MA_ERR)
 
       end if
@@ -876,11 +876,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_f_SVD                 *
+c     *        Dneall_f_SVD                 *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_f_SVD(mb,A,U,npack1,S,V)
+      subroutine Dneall_f_SVD(mb,A,U,npack1,S,V)
       implicit none
       integer    mb
       complex*16 A(*),U(*)
@@ -906,16 +906,16 @@ c     ****************************************
       end if
 
 *     **** generate V and Sigma^2 ****
-      call Dmatrix_ffm_sym_Multiply(mb,A,A,npack1,V)
-      call Dmatrix_m_diagonalize(mb,V,S,.false.)
+      call Dneall_ffm_sym_Multiply(mb,A,A,npack1,V)
+      call Dneall_m_diagonalize(mb,V,S,.false.)
 
 *     **** generate U*Sigma ****
-      call Dmatrix_fmf_Multiply(mb,A,npack1,V,1.0d0,U,0.0d0)
+      call Dneall_fmf_Multiply(mb,A,npack1,V,1.0d0,U,0.0d0)
 
       
 *     **** normalize U*sigma ****
       if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
-     >   call errquit('DMatrix_f_SVD:out of stack memory',0,MA_ERR)
+     >   call errquit('Dneall_f_SVD:out of stack memory',0,MA_ERR)
 
       do ms=ms1,ms2
          if (neq(ms).le.0) go to 30
@@ -940,7 +940,7 @@ c     ****************************************
       end do
 
       if (.not.MA_pop_stack(tmp2(2))) 
-     >  call errquit('DMatrix_f_SVD: popping stack memory',0,MA_ERR)
+     >  call errquit('Dneall_f_SVD: popping stack memory',0,MA_ERR)
 
 
 *     **** calculated sqrt(S^2) ****
@@ -1404,11 +1404,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_mmm_Multiply          *
+c     *        Dneall_mmm_Multiply          *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_mmm_Multiply(mb,A,B,alpha,C,beta)
+      subroutine Dneall_mmm_Multiply(mb,A,B,alpha,C,beta)
       implicit none
       integer mb
       real*8 A(*),B(*),C(*)
@@ -1490,11 +1490,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *           DMatrix_m_trace            *
+c     *           Dneall_m_trace            *
 c     *                                      *
 c     ****************************************
 
-      double precision function DMatrix_m_trace(mb,M)
+      double precision function Dneall_m_trace(mb,M)
       implicit none
       integer mb
       real*8  M(*)
@@ -1556,18 +1556,18 @@ c     ****************************************
          end do
       end if
 
-      DMatrix_m_trace = sum
+      Dneall_m_trace = sum
       return
       end
 
 
 c     ****************************************
 c     *                                      *
-c     *           DMatrix_m_scal             *
+c     *           Dneall_m_scal             *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_m_scal(mb,alpha,M)
+      subroutine Dneall_m_scal(mb,alpha,M)
       implicit none
       integer mb
       real*8  alpha
@@ -1600,11 +1600,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *           DMatrix_m_diag_scal        *
+c     *           Dneall_m_diag_scal        *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_m_diag_scal(mb,diag,M)
+      subroutine Dneall_m_diag_scal(mb,diag,M)
       implicit none
       integer mb
       real*8  diag(*)
@@ -1616,7 +1616,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
 
       if (parallelized) then
-         call errquit('DMatrix_m_diag_scal not finished',0,0)
+         call errquit('Dneall_m_diag_scal not finished',0,0)
       else
          if (mb.eq.0) then
             ms1 = 1
@@ -1650,11 +1650,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_m_diag_scal_inv       *
+c     *        Dneall_m_diag_scal_inv       *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_m_diag_scal_inv(mb,diag,M)
+      subroutine Dneall_m_diag_scal_inv(mb,diag,M)
       implicit none
       integer mb
       real*8  diag(*)
@@ -1666,7 +1666,7 @@ c     ****************************************
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
 
       if (parallelized) then
-         call errquit('DMatrix_m_diag_scal_inv not finished',0,0)
+         call errquit('Dneall_m_diag_scal_inv not finished',0,0)
       else
          if (mb.eq.0) then
             ms1 = 1
@@ -1703,11 +1703,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_m_scale_s22           *
+c     *        Dneall_m_scale_s22           *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_m_scale_s22(mb,dte,s22)
+      subroutine Dneall_m_scale_s22(mb,dte,s22)
       implicit none
       integer mb
       real*8 dte
@@ -1777,11 +1777,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_m_scale_s21           *
+c     *        Dneall_m_scale_s21           *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_m_scale_s21(mb,dte,s21)
+      subroutine Dneall_m_scale_s21(mb,dte,s21)
       implicit none
       integer mb
       real*8 dte
@@ -1850,11 +1850,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_m_scale_s11           *
+c     *        Dneall_m_scale_s11           *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_m_scale_s11(mb,dte,s11)
+      subroutine Dneall_m_scale_s11(mb,dte,s11)
       implicit none
       integer mb
       real*8 dte
@@ -1921,11 +1921,11 @@ c     ****************************************
       end
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_m_dmax                 *
+c     *        Dneall_m_dmax                 *
 c     *                                      *
 c     ****************************************
 
-      double precision function DMatrix_m_dmax(mb,A)
+      double precision function Dneall_m_dmax(mb,A)
       implicit none
       integer mb
       real*8 A(*)
@@ -1989,7 +1989,7 @@ c     ****************************************
          end do
       end if
 
-      DMatrix_m_dmax = adiff1
+      Dneall_m_dmax = adiff1
       return
       end
 
@@ -1998,11 +1998,11 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        DMatrix_mm_Expand             *
+c     *        Dneall_mm_Expand             *
 c     *                                      *
 c     ****************************************
 
-      subroutine DMatrix_mm_Expand(mb,A,A0)
+      subroutine Dneall_mm_Expand(mb,A,A0)
       implicit none
       integer mb
       real*8 A(*),A0(*)

@@ -1,5 +1,5 @@
 c
-c     $Id: bfgsminimize.F,v 1.22 2006-10-07 00:10:05 bylaska Exp $                       
+c     $Id: bfgsminimize.F,v 1.23 2006-10-13 01:43:58 bylaska Exp $                       
 c
 
 *  ************************************************************
@@ -145,7 +145,6 @@ c     dte = 1.0d0
          call psi_1get_TMgradient(dcpl_mb(G0(1)),E0)
       else
          call psi_1get_Tgradient(dcpl_mb(G0(1)),E0)
-         write(*,*) "E0=",E0,tmin
       end if
 
       if (current_iteration.eq.1) then
@@ -252,7 +251,6 @@ c        call dng_2to1()
 
 *     **** initialize the geoedesic line data structure ****
       call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
-      write(*,*) "sigma,dE0=",max_sigma,dE0
 
 *     ******* line search *********
       if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then

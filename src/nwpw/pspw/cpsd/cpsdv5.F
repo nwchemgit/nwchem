@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.44 2006-10-07 00:10:06 bylaska Exp $
+* $Id: cpsdv5.F,v 1.45 2006-10-13 01:43:58 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -672,7 +672,7 @@
           end do
         end if
 
-        call DMatrix_m_diagonalize(0,dbl_mb(hml(1)),
+        call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
      >                              dbl_mb(eig(1)),.false.)
 
         if (fractional) then
@@ -685,7 +685,7 @@
           end do
         end if
 
-        call DMatrix_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+        call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
      >                            dbl_mb(hml(1)),  1.0d0,
      >                            dcpl_mb(psi2(1)),0.0d0)
       end if

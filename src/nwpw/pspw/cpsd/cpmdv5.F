@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.53 2006-08-13 01:03:26 bylaska Exp $
+* $Id: cpmdv5.F,v 1.54 2006-10-13 01:43:58 bylaska Exp $
 *
 
 ***********************************************************************
@@ -35,7 +35,7 @@ c      parameter (autoatm =290.360032539d6)
 
       
 *     **** parallel variables ****
-      integer  taskid,np
+      integer  taskid,np,np_i,np_j
       integer  MASTER
       parameter(MASTER=0)
 
@@ -50,7 +50,7 @@ c      parameter (autoatm =290.360032539d6)
 *     **** electronic variables ****
       real*8 icharge
       integer ispin
-      integer ne(2),n1(2),n2(2),nemax,neall
+      integer ne(2),n1(2),n2(2),nemax,neall,neq(2),nemaxq
       real*8  en(2)
       real*8 dipole(3)
 
@@ -92,7 +92,7 @@ c      parameter (autoatm =290.360032539d6)
       integer icount,it_in,it_out,icount_shift
       real*8 w,sumall,pressure,stress(3,3),p1,p2
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
-      integer nfft3,mapping
+      integer nfft3,mapping,mapping1d
       parameter (nfft3=32)
       character*30 filename
       character*255 full_filename
@@ -169,12 +169,17 @@ c      parameter (autoatm =290.360032539d6)
       real*8   control_SA_decay
       external control_SA,control_Fei,pspw_SIC,pspw_HFX,control_pressure
       external control_SA_decay
-      integer  control_mapping
-      external control_mapping
+
+      integer  control_np_orbital,control_mapping,control_mapping1d
+      external control_np_orbital,control_mapping,control_mapping1d
+
 
       logical  control_translation,control_rotation,control_balance
       external control_translation,control_rotation,control_balance
      
+      logical  Dneall_m_allocate,Dneall_m_free
+      external Dneall_m_allocate,Dneall_m_free
+
 
 
 
@@ -218,6 +223,10 @@ c      parameter (autoatm =290.360032539d6)
       end if
       
       value = control_read(2,rtdb)
+      call Parallel2d_Init(control_np_orbital())
+      call Parallel2d_np_i(np_i)
+      call Parallel2d_np_j(np_j)
+
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
@@ -245,13 +254,19 @@ c      parameter (autoatm =290.360032539d6)
 
 *     ***** allocate psi2, psi1, and psi0 wavefunctions ****
       call psi_get_ne(ispin,ne)
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      mapping1d = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+      call Dneall_neq(neq)
+      nemaxq = neq(1)+neq(2)
+
+
+      value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'psi0',psi0(2),psi0(1))
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -281,19 +296,17 @@ c      parameter (autoatm =290.360032539d6)
 
 *     **** allocate other variables *****
       value = MA_alloc_get(mt_dbl,(2*nemax),'eig',eig(2),eig(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'lmd',lmd(2),lmd(1))
+      value = value.and.Dneall_m_allocate(0,hml)
+      value = value.and.Dneall_m_allocate(0,lmd)
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,(4*nfft3d),
      >                     'dn',dn(2),dn(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
      >                     'Hpsi',Hpsi(2),Hpsi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,nfft3d*(neq(1)+neq(2)),
      >                     'psir',psir(2),psir(1))
       if (.not.value) call errquit('out of heap memory',0, MA_ERR)
 
@@ -322,13 +335,13 @@ c      parameter (autoatm =290.360032539d6)
 *     ******************************
 *     **** scaling psi velocity ****
 *     ******************************
-      call dcopy(2*(ne(1)+ne(2))*npack1,dcpl_mb(psi1(1)),1,
+      call dcopy(2*(neq(1)+neq(2))*npack1,dcpl_mb(psi1(1)),1,
      >                                  dcpl_mb(psi0(1)),1)
-      call dscal(2*(ne(1)+ne(2))*npack1,control_rte(),
+      call dscal(2*(neq(1)+neq(2))*npack1,control_rte(),
      >           dcpl_mb(psi1(1)),1)
       eke0 = 0.0d0
       eke1 = 0.0d0
-      do i=1,(ne(1)+ne(2))
+      do i=1,(neq(1)+neq(2))
          call Pack_cc_dot(1,dcpl_mb(psi0(1)+(i-1)*npack1),
      >                      dcpl_mb(psi0(1)+(i-1)*npack1),
      >                     sum)
@@ -338,13 +351,15 @@ c      parameter (autoatm =290.360032539d6)
      >                    sum)
          eke1 = eke1 + sum
       end do
+      call D1dB_SumAll(eke0)
+      call D1dB_SumAll(eke1)
       eke0 = control_fake_mass()*eke0
       eke1 = control_fake_mass()*eke1
       call ion_init_ke(ekg,eki0,eki1)
 
 *     **** Initialize thermostats ****
       if (control_Nose()) then
-         call ke_ave(ispin,ne,dcpl_mb(psi2(1)),w)
+         call ke_ave(ispin,neq,dcpl_mb(psi2(1)),w)
          call Nose_Init((ne(1)+ne(2)),w)
       end if
 
@@ -413,6 +428,7 @@ c      parameter (autoatm =290.360032539d6)
 
       if (taskid.eq.MASTER) then
          write(6,1111) np
+         write(6,1117) np_i,np_j
          if (mapping.eq.1) write(6,1112)
          if (mapping.eq.2) write(6,1113)
          if (control_balance()) then
@@ -514,10 +530,13 @@ c      parameter (autoatm =290.360032539d6)
 
          if (fractional) then
            write(6,1219) en(1),en(ispin),' (   fractional)'
-           write(6,1221) ne(1),ne(ispin),' (fourier space)'
+           write(6,1221) ne(1),neq(1),
+     >                   ne(ispin),neq(ispin),' (fourier space)'
          else
-           write(6,1220) ne(1),ne(ispin),' (fourier space)'
-           write(6,1221) ne(1),ne(ispin),' (fourier space)'
+           write(6,1220) ne(1),neq(1),
+     >                   ne(ispin),neq(ispin),' (fourier space)'
+           write(6,1221) ne(1),neq(1),
+     >                   ne(ispin),neq(ispin),' (fourier space)'
          end if
          write(6,1230)
          write(6,1241) lattice_unita(1,1),
@@ -664,8 +683,8 @@ c      parameter (autoatm =290.360032539d6)
 
 *     ***** first step using velocity ****
       verlet = .false.
-      call inner_loop_md(verlet,sa_alpha,ispin,ne,
-     >             npack1,nfft3d,nemax,
+      call inner_loop_md(verlet,sa_alpha,ispin,neq,
+     >             npack1,nfft3d,nemaxq,
      >             dcpl_mb(psi0(1)),
      >             dcpl_mb(psi1(1)),
      >             dcpl_mb(psi2(1)),
@@ -697,8 +716,8 @@ c      parameter (autoatm =290.360032539d6)
       Tr_new = Tr_init
   101 continue
          icount = icount + 1
-         call inner_loop_md(verlet,sa_alpha,ispin,ne,
-     >             npack1,nfft3d,nemax,
+         call inner_loop_md(verlet,sa_alpha,ispin,neq,
+     >             npack1,nfft3d,nemaxq,
      >             dcpl_mb(psi0(1)),
      >             dcpl_mb(psi1(1)),
      >             dcpl_mb(psi2(1)),
@@ -1256,6 +1275,7 @@ c    >              dbl_mb(lmd(1)),ierr)
  1114 FORMAT( ' parallel mapping         : balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
+ 1117 FORMAT( ' processor grid           :',I4,' x',I4)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
@@ -1281,8 +1301,16 @@ c    >              dbl_mb(lmd(1)),ierr)
  1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
  1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
  1219 FORMAT(/' number of electrons: spin up=',F6.2,'  down=',F6.2,A)
- 1220 FORMAT(/' number of electrons: spin up=',I6,  '  down=',I6,A)
- 1221 FORMAT( ' number of orbitals : spin up=',I6,  '  down=',I6,A)
+ 1220 FORMAT(/' number of electrons: spin up=',I6,
+     >        ' (',I4,' per task)',
+     >        '  down=',I6,
+     >        ' (',I4,' per task)',
+     >        A)
+ 1221 FORMAT( ' number of orbitals : spin up=',I6,
+     >        ' (',I4,' per task)',
+     >        '  down=',I6,
+     >        ' (',I4,' per task)',
+     >        A)
  1222 format(5x,' initial kinetic energy: ',e12.5,' (psi)', 2x,
      >                                      e12.5,' (ion)',/50x,
      >                                      e12.5,' (c.o.m.)')

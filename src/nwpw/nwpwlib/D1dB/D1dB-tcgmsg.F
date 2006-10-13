@@ -64,6 +64,39 @@ c     implicit none
 
 
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         D1dB_MaxAll             *
+*     *                                 *
+*     ***********************************
+      subroutine D1dB_MaxAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "D1dB.fh"
+
+      integer msglen,mpierr,np
+      real*8  sumall
+
+*     **** external functions ****
+      integer  Parallel2d_comm_j
+      external Parallel2d_comm_j
+
+      if (np_j.gt.1) then
+         call GA_PGROUP_DGOP(Parallel2d_comm_j(),
+     >                       9+MSGDBL,sum,1,'max')
+      end if
+
+
+      return
+      end
+
+
+
 *     ***********************************
 *     *					*
 *     *	        D1dB_Vector_SumAll	*	

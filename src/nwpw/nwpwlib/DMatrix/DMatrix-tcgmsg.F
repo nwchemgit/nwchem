@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-tcgmsg.F,v 1.1 2006-10-07 00:10:05 bylaska Exp $
+* $Id: DMatrix-tcgmsg.F,v 1.2 2006-10-13 01:43:57 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -12,49 +12,6 @@
 *     *								*
 *     ***********************************************************
 c
-c
-c
-c
-
-c     ****************************************
-c     *                                      *
-c     *        DMatrix_block_mapping         *
-c     *                                      *
-c     ****************************************
-
-c     Defines a SUMMA block mapping of an n1xn2 matrix.
-c
-      subroutine DMatrix_block_mapping(n1,n2,
-     >                                 np_i,np_j,
-     >                                 block_i,block_j)
-      implicit none
-      integer n1,n2
-      integer np_i,np_j
-      integer block_i(0:np_i-1),block_j(0:np_j-1)
-
-*     **** local variables ****
-      integer i,j,k
-      
-*     *** determine block mapping ****
-      call icopy(np_i,0,1,block_i,1)
-      call icopy(np_j,0,1,block_j,1)
-
-      i = 0
-      do k=1,n1
-        block_i(i) = block_i(i) + 1
-        i = mod(i+1,np_i)
-      end do
-      j = 0
-      do k=1,n2
-        block_j(j) = block_i(j) + 1
-        j = mod(j+1,np_j)
-      end do
-
-      return
-      end
- 
-
-
       subroutine DMatrix_dgemm1(m,n,k,nblock,
      >                  alpha,
      >                  A,lda,ma,na,
@@ -393,132 +350,6 @@ c        **** add to current rows of C ****
       return
       end
 
-
-      subroutine DMatrix_tredq(n,
-     >                 A,Q,lda,ma,na,
-     >                 taskid_i,taskid_j,
-     >                 np_i,np_j,
-     >                 comm_i, comm_j,
-     >                 work1,work2,
-     >                 Q1,V1)
-      implicit none
-      integer n
-
-
-      integer lda,ma(*),na(*)
-      real*8  A(lda,*),Q(lda,*)
-
-      integer taskid_i,taskid_j
-      integer np_i,np_j
-      integer comm_i,comm_j
-
-      real*8  work1(*),work2(*)
-      real*8  Q1(*),V1(*)
-
-*     **** local variables ****
-      integer k
-
-
-      call DMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
-      do k = 1,n-2
-
-         call DMatrix_houseq(k,n,A,V1,Q1,lda,ma,na,
-     >            taskid_i,taskid_j,np_i,np_j,comm_i,comm_j,
-     >            work1,work2)
-
-*        **** A = Q1*A*Q1 ****
-         call DMatrix_dgemm1(n,n,n,64,
-     >             1.0d0,
-     >             Q1,lda, ma,na,
-     >             A, lda, ma,na,
-     >             0.0d0,
-     >             V1,lda, ma,na,
-     >             taskid_i,taskid_j,
-     >             np_i,np_j,
-     >             comm_i, comm_j,
-     >             work1,work2)
-         call DMatrix_dgemm1(n,n,n,64,
-     >             1.0d0,
-     >             V1,lda, ma,na,
-     >             Q1,lda, ma,na,
-     >             0.0d0,
-     >             A, lda, ma,na,
-     >             taskid_i,taskid_j,
-     >             np_i,np_j,
-     >             comm_i, comm_j,
-     >             work1,work2)
-
-*        **** Q = Q*Q1 ****
-        call dcopy(ma(taskid_i+1)*na(taskid_j+1),Q,1,V1,1)
-         call DMatrix_dgemm1(n,n,n,64,
-     >             1.0d0,
-     >             V1,lda, ma,na,
-     >             Q1,lda, ma,na,
-     >             0.0d0,
-     >             Q,lda, ma,na,
-     >             taskid_i,taskid_j,
-     >             np_i,np_j,
-     >             comm_i, comm_j,
-     >             work1,work2)
-
-      end do
-
-
-      return
-      end
-
-
-
-
-      subroutine DMatrix_eye(m,n,
-     >               alpha,
-     >               Q,ldq,mq,nq,
-     >               taskid_i,taskid_j)
-      implicit none
-      integer m,n
-      real*8  alpha
-
-      integer ldq,mq(*),nq(*)
-      real*8  Q(ldq,*)
-
-      integer taskid_i,taskid_j
-
-
-*     **** local variables ****
-      integer i,j,ii,jj
-      integer icur,jcur
-
-      jj   = 1
-      jcur = 0
-      do j=1,n
-         ii   = 1
-         icur = 0
-         do i=1,m
-
-            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
-               if (i.eq.j) then
-                  Q(ii,jj) = alpha
-               else
-                  Q(ii,jj) = 0.0d0
-               end if
-            end if
-
-            ii = ii + 1
-            if (ii.gt.mq(icur+1)) then
-              icur = icur + 1
-              ii   = 1
-            end if
-         end do
-
-         jj = jj + 1
-         if (jj.gt.nq(jcur+1)) then
-           jcur = jcur + 1
-           jj   = 1
-         end if
-      end do
-
-      return
-      end
 
 
 
@@ -1013,4 +844,162 @@ c        **** add to current rows of C ****
       return
       end
 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_MaxAll          *
+*     *                                 *
+*     ***********************************
+      subroutine DMatrix_MaxAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer msglen,mpierr,np
+
+*     **** external functions ****
+
+      call Parallel_np(np)
+      if (np.gt.1) then
+        call GA_DGOP(9+MSGDBL,sum,1,'max')
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_SumAll          *
+*     *                                 *
+*     ***********************************
+      subroutine DMatrix_SumAll(sum)
+c     implicit none
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+
+      integer mpierr,np
+
+*     **** external functions ****
+
+      call Parallel_np(np)
+      if (np.gt.1) then
+        call GA_DGOP(9+MSGDBL,sum,1,'+')
+      end if
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_mm_transpose    *
+*     *                                 *
+*     ***********************************
+
+      subroutine DMatrix_mm_transpose(n,A,B,ldq,mq,nq)
+      implicit none
+      integer n
+      integer ldq,mq(*),nq(*)
+      real*8  A(ldq,*)
+      real*8  B(ldq,*)
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer taskid
+      integer i,j
+      integer ii,jj,rr,ss
+      integer icur,jcur,rcur,scur
+      integer psend,precv,msglen,msgtype,mpierr
+      integer rcv_len,rcv_proc
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_ij
+      external Parallel2d_convert_taskid_ij
+
+
+      call Parallel_taskid(taskid)
+      msglen  = 1
+      msgtype = 1
+
+
+      jj   = 1
+      jcur = 0
+      rr   = 1
+      rcur = 0
+      do j=1,n
+         ii   = 1
+         icur = 0
+         ss   = 1
+         scur = 0
+         do i=1,n
+
+
+            psend = Parallel2d_convert_taskid_ij(icur,jcur)
+            precv = Parallel2d_convert_taskid_ij(rcur,scur)
+
+            if (psend.eq.precv) then
+               if (psend.eq.taskid) B(rr,ss) = A(ii,jj)
+            else
+               !**** send ****
+               if (psend.eq.taskid)
+     >         call SND(9+MSGDBL,
+     >                  A(ii,jj),mdtob(msglen),
+     >                  precv,
+     >                  1)
+
+
+               !**** recv ****
+               if (precv.eq.taskid)
+     >         call RCV(9+MSGDBL,
+     >                  B(rr,ss),mdtob(msglen),rcv_len,
+     >                  psend,
+     >                  rcv_proc,1)
+
+            end if
+
+            ii = ii + 1
+            if (ii.gt.mq(icur+1)) then
+              icur = icur + 1
+              ii   = 1
+            end if
+
+            ss = ss + 1
+            if (ss.gt.nq(scur+1)) then
+              scur = scur + 1
+              ss   = 1
+            end if
+
+         end do
+
+         jj = jj + 1
+         if (jj.gt.nq(jcur+1)) then
+           jcur = jcur + 1
+           jj   = 1
+         end if
+
+         rr = rr + 1
+         if (rr.gt.mq(rcur+1)) then
+           rcur = rcur + 1
+           rr   = 1
+         end if
+
+      end do
+
+      return
+      end
 

@@ -1,5 +1,5 @@
 *
-* $Id: pack.F,v 1.26 2006-10-07 00:10:05 bylaska Exp $
+* $Id: pack.F,v 1.27 2006-10-13 01:43:58 bylaska Exp $
 *
 
 *     ***********************************
@@ -1009,7 +1009,7 @@ c     end do
       external ddot
 
       call nwpw_timing_start(2)
-      call Parallel_np(np)
+c      call Parallel_np(np)
 
       sum = ddot(2*nida(nb),A,1,B,1)
       sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)

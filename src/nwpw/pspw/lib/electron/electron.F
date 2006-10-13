@@ -1,5 +1,5 @@
 *
-* $Id: electron.F,v 1.46 2006-10-07 00:10:06 bylaska Exp $
+* $Id: electron.F,v 1.47 2006-10-13 01:43:58 bylaska Exp $
 *
 
 
@@ -840,7 +840,7 @@ c     >                THpsi_k(shift1),2*npack1)
 c  30        continue
 c      end do
 
-      call  DMatrix_fmf_Multiply(0,
+      call  Dneall_fmf_Multiply(0,
      >                           psi_k,npack1,
      >                           hml,    1.0d0,
      >                           THpsi_k,0.0d0)
@@ -871,7 +871,7 @@ c      end do
 *     ***** local variables ****
 c      integer ms,n,shift1,shift2
      
-      call DMatrix_fmf_Multiply(0,psi_k,npack1,
+      call Dneall_fmf_Multiply(0,psi_k,npack1,
      >                            hml,1.0d0,
      >                            THpsi_k,-1.0d0)
 
@@ -1030,7 +1030,7 @@ c      end do
 c*     **** local variables ****
 c      integer ms,n,n1(2),shift
      
-      call DMatrix_ffm_sym_Multiply(0,psi_k,
+      call Dneall_ffm_sym_Multiply(0,psi_k,
      >                                dcpl_mb(Hpsi_k(1)),npack1,
      >                                hml)
 
@@ -1162,7 +1162,7 @@ c      end do
 c*     **** local variables ****
 c      integer ms,n,shift
      
-      call DMatrix_ffm_sym_Multiply(0,psi_k,
+      call Dneall_ffm_sym_Multiply(0,psi_k,
      >                                THpsi_k,npack1,
      >                                hml)
 

@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.7 2006-10-07 00:10:06 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.8 2006-10-13 01:43:58 bylaska Exp $
 *
 
 *     ********************************************
@@ -39,8 +39,8 @@
       parameter (itrlmd=20, convg=1.0d-15)
 
 *     **** external functions ****
-      real*8   DMatrix_m_dmax
-      external DMatrix_m_dmax
+      real*8   Dneall_m_dmax
+      external Dneall_m_dmax
 
       call nwpw_timing_start(3)
 
@@ -64,37 +64,37 @@
       DO 640 ms=1,ispin
         IF(ne(ms).le.0) GO TO 640
 
-        call DMatrix_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
-        call DMatrix_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
-        call DMatrix_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(s22))
+        call Dneall_ffm_sym_Multiply(ms,psi2,psi1,npack1,tmp(s21))
+        call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
 
 *       ***** scale the overlap matrices ****
-        call DMatrix_m_scale_s22(ms,dte,tmp(s22))
-        call DMatrix_m_scale_s21(ms,dte,tmp(s21))
+        call Dneall_m_scale_s22(ms,dte,tmp(s22))
+        call Dneall_m_scale_s21(ms,dte,tmp(s21))
         call dcopy(nn,tmp(s21),1,tmp(s12),1)
-        call DMatrix_m_scale_s11(ms,dte,tmp(s11))
+        call Dneall_m_scale_s11(ms,dte,tmp(s11))
 
         call dcopy(nn,tmp(s22),1,tmp(sa0),1)
 
         do it=1,itrlmd
           call dcopy(nn,tmp(s22),1,tmp(sa1),1)
 
-          call DMatrix_mmm_Multiply(ms,
+          call Dneall_mmm_Multiply(ms,
      >                              tmp(s21),tmp(sa0),1.0d0,
      >                              tmp(sa1),1.0d0)
-          call DMatrix_mmm_Multiply(ms,
+          call Dneall_mmm_Multiply(ms,
      >                              tmp(sa0),tmp(s12),1.0d0,
      >                              tmp(sa1),1.0d0)
-          call DMatrix_mmm_Multiply(ms,
+          call Dneall_mmm_Multiply(ms,
      >                              tmp(s11),tmp(sa0),1.0d0,
      >                              tmp(st1),0.0d0)
-          call DMatrix_mmm_Multiply(ms,
+          call Dneall_mmm_Multiply(ms,
      >                              tmp(sa0),tmp(st1),1.0d0,
      >                              tmp(sa1),1.0d0)
           call dcopy(nn,tmp(sa1),1,tmp(st1),1)
           call daxpy(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
 
-          adiff = DMatrix_m_dmax(ms,tmp(st1))
+          adiff = Dneall_m_dmax(ms,tmp(st1))
           if(adiff.lt.convg) GO TO 630
           call dcopy(nn,tmp(sa1),1,tmp(sa0),1)
         end do
@@ -111,11 +111,11 @@
 
 C       return
   630   continue
-        call Dmatrix_mm_Expand(ms,tmp(sa1),lmbda)
+        call Dneall_mm_Expand(ms,tmp(sa1),lmbda)
   640 continue
 
 *:::::::::::::::::  correction due to the constraint  :::::::::::::::::
-      call DMatrix_fmf_Multiply(0,
+      call Dneall_fmf_Multiply(0,
      >                          psi1,npack1,
      >                          lmbda, dte,
      >                          psi2,1.0d0) 

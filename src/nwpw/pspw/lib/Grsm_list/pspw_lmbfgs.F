@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs.F,v 1.15 2006-10-07 00:10:06 bylaska Exp $                       
+*     $Id: pspw_lmbfgs.F,v 1.16 2006-10-13 01:43:58 bylaska Exp $                       
 *
 
       subroutine pspw_lmbfgs_init(max_m0,g)
@@ -89,7 +89,7 @@
      >                   dbl_mb(ss(1)),
      >                   sum)
       call D1dB_SumAll(sum)
-      write(*,*) "SUM1=",sum
+      
       !*** exit if dividing by small number ***
       if (dabs(sum).lt.1.0d-15) go to 211
 
@@ -99,7 +99,6 @@
      >                   s,
      >                   sum)
       call D1dB_SumAll(sum)
-      write(*,*) "SUM2=",sum
       alpha(m) = rho(m)*sum
       !call Grsm_gg_daxpy(npack1,neall,-alpha(m),dbl_mb(yy(1)),s)
       call daxpy(ngras,(-alpha(m)),dbl_mb(yy(1)),1,s,1)
@@ -123,7 +122,6 @@
      >                   s,
      >                   sum)
          call D1dB_SumAll(sum)
-      write(*,*) "SUM3=",sum
          alpha(k) = rho(k)*sum
          !call Grsm_gg_daxpy(npack1,neall,-alpha(k),dbl_mb(yy(1)),s)
          call daxpy(ngras,(-alpha(k)),dbl_mb(yy(1)),1,s,1)
@@ -141,7 +139,6 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
      >                   s,
      >                   sum)
          call D1dB_SumAll(sum)
-      write(*,*) "SUM4=",sum
          beta = rho(k)*sum
          sum = alpha(k) - beta
       
@@ -161,7 +158,6 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
      >                s,
      >                sum)
       call D1dB_SumAll(sum)
-      write(*,*) "SUM5=",sum
       beta = rho(m)*sum
       sum = alpha(m) - beta
       !call Grsm_gg_daxpy(npack1,neall,sum,dbl_mb(ss(1)),s)

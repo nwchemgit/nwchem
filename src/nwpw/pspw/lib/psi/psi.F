@@ -1,9 +1,32 @@
 *
-* $Id: psi.F,v 1.70 2006-10-07 00:10:07 bylaska Exp $
+* $Id: psi.F,v 1.71 2006-10-13 01:43:58 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.70  2006/10/07 00:10:07  bylaska
+* Initial implementation of 2d processor grid parallelization in pspw.  Currently works with:
+*
+* task pspw steepest_descent
+* task pspw energy            (only minimizer 1, minimizer 2?, other minimizers not yet implemented)
+*
+* Currently only works with USE_MPIF option, straight tcgmsg only partially implemented.  Car-Parrinello, HFX, SIC, and various analysis codes are also not yet ported.
+*
+*
+* The number of processors along the orbital dimension, np_orbital, is entered as follows, e.g.:
+*
+* nwpw
+*    np_orbital  2
+* end
+*
+* The number of processors along the grid dimension, np_grid, is currently defined using np_orbital as
+*
+* np_grid = np/np_orbital
+*
+* where np is the total number of processors.
+*
+* ...EJB
+*
 * Revision 1.69  2006/09/20 19:18:49  bylaska
 * Adding Dmatrix
 * ...EJB
@@ -4367,7 +4390,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 c*     ***** local variables *****
 c      integer ms,index,i,j,shift1,shift2
 
-      call DMatrix_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi1(1)),npack1,
      >                          dbl_mb(hml(1)),1.0d0,
      >                          dcpl_mb(psi2(1)),0.0d0)
 
@@ -4418,7 +4441,7 @@ c      end do
 c*     ***** local variables *****
 c      integer ms,index,i,j,shift1,shift2
 
-      call DMatrix_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
+      call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
      >                          dbl_mb(hml(1)),1.0d0,
      >                          dcpl_mb(psi1(1)),0.0d0)
 
@@ -4459,7 +4482,7 @@ c      integer ms,shift1,shift2,ierr,i,j,indx
 c      integer tmp1(2)
 
 
-      call DMatrix_m_diagonalize(0,dbl_mb(hml(1)),
+      call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
      >                             dbl_mb(eig(1)),.false.)
 
 c      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
@@ -4519,7 +4542,7 @@ c      logical value
 c      integer ms,shift1,shift2,ierr
 c      integer tmp1(2)
 
-      call DMatrix_m_diagonalize(0,dbl_mb(hml(1)),dbl_mb(eig(1)),.true.)
+      call Dneall_m_diagonalize(0,dbl_mb(hml(1)),dbl_mb(eig(1)),.true.)
 
 c      value = MA_push_get(mt_dbl,(2*ne(1)*ne(1)),'tmp1',tmp1(2),tmp1(1))
 c      if (.not. value) 

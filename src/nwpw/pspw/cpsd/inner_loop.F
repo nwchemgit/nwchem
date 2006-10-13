@@ -1,5 +1,5 @@
 *,eke
-* $Id: inner_loop.F,v 1.22 2006-10-07 00:34:16 bylaska Exp $
+* $Id: inner_loop.F,v 1.23 2006-10-13 01:43:58 bylaska Exp $
 *
 
 *  ************************************************************
@@ -96,8 +96,8 @@ c     real*8     fion(3,natmx)
       real*8   ion_ion_e
       external ion_ion_e
 
-      double precision DMatrix_m_trace
-      external         DMatrix_m_trace
+      double precision Dneall_m_trace
+      external         Dneall_m_trace
       logical  Dneall_m_push_get_block
       external Dneall_m_push_get_block
 
@@ -462,14 +462,14 @@ c    >                 lmd,dbl_mb(tmp_L(1)),ierr)
       call Parallel2d_np_j(np_j)
 
 *     *** get orbital energies ****
-      call DMatrix_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
-      call DMatrix_m_scal(0,(-1.0d0),hml)
+      call Dneall_ffm_sym_Multiply(0,psi1,Hpsi,npack1,hml)
+      call Dneall_m_scal(0,(-1.0d0),hml)
       if (fractional) then
-         call DMatrix_m_diag_scal(0,dbl_mb(fweight(1)),hml)
-         eorbit = DMatrix_m_trace(0,hml)
-         call DMatrix_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
+         call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
+         eorbit = Dneall_m_trace(0,hml)
+         call Dneall_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
       else
-         eorbit = DMatrix_m_trace(0,hml)
+         eorbit = Dneall_m_trace(0,hml)
       end if
       if (ispin.eq.1) eorbit = eorbit+eorbit
        

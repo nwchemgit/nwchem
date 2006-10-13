@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.24 2006-10-07 00:10:07 bylaska Exp $
+* $Id: geodesic.F,v 1.25 2006-10-13 01:43:58 bylaska Exp $
 *
 
 *     ***********************************
@@ -147,7 +147,7 @@ c      value = value.and.MA_free_heap(Vt(2))
      >   call errquit('geodesic_start:out of stack memory',0,MA_ERR)
       
 *     **** HomeGrown SVD ****
-      call DMatrix_f_SVD(0,A,dcpl_mb(U(1)),npack1,
+      call Dneall_f_SVD(0,A,dcpl_mb(U(1)),npack1,
      >                   dbl_mb(S(1)),dbl_mb(V(1)))
 
       max_sigma = 0.0d0
@@ -256,11 +256,11 @@ c      value = value.and.MA_free_heap(Vt(2))
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
 
-      call DMatrix_fmf_Multiply(0,Yold,npack1,
+      call Dneall_fmf_Multiply(0,Yold,npack1,
      >                          dbl_mb(tmp2(1)),1.0d0,
      >                          Ynew,0.0d0)
 
-      call DMatrix_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
+      call Dneall_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
      >                          dbl_mb(tmp3(1)),1.0d0,
      >                          Ynew,1.0d0)
 
@@ -435,11 +435,11 @@ c      end do
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
 
-      call DMatrix_fmf_Multiply(0,Yold,npack1,
+      call Dneall_fmf_Multiply(0,Yold,npack1,
      >                          dbl_mb(tmp2(1)),-1.0d0,
      >                          Ynew,0.0d0)
 
-      call DMatrix_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
+      call Dneall_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
      >                          dbl_mb(tmp3(1)),1.0d0,
      >                          Ynew,1.0d0)
 
@@ -623,11 +623,11 @@ c      end do
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
 
-      call DMatrix_fmf_Multiply(0,Yold,npack1,
+      call Dneall_fmf_Multiply(0,Yold,npack1,
      >                          dbl_mb(tmp2(1)),(-1.0d0),
      >                          tG,1.0d0)
 
-      call DMatrix_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
+      call Dneall_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
      >                          dbl_mb(tmp3(1)),(-1.0d0),
      >                          tG,1.0d0)
 

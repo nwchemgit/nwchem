@@ -1,12 +1,14 @@
 #
-# $Id: GNUmakefile,v 1.2 2006-10-07 00:10:05 bylaska Exp $
+# $Id: GNUmakefile,v 1.3 2006-10-13 01:43:58 bylaska Exp $
 #
 
- OBJ = 
+  OBJ_OPTIMIZE = DMatrix.o
+  OBJ = 
+
 ifeq ($(USE_MPIF),y)
-  OBJ_OPTIMIZE = DMatrix-mpi.o
+  OBJ_OPTIMIZE += DMatrix-mpi.o
 else
-  OBJ_OPTIMIZE = DMatrix-tcgmsg.o
+  OBJ_OPTIMIZE += DMatrix-tcgmsg.o
 endif
 
 
