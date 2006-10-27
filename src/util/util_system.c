@@ -1,5 +1,5 @@
 /*
- $Id: util_system.c,v 1.12 2006-02-16 00:18:15 edo Exp $
+ $Id: util_system.c,v 1.13 2006-10-27 17:53:15 edo Exp $
  */
 
 #include <stdio.h>
@@ -53,6 +53,8 @@ Integer util_system_(const char *input, int lin)
 	i = system(in);
 	Siginit = signal(SIGCHLD,Siginit);
     return i;
+#elif defined(CATAMOUNT)
+    ga_error("system calls do not work on this machine", 0);
 #else
     return system(in);
 #endif

@@ -1,4 +1,4 @@
-#if (defined(CRAY) || defined(WIN32))&& !defined(__crayx1)
+#if (defined(CRAY) || defined(WIN32) || defined(CATAMOUNT))&& !defined(__crayx1)
 
 #include "typesf2c.h"
 
