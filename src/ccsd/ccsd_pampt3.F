@@ -2,7 +2,7 @@
      &                       tol2e,cmo,eorb,iprt,hiu,giu,habe,gabe,
      &                       hia,t1,ht1,idiis,g_nt2,g_nht2,
      &                       g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_pampt3.F,v 2.15 2006-02-10 22:23:32 edo Exp $
+C     $Id: ccsd_pampt3.F,v 2.16 2006-11-03 14:36:10 edo Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -272,6 +272,7 @@ c
      &                 sisn(nbf,nfl,nfj,nocc),
      &                 t1ao(nbf,nocc)
       double precision int1,int2
+      call pstat_on(ps_idx11)
       do l=1,nfl
         do j=1,nfj
           do i=ilo,ihi
@@ -306,6 +307,7 @@ c
      &                 sisn(nbf,nfl,nfj,nocc),
      &                 t1ao(nbf,nocc)
       double precision int1,int2
+      call pstat_on(ps_idx12)
       do l=1,nfl
         do j=1,nfj
           do i=ilo,ihi
