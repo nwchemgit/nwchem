@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.106 2006-09-11 21:22:33 d3j191 Exp $
+c $Id: ana_task.F,v 1.107 2006-11-10 22:01:12 d3j191 Exp $
 c
       implicit none
 c
@@ -1099,6 +1099,9 @@ c
       if(igroups(i,5).eq.4)
      + call ana_grpcogang(byte_mb(i_snam),int_mb(i_imol),int_mb(i_isel),
      + dbl_mb(i_wt),dbl_mb(i_xdat),i)
+      if(igroups(i,5).eq.5)
+     + call ana_grpvectors(byte_mb(i_snam),int_mb(i_imol),
+     + int_mb(i_isel),dbl_mb(i_wt),dbl_mb(i_xdat),i)
  3301 continue
       endif
 c

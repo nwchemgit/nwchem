@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.72 2006-03-30 17:55:57 d3j191 Exp $
+c $Id: ana_input.F,v 1.73 2006-11-10 22:01:11 d3j191 Exp $
 c
       implicit none
 c
@@ -422,17 +422,18 @@ c
       if(inp_compare(.false.,'distances',item)) iopt=2
       if(inp_compare(.false.,'zcoordinate',item)) iopt=3
       if(inp_compare(.false.,'angle',item)) iopt=4
+      if(inp_compare(.false.,'vectors',item)) iopt=5
       if(.not.inp_f(rsel)) rsel=0.0d0
       if(.not.inp_f(rval)) rval=rsel
       if(.not.inp_a(item)) item=' '
       if(iopt.eq.1.and.jsel.le.0)
      + call md_abort('Error in groups definition',4)
       if(iopt.eq.2.and.jsel.le.0)
-     + call md_abort('Error in groups definition',4)
+     + call md_abort('Error in groups definition',5)
       if(iopt.eq.4.and.(jsel.le.0.or.ksel.le.0))
-     + call md_abort('Error in groups definition',4)
-      if(iopt.eq.5.and.(jsel.le.0.or.ksel.le.0.or.lsel.le.0))
-     + call md_abort('Error in groups definition',4)
+     + call md_abort('Error in groups definition',6)
+c      if(iopt.eq.5.and.(jsel.le.0.or.ksel.le.0.or.lsel.le.0))
+c     + call md_abort('Error in groups definition',7)
       write(lfncmd,1022) isel,jsel,ksel,lsel,iopt,ipbc,rsel,rval,
      + item(1:index(item,' ')-1)
  1022 format('groups ',4i7,i5,i3,2f12.6,a)
