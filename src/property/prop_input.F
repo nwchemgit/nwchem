@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.15 2005-04-13 22:11:16 marat Exp $
+* $Id: prop_input.F,v 1.16 2006-11-16 18:23:01 jochen Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -45,6 +45,11 @@ c
       double precision point(3)
       logical status
 
+c ... jochen:
+      integer aoresponse, nfreq, l_fr, k_fr, 
+     &        velocity, magneticpert, aor_giao, aor_damp, aor_conv
+      double precision gamwidth, convergence
+
 c     
 c>>>  declarations from NWdft
 c     
@@ -77,83 +82,141 @@ c
       hyperfine         = 1
       spinspin          = 1
       giao              = 1
+      
       center            = 1   ! default of center of charge
       point(1)          = 0.0d+0
       point(2)          = 0.0d+0
       point(3)          = 0.0d+0
       giaoatoms         = 0
       spnspnpairs       = 0
+
+c ... jochen:
+      aoresponse        = 1 
+      velocity          = 1
+      magneticpert      = 1
+      aor_giao          = 1
+      aor_damp          = 1
+      aor_conv          = 1
+      nfreq             = 0
+
 c     
 c>>>  read inputs; store in rtdb
 c     
-      do iline = 1,infinity !  infinite loop over input lines
-
-        if (.not. inp_read()) call errquit
-     $       ('prop_input: inp_read failed', 0, INPUT_ERR)
-
-        nfield = inp_n_field()
-        do ifield = 1,nfield
-
+      do iline = 1,infinity     !  infinite loop over input lines
+        
+      if (.not. inp_read()) call errquit
+     $   ('prop_input: inp_read failed', 0, INPUT_ERR)
+        
+      nfield = inp_n_field()
+      do ifield = 1,nfield
+        
       if (inp_a(test)) then
-c             
-      if ( inp_compare(.false., 'hyperfine', test)) then
-         hyperfine = 0
-      elseif ( inp_compare(.false., 'spinspin', test)) then
-         spinspin = 0
-         if (inp_i(spnspnpairs)) then
+c       
+        if ( inp_compare(.false., 'hyperfine', test)) then
+          hyperfine = 0
+        elseif ( inp_compare(.false., 'spinspin', test)) then
+          spinspin = 0
+          if (inp_i(spnspnpairs)) then
             if (.not. ma_push_get(mt_int,spnspnpairs*2,'prs',l_pr,k_pr))
      &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
             icount = 0
             do ii = 1, spnspnpairs
-               status = inp_i(int_mb(k_pr+ii-1))
-               status = inp_i(int_mb(k_pr+ii+spnspnpairs-1))
-               if (status) then
-                  icount = icount+1
-               else
-                  write(6,'(a,a,i4,a)') 
+              status = inp_i(int_mb(k_pr+ii-1))
+              status = inp_i(int_mb(k_pr+ii+spnspnpairs-1))
+              if (status) then
+                icount = icount+1
+              else
+                write(6,'(a,a,i4,a)') 
      &             'Spin-spin property input found',
      &             ' viewer pairs than expected, only',icount,
      &             ' will be used'
-                  if (icount.gt.0) then
-                    do jj = 0, icount-1
+                if (icount.gt.0) then
+                  do jj = 0, icount-1
                     int_mb(k_pr+jj+icount) = int_mb(k_pr+jj+spnspnpairs)
-                    enddo
-                  endif
-                  spnspnpairs = icount
-                  if (icount.eq.0) then 
-                     if (.not.ma_pop_stack(l_pr)) call
-     &          errquit('prop_input: ma_pop_stack failed k_pr',0,MA_ERR)
-                  endif
-                  goto 10
-               endif
+                  enddo
+                endif
+                spnspnpairs = icount
+                if (icount.eq.0) then 
+                  if (.not.ma_pop_stack(l_pr)) call
+     &         errquit('prop_input: ma_pop_stack failed k_pr',0,MA_ERR)
+                endif
+                goto 10
+              endif
             enddo
-         endif
-  10     continue                
-      elseif ( inp_compare(.false., 'shielding', test)) then
-         giao = 0
-         if (inp_i(giaoatoms)) then
+          endif
+   10     continue                
+        elseif ( inp_compare(.false., 'shielding', test)) then
+          giao = 0
+          if (inp_i(giaoatoms)) then
             if (.not. ma_push_get(mt_int,giaoatoms,'atoms',l_at,k_at))
      &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
             icount = 0
             do ii = 1, giaoatoms
-               status = inp_i(int_mb(k_at+ii-1))
-               if (status) then
-                  icount = icount+1
-               else
-                  write(6,'(a,a,i4,a)') 
+              status = inp_i(int_mb(k_at+ii-1))
+              if (status) then
+                icount = icount+1
+              else
+                write(6,'(a,a,i4,a)') 
      &             'NMR shielding property input found',
      &             ' viewer atoms than expected, only',icount,
      &             ' will be used'
-                  giaoatoms = icount
-                  if (icount.eq.0) then 
-                     if (.not.ma_pop_stack(l_at)) call
-     &          errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
-                  endif
-                  goto 11
-               endif
+                giaoatoms = icount
+                if (icount.eq.0) then 
+                  if (.not.ma_pop_stack(l_at)) call
+     &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
+                endif
+                goto 11
+              endif
             enddo
+          endif
+   11     continue                
+c  ... jochen: parse input for response/aoresponse key
+      elseif ( 
+     &    inp_compare(.false.,   'response', test) .or.
+     &    inp_compare(.false., 'aoresponse', test)) then
+        aoresponse = 0
+        if (inp_i(nfreq)) then
+          if (.not. ma_push_get(mt_dbl,nfreq,'freqs',l_fr,k_fr))
+     &       call errquit('freq_input ma_push_get fail l_fr',0,MA_ERR)
+          icount = 0
+          do ii = 1, nfreq
+            status = inp_f(dbl_mb(k_fr+ii-1))
+            if (status) then
+              icount = icount+1
+            else
+              write(6,'(a,a,i4,a)') 
+     &           'Response property input found',
+     &           ' fewer frequencies than expected, only',icount,
+     &           ' will be used'
+              nfreq = icount
+              if (icount.eq.0) then 
+                if (.not.ma_pop_stack(l_fr)) call
+     &          errquit('prop_input: ma_pop_stack failed k_fr',0,MA_ERR)
+              endif
+              goto 12
+            endif
+          enddo
+        endif
+   12   continue  
+      elseif ( inp_compare(.false., 'velocity', test)) then
+         velocity = 0
+      elseif ( inp_compare(.false., 'magneticpert', test)) then
+         magneticpert = 0
+      elseif ( inp_compare(.false., 'giao', test)) then
+         aor_giao = 0
+      elseif ( inp_compare(.false., 'damping', test)) then
+         aor_damp = 0
+         if (.not.inp_f(gamwidth)) then
+           call errquit('Response: error reading damping constant',
+     &        0, INPUT_ERR)
          endif
-  11     continue                
+      elseif ( inp_compare(.false., 'convergence', test)) then
+         aor_conv = 0
+         if (.not.inp_f(convergence)) then
+           call errquit('Response: error reading convergence crit.',
+     &        0, INPUT_ERR)
+         endif
+c ... jochen end
       elseif ( inp_compare(.false., 'boyslocalization', test)) then
          boyslocalization = 0
          boyslocalization = 1
@@ -342,6 +405,53 @@ c
           if (.not.ma_pop_stack(l_at)) call
      &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
       endif
+c ... jochen: add aoresponse key, frequencies, and options to RTDB
+      if (.not. rtdb_put(rtdb, 'prop:aoresponse', mt_int, 1,
+     $                               aoresponse        ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c ... jochen: I tested response with DFT where the convergence
+c             limits made a lot of trouble. Therefore we set the
+c             "nocheck" option which is used later in hnd_property.F
+      if (aoresponse.eq.0) then
+       if (.not. rtdb_put(rtdb, 'prop:nocheck', mt_log, 1, .true.))
+     $      call errquit('prop_input: rtdb_put nocheck failed', 0, 
+     $      RTDB_ERR)
+      endif
+      if (.not. rtdb_put(rtdb, 'aoresponse:velocity', mt_int, 1,
+     $                               velocity        ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'aoresponse:magneticpert', mt_int, 1,
+     $                               magneticpert        ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'aoresponse:giao', mt_int, 1,
+     $                               aor_giao        ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'aoresponse:damping', mt_int, 1,
+     $                               aor_damp        ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c ... jochen: write cphf iteration threshold if set by input
+      if (aor_conv.eq.0) then
+      if (.not. rtdb_put(rtdb, 'cphf:thresh',    mt_dbl, 1,
+     $                               convergence     ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      endif ! aor_conv
+      if (.not. rtdb_put(rtdb, 'aoresponse:gamwidth', mt_dbl, 1,
+     $                               gamwidth        ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+
+      if (nfreq.gt.0) then
+        if (.not. rtdb_put(rtdb, 'aoresponse:nfreq', mt_int, 1,nfreq))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+        if (.not. rtdb_put(rtdb, 'aoresponse:freqlist', mt_dbl, nfreq,
+     &     dbl_mb(k_fr)))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+        if (.not.ma_pop_stack(l_fr)) call
+     &     errquit('prop_input: ma_pop_stack failed k_fr',0,MA_ERR)
+      else
+        if (.not. rtdb_put(rtdb, 'aoresponse:nfreq', mt_int, 1,0))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      end if
+c ... jochen: end response section
       if (.not. rtdb_put(rtdb, 'prop:center',mt_int, 1, center))
      $      call errquit('prop_input: rtdb_put failed', 555, RTDB_ERR)
       if (center.eq.4) then

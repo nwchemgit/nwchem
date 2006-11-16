@@ -1,6 +1,6 @@
       subroutine int_giao_1ega(ibas,jbas,g,integ_type,xyzpt,nat,
      &                         oskel)
-C$Id: int_giao_1ega.F,v 1.4 2005-12-07 17:15:29 bert Exp $
+C$Id: int_giao_1ega.F,v 1.5 2006-11-16 18:23:01 jochen Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -68,36 +68,45 @@ c
       if (inp_compare(.false., integ_type, 's10')) then
          type = 1
          nblocks = 3
-      else if (inp_compare(.false., integ_type, 'l10')) then
+      elseif (inp_compare(.false., integ_type, 'srxRb')) then
          type = 2
          nblocks = 3
-      else if (inp_compare(.false., integ_type, 'tv10')) then
+      else if (inp_compare(.false., integ_type, 'l10')) then
          type = 3
          nblocks = 3
-      else if (inp_compare(.false., integ_type, 'h01')) then
+      else if (inp_compare(.false., integ_type, 'tv10')) then
          type = 4
+         nblocks = 3
+      else if (inp_compare(.false., integ_type, 'h01')) then
+         type = 5
          nblocks = 3 * nat
       else if (inp_compare(.false., integ_type, 'h11 para'))then 
-         type = 5 
-         nblocks = 9 * nat
-      else if (inp_compare(.false., integ_type, 'h11 dia'))then 
          type = 6 
          nblocks = 9 * nat
-      else if (inp_compare(.false., integ_type, 'h11 all'))then 
+      else if (inp_compare(.false., integ_type, 'h11 dia'))then 
          type = 7 
          nblocks = 9 * nat
-      else if (inp_compare(.false., integ_type, 'dso'))then 
+      else if (inp_compare(.false., integ_type, 'h11 all'))then 
          type = 8 
+         nblocks = 9 * nat
+      else if (inp_compare(.false., integ_type, 'dso'))then 
+         type = 9 
          nblocks = 9 * nat ! nat is number of pairs in this case : nat * (nat-1)
       else if (inp_compare(.false., integ_type, 'pso'))then 
-         type = 9         
+         type = 10        
          nblocks = 3 * nat
       else if (inp_compare(.false., integ_type, 'fc'))then 
-         type = 10
+         type = 11
          nblocks = nat
       else if (inp_compare(.false., integ_type, 'sd+fc'))then 
-         type = 11
+         type = 12
          nblocks = 6 * nat
+      else if (inp_compare(.false., integ_type, 'velocity'))then 
+         type = 13
+         nblocks = 3      
+      else if (inp_compare(.false., integ_type, 'angmom'))then 
+         type = 14
+         nblocks = 3      
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_giao_1ega: unknown integ_type', 0, INT_ERR)
@@ -121,15 +130,18 @@ c
 c     k_* are the offsets corrsponding to the l_* handles
 c     
 c
-      if (type.lt.8) then
+      if (type.lt.9) then
          call int_mem_1e(max1e, mem1)  
          max1e = max1e*nblocks
-      elseif (type.eq.8) then
-         call int_init_dso(max1e,mem1,ibas,nat)
       elseif (type.eq.9) then
+         call int_init_dso(max1e,mem1,ibas,nat)
+      elseif (type.eq.10) then
          call int_init_pso(max1e,mem1,ibas,nat)
-      else
+      elseif (type.eq.11) then
          call int_init_1eelec(max1e,mem1,ibas,2,nat)
+      else
+         call int_init_dip(max1e,mem1,ibas)
+         max1e = max1e*nblocks
       endif
       mem1 = max(mem1,max1e)
 c
@@ -169,43 +181,52 @@ c
                      call int_giaos10 (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else if (type .eq. 2) then ! 3
-                     call int_giaol10 (jbas, jshell, ibas, ishell, 
+                     call int_giaos100(jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else if (type .eq. 3) then ! 3
+                     call int_giaol10 (jbas, jshell, ibas, ishell, 
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+                  else if (type .eq. 4) then ! 3
                      call int_giaotv10 (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
-                  else if (type .eq. 4) then ! 3*nat
+                  else if (type .eq. 5) then ! 3*nat
                      call int_giaoh01 (jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      $                    xyzpt, nat)
-                  else if (type .eq. 5) then ! 9*nat
+                  else if (type .eq. 6) then ! 9*nat
                      call int_giaoh11 (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf), 
      $                    xyzpt, nat, .true.,.false.)
-                  else if (type .eq. 6) then ! 9*nat
-                     call int_giaoh11 (jbas, jshell, ibas, ishell,
-     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
-     $                    xyzpt, nat, .false.,.true.)
                   else if (type .eq. 7) then ! 9*nat
                      call int_giaoh11 (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
+     $                    xyzpt, nat, .false.,.true.)
+                  else if (type .eq. 8) then ! 9*nat
+                     call int_giaoh11 (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      $                    xyzpt, nat, .true.,.true.)
-                  else if (type .eq. 8) then ! 9*nat*(nat-1)
+                  else if (type .eq. 9) then ! 9*nat*(nat-1)
                      call int_dso (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      $                    xyzpt, nat)
-                  else if (type .eq. 9) then ! 3*nat
+                  else if (type .eq. 10) then ! 3*nat
                      call int_pso (jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      $                    xyzpt, nat)
-                  else if (type .eq. 10) then ! nat
+                  else if (type .eq. 11) then ! nat
                      call int_1eelec(jbas, jshell, ibas,ishell,
      &                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      &                    mone,xyzpt,nat)
-                  else if (type .eq. 11) then ! 6*nat
+                  else if (type .eq. 12) then ! 6*nat
                      call int_1eelec(jbas, jshell, ibas,ishell,
      &                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      &                    two,xyzpt,nat)
+                  else if (type .eq. 13) then ! 3
+                     call int_veloc(jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+                  else if (type .eq. 14) then ! 3
+                     call int_angmom(jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
                   else
                      call errquit('int_giao_1ega: invalid type?', type,
      &       GA_ERR)

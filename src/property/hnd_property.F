@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.19 2006-02-03 02:47:48 bert Exp $
+* $Id: hnd_property.F,v 1.20 2006-11-16 18:23:01 jochen Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -26,6 +26,9 @@ c     1. Initialize all necessary SCF/DFT information
 c     2. Do energy
 c     3. Get geometry and basis
 c     4. Run properties
+c
+c ... jochen: got terrible problems with SCF convergence, therefore
+c             I relaxed the tightened criteria here.
 c
       logical  int_normalize
       external int_normalize
@@ -74,6 +77,10 @@ c     ------------------------------
       if (.not. rtdb_get(rtdb, 'prop:nocheck',mt_log, 1, nocheck)) then
         nocheck = .false.
       end if
+
+c ... jochen: try nocheck = .true. always (debugging)
+c      nocheck = .true.
+c ... jochen: we now set prop:nocheck in prop_input.F for response calc.
 c      
 c
 c     Check if we are running spinspin or shielding. In that case we
@@ -213,7 +220,7 @@ c
      &                    RTDB_ERR)
 c
          call dft_inpanae(rtdb)
-      endif
+      endif  ! nocheck
 c
 c     Make sure the energy and vectors have been calculated
 c

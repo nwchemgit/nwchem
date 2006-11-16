@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
 c     
 c     Invalidate data
 c     
@@ -21,7 +21,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -70,7 +70,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -104,7 +104,7 @@ c
 #include "rtdb.fh"
 #include "cosmo.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
 c
       integer rtdb
 
@@ -209,7 +209,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
 c
       integer g_x, g_ax
       double precision acc
@@ -258,7 +258,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.21 2004-07-21 16:35:24 bert Exp $
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
 c
       integer g_x
       double precision solveshift
@@ -281,6 +281,115 @@ c
       call rohf_hdiag_scale(nmo, nclosed, nopen,
      $     lshift,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
-     $     g_x )
+     $     g_x)
+c
+      end
+
+      subroutine rohf_hessv_precond3( g_x, omega)
+c
+c ... jochen: modified version of rohf_hessv_precond to go along with
+c     cphf_solve3. This preconditioner PRESUMABLY sets up the rhs of
+c     the CPKS problem which is where we should add and subtract
+c     the frequency from the enegy denominator
+c
+      implicit none
+#include "errquit.fh"
+#include "crohf.fh"
+#include "cscf.fh"
+c     
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c
+      integer g_x               ! [in/ou] rhs vector of eq. system
+      double precision omega    ! [input] frequency
+c     
+      integer gtype, grow, gcol
+      double precision crohf_lshift
+c     
+c     Check
+c     
+      if (crohf_init_flag.ne.1)
+     $     call errquit(
+     $     'rohf_hessv_precond: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
+      call ga_inquire(g_x,gtype,grow,gcol)
+      if (grow.ne.crohf_vlen)
+     $     call errquit('rohf_hessv_precond: invalid vector length',0,
+     &       UNKNOWN_ERR)
+c     
+c ... jochen: in contrast to rohf_hessv_precond we add
+c     omega here and use the result in the call to
+c     rohf_hdiag_scale. Note: in rohf_hdiag_scale there is a division
+c     by [ 4 (epsilon_a - epsilon_i) + omega ] so we should use
+c     four times omega here to be consistent with the TDDFT formalism.
+c
+c ... jochen: Note:    
+c     level shifting might have some strange effects here 
+c     
+      crohf_lshift = lshift + 4d0 * omega
+c
+      call rohf_hdiag_scale(nmo, nclosed, nopen,
+     $   crohf_lshift,
+     $   crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
+     $   g_x )
+c     
+      end
+
+c     =========================================================================
+c     =========================================================================
+
+      subroutine rohf_hessv_precond3_damp(g_x, g_x_im, omega, gamwidth)
+c
+c ... jochen: modified version of rohf_hessv_precond to go along with
+c     cphf_solve3. This preconditioner PRESUMABLY sets up the rhs of
+c     the CPKS problem which is where we should add and subtract
+c     the frequency from the enegy denominator.
+c     NOTE: this is a modified version of rohf_hessv_precond3 for
+c     calculations with finite-lifetime damping
+c
+      implicit none
+#include "errquit.fh"
+#include "crohf.fh"
+#include "cscf.fh"
+c     
+c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c
+      integer g_x               ! [in/ou] Re rhs vector of eq. system
+      integer g_x_im            ! [in/ou] Im rhs vector of eq. system
+      double precision omega    ! [input] frequency
+      double precision gamwidth ! [input] damping constant
+c     
+      integer gtype, grow, gcol
+      double precision crohf_lshift, crohf_gamwidth
+c     
+c     Check
+c     
+      if (crohf_init_flag.ne.1)
+     $     call errquit(
+     $     'rohf_hessv_precond: ROHF internal block invalid',0,
+     &       UNKNOWN_ERR)
+      call ga_inquire(g_x,gtype,grow,gcol)
+      if (grow.ne.crohf_vlen)
+     $     call errquit('rohf_hessv_precond: invalid vector length',0,
+     &       UNKNOWN_ERR)
+c     
+c ... jochen: in contrast to rohf_hessv_precond we add
+c     omega here and use the result in the call to
+c     rohf_hdiag_scale. Note: in rohf_hdiag_scale there is a division
+c     by [ 4 (epsilon_a - epsilon_i) + omega ] so we should use
+c     four times omega here to be consistent with the TDDFT formalism.
+c
+c ... jochen: Note:    
+c     level shifting might have some strange effects here 
+c     
+      crohf_lshift = lshift + 4d0 * omega
+c
+c     use 4 * lifetime parameter to be consistent with
+c     using 4 * omega
+      crohf_gamwidth = 4d0 * gamwidth
+c
+      call rohf_hdiag_scale_damp(nmo, nclosed, nopen,
+     $   crohf_lshift, crohf_gamwidth, 
+     $   crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
+     $   g_x, g_x_im)
 c
       end

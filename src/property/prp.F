@@ -1,7 +1,10 @@
 *
-* $Id: prp.F,v 1.64 2005-06-07 19:55:55 marat Exp $
+* $Id: prp.F,v 1.65 2006-11-16 18:23:01 jochen Exp $
 *
       subroutine hnd_propty(rtdb,basis,geom)
+
+c ... jochen: added some aoresponse stuff here
+
       implicit double precision (a-h,o-z)
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -16,10 +19,10 @@
       logical     out 
       data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
-     2     nogiao,noston,nospinspin
+     2     nogiao,noston,nospinspin, noaoresponse
      3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
      4       1,    1,    1,    1,    1,    1,    1,    1, 
-     5       1,    1,    1/
+     5       1,    1,    1,    1/
 c
       out   =.false.
       some  =.true.        
@@ -39,10 +42,17 @@ c
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
       status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,nospinspin)     !done
+c ... jochen:
+      status=rtdb_get(rtdb,'prop:aoresponse',MT_INT,1,noaoresponse) !done
 c
       if(nodhp.eq.0.or.nod2hp.eq.0) nodpl=0
       if(nofhp.eq.0.or.nof2hp.eq.0) nofpl=0
       if(nospinspin.eq.0) call hnd_spinspin(rtdb,basis,geom)
+
+c     ----- aoresponse: frequency dependent response -----
+c
+      if (noaoresponse.eq.0)
+     +   call aoresponse_driver(rtdb, basis, geom)
 c
 c     ----- dipole moment -----
 c

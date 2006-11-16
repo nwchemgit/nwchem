@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2005-10-20 21:10:40 edo Exp $
+# $Id: GNUmakefile,v 1.26 2006-11-16 18:23:01 jochen Exp $
 #
 
 
@@ -29,7 +29,12 @@
          hnd_sdfc.o \
          hnd_pso.o \
          hnd_dso.o \
-         prop_atom.o 
+         prop_atom.o  \
+         aoresponse_driver.o \
+         int_mpole_1ega.o \
+         aoresponse.o \
+         CalcPerturbedTDPmat1.o \
+         aoresponse_giao_rhs.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = 
