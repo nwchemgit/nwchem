@@ -1,0 +1,74 @@
+NWChem Version 5.0 Release Notes
+(Also available at 
+http://www.emsl.pnl.gov/docs/nwchem/release-notes/release.notes.5.0.html)
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 5.0. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+Several new major capabilities are available in NWChem:
+  o Q-HOP in molecular dynamics allows protons to hop from one residue to another
+  o Exact exchange is available for plane wave calculations
+  o Completely and locally renormalized coupled cluster approaches are available in TCE
+  o NWChem bas been interfaced with VENUS (from Texas Tech University)
+  o Interface with ScaLAPACK is now available for DFT module
+  o Link up with vendors' optimized BLAS libraries on 64-bit platforms
+ 
+Listed below are the major and many minor changes for each module
+with significant changes. These descriptions are somewhat terse and more
+information is generally available in the User Manual. 
+
+DFT:
+  o New XC functionals
+  o Interface to ScaLAPACK eigensolvers
+  o Improved performance in hessians
+  o Bugs fixed for the SCF part of the metaGGAs
+
+NWPW:
+  o PSPW: Pipelined FFT added to PSPW
+  o PSPW: inversion symmetry option added to PSPW
+  o PSPW: PBE0 exchange-correlation functional and Hartree-Fock (xc=pbe0, hf)
+  o PSPW: center of rotation constraint added to PSPW Car-Parrinello
+  o PSPW: prototype pressure calculation added to PSPW Car-Parrinello
+  o BAND: DPLOT capabilities in the Band structure code
+  o BAND: Analytic stresses added to BAND
+  o BAND: Hilbert decomposed FFT added to BAND
+  o PAW: faster generation of .jpp files for faster restarting
+  o PAW: GGA exchange-correlation is now computed in the augmented region
+  o PAW: numerical integration option added to the exchange-correlation augmented region
+
+QMMM:
+  o Improved treatment of classical Bq charges
+  o Effective (ESP) charge or frozen density representation for fixed QM region calculations
+  o New multi-region optimization algorithm
+  o Ground and excited state calculations with TCE
+
+TCE:
+  o Several variants of active-space CCSDt and EOMCCSDt methods that employ limited set of 
+    triply excited cluster amplitudes defined by active orbitals.
+  o Ground-state non-iterative CC approaches that account for the effect of triply and/or
+    quadruply excited connected clusters: the perturbative approaches based on the similarity
+    transformed Hamiltonian: CCSD(2), CCSD(2)_T, CCSDT(2)_Q, the completely and locally 
+    renormalized methods: CR-CCSD(T), LR-CCSD(T), LR-CCSD(TQ)-1.
+  o Excited-state non-iterative corrections due to triples to the EOMCCSD excitation energies:
+    the completely renormalized EOMCCSD(T) method (CR-EOMCCSD(T)).
+  o Improved DIIS solver.
+  o New form of offset tables used in addressing files with cluster amplitudes, intermediates, 
+    and one- and two-electron integrals.
+  o More efficient storage of 2-electron integrals for CC calculations based on RHF or ROHF 
+    references.
+  o Improved scalability and performance of the CCSD and CCSD(T) codes.
+
+MD:
+  o Bug fixes for thermodynamic integration.
+  o Bug fixes related to I/O.
+
+Properties:
+  o Spin-spin coupling can be used for DFT
+  o Spherical basis set fixes for NMR shielding
+
+A general FAQ is available at
+http://www.emsl.pnl.gov/docs/nwchem/support/faq/NWChem_FAQ.html
