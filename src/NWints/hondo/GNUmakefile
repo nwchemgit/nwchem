@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 2005-10-20 21:10:38 edo Exp $
+# $Id: GNUmakefile,v 1.16 2006-11-16 18:22:19 jochen Exp $
 
 include ../../config/makefile.h
 
@@ -54,7 +54,12 @@ include ../../config/makefile.h
                  hnd_init_1eelec.o \
                  hnd_init_dso.o \
                  hnd_init_1emtpl.o \
-                 hnd_init_pso.o
+                 hnd_init_pso.o \
+                 hnd_veloc.o \
+                 hnd_angmom.o \
+                 hnd_dipxyz.o \
+                 hnd_init_dip.o \
+                 hnd_giaos100.o
 
   OBJ = hnd_vstat.o \
         

@@ -1,5 +1,5 @@
 c
-c $Id: hnd_pointers.fh,v 1.2 2004-12-03 22:36:10 bert Exp $
+c $Id: hnd_pointers.fh,v 1.3 2006-11-16 18:22:19 jochen Exp $
 c
 c Pointers needed for dynamical allocation of memory in various
 c hondo routines. All pointers are based on max L, as that is the
@@ -41,16 +41,22 @@ c           hnd_giaos10     6(L+2)(L+1)
 c           hnd_giaotv10    3(L+2)(L+3) + 3(L+2)(L+1)((2L+1)/2+1) +
 c                           3(L+2)(L+3) + 3(L+2)(L+1)((2L+1)/2+1)
 c
-c dsot      hnd_dso         12(L+1)(L+1)((2L+2)/2+1)^2
-c
 c Each of the five routines will use a subset of the pointers. Blocks
 c for each pointer are setup using blocks of hnd_giaoh11, as these are
 c the largest blocks. hnd_giaotv10 needs one extra block (which will
 c be block 12), which lies half way one of the other (L+2)(L+3) blocks.
 c
-      integer hdp,stp,tvp,elpt,gh01,dsot
+c dsot      hnd_dso         12(L+1)(L+1)((2L+2)/2+1)^2
+c
+c velocity  hnd_veloc       6(L+1)(L+2)
+c
+c dipvel    hnd_dipvel      9(L+1)(L+2)
+c
+c Both velocity and dipvel will use one pointer block of length 9
+c
+      integer hdp,stp,tvp,elpt,gh01,dsot,dip
       common/hnd_scratchpoint/stp(9),hdp(18),tvp(54),elpt(9),gh01(12),
-     1                        dsot(12)
+     1                        dsot(12),dip(9)
 c
 c Blocks below are used to allocate scratch memory for 2e-integrals
 c
