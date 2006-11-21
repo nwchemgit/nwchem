@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.11 2006-10-02 20:09:37 windus Exp $
+C$Id: gibbs.F,v 1.12 2006-11-21 15:26:47 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -15,10 +15,15 @@ c
 #include "errquit.fh"
 #include "gibbsP.fh"
 #include "rtdb.fh"
+#include "util_sgroup.fh" 
+#include "msgids.fh"
+#include "msgtypesf.h"
 c
       integer rtdb  ! integer
 
       logical task_energy
+      logical util_sgstart
+      external util_sgstart
       external task_energy
 
       double precision M,MTOT
@@ -50,6 +55,7 @@ c
       double precision seed
       double precision rnnum
       double precision rb, testme
+      integer bigproc, procnums
       double precision NDA,NDSIG
 
       double precision temp, uu, uavr, usqrd, rsimsum, rsimavr
@@ -58,13 +64,14 @@ c
       double precision sgm, aratiott, aratiotr, aratiotv
       double precision aratiotpr, aratiotpi, cv, rinc
       double precision percent, rest
-      INTEGER NSPC, NDIM,g_pr,DIMS,CHUNK,IICOUNT 
+      INTEGER NSPC, NDIM,g_pr,g_proc,DIMS,CHUNK,IICOUNT 
       INTEGER CONT1,CONT2
       integer myid
       integer mxnode, ld, natot, nob, iam
       integer iacceptt, iacceptr, iacceptv, iacceptpr, iacceptpi
       integer nmols, mcstps, lmin, lmax, mprnt, i, j, node
       integer ir, ii, jj, iname, ilo, ihi, jlo, jhi
+      integer idbig, inodesbig, idmedium, idzero
       character*4 prcfil
       CHARACTER*4 occtag
       CHARACTER*8 PREFIX
@@ -125,40 +132,147 @@ C      DIMENSION TESTME(100,MXNODE)
       DIMENSION DIMS(2),CHUNK(2)
       DIMENSION ld(2)  
       DIMENSION RINIT(MXMOLS,MXATOM,3)
+      dimension bigproc(20,1)
+      dimension procnums(20)
 
       SAVE NATOT
 
       dntmc_gibbs = .false.
 
+c
+c  get the global node id number and group handle
+c  this is before any of the subgroups are created
+c
       myid = ga_nodeid()
+      idbig = ga_pgroup_get_default()
+c     idbig = ga_pgroup_get_world()
+      inodesbig = ga_nnodes()
 
 c     WRITE(6,*)'i made it into the code =',myid
 c     CALL FLUSH(6)
 
 C********************************************************
-c     integer g_pr 
-c     integer ndim
-c     ndim = 2
-c     integer dims(ndim)
-c     integer chunk(ndim)
+c
+c  this is where the creation of subgroups probably 
+c  needs to come in, each of the 0 nodes needs to be 
+c  involved in the creation of the g_pr array
+c
+c     if (inodesbig.gt.1) then
+      if (.not.ga_create(MT_DBL, inodesbig, 1, "proc list",
+     &     1, -1, g_proc))
+     &   call errquit('dntmc_gibbs:g_proc create error', 0,
+     &                 GA_ERR)
+      call ga_fill(g_proc, -1) 
 
-       NOB = 100  !number of bins
+       if (.not.util_sgstart(rtdb))
+     &   call errquit('dntmc_gibbs:error starting subgroups',
+     &                  0, UNKNOWN_ERR)
+       idmedium = ga_pgroup_get_default()
+c
+c This next part is to set up the group that is only the node 0s
+c in the medium groups
+c
+       if (ga_nodeid().eq.0) then
+c
+c Only node 0s get in here and then they go to the world
+c group to form the node 0 group.
+c
+          write(6,*) 'inside the ga_nodeid eq 0 clause'
+          call flush(6)
+          call ga_pgroup_set_default(idbig)
+          write(6,*) 'after the set_default idbig'
+          call flush(6)
+c
+c create the proclist of only the CPU 0s
+c
+          ld(1)  = 1   !must be physical dimension of local array
+          ld(2)  = 1
+          call ga_put(g_proc,myid+1,myid+1,1,1,myid,ld)
+          call ga_sync()
+c
+c all 0's get the full list
+c
+          ld(1)  = 20   !must be physical dimension of local array
+          ld(2)  = 1
+          call ga_get(g_proc,1,inodesbig,1,1,bigproc,ld)
+          write(6,*) 'after ga_get of the node ids'
+          call flush(6)
+          j = 0
+          do i = 1, inodesbig
+             if (bigproc(i,1).ne.-1) then
+                j = j + 1
+                procnums(j) = bigproc(i,1)
+             endif
+          enddo
+c
+c check to make sure that we got the correct number of processes
+c
+          write(6,*) 'j and ngroups ',j,ngroups,myid
+          if (j.ne.ngroups)
+     &      call errquit('dntmc_gibbs:zero node creation problem',
+     &        j, UNKNOWN_ERR)
+       else
+c
+c All nodes have to be back at the large group before the
+c 0 node group can be formed.
+c
+          write(6,*) 'inside the ga_nodeid eq 0 else clause'
+          call flush(6)
+          call ga_pgroup_set_default(idbig)
+          write(6,*) 'after the set_deafault idbig'
+          call flush(6)
+          call ga_sync()
+       endif 
+c
+c Everyone need to get the processors involved in idzero and do the create
+c
+       call ga_sync()
+       call ga_brdcst(msg_dntmc3+MSGINT, procnums, mitob(ngroups), 0)
+       call ga_sync()
 
-       ndim = 2
+       write(6,*) 'before the ga_pgroup_create idzero call',
+     &    procnums(1), procnums(2), ngroups, ga_nodeid(), myid
+       idzero = ga_pgroup_create(procnums, ngroups)
+       write(6,*) 'after the ga_pgroup_create idzero call'
+c
+c Now set the default group to idmedium so that we can get to the node
+c zeros again!
+c
+       call ga_pgroup_set_default(idmedium)
+       if (ga_nodeid().eq.0) then
+          call ga_pgroup_set_default(idzero)
+          write(6,*) 'after the ga_pgroup_set_default idzero call'
 
-       dims(1) = NOB
-       dims(2) = ga_nnodes()
+          NOB = 100  !number of bins
 
-       chunk(1) = dims(1) !if = dims(1), gives distribution by vertical strips
-       chunk(2) = 0       !if < 1, causes dimension to be distributed evenly
+          ndim = 2
+
+          dims(1) = NOB
+          dims(2) = ngroups
+c           dims(2) = ga_nnodes()
+
+          chunk(1) = dims(1) !if = dims(1), gives distribution by vertical strips
+          chunk(2) = 0       !if < 1, causes dimension to be distributed evenly
 
 
-       g_pr = ga_create_handle()
-       call ga_set_data(g_pr,ndim,dims,MT_F_DBL)
-       call ga_set_chunk(g_pr,chunk)
-       status = ga_allocate(g_pr)
-       call ga_zero(g_pr) 
+          g_pr = ga_create_handle()
+          call ga_set_data(g_pr,ndim,dims,MT_F_DBL)
+          call ga_set_chunk(g_pr,chunk)
+          status = ga_allocate(g_pr)
+          call ga_zero(g_pr) 
+       else
+          call ga_pgroup_set_default(idzero)
+       endif
+
+       call ga_pgroup_set_default(idbig)
+       call ga_sync() ! make sure that everyone is at the same place
+       call ga_pgroup_set_default(idmedium)
+c     endif
 C********************************************************
+c
+c For now I am letting all of the processors run through all of this
+c it is probably better in the long term to only have the 0 node
+c on the subgroups doing this.
 
       iam = myid
       write(prcfil(1:4), '(i4)') iam
@@ -267,15 +381,6 @@ c
       call dntmc_getspecinfo(rtdb, nmols, natom, rinit, uspc, nspc,
      &      m)
 c
-c Try to read these from the rtdb - some now in the above call
-c need to clean this when stuff is working
-c
-c      NSPC = 1
-c      NMOLS = 10            !total number of water molecules
-c      MCSTPS = 100     !total number of Monte Carlo Steps
-c     if (.not.rtdb_get(rtdb, 'dntmc:nspecies', MT_INT, 1, nspc))
-c    &    call errquit('dntmc_gibbs: rtdb error for nspc', 0, RTDB_ERR)
-c
       if (.not.rtdb_get(rtdb, 'dntmc:mcsteps', MT_INT, 1, MCSTPS))
      &    call errquit('dntmc_gibbs: rtdb error for mcsteps', 0, 
      &    RTDB_ERR)
@@ -372,9 +477,11 @@ C     CREATE INITIAL CONFIGURATION OF WATER MOLECULES
 C     CORRESPONDING TO WHICH PARTICULAR NODE THE CODE
 C     IS RUNNING ON
 
-      NODE = IAM
+c This needs to be on the group ID so that all members of a group
+c are doing the same thing.
 
-C done in parallel
+      NODE = idmedium
+
       CALL dntmc_CONFIG(NMOLS,NODE,RMAX,rinit)
 
       WRITE(6,*)'made it through the initial config setup'
@@ -795,49 +902,59 @@ C     STORE RADIAL GRID RSH INTO RB
 C**********************************************************************
 C    THIS SECTION STORES THE LOCAL NUMBERAVR INTO THE GLOBAL ARRAY
 
-      ilo = 1
-      ihi = NOB
-      jlo = ga_nodeid() + 1
-      jhi = ga_nodeid() + 1
+      if (ga_nodeid().eq.0) then
+         call ga_pgroup_set_default(idzero)
+         ilo = 1
+         ihi = NOB
+         jlo = ga_nodeid() + 1
+         jhi = ga_nodeid() + 1
 
 c      write(6,*)'jlo =',jlo
 
-      ld(1)  = 100   !must be physical dimension of local array
-      ld(2)  = 1
+         ld(1)  = 100   !must be physical dimension of local array
+         ld(2)  = 1
 
-      call ga_put(g_pr,ilo,ihi,jlo,jhi,NUMBERAVR,ld)
-      call ga_sync
+         call ga_put(g_pr,ilo,ihi,jlo,jhi,NUMBERAVR,ld)
+         call ga_sync
 
-      jlo = 1
-      jhi = ga_nnodes()
+         jlo = 1
+         jhi = ga_nnodes()
 
 c      write(6,*)'jhi =',jhi
 c
 c everyone gets the full results
 
-      call ga_get(g_pr,ilo,ihi,jlo,jhi,TESTME,ld)
+         call ga_get(g_pr,ilo,ihi,jlo,jhi,TESTME,ld)
 
 C*********************************************************************
 C     this section is for testing...
 
-      RSH = RMIN
-      DO I = 1, NOB
-         RSH = RSH + RINC
-         WRITE(6,*)RSH,TESTME(I,ga_nodeid()+1)
-      ENDDO
-
+         RSH = RMIN
+         DO I = 1, NOB
+            RSH = RSH + RINC
+            WRITE(6,*)RSH,TESTME(I,ga_nodeid()+1)
+         ENDDO
 
 C**********************************************************************
 C    this section is averages the distributions from all nodes
 C    and finds the maximum variance and tests it against
 C    a predefined tolerance in the logical below...
 
-      CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT)
+         CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT)
+         write(6,*) 'ga_nnodes and percent in idzero ',
+     &     ga_nnodes(), percent
+      endif  ! idzero section
+      call ga_pgroup_set_default(idmedium)
+      call ga_sync()
+      call ga_brdcst(msg_dntmc0+MSGINT, PERCENT, mitob(1), 0)
+      call ga_brdcst(msg_dntmc1+MSGDBL, NDA, mdtob(100), 0)
+      call ga_brdcst(msg_dntmc2+MSGDBL, NDSIG, mdtob(100), 0)
 
+      write(6,*) 'percent is ', percent, ga_nodeid(), myid
       IF(PERCENT.LT.30.D+00)THEN
 
-          WRITE(6,*)'the average distibution has converged'
-          WRITE(12,*)'the average distibution has converged'
+          WRITE(6,*)'the average distribution has converged'
+          WRITE(12,*)'the average distribution has converged'
           WRITE(6,*)'PERCENT =',PERCENT
           WRITE(12,*)'PERCENT =',PERCENT
 
@@ -845,8 +962,8 @@ C    a predefined tolerance in the logical below...
 
       ELSE
 
-          WRITE(6,*)'the average distibution has not converged yet'
-          WRITE(12,*)'the average distibution has not converged yet'
+          WRITE(6,*)'the average distribution has not converged yet'
+          WRITE(12,*)'the average distribution has not converged yet'
           WRITE(6,*)'PERCENT =',PERCENT
           WRITE(12,*)'PERCENT =',PERCENT
 
@@ -927,7 +1044,12 @@ C     STORE NEW RADIAL GRID RSH INTO RB
 
 C    re-initialize global array to zero
 
-      CALL ga_zero(g_pr) 
+      if(ga_nodeid().eq.0) then
+         call ga_pgroup_set_default(idzero)
+         CALL ga_zero(g_pr) 
+      endif
+      call ga_pgroup_set_default(idmedium)
+      call ga_sync()
 
 C******************************************************************
 C     CREATE NEW INITIAL CONFIGURATION OF WATER MOLECULES
@@ -935,7 +1057,7 @@ C     CORRESPONDING TO WHICH PARTICULAR NODE THE CODE
 C     IS RUNNING ON
 C     THIS IS THE SECOND MONTE CARLO LOOP USING A BETTER Rcut*
 
-      NODE = IAM
+      NODE = idmedium
 
       CALL dntmc_CONFIG(NMOLS,NODE,RMAX,rinit)
 
@@ -1102,29 +1224,37 @@ C***************************************************************
       WRITE(12,*)'*******************************'
 
 C**********************************************************************
-      ilo = 1
-      ihi = NOB
-      jlo = ga_nodeid() + 1
-      jhi = ga_nodeid() + 1
+      if (ga_nodeid().eq.0) then
+         call ga_pgroup_set_default(idzero)
+         ilo = 1
+         ihi = NOB
+         jlo = ga_nodeid() + 1
+         jhi = ga_nodeid() + 1
 
 c      write(6,*)'jlo =',jlo
 
-      ld(1)  = 100   !must be physical dimension of local array
-      ld(2)  = 1
+         ld(1)  = 100   !must be physical dimension of local array
+         ld(2)  = 1
 
-      call ga_put(g_pr,ilo,ihi,jlo,jhi,NUMBERAVR,ld)
-      call ga_sync
+         call ga_put(g_pr,ilo,ihi,jlo,jhi,NUMBERAVR,ld)
+         call ga_sync()
 
-      jlo = 1
-      jhi = ga_nnodes()
+         jlo = 1
+         jhi = ga_nnodes()
 
 c      write(6,*)'jhi =',jhi
 
-      call ga_get(g_pr,ilo,ihi,jlo,jhi,TESTME,ld)
+         call ga_get(g_pr,ilo,ihi,jlo,jhi,TESTME,ld)
 
 C*********************************************************************
 
-      CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT)
+         CALL dntmc_AVERAGEDIST(NOB,ga_nnodes(),PERCENT)
+      endif  ! idzero section
+      call ga_pgroup_set_default(idmedium)
+      call ga_sync()
+      call ga_brdcst(msg_dntmc4+MSGINT, mdtob(PERCENT), 1, 0)
+      call ga_brdcst(msg_dntmc5+MSGDBL, NDA, mdtob(100), 0)
+      call ga_brdcst(msg_dntmc6+MSGDBL, NDSIG, mdtob(100), 0)
 
       WRITE(6,*)'PERCENT =',PERCENT
       WRITE(12,*)'PERCENT =',PERCENT
@@ -1236,8 +1366,16 @@ C     writing restart files
       WRITE(6,*)'the end - Ive written everything on each node'
 
 c*************************************
-      status = ga_destroy(g_pr)
+      if (ga_nodeid().eq.0) then
+        call ga_pgroup_set_default(idmedium)
+        status = ga_destroy(g_pr)
+      else
+        call ga_pgroup_set_default(idmedium)
+      endif
+      status = ga_destroy(g_proc)
+      call util_sgend(rtdb)  ! finalize subgroup stuff
       dntmc_gibbs = .true.
+      write(6,*) 'leaving dntmc_gibbs', myid
       return
       END
 
@@ -3519,7 +3657,7 @@ C    find variance for each bin across all nodes
          ENDDO
          NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES))
 c        NDSIG(J) = DSQRT(NDSIGSUM/DBLE(NNODES - 1))
-c        WRITE(6,*)RB(J),NDA(J),NDSIG(J)
+         WRITE(6,*)RB(J),NDA(J),NDSIG(J)
       ENDDO
 
 C     FIND MAXIMUM ERROR ALONG AVERAGE DISTRIBUTION
