@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.35 2006-10-07 00:10:03 bylaska Exp $
+c $Id: nwpw_input.F,v 1.36 2006-11-22 18:43:00 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 79)
+      parameter (num_dirs = 81)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -93,6 +93,8 @@ c
      >            'scaling',
      >            'xyz_filename',
      >            'np_orbital',
+     >            'spin-orbit',
+     >            'spin_orbit',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -144,6 +146,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5700,5800,5900,
+     >       6000,6000,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -956,6 +959,12 @@ c
      >  call errquit('nwpw_input: error writing to rtdb',5900,RTDB_ERR)
       goto 10
 
+c
+c  spin-orbit
+c
+ 6000 if (.not.rtdb_put(rtdb,'nwpw:spin-orbit',mt_log,1,.true.))
+     >  call errquit('nwpw_input: error writing to rtdb',6000,RTDB_ERR)
+      goto 10
 
 
 ************************************************************************

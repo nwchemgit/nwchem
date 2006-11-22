@@ -1,6 +1,6 @@
 
 *
-* $Id: DMatrix-tcgmsg.F,v 1.2 2006-10-13 01:43:57 bylaska Exp $
+* $Id: DMatrix-tcgmsg.F,v 1.3 2006-11-22 18:43:01 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -179,33 +179,47 @@ c     **** loop over all row pannels of C ***
       do while (kk.lt.m)
          iwrk = min(nblock, mc(icur+1)-ii)
          iwrk = min(iwrk,   na(jcur+1)-jj)
+         iwrk = min(nblock, mc(icur+1)-ii)
+         iwrk = min(iwrk,   na(jcur+1)-jj)
 
 
-*        **** pack current iwrk columns of A into work1 ***
-         if (taskid_j.eq.jcur) then
-            call dlacpy("G", ma(taskid_i+1),iwrk,
+*        **** iwrk*nc(taskid_j+1) submatrix !=0 ****
+         if (ma(taskid_i+1).gt.0) then
+
+*           **** pack current iwrk columns of A into work1 ***
+            if (taskid_j.eq.jcur) then
+               call dlacpy("G", ma(taskid_i+1),iwrk,
      >                   A(1,jj+1), lda,
      >                   work1,     ma(taskid_i+1))
-         end if
+            end if
 
-c        **** broadcast work1  within my row ***
+c           **** broadcast work1  within my row ***
          call GA_PGROUP_BRDCST(comm_j, 9+MSGDBL,
      >                         work1,mdtob(iwrk*ma(taskid_i+1)),
      >                         jcur)
 
-         if ((iwrk.gt.0)          .and.
-     >       (nb(taskid_j+1).gt.0).and.
-     >       (ma(taskid_i+1).gt.0))
-     >     call dgemm('T','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
-     >                alpha,
-     >                work1, ma(taskid_i+1),
-     >                B, ldb,
-     >                0.0d0,
-     >                work2, iwrk)
+c            if ((iwrk.gt.0)          .and.
+c     >          (nb(taskid_j+1).gt.0).and.
+c     >          (ma(taskid_i+1).gt.0))
+            if ((iwrk.gt.0)          .and.
+     >          (nb(taskid_j+1).gt.0))
+     >        call dgemm('T','N',iwrk,nb(taskid_j+1),ma(taskid_i+1),
+     >                   alpha,
+     >                   work1, ma(taskid_i+1),
+     >                   B, ldb,
+     >                   0.0d0,
+     >                   work2, iwrk)
+
+*        **** iwrk*nc(taskid_j+1) submatrix ==0 ****
+         else
+            call dcopy(nc(taskid_j+1)*iwrk,0.0d0,0,work2,1)
+         end if
+
 
 c        **** summ to node that holds current rows of C ****
-         call GA_PGROUP_DGOP(comm_i, 9+MSGDBL,
+        call GA_PGROUP_DGOP(comm_i, 9+MSGDBL,
      >                       work2,nc(taskid_j+1)*iwrk,'+')
+
 
 c        **** add to current rows of C ****
          if (taskid_i.eq.icur) then

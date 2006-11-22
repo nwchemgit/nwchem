@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.4 2006-10-13 01:43:57 bylaska Exp $
+* $Id: Dne.F,v 1.5 2006-11-22 18:43:01 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -894,6 +894,7 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift,tmp2(2)
       integer nj   
+      real*8 sum1
 
       if (mb.eq.0) then
          ms1 = 1

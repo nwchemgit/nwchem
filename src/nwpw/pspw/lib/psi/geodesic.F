@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.25 2006-10-13 01:43:58 bylaska Exp $
+* $Id: geodesic.F,v 1.26 2006-11-22 18:43:01 bylaska Exp $
 *
 
 *     ***********************************
@@ -252,6 +252,7 @@ c      value = value.and.MA_free_heap(Vt(2))
      >                                dbl_mb(tmpC(1)),
      >                                dbl_mb(tmpS(1)))
 
+
       call Dneall_mmm_Multiply2(0,dbl_mb(Vt(1)),
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
@@ -263,6 +264,7 @@ c      value = value.and.MA_free_heap(Vt(2))
       call Dneall_fmf_Multiply(0,dcpl_mb(U(1)),npack1,
      >                          dbl_mb(tmp3(1)),1.0d0,
      >                          Ynew,1.0d0)
+
 
 c      do ms = 1,psi_ispin()
 c        n      = psi_ne(ms)

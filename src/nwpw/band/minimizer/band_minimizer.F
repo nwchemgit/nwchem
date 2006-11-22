@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.41 2006-08-18 02:24:21 d3p708 Exp $
+* $Id: band_minimizer.F,v 1.42 2006-11-22 18:43:01 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -122,6 +122,9 @@ c      external cpsp_nprj,cpsp_psp_type
       external control_scf_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
+
+      logical  control_spin_orbit
+      external control_spin_orbit
 
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
@@ -268,6 +271,8 @@ c      external      cpsp_comment
          write(luout,1121) control_boundry(),control_version()
          if (cpsi_ispin().eq.1) write(luout,1130) "restricted"
          if (cpsi_ispin().eq.2) write(luout,1130) "unrestricted"
+         if (control_spin_orbit()) 
+     >     write(luout,*)  "I am supposed to be doing spin-orbit"
 
          IF (control_gga().eq.0) THEN
             write(luout,1131) 'Vosko et al parameterization'
