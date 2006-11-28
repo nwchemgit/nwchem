@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.8 2005-09-30 19:16:08 yuri Exp $
+C$Id: util_sgroup.F,v 1.9 2006-11-28 19:51:20 windus Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -267,9 +267,10 @@ c
 #include "global.fh"
 #include "rtdb.fh"
 #include "util_sgroup.fh"
-      integer cur_mygroup,me
+      integer cur_mygroup,def_group,me
 
-      cur_mygroup=ga_pgroup_split(ngroups)
+      def_group = ga_pgroup_get_default()
+      cur_mygroup=ga_pgroup_split(def_group,ngroups)
       if (cur_mygroup.eq.-1) then
          call errquit('Died in ga_pgroup_split',0,0)
       endif
