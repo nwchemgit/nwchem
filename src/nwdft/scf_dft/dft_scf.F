@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.252 2006-06-07 16:08:02 edo Exp $
+c     $Id: dft_scf.F,v 1.253 2006-11-28 18:46:01 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -1455,7 +1455,6 @@ c
       write(*,*)' ncydp = ', ncydp
       write(*,*)' ncysh = ', ncysh
       write(*,*)' ncyds = ', ncyds
-      write(*,*)' idirect = ', idirect
       write(*,*)' noio = ', noio
       write(*,*)' ndamp = ', ndamp
       write(*,*)' idecomp = ', idecomp
@@ -1500,10 +1499,7 @@ c
       write(*,*)' diison = ', diison
       write(*,*)' diisoff = ', diisoff
       write(*,*)' rcharge = ', rcharge
-      write(*,*)' rm = ', rm
       write(*,*)' tol_rho = ', tol_rho
-      write(*,*)' radius = ', radius
-      write(*,*)' rscale = ', rscale
       write(*,*)' cfac = ', (cfac(i),i=1,15)
       write(*,*)' xfac =', (xfac(i),i=1,15)
       write(*,*)' hl_tol = ', hl_tol

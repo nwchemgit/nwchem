@@ -1,5 +1,5 @@
       subroutine tol_input(rtdb, module)
-C$Id: tol_inp.F,v 1.14 2003-10-17 22:55:43 carlfahl Exp $
+C$Id: tol_inp.F,v 1.15 2006-11-28 18:46:02 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -23,7 +23,6 @@ c     accXCfunc
 c     accCoul
 c     accQrad
 c     accXCfunc
-c     radius
 c
 c     Any default assumptions are based upon "no input" defaults.
 c     
@@ -33,7 +32,7 @@ c
       character*255 test
       logical ltight
       integer iAOacc, iCDacc, itol2e, irqmax, iXCacc
-      double precision tol_rho, radius
+      double precision tol_rho,ddumm
       data dirs /'tight', 'tol_rho', 'accAOfunc', 'accCDfunc', 
      $           'accCoul', 'accQrad', 'accXCfunc', 'radius'/
 c     
@@ -136,13 +135,10 @@ c
 c     
 c     radius; screening radius used in computation of spatial weights (distance in bohr)
 c     
-  800 if (.not. inp_f(radius)) then
-         write(LuOut,*)' tol_inp: radius value not found; defaulting ',
-     &             ' to 25.d0.'
-         radius=25.d0
+  800 if (.not. inp_f(ddumm)) then
+cedo         radius=25.d0
       endif            
-      if (.not. rtdb_put(rtdb, 'dft:radius', mt_dbl, 1, radius))
-     &   call errquit('tol_inp: rtdb_put failed', 800, RTDB_ERR)
+      write(LuOut,*)' WARNING: radius keyword NOT recognized '
 c
       goto 10
 c     
@@ -154,7 +150,7 @@ c
 10001 format(/,' tolerances [[tight], [tol_rho dtol], ',
      &       /,' [accAOfunc itol], [accCDfunc itol], ',
      &       /,' [accCoul itol], [accQrad itol], ',
-     &       /,' [accXCfunc itol], [radius dtol] ')
+     &       /,' [accXCfunc itol] ')
       call util_flush(LuOut)
       call errquit('tol_input: invalid format', 0, INPUT_ERR)
 c     

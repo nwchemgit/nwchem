@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.69 2003-11-24 20:57:33 d3g681 Exp $
+c     $Id: dft_inpana.F,v 1.70 2006-11-28 18:46:02 edo Exp $
 c
 c*********************************************************************
 c     
@@ -301,7 +301,7 @@ c
             if (oadapt)on_off_2 = 'on'
             write(LuOut,9056)on_off_1, on_off_2
             write(LuOut,9030)iterations
-            if (idirect.eq.1)write(LuOut,9110)
+            if (direct)write(LuOut,9110)
             if (.not. bas_numcont(AO_bas_han, nshells))
      &         call errquit('rdinput:rdinput:',86, BASIS_ERR)
             write(LuOut,4001)nbf, nshells
@@ -567,9 +567,8 @@ c
      &         (LuOut,'Screening Tolerance Information',20,.true.)
             t1 = 10.d0**(-itol2e)
 c            write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
-c     &                    r1, radius
-            write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1,  
-     &                    radius
+c     &                    r1
+            write(LuOut,9372)tol_rho, iaoacc, icdacc, ixcacc, t1
             call util_flush(LuOut)
          endif
       endif
@@ -639,8 +638,7 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
      &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
      &       10x,'XC Gaussian exp screening on grid/accXCfunc: ',i3,/,
-     &       10x,'Schwarz screening/accCoul: ',1Pd8.2,/,
-     &       10x,'Spatial weight screening/radius(au): ',1Pd8.2,/)
+     &       10x,'Schwarz screening/accCoul: ',1Pd8.2,/)
       end
       subroutine dft_inpanae(rtdb)
       implicit none

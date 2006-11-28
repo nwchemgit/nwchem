@@ -32,6 +32,7 @@ c     nquad_task
 c     rm
 c     
       integer num_dirs, ind, mlen
+      double precision ddumm
       integer atn
       character*2 symbol
       parameter (num_dirs = 25)
@@ -251,13 +252,9 @@ c
 c     
 c     rm; the exponent in defining the Euler-Maclaurin radial quadrature
 c     
- 1300 if (.not. inp_f(rm)) then
-         write(LuOut,*)' grid_inp: rm value not found; defaulting ',
-     &             ' to 2.0d0 '
-         rm = 2.0d0
+ 1300 if (.not. inp_f(ddumm)) then
       endif            
-      if (.not. rtdb_put(rtdb, 'dft:rm', mt_dbl, 1, rm))
-     &   call errquit('grid_inp: rtdb_put failed', 1300, RTDB_ERR)
+      write(LuOut,*)'WARNING: rm keyword NOT recognized'
 c
       goto 10
 c
@@ -367,8 +364,7 @@ c
 10001 format(/,' grid [ [becke], [gausleg], 
      &       [lebedev ival ival], ',
      &       /,' [xcoarse], [coarse], [medium], [fine], [xfine], ',
-     &       /,' [user ival ival], [store_wght], [nquad_task ival], ',
-     &       /,' [rm rval] ')
+     &       /,' [user ival ival], [store_wght], [nquad_task ival], ')
       call util_flush(LuOut)
       call errquit('grid_input: invalid format', 0, INPUT_ERR)
 c     

@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.130 2006-06-07 15:57:34 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.131 2006-11-28 18:46:02 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -138,22 +138,6 @@ c
      &      call errquit('dft_rdinput: rtdb_put failed', 6, RTDB_ERR)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:store_wght', mt_log, 1,
-     &   store_wght))then
-         store_wght = .false.
-         if (.not. rtdb_put(rtdb, 'dft:store_wght',
-     &      mt_log, 1, store_wght))
-     &      call errquit('dft_rdinput: rtdb_put failed', 7, RTDB_ERR)
-      endif
-c
-      if (.not. rtdb_get(rtdb, 'dft:delley', mt_log, 1,
-     &   ldelley))then
-         ldelley = .false.
-         if (.not. rtdb_put(rtdb, 'dft:delley',
-     &      mt_log, 1, ldelley))
-     &      call errquit('dft_rdinput: rtdb_put failed', 8, RTDB_ERR)
-      endif
-c
       if (.not. rtdb_get(rtdb, 'dft:lb94', mt_log, 1,
      &   lb94))then
          lb94 = .false.
@@ -232,14 +216,6 @@ c
          if (.not. rtdb_put(rtdb, 'dft:nfock',
      &      mt_int, 1, nfock))
      &      call errquit('dft_rdinput: rtdb_put failed', 107, RTDB_ERR)
-      endif
-c
-      if (.not. rtdb_get(rtdb, 'dft:idirect', mt_int, 1,
-     &   idirect))then
-         idirect=0
-         if (.not. rtdb_put(rtdb, 'dft:idirect',
-     &      mt_int, 1, idirect))
-     &      call errquit('dft_rdinput: rtdb_put failed', 111, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:noio', mt_int, 1,
@@ -377,14 +353,6 @@ c
      &      call errquit('dft_rdinput: rtdb_put failed', 206, RTDB_ERR)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:rscale', mt_dbl, 1,
-     &   rscale))then
-         rscale = 0.0d0
-         if (.not. rtdb_put(rtdb, 'dft:rscale',
-     &      mt_dbl, 1, rscale))
-     &      call errquit('dft_rdinput: rtdb_put failed', 207, RTDB_ERR)
-      endif
-c
       if (.not. rtdb_get(rtdb, 'dft:levelshift',
      &   mt_log, 1, levelshift))then
          levelshift = .true.
@@ -442,14 +410,6 @@ c
      &     mt_int, 1, ncyds))
      &     call errquit('dft_rdinput: rtdb_put failed', 110, RTDB_ERR)
 c
-      if (.not. rtdb_get(rtdb, 'dft:radius', mt_dbl, 1,
-     &   radius))then
-         radius=25.d0
-         if (.not. rtdb_put(rtdb, 'dft:radius',
-     &      mt_dbl, 1,radius))
-     &      call errquit('dft_rdinput: rtdb_put failed', 213, RTDB_ERR)
-      endif
-c
       if (.not. rtdb_get(rtdb, 'dft:tol_rho', mt_dbl, 1,
      &   tol_rho))then
          tol_rho=1.D-10
@@ -458,13 +418,6 @@ c
      &      call errquit('dft_rdinput: rtdb_put failed', 214, RTDB_ERR)
       endif
 c
-      if (.not. rtdb_get(rtdb, 'dft:rm', mt_dbl, 1,
-     &   rm))then
-         rm = 2.0d0
-         if (.not. rtdb_put(rtdb, 'dft:rm',
-     &      mt_dbl, 1,rm))
-     &      call errquit('dft_rdinput: rtdb_put failed', 215, RTDB_ERR)
-      endif
 c
 c     Get/set/put XC info.
 c
