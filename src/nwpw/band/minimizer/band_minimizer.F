@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.42 2006-11-22 18:43:01 bylaska Exp $
+* $Id: band_minimizer.F,v 1.43 2006-11-29 02:32:43 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -15,16 +15,12 @@
       implicit none
       integer rtdb
       integer flag
-
 #include "global.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "errquit.fh"
-
-
-      
+#include "errquit.fh"      
 *     **** parallel variables ****
       integer  taskid,np
       integer  MASTER
@@ -51,15 +47,12 @@
       integer ierr
 
 *     **** local variables ****
-      logical newpsi
+      logical newpsi,soc
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       integer i,k,ia,nion,vers,nbrillioun,icharge
-      integer mapping,minimizer
-  
+      integer mapping,minimizer 
 
-
-*     **** external functions ****
 *     **** external functions ****
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass,ion_TotalCharge
@@ -75,7 +68,8 @@
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
-
+      logical control_spin_orbit
+      external control_spin_orbit
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
       external control_it_in,control_it_out,control_gga,control_version
@@ -122,10 +116,6 @@ c      external cpsp_nprj,cpsp_psp_type
       external control_scf_algorithm
       real*8   control_ks_alpha
       external control_ks_alpha
-
-      logical  control_spin_orbit
-      external control_spin_orbit
-
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
 
@@ -179,16 +169,15 @@ c      external      cpsp_comment
       nwave = 0
       minimizer = control_minimizer()
       mapping   = control_mapping()
-
+      soc = control_spin_orbit()
 
       ierr = 0 
+
 
 *     **** initialize C3dB data structure ****
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call C3dB_nfft3d(1,nfft3d)
-
-
- 
+       
 *     **** initialize lattice data structure ****
       call lattice_init()
       call c_G_init()
@@ -225,37 +214,42 @@ c      external      cpsp_comment
       call cphafac()
       call cphafac_k()
 
+
+      value = MA_set_auto_verify(.true.)
+
 *     **** read in wavefunctions and initialize psi ****
-      if (.not.psi_filefind()) then
+c      if ((.not.psi_filefind()).or.soc) then
+
         call cpsi_new()
+
         newpsi = .true.
-
-      else
-        newpsi = .false.
-
+       
+c      else
+c       
+c	 newpsi = .false.
+c       
 *       **** convert from pspw format to band format ****
-        vers = psi_get_version()
-        if ((vers.eq.3).or.(vers.eq.4)) then
-           nbrillioun = brillioun_nbrillioun()
-           newpsi = .true.
-           if (taskid.eq.MASTER) then
-             value= pspw_reformat_c_wvfnc(1)
-           end if
-        end if
-      end if
+c        vers = psi_get_version()
+c        if ((vers.eq.3).or.(vers.eq.4)) then
+c           nbrillioun = brillioun_nbrillioun()
+c           newpsi = .true.
+c           if (taskid.eq.MASTER) then
+c             value= pspw_reformat_c_wvfnc(1)
+c           end if
+c        end if
+c      end if
+
       value = cpsi_initialize(.true.)
-
-
 *     **** electron and geodesic data structures ****
       call c_electron_init()
+
       call c_geodesic_init()
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
-
+ 
 *     **** initialize linesearching ****
       call linesearch_init()
-
 
 
 *                |**************************|
@@ -271,9 +265,7 @@ c      external      cpsp_comment
          write(luout,1121) control_boundry(),control_version()
          if (cpsi_ispin().eq.1) write(luout,1130) "restricted"
          if (cpsi_ispin().eq.2) write(luout,1130) "unrestricted"
-         if (control_spin_orbit()) 
-     >     write(luout,*)  "I am supposed to be doing spin-orbit"
-
+         if (SOC) write(LUOUT,*)"  spin orbit is turned on !!!!!!"
          IF (control_gga().eq.0) THEN
             write(luout,1131) 'Vosko et al parameterization'
          ELSE IF (control_gga().eq.10) THEN
@@ -307,8 +299,12 @@ c           write(luout,1154) cpsp_nprj(ia)
          end do
 
 
+         if (.not.control_spin_orbit()) then
          icharge = -(cpsi_ne(1)+cpsi_ne(cpsi_ispin()))
      >           + ion_TotalCharge()
+         else
+         icharge = -cpsi_ne(1) + ion_TotalCharge()
+         end if
          write(luout,1159) icharge
 
 
@@ -326,7 +322,6 @@ c           write(luout,1154) cpsp_nprj(ia)
          write(luout,1210) gx,gy,gz
          write(luout,1220) cpsi_ne(1),cpsi_ne(cpsi_ispin()),
      >                 ' (fourier space)'
-
 
          write(luout,1230)
          write(luout,1241) lattice_unita(1,1),
@@ -402,8 +397,10 @@ c           write(luout,1154) cpsp_nprj(ia)
 
 *     **** calculate energy ****
       if (flag.eq.-1) then
+
         EV= c_cgsd_noit_energy(newpsi)
       else
+
         EV= c_cgsd_energy(newpsi)
       end if
 
@@ -425,15 +422,16 @@ c           write(luout,1154) cpsp_nprj(ia)
      >                       'fion',fion(2),fion(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+
       call c_cgsd_energy_gradient(dbl_mb(fion(1)))
       call dscal(3*nion,(-1.0d0),dbl_mb(fion(1)),1)
       end if
      
-
 *     **** calculate the stress tensor ****
       call dcopy(9,0.0d0,0,stress,1)
       call dcopy(6,0.0d0,0,lstress,1)
       if (flag.eq.3) then
+
          call cpsp_stress_init()
          call cpsp_stress_readall()
          call c_cgsd_energy_stress(stress,lstress)
