@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.12 2004-02-01 19:01:44 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.13 2006-11-29 02:34:54 d3p708 Exp $                       
 *
 
 
@@ -47,7 +47,7 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun
+      integer  brillioun_nbrillioun,mb,nbb
       integer  cpsi_ne,control_version,cpsi_ispin
       real*8   control_tole,control_tolc
       real*8   cpsi_geodesic_energy
@@ -62,7 +62,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   c_ewald_e
       real*8   cpsi_1eorbit
       real*8   linesearch
-   
+      logical  cpsi_spin_orbit
       external brillioun_nbrillioun
       external cpsi_ne,control_version,cpsi_ispin
       external control_tole,control_tolc
@@ -78,7 +78,7 @@ c      complex*16 G1(nfft3d,nemax)
       external c_ewald_e
       external cpsi_1eorbit
       external linesearch
-
+      external cpsi_spin_orbit  
        
   
       call C3dB_nfft3d(1,nfft3d)
@@ -88,6 +88,9 @@ c      complex*16 G1(nfft3d,nemax)
       ne(2)  = cpsi_ne(2)
       neall  = ne(1)+ne(2)
       nbrill = brillioun_nbrillioun()
+      nbb=0
+      if (nbrill.eq.1) nbb=1
+      mb=0
 
 
 *     **** allocate H0, G0, and G1 ****
@@ -102,35 +105,39 @@ c      complex*16 G1(nfft3d,nemax)
       if (.not. value) call errquit('c_cgminimize:out of heap memory',0,
      &       MA_ERR)
 
-      Estart = Enew
 
+      Estart = Enew
+      Eold= Enew
 
 *     ***** get the initial gradient and direction ****
       call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
-      call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
-     >                   dcpl_mb(G1(1)),
-     >                   dcpl_mb(G1(1)),sum1)
 
-c     write(*,*) "sum1a,Estart,:",sum1,Estart
-      call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
+
+      call Pneb_ff_traceall(mb,nbb,dcpl_mb(G1(1)),dcpl_mb(G1(1)),
+     >       npack1,sum1)
+
+
+      call Pneb_ff_copy(mb,nbb,npack1,
      >                   dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
 
+ 
 *     ******************************************
 *     ****                                  ****
 *     **** Start of conjugate gradient loop ****
 *     ****                                  ****
 *     ******************************************
-      !it_in = control_it_in()
+
       tole  = control_tole()
       tolc  = control_tolc()
       tmin  = deltat_min
+
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
+
          call c_geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
-c        Eold= cpsi_geodesic_energy(0.0d0)
-c        write(*,*) "Eold:", Eold,max_sigma
+
 
 *        ******* line search *********
          if (tmin.gt.0.0d0) then
@@ -138,12 +145,14 @@ c        write(*,*) "Eold:", Eold,max_sigma
          else
             deltat = deltat_min
          end if
-c        Eold = cpsi_geodesic_energy(0.0d0)
+
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
      >                        tole,tmin,deltae,1)
+
          call cpsi_geodesic_final(tmin)
+
          deltac = c_rho_error()
 
 *        **** exit loop early ****
@@ -153,68 +162,58 @@ c        Eold = cpsi_geodesic_energy(0.0d0)
    
 
 *        **** transport the previous search directions ****
-         call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
+         call Pneb_ff_copy(0,0,npack1,
      >                     dcpl_mb(G1(1)),
      >                     dcpl_mb(G0(1)))
 
+
          call cpsi_1geodesic_transport(tmin,dcpl_mb(H0(1)))
+
          call cpsi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
+
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
-c        call c_rho_2to1()
-c        call c_dng_2to1()
 
 *        **** get the new gradient - also updates densities****
          call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
 
-         call Stfl_ggg_Sub(ispin,ne,npack1,neall,nbrill,
+         call Pneb_fff_sub(0,0,npack1,
      >                       dcpl_mb(G1(1)),
      >                       dcpl_mb(G0(1)),
      >                       dcpl_mb(G0(1)))
 
          sum0  = sum1
-         call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
-     >                        dcpl_mb(G1(1)),
-     >                        dcpl_mb(G1(1)),
-     >                        sum1)
-         call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
-     >                        dcpl_mb(G0(1)),
-     >                        dcpl_mb(G1(1)),
-     >                        sum3)
 
-c        write(*,*) "sum1:",sum1,sum0,sum3,max_sigma
-c        write(*,*) "Enew:",Enew
+         call Pneb_ff_traceAll(0,0,
+     >                        dcpl_mb(G1(1)),
+     >                        dcpl_mb(G1(1)),npack1,
+     >                        sum3)
 
 *        **** the new direction using Fletcher-Reeves ****
          if (dabs(deltae).le.(1.0d-2).and.(tmin.gt.0.0d0)) then
 
            if (sum0.gt.1.0d-15) then
-c              scale = sum3/sum0
               scale = sum1/sum0
            else
               scale = 0.0d0
            end if
 
-           call Stfl_gg_dScale(ispin,ne,npack1,neall,nbrill,
-     >                         scale,
+           call Pneb_ff_scale(0,0,npack1,scale,
      >                         dcpl_mb(H0(1)),
      >                         dcpl_mb(H0(1)))
-           call Stfl_ggg_Sum(ispin,ne,npack1,neall,nbrill,
+
+           call Pneb_fff_sum(0,0,npack1,
      >                       dcpl_mb(G1(1)),
      >                       dcpl_mb(H0(1)),
      >                       dcpl_mb(H0(1)))
 
-
-*          ***** set to gradient if direction is assending *****
-*          call Grsm_gg_traceall(neall,H0,G1,kappa)
-*          if (kappa.le.0.0d0) call Grsm_gg_Copy(neall,G1,H0)
-
 *        **** the new direction using steepest-descent ****
          else
-              call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
+              call Pneb_ff_Copy(0,0,npack1,
      >                          dcpl_mb(G1(1)),
      >                          dcpl_mb(H0(1)))
+
          end if
 
       end do
@@ -229,15 +228,13 @@ c              scale = sum3/sum0
          deltat = deltat_min
       end if
 
-c      Eold = cpsi_geodesic_energy(0.0d0)
-c     Eold = cpsi_geodesic_energy(0.0d0)
-c      Enew = E0
-c      tmin = 0.0d0
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
      >                        tole,tmin,deltae,1)
+
       call cpsi_geodesic_final(tmin)
+
       deltac = c_rho_error()
 
 *     **** free memory ****
@@ -247,18 +244,26 @@ c      tmin = 0.0d0
       if (.not. value) 
      >  call errquit('c_cgminimize:error freeing stack memory',0,
      &       MA_ERR)
+      
+      
+      VALUE=MA_VERIFY_ALLOCATOR_STUFF()
 
       call cpsi_2to1()
+
+
       call cpsi_1toelectron() 
-c     call c_rho_2to1()
-c     call c_dng_2to1()
+
+
       call cpsi_check()
 
       eion = c_ewald_e()
 
       eorbit   = cpsi_1eorbit()
+
       ehartree = c_dng_1ehartree()
+
       exc      = c_rho_1exc()
+
       pxc      = c_rho_1pxc()
 
       E(1)  = Enew + eion
@@ -271,7 +276,6 @@ c     call c_dng_2to1()
       E(8)  = cpsi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
-
   
       return
       end

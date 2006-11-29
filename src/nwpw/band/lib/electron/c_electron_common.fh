@@ -1,5 +1,5 @@
 *
-* $Id: c_electron_common.fh,v 1.4 2004-11-13 02:22:05 bylaska Exp $
+* $Id: c_electron_common.fh,v 1.5 2006-11-29 02:34:37 d3p708 Exp $
 *
 
 *     ***** electron common block ****
@@ -12,10 +12,12 @@
       integer vc(2)
       integer xcp(2)
       integer xce(2)
+      logical spin_orbit
       common / c_electron_block / Hpsi_k,psi_r,
      >                          vl,vl_lr,vall,vc,xcp,xce,
      >                          ne,ispin,
-     >                          nfft3d,npack0,npack1,nbrill
+     >                          nfft3d,npack0,npack1,nbrill,
+     >                          spin_orbit
 
 *     **** electron_counter common block ****
       integer counter

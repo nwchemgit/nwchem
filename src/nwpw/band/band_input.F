@@ -1,6 +1,6 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.7 2003-10-17 22:55:58 carlfahl Exp $
+c $Id: band_input.F,v 1.8 2006-11-29 02:33:18 d3p708 Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -102,7 +102,7 @@ c
       ncut = 0
       ispin = 1
       multiplicity = 1
-
+c      spin_orbit=.false.
  10   if (.not. inp_read()) 
      >     call errquit(
      >           'band_input: inp_read failed', 0, INPUT_ERR)

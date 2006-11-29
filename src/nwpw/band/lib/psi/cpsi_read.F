@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.8 2005-08-23 14:12:01 bylaska Exp $
+* $Id: cpsi_read.F,v 1.9 2006-11-29 02:34:43 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -43,6 +43,8 @@ c     complex*16 tmp(*)
       logical value
 
 *     ***** local functions ****
+      logical control_spin_orbit
+      external control_spin_orbit
       character*30 control_input_psi
       external     control_input_psi
       double precision control_unita
@@ -175,7 +177,7 @@ c     **** send header to all nodes ****
          call Cram_c_Copy(nb,dcpl_mb(tmp2(1)),psi2(indx))
         end do
         end do
-
+        write(*,*)"Read wavefunction in cpsi_read"  
 *       **** use the last zone for filling in unknown zones ****
         do nb=nbrill+1,nbrillioun
         do n=1,(ne(1)+ne(2))

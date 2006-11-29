@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.1 2005-09-07 23:55:03 bylaska Exp $
+* $Id: cpsp_stress.F,v 1.2 2006-11-29 02:34:32 d3p708 Exp $
 *
 
 
@@ -659,8 +659,8 @@ c       close(11)
       call Cram_max_npack(npack1)
       nbrill = brillioun_nbrillioun()
 
-
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
+ccc corrected to complex by pjn 11-7-06
+      value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
       value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
@@ -692,7 +692,7 @@ c       close(11)
      >                        +(ia-1)*3*npack1*lmmax_max*nbrill),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(ncore(1) + npack0 + (ia-1)*5*npack0),
-     >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
+     >                  dcpl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
 
 

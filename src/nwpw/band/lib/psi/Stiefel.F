@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.9 2005-08-23 14:12:00 bylaska Exp $
+* $Id: Stiefel.F,v 1.10 2006-11-29 02:34:43 d3p708 Exp $
 *
 
 
@@ -98,7 +98,10 @@
 
 *     **** local variables ****
       integer i,nb
-
+ccccccccccccccc
+      call Pneb_ff_copy(0,0,nfft3d,A,C)
+      return
+cccccccccccc
       do nb=1,nbrill
       do i=1,(ne(1)+ne(2))
          call C3dB_c_Copy(1,A(1,i,nb),C(1,i,nb))
@@ -127,11 +130,13 @@
 *     **** local variables ****
       integer i,nb
 
-      do nb=1,nbrill
-      do i=1,(ne(1)+ne(2))
-          call Cram_cc_Sum(nb,A(1,i,nb),B(1,i,nb),C(1,i,nb))
-      end do
-      end do
+      call Pneb_fff_sum(0,0,nfft3d,A,B,C)
+      return
+c      do nb=1,nbrill
+c      do i=1,(ne(1)+ne(2))
+c          call Cram_cc_Sum(nb,A(1,i,nb),B(1,i,nb),C(1,i,nb))
+c      end do
+c      end do
       return
       end
        
@@ -152,14 +157,7 @@
       complex*16 B(nfft3d,neall,nbrill)
       complex*16 C(nfft3d,neall,nbrill)
 
-*     **** local variables ****
-      integer i,nb
-
-      do nb=1,nbrill
-      do i=1,(ne(1)+ne(2))
-         call Cram_cc_Sub(nb,A(1,i,nb),B(1,i,nb),C(1,i,nb))
-      end do
-      end do
+      call Pneb_fff_sub(0,0,nfft3d,A,B,C)
       return
       end
        
@@ -181,14 +179,7 @@
       complex*16 B(nfft3d,neall,nbrill)
       complex*16 C(nfft3d,neall,nbrill)
 
-*     **** local variables ****
-      integer i,nb
-
-      do nb=1,nbrill
-      do i=1,(ne(1)+ne(2))
-         call C3dB_cc_Sum(1,A(1,i,nb),B(1,i,nb),C(1,i,nb))
-      end do
-      end do
+      call Pneb_fff_sum(0,0,nfft3d,A,B,C)
  
       return
       end      
@@ -293,23 +284,7 @@
       integer j,k,nb,ms,jj,kk
       integer n1(2),n2(2)
 
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1)+1
-      n2(2) = ne(1)+ne(2)
-
-      call Stfl_g_Zero(ispin,ne,nfft3d,neall,nbrill,C)
-      do nb=1,nbrill
-      do ms=1,ispin
-      do k=n1(ms),n2(ms)
-         kk = k-n1(ms)+1
-         do j=n1(ms),n2(ms)
-           jj = j-n1(ms)+1
-           call Cram_cc_zaxpy(nb,Q(jj,kk,ms,nb),A(1,j,nb),C(1,k,nb))
-         end do
-      end do
-      end do
-      end do
+      call Pneb_fwf_multiply(0,0,A,Q,nfft3d,C)
       return
       end
 
@@ -335,6 +310,8 @@
 *     **** local variables ****
       integer k,nb
 
+      call Pneb_ff_scale(0,0,nfft3d,scale,A,C)
+      return
       do nb=1,nbrill
       do k=1,(ne(1)+ne(2))
         call Cram_c_SMul(nb,scale,A(1,k,nb),C(1,k,nb))
@@ -364,6 +341,8 @@
 *     **** local variables ****
       integer k,nb
 
+      call Pneb_ff_scale(0,0,nfft3d,scale,A,C)
+      return
       do nb=1,nbrill
       do k=1,(ne(1)+ne(2))
         call C3dB_c_SMul(1,scale,A(1,k,nb),C(1,k,nb))
@@ -447,33 +426,7 @@
       complex*16 B(nfft3d,neall,nbrill)
       complex*16 Q(n,n,2,nbrill)
 
-*     **** local variables ****
-      integer j,k,np,nb,jj,kk
-      integer ms,n1(2),n2(2)
-      complex*16 sum
-
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1)+1
-      n2(2) = ne(1)+ne(2)
-
-      call Parallel_np(np)
-      call dcopy(4*n*n*nbrill,0.0d0,0,Q,1)
-
-      do nb=1,nbrill
-      do ms=1,ispin
-      do k=n1(ms),n2(ms)
-         kk = k-n1(ms)+1
-         do j=n1(ms),n2(ms)
-           jj = j-n1(ms)+1
-           call Cram_cc_izdot(nb,A(1,j,nb),B(1,k,nb),sum) 
-           Q(jj,kk,ms,nb) = sum
-         end do
-      end do
-      end do
-      end do
-
-      if (np.gt.1) call C3dB_Vector_SumAll(4*n*n*nbrill,Q)
+      call Pneb_ffw_Multiply(0,0,A,B,nfft3d,Q)
       return
       end
 
@@ -491,34 +444,7 @@
       complex*16 B(nfft3d,neall,nbrill)
       real*8 sum
 
-#include "mafdecls.fh"
-
-*     **** local variables ****
-      logical value
-      integer nb,ms,indx
-      integer tmp1(2)
-
-*     **** external functions ****
-      real*8   brillioun_weight
-      external brillioun_weight
-
-      value =  MA_push_get(mt_dbl,(2*nbrill),'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      call Stfl_gg_trace(ispin,ne,nfft3d,neall,nbrill,
-     >                   A,B,dbl_mb(tmp1(1)))
-
-      sum = 0.0d0
-      do nb=1,nbrill
-      do ms=1,ispin
-         indx = ms + (nb-1)*2
-         sum = sum + brillioun_weight(nb)*dbl_mb(tmp1(1)+indx-1)
-      end do
-      end do
-
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack memory',0,
-     &       MA_ERR)
+      call Pneb_ff_TraceAll(0,0,A,B,nfft3d,sum)
       return
       end
 
@@ -538,27 +464,7 @@
       complex*16 B(nfft3d,neall,nbrill)
       real*8     MM(2,nbrill)
 
-*     **** local variables ****
-      integer ms,j,nb,np,n1(2),n2(2)
-      real*8 sum
-
-      call Parallel_np(np)
-      n1(1) = 1
-      n2(1) = ne(1)
-      n1(2) = ne(1)+1
-      n2(2) = ne(1)+ne(2)
-
-      call dcopy(2*nbrill,0.0d0,0,MM,1)
-      do nb=1,nbrill
-      do ms=1,ispin
-         do j=n1(ms),n2(ms)
-            call Cram_cc_idot(nb,A(1,j,nb),B(1,j,nb),sum)
-            MM(ms,nb) = MM(ms,nb) + sum
-         end do
-      end do
-      end do
-
-      if (np.gt.1) call C3dB_Vector_SumAll(2*nbrill,MM)
+      call Pneb_ff_Trace(0,0,A,B,nfft3d,MM)
       return
       end
 
@@ -581,34 +487,12 @@
       logical value
       integer nb,ms
       integer rwork(2),work(2),lwork,ierr
+      integer nbb,mb
 
-      lwork = 2*ne(1)*ne(1)
-      value = MA_push_get(mt_dbl,lwork,
-     >                    'rwork',rwork(2),rwork(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,lwork,
-     >                    'work',work(2),work(1))
-      if (.not. value)
-     >   call errquit('Stfl_q_diag:out of stack memory',0, MA_ERR)
-
-      do nb=1,nbrill
-      do ms=1,ispin
-         call ZHEEV('V','L',
-     >              ne(ms),
-     >              V(1,1,ms,nb),
-     >              n,
-     >              S(1+(ms-1)*n,nb),
-     >              dcpl_mb(work(1)),
-     >              lwork,
-     >              dbl_mb(rwork(1)),
-     >              ierr)
-      end do
-      end do
-
-      value = MA_pop_stack(work(2))
-      value = value.and.MA_pop_stack(rwork(2))
-      if (.not. value)
-     > call errquit('Stfl_q_diag:error popping stack',0, MA_ERR)
+      mb=0
+      nbb=0
+      if (nbrill.eq.0) nbb=1
+      call Pneb_w_diag(mb,nbb,n,S,V)
       return
       end
 
@@ -631,10 +515,17 @@
 #include "mafdecls.fh"
 
 *     **** local variables ****
-      logical value
+      logical value,Pneb_is_init
       integer i,nb
       integer tmp2(2)
+      external Pneb_is_init
 
+      if (.not.Pneb_is_init()) then
+        write(0,*)"Pneb is not initialized!"
+      end if
+
+      call Pneb_SVD(0,0,nfft3d,A,U,S,V)
+      return
 
 *     ***** generate V and Sigma^2 ****
       call Stfl_ggq_dot(ispin,ne,nfft3d,neall,nbrill,n,A,A,V)

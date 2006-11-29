@@ -1,0 +1,10 @@
+*
+* $Id: Pneb.fh,v 1.1 2006-11-29 02:35:04 d3p708 Exp $
+*
+
+      logical spin_orbit,im_init
+      integer ne(2),neq(2),nbrill,nbrillq,ispin
+      common    / Pneb_common / ne,neq,
+     >                          nbrill,nbrillq,
+     >                          ispin,spin_orbit,im_init
+

@@ -1,5 +1,5 @@
 c
-c     $Id: c_bfgsminimize.F,v 1.1 2004-02-01 19:01:43 bylaska Exp $                       
+c     $Id: c_bfgsminimize.F,v 1.2 2006-11-29 02:34:54 d3p708 Exp $                       
 c
 
 *  ************************************************************
@@ -95,6 +95,7 @@ c     dte = dt/dsqrt(control_fake_mass())
 c     dte = dsqrt(control_fake_mass())/dt
 c     dte = 1.0d0
 
+      write(0,*)"WA"
       if (current_iteration.eq.1) then
          precondition = control_precondition()
       end if
@@ -118,16 +119,20 @@ c     dte = 1.0d0
      > call errquit('c_bfgsminimize:out of heap memory',0,MA_ERR)
 
 
+      write(0,*)"ND"
 
 *     ***** get the initial direction ****
       call cpsi_1get_Tgradient(dcpl_mb(G0(1)),E0)
 
+      write(0,*)"tx"
       if (current_iteration.eq.1) then
 
 *        ***** use the initial gradient for the direction ****
+         write(0,*)"lmbfgs_size= ",control_lmbfgs_size() 
          call band_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
          
-         call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
+         write(0,*)"ar"
+         call Pneb_ff_copy(0,0,npack1,
      >                      dcpl_mb(G0(1)),
      >                      dcpl_mb(S0(1)))
          tmin  = 10*deltat_min
@@ -146,8 +151,12 @@ c     dte = 1.0d0
       tolc  = control_tolc()
       do it=2,it_in
 
+         write(0,*)"it = ",it
+         write(0,*)"looper1"
+
 *        **** initialize the geoedesic line data structure ****
          call c_geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+         write(0,*)"ut"
 
 *        ******* line search *********
          if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -156,12 +165,16 @@ c     dte = 1.0d0
             deltat = deltat_min
          end if
 c         deltat = 1.0d0  !** debug **
+         write(0,*)"looper2"
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
      >                        0.50d0,tmin,deltae,2)
+         write(0,*)"looper3"
          call cpsi_geodesic_final(tmin)
+         write(0,*)"looper4"
          deltac = c_rho_error()
+         write(0,*)"ca"
 
 *        **** exit loop early ****
          if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) then
@@ -170,21 +183,29 @@ c         deltat = 1.0d0  !** debug **
          end if
      
 *        **** get the new gradient - also updates densities****
+         write(0,*)"looper5"
          call cpsi_2get_Tgradient(2,dcpl_mb(G0(1)),E0)
-
+         write(0,*)"looper6"
+cccccccccc crashes here !!!!!!!!!!!!!!
          call band_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+ccccccccccccccccc
+         write(0,*)"looper7"
 
 
+      write(0,*)"ny"
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
+         write(0,*)"looper8"
 c        call c_rho_2to1()
 c        call c_dng_2to1()
 
       end do
 
 *     **** initialize the geoedesic line data structure ****
+         write(0,*)"looper9"
       call c_geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+         write(0,*)"looper10"
 
 *     ******* line search *********
       if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -192,12 +213,16 @@ c        call c_dng_2to1()
       else
          deltat = deltat_min
       end if
+         write(0,*)"looper11"
       Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy,
      >                        cpsi_geodesic_denergy,
      >                        0.50d0,tmin,deltae,2)
+         write(0,*)"looper12"
       call cpsi_geodesic_final(tmin)
+         write(0,*)"looper13"
       deltac = c_rho_error()
+         write(0,*)"looper14"
 
 *     **** free memory ****
  30   value = MA_pop_stack(G0(2))
@@ -212,6 +237,7 @@ c     call c_rho_2to1()
 c     call c_dng_2to1()
       call cpsi_check()
 
+      write(0,*)"ma"
       
       eion = c_ewald_e()
 

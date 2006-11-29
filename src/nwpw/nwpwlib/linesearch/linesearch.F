@@ -1,4 +1,4 @@
-c     $Id: linesearch.F,v 1.6 2002-01-09 22:35:37 bylaska Exp $                       
+c     $Id: linesearch.F,v 1.7 2006-11-29 02:35:18 d3p708 Exp $                       
 *     ********************************
 *     *                              *
 *     *      linesearch_init	     *
@@ -112,6 +112,7 @@ c     df(1) = DFUNC1(t(1))
 
 *     **** sort the function values ****
       call Order_Values(3,f,indx)
+
       deltaf = f(indx(2)) - f(indx(1))
 
       if (stoptype.eq.1) then

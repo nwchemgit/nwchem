@@ -1,4 +1,4 @@
-c     $Id: c_sdminimize.F,v 1.3 2002-02-13 20:02:06 edo Exp $                       
+c     $Id: c_sdminimize.F,v 1.4 2006-11-29 02:34:54 d3p708 Exp $                       
 
       subroutine c_sdminimize(flag)
       implicit none
@@ -17,7 +17,7 @@ c     $Id: c_sdminimize.F,v 1.3 2002-02-13 20:02:06 edo Exp $
 *     **** external functions ****
       integer  control_it_in
       real*8   control_time_step,control_fake_mass
-
+      logical  value
       external control_it_in
       external control_time_step,control_fake_mass
 
@@ -26,17 +26,22 @@ c     $Id: c_sdminimize.F,v 1.3 2002-02-13 20:02:06 edo Exp $
       it_in = control_it_in()
       if (flag.gt.0) it_in = flag
 
+
+
       do it=1,it_in
+
          call cpsi1to2_sd_update(dte)
+
          call cpsi_2to1()
+
       end do
 
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        write(luout,'(A,I3,A)') "     - ",
+        write(0,'(A,I3,A)') "     - ",
      >             it_in," steepest descent iterations performed"
       end if
-  
+
       return
       end
  

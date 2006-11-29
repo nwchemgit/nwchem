@@ -1,0 +1,2584 @@
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC 
+C     ***********************************
+c
+c        Pneb_is_init
+c
+c     ***********************************
+      logical function Pneb_is_init()
+      implicit none
+#include "Pneb.fh"
+      Pneb_is_init=im_init
+      return
+      end
+*     ***********************************
+*     *					*
+*     *	        Pneb_init		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pneb_init(ispin_in,ne_in,nbrill_in,spin_orbit_in)
+      implicit none
+      integer ispin_in
+      integer ne_in(2)
+      integer nbrill_in
+      logical spin_orbit_in
+
+#include "Pneb.fh"
+
+      ispin   = ispin_in
+      ne(1)   = ne_in(1)
+      ne(2)   = ne_in(2)
+      nbrill  = nbrill_in
+      spin_orbit = spin_orbit_in
+  
+      neq(1)  = ne(1)
+      neq(2)  = ne(2)
+      nbrillq = nbrill
+      im_init= .true.
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	          Pneb_end   		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pneb_end()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+      im_init=.false.
+      return
+      end
+         
+
+
+*     ***********************************
+*     *					*
+*     *	        Pneb_neq		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pneb_neq(nqtmp)
+      implicit none
+      integer nqtmp(2)
+
+#include "Pneb.fh"
+
+      nqtmp(1) = neq(1)
+      nqtmp(2) = neq(2)
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	        Pneb_nbrill 		*	
+*     *					*
+*     ***********************************
+
+      integer function Pneb_nbrill()
+      implicit none
+
+#include "Pneb.fh"
+
+      Pneb_nbrill = nbrill
+      return 
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	        Pneb_ne 		*	
+*     *					*
+*     ***********************************
+
+      subroutine Pneb_ne(netmp)
+      implicit none
+      integer netmp(2)
+
+#include "Pneb.fh"
+
+      netmp(1) = ne(1)
+      netmp(2) = ne(2)
+      return 
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	        Pneb_nbrillq 		*	
+*     *					*
+*     ***********************************
+
+      integer function Pneb_nbrillq()
+      implicit none
+
+#include "Pneb.fh"
+
+      Pneb_nbrillq = nbrillq
+      return 
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	        Pneb_spin_orbit 	*	
+*     *					*
+*     ***********************************
+
+      logical function Pneb_spin_orbit()
+      implicit none
+
+#include "Pneb.fh"
+
+      Pneb_spin_orbit = spin_orbit
+      return 
+      end
+
+
+c
+c     ****************************************
+c     *                                      *
+c     *        Pneb_m_size                   *
+c     *                                      *
+c     ****************************************
+      integer function Pneb_m_size(mb,nb)
+      implicit none
+      integer mb,nb
+
+#include "Pneb.fh"
+     
+      integer mbsize,nbsize
+
+      if (nb.eq.0) then
+        nbsize = nbrill
+      else
+        nbsize = 1
+      end if
+ 
+      if (mb.eq.0) then
+         if (.not.spin_orbit) then 
+            mbsize = ne(1)*ne(1)*2
+         else
+            mbsize = ne(1)*ne(1)
+         end if
+      else
+         mbsize = ne(mb)*ne(mb)
+      end if
+     
+      Pneb_m_size = mbsize*nbsize
+      return
+      end
+
+
+
+c
+c     ****************************************
+c     *                                      *
+c     *        Pneb_w_size                   *
+c     *                                      *
+c     ****************************************
+      integer function Pneb_w_size(mb,nb)
+      implicit none
+      integer mb,nb
+
+#include "Pneb.fh"
+     
+      integer mbsize,nbsize
+
+      if (nb.eq.0) then
+        nbsize = nbrill
+      else
+        nbsize = 1
+      end if
+ 
+      if (mb.eq.0) then
+         if (.not.spin_orbit) then 
+            mbsize = ne(1)*ne(1)*2
+         else
+            mbsize = ne(1)*ne(1)
+         end if
+      else
+         mbsize = ne(mb)*ne(mb)
+      end if
+     
+      Pneb_w_size = mbsize*nbsize
+      return
+      end
+
+c
+c     ****************************************
+c     *                                      *
+c     *        Pneb_f_size                   *
+c     *                                      *
+c     ****************************************
+      integer function Pneb_f_size(mb,nb,npack1)
+      implicit none
+      integer mb,nb,npack1
+
+#include "Pneb.fh"
+     
+      integer mbsize,nbsize
+
+      if (nb.eq.0) then
+        nbsize = nbrill
+      else
+        nbsize = 1
+      end if
+ 
+      if (spin_orbit) then
+         mbsize=(ne(1)*2)*nbsize
+      else
+         if (mb.eq.0) then
+            mbsize = nbsize*(ne(1)+ne(2))
+         else
+            mbsize= nbsize*ne(mb)
+         endif
+      end if
+     
+      Pneb_f_size = mbsize*npack1
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_m_allocate               *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_m_allocate(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_m_size
+      external Pneb_m_size
+     
+      size = Pneb_m_size(mb,nb)
+     
+      Pneb_m_allocate 
+     > = MA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_w_allocate               *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_w_allocate(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_w_size
+      external Pneb_w_size
+     
+      size = Pneb_w_size(mb,nb)
+     
+      Pneb_w_allocate 
+     > = MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_f_allocate               *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_f_allocate(mb,nb,npack1,fi)
+      implicit none
+      integer mb,nb,npack1
+      integer fi(2)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_f_size
+      external Pneb_f_size
+     
+      size = Pneb_f_size(mb,nb,npack1)
+     
+      Pneb_f_allocate 
+     > = MA_alloc_get(mt_dcpl,size,'hml',fi(2),fi(1))
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_m_allocate_block         *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_m_allocate_block(mb,nb,nblocks,hml)
+      implicit none
+      integer mb,nb,nblocks
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_m_size
+      external Pneb_m_size
+     
+      size = nblocks*Pneb_m_size(mb,nb)
+     
+      Pneb_m_allocate_block 
+     > = MA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_w_allocate_block         *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_w_allocate_block(mb,nb,nblocks,hml)
+      implicit none
+      integer mb,nb,nblocks
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_w_size
+      external Pneb_w_size
+     
+      size = nblocks*Pneb_w_size(mb,nb)
+     
+      Pneb_w_allocate_block 
+     > = MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_f_allocate_block         *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_f_allocate_block(mb,nb,npack1,nblocks,hml)  
+      implicit none
+      integer mb,nb,nblocks,npack1
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_f_size
+      external Pneb_f_size
+     
+      size = nblocks*Pneb_f_size(mb,nb,npack1)
+     
+      Pneb_f_allocate_block 
+     > = MA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c
+c     ****************************************
+c     *                                      *
+c     *          Pneb_m_free                 *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_m_free(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Pneb_m_free = MA_free_heap(hml(2))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_w_free                 *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_w_free(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Pneb_w_free = MA_free_heap(hml(2))
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_f_free                 *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_f_free(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Pneb_f_free = MA_free_heap(hml(2))
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_m_push_get             *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_m_push_get(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "mafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_m_size
+      external Pneb_m_size
+
+      size = Pneb_m_size(mb,nb)
+      Pneb_m_push_get = MA_push_get(mt_dbl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_w_push_get             *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_w_push_get(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "mafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_w_size
+      external Pneb_w_size
+
+      size = Pneb_w_size(mb,nb)
+      Pneb_w_push_get = MA_push_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_w_push_get             *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_f_push_get(mb,nb,npack1,hml)
+      implicit none
+      integer mb,nb,npack1
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "mafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_f_size
+      external Pneb_f_size
+
+      size = Pneb_f_size(mb,nb,npack1)
+      Pneb_f_push_get = MA_push_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+c     ****************************************
+c     *                                      *
+c     *          Pneb_m_push_get_block       *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_m_push_get_block(mb,nb,nblock,hml)
+      implicit none
+      integer mb,nb,nblock
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "mafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_m_size
+      external Pneb_m_size
+
+      size = nblock*Pneb_m_size(mb,nb)
+      Pneb_m_push_get_block = 
+     > MA_push_get(mt_dbl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_w_push_get_block       *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_w_push_get_block(mb,nb,nblock,hml)
+      implicit none
+      integer mb,nb,nblock
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "mafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_w_size
+      external Pneb_w_size
+
+      size = nblock*Pneb_w_size(mb,nb)
+      Pneb_w_push_get_block = 
+     > MA_push_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_f_push_get_block       *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_f_push_get_block(mb,nb,npack1,nblock,hml)
+      implicit none
+      integer mb,nb,nblock,npack1
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "mafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_f_size
+      external Pneb_f_size
+
+      size = nblock*Pneb_f_size(mb,nb,npack1)
+      Pneb_f_push_get_block = 
+     > MA_push_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_m_pop_stack            *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_m_pop_stack(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Pneb_m_pop_stack = MA_pop_stack(hml(2))
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_w_pop_stack            *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_w_pop_stack(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Pneb_w_pop_stack = MA_pop_stack(hml(2))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_f_pop_stack            *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_f_pop_stack(hml)
+      implicit none
+      integer hml(2)
+
+#include "mafdecls.fh"
+
+      Pneb_f_pop_stack = MA_pop_stack(hml(2))
+      return
+      end
+
+c     ****************************************
+c     *  Pneb_w_zero
+c     *  zero out complex ne x ne 
+c     ****************************************
+      subroutine Pneb_w_zero(mb,nbb,u)
+      implicit none
+      integer mb,nbb
+      complex*16 u(*)
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,indexm,ms,ms1,ms2
+
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (spin_orbit) then
+        indexm=1
+        do nb=nb1,nb2
+          do i=1,ne(1)
+            do j=1,ne(1)
+              u(indexm)=0.0d0
+              indexm=indexm+1
+            end do
+          end do
+        end do
+      else 
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        indexm=1
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=1,ne(ms)
+              do j=1,ne(ms)
+                u(indexm)=0.0d0
+                indexm=indexm+1
+              end do
+            end do
+          end do
+        end do
+      end if
+      return
+      end
+c     ****************************************
+c     *  Pneb_m_zero
+c     *
+c     ****************************************
+      subroutine Pneb_m_zero(mb,nbb,u)
+      implicit none
+      integer mb,nbb
+      real*8 u(*)
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,indexm,ms,ms1,ms2
+
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (spin_orbit) then
+        indexm=1
+        do nb=nb1,nb2
+          do i=1,ne(1)
+            do j=1,ne(1)
+              u(indexm)=0.0d0
+              indexm=indexm+1
+            end do
+          end do
+        end do
+      else 
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        indexm=1
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=1,ne(ms)
+              do j=1,ne(ms)
+                u(indexm)=0.0d0
+                indexm=indexm+1
+              end do
+            end do
+          end do
+        end do
+      end if
+      return
+      end
+c     ****************************************
+c     *  Pneb_f_zero
+c     *
+c     ****************************************
+      subroutine Pneb_f_zero(mb,nbb,npack1,u)
+      implicit none
+      integer mb,nbb,npack1
+      complex*16 u(*)
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,indexm,ms,ms1,ms2,iend
+      complex*16 zero
+      parameter(zero=0.0d0)   
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (spin_orbit) then
+        indexm=1
+        iend=2*ne(1)
+        do nb=nb1,nb2
+          do i=1,iend
+            do j=1,npack1
+              u(indexm)=zero
+              indexm=indexm+1
+            end do
+          end do
+        end do
+      else 
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        indexm=1
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=1,ne(ms)
+              do j=1,npack1
+                u(indexm)=zero
+                indexm=indexm+1
+              end do
+            end do
+          end do
+        end do
+      end if
+      return
+      end
+c     ****************************************
+c     *  Pneb_fff_sum
+c     *
+c     ****************************************
+      subroutine Pneb_fff_sum(mb,nbb,npack1,a,b,c)
+      implicit none
+      integer mb,nbb,npack1
+      complex*16 a(*),b(*),c(*)
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,indexm,ms,ms1,ms2,iend
+
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (spin_orbit) then
+        indexm=1
+        iend=2*ne(1)
+        do nb=nb1,nb2
+          do i=1,iend
+            do j=1,npack1
+              c(indexm)=a(indexm)+b(indexm)
+              indexm=indexm+1
+            end do
+          end do
+        end do
+      else 
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        indexm=1
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=1,ne(ms)
+              do j=1,npack1
+                c(indexm)=a(indexm)+b(indexm)
+                indexm=indexm+1
+              end do
+            end do
+          end do
+        end do
+      end if
+      return
+      end
+c     ****************************************
+c     *  Pneb_fff_sub
+c     *
+c     ****************************************
+      subroutine Pneb_fff_sub(mb,nbb,npack1,a,b,c)
+      implicit none
+      integer mb,nbb,npack1
+      complex*16 a(*),b(*),c(*)
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,indexm,ms,ms1,ms2,iend
+
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (spin_orbit) then
+        indexm=1
+        do nb=nb1,nb2
+          iend=2*ne(1)
+          do i=1,iend
+            do j=1,npack1
+              c(indexm)=a(indexm)-b(indexm)
+              indexm=indexm+1
+            end do
+          end do
+        end do
+      else 
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        indexm=1
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=1,ne(ms)
+              do j=1,npack1
+                c(indexm)=a(indexm)-b(indexm)
+                indexm=indexm+1
+              end do
+            end do
+          end do
+        end do
+      end if
+      return
+      end
+c     ****************************************
+c     *  Pneb_ff_scale
+c     *
+c     ****************************************
+      subroutine Pneb_ff_scale(mb,nbb,npack1,beta,a,c)
+      implicit none
+      integer mb,nbb,npack1
+      complex*16 a(*),c(*)
+      real*8 beta
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,indexm,ms,ms1,ms2,iend
+
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (spin_orbit) then
+        indexm=1
+        iend=2*ne(1) 
+        do nb=nb1,nb2
+          do i=1,iend
+            do j=1,npack1
+              c(indexm)=a(indexm)*beta
+              indexm=indexm+1
+            end do
+          end do
+        end do
+      else 
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        indexm=1
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=1,ne(ms)
+              do j=1,npack1
+                c(indexm)=a(indexm)*beta
+                indexm=indexm+1
+              end do
+            end do
+          end do
+        end do
+      end if
+      return
+      end
+c     ****************************************
+c     *  Pneb_ff_copy
+c     *
+c     ****************************************
+      subroutine Pneb_ff_copy(mb,nbb,npack1,a,c)
+      implicit none
+      integer mb,nbb,npack1
+      complex*16 a(*),c(*)
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,indexm,ms,ms1,ms2,iend
+
+
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (spin_orbit) then
+       
+        iend=2*ne(1) 
+        indexm=1
+        do nb=nb1,nb2
+          do i=1,iend
+            do j=1,npack1
+              c(indexm)=a(indexm)
+              indexm=indexm+1
+            end do
+          end do
+        end do
+
+      else 
+
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        indexm=1
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=1,ne(ms)
+              do j=1,npack1
+                c(indexm)=a(indexm)
+                indexm=indexm+1
+              end do
+            end do
+          end do
+        end do
+
+      end if
+
+      return
+
+      end
+c     ****************************************
+c     *  Pneb_f_rand
+c     * returns a normalized f
+c     * with random values
+c     ****************************************
+      subroutine Pneb_f_rand(mb,nbb,npack1,u)
+      implicit none
+      integer mb,nbb,npack1
+      complex*16 u(*)
+#include "Pneb.fh"
+c     *** local variables ***
+      integer nb1,nb2,nb,i,j,index1,index2,ms,ms1,ms2,soshft,nbshift
+      integer idum,nemax,neh,ne1(2),ne2(2),msx
+      real*8 r1,r2,i1,i2,rsum,prand
+      external prand
+
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      write(*,*)"CREATING A RANDOM WAVEFUNCTION!"
+      idum=445567
+      neh=ne(1)/2
+      if (spin_orbit) then
+        soshft=npack1*ne(1)
+        do nb=nb1,nb2
+          do i=1,ne(1)
+            index1=(nb-1)*2*soshft+(i-1)*npack1+1
+            index2=index1+soshft
+            rsum=0.0d0
+            if (i>neh) then
+              do j=1,npack1
+ 	      r1=2.0d0*prand(idum)-1.0d0
+              r2=0.0d0
+              i1=0.0d0
+              i2=0.0d0
+              u(index1)=dcmplx(r1,i1)
+              u(index2)=dcmplx(r2,i2)
+              rsum=rsum+r1*r1+i1*i1+r2*r2+i2*i2
+	      index1=index1+1
+              index2=index2+1
+              end do
+            else
+              do j=1,npack1
+ 	      r2=2.0d0*prand(idum)-1.0d0
+              r1=0.0d0
+              i2=0.0d0
+              i1=0.0d0
+              u(index1)=dcmplx(r1,i1)
+              u(index2)=dcmplx(r2,i2)
+              rsum=rsum+r1*r1+i1*i1+r2*r2+i2*i2
+	      index1=index1+1
+              index2=index2+1
+              end do
+            end if
+            index1=(nb-1)*2*soshft+(i-1)*npack1+1
+            index2=index1+soshft
+            rsum=1.0d0/dsqrt(rsum)
+            do j=1,npack1
+              u(index1)=u(index1)*rsum
+ 	      u(index2)=u(index2)*rsum		
+	      index1=index1+1
+              index2=index2+1
+            end do
+            index1=(nb-1)*2*soshft+(i-1)*npack1+1
+            index2=index1+soshft
+            rsum=0.0d0
+            do j=1,npack1
+              r1=dreal(u(index1))*dreal(u(index1))+
+     >           dimag(u(index1))*dimag(u(index1))
+              r2=dreal(u(index2))*dreal(u(index2))+
+     >           dimag(u(index2))*dimag(u(index2))
+              rsum=r1+r2+rsum
+              index1=index1+1
+              index2=index2+1
+            end do
+          end do
+        end do
+      else 
+        if (mb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        ne1(1)=1
+        ne2(1)=ne(1)
+        ne1(2)=ne(1)+1
+        ne2(2)=ne(1)+ne(2)
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            do i=ne1(ms),ne2(ms)
+              index1=(nb-1)*ne2(2)*npack1+(i-1)*npack1+1
+              rsum=0.0d0
+              do j=1,npack1
+                r1=2.d0*prand(idum)-1.0d0
+                r2=2.d0*prand(idum)-1.0d0
+                u(index1)=dcmplx(r1,r2)
+                rsum=rsum+r1*r1+r2*r2
+                index1=index1+1
+              end do
+              index1=(nb-1)*ne2(2)*npack1+(i-1)*npack1+1
+              rsum=1.0d0/dsqrt(rsum)
+              do j=1,npack1
+                u(index1)=u(index1)*rsum
+                index1=index1+1
+              end do
+            end do
+          end do
+        end do
+      end if
+      call Pneb_orthoCheckMake(.true.,0,0,npack1,u)
+      return
+      end
+c     ****************************************
+c     *                                      *
+c     *          Pneb_ffm_Multiply           *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_ffm_Multiply(mb,nbb,Y1,Y2,npack1,hml)
+      implicit none
+      integer mb,nbb
+      complex*16 Y1(*),Y2(*)
+      integer npack1
+      real*8 hml(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,nemax,nsize
+      integer j,k,indx1,indx2,indxm
+      integer nbshift,msshift,soshift
+      integer np
+      real*8 m1,m2
+
+      call Parallel_np(np)     
+
+      nemax = ne(1)+ne(2)
+
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+
+c     ***** spin-orbit dft *****
+      if (spin_orbit) then
+         soshift = ne(1)*npack1
+         indxm = 1
+         do nb = nb1,nb2
+            nbshift = (nb-1)*2*soshift
+            indx2 = 1 + nbshift
+            do k=1,ne(1)
+               indx1 = 1 + nbshift
+               do j=1,ne(1)
+                  call Cram_cc_idot(nb,Y1(indx1),
+     >                                 Y2(indx2),
+     >                                 m1)
+                  call Cram_cc_idot(nb,Y1(indx1+soshift),
+     >                                 Y2(indx2+soshift),
+     >                                 m2)
+                  hml(indxm) = m1+m2
+                  indxm = indxm + 1
+                  indx1 = indx1 + npack1
+               end do
+               indx2 = indx2 + npack1
+            end do
+         end do
+         nsize = indxm - 1
+
+c     **** restricted and unrestricted dft ****
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+
+         indxm = 1
+         do nb = nb1,nb2
+            nbshift = (nb-1)*nemax*npack1
+            do ms = ms1,ms2
+               msshift = (ms-1)*ne(1)*npack1
+               indx2 = 1 + msshift + nbshift
+               do k = 1,ne(ms)
+                  indx1 = 1 + msshift + nbshift
+                  do j = 1,ne(ms)
+                     call Cram_cc_idot(nb,Y1(indx1),
+     >                                    Y2(indx2),
+     >                                    hml(indxm))
+                     indxm = indxm + 1
+                     indx1 = indx1 + npack1
+                  end do 
+                  indx2 = indx2 + npack1
+               end do
+            end do
+         end do   
+         nsize = indxm -1
+
+      end if
+
+      if (np.gt.1) call C3dB_Vector_SumAll(nsize,hml)
+      return
+      end
+      
+c     ****************************************
+c     *                                      *
+c     *          Pneb_ffw_Multiply           *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_ffw_Multiply(mb,nbb,Y1,Y2,npack1,hml)
+      implicit none
+      integer mb,nbb
+      complex*16 Y1(*),Y2(*),hml(*)
+      integer npack1
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,nemax,nsize
+      integer j,k,indx1,indx2,indxm
+      integer nbshift,msshift,soshift
+      integer np
+      integer yin
+      complex*16 m1,m2
+
+      call Parallel_np(np)     
+
+      nemax = ne(1)+ne(2)
+
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+c     ***** spin-orbit dft *****
+      if (spin_orbit) then
+         soshift = ne(1)*npack1
+         indxm = 1
+         do nb = nb1,nb2
+            nbshift = (nb-1)*2*soshift
+            indx2=1+nbshift
+            do k=1,ne(1)
+               indx1=1+nbshift 
+               do j=1,ne(1)
+                  call Cram_cc_izdot(nb,Y1(indx1),
+     >                                 Y2(indx2),
+     >                                 m1)
+                  call Cram_cc_izdot(nb,Y1(indx1+soshift),
+     >                                 Y2(indx2+soshift),
+     >                                 m2)
+                  hml(indxm) = m1+m2
+                  indxm = indxm + 1
+                  indx1=indx1+npack1
+               end do
+               indx2=indx2+npack1
+            end do
+         end do
+         nsize = indxm - 1
+c     **** restricted and unrestricted dft ****
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+
+         indxm = 1
+         do nb = nb1,nb2
+            nbshift = (nb-1)*nemax*npack1
+            do ms = ms1,ms2
+               msshift = (ms-1)*ne(1)*npack1
+               indx2 = 1 + msshift + nbshift
+               do k = 1,ne(ms)
+                  indx1 = 1 + msshift + nbshift
+                  do j = 1,ne(ms)
+                     call Cram_cc_izdot(nb,Y1(indx1),
+     >                                    Y2(indx2),
+     >                                    hml(indxm))
+                     indxm = indxm + 1
+                     indx1 = indx1 + npack1
+                  end do 
+                  indx2 = indx2 + npack1
+               end do
+            end do
+         end do   
+         nsize = indxm -1
+
+      end if
+
+      if (np.gt.1) call C3dB_Vector_SumAll(2*nsize,hml)
+      return
+      end
+      
+c     ****************************************
+c     *                                      *
+c     *          Pneb_fwf_Multiply           *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_fwf_Multiply(mb,nbb,Y1,hml,npack1,Y2)
+      implicit none
+      integer mb,nbb
+      complex*16 Y1(*),Y2(*),hml(*)
+      integer npack1
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,nemax,nsize
+      integer j,k,index1,index2,indexm,n1(2),n2(2)
+      integer nbshift,msshift,soshift,l
+      integer np,je,ke
+      complex*16 m1,m2,alfa
+
+      call Parallel_np(np)     
+
+      nemax = ne(1)+ne(2)
+
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+
+
+      call Pneb_f_Zero(mb,nbb,npack1,Y2)
+c     ***** spin-orbit dft *****
+      if (spin_orbit) then
+         soshift = ne(1)*npack1
+         indexm=1
+         do nb = nb1,nb2
+            nbshift = (nb-1)*soshift*2
+            do k=1,ne(1)
+              do j=1,ne(1)
+                index1=nbshift+(k-1)*npack1+1
+                index2=nbshift+(j-1)*npack1+1
+                alfa=hml(indexm)
+                call Cram_cc_zaxpy(nb,alfa,Y1(index2),Y2(index1))
+                index1=index1+soshift
+                index2=index2+soshift
+                call Cram_cc_zaxpy(nb,alfa,Y1(index2),Y2(index1))
+                indexm=indexm+1
+              end do  
+            end do
+         end do
+c     **** restricted and unrestricted dft ****
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+         indexm = 1
+         n1(1)=1
+         n2(1)=ne(1)
+         n1(2)=ne(1)+1
+         n2(2)=ne(1)+ne(2)
+         do nb = nb1,nb2
+            nbshift=(nb-1)*n2(2)*npack1
+            do ms = ms1,ms2
+               do k = n1(ms),n2(ms)
+                  index1=nbshift+(k-1)*npack1+1
+                  do j = n1(ms),n2(ms)
+                    index2=nbshift+(j-1)*npack1+1
+                    call Cram_cc_zaxpy(nb,hml(indexm),Y1(index2),
+     >				Y2(index1))
+                    indexm=indexm+1
+                  end do
+               end do
+            end do
+         end do   
+      end if
+
+      return
+      end
+      
+c     ****************************************
+c     *                                      *
+c     *          Pneb_f_axpy                 *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_f_Axpy(mb,nbb,npack1,alpha,Y1,Y2)
+      implicit none
+      integer mb,nbb
+      complex*16 alpha,y1(*),y2(*)
+      integer npack1
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,nb1,nb2,nemax,nsize
+      integer j,k,ms,ms1,ms2
+      integer np,indexm
+
+      call Parallel_np(np)     
+
+      nemax = ne(1)+ne(2)
+
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+
+      if (spin_orbit) then
+       nemax=2*ne(1)
+       do nb=nb1,nb2
+        indexm=(nb-1)*npack1*ne(1)*2+1
+        do k=1,nemax
+         do j=1,npack1
+           y2(indexm)=y2(indexm)+alpha*y1(indexm)
+           indexm=indexm+1
+         end do
+        end do
+       end do
+      else 
+       if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+       else
+         ms1 = mb
+         ms2 = mb
+       end if
+       indexm=1
+       do nb=nb1,nb2
+        do ms=ms1,ms2
+         do k=1,ne(ms)
+           do j=1,npack1
+            y2(indexm)=y2(indexm)+alpha*y1(indexm)
+            indexm=indexm+1
+           end do
+         end do
+        end do
+       end do
+      end if
+      nsize=indexm-1
+      if (np.gt.1) call C3dB_Vector_SumAll(nsize,y2)
+      return
+      end
+c     ****************************************
+c     *                                      *
+c     *          Pneb_m_axpy                 *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_m_Axpy(mb,nbb,alpha,fml,hml)
+      implicit none
+      integer mb,nbb
+      real*8 fml(*),hml(*),alpha
+      integer npack1
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,nb1,nb2,nemax,nsize
+      integer j,k,indexm,ms,ms1,ms2
+      integer np
+
+      call Parallel_np(np)     
+
+      nemax = ne(1)+ne(2)
+
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+
+      if (spin_orbit) then
+       indexm=1
+       do nb=nb1,nb2
+        do k=1,ne(1)
+         do j=1,ne(1)
+           hml(indexm)=hml(indexm)+alpha*fml(indexm)
+           indexm=indexm+1
+         end do
+        end do
+       end do
+      else 
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+       indexm=1
+       do nb=nb1,nb2
+        do ms=ms1,ms2
+         do j=1,ne(ms)
+          do k=1,ne(ms)
+           hml(indexm)=hml(indexm)+alpha*fml(indexm)
+           indexm=indexm+1
+          end do   
+         end do
+        end do
+       end do
+      end if
+      nsize=indexm-1
+      if (np.gt.1) call C3dB_Vector_SumAll(nsize,hml)
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_w_axpy                 *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_w_Axpy(mb,nbb,alpha,fml,hml)
+      implicit none
+      integer mb,nbb
+      complex*16 fml(*),hml(*),alpha
+      integer npack1
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,nb1,nb2,nemax,nsize
+      integer j,k,indexm,ms1,ms2,ms
+      integer np,nbshift
+
+      call Parallel_np(np)     
+
+      nemax = ne(1)+ne(2)
+
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+
+      if (spin_orbit) then
+       do nb=nb1,nb2
+        indexm=(nb-1)*ne(1)*ne(1)+1
+        do k=1,ne(1)
+         do j=1,ne(1)
+           hml(indexm)=hml(indexm)+alpha*fml(indexm)
+           indexm=indexm+1
+         end do
+        end do
+       end do
+      else 
+        if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispin
+        else
+         ms1 = mb
+         ms2 = mb
+        end if
+        indexm=1
+         do nb = nb1,nb2
+           do ms = ms1,ms2
+             do k = 1,ne(ms)
+               do j = 1,ne(ms)
+                 hml(indexm)=hml(indexm)+alpha*fml(indexm) 
+                 indexm = indexm + 1
+               end do
+             end do
+           end do
+         end do
+      end if
+      nsize=indexm-1
+      if (np.gt.1) call C3dB_Vector_SumAll(nsize,hml)
+      return
+      end
+cccccccccccccccccccccccccccc
+c
+c     Pneb_w_copy
+c
+cccccccccccccccccccccccccc
+      subroutine  Pneb_w_copy(mbb,nbb,hml,gml)
+      implicit none
+      integer nbb,mbb,npack1
+      complex*16 hml(*),gml(*)
+     
+#include "Pneb.fh"
+ccccc local variables
+      integer j,k,ms,ms1,ms2,nb,nb1,nb2,indexm,np
+
+      call Parallel_np(np)
+
+      if (nbb.eq.0) then
+        nb1=1
+        nb2=nbrill
+      else
+        nb1=1
+        nb2=1
+      end if
+      if (mbb.eq.0) then
+        ms1=1
+        ms2=ispin
+      else
+        ms1=1
+        ms2=1
+      end if
+      if (spin_orbit) then
+        indexm=1
+        do nb=nb1,nb2
+         do j=1,ne(1)
+          do k=1,ne(2)
+           hml(indexm)=gml(indexm)
+           indexm=indexm+1
+          end do
+         end do
+        end do
+      else
+        indexm=1
+        do nb=nb1,nb2
+         do ms=ms1,ms2
+          do j=1,ne(ms)
+           do k=1,ne(ms)
+            hml(indexm)=gml(indexm)
+            indexm=indexm+1
+           end do
+          end do
+         end do
+        end do
+      end if
+      return 
+      end 
+
+cccccccccccccccccccccccccccc
+c
+c     Pneb_m_copy
+c
+cccccccccccccccccccccccccc
+      subroutine  Pneb_m_copy(mbb,nbb,hml,gml)
+      implicit none
+      integer nbb,mbb,npack1
+      real*8 hml(*),gml(*)
+#include "Pneb.fh"
+     
+ccccc local variables
+      integer j,k,ms,ms1,ms2,nb,nb1,nb2,indexm,np
+
+      call Parallel_np(np)
+
+      if (nbb.eq.0) then
+        nb1=1
+        nb2=nbrill
+      else
+        nb1=1
+        nb2=1
+      end if
+      if (mbb.eq.0) then
+        ms1=1
+        ms2=ispin
+      else
+        ms1=1
+        ms2=1
+      end if
+      if (spin_orbit) then
+        indexm=1
+        do nb=nb1,nb2
+         do j=1,ne(1)
+          do k=1,ne(2)
+           hml(indexm)=gml(indexm)
+           indexm=indexm+1
+          end do
+         end do
+        end do
+      else
+        indexm=1
+        do nb=nb1,nb2
+         do ms=ms1,ms2
+          do j=1,ne(ms)
+           do k=1,ne(ms)
+            hml(indexm)=gml(indexm)
+            indexm=indexm+1
+           end do
+          end do
+         end do
+        end do
+      end if
+      return 
+      end 
+cccccccccccccccccccccccccccc
+c     Pneb_diag
+c
+cccccccccccccccccccccccccccc
+      subroutine Pneb_w_diag(mbb,nbb,S,V)
+      implicit none
+      integer mbb,nbb,n
+      real*8 S(*)
+      complex*16 V(*)
+#include "Pneb.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+c     *** local variables ***
+      logical value
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,neall
+      integer rwork(2),work(2),lwork,ierr
+      integer vindex,sindex,nbshift,ne1
+
+      value=MA_set_auto_verify(.true.)
+      if (nbb.eq.0) then
+        nb1=1
+        nb2=nbrill
+      else
+        nb1=nbb
+        nb2=nbb
+      end if   
+      lwork=3*ne(1)*ne(1)
+      value=MA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
+      value=value.and.MA_push_get(mt_dcpl,lwork,'work',work(2),
+     >           work(1))
+      if (.not.value) call errquit('Pneb_w_diag out of memory',0,MA_ERR)
+      ne1=ne(1)
+      if (spin_orbit) then
+         nbshift=ne1*ne1
+         sindex=1
+         vindex=1
+         do nb=nb1,nb2
+           call zheev('V','L',ne1,V(vindex),ne1,S(sindex),
+     >       dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)),ierr)         
+           if (ierr.ne.0) then
+             call errquit("In pneb diag zheev failed",0,ierr)
+           end if
+           vindex=vindex+(ne1*ne1)
+           sindex=sindex+ne1
+           call flush(6)  
+           value=MA_verify_allocator_stuff()
+         end do
+      else
+         if (mbb.eq.0) then
+            ms1=1
+            ms2=ispin
+         else
+            ms1=1
+            ms2=1
+         end if
+         sindex=1
+         vindex=1
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+           call zheev('V','L',ne(ms),V(vindex),ne1,S(sindex),
+     >       dcpl_mb(work(1)),lwork,dbl_mb(rwork(1)),ierr)
+           if (ierr.ne.0) then
+             call errquit("ERROR IN ZHEEV",ierr,0)
+           end if
+           vindex=vindex+ne1*ne1
+           sindex=sindex+ne1         
+         end do
+         end do
+      end if       
+      value=MA_pop_stack(work(2))
+      value=value.and.MA_pop_stack(rwork(2))
+      if (.not.value) then
+        call errquit('Pneb_w_diag error popping stack',0,MA_ERR)
+      end if
+      return
+      end      
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c     ***************************
+c          Pneb_SVD
+c     homegrown SVD routine
+c     ****************************
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_SVD(mbb,nbb,npack1,Y,U,S,V)
+      implicit none
+      integer mbb,nbb,npack1    
+      real*8 S(*)  
+      complex*16 Y(*),U(*),V(*)
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+c     ***** local variables ******
+      integer tmp(2),nemax,soshift,nbshift,neall
+      integer vtmp(2),vvtmp(2),n2(2),n1(2)
+      integer j,k,ms,ms1,ms2,nb,nb1,nb2,index1,index2
+      real*8 w1,w2
+      logical value
+      complex*16 zzero,zone
+
+      zzero=dcmplx(0.0d0,0.0d0)
+      zone=dcmplx(1.0d0,0.0d0)
+      value=MA_set_auto_verify(.true.)
+
+      MS1=NE(1)*NE(1)
+      value=MA_push_get(mt_dcpl,MS1,'vtmp',
+     > vtmp(2),vtmp(1))
+      if (.not.value) call errquit('Pneb_SVD out of memory',0,MA_ERR)
+
+      value=MA_push_get(mt_dcpl,MS1,'vvtmp',
+     > vvtmp(2),vvtmp(1))
+
+      if (.not.value) call errquit('Pneb_SVD out of memory',0,MA_ERR)
+
+      neall=ne(1)+ne(2)
+      value=MA_push_get(mt_dbl,neall,'tmp',tmp(2),tmp(1))
+      if (.not.value) then
+        call errquit('PNEB_SVD out of stack memory',0,MA_ERR)
+      end if
+
+c     ***  compute V = Y'*Y ( ne x ne )
+
+      call Pneb_ffw_Multiply(mbb,nbb,Y,Y,npack1,V)
+
+      value=MA_verify_allocator_stuff()
+
+c     ***  compute A=V  S  V'  
+
+      call Pneb_w_diag(mbb,nbb,S,V)
+
+      value=MA_verify_allocator_stuff()
+
+c     *** compute US=Y*V
+
+      call Pneb_fwf_multiply(mbb,nbb,Y,V,npack1,U)
+
+      value=MA_verify_allocator_stuff()
+
+      if (nbb.eq.0) then
+        nb1=1
+	nb2=nbrill
+      else
+        nb1=nbb
+        nb2=nbb
+      end if
+c     *** normalize US and get U ****
+      if (spin_orbit) then
+        soshift=ne(1)*npack1
+        do nb=nb1,nb2
+          nbshift=(nb-1)*soshift*2
+          do j=1,ne(1)
+            index1=nbshift+(j-1)*npack1+1
+            call Cram_cc_idot(nb,U(index1),U(index1),w1)
+            index1=index1+soshift
+            call Cram_cc_idot(nb,U(index1),U(index1),w2)
+            index2=j-1+tmp(1)
+            dbl_mb(index2)=w1+w2
+          end do
+          call C3db_Vector_SumAll(ne(1),dbl_mb(tmp(1)))
+          do j=1,ne(1)
+	    index2=j-1+tmp(1)
+            dbl_mb(index2)=1.0d0/dsqrt(dbl_mb(index2))
+            index1=nbshift+(j-1)*npack1+1
+            call Cram_c_SMul(nb,dbl_mb(index2),U(index1),U(index1)) 
+            index1=index1+soshift
+            call Cram_c_SMul(nb,dbl_mb(index2),U(index1),U(index1)) 
+          end do
+	  do j=1,ne(1)
+            index1=(nb-1)*ne(1)+j
+            S(index1)=dsqrt(dabs(S(index1)))
+          end do
+          value=MA_verify_allocator_stuff()
+        end do
+      else
+        if (mbb.eq.0) then
+          ms1=1
+          ms2=ispin
+        else
+          ms1=1
+          ms2=1
+        end if
+        do nb=nb1,nb2
+
+*        **** normalize U*sigma ****
+           do j=1,neall
+            index1=1+((j-1)+(nb-1)*neall)*npack1
+            call Cram_cc_idot(nb,U(index1),U(index1),
+     >                        dbl_mb(tmp(1)+j-1))
+           end do
+           call C3dB_Vector_SumAll(neall,dbl_mb(tmp(1)))
+
+           do j=1,neall
+             index1=1+((j-1)+(nb-1)*neall)*npack1
+             index2=tmp(1)+j-1
+             dbl_mb(index2) = 1.0d0/dsqrt(dbl_mb(index2))
+ 
+             call Cram_c_SMul(nb,dbl_mb(index2),
+     >                       U(index1),U(index1))
+           end do
+
+*        **** sqrt(S*S) ****
+           do j=1,neall
+             index1=1+(j-1)+(nb-1)*neall
+             S(index1) = dsqrt(dabs(S(index1)))
+           end do
+
+        end do
+      end if
+      value= MA_pop_stack(tmp(2))
+      if (.not.value) call errquit('error popping stack FOR TMP',
+     >        0,MA_ERR)
+      value=MA_verify_allocator_stuff()
+      VALUE=MA_POP_STACK(VVTMP(2))
+      VALUE=VALUE.AND.MA_POP_STACK(VTMP(2))
+      IF (.NOT.VALUE) THEN
+        CALL ERRQUIT('SVD PROBLEMS POPPING MY STACK',0,MA_ERR)
+      END IF
+      return 
+      end  
+ccccccccccccccccccccccccccccccccc                 
+c     ****************************************
+c     *                                      *
+c     *          Pneb_ff_Trace               *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_ff_Trace(mb,nbb,Y1,Y2,npack1,hml)
+      implicit none
+      integer mb,nbb
+      complex*16 Y1(*),Y2(*)
+      integer npack1
+      real*8 hml(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,nemax,nsize
+      integer j,k,indx1,indx2,indexm
+      integer nbshift,msshift,soshift
+      integer np
+      real*8 m1,m2,sum
+
+      call Parallel_np(np)     
+
+      nemax = ne(1)+ne(2)
+
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+
+c     ***** spin-orbit dft *****
+      if (spin_orbit) then
+         soshift = ne(1)*npack1
+         sum=0.0d0
+         indexm=1
+         do nb = nb1,nb2
+            nbshift = (nb-1)*2*soshift
+            indx2 = 1 + nbshift
+            sum=0.0d0
+            do k=1,ne(1)
+               indx1 = 1 + nbshift
+               do j=1,ne(1)
+                  call Cram_cc_idot(nb,Y1(indx1),
+     >                                 Y2(indx2),
+     >                                 m1)
+                  call Cram_cc_idot(nb,Y1(indx1+soshift),
+     >                                 Y2(indx2+soshift),
+     >                                 m2)
+                  sum = sum + m1 + m2
+                  call flush(6) 
+
+                  indx1 = indx1 + npack1
+               end do
+               indx2 = indx2 + npack1
+            end do
+            hml(indexm)=sum
+            indexm=indexm+1
+         end do
+c     **** restricted and unrestricted dft ****
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+
+         indexm=1
+         do nb = nb1,nb2
+            nbshift = (nb-1)*nemax*npack1
+            do ms = ms1,ms2
+               msshift = (ms-1)*ne(1)*npack1
+               indx2 = 1 + msshift + nbshift
+               sum=0.0d0
+               do k = 1,ne(ms)
+                  indx1 = 1 + msshift + nbshift
+                  do j = 1,ne(ms)
+                     call Cram_cc_idot(nb,Y1(indx1),
+     >                                    Y2(indx2),
+     >                                    m1)
+                     sum=sum+m1
+                     indx1 = indx1 + npack1
+                  end do 
+                  indx2 = indx2 + npack1
+               end do
+               hml(indexm)=sum
+               indexm=indexm+1
+            end do
+         end do   
+      end if
+      nsize=indexm-1
+      if (np.gt.1) call C3dB_Vector_SumAll(nsize,hml)
+      return
+      end
+c     ****************************************
+c     *                                      *
+c     *          Pneb_ff_TraceAll              *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_ff_TraceAll(mb,nbb,Y1,Y2,npack1,sum)
+      implicit none
+#include "errquit.fh"
+      integer mb,nbb
+      complex*16 Y1(*),Y2(*)
+      real*8 sum
+      integer npack1
+
+#include "Pneb.fh"
+#include "mafdecls.fh"
+
+*     **** local variables ****
+      integer nb1,nb2,nb,ms1,ms2,ms
+      integer index,tmp2(2) 
+      logical value
+
+c     ** external functions
+      real*8 brillioun_weight
+      external brillioun_weight
+      
+      sum=0.0d0
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrill
+      else
+        nb1 = nbb
+        nb2 = nbb
+      end if
+
+      value=MA_push_get(mt_dbl,(2*nbrill),'tmp2',tmp2(2),tmp2(1))
+      if (.not.value) then
+       call errquit('out of stack memory',0,MA_ERR)
+      end if
+
+      call Pneb_ff_Trace(mb,nbb,Y1,Y2,npack1,dbl_mb(tmp2(1)))
+
+      if (spin_orbit) then
+        sum=0.0d0
+        index=tmp2(1)
+        do nb=nb1,nb2
+          sum=sum+brillioun_weight(nb)*dbl_mb(index)
+          index=index+1
+        end do
+      else
+        if (mb.eq.0) then
+          ms1=1
+          ms2=ispin
+        else
+           ms1=mb
+           ms2=mb
+        end if
+        sum=0.0d0
+        index=tmp2(1)
+        do nb=nb1,nb2
+          do ms=ms1,ms2
+            sum=sum+brillioun_weight(nb)*dbl_mb(index)
+            index=index+1
+          end do
+        end do
+      end if
+      value=MA_pop_stack(tmp2(2))
+      if (.not.value) then
+        call errquit('error popping the stack',0,MA_ERR)
+      end if
+      return
+      end
+
+c     ******************************
+c     * Pneb_makeOrtho
+c     ******************************
+      subroutine Pneb_makeOrtho(mb,nbb,npack1,A)
+      implicit none
+#include "errquit.fh"
+      integer mb,nbb,npack1
+      complex*16 A(*)
+#include "Pneb.fh"
+c     ** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,index1,index2,index3,index4
+      integer j,k,nemax
+      integer bindex,nbshift,soshift
+      complex*16 wc,wc1,wc2       
+      real*8 w,w1,w2
+
+      if (nbb.eq.0) then
+        nb1=1
+        nb2=nbrill
+      else
+        nb1=nb
+        nb2=nb
+      end if
+      if (spin_orbit) then
+        nemax=ne(1)
+        soshift=npack1*nemax
+        nbshift=2*soshift
+        bindex=1
+        do nb=nb1,nb2
+         bindex=(nb-1)*nbshift
+         do k=1,nemax
+           index1=bindex+(k-1)*npack1+1
+           call Cram_cc_dot(nb,A(index1),A(index1),w1)
+           index2=index1+soshift
+           call Cram_cc_dot(nb,A(index2),A(index2),w2)
+           w=w1+w2
+           if (w.gt.1.d-9) then
+             w=1.d0/dsqrt(w)
+           else
+             write(0,*)"Pneb SO make ortho"
+             write(0,*)"Pneb_makeOrtho::this should not happen"
+             write(0,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
+             w=1.d0/sqrt(2.*w1)
+             call Cram_c_copy(nb,A(index1),A(index2))
+           end if
+           call Cram_c_SMul(nb,w,A(index1),A(index1))
+           call Cram_c_SMul(nb,w,A(index2),A(index2))
+           do j=k+1,nemax
+             index3=bindex+(j-1)*npack1+1
+             index4=index3+soshift
+             call Cram_cc_zdot(nb,A(index1),A(index3),wc1)
+             call Cram_cc_zdot(nb,A(index2),A(index4),wc2)
+             wc=wc1+wc2
+             wc=-wc
+             call Cram_cc_zaxpy(nb,wc,A(index1),A(index3))
+             call Cram_cc_zaxpy(nb,wc,A(index2),A(index4))
+           end do
+         end do
+        end do
+      else
+        if (mb.eq.0) then
+          ms1=1
+          ms2=ispin
+        else
+          ms1=mb
+          ms2=mb
+        end if
+        nemax=ne(1)+ne(2)
+        nbshift=npack1*nemax
+        do nb=nb1,nb2
+        do ms=ms1,ms2
+          bindex=(nb-1)*nbshift+(ms-1)*ne(1)*npack1
+          do k=1,ne(ms)
+           index1=bindex+(k-1)*npack1+1
+           call Cram_cc_zdot(nb,A(index1),A(index1),w)
+           if (w.gt.1.d-9) then
+             w=1.d0/dsqrt(w)
+           else
+            write(0,*)"Pneb_makeOrtho::this should not happen"
+            write(0,*)"Pneb_makeOrtho: < psi | psi > = 0 K= ",k,w     
+            w=1.d0
+           end if
+           call Cram_c_SMul(nb,w,A(index1),A(index1))
+           do j=k+1,ne(ms)
+             index3=bindex+(j-1)*npack1+1
+             call Cram_cc_zdot(nb,A(index1),A(index3),wc)
+             wc=-wc
+             call Cram_cc_zaxpy(nb,wc,A(index1),A(index3))
+           end do
+          end do
+        end do
+        end do
+      end if
+      return 
+      end
+ccccccccccccccccccccccccccccccccccccccccccc
+c
+c     Pneb_orthoCheckMake       
+c                  
+ccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_orthoCheckMake(coutput,mb,nbb,npack1,A)
+      implicit none
+#include "errquit.fh"
+      logical coutput
+      integer mb,nbb,npack1
+      complex*16 A(*)
+#include "mafdecls.fh"
+#include "Pneb.fh"
+cccccc local variables ccccc
+      integer taskid,MASTER
+      PARAMETER(MASTER=0)
+      integer asize,index,i
+      integer nb,nb1,nb2,ms,ms1,ms2,nemax,sm2(2),sm3(2)
+      integer index1,index2,index3
+      logical gram,value
+      real*8 sum1,sum2,sum3
+      
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (mb.eq.0) then
+         ms1=1
+         ms2=ispin
+      else
+         ms1=1
+         ms2=1
+      end if
+      asize=2*nbrill
+      value=MA_push_get(mt_dbl,asize,'sm2',sm2(2),sm2(1))
+      value=value.and.MA_push_get(mt_dbl,asize,'sm3',sm3(2),sm3(1))
+      if (.not.value) then
+       call errquit('out of stack memory',0,MA_ERR)
+      end if
+
+      call Pneb_ff_Trace(mb,nbb,A,A,npack1,dbl_mb(sm2(1)))
+
+      gram=.false.  
+      if (spin_orbit) then
+        nemax=ne(1)
+        index=sm2(1)
+        do nb=nb1,nb2
+          sum1=dble(ne(1))
+          sum2=dbl_mb(index)
+          index=index+1
+          if (dabs(sum2-sum1).gt.1.d-10) then
+             gram=.true.
+          end if
+        end do 
+      else
+        index=sm2(1)
+        do nb=nb1,nb2
+        do ms=ms1,ms2
+         sum1=dble(ne(ms))
+         sum2=dbl_mb(index)
+         index=index+1         
+         if (dabs(sum2-sum1).gt.1.d-10) then
+           gram=.true.
+         end if
+        end do
+       end do
+      end if
+      if (gram) then 
+
+         call Pneb_makeOrtho(mb,nbb,npack1,A)
+
+      end if
+      if (gram) then
+
+         call Pneb_ff_Trace(mb,nbb,A,A,npack1,dbl_mb(sm3(1)))
+
+         call Parallel_taskid(taskid)
+       if (spin_orbit) then
+         index2=sm2(1)
+         index3=sm3(1)
+         do nb=nb1,nb2
+         sum1=dble(nemax)
+         sum2=dbl_mb(index2)
+         sum3=dbl_mb(index3)
+         index2=index2+1
+         index3=index3+1
+         if (dabs(sum2-sum1).gt.1.d-10) then
+           if (taskid.eq.MASTER) then
+            write(0,1400) 3,nb
+            write(0,1401) dabs(sum2-sum1),sum2
+            write(0,1402) dabs(sum3-sum1),sum3
+           end if
+         end if
+        end do          
+       else
+        index2=sm2(1)
+        index3=sm3(1)
+        do nb=nb1,nb2
+        do ms=ms1,ms2
+         sum1=dble(ne(ms))
+         sum2=dbl_mb(index2)
+         sum3=dbl_mb(index3)
+         index2=index2+1
+         index3=index3+1
+         if (dabs(sum2-sum1).gt.1.d-10) then
+           if (taskid.eq.MASTER) then
+            write(0,1400) ms,nb
+            write(0,1401) dabs(sum2-sum1),sum2
+            write(0,1402) dabs(sum3-sum1),sum3
+           end if
+         end if
+        end do
+        end do
+       end if
+      end if
+      value = MA_pop_stack(sm3(2))
+      value = value.and.MA_pop_stack(sm2(2))
+      if (.not. value)
+     > call errquit('pneb_orthocheckmake:popping stack memory',0,0)
+ 1400 FORMAT('Warning - Orthogonalization performed, spin,zone:',I2,I4)
+ 1401 FORMAT(8x,'- error(before)=', E14.6,' (',E14.6,')')
+ 1402 FORMAT(8x,'- error(after)= ', E14.6,' (',E14.6,')')
+      return
+      end
+cccccccccccccccccccccccccccccccc
+c
+c     Pneb_orthoCheck
+c
+cccccccccccccccccccccccccccccccc
+      subroutine Pneb_orthoCheck(ix1,mb,nbb,npack1,A)
+      implicit none
+      integer mb,nbb,npack1,ix1
+      complex*16 A(*)
+#include "errquit.fh"
+#include "Pneb.fh"
+      integer taskid,MASTER,last_ix
+      parameter(MASTER=0)
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,bindex
+      real*8 error
+      integer index11,index21,index22,index12,bshift,soshift,nemax
+      complex*16 w,wc1,wc2
+      character*255 full_filename
+      character*7 p_index_name
+      external p_index_name
+cccccccccc first line ccccccccc
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrill
+      else
+         nb1=nbb
+         nb2=nbb
+      end if
+      if (mb.eq.0) then
+         ms1=1
+         ms2=ispin
+      else
+         ms1=mb
+         ms2=mb
+      end if
+*     **** produce CHECK FILE ****
+      call util_file_name('ORTHOCHECK'//p_index_name(ix1),
+     >                             .true.,
+     >                             .false.,
+     >                             full_filename)
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         open(unit=17,file=full_filename,form='formatted')
+      end if
+
+      if (.not.im_init) then
+         call errquit("PNEB : I need to be initialized",0,0)
+      end if
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) THEN
+         write(17,1350)
+         write(17,*)ne(1),ne(2)
+         call flush(17)
+      end if
+      if (spin_orbit) then
+        nemax=ne(1)
+        bshift=npack1*nemax*2
+        soshift=npack1*nemax
+        do nb=nb1,nb2
+          bindex=bshift*(nb-1)
+          do k=1,nemax
+            index11=1+((k-1)+(nb-1)*nemax*2)*npack1
+            index12=index11+soshift
+            do j=1,nemax
+              index21=1+((j-1)+(nb-1)*nemax*2)*npack1
+              index22=index21+soshift
+              call Cram_cc_zdot(nb,A(index11),A(index21),wc1)
+              call Cram_cc_zdot(nb,A(index12),A(index22),wc2)
+              w=wc1+wc2
+              if (k.eq.j) then
+                error=dabs(1.-dreal(w))+dabs(imag(w))
+              else
+                error=dabs(dreal(w))+dabs(dimag(w))
+              end if
+              if (taskid.eq.MASTER) then
+                write(17,1360) nb,3,k,j,w
+              end if
+            end do
+          end do
+        end do
+        if (taskid.eq.MASTER) write(17,1370) error
+        if (taskid.eq.MASTER) write(17,1380)
+      else
+        bshift=(ne(1)+ne(2))*npack1
+        do nb=nb1,nb2
+        do ms=ms1,ms2
+          bindex=bshift*(nb-1)+(ms-1)*npack1*ne(1)
+          do k=1,ne(ms)
+            index11=1+bindex+(k-1)*npack1
+            do j=1,ne(ms)
+              index21=1+bindex+(j-1)*npack1
+              call Cram_cc_zdot(nb,A(index11),A(index21),w)
+              if (k.eq.j) then
+                 error=dabs(1.-dble(w))+dabs(imag(w))
+              else
+                 error=dabs(dreal(w))+dabs(dimag(w))
+              end if
+              if (taskid.eq.MASTER) then
+                write(17,1360) nb,ms,k,j,w
+              end if
+            end do
+          end do
+        end do
+        end do
+        if (taskid.eq.MASTER) write(17,1370) error
+        if (taskid.eq.MASTER) write(17,1380)
+      end if
+      if (taskid.eq.MASTER) close(17)
+      return
+ 1350 FORMAT(/'******** band structure orthonormality **********')
+ 1360 FORMAT(2I3,2I3,'(',2E18.7,')')
+ 1370 FORMAT('ERROR = ',E18.7)
+ 1380 FORMAT(/'*************************************************')
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccc
+      character*7 function p_index_name(i)
+      implicit none
+      integer i
+      integer itmp,j0,j1,j2,j3,j4,j5
+      character*7 name
+      itmp = i
+      j5 = itmp/100000
+      itmp = itmp - j5*100000
+      j4 = itmp/10000
+      itmp = itmp - j4*10000
+      j3 = itmp/1000
+      itmp = itmp - j3*1000
+      j2 = itmp/100
+      itmp = itmp - j2*100
+      j1 = itmp/10
+      itmp = itmp - j1*10
+      j0 = itmp/1
+      name(1:1) = '_'
+      name(2:2) = CHAR(j5+ICHAR('0'))
+      name(3:3) = CHAR(j4+ICHAR('0'))
+      name(4:4) = CHAR(j3+ICHAR('0'))
+      name(5:5) = CHAR(j2+ICHAR('0'))
+      name(6:6) = CHAR(j1+ICHAR('0'))
+      name(7:7) = CHAR(j0+ICHAR('0'))
+      p_index_name = name
+      return
+      end
+ccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccc 
+c returns a psuedorandom number
+c between 0 and 1
+ccccccccccccccccccccccccccccccccccccc
+      real*8 function prand(idum)
+      implicit none
+      integer idum,ia,im,iq,ir,mask
+      real*8 ran0,am
+      parameter(ia=16807,im=2147483647,AM=1.0D0/IM,IQ=127773,
+     >      IR=2836,MASK=123456789)
+      integer k
+      idum=ieor(idum,MASK)
+      k=idum/IQ
+      idum=IA*(idum-k*IQ)-IR*k
+      if (idum.lt.0) idum=idum+IM
+      PRAND=DBLE(IDUM)/DBLE(IM)
+      IDUM=IEOR(IDUM,MASK)
+      RETURN 
+      END
+ccccccccccccccccccccccccccccccccccccccccccccccc
+c     Pneb_f_sumSqr
+ccccccccccccccccccccccccccccccccccccccccccccccc    
+      subroutine Pneb_f_print(mbb,nbb,npack1,U)
+      implicit none
+#include "Pneb.fh"
+      integer mbb,nbb,npack1
+      complex*16 U(*)
+
+c     local variables
+      integer i,k,neall,ms,ms1,ms2,nb,nb1,nb2,indx1,indx2
+      integer sshift,nshift
+
+      if (nbb.eq.0) then
+        nb1=1
+        nb2=nbrill
+      else
+        nb1=nbb
+        nb2=nbb
+      end if
+      if (spin_orbit) then
+        sshift=ne(1)*npack1
+        nshift=sshift*2
+        do nb=nb1,nb2
+          indx1=(nb-1)*nshift+1
+          do i=1,ne(1)
+            do k=1,npack1
+              indx2=indx1+sshift
+              write(6,*)"U(",i,",",k,")=",U(indx1),U(indx2)
+              CALL FLUSH(6)
+              indx1=indx1+1
+            end do
+          end do
+        end do         
+      else
+	if (mbb.eq.0) then
+           ms1=1
+           ms2=ispin
+        else
+	   ms1=mbb
+           ms2=mbb
+        end if
+        neall=ne(1)+ne(2)
+        do nb=nb1,nb2
+        do ms=ms1,ms2
+          do i=1,ne(ms)
+           indx2=i+(ms-1)*ne(1)-1
+	   indx1=(indx2+(nb-1)*neall)*npack1+1
+           do k=1,npack1
+              write(6,*)"U(",i,",",k,")=",U(indx1)
+              indx1=indx1+1
+            end do
+          end do
+        end do
+        end do  
+      end if
+      call flush(6)
+      return
+      end
+ccccccccc 
+
+
+
+
+
+                        

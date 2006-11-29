@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.19 2006-03-16 18:39:04 bylaska Exp $
+* $Id: c_electron.F,v 1.20 2006-11-29 02:34:37 d3p708 Exp $
 *
 
 
@@ -41,13 +41,16 @@
 
 *     **** external functions ****
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      logical  cpsi_spin_orbit
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      external cpsi_spin_orbit
 
       counter = 0
 
       ispin = cpsi_ispin()
       ne(1) = cpsi_ne(1)
       ne(2) = cpsi_ne(2)
+      spin_orbit= cpsi_spin_orbit()
 
 *     **** get nfft3d, and npack0 and nbrill****
       call Cram_npack(0,npack0)
@@ -150,10 +153,15 @@
 
       counter = counter+1
 
+
       call c_electron_gen_psi_r(psi_k)
+
       call c_electron_gen_densities(psi_k,dn,dng,dnall)
+
       call c_electron_gen_scf_potentials(dn,dng,dnall)
+
       call c_electron_gen_Hpsi_k(psi_k)
+
       return
       end
 
@@ -182,12 +190,11 @@
 
       subroutine c_electron_get_gradient_orb(nb,i,Horb)
       implicit none
-      integer nb,i
+      integer nb,i,indx
       complex*16 Horb(*)
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
-
       call Cram_c_Copy(nb,
      >                 dcpl_mb(Hpsi_k(1)
      >                        +(i-1)*npack1
@@ -202,6 +209,7 @@
 *     *					*
 *     *		c_electron_sd_update  	*
 *     *					*
+*     ***********************************
 *     ***********************************
       subroutine c_electron_sd_update(psi1,psi2,dte)
       implicit none
@@ -242,7 +250,7 @@
 
       return
       end
-
+cccccccccccccccccc
 *     ***********************************
 *     *					*
 *     *		c_electron_energy	*
@@ -279,12 +287,11 @@
       n2(1) = ne(1)
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
-
-
 *     *** get orbital energies ****
       eorbit = 0.0d0
       do nb=1,nbrill
         weight = brillioun_weight(nb)
+
         do ms=1,ispin
            do ii=n1(ms),n2(ms)
              indx = (ii-1)*npack1 + (nb-1)*npack1*neall
@@ -293,7 +300,6 @@
      >                         dcpl_mb(Hpsi_k(1)+indx),
      >                         sum)
              eorbit = eorbit + sum*weight
-
            end do
         end do
       end do
@@ -329,9 +335,9 @@
       pxc = pxc*dv
           
 
+
 *     **** total energy ****
       c_electron_energy = eorbit + exc - ehartr - pxc
-
       return
       end
 
@@ -349,8 +355,9 @@
 #include "c_electron_common.fh"
 
 *     **** local variables ****
-      integer ii,ms,n1(2),n2(2),nb,indx,neall
+      integer ii,ms,n1(2),n2(2),nb,indx,neall,n,nshift,sshift
       real*8  sum,eorbit,weight
+      real*8  sum1,sum2
 
       real*8  brillioun_weight
       external brillioun_weight
@@ -363,21 +370,42 @@
 
 *     *** get orbital energies ****
       eorbit = 0.0d0
-      do nb=1,nbrill
+      if (spin_orbit) then
+       sshift=n*npack1
+       nshift=sshift*2
+       do nb=1,nbrill
+        weight = brillioun_weight(nb)
+        do ii=1,ne(1)
+             indx = (ii-1)*npack1 + (nb-1)*nshift
+             call Cram_cc_idot(nb,psi_k(1+indx),
+     >                           dcpl_mb(Hpsi_k(1)+indx),
+     >                           sum1)
+             indx = indx+ sshift
+             call Cram_cc_idot(nb,psi_k(1+indx),
+     >                           dcpl_mb(Hpsi_k(1)+indx),
+     >                           sum2)
+             eorbit = eorbit + (sum1+sum2)*weight
+        end do
+       end do
+       call C3dB_SumAll(eorbit)
+      else
+       nshift=(ne(1)+ne(2))*npack1
+       sshift=ne(1)*npack1
+       do nb=1,nbrill
         weight = brillioun_weight(nb)
         do ms=1,ispin
            do ii=n1(ms),n2(ms)
-             indx = (ii-1)*npack1 + (nb-1)*npack1*neall
+             indx = (nb-1)*nshift+(ii-1)*npack1
              call Cram_cc_idot(nb,psi_k(1+indx),
      >                           dcpl_mb(Hpsi_k(1)+indx),
      >                           sum)
              eorbit = eorbit + sum*weight
            end do
         end do
-      end do
-      call C3dB_SumAll(eorbit)
-      if (ispin.eq.1) eorbit = eorbit+eorbit
-     
+       end do
+       call C3dB_SumAll(eorbit)
+       if (ispin.eq.1) eorbit = eorbit+eorbit
+      end if    
       c_electron_eorbit = eorbit 
       return
       end
@@ -607,23 +635,16 @@
 #include "c_electron_common.fh"
 
 *     ***** local variables ****
-      integer n,neall
 
-       
-      n     = ne(1)
-      neall = ne(1)+ne(2)
 
-*     **** no preconditioning ***
-      call Stfl_gqg_Mul(ispin,ne,npack1,neall,nbrill,n,
-     >                  psi_k,hml,THpsi_k)
-      call Stfl_ggg_Sub(ispin,ne,npack1,neall,nbrill,
-     >                  dcpl_mb(Hpsi_k(1)),
-     >                  THpsi_k,
-     >                  THpsi_k)
-      call Stfl_gg_dScale(ispin,ne,npack1,neall,nbrill,
-     >                    (-1.0d0),
+      call Pneb_fwf_Multiply(0,0,psi_k,hml,npack1,THpsi_k)
+
+      call Pneb_fff_sub(0,0,npack1,dcpl_mb(Hpsi_k(1)),THpsi_k,THpsi_k)
+
+      call Pneb_ff_scale(0,0,npack1,-1.0d0,
      >                    THpsi_k,
      >                    THpsi_k)
+
       return
       end
 
@@ -642,15 +663,14 @@
 #include "c_electron_common.fh"
 
 *     **** local variables ****
-      integer n,neall
-     
-      n     = ne(1)
-      neall = ne(1)+ne(2)
+ 
 
-      call Stfl_ggq_dot(ispin,ne,npack1,neall,nbrill,n,
+      call Pneb_ffw_multiply(0,0,
      >                  psi_k,
      >                  dcpl_mb(Hpsi_k(1)),
+     >                  npack1,
      >                  hml)
+
       return
       end
 
@@ -1396,6 +1416,15 @@ c         end do
      >                      weight,
      >                      dcpl_mb(psi_r(1)+ishift),
      >                      rho)
+      return
+      end
+
+*    *************************************
+*    *  c_electron spin orbit
+*    *************************************
+      logical function c_electron_spin_orbit()
+#include "c_electron_common.fh"
+      c_electron_spin_orbit=spin_orbit 
       return
       end
 

@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.1 2004-02-01 19:01:42 bylaska Exp $                       
+*     $Id: band_lmbfgs.F,v 1.2 2006-11-29 02:33:29 d3p708 Exp $                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)
@@ -23,7 +23,7 @@
       nbrill = brillioun_nbrillioun()
       nsize = neall*npack1*nbrill
       call band_Grsm_list_init('lmbfgs',2*max_m,2*nsize)
-
+      write(0,*)"band_Grsm_init ",nsize,max_m,neall,ne(1),nbrill
       m = 1
       call Stfl_gg_dScale(ispin,ne,npack1,neall,nbrill,(-1.0d0),g,g)
       call band_Grsm_list_store(2*m-1,g)
@@ -40,12 +40,11 @@
       complex*16 g(*)
       complex*16 s(*)
 
-
 #include "mafdecls.fh"
 #include "band_lmbfgs_common.fh"
 
 *     **** local variables ****
-      logical value,ondisk
+      logical value,ondisk,casa1,casa2
       integer k,ngras
       real*8 alpha(20),beta,sum,h0
       integer yy(2),ss(2)
@@ -57,6 +56,8 @@
       ondisk = control_lmbfgs_ondisk()
       ngras = 2*npack1*neall*nbrill
 
+      write(0,*)"In band_lmbfgs " ,nsize
+      write(0,*)ngras,ondisk
       call dscal(ngras,(-1.0d0),g,1)
 
 *     **** allocate yy and ss ****
@@ -86,18 +87,26 @@
         call band_Grsm_list_store(2*m,  dbl_mb(ss(1)))
       end if
 
+     
+c      casa1=yy(2)-yy(1)
+c      casa2=ss(2)-ss(1)
+      write(0,*)"Doing first trace in band_lmbfgs",casa2,casa1
       call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                   dbl_mb(yy(1)),
      >                   dbl_mb(ss(1)),
      >                   sum)
+      write(0,*)"did my trace"
       rho(m) = 1.0d0/sum
+      write(0,*)"Doing 2nd trace in band_lmbfgs"
       call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                   dbl_mb(ss(1)),
      >                   s,
      >                   sum)
       alpha(m) = rho(m)*sum
       call daxpy(ngras,(-alpha(m)),dbl_mb(yy(1)),1,s,1)
+      write(0,*)"Doing loop in band_lmbfgs"
       do k=(m-1),1, -1
+        write(0,*)"Doing load band_lmbfgs",k
          if (ondisk) then
            call band_Grsm_list_load(2*k-1,dbl_mb(yy(1)))
            call band_Grsm_list_load(2*k,  dbl_mb(ss(1)))
@@ -105,28 +114,32 @@
            call band_Grsm_list_ptr(2*k-1,yy(1))
            call band_Grsm_list_ptr(2*k,  ss(1))
          end if
+         write(0,*)"Doing Gtransport in band_lmbfgs",k
          call cpsi_1geodesic_Gtransport(tmin,dbl_mb(yy(1)))
+         write(0,*)"Doing Gtransport in band_lmbfgs",k
          call cpsi_1geodesic_Gtransport(tmin,dbl_mb(ss(1)))
          if (ondisk) then
            call band_Grsm_list_store(2*k-1,dbl_mb(yy(1)))
            call band_Grsm_list_store(2*k,  dbl_mb(ss(1)))
          end if
 
+         write(0,*)"Doing traceall in band_lmbfgs",k
          call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                   dbl_mb(ss(1)),
      >                   s,
      >                   sum)
          alpha(k) = rho(k)*sum
+         write(0,*)"Doing  daxpy in band_lmbfgs",k
          call daxpy(ngras,(-alpha(k)),dbl_mb(yy(1)),1,s,1)
       end do
 
    
 *     **** preconditioner ****
-c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
 
 
       do k=1,(m-1)
 
+         write(0,*)"Doing traceall in band_lmbfgs",k
          call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                   dbl_mb(yy(1)),
      >                   s,
@@ -134,6 +147,7 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
          beta = rho(k)*sum
          sum = alpha(k) - beta
       
+         write(0,*)"Doing  daxpy in band_lmbfgs",k
          call daxpy(ngras,sum,dbl_mb(ss(1)),1,s,1)
          if (ondisk) then
            call band_Grsm_list_load(2*(k+1)-1,dbl_mb(yy(1)))
@@ -144,6 +158,7 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
          end if
 
       end do
+         write(0,*)"Doing  daxpy in band_lmbfgs"
       call Stfl_gg_traceall(ispin,ne,npack1,neall,nbrill,
      >                dbl_mb(yy(1)),
      >                s,
@@ -166,13 +181,14 @@ c      call Grsm_gg_dScale(npack1,neall,h0,s,s)
       call band_Grsm_list_store(2*m,s)
       call dscal(ngras, (-1.0d0),g,1)
 
-      if (ondisk) then
+c      if (ondisk) then
         value = MA_pop_stack(ss(2))
         value = value.and.
      >          MA_pop_stack(yy(2))
         if (.not.value) call errquit('band_lmbfgs:pop stack',2,0)
-      end if
+c      end if
 
+      write(0,*)'out of band_lmbfgs'
       return 
       end
 

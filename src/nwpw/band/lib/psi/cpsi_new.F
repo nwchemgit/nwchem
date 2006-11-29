@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.5 2004-11-14 23:31:50 bylaska Exp $
+* $Id: cpsi_new.F,v 1.6 2006-11-29 02:34:43 d3p708 Exp $
 *
 
 *     ***********************************
@@ -23,7 +23,7 @@
       integer version,rtdb
       integer ngrid(3)
       real*8  unita(3,3)
-      logical lcao_print,lcao_skip
+      logical lcao_print,lcao_skip,soc
       integer lcao_iterations
       character*30 filename
 
@@ -39,6 +39,8 @@
       external control_multiplicity
       real*8   control_totalcharge
       external control_totalcharge
+      logical control_spin_orbit
+      external control_spin_orbit
       real*8   ion_totalcharge
       external ion_totalcharge
 c     logical  lcao_wvfnc
@@ -67,17 +69,25 @@ c     external lcao_wvfnc
       icharge = ion_totalcharge()
       t = icharge - tcharge   !*** total number of electrons ***
 
+      soc=control_spin_orbit()
 
-      if (ispin.eq.1) then
-         ne(1) = t/2
-         ne(2) = 0
+      if (soc) then
+        ispin=2
+        ne(1)=t
+        ne(2)=t
       else
+       if (ispin.eq.1) then
+         ne(1) = t/2
+          ne(2) = 0
+       else
          x = t
          if (mod(x,2).ne.0) mult = 2
          x = mult-1
          ne(1) = (t+x)/2
          ne(2) = (t-x)/2
+       end if
       end if
+
       nbrillioun = brillioun_nbrillioun()
 
 
@@ -94,7 +104,7 @@ c     external lcao_wvfnc
      >   lcao_skip = .false.
     
       success = .false.
-c     if (.not.lcao_skip)
+c     if (.not.lcao_skip .and. const)
 c    >  success =  lcao_wvfnc(lcao_print,lcao_iterations,
 c    >                        filename,
 c    >                        version,
@@ -103,15 +113,15 @@ c    >                        unita,
 c    >                        ispin,
 c    >                        ne)
 
-      if (.not.success)
-     >   call c_wvfnc_new(filename,
+      if (.not.success) then
+       call c_wvfnc_new(filename,
      >                  version,
      >                  ngrid,
      >                  unita,
      >                  ispin,
      >                  ne,
      >                  nbrillioun)
-
+      end if
 
       return
       end
@@ -149,6 +159,8 @@ c    >                        ne)
       external control_ngrid
       integer  brillioun_nbrillioun
       external brillioun_nbrillioun
+      logical control_spin_orbit
+      external control_spin_orbit
 
       filename = control_input_psi()
       version = 5   !version 5-band structure, version 3- pspw
@@ -164,12 +176,16 @@ c    >                        ne)
       unita(1,3) = control_unita(1,3)
       unita(2,3) = control_unita(2,3)
       unita(3,3) = control_unita(3,3)
-
+       
       nbrillioun = brillioun_nbrillioun()
 
-    
-      success = .false.
-      if (.not.success)
+      if (control_spin_orbit()) then
+         print*,"Why the hell am i here!"
+c         stop
+       end if
+
+       success = .false.
+       if (.not.success)
      >   call c_wvfnc_new(filename,
      >                  version,
      >                  ngrid,

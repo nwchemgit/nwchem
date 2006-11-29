@@ -1,5 +1,4 @@
-*
-* $Id: c_geodesic.F,v 1.7 2004-11-29 16:05:17 bylaska Exp $
+* $Id: c_geodesic.F,v 1.8 2006-11-29 02:34:43 d3p708 Exp $
 *
 
 
@@ -101,74 +100,108 @@
 
 
 *     **** local variables ****
-      logical value
+      logical value,spin_orb
       integer npack1,neall,nbrill,ispin
       integer nb,ms,i,j,n,nn,ne(2),indx,indxt
       integer V(2)
-
+      integer nbb,mbb,io,ib
+      real*8 tmp
 *     **** external functions **** 
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
       real*8   c_electron_eorbit
+      logical cpsi_spin_orbit
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
       external c_electron_eorbit
+      external cpsi_spin_orbit
 
-      call nwpw_timing_start(10)
 
+      call nwpw_timing_start(10)   
       call Cram_max_npack(npack1)
       ispin  = cpsi_ispin()
       ne(1)  = cpsi_ne(1)
       ne(2)  = cpsi_ne(2)
-
+      spin_orb=cpsi_spin_orbit()
       neall  = ne(1) + ne(2)
       nbrill = brillioun_nbrillioun()
       n      = ne(1)
       nn     = n*n
-
+      if (spin_orb) neall=ne(1)
+      value = MA_set_auto_verify(.true.)
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dcpl,(2*n*n*nbrill),'V',V(2),V(1))
+      value = MA_push_get(mt_dcpl,(2*nn*nbrill),'V',V(2),V(1))
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
 *     **** HomeGrown SVD ****
       call dcopy(nbrill*neall,0.0d0,0,dbl_mb(S(1)),1)
-      call Stfl_SVD(ispin,ne,npack1,neall,nbrill,n,
-     >              A,
-     >              dcpl_mb(U(1)),
-     >              dbl_mb(S(1)),
-     >              dcpl_mb(V(1)))
-      
-*     **** find max_sigma ****
-      max_sigma = 0.0d0
-      do i=1,neall*nbrill
-        if (dabs(dbl_mb(S(1)+i-1)).gt.max_sigma) 
-     >        max_sigma = dbl_mb(S(1)+i-1)
-      end do
 
+      call Pneb_SVD(0,0,npack1, A, dcpl_mb( U(1) ),
+     >              dbl_mb( S(1) ),
+     >              dcpl_mb( V(1) ) )
+
+      value = MA_verify_allocator_stuff()
+*     **** find max_sigma ****
+      max_sigma = -1.0d200
+      if (spin_orb) then
+        indx=S(1)
+        do i=1,n*nbrill
+          tmp=dabs( dbl_mb(indx) )
+          if ( tmp.gt.max_sigma) then
+            max_sigma=tmp
+          end if
+          indx=indx+1
+        end do
+      else
+        indx=S(1)
+        do i=1,neall*nbrill
+          tmp=dabs( dbl_mb(indx) ) 
+          if ( tmp.gt.max_sigma) then
+            max_sigma=tmp
+          end if
+          indx=indx+1
+        end do
+      end if
+      value = MA_verify_allocator_stuff()
+
+c      low=0
+c      hi=npack1*ne(1)*2*nbrill
 *     *** calculate Vt ***
-      do nb=1,nbrill
+      if (spin_orb) then
+        do nb=1,nbrill
+          do i=1,n
+           do j=1,n
+             indx  = (i-1) + (j-1)*n + (nb-1)*nn
+             indxt = (j-1) + (i-1)*n + (nb-1)*nn
+             dcpl_mb(Vt(1)+indxt) = dconjg(dcpl_mb(V(1)+indx))
+           end do
+          end do
+        end do
+      else
+        do nb=1,nbrill
          do ms=1,ispin
-         do i=1,ne(ms)
-         do j=1,ne(ms)
+          do i=1,ne(ms)
+           do j=1,ne(ms)
              indx  = (i-1) + (j-1)*n + (ms-1)*nn + (nb-1)*2*nn
              indxt = (j-1) + (i-1)*n + (ms-1)*nn + (nb-1)*2*nn
              dcpl_mb(Vt(1)+indxt) = dconjg(dcpl_mb(V(1)+indx))
+           end do
+          end do
          end do
-         end do
-         end do
-      end do
+        end do
+      end if
+      value = MA_verify_allocator_stuff()
 
 *     **** calculate 2*<A|H|psi> ****
       dE = 2.0d0*c_electron_eorbit(A)
-
-
+      value = MA_verify_allocator_stuff()
+       
 *     **** deallocate tmp space ****     
-      value = value.and.
-     >        MA_pop_stack(V(2))
-      if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
-
+      value = MA_pop_stack(V(2))
+      if (.not. value) then
+        call errquit("geo_start error popping stack memory",0, 
+     >  MA_ERR)
+      end if
       call nwpw_timing_end(10)
-
       return
       end
 
@@ -194,18 +227,21 @@
 #include "c_geodesic_common.fh"
 
 *     **** local variables ****
-      logical    value
+      logical    value,spin_orb
       integer    npack1,neall,nbrill,ispin,ne(2)
-      integer    nb,ms,j,k,n,nn,shift1,shift2
+      integer    nb,ms,j,k,n,nn,indx1,indx2,indx,shift1,shift2
       real*8     scal1,scal2
       complex*16 zero,one
       integer    tmp1(2),tmp2(2),tmp3(2)
 
 
 *     **** external functions ****
+      logical cpsi_spin_orbit
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      external cpsi_spin_orbit
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
 
+      value=MA_set_auto_verify(.true.)
       call nwpw_timing_start(10)
       zero = dcmplx(0.0d0,0.0d0)
       one  = dcmplx(1.0d0,0.0d0)
@@ -217,7 +253,8 @@
       n     = ne(1)
       nn    = n*n
       nbrill = brillioun_nbrillioun()
-
+      spin_orb=cpsi_spin_orbit()
+      if (spin_orb) ispin=2
 *     **** allocate tmp space ****
       value = MA_push_get(mt_dcpl,(2*n*n),'tmp1',
      >                    tmp1(2),tmp1(1))
@@ -230,14 +267,83 @@
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
-      do nb =1,nbrill
-      do ms = 1,ispin
-        shift1 = (ms-1)*ne(1)
+      value = MA_verify_allocator_stuff()
+      if (spin_orb) then
+        n=ne(1)
+        do nb =1,nbrill
+  
+         do j=1,n
+          indx = S(1) + j - 1 + (nb-1)*n
+          scal1 = dcos(dbl_mb(indx)*t)
+          scal2 = dsin(dbl_mb(indx)*t)
+
+          do k=1,n
+           indx= j-1+(k-1)*n
+           indx2=j-1+(k-1)*n+(nb-1)*n*n
+           dcpl_mb(tmp1(1)+indx)
+     >          = scal1 * dcpl_mb(Vt(1)+indx2)
+           dcpl_mb(tmp3(1)+indx)
+     >          = scal2 * dcpl_mb(Vt(1)+indx2)
+          end do
+         end do
+         value = MA_verify_allocator_stuff()
+         indx=(nb-1)*n*n
+         value=MA_verify_allocator_stuff()
+         call ZGEMM('C','N',n,n,n,one,
+     >              dcpl_mb(Vt(1)+indx),n,
+     >              dcpl_mb(tmp1(1)),n,
+     >              zero,
+     >              dcpl_mb(tmp2(1)),n)
+
+         do k=1,n
+          indx=1+(k-1)*npack1+(nb-1)*n*npack1*2
+          call zcopy(npack1,zero,0.0d0,Ynew(indx),1)
+          indx=indx+n*npack1
+          call zcopy(npack1,zero,0.0d0,Ynew(indx),1)
+          do j=1,n
+            indx=tmp2(1)+j-1+(k-1)*n
+            indx1=((j-1)+(nb-1)*n*2)*npack1+1 
+            indx2=((k-1)+(nb-1)*n*2)*npack1+1  
+            call Cram_cc_zaxpy(nb,
+     >                         dcpl_mb(indx),
+     >                         Yold(indx1),
+     >                         Ynew(indx2))
+            indx1=indx1+n*npack1
+            indx2=indx2+n*npack1
+            call Cram_cc_zaxpy(nb,
+     >                         dcpl_mb(indx),
+     >                         Yold(indx1),
+     >                         Ynew(indx2))
+            indx=tmp3(1)+j-1+(k-1)*n
+            indx1=U(1)+((j-1)+(nb-1)*n*2)*npack1
+            indx2=1+((k-1+(nb-1)*n*2)*npack1)
+            call Cram_cc_zaxpy(nb,
+     >                         dcpl_mb(indx),
+     >                         dcpl_mb(indx1),
+     >                         Ynew(indx2))
+            indx1=indx1+n*npack1
+            indx2=indx2+n*npack1
+            call Cram_cc_zaxpy(nb,
+     >                         dcpl_mb(indx),
+     >                         dcpl_mb(indx1),
+     >                         Ynew(indx2))
+
+          end do
+         end do
+         value=MA_verify_allocator_stuff()
+
+       end do
+
+      else
+
+       do nb =1,nbrill
+        do ms = 1,ispin
+         shift1 = (ms-1)*ne(1)
      >         + (nb-1)*neall
-        shift2 = (ms-1)*nn
+         shift2 = (ms-1)*nn
      >         + (nb-1)*2*nn
 
-        do j=1,ne(ms)
+         do j=1,ne(ms)
           scal1 = dcos(dbl_mb(S(1)+j-1+shift1)*t)
           scal2 = dsin(dbl_mb(S(1)+j-1+shift1)*t)
 
@@ -256,6 +362,7 @@
      >              zero,
      >              dcpl_mb(tmp2(1)+(ms-1)*nn),n)
 
+
         do k=1,ne(ms)
           call zcopy(npack1,zero,0,Ynew(1+(k-1+shift1)*npack1),1)
           do j=1,ne(ms)
@@ -271,28 +378,12 @@
           end do
         end do
 
+       end do
       end do
-      end do
+      end if
+*     **** Orthonormality Check ****
 
-*     **** Orthonormality Check ****     
-      call Stfl_g_OrthoCheckMake(.false.,
-     >                           ispin,ne,npack1,neall,nbrill,
-     >                           Ynew)
-
-*     call Grsm_gg_trace(npack1,nemax,Ynew,Ynew,sum2)
-* 
-*     sum1 = dble(nemax)
-*     if (dabs(sum2-sum1).gt.1.0d-10) then
-*        call Parallel_taskid(taskid)
-*         if (taskid.eq.MASTER) 
-*    >      write(*,*) 
-*    >      "Warning: Gram-Schmidt being performed in geodesic_get"
-*        call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
-*        if (psi_ispin().gt.1) then
-*          call Grsm_g_MakeOrtho(npack1,psi_ne(2),
-*    >                           Ynew(1 + psi_ne(1)*npack1))
-*        end if
-*     end if
+      call Pneb_orthocheckmake(.true.,0,0,npack1,Ynew)     
 
 *     **** deallocate tmp space ****     
       value = MA_pop_stack(tmp3(2))
@@ -330,13 +421,15 @@
 *     **** local variables ****
       logical    value
       integer    npack1,neall,nbrill,ispin,ne(2)
-      integer    nb,ms,j,k,n,nn,shift1,shift2
+      integer    nb,ms,j,k,n,nn,shift1,shift2,soshft
       complex*16 zero,one
       real*8     scal1,scal3
-      integer    tmp1(2),tmp2(2),tmp3(2)
+      integer    tmp1(2),tmp2(2),tmp3(2),ix,kx,indx1,indx2
 
 *     **** external functions ****
+      logical cpsi_spin_orbit
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      external cpsi_spin_orbit
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
 
       call nwpw_timing_start(10)
@@ -351,7 +444,7 @@
       n     = ne(1)
       nn    = n*n
       nbrill = brillioun_nbrillioun()
-
+      value = MA_SET_AUTO_VERIFY(.TRUE.)
 *     **** allocate tmp space ****
       value = MA_push_get(mt_dcpl,(2*n*n),'tmp1',
      >                    tmp1(2),tmp1(1))
@@ -364,13 +457,77 @@
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
+      if (cpsi_spin_orbit()) then
+
+
+
+      do nb=1,nbrill
+        n=ne(1)
+        soshft=n*npack1
+        shift1 = (nb-1)*soshft*2
+        shift2 = (nb-1)*n*n
+        do j=1,n
+          scal3 = dbl_mb(S(1)+j-1+(nb-1)*n)
+          scal1 = scal3*dsin(scal3*t)
+          scal3 = scal3*dcos(scal3*t)
+          do k=1,n
+           kx=j-1+(k-1)*n
+           ix=Vt(1)+kx+shift2
+           dcpl_mb(tmp1(1)+kx) 
+     >       = scal1 * dcpl_mb(ix)
+           dcpl_mb(tmp3(1)+kx) 
+     >       = scal3 * dcpl_mb(ix)
+          end do
+        end do
+        value=ma_verify_allocator_stuff()
+     
+        call ZGEMM('C','N',n,n,n,one,
+     >              dcpl_mb(Vt(1)+shift2), n,
+     >              dcpl_mb(tmp1(1)), n,
+     >              zero,
+     >              dcpl_mb(tmp2(1)), n)
+
+        do k=1,n
+          ix=1+((nb-1)*n*2+(k-1))*npack1
+          call zcopy(npack1,zero,0,Ynew(ix),1)
+          call zcopy(npack1,zero,0,Ynew(ix+n*npack1),1)
+          do j=1,n
+
+            indx1=((j-1)+(nb-1)*n*2)*npack1+1 
+            indx2=((k-1)+(nb-1)*n*2)*npack1+1  
+             
+            call Cram_cc_zaxpy(nb,
+     >              (-1.0d0*dcpl_mb(tmp2(1)+j-1+(k-1)*n)),
+     >              Yold(indx1),
+     >              Ynew(indx2))
+            call Cram_cc_zaxpy(nb,
+     >              (-1.0d0*dcpl_mb(tmp2(1)+j-1+(k-1)*n)),
+     >              Yold(indx1+soshft),
+     >              Ynew(indx2+soshft))
+            call Cram_cc_zaxpy(nb,
+     >              dcpl_mb(tmp3(1)+j-1+(k-1)*n),
+     >              dcpl_mb(U(1)+indx1-1),
+     >              Ynew(indx2))
+            call Cram_cc_zaxpy(nb,
+     >              dcpl_mb(tmp3(1)+j-1+(k-1)*n),
+     >              dcpl_mb(U(1)+indx1-1+soshft),
+     >              Ynew(indx2+soshft))
+
+          end do
+        end do
+
+      end do
+
+
+      else
+
 
       do nb=1,nbrill
       do ms = 1,ispin
         shift1 = (ms-1)*ne(1) 
      >         + (nb-1)*neall
         shift2 = (ms-1)*nn
-     >         + (nb-1)*2*nn
+     >         + (nb-1)*nn*2
 
         do j=1,ne(ms)
           scal1 = dbl_mb(S(1)+j-1+shift1)
@@ -411,6 +568,7 @@
       end do
       end do
 
+      end if
 *     **** deallocate tmp space ****     
       value = MA_pop_stack(tmp3(2))
       value = value.and.
@@ -421,6 +579,7 @@
      > call errquit('error popping stack memory',0, MA_ERR)
 
       call nwpw_timing_end(10)
+
       return
       end
 
@@ -448,14 +607,16 @@
 *     **** local variables ****
       logical    value
       integer    npack1,neall,nbrill,ne(2),ispin
-      integer    nb,ms,j,k,n,nn,shift1,shift2
+      integer    nb,ms,j,k,n,nn,shift1,shift2,soshift
       complex*16 zero,one
-      real*8     scal1,scal3
-      integer    tmp1(2),tmp2(2),tmp3(2)
+      real*8     scal1,scal3,thingie
+      integer    tmp1(2),tmp2(2),tmp3(2),indx1,indx2,indxt
 
 *     **** external functions ****
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
+      logical cpsi_spin_orbit
+      external cpsi_spin_orbit
 
       call nwpw_timing_start(10)
 
@@ -470,6 +631,7 @@
       n      = ne(1)
       nn     = n*n
       nbrill = brillioun_nbrillioun()
+      value=MA_SET_AUTO_VERIFY(.TRUE.)
 
 *     **** allocate tmp space ****
       value = MA_push_get(mt_dcpl,(2*nn*nbrill),'tmp1',
@@ -484,14 +646,78 @@
      >   call errquit('out of stack memory',0, MA_ERR)
 
 *     ***** calculate U^t * G ****
-      call Stfl_ggq_dot(ispin,ne,npack1,neall,nbrill,n,
+        value=ma_verify_allocator_stuff()
+
+      call Pneb_ffw_multiply(0,0,
      >                  dcpl_mb(U(1)),
      >                  tG,
+     >                  npack1,
      >                  dcpl_mb(tmp1(1)))
 
-      call zcopy(2*nn*nbrill,
-     >           dcpl_mb(tmp1(1)),1,
-     >           dcpl_mb(tmp3(1)),1)
+      call Pneb_w_copy(0,0,
+     >           dcpl_mb(tmp1(1)),
+     >           dcpl_mb(tmp3(1)))
+
+      if (cpsi_spin_orbit()) then
+ccccccccccccccccccccc
+      do nb = 1,nbrill
+        n=ne(1)
+        shift1 =(nb-1)*n
+        shift2 = (nb-1)*n*n*2
+        soshift= n*npack1
+        do j=1,n
+          thingie= t*dbl_mb(S(1)+j-1+shift1)
+          scal1 =       dsin(thingie)
+          scal3 = 1.0d0 - dcos(thingie)
+
+          do k=1,n
+           indx1=j-1+(k-1)*n+(nb-1)*n*n
+           dcpl_mb(tmp1(1)+indx1) 
+     >        = scal1 * dcpl_mb(tmp1(1)+indx1)
+           dcpl_mb(tmp3(1)+indx1) 
+     >        = scal3 * dcpl_mb(tmp3(1)+indx1)
+          end do
+        end do
+
+        indx1=(nb-1)*n*n
+        call ZGEMM('C','N',n,n,n,one,
+     >              dcpl_mb(  Vt(1)+indx1), n,
+     >              dcpl_mb(tmp1(1)+indx1), n,
+     >              zero,
+     >              dcpl_mb(tmp2(1)+indx1), n)
+
+        do k=1,n
+          do j=1,n
+            indxt=tmp2(1)+j-1+(k-1)*n+(nb-1)*n*n
+            indx1=1+((j-1)+(nb-1)*n*2)*npack1
+            indx2=1+((k-1)+(nb-1)*n*2)*npack1
+            
+            call Cram_cc_zaxpy(nb,
+     >             (-1.0d0*dcpl_mb(indx2)),
+     >             Yold(indx1),
+     >               tG(indx2))
+            call Cram_cc_zaxpy(nb,
+     >             (-1.0d0*dcpl_mb(indx2)),
+     >             Yold(indx1+soshift),
+     >               tG(indx2+soshift))
+            indxt=tmp3(1)+(j-1)+(k-1)*n+(nb-1)*n*n
+            call Cram_cc_zaxpy(nb,
+     >             (-1.0d0*dcpl_mb(indxt)),
+     >             dcpl_mb(U(1)+indx1-1),
+     >             tG(indx2))
+            call Cram_cc_zaxpy(nb,
+     >             (-1.0d0*dcpl_mb(indxt)),
+     >             dcpl_mb(U(1)+indx1-1+soshift),
+     >             tG(indx2+soshift))
+          end do
+        end do
+
+      end do
+cccccccccccccccc
+
+      else
+
+cccccccccccccccccccc
 
       do nb = 1,nbrill
       do ms = 1,ispin
@@ -534,7 +760,8 @@
 
       end do
       end do
-
+ccccccccccccc
+      end if
 *     **** deallocate tmp space ****     
       value = MA_pop_stack(tmp3(2))
       value = value.and.

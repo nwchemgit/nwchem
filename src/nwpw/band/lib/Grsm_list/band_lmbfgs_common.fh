@@ -1,7 +1,7 @@
 *
-*     $Id: band_lmbfgs_common.fh,v 1.1 2004-02-01 19:01:43 bylaska Exp $
+*     $Id: band_lmbfgs_common.fh,v 1.2 2006-11-29 02:33:29 d3p708 Exp $
 *
-      real*8 rho(20)
+      real*8 rho(40)
       integer ispin,ne(2),npack1,neall,nbrill
       integer nsize,max_m,m
       common / c_lmbfgs_common / rho,ne,ispin,npack1,neall,nbrill,

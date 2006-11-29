@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.5 2003-10-17 22:56:14 carlfahl Exp $
+* $Id: c_wvfnc_new.F,v 1.6 2006-11-29 02:34:50 d3p708 Exp $
 *
       subroutine c_wvfnc_new(wavefunction_filename,
      >             			version,
@@ -45,7 +45,7 @@
      >                  nbrillioun)
         write(*,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
-        write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
+        write(*,*) "-   spin, nalpha, nbeta:",ispin,ne(1),ne(2)
         value = MA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
@@ -89,9 +89,12 @@
       double complex cc,cx,sx,zx
 
 *     **** external functions ****
+      logical control_spin_orbit
       double precision gcdot,util_random
+      external         control_spin_orbit
       external         gcdot,util_random
  
+      if (control_spin_orbit()) ispin=2
 
       p = util_random(5291999) !*** initialize the random sequence ***
       call getfilling(ne(1),filling)
@@ -142,6 +145,16 @@
       call iwrite(6,ispin,1)
       call iwrite(6,ne,2)
       call iwrite(6,nbrillioun,1)
+ 
+c      if (control_spin_orbit()) then
+c        do nb=1,nbrillioun
+c          call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
+c          call Pneb_f_Rand(0,0,nfft3d,dcpl_mb(cfull_indx))
+c          call dwrite(6,dcpl_mb(cfull_indx),4*nfft3d)      
+c      call closefile(6)
+c      IERR=0
+c      GOTO 9999
+c      end if
  
       do nb=1,nbrillioun
         call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)

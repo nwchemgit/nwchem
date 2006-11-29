@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.10 2004-11-13 02:22:06 bylaska Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.11 2006-11-29 02:34:54 d3p708 Exp $                       
 *
 
 *     ***************************
@@ -55,8 +55,6 @@
 
 
 *     **** generate phaze factors and local psp and core density ****
-c      call cphafac()
-c      call cphafac_k()
       call c_electron_gen_vl_potential()
       if (cpsp_semicore(0)) call c_semicore_density_update()
 
@@ -93,7 +91,10 @@ c      call cphafac_k()
       if (minimizer.eq.2) call band_Grsm_list_start()
       if (minimizer.eq.5) it_out = 1
 
+
       if (newpsi) call c_sdminimize(5)
+
+
    2  continue
          icount = icount + 1
          if (stalled) then
@@ -105,10 +106,17 @@ c      call cphafac_k()
          
          if (minimizer.eq.1) then
            bfgscount = bfgscount + 1
+
            call c_cgminimize(E,deltae,deltac,bfgscount,it_in)
+
          else if (minimizer.eq.2) then
            bfgscount = bfgscount + 1
-           call c_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
+
+           write(*,*) "Bundled BFGS minimizer not implemented"
+           stop
+
+C           call c_bfgsminimize(E,deltae,deltac,bfgscount,minimizer)
+
          else if (minimizer.eq.3) then
            bfgscount = bfgscount + 1
            write(*,*) "Bundled DIIS minimizer not implemented"
@@ -167,11 +175,15 @@ c      call cphafac_k()
 
 
 *     **** diagonalize hamiltonian and rotate psi ****
+
       call cpsi_spin_density(en)
+
       call cpsi_1gen_hml()
+
       call cpsi_diagonalize_hml()
 
       call cpsi_1rotate2()
+
       call cpsi_2to1()
 
 *     **** geometrical center and center of mass of the cluster ****

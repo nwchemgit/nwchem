@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.90 2006-11-22 18:43:01 bylaska Exp $
+* $Id: control.F,v 1.91 2006-11-29 02:35:08 d3p708 Exp $
 *
 
 *     ***********************************
@@ -459,6 +459,10 @@ c
      >        rtdb_get(rtdb,'band:mult',mt_int,1,multiplicity)
       value = value.and.
      >        rtdb_get(rtdb,'band:ispin',mt_int,1,ispin)
+      if (.not.rtdb_get(rtdb,'band:spin_orbit',mt_log,1,spin_orbit))
+     > spin_orbit=.false.
+      if (spin_orbit) ispin=2
+      
 
       if (.not.rtdb_get(rtdb,'nwpw:spin-orbit',mt_log,1,spin_orbit))
      >   spin_orbit = .false.
@@ -3453,5 +3457,7 @@ c      end
       return
       end
 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+        
 
 
