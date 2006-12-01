@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.11 2004-05-05 02:16:57 edo Exp $
+ $Id: util_md_sockets.c,v 1.12 2006-12-01 18:59:33 edo Exp $
  */
 
 #include <sys/types.h>
@@ -23,6 +23,9 @@
  */
 int create_server_socket(char *host, int port)
 {
+#ifdef CATAMOUNT
+    ga_error("system calls do not work on this machine", 0);
+#else
   int server_sockfd, client_sockfd;
   int server_len;
 #ifdef NOSOCKLEN
@@ -42,6 +45,7 @@ int create_server_socket(char *host, int port)
   listen(server_sockfd,5);
   client_sockfd=accept(server_sockfd,(struct sockaddr *)&client_address,&client_len);
   return client_sockfd;
+#endif
 }
 
 int create_server_socket_(char *s, int *port)
@@ -58,6 +62,9 @@ int create_server_socket_(char *s, int *port)
  */
 int create_client_socket(char *host, int port)
 {
+#ifdef CATAMOUNT
+    ga_error("system calls do not work on this machine", 0);
+#else
   int sockfd, len, result;
   struct sockaddr_in address;
   /*  int size = 10; */
@@ -73,6 +80,7 @@ int create_client_socket(char *host, int port)
 
   if(result==-1) return -1;
   return sockfd;
+#endif
 }
 
 int create_client_socket_(char *s, int *port)
