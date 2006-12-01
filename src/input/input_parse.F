@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.82 2006-04-08 00:22:36 windus Exp $
+C     $Id: input_parse.F,v 1.83 2006-12-01 22:19:17 edo Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -56,6 +56,8 @@ c
                goto 9999
             else if (inp_compare(.false.,test,'geometry')) then
                call geom_input(rtdb)
+            else if (inp_compare(.false.,test,'bsse')) then
+               call bsse_input(rtdb)
             else if (inp_compare(.false.,test,'basis')) then
                call bas_input(rtdb)
             else if (inp_compare(.false.,test,'python')) then
@@ -103,6 +105,8 @@ c
                call esp_input(rtdb)
             else if (inp_compare(.false.,test,'et')) then
                call et_input(rtdb)
+            else if (inp_compare(.false.,test,'transport')) then
+               call transp_input(rtdb)
             else if (inp_compare(.false.,test,'analysis')) then
                call ana_input(rtdb)
             else if (inp_compare(.false.,test,'analyze')) then

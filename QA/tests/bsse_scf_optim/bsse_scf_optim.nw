@@ -1,0 +1,41 @@
+Title "w+aldh"
+
+Start "w+aldh"
+
+echo
+
+geometry noautoz  units angstrom
+symmetry c1
+ O     1.84329341    -0.81605062    -0.10793809
+ H     2.72526769    -0.42892567    -0.15174094
+ H     1.19742943    -0.09227909    -0.06494630
+ O    -0.59795264     0.83695007     0.03883380
+ C    -1.49267573     0.02126654     0.08223587
+ H    -1.30404998    -1.04497007     0.06397474
+ H    -2.53606053     0.30976152     0.14206367
+end
+
+basis "ao basis"
+ H library 6-31g 
+ C library 6-31g 
+ O library 6-31g 
+ bqH library H 6-31g 
+ bqO library O 6-31g 
+ bqC library C 6-31g 
+end
+
+scf
+ singlet
+ direct
+ maxiter 60
+end
+driver
+clear
+ maxiter 60
+end
+task optimize scf
+bsse
+ mon water 1 2 3
+ mon aldhe 4 5 6 7
+end
+task optimize scf

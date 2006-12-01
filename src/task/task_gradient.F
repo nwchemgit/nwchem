@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.49 2006-01-26 18:37:56 bert Exp $
+* $Id: task_gradient.F,v 1.50 2006-12-01 22:19:18 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -28,6 +28,11 @@ c
       logical cons_active
       external cons_active
 c
+cc
+      logical task_bsse
+      logical bsse_gradient
+      external bsse_gradient
+cc
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -53,6 +58,10 @@ c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c
+cc
+      if (.not. rtdb_get(rtdb,'bsse',mt_log,1,task_bsse))
+     $     task_bsse = .false.
+cc
       if(task_qmmm) then
           status = task_qmmm_gradient(rtdb)
             if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
@@ -63,7 +72,15 @@ c
      $           call errquit('task_gradient: no gradient in rtdb?',0,
      &       RTDB_ERR)
       else if (theory .ne. 'oniom' .or. numerical) then
-         status = task_gradient_doit(rtdb,theory,energy, gradient)
+cc
+        if(.not.task_bsse) then
+          status = task_gradient_doit(rtdb,theory,energy, gradient)
+        else
+          status = bsse_gradient(rtdb,theory,energy,gradient)
+          if(.not.status)
+     $      call errquit('task_gradient: error call bsse gradient',911)
+        endif
+cc
       else
          status = oniom_gradient(rtdb)
          if (status) then
@@ -142,7 +159,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.49 2006-01-26 18:37:56 bert Exp $
+* $Id: task_gradient.F,v 1.50 2006-12-01 22:19:18 edo Exp $
 *
       implicit none
 #include "errquit.fh"

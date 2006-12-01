@@ -1,0 +1,37 @@
+c23456789
+c
+c     integer rtdb
+c     integer geom
+c
+      integer mx_atm
+      parameter (mx_atm = 200)
+c
+      character*255 spr_name
+      character*255 mon_name (mx_atm)  ! monomers name
+      character*255 j_mon_name
+      character*1024 input (mx_atm) !special input
+c
+      double precision qmon(mx_atm)  ! monomer charge
+c
+      integer mon_atm(mx_atm)        ! num of atom in monomer
+      integer nmon                   ! num of monomer
+      integer mon(mx_atm,mx_atm)     ! table: rows(nmon) x cols(mon_atm)  
+      integer mmon (mx_atm)          ! monomers multiplicity
+      integer natoms                 ! total atoms in the sistem
+      integer lenname, lentheo
+c
+      double precision spr_energy
+      double precision bsse_error
+      double precision m_error(50)
+      double precision final_spr_energy
+c
+      double precision  mon_energy(mx_atm)
+c
+      logical first_j
+c
+      common/mon_i/ mon_atm, mon, natoms,nmon,mmon
+      common/mon_c/mon_name,spr_name,input
+      common/mon_d/qmon
+c
+c     common/bsse_en_d/final_spr_energy,bsse_error,spr_energy,m_error
+c

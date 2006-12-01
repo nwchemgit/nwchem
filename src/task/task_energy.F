@@ -24,6 +24,11 @@ c
       logical cons_active
       external cons_active
 c
+cc
+      logical task_bsse
+      logical bsse_energy
+      external bsse_energy
+cc
       cpu  = util_cpusec()
       wall = util_wallsec()
 c
@@ -37,7 +42,11 @@ c
 c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
- 
+
+cc
+      if (.not. rtdb_get(rtdb,'bsse',mt_log,1,task_bsse))
+     $     task_bsse = .false.
+cc 
       if(task_qmmm) then
           status = task_qmmm_energy(rtdb)
           if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
@@ -45,6 +54,13 @@ c
      &       RTDB_ERR)
       else if (theory .ne. 'oniom') then
          status = task_energy_doit(rtdb,theory,energy)
+cc
+        if(task_bsse) then
+            status = bsse_energy(rtdb,theory,energy)
+            if(.not.status)
+     $        call errquit('task_errr: error call bsse energy',911)
+        endif
+cc
       else
          status = oniom_energy(rtdb)
          if (status) then
@@ -97,7 +113,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.44 2004-10-22 23:51:22 marat Exp $
+* $Id: task_energy.F,v 1.45 2006-12-01 22:19:18 edo Exp $
 *
       implicit none
 #include "errquit.fh"

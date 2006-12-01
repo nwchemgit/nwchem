@@ -1,5 +1,5 @@
 %
-% $Id: top-level.tex,v 1.65 2006-03-06 22:32:45 edo Exp $
+% $Id: top-level.tex,v 1.66 2006-12-01 22:19:17 edo Exp $
 %
 \label{sec:toplevel}
 
@@ -696,8 +696,6 @@ density functional theory for solids using NWPW
  \item \verb+tce+ --- Tensor Contraction Engine (please see
 Section \ref{sec:inputsyntax} for a complete description of this task directive
 
-%% \item \verb+md_ideaz+ --- Classical molecular dynamics simulation
-%%   using IDEAZ
 \end{itemize}
 
 The string \verb+<operation>+ specifies the calculation that will
@@ -893,6 +891,119 @@ level of theory the task directive input would be
 
 The optional keyword \verb+ignore+ can be used to allow execution to
 continue even if the task fails, as discussed above.
+
+\subsection{{\tt TASK} Directive for BSSE calculations}
+\label{sec:bsse_task}
+
+NWChem computes the basis set superposition error (BSSE) when two or more
+fragments are interacting by using the counterpoise method. 
+This directive is performed if the \verb+BSSE+ section is present. 
+Single point energies, energy gradients, geometry
+optimizations, Hessians and frequencies, at the level of theory that allows these tasks, can be obtained with the BSSE correction.
+The input options for the BSSE section are:
+
+\begin{verbatim}
+BSSE
+  MON <string monomer name> <integer natoms> \
+   [INPUT  [<string input>]] \
+   [INPUT_WGHOST[<string input>]] \
+   [CHARGE [< real charge>]] \
+  [OFF] \
+  [ON] \
+END
+\end{verbatim}
+
+\verb+MON+ defines the monomer's name and its atoms;
+ <string monomer name> defines the
+name of the monomer, <integer atoms> is the list of atoms corresponding to the
+monomer (where such a list is relative to the initial geometry). 
+This information is needed for each monomer. 
+With the tag \verb+INPUT+ the user can modify any calculation attributes for
+each monomer without ghost. 
+For example, the iterations number and the grid can be
+changed in a DFT calculation (see the example of the interaction between $Zn^{2+}$ and
+water).  \verb+INPUT_WGHOST+ is the same than \verb+INPUT+ but for the monomer with ghost.
+The input changes will be applied within this and for the following calculations,
+you should be cautious reverting the changes for the next monomers. 
+\verb+CHARGE+
+assigns a charge to a monomer and it must be consistent with the total charge
+in the whole system (see Section \ref{sec:charge}). The options \verb+OFF+ and  \verb+ON+ 
+turns off and on any BSSE calculation.
+
+The energy evaluation involves 1 + 2N calculations, i.e. one for the supermolecule and
+two for the N monomers. [S. Simon, M. Duran, J. J. Dannenberg, J. Chem. Phys., 105, 11024 (1996)]
+NWChem stores the vector files for each calculation (\verb+<string monomer name>.bsse.movecs+),
+and one hessian file (\verb+<string monomer name>.bsse.hess+).
+The code does not assign automatically the basis set for the ghost atoms, 
+you must assign the corresponding bqX for each element, instead.
+
+\subsection*{Examples}
+
+The dimer $(FH)_2$
+
+\begin{verbatim}
+title dimer
+start dimer
+geometry units angstrom
+symmetry c1
+  F        1.47189        2.47463       -0.00000
+  H        1.47206        3.29987        0.00000
+  F        1.46367       -0.45168        0.00000
+  H        1.45804        0.37497       -0.00000
+end
+
+basis "ao basis"
+ F library 6-31G
+ H library 6-31G
+ bqF library F 6-31G
+ bqH library H 6-31G
+end
+dft; xc slater 1.0 vwn_5 1.0; direct; end
+bsse
+  mon first 1 2
+  mon second 3 4
+end
+
+task dft energy
+
+\end{verbatim}
+
+Changing {\tt maxiter} for a  specific monomer: $Zn^{2+}(H_2O)$
+
+\begin{verbatim}
+title znwater
+start znwater
+
+echo
+geometry noautoz units angstrom
+symmetry c1
+  Zn      -1.89334       -0.72741       -0.00000
+  O       -0.20798        0.25012        0.00000
+  H       -0.14200        1.24982       -0.00000
+  H        0.69236       -0.18874       -0.00000
+end
+
+basis "ao basis"
+ O library 6-31G
+ Zn library 6-31G
+ H library 6-31G
+ bqO library O 6-31G
+ bqZn library Zn 6-31G
+ bqH library H 6-31G
+end
+charge 2
+scf; direct; end
+mp2; end
+
+bsse
+  mon metal 1
+    charge 2
+    input_wghost "scf\;  maxiter 200\; end"
+  mon water 2 3 4
+end
+
+task mp2 optimize
+\end{verbatim}
 
 \section{{\tt CHARGE} --- Total system charge}
 \label{sec:charge}

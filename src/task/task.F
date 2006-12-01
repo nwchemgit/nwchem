@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.81 2006-06-13 06:33:52 windus Exp $
+* $Id: task.F,v 1.82 2006-12-01 22:19:17 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -47,6 +47,7 @@ c
       logical task_pspw,task_band
       logical task_drdy
       logical task_et
+      logical player,transport
       logical qmmm_init
       logical qmmm_end
       logical cons_active
@@ -202,6 +203,10 @@ c
             status = moints_full(rtdb)
          else if (inp_compare(.false.,'dplot', theory)) then
             status = dplot(rtdb)
+         else if (inp_compare(.false.,'player', theory)) then
+            status = player(rtdb)
+         else if (inp_compare(.false.,'transport', theory)) then
+            status = transport(rtdb)
          elseif(inp_compare(.false.,'esp',theory)) then
             if(oqmmm) then
               status = task_qmmm_esp(rtdb)
