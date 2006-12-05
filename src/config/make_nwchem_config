@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.220 2006-11-16 18:22:46 jochen Exp $
+# $Id: make_nwchem_config,v 1.221 2006-12-05 13:31:42 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -20,7 +20,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop\
         property nwpw fft rimp2_grad python analyz nwmd cafe space \
         drdy vscf uccsdt qmmm qmd etrans tddft tce geninterface bq cons \
-        perfm neb dntmc
+        perfm neb dntmc transport
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -32,7 +32,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lnwints \
 		    -lprepar -lnwmd -lnwpw -lpaw -lpspw -lband -lnwpwlib -lcafe -lspace -lanalyze -lqhop\
                     -lpfft -ldplot -loimp2 -lpython -ldrdy -lvscf -lqmmm -lqmd -letrans\
-                    -lpspw -ltddft -ltce -lgeninterface -lbq -lcons -lperfm -lneb -ldntmc
+                    -lpspw -ltddft -ltce -lgeninterface -lbq -lcons -lperfm -lneb -ldntmc -ltransport
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -70,7 +70,7 @@ EXP_pnnl = $(EXP_all) python
 EXP_alldev = develop $(EXP_all)
 EXP_pnnldev = develop $(EXP_pnnl)
 EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft tce vscf transport
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           stepper driver vib mcscf property dftgrad selci dplot \
            mp2_grad esp etrans tddft vscf
@@ -78,7 +78,7 @@ EXP_ver2 = prepar gradients mp2_grad dftgrad stepper vib mcscf \
            driver analyz
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
-          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf
+          stepper driver ccsd vib mcscf property dftgrad selci dplot mp2_grad esp etrans tddft vscf transport
 EXP_argos = prepar analyz
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
@@ -152,6 +152,8 @@ MODULES := $(patsubst esp,esp NWints,$(MODULES) )
 
 MODULES := $(patsubst etrans, etrans ddscf NWints,$(MODULES) )
 
+MODULES := $(patsubst transport, transport dftgrad dplot gradients driver,$(MODULES) )
+
 MODULES := $(patsubst tddft,tddft nwdft hessian ddscf NWints,$(MODULES) )
 MODULES := $(patsubst tce,tce nwdft ddscf NWints  hessian  dftgrad gradients  ,$(MODULES) )
 
@@ -211,6 +213,7 @@ MOD_LIBS := $(patsubst plane_wave,-lplnwv,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst prepar,-lprepar,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst esp,-lesp,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst etrans,-letrans,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst transport,-ltransport,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tddft,-ltddft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst tce,-ltce,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst cafe,-lcafe,$(MOD_LIBS) )
@@ -267,12 +270,13 @@ STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst etrans,etrans et_calc et_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst transport,transport transp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tddft,tddft_energy tddft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmd,qmd_setup qmd_start qmd_wrttrj qmd_forces,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst qmmm, qmmm_input task_qmmm_fep task_qmmm_abc qmmm_print_energy1 qmmm_forces qmmm_init qmmm_end task_qmmm_energy task_qmmm_gradient task_qmmm_optimize task_qmmm_dynamics task_qmmm_esp task_qmmm_pes task_qmmm_thermo,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst dplot,dplot dplot_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst dplot,dplot dplot_input player,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst property,property prop_input cosmo_input cosmo_initialize cosmo_charges hnd_nwhnd_tran cosmo_tidy xc_tabcd_giao_nmr_rhs,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst vscf,task_vscf vscf_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst dntmc,task_dntmc dntmc_input,$(STUBROUTINES) )
