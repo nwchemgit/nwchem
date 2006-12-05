@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.7 2005-08-23 14:12:01 bylaska Exp $
+* $Id: cpsi_write.F,v 1.8 2006-12-05 00:14:40 bylaska Exp $
 *
 
 *     ***************************
@@ -8,17 +8,17 @@
 *     *             		*
 *     ***************************
 
-      subroutine cpsi_write(ispin,ne,nbrillioun,psi2)
+      subroutine cpsi_write(spin_orbit,ispin,ne,nbrillioun,psi2)
       implicit none 
-#include "errquit.fh"
+      logical spin_orbit
       integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
 #include "mafdecls.fh"
-
+#include "errquit.fh"
 
 *    *** local variables ***
-      integer version,l
+      integer version,l,ispin0
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
@@ -79,7 +79,13 @@ c     complex*16 tmp(*)
          call iwrite(6,version,1)
          call iwrite(6,nfft,3)
          call dwrite(6,unita,9)
-         call iwrite(6,ispin,1)
+         
+         if (spin_orbit) then        !** if spin_orbit --> writeout ispin=3 **
+            ispin0 = 3
+         else
+            ispin0 = ispin
+         end if
+         call iwrite(6,ispin0,1)
          call iwrite(6,ne,2)
          call iwrite(6,nbrillioun,1)
       end if
@@ -114,9 +120,11 @@ c     complex*16 tmp(*)
 *     *             			*
 *     ***********************************
 
-      subroutine cpsi_write_filename(filename,ispin,ne,nbrillioun,psi2)
+      subroutine cpsi_write_filename(filename,
+     >                              spin_orbit,ispin,ne,nbrillioun,psi2)
       implicit none 
       character*(*) filename
+      logical spin_orbit
       integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
@@ -125,7 +133,7 @@ c     complex*16 tmp(*)
 
 
 *    *** local variables ***
-      integer version,l
+      integer version,l,ispin0
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
@@ -182,7 +190,13 @@ c     complex*16 tmp(*)
          call iwrite(6,version,1)
          call iwrite(6,nfft,3)
          call dwrite(6,unita,9)
-         call iwrite(6,ispin,1)
+
+         if (spin_orbit) then        !** if spin_orbit --> writeout ispin=3 **
+            ispin0 = 3
+         else
+            ispin0 = ispin
+         end if
+         call iwrite(6,ispin0,1)
          call iwrite(6,ne,2)
          call iwrite(6,nbrillioun,1)
       end if

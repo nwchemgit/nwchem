@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_lmbda.F,v 1.6 2006-11-29 02:34:43 d3p708 Exp $
+* $Id: cpsi_lmbda.F,v 1.7 2006-12-05 00:14:40 bylaska Exp $
 *
 
       subroutine cpsi_lmbda(ispin,ne,nfft3d,neall,nbrill,n,
@@ -228,15 +228,17 @@ c     >                  psi1,psi2,q11)
 
 *     **** Ortho CheckMake ****
       if (.not.ortho) then
-        call Stfl_g_OrthoCheckMake(.true.,
-     >                             ispin,ne,nfft3d,neall,nbrill,psi2)
+        call Pneb_OrthoCheckMake(.true.,0,0,nfft3d,psi2)
+
+c        call Stfl_g_OrthoCheckMake(.true.,
+c     >                             ispin,ne,nfft3d,neall,nbrill,psi2)
       end if
 
  800  return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *
-* $Id: cpsi_lmbda.F,v 1.6 2006-11-29 02:34:43 d3p708 Exp $
+* $Id: cpsi_lmbda.F,v 1.7 2006-12-05 00:14:40 bylaska Exp $
 *
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c find the Lagrange-multiplier for 2 component methods

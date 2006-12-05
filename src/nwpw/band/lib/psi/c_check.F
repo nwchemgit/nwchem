@@ -9,50 +9,54 @@
       integer indx1
       integer ispin,ne(2),nbrill
       complex*16 psi1(*)
+
 *    *** local variables ***
-      integer mbb,nbb,npack1
+      integer npack1
+
       call Cram_max_npack(npack1)
       call Pneb_orthoCheck(indx1,0,0,npack1,psi1)
       return
       end
-*     ***********************************
-*     *             			*
-*     *       Stfl_g_OrthoCheckMake	*
-*     *             			*
-*     ***********************************
 
-      subroutine Stfl_g_OrthoCheckMake(coutput,
-     >                                 ispin,ne,npack1,neall,nbrill,A)
-      implicit none
-      logical coutput
-      integer ispin,ne(2)
-      integer npack1,neall,nbrill
-      complex*16 A(npack1,neall,nbrill)
-      integer mbb,nbb
-      mbb=0
-      if (ispin.eq.1) mbb=1
-      nbb=0
-      if (nbrill.eq.1) nbb=1
-      call Pneb_OrthoCheckMake(coutput,mbb,nbb,npack1,A)
-      return
-      end
-*     ***********************************
-*     *             			*
-*     *          Stfl_MakeOrtho		*
-*     *             			*
-*     ***********************************
+c*     ***********************************
+c*     *             			*
+c*     *       Stfl_g_OrthoCheckMake	*
+c*     *             			*
+c*     ***********************************
+c
+c      subroutine Stfl_g_OrthoCheckMake(coutput,
+c     >                                 ispin,ne,npack1,neall,nbrill,A)
+c      implicit none
+c      logical coutput
+c      integer ispin,ne(2)
+c      integer npack1,neall,nbrill
+c      complex*16 A(npack1,neall,nbrill)
+c      integer mbb,nbb
+c      mbb=0
+c      if (ispin.eq.1) mbb=1
+c      nbb=0
+c      if (nbrill.eq.1) nbb=1
+c      call Pneb_OrthoCheckMake(coutput,mbb,nbb,npack1,A)
+c      return
+c      end
+c*     ***********************************
+c*     *             			*
+c*     *          Stfl_MakeOrtho		*
+c*     *             			*
+c*     ***********************************
+c
+c      subroutine Stfl_g_MakeOrtho(nb,nfft3d,ne,psi)
+c      implicit none 
+c      integer    nb,nfft3d,ne
+c      complex*16 psi(nfft3d,ne)
+c      integer mbb,nbb
+c      mbb=0
+c      nbb=0
+c      if (nb.eq.0) nbb=1
+c      call Pneb_makeOrtho(mbb,nbb,nfft3d,psi)
+c      return
+c      end
 
-      subroutine Stfl_g_MakeOrtho(nb,nfft3d,ne,psi)
-      implicit none 
-      integer    nb,nfft3d,ne
-      complex*16 psi(nfft3d,ne)
-      integer mbb,nbb
-      mbb=0
-      nbb=0
-      if (nb.eq.0) nbb=1
-      call Pneb_makeOrtho(mbb,nbb,nfft3d,psi)
-      return
-      end
 ccccccccc
       character*7 function c_index_name(i)
       integer i

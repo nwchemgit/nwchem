@@ -1,9 +1,10 @@
 *
-* $Id: cpsi_common.fh,v 1.4 2006-11-29 02:34:43 d3p708 Exp $
+* $Id: cpsi_common.fh,v 1.5 2006-12-05 00:14:40 bylaska Exp $
 *
 
 *     ***** psi common block ****
       integer ispin,ne(2),nfft3d,npack0,npack1,nbrillioun
+      integer neq(2),nbrillq,ispinq
       integer psi1(2)
       integer psi2(2)
       integer rho1(2)
@@ -14,8 +15,8 @@
       integer eig(2)
       logical spin_orbit
       common / cpsi_block / psi1,psi2,rho1,rho2,dng1,dng2,
-     >                     hml,eig,ne,ispin,
-     >                     nfft3d,npack0,npack1,nbrillioun,
+     >                     hml,eig,ne,neq,ispin,ispinq,
+     >                     nfft3d,npack0,npack1,nbrillioun,nbrillq,
      >                     spin_orbit
 
 

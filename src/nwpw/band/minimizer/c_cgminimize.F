@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.13 2006-11-29 02:34:54 d3p708 Exp $                       
+*     $Id: c_cgminimize.F,v 1.14 2006-12-05 00:14:41 bylaska Exp $                       
 *
 
 
@@ -14,13 +14,13 @@
   
       subroutine c_cgminimize(E,deltae,deltac,current_iteration,it_in)
       implicit none
-#include "errquit.fh"
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
       integer    it_in
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
 
@@ -47,8 +47,8 @@ c      complex*16 G1(nfft3d,nemax)
 
 
 *     **** external functions ****
-      integer  brillioun_nbrillioun,mb,nbb
-      integer  cpsi_ne,control_version,cpsi_ispin
+      integer  brillioun_nbrillioun
+      integer  cpsi_neq,control_version,cpsi_ispinq,cpsi_nbrillq
       real*8   control_tole,control_tolc
       real*8   cpsi_geodesic_energy
       real*8   cpsi_geodesic_denergy
@@ -64,7 +64,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   linesearch
       logical  cpsi_spin_orbit
       external brillioun_nbrillioun
-      external cpsi_ne,control_version,cpsi_ispin
+      external cpsi_neq,control_version,cpsi_ispinq,cpsi_nbrillq
       external control_tole,control_tolc
       external cpsi_geodesic_energy
       external cpsi_geodesic_denergy
@@ -83,14 +83,11 @@ c      complex*16 G1(nfft3d,nemax)
   
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
-      ispin  = cpsi_ispin()
-      ne(1)  = cpsi_ne(1)
-      ne(2)  = cpsi_ne(2)
+      ispin  = cpsi_ispinq()
+      ne(1)  = cpsi_neq(1)
+      ne(2)  = cpsi_neq(2)
       neall  = ne(1)+ne(2)
-      nbrill = brillioun_nbrillioun()
-      nbb=0
-      if (nbrill.eq.1) nbb=1
-      mb=0
+      nbrill = cpsi_nbrillq()
 
 
 *     **** allocate H0, G0, and G1 ****
@@ -112,13 +109,13 @@ c      complex*16 G1(nfft3d,nemax)
 *     ***** get the initial gradient and direction ****
       call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
 
+      call Pneb_ff_traceall(0,0,
+     >                      dcpl_mb(G1(1)),
+     >                      dcpl_mb(G1(1)),
+     >                      npack1,sum1)
 
-      call Pneb_ff_traceall(mb,nbb,dcpl_mb(G1(1)),dcpl_mb(G1(1)),
-     >       npack1,sum1)
 
-
-      call Pneb_ff_copy(mb,nbb,npack1,
-     >                   dcpl_mb(G1(1)),
+      call BGrsm_ff_Copy(dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
 
  
@@ -162,9 +159,8 @@ c      complex*16 G1(nfft3d,nemax)
    
 
 *        **** transport the previous search directions ****
-         call Pneb_ff_copy(0,0,npack1,
-     >                     dcpl_mb(G1(1)),
-     >                     dcpl_mb(G0(1)))
+         call BGrsm_ff_Copy(dcpl_mb(G1(1)),
+     >                      dcpl_mb(G0(1)))
 
 
          call cpsi_1geodesic_transport(tmin,dcpl_mb(H0(1)))
@@ -178,14 +174,13 @@ c      complex*16 G1(nfft3d,nemax)
 *        **** get the new gradient - also updates densities****
          call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
 
-         call Pneb_fff_sub(0,0,npack1,
-     >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(G0(1)),
-     >                       dcpl_mb(G0(1)))
+         call BGrsm_fff_Sub(dcpl_mb(G1(1)),
+     >                      dcpl_mb(G0(1)),
+     >                      dcpl_mb(G0(1)))
 
          sum0  = sum1
 
-         call Pneb_ff_traceAll(0,0,
+         call Pneb_ff_traceall(0,0,
      >                        dcpl_mb(G1(1)),
      >                        dcpl_mb(G1(1)),npack1,
      >                        sum3)
@@ -199,20 +194,18 @@ c      complex*16 G1(nfft3d,nemax)
               scale = 0.0d0
            end if
 
-           call Pneb_ff_scale(0,0,npack1,scale,
-     >                         dcpl_mb(H0(1)),
-     >                         dcpl_mb(H0(1)))
+           call BGrsm_ff_dscale(scale,
+     >                          dcpl_mb(H0(1)),
+     >                          dcpl_mb(H0(1)))
 
-           call Pneb_fff_sum(0,0,npack1,
-     >                       dcpl_mb(G1(1)),
-     >                       dcpl_mb(H0(1)),
-     >                       dcpl_mb(H0(1)))
+           call BGrsm_fff_sum(dcpl_mb(G1(1)),
+     >                        dcpl_mb(H0(1)),
+     >                        dcpl_mb(H0(1)))
 
 *        **** the new direction using steepest-descent ****
          else
-              call Pneb_ff_Copy(0,0,npack1,
-     >                          dcpl_mb(G1(1)),
-     >                          dcpl_mb(H0(1)))
+              call BGrsm_ff_Copy(dcpl_mb(G1(1)),
+     >                           dcpl_mb(H0(1)))
 
          end if
 
@@ -246,7 +239,6 @@ c      complex*16 G1(nfft3d,nemax)
      &       MA_ERR)
       
       
-      VALUE=MA_VERIFY_ALLOCATOR_STUFF()
 
       call cpsi_2to1()
 

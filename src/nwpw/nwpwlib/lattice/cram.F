@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.15 2004-05-05 19:33:50 bylaska Exp $
+* $Id: cram.F,v 1.16 2006-12-05 00:14:41 bylaska Exp $
 *
 
 *     ***********************************
@@ -667,6 +667,126 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       call nwpw_timing_end(2)
       return
       end 
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_ccm_idgemm         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_ccm_idgemm(nb,n,m,A,B,alpha,beta,hml)
+      implicit none
+      integer    nb,n,m
+      complex*16 A(*)
+      complex*16 B(*)
+      real*8     alpha,beta
+      real*8     hml(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer np,npack1
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+      npack1 = int_mb(nidb2_list(1)+nb)
+
+      call DGEMM('T','N',n,m,2*npack1,
+     >           alpha,
+     >           A, 2*npack_max,
+     >           B, 2*npack_max,
+     >           beta,
+     >           hml,n)
+
+
+      call nwpw_timing_end(2)
+      return
+      end 
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_ccm_izgemm         *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_ccm_izgemm(nb,n,m,A,B,alpha,beta,hml)
+      implicit none
+      integer    nb,n,m
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 alpha,beta
+      complex*16 hml(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer np,npack1
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+      npack1 = int_mb(nidb2_list(1)+nb)
+
+      call ZGEMM('C','N',n,m,npack1,
+     >           alpha,
+     >           A, npack_max,
+     >           B, npack_max,
+     >           beta,
+     >           hml,n)
+
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Cram_cmc_zgemm        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Cram_cmc_zgemm(nb,n,m,A,B,alpha,beta,hml)
+      implicit none
+      integer    nb,n,m
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 alpha,beta
+      complex*16 hml(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer np,npack1
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+      npack1 = int_mb(nidb2_list(1)+nb)
+
+      call ZGEMM('N','N',npack1,n,m,
+     >           alpha,
+     >           A, npack_max,
+     >           hml,n,
+     >           beta,
+     >           B, npack_max)
+
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
 
 
 *     ***********************************

@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.37 2006-11-29 02:25:25 d3p708 Exp $
+c $Id: nwpw_input.F,v 1.38 2006-12-05 00:14:39 bylaska Exp $
 c
       subroutine nwpw_input(rtdb)
       implicit none
@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 80)
+      parameter (num_dirs = 81)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -94,6 +94,7 @@ c
      >            'xyz_filename',
      >            'np_orbital',
      >            'spin_orbit',
+     >            'spin-orbit',
      >            'end'/
 
        logical      value,move,mulliken_kawai
@@ -106,10 +107,9 @@ c
        double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
        double precision alpha,emin,emax
        integer npoints
-       logical mulliken,allow_translation,spin_orbit
+       logical mulliken,allow_translation
        integer ispin,multiplicity
        integer nx,ny,nz
-       integer ks_algorithm,scf_algorithm
        
 
 *     ***** initializations ****
@@ -144,7 +144,7 @@ c
      >       1900,2200,2300,2400,2500,2600,2700,2800,
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
-     >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,
+     >       5200,5300, 5400,5500,5600,5700,5800,5900,6000,6000,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -960,12 +960,23 @@ c
 c
 c spin orbit option "watch out"
 c
- 6000 if (.not.rtdb_put(rtdb,'nwpw:spin_orbit',mt_log,1,.true.))
-     >  call errquit('nwpw_input: error writing to rtdb',5200,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'pspw:spin_orbit',mt_log,1,.true.))
-     >  call errquit('nwpw_input: error writing to rtdb',5200,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'band:spin_orbit',mt_log,1,.true.))
-     >  call errquit('nwpw_input: error writing to rtdb',5200,RTDB_ERR)
+ 6000 if (.not.inp_a(zone_name)) move = .true.
+      if (inp_compare(.false.,zone_name,'on'))     move = .true.
+      if (inp_compare(.false.,zone_name,'yes'))    move = .true.
+      if (inp_compare(.false.,zone_name,'.true.')) move = .true.
+      if (inp_compare(.false.,zone_name,'T'))      move = .true.
+      if (inp_compare(.false.,zone_name,'off'))     move = .false.
+      if (inp_compare(.false.,zone_name,'no'))      move = .false.
+      if (inp_compare(.false.,zone_name,'.false.')) move = .false.
+      if (inp_compare(.false.,zone_name,'F'))       move = .false.
+      if (inp_compare(.false.,zone_name,'fix'))     move = .false.
+
+      if (.not.rtdb_put(rtdb,'nwpw:spin_orbit',mt_log,1,move))
+     >  call errquit('nwpw_input: error writing to rtdb',6000,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'pspw:spin_orbit',mt_log,1,move))
+     >  call errquit('nwpw_input: error writing to rtdb',6000,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'band:spin_orbit',mt_log,1,move))
+     >  call errquit('nwpw_input: error writing to rtdb',6000,RTDB_ERR)
          
       goto 10
 

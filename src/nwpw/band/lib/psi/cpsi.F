@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.25 2006-11-29 02:34:43 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.26 2006-12-05 00:14:40 bylaska Exp $ *
 
 
 *     ***************************
@@ -438,11 +438,11 @@
 *     ***********************************
       subroutine cpsi_1get_Tgradient(THpsi,E0)
       implicit none
-#include "errquit.fh"
       complex*16 THpsi(*)
       real*8     E0
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 
@@ -451,19 +451,18 @@
       integer tmp1(2)
  
 *     **** external functions ****
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
       real*8   c_electron_energy
+      external Pneb_w_push_get,Pneb_w_pop_stack
       external c_electron_energy
 
-      value = MA_push_get(mt_dcpl,(2*ne(1)*ne(1))*nbrillioun,
-     >                   'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
-     >   call errquit('out of stack memory in psi_1get_Tradient',0,
-     &       MA_ERR)
+      if (.not.Pneb_w_push_get(0,0,tmp1))
+     >  call errquit("psi_1_get_Tgradient:out of stack memory",0,MA_ERR)
 
 
       call c_electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
-     >                  dcpl_mb(dng1(1)),
+     >                   dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)))
 
 
@@ -479,14 +478,12 @@
 
       call c_electron_get_Tgradient(dcpl_mb(psi1(1)),
      >                             dcpl_mb(tmp1(1)),
-     >                            THpsi)
+     >                             THpsi)
       
 
 
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     > call errquit('error popping stack memory in psi_1get_Tradient',0,
-     &       MA_ERR)
+      if (.not.Pneb_w_pop_stack(tmp1))
+     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
 
       return
       end
@@ -608,23 +605,25 @@
 #include "rhoall_common.fh"
 
       real*8 e_new
+
 *     **** external functions ****
       real*8   c_electron_energy
       external c_electron_energy
 
 
       call c_geodesic_get(t,dcpl_mb(psi1(1)),
-     >                    dcpl_mb(psi2(1)))
+     >                      dcpl_mb(psi2(1)))
+
 
       call c_electron_run(dcpl_mb(psi2(1)),
-     >                   dbl_mb(rho2(1)),
-     >                  dcpl_mb(dng2(1)),
-     >                   dbl_mb(rho2_all(1)))
+     >                    dbl_mb(rho2(1)),
+     >                    dcpl_mb(dng2(1)),
+     >                    dbl_mb(rho2_all(1)))
 
       e_new =  c_electron_energy(dcpl_mb(psi2(1)),
-     >                        dbl_mb(rho2(1)),
-     >                        dcpl_mb(dng2(1)),
-     >                        dbl_mb(rho2_all(1)))
+     >                           dbl_mb(rho2(1)),
+     >                           dcpl_mb(dng2(1)),
+     >                           dbl_mb(rho2_all(1)))
 
       cpsi_geodesic_energy = e_new
       return
@@ -648,7 +647,7 @@
 
 
       call c_geodesic_transport(t,dcpl_mb(psi1(1)),
-     >                          dcpl_mb(psi2(1)))
+     >                            dcpl_mb(psi2(1)))
 
       cpsi_geodesic_denergy = 2.0d0*c_electron_eorbit(dcpl_mb(psi2(1)))
 
@@ -817,7 +816,7 @@ c     real*8 sum1,sum2
       real*8 exc,pxc
       real*8 pi,scal,hm(3,3),tstress(3,3)
       integer trho(2),n2ft3d
-      integer ms,i,j,k,q,nx,ny,nz,nq,indx1,indx2
+      integer ms,i,j,q,nx,ny,nz,nq,indx1,indx2
 
 *
 
@@ -1089,18 +1088,14 @@ c     real*8 sum1,sum2
 #include "cpsi_common.fh"
 
 *     ***** local variables *****
-      integer n,neall
+      call Pneb_fwf_Multiply(0,0,dcpl_mb(psi1(1)),dcpl_mb(hml(1)),
+     >          npack1,
+     >          dcpl_mb(psi2(1)))
 
-      neall = ne(1) +ne(2)
-      n     = ne(1)
-       
-c      call Pneb_fwf_Multiply(0,0,dcpl_mb(psi1(1)),dcpl_mb(hml(1)),
-c     >          npack1,
-c     >          dcpl_mb(psi2(1)))
-      call Stfl_gqg_Mul(ispin,ne,npack1,neall,nbrillioun,n,
-     >                  dcpl_mb(psi1(1)),
-     >                  dcpl_mb(hml(1)),
-     >                  dcpl_mb(psi2(1)))
+c      call Stfl_gqg_Mul(ispin,ne,npack1,neall,nbrillioun,n,
+c     >                  dcpl_mb(psi1(1)),
+c     >                  dcpl_mb(hml(1)),
+c     >                  dcpl_mb(psi2(1)))
 
       return
       end
@@ -1118,17 +1113,14 @@ c     >          dcpl_mb(psi2(1)))
 #include "cpsi_common.fh"
 
 *     ***** local variables ****
-      integer neall,n
+      integer neall
 
-      neall = ne(1)+ne(2)
-      n     = ne(1)
+      neall = neq(1)+neq(2)
 
-      call dcopy(nbrillioun*neall,0.0d0,0,dbl_mb(eig(1)),1)
-      call Pneb_w_diag(0,0,dbl_mb(eig(1)),dcpl_mb(hml(1)))
+      call dcopy(nbrillq*neall,0.0d0,0,dbl_mb(eig(1)),1)
+
 *     ***** diagonalize the hamiltonian matrix *****
-c      call Stfl_q_diag(ispin,ne,neall,nbrillioun,n,
-c     >     dbl_mb(eig(1)),
-c     >     dcpl_mb(hml(1)))
+      call Pneb_w_diag(0,0,dbl_mb(eig(1)),dcpl_mb(hml(1)))
       return
       end
 
@@ -1237,6 +1229,39 @@ c     >     dcpl_mb(hml(1)))
       return
       end
 
+*     ***************************
+*     *                         *
+*     *         cpsi_nbrill     *
+*     *                         *
+*     ***************************
+      integer function cpsi_nbrill()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      cpsi_nbrill = nbrillioun
+      return
+      end
+
+
+
+*     ***************************
+*     *                         *
+*     *         cpsi_nbrillq     *
+*     *                         *
+*     ***************************
+      integer function cpsi_nbrillq()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      cpsi_nbrillq = nbrillq
+      return
+      end
+
+
 
 *     ***************************
 *     *				*
@@ -1250,6 +1275,21 @@ c     >     dcpl_mb(hml(1)))
 #include "cpsi_common.fh"
 
       cpsi_ispin = ispin
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *         cpsi_ispinq      *
+*     *                         *
+*     ***************************
+      integer function cpsi_ispinq()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      cpsi_ispinq = ispinq
       return
       end
 
@@ -1269,6 +1309,25 @@ c     >     dcpl_mb(hml(1)))
       cpsi_ne = ne(ms)
       return
       end
+
+
+*     **********************
+*     *                    *
+*     *         cpsi_neq   *
+*     *                    *
+*     **********************
+      integer function cpsi_neq(ms)
+      implicit none
+      integer ms
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+      cpsi_neq = neq(ms)
+      return
+      end
+
+
 
 *     ***************************
 *     *				*
@@ -1293,7 +1352,7 @@ c     >     dcpl_mb(hml(1)))
       logical value,psi_nogrid
       integer neall,n,vers
       integer hversion,hnfft(3),hispin,hne(2)
-      real*8 hunita(3,3),p
+      real*8 hunita(3,3)
       integer rtdb,ind
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
@@ -1304,18 +1363,24 @@ c     >     dcpl_mb(hml(1)))
       external c_wvfnc_expander,control_spin_orbit
   
 *     **** external functions ****
-      logical  pspw_reformat_c_wvfnc
+      logical  pspw_reformat_c_wvfnc,Pneb_w_allocate
       integer  brillioun_nbrillioun,psi_get_version
+      integer  Pneb_ispinq,Pneb_nbrillq
       double precision util_random
-      external pspw_reformat_c_wvfnc
+      external pspw_reformat_c_wvfnc,Pneb_w_allocate
       external brillioun_nbrillioun,psi_get_version
+      external Pneb_ispinq,Pneb_nbrillq
       external         util_random
 
 
 *     ***** get ispin, and ne, and nfft3d ****
-      call psi_get_ne(ispin,ne)
-      
+      call psi_get_ne(ispin,ne)  !** only ne is used 
       nbrillioun = brillioun_nbrillioun()
+
+      call Pneb_neq(neq)
+      ispinq     = Pneb_ispinq()
+      nbrillq    = Pneb_nbrillq()
+
       vers = psi_get_version()
       if ((vers.eq.3).or.(vers.eq.4)) then
         call Parallel_taskid(taskid)
@@ -1327,21 +1392,17 @@ c     >     dcpl_mb(hml(1)))
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
-      nbrillioun = brillioun_nbrillioun()
-      neall = ne(1)+ne(2)
-      n     = ne(1)
-      spin_orbit=control_spin_orbit()
-      if (spin_orbit) then 
-          ispin=2
-      end if
 
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      neall = neq(1)+neq(2)
+      n     = ne(1)
+
+
        
 *     **** allocate memory ****
-      value = MA_alloc_get(mt_dcpl,npack1*neall*nbrillioun,
+      value = MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*neall*nbrillioun,
+     >        MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
      >                     'psi1',psi1(2),psi1(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,2*nfft3d,
@@ -1355,11 +1416,12 @@ c     >     dcpl_mb(hml(1)))
       value = value.and.
      >        MA_alloc_get(mt_dcpl,npack0,
      >                     'dng2',dng2(2),dng2(1))
+c      value = value.and.
+c     >        MA_alloc_get(mt_dcpl,(2*n*n*nbrillioun),
+c     >                    'hml',hml(2),hml(1))
+      value = value.and.Pneb_w_allocate(0,0,hml)
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,(2*n*n*nbrillioun),
-     >                    'hml',hml(2),hml(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(neall*nbrillioun),
+     >        MA_alloc_get(mt_dbl,(neall*nbrillq),
      >                    'eig',eig(2),eig(1))
 
       value = value.and.
@@ -1371,75 +1433,64 @@ c     >     dcpl_mb(hml(1)))
       if (.not. value) 
      >  call errquit('cpsi_initialize:out of heap memory',0, MA_ERR)
 
+c     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+        call psi_get_header(hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+        value = rtdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+
+          filename =  control_input_psi()
+
+          ind = index(filename,' ') - 1
+          if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. rtdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. rtdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'c_wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = c_wvfnc_expander(rtdb)
+
+        end if
+        value = rtdb_parallel(.true.)
+
+        end if
+
+      end if
+
+
 *     *****  read initial wavefunctions into psi1  ****
-c      rtdb = control_rtdb()
-c      if (.not.rtdb_get(rtdb,'nwpw:psi_nogrid',
-c     >                  mt_log,1,psi_nogrid))
-c     >   psi_nogrid = .true.
-c
-c      if (psi_nogrid) then
-c
-c        call psi_get_header(hversion,hnfft,hunita,hispin,hne)
-c
-c        if ( (hnfft(1).ne.control_ngrid(1)) .or.
-c     >       (hnfft(2).ne.control_ngrid(2)) .or.
-c     >       (hnfft(3).ne.control_ngrid(3)) ) then
-c
-c        hnfft(1) = control_ngrid(1)
-c        hnfft(2) = control_ngrid(2)
-c        hnfft(3) = control_ngrid(3)
-c        call Parallel_taskid(taskid)
-c        value = rtdb_parallel(.false.)
-c        if (taskid.eq.MASTER) then
-c
-c          filename =  control_input_psi()
-c
-c          ind = index(filename,' ') - 1
-c          if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
-c     >                    1,filename(1:ind)))
-c     >     call errquit(
-c     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
-c
-c          if (.not. rtdb_cput(rtdb,'c_xpndr:new_wavefunction_filename',
-c     >                    1,filename(1:ind)))
-c     >     call errquit(
-c     >     'c_wvfnc_expander_input: rtdb_cput failed', 0, RTDB_ERR)
-c
-c          if (.not. rtdb_put(rtdb,'c_xpndr:ngrid',mt_int,3,hnfft))
-c     >     call errquit(
-c     >     'c_wvfnc_expander_input: rtdb_put failed', 0, RTDB_ERR)
-c
-c          write(*,*)
-c          write(*,*) "Grid is being converted:"
-c          write(*,*) "------------------------"
-c          write(*,*)
-c          write(*,*) "To turn off automatic grid conversion:"
-c          write(*,*)
-c          write(*,*) "set nwpw:psi_nogrid .false."
-c          write(*,*)
-c          value = c_wvfnc_expander(rtdb)
-c
-c        end if
-c        value = rtdb_parallel(.true.)
-
-c      end if
-
-c      end if
-
-
-*     *****  read initial wavefunctions into psi1  ****
-c      call cpsi_read(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
-      call Pneb_f_rand(0,0,npack1,dcpl_mb(psi1(1)))
-
-c*    ***??? ***
-c      p = util_random(88291999)
-c      do n =1,((ne(1)+ne(2))*nbrillioun*npack1)
-c        dcpl_mb(psi1(1)+n-1) = dcpl_mb(psi1(1)+n-1) 
-c     >           + dcmplx((0.5d0-util_random(0)),
-c     >                    (0.5d0-util_random(0)))
-c     >              /(dble(npack1))
-c        
-c      end do
+      call cpsi_read(spin_orbit,ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
 
 
 *     **** Ortho Check ****
@@ -1472,13 +1523,17 @@ c      end do
 *     **** local variables ****
       logical value
 
+*     **** external functions ****
+      logical  Pneb_w_free
+      external Pneb_w_free
+
 *     ***** write psi1 wavefunctions ****
       if (wpsi) then
-        call cpsi_write(ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
+        call cpsi_write(spin_orbit,ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
       end if
     
       value = MA_free_heap(eig(2))
-      value = value.and.MA_free_heap(hml(2))
+      value = value.and.Pneb_w_free(hml)
       value = value.and.MA_free_heap(dng2(2))
       value = value.and.MA_free_heap(dng1(2))
       value = value.and.MA_free_heap(rho2(2))
@@ -1519,7 +1574,7 @@ c      end do
 
 *     ***** write psi1 wavefunctions ****
       filename = 'dos'//c_index_name(k)//'.movecs'
-      call cpsi_write_filename(filename,ispin,ne,nbrillioun,
+      call cpsi_write_filename(filename,spin_orbit,ispin,ne,nbrillioun,
      >                         dcpl_mb(psi1(1)))
 
       return
@@ -1551,7 +1606,7 @@ c      end do
 
 *     ***** write psi1 wavefunctions ****
       filename = 'dos'//c_index_name(k)//'.movecs'
-      call cpsi_read_filename(filename,ispin,ne,nbrillioun,
+      call cpsi_read_filename(filename,spin_orbit,ispin,ne,nbrillioun,
      >                         dcpl_mb(psi1(1)))
 
       return

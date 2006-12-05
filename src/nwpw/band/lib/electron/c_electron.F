@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.20 2006-11-29 02:34:37 d3p708 Exp $
+* $Id: c_electron.F,v 1.21 2006-12-05 00:14:40 bylaska Exp $
 *
 
 
@@ -250,7 +250,10 @@
 
       return
       end
+
 cccccccccccccccccc
+
+
 *     ***********************************
 *     *					*
 *     *		c_electron_energy	*
@@ -355,57 +358,11 @@ cccccccccccccccccc
 #include "c_electron_common.fh"
 
 *     **** local variables ****
-      integer ii,ms,n1(2),n2(2),nb,indx,neall,n,nshift,sshift
-      real*8  sum,eorbit,weight
-      real*8  sum1,sum2
+      real*8  eorbit
 
-      real*8  brillioun_weight
-      external brillioun_weight
+      call Pneb_ff_traceall(0,0,psi_k,dcpl_mb(Hpsi_k(1)),npack1,eorbit)
+      if (ispin.eq.1) eorbit = eorbit+eorbit
 
-      n1(1) = 1
-      n1(2) = ne(1) + 1
-      n2(1) = ne(1)
-      n2(2) = ne(1) + ne(2)
-      neall = ne(1) + ne(2)
-
-*     *** get orbital energies ****
-      eorbit = 0.0d0
-      if (spin_orbit) then
-       sshift=n*npack1
-       nshift=sshift*2
-       do nb=1,nbrill
-        weight = brillioun_weight(nb)
-        do ii=1,ne(1)
-             indx = (ii-1)*npack1 + (nb-1)*nshift
-             call Cram_cc_idot(nb,psi_k(1+indx),
-     >                           dcpl_mb(Hpsi_k(1)+indx),
-     >                           sum1)
-             indx = indx+ sshift
-             call Cram_cc_idot(nb,psi_k(1+indx),
-     >                           dcpl_mb(Hpsi_k(1)+indx),
-     >                           sum2)
-             eorbit = eorbit + (sum1+sum2)*weight
-        end do
-       end do
-       call C3dB_SumAll(eorbit)
-      else
-       nshift=(ne(1)+ne(2))*npack1
-       sshift=ne(1)*npack1
-       do nb=1,nbrill
-        weight = brillioun_weight(nb)
-        do ms=1,ispin
-           do ii=n1(ms),n2(ms)
-             indx = (nb-1)*nshift+(ii-1)*npack1
-             call Cram_cc_idot(nb,psi_k(1+indx),
-     >                           dcpl_mb(Hpsi_k(1)+indx),
-     >                           sum)
-             eorbit = eorbit + sum*weight
-           end do
-        end do
-       end do
-       call C3dB_SumAll(eorbit)
-       if (ispin.eq.1) eorbit = eorbit+eorbit
-      end if    
       c_electron_eorbit = eorbit 
       return
       end
@@ -580,9 +537,8 @@ cccccccccccccccccc
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call Stfl_gg_Copy(ispin,ne,npack1,(ne(1)+ne(2)),nbrill,
-     >                  dcpl_mb(Hpsi_k(1)),
-     >                  Hpsi_k_new)
+      call BGrsm_ff_Copy(dcpl_mb(Hpsi_k(1)),
+     >                   Hpsi_k_new)
       return
       end
 
@@ -639,11 +595,12 @@ cccccccccccccccccc
 
       call Pneb_fwf_Multiply(0,0,psi_k,hml,npack1,THpsi_k)
 
-      call Pneb_fff_sub(0,0,npack1,dcpl_mb(Hpsi_k(1)),THpsi_k,THpsi_k)
+      call BGrsm_fff_sub(dcpl_mb(Hpsi_k(1)),
+     >                   THpsi_k,
+     >                   THpsi_k)
 
-      call Pneb_ff_scale(0,0,npack1,-1.0d0,
-     >                    THpsi_k,
-     >                    THpsi_k)
+      call BGrsm_ff_dScale(THpsi_k,
+     >                     THpsi_k)
 
       return
       end
@@ -716,10 +673,9 @@ cccccccccccccccccc
      >           move,
      >           fion)
 
-      call Stfl_gg_dscale(ispin,ne,npack1,(ne(1)+ne(2)),nbrill,
-     >                    (-1.0d0),
-     >                    dcpl_mb(Hpsi_k(1)),
-     >                    dcpl_mb(Hpsi_k(1)))
+      call BGrsm_ff_dScale((-1.0d0),
+     >                     dcpl_mb(Hpsi_k(1)),
+     >                     dcpl_mb(Hpsi_k(1)))
       return
       end
 
@@ -789,19 +745,8 @@ cccccccccccccccccc
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-
-*     **** local variables ****
-      integer n,nb,neall
-
-      neall = ne(1)+ne(2)
-
-
-c      call Stfl_gg_Copy(ispin,ne,npack1,neall,nbrill,
-c     >                  psi_k,
-c     >                  dcpl_mb(psi_r(1)))
-      call Stfl_gh_fftb(ispin,ne,npack1,nfft3d,neall,nbrill,
-     >                  psi_k,dcpl_mb(psi_r(1)))
-
+      call BGrsm_fh_fftb(psi_k,
+     >                   dcpl_mb(psi_r(1)))
       return
       end
 
@@ -878,10 +823,8 @@ c     >                  dcpl_mb(psi_r(1)))
 *     *********************
 *     **** generate dn ****
 *     *********************
-c     call dcopy(2*nfft3d,0.0d0,0,dn,1)
-      call Stfl_hr_SumSqr(ispin,ne,nfft3d,neall,nbrill,
-     >                    dcpl_mb(psi_r(1)),
-     >                    dn)
+      call BGrsm_hr_SumSqr(dcpl_mb(psi_r(1)),
+     >                     dn)
       call C3dB_r_SMul(1,scal2,dn,dn)
       if (ispin.gt.1) 
      >  call C3dB_r_SMul(1,scal2,dn(1+nfft3d),dn(1+nfft3d))
@@ -1331,7 +1274,7 @@ c         end do
 
 
 *     **** average Kohn-Sham v_nonlocal energy ****
-      call Stfl_g_Zero(ispin,ne,npack1,neall,nbrill,dcpl_mb(tmp1(1)))
+      call BGrsm_f_Zero(dcpl_mb(tmp1(1)))
       call cpsp_v_nonlocal(ispin,ne,
      >                     psi1,
      >                     dcpl_mb(tmp1(1)),
@@ -1412,7 +1355,7 @@ c         end do
 
 *     **** generate weighted rho ****
       ishift = (ms-1)*ne(1)*nfft3d
-      call Stfl_hr_aSqrpy(nfft3d,ne(ms),
+      call BGrsm_hr_aSqrpy(nfft3d,ne(ms),
      >                      weight,
      >                      dcpl_mb(psi_r(1)+ishift),
      >                      rho)

@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.5 2006-03-16 18:39:04 bylaska Exp $
+* $Id: band_dplot.F,v 1.6 2006-12-05 00:14:39 bylaska Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -749,13 +749,13 @@
 *     *******************
 *     **** get psi_r ****
 *     *******************
-      call Stfl_gh_fftb(ispin,ne,npack1,nfft3d,neall,nbrill,psi,psi_r)
+      call BGrsm_fh_fftb(psi,psi_r)
 
 
 *     *********************
 *     **** generate dn ****
 *     *********************
-      call Stfl_hr_SumSqr(ispin,ne,nfft3d,neall,nbrill,psi_r,dn)
+      call BGrsm_hr_SumSqr(psi_r,dn)
       call C3dB_r_SMul(1,scal2,dn,dn)
       if (ispin.gt.1) call C3dB_r_SMul(1,scal2,dn(1,2),dn(1,2))
 

@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.5 2006-11-22 18:43:01 bylaska Exp $
+* $Id: Dne.F,v 1.6 2006-12-05 00:14:41 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -178,7 +178,7 @@
       if (n.le.ne(1)) then
         call D1dB_ktoqp(1,n,q,p)
       else
-        call D1dB_ktoqp(2,n,q,p)
+        call D1dB_ktoqp(2,n-ne(1),q,p)
         q = q + neq(1)
       end if
 

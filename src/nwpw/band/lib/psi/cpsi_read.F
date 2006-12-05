@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.9 2006-11-29 02:34:43 d3p708 Exp $
+* $Id: cpsi_read.F,v 1.10 2006-12-05 00:14:40 bylaska Exp $
 *
 
 #define TCGMSG
@@ -8,8 +8,9 @@
 *     *       cpsi_read		*
 *     *             		*
 *     ***************************
-      subroutine cpsi_read(ispin,ne,nbrillioun,psi2)
+      subroutine cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2)
       implicit none 
+      logical spin_orbit
       integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
@@ -82,6 +83,7 @@ c     complex*16 tmp(*)
          call iread(5,nbrill,1)
       end if
 
+
 c     **** send header to all nodes ****
 #ifdef TCGMSG
       msglen = 1
@@ -97,6 +99,14 @@ c     **** send header to all nodes ****
       msglen = 1
       call BRDCST(9+MSGINT,nbrill,mitob(msglen),MASTER)
 #endif 
+
+c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
+      if (ispin.eq.3) then
+         ispin = 2
+         spin_orbit = .true.
+      else
+         spin_orbit = .false.
+      end if
 
 
 *     ***** Error checking ****
@@ -213,9 +223,11 @@ c     **** send header to all nodes ****
 *     *       cpsi_read_filename	*
 *     *             			*
 *     ***********************************
-      subroutine cpsi_read_filename(filename,ispin,ne,nbrillioun,psi2)
+      subroutine cpsi_read_filename(filename,
+     >                              spin_orbit,ispin,ne,nbrillioun,psi2)
       implicit none 
       character*(*) filename
+      logical spin_orbit
       integer ispin,ne(2),nbrillioun
       double complex psi2(*)
 
@@ -298,6 +310,13 @@ c     **** send header to all nodes ****
       call BRDCST(9+MSGINT,nbrill,mitob(msglen),MASTER)
 #endif 
 
+c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
+      if (ispin.eq.3) then
+         ispin = 2
+         spin_orbit = .true.
+      else
+         spin_orbit = .false.
+      end if
 
 *     ***** Error checking ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.

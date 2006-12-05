@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.8 2006-11-29 02:34:43 d3p708 Exp $
+* $Id: c_geodesic.F,v 1.9 2006-12-05 00:14:40 bylaska Exp $
 *
 
 
@@ -13,31 +13,30 @@
 
       subroutine c_geodesic_init()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_geodesic_common.fh"
 
 *     **** local variables ****
       logical value
-      integer npack1,nemax,n,nbrill
+      integer npack1,nemax,nbrill
       
 
 *     **** external functions **** 
-      integer  cpsi_ne,brillioun_nbrillioun
-      external cpsi_ne,brillioun_nbrillioun
+      logical  Pneb_w_allocate
+      integer  cpsi_neq,cpsi_nbrillq
+      external Pneb_w_allocate
+      external cpsi_neq,cpsi_nbrillq
 
 
       call Cram_max_npack(npack1)
-      nemax  = cpsi_ne(1)+cpsi_ne(2)
-      n      = cpsi_ne(1)
-      nbrill = brillioun_nbrillioun()
+      nemax  = cpsi_neq(1)+cpsi_neq(2)
+      nbrill = cpsi_nbrillq()
 
       value = MA_alloc_get(mt_dcpl,npack1*nemax*nbrill,
      >                     'U',U(2),U(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,2*n*n*nbrill,
-     >                     'Vt',Vt(2),Vt(1))
+      value = value.and.Pneb_w_allocate(0,0,Vt)
       value = value.and.
      >        MA_alloc_get(mt_dbl,nemax*nbrill,
      >                     'S',S(2),S(1))
@@ -57,20 +56,21 @@
 *
       subroutine c_geodesic_finalize()
       implicit none
-#include "errquit.fh"
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_geodesic_common.fh"
-
 
 *     **** local variables ****
       logical value
 
-      value = MA_free_heap(S(2))
-      value = value.and.
-     >        MA_free_heap(Vt(2))
-      value = value.and.
-     >        MA_free_heap(U(2))
+*     **** external functions ****
+      logical  Pneb_w_free
+      external Pneb_w_free
+
+      value =           MA_free_heap(S(2))
+      value = value.and.Pneb_w_free(Vt)
+      value = value.and.MA_free_heap(U(2))
       if (.not. value) 
      > call errquit(
      >  'c_geodesic_finalize:error freeing of heap memory',0, MA_ERR)
@@ -91,28 +91,28 @@
 
       subroutine c_geodesic_start(A,max_sigma,dE)
       implicit none
-#include "errquit.fh"
       complex*16 A(*)
       real*8     max_sigma,dE
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_geodesic_common.fh"
 
 
 *     **** local variables ****
-      logical value,spin_orb
+      logical spin_orb
       integer npack1,neall,nbrill,ispin
       integer nb,ms,i,j,n,nn,ne(2),indx,indxt
       integer V(2)
-      integer nbb,mbb,io,ib
       real*8 tmp
+
 *     **** external functions **** 
+      logical  Pneb_w_push_get,Pneb_w_pop_stack,cpsi_spin_orbit
       integer  cpsi_ispin,cpsi_ne,brillioun_nbrillioun
       real*8   c_electron_eorbit
-      logical cpsi_spin_orbit
+      external Pneb_w_push_get,Pneb_w_pop_stack,cpsi_spin_orbit
       external cpsi_ispin,cpsi_ne,brillioun_nbrillioun
       external c_electron_eorbit
-      external cpsi_spin_orbit
 
 
       call nwpw_timing_start(10)   
@@ -126,20 +126,19 @@
       n      = ne(1)
       nn     = n*n
       if (spin_orb) neall=ne(1)
-      value = MA_set_auto_verify(.true.)
+
 *     **** allocate tmp space ****
-      value = MA_push_get(mt_dcpl,(2*nn*nbrill),'V',V(2),V(1))
-      if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
+      if (.not.Pneb_w_push_get(0,0,V)) 
+     > call errquit('c_geodesic_start: out of stack memory',0,MA_ERR)
 
 *     **** HomeGrown SVD ****
       call dcopy(nbrill*neall,0.0d0,0,dbl_mb(S(1)),1)
+      call Pneb_SVD(0,0,npack1, 
+     >              A, 
+     >              dcpl_mb(U(1)),
+     >              dbl_mb(S(1)),
+     >              dcpl_mb(V(1)) )
 
-      call Pneb_SVD(0,0,npack1, A, dcpl_mb( U(1) ),
-     >              dbl_mb( S(1) ),
-     >              dcpl_mb( V(1) ) )
-
-      value = MA_verify_allocator_stuff()
 *     **** find max_sigma ****
       max_sigma = -1.0d200
       if (spin_orb) then
@@ -161,7 +160,6 @@
           indx=indx+1
         end do
       end if
-      value = MA_verify_allocator_stuff()
 
 c      low=0
 c      hi=npack1*ne(1)*2*nbrill
@@ -189,18 +187,14 @@ c      hi=npack1*ne(1)*2*nbrill
          end do
         end do
       end if
-      value = MA_verify_allocator_stuff()
 
 *     **** calculate 2*<A|H|psi> ****
       dE = 2.0d0*c_electron_eorbit(A)
-      value = MA_verify_allocator_stuff()
        
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(V(2))
-      if (.not. value) then
-        call errquit("geo_start error popping stack memory",0, 
-     >  MA_ERR)
-      end if
+      if (.not.Pneb_w_pop_stack(V)) 
+     > call errquit("c_geo_start:error popping stack memory",0,MA_ERR)
+     
       call nwpw_timing_end(10)
       return
       end
@@ -267,7 +261,6 @@ c      hi=npack1*ne(1)*2*nbrill
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
-      value = MA_verify_allocator_stuff()
       if (spin_orb) then
         n=ne(1)
         do nb =1,nbrill
@@ -286,7 +279,6 @@ c      hi=npack1*ne(1)*2*nbrill
      >          = scal2 * dcpl_mb(Vt(1)+indx2)
           end do
          end do
-         value = MA_verify_allocator_stuff()
          indx=(nb-1)*n*n
          value=MA_verify_allocator_stuff()
          call ZGEMM('C','N',n,n,n,one,
@@ -330,7 +322,6 @@ c      hi=npack1*ne(1)*2*nbrill
 
           end do
          end do
-         value=MA_verify_allocator_stuff()
 
        end do
 
@@ -631,7 +622,7 @@ c      hi=npack1*ne(1)*2*nbrill
       n      = ne(1)
       nn     = n*n
       nbrill = brillioun_nbrillioun()
-      value=MA_SET_AUTO_VERIFY(.TRUE.)
+
 
 *     **** allocate tmp space ****
       value = MA_push_get(mt_dcpl,(2*nn*nbrill),'tmp1',
@@ -646,7 +637,6 @@ c      hi=npack1*ne(1)*2*nbrill
      >   call errquit('out of stack memory',0, MA_ERR)
 
 *     ***** calculate U^t * G ****
-        value=ma_verify_allocator_stuff()
 
       call Pneb_ffw_multiply(0,0,
      >                  dcpl_mb(U(1)),
@@ -762,14 +752,13 @@ cccccccccccccccccccc
       end do
 ccccccccccccc
       end if
+
 *     **** deallocate tmp space ****     
-      value = MA_pop_stack(tmp3(2))
-      value = value.and.
-     >        MA_pop_stack(tmp2(2))
-      value = value.and.
-     >        MA_pop_stack(tmp1(2))
+      value =           MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
+     > call errquit('error popping stack memory',0,MA_ERR)
 
       call nwpw_timing_end(10)
 

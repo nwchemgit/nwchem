@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.43 2006-11-29 02:32:43 d3p708 Exp $
+* $Id: band_minimizer.F,v 1.44 2006-12-05 00:14:40 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -35,6 +35,8 @@
       real*8  a,b,c,alpha,beta,gamma
 
 *     ***** energy variables ****
+      logical spin_orbit
+      integer ispin,ne(2)
       real*8  E(10)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
@@ -47,7 +49,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical newpsi,soc
+      logical newpsi
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       integer i,k,ia,nion,vers,nbrillioun,icharge
@@ -169,8 +171,6 @@ c      external      cpsp_comment
       nwave = 0
       minimizer = control_minimizer()
       mapping   = control_mapping()
-      soc = control_spin_orbit()
-
       ierr = 0 
 
 
@@ -186,11 +186,11 @@ c      external      cpsp_comment
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call G_init()
       call mask_init()
-      END IF
+      end if
 
 
 *     **** read ions ****
@@ -215,31 +215,36 @@ c      external      cpsp_comment
       call cphafac_k()
 
 
-      value = MA_set_auto_verify(.true.)
-
 *     **** read in wavefunctions and initialize psi ****
-c      if ((.not.psi_filefind()).or.soc) then
+      if (.not.psi_filefind()) then
+         call cpsi_new()
+         newpsi = .true.
+      else
+         newpsi = .false.
+*        **** convert from pspw format to band format ****
+         vers = psi_get_version()
+         if ((vers.eq.3).or.(vers.eq.4)) then
+           newpsi = .true.
+           value = rtdb_parallel(.false.)
+           if (taskid.eq.MASTER) then
+             value= pspw_reformat_c_wvfnc(1)  
+           end if
+           value = rtdb_parallel(.true.)
+         end if
+      end if
 
-        call cpsi_new()
-
-        newpsi = .true.
-       
-c      else
-c       
-c	 newpsi = .false.
-c       
-*       **** convert from pspw format to band format ****
-c        vers = psi_get_version()
-c        if ((vers.eq.3).or.(vers.eq.4)) then
-c           nbrillioun = brillioun_nbrillioun()
-c           newpsi = .true.
-c           if (taskid.eq.MASTER) then
-c             value= pspw_reformat_c_wvfnc(1)
-c           end if
-c        end if
-c      end if
-
+      call psi_get_ne(ispin,ne)
+      if (ispin.eq.3) then
+         spin_orbit = .true.
+         ispin=2
+      else
+         spin_orbit = .false.
+      end if
+      nbrillioun = brillioun_nbrillioun()
+      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(.true.)
+
+
 *     **** electron and geodesic data structures ****
       call c_electron_init()
 
@@ -263,9 +268,13 @@ c      end if
 
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
-         if (cpsi_ispin().eq.1) write(luout,1130) "restricted"
-         if (cpsi_ispin().eq.2) write(luout,1130) "unrestricted"
-         if (SOC) write(LUOUT,*)"  spin orbit is turned on !!!!!!"
+         if (.not.spin_orbit) then
+           if (cpsi_ispin().eq.1) write(luout,1130) "restricted"
+           if (cpsi_ispin().eq.2) write(luout,1130) "unrestricted"
+         else
+           write(luout,1130) "spin orbit"
+         end if
+         
          IF (control_gga().eq.0) THEN
             write(luout,1131) 'Vosko et al parameterization'
          ELSE IF (control_gga().eq.10) THEN

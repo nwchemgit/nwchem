@@ -1,5 +1,5 @@
 *
-* $Id: dipole.F,v 1.7 2004-01-28 00:08:47 bylaska Exp $
+* $Id: dipole.F,v 1.8 2006-12-05 00:14:41 bylaska Exp $
 *
 
 *     ******************************
@@ -10,13 +10,13 @@
 
       subroutine Calculate_Dipole(ispin,ne,n2ft3d,dn,dipole)
       implicit none
-#include "errquit.fh"
       integer ispin,ne(2)
       integer n2ft3d
       real*8 dn(n2ft3d,ispin)
       real*8 dipole(3)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "util.fh"
 
 

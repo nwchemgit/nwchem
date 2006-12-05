@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_expander.F,v 1.1 2003-07-30 18:16:48 bylaska Exp $
+* $Id: c_wvfnc_expander.F,v 1.2 2006-12-05 00:14:40 bylaska Exp $
 *
 
 *     *******************************************
@@ -30,7 +30,7 @@
       integer cfull(2),dcfull(2)
       integer nfft3d,n2ft3d
       integer dnfft3d,dn2ft3d
-      integer ms,n,l,nb
+      integer ms,n,l,nb,ispin0
 
 
       double precision unita(3,3)
@@ -57,7 +57,12 @@
       call iread(5,version,1)
       call iread(5,ngrid,3)
       call dread(5,unita,9)
-      call iread(5,ispin,1)
+      call iread(5,ispin0,1)
+      if (ispin0.eq.3) then
+         ispin = 2
+      else
+         ispin = ispin0
+      end if
       call iread(5,ne,2)
       call iread(5,nbrillioun,1)
  
@@ -70,7 +75,7 @@
       call iwrite(6,version,1)
       call iwrite(6,dngrid,3)
       call dwrite(6,unita,9)
-      call iwrite(6,ispin,1)
+      call iwrite(6,ispin0,1)
       call iwrite(6,ne,2)
       call iwrite(6,nbrillioun,1)
 

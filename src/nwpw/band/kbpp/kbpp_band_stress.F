@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band_stress.F,v 1.1 2005-09-07 23:55:02 bylaska Exp $
+* $Id: kbpp_band_stress.F,v 1.2 2006-12-05 00:14:40 bylaska Exp $
 *
 
 
@@ -68,7 +68,7 @@
       external         simp
 
 
-      call Parallel_init()
+c      call Parallel_init()
       call Parallel_taskid(taskid)
 
       value = .false.
@@ -305,6 +305,7 @@
       value = value.and.MA_free_heap(vnl_hndl)
       value = value.and.MA_free_heap(G_hndl)
 
+c      call Parallel_Finalize()
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
 

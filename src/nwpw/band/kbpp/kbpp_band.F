@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.7 2004-11-14 23:31:49 bylaska Exp $
+* $Id: kbpp_band.F,v 1.8 2006-12-05 00:14:40 bylaska Exp $
 *
 
 *     **************************************
@@ -68,7 +68,7 @@
       external         simp
 
 
-      call Parallel_init()
+c      call Parallel_init()
       call Parallel_taskid(taskid)
 
       value = .false.
@@ -326,6 +326,7 @@
       value = MA_free_heap(vnlnrm_hndl)
       value = MA_free_heap(G_hndl)
 
+c      call Parallel_Finalize()
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
       kbpp_band = value

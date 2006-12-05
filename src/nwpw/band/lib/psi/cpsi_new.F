@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.6 2006-11-29 02:34:43 d3p708 Exp $
+* $Id: cpsi_new.F,v 1.7 2006-12-05 00:14:40 bylaska Exp $
 *
 
 *     ***********************************
@@ -63,29 +63,29 @@ c     external lcao_wvfnc
       unita(2,3) = control_unita(2,3)
       unita(3,3) = control_unita(3,3)
 
+      soc     = control_spin_orbit()
       ispin   = control_ispin()
       mult    = control_multiplicity()
       tcharge = control_totalcharge()
       icharge = ion_totalcharge()
       t = icharge - tcharge   !*** total number of electrons ***
 
-      soc=control_spin_orbit()
 
       if (soc) then
         ispin=2
         ne(1)=t
         ne(2)=t
       else
-       if (ispin.eq.1) then
-         ne(1) = t/2
-          ne(2) = 0
-       else
-         x = t
-         if (mod(x,2).ne.0) mult = 2
-         x = mult-1
-         ne(1) = (t+x)/2
-         ne(2) = (t-x)/2
-       end if
+         if (ispin.eq.1) then
+            ne(1) = t/2
+            ne(2) = 0
+         else
+            x = t
+            if (mod(x,2).ne.0) mult = 2
+            x = mult-1
+            ne(1) = (t+x)/2
+            ne(2) = (t-x)/2
+         end if
       end if
 
       nbrillioun = brillioun_nbrillioun()
@@ -114,10 +114,12 @@ c    >                        ispin,
 c    >                        ne)
 
       if (.not.success) then
+       version = 5 
        call c_wvfnc_new(filename,
      >                  version,
      >                  ngrid,
      >                  unita,
+     >                  soc,
      >                  ispin,
      >                  ne,
      >                  nbrillioun)
@@ -142,7 +144,7 @@ c    >                        ne)
 
 
 *    *** local variables ***
-      logical success
+      logical success,soc
       integer nbrillioun
       integer version
       integer ngrid(3)
@@ -159,7 +161,7 @@ c    >                        ne)
       external control_ngrid
       integer  brillioun_nbrillioun
       external brillioun_nbrillioun
-      logical control_spin_orbit
+      logical  control_spin_orbit
       external control_spin_orbit
 
       filename = control_input_psi()
@@ -178,8 +180,9 @@ c    >                        ne)
       unita(3,3) = control_unita(3,3)
        
       nbrillioun = brillioun_nbrillioun()
+      soc        = control_spin_orbit()
 
-      if (control_spin_orbit()) then
+      if (soc) then
          print*,"Why the hell am i here!"
 c         stop
        end if
@@ -190,6 +193,7 @@ c         stop
      >                  version,
      >                  ngrid,
      >                  unita,
+     >                  soc,
      >                  ispin,
      >                  ne,
      >                  nbrillioun)

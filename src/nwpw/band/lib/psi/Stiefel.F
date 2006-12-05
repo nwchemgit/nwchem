@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.10 2006-11-29 02:34:43 d3p708 Exp $
+* $Id: Stiefel.F,v 1.11 2006-12-05 00:14:40 bylaska Exp $
 *
 
 
@@ -448,126 +448,126 @@ c      end do
       return
       end
 
-*     ********************************
-*     *                	    	     *
-*     *    	Stfl_gg_trace        *
-*     *                		     *
-*     ********************************
-*
-*     uses - 
+c*     ********************************
+c*     *                	    	     *
+c*     *    	Stfl_gg_trace        *
+c*     *                		     *
+c*     ********************************
+c*
+c*     uses - 
+c
+c      subroutine Stfl_gg_trace(ispin,ne,nfft3d,neall,nbrill,A,B,MM)
+c      implicit none
+c      integer ispin,ne(2)
+c      integer nfft3d,neall,nbrill
+c      complex*16 A(nfft3d,neall,nbrill)
+c      complex*16 B(nfft3d,neall,nbrill)
+c      real*8     MM(2,nbrill)
+c
+c      call Pneb_ff_Trace(0,0,A,B,nfft3d,MM)
+c      return
+c      end
 
-      subroutine Stfl_gg_trace(ispin,ne,nfft3d,neall,nbrill,A,B,MM)
-      implicit none
-      integer ispin,ne(2)
-      integer nfft3d,neall,nbrill
-      complex*16 A(nfft3d,neall,nbrill)
-      complex*16 B(nfft3d,neall,nbrill)
-      real*8     MM(2,nbrill)
+c*     ***********************************
+c*     *                                 *
+c*     *            Stfl_q_diag          *
+c*     *                                 *
+c*     ***********************************
+c      subroutine Stfl_q_diag(ispin,ne,neall,nbrill,n,S,V)
+c      implicit none
+c#include "errquit.fh"
+c      integer ispin,ne(2)
+c      integer neall,nbrill,n
+c      real*8     S(neall,nbrill)
+c      complex*16 V(n,n,2,nbrill)
+c
+c#include "mafdecls.fh"
+c
+c*     **** local variables ****
+c      logical value
+c      integer nb,ms
+c      integer rwork(2),work(2),lwork,ierr
+c      integer nbb,mb
+c
+c      mb=0
+c      nbb=0
+c      if (nbrill.eq.0) nbb=1
+c      call Pneb_w_diag(mb,nbb,n,S,V)
+c      return
+c      end
 
-      call Pneb_ff_Trace(0,0,A,B,nfft3d,MM)
-      return
-      end
-
-*     ***********************************
-*     *                                 *
-*     *            Stfl_q_diag          *
-*     *                                 *
-*     ***********************************
-      subroutine Stfl_q_diag(ispin,ne,neall,nbrill,n,S,V)
-      implicit none
-#include "errquit.fh"
-      integer ispin,ne(2)
-      integer neall,nbrill,n
-      real*8     S(neall,nbrill)
-      complex*16 V(n,n,2,nbrill)
-
-#include "mafdecls.fh"
-
-*     **** local variables ****
-      logical value
-      integer nb,ms
-      integer rwork(2),work(2),lwork,ierr
-      integer nbb,mb
-
-      mb=0
-      nbb=0
-      if (nbrill.eq.0) nbb=1
-      call Pneb_w_diag(mb,nbb,n,S,V)
-      return
-      end
-
-*     ***********************************
-*     *                                 *
-*     *            Stfl_SVD             *
-*     *                                 *
-*     ***********************************
-
-      subroutine Stfl_SVD(ispin,ne,nfft3d,neall,nbrill,n,A,U,S,V)
-      implicit none
-#include "errquit.fh"
-      integer ispin,ne(2)
-      integer nfft3d,neall,nbrill,n
-      complex*16 A(nfft3d,neall,nbrill)
-      complex*16 U(nfft3d,neall,nbrill)
-      real*8     S(neall,nbrill)
-      complex*16 V(n,n,2,nbrill)
-
-#include "mafdecls.fh"
-
-*     **** local variables ****
-      logical value,Pneb_is_init
-      integer i,nb
-      integer tmp2(2)
-      external Pneb_is_init
-
-      if (.not.Pneb_is_init()) then
-        write(0,*)"Pneb is not initialized!"
-      end if
-
-      call Pneb_SVD(0,0,nfft3d,A,U,S,V)
-      return
-
-*     ***** generate V and Sigma^2 ****
-      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,nbrill,n,A,A,V)
-      call Stfl_q_diag(ispin,ne,neall,nbrill,n,S,V)
-
-
-*     **** generate U*Sigma ****
-      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrill,n,A,V,U)
-
-
-*     **** normalize U*sigma, and sqrt(S^2) ****
-      value =  MA_push_get(mt_dbl,(neall),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      do nb=1,nbrill
-
-*        **** normalize U*sigma ****
-         do i=1,neall
-            call Cram_cc_idot(nb,U(1,i,nb),U(1,i,nb),
-     >                        dbl_mb(tmp2(1)+i-1))
-         end do
-         call C3dB_Vector_SumAll(neall,dbl_mb(tmp2(1)))
-      
-         do i=1,neall
-            dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
-   
-            call Cram_c_SMul(nb,dbl_mb(tmp2(1)+i-1),
-     >                       U(1,i,nb),U(1,i,nb))
-         end do
-
-*        **** sqrt(S*S) ****
-         do i=1,neall
-           if (S(i,nb).lt.0.0d0) S(i,nb) = dabs(S(i,nb))
-           S(i,nb) = dsqrt(S(i,nb))
-         end do
-
-      end do
-      value = MA_pop_stack(tmp2(2))
-      if (.not. value) call errquit('error popping stack memory',0,
-     &       MA_ERR)
-       
-      return
-      end
+c*     ***********************************
+c*     *                                 *
+c*     *            Stfl_SVD             *
+c*     *                                 *
+c*     ***********************************
+c
+c      subroutine Stfl_SVD(ispin,ne,nfft3d,neall,nbrill,n,A,U,S,V)
+c      implicit none
+c#include "errquit.fh"
+c      integer ispin,ne(2)
+c      integer nfft3d,neall,nbrill,n
+c      complex*16 A(nfft3d,neall,nbrill)
+c      complex*16 U(nfft3d,neall,nbrill)
+c      real*8     S(neall,nbrill)
+c      complex*16 V(n,n,2,nbrill)
+c
+c#include "mafdecls.fh"
+c
+c*     **** local variables ****
+c      logical value,Pneb_is_init
+c      integer i,nb
+c      integer tmp2(2)
+c      external Pneb_is_init
+c
+c      if (.not.Pneb_is_init()) then
+c        write(0,*)"Pneb is not initialized!"
+c      end if
+c
+c      call Pneb_SVD(0,0,nfft3d,A,U,S,V)
+c      return
+c
+c*     ***** generate V and Sigma^2 ****
+c      call Stfl_ggq_dot(ispin,ne,nfft3d,neall,nbrill,n,A,A,V)
+c      call Stfl_q_diag(ispin,ne,neall,nbrill,n,S,V)
+c
+c
+c*     **** generate U*Sigma ****
+c      call Stfl_gqg_Mul(ispin,ne,nfft3d,neall,nbrill,n,A,V,U)
+c
+c
+c*     **** normalize U*sigma, and sqrt(S^2) ****
+c      value =  MA_push_get(mt_dbl,(neall),'tmp2',tmp2(2),tmp2(1))
+c      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+c
+c      do nb=1,nbrill
+c
+c*        **** normalize U*sigma ****
+c         do i=1,neall
+c            call Cram_cc_idot(nb,U(1,i,nb),U(1,i,nb),
+c     >                        dbl_mb(tmp2(1)+i-1))
+c         end do
+c         call C3dB_Vector_SumAll(neall,dbl_mb(tmp2(1)))
+c      
+c         do i=1,neall
+c            dbl_mb(tmp2(1)+i-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+i-1))
+c   
+c            call Cram_c_SMul(nb,dbl_mb(tmp2(1)+i-1),
+c     >                       U(1,i,nb),U(1,i,nb))
+c         end do
+c
+c*        **** sqrt(S*S) ****
+c         do i=1,neall
+c           if (S(i,nb).lt.0.0d0) S(i,nb) = dabs(S(i,nb))
+c           S(i,nb) = dsqrt(S(i,nb))
+c         end do
+c
+c      end do
+c      value = MA_pop_stack(tmp2(2))
+c      if (.not. value) call errquit('error popping stack memory',0,
+c     &       MA_ERR)
+c       
+c      return
+c      end
 
 

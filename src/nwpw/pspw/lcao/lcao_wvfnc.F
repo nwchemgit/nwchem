@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc.F,v 1.21 2005-12-22 01:40:10 bylaska Exp $
+* $Id: lcao_wvfnc.F,v 1.22 2006-12-05 00:14:41 bylaska Exp $
 *
       logical function lcao_wvfnc(oprint_in,it_max,
      >                      wavefunction_filename,
@@ -502,7 +502,7 @@ C     * write out the eigenvalues *
          WRITE(*,1510) dbl_mb(eigs(1)+ne(1)-i-nn),
      >                 dbl_mb(eigs(1)+ne(1)-i-nn)*EV,
      >                 dbl_mb(eigs(2)+ne(2)-i),   
-     >                 dbl_mb(eigs(2)+ne(2)-i) 
+     >                 dbl_mb(eigs(2)+ne(2)-i)*EV
       end do
       if (ispin.eq.1) then
        WRITE(*,*)

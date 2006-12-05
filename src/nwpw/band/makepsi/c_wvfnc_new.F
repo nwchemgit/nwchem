@@ -1,22 +1,30 @@
 *
-* $Id: c_wvfnc_new.F,v 1.6 2006-11-29 02:34:50 d3p708 Exp $
+* $Id: c_wvfnc_new.F,v 1.7 2006-12-05 00:14:40 bylaska Exp $
 *
+
+*     **********************************************
+*     *                                            *
+*     *              c_wvfnc_new                   *
+*     *                                            *
+*     **********************************************
       subroutine c_wvfnc_new(wavefunction_filename,
-     >             			version,
-     >						ngrid,
-     >						unita,
-     >						ispin,
-     >						ne,
-     >                      nbrillioun)
+     >                       version,
+     >                       ngrid,
+     >                       unita,
+     >                       spin_orbit,
+     >                       ispin,
+     >                       ne,
+     >                       nbrillioun)
       implicit none
-#include "errquit.fh"
       character*30 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)
+      logical      spin_orbit
       integer      ispin,ne(2),nbrillioun
 
 #include "mafdecls.fh"
+#include "errquit.fh"
  
 *     **** local variables ****
       logical value
@@ -36,16 +44,21 @@
 
 
         call sub_c_wvfnc_new(NMAX,int_mb(filling(1)),
-     >					wavefunction_filename,
-     >             		version,
-     >					ngrid,
-     >					unita,
-     >					ispin,
-     >					ne,
-     >                  nbrillioun)
+     >                       wavefunction_filename,
+     >                       version,
+     >                       ngrid,
+     >                       unita,
+     >                       spin_orbit,
+     >                       ispin,
+     >                       ne,
+     >                       nbrillioun)
         write(*,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
-        write(*,*) "-   spin, nalpha, nbeta:",ispin,ne(1),ne(2)
+        if (spin_orbit) then
+           write(*,*) "-   spin_orbit, nalpha=nbeta:",ne(1),ne(2)
+        else
+           write(*,*) "-   spin, nalpha, nbeta:",ispin,ne(1),ne(2)
+        end if
         value = MA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
@@ -54,27 +67,33 @@
       return
       end
 
+*     **********************************************
+*     *                                            *
+*     *              sub_c_wvfnc_new               *
+*     *                                            *
+*     **********************************************
 
       subroutine sub_c_wvfnc_new(NMAX,filling,
      >                      wavefunction_filename,
-     >             			version,
-     >						ngrid,
-     >						unita,
-     >						ispin,
-     >						ne,
+     >                      version,
+     >                      ngrid,
+     >                      unita,
+     >                      spin_orbit,
+     >                      ispin,
+     >                      ne,
      >                      nbrillioun)
-
       implicit none
-#include "errquit.fh"
       integer NMAX
       integer filling(4,(NMAX+1),2)
       character*30 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)
+      logical      spin_orbit
       integer      ispin,ne(2),nbrillioun
 
 #include "mafdecls.fh"
+#include "errquit.fh"
  
       logical value
       integer ierr
@@ -83,22 +102,21 @@
       integer nfft1,nfft2,nfft3,nfft3d
       integer inc2c,inc3c
       integer cfull_indx,cfull_hndl,l,l1,l2
-      integer i,j,k,ms,n,nb
+      integer i,j,k,ms,n,nb,ispin0,neh
 
       double precision p,scale,rx,ry
       double complex cc,cx,sx,zx
 
 *     **** external functions ****
-      logical control_spin_orbit
       double precision gcdot,util_random
-      external         control_spin_orbit
       external         gcdot,util_random
  
-      if (control_spin_orbit()) ispin=2
 
       p = util_random(5291999) !*** initialize the random sequence ***
       call getfilling(ne(1),filling)
       if (ispin.eq.2) call getfilling(ne(2),filling(1,1,2))
+
+      neh = (ne(1)+mod(ne(1),2))/2
 
 *     ***** constants *****
       nfft1=ngrid(1)
@@ -109,9 +127,9 @@
       inc3c =inc2c*nfft2
 
       scale=1.0d0/dsqrt(2.0d0)
-      zx=(1.0d0,0.0d0)
-      sx=(0.0d0,1.0d0)*scale
-      cx=(1.0d0,0.0d0)*scale
+      zx=dcmplx(1.0d0,0.0d0)
+      sx=dcmplx(0.0d0,1.0d0)*scale
+      cx=dcmplx(1.0d0,0.0d0)*scale
 
 
 *     ***** allocate wavefunction memory ****
@@ -142,19 +160,16 @@
       call iwrite(6,version,1)
       call iwrite(6,ngrid,3)
       call dwrite(6,unita,9)
-      call iwrite(6,ispin,1)
+
+      if (spin_orbit) then
+         ispin0 = 3
+      else
+         ispin0 = ispin
+      end if
+      call iwrite(6,ispin0,1)
       call iwrite(6,ne,2)
       call iwrite(6,nbrillioun,1)
  
-c      if (control_spin_orbit()) then
-c        do nb=1,nbrillioun
-c          call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
-c          call Pneb_f_Rand(0,0,nfft3d,dcpl_mb(cfull_indx))
-c          call dwrite(6,dcpl_mb(cfull_indx),4*nfft3d)      
-c      call closefile(6)
-c      IERR=0
-c      GOTO 9999
-c      end if
  
       do nb=1,nbrillioun
         call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
@@ -162,50 +177,61 @@ c      end if
         do 150 ms=1,ispin
  
         if (ne(ms).LE.0) GO TO 150
-        l1= inc3c*filling(3,1,ms)
-     >    + inc2c*filling(2,1,ms)
-     >    +       filling(1,1,ms)
-        if (filling(4,1,ms).lt.0) cc=sx
-        if (filling(4,1,ms).eq.0) cc=zx
-        if (filling(4,1,ms).gt.0) cc=cx
-        dcpl_mb(cfull_indx+l1) = cc
 
-        call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
-
-        dcpl_mb(cfull_indx+l1)=(0.0d0,0.0d0)
- 
-        DO 130 N=2,NE(ms)
+        n = 1
+        if ((spin_orbit).and.
+     >      ( ((ms.eq.1).and.(n.gt.neh)).or.
+     >        ((ms.eq.2).and.(n.le.neh))   )) then
+          call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d) !** should be writing zeros **
+        else
           l1= inc3c*filling(3,n,ms)
      >      + inc2c*filling(2,n,ms)
      >      +       filling(1,n,ms)
           if (filling(4,n,ms).lt.0) cc=sx
           if (filling(4,n,ms).eq.0) cc=zx
           if (filling(4,n,ms).gt.0) cc=cx
-          L2=L1
-          dcpl_mb(cfull_indx+l1)=cc
-          l2 = inc3c*mod(nfft3-filling(3,n,ms),nfft3)
-     >       + inc2c*mod(nfft2-filling(2,n,ms),nfft2)
-     >       +       filling(1,n,ms)
-          dcpl_mb(cfull_indx+l2)=dconjg(cc)
-
-c         IF((ABS(filling(4,n,ms)).gt.1)) THEN
-            do 125 K=0,NFFT3D-1
-			  rx = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
-			  ry = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
-              dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
-     >                              + dcmplx(rx,ry)
-  125       continue
-            P=gcdot(nfft1,nfft2,nfft3,
-     >               dcpl_mb(cfull_indx),
-     >               dcpl_mb(cfull_indx))
-            P=1.0d0/dsqrt(P)
-            call dscal(2*nfft3d,P,dcpl_mb(cfull_indx),1)
-c         ENDIF
+          dcpl_mb(cfull_indx+l1) = cc
           call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
+          dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
+        end if
+ 
+        DO 130 n=2,ne(ms)
+          if ((spin_orbit).and.
+     >        ( ((ms.eq.1).and.(n.gt.neh)).or.
+     >          ((ms.eq.2).and.(n.le.neh))   )) then
+            call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d) !** should be writing zeros **
+          else
+            l1= inc3c*filling(3,n,ms)
+     >        + inc2c*filling(2,n,ms)
+     >        +       filling(1,n,ms)
+            l2 = inc3c*mod(2*nfft3-filling(3,n,ms),nfft3)
+     >         + inc2c*mod(2*nfft2-filling(2,n,ms),nfft2)
+     >         +       filling(1,n,ms)
+            if (filling(4,n,ms).lt.0) cc=sx
+            if (filling(4,n,ms).eq.0) cc=zx
+            if (filling(4,n,ms).gt.0) cc=cx
+            dcpl_mb(cfull_indx+l1)=cc
+            dcpl_mb(cfull_indx+l2)=dconjg(cc)
 
-          call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
-          dcpl_mb(cfull_indx+l1)=(0.0d0,0.0d0)
-          dcpl_mb(cfull_indx+l2)=(0.0d0,0.0d0)
+
+c           IF((ABS(filling(4,n,ms)).gt.1)) THEN
+              do 125 k=0,nfft3d-1
+                rx = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
+                ry = (0.5d0-util_random(0))/dsqrt(dble(nfft3d))
+                dcpl_mb(cfull_indx+k) = dcpl_mb(cfull_indx+k)
+     >                              + dcmplx(rx,ry)
+  125         continue
+              p=gcdot(nfft1,nfft2,nfft3,
+     >                 dcpl_mb(cfull_indx),
+     >                 dcpl_mb(cfull_indx))
+              p=1.0d0/dsqrt(p)
+              call dscal(2*nfft3d,p,dcpl_mb(cfull_indx),1)
+c           END IF
+            call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
+            call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
+            dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
+            dcpl_mb(cfull_indx+l2)=dcmplx(0.0d0,0.0d0)
+          end if
   130   CONTINUE
  
 
@@ -227,7 +253,7 @@ c         ENDIF
       return 
       end
 
-      double precision FUNCTION GCDOT(NFFT1,NFFT2,NFFT3,A,B)
+      double precision FUNCTION gcdot(NFFT1,NFFT2,NFFT3,A,B)
       implicit none
       integer nfft1,nfft2,nfft3
       complex*16 A(*),B(*)
