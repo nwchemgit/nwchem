@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.92 2006-11-30 02:36:24 d3p708 Exp $
+* $Id: control.F,v 1.93 2006-12-05 00:13:26 bylaska Exp $
 *
 
 *     ***********************************
@@ -459,9 +459,12 @@ c
      >        rtdb_get(rtdb,'band:mult',mt_int,1,multiplicity)
       value = value.and.
      >        rtdb_get(rtdb,'band:ispin',mt_int,1,ispin)
+
       if (.not.rtdb_get(rtdb,'band:spin_orbit',mt_log,1,spin_orbit))
-     >           spin_orbit=.false.
+     > spin_orbit=.false.
       if (spin_orbit) ispin=2
+      
+
 
 *     **** set Kohn-Sham scf parameters ***
       if (.not. rtdb_get(rtdb,'nwpw:ks_alpha',mt_dbl,1,ks_alpha))
@@ -3419,10 +3422,13 @@ c      end
 
       logical function control_spin_orbit()
       implicit none
+
 #include "control.fh"
-      control_spin_orbit=spin_orbit
+
+      control_spin_orbit = spin_orbit
       return
       end
+
 
 *     *****************************
 *     *                           *
