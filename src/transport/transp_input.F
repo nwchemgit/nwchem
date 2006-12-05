@@ -1,6 +1,6 @@
       subroutine transp_input(rtdb)
 *
-* $Id: transp_input.F,v 1.1 2006-12-05 13:50:33 edo Exp $
+* $Id: transp_input.F,v 1.2 2006-12-05 13:54:03 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -112,4 +112,11 @@ c
       endif
       call errquit(' aiaiaia ',0,0)
       return
+      end
+#if 1
+      subroutine player
+      call errquit(' stub ',0,0)
+      return
+      end
+#endif
       end
