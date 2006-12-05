@@ -1598,7 +1598,6 @@ C  (with ghost and without ghost) to supermolecular hessian matrix
 c
       implicit none
 #include "global.fh"
-#include "hess_info.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
@@ -1630,6 +1629,7 @@ c
       integer l_exy_mon
       integer l_exy_mont
       integer l_exybs
+      integer n3xyz
 c
       n3xyz=3*natoms
       nhesst=n3xyz*(n3xyz+1)/2
