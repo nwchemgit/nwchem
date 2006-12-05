@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.540 2006-09-15 17:46:23 edo Exp $
+# $Id: makefile.h,v 1.541 2006-12-05 20:17:20 edo Exp $
 #
 
 # Common definitions for all makefiles ... these can be overridden
@@ -1169,7 +1169,7 @@ endif
        endif
        ifeq ($(_CPU),i486)
 #gcc version 4.2.0 200608 (experimental)
-         FOPTIONS= -malign-double#
+#         FOPTIONS= -malign-double# this break with gfort 4.2 and later http://gcc.gnu.org/bugzilla/show_bug.cgi?id=29562
          FOPTIMIZE+= -funroll-all-loops -mtune=native 
          FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
 #         FOPTIMIZE=-O1

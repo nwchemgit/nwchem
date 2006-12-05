@@ -9,7 +9,7 @@
 #	NWCHEM_TOP	"
 #	NWCHEM_TARGET	"
 #
-# $Id: make_nwchem_config,v 1.221 2006-12-05 13:31:42 edo Exp $
+# $Id: make_nwchem_config,v 1.222 2006-12-05 20:17:19 edo Exp $
 #-----------------------------------------------------------------------------
 # These are the directories required to build the various high-level
 # computational modules for NWChem.  They are built after the core
@@ -270,7 +270,7 @@ STUBROUTINES := $(patsubst prepar,prepar pre_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst analyz,analyz ana_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst esp,esp esp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst etrans,etrans et_calc et_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst transport,transport transp_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst transport,transport player transp_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tddft,tddft_energy tddft_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst tce,tce_energy_fragment tce_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nwmd,nwmd md_input,$(STUBROUTINES) )
