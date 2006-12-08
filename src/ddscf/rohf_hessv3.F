@@ -16,7 +16,7 @@ c     have an imaginary part, too
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_hessv3.F,v 1.1 2006-11-16 18:22:55 jochen Exp $
+c     $Id: rohf_hessv3.F,v 1.2 2006-12-08 18:59:03 jochen Exp $
 c
 c ... jochen: these two arrays now have two components:
       integer g_x(2)  ! [input]  A-matrix elements for density matrix
@@ -95,7 +95,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
      &   lifetime, gamwidth, ncomp)
-C     $Id: rohf_hessv3.F,v 1.1 2006-11-16 18:22:55 jochen Exp $
+C     $Id: rohf_hessv3.F,v 1.2 2006-12-08 18:59:03 jochen Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -221,7 +221,7 @@ c
             if (debug) write (6,*) 'calling rohf_hessv_2e3 for Im part'
             call rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
      $         g_movecs, oskel, noskew, g_x_im, acc, ! was min(1d-6,acc)
-     $         g_ax_im)
+     $         g_ax_im, limag)
             if (debug) write (6,*) 'back from rohf_hessv_2e3 Im part'
           endif                 ! lifetime
         else                    ! call static 2e code
@@ -244,7 +244,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       subroutine rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax, limag)
-C     $Id: rohf_hessv3.F,v 1.1 2006-11-16 18:22:55 jochen Exp $
+C     $Id: rohf_hessv3.F,v 1.2 2006-12-08 18:59:03 jochen Exp $
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
