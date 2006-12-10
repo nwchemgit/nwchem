@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.82 2006-12-01 22:19:17 edo Exp $
+* $Id: task.F,v 1.83 2006-12-10 01:00:23 d3j191 Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -37,7 +37,7 @@ c
       logical rjhtest, raktest, atwtest, task_check_sum, cphf,
      $     jantest, uccsdtest
       logical property, dplot, gapss, task_shell, moints_full
-      logical analyz,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
+      logical analyz,diana,esp,prepar,nwmd, kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics
@@ -59,7 +59,7 @@ c
       external jantest, uccsdtest
       external rjhtest, raktest, atwtest, task_check_sum, cphf
       external property, dplot, gapss, task_shell, moints_full
-      external analyz,esp,prepar,nwmd
+      external analyz,diana,esp,prepar,nwmd
       external task_energy, task_gradient, task_optimize, task_freq
       external task_hessian, task_saddle, task_lst, task_neb
       external task_dynamics
@@ -219,6 +219,8 @@ c
           status=analyz(rtdb)
          elseif(inp_compare(.false.,'analyze',theory)) then
           status=analyz(rtdb)
+         elseif(inp_compare(.false.,'diana',theory)) then
+          status=diana(rtdb)
          else
             operation = 'energy' ! No matching specialized operation
             goto 100            !  execute the default generic operation
