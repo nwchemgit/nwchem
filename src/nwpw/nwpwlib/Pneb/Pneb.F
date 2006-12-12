@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.3 2006-12-12 19:34:48 d3p708 Exp $
+* $Id: Pneb.F,v 1.4 2006-12-12 19:51:02 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1986,9 +1986,41 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
+c   Copies the Hermitian Conjugate of A into B
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_w_copy_dagger(mbb,nbb,A,B)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*),B(*)
+#include "Pneb.fh"
+      integer nb,nb1,nb2,ms,ms1,ms2,index,indext,mshft,bshft,i,j
+      mshft=0
+      if (ispinq.eq.2) then
+         mshft=ne(1)
+      end if
+      bshft=ne(1)*ne(1)
+      if (ispinq.eq.2) then
+         bshft=bshft+ne(2)*ne(2)
+      end if
+      call assign_nb(nbb,nb1,nb2) 
+      call assign_ms(mbb,ms1,ms2)
+      index=1
+      do nb=nb1,nb2
+        do ms=ms1,ms2
+          do i=1,ne(ms)
+            do j=1,ne(ms)
+              indext=(i-1)+(j-1)*ne(ms)+(nb-nb1)*bshft+(ms-1)*mshft
+              B(indext)=Dconjg(A(index))
+            end do  
+          end do
+        end do
+      end do
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccc
 
 
-
+ 
                   
 
  
