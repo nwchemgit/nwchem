@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.5 2006-12-12 20:12:42 d3p708 Exp $
+* $Id: Pneb.F,v 1.6 2006-12-12 21:50:08 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -895,6 +895,71 @@ c     ****************************************
               if (spin_orbit) then
                  call Cram_cmc_zgemm(nb,n,n,Y1(shiftso),Y2(shiftso),
      >                               one,zero,hml(shift2))
+              end if
+
+ 30         continue
+         end do
+      end do
+
+      return
+      end
+      
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_fwf_multiply           *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_fwf_multiplyAdd(mb,nbb,Y1,hml,npack1,Y2)
+      implicit none
+      integer mb,nbb
+      complex*16 Y1(*),Y2(*),hml(*)
+      integer npack1
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0),one=(1.0d0,0.0d0))
+
+      integer nb,nb1,nb2,ms,ms1,ms2,n
+      integer shift,shiftso,shift2,ishift2,ishift3
+
+      if (mb.eq.0) then
+         ms1 = 1
+         ms2 = ispinq
+         ishift2 = ne(1)*ne(1)  !** note that ne rather than neq is used **
+      else
+         ms1 = mb
+         ms2 = mb
+         ishift2 = 0 
+      end if
+      if (nbb.eq.0) then
+        nb1 = 1
+        nb2 = nbrillq
+        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+      else
+        nb1 = nbb
+        nb2 = nbb
+        ishift3 = 0
+      end if
+
+
+      do nb=nb1,nb2
+         do ms=ms1,ms2           
+            shift = 1 + (ms-1)*ne(1)*npack1 +(nb-1)*(ne(1)+ne(2))*npack1
+            shiftso = shift + ne(1)*npack1
+            shift2  = 1 + (ms-1)*ishift2      +(nb-nb1)*ishift3
+            n = ne(ms)
+            if (n.eq.0) go to 30
+
+              call Cram_cmc_zgemm(nb,n,n,Y1(shift),Y2(shift),
+     >                            one,one,hml(shift2))
+
+              if (spin_orbit) then
+                 call Cram_cmc_zgemm(nb,n,n,Y1(shiftso),Y2(shiftso),
+     >                               one,one,hml(shift2))
               end if
 
  30         continue
@@ -1941,7 +2006,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       zero=dcmplx(0.0d0,0.0d0)
       one=dcmplx(1.0d0,0.0d0)
       call assign_nb(nbb,nb1,nb2)
-      call assign_mb(mbb,ms1,ms2)
+      call assign_ms(mbb,ms1,ms2)
       indx=1
       do nb=nb1,nb2
       do ms=ms1,ms2
@@ -1953,10 +2018,24 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       return 
       end
 cccccccccccccccccccc
-
-
-                  
-
+      complex*16 function Pneb_w_value(nb,ms,i,j,W)
+      implicit none
+      integer nb,ms,i,j
+      complex*16 W(*)
+#include "Pneb.fh"
+      integer indx
+     
+      indx=i+(j-1)*ne(ms)
+      if (ispinq.eq.1) then
+        indx=indx+(nb-1)*ne(1)*ne(1)
+      else
+        indx=indx  + (ms-1)*ne(1)*ne(1)
+     >        + (nb-1)*(ne(1)*ne(1)+ne(2)*ne(2))
+      end if
+      Pneb_w_value=W(indx)
+      return
+      end  
+ccccccccccccccccc
  
  
         
