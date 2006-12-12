@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.26 2006-12-05 00:14:40 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.27 2006-12-12 21:52:33 d3p708 Exp $ *
 
 
 *     ***************************
@@ -116,8 +116,7 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-
-      call c_OrthoCheck(indx,ispin,ne,nbrillioun,dcpl_mb(psi1(1)))  
+      call Pneb_orthoCheck(indx,0,0,dcpl_mb(psi1(1)))
       return
       end
 
@@ -480,7 +479,6 @@
      >                             dcpl_mb(tmp1(1)),
      >                             THpsi)
       
-
 
       if (.not.Pneb_w_pop_stack(tmp1))
      > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
@@ -1027,16 +1025,19 @@ c     real*8 sum1,sum2
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
       integer indx
+      complex*16 Pneb_w_value
+      external Pneb_w_value
 
-      if (spin_orbit) then
-        indx=(nb-1)*ne(1)*ne(1)+i-1+(j-1)*ne(1)
-        cpsi_hml=dcpl_mb(hml(1)+indx)
-      else
-        cpsi_hml = dcpl_mb(hml(1)-1 + i 
-     >                          + (j-1)*ne(ms) 
-     >                          + (ms-1)*ne(1)*ne(1)
-     >                          + (nb-1)*2*ne(1)*ne(1)) 
-      end if
+      cpsi_hml=Pneb_w_value(ms,nb,i,j,dcpl_mb(hml(1)))
+c      if (spin_orbit) then
+c        indx=(nb-1)*ne(1)*ne(1)+i-1+(j-1)*ne(1)
+c        cpsi_hml=dcpl_mb(hml(1)+indx)
+c      else
+c        cpsi_hml = dcpl_mb(hml(1)-1 + i 
+c     >                          + (j-1)*ne(ms) 
+c     >                          + (ms-1)*ne(1)*ne(1)
+c     >                          + (nb-1)*2*ne(1)*ne(1)) 
+c      end if
       return
       end
 
@@ -1091,11 +1092,6 @@ c     real*8 sum1,sum2
       call Pneb_fwf_Multiply(0,0,dcpl_mb(psi1(1)),dcpl_mb(hml(1)),
      >          npack1,
      >          dcpl_mb(psi2(1)))
-
-c      call Stfl_gqg_Mul(ispin,ne,npack1,neall,nbrillioun,n,
-c     >                  dcpl_mb(psi1(1)),
-c     >                  dcpl_mb(hml(1)),
-c     >                  dcpl_mb(psi2(1)))
 
       return
       end
