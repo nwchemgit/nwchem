@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.21 2006-12-05 00:14:40 bylaska Exp $
+* $Id: c_electron.F,v 1.22 2006-12-12 21:55:56 d3p708 Exp $
 *
 
 
@@ -360,7 +360,8 @@ cccccccccccccccccc
 *     **** local variables ****
       real*8  eorbit
 
-      call Pneb_ff_traceall(0,0,psi_k,dcpl_mb(Hpsi_k(1)),npack1,eorbit)
+      call Pneb_ff_traceall(0,0,psi_k,dcpl_mb(Hpsi_k(1)),npack1,
+     >eorbit)
       if (ispin.eq.1) eorbit = eorbit+eorbit
 
       c_electron_eorbit = eorbit 
@@ -599,9 +600,9 @@ cccccccccccccccccc
      >                   THpsi_k,
      >                   THpsi_k)
 
-      call BGrsm_ff_dScale(THpsi_k,
+      call BGrsm_ff_dScale(-1.0d0,
+     >                     THpsi_k,
      >                     THpsi_k)
-
       return
       end
 
