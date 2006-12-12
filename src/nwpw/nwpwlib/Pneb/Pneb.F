@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.2 2006-12-05 00:14:41 bylaska Exp $
+* $Id: Pneb.F,v 1.3 2006-12-12 19:34:48 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -290,7 +290,6 @@ c with options mb and nb.
 c
 c if mb==0 means m array contains all data for both up and down matrices
 c if mb==1 means the
-
 c if (mb==0 && nb==0)
 
       integer function Pneb_m_size(mb,nb)
@@ -1490,9 +1489,9 @@ c     ccccccccc first line ccccccccc
               call Cram_cc_zdot(nb,A(index12),A(index22),wc2)
               w=wc1+wc2
               if (k.eq.j) then
-                error=dabs(1.-dreal(w))+dabs(imag(w))
+                error=dabs(1.-dble(w))+dabs(imag(w))
               else
-                error=dabs(dreal(w))+dabs(dimag(w))
+                error=dabs(dble(w))+dabs(dimag(w))
               end if
               if (taskid.eq.MASTER) then
                 write(17,1360) nb,3,k,j,w
@@ -1515,7 +1514,7 @@ c     ccccccccc first line ccccccccc
               if (k.eq.j) then
                  error=dabs(1.-dble(w))+dabs(imag(w))
               else
-                 error=dabs(dreal(w))+dabs(dimag(w))
+                 error=dabs(dble(w))+dabs(dimag(w))
               end if
               if (taskid.eq.MASTER) then
                 write(17,1360) nb,ms,k,j,w
@@ -1747,15 +1746,14 @@ c     cccccccccccccccccccccccccccccccccccc
       return
       end
 
-
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     ccccccccccccccccccccccccccccccccccc
 c     *                                 *
 c     *             prand               *
 c     *                                 *
 c     ccccccccccccccccccccccccccccccccccc 
-
 c     returns a psuedorandom number   between 0 and 1               
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function prand(idum)
       implicit none
       integer idum,ia,im,iq,ir,mask
@@ -1771,6 +1769,231 @@ c     returns a psuedorandom number   between 0 and 1
       IDUM=IEOR(IDUM,MASK)
       RETURN 
       END
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c   assigns the variables for loop over brillioun 
+c     points
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine assign_nb(nbb,nb1,nb2)
+      implicit none
+      integer nbb,nb1,nb2
+#include "Pneb.fh"
+      if (nbb.eq.0) then
+         nb1=1
+         nb2=nbrillq
+      else
+         nb1=nbb
+         nb2=nbb
+      endif
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  assigns the variables for loop over spin states 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine assign_ms(mbb,ms1,ms2)
+      implicit none
+#include "Pneb.fh"
+      integer mbb,ms1,ms2
+      if (mbb.eq.0) then
+        ms1=1 
+        ms2=ispinq
+      else
+        ms1=mbb
+        ms2=mbb
+      end if
+      return
+      end            
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c     return cos(S*t)V' = A and sin(S*t)*V'=B
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_SCVtrans1(t,mbb,nbb,S,Vt,A,B)
+      implicit none
+      real*8 t,S(*)
+      integer mbb,nbb
+      complex*16 A(*),B(*),Vt(*)
+#include "Pneb.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,indx1,indx2
+      integer tmp1(2),tmp2(2),bshift
+      logical value,Pneb_w_push_get      
+      logical Pneb_w_pop_stack
+ 
+      value=Pneb_w_push_get(0,1,tmp2)
+      value=value.and.Pneb_w_push_get(0,1,tmp1)
+      if (.not.value) then 
+        call errquit("Pneb_SCVtrans1: out of stack memory!")
+      end if
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      bshift=ne(1)*ne(1)
+      if (ispinq.eq.2) bshift=ne(1)*ne(1)+ne(2)*ne(2)
+      sindx=1
+      do nb=nb1,nb2
+        indx1=tmp1(1)
+        indx2=tmp2(1)
+        do ms=ms1,ms2
+          do j=1,ne(ms)
+            dcpl_mb(indx1)=dcos(S(sindx)*t)
+            dcpl_mb(indx2)=dsin(S(sindx)*t)
+            sindx=sindx+1
+            indx1=indx1+1
+            indx2=indx2+1
+          end do
+        end do
+        indx1=tmp1(1)
+        indx2=tmp2(1)
+        vindx=(nb-1)*bshift
+        do ms=1,ispinq
+          do j=1,ne(ms)
+            do k=1,ne(ms)
+              vindx=vindx+1
+              A(vindx)=dcpl_mb(indx1)*Vt(vindx) 
+              B(vindx)=dcpl_mb(indx2)*Vt(vindx)
+              indx1=indx1+1
+              indx2=indx2+1
+            end do
+          end do
+        end do
+      end do
+      value=Pneb_w_pop_stack(tmp1)
+      value=value.and.Pneb_w_pop_stack(tmp2)
+      if (.not.value) then
+        call errquit("Pneb_SCVtrans1: error popping stack!")
+      end if
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c     returns S*cos(S*t)*V' = A 
+c         and S*sin(S*t)*V' = B
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_SCVtrans2(t,mbb,nbb,S,Vt,A,B)
+      implicit none
+      real*8 t,S(*)
+      integer nbb,mbb
+      complex*16 A(*),B(*),Vt(*)
+#include "Pneb.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,indx1,indx2
+      integer tmp1(2),tmp2(2),bshift
+      logical value,Pneb_w_push_get      
+      logical Pneb_w_pop_stack
+
+
+      value=Pneb_w_push_get(0,1,tmp2)
+      value=value.and.Pneb_w_push_get(0,1,tmp1)
+      if (.not.value)  then
+        call errquit("Pneb_SCVtrans2: out of stack memory!")
+      end if
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      bshift=ne(1)*ne(1)
+      if (ispinq.eq.2) bshift=ne(1)*ne(1)+ne(2)*ne(2)
+      sindx=1
+      do nb=nb1,nb2
+        indx1=tmp1(1)
+        indx2=tmp2(1)
+        do ms=ms1,ms2
+          do j=1,ne(ms)
+            dcpl_mb(indx1)=S(sindx)*dcos(S(sindx)*t)
+            dcpl_mb(indx2)=S(sindx)*dsin(S(sindx)*t)
+            sindx=sindx+1
+            indx1=indx1+1
+            indx2=indx2+1
+          end do
+        end do
+        indx1=tmp1(1)
+        indx2=tmp2(1)
+        vindx=(nb-1)*bshift
+        do ms=1,ispinq
+          do j=1,ne(ms)
+            do k=1,ne(ms)
+              vindx=vindx+1
+              A(vindx)=dcpl_mb(indx2)*Vt(vindx) 
+              B(vindx)=dcpl_mb(indx1)*Vt(vindx)
+              indx1=indx1+1
+              indx2=indx2+1
+            end do
+          end do
+        end do
+      end do
+      value=Pneb_w_pop_stack(tmp1)
+      value=value.and.Pneb_w_pop_stack(tmp2)
+      if (.not.value) then
+        call errquit("Pneb_SCVtrans2: error popping stack!")
+      end if
+      return
+      end
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
+c     Returns (1-cos(S*t))*V' in A and
+c              sin(St)V' in Bc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_SCVtrans3(t,mbb,nbb,S,Vt,A,B)
+      implicit none
+      real*8 t,S(*)
+      integer mbb,nbb
+      complex*16 A(*),B(*),Vt(*)
+#include "Pneb.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,indx1,indx2
+      integer tmp1(2),tmp2(2),bshift
+      logical value,Pneb_w_push_get      
+      logical Pneb_w_pop_stack
+
+      value=Pneb_w_push_get(0,1,tmp2)
+      value=value.and.Pneb_w_push_get(0,1,tmp1)
+      if (.not.value) then
+        call errquit("Pneb_SCVtrans3: out of stack memory!")
+      end if
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      bshift=ne(1)*ne(1)
+      if (ispinq.eq.2) bshift=ne(1)*ne(1)+ne(2)*ne(2)
+      sindx=1
+      do nb=nb1,nb2
+        indx1=tmp1(1)
+        indx2=tmp2(1)
+        do ms=ms1,ms2
+          do j=1,ne(ms)
+            dcpl_mb(indx1)=dsin(S(sindx)*t)
+            dcpl_mb(indx2)=dcos(S(sindx)*t)
+            sindx=sindx+1
+            indx1=indx1+1
+            indx2=indx2+1
+          end do
+        end do
+        indx1=tmp1(1)
+        indx2=tmp2(1)
+        vindx=(nb-1)*bshift
+        do ms=1,ispinq
+          do j=1,ne(ms)
+            do k=1,ne(ms)
+              vindx=vindx+1
+              A(vindx)=dcpl_mb(indx1)*Vt(vindx) 
+              B(vindx)=Vt(vindx)-dcpl_mb(indx2)*Vt(vindx)
+              indx1=indx1+1
+              indx2=indx2+1
+            end do
+          end do
+       end do
+      end do
+      value=Pneb_w_pop_stack(tmp1)
+      value=value.and.Pneb_w_pop_stack(tmp2)
+      if (.not.value) then
+        call errquit("Pneb_SCVtrans3: error popping stack!")
+      end if
+      return
+      end
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
+
+
+
+                  
+
+ 
+ 
+        
 
 
 
