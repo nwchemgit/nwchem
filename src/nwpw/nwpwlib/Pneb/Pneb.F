@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.4 2006-12-12 19:51:02 d3p708 Exp $
+* $Id: Pneb.F,v 1.5 2006-12-12 20:12:42 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1811,60 +1811,32 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer mbb,nbb
       complex*16 A(*),B(*),Vt(*)
 #include "Pneb.fh"
-#include "errquit.fh"
-#include "mafdecls.fh"
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,indx1,indx2
-      integer tmp1(2),tmp2(2),bshift
-      logical value,Pneb_w_push_get      
-      logical Pneb_w_pop_stack
- 
-      value=Pneb_w_push_get(0,1,tmp2)
-      value=value.and.Pneb_w_push_get(0,1,tmp1)
-      if (.not.value) then 
-        call errquit("Pneb_SCVtrans1: out of stack memory!")
-      end if
+      real*8 s1,s2
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx
+
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-      bshift=ne(1)*ne(1)
-      if (ispinq.eq.2) bshift=ne(1)*ne(1)+ne(2)*ne(2)
       sindx=1
+      vindx=1
       do nb=nb1,nb2
-        indx1=tmp1(1)
-        indx2=tmp2(1)
         do ms=ms1,ms2
           do j=1,ne(ms)
-            dcpl_mb(indx1)=dcos(S(sindx)*t)
-            dcpl_mb(indx2)=dsin(S(sindx)*t)
+            s1=dcos(S(sindx)*t)
+            s2=dsin(S(sindx)*t)
             sindx=sindx+1
-            indx1=indx1+1
-            indx2=indx2+1
-          end do
-        end do
-        indx1=tmp1(1)
-        indx2=tmp2(1)
-        vindx=(nb-1)*bshift
-        do ms=1,ispinq
-          do j=1,ne(ms)
             do k=1,ne(ms)
+              A(vindx)=s1*Vt(vindx) 
+              B(vindx)=s2*Vt(vindx)
               vindx=vindx+1
-              A(vindx)=dcpl_mb(indx1)*Vt(vindx) 
-              B(vindx)=dcpl_mb(indx2)*Vt(vindx)
-              indx1=indx1+1
-              indx2=indx2+1
             end do
           end do
         end do
       end do
-      value=Pneb_w_pop_stack(tmp1)
-      value=value.and.Pneb_w_pop_stack(tmp2)
-      if (.not.value) then
-        call errquit("Pneb_SCVtrans1: error popping stack!")
-      end if
       return
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c     returns S*cos(S*t)*V' = A 
-c         and S*sin(S*t)*V' = B
+c     returns S*sin(S*t)*V' = A 
+c         and S*cos(S*t)*V' = B
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       subroutine Pneb_SCVtrans2(t,mbb,nbb,S,Vt,A,B)
       implicit none
@@ -1872,56 +1844,28 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer nbb,mbb
       complex*16 A(*),B(*),Vt(*)
 #include "Pneb.fh"
-#include "errquit.fh"
-#include "mafdecls.fh"
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,indx1,indx2
-      integer tmp1(2),tmp2(2),bshift
-      logical value,Pneb_w_push_get      
-      logical Pneb_w_pop_stack
+      real*8 s1,s2
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx
 
-
-      value=Pneb_w_push_get(0,1,tmp2)
-      value=value.and.Pneb_w_push_get(0,1,tmp1)
-      if (.not.value)  then
-        call errquit("Pneb_SCVtrans2: out of stack memory!")
-      end if
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-      bshift=ne(1)*ne(1)
-      if (ispinq.eq.2) bshift=ne(1)*ne(1)+ne(2)*ne(2)
+      vindx=1
       sindx=1
       do nb=nb1,nb2
-        indx1=tmp1(1)
-        indx2=tmp2(1)
         do ms=ms1,ms2
           do j=1,ne(ms)
-            dcpl_mb(indx1)=S(sindx)*dcos(S(sindx)*t)
-            dcpl_mb(indx2)=S(sindx)*dsin(S(sindx)*t)
+            s2=S(sindx)
+            s1=s2*dsin(s2*t)
+            s2=s2*dcos(s2*t)
             sindx=sindx+1
-            indx1=indx1+1
-            indx2=indx2+1
-          end do
-        end do
-        indx1=tmp1(1)
-        indx2=tmp2(1)
-        vindx=(nb-1)*bshift
-        do ms=1,ispinq
-          do j=1,ne(ms)
             do k=1,ne(ms)
+              A(vindx)=s1*Vt(vindx) 
+              B(vindx)=s2*Vt(vindx)
               vindx=vindx+1
-              A(vindx)=dcpl_mb(indx2)*Vt(vindx) 
-              B(vindx)=dcpl_mb(indx1)*Vt(vindx)
-              indx1=indx1+1
-              indx2=indx2+1
             end do
           end do
         end do
       end do
-      value=Pneb_w_pop_stack(tmp1)
-      value=value.and.Pneb_w_pop_stack(tmp2)
-      if (.not.value) then
-        call errquit("Pneb_SCVtrans2: error popping stack!")
-      end if
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
@@ -1936,53 +1880,27 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "Pneb.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,indx1,indx2
-      integer tmp1(2),tmp2(2),bshift
-      logical value,Pneb_w_push_get      
-      logical Pneb_w_pop_stack
+      real*8 s1,s2
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx
 
-      value=Pneb_w_push_get(0,1,tmp2)
-      value=value.and.Pneb_w_push_get(0,1,tmp1)
-      if (.not.value) then
-        call errquit("Pneb_SCVtrans3: out of stack memory!")
-      end if
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-      bshift=ne(1)*ne(1)
-      if (ispinq.eq.2) bshift=ne(1)*ne(1)+ne(2)*ne(2)
       sindx=1
+      vindx=1
       do nb=nb1,nb2
-        indx1=tmp1(1)
-        indx2=tmp2(1)
         do ms=ms1,ms2
           do j=1,ne(ms)
-            dcpl_mb(indx1)=dsin(S(sindx)*t)
-            dcpl_mb(indx2)=dcos(S(sindx)*t)
+            s1=dsin(S(sindx)*t)
+            s2=dcos(S(sindx)*t)
             sindx=sindx+1
-            indx1=indx1+1
-            indx2=indx2+1
-          end do
-        end do
-        indx1=tmp1(1)
-        indx2=tmp2(1)
-        vindx=(nb-1)*bshift
-        do ms=1,ispinq
-          do j=1,ne(ms)
             do k=1,ne(ms)
+              A(vindx)=s1*Vt(vindx) 
+              B(vindx)=Vt(vindx)-s2*Vt(vindx)
               vindx=vindx+1
-              A(vindx)=dcpl_mb(indx1)*Vt(vindx) 
-              B(vindx)=Vt(vindx)-dcpl_mb(indx2)*Vt(vindx)
-              indx1=indx1+1
-              indx2=indx2+1
             end do
           end do
        end do
       end do
-      value=Pneb_w_pop_stack(tmp1)
-      value=value.and.Pneb_w_pop_stack(tmp2)
-      if (.not.value) then
-        call errquit("Pneb_SCVtrans3: error popping stack!")
-      end if
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
@@ -1993,24 +1911,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer mbb,nbb
       complex*16 A(*),B(*)
 #include "Pneb.fh"
-      integer nb,nb1,nb2,ms,ms1,ms2,index,indext,mshft,bshft,i,j
-      mshft=0
-      if (ispinq.eq.2) then
-         mshft=ne(1)
-      end if
-      bshft=ne(1)*ne(1)
-      if (ispinq.eq.2) then
-         bshft=bshft+ne(2)*ne(2)
-      end if
+      integer nb,nb1,nb2,ms,ms1,ms2,indx,indext,i,j,xindx
+
       call assign_nb(nbb,nb1,nb2) 
       call assign_ms(mbb,ms1,ms2)
-      index=1
+      indx=1
       do nb=nb1,nb2
         do ms=ms1,ms2
+          xindx=indx
           do i=1,ne(ms)
             do j=1,ne(ms)
-              indext=(i-1)+(j-1)*ne(ms)+(nb-nb1)*bshft+(ms-1)*mshft
-              B(indext)=Dconjg(A(index))
+              indext=xindx+i+(j-1)*ne(ms)
+              B(indext)=Dconjg(A(indx))
             end do  
           end do
         end do
@@ -2018,9 +1930,31 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 ccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_www_multiply(mbb,nbb,A,B,C)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*),B(*),C(*)
+#include "Pneb.fh"
+      integer nb,nb1,nb2,ms,ms1,ms2
+      integer indx  
+      complex*16 zero,one
+      zero=dcmplx(0.0d0,0.0d0)
+      one=dcmplx(1.0d0,0.0d0)
+      call assign_nb(nbb,nb1,nb2)
+      call assign_mb(mbb,ms1,ms2)
+      indx=1
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+        call ZGEMM('C','N',ne(ms),ne(ms),ne(ms),one,
+     >    A(indx),ne(ms),B(indx),ne(ms),zero,C(indx),ne(ms))
+        indx=indx+ne(ms)*ne(ms)               
+      end do
+      end do
+      return 
+      end
+cccccccccccccccccccc
 
 
- 
                   
 
  
