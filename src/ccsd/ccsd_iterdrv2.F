@@ -5,10 +5,11 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.25 2006-02-08 21:06:00 bert Exp $
+C     $Id: ccsd_iterdrv2.F,v 2.26 2006-12-12 15:56:16 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "util.fh"
+#include "stdio.fh"
 c
       integer rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,maxit,iprt,
      & g_t2,g_ht2,g_nt2,g_nht2,mxvec,g_ncoul,g_nexch,
@@ -111,7 +112,8 @@ c - else check if one can restart
 
 c Note that if restart fails orestart will be set false
       if (.not. orestart) then
-         if (iam .eq. 0) write(6,*) ' Using MP2 initial guess vector '
+         if (iam .eq. 0) write(luout,*) 
+     M        ' Using MP2 initial guess vector '
         call dfill(lnov,zip,t1,1)
         if (nvp1.ge.ilo.and.nvp1.le.ihi)then
          call ga_put(g_t2,1,lnov,nvp1,nvp1,t1,1)
@@ -134,7 +136,7 @@ c
       call ga_sync()
 c
       if(oconverged) then
-         if (iam.eq.0)write(6,*) 'CCSD is already converged'
+         if (iam.eq.0)write(luout,*) 'CCSD is already converged'
          offt2 = 0
          if(.not.rtdb_get(rtdb, 'ccsd:corlenerg',MT_DBL, 1, eccsd))
      $      eccsd=zip
@@ -158,7 +160,7 @@ c
 c ----------------------------------------------------------
 c begin iterations
 c ----------------------------------------------------------
-      if (iam.eq.0)write(6,1234)
+      if (iam.eq.0)write(luout,1234)
 *rak 1234 format(//,71(1h-),/,' iter',8x,'correlation',11x,'delta',9x,
 *rak     &       'rms',/,15x,'energy',14x,'energy',/,71(1h-))
  1234 format(//,73('-'),/,' iter',5x,'correlation',5x,'delta',7x,
@@ -192,18 +194,18 @@ c
      $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
          if(.not.rtdb_put(rtdb, 'ccsd:converged',MT_LOG, 1, oconverged))
      $     call errquit('ccsd_iterdrv2: rtdb_put failed', 0, RTDB_ERR)
-        if (iam.eq.0)write(6,1236)
+        if (iam.eq.0)write(luout,1236)
  1236   format(18x,'*************converged*************',18x,
      &         /,73('-'),/)
         goto 999 
       endif
       if (iter.gt.maxit)then
-        if (iam.eq.0)write(6,1237)
+        if (iam.eq.0)write(luout,1237)
  1237   format(18x,'****maximum iterations exceeded****',18x,
      &         /,73('-'),/)
         goto 999
       endif
-      if (iprt.gt.5.and.iam.eq.0)write(6,134)iter,idiis,ndiis
+      if (iprt.gt.5.and.iam.eq.0)write(luout,134)iter,idiis,ndiis
  134  format(' iteration ',i3,' idiis ',i3,' ndiis ',i3)
 
 *
@@ -223,12 +225,12 @@ c
 c
       if (iam.eq.0.and.iprt.gt.5)then
        print *,'starting t1 vector'
-       write(6,139)(t1(i),i=1,lnov)
+       write(luout,139)(t1(i),i=1,lnov)
   139   format(4e14.4)
        do av=1,nvir
         call ga_get(g_t2,offt2+1,offt2+lhoov,av,av,scra,lhoov)
         print *,'starting t2 for av ',av
-        write(6,139)(scra(i),i=1,lhoov)
+        write(luout,139)(scra(i),i=1,lhoov)
        enddo
       endif
 c
@@ -281,13 +283,11 @@ c ----------------------------------------------------------
       tend=tx(4)
       if (iprt.gt.5.and.iam.eq.0)print *,' time pdiis ',tend-tstart
       if (iam.eq.0)then
-*rak      write(6,1235)iter,eccsd,deccsd,rms,tx(2)-tx(1),tx(4)-tx(3)-
-*rak     &                                       (tx(2)-tx(1))
-*rak 1235 format(i4,d24.14,2d12.4,2d12.4)
-          write(6,1235)iter,eccsd,deccsd,rms,
+          write(luout,1235)iter,eccsd,deccsd,rms,
      &      tx(2)-tx(1),
      &      tx(4)-tx(3)-(tx(2)-tx(1)),
      &      main_block_time
+      call util_flush(luout)
  1235 format(i4,f18.10,2(1p,d11.3,0p),3(f9.2))
 c
       call ecce_print1('ccsd total energy', mt_dbl, eccsd+refener, 1)
@@ -332,6 +332,7 @@ c
       implicit none
 #include "global.fh"
 #include "inp.fh"
+#include "stdio.fh"
       character*(*) t2file
       integer nvir, lhoov
       integer g_t2
@@ -346,10 +347,10 @@ c
 
       if (ga_nodeid().eq. 0) then
          if (ccsd_read_restart) then
-            write(6,*) ' Restarting from old vector in ',
+            write(luout,*) ' Restarting from old vector in ',
      $           t2file(1:inp_strlen(t2file))
          else
-            write(6,*) ' Failed reading restart vector from ',
+            write(luout,*) ' Failed reading restart vector from ',
      $           t2file(1:inp_strlen(t2file))
          endif
       endif
@@ -359,6 +360,7 @@ c
      $     offt2)
       implicit none
 #include "global.fh"
+#include "stdio.fh"
       character*(*) t2file
       integer nvir, lhoov, offt2
       integer g_t2
@@ -372,7 +374,7 @@ c
      $     file_write_ga_patch(t2file,g_t2,offt2+1,offt2+lhoov,1,nvir+1)
 
       if ((.not. ccsd_write_restart) .and. ga_nodeid().eq. 0) 
-     $     write(6,*) ' Write of T2 failed'
+     $     write(luout,*) ' Write of T2 failed'
 c
       end
 

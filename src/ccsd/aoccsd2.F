@@ -4,7 +4,7 @@
      $   CC_Theory, rtdb, mxvec, geom, Tol2e, occd, oconverged)
       implicit none
 #include "errquit.fh"
-C     $Id: aoccsd2.F,v 2.33 2006-02-08 21:06:00 bert Exp $
+C     $Id: aoccsd2.F,v 2.34 2006-12-12 15:56:17 edo Exp $
 c
       integer basis,ncor,nocc,nvir,ndel,nact,nbf,maxit,iprt,
      &        blen,g_objv,g_coul,g_exch,g_ncoul,g_nexch, mxvec
@@ -491,13 +491,13 @@ c the new parallel triples
 c ----------------------------
 c
       mem_avail = ma_inquire_avail(MT_DBL)
-      if(iam.eq.0)write(6,*)'memory',mem_avail
+      if(iam.eq.0)write(luout,*)'memory',mem_avail
       if (occsdps) then
          call pstat_on(ps_tripls)
       else
          call qenter('triples',0)
       endif
-      if (iam.eq.0)write(6,293)
+      if (iam.eq.0)write(luout,293)
  293  format(//,'*********triples calculation*********',/)
       lbfo=lnovv+lnoov+lnoov
       lbfv=lnoov+lnoov+lnoov
@@ -543,10 +543,10 @@ c
       memtrn = moints_trp_mem(basis, vchunk, blen)
 c
       if (iam .eq. 0) then
-         write(6,1101) nkpass, nvpass,memdrv,memtrn,mem_avail
+         write(luout,1101) nkpass, nvpass,memdrv,memtrn,mem_avail
  1101    format('nkpass=',i2,'; nvpass=',i3,'; memdrv=',i15,
      $        '; memtrn=',i15,'; memavail=',i15)
-         call util_flush(6)
+         call util_flush(luout)
       endif
 c
       noper = nodes * 
@@ -604,8 +604,8 @@ c
 c        print *,'call trpdrv ',nvpass
 
 *          if (iam .eq. 0) then
-*            write(6,*) ' Out of MOINTS '
-*            call util_flush(6)
+*            write(luout,*) ' Out of MOINTS '
+*            call util_flush(luout)
 *          endif
 
          if (.not. ma_push_get(MT_DBL,lnvv,'f1n',l_f1n,k_f1n))
@@ -689,7 +689,10 @@ c
          call ga_sync
          tx(2)=tcgtime()
 c
-         if (iam.eq.0)write(6,1846)nvpass
+         if (iam.eq.0) then
+            write(luout,1846)nvpass
+            call util_flush(luout)
+         endif
  1846    format(' commencing triples evaluation ',i8)
          call ccsd_trpdrv(dbl_mb(k_t1),dbl_mb(k_f1n),
      $        dbl_mb(k_f1t),dbl_mb(k_f2n),dbl_mb(k_f2t),
@@ -709,23 +712,28 @@ c
          if (.not. ma_chop_stack(l_f1n)) call errquit
      $        ('ccsd triples: stack corrupt (f1n)',0, MA_ERR)
 
-         if (iam.eq.0)write(6,'(1x,a,i5,f9.2)')
+         if (iam.eq.0)then
+            write(luout,'(1x,a,i5,f9.2)')
      &       'Time for integral evaluation pass ',
      $       nvpass,tx(2)-tx(1)
-         if (iam.eq.0)write(6,'(1x,a,i5,f9.2)')
+            write(luout,'(1x,a,i5,f9.2)')
      &       'Time for triples evaluation pass  ',
      $      nvpass,tx(3)-tx(2)
+            call util_flush(luout)
+         endif
+
       enddo
       empt(1)=empt(1)+empt(1)
       empt(2)=empt(2)+empt(2)
       call ga_dgop(msg_cc_emp2,empt,2, '+')
       eccsdt=empt(1)+empt(2)
       if (iam.eq.0)then
-       write(6,100)empt(1),empt(2),eccsdt
+       write(luout,100)empt(1),empt(2),eccsdt
  100   format(/,
      &     ' pseudo-e(mp4) ',e22.14,/,
      &     ' pseudo-e(mp5) ',e22.14,/,
      &     '        e(t)   ',e22.14,/)
+       call util_flush(luout)
       endif
 
       stat=ga_destroy(g_coul)
@@ -761,7 +769,7 @@ c
             Write (LuOut, '(1X, A, F30.15)')
      $         'Total CCSD(T) energy:      ', RefEner + eccsd + eccsdt
          EndIf
-         call util_flush(6)
+         call util_flush(luout)
       EndIf
 C
 C     Write our energy out to the database
