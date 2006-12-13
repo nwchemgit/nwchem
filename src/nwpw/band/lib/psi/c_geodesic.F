@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.12 2006-12-13 04:34:29 d3p708 Exp $
+* $Id: c_geodesic.F,v 1.13 2006-12-13 20:18:50 d3p708 Exp $
 *
 
 
@@ -103,6 +103,7 @@
       integer V(2),i
       integer asize,nbrill,nex(2),neall,npack1,indx
       real*8 tmp
+      logical value
 *     **** external functions **** 
       logical  Pneb_w_push_get,Pneb_w_pop_stack
       real*8   c_electron_eorbit
@@ -112,6 +113,7 @@
       external Pneb_nbrillq,Pneb_ispinq
 
 
+c      value=MA_set_auto_verify(.true.)
       call nwpw_timing_start(10)   
       call Cram_max_npack(npack1)
 
@@ -122,19 +124,31 @@
 *     **** HomeGrown SVD ****
       nbrill=Pneb_nbrillq()
       call Pneb_neq(nex)
-      neall=nex(1)+nex(2)*(Pneb_ispinq()-1)
+      neall=nex(1)+(nex(2)*(Pneb_ispinq()-1))
+
       call dcopy(nbrill*neall,0.0d0,0,dbl_mb(S(1)),1)
+c      value=MA_verify_allocator_stuff()
+
+        
       call Pneb_SVD(0,0,npack1, 
      >              A, 
      >              dcpl_mb(U(1)),
      >              dbl_mb(S(1)),
      >              dcpl_mb(V(1)) )
 
+
+c      value=MA_verify_allocator_stuff()
+      call Pneb_w_copy_dagger(0,0,dcpl_mb(V(1)),dcpl_mb(Vt(1)))
+
+c      write(*,*)"AXZ1"
+c      value=MA_verify_allocator_stuff()
+c      write(*,*)"AXZ2"
 *     **** find max_sigma ****
       max_sigma = -1.0d200
       indx=S(1)
       do i=1,neall*nbrill
-        max_sigma=dmax1(max_sigma,dbl_mb(indx))
+        tmp=dbl_mb(indx)
+        if (dabs(tmp).gt.max_sigma) max_sigma=tmp
         indx=indx+1
       end do
 
@@ -191,10 +205,12 @@
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
-      call Pneb_SCVtrans1(t,0,0,S,Vt,dcpl_mb(tmp1(1)),
+      call Pneb_SCVtrans1(t,0,0,dbl_mb(S(1)),dcpl_mb(Vt(1)),
+     > dcpl_mb(tmp1(1)),
      > dcpl_mb(tmp3(1)))
-      call Pneb_www_multiply(0,0,Vt,dcpl_mb(tmp3(1)),
+      call Pneb_www_multiply(0,0,dcpl_mb(Vt(1)),dcpl_mb(tmp1(1)),
      > dcpl_mb(tmp2(1)))
+      call BGrsm_f_zero(Ynew)
       call Pneb_fwf_multiply(0,0,Yold,dcpl_mb(tmp2(1)),npack1,Ynew)
       call Pneb_fwf_multiplyAdd(0,0,dcpl_mb(U(1)),dcpl_mb(tmp3(1)),
      > npack1, Ynew )
@@ -255,9 +271,10 @@
       if (.not. value) 
      >   call errquit('out of stack memory',0, MA_ERR)
 
-      call Pneb_SCVtrans2(t,0,0,S,Vt,dcpl_mb(tmp1(1)),
+      call Pneb_SCVtrans2(t,0,0,dbl_mb(S(1)),dcpl_mb(Vt(1)),
+     > dcpl_mb(tmp1(1)),
      > dcpl_mb(tmp3(1)))
-      call Pneb_www_multiply(0,0,Vt,dcpl_mb(tmp1(1)),
+      call Pneb_www_multiply(0,0,dcpl_mb(Vt(1)),dcpl_mb(tmp1(1)),
      > dcpl_mb(tmp2(1)))
       call Pneb_fwf_multiply(0,0,Yold,dcpl_mb(tmp2(1)),npack1,
      >  Ynew)
@@ -334,12 +351,13 @@
      >           dcpl_mb(tmp3(1)))
 
 
-      call Pneb_SCVtrans2(t,0,0,S,Vt,dcpl_mb(tmp1(1)),
+      call Pneb_SCVtrans3(t,0,0,dbl_mb(S(1)),dcpl_mb(Vt(1)),
+     > dcpl_mb(tmp1(1)),
      > dcpl_mb(tmp3(1)))
 
 
 
-      call Pneb_www_multiply(0,0,Vt,dcpl_mb(tmp1(1)),
+      call Pneb_www_multiply(0,0,dcpl_mb(Vt(1)),dcpl_mb(tmp1(1)),
      > dcpl_mb(tmp2(1)))
 
 
@@ -347,7 +365,8 @@
      >  npack1,tG)
 
 
-      call Pneb_fwf_multiplyAdd(0,0,dcpl_mb(U(1)),dcpl_mb(tmp3(1)),
+      call Pneb_fwf_multiplyAdd(0,0,dcpl_mb(U(1)),
+     > dcpl_mb(tmp3(1)),
      > npack1,tG)
 
 
