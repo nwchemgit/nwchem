@@ -1,7 +1,7 @@
 #define TCGMSG
 #define NBLOCKS 2
 *
-* $Id: C3dB-new.F,v 1.21 2006-04-08 00:25:47 bylaska Exp $
+* $Id: C3dB-new.F,v 1.22 2006-12-13 00:36:17 bylaska Exp $
 *
 
 *     ***********************************************************
@@ -1163,14 +1163,14 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 *     *************************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq2(nb)
+      do q=1,nq1(nb)
          !indx = 1 + (q-1)*nx(nb)
          call z1dfft(A(indx),nx(nb),dcpl_mb(tmpx(1,nb)),-2,ierr)
          indx = indx + nx(nb)
       end do
 #else
       indx = 1
-      do q=1,nq2(nb)
+      do q=1,nq1(nb)
          !indx = 1 + (q-1)*ny(nb)
          call dcfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
          indx = indx + nx(nb)
@@ -1325,14 +1325,14 @@ c     call C3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 *     ********************************************
 #ifdef MLIB
       indx = 1
-      do q=1,nq2(nb)
+      do q=1,nq1(nb)
          !indx = 1 + (q-1)*nx(nb)
          call z1dfft(A(indx),nx(nb),dcpl_mb(tmpx(1,nb)),1,ierr)
          indx = indx + nx(nb)
       end do
 #else
       indx = 1
-      do q=1,nq2(nb)
+      do q=1,nq1(nb)
          !indx = 1 + (q-1)*nx(nb)
          call dcfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
          indx = indx + nx(nb)
