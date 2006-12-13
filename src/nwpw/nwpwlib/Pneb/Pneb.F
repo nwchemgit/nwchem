@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.8 2006-12-13 20:22:21 d3p708 Exp $
+* $Id: Pneb.F,v 1.9 2006-12-13 20:29:55 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1939,7 +1939,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     Returns (1-cos(S*t))*V' in A and
 c              sin(St)V' in Bc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine Pneb_SCVtrans3(t,mbb,nbb,S,Vt,A,B)
+      subroutine Pneb_SCVtrans3(t,mbb,nbb,S,A,B)
       implicit none
       real*8 t,S(*)
       integer mbb,nbb
@@ -1962,8 +1962,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             s2=1.0d0-dcos(s2)
             sindx=sindx+1
             do k=1,ne(ms)
-              A(vindx)=s1*Vt(vindx) 
-              B(vindx)=s2*Vt(vindx)
+              A(vindx)=s1*A(vindx) 
+              B(vindx)=s2*B(vindx)
               vindx=vindx+1
             end do
           end do
