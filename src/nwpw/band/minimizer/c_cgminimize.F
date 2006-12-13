@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.14 2006-12-05 00:14:41 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.15 2006-12-13 21:51:32 d3p708 Exp $                       
 *
 
 
@@ -32,7 +32,7 @@ c      complex*16 G1(nfft3d,nemax)
       integer H0(2),G0(2),G1(2)
       real*8  E0,dE0
 
-      real*8     sum0,sum1,sum3,scale,tole,tolc
+      real*8     sum0,sum1,scale,tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,Estart
       common / c_cgsd_block / Enew,Eold,Estart
@@ -114,7 +114,6 @@ c      complex*16 G1(nfft3d,nemax)
      >                      dcpl_mb(G1(1)),
      >                      npack1,sum1)
 
-
       call BGrsm_ff_Copy(dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
 
@@ -132,7 +131,6 @@ c      complex*16 G1(nfft3d,nemax)
       do it=2,it_in
 
 *        **** initialize the geoedesic line data structure ****
-
          call c_geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
 
 
@@ -148,6 +146,10 @@ c      complex*16 G1(nfft3d,nemax)
      >                        cpsi_geodesic_denergy,
      >                        tole,tmin,deltae,1)
 
+c         write(*,*)'e0= ',e0
+c         write(*,*)'de0 = ',de0
+c         write(*,*)'tmin = ',tmin
+c         call flush(6)
          call cpsi_geodesic_final(tmin)
 
          deltac = c_rho_error()
@@ -165,8 +167,8 @@ c      complex*16 G1(nfft3d,nemax)
 
          call cpsi_1geodesic_transport(tmin,dcpl_mb(H0(1)))
 
-         call cpsi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
 
+         call cpsi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
@@ -183,7 +185,7 @@ c      complex*16 G1(nfft3d,nemax)
          call Pneb_ff_traceall(0,0,
      >                        dcpl_mb(G1(1)),
      >                        dcpl_mb(G1(1)),npack1,
-     >                        sum3)
+     >                        sum1)
 
 *        **** the new direction using Fletcher-Reeves ****
          if (dabs(deltae).le.(1.0d-2).and.(tmin.gt.0.0d0)) then
@@ -212,6 +214,7 @@ c      complex*16 G1(nfft3d,nemax)
       end do
 
 *     **** initialize the geoedesic line data structure ****
+
       call c_geodesic_start(dcpl_mb(H0(1)),max_sigma,dE0)
 
 *     ******* line search *********
