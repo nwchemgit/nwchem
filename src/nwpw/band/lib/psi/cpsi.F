@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.27 2006-12-12 21:52:33 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.28 2006-12-13 04:08:49 d3p708 Exp $ *
 
 
 *     ***************************
@@ -608,7 +608,6 @@
       real*8   c_electron_energy
       external c_electron_energy
 
-
       call c_geodesic_get(t,dcpl_mb(psi1(1)),
      >                      dcpl_mb(psi2(1)))
 
@@ -618,10 +617,12 @@
      >                    dcpl_mb(dng2(1)),
      >                    dbl_mb(rho2_all(1)))
 
+
       e_new =  c_electron_energy(dcpl_mb(psi2(1)),
      >                           dbl_mb(rho2(1)),
      >                           dcpl_mb(dng2(1)),
      >                           dbl_mb(rho2_all(1)))
+
 
       cpsi_geodesic_energy = e_new
       return
