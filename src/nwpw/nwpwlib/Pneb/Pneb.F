@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.6 2006-12-12 21:50:08 d3p708 Exp $
+* $Id: Pneb.F,v 1.7 2006-12-13 04:35:48 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1152,7 +1152,7 @@ c     ***** local variables ******
       if (mbb.eq.0) then
          ms1 = 1
          ms2 = ispinq
-         neall = ne(1) + ne(2)
+         neall = ne(1) + ne(2)*(ispinq-1)
       else
          ms1 = mbb
          ms2 = mbb
