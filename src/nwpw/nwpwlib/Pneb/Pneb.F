@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.7 2006-12-13 04:35:48 d3p708 Exp $
+* $Id: Pneb.F,v 1.8 2006-12-13 20:22:21 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1149,10 +1149,10 @@ c     ***** local variables ******
       integer tmp(2)
       integer i,j
 
+      neall=ne(1)+ne(2)*(ispinq-1)
       if (mbb.eq.0) then
          ms1 = 1
          ms2 = ispinq
-         neall = ne(1) + ne(2)*(ispinq-1)
       else
          ms1 = mbb
          ms2 = mbb
@@ -1817,7 +1817,8 @@ c     *                                 *
 c     *             prand               *
 c     *                                 *
 c     ccccccccccccccccccccccccccccccccccc 
-c     returns a psuedorandom number   between 0 and 1               
+c     returns a psuedorandom number   between 0 and 1   
+c     Park Miller algo. not that great but ...            
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8 function prand(idum)
       implicit none
@@ -1886,8 +1887,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do nb=nb1,nb2
         do ms=ms1,ms2
           do j=1,ne(ms)
-            s1=dcos(S(sindx)*t)
-            s2=dsin(S(sindx)*t)
+            s2=S(sindx)*t
+            s1=dcos(s2)
+            s2=dsin(s2)
             sindx=sindx+1
             do k=1,ne(ms)
               A(vindx)=s1*Vt(vindx) 
@@ -1955,12 +1957,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do nb=nb1,nb2
         do ms=ms1,ms2
           do j=1,ne(ms)
-            s1=dsin(S(sindx)*t)
-            s2=dcos(S(sindx)*t)
+            s2=S(sindx)*t
+            s1=dsin(s2)
+            s2=1.0d0-dcos(s2)
             sindx=sindx+1
             do k=1,ne(ms)
               A(vindx)=s1*Vt(vindx) 
-              B(vindx)=Vt(vindx)-s2*Vt(vindx)
+              B(vindx)=s2*Vt(vindx)
               vindx=vindx+1
             end do
           end do
@@ -1983,11 +1986,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       indx=1
       do nb=nb1,nb2
         do ms=ms1,ms2
-          xindx=indx
+          xindx=indx-1
           do i=1,ne(ms)
             do j=1,ne(ms)
               indext=xindx+i+(j-1)*ne(ms)
               B(indext)=Dconjg(A(indx))
+              indx=indx+1
             end do  
           end do
         end do
@@ -2017,7 +2021,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       end do
       return 
       end
-cccccccccccccccccccc
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c
+c  returns a specified value for the w array
+c   no one should really call this...too sloooooow
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 function Pneb_w_value(nb,ms,i,j,W)
       implicit none
       integer nb,ms,i,j
