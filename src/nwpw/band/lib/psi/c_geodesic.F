@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.13 2006-12-13 20:18:50 d3p708 Exp $
+* $Id: c_geodesic.F,v 1.14 2006-12-13 20:31:14 d3p708 Exp $
 *
 
 
@@ -351,7 +351,7 @@ c      write(*,*)"AXZ2"
      >           dcpl_mb(tmp3(1)))
 
 
-      call Pneb_SCVtrans3(t,0,0,dbl_mb(S(1)),dcpl_mb(Vt(1)),
+      call Pneb_SCVtrans3(t,0,0,dbl_mb(S(1)),
      > dcpl_mb(tmp1(1)),
      > dcpl_mb(tmp3(1)))
 
