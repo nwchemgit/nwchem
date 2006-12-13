@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.9 2006-12-13 20:29:55 d3p708 Exp $
+* $Id: Pneb.F,v 1.10 2006-12-13 20:31:51 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1943,7 +1943,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       real*8 t,S(*)
       integer mbb,nbb
-      complex*16 A(*),B(*),Vt(*)
+      complex*16 A(*),B(*)
 #include "Pneb.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
