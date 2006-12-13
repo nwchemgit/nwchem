@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.14 2006-12-13 20:31:14 d3p708 Exp $
+* $Id: c_geodesic.F,v 1.15 2006-12-13 21:53:19 d3p708 Exp $
 *
 
 
@@ -94,7 +94,6 @@
       complex*16 A(*)
       real*8     max_sigma,dE
 
-#include "mafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
 
@@ -113,7 +112,6 @@
       external Pneb_nbrillq,Pneb_ispinq
 
 
-c      value=MA_set_auto_verify(.true.)
       call nwpw_timing_start(10)   
       call Cram_max_npack(npack1)
 
@@ -127,8 +125,6 @@ c      value=MA_set_auto_verify(.true.)
       neall=nex(1)+(nex(2)*(Pneb_ispinq()-1))
 
       call dcopy(nbrill*neall,0.0d0,0,dbl_mb(S(1)),1)
-c      value=MA_verify_allocator_stuff()
-
         
       call Pneb_SVD(0,0,npack1, 
      >              A, 
@@ -137,18 +133,14 @@ c      value=MA_verify_allocator_stuff()
      >              dcpl_mb(V(1)) )
 
 
-c      value=MA_verify_allocator_stuff()
       call Pneb_w_copy_dagger(0,0,dcpl_mb(V(1)),dcpl_mb(Vt(1)))
 
-c      write(*,*)"AXZ1"
-c      value=MA_verify_allocator_stuff()
-c      write(*,*)"AXZ2"
 *     **** find max_sigma ****
       max_sigma = -1.0d200
       indx=S(1)
       do i=1,neall*nbrill
-        tmp=dbl_mb(indx)
-        if (dabs(tmp).gt.max_sigma) max_sigma=tmp
+        tmp=dabs(dbl_mb(indx))
+        if (tmp.gt.max_sigma) max_sigma=tmp
         indx=indx+1
       end do
 
