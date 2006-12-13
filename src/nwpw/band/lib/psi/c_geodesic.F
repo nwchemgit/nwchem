@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.15 2006-12-13 21:53:19 d3p708 Exp $
+* $Id: c_geodesic.F,v 1.16 2006-12-13 21:56:50 d3p708 Exp $
 *
 
 
@@ -93,10 +93,9 @@
       implicit none
       complex*16 A(*)
       real*8     max_sigma,dE
-
+#include "mafdecls.fh"
 #include "errquit.fh"
 #include "c_geodesic_common.fh"
-
 
 *     **** local variables ****
       integer V(2),i
