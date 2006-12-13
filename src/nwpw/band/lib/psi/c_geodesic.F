@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.11 2006-12-13 04:08:21 d3p708 Exp $
+* $Id: c_geodesic.F,v 1.12 2006-12-13 04:34:29 d3p708 Exp $
 *
 
 
@@ -122,10 +122,7 @@
 *     **** HomeGrown SVD ****
       nbrill=Pneb_nbrillq()
       call Pneb_neq(nex)
-      neall=nex(1)
-      if (Pneb_ispinq().eq.2) then
-        neall=neall+nex(2)
-      end if      
+      neall=nex(1)+nex(2)*(Pneb_ispinq()-1)
       call dcopy(nbrill*neall,0.0d0,0,dbl_mb(S(1)),1)
       call Pneb_SVD(0,0,npack1, 
      >              A, 
@@ -137,7 +134,8 @@
       max_sigma = -1.0d200
       indx=S(1)
       do i=1,neall*nbrill
-        tmp=dmax1(tmp,dbl_mb(indx))
+        max_sigma=dmax1(max_sigma,dbl_mb(indx))
+        indx=indx+1
       end do
 
 *     **** calculate 2*<A|H|psi> ****
