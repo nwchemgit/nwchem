@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.12 2006-12-16 01:35:31 d3p708 Exp $
+* $Id: Pneb.F,v 1.13 2006-12-16 01:54:00 bylaska Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -842,15 +842,16 @@ c     ****************************************
       
 c     ****************************************
 c     *                                      *
-c     *          Pneb_fwf_multiply           *
+c     *          Pneb_fwf_Multiply           *
 c     *                                      *
 c     ****************************************
 
-      subroutine Pneb_fwf_multiply(mb,nbb,Y1,hml,npack1,Y2)
+      subroutine Pneb_fwf_Multiply(mb,nbb,alpha,Y1,npack1,hml,beta,Y2)
       implicit none
       integer mb,nbb
       complex*16 Y1(*),Y2(*),hml(*)
       integer npack1
+      complex*16 alpha,beta
 
 #include "Pneb.fh"
 
@@ -890,11 +891,11 @@ c     ****************************************
             if (n.eq.0) go to 30
 
               call Cram_cmc_zgemm(nb,n,n,Y1(shift),Y2(shift),
-     >                            one,zero,hml(shift2))
+     >                            alpha,beta,hml(shift2))
 
               if (spin_orbit) then
                  call Cram_cmc_zgemm(nb,n,n,Y1(shiftso),Y2(shiftso),
-     >                               one,zero,hml(shift2))
+     >                               alpha,beta,hml(shift2))
               end if
 
  30         continue
@@ -1143,11 +1144,13 @@ c     ccccccccccccccccccccccccccccccccccccccccccc
 #include "Pneb.fh"
 
 c     ***** local variables ******
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0),one=(1.0d0,0.0d0))
+
       integer soshift,shift1,shift2,n,neall
       integer ms,ms1,ms2,nb,nb1,nb2
       real*8  tsum
       integer tmp(2)
-      integer i,j
 
       neall=ne(1)+ne(2)*(ispinq-1)
       if (mbb.eq.0) then
@@ -1183,7 +1186,7 @@ c     **** sqrt(S*S) ****
       end do
 
 c     *** compute U*S=Y*V ****
-      call Pneb_fwf_multiply(mbb,nbb,Y,V,npack1,U)
+      call Pneb_fwf_Multiply(mbb,nbb,one,Y,npack1,V,zero,U)
 
 *     **** normalize U*S ****
       if (.not.MA_push_get(mt_dbl,neq(1),'tmp',tmp(2),tmp(1)))
@@ -1367,8 +1370,8 @@ c     ccccc local variables ccccc
       PARAMETER(MASTER=0)
 
       logical oprint
-      integer asize,indx,i
-      integer nb,nb1,nb2,ms,ms1,ms2,nemax,sm2(2),sm3(2)
+      integer asize,indx
+      integer nb,nb1,nb2,ms,ms1,ms2,sm2(2),sm3(2)
       integer indx2,indx3
       logical gram,value
       real*8  sum1,sum2,sum3
@@ -1492,15 +1495,17 @@ c     ccccccccccccccccccccccccccccccccccccccccccccccc
 #include "errquit.fh"
 #include "Pneb.fh"
 
-      integer taskid,MASTER,last_ix
+c     ***** local variables ****
+      integer taskid,MASTER
       parameter(MASTER=0)
+
       integer nb,nb1,nb2,ms,ms1,ms2,j,k,bindex
-      real*8 error
       integer index11,index21,index22,index12,bshift,soshift,nemax
+      real*8     error
       complex*16 w,wc1,wc2
       character*255 full_filename
-      character*7 p_index_name
-      external p_index_name
+      character*7   p_index_name
+      external      p_index_name
 
 c     ccccccccc first line ccccccccc
       if (nbb.eq.0) then
@@ -1868,111 +1873,275 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end if
       return
       end            
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+
+c     *********************************************
+c     *                                           *
+c     *          Pneb_SCVTrans1                   *
+c     *                                           *
+c     *********************************************
+
 c     return cos(S*t)V' = A and sin(S*t)*V'=B
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine Pneb_SCVtrans1(t,mbb,nbb,S,Vt,A,B)
+
+      subroutine Pneb_SCVtrans1(mbb,nbb,t,S,Vt,A,B,SA,SB)
       implicit none
-      real*8 t,S(*)
-      integer mbb,nbb
+      integer    mbb,nbb
+      real*8     t
+      real*8     S(*)
       complex*16 A(*),B(*),Vt(*)
+      real*8     SA(*),SB(*)
+
 #include "Pneb.fh"
-      real*8 s1,s2
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,xindx
+
+c     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,nj
+      integer ishift11,ishift12,shift1
+      integer ishift21,ishift22,shift2
+      integer indx1,indx2
+
+
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-      sindx=1
-      xindx=0
-      do nb=nb1,nb2
-        do ms=ms1,ms2
-          do j=1,ne(ms)
-            s2=S(sindx)*t
-            s1=dcos(s2)
-            s2=dsin(s2)
-            sindx=sindx+1
-            do k=1,ne(ms)
-              vindx=xindx+j+(k-1)*ne(ms)
-              A(vindx)=s1*Vt(vindx) 
-              B(vindx)=s2*Vt(vindx)
-            end do
-          end do
-          xindx=xindx+ne(ms)*ne(ms)
-        end do
+      if (mbb.eq.0) then
+         if (spin_orbit) then
+            nj = ne(1)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         else
+            nj = ne(1) + ne(2)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         end if
+      else
+        nj = ne(mbb)
+        ishift11 = 0
+        ishift21 = 0
+      end if
+
+      if (nbb.eq.0) then
+         nj = nj*nbrillq
+         if (spin_orbit) then
+            ishift12 = ne(1)
+            ishift22 = ne(1)*ne(1)
+         else
+            ishift12 = ne(1)+ne(2)
+            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift12 = 0
+         ishift22 = 0
+      end if
+
+
+      do j=1,nj
+         SA(j) = dcos(S(j)*t)
+         SB(j) = dsin(S(j)*t)
       end do
+
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+
+         if (ne(ms).le.0) go to 30
+         shift1 = 1 + (ms-ms1)*ishift11 + (nb-nb1)*ishift12
+         shift2 = 1 + (ms-ms1)*ishift21 + (nb-nb1)*ishift22
+
+         indx2 = shift2
+         do k=1,ne(ms)
+            indx1 = shift1
+            do j=1,ne(ms)
+               A(indx2)=SA(indx1)*Vt(indx2)
+               B(indx2)=SB(indx1)*Vt(indx2)
+               indx2 = indx2 + 1
+               indx1 = indx1 + 1
+            end do
+         end do
+
+  30     continue
+      end do
+      end do
+
       return
       end
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+c     *********************************************
+c     *                                           *
+c     *          Pneb_SCVTrans2                   *
+c     *                                           *
+c     *********************************************
+
 c     returns S*sin(S*t)*V' = A 
 c         and S*cos(S*t)*V' = B
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine Pneb_SCVtrans2(t,mbb,nbb,S,Vt,A,B)
+
+      subroutine Pneb_SCVtrans2(mbb,nbb,t,S,Vt,A,B,SA,SB)
       implicit none
-      real*8 t,S(*)
-      integer nbb,mbb
-      complex*16 A(*),B(*),Vt(*)
+      integer    nbb,mbb
+      real*8     t
+      real*8     S(*)
+      complex*16 Vt(*),A(*),B(*)
+      real*8     SA(*),SB(*)
+
 #include "Pneb.fh"
-      real*8 s1,s2
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,xindx
+
+c     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,nj
+      integer ishift11,ishift12,shift1
+      integer ishift21,ishift22,shift2
+      integer indx1,indx2
+      
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-      sindx=1
-      xindx=0
-      do nb=nb1,nb2
-        do ms=ms1,ms2
-          do j=1,ne(ms)
-            s2=S(sindx)
-            s1=s2*dsin(s2*t)
-            s2=s2*dcos(s2*t)
-            sindx=sindx+1
-            do k=1,ne(ms)
-              vindx=xindx+j+(k-1)*ne(ms)
-              A(vindx)=s1*Vt(vindx) 
-              B(vindx)=s2*Vt(vindx)
-            end do
-          end do
-          xindx=xindx+ne(ms)*ne(ms)
-        end do
+      if (mbb.eq.0) then
+         if (spin_orbit) then
+            nj = ne(1)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         else
+            nj = ne(1) + ne(2)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         end if
+      else
+        nj = ne(mbb)
+        ishift11 = 0
+        ishift21 = 0
+      end if
+
+      if (nbb.eq.0) then
+         nj = nj*nbrillq
+         if (spin_orbit) then
+            ishift12 = ne(1)
+            ishift22 = ne(1)*ne(1) 
+         else
+            ishift12 = ne(1)+ne(2)
+            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift12 = 0
+         ishift22 = 0
+      end if
+
+      do j=1,nj
+         SA(j) = S(j)*dsin(S(j)*t)
+         SB(j) = S(j)*dcos(S(j)*t)
       end do
+      
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+
+         if (ne(ms).le.0) go to 30
+         shift1 = 1 + (ms-ms1)*ishift11 + (nb-nb1)*ishift12
+         shift2 = 1 + (ms-ms1)*ishift21 + (nb-nb1)*ishift22
+
+         indx2 = shift2
+         do k=1,ne(ms)
+            indx1 = shift1
+            do j=1,ne(ms)
+               A(indx2)=SA(indx1)*Vt(indx2) 
+               B(indx2)=SB(indx1)*Vt(indx2)
+               indx2 = indx2 + 1
+               indx1 = indx1 + 1
+            end do
+         end do
+
+  30     continue
+      end do
+      end do
+
       return
       end
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
+
+
+c     *********************************************
+c     *                                           *
+c     *          Pneb_SCVTrans3                   *
+c     *                                           *
+c     *********************************************
+
 c     Returns (1-cos(S*t))*V' in A and
 c              sin(St)V' in Bc
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine Pneb_SCVtrans3(t,mbb,nbb,S,A,B)
+
+      subroutine Pneb_SCVtrans3(mbb,nbb,t,S,Vt,A,B,SA,SB)
       implicit none
-      real*8 t,S(*)
-      integer mbb,nbb
-      complex*16 A(*),B(*)
+      integer    mbb,nbb
+      real*8     t
+      real*8     S(*)
+      complex*16 Vt(*),A(*),B(*)
+      real*8     SA(*),SB(*)
+
 #include "Pneb.fh"
-#include "errquit.fh"
-#include "mafdecls.fh"
-      real*8 s1,s2
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,xindx
+
+c     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,nj
+      integer ishift11,ishift12,shift1
+      integer ishift21,ishift22,shift2
+      integer indx1,indx2
+
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-      sindx=1
-      xindx=0
-      do nb=nb1,nb2
-        do ms=ms1,ms2
-          do j=1,ne(ms)
-            s2=S(sindx)*t
-            s1=dsin(s2)
-            s2=1.0d0-dcos(s2)
-            sindx=sindx+1
-            do k=1,ne(ms)
-              vindx=xindx+j+(k-1)*ne(ms)
-              A(vindx)=s1*A(vindx) 
-              B(vindx)=s2*B(vindx)
-            end do
-          end do
-          xindx=xindx+ne(ms)*ne(ms)
-       end do
+      if (mbb.eq.0) then
+         if (spin_orbit) then
+            nj = ne(1)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         else
+            nj = ne(1) + ne(2)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         end if
+      else
+        nj = ne(mbb)
+        ishift11 = 0
+        ishift21 = 0
+      end if
+
+      if (nbb.eq.0) then
+         nj = nj*nbrillq
+         if (spin_orbit) then
+            ishift12 = ne(1)
+            ishift22 = ne(1)*ne(1)
+         else
+            ishift12 = ne(1)+ne(2)
+            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift12 = 0
+         ishift22 = 0
+      end if
+
+      do j=1,nj
+         SA(j) = dsin(S(j)*t)
+         SB(j) = 1.0d0-dcos(S(j)*t)
       end do
+
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+
+         if (ne(ms).le.0) go to 30
+         shift1 = 1 + (ms-ms1)*ishift11 + (nb-nb1)*ishift12
+         shift2 = 1 + (ms-ms1)*ishift21 + (nb-nb1)*ishift22
+
+         indx2 = shift2
+         do k=1,ne(ms)
+            indx1 = shift1
+            do j=1,ne(ms)
+               A(indx2)=SA(indx1)*Vt(indx2)
+               B(indx2)=SB(indx1)*Vt(indx2)
+               indx2 = indx2 + 1
+               indx1 = indx1 + 1
+            end do
+         end do
+
+  30     continue
+      end do
+      end do
+
+
+
       return
       end
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
 c   Copies the Hermitian Conjugate of A into B
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -1980,7 +2149,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer mbb,nbb
       complex*16 A(*),B(*)
+
 #include "Pneb.fh"
+
       integer nb,nb1,nb2,ms,ms1,ms2,indx,indext,i,j,xindx
 
       call assign_nb(nbb,nb1,nb2) 
@@ -2025,7 +2196,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-c  returns a specified value from a w matrix, W. 
+c  returns a specified value for the w array
 c   no one should really call this...too sloooooow
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 function Pneb_w_value(nb,ms,i,j,W)
@@ -2046,15 +2217,177 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end  
 ccccccccccccccccc
- 
- 
-        
 
 
 
 
+c     ccccccccccccccccccccccccccccccccccccccccccc
+c     *                                         *
+c     *           Pneb_www_Multiply1            *
+c     *                                         *
+c     ccccccccccccccccccccccccccccccccccccccccccc
+
+c    returns C = beta*C + alpha*A*B
+
+      subroutine Pneb_www_Multiply1(mbb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*),B(*),C(*)
+      complex*16 alpha,beta
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms1,ms2,nb1,nb2,indx,ms,nb
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      indx=1
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+         call ZGEMM('N','N',ne(ms),ne(ms),ne(ms),
+     >              alpha,
+     >              A(indx),ne(ms),
+     >              B(indx),ne(ms),
+     >              beta,
+     >              C(indx),ne(ms))
+        indx = indx + ne(ms)*ne(ms)
+      end do
+      end do
+      return
+      end
 
 
+c     ccccccccccccccccccccccccccccccccccccccccccc
+c     *                                         *
+c     *           Pneb_www_Multiply2            *
+c     *                                         *
+c     ccccccccccccccccccccccccccccccccccccccccccc
+  
+c    returns C = beta*C + alpha*conjg(A')*B
+c
+      subroutine Pneb_www_Multiply2(mbb,nbb,alpha,A,B,beta,C)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*),B(*),C(*)
+      complex*16 alpha,beta
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms1,ms2,nb1,nb2,indx,ms,nb
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      indx=1
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+         call ZGEMM('C','N',ne(ms),ne(ms),ne(ms),
+     >              alpha,
+     >              A(indx),ne(ms),
+     >              B(indx),ne(ms),
+     >              beta,
+     >              C(indx),ne(ms))
+        indx = indx + ne(ms)*ne(ms)
+      end do
+      end do
+      return
+      end
 
 
-                        
+c     ccccccccccccccccccccccccccccccccccccccccccc
+c     *                                         *
+c     *           Pneb_www_Multiply3            *
+c     *                                         *
+c     ccccccccccccccccccccccccccccccccccccccccccc
+
+c    returns C = beta*C + alpha*A*conj(B')
+
+      subroutine Pneb_www_Multiply3(mbb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*),B(*),C(*)
+      complex*16 alpha,beta
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms1,ms2,nb1,nb2,indx,ms,nb
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      indx=1
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+         call ZGEMM('N','C',ne(ms),ne(ms),ne(ms),
+     >              alpha,
+     >              A(indx),ne(ms),
+     >              B(indx),ne(ms),
+     >              beta,
+     >              C(indx),ne(ms))
+        indx = indx + ne(ms)*ne(ms)
+      end do
+      end do
+      return
+      end
+
+
+c     ccccccccccccccccccccccccccccccccccccccccccc
+c     *                                         *
+c     *               Pneb_w_dmax               *
+c     *                                         *
+c     ccccccccccccccccccccccccccccccccccccccccccc
+
+      real*8 function Pneb_w_dmax(mbb,nbb,A)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms1,ms2,nb1,nb2,ishift2,ishift3,shift2,nb,ms
+      real*8 adiff1,adiff2
+      complex*16 wt
+
+*     **** external functions ****
+      integer  izamax
+      external izamax
+
+      call assign_ms(mbb,ms1,ms2)
+      call assign_nb(nbb,nb1,nb2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+            ishift3 = ne(1)*ne(1)
+         else
+            ishift3 = ne(1)*ne(1)+ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+
+      adiff1 = 0.0d0
+      adiff2 = 0.0d0
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+         if (ne(ms).le.0) go to 30
+
+         shift2 = 1 + (ms-ms1)*ishift2 + (nb-nb1)*ishift3
+
+         wt     = A(shift2-1+izamax(ne(ms)*ne(ms),A(shift2),1))
+         adiff1 = adiff2
+         adiff2 = dble(wt)**2 + dimag(wt)**2
+         if (adiff2.gt.adiff1) adiff1 = adiff2
+  30     continue
+      end do
+      end do
+
+      Pneb_w_dmax = adiff1
+      return
+      end
+

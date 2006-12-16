@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.22 2006-12-12 21:55:56 d3p708 Exp $
+* $Id: c_electron.F,v 1.23 2006-12-16 01:54:00 bylaska Exp $
 *
 
 
@@ -591,10 +591,16 @@ cccccccccccccccccc
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-*     ***** local variables ****
+*     **** local variables ****
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
 
-
-      call Pneb_fwf_Multiply(0,0,psi_k,hml,npack1,THpsi_k)
+      call Pneb_fwf_Multiply(0,0,
+     >                       one,
+     >                       psi_k,npack1,
+     >                       hml,
+     >                       zero,
+     >                       THpsi_k)
 
       call BGrsm_fff_sub(dcpl_mb(Hpsi_k(1)),
      >                   THpsi_k,

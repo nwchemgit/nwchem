@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.15 2006-12-13 21:51:32 d3p708 Exp $                       
+*     $Id: c_cgminimize.F,v 1.16 2006-12-16 01:54:00 bylaska Exp $                       
 *
 
 
@@ -109,6 +109,7 @@ c      complex*16 G1(nfft3d,nemax)
 *     ***** get the initial gradient and direction ****
       call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
 
+
       call Pneb_ff_traceall(0,0,
      >                      dcpl_mb(G1(1)),
      >                      dcpl_mb(G1(1)),
@@ -118,6 +119,7 @@ c      complex*16 G1(nfft3d,nemax)
      >                   dcpl_mb(H0(1)))
 
  
+
 *     ******************************************
 *     ****                                  ****
 *     **** Start of conjugate gradient loop ****
@@ -166,8 +168,6 @@ c         call flush(6)
 
 
          call cpsi_1geodesic_transport(tmin,dcpl_mb(H0(1)))
-
-
          call cpsi_1geodesic_Gtransport(tmin,dcpl_mb(G0(1)))
 
 *        **** make psi1 <--- psi2(tmin) ****

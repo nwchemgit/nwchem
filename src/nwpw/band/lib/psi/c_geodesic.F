@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.16 2006-12-13 21:56:50 d3p708 Exp $
+* $Id: c_geodesic.F,v 1.17 2006-12-16 01:54:00 bylaska Exp $
 *
 
 
@@ -99,9 +99,9 @@
 
 *     **** local variables ****
       integer V(2),i
-      integer asize,nbrill,nex(2),neall,npack1,indx
+      integer nbrill,nex(2),neall,npack1,indx
       real*8 tmp
-      logical value
+      
 *     **** external functions **** 
       logical  Pneb_w_push_get,Pneb_w_pop_stack
       real*8   c_electron_eorbit
@@ -132,6 +132,7 @@
      >              dcpl_mb(V(1)) )
 
 
+*     **** calculate Vt ****
       call Pneb_w_copy_dagger(0,0,dcpl_mb(V(1)),dcpl_mb(Vt(1)))
 
 *     **** find max_sigma ****
@@ -176,46 +177,72 @@
 #include "c_geodesic_common.fh"
 
 *     **** local variables ****
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+
       logical    value
-      integer    npack1,asize
-      integer    tmp1(2),tmp2(2),tmp3(2)
+      integer    npack1,nemax
+      integer    tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2)
 
 
 *     **** external functions ****
-      logical Pneb_w_push_get,Pneb_w_pop_stack
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      integer  cpsi_ne,Pneb_nbrillq
       external Pneb_w_push_get,Pneb_w_pop_stack
+      external cpsi_ne,Pneb_nbrillq
  
-      value=MA_set_auto_verify(.true.)
       call nwpw_timing_start(10)
       call Cram_max_npack(npack1)
+      nemax = cpsi_ne(1)+cpsi_ne(2)
+      nemax = nemax*Pneb_nbrillq()
 
 *     **** allocate tmp space ****
       value = Pneb_w_push_get(0,0,tmp1)
       value = value.and.Pneb_w_push_get(0,0,tmp2)
       value = value.and.Pneb_w_push_get(0,0,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
+     > call errquit('c_geodesic_get: out of stack memory',0,MA_ERR)
 
-      call Pneb_SCVtrans1(t,0,0,dbl_mb(S(1)),dcpl_mb(Vt(1)),
-     > dcpl_mb(tmp1(1)),
-     > dcpl_mb(tmp3(1)))
-      call Pneb_www_multiply(0,0,dcpl_mb(Vt(1)),dcpl_mb(tmp1(1)),
-     > dcpl_mb(tmp2(1)))
-      call BGrsm_f_zero(Ynew)
-      call Pneb_fwf_multiply(0,0,Yold,dcpl_mb(tmp2(1)),npack1,Ynew)
-      call Pneb_fwf_multiplyAdd(0,0,dcpl_mb(U(1)),dcpl_mb(tmp3(1)),
-     > npack1, Ynew )
+      call Pneb_SCVtrans1(0,0,t,
+     >                    dbl_mb(S(1)),
+     >                    dcpl_mb(Vt(1)),
+     >                    dcpl_mb(tmp1(1)),
+     >                    dcpl_mb(tmp3(1)),
+     >                    dbl_mb(tmpC(1)),
+     >                    dbl_mb(tmpS(1)))
+
+      call Pneb_www_Multiply2(0,0,
+     >                        one,
+     >                        dcpl_mb(Vt(1)),
+     >                        dcpl_mb(tmp1(1)),
+     >                        zero,
+     >                        dcpl_mb(tmp2(1)))
+
+      call Pneb_fwf_Multiply(0,0,
+     >                       one,
+     >                       Yold,npack1,
+     >                       dcpl_mb(tmp2(1)),
+     >                       zero,
+     >                       Ynew)
+
+      call Pneb_fwf_Multiply(0,0,
+     >                       one,
+     >                       dcpl_mb(U(1)),npack1,
+     >                       dcpl_mb(tmp3(1)),
+     >                       one,
+     >                       Ynew)
 
 *     **** Orthonormality Check ****
-
       call Pneb_orthocheckmake(.true.,0,0,npack1,Ynew)     
 
 *     **** deallocate tmp space ****     
-      value = Pneb_w_pop_stack(tmp3)
-      value = value.and.
-     >        Pneb_w_pop_stack(tmp2)
-      value = value.and.
-     >        Pneb_w_pop_stack(tmp1)
+      value =           MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.Pneb_w_pop_stack(tmp3)
+      value = value.and.Pneb_w_pop_stack(tmp2)
+      value = value.and.Pneb_w_pop_stack(tmp1)
       if (.not. value) 
      > call errquit('error popping stack memory',0, MA_ERR)
 
@@ -235,51 +262,78 @@
 
       subroutine c_geodesic_transport(t,Yold,Ynew)
       implicit none
-#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 Ynew(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_geodesic_common.fh"
 
 *     **** local variables ****
-      integer    npack1
+      complex*16 zero,one,mone
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+      parameter (mone=(-1.0d0,0.0d0))
+      integer    npack1,nemax
       logical    value
-      integer    tmp1(2),tmp2(2),tmp3(2)
+      integer    tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2)
 
 *     **** external functions ****
-      logical Pneb_w_push_get,Pneb_w_pop_stack
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      integer  cpsi_ne,Pneb_nbrillq
       external Pneb_w_push_get,Pneb_w_pop_stack
+      external cpsi_ne,Pneb_nbrillq
 
       call nwpw_timing_start(10)
       call Cram_max_npack(npack1)
+      nemax = cpsi_ne(1)+cpsi_ne(2)
+      nemax = nemax*Pneb_nbrillq()
 
 *     **** allocate tmp space ****
-      value = Pneb_w_push_get(0,0,tmp1)
+      value =           Pneb_w_push_get(0,0,tmp1)
       value = value.and.Pneb_w_push_get(0,0,tmp2)
       value = value.and.Pneb_w_push_get(0,0,tmp3)
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
       if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
+     > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
 
-      call Pneb_SCVtrans2(t,0,0,dbl_mb(S(1)),dcpl_mb(Vt(1)),
-     > dcpl_mb(tmp1(1)),
-     > dcpl_mb(tmp3(1)))
-      call Pneb_www_multiply(0,0,dcpl_mb(Vt(1)),dcpl_mb(tmp1(1)),
-     > dcpl_mb(tmp2(1)))
-      call Pneb_fwf_multiply(0,0,Yold,dcpl_mb(tmp2(1)),npack1,
-     >  Ynew)
-      call Pneb_fwf_multiplyAdd(0,0,dcpl_mb(U(1)),dcpl_mb(tmp3(1)),
-     > npack1,Ynew)
+      call Pneb_SCVtrans2(0,0,t,
+     >                   dbl_mb(S(1)),
+     >                   dcpl_mb(Vt(1)),
+     >                   dcpl_mb(tmp1(1)),
+     >                   dcpl_mb(tmp3(1)),
+     >                   dbl_mb(tmpC(1)),
+     >                   dbl_mb(tmpS(1)))
+      call Pneb_www_Multiply2(0,0,
+     >                       one,
+     >                       dcpl_mb(Vt(1)),
+     >                       dcpl_mb(tmp1(1)),
+     >                       zero,
+     >                       dcpl_mb(tmp2(1)))
+
+      call Pneb_fwf_Multiply(0,0,
+     >                       mone,
+     >                       Yold,npack1,
+     >                       dcpl_mb(tmp2(1)),
+     >                       zero,
+     >                       Ynew)
+
+      call Pneb_fwf_Multiply(0,0,
+     >                       one,
+     >                       dcpl_mb(U(1)),npack1,
+     >                       dcpl_mb(tmp3(1)),
+     >                       one,
+     >                       Ynew)
 
 *     **** deallocate tmp space ****     
-      value = Pneb_w_pop_stack(tmp3)
-      value = value.and.
-     >        Pneb_w_pop_stack(tmp2)
-      value = value.and.
-     >        Pneb_w_pop_stack(tmp1)
+      value =           MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.Pneb_w_pop_stack(tmp3)
+      value = value.and.Pneb_w_pop_stack(tmp2)
+      value = value.and.Pneb_w_pop_stack(tmp1)
       if (.not. value) 
-     > call errquit('error popping stack memory',0, MA_ERR)
+     > call errquit('c_geodesic_transport:error popping stack',0,MA_ERR)
 
       call nwpw_timing_end(10)
 
@@ -298,77 +352,90 @@
 
       subroutine c_geodesic_Gtransport(t,Yold,tG)
       implicit none
-#include "errquit.fh"
       real*8     t
       complex*16 Yold(*)
       complex*16 tG(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "c_geodesic_common.fh"
 
 
 *     **** local variables ****
-      integer npack1
-      integer tmp1(2),tmp2(2),tmp3(2)
-      logical value
+      complex*16 zero,one,mone
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+      parameter (mone=(-1.0d0,0.0d0))
+      integer    npack1,nemax
+      logical    value
+      integer    tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2)
+
 *     **** external functions ****
-      logical Pneb_w_push_get,Pneb_w_pop_stack
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      integer  cpsi_ne,Pneb_nbrillq
       external Pneb_w_push_get,Pneb_w_pop_stack
+      external cpsi_ne,Pneb_nbrillq
 
-      
       call nwpw_timing_start(10)
-
       call Cram_max_npack(npack1)
+      nemax = cpsi_ne(1)+cpsi_ne(2)
+      nemax = nemax*Pneb_nbrillq()
+
 
 *     **** allocate tmp space ****
-
-      value = Pneb_w_push_get(0,0,tmp1)
+      value =           Pneb_w_push_get(0,0,tmp1)
       value = value.and.Pneb_w_push_get(0,0,tmp2)
       value = value.and.Pneb_w_push_get(0,0,tmp3)
-      if (.not. value) 
-     >   call errquit('out of stack memory',0, MA_ERR)
-
-*     ***** calculate U^t * G ****
-
-      call Pneb_ffw_multiply(0,0,
-     >                  dcpl_mb(U(1)),
-     >                  tG,
-     >                  npack1,
-     >                  dcpl_mb(tmp1(1)))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.MA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not. value)
+     > call errquit('c_geodesic_transport:out of stack memory',0,MA_ERR)
 
 
-      call Pneb_w_copy(0,0,
-     >           dcpl_mb(tmp1(1)),
-     >           dcpl_mb(tmp3(1)))
-
-
-      call Pneb_SCVtrans3(t,0,0,dbl_mb(S(1)),
-     > dcpl_mb(tmp1(1)),
-     > dcpl_mb(tmp3(1)))
+      call Pneb_ffw_Multiply(0,0,
+     >                       dcpl_mb(U(1)),
+     >                       tG,npack1,
+     >                       dcpl_mb(tmp2(1)))
 
 
 
-      call Pneb_www_multiply(0,0,dcpl_mb(Vt(1)),dcpl_mb(tmp1(1)),
-     > dcpl_mb(tmp2(1)))
+      call Pneb_SCVtrans3(0,0,t,
+     >                   dbl_mb(S(1)),
+     >                   dcpl_mb(tmp2(1)),
+     >                   dcpl_mb(tmp1(1)),
+     >                   dcpl_mb(tmp3(1)),
+     >                   dbl_mb(tmpC(1)),
+     >                   dbl_mb(tmpS(1)))
+
+      call Pneb_www_Multiply2(0,0,
+     >                       one,
+     >                       dcpl_mb(Vt(1)),
+     >                       dcpl_mb(tmp1(1)),
+     >                       zero,
+     >                       dcpl_mb(tmp2(1)))
+
+      call Pneb_fwf_Multiply(0,0,
+     >                       mone,
+     >                       Yold,npack1,
+     >                       dcpl_mb(tmp2(1)),
+     >                       zero,
+     >                       tG)
+
+      call Pneb_fwf_Multiply(0,0,
+     >                       mone,
+     >                       dcpl_mb(U(1)),npack1,
+     >                       dcpl_mb(tmp3(1)),
+     >                       one,
+     >                       tG)
 
 
-      call Pneb_fwf_multiply(0,0,Yold,dcpl_mb(tmp2(1)),
-     >  npack1,tG)
-
-
-      call Pneb_fwf_multiplyAdd(0,0,dcpl_mb(U(1)),
-     > dcpl_mb(tmp3(1)),
-     > npack1,tG)
-
-
-*     **** deallocate tmp space ****     
-      value = Pneb_w_pop_stack(tmp3)
-      value = value.and.
-     >        Pneb_w_pop_stack(tmp2)
-      value = value.and.
-     >        Pneb_w_pop_stack(tmp1)
-      if (.not. value) 
-     > call errquit('error popping stack memory',0,MA_ERR)
+*     **** deallocate tmp space ****
+      value =           MA_pop_stack(tmpS(2))
+      value = value.and.MA_pop_stack(tmpC(2))
+      value = value.and.Pneb_w_pop_stack(tmp3)
+      value = value.and.Pneb_w_pop_stack(tmp2)
+      value = value.and.Pneb_w_pop_stack(tmp1)
+      if (.not. value)
+     > call errquit('c_geodesic_transport:error popping stack',0,MA_ERR)
 
       call nwpw_timing_end(10)
 

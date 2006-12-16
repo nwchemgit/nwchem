@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.28 2006-12-13 04:08:49 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.29 2006-12-16 01:54:00 bylaska Exp $ *
 
 
 *     ***************************
@@ -464,16 +464,13 @@
      >                   dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)))
 
-
       E0 = c_electron_energy(dcpl_mb(psi1(1)),
      >                       dbl_mb(rho1(1)),
      >                       dcpl_mb(dng1(1)),
      >                       dbl_mb(rho1_all(1)))
 
-
       call c_electron_gen_hml(dcpl_mb(psi1(1)),
      >                       dcpl_mb(tmp1(1)))
-
 
       call c_electron_get_Tgradient(dcpl_mb(psi1(1)),
      >                             dcpl_mb(tmp1(1)),
@@ -1090,9 +1087,15 @@ c      end if
 #include "cpsi_common.fh"
 
 *     ***** local variables *****
-      call Pneb_fwf_Multiply(0,0,dcpl_mb(psi1(1)),dcpl_mb(hml(1)),
-     >          npack1,
-     >          dcpl_mb(psi2(1)))
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+
+      call Pneb_fwf_Multiply(0,0,
+     >                       one,
+     >                       dcpl_mb(psi1(1)),npack1,
+     >                       dcpl_mb(hml(1)),
+     >                       zero,
+     >                       dcpl_mb(psi2(1)))
 
       return
       end
