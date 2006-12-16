@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.11 2006-12-16 01:25:34 d3p708 Exp $
+* $Id: Pneb.F,v 1.12 2006-12-16 01:35:31 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1963,7 +1963,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             s2=1.0d0-dcos(s2)
             sindx=sindx+1
             do k=1,ne(ms)
-              vindx=vindx+j+(k-1)*ne(ms)
+              vindx=xindx+j+(k-1)*ne(ms)
               A(vindx)=s1*A(vindx) 
               B(vindx)=s2*B(vindx)
             end do
