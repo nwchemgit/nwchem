@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.11 2006-11-29 02:34:54 d3p708 Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.12 2006-12-16 02:16:16 d3p708 Exp $                       
 *
 
 *     ***************************
@@ -46,7 +46,8 @@
       real*8   brillioun_k,brillioun_ks,brillioun_weight
       external brillioun_nbrillioun
       external brillioun_k,brillioun_ks,brillioun_weight
-
+      integer Pneb_ispin,Pneb_ispinq
+      external Pneb_ispin,Pneb_ispinq
 
       call Parallel_taskid(taskid)
 
@@ -236,12 +237,21 @@ c         write(luout,1210) GX,GY,GZ
              write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
      >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
            end do
-           do i=0,cpsi_ne(2)-1
-             write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+           if (Pneb_ispinq().eq.Pneb_ispin()) then
+
+             do i=0,cpsi_ne(2)-1
+               write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
      >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
-           end do
+             end do
+           else
+
+             do i=0,cpsi_ne(1)-1
+                write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
+             end do
+           end if
          end do
 
       end if
@@ -288,7 +298,7 @@ c         write(luout,1210) GX,GY,GZ
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
- 1508 FORMAT(/' Brillouin zone point: ',i2,
+ 1508 FORMAT(/' Brillouin zone point: ',i3,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
