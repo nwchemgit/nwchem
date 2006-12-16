@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.10 2006-12-13 20:31:51 d3p708 Exp $
+* $Id: Pneb.F,v 1.11 2006-12-16 01:25:34 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -1878,12 +1878,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 A(*),B(*),Vt(*)
 #include "Pneb.fh"
       real*8 s1,s2
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx
-
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,xindx
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
       sindx=1
-      vindx=1
+      xindx=0
       do nb=nb1,nb2
         do ms=ms1,ms2
           do j=1,ne(ms)
@@ -1892,11 +1891,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             s2=dsin(s2)
             sindx=sindx+1
             do k=1,ne(ms)
+              vindx=xindx+j+(k-1)*ne(ms)
               A(vindx)=s1*Vt(vindx) 
               B(vindx)=s2*Vt(vindx)
-              vindx=vindx+1
             end do
           end do
+          xindx=xindx+ne(ms)*ne(ms)
         end do
       end do
       return
@@ -1912,12 +1912,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 A(*),B(*),Vt(*)
 #include "Pneb.fh"
       real*8 s1,s2
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,xindx
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-      vindx=1
       sindx=1
+      xindx=0
       do nb=nb1,nb2
         do ms=ms1,ms2
           do j=1,ne(ms)
@@ -1926,11 +1926,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             s2=s2*dcos(s2*t)
             sindx=sindx+1
             do k=1,ne(ms)
+              vindx=xindx+j+(k-1)*ne(ms)
               A(vindx)=s1*Vt(vindx) 
               B(vindx)=s2*Vt(vindx)
-              vindx=vindx+1
             end do
           end do
+          xindx=xindx+ne(ms)*ne(ms)
         end do
       end do
       return
@@ -1948,12 +1949,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "errquit.fh"
 #include "mafdecls.fh"
       real*8 s1,s2
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,xindx
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
       sindx=1
-      vindx=1
+      xindx=0
       do nb=nb1,nb2
         do ms=ms1,ms2
           do j=1,ne(ms)
@@ -1962,11 +1963,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             s2=1.0d0-dcos(s2)
             sindx=sindx+1
             do k=1,ne(ms)
+              vindx=vindx+j+(k-1)*ne(ms)
               A(vindx)=s1*A(vindx) 
               B(vindx)=s2*B(vindx)
-              vindx=vindx+1
             end do
           end do
+          xindx=xindx+ne(ms)*ne(ms)
        end do
       end do
       return
@@ -2023,7 +2025,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-c  returns a specified value for the w array
+c  returns a specified value from a w matrix, W. 
 c   no one should really call this...too sloooooow
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 function Pneb_w_value(nb,ms,i,j,W)
