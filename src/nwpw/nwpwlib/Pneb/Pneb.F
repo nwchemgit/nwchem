@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.14 2006-12-16 05:47:51 d3p708 Exp $
+* $Id: Pneb.F,v 1.15 2006-12-18 05:37:41 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2372,48 +2372,86 @@ c     Returns (1-cos(S*t))*V' in A and
 c              sin(St)V' in Bc
 
       subroutine Pneb_SCVtrans3(mbb,nbb,t,S,Vt,A,B,SA,SB)
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc  
-c     Returns (1-cos(S*t))*V' in A and
-c              sin(St)V' in Bc
-c note :temporary fix to SCVTrans3 until we get a better version
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      subroutine Pneb_SCVtrans3(mbb,nbb,t,S,Vt,A,B,SA,Sb)
       implicit none
-      real*8 t,S(*),SA(*),SB(*)
-      integer mbb,nbb
-      complex*16 A(*),B(*),Vt(*)
+      integer    nbb,mbb
+      real*8     t
+      real*8     S(*)
+      complex*16 Vt(*),A(*),B(*)
+      real*8     SA(*),SB(*)
+
 #include "Pneb.fh"
-#include "errquit.fh"
-#include "mafdecls.fh"
-      real*8 s1,s2
-      integer nb,nb1,nb2,ms,ms1,ms2,j,k,sindx,vindx,xindx
+
+c     **** local variables ****
+      integer nb,nb1,nb2,ms,ms1,ms2,j,k,nj
+      integer ishift11,ishift12,shift1
+      integer ishift21,ishift22,shift2
+      integer indx1,indx2
+      
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
-          
-      sindx=1
-      xindx=0
-      do nb=nb1,nb2
-        do ms=ms1,ms2
-          do j=1,ne(ms)
-            s2=S(sindx)*t
-            s1=dsin(s2)
-            s2=1.0d0-dcos(s2)
-            sindx=sindx+1
-            do k=1,ne(ms)
-              vindx=xindx+j+(k-1)*ne(ms)
-              A(vindx)=s1*A(vindx) 
-              B(vindx)=s2*B(vindx)
-            end do
-          end do
-          xindx=xindx+ne(ms)*ne(ms)
-       end do
+      if (mbb.eq.0) then
+         if (spin_orbit) then
+            nj = ne(1)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         else
+            nj = ne(1) + ne(2)
+            ishift11 = ne(1)
+            ishift21 = ne(1)*ne(1)
+         end if
+      else
+        nj = ne(mbb)
+        ishift11 = 0
+        ishift21 = 0
+      end if
+
+      if (nbb.eq.0) then
+         nj = nj*nbrillq
+         if (spin_orbit) then
+            ishift12 = ne(1)
+            ishift22 = ne(1)*ne(1) 
+         else
+            ishift12 = ne(1)+ne(2)
+            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift12 = 0
+         ishift22 = 0
+      end if
+
+      do j=1,nj
+         SA(j) = S(j)*dsin(S(j)*t)
+         SB(j) = S(j)*dcos(S(j)*t)
       end do
+      
+      do nb=nb1,nb2
+      do ms=ms1,ms2
+
+         if (ne(ms).le.0) go to 30
+         shift1 = 1 + (ms-ms1)*ishift11 + (nb-nb1)*ishift12
+         shift2 = 1 + (ms-ms1)*ishift21 + (nb-nb1)*ishift22
+
+         indx2 = shift2
+         do k=1,ne(ms)
+            indx1 = shift1
+            do j=1,ne(ms)
+               A(indx2)=SA(indx1)*A(indx2) 
+               B(indx2)=SB(indx1)*B(indx2)
+               indx2 = indx2 + 1
+               indx1 = indx1 + 1
+            end do
+         end do
+
+  30     continue
+      end do
+      end do
+
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-c     Return the size of real diagonal only s matrix 
+c     Return the size of real diagonal s matrix 
 c
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer function Pneb_s_size(mbb,nbb)
