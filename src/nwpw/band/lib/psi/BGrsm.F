@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.2 2006-12-18 02:31:05 d3p708 Exp $
+* $Id: BGrsm.F,v 1.3 2006-12-18 05:36:00 d3p708 Exp $
 *
 
 
@@ -404,18 +404,18 @@
       real*8 zdotc,brillioun_weight
       external zdotc,brillioun_weight
 
+      if (.not.spin_orbit) then
+         BGrsm_f_Spins=.false.
+         return
+      else
+         BGrsm_f_Spins=.true.
+      end if
       if (nb.eq.0) then
         nb1=1
         nb2=nbrillq
       else
         nb1=nb
         nb2=nb 
-      end if
-      if (.not.spin_orbit) then
-         BGrsm_f_Spins=.false.
-         return
-      else
-         BGrsm_f_Spins=.true.
       end if
       do k=1,ne(1)
         S(1,k)=0.0d0
@@ -426,7 +426,7 @@
       do nbq=nb1,nb2
         wght=brillioun_weight(nbq)
         if (nb1.eq.nb2) wght=1.0d0
-        indx=(nbq-1)*shft*2
+        indx=(nbq-1)*shft*2+1
         do k=1,ne(1)
            s1=zdotc(npack1,Y(indx),1,Y(indx),1)
            s2=zdotc(npack1,Y(indx+shft),1,Y(indx+shft),1)
