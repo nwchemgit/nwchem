@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.29 2006-12-16 01:54:00 bylaska Exp $ *
+* * $Id: cpsi.F,v 1.30 2006-12-18 02:30:07 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1619,3 +1619,40 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine cpsi_spins_output(nb,outfile)
+      implicit none
+      integer outfile,nb
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+      integer svec(2)
+      integer i,indx
+      logical value
+c    ** external **
+      logical BGrsm_f_Spins 
+      external BGrsm_f_Spins
+
+      value=MA_push_get(mt_dbl,3*ne(1),'svec',svec(2),svec(1))
+      if (.not.value) then
+        call errquit("out of stack memory",0,0)
+      end if
+      value=BGrsm_f_Spins(nb,dcpl_mb(psi2(1)),dbl_mb(svec(1)))
+      if (.not.value) then
+        write(*,*)"Why did you call cpsi_spin_output?????"
+        write(*,*)"Programmer error!!!!!!!"
+      end if      
+      indx=svec(1)
+      write(outfile,*)" Spin Densities at Brillioun Point = ",nb
+      write(outfile,*)"Orb   Sz              S+              S-"
+      do i=1,ne(1)
+         write(outfile,111)i,dbl_mb(indx),dbl_mb(indx+1),
+     >      dbl_mb(indx+2)
+         indx=indx+3 
+      end do
+      value=MA_pop_stack(svec)
+      if (.not.value) then
+       call errquit("trouble popping stack",0,0)  
+      end if
+ 111  format(i3,1x,d15.6,1x,d15.6,1x,d15.6)
+      return
+      end            
