@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.30 2006-12-18 02:30:07 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.31 2006-12-18 05:35:14 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1632,7 +1632,8 @@ c    ** external **
       logical BGrsm_f_Spins 
       external BGrsm_f_Spins
 
-      value=MA_push_get(mt_dbl,3*ne(1),'svec',svec(2),svec(1))
+      indx=3*ne(1)
+      value=MA_push_get(mt_dbl,indx,'svec',svec(2),svec(1))
       if (.not.value) then
         call errquit("out of stack memory",0,0)
       end if
@@ -1649,7 +1650,7 @@ c    ** external **
      >      dbl_mb(indx+2)
          indx=indx+3 
       end do
-      value=MA_pop_stack(svec)
+      value=MA_pop_stack(svec(2))
       if (.not.value) then
        call errquit("trouble popping stack",0,0)  
       end if
