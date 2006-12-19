@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.15 2006-12-18 05:37:41 d3p708 Exp $
+* $Id: Pneb.F,v 1.16 2006-12-19 00:20:57 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2420,11 +2420,13 @@ c     **** local variables ****
          ishift22 = 0
       end if
 
+
       do j=1,nj
-         SA(j) = S(j)*dsin(S(j)*t)
-         SB(j) = S(j)*dcos(S(j)*t)
+         SA(j) = dsin(S(j)*t)
+         SB(j) = 1.0d0-dcos(S(j)*t)
       end do
-      
+
+
       do nb=nb1,nb2
       do ms=ms1,ms2
 
@@ -2493,5 +2495,40 @@ cccccccccccccccccccccc
       Pneb_s_pop_stack=MA_pop_stack(sx(2))
       return
       end
-      
-
+cccccccccccccccccccccccccccccccccccccccccccccc
+c     Pneb w expand
+c     place the ne by ne matrix, A, in the proper place
+c       of "large" matrix B
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Pneb_w_expand(mbb,nbb,A,B)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*),B(*)
+#include "Pneb.fh"
+      integer ms,ms1,ms2,bshift,indx2,indx1,ie,je       
+      if (mbb.eq.0) then
+         ms1=1
+         ms2=ispinq
+      else
+         ms1=mbb
+         ms2=mbb
+      end if 
+      if (nbb.eq.0) then
+        write(*,*)"PROGRAMMER ERROR IN PNEB_W_EXPAND!"
+        return
+      end if
+      bshift=ne(1)*ne(1)+ne(2)*ne(2)*(ispinq-1)
+      indx2=(nbb-1)*bshift+(mbb-1)*ne(1)*ne(1)
+      indx1=1
+      do ms=ms1,ms2
+        do ie=1,ne(ms)
+          do je=1,ne(ms)
+	    B(indx2)=A(indx1)
+            indx2=indx2+1
+            indx1=indx1+1
+          end do
+        end do
+      end do
+      return 
+      end 	
+cccccccccccccccc
