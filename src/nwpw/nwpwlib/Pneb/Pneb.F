@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.16 2006-12-19 00:20:57 d3p708 Exp $
+* $Id: Pneb.F,v 1.17 2006-12-19 17:34:47 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -741,7 +741,8 @@ c     ****************************************
 
       do nb=nb1,nb2
          do ms=ms1,ms2
-           shift  = 1 + (ms-1)*ne(1)*npack1 +(nb-1)*(ne(1)+ne(2))*npack1
+           shift  = 1 + (ms-1)*ne(1)*npack1 +
+     >            ((nb-nb1))*(ne(1)+ne(2))*npack1
            shiftso = shift + ne(1)*npack1
            shift2 = 1 + (ms-1)*ishift2      +(nb-nb1)*ishift3
            n = ne(ms)
@@ -815,7 +816,8 @@ c     ****************************************
 
       do nb=nb1,nb2
          do ms=ms1,ms2
-           shift  = 1 + (ms-1)*ne(1)*npack1 +(nb-1)*(ne(1)+ne(2))*npack1
+           shift  = 1 + (ms-1)*ne(1)*npack1 +
+     >                     (nb-nb1)*(ne(1)+ne(2))*npack1
            shiftso = shift + ne(1)*npack1
            shift2 = 1 + (ms-1)*ishift2      +(nb-nb1)*ishift3
            n = ne(ms)
@@ -884,9 +886,10 @@ c     ****************************************
 
       do nb=nb1,nb2
          do ms=ms1,ms2           
-            shift = 1 + (ms-1)*ne(1)*npack1 +(nb-1)*(ne(1)+ne(2))*npack1
+            shift = 1 + (ms-1)*ne(1)*npack1 +
+     >              (nb-nb1)*(ne(1)+ne(2))*npack1
             shiftso = shift + ne(1)*npack1
-            shift2  = 1 + (ms-1)*ishift2      +(nb-1)*ishift3
+            shift2  = 1 + (ms-1)*ishift2 +((nb-nb1))*ishift3
             n = ne(ms)
             if (n.eq.0) go to 30
 
@@ -949,7 +952,8 @@ c     ****************************************
 
       do nb=nb1,nb2
          do ms=ms1,ms2           
-            shift = 1 + (ms-1)*ne(1)*npack1 +(nb-1)*(ne(1)+ne(2))*npack1
+            shift = 1 + (ms-1)*ne(1)*npack1 +
+     >               (nb-nb1)*(ne(1)+ne(2))*npack1
             shiftso = shift + ne(1)*npack1
             shift2  = 1 + (ms-1)*ishift2      +(nb-nb1)*ishift3
             n = ne(ms)
@@ -1013,9 +1017,10 @@ c     ****************************************
 
       do nb=nb1,nb2
          do ms=ms1,ms2           
-            shift = 1 + (ms-1)*ne(1)*npack1 +(nb-1)*(ne(1)+ne(2))*npack1
+            shift = 1 + (ms-1)*ne(1)*npack1 +
+     >               (nb-nb1)*(ne(1)+ne(2))*npack1
             shiftso = shift + ne(1)*npack1
-            shift2  = 1 + (ms-1)*ishift2      +(nb-1)*ishift3
+            shift2  = 1 + (ms-1)*ishift2      +((nb-nb1))*ishift3
             n = ne(ms)
             if (n.eq.0) go to 30
 
@@ -1235,11 +1240,11 @@ c     ***** local variables ******
          nb2 = nbb
        end if
 
-c     ***  compute C = Y'*Y ( ne x ne )= V*S2*V' ****
+c     ***  compute C = Y'*Y ( ne x ne )= V*S*S*V' ****
       call Pneb_ffw_Multiply(mbb,nbb,Y,Y,npack1,V)
 
 
-c     ***  compute S2 and V from C  **** 
+c     ***  compute S2=S*S and V from C  **** 
       call Pneb_w_diag(mbb,nbb,S,V)
 
 
@@ -1260,7 +1265,7 @@ c     *** compute U*S=Y*V ****
          do ms=ms1,ms2
             if (neq(ms).le.0) go to 30
                shift1 = 1 + (ms-1)* neq(1)        *npack1 
-     >                    + (nb-1)*(neq(1)+neq(2))*npack1
+     >                    + (nb-nb1)*(neq(1)+neq(2))*npack1
                shift2 = shift1
                do n=1,neq(ms)
                   call Cram_cc_idot(nb,
@@ -1342,7 +1347,7 @@ c     ** local variables ****
         nbshift=2*soshift
         bindex=1
         do nb=nb1,nb2
-         bindex=(nb-1)*nbshift
+         bindex=((nb-nb1))*nbshift
          do k=1,nemax
            index1=bindex+(k-1)*npack1+1
            call Cram_cc_dot(nb,A(index1),A(index1),w1)
@@ -1384,7 +1389,7 @@ c     ** local variables ****
         nbshift=npack1*nemax
         do nb=nb1,nb2
         do ms=ms1,ms2
-          bindex=(nb-1)*nbshift+(ms-1)*ne(1)*npack1
+          bindex=((nb-nb1))*nbshift+(ms-1)*ne(1)*npack1
           do k=1,ne(ms)
            index1=bindex+(k-1)*npack1+1
            call Cram_cc_dot(nb,A(index1),A(index1),w)
@@ -1611,12 +1616,12 @@ c     ccccccccc first line ccccccccc
         bshift=npack1*nemax*2
         soshift=npack1*nemax
         do nb=nb1,nb2
-          bindex=bshift*(nb-1)
+          bindex=bshift*((nb-nb1))
           do k=1,nemax
-            index11=1+((k-1)+(nb-1)*nemax*2)*npack1
+            index11=1+((k-1)+((nb-nb1))*nemax*2)*npack1
             index12=index11+soshift
             do j=1,nemax
-              index21=1+((j-1)+(nb-1)*nemax*2)*npack1
+              index21=1+((j-1)+((nb-nb1))*nemax*2)*npack1
               index22=index21+soshift
               call Cram_cc_zdot(nb,A(index11),A(index21),wc1)
               call Cram_cc_zdot(nb,A(index12),A(index22),wc2)
@@ -1638,7 +1643,7 @@ c     ccccccccc first line ccccccccc
         bshift=(ne(1)+ne(2))*npack1
         do nb=nb1,nb2
         do ms=ms1,ms2
-          bindex=bshift*(nb-1)+(ms-1)*npack1*ne(1)
+          bindex=bshift*((nb-nb1))+(ms-1)*npack1*ne(1)
           do k=1,ne(ms)
             index11=1+bindex+(k-1)*npack1
             do j=1,ne(ms)
@@ -1784,7 +1789,7 @@ c     ***** spin-orbit dft *****
          sum=0.0d0
          indexm=1
          do nb = nb1,nb2
-            nbshift = (nb-1)*2*soshift
+            nbshift = ((nb-nb1))*2*soshift
             indx2 = 1 + nbshift
             sum=0.0d0
             do k=1,ne(1)
@@ -1817,7 +1822,7 @@ c     **** restricted and unrestricted dft ****
 
          indexm=1
          do nb = nb1,nb2
-            nbshift = (nb-1)*nemax*npack1
+            nbshift = ((nb-nb1))*nemax*npack1
             do ms = ms1,ms2
                msshift = (ms-1)*ne(1)*npack1
                indx2 = 1 + msshift + nbshift
@@ -1989,9 +1994,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccc
       return 
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c
-c  returns a specified value for the w array
-c   no one should really call this...too sloooooow
+c     returns a specified value for the w array
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       complex*16 function Pneb_w_value(nb,ms,i,j,W)
       implicit none
@@ -2002,24 +2005,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      
       indx=i+(j-1)*ne(ms)
       if (ispinq.eq.1) then
-        indx=indx+(nb-1)*ne(1)*ne(1)
+        indx=indx+((nb-1))*ne(1)*ne(1)
       else
         indx=indx  + (ms-1)*ne(1)*ne(1)
-     >        + (nb-1)*(ne(1)*ne(1)+ne(2)*ne(2))
+     >        + ((nb-1))*(ne(1)*ne(1)+ne(2)*ne(2))
       end if
       Pneb_w_value=W(indx)
       return
       end  
-ccccccccccccccccc
-
-
-
-
-c     ccccccccccccccccccccccccccccccccccccccccccc
+c     *******************************************
 c     *                                         *
 c     *           Pneb_www_Multiply1            *
 c     *                                         *
-c     ccccccccccccccccccccccccccccccccccccccccccc
+c     *******************************************
 
 c    returns C = beta*C + alpha*A*B
 
@@ -2391,15 +2389,12 @@ c     **** local variables ****
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
       if (mbb.eq.0) then
+         nj=ne(1)+ne(2)
          if (spin_orbit) then
             nj = ne(1)
-            ishift11 = ne(1)
-            ishift21 = ne(1)*ne(1)
-         else
-            nj = ne(1) + ne(2)
-            ishift11 = ne(1)
-            ishift21 = ne(1)*ne(1)
          end if
+         ishift11 = ne(1)
+         ishift21 = ne(1)*ne(1)
       else
         nj = ne(mbb)
         ishift11 = 0
@@ -2422,8 +2417,9 @@ c     **** local variables ****
 
 
       do j=1,nj
-         SA(j) = dsin(S(j)*t)
-         SB(j) = 1.0d0-dcos(S(j)*t)
+         tmp=S(j)*t
+         SA(j) = dsin(tmp)
+         SB(j) = 1.0d0-dcos(tmp)
       end do
 
 
@@ -2518,16 +2514,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         return
       end if
       bshift=ne(1)*ne(1)+ne(2)*ne(2)*(ispinq-1)
-      indx2=(nbb-1)*bshift+(mbb-1)*ne(1)*ne(1)
       indx1=1
       do ms=ms1,ms2
-        do ie=1,ne(ms)
-          do je=1,ne(ms)
-	    B(indx2)=A(indx1)
-            indx2=indx2+1
-            indx1=indx1+1
-          end do
-        end do
+        indx2=(nbb-1)*bshift+(ms-ms1)*ne(1)*ne(1)
+        zcopy(ne(ms)*ne(ms),A,1,B(indx2),1)
       end do
       return 
       end 	
