@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.18 2006-12-19 18:08:43 d3p708 Exp $
+* $Id: Pneb.F,v 1.19 2006-12-19 18:18:20 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2517,7 +2517,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       indx1=1
       do ms=ms1,ms2
         indx2=(nbb-1)*bshift+(ms-ms1)*ne(1)*ne(1)
-        call Cram_cc_copy(nbb,A(1),B(indx2))
+        call Cram_c_copy(nbb,A(1),B(indx2))
       end do
       return 
       end 	
