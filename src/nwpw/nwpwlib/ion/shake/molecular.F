@@ -6,7 +6,7 @@
 *     ***************************
       subroutine molecular_init(rtdb)
 *
-* $Id: molecular.F,v 1.3 2003-07-31 00:19:50 bylaska Exp $
+* $Id: molecular.F,v 1.4 2006-12-19 21:51:10 d3p307 Exp $
 *
       implicit none 
       integer   rtdb
@@ -63,8 +63,7 @@
           if (found) call util_file_unlink(full_filename)
          
           !*** create new shake file ***
-          open(unit=49,file=full_filename,form='formatted',
-     >          status='new')
+          open(unit=49,file=full_filename,form='formatted')
           write(49,*) string
           close(49)
 
