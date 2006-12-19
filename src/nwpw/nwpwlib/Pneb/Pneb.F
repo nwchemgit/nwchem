@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.17 2006-12-19 17:34:47 d3p708 Exp $
+* $Id: Pneb.F,v 1.18 2006-12-19 18:08:43 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -2004,11 +2004,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer indx
      
       indx=i+(j-1)*ne(ms)
-      if (ispinq.eq.1) then
-        indx=indx+((nb-1))*ne(1)*ne(1)
+      if (spin_orbit) then
+        indx=indx+(nb-1)*ne(1)*ne(1)
       else
-        indx=indx  + (ms-1)*ne(1)*ne(1)
-     >        + ((nb-1))*(ne(1)*ne(1)+ne(2)*ne(2))
+        indx=indx+ (ms-1)*ne(1)*ne(1)
+     >        + (nb-1)*(ne(1)*ne(1)+ne(2)*ne(2))
       end if
       Pneb_w_value=W(indx)
       return
@@ -2384,7 +2384,7 @@ c     **** local variables ****
       integer ishift11,ishift12,shift1
       integer ishift21,ishift22,shift2
       integer indx1,indx2
-      
+      real*8 tmp
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
@@ -2517,7 +2517,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       indx1=1
       do ms=ms1,ms2
         indx2=(nbb-1)*bshift+(ms-ms1)*ne(1)*ne(1)
-        zcopy(ne(ms)*ne(ms),A,1,B(indx2),1)
+        call Cram_cc_copy(nbb,A(1),B(indx2))
       end do
       return 
       end 	
