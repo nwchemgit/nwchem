@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.6 2006-12-05 00:14:39 bylaska Exp $
+* $Id: band_dplot.F,v 1.7 2006-12-19 19:13:08 d3p708 Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -681,7 +681,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl,3*nion,'rion', rion(2), rion(1))
       if (.not. value) call errquit('cpsi_translate:push stack',0,0)
-      call dcopy(3*nion,0.0d0,0,dbl_mb(rion(1)),1)
+      call dscal(3*nion,0.0d0,dbl_mb(rion(1)),1)
 
       dbl_mb(rion(1)  ) = trans(1)
      >                  - (   lattice_unita(1,1)
