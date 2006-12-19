@@ -1,5 +1,5 @@
 *
-* $Id: band_stress_fd.F,v 1.1 2004-11-29 16:05:16 bylaska Exp $
+* $Id: band_stress_fd.F,v 1.2 2006-12-19 19:12:01 d3p708 Exp $
 *
       logical function band_stress_fd(rtdb)
       implicit none
@@ -53,12 +53,12 @@
       if (.not.
      >    rtdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
-      call dcopy(9,0.0d0,0,ke_stress,      1)
-      call dcopy(9,0.0d0,0,xc_stress,      1)
-      call dcopy(9,0.0d0,0,hartree_stress, 1)
-      call dcopy(9,0.0d0,0,ewald_stress,   1)
-      call dcopy(9,0.0d0,0,local_stress,   1)
-      call dcopy(9,0.0d0,0,nonlocal_stress,1)
+      call dscal(9,0.0d0,ke_stress,      1)
+      call dscal(9,0.0d0,xc_stress,      1)
+      call dscal(9,0.0d0,hartree_stress, 1)
+      call dscal(9,0.0d0,ewald_stress,   1)
+      call dscal(9,0.0d0,local_stress,   1)
+      call dscal(9,0.0d0,nonlocal_stress,1)
 
 
       do j=1,3
