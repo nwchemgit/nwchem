@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.3 2006-12-18 05:36:00 d3p708 Exp $
+* $Id: BGrsm.F,v 1.4 2006-12-19 23:37:46 d3p708 Exp $
 *
 
 
@@ -65,7 +65,7 @@
       integer nsize
 
       nsize = 2*nbrillq*(neq(1)+neq(2))*npack1
-      call dcopy(nsize,0.0d0,0,A,1)
+      call dset(nsize,0.0d0,A,1)
       return
       end 
 
@@ -89,7 +89,6 @@
 
       nsize = 2*nbrillq*(neq(1)+neq(2))*nfft3d
       call dcopy(nsize,A,1,C,1)
-
       return
       end
 
@@ -385,9 +384,6 @@
 *     *      Returns the  	 *
 *     *  Spin Amplitudes         *
 *     ****************************
-*
-*     
-*     
       logical function BGrsm_f_Spins(nb,Y,S)
       implicit none
       integer nb
@@ -397,7 +393,7 @@
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer k,ms,shft,nbq,nb1,nb2,indx
+      integer k,ms,shft,nbq,nb1,nb2,indx,indx2
       real*8 s1,s2,s3,s4,wght
 
 *     **** external ****
@@ -422,23 +418,82 @@
         S(2,k)=0.0d0
         S(3,k)=0.0d0
       end do
+      call flush(6)
       shft=ne(1)*npack1
-      do nbq=nb1,nb2
-        wght=brillioun_weight(nbq)
+      do nb=nb1,nb2
+        wght=brillioun_weight(nb)
         if (nb1.eq.nb2) wght=1.0d0
-        indx=(nbq-1)*shft*2+1
+        indx=((nb-1)*shft*2)+1
         do k=1,ne(1)
+           indx2=indx+shft
            s1=zdotc(npack1,Y(indx),1,Y(indx),1)
-           s2=zdotc(npack1,Y(indx+shft),1,Y(indx+shft),1)
-           s3=zdotc(npack1,Y(indx),1,Y(indx+shft),1)
-           s4=zdotc(npack1,Y(indx+shft),1,Y(indx),1)
+           s2=zdotc(npack1,Y(indx2),1,Y(indx2),1)
+           s3=zdotc(npack1,Y(indx),1,Y(indx2),1)
+           s4=zdotc(npack1,Y(indx2),1,Y(indx),1)
            indx=indx+npack1
            S(1,k)=S(1,k)+(s1-s2)*wght
            S(2,k)=S(2,k)+s3*wght
            S(3,k)=S(3,k)+s4*wght		
         end do
       end do
- 900  continue
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccc
+c set all elements of x equal to alpha
+ccccccccccccccccccccccccccccccccccccccccc
+      subroutine dset(n,alpha,x,incx)
+      implicit none
+      integer n,incx
+      real*8 alpha,x(*)
+      integer i,ix
+      if (incx.eq.1) then
+        i=1
+        ix=n-(n/4)*4
+        do i=1,ix
+          x(i)=alpha
+        end do
+        do i=1,n,4
+          x(i)=alpha
+          x(i+1)=alpha
+          x(i+2)=alpha
+          x(i+3)=alpha
+        end do
+      else
+        ix=1
+        do i=1,n
+          x(ix)=alpha
+          ix=ix+incx
+        end do
+      end if
+      return
+      end
+ccccccccccccccccccccccccccccccccccccccccc
+c set all elements of x equal to alpha
+ccccccccccccccccccccccccccccccccccccccccc
+      subroutine zset(n,alpha,x,incx)
+      implicit none
+      integer n,incx
+      integer i,ix
+      complex*16 alpha,x(*)
+      if (incx.eq.1) then
+        i=1
+        ix=n-(n/4)*4
+        do i=1,ix
+          x(i)=alpha
+        end do
+        do i=1,n,4
+          x(i)=alpha
+          x(i+1)=alpha
+          x(i+2)=alpha
+          x(i+3)=alpha
+        end do
+      else
+        ix=1
+        do i=1,n
+          x(ix)=alpha
+          ix=ix+incx
+        end do
+      end if
       return
       end
 
