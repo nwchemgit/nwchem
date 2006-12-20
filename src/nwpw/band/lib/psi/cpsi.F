@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.31 2006-12-18 05:35:14 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.32 2006-12-20 00:21:59 d3p708 Exp $ *
 
 
 *     ***************************
@@ -60,10 +60,8 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-      call zcopy(npack1*(ne(1)+ne(2))*nbrillioun,
-     >           dcpl_mb(psi1(1)),1,
-     >           dcpl_mb(psi2(1)),1)
-
+      call BGrsm_ff_copy(dcpl_mb(psi1(1)),
+     >  dcpl_mb(psi2(1)))
       return
       end
 
@@ -76,15 +74,10 @@
 *     ***************************
       subroutine cpsi_2to1()
       implicit none
-
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
-
- 
-      call zcopy(npack1*(ne(1)+ne(2))*nbrillioun,
-     >           dcpl_mb(psi2(1)),1,
-     >           dcpl_mb(psi1(1)),1)
-
+      call BGrsm_ff_copy(dcpl_mb(psi2(1)),
+     >   dcpl_mb(psi1(1)))
       return
       end
 
@@ -645,7 +638,8 @@
       call c_geodesic_transport(t,dcpl_mb(psi1(1)),
      >                            dcpl_mb(psi2(1)))
 
-      cpsi_geodesic_denergy = 2.0d0*c_electron_eorbit(dcpl_mb(psi2(1)))
+      cpsi_geodesic_denergy = 
+     >   2.0d0*c_electron_eorbit(dcpl_mb(psi2(1)))
 
       return
       end
@@ -1001,11 +995,14 @@ c     real*8 sum1,sum2
 
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
+      integer indx
 
-      cpsi_eigenvalue = dbl_mb(eig(1) 
-     >                        + (i-1) 
-     >                        + (ms-1)*ne(1)
-     >                        + (nb-1)*(ne(1)+ne(2)))
+      if (spin_orbit) then
+        indx=eig(1)+i-1+(nb-1)*ne(1)
+      else
+        indx=eig(1)+i-1+(ms-1)*ne(1)+(nb-1)*(ne(1)+ne(2))
+      end if
+      cpsi_eigenvalue = dbl_mb(indx) 
 
       return
       end
@@ -1025,17 +1022,7 @@ c     real*8 sum1,sum2
       integer indx
       complex*16 Pneb_w_value
       external Pneb_w_value
-
       cpsi_hml=Pneb_w_value(ms,nb,i,j,dcpl_mb(hml(1)))
-c      if (spin_orbit) then
-c        indx=(nb-1)*ne(1)*ne(1)+i-1+(j-1)*ne(1)
-c        cpsi_hml=dcpl_mb(hml(1)+indx)
-c      else
-c        cpsi_hml = dcpl_mb(hml(1)-1 + i 
-c     >                          + (j-1)*ne(ms) 
-c     >                          + (ms-1)*ne(1)*ne(1)
-c     >                          + (nb-1)*2*ne(1)*ne(1)) 
-c      end if
       return
       end
 
@@ -1619,9 +1606,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine cpsi_spins_output(nb,outfile)
+      subroutine cpsi_spins_output(nbb,outfile)
       implicit none
-      integer outfile,nb
+      integer outfile,nbb
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
@@ -1637,14 +1624,15 @@ c    ** external **
       if (.not.value) then
         call errquit("out of stack memory",0,0)
       end if
-      value=BGrsm_f_Spins(nb,dcpl_mb(psi2(1)),dbl_mb(svec(1)))
+      value=BGrsm_f_Spins(nbb,dcpl_mb(psi2(1)),dbl_mb(svec(1)))
       if (.not.value) then
         write(*,*)"Why did you call cpsi_spin_output?????"
         write(*,*)"Programmer error!!!!!!!"
       end if      
       indx=svec(1)
-      write(outfile,*)" Spin Densities at Brillioun Point = ",nb
+      write(outfile,*)" Spin Densities at Brillioun Point = ",nbb
       write(outfile,*)"Orb   Sz              S+              S-"
+      call flush(6)
       do i=1,ne(1)
          write(outfile,111)i,dbl_mb(indx),dbl_mb(indx+1),
      >      dbl_mb(indx+2)
