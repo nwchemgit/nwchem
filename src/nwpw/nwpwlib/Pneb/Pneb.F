@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.19 2006-12-19 18:18:20 d3p708 Exp $
+* $Id: Pneb.F,v 1.20 2006-12-21 03:54:49 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -732,7 +732,7 @@ c     ****************************************
       if (nbb.eq.0) then
         nb1 = 1
         nb2 = nbrillq
-        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
       else
         nb1 = nbb
         nb2 = nbb
@@ -876,7 +876,7 @@ c     ****************************************
       if (nbb.eq.0) then
         nb1 = 1
         nb2 = nbrillq
-        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
       else
         nb1 = nbb
         nb2 = nbb
@@ -942,7 +942,7 @@ c     ****************************************
       if (nbb.eq.0) then
         nb1 = 1
         nb2 = nbrillq
-        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
       else
         nb1 = nbb
         nb2 = nbb
@@ -1007,7 +1007,7 @@ c     ****************************************
       if (nbb.eq.0) then
         nb1 = 1
         nb2 = nbrillq
-        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+        ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
       else
         nb1 = nbb
         nb2 = nbb
@@ -2233,7 +2233,7 @@ c     **** local variables ****
             ishift22 = ne(1)*ne(1)
          else
             ishift12 = ne(1)+ne(2)
-            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)
+            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
          end if
       else
          ishift12 = 0
@@ -2322,7 +2322,7 @@ c     **** local variables ****
             ishift22 = ne(1)*ne(1) 
          else
             ishift12 = ne(1)+ne(2)
-            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)
+            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
          end if
       else
          ishift12 = 0
@@ -2408,7 +2408,7 @@ c     **** local variables ****
             ishift22 = ne(1)*ne(1) 
          else
             ishift12 = ne(1)+ne(2)
-            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)
+            ishift22 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
          end if
       else
          ishift12 = 0
