@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.32 2006-12-20 00:21:59 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.33 2006-12-22 02:51:45 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1615,10 +1615,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer svec(2)
       integer i,indx
       logical value
+      real*8 ei,eiv,EV
 c    ** external **
       logical BGrsm_f_Spins 
+      integer  brillioun_nbrillioun
+      real*8 cpsi_eigenvalue
+      real*8   brillioun_k,brillioun_ks,brillioun_weight
+      external brillioun_nbrillioun
+      external cpsi_eigenvalue
+      external brillioun_k,brillioun_ks,brillioun_weight
       external BGrsm_f_Spins
-
+ 
+      EV=27.2116
       indx=3*ne(1)
       value=MA_push_get(mt_dbl,indx,'svec',svec(2),svec(1))
       if (.not.value) then
@@ -1627,21 +1635,37 @@ c    ** external **
       value=BGrsm_f_Spins(nbb,dcpl_mb(psi2(1)),dbl_mb(svec(1)))
       if (.not.value) then
         write(*,*)"Why did you call cpsi_spin_output?????"
-        write(*,*)"Programmer error!!!!!!!"
+        call errquit("PROGRAMMER ERROR CPSI_SPIN_OUTPUT",0,0)
       end if      
       indx=svec(1)
-      write(outfile,*)" Spin Densities at Brillioun Point = ",nbb
-      write(outfile,*)"Orb   Sz              S+              S-"
-      call flush(6)
-      do i=1,ne(1)
-         write(outfile,111)i,dbl_mb(indx),dbl_mb(indx+1),
+      write(outfile,108)nbb,
+     >                   brillioun_weight(nbb),
+     >                   brillioun_ks(1,nbb),
+     >                   brillioun_ks(2,nbb),
+     >                   brillioun_ks(3,nbb),
+     >                   brillioun_k(1,nbb),
+     >                   brillioun_k(2,nbb),
+     >                   brillioun_k(3,nbb)
+
+      write(outfile,*)"E(H)   (E eV)      Sx/Sy/Sz"
+      do i=0,ne(1)-1
+         ei=cpsi_eigenvalue(nbb,1,ne(1)-i)
+         eiv=ei*EV
+         write(outfile,111)
+     >      ei,eiv,  
+     >      dbl_mb(indx),dbl_mb(indx+1),
      >      dbl_mb(indx+2)
          indx=indx+3 
       end do
+      call flush(outfile)
       value=MA_pop_stack(svec(2))
       if (.not.value) then
        call errquit("trouble popping stack",0,0)  
       end if
- 111  format(i3,1x,d15.6,1x,d15.6,1x,d15.6)
+ 108  format(/' Brillouin zone point ',i3,
+     >       /' weight = ',f10.6,
+     >       /' k      = <',3f8.3,'> . b= <b1,b2,b3> ',
+     >       /'        = <',3f8.3,'>') 
+ 111  format((E18.7,' (',F8.3,' eV)'),3(1x,F15.6))
       return
       end            
