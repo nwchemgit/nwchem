@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.13 2006-12-18 02:27:32 d3p708 Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.14 2006-12-22 02:50:57 d3p708 Exp $                       
 *
 
 *     ***************************
@@ -246,11 +246,11 @@ c         write(luout,1210) GX,GY,GZ
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
              end do
            else
-             do i=0,cpsi_ne(1)-1
-                write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
-                            
-             end do
+c             do i=0,cpsi_ne(1)-1
+c                write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+c     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
+c                            
+c             end do
              call cpsi_spins_output(nb,luout)
            end if
          end do
