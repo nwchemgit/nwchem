@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.4 2006-12-19 23:37:46 d3p708 Exp $
+* $Id: BGrsm.F,v 1.5 2006-12-22 02:51:29 d3p708 Exp $
 *
 
 
@@ -65,7 +65,7 @@
       integer nsize
 
       nsize = 2*nbrillq*(neq(1)+neq(2))*npack1
-      call dset(nsize,0.0d0,A,1)
+      call dcopy(nsize,0.0d0,0,A,1)
       return
       end 
 
@@ -384,18 +384,18 @@
 *     *      Returns the  	 *
 *     *  Spin Amplitudes         *
 *     ****************************
-      logical function BGrsm_f_Spins(nb,Y,S)
+      logical function BGrsm_f_Spins(nbb,Y,S)
       implicit none
-      integer nb
+      integer nbb
       complex*16 Y(*)
       real*8 S(3,*)
 
 #include "cpsi_common.fh"
 
 *     **** local variables ****
-      integer k,ms,shft,nbq,nb1,nb2,indx,indx2
-      real*8 s1,s2,s3,s4,wght
-
+      integer k,ms,shft,nb,nb1,nb2,indx,indx2
+      real*8 s1,s2,s3,wght
+      complex*16 z1
 *     **** external ****
       real*8 zdotc,brillioun_weight
       external zdotc,brillioun_weight
@@ -406,12 +406,12 @@
       else
          BGrsm_f_Spins=.true.
       end if
-      if (nb.eq.0) then
+      if (nbb.eq.0) then
         nb1=1
         nb2=nbrillq
       else
-        nb1=nb
-        nb2=nb 
+        nb1=nbb
+        nb2=nbb 
       end if
       do k=1,ne(1)
         S(1,k)=0.0d0
@@ -426,74 +426,17 @@
         indx=((nb-1)*shft*2)+1
         do k=1,ne(1)
            indx2=indx+shft
-           s1=zdotc(npack1,Y(indx),1,Y(indx),1)
-           s2=zdotc(npack1,Y(indx2),1,Y(indx2),1)
-           s3=zdotc(npack1,Y(indx),1,Y(indx2),1)
-           s4=zdotc(npack1,Y(indx2),1,Y(indx),1)
+           call Cram_cc_dot(nb,Y(indx),Y(indx),s1)
+           call Cram_cc_dot(nb,Y(indx2),Y(indx2),s2)
+           call Cram_cc_zdot(nb,Y(indx),Y(indx2),z1)
+           s3=s1-s2
+           s1=dreal(z1)
+           s2=dimag(z1)
            indx=indx+npack1
-           S(1,k)=S(1,k)+(s1-s2)*wght
-           S(2,k)=S(2,k)+s3*wght
-           S(3,k)=S(3,k)+s4*wght		
+           S(1,k)=S(1,k)+s1*wght
+           S(2,k)=S(2,k)+s2*wght
+           S(3,k)=S(3,k)+s3*wght		
         end do
       end do
       return
       end
-ccccccccccccccccccccccccccccccccccccccccc
-c set all elements of x equal to alpha
-ccccccccccccccccccccccccccccccccccccccccc
-      subroutine dset(n,alpha,x,incx)
-      implicit none
-      integer n,incx
-      real*8 alpha,x(*)
-      integer i,ix
-      if (incx.eq.1) then
-        i=1
-        ix=n-(n/4)*4
-        do i=1,ix
-          x(i)=alpha
-        end do
-        do i=1,n,4
-          x(i)=alpha
-          x(i+1)=alpha
-          x(i+2)=alpha
-          x(i+3)=alpha
-        end do
-      else
-        ix=1
-        do i=1,n
-          x(ix)=alpha
-          ix=ix+incx
-        end do
-      end if
-      return
-      end
-ccccccccccccccccccccccccccccccccccccccccc
-c set all elements of x equal to alpha
-ccccccccccccccccccccccccccccccccccccccccc
-      subroutine zset(n,alpha,x,incx)
-      implicit none
-      integer n,incx
-      integer i,ix
-      complex*16 alpha,x(*)
-      if (incx.eq.1) then
-        i=1
-        ix=n-(n/4)*4
-        do i=1,ix
-          x(i)=alpha
-        end do
-        do i=1,n,4
-          x(i)=alpha
-          x(i+1)=alpha
-          x(i+2)=alpha
-          x(i+3)=alpha
-        end do
-      else
-        ix=1
-        do i=1,n
-          x(ix)=alpha
-          ix=ix+incx
-        end do
-      end if
-      return
-      end
-
