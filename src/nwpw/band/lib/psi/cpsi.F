@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.33 2006-12-22 02:51:45 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.34 2006-12-22 20:28:31 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1638,23 +1638,14 @@ c    ** external **
         call errquit("PROGRAMMER ERROR CPSI_SPIN_OUTPUT",0,0)
       end if      
       indx=svec(1)
-      write(outfile,108)nbb,
-     >                   brillioun_weight(nbb),
-     >                   brillioun_ks(1,nbb),
-     >                   brillioun_ks(2,nbb),
-     >                   brillioun_ks(3,nbb),
-     >                   brillioun_k(1,nbb),
-     >                   brillioun_k(2,nbb),
-     >                   brillioun_k(3,nbb)
-
-      write(outfile,*)"E(H)   (E eV)      Sx/Sy/Sz"
+      write(outfile,*)" E(H)               (E eV)        Spin(Sz,Sy,Sx)"
       do i=0,ne(1)-1
          ei=cpsi_eigenvalue(nbb,1,ne(1)-i)
          eiv=ei*EV
          write(outfile,111)
      >      ei,eiv,  
-     >      dbl_mb(indx),dbl_mb(indx+1),
-     >      dbl_mb(indx+2)
+     >      dbl_mb(indx+2),dbl_mb(indx+1),
+     >      dbl_mb(indx)
          indx=indx+3 
       end do
       call flush(outfile)
@@ -1666,6 +1657,7 @@ c    ** external **
      >       /' weight = ',f10.6,
      >       /' k      = <',3f8.3,'> . b= <b1,b2,b3> ',
      >       /'        = <',3f8.3,'>') 
- 111  format((E18.7,' (',F8.3,' eV)'),3(1x,F15.6))
+ 111  format(D16.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
+     > F8.3,' xhat )') 
       return
       end            
