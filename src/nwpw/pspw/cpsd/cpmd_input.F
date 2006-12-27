@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.14 2006-04-08 00:25:48 bylaska Exp $
+c $Id: cpmd_input.F,v 1.15 2006-12-27 19:47:52 bylaska Exp $
 c
 
 
@@ -461,7 +461,14 @@ c
 c
 c Fei
 c
- 2800 value = .true.
+ 2800 if (inp_a(ion_motion_filename)) then
+         ind = index(ion_motion_filename,' ') - 1
+         value = rtdb_cput(rtdb,'cpmd:fei_filename',
+     >                    1,ion_motion_filename(1:ind))
+          if (.not.value)
+     >    call errquit('cpmd_input: writing ', 2800, RTDB_ERR)
+      end if
+      value = .true.
       if (.not.rtdb_put(rtdb,'cpmd:fei',mt_log,1,value))
      > call errquit('cpmd_input: writing fei ', 2800, RTDB_ERR)
       goto 10

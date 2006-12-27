@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.93 2006-12-05 00:13:26 bylaska Exp $
+* $Id: control.F,v 1.94 2006-12-27 19:47:52 bylaska Exp $
 *
 
 *     ***********************************
@@ -3454,6 +3454,66 @@ c      end
       control_pressure = value
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *      control_init_velocities    *
+*     *                                 *
+*     ***********************************
+      logical function control_init_velocities()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+      real*8  temp
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'cpmd:init_velocities_temperature',
+     >     mt_dbl,1,temp))
+     >   value = .false.
+
+      control_init_velocities = value
+      return
+      end
+
+
+
+
+*     **********************************************
+*     *                                            *
+*     *      control_init_velocities_temperature   *
+*     *                                            *
+*     **********************************************
+      real*8 function control_init_velocities_temperature()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 value
+
+      if (.not.rtdb_get(rtdb,'cpmd:init_velocities_temperature',
+     >                  mt_dbl,1,value))
+     >   value = 300.0d0
+
+      control_init_velocities_temperature = value
+      return
+      end
+
+
+
+
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         

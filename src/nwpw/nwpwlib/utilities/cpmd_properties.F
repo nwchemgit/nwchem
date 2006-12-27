@@ -1,5 +1,5 @@
 c
-c     $Id: cpmd_properties.F,v 1.5 2005-10-06 01:04:34 bylaska Exp $
+c     $Id: cpmd_properties.F,v 1.6 2006-12-27 19:47:52 bylaska Exp $
 c
 
 *     *********************************
@@ -9,14 +9,19 @@ c
 *     *********************************
       subroutine cpmd_properties(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "rtdb.fh"
+#include "errquit.fh"
 
+*     **** local variables ****
       logical value
       character*30 filename
       character*255 full_filename
+
+*     **** external functions ****
+      logical  control_Fei
+      external control_Fei
 
       if (.not.rtdb_cget(rtdb,'cpmd:ion_motion_filename',1,filename))
      >  call util_file_prefix('ion_motion',filename)
@@ -29,6 +34,12 @@ c
 
       call pair_dist(full_filename)
       call velocity_autocorrelation(full_filename)
+
+*     **** perform shake force averaging if Fei set *****
+      if (control_Fei()) then
+         call shake_analysis(rtdb)
+      end if
+
       return
       end
 

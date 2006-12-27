@@ -1,5 +1,5 @@
 *
-* $Id: cpmdv5.F,v 1.54 2006-10-13 01:43:58 bylaska Exp $
+* $Id: cpmdv5.F,v 1.55 2006-12-27 19:47:52 bylaska Exp $
 *
 
 ***********************************************************************
@@ -607,7 +607,7 @@ c      parameter (autoatm =290.360032539d6)
       call MOTION_init(rtdb)   ! unit=19
 
 *     *** fei io ****
-      call fei_init()
+      call fei_init(rtdb)
 
 *     **** ecce print ****
       call ecce_print_module_entry('task optimize')
@@ -1199,14 +1199,15 @@ c    >              dbl_mb(lmd(1)),ierr)
       value = MA_free_heap(Hpsi(2))
       value = MA_free_heap(dn(2))
       value = MA_free_heap(eig(2))
-      value = MA_free_heap(hml(2))
-      value = MA_free_heap(lmd(2))
+      value = Dneall_m_free(hml)
+      value = Dneall_m_free(lmd)
       value = MA_free_heap(psi0(2))
       value = MA_free_heap(psi1(2))
       value = MA_free_heap(psi2(2))
       call D3dB_pfft_end()
       call D3dB_end(1)
       if (control_version().eq.4) call D3dB_end(2)
+      call Dne_end()
 
 *     **** do anaylysis on MOTION files ****
       call cpmd_properties(rtdb)

@@ -1,5 +1,5 @@
 *
-* $Id: ion.F,v 1.43 2006-07-20 17:49:42 bylaska Exp $
+* $Id: ion.F,v 1.44 2006-12-27 19:47:52 bylaska Exp $
 *
 
 *     ***************************
@@ -196,9 +196,9 @@
       external    ion_aname
       external    control_code
       
-      logical          control_frac_coord
+      logical          control_frac_coord,control_init_velocities
       double precision control_ion_time_step,ion_amass
-      external         control_frac_coord
+      external         control_frac_coord,control_init_velocities
       external         control_ion_time_step,ion_amass
 
       call Parallel_taskid(taskid)
@@ -456,9 +456,9 @@ c         eki1=0.5d0*eki1
 
 
 *     ***********************
-*     *						*
-*     *	     ion_q			*
-*     *						*
+*     *	  	            *
+*     *	     ion_q	    *
+*     *			    *
 *     ***********************
       real*8 function ion_q(i)
       implicit none
@@ -485,9 +485,9 @@ c         eki1=0.5d0*eki1
 
 
 *     ***********************
-*     *						*
-*     *	     ion_zv			*
-*     *						*
+*     *		   	    *
+*     *	     ion_zv	    *
+*     *			    *
 *     ***********************
 *
 *     Used by dplot routines
@@ -531,9 +531,9 @@ c         eki1=0.5d0*eki1
       end
 
 *     ***********************
-*     *						*
-*     *	     ion_atn		*
-*     *						*
+*     *			    *
+*     *	     ion_atn	    *
+*     *			    *
 *     ***********************
       integer function ion_atn(ia)
       implicit none
@@ -702,14 +702,48 @@ c         eki1=0.5d0*eki1
      >               ke_total,kg_total,ke_count
 
 *     **** local variables ****
+      double precision kb
+      parameter (kb=3.16679d-6)
+
       integer i
-      real*8  vgx,vgy,vgz
+      real*8  vgx,vgy,vgz,T
 
 *     **** external functions ****
-      logical  control_COM_shift
-      real*8   control_rti,ion_amass
-      external control_COM_shift
-      external control_rti,ion_amass
+      logical  control_COM_shift,control_init_velocities
+      real*8   control_rti,ion_amass,util_random
+      real*8   control_init_velocities_temperature
+      external control_COM_shift,control_init_velocities
+      external control_rti,ion_amass,util_random
+      external control_init_velocities_temperature
+
+      !**** generate random initial velocities *****
+      if (control_init_velocities()) then
+         vgx = util_random(394) !*** initialize random sequence ****
+         do i=1,3*nion
+            dbl_mb(r0(1)+i-1) = 0.1d0*(0.5d0-util_random(0))
+         end do
+         call center_v_mass(vgx,vgy,vgz)
+         do i=1,nion
+            dbl_mb(r0(1)+(i-1)*3+0) = dbl_mb(r0(1)+(i-1)*3+0)-vgx
+            dbl_mb(r0(1)+(i-1)*3+1) = dbl_mb(r0(1)+(i-1)*3+1)-vgy
+            dbl_mb(r0(1)+(i-1)*3+2) = dbl_mb(r0(1)+(i-1)*3+2)-vgz
+         end do
+         eki0 = 0.0d0
+         do i=1,nion
+            eki0 = eki0 + ion_amass(i)*( dbl_mb(r0(1)+(i-1)*3 + 0)**2
+     >                                 + dbl_mb(r0(1)+(i-1)*3 + 1)**2
+     >                                 + dbl_mb(r0(1)+(i-1)*3 + 2)**2)
+         end do
+         eki0=0.5d0*eki0
+         if (nion.gt.2) then
+            T = 2.0d0*eki0/(3.0d0*nion-6.0d0)/kb
+         else
+            T = 2.0d0*eki0/kb
+         end if
+         T = dsqrt(control_init_velocities_temperature()/T)
+         call dscal(3*nion,T,dbl_mb(r0(1)),1)
+
+      end if
 
 
 *     **** remove ion velocities using ion_FixIon ****
@@ -739,9 +773,9 @@ c         eki1=0.5d0*eki1
 *     **** shift by velocity COM ****
       if (control_COM_shift()) then
       do i=1,nion
-         dbl_mb(r0(1)+(i-1)+0) = dbl_mb(r0(1)+(i-1)+0)-vgx
-         dbl_mb(r0(1)+(i-1)+1) = dbl_mb(r0(1)+(i-1)+1)-vgy
-         dbl_mb(r0(1)+(i-1)+2) = dbl_mb(r0(1)+(i-1)+2)-vgz
+         dbl_mb(r0(1)+(i-1)*3+0) = dbl_mb(r0(1)+(i-1)*3+0)-vgx
+         dbl_mb(r0(1)+(i-1)*3+1) = dbl_mb(r0(1)+(i-1)*3+1)-vgy
+         dbl_mb(r0(1)+(i-1)*3+2) = dbl_mb(r0(1)+(i-1)*3+2)-vgz
       end do
       end if
 
@@ -1170,6 +1204,7 @@ c         eki1=0.5d0*eki1
       double precision scale,dt,h
       double precision vgx,vgy,vgz
       double precision sa1,sa2
+      double precision x,y,z,rr1,rr2
 
 *     *** external functions ****
       logical          control_rotation,control_translation
@@ -1200,6 +1235,7 @@ c         eki1=0.5d0*eki1
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
+
 
 *     **** make sure ions are in cell ***
       call incell3(nion,dbl_mb(r2(1)),
@@ -1502,6 +1538,7 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
       integer i
       double precision scale,dt
       double precision vgx,vgy,vgz
+      double precision x,y,z,rr1,rr2
 
 *     *** external functions ****
       logical          control_translation
@@ -1528,6 +1565,7 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
+
 
 *     **** make sure ions are in cell ***
       call incell2(nion,dbl_mb(r2(1)),
@@ -1610,6 +1648,7 @@ c     >                        + (2.0d0*util_random(0)-1.0d0)*alpha
 
 *     ***** impose molecular constraints ***
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
+
 
 *     **** make sure ions are in cell ***
       call incell3(nion,dbl_mb(r2(1)),

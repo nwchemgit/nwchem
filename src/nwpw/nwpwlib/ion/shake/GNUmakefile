@@ -1,13 +1,14 @@
 #
-# $Id: GNUmakefile,v 1.4 2001-11-11 01:29:05 bylaska Exp $
+# $Id: GNUmakefile,v 1.5 2006-12-27 19:47:52 bylaska Exp $
 #
 
  OBJ_OPTIMIZE = \
-            shake_chain.o \
-			molecular.o \
-			pspw_molecule.o \
-			pspw_atom.o \
-			pspw_bond.o
+            	shake_chain.o \
+		shake_analysis.o \
+		molecular.o \
+		pspw_molecule.o \
+		pspw_atom.o \
+		pspw_bond.o
 
 	  OBJ = 
 
