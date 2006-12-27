@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.14 2006-11-10 22:01:11 d3j191 Exp $
+c $Id: ana_groups.F,v 1.15 2006-12-27 18:06:42 d3j191 Exp $
 c
       implicit none
 c
@@ -48,7 +48,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.14 2006-11-10 22:01:11 d3j191 Exp $
+c $Id: ana_groups.F,v 1.15 2006-12-27 18:06:42 d3j191 Exp $
 c
       implicit none
 c
@@ -161,8 +161,8 @@ c
       real*8 x(nsa,3),vi(3),vj(3)
 c
       integer igrp,jgrp
-      integer i,j,jfrom,ia,ja,number
-      real*8 dist,dx,dy,dz,dot
+      integer i,j,jfrom,ia,ja,number,nsum
+      real*8 dist,dx,dy,dz,dot,dotsum
 c
       igrp=igroups(igr,1)
       jgrp=igroups(igr,2)
@@ -205,13 +205,15 @@ c 1001 format(2(i5,a6,' ',a5,':',a5,' '),f12.6)
  1003 format(i5,7f12.6)
       number=number+1
     1 continue
+      dotsum=0.0d0
+      nsum=0
       do 2 i=1,ito
       ia=idef(igrp,i)
       ja=idef(jgrp,i)
       vi(1)=x(ia,1)-x(ja,1)
       vi(2)=x(ia,2)-x(ja,2)
       vi(3)=x(ia,3)-x(ja,3)
-      do 3 j=i,ito
+      do 3 j=i+1,ito
       ia=idef(igrp,j)
       ja=idef(jgrp,j)
       vj(1)=x(ia,1)-x(ja,1)
@@ -220,10 +222,14 @@ c 1001 format(2(i5,a6,' ',a5,':',a5,' '),f12.6)
       dot=(vi(1)*vj(1)+vi(2)*vj(2)+vi(3)*vj(3))/
      + (sqrt(vi(1)**2+vi(2)**2+vi(3)**2)*
      +  sqrt(vj(1)**2+vj(2)**2+vj(3)**2))
-      write(lfngrp,1004) i,j,dot
- 1004 format(2i5,f12.6)
+c      write(lfngrp,1004) i,j,dot
+c 1004 format(2i5,f12.6)
+      dotsum=dotsum+dot
+      nsum=nsum+1
     3 continue
     2 continue
+      write(lfngrp,1005) time,dotsum/dble(nsum)
+ 1005 format('da ',2f12.6)
 c    1 continue
 c
       write(lfngrp,1002) 0
