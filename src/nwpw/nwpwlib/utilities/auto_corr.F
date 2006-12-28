@@ -1,5 +1,5 @@
 c
-c     $Id: auto_corr.F,v 1.5 2003-10-17 22:56:53 carlfahl Exp $
+c     $Id: auto_corr.F,v 1.6 2006-12-28 01:56:52 bylaska Exp $
 c
 
 *     *********************************
@@ -232,6 +232,8 @@ c
      
       end if
 
+*     *** synchronization ***
+      call ga_sync()
 
       return
       end

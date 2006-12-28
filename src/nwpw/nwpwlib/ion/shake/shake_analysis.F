@@ -1,5 +1,5 @@
 *
-* $Id: shake_analysis.F,v 1.1 2006-12-27 19:52:17 bylaska Exp $
+* $Id: shake_analysis.F,v 1.2 2006-12-28 01:56:52 bylaska Exp $
 *
 
 *     ***************************
@@ -24,6 +24,8 @@
       character*255 full_filename
 
 *     **** external functions ****
+
+      call ga_sync()
 
       call Parallel_taskid(taskid)
 
@@ -54,6 +56,7 @@
          call molecular_end()
 
       end if
+      call ga_sync()
       value = rtdb_parallel(.true.)
    
 
