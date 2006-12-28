@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.74 2006-12-28 19:24:27 bylaska Exp $
+* $Id: cgsdv5.F,v 1.75 2006-12-28 21:52:24 bylaska Exp $
 *
 
 ***********************************************************************
@@ -62,7 +62,6 @@
       real*8  EV,pi
       real*8  icharge
       integer i,k,ia,nion,minimizer,mapping,mapping1d
-      integer nbq
   
 
 
@@ -324,7 +323,7 @@ c     value = psi_initialize()
             write(luout,1131) 'LDA (Vosko et al) parameterization'
          ELSE IF (control_gga().eq.10) THEN
             write(luout,1131) 
-     >      'PBE9luout (White and Bird) parameterization'
+     >      'PBE96 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.11) THEN
             write(luout,1131) 
      >      'BLYP (White and Bird) parameterization'
