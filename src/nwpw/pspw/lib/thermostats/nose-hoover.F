@@ -1,5 +1,5 @@
 *
-* $Id: nose-hoover.F,v 1.7 2006-08-13 01:03:28 bylaska Exp $
+* $Id: nose-hoover.F,v 1.8 2006-12-28 19:24:27 bylaska Exp $
 *
 
 *     ***************************
@@ -26,7 +26,7 @@
 
 
 *     **** local variables ****
-      logical value
+      logical value,nosers
       integer i,rtdb,n,m
       real*8 pi,am,fmass,tmpe
       real*8 Te,Pe_tmp,betae
@@ -59,12 +59,15 @@
       Pr_tmp = control_Nose_Pr()
 
       rtdb   = control_rtdb()
+      if (.not.rtdb_get(rtdb,'cpmd:nose_restart',mt_log,1,nosers)) 
+     >   nosers = .true.
 
       if (.not.rtdb_get(rtdb,'cpmd:Mchain',mt_int,1,Mchain)) Mchain = 1
       if (.not.rtdb_get(rtdb,'cpmd:Nchain',mt_int,1,Nchain)) Nchain = 1
       if (.not.rtdb_get(rtdb,'cpmd:Ne_chain',mt_dbl,1,Ne_chain)) 
      >   Ne_chain = 3.0d0*nemax
-      if (.not.rtdb_get(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init))
+      if ( (.not.rtdb_get(rtdb,'cpmd:eke0',mt_dbl,1,eke0_init))
+     >      .or.(.not.nosers))
      >   eke0_init = eke0
 
       fmass  = control_fake_mass()
@@ -91,11 +94,14 @@
 c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
 c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
 c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
-      if (.not.rtdb_get(rtdb,'cpmd:Xe1',mt_dbl,Mchain,dbl_mb(Xe1(1)))) 
+      if ((.not.rtdb_get(rtdb,'cpmd:Xe1',mt_dbl,Mchain,dbl_mb(Xe1(1)))) 
+     >      .or.(.not.nosers))
      >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
-      if (.not.rtdb_get(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))) 
+      if ((.not.rtdb_get(rtdb,'cpmd:Xe0',mt_dbl,Mchain,dbl_mb(Xe0(1)))) 
+     >      .or.(.not.nosers))
      >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
-      if (.not.rtdb_get(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))) 
+      if ((.not.rtdb_get(rtdb,'cpmd:Xem',mt_dbl,Mchain,dbl_mb(Xem(1)))) 
+     >      .or.(.not.nosers))
      >  call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
 
       call dcopy(Mchain,0.0d0,0,dbl_mb(Xe2(1)),1)
@@ -105,11 +111,14 @@ c      call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
 c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
 c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
 c      call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
-      if (.not.rtdb_get(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))) 
+      if ((.not.rtdb_get(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))) 
+     >      .or.(.not.nosers))
      >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
-      if (.not.rtdb_get(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))) 
+      if ((.not.rtdb_get(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))) 
+     >      .or.(.not.nosers))
      >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
-      if (.not.rtdb_get(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))) 
+      if ((.not.rtdb_get(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))) 
+     >      .or.(.not.nosers))
      >  call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
 
       call dcopy(Nchain,0.0d0,0,dbl_mb(Xr2(1)),1)
@@ -165,7 +174,7 @@ c        Er0 = 0.5d0*(1)*kb*Tr
       value = rtdb_get(rtdb,'cpmd:Qe',mt_dbl,Mchain,dbl_mb(Qe(1)))
      >   .and.rtdb_get(rtdb,'cpmd:Qr',mt_dbl,Nchain,dbl_mb(Qr(1)))
       
-      if (.not.value) then
+      if ((.not.value).or.(.not.nosers)) then
         do m=1,Mchain
          dbl_mb(Qe(1)+m-1)=dbl_mb(Ee0(1)+m-1)*(dbl_mb(Pe(1)+m-1)/pi)**2
         end do

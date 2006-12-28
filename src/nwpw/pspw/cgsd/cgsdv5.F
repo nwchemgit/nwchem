@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.73 2006-12-28 18:29:27 bylaska Exp $
+* $Id: cgsdv5.F,v 1.74 2006-12-28 19:24:27 bylaska Exp $
 *
 
 ***********************************************************************
@@ -194,7 +194,7 @@
          write(luout,1010)
          write(luout,1000)
          call nwpw_message(1)
-         write(6,1110)
+         write(luout,1110)
          call flush(luout)
       end if
       
@@ -308,62 +308,62 @@ c     value = psi_initialize()
          if (mapping.eq.1) write(luout,1112) 
          if (mapping.eq.2) write(luout,1113) 
          if (control_balance()) then
-           write(6,1114)
+           write(luout,1114)
          else
-           write(6,1116)
+           write(luout,1116)
          end if
-         write(6,1115)
+         write(luout,1115)
 
-         write(6,1121) control_boundry(),control_version()
-         if (psi_ispin().eq.1) write(6,1130) "restricted"
-         if (psi_ispin().eq.2) write(6,1130) "unrestricted"
-         if (qmmm) write(6,1122)
+         write(luout,1121) control_boundry(),control_version()
+         if (psi_ispin().eq.1) write(luout,1130) "restricted"
+         if (psi_ispin().eq.2) write(luout,1130) "unrestricted"
+         if (qmmm) write(luout,1122)
          IF (control_gga().eq.-1) THEN
-            write(6,1131) 'off'
+            write(luout,1131) 'off'
          ELSE IF (control_gga().eq.0) THEN
-            write(6,1131) 'LDA (Vosko et al) parameterization'
+            write(luout,1131) 'LDA (Vosko et al) parameterization'
          ELSE IF (control_gga().eq.10) THEN
-            write(6,1131) 
-     >      'PBE96 (White and Bird) parameterization'
+            write(luout,1131) 
+     >      'PBE9luout (White and Bird) parameterization'
          ELSE IF (control_gga().eq.11) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'BLYP (White and Bird) parameterization'
          ELSE IF (control_gga().eq.12) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'revPBE (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.110) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'PBE0 (White and Bird) parameterization'
          ELSE IF (control_gga().eq.112) THEN
-            write(6,1131) 
+            write(luout,1131) 
      >      'revPBE0 (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
-            write(6,1131) 'Hartree-Fock'
+            write(luout,1131) 'Hartree-Fock'
          ELSE
-            write(6,1131) 'unknown parameterization'
+            write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
          END IF
-         if (fractional) write(6,1132)
-         call pspw_print_SIC(6)
-         call pspw_print_HFX(6)
-         write(6,1140)
+         if (fractional) write(luout,1132)
+         call pspw_print_SIC(luout)
+         call pspw_print_HFX(luout)
+         write(luout,1140)
          do ia = 1,psp_npsp()
-           write(6,1150) ia,psp_atom(ia),
+           write(luout,1150) ia,psp_atom(ia),
      >                    psp_zv(ia),psp_lmax(ia)
            comment = psp_comment(ia)
            i = inp_strlen(comment)
-           write(6,1157) comment(1:i)
-           write(6,1158) psp_psp_type(ia)
-           write(6,1152) psp_lmax(ia)
-           write(6,1153) psp_locp(ia)
-           write(6,1154) psp_nprj(ia)
-           if (control_version().eq.4) write(6,1156) psp_rlocal(ia)
+           write(luout,1157) comment(1:i)
+           write(luout,1158) psp_psp_type(ia)
+           write(luout,1152) psp_lmax(ia)
+           write(luout,1153) psp_locp(ia)
+           write(luout,1154) psp_nprj(ia)
+           if (control_version().eq.4) write(luout,1156) psp_rlocal(ia)
            if (psp_semicore(ia))
-     >         write(6,1155) psp_rcore(ia),psp_ncore(ia)
-           write(6,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
-           write(6,*)
+     >         write(luout,1155) psp_rcore(ia),psp_ncore(ia)
+           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
+           write(luout,*)
          end do
 
          icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
@@ -381,95 +381,96 @@ c     value = psi_initialize()
             end do
          end if
          icharge = icharge + ion_TotalCharge()
-         write(6,1159) icharge
+         write(luout,1159) icharge
 
-         write(6,1160)
-         write(6,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
+         write(luout,1160)
+         write(luout,1170) (psp_atom(K),ion_natm(K),K=1,psp_npsp())
          if (hprint) then
-         write(6,1180)
+         write(luout,1180)
          do I=1,ion_nion()
            if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+           write(luout,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
            else
-           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
+           write(luout,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3),
      >                   ion_amass(I)/1822.89d0
            end if
          end do
-         write(6,1200) cx,cy,cz
-         write(6,1210) gx,gy,gz
+         write(luout,1200) cx,cy,cz
+         write(luout,1210) gx,gy,gz
 
-         call pspw_qmmm_Print(6)
-         call pspw_charge_Print(6)
+         call pspw_qmmm_Print(luout)
+         call pspw_charge_Print(luout)
          end if
 
-         !write(6,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
+         !write(luout,1220) psi_ne(1),psi_ne(psi_ispin()),' (fourier space)'
          if (fractional) then
-          write(6,1219) en(1),en(psi_ispin()),' (   fractional)'
-          write(6,1221) psi_ne(1),psi_neq(1),
+          write(luout,1219) en(1),en(psi_ispin()),' (   fractional)'
+          write(luout,1221) psi_ne(1),psi_neq(1),
      >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
      >                  ' (fourier space)'
          else
-          write(6,1220) psi_ne(1),psi_neq(1),
+          write(luout,1220) psi_ne(1),psi_neq(1),
      >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
      >                 ' (fourier space)'
-          write(6,1221) psi_ne(1),psi_neq(1),
+          write(luout,1221) psi_ne(1),psi_neq(1),
      >                  psi_ne(psi_ispin()),psi_neq(psi_ispin()),
      >                  ' (fourier space)'
          end if
-         write(6,1230)
-         write(6,1233) control_cell_name()
-         write(6,1241) lattice_unita(1,1),
+         write(luout,1230)
+         write(luout,1233) control_cell_name()
+         write(luout,1241) lattice_unita(1,1),
      >                 lattice_unita(2,1),
      >                 lattice_unita(3,1)
-         write(6,1242) lattice_unita(1,2),
+         write(luout,1242) lattice_unita(1,2),
      >                 lattice_unita(2,2),
      >                 lattice_unita(3,2)
-         write(6,1243) lattice_unita(1,3),
+         write(luout,1243) lattice_unita(1,3),
      >                 lattice_unita(2,3),
      >                 lattice_unita(3,3)
-         write(6,1244) lattice_unitg(1,1),
+         write(luout,1244) lattice_unitg(1,1),
      >                 lattice_unitg(2,1),
      >                 lattice_unitg(3,1)
-         write(6,1245) lattice_unitg(1,2),
+         write(luout,1245) lattice_unitg(1,2),
      >                 lattice_unitg(2,2),
      >                 lattice_unitg(3,2)
-         write(6,1246) lattice_unitg(1,3),
+         write(luout,1246) lattice_unitg(1,3),
      >                 lattice_unitg(2,3),
      >                 lattice_unitg(3,3)
          call lattice_abc_abg(a,b,c,alpha,beta,gamma)
-         write(6,1232) a,b,c,alpha,beta,gamma
-         write(6,1231) lattice_omega()
-         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
+         write(luout,1232) a,b,c,alpha,beta,gamma
+         write(luout,1231) lattice_omega()
+         write(luout,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(0),pack_nwave(0)
-         write(6,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
+         write(luout,1251) lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
      >                 pack_nwave_all(1),pack_nwave(1)
          if (control_version().eq.3) then
-         write(6,1260) ewald_rcut(),ewald_ncut()
-         write(6,1261) ewald_mandelung()
+         write(luout,1260) ewald_rcut(),ewald_ncut()
+         write(luout,1261) ewald_mandelung()
          end if
-         write(6,1270)
-         write(6,1280) control_time_step(),control_fake_mass()
-         write(6,1290) control_tole(),control_tolc()
-         write(6,1281) control_it_in()*control_it_out(),
+         write(luout,1270)
+         write(luout,1280) control_time_step(),control_fake_mass()
+         write(luout,1290) control_tole(),control_tolc()
+         write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
          if (minimizer.eq.5) then
-           write(6,1291)
+           write(luout,1291)
            if (control_ks_algorithm().eq.0) 
-     >       write(6,1292) "conjugate gradient"
+     >       write(luout,1292) "conjugate gradient"
            if (control_ks_algorithm().eq.1) 
-     >       write(6,1292) "rmm-diis"
-           write(6,1295) control_ks_maxit_orb(),control_ks_maxit_orbs()
+     >       write(luout,1292) "rmm-diis"
+           write(luout,1295) control_ks_maxit_orb(),
+     >                       control_ks_maxit_orbs()
            if (control_scf_algorithm().eq.0) 
-     >       write(6,1293) "simple mixing"
+     >       write(luout,1293) "simple mixing"
            if (control_scf_algorithm().eq.1) 
-     >       write(6,1293) "Anderson mixing"
+     >       write(luout,1293) "Anderson mixing"
            if (control_scf_algorithm().eq.2) 
-     >       write(6,1293) "Johnson-Pulay mixing"
-           write(6,1294) control_ks_alpha()
+     >       write(luout,1293) "Johnson-Pulay mixing"
+           write(luout,1294) control_ks_alpha()
          end if
-         write(6,1300)
-         call util_flush(6)
+         write(luout,1300)
+         call util_flush(luout)
       end if
 
 *                |***************************|
@@ -627,58 +628,58 @@ c     end if
          T3=CPU4-CPU3
          T4=CPU4-CPU1
          AV=T2/dble(electron_count())
-         write(6,1801)
-         write(6,1802)
-         write(6,1803) T1
-         write(6,1804) T2
-         write(6,1805) T3
-         write(6,1806) T4
-         write(6,1807) AV,electron_count(),linesearch_count()
+         write(luout,1801)
+         write(luout,1802)
+         write(luout,1803) T1
+         write(luout,1804) T2
+         write(luout,1805) T3
+         write(luout,1806) T4
+         write(luout,1807) AV,electron_count(),linesearch_count()
 
          if (oprint) then
-         write(6,1809) 'Time spent doing               ',
+         write(luout,1809) 'Time spent doing               ',
      >              'total','step'
-         write(6,1808) '  FFTs                       : ', 
+         write(luout,1808) '  FFTs                       : ', 
      >                 nwpw_timing(1),
      >                 nwpw_timing(1)/dble(electron_count())           
-         write(6,1808) '  dot products               : ', 
+         write(luout,1808) '  dot products               : ', 
      >                 nwpw_timing(2),
      >                 nwpw_timing(2)/dble(electron_count())           
-         write(6,1808) '  geodesic                   : ', 
+         write(luout,1808) '  geodesic                   : ', 
      >                 nwpw_timing(10),
      >                 nwpw_timing(10)/dble(electron_count())           
-         write(6,1808) '  exchange correlation       : ', 
+         write(luout,1808) '  exchange correlation       : ', 
      >                 nwpw_timing(4),
      >                 nwpw_timing(4)/dble(electron_count())           
-         write(6,1808) '  local pseudopotentials     : ', 
+         write(luout,1808) '  local pseudopotentials     : ', 
      >                 nwpw_timing(5),
      >                 nwpw_timing(5)/dble(electron_count())           
-         write(6,1808) '  non-local pseudopotentials : ', 
+         write(luout,1808) '  non-local pseudopotentials : ', 
      >                 nwpw_timing(6),
      >                 nwpw_timing(6)/dble(electron_count())           
-         write(6,1808) '  hartree potentials         : ', 
+         write(luout,1808) '  hartree potentials         : ', 
      >                 nwpw_timing(7),
      >                 nwpw_timing(7)/dble(electron_count())           
-         write(6,1808) '  structure factors          : ', 
+         write(luout,1808) '  structure factors          : ', 
      >                 nwpw_timing(8),
      >                 nwpw_timing(8)/dble(electron_count())           
-         write(6,1808) '  masking and packing        : ', 
+         write(luout,1808) '  masking and packing        : ', 
      >                 nwpw_timing(9),
      >                 nwpw_timing(9)/dble(electron_count())           
-         write(6,1808) '  queue fft                  : ', 
+         write(luout,1808) '  queue fft                  : ', 
      >                 nwpw_timing(30),
      >                 nwpw_timing(30)/dble(electron_count())           
-         write(6,1808) '  queue fft (serial)         : ', 
+         write(luout,1808) '  queue fft (serial)         : ', 
      >                 nwpw_timing(31),
      >                 nwpw_timing(31)/dble(electron_count())           
-         write(6,1808) '  queue fft (message passing): ', 
+         write(luout,1808) '  queue fft (message passing): ', 
      >                 nwpw_timing(32),
      >                 nwpw_timing(32)/dble(electron_count())           
-         write(6,1808) '  HFX potential              : ', 
+         write(luout,1808) '  HFX potential              : ', 
      >                 nwpw_timing(33),
      >                 nwpw_timing(33)/dble(electron_count())           
          end if
-         write(6,*)
+         write(luout,*)
          CALL nwpw_MESSAGE(4)
       end if 
 
@@ -820,7 +821,7 @@ c     end if
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
- 9000 if (taskid.eq.MASTER) write(6,9010) ierr
+ 9000 if (taskid.eq.MASTER) write(luout,9010) ierr
       call Parallel_Finalize()
 
       cgsdv5 = value

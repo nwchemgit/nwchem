@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.15 2006-12-27 19:47:52 bylaska Exp $
+c $Id: cpmd_input.F,v 1.16 2006-12-28 19:24:27 bylaska Exp $
 c
 
 
@@ -91,7 +91,7 @@ c
        double precision fake_mass,time_step,rcut
        integer loop(2),npsp,ncut
        double precision scaling(2),ecut,wcut
-       logical          nose
+       logical          nose,nosers
        double precision Pe,Te,fe
        double precision Pr,Tr
         
@@ -336,7 +336,8 @@ c
 c
 c Nose-Hoover
 c
- 1900 nose = .true.
+ 1900 nose   = .true.
+      nosers = .true.
       Pe = 100.00d0
       Pr = 100.00d0
       Te = 298.15d0
@@ -349,7 +350,14 @@ c
       Pr = fe
       if (.not. inp_f(fe)) goto 1901   
       Tr = fe
+      if (.not.inp_a(zone_name)) goto 1901
+      if (inp_compare(.false.,zone_name,'restart'))    nosers=.true.
+      if (inp_compare(.false.,zone_name,'start'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'clear'))      nosers=.false.
+      if (inp_compare(.false.,zone_name,'initialize')) nosers=.false.
  1901 value = rtdb_put(rtdb,'cpmd:nose',mt_log,1,nose)
+      value = value.and.
+     >        rtdb_put(rtdb,'cpmd:nose_restart',mt_log,1,nosers)
       value = value.and.rtdb_put(rtdb,'cpmd:Pe',mt_dbl,1,Pe)
       value = value.and.rtdb_put(rtdb,'cpmd:Te',mt_dbl,1,Te)
       value = value.and.rtdb_put(rtdb,'cpmd:Pr',mt_dbl,1,Pr)
