@@ -1,5 +1,5 @@
 *
-* $Id: cgsdv5.F,v 1.72 2006-10-07 00:10:05 bylaska Exp $
+* $Id: cgsdv5.F,v 1.73 2006-12-28 18:29:27 bylaska Exp $
 *
 
 ***********************************************************************
@@ -14,7 +14,6 @@
 
       logical function cgsdv5(rtdb,flag)
       implicit none
-#include "errquit.fh"
       integer rtdb
       integer flag
 
@@ -24,6 +23,9 @@
 #include "inp.fh"
 #include "util.fh"
 #include "frac_occ.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+
 
 #include "nwpw_timing.fh"
       
@@ -176,23 +178,24 @@
 
 *     ***** print out header ****
       if (oprint) then
-         write(6,1000)
-         write(6,1010)
-         write(6,1020)
-         write(6,1010)
-         write(6,1030)
-         write(6,1010)
-         write(6,1035)
-         write(6,1010)
-         write(6,1040)
-         write(6,1010)
-         write(6,1041)
-         write(6,1042)
-         write(6,1043)
-         write(6,1010)
-         write(6,1000)
+         write(luout,1000)
+         write(luout,1010)
+         write(luout,1020)
+         write(luout,1010)
+         write(luout,1030)
+         write(luout,1010)
+         write(luout,1035)
+         write(luout,1010)
+         write(luout,1040)
+         write(luout,1010)
+         write(luout,1041)
+         write(luout,1042)
+         write(luout,1043)
+         write(luout,1010)
+         write(luout,1000)
          call nwpw_message(1)
          write(6,1110)
+         call flush(luout)
       end if
       
 
@@ -300,10 +303,10 @@ c     value = psi_initialize()
 *                |**************************|
 
       if (oprint) then
-         write(6,1111) np
-         write(6,1117) np_i,np_j
-         if (mapping.eq.1) write(6,1112) 
-         if (mapping.eq.2) write(6,1113) 
+         write(luout,1111) np
+         write(luout,1117) np_i,np_j
+         if (mapping.eq.1) write(luout,1112) 
+         if (mapping.eq.2) write(luout,1113) 
          if (control_balance()) then
            write(6,1114)
          else
