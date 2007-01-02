@@ -1,5 +1,5 @@
 *
-* $Id: control.F,v 1.94 2006-12-27 19:47:52 bylaska Exp $
+* $Id: control.F,v 1.95 2007-01-02 18:36:50 bylaska Exp $
 *
 
 *     ***********************************
@@ -1982,6 +1982,89 @@ c      end
       multiplicity = new_multiplicity
       return 
       end
+
+*     *****************************************
+*     *                                       *
+*     *   control_check_charge_multiplicity   *
+*     *                                       *
+*     *****************************************
+      logical function control_check_charge_multiplicity()
+      implicit none
+
+#include "control.fh"
+
+*    *** local variables ***
+      logical check
+      real*8  icharge,tcharge,t
+      integer mult,x,x_wf
+      integer ispin_wf,ne_wf(2),x_f
+
+*     ***** local functions ****
+      logical  psi_filefind
+      external psi_filefind
+      real*8   control_TotalCharge
+      external control_TotalCharge
+      real*8   ion_TotalCharge
+      external ion_TotalCharge
+
+*     **** check wavefunction file ****
+      if (psi_filefind()) then
+
+*        **** get mult and e-charge from wavefunction file ****
+         call psi_get_ne(ispin_wf,ne_wf)
+         x_wf = ne_wf(1)+ne_wf(2)
+         mult = ne_wf(1)-ne_wf(2) + 1
+         if (ispin_wf.eq.1) then
+            x_wf = 2*x_wf
+            mult = 1
+         end if
+
+*        **** get mult and e-charge from control ****
+         tcharge = control_TotalCharge()
+         icharge = ion_TotalCharge()
+         t = icharge - tcharge       !** total number of electrons **
+         x = NINT(t)
+
+
+*        **** reassign spin to agree with total number of electrons ****
+         if ((mod(x,2).ne.0).and.(ispin.eq.1)) then !** odd number of electrons **
+            ispin = 2
+         end if
+
+*        **** reassign multiplicity to agree with total number of electrons ****
+*        *** odd number of electrons and mult odd ***
+         if ((mod(x,2).ne.0) .and.(mod(multiplicity,2).ne.0)) then 
+            multiplicity = multiplicity - 1
+            do while (multiplicity.gt.(x+1))
+               multiplicity = multiplicity - 2
+            end do
+            if (multiplicity.lt.1) multiplicity = 2
+         end if
+*        *** even number of electrons and mult even ***
+         if ((mod(x,2).eq.0) .and.(mod(multiplicity,2).eq.0)) then 
+            multiplicity = multiplicity - 1
+            do while (multiplicity.gt.(x+1))
+               multiplicity = multiplicity - 2
+            end do
+            if (multiplicity.lt.1) multiplicity = 1
+         end if
+
+
+*        **** compare multiplicity, charge, and ispin ****
+         check = ((mult.eq.multiplicity).and.
+     >            (x_wf.eq.x)           .and.
+     >            (ispin.eq.ispin_wf))
+
+*     **** no wavefunction file ***
+      else
+         check = .false.
+      end if
+       
+      control_check_charge_multiplicity = check
+      return
+      end
+
+
 
 
 *     ***********************************

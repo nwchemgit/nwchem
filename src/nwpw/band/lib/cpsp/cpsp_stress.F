@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.2 2006-11-29 02:34:32 d3p708 Exp $
+* $Id: cpsp_stress.F,v 1.3 2007-01-02 18:36:50 bylaska Exp $
 *
 
 
@@ -35,13 +35,13 @@
      >                    'dvl',dvl(2),dvl(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,
-     >                    (3*lmmax_max*npsp*npack1*nbrillioun),
+     >                    (3*nmax_max*lmmax_max*npsp*npack1*nbrillioun),
      >                    'dvnl',dvnl(2),dvnl(1))
 
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       call dcopy(npsp*npack0,0.0d0,0,dbl_mb(dvl(1)),1)
-      call dcopy(3*lmmax_max*npsp*npack1*nbrillioun,
+      call dcopy(3*nmax_max*lmmax_max*npsp*npack1*nbrillioun,
      >           0.0d0,0,
      >           dbl_mb(dvnl(1)),1)
       return
@@ -245,13 +245,13 @@
 
 *     *** local variables ***
       integer nfft3d,npack1,npack,shift,shift2,nbrillioun,nb
-      integer nproj
+      integer nproj,l_prj
       integer i,ii,ia,k,l,n,nn
       integer s,u,v
       real*8  omega,Bus(3,3),hm(3,3),kx,ky,kz
       complex*16 ctmp,cxr
       real*8  pi,scal,weight
-      integer exi(2),vtmp(2),tmp1(2),zsw1(2),zsw3(2)
+      integer exi(2),vtmp(2),tmp1(2),zsw1(2),zsw2(2),zsw3(2)
       integer G(2,3)
       logical value,sd_function
 
@@ -290,7 +290,11 @@
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gz',G(2,3),G(1,3))
       value = value.and.
-     >        MA_push_get(mt_dcpl,nn,'zsw1',zsw1(2),zsw1(1))
+     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >                    'zsw1',zsw1(2),zsw1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nn*nmax_max*lmmax_max,
+     >                    'zsw2',zsw2(2),zsw2(1))
       value = value.and.
      >        MA_push_get(mt_dcpl,9*nn,
      >                    'zsw3',zsw3(2),zsw3(1))
@@ -304,7 +308,7 @@
       call dcopy(9,0.0d0,0,Bus,1)
       do ii=1,ion_nion()
         ia=ion_katm(ii)
-        nproj = int_mb(lmmax(1)+ia-1)
+        nproj = int_mb(nprj(1)+ia-1)
 
         if (nproj.gt.0) then
 
@@ -336,15 +340,20 @@
 *       **** calculate F^(lm)_I = <psi|vnl(nlm)> ****
 *       *********************************************
         do l=1,nproj
-
            shift = vnl(1)+(l-1)*npack1
-     >           + (nb-1)*npack1*lmmax_max
-     >           + (ia-1)*npack1*lmmax_max*nbrillioun
-           
-           sd_function = is_sORd(l,int_mb(lmax(1)+ia-1),
-     >                   int_mb(locp(1)+ia-1))
+     >           + (nb-1)*npack1*nmax_max*lmmax_max
+     >           + (ia-1)*npack1*nmax_max*lmmax_max*nbrillioun
+           l_prj = int_mb(l_projector(1)+(l-1)
+     >                                  +(ia-1)*(nmax_max*lmmax_max))
+           !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
+           k = and(l_prj,1)
+#endif
+           sd_function = (k.eq.0)
 
-      
+
 *          *** current function is s or d ****
            if (sd_function) then
               call Cram_rc_Mul(nb,dbl_mb(shift),
@@ -356,29 +365,58 @@
      >                        dcpl_mb(exi(1)),
      >                        dcpl_mb(vtmp(1)))
            end if
-           call Cram_cc_nzdot(nb,nn,
+           call Cram_cc_inzdot(nb,nn,
      >                        psi1(1+(nb-1)*nn*npack1),
      >                        dcpl_mb(vtmp(1)),
-     >                        dcpl_mb(zsw1(1)))
-           do n=1,nn
-             dcpl_mb(zsw1(1)+n-1) = dconjg(dcpl_mb(zsw1(1)+n-1))
-             dcpl_mb(zsw1(1)+n-1) = dcpl_mb(zsw1(1)+n-1)
-     >                      /(dbl_mb(vnlnrm(1)
-     >                         +(l-1)+(ia-1)*lmmax_max))
-              if (ispin.eq.1)
-     >            dcpl_mb(zsw1(1)+n-1)=2.0d0*dcpl_mb(zsw1(1)+n-1)
-           end do
+     >                        dcpl_mb(zsw1(1)+(l-1)*nn))
+        end do
+        call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
 
-      
-*          **********************************
-*          **** calculate dF^(lm)_I/dhus ****
-*          **********************************
+*       **** zsw2 = Gijl*zsw1 ******
+        call Multiply_Gijl_zsw1(nn,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Gijl(1)
+     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         dcpl_mb(zsw1(1)),
+     >                         dcpl_mb(zsw2(1)))
+
+        if (ispin.eq.1) call dscal(2*nn*nproj,2.0d0,dbl_mb(zsw2(1)),1)
+        do n=1,nn*nproj
+          dcpl_mb(zsw1(1)+n-1) = dconjg(dcpl_mb(zsw1(1)+n-1))
+        end do
+
+
+*       **********************************
+*       **** calculate dF^(lm)_I/dhus ****
+*       **********************************
+        do l=1,nproj
+           shift = vnl(1)+(l-1)*npack1
+     >           + (nb-1)*npack1*nmax_max*lmmax_max
+     >           + (ia-1)*npack1*nmax_max*lmmax_max*nbrillioun
+           l_prj = int_mb(l_projector(1)+(l-1)
+     >                                  +(ia-1)*(nmax_max*lmmax_max))
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
+           k = and(l_prj,1)
+#endif
+           sd_function = (k.eq.0)
+
            do s=1,3
            do u=1,3
-              shift2 = dvnl(1) + (s-1)*npack1
-     >                         + (l-1)*3*npack1
-     >                         + (nb-1)*3*npack1*lmmax_max
-     >                         + (ia-1)*3*npack1*lmmax_max*nbrillioun
+              shift2 = dvnl(1) 
+     >               + (s-1)*npack1
+     >               + (l-1)*3*npack1
+     >               + (nb-1)*3*npack1*nmax_max*lmmax_max
+     >               + (ia-1)*3*npack1*nmax_max*lmmax_max*nbrillioun
 
               call Cram_rr_Mul(nb,dbl_mb(shift2),
      >                         dbl_mb(G(1,u)),
@@ -399,14 +437,14 @@
      >                        psi1(1+(nb-1)*nn*npack1),
      >                        dcpl_mb(vtmp(1)),
      >                        dcpl_mb(zsw3(1)+(u-1)*nn
-     >                                     +(s-1)*nn*3))
+     >                                       +(s-1)*nn*3))
           end do
           end do
 
           do i=1,nn
             do s=1,3
             do u=1,3
-             ctmp = dcpl_mb(zsw1(1)+(i-1))
+             ctmp = dcpl_mb(zsw1(1)+(i-1)+(l-1)*nn)
      >             *dcpl_mb(zsw3(1)+(i-1)
      >                             +(u-1)*nn
      >                             +(s-1)*nn*3)
@@ -424,6 +462,7 @@
       end do !** ii **
 
       value =           MA_pop_stack(zsw3(2))
+      value = value.and.MA_pop_stack(zsw2(2))
       value = value.and.MA_pop_stack(zsw1(2))
       value = value.and.MA_pop_stack(G(2,3))
       value = value.and.MA_pop_stack(G(2,2))
@@ -689,7 +728,7 @@ ccc corrected to complex by pjn 11-7-06
      >                  dbl_mb(dvl(1) + (ia-1)*npack0),
      >                  npack1,nproj,lmmax_max,
      >                  dbl_mb(dvnl(1) 
-     >                        +(ia-1)*3*npack1*lmmax_max*nbrill),
+     >                      +(ia-1)*3*npack1*nmax_max*lmmax_max*nbrill),
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(ncore(1) + npack0 + (ia-1)*5*npack0),
      >                  dcpl_mb(tmp(1)),dbl_mb(tmp2(1)),

@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3.F,v 1.13 2006-08-13 01:03:27 bylaska Exp $
+* $Id: kbppv3.F,v 1.14 2007-01-02 18:36:51 bylaska Exp $
 *
 
 *     **************************************
@@ -290,7 +290,7 @@ c      call Parallel_Init()
       if (mprint) then
       write(*,*)
       write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-      write(*,*)
+      !write(*,*)
       end if
       call openfile(2,full_filename,l,'w',l)     
 

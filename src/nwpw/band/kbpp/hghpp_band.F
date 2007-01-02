@@ -1,16 +1,17 @@
 *
-* $Id: hghppv1.F,v 1.4 2007-01-02 18:36:51 bylaska Exp $
+* $Id: hghpp_band.F,v 1.1 2007-01-02 18:36:49 bylaska Exp $
 *
 
 *     **************************************
 *     *                                    *
-*     *           hghppv1                  *
+*     *           hghpp_band               *
 *     *                                    *
 *     **************************************
 
-      logical function hghppv1(oprint_in,version,
+      logical function hghpp_band(oprint_in,version,
      >                  psp_filename,formatted_filename,
-     >                  ngrid,unita,rlocal)
+     >                  ngrid,unita,
+     >                  nbrillioun,kvectors)
       implicit none
 
 #include "mafdecls.fh"
@@ -24,7 +25,10 @@
       character*25     psp_filename,formatted_filename
       integer          ngrid(3)
       double precision unita(3,3)
-      real*8  rlocal
+      integer nbrillioun
+      real*8  kvectors(3,*)
+
+*     **** local variables ****
       character*255 full_filename
 
       logical value,mprint,hprint,oprint
@@ -55,7 +59,7 @@
 
 *     **** other variables ****
       double precision unitg(3,3)
-      integer nsize,i,j,n,l,m,psp_type,indx
+      integer nsize,i,j,n,l,m,psp_type,indx,nb
       integer nfft1,nfft2,nfft3
       integer nmax,nprj
 
@@ -64,13 +68,12 @@
       external control_print
 
 
-
-
-c      call Parallel_init()
+      !call Parallel_init()
       call Parallel_taskid(taskid)
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
       oprint = (oprint_in.or.hprint)
+
 
       value = .false.
   
@@ -134,8 +137,6 @@ c      call Parallel_init()
 *     **** set the local potential ****
       locp = lmax+1
 
-*     **** set the local potential ****
-      rlocal = 1.0d0
       
       !**** determine nprj ****
       nprj= 0
@@ -199,7 +200,7 @@ c      call Parallel_init()
 
 
 *     **** allocate vl, vnl, G ****
-      nsize = (ngrid(1)/2+1)*ngrid(2)*ngrid(3)
+      nsize = ngrid(1)*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
       value = value.and.MA_alloc_get(mt_dbl,nsize*(nprj),
@@ -239,44 +240,22 @@ c      call Parallel_init()
       nfft1=ngrid(1)
       nfft2=ngrid(2)
       nfft3=ngrid(3)
-      call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
+      call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
       zv = dble(Zion)
 
-      call HGH_local(version,rlocal,
+      call HGH_band_local(version,
      >               zv,rloc,C1,C2,C3,C4,
      >               nfft1,nfft2,nfft3,
      >               dbl_mb(G_indx),
      >               dbl_mb(vl_indx))
 
-      do i=1,nprj
-         n=int_mb(n_prj_indx+i-1)
-         l=int_mb(l_prj_indx+i-1)
-         m=int_mb(m_prj_indx+i-1)
-         call Tesseral(l,m,
-     >                 nfft1,nfft2,nfft3,
-     >                 dbl_mb(G_indx),
-     >                 dbl_mb(Ylm_indx))
-         call HGH_nonlocal(n,l,
-     >                     r(l),
-     >                     nfft1,nfft2,nfft3,
-     >                     dbl_mb(G_indx),
-     >                     dbl_mb(vnl_indx+(i-1)*nsize))
-         if ((taskid.eq.MASTER).and.(oprint)) 
-     >      write(*,*) "creating projector:",n,l,m
-         do j=1,nsize
-          dbl_mb(vnl_indx+(i-1)*nsize+j-1)
-     >    = dbl_mb(vnl_indx+(i-1)*nsize+j-1)*dbl_mb(Ylm_indx+j-1)
-         end do
-
-      end do
-
 
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(*,*) "     ********************************************"
       write(*,*) "     *                                          *"
-      write(*,*) "     *    HGHPPV1 - Pseudopotential Formatter   *"
+      write(*,*) "     *  HGHPP_BAND - Pseudopotential Formatter  *"
       write(*,*) "     *                                          *"
-      write(*,*) "     *      version last updated 11/13/03       *"
+      write(*,*) "     *      version last updated 12/31/06       *"
       write(*,*) "     *                                          *"
       write(*,*) "     *       developed by Eric J. Bylaska       *"
       write(*,*) "     *                                          *"
@@ -294,9 +273,6 @@ c      call Parallel_init()
       write(*,*)
       write(*,111) " local psp cutoff       : ",rloc
       write(*,111) " local psp coefficients : ",C1,C2,C3,C4
-      if (version.eq.4) 
-     >   write(*,*) "  aperiodic cutoff radius        :",rlocal
-      
       write(*,*)
       write(*,*) "Simulation Cell"
       write(*,*) "---------------"
@@ -324,9 +300,8 @@ c      call Parallel_init()
      >                    full_filename)
       l = index(full_filename,' ') - 1
       if (mprint) then
-      write(*,*)
-      write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-      !write(*,*)
+         write(*,*)
+         write(*,*) "Generated formatted_filename: ",full_filename(1:l)
       end if
       call openfile(2,full_filename,l,'w',l)     
 
@@ -353,17 +328,47 @@ c      call Parallel_init()
           call dwrite(2,Gijl,(nmax*nmax*(lmax+1)))
          end if
 
-         if (version.eq.4) call dwrite(2,rlocal,1)
          rcore = 0.0d0
          call dwrite(2,rcore,1)
 
-         call dwrite(2,dbl_mb(vl_indx),nsize)
-         if (nprj.gt.0) then
-           call dwrite(2,dbl_mb(vnl_indx),nsize*nprj)
-         end if
+         call iwrite(2,nbrillioun,1)
+         call dwrite(2,kvectors,3*nbrillioun)
 
-      call closefile(2)
+         call dwrite(2,dbl_mb(vl_indx),nsize)
       end if
+
+
+*     **** generate and write out nonlocal psp ****
+      do nb=1,nbrillioun
+        do i=1,nprj
+           n=int_mb(n_prj_indx+i-1)
+           l=int_mb(l_prj_indx+i-1)
+           m=int_mb(m_prj_indx+i-1)
+           call Tesseral_band(l,m,kvectors(1,nb),
+     >                   nfft1,nfft2,nfft3,
+     >                   dbl_mb(G_indx),
+     >                   dbl_mb(Ylm_indx))
+           call HGH_band_nonlocal(n,l,kvectors(1,nb),
+     >                       r(l),
+     >                       nfft1,nfft2,nfft3,
+     >                       dbl_mb(G_indx),
+     >                       dbl_mb(vnl_indx+(i-1)*nsize))
+           if ((taskid.eq.MASTER).and.(oprint))
+     >        write(*,*) "creating projector:",n,l,m," nb=",nb
+
+           do j=1,nsize
+             dbl_mb(vnl_indx+(i-1)*nsize+j-1)
+     >        = dbl_mb(vnl_indx+(i-1)*nsize+j-1)*dbl_mb(Ylm_indx+j-1)
+           end do
+
+        end do
+
+        if ((taskid.eq.MASTER).and.(nprj.gt.0)) then
+           call dwrite(2,dbl_mb(vnl_indx),nsize*nprj)
+        end if
+      end do
+      if (taskid.eq.MASTER) call closefile(2)
+     
      
 *     **** free heap space ****
       value = MA_free_heap(vl_hndl)
@@ -374,15 +379,15 @@ c      call Parallel_init()
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
       if(.not.value)
-     >  call errquit('hghppv1: deallocatin heap memory', 0, MA_ERR)
+     >  call errquit('hghpp_band: deallocatin heap memory', 0, MA_ERR)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
-      hghppv1 = value
+
+      hghpp_band = value
+
       return
-
- 9999 call errquit('hghppv1:Error reading psp_filename',0, DISK_ERR)
-
+ 9999 call errquit('hghpp_band:Error reading psp_filename',0, DISK_ERR)
       END
 
 

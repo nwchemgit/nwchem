@@ -1,5 +1,5 @@
 *
-* $Id: setup_kbpp_band.f,v 1.1 2001-12-13 03:56:55 bylaska Exp $
+* $Id: setup_kbpp_band.f,v 1.2 2007-01-02 18:36:49 bylaska Exp $
 *
 
 *     *****************************************************
@@ -51,8 +51,6 @@
 
       return
       end
-
-
 
 
       subroutine get_unitg_band(unita,unitg)

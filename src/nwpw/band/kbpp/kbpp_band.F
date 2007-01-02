@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.8 2006-12-05 00:14:40 bylaska Exp $
+* $Id: kbpp_band.F,v 1.9 2007-01-02 18:36:49 bylaska Exp $
 *
 
 *     **************************************
@@ -8,7 +8,7 @@
 *     *                                    *
 *     **************************************
 
-      logical function kbpp_band(oprint,version,
+      logical function kbpp_band(oprint_in,version,
      >                  psp_filename,formatted_filename,
      >                  ngrid,unita,locp,lmax,
      >                  nbrillioun,kvectors)
@@ -17,8 +17,9 @@
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
+#include "util.fh"
 
-      logical          oprint
+      logical          oprint_in
       integer          version
       character*25     psp_filename,formatted_filename
       integer          ngrid(3)
@@ -31,7 +32,7 @@
 *     **** local variables ****
       character*255 full_filename
 
-      logical value
+      logical value,mprint,hprint,oprint
 
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -52,7 +53,11 @@
       double precision rcore,core_charge
 
       integer f_indx,cs_indx,sn_indx
+      integer n_prj_indx,l_prj_indx,m_prj_indx
       integer f_hndl,cs_hndl,sn_hndl
+      integer n_prj_hndl,l_prj_hndl,m_prj_hndl
+
+
 
 *     ***** ngrid data *****
       integer vl_indx,vnl_indx,vnlnrm_indx,G_indx
@@ -60,16 +65,23 @@
 
 *     **** other variables ****
       double precision unitg(3,3)
-      integer nsize,i,l,ierr,nb
+      integer nsize,i,l,ierr,nb,psp_type
       integer nfft1,nfft2,nfft3
+      integer nmax,nprj
 
 *     **** external functions ****
+      logical  control_print
+      external control_print
       double precision simp
       external         simp
 
 
 c      call Parallel_init()
       call Parallel_taskid(taskid)
+      hprint = (taskid.eq.MASTER).and.control_print(print_high)
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      oprint = (oprint_in.or.hprint)
+
 
       value = .false.
   
@@ -157,6 +169,7 @@ c      call Parallel_init()
 
 *     **** allocate vl,vnl,vnlnrm G ****
       lmmax = (lmax+1)**2 - (2*locp+1)
+      nprj  = lmmax
       nsize = (ngrid(1))*ngrid(2)*ngrid(3)
       value = MA_alloc_get(mt_dbl,nsize,
      >                        'vl',vl_hndl,vl_indx)
@@ -168,6 +181,14 @@ c      call Parallel_init()
      >                        'G',G_hndl, G_indx)
       value = MA_alloc_get(mt_dbl,4*nsize,
      >                        'sc_k',sc_k_hndl,sc_k_indx)
+      value = MA_alloc_get(mt_int,nprj,
+     >                        'n_prj', n_prj_hndl, n_prj_indx)
+      value = MA_alloc_get(mt_int,nprj,
+     >                        'l_prj', l_prj_hndl, l_prj_indx)
+      value = MA_alloc_get(mt_int,nprj,
+     >                        'm_prj', m_prj_hndl, m_prj_indx)
+
+
 
 
 *     **** preparation of constants ****
@@ -175,7 +196,6 @@ c      call Parallel_init()
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
-
 
       call integrate_kbpp_band_local(version,
      >                      nrho,drho,lmax,locp,zv,
@@ -188,6 +208,9 @@ c      call Parallel_init()
      >                      nfft1,nfft2,nfft3,lmmax,
      >                                dbl_mb(G_indx),
      >                                dbl_mb(vl_indx),
+     >                                int_mb(n_prj_indx),
+     >                                int_mb(l_prj_indx),
+     >                                int_mb(m_prj_indx),
      >                                dbl_mb(vnlnrm_indx),
      >                                semicore,
      >                                dbl_mb(sc_r_indx),
@@ -258,10 +281,14 @@ c      call Parallel_init()
      >                    .false.,
      >                    full_filename)
       l = index(full_filename,' ') - 1
-      !write(*,*)
-      write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-      !write(*,*)
+      if (mprint) then
+        write(*,*)
+        write(*,*) "Generated formatted_filename: ",full_filename(1:l)
+      end if
       call openfile(2,full_filename,l,'w',l)     
+         call cwrite(2,comment,80)
+         psp_type = 0
+         call iwrite(2,psp_type,1)
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)
          call dwrite(2,unita,9)
@@ -270,8 +297,19 @@ c      call Parallel_init()
          call dwrite(2,zv,1)
          call iwrite(2,lmax,1)
          call iwrite(2,locp,1)
+
+         nmax = 1
+         call iwrite(2,nmax,1)
          call dwrite(2,rc,lmax+1)
-         call dwrite(2,dbl_mb(vnlnrm_indx),lmmax)
+
+         call iwrite(2,nprj,1)
+         if (nprj.gt.0) then
+         call iwrite(2,int_mb(n_prj_indx),nprj)
+         call iwrite(2,int_mb(l_prj_indx),nprj)
+         call iwrite(2,int_mb(m_prj_indx),nprj)
+         call dwrite(2,dbl_mb(vnlnrm_indx),(lmax+1))
+         end if
+         
          call dwrite(2,rcore,1)
 
          call iwrite(2,nbrillioun,1)
@@ -303,6 +341,8 @@ c      call Parallel_init()
      >     call dwrite(2,dbl_mb(vnl_indx),nsize*lmmax)
       end do
 
+
+
       if (taskid.eq.MASTER) then
          if (semicore) then
            call dwrite(2,dbl_mb(sc_k_indx),4*nsize)
@@ -325,6 +365,11 @@ c      call Parallel_init()
       value = MA_free_heap(vnl_hndl)
       value = MA_free_heap(vnlnrm_hndl)
       value = MA_free_heap(G_hndl)
+      value = MA_free_heap(n_prj_hndl)
+      value = MA_free_heap(l_prj_hndl)
+      value = MA_free_heap(m_prj_hndl)
+
+
 
 c      call Parallel_Finalize()
       

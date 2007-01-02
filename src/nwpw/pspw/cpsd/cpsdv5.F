@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.45 2006-10-13 01:43:58 bylaska Exp $
+* $Id: cpsdv5.F,v 1.46 2007-01-02 18:36:51 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -139,8 +139,8 @@
       external     pspw_HFX,pspw_HFX_relaxed
       external     psp_semicore,control_Mulliken,pspw_qmmm_found
       external     psp_rcore,psp_ncore,psp_rlocal
-      logical      psi_filefind
-      external     psi_filefind
+      logical      control_check_charge_multiplicity
+      external     control_check_charge_multiplicity
       real*8       nwpw_timing
       external     nwpw_timing
       integer      control_np_orbital,control_mapping,control_mapping1d
@@ -246,7 +246,7 @@
 
 
 *     **** generate initial wavefunction if it does not exist ****
-      if (.not.psi_filefind()) then
+      if (.not.control_check_charge_multiplicity()) then
         call psi_new()
       end if
 

@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.44 2006-12-05 00:14:40 bylaska Exp $
+* $Id: band_minimizer.F,v 1.45 2007-01-02 18:36:50 bylaska Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -102,12 +102,16 @@
       external c_cgsd_energy,c_cgsd_noit_energy
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
       external cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
-c      integer  cpsp_nprj,cpsp_psp_type
-c      external cpsp_nprj,cpsp_psp_type
+      integer  cpsp_nprj,cpsp_psp_type
+      external cpsp_nprj,cpsp_psp_type
       real*8   cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       external cpsp_rcore,cpsp_rc,cpsp_ncore,cpsp_zv
       character*2 cpsp_atom
       external    cpsp_atom
+
+      character*255 cpsp_comment,comment
+      external      cpsp_comment
+
       integer  cpsi_ispin,cpsi_ne,psi_get_version
       external cpsi_ispin,cpsi_ne,psi_get_version
       logical  pspw_reformat_c_wvfnc
@@ -294,14 +298,14 @@ c      external      cpsp_comment
          do ia = 1,cpsp_npsp()
            write(luout,1150) ia,cpsp_atom(ia),
      >                    cpsp_zv(ia),cpsp_lmax(ia)
-c           comment = cpsp_comment(ia)
-c           i = inp_strlen(comment)
-c           write(6,1157) comment(1:i)
-c           write(6,1158) cpsp_psp_type(ia)
+           comment = cpsp_comment(ia)
+           i = inp_strlen(comment)
+           write(6,1157) comment(1:i)
+           write(6,1158) cpsp_psp_type(ia)
            write(luout,1152) cpsp_lmax(ia)
            write(luout,1153) cpsp_locp(ia)
-           write(luout,1154) cpsp_lmmax(ia)
-c           write(luout,1154) cpsp_nprj(ia)
+c           write(luout,1154) cpsp_lmmax(ia)
+           write(luout,1154) cpsp_nprj(ia)
            if (cpsp_semicore(ia))
      >         write(luout,1155) cpsp_rcore(ia),cpsp_ncore(ia)
            write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
@@ -613,9 +617,9 @@ c           write(luout,1154) cpsp_nprj(ia)
  1140 FORMAT(/' elements involved in the cluster:')
  1150 FORMAT(5X,I2,': ',A2,'  core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
- 1152 FORMAT(12X,' highest angular component      : ',i2)
- 1153 FORMAT(12X,' local potential used           : ',i2)
- 1154 FORMAT(12X,' number of non-local projections: ',i2)
+ 1152 FORMAT(12X,' highest angular component      : ',i3)
+ 1153 FORMAT(12X,' local potential used           : ',i3)
+ 1154 FORMAT(12X,' number of non-local projections: ',i3)
  1155 FORMAT(12X,' semicore corrections included  : ',
      >       F6.3,' (radius) ',F6.3,' (charge)')
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)

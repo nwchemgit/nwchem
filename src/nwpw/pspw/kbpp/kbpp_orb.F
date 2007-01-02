@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_orb.F,v 1.13 2006-08-13 01:03:27 bylaska Exp $
+* $Id: kbpp_orb.F,v 1.14 2007-01-02 18:36:51 bylaska Exp $
 *
 *     **************************************
 *     *                                    *
@@ -261,7 +261,7 @@ c      call Parallel_Init()
       write(*,*)
       write(*,*) "Generated formatted atomic orbitals, filename: ",
      >            full_filename(1:l)
-      write(*,*)
+      !write(*,*)
       end if
       call openfile(2,full_filename,l,'w',l)     
          call iwrite(2,version,1)

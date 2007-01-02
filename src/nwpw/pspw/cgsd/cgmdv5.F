@@ -1,5 +1,5 @@
 *
-* $Id: cgmdv5.F,v 1.2 2006-07-20 17:27:55 bylaska Exp $
+* $Id: cgmdv5.F,v 1.3 2007-01-02 18:36:51 bylaska Exp $
 *
 
 ***********************************************************************
@@ -131,8 +131,8 @@
       external control_Mulliken,control_DOS
       real*8   ion_TotalCharge
       external ion_TotalCharge
-      logical   psi_filefind
-      external  psi_filefind
+      logical  control_check_charge_multiplicity
+      external control_check_charge_multiplicity
       logical   pspw_charge_found,ion_q_FixIon
       external  pspw_charge_found,ion_q_FixIon
       integer  control_minimizer,control_scf_algorithm
@@ -252,7 +252,7 @@ c     value = psi_initialize()
       if (control_version().eq.3) call ewald_init()
 
 *     **** read in wavefunctions and initialize psi ****
-      if (.not.psi_filefind()) then
+      if (.not.control_check_charge_multiplicity()) then
         call psi_new()
         newpsi = .true.
       else

@@ -10,3 +10,21 @@ Ga 3 0.560000
 0.982580 0.075437
 0.001486
 <end>
+
+
+
+Comment: Used for generating atomic orbitals
+ <atom>
+ Ga
+  0.310000E+02  0.700000E+02   6   2
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.600000E+01
+   3   2  0.100000E+02
+   4   0  0.200000E+01
+   4   1  0.100000E+01
+ <end>
+ <solver> pauli           <end>
+ <pseudopotential> hamann <end>

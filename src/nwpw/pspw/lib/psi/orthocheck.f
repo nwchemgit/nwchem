@@ -1,5 +1,5 @@
 *
-* $Id: orthocheck.f,v 1.3 2006-10-07 00:10:07 bylaska Exp $
+* $Id: orthocheck.f,v 1.4 2007-01-02 18:36:52 bylaska Exp $
 *
 
 *     ***********************************
@@ -103,8 +103,8 @@
       real*8  w
 
 
-       write(*,*) 
-     >  "WARNING - not finished for 2d processor grid implementation!"
+c       write(*,*) 
+c     >  "WARNING - not finished for 2d processor grid implementation!"
 
 c      !**** orthogonalize from the top -> down ****
 c      do k=1,ne

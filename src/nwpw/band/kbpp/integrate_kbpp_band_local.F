@@ -3,11 +3,12 @@
      >                            nrho,drho,lmax,locp,zv,
      >                            vp,wp,rho,f,cs,sn,
      >                            nfft1,nfft2,nfft3,lmmax,
-     >                            G,vl,vnlnrm,
+     >                            G,vl,
+     >                            n_prj,l_prj,m_prj,vnlnrm,
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            ierr)
 *
-* $Id: integrate_kbpp_band_local.F,v 1.1 2001-12-13 03:51:23 bylaska Exp $
+* $Id: integrate_kbpp_band_local.F,v 1.2 2007-01-02 18:36:49 bylaska Exp $
 *
       implicit none
       integer          version
@@ -26,7 +27,8 @@
       integer nfft1,nfft2,nfft3,lmmax
       double precision G(nfft1,nfft2,nfft3,3)
       double precision vl(nfft1,nfft2,nfft3)
-      double precision vnlnrm(lmmax)
+      integer          n_prj(lmmax),l_prj(lmmax),m_prj(lmmax)
+      double precision vnlnrm(0:lmax)
 
 
       logical semicore
@@ -85,10 +87,9 @@
             f(I)=vp(I,L)*wp(I,L)**2
           end do
           a=simp(nrho,f,drho)
-          do i=l**2+1,(l+1)**2
-            lcount = lcount + 1
-            vnlnrm(lcount)=a
-          end do
+          vnlnrm(l) = 1.0d0/a
+        else
+        vnlnrm(l) = 0.0d0
         end if
       end do
 
@@ -167,6 +168,114 @@
          rho_sc_k(1,1,1,3) = 0.0d0
          rho_sc_k(1,1,1,4) = 0.0d0
       end if
+
+
+
+
+*     ********************************
+*     **** define n_prj and l_prj ****
+*     ********************************
+      lcount = lmmax+1
+      GO TO (950,940,930,920), lmax+1
+
+        !::::::  f-wave  :::::::
+  920   CONTINUE
+        if (locp.ne.3) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = -3
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = -2
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = -1
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 0
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 1
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 2
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 3
+          m_prj(lcount) = 3
+        end if
+
+
+        !::::  d-wave  ::::
+  930   CONTINUE
+        if (locp.ne.2) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = -2
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = -1
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = 0
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = 1
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 2
+          m_prj(lcount) = 2
+        end if
+
+
+        !::::  p-wave  ::::
+  940   CONTINUE
+        if (locp.ne.1) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 1
+          m_prj(lcount) = -1
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 1
+          m_prj(lcount) = 0
+
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 1
+          m_prj(lcount) = 1
+        end if
+
+
+        !::::  s-wave  ::::
+  950   CONTINUE
+        if (locp.ne.0) then
+          lcount = lcount-1
+          n_prj(lcount) = 1
+          l_prj(lcount) = 0
+          m_prj(lcount) = 0
+        end if
 
 
       IERR=0

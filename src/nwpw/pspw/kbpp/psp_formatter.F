@@ -1,5 +1,5 @@
 c
-c $Id: psp_formatter.F,v 1.11 2006-08-13 01:03:27 bylaska Exp $
+c $Id: psp_formatter.F,v 1.12 2007-01-02 18:36:51 bylaska Exp $
 c
 
 *     ***************************************
@@ -197,7 +197,7 @@ c
 
       if (psp_type .eq.1) then
          value = value.and.
-     >     hghppv1(.true.,
+     >     hghppv1(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            rlocal)
       else

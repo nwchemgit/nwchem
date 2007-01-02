@@ -1,9 +1,14 @@
 *
-* $Id: psi.F,v 1.71 2006-10-13 01:43:58 bylaska Exp $
+* $Id: psi.F,v 1.72 2007-01-02 18:36:52 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.71  2006/10/13 01:43:58  bylaska
+* tcgmsg code for 2d grid distribution.  Also cleaned up Dmatrix_ calls so
+* that they are Dneall_ calls instead.
+* ....EJB
+*
 * Revision 1.70  2006/10/07 00:10:07  bylaska
 * Initial implementation of 2d processor grid parallelization in pspw.  Currently works with:
 *
@@ -4991,23 +4996,36 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       real*8 sum1,sum2
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
-      integer rtdb,ind
+      integer rtdb,ind,vers
       integer  control_rtdb,control_ngrid,control_symmetry
       external control_rtdb,control_ngrid,control_symmetry
+      integer  psi_get_version
+      external psi_get_version
       character*30 filename
       character*30 control_input_psi
       external     control_input_psi
-      logical  wvfnc_expander,Dneall_m_allocate
-      external wvfnc_expander,Dneall_m_allocate
+      logical  wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
+      external wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
 
 
-*     ***** get ispin, and ne, and nfft3d ****
+*     **** reformat wavefunction if it is a band wavefunction ****
+      vers = psi_get_version()
+      if (vers.eq.5) then
+        call Parallel_taskid(taskid)
+        if (taskid.eq.MASTER) then
+          value= band_reformat_c_wvfnc(1)
+        end if
+      end if
+
+
+*     *****  get ispin,ne,neq,nfft3d,npack0,npack1 ****
       call psi_get_ne(ispin,ne)
       call Dneall_neq(neq)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
       nemax = ne(1)+ne(2)
+
 
 *     **** allocate memory ****
       value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
@@ -5150,6 +5168,8 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       psi_initialize = value
       return
       end
+
+
 
 *     ***************************
 *     *				*

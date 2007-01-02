@@ -14,7 +14,7 @@
 *     ***** local variables *****
       logical       value
       integer       i,j,l
-      integer	    locp,lmax
+      integer	    locp,lmax,psp_type
       character*20  psp_filename,formatted_filename
       character*4   element
       real*8        rlocal
@@ -28,11 +28,11 @@
       integer      control_version
       integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita,brillioun_k
-      logical      kbpp_band, nwpw_filefind
+      logical      kbpp_band,nwpw_filefind,hghpp_band
       external     control_version
       external     control_ngrid,brillioun_nbrillioun
       external     control_unita,brillioun_k
-      external     kbpp_band, nwpw_filefind
+      external     kbpp_band,nwpw_filefind,hghpp_band
 
       value  = .true.
 
@@ -76,12 +76,20 @@
          dbl_mb(kv(1)+3*(nb-1)+2) = brillioun_k(3,nb)
       end do
 
+      call get_psp_type(psp_filename,psp_type)
 
-      value = value.and.
+      if (psp_type.eq.1) then
+         value = value.and.
+     >     hghpp_band(.false.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            nbrillioun,dbl_mb(kv(1)))
+      else
+         value = value.and.
      >     kbpp_band(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,
      >            nbrillioun,dbl_mb(kv(1)))
+      end if
 
       value = value.and.MA_pop_stack(kv(2))
 *     *** exit if error found ***

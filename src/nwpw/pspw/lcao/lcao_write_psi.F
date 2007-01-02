@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_psi.F,v 1.6 2006-08-13 01:03:27 bylaska Exp $
+* $Id: lcao_write_psi.F,v 1.7 2007-01-02 18:36:51 bylaska Exp $
 *
 
 *     *******************************************
@@ -58,6 +58,7 @@
 
 *     **** open ELCIN binary file ****
       if (oprint) then
+         write(*,*)
          write(*,*) "lcao guess, initial psi:",filename
          write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
       end if
@@ -166,6 +167,7 @@
 
 *     **** open ELCIN binary file ****
       if (oprint) then
+         write(*,*)
          write(*,*) "lcao guess, initial epsi:",filename
          write(*,*) "-   spin, nalpha, nbeta:",ispin,ne_excited
       end if

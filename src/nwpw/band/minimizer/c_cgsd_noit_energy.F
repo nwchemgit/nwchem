@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.1 2004-11-13 02:25:29 bylaska Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.2 2007-01-02 18:36:50 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -15,19 +15,22 @@ c     $Id: c_cgsd_noit_energy.F,v 1.1 2004-11-13 02:25:29 bylaska Exp $
 #include "rtdb.fh"
 #include "errquit.fh"
 
-      integer MASTER
+      integer MASTER,taskid
       parameter (MASTER=0)
 
       logical value
-      real*8  E(30)
-      integer rtdb
+      real*8  E(30),virial
+      integer rtdb,neall
 
 *     **** external functions ****
       logical  cpsp_semicore
       integer  control_rtdb
+      integer  ion_nion,cpsi_ispin,cpsi_ne
       external cpsp_semicore
       external control_rtdb
+      external ion_nion,cpsi_ispin,cpsi_ne
 
+      call Parallel_taskid(taskid)
 
 *     **** generate phaze factors and local psp and core density ****
 c      call cphafac()
@@ -37,6 +40,30 @@ c      call cphafac_k()
 
 
       call c_nominimize(E)
+
+**:::::::::::::::::   report summary of results  :::::::::::::::::::::::
+      if (taskid.eq.MASTER) then
+         neall = (cpsi_ne(1)+cpsi_ne(2))
+         write(luout,1304)
+         write(luout,1410)
+
+         write(luout,*)
+c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
+         write(luout,1430) E(1),E(1)/ion_nion()
+         write(luout,1440) E(2),E(2)/neall
+         write(luout,1450) E(3),E(3)/neall
+         write(luout,1460) E(4),E(4)/neall
+         write(luout,1470) E(5),E(5)/ion_nion()
+
+         write(luout,1480) E(6),E(6)/neall
+         write(luout,1490) E(7),E(7)/neall
+         write(luout,1495) E(8),E(8)/neall
+         write(luout,1496) E(9),E(9)/neall
+         write(luout,1497) E(10),E(10)/neall
+         virial = (E(10)+E(9)+E(8)+E(7))/E(6)
+         write(luout,1498) virial
+      end if
+
 
 *     **** diagonalize hamiltonian and rotate psi ****
 c     call psi_spin_density(en)
@@ -62,5 +89,48 @@ c     call psi_2to1()
 
       c_cgsd_noit_energy = E(1)
       return
+ 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - atomic mass= ',F6.3,' ')
+ 1200 FORMAT(5X,'  G.C. ',' (',3F11.5,' )')
+ 1210 FORMAT(5X,' C.O.M.',' (',3F11.5,' )')
+ 1300 FORMAT(//'======================')
+ 1301 FORMAT(  '= energy calculation =')
+ 1302 FORMAT(  '======================')
+ 1304 FORMAT(/)
+ 1305 FORMAT(10X,'== bundled Grassmann conjugate gradient iteration ==')
+ 1306 FORMAT(10X,'======== bundled Grassmann lmbfgs iteration ========')
+ 1307 FORMAT(10X,'============ Grassmann diis iteration ==============')
+ 1308 FORMAT(10X,'=== bundled Stiefel conjugate gradient iteration ===')
+ 1309 FORMAT(10X,'=========== band by band diis iteration ============')
+ 1310 FORMAT(I8,E20.10,3E15.5)
+ 1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
+ 1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
+ 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+ 1350 FORMAT(/' orthonormality')
+ 1360 FORMAT(I3,2I3,E18.7)
+ 1370 FORMAT(I3)
+ 1380 FORMAT(' ''',a,'''',I4)
+ 1390 FORMAT(I3)
+ 1400 FORMAT(I3,3E18.8/3X,3E18.8)
+ 1410 FORMAT(10X,'=============  summary of results  =================')
+ 1420 FORMAT( ' final position of ions:')
+ 1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
+ 1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
+ 1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
+ 1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
+ 1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
+ 1490 FORMAT( ' K.S. V_l  energy    :',E19.10,' (',E15.5,'/electron)')
+ 1491 FORMAT( ' K.S. Vl+Vqm/mm      :',E19.10,' (',E15.5,'/electron)')
+ 1495 FORMAT( ' K.S. V_nl energy    :',E19.10,' (',E15.5,'/electron)')
+ 1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
+ 1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
+ 1498 FORMAT( ' Virial Coefficient  :',E19.10)
+ 1500 FORMAT(/' orbital energies:')
+ 1508 FORMAT(/' Brillouin zone point: ',i2,
+     >       /'    weight=',f10.6,
+     >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
+     >       /'          =<',3f8.3,'>')
+ 1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+
       end
 

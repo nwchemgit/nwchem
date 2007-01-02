@@ -8,3 +8,21 @@ N 5 0.289179 -12.234820 1.766407
 0.270134 0.000000
 0.003131
 <end>
+
+
+Comment: Used for generating atomic orbitals
+<atom>
+N
+7.0 14.0 1 2
+1  0      2.0
+2  0      2.0
+2  1      3.0
+<end>
+<solver>      pauli <end>
+<pseudopotential> hamann        <end>
+<linear> 501 0.02 <end>
+<rcut> 0 0.700
+       1 0.700
+       2 0.700
+<end>
+
