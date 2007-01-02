@@ -1,16 +1,17 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.9 2003-10-17 22:56:14 carlfahl Exp $
+* $Id: pspw_reformat_c_wvfnc.F,v 1.10 2007-01-02 19:03:26 bylaska Exp $
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)
       implicit none
-#include "errquit.fh"
       integer nbrill
 
 #include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
  
 *     **** local variables ****
-      logical value
+      logical value,oprint,hprint
       character*30 wavefunction_filename,filename
       character*255 full_filename,full_filename2
       character*255 full_filename3
@@ -24,11 +25,19 @@
       double precision unita(3,3)
 
 *     ***** local functions ****
+      logical  control_print
+      external control_print
+
       character*30 control_input_psi
       external     control_input_psi
 
 
       value = .false.
+      hprint = control_print(print_high)
+      oprint = control_print(print_medium)
+
+
+
       version = 3  ! or 4
 
 
@@ -66,10 +75,12 @@
        n2ft3d = 2* nfft3d
        nfft3d_out =  ngrid(1)*ngrid(2)*ngrid(3)
 
+      if (oprint) then
       write(*,*)
       write(*,*) 
      > '+ converting wavefunctions from pspw format to band format'
 
+      end if
 
       l = index(wavefunction_filename,' ') - 1
       filename = wavefunction_filename(1:l)//".pspw"
@@ -78,8 +89,10 @@
      >                    .false.,
      >                    full_filename3)
 
+      if (oprint) then
       write(*,109) wavefunction_filename
       write(*,110) filename
+      end if
   109 format(' filename converted    : ',A)
   110 format(' pspw filename moved to: ',A)
 
@@ -96,8 +109,12 @@
        
       do nb=1,nbrill
         do n=1,neall
+
+          if (hprint) then
           write(*,111) "converting ... psi:",n," nb:",nb
-  111 format(A,I4,A,I2,A,I4)
+          end if
+  111     format(A,I4,A,I2,A,I4)
+
           call  dread(5,dcpl_mb(cfull(1)),n2ft3d)
           call  convert_real_to_complex(ngrid(1),ngrid(2),ngrid(3),
      >                                  dcpl_mb(cfull(1)),
