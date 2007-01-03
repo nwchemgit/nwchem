@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.1 2006-12-10 01:03:23 d3j191 Exp $
+c $Id: dia_task.F,v 1.2 2007-01-03 05:43:27 d3j191 Exp $
 c
       implicit none
 c
@@ -29,6 +29,7 @@ c
       integer idpdb,i_temp,l_temp
       logical lsaver
       character*8 option
+      integer il,ih,jl,jh,ld
 c
 c     initialize variables
 c     --------------------
@@ -236,6 +237,8 @@ c
       print*,'Size of ga_trj per processor is ',
      + int((ifrto-ifrfr+1)/ifrsk)/np
 c
+c
+c
 c     allocate global array
 c
       if(nfrtot.gt.0) then
@@ -249,6 +252,7 @@ c
 c
       if(.not.ga_create(mt_dbl,nsel*3,nfrtot,'trj',nsel*3,nfrdim,
      + ga_trj)) call md_abort('Failed to create ga_trj',0)
+      print*,'nfrdim=',nfrdim,nfrtot
 c
       write(*,'(i5,a,2i5)') me,' allocated ga for frames ',
      + me*nfrdim+1,min((me+1)*nfrme,nfrtot)
@@ -267,6 +271,10 @@ c
       if(nread.lt.ifrfr) goto 1010
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       ndata=ndata+1
+      if(me.eq.0) then
+      call ga_put(ga_trj,1,3*nsel,ndata,ndata,dbl_mb(i_xdat),nsa)
+      write(*,'(3f12.6)') (dbl_mb(i_xdat+i-1),i=1,3)
+      endif
       endif
       nframe=nframe+1
       if(me.eq.0) then
@@ -278,9 +286,37 @@ c
       goto 1
       endif
 c
+c     get the average coordinates
+c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+c
+      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
+     + dbl_mb(i_xadat),nsa)
+c     dbl_mb(i_xdat),dbl_mb(i_xadat),
+c     + num,msa,nave)
 c
 c
+c test
 c
+c      do 2010 j=me*nfrdim+1,min((me+1)*nfrme,nfrtot)
+c      call ga_get(ga_trj,1,3*nsel,j,j,dbl_mb(i_xdat),nsa)
+c      write(*,'(i5,3f12.6)') j,(dbl_mb(i_xdat+i-1),i=1,3)
+c 2010 continue
+c
+c      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+c      write(*,'(5i5)') me,il,ih,jl,jh
+cc
+c      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+cc
+c      do 2011 j=1,min((me+1)*nfrme,nfrtot)-me*nfrdim
+c      write(*,'(a,i5)') ' Frame ',j
+cc      write(*,'(2i5,3f12.6)')
+cc     + me,j+me*nfrdim,(dbl_mb(ndx+(j-1)*ld+i-1),i=1,3)
+c      call dia_test(dbl_mb(ndx+(j-1)*ld),nsa)
+c 2011 continue
+cc
+c      call dia_test2(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim)
 c
 c
 c
@@ -1168,8 +1204,8 @@ c
       call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
       endif
 c
-      call dia_xaver(dbl_mb(i_xdat),dbl_mb(i_xadat),
-     + num,msa,nave)
+cx      call dia_xaver(dbl_mb(i_xdat),dbl_mb(i_xadat),
+cx     + num,msa,nave)
 c
       endif
       nframe=nframe+1
@@ -1683,4 +1719,31 @@ c
 c
       return
       end
-     
+      subroutine dia_test(x,nsa)
+      integer nsa
+      real*8 x(nsa,3)
+c
+      integer i,j
+c
+      do 1 i=1,10
+      write(*,'(i5,3f12.6)') i,(x(i,j),j=1,3)
+    1 continue
+c
+      return
+      end
+      subroutine dia_test2(xtest,nxdim,nfr)
+#include "dia_common.fh"
+      integer nxdim
+      real*8 xtest(nxdim,3,nfr)
+c
+      integer i,j,k
+c
+      do 2 k=1,nfr
+      write(*,'(a,i5)') 'FRAME ',me*nfr+k
+      do 1 i=1,10
+      write(*,'(i5,3f12.6)') i,(xtest(i,j,k),j=1,3)
+    1 continue
+    2 continue
+c
+      return
+      end
