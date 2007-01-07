@@ -2,21 +2,19 @@
 c
 c      x,xa,nx,mx,nave)
 c
-c $Id: dia_xaver.F,v 1.2 2007-01-03 05:43:27 d3j191 Exp $
+c $Id: dia_xaver.F,v 1.3 2007-01-07 01:41:05 d3j191 Exp $
 c
       implicit none
 c
 #include "msgids.fh"
 #include "global.fh"
+#include "dia_common.fh"
 c
       real*8 zero
       parameter(zero=0.0d0)
 c
       integer ntrj,nfr,nxa
       real*8 xtrj(ntrj,3,nfr),xa(nxa,3)
-c
-c      integer nx,mx,nave
-c      real*8 x(mx,3),xa(mx,3)
 c
       integer i,j,k
 c
@@ -35,25 +33,19 @@ c     global sum
 c
       call ga_dgop(mag_d08,xa,3*nxa,'+')
 c
-      write(*,'(a)') 'SUM'
-      write(*,'(i5,3f12.6)') (i,(xa(i,j),j=1,3),i=1,10)
+      do 5 j=1,3
+      do 6 i=1,ntrj
+      xa(i,j)=xa(i,j)/dble(nfrtot)
+    6 continue
+    5 continue
 c
-c      if(nave.eq.0) then
-c      do 1 j=1,3
-c      do 2 i=1,nx
-c      xa(i,j)=x(i,j)
-c    2 continue
-c    1 continue
-c      else
-c      do 3 j=1,3
-c      do 4 i=1,nx
-c      xa(i,j)=xa(i,j)+x(i,j)
-c    4 continue
-c    3 continue
-c      endif
-c
-c      nave=nave+1
-c
+ctest
+      if(me.eq.0) then
+      do 7 i=1,ntrj
+      write(*,'(i5,3f12.6)') i,(xtrj(i,j,1),j=1,3)
+    7 continue
+      endif
+ctest
       return
       end
       subroutine dia_xmean(xa,nx,mx,nave)

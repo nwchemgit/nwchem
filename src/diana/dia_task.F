@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.2 2007-01-03 05:43:27 d3j191 Exp $
+c $Id: dia_task.F,v 1.3 2007-01-07 01:41:05 d3j191 Exp $
 c
       implicit none
 c
@@ -229,16 +229,6 @@ c
       time=0.0d0
       timr=0.0d0
 c
-c
-c
-      print*,'Number of processors is ',np
-      print*,'Number of frames is ',int((ifrto-ifrfr+1)/ifrsk)
-      print*,'Number of selected atoms is ',nsel
-      print*,'Size of ga_trj per processor is ',
-     + int((ifrto-ifrfr+1)/ifrsk)/np
-c
-c
-c
 c     allocate global array
 c
       if(nfrtot.gt.0) then
@@ -250,9 +240,16 @@ c
       nfrdim=int((ifrto-ifrfr+1)/ifrsk)/np
       nfrme=int((ifrto-ifrfr+1)/ifrsk)/np
 c
-      if(.not.ga_create(mt_dbl,nsel*3,nfrtot,'trj',nsel*3,nfrdim,
+      if(me.eq.0) then
+      write(*,6001) np,nfrtot,nfrme,nsel
+ 6001 format(' Number of processors',t40,i5,/,
+     + ' Total number of selected frames',t45,i5,/,
+     + ' Number of frames per processor',t45,i5,//,
+     + ' Number of selected atoms',t45,i5,//)
+      endif
+c
+      if(.not.ga_create(mt_dbl,nsa*3,nfrtot,'trj',nsa*3,nfrdim,
      + ga_trj)) call md_abort('Failed to create ga_trj',0)
-      print*,'nfrdim=',nfrdim,nfrtot
 c
       write(*,'(i5,a,2i5)') me,' allocated ga for frames ',
      + me*nfrdim+1,min((me+1)*nfrme,nfrtot)
@@ -272,7 +269,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       ndata=ndata+1
       if(me.eq.0) then
-      call ga_put(ga_trj,1,3*nsel,ndata,ndata,dbl_mb(i_xdat),nsa)
+      call ga_put(ga_trj,1,3*nsa,ndata,ndata,dbl_mb(i_xdat),nsa)
       write(*,'(3f12.6)') (dbl_mb(i_xdat+i-1),i=1,3)
       endif
       endif
@@ -285,14 +282,6 @@ c
 c
       goto 1
       endif
-c
-c     get the average coordinates
-c
-      call ga_distribution(ga_trj,me,il,ih,jl,jh)
-      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
-c
-      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
-     + dbl_mb(i_xadat),nsa)
 c     dbl_mb(i_xdat),dbl_mb(i_xadat),
 c     + num,msa,nave)
 c
@@ -1188,41 +1177,49 @@ c
 c
       if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
-      call dia_rdhdr(byte_mb(i_snam))
-      nave=0
-      nread=0
-      nframe=0
-    4 continue
-      if(dia_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
-      nread=nread+1
-      if(nread.lt.ifrfr) goto 4
-      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
-      if(lsaver) then
-      call super(dbl_mb(i_xdat),int_mb(i_idat),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
-      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
-      endif
+c     get the average coordinates
+c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+c
+      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
+     + dbl_mb(i_xadat),nsa)
+c
+c      call dia_rdhdr(byte_mb(i_snam))
+c      nave=0
+c      nread=0
+c      nframe=0
+c    4 continue
+c      if(dia_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
+c      nread=nread+1
+c      if(nread.lt.ifrfr) goto 4
+c      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
+c      if(lsaver) then
+c      call super(dbl_mb(i_xdat),int_mb(i_idat),num,msa,
+c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+c      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
+c      endif
 c
 cx      call dia_xaver(dbl_mb(i_xdat),dbl_mb(i_xadat),
 cx     + num,msa,nave)
 c
-      endif
-      nframe=nframe+1
-      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 4
-      endif
+c      endif
+c      nframe=nframe+1
+c      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 4
+c      endif
 c
-      if(me.eq.0) then
-      close(unit=lfntrj)
-      write(*,'(a)') ' Closing trj file '
-      endif
+c      if(me.eq.0) then
+c      close(unit=lfntrj)
+c      write(*,'(a)') ' Closing trj file '
+c      endif
 c
-      call dia_xmean(dbl_mb(i_xadat),num,msa,nave)
-      if(np.gt.1) call dia_update(dbl_mb(i_xadat),msa,1,nsa)
+c      call dia_xmean(dbl_mb(i_xadat),num,msa,nave)
+c      if(np.gt.1) call dia_update(dbl_mb(i_xadat),msa,1,nsa)
 c
-      if(me.eq.0) then
-      write(*,'(/,a,i10,a)') ' Averaged ',nave,' frames'
-      endif
+c      if(me.eq.0) then
+c      write(*,'(/,a,i10,a)') ' Averaged ',nave,' frames'
+c      endif
 c
       if(filcop(1:1).ne.' ') then
       if(fmt.eq.'pdb') then
@@ -1255,37 +1252,44 @@ c
       if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
       if(active) call dia_edfinal()
+      call dia_edinit()
       active=.true.
 c
-      call dia_rdhdr(byte_mb(i_snam))
-      nave=0
-      nread=0
-      nframe=0
-      call dia_edinit()
-    5 continue
-      if(dia_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
-      nread=nread+1
-      if(nread.lt.ifrfr) goto 5
-      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
+c      call dia_rdhdr(byte_mb(i_snam))
+c      nave=0
+c      nread=0
+c      nframe=0
+c      call dia_edinit()
+c    5 continue
+c      if(dia_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
+c      nread=nread+1
+c      if(nread.lt.ifrfr) goto 5
+c      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
 c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
 c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
-      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
+c      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
 c
-      if(np.gt.1) call dia_update(dbl_mb(i_xdat),msa,1,nsa)
+c      if(np.gt.1) call dia_update(dbl_mb(i_xdat),msa,1,nsa)
 c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
       call dia_covar(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),
-     + dbl_mb(i_xdat),dbl_mb(i_xadat))
+     + dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
+     + dbl_mb(i_xadat),nsa)
 c
-      nave=nave+1
+c      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
+c     + dbl_mb(i_xadat),nsa)
+c      nave=nave+1
 c
-      endif
-      nframe=nframe+1
-      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 5
-      endif
+c      endif
+c      nframe=nframe+1
+c      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 5
+c      endif
 c
       call ga_sync()
-      call ga_scale(ga_cov,1.0d0/dble(nave))
+      call ga_scale(ga_cov,1.0d0/dble(nfrtot))
+      call dia_pcovar(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel))
 c
       if(me.eq.0) then
       if(util_print('frames_read',print_debug)) then
@@ -1313,7 +1317,7 @@ c
 c
       if(me.eq.0) then
       write(*,'(/,a,i10,a)') ' Covariance matrix diagonalized for ',
-     + nave,' frames'
+     + nfrtot,' frames'
       write(*,'(/,a,//,(5x,6e12.5))') ' Eigenvalues',
      + (dbl_mb(i_cov-1+int_mb(i_ord+i-1)),i=1,3*nsel)
       close(unit=lfntrj)

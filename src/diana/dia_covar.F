@@ -1,6 +1,6 @@
       subroutine dia_edinit()
 c
-c $Id: dia_covar.F,v 1.1 2006-12-10 01:03:21 d3j191 Exp $
+c $Id: dia_covar.F,v 1.2 2007-01-07 01:41:05 d3j191 Exp $
 c
       implicit none
 c
@@ -71,7 +71,7 @@ c
 c
       return
       end
-      subroutine dia_covar(ndx,cov,isel,x,xa)
+      subroutine dia_covar(ndx,cov,isel,xtrj,ntrj,nfr,xa,nxa)
 c
       implicit none
 c
@@ -80,13 +80,14 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
+      integer ntrj,nfr,nxa
       integer ndx(*)
       real*8 cov(*)
-      real*8 x(msa,3),xa(msa,3)
+      real*8 xtrj(ntrj,3,nfr),xa(nxa,3)
       integer isel(msa)
 c
-      integer i,j,ia,ja,ix,jx
-      integer il,ih,jl,jh
+      integer i,j,k,ia,ja,ix,jx
+      integer il,ih,jl,jh,iproc
 c
       j=0
       do 1 i=1,nsa
@@ -96,20 +97,34 @@ c
       endif
     1 continue
 c
-      call ga_distribution(ga_cov,me,il,ih,jl,jh)
+      do 6 iproc=1,np
+      call ga_distribution(ga_cov,iproc,il,ih,jl,jh)
 c
-      do 2 i=il,ih
+      do 3 i=il,ih
       ia=ndx((i+2)/3)
       ix=mod(i+2,3)+1
-      do 3 j=jl,jh
+      do 5 j=jl,jh
+      cov(j-jl+1)=0.0d0
+    5 continue
+      do 2 k=1,nfr
+      do 4 j=jl,jh
       ja=ndx((j+2)/3)
       jx=mod(j+2,3)+1
-      cov(j-jl+1)=(x(ia,ix)-xa(ia,ix))*(x(ja,jx)-xa(ja,jx))
-    3 continue
-      call ga_acc(ga_cov,i,i,jl,jh,cov,1,one)
+      cov(j-jl+1)=cov(j-jl+1)+
+     + (xtrj(ia,ix,k)-xa(ia,ix))*(xtrj(ja,jx,k)-xa(ja,jx))
+      if(k.eq.1) then
+      write(*,'(3i5,2f12.6,2i5,2f12.6)') me,
+     + ia,ix,xa(ia,ix),xtrj(ia,ix,k),
+     + ja,jx,xa(ja,jx),xtrj(ja,jx,k)
+      endif
+    4 continue
     2 continue
+c      write(*,'(6f12.6)') (cov(j-jl+1),j=jl,jh)
+      call ga_acc(ga_cov,i,i,jl,jh,cov,1,one)
+    3 continue
+    6 continue
 c
-      call ga_sync()
+c      call ga_sync()
       return
       end
       subroutine dia_projec(ndx,vct,isel,x,xa,mx,val,xp)
@@ -166,6 +181,50 @@ c
      + isel,xp,.true.,.false.,int_mb(i_ndxw))
       valmax=val
       endif
+c
+      return
+      end
+      subroutine dia_pcovar(ndx,cov,isel)
+c
+      implicit none
+c
+#include "dia_params.fh"
+#include "dia_common.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      integer ntrj,nfr,nxa
+      integer ndx(*)
+      real*8 cov(*)
+      integer isel(msa)
+c
+      integer i,j,k,ia,ja,ix,jx
+      integer il,ih,jl,jh,iproc
+c
+      if(me.ne.0) return
+c
+      write(*,'(a)') ' Covariance Matrix'
+      j=0
+      do 1 i=1,nsa
+      if(isel(i).ne.0) then
+      j=j+1
+      ndx(j)=i
+      endif
+    1 continue
+c
+      do 6 iproc=0,np-1
+      call ga_distribution(ga_cov,iproc,il,ih,jl,jh)
+      do 3 i=il,ih
+      call ga_get(ga_cov,i,i,jl,jh,cov,1)
+      ia=ndx((i+2)/3)
+      ix=mod(i+2,3)+1
+      do 4 j=jl,jh
+      ja=ndx((j+2)/3)
+      jx=mod(j+2,3)+1
+      write(*,'(4i5,f12.6)') i,j,ia,ja,cov(j-jl+1)
+    4 continue
+    3 continue
+    6 continue
 c
       return
       end
