@@ -34,6 +34,10 @@
      >        MA_alloc_get(mt_dbl,
      >                    (nmax_max*lmmax_max*npsp*npack1*nbrillioun),
      >                    'vnl',vnl(2),vnl(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,
+     >                    (nmax_max*lmmax_max*npsp*npack1*nbrillioun),
+     >                    'vnlso',vnlso(2),vnlso(1))
 c      value = value.and.
 c     >         MA_alloc_get(mt_dbl,(lmmax_max*npsp),
 c     >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
@@ -41,6 +45,10 @@ c     >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
       value = value.and.
      >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
      >                    'Gijl',Gijl(2),Gijl(1))
+
+      value = value.and.
+     >      MA_alloc_get(mt_dbl,(nmax_max*nmax_max*(lmax_max+1)*npsp),
+     >                    'Kijl',Kijl(2),Kijl(1))
 
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp),'nprj',nprj(2),nprj(1))
@@ -110,8 +118,10 @@ c     >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
 
       value = MA_free_heap(prjtmp(2))
       value = value.and.MA_free_heap(vl(2))
+      value = value.and.MA_free_heap(vnlso(2))
       value = value.and.MA_free_heap(vnl(2))
 c      value = value.and.MA_free_heap(vnlnrm(2))
+      value = value.and.MA_free_heap(Kijl(2))
       value = value.and.MA_free_heap(Gijl(2))
       value = value.and.MA_free_heap(nprj(2))
       value = value.and.MA_free_heap(n_projector(2))
