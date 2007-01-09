@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.1 2007-01-02 18:36:49 bylaska Exp $
+* $Id: hghpp_band.F,v 1.2 2007-01-09 21:55:21 d3p708 Exp $
 *
 
 *     **************************************
@@ -31,7 +31,7 @@
 *     **** local variables ****
       character*255 full_filename
 
-      logical value,mprint,hprint,oprint
+      logical value,mprint,hprint,oprint,spin_orbit
 
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -46,6 +46,7 @@
       double precision rloc,C1,C2,C3,C4
       double precision r(0:3),H(3,0:3),K(3,0:3)
       double precision Gijl(9*4),Gtmp(3,3,0:3)
+      double precision Kijl(9*4),Ktmp(3,3,0:3)
       double precision rcore
 
       integer lmax,locp
@@ -54,8 +55,8 @@
       integer n_prj_hndl,l_prj_hndl,m_prj_hndl
 
 *     ***** ngrid data *****
-      integer Ylm_indx,vl_indx,vnl_indx,G_indx
-      integer Ylm_hndl,vl_hndl,vnl_hndl,G_hndl
+      integer Ylm_indx,Slm_indx,vl_indx,vnl_indx,G_indx,vnlso_indx
+      integer Ylm_hndl,Slm_hndl,vl_hndl,vnl_hndl,G_hndl,vnlso_hndl
 
 *     **** other variables ****
       double precision unitg(3,3)
@@ -64,8 +65,8 @@
       integer nmax,nprj
 
 *     **** external functions ****
-      logical  control_print
-      external control_print
+      logical  control_print,control_spin_orbit
+      external control_print,control_spin_orbit
 
 
       !call Parallel_init()
@@ -151,8 +152,13 @@
 
 
 *     **** set the projector coeficients ****
+*  HGH does not give coefficients for i .ne. j
+*  we must use their formula
+*******************************************
       call dcopy(9*4,0.0d0,0,Gtmp,1)
       call dcopy(9*4,0.0d0,0,Gijl,1)
+      call dcopy(9*4,0.0d0,0,Ktmp,1)
+      call dcopy(9*4,0.0d0,0,Kijl,1)
       Gtmp(1,1,0) = H(1,0)
       Gtmp(2,2,0) = H(2,0)
       Gtmp(3,3,0) = H(3,0)
@@ -188,12 +194,46 @@
       Gtmp(2,2,3) = H(2,3)
       Gtmp(3,3,3) = H(3,3)
 
+      Ktmp(1,1,0) = K(1,0)
+      Ktmp(2,2,0) = K(2,0)
+      Ktmp(3,3,0) = K(3,0)
+      Ktmp(1,2,0) = -0.5d0*dsqrt(3.0d0/5.0d0)   *Ktmp(2,2,0)
+      Ktmp(2,1,0) = Ktmp(1,2,0)
+      Ktmp(1,3,0) =  0.5d0*dsqrt(5.0d0/21.0d0)  *Ktmp(3,3,0)
+      Ktmp(3,1,0) = Ktmp(3,1,0)
+      Ktmp(2,3,0) = -0.5d0*dsqrt(100.0d0/63.0d0)*Ktmp(3,3,0)
+      Ktmp(3,2,0) = Ktmp(2,3,0)
 
+
+      Ktmp(1,1,1) = K(1,1)
+      Ktmp(2,2,1) = K(2,1)
+      Ktmp(3,3,1) = K(3,1)
+      Ktmp(1,2,1) = -0.5d0*dsqrt(5.0d0/7.0d0)   *Ktmp(2,2,1)
+      Ktmp(2,1,1) = Ktmp(1,2,1)
+      Ktmp(1,3,1) =  (1.0d0/6.0d0)*dsqrt(35.0d0/11.0d0)*Ktmp(3,3,1)
+      Ktmp(3,1,1) = Ktmp(3,1,1)
+      Ktmp(2,3,1) = -(14.0d0/6.0d0)*dsqrt(1.0d0/11.0d0)*Ktmp(3,3,1)
+      Ktmp(3,2,1) = Ktmp(2,3,1)
+
+      Ktmp(1,1,2) = K(1,2)
+      Ktmp(2,2,2) = K(2,2)
+      Ktmp(3,3,2) = K(3,2)
+      Ktmp(1,2,2) = -0.5d0*dsqrt(7.0d0/9.0d0)   *Ktmp(2,2,2)
+      Ktmp(2,1,2) = Ktmp(1,2,2)
+      Ktmp(1,3,2) =  0.5d0*dsqrt(63.0d0/143.0d0)*Ktmp(3,3,2)
+      Ktmp(3,1,2) = Ktmp(3,1,2)
+      Ktmp(2,3,2) = -0.5d0*18.0d0*dsqrt(1.0d0/143.0d0)*Ktmp(3,3,2)
+      Ktmp(3,2,2) = Ktmp(2,3,2)
+
+      Ktmp(1,1,3) = K(1,3)
+      Ktmp(2,2,3) = K(2,3)
+      Ktmp(3,3,3) = K(3,3)
 
       do l=0,lmax
         do i=1,nmax
         do j=1,nmax
            Gijl(i+(j-1)*nmax+l*nmax*nmax) = Gtmp(i,j,l)
+           Kijl(i+(j-1)*nmax+l*nmax*nmax) = Ktmp(i,j,l)
         end do
         end do
       end do
@@ -205,7 +245,11 @@
      >                        'vl',vl_hndl,vl_indx)
       value = value.and.MA_alloc_get(mt_dbl,nsize*(nprj),
      >                        'vnl',vnl_hndl, vnl_indx)
+      value = value.and.MA_alloc_get(mt_dcpl,nsize*(nprj),
+     >                        'vnlso',vnlso_hndl, vnlso_indx)
       value = value.and.MA_alloc_get(mt_dbl,nsize,
+     >                        'Slm',Slm_hndl, Slm_indx)
+      value = value.and.MA_alloc_get(mt_dcpl,nsize,
      >                        'Ylm',Ylm_hndl, Ylm_indx)
 
       value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
@@ -294,16 +338,17 @@
 
 
       if (taskid.eq.MASTER) then
-      call util_file_name_noprefix(formatted_filename,
+         call util_file_name_noprefix(formatted_filename,
      >                    .false.,
      >                    .false.,
      >                    full_filename)
-      l = index(full_filename,' ') - 1
-      if (mprint) then
-         write(*,*)
-         write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-      end if
-      call openfile(2,full_filename,l,'w',l)     
+         l = index(full_filename,' ') - 1
+         if (mprint) then
+           write(*,*)
+           write(*,*) "Generated formatted_filename: ",
+     >          full_filename(1:l)
+         end if
+         call openfile(2,full_filename,l,'w',l)     
 
          call cwrite(2,comment,80)
          call iwrite(2,psp_type,1)
@@ -326,6 +371,7 @@
           call iwrite(2,int_mb(l_prj_indx),nprj)
           call iwrite(2,int_mb(m_prj_indx),nprj)
           call dwrite(2,Gijl,(nmax*nmax*(lmax+1)))
+          call dwrite(2,Kijl,(nmax*nmax*(lmax+1)))
          end if
 
          rcore = 0.0d0
@@ -347,8 +393,9 @@
            call Tesseral_band(l,m,kvectors(1,nb),
      >                   nfft1,nfft2,nfft3,
      >                   dbl_mb(G_indx),
-     >                   dbl_mb(Ylm_indx))
-           call HGH_band_nonlocal(n,l,kvectors(1,nb),
+     >                   dbl_mb(Slm_indx))
+           call HGH_band_nonlocal(
+     >                       n,l,kvectors(1,nb),
      >                       r(l),
      >                       nfft1,nfft2,nfft3,
      >                       dbl_mb(G_indx),
@@ -358,28 +405,65 @@
 
            do j=1,nsize
              dbl_mb(vnl_indx+(i-1)*nsize+j-1)
-     >        = dbl_mb(vnl_indx+(i-1)*nsize+j-1)*dbl_mb(Ylm_indx+j-1)
+     >        = dbl_mb(vnl_indx+(i-1)*nsize+j-1)*dbl_mb(Slm_indx+j-1)
            end do
-
         end do
 
         if ((taskid.eq.MASTER).and.(nprj.gt.0)) then
            call dwrite(2,dbl_mb(vnl_indx),nsize*nprj)
         end if
       end do
+
+*     **** generate and write out spin_orbit psp **************************
+*     spin orbit is Hermitian complex. it saves us nothing to 
+*     use real harmonics
+***************************************************************************
+
+      do nb=1,nbrillioun
+        do i=1,nprj
+           n=int_mb(n_prj_indx+i-1)
+           l=int_mb(l_prj_indx+i-1)
+           m=int_mb(m_prj_indx+i-1)
+           call Ylm_band(l,m,kvectors(1,nb),
+     >                   nfft1,nfft2,nfft3,
+     >                   dbl_mb(G_indx),
+     >                   dcpl_mb(Ylm_indx))
+           call HGH_band_non_local(
+     >                       n,l,kvectors(1,nb),
+     >                       r(l),
+     >                       nfft1,nfft2,nfft3,
+     >                       dbl_mb(G_indx),
+     >                       dbl_mb(vnl_indx+(i-1)*nsize))
+           if ((taskid.eq.MASTER).and.(oprint))
+     >        write(*,*) "creating projector:",n,l,m," nb=",nb
+
+           do j=1,nsize
+             dcpl_mb(vnlso_indx+(i-1)*nsize+j-1)
+     >        = dcmplx(dbl_mb(vnl_indx+(i-1)*nsize+j-1),0.0d0)*
+     >             dcpl_mb(Ylm_indx+j-1)
+           end do
+        end do
+
+        if ((taskid.eq.MASTER).and.(nprj.gt.0)) then
+           call dwrite(2,dcpl_mb(vnlso_indx),2*nsize*nprj)
+        end if
+      end do
+
       if (taskid.eq.MASTER) call closefile(2)
      
      
 *     **** free heap space ****
       value = MA_free_heap(vl_hndl)
       value = value.and.MA_free_heap(vnl_hndl)
+      value = value.and.MA_free_heap(vnlso_hndl)
       value = value.and.MA_free_heap(Ylm_hndl)
+      value = value.and.MA_free_heap(Slm_hndl)
       value = value.and.MA_free_heap(G_hndl)
       value = value.and.MA_free_heap(n_prj_hndl)
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
       if(.not.value)
-     >  call errquit('hghpp_band: deallocatin heap memory', 0, MA_ERR)
+     >  call errquit('hghpp_band: deallocating heap memory', 0, MA_ERR)
 
       
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
