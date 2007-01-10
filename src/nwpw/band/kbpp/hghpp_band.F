@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.2 2007-01-09 21:55:21 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.3 2007-01-10 19:39:21 d3p708 Exp $
 *
 
 *     **************************************
@@ -424,11 +424,11 @@
            n=int_mb(n_prj_indx+i-1)
            l=int_mb(l_prj_indx+i-1)
            m=int_mb(m_prj_indx+i-1)
-           call Ylm_band(l,m,kvectors(1,nb),
+           call spherical_band(l,m,kvectors(1,nb),
      >                   nfft1,nfft2,nfft3,
      >                   dbl_mb(G_indx),
      >                   dcpl_mb(Ylm_indx))
-           call HGH_band_non_local(
+           call HGH_band_nonlocal(
      >                       n,l,kvectors(1,nb),
      >                       r(l),
      >                       nfft1,nfft2,nfft3,
