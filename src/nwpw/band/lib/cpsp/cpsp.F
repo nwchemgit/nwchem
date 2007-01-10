@@ -825,6 +825,98 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       return
       end
 
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Create the G(i,j,L)*<psi|(LS)|prj(j,L)> array
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine Multiply_Gijl_SO(nn,nprj,nmax,lmax,
+     >                             n_prj,l_prj,m_prj,
+     >                             G,
+     >                             zsw1,zsw2)
+      implicit none
+      integer nn
+      integer nprj,nmax,lmax,nh
+      integer n_prj(nprj)
+      integer l_prj(nprj)
+      integer m_prj(nprj)
+      real*8  G(nmax,nmax,0:lmax),xx,dl2,dm2,dlm
+      complex*16 zsw1(nn,nprj)
+      complex*16 zsw2(nn,nprj)
+
+      !**** local variables ****
+      integer a,b,na,nb,la,lb,ma,mb
+
+      nh=nn/2
+      call dcopy(2*nn*nprj,0.0d0,0,zsw2,1)
+      do b=1,nprj
+         lb = l_prj(b)
+         mb = m_prj(b)
+
+         do a=1,nprj
+            la = l_prj(a)
+            ma = m_prj(a)
+
+            if ((la.eq.lb).and.(ma.eq.mb)) then
+              na = n_prj(a)
+              nb = n_prj(b)
+              xx = G(nb,na,la)*dble(ma)  
+              call daxpy(nn,xx,zsw1(1,a),1,zsw2(1,b),1)
+            end if
+
+         end do
+      end do
+      do b=1,nprj
+         lb = l_prj(b)
+         mb = m_prj(b)
+
+         do a=1,nprj
+            la = l_prj(a)
+            ma = m_prj(a)
+
+            if ((la.eq.lb).and.(ma.eq.mb)) then
+              na = n_prj(a)
+              nb = n_prj(b)
+              xx = -1.0d0*G(nb,na,la)*dble(ma)  
+              call daxpy(nn,xx,zsw1(nh,a),1,zsw2(nh,b),1)
+            end if
+         end do
+      end do
+      do b=1,nprj
+         lb = l_prj(b)
+         mb = m_prj(b)
+         do a=1,nprj
+            la = l_prj(a)
+            ma = m_prj(a)
+            if ((la.eq.lb).and.((ma-1).eq.mb).and.(ma.ne.la)) then
+              dl2=dble(la*(la+1))
+              dm2=dble(ma*(ma+1))
+              dlm=dsqrt(dl2-dm2)
+              na = n_prj(a)
+              nb = n_prj(b)
+              xx = G(nb,na,la)*dlm
+              call daxpy(nn,xx,zsw1(1,a),1,zsw2(nh,b),1)
+            end if
+         end do
+      end do
+      do b=1,nprj
+         lb = l_prj(b)
+         mb = m_prj(b)
+         do a=1,nprj
+            la = l_prj(a)
+            ma = m_prj(a)
+            if ((la.eq.lb).and.((ma+1).eq.mb).and.(ma.ne.(-la))) then
+              dl2=dble(la*(la+1))
+              dm2=dble(ma*(ma-1))
+              dlm=dsqrt(dl2-dm2)
+              na = n_prj(a)
+              nb = n_prj(b)
+              xx = G(nb,na,la)*dlm
+              call daxpy(nn,xx,zsw1(nh,a),1,zsw2(1,b),1)
+            end if
+         end do
+      end do
+      return
+      end
+
 
 *     ***********************************
 *     *					*
@@ -1193,7 +1285,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 *     *					*
 *     ***********************************
 
-      subroutine cpsp_v_nonlocal(ispin,ne,
+      subroutine cpsp_v_spin_orbit(ispin,ne,
      >                           psi1,psi2,move,fion)
       implicit none
       integer    ispin,ne(2)
@@ -1290,13 +1382,12 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 *          **** generate zsw1's and projectors ****
            do l=1,nproj
 
-              shift = vnl(1)+(l-1) *npack1
+              shift = vnlso(1)+(l-1) *npack1
      >                      +(nb-1)*npack1*nmax_max*lmmax_max
      >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*(nmax_max*lmmax_max))
 
-              !sd_function = .not.and(l_prj,1)
 #ifdef GCC4
               k = iand(l_prj,1)
 #else
@@ -1327,10 +1418,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            end do !**l**
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
-         
-
+          
 *          **** zsw2 = Gijl*zsw1 ******
-           call Multiply_Gijl_zsw1(nn,
+           call Multiply_Gijl_SO(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
@@ -1442,9 +1532,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
      >                       Gijl,
      >                       Kijl,
      >                       nfft3d,npack0,npack1,lmmax_max,nmax_max,
-     >                       vl,vnl,vnlso,
+     >                       vl,vnl,vnlsox,
      >                       semicore,rcore,ncore,
-     >                       tmp,tmp2,
+     >                       tmp,tmp2,ztmp,ztmp2,
      >                       ierr)
       implicit none 
       character*(*) comment
@@ -1463,16 +1553,18 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
       integer nprj,n_projector(*),l_projector(*),m_projector(*)
       real*8 Gijl(*),Kijl(*)
-      complex*16 vnlso(*)
 
       integer nfft3d,npack0,npack1,lmmax_max,nmax_max
       real*8 vl(*)
       real*8 vnl(npack1,lmmax_max*nmax_max,*)
+      complex*16 vnlsox(npack1,lmmax_max*nmax_max,*)
       logical semicore
       real*8  rcore
       real*8  ncore(*)
       real*8     tmp(*)
       real*8     tmp2(*)
+      complex*16  ztmp(*)
+      complex*16  ztmp2(*)
       integer ierr
 
 #ifdef TCGMSG
@@ -1622,9 +1714,9 @@ c         call dread(5,vnlnrm,lmmax)
 *     **** read in v_spin_orbit 3d blocks ****
       do nb=1,brillioun_nbrillioun()
       do n=1,nprj
-         call C3dB_c_read(1,5,ctmp2,ctmp)
-         call Cram_c_pack(nb,ctmp2)
-         call Cram_c_Copy(nb,ctmp2,vnlso(1,n,nb))
+         call C3dB_c_read(1,5,ztmp2,ztmp)
+         call Cram_c_pack(nb,ztmp2)
+         call Cram_c_Copy(nb,ztmp2,vnlsox(1,n,nb))
       end do
       end do
 
@@ -1679,7 +1771,7 @@ c       close(11)
       integer ia,l
       real*8 unita(3,3)
       character*12 boundry
-      integer tmp(2),tmp2(2),ierr
+      integer tmp(2),tmp2(2),ztmp(2),ztmp2(2),ierr
       logical value,found,correct_box
       character*4  element
       character*20 fname
@@ -1718,11 +1810,11 @@ c       close(11)
       if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
 
-      value = MA_push_get(mt_dcpl,(2*nfft3d),'ctmp',ctmp(2),ctmp(1))
+      value = MA_push_get(mt_dcpl,(2*nfft3d),'ztmp',ztmp(2),ztmp(1))
       if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
 
-      value = MA_push_get(mt_dcpl,(nfft3d),'ctmp2',ctmp2(2),ctmp2(1))
+      value = MA_push_get(mt_dcpl,(nfft3d),'ztmp2',ztmp2(2),ztmp2(1))
       if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
 
@@ -1773,6 +1865,7 @@ c       close(11)
      >                  dbl_mb(rcore(1)+ia-1),
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
+     >                  dcpl_mb(ztmp(1)),dcpl_mb(ztmp2(1)),
      >                  ierr)
 
 
@@ -1829,7 +1922,9 @@ c       close(11)
 
 
       end do
- 9000 value = MA_pop_stack(tmp2(2))
+ 9000 value = MA_pop_stack(ztmp2(2))
+      value = MA_pop_stack(ztmp(2)) 
+      value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp(2))
 
       return
