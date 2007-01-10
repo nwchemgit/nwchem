@@ -1419,7 +1419,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            end do !**l**
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
           
-*          **** zsw2 = Gijl*zsw1 ******
+*          **** zsw2 = Kijl*zsw1 ******
            call Multiply_Gijl_SO(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
@@ -1430,7 +1430,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                                + (ia-1)*(nmax_max*lmmax_max)),
      >                         int_mb(m_projector(1)
      >                                + (ia-1)*(nmax_max*lmmax_max)),
-     >                         dbl_mb(Gijl(1)
+     >                         dbl_mb(Kijl(1)
      >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
      >                         dcpl_mb(zsw1(1)),
      >                         dcpl_mb(zsw2(1)))
