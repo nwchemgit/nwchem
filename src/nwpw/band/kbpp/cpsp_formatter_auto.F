@@ -29,6 +29,8 @@
       integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita,brillioun_k
       logical      kbpp_band,nwpw_filefind,hghpp_band
+c      logical      control_spin_orbit
+c      external     control_spin_orbit
       external     control_version
       external     control_ngrid,brillioun_nbrillioun
       external     control_unita,brillioun_k
@@ -77,6 +79,7 @@
       end do
 
       call get_psp_type(psp_filename,psp_type)
+c      if (control_spin_orbit()) psp_type=1
 
       if (psp_type.eq.1) then
          value = value.and.
