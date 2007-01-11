@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.17 2007-01-02 18:36:51 bylaska Exp $
+* $Id: cram.F,v 1.18 2007-01-11 18:22:29 d3p708 Exp $
 *
 
 *     ***********************************
@@ -1370,6 +1370,31 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       end
 
 
+*     ***********************************
+*     *					*
+*     *	         Cram_icc_Mul           *
+*     *					*
+*     ***********************************
+
+      subroutine Cram_icc_Mul(nb,A,B,C)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(int_mb(nidb2_list(1)+nb))
+        C(i) = A(i) * dcmplx(-dimag(B(i)),dble(B(i)))
+      end do
+
+      return
+      end
 
 
 
