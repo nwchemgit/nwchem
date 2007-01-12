@@ -669,10 +669,17 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 *             **** (-i)^l is the same as (i)^l in the     ****
 *             **** Rayleigh scattering formula            ****
 
-*             *** current function is s or d ****
-              call Cram_cc_Mul(nb,dcpl_mb(shift),
+c             *** current function is s or d ****
+              if (sd_function) then
+                 call Cram_rc_Mul(nb,dbl_mb(shift),
      >                               dcpl_mb(exi(1)),
      >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
+*             *** current function is p or f ****
+              else
+                 call Cram_irc_Mul(nb,dbl_mb(shift),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(prjtmp(1)+(l-1)*npack1))
+              end if
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
               call Cram_cc_inzdot(nb,nn,
@@ -701,7 +708,6 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 
 
 *          **** do Kleinman-Bylander Multiplication ****
-           !scal = 1.0d0/(omega)
            call dscal(2*nn*nproj,scal,dcpl_mb(zsw2(1)),1)
            call ZGEMM('N','C',npack,nn,nproj,
      >                mone,
@@ -828,7 +834,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Create the G(i,j,L)*<psi|(LS)|prj(j,L)> array
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine Multiply_Gijl_SO(nn,nprj,nmax,lmax,
+      subroutine Multiply_Kijl_SO(nn,nprj,nmax,lmax,
      >                             n_prj,l_prj,m_prj,
      >                             G,
      >                             zsw1,zsw2)
@@ -1007,7 +1013,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****
 *             **** Rayleigh scattering formula            ****
-
 *             *** current function is s or d ****
               if (sd_function) then
                  call Cram_rc_Mul(nb,dbl_mb(shift),
@@ -1308,7 +1313,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8  omega,weight,scal
       complex*16 ctmp,cxr
       integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
-      integer Gx(2),Gy(2),Gz(2)
+      integer Gx(2),Gy(2),Gz(2),ip
       logical value,sd_function
 
 *     **** external functions ****
@@ -1318,9 +1323,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external is_sORd
       external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
-
       call nwpw_timing_start(6)
       
+      if (.not.do_spin_orbit) return
+
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
       neall = ne(1)+ne(2)
@@ -1380,12 +1386,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 *          **** generate zsw1's and projectors ****
-           do l=1,nproj
+           do ip=1,nproj
 
-              shift = vnlso(1)+(l-1) *npack1
+              shift = vnlso(1)+(ip-1) *npack1
      >                      +(nb-1)*npack1*nmax_max*lmmax_max
      >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
-              l_prj = int_mb(l_projector(1)+(l-1)
+              l_prj = int_mb(l_projector(1)+(ip-1)
      >                                     +(ia-1)*(nmax_max*lmmax_max))
 
 #ifdef GCC4
@@ -1401,26 +1407,26 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *             *** current function is s or d ****
               if (sd_function) then
-                 call Cram_rc_Mul(nb,dbl_mb(shift),
+                 call Cram_cc_Mul(nb,dcpl_mb(shift),
      >                               dcpl_mb(exi(1)),
-     >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
+     >                               dcpl_mb(prjtmp(1)+(ip-1)*npack1))
 *             *** current function is p or f ****
               else
-                 call Cram_irc_Mul(nb,dbl_mb(shift),
+                 call Cram_icc_Mul(nb,dcpl_mb(shift),
      >                                dcpl_mb(exi(1)),
-     >                                dcpl_mb(prjtmp(1)+(l-1)*npack1))
+     >                                dcpl_mb(prjtmp(1)+(ip-1)*npack1))
               end if
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
               call Cram_cc_inzdot(nb,nn,
      >                      psi1(1+(nb-1)*nn*npack1),
-     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
-     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
-           end do !**l**
+     >                      dcpl_mb(prjtmp(1)+(ip-1)*npack1),
+     >                      dcpl_mb(zsw1(1)+(ip-1)*nn))
+           end do !**ip**
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
           
 *          **** zsw2 = Kijl*zsw1 ******
-           call Multiply_Gijl_SO(nn,
+           call Multiply_Kijl_SO(nn,
      >                         nproj,
      >                         int_mb(nmax(1)+ia-1),
      >                         int_mb(lmax(1)+ia-1),
@@ -1520,6 +1526,159 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       return 
       end
+
+*     ***********************************
+*     *					*
+*     *	 	 cpsp_v_spin_orbit_orb  	*
+*     *					*
+*     ***********************************
+
+      subroutine cpsp_v_spin_orbit_orb(nb,psi1,psi2)
+      implicit none
+      integer    nb
+      complex*16 psi1(*)
+      complex*16 psi2(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsp_common.fh"
+
+
+*     *** local variables ***
+      complex*16 one,mone
+      parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
+
+      integer nfft3d,npack1,npack,nbrill
+      integer ii,ia,l
+      integer k,shift,l_prj,nproj
+      real*8  omega,scal
+      complex*16 cxr
+      integer exi(2),zsw1(2),zsw2(2)
+      logical value,sd_function
+
+*     **** external functions ****
+      logical  is_sORd
+      integer  ion_nion,ion_katm,brillioun_nbrillioun
+      real*8   lattice_omega
+      external is_sORd
+      external ion_nion,ion_katm,brillioun_nbrillioun
+      external lattice_omega
+
+      call nwpw_timing_start(6)
+      if (.not.do_spin_orbit) return
+
+*     **** allocate local memory ****
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_max_npack(npack1)
+      nbrill = brillioun_nbrillioun()
+
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >                    'zsw1',zsw1(2),zsw1(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nmax_max*lmmax_max,
+     >                    'zsw2',zsw2(2),zsw2(1))
+      if (.not.value) 
+     > call errquit('cpsp_v_spin_orbit_orb:pushing stack',0,MA_ERR)
+
+
+      omega = lattice_omega()
+      scal  = 1.0d0/omega
+
+      do ii=1,ion_nion()
+         ia=ion_katm(ii)
+         nproj = int_mb(nprj(1)+ia-1)
+
+         if (nproj.gt.0) then
+
+*           **** structure factor ****
+            call Cram_npack(nb,npack)
+            call cstrfac_pack(nb,ii,dcpl_mb(exi(1)))
+            call cstrfac_k(ii,nb,cxr)
+            call Cram_c_ZMul(nb,cxr,dcpl_mb(exi(1)),dcpl_mb(exi(1)))
+
+            do l=1,nproj
+
+              shift = vnlso(1)+(l-1) *npack1
+     >                      +(nb-1)*npack1*nmax_max*lmmax_max
+     >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
+              l_prj = int_mb(l_projector(1)+(l-1)
+     >                                     +(ia-1)*(nmax_max*lmmax_max))
+
+              !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+              k = iand(l_prj,1)
+#else
+              k = and(l_prj,1)
+#endif
+              sd_function = (k.eq.0)
+
+*             **** phase factor does not matter therefore ****
+*             **** (-i)^l is the same as (i)^l in the     ****
+*             **** Rayleigh scattering formula            ****
+*             *** current function is s or d ****
+              if (sd_function) then
+                 call Cram_cc_Mul(nb,dcpl_mb(shift),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
+*             *** current function is p or f ****
+              else
+                 call Cram_icc_Mul(nb,dcpl_mb(shift),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(prjtmp(1)+(l-1)*npack1))
+              end if
+
+*             **** compute 1Xnproj matrix zsw1 = <psi1|prj> ****
+              call Cram_cc_izdot(nb,
+     >                      psi1,
+     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                      dcpl_mb(zsw1(1)+(l-1)))
+            end do !**l**
+            call C3dB_Vector_SumAll((2*nproj),dcpl_mb(zsw1(1)))
+
+*           **** zsw2 = Gijl*zsw1 ******
+            call Multiply_Kijl_SO(1,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Kijl(1)
+     >                         + (ia-1)*nmax_max*nmax_max*(lmax_max+1)),
+     >                         dcpl_mb(zsw1(1)),
+     >                         dcpl_mb(zsw2(1)))
+
+*           **** do Kleinman-Bylander Multiplication ****
+            call dscal(2*nproj,scal,dcpl_mb(zsw2(1)),1)
+            call ZGEMM('N','C',npack1,1,nproj,
+     >                 mone,
+     >                 dcpl_mb(prjtmp(1)), npack1,
+     >                 dcpl_mb(zsw2(1)),   1,
+     >                 one,
+     >                 psi2, npack1)
+
+         end if !** nproj>0 **
+      end do !** ii***
+
+      value =           MA_pop_stack(zsw2(2))
+      value = value.and.MA_pop_stack(zsw1(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) 
+     > call errquit('cpsp_v_spin_orbit_orb:popping stack',3,MA_ERR)
+
+      call nwpw_timing_end(6)
+
+      return 
+      end
+
+
+
+
 
 
       subroutine cpsp_read(fname,comment,
@@ -1781,12 +1940,12 @@ c       close(11)
       parameter(MASTER=0)
 
 *     **** external functions ****
-      logical      nwpw_filefind
+      logical      nwpw_filefind,control_spin_orbit
       integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita
       character*12 control_boundry
       character*2  ion_atom
-      external     nwpw_filefind
+      external     nwpw_filefind,control_spin_orbit
       external     control_ngrid,brillioun_nbrillioun
       external     control_unita
       external     control_boundry
@@ -1818,6 +1977,7 @@ c       close(11)
       if (.not. value) call errquit('out of stack memory',0,
      &       MA_ERR)
 
+      do_spin_orbit=.false.
 *     **** read pseudopotentials ****
       do ia=1,npsp
 
@@ -1868,11 +2028,16 @@ c       close(11)
      >                  dcpl_mb(ztmp(1)),dcpl_mb(ztmp2(1)),
      >                  ierr)
 
+c           if ((int_mb(psp_type(1)+(ia-1)).eq.1).and.
+c     >           control_spin_orbit()) then
+c              do_spin_orbit=.true.
+c              write(*,*)"SPIN ORBIT PPOT ENABLED!"
+c              call flush(6)
+c           end if
 
 *          **** set semicore(0) ****
            if (log_mb(semicore(1)+ia)) log_mb(semicore(1)) = .true.
            if (ierr.gt.1) go to 9000
-
 *          **************************************************************
 *          ***** logic for finding out if psp is correctly formatted ****
 *          **************************************************************
