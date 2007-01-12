@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.6 2004-11-13 02:22:05 bylaska Exp $
+* $Id: cpsi_H.F,v 1.7 2007-01-12 23:47:43 d3p708 Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -33,6 +33,8 @@
 *     **** external functions ****
       integer  brillioun_nbrillioun
       real*8   lattice_omega
+      logical  cpsi_spin_orbit
+      external cpsi_spin_orbit
       external brillioun_nbrillioun
       external lattice_omega
 
@@ -71,7 +73,7 @@
 *     **** add non-local psp ***
 *     **************************
       call cpsp_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion)
-
+      call cpsp_v_spin_orbit(ispin,ne,psi_k,Hpsi_k,move,fion)
 
 *     **********************************************************
 *     **** add up k-space potentials, vall = scal2*vl + vc  ****
@@ -206,7 +208,7 @@
 *     **** add non-local psp - Horb_k = Horb_k + Vnl*orb_k ****
 *     *********************************************************
       call cpsp_v_nonlocal_orb(nb,orb_k,Horb_k)
-
+      call cpsp_v_spin_orbit_orb(nb,orb_k,Horb_k)
 
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*orb_r] ****
