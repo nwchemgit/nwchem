@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.23 2006-12-16 01:54:00 bylaska Exp $
+* $Id: c_electron.F,v 1.24 2007-01-12 23:48:13 d3p708 Exp $
 *
 
 
@@ -1283,6 +1283,10 @@ c         end do
 *     **** average Kohn-Sham v_nonlocal energy ****
       call BGrsm_f_Zero(dcpl_mb(tmp1(1)))
       call cpsp_v_nonlocal(ispin,ne,
+     >                     psi1,
+     >                     dcpl_mb(tmp1(1)),
+     >                    .false.,dcpl_mb(tmp2(1)))
+      call cpsp_v_spin_orbit(ispin,ne,
      >                     psi1,
      >                     dcpl_mb(tmp1(1)),
      >                    .false.,dcpl_mb(tmp2(1)))
