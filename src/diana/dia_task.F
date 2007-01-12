@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.3 2007-01-07 01:41:05 d3j191 Exp $
+c $Id: dia_task.F,v 1.4 2007-01-12 23:43:01 d3j191 Exp $
 c
       implicit none
 c
@@ -270,13 +270,13 @@ c
       ndata=ndata+1
       if(me.eq.0) then
       call ga_put(ga_trj,1,3*nsa,ndata,ndata,dbl_mb(i_xdat),nsa)
-      write(*,'(3f12.6)') (dbl_mb(i_xdat+i-1),i=1,3)
+c      write(*,'(3f12.6)') (dbl_mb(i_xdat+i-1),i=1,3)
       endif
       endif
       nframe=nframe+1
-      if(me.eq.0) then
-      write(*,'(a,i5,a,i5)') ' Frame ',nframe,', Data ',ndata
-      endif
+c      if(me.eq.0) then
+c      write(*,'(a,i5,a,i5)') ' Frame ',nframe,', Data ',ndata
+c      endif
       if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 1010
       endif
 c
@@ -1274,6 +1274,8 @@ c      if(np.gt.1) call dia_update(dbl_mb(i_xdat),msa,1,nsa)
 c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
+     + dbl_mb(i_xadat),nsa)
       call dia_covar(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),
      + dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
      + dbl_mb(i_xadat),nsa)
@@ -1298,6 +1300,7 @@ c
       endif
 c
       call ga_sync()
+c      call ga_print(ga_cov)
       call ga_diag_std(ga_cov,ga_vec,dbl_mb(i_cov))
 c
       call ga_sync()

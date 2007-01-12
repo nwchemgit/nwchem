@@ -1,6 +1,6 @@
       subroutine dia_edinit()
 c
-c $Id: dia_covar.F,v 1.2 2007-01-07 01:41:05 d3j191 Exp $
+c $Id: dia_covar.F,v 1.3 2007-01-12 23:43:01 d3j191 Exp $
 c
       implicit none
 c
@@ -19,6 +19,7 @@ c
      + '   ma   ',2i10,' MB',/,
      + '   ga   ',2i10,' MB',/)
       endif
+c      print*,'nsel=',nsel
 c
 c     create nsel x nsel global array covariance matrix
 c
@@ -89,6 +90,8 @@ c
       integer i,j,k,ia,ja,ix,jx
       integer il,ih,jl,jh,iproc
 c
+c      write(*,'(a)') 'DIA_COVAR'
+c
       j=0
       do 1 i=1,nsa
       if(isel(i).ne.0) then
@@ -97,8 +100,9 @@ c
       endif
     1 continue
 c
-      do 6 iproc=1,np
+      do 6 iproc=0,np-1
       call ga_distribution(ga_cov,iproc,il,ih,jl,jh)
+c      write(*,'(6i5)') me,iproc,il,ih,jl,jh
 c
       do 3 i=il,ih
       ia=ndx((i+2)/3)
@@ -112,11 +116,11 @@ c
       jx=mod(j+2,3)+1
       cov(j-jl+1)=cov(j-jl+1)+
      + (xtrj(ia,ix,k)-xa(ia,ix))*(xtrj(ja,jx,k)-xa(ja,jx))
-      if(k.eq.1) then
-      write(*,'(3i5,2f12.6,2i5,2f12.6)') me,
-     + ia,ix,xa(ia,ix),xtrj(ia,ix,k),
-     + ja,jx,xa(ja,jx),xtrj(ja,jx,k)
-      endif
+c      if(i.eq.1.and.j.eq.1) then
+c      write(*,'(5i5,2f12.6,2i5,2f12.6)') me,i,j,
+c     + ia,ix,xa(ia,ix),xtrj(ia,ix,k),
+c     + ja,jx,xa(ja,jx),xtrj(ja,jx,k)
+c      endif
     4 continue
     2 continue
 c      write(*,'(6f12.6)') (cov(j-jl+1),j=jl,jh)
@@ -124,7 +128,8 @@ c      write(*,'(6f12.6)') (cov(j-jl+1),j=jl,jh)
     3 continue
     6 continue
 c
-c      call ga_sync()
+      call ga_sync()
+c
       return
       end
       subroutine dia_projec(ndx,vct,isel,x,xa,mx,val,xp)
@@ -212,6 +217,7 @@ c
       endif
     1 continue
 c
+      return
       do 6 iproc=0,np-1
       call ga_distribution(ga_cov,iproc,il,ih,jl,jh)
       do 3 i=il,ih

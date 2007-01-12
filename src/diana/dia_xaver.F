@@ -2,7 +2,7 @@
 c
 c      x,xa,nx,mx,nave)
 c
-c $Id: dia_xaver.F,v 1.3 2007-01-07 01:41:05 d3j191 Exp $
+c $Id: dia_xaver.F,v 1.4 2007-01-12 23:43:02 d3j191 Exp $
 c
       implicit none
 c
@@ -17,6 +17,8 @@ c
       real*8 xtrj(ntrj,3,nfr),xa(nxa,3)
 c
       integer i,j,k
+c
+      if(nxa.ne.ntrj) call md_abort('xaver dimension problem',0)
 c
       do 1 j=1,3
       do 2 i=1,nxa
@@ -40,11 +42,11 @@ c
     5 continue
 c
 ctest
-      if(me.eq.0) then
-      do 7 i=1,ntrj
-      write(*,'(i5,3f12.6)') i,(xtrj(i,j,1),j=1,3)
-    7 continue
-      endif
+c      if(me.eq.0) then
+c      do 7 i=1,nfr
+c      write(*,'(i5,3f12.6)') i,(xtrj(5,j,i),j=1,3)
+c    7 continue
+c      endif
 ctest
       return
       end
