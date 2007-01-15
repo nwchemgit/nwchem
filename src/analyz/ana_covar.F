@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.13 2003-10-19 03:31:01 d3j191 Exp $
+c $Id: ana_covar.F,v 1.14 2007-01-15 23:09:47 d3j191 Exp $
 c
       implicit none
 c
@@ -19,6 +19,7 @@ c
      + '   ma   ',2i10,' MB',/,
      + '   ga   ',2i10,' MB',/)
       endif
+      print*,'nsel=',nsel
 c
 c     create nsel x nsel global array covariance matrix
 c
@@ -105,6 +106,11 @@ c
       ja=ndx((j+2)/3)
       jx=mod(j+2,3)+1
       cov(j-jl+1)=(x(ia,ix)-xa(ia,ix))*(x(ja,jx)-xa(ja,jx))
+c      if(i.eq.1.and.j.eq.1) then
+c      write(*,'(5i5,2f12.6,2i5,2f12.6)') me,i,j,
+c     + ia,ix,xa(ia,ix),x(ia,ix),
+c     + ja,jx,xa(ja,jx),x(ja,jx)
+c      endif
     3 continue
       call ga_acc(ga_cov,i,i,jl,jh,cov,1,one)
     2 continue

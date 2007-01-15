@@ -1,6 +1,6 @@
       subroutine ana_xaver(x,xa,nx,mx,nave)
 c
-c $Id: ana_xaver.F,v 1.1 1999-12-10 23:54:47 d3j191 Exp $
+c $Id: ana_xaver.F,v 1.2 2007-01-15 23:09:47 d3j191 Exp $
 c
       implicit none
 c
@@ -30,6 +30,11 @@ c
       endif
 c
       nave=nave+1
+ctest
+c      if(ga_nodeid().eq.0) then
+c      write(*,'(i5,3f12.6)') 0,(x(5,j),j=1,3)
+c      endif
+ctest
 c
       return
       end

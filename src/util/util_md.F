@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.44 2006-04-28 23:05:29 bert Exp $
+c $Id: util_md.F,v 1.45 2007-01-15 23:09:49 d3j191 Exp $
 c
       implicit none
 c
@@ -66,7 +66,7 @@ c
       return
       end
       subroutine super(x,ix,nx,mx,y,w,ws,sdev,ny,my,mod,rms0,rms1,
-     + xw,mw,nw,ma,na)
+     + xw,mw,nw,ma,na,lpara)
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c
@@ -81,12 +81,13 @@ c
       integer nx,mx,ny,my,mw,nw,ma,na
       integer ix(mx)
       real*8 x(mx,3),y(my,3),w(my),ws(my),sdev(my),xw(mw,ma,3),rms0,rms1
-      logical mod
+      logical mod,lpara
 c
       integer i,j,k,l,nr
       real*8 u(3,3),c(4,4),q(4),b(4),v(4,4),wnorm,wnorms
       real*8 xt(3),yt(3),sd
 c
+c      write(*,'(a,6f12.6)') 'Super in ',(x(1,i),i=1,3),(x(nx,i),i=1,3)
       wnorm=zero
       wnorms=zero
       do 1 j=1,3
@@ -98,7 +99,7 @@ c
       xt(j)=xt(j)+w(ix(k))*x(k,j)
     3 continue
     2 continue
-      call ga_dgop(mag_d08,xt,3,'+')
+      if(lpara) call ga_dgop(mag_d08,xt,3,'+')
       do 4 k=1,ny
       wnorm=wnorm+w(k)
       wnorms=wnorms+ws(k)
@@ -115,7 +116,7 @@ c
       rms0=rms0+ws(ix(k))*(x(k,j)-xt(j)-y(ix(k),j)+yt(j))**2
     7 continue
     6 continue
-      call ga_dgop(mag_d09,rms0,1,'+')
+      if(lpara) call ga_dgop(mag_d09,rms0,1,'+')
       rms0=sqrt(rms0/wnorms)
 c
       do 8 i=1,3
@@ -126,7 +127,7 @@ c
    10 continue
     9 continue
     8 continue
-      call ga_dgop(mag_d10,u,9,'+')
+      if(lpara) call ga_dgop(mag_d10,u,9,'+')
 c
       c(1,1)=u(1,1)+u(2,2)+u(3,3)
       c(1,2)=u(3,2)-u(2,3)
@@ -181,7 +182,7 @@ c
       sdev(ix(k))=sdev(ix(k))+sd
       rms1=rms1+ws(ix(k))*sd
    14 continue
-      call ga_dgop(mag_d11,rms1,1,'+')
+      if(lpara) call ga_dgop(mag_d11,rms1,1,'+')
       rms1=sqrt(rms1/wnorms)
 c
       if(mod.and.nw.gt.0) then
@@ -200,6 +201,7 @@ c
    19 continue
       endif
 c
+c      write(*,'(a,6f12.6)') 'Super out',(x(1,i),i=1,3),(x(nx,i),i=1,3)
       return
       end
       real*8 function angl(x,y,z)

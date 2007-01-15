@@ -1,6 +1,36 @@
-      subroutine dia_super(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1)
+      subroutine dia_super(xtrj,ntrj,nfr,xa,nxa,rms0,rms1)
 c
-c $Id: dia_super.F,v 1.1 2006-12-10 01:03:23 d3j191 Exp $
+c $Id: dia_super.F,v 1.2 2007-01-15 23:09:46 d3j191 Exp $
+c
+      implicit none
+c
+#include "msgids.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "dia_common.fh"
+c
+      real*8 zero
+      parameter(zero=0.0d0)
+c
+      integer ntrj,nfr,nxa
+      real*8 xtrj(ntrj,3,nfr),xa(nxa,3)
+      real*8 rms0,rms1
+c
+      integer i,j,k
+c
+      if(nxa.ne.ntrj) call md_abort('super dimension problem',0)
+c
+      do 1 k=1,nfr
+      call super(xtrj(1,1,k),int_mb(i_idat),ntrj,ntrj,
+     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
+    1 continue
+c
+      return
+      end
+      subroutine dia_super2(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1)
+c
+c $Id: dia_super.F,v 1.2 2007-01-15 23:09:46 d3j191 Exp $
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c

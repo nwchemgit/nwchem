@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.4 2007-01-12 23:43:01 d3j191 Exp $
+c $Id: dia_task.F,v 1.5 2007-01-15 23:09:46 d3j191 Exp $
 c
       implicit none
 c
@@ -282,6 +282,20 @@ c      endif
 c
       goto 1
       endif
+c
+c     superimpose all stored frames
+c     -----------------------------
+c
+      if(card(1:5).eq.'super') then
+c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+c
+      call dia_super(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
+     + dbl_mb(i_xadat),nsa,rms0,rms1)
+c
+      goto 1
+      endif 
 c     dbl_mb(i_xdat),dbl_mb(i_xadat),
 c     + num,msa,nave)
 c
@@ -706,7 +720,7 @@ c
       if(lsuper) then
       call super(dbl_mb(i_xdat),int_mb(i_idat),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
       call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
       endif
       if(fmt.eq.'pdb') then
@@ -812,54 +826,54 @@ c
 c     super frames
 c     -----------
 c
-      if(card(1:6).eq.'super '.or.card(1:6).eq.'supers') then
-      lsonly=card(1:6).eq.'supers'
-      read(card(8:19),'(f12.6)') rangle
-      read(card(20:80),'(a)') filsup
-      i=index(filsup,'.')
-      fmt=filsup(i+1:i+3)
-      root=filsup(1:i)
-c
-      if(nsel.eq.0) call md_abort('No atoms selected',0)
-c
-c     write header
-c
-      call dia_rdhdr(byte_mb(i_snam))
-      call dia_wthdr(lfnsup,fmt,byte_mb(i_snam),byte_mb(i_tag),
-     + int_mb(i_isel),.not.lsonly)
-c
-      nread=0
-      nwrit=0
-      nframe=0
-    3 continue
-      if(dia_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
-      nread=nread+1
-      if(nread.lt.ifrfr) goto 3
-      if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx) then
-      call super(dbl_mb(i_xdat),int_mb(i_idat),num,msa,
-     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
-      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
-      call dia_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
-     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
-     + int_mb(i_wsel),int_mb(i_ndxw))
-      nwrit=nwrit+1
-      indx=indx+1
-      endif
-      nframe=nframe+1
-      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 3
-      endif
-      if(me.eq.0) then
-      close(unit=lfntrj)
-      write(*,'(a)') ' Closing trj file '
-      close(unit=lfnsup)
-      write(*,'(/,a,i10,a,a)') ' Superimposed ',nwrit,' frames to ',
-     + filsup(1:index(filsup,' ')-1)
-      lsonly=.false.
-      endif
-c
-      goto 1
-      endif
+c      if(card(1:6).eq.'super '.or.card(1:6).eq.'supers') then
+c      lsonly=card(1:6).eq.'supers'
+c      read(card(8:19),'(f12.6)') rangle
+c      read(card(20:80),'(a)') filsup
+c      i=index(filsup,'.')
+c      fmt=filsup(i+1:i+3)
+c      root=filsup(1:i)
+cc
+c      if(nsel.eq.0) call md_abort('No atoms selected',0)
+cc
+cc     write header
+cc
+c      call dia_rdhdr(byte_mb(i_snam))
+c      call dia_wthdr(lfnsup,fmt,byte_mb(i_snam),byte_mb(i_tag),
+c     + int_mb(i_isel),.not.lsonly)
+cc
+c      nread=0
+c      nwrit=0
+c      nframe=0
+c    3 continue
+c      if(dia_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
+c      nread=nread+1
+c      if(nread.lt.ifrfr) goto 3
+c      if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx) then
+c      call super(dbl_mb(i_xdat),int_mb(i_idat),num,msa,
+c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
+c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
+c      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
+c      call dia_wtfram(lfnsup,fmt,dbl_mb(i_xdat),byte_mb(i_snam),
+c     + dbl_mb(i_wdat),int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),
+c     + int_mb(i_wsel),int_mb(i_ndxw))
+c      nwrit=nwrit+1
+c      indx=indx+1
+c      endif
+c      nframe=nframe+1
+c      if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 3
+c      endif
+c      if(me.eq.0) then
+c      close(unit=lfntrj)
+c      write(*,'(a)') ' Closing trj file '
+c      close(unit=lfnsup)
+c      write(*,'(/,a,i10,a,a)') ' Superimposed ',nwrit,' frames to ',
+c     + filsup(1:index(filsup,' ')-1)
+c      lsonly=.false.
+c      endif
+cc
+c      goto 1
+c      endif
 c
 c     scan frames
 c     -----------
@@ -959,7 +973,7 @@ c
       if(lsuper) then
       call super(dbl_mb(i_xdat),int_mb(i_idat),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
       call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
       endif
 c
@@ -1197,7 +1211,7 @@ c      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c      if(lsaver) then
 c      call super(dbl_mb(i_xdat),int_mb(i_idat),num,msa,
 c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
 c      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
 c      endif
 c
@@ -1267,7 +1281,7 @@ c      if(nread.lt.ifrfr) goto 5
 c      if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
 c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
 c      call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
 c
 c      if(np.gt.1) call dia_update(dbl_mb(i_xdat),msa,1,nsa)
@@ -1391,7 +1405,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
 c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
-c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
+c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
       call dia_xcollect(dbl_mb(i_xdat),1,num,msa)
 c
       if(np.gt.1) call dia_update(dbl_mb(i_xdat),msa,1,nsa)

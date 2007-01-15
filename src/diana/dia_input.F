@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c $Id: dia_input.F,v 1.2 2007-01-15 23:09:45 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,8 @@ c
       character*8 option
 c
       if(ga_nodeid().eq.0) then
-      call util_print_centered(6,'Analysis Input Module',40,.true.)
+      call util_print_centered(6,'Data Intensive Analysis Input Module',
+     + 40,.true.)
       endif
 c
       if(.not.rtdb_cget(irtdb,'file_prefix',1,prefix))
@@ -225,31 +226,31 @@ c
 c     copy frames to file
 c     -------------------
 c
-      if(inp_compare(.false.,'copy',item)) then
-      if(.not.inp_a(filcop)) call md_abort('Error in copy',0)
-      lsol=.false.
-      if(filcop(1:6).eq.'solute') then
-      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
-      lsol=.true.
-      endif
-      rang=0.0d0
-      if(filcop(1:6).eq.'rotate') then
-      if(.not.inp_f(rang)) call md_abort('Error in rotation time',0)
-      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
-      endif
-      if(index(filcop,'.').le.0)
-     + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
-      if(filcop.eq.filtrj) call md_abort('File name conflict',0)
-      if(lsol) then
-      write(lfncmd,1004) rang,filcop(1:index(filcop,' ')-1)
- 1004 format('copys  ',f12.6,a)
-      else
-      write(lfncmd,1024) rang,filcop(1:index(filcop,' ')-1)
- 1024 format('copy   ',f12.6,a)
-      endif
-      numcmd=numcmd+1
-      goto 2
-      endif
+cc      if(inp_compare(.false.,'copy',item)) then
+cc      if(.not.inp_a(filcop)) call md_abort('Error in copy',0)
+cc      lsol=.false.
+cc      if(filcop(1:6).eq.'solute') then
+cc      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
+cc      lsol=.true.
+cc      endif
+cc      rang=0.0d0
+cc      if(filcop(1:6).eq.'rotate') then
+cc      if(.not.inp_f(rang)) call md_abort('Error in rotation time',0)
+cc      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
+cc      endif
+cc      if(index(filcop,'.').le.0)
+cc     + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
+cc      if(filcop.eq.filtrj) call md_abort('File name conflict',0)
+cc      if(lsol) then
+cc      write(lfncmd,1004) rang,filcop(1:index(filcop,' ')-1)
+cc 1004 format('copys  ',f12.6,a)
+cc      else
+cc      write(lfncmd,1024) rang,filcop(1:index(filcop,' ')-1)
+cc 1024 format('copy   ',f12.6,a)
+cc      endif
+cc      numcmd=numcmd+1
+cc      goto 2
+cc      endif
 c
 c     clean up frames to file
 c     -----------------------
@@ -266,27 +267,29 @@ c     superimpose frames and write to file
 c     ------------------------------------
 c
       if(inp_compare(.false.,'super',item)) then
-      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
-      lsol=.false.
-      if(filcop(1:6).eq.'solute') then
-      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
-      lsol=.true.
-      endif
-      rang=0.0d0
-      if(filcop(1:6).eq.'rotate') then
-      if(.not.inp_f(rang)) call md_abort('Error in rotation time',0)
-      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
-      endif
-      if(index(filcop,'.').le.0)
-     + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
-      if(filcop.eq.filtrj) call md_abort('File name conflict',0)
-      if(lsol) then
-      write(lfncmd,1005) rang,filcop(1:index(filcop,' ')-1)
- 1005 format('supers ',f12.6,a)
-      else
-      write(lfncmd,1025) rang,filcop(1:index(filcop,' ')-1)
- 1025 format('super  ',f12.6,a)
-      endif
+c      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
+c      lsol=.false.
+c      if(filcop(1:6).eq.'solute') then
+c      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
+c      lsol=.true.
+c      endif
+c      rang=0.0d0
+c      if(filcop(1:6).eq.'rotate') then
+c      if(.not.inp_f(rang)) call md_abort('Error in rotation time',0)
+c      if(.not.inp_a(filcop)) call md_abort('Error in super',0)
+c      endif
+c      if(index(filcop,'.').le.0)
+c     + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
+c      if(filcop.eq.filtrj) call md_abort('File name conflict',0)
+c      if(lsol) then
+c      write(lfncmd,1005) rang,filcop(1:index(filcop,' ')-1)
+c 1005 format('supers ',f12.6,a)
+c      else
+c      write(lfncmd,1025) rang,filcop(1:index(filcop,' ')-1)
+c 1025 format('super  ',f12.6,a)
+c      endif
+      write(lfncmd,1025)
+ 1025 format('super  ')
       numcmd=numcmd+1
       goto 2
       endif

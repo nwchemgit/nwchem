@@ -1,5 +1,5 @@
       logical function input_parse(rtdb)
-C     $Id: input_parse.F,v 1.83 2006-12-01 22:19:17 edo Exp $
+C     $Id: input_parse.F,v 1.84 2007-01-15 23:09:43 d3j191 Exp $
       implicit none
 #include "errquit.fh"
       integer rtdb              ! [input]
@@ -111,6 +111,8 @@ c
                call ana_input(rtdb)
             else if (inp_compare(.false.,test,'analyze')) then
                call ana_input(rtdb)
+            else if (inp_compare(.false.,test,'diana')) then
+               call dia_input(rtdb)
             else if (inp_compare(.false.,test,'gradients')) then
                call gradients_input(rtdb)
             else if (inp_compare(.false.,test,'gradient')) then
