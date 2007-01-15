@@ -1313,8 +1313,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (.not.do_spin_orbit) return
       call nwpw_timing_start(6)
       
-      write(*,*)"IN CPSP_V_SPIN_ORBIT"
-      call flush(6)
+c      write(*,*)"IN CPSP_V_SPIN_ORBIT"
+c      call flush(6)
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
       neall = ne(1)+ne(2)
