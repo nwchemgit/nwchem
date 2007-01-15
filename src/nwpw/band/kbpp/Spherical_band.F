@@ -62,19 +62,28 @@
         gz = G(k1,k2,k3,3) + kvec(3)
         Q=DSQRT(gx**2 + gy**2 + gz**2)
 
-        if (dabs(Q).lt.1.0d-9) go to 700
+        if (dabs(Q).lt.1.0d-12) go to 700
 
         gx=gx/Q
         gy=gy/Q
         gz=gz/Q
         gsin=dsqrt(gx*gx+gy*gy)
-        psin=gy/gsin
-        pcos=gx/gsin
+        if (dabs(gsin).lt.1.e-12) then
+           psin=0.0d0
+           pcos=1.0d0
+        else
+           psin=gy/gsin
+           pcos=gx/gsin
+        end if
 
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
 
         if ((l.eq.3).and.(m.eq.-3)) then 
-          tmp=datan(psin/pcos)
+          if (pcos.lt.1.e-15) then 
+            tmp=pi*0.5
+          else
+           tmp=datan(psin/pcos)
+          end if
           expm=dcmplx(dcos(3.0d0*tmp),-dsin(3.0d0*tmp))
           Ylm(k1,k2,k3)=scof(1,3)*gsin*gsin*gsin*expm
         end if
@@ -102,7 +111,11 @@
         end if
 
         if ((l.eq.3).and.(m.eq.3)) then 
-          tmp=datan(psin/pcos)
+          if (pcos.lt.1.e-15) then 
+            tmp=pi*0.5
+          else
+           tmp=datan(psin/pcos)
+          end if
           expm=dcmplx(dcos(3.0d0*tmp),dsin(3.0d0*tmp))
           Ylm(k1,k2,k3)=scof(7,3)*gsin*gsin*gsin*expm
         end if
@@ -152,8 +165,23 @@
         if ((l.eq.0).and.(m.eq.0)) 
      >    Ylm(k1,k2,k3)=scof(1,0)
 
-
-    
+c	if (IEEE_is_Nan(dble(Ylm(k1,k2,k3)))) then
+c          write(*,*)"nan real",l,m
+c          call flush(6)
+c        end if
+c	if (IEEE_is_Nan(dimag(Ylm(k1,k2,k3)))) then
+c          write(*,*)"nan imag",l,m
+c          call flush(6)
+c        end if
+c	if (.not.IEEE_finite(dble(Ylm(k1,k2,k3)))) then
+c          write(*,*)"infinite real"
+c          call flush(6)
+c        end if
+c	if (.not.IEEE_finite(dimag(Ylm(k1,k2,k3)))) then
+c          write(*,*)"infinite imag"
+c          call flush(6)
+c        end if
+            
   700 CONTINUE
       call C3dB_Vector_Sumall(nfft3d,Ylm)
 
