@@ -864,26 +864,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             if ((la.eq.lb).and.(ma.eq.mb)) then
               na = n_prj(a)
               nb = n_prj(b)
-              xx = G(nb,na,la)*dble(ma)  
+              xx = 0.5d0*G(nb,na,la)*dble(ma)  
               call daxpy(nn,xx,zsw1(1,a),1,zsw2(1,b),1)
+              call daxpy(nn,(-xx),zsw1(nh,a),1,zsw2(nh,b),1)
             end if
 
-         end do
-      end do
-      do b=1,nprj
-         lb = l_prj(b)
-         mb = m_prj(b)
-
-         do a=1,nprj
-            la = l_prj(a)
-            ma = m_prj(a)
-
-            if ((la.eq.lb).and.(ma.eq.mb)) then
-              na = n_prj(a)
-              nb = n_prj(b)
-              xx = -1.0d0*G(nb,na,la)*dble(ma)  
-              call daxpy(nn,xx,zsw1(nh,a),1,zsw2(nh,b),1)
-            end if
          end do
       end do
       do b=1,nprj
@@ -892,13 +877,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          do a=1,nprj
             la = l_prj(a)
             ma = m_prj(a)
-            if ((la.eq.lb).and.((ma-1).eq.mb).and.(ma.ne.la)) then
+            if ((la.eq.lb).and.(ma.eq.(mb+1)).and.(mb.ne.lb)) then
               dl2=dble(la*(la+1))
-              dm2=dble(ma*(ma+1))
+              dm2=dble(ma*mb)
               dlm=dsqrt(dl2-dm2)
               na = n_prj(a)
               nb = n_prj(b)
-              xx = G(nb,na,la)*dlm
+              xx = 0.5d0*G(nb,na,la)*dlm
               call daxpy(nn,xx,zsw1(1,a),1,zsw2(nh,b),1)
             end if
          end do
@@ -909,13 +894,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          do a=1,nprj
             la = l_prj(a)
             ma = m_prj(a)
-            if ((la.eq.lb).and.((ma+1).eq.mb).and.(ma.ne.(-la))) then
+            if ((la.eq.lb).and.(ma.eq.(mb-1)).and.(mb.ne.(-lb))) then
               dl2=dble(la*(la+1))
-              dm2=dble(ma*(ma-1))
+              dm2=dble(ma*mb)
               dlm=dsqrt(dl2-dm2)
               na = n_prj(a)
               nb = n_prj(b)
-              xx = G(nb,na,la)*dlm
+              xx = 0.5d0*G(nb,na,la)*dlm
               call daxpy(nn,xx,zsw1(nh,a),1,zsw2(1,b),1)
             end if
          end do
@@ -1284,6 +1269,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return 
       end
 
+
 *     ***********************************
 *     *					*
 *     *	 	 cpsp_v_spin_orbit  	*
@@ -1313,7 +1299,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       real*8  omega,weight,scal
       complex*16 ctmp,cxr
       integer exi(2),xtmp(2),zsw1(2),zsw2(2),sum(2)
-      integer Gx(2),Gy(2),Gz(2),ip
+      integer Gx(2),Gy(2),Gz(2)
       logical value,sd_function
 
 *     **** external functions ****
@@ -1323,10 +1309,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external is_sORd
       external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
+
+      if (.not.do_spin_orbit) return
       call nwpw_timing_start(6)
       
-      if (.not.do_spin_orbit) return
-
+      write(*,*)"IN CPSP_V_SPIN_ORBIT"
+      call flush(6)
 *     **** allocate local memory ****
       nn = ne(1)+ne(2)
       neall = ne(1)+ne(2)
@@ -1386,45 +1374,46 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 *          **** generate zsw1's and projectors ****
-           do ip=1,nproj
+           do 105 l=1,nproj
 
-              shift = vnlso(1)+(ip-1) *npack1
+              shift = vnlso(1)+(l-1) *npack1
      >                      +(nb-1)*npack1*nmax_max*lmmax_max
      >                      +(ia-1)*npack1*nmax_max*lmmax_max*nbrill
-              l_prj = int_mb(l_projector(1)+(ip-1)
+              l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*(nmax_max*lmmax_max))
-
-#ifdef GCC4
-              k = iand(l_prj,1)
-#else
-              k = and(l_prj,1)
-#endif
-              sd_function = (k.eq.0)
+              if (l_prj.eq.0) then
+                call dcopy(npack1*2,0.0d0,0,
+     >               dcpl_mb(prjtmp(1)+(l-1)*npack1),1)
+                goto 105
+              end if
+                sd_function = ((l_prj.eq.0).or.(l_prj.eq.2))
 
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****
 *             **** Rayleigh scattering formula            ****
 
-*             *** current function is s or d ****
-              if (sd_function) then
-                 call Cram_cc_Mul(nb,dcpl_mb(shift),
+c             *** current function is s or d ****
+                if (sd_function) then
+                  call Cram_cc_Mul(nb,dcpl_mb(shift),
      >                               dcpl_mb(exi(1)),
-     >                               dcpl_mb(prjtmp(1)+(ip-1)*npack1))
+     >                               dcpl_mb(prjtmp(1)+(l-1)*npack1))
 *             *** current function is p or f ****
-              else
-                 call Cram_icc_Mul(nb,dcpl_mb(shift),
+                else
+                  call Cram_icc_Mul(nb,dcpl_mb(shift),
      >                                dcpl_mb(exi(1)),
-     >                                dcpl_mb(prjtmp(1)+(ip-1)*npack1))
-              end if
+     >                                dcpl_mb(prjtmp(1)+(l-1)*npack1))
+                end if
 
 *             **** compute nnXnproj matrix zsw1 = <psi1|prj> ****
-              call Cram_cc_inzdot(nb,nn,
+                call Cram_cc_inzdot(nb,nn,
      >                      psi1(1+(nb-1)*nn*npack1),
-     >                      dcpl_mb(prjtmp(1)+(ip-1)*npack1),
-     >                      dcpl_mb(zsw1(1)+(ip-1)*nn))
-           end do !**ip**
+     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                      dcpl_mb(zsw1(1)+(l-1)*nn))
+           
+ 105       continue 
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
-          
+         
+
 *          **** zsw2 = Kijl*zsw1 ******
            call Multiply_Kijl_SO(nn,
      >                         nproj,
@@ -1443,7 +1432,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 *          **** do Kleinman-Bylander Multiplication ****
-           !scal = 1.0d0/(omega)
            call dscal(2*nn*nproj,scal,dcpl_mb(zsw2(1)),1)
            call ZGEMM('N','C',npack,nn,nproj,
      >                mone,
@@ -1526,6 +1514,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       return 
       end
+
 
 *     ***********************************
 *     *					*
@@ -1656,7 +1645,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *           **** do Kleinman-Bylander Multiplication ****
             call dscal(2*nproj,scal,dcpl_mb(zsw2(1)),1)
             call ZGEMM('N','C',npack1,1,nproj,
-     >                 mone,
+     >                 one,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2(1)),   1,
      >                 one,
@@ -2028,12 +2017,12 @@ c       close(11)
      >                  dcpl_mb(ztmp(1)),dcpl_mb(ztmp2(1)),
      >                  ierr)
 
-c           if ((int_mb(psp_type(1)+(ia-1)).eq.1).and.
-c     >           control_spin_orbit()) then
-c              do_spin_orbit=.true.
-c              write(*,*)"SPIN ORBIT PPOT ENABLED!"
-c              call flush(6)
-c           end if
+           if ((int_mb(psp_type(1)+(ia-1)).eq.1).and.
+     >           control_spin_orbit()) then
+              do_spin_orbit=.true.
+              write(*,*)"SPIN ORBIT PPOT ENABLED!"
+             call flush(6)
+           end if
 
 *          **** set semicore(0) ****
            if (log_mb(semicore(1)+ia)) log_mb(semicore(1)) = .true.
