@@ -32,12 +32,12 @@
       forpi=4.0d0*pi
       ihat=dcmplx(0.0d0,1.0d0)
       scof(1,0)=dsqrt(1.0d0/forpi)
-      scof(1,1)=dsqrt(1.5d0/forpi)
-      scof(2,1)=dsqrt(3.0d0/forpi)
+      scof(1,1)=dsqrt(0.75d0/pi)
+      scof(2,1)=dsqrt(0.75/2.0d0/forpi)
       scof(3,1)= -scof(1,1)
       scof(1,2)=dsqrt(15.0d0/32.0d0/pi)
       scof(2,2)=dsqrt(15.0d0/8.0d0/pi)     
-      scof(3,2)=dsqrt(3.0d0/16.0d0/pi)
+      scof(3,2)=dsqrt(5.0d0/16.0d0/pi)
       scof(4,2)=-scof(2,2)
       scof(5,2)=scof(2,1)
       scof(1,3)=dsqrt(35.0d0/64.0d0/pi)
@@ -49,7 +49,7 @@
       scof(7,3)= -scof(3,1)
 
 *======================  Fourier transformation  ======================
-      call dcopy(nfft3d,0.0d0,0,Ylm,1)
+      call dcopy(2*nfft3d,0.0d0,0,Ylm,1)
       task_count = -1
       DO 700 k3=1,nfft3
       DO 700 k2=1,nfft2
@@ -75,7 +75,7 @@
 
         if ((l.eq.3).and.(m.eq.-3)) then 
           tmp=datan(psin/pcos)
-          expm=dcmplx(dcos(tmp),dsin(tmp))
+          expm=dcmplx(dcos(3.0d0*tmp),-dsin(3.0d0*tmp))
           Ylm(k1,k2,k3)=scof(1,3)*gsin*gsin*gsin*expm
         end if
         if ((l.eq.3).and.(m.eq.-2)) then
@@ -103,7 +103,7 @@
 
         if ((l.eq.3).and.(m.eq.3)) then 
           tmp=datan(psin/pcos)
-          expm=dcmplx(dcos(tmp),dsin(tmp))
+          expm=dcmplx(dcos(3.0d0*tmp),dsin(3.0d0*tmp))
           Ylm(k1,k2,k3)=scof(7,3)*gsin*gsin*gsin*expm
         end if
 
