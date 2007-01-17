@@ -6,7 +6,7 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.75 2004-11-02 19:21:48 edo Exp $
+c $Id: texas_face.F,v 1.76 2007-01-17 01:29:25 bert Exp $
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1415,8 +1415,10 @@ c                   ! option name is LIMI (3 numbers)
 c default setup for limxmem,limblks,limpair :
 c
       limxmem=4 000 000 ! limit for memory/block
-      if (texas_max_ang_val.eq.5) then
-        limxmem = 6 000 000     ! limit for memory/block (h functions)
+      if (texas_max_ang_val.eq.6) then
+        limxmem = 10 000 000    ! limit for memory/block (i functions)
+      else if(texas_max_ang_val.eq.5) then
+        limxmem = 6 000 000     ! limit for memory/block (g functions)
       else if(texas_max_ang_val.eq.4) then
         limxmem = 4 000 000     ! limit for memory/block (g functions)
       else if(texas_max_ang_val.eq.3) then
