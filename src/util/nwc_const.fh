@@ -1,5 +1,5 @@
 *
-* $Id: nwc_const.fh,v 1.8 2003-08-06 16:58:15 edo Exp $
+* $Id: nwc_const.fh,v 1.9 2007-01-17 01:30:43 bert Exp $
 *
 * These constants are used to control some fixed dimensions within nwchem
 * Developers should strive to dynamically allocate memory for arrays and 
@@ -49,9 +49,9 @@
       parameter (nw_max_coor = 3*nw_max_atom)
 *------------------------------------------------------------------------------
 * Maximum angular momentum (union of all integral functionality)
-*                                 0=S, 1=P, 2=D, 3=F, 4=G, 5=H
+*                                 0=S, 1=P, 2=D, 3=F, 4=G, 5=H, 6=I
       integer nw_max_angular
-      parameter (nw_max_angular = 5)
+      parameter (nw_max_angular = 6)
 *------------------------------------------------------------------------------
 * Maximum number of primitive gaussians in a segmented shell 
 *....................................................... or general contraction
