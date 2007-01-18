@@ -1,4 +1,4 @@
-C $Id: projct.F,v 1.1 2001-01-19 17:43:13 windus Exp $
+C $Id: projct.F,v 1.2 2007-01-18 17:15:01 d3p307 Exp $
       Subroutine drdy_projct(ierr)
 C
 C Calculates projected force constant matrix, 
@@ -22,6 +22,7 @@ C
      *            5*0.0d00 /
 C
 C Normalize mass-weighted gradient and put it into scr1
+      dmag=0.d0
       ierr = 0
       do i = 1,n3
          dmag = dmag + dx(i)*dx(i)
