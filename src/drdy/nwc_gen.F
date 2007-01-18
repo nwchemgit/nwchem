@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.11 2003-10-29 00:19:02 edo Exp $
+C $Id: nwc_gen.F,v 1.12 2007-01-18 18:06:09 d3p307 Exp $
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives
@@ -78,6 +78,7 @@ c
         do i = 1,ncenter
           copy_labels(i) = atomic_labels(i)
         enddo
+	call dcopy(3*n3,0.d0,0,velocities,1)
         call geom_auto_sym(my_rtdb,geom,dx,
      &      copy_charge,copy_labels,ncenter,
      &      threquiv,groupname,velocities)
