@@ -1,4 +1,4 @@
-C $Id: path.F,v 1.4 2001-05-01 23:49:57 windus Exp $
+C $Id: path.F,v 1.5 2007-01-18 16:52:03 d3p307 Exp $
       Subroutine drdy_path(ns)
 C
 C  Calculate steepest descent path from saddle point
@@ -89,8 +89,8 @@ C
 C Take step off saddle point in reactant direction
             write(fu6,609)
             write(fu6,606)
-            write(fu6,607) 0,vspsv-vzero,(xspsv(i),i=1,n3)
-            write(fu6,608) 0,(vec0sv(i),i=1,n3)
+            write(fu6,607) 0.,vspsv-vzero,(xspsv(i),i=1,n3)
+            write(fu6,608) 0.,(vec0sv(i),i=1,n3)
             if (lgs(39).ne.0) write (fu6,6001) vspspsv-vzerosp
             do i = 1,n3
                x(i) = xspsv(i)-dels*(vec0sv(i)-0.5d00*dels*vec1sv(i))
@@ -208,8 +208,8 @@ C
 C Calculation for step off saddle point
          write(fu6,611)
          write(fu6,606)
-         write(fu6,607) 0,vspsv-vzero,(xspsv(i),i=1,n3)
-         write(fu6,608) 0,(vec0sv(i),i=1,n3)
+         write(fu6,607) 0.,vspsv-vzero,(xspsv(i),i=1,n3)
+         write(fu6,608) 0.,(vec0sv(i),i=1,n3)
 C Take step off saddle point in product direction
          do i = 1,n3
             x(i) = xspsv(i) + dels*(vec0sv(i) +
@@ -281,7 +281,7 @@ C For CLQA and CUBE, store hessian matrix in fold
          dxmag = sqrt(dxmag)
          write(fu6,612)
          write(fu6,606)
-         write(fu6,607) 0,vspsv-vzero,(x(i),i=1,n3)
+         write(fu6,607) 0.,vspsv-vzero,(x(i),i=1,n3)
          write(fu6,608) dxmag,(dx(i)/dxmag,i=1,n3)
          if (iopt.le.1) then
             call drdy_euler (n3tm,n3,x,dx,dels)
