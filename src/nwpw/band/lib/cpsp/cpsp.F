@@ -1770,7 +1770,6 @@ c             *** current function is s or d ****
          call dread(5,Kijl,nmax*nmax*(lmax+1)) !** number of matrix elements = nmax*nmax*(lmax+1) **
          end if
          end if
-c         call dread(5,vnlnrm,lmmax)
 
          call dread(5,rcore,1)
          call iread(5,nbrillioun,1)
@@ -1862,6 +1861,7 @@ c         call dread(5,vnlnrm,lmmax)
       end do
       end do
 *     **** read in v_spin_orbit 3d blocks ****
+      if (psp_type.eq.1) then
       do nb=1,brillioun_nbrillioun()
       do n=1,nprj
          call C3dB_c_read(1,5,ztmp2,ztmp)
@@ -1869,7 +1869,7 @@ c         call dread(5,vnlnrm,lmmax)
          call Cram_c_Copy(nb,ztmp2,vnlsox(1,n,nb))
       end do
       end do
-
+      end if
 *     **** read in semicore density block ****
       if (semicore) then
          call C3dB_r_read(1,5,tmp2,tmp)
