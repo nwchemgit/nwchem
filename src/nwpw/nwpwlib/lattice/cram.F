@@ -1,5 +1,5 @@
 *
-* $Id: cram.F,v 1.18 2007-01-11 18:22:29 d3p708 Exp $
+* $Id: cram.F,v 1.19 2007-01-19 18:48:51 d3p708 Exp $
 *
 
 *     ***********************************
@@ -510,6 +510,56 @@
         sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
      >                         A(1+shift),1,
      >                         B(1),      1)
+      end do
+
+      if (np.gt.1) then
+         call C3dB_Vector_SumAll(2*ne,sum)
+         call ga_sync()
+      end if
+
+      call nwpw_timing_end(2)
+
+      return
+      end 
+
+*     ***********************************
+*     *					*
+*     *	         Cram_cc_nzdot		*	
+*     *					*
+*     ***********************************
+
+      subroutine Cram_cc_nzdot2com(nb,ne,ne1,A,B,sum)
+      implicit none
+      integer    nb
+      integer    ne,ne1
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 sum(*)
+
+#include "mafdecls.fh"
+#include "cram_common.fh"
+
+*     **** local variables ****
+      integer n,np
+      integer shift,shift2
+
+*     **** external functions ****
+      complex*16 zdotc
+      external   zdotc
+
+
+      call nwpw_timing_start(2)
+      call Parallel_np(np)
+
+      do n=1,ne
+        shift = (n-1)*npack_max
+        shift2 = ne1*npack_max
+        sum(n) = zdotc(int_mb(nidb2_list(1)+nb),
+     >                         A(1+shift),1,
+     >                         B(1),      1)
+        sum(n) = sum(n) + zdotc(int_mb(nidb2_list(1)+nb),
+     >                         A(1+shift+shift2),1,
+     >                         B(1+shift2),1)			    	
       end do
 
       if (np.gt.1) then
