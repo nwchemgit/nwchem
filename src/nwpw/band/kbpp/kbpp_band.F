@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band.F,v 1.10 2007-01-19 17:36:09 d3p708 Exp $
+* $Id: kbpp_band.F,v 1.11 2007-01-19 17:56:17 d3p708 Exp $
 *
 
 *     **************************************
@@ -307,7 +307,6 @@ c      call Parallel_init()
          call iwrite(2,int_mb(n_prj_indx),nprj)
          call iwrite(2,int_mb(l_prj_indx),nprj)
          call iwrite(2,int_mb(m_prj_indx),nprj)
-         call dwrite(2,dbl_mb(vnlnrm_indx),(lmax+1))
          call dwrite(2,dbl_mb(vnlnrm_indx),(lmax+1))
          end if
          
