@@ -1766,7 +1766,9 @@ c             *** current function is s or d ****
          call iread(5,l_projector,nprj)
          call iread(5,m_projector,nprj)
          call dread(5,Gijl,nmax*nmax*(lmax+1)) !** number of matrix elements = nmax*nmax*(lmax+1) **
+         if (psp_type.eq.1) then
          call dread(5,Kijl,nmax*nmax*(lmax+1)) !** number of matrix elements = nmax*nmax*(lmax+1) **
+         end if
          end if
 c         call dread(5,vnlnrm,lmmax)
 
