@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.7 2007-01-12 23:47:43 d3p708 Exp $
+* $Id: cpsi_H.F,v 1.8 2007-01-19 22:47:05 d3p708 Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -62,12 +62,12 @@
       n2(2) = ne(1) + ne(2)
       neall = ne(1) + ne(2)
       nbrill = brillioun_nbrillioun()
+       
 
 *     ****************************
 *     **** add kinetic energy ****
 *     ****************************
       call cke(ispin,ne,psi_k,Hpsi_k)
-
 
 *     **************************
 *     **** add non-local psp ***
@@ -198,7 +198,7 @@
 
 
       scal1 = 1.0d0/dble(nx*ny*nz)
-
+      
 *     ************************************************
 *     **** add kinetic energy - Horb_k = Ke*orb_k ****
 *     ************************************************
