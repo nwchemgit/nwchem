@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.7 2006-12-05 00:14:40 bylaska Exp $
+* $Id: cpsi_new.F,v 1.8 2007-01-19 22:34:16 d3p708 Exp $
 *
 
 *     ***********************************
@@ -182,10 +182,10 @@ c    >                        ne)
       nbrillioun = brillioun_nbrillioun()
       soc        = control_spin_orbit()
 
-      if (soc) then
-         print*,"Why the hell am i here!"
+c      if (soc) then
+c         print*,"Why the hell am i here!"
 c         stop
-       end if
+c       end if
 
        success = .false.
        if (.not.success)
