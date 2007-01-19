@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.34 2006-12-22 20:28:31 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.35 2007-01-19 22:35:39 d3p708 Exp $ *
 
 
 *     ***************************
@@ -339,6 +339,25 @@
       return
       end
 
+
+*     ***********************************
+*     *					*
+*     *		cpsi_1vnlso 		*
+*     *					*
+*     ***********************************
+      real*8 function cpsi_1vnlso()
+      implicit none
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** external functions ****
+      real*8   c_electron_psi_vnlso_ave
+      external c_electron_psi_vnlso_ave
+ 
+      cpsi_1vnlso = c_electron_psi_vnlso_ave(dcpl_mb(psi1(1)))
+      return
+      end
 
 
 *     *******************************
@@ -1661,3 +1680,4 @@ c    ** external **
      > F8.3,' xhat )') 
       return
       end            
+
