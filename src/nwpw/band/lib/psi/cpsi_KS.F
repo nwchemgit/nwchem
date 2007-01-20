@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.6 2007-01-19 22:34:53 d3p708 Exp $
+* $Id: cpsi_KS.F,v 1.7 2007-01-20 23:52:46 d3p708 Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.6  2007/01/19 22:34:53  d3p708
+* pjn added spin-orbit
+*
 * Revision 1.5  2005/07/09 22:44:21  bylaska
 * adding Louie FFT....EJB
 * flag added for PAW xc and comp angular integration.
@@ -178,6 +181,7 @@
      >                            maxerror,maxpsi_error)
         return 
       end  if
+       
       neall = ne(1)+ne(2)
       maxit_orb  = 120
       maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
@@ -1147,10 +1151,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
 
       shifts=npack1*ne(1)   
-        do nb=1,nbrillioun
+
+      do nb=1,nbrillioun
           shiftb = (nb-1)*2*shifts
           do i=1,neall
-
 
            !*** orthogonalize to lower orbitals  ****
            call cpsi_project_out_f_orb1_2com(
@@ -1168,6 +1172,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >              sum2)
            sum = sum1 + sum2
            sum = 1.0d0/dsqrt(sum)
+
            call Cram_c_SMul(nb,sum,
      >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb),
      >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb))
@@ -1216,8 +1221,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** local variables ****
       logical ok
-      integer n,ii,psi_ptr,x(2),shifts
-
+      integer n,ii,psi_ptr,x(2),shifts,shift
+      complex*16 sum,zdotc
+      external zdotc
 *     **** allocate stack memory ****
       ok = MA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
       if (.not.ok)
@@ -1225,23 +1231,30 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &       MA_ERR)
 
       shifts=npack1*ne(1)
+
       psi_ptr=psi1(1)+(nb-1)*2*shifts
 
       ii=i-1
 
-      call Cram_cc_nzdot2com(nb,ii,ne(1),
-     >            dcpl_mb(psi_ptr),
-     >            Horb,
-     >            dcpl_mb(x(1)))
-            
+      do n=1,ii
+         shift=(n-1)*npack1
+         sum=zdotc(npack1,dcpl_mb(psi_ptr),1,
+     >         Horb,1)  
+         sum=sum+zdotc(npack1,dcpl_mb(psi_ptr+shifts+shift),1,
+     >         Horb(shifts),1)
+         dcpl_mb(x(1)+n-1)=sum
+      end do
+
       do n=1,(ii)
+           sum= - dcpl_mb(x(1)+n-1)
+           shift=(n-1)*npack1
            call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dcpl_mb(psi_ptr+(n-1)*npack1),
+     >               sum,
+     >               dcpl_mb(psi_ptr+shift),
      >               Horb)
            call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dcpl_mb(psi_ptr+(n-1)*npack1+shifts),
+     >               sum,
+     >               dcpl_mb(psi_ptr+shift+shifts),
      >               Horb(shifts))
       end do
 
@@ -1278,9 +1291,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** local variables ****
       logical ok
-      integer ii,n,psi_ptr,shifts
+      integer ii,n,psi_ptr,shifts,shift
       integer x(2)
-
+      complex*16 sum,zdotc
+      external zdotc
 
 *     **** allocate stack memory ****
       ok = MA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
@@ -1289,21 +1303,34 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &       MA_ERR)
 
       shifts=npack1*ne(1)
-      psi_ptr=psi1(1)+(nb-1)*shifts*2
 
-      call Cram_cc_nzdot2com(nb,ii,ne(1),
-     >            dcpl_mb(psi_ptr),
-     >            Horb,
-     >            dcpl_mb(x(1)))
+      if (psi_number.eq.1) then
+        psi_ptr=psi1(1)+(nb-1)*shifts*2
+      else
+        psi_ptr=psi2(1)+(nb-1)*shifts*2
+      end if
+
+      ii=i-1
+      do n=1,ii
+           shift=(n-1)*npack1
+           sum=zdotc(npack1,dcpl_mb(psi_ptr+shift),1,
+     >            Horb,1)
+           sum=sum+zdotc(npack1,dcpl_mb(psi_ptr+shift+shifts),1,
+     >            Horb(npack1),1)
+           dcpl_mb(x(1)+n-1)=sum
+      end do
+
       do n=1,(ii)
+           shift=(n-1)*npack1
+           sum = -dcpl_mb(x(1)+n-1)
            call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dcpl_mb(psi_ptr+(n-1)*npack1),
+     >               sum,
+     >               dcpl_mb(psi_ptr+shift),
      >               Horb)
            call Cram_cc_zaxpy(nb,
-     >               (-dcpl_mb(x(1)+n-1)),
-     >               dcpl_mb(psi_ptr+(n-1)*npack1+shifts),
-     >               Horb(shifts))
+     >               sum,
+     >               dcpl_mb(psi_ptr+shift+shifts),
+     >               Horb(npack1))
       end do
 
 
