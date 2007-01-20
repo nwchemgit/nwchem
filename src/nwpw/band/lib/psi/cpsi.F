@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.35 2007-01-19 22:35:39 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.36 2007-01-20 23:38:24 d3p708 Exp $ *
 
 
 *     ***************************
@@ -109,7 +109,7 @@
 #include "mafdecls.fh"
 #include "cpsi_common.fh"
 
-      call Pneb_orthoCheck(indx,0,0,dcpl_mb(psi1(1)))
+      call Pneb_orthoCheck(indx,0,0,npack1,dcpl_mb(psi1(1)))
       return
       end
 
