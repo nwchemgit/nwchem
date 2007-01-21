@@ -1,5 +1,5 @@
 *
-*     $Id: c_cgminimize.F,v 1.16 2006-12-16 01:54:00 bylaska Exp $                       
+*     $Id: c_cgminimize.F,v 1.17 2007-01-21 00:34:35 d3p708 Exp $                       
 *
 
 
@@ -57,6 +57,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8   cpsi_1ke
       real*8   cpsi_1vl
       real*8   cpsi_1vnl
+      real*8   cpsi_1vnlso
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
       real*8   c_ewald_e
@@ -109,16 +110,16 @@ c      complex*16 G1(nfft3d,nemax)
 *     ***** get the initial gradient and direction ****
       call cpsi_1get_Tgradient(dcpl_mb(G1(1)),E0)
 
-
       call Pneb_ff_traceall(0,0,
      >                      dcpl_mb(G1(1)),
      >                      dcpl_mb(G1(1)),
      >                      npack1,sum1)
+c      write(*,*)"trace all sum1= ",sum1
+c      call flush(6)
 
       call BGrsm_ff_Copy(dcpl_mb(G1(1)),
      >                   dcpl_mb(H0(1)))
 
- 
 
 *     ******************************************
 *     ****                                  ****
@@ -271,7 +272,7 @@ c         call flush(6)
       E(8)  = cpsi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
-  
+      E(11) = cpsi_1vnlso()  
       return
       end
  

@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.2 2007-01-02 18:36:50 bylaska Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.3 2007-01-21 00:33:33 d3p708 Exp $                       
 
 *     ***************************
 *     *				*
@@ -26,9 +26,11 @@ c     $Id: c_cgsd_noit_energy.F,v 1.2 2007-01-02 18:36:50 bylaska Exp $
       logical  cpsp_semicore
       integer  control_rtdb
       integer  ion_nion,cpsi_ispin,cpsi_ne
+
       external cpsp_semicore
       external control_rtdb
       external ion_nion,cpsi_ispin,cpsi_ne
+
 
       call Parallel_taskid(taskid)
 
@@ -60,7 +62,8 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          write(luout,1495) E(8),E(8)/neall
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
-         virial = (E(10)+E(9)+E(8)+E(7))/E(6)
+         write(luout,1499) E(11),E(11)/neall
+         virial = (E(11)+E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
       end if
 
@@ -125,6 +128,7 @@ c     call psi_2to1()
  1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
+ 1499 FORMAT( ' K.S. V_nlso energy  :',E19.10,' (',E15.5,'/electron)')
  1500 FORMAT(/' orbital energies:')
  1508 FORMAT(/' Brillouin zone point: ',i2,
      >       /'    weight=',f10.6,

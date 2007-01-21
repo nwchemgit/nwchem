@@ -1,5 +1,5 @@
 
-*     $Id: c_cgsd_energy.F,v 1.14 2006-12-22 02:50:57 d3p708 Exp $                       
+*     $Id: c_cgsd_energy.F,v 1.15 2007-01-21 00:34:09 d3p708 Exp $                       
 *
 
 *     ***************************
@@ -218,8 +218,9 @@ c         write(luout,1210) GX,GY,GZ
          write(luout,1495) E(8),E(8)/neall
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
-         virial = (E(10)+E(9)+E(8)+E(7))/E(6)
-         write(luout,1498) virial
+         write(luout,1498) E(11),E(11)/neall
+         virial = (E(11)+E(10)+E(9)+E(8)+E(7))/E(6)
+         write(luout,1499) virial
 
          NN=cpsi_ne(1)-cpsi_ne(2)
          EV=27.2116
@@ -246,11 +247,6 @@ c         write(luout,1210) GX,GY,GZ
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
              end do
            else
-c             do i=0,cpsi_ne(1)-1
-c                write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
-c     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
-c                            
-c             end do
              call cpsi_spins_output(nb,luout)
            end if
          end do
@@ -297,13 +293,14 @@ c             end do
  1495 FORMAT( ' K.S. V_nl energy    :',E19.10,' (',E15.5,'/electron)')
  1496 FORMAT( ' K.S. V_Hart energy  :',E19.10,' (',E15.5,'/electron)')
  1497 FORMAT( ' K.S. V_xc energy    :',E19.10,' (',E15.5,'/electron)')
- 1498 FORMAT( ' Virial Coefficient  :',E19.10)
+ 1498 FORMAT( ' K.S. V_so energy    :',E19.10,' (',E15.5,'/electron)')
+ 1499 FORMAT( ' Virial Coefficient  :',E19.10)
  1500 FORMAT(/' orbital energies:')
  1508 FORMAT(/' Brillouin zone point: ',i3,
      >       /'    weight=',f10.6,
      >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
      >       /'          =<',3f8.3,'>')
- 1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+ 1510 FORMAT(4(E18.7,' (',F8.3,'eV)'))
 
       end
 

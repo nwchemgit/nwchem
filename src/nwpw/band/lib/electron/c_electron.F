@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.24 2007-01-12 23:48:13 d3p708 Exp $
+* $Id: c_electron.F,v 1.25 2007-01-21 00:37:14 d3p708 Exp $
 *
 
 
@@ -1286,6 +1286,87 @@ c         end do
      >                     psi1,
      >                     dcpl_mb(tmp1(1)),
      >                    .false.,dcpl_mb(tmp2(1)))
+      enlocal = 0.0d0
+      do nb=1,nbrill
+         weight = brillioun_weight(nb)
+         do ms=1,ispin
+         do n=n1(ms),n2(ms)
+         indx = (n-1)*npack1 + (nb-1)*npack1*neall
+
+            call Cram_cc_idot(nb,psi1(1+indx),
+     >                         dcpl_mb(tmp1(1)+indx),
+     >                         sum)
+            enlocal = enlocal - sum*weight
+         end do
+         end do
+      end do
+      if (np.gt.1) call C3dB_SumAll(enlocal)
+      if (ispin.eq.1) enlocal = 2.0d0*enlocal
+
+ 
+      value = MA_pop_stack(tmp2(2))
+      value = value.and.
+     >        MA_pop_stack(tmp1(2))
+      if (.not. value) call errquit(
+     >           'electron_psi_vl_ave: error popping stack memory',0,
+     &       MA_ERR)
+
+      c_electron_psi_vnl_ave = enlocal
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *   c_electron_psi_vnlso_ave 	*
+*     *					*
+*     ***********************************
+
+      real*8 function c_electron_psi_vnlso_ave(psi1)
+      implicit none
+#include "errquit.fh"
+      complex*16 psi1(*)
+
+#include "mafdecls.fh"
+#include "c_electron_common.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer n,ms,n1(2),n2(2),np,nb
+      integer neall,indx
+      real*8 enlocal,sum,weight
+      integer tmp1(2),tmp2(2)
+
+*     **** external functions ****
+      real*8   brillioun_weight
+      external brillioun_weight
+
+      if (.not.spin_orbit) then
+         c_electron_psi_vnlso_ave=0.0d0
+         return
+      end if
+
+      call Parallel_np(np)
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1) + 1
+      n2(2) = ne(1) + ne(2)
+      neall = ne(1) + ne(2)
+
+      value = MA_push_get(mt_dcpl,(npack1*neall*nbrill),
+     >                    'tmp1',tmp1(2),tmp1(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      if (.not. value) call errquit(
+     >            'electron_psi_vl_ave: out of stack memory',0,
+     &       MA_ERR)
+
+
+*     **** average Kohn-Sham v_nonlocal energy ****
+      call BGrsm_f_Zero(dcpl_mb(tmp1(1)))
       call cpsp_v_spin_orbit(ispin,ne,
      >                     psi1,
      >                     dcpl_mb(tmp1(1)),
@@ -1316,7 +1397,7 @@ c         end do
      >           'electron_psi_vl_ave: error popping stack memory',0,
      &       MA_ERR)
 
-      c_electron_psi_vnl_ave = enlocal
+      c_electron_psi_vnlso_ave = enlocal
       return
       end
 
