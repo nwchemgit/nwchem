@@ -98,9 +98,6 @@ c     >                    'vnlnrm',vnlnrm(2),vnlnrm(1))
       return
       end
 
-
-
-
       subroutine cpsp_end()      
       implicit none
 
@@ -1645,7 +1642,7 @@ c             *** current function is s or d ****
 *           **** do Kleinman-Bylander Multiplication ****
             call dscal(2*nproj,scal,dcpl_mb(zsw2(1)),1)
             call ZGEMM('N','C',npack1,1,nproj,
-     >                 one,
+     >                 mone,
      >                 dcpl_mb(prjtmp(1)), npack1,
      >                 dcpl_mb(zsw2(1)),   1,
      >                 one,
