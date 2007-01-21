@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.37 2007-01-21 00:38:10 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.38 2007-01-21 02:52:35 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1726,23 +1726,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
-      integer svec(2)
-      integer i,indx
-      logical value
+      integer i,indx,ii
       real*8 ei,eiv,EV
 c    ** external **
-      logical BGrsm_f_Spins 
-      integer  brillioun_nbrillioun
       real*8 cpsi_eigenvalue
-      real*8   brillioun_k,brillioun_ks,brillioun_weight
-      external brillioun_nbrillioun
       external cpsi_eigenvalue
-      external brillioun_k,brillioun_ks,brillioun_weight
-      external BGrsm_f_Spins
  
       EV=27.2116
       do i=0,ne(1)-1
-         ei=cpsi_eigenvalue(nb,1,ne(1)-i)
+         ii=ne(1)-i
+         ei=cpsi_eigenvalue(nb,1,ii)
          eiv=ei*EV
          write(outfile,111)
      >      ei,eiv  
@@ -1752,7 +1745,7 @@ c    ** external **
      >       /' weight = ',f10.6,
      >       /' k      = <',3f8.3,'> . b= <b1,b2,b3> ',
      >       /'        = <',3f8.3,'>') 
- 111  FORMAT(1(E18.7,' (',F8.3,'eV)'))
+ 111  FORMAT(E18.7,' (',F8.3,'eV)')
       return
       end            
 
