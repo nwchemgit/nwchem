@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.36 2007-01-20 23:38:24 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.37 2007-01-21 00:38:10 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1678,6 +1678,81 @@ c    ** external **
      >       /'        = <',3f8.3,'>') 
  111  format(D16.7,' (',F8.3,' eV) (',F8.3,' zhat + ',F8.3,' yhat +',
      > F8.3,' xhat )') 
+      return
+      end            
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine cpsi_output21(outfile,nb,w,k)
+      implicit none
+      integer outfile,nb,k
+      real*8 w(*)
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+      integer svec(2)
+      integer i,indx,ii
+      logical value
+      real*8 ei,eiv,EV
+c    ** external **
+      logical BGrsm_f_Spins 
+      integer  brillioun_nbrillioun
+      real*8 cpsi_eigenvalue
+      real*8   brillioun_k,brillioun_ks,brillioun_weight
+      external brillioun_nbrillioun
+      external cpsi_eigenvalue
+      external brillioun_k,brillioun_ks,brillioun_weight
+      external BGrsm_f_Spins
+ 
+      EV=27.2116
+      do i=0,ne(1)-1
+         ii=ne(1)-i
+         ei=cpsi_eigenvalue(nb,1,ii)
+         eiv=ei*EV
+         write(outfile,111)
+     >      ei,eiv,w(ii+(k-1)*ne(1))  
+      end do
+      call flush(outfile)
+ 108  format(/' Brillouin zone point ',i3,
+     >       /' weight = ',f10.6,
+     >       /' k      = <',3f8.3,'> . b= <b1,b2,b3> ',
+     >       /'        = <',3f8.3,'>') 
+ 111  FORMAT(1(E18.7,' (',F8.3,'eV)  dplot weight=',F8.3))
+      return
+      end            
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      subroutine cpsi_output22(outfile,nb)
+      implicit none
+      integer outfile,nb
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+      integer svec(2)
+      integer i,indx
+      logical value
+      real*8 ei,eiv,EV
+c    ** external **
+      logical BGrsm_f_Spins 
+      integer  brillioun_nbrillioun
+      real*8 cpsi_eigenvalue
+      real*8   brillioun_k,brillioun_ks,brillioun_weight
+      external brillioun_nbrillioun
+      external cpsi_eigenvalue
+      external brillioun_k,brillioun_ks,brillioun_weight
+      external BGrsm_f_Spins
+ 
+      EV=27.2116
+      do i=0,ne(1)-1
+         ei=cpsi_eigenvalue(nb,1,ne(1)-i)
+         eiv=ei*EV
+         write(outfile,111)
+     >      ei,eiv  
+      end do
+      call flush(outfile)
+ 108  format(/' Brillouin zone point ',i3,
+     >       /' weight = ',f10.6,
+     >       /' k      = <',3f8.3,'> . b= <b1,b2,b3> ',
+     >       /'        = <',3f8.3,'>') 
+ 111  FORMAT(1(E18.7,' (',F8.3,'eV)'))
       return
       end            
 
