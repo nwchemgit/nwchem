@@ -1,5 +1,5 @@
 c
-c     $Id: c_bfgsminimize.F,v 1.2 2006-11-29 02:34:54 d3p708 Exp $                       
+c     $Id: c_bfgsminimize.F,v 1.3 2007-01-21 00:35:19 d3p708 Exp $                       
 c
 
 *  ************************************************************
@@ -60,6 +60,7 @@ c
       real*8   cpsi_1ke
       real*8   cpsi_1vl
       real*8   cpsi_1vnl
+      real*8   cpsi_1vnlso
       real*8   c_rho_1exc
       real*8   c_rho_1pxc
       real*8   c_ewald_e
@@ -76,6 +77,7 @@ c
       external cpsi_1ke
       external cpsi_1vl
       external cpsi_1vnl
+      external cpsi_1vnlso
       external c_rho_1exc
       external c_rho_1pxc
       external c_ewald_e
@@ -256,7 +258,7 @@ c     call c_dng_2to1()
       E(8)  = cpsi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
-
+      E(11) = cpsi_1vnlso()
       return
       end
  

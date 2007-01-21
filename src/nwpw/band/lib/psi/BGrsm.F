@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.5 2006-12-22 02:51:29 d3p708 Exp $
+* $Id: BGrsm.F,v 1.6 2007-01-21 00:38:33 d3p708 Exp $
 *
 
 
@@ -430,7 +430,7 @@
            call Cram_cc_dot(nb,Y(indx2),Y(indx2),s2)
            call Cram_cc_zdot(nb,Y(indx),Y(indx2),z1)
            s3=s1-s2
-           s1=dreal(z1)
+           s1=dble(z1)
            s2=dimag(z1)
            indx=indx+npack1
            S(1,k)=S(1,k)+s1*wght

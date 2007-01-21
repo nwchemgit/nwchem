@@ -1,5 +1,5 @@
 *
-* $Id: band_minimizer.F,v 1.45 2007-01-02 18:36:50 bylaska Exp $
+* $Id: band_minimizer.F,v 1.46 2007-01-21 00:35:40 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_minimizer								  *
@@ -603,7 +603,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
  1043 FORMAT(10X,
      > '*  slabs, and polymers.  Developed by Eric J. Bylaska    *')
  1044 FORMAT(10X,
-     > '*  and Edoardo Apra.                                     *')
+     > '*  , Edoardo Apra, and Patrick Nichols.                  *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I3)
