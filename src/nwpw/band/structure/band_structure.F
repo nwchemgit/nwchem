@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.15 2006-03-16 18:39:04 bylaska Exp $
+* $Id: band_structure.F,v 1.16 2007-01-21 00:32:23 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -72,10 +72,12 @@
 *     **** external functions ****
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass,ion_TotalCharge
+      logical     cpsi_spin_orbit
       character*2 ion_aname
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass,ion_TotalCharge
       external    ion_aname
+      external    cpsi_spin_orbit
 
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
@@ -131,7 +133,6 @@
       external band_dplot_iteration_check
       integer  cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
       external cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
-    
 
 
 *****************************|  PROLOGUE  |****************************
@@ -240,9 +241,11 @@
            end if
         end if
       end if
-      value = cpsi_initialize(.true.)
 
-
+      call psi_get_ne(ispin,ne)
+      call Pneb_init(ispin,ne,brillioun_nbrillioun(),
+     >   cpsi_spin_orbit())
+      value = cpsi_initialize(.true.) 
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
@@ -287,7 +290,6 @@
          icharge = -(cpsi_ne(1)+cpsi_ne(cpsi_ispin()))
      >           + ion_TotalCharge()
          write(luout,1159) icharge
-
 
          write(luout,1180)
          write(luout,1190) (I,ion_aname(I),
@@ -346,6 +348,7 @@
          write(luout,1290) control_tole(),control_tolc()
          write(luout,1300)
          call util_flush(luout)
+         call flush(luout)
       end if
 
 
@@ -403,6 +406,15 @@
          open(unit=58,file=full_filename,form='formatted')
         end if
       else
+        if (cpsi_spin_orbit()) then
+        call util_file_name('spinor_band',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=58,file=full_filename,form='formatted')
+        end if
+        else
         call util_file_name('alpha_band',
      >                    .false.,
      >                    .false.,
@@ -417,12 +429,13 @@
         if (taskid.eq.MASTER) then
          open(unit=59,file=full_filename,form='formatted')
         end if
+        end if
       end if
-
 
 *     **** DOS calculation ****
       if (flag.eq.1) then
-        if (taskid.eq.MASTER) write(luout,*) "DOS of states calculation"
+        if (taskid.eq.MASTER) 
+     >    write(luout,*) "DOS of states calculation"
         call control_dos_grid_structure(dosgrid)
 
 
@@ -478,6 +491,7 @@
      >         dbl_mb(weight_dos(1)
      >                +(ii-1)
      >                +(k-1)*ne(1))
+              call flush(6)
            end do
         end do
 
@@ -485,11 +499,12 @@
 
 *     **** band structure calculation ****
       else
-       if (taskid.eq.MASTER) write(luout,*) "band structure calculation"
+         if (taskid.eq.MASTER) 
+     >     write(luout,*) "band structure calculation"
       end if
 
-
       call control_reset_band_structure()
+
       do k=1,control_num_kvectors_structure()
         ortho = .true.
 
@@ -521,6 +536,7 @@
       call cphafac()
       call cphafac_k()
 
+
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
         call cpsi_new_ne(ispin,ne)
@@ -532,6 +548,8 @@
 
 *       **** convert from pspw format to band format ****
         vers = psi_get_version()
+        write(*,*)"Version = ",vers
+        call flush(6)
         if ((vers.eq.3).or.(vers.eq.4)) then
            nbrillioun = brillioun_nbrillioun()
            newpsi = .true.
@@ -540,7 +558,9 @@
            end if
         end if
       end if
+
       value = cpsi_initialize(ortho)
+
       if (flag.eq.2) call cpsi_dospsi_read(k)
 
 
@@ -561,11 +581,11 @@
       call linesearch_init()
 
 
-
-
 *     **** diagonalize hamiltonian and rotate psi ****
       call c_electron_set_vall(dcpl_mb(vall(1)))
+
       call cpsi_KS_minimize(1,.false.,control_tole(),control_tolc())
+
       call cpsi_check_indx(k)
 
       if (band_dplot_iteration_check(k)) then
@@ -591,6 +611,7 @@
          kold(2) = brillioun_k(2,1)
          kold(3) = brillioun_k(3,1)
 
+
          NN=cpsi_ne(1)-cpsi_ne(2)
          EV=27.2116
          nb=1
@@ -604,29 +625,43 @@
      >                   brillioun_k(3,nb)
            write(luout,1500)
            if (flag.eq.2) then
-           do i=0,NN-1
-             ii = cpsi_ne(1)-i
-             write(luout,1511) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+
+             if (cpsi_spin_orbit()) then
+               call cpsi_output21(luout,nb,dbl_mb(weight_dos(1)),k)
+               write(58,'(1000E14.6)') pathlength,
+     >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
+               goto 902
+             end if
+             do i=0,NN-1
+               ii = cpsi_ne(1)-i
+               write(luout,1511) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
      >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV,
      >                     dbl_mb(weight_dos(1)+(ii-1)+(k-1)*ne(1))
-           end do
-           do i=0,cpsi_ne(2)-1
-             ii = cpsi_ne(1)-i
-             jj = cpsi_ne(2)-i + dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
-             write(luout,1511)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+             end do
+             do i=0,cpsi_ne(2)-1
+               ii = cpsi_ne(1)-i
+               jj = cpsi_ne(2)-i + 
+     >            dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+               write(luout,1511)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
      >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
      >                      dbl_mb(weight_dos(1)+(ii-1)+(k-1)*ne(1)),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV,
      >                      dbl_mb(weight_dos(1)+(jj-1)+(k-1)*ne(2))
-           end do
+             end do
            else
+             if (cpsi_spin_orbit()) then
+               call cpsi_output22(luout,nb)
+                write(58,'(1000E14.6)') pathlength,
+     >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
+               goto 902
+             end if
            do i=0,NN-1
              write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
      >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
            end do
            do i=0,cpsi_ne(2)-1
-             write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+           write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
      >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
      >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
@@ -634,10 +669,12 @@
            end if
            write(58,'(1000E14.6)') pathlength,
      >          (cpsi_eigenvalue(nb,1,i),i=1,cpsi_ne(1))
-           if (ispin.eq.2)
+           if (.not.cpsi_spin_orbit()) then
+            if (ispin.eq.2)
      >      write(59,'(1000E14.6)') pathlength,
      >          (cpsi_eigenvalue(nb,2,i),i=1,cpsi_ne(2))
-         
+           end if         
+902        continue
            !*** set eigs_dos ***
            if (flag.eq.1) then
             do i=1,cpsi_ne(1)
@@ -653,7 +690,6 @@
              dbl_mb(indx) = cpsi_eigenvalue(nb,2,i)
             end do
            end if
-
       end if
 
       !*** set rho ***
@@ -670,10 +706,9 @@
       end if
                   
 
-
-
 *     **** writeout dospsi -- needed for task band dos_dplot ****
       if (flag.eq.1) call cpsi_dospsi_write(k)
+
 
 *     **** finalize and deallocate cpsi ****
       value = cpsi_finalize(.true.)
@@ -873,9 +908,9 @@
  1000 FORMAT(10X,'****************************************************')
  1010 FORMAT(10X,'*                                                  *')
  1020 FORMAT(10X,'*           NWPW Band Structure Calculation        *')
- 1040 FORMAT(10X,'*            version #1.00   11/02/03              *')
+ 1040 FORMAT(10X,'*            version #2.00   1/20/07               *')
  1041 FORMAT(10X,'*          Developed by Eric J. Bylaska            *')
- 1043 FORMAT(10X,'*                                                  *')
+ 1043 FORMAT(10X,'*          and Patrick Nichols                     *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I3)
