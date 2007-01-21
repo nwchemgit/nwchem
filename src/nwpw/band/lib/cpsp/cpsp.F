@@ -863,7 +863,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               nb = n_prj(b)
               xx = 0.5d0*G(nb,na,la)*dble(ma)  
               call daxpy(nn,xx,zsw1(1,a),1,zsw2(1,b),1)
-              call daxpy(nn,(-xx),zsw1(nh,a),1,zsw2(nh,b),1)
+              call daxpy(nn,(-xx),zsw1(nh+1,a),1,zsw2(nh+1,b),1)
             end if
 
          end do
@@ -881,7 +881,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               na = n_prj(a)
               nb = n_prj(b)
               xx = 0.5d0*G(nb,na,la)*dlm
-              call daxpy(nn,xx,zsw1(1,a),1,zsw2(nh,b),1)
+              call daxpy(nn,xx,zsw1(1,a),1,zsw2(nh+1,b),1)
             end if
          end do
       end do
@@ -898,12 +898,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               na = n_prj(a)
               nb = n_prj(b)
               xx = 0.5d0*G(nb,na,la)*dlm
-              call daxpy(nn,xx,zsw1(nh,a),1,zsw2(1,b),1)
+              call daxpy(nn,xx,zsw1(nh+1,a),1,zsw2(1,b),1)
             end if
          end do
       end do
       return
       end
+
 
 
 *     ***********************************
