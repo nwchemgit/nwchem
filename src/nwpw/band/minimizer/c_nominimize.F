@@ -1,5 +1,5 @@
 c
-c     $Id: c_nominimize.F,v 1.2 2004-11-29 16:05:17 bylaska Exp $ 
+c     $Id: c_nominimize.F,v 1.3 2007-01-21 00:33:03 d3p708 Exp $ 
 c
 
       subroutine c_nominimize(E)
@@ -31,7 +31,7 @@ c
       real*8   c_rho_1pxc
       real*8   c_ewald_e
       real*8   cpsi_1eorbit
-   
+      real*8   cpsi_1vnlso 
       external cpsi_ne,brillioun_nbrillioun
       external c_dng_1ehartree
       external cpsi_1ke
@@ -41,7 +41,7 @@ c
       external c_rho_1pxc
       external c_ewald_e
       external cpsi_1eorbit
-
+      external cpsi_1vnlso
 
       call Cram_max_npack(npack1)
       neall  = cpsi_ne(1)+cpsi_ne(2)
@@ -77,7 +77,7 @@ c      call cpsi_1toelectron()
       E(8)  = cpsi_1vnl()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
-
+      E(11) = cpsi_1vnlso()
 
       value = MA_free_heap(G1(2))
       if (.not. value) 
