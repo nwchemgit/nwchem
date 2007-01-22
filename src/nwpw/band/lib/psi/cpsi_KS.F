@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.8 2007-01-22 02:17:38 d3p708 Exp $
+* $Id: cpsi_KS.F,v 1.9 2007-01-22 02:23:19 d3p708 Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.8  2007/01/22 02:17:38  d3p708
+* pjn added missing shift
+*
 * Revision 1.7  2007/01/20 23:52:46  d3p708
 * pjn removed extraneous output
 *
@@ -394,7 +397,7 @@
       else
          psi_ptr=psi2(1)
       end if
-
+-
       call c_electron_run_orb(nb,i,dcpl_mb(psi_ptr))
       call c_electron_get_gradient_orb(nb,i,Horb)
 
@@ -1989,7 +1992,7 @@ c     >           theta
 
 
       logical value
-      integer i,j,ii,jj,ms,nb,shifts
+      integer i,j,ii,jj,ms,nb,shifts,ne1,indx,jndx
       integer r1(2)
       real*8  ei,ej
 
@@ -1997,56 +2000,39 @@ c     >           theta
       if (.not. value) call errquit(
      >     'psi_sort_virtual: out of stack memory',0, MA_ERR)
 
-      shifts=ne(1)*npack1
+      ne1=ne(1)
+      shifts=ne1*npack1
       do nb=1,nbrillioun
-      do ms=1,ispin
 
         !*** Bubble sort ***
-        do ii=1,ne(ms)
-         do jj=ii+1,ne(ms)
-           i = ii + (ms-1)*ne(1)
-           j = jj + (ms-1)*ne(1)
-           ei = dbl_mb(eig(1)+i-1+(nb-1)*(ne(1)+ne(2)))
-           ej = dbl_mb(eig(1)+j-1+(nb-1)*(ne(1)+ne(2)))
+        do i=1,ne1
+         do j=i+1,ne1
+           ei = dbl_mb(eig(1)+i-1+(nb-1)*ne1)
+           ej = dbl_mb(eig(1)+j-1+(nb-1)*ne1)
 
            !*** swap ***
            if (ej.lt.ei) then
-             dbl_mb(eig(1)+i-1+(nb-1)*(ne(1)+ne(2))) = ej
-             dbl_mb(eig(1)+j-1+(nb-1)*(ne(1)+ne(2))) = ei
-             call Cram_c_Copy(nb,dcpl_mb(psi1(1)
-     >                                   +(i-1)*npack1
-     >                                   +(nb-1)*2*shifts),
+             dbl_mb(eig(1)+i-1+(nb-1)*ne1) = ej
+             dbl_mb(eig(1)+j-1+(nb-1)*ne1) = ei
+             indx=(i-1)*npack1+(nb-1)*2*shifts
+             jndx=(j-1)*npack1+(nb-1)*2*shifts
+             call Cram_c_Copy(nb,dcpl_mb(psi1(1)+indx),
      >                                   dcpl_mb(r1(1)))
-             call Cram_c_Copy(nb,dcpl_mb(psi1(1)
-     >                                   +(i-1)*npack1
-     >                                   +(nb-1)*2*shifts+shifts),
+             call Cram_c_Copy(nb,dcpl_mb(psi1(1)+indx+shifts),
      >                                   dcpl_mb(r1(1)+npack1))
-             call Cram_c_Copy(nb,dcpl_mb(psi1(1)
-     >                                   +(j-1)*npack1
-     >                                   +(nb-1)*2*shifts),
-     >                          dcpl_mb(psi1(1)
-     >                                  +(i-1)*npack1
-     >                                  +(nb-1)*2*shifts))
-             call Cram_c_Copy(nb,dcpl_mb(psi1(1)
-     >                                   +(j-1)*npack1
-     >                                   +(nb-1)*2*shifts+shifts),
-     >                          dcpl_mb(psi1(1)
-     >                                  +(i-1)*npack1
-     >                                  +(nb-1)*2*shifts+shifts))
+             call Cram_c_Copy(nb,dcpl_mb(psi1(1)+jndx),
+     >                          dcpl_mb(psi1(1)+indx))
+             call Cram_c_Copy(nb,dcpl_mb(psi1(1)+jndx+shifts),
+     >                          dcpl_mb(psi1(1)+indx+shifts))
              call Cram_c_Copy(nb,dcpl_mb(r1(1)),
-     >                          dcpl_mb(psi1(1)
-     >                                  +(j-1)*npack1
-     >                                  +(nb-1)*2*shifts))
+     >                          dcpl_mb(psi1(1)+jndx),
              call Cram_c_Copy(nb,dcpl_mb(r1(1)+npack1),
-     >                          dcpl_mb(psi1(1)
-     >                                  +(j-1)*npack1
-     >                                  +(nb-1)*2*shifts+shifts))
+     >                          dcpl_mb(psi1(1)+jndx+shifts))
            end if
 
          end do
         end do
 
-      end do
       end do
 
       value = MA_pop_stack(r1(2))
