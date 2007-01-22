@@ -1,5 +1,5 @@
 %
-% $Id: tce.tex,v 1.8 2006-09-21 21:09:43 kowalski Exp $
+% $Id: tce.tex,v 1.9 2007-01-22 20:14:11 bert Exp $
 %
 \label{sec:tce}
 
@@ -178,7 +178,7 @@ that details the calculations:
     [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
              [virtual <integer nfzv default 0>]]
     [(LCCD||CCD||CCSD||LCCSD||CCSDT||CCSDTA||CCSDTQ|| \
-      CCSD(T)||CCSD[T]||2_T||2_TQ||2_Q||CR_[T]||CR_(T)|| \
+      CR-CCSD[T]||CR-CCSD(T)|| \
       LR-CCSD(T)||LR-CCSD(TQ)-1||CREOMSD(T)|| \
       QCISD||CISD||CISDT||CISDTQ|| \
       MBPT2||MBPT3||MBPT4||MP2||MP3||MP4) default CCSD]
@@ -426,11 +426,11 @@ Each version requires defining relevant set of occupied active $\alpha$ and $\be
 \item CCSDTQ: coupled-cluster singles, doubles, triples, \& quadruples (also EOM-CCSDTQ),
 \item CCSD(T): CCSD and perturbative connected triples,
 \item CCSD[T]: CCSD and perturbative connected triples,
-\item CR\_[T]: completely renormalized CCSD[T] method,
-\item CR\_(T): completely renormalized CCSD(T) method,
-\item 2\_T: CCSD and perturbative CCSD(T)$_T$ correction,
-\item 2\_TQ: CCSD and  perturbative CCSD(2) correction,
-\item 2\_Q: CCSDT and perturbative CCSDT(2)$_Q$ correction.
+\item CR-CCSD[T]: completely renormalized CCSD[T] method,
+\item CR-CCSD(T): completely renormalized CCSD(T) method,
+\item CCSD(2)\_T: CCSD and perturbative CCSD(T)$_T$ correction,
+\item CCSD(2)\_TQ: CCSD and  perturbative CCSD(2) correction,
+\item CCSDT(2)\_Q: CCSDT and perturbative CCSDT(2)$_Q$ correction.
 \item LR-CCSD(T): CCSD and perturbative locally renormalized CCSD(T) correction,
 \item LR-CCSD(TQ)-1: CCSD and perturbative locally renormalized CCSD(TQ) (LR-CCSD(TQ)-1) correction,
 \item CREOMSD(T): EOMCCSD energies and completely renormalized EOMCCSD(T)(IA) correction.
