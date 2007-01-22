@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.9 2007-01-22 02:23:19 d3p708 Exp $
+* $Id: cpsi_KS.F,v 1.10 2007-01-22 21:28:59 d3p708 Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.9  2007/01/22 02:23:19  d3p708
+* PJN CHANGES TO SORT ROUTINE
+*
 * Revision 1.8  2007/01/22 02:17:38  d3p708
 * pjn added missing shift
 *
@@ -397,7 +400,7 @@
       else
          psi_ptr=psi2(1)
       end if
--
+
       call c_electron_run_orb(nb,i,dcpl_mb(psi_ptr))
       call c_electron_get_gradient_orb(nb,i,Horb)
 
@@ -2025,7 +2028,7 @@ c     >           theta
              call Cram_c_Copy(nb,dcpl_mb(psi1(1)+jndx+shifts),
      >                          dcpl_mb(psi1(1)+indx+shifts))
              call Cram_c_Copy(nb,dcpl_mb(r1(1)),
-     >                          dcpl_mb(psi1(1)+jndx),
+     >                          dcpl_mb(psi1(1)+jndx))
              call Cram_c_Copy(nb,dcpl_mb(r1(1)+npack1),
      >                          dcpl_mb(psi1(1)+jndx+shifts))
            end if
