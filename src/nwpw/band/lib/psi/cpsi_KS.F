@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.7 2007-01-20 23:52:46 d3p708 Exp $
+* $Id: cpsi_KS.F,v 1.8 2007-01-22 02:17:38 d3p708 Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.7  2007/01/20 23:52:46  d3p708
+* pjn removed extraneous output
+*
 * Revision 1.6  2007/01/19 22:34:53  d3p708
 * pjn added spin-orbit
 *
@@ -1238,7 +1241,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       do n=1,ii
          shift=(n-1)*npack1
-         sum=zdotc(npack1,dcpl_mb(psi_ptr),1,
+         sum=zdotc(npack1,dcpl_mb(psi_ptr+shift),1,
      >         Horb,1)  
          sum=sum+zdotc(npack1,dcpl_mb(psi_ptr+shifts+shift),1,
      >         Horb(shifts),1)
