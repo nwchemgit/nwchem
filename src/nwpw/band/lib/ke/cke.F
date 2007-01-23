@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.9 2007-01-22 02:25:33 d3p708 Exp $
+* $Id: cke.F,v 1.10 2007-01-23 01:06:37 d3p708 Exp $
 *
       subroutine cke_init()
       implicit none 
@@ -121,10 +121,10 @@ c     real*8 G(nfft3d,3)
 *     **** local variables ****
       integer npack1
       integer ne1,shifts
-      integer cpsi_neq
+      integer cpsi_ne
       logical cpsi_spin_orbit
       external cpsi_spin_orbit
-      external cpsi_neq
+      external cpsi_ne
 
       call Cram_max_npack(npack1)
       call Cram_rc_Mul(nb,
@@ -132,12 +132,12 @@ c     real*8 G(nfft3d,3)
      >                 orb1,
      >                 orb2)
       if (cpsi_spin_orbit()) then
-        ne1=cpsi_neq(1)
+        ne1=cpsi_ne(1)
         shifts=ne1*npack1
         call Cram_rc_Mul(nb,
      >                 dbl_mb(tg_indx+(nb-1)*npack1),
-     >                 orb1(shifts),
-     >                 orb2(npack1))
+     >                 orb1(shifts+1),
+     >                 orb2(shifts+1))
       end if      
       return 
       end
