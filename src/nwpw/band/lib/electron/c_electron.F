@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.25 2007-01-21 00:37:14 d3p708 Exp $
+* $Id: c_electron.F,v 1.26 2007-01-23 23:28:26 d3p708 Exp $
 *
 
 
@@ -175,7 +175,9 @@
       integer    nb,i
       complex*16 psi_k(*)
 
-      call c_electron_gen_psi_r_orb(nb,i,psi_k)
+      write(*,*)"RUN ORB1 I=",I
+      call c_electron_gen_psi_r_orb(nb,i,psi_k)    
+      write(*,*)"RUN ORB2 I=",I
       call c_electron_gen_Hpsi_k_orb(nb,i,psi_k)
 
       return
@@ -195,12 +197,20 @@
 
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
+
+      write(*,*)"GRAD ORB I=",I
       call Cram_c_Copy(nb,
      >                 dcpl_mb(Hpsi_k(1)
      >                        +(i-1)*npack1
      >                        +(nb-1)*(ne(1)+ne(2))*npack1),
      >                 Horb)
-
+      if (spin_orbit) then
+        call Cram_c_Copy(nb,
+     >                 dcpl_mb(Hpsi_k(1)
+     >                        +(ne(1)+i-1)*npack1
+     >                        +(nb-1)*(ne(1)+ne(2))*npack1),
+     >                 Horb(npack1+1))
+      end if
       return
       end
 
@@ -723,14 +733,19 @@ cccccccccccccccccc
      >              dcpl_mb(psi_r(1)),
      >              dcpl_mb(vall(1)),
      >              psi_k(index2+1),
-     >              dcpl_mb( psi_r(1)+index1),
+     >              dcpl_mb(psi_r(1)+index1),
      >              dcpl_mb(Hpsi_k(1)+index2))
-
 
       call Cram_c_SMul(nb,(-1.0d0),
      >                 dcpl_mb(Hpsi_k(1)+index2),
      >                 dcpl_mb(Hpsi_k(1)+index2))
 
+      if (spin_orbit) then
+        index2=index2+ne(1)*npack1
+        call Cram_c_SMul(nb,(-1.0d0),
+     >                 dcpl_mb(Hpsi_k(1)+index2),
+     >                 dcpl_mb(Hpsi_k(1)+index2))
+      end if               
       return
       end
 
@@ -784,6 +799,14 @@ cccccccccccccccccc
       call Cram_c_unpack(nb, dcpl_mb(shiftr))
       call C3dB_cr_fft3b(1,  dcpl_mb(shiftr))
 
+      if (spin_orbit) then
+        shiftk=shiftk+ne(1)*npack1
+        shiftr=shiftr+ne(1)*nfft3d
+        call Cram_c_Copy(nb,psi_k(shiftk),
+     >                    dcpl_mb(shiftr))
+        call Cram_c_unpack(nb, dcpl_mb(shiftr))
+        call C3dB_cr_fft3b(1,  dcpl_mb(shiftr))
+      end if                                   
       return
       end
 
