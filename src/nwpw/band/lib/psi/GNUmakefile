@@ -1,8 +1,8 @@
 #
-# $Id: GNUmakefile,v 1.8 2006-12-05 00:14:40 bylaska Exp $
+# $Id: GNUmakefile,v 1.9 2007-01-23 23:04:13 d3p708 Exp $
 #
 
- OBJ_OPTIMIZE = \
+    OBJ_OPTIMIZE = \
 			cpsi.o \
 		 	c_geodesic.o \
 			cpsi_lmbda.o \

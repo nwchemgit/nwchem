@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.38 2007-01-21 02:52:35 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.39 2007-01-23 23:04:13 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1726,14 +1726,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "cpsi_common.fh"
-      integer i,indx,ii
+      integer i,indx,ii,iend
       real*8 ei,eiv,EV
 c    ** external **
       real*8 cpsi_eigenvalue
       external cpsi_eigenvalue
  
+      iend=ne(1)-1
       EV=27.2116
-      do i=0,ne(1)-1
+      do i=0,iend
          ii=ne(1)-i
          ei=cpsi_eigenvalue(nb,1,ii)
          eiv=ei*EV

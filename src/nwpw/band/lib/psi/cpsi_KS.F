@@ -1,7 +1,10 @@
-* $Id: cpsi_KS.F,v 1.10 2007-01-22 21:28:59 d3p708 Exp $
+* $Id: cpsi_KS.F,v 1.11 2007-01-23 23:03:58 d3p708 Exp $
 *
 *
 * $Log: not supported by cvs2svn $
+* Revision 1.10  2007/01/22 21:28:59  d3p708
+* pjn oops forget to check in proper file
+*
 * Revision 1.9  2007/01/22 02:23:19  d3p708
 * PJN CHANGES TO SORT ROUTINE
 *
@@ -549,6 +552,8 @@ c!    >                 dcpl_mb(t(1)))
      >                   dcpl_mb(g(1)),
      >                   de0)
 
+         write(*,*)"de0=",de0
+         call flush(6)
 *        *** bad direction ***
          if ((de0.lt.0.0d0).and.oneloop) then
            call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(t(1)))
@@ -731,7 +736,7 @@ c     >           theta
       parameter (MASTER=0)
 
       logical value,done,oneloop
-      integer it
+      integer it,ne1
       real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
       real*8 theta,sigma
       integer r1(2),t0(2),t(2),g(2)
@@ -772,6 +777,7 @@ c     >           theta
       psi_error = 10.0d0
  2    continue
 
+         write(*,*)"it=",it," i = ",i
          it = it + 1
          eold = e0
 
@@ -836,6 +842,7 @@ c         end if
      >                   dcpl_mb(g(1)),
      >                   de0)
 
+         write(*,*)"de0 =",de0
 *        *** bad direction ***
          if ((de0.lt.0.0d0).and.oneloop) then
            call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(t(1)))
@@ -1148,14 +1155,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** local variables ****
       logical done
-      integer nb,i,j,neall,maxit_orb,maxit_orbs,shiftb,shifts
+      integer nb,i,j,ne1,maxit_orb,maxit_orbs,shiftb,shifts
+      integer psi_ptr
       real*8 error_out,psi_error_out,e0,sum,sum1,sum2
 
 *     **** external functions ****
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
-      neall = ne(1)
+      ne1 = ne(1)
       maxit_orb  = 120
       maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
 
@@ -1163,31 +1171,31 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       do nb=1,nbrillioun
           shiftb = (nb-1)*2*shifts
-          do i=1,neall
-
-           !*** orthogonalize to lower orbitals  ****
-           call cpsi_project_out_f_orb1_2com(
+          do i=1,ne1
+            psi_ptr=psi1(1)+(i-1)*npack1+shiftb
+            !*** orthogonalize to lower orbitals  ****
+            call cpsi_project_out_f_orb1_2com(
      >             nb,i,
-     >             dcpl_mb(psi1(1)+(i-1)*npack1 + shiftb))
+     >             dcpl_mb(psi_ptr))
 
            !*** normalize ****
            call Cram_cc_dot(nb,
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb),
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb),
+     >              dcpl_mb(psi_ptr),
+     >              dcpl_mb(psi_ptr),
      >              sum1)
            call Cram_cc_dot(nb,
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb+shifts),
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb+shifts),
+     >              dcpl_mb(psi_ptr+shifts),
+     >              dcpl_mb(psi_ptr+shifts),
      >              sum2)
            sum = sum1 + sum2
            sum = 1.0d0/dsqrt(sum)
 
            call Cram_c_SMul(nb,sum,
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb),
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb))
+     >              dcpl_mb(psi_ptr),
+     >              dcpl_mb(psi_ptr))
            call Cram_c_SMul(nb,sum,
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb+shifts),
-     >              dcpl_mb(psi1(1) +(i-1)*npack1 + shiftb+shifts))
+     >              dcpl_mb(psi_ptr+shifts),
+     >              dcpl_mb(psi_ptr+shifts))
 
 
             !**** minimize orbital ****
@@ -1196,14 +1204,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                       maxit_orb,
      >                       maxerror,maxpsi_error,0.001d0,
      >                       nb,i,error_out,psi_error_out,e0)
+
             j = j+1
+            call flush(6)
             if (((error_out.gt.maxerror).or.
      >           (psi_error_out.gt.maxpsi_error))
      >          .and.(j.le.24)) go to 2
 
-            dbl_mb(eig(1)+(i-1)+(nb-1)*ne(1)) = e0
+            dbl_mb(eig(1)+(i-1)+(nb-1)*ne1) = e0
 
 
+           write(*,*)"THIS IS I IN KS_MINIM",i
+           call flush(6)
           end do
         end do
         call cpsi_sort_minimize2com()
@@ -1230,15 +1242,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 *     **** local variables ****
       logical ok
-      integer n,ii,psi_ptr,x(2),shifts,shift
-      complex*16 sum,zdotc
+      integer n,ii,psi_ptr,x(2),shifts,shift,npackx
+      complex*16 sum1,sum2,sum
+      complex*16 zdotc
       external zdotc
 *     **** allocate stack memory ****
-      ok = MA_push_get(mt_dcpl,ne(1),'x',x(2),x(1))
+      ok = MA_push_get(mt_dcpl,2*ne(1),'x',x(2),x(1))
       if (.not.ok)
      > call errquit('cpsi_project_out_orb: out of stack memory',0,
      &       MA_ERR)
 
+      call Cram_npack(nb,npackx)
       shifts=npack1*ne(1)
 
       psi_ptr=psi1(1)+(nb-1)*2*shifts
@@ -1246,16 +1260,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ii=i-1
 
       do n=1,ii
-         shift=(n-1)*npack1
-         sum=zdotc(npack1,dcpl_mb(psi_ptr+shift),1,
-     >         Horb,1)  
-         sum=sum+zdotc(npack1,dcpl_mb(psi_ptr+shifts+shift),1,
-     >         Horb(shifts),1)
-         dcpl_mb(x(1)+n-1)=sum
+           shift=(n-1)*npack1
+           sum1=zdotc(npackx,dcpl_mb(psi_ptr+shift),1,
+     >                 Horb,1)
+           sum2=zdotc(npackx,dcpl_mb(psi_ptr+shift+shifts),1,
+     >                 Horb(shifts+1),1)
+           dcpl_mb(x(1)+n-1)=sum1+sum2
       end do
 
-      do n=1,(ii)
-           sum= - dcpl_mb(x(1)+n-1)
+      do n=1,ii
+           sum= (- dcpl_mb(x(1)+n-1))
            shift=(n-1)*npack1
            call Cram_cc_zaxpy(nb,
      >               sum,
@@ -1264,7 +1278,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            call Cram_cc_zaxpy(nb,
      >               sum,
      >               dcpl_mb(psi_ptr+shift+shifts),
-     >               Horb(shifts))
+     >               Horb(shifts+1))
       end do
 
 *     **** release stack memory ****
@@ -1301,7 +1315,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** local variables ****
       logical ok
       integer ii,n,psi_ptr,shifts,shift
-      integer x(2)
+      integer x(2),npackx
       complex*16 sum,zdotc
       external zdotc
 
@@ -1311,6 +1325,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      > call errquit('cpsi_project_out_orb: out of stack memory',0,
      &       MA_ERR)
 
+      call Cram_npack(nb,npackx)
       shifts=npack1*ne(1)
 
       if (psi_number.eq.1) then
@@ -1318,18 +1333,17 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       else
         psi_ptr=psi2(1)+(nb-1)*shifts*2
       end if
-
-      ii=i-1
+      ii=i
       do n=1,ii
            shift=(n-1)*npack1
-           sum=zdotc(npack1,dcpl_mb(psi_ptr+shift),1,
+           sum=zdotc(npackx,dcpl_mb(psi_ptr+shift),1,
      >            Horb,1)
-           sum=sum+zdotc(npack1,dcpl_mb(psi_ptr+shift+shifts),1,
-     >            Horb(npack1),1)
+           sum=sum+zdotc(npackx,dcpl_mb(psi_ptr+shift+shifts),1,
+     >            Horb(npack1+1),1)
            dcpl_mb(x(1)+n-1)=sum
       end do
 
-      do n=1,(ii)
+      do n=1,ii
            shift=(n-1)*npack1
            sum = -dcpl_mb(x(1)+n-1)
            call Cram_cc_zaxpy(nb,
@@ -1339,7 +1353,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            call Cram_cc_zaxpy(nb,
      >               sum,
      >               dcpl_mb(psi_ptr+shift+shifts),
-     >               Horb(npack1))
+     >               Horb(1+npack1))
       end do
 
 
@@ -1510,6 +1524,7 @@ c!    >                 dcpl_mb(t(1)))
      >                   dcpl_mb(g(1)+npack1),
      >                   tmp)
          de0=de0+tmp
+
 *        *** bad direction ***
          if ((de0.lt.0.0d0).and.oneloop) then
            call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(t(1)))
@@ -1537,8 +1552,8 @@ c!    >                 dcpl_mb(t(1)))
       if (.not. value) call errquit(
      >     'psi_KS_update_orb: popping stack memory',1, MA_ERR)
 
-c      write(*,*) "iterations=",it," eig=",e0," error=",error_out,
-c     >           theta
+      write(*,*) "iterations=",it," eig=",e0," error=",error_out,
+     >           theta
       error_out = dabs(e0-eold)
       return
       end
@@ -1618,7 +1633,7 @@ c     >           theta
      >                   t,
      >                   dcpl_mb(psi_ptr))
       call Cram_cc_daxpy(nb,y,
-     >                   t(npack1),
+     >                   t(1+npack1),
      >                   dcpl_mb(psi_ptr+shifts))
 
 *     *** determine theta ***
@@ -1644,19 +1659,19 @@ c     >           theta
      >                  tau_t)
       call Cram_c_SMul(nb,(-y),
      >                  dcpl_mb(orb(1)+npack1),
-     >                  tau_t(npack1))
+     >                  tau_t(npack1+1))
       call Cram_cc_daxpy(nb,x,
      >                   t,
      >                   tau_t)
       call Cram_cc_daxpy(nb,x,
-     >                   t(npack1),
-     >                   tau_t(npack1))
+     >                   t(npack1+1),
+     >                   tau_t(npack1+1))
       call Cram_c_SMul(nb,sigma,
      >                  tau_t,
      >                  tau_t)
       call Cram_c_SMul(nb,sigma,
-     >                  tau_t(npack1),
-     >                  tau_t(npack1))
+     >                  tau_t(npack1+1),
+     >                  tau_t(npack1+1))
 
 *     **** orb2 = orb*cos(theta) + t*sin(theta) ****
       call Cram_c_SMul(nb,x,
@@ -1669,7 +1684,7 @@ c     >           theta
      >                   t,
      >                   dcpl_mb(psi_ptr))
       call Cram_cc_daxpy(nb,y,
-     >                   t(npack1),
+     >                   t(npack1+1),
      >                   dcpl_mb(psi_ptr+shifts))
 
 
@@ -1712,16 +1727,18 @@ c     >           theta
       parameter (MASTER=0)
 
       logical value,done,oneloop
-      integer it,shifts
+      integer it,shifts,ne1
       real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
       real*8 theta,sigma,tmp
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
+      ne1=ne(1)
+      shifts=ne1*npack1
       if (psi_number.eq.1) then
-         psi_ptr=psi1(1) + (nb-1)*npack1*(ne(1)+ne(2))
+         psi_ptr=psi1(1) + (nb-1)*2*shifts
       else
-         psi_ptr=psi2(1) + (nb-1)*npack1*(ne(1)+ne(2))
+         psi_ptr=psi2(1) + (nb-1)*2*shifts
       end if
 
       call Parallel_taskid(taskid)
@@ -1736,7 +1753,6 @@ c     >           theta
       if (.not. value) call errquit(
      >     'cpsi_KS_minimize_orb: out of stack memory',0, MA_ERR)
 
-      shifts=npack1*ne(1)
       done = .false.
       error0 = 0.0d0
       e0 = 0.0d0
@@ -1745,6 +1761,7 @@ c     >           theta
       psi_error = 10.0d0
  2    continue
 
+         write(*,*)"it=",it," I= ",i
          it = it + 1
          eold = e0
 
@@ -1812,7 +1829,8 @@ c     >           theta
          call Cram_cc_dot(nb,dcpl_mb(t(1)+npack1),
      >                   dcpl_mb(t(1)+npack1),
      >                   tmp)
-         sigma = dsqrt(sigma+tmp)
+         sigma = sigma + tmp
+         sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
          call Cram_c_SMul(nb,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
          call Cram_c_SMul(nb,de0,dcpl_mb(t(1)+npack1),
@@ -1828,6 +1846,7 @@ c     >           theta
      >                   dcpl_mb(g(1)+npack1),
      >                   tmp)
          de0=de0+tmp
+         write(*,*)"de0=",de0,tmp,(de0-tmp)
 *        *** bad direction ***
          if ((de0.lt.0.0d0).and.oneloop) then
            call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(t(1)))
@@ -1898,9 +1917,9 @@ c     >           theta
 
       shifts=npack1*ne(1)
       if (psi_number.eq.1) then
-         psi_ptr=psi1(1)+(i-1)*npack1+(nb-1)*shifts
+         psi_ptr=psi1(1)+(i-1)*npack1+(nb-1)*shifts*2
       else
-         psi_ptr=psi2(1)+(i-1)*npack1+(nb-1)*shifts
+         psi_ptr=psi2(1)+(i-1)*npack1+(nb-1)*shifts*2
       end if
 
       pi = 4.0d0*datan(1.0d0)
@@ -1934,7 +1953,7 @@ c     >           theta
      >                  dcpl_mb(orb(1)+npack1),
      >                  dcpl_mb(psi_ptr+shifts))
       call Cram_cc_daxpy(nb,y,
-     >                   t(npack1),
+     >                   t(npack1+1),
      >                   dcpl_mb(psi_ptr+shifts))
 
 *     *** determine theta ***
@@ -1946,7 +1965,10 @@ c     >           theta
       call Cram_cc_dot(nb,dcpl_mb(psi_ptr+shifts),
      >                   dcpl_mb(g(1)+npack1),
      >                   tmp)
-      e1 = -(e1+tmp)
+      e1 = e1 + tmp
+      e1 = -e1
+      write(*,*)"ls nb,i,e1= ",nb,i,e1
+      call flush(6)
       x = (e0 - e1 + 0.5d0*de0*sin(2*theta))
      >    /(1.0d0-cos(2*theta))
       theta = 0.5d0*datan(0.5d0*de0/x)
@@ -1965,7 +1987,7 @@ c     >           theta
      >                   t,
      >                   dcpl_mb(psi_ptr))
       call Cram_cc_daxpy(nb,y,
-     >                   t(npack1),
+     >                   t(npack1+1),
      >                   dcpl_mb(psi_ptr+shifts))
 
 *     **** calculated psi_error = <(orb-psi)|(orb-psi)>  ****
