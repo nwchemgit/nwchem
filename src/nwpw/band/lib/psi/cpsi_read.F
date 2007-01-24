@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_read.F,v 1.10 2006-12-05 00:14:40 bylaska Exp $
+* $Id: cpsi_read.F,v 1.11 2007-01-24 22:32:51 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -82,7 +82,7 @@ c     complex*16 tmp(*)
          call iread(5,ne,2)
          call iread(5,nbrill,1)
       end if
-
+      
 
 c     **** send header to all nodes ****
 #ifdef TCGMSG

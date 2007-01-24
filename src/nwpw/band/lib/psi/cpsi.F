@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.39 2007-01-23 23:04:13 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.40 2007-01-24 22:32:51 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1401,8 +1401,6 @@ c     real*8 sum1,sum2
 
       neall = neq(1)+neq(2)
       n     = ne(1)
-
-
        
 *     **** allocate memory ****
       value = MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
@@ -1500,11 +1498,8 @@ c     *****  read initial wavefunctions into psi1  ****
 
 
 *     **** Ortho Check ****
-      if (ortho) then
-        call Pneb_orthoCheckMake(.true.,0,0,npack1,
+      call Pneb_orthoCheckMake(.true.,0,0,npack1,
      >                        dcpl_mb(psi1(1)))
-      end if
-
       cpsi_initialize = value
       return
       end
@@ -1553,7 +1548,47 @@ c     *****  read initial wavefunctions into psi1  ****
       return
       end
 
+*     ***************************
+*     *				*
+*     *	     cpsi_band_finalize	*
+*     *				*
+*     ***************************
 
+      logical function cpsi_band_finalize(wpsi)
+      implicit none 
+      logical wpsi
+
+#include "mafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+
+*     **** local variables ****
+      logical value
+
+*     **** external functions ****
+      logical  Pneb_w_free
+      external Pneb_w_free
+
+*     ***** write psi1 wavefunctions ****
+
+      call cpsi_write2(spin_orbit,ispin,ne,nbrillioun,
+     >      dcpl_mb(psi1(1)),wpsi)
+    
+      value = MA_free_heap(eig(2))
+      value = value.and.Pneb_w_free(hml)
+      value = value.and.MA_free_heap(dng2(2))
+      value = value.and.MA_free_heap(dng1(2))
+      value = value.and.MA_free_heap(rho2(2))
+      value = value.and.MA_free_heap(rho1(2))
+      value = value.and.MA_free_heap(psi2(2))
+      value = value.and.MA_free_heap(psi1(2))
+      value = value.and.MA_free_heap(rho2_all(2))
+      value = value.and.MA_free_heap(rho1_all(2))
+
+      cpsi_band_finalize = value
+      return
+      end
 
 
 *     ***************************

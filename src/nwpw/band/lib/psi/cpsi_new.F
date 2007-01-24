@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_new.F,v 1.8 2007-01-19 22:34:16 d3p708 Exp $
+* $Id: cpsi_new.F,v 1.9 2007-01-24 22:32:51 d3p708 Exp $
 *
 
 *     ***********************************
@@ -72,9 +72,9 @@ c     external lcao_wvfnc
 
 
       if (soc) then
-        ispin=2
-        ne(1)=t
-        ne(2)=t
+         ispin=2
+         ne(1)=t
+         ne(2)=t
       else
          if (ispin.eq.1) then
             ne(1) = t/2
@@ -179,17 +179,9 @@ c    >                        ne)
       unita(2,3) = control_unita(2,3)
       unita(3,3) = control_unita(3,3)
        
+      soc=control_spin_orbit()
       nbrillioun = brillioun_nbrillioun()
-      soc        = control_spin_orbit()
-
-c      if (soc) then
-c         print*,"Why the hell am i here!"
-c         stop
-c       end if
-
-       success = .false.
-       if (.not.success)
-     >   call c_wvfnc_new(filename,
+      call c_wvfnc_new(filename,
      >                  version,
      >                  ngrid,
      >                  unita,
