@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.26 2007-01-23 23:28:26 d3p708 Exp $
+* $Id: c_electron.F,v 1.27 2007-01-24 03:26:11 d3p708 Exp $
 *
 
 
@@ -175,9 +175,7 @@
       integer    nb,i
       complex*16 psi_k(*)
 
-      write(*,*)"RUN ORB1 I=",I
       call c_electron_gen_psi_r_orb(nb,i,psi_k)    
-      write(*,*)"RUN ORB2 I=",I
       call c_electron_gen_Hpsi_k_orb(nb,i,psi_k)
 
       return
@@ -198,17 +196,14 @@
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      write(*,*)"GRAD ORB I=",I
+      indx=Hspi_k(1)+(i-1)*npack1+(nb-1)*(ne(1)+ne(2))*npack1
       call Cram_c_Copy(nb,
-     >                 dcpl_mb(Hpsi_k(1)
-     >                        +(i-1)*npack1
-     >                        +(nb-1)*(ne(1)+ne(2))*npack1),
+     >                 dcpl_mb(indx),
      >                 Horb)
       if (spin_orbit) then
+        indx=indx+ne(1)*npack1
         call Cram_c_Copy(nb,
-     >                 dcpl_mb(Hpsi_k(1)
-     >                        +(ne(1)+i-1)*npack1
-     >                        +(nb-1)*(ne(1)+ne(2))*npack1),
+     >                 dcpl_mb(indx),
      >                 Horb(npack1+1))
       end if
       return
@@ -1400,7 +1395,7 @@ c         end do
          weight = brillioun_weight(nb)
          do ms=1,ispin
          do n=n1(ms),n2(ms)
-         indx = (n-1)*npack1 + (nb-1)*npack1*neall
+            indx = (n-1)*npack1 + (nb-1)*npack1*neall
 
             call Cram_cc_idot(nb,psi1(1+indx),
      >                         dcpl_mb(tmp1(1)+indx),
@@ -1410,7 +1405,7 @@ c         end do
          end do
       end do
       if (np.gt.1) call C3dB_SumAll(enlocal)
-      if (ispin.eq.1) enlocal = 2.0d0*enlocal
+      
 
  
       value = MA_pop_stack(tmp2(2))
