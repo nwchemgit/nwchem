@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.10 2007-01-24 22:38:00 d3p708 Exp $
+* $Id: cpsi_H.F,v 1.11 2007-01-24 23:17:04 d3p708 Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -445,9 +445,9 @@ c      call flush(6)
 c      value=MA_verify_allocator_stuff()
       call nwpw_timing_start(12)
       value = .true.
-      value = value.and.MA_pop_stack(spsi(2))
+c      value = value.and.MA_pop_stack(spsi(2))
 c      value = value.and.MA_pop_stack(tpsi(2))
-c      value = value.and.MA_pop_stack(vpsi(2))
+      value = value.and.MA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('psi_Horb2com: popping stack',1, MA_ERR)
       call nwpw_timing_end(12)
