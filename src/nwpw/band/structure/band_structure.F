@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.16 2007-01-21 00:32:23 d3p708 Exp $
+* $Id: band_structure.F,v 1.17 2007-01-24 17:32:51 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -72,12 +72,13 @@
 *     **** external functions ****
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass,ion_TotalCharge
-      logical     cpsi_spin_orbit
+      logical     cpsi_spin_orbit,control_spin_orbit
       character*2 ion_aname
+      integer     control_ispin
       external    lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external    lattice_unitg,ion_amass,ion_TotalCharge
       external    ion_aname
-      external    cpsi_spin_orbit
+      external    cpsi_spin_orbit,control_spin_orbit,control_ispin
 
 
       real*8   control_tole,control_tolc,control_tolr,ion_rion
@@ -242,9 +243,6 @@
         end if
       end if
 
-      call psi_get_ne(ispin,ne)
-      call Pneb_init(ispin,ne,brillioun_nbrillioun(),
-     >   cpsi_spin_orbit())
       value = cpsi_initialize(.true.) 
 
 *     **** electron and geodesic data structures ****
@@ -558,9 +556,9 @@
            end if
         end if
       end if
-
+ 
       value = cpsi_initialize(ortho)
-
+ 
       if (flag.eq.2) call cpsi_dospsi_read(k)
 
 
