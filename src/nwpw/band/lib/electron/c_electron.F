@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.27 2007-01-24 03:26:11 d3p708 Exp $
+* $Id: c_electron.F,v 1.28 2007-01-24 04:11:21 d3p708 Exp $
 *
 
 
@@ -196,7 +196,7 @@
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      indx=Hspi_k(1)+(i-1)*npack1+(nb-1)*(ne(1)+ne(2))*npack1
+      indx=Hpsi_k(1)+(i-1)*npack1+(nb-1)*(ne(1)+ne(2))*npack1
       call Cram_c_Copy(nb,
      >                 dcpl_mb(indx),
      >                 Horb)
