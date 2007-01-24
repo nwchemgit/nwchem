@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.17 2007-01-24 17:32:51 d3p708 Exp $
+* $Id: band_structure.F,v 1.18 2007-01-24 21:18:24 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -53,7 +53,7 @@
       integer ierr
 
 *     **** local variables ****
-      logical newpsi,grid3d
+      logical newpsi,grid3d,spin_orbit
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi
       real*8  pathlength,dist,kold(3),emin,emax
@@ -70,6 +70,8 @@
 
 *     **** external functions ****
 *     **** external functions ****
+      integer     cpsp_nprj
+      external    cpsp_nprj
       real*8      lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8      lattice_unitg,ion_amass,ion_TotalCharge
       logical     cpsi_spin_orbit,control_spin_orbit
@@ -87,7 +89,8 @@
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init
       external control_read,control_move,ion_init
-
+      integer  cpsp_psp_type
+      external cpsp_psp_type
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
       external control_it_in,control_it_out,control_gga,control_version
@@ -114,6 +117,8 @@
       external c_ewald_rcut,c_ewald_mandelung,c_ewald_e
       logical  cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
       external cpsp_semicore,psi_filefind,cpsi_initialize,cpsi_finalize
+      logical  cpsi_band_finalize
+      external cpsi_band_finalize
       real*8   c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
       external c_cgsd_noit_energy,cpsi_1energy,cpsi_eigenvalue
       integer  cpsp_lmax,cpsp_locp,cpsp_lmmax,cpsp_npsp
@@ -243,6 +248,14 @@
         end if
       end if
 
+c      call psi_get_ne(ispin,ne)
+c      if (ispin.eq.3) then
+c         spin_orbit=.true.
+c         ispin=2
+c      else
+c         spin_orbit=.false.
+c      end if
+c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(.true.) 
 
 *     **** electron and geodesic data structures ****
@@ -276,17 +289,20 @@
          do ia = 1,cpsp_npsp()
            write(luout,1150) ia,cpsp_atom(ia),
      >                    cpsp_zv(ia),cpsp_lmax(ia)
+           write(luout,2000) cpsp_psp_type(ia)
            write(luout,1152) cpsp_lmax(ia)
            write(luout,1153) cpsp_locp(ia)
-           write(luout,1154) cpsp_lmmax(ia)
+           write(luout,1154) cpsp_nprj(ia)
            if (cpsp_semicore(ia))
      >         write(luout,1155) cpsp_rcore(ia),cpsp_ncore(ia)
            write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
          end do
-
-
-         icharge = -(cpsi_ne(1)+cpsi_ne(cpsi_ispin()))
+         if (control_spin_orbit()) then
+           icharge=-cpsi_ne(1)+ion_TotalCharge()
+         else
+           icharge = -(cpsi_ne(1)+cpsi_ne(cpsi_ispin()))
      >           + ion_TotalCharge()
+         end if
          write(luout,1159) icharge
 
          write(luout,1180)
@@ -356,7 +372,7 @@
       ne(1) = cpsi_ne(1)+control_excited_ne(1)
       ne(2) = 0
       if (ispin.gt.1) ne(2) = cpsi_ne(2)+control_excited_ne(2)
-
+      
 
       if (taskid.eq.MASTER) call current_second(cpu2)
 
@@ -378,9 +394,8 @@
       end if
 
 
-
 *     **** deallocate heap memory ****
-      value=cpsi_finalize(.false.)
+      value=cpsi_band_finalize(.false.)
 
       call c_electron_finalize()
       call c_geodesic_finalize()
@@ -502,7 +517,6 @@
       end if
 
       call control_reset_band_structure()
-
       do k=1,control_num_kvectors_structure()
         ortho = .true.
 
@@ -540,6 +554,9 @@
         call cpsi_new_ne(ispin,ne)
         newpsi = .true.
         ortho  = .false.
+        vers = 5
+        write(*,*)"CPSI_NEW_NE VERSION = ",vers
+        call flush(6)
 
       else
         newpsi = .false.
@@ -996,6 +1013,8 @@
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  dplot weight=',F8.3))
  1600 FORMAT(/' Total BAND energy   :',E19.10)
+ 2000 FORMAT(12X,' pseudpotential type            : ',i2)
+ 2005 FORMAT(12x,' number of non local projectors : ',i3)
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 
  9000 if (taskid.eq.MASTER) write(6,9010) ierr
