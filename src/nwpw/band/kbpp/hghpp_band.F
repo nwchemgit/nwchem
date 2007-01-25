@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.4 2007-01-12 23:44:28 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.5 2007-01-25 00:01:10 d3p708 Exp $
 *
 
 *     **************************************
@@ -32,7 +32,7 @@
       character*255 full_filename
 
       logical value,mprint,hprint,oprint,spin_orbit
-
+       
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
 
@@ -413,7 +413,7 @@
            call dwrite(2,dbl_mb(vnl_indx),nsize*nprj)
         end if
       end do
-
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** generate and write out spin_orbit psp **************************
 *     spin orbit is Hermitian complex. it saves us nothing to 
 *     use real harmonics

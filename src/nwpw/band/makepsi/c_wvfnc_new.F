@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.7 2006-12-05 00:14:40 bylaska Exp $
+* $Id: c_wvfnc_new.F,v 1.8 2007-01-25 00:01:16 d3p708 Exp $
 *
 
 *     **********************************************
@@ -59,6 +59,7 @@
         else
            write(*,*) "-   spin, nalpha, nbeta:",ispin,ne(1),ne(2)
         end if
+        call flush(6)
         value = MA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
