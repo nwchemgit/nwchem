@@ -1,9 +1,9 @@
-      subroutine ga_lkain_2cpl3(g_x, g_b, g_x_im, g_b_im,
+      subroutine ga_lkain_2cpl3(rtdb, g_x, g_b, g_x_im, g_b_im,
      &   product, precond, 
      $   tol, mmaxsub, maxiter, odiff, oprint, omega, limag,
      &   lifetime, gamwidth, ncomp)
 
-c     $Id: ga_lkain_2cpl3.F,v 1.1 2006-11-16 18:23:05 jochen Exp $
+c     $Id: ga_lkain_2cpl3.F,v 1.2 2007-01-25 02:10:39 jochen Exp $
 
       implicit none
 #include "errquit.fh"
@@ -11,7 +11,9 @@ c     $Id: ga_lkain_2cpl3.F,v 1.1 2006-11-16 18:23:05 jochen Exp $
 #include "global.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
 c
+      integer rtdb              ! [input] database handle
       integer g_x(2)            ! [input/output] Initial guess/solution
       integer g_x_im(2)         ! not used
       integer g_b(2)            ! [input] Right-hand side vectors 
@@ -69,16 +71,24 @@ c     that might be changed later if memory becomes an issue
      &   g_c, g_xold(2), g_Axold(2), g_Ax_im(2)
       double precision rmax, rmax1, rmax2, acc
       logical converged
-      logical odebug, debug
+      logical odebug, debug, converge_precond
 c
 c     =================================================================
 c
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+
+c     check input key if we should check for convergence
+c     after the preconditioner has been applied to the residual
+      if (.not. rtdb_get(rtdb, 'aoresponse:precond',    mt_log, 1,
+     &                            converge_precond))
+     &  converge_precond = .false.
       
       if (debug) write (6,*) 'ga_lkain_2cpl3 omega =',omega
       if (debug) write (6,*) 'ga_lkain_2cpl3 limag =',limag
       if (debug) write (6,*) 'ga_lkain_2cpl3 lifetime,gamwidth',
      &   lifetime,gamwidth
+      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+     &   converge_precond
 c
       if (lifetime) call errquit('ga_lkain_2cpl3 called with damping',
      &   0,UNKNOWN_ERR)
@@ -222,21 +232,33 @@ c         g_Ax is calculated from the initial guess
 c         
         enddo                   ! ipm = 1,ncomp
 
+
+c       convergence checking:
+c       find the largest element of the residual either 
+c       before or after the call to the preconditioner
+
+        if (converge_precond) then
+          call precond(g_r(1),  -omega)
+          if (ncomp.gt.1) then
+            call precond(g_r(2),   omega)
+          endif
+        endif
+
         call ga_maxelt(g_r(1), rmax1)
         if (ncomp.gt.1) then
           call ga_maxelt(g_r(2), rmax2)
         else
           rmax2 = 0d0
         endif
-        rmax = max(rmax1, rmax2)
-        
+        rmax = max(rmax1, rmax2)  
+      
         if (oprint .and. ga_nodeid().eq.0) then
           write(6,3) iter, nsub+nvec, rmax, util_wallsec()
           call util_flush(6)
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
-        
-c       check convergence
+
+c       stop iterations if residual is smaller than criterion
         if (rmax .lt. tol) then
           converged = .true.
           goto 100
@@ -244,13 +266,15 @@ c       check convergence
 c       
 c ... jochen: changed 0d0 to omega in the calls below
 c       (there were only two in ga_lkain, one with g_aX, one with g_r)
+c       for array g_r the preconditioner call is only necessary
+c       in case converge_precond is .false.
+
         call precond(g_Ax(1), -omega)
-        call precond(g_r(1),  -omega)
+        if (.not.converge_precond) call precond(g_r(1), -omega)
         if (ncomp.gt.1) then
           call precond(g_Ax(2),  omega)
-          call precond(g_r(2),   omega)
-        endif
-        
+          if (.not.converge_precond) call precond(g_r(2), omega)
+        endif       
         
 c       Copy the vectors to the subspace work area
 c       
@@ -459,10 +483,10 @@ c     &    CALC_ERR)
 c     
       end
 
-c     ************************************************************************
-c     ************************************************************************
+c     ******************************************************************
+c     ******************************************************************
 
-      subroutine ga_lkain_2cpl3_damp(g_x, g_b, g_x_im, g_b_im,
+      subroutine ga_lkain_2cpl3_damp(rtdb, g_x, g_b, g_x_im, g_b_im,
      &   product, precond, 
      $   tol, mmaxsub, maxiter, odiff, oprint, omega, limag,
      &   lifetime, gamwidth, ncomp)
@@ -472,7 +496,9 @@ c     ************************************************************************
 #include "global.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "rtdb.fh"
 c
+      integer rtdb              ! [input] database handle
       integer g_x(2)            ! [input/output] Initial guess/solution Re
       integer g_x_im(2)         ! [input/output] Initial guess/solution Im
       integer g_b(2)            ! [input] Right-hand side vectors Re
@@ -502,8 +528,8 @@ c     (elsewhere, omega is simply called "frequency")
 c
 c ... jochen: the above comment is from ga_lkain_2cpl3. This here is
 c     a modified version of that routine and takes care of a real and an
-c     imaginary part for each frequency component. I.e. now things are
-c     getting four-dimensional ... 
+c     imaginary part for each frequency component. I.e. now arrays
+c     have four components ... 
 c
 c     note: when called from cphf_solve3, odiff = .false. on input
 c
@@ -530,23 +556,31 @@ c
      &   ntmp1, ntmp2, n3, n4
 
 c ... jochen: for convenience, now most arrays have two components.
-c     that might be changed later is memory becomes an issue
+c     that might be changed later if memory becomes an issue
       integer g_y, g_Ay, g_Ax(2), g_r(2), g_r2, g_a, g_bb,
      &   g_c, g_xold(2), g_Axold(2)
       integer g_r_im(2), g_Ax_im(2)
       double precision rmax, rmax1, rmax2, acc
       logical converged
-      logical odebug, debug
+      logical odebug, debug, converge_precond
 c
 c     =================================================================
 c
       debug = (.false. .and. ga_nodeid().eq.0) ! for code development
+
+c     check input key if we should check for convergence
+c     after the preconditioner has been applied to the residual
+      if (.not. rtdb_get(rtdb, 'aoresponse:precond',    mt_log, 1,
+     &                            converge_precond))
+     &  converge_precond = .false.
       
       if (debug) write (6,*) 'ga_lkain_2cpl_damp omega =',omega
       if (debug) write (6,*) 'ga_lkain_2cpl_damp limag =',limag
       if (debug) write (6,*) 'ga_lkain_2cpl_damp lifetime =',lifetime
       if (debug) write (6,*) 'ga_lkain_2cpl_damp gamwidth =',gamwidth
       if (debug) write (6,*) 'ga_lkain_2cpl_damp ncomp =', ncomp
+      if (debug) write (6,*) 'ga_lkain_2cpl3 converge_precond',
+     &   converge_precond
 c
 c     exit if this is the wrong routine to call (lifetime switch
 c     must be set)
@@ -573,7 +607,9 @@ c       ... jochen: do a sanity check on the array dimensions
       endif
       
 c     later we combine the two components to vecors of double
-c     length and combine again Re and Im, i.e. the dimension is up to 4 n
+c     length and combine again Re and Im, i.e. 
+c     the dimension is up to 4*n
+
       n2 = n
       if (ncomp.gt.1) n2 = 2 * n   
       n3 = n
@@ -728,8 +764,8 @@ c         During the first cycle,
 c         g_Ax is calculated from the initial guess for which the
 c         preconditioner has already been applied (to be more clear:
 c         we have divided the perturbation matrix elements by orbital
-c         energy denominators, including the frequency term, and assigned
-c         real and imaginary parts accordingly
+c         energy denominators, including the frequency term, 
+c         and assigned real and imaginary parts accordingly)
 
           call ga_add(1.0d0, g_b(ipm),
      &       -1.0d0, g_Ax(ipm), g_r(ipm)) ! The residual, Real part
@@ -740,6 +776,17 @@ c         real and imaginary parts accordingly
           endif
 c         
         enddo                   ! ipm = 1,ncomp
+
+c       convergence checking:
+c       find the largest element of the residual either 
+c       before or after the call to the preconditioner
+
+        if (converge_precond) then
+          call precond(g_r(1),  g_r_im(1),  -omega, gamwidth)
+          if (ncomp.gt.1) then
+            call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
+          endif          
+        endif
 
         call ga_maxelt(g_r(1), rmax1)
         if (ncomp.gt.1) then
@@ -761,7 +808,7 @@ c
     3     format(' ', i5, i7, 3x,1p,d9.2,0p,f10.1,5x,i3)
         end if
         
-c       check convergence
+c       stop iterations if residual is smaller than criterion
         if (rmax .lt. tol) then
           converged = .true.
           goto 100
@@ -772,11 +819,16 @@ c       the quantity Ax
 c ... jochen: changed 0d0 to omega in the calls below compared to
 c       the original routine ga_lkain
 c       (there were only two in ga_lkain, one with g_aX, one with g_r)
+c       for array g_r the preconditioner call is only necessary
+c       in case converge_precond is .false.
+
         call precond(g_Ax(1), g_Ax_im(1), -omega, gamwidth)
-        call precond(g_r(1),  g_r_im(1),  -omega, gamwidth)
+        if (.not.converge_precond) 
+     &     call precond(g_r(1),  g_r_im(1),  -omega, gamwidth)
         if (ncomp.gt.1) then
           call precond(g_Ax(2), g_Ax_im(2),  omega, gamwidth)
-          call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
+          if (.not.converge_precond) 
+     &       call precond(g_r(2),  g_r_im(2),   omega, gamwidth)
         endif
         if (debug) write (6,*) 'lkain3_damp: back from precond'
                 
