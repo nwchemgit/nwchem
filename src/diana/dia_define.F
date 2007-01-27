@@ -1,6 +1,6 @@
-      subroutine dia_define(card,sgmnam,isel,wt,x)
+      subroutine dia_define(sgmnam,isel,wt,x)
 c
-c $Id: dia_define.F,v 1.1 2006-12-10 01:03:21 d3j191 Exp $
+c $Id: dia_define.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
       integer i,k,l
       integer id
       real*8 rtag,rtag2,r2
-      character*80 card,target
+      character*80 target
       integer l_list,i_list
 c
 c     do selection on node 0
@@ -96,7 +96,7 @@ c
 c
       return
       end
-      subroutine dia_wdefin(card)
+      subroutine dia_wdefin()
 c
       implicit none
 c
@@ -105,8 +105,6 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 #include "rtdb.fh"
-c
-      character*80 card
 c
       integer id
       character*5 cs,ct

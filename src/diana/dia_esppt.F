@@ -12,7 +12,7 @@ c
       real*8 xs(msa,3),xw(mwm,mwa,3),qs(msa),qw(mwa)
       real*8 val(1000),zval(1000)
       integer nval(1000)
-      integer i,j,lfnpdb,ndx,last,number
+      integer i,j,lfnpdb,last,number
       character*255 filpdb,string
       real*8 espval,point(3)
 c

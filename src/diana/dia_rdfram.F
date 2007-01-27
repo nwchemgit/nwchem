@@ -1,6 +1,6 @@
       logical function dia_rdfram(x,ix,w)
 c
-c $Id: dia_rdfram.F,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c $Id: dia_rdfram.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -12,7 +12,6 @@ c
       real*8 x(msa,3),w(mwm,mwa,3)
       integer ix(msa)
 c
-      character*108 card
       integer i,j,k,lq
       character*255 fname
 c

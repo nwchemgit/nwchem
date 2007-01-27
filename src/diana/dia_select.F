@@ -1,6 +1,6 @@
-      subroutine dia_select(card,sgmnam,isel,wt,x,numsel)
+      subroutine dia_select(sgmnam,isel,wt,x,numsel)
 c
-c $Id: dia_select.F,v 1.1 2006-12-10 01:03:23 d3j191 Exp $
+c $Id: dia_select.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -18,7 +18,7 @@ c
 c
       integer i,j
       real*8 rtag,rtag2,r2
-      character*80 card,target
+      character*80 target
       integer l_list,i_list
 c
 c     do selection on node 0
@@ -182,7 +182,57 @@ c
 c
       return
       end
-      subroutine dia_savsel(lfn,fil,iwsel,isel)
+      subroutine dia_rdsel()
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "mafdecls.fh"
+c
+      filsel=card(8:80)
+      call dia_readsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
+      call dia_wcount(int_mb(i_wsel),int_mb(i_ndxw))
+c
+      return
+      end
+      subroutine dia_rdssl()
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "mafdecls.fh"
+c
+      filsel=card(8:80)
+      call dia_readsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_ssel))
+      call dia_wcount(int_mb(i_wsel),int_mb(i_ndxw))
+c
+      return
+      end
+      subroutine dia_savsel()
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "mafdecls.fh"
+c
+      filsel=card(8:80)
+      call dia_wrtsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_isel))
+c
+      return
+      end
+      subroutine dia_savssl()
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "mafdecls.fh"
+c
+      filsel=card(8:80)
+      call dia_wrtsel(lfnsel,filsel,int_mb(i_wsel),int_mb(i_ssel))
+c
+      return
+      end
+      subroutine dia_wrtsel(lfn,fil,iwsel,isel)
 c
       implicit none
 c

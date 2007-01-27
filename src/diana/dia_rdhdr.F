@@ -1,6 +1,6 @@
       subroutine dia_rdhdr(sgmnam)
 c
-c $Id: dia_rdhdr.F,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c $Id: dia_rdhdr.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -8,7 +8,6 @@ c
 #include "mafdecls.fh"
 c
       character*16 sgmnam(msa)
-      character*80 card
       character*255 fname
       integer i,lq
 c

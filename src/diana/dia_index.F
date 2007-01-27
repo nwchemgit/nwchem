@@ -1,4 +1,4 @@
-      subroutine dia_index(card,sgmnam,ia,ja)
+      subroutine dia_index(sgmnam,ia,ja)
 c
       implicit none
 c
@@ -8,7 +8,7 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 c
-      character*80 card,atom
+      character*80 atom
       character*16 sgmnam(nsa)
       character*10 word
       integer ia,ja

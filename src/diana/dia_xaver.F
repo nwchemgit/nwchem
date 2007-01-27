@@ -2,7 +2,7 @@
 c
 c      x,xa,nx,mx,nave)
 c
-c $Id: dia_xaver.F,v 1.4 2007-01-12 23:43:02 d3j191 Exp $
+c $Id: dia_xaver.F,v 1.5 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -41,13 +41,10 @@ c
     6 continue
     5 continue
 c
-ctest
-c      if(me.eq.0) then
-c      do 7 i=1,nfr
-c      write(*,'(i5,3f12.6)') i,(xtrj(5,j,i),j=1,3)
-c    7 continue
-c      endif
-ctest
+      if(me.eq.0) then
+      write(*,'(a)') ' Coordinates averaged'
+      endif
+c
       return
       end
       subroutine dia_xmean(xa,nx,mx,nave)

@@ -1,6 +1,6 @@
-      subroutine dia_sizref(nsai,msai,nwmi,mwmi,nwai,mwai)
+      subroutine dia_sizref()
 c
-c $Id: dia_sizref.F,v 1.1 2006-12-10 01:03:23 d3j191 Exp $
+c $Id: dia_sizref.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,7 @@ c
 #include "msgids.fh"
 c
       character*1 cdum
-      integer i,nsai,msai,nwmi,mwmi,nwai,mwai,nsm
+      integer i,nsm
 c
       integer ibroad(10),nhist
       logical lforces

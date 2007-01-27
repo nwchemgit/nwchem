@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.2 2007-01-15 23:09:45 d3j191 Exp $
+c $Id: dia_input.F,v 1.3 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -16,7 +16,7 @@ c
       character*255 filpin,filhol,filpou,filavg
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
-      integer iopt,ivctr,iorder
+      integer iopt,ivctr,iorder,nbatch
       integer itag,iatag,jatag,ipbc,nrdf
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota,rrdf
@@ -784,17 +784,10 @@ c     average structure
 c     -----------------
 c
       if(inp_compare(.false.,'average',item)) then
-      if(.not.inp_a(item)) call md_abort('No average file',0)
-      if(item(1:5).eq.'super') then
-      if(.not.inp_a(item)) call md_abort('No average file',0)
+      if(.not.inp_a(item)) item=' '
       write(lfncmd,1070) item
- 1070 format('saver ',a)
+ 1070 format('xaver ',a)
       numcmd=numcmd+1
-      else
-      write(lfncmd,1071) item
- 1071 format('aver  ',a)
-      numcmd=numcmd+1
-      endif
       goto 2
       endif
 c
@@ -804,7 +797,7 @@ c
       if(inp_compare(.false.,'essential',item)) then
       if(.not.inp_a(item)) item=' ' 
       write(lfncmd,1009) item(1:index(item,' ')-1)
- 1009 format('saver  ',/,'covar  ',a)
+ 1009 format('xaver  ',/,'covar  ',a)
       numcmd=numcmd+2
       goto 2
       endif
@@ -814,9 +807,10 @@ c     ---------------------------
 c
       if(inp_compare(.false.,'project',item)) then
       if(.not.inp_i(ivec)) call md_abort('No vector specified',0)
-      if(.not.inp_a(item)) call md_abort('No projection file',0)
-      write(lfncmd,1010) ivec,item(1:index(item,' ')-1)
- 1010 format('projec ',i7,a)
+      if(.not.inp_i(nbatch)) nbatch=0
+      if(.not.inp_a(item)) call md_abort('No projection file name',0)
+      write(lfncmd,1010) ivec,nbatch,item(1:index(item,' ')-1)
+ 1010 format('projec ',2i7,a)
       numcmd=numcmd+1
       goto 1
       endif

@@ -1,6 +1,6 @@
-      subroutine dia_alloc(nsai,msai,nwmi,mwmi,nwai,mwai,ltask)
+      subroutine dia_alloc(ltask)
 c
-c $Id: dia_alloc.F,v 1.1 2006-12-10 01:03:20 d3j191 Exp $
+c $Id: dia_alloc.F,v 1.2 2007-01-27 02:22:34 d3j191 Exp $
 c
       implicit none
 c
@@ -9,7 +9,6 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 c
-      integer nsai,msai,nwmi,mwmi,nwai,mwai
       logical ltask
 c
 c     determine me and np
@@ -62,7 +61,7 @@ c
 c
       if(.not.ma_push_get(mt_byte,48*nsa,'tag',l_tag,i_tag))
      + call md_abort('Failed to allocate memory for tag',me)
-      if(.not.ma_push_get(mt_dbl,2*nsa,'val',l_val,i_val))
+      if(.not.ma_push_get(mt_dbl,2*nsa,'valu',l_val,i_val))
      + call md_abort('Failed to allocate memory for val',me)
 c
       if(.not.ma_push_get(mt_dbl,3*nsa,'xref',l_xref,i_xref))

@@ -1,21 +1,20 @@
-      subroutine dia_tag(card,sgmnam,x)
+      subroutine dia_tag(sgmnam,x)
 c
-c $Id: dia_tag.F,v 1.1 2006-12-10 01:03:23 d3j191 Exp $
+c $Id: dia_tag.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
 #include "dia_common.fh"
 #include "mafdecls.fh"
 c
-      character*80 card
       character*16 sgmnam(nsa)
       real*8 x(nsa,3)
 c
-      call dia_settag(card,sgmnam,byte_mb(i_tag),dbl_mb(i_val),x)
+      call dia_settag(sgmnam,byte_mb(i_tag),dbl_mb(i_val),x)
 c
       return
       end
-      subroutine dia_settag(card,sgmnam,tag,val,x)
+      subroutine dia_settag(sgmnam,tag,val,x)
 c
       implicit none
 c
@@ -25,7 +24,6 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 c
-      character*80 card
       character*16 sgmnam(nsa)
       character*24 ttag,tag(nsa,2)
       real*8 x(nsa,3),val(nsa,2)

@@ -1,0 +1,58 @@
+      subroutine dia_average()
+c
+c $Id: dia_average.F,v 1.1 2007-01-27 02:26:03 d3j191 Exp $
+c
+c     get atom selection
+c     ------------------
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "dia_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+      character*3 fmt
+      character*80 fil
+      integer i
+c
+      if(nsel.eq.0) call md_abort('No atoms selected',0)
+c
+c     get the average coordinates
+c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+c
+      call dia_xaver(dbl_mb(ndx),nsa,min((me+1)*nfrme,nfrtot)-me*nfrdim,
+     + dbl_mb(i_xadat),nsa)
+c
+      if(card(7:7).eq.' ') return
+c
+      read(card(7:80),'(a)') fil
+c
+      i=index(fil,'.')
+      if(i.le.0) then
+      fmt='pdb'
+      else
+      fmt=filcop(i+1:i+3)
+      endif
+c
+      if(fmt.eq.'pdb') then
+      call dia_wrtpdb(lfncop,fil,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xadat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.false.,
+     + int_mb(i_ndxw))
+      elseif(fmt.eq.'xyz') then
+      call dia_wrtxyz(lfncop,fil,byte_mb(i_snam),int_mb(i_isel),
+     + dbl_mb(i_xadat),dbl_mb(i_qdat),int_mb(i_wsel),dbl_mb(i_wdat),
+     + .false.,.false.,int_mb(i_ndxw))
+      endif
+c
+      write(*,'(/,a,a)')
+     +  ' Averaged coordinates written to ',
+     + fil(1:index(fil,' ')-1)
+c
+      return
+      end

@@ -1,6 +1,24 @@
-      subroutine dia_super(xtrj,ntrj,nfr,xa,nxa,rms0,rms1)
+      subroutine dia_super()
 c
-c $Id: dia_super.F,v 1.2 2007-01-15 23:09:46 d3j191 Exp $
+c $Id: dia_super.F,v 1.3 2007-01-27 02:22:35 d3j191 Exp $
+c
+      implicit none
+c
+#include "msgids.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "dia_common.fh"
+c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+c
+      call dia_supimp(dbl_mb(ndx),nsa,
+     + min((me+1)*nfrme,nfrtot)-me*nfrdim,
+     + dbl_mb(i_xadat),nsa)
+c
+      return
+      end
+      subroutine dia_supimp(xtrj,ntrj,nfr,xa,nxa)
 c
       implicit none
 c
@@ -14,7 +32,6 @@ c
 c
       integer ntrj,nfr,nxa
       real*8 xtrj(ntrj,3,nfr),xa(nxa,3)
-      real*8 rms0,rms1
 c
       integer i,j,k
 c
@@ -30,7 +47,7 @@ c
       end
       subroutine dia_super2(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1)
 c
-c $Id: dia_super.F,v 1.2 2007-01-15 23:09:46 d3j191 Exp $
+c $Id: dia_super.F,v 1.3 2007-01-27 02:22:35 d3j191 Exp $
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c

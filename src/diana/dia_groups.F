@@ -1,6 +1,6 @@
-      subroutine dia_groups(card,sgmnam,imol,isel,wt,x)
+      subroutine dia_groups(sgmnam,imol,isel,wt,x)
 c
-c $Id: dia_groups.F,v 1.1 2006-12-10 01:03:21 d3j191 Exp $
+c $Id: dia_groups.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -10,7 +10,6 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 c
-      character*80 card
       character*16 sgmnam(nsa)
       real*8 wt(nsa)
       integer isel(nsa),imol(msa)
@@ -46,9 +45,9 @@ c
 c
       return
       end
-      subroutine dia_group(card,sgmnam,imol,isel,wt,x,iwrk)
+      subroutine dia_group(sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: dia_groups.F,v 1.1 2006-12-10 01:03:21 d3j191 Exp $
+c $Id: dia_groups.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -58,7 +57,6 @@ c
 #include "msgids.fh"
 #include "rtdb.fh"
 c
-      character*80 card
       character*16 sgmnam(nsa)
       real*8 wt(nsa)
       integer isel(nsa),imol(msa),iwrk(mxdef,mxnum,maxgrp)
@@ -290,7 +288,7 @@ c
       integer i,j,igrp,ia,ja,k,ntmp,ito
       real*8 dx,dy,dz,dist
 c
-      integer num,ndx(100)
+      integer num,ndex(100)
       real*8 rd(100)
 c
       igrp=igroup(igr,1)
@@ -321,7 +319,7 @@ c
       if(dist.ge.rgroup(igr,1).and.dist.le.rgroup(igr,2)) then
       if(num.lt.100) then
       num=num+1
-      ndx(num)=ja
+      ndex(num)=ja
       rd(num)=dist
       endif
       endif
@@ -330,41 +328,41 @@ c
       if(num.gt.0) then
       do 3 j=1,num-1
       do 4 k=j+1,num
-      if(ndx(j).gt.ndx(k)) then
-      ntmp=ndx(j)
-      ndx(j)=ndx(k)
-      ndx(k)=ntmp
+      if(ndex(j).gt.ndex(k)) then
+      ntmp=ndex(j)
+      ndex(j)=ndex(k)
+      ndex(k)=ntmp
       endif
     4 continue
     3 continue
       do 5 j=1,num
-      if(ndx(j).eq.0) goto 6
-      if(ndx(j).ne.iwrk(igrp,j,i)) goto 6
+      if(ndex(j).eq.0) goto 6
+      if(ndex(j).ne.iwrk(igrp,j,i)) goto 6
     5 continue
       if(iwrk(igrp,num+1,i).eq.0) goto 1
     6 continue
       iwrk(igrp,num+1,i)=0
       do 7 j=1,num
-      iwrk(igrp,j,i)=ndx(j)
+      iwrk(igrp,j,i)=ndex(j)
     7 continue
       if(num.lt.11) then
-      write(lfnloc,1001) time,ia,(ndx(j),j=1,num)
+      write(lfnloc,1001) time,ia,(ndex(j),j=1,num)
  1001 format(f12.6,11i6)
       else
-      write(lfnloc,1002) time,ia,(ndx(j),j=1,num)
+      write(lfnloc,1002) time,ia,(ndex(j),j=1,num)
  1002 format(f12.6,11i6,/,(18x,10i6))
       endif
 c      write(lfnloc,1001)
 c     + imol(ia),sgmnam(ia)(11:16),sgmnam(ia)(1:5),sgmnam(ia)(6:10),
-c     + (imol(ndx(j)),sgmnam(ndx(j))(11:16),sgmnam(ndx(j))(1:5),
-c     + sgmnam(ndx(j))(6:10),j=1,num)
+c     + (imol(ndex(j)),sgmnam(ndex(j))(11:16),sgmnam(ndex(j))(1:5),
+c     + sgmnam(ndex(j))(6:10),j=1,num)
 c 1001 format(2(i5,a6,' ',a5,':',a5,' '),/,(t25,i5,a6,' ',a5,':',a5,' '))
       endif
     1 continue
 c
       return
       end
-      subroutine dia_histo(x,w,ih)
+      subroutine dia_histo(x,w,ihi)
 c
       implicit none
 c
@@ -373,26 +371,26 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer ih,ito
+      integer ihi,ito
       real*8 x(nsa,3),w(mwm,mwa,3)
 c
-      integer i,ia,j,ndx
+      integer i,ia,j,ihndx
 c
-      dhis=1.2d0*box(3)/real(idhis(ih,2))
+      dhis=1.2d0*box(3)/real(idhis(ihi,2))
 c
-      ito=ldef(idhis(ih,1))
+      ito=ldef(idhis(ihi,1))
       if(ito.gt.0) then
       do 1 i=1,ito
-      ia=idef(idhis(ih,1),i)
-      ndx=(x(ia,3)-rhis)/dhis
-      ihis(ndx,ih)=ihis(ndx,ih)+1
+      ia=idef(idhis(ihi,1),i)
+      ihndx=(x(ia,3)-rhis)/dhis
+      ihis(ihndx,ihi)=ihis(ihndx,ihi)+1
     1 continue
       else
       do 2 j=1,nwm
       do 3 i=1,-ito
-      ia=idef(idhis(ih,1),i)
-      ndx=(w(j,ia,3)-rhis)/dhis
-      ihis(ndx,ih)=ihis(ndx,ih)+1
+      ia=idef(idhis(ihi,1),i)
+      ihndx=(w(j,ia,3)-rhis)/dhis
+      ihis(ihndx,ihi)=ihis(ihndx,ihi)+1
     3 continue
     2 continue
       endif

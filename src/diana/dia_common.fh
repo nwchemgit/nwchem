@@ -1,5 +1,5 @@
 c
-c $Id: dia_common.fh,v 1.1 2006-12-10 01:03:20 d3j191 Exp $
+c $Id: dia_common.fh,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -88,22 +88,28 @@ c
      + i_rdf,l_rdf,ga_trj
 c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,nwsel,
-     + nwrit,indx,msgm,nsgm,msb,mwb,nselo
+     + nwrit,indx,msgm,nsgm,msb,mwb,nselo,nsai,msai,nwmi,mwmi,nwai,mwai
       common/dia_dim/nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,
-     + nwsel,nwrit,indx,msgm,nsgm,msb,mwb,nselo
+     + nwsel,nwrit,indx,msgm,nsgm,msb,mwb,nselo,nsai,msai,nwmi,mwmi,
+     + nwai,mwai
+c
+      integer il,ih,jl,jh,ld,ndx
+      common/dia_ndx/il,ih,jl,jh,ld,ndx
 c
       logical lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,lsonly,
      + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,lclean,
-     + lesppt,lsuper,active
+     + lesppt,lsuper,active,ignore
       common/dia_log/lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,
      + lsonly,ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,
-     + lclean,lesppt,lsuper,active
+     + lclean,lesppt,lsuper,active,ignore
 c
       character*24 wtag(100,2)
       character*16 wnam(100)
       character*10 datum,tijd
       character*3 cnum
-      common/dia_chr/wtag,wnam,datum,tijd,cnum
+      character*80 card
+      character*6 cmd
+      common/dia_chr/wtag,wnam,datum,tijd,cnum,card,cmd
 c
       real*8 wval(100,2)
       common/dia_val/wval
@@ -115,8 +121,9 @@ c
       integer nhis,lhis,ihis(mlhis,mhis),idhis(mhis,3)
       integer nord,idord(mord,4),iord(mord,2),nrdf,numrdf
       real*8 rord(mord,2)
-      real*8 rhis,dhis,rrdf
+      real*8 rhis,dhis,rrdf,rms0,rms1
       common/dia_def/rord,rgroups,rgroup,rhis,dhis,rrdf,
+     + rms0,rms1,
      + ndef,ldef,idef,ngroups,igroups,ngroup,igroup,
      + ihbndw,ibndw,nhis,lhis,ihis,idhis,
      + nord,idord,iord,nrdf,numrdf

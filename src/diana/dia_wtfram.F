@@ -1,7 +1,7 @@
-      subroutine dia_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
+      subroutine dia_wtfram(fmt,sgmnam,x,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: dia_wtfram.F,v 1.1 2006-12-10 01:03:24 d3j191 Exp $
+c $Id: dia_wtfram.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
       implicit none
 c
@@ -11,7 +11,6 @@ c
       real*8 x(msa,3),w(mwm,mwa,3),val(nsa,2)
       integer isel(msa),iwsel(mwm),ndxw(nwm)
       character*24 tag(msa,2)
-      integer iunit
       character*3 fmt
       character*16 sgmnam(msa)
 c
@@ -46,43 +45,43 @@ c
 c
       if(me.eq.0) then
 c
-      if(iunit.eq.lfncop) then
-      if(ncop.gt.mcopf.and.mcopf.gt.0) then
-      ncop=1
-      if(fmt.eq.'eci') write(iunit,'(a)') 'End'
-      close(unit=iunit)
-      icopf=icopf+1
-      call dia_wthdr(lfncop,fmtcop,byte_mb(i_snam),tag,isel,.false.)
-      endif
-      endif
+c      if(lfncop.eq.lfncop) then
+c      if(ncop.gt.mcopf.and.mcopf.gt.0) then
+c      ncop=1
+c      if(fmt.eq.'eci') write(lfncop,'(a)') 'End'
+c      close(unit=lfncop)
+c      icopf=icopf+1
+c      call dia_wthdr(lfncop,fmtcop,byte_mb(i_snam),tag,isel,.false.)
+c      endif
+c      endif
 c
-      if(iunit.eq.lfnsup) then
-      if(nsup.gt.msupf.and.msupf.gt.0) then
-      nsup=1
-      if(fmt.eq.'eci') write(iunit,'(a)') 'End'
-      close(unit=iunit)
-      isupf=isupf+1
-      call dia_wthdr(lfnsup,fmtsup,byte_mb(i_snam),tag,isel,.false.)
-      endif
-      endif
+c      if(lfncop.eq.lfnsup) then
+c      if(nsup.gt.msupf.and.msupf.gt.0) then
+c      nsup=1
+c      if(fmt.eq.'eci') write(lfncop,'(a)') 'End'
+c      close(unit=lfncop)
+c      isupf=isupf+1
+c      call dia_wthdr(lfnsup,fmtsup,byte_mb(i_snam),tag,isel,.false.)
+c      endif
+c      endif
 c
       if(fmt.eq.'trj') then
-      write(iunit,1000)
+      write(lfncop,1000)
  1000 format('frame')
-      write(iunit,1001) time,temp,pres,datum,tijd
+      write(lfncop,1001) time,temp,pres,datum,tijd
  1001 format(2f12.6,e12.5,2a10)
 c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
-      write(iunit,1002) box(1),0.0,0.0,0.0,box(2),0.0,
+      write(lfncop,1002) box(1),0.0,0.0,0.0,box(2),0.0,
      + 0.0,0.0,box(3)
  1002 format(3f12.6,/,3f12.6,/,3f12.6)
-      write(iunit,1003) lxw.and..not.lsonly,.false.,.false.,.false.,
+      write(lfncop,1003) lxw.and..not.lsonly,.false.,.false.,.false.,
      + lsx,.false.,.false.,.false.,nwsel,nwa,nsa
  1003 format(8l1,3i10)
       if(lxw.and..not.lsonly) then
       do 1 i=1,nwm
       if(iwsel(i).ne.0) then
       do 2 j=1,nwa
-      write(iunit,1004) (w(i,j,k),k=1,3)
+      write(lfncop,1004) (w(i,j,k),k=1,3)
  1004 format(3f8.3)
     2 continue
       endif
@@ -90,7 +89,7 @@ c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
       endif
       if(lsx) then
       do 3 i=1,nsa
-      write(iunit,1005) (x(i,j),j=1,3)
+      write(lfncop,1005) (x(i,j),j=1,3)
  1005 format(3f8.3)
     3 continue
       endif
@@ -98,7 +97,7 @@ c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
 c
       if(fmt.eq.'arc') then
       call swatch(today,now)
-      write(iunit,2000) time,today,now
+      write(lfncop,2000) time,today,now
  2000 format('title ',t67,f10.3,/,'!DATE ',2a10)
       nss=0
       if(lsx) then
@@ -111,16 +110,16 @@ c
       if(sgmnam(i)(6:6).eq.' '.or.
      + sgmnam(i)(6:6).eq.'2'.or.sgmnam(i)(6:6).eq.'3'.or.
      + sgmnam(i)(6:6).eq.'4'.or.sgmnam(i)(6:6).eq.'1') then
-      write(iunit,2001) sgmnam(i)(6:9),(1.0d1*x(i,j),j=1,3),
+      write(lfncop,2001) sgmnam(i)(6:9),(1.0d1*x(i,j),j=1,3),
      + sgmnam(i)(1:4),string,'?',sgmnam(i)(7:7)//' ',0.0
       else
-      write(iunit,2001) sgmnam(i)(6:9),(1.0d1*x(i,j),j=1,3),
+      write(lfncop,2001) sgmnam(i)(6:9),(1.0d1*x(i,j),j=1,3),
      + sgmnam(i)(1:4),string,'?',sgmnam(i)(6:7),0.0
       endif
  2001 format(a4,1x,3f15.9,1x,a4,1x,a7,a1,7x,a2,f7.3)
       endif
     4 continue
-      write(iunit,2002)
+      write(lfncop,2002)
       read(sgmnam(nsa)(13:16),'(i4)') nss
       endif
       if(lxw.and..not.lsonly) then
@@ -138,49 +137,49 @@ c
       if(wnam(j)(6:6).eq.' '.or.
      + wnam(j)(6:6).eq.'2'.or.wnam(j)(6:6).eq.'3'.or.
      + wnam(j)(6:6).eq.'4'.or.wnam(j)(6:6).eq.'1') then
-      write(iunit,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
+      write(lfncop,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
      + wnam(j)(1:4),string,'?',wnam(j)(7:7)//' ',0.0
       else
-      write(iunit,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
+      write(lfncop,2001) wnam(j)(6:9),(1.0d1*w(i,j,k),k=1,3),
      + wnam(j)(1:4),string,'?',wnam(j)(6:7),0.0
       endif
    45 continue
-      write(iunit,2002)
+      write(lfncop,2002)
       endif
    44 continue
       endif
-      write(iunit,2002)
+      write(lfncop,2002)
  2002 format('end')
       endif
 c
       if(fmt.eq.'amb') then
       if(lxw.and..not.lsonly) then
-      write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa),
+      write(lfncop,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa),
      + (((1.0d1*(w(ndxw(i),j,k)+0.5d0*box(k)),k=1,3),j=1,nwa),i=1,nwsel)
       else
-      write(iunit,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa)
+      write(lfncop,3000) ((1.0d1*(x(i,j)+0.5d0*box(j)),j=1,3),i=1,nsa)
       endif
-c      write(iunit,3000) (1.0d1*box(j),j=1,3)
+c      write(lfncop,3000) (1.0d1*box(j),j=1,3)
  3000 format(10f8.3)
       endif
 c
       if(fmt.eq.'crd') then
       if(lxw.and..not.lsonly) then
-      write(iunit,3000) ((1.0d1*(x(i,j)),j=1,3),i=1,nsa),
+      write(lfncop,3000) ((1.0d1*(x(i,j)),j=1,3),i=1,nsa),
      + (((1.0d1*(w(ndxw(i),j,k)),k=1,3),j=1,nwa),i=1,nwsel)
       else
-      write(iunit,3000) ((1.0d1*(x(i,j)),j=1,3),i=1,nsa)
+      write(lfncop,3000) ((1.0d1*(x(i,j)),j=1,3),i=1,nsa)
       endif
-      write(iunit,3000) (1.0d1*box(j),j=1,3)
+      write(lfncop,3000) (1.0d1*box(j),j=1,3)
       endif
 c
       if(fmt.eq.'bam') then
       if(lxw.and..not.lsonly) then
-      write(iunit) ((real(1.0d1*(x(i,j)+0.5d0*box(j))),j=1,3),i=1,nsa),
+      write(lfncop) ((real(1.0d1*(x(i,j)+0.5d0*box(j))),j=1,3),i=1,nsa),
      + (((1.0d1*(w(i,j,k)+0.5d0*box(k)),k=1,3),j=1,nwa),i=1,nwm),
      + (real(1.0d1*box(j)),j=1,3)
       else
-      write(iunit) ((real(1.0d1*(x(i,j)+0.5d0*box(j))),j=1,3),i=1,nsa),
+      write(lfncop) ((real(1.0d1*(x(i,j)+0.5d0*box(j))),j=1,3),i=1,nsa),
      + (real(1.0d1*box(j)),j=1,3)
       endif
       endif
@@ -189,43 +188,43 @@ c
       if(.not.ldcd) then
       numato=nsa
       if(lxw.and..not.lsonly) numato=nsa+nwa*nwm
-      write(iunit) numato
+      write(lfncop) numato
       ldcd=.true.
       endif
       do 72 k=1,3
       if(lxw.and..not.lsonly) then
-      write(iunit) (1.0d1*(x(i,k)+0.5d0*box(k)),i=1,nsa),
+      write(lfncop) (1.0d1*(x(i,k)+0.5d0*box(k)),i=1,nsa),
      + ((1.0d1*(w(i,j,k)+0.5d0*box(k)),j=1,nwa),i=1,nwm)
       else
-      write(iunit) (1.0d1*(x(i,k)+0.5d0*box(k)),i=1,nsa)
+      write(lfncop) (1.0d1*(x(i,k)+0.5d0*box(k)),i=1,nsa)
       endif
    72 continue
       endif
 c
       if(fmt.eq.'eci') then
-      write(iunit,5000) time
+      write(lfncop,5000) time
  5000 format('Time ',f12.4)
-      write(iunit,5001) nsa
+      write(lfncop,5001) nsa
  5001 format('Geometry{',/,i7,/,' ')
       do 5 i=1,nsa
       elemnt=sgmnam(i)(6:7)
       if(elemnt(1:1).eq.'1'.or.elemnt(1:1).eq.'2'.or.
      + elemnt(1:1).eq.'3'.or.elemnt(1:1).eq.'4') elemnt(1:1)=' '
-      write(iunit,5002) elemnt,(1.0d1*x(i,j),j=1,3)
+      write(lfncop,5002) elemnt,(1.0d1*x(i,j),j=1,3)
  5002 format(a2,3f12.4)
     5 continue
-      write(iunit,5003)
+      write(lfncop,5003)
  5003 format('}')
       endif
 c
       if(fmt.eq.'mvm') then
-      write(iunit,6001) nsa
+      write(lfncop,6001) nsa
  6001 format('Geometry{',/,'num_atoms:',i7,/,'atom_list:')
       do 6 i=1,nsa
       elemnt=sgmnam(i)(6:7)
       if(elemnt(1:1).eq.'1'.or.elemnt(1:1).eq.'2'.or.
      + elemnt(1:1).eq.'3'.or.elemnt(1:1).eq.'4') elemnt(1:1)=' '
-      write(iunit,6002) elemnt,(1.0d1*x(i,j),j=1,3)
+      write(lfncop,6002) elemnt,(1.0d1*x(i,j),j=1,3)
  6002 format(a2,3f12.4)
     6 continue
       open(unit=44,file='.header',form='formatted',
@@ -237,27 +236,27 @@ c
       read(44,4402) cdummy
  4402 format(a1)
     7 continue
-      write(iunit,6003) nsb
+      write(lfncop,6003) nsb
  6003 format('num_bonds:      ',i7,/,'bond_list:')
       do 8 i=1,nsb
       read(44,6004) ib,jb
-      write(iunit,6004) ib,jb
+      write(lfncop,6004) ib,jb
  6004 format(2i8)
     8 continue
       close(unit=44)
-      write(iunit,6005)
+      write(lfncop,6005)
  6005 format('}')
       endif
 c
       if(fmt.eq.'frm') then
       if(lsx) then
-      write(iunit,7001)
+      write(lfncop,7001)
  7001 format(/,'Geometry {')
       do 9 i=1,nsa
-      if(isel(i).ne.0) write(iunit,7002) (1.0d1*x(i,j),j=1,3)
+      if(isel(i).ne.0) write(lfncop,7002) (1.0d1*x(i,j),j=1,3)
  7002 format(3f12.4)
     9 continue
-      write(iunit,7003)
+      write(lfncop,7003)
  7003 format('}')
       endif
       endif
@@ -309,13 +308,13 @@ c
       if(me.eq.0) write(*,3333) scale
  3333 format(' Scaling set to ',f12.6)
       endif
-      call povinc(iunit,xbmin,xbmax,ybmin,ybmax,zbmin,zbmax)
+      call povinc(lfncop,xbmin,xbmax,ybmin,ybmax,zbmin,zbmax)
       npov=npov+1
       write(fname,'(a,i5.5,a)') filpov(1:index(filpov,'.pov')-1),
      + npov,'.pov '
-      open(unit=iunit,file=fname(1:index(fname,' ')-1),
+      open(unit=lfncop,file=fname(1:index(fname,' ')-1),
      + form='formatted',status='unknown')
-      write(iunit,8000)
+      write(lfncop,8000)
  8000 format('#include "camera.inc"',/,'#include "colors.inc"',/,
      + '#include "plane.inc"')
       rv(1)=0.0d0
@@ -336,7 +335,7 @@ c
       call rotate(rv,rw,rotang,ry,rx)
       endif
       if(isel(i).ne.0) then
-      write(iunit,8003) sgmnam(i)
+      write(lfncop,8003) sgmnam(i)
  8003 format('// ',a)
       k=pre_atnum(sgmnam(i)(6:7))
       color=atom_color(k)
@@ -345,11 +344,11 @@ c
       if(tag(i,2)(1:5).eq.'atom ') color=atom_color(k) 
       if(k.gt.0) then
       if(tag(i,1)(1:3).eq.'cpk') then
-      write(iunit,8001) (scale*rx(j),j=1,3),
+      write(lfncop,8001) (scale*rx(j),j=1,3),
      + factor*abs(cpk)*dia_atrad(k),
      + color(1:index(color,' ')-1)
       else
-      write(iunit,8001) (scale*rx(j),j=1,3),
+      write(lfncop,8001) (scale*rx(j),j=1,3),
      + factor*abs(stick)*dia_atrad(1),
      + color(1:index(color,' ')-1)
       endif
@@ -399,7 +398,7 @@ c
       factor=scale*val(ib,1)
       if(tag(ib,2)(1:1).ne.' ') color=tag(ib,2)
       if(tag(ib,2)(1:5).eq.'atom ') color=atom_color(k) 
-      write(iunit,8002) (scale*rxi(j),j=1,3),
+      write(lfncop,8002) (scale*rxi(j),j=1,3),
      + (scale*xh(j),j=1,3),factor*abs(stick)*dia_atrad(1),
      + color(1:index(color,' ')-1)
  8002 format('cylinder {',/,'  <',f12.6,',',f12.6,',',f12.6,'>,',/,
@@ -412,7 +411,7 @@ c
       factor=scale*val(jb,1)
       if(tag(jb,2)(1:1).ne.' ') color=tag(jb,2)
       if(tag(jb,2)(1:5).eq.'atom ') color=atom_color(k) 
-      write(iunit,8002) (scale*rxj(j),j=1,3),
+      write(lfncop,8002) (scale*rxj(j),j=1,3),
      + (scale*xh(j),j=1,3),factor*abs(stick)*dia_atrad(1),
      + color(1:index(color,' ')-1)
       endif
@@ -439,11 +438,11 @@ c
       if(wtag(j,2)(1:5).eq.'atom ') color=atom_color(k) 
       if(k.gt.0) then
       if(wtag(j,1)(1:3).eq.'cpk') then
-      write(iunit,8001) (scale*rx(k),k=1,3),
+      write(lfncop,8001) (scale*rx(k),k=1,3),
      + factor*abs(cpk)*dia_atrad(k),
      + color(1:index(color,' ')-1)
       else
-      write(iunit,8001) (scale*rx(k),k=1,3),
+      write(lfncop,8001) (scale*rx(k),k=1,3),
      + factor*abs(stick)*dia_atrad(1),
      + color(1:index(color,' ')-1)
       endif
@@ -489,7 +488,7 @@ c
       factor=scale*val(ib,1)
       if(wtag(ib,2)(1:1).ne.' ') color=wtag(ib,2)
       if(wtag(ib,2)(1:5).eq.'atom ') color=atom_color(k) 
-      write(iunit,8002) (scale*rxi(j),j=1,3),
+      write(lfncop,8002) (scale*rxi(j),j=1,3),
      + (scale*xh(j),j=1,3),factor*abs(stick)*dia_atrad(1),
      + color(1:index(color,' ')-1)
       endif
@@ -499,7 +498,7 @@ c
       factor=scale*val(jb,1)
       if(wtag(jb,2)(1:1).ne.' ') color=wtag(jb,2)
       if(wtag(jb,2)(1:5).eq.'atom ') color=atom_color(k) 
-      write(iunit,8002) (scale*rxj(j),j=1,3),
+      write(lfncop,8002) (scale*rxj(j),j=1,3),
      + (scale*xh(j),j=1,3),factor*abs(stick)*dia_atrad(1),
      + color(1:index(color,' ')-1)
       endif
@@ -508,7 +507,7 @@ c
       endif
    15 continue
       endif
-      close(unit=iunit)
+      close(unit=lfncop)
       endif
 c
       endif
