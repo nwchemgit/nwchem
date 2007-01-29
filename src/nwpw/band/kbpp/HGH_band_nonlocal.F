@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_nonlocal.F,v 1.1 2007-01-02 18:36:49 bylaska Exp $
+* $Id: HGH_band_nonlocal.F,v 1.2 2007-01-29 17:39:28 d3p708 Exp $
 *
 
 
@@ -50,7 +50,7 @@
       r9 = r8*r
 
       if ((l.eq.0).and.(n.eq.1)) coef=4.0d0*dsqrt(2.0d0*r3)*P0
-      if ((l.eq.0).and.(n.eq.2)) coef=8.0d0*dsqrt(2.0d0*r3/15.0d0)*P0
+      if ((l.eq.0).and.(n.eq.2)) coef= dsqrt(16.0d0*r3/15.0d0)*P0
       if ((l.eq.0).and.(n.eq.3)) 
      >   coef=(16.0d0/3.0d0)*dsqrt(2.0d0*r3/105.0d0)*P0
 
@@ -85,7 +85,7 @@
         g3 = g2*g1
         g4 = g2*g2
 
-
+        
         a = dexp(-0.5d0*g2*r2)
 
 *       **** f-wave  ****
