@@ -1,5 +1,5 @@
 *
-* $Id: hghppv1.F,v 1.4 2007-01-02 18:36:51 bylaska Exp $
+* $Id: hghppv1.F,v 1.5 2007-01-30 18:48:32 d3p708 Exp $
 *
 
 *     **************************************
@@ -158,7 +158,7 @@ c      call Parallel_init()
       Gtmp(1,2,0) = -0.5d0*dsqrt(3.0d0/5.0d0)   *Gtmp(2,2,0)
       Gtmp(2,1,0) = Gtmp(1,2,0)
       Gtmp(1,3,0) =  0.5d0*dsqrt(5.0d0/21.0d0)  *Gtmp(3,3,0)
-      Gtmp(3,1,0) = Gtmp(3,1,0)
+      Gtmp(3,1,0) = Gtmp(1,3,0)
       Gtmp(2,3,0) = -0.5d0*dsqrt(100.0d0/63.0d0)*Gtmp(3,3,0)
       Gtmp(3,2,0) = Gtmp(2,3,0)
 
@@ -169,7 +169,7 @@ c      call Parallel_init()
       Gtmp(1,2,1) = -0.5d0*dsqrt(5.0d0/7.0d0)   *Gtmp(2,2,1)
       Gtmp(2,1,1) = Gtmp(1,2,1)
       Gtmp(1,3,1) =  (1.0d0/6.0d0)*dsqrt(35.0d0/11.0d0)*Gtmp(3,3,1)
-      Gtmp(3,1,1) = Gtmp(3,1,1)
+      Gtmp(3,1,1) = Gtmp(1,3,1)
       Gtmp(2,3,1) = -(14.0d0/6.0d0)*dsqrt(1.0d0/11.0d0)*Gtmp(3,3,1)
       Gtmp(3,2,1) = Gtmp(2,3,1)
 
