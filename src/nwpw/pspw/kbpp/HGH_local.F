@@ -1,5 +1,5 @@
 *
-* $Id: HGH_local.F,v 1.1 2003-12-02 19:17:09 bylaska Exp $
+* $Id: HGH_local.F,v 1.2 2007-01-30 18:49:08 d3p708 Exp $
 *
 
 
@@ -61,7 +61,7 @@
         x = Q*rloc
         x2 = x*x
         x4 = x2*x2
-        x6 = x4*x4
+        x6 = x4*x2
         a = dexp(-0.5d0*x2)
 
         f = b0*a/(Q*Q)
