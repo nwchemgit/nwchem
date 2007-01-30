@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.7 2006-12-19 19:13:08 d3p708 Exp $
+* $Id: band_dplot.F,v 1.8 2007-01-30 23:43:25 d3p708 Exp $
 *
       logical function band_dplot(rtdb)
       implicit none
@@ -11,7 +11,7 @@
 #include "rtdb.fh"
 
 
-      logical value
+      logical value,spin_orbit
       integer taskid,np
       integer MASTER
       parameter (MASTER=0)
@@ -28,13 +28,14 @@
       character*8 tag
 
 *     **** external functions ****
-      logical      control_read,ion_init
+      logical      control_read,ion_init,control_spin_orbit
       integer      Cram_nwave_all,control_mapping,brillioun_nbrillioun
       integer      control_ngrid,Cram_nwave,control_version
       real*8       lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8       lattice_unitg
       character*12 control_boundry
 
+      external     control_spin_orbit
       external     control_read,ion_init
       external     Cram_nwave_all,control_mapping,brillioun_nbrillioun
       external     control_ngrid,Cram_nwave,control_version
@@ -126,9 +127,8 @@
 
 
 *     *****  read psi2 wavefunctions ****
-      call cpsi_read(ispin,ne,nbrillioun,dcpl_mb(psi2(1)))
-
-
+      spin_orbit=control_spin_orbit()
+      call cpsi_read(spin_orbit,ispin,ne,nbrillioun,dcpl_mb(psi2(1)))
 
 *     **** allocate other variables *****
       value = value.and.
