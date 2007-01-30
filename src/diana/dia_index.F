@@ -38,6 +38,7 @@ c
       endif
       endif
     1 continue
+      print*,'index for atom is ',ia
 c
       else
 c

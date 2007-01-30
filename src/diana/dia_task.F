@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.6 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_task.F,v 1.7 2007-01-30 00:46:21 d3j191 Exp $
 c
       implicit none
 c
@@ -47,10 +47,6 @@ c     --------------
 c
       elseif(cmd.eq.'select') then
       call dia_getsel()
-      elseif(cmd.eq.'selecs') then
-      call dia_getsls()
-      elseif(cmd.eq.'seleco') then
-      call dia_getslo()
 c
 c     save atom selection
 c     -------------------
@@ -67,6 +63,14 @@ c
       call dia_rdsel()
       elseif(cmd.eq.'rdsels') then
       call dia_rdssl()
+c
+c     geometric selections
+c
+      elseif(cmd.eq.'distan') then
+      elseif(cmd.eq.'angle') then
+      elseif(cmd.eq.'torsio') then
+      call dia_addtorsion()
+      elseif(cmd.eq.'improp') then
 c
 c     superimpose all stored frames
 c     -----------------------------

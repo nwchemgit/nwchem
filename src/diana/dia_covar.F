@@ -1,6 +1,6 @@
       subroutine dia_covar()
 c
-c $Id: dia_covar.F,v 1.4 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_covar.F,v 1.5 2007-01-30 00:46:21 d3j191 Exp $
 c
       implicit none
 c
@@ -267,7 +267,7 @@ c
 c
 c     allocate temporary array a(nfr)
 c
-      if(.not.ma_push_get(mt_dbl,nfr,'a',l_a,i_a)
+      if(.not.ma_push_get(mt_dbl,nfrdim,'a',l_a,i_a))
      + call md_abort('Error allocating a',0)
 c
       call dia_proj(int_mb(i_ndx),dbl_mb(i_cov),int_mb(i_isel),

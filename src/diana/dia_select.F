@@ -1,6 +1,6 @@
       subroutine dia_select(sgmnam,isel,wt,x,numsel)
 c
-c $Id: dia_select.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_select.F,v 1.3 2007-01-30 00:46:21 d3j191 Exp $
 c
       implicit none
 c
@@ -25,7 +25,7 @@ c     do selection on node 0
 c
       if(me.eq.0) then
 c
-      read(card(8:80),1000) rtag,target
+      read(card(11:80),1000) rtag,target
  1000 format(f12.6,a)
 c
       if(.not.ma_push_get(mt_int,nsa,'list',l_list,i_list))

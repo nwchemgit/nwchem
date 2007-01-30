@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.3 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_input.F,v 1.4 2007-01-30 00:46:21 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       integer itag,iatag,jatag,ipbc,nrdf
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota,rrdf
-      logical lref,lfil,lsol,lsuper,lselo
+      logical lref,lfil,lsol,lsuper,lselo,lequiv
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb,nclean
       character*8 option
 c
@@ -316,6 +316,7 @@ c     select atoms
 c     ------------
 c
       if(inp_compare(.false.,'select',item)) then
+      lequiv=.false.
       lsuper=.false.
       lselo=.false.
       rsel=0.0d0
@@ -324,6 +325,10 @@ c
       if(atom(1:5).eq.'super') then
       lsuper=.true.
       lselo=.false.
+      goto 1255
+      endif
+      if(atom(1:10).eq.'equivalent') then
+      lequiv=.true.
       goto 1255
       endif
       if(atom(1:6).eq.'output') then
@@ -368,16 +373,17 @@ c
       goto 2
       endif
     4 continue
-      if(lsuper) then
-      write(lfncmd,1056) rsel,atom(1:index(atom,' ')-1)
- 1056 format('selecs ',f12.6,a)
-      elseif(lselo) then
-      write(lfncmd,1057) rsel,atom(1:index(atom,' ')-1)
- 1057 format('seleco ',f12.6,a)
-      else
-      write(lfncmd,1006) rsel,atom(1:index(atom,' ')-1)
- 1006 format('select ',f12.6,a)
-      endif
+c      if(lsuper) then
+c      write(lfncmd,1056) rsel,atom(1:index(atom,' ')-1)
+c 1056 format('selecs ',f12.6,a)
+c      elseif(lselo) then
+c      write(lfncmd,1057) rsel,atom(1:index(atom,' ')-1)
+c 1057 format('seleco ',f12.6,a)
+c      else
+      write(lfncmd,1006) lsuper,lselo,lequiv,rsel,
+     + atom(1:index(atom,' ')-1)
+ 1006 format('select ',3l1,f12.6,a)
+c      endif
       numcmd=numcmd+1
       if(inp_a(atom)) goto 4
       goto 2
@@ -592,13 +598,18 @@ c     define torsions
 c     ---------------
 c
       if(inp_compare(.false.,'torsion',item)) then
+      lequiv=.false.
       if(.not.inp_i(itors)) call md_abort('Error in torsion',0)
       if(.not.inp_a(atomi)) call md_abort('Error in torsion',0)
+      if(atomi(1:10).eq.'equivalent') then
+      lequiv=.true.
+      if(.not.inp_a(atomi)) call md_abort('Error in torsion',0)
+      endif
       if(.not.inp_a(atomj)) call md_abort('Error in torsion',0)
       if(.not.inp_a(atomk)) call md_abort('Error in torsion',0)
       if(.not.inp_a(atoml)) call md_abort('Error in torsion',0)
-      write(lfncmd,1015) itors
- 1015 format('torsio ',i5)
+      write(lfncmd,1015) lequiv,itors
+ 1015 format('torsio ',l1,i5)
       write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
       write(lfncmd,1013) atomj(1:index(atomj,' ')-1)
       write(lfncmd,1013) atomk(1:index(atomk,' ')-1)

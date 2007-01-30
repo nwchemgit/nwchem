@@ -1,6 +1,6 @@
       subroutine dia_getsel
 c
-c $Id: dia_getsel.F,v 1.1 2007-01-27 02:26:03 d3j191 Exp $
+c $Id: dia_getsel.F,v 1.2 2007-01-30 00:46:21 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -15,6 +15,34 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
+      logical lssup,lsout,lequiv
+c
+      read(card(8:10),1000) lssup,lsout,lequiv
+ 1000 format(3l1)
+c
+      if(lssup) then
+      if(.not.lsels) then
+      call dia_all(int_mb(i_ssel),0,dbl_mb(i_swt),nsel)
+      lsels=.true.
+      endif
+      call dia_select(card,byte_mb(i_snam),int_mb(i_ssel),dbl_mb(i_swt),
+     + dbl_mb(i_xref),nsel)
+      if(me.eq.0) then
+      write(*,1001) nsel,nsa
+ 1001 format(' Selected',i5,' out of',i5,' atoms for superposition')
+      endif
+      elseif(lsout) then
+      if(.not.lselo) then
+      call dia_all(int_mb(i_osel),0,dbl_mb(i_owt),nselo)
+      lselo=.true.
+      endif
+      call dia_select(card,byte_mb(i_snam),int_mb(i_osel),dbl_mb(i_owt),
+     + dbl_mb(i_xref),nselo)
+      if(me.eq.0) then
+      write(*,1002) nselo,nsa
+ 1002 format(' Selected',i5,' out of',i5,' atoms for output')
+      endif
+      else
       if(.not.lsel) then
       call dia_all(int_mb(i_isel),0,dbl_mb(i_wt),nsel)
       lsel=.true.
@@ -22,9 +50,11 @@ c
       call dia_select(byte_mb(i_snam),int_mb(i_isel),dbl_mb(i_wt),
      + dbl_mb(i_xref),nsel)
       if(me.eq.0) then
-      write(*,3003) nsel,nsa
- 3003 format(' Selected',i5,' out of',i5,' atoms')
+      write(*,1003) nsel,nsa
+ 1003 format(' Selected',i5,' out of',i5,' atoms')
       endif
+      endif
+c
       return
       end
       subroutine dia_getsls
@@ -79,6 +109,99 @@ c
       if(me.eq.0) then
       write(*,3633) nselo,nsa
  3633 format(' Selected',i5,' out of',i5,' atoms for output')
+      endif
+c
+      return
+      end
+      subroutine dia_addtorsion()
+c
+c     add torsion to the torsion list
+c     -------------------------------
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "dia_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+      logical lequiv
+      integer i,idtors
+c
+      read(card(8:10),1000) lequiv,idtors
+ 1000 format(l1,i5)
+c
+      ntors=ntors+1
+      if(ntors.gt.mxtors) call md_abort('Increase dimension mxtors',0)
+c
+      if(me.eq.0) then
+      do 1 i=1,4
+      read(lfncmd,1001,end=9999) card
+ 1001 format(a)
+      call dia_index(byte_mb(i_snam),
+     + itors(ntors,i,1),itors(ntors,i,2))
+    1 continue
+c
+      if(lequiv) then
+      call dia_equitors(byte_mb(i_snam),int_mb(i_iequi),int_mb(i_imol))
+      endif
+c
+      endif
+c
+      call ga_brdcst(mag_d09,itors,
+     + 8*mxtors*ma_sizeof(mt_int,1,mt_byte),0)
+c
+      return
+ 9999 continue
+      call md_abort('Failed to read torsion',0)
+      return
+      end
+      subroutine dia_equitors(sgmnam,iequi,imol)
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "dia_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "msgids.fh"
+#include "util.fh"
+c
+      character*16 sgmnam(msa)
+      integer iequi(msa),imol(msa)
+      integer i,j,last
+c
+      last=ntors
+c
+      do 1 i=2,4
+      if(imol(itors(ntors,i,1)).ne.imol(itors(ntors,1,1))) return
+    1 continue
+c
+    2 continue
+      do 3 i=1,4
+      if(iequi(itors(ntors,i,1)).eq.0) goto 9
+    3 continue
+c
+      ntors=ntors+1
+      if(ntors.gt.mxtors) call md_abort('Increase dimension mxtors',0)
+c
+      do 4 i=1,4
+      itors(ntors,i,1)=iequi(itors(ntors-1,i,1))
+      itors(ntors,i,2)=0
+    4 continue
+      goto 2
+c
+    9 continue
+      if(me.eq.0) then
+      do 5 i=last,ntors
+      write(*,1000) i,(sgmnam(itors(i,j,1))(11:16),':',
+     + sgmnam(itors(i,j,1))(1:10),j=1,4)
+ 1000 format(i4,4(a6,a,a10))
+    5 continue
       endif
 c
       return

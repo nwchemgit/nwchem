@@ -1,6 +1,6 @@
       subroutine dia_init
 c
-c $Id: dia_init.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_init.F,v 1.3 2007-01-30 00:46:21 d3j191 Exp $
 c
 c
 c     initialize variables
@@ -222,6 +222,8 @@ c
 c
       if(.not.ma_pop_stack(l_sbnd))
      + call md_abort('Could not deallocate sbnd',0)
+      if(.not.ma_pop_stack(l_iequi))
+     + call md_abort('Could not deallocate iequi',0)
       if(.not.ma_pop_stack(l_imol))
      + call md_abort('Could not deallocate imol',0)
       if(.not.ma_pop_stack(l_iram))
