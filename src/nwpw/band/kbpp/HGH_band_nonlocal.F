@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_nonlocal.F,v 1.2 2007-01-29 17:39:28 d3p708 Exp $
+* $Id: HGH_band_nonlocal.F,v 1.3 2007-01-30 04:20:21 d3p708 Exp $
 *
 
 
@@ -50,7 +50,8 @@
       r9 = r8*r
 
       if ((l.eq.0).and.(n.eq.1)) coef=4.0d0*dsqrt(2.0d0*r3)*P0
-      if ((l.eq.0).and.(n.eq.2)) coef= dsqrt(16.0d0*r3/15.0d0)*P0
+      if ((l.eq.0).and.(n.eq.2)) 
+     >   coef=8.0d0*dsqrt(2.0d0*r3/15.0d0)*P0
       if ((l.eq.0).and.(n.eq.3)) 
      >   coef=(16.0d0/3.0d0)*dsqrt(2.0d0*r3/105.0d0)*P0
 
@@ -59,9 +60,9 @@
       if ((l.eq.1).and.(n.eq.3)) 
      >   coef=(32.0d0/3.0d0)*dsqrt(r5/1155.0d0)*P0
 
-      if ((l.eq.2).and.(n.eq.1)) coef=8.0d0*dsqrt(2*r7/15.0d0)*P0
+      if ((l.eq.2).and.(n.eq.1)) coef=8.0d0*dsqrt(2.0d0*r7/15.0d0)*P0
       if ((l.eq.2).and.(n.eq.2)) 
-     >    coef=(16.0d0/3.0d0)*dsqrt(2*r7/105.0d0)*P0
+     >    coef=(16.0d0/3.0d0)*dsqrt(2.0d0*r7/105.0d0)*P0
 
       if ((l.eq.3).and.(n.eq.1)) coef=16.0d0*dsqrt(r9/105.0d0)*P0
 
@@ -113,7 +114,6 @@
 
   700 CONTINUE
       call C3dB_Vector_Sumall(nfft3d,VNL)
-
       return
       end
 

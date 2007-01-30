@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_local.F,v 1.2 2007-01-29 19:01:17 d3p708 Exp $
+* $Id: HGH_band_local.F,v 1.3 2007-01-30 04:20:20 d3p708 Exp $
 *
 
 
@@ -24,24 +24,26 @@
       integer task_count,nfft3d
       integer k1,k2,k3
       double precision pi,twopi,forpi
-      double precision b0,b1
-      double precision x,x2,x4,x6,a,f,Q
+      double precision b0,b1,scal
+      double precision x,x2,x3,x4,x6,a,f,Q
+
+cccccc  external cccccccccccccccccccccccc
+      real*8 lattice_omega
+      external lattice_omega
 
 *     **** Error function parameters ****
 
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
-
       nfft3d = nfft1*nfft2*nfft3
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
       forpi=4.0d0*pi
-      b0 = -forpi*zv
-      b1 = dsqrt(8.0d0*pi*pi*pi)*rloc*rloc*rloc
-
-
-
+      scal = lattice_omega()
+      b0 = -forpi*zv/scal
+      b1 = dsqrt((2.0d0*pi)**3)*(rloc*rloc*rloc)/scal
+      
 *======================  Fourier transformation  ======================
       call dcopy(nfft3d,0.0d0,0,VL,1)
       task_count = -1
@@ -78,9 +80,7 @@
 
       f = b1 *( C1 +3.0d0*C2 + 15.0d0*C3 + 105.0d0*C4)
       vl(1,1,1) = f
-  
-
-
+ 
       return
       end
 
