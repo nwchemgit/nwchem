@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.18 2007-01-24 21:18:24 d3p708 Exp $
+* $Id: band_structure.F,v 1.19 2007-01-31 22:38:10 bylaska Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -199,11 +199,12 @@
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      IF (control_gga().eq.1) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),1)
+      if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call G_init()
       call mask_init()
-      END IF
+      end if
+
 
 
 *     **** read ions ****
@@ -278,9 +279,15 @@ c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
          write(luout,1121) control_boundry(),control_version()
          IF (control_gga().eq.0) THEN
             write(luout,1131) 'Vosko et al parameterization'
-         ELSE IF (control_gga().eq.1) THEN
+         ELSE IF (control_gga().eq.10) THEN
             write(luout,1131)
      >      'PBE96 (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.11) THEN
+            write(luout,1131)
+     >      'BLYP (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.12) THEN
+            write(luout,1131)
+     >      'revPBE (White and Bird) parameterization'
          ELSE
             write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)
@@ -865,11 +872,12 @@ c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       call ion_write(rtdb)
       call ion_end()
       call C3dB_end(1)
-      IF (control_gga().eq.1) THEN
+      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
       call mask_end()
       call G_end()
       call D3dB_end(1)
       end if
+
 
 *                |***************************|
 ****************** report consumed cputime   **********************
