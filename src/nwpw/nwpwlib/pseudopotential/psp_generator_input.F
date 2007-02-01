@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.31 2007-02-01 00:48:52 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.32 2007-02-01 01:00:01 bylaska Exp $
 c
 
 *     ***************************************
@@ -604,7 +604,11 @@ c        *** PBE96 ***
            do while(.true.)
              read(99,*,ERR=30,END=30) ch_tmp
            end do
-   30      write(99,*) '<exchange>    pbe96 <end>'
+   30      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+           backspace 99
+#endif
+           write(99,*) '<exchange>    pbe96 <end>'
            write(99,*) '<correlation> pbe96 <end>'
            close(unit=99)
 
@@ -615,7 +619,11 @@ c        *** BLYP ***
            do while(.true.)
              read(99,*,ERR=31,END=31) ch_tmp
            end do
-   31      write(99,*) '<exchange>    becke <end>'
+   31      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+           backspace 99
+#endif
+           write(99,*) '<exchange>    becke <end>'
            write(99,*) '<correlation> lyp   <end>'
            close(unit=99)
 
@@ -626,7 +634,11 @@ c        *** revPBE ***
            do while(.true.)
              read(99,*,ERR=32,END=32) ch_tmp
            end do
-   32      write(99,*) '<exchange>    revpbe <end>'
+   32      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+           backspace 99
+#endif
+           write(99,*) '<exchange>    revpbe <end>'
            write(99,*) '<correlation> revpbe <end>'
            close(unit=99)
          end if
@@ -862,7 +874,11 @@ c        *** BLYP ***
            do while(.true.)
              read(99,*,ERR=31,END=31) ch_tmp
            end do
-   31      write(99,*) '<exchange>    becke <end>'
+   31      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+           backspace 99
+#endif
+           write(99,*) '<exchange>    becke <end>'
            write(99,*) '<correlation> lyp   <end>'
            close(unit=99)
 
@@ -873,7 +889,11 @@ c        *** revPBE ***
            do while(.true.)
              read(99,*,ERR=32,END=32) ch_tmp
            end do
-   32      write(99,*) '<exchange>    revpbe <end>'
+   32      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+           backspace 99
+#endif
+           write(99,*) '<exchange>    revpbe <end>'
            write(99,*) '<correlation> revpbe <end>'
 c           write(99,*) '<correlation> off   <end>'
            close(unit=99)
