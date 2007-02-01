@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.30 2005-12-22 01:35:04 bylaska Exp $
+c $Id: psp_generator_input.F,v 1.31 2007-02-01 00:48:52 bylaska Exp $
 c
 
 *     ***************************************
@@ -847,7 +847,11 @@ c        *** PBE96 ***
            do while(.true.)
              read(99,*,ERR=30,END=30) ch_tmp
            end do
-   30      write(99,*) '<exchange>    pbe96 <end>'
+   30      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+           backspace 99
+#endif
+           write(99,*) '<exchange>    pbe96 <end>'
            write(99,*) '<correlation> pbe96 <end>'
            close(unit=99)
 
