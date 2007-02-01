@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_local.F,v 1.3 2007-01-30 04:20:20 d3p708 Exp $
+* $Id: HGH_band_local.F,v 1.4 2007-02-01 01:52:05 d3p708 Exp $
 *
 
 
@@ -40,9 +40,8 @@ cccccc  external cccccccccccccccccccccccc
       pi=4.0d0*datan(1.0d0)
       twopi=2.0d0*pi
       forpi=4.0d0*pi
-      scal = lattice_omega()
-      b0 = -forpi*zv/scal
-      b1 = dsqrt((2.0d0*pi)**3)*(rloc*rloc*rloc)/scal
+      b0 = -forpi*zv
+      b1 = dsqrt(8.0d0*pi*pi*pi)*(rloc*rloc*rloc)
       
 *======================  Fourier transformation  ======================
       call dcopy(nfft3d,0.0d0,0,VL,1)
@@ -57,29 +56,28 @@ cccccc  external cccccccccccccccccccccccc
      >         +G(k1,k2,k3,2)**2
      >         +G(k1,k2,k3,3)**2)
 
-        if ((k1.eq.1).and.(k2.eq.1).and.(k3.eq.1)) go to 700
-
+        if ( (k1*k2*k3).eq.1) then
+           vl(k1,k2,k3)=0.0d0
+           cycle
+        end if
         x = Q*rloc
         x2 = x*x
         x4 = x2*x2
         x6 = x4*x2
         a = dexp(-0.5d0*x2)
 
-        f = b0*a/(Q*Q)
-     >    + b1*a
+        f = b0/(Q*Q)
+     >    + b1
      >        *( C1 
      >         + C2*(3.0d0-x2)
-     >         + C3*(15.0d0 - 10.0d0*x2 + x4)
-     >         + C4*(105.0d0 - 105.0d0*x2 + 21.0d0*x4 - x6))
+     >         + C3*(15.0d0 - 10.0d0*x2 + x2*x2)
+     >         + C4*(105.0d0 - x2*(105.0d0-x2*(21.0d0 - x2))))
 
-        vl(k1,k2,k3)= f
+        vl(k1,k2,k3)= f*a
     
   700 continue
    
       call C3dB_Vector_SumAll(nfft3d,VL)
-
-      f = b1 *( C1 +3.0d0*C2 + 15.0d0*C3 + 105.0d0*C4)
-      vl(1,1,1) = f
  
       return
       end
