@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_local.F,v 1.4 2007-02-01 01:52:05 d3p708 Exp $
+* $Id: HGH_band_local.F,v 1.5 2007-02-01 02:01:33 d3p708 Exp $
 *
 
 
@@ -56,10 +56,6 @@ cccccc  external cccccccccccccccccccccccc
      >         +G(k1,k2,k3,2)**2
      >         +G(k1,k2,k3,3)**2)
 
-        if ( (k1*k2*k3).eq.1) then
-           vl(k1,k2,k3)=0.0d0
-           cycle
-        end if
         x = Q*rloc
         x2 = x*x
         x4 = x2*x2
@@ -76,9 +72,8 @@ cccccc  external cccccccccccccccccccccccc
         vl(k1,k2,k3)= f*a
     
   700 continue
-   
+      vl(1,1,1)=0.0d0   
       call C3dB_Vector_SumAll(nfft3d,VL)
- 
       return
       end
 
