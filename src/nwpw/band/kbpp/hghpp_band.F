@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.7 2007-01-30 04:20:21 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.8 2007-02-01 01:52:42 d3p708 Exp $
 *
 
 *     **************************************
@@ -162,9 +162,9 @@
       Gtmp(1,1,0) = H(1,0)
       Gtmp(2,2,0) = H(2,0)
       Gtmp(3,3,0) = H(3,0)
-      Gtmp(1,2,0) = -0.5d0*dsqrt(3.0d0/5.0d0)   *Gtmp(2,2,0)
+      Gtmp(1,2,0) = -0.5d0*dsqrt(3.0d0/5.0d0)*Gtmp(2,2,0)
       Gtmp(2,1,0) = Gtmp(1,2,0)
-      Gtmp(1,3,0) =  0.5d0*dsqrt(5.0d0/21.0d0)  *Gtmp(3,3,0)
+      Gtmp(1,3,0) =  0.5d0*dsqrt(5.0d0/21.0d0)*Gtmp(3,3,0)
       Gtmp(3,1,0) = Gtmp(1,3,0)
       Gtmp(2,3,0) = -0.5d0*dsqrt(100.0d0/63.0d0)*Gtmp(3,3,0)
       Gtmp(3,2,0) = Gtmp(2,3,0)
@@ -173,7 +173,7 @@
       Gtmp(1,1,1) = H(1,1)
       Gtmp(2,2,1) = H(2,1)
       Gtmp(3,3,1) = H(3,1)
-      Gtmp(1,2,1) = -0.5d0*dsqrt(5.0d0/7.0d0)   *Gtmp(2,2,1)
+      Gtmp(1,2,1) = -0.5d0*dsqrt(5.0d0/7.0d0)*Gtmp(2,2,1)
       Gtmp(2,1,1) = Gtmp(1,2,1)
       Gtmp(1,3,1) =  (1.0d0/6.0d0)*dsqrt(35.0d0/11.0d0)*Gtmp(3,3,1)
       Gtmp(3,1,1) = Gtmp(1,3,1)
@@ -183,7 +183,7 @@
       Gtmp(1,1,2) = H(1,2)
       Gtmp(2,2,2) = H(2,2)
       Gtmp(3,3,2) = H(3,2)
-      Gtmp(1,2,2) = -0.5d0*dsqrt(7.0d0/9.0d0)   *Gtmp(2,2,2)
+      Gtmp(1,2,2) = -0.5d0*dsqrt(7.0d0/9.0d0)*Gtmp(2,2,2)
       Gtmp(2,1,2) = Gtmp(1,2,2)
       Gtmp(1,3,2) =  0.5d0*dsqrt(63.0d0/143.0d0)*Gtmp(3,3,2)
       Gtmp(3,1,2) = Gtmp(1,3,2)
@@ -208,7 +208,7 @@
       Ktmp(1,1,1) = K(1,1)
       Ktmp(2,2,1) = K(2,1)
       Ktmp(3,3,1) = K(3,1)
-      Ktmp(1,2,1) = -0.5d0*dsqrt(5.0d0/7.0d0)   *Ktmp(2,2,1)
+      Ktmp(1,2,1) = -0.5d0*dsqrt(5.0d0/7.0d0)*Ktmp(2,2,1)
       Ktmp(2,1,1) = Ktmp(1,2,1)
       Ktmp(1,3,1) =  (1.0d0/6.0d0)*dsqrt(35.0d0/11.0d0)*Ktmp(3,3,1)
       Ktmp(3,1,1) = Ktmp(1,3,1)
@@ -218,7 +218,7 @@
       Ktmp(1,1,2) = K(1,2)
       Ktmp(2,2,2) = K(2,2)
       Ktmp(3,3,2) = K(3,2)
-      Ktmp(1,2,2) = -0.5d0*dsqrt(7.0d0/9.0d0)   *Ktmp(2,2,2)
+      Ktmp(1,2,2) = -0.5d0*dsqrt(7.0d0/9.0d0)*Ktmp(2,2,2)
       Ktmp(2,1,2) = Ktmp(1,2,2)
       Ktmp(1,3,2) =  0.5d0*dsqrt(63.0d0/143.0d0)*Ktmp(3,3,2)
       Ktmp(3,1,2) = Ktmp(1,3,2)
@@ -284,7 +284,8 @@
       nfft1=ngrid(1)
       nfft2=ngrid(2)
       nfft3=ngrid(3)
-      call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
+      call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,
+     >dbl_mb(G_indx))
       zv = dble(Zion)
 
       call HGH_band_local(version,
@@ -359,8 +360,7 @@
          call dwrite(2,amass,1)
          call dwrite(2,zv,1)
          call iwrite(2,lmax,1)
-         call iwrite(2,locp,1)
-     
+         call iwrite(2,locp,1)     
          call iwrite(2,nmax,1)
          call dwrite(2,r,lmax+1)
 

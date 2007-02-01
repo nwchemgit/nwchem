@@ -164,23 +164,6 @@
 
         if ((l.eq.0).and.(m.eq.0)) 
      >    Ylm(k1,k2,k3)=scof(1,0)
-
-c	if (IEEE_is_Nan(dble(Ylm(k1,k2,k3)))) then
-c          write(*,*)"nan real",l,m
-c          call flush(6)
-c        end if
-c	if (IEEE_is_Nan(dimag(Ylm(k1,k2,k3)))) then
-c          write(*,*)"nan imag",l,m
-c          call flush(6)
-c        end if
-c	if (.not.IEEE_finite(dble(Ylm(k1,k2,k3)))) then
-c          write(*,*)"infinite real"
-c          call flush(6)
-c        end if
-c	if (.not.IEEE_finite(dimag(Ylm(k1,k2,k3)))) then
-c          write(*,*)"infinite imag"
-c          call flush(6)
-c        end if
             
   700 CONTINUE
       call C3dB_Vector_Sumall(nfft3d,Ylm)
