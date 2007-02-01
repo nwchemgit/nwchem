@@ -561,8 +561,9 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
 #include "errquit.fh"
 
 *     *** local variables ***
-      complex*16 one,mone
+      complex*16 one,mone,ione
       parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
+      parameter  (ione=(0.d0,1.0d0))
 
       integer nfft3d,G(3),npack1,npack
       integer i,ii,ia,l,n,nn,nb,neall,nbrill
@@ -650,13 +651,7 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*(nmax_max*lmmax_max))
 
-              !sd_function = .not.and(l_prj,1)
-#ifdef GCC4
-              k = iand(l_prj,1)
-#else
-              k = and(l_prj,1)
-#endif
-              sd_function = (k.eq.0)
+              sd_function = ((l_prj.eq.0).or.(l_prj.eq.2))
 
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****
@@ -997,9 +992,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
 *     *** local variables ***
-      complex*16 one,mone
+      complex*16 one,mone,ione
       parameter  (one=(1.0d0,0.0d0), mone=(-1.0d0,0.0d0))
-
+      parameter  (ione=(0.0d0,1.0d0))
       integer nfft3d,npack1,npack,nbrill
       integer ii,ia,l
       integer k,shift,l_prj,nproj
@@ -1062,13 +1057,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               l_prj = int_mb(l_projector(1)+(l-1)
      >                                     +(ia-1)*(nmax_max*lmmax_max))
 
-              !sd_function = .not.and(l_prj,1)
-#ifdef GCC4
-              k = iand(l_prj,1)
-#else
-              k = and(l_prj,1)
-#endif
-              sd_function = (k.eq.0)
+              sd_function = ((l_prj.eq.0).or.(l_prj.eq.2))
 
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****
@@ -1220,12 +1209,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                                     +(ia-1)*(nmax_max*lmmax_max))
 
               !sd_function = .not.and(l_prj,1)
-#ifdef GCC4
-              k = iand(l_prj,1)
-#else
-              k = and(l_prj,1)
-#endif
-              sd_function = (k.eq.0)
+
+              sd_function = ((l_prj.eq.0).or.(l_prj.eq.2))
 
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****
