@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.11 2007-01-24 23:17:04 d3p708 Exp $
+* $Id: cpsi_H.F,v 1.12 2007-02-02 01:10:09 d3p708 Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -188,7 +188,7 @@
       complex*16 zdotc
       external lattice_omega
       external control_spin_orbit
-      external zdotc,cpsi_ne1
+      external zdotc,cpsi_ne
 
       if (control_spin_orbit()) then
         call cpsi_Horb2com(nb,ispin,ms,
