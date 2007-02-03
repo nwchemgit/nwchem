@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.1 2007-01-27 02:26:03 d3j191 Exp $
+c $Id: dia_gettrj.F,v 1.2 2007-02-03 00:40:51 d3j191 Exp $
 c
 c     read the trajectory
 c     -------------------
@@ -18,7 +18,10 @@ c
       external dia_rdfram
       logical dia_rdfram
 c
-      integer nread,nframe
+      integer nread,nframe,itmp(4),ifil,nfram
+      integer meio,meframf,meframl,mefilf,mefill,meskip,melast
+      integer ifram,iffram,ilfram,lq,ifr
+      character*255 fname
 c
       read(card(8:37),'(3i10)') ifrfr,ifrto,ifrsk
       if(me.eq.0) then
@@ -37,12 +40,13 @@ c
       endif
 c
       nfrtot=int((ifrto-ifrfr+1)/ifrsk)
-      nfrdim=int((ifrto-ifrfr+1)/ifrsk)/np
-      nfrme=int((ifrto-ifrfr+1)/ifrsk)/np
+      nfrdim=nfrtot/np
+      if(mod(nfrtot,np).ne.0) nfrdim=nfrdim+1
+      nfrme=min(nfrdim,nfrtot-me*nfrdim)
 c
       if(me.eq.0) then
-      write(*,6001) np,nfrtot,nfrme,nsel
- 6001 format(' Number of processors',t40,i5,/,
+      write(*,6001) np,nfrtot,nfrdim,nsel
+ 6001 format(/,' Number of processors',t45,i5,/,
      + ' Total number of selected frames',t45,i5,/,
      + ' Number of frames per processor',t45,i5,//,
      + ' Number of selected atoms',t45,i5,//)
@@ -52,9 +56,12 @@ c
      + ga_trj)) call md_abort('Failed to create ga_trj',0)
 c
       write(*,'(i5,a,2i5)') me,' allocated ga for frames ',
-     + me*nfrdim+1,min((me+1)*nfrme,nfrtot)
+     + me*nfrdim+1,min((me+1)*nfrdim,nfrtot)
 c
-c     read trajectory files
+      if(iomode.eq.0) then
+c
+c     read trajectory files sequentially
+c     ----------------------------------
 c
 c     read file header
 c
@@ -85,6 +92,126 @@ c
       write(*,'(a)') ' Closing trj file '
       endif
 c
+      else
+c
+c     read trajectory files in parallel
+c     ---------------------------------
+c
+c     read file header
+c
+      call dia_rdhdr(byte_mb(i_snam))
+      call dia_getofffr()
+      iofffr=iofffr-ioffhd
+c
+      itmp(1)=nfilf
+      itmp(2)=ioffhd
+      itmp(3)=iofffr
+      itmp(4)=0
+      call ga_brdcst(mag_d01,itmp,4*ma_sizeof(mt_int,1,mt_byte),0)
+      nfilf=itmp(1)
+      ioffhd=itmp(2)
+      iofffr=itmp(3)
+c
+cx      write(*,'(i5,a,i10)') me,' number of frames per file is ',nfilf
+cx      write(*,'(i5,a,i10)') me,' trajectory header offset  is ',ioffhd
+cx      write(*,'(i5,a,i10)') me,' trajectory frame size     is ',iofffr
+c
+c     meio   : processor carrying out i/o for current processor
+c     meframf: first frame to be read from trajectory for this processor
+c     meframl: last frame to be read from trajectory for this processor
+c     mefilf : file that has first frame for this processor
+c     mefill : file that has last frame for this processor
+c     meskip : number of frames to be skipped on first file for this processor
+c     melast : last frame to be read from the last file for this processor
+c
+      meio=(me/iomode)*iomode
+      meframf=ifrfr+me*nfrme*ifrsk 
+      meframl=ifrfr+((me+1)*nfrme-1)*ifrsk
+      mefilf=((meframf-1)/nfilf)+1
+      mefill=((meframl-1)/nfilf)+1
+      meskip=meframf-(mefilf-1)*nfilf-1
+      melast=meframl-(mefill-1)*nfilf
+c
+      write(*,'(i5,a,i5,a,2i5,a,2i5,a,2i5)') 
+     + me,' p :',meio,':',meframf,meframl,':',mefilf,mefill,':',
+     + meskip,melast
+c
+c     since a single processor reads the trajectory for iomode processors
+c
+      if(me.eq.meio) then
+c
+c     meframl: last frame to be read from trajectory by the i/o processor
+c     mefill : file that has last frame for the i/o processor
+c     melast : last frame to be read from the last file for the i/o processor
+c
+      meframl=min(ifrfr+((me+iomode)*nfrme-1)*ifrsk,ifrto)
+      mefill=((meframl-1)/nfilf)+1
+      melast=meframl-(mefill-1)*nfilf
+c
+      write(*,'(i5,a,i5,a,2i5,a,2i5,a,2i5)') 
+     + me,' n :',meio,':',meframf,meframl,':',mefilf,mefill,':',
+     + meskip,melast
+c
+c     loop ov er the number of frames to be stored by this processor
+c
+c
+      nfram=0
+      lq=index(filtrj,'?')
+c
+c     loop over all files for this processor
+c
+      do 101 ifil=mefilf,mefill
+c
+c     construct file name for file ifil
+c
+      write(cnum,'(i3.3)') ifil
+      fname=filtrj(1:lq-1)//cnum//filtrj(lq+1:index(filtrj,' ')-1)
+      write(*,'(i5,a,a)') me,':',fname
+c
+c     determine first frame to read from this file
+c
+      if(ifil.eq.mefilf) then
+      iffram=meskip+1
+      ilfram=nfilf
+      elseif(ifil.eq.mefill) then
+      iffram=1
+      ilfram=melast
+      else
+      iffram=1
+      ilfram=nfilf
+      endif
+c
+      open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
+     + status='old',form='formatted')
+      call fseek(lfntrj,ioffhd+(iffram-1)*iofffr,0,9999)
+      write(*,'(i5,a,2i7)') me,': frames ',iffram,ilfram
+c
+      do 102 ifr=1,ilfram-iffram+1
+      if(mod(ifr-1,iomode).eq.0) then
+c
+      nfram=nfram+1
+c
+      call dia_preadframe(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))
+      write(*,'(i5,a,i7,a,i7)') me,': read ',iffram+ifr-1,' to ',nfram
+c
+      else
+      if(ifr.eq.ilfram-iffram+1) goto 103
+      call fseek(lfntrj,(iomode-1)*iofffr,1,9999)
+      write(*,'(i5,a,i7,a,i7)') me,': skip ',iffram+ifr-1
+      endif
+  102 continue
+  103 continue
+c
+      close(unit=lfntrj)
+c
+  101 continue
+      endif
+c
+      endif
+c
+      return
+ 9999 continue
+      call md_abort('Error in fseek',0)
       return
       end
       subroutine dia_puttrj()
@@ -164,4 +291,20 @@ c
 c
       return
       end
-
+      subroutine dia_setiomode()
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "dia_params.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      read(card(8:12),1000) iomode
+ 1000 format(i5)
+c
+      call ga_brdcst(mag_d01,iomode,ma_sizeof(mt_int,1,mt_byte),0)
+c
+      return
+      end

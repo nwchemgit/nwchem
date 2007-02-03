@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.4 2007-01-30 00:46:21 d3j191 Exp $
+c $Id: dia_input.F,v 1.5 2007-02-03 00:40:51 d3j191 Exp $
 c
       implicit none
 c
@@ -13,10 +13,10 @@ c
 c
       character*255 item,prefix,atom,tag,atomi,atomj,atomk,atoml,filtop
       character*255 filcmd,filchg,filplt,filxyz,filref,filtrj,filcop
-      character*255 filpin,filhol,filpou,filavg
+      character*255 filpin,filhol,filpou,filavg,filexp
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
-      integer iopt,ivctr,iorder,nbatch
+      integer iopt,ivctr,iorder,nbatch,iomode
       integer itag,iatag,jatag,ipbc,nrdf
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota,rrdf
@@ -39,6 +39,7 @@ c
       lfil=.false.
       nrdf=0
       rrdf=1.0d0
+      iomode=0
 c
       timoff=0.0d0
       scale=1.0d0
@@ -104,6 +105,24 @@ c
       write(lfncmd,2000) filtop(1:index(filtop,' ')-1)
       numcmd=numcmd+1
       lref=.true.
+      endif
+c
+c     define i/o mode for trjactory files
+c     -----------------------------------
+c
+      if(inp_compare(.false.,'io',item)) then
+      if(.not.inp_a(item)) call md_abort('Error in io mode',0)
+      if(inp_compare(.false.,'sequential',item)) then
+      iomode=0
+      elseif(inp_compare(.false.,'parallel',item)) then
+      if(.not.inp_i(iomode)) iomode=1
+      else
+      iomode=0
+      endif
+      write(lfncmd,1316) iomode
+ 1316 format('iomode ',i5)
+      numcmd=numcmd+1
+      goto 2
       endif
 c
 c     define trajectory file(s)
@@ -290,6 +309,38 @@ c 1025 format('super  ',f12.6,a)
 c      endif
       write(lfncmd,1025)
  1025 format('super  ')
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     evaluate properties
+c     -------------------
+c
+      if(inp_compare(.false.,'evaluate',item)) then
+      write(lfncmd,1037)
+ 1037 format('evalua ')
+      numcmd=numcmd+1
+      goto 2
+      endif
+c
+c     export properties
+c     -----------------
+c
+      if(inp_compare(.false.,'export',item)) then
+      if(.not.inp_a(item)) call md_abort('Error in export',0)
+c     torsion
+      if(inp_compare(.false.,'torsion',item)) then
+      if(.not.inp_i(isel)) call md_abort('Error in export',0)
+      if(.not.inp_a(filexp)) call md_abort('Error in export',0)
+      write(lfncmd,1038) isel,filexp(1:index(filexp,' ')-1)
+ 1038 format('export torsio ',i5,a)
+      endif
+c     torsions
+      if(inp_compare(.false.,'torsions',item)) then
+      if(.not.inp_a(filexp)) call md_abort('Error in export',0)
+      write(lfncmd,1038) 0,filexp(1:index(filexp,' ')-1)
+      endif
+c
       numcmd=numcmd+1
       goto 2
       endif

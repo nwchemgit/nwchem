@@ -1,6 +1,6 @@
       subroutine dia_getsel
 c
-c $Id: dia_getsel.F,v 1.2 2007-01-30 00:46:21 d3j191 Exp $
+c $Id: dia_getsel.F,v 1.3 2007-02-03 00:40:51 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -129,11 +129,13 @@ c
 #include "util.fh"
 c
       logical lequiv
-      integer i,idtors
+      integer i,idtors,ntorsp
+      integer ndims(4)
 c
-      read(card(8:10),1000) lequiv,idtors
+      read(card(8:13),1000) lequiv,idtors
  1000 format(l1,i5)
 c
+      ntorsp=ntors
       ntors=ntors+1
       if(ntors.gt.mxtors) call md_abort('Increase dimension mxtors',0)
 c
@@ -144,22 +146,35 @@ c
       call dia_index(byte_mb(i_snam),
      + itors(ntors,i,1),itors(ntors,i,2))
     1 continue
+      itors(ntors,1,3)=idtors
+      itors(ntors,2,3)=1
 c
       if(lequiv) then
-      call dia_equitors(byte_mb(i_snam),int_mb(i_iequi),int_mb(i_imol))
+      call dia_equitors(byte_mb(i_snam),int_mb(i_iequi),int_mb(i_imol),
+     + idtors)
       endif
 c
+      itors(ntors,2,3)=ntors-ntorsp
       endif
 c
       call ga_brdcst(mag_d09,itors,
-     + 8*mxtors*ma_sizeof(mt_int,1,mt_byte),0)
+     + 12*mxtors*ma_sizeof(mt_int,1,mt_byte),0)
+c
+      ndims(1)=0
+      ndims(2)=0
+      ndims(3)=ntors
+      ndims(4)=0
+c
+      call ga_brdcst(mag_d10,ndims,4*ma_sizeof(mt_int,1,mt_byte),0)
+c
+      ntors=ndims(3)
 c
       return
  9999 continue
       call md_abort('Failed to read torsion',0)
       return
       end
-      subroutine dia_equitors(sgmnam,iequi,imol)
+      subroutine dia_equitors(sgmnam,iequi,imol,idtors)
 c
       implicit none
 c
@@ -173,7 +188,7 @@ c
 c
       character*16 sgmnam(msa)
       integer iequi(msa),imol(msa)
-      integer i,j,last
+      integer i,j,last,idtors
 c
       last=ntors
 c
@@ -187,6 +202,7 @@ c
     3 continue
 c
       ntors=ntors+1
+      itors(ntors,1,3)=idtors
       if(ntors.gt.mxtors) call md_abort('Increase dimension mxtors',0)
 c
       do 4 i=1,4

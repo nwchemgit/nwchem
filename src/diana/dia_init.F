@@ -1,6 +1,6 @@
       subroutine dia_init
 c
-c $Id: dia_init.F,v 1.3 2007-01-30 00:46:21 d3j191 Exp $
+c $Id: dia_init.F,v 1.4 2007-02-03 00:40:51 d3j191 Exp $
 c
 c
 c     initialize variables
@@ -25,6 +25,7 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
+      lfnexp=63
       lfntcl=64
       lfnavg=65
       lfnhol=66
@@ -58,6 +59,9 @@ c
       lfnsel=96
       lfndie=97
       lfnamp=98
+c
+      ntval=0
+      ntvec=0
 c
       ltop=.false.
 c

@@ -1,11 +1,14 @@
       subroutine dia_rdhdr(sgmnam)
 c
-c $Id: dia_rdhdr.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_rdhdr.F,v 1.3 2007-02-03 00:40:52 d3j191 Exp $
 c
       implicit none
 c
 #include "dia_common.fh"
 #include "mafdecls.fh"
+c
+      integer ftell
+      external ftell
 c
       character*16 sgmnam(msa)
       character*255 fname
@@ -20,6 +23,8 @@ c
       time=0.0d0
       timr=0.0d0
       write(cnum,'(i3.3)') iscof
+      ioffhd=0
+      iofffr=0
 c
       fname=filtrj
       lq=index(filtrj,'?')
@@ -41,9 +46,9 @@ c
       open(unit=44,file='.header',form='formatted',
      + status='unknown')
       rewind(44)
-      read(lfntrj,1003) nwa,nsa,nsb,nwb
-      write(44,1003) nwa,nsa,nsb,nwb
- 1003 format(4i10)
+      read(lfntrj,1003) nwa,nsa,nsb,nwb,ib,nfilf
+      write(44,1003) nwa,nsa,nsb,nwb,ib,nfilf
+ 1003 format(6i10)
       if(nsa.gt.msa) call md_abort('Error in trj',0)
       if(nwa.gt.0) then
       do 2 i=1,nwa
@@ -66,6 +71,7 @@ c
  1001 format(2i8)
     4 continue
       endif
+      ioffhd=ftell(lfntrj)
       close(unit=44)
       elseif(fmttrj.eq.'sco'.or.fmttrj.eq.'coo') then
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
@@ -135,3 +141,27 @@ c
       call md_abort('Failed to open trajectory file',0)
       return
       end
+      subroutine dia_getofffr()
+c
+      implicit none
+c
+#include "dia_common.fh"
+c
+      integer ftell
+      external ftell
+c
+      character*5 string
+c
+      if(me.eq.0) then
+      read(lfntrj,1000) string
+    1 continue
+      iofffr=ftell(lfntrj)
+      read(lfntrj,1000) string
+ 1000 format(a5)
+      if(string.ne.'frame') goto 1
+      close(unit=lfntrj)
+      endif
+c
+      return
+      end
+

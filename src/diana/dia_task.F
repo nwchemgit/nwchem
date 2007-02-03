@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.7 2007-01-30 00:46:21 d3j191 Exp $
+c $Id: dia_task.F,v 1.8 2007-02-03 00:40:52 d3j191 Exp $
 c
       implicit none
 c
@@ -29,6 +29,12 @@ c     ------------------
 c
       elseif(cmd.eq.'topol ') then
       call dia_gettop()
+c
+c     set io mode
+c     -----------
+c
+      elseif(cmd.eq.'iomode') then
+      call dia_setiomode()
 c
 c     read trajectory file header
 c     ---------------------------
@@ -96,6 +102,10 @@ c
       elseif(cmd.eq.'projec') then
       call dia_project()
 c
+      elseif(cmd.eq.'evalua') then
+      call dia_evaluate()
+      elseif(cmd.eq.'export') then
+      call dia_export()
       else
       goto 9
       endif
