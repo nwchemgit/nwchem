@@ -1,6 +1,6 @@
       logical function dia_rdfram(x,ix,w)
 c
-c $Id: dia_rdfram.F,v 1.3 2007-02-03 00:40:51 d3j191 Exp $
+c $Id: dia_rdfram.F,v 1.4 2007-02-05 21:24:18 d3j191 Exp $
 c
       implicit none
 c
@@ -404,14 +404,12 @@ c
       real*8 timp
       integer inwm,inwa
 c
-      read(lfntrj,1000,err=9999,end=9999) card
+      read(lfntrj,1000,err=9999,end=9998) card
  1000 format(a)
       if(card(1:5).ne.'frame')
      + call md_abort('Could not find frame',0)
-      read(lfntrj,1001,err=9999,end=9999) timp,temp,pres,datum,tijd
+      read(lfntrj,1001,err=9999,end=9998) timp,temp,pres,datum,tijd
  1001 format(2f12.6,e12.5,2a10)
-      write(*,2001) me,':',timp,temp,pres,datum,tijd
- 2001 format(i5,a,2f12.6,e12.5,2a10)
       read(lfntrj,1000) card
       if(card(54:54).eq.'.') then
       read(card,1012) box
@@ -461,7 +459,9 @@ c
       endif
 c
       return
+ 9998 continue
+      call md_abort('EOF in dia_preadfram',me)
  9999 continue
-      call md_abort('Error in dia_preadfram',0)
+      call md_abort('Error in dia_preadfram',me)
       return
       end

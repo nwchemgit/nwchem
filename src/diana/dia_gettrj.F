@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.2 2007-02-03 00:40:51 d3j191 Exp $
+c $Id: dia_gettrj.F,v 1.3 2007-02-05 21:24:18 d3j191 Exp $
 c
 c     read the trajectory
 c     -------------------
@@ -112,9 +112,9 @@ c
       ioffhd=itmp(2)
       iofffr=itmp(3)
 c
-cx      write(*,'(i5,a,i10)') me,' number of frames per file is ',nfilf
-cx      write(*,'(i5,a,i10)') me,' trajectory header offset  is ',ioffhd
-cx      write(*,'(i5,a,i10)') me,' trajectory frame size     is ',iofffr
+      write(*,'(i5,a,i10)') me,' number of frames per file is ',nfilf
+      write(*,'(i5,a,i10)') me,' trajectory header offset  is ',ioffhd
+      write(*,'(i5,a,i10)') me,' trajectory frame size     is ',iofffr
 c
 c     meio   : processor carrying out i/o for current processor
 c     meframf: first frame to be read from trajectory for this processor
@@ -126,15 +126,15 @@ c     melast : last frame to be read from the last file for this processor
 c
       meio=(me/iomode)*iomode
       meframf=ifrfr+me*nfrme*ifrsk 
-      meframl=ifrfr+((me+1)*nfrme-1)*ifrsk
+      meframl=ifrfr+(me+1)*nfrme*ifrsk-1
       mefilf=((meframf-1)/nfilf)+1
       mefill=((meframl-1)/nfilf)+1
       meskip=meframf-(mefilf-1)*nfilf-1
       melast=meframl-(mefill-1)*nfilf
 c
-      write(*,'(i5,a,i5,a,2i5,a,2i5,a,2i5)') 
-     + me,' p :',meio,':',meframf,meframl,':',mefilf,mefill,':',
-     + meskip,melast
+cc      write(*,'(i5,a,i5,a,2i5,a,2i5,a,2i5)') 
+cc     + me,' p :',meio,':',meframf,meframl,':',mefilf,mefill,':',
+cc     + meskip,melast
 c
 c     since a single processor reads the trajectory for iomode processors
 c
@@ -144,7 +144,7 @@ c     meframl: last frame to be read from trajectory by the i/o processor
 c     mefill : file that has last frame for the i/o processor
 c     melast : last frame to be read from the last file for the i/o processor
 c
-      meframl=min(ifrfr+((me+iomode)*nfrme-1)*ifrsk,ifrto)
+      meframl=min(ifrfr+(me+iomode)*nfrme*ifrsk-1,ifrto)
       mefill=((meframl-1)/nfilf)+1
       melast=meframl-(mefill-1)*nfilf
 c
@@ -155,7 +155,7 @@ c
 c     loop ov er the number of frames to be stored by this processor
 c
 c
-      nfram=0
+      nfram=me*nfrme
       lq=index(filtrj,'?')
 c
 c     loop over all files for this processor
@@ -166,38 +166,22 @@ c     construct file name for file ifil
 c
       write(cnum,'(i3.3)') ifil
       fname=filtrj(1:lq-1)//cnum//filtrj(lq+1:index(filtrj,' ')-1)
-      write(*,'(i5,a,a)') me,':',fname
 c
 c     determine first frame to read from this file
 c
-      if(ifil.eq.mefilf) then
-      iffram=meskip+1
-      ilfram=nfilf
-      elseif(ifil.eq.mefill) then
-      iffram=1
-      ilfram=melast
-      else
       iffram=1
       ilfram=nfilf
-      endif
+      if(ifil.eq.mefilf) iffram=meskip+1
+      if(ifil.eq.mefill) ilfram=melast
 c
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',form='formatted')
-      call fseek(lfntrj,ioffhd+(iffram-1)*iofffr,0,9999)
-      write(*,'(i5,a,2i7)') me,': frames ',iffram,ilfram
-c
-      do 102 ifr=1,ilfram-iffram+1
-      if(mod(ifr-1,iomode).eq.0) then
-c
+      do 102 ifr=iffram,ilfram
+      if(mod(ifr-iffram+1,ifrsk).eq.0) then
       nfram=nfram+1
-c
+      call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
       call dia_preadframe(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))
-      write(*,'(i5,a,i7,a,i7)') me,': read ',iffram+ifr-1,' to ',nfram
-c
-      else
-      if(ifr.eq.ilfram-iffram+1) goto 103
-      call fseek(lfntrj,(iomode-1)*iofffr,1,9999)
-      write(*,'(i5,a,i7,a,i7)') me,': skip ',iffram+ifr-1
+      call ga_put(ga_trj,1,3*nsa,nfram,nfram,dbl_mb(i_xdat),nsa)
       endif
   102 continue
   103 continue
