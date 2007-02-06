@@ -1,6 +1,6 @@
       subroutine tce_init(rtdb)
 c
-c $Id: tce_init.F,v 1.32 2006-05-31 23:23:00 kowalski Exp $
+c $Id: tce_init.F,v 1.33 2007-02-06 19:04:44 edo Exp $
 c
 c     Initialize for many-electron calculations.
 c
@@ -20,16 +20,12 @@ c
 #include "dra.fh"
 c
       integer rtdb             ! RTDB handle
-      integer numfunc          ! Number of functionals implemented
-      parameter (numfunc=30)   ! See if it is consistent with nwdft
       integer nbf_verify       ! nbf read from movecs_read_header
       integer ipol_verify      ! ipol read from movecs_read_header
       character*255 movecs_out ! MO vector file name
       character*255 title      ! Title
       character*255 basisname  ! Basis set name
       character*255 scftype    ! Type of SCF
-      double precision xfac(numfunc)    ! Prefactors for X functionals
-      double precision cfac(numfunc)    ! Prefactors for C functionals
       character*4 hftype
       character*3 onoff1,onoff2
       integer i,j,n
@@ -47,6 +43,8 @@ c
       external movecs_read,movecs_read_header
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+      logical xc_gotxc
+      external xc_gotxc
       character*10 module
       character*8 multchar(8)
       data multchar/'singlet ','doublet ','triplet ','quartet ',
@@ -150,23 +148,6 @@ c
           ipol = 2
         endif
       endif
-c
-c     --------------
-c     XC functionals
-c     --------------
-c
-      if (reference.eq.0) then
-        if (.not.rtdb_get(rtdb,'dft:xfac',mt_dbl,numfunc,xfac))
-     1    call errquit('tce_init: failed to read xfac',0,RTDB_ERR)
-        if (.not.rtdb_get(rtdb,'dft:cfac',mt_dbl,numfunc,cfac))
-     1    call errquit('tce_init: failed to read cfac',0,RTDB_ERR)
-      else if (reference.eq.1) then
-        do i = 1,numfunc
-          xfac(i) = 0.0d0
-          cfac(i) = 0.0d0
-        enddo
-      endif
-c
 c     ---------
 c     TCE input
 c     ---------
@@ -285,15 +266,7 @@ c
       activecalc = .false.
 c
       if (reference.eq.0) then
-        a=0.0d0
-        do n=2,numfunc
-          a=a+dabs(xfac(n))
-        enddo
-        do n=1,numfunc
-          a=a+dabs(cfac(n))
-        enddo
-        if ((a.gt.1.0d-8).or.(dabs(xfac(1)-1.0d0)).gt.1.0d-8)
-     1    write(LuOut,9500)
+        if (xc_gotxc()) write(LuOut,9500)
       endif
       if ((perturbative.ne.'none').and.
      1    (model.ne.'ccsd').and.(model.ne.'ccsdt'))
