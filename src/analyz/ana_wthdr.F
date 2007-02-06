@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel,logw)
 c
-c $Id: ana_wthdr.F,v 1.19 2004-03-06 03:41:15 d3j191 Exp $
+c $Id: ana_wthdr.F,v 1.20 2007-02-06 16:32:22 d3j191 Exp $
 c
       implicit none
 c
@@ -83,14 +83,14 @@ c
       read(44,4401) nwa,nsa,nsb,nwb
 c      if(nsa.eq.nsel) then
       if(logw) then
-      write(iunit,4401) nwa,nsa,nsb,nwb,nwsel
+      write(iunit,4401) nwa,nsa,nsb,nwb,nwsel,mcopf
       else
-      write(iunit,4401) nwa,nsa,nsb,nwb,0
+      write(iunit,4401) nwa,nsa,nsb,nwb,0,mcopf
       endif
 c      else
 c      write(iunit,4401) nwa,nsel,0,0,0
 c      endif
- 4401 format(5i10)
+ 4401 format(6i10)
       do 1 i=1,nwa
       read(44,4402) cwa
  4402 format(a16,i10,i5)

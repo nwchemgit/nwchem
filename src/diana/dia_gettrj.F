@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.3 2007-02-05 21:24:18 d3j191 Exp $
+c $Id: dia_gettrj.F,v 1.4 2007-02-06 16:32:24 d3j191 Exp $
 c
 c     read the trajectory
 c     -------------------
@@ -55,8 +55,8 @@ c
       if(.not.ga_create(mt_dbl,nsa*3,nfrtot,'trj',nsa*3,nfrdim,
      + ga_trj)) call md_abort('Failed to create ga_trj',0)
 c
-      write(*,'(i5,a,2i5)') me,' allocated ga for frames ',
-     + me*nfrdim+1,min((me+1)*nfrdim,nfrtot)
+c      write(*,'(i5,a,2i5)') me,' allocated ga for frames ',
+c     + me*nfrdim+1,min((me+1)*nfrdim,nfrtot)
 c
       if(iomode.eq.0) then
 c
@@ -70,7 +70,7 @@ c
       nwrit=0
       nframe=0
  1010 continue
-      if(dia_rdfram(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))) then
+      if(dia_rdfram(dbl_mb(i_xdat),dbl_mb(i_wdat))) then
       nread=nread+1
       if(nread.lt.ifrfr) goto 1010
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
@@ -112,9 +112,9 @@ c
       ioffhd=itmp(2)
       iofffr=itmp(3)
 c
-      write(*,'(i5,a,i10)') me,' number of frames per file is ',nfilf
-      write(*,'(i5,a,i10)') me,' trajectory header offset  is ',ioffhd
-      write(*,'(i5,a,i10)') me,' trajectory frame size     is ',iofffr
+c      write(*,'(i5,a,i10)') me,' number of frames per file is ',nfilf
+c      write(*,'(i5,a,i10)') me,' trajectory header offset  is ',ioffhd
+c      write(*,'(i5,a,i10)') me,' trajectory frame size     is ',iofffr
 c
 c     meio   : processor carrying out i/o for current processor
 c     meframf: first frame to be read from trajectory for this processor
@@ -148,9 +148,9 @@ c
       mefill=((meframl-1)/nfilf)+1
       melast=meframl-(mefill-1)*nfilf
 c
-      write(*,'(i5,a,i5,a,2i5,a,2i5,a,2i5)') 
-     + me,' n :',meio,':',meframf,meframl,':',mefilf,mefill,':',
-     + meskip,melast
+c      write(*,'(i5,a,i5,a,2i5,a,2i5,a,2i5)') 
+c     + me,' n :',meio,':',meframf,meframl,':',mefilf,mefill,':',
+c     + meskip,melast
 c
 c     loop ov er the number of frames to be stored by this processor
 c
@@ -180,7 +180,7 @@ c
       if(mod(ifr-iffram+1,ifrsk).eq.0) then
       nfram=nfram+1
       call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
-      call dia_preadframe(dbl_mb(i_xdat),int_mb(i_idat),dbl_mb(i_wdat))
+      call dia_preadframe(dbl_mb(i_xdat),dbl_mb(i_wdat))
       call ga_put(ga_trj,1,3*nsa,nfram,nfram,dbl_mb(i_xdat),nsa)
       endif
   102 continue

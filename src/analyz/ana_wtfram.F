@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.56 2006-05-01 16:33:56 d3j191 Exp $
+c $Id: ana_wtfram.F,v 1.57 2007-02-06 16:32:22 d3j191 Exp $
 c
       implicit none
 c
@@ -52,7 +52,7 @@ c
       if(fmt.eq.'eci') write(iunit,'(a)') 'End'
       close(unit=iunit)
       icopf=icopf+1
-      call ana_wthdr(lfncop,fmtcop,byte_mb(i_snam),tag,isel,.false.)
+      call ana_wthdr(lfncop,fmt,byte_mb(i_snam),tag,isel,.false.)
       endif
       endif
 c
@@ -94,6 +94,7 @@ c      write(*,'(a,2f12.6,e12.5)') 'frame ',time,temp,pres
  1005 format(3f8.3)
     3 continue
       endif
+      ncop=ncop+1
       endif
 c
       if(fmt.eq.'arc') then

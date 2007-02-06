@@ -1,6 +1,6 @@
       subroutine dia_average()
 c
-c $Id: dia_average.F,v 1.1 2007-01-27 02:26:03 d3j191 Exp $
+c $Id: dia_average.F,v 1.2 2007-02-06 16:32:24 d3j191 Exp $
 c
 c     get atom selection
 c     ------------------
@@ -31,6 +31,8 @@ c
 c
       if(card(7:7).eq.' ') return
 c
+      if(me.eq.0) then
+c
       read(card(7:80),'(a)') fil
 c
       i=index(fil,'.')
@@ -53,6 +55,8 @@ c
       write(*,'(/,a,a)')
      +  ' Averaged coordinates written to ',
      + fil(1:index(fil,' ')-1)
+c
+      endif
 c
       return
       end

@@ -1,6 +1,6 @@
       subroutine dia_getref
 c
-c $Id: dia_getref.F,v 1.1 2007-01-27 02:26:03 d3j191 Exp $
+c $Id: dia_getref.F,v 1.2 2007-02-06 16:32:24 d3j191 Exp $
 c
 c     read the reference coordinates
 c     ------------------------------
@@ -40,6 +40,7 @@ c
      + filref(1:index(filref,' ')-1)
       write(*,'(/,a,i5,/)') ' Number of atoms is ',nsai
       endif
+      if(.not.ma_verify_allocator_stuff()) print*,'Oopsi 2'
 c
       return
       end

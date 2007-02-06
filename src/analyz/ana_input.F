@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.73 2006-11-10 22:01:11 d3j191 Exp $
+c $Id: ana_input.F,v 1.74 2007-02-06 16:32:21 d3j191 Exp $
 c
       implicit none
 c
@@ -17,7 +17,7 @@ c
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
       integer iopt,ivctr,iorder
-      integer itag,iatag,jatag,ipbc,nrdf
+      integer itag,iatag,jatag,ipbc,nrdf,mcopf
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota,rrdf
       logical lref,lfil,lsol,lsuper,lselo
@@ -226,6 +226,7 @@ c     copy frames to file
 c     -------------------
 c
       if(inp_compare(.false.,'copy',item)) then
+      if(.not.inp_i(mcopf)) mcopf=0
       if(.not.inp_a(filcop)) call md_abort('Error in copy',0)
       lsol=.false.
       if(filcop(1:6).eq.'solute') then
@@ -241,11 +242,11 @@ c
      + filcop=filcop(1:index(filcop,' ')-1)//'.trj '
       if(filcop.eq.filtrj) call md_abort('File name conflict',0)
       if(lsol) then
-      write(lfncmd,1004) rang,filcop(1:index(filcop,' ')-1)
- 1004 format('copys  ',f12.6,a)
+      write(lfncmd,1004) mcopf,rang,filcop(1:index(filcop,' ')-1)
+ 1004 format('copys  ',i5,f12.6,a)
       else
-      write(lfncmd,1024) rang,filcop(1:index(filcop,' ')-1)
- 1024 format('copy   ',f12.6,a)
+      write(lfncmd,1024) mcopf,rang,filcop(1:index(filcop,' ')-1)
+ 1024 format('copy   ',i5,f12.6,a)
       endif
       numcmd=numcmd+1
       goto 2

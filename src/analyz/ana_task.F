@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.108 2007-01-15 23:09:47 d3j191 Exp $
+c $Id: ana_task.F,v 1.109 2007-02-06 16:32:22 d3j191 Exp $
 c
       implicit none
 c
@@ -743,7 +743,7 @@ c
       nread=nread+1
       if(nread.lt.idpdb) goto 222
       if(lsuper) then
-      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
+      call super2(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa,.true.)
@@ -796,11 +796,14 @@ c     -----------
 c
       if(card(1:6).eq.'copy  '.or.card(1:6).eq.'copys ') then
       lsonly=card(1:6).eq.'copys '
-      read(card(8:19),'(f12.6)') rangle
-      read(card(20:80),'(a)') filcop
+      read(card(8:12),'(i5)') mcopf
+      read(card(13:24),'(f12.6)') rangle
+      read(card(25:80),'(a)') filcop
       i=index(filcop,'.')
       fmt=filcop(i+1:i+3)
       root=filcop(1:i)
+      ncop=1
+      icopf=1
 c
 c      if(nsel.eq.0) call md_abort('No atoms selected',0)
 c
@@ -875,7 +878,7 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 3
       if(nframe.eq.(nframe/ifrsk)*ifrsk.and.lsx) then
-      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
+      call super2(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa,.true.)
@@ -996,7 +999,7 @@ c
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
 c
       if(lsuper) then
-      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
+      call super2(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),
      + num,msa,dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.true.)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
@@ -1226,7 +1229,7 @@ c
       if(nread.lt.ifrfr) goto 4
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
       if(lsaver) then
-      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
+      call super2(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.true.)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa,.true.)
@@ -1295,7 +1298,7 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 5
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
-      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
+      call super2(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.true.)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)
@@ -1411,7 +1414,7 @@ c
       nread=nread+1
       if(nread.lt.ifrfr) goto 6
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
-c      call super(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
+c      call super2(dbl_mb(i_xdat+ifr-1),int_mb(i_idat+ifr-1),num,msa,
 c     + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
 c     + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.true.)
       call ana_xcollect(dbl_mb(i_xdat),ifr,num,msa)

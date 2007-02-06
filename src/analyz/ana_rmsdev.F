@@ -1,5 +1,5 @@
       subroutine ana_rmsdev(x,ix,nx,xref,wt,wts,xrms)
-c $Id: ana_rmsdev.F,v 1.9 2007-01-15 23:09:47 d3j191 Exp $
+c $Id: ana_rmsdev.F,v 1.10 2007-02-06 16:32:22 d3j191 Exp $
       implicit none
 c
 #include "ana_params.fh"
@@ -14,8 +14,8 @@ c
 c
       real*8 rms0,rms1
 c
-      call super(x,ix,nx,msa,xref,wt,wts,xrms,nsa,nsa,.false.,rms0,rms1,
-     + dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.true.)
+      call super2(x,ix,nx,msa,xref,wt,wts,xrms,nsa,nsa,.false.,
+     + rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.true.)
 c
       if(me.eq.0) then
       write(lfnrms,1000) time,rms0,rms1

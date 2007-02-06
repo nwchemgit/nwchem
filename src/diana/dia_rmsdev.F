@@ -1,5 +1,5 @@
       subroutine dia_rmsdev(x,ix,nx,xref,wt,wts,xrms)
-c $Id: dia_rmsdev.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_rmsdev.F,v 1.3 2007-02-06 16:32:24 d3j191 Exp $
       implicit none
 c
 #include "dia_params.fh"
@@ -12,7 +12,7 @@ c
       integer ix(nx)
       real*8 x(msa,3),xref(nsa,3),wt(nsa),wts(nsa),xrms(nsa)
 c
-      call super(x,ix,nx,msa,xref,wt,wts,xrms,nsa,nsa,.false.,rms0,rms1,
+      call super(x,nx,msa,xref,wt,wts,xrms,nsa,nsa,.false.,rms0,rms1,
      + dbl_mb(i_wdat),mwm,nwm,mwa,nwa)
 c
       if(me.eq.0) then

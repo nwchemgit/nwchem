@@ -1,6 +1,6 @@
-      logical function dia_rdfram(x,ix,w)
+      logical function dia_rdfram(x,w)
 c
-c $Id: dia_rdfram.F,v 1.4 2007-02-05 21:24:18 d3j191 Exp $
+c $Id: dia_rdfram.F,v 1.5 2007-02-06 16:32:24 d3j191 Exp $
 c
       implicit none
 c
@@ -10,7 +10,6 @@ c
 #include "util.fh"
 c
       real*8 x(msa,3),w(mwm,mwa,3)
-      integer ix(msa)
       integer ftell
       external ftell
 c
@@ -98,7 +97,6 @@ c
       do 4 i=1,nsa
       read(lfntrj,1005) (x(i,j),j=1,3)
  1005 format(3f8.3)
-      ix(i)=i
     4 continue
       endif
       succes=.true.
@@ -131,7 +129,6 @@ c
       x(i,1)=x(i,1)*1.0d-1
       x(i,2)=x(i,2)*1.0d-1
       x(i,3)=x(i,3)*1.0d-1
-      ix(i)=i
    14 continue
       if(lxw) then
       do 15 i=1,nwm
@@ -193,7 +190,6 @@ c     broadcast to all nodes
 c
       if(np.gt.1) then
       call ga_brdcst(mag_d03,succes,ma_sizeof(mt_log,1,mt_byte),0)
-      call ga_brdcst(mag_d04,ix,msa*ma_sizeof(mt_int,1,mt_byte),0)
       call ga_brdcst(mag_d05,x,3*msa*ma_sizeof(mt_dbl,1,mt_byte),0)
       call ga_brdcst(mag_d06,w,3*mwm*mwa*ma_sizeof(mt_dbl,1,mt_byte),0)
       do 234 i=1,6
@@ -386,7 +382,7 @@ c
 c
       return
       end
-      subroutine dia_preadframe(x,ix,w)
+      subroutine dia_preadframe(x,w)
 c
       implicit none
 c
@@ -399,7 +395,6 @@ c
       integer ftell
       external ftell
       real*8 x(msa,3),w(mwm,mwa,3)
-      integer ix(msa)
       integer i,j,k
       real*8 timp
       integer inwm,inwa
@@ -454,7 +449,6 @@ c
       do 4 i=1,nsa
       read(lfntrj,1005) (x(i,j),j=1,3)
  1005 format(3f8.3)
-      ix(i)=i
     4 continue
       endif
 c

@@ -1,6 +1,6 @@
       subroutine dia_super()
 c
-c $Id: dia_super.F,v 1.3 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_super.F,v 1.4 2007-02-06 16:32:24 d3j191 Exp $
 c
       implicit none
 c
@@ -12,13 +12,14 @@ c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
 c
+      if(.not.ma_verify_allocator_stuff()) print*,'Oopsi 3'
+c
       call dia_supimp(dbl_mb(ndx),nsa,
-     + min((me+1)*nfrme,nfrtot)-me*nfrdim,
-     + dbl_mb(i_xadat),nsa)
+     + min((me+1)*nfrme,nfrtot)-me*nfrdim)
 c
       return
       end
-      subroutine dia_supimp(xtrj,ntrj,nfr,xa,nxa)
+      subroutine dia_supimp(xtrj,ntrj,nfr)
 c
       implicit none
 c
@@ -31,14 +32,13 @@ c
       parameter(zero=0.0d0)
 c
       integer ntrj,nfr,nxa
-      real*8 xtrj(ntrj,3,nfr),xa(nxa,3)
+      real*8 xtrj(ntrj,3,nfr)
 c
       integer i,j,k
 c
-      if(nxa.ne.ntrj) call md_abort('super dimension problem',0)
-c
+      nwm=0
       do 1 k=1,nfr
-      call super(xtrj(1,1,k),int_mb(i_idat),ntrj,ntrj,
+      call super(xtrj(1,1,k),ntrj,ntrj,
      + dbl_mb(i_xref),dbl_mb(i_swt),dbl_mb(i_wt),dbl_mb(i_xrms),
      + nsa,msa,.true.,rms0,rms1,dbl_mb(i_wdat),mwm,nwm,mwa,nwa,.false.)
     1 continue
@@ -47,7 +47,7 @@ c
       end
       subroutine dia_super2(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,rms1)
 c
-c $Id: dia_super.F,v 1.3 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_super.F,v 1.4 2007-02-06 16:32:24 d3j191 Exp $
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c

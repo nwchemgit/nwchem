@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.15 2006-12-27 18:06:42 d3j191 Exp $
+c $Id: ana_groups.F,v 1.16 2007-02-06 16:32:21 d3j191 Exp $
 c
       implicit none
 c
@@ -48,7 +48,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.15 2006-12-27 18:06:42 d3j191 Exp $
+c $Id: ana_groups.F,v 1.16 2007-02-06 16:32:21 d3j191 Exp $
 c
       implicit none
 c
@@ -428,9 +428,9 @@ c
       n=ldef(igrp)
       do 2 j=1,n
       ia=idef(igrp,j)
-      xa(1)=x(ia,1)
-      xa(2)=x(ia,2)
-      xa(3)=x(ia,3)
+      xa(1)=xa(1)+x(ia,1)
+      xa(2)=xa(2)+x(ia,2)
+      xa(3)=xa(3)+x(ia,3)
     2 continue
       xa(1)=xa(1)/dble(n)-x(idord(i,3),1)
       xa(2)=xa(2)/dble(n)-x(idord(i,3),2)
@@ -439,9 +439,9 @@ c
       n=ldef(igrp)
       do 3 j=1,n
       ia=idef(igrp,j)
-      xb(1)=x(ia,1)
-      xb(2)=x(ia,2)
-      xb(3)=x(ia,3)
+      xb(1)=xb(1)+x(ia,1)
+      xb(2)=xb(2)+x(ia,2)
+      xb(3)=xb(3)+x(ia,3)
     3 continue
       xb(1)=xb(1)/dble(n)-x(idord(i,3),1)
       xb(2)=xb(2)/dble(n)-x(idord(i,3),2)
