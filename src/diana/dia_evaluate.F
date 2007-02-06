@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.1 2007-02-05 21:37:42 d3j191 Exp $
+c $Id: dia_evaluate.F,v 1.2 2007-02-06 21:24:16 d3j191 Exp $
 c
 c     evaluate the defined properties
 c     -------------------------------
@@ -18,6 +18,9 @@ c
       integer itval
       integer ilt,iht,jlt,jht,ndxt,ldt
 c
+      call ga_distribution(ga_trj,me,il,ih,jl,jh)
+      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
+c
 c     allocate global array for the properties
 c     ----------------------------------------
 c
@@ -27,13 +30,13 @@ c
       endif
       ntval=ntors
 c
-      if(.not.ga_create(mt_dbl,ntval,nfrtot,'trj',ntval,nfrdim,
+      if(ntval.gt.0) then
+c
+      if(.not.ga_create(mt_dbl,ntval,nfrtot,'tval',ntval,nfrdim,
      + ga_tval)) call md_abort('Failed to create ga_tval',0)
 c
       itval=1
 c
-      call ga_distribution(ga_trj,me,il,ih,jl,jh)
-      call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
       call ga_distribution(ga_tval,me,ilt,iht,jlt,jht)
       write(*,'(5i5)') me,ilt,iht,jlt,jht
       call ga_access(ga_tval,ilt,iht,jlt,jht,ndxt,ldt)
@@ -44,7 +47,13 @@ c
 c     evaluate torsions
 c     -----------------
 c
-      call dia_evaltors(dbl_mb(ndx),nsa,dbl_mb(ndxt),nfrme,itval)
+      if(ntors.gt.0)
+     + call dia_evaltors(dbl_mb(ndx),nsa,dbl_mb(ndxt),nfrme,itval)
+c
+      endif
+c
+      if(nord.gt.0)
+     + call dia_evalord(dbl_mb(ndx),nsa,nfrme)
 c
       return
       end
@@ -153,3 +162,53 @@ c
 c
       return
       end
+      subroutine dia_evalord(xtrj,ntrj,nfr)
+c
+      implicit none
+c
+#include "msgids.fh"
+#include "global.fh"
+#include "dia_common.fh"
+c
+      integer ntrj,nfr
+      real*8 xtrj(ntrj,3,nfr)
+c
+      integer i,j,k,ndordr,ndxo,inum
+      real*8 s,d
+c
+      do 4 i=1,nord
+      rord(i)=0.0d0
+    4 continue
+c
+      do 1 i=1,nord
+      ndxo=iord(i,1,3)
+      ndordr=iord(i,3,3)
+      do 2 k=1,nfr
+      do 3 j=2,ndordr+1
+      d=(xtrj(iord(i,j,1),1,k)-xtrj(iord(i,1,1),1,k))**2+
+     +(xtrj(iord(i,j,1),2,k)-xtrj(iord(i,1,1),2,k))**2+
+     +(xtrj(iord(i,j,1),3,k)-xtrj(iord(i,1,1),3,k))**2
+      s=3.0d0*(xtrj(iord(i,j,1),3,k)-xtrj(iord(i,1,1),3,k))**2/d-1.0d0
+      rord(ndxo)=rord(ndxo)+s
+    3 continue
+    2 continue
+    1 continue
+c
+      call ga_dgop(mag_d09,rord,mord,'+')
+c
+      if(me.eq.0) then
+      write(*,'(/,a,/)') ' Order Parameters'
+      k=0
+      do 5 i=1,nord
+      if(iord(i,1,3).ne.k) then
+      inum=2*iord(i,3,3)*iord(i,2,3)*nfrtot
+      k=iord(i,1,3)
+      write(*,'(a,4i5,f12.5)') 'Order parameter ',k,
+     + iord(i,3,3),iord(i,2,3),nfrtot,rord(k)/dble(inum)
+      endif
+    5 continue
+c
+      endif
+c
+      return
+      end      

@@ -1,6 +1,6 @@
       subroutine dia_init
 c
-c $Id: dia_init.F,v 1.4 2007-02-03 00:40:51 d3j191 Exp $
+c $Id: dia_init.F,v 1.5 2007-02-06 21:24:16 d3j191 Exp $
 c
 c
 c     initialize variables
@@ -68,10 +68,10 @@ c
       do 44 i=1,mhis
       idhis(i,3)=40+i
    44 continue
-      do 46 i=1,mord
-      rord(i,1)=zero
-      rord(i,2)=zero
-   46 continue
+c      do 46 i=1,mord
+c      rord(i,1)=zero
+c      rord(i,2)=zero
+c   46 continue
 c
       lsonly=.false.
       lsuper=.false.
@@ -86,6 +86,7 @@ c
       nangs=0
       ntors=0
       nimps=0
+      nord=0
 c
       ndef=0
 c

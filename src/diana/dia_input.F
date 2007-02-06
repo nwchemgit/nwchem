@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.5 2007-02-03 00:40:51 d3j191 Exp $
+c $Id: dia_input.F,v 1.6 2007-02-06 21:24:17 d3j191 Exp $
 c
       implicit none
 c
@@ -16,12 +16,13 @@ c
       character*255 filpin,filhol,filpou,filavg,filexp
       integer lfncmd,numcmd,len,ivec,nspac,ibond,iangl,itors,iplan,icd
       integer ifrfr,ifrto,ifrsk,ifrst,ilast,isel,jsel,ksel,lsel
-      integer iopt,ivctr,iorder,nbatch,iomode
+      integer iopt,ivctr,nbatch,iomode
       integer itag,iatag,jatag,ipbc,nrdf
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota,rrdf
       logical lref,lfil,lsol,lsuper,lselo,lequiv
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb,nclean
+      integer i,iorder,norder
       character*8 option
 c
       if(ga_nodeid().eq.0) then
@@ -581,19 +582,41 @@ c
 c     calculate order parameter
 c     -------------------------
 c
+c      if(inp_compare(.false.,'oldorder',item)) then
+c      if(.not.inp_i(iorder)) call md_abort('No iorder specified',0)
+c      if(.not.inp_i(isel)) call md_abort('No igroup specified',0)
+c      if(.not.inp_i(jsel)) call md_abort('No jgroup specified',0)
+c      if(.not.inp_a(atomi)) call md_abort('No iatom specified',0)
+c      if(.not.inp_a(atomj)) call md_abort('No jatom specified',0)
+c      if(isel.eq.jsel) call md_abort('Order groups identical',isel)
+c      write(lfncmd,1028) iorder,isel,jsel 
+c 1028 format('order  ',i5,2i7)
+c      write(lfncmd,1029) atomi(1:index(atomi,' ')-1)
+c      write(lfncmd,1029) atomj(1:index(atomj,' ')-1)
+c 1029 format(a)
+c      numcmd=numcmd+1
+c      goto 2
+c      endif
+c
+c     define torsions
+c     ---------------
+c
       if(inp_compare(.false.,'order',item)) then
-      if(.not.inp_i(iorder)) call md_abort('No iorder specified',0)
-      if(.not.inp_i(isel)) call md_abort('No igroup specified',0)
-      if(.not.inp_i(jsel)) call md_abort('No jgroup specified',0)
-      if(.not.inp_a(atomi)) call md_abort('No iatom specified',0)
-      if(.not.inp_a(atomj)) call md_abort('No jatom specified',0)
-      if(isel.eq.jsel) call md_abort('Order groups identical',isel)
-      write(lfncmd,1028) iorder,isel,jsel 
- 1028 format('order  ',i5,2i7)
-      write(lfncmd,1029) atomi(1:index(atomi,' ')-1)
-      write(lfncmd,1029) atomj(1:index(atomj,' ')-1)
- 1029 format(a)
-      numcmd=numcmd+1
+      lequiv=.false.
+      if(.not.inp_i(iorder)) call md_abort('Error in torsion',0)
+      if(.not.inp_i(norder)) call md_abort('Error in torsion',0)
+      if(.not.inp_a(atomi)) call md_abort('Error in torsion',0)
+      if(atomi(1:10).eq.'equivalent') then
+      lequiv=.true.
+      if(.not.inp_a(atomi)) call md_abort('Error in torsion',0)
+      endif
+      write(lfncmd,1029) lequiv,iorder,norder
+ 1029 format('order  ',l1,2i5)
+      write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
+      do 1028 i=1,norder
+      if(.not.inp_a(atomi)) call md_abort('Error in torsion',0)
+      write(lfncmd,1013) atomi(1:index(atomi,' ')-1)
+ 1028 continue
       goto 2
       endif
 c

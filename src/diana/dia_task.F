@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.8 2007-02-03 00:40:52 d3j191 Exp $
+c $Id: dia_task.F,v 1.9 2007-02-06 21:24:17 d3j191 Exp $
 c
       implicit none
 c
@@ -77,6 +77,8 @@ c
       elseif(cmd.eq.'torsio') then
       call dia_addtorsion()
       elseif(cmd.eq.'improp') then
+      elseif(cmd.eq.'order') then
+      call dia_addorder()
 c
 c     superimpose all stored frames
 c     -----------------------------

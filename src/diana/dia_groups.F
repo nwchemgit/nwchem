@@ -1,6 +1,6 @@
       subroutine dia_groups(sgmnam,imol,isel,wt,x)
 c
-c $Id: dia_groups.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_groups.F,v 1.3 2007-02-06 21:24:16 d3j191 Exp $
 c
       implicit none
 c
@@ -47,7 +47,7 @@ c
       end
       subroutine dia_group(sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: dia_groups.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
+c $Id: dia_groups.F,v 1.3 2007-02-06 21:24:16 d3j191 Exp $
 c
       implicit none
 c
@@ -459,8 +459,8 @@ c
       if(cphi.lt.-one) cphi=-one
       if(cphi.gt. one) cphi= one
 c
-      rord(i,1)=rord(i,1)+acos(cphi)
-      rord(i,2)=rord(i,2)+cphi*cphi
+cc      rord(i,1)=rord(i,1)+acos(cphi)
+cc     rord(i,2)=rord(i,2)+cphi*cphi
 c
     1 continue
 c

@@ -1,5 +1,5 @@
 c
-c $Id: dia_common.fh,v 1.4 2007-02-03 00:40:51 d3j191 Exp $
+c $Id: dia_common.fh,v 1.5 2007-02-06 21:24:16 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -19,7 +19,7 @@ c
       parameter(mlhis=1000)
 c
       integer mord
-      parameter(mord=100)
+      parameter(mord=960)
 c
       integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
@@ -125,8 +125,8 @@ c
      + ihbndw(100),ibndw(100,2)
       real*8 rgroups(maxgrp,2),rgroup(maxgrp,2)
       integer nhis,lhis,ihis(mlhis,mhis),idhis(mhis,3)
-      integer nord,idord(mord,4),iord(mord,2),nrdf,numrdf
-      real*8 rord(mord,2)
+      integer nord,idord(mord,4),iord(mord,4,3),nrdf,numrdf
+      real*8 rord(mord)
       real*8 rhis,dhis,rrdf,rms0,rms1
       common/dia_def/rord,rgroups,rgroup,rhis,dhis,rrdf,
      + rms0,rms1,
