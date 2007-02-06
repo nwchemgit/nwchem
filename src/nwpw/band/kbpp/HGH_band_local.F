@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_local.F,v 1.5 2007-02-01 02:01:33 d3p708 Exp $
+* $Id: HGH_band_local.F,v 1.6 2007-02-06 19:46:03 d3p708 Exp $
 *
 
 
@@ -72,7 +72,7 @@ cccccc  external cccccccccccccccccccccccc
         vl(k1,k2,k3)= f*a
     
   700 continue
-      vl(1,1,1)=0.0d0   
+      vl(1,1,1)=b1*(C1+C2*3.0d0+C3*15.0D0+C4*105.0D0)-b0*0.5*rloc*rloc
       call C3dB_Vector_SumAll(nfft3d,VL)
       return
       end

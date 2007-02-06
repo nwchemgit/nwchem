@@ -1,5 +1,5 @@
 *
-* $Id: setup_kbpp_band.f,v 1.2 2007-01-02 18:36:49 bylaska Exp $
+* $Id: setup_kbpp_band.f,v 1.3 2007-02-06 19:46:03 d3p708 Exp $
 *
 
 *     *****************************************************
@@ -18,7 +18,7 @@
       integer i,j,k
       integer k1,k2,k3
       integer nffth1,nffth2,nffth3
-      double precision g1,g2,g3
+      double precision g1,g2,g3,dk1,dk2,dk3
 
 
       call get_unitg_band(unita,unitg)
@@ -30,9 +30,12 @@
       do k3 = -nffth3+1, nffth3
          do k2 = -nffth2+1, nffth2
             do k1 = -nffth1+1,nffth1
-               g1 = k1*unitg(1,1) + k2*unitg(1,2) +k3*unitg(1,3)
-               g2 = k1*unitg(2,1) + k2*unitg(2,2) +k3*unitg(2,3)
-               g3 = k1*unitg(3,1) + k2*unitg(3,2) +k3*unitg(3,3)
+               dk1=dble(k1)
+               dk2=dble(k2)
+               dk3=dble(k3)
+               g1 = dk1*unitg(1,1) + dk2*unitg(1,2) +dk3*unitg(1,3)
+               g2 = dk1*unitg(2,1) + dk2*unitg(2,2) +dk3*unitg(2,3)
+               g3 = dk1*unitg(3,1) + dk2*unitg(3,2) +dk3*unitg(3,3)
                i=k1
                j=k2
                k=k3
@@ -103,12 +106,13 @@
       volume = unita(1,1)*unitg(1,1)
      >       + unita(2,1)*unitg(2,1)
      >       + unita(3,1)*unitg(3,1)
+      volume=dabs(volume)
       call dscal(9,twopi/volume,unitg,1)
 
 *     ---------------------
 *     volume of a unit cell
 *     ---------------------
-      volume=dabs(volume)
+c      volume=dabs(volume)
 
       return
       end

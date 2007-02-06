@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.8 2004-03-15 15:17:41 bylaska Exp $
+* $Id: lattice.f,v 1.9 2007-02-06 19:46:57 d3p708 Exp $
 *
 
       real*8 function lattice_wcut()
@@ -203,7 +203,7 @@ c     call D3dB_nz(1,nz)
       integer index,k1,k2,k3
       integer np1,np2,np3
       integer nph1,nph2,nph3
-      real*8  a(3,3)
+      real*8  a(3,3),dk1,dk2,dk3
 
 *     **** external functions ****
       real*8   lattice_unita
@@ -224,9 +224,9 @@ c     call D3dB_nz(1,nz)
 
 *     **** elemental vectors ****
       do i=1,3
-         a(i,1) = lattice_unita(i,1)/np1
-         a(i,2) = lattice_unita(i,2)/np2
-         a(i,3) = lattice_unita(i,3)/np3
+         a(i,1) = lattice_unita(i,1)/dble(np1)
+         a(i,2) = lattice_unita(i,2)/dble(np2)
+         a(i,3) = lattice_unita(i,3)/dble(np3)
       end do
 
       call dcopy(3*n2ft3d,0.0d0,0,r,1)
@@ -246,9 +246,12 @@ c     call D3dB_nz(1,nz)
 c                 index = (q-1)*(np1+2)*np2
 c    >                  + j    *(np1+2)
 c    >                  + i+1
-                r(1,index) = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
-                r(2,index) = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
-                r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
+                dk1=dble(k1)
+                dk2=dble(k2)
+                dk3=dble(k3)
+                r(1,index) = a(1,1)*dk1 + a(1,2)*dk2 + a(1,3)*dk3
+                r(2,index) = a(2,1)*dk1 + a(2,2)*dk2 + a(2,3)*dk3
+                r(3,index) = a(3,1)*dk1 + a(3,2)*dk2 + a(3,3)*dk3
 
 c*               **** reverse y and z ****
 c                r(1,index) = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
@@ -274,7 +277,7 @@ c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
       integer index,k1,k2,k3
       integer np1,np2,np3
       integer nph1,nph2,nph3
-      real*8  a(3,3)
+      real*8  a(3,3),dk1,dk2,dk3
 
 *     **** external functions ****
       real*8   lattice_unita
@@ -295,9 +298,9 @@ c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 *     **** elemental vectors ****
       do i=1,3
-         a(i,1) = lattice_unita(i,1)/np1
-         a(i,2) = lattice_unita(i,2)/np2
-         a(i,3) = lattice_unita(i,3)/np3
+         a(i,1) = lattice_unita(i,1)/dble(np1)
+         a(i,2) = lattice_unita(i,2)/dble(np2)
+         a(i,3) = lattice_unita(i,3)/dble(np3)
       end do
 
       call dcopy(3*n2ft3d,0.0d0,0,r,1)
@@ -317,9 +320,12 @@ c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 c                 index = (q-1)*(np1+2)*np2
 c    >                  + j    *(np1+2)
 c    >                  + i+1
-                r(1,index) = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
-                r(2,index) = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
-                r(3,index) = a(3,1)*k1 + a(3,2)*k2 + a(3,3)*k3
+                dk1=dble(k1)
+                dk2=dble(k2)
+                dk3=dble(k3)
+                r(1,index) = a(1,1)*dk1 + a(1,2)*dk2 + a(1,3)*dk3
+                r(2,index) = a(2,1)*dk1 + a(2,2)*dk2 + a(2,3)*dk3
+                r(3,index) = a(3,1)*dk1 + a(3,2)*dk2 + a(3,3)*dk3
 
 c*               **** reverse y and z ****
 c                r(1,index) = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
@@ -439,15 +445,14 @@ c    >                  + i+1
       unitg(1,3) = unita(2,1)*unita(3,2) - unita(3,1)*unita(2,2)
       unitg(2,3) = unita(3,1)*unita(1,2) - unita(1,1)*unita(3,2)
       unitg(3,3) = unita(1,1)*unita(2,2) - unita(2,1)*unita(1,2)
-      volume = unita(1,1)*unitg(1,1)
-     >       + unita(2,1)*unitg(2,1)
-     >       + unita(3,1)*unitg(3,1)
-      call dscal(9,twopi/volume,unitg,1)
-
 *     ---------------------
 *     volume of a unit cell
 *     ---------------------
+      volume = unita(1,1)*unitg(1,1)
+     >       + unita(2,1)*unitg(2,1)
+     >       + unita(3,1)*unitg(3,1)
       volume=dabs(volume)
+      call dscal(9,twopi/volume,unitg,1)
 
       return
       end
