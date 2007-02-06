@@ -3,7 +3,7 @@
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
      &                         g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf.F,v 1.253 2006-11-28 18:46:01 edo Exp $
+c     $Id: dft_scf.F,v 1.254 2007-02-06 19:36:20 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -472,6 +472,9 @@ c
      .     quickguess=.false.
       if(quickguess.and.movecs_in.eq.'atomic') then
       if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_out))
+     $     call errquit('dft_scf: DFT MO vectors not defined',0,
+     &       RTDB_ERR)
+      if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
      $     call errquit('dft_scf: DFT MO vectors not defined',0,
      &       RTDB_ERR)
         if (oskel) call ga_symmetrize(g_dens(1))
