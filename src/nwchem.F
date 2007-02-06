@@ -23,7 +23,7 @@
       integer junk(4)
 #endif
 c
-c     $Id: nwchem.F,v 1.158 2006-09-28 17:42:34 edo Exp $
+c     $Id: nwchem.F,v 1.159 2007-02-06 19:08:11 edo Exp $
 *---------------------------------------------------------------------*
 *        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,            *
 *                  2000, 2001, 2002, 2003, 2004, 2005, 2006           *
@@ -138,6 +138,7 @@ C
      &      MA_ERR)
         call ga_set_memory_limit(ma_sizeof(mt_dbl,global,mt_byte))
       endif
+      call rtdb_init()
 c
 *
 *     More for amusement then efficiency force all MA allocated entities 

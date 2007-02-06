@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.21 2004-08-13 11:23:27 edo Exp $*/
+/*$Id: rtdb_seq.c,v 1.22 2007-02-06 19:08:12 edo Exp $*/
 #include <stdlib.h>
 #include <sys/types.h>
 #include <stdio.h>
@@ -275,6 +275,15 @@ const char *ma_typename(const int ma_type)
 
     return "invalid"; break;
   }
+}
+
+void rtdb_init_()
+{
+  int new;
+  
+  for (new=0; new<MAX_RTDB; new++)
+    rtdb[new].active = 0;
+
 }
 
 int rtdb_seq_open(const char *filename, const char *mode, int *handle)
