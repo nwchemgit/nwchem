@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.2 2007-02-06 21:24:16 d3j191 Exp $
+c $Id: dia_evaluate.F,v 1.3 2007-02-07 15:01:14 d3j191 Exp $
 c
 c     evaluate the defined properties
 c     -------------------------------
@@ -54,6 +54,11 @@ c
 c
       if(nord.gt.0)
      + call dia_evalord(dbl_mb(ndx),nsa,nfrme)
+c
+c     reset
+c
+      ntors=0
+      nord=0
 c
       return
       end

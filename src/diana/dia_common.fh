@@ -1,5 +1,5 @@
 c
-c $Id: dia_common.fh,v 1.5 2007-02-06 21:24:16 d3j191 Exp $
+c $Id: dia_common.fh,v 1.6 2007-02-07 15:01:13 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -19,7 +19,7 @@ c
       parameter(mlhis=1000)
 c
       integer mord
-      parameter(mord=960)
+      parameter(mord=1600)
 c
       integer irtdb,me,np,lfnana,lfnref,lfntrj,lfncop,lfnsup,
      + lfnchg,lfnplt,lfnxyz,lfnrms,lfnprj,lfnval,lfnmin,lfnmax,lfncov,
