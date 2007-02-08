@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral_band.F,v 1.3 2007-02-08 22:43:17 bylaska Exp $
+* $Id: Tesseral_band.F,v 1.4 2007-02-08 23:38:11 d3p708 Exp $
 *
 
 
@@ -55,10 +55,15 @@
         gz = G(k1,k2,k3,3) + kvec(3)
         Q=DSQRT(gx**2 + gy**2 + gz**2)
 
-        if (dabs(Q).gt.1.0d-9) then
-           gx=gx/Q
-           gy=gy/Q
-           gz=gz/Q
+        if (dabs(Q).lt.1.0d-9) then
+	    gx=0.0d0
+            gy=0.0d0
+            gz=0.0d0
+        else
+            gx=gx/Q
+            gy=gy/Q
+            gz=gz/Q
+        end if
 
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
            if ((l.eq.3).and.(m.eq.-3)) 
@@ -124,15 +129,7 @@
      >     Ylm(k1,k2,k3)=P0
 
 
-        else
-          Ylm(1,1,1) = 0.0d0
-          if ((l.eq.0).and.(m.eq.0))
-     >       Ylm(k1,k2,k3)=P0
 
-        end if
-
-
-    
   700 CONTINUE
       call C3dB_Vector_Sumall(nfft3d,Ylm)
 
