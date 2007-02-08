@@ -1,5 +1,5 @@
 *
-* $Id: HGH_nonlocal.F,v 1.3 2007-01-02 18:36:51 bylaska Exp $
+* $Id: HGH_nonlocal.F,v 1.4 2007-02-08 22:56:00 bylaska Exp $
 *
 
 
@@ -20,10 +20,10 @@
       parameter (MASTER=0)
 
 *     *** local variables ****
-      integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i
+      integer task_count,nfft3d
+      integer k1,k2,k3
       double precision pi,twopi,forpi
-      double precision p0,p1,p2,p3,coef
+      double precision P0,coef
       double precision r2,r3,r4,r5,r6,r7,r8,r9
       double precision g1,g2,g3,g4,a,poly
 
@@ -47,6 +47,7 @@
       r8 = r7*r
       r9 = r8*r
 
+      coef = 0.0d0
       if ((l.eq.0).and.(n.eq.1)) coef=4.0d0*dsqrt(2.0d0*r3)*P0
       if ((l.eq.0).and.(n.eq.2)) coef=8.0d0*dsqrt(2.0d0*r3/15.0d0)*P0
       if ((l.eq.0).and.(n.eq.3)) 
@@ -63,10 +64,10 @@
 
       if ((l.eq.3).and.(n.eq.1)) coef=16.0d0*dsqrt(r9/105.0d0)*P0
 
-      !write(*,*) "HGH_nonlocal n,l,coef:",n,l,coef
 
 *======================  Fourier transformation  ======================
-      call dcopy(nfft3d,0.0d0,0,VNL,1)
+      poly = 0.0d0
+      call dcopy(nfft3d,0.0d0,0,vnl,1)
       task_count = -1
       DO 700 k3=1,nfft3
       DO 700 k2=1,nfft2
@@ -105,10 +106,10 @@
         if ((l.eq.0).and.(n.eq.3)) poly = (15.0d0-10.0d0*g2*r2+g4*r4)
         
 
-        VNL(k1,k2,k3)=coef*a*poly
+        vnl(k1,k2,k3)=coef*a*poly
 
   700 CONTINUE
-      call D3dB_Vector_Sumall(nfft3d,VNL)
+      call D3dB_Vector_Sumall(nfft3d,vnl)
 
       return
       end

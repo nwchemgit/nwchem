@@ -1,5 +1,5 @@
 *
-* $Id: HGH_local.F,v 1.2 2007-01-30 18:49:08 d3p708 Exp $
+* $Id: HGH_local.F,v 1.3 2007-02-08 22:56:00 bylaska Exp $
 *
 
 
@@ -22,8 +22,8 @@
       parameter (MASTER=0)
 
 *     *** local variables ****
-      integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i,l
+      integer task_count,nfft3d
+      integer k1,k2,k3
       double precision pi,twopi,forpi
       double precision b0,b1
       double precision y,x,x2,x4,x6,a,a1,f,Q
@@ -44,7 +44,7 @@
 
 
 *======================  Fourier transformation  ======================
-      call dcopy(nfft3d,0.0d0,0,VL,1)
+      call dcopy(nfft3d,0.0d0,0,vl,1)
       task_count = -1
       DO 700 k3=1,nfft3
       DO 700 k2=1,nfft2
@@ -82,11 +82,11 @@
     
   700 continue
    
-      call D3dB_Vector_SumAll(nfft3d,VL)
+      call D3dB_Vector_SumAll(nfft3d,vl)
 
-      f = b1 *( C1 +3.0d0*C2 + 15.0d0*C3 + 105.0d0*C4)
+      f = b1 *(C1+3.0d0*C2+15.0d0*C3+105.0d0*C4)-b0*0.5d0*rloc*rloc
       if (version.eq.4) then
-        f = f + b0*(0.25d0*rlocal*rlocal-0.5d0*rloc*rloc)
+        f = f + b0*(0.25d0*rlocal*rlocal)
       end if
       vl(1,1,1) = f
   
