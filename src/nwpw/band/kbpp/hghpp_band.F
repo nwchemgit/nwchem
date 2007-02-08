@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.10 2007-02-08 22:43:17 bylaska Exp $
+* $Id: hghpp_band.F,v 1.11 2007-02-08 22:45:17 bylaska Exp $
 *
 
 *     **************************************
@@ -31,7 +31,7 @@
 *     **** local variables ****
       character*255 full_filename
 
-      logical value,mprint,hprint,oprint,spin_orbit
+      logical value,mprint,hprint,oprint
        
       integer taskid,MASTER,msglen
       parameter (MASTER=0)
@@ -65,8 +65,8 @@
       integer nmax,nprj
 
 *     **** external functions ****
-      logical  control_print,control_spin_orbit
-      external control_print,control_spin_orbit
+      logical  control_print
+      external control_print
 
 
       !call Parallel_init()
@@ -469,6 +469,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if ((taskid.eq.MASTER).and.(oprint)) call nwpw_message(4)
 
       hghpp_band = value
+
 
       return
  9999 call errquit('hghpp_band:Error reading psp_filename',0, DISK_ERR)
