@@ -676,7 +676,7 @@ c             *** current function is s or d ****
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
            end do !**l**
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
-         
+
 
 *          **** zsw2 = Gijl*zsw1 ******
            call Multiply_Gijl_zsw1(nn,
@@ -757,6 +757,7 @@ c             *** current function is s or d ****
         end if !** nproj>0**
 
       end do !**ii**
+
 
       if (move) then
         value = MA_pop_stack(sum(2))
