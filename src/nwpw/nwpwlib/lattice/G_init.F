@@ -1,5 +1,5 @@
 c
-c $Id: G_init.F,v 1.8 2006-08-13 01:03:25 bylaska Exp $
+c $Id: G_init.F,v 1.9 2007-02-08 22:18:05 bylaska Exp $
 c
 
       integer function G_indx(i)
@@ -25,12 +25,12 @@ c
 #include "mafdecls.fh"
 
 *     **** local variables ****
-      integer taskid,p,q
+      integer taskid,p
       integer i,j,k
       integer k1,k2,k3,index
       integer nx,ny,nz,nfft3d
       integer nxh,nyh,nzh
-      real*8  g1,g2,g3
+      real*8  g1,g2,g3,dk1,dk2,dk3
       logical value
 
 *     **** G_block common block ****
@@ -70,15 +70,18 @@ c
         do k3 = -nzh+1, nzh
            do k2 = -nyh+1, nyh
               do k1 = 0,nxh
-               g1 = k1*lattice_unitg(1,1) 
-     >            + k2*lattice_unitg(1,2) 
-     >            + k3*lattice_unitg(1,3)
-               g2 = k1*lattice_unitg(2,1) 
-     >            + k2*lattice_unitg(2,2) 
-     >            + k3*lattice_unitg(2,3)
-               g3 = k1*lattice_unitg(3,1) 
-     >            + k2*lattice_unitg(3,2) 
-     >            + k3*lattice_unitg(3,3)
+               dk1 = dble(k1)
+               dk2 = dble(k2)
+               dk3 = dble(k3)
+               g1 = dk1*lattice_unitg(1,1) 
+     >            + dk2*lattice_unitg(1,2) 
+     >            + dk3*lattice_unitg(1,3)
+               g2 = dk1*lattice_unitg(2,1) 
+     >            + dk2*lattice_unitg(2,2) 
+     >            + dk3*lattice_unitg(2,3)
+               g3 = dk1*lattice_unitg(3,1) 
+     >            + dk2*lattice_unitg(3,2) 
+     >            + dk3*lattice_unitg(3,3)
                i=k1
                j=k2
                k=k3

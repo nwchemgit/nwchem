@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.9 2007-02-06 19:46:57 d3p708 Exp $
+* $Id: lattice.f,v 1.10 2007-02-08 22:18:05 bylaska Exp $
 *
 
       real*8 function lattice_wcut()
@@ -199,7 +199,7 @@ c     call D3dB_nz(1,nz)
 
 *     **** local variables ****
       integer nfft3d,n2ft3d
-      integer i,j,k,p,q,taskid
+      integer i,j,k,p,taskid
       integer index,k1,k2,k3
       integer np1,np2,np3
       integer nph1,nph2,nph3
@@ -273,7 +273,7 @@ c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 *     **** local variables ****
       integer nfft3d,n2ft3d
-      integer i,j,k,p,q,taskid
+      integer i,j,k,p,taskid
       integer index,k1,k2,k3
       integer np1,np2,np3
       integer nph1,nph2,nph3
@@ -346,7 +346,7 @@ c                r(3,index) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 *     **** local variables ****
       integer nfft3d,n2ft3d
-      integer i,j,k,p,q,taskid
+      integer i,j,k,p,taskid
       integer index,k1,k2,k3
       integer np1,np2,np3
       integer nph1,nph2,nph3
@@ -451,9 +451,9 @@ c    >                  + i+1
       volume = unita(1,1)*unitg(1,1)
      >       + unita(2,1)*unitg(2,1)
      >       + unita(3,1)*unitg(3,1)
-      volume=dabs(volume)
       call dscal(9,twopi/volume,unitg,1)
 
+      volume=dabs(volume)
       return
       end
 
