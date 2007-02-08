@@ -62,11 +62,16 @@
         gz = G(k1,k2,k3,3) + kvec(3)
         Q=DSQRT(gx**2 + gy**2 + gz**2)
 
-        if (dabs(Q).lt.1.0d-12) go to 700
+        if (dabs(Q).lt.1.0d-12) then
+           gx=0.0d0
+           gy=0.0d0
+           gz=0.0d0
+        else
+           gx=gx/Q
+           gy=gy/Q
+           gz=gz/Q
+        end if
 
-        gx=gx/Q
-        gy=gy/Q
-        gz=gz/Q
         gsin=dsqrt(gx*gx+gy*gy)
         if (dabs(gsin).lt.1.e-12) then
            psin=0.0d0
@@ -167,10 +172,6 @@
             
   700 CONTINUE
       call C3dB_Vector_Sumall(nfft3d,Ylm)
-
-
-      Ylm(1,1,1) = 0.0d0
-      if (l.eq.0) Ylm(1,1,1) = scof(1,0)
 
 
       return

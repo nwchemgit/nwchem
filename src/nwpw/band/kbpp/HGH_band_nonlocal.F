@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_nonlocal.F,v 1.4 2007-02-01 01:52:42 d3p708 Exp $
+* $Id: HGH_band_nonlocal.F,v 1.5 2007-02-08 22:43:17 bylaska Exp $
 *
 
 
@@ -22,7 +22,7 @@
 
 *     *** local variables ****
       integer task_count,nfft3d
-      integer k1,k2,k3,found
+      integer k1,k2,k3
       double precision pi,twopi,forpi
       double precision p0,coef
       double precision r2,r3,r4,r5,r6,r7,r8,r9
@@ -49,6 +49,7 @@
       r8 = r7*r
       r9 = r8*r
 
+      coef = 0.0d0
       if ((l.eq.0).and.(n.eq.1)) coef=4.0d0*dsqrt(2.0d0*r3)*P0
 cccccc formula in paper is wrong! this should be 8 not sqrt(8) *******
       if ((l.eq.0).and.(n.eq.2)) 
@@ -67,11 +68,10 @@ cccccc formula in paper is wrong! this should be 8 not sqrt(8) *******
 
       if ((l.eq.3).and.(n.eq.1)) coef=16.0d0*dsqrt(r9/105.0d0)*P0
 
-      !write(*,*) "HGH_nonlocal n,l,coef:",n,l,coef
 
 *======================  Fourier transformation  ======================
       poly = 0.0d0
-      call dcopy(nfft3d,0.0d0,0,VNL,1)
+      call dcopy(nfft3d,0.0d0,0,vnl,1)
       task_count = -1
       DO 700 k3=1,nfft3
       DO 700 k2=1,nfft2
@@ -79,7 +79,7 @@ cccccc formula in paper is wrong! this should be 8 not sqrt(8) *******
         task_count = task_count + 1
         if (mod(task_count,np).ne.taskid) go to 700
         gx = G(k1,k2,k3,1)+kvec(1)
-	gy = G(k1,k2,k3,2)+kvec(2)
+        gy = G(k1,k2,k3,2)+kvec(2)
         gz = G(k1,k2,k3,3)+kvec(3)
         g2=(gx*gx + gy*gy + gz*gz)
         g1= dsqrt(g2)
@@ -89,14 +89,12 @@ cccccc formula in paper is wrong! this should be 8 not sqrt(8) *******
         
         a = dexp(-0.5d0*g2*r2)
 
-c        found=0
         
 *       **** f-wave  ****
         if ((l.eq.3).and.(n.eq.1)) then
           poly = g3
         end if
     
-
 *       **** d-wave ****
         if ((l.eq.2).and.(n.eq.1)) then
           poly = g2
@@ -127,10 +125,10 @@ c        found=0
           poly = (15.0d0-10.0d0*g2*r2+g4*r4)
         end if   
 
-        VNL(k1,k2,k3)=coef*a*poly
+        vnl(k1,k2,k3)=coef*a*poly
 
   700 CONTINUE
-      call C3dB_Vector_Sumall(nfft3d,VNL)
+      call C3dB_Vector_Sumall(nfft3d,vnl)
       return
       end
 

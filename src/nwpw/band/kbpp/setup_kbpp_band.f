@@ -1,5 +1,5 @@
 *
-* $Id: setup_kbpp_band.f,v 1.3 2007-02-06 19:46:03 d3p708 Exp $
+* $Id: setup_kbpp_band.f,v 1.4 2007-02-08 22:43:17 bylaska Exp $
 *
 
 *     *****************************************************
@@ -33,9 +33,9 @@
                dk1=dble(k1)
                dk2=dble(k2)
                dk3=dble(k3)
-               g1 = dk1*unitg(1,1) + dk2*unitg(1,2) +dk3*unitg(1,3)
-               g2 = dk1*unitg(2,1) + dk2*unitg(2,2) +dk3*unitg(2,3)
-               g3 = dk1*unitg(3,1) + dk2*unitg(3,2) +dk3*unitg(3,3)
+               g1 = dk1*unitg(1,1) + dk2*unitg(1,2) + dk3*unitg(1,3)
+               g2 = dk1*unitg(2,1) + dk2*unitg(2,2) + dk3*unitg(2,3)
+               g3 = dk1*unitg(3,1) + dk2*unitg(3,2) + dk3*unitg(3,3)
                i=k1
                j=k2
                k=k3
@@ -106,13 +106,13 @@
       volume = unita(1,1)*unitg(1,1)
      >       + unita(2,1)*unitg(2,1)
      >       + unita(3,1)*unitg(3,1)
-      volume=dabs(volume)
+      
       call dscal(9,twopi/volume,unitg,1)
 
 *     ---------------------
 *     volume of a unit cell
 *     ---------------------
-c      volume=dabs(volume)
+       volume=dabs(volume)
 
       return
       end

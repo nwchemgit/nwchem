@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.3 2007-01-21 00:33:33 d3p708 Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.4 2007-02-08 22:45:56 bylaska Exp $                       
 
 *     ***************************
 *     *				*
@@ -19,17 +19,38 @@ c     $Id: c_cgsd_noit_energy.F,v 1.3 2007-01-21 00:33:33 d3p708 Exp $
       parameter (MASTER=0)
 
       logical value
-      real*8  E(30),virial
+      real*8  E(30),virial,EV
       integer rtdb,neall
+      integer i,NN,nb
 
 *     **** external functions ****
-      logical  cpsp_semicore
-      integer  control_rtdb
-      integer  ion_nion,cpsi_ispin,cpsi_ne
+c      logical  cpsp_semicore
+       integer  control_rtdb
+c      integer  ion_nion,cpsi_ispin,cpsi_ne
+c
+c      external cpsp_semicore
+       external control_rtdb
+c      external ion_nion,cpsi_ispin,cpsi_ne
 
-      external cpsp_semicore
-      external control_rtdb
-      external ion_nion,cpsi_ispin,cpsi_ne
+      logical     cpsp_semicore,control_out_of_time
+      character*2 ion_aname
+      integer     control_it_in,control_it_out,control_minimizer
+      integer     ion_nion,ion_katm,cpsi_ne,cpsi_ispin
+      real*8      control_tole,control_tolc
+      real*8      ion_rion,cpsi_eigenvalue,ion_amass
+      external cpsp_semicore,control_out_of_time
+      external ion_aname
+      external control_it_in,control_it_out,control_minimizer
+      external ion_nion,ion_katm,cpsi_ne,cpsi_ispin
+      external control_tole,control_tolc
+      external ion_rion,cpsi_eigenvalue,ion_amass
+      integer  brillioun_nbrillioun
+      real*8   brillioun_k,brillioun_ks,brillioun_weight
+      external brillioun_nbrillioun
+      external brillioun_k,brillioun_ks,brillioun_weight
+      integer Pneb_ispin,Pneb_ispinq
+      external Pneb_ispin,Pneb_ispinq
+
 
 
       call Parallel_taskid(taskid)
@@ -42,6 +63,9 @@ c      call cphafac_k()
 
 
       call c_nominimize(E)
+
+      call cpsi_1gen_hml()
+      call cpsi_diagonalize_hml()
 
 **:::::::::::::::::   report summary of results  :::::::::::::::::::::::
       if (taskid.eq.MASTER) then
@@ -65,6 +89,37 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          write(luout,1499) E(11),E(11)/neall
          virial = (E(11)+E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
+
+         NN=cpsi_ne(1)-cpsi_ne(2)
+         EV=27.2116
+         do nb=1,brillioun_nbrillioun()
+           write(luout,1508) nb,
+     >                   brillioun_weight(nb),
+     >                   brillioun_ks(1,nb),
+     >                   brillioun_ks(2,nb),
+     >                   brillioun_ks(3,nb),
+     >                   brillioun_k(1,nb),
+     >                   brillioun_k(2,nb),
+     >                   brillioun_k(3,nb)
+           write(luout,1500)
+           do i=0,NN-1
+             write(luout,1510) cpsi_eigenvalue(nb,1,cpsi_ne(1)-i),
+     >                     cpsi_eigenvalue(nb,1,cpsi_ne(1)-i)*EV
+           end do
+           if (Pneb_ispinq().eq.Pneb_ispin()) then
+
+             do i=0,cpsi_ne(2)-1
+               write(luout,1510)  cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN),
+     >                      cpsi_eigenvalue(nb,1,cpsi_ne(1)-i-NN)*EV,
+     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i),
+     >                      cpsi_eigenvalue(nb,2,cpsi_ne(2)-i)*EV
+             end do
+           else
+             call cpsi_spins_output(nb,luout)
+           end if
+         end do
+
+
       end if
 
 

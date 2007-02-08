@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.9 2007-02-05 17:35:42 d3p708 Exp $
+* $Id: hghpp_band.F,v 1.10 2007-02-08 22:43:17 bylaska Exp $
 *
 
 *     **************************************
@@ -285,7 +285,7 @@
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp_band(nfft1,nfft2,nfft3,unita,unitg,
-     >dbl_mb(G_indx))
+     >                     dbl_mb(G_indx))
       zv = dble(Zion)
 
       call HGH_band_local(version,

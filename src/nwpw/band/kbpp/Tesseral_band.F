@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral_band.F,v 1.2 2007-02-08 22:05:31 d3p708 Exp $
+* $Id: Tesseral_band.F,v 1.3 2007-02-08 22:43:17 bylaska Exp $
 *
 
 
@@ -55,83 +55,81 @@
         gz = G(k1,k2,k3,3) + kvec(3)
         Q=DSQRT(gx**2 + gy**2 + gz**2)
 
-        if (dabs(Q).lt.1.0d-9) then
-            Ylm(k1,k2,k3) = 0.0d0 
-            if (l.eq.0) Ylm(k1,k2,k3) = P0
-	    goto 700
-        else
-            gx=gx/Q
-            gy=gy/Q
-            gz=gz/Q
-        end if
+        if (dabs(Q).gt.1.0d-9) then
+           gx=gx/Q
+           gy=gy/Q
+           gz=gz/Q
 
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
-
-        if ((l.eq.3).and.(m.eq.-3)) 
-     >    Ylm(k1,k2,k3)=P3*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+           if ((l.eq.3).and.(m.eq.-3)) 
+     >       Ylm(k1,k2,k3)=P3*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
      >                          /dsqrt(24.0d0)
         
-        if ((l.eq.3).and.(m.eq.-2)) 
+           if ((l.eq.3).and.(m.eq.-2)) 
      >     Ylm(k1,k2,k3)=P3*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
      >                          /dsqrt(24.0d0)
          
-        if ((l.eq.3).and.(m.eq.-1)) 
+           if ((l.eq.3).and.(m.eq.-1)) 
      >     Ylm(k1,k2,k3)=P3*GZ*(GX*GX - GY*GY)
      >                          /2.0d0
           
-        if ((l.eq.3).and.(m.eq.0)) 
+           if ((l.eq.3).and.(m.eq.0)) 
      >     Ylm(k1,k2,k3)=P3*GX*GY*GZ
            
-        if ((l.eq.3).and.(m.eq.1)) 
+           if ((l.eq.3).and.(m.eq.1)) 
      >     Ylm(k1,k2,k3)=P3*GX*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
 
-        if ((l.eq.3).and.(m.eq.2)) 
+           if ((l.eq.3).and.(m.eq.2)) 
      >     Ylm(k1,k2,k3)=P3*GY*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
 
-        if ((l.eq.3).and.(m.eq.3)) 
+           if ((l.eq.3).and.(m.eq.3)) 
      >     Ylm(k1,k2,k3)=P3*GZ*(5.0d0*GZ*GZ-3.0d0)
      >                          /dsqrt(60.0d0)
 
 
 
 *::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
-
-
-        if ((l.eq.2).and.(m.eq.-2)) 
-     >    Ylm(k1,k2,k3)=P2*(3.0d0*GZ*GZ-1.0d0)
+           if ((l.eq.2).and.(m.eq.-2)) 
+     >     Ylm(k1,k2,k3)=P2*(3.0d0*GZ*GZ-1.0d0)
      >                          /(2.0d0*dsqrt(3.0d0))
 
-        if ((l.eq.2).and.(m.eq.-1)) 
-     >    Ylm(k1,k2,k3)=P2*GX*GY
+           if ((l.eq.2).and.(m.eq.-1)) 
+     >     Ylm(k1,k2,k3)=P2*GX*GY
 
-        if ((l.eq.2).and.(m.eq.0)) 
-     >    Ylm(k1,k2,k3)=P2*GY*GZ
+           if ((l.eq.2).and.(m.eq.0)) 
+     >     Ylm(k1,k2,k3)=P2*GY*GZ
 
-        if ((l.eq.2).and.(m.eq.1)) 
-     >    Ylm(k1,k2,k3)=P2*GZ*GX
+           if ((l.eq.2).and.(m.eq.1)) 
+     >     Ylm(k1,k2,k3)=P2*GZ*GX
 
-        if ((l.eq.2).and.(m.eq.2)) 
-     >    Ylm(k1,k2,k3)=P2*(GX*GX-GY*GY)/(2.0d0)
+           if ((l.eq.2).and.(m.eq.2)) 
+     >     Ylm(k1,k2,k3)=P2*(GX*GX-GY*GY)/(2.0d0)
 
 
 *::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
-
-        if ((l.eq.1).and.(m.eq.-1)) 
+           if ((l.eq.1).and.(m.eq.-1)) 
      >     Ylm(k1,k2,k3)=P1*GX
 
-        if ((l.eq.1).and.(m.eq.0)) 
+           if ((l.eq.1).and.(m.eq.0)) 
      >     Ylm(k1,k2,k3)=P1*GY
 
-        if ((l.eq.1).and.(m.eq.1)) 
+           if ((l.eq.1).and.(m.eq.1)) 
      >     Ylm(k1,k2,k3)=P1*GZ
 
 
 *::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
+           if ((l.eq.0).and.(m.eq.0)) 
+     >     Ylm(k1,k2,k3)=P0
 
-        if ((l.eq.0).and.(m.eq.0)) 
-     >    Ylm(k1,k2,k3)=P0
+
+        else
+          Ylm(1,1,1) = 0.0d0
+          if ((l.eq.0).and.(m.eq.0))
+     >       Ylm(k1,k2,k3)=P0
+
+        end if
 
 
     
