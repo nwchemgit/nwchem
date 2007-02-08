@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.12 2007-02-02 01:10:09 d3p708 Exp $
+* $Id: cpsi_H.F,v 1.13 2007-02-08 22:12:50 bylaska Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -170,15 +170,13 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer nne(2)
       integer nx,ny,nz,npack1
-      real*8  scal1,fion(3,1)
+      real*8  scal1
 
 *     **** tempory space ****
       integer nfft3d,ne1,shiftk
-      integer vpsi(2),spsi(2),tpsi(2)
+      integer vpsi(2)
       logical value
-      complex*16 tmp
 
 
 *     **** external functions ****
@@ -207,12 +205,8 @@
       call C3dB_nfft3d(1,nfft3d)
       call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-c      value = value.and.MA_push_get(mt_dcpl,2*npack1*ne1,'Torb_k',
-c     > tpsi(2),tpsi(1))
-c      value = value.and.MA_push_get(mt_dcpl,2*nfft3d*ne1,'Sorb_k',
-c     > spsi(2),spsi(1))
-c      if (.not. value)
-c     >  call errquit('cpsi_Horb:out of stack memory',0, MA_ERR)
+      if (.not. value)
+     >  call errquit('cpsi_Horb:out of stack memory',0, MA_ERR)
       call nwpw_timing_end(12)
 
       shiftk=npack1*ne1
@@ -223,22 +217,12 @@ c     >  call errquit('cpsi_Horb:out of stack memory',0, MA_ERR)
 *     ************************************************
       call cke_orb(nb,orb_k,Horb_k)
 
-c      call dcopy(2*shiftk,0.0,0,dcpl_mb(tpsi(1)),1)
-c      call cke_orb(nb,orb_k,dcpl_mb(tpsi(1)))
-c      tmp=zdotc(npack1,orb_k,1,dcpl_mb(tpsi(1)),1)
-c      write(*,*)"ke",tmp
-c      call flush(6)
 
 *     *********************************************************
 *     **** add non-local psp - Horb_k = Horb_k + Vnl*orb_k ****
 *     *********************************************************
       call cpsp_v_nonlocal_orb(nb,orb_k,Horb_k)
 
-c      call dcopy(2*shiftk,0.0,0,dcpl_mb(tpsi(1)),1)
-c      call cpsp_v_nonlocal_orb(nb,orb_k,dcpl_mb(tpsi(1)))
-c      tmp=zdotc(npack1,orb_k,1,dcpl_mb(tpsi(1)),1)
-c      write(*,*)"vnl",tmp
-c      call flush(6)
 
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*orb_r] ****
@@ -259,18 +243,9 @@ c      call flush(6)
      >                   dcpl_mb(vpsi(1)),
      >                   Horb_k)
 
-c      call dcopy(2*shiftk,0.0,0,dcpl_mb(tpsi(1)),1)
-c      call Cram_cc_daxpy(nb,(-scal1),
-c     >                   dcpl_mb(vpsi(1)),
-c     >                   dcpl_mb(tpsi(1)))
-c      tmp=zdotc(npack1,orb_k,1,dcpl_mb(tpsi(1)),1)
-c      write(*,*)"vall",tmp
-c      call flush(6)
 
       call nwpw_timing_start(12)
       value = .true.
-c      value = value.and.MA_pop_stack(spsi(2))
-c      value = value.and.MA_pop_stack(tpsi(2))
       value = value.and.MA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('psi_Horb: popping stack',1, MA_ERR)
@@ -316,23 +291,19 @@ c      value = value.and.MA_pop_stack(tpsi(2))
 
 
 *     **** local variables ****
-      integer nne(2)
       integer nx,ny,nz
-      real*8  scal1,fion(3,1)
+      real*8  scal1
 
 *     **** tempory space ****
       integer nfft3d,npack1,ne1,shiftr,shiftk
-      integer vpsi(2),tpsi(2),spsi(2)
-      complex*16 tmp,tmp2
+      integer vpsi(2)
       logical value
 
 
 *     **** external functions ****
       real*8   lattice_omega
-      complex*16 zdotc
-      integer cpsi_ne
+      integer  cpsi_ne
       external lattice_omega
-      external zdotc
       external cpsi_ne
 
       
@@ -347,10 +318,6 @@ c      value=MA_set_auto_verify(.true.)
       shiftk=ne1*npack1
       call nwpw_timing_start(12)
       value = MA_push_get(mt_dcpl,2*nfft3d,'vpsi',vpsi(2),vpsi(1))
-c      value = value.and.MA_push_get(mt_dcpl,2*shiftk,'Torb_k',
-c     > tpsi(2),tpsi(1))
-c      value = value.and.MA_push_get(mt_dcpl,2*shiftr,'Sorb_k',
-c     > spsi(2),spsi(1))
       if (.not. value)
      >  call errquit('cpsi_Horb2com:out of stack memory',0, MA_ERR)
       call nwpw_timing_end(12)
@@ -363,42 +330,18 @@ c     > spsi(2),spsi(1))
 *     ************************************************
       call cke_orb(nb,orb_k,Horb_k)
 
-c      call dcopy(4*shiftk,0.0,0,dcpl_mb(tpsi(1)),1)
-c      call cke_orb(nb,orb_k,dcpl_mb(tpsi(1)))
-c      tmp=zdotc(npack1,orb_k,1,dcpl_mb(tpsi(1)),1)
-c      tmp=tmp+zdotc(npack1,orb_k(shiftk+1),
-c     >           1,dcpl_mb(tpsi(1)+shiftk),1)   
-c      value=MA_verify_allocator_stuff()
-c      write(*,*)"ke",tmp
-c      call flush(6)
 
 *     *********************************************************
 *     **** add non-local psp - Horb_k = Horb_k + Vnl*orb_k ****
 *     *********************************************************
       call cpsp_v_nonlocal_orb(nb,orb_k,Horb_k)
 
-c      call dcopy(4*shiftk,0.0,0,dcpl_mb(tpsi(1)),1)
-c      call cpsp_v_nonlocal_orb(nb,orb_k,dcpl_mb(tpsi(1)))
-c      tmp=zdotc(npack1,orb_k,1,dcpl_mb(tpsi(1)),1)
-c      tmp=tmp+zdotc(npack1,orb_k(shiftk+1),
-c     >           1,dcpl_mb(tpsi(1)+shiftk),1)   
-c      value=MA_verify_allocator_stuff()
-c      write(*,*)"vnl",tmp
-c      call flush(6)
  
 *     *********************************************************
 *     **** add spin_orbit psp - Horb_k = Horb_k + Vso*orb_k ***
 *     *********************************************************
       call cpsp_v_spin_orbit_orb(nb,orb_k,Horb_k)
 
-c      call dcopy(4*shiftk,0.0,0,dcpl_mb(tpsi(1)),1)
-c      call cpsp_v_spin_orbit_orb(nb,orb_k,dcpl_mb(tpsi(1)))
-c      tmp=zdotc(npack1,orb_k,1,dcpl_mb(tpsi(1)),1)
-c      tmp=tmp+zdotc(npack1,orb_k(shiftk+1),
-c     >           1,dcpl_mb(tpsi(1)+shiftk),1)   
-c      value=MA_verify_allocator_stuff()
-c      write(*,*)"vnlso",tmp
-c      call flush(6)
 
 *     **************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*orb_r] ****
@@ -428,25 +371,9 @@ c      call flush(6)
      >                   Horb_k(shiftk+1))
 
 
-c      call dcopy(4*shiftk,0.0,0,dcpl_mb(tpsi(1)),1)
-c      call Cram_cc_daxpy(nb,(-scal1),
-c     >                   dcpl_mb(vpsi(1)),
-c     >                   dcpl_mb(tpsi(1)))
-c      call Cram_cc_daxpy(nb,(-scal1),
-c     >                   dcpl_mb(vpsi(1)+nfft3d),
-c     >                   dcpl_mb(tpsi(1)+shiftk))
-c      tmp=zdotc(npack1,orb_k,1,dcpl_mb(tpsi(1)),1)
-c      tmp=tmp+zdotc(npack1,orb_k(shiftk+1),
-c     >           1,dcpl_mb(tpsi(1)+shiftk),1)   
-c      value=MA_verify_allocator_stuff()
-c      write(*,*)"vall",tmp
-c      call flush(6)
       
-c      value=MA_verify_allocator_stuff()
       call nwpw_timing_start(12)
       value = .true.
-c      value = value.and.MA_pop_stack(spsi(2))
-c      value = value.and.MA_pop_stack(tpsi(2))
       value = value.and.MA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('psi_Horb2com: popping stack',1, MA_ERR)
