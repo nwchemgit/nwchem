@@ -8,3 +8,25 @@ Mg 2 0.651812 -2.864297
 0.677569 1.049881
 0.005152
 <end>
+
+
+Comment: Used for generating atomic orbitals
+<atom>
+Mg
+12.0 24.0 3 1
+1  0      2.00
+2  0      2.00
+2  1      6.00
+3  0      2.00
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+   0   2.5922174
+   1   2.5922174
+   2   2.5922174
+<end>
+
+<semicore> 1.73   <end>
+<semicore_type> quadratic <end>
+

@@ -10,3 +10,38 @@ Rn 8 0.570000 14.629185
 0.788337 0.557746
 0.045488
 <end>
+
+
+Comment: Used for generating atomic orbitals
+
+<atom>
+Rn
+86.0 222.00 13 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   10.0
+6 0   2.00
+6 1   4.10
+6 2   1.90
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0    1.6830971
+   1    2.0816042
+   2    2.9172542
+<end>
+<semicore> 1.64 <end>
+<semicore_type> quadratic <end>
+
+

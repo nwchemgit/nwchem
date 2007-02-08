@@ -10,3 +10,29 @@ Se 6 0.510000
 0.613420 0.434829
 0.005784
 <end>
+
+
+Comment: Used for generating atomic orbitals
+<atom>
+Se
+34.0 79.0 6 2
+1  0      2.00
+2  0      2.00
+2  1      6.00
+3  0      2.00
+3  1      6.00
+3  2     10.00
+4  0      2.00
+4  1      4.00
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+   0   1.8424568
+   1   1.8424568
+<end>
+
+<semicore> 1.25   <end>
+<semicore_type> quadratic <end>
+
+

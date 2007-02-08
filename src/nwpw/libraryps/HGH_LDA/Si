@@ -8,3 +8,18 @@ Si	4 	0.440000 	-7.336103
 		0.484278	2.727013	0.000000
 			 	0.000373	0.014437
 <end>
+
+
+Comment: Used for generating atomic orbitals
+<atom>
+ Si
+  0.140000E+02  0.280000E+02   3   2
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.200000E+01
+ <end>
+ <solver> pauli                     <end>
+ <pseudopotential> hamann                    <end>
+

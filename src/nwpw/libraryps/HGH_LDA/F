@@ -8,3 +8,24 @@ F 7 0.218525 -21.307361 3.072869
 0.174268 0.000000
 0.015106
 <end>
+
+
+Comment: Used for generating atomic orbitals
+<atom>
+F
+9.0 19.0 1 2
+1  0      2.0
+2  0      2.00
+2  1      5.00
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+   0    1.3876018
+   1    1.3876018
+<end>
+
+<semicore> 0.32   <end>
+<semicore_type> quadratic <end>
+
+

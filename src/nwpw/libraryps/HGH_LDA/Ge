@@ -10,3 +10,21 @@ Ge 4 0.540000
 0.788369 0.191205
 0.002918
 <end>
+
+Comment: Used for generating atomic orbitals
+ <atom>
+ Ge
+  0.320000E+02  0.730000E+02   6   2
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.600000E+01
+   3   2  0.100000E+02
+   4   0  0.200000E+01
+   4   1  0.200000E+01
+ <end>
+ <solver> pauli           <end>
+ <pseudopotential> hamann <end>
+
+

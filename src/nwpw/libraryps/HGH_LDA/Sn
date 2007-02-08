@@ -10,3 +10,32 @@ Sn 4 0.605000 4.610912
 0.944459 0.225115
 0.007066
 <end>
+
+
+Comment: Used for generating atomic orbitals
+
+<atom>
+Sn
+50.0 119.0 9 2
+1  0      2.00
+2  0      2.00
+2  1      6.00
+3  0      2.00
+3  1      6.00
+3  2     10.00
+4  0      2.00
+4  1      6.00
+4  2     10.00
+5  0      2.00
+5  1      2.00
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+   0    2.2829199
+   1    2.2829199
+<end>
+
+<semicore> 1.97   <end>
+<semicore_type> quadratic <end>
+

@@ -10,3 +10,37 @@ Pb 4 0.617500 0.753143
 0.971939 0.374967
 0.029256
 <end>
+
+
+Comment: Used for generating atomic orbitals
+
+<atom>
+Pb
+82.0 207.20 13 3
+1 0   2.0
+2 0   2.0
+2 1   6.0
+3 0   2.0
+3 1   6.0
+3 2  10.0
+4 0   2.0
+4 1   6.0
+4 2   10.0
+4 3   14.0
+5 0   2.0
+5 1   6.0
+5 2   10.0
+6 0   2.00
+6 1   1.00
+6 2   1.00
+<end>
+<solver> pauli                     <end>
+<pseudopotential>    troullier-martins <end>
+<rcut>
+   0    1.9266159
+   1    2.3827805
+   2    3.9285604
+<end>
+<semicore> 2.20 <end>
+<semicore_type> quadratic <end>
+

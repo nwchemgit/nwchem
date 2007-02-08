@@ -10,3 +10,26 @@ Ni 10 0.560000
 0.278113 -11.608428
 0.008708
 <end>
+
+<atom>
+Ni
+28.0 59.0 5 2
+1  0      2.00
+2  0      2.00
+2  1      6.00
+3  0      2.00
+3  1      6.00
+4  0      2.00
+3  2      8.00
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+   0   2.9454613
+   1   2.9454613
+   2   2.2939080
+<end>
+
+<semicore> 0.74   <end>
+<semicore_type> quadratic <end>
+
