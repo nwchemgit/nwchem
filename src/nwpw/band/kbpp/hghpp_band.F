@@ -1,5 +1,5 @@
 *
-* $Id: hghpp_band.F,v 1.11 2007-02-08 22:45:17 bylaska Exp $
+* $Id: hghpp_band.F,v 1.12 2007-02-08 23:59:58 d3p708 Exp $
 *
 
 *     **************************************
@@ -100,13 +100,12 @@
          end if
          read(11,'(A)',ERR=9999,END=9999) comment
          close(11)
-
-
          !**** determine nmax ****
          nmax = 0
          do l=0,lmax
             do i=1,3 
-              if ((H(i,l).ne.0.0d0) .and. (i.gt.nmax)) nmax = i
+              if (  (dabs(H(i,l)).gt.1.0d-14) .and. 
+     >            (i.gt.nmax)) nmax = i
             end do
          end do
       end if
@@ -144,7 +143,7 @@
       do l=0,lmax
             !write(*,*) "???H :",l,(H(i,l),i=1,3)
       do i=1,3 
-        if ((H(i,l).ne.0.0d0)) nprj = nprj + (2*l+1)
+        if ( dabs(H(i,l)).gt.1.0d-14) nprj = nprj + (2*l+1)
       end do
       end do
       !write(*,*) "???nprj:", nprj
