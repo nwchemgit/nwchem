@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral_band.F,v 1.4 2007-02-08 23:38:11 d3p708 Exp $
+* $Id: Tesseral_band.F,v 1.5 2007-02-09 00:02:46 d3p708 Exp $
 *
 
 
@@ -53,7 +53,7 @@
         gx = G(k1,k2,k3,1) + kvec(1)
         gy = G(k1,k2,k3,2) + kvec(2)
         gz = G(k1,k2,k3,3) + kvec(3)
-        Q=DSQRT(gx**2 + gy**2 + gz**2)
+        Q=DSQRT(gx*gx + gy*gy + gz*gz)
 
         if (dabs(Q).lt.1.0d-9) then
 	    gx=0.0d0
@@ -96,8 +96,11 @@
 
 
 *::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
+c           if ((l.eq.2).and.(m.eq.-2)) 
+c     >     Ylm(k1,k2,k3)=P2*(3.0d0*GZ*GZ-1.0d0)
+c     >                          /(2.0d0*dsqrt(3.0d0))
            if ((l.eq.2).and.(m.eq.-2)) 
-     >     Ylm(k1,k2,k3)=P2*(3.0d0*GZ*GZ-1.0d0)
+     >     Ylm(k1,k2,k3)=P2*(2.0d0*GZ*GZ-GX*GX-GY*GY)
      >                          /(2.0d0*dsqrt(3.0d0))
 
            if ((l.eq.2).and.(m.eq.-1)) 
