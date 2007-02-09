@@ -1,4 +1,4 @@
-c     $Id: c_cgsd_noit_energy.F,v 1.4 2007-02-08 22:45:56 bylaska Exp $                       
+c     $Id: c_cgsd_noit_energy.F,v 1.5 2007-02-09 00:04:12 d3p708 Exp $                       
 
 *     ***************************
 *     *				*
@@ -91,7 +91,7 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          write(luout,1498) virial
 
          NN=cpsi_ne(1)-cpsi_ne(2)
-         EV=27.2116
+         EV=27.2116d0
          do nb=1,brillioun_nbrillioun()
            write(luout,1508) nb,
      >                   brillioun_weight(nb),
