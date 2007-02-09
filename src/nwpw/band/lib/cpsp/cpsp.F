@@ -1,3 +1,7 @@
+*
+* $Id: cpsp.F,v 1.36 2007-02-09 00:10:30 d3p708 Exp $
+*
+
 #define TCGMSG
 
       subroutine cpsp_init()      
