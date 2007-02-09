@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.84 2006-06-14 19:19:22 windus Exp $
+# $Id: GNUmakefile,v 1.85 2007-02-09 16:24:41 edo Exp $
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  
@@ -7,7 +7,7 @@ include config/makefile.h
 
   SUBDIRS =  $(NWSUBDIRS)
 
-  LIB_DEFINES =  -DCOMPILATION_DATE="'`date`'" \
+  LIB_DEFINES =  -DCOMPILATION_DATE="'`date +%a_%b_%d_%H:%M:%S_%Y`'" \
                  -DCOMPILATION_DIR="'$(TOPDIR)'" \
                  -DNWCHEM_BRANCH="'$(CODE_BRANCH)'"
 ifeq ($(TARGET),FUJITSU_VPP)
