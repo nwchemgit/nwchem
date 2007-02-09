@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_nonlocal.F,v 1.1 2001-12-13 03:51:23 bylaska Exp $
+* $Id: integrate_kbpp_band_nonlocal.F,v 1.2 2007-02-09 00:05:52 d3p708 Exp $
 *
       subroutine integrate_kbpp_band_nonlocal(version,kvec,
      >                            nrho,drho,lmax,locp,zv,
@@ -137,7 +137,9 @@
              END DO
              D=P2*SIMP(NRHO,F,DRHO)/Q
              lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+c          VNL(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+c     >                          /(2.0d0*dsqrt(3.0d0))
+           VNL(k1,k2,k3,lcount)=D*(2.0d0*GZ*GZ-GX*GX-GY*GY)
      >                          /(2.0d0*dsqrt(3.0d0))
              lcount = lcount-1
           VNL(k1,k2,k3,lcount)=D*GX*GY

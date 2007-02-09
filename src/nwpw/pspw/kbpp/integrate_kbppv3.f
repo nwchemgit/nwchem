@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3.f,v 1.4 2003-12-02 19:17:10 bylaska Exp $
+* $Id: integrate_kbppv3.f,v 1.5 2007-02-09 00:08:42 d3p708 Exp $
 *
 
 
@@ -180,7 +180,9 @@ c     parameter (c6=0.00004306380d0)
           END DO
           D=P2*SIMP(NRHO,F,DRHO)/Q
           lcount = lcount-1
-          VNL(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+c          VNL(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+c     >                          /(2.0d0*dsqrt(3.0d0))
+          VNL(k1,k2,k3,lcount)=D*(2.0d0*GZ*GZ-GX*GX-GY*GY)
      >                          /(2.0d0*dsqrt(3.0d0))
           lcount = lcount-1
           VNL(k1,k2,k3,lcount)=D*GX*GY
