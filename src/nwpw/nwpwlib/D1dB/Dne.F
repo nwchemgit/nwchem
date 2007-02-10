@@ -1,4 +1,4 @@
-* $Id: Dne.F,v 1.6 2006-12-05 00:14:41 bylaska Exp $
+* $Id: Dne.F,v 1.7 2007-02-10 03:40:43 bylaska Exp $
 *
 
 #define NBLOCKS 4
@@ -16,7 +16,6 @@
       integer ne_in(2)
       integer map_in
 
-      integer nb
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -534,8 +533,6 @@ c     ****************************************
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift,shift2,ishift2
-      integer i,j
-      real*8  sum
 
       if (parallelized) then
          if (mb.eq.0) then
@@ -894,7 +891,6 @@ c     ****************************************
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift,tmp2(2)
       integer nj   
-      real*8 sum1
 
       if (mb.eq.0) then
          ms1 = 1
@@ -950,10 +946,132 @@ c     ****************************************
          S(n) = dsqrt(S(n))
       end do
 
-
-
       return
       end
+
+c     ****************************************
+c     *                                      *
+c     *        Dneall_f_ortho               *
+c     *                                      *
+c     ****************************************
+
+      subroutine Dneall_f_ortho(mb,U,npack1)
+      complex*16 U(*)
+      integer    npack1      
+
+#include "mafdecls.fh"           
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,n,shift,asize,j,k,indxk,indxj
+      integer V(2),tmp2(2),S(2),A(2)
+      real*8 sum1
+
+      logical  Dneall_m_allocate,Dneall_m_free
+      external Dneall_m_allocate,Dneall_m_free
+ 
+
+      if (parallelized) then
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            asize = (neq(1)+neq(2))*npack1
+         else
+            ms1 = mb
+            ms2 = mb
+            asize = neq(mb)*npack1
+         end if
+
+      
+         if (.not.MA_push_get(mt_dcpl,asize,'A',A(2),A(1)))
+     >   call errquit('Dneall_f_ortho:out of stack memory',0,MA_ERR)
+         if (.not.Dneall_m_allocate(mb,V))
+     >   call errquit('Dneall_f_ortho:out of stack memory',1,MA_ERR)
+         if (.not.MA_push_get(mt_dbl,ne(1)+ne(2),'S',S(2),S(1)))
+     >   call errquit('Dneall_f_ortho:out of stack memory',2,MA_ERR)
+
+
+*        **** generate V and Sigma^2 ****
+         call Dneall_ffm_sym_Multiply(mb,U,U,npack1,dbl_mb(V(1)))
+         call Dneall_m_diagonalize(mb,dbl_mb(V(1)),dbl_mb(S(1)),.false.)
+         if (.not.Ma_pop_stack(S(2)))
+     >  call errquit('Dneall_f_ortho: popping stack memory',2,MA_ERR)
+
+*        **** generate U*Sigma ****
+         call Dneall_fmf_Multiply(mb,dcpl_mb(A(1)),npack1,
+     >                         dbl_mb(V(1)),1.0d0,U,0.0d0)
+
+*        **** deallocate tmp space ****
+         if (.not.Dneall_m_free(V))
+     >     call errquit('Dneall_f_ortho: popping stack memory',0,MA_ERR)
+         if (.not.Ma_pop_stack(A(2)))
+     >     call errquit('Dneall_f_ortho: popping stack memory',1,MA_ERR)
+
+
+*        **** normalize U*sigma ****
+         if (.not. MA_push_get(mt_dbl,neq(1),'tmp2',tmp2(2),tmp2(1)))
+     >      call errquit('Dneall_f_ortho:out of stack memory',3,MA_ERR)
+
+         do ms=ms1,ms2
+            if (neq(ms).le.0) go to 30
+            shift = 1+(ms-1)*neq(1)*npack1
+            do n=1,neq(ms)
+              call Pack_cc_idot(1,U(shift),U(shift),dbl_mb(tmp2(1)+n-1))
+              shift = shift + npack1
+            end do
+            call D3dB_Vector_SumAll(neq(ms),dbl_mb(tmp2(1)))
+
+            do n=1,neq(ms)
+               dbl_mb(tmp2(1)+n-1) = 1.0d0/dsqrt(dbl_mb(tmp2(1)+n-1))
+            end do
+
+            shift = 1+(ms-1)*neq(1)*npack1
+            do n=1,neq(ms)
+               call dscal(2*npack1,dbl_mb(tmp2(1)+n-1),U(shift),1)
+               shift = shift + npack1
+            end do
+
+ 30        continue
+         end do
+         if (.not.MA_pop_stack(tmp2(2)))
+     >     call errquit('Dneall_f_ortho: popping stack memory',3,MA_ERR)
+
+
+c     **** not parallized ****
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+         else
+            ms1 = mb
+            ms2 = mb
+         end if
+         shift = ne(1)*npack1
+
+         !**** orthogonalize from the bottom -> up ****
+         do ms=ms1,ms2
+         do k=ne(ms),1,-1
+            indxk = 1+(k-1)*npack1 + (ms-1)*shift
+            call Pack_cc_dot(1,U(indxk),U(indxk),sum1)
+            sum1 = 1.0d0/dsqrt(sum1)
+            call Pack_c_SMul(1,sum1,U(indxk),U(indxk))
+
+            do j=k-1,1,-1
+               indxj = 1+(j-1)*npack1 + (ms-1)*shift
+               call Pack_cc_dot(1,U(indxk),U(indxj),sum1)
+               sum1 = -sum1
+               call Pack_cc_daxpy(1,sum1,U(indxk),U(indxj))
+            end do
+         end do
+         end do
+
+
+      end if
+
+      return
+      end 
+
 
 c     ****************************************
 c     *                                      *
@@ -1420,7 +1538,6 @@ c     ****************************************
 
 *     **** local variables ****
       integer ms,ms1,ms2,n,shift2,ishift2
-      integer i,j
   
       if (parallelized) then
          if (mb.eq.0) then
@@ -1935,7 +2052,7 @@ c     ****************************************
 #include "Dne.fh"
 
 *     **** local variables ****
-      integer ms,ms1,ms2,shift2,ishift2,i
+      integer ms,ms1,ms2,shift2,ishift2
       double precision adiff1, adiff2
 
       integer  idamax
@@ -2013,6 +2130,7 @@ c     ****************************************
 *     **** local variables ****
       integer shift2,nn
       
+      shift2 = 1
       if (parallelized) then
 
          if (mb.eq.0) then
