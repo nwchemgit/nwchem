@@ -1,9 +1,13 @@
 *
-* $Id: psi.F,v 1.73 2007-02-10 03:40:18 bylaska Exp $
+* $Id: psi.F,v 1.74 2007-02-10 03:56:54 bylaska Exp $
 *
 
 
 * $Log: not supported by cvs2svn $
+* Revision 1.73  2007/02/10 03:40:18  bylaska
+* replaced calls to Grsm_g_MakeOrtho with Dneall_f_ortho
+* ...EJB
+*
 * Revision 1.72  2007/01/02 18:36:52  bylaska
 * HGH pseudopotentials added to band.
 * ...EJB
@@ -5152,7 +5156,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
       sum1 = dble(ne(1) + ne(2))
       if (dabs(sum2-sum1).gt.1.0d-10) then
          call Parallel_taskid(taskid)
-         call Dneall_f_ortho(0,psi1,npack1)
+         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
 c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi1(1)))
 c         if (ispin.gt.1) then
 c           call Grsm_g_MakeOrtho(npack1,ne(2),
