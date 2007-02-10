@@ -1,5 +1,5 @@
 *
-* $Id: geodesic.F,v 1.27 2007-01-02 18:36:51 bylaska Exp $
+* $Id: geodesic.F,v 1.28 2007-02-10 03:40:18 bylaska Exp $
 *
 
 *     ***********************************
@@ -214,7 +214,7 @@ c      value = value.and.MA_free_heap(Vt(2))
 
 *     **** local variables ****
       logical    value
-      integer    npack1,nemax,nemaxq,i
+      integer    npack1,nemax,nemaxq
       real*8     zero,one
       integer    tmp1(2),tmp2(2),tmp3(2)
       integer    tmpC(2),tmpS(2)
@@ -318,11 +318,12 @@ c     >      write(*,'(5x,A,A,e10.3)')
 c     >      "-  Warning: Gram-Schmidt performed in geodesic_get, ",
 c     >      "error=",dabs(sum2-sum1)
 
-         call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
-         if (psi_ispin().gt.1) then
-           call Grsm_g_MakeOrtho(npack1,psi_ne(2),
-     >                           Ynew(1 + psi_ne(1)*npack1))
-         end if
+         call Dneall_f_ortho(0,Ynew,npack1)
+c         call Grsm_g_MakeOrtho(npack1,psi_ne(1),Ynew)
+c         if (psi_ispin().gt.1) then
+c           call Grsm_g_MakeOrtho(npack1,psi_ne(2),
+c     >                           Ynew(1 + psi_ne(1)*npack1))
+c         end if
       end if
 
 

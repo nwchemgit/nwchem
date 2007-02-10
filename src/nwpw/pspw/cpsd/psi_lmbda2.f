@@ -102,7 +102,8 @@
             write(6,*) '        +Try using a smaller time step'
             write(6,*) '        +Gram-Schmidt being performed, spin:',ms
           end if
-          call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
+          call Dneall_f_ortho(ms,psi2,npack1)
+c          call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
         else
           call dcopy(n*ne(ms),tmp(st1),1,lmbda(sl(ms)),1)
           call dscal(n*ne(ms),(1.0d0/dte),lmbda(sl(ms)),1)

@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.8 2006-10-13 01:43:58 bylaska Exp $
+* $Id: psi_lmbda.f,v 1.9 2007-02-10 03:40:18 bylaska Exp $
 *
 
 *     ********************************************
@@ -107,7 +107,8 @@
           WRITE(6,*) '        +Try using a smaller time step'
           WRITE(6,*) '        +Gram-Schmidt being performed, spin:',ms
         end if
-        call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
+        call Dneall_f_ortho(ms,psi2,npack1)
+c        call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
 
 C       return
   630   continue

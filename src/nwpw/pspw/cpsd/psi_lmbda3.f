@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda3.f,v 1.1 2004-03-09 22:34:02 bylaska Exp $
+* $Id: psi_lmbda3.f,v 1.2 2007-02-10 03:40:18 bylaska Exp $
 *
 
       subroutine psi_lmbda3(ispin,ne,nemax,npack1,
@@ -162,7 +162,8 @@ c         CALL DMSUB(n,ne(MS), tmp(sa1), tmp(sa0), tmp(st1))
           WRITE(6,*) '        +Try using a smaller time step'
           WRITE(6,*) '        +Gram-Schmidt being performed, spin:',ms
         end if
-        call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
+        call Dneall_f_ortho(ms,psi2,npack1)
+c        call Grsm_g_MakeOrtho(npack1,ne(ms),psi2(1,n1(ms)))
 
 C       return
   630   continue

@@ -1,5 +1,5 @@
 *
-* $Id: orthocheck.f,v 1.4 2007-01-02 18:36:52 bylaska Exp $
+* $Id: orthocheck.f,v 1.5 2007-02-10 03:40:18 bylaska Exp $
 *
 
 *     ***********************************
@@ -87,54 +87,54 @@
 
 
 
-*     ***********************************
-*     *             			*
-*     *          Grsm_MakeOrtho		*
-*     *             			*
-*     ***********************************
-
-      subroutine Grsm_g_MakeOrtho(npack,ne,psi)
-      implicit none 
-      integer npack,ne
-      double complex psi(npack,ne)
-
-*     **** local variables ****
-      integer j,k
-      real*8  w
-
-
-c       write(*,*) 
-c     >  "WARNING - not finished for 2d processor grid implementation!"
-
-c      !**** orthogonalize from the top -> down ****
-c      do k=1,ne
-c         call Pack_cc_dot(1,psi(1,k),psi(1,k),w)
-c         w = 1.0d0/dsqrt(w)
-c         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
-c
-c         do j=k+1,ne
-c            call Pack_cc_dot(1,psi(1,k),psi(1,j),w)
-c            w = -w
-c            call Pack_cc_daxpy(1,w,psi(1,k),psi(1,j))
-c         end do
-c      end do
-
-      !**** orthogonalize from the bottom -> up ****
-      do k=ne,1,-1
-         call Pack_cc_dot(1,psi(1,k),psi(1,k),w)
-         w = 1.0d0/dsqrt(w)
-         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
-
-         do j=k-1,1,-1
-            call Pack_cc_dot(1,psi(1,k),psi(1,j),w)
-            w = -w
-            call Pack_cc_daxpy(1,w,psi(1,k),psi(1,j))
-         end do
-      end do
-
-
-      return
-      end
+C*     ***********************************
+C*     *             			*
+C*     *          Grsm_MakeOrtho		*
+C*     *             			*
+C*     ***********************************
+C
+C      subroutine Grsm_g_MakeOrtho(npack,ne,psi)
+C      implicit none 
+C      integer npack,ne
+C      double complex psi(npack,ne)
+C
+C*     **** local variables ****
+C      integer j,k
+C      real*8  w
+C
+C
+Cc       write(*,*) 
+Cc     >  "WARNING - not finished for 2d processor grid implementation!"
+C
+Cc      !**** orthogonalize from the top -> down ****
+Cc      do k=1,ne
+Cc         call Pack_cc_dot(1,psi(1,k),psi(1,k),w)
+Cc         w = 1.0d0/dsqrt(w)
+Cc         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
+Cc
+Cc         do j=k+1,ne
+Cc            call Pack_cc_dot(1,psi(1,k),psi(1,j),w)
+Cc            w = -w
+Cc            call Pack_cc_daxpy(1,w,psi(1,k),psi(1,j))
+Cc         end do
+Cc      end do
+C
+C      !**** orthogonalize from the bottom -> up ****
+C      do k=ne,1,-1
+C         call Pack_cc_dot(1,psi(1,k),psi(1,k),w)
+C         w = 1.0d0/dsqrt(w)
+C         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
+C
+C         do j=k-1,1,-1
+C            call Pack_cc_dot(1,psi(1,k),psi(1,j),w)
+C            w = -w
+C            call Pack_cc_daxpy(1,w,psi(1,k),psi(1,j))
+C         end do
+C      end do
+C
+C
+C      return
+C      end
 
 
 

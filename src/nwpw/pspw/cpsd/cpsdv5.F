@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.46 2007-01-02 18:36:51 bylaska Exp $
+* $Id: cpsdv5.F,v 1.47 2007-02-10 03:40:17 bylaska Exp $
 *
       implicit none
       integer rtdb
@@ -342,11 +342,12 @@
       if (dabs(sum2-sum1).gt.1.0d-10) then
          if (taskid.eq.MASTER)
      >      write(*,*) "Warning: Gram-Schmidt being performed on psi2"
-         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
-         if (ispin.gt.1) then
-           call Grsm_g_MakeOrtho(npack1,ne(2),
-     >                           dcpl_mb(psi2(1) + ne(1)*npack1))
-         end if
+         call Dneall_f_ortho(0,dcpl_mb(psi2(1)),npack1)
+c         call Grsm_g_MakeOrtho(npack1,ne(1),dcpl_mb(psi2(1)))
+c         if (ispin.gt.1) then
+c           call Grsm_g_MakeOrtho(npack1,ne(2),
+c     >                           dcpl_mb(psi2(1) + ne(1)*npack1))
+c         end if
       end if
 
 *     **** allocate other variables *****
