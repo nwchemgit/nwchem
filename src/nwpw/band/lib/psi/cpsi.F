@@ -1,4 +1,4 @@
-* * $Id: cpsi.F,v 1.40 2007-01-24 22:32:51 d3p708 Exp $ *
+* * $Id: cpsi.F,v 1.41 2007-02-12 20:59:43 d3p708 Exp $ *
 
 
 *     ***************************
@@ -1371,16 +1371,17 @@ c     real*8 sum1,sum2
 *     **** external functions ****
       logical  pspw_reformat_c_wvfnc,Pneb_w_allocate
       integer  brillioun_nbrillioun,psi_get_version
-      integer  Pneb_ispinq,Pneb_nbrillq
+      integer  Pneb_ispinq,Pneb_nbrillq,Pneb_ispin
       double precision util_random
       external pspw_reformat_c_wvfnc,Pneb_w_allocate
       external brillioun_nbrillioun,psi_get_version
-      external Pneb_ispinq,Pneb_nbrillq
+      external Pneb_ispinq,Pneb_nbrillq,Pneb_ispin
       external         util_random
 
 
 *     ***** get ispin, and ne, and nfft3d ****
-      call psi_get_ne(ispin,ne)  !** only ne is used 
+      ispin=Pneb_ispin()
+      call Pneb_ne(ne)
       nbrillioun = brillioun_nbrillioun()
 
       call Pneb_neq(neq)
@@ -1401,7 +1402,7 @@ c     real*8 sum1,sum2
 
       neall = neq(1)+neq(2)
       n     = ne(1)
-       
+        
 *     **** allocate memory ****
       value = MA_alloc_get(mt_dcpl,npack1*neall*nbrillq,
      >                     'psi2',psi2(2),psi2(1))
@@ -1459,7 +1460,6 @@ c     *****  read initial wavefunctions into psi1  ****
         if (taskid.eq.MASTER) then
 
           filename =  control_input_psi()
-
           ind = index(filename,' ') - 1
           if (.not. rtdb_cput(rtdb,'c_xpndr:old_wavefunction_filename',
      >                    1,filename(1:ind)))
@@ -1492,12 +1492,12 @@ c     *****  read initial wavefunctions into psi1  ****
 
       end if
 
-
 *     *****  read initial wavefunctions into psi1  ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,dcpl_mb(psi1(1)))
 
-
 *     **** Ortho Check ****
+*       orthogonalize even if the calling function does not ask it
+*       avoids problems!
       call Pneb_orthoCheckMake(.true.,0,0,npack1,
      >                        dcpl_mb(psi1(1)))
       cpsi_initialize = value

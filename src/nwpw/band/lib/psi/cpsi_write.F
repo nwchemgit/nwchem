@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_write.F,v 1.9 2007-01-24 22:32:51 d3p708 Exp $
+* $Id: cpsi_write.F,v 1.10 2007-02-12 20:59:44 d3p708 Exp $
 *
 
 *     ***************************
@@ -340,7 +340,6 @@ c     complex*16 tmp(*)
         call closefile(6)
         call closefile(37)
       end if
-
       value = MA_pop_stack(tmp2(2))
       value = MA_pop_stack(tmp(2))
       return
