@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.19 2007-01-31 22:38:10 bylaska Exp $
+* $Id: band_structure.F,v 1.20 2007-02-12 21:01:42 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -148,8 +148,6 @@
 
       call nwpw_timing_init()
       call dcopy(10,0.0d0,0,E,1)
-
-
 *     **** get parallel variables ****
       call Parallel_Init()
       call Parallel_np(np)
@@ -229,7 +227,6 @@
       call cphafac()
       call cphafac_k()
 
-
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
         call cpsi_new()
@@ -257,7 +254,7 @@ c      else
 c         spin_orbit=.false.
 c      end if
 c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
-      value = cpsi_initialize(.true.) 
+      value = cpsi_initialize(.false.) 
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
@@ -373,13 +370,11 @@ c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       end if
 
 
-
       !**** set the size of the band - include virtual orbitals ****
       ispin = cpsi_ispin()
       ne(1) = cpsi_ne(1)+control_excited_ne(1)
       ne(2) = 0
       if (ispin.gt.1) ne(2) = cpsi_ne(2)+control_excited_ne(2)
-      
 
       if (taskid.eq.MASTER) call current_second(cpu2)
 
@@ -389,9 +384,10 @@ c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
      >  call errquit('band_structure:out of heap memory',0, MA_ERR)
 
 
-
       EV = c_cgsd_noit_energy()
+
       call c_electron_gen_vall()
+
       call c_electron_get_vall(dcpl_mb(vall(1)))
 
       if (taskid.eq.MASTER) then
@@ -402,7 +398,7 @@ c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
 
 
 *     **** deallocate heap memory ****
-      value=cpsi_band_finalize(.false.)
+      value=cpsi_band_finalize(.true.)
 
       call c_electron_finalize()
       call c_geodesic_finalize()
@@ -555,23 +551,17 @@ c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       call cphafac()
       call cphafac_k()
 
-
 *     **** read in wavefunctions and initialize psi ****
       if (.not.psi_filefind()) then
         call cpsi_new_ne(ispin,ne)
         newpsi = .true.
         ortho  = .false.
         vers = 5
-        write(*,*)"CPSI_NEW_NE VERSION = ",vers
-        call flush(6)
-
-      else
+      else       
         newpsi = .false.
-
 *       **** convert from pspw format to band format ****
         vers = psi_get_version()
-        write(*,*)"Version = ",vers
-        call flush(6)
+
         if ((vers.eq.3).or.(vers.eq.4)) then
            nbrillioun = brillioun_nbrillioun()
            newpsi = .true.
@@ -580,11 +570,11 @@ c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
            end if
         end if
       end if
- 
-      value = cpsi_initialize(ortho)
+
+      call Pneb_set_ne(ne)
+      value = cpsi_initialize(.true.)
  
       if (flag.eq.2) call cpsi_dospsi_read(k)
-
 
 *     **** allocate eigs_dos if first iteration ****
       if ((flag.eq.1).and.(k.eq.1).and.(taskid.eq.MASTER)) then
