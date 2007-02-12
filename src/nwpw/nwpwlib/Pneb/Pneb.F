@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.20 2006-12-21 03:54:49 d3p708 Exp $
+* $Id: Pneb.F,v 1.21 2007-02-12 21:02:42 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -107,6 +107,21 @@ c     ***********************************
       implicit none
 #include "Pneb.fh"
       Pneb_is_init=im_init
+      return
+      end
+
+c     ***********************************
+c      Reset the number of eigenvalues
+c      to a new value. 
+c     ***********************************
+      subroutine Pneb_set_ne(ne_in)
+      implicit none
+#include "Pneb.fh"
+      integer ne_in(2)
+      ne(1)=ne_in(1)
+      ne(2)=ne_in(2)
+      neq(1)=ne_in(1)
+      neq(2)=ne_in(2)
       return
       end
 
