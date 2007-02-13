@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.28 2006-04-18 22:37:03 edo Exp $
+c     $Id: dftg_gridv0.F,v 1.29 2007-02-13 22:23:30 bert Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.28 2006-04-18 22:37:03 edo Exp $
+c $Id: dftg_gridv0.F,v 1.29 2007-02-13 22:23:30 bert Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -450,7 +450,7 @@ c
       
 c
       if(grid_written) then
-      call dftg_gridv0a(iga_dens,ldew,
+      call dftg_gridv0a(rtdb,iga_dens,ldew,
      &                   max_at_bf,
      &                   rho_int, nqtot, int_mb(iniz), int_mb(ifin),
      &                   dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ifunc),

@@ -1,4 +1,4 @@
-      Subroutine dftg_gridv0a(iga_dens,ldew,
+      Subroutine dftg_gridv0a(rtdb,iga_dens,ldew,
      &                         max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.30 2006-03-16 00:58:36 edo Exp $
+c     $Id: dftg_gridv0a.F,v 1.31 2007-02-13 22:23:30 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -28,6 +28,14 @@ c
 c !!! BGJ test !!!
 #include "bgj.fh"
 c !!! BGJ test !!!
+c Qin
+      integer rtdb
+      logical lcdft, ldbw
+      integer ipop, nconstr, i
+      integer iatms1(10), iatms2(10), fatms1(10), fatms2(10)
+      integer dtype(10)
+      double precision multipliers(10), fact(10)  ! pass to dftg_gridv0b
+
       integer natoms
       integer max_at_bf
       integer nqtot
@@ -99,6 +107,32 @@ c
       logical grid_file_rewind,grid_file_read
       external grid_file_rewind,grid_file_read
 c
+c Qin
+      ldbw = .false.
+      if (.not. rtdb_get(rtdb, 'dft:lcdft', mt_log, 1, lcdft))
+     &     lcdft = .false.
+      if(lcdft) then
+        if (.not. rtdb_get(rtdb, 'dft:ipop', mt_int, 1, ipop))
+     &     ipop = 3
+        if(ipop.eq.1) then
+         ldbw = .true.
+         if (.not. rtdb_get(rtdb, 'dft:nconstr', mt_int, 1, nconstr))
+     &     call errquit('dft_gridv0a: get nconstr failed', 0, RTDB_ERR)
+        if (.not. (
+     $            rtdb_get(rtdb,'dft:iatms1', mt_int, nconstr,iatms1(1))
+     $      .and. rtdb_get(rtdb,'dft:iatms2', mt_int, nconstr,iatms2(1))
+     $      .and. rtdb_get(rtdb,'dft:fatms1', mt_int, nconstr,fatms1(1))
+     $      .and. rtdb_get(rtdb,'dft:fatms2', mt_int, nconstr,fatms2(1))
+     $      ))
+     &   call errquit('dft_gridv0a: atms failed', 2700, RTDB_ERR)
+        if (.not.rtdb_get(rtdb, 'dft:multipliers', mt_dbl, nconstr,
+     $       multipliers(1)))
+     &    call errquit('dft_gridv0a: get multipliers failed', 0)
+        if (.not. rtdb_get(rtdb,'dft:dtype', mt_int, nconstr, dtype(1)))
+     &   call errquit('dft_gridv0a: get dtype failed', 3000, RTDB_ERR)
+        endif
+      endif
+c Qin / end
 c     
       me = ga_nodeid()
       Ec = 0.d0
@@ -199,6 +233,19 @@ c
          call grid_repack(dbl_mb(irqbuf), qxyz, qwght, nqpts,
      ,          rad,istep)
          if(nqpts.eq.0) goto 110
+c Qin
+         if(ldbw) then
+           do i = 1, nconstr
+            if(ictr_buf.ge.iatms1(i) .and. ictr_buf.le.fatms1(i)) then
+               fact(i) = multipliers(i)
+            elseif(ictr_buf.ge.iatms2(i).and.ictr_buf.le.fatms2(i))then
+               fact(i) = -multipliers(i)
+            else
+               fact(i) = 0d0
+            endif
+          enddo
+         endif
+c Qin/end
          call dftg_gridv0b(nqpts,rad,ictr_buf,iga_dens,
      &                         max_at_bf,
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
@@ -215,7 +262,8 @@ c
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
      &                         cetobfr,
-     &                         tau,kske,Mmat )
+     &                         tau,kske,Mmat, ldbw,
+     $                         fact, dtype, nconstr)  ! Qin
 
  110      ntot_cube=ntot_cube+1
   200 continue  ! bottom of shell loop

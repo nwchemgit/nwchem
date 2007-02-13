@@ -13,9 +13,10 @@
      ,     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &                         do_hess, do_cpks_r, natoms, oactive,
      &                         nactive, rdens_atom, 
-     &                         cetobfr, tau, kske, Mmat)
+     &                         cetobfr, tau, kske, Mmat,
+     $                         ldbw, fact, dtype, nconstr)  ! Qin
 c      
-c     $Id: dftg_gridv0b.F,v 1.35 2006-04-18 19:09:04 edo Exp $
+c     $Id: dftg_gridv0b.F,v 1.36 2007-02-13 22:23:30 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -34,6 +35,12 @@ c !!! BGJ test !!!
 c !!! temporary !!!
 #include "rtdb.fh"
 #include "dftps.fh"
+
+      logical ldbw
+      integer ispin, i, ii, nconstr
+      double precision fact(nconstr)
+      integer dtype(nconstr)          ! Qin
+
       integer nqpts, ictr_buf ! [in]
       double precision rad ! [in]
       integer natoms
@@ -245,12 +252,37 @@ c
                rho_int = rho_int + 
      &                   ddot(nqpts, qwght, 1, rho, 1)
 
+c Qin for lcdft and pop1
+c the idea is to add qwght to Amat, which is dfunc and will time drho,
+c and rho to func, which will time dweight
+c to count for the contribution of Becke population of contrained atoms
+
+               if(ldbw) then
+                do i = 1, nconstr
+                 do ispin = 1, ipol
+                   ii = (ispin-1)*nqpts + 1
+                   if(dtype(i).eq.2.and.ispin.eq.2) then
+                    call daxpy(nqpts, -fact(i), qwght, 1, Amat(ii,1),1)
+                   else
+                    call daxpy(nqpts, fact(i), qwght, 1, Amat(ii,1), 1)
+                   endif
+                 enddo
+                 if(dtype(i).eq.1) then
+                  call daxpy(nqpts, fact(i), rho(1,1), 1, func, 1)
+                 else
+                  call daxpy(nqpts, fact(i), rho(nqpts+1,1), 1, func, 1)
+                  call daxpy(nqpts,-fact(i), rho(2*nqpts+1,1),1,func,1)
+                 endif
+                enddo
+               endif
+c Qin end
 
                if (odftps) call pstat_on(ps_ebf)
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &              nqpts, Ex, Ec, qwght, GRAD, ldew, func,
      &              do_hess .or. do_cpks_r, tau, kske,Mmat)
                if (odftps) call pstat_off(ps_ebf)
+
 c     
 c              exchange-correlation contribution, with or without gradient
 c              terms
