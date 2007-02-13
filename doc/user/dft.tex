@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.91 2006-06-02 18:47:17 edo Exp $ 
+% $Id: dft.tex,v 1.92 2007-02-13 23:47:25 bert Exp $ 
 %
 \label{sec:dft}
 
@@ -51,7 +51,8 @@ the DFT module are:
       [hcth407] [becke97gga1]  [hcth407p]\
       [mpw91] [mpw1k] [xft97] [cft97] [ft97] [op] [bop] [pbeop]\
       [xpkzb99] [cpkzb99] [xtpss03] [ctpss03] [xctpssh]\
-      [b1b95] [bb1k] [mpw1b95] [mpwb1k] [pw6b95] [pwb6k] [m05] [m05-2x]\
+      [b1b95] [bb1k] [mpw1b95] [mpwb1k] [pw6b95] [pwb6k] [m05] [m05-2x] [vs98] \
+      [m06] [m06-hf] [m06-L] [m06-2x] \
       [HFexch <real prefactor default 1.0>] \
       [becke88 [nonlocal] <real prefactor default 1.0>] \
       [xperdew91 [nonlocal] <real prefactor default 1.0>] \
@@ -80,7 +81,18 @@ the DFT module are:
       [cpw6b95 [nonlocal] <real prefactor default 1.0>] \
       [cpwb6k [nonlocal] <real prefactor default 1.0>] \
       [cm05 [nonlocal] <real prefactor default 1.0>] \
-      [cm05-2x [nonlocal] <real prefactor default 1.0>]]
+      [cm05-2x [nonlocal] <real prefactor default 1.0>]] \
+      [xvs98 [nonlocal] <real prefactor default 1.0>]] \
+      [cvs98 [nonlocal] <real prefactor default 1.0>]] \
+      [xm06-L [nonlocal] <real prefactor default 1.0>]] \
+      [xm06-hf [nonlocal] <real prefactor default 1.0>]] \
+      [xm06 [nonlocal] <real prefactor default 1.0>]] \
+      [xm06-2x [nonlocal] <real prefactor default 1.0>]] \
+      [cm06-L [nonlocal] <real prefactor default 1.0>]] \
+      [cm06-hf [nonlocal] <real prefactor default 1.0>]] \
+      [cm06 [nonlocal] <real prefactor default 1.0>]] \
+      [cm06-2x [nonlocal] <real prefactor default 1.0>]] 
+
 
 
   CONVERGENCE [[energy <real energy default 1e-7>] \
@@ -676,7 +688,21 @@ Keyword    & X        & C           & GGA    & Meta & Hybr. & 2nd  & Ref.\\
 {\tt  pw6b95   }&          &             &       &$\star$&$\star$&  N   &[36]\\
 {\tt  pwb6k    }&          &             &       &$\star$&$\star$&  N   &[36]\\
 {\tt  m05      }&          &             &       &$\star$&$\star$&  N   &[37]\\
-{\tt  m05-2x   }&          &             &       &$\star$&$\star$&  N   &[38]\\
+{\tt  vsxc     }&          &             &       &$\star$&$\star$&  N   &[39]\\
+{\tt  xvsxc    }& $\star$  &             &       &$\star$&       &  N   &[39]\\
+{\tt  cvsxc    }&          & $\star$     &       &$\star$&       &  N   &[39]\\
+{\tt  m06-L    }& $\star$  & $\star$     &       &$\star$&$\star$&  N   &[40]\\
+{\tt  xm06-L   }&          &             &       &$\star$&       &  N   &[40]\\
+{\tt  cm06-L   }&          & $\star$     &       &$\star$&       &  N   &[40]\\
+{\tt  m06-hf   }&          &             &       &$\star$&$\star$&  N   &[41]\\
+{\tt  xm06-hf  }& $\star$  &             &       &$\star$&       &  N   &[41]\\
+{\tt  cm06-hf  }&          & $\star$     &       &$\star$&       &  N   &[41]\\
+{\tt  m06      }&          &             &       &$\star$&$\star$&  N   &[42]\\
+{\tt  xm06     }& $\star$  &             &       &$\star$&       &  N   &[42]\\
+{\tt  cm06     }&          & $\star$     &       &$\star$&       &  N   &[42]\\
+{\tt  m06-2x   }&          &             &       &$\star$&$\star$&  N   &[42]\\
+{\tt  xm06-2x  }& $\star$  &             &       &$\star$&       &  N   &[42]\\
+{\tt  cm06-2x  }&          & $\star$     &       &$\star$&       &  N   &[42]\\
 \hline
 {\tt  beckehandh}& $\star$  &   $\star$   &           &   & $\star$  &  Y   &[13]\\
 {\tt  b3lyp    }& $\star$  &   $\star$   &  $\star$  &   & $\star$  &  Y   &[14]\\
@@ -765,7 +791,11 @@ J. Chem Phys. {\bf 111}, 5656  (1999) \\
 \item Y. Zhao and D. G. Truhlar, J. Phys. Chem. A {\bf 108}, 6908 (2004)\\
 \item Y. Zhao and D. G. Truhlar, J. Phys. Chem. A {\bf 109}, 5656 (2005)\\
 \item Y. Zhao, N. E. Schultz and D. G. Truhlar, J. Chem. Phys. {\bf 123}, 161103 (2005)\\
-\item Y. Zhao, N. E. Schultz and D. G. Truhlar, J. Chem. Theory Comput. {\bf 2}, 364 (2006)
+\item Y. Zhao, N. E. Schultz and D. G. Truhlar, J. Chem. Theory Comput. {\bf 2}, 364 (2006)\\
+\item T. Van Voorhis, G. E. Scuseria, J. Chem. Phys. {\bf 109}, 400 (1998)\\
+\item Y. Zhao, D. G. Truhlar, J. Chem. Phys. {\bf 125}, 194101 (2006)\\
+\item Y. Zhao, D. G. Truhlar, J. Phys. Chem. A. {\bf 110}, 13126 (2006)\\
+\item Y. Zhao, D. G. Truhlar, Theor. Chem. Acc. (2006)
 \end{enumerate}
 }
 %\end{table}
