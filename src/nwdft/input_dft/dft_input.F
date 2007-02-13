@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.38 2006-11-28 18:46:02 edo Exp $
+c     $Id: dft_input.F,v 1.39 2007-02-13 22:22:01 bert Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -22,12 +22,13 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 26)
+      parameter (num_dirs = 27)
       character*12 dirs(num_dirs)
       character*255 test
       integer idecomp, mult, iterations, ipol, noio,
      &        imull
       integer nopen
+      integer lvan,lcdft
       logical pseudo, direct, lmaxov, incore
       logical lb94, cs00
       double precision smear_sigma
@@ -37,8 +38,16 @@ c
      $           'grid', 'vectors', 'incore', 'iterations', 'max_ovl', 
      $           'mulliken', 'mult', 'noio', 'noprint', 'odft', 
      $           'print', 'tolerances', 'xc', 'sym', 'adapt', 'sic', 
-     $           'smear','fon','lb94','cs00',
+     $           'smear','fon','lb94','cs00','cdft',
      &           'end'/
+c Qin / cdft
+      integer max_constr, nconstr
+      parameter (max_constr = 10)
+      integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
+      integer iatms2(max_constr), fatms2(max_constr)
+      double precision constr(max_constr)
+      nconstr = 0
+c Qin / end
 c
 c     Any DFT input causes calculation to be marked as not converged
 c
@@ -64,7 +73,7 @@ c
 c     
       goto (100,  200,  300,  400,  500,  600,  700,  800,  900, 
      $     1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800,
-     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 9999) ind
+     $     1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 9999) ind
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
 c
@@ -297,11 +306,33 @@ c
       if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,shift))
      &   call errquit('dft_inp: rtdb_put failed', 2500, RTDB_ERR)
 c
+ 2600 lcdft = .true.
+      if (.not. rtdb_put(rtdb,'dft:lcdft', mt_log, 1, lcdft))
+     &   call errquit('dft_input: rtdb_put failed', 2800, RTDB_ERR)
+      nconstr = nconstr + 1
+      call cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, fatms1,
+     $                fatms2, constr)
+c
       goto 10
 c             
 c     end;
 c             
  9999 continue
+c Qin
+      if (.not. rtdb_put(rtdb,'dft:nconstr', mt_int, 1, nconstr))
+     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'dft:dtype', mt_int, nconstr, dtype(1)))
+     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
+      if (.not. (
+     $          rtdb_put(rtdb,'dft:iatms1', mt_int, nconstr, iatms1(1))
+     $    .and. rtdb_put(rtdb,'dft:iatms2', mt_int, nconstr, iatms2(1))
+     $    .and. rtdb_put(rtdb,'dft:fatms1', mt_int, nconstr, fatms1(1))
+     $    .and. rtdb_put(rtdb,'dft:fatms2', mt_int, nconstr, fatms2(1))
+     $    ) )
+     &   call errquit('dft_input: rtdb_put atms failed', 3000, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'dft:constr', mt_dbl, nconstr, constr(1)))
+     &   call errquit('dft_input: rtdb_put failed', 3000, RTDB_ERR)
+c Qin/end
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &   call errquit('dft_input: rtdb_put failed', 300, RTDB_ERR)
       return 

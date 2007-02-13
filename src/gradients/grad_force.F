@@ -1,5 +1,5 @@
       subroutine grad_force(rtdb, basis, geom)
-c     $Id: grad_force.F,v 1.63 2006-01-06 01:54:41 edo Exp $
+c     $Id: grad_force.F,v 1.64 2007-02-13 22:22:55 bert Exp $
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
 C             ___                 ___                         ___
@@ -159,6 +159,9 @@ c
       parameter (numfunc = 40)
       logical oskel, omp2, odft, ocdfit, status,frac_occ
       double precision xfac(numfunc), jfac, kfac
+
+      logical lcdft  ! Qin
+      integer ipop
 
       nproc = ga_nnodes()
 
@@ -479,6 +482,15 @@ C     local density matrix block
      $     k_wdens)) call errquit
      &    ('grad;could not allocate l_wdens',lsqatom, MA_ERR)
 c     
+c Qin
+      if (.not. rtdb_get(rtdb, 'dft:lcdft', mt_log, 1, lcdft))
+     &     lcdft = .false.
+      if(lcdft) then
+        if (.not. rtdb_get(rtdb, 'dft:ipop', mt_int, 1, ipop))
+     &     ipop = 3
+        if(ipop.eq.3) call grad_cdens_lowd(rtdb, g_dens(1), g_wdens)
+      endif
+c Qin / end
       cpu_tim(1)  = util_cpusec()
       wall_tim(1) = util_wallsec()
       call grad1( dbl_mb(k_buf), lbuf, dbl_mb(k_scr), lscratch,

@@ -1,6 +1,6 @@
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.68 2005-11-23 08:32:07 edo Exp $
+c     $Id: dft_main0d.F,v 1.69 2007-02-13 22:21:53 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -36,11 +36,11 @@ c
       integer nvxc
       integer me, nproc, info
       double precision Enuc, Etold
-      integer iter
+      integer iter, nconstr
       integer iVxc_opt, lmiss, ivcoul_opt
       integer isvals, lsvals,  idum,n_dep
       double precision toll_s
-      logical dft_scf,atmblk
+      logical dft_scf,atmblk, lcdft
       external dft_scf
       logical dft_scf_so 
       external dft_scf_so 
@@ -381,6 +381,14 @@ c
      &      ('dft_main0d: could not destroy g_tmp', 0, GA_ERR)
       if (ipol.gt.1) call ga_copy(g_evecs(1), g_evecs(2))
 c     
+      if (.not. rtdb_get(rtdb, 'dft:lcdft', mt_log, 1, lcdft))
+     &     lcdft = .false.
+      nconstr = 0
+      if(lcdft) then
+         if (.not. rtdb_get(rtdb, 'dft:nconstr', mt_int, 1, nconstr))
+     &     call errquit('dft_main0d: nconstr not found', 0, RTDB_ERR)
+      endif
+c
       if (oprint_time)
      &     call dft_tstamp(' Before call to DFT_SCF. ')
 c 
@@ -390,7 +398,7 @@ c
       if (theory .eq. 'dft') then
          dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt,
      &        iter, g_dens, g_evecs, g_vxc, g_fock,
-     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s)
+     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s, lcdft, nconstr)
       else if (theory .eq. 'sodft') then
          dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
      &        iVxc_opt, iter, g_dens, g_evecs, g_vxc, g_fock, 

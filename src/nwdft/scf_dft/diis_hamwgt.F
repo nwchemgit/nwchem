@@ -1,4 +1,4 @@
-c$Id: diis_hamwgt.F,v 1.9 2000-11-14 20:26:09 edo Exp $
+c$Id: diis_hamwgt.F,v 1.10 2007-02-13 22:21:53 bert Exp $
 c***********************************************************************
 c
 c     subroutine hamwght
@@ -13,12 +13,14 @@ c
 c***********************************************************************
 c
       subroutine diis_hamwgt(wght,mxhist,nhist,icall,ipol,
-     &     g_focks,g_diis)
+     &     g_focks,g_diis, nconstr,mult,mult_diis)
       implicit none
 c
       integer mxhist
       integer ipol
       integer ispin
+      integer nconstr
+      double precision mult(nconstr), mult_diis(nconstr,mxhist)
       integer g_focks(2)
       integer g_diis(mxhist)
       double precision wght(mxhist+1)
@@ -27,7 +29,7 @@ c
 c
 #include "mafdecls.fh"
 c
-      integer ii,jj
+      integer ii,jj,kk
       double precision xwght,anum
       integer irow,j
 c
@@ -35,6 +37,13 @@ c
       do ispin=1,ipol
          ii=(ispin-1)*mxhist + irow(icall(1))
          call ga_copy(g_focks(ispin),g_diis(ii))
+
+         if(ispin.eq.1) then
+           do kk = 1, nconstr
+             mult_diis(kk,ii)=mult(kk)
+             mult(kk)=0.d0
+           enddo
+         endif
 
 c     
 c
@@ -48,6 +57,11 @@ c
                if(jj.eq.1) anum=0.d0
                call ga_dadd(xwght,g_diis(ii),anum,
      .              g_focks(ispin),g_focks(ispin))
+               if(ispin.eq.1) then
+                 do kk = 1, nconstr
+                   mult(kk)=mult_diis(kk,ii)*xwght+mult(kk)
+                 enddo
+               endif
             enddo 
          endif
       enddo

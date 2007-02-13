@@ -1,9 +1,9 @@
       Subroutine diis_driver(toll_s, derr, ipol, icall, MXhist, 
      &                       nbf, geom, AO_bas_han, g_focks, g_dens, 
      &                       g_tmp, g_svecs, svals, diis, nodiis,
-     .     g_diis,keeps,g_s12m,g_s12p,reset)
+     .     g_diis,keeps,g_s12m,g_s12p,reset,nconstr, mult, mult_diis)
 c
-C$Id: diis_driver.F,v 1.30 2004-10-30 00:55:12 edo Exp $
+C$Id: diis_driver.F,v 1.31 2007-02-13 22:21:53 bert Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -16,6 +16,8 @@ c
       integer g_dens(2)
       integer g_tmp
       integer g_svecs
+      integer nconstr
+      double precision mult(nconstr),mult_diis(nconstr,mxhist)
       integer g_diis(mxhist)
       double precision svals(*)
       Integer nhist(2), icall(2)
@@ -208,7 +210,7 @@ c
 c     Compute an extrapolated Hamiltonian using the weights.
 c
       call diis_hamwgt(Dbl_MB(ifwght), MXhist, nhist, icall, 
-     &                 ipol,  g_focks, g_diis)
+     &                 ipol,  g_focks, g_diis, nconstr,mult,mult_diis)
 c
       if (.not.ma_pop_stack(lfwght))
      &   call errquit('diis_driver: cannot pop stack',0, MA_ERR)

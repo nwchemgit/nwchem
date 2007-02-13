@@ -1,9 +1,10 @@
 
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_movecs, g_vxc, g_fock, 
-     &                         g_svecs, svals, g_xcinv, g_s)
+     &                         g_svecs, svals, g_xcinv, g_s,
+     &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.254 2007-02-06 19:36:20 edo Exp $
+c     $Id: dft_scf.F,v 1.255 2007-02-13 22:21:53 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -33,14 +34,28 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 c     
-      Logical movecs_write, movecs_converged
-      External movecs_write, movecs_converged
+      Logical movecs_write, movecs_converged, movecs_read
+      External movecs_write, movecs_converged, movecs_read
 c
       external dft_lindep
       integer dft_lindep
 c
 c
       integer g_s ! [in]
+c
+      logical lvan, do_ddl, lbrak, check
+      double precision dl_conv, dl2, ddl2, x1, x2, fddl, dlold
+      logical lcdft
+      integer g_fockv(2)
+      integer nconstr, ipop, counter_cdft
+      integer iatms1(nconstr), fatms1(nconstr)
+      integer iatms2(nconstr), fatms2(nconstr), dtype(nconstr)
+      integer g_constr(nconstr), g_shalf
+      double precision constr(nconstr), multipliers(nconstr),
+     $                 multipliers0(nconstr), mult_diis(nconstr,nfock)
+      double precision grad_constr(nconstr),hess_constr(nconstr,nconstr)
+      double precision gold_constr(nconstr),p_constr(nconstr)
+c
       logical oprint
       double precision rms(2), derr(2)
       integer noc(2), nmo(2), icall(2)
@@ -68,7 +83,7 @@ cc    Jorge Garza/End
       integer l_occ, k_occ
       integer i
       integer me, nproc
-      integer g_tmp, g_fockt,  g_wght, g_xyz,g_nq
+      integer g_tmp, g_tmp2, g_fockt,  g_wght, g_xyz,g_nq
       integer nheap, nstack
       integer ispin, idone
       integer npol
@@ -624,6 +639,60 @@ c
          if (.not. ga_duplicate(g_fock, g_fockt, 'fock tr'))
      &        call errquit('dft_scf: error creating ga',0,GA_ERR)
       endif
+c Start cdft
+      if (lcdft)then
+        mulliken = .true.
+        if (.not. ga_duplicate(g_fock, g_fockv(1), 'fock tm'))
+     &     call errquit('dft_scf: error creating ga',0,GA_ERR)
+        if (ipol.gt.1)then
+          if (.not. ga_duplicate(g_fock, g_fockv(2), 'fock tm2'))
+     &       call errquit('dft_scf: error creating ga',0,GA_ERR)
+        endif
+c
+        if (.not. (
+     $            rtdb_get(rtdb,'dft:iatms1', mt_int, nconstr,iatms1)
+     $      .and. rtdb_get(rtdb,'dft:iatms2', mt_int, nconstr,iatms2)
+     $      .and. rtdb_get(rtdb,'dft:fatms1', mt_int, nconstr,fatms1)
+     $      .and. rtdb_get(rtdb,'dft:fatms2', mt_int, nconstr,fatms2) ))
+     &   call errquit('dft_scf: rtdb_get atms failed', 2700, RTDB_ERR)
+        if (.not. rtdb_get(rtdb,'dft:constr', mt_dbl, nconstr, constr))
+     &   call errquit('dft_scf: rtdb_get failed', 2700, RTDB_ERR)
+        if (.not. rtdb_get(rtdb,'dft:dtype', mt_int, nconstr,dtype))
+     &   call errquit('dft_scf: rtdb_get failed', 2700, RTDB_ERR)
+        if (.not. rtdb_get(rtdb, 'dft:ipop', mt_int, 1, ipop))
+     &   ipop = 3     ! ipop default
+        if (.not. rtdb_put(rtdb,'dft:ipop', mt_int, 1, ipop))
+     &   call errquit('dft_scf: rtdb_put pop failed', 0, RTDB_ERR)
+c
+        do i = 1, nconstr
+         if (.not. ga_duplicate(g_fock, g_constr(i), 'constr'))
+     &      call errquit('dft_scf: error creating ga',0,GA_ERR)
+        enddo
+        if(.not.rtdb_put(rtdb,'dft:gconstr',mt_int,nconstr,g_constr(1)))
+     $     call errquit('dft:scf put g_constr failed',0, RTDB_ERR)
+        if (.not. ga_duplicate(g_fock, g_shalf, 'shalf'))
+     &     call errquit('dft_scf: error creating ga',0,GA_ERR)
+        if(ipop.eq.3 .or.ipop.eq.4)
+     $    call diis_bld12(toll_s, svals, g_svecs,  g_shalf, g_tmp, 3)
+
+        call cdft_init(iatms1,iatms2,fatms1,fatms2,g_constr,nconstr,
+     $                    ipop,dtype,constr, geom, ncenters, ao_bas_han,
+     $                    nbf_ao, g_s, g_shalf)
+        if(.not. ga_destroy(g_shalf)) call errquit
+     $     ('dft_scf: destroy g_shalf failed', 2700, GA_ERR)
+
+        do i = 1, nconstr
+          multipliers0(i)=zero
+          multipliers(i)=zero
+        enddo
+        fddl = 4.d0/ipol
+        if(.not.rtdb_get(rtdb, 'dft:dl_conv', mt_dbl, 1, dl_conv))
+     $    dl_conv = 1d-6
+        lvan = .false.
+        if(nconstr.eq.1) lvan = .true.
+      endif
+c  End of lcdft
+
  3000 continue
       if (ipol.gt.1)then
          if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
@@ -720,6 +789,18 @@ c
          if (ipol.eq.2)then
             call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
          endif
+c Constrained DFT
+         if(lcdft) then
+c    Get the final multipliers.
+          do i = 1, nconstr
+            multipliers0(i)=multipliers0(i)+multipliers(i)
+          enddo
+          if (.not.rtdb_put(rtdb, 'dft:multipliers', mt_dbl, nconstr,
+     &         multipliers0))
+     $     call errquit('dft_scf: failed to put multipliers',0,RTDB_ERR)
+         endif
+c Constrained dft
+
          goto 2000
       endif
       if (ipol.gt.1) then
@@ -745,6 +826,34 @@ c
       enddo
       call dft_convpam(oprint_conv_details,iter,etnew,etold,enuc)
 
+c Constrained DFT
+      if(lcdft) then
+        do i = 1, nconstr
+          multipliers0(i)=multipliers0(i)+multipliers(i)
+          multipliers(i)=zero
+          do ispin = 1, ipol
+           if(dtype(i).eq.2 .and. ispin.eq.2) then
+            call ga_dadd(one, g_focks(ispin), -multipliers0(i),
+     $               g_constr(i), g_focks(ispin))
+           else
+            call ga_dadd(one, g_focks(ispin), multipliers0(i),
+     $               g_constr(i), g_focks(ispin))
+           endif
+          enddo
+          gold_constr(i) = 1d22
+        enddo
+        if(me.eq.0.and.iter.gt.1) then
+          write(LuOut,*) 'CDFT multipliers:'
+          do i = 1, nconstr
+            write(LuOut,333) i, multipliers0(i)
+          enddo
+          write(LuOut,'(a,i4)') '      iter = ', counter_cdft
+          call util_flush(luout)
+        endif
+        counter_cdft = 0
+      endif
+c Constrained DFT
+
 
       if (diising)then
 c     
@@ -757,13 +866,52 @@ c
      &           ao_bas_han, g_focks, g_dens, 
      &           g_tmp, g_svecs, svals, diising, 
      &           nodiis,int_mb(k_gdiis),lkeeps,
-     .           g_s12m,g_s12p,.false.)
+     .           g_s12m,g_s12p,.false.,
+     $           nconstr,multipliers0,mult_diis)
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
          endif
- 2002    continue
-c     
+c Qin
+      if(lcdft) then
+        do ispin = 1, ipol
+         call ga_copy(g_focks(ispin), g_fockv(ispin))
+        enddo
+        do_ddl = .true.
+        dlold = zero
+      endif
+ 2004 continue
+c Constrained DFT: label 2004 is associated with optimization of cdft.
+      if(lcdft) then
+        call dfill(nconstr, 0.0d0, grad_constr, 1)
+        call dfill(nconstr*nconstr, 0.0d0, hess_constr, 1)
+        counter_cdft = counter_cdft + 1
+        if(counter_cdft.gt.50) then
+          write(LuOut,*)
+     $     'CDFT failed to optimize the multipliers in 50 iterations.'
+          write(LuOut,*) 'multipliers:'
+          do i = 1, nconstr
+            write(LuOut,333) i, multipliers0(i)+multipliers(i)
+          enddo
+          call errquit
+     $        ('CDFT failed to optimize multipliers in 50 iterations',
+     $           0,RTDB_ERR)
+        endif
+      endif
+
       do ispin = 1, ipol
+         if(lcdft) then
+           call ga_copy(g_fockv(ispin), g_focks(ispin))
+           do i = 1, nconstr
+            if(dtype(i).eq.2 .and. ispin.eq.2) then
+             call ga_dadd(one, g_focks(ispin), -multipliers(i),
+     $               g_constr(i), g_focks(ispin))
+            else
+             call ga_dadd(one, g_focks(ispin), multipliers(i),
+     $               g_constr(i), g_focks(ispin))
+            endif
+           enddo
+         endif
+
          call dft_diagn(levelshifting,
      ,        nmo(ispin),ncanorg,
      .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
@@ -783,7 +931,34 @@ c
 c     
 c        Save previous density for convergence check.
 c     
-         call ga_copy(g_dens(ispin), g_denso(ispin))
+c        call ga_copy(g_dens(ispin), g_denso(ispin))
+c Constrained DFT /When lcdft, save at the beginning
+      if((.not.lcdft) .or. dlold.eq.zero)
+     $    call ga_copy(g_dens(ispin), g_denso(ispin))
+
+      if(lcdft) then
+       call ga_dgemm('n', 't', nbf_ao, nbf_ao,
+     $      noc(ispin), 2d0/dble(ipol), g_movecs(ispin),
+     $      g_movecs(ispin), zero, g_dens(ispin))
+       if(nbf_ao.ne.nmo(ispin)) write(*,*) 'nbf_ao .ne. nmo '
+       if(ispin.eq.2) then
+         do i = 1, nconstr
+           if(dtype(i).eq.2) call ga_scale(g_constr(i),onem)  ! switch sign
+         enddo
+       endif
+       call cdft_deriv(nconstr, g_constr,
+     $                    g_movecs(ispin), g_dens(ispin),
+     $                    dbl_mb(k_eval(ispin)), noc(ispin), nmo(ispin),
+     $                    grad_constr, hess_constr,
+     $                    g_tmp, fddl)
+        if(ispin.eq.2) then
+          do i = 1, nconstr
+            if(dtype(i).eq.2) call ga_scale(g_constr(i),onem)  ! switch back
+          enddo
+        endif
+      endif
+c Constrained DFT / end
+
 c
 c        symmetry adapt vectors?
 c
@@ -814,6 +989,42 @@ c
          endif      
       enddo                     ! end big loop over ispin
 
+c Constrained DFT
+      if(lcdft) then
+        dl2 = zero
+        do i = 1, nconstr
+          grad_constr(i) = grad_constr(i) - constr(i)
+          dl2 = max(dl2, dabs(grad_constr(i)))
+        enddo
+        if(dl2.gt.dl_conv) then
+          if(lvan) then
+           dl2 = grad_constr(1)
+           ddl2 = hess_constr(1,1)
+           call find_la(multipliers(1),dl2,ddl2,do_ddl,dlold,x1,x2,
+     $                    lbrak,check)
+          else
+           call cdft_newt(nconstr,multipliers,grad_constr,hess_constr,
+     $                   gold_constr, p_constr, check)
+           dlold = gold_constr(1)
+          endif
+          if(check) call errquit
+     $      ('CDFT: Unable to improve the multipliers',0,RTDB_ERR)
+          dl2 = zero
+          do i = 1, nconstr
+           dl2 = max(dl2, dabs(multipliers(i)))
+          enddo
+          if(dl2.gt.1d10) check = .true.
+          if(check) call errquit
+     $      ('CDFT: multipliers go over limit',0,RTDB_ERR)
+          goto 2004
+        endif
+        do ispin = 1, ipol
+          call ga_copy(g_focks(ispin), g_fockv(ispin))
+        enddo
+      endif
+c Constrained DFT / end
+
+
       call ga_sync
          if(n_rabuck.ne.0) then
             ssmear=dft_rabuck(ipol,iter,n_rabuck,noc,derr,
@@ -832,7 +1043,7 @@ c
      &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &     ssmear,tdots,iter,.true.,
      .        fon, nel_fon,nmo_fon,
-     .        spinset.or.n_rabuck.ne.0)                                         
+     .        spinset.or.n_rabuck.ne.0)                                
       if(oprint_info) then
          pstrace=ga_ddot(g_dens,g_s)
          if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
@@ -866,7 +1077,8 @@ c
      &        nbf_ao, geom, ao_bas_han, g_focks, 
      &        g_dens, g_tmp, g_svecs, svals, 
      &        diising, nodiis,int_mb(k_gdiis),
-     ,        lkeeps,g_s12m,g_s12p,.true.)
+     ,        lkeeps,g_s12m,g_s12p,.true.,
+     $           nconstr,multipliers0,mult_diis)
       endif
 
          etnew=etnew+tdots
@@ -1032,11 +1244,20 @@ c
      &   go to 1000 ! begin new iteration
       if (idone.eq.1.and.(.not.last_time_energy))then
          last_time_energy = .true.
-         if(rlshift.eq.0) goto 2000
+         if(rlshift.eq.0.and..not.lcdft) goto 2000
          go to 1000             ! build final total energies
       endif
 c     
  2000 continue
+c Qin
+      if(lcdft.and.me.eq.0) then
+        write(LuOut,*) ' CDFT final multipliers '
+        do i = 1, nconstr
+          write(LuOut,333) i, multipliers0(i)
+        enddo
+      endif
+ 333  format(5x,i2,f20.10)
+c Qin / end
 c
 c     get rid of levelshifting in evals
 c
@@ -1107,7 +1328,8 @@ c
      &                       nbf_ao, geom, ao_bas_han, g_focks,
      &                       g_dens, g_tmp, g_svecs, svals,
      &                       diising, nodiis,int_mb(k_gdiis),
-     ,           lkeeps,g_s12m,g_s12p,.true.)
+     ,           lkeeps,g_s12m,g_s12p,.true.,
+     $           nconstr,multipliers0,mult_diis)
          endif
          damping=.true.
          if(damping) then
@@ -1166,6 +1388,7 @@ c
             enddo
             ihi = max(ihi-1,1)
  9611       continue
+            ilo = max(1, ilo-1)  ! Qin
             if (util_print('final vectors analysis', print_high)) then
                ilo = 1
                ihi = nmo(1)
@@ -1209,7 +1432,25 @@ c
 c
 c Jorge Garza/End
 c
-      if (mulliken) call dft_mulwrap(me,g_dens,g_s)
+      if (mulliken) then
+         call dft_mulwrap(me,g_dens,g_s)
+c Qin / print Lowdin populations.
+        if (.not. ga_duplicate(g_fock, g_tmp2, 'ga_temp'))
+     &       call errquit('dft_scf: error creating ga',0,GA_ERR)
+        call dft_header(' Total Density - Lowdin Population Analysis')
+        call diis_bld12(toll_s, svals, g_svecs,  g_tmp2, g_tmp, 3)
+        call lowd_pop(geom, ao_bas_han, g_dens(1), g_tmp2, g_tmp)
+        if (ipol.eq.2)then
+         if (me.eq.0)call dft_header
+     &        (' Spin Density - Lowdin Population Analysis')
+         call ga_dadd(1d0,g_dens(1),-2.d0,g_dens(2),g_dens(2))
+         call lowd_pop(geom,ao_bas_han,g_dens(2), g_tmp2, g_tmp)
+         call ga_dadd(1d0,g_dens(1),-1.d0,g_dens(2),g_dens(2))
+         call ga_dscal(g_dens(2),0.5d0)
+        endif
+        if (.not. ga_destroy(g_tmp2)) call errquit
+     &    ('dft_scf: could not destroy g_tmp2', 0, GA_ERR)
+      endif
 c     
 c     end infinite loop for SCF iterations
 c     
@@ -1250,7 +1491,8 @@ c
          call diis_driver(toll_s, derr(1),  ipol, icall, nfock, 
      &                 nbf_ao, geom, ao_bas_han, g_focks, g_dens(1), 
      &                    g_tmp, g_svecs, svals, diising, nodiis,
-     .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p,.true.)
+     .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p,.true.,
+     $           nconstr,multipliers0,mult_diis)
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
       endif
@@ -1333,6 +1575,14 @@ c
          if (.not. ga_destroy(g_fockt)) call errquit
      &      ('dft_scf: could not destroy g_fockt', 0, GA_ERR)
       endif
+c Qin
+      if (lcdft)then
+         if (.not. ga_destroy(g_fockv(1))) call errquit
+     &      ('dft_scf: could not destroy g_fockv', 0, GA_ERR)
+         if (ipol.gt.1 .and. .not. ga_destroy(g_fockv(2))) call errquit
+     &      ('dft_scf: could not destroy g_fockv', 0, GA_ERR)
+      endif
+c
       if(lkeeps) then
       if (.not. ga_destroy(g_s12p)) call errquit
      &   ('dft_scf: could not destroy g_s12p', 0, GA_ERR)
@@ -1370,6 +1620,14 @@ c !!! BGJ
 c !!! BGJ
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
+
+      if(lcdft) then
+        do i = 1, nconstr
+         if (.not. ga_destroy(g_constr(i))) call errquit
+     &      ('dft_scf: could not destroy g_constr', 0, GA_ERR)
+        enddo
+      endif
+
       if (odftps) call pstat_off(ps_scfend)
       return
 c     
