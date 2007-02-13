@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral_band.F,v 1.5 2007-02-09 00:02:46 d3p708 Exp $
+* $Id: Tesseral_band.F,v 1.6 2007-02-13 17:43:18 d3p708 Exp $
 *
 
 
@@ -56,14 +56,13 @@
         Q=DSQRT(gx*gx + gy*gy + gz*gz)
 
         if (dabs(Q).lt.1.0d-9) then
-	    gx=0.0d0
-            gy=0.0d0
-            gz=0.0d0
-        else
-            gx=gx/Q
-            gy=gy/Q
-            gz=gz/Q
+	    Ylm(k1,k2,k3)=0.0d0
+            if (l.eq.0) Ylm(k1,k2,k3)=P0
+            goto 700
         end if
+        gx=gx/Q
+        gy=gy/Q
+        gz=gz/Q
 
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
            if ((l.eq.3).and.(m.eq.-3)) 

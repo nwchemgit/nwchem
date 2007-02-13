@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.20 2007-02-12 21:01:42 d3p708 Exp $
+* $Id: band_structure.F,v 1.21 2007-02-13 17:43:27 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -246,15 +246,7 @@
         end if
       end if
 
-c      call psi_get_ne(ispin,ne)
-c      if (ispin.eq.3) then
-c         spin_orbit=.true.
-c         ispin=2
-c      else
-c         spin_orbit=.false.
-c      end if
-c      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
-      value = cpsi_initialize(.false.) 
+      value = cpsi_initialize(.true.) 
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()

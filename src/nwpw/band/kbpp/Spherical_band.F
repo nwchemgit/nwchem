@@ -62,7 +62,7 @@
         gz = G(k1,k2,k3,3) + kvec(3)
         Q=DSQRT(gx**2 + gy**2 + gz**2)
 
-        if (dabs(Q).lt.1.0d-12) then
+        if (dabs(Q).lt.1.0d-9) then
            gx=0.0d0
            gy=0.0d0
            gz=0.0d0
@@ -73,7 +73,7 @@
         end if
 
         gsin=dsqrt(gx*gx+gy*gy)
-        if (dabs(gsin).lt.1.e-12) then
+        if (dabs(gsin).lt.1.e-9) then
            psin=0.0d0
            pcos=1.0d0
         else

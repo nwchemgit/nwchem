@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_local.F,v 1.7 2007-02-08 22:43:17 bylaska Exp $
+* $Id: HGH_band_local.F,v 1.8 2007-02-13 17:43:18 d3p708 Exp $
 *
 
 
@@ -72,6 +72,8 @@
         vl(k1,k2,k3)= f
     
   700 continue
+
+
       call C3dB_Vector_SumAll(nfft3d,vl)
 
 
