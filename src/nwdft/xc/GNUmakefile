@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.100 2006-02-24 20:46:44 edo Exp $
+# $Id: GNUmakefile,v 1.101 2007-02-13 23:19:46 bert Exp $
 
 	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
 
@@ -33,7 +33,8 @@
 	xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o \
 	xc_optx.o xc_optc.o xc_atomblock.o xc_replicated.o xc_ft97.o \
         xc_lb94.o xc_cs00.o xc_vdw.o xc_op.o xc_kop.o \
-        xc_bc95.o xc_xm05.o xc_cm05.o xc_xpw6.o
+        xc_bc95.o xc_xm05.o xc_cm05.o xc_xpw6.o\
+        xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o
 
 
      LIBRARY = libnwdft.a

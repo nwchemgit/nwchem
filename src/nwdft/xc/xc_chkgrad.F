@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.35 2006-02-24 20:46:44 edo Exp $
+* $Id: xc_chkgrad.F,v 1.36 2007-02-13 23:19:46 bert Exp $
 *
       implicit none
 #include "cdft.fh"
@@ -14,13 +14,15 @@ c
      + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
      + xfac(14)+xfac(15)+xfac(16)+xfac(17)+xfac(18) +xfac(19) +
      +     xfac(22)+
-     +     xfac(30)+xfac(31)+
+     +     xfac(30)+xfac(31)+ xfac(33) + cfac(29) +
      +     cfac(2) + cfac(4) + cfac(5) + cfac(12) +
      +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
      + cfac(19) + cfac(20)+cfac(21)+cfac(22)+cfac(23) + cfac(24) +
      + xfac(25) + cfac(25) +cfac(26)+xfac(20)+xfac(21)+cfac(27) +
      + xfac(26) + xfac(27) + xfac(28) + xfac(29) + cfac(31) + 
-     + cfac(32) + cfac(33) + cfac(34) + cfac(35) + cfac(36)
+     + cfac(32) + cfac(33) + cfac(34) + cfac(35) + cfac(36) +
+     + xfac(34) + xfac(35) + xfac(36) + xfac(37) +
+     + cfac(30) + cfac(38) + cfac(39) + cfac(40)
 
 c    +     cfac(28) + cfac(36)
       if (abs(tot).gt.eps.or.lb94.or.cs00)then

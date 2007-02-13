@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.50 2006-02-24 20:46:41 edo Exp $
+C$Id: xc_inp.F,v 1.51 2007-02-13 23:19:43 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -62,12 +62,27 @@ c     xm05    => 6300
 c     cm05    => 6400
 c     xm05-2x => 6500
 c     cm05-2x => 6600
-
+c     vs98    => 6700
+c     xvs98   => 6800
+c     cvs98   => 6900
+c     m06-L    => 7000
+c     xm06-L   => 7100
+c     cm06-L   => 7200
+c     m06-hf   => 7300
+c     xm06-hf  => 7400
+c     cm06-hf  => 7500
+c     m06      => 7600
+c     xm06     => 7700
+c     cm06     => 7800
+c     m06-2x   => 7900
+c     xm06-2x  => 8000
+c     cm06-2x  => 8100
+c
 
 
 c     
       integer num_dirs, ind, mlen, iline, n,numfunc
-      parameter (num_dirs=74 , numfunc=40)
+      parameter (num_dirs=89 , numfunc=40)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -98,7 +113,9 @@ c
      &     'bc95','mpw1b95',
      &     'mpwb1k','b1b95','bb1k','pw6b95','pwb6k','m05','m05-2x',
      &     'xpw6b95','cpw6b95','xpwb6k','cpwb6k','xm05','cm05',
-     &     'xm05-2x','cm05-2x'/
+     &     'xm05-2x','cm05-2x','vs98','xvs98','cvs98','m06-L',
+     &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
+     &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x'/
 
 c
 c     Only these few arrays are initialized (not defaults).
@@ -132,7 +149,8 @@ c
      &  3600,4000, 3650, 3110,4100,4150,4175,4500,
      E     1997, 2046, 2047, 2201, 2202,
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
-     &  5900,6000,6100,6200,6300,6400,6500,6600,
+     &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
+     &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
      ,     1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
@@ -1798,13 +1816,474 @@ c
       goto 10
 
 
+c
+c VS98, also called VSXC
+c
+ 6700  xccomb(32) = .true.
+         xfac(33)= 1.0d0
+        lxfac(33)=.true.
+       nlxfac(33)=.true.
+        cfac(29) = 1.0d0
+       lcfac(29) = .true.
+      nlcfac(29) = .true.
+c
+      goto 10
+c
+c VS98 exchange part
+c
+ 6800  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xVS98 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(33) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(33) = .true.
+            nlxfac(33) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(33) = .true.
+         nlxfac(33) = .true.
+      endif
+      if (.not. inp_f(xfac(33))) then
+         xfac(33) = 1.0d0
+      endif
+       goto 10
+
+ 6900 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+c            write(LuOut,*)' cvs98 is a semi-local functional;',
+c     &                ' "local" descriptor is ignored. '
 
 
 
+            write(LuOut,*)' cvs98 "local" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without local descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
+
+
+c
+c
+c
+            lcfac(29) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            write(LuOut,*)'cvs98 is already a nonlocal functional;',
+     &                ' "nonlocal" descriptor is ignored. '
+            nlcfac(29) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(29) = .false.
+            nlcfac(29) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(29) = .false.
+         nlcfac(29) = .true.
+      endif
+            write(LuOut,*)'cvs98 uses PW91LDA as',
+     &                ' defaults.These defaults cannot be changed '
+
+      if (.not. inp_f(cfac(29))) then
+         cfac(29) = 1.0d0
+      endif
+c
+      goto 10
+
+c
+cM06 suite
+c
+
+c
+c M06-L
+c
+ 7000  xccomb(33) = .true.
+         xfac(34)= 1.0d0
+        lxfac(34)=.true.
+       nlxfac(34)=.true.
+        cfac(30) = 1.0d0
+       lcfac(30) = .true.
+      nlcfac(30) = .true.
+c
+      goto 10
+c
+c M06-L exchange part
+c
+ 7100  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xm06-L "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(34) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(34) = .true.
+            nlxfac(34) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(34) = .true.
+         nlxfac(34) = .true.
+      endif
+      if (.not. inp_f(xfac(34))) then
+         xfac(34) = 1.0d0
+      endif
+       goto 10
+c
+c M06-L correlation part
+c
+ 7200 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+c            write(LuOut,*)' cm06-L is a semi-local functional;',
+c     &                ' "local" descriptor is ignored. '
 
 
 
-c     
+            write(LuOut,*)' cm06-L "local" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without local descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
+
+
+c
+c
+c
+            lcfac(30) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            write(LuOut,*)'cm06-L is already a nonlocal functional;',
+     &                ' "nonlocal" descriptor is ignored. '
+            nlcfac(30) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(30) = .false.
+            nlcfac(30) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(30) = .false.
+         nlcfac(30) = .true.
+      endif
+            write(LuOut,*)'cm06-L uses PW91LDA as',
+     &                ' defaults.These defaults cannot be changed '
+
+      if (.not. inp_f(cfac(30))) then
+         cfac(30) = 1.0d0
+      endif
+c
+      goto 10
+c
+c  M06-HF
+c
+ 7300  xccomb(34) = .true.
+         xfac(35)= 1.0d0
+        lxfac(35)=.true.
+       nlxfac(35)=.true.
+        cfac(38) = 1.0d0
+       lcfac(38) = .true.
+      nlcfac(38) = .true.
+        xfac(1) = 1.0d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+      goto 10
+
+c
+c M06-HF exchange part
+c
+ 7400  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xm06-hf "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(35) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(35) = .true.
+            nlxfac(35) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(35) = .true.
+         nlxfac(35) = .true.
+      endif
+      if (.not. inp_f(xfac(35))) then
+         xfac(35) = 1.0d0
+      endif
+       goto 10
+c
+c M06-HF correlation part
+c
+ 7500 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+c            write(LuOut,*)' cm06-hf is a semi-local functional;',
+c     &                ' "local" descriptor is ignored. '
+
+
+
+            write(LuOut,*)' cm06-hf "local" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without local descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
+
+c
+c
+c
+            lcfac(38) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            write(LuOut,*)'cm06-hf is already a nonlocal functional;',
+     &                ' "nonlocal" descriptor is ignored. '
+            nlcfac(38) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(38) = .false.
+            nlcfac(38) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(38) = .false.
+         nlcfac(38) = .true.
+      endif
+            write(LuOut,*)'cm06-hf uses PW91LDA as',
+     &                ' defaults.These defaults cannot be changed '
+
+      if (.not. inp_f(cfac(38))) then
+         cfac(38) = 1.0d0
+      endif
+c
+      goto 10
+
+c
+c M06
+c
+ 7600  xccomb(35) = .true.
+         xfac(36)= 1.0d0
+        lxfac(36)=.true.
+       nlxfac(36)=.true.
+        cfac(39) = 1.0d0
+       lcfac(39) = .true.
+      nlcfac(39) = .true.
+        xfac(1) = 0.27d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+      goto 10
+
+c
+c M06 exchange part
+c
+ 7700  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xm06 "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(36) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(36) = .true.
+            nlxfac(36) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(36) = .true.
+         nlxfac(36) = .true.
+      endif
+      if (.not. inp_f(xfac(36))) then
+         xfac(36) = 1.0d0
+      endif
+       goto 10
+c
+c M06 correlation part
+c
+ 7800 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+c            write(LuOut,*)' cm06 is a semi-local functional;',
+c     &                ' "local" descriptor is ignored. '
+
+
+
+            write(LuOut,*)' cm06 "local" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without local descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
+
+c
+c
+c
+            lcfac(39) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            write(LuOut,*)'cm06 is already a nonlocal functional;',
+     &                ' "nonlocal" descriptor is ignored. '
+            nlcfac(39) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(39) = .false.
+            nlcfac(39) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(39) = .false.
+         nlcfac(39) = .true.
+      endif
+            write(LuOut,*)'cm06 uses PW91LDA as',
+     &                ' defaults.These defaults cannot be changed '
+
+      if (.not. inp_f(cfac(39))) then
+         cfac(39) = 1.0d0
+      endif
+c
+      goto 10
+
+c
+c  M06-2X
+c
+ 7900  xccomb(36) = .true.
+         xfac(37)= 1.0d0
+        lxfac(37)=.true.
+       nlxfac(37)=.true.
+        cfac(40) = 1.0d0
+       lcfac(40) = .true.
+      nlcfac(40) = .true.
+        xfac(1) = 0.54d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+      goto 10
+
+c
+c M06-2X exchange part
+c
+ 8000  if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xm06-2x "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(37) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(37) = .true.
+            nlxfac(37) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(37) = .true.
+         nlxfac(37) = .true.
+      endif
+      if (.not. inp_f(xfac(37))) then
+         xfac(37) = 1.0d0
+      endif
+       goto 10
+c
+c M06-2X correlation part
+c
+ 8100 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+c            write(LuOut,*)' cm06-2x is a semi-local functional;',
+c     &                ' "local" descriptor is ignored. '
+
+
+
+            write(LuOut,*)' cm06-2x "local" is not defined',
+     &                ' for the metaGGA '
+            write(LuOut,*)' Resubmit without local descriptor. '
+            call errquit(' xc_inp - functional description ',0,0)
+
+c
+c
+c
+            lcfac(40) = .false.
+         elseif (inp_compare(.false.,'nonlocal', test)) then
+            write(LuOut,*)'cm06-2x is already a nonlocal functional;',
+     &                ' "nonlocal" descriptor is ignored. '
+            nlcfac(40) = .true.
+         else
+c
+c           assume total wanted (but total here = nonlocal)
+c
+            lcfac(40) = .false.
+            nlcfac(40) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lcfac(40) = .false.
+         nlcfac(40) = .true.
+      endif
+            write(LuOut,*)'cm06-2x uses PW91LDA as',
+     &                ' defaults.These defaults cannot be changed '
+
+      if (.not. inp_f(cfac(40))) then
+         cfac(40) = 1.0d0
+      endif
+c
+      goto 10
+
+
+
+c
 c     gill96; Gill '96 functional for exchange
 c     
  2300  if (inp_a(test)) then

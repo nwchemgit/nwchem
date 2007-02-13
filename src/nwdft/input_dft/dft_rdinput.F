@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id: dft_rdinput.F,v 1.131 2006-11-28 18:46:02 edo Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+C$Id: dft_rdinput.F,v 1.132 2007-02-13 23:19:43 bert Exp $ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
@@ -516,6 +516,9 @@ c
       cname(35)='            M05-2X Correlation Potential'
       cname(36)='        OP_Becke88 Correlation Potential'
       cname(37)='          OP_PBE96 Correlation Potential'
+      cname(38)='            M06-HF Correlation Potential'
+      cname(39)='               M06 Correlation Potential'
+      cname(40)='            M06-2X Correlation Potential'
 
 c
 c     Exchange functional name defaults.
@@ -549,6 +552,12 @@ c
       xname(29)='      M05-2X metaGGA Exchange Functional'
       xname(30)='                RPBE Exchange Functional'
       xname(31)='              RevPBE Exchange Functional'
+      xname(33)='                VS98 Exchange Functional'
+      xname(34)='               M06-L Exchange Functional'
+      xname(35)='              M06-HF Exchange Functional'
+      xname(36)='                 M06 Exchange Functional'
+      xname(37)='              M06-2X Exchange Functional'
+
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -581,7 +590,11 @@ c
       xcname(28)='              PBEOP Method XC Functional'
       xcname(29)='                M05 Method XC Functional'
       xcname(30)='             M05-2X Method XC Functional'
-
+      xcname(32)='               VS98 Method XC Functional'
+      xcname(33)='              M06-L Method XC Functional'
+      xcname(34)='             M06-HF Method XC Functional'
+      xcname(35)='                M06 Method XC Functional'
+      xcname(36)='             M06-2X Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

@@ -9,7 +9,7 @@ c
      &                       nq, Ex, Ec, qwght, GRAD, ldew, func,
      &                       do_2nd,tau, kske,Mmat)
 c
-c     $Id: xc_eval_fnl.F,v 1.57 2006-02-24 20:46:44 edo Exp $
+c     $Id: xc_eval_fnl.F,v 1.58 2007-02-13 23:19:46 bert Exp $
 c
       implicit none
 c
@@ -564,6 +564,71 @@ c
          endif
       endif
 c
+c VSXC   meta GGA Exchange
+c
+      if (abs(xfac(33)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xvs98(tol_rho, xfac(33), lxfac(33), nlxfac(33),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,tau,Mmat,1)
+         else
+            call xc_xvs98_d2()
+         endif
+      endif
+c
+c M06-L   meta GGA Exchange
+c
+      if (abs(xfac(34)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(34), lxfac(34), nlxfac(34),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,tau,Mmat,1)
+         else
+            call xc_xvs98_d2()
+         endif
+      endif
+
+c
+c M06-HF   meta GGA Exchange
+c
+      if (abs(xfac(35)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(35), lxfac(35), nlxfac(35),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,tau,Mmat,2)
+         else
+            call xc_xm06_d2()
+         endif
+      endif
+
+c
+c M06   meta GGA Exchange
+c
+      if (abs(xfac(36)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(36), lxfac(36), nlxfac(36),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,tau,Mmat,3)
+         else
+            call xc_xm06_d2()
+         endif
+      endif
+
+c
+c M06-2X  meta GGA Exchange
+c
+      if (abs(xfac(37)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(37), lxfac(37), nlxfac(37),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,tau,Mmat,4)
+         else
+            call xc_xm06_d2()
+         endif
+      endif
+
+
+c
 c     cpw6b95 is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...
@@ -638,8 +703,97 @@ c
          endif
       endif
 
+c     cvs98 is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(29)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cvs98(tol_rho, cfac(29), lcfac(29), nlcfac(29),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,1)
 
-c     
+         else
+            call xc_cvs98_d2()
+         endif
+      endif
+
+c     cm06-L is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(30)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(30), lcfac(30), nlcfac(30),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,1)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+c     cm06-hf is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(38)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(38), lcfac(38), nlcfac(38),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,2)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+
+c     cm06 is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(39)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(39), lcfac(39), nlcfac(39),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,3)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+c     cm06-2x is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(40)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(40), lcfac(40), nlcfac(40),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,4)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+
+
+
+c
 c     Combine with quadrature weights
 c
       if (.not. do_2nd) then
