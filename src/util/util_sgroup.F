@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.9 2006-11-28 19:51:20 windus Exp $
+C$Id: util_sgroup.F,v 1.10 2007-02-14 17:10:49 windus Exp $
       logical function util_sgstart(rtdb)
       implicit none
 #include "stdio.fh"
@@ -43,7 +43,8 @@ c
          call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
          util_sgstart=.true.
       else
-         call util_sginit_irreg()
+c        call util_sginit_irreg()
+         call util_sginit()
          call util_sgrtdb(rtdb,rtdb_fname,grtdbname)
          util_sgstart=.true.
       endif
@@ -228,15 +229,25 @@ c
       inode = ga_cluster_nodeid()
 !      nnodes = ga_cluster_nprocs(inode)
 
+      write(6,*) 'me in util_sginit_irreg is ', me
       proc_counter=1
       group_counter=1
+      write(6,*) 'ga_cluster_nnodes ',ga_cluster_nnodes()
       do i=0,ga_cluster_nnodes()-1
+         write(6,*) 'ga_cluster_nprocs(i) is ',ga_cluster_nprocs(i),i
          do j=0,ga_cluster_nprocs(i)-1
-
+           write(6,*) 'i and j ', i, j
+           write(6,*) 'group_counter,proc_counter,i,j,ga_clus_procid'
+     $       , group_counter,proc_counter,i,j,ga_cluster_procid(i,j)
            proclist(group_counter,proc_counter)=
      $     ga_cluster_procid(i,j)
            myprocid=ga_cluster_procid(inode,j)
-           if (proclist(i,j).eq.myprocid) mygroup=group_counter
+           write(6,*) 'myprocid,proclist ',myprocid,
+     $        proclist(group_counter,proc_counter),
+     &        group_counter,proc_counter
+c          if (proclist(i,j).eq.myprocid) mygroup=group_counter
+           if (proclist(group_counter,proc_counter).eq.myprocid) 
+     $          mygroup=group_counter
 
            if (cpusperg_array(group_counter).eq.proc_counter) then
              group_counter=group_counter+1
@@ -246,6 +257,8 @@ c
          enddo
       enddo
 
+      write(6,*) 'mygroup,cpusperg_array ',mygroup,
+     $     cpusperg_array(mygroup)
       grouplist(mygroup)=
      $ga_pgroup_create(proclist(mygroup,1),cpusperg_array(mygroup))
 
