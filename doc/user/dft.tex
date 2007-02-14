@@ -1,5 +1,5 @@
 %
-% $Id: dft.tex,v 1.92 2007-02-13 23:47:25 bert Exp $ 
+% $Id: dft.tex,v 1.93 2007-02-14 21:58:12 bert Exp $ 
 %
 \label{sec:dft}
 
@@ -978,7 +978,64 @@ active, you need to use the following line
   CONVERGENCE rabuck 30
 \end{verbatim}
 
+\section{{\tt CDFT} --- Constrained DFT}
+\label{cdft}
 
+This option enables the constrained DFT formalism by Wu and Van Voorhis described 
+in the paper: Q. Wu, T. Van Voorhis, Phys. Rev. A {\bf 72}, 024502 (2005). 
+
+\begin{verbatim}
+  CDFT <integer fatom1 latom1> [<integer fatom2 latom2>] (charge||spin <real constaint_value>) \
+       [pop (becke||mulliken||lowdin) default lowdin]
+\end{verbatim}
+
+Variables fatom1 and latom1 define the first and last atom of the group of atoms to which
+the constaint will be applied. Therefore the atoms in the same group should be placed 
+continuously in the geometry input. If fatom2 and latom2 are specified, the difference between
+group 1 and 2 (i.e. 1-2) is constrained. 
+
+The constraint can be either on the charge or the spin density (# of alpha - beta electrons) with
+a user specified constaint_value.  Note: No gradients have been implemented for the spin constaints 
+case. Geometry optimizations can only be performed using the charge constaint.
+
+To calculate the charge or spin density, the Becke, Mulliken, and Lowdin population schemes can be 
+used. The Lowdin scheme is default while the Mulliken scheme is not recommended. If basis sets with 
+many diffuse functions are used, the Becke population scheme is recommended.
+
+Multiple constaints can be defined simultaniously by defining multiple {\tt cdft} lines in the input. 
+The same population scheme will be used for all constaints and only needs to be specified once. If 
+multiple population options are defined, the last one will be used. When there are convergence
+problems with multiple constaints, the user is advised to do one constraint first and to use the
+resulting orbitals for the next step of the constained calculations.
+
+It is best to put "convergence nolevelshifting" in the dft directive to avoid issues with gradient 
+calculations and convergence in CDFT. Use orbital swap to get a broken-symmetry solution.
+
+An input example is given below.
+
+\begin{verbatim}
+geometry
+symmetry
+C  0.0  0.0  0.0
+O  1.2  0.0  0.0
+C  0.0  0.0  2.0
+O  1.2  0.0  2.0
+end
+
+basis
+* library 6-31G*
+end
+
+dft
+ xc b3lyp
+ convergence nolevelshifting
+ odft
+ mult 1
+ vectors swap beta 14 15
+ cdft 1 2 charge 1.0
+end
+task dft
+\end{verbatim}
 
 \section{{\tt SMEAR} --- Fractional Occupation of the Molecular Orbitals}
 \label{smear}
