@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.12 2006-11-21 15:26:47 windus Exp $
+C$Id: gibbs.F,v 1.13 2007-02-14 17:08:26 windus Exp $
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart
@@ -87,7 +87,7 @@ c
       LOGICAL ACCEPTPI
       LOGICAL STATUS
 
-      PARAMETER (MXNODE = 20)
+      PARAMETER (MXNODE = 2000)
       PARAMETER (PREFIX = "h2so4h2o")
       PARAMETER (SUFFIX = ".mol")
       PARAMETER (PREFIXX = "h2so4h2opdb")
@@ -126,14 +126,14 @@ c
       COMMON/RNNUMS/RNNUM(1)   
  
 C      DIMENSION TESTME(100,MXNODE)
-      COMMON/DIST1/RB(100),TESTME(100,20)
+      COMMON/DIST1/RB(100),TESTME(100,2000)
       COMMON/DIST2/NDA(100),NDSIG(100)
 
       DIMENSION DIMS(2),CHUNK(2)
       DIMENSION ld(2)  
       DIMENSION RINIT(MXMOLS,MXATOM,3)
-      dimension bigproc(20,1)
-      dimension procnums(20)
+      dimension bigproc(2000,1)
+      dimension procnums(2000)
 
       SAVE NATOT
 
@@ -192,7 +192,7 @@ c
 c
 c all 0's get the full list
 c
-          ld(1)  = 20   !must be physical dimension of local array
+          ld(1)  = 2000   !must be physical dimension of local array
           ld(2)  = 1
           call ga_get(g_proc,1,inodesbig,1,1,bigproc,ld)
           write(6,*) 'after ga_get of the node ids'
@@ -726,10 +726,23 @@ C check to make sure center of mass is origin
 C calculate the energy of the configuration
 c      CALL dntmc_PSUM(NCURR,UU)
       call dntmc_setcoords(rtdb, r, nmols, natom, spc)
-      if (.not. task_energy(rtdb)) call errquit
-     $     ('dntmc_gibbs: energy failed',0, GEOM_ERR)
-      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+      if (.not. task_energy(rtdb)) then
+        if (.not. task_energy(rtdb)) then   ! try running the energy again
+          write(12,*) 'Energy did not converge'
+          uu = -0.5                        ! set the energy arbitrarily high - H atom
+        else
+          write(12,*) 'Energy converged on the second try'
+          if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+     $      call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+        endif
+      else 
+        if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
      $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+      endif
+c      if (.not. task_energy(rtdb)) call errquit
+c     $     ('dntmc_gibbs: energy failed',0, GEOM_ERR)
+c      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+c     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
 c
 c convert to kcal/mol
 c
@@ -1154,10 +1167,23 @@ c234567
 
 c      CALL dntmc_PSUM(NCURR,UU)
       call dntmc_setcoords(rtdb, r, nmols, natom, spc)
-      if (.not. task_energy(rtdb)) call errquit
-     $     ('dntmc_gibbs: energy failed',0, GEOM_ERR)
-      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+      if (.not. task_energy(rtdb)) then
+        if (.not. task_energy(rtdb)) then   ! try running the energy again
+          write(12,*) 'Energy did not converge'
+          uu = -0.5                        ! set the energy arbitrarily high - H atom
+        else
+          write(12,*) 'Energy converged on the second try'
+          if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+     $      call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+        endif
+      else 
+        if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
      $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+      endif
+c      if (.not. task_energy(rtdb)) call errquit
+c     $     ('dntmc_gibbs: energy failed',0, GEOM_ERR)
+c      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, uu))
+c     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
      
 c
 c convert to kcal/mol
@@ -1252,7 +1278,7 @@ C*********************************************************************
       endif  ! idzero section
       call ga_pgroup_set_default(idmedium)
       call ga_sync()
-      call ga_brdcst(msg_dntmc4+MSGINT, mdtob(PERCENT), 1, 0)
+      call ga_brdcst(msg_dntmc4+MSGINT, PERCENT, mdtob(1), 0)
       call ga_brdcst(msg_dntmc5+MSGDBL, NDA, mdtob(100), 0)
       call ga_brdcst(msg_dntmc6+MSGDBL, NDSIG, mdtob(100), 0)
 
@@ -1649,10 +1675,23 @@ c      WRITE(12,*)'translation before psum'
 
 c     CALL dntmc_PSUM(NCURR,UNEW) 
       call dntmc_setcoords(rtdb, r, nmols, natom, spc)
-      if (.not. task_energy(rtdb)) call errquit
-     $     ('dntmc_move: energy failed',0, GEOM_ERR)
-      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
-     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
+      if (.not. task_energy(rtdb)) then
+        if (.not. task_energy(rtdb)) then   ! try running the energy again
+          write(12,*) 'Energy did not converge'
+          unew = -0.5                        ! set the energy arbitrarily high - H atom
+        else
+          write(12,*) 'Energy converged on the second try'
+          if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $      call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+        endif
+      else 
+        if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+      endif
+c      if (.not. task_energy(rtdb)) call errquit
+c     $     ('dntmc_move: energy failed',0, GEOM_ERR)
+c      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+c     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
 
       write(12,*) 'coordinates with an energy evaluation'
       DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
@@ -1826,10 +1865,23 @@ C******************************************************
       
 c      CALL dntmc_PSUM(NCURR,UNEW)     
       call dntmc_setcoords(rtdb, r, nmols, natom, spc)
-      if (.not. task_energy(rtdb)) call errquit
-     $     ('dntmc_move: energy failed',0, GEOM_ERR)
-      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
-     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
+      if (.not. task_energy(rtdb)) then
+        if (.not. task_energy(rtdb)) then   ! try running the energy again
+          write(12,*) 'Energy did not converge'
+          unew = -0.5                        ! set the energy arbitrarily high - H atom
+        else
+          write(12,*) 'Energy converged on the second try'
+          if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $      call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+        endif
+      else 
+        if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+     $     call errquit('dntmc_gibbs: rtdb?',0, RTDB_ERR)
+      endif
+c      if (.not. task_energy(rtdb)) call errquit
+c     $     ('dntmc_move: energy failed',0, GEOM_ERR)
+c      if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl, 1, unew))
+c     $     call errquit('dntmc_move: rtdb?',0, RTDB_ERR)
 
       write(12,*) 'coordinates with an energy evaluation'
       DO I = 1, NMOLS  ! This should be seperated into two loops, copy and print
@@ -3456,7 +3508,7 @@ C
 
       DIMENSION Pv(100),S(100),SI(100)
 
-      COMMON/DIST1/RB(100),TESTME(100,20)
+      COMMON/DIST1/RB(100),TESTME(100,2000)
       COMMON/DIST2/NDA(100),NDSIG(100)
 
 
@@ -3627,7 +3679,7 @@ C23456789012345678901234567890123456789012345678901234567890123456789012
       double precision percent     ! output
       integer i, j, jstar
       
-      COMMON/DIST1/RB(100),TESTME(100,20)
+      COMMON/DIST1/RB(100),TESTME(100,2000)
       COMMON/DIST2/NDA(100),NDSIG(100)
 
 
@@ -3672,7 +3724,7 @@ C     FIND MAXIMUM ERROR ALONG AVERAGE DISTRIBUTION
          ENDIF
       END DO
 
-c     WRITE(6,*)'Maximum Error =',NDSGMX,' at J =',JSTAR
+      WRITE(6,*)'Maximum Error =',NDSGMX,' at J =',JSTAR
 
       PERCENT = (NDSGMX/NDA(JSTAR))*100.D+00
 
