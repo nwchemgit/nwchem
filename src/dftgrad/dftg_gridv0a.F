@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.31 2007-02-13 22:23:30 bert Exp $
+c     $Id: dftg_gridv0a.F,v 1.32 2007-02-15 00:09:05 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -32,9 +32,10 @@ c Qin
       integer rtdb
       logical lcdft, ldbw
       integer ipop, nconstr, i
-      integer iatms1(10), iatms2(10), fatms1(10), fatms2(10)
-      integer dtype(10)
-      double precision multipliers(10), fact(10)  ! pass to dftg_gridv0b
+      integer iatms1(max_constr), iatms2(max_constr)
+      integer fatms1(max_constr), fatms2(max_constr)
+      integer dtype(max_constr)
+      double precision multipliers(max_constr), fact(max_constr)  ! pass to dftg_gridv0b
 
       integer natoms
       integer max_at_bf
