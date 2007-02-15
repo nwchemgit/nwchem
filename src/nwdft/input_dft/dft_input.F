@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.40 2007-02-15 00:07:44 bert Exp $
+c     $Id: dft_input.F,v 1.41 2007-02-15 13:33:26 edo Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -27,7 +27,7 @@ c
       character*12 dirs(num_dirs)
       character*255 test
       integer nopen
-      integer lvan,lcdft
+      logical lcdft
       logical pseudo
       double precision smear_sigma
       double precision shift
@@ -333,7 +333,7 @@ c Qin/end
       if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &   call errquit('dft_input: rtdb_put failed', 300, RTDB_ERR)
       return 
-10000 write(6,10001)
+      write(6,10001)
 10001 format(/' fon [alpha|beta] orbitals <norb> electrons <nelec>'/)
       call util_flush(6)
       call errquit('vectors_input: invalid format', 0, INPUT_ERR)
