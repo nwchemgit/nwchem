@@ -1,6 +1,6 @@
       subroutine dft_input(rtdb)
 c
-c     $Id: dft_input.F,v 1.39 2007-02-13 22:22:01 bert Exp $
+c     $Id: dft_input.F,v 1.40 2007-02-15 00:07:44 bert Exp $
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
@@ -13,6 +13,7 @@ c
 #include "bas.fh"
 #include "inp.fh"
 #include "stdio.fh"
+#include "cdft.fh"
 c     
 c     read input for DFT calculation.  All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
@@ -25,12 +26,9 @@ c
       parameter (num_dirs = 27)
       character*12 dirs(num_dirs)
       character*255 test
-      integer idecomp, mult, iterations, ipol, noio,
-     &        imull
       integer nopen
       integer lvan,lcdft
-      logical pseudo, direct, lmaxov, incore
-      logical lb94, cs00
+      logical pseudo
       double precision smear_sigma
       double precision shift
       integer nel_fon(2),nmo_fon(2),ispin
@@ -41,8 +39,7 @@ c
      $           'smear','fon','lb94','cs00','cdft',
      &           'end'/
 c Qin / cdft
-      integer max_constr, nconstr
-      parameter (max_constr = 10)
+      integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
       integer iatms2(max_constr), fatms2(max_constr)
       double precision constr(max_constr)

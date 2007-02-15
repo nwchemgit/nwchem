@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.49 2007-02-13 22:22:07 bert Exp $
+C$Id: grid_quadv0.F,v 1.50 2007-02-15 00:07:52 bert Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -392,7 +392,7 @@ c Qin
          if (.not. rtdb_get(rtdb, 'dft:grid_make_sa', mt_log, 1, lsa))
      &     lsa = .false.
          if(lsa) then
-           call grid_make_sa(rtdb,nbf_ao)
+           call grid_make_sa(rtdb)
            lsa = .false.
            if (.not. rtdb_put(rtdb, 'dft:grid_make_sa', mt_log, 1, lsa))
      &       call errquit('rtdb_put lsa failed', 0, RTDB_ERR)

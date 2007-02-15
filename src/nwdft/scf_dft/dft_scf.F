@@ -4,7 +4,7 @@
      &                         g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.255 2007-02-13 22:21:53 bert Exp $
+c     $Id: dft_scf.F,v 1.256 2007-02-15 00:07:37 bert Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -48,13 +48,14 @@ c
       logical lcdft
       integer g_fockv(2)
       integer nconstr, ipop, counter_cdft
-      integer iatms1(nconstr), fatms1(nconstr)
-      integer iatms2(nconstr), fatms2(nconstr), dtype(nconstr)
-      integer g_constr(nconstr), g_shalf
-      double precision constr(nconstr), multipliers(nconstr),
-     $                 multipliers0(nconstr), mult_diis(nconstr,nfock)
-      double precision grad_constr(nconstr),hess_constr(nconstr,nconstr)
-      double precision gold_constr(nconstr),p_constr(nconstr)
+      integer iatms1(max_constr), fatms1(max_constr)
+      integer iatms2(max_constr), fatms2(max_constr), dtype(max_constr)
+      integer g_constr(max_constr), g_shalf
+      integer l_mdiis, k_mdiis, l_hess, k_hess, l_conscr, k_conscr
+      double precision constr(max_constr), multipliers(max_constr),
+     $            multipliers0(max_constr)
+      double precision grad_constr(max_constr)
+      double precision gold_constr(max_constr),p_constr(max_constr)
 c
       logical oprint
       double precision rms(2), derr(2)
@@ -396,6 +397,12 @@ c
          if (.not.MA_alloc_Get(MT_int,nfock*ipol*2,
      ,        'ga handle for diis',l_gdiis,k_gdiis))
      ,        call errquit('dft_scf: cannot allocate g_diis',0, MA_ERR)
+         if (.not.MA_alloc_Get(MT_DBL,nfock*nconstr,
+     ,        'ga handle for diis',l_mdiis,k_mdiis))
+     ,        call errquit('dft_scf: cannot allocate mdiis',0, MA_ERR)
+         if (.not.MA_alloc_Get(MT_DBL,nfock*nconstr,
+     ,        'ga handle for diis',l_hess,k_hess))
+     ,        call errquit('dft_scf: cannot allocate mdiis',0, MA_ERR)
       endif
 
       homo_lumo_gap = 200.0d0
@@ -867,7 +874,7 @@ c
      &           g_tmp, g_svecs, svals, diising, 
      &           nodiis,int_mb(k_gdiis),lkeeps,
      .           g_s12m,g_s12p,.false.,
-     $           nconstr,multipliers0,mult_diis)
+     $           nconstr,multipliers0,dbl_mb(k_mdiis))
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
          endif
@@ -883,7 +890,7 @@ c Qin
 c Constrained DFT: label 2004 is associated with optimization of cdft.
       if(lcdft) then
         call dfill(nconstr, 0.0d0, grad_constr, 1)
-        call dfill(nconstr*nconstr, 0.0d0, hess_constr, 1)
+        call dfill(nconstr*nconstr, 0.0d0, dbl_mb(k_hess), 1)
         counter_cdft = counter_cdft + 1
         if(counter_cdft.gt.50) then
           write(LuOut,*)
@@ -949,7 +956,7 @@ c Constrained DFT /When lcdft, save at the beginning
        call cdft_deriv(nconstr, g_constr,
      $                    g_movecs(ispin), g_dens(ispin),
      $                    dbl_mb(k_eval(ispin)), noc(ispin), nmo(ispin),
-     $                    grad_constr, hess_constr,
+     $                    grad_constr, dbl_mb(k_hess),
      $                    g_tmp, fddl)
         if(ispin.eq.2) then
           do i = 1, nconstr
@@ -999,12 +1006,20 @@ c Constrained DFT
         if(dl2.gt.dl_conv) then
           if(lvan) then
            dl2 = grad_constr(1)
-           ddl2 = hess_constr(1,1)
+           ddl2 = dbl_mb(k_hess)
            call find_la(multipliers(1),dl2,ddl2,do_ddl,dlold,x1,x2,
      $                    lbrak,check)
           else
-           call cdft_newt(nconstr,multipliers,grad_constr,hess_constr,
-     $                   gold_constr, p_constr, check)
+           if (.not.MA_Push_Get(MT_Dbl,2*nconstr*nconstr+6*nconstr,
+     &                          'conscr',l_conscr,k_conscr))
+     &        call errquit('dft_scf: cannot allocate ktmp',0, MA_ERR)
+           call cdft_newt(nconstr,multipliers,grad_constr,
+     $                dbl_mb(k_hess),gold_constr, p_constr, check,
+     $                dbl_mb(k_conscr),dbl_mb(k_conscr+nconstr*nconstr),
+     $                dbl_mb(k_conscr+2*nconstr*nconstr),
+     $                dbl_mb(k_conscr+2*nconstr*nconstr+nconstr))
+           if (.not.ma_pop_stack(l_conscr))
+     &         call errquit('dft_scf: cannot pop stack',33, MA_ERR)
            dlold = gold_constr(1)
           endif
           if(check) call errquit
@@ -1078,7 +1093,7 @@ c
      &        g_dens, g_tmp, g_svecs, svals, 
      &        diising, nodiis,int_mb(k_gdiis),
      ,        lkeeps,g_s12m,g_s12p,.true.,
-     $           nconstr,multipliers0,mult_diis)
+     $           nconstr,multipliers0,dbl_mb(k_mdiis))
       endif
 
          etnew=etnew+tdots
@@ -1329,7 +1344,7 @@ c
      &                       g_dens, g_tmp, g_svecs, svals,
      &                       diising, nodiis,int_mb(k_gdiis),
      ,           lkeeps,g_s12m,g_s12p,.true.,
-     $           nconstr,multipliers0,mult_diis)
+     $           nconstr,multipliers0,dbl_mb(k_mdiis))
          endif
          damping=.true.
          if(damping) then
@@ -1492,7 +1507,11 @@ c
      &                 nbf_ao, geom, ao_bas_han, g_focks, g_dens(1), 
      &                    g_tmp, g_svecs, svals, diising, nodiis,
      .        int_mb(k_gdiis),lkeeps,g_s12m,g_s12p,.true.,
-     $           nconstr,multipliers0,mult_diis)
+     $           nconstr,multipliers0,dbl_mb(k_mdiis))
+         if (.not. MA_free_heap(l_hess))
+     .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
+         if (.not. MA_free_heap(l_mdiis))
+     .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
          if (.not. MA_free_heap(l_gdiis))
      .        call errquit(' dft_scf:cannot popstack',111, MA_ERR)
       endif

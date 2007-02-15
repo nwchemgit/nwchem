@@ -1,5 +1,5 @@
 c
-C$Id: cdft.fh,v 1.69 2007-02-14 00:40:41 bert Exp $
+C$Id: cdft.fh,v 1.70 2007-02-15 00:07:49 bert Exp $
 C
 c     Common for parameters to do with convergence and common details
 c     of the DFT module
@@ -127,8 +127,9 @@ c     bas_staticP.fh e.g., dft_max_cent = max_cent, and
 c     dft_ntags_bsmx = ntags_bsmx
 c
 #include "nwc_const.fh"
-      integer dft_ntags_bsmx, dft_max_cent
+      integer dft_ntags_bsmx, dft_max_cent, max_constr
       parameter (dft_ntags_bsmx = 200, dft_max_cent = nw_max_atom)
+      parameter (max_constr = 10)
       integer ncubes_type,ncubesmx
       integer l_nxyz,k_nxyz ! MA handler
       double precision lcube,minexp

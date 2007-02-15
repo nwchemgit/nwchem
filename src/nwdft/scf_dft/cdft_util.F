@@ -153,7 +153,7 @@ c convert charge to number of electrons
 
       subroutine lowd_pop( geom, basis, iga_dens,iga_s, g_tmp )
 
-C$Id: cdft_util.F,v 1.1 2007-02-14 20:22:31 bert Exp $
+C$Id: cdft_util.F,v 1.2 2007-02-15 00:07:37 bert Exp $
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -363,16 +363,18 @@ c g_sx = g_s * g_sblock12m * g_r12m
       end
 
 
-      subroutine grid_make_sa(rtdb,nbf_ao)
+      subroutine grid_make_sa(rtdb)
       implicit none
 #include "rtdb.fh"
+#include "cdft.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
       integer rtdb
-      integer nbf_ao,nbf_ao2
-      integer nconstr, g_constr(10)
-      integer iatms1(10), fatms1(10), iatms2(10), fatms2(10)
+      integer nbf_ao2
+      integer nconstr, g_constr(max_constr)
+      integer iatms1(max_constr), fatms1(max_constr) 
+      integer iatms2(max_constr), fatms2(max_constr)
       integer isa, lsa, isa2, lsa2, i
 
       nbf_ao2=nbf_ao*nbf_ao
@@ -727,14 +729,14 @@ c!! Here try Newton step.  If it's got out of [x1, x2], then bisection.
 
 
       subroutine cdft_newt(nconstr, multipliers, grad, hess, grad_old,
-     $                      p, check)
+     $                      p, check,u,v,w,work)
       implicit none
       integer nconstr
       double precision multipliers(nconstr), grad(nconstr),
      $                 hess(nconstr, nconstr), grad_old(nconstr)
-      double precision p(nconstr), u(nconstr,nconstr), w(nconstr),
-     $                 v(nconstr,nconstr), work(5*nconstr),
-     $                 wmin, s
+      double precision p(nconstr),u(nconstr,nconstr),
+     $                 w(nconstr),v(nconstr,nconstr), 
+     $                 work(5*nconstr), wmin, s
       logical backtrack, check
       integer i, j, info
       double precision x0, x1, back, y1, a, b, c
@@ -838,9 +840,10 @@ c#include "dftps.fh"
       integer g_t1, g_t2, g_t3
       integer isvals, lsvals
       integer nconstr, ic
-      integer iatms1(10), iatms2(10), fatms1(10), fatms2(10)
-      double precision multipliers(10)
-      integer dtype(10)
+      integer iatms1(max_constr), iatms2(max_constr)
+      integer fatms1(max_constr), fatms2(max_constr)
+      double precision multipliers(max_constr)
+      integer dtype(max_constr)
 
       logical status
       integer i, j, ifirst(2), ilast(2)

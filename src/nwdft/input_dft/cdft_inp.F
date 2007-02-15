@@ -1,7 +1,7 @@
       subroutine cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, 
      $                      fatms1, fatms2, constr)
 c
-c     $Id: cdft_inp.F,v 1.1 2007-02-14 20:20:50 bert Exp $
+c     $Id: cdft_inp.F,v 1.2 2007-02-15 00:07:44 bert Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -9,6 +9,7 @@ c
 #include "mafdecls.fh"
 #include "inp.fh"
 #include "stdio.fh"
+#include "cdft.fh"
       integer rtdb ! [input] handle to database
 c
       integer ind               ! Index of matched directive
@@ -16,8 +17,7 @@ c
       parameter (num_dirs = 2, num_c=2, num_p=3) 
       character*12 dirs(num_dirs), dirs_c(num_c), dirs_p(num_p)
       character*255 test
-      integer nconstr, max_constr
-      parameter (max_constr = 10) 
+      integer nconstr
       integer dtype(max_constr), iatms1(max_constr), fatms1(max_constr)
       integer iatms2(max_constr), fatms2(max_constr)
       double precision constr(max_constr)
