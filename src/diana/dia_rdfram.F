@@ -1,6 +1,6 @@
       logical function dia_rdfram(x,w)
 c
-c $Id: dia_rdfram.F,v 1.5 2007-02-06 16:32:24 d3j191 Exp $
+c $Id: dia_rdfram.F,v 1.6 2007-02-16 16:01:12 d3j191 Exp $
 c
       implicit none
 c
@@ -35,7 +35,6 @@ c
       read(lfntrj,1000,err=9999,end=9999) card
  1000 format(a)
       if(card(1:5).ne.'frame') goto 1
-      write(*,'(a,i10)') 'FTELL=',ftell(lfntrj)
       read(lfntrj,1001,err=9999,end=9999) timp,temp,pres,datum,tijd
  1001 format(2f12.6,e12.5,2a10)
       if(lclean.and.timp.lt.timr) then

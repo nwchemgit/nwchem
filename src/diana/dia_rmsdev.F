@@ -1,5 +1,19 @@
+      subroutine dia_rmsd
+c
+c $Id: dia_rmsdev.F,v 1.4 2007-02-16 16:01:12 d3j191 Exp $
+      implicit none
+c
+#include "dia_params.fh"
+#include "dia_common.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c
+c
+      return
+      end
       subroutine dia_rmsdev(x,ix,nx,xref,wt,wts,xrms)
-c $Id: dia_rmsdev.F,v 1.3 2007-02-06 16:32:24 d3j191 Exp $
+c $Id: dia_rmsdev.F,v 1.4 2007-02-16 16:01:12 d3j191 Exp $
       implicit none
 c
 #include "dia_params.fh"

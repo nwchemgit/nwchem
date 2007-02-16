@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.4 2007-02-06 16:32:24 d3j191 Exp $
+c $Id: dia_gettrj.F,v 1.5 2007-02-16 16:01:12 d3j191 Exp $
 c
 c     read the trajectory
 c     -------------------
@@ -23,7 +23,19 @@ c
       integer ifram,iffram,ilfram,lq,ifr
       character*255 fname
 c
-      read(card(8:37),'(3i10)') ifrfr,ifrto,ifrsk
+c     deallocate any existing global arrays
+c
+      if(nfrtot.gt.0) then
+      if(.not.ga_destroy(ga_trj))
+     + call md_abort('Failed to destroy ga_trj',0)
+      if(lslvnt) then
+      if(.not.ga_destroy(ga_trw))
+     + call md_abort('Failed to destroy ga_trw',0)
+      endif
+      endif
+c
+      read(card(8:37),'(3i10,l1)') ifrfr,ifrto,ifrsk,lslvnt
+c
       if(me.eq.0) then
       write(*,'(/,3(a,i10))') ' Selected frames ',ifrfr,' to ',ifrto,
      + ' by',ifrsk
@@ -34,10 +46,6 @@ c
 c
 c     allocate global array
 c
-      if(nfrtot.gt.0) then
-      if(.not.ga_destroy(ga_trj))
-     + call md_abort('Failed to destroy ga_trj',0)
-      endif
 c
       nfrtot=int((ifrto-ifrfr+1)/ifrsk)
       nfrdim=nfrtot/np
@@ -54,6 +62,10 @@ c
 c
       if(.not.ga_create(mt_dbl,nsa*3,nfrtot,'trj',nsa*3,nfrdim,
      + ga_trj)) call md_abort('Failed to create ga_trj',0)
+      if(lslvnt) then
+      if(.not.ga_create(mt_dbl,nwm*nwa*3,nfrtot,'trw',nwm*nwa*3,nfrdim,
+     + ga_trw)) call md_abort('Failed to create ga_trw',0)
+      endif
 c
 c      write(*,'(i5,a,2i5)') me,' allocated ga for frames ',
 c     + me*nfrdim+1,min((me+1)*nfrdim,nfrtot)
@@ -77,13 +89,11 @@ c
       ndata=ndata+1
       if(me.eq.0) then
       call ga_put(ga_trj,1,3*nsa,ndata,ndata,dbl_mb(i_xdat),nsa)
-c      write(*,'(3f12.6)') (dbl_mb(i_xdat+i-1),i=1,3)
+      if(lslvnt) call ga_put(ga_trw,1,3*nwm*nwa,ndata,ndata,
+     + dbl_mb(i_wdat),nwm*nwa)
       endif
       endif
       nframe=nframe+1
-c      if(me.eq.0) then
-c      write(*,'(a,i5,a,i5)') ' Frame ',nframe,', Data ',ndata
-c      endif
       if(ifrto.lt.ifrfr.or.nread.lt.ifrto) goto 1010
       endif
 c
@@ -182,6 +192,8 @@ c
       call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
       call dia_preadframe(dbl_mb(i_xdat),dbl_mb(i_wdat))
       call ga_put(ga_trj,1,3*nsa,nfram,nfram,dbl_mb(i_xdat),nsa)
+      if(lslvnt) call ga_put(ga_trw,1,3*nwm*nwa,ndata,ndata,
+     + dbl_mb(i_wdat),nwm*nwa)
       endif
   102 continue
   103 continue

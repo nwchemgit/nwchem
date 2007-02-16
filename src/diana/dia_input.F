@@ -1,6 +1,6 @@
       subroutine dia_input(irtdb)
 c
-c $Id: dia_input.F,v 1.6 2007-02-06 21:24:17 d3j191 Exp $
+c $Id: dia_input.F,v 1.7 2007-02-16 16:01:12 d3j191 Exp $
 c
       implicit none
 c
@@ -20,7 +20,7 @@ c
       integer itag,iatag,jatag,ipbc,nrdf
       real*8 timoff,rsel,rtag,rcut,scale,cpk,stick,rval,rmin,rmax,rang
       real*8 arota,rrdf
-      logical lref,lfil,lsol,lsuper,lselo,lequiv
+      logical lref,lfil,lsol,lsuper,lselo,lequiv,lslvnt
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb,nclean
       integer i,iorder,norder
       character*8 option
@@ -170,7 +170,17 @@ c     define frequency processing frames
 c     ----------------------------------
 c
       if(inp_compare(.false.,'frames',item)) then
+      if(.not.inp_i(ifrfr)) then
+      if(.not.inp_a(item)) call md_abort('Error in frames',0)
+      if(inp_compare(.false.,'nosolvent',item)) then
+      lslvnt=.false.
+      elseif(inp_compare(.false.,'solvent',item)) then
+      lslvnt=.true.
+      else
+      call md_abort('Error in frames',0)
+      endif
       if(.not.inp_i(ifrfr)) call md_abort('Error in frames',0)
+      endif
       if(.not.inp_i(ifrto)) then
       ifrto=ifrfr
       ifrfr=1
@@ -178,8 +188,8 @@ c
       else
       if(.not.inp_i(ifrsk)) ifrsk=1
       endif
-      write(lfncmd,1003) ifrfr,ifrto,ifrsk
- 1003 format('frame  ',3i10)
+      write(lfncmd,1003) ifrfr,ifrto,ifrsk,lslvnt
+ 1003 format('frame  ',3i10,l1)
       numcmd=numcmd+1
       goto 2
       endif
@@ -817,8 +827,18 @@ c     root mean square deviation analysis
 c     -----------------------------------
 c
       if(inp_compare(.false.,'rmsd',item)) then
-      write(lfncmd,1008)
- 1008 format('rmsdev ')
+      if(inp_a(item)) then
+      if(inp_compare(.false.,'average',item)) then
+      write(lfncmd,1008) 'averag'
+      elseif(inp_compare(.false.,'reference',item)) then
+      write(lfncmd,1008) 'refere'
+      else
+      call md_abort('Error in rmsd',0)
+      endif
+      else
+      write(lfncmd,1008) 'refere'
+ 1008 format('rmsdev ',a6)
+      endif
       numcmd=numcmd+1
       goto 2
       endif

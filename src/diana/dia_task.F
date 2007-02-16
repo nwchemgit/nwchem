@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.9 2007-02-06 21:24:17 d3j191 Exp $
+c $Id: dia_task.F,v 1.10 2007-02-16 16:01:12 d3j191 Exp $
 c
       implicit none
 c
@@ -91,6 +91,12 @@ c     -----------------------------
 c
       elseif(cmd.eq.'xaver ') then
       call dia_average()
+c
+c     calculate one-dimensional root mean square deviation
+c     ----------------------------------------------------
+c
+      elseif(cmd.eq.'rmsdev') then
+      call dia_rmsd()
 c
 c     build covariance matrix
 c     -----------------------

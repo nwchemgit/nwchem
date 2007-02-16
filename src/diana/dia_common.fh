@@ -1,5 +1,5 @@
 c
-c $Id: dia_common.fh,v 1.6 2007-02-07 15:01:13 d3j191 Exp $
+c $Id: dia_common.fh,v 1.7 2007-02-16 16:01:08 d3j191 Exp $
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)
@@ -80,7 +80,7 @@ c
      + i_ndxw,l_ndxw,i_val,l_val,i_iram,l_iram,i_imol,l_imol,
      + i_wrk,l_wrk,i_ssel,l_ssel,i_swt,l_swt,i_hbnd,l_hbnd,
      + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat,
-     + i_rdf,l_rdf,i_iequi,l_iequi,ga_trj,ga_tval,ga_tvec,
+     + i_rdf,l_rdf,i_iequi,l_iequi,ga_trj,ga_trw,ga_tval,ga_tvec,
      + i_tval,l_tval,i_tvec,l_tvec
       common/dia_ptr/i_xref,l_xref,i_xrms,l_xrms,i_wt,l_wt,i_isel,
      + l_isel,i_snam,l_snam,i_xdat,l_xdat,i_idat,l_idat,i_bnd,l_bnd,
@@ -90,7 +90,7 @@ c
      + i_ndxw,l_ndxw,i_val,l_val,i_iram,l_iram,i_imol,l_imol,
      + i_wrk,l_wrk,i_ssel,l_ssel,i_swt,l_swt,i_hbnd,l_hbnd,
      + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat,
-     + i_rdf,l_rdf,i_iequi,l_iequi,ga_trj,ga_tval,ga_tvec,
+     + i_rdf,l_rdf,i_iequi,l_iequi,ga_trj,ga_trw,ga_tval,ga_tvec,
      + i_tval,l_tval,i_tvec,l_tvec
 c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,nwsel,
@@ -104,10 +104,10 @@ c
 c
       logical lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,lsonly,
      + ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,lclean,
-     + lesppt,lsuper,active,ignore
+     + lesppt,lsuper,active,ignore,lslvnt
       common/dia_log/lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,lsel,lana,lrms,
      + lsonly,ltop,ldcd,lrama,lesd,lloc,lsels,lhbond,lselo,ldiel,lrdf,
-     + lclean,lesppt,lsuper,active,ignore
+     + lclean,lesppt,lsuper,active,ignore,lslvnt
 c
       character*24 wtag(100,2)
       character*16 wnam(100)
