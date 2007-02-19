@@ -2,7 +2,7 @@
      &                  NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
      &                  MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
      &                  canAB,canCD,canPQ)
-c $Id: hfderi.F,v 1.3 2006-03-28 17:24:23 edo Exp $
+c $Id: hfderi.F,v 1.4 2007-02-19 18:17:39 edo Exp $
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
@@ -304,7 +304,7 @@ c Sum across (Iq,Jq,Kq).
 c Define the product of the Hermite expansions coefficients for 
 c charge distribution "Q".
 
-             if(NQP.eq.1) then
+             if(NPQ.eq.1) then
                 zot = Eq(1,1,n10,Iq,Ic,Id)*
      &               Eq(2,1,n11,Jq,Jc,Jd)*
      &               Eq(3,1,n12,Kq,Kc,Kd)
