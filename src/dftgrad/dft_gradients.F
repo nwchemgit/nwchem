@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.21 2006-04-20 23:12:35 edo Exp $
+* $Id: dft_gradients.F,v 1.22 2007-02-19 18:52:46 edo Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -453,6 +453,16 @@ c$$$      write(LuOut,*) (int_mb(icetobfr+i),i=0,2*nat-1)
      $     log_mb(k_act), nactive, 
      $     dbl_mb(irdens_atom),  int_mb(icetobfr))
       call ga_dgop(msg_grad_xc,  dbl_mb(k_frc_xc),  lforce, '+')
+      if(oprint_force_comps.and.me.eq.0)then
+            write(luout,2200) 
+     $           'XC gradient',
+     $           ((dbl_mb(k_frc_xc+i-1+3*(j-1)),i=1,3),j=1,nat)
+            write(luout,2200) 
+     $            'CD gradient',
+     $           ((dbl_mb(k_frc_2el+i-1+3*(j-1)),i=1,3),j=1,nat)
+      endif
+ 2200       format(A/,1000(3(1x,F12.6),/))
+      
       if (odftps) call pstat_off(ps_xc)
 c     
 c     vdW bit

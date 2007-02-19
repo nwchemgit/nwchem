@@ -5,7 +5,7 @@
      &                       iniz, ifin, rho, delrho, 
      &                       hess,  xyz,iscr,nscr,
      &                       expo, ccoef, Bmat, Fmat, 
-     &                       Pmat, dmat, rq, rdens_atom,  cetobfr, 
+     &                       Pmat, rq, rdens_atom,  cetobfr, 
      ,     ibf_ao,bas_cent_info,bas_cset_info,iscratch,docset,
      ,     rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
@@ -13,7 +13,7 @@
      ,     l3d,triplet,
      .     bas_cent_xinfo,bas_cset_xinfo,docsetx, tau,kske,Mmat)
 c
-c$Id: grid_quadv0b.F,v 1.48 2006-06-07 15:57:34 edo Exp $
+c$Id: grid_quadv0b.F,v 1.49 2007-02-19 18:52:47 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -128,6 +128,10 @@ c
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
      ,     ipol,iscratch)
+         if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
+     &        'Dmat', lDmat,iDmat))
+     &        call errquit('grid_quadv0b: cannot allocate Dmat',0,
+     &       MA_ERR)
       if(nqpts.eq.0) goto 2010
 
       wmax= dabsmax(nqpts,qwght)
@@ -137,7 +141,7 @@ c
      T        tol_rho,AO_bas_han,g_dens,nbf_ao_mxnbf_ce, 
      N        natoms, 1,1,1,
      I        ipol, nqpts, nbf_ao, mbf_ao, GRAD, (ipol*(ipol+1))/2,
-     F        Fmat, Pmat, Bmat, dmat,
+     F        Fmat, Pmat, Bmat, dbl_mb(idmat),
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, rdelchi_atom,
@@ -158,7 +162,7 @@ c
      T           tol_rho, AO_bas_han, g_dens, nbf_ao_mxnbf_ce, 
      N           natoms, 1,1, nmat+1,
      I           ipol, nqpts, nbf_ao, mbf_ao, GRAD, ipol,
-     F           Fmat, Pmat, Bmat, dmat,
+     F           Fmat, Pmat, Bmat, dbl_mb(idmat),
      &           dbl_mb(ichi_ao), dbl_mb(idelchi_ao), 0d0,
      &           ibf_ao, iniz, ifin, rho, delrho, 
      &           rchi_atom, 
@@ -219,10 +223,6 @@ c     add beta to 1 to get alpha+beta
      .        bas_cent_xinfo,bas_cset_xinfo,docsetx,
      ,     acc_xc_gauss)
       else
-         if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
-     &        'Dmat', lDmat,iDmat))
-     &        call errquit('grid_quadv0b: cannot allocate Dmat',0,
-     &       MA_ERR)
 c     
          if(do_scf) then
          if (odftps) call pstat_on(ps_tabcd)
@@ -284,10 +284,10 @@ c
      &       CALC_ERR)
          endif
 
-         if (.not.ma_pop_stack(lDmat))
-     &      call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
       endif
  2010 continue
+         if (.not.ma_pop_stack(lDmat))
+     &      call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
      ,        call errquit(' grid_quadv0b: grid_sicend failed',0,
@@ -306,7 +306,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.48 2006-06-07 15:57:34 edo Exp $
+C$Id: grid_quadv0b.F,v 1.49 2007-02-19 18:52:47 edo Exp $
 c
       implicit none
 #include "errquit.fh"
@@ -446,7 +446,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.48 2006-06-07 15:57:34 edo Exp $
+C$Id: grid_quadv0b.F,v 1.49 2007-02-19 18:52:47 edo Exp $
 c
       implicit none
 #include "errquit.fh"

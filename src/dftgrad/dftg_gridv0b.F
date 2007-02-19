@@ -3,7 +3,7 @@
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Fmat, Pmat, Dmat,  rq,
+     &                         Cmat2, Bmat, Fmat, Pmat, rq,
      &                         rq0, hh, 
      .     ibf_ao,bas_cent_info,bas_cset_info,docset,
      .     curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
@@ -16,7 +16,7 @@
      &                         cetobfr, tau, kske, Mmat,
      $                         ldbw, fact, dtype, nconstr)  ! Qin
 c      
-c     $Id: dftg_gridv0b.F,v 1.36 2007-02-13 22:23:30 bert Exp $
+c     $Id: dftg_gridv0b.F,v 1.37 2007-02-19 18:52:47 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -65,7 +65,7 @@ c
  
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
-     &                 Bmat(n_per_rec,*), Dmat(n_per_rec,3,max_at_bf)
+     &                 Bmat(n_per_rec,*)
       double precision Amat2(n_per_rec,NCOL_AMAT2)
       double precision Cmat2(n_per_rec,NCOL_CMAT2)
       double precision Pmat(max_at_bf*max_at_bf),
@@ -115,7 +115,7 @@ c
 c
       integer ncuratoms
       integer l_Acof2, k_Acof2, l_Ccof2, k_Ccof2
-      integer i_ccdel,l_ccdel
+      integer i_ccdel,l_ccdel,idmat,ldmat
 
 c     
 c           Evaluate the AO basis set at each of the quad. points.
@@ -195,19 +195,12 @@ c                 reduce delchi(nq,3,mbf_ao) to delchi(natoms)
      .        call util_rmsatbf(nqpts*3, natoms,iniz,ifin,
      ,           dbl_mb(idelchi_ao),rdelchi_atom)
 c         
-#if 0
-      if (.not.MA_Push_Get(mt_int, 6*n_per_rec, 'iscratch',
-     &     l_iscratch, i_iscratch))
-     &     call errquit('grid_quadv0a: cannot allocate bas_cset_info',0,
+      if (do_hess .or. do_cpks_r.or.kske) then
+         if (.not.MA_Push_Get(mt_dbl,nqpts*3*nbf_ao_mxnbf_ce,
+     A        'Dmat',lDmat,iDmat))
+     &        call errquit(' exiting in dftg_gridv0: insuff stack',131,
      &       MA_ERR)
-      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
-     ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
-     ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),mbf_ao,grad,
-     ,     ipol,int_mb(i_iscratch))
-      if (.not.ma_pop_stack(l_iscratch))
-     &     call errquit('dftggv0b: pop stack failed.',1, MA_ERR)
-      if(nqpts.eq.0) goto 2010
-#endif
+      endif
          
 c
                wmax= dabsmax(nqpts,qwght)
@@ -217,11 +210,12 @@ c
      &              natoms, 1,1,1,
      I              ipol, nqpts, nbf_ao, mbf_ao, grad,
      P              (ipol*(ipol+1))/2,
-     F              Fmat, Pmat, Bmat, Dmat,
+     F              Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao),0d0,
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
      &              rdens_atom, cetobfr,wmax, tau, kske)
+               if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
 c
                if (do_hess .or. do_cpks_r) then
                   call oactive_to_curatoms(oactive, natoms,
@@ -235,7 +229,7 @@ c
      &                 tol_rho, AO_bas_han, iga_dens,max_at_bf, 
      N                 natoms, curatoms, ncuratoms, 1,
      &                 ipol, nqpts, nbf_ao, mbf_ao, grad, ipol,
-     &                 Fmat, Pmat, Bmat, Dmat,
+     &                 Fmat, Pmat, Bmat, dbl_mb(iDmat),
      &                 dbl_mb(ichi_ao), dbl_mb(idelchi_ao),
      &                 dbl_mb(iheschi_ao), ibf_ao, iniz, ifin,
      &                 drhonuc, ddelrhonuc,
@@ -373,7 +367,7 @@ c
                   if (odftps) call pstat_on(ps_tabcd)
                   call xc_tabcd(1,.true.,
      T                 tol_rho, Fmat, Pmat, drhonuc, Bmat, ddelrhonuc,
-     &                 Dmat, 
+     &                 dbl_mb(iDmat), 
      N                 0d0,0d0,0d0,0d0,
      C                 Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
      &                 0d0,0,3*ncuratoms, 
@@ -393,7 +387,8 @@ c
                      call transform_Cmat(delrho, Cmat, ipol, nqpts)
                   endif
                   call xc_tabcd(2,.true.,
-     &                 tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dmat, 
+     &                 tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, 
+     D                 dbl_mb(iDmat), 
      N                 0d0,0d0,0d0,0d0,
      C                 Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 
      H                 dbl_mb(iheschi_ao),
@@ -406,7 +401,6 @@ c
 c
                   if (odftps) call pstat_off(ps_tabcd)
                endif
- 2010          continue
 c
                if (.not.ma_chop_stack(lchi_ao))
      &            call errquit('dftg_gridv0b: cannot chop stack',0,

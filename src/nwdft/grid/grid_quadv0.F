@@ -1,7 +1,7 @@
       Subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,
      ,     tmat)
 c
-C$Id: grid_quadv0.F,v 1.50 2007-02-15 00:07:52 bert Exp $
+C$Id: grid_quadv0.F,v 1.51 2007-02-19 18:52:47 edo Exp $
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)
@@ -57,7 +57,6 @@ c
      &        lqxyz, iqxyz, lqwght, iqwght, 
      &        lniz, iniz, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat,
-     D        ldmat,idmat,
      &        lhess, ihess, lrq, irq, 
      &        lfin, ifin, ltags, itags,
      &        ltau, itau,  lmmat, immat
@@ -186,13 +185,6 @@ c
      &   call errquit('grid_den: cannot allocate DENSF',0, MA_ERR)
       if (.not.MA_Push_Get(MT_dbl,nbf_ao_mxnbf_ce2,'DENS',lPmat,iPmat))
      &   call errquit('grid_den: cannot allocate DENS',0, MA_ERR)
-      if(kske) then
-         if (.not.MA_Push_Get(MT_dbl,n_per_rec*3*nbf_ao_mxnbf_ce2,
-     D        'DENS',ldmat,idmat))
-     &        call errquit('grid_den: cannot allocate DENS',0, MA_ERR)
-      else
-         idmat=0
-      endif
       if (.not.MA_Push_Get(MT_Dbl,len_rho,'rho',lrho,irho))
      &   call errquit('grid_den: cannot allocate rho',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho,
@@ -342,7 +334,7 @@ c
      .        dbl_mb(iscr),nscr,
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
-     &        dbl_mb(iPmat), dbl_mb(idmat),dbl_mb(irq), 
+     &        dbl_mb(iPmat), dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(irqbuf),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
@@ -377,7 +369,7 @@ c
      .        dbl_mb(iscr),nscr,
      &        dbl_mb(iexpo), dbl_mb(icoef), 
      &        dbl_mb(iBmat), dbl_mb(iFmat), 
-     &        dbl_mb(iPmat), dbl_mb(idmat),dbl_mb(irq), 
+     &        dbl_mb(iPmat), dbl_mb(irq), 
      &        dbl_mb(irdens_atom), int_mb(icetobfr),
      ,        int_mb(iibf_ao),dbl_mb(ibp),
      ,        dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),
@@ -402,6 +394,7 @@ c end Qin
 c     
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) call
      .     errquit(' gridquadv0: xcrepclose failed ',0, DISK_ERR)
+!      call ga_print(g_vxc(1))
       
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit('grid_den: cannot pop stack',0, MA_ERR)

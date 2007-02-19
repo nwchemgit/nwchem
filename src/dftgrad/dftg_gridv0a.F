@@ -3,7 +3,7 @@
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Fmat, Pmat, dmat, rq,
+     &                         Cmat2, Bmat, Fmat, Pmat, rq,
      &                         rq0, hh,  
      .     ibf_ao,curatoms,rchi_atom,rdelchi_atom,ppp,ff,zzz,
      .     drhonuc,ddelrhonuc,d2scr,nscr,
@@ -11,7 +11,7 @@
      &                         do_hess, do_cpks_r, natoms, oactive,
      &               nactive, rdens_atom, cetobfr, tau,Mmat)
 c      
-c     $Id: dftg_gridv0a.F,v 1.32 2007-02-15 00:09:05 bert Exp $
+c     $Id: dftg_gridv0a.F,v 1.33 2007-02-19 18:52:47 edo Exp $
 c     
       implicit none
 #include "errquit.fh"
@@ -60,7 +60,7 @@ c      double precision tau(n_per_rec,3,ipol)
        double precision tau(*), Mmat(*)
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
-     &                 Bmat(n_per_rec,*), Dmat(n_per_rec,3,max_at_bf)
+     &                 Bmat(n_per_rec,*)
       double precision Amat2(n_per_rec,NCOL_AMAT2)
       double precision Cmat2(n_per_rec,NCOL_CMAT2)
       double precision Pmat(max_at_bf*max_at_bf),
@@ -252,7 +252,7 @@ c Qin/end
      &                         rho_int, nqtot, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, xyzm,
      &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Fmat, Pmat, Dmat,  rq,
+     &                         Cmat2, Bmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,

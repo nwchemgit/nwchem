@@ -11,7 +11,7 @@
      &     iniz, ifin, rho, delrho, 
      &     hess, qwght, qxyz, xyz,iscr,
      &     expo, Bmat, Fmat, 
-     &     Pmat, dmat, rq,  rdens_atom, cetobfr, 
+     &     Pmat,  rq,  rdens_atom, cetobfr, 
      ,     ibf_ao,bp,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
@@ -24,7 +24,7 @@
      I     iandex,max_at_bf,curatoms,g_rhs,
      I     nbf_ao_mxnbf_ce2,nactive)
 c
-c$Id: dftg_loop.F,v 1.3 2005-09-27 00:35:01 edo Exp $
+c$Id: dftg_loop.F,v 1.4 2007-02-19 18:52:47 edo Exp $
 c
       implicit none
 #define USE_BP
@@ -130,7 +130,7 @@ c
      &                         rho_int, nq, iniz, ifin, rho, delrho,
      &                         func, d_qwght, qwght, qxyz, xyz, bp,
      &                         iandex, expo, Amat, Amat2, Cmat,
-     &                         Cmat2, Bmat, Dmat, Fmat, Pmat,  rq,
+     &                         Cmat2, Bmat, Fmat, Pmat,  rq,
      &                         rq0, hh, 
      .     ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .     log_mb(idocset),curatoms,rchi_atom,rdelchi_atom,ppp,

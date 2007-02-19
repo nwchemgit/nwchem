@@ -7,12 +7,12 @@
      &     iniz, ifin, rho, delrho, 
      &     hess,  xyz,iscr,nscr,
      &     expo, ccoef, Bmat, Fmat, 
-     &     Pmat, dmat,rq, rdens_atom, cetobfr, 
+     &     Pmat, rq, rdens_atom, cetobfr, 
      ,     ibf_ao,rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,g_vxc,amat2,cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d,triplet, tau, kske,Mmat)
-C$Id: grid_quadvc.F,v 1.25 2005-09-27 00:35:01 edo Exp $
+C$Id: grid_quadvc.F,v 1.26 2007-02-19 18:52:47 edo Exp $
       implicit none
 #include "errquit.fh"
 #include "cdft.fh"
@@ -107,7 +107,7 @@ c
      &        iniz, ifin, rho, delrho, 
      &        hess,  xyz,iscr,nscr,
      &        expo, ccoef, Bmat, Fmat, 
-     &        Pmat, dmat, rq,  rdens_atom, cetobfr, 
+     &        Pmat, rq,  rdens_atom, cetobfr, 
      ,        ibf_ao,int_mb(ibas_cent_info),int_mb(ibas_cset_info),
      .        int_mb(i_iscratch),
      '        log_mb(idocset),rchi_atom,rdelchi_atom,

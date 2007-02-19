@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.29 2007-02-13 22:23:30 bert Exp $
+c     $Id: dftg_gridv0.F,v 1.30 2007-02-19 18:52:46 edo Exp $
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.29 2007-02-13 22:23:30 bert Exp $
+c $Id: dftg_gridv0.F,v 1.30 2007-02-19 18:52:46 edo Exp $
 c     
       implicit none      
 #include "errquit.fh"
@@ -83,12 +83,12 @@ c
      &        lCmat, iCmat, lqxyz, iqxyz, lqwght, iqwght, ld_qwght, 
      &        id_qwght, lfunc, ifunc, lrq0, irq0, lrq, irq, lniz, iniz, 
      &        lfin, ifin, lexpo, iexpo, lcoef, icoef, lFmat, iFmat, 
-     &        lPmat, iPmat, lrho, irho, lBmat, iBmat, lDmat, iDmat,
+     &        lPmat, iPmat, lrho, irho, lBmat, iBmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
      &        ltags, itags,
      &        itau, ltau, iMmat, lMmat
       logical do_force, do_hess, do_cpks_r
-      integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat, len_Dmat
+      integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat
       integer lzzz,  izzz, lff, iff, lppp, ippp
       integer libf_ao, iibf_ao,k_curatoms,l_curatoms
       integer lrchi_atom, irchi_atom,
@@ -302,17 +302,6 @@ c
      &   call errquit(' exiting in dftg_gridv0: insuff stack',31,
      &       MA_ERR)
 c
-c     hessian and cpks rhs also need a Dmat
-c
-      if (do_hess .or. do_cpks_r.or.kske) then
-         len_Dmat = n_per_rec*3*nbf_ao_mxnbf_ce
-         if (.not.MA_Push_Get(mt_dbl,len_Dmat,'Dmat',lDmat,iDmat))
-     &        call errquit(' exiting in dftg_gridv0: insuff stack',131,
-     &       MA_ERR)
-      else
-         len_Dmat = 0
-      endif
-c
       if (.not.MA_Push_Get(mt_dbl,3*n_per_rec*max_at_bf,
      H     'hess scratch',lhh,ihh))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',32,
@@ -460,7 +449,7 @@ c
      &                   dbl_mb(iAmat), dbl_mb(k_Amat2),
      &                   dbl_mb(iCmat), dbl_mb(k_Cmat2),
      &                   dbl_mb(iBmat), 
-     &                   dbl_mb(iFmat), dbl_mb(iPmat), dbl_mb(iDmat),
+     &                   dbl_mb(iFmat), dbl_mb(iPmat),
      &                   dbl_mb(irq), dbl_mb(irq0), dbl_mb(ihh),
      ,     int_mb(iibf_ao),int_mb(k_curatoms),
      ,     dbl_mb(irchi_atom),dbl_mb(irdelchi_atom),dbl_mb(ippp),
@@ -485,7 +474,7 @@ c
      &        int_mb(iandex), dbl_mb(iexpo), dbl_mb(icoef),
      &          dbl_mb(iAmat), dbl_mb(k_Amat2),dbl_mb(iCmat), 
      &        dbl_mb(k_Cmat2), dbl_mb(iBmat), 
-     &      dbl_mb(iFmat), dbl_mb(iPmat), dbl_mb(iDmat),dbl_mb(irq), 
+     &      dbl_mb(iFmat), dbl_mb(iPmat),dbl_mb(irq), 
      &        dbl_mb(irq0), dbl_mb(ihh),
      ,        int_mb(iibf_ao),int_mb(k_curatoms),dbl_mb(irchi_atom),
      ,           dbl_mb(irdelchi_atom),dbl_mb(ippp),
@@ -503,10 +492,6 @@ c
      .     errquit(' dftggridv0: xcrepclose failed ',0, 0)
       if (.not.ma_chop_stack(lhh))
      &   call errquit('dftg_gridv0: cannot chop stack',1, MA_ERR)
-      if (do_hess .or. do_cpks_r) then
-         if (.not.ma_pop_stack(lDmat))
-     &      call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
-      endif
       if (.not.ma_chop_stack(lCmat))
      &   call errquit('dftg_gridv0: cannot pop stack',0, MA_ERR)
       if (do_hess .or. do_cpks_r) then

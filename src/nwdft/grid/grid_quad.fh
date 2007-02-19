@@ -12,7 +12,7 @@
       double precision rho(*), delrho(*), hess(1), 
      &                 Bmat(nbf_ao_mxnbf_ce*n_per_rec)
       integer ibf_ao(nbf_ao)
-      double precision Pmat(*), dmat(*),
+      double precision Pmat(*),
      &                 Fmat(*)
       double precision qwght(n_per_rec), qxyz(3,n_per_rec)
       double precision xyz(3,natoms)
