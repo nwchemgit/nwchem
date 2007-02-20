@@ -1,5 +1,5 @@
 *
-* $Id: Pneb.F,v 1.21 2007-02-12 21:02:42 d3p708 Exp $
+* $Id: Pneb.F,v 1.22 2007-02-20 21:45:17 d3p708 Exp $
 *
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
@@ -118,8 +118,25 @@ c     ***********************************
       implicit none
 #include "Pneb.fh"
       integer ne_in(2)
+      if (spin_orbit) then
+         if (ne_in(1).ne.ne_in(2)) then
+           write(*,*)"WARNING EXCITED NE(1) NOT EQUAL EXCITED NE(2)"
+           write(*,*)"AND SPIN ORBIT EQUAL TRUE!"
+           write(*,*)"USING MAX EXCITED NE!"
+           call flush(6)
+           if (ne_in(1).gt.ne_in(2)) then
+             ne_in(2)=ne_in(1)
+           else
+             ne_in(1)=ne_in(2)
+           end if
+         end if          
+      end if 
       ne(1)=ne_in(1)
       ne(2)=ne_in(2)
+cccccccccccccccccccccccccc
+cccccc temporary fix !
+cccccc fix me!!!!!!!
+cccccccccccccccccccccccccc
       neq(1)=ne_in(1)
       neq(2)=ne_in(2)
       return
