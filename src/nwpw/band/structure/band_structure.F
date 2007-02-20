@@ -1,5 +1,5 @@
 *
-* $Id: band_structure.F,v 1.21 2007-02-13 17:43:27 d3p708 Exp $
+* $Id: band_structure.F,v 1.22 2007-02-20 21:45:02 d3p708 Exp $
 *
 ***********************************************************************
 *                     band_structure								  *
@@ -390,7 +390,7 @@
 
 
 *     **** deallocate heap memory ****
-      value=cpsi_band_finalize(.true.)
+      value=cpsi_finalize(.true.)
 
       call c_electron_finalize()
       call c_geodesic_finalize()
@@ -510,7 +510,10 @@
          if (taskid.eq.MASTER) 
      >     write(luout,*) "band structure calculation"
       end if
-
+cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  The point by point band structure calculation
+c  begins here....
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call control_reset_band_structure()
       do k=1,control_num_kvectors_structure()
         ortho = .true.
@@ -544,6 +547,7 @@
       call cphafac_k()
 
 *     **** read in wavefunctions and initialize psi ****
+      call Pneb_set_ne(ne)
       if (.not.psi_filefind()) then
         call cpsi_new_ne(ispin,ne)
         newpsi = .true.
@@ -563,7 +567,6 @@
         end if
       end if
 
-      call Pneb_set_ne(ne)
       value = cpsi_initialize(.true.)
  
       if (flag.eq.2) call cpsi_dospsi_read(k)
