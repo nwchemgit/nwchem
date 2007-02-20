@@ -1,5 +1,5 @@
 *
-* $Id: c_wvfnc_new.F,v 1.9 2007-02-13 17:43:24 d3p708 Exp $
+* $Id: c_wvfnc_new.F,v 1.10 2007-02-20 21:44:50 d3p708 Exp $
 *
 
 *     **********************************************
@@ -64,8 +64,6 @@
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
       call ga_sync()
-      write(*,*)"WRITE WAVEFUN"
-      call flush(6)
       return
       end
 
