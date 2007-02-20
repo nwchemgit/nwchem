@@ -1,5 +1,5 @@
 *
-* $Id: setup_kbpp_band.f,v 1.4 2007-02-08 22:43:17 bylaska Exp $
+* $Id: setup_kbpp_band.f,v 1.5 2007-02-20 21:44:18 d3p708 Exp $
 *
 
 *     *****************************************************
@@ -112,7 +112,7 @@
 *     ---------------------
 *     volume of a unit cell
 *     ---------------------
-       volume=dabs(volume)
+      volume=dabs(volume)
 
       return
       end

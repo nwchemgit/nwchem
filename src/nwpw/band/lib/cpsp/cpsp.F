@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.36 2007-02-09 00:10:30 d3p708 Exp $
+* $Id: cpsp.F,v 1.37 2007-02-20 21:44:24 d3p708 Exp $
 *
 
 #define TCGMSG
@@ -579,10 +579,10 @@ c        call Cram_c_pack(0,dcpl_mb(exi(1)))
       logical value,sd_function
 
 *     **** external functions ****
-      logical  is_sORd
+      logical  is_sORd,cpsi_spin_orbit
       integer  ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       real*8   lattice_omega,brillioun_weight
-      external is_sORd
+      external is_sORd,cpsi_spin_orbit
       external ion_nion,ion_katm,c_G_indx,brillioun_nbrillioun
       external lattice_omega,brillioun_weight
 
@@ -1418,7 +1418,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #else
                  k = and(l_prj,1)
 #endif
-                 sd_function = (k.eq.0)
+                 sd_function = (l_prj.eq.0).or.(l_prj.eq.2)
 
 *                **** phase factor does not matter therefore ****
 *                **** (-i)^l is the same as (i)^l in the     ****
@@ -2273,7 +2273,7 @@ c       close(11)
 #else
               k = and(l_prj,1)
 #endif
-              sd_function = (k.eq.0)
+              sd_function = (l_prj.eq.0).or.(l_prj.eq.2)
 
 *             **** phase factor does not matter therefore ****
 *             **** (-i)^l is the same as (i)^l in the     ****

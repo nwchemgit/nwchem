@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral_band.F,v 1.6 2007-02-13 17:43:18 d3p708 Exp $
+* $Id: Tesseral_band.F,v 1.7 2007-02-20 21:44:18 d3p708 Exp $
 *
 
 
@@ -55,7 +55,7 @@
         gz = G(k1,k2,k3,3) + kvec(3)
         Q=DSQRT(gx*gx + gy*gy + gz*gz)
 
-        if (dabs(Q).lt.1.0d-9) then
+        if (dabs(Q).lt.1.0d-12) then
 	    Ylm(k1,k2,k3)=0.0d0
             if (l.eq.0) Ylm(k1,k2,k3)=P0
             goto 700
@@ -65,12 +65,21 @@
         gz=gz/Q
 
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
+C           if ((l.eq.3).and.(m.eq.-3)) 
+C     >       Ylm(k1,k2,k3)=P3*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+C     >                          /dsqrt(24.0d0)
+
            if ((l.eq.3).and.(m.eq.-3)) 
-     >       Ylm(k1,k2,k3)=P3*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+     >       Ylm(k1,k2,k3)=P3*GX*(GX*GX-GY*GY)
      >                          /dsqrt(24.0d0)
+
         
-           if ((l.eq.3).and.(m.eq.-2)) 
-     >     Ylm(k1,k2,k3)=P3*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
+C           if ((l.eq.3).and.(m.eq.-2)) 
+C     >     Ylm(k1,k2,k3)=P3*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
+C     >                          /dsqrt(24.0d0)
+         
+            if ((l.eq.3).and.(m.eq.-2)) 
+     >     Ylm(k1,k2,k3)=P3*GY*(GX*GX-GY*GY)
      >                          /dsqrt(24.0d0)
          
            if ((l.eq.3).and.(m.eq.-1)) 
@@ -80,16 +89,29 @@
            if ((l.eq.3).and.(m.eq.0)) 
      >     Ylm(k1,k2,k3)=P3*GX*GY*GZ
            
+c           if ((l.eq.3).and.(m.eq.1)) 
+c     >     Ylm(k1,k2,k3)=P3*GX*(5.0d0*GZ*GZ-1.0d0)
+c     >                          /dsqrt(40.0d0)
+
            if ((l.eq.3).and.(m.eq.1)) 
-     >     Ylm(k1,k2,k3)=P3*GX*(5.0d0*GZ*GZ-1.0d0)
+     >     Ylm(k1,k2,k3)=P3*GX*(4.0d0*GZ*GZ-GY*GY-GX*GX)
      >                          /dsqrt(40.0d0)
 
-           if ((l.eq.3).and.(m.eq.2)) 
-     >     Ylm(k1,k2,k3)=P3*GY*(5.0d0*GZ*GZ-1.0d0)
+
+C           if ((l.eq.3).and.(m.eq.2)) 
+C     >     Ylm(k1,k2,k3)=P3*GY*(5.0d0*GZ*GZ-1.0d0)
+C     >                          /dsqrt(40.0d0)
+
+            if ((l.eq.3).and.(m.eq.1)) 
+     >      Ylm(k1,k2,k3)=P3*GY*(4.0d0*GZ*GZ-GY*GY-GX*GX)
      >                          /dsqrt(40.0d0)
 
-           if ((l.eq.3).and.(m.eq.3)) 
-     >     Ylm(k1,k2,k3)=P3*GZ*(5.0d0*GZ*GZ-3.0d0)
+c           if ((l.eq.3).and.(m.eq.3)) 
+c     >     Ylm(k1,k2,k3)=P3*GZ*(5.0d0*GZ*GZ-3.0d0)
+c     >                          /dsqrt(60.0d0)
+
+            if ((l.eq.3).and.(m.eq.3)) 
+     >      Ylm(k1,k2,k3)=P3*GZ*(2.0d0*GZ*GZ-3.0d0*GY*GY-3.0d0*GX*GX)
      >                          /dsqrt(60.0d0)
 
 
