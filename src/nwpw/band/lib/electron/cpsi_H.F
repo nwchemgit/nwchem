@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_H.F,v 1.13 2007-02-08 22:12:50 bylaska Exp $
+* $Id: cpsi_H.F,v 1.14 2007-02-20 21:44:38 d3p708 Exp $
 *
 
       subroutine cpsi_H(ispin,ne,
@@ -307,7 +307,7 @@
       external cpsi_ne
 
       
-c      value=MA_set_auto_verify(.true.)
+      value=MA_set_auto_verify(.true.)
       ne1=cpsi_ne(1)
       call Cram_max_npack(npack1)
       call C3dB_nx(1,nx)
