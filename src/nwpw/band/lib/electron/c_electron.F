@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.28 2007-01-24 04:11:21 d3p708 Exp $
+* $Id: c_electron.F,v 1.29 2007-02-22 18:40:01 d3p708 Exp $
 *
 
 
@@ -953,7 +953,7 @@ cccccccccccccccccc
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call dcopy(2*nfft3d,dcpl_mb(vall(1)),1,vall_out,1)
+      call dcopy(4*nfft3d,dcpl_mb(vall(1)),1,vall_out,1)
       return
       end
 
@@ -971,7 +971,7 @@ cccccccccccccccccc
 #include "mafdecls.fh"
 #include "c_electron_common.fh"
 
-      call dcopy(2*nfft3d,vall_in,1,dcpl_mb(vall(1)),1)
+      call dcopy(4*nfft3d,vall_in,1,dcpl_mb(vall(1)),1)
       return
       end
 
@@ -1154,7 +1154,7 @@ c         end do
       call cpsp_v_local(dcpl_mb(vl(1)),
      >                  move,
      >                  dcpl_mb(tmp1(1)),
-     >                   dbl_mb(tmp2(1)))
+     >                  dbl_mb(tmp2(1)))
 
       value = MA_pop_stack(tmp2(2))
       value = value.and.
